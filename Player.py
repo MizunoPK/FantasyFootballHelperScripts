@@ -2,42 +2,48 @@ import csv
 import Constants
 
 class Player:
-    def __init__(self, name, position, team, adp, bye_week, injury_status):
+    def __init__(self, name, position, team, original_adp, bye_week, injury_status):
         self.name = name
         self.position = position.upper()
         self.team = team
-        self.adp = float(adp) if adp else None
+        self.original_adp = float(original_adp) if original_adp else None
+        self.weighted_adp = 0.0
         self.bye_week = int(bye_week) if bye_week else None
         self.injury_status = injury_status.lower()
+        self.score = 0  # Initialize score for ranking
 
     def __repr__(self):
-        return f"{self.name} ({self.position} - {self.team}) ADP: {self.adp} Bye: {self.bye_week} Injury: {self.injury_status}"
+        return f"{self.name} ({self.position} - {self.team}) ADP: {self.original_adp} Bye: {self.bye_week} Injury: {self.injury_status} [Score: {self.score}]"
 
 
 def load_players_from_csv(filename):
     players = []
     max_adp = 0.0
-    with open(filename, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            player = Player(
-                name=row['name'],
-                position=row['position'],
-                team=row['team'],
-                adp=float(row['adp']),
-                bye_week=row['bye_week'],
-                injury_status=row['injury_status']
-            )
-            players.append(player)
-            if player.adp and player.adp > max_adp:
-                max_adp = player.adp
+    try:
+        with open(filename, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                player = Player(
+                    name=row['name'],
+                    position=row['position'],
+                    team=row['team'],
+                    original_adp=float(row['adp']),
+                    bye_week=row['bye_week'],
+                    injury_status=row['injury_status']
+                )
+                players.append(player)
+                if player.original_adp and player.original_adp > max_adp:
+                    max_adp = player.original_adp
+    except FileNotFoundError:
+        print(f"File {filename} not found.")
+        return []
 
     # Change ADP values to be between 0 and 100
     for player in players:
-        if player.adp:
-            player.adp = (player.adp / max_adp) * Constants.ADP_BASE_SCORE if max_adp > 0 else 0
+        if player.original_adp:
+            player.weighted_adp = (player.original_adp / max_adp) * Constants.ADP_BASE_SCORE if max_adp > 0 else 0
         else:
-            player.adp = 0
+            player.weighted_adp = 0
 
     print(f"Loaded {len(players)} players from {filename}.")
 

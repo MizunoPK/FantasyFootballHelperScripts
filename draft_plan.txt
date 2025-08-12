@@ -1,3 +1,15 @@
+Score By:
+- Match for the position we are looking for
+- ADP score
+- Bye week penalties
+- Injury penalties
+
+
+
+
+
+
+
 Roster Needs / Position Scarcity
 
     Prioritize drafting players at positions where your roster is thin or below the minimum needed.

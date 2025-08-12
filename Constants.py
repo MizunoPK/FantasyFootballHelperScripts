@@ -29,8 +29,9 @@ STARTERS_REQ = {
 STARTER_BYE_WEIGHTS = {
     RB: 100,
     WR: 100,
-    QB: 60,
-    TE: 40,
+    FLEX: 60,
+    QB: 40,
+    TE: 60,
     K: 20,
     DEF: 20,
     MATCH: 500
