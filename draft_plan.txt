@@ -2,44 +2,11 @@ Score By:
 - Match for the position we are looking for
 - ADP score
 - Bye week penalties
+    - Score ultra low if there is another player in the same position with the same bye week
 - Injury penalties
 
 
+// TO ASK RENATO 
+Ideal team composition? Do I want extra RB/WR or 2 K/DEF?
 
 
-
-
-
-Roster Needs / Position Scarcity
-
-    Prioritize drafting players at positions where your roster is thin or below the minimum needed.
-
-    Consider how many players you already have at each position and max roster slots.
-
-    Factor in the starting lineup requirements (e.g., you must have at least 1 QB, 2 RBs, etc.) and bench depth for each position.
-
-Player Availability & Position Eligibility
-
-    Only recommend players who are not already drafted (i.e., not in team.csv).
-
-    Respect your position limits — for example, only suggest kickers if you don’t already have one.
-
-Player Quality — ADP and Injury Status
-
-    Use ADP (Average Draft Position) as a proxy for player value; lower ADP usually means a better player.
-
-    Prefer healthy players (exclude or deprioritize injured players).
-
-    Could also consider bye week conflicts (avoid drafting too many players with the same bye week).
-
-Flex Position Considerations
-
-    Remember your flex slot can be RB or WR, so your recommendation can consider those flexibly.
-
-    If you have fewer than required RBs or WRs for starters plus flex, prioritize accordingly.
-
-Team Composition Strategy
-
-    Balance starters vs bench slots — don’t fill your bench with all one position if you have starters missing.
-
-    Possibly weight the importance of positions based on scarcity in the league or your play style.
