@@ -11,7 +11,7 @@ CSV_FILE = "./data/players.csv"
 
 # CSV Headers for our draft helper
 HEADERS = [
-    "name", "position", "team", "adp", "bye_week", "injury_status"
+    "name", "position", "team", "adp", "bye_week", "injury_status", "id"
 ]
 
 # Sleeper API Endpoints
@@ -85,7 +85,8 @@ def create_csv(players_data, adp_data, bye_week_data):
                 team,
                 adp_data.get(pid, ""),
                 bye_week_data.get(team, 0) or 0,
-                pdata.get("injury_status", "Healthy") or "Healthy"
+                pdata.get("injury_status", "Healthy") or "Healthy",
+                pid
             ])
 
     print(f"✅ Created {CSV_FILE} with {sum(1 for _ in open(CSV_FILE)) - 1} players.")

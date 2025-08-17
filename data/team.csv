@@ -1,1 +1,10 @@
-name,position,team,adp,bye_week,injury_status
+name,position,team,adp,bye_week,injury_status,id
+Ja'Marr Chase,WR,CIN,1.9857142857142855,10,healthy,7564
+Bijan Robinson,RB,ATL,4.585714285714286,5,healthy,9509
+Jahmyr Gibbs,RB,DET,6.6571428571428575,8,healthy,9221
+Saquon Barkley,RB,PHI,8.357142857142858,9,healthy,4866
+Josh Allen,QB,BUF,10.685714285714285,7,healthy,4984
+T.J. Hockenson,TE,MIN,65.94285714285715,6,healthy,5844
+Tyler Warren,TE,IND,74.07142857142857,11,healthy,12518
+Brian Robinson,RB,WAS,91.61428571428571,12,healthy,8154
+Jayden Daniels,QB,WAS,14.62857142857143,12,healthy,11566

@@ -73,7 +73,7 @@ class FantasyTeam:
     # Method to check if a player is already drafted in this team
     def is_player_drafted(self, player):
         # Check if player already drafted in this team
-        return any(p.name == player.name for p in self.roster)
+        return any(p.id == player.id for p in self.roster)
     
     # Method to check if a player can be drafted as a FLEX position
     def is_draftable_flex(self, player):
@@ -82,25 +82,9 @@ class FantasyTeam:
             return False
         
         counts = self.get_position_counts()
-        # TODO: Refine this logic
-        # If both RB and WR limits have not been reached, it's draftable
-        # If either RB or WR limit is reached, it's draftable as long as the other position has space
-        # If both RB and WR limits are reached, it's draftable only if FLEX limit is not reached
-        # In any other case, it's not draftable
         
-
-
-
-        # Check if we've exceeded the FLEX limit
-        # total_flex = 0
-        # max_flex = Constants.MAX_POSITIONS[Constants.FLEX]
-        # for possible_flex in Constants.FLEX_ELIGIBLE_POSITIONS:
-        #     total_flex += counts.get(possible_flex, 0)
-        #     max_flex += Constants.MAX_POSITIONS[possible_flex]
-        # if total_flex >= max_flex:
-        #     return False
-        
-        return True
+        # Return whether the player's position is under the limit or if FLEX slot is available
+        return counts[player.position] < Constants.MAX_POSITIONS[player.position] or counts[Constants.FLEX] < Constants.MAX_POSITIONS[Constants.FLEX]
 
     # Method to check if a player can be drafted
     def can_draft(self, player):

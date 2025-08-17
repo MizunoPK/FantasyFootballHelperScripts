@@ -1,11 +1,10 @@
 import csv
 import Constants
 
-# FantasyTeam class to manage a fantasy football team
-# It holds drafted players, manages roster limits, and draft order
-# It also provides methods to draft players and check roster status
+# Class: Player
+# Represents a player in the fantasy football league with attributes like name, position, team, ADP, bye week, injury status, and ID.
 class Player:
-    def __init__(self, name, position, team, original_adp, bye_week, injury_status):
+    def __init__(self, name, position, team, original_adp, bye_week, injury_status, id):
         self.name = name
         self.position = position.upper()
         self.team = team
@@ -15,6 +14,7 @@ class Player:
         self.injury_status = injury_status.lower()
         self.score = 0  # Initialize score for ranking
         self.is_starter = False  # To be set when added to a FantasyTeam
+        self.id = id
 
     def __repr__(self):
         return f"{self.name} ({self.position} - {self.team}) ADP: {self.original_adp} Bye: {self.bye_week} Injury: {self.injury_status} [Score: {self.score}]"
@@ -38,7 +38,8 @@ def load_players_from_csv(filename):
                     team=row['team'],
                     original_adp=float(row['adp']),
                     bye_week=row['bye_week'],
-                    injury_status=row['injury_status']
+                    injury_status=row['injury_status'],
+                    id=row['id']
                 )
                 players.append(player)
                 if player.original_adp and player.original_adp > max_adp:

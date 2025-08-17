@@ -3,12 +3,7 @@ from collections import Counter, defaultdict
 
 from Player import load_players_from_csv
 from FantasyTeam import FantasyTeam
-import Constants
-
-# Local module imports
-from Player import load_players_from_csv  # Function to load players from a CSV file
-from FantasyTeam import FantasyTeam       # FantasyTeam class for managing team state
-import Constants                         # Centralized constants for configuration
+import Constants                # Centralized constants for configuration
 
 class DraftHelper:
     """
@@ -38,30 +33,30 @@ class DraftHelper:
     - Returns a score that can be used to rank players for drafting.
     """
     def score_player(self, p):
-            # Calculate Position score based on where we are in the draft, and what positions are needed
-            pos_score = self.compute_positional_need_score(p)
+        # Calculate Position score based on where we are in the draft, and what positions are needed
+        pos_score = self.compute_positional_need_score(p)
 
-            # Calculate ADP score: lower ADP means higher value, so we invert it
-            adp_score = self.compute_adp_score(p)
+        # Calculate ADP score: lower ADP means higher value, so we invert it
+        adp_score = self.compute_adp_score(p)
 
-            # Calculate bye week penalty based on overlap with current starters/bench
-            # This discourages drafting too many players with the same bye week
-            bye_penalty = self.compute_bye_penalty_for_player(p)
+        # Calculate bye week penalty based on overlap with current starters/bench
+        # This discourages drafting too many players with the same bye week
+        bye_penalty = self.compute_bye_penalty_for_player(p)
 
-            # Apply a penalty if the player is not healthy
-            # This deprioritizes injured players in recommendations
-            injury_penalty = self.compute_injury_penalty(p)
+        # Apply a penalty if the player is not healthy
+        # This deprioritizes injured players in recommendations
+        injury_penalty = self.compute_injury_penalty(p)
 
-            # Final score combines all factors
-            total_score = pos_score + adp_score - bye_penalty - injury_penalty
-            return total_score
+        # Final score combines all factors
+        total_score = pos_score + adp_score - bye_penalty - injury_penalty
+        return total_score
     
     # Function to compute the positional need score for a player
     # This considers how many players are already drafted at that position
     # And the pre-defined ideal draft order
     def compute_positional_need_score(self, p):
         score = 0
-        pos = p.position
+        pos = p.get_position_including_flex()
         
         # calculate score based on draft order
         draft_weights = self.team.get_next_draft_position_weights()
@@ -163,15 +158,15 @@ class DraftHelper:
         # Sort available players by score descending
         ranked_players = sorted(available_players, key=lambda x: x.score, reverse=True)
 
-        # Return top 5 recommended players
-        return ranked_players[:5]
+        # Return top recommended players
+        return ranked_players[:Constants.RECOMMENDATION_COUNT]
 
     # Function to save the drafted team to a CSV file
     # This allows the user to keep track of their drafted players
     def save_team(self):
         # Save drafted team to CSV
         with open(self.team_csv, 'w', newline='') as csvfile:
-            fieldnames = ['name', 'position', 'team', 'adp', 'bye_week', 'injury_status']
+            fieldnames = ['name', 'position', 'team', 'adp', 'bye_week', 'injury_status', 'id']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for p in self.team.roster:
@@ -181,7 +176,8 @@ class DraftHelper:
                     'team': p.team,
                     'adp': p.original_adp,
                     'bye_week': p.bye_week,
-                    'injury_status': p.injury_status
+                    'injury_status': p.injury_status,
+                    'id': p.id
                 })
 
     # Function to save the available players to a CSV file
@@ -189,7 +185,7 @@ class DraftHelper:
     def save_players(self):
         # Save drafted team to CSV
         with open(self.players_csv, 'w', newline='') as csvfile:
-            fieldnames = ['name', 'position', 'team', 'adp', 'bye_week', 'injury_status']
+            fieldnames = ['name', 'position', 'team', 'adp', 'bye_week', 'injury_status', 'id']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for p in self.players:
@@ -199,7 +195,8 @@ class DraftHelper:
                     'team': p.team,
                     'adp': p.original_adp,
                     'bye_week': p.bye_week,
-                    'injury_status': p.injury_status
+                    'injury_status': p.injury_status,
+                    'id': p.id
                 })
 
     # Function to get the user's choice of player to draft
@@ -257,7 +254,7 @@ class DraftHelper:
 
             # If running in simulation mode, delete the drafted player from available players
             if simulation:
-                self.players = [p for p in self.players if p.name != player_to_draft.name]
+                self.players = [p for p in self.players if p.id != player_to_draft.id]
                 self.save_players()
 
         # Print final roster after drafting is complete or user exits

@@ -5,6 +5,9 @@
 PLAYERS_CSV = './data/players.csv'
 TEAM_CSV = './data/team.csv'
 
+# Number of players to recommend
+RECOMMENDATION_COUNT = 10
+
 # Constants for player positions and their roles
 RB, WR, QB, TE, K, DEF, FLEX, MATCH = 'RB', 'WR', 'QB', 'TE', 'K', 'DEF', 'FLEX', 'MATCH'
 
@@ -44,11 +47,11 @@ DRAFT_ORDER = [
     {FLEX: 1.2},
     {FLEX: 1.2},
     {FLEX: 1.2},
-    {TE: 1.4, FLEX: 1.1},
-    {QB: 1.4, FLEX: 1.1},
+    {TE: 1.4, FLEX: 1.0},
+    {QB: 1.4, FLEX: 1.0},
     {FLEX: 1.2},
-    {TE: 1.4, FLEX: 1.1},
-    {QB: 1.4, FLEX: 1.1},
+    {TE: 1.3, FLEX: 1.0},
+    {QB: 1.3, FLEX: 1.0},
     {DEF: 1.0},
     {DEF: 1.0},
     {K: 1.0},
@@ -60,22 +63,22 @@ def get_ideal_draft_position(round):
     if round < len(DRAFT_ORDER):
         best_position = max(DRAFT_ORDER[round], key=DRAFT_ORDER[round].get)
         return best_position
-    return {FLEX: 1.0}  # Default to FLEX if out of range
+    return FLEX
 
 
 # SCORE WEIGHTS
-POS_NEEDED_SCORE = 150  # Weight for positional need in bench
+POS_NEEDED_SCORE = 200  # Weight for positional need in bench
 ADP_BASE_SCORE = 100  # Base score for ADP, higher is better
-PENALTY_INJURED = 50  # Penalty for injured players
+PENALTY_INJURED = 75  # Penalty for injured players
 # Weights for bye week penalties by position
-BASE_BYE_PENALTY = 20  # Base penalty for any bye week conflict
+BASE_BYE_PENALTY = 25  # Base penalty for any bye week conflict
 STARTER_BYE_WEIGHTS = {
     RB: 2.0,
     WR: 2.0,
-    QB: 1.0,
-    TE: 1.0,
+    QB: 1.5,
+    TE: 1.3,
     K: 0.5,
-    DEF: 0.25,
+    DEF: 0.5,
     MATCH: 10.0
 }
 # Bench weights as a fraction of starter weights
