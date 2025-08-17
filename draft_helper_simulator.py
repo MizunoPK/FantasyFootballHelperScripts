@@ -3,7 +3,15 @@ import os
 
 BASE_DATA_FOLDER = './data/simulation/'
 PLAYERS_CSV = BASE_DATA_FOLDER + 'players.csv'
-SIMULATION_PLAYERS = 12
+SIMULATION_PLAYERS = 8
+
+# Copy ./data/players.csv to the simulation folder and overwrite if exists
+if not os.path.exists(BASE_DATA_FOLDER):
+    os.makedirs(BASE_DATA_FOLDER)
+if os.path.exists(PLAYERS_CSV):
+    os.remove(PLAYERS_CSV)  # Remove existing file if it exists
+import shutil
+shutil.copy('./data/players.csv', PLAYERS_CSV)
 
 # Clear the last simulation team files if exists
 for i in range(SIMULATION_PLAYERS):

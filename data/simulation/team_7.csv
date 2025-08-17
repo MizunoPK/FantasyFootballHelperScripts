@@ -1,13 +1,16 @@
-name,position,team,adp,bye_week,injury_status
-Amon-Ra St. Brown,WR,DET,11.685714285714285,8,healthy
-Jonathan Taylor,RB,IND,28.185714285714287,11,healthy
-Travis Hunter,WR,JAX,44.9,8,healthy
-David Montgomery,RB,DET,70.11428571428571,8,healthy
-Jalen Hurts,QB,PHI,24.185714285714287,9,healthy
-Chris Olave,WR,NO,73.65714285714286,11,healthy
-David Njoku,TE,CLE,109.34285714285714,9,healthy
-Texans,DEF,HOU,211.9857142857143,6,healthy
-Chase McLaughlin,K,TB,258.34000000000003,9,healthy
-J.J. McCarthy,QB,MIN,102.65714285714286,6,healthy
-Jaylen Warren,RB,PIT,114.27142857142857,5,healthy
-Isaiah Likely,TE,BAL,140.5,7,questionable
+name,position,team,adp,bye_week,injury_status,id
+Amon-Ra St. Brown,WR,DET,11.685714285714285,8,healthy,7547
+Jonathan Taylor,RB,IND,28.185714285714287,11,healthy,6813
+Tee Higgins,WR,CIN,37.07142857142857,10,healthy,6801
+Patrick Mahomes,QB,KC,39.98571428571429,10,healthy,4046
+Quinshon Judkins,RB,CLE,56.871428571428574,9,healthy,12512
+DK Metcalf,WR,PIT,59.94285714285714,5,healthy,5846
+Kaleb Johnson,RB,PIT,69.12857142857142,5,healthy,12504
+Justin Herbert,QB,LAC,69.18571428571428,12,healthy,6797
+Dalton Kincaid,TE,BUF,102.32857142857142,7,healthy,10236
+Texans,DEF,HOU,211.9857142857143,6,healthy,HOU
+Dalton Schultz,TE,HOU,234.32857142857142,6,healthy,5001
+Chargers,DEF,LAC,252.0666666666667,12,healthy,LAC
+Tyler Loop,K,BAL,259.8333333333333,7,healthy,12711
+Jason Sanders,K,MIA,270.75,12,healthy,5119
+James Conner,RB,ARI,74.41428571428571,8,healthy,4137

@@ -1,6 +1,9 @@
 # Constants for Fantasy Football Helper Scripts
 # This file contains constants used across the application
 
+LOGGING_FILE = './data/log.txt'  # Log file path
+LOGGING_ENABLED = False  # Enable or disable logging
+
 # Constants for file paths
 PLAYERS_CSV = './data/players.csv'
 TEAM_CSV = './data/team.csv'
@@ -43,15 +46,15 @@ STARTERS_REQ = {
 # Example: In round 1, FLEX has weight 1.2, so it's prioritized
 # In round 5, TE has weight 1.4 and FLEX 1.1
 DRAFT_ORDER = [
-    {FLEX: 1.2},
-    {FLEX: 1.2},
-    {FLEX: 1.2},
-    {FLEX: 1.2},
-    {TE: 1.4, FLEX: 1.0},
-    {QB: 1.4, FLEX: 1.0},
-    {FLEX: 1.2},
-    {TE: 1.3, FLEX: 1.0},
-    {QB: 1.3, FLEX: 1.0},
+    {FLEX: 1.0},
+    {FLEX: 1.0},
+    {FLEX: 1.0},
+    {FLEX: 1.0},
+    {TE: 1.0, FLEX: 0.6},
+    {QB: 1.0, FLEX: 0.6},
+    {FLEX: 1.0},
+    {TE: 1.0, FLEX: 0.6},
+    {QB: 1.0, FLEX: 0.6},
     {DEF: 1.0},
     {DEF: 1.0},
     {K: 1.0},
@@ -67,11 +70,11 @@ def get_ideal_draft_position(round):
 
 
 # SCORE WEIGHTS
-POS_NEEDED_SCORE = 200  # Weight for positional need in bench
+POS_NEEDED_SCORE = 60  # Weight for positional need
 ADP_BASE_SCORE = 100  # Base score for ADP, higher is better
-PENALTY_INJURED = 75  # Penalty for injured players
+PENALTY_INJURED = 50  # Penalty for injured players
 # Weights for bye week penalties by position
-BASE_BYE_PENALTY = 25  # Base penalty for any bye week conflict
+BASE_BYE_PENALTY = 50  # Base penalty for any bye week conflict
 STARTER_BYE_WEIGHTS = {
     RB: 2.0,
     WR: 2.0,
@@ -79,10 +82,9 @@ STARTER_BYE_WEIGHTS = {
     TE: 1.3,
     K: 0.5,
     DEF: 0.5,
-    MATCH: 10.0
+    MATCH: 6.0
 }
-# Bench weights as a fraction of starter weights
-BENCH_WEIGHT_FACTOR = 0.5
+BENCH_WEIGHT_FACTOR = 0.9
 
 # The possible bye weeks for players
 POSSIBLE_BYE_WEEKS = [5,6,7,8,9,10,11,12]

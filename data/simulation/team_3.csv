@@ -1,15 +1,16 @@
-name,position,team,adp,bye_week,injury_status
-Jahmyr Gibbs,RB,DET,6.6571428571428575,8,healthy
-Ladd McConkey,WR,LAC,22.842857142857145,12,questionable
-Chase Brown,RB,CIN,39.0,10,healthy
-DJ Moore,WR,CHI,58.199999999999996,5,healthy
-Lamar Jackson,QB,BAL,13.042857142857143,7,healthy
-George Pickens,WR,DAL,67.98571428571428,10,healthy
-Mark Andrews,TE,BAL,89.85714285714286,7,healthy
-Broncos,DEF,DEN,189.77142857142857,12,healthy
-Chris Boswell,K,PIT,252.29999999999998,5,healthy
-Tony Pollard,RB,TEN,93.85714285714286,10,healthy
-Josh Downs,WR,IND,110.75714285714285,11,healthy
-Najee Harris,RB,LAC,120.12857142857142,12,pup
-Darnell Mooney,WR,ATL,136.65714285714287,5,questionable
-Dallas Goedert,TE,PHI,150.55714285714288,9,healthy
+name,position,team,adp,bye_week,injury_status,id
+Jahmyr Gibbs,RB,DET,6.6571428571428575,8,healthy,9221
+Brock Bowers,TE,LV,12.285714285714286,8,healthy,11604
+Drake London,WR,ATL,19.657142857142855,5,healthy,8112
+Joe Burrow,QB,CIN,22.642857142857142,10,healthy,6770
+Garrett Wilson,WR,NYJ,32.471428571428575,9,healthy,8146
+Terry McLaurin,WR,WAS,44.48571428571428,12,healthy,5927
+Baker Mayfield,QB,TB,66.48571428571428,9,healthy,4892
+Mark Andrews,TE,BAL,89.85714285714286,7,healthy,5012
+Aaron Jones,RB,MIN,93.01428571428572,6,healthy,4199
+Michael Pittman,WR,IND,129.4,11,healthy,6819
+Ray Davis,RB,BUF,162.25714285714284,7,healthy,11575
+Steelers,DEF,PIT,185.54285714285714,5,healthy,PIT
+Titans,DEF,TEN,234.23333333333335,10,healthy,TEN
+Harrison Butker,K,KC,239.26666666666665,10,healthy,4227
+Younghoe Koo,K,ATL,276.6666666666667,5,healthy,4666

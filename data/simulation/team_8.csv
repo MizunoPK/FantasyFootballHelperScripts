@@ -1,13 +1,16 @@
-name,position,team,adp,bye_week,injury_status
-Puka Nacua,WR,LAR,12.785714285714286,8,healthy
-Josh Jacobs,RB,GB,31.557142857142857,5,healthy
-Tyreek Hill,WR,MIA,50.42857142857143,12,questionable
-James Conner,RB,ARI,74.41428571428571,8,healthy
-Patrick Mahomes,QB,KC,39.98571428571429,10,healthy
-Tyler Warren,TE,IND,74.07142857142857,11,healthy
-Matthew Golden,WR,GB,89.2,5,healthy
-Brandon Aubrey,K,DAL,224.26666666666665,10,healthy
-Seahawks,DEF,SEA,234.1142857142857,8,healthy
-Calvin Ridley,WR,TEN,102.71428571428571,10,healthy
-Cooper Kupp,WR,SEA,116.12857142857142,8,healthy
-Michael Penix,QB,ATL,125.05714285714285,5,healthy
+name,position,team,adp,bye_week,injury_status,id
+Puka Nacua,WR,LAR,12.785714285714286,8,healthy,9493
+Josh Jacobs,RB,GB,31.557142857142857,5,healthy,5850
+Chase Brown,RB,CIN,39.0,10,healthy,9224
+RJ Harvey,RB,DEN,57.857142857142854,12,healthy,12489
+Jerry Jeudy,WR,CLE,81.72857142857143,9,healthy,6783
+Jared Goff,QB,DET,95.04285714285713,8,healthy,3163
+J.J. McCarthy,QB,MIN,102.65714285714286,6,healthy,11565
+David Njoku,TE,CLE,109.34285714285714,9,healthy,4033
+Keon Coleman,WR,BUF,122.12857142857142,7,healthy,11637
+Pat Freiermuth,TE,PIT,166.18571428571428,5,healthy,7600
+Adonai Mitchell,WR,IND,235.77142857142857,11,healthy,11625
+Chiefs,DEF,KC,237.08571428571426,10,healthy,KC
+Dolphins,DEF,MIA,252.33333333333334,12,healthy,MIA
+Matt Gay,K,WAS,292.2,12,healthy,6083
+Tyler Bass,K,BUF,255.98333333333335,7,questionable,7042

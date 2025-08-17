@@ -1,14 +1,16 @@
-name,position,team,adp,bye_week,injury_status
-Ja'Marr Chase,WR,CIN,1.9857142857142855,10,healthy
-Bucky Irving,RB,TB,23.042857142857144,9,healthy
-Garrett Wilson,WR,NYJ,32.471428571428575,9,healthy
-RJ Harvey,RB,DEN,57.857142857142854,12,healthy
-Josh Allen,QB,BUF,10.685714285714285,7,healthy
-Davante Adams,WR,LAR,67.4,8,healthy
-Colston Loveland,TE,CHI,88.27142857142857,5,healthy
-Eagles,DEF,PHI,181.05714285714288,9,healthy
-Harrison Butker,K,KC,239.26666666666665,10,healthy
-Jordan Love,QB,GB,91.3,5,healthy
-Jakobi Meyers,WR,LV,108.88571428571429,8,healthy
-Jake Ferguson,TE,DAL,133.4142857142857,10,questionable
-Rashid Shaheed,WR,NO,148.82857142857142,11,healthy
+name,position,team,adp,bye_week,injury_status,id
+Ja'Marr Chase,WR,CIN,1.9857142857142855,10,healthy,7564
+Jayden Daniels,QB,WAS,14.62857142857143,12,healthy,11566
+Brian Thomas,WR,JAX,15.185714285714285,8,healthy,11631
+Breece Hall,RB,NYJ,32.27142857142857,9,healthy,8155
+James Cook,RB,BUF,40.042857142857144,7,healthy,8138
+Kenneth Walker,RB,SEA,50.48571428571428,8,healthy,8151
+Alvin Kamara,RB,NO,58.199999999999996,11,healthy,4035
+T.J. Hockenson,TE,MIN,65.94285714285715,6,healthy,5844
+Caleb Williams,QB,CHI,72.37142857142857,5,healthy,11560
+Kyle Pitts,TE,ATL,118.95714285714287,5,healthy,7553
+Commanders,DEF,WAS,193.17142857142855,12,healthy,WAS
+Vikings,DEF,MIN,198.6142857142857,6,healthy,MIN
+Brandon Aubrey,K,DAL,224.26666666666665,10,healthy,11533
+Will Reichard,K,MIN,264.85,6,healthy,11792
+Courtland Sutton,WR,DEN,75.08571428571429,12,healthy,5045
