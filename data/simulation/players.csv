@@ -17,7 +17,6 @@ Noah Gray,TE,KC,257.7,10,healthy,7828
 Dallas Turner,LB,MIN,297.0,6,healthy,11667
 Patriots,DEF,NE,257.3285714285714,14,healthy,NE
 Joe Milton,QB,DAL,288.5,10,healthy,11557
-Justice Hill,RB,BAL,238.05714285714288,7,healthy,5995
 Alex Anzalone,LB,DET,281.0,8,healthy,4118
 Julian Love,DB,SEA,197.3,8,healthy,5876
 Efton Chism,WR,NE,278.3,14,healthy,12542
@@ -32,23 +31,25 @@ Cade Otton,TE,TB,177.9857142857143,9,healthy,8111
 Bradley Chubb,LB,MIA,375.1,12,healthy,4967
 Odafe Oweh,LB,BAL,385.3,7,healthy,7626
 Khalil Herbert,RB,IND,299.5,11,questionable,7608
+Harrison Butker,K,KC,239.26666666666665,10,healthy,4227
 Isaiah Davis,RB,NYJ,269.925,9,questionable,11571
 Quincy Williams,LB,NYJ,203.4,9,healthy,6214
+Younghoe Koo,K,ATL,276.6666666666667,5,healthy,4666
 Brandin Cooks,WR,NO,279.65,11,healthy,2197
 Daniel Jones,QB,IND,234.42,11,healthy,5870
 George Karlaftis,DL,KC,251.3,10,healthy,8385
 TreVeyon Henderson,RB,NE,50.4,14,healthy,12529
 Isaac TeSlaa,WR,DET,247.02857142857144,8,healthy,12535
-D'Andre Swift,RB,CHI,83.3,5,healthy,6790
 Geno Smith,QB,LV,195.02857142857144,8,healthy,1373
 Tua Tagovailoa,QB,MIA,162.42857142857142,12,healthy,6768
 Devin Singletary,RB,NYG,285.7,14,healthy,6130
 Zach Wilson,QB,MIA,292.8,12,healthy,7538
 Elijah Mitchell,RB,KC,278.96,10,healthy,7561
-Brian Robinson,RB,WAS,91.61428571428571,12,healthy,8154
 Michael Wilson,WR,ARI,256.4714285714286,8,healthy,10232
 Nick Emmanwori,DB,SEA,286.4,8,healthy,12597
+Steelers,DEF,PIT,185.54285714285714,5,healthy,PIT
 Jordan Love,QB,GB,91.3,5,questionable,6804
+Matt Gay,K,WAS,292.2,12,healthy,6083
 Demario Davis,LB,NO,340.0,11,healthy,1052
 Chris Godwin,WR,TB,96.48571428571428,9,pup,4037
 Azeez Al-Shaair,LB,HOU,211.1,6,healthy,6485
@@ -57,6 +58,7 @@ Allen Lazard,WR,NYJ,267.5,9,questionable,5185
 Jake Ferguson,TE,DAL,133.4142857142857,10,questionable,8110
 E.J. Speed,LB,HOU,287.2,6,healthy,6218
 Will McDonald,DE,NYJ,310.3,9,questionable,10883
+Zach Ertz,TE,WAS,189.08571428571432,12,healthy,1339
 Devin Lloyd,LB,JAX,255.3,8,healthy,8329
 Trey Benson,RB,ARI,136.78571428571428,8,healthy,11589
 Kerby Joseph,DB,DET,237.4,8,healthy,8348
@@ -66,6 +68,7 @@ Seahawks,DEF,SEA,234.1142857142857,8,healthy,SEA
 Calvin Austin,WR,PIT,261.7,5,questionable,8125
 Dyami Brown,WR,JAX,253.04999999999998,8,healthy,7587
 Raiders,DEF,LV,281.0,8,healthy,LV
+Evan McPherson,K,CIN,257.12,10,healthy,7839
 Jalen Tolbert,WR,DAL,291.65,10,healthy,8117
 Yaya Diaby,DL,TB,283.0,9,healthy,10921
 Sam LaPorta,TE,DET,44.18571428571429,8,questionable,10859
@@ -81,12 +84,12 @@ Jake Moody,K,SF,271.95,14,healthy,10937
 Jalen McMillan,WR,TB,153.18571428571428,9,questionable,11618
 Nick Cross,DB,IND,146.5,11,questionable,8392
 Trey Hendrickson,DE,CIN,169.5,10,healthy,4135
-Davante Adams,WR,LAR,67.4,8,healthy,2133
 Aaron Rodgers,QB,PIT,215.81428571428572,5,healthy,96
 Deebo Samuel,WR,WAS,107.8,12,healthy,5872
 Jamien Sherwood,LB,NYJ,172.0,9,healthy,7841
 Brenton Strange,TE,JAX,183.18571428571428,8,healthy,9480
-Tyler Shough,QB,NO,214.35714285714286,11,healthy,12545
+Chase McLaughlin,K,TB,258.34000000000003,9,healthy,6650
+James Conner,RB,ARI,74.41428571428571,8,healthy,4137
 Brandon Jones,DB,DEN,227.4,12,healthy,6911
 Laiatu Latu,DL,IND,305.3,11,healthy,11669
 Sean Tucker,RB,TB,267.65,9,healthy,9506
@@ -98,21 +101,19 @@ Isaac Guerendo,RB,SF,156.29999999999998,14,questionable,11651
 Andrew Van Ginkel,LB,MIN,165.9,6,healthy,6183
 Zach Allen,DE,DEN,303.2,12,healthy,5871
 Tyler Higbee,TE,LAR,275.775,8,healthy,3271
-Nick Chubb,RB,HOU,186.17142857142858,6,healthy,4988
 Ricky Pearsall,WR,SF,98.55714285714285,14,healthy,11638
 Emeka Egbuka,WR,TB,88.0,9,healthy,12514
 Jonathon Cooper,DL,DEN,281.7,12,healthy,7765
 Bryce Young,QB,CAR,140.28571428571428,14,healthy,9228
 Terrance Ferguson,TE,LAR,199.78571428571428,8,questionable,12487
+Cowboys,DEF,DAL,276.8666666666666,10,healthy,DAL
 Luke McCaffrey,WR,WAS,268.6666666666667,12,healthy,11650
 Rico Dowdle,RB,CAR,182.72857142857143,14,healthy,7021
 Roman Wilson,WR,PIT,244.71428571428572,5,healthy,11630
-George Pickens,WR,DAL,67.98571428571428,10,healthy,8137
 Theo Johnson,TE,NYG,239.47142857142856,14,healthy,11597
 Braelon Allen,RB,NYJ,176.77142857142857,9,healthy,11576
 Dorian Williams,LB,BUF,380.2,7,healthy,10923
 Elijah Moore,WR,BUF,268.125,7,healthy,7596
-Austin Ekeler,RB,WAS,180.85714285714286,12,healthy,4663
 Keaton Mitchell,RB,BAL,245.0666666666667,7,questionable,9511
 Tahj Brooks,RB,CIN,251.52857142857144,10,healthy,12543
 Bobby Okereke,LB,NYG,149.2,14,healthy,5944
@@ -120,9 +121,9 @@ Blake Corum,RB,LAR,190.29999999999998,8,healthy,11586
 James Pearce,DL,ATL,304.2,5,healthy,12585
 Woody Marks,RB,HOU,238.6,6,healthy,12474
 Tyreek Hill,WR,MIA,50.42857142857143,12,questionable,3321
+Chargers,DEF,LAC,252.0666666666667,12,healthy,LAC
 Tutu Atwell,WR,LAR,280.34000000000003,8,healthy,7562
 T.J. Watt,LB,PIT,100.3,5,healthy,4070
-Tyler Allgeier,RB,ATL,177.29999999999998,5,healthy,8132
 Jimmy Horn,WR,CAR,245.73333333333335,14,healthy,12523
 Savion Williams,WR,GB,243.76666666666665,5,healthy,12482
 Kam Curl,DB,LAR,394.1,8,healthy,7136
@@ -137,7 +138,7 @@ Jordan Battle,DB,CIN,291.3,10,healthy,10927
 Andrei Iosivas,WR,CIN,254.96666666666667,10,healthy,10226
 Maxx Crosby,DE,LV,97.2,8,healthy,5991
 Malachi Corley,WR,NYJ,296.9,9,healthy,11617
-Calvin Ridley,WR,TEN,102.71428571428571,10,healthy,4981
+Buccaneers,DEF,TB,232.05714285714288,9,healthy,TB
 Kenny Pickett,QB,CLE,272.25,9,questionable,8160
 Chop Robinson,DE,MIA,374.6,12,healthy,11663
 Will Shipley,RB,PHI,246.70000000000002,9,healthy,11577
@@ -151,6 +152,7 @@ Justin Fields,QB,NYJ,119.0,9,healthy,7591
 Amari Cooper,WR,,233.1833333333333,0,healthy,2309
 Byron Young,LB,LAR,298.9,8,healthy,10917
 Drue Tranquill,LB,KC,399.5,10,questionable,6141
+Jason Sanders,K,MIA,270.75,12,healthy,5119
 Alex Singleton,LB,DEN,182.3,12,healthy,2617
 Jaylin Lane,WR,WAS,257.275,12,healthy,12641
 Tre Tucker,WR,LV,279.0,8,healthy,10213
@@ -165,7 +167,6 @@ Tyler Nubin,DB,NYG,244.8,14,healthy,11674
 Riley Leonard,QB,IND,269.7,11,healthy,12470
 Mitchell Evans,TE,CAR,298.4,14,healthy,12473
 DeMarvion Overshown,LB,DAL,376.2,10,pup,10933
-Dallas Goedert,TE,PHI,150.55714285714288,9,healthy,5022
 Adam Thielen,WR,CAR,202.20000000000002,14,healthy,1689
 Ollie Gordon,RB,MIA,220.62857142857143,12,healthy,12495
 Jalen Carter,DL,PHI,209.3,9,healthy,10888
@@ -178,6 +179,7 @@ Jaguars,DEF,JAX,282.96666666666664,8,healthy,JAX
 De'Von Achane,RB,MIA,19.657142857142855,12,questionable,9226
 Marvin Mims,WR,DEN,148.4,12,healthy,9494
 Jalon Walker,DL,ATL,207.5,5,questionable,12568
+Michael Penix,QB,ATL,125.05714285714285,5,healthy,11559
 Mike Gesicki,TE,CIN,210.6,10,questionable,4993
 Rams,DEF,LAR,260.54285714285714,8,healthy,LAR
 Lavonte David,LB,TB,247.5,9,healthy,1192
@@ -187,6 +189,7 @@ Travis Hunter,WR,JAX,44.9,8,questionable,12530
 Devin Neal,RB,NO,185.31428571428572,11,questionable,12476
 Will Howard,QB,PIT,250.9,5,questionable,12511
 Bhayshul Tuten,RB,JAX,138.8,8,healthy,12490
+Chris Boswell,K,PIT,252.29999999999998,5,healthy,1945
 Nick Nash,WR,ATL,274.6,5,healthy,12478
 Jaydon Blue,RB,DAL,135.31428571428572,10,questionable,12457
 Tre'von Moehrig,DB,CAR,317.8,14,healthy,7659
@@ -197,19 +200,19 @@ Malik Nabers,WR,NYG,9.62857142857143,14,questionable,11632
 Kyle Hamilton,DB,BAL,113.4,7,healthy,8339
 Hollywood Brown,WR,KC,184.35714285714286,10,questionable,5848
 Cooper DeJean,DB,PHI,216.0,9,healthy,11678
-Anthony Richardson,QB,IND,175.37142857142857,11,healthy,9229
 Grant Delpit,DB,CLE,260.4,9,healthy,6799
 Greg Rousseau,DE,BUF,279.9,7,healthy,7627
 Elic Ayomanor,WR,TEN,209.54285714285714,10,healthy,12499
 Micah Parsons,LB,DAL,89.2,10,questionable,7640
 Jaylon Carlies,DB,IND,368.2,11,questionable,11777
+Jared Goff,QB,DET,95.04285714285713,8,healthy,3163
 Cooper Kupp,WR,SEA,116.12857142857142,8,healthy,4039
 Jack Bech,WR,LV,140.92857142857142,8,healthy,12483
 Mason Graham,DL,CLE,287.9,9,healthy,12573
 Danielle Hunter,DE,HOU,178.2,6,healthy,2393
 Jonathan Greenard,DE,MIN,202.0,6,healthy,6900
+Saints,DEF,NO,282.8333333333333,11,healthy,NO
 Packers,DEF,GB,259.35714285714283,5,healthy,GB
-Jameson Williams,WR,DET,68.64285714285714,8,healthy,8148
 Cedric Tillman,WR,CLE,186.6142857142857,9,healthy,10444
 Darnell Mooney,WR,ATL,136.65714285714287,5,questionable,7090
 George Kittle,TE,SF,46.457142857142856,14,healthy,4217
@@ -236,7 +239,6 @@ Kevin Byard,DB,CHI,290.4,5,healthy,3233
 Will Anderson,DL,HOU,125.7,6,healthy,10892
 Jordyn Brooks,LB,MIA,160.4,12,healthy,6949
 MarShawn Lloyd,RB,GB,225.1142857142857,5,healthy,11581
-Jaylin Noel,WR,HOU,185.32857142857142,6,healthy,12536
 Nik Bonitto,LB,DEN,134.8,12,questionable,8280
 DeShon Elliott,DB,PIT,328.5,5,healthy,5071
 Pat Bryant,WR,DEN,194.4,12,healthy,12492
@@ -255,19 +257,16 @@ Jalen Pitre,DB,HOU,339.0,6,healthy,8314
 Jonathon Brooks,RB,CAR,233.425,14,pup,11583
 Daiyan Henley,LB,LAC,199.2,12,healthy,10914
 Tory Horton,WR,SEA,248.07142857142858,8,questionable,12497
-Dylan Sampson,RB,CLE,163.84285714285716,9,healthy,12469
 Josh Hines-Allen,DE,JAX,212.2,8,healthy,5840
 Abdul Carter,DL,NYG,142.0,14,healthy,12574
 Zack Moss,RB,,276.09999999999997,0,questionable,6845
+Dolphins,DEF,MIA,252.33333333333334,12,healthy,MIA
 Gunnar Helm,TE,TEN,255.4,10,healthy,12502
-Rashod Bateman,WR,BAL,165.45714285714286,7,healthy,7571
 T.J. Edwards,LB,CHI,112.9,5,healthy,5960
 Sauce Gardner,DB,NYJ,299.0,9,questionable,8290
 Nolan Smith,LB,PHI,296.0,9,healthy,10873
 Harold Landry,LB,NE,219.6,14,healthy,5030
-Christian Kirk,WR,HOU,171.68571428571428,6,healthy,4950
 Jalen Coker,WR,CAR,221.42857142857142,14,questionable,11646
-Mason Taylor,TE,NYJ,157.97142857142856,9,healthy,12498
 Cam Skattebo,RB,NYG,94.92857142857143,14,questionable,12481
 Josh Sweat,DE,ARI,383.9,8,healthy,4999
 Jordan Whittington,WR,LAR,259.8,8,healthy,11623
@@ -277,7 +276,6 @@ Tank Bigsby,RB,JAX,149.25714285714284,8,healthy,9225
 Lions,DEF,DET,228.1142857142857,8,healthy,DET
 Joe Mixon,RB,HOU,60.028571428571425,6,pup,4018
 AJ Barner,TE,SEA,299.4,8,healthy,11603
-Joshua Palmer,WR,BUF,212.85714285714286,7,healthy,7670
 Aidan Hutchinson,DL,DET,106.9,8,healthy,8289
 Rhamondre Stevenson,RB,NE,132.4142857142857,14,questionable,7611
 Kyle Williams,WR,NE,143.0142857142857,14,healthy,12547
@@ -285,7 +283,6 @@ Ivan Pace,LB,MIN,289.7,6,healthy,11086
 Romeo Doubs,WR,GB,208.41428571428574,5,questionable,8121
 Reed Blankenship,DB,PHI,311.4,9,healthy,8406
 Dillon Gabriel,QB,CLE,247.79999999999998,9,healthy,12486
-Jaylen Warren,RB,PIT,114.27142857142857,5,healthy,8228
 Spencer Rattler,QB,NO,285.06666666666666,11,healthy,11562
 49ers,DEF,SF,198.62857142857143,14,healthy,SF
 Xavier Legette,WR,CAR,170.29999999999998,14,healthy,11626
@@ -306,6 +303,7 @@ Christian Gonzalez,DB,NE,371.4,14,questionable,10881
 Giants,DEF,NYG,256.12857142857143,14,healthy,NYG
 Paulson Adebo,CB,NYG,365.6,14,healthy,7669
 Isaiah Bond,WR,CLE,295.6,9,healthy,12503
+Titans,DEF,TEN,234.23333333333335,10,healthy,TEN
 Zack Baun,LB,PHI,117.9,9,questionable,6815
 Jordan James,RB,SF,219.20000000000002,14,questionable,12467
 Chris Olave,WR,NO,73.65714285714286,11,questionable,8144
@@ -332,6 +330,7 @@ Dexter Lawrence,DT,NYG,323.0,14,questionable,5847
 Najee Harris,RB,LAC,120.12857142857142,12,pup,7528
 Michael Mayer,TE,LV,273.6333333333333,8,healthy,9482
 Jeremy Chinn,DB,LV,223.3,8,healthy,7016
+Tyler Bass,K,BUF,255.98333333333335,7,questionable,7042
 Roschon Johnson,RB,CHI,202.71428571428572,5,questionable,10235
 Sam Howell,QB,MIN,281.0,6,healthy,8162
 Jarquez Hunter,RB,LAR,214.31428571428572,8,healthy,11569
@@ -356,6 +355,7 @@ Zach Charbonnet,RB,SEA,113.55714285714285,8,healthy,9753
 Mac Jones,QB,SF,299.7,14,healthy,7527
 Derek Stingley,DB,HOU,377.3,6,healthy,8308
 Terrel Bernard,LB,BUF,163.7,7,questionable,8311
+Dalton Schultz,TE,HOU,234.32857142857142,6,healthy,5001
 Jaylen Wright,RB,MIA,182.84285714285716,12,healthy,11643
 Travon Walker,LB,JAX,215.0,8,healthy,8265
 Demetrius Knight,LB,CIN,370.6,10,healthy,12617
@@ -372,7 +372,7 @@ Phil Mafah,RB,DAL,286.06666666666666,10,healthy,12738
 Kyle Dugger,DB,NE,295.5,14,healthy,6872
 Cody Barton,LB,TEN,305.9,10,healthy,6065
 Trent McDuffie,DB,KC,388.4,10,healthy,8364
-J.K. Dobbins,RB,DEN,147.4857142857143,12,healthy,6806
+Chiefs,DEF,KC,237.08571428571426,10,healthy,KC
 Drake Maye,QB,NE,82.0,14,healthy,11564
 A.J. Dillon,RB,PHI,289.3,9,healthy,6828
 Micah McFadden,LB,NYG,292.4,14,healthy,8396

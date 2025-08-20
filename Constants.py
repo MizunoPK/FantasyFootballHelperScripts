@@ -17,12 +17,12 @@ RB, WR, QB, TE, K, DEF, FLEX, MATCH = 'RB', 'WR', 'QB', 'TE', 'K', 'DEF', 'FLEX'
 # Define max roster slots by position (draft limits)
 MAX_POSITIONS = {
     QB: 2,
-    RB: 3,
-    WR: 3,
+    RB: 4,
+    WR: 4,
     FLEX: 1,  # FLEX can be RB or WR
     TE: 2,
-    K: 2,
-    DEF: 2,
+    K: 1,
+    DEF: 1,
 }
 MAX_PLAYERS = 15  # Total roster size
 
@@ -46,19 +46,19 @@ STARTERS_REQ = {
 # Example: In round 1, FLEX has weight 1.2, so it's prioritized
 # In round 5, TE has weight 1.4 and FLEX 1.1
 DRAFT_ORDER = [
+    {FLEX: 1.0, QB: 0.7},
+    {FLEX: 1.0, QB: 0.7},
+    {FLEX: 1.0, QB: 0.8},
+    {FLEX: 1.0, QB: 0.8},
+    {QB: 1.0, FLEX: 0.7},
+    {TE: 1.0, FLEX: 0.7},
+    {FLEX: 1.0},
+    {QB: 1.0, FLEX: 0.7},
+    {TE: 1.0, FLEX: 0.7},
     {FLEX: 1.0},
     {FLEX: 1.0},
-    {FLEX: 1.0},
-    {FLEX: 1.0},
-    {TE: 1.0, FLEX: 0.6},
-    {QB: 1.0, FLEX: 0.6},
-    {FLEX: 1.0},
-    {TE: 1.0, FLEX: 0.6},
-    {QB: 1.0, FLEX: 0.6},
-    {DEF: 1.0},
-    {DEF: 1.0},
     {K: 1.0},
-    {K: 1.0},
+    {DEF: 1.0},
     {FLEX: 1.0},
     {FLEX: 1.0}
 ]
@@ -70,7 +70,7 @@ def get_ideal_draft_position(round):
 
 
 # SCORE WEIGHTS
-POS_NEEDED_SCORE = 60  # Weight for positional need
+POS_NEEDED_SCORE = 50  # Weight for positional need
 ADP_BASE_SCORE = 100  # Base score for ADP, higher is better
 PENALTY_INJURED = 50  # Penalty for injured players
 # Weights for bye week penalties by position

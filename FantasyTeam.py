@@ -12,7 +12,6 @@ class FantasyTeam:
         self.roster = players if players else []
 
         # Label starters
-        self.roster.sort(key=lambda x: x.original_adp)
         self.starter_counts = {
             Constants.QB: 0,
             Constants.RB: 0,
