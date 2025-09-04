@@ -1,4 +1,4 @@
-./data/simulation/*
+./data/draft_simulation/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

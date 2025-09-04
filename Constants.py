@@ -72,19 +72,9 @@ def get_ideal_draft_position(round):
 # SCORE WEIGHTS
 POS_NEEDED_SCORE = 50  # Weight for positional need
 ADP_BASE_SCORE = 100  # Base score for ADP, higher is better
-PENALTY_INJURED = 50  # Penalty for injured players
+PENALTY_INJURED = 15  # Penalty for injured players
 # Weights for bye week penalties by position
-BASE_BYE_PENALTY = 50  # Base penalty for any bye week conflict
-STARTER_BYE_WEIGHTS = {
-    RB: 2.0,
-    WR: 2.0,
-    QB: 1.5,
-    TE: 1.3,
-    K: 0.5,
-    DEF: 0.5,
-    MATCH: 6.0
-}
-BENCH_WEIGHT_FACTOR = 0.9
+BASE_BYE_PENALTY = 20  # Base penalty for bye week conflicts. Divided by the number of players with that bye week
 
 # The possible bye weeks for players
 POSSIBLE_BYE_WEEKS = [5,6,7,8,9,10,11,12]

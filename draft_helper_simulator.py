@@ -1,7 +1,7 @@
 from draft_helper import DraftHelper
 import os
 
-BASE_DATA_FOLDER = './data/simulation/'
+BASE_DATA_FOLDER = './data/draft_simulation/'
 PLAYERS_CSV = BASE_DATA_FOLDER + 'players.csv'
 SIMULATION_PLAYERS = 8
 

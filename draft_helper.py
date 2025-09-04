@@ -91,37 +91,39 @@ class DraftHelper:
         if not player.bye_week:
             return 0
 
+        pos = player.position
         bw = player.bye_week
+        penalty = 0
+
+        # Get the max number of players allowed at this position
+        max_pos = Constants.MAX_POSITIONS.get(pos, 0)
         
         # Get counts of starters and bench players by bye week and position
-        starters_bye_counts_by_pos = defaultdict(Counter)
-        bench_bye_counts_by_pos = defaultdict(Counter)
+        bye_week_count = 0
         for p in self.team.roster:
-            if bw and p.is_starter:
-                starters_bye_counts_by_pos[p.bye_week][p.position] += 1
-            elif bw and not p.is_starter:
-                bench_bye_counts_by_pos[p.bye_week][p.position] += 1
-
-        penalty = 0
+            if bw and p.bye_week == bw and p.position == pos:
+                bye_week_count += 1
+        if bye_week_count > 0:
+            penalty += Constants.BASE_BYE_PENALTY * bye_week_count / max_pos
 
         # Add penalty for bye week conflicts with current starters
         # The penalty is higher if the candidate's position matches a starter's position
-        starters_counts = starters_bye_counts_by_pos.get(bw, {})
-        for pos, count in starters_counts.items():
-            pos_weight = Constants.STARTER_BYE_WEIGHTS.get(pos, 10)
+        # starters_counts = starters_bye_counts_by_pos.get(bw, {})
+        # for pos, count in starters_counts.items():
+        #     pos_weight = Constants.STARTER_BYE_WEIGHTS.get(pos, 10)
 
-            # If position matches the candidate's position, use MATCH weight
-            if pos == player.position:
-                pos_weight = Constants.STARTER_BYE_WEIGHTS[Constants.MATCH]
-            penalty += Constants.BASE_BYE_PENALTY * pos_weight * count
+        #     # If position matches the candidate's position, use MATCH weight
+        #     if pos == player.position:
+        #         pos_weight = Constants.STARTER_BYE_WEIGHTS[Constants.MATCH]
+        #     penalty += Constants.BASE_BYE_PENALTY * pos_weight * count
 
         # Add a smaller penalty for bench conflicts (less important than starters)
-        bench_counts = bench_bye_counts_by_pos.get(bw, {})
-        for pos, count in bench_counts.items():
-            pos_weight = Constants.STARTER_BYE_WEIGHTS.get(pos, 10)
-            if pos == player.position:
-                pos_weight = Constants.STARTER_BYE_WEIGHTS[Constants.MATCH]
-            penalty += Constants.BASE_BYE_PENALTY * pos_weight * Constants.BENCH_WEIGHT_FACTOR * count
+        # bench_counts = bench_bye_counts_by_pos.get(bw, {})
+        # for pos, count in bench_counts.items():
+        #     pos_weight = Constants.STARTER_BYE_WEIGHTS.get(pos, 10)
+        #     if pos == player.position:
+        #         pos_weight = Constants.STARTER_BYE_WEIGHTS[Constants.MATCH]
+        #     penalty += Constants.BASE_BYE_PENALTY * pos_weight * Constants.BENCH_WEIGHT_FACTOR * count
 
         log(f"Bye penalty for {player.name}: {penalty} (bye week: {bw})")
         return penalty
