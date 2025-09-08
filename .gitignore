@@ -1,4 +1,7 @@
-./data/draft_simulation/*
+.claude
+data/draft_simulation
+player-data-fetcher/data
+nfl-scores-fetcher/data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

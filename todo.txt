@@ -1,0 +1,5 @@
+
+
+
+Find a way to track trades in NFL Fantasy league and update the player data
+Find a way to turn NFL Fantasy pages into csv data

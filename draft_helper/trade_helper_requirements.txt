@@ -1,0 +1,5 @@
+A flag should be available in the constants that would change the draft_helper into a trade_helper.
+The program will try to create a new team with the best possible players from the available players list (the ones with drafted=0) along with the ones currently on the team (the ones with drafted=2).
+It will start by evaluating the score of all players in the same way as the draft_helper, and then it will try to swap out players on the team with better available players, one at a time, until no more improvements can be made.
+This will require changes to the FantasyTeam class to allow for removing players, and to the main logic to handle the iterative improvement process.
+Do not write the updates to the players.csv file, just print out the proposed trades.

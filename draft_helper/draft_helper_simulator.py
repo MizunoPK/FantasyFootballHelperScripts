@@ -1,4 +1,4 @@
-from draft_helper import DraftHelper
+from draft_helper.draft_helper import DraftHelper
 import os
 
 BASE_DATA_FOLDER = './data/draft_simulation/'
