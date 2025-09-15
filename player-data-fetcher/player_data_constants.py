@@ -52,19 +52,19 @@ ESPN-specific mappings and technical constants remain here.
 import sys
 from pathlib import Path
 
-# Add parent directory to path to import config
-parent_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(parent_dir))
-
-# Import frequently modified constants from centralized config
+# Import frequently modified constants from script-specific config
 from config import (
     EXCEL_POSITION_SHEETS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES,
     EXPORT_COLUMNS, PLAYERS_CSV, ESPN_USER_AGENT, ESPN_PLAYER_LIMIT,
-    POSITION_FALLBACK_CONFIG, DEFAULT_FALLBACK_CONFIG, PositionFallbackConfig
+    POSITION_FALLBACK_CONFIG, DEFAULT_FALLBACK_CONFIG, PositionFallbackConfig,
+    REQUEST_TIMEOUT, RATE_LIMIT_DELAY, NFL_SEASON, NFL_SCORING_FORMAT,
+    OUTPUT_DIRECTORY, CREATE_CSV, CREATE_JSON, CREATE_EXCEL, CREATE_CONDENSED_EXCEL,
+    LOGGING_ENABLED, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE
 )
 
 # Adjust file paths for player-data-fetcher subdirectory context
-DRAFT_HELPER_PLAYERS_FILE = '../' + PLAYERS_CSV
+# PLAYERS_CSV already has '../' prefix, so we use it directly
+DRAFT_HELPER_PLAYERS_FILE = PLAYERS_CSV
 
 @dataclass  
 class ADPMappingConfig:

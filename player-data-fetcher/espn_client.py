@@ -183,22 +183,103 @@ class ESPNClient(BaseAPIClient):
                 # Get bye week
                 bye_week = self.bye_weeks.get(team)
                 
-                # Extract fantasy points from stats
+                # Extract fantasy points from stats with 2024 fallback
                 fantasy_points = 0.0
                 stats = player.get('player', {}).get('stats', [])
                 
+                # Debug DST data availability
+                if position == 'DST':
+                    self.logger.info(f"DST DEBUG: {name} has {len(stats)} stat entries")
+                    season_entries = [stat for stat in stats if stat.get('scoringPeriodId') == 0]
+                    self.logger.info(f"  Season projection entries (scoringPeriodId=0): {len(season_entries)}")
+                    for i, stat in enumerate(season_entries):
+                        self.logger.info(f"    Season entry {i}: seasonId={stat.get('seasonId')}, appliedTotal={stat.get('appliedTotal')}, projectedTotal={stat.get('projectedTotal')}")
+                    for i, stat in enumerate(stats[:3]):  # Log first 3 entries
+                        self.logger.info(f"  Entry {i}: seasonId={stat.get('seasonId')}, scoringPeriodId={stat.get('scoringPeriodId')}, appliedTotal={stat.get('appliedTotal')}, projectedTotal={stat.get('projectedTotal')}")
+                
+                # First try to get current season (2025) projections - pick highest positive value
+                season_projections = []
                 for stat_entry in stats:
                     if stat_entry.get('scoringPeriodId') == 0 and stat_entry.get('seasonId') == self.settings.season:
+                        points = 0.0
                         if 'appliedTotal' in stat_entry:
-                            fantasy_points = float(stat_entry['appliedTotal'])
+                            points = float(stat_entry['appliedTotal'])
                         elif 'projectedTotal' in stat_entry:
-                            fantasy_points = float(stat_entry['projectedTotal'])
-                        break
+                            points = float(stat_entry['projectedTotal'])
+                        if points > 0:  # Only consider positive projections
+                            season_projections.append(points)
                 
-                # Keep fantasy points as-is from ESPN API (no artificial validation)
-                # Only ensure non-negative values for safety
-                if fantasy_points < 0:
-                    fantasy_points = 0.0
+                if season_projections:
+                    fantasy_points = max(season_projections)  # Use the highest positive projection
+                
+                # If no current season projections found, fall back to 2024 season projections
+                fallback_used = False
+                if fantasy_points == 0.0:
+                    season_2024_projections = []
+                    for stat_entry in stats:
+                        if stat_entry.get('scoringPeriodId') == 0 and stat_entry.get('seasonId') == 2024:
+                            if position == 'DST':
+                                self.logger.info(f"DST 2024 SEASON DEBUG: {name} found 2024 season entry: appliedTotal={stat_entry.get('appliedTotal')}, projectedTotal={stat_entry.get('projectedTotal')}")
+                            
+                            points = 0.0
+                            if 'appliedTotal' in stat_entry:
+                                points = float(stat_entry['appliedTotal'])
+                            elif 'projectedTotal' in stat_entry:
+                                points = float(stat_entry['projectedTotal'])
+                            if points > 0:  # Only consider positive projections
+                                season_2024_projections.append(points)
+                    
+                    if season_2024_projections:
+                        fantasy_points = max(season_2024_projections)  # Use highest positive 2024 projection
+                        fallback_used = True
+                    
+                    # Third fallback: Calculate season projection from 2024 weekly data
+                    if fantasy_points == 0.0:
+                        weekly_points = []
+                        if position == 'DST':
+                            self.logger.info(f"DST WEEKLY DEBUG: {name} checking weekly data from {len(stats)} entries")
+                        
+                        for stat_entry in stats:
+                            # Get 2024 weekly data (periods 1-18)
+                            if (stat_entry.get('seasonId') == 2024 and 
+                                stat_entry.get('scoringPeriodId', 0) > 0 and 
+                                stat_entry.get('scoringPeriodId', 0) <= 18):
+                                
+                                week_points = 0.0
+                                if 'appliedTotal' in stat_entry:
+                                    week_points = float(stat_entry['appliedTotal'])
+                                elif 'projectedTotal' in stat_entry:
+                                    week_points = float(stat_entry['projectedTotal'])
+                                
+                                if position == 'DST' and week_points != 0:
+                                    self.logger.info(f"  Week {stat_entry.get('scoringPeriodId')}: {week_points} pts")
+                                
+                                # Include all scores for defenses (they can have negative weeks)
+                                # For other positions, only include positive scores
+                                if week_points != 0 and (position == 'DST' or week_points > 0):
+                                    weekly_points.append(week_points)
+                        
+                        # Calculate projected season total from weekly averages
+                        if weekly_points:
+                            avg_per_week = sum(weekly_points) / len(weekly_points)
+                            projected_season = avg_per_week * 17  # 17-game season
+                            fantasy_points = projected_season
+                            fallback_used = True
+                            self.logger.info(f"Using weekly average fallback for {name}: {len(weekly_points)} weeks, {avg_per_week:.1f} avg, {projected_season:.1f} season total")
+                        else:
+                            # Final fallback - debug output for defenses
+                            if position == 'DST':
+                                self.logger.warning(f"DEFENSE DEBUG: {name} has no weekly data either. Stats count: {len(stats)}")
+                                # Log all stat entries for this defense to see what data is available
+                                for i, stat in enumerate(stats):
+                                    self.logger.warning(f"  Stat {i}: seasonId={stat.get('seasonId')}, scoringPeriodId={stat.get('scoringPeriodId')}, appliedTotal={stat.get('appliedTotal')}, projectedTotal={stat.get('projectedTotal')}")
+                            self.logger.warning(f"No usable data for {name} ({position}). Using 0.0 points.")
+                
+                # Log when fallback is used for transparency
+                if fallback_used:
+                    self.logger.info(f"Using 2024 fallback data for {name} ({position}): {fantasy_points:.1f} points")
+                
+                # Fantasy points are already positive from our selection logic above
                 
                 # Extract injury status
                 injury_status = "ACTIVE"  # Default

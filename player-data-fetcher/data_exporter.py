@@ -265,3 +265,24 @@ class DataExporter:
                 output_files.append(result)
         
         return output_files
+    
+    async def export_to_shared_files(self, data: ProjectionData) -> str:
+        """Export data to shared_files/players.csv for use by draft helper"""
+        # Resolve path to shared_files/players.csv
+        draft_file_path = Path(__file__).parent / DRAFT_HELPER_PLAYERS_FILE
+        
+        # Prepare DataFrame with preserved drafted/locked values
+        df = self._prepare_export_dataframe(data)
+        
+        # Export to CSV asynchronously
+        async with aiofiles.open(str(draft_file_path), mode='w', newline='', encoding='utf-8') as csvfile:
+            # Write header
+            await csvfile.write(','.join(EXPORT_COLUMNS) + '\n')
+            
+            # Write data rows
+            for _, row in df.iterrows():
+                row_data = [str(row[col]) for col in EXPORT_COLUMNS]
+                await csvfile.write(','.join(row_data) + '\n')
+        
+        self.logger.info(f"Exported {len(df)} players to shared files: {draft_file_path}")
+        return str(draft_file_path)

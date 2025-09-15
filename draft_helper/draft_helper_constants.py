@@ -8,14 +8,14 @@ All frequently modified constants have been moved to config.py for easier manage
 To modify constants, edit config.py instead of this file.
 """
 
+import os
 import sys
-from pathlib import Path
 
-# Add parent directory to path to import config
-parent_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(parent_dir))
+# Add current directory to path to ensure we import the local config.py
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
 
-# Import all constants from centralized config
+# Import all constants from script-specific config  
 from config import (
     # Logging
     LOGGING_ENABLED, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE,
@@ -40,5 +40,4 @@ from config import (
     BASE_BYE_PENALTY, POSSIBLE_BYE_WEEKS, MIN_TRADE_IMPROVEMENT
 )
 
-# Adjust file path for draft_helper subdirectory context
-PLAYERS_CSV = '../' + PLAYERS_CSV
+# Path is already correct in the script-specific config, no adjustment needed

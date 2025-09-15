@@ -191,6 +191,10 @@ class NFLProjectionsCollector:
             )
             output_files.extend(files)
             self.logger.info(f"Exported {data_type} projections to configured formats")
+            
+            # Also export to shared_files/players.csv for draft helper integration
+            shared_file = await self.exporter.export_to_shared_files(data)
+            output_files.append(shared_file)
         
         return output_files
     
