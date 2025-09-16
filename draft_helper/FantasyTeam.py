@@ -214,13 +214,23 @@ class FantasyTeam:
             temp_pos_counts = self.pos_counts.copy()
 
             # Remove old player from counts
+            # For FLEX-eligible positions, we need to determine how they're currently counted
             if old_player.position in Constants.FLEX_ELIGIBLE_POSITIONS:
-                if temp_pos_counts[old_player.position] > 0:
-                    temp_pos_counts[old_player.position] -= 1
-                elif temp_pos_counts[Constants.FLEX] > 0:
+                # The current logic in __init__ and draft_player adds FLEX-eligible players as follows:
+                # 1. If regular position slots are available, use regular position
+                # 2. If regular position is full but FLEX is available, use FLEX
+                # So we should remove in reverse priority: try FLEX first if we have excess
+
+                total_position_players = sum(1 for p in self.roster if p.position == old_player.position)
+                max_regular_slots = Constants.MAX_POSITIONS[old_player.position]
+
+                if total_position_players > max_regular_slots:
+                    # We have more players of this position than regular slots
+                    # The excess must be in FLEX, so remove from FLEX
                     temp_pos_counts[Constants.FLEX] -= 1
                 else:
-                    return False  # Something is wrong with current counts
+                    # We have regular slot count or fewer, so remove from regular position
+                    temp_pos_counts[old_player.position] -= 1
 
             # Try to add new player to counts
             # First try to add to regular position
