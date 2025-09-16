@@ -43,11 +43,14 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
-# Get the path to the .env file in the parent directory  
+# Get the path to the .env file in the parent directory
 ENV_FILE_PATH = Path(__file__).parent.parent / '.env'
 
+# Import config.py settings
+import config
+
 from models import GameScore, WeeklyScores, GameDataValidationError
-from nfl_api_client import NFLAPIClient  
+from nfl_api_client import NFLAPIClient
 from data_exporter import ScoresDataExporter
 
 
@@ -59,22 +62,22 @@ class Settings(BaseSettings):
         extra='ignore'  # Ignore extra environment variables
     )
     
-    # Data Parameters
-    season: int = 2025
-    season_type: int = 2  # Regular season
-    current_week: Optional[int] = None  # If None, fetch recent games
-    only_completed_games: bool = False  # If True, only fetch completed games
+    # Data Parameters - use config.py values as defaults
+    season: int = config.NFL_SCORES_SEASON
+    season_type: int = config.NFL_SCORES_SEASON_TYPE
+    current_week: Optional[int] = config.NFL_SCORES_CURRENT_WEEK  # Use config.py value
+    only_completed_games: bool = config.NFL_SCORES_ONLY_COMPLETED_GAMES
     
-    # Output Configuration  
-    output_directory: str = "data"
-    create_csv: bool = True
-    create_json: bool = True  
-    create_excel: bool = True
+    # Output Configuration - use config.py values as defaults
+    output_directory: str = config.OUTPUT_DIRECTORY
+    create_csv: bool = config.CREATE_CSV
+    create_json: bool = config.CREATE_JSON
+    create_excel: bool = config.CREATE_EXCEL
     create_condensed_excel: bool = True
     
-    # API Settings
-    request_timeout: int = 30
-    rate_limit_delay: float = 0.1  # 10 requests per second
+    # API Settings - use config.py values as defaults
+    request_timeout: int = config.REQUEST_TIMEOUT
+    rate_limit_delay: float = config.RATE_LIMIT_DELAY
     
     def validate_settings(self) -> None:
         """Validate settings and warn about potential issues"""
