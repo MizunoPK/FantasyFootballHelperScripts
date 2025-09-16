@@ -37,7 +37,8 @@ from config import (
     
     # Scoring weights
     POS_NEEDED_SCORE, PROJECTION_BASE_SCORE, INJURY_PENALTIES,
-    BASE_BYE_PENALTY, POSSIBLE_BYE_WEEKS, MIN_TRADE_IMPROVEMENT
+    BASE_BYE_PENALTY, POSSIBLE_BYE_WEEKS, MIN_TRADE_IMPROVEMENT,
+    NUM_TRADE_RUNNERS_UP
 )
 
 # Path is already correct in the script-specific config, no adjustment needed

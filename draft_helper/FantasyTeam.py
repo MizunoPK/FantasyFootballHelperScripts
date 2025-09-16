@@ -205,41 +205,41 @@ class FantasyTeam:
         # For same position, always allowed
         if old_player.position == new_player.position:
             return True
-        
-        # For FLEX eligible positions, check if we maintain minimums
-        if (old_player.position in Constants.FLEX_ELIGIBLE_POSITIONS and 
+
+        # For FLEX eligible positions (RB <-> WR trades), check roster limits
+        if (old_player.position in Constants.FLEX_ELIGIBLE_POSITIONS and
             new_player.position in Constants.FLEX_ELIGIBLE_POSITIONS):
-            
-            # Count current RB and WR (excluding FLEX)
-            rb_count = self.pos_counts[Constants.RB]
-            wr_count = self.pos_counts[Constants.WR]
-            
-            # Check if old player is in FLEX slot or regular slot
-            old_in_flex = (self.pos_counts[old_player.position] >= Constants.MAX_POSITIONS[old_player.position])
-            
-            if not old_in_flex:
-                # Removing from regular position
-                if old_player.position == Constants.RB:
-                    rb_count -= 1
-                else:  # WR
-                    wr_count -= 1
-            
-            # Adding new player - will it go to regular or FLEX?
-            new_in_flex = (self.pos_counts[new_player.position] >= Constants.MAX_POSITIONS[new_player.position])
-            
-            if not new_in_flex:
-                # Adding to regular position
-                if new_player.position == Constants.RB:
-                    rb_count += 1
-                else:  # WR
-                    wr_count += 1
-            
-            # Check if we still have at least 4 in each position (including potential FLEX)
-            total_rb = rb_count + (1 if self.pos_counts[Constants.FLEX] > 0 else 0)
-            total_wr = wr_count + (1 if self.pos_counts[Constants.FLEX] > 0 else 0)
-            
-            return total_rb >= 4 and total_wr >= 4
-        
+
+            # Simulate the trade by creating temporary position counts
+            temp_pos_counts = self.pos_counts.copy()
+
+            # Remove old player from counts
+            if old_player.position in Constants.FLEX_ELIGIBLE_POSITIONS:
+                if temp_pos_counts[old_player.position] > 0:
+                    temp_pos_counts[old_player.position] -= 1
+                elif temp_pos_counts[Constants.FLEX] > 0:
+                    temp_pos_counts[Constants.FLEX] -= 1
+                else:
+                    return False  # Something is wrong with current counts
+
+            # Try to add new player to counts
+            # First try to add to regular position
+            if temp_pos_counts[new_player.position] < Constants.MAX_POSITIONS[new_player.position]:
+                temp_pos_counts[new_player.position] += 1
+            # If regular position is full, try FLEX
+            elif temp_pos_counts[Constants.FLEX] < Constants.MAX_POSITIONS[Constants.FLEX]:
+                temp_pos_counts[Constants.FLEX] += 1
+            else:
+                # Cannot fit the new player anywhere
+                return False
+
+            # Check that we don't exceed any limits
+            for pos, count in temp_pos_counts.items():
+                if count > Constants.MAX_POSITIONS.get(pos, 0):
+                    return False
+
+            return True
+
         # Different position types not in FLEX eligibles - not allowed for now
         return False
 
@@ -250,6 +250,15 @@ class FantasyTeam:
         for player in self.roster:
             total_score += scoring_function(player)
         return total_score
+
+    def copy_team(self):
+        """Create a deep copy of the team for simulation purposes"""
+        import copy
+        new_team = FantasyTeam()
+        new_team.roster = copy.deepcopy(self.roster)
+        new_team.draft_order = copy.deepcopy(self.draft_order)
+        new_team.pos_counts = copy.deepcopy(self.pos_counts)
+        return new_team
 
     # print the ideal draft order, and what the actual draft order is
     def print_draft_order(self):

@@ -1,14 +1,15 @@
 # Fantasy Football Helper Scripts
 
-A comprehensive suite of tools for managing a "Start 7 Fantasy League" through data-driven draft assistance and trade analysis.
+A comprehensive suite of modular tools for managing a "Start 7 Fantasy League" through data-driven draft assistance and trade analysis.
 
 ## 🏈 What This Does
 
-This project provides automated fantasy football analysis for a **10-team "Start 7 Fantasy League"** using real-time ESPN data. It helps with:
+This project provides automated fantasy football analysis for a **10-team "Start 7 Fantasy League"** using real-time ESPN data. Built with a modern modular architecture featuring async operations, week-by-week projections, and configurable data export pipelines. Key features:
 
-- **Draft Planning**: Interactive draft assistant with position-based recommendations
-- **Trade Analysis**: Weekly roster optimization and trade suggestions  
-- **Data Collection**: Automated player projections and NFL scores compilation
+- **Draft Planning**: Interactive draft assistant with position-based recommendations and configurable strategy
+- **Trade Analysis**: Weekly roster optimization using pure greedy algorithm with trade suggestions
+- **Advanced Data Collection**: Week-by-week player projections with automatic fallbacks and data preservation
+- **Multi-Format Export**: CSV, Excel, JSON outputs with timestamped historical data
 
 ## 🎯 League Format ("Start 7 Fantasy League")
 
@@ -31,6 +32,7 @@ This project provides automated fantasy football analysis for a **10-team "Start
 ### Prerequisites
 - Python 3.13.6 or later
 - Windows environment (paths configured for Windows)
+- Internet connection for ESPN API access
 
 ### Installation
 ```bash
@@ -64,17 +66,23 @@ python -m venv .venv
 ## 📊 Core Scripts
 
 ### 1. Player Data Fetcher
-**File**: `run_player_data_fetcher.py`  
-**Purpose**: Fetches player projections, injury status, and team data from ESPN API  
-**When to Run**: 1-2 times per week before games start
+**File**: `run_player_data_fetcher.py`
+**Purpose**: Fetches player projections using advanced week-by-week calculation system from ESPN API
+**When to Run**: 1-2 times per week before games start (8-15 minutes processing time)
 
 ```bash
 .venv\Scripts\python.exe run_player_data_fetcher.py
 ```
 
-**Output**: 
+**Features**:
+- **Week-by-Week Projections**: Optimized system with 646 API calls vs. legacy 10,336 calls
+- **Automatic Fallbacks**: Uses remaining season projections when week-by-week data unavailable
+- **Data Preservation**: Maintains drafted/locked player status between updates
+- **Multi-Format Export**: CSV, Excel, JSON with timestamped historical data
+
+**Output**:
 - `shared_files/players.csv` (master database)
-- `player-data-fetcher/data/` (timestamped exports)
+- `player-data-fetcher/data/` (timestamped exports in multiple formats)
 
 ### 2. Draft Helper
 **File**: `run_draft_helper.py`  
@@ -94,11 +102,11 @@ python -m venv .venv
 ```
 
 **Features**:
-- Position-based draft recommendations
-- Configurable draft strategy by round
-- Injury risk assessment and penalties
-- Trade impact analysis and suggestions
-- Roster validation and optimization
+- **Pure Greedy Optimization**: Simple, efficient trade algorithm without complex lookahead
+- **Position-based Recommendations**: Configurable draft strategy by round with FLEX eligibility
+- **Injury Risk Assessment**: Configurable penalties for different injury statuses
+- **Trade Impact Analysis**: Direct trade suggestions with runner-up alternatives
+- **Roster Validation**: Automatic enforcement of "Start 7 Fantasy League" rules
 
 ### 3. NFL Scores Fetcher  
 **File**: `run_nfl_scores_fetcher.py`  
@@ -112,24 +120,41 @@ python -m venv .venv
 **Output**: 
 - `nfl-scores-fetcher/data/` (CSV, JSON, Excel formats)
 
-## 🔧 Configuration
+## 🔧 Configuration System
 
-Each module has its own configuration file for easy customization:
+**Modular Configuration Architecture**: Each module has its own config.py file with centralized management and validation.
 
 ### Player Data Fetcher (`player-data-fetcher/config.py`)
-- **ESPN API settings**: Season, scoring format (PPR/Standard)
-- **Output formats**: CSV, Excel, JSON options
-- **Fallback scoring**: Custom point calculations when API data missing
+**Week-by-Week System Settings**:
+- `CURRENT_NFL_WEEK`: Update weekly (most important setting)
+- `USE_WEEK_BY_WEEK_PROJECTIONS`: Enable advanced projection system
+- `USE_REMAINING_SEASON_PROJECTIONS`: Use remaining games vs. full season
+- `RECENT_WEEKS_FOR_AVERAGE`: Number of weeks for projection averaging
 
-### Draft Helper (`draft_helper/config.py`)  
-- **Mode switching**: `TRADE_HELPER_MODE` (True/False)
-- **Draft strategy**: `DRAFT_ORDER` position priorities by round
-- **Risk tolerance**: `INJURY_PENALTIES` for different injury statuses
-- **Trade sensitivity**: `MIN_TRADE_IMPROVEMENT` threshold
+**Data Management**:
+- `PRESERVE_DRAFTED_VALUES`: Keep draft status between updates
+- **Dual Performance Optimizations**:
+  - `SKIP_DRAFTED_PLAYER_UPDATES`: Skip API calls for drafted=1 players
+  - `USE_SCORE_THRESHOLD`: Skip API calls for low-scoring players, preserve existing data
+  - `PLAYER_SCORE_THRESHOLD`: Minimum fantasy points to trigger API update (default: 15.0)
+- **ESPN API settings**: Season, scoring format (PPR/Standard/Half)
+- **Output formats**: CSV, Excel, JSON with condensed Excel option
+
+### Draft Helper (`draft_helper/config.py`)
+**Trade Optimization**:
+- `TRADE_HELPER_MODE`: Switch between draft/trade modes
+- `MIN_TRADE_IMPROVEMENT`: Point threshold for trade suggestions
+- `NUM_TRADE_RUNNERS_UP`: Number of alternative trades to show
+
+**Draft Strategy**:
+- `DRAFT_ORDER`: Position priorities by round (frequently modified)
+- `MAX_POSITIONS`: Roster limits for each position
+- `INJURY_PENALTIES`: Risk tolerance for LOW/MEDIUM/HIGH injury statuses
 
 ### NFL Scores Fetcher (`nfl-scores-fetcher/config.py`)
-- **Season settings**: Current week, season type
-- **Output preferences**: Data formats and directories
+- **Season settings**: Current week, season type, completed games filter
+- **API configuration**: Timeout, rate limiting
+- **Output preferences**: Multiple data formats and directories
 
 ## 📅 Typical Workflow
 
@@ -152,59 +177,96 @@ Each module has its own configuration file for easy customization:
 Fine-tune your approach by editing `draft_helper/config.py`:
 
 ```python
-# Aggressive early RB strategy
-DRAFT_ORDER[0] = {RB: 1.2, FLEX: 0.8}
+# Week-by-Week System (player-data-fetcher/config.py)
+CURRENT_NFL_WEEK = 3  # Update this weekly!
+USE_WEEK_BY_WEEK_PROJECTIONS = True  # Advanced projection system
 
-# Conservative injury approach  
-INJURY_PENALTIES = {"MEDIUM": 40, "HIGH": 80}
+# Dual Performance Optimizations (player-data-fetcher/config.py)
+SKIP_DRAFTED_PLAYER_UPDATES = True  # Skip API calls for drafted=1 players
+USE_SCORE_THRESHOLD = True  # Skip API calls for low-scoring players
+PLAYER_SCORE_THRESHOLD = 30.0  # Only update players with 30+ fantasy points
 
-# High trade threshold (only strong trades)
-MIN_TRADE_IMPROVEMENT = 15
+# Draft Strategy (draft_helper/config.py)
+DRAFT_ORDER[0] = {RB: 1.2, FLEX: 0.8}  # Aggressive early RB strategy
+INJURY_PENALTIES = {"MEDIUM": 40, "HIGH": 80}  # Conservative injury approach
+MIN_TRADE_IMPROVEMENT = 15  # High trade threshold (only strong trades)
 ```
 
-### Data Persistence
-- **Draft status**: Preserved between data updates
-- **Player locks**: Optional preservation of manual player locks
-- **Historical data**: Timestamped exports maintain projection history
+### Modern Architecture Features
+- **Async Operations**: High-performance data fetching with httpx and aiofiles
+- **Pydantic Models**: Type-safe data validation and serialization
+- **Modular Design**: Independent modules with clean interfaces
+- **Data Preservation**: Draft/locked status maintained between updates
+- **Historical Tracking**: Timestamped exports with projection history
+- **Configuration Validation**: Built-in validation for each module
 
-### Validation & Testing
-Built-in configuration validation ensures:
-- Roster math adds up correctly
-- Draft order matches total players
-- Required data files exist
-- API connectivity works
+### Performance Optimizations
+- **Week-by-Week System**: 646 API calls vs. legacy 10,336 calls (16x improvement)
+- **Dual Optimization System**:
+  - **Drafted Player Skipping**: Skip API calls for drafted=1 players
+  - **Score Threshold Filtering**: Preserve existing data for players below threshold (default: 15 points)
+  - **Combined Effect**: Can reduce API calls from 646 to 100-200 depending on configuration
+- **Smart Data Preservation**: Always updates roster players (drafted=2) regardless of score threshold
+- **Async Processing**: Concurrent data fetching and export operations
+- **Fallback Systems**: Graceful degradation when API data unavailable
 
 ## 📁 Project Structure
 
 ```
 FantasyFootballHelperScripts/
 ├── run_*.py                    # Wrapper scripts (run these)
-├── config.py                   # Shared configuration
+├── config.py                   # Shared configuration (file paths only)
+├── requirements.txt           # Python dependencies
 ├── shared_files/               # Shared data and models
 │   ├── players.csv            # Master player database
-│   ├── bye_weeks.csv          # NFL bye week schedule
-│   └── FantasyPlayer.py       # Player data model
+│   ├── bye_weeks.csv          # NFL bye week schedule (manual updates)
+│   └── FantasyPlayer.py       # Shared player data model
 ├── draft_helper/              # Draft and trade analysis
-│   ├── config.py              # Strategy and roster settings
-│   ├── draft_helper.py        # Core logic
-│   └── FantasyTeam.py         # Roster management
-├── player-data-fetcher/       # ESPN player data collection
-│   ├── config.py              # API and output settings
-│   └── data_fetcher-players.py # Main fetcher script
-├── nfl-scores-fetcher/        # NFL game scores collection
-│   ├── config.py              # Scores API settings
-│   └── data_fetcher-scores.py # Main scores script
-└── requirements.txt           # Python dependencies
+│   ├── config.py              # Strategy, roster, trade settings
+│   ├── draft_helper.py        # Core draft/trade logic
+│   ├── FantasyTeam.py         # Roster management and validation
+│   └── draft_helper_constants.py # Configuration imports
+├── player-data-fetcher/       # ESPN player data collection (modular)
+│   ├── config.py              # Week-by-week, API, export settings
+│   ├── data_fetcher-players.py # Main async fetcher script
+│   ├── espn_client.py         # ESPN API client with retry logic
+│   ├── models.py              # Pydantic data models
+│   ├── data_exporter.py       # Multi-format async export
+│   └── data/                  # Timestamped projection exports
+└── nfl-scores-fetcher/        # NFL game scores collection (modular)
+    ├── config.py              # Scores API and export settings
+    ├── data_fetcher-scores.py # Main async scores script
+    ├── nfl_api_client.py      # NFL API client
+    ├── models.py              # Game score data models
+    ├── data_exporter.py       # Scores export functionality
+    └── data/                  # Game scores exports
 ```
 
 ## 🔍 Troubleshooting
 
+### Week-by-Week Projection System
+**Expected Performance**: 8-15 minutes to process ~646 players
+**API Optimization**: Single call per player (not per week)
+**Normal Behavior**: Some players may lack complete week-by-week data
+
+**🔥 Weekly Maintenance Checklist**:
+- ✅ Update `CURRENT_NFL_WEEK` every Tuesday in `player-data-fetcher/config.py`
+- ✅ Verify `USE_REMAINING_SEASON_PROJECTIONS = True` during season
+- ✅ Run player data fetcher 1-2x per week before games
+
 ### Common Issues
 
-**Import Errors**: Ensure all config files exist with required settings  
-**Path Issues**: Verify `shared_files/players.csv` exists and is accessible  
-**ESPN API Issues**: Check internet connection; ESPN API is free but unofficial  
-**Roster Math Errors**: Ensure position limits in config add up correctly  
+**Outdated Week Number**: Most common issue - update `CURRENT_NFL_WEEK` weekly
+**Week-by-Week Timeouts**: If fetcher takes >20 minutes, set `USE_WEEK_BY_WEEK_PROJECTIONS = False` temporarily
+**Import Errors**: Ensure all config files exist with required settings
+**Path Issues**: Verify `shared_files/players.csv` exists and is accessible
+**ESPN API Issues**: Check internet connection; ESPN API is free but unofficial
+**Roster Math Errors**: Ensure position limits in config add up correctly
+
+**Week-by-Week System Notes**:
+- Some players may show "Using remaining_season fallback" - this is normal
+- System automatically falls back to legacy methods if week-by-week data unavailable
+- Performance: 646 optimized API calls (1 per player) vs 10,336 in original implementation  
 
 ### Testing After Changes
 ```bash
@@ -219,20 +281,47 @@ FantasyFootballHelperScripts/
 # Verify: Fetches recent games successfully
 ```
 
-## 📈 Data Sources
+## 📈 Data Sources & Architecture
 
-- **ESPN Fantasy API**: Player projections, injury status, team assignments (automated)
-- **ESPN Scores API**: NFL game results and schedules (automated)  
-- **Manual Input**: Bye week schedule and roster changes from NFL Fantasy
+### ESPN APIs (Free, No Authentication Required)
+- **Fantasy API**: Player projections, injury status, team assignments (real-time)
+- **Scores API**: NFL game results and schedules (automated)
+- **Week-by-Week Data**: Individual week projections with automatic fallbacks
+
+### Manual Data Management
+- **Bye Weeks**: Season schedule in `shared_files/bye_weeks.csv` (update pre-season)
+- **Roster Changes**: Manual sync of `shared_files/players.csv` with NFL Fantasy updates
+
+### Technical Architecture
+- **Async/Await**: httpx client with tenacity retry logic for resilient API calls
+- **Type Safety**: Pydantic models for data validation and serialization
+- **Export Pipelines**: aiofiles for concurrent multi-format data export
+- **Configuration Management**: Modular config system with validation
+
+## 🚀 Recent Improvements
+
+### Version 2.0+ Features
+- **Massive Performance Improvements**:
+  - Week-by-week system (646 vs 10,336 API calls = 16x improvement)
+  - Score threshold optimization (can reduce to 100-200 calls = additional 3-6x improvement)
+- **Pure Greedy Trade Algorithm**: Simplified, efficient trade optimization
+- **Smart Data Management**:
+  - Preserve existing data for low-scoring players
+  - Always update roster players regardless of score threshold
+  - Advanced drafted/locked player handling
+- **Multi-Format Export**: Concurrent CSV, Excel, JSON export with timestamps
+- **Configurable Fallbacks**: Graceful handling of missing API data
 
 ## 🤝 Contributing
 
-This is a personal fantasy football tool, but contributions are welcome:
-1. Test configuration changes thoroughly
-2. Update documentation for new features  
-3. Maintain backward compatibility with existing data files
+This is a personal fantasy football tool optimized for a specific league format:
+1. **Test thoroughly**: All configuration changes should be validated across modules
+2. **Update documentation**: Maintain README.md and CLAUDE.md for any changes
+3. **Preserve data**: Maintain backward compatibility with existing CSV/data files
+4. **Follow patterns**: Use existing modular architecture and async patterns
 
 ---
 
-**Built for the 2025 NFL season with Python 3.13.6**  
+**Built for the 2025 NFL season**
+**Python 3.13.6 • Modular Architecture • Async Operations**
 **Optimized for 10-team "Start 7 Fantasy League" format**

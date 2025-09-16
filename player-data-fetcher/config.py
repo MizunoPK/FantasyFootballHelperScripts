@@ -20,9 +20,21 @@ from typing import Dict, List
 NFL_SEASON = 2025
 NFL_SCORING_FORMAT = "ppr"  # "ppr", "std", or "half"
 
+# Week-by-Week Projection Settings (FREQUENTLY MODIFIED)
+CURRENT_NFL_WEEK = 3  # Current NFL week (1-18, update weekly)
+USE_WEEK_BY_WEEK_PROJECTIONS = True  # Use week-by-week calculation (primary method)
+USE_REMAINING_SEASON_PROJECTIONS = False  # Use remaining games instead of full season
+INCLUDE_PLAYOFF_WEEKS = False  # Include playoff weeks (19-22) in calculations
+RECENT_WEEKS_FOR_AVERAGE = 4  # Number of recent weeks to average for projections
+
 # Data Preservation Settings (FREQUENTLY MODIFIED)
 PRESERVE_DRAFTED_VALUES = True   # Keep draft status between data updates
 PRESERVE_LOCKED_VALUES = False    # Keep locked players between data updates
+
+# Optimization Settings (FREQUENTLY MODIFIED)
+SKIP_DRAFTED_PLAYER_UPDATES = True  # Skip API calls for drafted=1 players (major optimization)
+USE_SCORE_THRESHOLD = False  # Only update players above score threshold (preserves low-scoring player data)
+PLAYER_SCORE_THRESHOLD = 75.0  # Minimum fantasy points to trigger API update
 
 # Output Settings (FREQUENTLY MODIFIED)
 OUTPUT_DIRECTORY = "./data"

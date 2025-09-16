@@ -26,7 +26,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from models import ProjectionData, ESPNPlayerData
 from shared_files.FantasyPlayer import FantasyPlayer
-from player_data_constants import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, DRAFT_HELPER_PLAYERS_FILE
+from player_data_constants import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, DRAFT_HELPER_PLAYERS_FILE, SKIP_DRAFTED_PLAYER_UPDATES
 
 
 class DataExporter:
@@ -204,7 +204,51 @@ class DataExporter:
             self.logger.warning(f"Draft helper file not found at {draft_file_path}. All locked values will be set to 0.")
         except Exception as e:
             self.logger.error(f"Error loading existing locked values: {e}. All locked values will be set to 0.")
-    
+
+    def _merge_skipped_drafted_players(self, espn_fantasy_players: List[FantasyPlayer]) -> List[FantasyPlayer]:
+        """Merge ESPN players with drafted players that were skipped during API fetching"""
+        # Create a set of existing ESPN player IDs for fast lookup
+        espn_player_ids = {player.id for player in espn_fantasy_players}
+
+        # Load existing players from CSV
+        draft_file_path = Path(__file__).parent / DRAFT_HELPER_PLAYERS_FILE
+        skipped_players = []
+
+        try:
+            with open(draft_file_path, 'r', newline='', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    player_id = row.get('id', '')
+                    drafted_value = int(row.get('drafted', 0))
+
+                    # Only include drafted=1 players that were skipped (not in ESPN data)
+                    if drafted_value == 1 and player_id not in espn_player_ids:
+                        # Create FantasyPlayer from existing CSV data
+                        fantasy_player = FantasyPlayer(
+                            id=player_id,
+                            name=row.get('name', ''),
+                            team=row.get('team', ''),
+                            position=row.get('position', ''),
+                            bye_week=int(row.get('bye_week', 0)),
+                            drafted=drafted_value,
+                            locked=int(row.get('locked', 0)),
+                            fantasy_points=float(row.get('fantasy_points', 0.0)),
+                            average_draft_position=float(row.get('average_draft_position', 999.0)) if row.get('average_draft_position') else 999.0,
+                            injury_status=row.get('injury_status', 'ACTIVE')
+                        )
+                        skipped_players.append(fantasy_player)
+
+            if skipped_players:
+                self.logger.info(f"Merged {len(skipped_players)} drafted players that were skipped during API fetching")
+                return espn_fantasy_players + skipped_players
+
+        except FileNotFoundError:
+            self.logger.warning(f"Players file not found at {draft_file_path} - cannot merge skipped drafted players")
+        except Exception as e:
+            self.logger.error(f"Error merging skipped drafted players: {e}")
+
+        return espn_fantasy_players
+
     def _espn_player_to_fantasy_player(self, player_data: ESPNPlayerData) -> FantasyPlayer:
         """Convert ESPNPlayerData to FantasyPlayer object"""
         
@@ -233,7 +277,13 @@ class DataExporter:
     
     def get_fantasy_players(self, data: ProjectionData) -> List[FantasyPlayer]:
         """Convert ProjectionData to list of FantasyPlayer objects"""
-        return [self._espn_player_to_fantasy_player(player) for player in data.players]
+        fantasy_players = [self._espn_player_to_fantasy_player(player) for player in data.players]
+
+        # Add drafted players that were skipped during ESPN data fetching (optimization)
+        if SKIP_DRAFTED_PLAYER_UPDATES:
+            fantasy_players = self._merge_skipped_drafted_players(fantasy_players)
+
+        return fantasy_players
     
     async def export_all_formats(self, data: ProjectionData, 
                                 create_csv: bool = True, 

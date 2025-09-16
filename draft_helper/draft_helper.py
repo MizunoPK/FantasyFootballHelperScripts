@@ -403,22 +403,22 @@ class DraftHelper:
         print("Your current roster by position:")
         for pos, count in self.team.pos_counts.items():
             print(f"  {pos}: {count}")
-        
+
         # Get available players for trades (drafted=0)
         available_players = [p for p in self.players if p.drafted == 0 and p.locked == 0]
         print(f"\nAnalyzing {len(available_players)} available players for potential trades...")
-        
+
         # Calculate initial team score
         initial_score = self.team.get_total_team_score(self.score_player_for_trade)
         print(f"Initial team score: {initial_score:.2f}")
-        
+
         # Perform iterative improvement
-        trades_made = self.optimize_roster_iteratively(available_players)
-        
+        trades_made, all_player_trades = self.optimize_roster_iteratively(available_players)
+
         # Final results
         final_score = self.team.get_total_team_score(self.score_player_for_trade)
         total_improvement = final_score - initial_score
-        
+
         print(f"\n{'='*60}")
         print("TRADE OPTIMIZATION COMPLETE")
         print(f"{'='*60}")
@@ -426,10 +426,10 @@ class DraftHelper:
         print(f"Final team score: {final_score:.2f}")
         print(f"Total improvement: {total_improvement:+.2f}")
         print(f"Number of trades recommended: {len(trades_made)}")
-        
-        # Show final roster comparison
-        self.show_roster_comparison(trades_made)
-        
+
+        # Show final roster comparison with runner-ups
+        self.show_roster_comparison(trades_made, all_player_trades)
+
         self.logger.info(f"Trade optimization complete. {len(trades_made)} trades recommended, "
                         f"total improvement: {total_improvement:+.2f}")
 
@@ -441,107 +441,128 @@ class DraftHelper:
         iteration = 0
         recent_trades = set()  # Track recent trades to prevent oscillation
         max_iterations = 100  # Safety limit to prevent infinite loops
-        
+        all_player_trades = None  # Store runner-up data from last iteration
+
         while iteration < max_iterations:
             iteration += 1
             self.logger.info(f"Trade optimization iteration {iteration}")
-            
-            # Find the best possible trade that hasn't been recently reversed
-            best_trade = self.find_best_trade(available_players, recent_trades)
-            
+
+            # Find the best possible trade that hasn't been recently reversed, including runner-ups
+            best_trade, current_all_player_trades = self.find_best_trade_with_runners_up(available_players, recent_trades)
+
             if best_trade is None:
                 self.logger.info(f"No beneficial trades found in iteration {iteration}. Optimization complete.")
                 break
-            
+
+            # Store the runner-up data for this trade before executing it
+            if best_trade['out'].id in current_all_player_trades:
+                best_trade['runners_up'] = current_all_player_trades[best_trade['out'].id]
+
             # Execute the trade
             old_player = best_trade['out']
             new_player = best_trade['in']
             improvement = best_trade['improvement']
-            
+
             self.logger.info(f"Executing trade: {old_player.name} -> {new_player.name} (+{improvement:.2f})")
-            
+
             if self.team.replace_player(old_player, new_player):
                 # Move players between available/roster lists
                 available_players.append(old_player)
                 available_players.remove(new_player)
-                
+
                 trades_made.append(best_trade)
-                
+
+                # Update all_player_trades with the latest data
+                all_player_trades = current_all_player_trades
+
                 # Track this trade to prevent immediate reversal
                 trade_key = (old_player.id, new_player.id)
                 reverse_key = (new_player.id, old_player.id)
                 recent_trades.add(trade_key)
-                
+
                 # Also add the reverse to prevent oscillation
                 recent_trades.add(reverse_key)
-                
+
                 # Keep only the last 20 trades in memory to prevent cycles
                 if len(recent_trades) > 20:
                     recent_trades = set(list(recent_trades)[-20:])
-                
+
                 print(f"Trade {len(trades_made)}: {old_player.name} ({old_player.position}) -> "
                       f"{new_player.name} ({new_player.position}) (+{improvement:.2f} points)")
             else:
                 self.logger.error(f"Failed to execute trade: {old_player.name} -> {new_player.name}")
                 break
-        
+
         if iteration >= max_iterations:
             print(f"Warning: Reached maximum iterations ({max_iterations}). Optimization stopped.")
             self.logger.warning(f"Trade optimization reached maximum iterations ({max_iterations})")
-        
-        return trades_made
 
-    def find_best_trade(self, available_players, recent_trades=None):
+        return trades_made, all_player_trades
+
+    def find_best_trade_with_runners_up(self, available_players, recent_trades=None):
         """
-        Find the best possible trade from the current roster
+        Find the best possible trade from the current roster along with runner-up trades for each player
         """
         if recent_trades is None:
             recent_trades = set()
-            
+
         best_trade = None
         best_improvement = 0
-        
+        all_player_trades = {}  # Dictionary to store all potential trades by player being traded out
+
         # For each player on the roster (excluding locked players)
         for current_player in self.team.roster:
             if current_player.locked == 1:
                 continue
             current_score = self.score_player_for_trade(current_player)
-            
+
             # Find the best available replacement for this position
-            same_position_players = [p for p in available_players 
+            same_position_players = [p for p in available_players
                                    if p.position == current_player.position]
-            
+
             # Also consider FLEX-eligible swaps
             if current_player.position in Constants.FLEX_ELIGIBLE_POSITIONS:
                 for other_pos in Constants.FLEX_ELIGIBLE_POSITIONS:
                     if other_pos != current_player.position:
                         flex_candidates = [p for p in available_players if p.position == other_pos]
                         same_position_players.extend(flex_candidates)
-            
+
+            # Collect all valid trades for this player
+            player_trades = []
+
             # Evaluate each potential replacement
             for candidate in same_position_players:
                 # Check if this trade was recently made (prevent oscillation)
                 trade_key = (current_player.id, candidate.id)
                 if trade_key in recent_trades:
                     continue
-                
+
                 # Check if this trade is valid
                 if not self.team._can_replace_player(current_player, candidate):
                     continue
-                
+
                 candidate_score = self.score_player_for_trade(candidate)
                 improvement = candidate_score - current_score
-                
+
                 # Only consider trades that meet the minimum improvement threshold
-                if improvement > best_improvement and improvement >= Constants.MIN_TRADE_IMPROVEMENT:
-                    best_improvement = improvement
-                    best_trade = {
+                if improvement >= Constants.MIN_TRADE_IMPROVEMENT:
+                    trade = {
                         'out': current_player,
                         'in': candidate,
                         'improvement': improvement
                     }
-        
-        return best_trade
+                    player_trades.append(trade)
+
+                    # Check if this is the best overall trade
+                    if improvement > best_improvement:
+                        best_improvement = improvement
+                        best_trade = trade
+
+            # Sort trades for this player by improvement (best first)
+            player_trades.sort(key=lambda x: x['improvement'], reverse=True)
+            all_player_trades[current_player.id] = player_trades
+
+        return best_trade, all_player_trades
 
     def score_player_for_trade(self, player):
         """
@@ -576,34 +597,39 @@ class DraftHelper:
         
         return total_score
 
-    def show_roster_comparison(self, trades_made):
+    def show_roster_comparison(self, trades_made, all_player_trades=None):
         """
-        Display a clear comparison between original and final roster
+        Display a clear comparison between original and final roster, including runner-up trades
         """
         if not trades_made:
             print("\nNo beneficial trades found. Your roster is already optimized!")
-            print(f"\nCurrent roster:")
-            for p in sorted(self.team.roster, key=lambda x: x.position):
-                score = self.score_player_for_trade(p)
-                print(f"  {p.name} ({p.position}) - {score:.2f} pts")
+
+            # Still show runner-up trades if available for current players
+            if all_player_trades:
+                self.show_current_roster_with_alternatives(all_player_trades)
+            else:
+                print(f"\nCurrent roster:")
+                for p in sorted(self.team.roster, key=lambda x: x.position):
+                    score = self.score_player_for_trade(p)
+                    print(f"  {p.name} ({p.position}) - {score:.2f} pts")
             return
-        
+
         # Get original roster by reversing all trades (using player IDs for comparison)
         original_roster_ids = set(p.id for p in self.team.roster)
         players_out = []
         players_in = []
-        
+
         # Reverse the trades to find original roster
         for trade in reversed(trades_made):
             # Remove players that were traded in
             if trade['in'].id in original_roster_ids:
                 original_roster_ids.remove(trade['in'].id)
                 players_in.append(trade['in'])
-            
-            # Add back players that were traded out  
+
+            # Add back players that were traded out
             original_roster_ids.add(trade['out'].id)
             players_out.append(trade['out'])
-        
+
         # Remove duplicates while preserving order (last occurrence wins)
         seen_out = set()
         players_out_unique = []
@@ -612,7 +638,7 @@ class DraftHelper:
                 seen_out.add(p.id)
                 players_out_unique.append(p)
         players_out_unique.reverse()
-        
+
         seen_in = set()
         players_in_unique = []
         for p in reversed(players_in):
@@ -620,37 +646,74 @@ class DraftHelper:
                 seen_in.add(p.id)
                 players_in_unique.append(p)
         players_in_unique.reverse()
-        
+
         # Current final roster
         final_roster_ids = set(p.id for p in self.team.roster)
-        
+
         # Players that stayed (in both original and final)
         players_kept_ids = original_roster_ids.intersection(final_roster_ids)
         players_kept = [p for p in self.team.roster if p.id in players_kept_ids]
-        
+
         print(f"\nROSTER ANALYSIS:")
         print(f"Players kept: {len(players_kept)}")
         print(f"Players traded out: {len(players_out_unique)}")
         print(f"Players traded in: {len(players_in_unique)}")
-        
+
         # Show kept players first
         if players_kept:
             print(f"\n[KEPT] PLAYERS REMAINING ON ROSTER:")
             for p in sorted(players_kept, key=lambda x: x.position):
                 score = self.score_player_for_trade(p)
                 print(f"  {p.name} ({p.position}) - {score:.2f} pts")
-        
-        # Show unique trades (consolidate back-and-forth swaps)
-        unique_trades = self.consolidate_trades(trades_made)
-        
-        print(f"\n[TRADES] RECOMMENDED CHANGES ({len(unique_trades)} unique):")
-        for i, trade in enumerate(unique_trades, 1):
+
+        print(f"\n[TRADES] RECOMMENDED CHANGES ({len(trades_made)} trades):")
+        for i, trade in enumerate(trades_made, 1):
             out_score = self.score_player_for_trade(trade['out'])
             in_score = self.score_player_for_trade(trade['in'])
-            
+
             print(f"  {i}. OUT: {trade['out'].name} ({trade['out'].position}) - {out_score:.2f} pts")
             print(f"     IN:  {trade['in'].name} ({trade['in'].position}) - {in_score:.2f} pts")
             print(f"     Net Improvement: +{trade['improvement']:.2f} pts")
+
+            # Show runner-ups for this trade (use stored data from when trade was made)
+            if 'runners_up' in trade:
+                player_trades = trade['runners_up']
+                # Find runner-ups (skip the main trade we just showed)
+                runners_up = []
+                for pt in player_trades:
+                    if pt['in'].id != trade['in'].id:  # Skip the main trade
+                        runners_up.append(pt)
+                    if len(runners_up) >= Constants.NUM_TRADE_RUNNERS_UP:
+                        break
+
+                if runners_up:
+                    for j, runner_up in enumerate(runners_up, 1):
+                        ru_score = self.score_player_for_trade(runner_up['in'])
+                        print(f"        Runner-up {j}: {runner_up['in'].name} - {ru_score:.2f} pts ({runner_up['improvement']:+.2f})")
+            print()
+
+    def show_current_roster_with_alternatives(self, all_player_trades):
+        """
+        Show current roster with alternative trade options when no beneficial trades exist
+        """
+        print(f"\nCurrent roster with potential alternatives:")
+
+        for p in sorted(self.team.roster, key=lambda x: x.position):
+            if p.locked == 1:
+                continue
+
+            score = self.score_player_for_trade(p)
+            print(f"  {p.name} ({p.position}) - {score:.2f} pts")
+
+            # Show alternatives that don't meet the threshold
+            if p.id in all_player_trades:
+                player_trades = all_player_trades[p.id]
+                alternatives = player_trades[:Constants.NUM_TRADE_RUNNERS_UP]
+
+                if alternatives:
+                    for j, alt in enumerate(alternatives, 1):
+                        alt_score = self.score_player_for_trade(alt['in'])
+                        print(f"        Alternative {j}: {alt['in'].name} - {alt_score:.2f} pts ({alt['improvement']:+.2f})")
             print()
     
     def consolidate_trades(self, trades_made):

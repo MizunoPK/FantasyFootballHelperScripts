@@ -10,9 +10,11 @@ Last Updated: September 2025
 """
 
 import asyncio
+import csv
 import logging
 from contextlib import asynccontextmanager
-from typing import Dict, List, Any, Optional
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Set
 import math
 
 import httpx
@@ -24,7 +26,10 @@ from player_data_constants import (
     MIN_PLAYERS_FOR_EMPIRICAL_MAPPING, MIN_PLAYERS_PER_POSITION_MAPPING,
     POSITION_FALLBACK_CONFIG, DEFAULT_FALLBACK_CONFIG, MIN_ADP_RANGE_THRESHOLD,
     MIN_FANTASY_POINTS_BOUND_FACTOR, MAX_FANTASY_POINTS_BOUND_FACTOR,
-    UNCERTAINTY_ADJUSTMENT_FACTOR, PositionDataDict, PositionMappingDict
+    UNCERTAINTY_ADJUSTMENT_FACTOR, PositionDataDict, PositionMappingDict,
+    CURRENT_NFL_WEEK, USE_WEEK_BY_WEEK_PROJECTIONS, USE_REMAINING_SEASON_PROJECTIONS,
+    INCLUDE_PLAYOFF_WEEKS, RECENT_WEEKS_FOR_AVERAGE, SKIP_DRAFTED_PLAYER_UPDATES,
+    USE_SCORE_THRESHOLD, PLAYER_SCORE_THRESHOLD, PLAYERS_CSV
 )
 
 
@@ -102,16 +107,351 @@ class ESPNClient(BaseAPIClient):
     def __init__(self, settings):
         super().__init__(settings)
         self.bye_weeks: Dict[str, int] = {}
+        self.drafted_player_ids: Set[str] = set()
+        self.low_score_player_data: Dict[str, Dict] = {}
+
+        # Load optimization data (drafted player IDs and low-score player data)
+        if SKIP_DRAFTED_PLAYER_UPDATES or USE_SCORE_THRESHOLD:
+            self._load_optimization_data()
     
     def _get_ppr_id(self) -> int:
         """Get ESPN scoring format ID"""
         scoring_map = {
             ScoringFormat.STANDARD: 1,
-            ScoringFormat.PPR: 3, 
+            ScoringFormat.PPR: 3,
             ScoringFormat.HALF_PPR: 2
         }
         return scoring_map.get(self.settings.scoring_format, 3)
-    
+
+    def _load_optimization_data(self):
+        """Load player data for optimization (drafted players to skip and low-score players to preserve)"""
+        try:
+            players_file_path = Path(__file__).parent / PLAYERS_CSV
+
+            with open(players_file_path, 'r', newline='', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    player_id = row.get('id')
+                    if not player_id:
+                        continue
+
+                    drafted_value = int(row.get('drafted', 0))
+                    fantasy_points = float(row.get('fantasy_points', 0.0))
+
+                    # Track drafted=1 players to skip API calls (if optimization enabled)
+                    if SKIP_DRAFTED_PLAYER_UPDATES and drafted_value == 1:
+                        self.drafted_player_ids.add(player_id)
+
+                    # Track low-score players to preserve data (if threshold optimization enabled)
+                    if USE_SCORE_THRESHOLD:
+                        # Always update players on our roster (drafted=2) regardless of score
+                        if drafted_value == 2:
+                            pass  # Don't add to low_score_player_data, always update
+                        # Preserve data for players below threshold
+                        elif fantasy_points < PLAYER_SCORE_THRESHOLD:
+                            self.low_score_player_data[player_id] = dict(row)
+
+            optimization_messages = []
+            if SKIP_DRAFTED_PLAYER_UPDATES:
+                optimization_messages.append(f"{len(self.drafted_player_ids)} drafted player IDs to skip")
+            if USE_SCORE_THRESHOLD:
+                optimization_messages.append(f"{len(self.low_score_player_data)} low-score players to preserve (threshold: {PLAYER_SCORE_THRESHOLD})")
+
+            if optimization_messages:
+                self.logger.info(f"Loaded optimization data: {', '.join(optimization_messages)}")
+
+        except FileNotFoundError:
+            self.logger.warning(f"Players file not found at {players_file_path}. No optimizations will be applied.")
+        except Exception as e:
+            self.logger.error(f"Error loading optimization data: {e}. No optimizations will be applied.")
+
+    def _calculate_remaining_season_projection(self, stats: List[Dict], position: str) -> float:
+        """Calculate remaining season projection based on recent performance"""
+        if not USE_REMAINING_SEASON_PROJECTIONS:
+            return 0.0
+
+        # Get recent weeks data for current season
+        recent_weeks = []
+        current_week = CURRENT_NFL_WEEK
+        start_week = max(1, current_week - RECENT_WEEKS_FOR_AVERAGE)
+
+        for stat_entry in stats:
+            if (stat_entry.get('seasonId') == self.settings.season and
+                stat_entry.get('scoringPeriodId', 0) >= start_week and
+                stat_entry.get('scoringPeriodId', 0) < current_week):
+
+                week_points = 0.0
+                if 'appliedTotal' in stat_entry:
+                    week_points = float(stat_entry['appliedTotal'])
+                elif 'projectedTotal' in stat_entry:
+                    week_points = float(stat_entry['projectedTotal'])
+
+                # Include valid scores (positive for most positions, any for DST)
+                if week_points != 0 and (position == 'DST' or week_points > 0):
+                    recent_weeks.append(week_points)
+
+        if len(recent_weeks) == 0:
+            return 0.0
+
+        # Calculate average of recent weeks
+        recent_average = sum(recent_weeks) / len(recent_weeks)
+
+        # Calculate remaining games in season
+        remaining_weeks = max(0, 18 - current_week)  # NFL season is 18 weeks
+
+        # Project remaining season total
+        remaining_projection = recent_average * remaining_weeks
+
+        self.logger.debug(f"Remaining season calc: {len(recent_weeks)} recent weeks, "
+                         f"avg={recent_average:.1f}, remaining={remaining_weeks} weeks, "
+                         f"projection={remaining_projection:.1f}")
+
+        return remaining_projection
+
+    async def _calculate_week_by_week_projection(self, player_id: str, name: str, position: str) -> float:
+        """Calculate season projection by summing week-by-week data (actual + projected)"""
+        if not USE_WEEK_BY_WEEK_PROJECTIONS:
+            return 0.0
+
+        try:
+            # Get all weekly data for this player in a single optimized call
+            all_weeks_data = await self._get_all_weeks_data(player_id, position)
+            if not all_weeks_data:
+                return 0.0
+
+            # Determine week range
+            end_week = 22 if INCLUDE_PLAYOFF_WEEKS else 18
+            start_week = CURRENT_NFL_WEEK + 1 if USE_REMAINING_SEASON_PROJECTIONS else 1
+
+            total_projection = 0.0
+            weeks_processed = 0
+
+            for week in range(start_week, end_week + 1):
+                week_points = None
+
+                # For past weeks (week <= CURRENT_NFL_WEEK), prefer actual data
+                if not USE_REMAINING_SEASON_PROJECTIONS and week <= CURRENT_NFL_WEEK:
+                    week_points = self._extract_week_points(all_weeks_data, week, prefer_actual=True, position=position)
+                    data_type = 'actual'
+                else:
+                    # For future weeks, use projections
+                    week_points = self._extract_week_points(all_weeks_data, week, prefer_actual=False, position=position)
+                    data_type = 'projected'
+
+                if week_points is not None and week_points > 0:
+                    total_projection += week_points
+                    weeks_processed += 1
+                    self.logger.debug(f"{name} Week {week}: {week_points:.1f} points ({data_type})")
+
+            if weeks_processed > 0:
+                self.logger.info(f"Week-by-week total for {name}: {total_projection:.1f} points ({weeks_processed} weeks)")
+                return total_projection
+
+        except Exception as e:
+            self.logger.warning(f"Week-by-week calculation failed for {name}: {e}")
+
+        return 0.0
+
+    async def _get_all_weeks_data(self, player_id: str, position: str) -> Optional[dict]:
+        """Get all weekly data for a player in a single optimized API call"""
+        try:
+            url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{self.settings.season}/segments/0/leaguedefaults/3"
+
+            # Get all available data for the player (not filtered by week)
+            params = {
+                'view': 'kona_player_info',
+                'scoringPeriodId': 0  # 0 gets all available data
+            }
+
+            headers = {
+                'User-Agent': ESPN_USER_AGENT,
+                'X-Fantasy-Filter': f'{{"players":{{"filterIds":{{"value":[{player_id}]}}}}}}'
+            }
+
+            data = await self._make_request('GET', url, params=params, headers=headers)
+            players = data.get('players', [])
+
+            if not players:
+                return None
+
+            # Return the first player's data which contains all available stats
+            return players[0].get('player', {})
+
+        except Exception as e:
+            self.logger.warning(f"Failed to get all weeks data for player {player_id}: {e}")
+            return None
+
+    def _extract_week_points(self, player_data: dict, week: int, prefer_actual: bool, position: str) -> Optional[float]:
+        """Extract points for a specific week from player data"""
+        try:
+            stats = player_data.get('stats', [])
+            if not stats:
+                return None
+
+            # Collect all viable entries for this week
+            current_season_entries = []
+            historical_entries = []
+
+            for stat_entry in stats:
+                season_id = stat_entry.get('seasonId')
+                scoring_period = stat_entry.get('scoringPeriodId')
+
+                # Look for the specific week we want
+                if scoring_period == week:
+                    points = None
+
+                    # Get points based on preference and availability
+                    if prefer_actual:
+                        # Priority: appliedTotal (actual) > projectedTotal > None
+                        if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
+                            points = float(stat_entry['appliedTotal'])
+                        elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
+                            points = float(stat_entry['projectedTotal'])
+                    else:
+                        # Priority: projectedTotal > appliedTotal > None
+                        if 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
+                            points = float(stat_entry['projectedTotal'])
+                        elif 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
+                            points = float(stat_entry['appliedTotal'])
+
+                    # Validate points (skip negatives except for DST)
+                    if points is not None and (position == 'DST' or points >= 0):
+                        if season_id == self.settings.season:
+                            current_season_entries.append(points)
+                        elif season_id == self.settings.season - 1:
+                            historical_entries.append(points)
+
+            # Use current season data if available, otherwise fall back to historical
+            if current_season_entries:
+                return sum(current_season_entries) / len(current_season_entries)
+            elif historical_entries and not prefer_actual:
+                # Only use historical for projections, not actual performance
+                return sum(historical_entries) / len(historical_entries)
+
+            return None
+
+        except Exception as e:
+            self.logger.warning(f"Failed to extract week {week} points: {e}")
+            return None
+
+    async def _get_week_actual_performance(self, player_id: str, week: int, position: str) -> Optional[float]:
+        """Get actual performance data for a specific past week"""
+        try:
+            url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{self.settings.season}/segments/0/leaguedefaults/3"
+
+            params = {
+                'view': 'kona_player_info',
+                'scoringPeriodId': week
+            }
+
+            headers = {
+                'User-Agent': ESPN_USER_AGENT,
+                'X-Fantasy-Filter': f'{{"players":{{"filterIds":{{"value":[{player_id}]}}}}}}'
+            }
+
+            data = await self._make_request('GET', url, params=params, headers=headers)
+            players = data.get('players', [])
+
+            if not players:
+                return None
+
+            # Find matching week entries in player stats
+            player_info = players[0].get('player', {})
+            stats = player_info.get('stats', [])
+
+            # Collect all viable entries for this week
+            week_entries = []
+            for stat_entry in stats:
+                if (stat_entry.get('seasonId') == self.settings.season and
+                    stat_entry.get('scoringPeriodId') == week):
+
+                    # Priority: appliedTotal > projectedTotal > 0
+                    points = None
+                    if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
+                        points = float(stat_entry['appliedTotal'])
+                    elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
+                        points = float(stat_entry['projectedTotal'])
+
+                    if points is not None and (position == 'DST' or points >= 0):
+                        week_entries.append(points)
+
+            # Average multiple sources if available
+            if week_entries:
+                return sum(week_entries) / len(week_entries)
+
+            return None
+
+        except Exception as e:
+            self.logger.warning(f"Failed to get week {week} actual for player {player_id}: {e}")
+            return None
+
+    async def _get_week_projection(self, player_id: str, week: int, position: str) -> Optional[float]:
+        """Get projection data for a specific future week"""
+        try:
+            url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{self.settings.season}/segments/0/leaguedefaults/3"
+
+            params = {
+                'view': 'kona_player_info',
+                'scoringPeriodId': week
+            }
+
+            headers = {
+                'User-Agent': ESPN_USER_AGENT,
+                'X-Fantasy-Filter': f'{{"players":{{"filterIds":{{"value":[{player_id}]}}}}}}'
+            }
+
+            data = await self._make_request('GET', url, params=params, headers=headers)
+            players = data.get('players', [])
+
+            if not players:
+                return None
+
+            # Find matching week entries in player stats
+            player_info = players[0].get('player', {})
+            stats = player_info.get('stats', [])
+
+            # First try 2025 projections
+            current_season_entries = []
+            for stat_entry in stats:
+                if (stat_entry.get('seasonId') == self.settings.season and
+                    stat_entry.get('scoringPeriodId') == week):
+
+                    points = None
+                    if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
+                        points = float(stat_entry['appliedTotal'])
+                    elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
+                        points = float(stat_entry['projectedTotal'])
+
+                    if points is not None and points > 0:
+                        current_season_entries.append(points)
+
+            if current_season_entries:
+                return sum(current_season_entries) / len(current_season_entries)
+
+            # Fallback to 2024 historical data for same week
+            historical_entries = []
+            for stat_entry in stats:
+                if (stat_entry.get('seasonId') == self.settings.season - 1 and
+                    stat_entry.get('scoringPeriodId') == week):
+
+                    points = None
+                    if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
+                        points = float(stat_entry['appliedTotal'])
+                    elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
+                        points = float(stat_entry['projectedTotal'])
+
+                    if points is not None and (position == 'DST' or points > 0):
+                        historical_entries.append(points)
+
+            if historical_entries:
+                return sum(historical_entries) / len(historical_entries)
+
+            return None
+
+        except Exception as e:
+            self.logger.warning(f"Failed to get week {week} projection for player {player_id}: {e}")
+            return None
+
     async def get_season_projections(self) -> List[ESPNPlayerData]:
         """Get season projections from ESPN"""
         ppr_id = self._get_ppr_id()
@@ -130,7 +470,7 @@ class ESPNClient(BaseAPIClient):
         }
         
         data = await self._make_request("GET", url, params=params, headers=headers)
-        return self._parse_espn_data(data)
+        return await self._parse_espn_data(data)
     
     async def _make_request(self, method: str, url: str, **kwargs):
         """Override to add ESPN-specific headers"""
@@ -143,7 +483,7 @@ class ESPNClient(BaseAPIClient):
         
         return await super()._make_request(method, url, **kwargs)
     
-    def _parse_espn_data(self, data: Dict[str, Any]) -> List[ESPNPlayerData]:
+    async def _parse_espn_data(self, data: Dict[str, Any]) -> List[ESPNPlayerData]:
         """Parse ESPN API response into ESPNPlayerData objects"""
         projections = []
         
@@ -151,6 +491,8 @@ class ESPNClient(BaseAPIClient):
         self.logger.info(f"Processing {len(players)} players from ESPN API")
         
         parsed_count = 0
+        skipped_drafted_count = 0
+        skipped_low_score_count = 0
         for player in players:
             try:
                 # Extract basic info
@@ -171,7 +513,32 @@ class ESPNClient(BaseAPIClient):
                 # Extract team
                 pro_team_id = player_info.get('proTeamId')
                 team = ESPN_TEAM_MAPPINGS.get(pro_team_id, 'UNK')
-                
+
+                # OPTIMIZATION: Skip expensive API calls for drafted=1 players if enabled
+                if SKIP_DRAFTED_PLAYER_UPDATES and id in self.drafted_player_ids:
+                    self.logger.debug(f"Skipping API calls for drafted player: {name} (ID: {id})")
+                    skipped_drafted_count += 1
+                    continue
+
+                # OPTIMIZATION: Skip API calls for low-scoring players and preserve their data
+                if USE_SCORE_THRESHOLD and id in self.low_score_player_data:
+                    self.logger.debug(f"Preserving data for low-scoring player: {name} (ID: {id})")
+                    # Add preserved player data to projections without API calls
+                    preserved_data = self.low_score_player_data[id]
+                    preserved_projection = ESPNPlayerData(
+                        id=id,
+                        name=preserved_data.get('name', name),
+                        team=preserved_data.get('team', ''),
+                        position=preserved_data.get('position', ''),
+                        bye_week=int(preserved_data.get('bye_week', 0)) if preserved_data.get('bye_week') else None,
+                        fantasy_points=float(preserved_data.get('fantasy_points', 0.0)),
+                        injury_status=preserved_data.get('injury_status', 'UNKNOWN'),
+                        average_draft_position=float(preserved_data.get('average_draft_position', 0.0)) if preserved_data.get('average_draft_position') else None
+                    )
+                    projections.append(preserved_projection)
+                    skipped_low_score_count += 1
+                    continue
+
                 # Skip players not on active NFL rosters (free agents, practice squad, etc.)
                 if team == 'UNK':
                     continue
@@ -183,44 +550,62 @@ class ESPNClient(BaseAPIClient):
                 # Get bye week
                 bye_week = self.bye_weeks.get(team)
                 
-                # Extract fantasy points from stats with 2024 fallback
+                # Extract fantasy points using week-by-week calculation (primary) with fallbacks
                 fantasy_points = 0.0
                 stats = player.get('player', {}).get('stats', [])
-                
-                # Debug DST data availability
-                if position == 'DST':
-                    self.logger.info(f"DST DEBUG: {name} has {len(stats)} stat entries")
-                    season_entries = [stat for stat in stats if stat.get('scoringPeriodId') == 0]
-                    self.logger.info(f"  Season projection entries (scoringPeriodId=0): {len(season_entries)}")
-                    for i, stat in enumerate(season_entries):
-                        self.logger.info(f"    Season entry {i}: seasonId={stat.get('seasonId')}, appliedTotal={stat.get('appliedTotal')}, projectedTotal={stat.get('projectedTotal')}")
-                    for i, stat in enumerate(stats[:3]):  # Log first 3 entries
-                        self.logger.info(f"  Entry {i}: seasonId={stat.get('seasonId')}, scoringPeriodId={stat.get('scoringPeriodId')}, appliedTotal={stat.get('appliedTotal')}, projectedTotal={stat.get('projectedTotal')}")
-                
-                # First try to get current season (2025) projections - pick highest positive value
-                season_projections = []
-                for stat_entry in stats:
-                    if stat_entry.get('scoringPeriodId') == 0 and stat_entry.get('seasonId') == self.settings.season:
-                        points = 0.0
-                        if 'appliedTotal' in stat_entry:
-                            points = float(stat_entry['appliedTotal'])
-                        elif 'projectedTotal' in stat_entry:
-                            points = float(stat_entry['projectedTotal'])
-                        if points > 0:  # Only consider positive projections
-                            season_projections.append(points)
-                
-                if season_projections:
-                    fantasy_points = max(season_projections)  # Use the highest positive projection
-                
-                # If no current season projections found, fall back to 2024 season projections
                 fallback_used = False
+                fallback_type = ""
+
+                # PRIMARY: Week-by-week calculation (actual + projected)
+                if USE_WEEK_BY_WEEK_PROJECTIONS:
+                    week_by_week_points = await self._calculate_week_by_week_projection(id, name, position)
+                    if week_by_week_points > 0:
+                        fantasy_points = week_by_week_points
+                        self.logger.debug(f"Using week-by-week projection for {name}: {fantasy_points:.1f}")
+
+                # FALLBACK 1: Remaining season projection
+                if fantasy_points == 0.0 and USE_REMAINING_SEASON_PROJECTIONS:
+                    remaining_projection = self._calculate_remaining_season_projection(stats, position)
+                    if remaining_projection > 0:
+                        fantasy_points = remaining_projection
+                        fallback_used = True
+                        fallback_type = "remaining_season"
+                        self.logger.debug(f"Using remaining season projection for {name}: {fantasy_points:.1f}")
+
+                # FALLBACK 2: Current season (2025) total projections
+                if fantasy_points == 0.0:
+                    # Debug DST data availability
+                    if position == 'DST':
+                        self.logger.info(f"DST DEBUG: {name} has {len(stats)} stat entries")
+                        season_entries = [stat for stat in stats if stat.get('scoringPeriodId') == 0]
+                        self.logger.info(f"  Season projection entries (scoringPeriodId=0): {len(season_entries)}")
+                        for i, stat in enumerate(season_entries):
+                            self.logger.info(f"    Season entry {i}: seasonId={stat.get('seasonId')}, appliedTotal={stat.get('appliedTotal')}, projectedTotal={stat.get('projectedTotal')}")
+
+                    season_projections = []
+                    for stat_entry in stats:
+                        if stat_entry.get('scoringPeriodId') == 0 and stat_entry.get('seasonId') == self.settings.season:
+                            points = 0.0
+                            if 'appliedTotal' in stat_entry:
+                                points = float(stat_entry['appliedTotal'])
+                            elif 'projectedTotal' in stat_entry:
+                                points = float(stat_entry['projectedTotal'])
+                            if points > 0:  # Only consider positive projections
+                                season_projections.append(points)
+
+                    if season_projections:
+                        fantasy_points = max(season_projections)  # Use the highest positive projection
+                        fallback_used = True
+                        fallback_type = "2025_season"
+
+                # FALLBACK 3: 2024 season projections
                 if fantasy_points == 0.0:
                     season_2024_projections = []
                     for stat_entry in stats:
                         if stat_entry.get('scoringPeriodId') == 0 and stat_entry.get('seasonId') == 2024:
                             if position == 'DST':
                                 self.logger.info(f"DST 2024 SEASON DEBUG: {name} found 2024 season entry: appliedTotal={stat_entry.get('appliedTotal')}, projectedTotal={stat_entry.get('projectedTotal')}")
-                            
+
                             points = 0.0
                             if 'appliedTotal' in stat_entry:
                                 points = float(stat_entry['appliedTotal'])
@@ -228,43 +613,45 @@ class ESPNClient(BaseAPIClient):
                                 points = float(stat_entry['projectedTotal'])
                             if points > 0:  # Only consider positive projections
                                 season_2024_projections.append(points)
-                    
+
                     if season_2024_projections:
                         fantasy_points = max(season_2024_projections)  # Use highest positive 2024 projection
                         fallback_used = True
-                    
-                    # Third fallback: Calculate season projection from 2024 weekly data
+                        fallback_type = "2024_season"
+
+                    # FALLBACK 4: 2024 weekly average calculation
                     if fantasy_points == 0.0:
                         weekly_points = []
                         if position == 'DST':
                             self.logger.info(f"DST WEEKLY DEBUG: {name} checking weekly data from {len(stats)} entries")
-                        
+
                         for stat_entry in stats:
                             # Get 2024 weekly data (periods 1-18)
-                            if (stat_entry.get('seasonId') == 2024 and 
-                                stat_entry.get('scoringPeriodId', 0) > 0 and 
+                            if (stat_entry.get('seasonId') == 2024 and
+                                stat_entry.get('scoringPeriodId', 0) > 0 and
                                 stat_entry.get('scoringPeriodId', 0) <= 18):
-                                
+
                                 week_points = 0.0
                                 if 'appliedTotal' in stat_entry:
                                     week_points = float(stat_entry['appliedTotal'])
                                 elif 'projectedTotal' in stat_entry:
                                     week_points = float(stat_entry['projectedTotal'])
-                                
+
                                 if position == 'DST' and week_points != 0:
                                     self.logger.info(f"  Week {stat_entry.get('scoringPeriodId')}: {week_points} pts")
-                                
+
                                 # Include all scores for defenses (they can have negative weeks)
                                 # For other positions, only include positive scores
                                 if week_points != 0 and (position == 'DST' or week_points > 0):
                                     weekly_points.append(week_points)
-                        
+
                         # Calculate projected season total from weekly averages
                         if weekly_points:
                             avg_per_week = sum(weekly_points) / len(weekly_points)
                             projected_season = avg_per_week * 17  # 17-game season
                             fantasy_points = projected_season
                             fallback_used = True
+                            fallback_type = "2024_weekly"
                             self.logger.info(f"Using weekly average fallback for {name}: {len(weekly_points)} weeks, {avg_per_week:.1f} avg, {projected_season:.1f} season total")
                         else:
                             # Final fallback - debug output for defenses
@@ -274,10 +661,10 @@ class ESPNClient(BaseAPIClient):
                                 for i, stat in enumerate(stats):
                                     self.logger.warning(f"  Stat {i}: seasonId={stat.get('seasonId')}, scoringPeriodId={stat.get('scoringPeriodId')}, appliedTotal={stat.get('appliedTotal')}, projectedTotal={stat.get('projectedTotal')}")
                             self.logger.warning(f"No usable data for {name} ({position}). Using 0.0 points.")
-                
+
                 # Log when fallback is used for transparency
                 if fallback_used:
-                    self.logger.info(f"Using 2024 fallback data for {name} ({position}): {fantasy_points:.1f} points")
+                    self.logger.info(f"Using {fallback_type} fallback for {name} ({position}): {fantasy_points:.1f} points")
                 
                 # Fantasy points are already positive from our selection logic above
                 
@@ -319,7 +706,18 @@ class ESPNClient(BaseAPIClient):
                 self.logger.error(f"Unexpected error parsing player {player_id}: {e}")
                 continue
         
-        self.logger.info(f"Successfully parsed {parsed_count} players with projections")
+        # Log parsing results with optimization info
+        optimization_messages = []
+        if SKIP_DRAFTED_PLAYER_UPDATES and skipped_drafted_count > 0:
+            optimization_messages.append(f"skipped {skipped_drafted_count} drafted players")
+        if USE_SCORE_THRESHOLD and skipped_low_score_count > 0:
+            optimization_messages.append(f"preserved {skipped_low_score_count} low-scoring players")
+
+        if optimization_messages:
+            self.logger.info(f"Successfully parsed {parsed_count} players with projections "
+                           f"({', '.join(optimization_messages)} for optimization)")
+        else:
+            self.logger.info(f"Successfully parsed {parsed_count} players with projections")
         
         # Apply empirical ADP mapping for 0-point players
         projections = self._apply_empirical_adp_mapping(projections)

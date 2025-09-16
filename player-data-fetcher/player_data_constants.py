@@ -59,7 +59,10 @@ from config import (
     POSITION_FALLBACK_CONFIG, DEFAULT_FALLBACK_CONFIG, PositionFallbackConfig,
     REQUEST_TIMEOUT, RATE_LIMIT_DELAY, NFL_SEASON, NFL_SCORING_FORMAT,
     OUTPUT_DIRECTORY, CREATE_CSV, CREATE_JSON, CREATE_EXCEL, CREATE_CONDENSED_EXCEL,
-    LOGGING_ENABLED, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE
+    LOGGING_ENABLED, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE,
+    CURRENT_NFL_WEEK, USE_WEEK_BY_WEEK_PROJECTIONS, USE_REMAINING_SEASON_PROJECTIONS,
+    INCLUDE_PLAYOFF_WEEKS, RECENT_WEEKS_FOR_AVERAGE, SKIP_DRAFTED_PLAYER_UPDATES,
+    USE_SCORE_THRESHOLD, PLAYER_SCORE_THRESHOLD
 )
 
 # Adjust file paths for player-data-fetcher subdirectory context
@@ -74,7 +77,7 @@ class ADPMappingConfig:
     min_adp_range_threshold: float = 0.1
     min_fantasy_points_bound_factor: float = 0.5
     max_fantasy_points_bound_factor: float = 1.1
-    uncertainty_adjustment_factor: float = 0.1
+    uncertainty_adjustment_factor: float = 0.6
 
 # TypedDict for position mapping data structure
 class PositionDataDict(TypedDict):
