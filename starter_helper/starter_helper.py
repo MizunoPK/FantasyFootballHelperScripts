@@ -23,8 +23,11 @@ Dependencies:
 import asyncio
 import logging
 import sys
+import os
 from pathlib import Path
 from datetime import datetime
+from io import StringIO
+from contextlib import redirect_stdout
 
 import pandas as pd
 
@@ -35,7 +38,8 @@ from config import (
     CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT,
     PLAYERS_CSV, LOGGING_ENABLED, LOGGING_LEVEL,
     SHOW_PROJECTION_DETAILS, SHOW_INJURY_STATUS,
-    RECOMMENDATION_COUNT, STARTING_LINEUP_REQUIREMENTS
+    RECOMMENDATION_COUNT, STARTING_LINEUP_REQUIREMENTS,
+    SAVE_OUTPUT_TO_FILE, DATA_DIR, get_timestamped_filepath, get_latest_filepath
 )
 from espn_current_week_client import ESPNCurrentWeekClient
 from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
@@ -49,6 +53,7 @@ class StarterHelper:
         self.logger = logging.getLogger(__name__)
         self.espn_client = ESPNCurrentWeekClient()
         self.optimizer = LineupOptimizer()
+        self.output_buffer = StringIO()
 
     def setup_logging(self):
         """Configure logging based on config settings"""
@@ -62,6 +67,46 @@ class StarterHelper:
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             datefmt='%H:%M:%S'
         )
+
+    def save_output_to_files(self, output_content: str):
+        """
+        Save output to both timestamped and latest files
+
+        Args:
+            output_content: The content to save to files
+        """
+        if not SAVE_OUTPUT_TO_FILE:
+            return
+
+        try:
+            # Ensure data directory exists
+            os.makedirs(DATA_DIR, exist_ok=True)
+
+            # Save to timestamped file
+            timestamped_file = get_timestamped_filepath()
+            with open(timestamped_file, 'w', encoding='utf-8') as f:
+                f.write(output_content)
+            self.logger.info(f"Results saved to: {timestamped_file}")
+
+            # Save to latest file
+            latest_file = get_latest_filepath()
+            with open(latest_file, 'w', encoding='utf-8') as f:
+                f.write(output_content)
+            self.logger.info(f"Latest results updated: {latest_file}")
+
+        except Exception as e:
+            self.logger.error(f"Error saving output to files: {str(e)}")
+            print(f"Warning: Could not save results to file: {str(e)}")
+
+    def print_and_capture(self, message: str):
+        """
+        Print message to console and capture for file output
+
+        Args:
+            message: The message to print and capture
+        """
+        print(message)
+        self.output_buffer.write(message + '\n')
 
     def load_roster_players(self) -> pd.DataFrame:
         """
@@ -118,9 +163,9 @@ class StarterHelper:
 
     def display_optimal_lineup(self, lineup: OptimalLineup):
         """Display the optimal starting lineup"""
-        print(f"\n{'='*80}")
-        print(f"OPTIMAL STARTING LINEUP - WEEK {CURRENT_NFL_WEEK} ({NFL_SCORING_FORMAT.upper()} SCORING)")
-        print(f"{'='*80}")
+        self.print_and_capture(f"\n{'='*80}")
+        self.print_and_capture(f"OPTIMAL STARTING LINEUP - WEEK {CURRENT_NFL_WEEK} ({NFL_SCORING_FORMAT.upper()} SCORING)")
+        self.print_and_capture(f"{'='*80}")
 
         # Define the order to display starters (as requested)
         starter_positions = [
@@ -155,14 +200,14 @@ class StarterHelper:
                 if SHOW_PROJECTION_DETAILS and recommendation.reason != "No penalties":
                     penalty_info = f" ({recommendation.reason})"
 
-                print(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{penalty_info}")
+                self.print_and_capture(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{penalty_info}")
 
             else:
-                print(f"{i:2d}. {pos_label:4s}: No available player")
+                self.print_and_capture(f"{i:2d}. {pos_label:4s}: No available player")
 
-        print(f"{'-'*80}")
-        print(f"TOTAL PROJECTED POINTS: {total_projected:.1f}")
-        print(f"{'-'*80}")
+        self.print_and_capture(f"{'-'*80}")
+        self.print_and_capture(f"TOTAL PROJECTED POINTS: {total_projected:.1f}")
+        self.print_and_capture(f"{'-'*80}")
 
     def display_bench_recommendations(self,
                                     bench_recommendations: list,
@@ -171,8 +216,8 @@ class StarterHelper:
         if not bench_recommendations:
             return
 
-        print(f"\nTOP BENCH ALTERNATIVES:")
-        print(f"{'-'*60}")
+        self.print_and_capture(f"\nTOP BENCH ALTERNATIVES:")
+        self.print_and_capture(f"{'-'*60}")
 
         for i, rec in enumerate(bench_recommendations, 1):
             name_team = f"{rec.name} ({rec.team}) - {rec.position}"
@@ -183,15 +228,15 @@ class StarterHelper:
             if SHOW_INJURY_STATUS and rec.injury_status != "ACTIVE":
                 status_info = f" [{rec.injury_status}]"
 
-            print(f"{i:2d}. {name_team:35s} - {points_info}{status_info}")
+            self.print_and_capture(f"{i:2d}. {name_team:35s} - {points_info}{status_info}")
 
     def display_roster_summary(self, roster_players: pd.DataFrame, projections: dict):
         """Display summary of all roster players with projections"""
         if not SHOW_PROJECTION_DETAILS:
             return
 
-        print(f"\nFULL ROSTER - WEEK {CURRENT_NFL_WEEK} PROJECTIONS:")
-        print(f"{'-'*80}")
+        self.print_and_capture(f"\nFULL ROSTER - WEEK {CURRENT_NFL_WEEK} PROJECTIONS:")
+        self.print_and_capture(f"{'-'*80}")
 
         # Sort by projected points (descending)
         roster_with_projections = []
@@ -222,21 +267,22 @@ class StarterHelper:
             if player['bye_week'] == CURRENT_NFL_WEEK:
                 bye_info = " [BYE]"
 
-            print(f"{i:2d}. {name_pos:40s} - {points_info}{status_info}{bye_info}")
+            self.print_and_capture(f"{i:2d}. {name_pos:40s} - {points_info}{status_info}{bye_info}")
 
     async def run(self):
         """Main execution method"""
         try:
-            print(f"Fantasy Football Starter Helper")
-            print(f"Week {CURRENT_NFL_WEEK} of {NFL_SEASON} NFL Season")
-            print(f"Scoring Format: {NFL_SCORING_FORMAT.upper()}")
-            print("="*60)
+            self.print_and_capture(f"Fantasy Football Starter Helper")
+            self.print_and_capture(f"Week {CURRENT_NFL_WEEK} of {NFL_SEASON} NFL Season")
+            self.print_and_capture(f"Scoring Format: {NFL_SCORING_FORMAT.upper()}")
+            self.print_and_capture("="*60)
 
             # Load roster players
             roster_players = self.load_roster_players()
 
             if roster_players.empty:
-                print("ERROR: No roster players found! Make sure players have drafted=2 in players.csv")
+                error_msg = "ERROR: No roster players found! Make sure players have drafted=2 in players.csv"
+                self.print_and_capture(error_msg)
                 return
 
             # Get current week projections
@@ -263,12 +309,23 @@ class StarterHelper:
             # Display full roster if detailed view is enabled
             self.display_roster_summary(roster_players, projections)
 
-            print(f"\nStarter recommendations complete for Week {CURRENT_NFL_WEEK}")
-            print(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            self.print_and_capture(f"\nStarter recommendations complete for Week {CURRENT_NFL_WEEK}")
+            self.print_and_capture(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+            # Save output to files
+            if SAVE_OUTPUT_TO_FILE:
+                output_content = self.output_buffer.getvalue()
+                self.save_output_to_files(output_content)
 
         except Exception as e:
             self.logger.error(f"Error in starter helper execution: {str(e)}")
-            print(f"Error: {str(e)}")
+            error_msg = f"Error: {str(e)}"
+            self.print_and_capture(error_msg)
+
+            # Save output even if there was an error
+            if SAVE_OUTPUT_TO_FILE:
+                output_content = self.output_buffer.getvalue()
+                self.save_output_to_files(output_content)
             raise
 
         finally:

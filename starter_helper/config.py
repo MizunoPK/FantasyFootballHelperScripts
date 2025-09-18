@@ -60,6 +60,31 @@ FALLBACK_TO_SEASON_PROJECTIONS = True  # Use season projections if current week 
 
 # Data paths
 PLAYERS_CSV = '../shared_files/players.csv'
+DATA_DIR = './data'
+
+# =============================================================================
+# FILE OUTPUT CONFIGURATION
+# =============================================================================
+
+# Output file settings (FREQUENTLY MODIFIED)
+SAVE_OUTPUT_TO_FILE = True          # Enable/disable file output
+OUTPUT_FILE_PREFIX = 'starter_results'  # Prefix for output files
+LATEST_FILE_NAME = 'starter_results_latest.txt'  # Latest results file name
+
+# File paths (auto-generated based on above settings)
+def get_timestamped_filename():
+    """Generate timestamped filename for current run"""
+    from datetime import datetime
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    return f"{OUTPUT_FILE_PREFIX}_{timestamp}.txt"
+
+def get_latest_filepath():
+    """Get path to latest results file"""
+    return f"{DATA_DIR}/{LATEST_FILE_NAME}"
+
+def get_timestamped_filepath():
+    """Get path to timestamped results file"""
+    return f"{DATA_DIR}/{get_timestamped_filename()}"
 
 # =============================================================================
 # SCORING AND PENALTIES
@@ -132,6 +157,10 @@ STRATEGY CHANGES:
 1. INJURY_PENALTIES - Adjust risk tolerance for questionable players
 2. SHOW_PROJECTION_DETAILS - Show/hide detailed projection information
 3. RECOMMENDATION_COUNT - Number of players to display
+
+FILE OUTPUT:
+1. SAVE_OUTPUT_TO_FILE - Enable/disable saving results to files
+2. OUTPUT_FILE_PREFIX - Change the prefix for output file names
 
 LEAGUE SETTINGS:
 1. STARTING_LINEUP_REQUIREMENTS - Adjust for different league formats
