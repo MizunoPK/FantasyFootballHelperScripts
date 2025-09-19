@@ -32,8 +32,8 @@ PRESERVE_DRAFTED_VALUES = True   # Keep draft status between data updates
 PRESERVE_LOCKED_VALUES = False    # Keep locked players between data updates
 
 # Optimization Settings (FREQUENTLY MODIFIED)
-SKIP_DRAFTED_PLAYER_UPDATES = True  # Skip API calls for drafted=1 players (major optimization)
-USE_SCORE_THRESHOLD = True  # Only update players above score threshold (preserves low-scoring player data)
+SKIP_DRAFTED_PLAYER_UPDATES = False  # Skip API calls for drafted=1 players (major optimization)
+USE_SCORE_THRESHOLD = False  # Only update players above score threshold (preserves low-scoring player data)
 PLAYER_SCORE_THRESHOLD = 50.0  # Minimum fantasy points to trigger API update
 
 # Output Settings (FREQUENTLY MODIFIED)
@@ -90,7 +90,15 @@ RATE_LIMIT_DELAY = 0.2
 EXCEL_POSITION_SHEETS = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 EXPORT_COLUMNS = [
     'id', 'name', 'team', 'position', 'bye_week', 'fantasy_points',
-    'injury_status', 'drafted', 'locked'
+    'injury_status', 'drafted', 'locked',
+    # Weekly projections (weeks 1-18 regular season)
+    'week_1_points', 'week_2_points', 'week_3_points', 'week_4_points',
+    'week_5_points', 'week_6_points', 'week_7_points', 'week_8_points',
+    'week_9_points', 'week_10_points', 'week_11_points', 'week_12_points',
+    'week_13_points', 'week_14_points', 'week_15_points', 'week_16_points',
+    'week_17_points', 'week_18_points',
+    # Playoff weeks (weeks 19-22) - optional
+    'week_19_points', 'week_20_points', 'week_21_points', 'week_22_points'
 ]
 
 # =============================================================================

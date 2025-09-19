@@ -3,11 +3,11 @@
 Fantasy Football Starter Helper
 
 This script analyzes your current roster and recommends optimal starting lineups
-based on current week projections from ESPN API.
+based on current week projections from players.csv weekly columns.
 
 Features:
 - Identifies current roster players (drafted=2)
-- Fetches fresh current week projections from ESPN
+- Reads current week projections from CSV weekly columns (no API requests)
 - Recommends optimal starting lineup: QB, RB, RB, WR, WR, TE, FLEX, K, DEF
 - Handles FLEX position (best available RB or WR)
 - Applies injury and bye week penalties
@@ -17,7 +17,7 @@ Author: Generated for NFL Fantasy Data Collection
 Last Updated: September 2025
 
 Dependencies:
-    pip install httpx pandas tenacity
+    pip install pandas
 """
 
 import asyncio
@@ -34,14 +34,14 @@ import pandas as pd
 # Add parent directory to path for shared imports
 sys.path.append(str(Path(__file__).parent.parent))
 
-from config import (
+from starter_helper_config import (
     CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT,
     PLAYERS_CSV, LOGGING_ENABLED, LOGGING_LEVEL,
     SHOW_PROJECTION_DETAILS, SHOW_INJURY_STATUS,
     RECOMMENDATION_COUNT, STARTING_LINEUP_REQUIREMENTS,
     SAVE_OUTPUT_TO_FILE, DATA_DIR, get_timestamped_filepath, get_latest_filepath
 )
-from espn_current_week_client import ESPNCurrentWeekClient
+# from espn_current_week_client import ESPNCurrentWeekClient  # No longer needed - using CSV weekly columns
 from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
 
 
@@ -51,7 +51,6 @@ class StarterHelper:
     def __init__(self):
         self.setup_logging()
         self.logger = logging.getLogger(__name__)
-        self.espn_client = ESPNCurrentWeekClient()
         self.optimizer = LineupOptimizer()
         self.output_buffer = StringIO()
 
@@ -137,9 +136,9 @@ class StarterHelper:
             self.logger.error(f"Error loading roster players: {str(e)}")
             raise
 
-    async def get_current_week_projections(self, roster_players: pd.DataFrame) -> dict:
+    def get_current_week_projections(self, roster_players: pd.DataFrame) -> dict:
         """
-        Fetch current week projections for all roster players
+        Get current week projections for all roster players from CSV weekly columns
 
         Args:
             roster_players: DataFrame of roster players
@@ -147,17 +146,40 @@ class StarterHelper:
         Returns:
             Dictionary mapping player_id to current week projected points
         """
-        self.logger.info(f"Fetching Week {CURRENT_NFL_WEEK} projections for roster players")
+        self.logger.info(f"Reading Week {CURRENT_NFL_WEEK} projections from players.csv weekly columns")
 
-        # Extract player IDs
-        player_ids = [str(player_id) for player_id in roster_players['id'].tolist()]
+        projections = {}
+        week_column = f"week_{CURRENT_NFL_WEEK}_points"
 
-        # Get projections from ESPN API
-        projections = await self.espn_client.get_roster_current_week_projections(player_ids)
+        # Check if the weekly column exists in the DataFrame
+        if week_column not in roster_players.columns:
+            self.logger.warning(f"Column '{week_column}' not found in players.csv. Available columns: {roster_players.columns.tolist()}")
+            # Return empty projections if column doesn't exist
+            return {str(player_id): 0.0 for player_id in roster_players['id'].tolist()}
+
+        # Extract projections from the weekly column
+        for _, player in roster_players.iterrows():
+            player_id = str(player['id'])
+            week_points = player.get(week_column, 0.0)
+
+            # Handle NaN, None, or invalid values
+            try:
+                projections[player_id] = float(week_points) if pd.notna(week_points) else 0.0
+            except (ValueError, TypeError):
+                projections[player_id] = 0.0
+                self.logger.warning(f"Invalid weekly points for player {player.get('name', 'Unknown')} (ID: {player_id}): {week_points}")
 
         # Log summary
         successful_projections = sum(1 for p in projections.values() if p > 0)
-        self.logger.info(f"Retrieved {successful_projections}/{len(player_ids)} projections")
+        total_players = len(projections)
+        self.logger.info(f"Retrieved {successful_projections}/{total_players} projections from CSV weekly columns")
+
+        # Log some example projections for verification
+        if projections:
+            top_projections = sorted(projections.items(), key=lambda x: x[1], reverse=True)[:3]
+            for player_id, points in top_projections:
+                player_name = roster_players[roster_players['id'] == int(player_id)]['name'].iloc[0] if len(roster_players[roster_players['id'] == int(player_id)]) > 0 else "Unknown"
+                self.logger.info(f"Sample projection: {player_name} (ID: {player_id}) = {points:.1f} points")
 
         return projections
 
@@ -286,7 +308,7 @@ class StarterHelper:
                 return
 
             # Get current week projections
-            projections = await self.get_current_week_projections(roster_players)
+            projections = self.get_current_week_projections(roster_players)
 
             # Optimize lineup
             optimal_lineup = self.optimizer.optimize_lineup(roster_players, projections)
@@ -329,8 +351,8 @@ class StarterHelper:
             raise
 
         finally:
-            # Clean up ESPN client
-            await self.espn_client.close()
+            # No cleanup needed for CSV-based approach
+            pass
 
 
 async def main():

@@ -8,9 +8,9 @@ Author: Generated for NFL Fantasy Data Collection
 Last Updated: September 2025
 """
 
-from .models import ScoringFormat, ProjectionData, ESPNPlayerData, DataCollectionError
-from .espn_client import ESPNClient
-from .data_exporter import DataExporter
+from player_data_models import ScoringFormat, ProjectionData, ESPNPlayerData, DataCollectionError
+from espn_client import ESPNClient
+from player_data_exporter import DataExporter
 
 __version__ = "2.0.0"
 __all__ = [

@@ -53,7 +53,7 @@ import sys
 from pathlib import Path
 
 # Import frequently modified constants from script-specific config
-from config import (
+from player_data_fetcher_config import (
     EXCEL_POSITION_SHEETS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES,
     EXPORT_COLUMNS, PLAYERS_CSV, ESPN_USER_AGENT, ESPN_PLAYER_LIMIT,
     POSITION_FALLBACK_CONFIG, DEFAULT_FALLBACK_CONFIG, PositionFallbackConfig,

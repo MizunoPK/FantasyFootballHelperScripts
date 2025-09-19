@@ -11,7 +11,7 @@ Last Updated: September 2025
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -26,29 +26,74 @@ class ScoringFormat(str, Enum):
 class ESPNPlayerData(BaseModel):
     """
     ESPN player data model with fantasy projections.
-    
+
     This model represents player data as received from ESPN's fantasy API,
     with proper field separation (no field reuse) and validation.
     """
-    
+
     # Core player identification
     id: str
     name: str
     team: str
     position: str
-    
+
     # Fantasy data
     bye_week: Optional[int] = None
-    drafted: int = 0  # 0 = not drafted, 1 = drafted
+    drafted: int = 0  # 0 = not drafted, 1 = drafted, 2 = roster player
+    locked: int = 0   # 0 = not locked, 1 = locked
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None  # ESPN's ADP data
-    
+
+    # Weekly projections (weeks 1-18 for regular season)
+    week_1_points: Optional[float] = None
+    week_2_points: Optional[float] = None
+    week_3_points: Optional[float] = None
+    week_4_points: Optional[float] = None
+    week_5_points: Optional[float] = None
+    week_6_points: Optional[float] = None
+    week_7_points: Optional[float] = None
+    week_8_points: Optional[float] = None
+    week_9_points: Optional[float] = None
+    week_10_points: Optional[float] = None
+    week_11_points: Optional[float] = None
+    week_12_points: Optional[float] = None
+    week_13_points: Optional[float] = None
+    week_14_points: Optional[float] = None
+    week_15_points: Optional[float] = None
+    week_16_points: Optional[float] = None
+    week_17_points: Optional[float] = None
+    week_18_points: Optional[float] = None
+
+    # Playoff weeks (weeks 19-22) - optional
+    week_19_points: Optional[float] = None
+    week_20_points: Optional[float] = None
+    week_21_points: Optional[float] = None
+    week_22_points: Optional[float] = None
+
     # Injury information (proper field instead of reusing others)
     injury_status: str = "ACTIVE"  # ACTIVE, QUESTIONABLE, OUT, etc.
-    
+
     # Metadata
     api_source: str = "ESPN"
     updated_at: datetime = Field(default_factory=datetime.now)
+
+    def set_week_points(self, week: int, points: float):
+        """Set points for a specific week"""
+        if 1 <= week <= 22:
+            setattr(self, f"week_{week}_points", points)
+
+    def get_week_points(self, week: int) -> Optional[float]:
+        """Get points for a specific week"""
+        if 1 <= week <= 22:
+            return getattr(self, f"week_{week}_points", None)
+        return None
+
+    def get_all_weekly_points(self) -> Dict[int, Optional[float]]:
+        """Get all weekly points as a dictionary"""
+        return {
+            week: self.get_week_points(week)
+            for week in range(1, 23)
+        }
 
 
 class PlayerProjection(ESPNPlayerData):

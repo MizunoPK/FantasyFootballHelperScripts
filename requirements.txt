@@ -1,24 +1,28 @@
-requests
+# Fantasy Football Helper Scripts - Requirements
+# Python 3.13.6+ compatible dependencies
 
-# HTTP Client for async requests
-httpx>=0.24.0
+# HTTP clients
+requests>=2.31.0                    # Legacy HTTP support (minimal usage)
+httpx>=0.24.0                       # Modern async HTTP client (primary)
 
-# Data validation and settings management
-pydantic>=2.0.0
-pydantic-settings>=2.0.0
+# Data validation and type safety
+pydantic>=2.0.0                     # Runtime type checking and data validation
+pydantic-settings>=2.0.0            # Configuration management with validation
 
-# Retry logic and resilience
-tenacity>=8.2.0
+# Async operations and resilience
+tenacity>=8.2.0                     # Retry logic with exponential backoff
+aiofiles>=23.0.0                    # Async file I/O for concurrent export
 
-# Environment variable management
-python-dotenv>=1.0.0
+# Environment and configuration
+python-dotenv>=1.0.0                # Environment variable management
 
 # Data processing and export
-pandas>=2.0.0
+pandas>=2.0.0                       # Data manipulation and CSV/Excel processing
+openpyxl>=3.1.0                     # Excel file format support
 
-# Excel file support
-openpyxl>=3.1.0
+# Testing framework
+pytest>=8.0.0                       # Unit testing framework
+pytest-asyncio>=0.24.0              # Async test support for starter_helper tests
 
-# Async file I/O (for data exporter)
-aiofiles>=23.0.0
-
+# Optional: Enhanced testing
+colorama>=0.4.6                     # Color output for pytest (auto-installed with pytest)

@@ -8,9 +8,9 @@ Author: Generated for NFL Fantasy Data Collection
 Last Updated: September 2025
 """
 
-from .models import Team, GameScore, WeeklyScores, ScoreDataCollectionError, NFLAPIError
-from .nfl_api_client import NFLAPIClient
-from .data_exporter import ScoresDataExporter
+from nfl_scores_models import Team, GameScore, WeeklyScores, ScoreDataCollectionError, NFLAPIError
+from nfl_api_client import NFLAPIClient
+from nfl_scores_exporter import ScoresDataExporter
 
 __version__ = "2.0.0"
 __all__ = [

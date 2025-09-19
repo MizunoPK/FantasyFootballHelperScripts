@@ -20,7 +20,14 @@ import math
 import httpx
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from models import ESPNPlayerData, ScoringFormat
+from player_data_models import ESPNPlayerData, ScoringFormat
+# Import shared fantasy points calculator
+import sys
+from pathlib import Path
+# Add shared_files to path using robust path resolution
+shared_files_path = Path(__file__).parent.parent / "shared_files"
+sys.path.insert(0, str(shared_files_path))
+from fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
 from player_data_constants import (
     ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS, ESPN_USER_AGENT, ESPN_PLAYER_LIMIT,
     MIN_PLAYERS_FOR_EMPIRICAL_MAPPING, MIN_PLAYERS_PER_POSITION_MAPPING,
@@ -55,20 +62,31 @@ class BaseAPIClient:
         self.settings = settings
         self.logger = logging.getLogger(__name__)
         self._client = None
+        self._session_lock = asyncio.Lock()
     
     @asynccontextmanager
     async def session(self):
-        """Async context manager for HTTP client session"""
-        if self._client is None:
-            timeout = httpx.Timeout(self.settings.request_timeout)
-            self._client = httpx.AsyncClient(timeout=timeout)
-        
+        """Async context manager for HTTP client session with race condition protection"""
+        async with self._session_lock:
+            if self._client is None:
+                timeout = httpx.Timeout(self.settings.request_timeout)
+                self._client = httpx.AsyncClient(timeout=timeout)
+                self.logger.debug("Created new HTTP client session")
+
         try:
             yield self._client
         finally:
+            # Note: We don't close the client here to allow reuse
+            # The client will be closed when the class instance is destroyed
+            pass
+
+    async def close(self):
+        """Close the HTTP client session"""
+        async with self._session_lock:
             if self._client:
                 await self._client.aclose()
                 self._client = None
+                self.logger.debug("Closed HTTP client session")
     
     @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10))
     async def _make_request(self, method: str, url: str, **kwargs) -> Dict[str, Any]:
@@ -109,6 +127,15 @@ class ESPNClient(BaseAPIClient):
         self.bye_weeks: Dict[str, int] = {}
         self.drafted_player_ids: Set[str] = set()
         self.low_score_player_data: Dict[str, Dict] = {}
+
+        # Initialize shared fantasy points extractor
+        fp_config = FantasyPointsConfig(
+            prefer_actual_over_projected=True,
+            include_negative_dst_points=True,
+            use_historical_fallback=True,
+            use_adp_estimation=True
+        )
+        self.fantasy_points_extractor = FantasyPointsExtractor(fp_config, settings.season)
 
         # Load optimization data (drafted player IDs and low-score player data)
         if SKIP_DRAFTED_PLAYER_UPDATES or USE_SCORE_THRESHOLD:
@@ -229,16 +256,16 @@ class ESPNClient(BaseAPIClient):
             for week in range(start_week, end_week + 1):
                 week_points = None
 
-                # For past weeks (week <= CURRENT_NFL_WEEK), prefer actual data
+                # Extract week points using standardized logic (always prefers actual over projected)
+                week_points = self._extract_week_points(all_weeks_data, week, position=position, player_name=name)
+
+                # Determine data type for logging
                 if not USE_REMAINING_SEASON_PROJECTIONS and week <= CURRENT_NFL_WEEK:
-                    week_points = self._extract_week_points(all_weeks_data, week, prefer_actual=True, position=position)
                     data_type = 'actual'
                 else:
-                    # For future weeks, use projections
-                    week_points = self._extract_week_points(all_weeks_data, week, prefer_actual=False, position=position)
                     data_type = 'projected'
 
-                if week_points is not None and week_points > 0:
+                if week_points > 0:
                     total_projection += week_points
                     weeks_processed += 1
                     self.logger.debug(f"{name} Week {week}: {week_points:.1f} points ({data_type})")
@@ -281,57 +308,117 @@ class ESPNClient(BaseAPIClient):
             self.logger.warning(f"Failed to get all weeks data for player {player_id}: {e}")
             return None
 
-    def _extract_week_points(self, player_data: dict, week: int, prefer_actual: bool, position: str) -> Optional[float]:
-        """Extract points for a specific week from player data"""
+    def _extract_week_points(self, player_data: dict, week: int, position: str, player_name: str = "Unknown") -> float:
+        """
+        Extract points for a specific week from player data using shared logic
+
+        NOTE: This now uses the shared FantasyPointsExtractor for consistent logic
+        across all modules. The prefer_actual parameter has been removed as we
+        now standardize on always preferring appliedTotal over projectedTotal.
+        """
+        try:
+            # Use shared fantasy points extractor
+            # Note: player_data already has the correct structure with 'stats' array
+            points = self.fantasy_points_extractor.extract_week_points(
+                player_data={'player': player_data},  # Wrap to match expected structure
+                week=week,
+                position=position,
+                player_name=player_name,
+                fallback_data=None  # Will add ADP fallback in future if needed
+            )
+
+            return points if points is not None else 0.0
+
+        except Exception as e:
+            self.logger.error(f"Error extracting week points for {player_name} week {week}: {str(e)}")
+            return 0.0
+
+    async def _populate_weekly_projections(self, player_data: ESPNPlayerData, player_id: str, name: str, position: str):
+        """
+        Populate weekly projections for a player if week-by-week projections are enabled
+
+        Args:
+            player_data: The ESPNPlayerData object to populate
+            player_id: ESPN player ID
+            name: Player name for logging
+            position: Player position
+        """
+        if not USE_WEEK_BY_WEEK_PROJECTIONS:
+            return
+
+        try:
+            # Get all weekly data for this player
+            all_weeks_data = await self._get_all_weeks_data(player_id, position)
+            if not all_weeks_data:
+                return
+
+            # Determine week range (include playoffs if configured)
+            end_week = 22 if INCLUDE_PLAYOFF_WEEKS else 18
+
+            # Collect weekly projections for all weeks
+            for week in range(1, end_week + 1):
+                # Get raw points from ESPN data without fallbacks
+                espn_points = self._extract_raw_espn_week_points(all_weeks_data, week, position)
+
+                if espn_points is not None and espn_points > 0:
+                    player_data.set_week_points(week, espn_points)
+                    self.logger.debug(f"{name} Week {week}: {espn_points:.1f} points (ESPN data)")
+                else:
+                    # Set to 0.0 when no ESPN data available instead of leaving empty
+                    player_data.set_week_points(week, 0.0)
+                    self.logger.debug(f"{name} Week {week}: 0.0 points (no ESPN data)")
+
+        except Exception as e:
+            self.logger.warning(f"Failed to populate weekly projections for {name}: {str(e)}")
+
+    def _extract_raw_espn_week_points(self, player_data: dict, week: int, position: str) -> Optional[float]:
+        """
+        Extract points for a specific week from ESPN data only (no fallbacks)
+
+        Returns None if no ESPN data is available for this week, rather than falling back to position defaults.
+        This ensures we only populate weekly columns with actual ESPN projection data.
+        """
         try:
             stats = player_data.get('stats', [])
             if not stats:
                 return None
 
-            # Collect all viable entries for this week
-            current_season_entries = []
-            historical_entries = []
+            # Look for exact week match in current season
+            for stat in stats:
+                if not isinstance(stat, dict):
+                    continue
 
-            for stat_entry in stats:
-                season_id = stat_entry.get('seasonId')
-                scoring_period = stat_entry.get('scoringPeriodId')
+                season_id = stat.get('seasonId')
+                scoring_period = stat.get('scoringPeriodId')
 
-                # Look for the specific week we want
-                if scoring_period == week:
-                    points = None
+                if season_id == self.settings.season and scoring_period == week:
+                    # Check for actual ESPN data (prefer appliedTotal over projectedTotal)
+                    if 'appliedTotal' in stat and stat['appliedTotal'] is not None:
+                        try:
+                            points = float(stat['appliedTotal'])
+                            # Check for NaN values and treat them as None
+                            if math.isnan(points):
+                                continue
+                            if position == 'DST' or points >= 0:  # Allow negative DST, filter negative others
+                                return points
+                        except (ValueError, TypeError):
+                            continue
+                    elif 'projectedTotal' in stat and stat['projectedTotal'] is not None:
+                        try:
+                            points = float(stat['projectedTotal'])
+                            # Check for NaN values and treat them as None
+                            if math.isnan(points):
+                                continue
+                            if position == 'DST' or points >= 0:  # Allow negative DST, filter negative others
+                                return points
+                        except (ValueError, TypeError):
+                            continue
 
-                    # Get points based on preference and availability
-                    if prefer_actual:
-                        # Priority: appliedTotal (actual) > projectedTotal > None
-                        if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
-                            points = float(stat_entry['appliedTotal'])
-                        elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
-                            points = float(stat_entry['projectedTotal'])
-                    else:
-                        # Priority: projectedTotal > appliedTotal > None
-                        if 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
-                            points = float(stat_entry['projectedTotal'])
-                        elif 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
-                            points = float(stat_entry['appliedTotal'])
-
-                    # Validate points (skip negatives except for DST)
-                    if points is not None and (position == 'DST' or points >= 0):
-                        if season_id == self.settings.season:
-                            current_season_entries.append(points)
-                        elif season_id == self.settings.season - 1:
-                            historical_entries.append(points)
-
-            # Use current season data if available, otherwise fall back to historical
-            if current_season_entries:
-                return sum(current_season_entries) / len(current_season_entries)
-            elif historical_entries and not prefer_actual:
-                # Only use historical for projections, not actual performance
-                return sum(historical_entries) / len(historical_entries)
-
+            # No ESPN data found for this week
             return None
 
         except Exception as e:
-            self.logger.warning(f"Failed to extract week {week} points: {e}")
+            self.logger.debug(f"Error extracting raw ESPN week points: {str(e)}")
             return None
 
     async def _get_week_actual_performance(self, player_id: str, week: int, position: str) -> Optional[float]:
@@ -693,6 +780,9 @@ class ESPNClient(BaseAPIClient):
                     injury_status=injury_status,
                     api_source="ESPN"
                 )
+
+                # Collect weekly projections for this player
+                await self._populate_weekly_projections(projection, id, name, position)
                 
                 projections.append(projection)
                 parsed_count += 1

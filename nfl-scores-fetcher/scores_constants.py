@@ -12,7 +12,7 @@ Last Updated: September 2025
 from typing import Dict
 
 # Import frequently modified constants from script-specific config
-from config import (
+from nfl_scores_fetcher_config import (
     NFL_SCORES_SEASON, NFL_SCORES_SEASON_TYPE, NFL_SCORES_CURRENT_WEEK,
     NFL_SCORES_ONLY_COMPLETED_GAMES, OUTPUT_DIRECTORY, CREATE_CSV,
     CREATE_JSON, CREATE_EXCEL, REQUEST_TIMEOUT, RATE_LIMIT_DELAY,

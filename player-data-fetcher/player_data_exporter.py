@@ -20,11 +20,11 @@ import csv
 import aiofiles
 import pandas as pd
 
+from player_data_models import ProjectionData, ESPNPlayerData
+
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-
-from models import ProjectionData, ESPNPlayerData
 from shared_files.FantasyPlayer import FantasyPlayer
 from player_data_constants import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, DRAFT_HELPER_PLAYERS_FILE, SKIP_DRAFTED_PLAYER_UPDATES
 
@@ -50,59 +50,93 @@ class DataExporter:
         """Export data to JSON format asynchronously"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename_suffix = f"_{data.scoring_format}"
-        
+
         filename = f"nfl_projections_season_{timestamp}{filename_suffix}.json"
         filepath = self.output_dir / filename
-        
-        # Convert to JSON-serializable format
-        json_data = {
-            "season": data.season,
-            "scoring_format": data.scoring_format,
-            "total_players": data.total_players,
-            "generated_at": data.generated_at.isoformat(),
-            "players": [player.model_dump() for player in data.players]
-        }
-        
-        # Write JSON file asynchronously
-        async with aiofiles.open(filepath, 'w', encoding='utf-8') as f:
-            await f.write(json.dumps(json_data, indent=2, default=str))
-        
-        # Create latest version if requested
-        if self.create_latest_files:
-            latest_filename = f"nfl_projections_latest_season.json"
-            latest_filepath = self.output_dir / latest_filename
-            
-            async with aiofiles.open(latest_filepath, 'w', encoding='utf-8') as f:
+
+        try:
+            # Ensure the output directory exists
+            filepath.parent.mkdir(parents=True, exist_ok=True)
+
+            # Convert to JSON-serializable format
+            json_data = {
+                "season": data.season,
+                "scoring_format": data.scoring_format,
+                "total_players": data.total_players,
+                "generated_at": data.generated_at.isoformat(),
+                "players": [player.model_dump() for player in data.players]
+            }
+
+            # Write JSON file asynchronously
+            async with aiofiles.open(filepath, 'w', encoding='utf-8') as f:
                 await f.write(json.dumps(json_data, indent=2, default=str))
-        
-        return str(filepath)
+
+            # Create latest version if requested
+            if self.create_latest_files:
+                latest_filename = f"nfl_projections_latest_season.json"
+                latest_filepath = self.output_dir / latest_filename
+
+                async with aiofiles.open(latest_filepath, 'w', encoding='utf-8') as f:
+                    await f.write(json.dumps(json_data, indent=2, default=str))
+
+            return str(filepath)
+
+        except PermissionError as e:
+            self.logger.error(f"Permission denied writing JSON file {filepath}: {e}")
+            raise
+        except OSError as e:
+            self.logger.error(f"OS error writing JSON file {filepath}: {e}")
+            raise
+        except json.JSONEncodeError as e:
+            self.logger.error(f"JSON serialization error for {filepath}: {e}")
+            raise
+        except Exception as e:
+            self.logger.error(f"Unexpected error exporting JSON file {filepath}: {e}")
+            raise
     
     async def export_csv(self, data: ProjectionData) -> str:
         """Export data to CSV format asynchronously"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename_suffix = f"_{data.scoring_format}"
-        
+
         filename = f"nfl_projections_season_{timestamp}{filename_suffix}.csv"
         filepath = self.output_dir / filename
-        
-        # Prepare DataFrame with standard column ordering
-        df = self._prepare_export_dataframe(data)
-        
-        # Write CSV asynchronously using asyncio thread pool  
-        await asyncio.get_event_loop().run_in_executor(
-            None, lambda: df.to_csv(str(filepath), index=False)
-        )
-        
-        # Create latest version if requested
-        if self.create_latest_files:
-            latest_filename = f"nfl_projections_latest_season.csv"
-            latest_filepath = self.output_dir / latest_filename
-            
+
+        try:
+            # Ensure the output directory exists
+            filepath.parent.mkdir(parents=True, exist_ok=True)
+
+            # Prepare DataFrame with standard column ordering
+            df = self._prepare_export_dataframe(data)
+
+            # Write CSV asynchronously using asyncio thread pool
             await asyncio.get_event_loop().run_in_executor(
-                None, lambda: df.to_csv(str(latest_filepath), index=False)
+                None, lambda: df.to_csv(str(filepath), index=False)
             )
-        
-        return str(filepath)
+
+            # Create latest version if requested
+            if self.create_latest_files:
+                latest_filename = f"nfl_projections_latest_season.csv"
+                latest_filepath = self.output_dir / latest_filename
+
+                await asyncio.get_event_loop().run_in_executor(
+                    None, lambda: df.to_csv(str(latest_filepath), index=False)
+                )
+
+            return str(filepath)
+
+        except PermissionError as e:
+            self.logger.error(f"Permission denied writing CSV file {filepath}: {e}")
+            raise
+        except OSError as e:
+            self.logger.error(f"OS error writing CSV file {filepath}: {e}")
+            raise
+        except ValueError as e:
+            self.logger.error(f"Data validation error for CSV export {filepath}: {e}")
+            raise
+        except Exception as e:
+            self.logger.error(f"Unexpected error exporting CSV file {filepath}: {e}")
+            raise
     
     async def export_excel(self, data: ProjectionData) -> str:
         """Export data to Excel format with position sheets asynchronously"""
@@ -145,7 +179,13 @@ class DataExporter:
         for col in EXPORT_COLUMNS:
             if col not in df.columns:
                 df[col] = None
-        
+
+        # Replace NaN values in weekly projection columns with 0.0
+        weekly_columns = [col for col in EXPORT_COLUMNS if col.startswith('week_') and col.endswith('_points')]
+        for col in weekly_columns:
+            if col in df.columns:
+                df[col] = df[col].fillna(0.0)
+
         # Return DataFrame with standardized column order
         return df[EXPORT_COLUMNS]
     
@@ -272,7 +312,31 @@ class DataExporter:
             locked=locked_value,
             fantasy_points=player_data.fantasy_points,
             average_draft_position=player_data.average_draft_position,
-            injury_status=player_data.injury_status
+            injury_status=player_data.injury_status,
+            # Weekly projections (weeks 1-18 for regular season)
+            week_1_points=player_data.week_1_points,
+            week_2_points=player_data.week_2_points,
+            week_3_points=player_data.week_3_points,
+            week_4_points=player_data.week_4_points,
+            week_5_points=player_data.week_5_points,
+            week_6_points=player_data.week_6_points,
+            week_7_points=player_data.week_7_points,
+            week_8_points=player_data.week_8_points,
+            week_9_points=player_data.week_9_points,
+            week_10_points=player_data.week_10_points,
+            week_11_points=player_data.week_11_points,
+            week_12_points=player_data.week_12_points,
+            week_13_points=player_data.week_13_points,
+            week_14_points=player_data.week_14_points,
+            week_15_points=player_data.week_15_points,
+            week_16_points=player_data.week_16_points,
+            week_17_points=player_data.week_17_points,
+            week_18_points=player_data.week_18_points,
+            # Playoff weeks (weeks 19-22) - optional
+            week_19_points=player_data.week_19_points,
+            week_20_points=player_data.week_20_points,
+            week_21_points=player_data.week_21_points,
+            week_22_points=player_data.week_22_points
         )
     
     def get_fantasy_players(self, data: ProjectionData) -> List[FantasyPlayer]:
@@ -320,19 +384,33 @@ class DataExporter:
         """Export data to shared_files/players.csv for use by draft helper"""
         # Resolve path to shared_files/players.csv
         draft_file_path = Path(__file__).parent / DRAFT_HELPER_PLAYERS_FILE
-        
-        # Prepare DataFrame with preserved drafted/locked values
-        df = self._prepare_export_dataframe(data)
-        
-        # Export to CSV asynchronously
-        async with aiofiles.open(str(draft_file_path), mode='w', newline='', encoding='utf-8') as csvfile:
-            # Write header
-            await csvfile.write(','.join(EXPORT_COLUMNS) + '\n')
-            
-            # Write data rows
-            for _, row in df.iterrows():
-                row_data = [str(row[col]) for col in EXPORT_COLUMNS]
-                await csvfile.write(','.join(row_data) + '\n')
-        
-        self.logger.info(f"Exported {len(df)} players to shared files: {draft_file_path}")
-        return str(draft_file_path)
+
+        try:
+            # Ensure the directory exists
+            draft_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Prepare DataFrame with preserved drafted/locked values
+            df = self._prepare_export_dataframe(data)
+
+            # Export to CSV asynchronously
+            async with aiofiles.open(str(draft_file_path), mode='w', newline='', encoding='utf-8') as csvfile:
+                # Write header
+                await csvfile.write(','.join(EXPORT_COLUMNS) + '\n')
+
+                # Write data rows
+                for _, row in df.iterrows():
+                    row_data = [str(row[col]) for col in EXPORT_COLUMNS]
+                    await csvfile.write(','.join(row_data) + '\n')
+
+            self.logger.info(f"Exported {len(df)} players to shared files: {draft_file_path}")
+            return str(draft_file_path)
+
+        except PermissionError as e:
+            self.logger.error(f"Permission denied writing to {draft_file_path}: {e}")
+            raise
+        except OSError as e:
+            self.logger.error(f"OS error writing to {draft_file_path}: {e}")
+            raise
+        except Exception as e:
+            self.logger.error(f"Unexpected error exporting to shared files: {e}")
+            raise

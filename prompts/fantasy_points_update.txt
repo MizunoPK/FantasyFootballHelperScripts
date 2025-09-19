@@ -1,0 +1,14 @@
+We are going to update the way that the total fantasy_points score gets calculated.
+Instead of using the seasonal projections, we are just going to add up all of the Weekly projections and compile our own Seasonal projection.
+The script should start by getting the weekly projection data for all players in the given season (2025). Do this with as few API calls as possible. Reference the ESPN_data_report.md file for information about the API to find ways to optimize this process.
+Remove the toggle for whether or not to include the playoff weeks - just include them by default.
+If the player has points in the appliedTotal field - then I think that should mean that the player did in fact play that week and got an actual score. If they have an actual score, then make use of it for that week's data. If they do not have an actual score, then use the projected score for that week.
+Once a player has been loaded with all of their weekly points, add them all up to get a seasonal projection and set that to the fantasy_points column.
+If weekly data is not present for a player, try to fetch the seasonal projection for the current year and set that to be the fantasy_points, with the average per week based off that seasonal projection set to each week in the 
+If neither weekly data or seasonal data is present, then do the ADP estimation that we have previously done.
+Remove the checks for previous year (2024) data. If none of the previous checks produce anything then just leave the scores at 0 and display a list at the end of player data fetching showing a list of the players than reached this state and couldn't get data.
+
+Before starting changes, create a TODO file that maps out all the tasks that will need to be completed to accomplish this objective. As you complete the tasks, keep the file updated with your progress just in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made. Put the TODO file in the todo-files folder in this directory.
+After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Create/modify any relevant unit tests and test them to ensure they pass.
+Update rules files and readme files according to the new changes.
+Ask me any clarifying questions that would help you better understand and complete this objective.

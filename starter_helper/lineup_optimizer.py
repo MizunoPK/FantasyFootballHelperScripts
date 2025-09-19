@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 import pandas as pd
 
-from config import (
+from starter_helper_config import (
     STARTING_LINEUP_REQUIREMENTS, FLEX_ELIGIBLE_POSITIONS,
     INJURY_PENALTIES, BYE_WEEK_PENALTY, CURRENT_NFL_WEEK,
     QB, RB, WR, TE, K, DST, FLEX

@@ -21,10 +21,10 @@ TOTAL PROJECTED POINTS: 113.2
 
 TOP BENCH ALTERNATIVES:
 ------------------------------------------------------------
- 1. Tucker Kraft (GB) - TE              - 11.1 pts
- 2. Michael Pittman Jr. (IND) - WR      - 10.5 pts
- 3. Jaylen Waddle (MIA) - WR            - 12.7 pts [QUESTIONABLE]
- 4. Brian Robinson Jr. (SF) - RB        - 6.3 pts
+ 1. Michael Pittman Jr. (IND) - WR      - 10.5 pts
+ 2. Jaylen Waddle (MIA) - WR            - 12.7 pts [QUESTIONABLE]
+ 3. Brian Robinson Jr. (SF) - RB        - 6.3 pts
+ 4. Tucker Kraft (GB) - TE              - 11.1 pts [QUESTIONABLE]
  5. Dylan Sampson (CLE) - RB            - 4.9 pts
 
 FULL ROSTER - WEEK 3 PROJECTIONS:
@@ -36,7 +36,7 @@ FULL ROSTER - WEEK 3 PROJECTIONS:
  5. Keon Coleman (BUF) - WR                  - 12.6 pts
  6. Omarion Hampton (LAC) - RB               - 12.2 pts
  7. Travis Kelce (KC) - TE                   - 11.2 pts
- 8. Tucker Kraft (GB) - TE                   - 11.1 pts
+ 8. Tucker Kraft (GB) - TE                   - 11.1 pts [QUESTIONABLE]
  9. Troy Franklin (DEN) - WR                 - 11.0 pts
 10. Michael Pittman Jr. (IND) - WR           - 10.5 pts
 11. Tyler Loop (BAL) - K                     - 8.7 pts
@@ -46,4 +46,4 @@ FULL ROSTER - WEEK 3 PROJECTIONS:
 15. Justin Fields (NYJ) - QB                 - 0.0 pts [OUT]
 
 Starter recommendations complete for Week 3
-Last updated: 2025-09-18 07:40:57
+Last updated: 2025-09-18 17:44:04

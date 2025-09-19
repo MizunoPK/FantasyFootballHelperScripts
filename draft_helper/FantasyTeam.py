@@ -1,5 +1,12 @@
 from collections import Counter
 import logging
+import sys
+from pathlib import Path
+
+# Add current directory to path for local imports
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir))
+
 import draft_helper_constants as Constants
 
 # FantasyTeam class to manage a fantasy football team
@@ -19,8 +26,19 @@ class FantasyTeam:
             Constants.WR: 0,
             Constants.TE: 0,
             Constants.DST: 0,
-            Constants.K: 0, 
+            Constants.K: 0,
             Constants.FLEX: 0
+        }
+
+        # NEW: Explicit slot tracking - Track actual slot assignments
+        self.slot_assignments = {
+            Constants.QB: [],     # List of player IDs in QB slots
+            Constants.RB: [],     # List of player IDs in RB slots
+            Constants.WR: [],     # List of player IDs in WR slots
+            Constants.TE: [],     # List of player IDs in TE slots
+            Constants.FLEX: [],   # List of player IDs in FLEX slot
+            Constants.K: [],      # List of player IDs in K slots
+            Constants.DST: []     # List of player IDs in DST slots
         }
         
         # Pre-compute bye week counts by position for efficient penalty calculation
@@ -32,21 +50,13 @@ class FantasyTeam:
         # Set up the draft order list
         self.draft_order = [None] * Constants.MAX_PLAYERS
 
-        # Count current positions in roster and organize them
+        # Initialize slot assignments for existing players
+        for player in self.roster:
+            self._assign_player_to_slot(player)
+
+        # place in the draft order
         for player in self.roster:
             pos = player.position
-
-            # add to counts
-            if self.flex_eligible(pos):
-                self.pos_counts[Constants.FLEX] += 1
-            else:
-                self.pos_counts[pos] += 1
-
-            # Update bye week counts
-            if player.bye_week and player.bye_week in self.bye_week_counts:
-                self.bye_week_counts[player.bye_week][pos] += 1
-
-            # place in the draft order
             pos_with_flex = Constants.FLEX if pos in Constants.FLEX_ELIGIBLE_POSITIONS else pos
             for i in range(Constants.MAX_PLAYERS):
                 if self.draft_order[i] is None and pos_with_flex == Constants.get_ideal_draft_position(i):
@@ -54,8 +64,51 @@ class FantasyTeam:
                     break
 
         self.logger.debug(f"position counts after labeling: {self.pos_counts}")
+        self.logger.debug(f"slot assignments after initialization: {self.slot_assignments}")
         self.logger.debug(f"draft_order after assignment: {[p.id if p else None for p in self.draft_order]}")
         self.logger.info(f"FantasyTeam initialized. Roster size: {len(self.roster)}")
+
+    def _assign_player_to_slot(self, player):
+        """
+        Assign a player to the appropriate slot and update counts.
+
+        Args:
+            player: FantasyPlayer instance
+
+        Returns:
+            str: The slot the player was assigned to
+
+        Raises:
+            ValueError: If the player cannot be assigned to any available slot
+        """
+        pos = player.position
+
+        # Try natural position first
+        if len(self.slot_assignments[pos]) < Constants.MAX_POSITIONS[pos]:
+            self.slot_assignments[pos].append(player.id)
+            assigned_slot = pos
+            self.logger.debug(f"SLOT ASSIGN: {player.name} ({pos}) → {pos} slot. Slot {pos} now has {len(self.slot_assignments[pos])} players")
+        # Try FLEX if eligible
+        elif (pos in Constants.FLEX_ELIGIBLE_POSITIONS and
+              len(self.slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]):
+            self.slot_assignments[Constants.FLEX].append(player.id)
+            assigned_slot = Constants.FLEX
+            self.logger.debug(f"SLOT ASSIGN: {player.name} ({pos}) → FLEX slot. FLEX now has {len(self.slot_assignments[Constants.FLEX])} players")
+        else:
+            raise ValueError(f"Cannot assign {player.name} ({pos}) to any available slot. Slots full: {pos}={len(self.slot_assignments[pos])}/{Constants.MAX_POSITIONS[pos]}, FLEX={len(self.slot_assignments[Constants.FLEX])}/{Constants.MAX_POSITIONS[Constants.FLEX]}")
+
+        # Always increment the position count for the player's original position
+        # This tracks total players by position regardless of slot assignment
+        self.pos_counts[pos] += 1
+        # Also increment FLEX count if assigned to FLEX slot
+        if assigned_slot == Constants.FLEX:
+            self.pos_counts[Constants.FLEX] += 1
+
+        # Update bye week counts
+        if player.bye_week and player.bye_week in self.bye_week_counts:
+            self.bye_week_counts[player.bye_week][pos] += 1
+
+        return assigned_slot
 
     # Method to get the next draft position weights based on the current roster
     def get_next_draft_position_weights(self):
@@ -79,10 +132,15 @@ class FantasyTeam:
     def flex_eligible(self, pos):
         # Check if player can be drafted as a FLEX
         if pos not in Constants.FLEX_ELIGIBLE_POSITIONS:
+            self.logger.debug(f"Position {pos} not FLEX eligible")
             return False
-        
+
         # Return whether the player's position is at the limit and the FLEX slot is available
-        result = self.pos_counts[pos] >= Constants.MAX_POSITIONS[pos] and self.pos_counts[Constants.FLEX] < Constants.MAX_POSITIONS[Constants.FLEX]
+        pos_at_limit = self.pos_counts[pos] >= Constants.MAX_POSITIONS[pos]
+        flex_available = self.pos_counts[Constants.FLEX] < Constants.MAX_POSITIONS[Constants.FLEX]
+        result = pos_at_limit and flex_available
+
+        self.logger.debug(f"FLEX eligibility for {pos}: pos_at_limit={pos_at_limit} ({self.pos_counts[pos]}>={Constants.MAX_POSITIONS[pos]}), flex_available={flex_available} ({self.pos_counts[Constants.FLEX]}<{Constants.MAX_POSITIONS[Constants.FLEX]}), result={result}")
         return result
 
     # Method to check if a player can be drafted
@@ -124,19 +182,21 @@ class FantasyTeam:
         if can_draft:
             player.drafted = 2
             self.roster.append(player)
-            
-            # Update position counts
-            pos = player.position
-            if self.flex_eligible(pos):
-                self.pos_counts[Constants.FLEX] += 1
-            else:
-                self.pos_counts[pos] += 1
-            
-            # Update bye week counts
-            if player.bye_week and player.bye_week in self.bye_week_counts:
-                self.bye_week_counts[player.bye_week][pos] += 1
-            
+
+            # Use explicit slot assignment
+            try:
+                assigned_slot = self._assign_player_to_slot(player)
+                self.logger.info(f"DRAFT SUCCESS: {player.name} ({player.position}) → {assigned_slot} slot")
+            except ValueError as e:
+                # This should not happen if can_draft is working correctly
+                self.logger.error(f"DRAFT FAILED: Could not assign slot for {player.name}: {e}")
+                # Rollback the draft
+                self.roster.remove(player)
+                player.drafted = 0
+                return False
+
             self.logger.debug(f"Player {player.id} drafted successfully. Roster size now {len(self.roster)}.")
+            self.logger.debug(f"Current slot assignments: {self.slot_assignments}")
             return True
         else:
             self.logger.debug(f"Player {player.id} could not be drafted.")
@@ -148,109 +208,137 @@ class FantasyTeam:
         if player not in self.roster:
             self.logger.debug(f"Player {player.id} not in roster, cannot remove.")
             return False
-        
-        # Remove from roster
+
+        # Find which slot the player is actually in using explicit tracking
+        player_slot = None
+        for slot, player_ids in self.slot_assignments.items():
+            if player.id in player_ids:
+                player_slot = slot
+                player_ids.remove(player.id)
+                break
+
+        if player_slot is None:
+            self.logger.error(f"REMOVAL ERROR: Player {player.name} ({player.id}) not found in any slot assignments")
+            return False
+
+        # Remove from roster and update counts
         self.roster.remove(player)
         player.drafted = 0  # Mark as available again
-        
-        # Update position counts
-        pos = player.position
-        if pos in Constants.FLEX_ELIGIBLE_POSITIONS and self.pos_counts[Constants.FLEX] > 0:
-            # Check if this was a FLEX player or regular position player
-            # We need to determine which count to decrement
-            if self.pos_counts[pos] < Constants.MAX_POSITIONS[pos]:
-                self.pos_counts[pos] -= 1
-            else:
-                self.pos_counts[Constants.FLEX] -= 1
-        else:
-            self.pos_counts[pos] -= 1
-        
+
+        # Decrement position count for player's original position
+        self.pos_counts[player.position] -= 1
+        # Also decrement slot count if it was in FLEX
+        if player_slot == Constants.FLEX:
+            self.pos_counts[Constants.FLEX] -= 1
+
+        self.logger.info(f"REMOVAL SUCCESS: {player.name} ({player.position}) removed from {player_slot} slot. New {player.position} count: {self.pos_counts[player.position]}")
+
         # Update bye week counts
         if player.bye_week and player.bye_week in self.bye_week_counts:
-            self.bye_week_counts[player.bye_week][pos] -= 1
-        
+            self.bye_week_counts[player.bye_week][player.position] -= 1
+
         # Remove from draft order
         for i in range(Constants.MAX_PLAYERS):
             if self.draft_order[i] == player:
                 self.draft_order[i] = None
                 break
-        
+
         self.logger.debug(f"Player {player.id} removed successfully. Roster size now {len(self.roster)}.")
+        self.logger.debug(f"Current slot assignments: {self.slot_assignments}")
         return True
 
     # Method to replace a player atomically (for trade helper)
     def replace_player(self, old_player, new_player):
         self.logger.debug(f"FantasyTeam.replace_player called: {old_player.id} -> {new_player.id}")
-        
+
         # Check if we can make this swap while maintaining position constraints
         if not self._can_replace_player(old_player, new_player):
             self.logger.debug(f"Cannot replace {old_player.id} with {new_player.id} due to position constraints.")
             return False
-        
+
+        # Store the old player's slot for optimal replacement
+        old_player_slot = None
+        for slot, player_ids in self.slot_assignments.items():
+            if old_player.id in player_ids:
+                old_player_slot = slot
+                break
+
+        if old_player_slot is None:
+            self.logger.error(f"REPLACE ERROR: Old player {old_player.name} not found in slot assignments")
+            return False
+
         # Remove old player
         if not self.remove_player(old_player):
             return False
-        
-        # Add new player
+
+        # Add new player (it will automatically find the best available slot)
         if not self.draft_player(new_player):
             # If adding new player fails, add the old player back
+            self.logger.warning(f"REPLACE ROLLBACK: Failed to add {new_player.name}, restoring {old_player.name}")
             self.draft_player(old_player)
             return False
-        
-        self.logger.debug(f"Player replacement successful: {old_player.id} -> {new_player.id}")
+
+        self.logger.info(f"REPLACE SUCCESS: {old_player.name} ({old_player.position}) -> {new_player.name} ({new_player.position})")
+        self.logger.debug(f"Current slot assignments after replacement: {self.slot_assignments}")
         return True
     
     # Helper method to check if a player replacement is valid
     def _can_replace_player(self, old_player, new_player):
+        """
+        Check if a player replacement is valid using explicit slot tracking.
+
+        Args:
+            old_player: FantasyPlayer to be replaced
+            new_player: FantasyPlayer to replace with
+
+        Returns:
+            bool: True if replacement is valid, False otherwise
+        """
         # For same position, always allowed
         if old_player.position == new_player.position:
             return True
 
-        # For FLEX eligible positions (RB <-> WR trades), check roster limits
+        # For FLEX eligible positions (RB <-> WR trades), check using explicit slot tracking
         if (old_player.position in Constants.FLEX_ELIGIBLE_POSITIONS and
             new_player.position in Constants.FLEX_ELIGIBLE_POSITIONS):
 
-            # Simulate the trade by creating temporary position counts
-            temp_pos_counts = self.pos_counts.copy()
+            # Find which slot the old player currently occupies
+            old_player_slot = None
+            for slot, player_ids in self.slot_assignments.items():
+                if old_player.id in player_ids:
+                    old_player_slot = slot
+                    break
 
-            # Remove old player from counts
-            # For FLEX-eligible positions, we need to determine how they're currently counted
-            if old_player.position in Constants.FLEX_ELIGIBLE_POSITIONS:
-                # The current logic in __init__ and draft_player adds FLEX-eligible players as follows:
-                # 1. If regular position slots are available, use regular position
-                # 2. If regular position is full but FLEX is available, use FLEX
-                # So we should remove in reverse priority: try FLEX first if we have excess
-
-                total_position_players = sum(1 for p in self.roster if p.position == old_player.position)
-                max_regular_slots = Constants.MAX_POSITIONS[old_player.position]
-
-                if total_position_players > max_regular_slots:
-                    # We have more players of this position than regular slots
-                    # The excess must be in FLEX, so remove from FLEX
-                    temp_pos_counts[Constants.FLEX] -= 1
-                else:
-                    # We have regular slot count or fewer, so remove from regular position
-                    temp_pos_counts[old_player.position] -= 1
-
-            # Try to add new player to counts
-            # First try to add to regular position
-            if temp_pos_counts[new_player.position] < Constants.MAX_POSITIONS[new_player.position]:
-                temp_pos_counts[new_player.position] += 1
-            # If regular position is full, try FLEX
-            elif temp_pos_counts[Constants.FLEX] < Constants.MAX_POSITIONS[Constants.FLEX]:
-                temp_pos_counts[Constants.FLEX] += 1
-            else:
-                # Cannot fit the new player anywhere
+            if old_player_slot is None:
+                self.logger.warning(f"Cannot find slot assignment for {old_player.name}")
                 return False
 
-            # Check that we don't exceed any limits
-            for pos, count in temp_pos_counts.items():
-                if count > Constants.MAX_POSITIONS.get(pos, 0):
-                    return False
+            # Simulate the replacement: temporarily remove old player and see if new player can fit
+            temp_slot_assignments = {slot: player_ids.copy() for slot, player_ids in self.slot_assignments.items()}
 
-            return True
+            # Remove old player from temp assignments
+            temp_slot_assignments[old_player_slot].remove(old_player.id)
+
+            # Check if new player can be assigned to any available slot
+            new_pos = new_player.position
+
+            # Try natural position first
+            if len(temp_slot_assignments[new_pos]) < Constants.MAX_POSITIONS[new_pos]:
+                self.logger.debug(f"Replace validation: {new_player.name} can fit in {new_pos} slot")
+                return True
+
+            # Try FLEX if eligible
+            elif (new_pos in Constants.FLEX_ELIGIBLE_POSITIONS and
+                  len(temp_slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]):
+                self.logger.debug(f"Replace validation: {new_player.name} can fit in FLEX slot")
+                return True
+
+            else:
+                self.logger.debug(f"Replace validation: No available slots for {new_player.name} ({new_pos})")
+                return False
 
         # Different position types not in FLEX eligibles - not allowed for now
+        self.logger.debug(f"Replace validation: Cannot replace {old_player.position} with {new_player.position} (not FLEX eligible)")
         return False
 
     # Method to get total team score for trade optimization
@@ -261,6 +349,126 @@ class FantasyTeam:
             total_score += scoring_function(player)
         return total_score
 
+    def get_players_by_slot(self, slot):
+        """
+        Get all players assigned to a specific slot.
+
+        Args:
+            slot: Position slot ('QB', 'RB', 'WR', 'TE', 'K', 'DST', 'FLEX')
+
+        Returns:
+            List[FantasyPlayer]: Players assigned to the slot
+        """
+        player_ids = self.slot_assignments.get(slot, [])
+        return [p for p in self.roster if p.id in player_ids]
+
+    def get_weakest_player_by_position(self, position, scoring_function):
+        """
+        Get the weakest player of a given position for trade optimization.
+
+        Args:
+            position: Player position ('QB', 'RB', 'WR', 'TE', 'K', 'DST')
+            scoring_function: Function to score players
+
+        Returns:
+            FantasyPlayer or None: Weakest player of that position
+        """
+        position_players = [p for p in self.roster if p.position == position]
+        if not position_players:
+            return None
+
+        # Find the player with the lowest score
+        weakest = min(position_players, key=scoring_function)
+        return weakest
+
+    def get_optimal_slot_for_player(self, player):
+        """
+        Determine the optimal slot assignment for a FLEX-eligible player.
+
+        For FLEX-eligible positions, prioritize:
+        1. Natural position slot if available
+        2. FLEX slot if natural position is full
+
+        Args:
+            player: FantasyPlayer instance
+
+        Returns:
+            str: Optimal slot ('RB', 'WR', 'FLEX', etc.) or None if no slots available
+        """
+        pos = player.position
+
+        # For non-FLEX eligible positions, only one option
+        if pos not in Constants.FLEX_ELIGIBLE_POSITIONS:
+            if len(self.slot_assignments[pos]) < Constants.MAX_POSITIONS[pos]:
+                return pos
+            else:
+                return None
+
+        # For FLEX-eligible positions, prioritize natural position
+        if len(self.slot_assignments[pos]) < Constants.MAX_POSITIONS[pos]:
+            return pos
+        elif len(self.slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]:
+            return Constants.FLEX
+        else:
+            return None
+
+    def optimize_flex_assignments(self, scoring_function):
+        """
+        Optimize FLEX assignments by moving the highest-scoring FLEX player
+        to their natural position if possible.
+
+        Args:
+            scoring_function: Function to score players
+
+        Returns:
+            bool: True if any optimization was performed
+        """
+        flex_players = self.get_players_by_slot(Constants.FLEX)
+        if not flex_players:
+            return False
+
+        optimized = False
+
+        # Sort FLEX players by score (highest first)
+        flex_players_sorted = sorted(flex_players, key=scoring_function, reverse=True)
+
+        for flex_player in flex_players_sorted:
+            natural_pos = flex_player.position
+
+            # Check if natural position has available space
+            if len(self.slot_assignments[natural_pos]) < Constants.MAX_POSITIONS[natural_pos]:
+                # Check if there's a weaker player in natural position to potentially move to FLEX
+                natural_pos_players = self.get_players_by_slot(natural_pos)
+
+                if natural_pos_players:
+                    weakest_natural = min(natural_pos_players, key=scoring_function)
+
+                    # If FLEX player scores higher than weakest in natural position, swap them
+                    if scoring_function(flex_player) > scoring_function(weakest_natural):
+                        self.logger.info(f"FLEX OPTIMIZATION: Swapping {flex_player.name} (FLEX) with {weakest_natural.name} ({natural_pos})")
+
+                        # Remove both players from their slots
+                        self.slot_assignments[Constants.FLEX].remove(flex_player.id)
+                        self.slot_assignments[natural_pos].remove(weakest_natural.id)
+
+                        # Reassign them optimally
+                        self.slot_assignments[natural_pos].append(flex_player.id)
+                        self.slot_assignments[Constants.FLEX].append(weakest_natural.id)
+
+                        optimized = True
+                else:
+                    # Natural position is empty, move FLEX player there
+                    self.logger.info(f"FLEX OPTIMIZATION: Moving {flex_player.name} from FLEX to {natural_pos}")
+
+                    self.slot_assignments[Constants.FLEX].remove(flex_player.id)
+                    self.slot_assignments[natural_pos].append(flex_player.id)
+                    self.pos_counts[Constants.FLEX] -= 1
+                    self.pos_counts[natural_pos] += 1
+
+                    optimized = True
+
+        return optimized
+
     def copy_team(self):
         """Create a deep copy of the team for simulation purposes"""
         import copy
@@ -268,7 +476,112 @@ class FantasyTeam:
         new_team.roster = copy.deepcopy(self.roster)
         new_team.draft_order = copy.deepcopy(self.draft_order)
         new_team.pos_counts = copy.deepcopy(self.pos_counts)
+        new_team.slot_assignments = copy.deepcopy(self.slot_assignments)
+        new_team.bye_week_counts = copy.deepcopy(self.bye_week_counts)
         return new_team
+
+    def _recalculate_position_counts(self):
+        """Recalculate position counts based on current roster and slot assignments"""
+        # Reset counts
+        for pos in self.pos_counts:
+            self.pos_counts[pos] = 0
+
+        # Count players by their original position
+        for player in self.roster:
+            self.pos_counts[player.position] += 1
+
+        # Count players in FLEX slot
+        self.pos_counts[Constants.FLEX] = len(self.slot_assignments[Constants.FLEX])
+
+    def validate_roster_integrity(self):
+        """Validate that position counts match actual roster composition and slot assignments"""
+        errors = []
+
+        # Recalculate position counts to ensure they're accurate
+        self._recalculate_position_counts()
+
+        # Use slot assignments as the source of truth for slot validation
+        slot_based_counts = {pos: len(player_ids) for pos, player_ids in self.slot_assignments.items()}
+
+        # For slot-based validation, only validate slots that aren't position-based
+        # FLEX is special because it can contain players of different positions
+        for pos, slot_count in slot_based_counts.items():
+            tracked_count = self.pos_counts.get(pos, 0)
+            if pos == Constants.FLEX:
+                # FLEX count should match slot assignment
+                if slot_count != tracked_count:
+                    errors.append(f"Position {pos}: {slot_count} in slots != {tracked_count} tracked count")
+            else:
+                # For position-based slots, the slot count should not exceed the tracked count
+                # (because some players of this position might be in FLEX)
+                if slot_count > tracked_count:
+                    errors.append(f"Position {pos}: {slot_count} in slots > {tracked_count} tracked count")
+
+        # Check that no position exceeds maximum
+        for pos, count in slot_based_counts.items():
+            max_allowed = Constants.MAX_POSITIONS.get(pos, 0)
+            if count > max_allowed:
+                errors.append(f"Position {pos}: {count} players > {max_allowed} maximum allowed")
+
+        # Check total roster size
+        total_players = len(self.roster)
+        if total_players > Constants.MAX_PLAYERS:
+            errors.append(f"Total roster: {total_players} players > {Constants.MAX_PLAYERS} maximum")
+
+        # Check for duplicate players
+        player_ids = [p.id for p in self.roster]
+        if len(player_ids) != len(set(player_ids)):
+            duplicates = [pid for pid in player_ids if player_ids.count(pid) > 1]
+            errors.append(f"Duplicate players found: {set(duplicates)}")
+
+        # Check that all roster players are assigned to slots
+        assigned_player_ids = set()
+        for slot, player_ids_in_slot in self.slot_assignments.items():
+            assigned_player_ids.update(player_ids_in_slot)
+
+        roster_player_ids = {p.id for p in self.roster}
+
+        if assigned_player_ids != roster_player_ids:
+            missing = roster_player_ids - assigned_player_ids
+            extra = assigned_player_ids - roster_player_ids
+            if missing:
+                errors.append(f"Players in roster but not assigned to slots: {missing}")
+            if extra:
+                errors.append(f"Players assigned to slots but not in roster: {extra}")
+
+        # Log results
+        if errors:
+            error_msg = f"Roster integrity validation failed: {'; '.join(errors)}"
+            self.logger.error(error_msg)
+            self.logger.debug(f"Slot-based counts: {slot_based_counts}")
+            self.logger.debug(f"Tracked counts: {self.pos_counts}")
+            self.logger.debug(f"Slot assignments: {self.slot_assignments}")
+            return False
+        else:
+            self.logger.debug("Roster integrity validation passed")
+            return True
+
+    def get_slot_assignment(self, player):
+        """
+        Determine which slot a player is currently assigned to using explicit slot tracking.
+
+        Args:
+            player: FantasyPlayer instance
+
+        Returns:
+            str: Position slot ('QB', 'RB', 'WR', 'TE', 'K', 'DST', 'FLEX') or None if not found
+        """
+        if player not in self.roster:
+            return None
+
+        # Use explicit slot tracking for accurate assignment
+        for slot, player_ids in self.slot_assignments.items():
+            if player.id in player_ids:
+                return slot
+
+        # Player is in roster but not in slot assignments - this is an error
+        self.logger.warning(f"Player {player.name} ({player.id}) is in roster but not assigned to any slot")
+        return None
 
     # print the ideal draft order, and what the actual draft order is
     def print_draft_order(self):

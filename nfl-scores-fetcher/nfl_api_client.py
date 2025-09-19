@@ -19,7 +19,7 @@ from typing import Dict, List, Any, Optional
 import httpx
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from models import GameScore, Team, NFLAPIError
+from nfl_scores_models import GameScore, Team, NFLAPIError
 from scores_constants import ESPN_NFL_BASE_URL, ESPN_USER_AGENT, STATUS_IN_PROGRESS, STATUS_FINAL
 
 
@@ -165,33 +165,37 @@ class NFLAPIClient:
     
     async def get_completed_games_recent(self, days_back: int = 7) -> List[GameScore]:
         """Fetch completed games from the last N days.
-        
+
         This is useful when you don't know the specific week but want
         recent final scores. Automatically filters to only completed games.
-        
+
         Args:
             days_back: Number of days to look back from today
-            
+
         Returns:
             List of completed GameScore objects from the date range
         """
-        # Calculate date range for the search
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=days_back)
-        
-        url = f"{self.base_url}/scoreboard"
-        # ESPN accepts date ranges in YYYYMMDD-YYYYMMDD format
-        params = {
-            "dates": f"{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}",
-            "limit": 1000  # High limit to ensure we get all games in the range
-        }
-        
-        data = await self._make_request(url, params=params)
-        games = self._parse_scoreboard_data(data)
-        
-        # Filter to only games that have finished
-        # This is important because the API might return ongoing games
-        return [game for game in games if game.is_completed]
+        try:
+            # Calculate date range for the search
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=days_back)
+
+            url = f"{self.base_url}/scoreboard"
+            # ESPN accepts date ranges in YYYYMMDD-YYYYMMDD format
+            params = {
+                "dates": f"{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}",
+                "limit": 1000  # High limit to ensure we get all games in the range
+            }
+
+            data = await self._make_request(url, params=params)
+            games = self._parse_scoreboard_data(data)
+
+            # Filter to only games that have finished
+            # This is important because the API might return ongoing games
+            return [game for game in games if game.is_completed]
+        except Exception as e:
+            self.logger.error(f"Error fetching recent completed games: {e}")
+            return []
     
     def _parse_scoreboard_data(self, data: Dict[str, Any]) -> List[GameScore]:
         """Parse ESPN's scoreboard API response into our GameScore objects.

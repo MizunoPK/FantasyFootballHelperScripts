@@ -17,11 +17,17 @@ from contextlib import asynccontextmanager
 import httpx
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from config import (
+from starter_helper_config import (
     ESPN_USER_AGENT, REQUEST_TIMEOUT, RATE_LIMIT_DELAY,
     CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT,
     USE_CURRENT_WEEK_PROJECTIONS, FALLBACK_TO_SEASON_PROJECTIONS
 )
+
+# Import shared fantasy points calculator
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent / 'shared_files'))
+from fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig, extract_stat_entry_fantasy_points
 
 
 class ESPNAPIError(Exception):
@@ -45,6 +51,15 @@ class ESPNCurrentWeekClient:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self._client = None
+
+        # Initialize shared fantasy points extractor
+        fp_config = FantasyPointsConfig(
+            prefer_actual_over_projected=True,
+            include_negative_dst_points=True,
+            use_historical_fallback=False,  # Current week focus - no historical fallback needed
+            use_adp_estimation=False        # Current week focus - no ADP estimation needed
+        )
+        self.fantasy_points_extractor = FantasyPointsExtractor(fp_config, NFL_SEASON)
 
         # ESPN Fantasy API endpoints (using working endpoint from player-data-fetcher)
         self.base_url = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons"
@@ -212,7 +227,7 @@ class ESPNCurrentWeekClient:
 
     def _extract_fantasy_points_from_stats(self, stat_entry: Dict[str, Any]) -> float:
         """
-        Extract fantasy points directly from ESPN stat entry (uses ESPN's calculations)
+        Extract fantasy points directly from ESPN stat entry using shared logic
 
         Args:
             stat_entry: ESPN stat entry dictionary
@@ -220,26 +235,8 @@ class ESPNCurrentWeekClient:
         Returns:
             Fantasy points from ESPN's calculations
         """
-        try:
-            # Handle None stat_entry
-            if stat_entry is None:
-                return 0.0
-
-            # ESPN provides pre-calculated fantasy totals
-            # Priority order: appliedTotal > projectedTotal
-            applied_total = stat_entry.get('appliedTotal')
-            projected_total = stat_entry.get('projectedTotal')
-
-            if applied_total is not None and applied_total > 0:
-                return float(applied_total)
-            elif projected_total is not None and projected_total > 0:
-                return float(projected_total)
-            else:
-                return 0.0
-
-        except (ValueError, TypeError) as e:
-            self.logger.warning(f"Error extracting fantasy points from stat entry: {str(e)}")
-            return 0.0
+        # Use shared fantasy points extraction logic for consistency
+        return extract_stat_entry_fantasy_points(stat_entry)
 
     def _calculate_fantasy_points(self, stats: Dict[str, Any]) -> float:
         """
@@ -253,9 +250,9 @@ class ESPNCurrentWeekClient:
             Calculated fantasy points
         """
         # This method is kept as a fallback but ESPN usually provides appliedTotal/projectedTotal
-        # which are more accurate than manual calculation
+        # which are more accurate than manual calculation. The shared utility handles this.
         self.logger.debug("Using manual fantasy points calculation (fallback)")
-        return 0.0  # Simplified - rely on ESPN's calculations
+        return 0.0  # Simplified - rely on ESPN's calculations via shared utility
 
     async def get_roster_current_week_projections(self, roster_player_ids: List[str]) -> Dict[str, float]:
         """

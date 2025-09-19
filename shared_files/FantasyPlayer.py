@@ -15,6 +15,60 @@ import pandas as pd
 
 # Import will be done dynamically to avoid circular imports
 
+def safe_int_conversion(value, default=None):
+    """
+    Safely convert a value to integer with fallback to default.
+
+    Args:
+        value: Value to convert
+        default: Default value if conversion fails
+
+    Returns:
+        int or default value
+    """
+    if value is None or value == '' or (isinstance(value, str) and value.lower() in ['nan', 'none', 'null']):
+        return default
+    try:
+        # Handle string representations of floats
+        if isinstance(value, str):
+            # Remove any non-numeric characters except decimal points and negative signs
+            cleaned = ''.join(c for c in value if c.isdigit() or c in '.-')
+            if not cleaned or cleaned in ['-', '.', '-.']:
+                return default
+            float_val = float(cleaned)
+        else:
+            float_val = float(value)
+
+        # Check for infinity values
+        if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:  # NaN check
+            return default
+
+        return int(float_val)
+    except (ValueError, TypeError, OverflowError):
+        return default
+
+def safe_float_conversion(value, default=0.0):
+    """
+    Safely convert a value to float with fallback to default.
+
+    Args:
+        value: Value to convert
+        default: Default value if conversion fails
+
+    Returns:
+        float or default value
+    """
+    if value is None or value == '' or (isinstance(value, str) and value.lower() in ['nan', 'none', 'null']):
+        return default
+    try:
+        float_val = float(value)
+        # Check for infinity values
+        if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:  # NaN check
+            return default
+        return float_val
+    except (ValueError, TypeError, OverflowError):
+        return default
+
 
 @dataclass
 class FantasyPlayer:
@@ -31,95 +85,192 @@ class FantasyPlayer:
     team: str
     position: str
     
-    # Fantasy relevant data  
+    # Fantasy relevant data
     bye_week: Optional[int] = None
     drafted: int = 0  # 0 = not drafted, 1 = drafted, 2 = on our team
     locked: int = 0  # 0 = not locked, 1 = locked (cannot be drafted or traded)
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None  # ESPN's ADP data
-    
+    adp: Optional[float] = None  # Alias for average_draft_position (backward compatibility)
+
+    # Weekly projections (weeks 1-18 for regular season)
+    week_1_points: Optional[float] = None
+    week_2_points: Optional[float] = None
+    week_3_points: Optional[float] = None
+    week_4_points: Optional[float] = None
+    week_5_points: Optional[float] = None
+    week_6_points: Optional[float] = None
+    week_7_points: Optional[float] = None
+    week_8_points: Optional[float] = None
+    week_9_points: Optional[float] = None
+    week_10_points: Optional[float] = None
+    week_11_points: Optional[float] = None
+    week_12_points: Optional[float] = None
+    week_13_points: Optional[float] = None
+    week_14_points: Optional[float] = None
+    week_15_points: Optional[float] = None
+    week_16_points: Optional[float] = None
+    week_17_points: Optional[float] = None
+    week_18_points: Optional[float] = None
+
+    # Playoff weeks (weeks 19-22) - optional
+    week_19_points: Optional[float] = None
+    week_20_points: Optional[float] = None
+    week_21_points: Optional[float] = None
+    week_22_points: Optional[float] = None
+
     # Injury information
     injury_status: str = "UNKNOWN"  # ACTIVE, QUESTIONABLE, OUT, etc.
 
     # Draft helper specific fields (computed later)
     score: float = 0.0  # Overall score for draft ranking
     weighted_projection: float = 0.0  # Normalized projection score
-    
+
     # Metadata
-    
+
+    def __post_init__(self):
+        """Ensure adp and average_draft_position stay in sync."""
+        if self.adp is not None and self.average_draft_position is None:
+            self.average_draft_position = self.adp
+        elif self.average_draft_position is not None and self.adp is None:
+            self.adp = self.average_draft_position
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'FantasyPlayer':
         """
         Create a FantasyPlayer instance from a dictionary (e.g., CSV row).
-        
+
         Args:
             data: Dictionary with player data keys matching class fields
-            
+
         Returns:
             FantasyPlayer instance
         """
+        # Handle both 'adp' and 'average_draft_position' for backward compatibility
+        adp_value = data.get('average_draft_position') or data.get('adp')
+        processed_adp = safe_float_conversion(adp_value, 0.0) if adp_value is not None else None
+
         return cls(
             id=str(data.get('id', '')),
             name=str(data.get('name', '')),
             team=str(data.get('team', '')),
             position=str(data.get('position', '')),
-            bye_week=int(float(data['bye_week'])) if data.get('bye_week') and str(data['bye_week']).replace('.','').isdigit() else None,
-            drafted=int(data.get('drafted', 0)),
-            locked=int(data.get('locked', 0)),
-            fantasy_points=float(data.get('fantasy_points', 0.0)),
-            average_draft_position=float(data.get('average_draft_position')) if data.get('average_draft_position') else None,
+            bye_week=safe_int_conversion(data.get('bye_week'), 0),
+            drafted=safe_int_conversion(data.get('drafted'), 0),
+            locked=safe_int_conversion(data.get('locked'), 0),
+            fantasy_points=safe_float_conversion(data.get('fantasy_points'), 0.0),
+            average_draft_position=processed_adp,
+            adp=processed_adp,
             injury_status=str(data.get('injury_status', 'UNKNOWN')),
-            score=float(data.get('score', 0.0)),
-            weighted_projection=float(data.get('weighted_projection', 0.0))
+            score=safe_float_conversion(data.get('score'), 0.0),
+            weighted_projection=safe_float_conversion(data.get('weighted_projection'), 0.0)
         )
     
     @classmethod
     def from_csv_file(cls, filepath: str) -> List['FantasyPlayer']:
         """
         Load all players from a CSV file.
-        
+
         Args:
             filepath: Path to the CSV file
-            
+
         Returns:
             List of FantasyPlayer instances
+
+        Raises:
+            FileNotFoundError: If the CSV file doesn't exist
+            pd.errors.EmptyDataError: If the CSV file is empty
+            pd.errors.ParserError: If the CSV file is malformed
         """
-        df = pd.read_csv(filepath)
+        try:
+            df = pd.read_csv(filepath)
+        except FileNotFoundError:
+            print(f"Error: CSV file not found at {filepath}")
+            raise
+        except pd.errors.EmptyDataError:
+            print(f"Error: CSV file is empty at {filepath}")
+            raise
+        except pd.errors.ParserError as e:
+            print(f"Error: CSV file is malformed at {filepath}: {e}")
+            raise
+        except PermissionError:
+            print(f"Error: Permission denied reading CSV file at {filepath}")
+            raise
+        except Exception as e:
+            print(f"Error: Unexpected error reading CSV file at {filepath}: {e}")
+            raise
+
         players = []
-        
-        for _, row in df.iterrows():
+        failed_rows = 0
+
+        for row_idx, row in df.iterrows():
             try:
                 player = cls.from_dict(row.to_dict())
                 players.append(player)
             except Exception as e:
-                print(f"Warning: Failed to parse player row: {e}")
+                failed_rows += 1
+                print(f"Warning: Failed to parse player row {row_idx + 1}: {e}")
                 continue
-                
+
+        if failed_rows > 0:
+            print(f"Warning: Failed to parse {failed_rows} out of {len(df)} rows")
+
         return players
     
     @classmethod
     def from_excel_file(cls, filepath: str, sheet_name: str = 'All Players') -> List['FantasyPlayer']:
         """
         Load all players from an Excel file.
-        
+
         Args:
             filepath: Path to the Excel file
             sheet_name: Name of the sheet to read (default: 'All Players')
-            
+
         Returns:
             List of FantasyPlayer instances
+
+        Raises:
+            FileNotFoundError: If the Excel file doesn't exist
+            ValueError: If the sheet name doesn't exist
+            pd.errors.EmptyDataError: If the Excel file/sheet is empty
         """
-        df = pd.read_excel(filepath, sheet_name=sheet_name)
+        try:
+            df = pd.read_excel(filepath, sheet_name=sheet_name)
+        except FileNotFoundError:
+            print(f"Error: Excel file not found at {filepath}")
+            raise
+        except ValueError as e:
+            if "Worksheet" in str(e) and "does not exist" in str(e):
+                print(f"Error: Sheet '{sheet_name}' not found in Excel file {filepath}")
+            else:
+                print(f"Error: Invalid Excel file format at {filepath}: {e}")
+            raise
+        except PermissionError:
+            print(f"Error: Permission denied reading Excel file at {filepath}")
+            raise
+        except Exception as e:
+            print(f"Error: Unexpected error reading Excel file at {filepath}: {e}")
+            raise
+
+        if df.empty:
+            print(f"Warning: Excel sheet '{sheet_name}' is empty in {filepath}")
+            return []
+
         players = []
-        
-        for _, row in df.iterrows():
+        failed_rows = 0
+
+        for row_idx, row in df.iterrows():
             try:
                 player = cls.from_dict(row.to_dict())
                 players.append(player)
             except Exception as e:
-                print(f"Warning: Failed to parse player row: {e}")
+                failed_rows += 1
+                print(f"Warning: Failed to parse player row {row_idx + 1} from sheet '{sheet_name}': {e}")
                 continue
-                
+
+        if failed_rows > 0:
+            print(f"Warning: Failed to parse {failed_rows} out of {len(df)} rows from sheet '{sheet_name}'")
+
         return players
     
     def to_dict(self) -> Dict[str, Any]:
@@ -198,6 +349,43 @@ class FantasyPlayer:
         # FLEX eligible positions: RB and WR
         FLEX_ELIGIBLE_POSITIONS = ['RB', 'WR']
         return 'FLEX' if self.position in FLEX_ELIGIBLE_POSITIONS else self.position
+
+    # Aliases for test compatibility
+    @classmethod
+    def load_from_csv(cls, filepath: str) -> List['FantasyPlayer']:
+        """Alias for from_csv_file for test compatibility."""
+        return cls.from_csv_file(filepath)
+
+    @classmethod
+    def load_from_excel(cls, filepath: str, sheet_name: str = 'All Players') -> List['FantasyPlayer']:
+        """Alias for from_excel_file for test compatibility."""
+        return cls.from_excel_file(filepath, sheet_name)
+
+    @classmethod
+    def save_to_csv(cls, players: List['FantasyPlayer'], filepath: str) -> None:
+        """Save players to CSV file."""
+        df = players_to_dataframe(players)
+        df.to_csv(filepath, index=False)
+
+    def __eq__(self, other):
+        """Check equality based on player ID."""
+        if not isinstance(other, FantasyPlayer):
+            return False
+        return self.id == other.id
+
+    def __hash__(self):
+        """Make FantasyPlayer hashable based on ID."""
+        return hash(self.id)
+
+    @property
+    def adp(self):
+        """Alias for average_draft_position for backward compatibility."""
+        return self.average_draft_position
+
+    @adp.setter
+    def adp(self, value):
+        """Setter for adp alias."""
+        self.average_draft_position = value
 
 
 # Utility functions for working with FantasyPlayer lists

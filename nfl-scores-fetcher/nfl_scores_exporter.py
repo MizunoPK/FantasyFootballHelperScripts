@@ -19,7 +19,7 @@ from typing import List, Optional
 import aiofiles
 import pandas as pd
 
-from models import WeeklyScores, GameScore
+from nfl_scores_models import WeeklyScores, GameScore
 from scores_constants import NFL_TEAM_NAMES
 
 
@@ -31,120 +31,141 @@ class ScoresDataExporter:
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.create_latest_files = create_latest_files
         self.logger = logging.getLogger(__name__)
+
+    def _generate_timestamped_filename(self, prefix: str, extension: str) -> str:
+        """Generate a timestamped filename"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        return f"{prefix}_{timestamp}.{extension}"
     
-    async def export_json(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores") -> str:
+    async def export_json(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores") -> Optional[str]:
         """Export weekly scores to JSON format asynchronously"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
-        
-        filename = f"{file_prefix}{week_suffix}_{timestamp}.json"
-        filepath = self.output_dir / filename
-        
-        # Convert to JSON-serializable format
-        json_data = {
-            "week": weekly_scores.week,
-            "season": weekly_scores.season,
-            "season_type": weekly_scores.season_type,
-            "total_games": weekly_scores.total_games,
-            "completed_games": weekly_scores.completed_games,
-            "generated_at": weekly_scores.generated_at.isoformat(),
-            "games": [self._game_to_dict(game) for game in weekly_scores.games]
-        }
-        
-        # Write JSON file asynchronously
-        async with aiofiles.open(filepath, 'w', encoding='utf-8') as f:
-            await f.write(json.dumps(json_data, indent=2, default=str))
-        
-        # Create latest version if requested
-        if self.create_latest_files:
-            latest_filename = f"{file_prefix}_latest.json"
-            latest_filepath = self.output_dir / latest_filename
-            
-            async with aiofiles.open(latest_filepath, 'w', encoding='utf-8') as f:
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
+
+            filename = f"{file_prefix}{week_suffix}_{timestamp}.json"
+            filepath = self.output_dir / filename
+
+            # Convert to JSON-serializable format
+            json_data = {
+                "week": weekly_scores.week,
+                "season": weekly_scores.season,
+                "season_type": weekly_scores.season_type,
+                "total_games": weekly_scores.total_games,
+                "completed_games": weekly_scores.completed_games,
+                "generated_at": weekly_scores.generated_at.isoformat(),
+                "games": [self._game_to_dict(game) for game in weekly_scores.games]
+            }
+
+            # Write JSON file asynchronously
+            async with aiofiles.open(filepath, 'w', encoding='utf-8') as f:
                 await f.write(json.dumps(json_data, indent=2, default=str))
-        
-        return str(filepath)
+
+            # Create latest version if requested
+            if self.create_latest_files:
+                latest_filename = f"{file_prefix}_latest.json"
+                latest_filepath = self.output_dir / latest_filename
+
+                async with aiofiles.open(latest_filepath, 'w', encoding='utf-8') as f:
+                    await f.write(json.dumps(json_data, indent=2, default=str))
+
+            return str(filepath)
+        except Exception as e:
+            self.logger.error(f"Error exporting JSON: {e}")
+            return None
     
-    async def export_csv(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores") -> str:
+    async def export_csv(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores") -> Optional[str]:
         """Export weekly scores to CSV format asynchronously"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
-        
-        filename = f"{file_prefix}{week_suffix}_{timestamp}.csv"
-        filepath = self.output_dir / filename
-        
-        # Convert to DataFrame
-        df = self._create_dataframe(weekly_scores.games)
-        
-        # Write CSV asynchronously using asyncio thread pool
-        await asyncio.get_event_loop().run_in_executor(
-            None, lambda: df.to_csv(str(filepath), index=False)
-        )
-        
-        # Create latest version if requested
-        if self.create_latest_files:
-            latest_filename = f"{file_prefix}_latest.csv"
-            latest_filepath = self.output_dir / latest_filename
-            
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
+
+            filename = f"{file_prefix}{week_suffix}_{timestamp}.csv"
+            filepath = self.output_dir / filename
+
+            # Convert to DataFrame
+            df = self._create_dataframe(weekly_scores.games)
+
+            # Write CSV asynchronously using asyncio thread pool
             await asyncio.get_event_loop().run_in_executor(
-                None, lambda: df.to_csv(str(latest_filepath), index=False)
+                None, lambda: df.to_csv(str(filepath), index=False)
             )
-        
-        return str(filepath)
+
+            # Create latest version if requested
+            if self.create_latest_files:
+                latest_filename = f"{file_prefix}_latest.csv"
+                latest_filepath = self.output_dir / latest_filename
+
+                await asyncio.get_event_loop().run_in_executor(
+                    None, lambda: df.to_csv(str(latest_filepath), index=False)
+                )
+
+            return str(filepath)
+        except Exception as e:
+            self.logger.error(f"Error exporting CSV: {e}")
+            return None
     
-    async def export_excel(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores") -> str:
+    async def export_excel(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores") -> Optional[str]:
         """Export weekly scores to Excel format with multiple sheets asynchronously"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
-        
-        filename = f"{file_prefix}{week_suffix}_{timestamp}.xlsx"
-        filepath = self.output_dir / filename
-        
-        # Convert to DataFrame
-        df = self._create_dataframe(weekly_scores.games)
-        
-        # Create Excel writer and write sheets asynchronously
-        await asyncio.get_event_loop().run_in_executor(
-            None, self._write_excel_sheets, df, str(filepath), weekly_scores
-        )
-        
-        # Create latest version if requested
-        if self.create_latest_files:
-            latest_filename = f"{file_prefix}_latest.xlsx"
-            latest_filepath = self.output_dir / latest_filename
-            
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
+
+            filename = f"{file_prefix}{week_suffix}_{timestamp}.xlsx"
+            filepath = self.output_dir / filename
+
+            # Convert to DataFrame
+            df = self._create_dataframe(weekly_scores.games)
+
+            # Create Excel writer and write sheets asynchronously
             await asyncio.get_event_loop().run_in_executor(
-                None, self._write_excel_sheets, df, str(latest_filepath), weekly_scores
+                None, self._write_excel_sheets, df, str(filepath), weekly_scores
             )
-        
-        return str(filepath)
+
+            # Create latest version if requested
+            if self.create_latest_files:
+                latest_filename = f"{file_prefix}_latest.xlsx"
+                latest_filepath = self.output_dir / latest_filename
+
+                await asyncio.get_event_loop().run_in_executor(
+                    None, self._write_excel_sheets, df, str(latest_filepath), weekly_scores
+                )
+
+            return str(filepath)
+        except Exception as e:
+            self.logger.error(f"Error exporting Excel: {e}")
+            return None
     
-    async def export_condensed_excel(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores_condensed") -> str:
+    async def export_condensed_excel(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores_condensed") -> Optional[str]:
         """Export condensed weekly scores to Excel format with team comparison sheets"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
-        
-        filename = f"{file_prefix}{week_suffix}_{timestamp}.xlsx"
-        filepath = self.output_dir / filename
-        
-        # Create condensed data
-        condensed_data = self._create_condensed_dataframe(weekly_scores.games)
-        
-        # Write condensed Excel file
-        await asyncio.get_event_loop().run_in_executor(
-            None, self._write_condensed_excel_sheets, condensed_data, str(filepath), weekly_scores
-        )
-        
-        # Create latest version if requested
-        if self.create_latest_files:
-            latest_filename = f"{file_prefix}_latest.xlsx"
-            latest_filepath = self.output_dir / latest_filename
-            
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
+
+            filename = f"{file_prefix}{week_suffix}_{timestamp}.xlsx"
+            filepath = self.output_dir / filename
+
+            # Create condensed data
+            condensed_data = self._create_condensed_dataframe(weekly_scores.games)
+
+            # Write condensed Excel file
             await asyncio.get_event_loop().run_in_executor(
-                None, self._write_condensed_excel_sheets, condensed_data, str(latest_filepath), weekly_scores
+                None, self._write_condensed_excel_sheets, condensed_data, str(filepath), weekly_scores
             )
-        
-        return str(filepath)
+
+            # Create latest version if requested
+            if self.create_latest_files:
+                latest_filename = f"{file_prefix}_latest.xlsx"
+                latest_filepath = self.output_dir / latest_filename
+
+                await asyncio.get_event_loop().run_in_executor(
+                    None, self._write_condensed_excel_sheets, condensed_data, str(latest_filepath), weekly_scores
+                )
+
+            return str(filepath)
+        except Exception as e:
+            self.logger.error(f"Error exporting condensed Excel: {e}")
+            return None
     
     def _create_dataframe(self, games: List[GameScore]) -> pd.DataFrame:
         """Convert list of GameScore objects to pandas DataFrame"""
@@ -303,20 +324,22 @@ class ScoresDataExporter:
         with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
             # Main games sheet
             df.to_excel(writer, sheet_name='All Games', index=False)
-            
-            # Completed games sheet
-            completed_df = df[df['is_completed'] == True].copy()
-            if not completed_df.empty:
-                completed_df.to_excel(writer, sheet_name='Completed Games', index=False)
-            
+
+            # Completed games sheet (only if DataFrame has data and 'is_completed' column exists)
+            if not df.empty and 'is_completed' in df.columns:
+                completed_df = df[df['is_completed'] == True].copy()
+                if not completed_df.empty:
+                    completed_df.to_excel(writer, sheet_name='Completed Games', index=False)
+
             # Summary sheet
             self._create_summary_sheet(writer, weekly_scores, df)
-            
-            # High-scoring games sheet (if any)
-            high_scoring = df[df['total_points'] >= 50].copy()
-            if not high_scoring.empty:
-                high_scoring = high_scoring.sort_values('total_points', ascending=False)
-                high_scoring.to_excel(writer, sheet_name='High Scoring Games', index=False)
+
+            # High-scoring games sheet (only if DataFrame has data and 'total_points' column exists)
+            if not df.empty and 'total_points' in df.columns:
+                high_scoring = df[df['total_points'] >= 50].copy()
+                if not high_scoring.empty:
+                    high_scoring = high_scoring.sort_values('total_points', ascending=False)
+                    high_scoring.to_excel(writer, sheet_name='High Scoring Games', index=False)
     
     def _write_condensed_excel_sheets(self, df: pd.DataFrame, filepath: str, weekly_scores: WeeklyScores) -> None:
         """Write condensed Excel file with team-centric format (sync helper)"""
@@ -342,13 +365,13 @@ class ScoresDataExporter:
                 weekly_scores.total_games,
                 weekly_scores.completed_games,
                 weekly_scores.total_games - weekly_scores.completed_games,
-                f"{df['total_points'].mean():.1f}" if not df.empty else 0,
-                f"{df['total_points'].max()}" if not df.empty else 0,
-                f"{df['total_points'].min()}" if not df.empty else 0,
-                f"{df['point_difference'].mean():.1f}" if not df.empty else 0,
-                len(df[df['is_overtime'] == True]) if not df.empty else 0,
-                len(df[df['total_points'] >= 40]) if not df.empty else 0,
-                len(df[df['total_points'] >= 60]) if not df.empty else 0
+                f"{df['total_points'].mean():.1f}" if not df.empty and 'total_points' in df.columns else 0,
+                f"{df['total_points'].max()}" if not df.empty and 'total_points' in df.columns else 0,
+                f"{df['total_points'].min()}" if not df.empty and 'total_points' in df.columns else 0,
+                f"{df['point_difference'].mean():.1f}" if not df.empty and 'point_difference' in df.columns else 0,
+                len(df[df['is_overtime'] == True]) if not df.empty and 'is_overtime' in df.columns else 0,
+                len(df[df['total_points'] >= 40]) if not df.empty and 'total_points' in df.columns else 0,
+                len(df[df['total_points'] >= 60]) if not df.empty and 'total_points' in df.columns else 0
             ]
         }
         

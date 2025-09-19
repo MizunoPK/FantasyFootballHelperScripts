@@ -16,7 +16,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, current_dir)
 
 # Import all constants from script-specific config  
-from config import (
+from draft_helper_config import (
     # Logging
     LOGGING_ENABLED, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE,
     

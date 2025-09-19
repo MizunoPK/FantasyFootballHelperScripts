@@ -1,7 +1,5 @@
 .claude
-data/draft_simulation
-player-data-fetcher/data
-nfl-scores-fetcher/data
+*/data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

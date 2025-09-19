@@ -36,17 +36,20 @@ from typing import Dict, List
 import pandas as pd
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Import our new modular components  
+# Import our new modular components
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent))
 
-# Get the path to the .env file in the parent directory  
+# Get the path to the .env file in the parent directory
 ENV_FILE_PATH = Path(__file__).parent.parent / '.env'
 
-from models import ScoringFormat, ProjectionData, DataCollectionError
+# Import our new modular components with renamed files
+from player_data_models import ScoringFormat, ProjectionData, DataCollectionError
 from espn_client import ESPNClient
-from data_exporter import DataExporter
+from player_data_exporter import DataExporter
+
+# Now add parent to path for shared_files access
+sys.path.append(str(Path(__file__).parent.parent))
 from shared_files.FantasyPlayer import FantasyPlayer
 
 
@@ -57,10 +60,21 @@ class Settings(BaseSettings):
         env_prefix='NFL_PROJ_',
         extra='ignore'  # Ignore extra environment variables
     )
-    
+
     # Data Parameters
     scoring_format: ScoringFormat = ScoringFormat.PPR
     season: int = 2025  # Current NFL season
+
+    # Week-by-Week Projection Settings (from config)
+    current_nfl_week: int = 3  # Current NFL week (1-18)
+    use_week_by_week_projections: bool = True  # Use week-by-week calculation
+    use_remaining_season_projections: bool = False  # Use remaining games instead of full season
+    include_playoff_weeks: bool = False  # Include playoff weeks (19-22)
+
+    # Optimization Settings (from config)
+    skip_drafted_player_updates: bool = False  # Skip API calls for drafted=1 players
+    use_score_threshold: bool = False  # Only update players above score threshold
+    player_score_threshold: float = 50.0  # Minimum fantasy points to trigger API update
     
     def validate_settings(self) -> None:
         """Validate settings and warn about potential issues"""
