@@ -15,7 +15,7 @@ from typing import Dict, List
 # MOST FREQUENTLY MODIFIED SETTINGS
 # =============================================================================
 # Mode Configuration (FREQUENTLY MODIFIED)
-TRADE_HELPER_MODE = True        # True for trade helper, False for draft helper
+TRADE_HELPER_MODE = False       # True for trade helper, False for draft helper
 RECOMMENDATION_COUNT = 10        # Number of players to recommend
 
 # Trade Mode Injury Settings (FREQUENTLY MODIFIED)
@@ -86,7 +86,7 @@ POSSIBLE_BYE_WEEKS = [5, 6, 7, 8, 9, 10, 11, 12, 14]
 # =============================================================================
 
 # Data paths
-PLAYERS_CSV = '../shared_files/players.csv'
+PLAYERS_CSV = '../shared_files/players.csv'  # Production player data
 
 # =============================================================================
 # LOGGING CONFIGURATION

@@ -62,8 +62,11 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 - **Configuration-Driven**: Modular config system with weekly `CURRENT_NFL_WEEK` updates
 
 **2. Draft Helper (`draft_helper/`)**
-- **Pure Greedy Trade Algorithm**: Simplified, efficient trade optimization without complex lookahead
-- **Draft Mode**: Interactive draft assistant with configurable position-based strategy
+- **Interactive Menu System**: Persistent main menu with Add to Roster, Mark Drafted Player, and Quit options
+- **Add to Roster Mode**: Draft recommendations with roster display, marks players as drafted=2 (your team)
+- **Mark Drafted Player Mode**: Fuzzy name search to mark others' picks as drafted=1, supports partial matches
+- **Roster Display by Position**: Shows players organized in draft order with specific names and fantasy points
+- **Pure Greedy Trade Algorithm**: Simplified, efficient trade optimization without complex lookahead (trade mode)
 - **Trade Mode**: Weekly roster optimization with runner-up trade suggestions and configurable injury penalty handling
 - **FLEX Position Handling**: Advanced logic for RB/WR eligibility in FLEX slots
 - **Injury Risk Assessment**: Configurable penalties for LOW/MEDIUM/HIGH injury statuses
@@ -176,8 +179,7 @@ Each module includes comprehensive validation and clear documentation of frequen
   - `USE_SCORE_THRESHOLD` (skip API calls for low-scoring players, preserve existing data)
   - `PLAYER_SCORE_THRESHOLD` (minimum fantasy points to trigger API update, default: 15.0)
 - **Week-by-Week System**: `USE_WEEK_BY_WEEK_PROJECTIONS` (True=advanced 646-call system, False=legacy)
-- **Trade Mode**: `TRADE_HELPER_MODE` (True=trade analysis, False=draft mode)
-- **Trade Injury Settings**: `APPLY_INJURY_PENALTY_TO_ROSTER` (True=apply injury penalties to roster players, False=ignore injury penalties for roster players in trade mode)
+- **Trade Injury Settings**: `APPLY_INJURY_PENALTY_TO_ROSTER` (True=apply injury penalties to roster players, False=ignore injury penalties for roster players in trade analysis)
 - **Draft Strategy**: `DRAFT_ORDER` array (position priorities by round with FLEX handling)
 - **Trade Algorithm**: `MIN_TRADE_IMPROVEMENT` (point threshold for pure greedy recommendations)
 - **Injury Tolerance**: `INJURY_PENALTIES` (LOW/MEDIUM/HIGH risk assessment)
@@ -248,8 +250,12 @@ INCLUDE_PLAYOFF_WEEKS = False                  # Regular season only
 # 4. Fetch fresh player data (takes 8-15 minutes with week-by-week)
 .venv\Scripts\python.exe run_player_data_fetcher.py
 
-# 5. Run draft helper for live draft
+# 5. Run interactive draft helper for live draft
 .venv\Scripts\python.exe run_draft_helper.py
+# Main Menu options:
+# 1. Add to Roster - Draft players to your team (drafted=2)
+# 2. Mark Drafted Player - Mark others' picks as drafted (drafted=1)
+# 3. Quit - Exit the system
 ```
 
 ### 2. Weekly Trade Analysis (During Season)
@@ -273,7 +279,53 @@ INCLUDE_PLAYOFF_WEEKS = False                  # Regular season focus
 .venv\Scripts\python.exe run_draft_helper.py
 ```
 
-### 3. Data Compilation for External Analysis
+### 3. Interactive Draft & Trade Helper Usage
+```bash
+# Run the interactive helper (always runs in interactive mode)
+.venv\Scripts\python.exe run_draft_helper.py
+
+# Interactive Menu System:
+# 1. Add to Roster Mode:
+#    - Shows draft recommendations based on current roster
+#    - Select player to add to your team (drafted=2)
+#    - Displays updated roster after each addition
+#    - Returns to main menu after each action
+
+# 2. Mark Drafted Player Mode:
+#    - Search for players by name (fuzzy matching)
+#    - Mark other teams' picks as drafted (drafted=1)
+#    - Supports partial first/last name searches
+#    - Re-search and Back options available
+
+# 3. Trade Analysis Mode:
+#    - Analyzes current roster for potential trades
+#    - Uses pure greedy algorithm for optimization
+#    - Shows runner-up trade suggestions
+#    - Returns to main menu after analysis
+
+# 4. Drop Player Mode:
+#    - Remove players from roster or drafted status (set drafted=0)
+#    - Search among drafted players (drafted != 0) using fuzzy search
+#    - Supports dropping both roster players and players drafted by others
+#    - Confirmation required before dropping players
+
+# 5. Lock/Unlock Player Mode:
+#    - Toggle lock status for roster players only (drafted=2)
+#    - Displays players in Locked and Unlocked sections
+#    - Locked players are protected from trade suggestions
+#    - Continuous operation until returning to main menu
+
+# 6. Roster Display:
+#    - Shows players organized by position in draft order
+#    - Displays specific player names for each position slot
+#    - Updates automatically after roster changes
+#    - Format: "QB1: Patrick Mahomes (KC) - 315.5 pts"
+
+# The system maintains persistent state until quit
+# All changes are saved to players_dev.csv (development mode)
+```
+
+### 4. Data Compilation for External Analysis
 ```bash
 # Fetch NFL scores for spreadsheet compilation
 .venv\Scripts\python.exe run_nfl_scores_fetcher.py

@@ -85,23 +85,34 @@ python -m venv .venv
 - `player-data-fetcher/data/` (timestamped exports in multiple formats)
 
 ### 2. Draft Helper
-**File**: `run_draft_helper.py`  
-**Purpose**: Dual-mode tool for draft assistance and trade analysis  
-**Modes**: Draft mode (initial draft) or Trade mode (weekly analysis)
+**File**: `run_draft_helper.py`
+**Purpose**: Dual-mode tool for interactive draft assistance and trade analysis
+**Modes**: Interactive Draft mode (persistent menu system) or Trade mode (weekly analysis)
 
-#### Draft Mode (Initial Season)
+#### Interactive Draft Mode (Initial Season)
 ```bash
 # Set TRADE_HELPER_MODE = False in draft_helper/config.py
 .venv\Scripts\python.exe run_draft_helper.py
+
+# Interactive Menu Options:
+# 1. Add to Roster - Draft players for your team (drafted=2)
+# 2. Mark Drafted Player - Mark others' picks (drafted=1)
+# 3. Quit - Exit the system
 ```
 
-#### Trade Mode (Weekly Analysis)  
+#### Trade Mode (Weekly Analysis)
 ```bash
 # Set TRADE_HELPER_MODE = True in draft_helper/config.py
 .venv\Scripts\python.exe run_draft_helper.py
 ```
 
-**Features**:
+**Interactive Draft Features**:
+- **Persistent Main Menu**: Add to Roster, Mark Drafted Player, and Quit options
+- **Fuzzy Player Search**: Find players by partial first/last name matching
+- **Roster Display by Position**: Shows players organized in draft order with fantasy points
+- **Real-time CSV Updates**: All changes saved automatically to player database
+
+**Trade Analysis Features**:
 - **Pure Greedy Optimization**: Simple, efficient trade algorithm without complex lookahead
 - **Position-based Recommendations**: Configurable draft strategy by round with FLEX eligibility
 - **Injury Risk Assessment**: Configurable penalties for different injury statuses, with option to ignore penalties for roster players
@@ -199,18 +210,41 @@ python -m venv .venv
 
 ### Season Start (August)
 1. **Update bye weeks** in `shared_files/bye_weeks.csv`
-2. **Set draft mode**: `TRADE_HELPER_MODE = False`  
-3. **Fetch player data**: Run player data fetcher
-4. **Draft your team**: Use draft helper interactively
+2. **Fetch player data**: Run player data fetcher
+3. **Draft your team**: Use interactive helper menu → "Add to Roster" mode
+4. **Mark opponents' picks**: Use interactive helper menu → "Mark Drafted Player" mode
 
 ### Weekly During Season (September-December)
 1. **Update roster**: Manually sync `shared_files/players.csv` with NFL Fantasy changes
-2. **Set trade mode**: `TRADE_HELPER_MODE = True`
-3. **Update current week**: Set `CURRENT_NFL_WEEK` in `shared_config.py` (single location for all scripts)
-4. **Fetch updated data**: Run player data fetcher (1-2x per week)
-5. **Set lineup**: Run starter helper for optimal weekly starting lineup
-6. **Analyze trades**: Run draft helper to see recommendations
+2. **Update current week**: Set `CURRENT_NFL_WEEK` in `shared_config.py` (single location for all scripts)
+3. **Fetch updated data**: Run player data fetcher (1-2x per week)
+4. **Set lineup**: Run starter helper for optimal weekly starting lineup
+5. **Manage roster**: Use interactive helper menu → "Drop Player" or "Lock/Unlock Player" modes
+6. **Analyze trades**: Use interactive helper menu → "Trade Analysis" mode
 7. **Compile scores**: Run NFL scores fetcher as needed
+
+## 🎮 Interactive Draft Helper Features
+
+The draft helper provides a comprehensive menu system for complete roster management:
+
+### Core Modes
+- **Add to Roster**: Draft players to your team with smart recommendations
+- **Mark Drafted Player**: Track other teams' picks using fuzzy name search
+- **Trade Analysis**: Optimize your roster with AI-driven trade suggestions
+- **Drop Player**: Remove players from roster or drafted status (NEW!)
+- **Lock/Unlock Player**: Protect key players from trade suggestions (NEW!)
+
+### Player Management
+- **Smart Search**: Fuzzy matching for partial first/last names
+- **Status Tracking**: Complete drafted status management (available/drafted/roster)
+- **Lock Protection**: Prevent key players from appearing in trade suggestions
+- **Persistent State**: All changes automatically saved to CSV
+
+### User Experience
+- **Intuitive Navigation**: Clear menu structure with back options
+- **Confirmation Steps**: Prevent accidental drops with confirmation prompts
+- **Real-time Updates**: Roster display updates after every action
+- **Error Handling**: Graceful error recovery with helpful messages
 
 ## 🛠️ Advanced Features
 

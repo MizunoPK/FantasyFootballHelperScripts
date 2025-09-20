@@ -1,0 +1,7 @@
+Go through every script in the repo and its associated data folder.
+Scripts will often create resulting data files in csv, json, and/or excel format.
+We want to put a cap on how many files of each type are in the data folder.
+Have the cap be defined by a variable in the shared_variables config 
+When a file type reaches the cap, then the oldest file should be deleted when the next one is created
+For example, for the nfl_projections_season files in the player data fetcher, if the cap is set for 5 then we should have a max of 5 json, 5 csv, and 5 xlsx files in the data folder.
+Set the cap to be defaulted at 5

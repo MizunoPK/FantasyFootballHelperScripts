@@ -1,6 +1,7 @@
 .claude
 */data
-todo-files/
+todo-files
+*/todo-files
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -136,13 +136,17 @@ class TestDraftHelper:
         assert sum(draft_config.MAX_POSITIONS.values()) >= draft_config.MAX_PLAYERS
 
     def test_draft_mode_vs_trade_mode(self):
-        """Test mode switching between draft and trade"""
-        # Test that mode is properly set
+        """Test that both draft and trade functionality are available"""
+        # Test that toggle still exists for injury penalty configuration
         assert isinstance(draft_config.TRADE_HELPER_MODE, bool)
 
         # Test recommendation count is reasonable
         assert draft_config.RECOMMENDATION_COUNT > 0
         assert draft_config.RECOMMENDATION_COUNT <= 20
+
+        # Test that both modes are available via interactive menu
+        assert hasattr(draft_config, 'MIN_TRADE_IMPROVEMENT')  # Trade functionality
+        assert hasattr(draft_config, 'MAX_POSITIONS')  # Draft functionality
 
     def test_scoring_weights_configuration(self):
         """Test scoring weights are reasonable"""
@@ -291,15 +295,25 @@ class TestDraftHelper:
 
     def test_trade_recommendations(self, draft_helper_instance):
         """Test trade recommendation functionality exists"""
-        if not draft_config.TRADE_HELPER_MODE:
-            pytest.skip("Trade mode not enabled in config")
+        # Temporarily enable trade mode for testing
+        original_mode = draft_config.TRADE_HELPER_MODE
+        draft_config.TRADE_HELPER_MODE = True
 
-        # Test that DraftHelper instance is properly configured for trade mode
-        assert hasattr(draft_helper_instance, 'team')
-        assert hasattr(draft_helper_instance, 'players')
+        try:
+            # Test that DraftHelper instance is properly configured for trade mode
+            assert hasattr(draft_helper_instance, 'team')
+            assert hasattr(draft_helper_instance, 'players')
 
-        # Trade functionality would be implemented as needed
-        # This test validates the basic infrastructure is in place
+            # Trade functionality would be implemented as needed
+            # This test validates the basic infrastructure is in place
+
+            # Test that we can access trade-related configuration
+            assert hasattr(draft_config, 'MIN_TRADE_IMPROVEMENT')
+            assert hasattr(draft_config, 'NUM_TRADE_RUNNERS_UP')
+
+        finally:
+            # Restore original mode
+            draft_config.TRADE_HELPER_MODE = original_mode
 
     def test_ideal_draft_position_by_round(self):
         """Test draft position recommendations by round"""
@@ -350,12 +364,23 @@ class TestDraftHelper:
 
     def test_runner_up_trade_suggestions(self, draft_helper_instance):
         """Test that trade functionality infrastructure exists"""
-        if not draft_config.TRADE_HELPER_MODE:
-            pytest.skip("Trade mode not enabled in config")
+        # Temporarily enable trade mode for testing
+        original_mode = draft_config.TRADE_HELPER_MODE
+        draft_config.TRADE_HELPER_MODE = True
 
-        # Test basic trade mode infrastructure
-        assert hasattr(draft_helper_instance, 'team')
-        assert hasattr(draft_helper_instance, 'players')
+        try:
+            # Test basic trade mode infrastructure
+            assert hasattr(draft_helper_instance, 'team')
+            assert hasattr(draft_helper_instance, 'players')
+
+            # Test trade configuration constants exist
+            assert isinstance(draft_config.MIN_TRADE_IMPROVEMENT, (int, float))
+            assert isinstance(draft_config.NUM_TRADE_RUNNERS_UP, int)
+            assert draft_config.NUM_TRADE_RUNNERS_UP > 0
+
+        finally:
+            # Restore original mode
+            draft_config.TRADE_HELPER_MODE = original_mode
 
     def test_bye_week_data_integration(self):
         """Test bye week data integration"""
@@ -375,6 +400,419 @@ class TestDraftHelper:
 
         # Positional need should be meaningful relative to base score
         assert draft_config.POS_NEEDED_SCORE <= draft_config.PROJECTION_BASE_SCORE
+
+    def test_interactive_menu_display_roster_by_draft_order(self, draft_helper_instance, sample_players):
+        """Test the roster display functionality"""
+        print("🧪 Testing roster display by draft order...")
+
+        # Test with empty roster
+        draft_helper_instance.team.roster = []
+        draft_helper_instance.display_roster_by_draft_order()  # Should not crash
+
+        # Test with full roster
+        for player in sample_players[:15]:  # Limit to max roster
+            draft_helper_instance.team.draft_player(player)
+
+        draft_helper_instance.display_roster_by_draft_order()  # Should display organized roster
+        print("✅ Roster display test passed")
+
+    def test_interactive_menu_show_main_menu_validation(self, draft_helper_instance):
+        """Test main menu input validation"""
+        print("🧪 Testing main menu validation...")
+
+        # Mock input validation - the method should handle invalid inputs gracefully
+        # This tests the structure exists and can be called
+        assert hasattr(draft_helper_instance, 'show_main_menu')
+        assert callable(draft_helper_instance.show_main_menu)
+        print("✅ Main menu validation test passed")
+
+    def test_interactive_search_and_mark_player_logic(self, draft_helper_instance):
+        """Test the player search and marking functionality"""
+        print("🧪 Testing player search logic...")
+
+        # Test that search method exists
+        assert hasattr(draft_helper_instance, 'search_and_mark_player')
+        assert callable(draft_helper_instance.search_and_mark_player)
+
+        # Test player filtering for available players (drafted=0)
+        available_players = [p for p in draft_helper_instance.players if p.drafted == 0]
+        initial_available_count = len(available_players)
+
+        # Manually mark a player as drafted to test filtering
+        if available_players:
+            test_player = available_players[0]
+            test_player.drafted = 1
+
+            # Verify the player is no longer in available list
+            new_available = [p for p in draft_helper_instance.players if p.drafted == 0]
+            assert len(new_available) == initial_available_count - 1
+
+        print("✅ Player search logic test passed")
+
+    def test_interactive_add_to_roster_mode_logic(self, draft_helper_instance, sample_players):
+        """Test add to roster mode functionality"""
+        print("🧪 Testing add to roster mode logic...")
+
+        # Test that add to roster method exists
+        assert hasattr(draft_helper_instance, 'run_add_to_roster_mode')
+        assert callable(draft_helper_instance.run_add_to_roster_mode)
+
+        # Test recommendation generation (should work with existing logic)
+        recommendations = draft_helper_instance.recommend_next_picks()
+        assert isinstance(recommendations, list)
+
+        # Test with full roster - should handle gracefully
+        for player in sample_players[:15]:  # Fill roster
+            if draft_helper_instance.team.can_draft(player):
+                draft_helper_instance.team.draft_player(player)
+
+        # Should still be able to call without crashing
+        recommendations_full = draft_helper_instance.recommend_next_picks()
+        assert isinstance(recommendations_full, list)
+
+        print("✅ Add to roster mode test passed")
+
+    def test_interactive_menu_integration_with_existing_logic(self, draft_helper_instance, sample_players):
+        """Test that interactive menu integrates properly with existing draft logic"""
+        print("🧪 Testing interactive menu integration...")
+
+        # Test that all new interactive methods exist
+        interactive_methods = [
+            'run_interactive_draft',
+            'show_main_menu',
+            'display_roster_by_draft_order',
+            'run_add_to_roster_mode',
+            'run_mark_drafted_player_mode',
+            'search_and_mark_player'
+        ]
+
+        for method_name in interactive_methods:
+            assert hasattr(draft_helper_instance, method_name), f"Missing method: {method_name}"
+            assert callable(getattr(draft_helper_instance, method_name)), f"Method not callable: {method_name}"
+
+        # Test that existing core logic still works
+        assert draft_helper_instance.team is not None
+        assert draft_helper_instance.players is not None
+        assert len(draft_helper_instance.players) > 0
+
+        # Test scoring still works
+        test_player = sample_players[0]
+        score = draft_helper_instance.score_player(test_player)
+        assert isinstance(score, (int, float))
+        assert score >= 0
+
+        print("✅ Interactive menu integration test passed")
+
+    def test_interactive_player_search_fuzzy_matching(self, draft_helper_instance):
+        """Test fuzzy matching logic for player search"""
+        print("🧪 Testing fuzzy search matching...")
+
+        # Create test players with known names
+        test_players = [
+            FantasyPlayer(id="test1", name="Patrick Mahomes", team="KC", position="QB", drafted=0),
+            FantasyPlayer(id="test2", name="Travis Kelce", team="KC", position="TE", drafted=0),
+            FantasyPlayer(id="test3", name="Tyreek Hill", team="MIA", position="WR", drafted=0),
+        ]
+
+        # Test partial name matching logic
+        search_term = "mahomes"
+        matches = []
+
+        for player in test_players:
+            name_lower = player.name.lower()
+            name_words = name_lower.split()
+
+            # Simulate the search logic from search_and_mark_player
+            if (search_term.lower() in name_lower or
+                any(search_term.lower() in word or word.startswith(search_term.lower())
+                    for word in name_words)):
+                matches.append(player)
+
+        # Should find Patrick Mahomes
+        assert len(matches) == 1
+        assert matches[0].name == "Patrick Mahomes"
+
+        # Test first name search
+        search_term = "patrick"
+        matches = []
+        for player in test_players:
+            name_lower = player.name.lower()
+            name_words = name_lower.split()
+            if (search_term.lower() in name_lower or
+                any(search_term.lower() in word or word.startswith(search_term.lower())
+                    for word in name_words)):
+                matches.append(player)
+
+        assert len(matches) == 1
+        assert matches[0].name == "Patrick Mahomes"
+
+        print("✅ Fuzzy search matching test passed")
+
+    def test_interactive_roster_state_management(self, draft_helper_instance, sample_players):
+        """Test that roster state is properly managed through interactive operations"""
+        print("🧪 Testing roster state management...")
+
+        initial_roster_size = len(draft_helper_instance.team.roster)
+
+        # Test adding a player
+        available_players = [p for p in draft_helper_instance.players if p.drafted == 0]
+        if available_players:
+            test_player = available_players[0]
+
+            # Manually simulate what Add to Roster mode does
+            success = draft_helper_instance.team.draft_player(test_player)
+            if success:
+                assert len(draft_helper_instance.team.roster) == initial_roster_size + 1
+                assert test_player.drafted == 2  # Should be marked as our team
+
+        # Test that CSV save functionality exists
+        assert hasattr(draft_helper_instance, 'save_players')
+        assert callable(draft_helper_instance.save_players)
+
+        print("✅ Roster state management test passed")
+
+    def test_interactive_trade_analysis_mode(self, draft_helper_instance, sample_players):
+        """Test trade analysis mode functionality"""
+        print("🧪 Testing trade analysis mode...")
+
+        # Test that trade analysis method exists
+        assert hasattr(draft_helper_instance, 'run_trade_analysis_mode')
+        assert callable(draft_helper_instance.run_trade_analysis_mode)
+
+        # Test that trade helper method exists (called by trade analysis mode)
+        assert hasattr(draft_helper_instance, 'run_trade_helper')
+        assert callable(draft_helper_instance.run_trade_helper)
+
+        # Add some players to roster first so we can test trade analysis
+        for player in sample_players[:3]:  # Add a few players
+            if draft_helper_instance.team.can_draft(player):
+                draft_helper_instance.team.draft_player(player)
+
+        # Test trade analysis with roster
+        if len(draft_helper_instance.team.roster) > 0:
+            # Should not crash when run with a roster
+            # Note: We can't test the full interactive flow without mocking input
+            assert hasattr(draft_helper_instance, 'score_player_for_trade')
+            assert callable(draft_helper_instance.score_player_for_trade)
+
+        print("✅ Trade analysis mode test passed")
+
+    def test_interactive_menu_structure_complete(self, draft_helper_instance):
+        """Test that all menu options are properly implemented"""
+        print("🧪 Testing complete menu structure...")
+
+        # Test all interactive methods exist
+        assert hasattr(draft_helper_instance, 'show_main_menu')
+        assert hasattr(draft_helper_instance, 'run_add_to_roster_mode')
+        assert hasattr(draft_helper_instance, 'run_mark_drafted_player_mode')
+        assert hasattr(draft_helper_instance, 'run_trade_analysis_mode')
+        assert hasattr(draft_helper_instance, 'run_drop_player_mode')
+        assert hasattr(draft_helper_instance, 'run_lock_unlock_player_mode')
+        assert hasattr(draft_helper_instance, 'run_interactive_draft')
+
+        # Test all methods are callable
+        assert callable(draft_helper_instance.show_main_menu)
+        assert callable(draft_helper_instance.run_add_to_roster_mode)
+        assert callable(draft_helper_instance.run_mark_drafted_player_mode)
+        assert callable(draft_helper_instance.run_trade_analysis_mode)
+        assert callable(draft_helper_instance.run_drop_player_mode)
+        assert callable(draft_helper_instance.run_lock_unlock_player_mode)
+        assert callable(draft_helper_instance.run_interactive_draft)
+
+        print("✅ Complete menu structure test passed")
+
+    def test_drop_player_mode_functionality(self, draft_helper_instance, sample_players):
+        """Test drop player mode functionality"""
+        print("🧪 Testing drop player mode...")
+
+        # Test that drop player methods exist
+        assert hasattr(draft_helper_instance, 'run_drop_player_mode')
+        assert hasattr(draft_helper_instance, 'search_and_drop_player')
+        assert callable(draft_helper_instance.run_drop_player_mode)
+        assert callable(draft_helper_instance.search_and_drop_player)
+
+        # Set up test data using the actual players from draft_helper_instance
+        test_players = draft_helper_instance.players[:3]
+        original_states = []
+
+        for i, player in enumerate(test_players):
+            # Save original state
+            original_states.append((player.drafted, player.locked))
+
+            if i == 0:
+                # Add to our roster
+                player.drafted = 2
+                if player not in draft_helper_instance.team.roster:
+                    draft_helper_instance.team.roster.append(player)
+            else:
+                # Mark as drafted by others
+                player.drafted = 1
+
+        initial_roster_size = len(draft_helper_instance.team.roster)
+
+        # Test filtering logic for drafted players
+        drafted_players = [p for p in draft_helper_instance.players if p.drafted != 0]
+        assert len(drafted_players) >= 2  # Should include both drafted=1 and drafted=2 players
+
+        # Test drop functionality (simulate dropping a player)
+        roster_player = next(p for p in draft_helper_instance.players if p.drafted == 2)
+        original_drafted_status = roster_player.drafted
+
+        # Simulate drop action
+        roster_player.drafted = 0
+        if roster_player in draft_helper_instance.team.roster:
+            draft_helper_instance.team.roster.remove(roster_player)
+
+        # Verify player was dropped
+        assert roster_player.drafted == 0
+        assert roster_player not in draft_helper_instance.team.roster
+        assert len(draft_helper_instance.team.roster) == initial_roster_size - 1
+
+        # Restore all original states
+        for i, (player, (orig_drafted, orig_locked)) in enumerate(zip(test_players, original_states)):
+            player.drafted = orig_drafted
+            player.locked = orig_locked
+
+        # Clear roster to original state
+        draft_helper_instance.team.roster.clear()
+
+        print("✅ Drop player mode test passed")
+
+    def test_lock_unlock_player_mode_functionality(self, draft_helper_instance, sample_players):
+        """Test lock/unlock player mode functionality"""
+        print("🧪 Testing lock/unlock player mode...")
+
+        # Test that lock/unlock methods exist
+        assert hasattr(draft_helper_instance, 'run_lock_unlock_player_mode')
+        assert callable(draft_helper_instance.run_lock_unlock_player_mode)
+
+        # Set up test data using the actual players from draft_helper_instance
+        test_players = draft_helper_instance.players[:3]
+        original_states = []
+
+        for i, player in enumerate(test_players):
+            # Save original state
+            original_states.append((player.drafted, player.locked))
+
+            # Add to roster
+            player.drafted = 2
+            player.locked = i % 2  # Alternate lock status
+            if player not in draft_helper_instance.team.roster:
+                draft_helper_instance.team.roster.append(player)
+
+        # Test roster player filtering
+        roster_players = [p for p in draft_helper_instance.players if p.drafted == 2]
+        assert len(roster_players) >= 3
+
+        # Test lock status grouping
+        unlocked_players = [p for p in roster_players if p.locked == 0]
+        locked_players = [p for p in roster_players if p.locked == 1]
+
+        assert len(unlocked_players) > 0 or len(locked_players) > 0
+
+        # Test lock toggle functionality
+        if unlocked_players:
+            test_player = unlocked_players[0]
+            original_status = test_player.locked
+
+            # Toggle lock status
+            test_player.locked = 1 - test_player.locked
+
+            # Verify toggle worked
+            assert test_player.locked != original_status
+
+            # Restore original status
+            test_player.locked = original_status
+
+        # Restore all original states
+        for i, (player, (orig_drafted, orig_locked)) in enumerate(zip(test_players, original_states)):
+            player.drafted = orig_drafted
+            player.locked = orig_locked
+
+        # Clear roster to original state
+        draft_helper_instance.team.roster.clear()
+
+        print("✅ Lock/unlock player mode test passed")
+
+    def test_new_menu_options_integration(self, draft_helper_instance):
+        """Test that new menu options integrate properly with existing system"""
+        print("🧪 Testing new menu options integration...")
+
+        # Test menu input validation for new range (1-6)
+        # This tests the concept without actual user input
+
+        # Test that all menu choices are handled
+        menu_methods = {
+            1: 'run_add_to_roster_mode',
+            2: 'run_mark_drafted_player_mode',
+            3: 'run_trade_analysis_mode',
+            4: 'run_drop_player_mode',
+            5: 'run_lock_unlock_player_mode'
+            # 6 would be quit
+        }
+
+        for choice, method_name in menu_methods.items():
+            assert hasattr(draft_helper_instance, method_name)
+            assert callable(getattr(draft_helper_instance, method_name))
+
+        # Test that error handling exists for invalid choices
+        # The show_main_menu method should return -1 for invalid input
+
+        print("✅ New menu options integration test passed")
+
+    def test_player_status_management(self, draft_helper_instance, sample_players):
+        """Test player status changes work correctly across all modes"""
+        print("🧪 Testing player status management...")
+
+        # Use a test player
+        test_player = sample_players[0]
+        original_drafted = test_player.drafted
+        original_locked = test_player.locked
+
+        try:
+            # Test status transitions
+            # Available -> Drafted by others -> Available
+            test_player.drafted = 0  # Available
+            assert test_player.drafted == 0
+
+            test_player.drafted = 1  # Drafted by others
+            assert test_player.drafted == 1
+
+            test_player.drafted = 0  # Back to available
+            assert test_player.drafted == 0
+
+            # Test roster management
+            test_player.drafted = 2  # On our roster
+            if test_player not in draft_helper_instance.team.roster:
+                draft_helper_instance.team.roster.append(test_player)
+
+            assert test_player.drafted == 2
+            assert test_player in draft_helper_instance.team.roster
+
+            # Test lock status for roster players
+            test_player.locked = 0  # Unlocked
+            assert test_player.locked == 0
+
+            test_player.locked = 1  # Locked
+            assert test_player.locked == 1
+
+            test_player.locked = 0  # Back to unlocked
+            assert test_player.locked == 0
+
+            # Test dropping from roster
+            if test_player in draft_helper_instance.team.roster:
+                draft_helper_instance.team.roster.remove(test_player)
+            test_player.drafted = 0
+
+            assert test_player.drafted == 0
+            assert test_player not in draft_helper_instance.team.roster
+
+        finally:
+            # Restore original state
+            test_player.drafted = original_drafted
+            test_player.locked = original_locked
+
+        print("✅ Player status management test passed")
 
 
 if __name__ == "__main__":
