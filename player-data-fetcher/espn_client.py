@@ -223,8 +223,8 @@ class ESPNClient(BaseAPIClient):
         # Calculate average of recent weeks
         recent_average = sum(recent_weeks) / len(recent_weeks)
 
-        # Calculate remaining games in season
-        remaining_weeks = max(0, 18 - current_week)  # NFL season is 18 weeks
+        # Calculate remaining games in season (fantasy regular season is 17 weeks)
+        remaining_weeks = max(0, 17 - current_week)
 
         # Project remaining season total
         remaining_projection = recent_average * remaining_weeks
@@ -246,8 +246,8 @@ class ESPNClient(BaseAPIClient):
             if not all_weeks_data:
                 return 0.0
 
-            # Determine week range
-            end_week = 22 if INCLUDE_PLAYOFF_WEEKS else 18
+            # Determine week range (limit to 17 for fantasy regular season)
+            end_week = 17
             start_week = CURRENT_NFL_WEEK + 1 if USE_REMAINING_SEASON_PROJECTIONS else 1
 
             total_projection = 0.0
@@ -324,7 +324,8 @@ class ESPNClient(BaseAPIClient):
                 week=week,
                 position=position,
                 player_name=player_name,
-                fallback_data=None  # Will add ADP fallback in future if needed
+                fallback_data=None,  # Will add ADP fallback in future if needed
+                current_nfl_week=CURRENT_NFL_WEEK
             )
 
             return points if points is not None else 0.0
@@ -352,8 +353,8 @@ class ESPNClient(BaseAPIClient):
             if not all_weeks_data:
                 return
 
-            # Determine week range (include playoffs if configured)
-            end_week = 22 if INCLUDE_PLAYOFF_WEEKS else 18
+            # Determine week range (limit to 17 for fantasy regular season)
+            end_week = 17
 
             # Collect weekly projections for all weeks
             for week in range(1, end_week + 1):
@@ -364,9 +365,16 @@ class ESPNClient(BaseAPIClient):
                     player_data.set_week_points(week, espn_points)
                     self.logger.debug(f"{name} Week {week}: {espn_points:.1f} points (ESPN data)")
                 else:
-                    # Set to 0.0 when no ESPN data available instead of leaving empty
-                    player_data.set_week_points(week, 0.0)
-                    self.logger.debug(f"{name} Week {week}: 0.0 points (no ESPN data)")
+                    # Check if seasonal fallback should be distributed
+                    if player_data.data_method == "seasonal":
+                        # Distribute seasonal projection evenly across weeks 1-17
+                        weekly_points = player_data.fantasy_points / 17
+                        player_data.set_week_points(week, weekly_points)
+                        self.logger.debug(f"{name} Week {week}: {weekly_points:.1f} points (seasonal distribution)")
+                    else:
+                        # Set to 0.0 when no ESPN data available and no seasonal fallback
+                        player_data.set_week_points(week, 0.0)
+                        self.logger.debug(f"{name} Week {week}: 0.0 points (no data)")
 
         except Exception as e:
             self.logger.warning(f"Failed to populate weekly projections for {name}: {str(e)}")
@@ -515,24 +523,7 @@ class ESPNClient(BaseAPIClient):
             if current_season_entries:
                 return sum(current_season_entries) / len(current_season_entries)
 
-            # Fallback to 2024 historical data for same week
-            historical_entries = []
-            for stat_entry in stats:
-                if (stat_entry.get('seasonId') == self.settings.season - 1 and
-                    stat_entry.get('scoringPeriodId') == week):
-
-                    points = None
-                    if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
-                        points = float(stat_entry['appliedTotal'])
-                    elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
-                        points = float(stat_entry['projectedTotal'])
-
-                    if points is not None and (position == 'DST' or points > 0):
-                        historical_entries.append(points)
-
-            if historical_entries:
-                return sum(historical_entries) / len(historical_entries)
-
+            # No historical fallback - return None if no current season data available
             return None
 
         except Exception as e:
@@ -620,7 +611,8 @@ class ESPNClient(BaseAPIClient):
                         bye_week=int(preserved_data.get('bye_week', 0)) if preserved_data.get('bye_week') else None,
                         fantasy_points=float(preserved_data.get('fantasy_points', 0.0)),
                         injury_status=preserved_data.get('injury_status', 'UNKNOWN'),
-                        average_draft_position=float(preserved_data.get('average_draft_position', 0.0)) if preserved_data.get('average_draft_position') else None
+                        average_draft_position=float(preserved_data.get('average_draft_position', 0.0)) if preserved_data.get('average_draft_position') else None,
+                        data_method=preserved_data.get('data_method', 'weekly')  # Preserve existing data method
                     )
                     projections.append(preserved_projection)
                     skipped_low_score_count += 1
@@ -685,69 +677,13 @@ class ESPNClient(BaseAPIClient):
                         fallback_used = True
                         fallback_type = "2025_season"
 
-                # FALLBACK 3: 2024 season projections
+                # FALLBACK 3: ADP estimation (if enabled and will be applied later in empirical mapping)
+                # Note: Individual ADP estimation is handled in _apply_empirical_adp_mapping
+
+                # FALLBACK 4: Zero score (as specified in requirements)
                 if fantasy_points == 0.0:
-                    season_2024_projections = []
-                    for stat_entry in stats:
-                        if stat_entry.get('scoringPeriodId') == 0 and stat_entry.get('seasonId') == 2024:
-                            if position == 'DST':
-                                self.logger.info(f"DST 2024 SEASON DEBUG: {name} found 2024 season entry: appliedTotal={stat_entry.get('appliedTotal')}, projectedTotal={stat_entry.get('projectedTotal')}")
-
-                            points = 0.0
-                            if 'appliedTotal' in stat_entry:
-                                points = float(stat_entry['appliedTotal'])
-                            elif 'projectedTotal' in stat_entry:
-                                points = float(stat_entry['projectedTotal'])
-                            if points > 0:  # Only consider positive projections
-                                season_2024_projections.append(points)
-
-                    if season_2024_projections:
-                        fantasy_points = max(season_2024_projections)  # Use highest positive 2024 projection
-                        fallback_used = True
-                        fallback_type = "2024_season"
-
-                    # FALLBACK 4: 2024 weekly average calculation
-                    if fantasy_points == 0.0:
-                        weekly_points = []
-                        if position == 'DST':
-                            self.logger.info(f"DST WEEKLY DEBUG: {name} checking weekly data from {len(stats)} entries")
-
-                        for stat_entry in stats:
-                            # Get 2024 weekly data (periods 1-18)
-                            if (stat_entry.get('seasonId') == 2024 and
-                                stat_entry.get('scoringPeriodId', 0) > 0 and
-                                stat_entry.get('scoringPeriodId', 0) <= 18):
-
-                                week_points = 0.0
-                                if 'appliedTotal' in stat_entry:
-                                    week_points = float(stat_entry['appliedTotal'])
-                                elif 'projectedTotal' in stat_entry:
-                                    week_points = float(stat_entry['projectedTotal'])
-
-                                if position == 'DST' and week_points != 0:
-                                    self.logger.info(f"  Week {stat_entry.get('scoringPeriodId')}: {week_points} pts")
-
-                                # Include all scores for defenses (they can have negative weeks)
-                                # For other positions, only include positive scores
-                                if week_points != 0 and (position == 'DST' or week_points > 0):
-                                    weekly_points.append(week_points)
-
-                        # Calculate projected season total from weekly averages
-                        if weekly_points:
-                            avg_per_week = sum(weekly_points) / len(weekly_points)
-                            projected_season = avg_per_week * 17  # 17-game season
-                            fantasy_points = projected_season
-                            fallback_used = True
-                            fallback_type = "2024_weekly"
-                            self.logger.info(f"Using weekly average fallback for {name}: {len(weekly_points)} weeks, {avg_per_week:.1f} avg, {projected_season:.1f} season total")
-                        else:
-                            # Final fallback - debug output for defenses
-                            if position == 'DST':
-                                self.logger.warning(f"DEFENSE DEBUG: {name} has no weekly data either. Stats count: {len(stats)}")
-                                # Log all stat entries for this defense to see what data is available
-                                for i, stat in enumerate(stats):
-                                    self.logger.warning(f"  Stat {i}: seasonId={stat.get('seasonId')}, scoringPeriodId={stat.get('scoringPeriodId')}, appliedTotal={stat.get('appliedTotal')}, projectedTotal={stat.get('projectedTotal')}")
-                            self.logger.warning(f"No usable data for {name} ({position}). Using 0.0 points.")
+                    self.logger.warning(f"No usable data for {name} ({position}). Setting to 0.0 points.")
+                    fallback_type = "zero"
 
                 # Log when fallback is used for transparency
                 if fallback_used:
@@ -768,6 +704,19 @@ class ESPNClient(BaseAPIClient):
                     average_draft_position = float(ownership_data['averageDraftPosition'])
                 
                 # Create player projection
+                # Map fallback types to standard data methods
+                if fallback_used:
+                    if fallback_type in ["remaining_season", "2025_season"]:
+                        data_method = "seasonal"
+                    elif fallback_type == "adp":
+                        data_method = "adp"
+                    elif fallback_type == "zero":
+                        data_method = "zero"
+                    else:
+                        data_method = fallback_type
+                else:
+                    data_method = "weekly"
+
                 projection = ESPNPlayerData(
                     id=id,
                     name=name,
@@ -778,7 +727,8 @@ class ESPNClient(BaseAPIClient):
                     fantasy_points=fantasy_points,
                     average_draft_position=average_draft_position,
                     injury_status=injury_status,
-                    api_source="ESPN"
+                    api_source="ESPN",
+                    data_method=data_method
                 )
 
                 # Collect weekly projections for this player
@@ -842,13 +792,20 @@ class ESPNClient(BaseAPIClient):
         for player in zero_point_players:
             if player.position in position_mappings:
                 estimated_points = self._estimate_fantasy_points_from_adp(
-                    player.average_draft_position, 
-                    player.position, 
+                    player.average_draft_position,
+                    player.position,
                     position_mappings
                 )
                 player.fantasy_points = estimated_points
+                player.data_method = "adp"  # Track that this player used ADP estimation
+
+                # Distribute ADP estimation evenly across weeks 1-17
+                weekly_points = estimated_points / 17
+                for week in range(1, 18):
+                    player.set_week_points(week, weekly_points)
+
                 updated_count += 1
-                self.logger.debug(f"Updated {player.name} ({player.position}) ADP {player.average_draft_position:.1f} -> {estimated_points:.1f} points")
+                self.logger.debug(f"Updated {player.name} ({player.position}) ADP {player.average_draft_position:.1f} -> {estimated_points:.1f} points (distributed across weeks 1-17)")
         
         self.logger.info(f"Updated fantasy points for {updated_count} players using empirical ADP mapping")
         return players

@@ -88,7 +88,8 @@ class FantasyPointsExtractor:
         week: int,
         position: str,
         player_name: str = "Unknown",
-        fallback_data: Optional[Dict[str, Any]] = None
+        fallback_data: Optional[Dict[str, Any]] = None,
+        current_nfl_week: Optional[int] = None
     ) -> float:
         """
         Extract fantasy points for a specific week from ESPN player data
@@ -107,7 +108,7 @@ class FantasyPointsExtractor:
         """
         try:
             # Primary extraction from ESPN stats
-            points = self._extract_from_stats_array(player_data, week, position)
+            points = self._extract_from_stats_array(player_data, week, position, current_nfl_week)
 
             if points is not None:
                 self.logger.debug(f"Extracted {points:.1f} points for {player_name} week {week}")
@@ -139,7 +140,8 @@ class FantasyPointsExtractor:
         self,
         player_data: Dict[str, Any],
         week: int,
-        position: str
+        position: str,
+        current_nfl_week: Optional[int] = None
     ) -> Optional[float]:
         """
         Extract fantasy points from ESPN stats array
@@ -176,13 +178,36 @@ class FantasyPointsExtractor:
                 if scoring_period == week:
                     points = None
 
-                    # STANDARDIZED PRIORITY: appliedTotal → projectedTotal
-                    if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
-                        points = float(stat_entry['appliedTotal'])
-                        self.logger.debug(f"Found appliedTotal: {points}")
-                    elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
-                        points = float(stat_entry['projectedTotal'])
-                        self.logger.debug(f"Found projectedTotal: {points}")
+                    # WEEK-BASED PRIORITY LOGIC (when current_nfl_week is provided):
+                    # Past weeks (week < current): appliedTotal → projectedTotal
+                    # Current/Future weeks (week >= current): projectedTotal → appliedTotal
+                    # Legacy behavior (when current_nfl_week is None): appliedTotal → projectedTotal
+
+                    if current_nfl_week is not None:
+                        if week < current_nfl_week:
+                            # Past weeks: prefer appliedTotal (actual scores)
+                            if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
+                                points = float(stat_entry['appliedTotal'])
+                                self.logger.debug(f"Found appliedTotal for past week {week}: {points}")
+                            elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
+                                points = float(stat_entry['projectedTotal'])
+                                self.logger.debug(f"Found projectedTotal fallback for past week {week}: {points}")
+                        else:
+                            # Current/Future weeks: prefer projectedTotal (projected scores)
+                            if 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
+                                points = float(stat_entry['projectedTotal'])
+                                self.logger.debug(f"Found projectedTotal for current/future week {week}: {points}")
+                            elif 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
+                                points = float(stat_entry['appliedTotal'])
+                                self.logger.debug(f"Found appliedTotal fallback for current/future week {week}: {points}")
+                    else:
+                        # Legacy behavior: prefer appliedTotal (for backward compatibility)
+                        if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
+                            points = float(stat_entry['appliedTotal'])
+                            self.logger.debug(f"Found appliedTotal (legacy mode): {points}")
+                        elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
+                            points = float(stat_entry['projectedTotal'])
+                            self.logger.debug(f"Found projectedTotal fallback (legacy mode): {points}")
 
                     # Validate points (allow negative for DST, filter negative for others)
                     if points is not None:

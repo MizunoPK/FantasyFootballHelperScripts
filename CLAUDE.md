@@ -52,10 +52,12 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 
 **1. Player Data Fetcher (`player-data-fetcher/`)**
 - **Week-by-Week Projection System**: Advanced optimization reducing API calls from 10,336 to 646 (16x improvement)
+- **Smart Weekly Prioritization**: Past weeks use appliedTotal (actual), current/future weeks use projectedTotal (projected)
 - **Async Architecture**: httpx client with tenacity retry logic and concurrent aiofiles export
 - **Smart Data Preservation**: Maintains drafted/locked status with `SKIP_DRAFTED_PLAYER_UPDATES` optimization
-- **Multi-Format Export**: Concurrent CSV, Excel, JSON output with timestamps
-- **Automatic Fallbacks**: Graceful degradation when week-by-week data unavailable
+- **Multi-Format Export**: Concurrent CSV, Excel, JSON output with timestamps (weeks 1-17 only)
+- **Data Method Tracking**: Transparent reporting of data source for each player ("weekly", "seasonal", "adp", "zero")
+- **Automatic Fallbacks**: Graceful degradation with ADP/seasonal distribution when weekly data unavailable
 - **Pydantic Models**: Type-safe data validation and serialization throughout pipeline
 - **Configuration-Driven**: Modular config system with weekly `CURRENT_NFL_WEEK` updates
 
@@ -81,6 +83,36 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 - **Multi-Format Export**: CSV, JSON, Excel outputs for external spreadsheet integration
 - **Modular Architecture**: Standalone client and export components
 - **Configurable Filtering**: Completed games only, specific weeks, season type selection
+
+### Fantasy Points Calculation System
+
+**Updated Week-Based Priority Logic (September 2025):**
+
+The fantasy points calculation system has been enhanced to use intelligent week-based prioritization:
+
+**Week Comparison Logic:**
+- Compare requested week to `CURRENT_NFL_WEEK` (from `player-data-fetcher/config.py`)
+- **Past weeks (week < CURRENT_NFL_WEEK)**: Use `appliedTotal` (actual scores) → fallback to `projectedTotal`
+- **Current/Future weeks (week >= CURRENT_NFL_WEEK)**: Use `projectedTotal` (projected scores) → fallback to `appliedTotal`
+- **Legacy compatibility**: When `current_nfl_week` not provided, defaults to `appliedTotal` → `projectedTotal`
+
+**Data Source Priority Chain:**
+1. **Primary**: Weekly ESPN data (using week-based logic above)
+2. **Secondary**: Seasonal projection (distributed evenly across weeks 1-17)
+3. **Tertiary**: ADP estimation (distributed evenly across weeks 1-17)
+4. **Final**: Zero with transparent reporting
+
+**Export Changes:**
+- **Weeks 1-17 only**: Removed weeks 18-22 columns from all export formats
+- **New data_method column**: Shows calculation source ("weekly", "seasonal", "adp", "zero")
+- **ADP Distribution**: When ADP used, points distributed evenly across weeks 1-17
+- **Seasonal Distribution**: When seasonal fallback used, points distributed evenly across weeks 1-17
+
+**Implementation Files:**
+- `shared_files/fantasy_points_calculator.py`: Core week-based logic
+- `player-data-fetcher/espn_client.py`: ESPN integration with current week awareness
+- `player-data-fetcher/player_data_models.py`: Data models with data_method tracking
+- `shared_files/FantasyPlayer.py`: Player class with weeks 1-17 support
 
 ### Key Classes
 
@@ -330,18 +362,24 @@ timeout 10 .venv\Scripts\python.exe run_draft_helper.py
 
 ### Week-by-Week Projection System Validation
 ```bash
-# Advanced validation for the new projection system:
+# Advanced validation for the updated projection system:
 
 # Expected log output during player data fetcher run:
-# ✅ "Week-by-week total for Lamar Jackson: 341.1 points (15 weeks)"
-# ✅ "Week-by-week total for Christian McCaffrey: 318.3 points (15 weeks)"
-# ✅ "Week-by-week total for [DST]: 95.5 points (16 weeks)" (defenses get 16)
-# ✅ "Using remaining_season fallback for [Some Player]" (normal for incomplete data)
+# ✅ "Week-by-week total for Lamar Jackson: 341.1 points (16 weeks)"
+# ✅ "Week-by-week total for Christian McCaffrey: 318.3 points (16 weeks)"
+# ✅ "Week-by-week total for [DST]: 95.5 points (16 weeks)"
+# ✅ "Using seasonal fallback for [Some Player]" (seasonal distribution)
+# ✅ "Using ADP estimation for [Some Player]" (ADP distribution across weeks 1-17)
 
 # Performance indicators:
 # ✅ Processing ~646 players in 8-15 minutes
 # ✅ One API call per player (not per week)
 # ✅ No timeout errors or extended delays
+# ✅ Export files contain weeks 1-17 only (no weeks 18-22)
+# ✅ data_method column shows calculation source for each player
+
+# Test new week-based prioritization:
+.venv\Scripts\python.exe -m pytest shared_files/tests/test_week_based_prioritization.py -v
 ```
 
 ### Configuration Validation

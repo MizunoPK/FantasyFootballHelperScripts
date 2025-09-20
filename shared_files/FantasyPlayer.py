@@ -92,8 +92,9 @@ class FantasyPlayer:
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None  # ESPN's ADP data
     adp: Optional[float] = None  # Alias for average_draft_position (backward compatibility)
+    data_method: str = "weekly"  # Data source: "weekly", "seasonal", "adp", "zero"
 
-    # Weekly projections (weeks 1-18 for regular season)
+    # Weekly projections (weeks 1-17 fantasy regular season only)
     week_1_points: Optional[float] = None
     week_2_points: Optional[float] = None
     week_3_points: Optional[float] = None
@@ -111,13 +112,6 @@ class FantasyPlayer:
     week_15_points: Optional[float] = None
     week_16_points: Optional[float] = None
     week_17_points: Optional[float] = None
-    week_18_points: Optional[float] = None
-
-    # Playoff weeks (weeks 19-22) - optional
-    week_19_points: Optional[float] = None
-    week_20_points: Optional[float] = None
-    week_21_points: Optional[float] = None
-    week_22_points: Optional[float] = None
 
     # Injury information
     injury_status: str = "UNKNOWN"  # ACTIVE, QUESTIONABLE, OUT, etc.

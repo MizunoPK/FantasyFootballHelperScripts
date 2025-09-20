@@ -7,8 +7,3 @@ Once a player has been loaded with all of their weekly points, add them all up t
 If weekly data is not present for a player, try to fetch the seasonal projection for the current year and set that to be the fantasy_points, with the average per week based off that seasonal projection set to each week in the 
 If neither weekly data or seasonal data is present, then do the ADP estimation that we have previously done.
 Remove the checks for previous year (2024) data. If none of the previous checks produce anything then just leave the scores at 0 and display a list at the end of player data fetching showing a list of the players than reached this state and couldn't get data.
-
-Before starting changes, create a TODO file that maps out all the tasks that will need to be completed to accomplish this objective. As you complete the tasks, keep the file updated with your progress just in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made. Put the TODO file in the todo-files folder in this directory.
-After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Create/modify any relevant unit tests and test them to ensure they pass.
-Update rules files and readme files according to the new changes.
-Ask me any clarifying questions that would help you better understand and complete this objective.

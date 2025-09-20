@@ -313,7 +313,7 @@ class DataExporter:
             fantasy_points=player_data.fantasy_points,
             average_draft_position=player_data.average_draft_position,
             injury_status=player_data.injury_status,
-            # Weekly projections (weeks 1-18 for regular season)
+            # Weekly projections (weeks 1-17 fantasy regular season only)
             week_1_points=player_data.week_1_points,
             week_2_points=player_data.week_2_points,
             week_3_points=player_data.week_3_points,
@@ -331,12 +331,8 @@ class DataExporter:
             week_15_points=player_data.week_15_points,
             week_16_points=player_data.week_16_points,
             week_17_points=player_data.week_17_points,
-            week_18_points=player_data.week_18_points,
-            # Playoff weeks (weeks 19-22) - optional
-            week_19_points=player_data.week_19_points,
-            week_20_points=player_data.week_20_points,
-            week_21_points=player_data.week_21_points,
-            week_22_points=player_data.week_22_points
+            # Data method tracking
+            data_method=player_data.data_method
         )
     
     def get_fantasy_players(self, data: ProjectionData) -> List[FantasyPlayer]:

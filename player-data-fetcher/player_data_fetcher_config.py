@@ -95,15 +95,13 @@ RATE_LIMIT_DELAY = 0.2
 EXCEL_POSITION_SHEETS = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 EXPORT_COLUMNS = [
     'id', 'name', 'team', 'position', 'bye_week', 'fantasy_points',
-    'injury_status', 'drafted', 'locked',
-    # Weekly projections (weeks 1-18 regular season)
+    'injury_status', 'drafted', 'locked', 'data_method',
+    # Weekly projections (weeks 1-17 fantasy regular season only)
     'week_1_points', 'week_2_points', 'week_3_points', 'week_4_points',
     'week_5_points', 'week_6_points', 'week_7_points', 'week_8_points',
     'week_9_points', 'week_10_points', 'week_11_points', 'week_12_points',
     'week_13_points', 'week_14_points', 'week_15_points', 'week_16_points',
-    'week_17_points', 'week_18_points',
-    # Playoff weeks (weeks 19-22) - optional
-    'week_19_points', 'week_20_points', 'week_21_points', 'week_22_points'
+    'week_17_points'
 ]
 
 # =============================================================================
