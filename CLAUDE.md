@@ -21,7 +21,7 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 
 ```bash
 # Run player projections fetcher (ESPN API) - Advanced week-by-week system (8-15 min)
-# CRITICAL: Update CURRENT_NFL_WEEK weekly in player-data-fetcher/config.py
+# CRITICAL: Update CURRENT_NFL_WEEK weekly in shared_config.py (centralized for all scripts)
 .venv\Scripts\python.exe run_player_data_fetcher.py
 
 # Run draft helper in draft mode (initial draft)
@@ -33,7 +33,7 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 .venv\Scripts\python.exe run_draft_helper.py
 
 # Run starter helper (weekly optimal lineup from CSV projections) - <1 second
-# CRITICAL: Update CURRENT_NFL_WEEK weekly in starter_helper/config.py
+# CRITICAL: Update CURRENT_NFL_WEEK weekly in shared_config.py (same location as above)
 .venv\Scripts\python.exe run_starter_helper.py
 
 # Run NFL scores fetcher (for data compilation)
@@ -137,7 +137,7 @@ MAX_POSITIONS = {
 Each module includes comprehensive validation and clear documentation of frequently modified settings.
 
 **Most Frequently Modified Settings:**
-- **🔥 CRITICAL WEEKLY UPDATE**: `CURRENT_NFL_WEEK` in `player-data-fetcher/config.py` (update every Tuesday)
+- **🔥 CRITICAL WEEKLY UPDATE**: `CURRENT_NFL_WEEK` in `shared_config.py` (update every Tuesday - centralized for ALL scripts)
 - **Major Performance Optimizations**:
   - `SKIP_DRAFTED_PLAYER_UPDATES` (skip API calls for drafted=1 players)
   - `USE_SCORE_THRESHOLD` (skip API calls for low-scoring players, preserve existing data)
@@ -203,7 +203,7 @@ requests>=2.31.0        # Legacy HTTP support (minimal usage)
 
 # 2. Configure week-by-week projections for draft
 # Edit player-data-fetcher/config.py:
-CURRENT_NFL_WEEK = 1                           # Start of season
+CURRENT_NFL_WEEK = 1                           # Start of season (in shared_config.py)
 USE_WEEK_BY_WEEK_PROJECTIONS = True            # Enable advanced projections
 USE_REMAINING_SEASON_PROJECTIONS = False       # Full season for draft
 INCLUDE_PLAYOFF_WEEKS = False                  # Regular season only
@@ -222,7 +222,7 @@ INCLUDE_PLAYOFF_WEEKS = False                  # Regular season only
 ```bash
 # 🔥 STEP 1: Update current week (CRITICAL - Do this every Tuesday)
 # Edit player-data-fetcher/config.py:
-CURRENT_NFL_WEEK = [current_week]              # Update weekly: 1, 2, 3... 18
+CURRENT_NFL_WEEK = [current_week]              # Update weekly: 1, 2, 3... 18 (in shared_config.py)
 USE_WEEK_BY_WEEK_PROJECTIONS = True            # Keep advanced projections
 USE_REMAINING_SEASON_PROJECTIONS = True        # Only remaining weeks matter
 INCLUDE_PLAYOFF_WEEKS = False                  # Regular season focus
@@ -350,7 +350,7 @@ timeout 10 .venv\Scripts\python.exe run_draft_helper.py
 
 ### Common Issues and Solutions
 1. **Week-by-Week Timeouts**: If player data fetcher takes >20 minutes, set `USE_WEEK_BY_WEEK_PROJECTIONS = False`
-2. **Inconsistent Player Points**: Ensure `CURRENT_NFL_WEEK` is updated weekly during season (most common issue)
+2. **Inconsistent Player Points**: Ensure `CURRENT_NFL_WEEK` is updated weekly in `shared_config.py` (most common issue)
 3. **Missing Week-by-Week Data**: Some players may show "Using remaining_season fallback" - this is normal
 4. **Import Errors**: Check that script-specific config files exist and have required constants
 5. **Path Issues**: Verify `shared_files/players.csv` exists and is accessible from module directories
@@ -376,7 +376,7 @@ timeout 10 .venv\Scripts\python.exe run_draft_helper.py
 
 **Problem**: Player projections seem too low/high after week update
 - **Solution**: Verify `CURRENT_NFL_WEEK` matches actual NFL week
-- **Action**: Check `CURRENT_NFL_WEEK = [1-18]` and `USE_REMAINING_SEASON_PROJECTIONS = True`
+- **Action**: Check `CURRENT_NFL_WEEK = [1-18]` in `shared_config.py` and `USE_REMAINING_SEASON_PROJECTIONS = True`
 
 ## Unit Testing
 

@@ -16,6 +16,15 @@ Last Updated: September 2025
 """
 
 # =============================================================================
+# SHARED NFL SEASON VARIABLES
+# =============================================================================
+
+# NFL Season and Week Configuration (CRITICAL - UPDATE WEEKLY)
+CURRENT_NFL_WEEK = 3      # Current NFL week (1-18, update weekly)
+NFL_SEASON = 2025         # Current NFL season year
+NFL_SCORING_FORMAT = "ppr"  # Fantasy scoring format: "ppr", "std", or "half"
+
+# =============================================================================
 # SHARED DATA PATHS
 # =============================================================================
 
@@ -28,30 +37,43 @@ PLAYERS_CSV = 'shared_files/players.csv'
 """
 🎯 CONFIG FILE ORGANIZATION:
 
-SCRIPT-SPECIFIC SETTINGS (most frequently modified):
-- player-data-fetcher/config.py: ESPN API settings, fallback scoring, output formats
-- nfl-scores-fetcher/config.py: NFL API settings, current week, season type
-- draft_helper/config.py: Draft strategy, roster limits, scoring weights
-
-SHARED SETTINGS (this file):
+SHARED SETTINGS (this file - MOST CRITICAL):
+- CURRENT_NFL_WEEK: Update every Tuesday for the upcoming week (1-18)
+- NFL_SEASON: Current NFL season year (update annually)
+- NFL_SCORING_FORMAT: Fantasy scoring format ("ppr", "std", or "half")
 - PLAYERS_CSV: Shared data file path used by all scripts
+
+SCRIPT-SPECIFIC SETTINGS:
+- player-data-fetcher/config.py: ESPN API settings, projection settings, output formats
+- nfl-scores-fetcher/config.py: NFL API settings, export options
+- draft_helper/config.py: Draft strategy, roster limits, trade settings
+- starter_helper/config.py: Lineup requirements, display options
 
 🔧 HOW TO MODIFY SETTINGS:
 
+For Weekly Updates (MOST IMPORTANT):
+→ Edit CURRENT_NFL_WEEK in shared_config.py (this file)
+
+For Season Updates:
+→ Edit NFL_SEASON and NFL_SCORING_FORMAT in shared_config.py (this file)
+
 For Player Data Changes:
-→ Edit player-data-fetcher/config.py
+→ Edit player-data-fetcher/player_data_fetcher_config.py
 
 For NFL Scores Changes:
-→ Edit nfl-scores-fetcher/config.py
+→ Edit nfl-scores-fetcher/nfl_scores_fetcher_config.py
 
 For Draft Strategy Changes:
-→ Edit draft_helper/config.py
+→ Edit draft_helper/draft_helper_config.py
+
+For Lineup Settings:
+→ Edit starter_helper/starter_helper_config.py
 
 ⚠️ VALIDATION:
-Each script-specific config file has its own validation. No validation needed here
-since this file only contains shared file paths.
+The shared variables in this file are used by all scripts. Validation is performed
+by each individual script that imports these values.
 
-📁 MIGRATION COMPLETE:
-All frequently modified constants have been moved to script-specific config files.
-This centralized approach makes it easier to modify settings for each script independently.
+📁 CENTRALIZATION COMPLETE:
+Core NFL season/week variables are now centralized for consistency across all scripts.
+Weekly updates now require changing only ONE location instead of multiple files.
 """

@@ -12,13 +12,18 @@ Last Updated: September 2025
 from typing import Dict, List
 
 # =============================================================================
-# MOST FREQUENTLY MODIFIED SETTINGS
+# SHARED VARIABLES (imported from shared_config.py)
 # =============================================================================
 
-# Week Configuration (FREQUENTLY MODIFIED)
-CURRENT_NFL_WEEK = 3  # Current NFL week for projections (1-18, update weekly)
-NFL_SEASON = 2025
-NFL_SCORING_FORMAT = "ppr"  # "ppr", "std", or "half"
+# Import shared NFL season/week variables from central location
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from shared_config import CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT
+
+# =============================================================================
+# STARTER HELPER SPECIFIC SETTINGS
+# =============================================================================
 
 # Position Constants
 RB, WR, QB, TE, K, DST, FLEX = 'RB', 'WR', 'QB', 'TE', 'K', 'DST', 'FLEX'

@@ -145,9 +145,14 @@ python -m venv .venv
 
 **Modular Configuration Architecture**: Each module has its own config.py file with centralized management and validation.
 
-### Player Data Fetcher (`player-data-fetcher/config.py`)
-**Week-by-Week System Settings**:
+### Shared Configuration (`shared_config.py`) - **MOST CRITICAL**
+**Core NFL Season Variables** (update these centrally):
 - `CURRENT_NFL_WEEK`: Update weekly (most important setting)
+- `NFL_SEASON`: Current NFL season year (update annually)
+- `NFL_SCORING_FORMAT`: Fantasy scoring format ("ppr", "std", or "half")
+
+### Player Data Fetcher (`player-data-fetcher/player_data_fetcher_config.py`)
+**Week-by-Week System Settings**:
 - `USE_WEEK_BY_WEEK_PROJECTIONS`: Enable advanced projection system
 - `USE_REMAINING_SEASON_PROJECTIONS`: Use remaining games vs. full season
 - `RECENT_WEEKS_FOR_AVERAGE`: Number of weeks for projection averaging
@@ -200,7 +205,7 @@ python -m venv .venv
 ### Weekly During Season (September-December)
 1. **Update roster**: Manually sync `shared_files/players.csv` with NFL Fantasy changes
 2. **Set trade mode**: `TRADE_HELPER_MODE = True`
-3. **Update current week**: Set `CURRENT_NFL_WEEK` in both `player-data-fetcher/config.py` and `starter_helper/config.py`
+3. **Update current week**: Set `CURRENT_NFL_WEEK` in `shared_config.py` (single location for all scripts)
 4. **Fetch updated data**: Run player data fetcher (1-2x per week)
 5. **Set lineup**: Run starter helper for optimal weekly starting lineup
 6. **Analyze trades**: Run draft helper to see recommendations
@@ -212,7 +217,7 @@ python -m venv .venv
 Fine-tune your approach by editing `draft_helper/config.py`:
 
 ```python
-# Week-by-Week System (player-data-fetcher/config.py)
+# Week-by-Week System (shared_config.py - CENTRAL LOCATION)
 CURRENT_NFL_WEEK = 3  # Update this weekly!
 USE_WEEK_BY_WEEK_PROJECTIONS = True  # Advanced projection system
 
@@ -226,7 +231,7 @@ DRAFT_ORDER[0] = {RB: 1.2, FLEX: 0.8}  # Aggressive early RB strategy
 INJURY_PENALTIES = {"MEDIUM": 40, "HIGH": 80}  # Conservative injury approach
 MIN_TRADE_IMPROVEMENT = 15  # High trade threshold (only strong trades)
 
-# Weekly Lineup Optimization (starter_helper/config.py)
+# Weekly Lineup Optimization (shared_config.py - SAME LOCATION)
 CURRENT_NFL_WEEK = 3  # Update this weekly!
 INJURY_PENALTIES = {"MEDIUM": 10, "HIGH": 20}  # Conservative lineup approach
 BYE_WEEK_PENALTY = 50  # Strong penalty for bye week players
@@ -296,14 +301,14 @@ FantasyFootballHelperScripts/
 **Normal Behavior**: Some players may lack complete week-by-week data
 
 **🔥 Weekly Maintenance Checklist**:
-- ✅ Update `CURRENT_NFL_WEEK` every Tuesday in `player-data-fetcher/config.py` and `starter_helper/config.py`
+- ✅ Update `CURRENT_NFL_WEEK` every Tuesday in `shared_config.py` (single location for all scripts)
 - ✅ Verify `USE_REMAINING_SEASON_PROJECTIONS = True` during season
 - ✅ Run player data fetcher 1-2x per week before games
 - ✅ Run starter helper weekly for optimal lineup recommendations
 
 ### Common Issues
 
-**Outdated Week Number**: Most common issue - update `CURRENT_NFL_WEEK` weekly in both configs
+**Outdated Week Number**: Most common issue - update `CURRENT_NFL_WEEK` weekly in `shared_config.py`
 **Week-by-Week Timeouts**: If fetcher takes >20 minutes, set `USE_WEEK_BY_WEEK_PROJECTIONS = False` temporarily
 **Import Errors**: Ensure all config files exist with required settings
 **Path Issues**: Verify `shared_files/players.csv` exists and is accessible

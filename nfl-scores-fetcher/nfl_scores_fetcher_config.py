@@ -10,13 +10,25 @@ Last Updated: September 2025
 """
 
 # =============================================================================
-# MOST FREQUENTLY MODIFIED SETTINGS
+# SHARED VARIABLES (imported from shared_config.py)
+# =============================================================================
+
+# Import shared NFL season/week variables from central location
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from shared_config import CURRENT_NFL_WEEK, NFL_SEASON
+
+# Map shared variables to local names for backwards compatibility
+NFL_SCORES_SEASON = NFL_SEASON
+NFL_SCORES_CURRENT_WEEK = CURRENT_NFL_WEEK
+
+# =============================================================================
+# NFL SCORES FETCHER SPECIFIC SETTINGS
 # =============================================================================
 
 # NFL Scores Settings (FREQUENTLY MODIFIED)
-NFL_SCORES_SEASON = 2025
 NFL_SCORES_SEASON_TYPE = 2
-NFL_SCORES_CURRENT_WEEK = 2
 NFL_SCORES_ONLY_COMPLETED_GAMES = False
 
 # Output Settings (FREQUENTLY MODIFIED)

@@ -13,15 +13,20 @@ from dataclasses import dataclass
 from typing import Dict, List
 
 # =============================================================================
-# MOST FREQUENTLY MODIFIED SETTINGS
+# SHARED VARIABLES (imported from shared_config.py)
 # =============================================================================
 
-# Season Configuration (FREQUENTLY MODIFIED)
-NFL_SEASON = 2025
-NFL_SCORING_FORMAT = "ppr"  # "ppr", "std", or "half"
+# Import shared NFL season/week variables from central location
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from shared_config import CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT
+
+# =============================================================================
+# PLAYER DATA FETCHER SPECIFIC SETTINGS
+# =============================================================================
 
 # Week-by-Week Projection Settings (FREQUENTLY MODIFIED)
-CURRENT_NFL_WEEK = 3  # Current NFL week (1-18, update weekly)
 USE_WEEK_BY_WEEK_PROJECTIONS = True  # Use week-by-week calculation (primary method)
 USE_REMAINING_SEASON_PROJECTIONS = False  # Use remaining games instead of full season
 INCLUDE_PLAYOFF_WEEKS = False  # Include playoff weeks (19-22) in calculations
