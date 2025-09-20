@@ -1,4 +1,4 @@
 Before starting changes, create a TODO file that maps out all the tasks that will need to be completed to accomplish this objective. As you complete the tasks, keep the file updated with your progress just in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made. Put the TODO file in the todo-files folder in this directory.
 After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Create/modify any relevant unit tests and test them to ensure they pass.
 Update rules files and readme files according to the new changes.
-Ask me any clarifying questions that would help you better understand and complete this objective.
+Ask me any clarifying questions that would help you better understand and complete this objective - make sure to ask these questions before beginning development and pause development if you discover any new questions. 

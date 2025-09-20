@@ -264,9 +264,23 @@ class DraftHelper:
 
     # Function to compute the injury penalty for a player
     # This checks if the player is injured and applies a penalty
+    # In trade mode, can optionally ignore injury penalties for roster players (drafted=2)
     def compute_injury_penalty(self, p):
         self.logger.debug(f"compute_injury_penalty called for {p.name} (ID: {p.id})")
-        return Constants.INJURY_PENALTIES.get(p.get_risk_level(), 0)
+
+        # Import current config values to get real-time settings
+        import draft_helper_config as config
+
+        # Check if we should skip injury penalties for roster players in trade mode
+        if (config.TRADE_HELPER_MODE and
+            not config.APPLY_INJURY_PENALTY_TO_ROSTER and
+            p.drafted == 2):
+            self.logger.debug(f"Skipping injury penalty for roster player {p.name} (APPLY_INJURY_PENALTY_TO_ROSTER=False)")
+            return 0
+
+        penalty = Constants.INJURY_PENALTIES.get(p.get_risk_level(), 0)
+        self.logger.debug(f"Injury penalty for {p.name}: {penalty} (risk level: {p.get_risk_level()})")
+        return penalty
 
     # Function to recommend the next players to draft based on team needs
     # This considers:

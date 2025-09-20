@@ -24,7 +24,7 @@ from draft_helper_config import (
     PLAYERS_CSV,
     
     # Mode configuration
-    TRADE_HELPER_MODE, RECOMMENDATION_COUNT,
+    TRADE_HELPER_MODE, RECOMMENDATION_COUNT, APPLY_INJURY_PENALTY_TO_ROSTER,
     
     # Position constants
     RB, WR, QB, TE, K, DST, FLEX,

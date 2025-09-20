@@ -174,6 +174,60 @@ class TestDraftHelper:
         # Questionable should be in between
         assert questionable_penalty == draft_config.INJURY_PENALTIES.get("MEDIUM", 25)
 
+    def test_injury_penalty_roster_toggle(self, draft_helper_instance, sample_players):
+        """Test APPLY_INJURY_PENALTY_TO_ROSTER toggle functionality"""
+        # Create injured players with different drafted status
+        injured_available = FantasyPlayer(
+            id="avail_inj", name="Available Injured", position="RB", team="TEST",
+            fantasy_points=100.0, bye_week=7, injury_status="OUT", drafted=0
+        )
+        injured_roster = FantasyPlayer(
+            id="roster_inj", name="Roster Injured", position="WR", team="TEST",
+            fantasy_points=100.0, bye_week=7, injury_status="OUT", drafted=2
+        )
+
+        # Save original config values
+        original_trade_mode = draft_config.TRADE_HELPER_MODE
+        original_apply_penalty = draft_config.APPLY_INJURY_PENALTY_TO_ROSTER
+
+        try:
+            # Test in trade mode with penalty toggle ON (default behavior)
+            draft_config.TRADE_HELPER_MODE = True
+            draft_config.APPLY_INJURY_PENALTY_TO_ROSTER = True
+
+            available_penalty_on = draft_helper_instance.compute_injury_penalty(injured_available)
+            roster_penalty_on = draft_helper_instance.compute_injury_penalty(injured_roster)
+
+            # Both should have injury penalties when toggle is ON
+            expected_penalty = draft_config.INJURY_PENALTIES.get("HIGH", 50)
+            assert available_penalty_on == expected_penalty
+            assert roster_penalty_on == expected_penalty
+
+            # Test in trade mode with penalty toggle OFF
+            draft_config.APPLY_INJURY_PENALTY_TO_ROSTER = False
+
+            available_penalty_off = draft_helper_instance.compute_injury_penalty(injured_available)
+            roster_penalty_off = draft_helper_instance.compute_injury_penalty(injured_roster)
+
+            # Available players should still have penalties, roster players should not
+            assert available_penalty_off == expected_penalty  # Still penalized
+            assert roster_penalty_off == 0  # No penalty for roster players
+
+            # Test in draft mode (toggle should not affect)
+            draft_config.TRADE_HELPER_MODE = False
+
+            available_penalty_draft = draft_helper_instance.compute_injury_penalty(injured_available)
+            roster_penalty_draft = draft_helper_instance.compute_injury_penalty(injured_roster)
+
+            # Both should have penalties in draft mode regardless of toggle
+            assert available_penalty_draft == expected_penalty
+            assert roster_penalty_draft == expected_penalty
+
+        finally:
+            # Restore original config values
+            draft_config.TRADE_HELPER_MODE = original_trade_mode
+            draft_config.APPLY_INJURY_PENALTY_TO_ROSTER = original_apply_penalty
+
     def test_bye_week_penalty_calculation(self, draft_helper_instance, sample_players):
         """Test bye week penalty calculation"""
         player = sample_players[0]

@@ -18,6 +18,9 @@ from typing import Dict, List
 TRADE_HELPER_MODE = True        # True for trade helper, False for draft helper
 RECOMMENDATION_COUNT = 10        # Number of players to recommend
 
+# Trade Mode Injury Settings (FREQUENTLY MODIFIED)
+APPLY_INJURY_PENALTY_TO_ROSTER = True  # True to apply injury penalties to roster players (drafted=2), False to ignore injury penalties for roster players only
+
 # Position Constants
 RB, WR, QB, TE, K, DST, FLEX = 'RB', 'WR', 'QB', 'TE', 'K', 'DST', 'FLEX'
 
@@ -148,6 +151,7 @@ STRATEGY CHANGES:
 1. TRADE_HELPER_MODE - Switch between draft and trade modes
 2. RECOMMENDATION_COUNT - How many players to suggest
 3. MIN_TRADE_IMPROVEMENT - Minimum point improvement to suggest a trade
+4. APPLY_INJURY_PENALTY_TO_ROSTER - Apply injury penalties to roster players in trade mode
 
 SCORING FORMAT CHANGES:
 1. BASE_BYE_PENALTY - Higher in smaller leagues, lower in larger leagues
@@ -169,6 +173,9 @@ To adjust for 12-team league (more scarcity):
     
 To only consider significant trades:
     MIN_TRADE_IMPROVEMENT = 15  # Only suggest trades with 15+ point improvement
+
+To ignore injury penalties for roster players in trade analysis:
+    APPLY_INJURY_PENALTY_TO_ROSTER = False  # Score roster players as if healthy
 
 ⚠️ VALIDATION:
 Configuration is automatically validated on import. Invalid settings will

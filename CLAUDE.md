@@ -62,9 +62,10 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 **2. Draft Helper (`draft_helper/`)**
 - **Pure Greedy Trade Algorithm**: Simplified, efficient trade optimization without complex lookahead
 - **Draft Mode**: Interactive draft assistant with configurable position-based strategy
-- **Trade Mode**: Weekly roster optimization with runner-up trade suggestions
+- **Trade Mode**: Weekly roster optimization with runner-up trade suggestions and configurable injury penalty handling
 - **FLEX Position Handling**: Advanced logic for RB/WR eligibility in FLEX slots
 - **Injury Risk Assessment**: Configurable penalties for LOW/MEDIUM/HIGH injury statuses
+- **Trade Mode Injury Toggle**: `APPLY_INJURY_PENALTY_TO_ROSTER` controls whether roster players (drafted=2) receive injury penalties in trade analysis
 - **Roster Validation**: Automatic enforcement of "Start 7 Fantasy League" construction rules
 
 **3. Starter Helper (`starter_helper/`)**
@@ -144,6 +145,7 @@ Each module includes comprehensive validation and clear documentation of frequen
   - `PLAYER_SCORE_THRESHOLD` (minimum fantasy points to trigger API update, default: 15.0)
 - **Week-by-Week System**: `USE_WEEK_BY_WEEK_PROJECTIONS` (True=advanced 646-call system, False=legacy)
 - **Trade Mode**: `TRADE_HELPER_MODE` (True=trade analysis, False=draft mode)
+- **Trade Injury Settings**: `APPLY_INJURY_PENALTY_TO_ROSTER` (True=apply injury penalties to roster players, False=ignore injury penalties for roster players in trade mode)
 - **Draft Strategy**: `DRAFT_ORDER` array (position priorities by round with FLEX handling)
 - **Trade Algorithm**: `MIN_TRADE_IMPROVEMENT` (point threshold for pure greedy recommendations)
 - **Injury Tolerance**: `INJURY_PENALTIES` (LOW/MEDIUM/HIGH risk assessment)
@@ -442,6 +444,12 @@ INJURY_PENALTIES = {
 MIN_TRADE_IMPROVEMENT = 1  # Minimum points to suggest trade (lower = more trades)
 ```
 
+**Trade Mode Injury Handling** (`draft_helper/config.py`):
+```python
+APPLY_INJURY_PENALTY_TO_ROSTER = True   # Apply injury penalties to roster players
+APPLY_INJURY_PENALTY_TO_ROSTER = False  # Ignore injury penalties for roster players only
+```
+
 ### Strategy Examples
 ```python
 # Conservative injury approach (avoid risk)
@@ -452,6 +460,9 @@ DRAFT_ORDER[0] = {RB: 1.2, FLEX: 0.8}
 
 # High trade threshold (only suggest strong trades)
 MIN_TRADE_IMPROVEMENT = 15
+
+# Ignore injury penalties for roster players in trade analysis (optimistic view of your players)
+APPLY_INJURY_PENALTY_TO_ROSTER = False
 ```
 
 ## 🚀 Recent Architecture Improvements
@@ -481,6 +492,27 @@ MIN_TRADE_IMPROVEMENT = 15
 - **Configuration Management**: Centralized config system with per-module validation
 
 ## 📋 Project-Specific Rules and Standards
+
+### Potential Updates Processing Protocol
+**Rule**: When the user requests an "update" based on a file, follow this specific workflow:
+
+**File Processing:**
+1. **Locate Update File**: Look in the `potential_updates/` folder for the file referenced by the user (likely "update.txt" or similar)
+2. **Read Objective**: The file will detail the next objective to complete
+3. **Follow Update Rules**: Apply all rules from `potential_updates/rules.txt` to the objective
+
+**Required Update Workflow** (from potential_updates/rules.txt):
+1. **Create TODO File**: Before starting changes, create a comprehensive TODO file in `todo-files/` folder that maps out all tasks needed to accomplish the objective
+2. **Progress Tracking**: Keep the TODO file updated with progress in case a new Claude session needs to finish the work
+3. **Comprehensive Testing**: After updates are complete, verify all unit tests still pass and test system functionality
+4. **Test Creation/Modification**: Create or modify relevant unit tests and ensure they pass
+5. **Documentation Updates**: Update rules files and README files according to the new changes
+6. **Clarification**: Ask clarifying questions to better understand and complete the objective. Ask questions before beginning implementation and pause to ask questions if any are discovered during the implementation.
+
+**File Structure:**
+- Update instructions: `potential_updates/[filename].txt`
+- Progress tracking: `todo-files/[objective_name].md`
+- Rules reference: `potential_updates/rules.txt`
 
 ### Fantasy Football Development Protocol
 **Rule**: For this fantasy football project, follow these specific standards after any code changes:

@@ -104,7 +104,7 @@ python -m venv .venv
 **Features**:
 - **Pure Greedy Optimization**: Simple, efficient trade algorithm without complex lookahead
 - **Position-based Recommendations**: Configurable draft strategy by round with FLEX eligibility
-- **Injury Risk Assessment**: Configurable penalties for different injury statuses
+- **Injury Risk Assessment**: Configurable penalties for different injury statuses, with option to ignore penalties for roster players
 - **Trade Impact Analysis**: Direct trade suggestions with runner-up alternatives
 - **Roster Validation**: Automatic enforcement of "Start 7 Fantasy League" rules
 
@@ -169,6 +169,7 @@ python -m venv .venv
 ### Draft Helper (`draft_helper/config.py`)
 **Trade Optimization**:
 - `TRADE_HELPER_MODE`: Switch between draft/trade modes
+- `APPLY_INJURY_PENALTY_TO_ROSTER`: Apply injury penalties to roster players in trade mode (True/False)
 - `MIN_TRADE_IMPROVEMENT`: Point threshold for trade suggestions
 - `NUM_TRADE_RUNNERS_UP`: Number of alternative trades to show
 
