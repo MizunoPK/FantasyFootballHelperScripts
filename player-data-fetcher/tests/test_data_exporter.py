@@ -158,24 +158,34 @@ class TestDataExporter:
     @pytest.mark.asyncio
     async def test_export_to_shared_files_success(self, exporter, sample_projection_data, temp_dir):
         """Test successful shared files update"""
-        result_filepath = await exporter.export_to_shared_files(sample_projection_data)
+        # Create a temporary file path for testing instead of using the real shared_files/players.csv
+        temp_shared_file = temp_dir / "players.csv"
 
-        assert isinstance(result_filepath, str)
-        assert result_filepath.endswith('.csv')
-        shared_file_path = Path(result_filepath)
-        assert shared_file_path.exists()
+        # Mock the DRAFT_HELPER_PLAYERS_FILE constant to use our temporary file
+        with patch('player_data_exporter.DRAFT_HELPER_PLAYERS_FILE', str(temp_shared_file)):
+            result_filepath = await exporter.export_to_shared_files(sample_projection_data)
 
-        # Verify shared file content
-        content = shared_file_path.read_text(encoding='utf-8')
-        assert 'Test Player 1' in content
-        assert 'Test Player 2' in content
+            assert isinstance(result_filepath, str)
+            assert result_filepath.endswith('.csv')
+            shared_file_path = Path(result_filepath)
+            assert shared_file_path.exists()
+
+            # Verify shared file content
+            content = shared_file_path.read_text(encoding='utf-8')
+            assert 'Test Player 1' in content
+            assert 'Test Player 2' in content
 
     @pytest.mark.asyncio
-    async def test_export_to_shared_files_error_handling(self, exporter, sample_projection_data):
+    async def test_export_to_shared_files_error_handling(self, exporter, sample_projection_data, temp_dir):
         """Test shared files update error handling"""
-        with patch('aiofiles.open', side_effect=Exception("Shared file error")):
-            with pytest.raises(Exception):
-                await exporter.export_to_shared_files(sample_projection_data)
+        # Create a temporary file path for testing
+        temp_shared_file = temp_dir / "players.csv"
+
+        # Mock the DRAFT_HELPER_PLAYERS_FILE constant and aiofiles.open to raise an exception
+        with patch('player_data_exporter.DRAFT_HELPER_PLAYERS_FILE', str(temp_shared_file)):
+            with patch('aiofiles.open', side_effect=Exception("Shared file error")):
+                with pytest.raises(Exception):
+                    await exporter.export_to_shared_files(sample_projection_data)
 
     @pytest.mark.asyncio
     async def test_concurrent_export_all_formats(self, exporter, sample_projection_data, temp_dir):
