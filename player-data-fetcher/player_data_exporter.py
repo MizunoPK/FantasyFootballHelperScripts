@@ -26,6 +26,8 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from shared_files.FantasyPlayer import FantasyPlayer
+from shared_files.data_file_manager import DataFileManager
+from shared_config import DEFAULT_FILE_CAPS
 from player_data_constants import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, DRAFT_HELPER_PLAYERS_FILE, SKIP_DRAFTED_PLAYER_UPDATES
 
 
@@ -37,7 +39,10 @@ class DataExporter:
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.create_latest_files = create_latest_files
         self.logger = logging.getLogger(__name__)
-        
+
+        # Initialize file manager for automatic file caps
+        self.file_manager = DataFileManager(str(self.output_dir), DEFAULT_FILE_CAPS)
+
         # Load existing drafted and locked values if preservation is enabled
         self.existing_drafted_values = {}
         self.existing_locked_values = {}
@@ -78,6 +83,11 @@ class DataExporter:
 
                 async with aiofiles.open(latest_filepath, 'w', encoding='utf-8') as f:
                     await f.write(json.dumps(json_data, indent=2, default=str))
+
+            # Enforce file caps after successful export
+            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+            if deleted_files:
+                self.logger.info(f"File caps enforced for JSON: {deleted_files}")
 
             return str(filepath)
 
@@ -123,6 +133,11 @@ class DataExporter:
                     None, lambda: df.to_csv(str(latest_filepath), index=False)
                 )
 
+            # Enforce file caps after successful export
+            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+            if deleted_files:
+                self.logger.info(f"File caps enforced for CSV: {deleted_files}")
+
             return str(filepath)
 
         except PermissionError as e:
@@ -158,11 +173,16 @@ class DataExporter:
         if self.create_latest_files:
             latest_filename = f"nfl_projections_latest_season.xlsx"
             latest_filepath = self.output_dir / latest_filename
-            
+
             await asyncio.get_event_loop().run_in_executor(
                 None, self._write_excel_sheets, df, str(latest_filepath)
             )
-        
+
+        # Enforce file caps after successful export
+        deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+        if deleted_files:
+            self.logger.info(f"File caps enforced for Excel: {deleted_files}")
+
         return str(filepath)
     
     def _create_dataframe(self, data: ProjectionData) -> pd.DataFrame:

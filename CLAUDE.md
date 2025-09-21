@@ -174,6 +174,11 @@ Each module includes comprehensive validation and clear documentation of frequen
 
 **Most Frequently Modified Settings:**
 - **🔥 CRITICAL WEEKLY UPDATE**: `CURRENT_NFL_WEEK` in `shared_config.py` (update every Tuesday - centralized for ALL scripts)
+- **File Management Settings** (in `shared_config.py`):
+  - `DEFAULT_FILE_CAPS` (default: 5 files per type across all modules)
+  - `ENABLE_FILE_CAPS` (True=automatic cleanup, False=disabled entirely)
+  - `DRY_RUN_MODE` (True=log what would be deleted without deletion)
+  - `MODULE_SPECIFIC_CAPS` (override defaults for specific modules)
 - **Major Performance Optimizations**:
   - `SKIP_DRAFTED_PLAYER_UPDATES` (skip API calls for drafted=1 players)
   - `USE_SCORE_THRESHOLD` (skip API calls for low-scoring players, preserve existing data)
@@ -202,6 +207,17 @@ Each module includes comprehensive validation and clear documentation of frequen
 - Drafted player status is preserved between player data updates
 - Locked player status can be preserved (configurable)
 - Historical projections are maintained in timestamped files
+
+**Automatic File Management:**
+- **File Caps**: Automatic cleanup maintains configurable limits per file type (default: 5 each)
+- **Space Optimization**: Reduces storage from 270+ files to ~30 files across all modules
+- **Oldest-First Deletion**: Automatically removes oldest files when caps are exceeded
+- **Configurable Limits**: Per-module caps can be customized in `shared_config.py`
+- **Safety Features**: Dry-run mode and comprehensive logging of all file operations
+- **Current Impact**:
+  - player-data-fetcher: 162 files → 15 files (95% reduction)
+  - nfl-scores-fetcher: 102 files → 10 files (90% reduction)
+  - starter_helper: 8 files → 5 files (38% reduction)
 
 ### Dependencies
 
@@ -286,9 +302,12 @@ INCLUDE_PLAYOFF_WEEKS = False                  # Regular season focus
 
 # Interactive Menu System:
 # 1. Add to Roster Mode:
-#    - Shows draft recommendations based on current roster
+#    - **Enhanced Round-by-Round Roster Display**: Shows current roster organized by draft round (1-15)
+#    - Each round displays ideal position from DRAFT_ORDER config vs actual player assigned
+#    - Position match indicators: "OK" = matches ideal, "!!" = different from ideal
+#    - Players optimally assigned to rounds based on position fit and fantasy points
+#    - Shows draft recommendations based on current roster and missing positions
 #    - Select player to add to your team (drafted=2)
-#    - Displays updated roster after each addition
 #    - Returns to main menu after each action
 
 # 2. Mark Drafted Player Mode:
@@ -315,11 +334,13 @@ INCLUDE_PLAYOFF_WEEKS = False                  # Regular season focus
 #    - Locked players are protected from trade suggestions
 #    - Continuous operation until returning to main menu
 
-# 6. Roster Display:
-#    - Shows players organized by position in draft order
-#    - Displays specific player names for each position slot
+# 6. Enhanced Roster Display (Round-by-Round):
+#    - Shows current roster organized by draft round (1-15) with ideal positions
+#    - Each round shows: Round X (Ideal: POSITION): Player Name (ACTUAL_POS) - Points [MATCH]
+#    - Position match indicators help track draft strategy adherence
+#    - Players optimally assigned to rounds using position fit algorithm
+#    - Example format: "Round  5 (Ideal: QB  ): Patrick Mahomes (QB) - 315.5 pts OK"
 #    - Updates automatically after roster changes
-#    - Format: "QB1: Patrick Mahomes (KC) - 315.5 pts"
 
 # The system maintains persistent state until quit
 # All changes are saved to players_dev.csv (development mode)
@@ -439,6 +460,39 @@ timeout 10 .venv\Scripts\python.exe run_draft_helper.py
 - Draft helper validates roster math: `sum(MAX_POSITIONS) >= MAX_PLAYERS`
 - Draft order validation: `len(DRAFT_ORDER) == MAX_PLAYERS`
 - Unit tests validate all configuration edge cases and boundary conditions
+
+### File Management System Validation
+```bash
+# Test DataFileManager unit tests (23 tests)
+.venv\Scripts\python.exe -m pytest shared_files/tests/test_data_file_manager.py -v
+
+# Analyze current file counts and what would be cleaned up
+.venv\Scripts\python.exe -c "
+from shared_files.data_file_manager import DataFileManager
+from shared_config import DEFAULT_FILE_CAPS
+for folder in ['player-data-fetcher/data', 'nfl-scores-fetcher/data']:
+    manager = DataFileManager(folder, DEFAULT_FILE_CAPS)
+    counts = manager.get_file_counts()
+    print(f'{folder}: {counts}')
+"
+
+# Test dry run mode (safe testing without deletion)
+.venv\Scripts\python.exe -c "
+import os
+os.environ['DRY_RUN_MODE'] = 'True'
+from shared_files.data_file_manager import DataFileManager
+manager = DataFileManager('player-data-fetcher/data')
+deleted = manager.cleanup_all_file_types()
+print(f'Would delete: {deleted}')
+"
+```
+
+**Expected File Management Behavior:**
+- ✅ Files are automatically deleted when caps are exceeded
+- ✅ Oldest files are deleted first (based on modification time)
+- ✅ "File caps enforced" messages appear in export logs
+- ✅ Default caps: 5 CSV, 5 JSON, 5 XLSX, 5 TXT files per module
+- ✅ Massive space savings: ~270 files → ~30 files across all modules
 
 ### Common Issues and Solutions
 1. **Week-by-Week Timeouts**: If player data fetcher takes >20 minutes, set `USE_WEEK_BY_WEEK_PROJECTIONS = False`
@@ -561,6 +615,7 @@ APPLY_INJURY_PENALTY_TO_ROSTER = False
 - **Modular Async Architecture**: Completely refactored with httpx, aiofiles, and pydantic models
 - **Week-by-Week Projection System**: 16x performance improvement (646 vs 10,336 API calls)
 - **Pure Greedy Trade Algorithm**: Simplified from complex lookahead systems for better reliability
+- **Enhanced Roster UI**: Round-by-round display in Add to Roster Mode shows ideal vs actual positions by draft round
 - **Smart Data Preservation**: Skip API calls for drafted players, maintain status between updates
 - **Multi-Format Export Pipeline**: Concurrent CSV, Excel, JSON export with timestamp tracking
 - **Configuration Validation**: Built-in validation for all modules with clear error messages

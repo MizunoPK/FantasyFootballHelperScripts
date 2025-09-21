@@ -32,6 +32,28 @@ NFL_SCORING_FORMAT = "ppr"  # Fantasy scoring format: "ppr", "std", or "half"
 PLAYERS_CSV = 'shared_files/players.csv'
 
 # =============================================================================
+# DATA FILE MANAGEMENT
+# =============================================================================
+
+# Default file caps for each data folder (maximum number of files per type)
+DEFAULT_FILE_CAPS = {
+    'csv': 5,      # Maximum CSV files to keep
+    'json': 5,     # Maximum JSON files to keep
+    'xlsx': 5,     # Maximum Excel files to keep
+    'txt': 5       # Maximum text files to keep
+}
+
+# Module-specific file caps (override DEFAULT_FILE_CAPS if needed)
+MODULE_SPECIFIC_CAPS = {
+    # Example: 'player-data-fetcher': {'csv': 10, 'json': 10, 'xlsx': 10}
+    # Uncomment and modify if specific modules need different caps
+}
+
+# File cap enforcement settings
+ENABLE_FILE_CAPS = True        # Set to False to disable file cap enforcement entirely
+DRY_RUN_MODE = False          # Set to True to log what would be deleted without actual deletion
+
+# =============================================================================
 # CONFIGURATION GUIDE
 # =============================================================================
 """
@@ -42,6 +64,8 @@ SHARED SETTINGS (this file - MOST CRITICAL):
 - NFL_SEASON: Current NFL season year (update annually)
 - NFL_SCORING_FORMAT: Fantasy scoring format ("ppr", "std", or "half")
 - PLAYERS_CSV: Shared data file path used by all scripts
+- DEFAULT_FILE_CAPS: Maximum files to keep per type (default: 5 each)
+- ENABLE_FILE_CAPS: Enable/disable automatic file cleanup (default: True)
 
 SCRIPT-SPECIFIC SETTINGS:
 - player-data-fetcher/config.py: ESPN API settings, projection settings, output formats

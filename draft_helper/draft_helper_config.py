@@ -19,7 +19,7 @@ TRADE_HELPER_MODE = False       # True for trade helper, False for draft helper
 RECOMMENDATION_COUNT = 10        # Number of players to recommend
 
 # Trade Mode Injury Settings (FREQUENTLY MODIFIED)
-APPLY_INJURY_PENALTY_TO_ROSTER = True  # True to apply injury penalties to roster players (drafted=2), False to ignore injury penalties for roster players only
+APPLY_INJURY_PENALTY_TO_ROSTER = False  # True to apply injury penalties to roster players (drafted=2), False to ignore injury penalties for roster players only
 
 # Position Constants
 RB, WR, QB, TE, K, DST, FLEX = 'RB', 'WR', 'QB', 'TE', 'K', 'DST', 'FLEX'
@@ -75,7 +75,7 @@ INJURY_PENALTIES = {           # ← Risk tolerance settings
 }
 
 # Trade optimization settings (FREQUENTLY MODIFIED)
-MIN_TRADE_IMPROVEMENT = 7     # ← Minimum point improvement required for a trade to be considered
+MIN_TRADE_IMPROVEMENT = 5     # ← Minimum point improvement required for a trade to be considered
 NUM_TRADE_RUNNERS_UP = 3      # ← Number of runner-up trades to show for each player
 
 # Bye weeks for NFL season

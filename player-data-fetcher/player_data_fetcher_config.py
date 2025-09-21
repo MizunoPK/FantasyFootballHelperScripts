@@ -33,7 +33,7 @@ INCLUDE_PLAYOFF_WEEKS = False  # Include playoff weeks (19-22) in calculations
 RECENT_WEEKS_FOR_AVERAGE = 4  # Number of recent weeks to average for projections
 
 # Data Preservation Settings (FREQUENTLY MODIFIED)
-PRESERVE_DRAFTED_VALUES = True   # Keep draft status between data updates
+PRESERVE_DRAFTED_VALUES = False   # Keep draft status between data updates
 PRESERVE_LOCKED_VALUES = False    # Keep locked players between data updates
 
 # Optimization Settings (FREQUENTLY MODIFIED)
@@ -45,7 +45,7 @@ PLAYER_SCORE_THRESHOLD = 50.0  # Minimum fantasy points to trigger API update
 OUTPUT_DIRECTORY = "./data"
 CREATE_CSV = True
 CREATE_JSON = False
-CREATE_EXCEL = True
+CREATE_EXCEL = False
 CREATE_CONDENSED_EXCEL = True
 
 # File Paths (FREQUENTLY MODIFIED)

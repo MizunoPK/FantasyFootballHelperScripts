@@ -22,6 +22,12 @@ import pandas as pd
 from nfl_scores_models import WeeklyScores, GameScore
 from scores_constants import NFL_TEAM_NAMES
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from shared_files.data_file_manager import DataFileManager
+from shared_config import DEFAULT_FILE_CAPS
+
 
 class ScoresDataExporter:
     """Handles exporting NFL game scores to various formats with async I/O"""
@@ -31,6 +37,9 @@ class ScoresDataExporter:
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.create_latest_files = create_latest_files
         self.logger = logging.getLogger(__name__)
+
+        # Initialize file manager for automatic file caps
+        self.file_manager = DataFileManager(str(self.output_dir), DEFAULT_FILE_CAPS)
 
     def _generate_timestamped_filename(self, prefix: str, extension: str) -> str:
         """Generate a timestamped filename"""
@@ -69,6 +78,11 @@ class ScoresDataExporter:
                 async with aiofiles.open(latest_filepath, 'w', encoding='utf-8') as f:
                     await f.write(json.dumps(json_data, indent=2, default=str))
 
+            # Enforce file caps after successful export
+            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+            if deleted_files:
+                self.logger.info(f"File caps enforced for JSON: {deleted_files}")
+
             return str(filepath)
         except Exception as e:
             self.logger.error(f"Error exporting JSON: {e}")
@@ -99,6 +113,11 @@ class ScoresDataExporter:
                 await asyncio.get_event_loop().run_in_executor(
                     None, lambda: df.to_csv(str(latest_filepath), index=False)
                 )
+
+            # Enforce file caps after successful export
+            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+            if deleted_files:
+                self.logger.info(f"File caps enforced for CSV: {deleted_files}")
 
             return str(filepath)
         except Exception as e:
@@ -131,6 +150,11 @@ class ScoresDataExporter:
                     None, self._write_excel_sheets, df, str(latest_filepath), weekly_scores
                 )
 
+            # Enforce file caps after successful export
+            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+            if deleted_files:
+                self.logger.info(f"File caps enforced for Excel: {deleted_files}")
+
             return str(filepath)
         except Exception as e:
             self.logger.error(f"Error exporting Excel: {e}")
@@ -161,6 +185,11 @@ class ScoresDataExporter:
                 await asyncio.get_event_loop().run_in_executor(
                     None, self._write_condensed_excel_sheets, condensed_data, str(latest_filepath), weekly_scores
                 )
+
+            # Enforce file caps after successful export
+            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+            if deleted_files:
+                self.logger.info(f"File caps enforced for condensed Excel: {deleted_files}")
 
             return str(filepath)
         except Exception as e:

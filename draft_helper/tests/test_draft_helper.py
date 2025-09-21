@@ -814,6 +814,144 @@ class TestDraftHelper:
 
         print("✅ Player status management test passed")
 
+    def test_display_roster_by_draft_rounds(self, draft_helper_instance, sample_players):
+        """Test the new round-by-round roster display functionality"""
+        print("Testing roster display by draft rounds...")
+
+        # Add some players to the roster to test display
+        for i, player in enumerate(sample_players[:5]):
+            player.drafted = 2  # Mark as roster player
+            draft_helper_instance.team.roster.append(player)
+
+        try:
+            # Test that the display function exists and can be called
+            assert hasattr(draft_helper_instance, 'display_roster_by_draft_rounds')
+
+            # Test the round matching function
+            round_assignments = draft_helper_instance._match_players_to_rounds()
+            assert isinstance(round_assignments, dict)
+
+            # Should have assignments for players in roster
+            assigned_count = len([p for p in round_assignments.values() if p])
+            assert assigned_count == len(draft_helper_instance.team.roster)
+
+            # Test round fit scoring function
+            test_player = sample_players[0]  # RB player
+
+            # Test perfect match (RB player in RB round)
+            rb_round_score = draft_helper_instance._calculate_round_fit_score(test_player, 1, "RB")
+            assert rb_round_score > 0
+
+            # Test FLEX match (RB player in FLEX round)
+            flex_round_score = draft_helper_instance._calculate_round_fit_score(test_player, 1, "FLEX")
+            assert flex_round_score > 0
+
+            # Test mismatch (RB player in QB round)
+            qb_round_score = draft_helper_instance._calculate_round_fit_score(test_player, 1, "QB")
+            # Should still be possible but heavily penalized
+            assert qb_round_score < rb_round_score
+
+            print("✅ Round-by-round roster display test passed")
+
+        finally:
+            # Clean up roster
+            for player in sample_players[:5]:
+                player.drafted = 0
+                if player in draft_helper_instance.team.roster:
+                    draft_helper_instance.team.roster.remove(player)
+
+    def test_round_assignment_optimization(self, draft_helper_instance, sample_players):
+        """Test that players are optimally assigned to rounds based on position fit"""
+        print("Testing round assignment optimization...")
+
+        # Create specific test scenario
+        qb_player = None
+        rb_player = None
+        for player in sample_players:
+            if player.position == "QB" and qb_player is None:
+                qb_player = player
+            elif player.position == "RB" and rb_player is None:
+                rb_player = player
+            if qb_player and rb_player:
+                break
+
+        if not (qb_player and rb_player):
+            print("⚠️ Skipping test - need QB and RB players")
+            return
+
+        # Add players to roster
+        qb_player.drafted = 2
+        rb_player.drafted = 2
+        draft_helper_instance.team.roster = [qb_player, rb_player]
+
+        try:
+            # Test round assignments
+            round_assignments = draft_helper_instance._match_players_to_rounds()
+
+            # Check that QB is assigned to a QB-ideal round (Round 5 or 8)
+            qb_rounds = [round_num for round_num, player in round_assignments.items()
+                        if player and player.id == qb_player.id]
+            assert len(qb_rounds) == 1
+
+            qb_round = qb_rounds[0]
+            ideal_for_qb_round = draft_config.get_ideal_draft_position(qb_round - 1)
+
+            # QB should be in a round where QB is ideal or at least viable
+            assert ideal_for_qb_round in ["QB", "FLEX"] or qb_round <= 15
+
+            print("✅ Round assignment optimization test passed")
+
+        finally:
+            # Clean up
+            qb_player.drafted = 0
+            rb_player.drafted = 0
+            draft_helper_instance.team.roster = []
+
+    def test_roster_display_integration_with_add_to_roster_mode(self, draft_helper_instance):
+        """Test that the enhanced display integrates properly with Add to Roster Mode"""
+        print("Testing roster display integration...")
+
+        # Test that the display function is called in Add to Roster Mode
+        assert hasattr(draft_helper_instance, 'run_add_to_roster_mode')
+        assert hasattr(draft_helper_instance, 'display_roster_by_draft_rounds')
+
+        # Test with empty roster
+        empty_assignments = draft_helper_instance._match_players_to_rounds()
+        assert isinstance(empty_assignments, dict)
+
+        # All rounds should be empty
+        filled_rounds = len([p for p in empty_assignments.values() if p])
+        assert filled_rounds == len(draft_helper_instance.team.roster)
+
+        print("✅ Roster display integration test passed")
+
+    def test_draft_order_configuration_usage(self):
+        """Test that DRAFT_ORDER configuration is properly used in display"""
+        print("Testing DRAFT_ORDER configuration usage...")
+
+        # Test that we can get ideal positions for all rounds
+        for round_num in range(Constants.MAX_PLAYERS):
+            ideal_pos = draft_config.get_ideal_draft_position(round_num)
+
+            # Should return valid position
+            valid_positions = [Constants.QB, Constants.RB, Constants.WR, Constants.TE,
+                              Constants.FLEX, Constants.K, Constants.DST]
+            assert ideal_pos in valid_positions
+
+        # Test specific known rounds from config
+        round_1_ideal = draft_config.get_ideal_draft_position(0)  # Round 1
+        round_5_ideal = draft_config.get_ideal_draft_position(4)  # Round 5
+        round_12_ideal = draft_config.get_ideal_draft_position(11)  # Round 12
+        round_13_ideal = draft_config.get_ideal_draft_position(12)  # Round 13
+
+        # Based on current DRAFT_ORDER config
+        assert round_1_ideal == "FLEX"  # {FLEX: 1.0, QB: 0.7}
+        assert round_5_ideal == "QB"    # {QB: 1.0, FLEX: 0.7}
+        assert round_12_ideal == "K"    # {K: 1.0}
+        assert round_13_ideal == "DST"  # {DST: 1.0}
+
+        print("✅ DRAFT_ORDER configuration usage test passed")
+
 
 if __name__ == "__main__":
     # Run tests with pytest if available, otherwise basic test

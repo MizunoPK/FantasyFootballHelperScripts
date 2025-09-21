@@ -265,17 +265,19 @@ class DraftHelper:
     # Function to compute the injury penalty for a player
     # This checks if the player is injured and applies a penalty
     # In trade mode, can optionally ignore injury penalties for roster players (drafted=2)
-    def compute_injury_penalty(self, p):
-        self.logger.debug(f"compute_injury_penalty called for {p.name} (ID: {p.id})")
+    def compute_injury_penalty(self, p, trade_mode=False):
+        self.logger.debug(f"compute_injury_penalty called for {p.name} (ID: {p.id}, trade_mode: {trade_mode})")
 
         # Import current config values to get real-time settings
         import draft_helper_config as config
 
         # Check if we should skip injury penalties for roster players in trade mode
-        if (config.TRADE_HELPER_MODE and
+        # Either through config setting OR explicit trade_mode parameter
+        in_trade_mode = config.TRADE_HELPER_MODE or trade_mode
+        if (in_trade_mode and
             not config.APPLY_INJURY_PENALTY_TO_ROSTER and
             p.drafted == 2):
-            self.logger.debug(f"Skipping injury penalty for roster player {p.name} (APPLY_INJURY_PENALTY_TO_ROSTER=False)")
+            self.logger.debug(f"Skipping injury penalty for roster player {p.name} (trade_mode={trade_mode}, APPLY_INJURY_PENALTY_TO_ROSTER=False)")
             return 0
 
         penalty = Constants.INJURY_PENALTIES.get(p.get_risk_level(), 0)
@@ -328,7 +330,7 @@ class DraftHelper:
         with open(self.players_csv, 'w', newline='') as csvfile:
             fieldnames = [
                 'id', 'name', 'team', 'position', 'bye_week', 'fantasy_points',
-                'injury_status', 'drafted'
+                'injury_status', 'drafted', 'locked'
             ]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
@@ -429,46 +431,136 @@ class DraftHelper:
             return -1
 
     def display_roster_by_draft_order(self):
-        """Display current roster organized by position in draft order"""
+        """Display current roster organized by assigned slots in draft order"""
         print("\nCurrent Roster by Position:")
         print("-" * 40)
 
-        # Get draft order positions and current roster
+        # Get draft order positions
         draft_order_positions = ['QB', 'RB', 'WR', 'TE', 'FLEX', 'K', 'DST']
-        roster_by_position = {}
 
-        # Organize roster players by position
-        for player in self.team.roster:
-            pos = player.position
-            if pos not in roster_by_position:
-                roster_by_position[pos] = []
-            roster_by_position[pos].append(player)
+        # Create a map from player ID to player object for quick lookup
+        player_map = {player.id: player for player in self.team.roster}
 
-        # Display each position in draft order
+        # Display each position based on slot assignments
         for position in draft_order_positions:
             max_for_position = Constants.MAX_POSITIONS.get(position, 0)
-            current_players = roster_by_position.get(position, [])
 
             if max_for_position > 0:
-                print(f"{position} ({len(current_players)}/{max_for_position}):")
-                if current_players:
+                # Get players assigned to this slot
+                assigned_player_ids = self.team.slot_assignments.get(position, [])
+                assigned_players = [player_map[pid] for pid in assigned_player_ids if pid in player_map]
+
+                print(f"{position} ({len(assigned_players)}/{max_for_position}):")
+
+                if assigned_players:
                     # Sort by fantasy points for consistent display
-                    current_players.sort(key=lambda p: p.fantasy_points, reverse=True)
-                    for i, player in enumerate(current_players, 1):
+                    assigned_players.sort(key=lambda p: p.fantasy_points, reverse=True)
+                    for i, player in enumerate(assigned_players, 1):
                         print(f"  {position}{i}: {player.name} ({player.team}) - {player.fantasy_points:.1f} pts")
-                else:
-                    print(f"  {position}1: [Empty]")
-                    if max_for_position > 1:
-                        for i in range(2, max_for_position + 1):
-                            print(f"  {position}{i}: [Empty]")
+
+                # Fill remaining slots with [Empty]
+                for i in range(len(assigned_players) + 1, max_for_position + 1):
+                    print(f"  {position}{i}: [Empty]")
 
         print(f"\nTotal roster: {len(self.team.roster)}/{Constants.MAX_PLAYERS} players")
+
+    def display_roster_by_draft_rounds(self):
+        """Display current roster organized by draft round order based on DRAFT_ORDER config"""
+        print("\nCurrent Roster by Draft Round:")
+        print("=" * 50)
+
+        # Create round-to-player mapping using optimal fit strategy
+        round_assignments = self._match_players_to_rounds()
+
+        # Display each round
+        for round_num in range(1, Constants.MAX_PLAYERS + 1):
+            # Get ideal position for this round (0-indexed for DRAFT_ORDER)
+            ideal_position = Constants.get_ideal_draft_position(round_num - 1)
+
+            # Get assigned player for this round
+            assigned_player = round_assignments.get(round_num)
+
+            if assigned_player:
+                # Player assigned - show with position match indicator
+                position_match = "OK" if assigned_player.position == ideal_position or \
+                               (ideal_position == "FLEX" and assigned_player.position in Constants.FLEX_ELIGIBLE_POSITIONS) \
+                               else "!!"
+
+                print(f"Round {round_num:2d} (Ideal: {ideal_position:4s}): {assigned_player.name:20s} "
+                      f"({assigned_player.position}) - {assigned_player.fantasy_points:6.1f} pts {position_match}")
+            else:
+                # No player assigned
+                print(f"Round {round_num:2d} (Ideal: {ideal_position:4s}): {'[Empty]':20s}")
+
+        print("\nLegend: OK = Matches ideal position, !! = Different from ideal")
+        print(f"Total: {len([p for p in round_assignments.values() if p])}/{Constants.MAX_PLAYERS} rounds filled")
+
+    def _match_players_to_rounds(self):
+        """
+        Match current roster players to draft round slots using optimal fit strategy.
+        Returns dictionary mapping round numbers to players.
+        """
+        round_assignments = {}  # round_num -> player
+        available_players = list(self.team.roster)  # Copy of roster players
+
+        # First pass: Assign players to rounds where their position perfectly matches the ideal
+        for round_num in range(1, Constants.MAX_PLAYERS + 1):
+            ideal_position = Constants.get_ideal_draft_position(round_num - 1)
+
+            # Find best matching player for this round
+            best_player = None
+            best_score = -1
+
+            for player in available_players:
+                # Calculate fit score for this player in this round
+                fit_score = self._calculate_round_fit_score(player, round_num, ideal_position)
+
+                if fit_score > best_score:
+                    best_score = fit_score
+                    best_player = player
+
+            # Assign best fitting player to this round
+            if best_player and best_score > 0:
+                round_assignments[round_num] = best_player
+                available_players.remove(best_player)
+
+        return round_assignments
+
+    def _calculate_round_fit_score(self, player, round_num, ideal_position):
+        """
+        Calculate how well a player fits in a specific draft round.
+        Returns higher scores for better fits.
+        """
+        base_score = player.fantasy_points  # Base score on player quality
+
+        # Position match bonuses
+        if player.position == ideal_position:
+            # Perfect position match
+            base_score += 1000
+        elif ideal_position == "FLEX" and player.position in Constants.FLEX_ELIGIBLE_POSITIONS:
+            # FLEX eligible
+            base_score += 500
+        elif player.position in Constants.FLEX_ELIGIBLE_POSITIONS and ideal_position in ["RB", "WR"]:
+            # FLEX player could fit RB/WR slot
+            base_score += 100
+        else:
+            # Position mismatch - still possible but heavily penalized
+            base_score -= 500
+
+        # Round number proximity bonus (prefer assigning high-value players to early rounds)
+        proximity_bonus = (Constants.MAX_PLAYERS - round_num + 1) * 10
+        base_score += proximity_bonus
+
+        return base_score
 
     def run_add_to_roster_mode(self):
         """Add to Roster Mode - shows recommendations and allows drafting to our team"""
         print("\n" + "="*50)
         print("ADD TO ROSTER MODE")
         print("="*50)
+
+        # Show enhanced roster display by draft rounds
+        self.display_roster_by_draft_rounds()
 
         while True:
             print("\nTop draft recommendations based on your current roster:")
@@ -1093,8 +1185,8 @@ class DraftHelper:
         bye_penalty = self.compute_bye_penalty_for_player(player, exclude_self=exclude_self)
         self.logger.debug(f"Bye week penalty for {player.name}: {bye_penalty}")
         
-        # Calculate injury penalty
-        injury_penalty = self.compute_injury_penalty(player)
+        # Calculate injury penalty (in trade mode context)
+        injury_penalty = self.compute_injury_penalty(player, trade_mode=True)
         self.logger.debug(f"Injury penalty for {player.name}: {injury_penalty}")
         
         # Calculate final score (higher is better)
