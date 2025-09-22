@@ -1,4 +1,4 @@
-Based on the current state of the repo, what additions to functionality or improvements would you recommended? Keep in mind that these scripts are designed to help me succeed in and manage a Fantasy Football league, and any new additions to existing scripts or new scripts entirely should be productive toward those goals
+Based on the current state of the repo, what additions to functionality or improvements would you recommended? Keep in mind that these scripts are designed to help me win in a Fantasy Football league, and any new additions to existing scripts or new scripts entirely should be productive toward that goal. We are looking to create the best team possible and win each week.
 Ask me to confirm ideas and if I have any ideas or input based off your suggestions
 After generating ideas, create new files to put in potential_updates
 Each file should detail the objective of the idea, and how to go about doing it

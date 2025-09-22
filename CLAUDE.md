@@ -62,7 +62,7 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 - **Configuration-Driven**: Modular config system with weekly `CURRENT_NFL_WEEK` updates
 
 **2. Draft Helper (`draft_helper/`)**
-- **Interactive Menu System**: Persistent main menu with Add to Roster, Mark Drafted Player, and Quit options
+- **Interactive Menu System**: Comprehensive 7-option menu with Add to Roster, Mark Drafted Player, Trade Analysis, Drop Player, Lock/Unlock Player, Starter Helper, and Quit
 - **Add to Roster Mode**: Draft recommendations with roster display, marks players as drafted=2 (your team)
 - **Mark Drafted Player Mode**: Fuzzy name search to mark others' picks as drafted=1, supports partial matches
 - **Roster Display by Position**: Shows players organized in draft order with specific names and fantasy points
@@ -72,14 +72,26 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 - **Injury Risk Assessment**: Configurable penalties for LOW/MEDIUM/HIGH injury statuses
 - **Trade Mode Injury Toggle**: `APPLY_INJURY_PENALTY_TO_ROSTER` controls whether roster players (drafted=2) receive injury penalties in trade analysis
 - **Roster Validation**: Automatic enforcement of "Start 7 Fantasy League" construction rules
+- **🆕 Integrated Starter Helper** (Menu Option 6): Full starter helper functionality integrated into draft helper
+  - Uses current roster state from draft helper session (players with drafted=2)
+  - Generates optimal starting lineup and bench alternatives
+  - File output to `draft_helper/data/starter_helper/` directory
+  - Same display format and functionality as standalone starter helper
+  - Async implementation with graceful import fallbacks
 
 **3. Starter Helper (`starter_helper/`)**
 - **CSV-Based Projections**: Reads weekly projections from `week_N_points` columns (no API calls required)
 - **Optimal Lineup Generation**: Creates best 9-player starting lineup with position constraints
 - **FLEX Optimization**: Automatically selects best available RB or WR for FLEX position
 - **Penalty System**: Applies injury and bye week penalties to player scores
-- **Bench Recommendations**: Shows top bench alternatives and backup options
-- **Performance Optimized**: Handles large rosters efficiently with <1 second processing time
+- **Matchup Analysis Engine** (NEW): Optional ESPN-powered matchup analysis with:
+  - 1-100 granular rating scale for precision matchup evaluation
+  - Team defense strength analysis (fantasy points allowed by position)
+  - Recent performance trends and home field advantage calculations
+  - Configurable 15% weight factor impact on recommendations
+  - Simple (★/○/●) or detailed display options with toggle control
+- **Bench Recommendations**: Shows top bench alternatives with optional matchup context
+- **Performance Optimized**: Handles large rosters efficiently (<1s offline, 3-5s with matchup analysis)
 
 **4. NFL Scores Fetcher (`nfl-scores-fetcher/`)**
 - **Async Score Collection**: Recent NFL game data with configurable time windows
@@ -185,6 +197,11 @@ Each module includes comprehensive validation and clear documentation of frequen
   - `PLAYER_SCORE_THRESHOLD` (minimum fantasy points to trigger API update, default: 15.0)
 - **Week-by-Week System**: `USE_WEEK_BY_WEEK_PROJECTIONS` (True=advanced 646-call system, False=legacy)
 - **Trade Injury Settings**: `APPLY_INJURY_PENALTY_TO_ROSTER` (True=apply injury penalties to roster players, False=ignore injury penalties for roster players in trade analysis)
+- **Matchup Analysis Settings** (in `starter_helper/starter_helper_config.py`):
+  - `ENABLE_MATCHUP_ANALYSIS` (True=ESPN matchup analysis, False=offline mode)
+  - `MATCHUP_WEIGHT_FACTOR` (0.15=15% impact on recommendations, configurable)
+  - `SHOW_MATCHUP_SIMPLE` (True=★/○/● indicators, False=hide)
+  - `SHOW_MATCHUP_DETAILED` (True=rating breakdown, False=simple only)
 - **Draft Strategy**: `DRAFT_ORDER` array (position priorities by round with FLEX handling)
 - **Trade Algorithm**: `MIN_TRADE_IMPROVEMENT` (point threshold for pure greedy recommendations)
 - **Injury Tolerance**: `INJURY_PENALTIES` (LOW/MEDIUM/HIGH risk assessment)
@@ -334,7 +351,15 @@ INCLUDE_PLAYOFF_WEEKS = False                  # Regular season focus
 #    - Locked players are protected from trade suggestions
 #    - Continuous operation until returning to main menu
 
-# 6. Enhanced Roster Display (Round-by-Round):
+# 6. Starter Helper Mode (🆕 NEW):
+#    - Full starter helper functionality integrated into draft helper
+#    - Uses current roster state from draft helper session (drafted=2 players)
+#    - Generates optimal starting lineup and bench alternatives
+#    - Same format and functionality as standalone starter helper
+#    - File output saved to draft_helper/data/starter_helper/ directory
+#    - Wait for user acknowledgment before returning to main menu
+
+# 7. Enhanced Roster Display (Round-by-Round):
 #    - Shows current roster organized by draft round (1-15) with ideal positions
 #    - Each round shows: Round X (Ideal: POSITION): Player Name (ACTUAL_POS) - Points [MATCH]
 #    - Position match indicators help track draft strategy adherence
@@ -382,7 +407,7 @@ INCLUDE_PLAYOFF_WEEKS = False                  # Regular season focus
 # Draft and trade logic (16 tests)
 .venv\Scripts\python.exe -m pytest draft_helper/tests/ -v
 
-# Weekly lineup optimization (13 tests)
+# Weekly lineup optimization with matchup analysis (25+ tests)
 .venv\Scripts\python.exe -m pytest starter_helper/tests/ -v
 
 # ESPN API and data fetching (28 tests)

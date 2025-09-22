@@ -39,7 +39,8 @@ from starter_helper_config import (
     PLAYERS_CSV, LOGGING_ENABLED, LOGGING_LEVEL,
     SHOW_PROJECTION_DETAILS, SHOW_INJURY_STATUS,
     RECOMMENDATION_COUNT, STARTING_LINEUP_REQUIREMENTS,
-    SAVE_OUTPUT_TO_FILE, DATA_DIR, get_timestamped_filepath, get_latest_filepath
+    SAVE_OUTPUT_TO_FILE, DATA_DIR, get_timestamped_filepath, get_latest_filepath,
+    ENABLE_MATCHUP_ANALYSIS, SHOW_MATCHUP_SIMPLE, SHOW_MATCHUP_DETAILED
 )
 # from espn_current_week_client import ESPNCurrentWeekClient  # No longer needed - using CSV weekly columns
 from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
@@ -53,6 +54,19 @@ class StarterHelper:
         self.logger = logging.getLogger(__name__)
         self.optimizer = LineupOptimizer()
         self.output_buffer = StringIO()
+        self.matchup_analysis = None
+
+        # Initialize matchup analysis if enabled
+        if ENABLE_MATCHUP_ANALYSIS:
+            try:
+                from matchup_analyzer import MatchupAnalyzer
+                self.matchup_analyzer = MatchupAnalyzer()
+                self.logger.info("Matchup analysis initialized")
+            except ImportError as e:
+                self.logger.warning(f"Matchup analysis disabled due to import error: {e}")
+                self.matchup_analyzer = None
+        else:
+            self.matchup_analyzer = None
 
     def setup_logging(self):
         """Configure logging based on config settings"""
@@ -154,8 +168,14 @@ class StarterHelper:
         # Check if the weekly column exists in the DataFrame
         if week_column not in roster_players.columns:
             self.logger.warning(f"Column '{week_column}' not found in players.csv. Available columns: {roster_players.columns.tolist()}")
-            # Return empty projections if column doesn't exist
-            return {str(player_id): 0.0 for player_id in roster_players['id'].tolist()}
+            # Fallback to fantasy_points column if weekly column doesn't exist
+            if 'fantasy_points' in roster_players.columns:
+                self.logger.info(f"Using 'fantasy_points' as fallback for weekly projections")
+                return {str(player['id']): float(player.get('fantasy_points', 0.0)) / 17.0
+                       for _, player in roster_players.iterrows()}
+            else:
+                # Return empty projections if no fallback available
+                return {str(player_id): 0.0 for player_id in roster_players['id'].tolist()}
 
         # Extract projections from the weekly column
         for _, player in roster_players.iterrows():
@@ -217,12 +237,21 @@ class StarterHelper:
                 if SHOW_INJURY_STATUS and recommendation.injury_status != "ACTIVE":
                     status_info = f" [{recommendation.injury_status}]"
 
+                # Add matchup info if enabled and available
+                matchup_info = ""
+                if ENABLE_MATCHUP_ANALYSIS and recommendation.matchup_indicator:
+                    if SHOW_MATCHUP_SIMPLE:
+                        matchup_info = f" {recommendation.matchup_indicator}"
+                    if SHOW_MATCHUP_DETAILED and recommendation.opponent_team:
+                        home_away = "H" if recommendation.is_home_game else "A"
+                        matchup_info += f" vs {recommendation.opponent_team} ({home_away})"
+
                 # Add penalty info if there are penalties
                 penalty_info = ""
                 if SHOW_PROJECTION_DETAILS and recommendation.reason != "No penalties":
                     penalty_info = f" ({recommendation.reason})"
 
-                self.print_and_capture(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{penalty_info}")
+                self.print_and_capture(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{matchup_info}{penalty_info}")
 
             else:
                 self.print_and_capture(f"{i:2d}. {pos_label:4s}: No available player")
@@ -291,6 +320,53 @@ class StarterHelper:
 
             self.print_and_capture(f"{i:2d}. {name_pos:40s} - {points_info}{status_info}{bye_info}")
 
+    async def perform_matchup_analysis(self, roster_players: pd.DataFrame):
+        """
+        Perform matchup analysis for all roster players.
+
+        Args:
+            roster_players: DataFrame of roster players (drafted=2)
+
+        Returns:
+            WeeklyMatchupAnalysis object or None if analysis fails
+        """
+        try:
+            # Convert roster players to list format expected by matchup analyzer
+            roster_player_list = []
+            for _, player in roster_players.iterrows():
+                player_dict = {
+                    'id': str(player['id']),
+                    'name': player['name'],
+                    'position': player['position'],
+                    'team_id': self._get_team_id_from_abbreviation(player['team']),
+                    'injury_status': player.get('injury_status', 'ACTIVE')
+                }
+                roster_player_list.append(player_dict)
+
+            # Perform weekly matchup analysis
+            matchup_analysis = await self.matchup_analyzer.analyze_weekly_matchups(
+                roster_player_list, week=CURRENT_NFL_WEEK
+            )
+
+            return matchup_analysis
+
+        except Exception as e:
+            self.logger.error(f"Failed to perform matchup analysis: {e}")
+            return None
+
+    def _get_team_id_from_abbreviation(self, team_abbr: str) -> int:
+        """Convert team abbreviation to ESPN team ID"""
+        # ESPN team abbreviation to ID mapping
+        team_mapping = {
+            'ATL': 1, 'BUF': 2, 'CHI': 3, 'CIN': 4, 'CLE': 5, 'DAL': 6,
+            'DEN': 7, 'DET': 8, 'GB': 9, 'TEN': 10, 'IND': 11, 'KC': 12,
+            'LV': 13, 'LAR': 14, 'MIA': 15, 'MIN': 16, 'NE': 17, 'NO': 18,
+            'NYG': 19, 'NYJ': 20, 'PHI': 21, 'ARI': 22, 'PIT': 23, 'LAC': 24,
+            'SF': 25, 'SEA': 26, 'TB': 27, 'WSH': 28, 'CAR': 29, 'JAX': 30,
+            'BAL': 33, 'HOU': 34
+        }
+        return team_mapping.get(team_abbr, 1)  # Default to ATL if not found
+
     async def run(self):
         """Main execution method"""
         try:
@@ -310,8 +386,17 @@ class StarterHelper:
             # Get current week projections
             projections = self.get_current_week_projections(roster_players)
 
+            # Perform matchup analysis if enabled
+            if ENABLE_MATCHUP_ANALYSIS and self.matchup_analyzer:
+                self.print_and_capture("Performing matchup analysis...")
+                self.matchup_analysis = await self.perform_matchup_analysis(roster_players)
+                if self.matchup_analysis:
+                    self.print_and_capture(f"Matchup analysis complete for {self.matchup_analysis.total_players_analyzed} players")
+                else:
+                    self.print_and_capture("Matchup analysis failed, proceeding without matchup data")
+
             # Optimize lineup
-            optimal_lineup = self.optimizer.optimize_lineup(roster_players, projections)
+            optimal_lineup = self.optimizer.optimize_lineup(roster_players, projections, self.matchup_analysis)
 
             # Display optimal lineup
             self.display_optimal_lineup(optimal_lineup)
@@ -324,7 +409,7 @@ class StarterHelper:
 
             # Display bench recommendations
             bench_recs = self.optimizer.get_bench_recommendations(
-                roster_players, projections, used_player_ids, count=5
+                roster_players, projections, used_player_ids, count=5, matchup_analysis=self.matchup_analysis
             )
             self.display_bench_recommendations(bench_recs, used_player_ids)
 
@@ -351,8 +436,9 @@ class StarterHelper:
             raise
 
         finally:
-            # No cleanup needed for CSV-based approach
-            pass
+            # Cleanup matchup analyzer resources
+            if self.matchup_analyzer:
+                await self.matchup_analyzer.close()
 
 
 async def main():

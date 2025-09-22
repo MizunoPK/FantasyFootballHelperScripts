@@ -7,5 +7,6 @@ Look for places with repeated code that could be abstracted out to common functi
 Look for names of variables, functions, or classes that could be improved
 Look for any other code quality updates you recommend.
 Remove all instances of emojis and icons.
+Pay particular attention to the draft_helper, looking for ways to improve the folder/file structure to be more digestable and modular.
 Verify with me what code quality updates to move forward with, then begin making the TODO file for getting those code quality updates done
 Ensure unit tests still pass periodically throughout the updates

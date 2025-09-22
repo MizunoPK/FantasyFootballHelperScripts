@@ -1,7 +1,11 @@
 import csv
 import sys
 import logging
+import asyncio
+import os
 from pathlib import Path
+from datetime import datetime
+from io import StringIO
 
 # Add parent directory to path for imports
 parent_dir = Path(__file__).parent.parent
@@ -10,6 +14,22 @@ sys.path.insert(0, str(parent_dir))
 from FantasyTeam import FantasyTeam
 import draft_helper_constants as Constants
 from shared_files.FantasyPlayer import FantasyPlayer
+
+# Import starter helper components
+sys.path.append(str(parent_dir / 'starter_helper'))
+try:
+    import pandas as pd
+    from starter_helper_config import (
+        CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT,
+        SHOW_PROJECTION_DETAILS, SHOW_INJURY_STATUS,
+        SAVE_OUTPUT_TO_FILE, get_timestamped_filepath, get_latest_filepath,
+        ENABLE_MATCHUP_ANALYSIS, SHOW_MATCHUP_SIMPLE, SHOW_MATCHUP_DETAILED
+    )
+    from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
+    STARTER_HELPER_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Starter Helper functionality not available: {e}")
+    STARTER_HELPER_AVAILABLE = False
 
 
 def setup_logging():
@@ -382,7 +402,7 @@ class DraftHelper:
 
 
     # Interactive Menu System Methods
-    def run_interactive_draft(self):
+    async def run_interactive_draft(self):
         """Run the interactive draft helper with main menu"""
         print("Welcome to the Start 7 Fantasy League Draft Helper!")
         print(f"Currently drafted players: {len(self.team.roster)} / {Constants.MAX_PLAYERS} max")
@@ -399,15 +419,25 @@ class DraftHelper:
             elif choice == 2:
                 self.run_mark_drafted_player_mode()
             elif choice == 3:
-                self.run_trade_analysis_mode()
+                await self.run_trade_analysis_mode()
             elif choice == 4:
                 self.run_drop_player_mode()
             elif choice == 5:
                 self.run_lock_unlock_player_mode()
             elif choice == 6:
-                print("Goodbye!")
-                self.logger.info("User exited interactive draft")
-                break
+                if STARTER_HELPER_AVAILABLE:
+                    await self.run_starter_helper_mode()
+                else:
+                    print("Goodbye!")
+                    self.logger.info("User exited interactive draft")
+                    break
+            elif choice == 7:
+                if STARTER_HELPER_AVAILABLE:
+                    print("Goodbye!")
+                    self.logger.info("User exited interactive draft")
+                    break
+                else:
+                    print("Invalid choice. Please try again.")
             else:
                 print("Invalid choice. Please try again.")
 
@@ -421,11 +451,17 @@ class DraftHelper:
         print("3. Trade Analysis")
         print("4. Drop Player")
         print("5. Lock/Unlock Player")
-        print("6. Quit")
+        if STARTER_HELPER_AVAILABLE:
+            print("6. Starter Helper")
+            print("7. Quit")
+            max_choice = 7
+        else:
+            print("6. Quit")
+            max_choice = 6
         print("="*50)
 
         try:
-            choice = int(input("Enter your choice (1-6): ").strip())
+            choice = int(input(f"Enter your choice (1-{max_choice}): ").strip())
             return choice
         except ValueError:
             return -1
@@ -709,7 +745,7 @@ class DraftHelper:
                 self.logger.error(f"Error during player search: {e}")
                 break
 
-    def run_trade_analysis_mode(self):
+    async def run_trade_analysis_mode(self):
         """Trade Analysis Mode - run trade helper to optimize current roster"""
         print("\n" + "="*50)
         print("TRADE ANALYSIS MODE")
@@ -740,6 +776,21 @@ class DraftHelper:
             original_player_states[player.id] = player.drafted
 
         try:
+            # Run matchup analysis first to get indicators and adjustments
+            if STARTER_HELPER_AVAILABLE and ENABLE_MATCHUP_ANALYSIS:
+                print("\nRunning matchup analysis for trade evaluation...")
+                try:
+                    from matchup_analyzer import MatchupAnalyzer
+                    matchup_analyzer = MatchupAnalyzer()
+
+                    # Apply matchup analysis to all available players
+                    await self.apply_matchup_analysis_to_all_players(matchup_analyzer)
+                    await matchup_analyzer.close()
+                    print("Matchup analysis complete.")
+                except Exception as e:
+                    print(f"Matchup analysis failed: {e}")
+                    # Continue without matchup analysis
+
             # Run the trade helper analysis
             print("\nStarting trade analysis...")
             self.run_trade_helper()
@@ -966,6 +1017,357 @@ class DraftHelper:
                 self.logger.error(f"Error in lock/unlock mode: {e}")
                 break
 
+    async def run_starter_helper_mode(self):
+        """Starter Helper Mode - generate optimal starting lineup recommendations"""
+        if not STARTER_HELPER_AVAILABLE:
+            print("Error: Starter Helper functionality is not available")
+            input("\nPress Enter to return to Main Menu...")
+            return
+
+        print("\n" + "="*60)
+        print("STARTER HELPER MODE")
+        print("="*60)
+
+        try:
+            # Convert roster to pandas DataFrame
+            roster_data = []
+            for player in self.players:
+                if player.drafted == 2:  # Only roster players
+                    roster_data.append({
+                        'id': player.id,
+                        'name': player.name,
+                        'team': player.team,
+                        'position': player.position,
+                        'bye_week': player.bye_week,
+                        'fantasy_points': player.fantasy_points,
+                        'injury_status': player.injury_status,
+                        'drafted': player.drafted,
+                        'locked': player.locked
+                    })
+
+            if not roster_data:
+                print("ERROR: No roster players found! Add players to your roster first.")
+                input("\nPress Enter to return to Main Menu...")
+                return
+
+            roster_df = pd.DataFrame(roster_data)
+            print(f"Fantasy Football Starter Helper")
+            print(f"Week {CURRENT_NFL_WEEK} of {NFL_SEASON} NFL Season")
+            print(f"Scoring Format: {NFL_SCORING_FORMAT.upper()}")
+            print("="*60)
+
+            # Get current week projections (use fantasy_points as fallback)
+            projections = {}
+            for _, player_row in roster_df.iterrows():
+                player_id = str(player_row['id'])
+                # Use fantasy_points divided by 17 for weekly estimate (same as starter_helper fallback)
+                weekly_projection = float(player_row.get('fantasy_points', 0.0)) / 17.0
+                projections[player_id] = weekly_projection
+
+            print(f"Loaded {len(roster_df)} roster players")
+            print(f"Using fantasy_points as fallback for weekly projections")
+
+            # Initialize lineup optimizer
+            optimizer = LineupOptimizer()
+
+            # Perform matchup analysis if enabled
+            matchup_analysis = None
+            if ENABLE_MATCHUP_ANALYSIS:
+                print("Performing matchup analysis...")
+                try:
+                    from matchup_analyzer import MatchupAnalyzer
+                    matchup_analyzer = MatchupAnalyzer()
+                    matchup_analysis = await self.perform_matchup_analysis_for_roster(matchup_analyzer, roster_df)
+                    if matchup_analysis:
+                        print(f"Matchup analysis complete for {matchup_analysis.total_players_analyzed} players")
+                    else:
+                        print("Matchup analysis failed, proceeding without matchup data")
+                    await matchup_analyzer.close()
+                except ImportError as e:
+                    print(f"Matchup analysis disabled due to import error: {e}")
+                except Exception as e:
+                    print(f"Matchup analysis failed: {e}")
+
+            # Optimize lineup
+            optimal_lineup = optimizer.optimize_lineup(roster_df, projections, matchup_analysis)
+
+            # Display optimal lineup
+            self.display_starter_lineup(optimal_lineup)
+
+            # Get used player IDs for bench recommendations
+            used_player_ids = set()
+            for starter in optimal_lineup.get_all_starters():
+                if starter:
+                    used_player_ids.add(starter.player_id)
+
+            # Display bench recommendations
+            bench_recs = optimizer.get_bench_recommendations(
+                roster_df, projections, used_player_ids, count=5, matchup_analysis=matchup_analysis
+            )
+            self.display_bench_alternatives(bench_recs)
+
+            # Save output to files
+            if SAVE_OUTPUT_TO_FILE:
+                output_content = self.generate_starter_output(optimal_lineup, bench_recs, roster_df, projections)
+                self.save_starter_output_to_files(output_content)
+
+            print(f"\nStarter recommendations complete for Week {CURRENT_NFL_WEEK}")
+            print(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+        except Exception as e:
+            print(f"Error in starter helper: {str(e)}")
+            self.logger.error(f"Error in starter helper mode: {str(e)}")
+
+        # Wait for user acknowledgment before returning to menu
+        input("\nPress Enter to return to Main Menu...")
+
+    async def perform_matchup_analysis_for_roster(self, matchup_analyzer, roster_df):
+        """Perform matchup analysis for roster players"""
+        try:
+            # Create player contexts for matchup analysis
+            player_contexts = []
+            for _, player in roster_df.iterrows():
+                player_context = {
+                    'id': str(player['id']),
+                    'name': player['name'],
+                    'position': player['position'],
+                    'team': player['team'],
+                    'team_id': self.get_team_id_for_analysis(player['team']),
+                    'injury_status': player['injury_status']
+                }
+                player_contexts.append(player_context)
+
+            # Perform analysis
+            analysis = await matchup_analyzer.analyze_weekly_matchups(player_contexts, CURRENT_NFL_WEEK)
+            return analysis
+        except Exception as e:
+            self.logger.error(f"Matchup analysis failed: {e}")
+            return None
+
+    async def apply_matchup_analysis_to_all_players(self, matchup_analyzer):
+        """Apply matchup analysis to all available players for trade analysis"""
+        try:
+            # Create player contexts for all players
+            player_contexts = []
+            for player in self.players:
+                if player.drafted != 1:  # Include undrafted players and roster players
+                    player_context = {
+                        'id': str(player.id),
+                        'name': player.name,
+                        'position': player.position,
+                        'team': player.team,
+                        'team_id': self.get_team_id_for_analysis(player.team),
+                        'injury_status': player.injury_status
+                    }
+                    player_contexts.append(player_context)
+
+            # Perform analysis for all players
+            analysis = await matchup_analyzer.analyze_weekly_matchups(player_contexts, CURRENT_NFL_WEEK)
+
+            if analysis and hasattr(analysis, 'player_ratings'):
+                # Apply matchup data back to player objects
+                for player_rating in analysis.player_ratings:
+                    player_name = player_rating.player_context.player_name
+
+                    # Find matching player object
+                    for player in self.players:
+                        if player.name == player_name and player.drafted != 1:
+                            # Set matchup indicator
+                            from matchup_analyzer import MatchupAnalyzer
+                            analyzer = MatchupAnalyzer()
+                            player.matchup_indicator = analyzer.get_matchup_display_indicator(player_rating.rating)
+
+                            # Set matchup adjustment
+                            base_points = player.fantasy_points
+                            adjusted_points = player_rating.adjusted_points or base_points
+                            player.matchup_adjustment = adjusted_points - base_points
+                            break
+
+            return analysis
+        except Exception as e:
+            self.logger.error(f"Error applying matchup analysis to all players: {e}")
+            return None
+
+    def get_team_id_for_analysis(self, team_abbr):
+        """Convert team abbreviation to team ID for matchup analysis"""
+        # Same mapping as in starter_helper
+        team_mapping = {
+            'ATL': 1, 'BUF': 2, 'CHI': 3, 'CIN': 4, 'CLE': 5, 'DAL': 6, 'DEN': 7,
+            'DET': 8, 'GB': 9, 'TEN': 10, 'IND': 11, 'KC': 12, 'LV': 13, 'LAC': 14,
+            'LAR': 15, 'MIA': 16, 'MIN': 17, 'NE': 18, 'NO': 19, 'NYG': 20, 'NYJ': 21,
+            'PHI': 22, 'ARI': 23, 'PIT': 24, 'SF': 25, 'SEA': 26, 'TB': 27, 'WSH': 28,
+            'CAR': 29, 'JAX': 30, 'BAL': 33, 'HOU': 34
+        }
+        return team_mapping.get(team_abbr, 1)  # Default to ATL if not found
+
+    def display_starter_lineup(self, optimal_lineup):
+        """Display optimal starting lineup in starter_helper format"""
+        print("\n" + "="*80)
+        print(f"OPTIMAL STARTING LINEUP - WEEK {CURRENT_NFL_WEEK} ({NFL_SCORING_FORMAT.upper()} SCORING)")
+        print("="*80)
+
+        starters = [
+            (optimal_lineup.qb, "QB"),
+            (optimal_lineup.rb1, "RB"),
+            (optimal_lineup.rb2, "RB"),
+            (optimal_lineup.wr1, "WR"),
+            (optimal_lineup.wr2, "WR"),
+            (optimal_lineup.te, "TE"),
+            (optimal_lineup.flex, "FLEX"),
+            (optimal_lineup.k, "K"),
+            (optimal_lineup.dst, "DEF")
+        ]
+
+        for i, (recommendation, pos_label) in enumerate(starters, 1):
+            if recommendation:
+                name_team = f"{recommendation.name} ({recommendation.team})"
+                points_info = f"{recommendation.projected_points:.1f} pts"
+
+                # Add injury status
+                status_info = ""
+                if SHOW_INJURY_STATUS and recommendation.injury_status != "ACTIVE":
+                    status_info = f" [{recommendation.injury_status}]"
+
+                # Add matchup info
+                matchup_info = ""
+                if recommendation.matchup_indicator and SHOW_MATCHUP_SIMPLE:
+                    matchup_info = f" {recommendation.matchup_indicator}"
+
+                # Add penalty info
+                penalty_info = ""
+                if SHOW_PROJECTION_DETAILS and recommendation.reason != "No penalties":
+                    penalty_info = f" ({recommendation.reason})"
+
+                print(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{matchup_info}{penalty_info}")
+            else:
+                print(f"{i:2d}. {pos_label:4s}: No available player")
+
+        print(f"{'-'*80}")
+        print(f"TOTAL PROJECTED POINTS: {optimal_lineup.total_projected_points:.1f}")
+        print(f"{'-'*80}")
+
+    def display_bench_alternatives(self, bench_recommendations):
+        """Display bench alternatives in starter_helper format"""
+        if not bench_recommendations:
+            return
+
+        print(f"\nTOP BENCH ALTERNATIVES:")
+        print(f"{'-'*60}")
+
+        for i, rec in enumerate(bench_recommendations, 1):
+            name_team = f"{rec.name} ({rec.team}) - {rec.position}"
+            points_info = f"{rec.projected_points:.1f} pts"
+
+            # Add injury status
+            status_info = ""
+            if SHOW_INJURY_STATUS and rec.injury_status != "ACTIVE":
+                status_info = f" [{rec.injury_status}]"
+
+            print(f"{i:2d}. {name_team:35s} - {points_info}{status_info}")
+
+    def generate_starter_output(self, optimal_lineup, bench_recs, roster_df, projections):
+        """Generate output content for file saving"""
+        output_buffer = StringIO()
+
+        # Helper function to write to buffer
+        def write_line(message=""):
+            output_buffer.write(message + '\n')
+
+        write_line(f"Fantasy Football Starter Helper")
+        write_line(f"Week {CURRENT_NFL_WEEK} of {NFL_SEASON} NFL Season")
+        write_line(f"Scoring Format: {NFL_SCORING_FORMAT.upper()}")
+        write_line("="*60)
+        write_line()
+
+        # Optimal lineup
+        write_line("="*80)
+        write_line(f"OPTIMAL STARTING LINEUP - WEEK {CURRENT_NFL_WEEK} ({NFL_SCORING_FORMAT.upper()} SCORING)")
+        write_line("="*80)
+
+        starters = [
+            (optimal_lineup.qb, "QB"),
+            (optimal_lineup.rb1, "RB"),
+            (optimal_lineup.rb2, "RB"),
+            (optimal_lineup.wr1, "WR"),
+            (optimal_lineup.wr2, "WR"),
+            (optimal_lineup.te, "TE"),
+            (optimal_lineup.flex, "FLEX"),
+            (optimal_lineup.k, "K"),
+            (optimal_lineup.dst, "DEF")
+        ]
+
+        for i, (recommendation, pos_label) in enumerate(starters, 1):
+            if recommendation:
+                name_team = f"{recommendation.name} ({recommendation.team})"
+                points_info = f"{recommendation.projected_points:.1f} pts"
+
+                status_info = ""
+                if recommendation.injury_status != "ACTIVE":
+                    status_info = f" [{recommendation.injury_status}]"
+
+                matchup_info = ""
+                if recommendation.matchup_indicator:
+                    matchup_info = f" {recommendation.matchup_indicator}"
+
+                penalty_info = ""
+                if recommendation.reason != "No penalties":
+                    penalty_info = f" ({recommendation.reason})"
+
+                write_line(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{matchup_info}{penalty_info}")
+            else:
+                write_line(f"{i:2d}. {pos_label:4s}: No available player")
+
+        write_line("-"*80)
+        write_line(f"TOTAL PROJECTED POINTS: {optimal_lineup.total_projected_points:.1f}")
+        write_line("-"*80)
+
+        # Bench alternatives
+        if bench_recs:
+            write_line()
+            write_line("TOP BENCH ALTERNATIVES:")
+            write_line("-"*60)
+
+            for i, rec in enumerate(bench_recs, 1):
+                name_team = f"{rec.name} ({rec.team}) - {rec.position}"
+                points_info = f"{rec.projected_points:.1f} pts"
+
+                status_info = ""
+                if rec.injury_status != "ACTIVE":
+                    status_info = f" [{rec.injury_status}]"
+
+                write_line(f"{i:2d}. {name_team:35s} - {points_info}{status_info}")
+
+        write_line()
+        write_line(f"Starter recommendations complete for Week {CURRENT_NFL_WEEK}")
+        write_line(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+        return output_buffer.getvalue()
+
+    def save_starter_output_to_files(self, output_content):
+        """Save starter helper output to files in original starter_helper/data directory"""
+        try:
+            # Use original starter_helper/data directory to maintain consistency
+            starter_data_dir = Path("../starter_helper/data")
+            starter_data_dir.mkdir(parents=True, exist_ok=True)
+
+            # Use original starter helper file naming functions
+            timestamped_filepath = get_timestamped_filepath()
+            latest_filepath = get_latest_filepath()
+
+            # Save to timestamped file
+            with open(timestamped_filepath, 'w', encoding='utf-8') as f:
+                f.write(output_content)
+            print(f"Results saved to: {timestamped_filepath}")
+
+            # Save to latest file
+            with open(latest_filepath, 'w', encoding='utf-8') as f:
+                f.write(output_content)
+            print(f"Latest results updated: {latest_filepath}")
+
+        except Exception as e:
+            print(f"Warning: Could not save results to file: {str(e)}")
+            self.logger.error(f"Error saving starter output: {str(e)}")
+
     # Main function to run the draft helper
     # This will prompt the user to draft players based on recommendations
     def run_draft(self, simulation=False):
@@ -1168,34 +1570,40 @@ class DraftHelper:
     def score_player_for_trade(self, player):
         """
         Modified scoring function for trade evaluation
-        Sets positional need weight to 0 and focuses on projections, injuries, and bye weeks
+        Sets positional need weight to 0 and focuses on projections, injuries, bye weeks, and matchups
         For roster players (drafted=2), excludes self from bye week penalty calculation
         """
         self.logger.debug(f"Scoring player for trade: {player.name} (ID: {player.id})")
-        
+
         # Use 0 weight for positional need as specified
         pos_score = 0
-        
+
         # Calculate projection score
         projection_score = self.compute_projection_score(player)
         self.logger.debug(f"Projection score for {player.name}: {projection_score}")
-        
+
         # Calculate bye week penalty - exclude self if this is a roster player
         exclude_self = (player.drafted == 2)
         bye_penalty = self.compute_bye_penalty_for_player(player, exclude_self=exclude_self)
         self.logger.debug(f"Bye week penalty for {player.name}: {bye_penalty}")
-        
+
         # Calculate injury penalty (in trade mode context)
         injury_penalty = self.compute_injury_penalty(player, trade_mode=True)
         self.logger.debug(f"Injury penalty for {player.name}: {injury_penalty}")
-        
+
+        # Calculate matchup adjustment if available
+        matchup_adjustment = 0
+        if hasattr(player, 'matchup_adjustment') and player.matchup_adjustment is not None:
+            matchup_adjustment = player.matchup_adjustment
+            self.logger.debug(f"Matchup adjustment for {player.name}: {matchup_adjustment}")
+
         # Calculate final score (higher is better)
-        total_score = pos_score + projection_score - bye_penalty - injury_penalty
-        
+        total_score = pos_score + projection_score - bye_penalty - injury_penalty + matchup_adjustment
+
         self.logger.debug(f"Total score for {player.name}: {total_score:.2f} "
                          f"(pos: {pos_score}, proj: {projection_score:.2f}, "
-                         f"bye: -{bye_penalty:.2f}, injury: -{injury_penalty})")
-        
+                         f"bye: -{bye_penalty:.2f}, injury: -{injury_penalty}, matchup: +{matchup_adjustment})")
+
         return total_score
 
     def show_roster_comparison(self, trades_made, all_player_trades=None):
@@ -1212,7 +1620,8 @@ class DraftHelper:
                 print(f"\nCurrent roster:")
                 for p in sorted(self.team.roster, key=lambda x: x.position):
                     score = self.score_player_for_trade(p)
-                    print(f"  {p.name} ({p.position}) - {score:.2f} pts")
+                    matchup_indicator = getattr(p, 'matchup_indicator', '') or ''
+                    print(f"  {p.name} ({p.position}) - {score:.2f} pts {matchup_indicator}")
             return
 
         # Get original roster by reversing all trades (using player IDs for comparison)
@@ -1265,15 +1674,20 @@ class DraftHelper:
             print(f"\n[KEPT] PLAYERS REMAINING ON ROSTER:")
             for p in sorted(players_kept, key=lambda x: x.position):
                 score = self.score_player_for_trade(p)
-                print(f"  {p.name} ({p.position}) - {score:.2f} pts")
+                matchup_indicator = getattr(p, 'matchup_indicator', '') or ''
+                print(f"  {p.name} ({p.position}) - {score:.2f} pts {matchup_indicator}")
 
         print(f"\n[TRADES] RECOMMENDED CHANGES ({len(trades_made)} trades):")
         for i, trade in enumerate(trades_made, 1):
             out_score = self.score_player_for_trade(trade['out'])
             in_score = self.score_player_for_trade(trade['in'])
 
-            print(f"  {i}. OUT: {trade['out'].name} ({trade['out'].position}) - {out_score:.2f} pts")
-            print(f"     IN:  {trade['in'].name} ({trade['in'].position}) - {in_score:.2f} pts")
+            # Get matchup indicators if available
+            out_matchup = getattr(trade['out'], 'matchup_indicator', '') or ''
+            in_matchup = getattr(trade['in'], 'matchup_indicator', '') or ''
+
+            print(f"  {i}. OUT: {trade['out'].name} ({trade['out'].position}) - {out_score:.2f} pts {out_matchup}")
+            print(f"     IN:  {trade['in'].name} ({trade['in'].position}) - {in_score:.2f} pts {in_matchup}")
             print(f"     Net Improvement: +{trade['improvement']:.2f} pts")
 
             # Show runner-ups for this trade (use stored data from when trade was made)
@@ -1290,7 +1704,8 @@ class DraftHelper:
                 if runners_up:
                     for j, runner_up in enumerate(runners_up, 1):
                         ru_score = self.score_player_for_trade(runner_up['in'])
-                        print(f"        Runner-up {j}: {runner_up['in'].name} - {ru_score:.2f} pts ({runner_up['improvement']:+.2f})")
+                        ru_matchup = getattr(runner_up['in'], 'matchup_indicator', '') or ''
+                        print(f"        Runner-up {j}: {runner_up['in'].name} - {ru_score:.2f} pts ({runner_up['improvement']:+.2f}) {ru_matchup}")
             print()
 
     def show_current_roster_with_alternatives(self, all_player_trades):
@@ -1304,7 +1719,8 @@ class DraftHelper:
                 continue
 
             score = self.score_player_for_trade(p)
-            print(f"  {p.name} ({p.position}) - {score:.2f} pts")
+            matchup_indicator = getattr(p, 'matchup_indicator', '') or ''
+            print(f"  {p.name} ({p.position}) - {score:.2f} pts {matchup_indicator}")
 
             # Show alternatives that don't meet the threshold
             if p.id in all_player_trades:
@@ -1314,7 +1730,8 @@ class DraftHelper:
                 if alternatives:
                     for j, alt in enumerate(alternatives, 1):
                         alt_score = self.score_player_for_trade(alt['in'])
-                        print(f"        Alternative {j}: {alt['in'].name} - {alt_score:.2f} pts ({alt['improvement']:+.2f})")
+                        alt_matchup = getattr(alt['in'], 'matchup_indicator', '') or ''
+                        print(f"        Alternative {j}: {alt['in'].name} - {alt_score:.2f} pts ({alt['improvement']:+.2f}) {alt_matchup}")
             print()
     
     def consolidate_trades(self, trades_made):
@@ -1343,7 +1760,8 @@ class DraftHelper:
         
         return consolidated
 
-if __name__ == "__main__":
+async def main():
+    """Main async entry point for the draft helper"""
     # Setup logging
     logger = setup_logging()
 
@@ -1352,8 +1770,11 @@ if __name__ == "__main__":
 
         # Always run interactive mode - trade analysis now available via menu
         logger.info("Starting Interactive Fantasy Helper (Draft & Trade Analysis)")
-        draft_helper.run_interactive_draft()
+        await draft_helper.run_interactive_draft()
 
     except Exception as e:
         logger.error(f"Error in helper: {e}")
         raise
+
+if __name__ == "__main__":
+    asyncio.run(main())

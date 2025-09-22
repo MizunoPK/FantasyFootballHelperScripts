@@ -1,0 +1,5 @@
+Help me generate a plan on how to get better predictions for weekly projections.
+This would be useful for the draft helper, trade helper, and starter helper in predicting the future weekly projections based off things like matchups and condition.
+I am currently thinking that we start compiling information about what the current model projects for points and matchups, and start providing what really occurs each week for the model to learn from and slowly tweak the Config variables. I would like your opinion on this idea and any other ideas on how to improve on it.
+We could also potentially look back in time and see what the model would have predicted for players each week based off the projections at the time, then compare that to what actually happened.
+If new pieces of data are recommended then present the options for the new data and what we would do with them.
