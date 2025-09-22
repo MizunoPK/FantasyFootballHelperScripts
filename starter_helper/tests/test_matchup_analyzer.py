@@ -328,25 +328,25 @@ class TestMatchupAnalyzer(unittest.TestCase):
     def test_get_matchup_display_indicator(self):
         """Test matchup display indicator generation"""
         # Test excellent matchup
-        self.assertEqual(self.analyzer.get_matchup_display_indicator(85.0), "★★")
+        self.assertEqual(self.analyzer.get_matchup_display_indicator(85.0), "**")
 
         # Test good matchup
-        self.assertEqual(self.analyzer.get_matchup_display_indicator(70.0), "★")
+        self.assertEqual(self.analyzer.get_matchup_display_indicator(70.0), "*")
 
         # Test average matchup
-        self.assertEqual(self.analyzer.get_matchup_display_indicator(55.0), "○")
+        self.assertEqual(self.analyzer.get_matchup_display_indicator(55.0), "o")
 
         # Test below average matchup
-        self.assertEqual(self.analyzer.get_matchup_display_indicator(40.0), "△")
+        self.assertEqual(self.analyzer.get_matchup_display_indicator(40.0), "-")
 
         # Test poor matchup
-        self.assertEqual(self.analyzer.get_matchup_display_indicator(25.0), "▽")
+        self.assertEqual(self.analyzer.get_matchup_display_indicator(25.0), "x")
 
         # Test boundary conditions
-        self.assertEqual(self.analyzer.get_matchup_display_indicator(75.0), "★★")
-        self.assertEqual(self.analyzer.get_matchup_display_indicator(65.0), "★")
-        self.assertEqual(self.analyzer.get_matchup_display_indicator(50.0), "○")
-        self.assertEqual(self.analyzer.get_matchup_display_indicator(35.0), "△")
+        self.assertEqual(self.analyzer.get_matchup_display_indicator(75.0), "**")
+        self.assertEqual(self.analyzer.get_matchup_display_indicator(65.0), "*")
+        self.assertEqual(self.analyzer.get_matchup_display_indicator(50.0), "o")
+        self.assertEqual(self.analyzer.get_matchup_display_indicator(35.0), "-")
 
     def test_format_matchup_summary(self):
         """Test matchup summary formatting"""
@@ -373,12 +373,12 @@ class TestMatchupAnalyzer(unittest.TestCase):
 
         # Test simple format
         simple_summary = self.analyzer.format_matchup_summary(rating, show_detailed=False)
-        self.assertIn("★★", simple_summary)
+        self.assertIn("**", simple_summary)
         self.assertIn("75", simple_summary)
 
         # Test detailed format
         detailed_summary = self.analyzer.format_matchup_summary(rating, show_detailed=True)
-        self.assertIn("★★", detailed_summary)
+        self.assertIn("**", detailed_summary)
         self.assertIn("75", detailed_summary)
         self.assertIn("CIN", detailed_summary)
         self.assertIn("A", detailed_summary)  # Away game

@@ -502,6 +502,64 @@ cd C:\path\to\FantasyFootballHelperScripts
 - **Export Pipelines**: aiofiles for concurrent multi-format data export
 - **Configuration Management**: Modular config system with validation
 
+## 🔬 Draft Simulation Analysis
+
+**File**: `run_draft_helper.py --simulate`
+**Purpose**: Comprehensive simulation system to test and optimize draft configuration parameters
+**When to Run**: Before draft season to identify optimal settings (may take up to 1 hour)
+
+```bash
+# Run simulation analysis
+.venv\Scripts\python.exe run_draft_helper.py --simulate
+```
+
+### What It Tests
+
+The simulation system tests different combinations of configuration parameters to determine which settings yield the best team performance:
+
+**Parameters Tested**:
+- `INJURY_PENALTIES` (MEDIUM/HIGH risk tolerance)
+- `POS_NEEDED_SCORE` (positional need weighting)
+- `PROJECTION_BASE_SCORE` (projection importance)
+- `BASE_BYE_PENALTY` (bye week penalty strength)
+- `DRAFT_ORDER` weights (position priority adjustments)
+
+**Simulation Process**:
+1. **Preliminary Testing**: Tests every 3rd parameter value to identify promising ranges
+2. **Full Grid Search**: Comprehensive testing of top 10% configurations
+3. **10-Team Snake Draft**: Simulates realistic draft with 5 opponent strategies:
+   - Conservative (follows projections, avoids risk)
+   - Aggressive (high-upside players, risk tolerant)
+   - Positional (strict needs-based drafting)
+   - Value (best available regardless of position)
+   - Draft Helper Logic (uses actual draft helper algorithm)
+4. **17-Week Season**: Head-to-head matchups using projected weekly points
+5. **Performance Analysis**: Determines best configuration based on win percentage
+
+### Simulation Features
+
+- **Parallel Processing**: Uses multiple CPU cores for faster execution
+- **Realistic Opponent Behavior**: 15% human error rate (suboptimal picks)
+- **Comprehensive Metrics**: Win percentage, total points, consistency, opponent matchups
+- **Data Isolation**: Uses copies of player data, never modifies original files
+- **Statistical Analysis**: Identifies optimal parameter values with confidence
+
+### Output
+
+Results are saved to `draft_helper/simulation/results.md` with:
+- **Optimal Configuration**: Best parameter values identified
+- **Top 10 Configurations**: Performance rankings
+- **Parameter Analysis**: Impact of each setting on performance
+- **Statistical Summary**: Performance distribution and insights
+- **Recommendations**: Specific configuration changes to implement
+
+### Usage Tips
+
+- Run simulation before draft season starts
+- Use optimal configuration values in `draft_helper/config.py`
+- Re-run periodically if league dynamics change
+- Results are specific to "Start 7 Fantasy League" format
+
 ## 🚀 Recent Improvements
 
 ### Version 2.0+ Features

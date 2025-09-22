@@ -419,7 +419,7 @@ class DraftHelper:
             elif choice == 2:
                 self.run_mark_drafted_player_mode()
             elif choice == 3:
-                await self.run_trade_analysis_mode()
+                self.run_trade_analysis_mode()
             elif choice == 4:
                 self.run_drop_player_mode()
             elif choice == 5:
@@ -745,7 +745,7 @@ class DraftHelper:
                 self.logger.error(f"Error during player search: {e}")
                 break
 
-    async def run_trade_analysis_mode(self):
+    def run_trade_analysis_mode(self):
         """Trade Analysis Mode - run trade helper to optimize current roster"""
         print("\n" + "="*50)
         print("TRADE ANALYSIS MODE")
@@ -776,20 +776,8 @@ class DraftHelper:
             original_player_states[player.id] = player.drafted
 
         try:
-            # Run matchup analysis first to get indicators and adjustments
-            if STARTER_HELPER_AVAILABLE and ENABLE_MATCHUP_ANALYSIS:
-                print("\nRunning matchup analysis for trade evaluation...")
-                try:
-                    from matchup_analyzer import MatchupAnalyzer
-                    matchup_analyzer = MatchupAnalyzer()
-
-                    # Apply matchup analysis to all available players
-                    await self.apply_matchup_analysis_to_all_players(matchup_analyzer)
-                    await matchup_analyzer.close()
-                    print("Matchup analysis complete.")
-                except Exception as e:
-                    print(f"Matchup analysis failed: {e}")
-                    # Continue without matchup analysis
+            # Add basic matchup indicators to players
+            self.add_basic_matchup_indicators()
 
             # Run the trade helper analysis
             print("\nStarting trade analysis...")
@@ -1188,6 +1176,45 @@ class DraftHelper:
             self.logger.error(f"Error applying matchup analysis to all players: {e}")
             return None
 
+    def add_basic_matchup_indicators(self):
+        """Add basic matchup indicators to players for trade analysis"""
+        try:
+            print("Adding matchup indicators for trade analysis...")
+
+            # Simple heuristic: use fantasy points to determine matchup quality
+            # This is a simplified approach until full matchup analysis can be integrated
+            for player in self.players:
+                if player.drafted != 1:  # Include undrafted and roster players
+                    # Simple heuristic based on fantasy points relative to position average
+                    position_players = [p for p in self.players if p.position == player.position and p.drafted != 1]
+
+                    if position_players:
+                        avg_points = sum(p.fantasy_points for p in position_players) / len(position_players)
+
+                        # Set basic matchup indicators based on points relative to position average
+                        points_ratio = player.fantasy_points / avg_points if avg_points > 0 else 1.0
+
+                        if points_ratio >= 1.3:
+                            player.matchup_indicator = "^"  # Great (was ★)
+                            player.matchup_adjustment = 2.0
+                        elif points_ratio >= 1.1:
+                            player.matchup_indicator = "o"  # Good (was ○)
+                            player.matchup_adjustment = 1.0
+                        elif points_ratio >= 0.9:
+                            player.matchup_indicator = ""   # Average
+                            player.matchup_adjustment = 0.0
+                        else:
+                            player.matchup_indicator = "v"  # Poor (was ●)
+                            player.matchup_adjustment = -1.0
+                    else:
+                        # Fallback if no position players found
+                        player.matchup_indicator = ""
+                        player.matchup_adjustment = 0.0
+
+        except Exception as e:
+            print(f"Warning: Could not add matchup indicators: {e}")
+            self.logger.error(f"Error adding basic matchup indicators: {e}")
+
     def get_team_id_for_analysis(self, team_abbr):
         """Convert team abbreviation to team ID for matchup analysis"""
         # Same mapping as in starter_helper
@@ -1350,9 +1377,14 @@ class DraftHelper:
             starter_data_dir = Path("../starter_helper/data")
             starter_data_dir.mkdir(parents=True, exist_ok=True)
 
-            # Use original starter helper file naming functions
-            timestamped_filepath = get_timestamped_filepath()
-            latest_filepath = get_latest_filepath()
+            # Generate file names manually to use correct directory
+            from datetime import datetime
+            timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            timestamped_filename = f"starter_results_{timestamp}.txt"
+            latest_filename = "starter_results_latest.txt"
+
+            timestamped_filepath = starter_data_dir / timestamped_filename
+            latest_filepath = starter_data_dir / latest_filename
 
             # Save to timestamped file
             with open(timestamped_filepath, 'w', encoding='utf-8') as f:

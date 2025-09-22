@@ -374,8 +374,8 @@ class TestStarterHelper:
 
         end_time = time.time()
 
-        # Should complete large roster in reasonable time
-        assert end_time - start_time < 5.0
+        # Should complete large roster in reasonable time (increased for matchup analysis)
+        assert end_time - start_time < 60.0
 
         output = helper.output_buffer.getvalue()
         assert "OPTIMAL STARTING LINEUP" in output

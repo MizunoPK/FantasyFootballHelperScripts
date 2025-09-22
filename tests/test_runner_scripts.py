@@ -48,7 +48,7 @@ class TestRunnerScripts:
         script_path = Path(__file__).parent.parent / runner_script
 
         # Read the script to verify path calculations
-        script_content = script_path.read_text()
+        script_content = script_path.read_text(encoding='utf-8')
 
         # Verify the script references the correct target directory
         assert target_dir in script_content
@@ -172,7 +172,7 @@ class TestRunnerScripts:
 
         for runner_file in runner_files:
             script_path = Path(__file__).parent.parent / runner_file
-            content = script_path.read_text()
+            content = script_path.read_text(encoding='utf-8')
 
             # Check for consistent structure
             assert 'import os' in content
@@ -196,7 +196,7 @@ class TestRunnerScripts:
 
         for script_file, expected_name in script_files.items():
             script_path = Path(__file__).parent.parent / script_file
-            content = script_path.read_text()
+            content = script_path.read_text(encoding='utf-8')
 
             # Check for appropriate error messages
             assert f"Error running {expected_name}" in content
@@ -213,7 +213,7 @@ class TestRunnerScripts:
 
         for runner_file in runner_files:
             script_path = Path(__file__).parent.parent / runner_file
-            content = script_path.read_text()
+            content = script_path.read_text(encoding='utf-8')
 
             # Should use sys.executable for cross-platform compatibility
             assert 'sys.executable' in content
@@ -230,7 +230,7 @@ class TestRunnerScripts:
 
         for runner_file in runner_files:
             script_path = Path(__file__).parent.parent / runner_file
-            content = script_path.read_text()
+            content = script_path.read_text(encoding='utf-8')
 
             # Check directory restoration logic
             assert 'original_cwd = os.getcwd()' in content
@@ -248,7 +248,7 @@ class TestRunnerScripts:
                              run_nfl_scores_fetcher, run_starter_helper]:
 
             script_path = Path(runner_module.__file__)
-            content = script_path.read_text()
+            content = script_path.read_text(encoding='utf-8')
 
             # Should have __name__ == "__main__" check
             assert 'if __name__ == "__main__":' in content
@@ -264,7 +264,7 @@ class TestRunnerScripts:
 
         for runner_file in runner_files:
             script_path = Path(__file__).parent.parent / runner_file
-            content = script_path.read_text()
+            content = script_path.read_text(encoding='utf-8')
 
             # Should use pathlib.Path for cross-platform compatibility
             assert 'from pathlib import Path' in content
@@ -281,7 +281,7 @@ class TestRunnerScripts:
 
         for runner_file, target_script in target_scripts.items():
             script_path = Path(__file__).parent.parent / runner_file
-            content = script_path.read_text()
+            content = script_path.read_text(encoding='utf-8')
 
             assert target_script in content
 
@@ -338,7 +338,7 @@ class TestRunnerIntegration:
             assert file_path.is_file(), f"Runner {runner_file} is not a file"
 
             # Check if file is readable
-            content = file_path.read_text()
+            content = file_path.read_text(encoding='utf-8')
             assert len(content) > 0, f"Runner script {runner_file} is empty"
 
 
@@ -365,7 +365,7 @@ if __name__ == "__main__":
             file_path = base_dir / runner_file
             assert file_path.exists(), f"{runner_file} not found"
 
-            content = file_path.read_text()
+            content = file_path.read_text(encoding='utf-8')
             assert 'subprocess.run' in content
             assert 'if __name__ == "__main__":' in content
 

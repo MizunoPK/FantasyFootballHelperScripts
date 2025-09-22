@@ -165,14 +165,14 @@ class TestLineupOptimizer:
 
     def test_calculate_adjusted_score_injury_penalty(self, optimizer):
         """Test adjusted score calculation with injury penalty"""
-        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "QUESTIONABLE", 5)
+        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "MEDIUM", 5)
 
-        expected_penalty = INJURY_PENALTIES.get("QUESTIONABLE", 0)
+        expected_penalty = INJURY_PENALTIES.get("MEDIUM", 0)
         expected_score = 20.0 - expected_penalty
 
         assert adjusted_score == max(0.0, expected_score)
         assert "injury penalty" in reason
-        assert "QUESTIONABLE" in reason
+        assert "MEDIUM" in reason
 
     def test_calculate_adjusted_score_bye_week_penalty(self, optimizer):
         """Test adjusted score calculation with bye week penalty"""
@@ -185,9 +185,9 @@ class TestLineupOptimizer:
 
     def test_calculate_adjusted_score_multiple_penalties(self, optimizer):
         """Test adjusted score calculation with both injury and bye week penalties"""
-        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "QUESTIONABLE", CURRENT_NFL_WEEK)
+        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "MEDIUM", CURRENT_NFL_WEEK)
 
-        injury_penalty = INJURY_PENALTIES.get("QUESTIONABLE", 0)
+        injury_penalty = INJURY_PENALTIES.get("MEDIUM", 0)
         expected_score = 20.0 - injury_penalty - BYE_WEEK_PENALTY
 
         assert adjusted_score == max(0.0, expected_score)
