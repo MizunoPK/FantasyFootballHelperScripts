@@ -1,0 +1,36 @@
+We are going to enhance the fantasy football scoring algorithm to improve accuracy by incorporating market wisdom and contextual factors that better reflect real fantasy manager evaluations. Based on analysis of player cases like Kareem Hunt vs TreVeyon Henderson, our current projection-only approach misses key factors that explain roster rate discrepancies.
+
+The enhancement will integrate three primary ESPN API data points into the scoring calculation:
+
+1. Average Draft Position (ADP) - Market wisdom adjustment that reflects the collective evaluation of fantasy managers and experts
+2. ESPN Player Rating - ESPN's internal player rating system that incorporates expert analysis beyond just statistical projections
+3. Team Quality Context - Offensive quality for skill position players (QB/RB/WR/TE/K), defensive quality for DEF/DST positions
+
+The implementation should be split into two phases:
+
+**Phase 1: Data Collection Enhancement (player_data_fetcher)**
+Modify the player_data_fetcher to collect additional ESPN API data during the regular data fetching process. The ESPN client should be enhanced to capture:
+- ownership.averageDraftPosition field for ADP data
+- playerPoolEntry.playerRating field for ESPN's internal player ratings
+- Team offensive/defensive quality rankings from ESPN team data
+
+Add new columns to the players.csv output file to store this additional data:
+- adp (average_draft_position): Float value from ESPN API
+- player_rating: Float value from ESPN's internal rating system
+- team_offensive_rank: Integer ranking for skill positions (QB/RB/WR/TE/K)
+- team_defensive_rank: Integer ranking for DEF/DST positions
+
+The player_data_fetcher should fetch this data during the normal ESPN API calls to avoid additional API overhead. Update the FantasyPlayer class and CSV export functionality to include these new fields.
+
+**Phase 2: Scoring Algorithm Enhancement (draft_helper)**
+Modify the player scoring algorithm in the draft helper to read the new data from players.csv and apply multiplicative adjustments to the base fantasy points projection. The draft helper should not make any additional API calls - it should work entirely from the enhanced CSV data.
+
+For ADP integration, use the adp column to create market wisdom adjustments where better (lower) ADP values provide modest score boosts and worse (higher) ADP values apply small penalties.
+
+For player rating integration, use the player_rating column to incorporate ESPN's expert evaluation, with higher ratings providing score multipliers capped at reasonable maximums.
+
+For team context, use team_offensive_rank for skill positions (QB/RB/WR/TE/K) and team_defensive_rank for DEF/DST positions, where better team contexts provide scoring advantages.
+
+The adjustments should be applied in sequence and should be conservative enough to enhance accuracy without completely overriding statistical projections. Include configuration options to enable/disable each adjustment factor and tune their impact weights.
+
+Ensure the enhancements integrate cleanly with the current draft helper scoring system without breaking existing functionality. The draft helper should gracefully handle missing data in case the new columns are not present in older CSV files.

@@ -24,6 +24,12 @@ SIMULATIONS_PER_CONFIG = 10           # Number of drafts to run per configuratio
 PRELIMINARY_SIMULATIONS_PER_CONFIG = 3  # Reduced for preliminary testing
 TOP_CONFIGS_PERCENTAGE = 0.025          # Top 5% of configs advance to full testing
 
+# Parallel processing settings
+MAX_PARALLEL_THREADS = None             # Max concurrent threads for simulation
+                                       # None = auto-detect: min(6, CPU_COUNT)
+                                       # Integer = explicit thread count
+                                       # Examples: 1, 4, 8, 12, None
+
 # League settings
 LEAGUE_SIZE = 10                      # Number of teams in the draft
 NFL_SEASON_WEEKS = 17                 # Full season simulation
@@ -70,6 +76,9 @@ def validate_simulation_config():
 
     if not (0 < TOP_CONFIGS_PERCENTAGE <= 1):
         errors.append("TOP_CONFIGS_PERCENTAGE must be between 0 and 1")
+
+    if MAX_PARALLEL_THREADS is not None and MAX_PARALLEL_THREADS < 1:
+        errors.append("MAX_PARALLEL_THREADS must be at least 1 or None for auto-detection")
 
     if errors:
         raise ValueError(f"Simulation configuration validation failed: {'; '.join(errors)}")

@@ -184,8 +184,38 @@ class DraftHelper:
         """
         drafted_players = [p for p in self.players if p.drafted == 2]
         return FantasyTeam(drafted_players)
-        
-        
+
+    def reload_player_data(self):
+        """
+        Reload player data from CSV file and refresh team roster
+        This is called before each main menu display to ensure data is up-to-date
+        """
+        try:
+            self.logger.info("Reloading player data from CSV file")
+
+            # Store current roster size for comparison
+            old_roster_size = len(self.team.roster)
+
+            # Reload players from CSV
+            self.players = load_players_from_csv(self.players_csv)
+
+            # Reload team with updated data
+            self.team = self.load_team()
+
+            new_roster_size = len(self.team.roster)
+
+            # Log changes if any
+            if old_roster_size != new_roster_size:
+                self.logger.info(f"Roster size changed: {old_roster_size} -> {new_roster_size}")
+                print(f"Player data reloaded. Roster updated: {old_roster_size} -> {new_roster_size} players")
+            else:
+                self.logger.debug(f"Player data reloaded. Roster size unchanged: {new_roster_size} players")
+
+        except Exception as e:
+            self.logger.error(f"Error reloading player data: {e}")
+            print(f"Warning: Could not reload player data from {self.players_csv}: {e}")
+
+
     """        
     Function to score a player based on various factors:
     - Team position needs vs roster max and starters requirements
@@ -413,6 +443,9 @@ class DraftHelper:
         self.logger.info(f"Interactive draft started. Current roster size: {len(self.team.roster)}")
 
         while True:
+            # Reload player data from CSV before showing menu to ensure latest changes
+            self.reload_player_data()
+
             choice = self.show_main_menu()
             if choice == 1:
                 self.run_add_to_roster_mode()
@@ -445,6 +478,8 @@ class DraftHelper:
         """Display main menu and get user choice"""
         print("\n" + "="*50)
         print("MAIN MENU")
+        print("="*50)
+        print(f"Current roster: {len(self.team.roster)} / {Constants.MAX_PLAYERS} players")
         print("="*50)
         print("1. Add to Roster")
         print("2. Mark Drafted Player")

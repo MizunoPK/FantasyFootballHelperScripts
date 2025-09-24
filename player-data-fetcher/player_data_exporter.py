@@ -324,11 +324,7 @@ class DataExporter:
         if PRESERVE_DRAFTED_VALUES and player_data.id in self.existing_drafted_values:
             # Use existing drafted values from previous runs
             drafted_value = self.existing_drafted_values[player_data.id]
-        elif LOAD_DRAFTED_DATA_FROM_FILE:
-            # Use drafted data loader to find player in external CSV
-            drafted_value = self.drafted_data_loader.find_drafted_state(
-                player_data.name, player_data.position, player_data.team
-            )
+        # Note: LOAD_DRAFTED_DATA_FROM_FILE now handled in post-processing step
         # If neither option is enabled, all players get drafted=0 (default)
         
         # Use existing locked value if preservation is enabled, otherwise use default (0)
@@ -376,6 +372,9 @@ class DataExporter:
         # Add drafted players that were skipped during ESPN data fetching (optimization)
         if SKIP_DRAFTED_PLAYER_UPDATES:
             fantasy_players = self._merge_skipped_drafted_players(fantasy_players)
+
+        # Apply drafted data from CSV file to players (NEW REVERSE SEARCH APPROACH)
+        fantasy_players = self.drafted_data_loader.apply_drafted_data_to_players(fantasy_players)
 
         return fantasy_players
     

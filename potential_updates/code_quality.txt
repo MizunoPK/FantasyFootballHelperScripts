@@ -8,5 +8,6 @@ Look for names of variables, functions, or classes that could be improved
 Look for any other code quality updates you recommend.
 Remove all instances of emojis and icons.
 Pay particular attention to the draft_helper, looking for ways to improve the folder/file structure to be more digestable and modular.
+Ensure that the rules and readme files are up to date with the most current information about the repo.
 Verify with me what code quality updates to move forward with, then begin making the TODO file for getting those code quality updates done
 Frequently ensure unit tests still pass throughout the updates

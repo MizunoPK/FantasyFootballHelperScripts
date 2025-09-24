@@ -37,7 +37,7 @@ PRESERVE_DRAFTED_VALUES = False   # Keep draft status between data updates
 PRESERVE_LOCKED_VALUES = False    # Keep locked players between data updates
 
 # Drafted Data Loading Settings (FREQUENTLY MODIFIED)
-LOAD_DRAFTED_DATA_FROM_FILE = False  # Load drafted state from external CSV file (alternative to PRESERVE_DRAFTED_VALUES)
+LOAD_DRAFTED_DATA_FROM_FILE = True  # Load drafted state from external CSV file (alternative to PRESERVE_DRAFTED_VALUES)
 DRAFTED_DATA = "./drafted_data.csv"  # Path to CSV file containing drafted player data
 MY_TEAM_NAME = "Sea Sharp"           # Name of your fantasy team for identifying roster players (drafted=2)
 

@@ -15,7 +15,9 @@ import os
 
 # Add parent directories to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from config import SIMULATIONS_PER_CONFIG, PRELIMINARY_SIMULATIONS_PER_CONFIG
+
+# Import from local simulation config
+from config import SIMULATIONS_PER_CONFIG, PRELIMINARY_SIMULATIONS_PER_CONFIG, MAX_PARALLEL_THREADS
 
 @dataclass
 class SimulationTask:
@@ -38,7 +40,14 @@ class ParallelSimulationRunner:
     """Manages parallel execution of draft simulations"""
 
     def __init__(self, max_workers: Optional[int] = None):
-        self.max_workers = max_workers or min(6, multiprocessing.cpu_count())
+        # Use provided value, config setting, or auto-detect (in that order)
+        if max_workers is not None:
+            self.max_workers = max_workers
+        elif MAX_PARALLEL_THREADS is not None:
+            self.max_workers = MAX_PARALLEL_THREADS
+        else:
+            self.max_workers = min(6, multiprocessing.cpu_count())
+
         self.progress = SimulationProgress(0, 0, 0, 0, 0.0)
         self.results_lock = threading.Lock()
         self.progress_lock = threading.Lock()
