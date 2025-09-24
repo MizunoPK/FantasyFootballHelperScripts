@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import datetime
 import os
 
-from .config_optimizer import ConfigResult
+from config_optimizer import ConfigResult
 
 @dataclass
 class PerformanceMetrics:

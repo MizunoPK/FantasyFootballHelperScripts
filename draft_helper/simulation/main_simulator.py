@@ -12,13 +12,13 @@ from typing import Dict, Any, List
 # Add parent directories to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from .data_manager import SimulationDataManager
-from .config_optimizer import ConfigurationOptimizer
-from .parallel_runner import ParallelSimulationRunner
-from .results_analyzer import ResultsAnalyzer
-from .simulation_engine import DraftSimulationEngine
-from .season_simulator import SeasonSimulator
-from .config import RESULTS_FILE
+from data_manager import SimulationDataManager
+from config_optimizer import ConfigurationOptimizer
+from parallel_runner import ParallelSimulationRunner
+from results_analyzer import ResultsAnalyzer
+from simulation_engine import DraftSimulationEngine
+from season_simulator import SeasonSimulator
+from config import RESULTS_FILE
 
 class MainSimulator:
     """Main orchestrator for draft simulation analysis"""
@@ -131,11 +131,15 @@ class MainSimulator:
         """Run a single complete simulation (draft + season)"""
 
         try:
-            # Reset players data for this simulation
-            self.data_manager.reset_players_data()
+            # Create a clean copy of players data for this simulation
+            simulation_players_df = players_df.copy()
+
+            # Reset drafted status for all players in this copy
+            if 'drafted' in simulation_players_df.columns:
+                simulation_players_df['drafted'] = 0
 
             # Run draft simulation
-            draft_engine = DraftSimulationEngine(players_df, config_params)
+            draft_engine = DraftSimulationEngine(simulation_players_df, config_params)
             draft_results = draft_engine.run_complete_draft()
 
             # Extract teams from draft results

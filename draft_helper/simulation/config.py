@@ -20,15 +20,15 @@ PARAMETER_RANGES = {
 }
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 50           # Number of drafts to run per configuration
-PRELIMINARY_SIMULATIONS_PER_CONFIG = 10  # Reduced for preliminary testing
-TOP_CONFIGS_PERCENTAGE = 0.1          # Top 10% of configs advance to full testing
+SIMULATIONS_PER_CONFIG = 10           # Number of drafts to run per configuration
+PRELIMINARY_SIMULATIONS_PER_CONFIG = 3  # Reduced for preliminary testing
+TOP_CONFIGS_PERCENTAGE = 0.025          # Top 5% of configs advance to full testing
 
 # League settings
 LEAGUE_SIZE = 10                      # Number of teams in the draft
 NFL_SEASON_WEEKS = 17                 # Full season simulation
-HUMAN_ERROR_RATE = 0.15              # 15% chance of suboptimal pick
-SUBOPTIMAL_CHOICE_POOL = 10          # Pick from top 10 instead of #1
+HUMAN_ERROR_RATE = 0.3              # 30% chance of suboptimal pick
+SUBOPTIMAL_CHOICE_POOL = 5          # Pick from top 5 instead of #1
 
 # Team strategy distribution
 TEAM_STRATEGIES = {

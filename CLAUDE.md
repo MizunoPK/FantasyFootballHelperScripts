@@ -196,6 +196,11 @@ Each module includes comprehensive validation and clear documentation of frequen
   - `USE_SCORE_THRESHOLD` (skip API calls for low-scoring players, preserve existing data)
   - `PLAYER_SCORE_THRESHOLD` (minimum fantasy points to trigger API update, default: 15.0)
 - **Week-by-Week System**: `USE_WEEK_BY_WEEK_PROJECTIONS` (True=advanced 646-call system, False=legacy)
+- **Drafted Data Loading** (mutually exclusive options):
+  - `PRESERVE_DRAFTED_VALUES` (True=preserve from previous runs, False=reset all to 0)
+  - `LOAD_DRAFTED_DATA_FROM_FILE` (True=load from external CSV, False=disabled)
+  - `DRAFTED_DATA` (path to CSV file, default: "./drafted_data.csv")
+  - `MY_TEAM_NAME` (your fantasy team name for roster identification, default: "Sea Sharp")
 - **Trade Injury Settings**: `APPLY_INJURY_PENALTY_TO_ROSTER` (True=apply injury penalties to roster players, False=ignore injury penalties for roster players in trade analysis)
 - **Matchup Analysis Settings** (in `starter_helper/starter_helper_config.py`):
   - `ENABLE_MATCHUP_ANALYSIS` (True=ESPN matchup analysis, False=offline mode)
@@ -221,9 +226,18 @@ Each module includes comprehensive validation and clear documentation of frequen
 - Module-specific `data/` directories for exported data
 
 **Data Preservation:**
-- Drafted player status is preserved between player data updates
+- **Two Methods for Drafted State Management** (mutually exclusive):
+  - **Method 1**: `PRESERVE_DRAFTED_VALUES` - Preserves drafted status from previous player data updates
+  - **Method 2**: `LOAD_DRAFTED_DATA_FROM_FILE` - Loads drafted state from external CSV file with fuzzy player matching
 - Locked player status can be preserved (configurable)
 - Historical projections are maintained in timestamped files
+
+**External Drafted Data Loading:**
+- **CSV Format**: First column contains "Name Position - Team", second column contains fantasy team name
+- **Example**: "Patrick Mahomes QB - KC,Sea Sharp"
+- **Fuzzy Matching**: Case-insensitive search with name, position, and team verification
+- **Team Assignment**: Players on `MY_TEAM_NAME` get drafted=2, others get drafted=1, unmatched get drafted=0
+- **Error Handling**: Missing/corrupted CSV files automatically disable the feature
 
 **Automatic File Management:**
 - **File Caps**: Automatic cleanup maintains configurable limits per file type (default: 5 each)

@@ -31,7 +31,6 @@ def run_simulation():
         from main_simulator import run_simulation
 
         print("🚀 Starting Draft Simulation Analysis")
-        print("This may take up to an hour to complete...")
         print()
 
         results_file = run_simulation()

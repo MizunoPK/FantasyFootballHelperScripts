@@ -36,6 +36,11 @@ RECENT_WEEKS_FOR_AVERAGE = 4  # Number of recent weeks to average for projection
 PRESERVE_DRAFTED_VALUES = False   # Keep draft status between data updates
 PRESERVE_LOCKED_VALUES = False    # Keep locked players between data updates
 
+# Drafted Data Loading Settings (FREQUENTLY MODIFIED)
+LOAD_DRAFTED_DATA_FROM_FILE = False  # Load drafted state from external CSV file (alternative to PRESERVE_DRAFTED_VALUES)
+DRAFTED_DATA = "./drafted_data.csv"  # Path to CSV file containing drafted player data
+MY_TEAM_NAME = "Sea Sharp"           # Name of your fantasy team for identifying roster players (drafted=2)
+
 # Optimization Settings (FREQUENTLY MODIFIED)
 SKIP_DRAFTED_PLAYER_UPDATES = False  # Skip API calls for drafted=1 players (major optimization)
 USE_SCORE_THRESHOLD = False  # Only update players above score threshold (preserves low-scoring player data)
@@ -120,12 +125,16 @@ LOGGING_FILE = './data/log.txt'
 def validate_config():
     """Validate configuration settings"""
     errors = []
-    
+
     if NFL_SCORING_FORMAT not in ["ppr", "std", "half"]:
         errors.append(f"Invalid NFL_SCORING_FORMAT: {NFL_SCORING_FORMAT}")
-        
+
     if not POSITION_FALLBACK_CONFIG:
         errors.append("POSITION_FALLBACK_CONFIG cannot be empty")
+
+    # Validate mutual exclusivity of drafted data loading options
+    if PRESERVE_DRAFTED_VALUES and LOAD_DRAFTED_DATA_FROM_FILE:
+        errors.append("PRESERVE_DRAFTED_VALUES and LOAD_DRAFTED_DATA_FROM_FILE cannot both be enabled. Choose one method for loading drafted data.")
         
     if errors:
         raise ValueError(f"Configuration validation failed: {'; '.join(errors)}")

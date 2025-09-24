@@ -28,7 +28,8 @@ sys.path.append(str(Path(__file__).parent.parent))
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.data_file_manager import DataFileManager
 from shared_config import DEFAULT_FILE_CAPS
-from player_data_constants import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, DRAFT_HELPER_PLAYERS_FILE, SKIP_DRAFTED_PLAYER_UPDATES
+from player_data_constants import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, DRAFT_HELPER_PLAYERS_FILE, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE
+from drafted_data_loader import DraftedDataLoader
 
 
 class DataExporter:
@@ -50,6 +51,11 @@ class DataExporter:
             self._load_existing_drafted_values()
         if PRESERVE_LOCKED_VALUES:
             self._load_existing_locked_values()
+
+        # Initialize drafted data loader if enabled
+        self.drafted_data_loader = DraftedDataLoader()
+        if LOAD_DRAFTED_DATA_FROM_FILE:
+            self.drafted_data_loader.load_drafted_data()
     
     async def export_json(self, data: ProjectionData) -> str:
         """Export data to JSON format asynchronously"""
@@ -312,10 +318,18 @@ class DataExporter:
     def _espn_player_to_fantasy_player(self, player_data: ESPNPlayerData) -> FantasyPlayer:
         """Convert ESPNPlayerData to FantasyPlayer object"""
         
-        # Use existing drafted value if preservation is enabled, otherwise use default (0)
+        # Determine drafted value based on configuration
         drafted_value = player_data.drafted  # Default from ESPN (always 0)
+
         if PRESERVE_DRAFTED_VALUES and player_data.id in self.existing_drafted_values:
+            # Use existing drafted values from previous runs
             drafted_value = self.existing_drafted_values[player_data.id]
+        elif LOAD_DRAFTED_DATA_FROM_FILE:
+            # Use drafted data loader to find player in external CSV
+            drafted_value = self.drafted_data_loader.find_drafted_state(
+                player_data.name, player_data.position, player_data.team
+            )
+        # If neither option is enabled, all players get drafted=0 (default)
         
         # Use existing locked value if preservation is enabled, otherwise use default (0)
         locked_value = 0  # Default

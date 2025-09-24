@@ -62,16 +62,16 @@ DRAFT_ORDER = [
 # =============================================================================
 
 # Primary scoring components
-POS_NEEDED_SCORE = 50           # ← Weight for positional need
-PROJECTION_BASE_SCORE = 100     # ← Base score for projections
+POS_NEEDED_SCORE = 65           # ← Weight for positional need (optimized from simulation)
+PROJECTION_BASE_SCORE = 95      # ← Base score for projections (optimized from simulation)
 
 # Penalty system (FREQUENTLY MODIFIED)
-BASE_BYE_PENALTY = 20          # ← Base penalty for bye week conflicts
+BASE_BYE_PENALTY = 5           # ← Base penalty for bye week conflicts (optimized from simulation)
 
-INJURY_PENALTIES = {           # ← Risk tolerance settings
+INJURY_PENALTIES = {           # ← Risk tolerance settings (optimized from simulation)
     "LOW": 0,                  # Healthy/Active players
-    "MEDIUM": 25,              # ← Often adjusted (Questionable, etc.)
-    "HIGH": 50                 # ← Often adjusted (Out, IR, etc.)
+    "MEDIUM": 15,              # ← Optimized from simulation (was 25)
+    "HIGH": 35                 # ← Optimized from simulation (was 50)
 }
 
 # Trade optimization settings (FREQUENTLY MODIFIED)

@@ -1,0 +1,8 @@
+Add a feature to the player_data_fetcher that loads in the state of the drafted column to players.
+There should be a new config variable called DRAFTED_DATA that is a string path pointing to a csv file. Default it to ./drafted_data.csv
+An example of this file is already in the player-data-fetcher folder
+This file is going to have two columns, the first column is a string of player info including name, position, and city. The second column is the fantasy team that drafted the player
+Have another config variable called MY_TEAM_NAME that is a string containing the name of the user's team. Default it to "Sea Sharp"
+As the player data fetcher is processing players, it should do a fuzzy search for the player in the drafted_data based on their name, position, and city. If the player is in the drafted_data, and has its fantasy team equal to MY_TEAM_NAME then set the drafted state to 2. If it player is in the drafted_data but on a different team, then set the drafted state to 1. Every other case, set drafted to 0.
+This work should be behind a toggle called LOAD_DRAFTED_DATA_FROM_FILE
+This will be an alternative to the 'carry over drafted player data from existing players.csv' logic and toggle. Either the new LOAD_DRAFTED_DATA_FROM_FILE toggle or that PRESERVE_DRAFTED_VALUES toggle should be on but both should never be on. If neither is on, then set everyone's drafted value to 0.

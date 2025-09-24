@@ -6,7 +6,7 @@ import os
 import shutil
 import pandas as pd
 from typing import Optional
-from .config import SOURCE_PLAYERS_CSV, PLAYERS_CSV_COPY, SIMULATION_DATA_DIR
+from config import SOURCE_PLAYERS_CSV, PLAYERS_CSV_COPY, SIMULATION_DATA_DIR
 
 
 class SimulationDataManager:
