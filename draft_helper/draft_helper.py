@@ -14,6 +14,8 @@ sys.path.insert(0, str(parent_dir))
 from FantasyTeam import FantasyTeam
 import draft_helper_constants as Constants
 from shared_files.FantasyPlayer import FantasyPlayer
+from shared_files.enhanced_scoring import EnhancedScoringCalculator
+from team_data_loader import TeamDataLoader
 
 # Import starter helper components
 sys.path.append(str(parent_dir / 'starter_helper'))
@@ -22,8 +24,7 @@ try:
     from starter_helper_config import (
         CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT,
         SHOW_PROJECTION_DETAILS, SHOW_INJURY_STATUS,
-        SAVE_OUTPUT_TO_FILE, get_timestamped_filepath, get_latest_filepath,
-        ENABLE_MATCHUP_ANALYSIS, SHOW_MATCHUP_SIMPLE, SHOW_MATCHUP_DETAILED
+        SAVE_OUTPUT_TO_FILE, get_timestamped_filepath, get_latest_filepath
     )
     from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
     STARTER_HELPER_AVAILABLE = True
@@ -173,8 +174,21 @@ class DraftHelper:
         self.players_csv = players_csv
         self.players = load_players_from_csv(players_csv)
         self.team = self.load_team()
-        
+
+        # Initialize enhanced scoring calculator
+        self.enhanced_scorer = EnhancedScoringCalculator()
+
+        # Initialize team data loader for offensive/defensive rankings
+        self.team_data_loader = TeamDataLoader()
+
         self.logger.info(f"DraftHelper initialized with {len(self.players)} players and team of {len(self.team.roster)} drafted players")
+        if self.team_data_loader.is_team_data_available():
+            self.logger.info(f"Team rankings loaded for {len(self.team_data_loader.get_available_teams())} teams")
+            print(f"Team rankings loaded for {len(self.team_data_loader.get_available_teams())} teams.")
+        else:
+            self.logger.warning("Team rankings not available - enhanced scoring will use default values")
+            print("Warning: Team rankings not available - enhanced scoring will use default values.")
+
         print(f"DraftHelper initialized with {len(self.players)} players and team of {len(self.team.roster)} drafted players.")
 
     def load_team(self):
@@ -274,8 +288,38 @@ class DraftHelper:
     # This is a simple inversion of the ADP value, where lower ADP means higher score
     def compute_projection_score(self, p):
         self.logger.debug(f"compute_projection_score called for {p.name} (ID: {p.id})")
-        projection_score = p.weighted_projection if p.weighted_projection else 0.0
-        self.logger.debug(f"Computing projection score for {p.name}: weighted_projection={projection_score}")
+
+        # Use fantasy_points as base score (this is the main projection)
+        base_score = p.fantasy_points if p.fantasy_points else 0.0
+
+        # Apply enhanced scoring if new data is available
+        if hasattr(p, 'average_draft_position') or hasattr(p, 'player_rating'):
+
+            # Get team rankings from team data loader
+            team_offensive_rank = self.team_data_loader.get_team_offensive_rank(p.team)
+            team_defensive_rank = self.team_data_loader.get_team_defensive_rank(p.team)
+
+            enhanced_result = self.enhanced_scorer.calculate_enhanced_score(
+                base_fantasy_points=base_score,
+                position=p.position,
+                adp=getattr(p, 'average_draft_position', None),
+                player_rating=getattr(p, 'player_rating', None),
+                team_offensive_rank=team_offensive_rank,
+                team_defensive_rank=team_defensive_rank
+            )
+
+            projection_score = enhanced_result['enhanced_score']
+
+            # Log enhancement details if significant adjustment was made
+            if enhanced_result['total_multiplier'] != 1.0:
+                adjustment_summary = self.enhanced_scorer.get_adjustment_summary(enhanced_result)
+                self.logger.info(f"Enhanced scoring for {p.name}: {base_score:.1f} -> {projection_score:.1f} ({adjustment_summary})")
+
+        else:
+            # Fallback to weighted projection or fantasy points
+            projection_score = p.weighted_projection if p.weighted_projection else base_score
+
+        self.logger.debug(f"Computing projection score for {p.name}: base={base_score:.1f}, final={projection_score:.1f}")
         return projection_score
 
     # Function to compute the bye week penalty for a player
@@ -375,21 +419,30 @@ class DraftHelper:
         self.logger.debug("save_players called")
         # Sort players by drafted value (ascending: 0=available, 1=drafted by others, 2=drafted by us)
         sorted_players = sorted(self.players, key=lambda p: p.drafted)
-        
+
+        # Use complete field list from player data fetcher to preserve all enhanced scoring columns
+        fieldnames = [
+            'id', 'name', 'team', 'position', 'bye_week', 'fantasy_points',
+            'injury_status', 'drafted', 'locked', 'average_draft_position',
+            'player_rating',
+            # Weekly projections (weeks 1-17 fantasy regular season only)
+            'week_1_points', 'week_2_points', 'week_3_points', 'week_4_points',
+            'week_5_points', 'week_6_points', 'week_7_points', 'week_8_points',
+            'week_9_points', 'week_10_points', 'week_11_points', 'week_12_points',
+            'week_13_points', 'week_14_points', 'week_15_points', 'week_16_points',
+            'week_17_points'
+        ]
+
         # Save sorted players to CSV
         with open(self.players_csv, 'w', newline='') as csvfile:
-            fieldnames = [
-                'id', 'name', 'team', 'position', 'bye_week', 'fantasy_points',
-                'injury_status', 'drafted', 'locked'
-            ]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for p in sorted_players:
                 # Only include fields that are in fieldnames to avoid DictWriter errors
                 player_dict = p.to_dict()
-                filtered_dict = {key: player_dict[key] for key in fieldnames if key in player_dict}
+                filtered_dict = {key: player_dict.get(key, None) for key in fieldnames}
                 writer.writerow(filtered_dict)
-        self.logger.info(f"Available players saved with {len(self.players)} players (sorted by drafted status)")
+        self.logger.info(f"Available players saved with {len(self.players)} players (sorted by drafted status, all enhanced columns preserved)")
 
     # Function to get the user's choice of player to draft
     # This displays the top recommended players and prompts the user to select one
@@ -1093,26 +1146,11 @@ class DraftHelper:
             # Initialize lineup optimizer
             optimizer = LineupOptimizer()
 
-            # Perform matchup analysis if enabled
+            # Using positional rankings instead of matchup analysis
             matchup_analysis = None
-            if ENABLE_MATCHUP_ANALYSIS:
-                print("Performing matchup analysis...")
-                try:
-                    from matchup_analyzer import MatchupAnalyzer
-                    matchup_analyzer = MatchupAnalyzer()
-                    matchup_analysis = await self.perform_matchup_analysis_for_roster(matchup_analyzer, roster_df)
-                    if matchup_analysis:
-                        print(f"Matchup analysis complete for {matchup_analysis.total_players_analyzed} players")
-                    else:
-                        print("Matchup analysis failed, proceeding without matchup data")
-                    await matchup_analyzer.close()
-                except ImportError as e:
-                    print(f"Matchup analysis disabled due to import error: {e}")
-                except Exception as e:
-                    print(f"Matchup analysis failed: {e}")
 
-            # Optimize lineup
-            optimal_lineup = optimizer.optimize_lineup(roster_df, projections, matchup_analysis)
+            # Optimize lineup using positional rankings
+            optimal_lineup = optimizer.optimize_lineup(roster_df, projections)
 
             # Display optimal lineup
             self.display_starter_lineup(optimal_lineup)
@@ -1125,7 +1163,7 @@ class DraftHelper:
 
             # Display bench recommendations
             bench_recs = optimizer.get_bench_recommendations(
-                roster_df, projections, used_player_ids, count=5, matchup_analysis=matchup_analysis
+                roster_df, projections, used_player_ids, count=5
             )
             self.display_bench_alternatives(bench_recs)
 
@@ -1144,28 +1182,6 @@ class DraftHelper:
         # Wait for user acknowledgment before returning to menu
         input("\nPress Enter to return to Main Menu...")
 
-    async def perform_matchup_analysis_for_roster(self, matchup_analyzer, roster_df):
-        """Perform matchup analysis for roster players"""
-        try:
-            # Create player contexts for matchup analysis
-            player_contexts = []
-            for _, player in roster_df.iterrows():
-                player_context = {
-                    'id': str(player['id']),
-                    'name': player['name'],
-                    'position': player['position'],
-                    'team': player['team'],
-                    'team_id': self.get_team_id_for_analysis(player['team']),
-                    'injury_status': player['injury_status']
-                }
-                player_contexts.append(player_context)
-
-            # Perform analysis
-            analysis = await matchup_analyzer.analyze_weekly_matchups(player_contexts, CURRENT_NFL_WEEK)
-            return analysis
-        except Exception as e:
-            self.logger.error(f"Matchup analysis failed: {e}")
-            return None
 
     async def apply_matchup_analysis_to_all_players(self, matchup_analyzer):
         """Apply matchup analysis to all available players for trade analysis"""
@@ -1290,17 +1306,14 @@ class DraftHelper:
                 if SHOW_INJURY_STATUS and recommendation.injury_status != "ACTIVE":
                     status_info = f" [{recommendation.injury_status}]"
 
-                # Add matchup info
-                matchup_info = ""
-                if recommendation.matchup_indicator and SHOW_MATCHUP_SIMPLE:
-                    matchup_info = f" {recommendation.matchup_indicator}"
+                # Matchup info removed - using positional rankings instead
 
                 # Add penalty info
                 penalty_info = ""
                 if SHOW_PROJECTION_DETAILS and recommendation.reason != "No penalties":
                     penalty_info = f" ({recommendation.reason})"
 
-                print(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{matchup_info}{penalty_info}")
+                print(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{penalty_info}")
             else:
                 print(f"{i:2d}. {pos_label:4s}: No available player")
 

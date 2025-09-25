@@ -47,25 +47,11 @@ SHOW_INJURY_STATUS = True           # Show injury status in recommendations
 RECOMMENDATION_COUNT = 15           # Number of total players to show
 
 # =============================================================================
-# MATCHUP ANALYSIS CONFIGURATION (NEW)
+# POSITIONAL RANKING CONFIGURATION
 # =============================================================================
 
-# Matchup Analysis Toggle (FREQUENTLY MODIFIED)
-ENABLE_MATCHUP_ANALYSIS = True       # Enable/disable matchup analysis
-SHOW_MATCHUP_SIMPLE = True           # Show simple matchup ratings (★/⚠️ indicators)
-SHOW_MATCHUP_DETAILED = True        # Show detailed matchup analysis breakdown
-
-# Matchup Calculation Settings (FREQUENTLY MODIFIED)
-MATCHUP_WEIGHT_FACTOR = 1.0         # Impact of matchup on recommendations (0.0-1.0)
-RECENT_WEEKS_FOR_DEFENSE = 4         # Weeks for defensive trend analysis
-FAVORABLE_MATCHUP_THRESHOLD = 65.0   # Threshold for "favorable" matchup (1-100)
-HOME_FIELD_ADVANTAGE_BONUS = 5.0     # Rating bonus for home games
-
-# Rating Component Weights (must sum to 1.0)
-DEFENSE_STRENGTH_WEIGHT = 0.40       # Opponent defense strength vs position
-RECENT_TREND_WEIGHT = 0.30           # Recent defensive performance trend
-HOME_FIELD_WEIGHT = 0.15             # Home/away advantage factor
-SCHEDULE_STRENGTH_WEIGHT = 0.15      # Strength of schedule adjustment
+# Positional ranking adjustments are handled automatically via positional_ranking_calculator.py
+# which uses team offensive/defensive rankings from teams.csv to apply score adjustments
 
 # =============================================================================
 # ESPN API CONFIGURATION
@@ -80,10 +66,6 @@ RATE_LIMIT_DELAY = 0.2
 USE_CURRENT_WEEK_PROJECTIONS = True  # Fetch fresh current week projections
 FALLBACK_TO_SEASON_PROJECTIONS = True  # Use season projections if current week unavailable
 
-# Matchup Analysis ESPN API Settings
-MATCHUP_REQUEST_TIMEOUT = 30         # Timeout for matchup analysis API requests
-MATCHUP_RATE_LIMIT_DELAY = 0.3       # Delay between matchup API requests (seconds)
-MAX_CONCURRENT_MATCHUP_REQUESTS = 5  # Maximum concurrent ESPN API requests
 
 # =============================================================================
 # FILE PATHS
@@ -125,12 +107,12 @@ def get_timestamped_filepath():
 INJURY_PENALTIES = {
     "ACTIVE": 0,           # Healthy/Active players
     "LOW": 0,              # Healthy players
-    "MEDIUM": 5,           # ← Often adjusted (Questionable, Day-to-Day)
-    "HIGH": 15,            # ← Often adjusted (Doubtful)
+    "MEDIUM": 0,           # ← Often adjusted (Questionable, Day-to-Day)
+    "HIGH": 50,            # ← Often adjusted (Doubtful)
     "OUT": 100,            # Out for the week (should not start)
     "INJURY_RESERVE": 100, # On IR (should not start)
     "SUSPENSION": 100,     # Suspended (should not start)
-    "DOUBTFUL": 15,        # Doubtful to play
+    "DOUBTFUL": 50,        # Doubtful to play
     "QUESTIONABLE": 0,     # Questionable to play
 }
 
@@ -168,22 +150,6 @@ def validate_config():
     if not FLEX_ELIGIBLE_POSITIONS:
         errors.append("FLEX_ELIGIBLE_POSITIONS cannot be empty")
 
-    # Validate matchup analysis settings
-    if ENABLE_MATCHUP_ANALYSIS:
-        if MATCHUP_WEIGHT_FACTOR < 0 or MATCHUP_WEIGHT_FACTOR > 1:
-            errors.append(f"MATCHUP_WEIGHT_FACTOR must be between 0 and 1: {MATCHUP_WEIGHT_FACTOR}")
-
-        if FAVORABLE_MATCHUP_THRESHOLD < 1 or FAVORABLE_MATCHUP_THRESHOLD > 100:
-            errors.append(f"FAVORABLE_MATCHUP_THRESHOLD must be between 1 and 100: {FAVORABLE_MATCHUP_THRESHOLD}")
-
-        if RECENT_WEEKS_FOR_DEFENSE < 1 or RECENT_WEEKS_FOR_DEFENSE > 10:
-            errors.append(f"RECENT_WEEKS_FOR_DEFENSE must be between 1 and 10: {RECENT_WEEKS_FOR_DEFENSE}")
-
-        # Validate that rating weights sum to approximately 1.0
-        total_weight = (DEFENSE_STRENGTH_WEIGHT + RECENT_TREND_WEIGHT +
-                       HOME_FIELD_WEIGHT + SCHEDULE_STRENGTH_WEIGHT)
-        if abs(total_weight - 1.0) > 0.01:
-            errors.append(f"Matchup rating weights must sum to 1.0, got {total_weight}")
 
     if errors:
         raise ValueError(f"Configuration validation failed: {'; '.join(errors)}")
@@ -205,13 +171,11 @@ STRATEGY CHANGES:
 1. INJURY_PENALTIES - Adjust risk tolerance for questionable players
 2. SHOW_PROJECTION_DETAILS - Show/hide detailed projection information
 
-MATCHUP ANALYSIS (NEW):
-1. ENABLE_MATCHUP_ANALYSIS - Turn matchup analysis on/off
-2. MATCHUP_WEIGHT_FACTOR - How much matchups impact recommendations (0.0-1.0)
-3. SHOW_MATCHUP_SIMPLE - Show basic matchup indicators (★/⚠️)
-4. SHOW_MATCHUP_DETAILED - Show detailed matchup breakdown
-5. FAVORABLE_MATCHUP_THRESHOLD - What rating counts as "favorable" (1-100)
-3. RECOMMENDATION_COUNT - Number of players to display
+POSITIONAL RANKING:
+1. Team rankings are automatically loaded from teams.csv
+2. Adjustments are applied based on offensive/defensive rankings
+3. Configuration is handled in positional_ranking_calculator.py
+4. RECOMMENDATION_COUNT - Number of players to display
 
 FILE OUTPUT:
 1. SAVE_OUTPUT_TO_FILE - Enable/disable saving results to files
@@ -234,6 +198,9 @@ To show more/fewer recommendations:
 
 To adjust for standard scoring:
     NFL_SCORING_FORMAT = "std"
+
+To configure positional ranking adjustments:
+    Edit positional_ranking_calculator.py configuration
 
 ⚠️ VALIDATION:
 Configuration is automatically validated on import. Invalid settings will
