@@ -1,0 +1,5 @@
+Update the draft_helper Simulation to also test varying values for scoring based off ADP, player ranking, offensive ranking, and defensive ranking. 
+These configs are in shared_files/enhanced_scoring.py
+Create test configs to try different variations for every numerical value in the DEFAULT_SCORING_CONFIG
+These configs should be implemented in similar ways to how the testing of different scoring weights already exists in the simulation.
+Also, update the result.md files to be named result_{timestamp}.md and put into the draft_helper/Simulation/results folder

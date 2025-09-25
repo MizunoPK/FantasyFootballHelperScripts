@@ -1,0 +1,5 @@
+in the player data fetcher, update to no longer include the offensive and defensive rankings in the players.csv file. Instead, create a new teams.csv file that mimics the behavior of players.csv - in that copies should be made in the player-data-fetcher/data folder and the newest version should also be put in the shared_files folder. The new file should have columns for team, offensive rank, defensive rank, and opponent. The team column is just the different teams in the league, and offensive and defensive rank columns should contain the ranking data we have already started calculating. The final column should contain the name of the team that will be the opponent for the CURRENT_NFL_WEEK
+
+Update the draft_helper logic to look to the teams.csv file for offensive and defensive ranking data instead of players.csv
+
+update the starter_helper to take relative offensive and defensive positional rankings into account in calculating the projected scores of players

@@ -26,6 +26,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from shared_files.FantasyPlayer import FantasyPlayer
+from shared_files.TeamData import TeamData, extract_teams_from_players, extract_teams_from_rankings, save_teams_to_csv
 from shared_files.data_file_manager import DataFileManager
 from shared_config import DEFAULT_FILE_CAPS
 from player_data_constants import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, DRAFT_HELPER_PLAYERS_FILE, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE
@@ -44,6 +45,10 @@ class DataExporter:
         # Initialize file manager for automatic file caps
         self.file_manager = DataFileManager(str(self.output_dir), DEFAULT_FILE_CAPS)
 
+        # Initialize team rankings and schedule data (will be set by data collector)
+        self.team_rankings = {}
+        self.current_week_schedule = {}
+
         # Load existing drafted and locked values if preservation is enabled
         self.existing_drafted_values = {}
         self.existing_locked_values = {}
@@ -56,6 +61,16 @@ class DataExporter:
         self.drafted_data_loader = DraftedDataLoader()
         if LOAD_DRAFTED_DATA_FROM_FILE:
             self.drafted_data_loader.load_drafted_data()
+
+    def set_team_rankings(self, team_rankings: dict):
+        """Set team rankings data from ESPN client for team exports"""
+        self.team_rankings = team_rankings
+        self.logger.info(f"Team rankings set for {len(team_rankings)} teams")
+
+    def set_current_week_schedule(self, schedule: dict):
+        """Set current week schedule data from ESPN client for team exports"""
+        self.current_week_schedule = schedule
+        self.logger.info(f"Current week schedule set for {len(schedule)} teams")
     
     async def export_json(self, data: ProjectionData) -> str:
         """Export data to JSON format asynchronously"""
@@ -342,6 +357,8 @@ class DataExporter:
             locked=locked_value,
             fantasy_points=player_data.fantasy_points,
             average_draft_position=player_data.average_draft_position,
+            # Enhanced scoring fields (NEW)
+            player_rating=player_data.player_rating,
             injury_status=player_data.injury_status,
             # Weekly projections (weeks 1-17 fantasy regular season only)
             week_1_points=player_data.week_1_points,
@@ -360,9 +377,7 @@ class DataExporter:
             week_14_points=player_data.week_14_points,
             week_15_points=player_data.week_15_points,
             week_16_points=player_data.week_16_points,
-            week_17_points=player_data.week_17_points,
-            # Data method tracking
-            data_method=player_data.data_method
+            week_17_points=player_data.week_17_points
         )
     
     def get_fantasy_players(self, data: ProjectionData) -> List[FantasyPlayer]:
@@ -442,4 +457,114 @@ class DataExporter:
             raise
         except Exception as e:
             self.logger.error(f"Unexpected error exporting to shared files: {e}")
+            raise
+
+    async def export_teams_csv(self, data: ProjectionData) -> str:
+        """
+        Export team data to CSV format.
+
+        Args:
+            data: ProjectionData containing player information to extract team data from
+
+        Returns:
+            str: Path to the created teams CSV file
+        """
+        try:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"teams_{timestamp}.csv"
+            filepath = self.output_dir / filename
+
+            # Extract team data from players using team rankings
+            fantasy_players = self.get_fantasy_players(data)
+            teams = extract_teams_from_rankings(fantasy_players, self.team_rankings, self.current_week_schedule)
+
+            # Save teams to CSV
+            save_teams_to_csv(teams, str(filepath))
+
+            # Create latest file link if requested
+            if self.create_latest_files:
+                latest_filepath = self.output_dir / "teams_latest.csv"
+                save_teams_to_csv(teams, str(latest_filepath))
+
+            # Apply file caps management
+            self.file_manager.cleanup_all_file_types()
+
+            self.logger.info(f"Exported {len(teams)} teams to: {filepath}")
+            return str(filepath)
+
+        except Exception as e:
+            self.logger.error(f"Error exporting teams CSV: {e}")
+            raise
+
+    async def export_teams_to_shared_files(self, data: ProjectionData) -> str:
+        """
+        Export team data to shared_files directory for consumption by other modules.
+
+        Args:
+            data: ProjectionData containing player information to extract team data from
+
+        Returns:
+            str: Path to the shared teams.csv file
+        """
+        try:
+            # Path to shared_files teams.csv
+            shared_files_dir = Path(__file__).parent.parent / "shared_files"
+            shared_teams_file = shared_files_dir / "teams.csv"
+
+            # Extract team data from players using team rankings
+            fantasy_players = self.get_fantasy_players(data)
+            teams = extract_teams_from_rankings(fantasy_players, self.team_rankings, self.current_week_schedule)
+
+            # Save teams to shared_files
+            save_teams_to_csv(teams, str(shared_teams_file))
+
+            self.logger.info(f"Exported {len(teams)} teams to shared files: {shared_teams_file}")
+            return str(shared_teams_file)
+
+        except Exception as e:
+            self.logger.error(f"Error exporting teams to shared files: {e}")
+            raise
+
+    async def export_all_formats_with_teams(self, data: ProjectionData,
+                                           create_csv: bool = True,
+                                           create_json: bool = True,
+                                           create_excel: bool = True) -> List[str]:
+        """
+        Export projection data and team data to all formats concurrently.
+
+        Args:
+            data: ProjectionData to export
+            create_csv: Whether to create CSV files
+            create_json: Whether to create JSON files
+            create_excel: Whether to create Excel files
+
+        Returns:
+            List of file paths created
+        """
+        try:
+            tasks = []
+
+            # Player data exports (same as original)
+            if create_json:
+                tasks.append(self.export_json(data))
+            if create_csv:
+                tasks.append(self.export_csv(data))
+            if create_excel:
+                tasks.append(self.export_excel(data))
+
+            # Always export to shared files for integration
+            tasks.append(self.export_to_shared_files(data))
+
+            # Team data exports (new functionality)
+            if create_csv:  # Only export teams CSV if CSV creation is enabled
+                tasks.append(self.export_teams_csv(data))
+            tasks.append(self.export_teams_to_shared_files(data))
+
+            results = await asyncio.gather(*tasks)
+
+            # Filter out None results and return list of paths
+            return [path for path in results if path]
+
+        except Exception as e:
+            self.logger.error(f"Error in concurrent export with teams: {e}")
             raise

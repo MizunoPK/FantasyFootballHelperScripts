@@ -7,7 +7,11 @@ Look for places with repeated code that could be abstracted out to common functi
 Look for names of variables, functions, or classes that could be improved
 Look for any other code quality updates you recommend.
 Remove all instances of emojis and icons.
+Remove all mentions of Claude in code comments, and change code comments at the top of files to say the code was made by Kai Mizuno instead of being generated.
+Look for any cases of code that could use more unit test coverage and create and test new unit tests appropriately.
+Look for unit tests that are no longer relevant or need updates, then remove/modify accordingly.
+Ensure accuracy of log statements, since some may be outdated. Also look for ways to improve logging.
 Pay particular attention to the draft_helper, looking for ways to improve the folder/file structure to be more digestable and modular.
 Ensure that the rules and readme files are up to date with the most current information about the repo.
 Verify with me what code quality updates to move forward with, then begin making the TODO file for getting those code quality updates done
-Frequently ensure unit tests still pass throughout the updates
+Frequently ensure unit tests still pass throughout the updates, and run the scripts periodically to ensure they are working as expected

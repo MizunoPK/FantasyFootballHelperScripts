@@ -75,7 +75,7 @@ INJURY_PENALTIES = {           # ← Risk tolerance settings (optimized from sim
 }
 
 # Trade optimization settings (FREQUENTLY MODIFIED)
-MIN_TRADE_IMPROVEMENT = 5     # ← Minimum point improvement required for a trade to be considered
+MIN_TRADE_IMPROVEMENT = 15     # ← Minimum point improvement required for a trade to be considered
 NUM_TRADE_RUNNERS_UP = 3      # ← Number of runner-up trades to show for each player
 
 # Bye weeks for NFL season

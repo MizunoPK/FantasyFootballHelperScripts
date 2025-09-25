@@ -1,0 +1,2 @@
+Update the player_data_fetcher logs to be more readable
+Add a level in between INFO and WARNING that tracks the progress of the data fetching - I'd like to see a percentage completion and an estimated remaining time

@@ -43,7 +43,7 @@ class ESPNPlayerData(BaseModel):
     locked: int = 0   # 0 = not locked, 1 = locked
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None  # ESPN's ADP data
-    data_method: str = "weekly"  # Data source: "weekly", "seasonal", "adp", "zero"
+    player_rating: Optional[float] = None  # ESPN's internal player rating system
 
     # Weekly projections (weeks 1-17 fantasy regular season only)
     week_1_points: Optional[float] = None

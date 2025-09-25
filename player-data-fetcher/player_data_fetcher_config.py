@@ -27,10 +27,16 @@ from shared_config import CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT
 # =============================================================================
 
 # Week-by-Week Projection Settings (FREQUENTLY MODIFIED)
-USE_WEEK_BY_WEEK_PROJECTIONS = True  # Use week-by-week calculation (primary method)
-USE_REMAINING_SEASON_PROJECTIONS = False  # Use remaining games instead of full season
+# Week-by-week projections are always enabled - this is the only method used
 INCLUDE_PLAYOFF_WEEKS = False  # Include playoff weeks (19-22) in calculations
 RECENT_WEEKS_FOR_AVERAGE = 4  # Number of recent weeks to average for projections
+
+# Team Rankings Configuration (FREQUENTLY MODIFIED)
+MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS = 3  # Minimum games played to use current season data
+# When CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1, use current season stats
+# Otherwise, fall back to previous season data or neutral rankings
+# Example: If set to 5 and CURRENT_NFL_WEEK is 6+, uses 2025 data. If week 4 or less, uses 2024 data.
+# This ensures rankings are based on meaningful sample sizes rather than small early-season samples.
 
 # Data Preservation Settings (FREQUENTLY MODIFIED)
 PRESERVE_DRAFTED_VALUES = False   # Keep draft status between data updates
@@ -57,28 +63,10 @@ CREATE_CONDENSED_EXCEL = True
 PLAYERS_CSV = '../shared_files/players.csv'
 
 # =============================================================================
-# FALLBACK FANTASY POINTS (FREQUENTLY MODIFIED)
+# FALLBACK FANTASY POINTS - REMOVED (Week-by-week only system)
 # =============================================================================
 
-@dataclass
-class PositionFallbackConfig:
-    """Configuration for position-specific ADP fallback calculations"""
-    base_points: float
-    multiplier: float
-
-# Position-specific fallback when ADP data is missing (FREQUENTLY MODIFIED)
-# Format: max(1.0, base_points - (adp * multiplier))
-POSITION_FALLBACK_CONFIG: Dict[str, PositionFallbackConfig] = {
-    'QB': PositionFallbackConfig(base_points=300, multiplier=1.5),   # ← Adjust for scoring format
-    'RB': PositionFallbackConfig(base_points=250, multiplier=1.2),   # ← Adjust based on league trends
-    'WR': PositionFallbackConfig(base_points=240, multiplier=1.1),   # ← Adjust based on league trends
-    'TE': PositionFallbackConfig(base_points=180, multiplier=0.8),   # ← PPR vs Standard
-    'K': PositionFallbackConfig(base_points=140, multiplier=0.3),    # ← Rarely changes
-    'DST': PositionFallbackConfig(base_points=130, multiplier=0.3)   # ← Rarely changes
-}
-
-# Default fallback for unknown positions
-DEFAULT_FALLBACK_CONFIG = PositionFallbackConfig(base_points=150, multiplier=0.8)
+# ADP fallback system removed - using week-by-week projections only
 
 # =============================================================================
 # ESPN API CONFIGURATION
@@ -100,7 +88,8 @@ RATE_LIMIT_DELAY = 0.2
 EXCEL_POSITION_SHEETS = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 EXPORT_COLUMNS = [
     'id', 'name', 'team', 'position', 'bye_week', 'fantasy_points',
-    'injury_status', 'drafted', 'locked', 'data_method',
+    'injury_status', 'drafted', 'locked', 'average_draft_position',
+    'player_rating',
     # Weekly projections (weeks 1-17 fantasy regular season only)
     'week_1_points', 'week_2_points', 'week_3_points', 'week_4_points',
     'week_5_points', 'week_6_points', 'week_7_points', 'week_8_points',
@@ -113,10 +102,15 @@ EXPORT_COLUMNS = [
 # LOGGING CONFIGURATION
 # =============================================================================
 
-LOGGING_ENABLED = False         # ← Enable/disable logging
-LOGGING_LEVEL = 'INFO'         # ← DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOGGING_ENABLED = True          # ← Enable/disable logging
+LOGGING_LEVEL = 'WARNING'      # ← DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
 LOGGING_TO_FILE = False        # ← Console vs file logging
 LOGGING_FILE = './data/log.txt'
+
+# Progress Tracking Configuration (FREQUENTLY MODIFIED)
+PROGRESS_TRACKING_ENABLED = True       # ← Enable progress tracking with ETA
+PROGRESS_UPDATE_FREQUENCY = 10         # ← Show progress every N players processed
+PROGRESS_ETA_WINDOW_SIZE = 50          # ← Number of recent players to use for ETA calculation (higher = more stable, lower = more responsive)
 
 # =============================================================================
 # CONFIGURATION VALIDATION
@@ -129,8 +123,7 @@ def validate_config():
     if NFL_SCORING_FORMAT not in ["ppr", "std", "half"]:
         errors.append(f"Invalid NFL_SCORING_FORMAT: {NFL_SCORING_FORMAT}")
 
-    if not POSITION_FALLBACK_CONFIG:
-        errors.append("POSITION_FALLBACK_CONFIG cannot be empty")
+    # POSITION_FALLBACK_CONFIG removed - week-by-week only system
 
     # Validate mutual exclusivity of drafted data loading options
     if PRESERVE_DRAFTED_VALUES and LOAD_DRAFTED_DATA_FROM_FILE:
@@ -155,8 +148,7 @@ SEASON CHANGES:
 3. PRESERVE_DRAFTED_VALUES - False (reset), then True (maintain)
 
 SCORING FORMAT CHANGES:
-1. POSITION_FALLBACK_CONFIG - Adjust point values for different scoring formats
-2. ESPN_PLAYER_LIMIT - Increase for larger leagues
+1. ESPN_PLAYER_LIMIT - Increase for larger leagues
 
 OUTPUT CHANGES:
 1. CREATE_EXCEL/CREATE_CSV/CREATE_JSON - Control output formats

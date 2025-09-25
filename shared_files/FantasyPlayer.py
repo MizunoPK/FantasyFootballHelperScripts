@@ -91,8 +91,7 @@ class FantasyPlayer:
     locked: int = 0  # 0 = not locked, 1 = locked (cannot be drafted or traded)
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None  # ESPN's ADP data
-    adp: Optional[float] = None  # Alias for average_draft_position (backward compatibility)
-    data_method: str = "weekly"  # Data source: "weekly", "seasonal", "adp", "zero"
+    player_rating: Optional[float] = None  # ESPN's internal player rating system
 
     # Weekly projections (weeks 1-17 fantasy regular season only)
     week_1_points: Optional[float] = None
@@ -123,11 +122,9 @@ class FantasyPlayer:
     # Metadata
 
     def __post_init__(self):
-        """Ensure adp and average_draft_position stay in sync."""
-        if self.adp is not None and self.average_draft_position is None:
-            self.average_draft_position = self.adp
-        elif self.average_draft_position is not None and self.adp is None:
-            self.adp = self.average_draft_position
+        """Post-initialization setup."""
+        # No special initialization needed since adp is now a property
+        pass
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'FantasyPlayer':
@@ -154,8 +151,7 @@ class FantasyPlayer:
             locked=safe_int_conversion(data.get('locked'), 0),
             fantasy_points=safe_float_conversion(data.get('fantasy_points'), 0.0),
             average_draft_position=processed_adp,
-            adp=processed_adp,
-            data_method=str(data.get('data_method', 'unknown')),
+            player_rating=safe_float_conversion(data.get('player_rating'), None) if data.get('player_rating') is not None else None,
             # Weekly projections (weeks 1-17)
             week_1_points=safe_float_conversion(data.get('week_1_points'), None),
             week_2_points=safe_float_conversion(data.get('week_2_points'), None),

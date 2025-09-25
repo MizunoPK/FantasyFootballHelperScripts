@@ -191,6 +191,12 @@ Each module includes comprehensive validation and clear documentation of frequen
   - `ENABLE_FILE_CAPS` (True=automatic cleanup, False=disabled entirely)
   - `DRY_RUN_MODE` (True=log what would be deleted without deletion)
   - `MODULE_SPECIFIC_CAPS` (override defaults for specific modules)
+- **Logging and Progress Tracking** (in `player-data-fetcher/player_data_fetcher_config.py`):
+  - `LOGGING_ENABLED` (True=enable logging, False=minimal logging)
+  - `LOGGING_LEVEL` (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  - `PROGRESS_TRACKING_ENABLED` (True=show progress with ETA, False=disabled)
+  - `PROGRESS_UPDATE_FREQUENCY` (default: 10 - show progress every N players)
+  - `PROGRESS_ETA_WINDOW_SIZE` (default: 50 - recent players for ETA calculation)
 - **Major Performance Optimizations**:
   - `SKIP_DRAFTED_PLAYER_UPDATES` (skip API calls for drafted=1 players)
   - `USE_SCORE_THRESHOLD` (skip API calls for low-scoring players, preserve existing data)

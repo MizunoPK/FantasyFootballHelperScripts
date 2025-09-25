@@ -109,13 +109,17 @@ class NFLProjectionsCollector:
     def __init__(self, settings: Settings):
         self.settings = settings
         self.logger = logging.getLogger(__name__)
-        
+
         # Store script directory for path resolution
         self.script_dir = Path(__file__).parent
-        
+
         # Load bye weeks data
         self.bye_weeks = self._load_bye_weeks()
-        
+
+        # Initialize team rankings and schedule data (will be populated during data collection)
+        self.team_rankings = {}
+        self.current_week_schedule = {}
+
         # Initialize exporter with path relative to script location
         output_path = self.script_dir / self.settings.output_directory
         self.exporter = DataExporter(
@@ -168,24 +172,35 @@ class NFLProjectionsCollector:
         
         async with client.session():
             results = {}
-            
+
             # Get season projections
             self.logger.info("Collecting season projections")
             try:
                 season_projections = await client.get_season_projections()
-                
+
                 season_data = ProjectionData(
                     season=self.settings.season,
                     scoring_format=self.settings.scoring_format.value,
                     total_players=len(season_projections),
                     players=season_projections
                 )
-                
+
                 results['season'] = season_data
                 self.logger.info(f"Collected {len(season_projections)} season projections")
+
+                # Get team rankings and schedule from client (they were fetched during get_season_projections)
+                team_rankings = client.team_rankings
+                current_week_schedule = client.current_week_schedule
+                self.logger.info(f"Collected team rankings for {len(team_rankings)} teams")
+                self.logger.info(f"Collected current week schedule for {len(current_week_schedule)} teams")
+
+                # Store team rankings and schedule for the exporter to use
+                self.team_rankings = team_rankings
+                self.current_week_schedule = current_week_schedule
+
             except Exception as e:
                 self.logger.error(f"Failed to collect season projections: {e}")
-            
+
             return results
     
     def _get_api_client(self) -> ESPNClient:
@@ -194,10 +209,14 @@ class NFLProjectionsCollector:
     
     async def export_data(self, projection_data: Dict[str, ProjectionData]) -> List[str]:
         """Export all projection data based on configuration settings"""
+        # Set team rankings and schedule in exporter before exporting
+        self.exporter.set_team_rankings(self.team_rankings)
+        self.exporter.set_current_week_schedule(self.current_week_schedule)
+
         output_files = []
-        
+
         for data_type, data in projection_data.items():
-            files = await self.exporter.export_all_formats(
+            files = await self.exporter.export_all_formats_with_teams(
                 data,
                 create_csv=self.settings.create_csv,
                 create_json=self.settings.create_json,
@@ -205,11 +224,11 @@ class NFLProjectionsCollector:
             )
             output_files.extend(files)
             self.logger.info(f"Exported {data_type} projections to configured formats")
-            
+
             # Also export to shared_files/players.csv for draft helper integration
             shared_file = await self.exporter.export_to_shared_files(data)
             output_files.append(shared_file)
-        
+
         return output_files
     
     def get_fantasy_players(self, projection_data: Dict[str, ProjectionData]) -> Dict[str, List[FantasyPlayer]]:
@@ -271,11 +290,40 @@ class NFLProjectionsCollector:
 
 async def main():
     """Main application entry point"""
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    # Import configuration
+    from player_data_fetcher_config import (
+        LOGGING_ENABLED, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE,
+        PROGRESS_TRACKING_ENABLED
     )
+
+    # Setup logging with enhanced configuration
+    if LOGGING_ENABLED:
+        # Add custom PROGRESS level if progress tracking is enabled
+        if PROGRESS_TRACKING_ENABLED and not hasattr(logging, 'PROGRESS'):
+            from progress_tracker import PROGRESS_LEVEL
+            logging.addLevelName(PROGRESS_LEVEL, 'PROGRESS')
+
+            def progress(self, message, *args, **kwargs):
+                if self.isEnabledFor(PROGRESS_LEVEL):
+                    self._log(PROGRESS_LEVEL, message, args, **kwargs)
+
+            logging.Logger.progress = progress
+
+        # Configure logging output
+        logging_config = {
+            'level': getattr(logging, LOGGING_LEVEL.upper(), logging.INFO),
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        }
+
+        if LOGGING_TO_FILE:
+            logging_config['filename'] = LOGGING_FILE
+            logging_config['filemode'] = 'a'  # Append mode
+
+        logging.basicConfig(**logging_config)
+    else:
+        # Minimal logging when disabled
+        logging.basicConfig(level=logging.WARNING)
+
     logger = logging.getLogger(__name__)
     
     try:

@@ -1,0 +1,610 @@
+#!/usr/bin/env python3
+"""
+Unit tests for enhanced FantasyPlayer functionality.
+
+This module tests the enhanced FantasyPlayer class with new fields for
+enhanced scoring: player_rating, team_offensive_rank, team_defensive_rank.
+"""
+
+import pytest
+import tempfile
+import csv
+from pathlib import Path
+import sys
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from FantasyPlayer import FantasyPlayer
+
+
+class TestEnhancedFantasyPlayerFields:
+    """Test the new enhanced fields in FantasyPlayer"""
+
+    def test_enhanced_fields_initialization(self):
+        """Test that enhanced fields can be initialized"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            fantasy_points=120.0,
+            average_draft_position=50.5,
+            player_rating=75.2
+        )
+
+        assert player.average_draft_position == 50.5
+        assert player.player_rating == 75.2
+
+    def test_enhanced_fields_default_none(self):
+        """Test that enhanced fields default to None when not provided"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB"
+        )
+
+        assert player.average_draft_position is None
+        assert player.player_rating is None
+
+    def test_adp_property_compatibility(self):
+        """Test that adp property works correctly"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            average_draft_position=65.5
+        )
+
+        # adp property should return average_draft_position value
+        assert player.adp == 65.5
+
+        # Setting adp should update average_draft_position
+        player.adp = 70.0
+        assert player.average_draft_position == 70.0
+        assert player.adp == 70.0
+
+    def test_adp_property_none_handling(self):
+        """Test adp property with None values"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB"
+        )
+
+        assert player.adp is None
+
+        # Setting adp to None should work
+        player.adp = None
+        assert player.average_draft_position is None
+        assert player.adp is None
+
+    def test_enhanced_fields_type_validation(self):
+        """Test type handling for enhanced fields"""
+        # Should handle various numeric types
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            average_draft_position=50,  # int
+            player_rating=75.0,  # float
+            team_offensive_rank=8,  # int
+            team_defensive_rank=15  # int
+        )
+
+        assert isinstance(player.average_draft_position, (int, float))
+        assert isinstance(player.player_rating, (int, float))
+        assert isinstance(player.team_offensive_rank, int)
+        assert isinstance(player.team_defensive_rank, int)
+
+
+class TestEnhancedFantasyPlayerFromDict:
+    """Test FantasyPlayer.from_dict with enhanced fields"""
+
+    def test_from_dict_with_all_enhanced_fields(self):
+        """Test from_dict with all enhanced fields present"""
+        data = {
+            'id': '12345',
+            'name': 'Test Player',
+            'team': 'KC',
+            'position': 'RB',
+            'fantasy_points': 120.0,
+            'average_draft_position': 55.5,
+            'player_rating': 78.3,
+            'team_offensive_rank': 6,
+            'team_defensive_rank': 12
+        }
+
+        player = FantasyPlayer.from_dict(data)
+
+        assert player.average_draft_position == 55.5
+        assert player.player_rating == 78.3
+        assert player.team_offensive_rank == 6
+        assert player.team_defensive_rank == 12
+
+    def test_from_dict_with_missing_enhanced_fields(self):
+        """Test from_dict with missing enhanced fields"""
+        data = {
+            'id': '12345',
+            'name': 'Test Player',
+            'team': 'KC',
+            'position': 'RB',
+            'fantasy_points': 120.0
+        }
+
+        player = FantasyPlayer.from_dict(data)
+
+        assert player.average_draft_position is None
+        assert player.player_rating is None
+        assert player.team_offensive_rank is None
+        assert player.team_defensive_rank is None
+
+    def test_from_dict_backward_compatibility_adp(self):
+        """Test backward compatibility with 'adp' field"""
+        data = {
+            'id': '12345',
+            'name': 'Test Player',
+            'team': 'KC',
+            'position': 'RB',
+            'fantasy_points': 120.0,
+            'adp': 45.5  # Old field name
+        }
+
+        player = FantasyPlayer.from_dict(data)
+
+        assert player.average_draft_position == 45.5
+        assert player.adp == 45.5
+
+    def test_from_dict_average_draft_position_precedence(self):
+        """Test that average_draft_position takes precedence over adp"""
+        data = {
+            'id': '12345',
+            'name': 'Test Player',
+            'team': 'KC',
+            'position': 'RB',
+            'fantasy_points': 120.0,
+            'average_draft_position': 50.0,
+            'adp': 60.0  # Should be ignored
+        }
+
+        player = FantasyPlayer.from_dict(data)
+
+        assert player.average_draft_position == 50.0
+        assert player.adp == 50.0
+
+    def test_from_dict_invalid_enhanced_field_values(self):
+        """Test from_dict with invalid values for enhanced fields"""
+        data = {
+            'id': '12345',
+            'name': 'Test Player',
+            'team': 'KC',
+            'position': 'RB',
+            'fantasy_points': 120.0,
+            'average_draft_position': 'invalid',
+            'player_rating': 'not_a_number',
+            'team_offensive_rank': 'bad_rank',
+            'team_defensive_rank': None
+        }
+
+        player = FantasyPlayer.from_dict(data)
+
+        # Invalid values should result in 0 or None depending on safe conversion behavior
+        assert player.average_draft_position == 0.0  # safe_float_conversion returns 0.0 for invalid strings
+        assert player.player_rating is None  # safe_float_conversion returns None when called with None as default
+        assert player.team_offensive_rank is None  # safe_int_conversion returns None for invalid strings
+        assert player.team_defensive_rank is None  # None values should remain None
+
+    def test_from_dict_string_numeric_values(self):
+        """Test from_dict with string representations of numbers"""
+        data = {
+            'id': '12345',
+            'name': 'Test Player',
+            'team': 'KC',
+            'position': 'RB',
+            'fantasy_points': '120.0',
+            'average_draft_position': '55.5',
+            'player_rating': '78.3',
+            'team_offensive_rank': '6',
+            'team_defensive_rank': '12'
+        }
+
+        player = FantasyPlayer.from_dict(data)
+
+        assert player.average_draft_position == 55.5
+        assert player.player_rating == 78.3
+        assert player.team_offensive_rank == 6
+        assert player.team_defensive_rank == 12
+
+    def test_from_dict_empty_string_values(self):
+        """Test from_dict with empty string values"""
+        data = {
+            'id': '12345',
+            'name': 'Test Player',
+            'team': 'KC',
+            'position': 'RB',
+            'fantasy_points': 120.0,
+            'average_draft_position': '',
+            'player_rating': '',
+            'team_offensive_rank': '',
+            'team_defensive_rank': ''
+        }
+
+        player = FantasyPlayer.from_dict(data)
+
+        # Empty strings should result in None
+        assert player.average_draft_position is None
+        assert player.player_rating is None
+        assert player.team_offensive_rank is None
+        assert player.team_defensive_rank is None
+
+
+class TestEnhancedFantasyPlayerCSV:
+    """Test CSV functionality with enhanced fields"""
+
+    def test_to_dict_includes_enhanced_fields(self):
+        """Test that to_dict includes enhanced fields"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            fantasy_points=120.0,
+            average_draft_position=55.5,
+            player_rating=78.3,
+            team_offensive_rank=6,
+            team_defensive_rank=12
+        )
+
+        data = player.to_dict()
+
+        assert 'average_draft_position' in data
+        assert 'player_rating' in data
+        assert 'team_offensive_rank' in data
+        assert 'team_defensive_rank' in data
+
+        assert data['average_draft_position'] == 55.5
+        assert data['player_rating'] == 78.3
+        assert data['team_offensive_rank'] == 6
+        assert data['team_defensive_rank'] == 12
+
+    def test_csv_roundtrip_with_enhanced_fields(self):
+        """Test CSV save/load roundtrip with enhanced fields"""
+        original_players = [
+            FantasyPlayer(
+                id="12345",
+                name="Test Player 1",
+                team="KC",
+                position="RB",
+                fantasy_points=120.0,
+                average_draft_position=55.5,
+                player_rating=78.3,
+                team_offensive_rank=6,
+                team_defensive_rank=12
+            ),
+            FantasyPlayer(
+                id="67890",
+                name="Test Player 2",
+                team="NE",
+                position="WR",
+                fantasy_points=110.0,
+                average_draft_position=40.0,
+                player_rating=82.1,
+                team_offensive_rank=15,
+                team_defensive_rank=8
+            )
+        ]
+
+        with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', delete=False) as f:
+            temp_file = f.name
+
+        try:
+            # Save to CSV
+            FantasyPlayer.save_to_csv(original_players, temp_file)
+
+            # Load from CSV
+            loaded_players = FantasyPlayer.from_csv_file(temp_file)
+
+            assert len(loaded_players) == 2
+
+            for orig, loaded in zip(original_players, loaded_players):
+                assert orig.id == loaded.id
+                assert orig.name == loaded.name
+                assert orig.average_draft_position == loaded.average_draft_position
+                assert orig.player_rating == loaded.player_rating
+                assert orig.team_offensive_rank == loaded.team_offensive_rank
+                assert orig.team_defensive_rank == loaded.team_defensive_rank
+
+        finally:
+            # Clean up
+            Path(temp_file).unlink()
+
+    def test_csv_with_missing_enhanced_columns(self):
+        """Test loading CSV that doesn't have enhanced columns"""
+        # Create CSV with only basic columns
+        basic_csv_data = [
+            ['id', 'name', 'team', 'position', 'fantasy_points'],
+            ['12345', 'Test Player', 'KC', 'RB', '120.0']
+        ]
+
+        with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerows(basic_csv_data)
+            temp_file = f.name
+
+        try:
+            # Should load successfully with None values for missing fields
+            players = FantasyPlayer.from_csv_file(temp_file)
+
+            assert len(players) == 1
+            player = players[0]
+
+            assert player.id == '12345'
+            assert player.name == 'Test Player'
+            assert player.average_draft_position is None
+            assert player.player_rating is None
+            assert player.team_offensive_rank is None
+            assert player.team_defensive_rank is None
+
+        finally:
+            # Clean up
+            Path(temp_file).unlink()
+
+    def test_csv_with_partial_enhanced_columns(self):
+        """Test loading CSV with only some enhanced columns"""
+        # Create CSV with only some enhanced columns
+        partial_csv_data = [
+            ['id', 'name', 'team', 'position', 'fantasy_points', 'average_draft_position', 'player_rating'],
+            ['12345', 'Test Player', 'KC', 'RB', '120.0', '55.5', '78.3']
+        ]
+
+        with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerows(partial_csv_data)
+            temp_file = f.name
+
+        try:
+            players = FantasyPlayer.from_csv_file(temp_file)
+
+            assert len(players) == 1
+            player = players[0]
+
+            assert player.average_draft_position == 55.5
+            assert player.player_rating == 78.3
+            # Missing columns should be None
+            assert player.team_offensive_rank is None
+            assert player.team_defensive_rank is None
+
+        finally:
+            # Clean up
+            Path(temp_file).unlink()
+
+
+class TestEnhancedFantasyPlayerIntegration:
+    """Test integration of enhanced fields with existing functionality"""
+
+    def test_enhanced_fields_with_existing_methods(self):
+        """Test that enhanced fields don't break existing methods"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            fantasy_points=120.0,
+            drafted=0,
+            locked=0,
+            average_draft_position=55.5,
+            player_rating=78.3,
+            team_offensive_rank=6,
+            team_defensive_rank=12
+        )
+
+        # Existing methods should still work
+        assert player.is_available() is True
+        assert player.is_locked() is False
+        assert player.is_healthy() is True  # Default injury status
+        assert player.get_risk_level() == "MEDIUM"  # UNKNOWN injury status
+        assert player.get_position_including_flex() == "FLEX"
+
+        # String representations should work
+        str_repr = str(player)
+        assert "Test Player" in str_repr
+        assert "120.0 pts" in str_repr
+
+        repr_str = repr(player)
+        assert "FantasyPlayer" in repr_str
+        assert "12345" in repr_str
+
+    def test_enhanced_fields_with_weekly_projections(self):
+        """Test that enhanced fields work alongside weekly projections"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            fantasy_points=120.0,
+            average_draft_position=55.5,
+            player_rating=78.3,
+            team_offensive_rank=6,
+            team_defensive_rank=12,
+            week_1_points=10.5,
+            week_2_points=15.0,
+            week_17_points=8.5
+        )
+
+        # Both enhanced fields and weekly projections should work
+        assert player.average_draft_position == 55.5
+        assert player.week_1_points == 10.5
+        assert player.week_17_points == 8.5
+
+        # Test that weekly projection fields work
+        # Note: FantasyPlayer doesn't have get_all_weekly_points method, so we test fields directly
+        assert hasattr(player, 'week_1_points')
+        assert hasattr(player, 'week_17_points')
+
+        # Test that both types of fields coexist without conflict
+        assert player.fantasy_points == 120.0  # Base field
+        assert player.player_rating == 78.3    # Enhanced field
+        assert player.week_1_points == 10.5    # Weekly projection field
+
+    def test_equality_and_hashing_with_enhanced_fields(self):
+        """Test that equality and hashing still work with enhanced fields"""
+        player1 = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            average_draft_position=55.5,
+            player_rating=78.3
+        )
+
+        player2 = FantasyPlayer(
+            id="12345",
+            name="Different Name",  # Different data but same ID
+            team="NE",
+            position="WR",
+            average_draft_position=40.0,
+            player_rating=85.0
+        )
+
+        player3 = FantasyPlayer(
+            id="67890",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            average_draft_position=55.5,
+            player_rating=78.3
+        )
+
+        # Equality should be based on ID only
+        assert player1 == player2  # Same ID
+        assert player1 != player3  # Different ID
+
+        # Hashing should work for sets/dicts
+        player_set = {player1, player2, player3}
+        assert len(player_set) == 2  # player1 and player2 are the same
+
+    def test_enhanced_fields_filter_functions(self):
+        """Test that enhanced fields work with utility filter functions"""
+        players = [
+            FantasyPlayer(
+                id="1", name="Player 1", team="KC", position="RB",
+                fantasy_points=120.0, drafted=0, locked=0,
+                average_draft_position=50.0
+            ),
+            FantasyPlayer(
+                id="2", name="Player 2", team="NE", position="RB",
+                fantasy_points=110.0, drafted=1, locked=0,
+                average_draft_position=60.0
+            ),
+            FantasyPlayer(
+                id="3", name="Player 3", team="DAL", position="WR",
+                fantasy_points=100.0, drafted=0, locked=1,
+                average_draft_position=70.0
+            )
+        ]
+
+        # Import utility functions
+        from FantasyPlayer import (
+            filter_by_position, filter_available_players,
+            sort_by_fantasy_points, get_top_players_by_position
+        )
+
+        # Filter functions should work normally
+        rb_players = filter_by_position(players, "RB")
+        assert len(rb_players) == 2
+        assert all(p.position == "RB" for p in rb_players)
+
+        available_players = filter_available_players(players)
+        assert len(available_players) == 1  # Only player 1 is available
+
+        sorted_players = sort_by_fantasy_points(players)
+        assert sorted_players[0].fantasy_points == 120.0  # Highest first
+
+        top_rbs = get_top_players_by_position(players, "RB", 1)
+        assert len(top_rbs) == 1
+        assert top_rbs[0].fantasy_points == 120.0
+
+
+class TestEnhancedFantasyPlayerEdgeCases:
+    """Test edge cases for enhanced FantasyPlayer functionality"""
+
+    def test_extreme_numeric_values(self):
+        """Test handling of extreme numeric values for enhanced fields"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            average_draft_position=999.99,
+            player_rating=0.01,
+            team_offensive_rank=1,
+            team_defensive_rank=32
+        )
+
+        assert player.average_draft_position == 999.99
+        assert player.player_rating == 0.01
+        assert player.team_offensive_rank == 1
+        assert player.team_defensive_rank == 32
+
+    def test_zero_values_enhanced_fields(self):
+        """Test handling of zero values for enhanced fields"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            average_draft_position=0.0,
+            player_rating=0.0,
+            team_offensive_rank=0,
+            team_defensive_rank=0
+        )
+
+        assert player.average_draft_position == 0.0
+        assert player.player_rating == 0.0
+        assert player.team_offensive_rank == 0
+        assert player.team_defensive_rank == 0
+
+    def test_negative_values_enhanced_fields(self):
+        """Test handling of negative values for enhanced fields"""
+        # Some systems might have negative ratings or unusual ranks
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Player",
+            team="KC",
+            position="RB",
+            average_draft_position=50.0,
+            player_rating=-10.0,  # Negative rating
+            team_offensive_rank=1,
+            team_defensive_rank=35  # Rank beyond normal range
+        )
+
+        assert player.player_rating == -10.0
+        assert player.team_defensive_rank == 35
+
+    def test_unicode_handling_with_enhanced_fields(self):
+        """Test that unicode characters in names work with enhanced fields"""
+        player = FantasyPlayer(
+            id="12345",
+            name="Test Plāyer",  # Unicode character
+            team="KC",
+            position="RB",
+            average_draft_position=55.5,
+            player_rating=78.3
+        )
+
+        # Should handle unicode in name while preserving enhanced fields
+        assert player.name == "Test Plāyer"
+        assert player.average_draft_position == 55.5
+
+        # String representation should handle unicode
+        str_repr = str(player)
+        assert "Test Plāyer" in str_repr
+
+
+if __name__ == "__main__":
+    # Run tests with verbose output
+    pytest.main([__file__, "-v", "--tb=short"])

@@ -39,7 +39,7 @@ class TestFantasyPlayer:
             'locked': 0,
             'fantasy_points': 150.5,
             'injury_status': 'ACTIVE',
-            'adp': 25.3
+            'average_draft_position': 25.3
         }
 
     def test_player_creation_basic(self, sample_player_data):
@@ -149,7 +149,7 @@ class TestFantasyPlayer:
             'fantasy_points': 'invalid',  # This was problematic
             'drafted': '',  # Empty string
             'locked': 'none',  # String 'none'
-            'adp': None  # None value
+            'average_draft_position': None  # None value
         }
 
         player = FantasyPlayer.from_dict(problematic_data)
@@ -161,7 +161,7 @@ class TestFantasyPlayer:
         assert player.fantasy_points == 0.0  # Converted from 'invalid'
         assert player.drafted == 0  # Converted from empty string
         assert player.locked == 0  # Converted from 'none'
-        assert player.adp is None  # None remains None for optional fields
+        assert player.average_draft_position is None  # None remains None for optional fields
 
     def test_to_dict_method(self, sample_player_data):
         """Test to_dict method exports data correctly"""

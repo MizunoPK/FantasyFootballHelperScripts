@@ -56,13 +56,11 @@ from pathlib import Path
 from player_data_fetcher_config import (
     EXCEL_POSITION_SHEETS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES,
     EXPORT_COLUMNS, PLAYERS_CSV, ESPN_USER_AGENT, ESPN_PLAYER_LIMIT,
-    POSITION_FALLBACK_CONFIG, DEFAULT_FALLBACK_CONFIG, PositionFallbackConfig,
     REQUEST_TIMEOUT, RATE_LIMIT_DELAY, NFL_SEASON, NFL_SCORING_FORMAT,
     OUTPUT_DIRECTORY, CREATE_CSV, CREATE_JSON, CREATE_EXCEL, CREATE_CONDENSED_EXCEL,
     LOGGING_ENABLED, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE,
-    CURRENT_NFL_WEEK, USE_WEEK_BY_WEEK_PROJECTIONS, USE_REMAINING_SEASON_PROJECTIONS,
-    INCLUDE_PLAYOFF_WEEKS, RECENT_WEEKS_FOR_AVERAGE, SKIP_DRAFTED_PLAYER_UPDATES,
-    LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME,
+    CURRENT_NFL_WEEK, INCLUDE_PLAYOFF_WEEKS, RECENT_WEEKS_FOR_AVERAGE,
+    SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME,
     USE_SCORE_THRESHOLD, PLAYER_SCORE_THRESHOLD
 )
 
@@ -70,40 +68,6 @@ from player_data_fetcher_config import (
 # PLAYERS_CSV already has '../' prefix, so we use it directly
 DRAFT_HELPER_PLAYERS_FILE = PLAYERS_CSV
 
-@dataclass  
-class ADPMappingConfig:
-    """Configuration for ADP-to-fantasy-points mapping"""
-    min_players_for_empirical_mapping: int = 10
-    min_players_per_position_mapping: int = 5
-    min_adp_range_threshold: float = 0.1
-    min_fantasy_points_bound_factor: float = 0.5
-    max_fantasy_points_bound_factor: float = 1.1
-    uncertainty_adjustment_factor: float = 0.6
-
-# TypedDict for position mapping data structure
-class PositionDataDict(TypedDict):
-    adp_values: List[float]
-    fantasy_values: List[float]
-
-class PositionMappingDict(TypedDict):
-    min_adp: float
-    max_adp: float
-    min_points: float
-    max_points: float
-    adp_range: float
-    points_range: float
-    sample_size: int
-    correlation: float
-
-# Global ADP mapping configuration instance
-ADP_CONFIG = ADPMappingConfig()
-
-# Legacy constants for backward compatibility
-MIN_PLAYERS_FOR_EMPIRICAL_MAPPING = ADP_CONFIG.min_players_for_empirical_mapping
-MIN_PLAYERS_PER_POSITION_MAPPING = ADP_CONFIG.min_players_per_position_mapping
-MIN_ADP_RANGE_THRESHOLD = ADP_CONFIG.min_adp_range_threshold
-MIN_FANTASY_POINTS_BOUND_FACTOR = ADP_CONFIG.min_fantasy_points_bound_factor
-MAX_FANTASY_POINTS_BOUND_FACTOR = ADP_CONFIG.max_fantasy_points_bound_factor
-UNCERTAINTY_ADJUSTMENT_FACTOR = ADP_CONFIG.uncertainty_adjustment_factor
+# ADP-related constants removed - week-by-week only system
 
 # Removed unused constants: ESPN_BASE_URL, ESPN_FANTASY_FILTER, EXPORT_COLUMNS, TOP_PLAYERS_SUMMARY_COUNT
