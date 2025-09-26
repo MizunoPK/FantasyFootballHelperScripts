@@ -30,19 +30,19 @@ def run_simulation():
 
         from main_simulator import run_simulation
 
-        print("🚀 Starting Draft Simulation Analysis")
+        print(">> Starting Draft Simulation Analysis")
         print()
 
         results_file = run_simulation()
 
         print()
-        print("🎉 Simulation completed successfully!")
-        print(f"📄 Results available at: {results_file}")
+        print(">> Simulation completed successfully!")
+        print(f">> Results available at: {results_file}")
 
         return 0
 
     except Exception as e:
-        print(f"❌ Simulation failed: {e}")
+        print(f">> Simulation failed: {e}")
         return 1
 
 def run_normal_draft_helper():

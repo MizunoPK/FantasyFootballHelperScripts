@@ -1,13 +1,5 @@
-Help generate a simulation to determine what Config values would yield the best results during a Draft using the draft_helper.
-During a draft, the user would be using the draft_helper (not in Trade mode) to determine what the best player to pick next would be. They would enter 'Mark Player as Drafted' mode when a different team drafts a player to mark the player as no longer available, then use the 'Add to Roster' mode to determine what player to pick next for their roster.
-Assume the Draft has 10 teams, and that the user is one of those 10 teams.
-The Simulation should test changes to different Config settings to determine what is most likely to yeild the best team at the end.
-The Config settings could include ones such as base scores, penalties, weights and draft order.
-The 'best team' is defined as the team with the highest total fantasy points at the end of the draft. 
-Do your best to simulate real behavior from the other teams during the simulation
-The simulation should be a sub-folder contained within the draft_helper folder, and accessible by a flag in the draft_helper's Config file
-The simulation should not change any existing data files. It should make copies of files from shared_files and make use of those copies for the simulations.
-The simulation should output a 'results.md' file that details the findings of the simulation.
-The findings primarily include the optimal values for the config variables that were modified.
-Use parallel threads to improve the time efficiency of the simulation, but we will accept having the simulation still take a long time. Ideally it shouldn't take more than an hour though.
-Create unit tests unique to the simulation and have them within the simulation folder
+Update the draft_helper Simulation to also test varying values for scoring based off ADP, player ranking, offensive ranking, and defensive ranking. 
+These configs are in shared_files/enhanced_scoring.py
+Create test configs to try different variations for every numerical value in the DEFAULT_SCORING_CONFIG
+These configs should be implemented in similar ways to how the testing of different scoring weights already exists in the simulation.
+Also, update the result.md files to be named result_{timestamp}.md and put into the draft_helper/Simulation/results folder

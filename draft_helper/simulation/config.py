@@ -9,14 +9,24 @@ from typing import Dict, List, Tuple
 # SIMULATION PARAMETERS
 # =============================================================================
 
-# Test parameters and their ranges
+# Test parameters and their ranges (balanced for meaningful analysis)
 PARAMETER_RANGES = {
-    'INJURY_PENALTIES_MEDIUM': [5, 15, 25, 35, 45],  # Every 3rd value from original range
-    'INJURY_PENALTIES_HIGH': [25, 35, 45, 55, 65],   # Every 3rd value from original range
-    'POS_NEEDED_SCORE': [25, 35, 45, 55, 65],        # Every 3rd value from original range
-    'PROJECTION_BASE_SCORE': [75, 85, 95, 105, 115], # Every 3rd value from original range
-    'BASE_BYE_PENALTY': [5, 15, 25, 35, 45],         # Every 3rd value from original range
-    'DRAFT_ORDER_WEIGHTS': [0.5, 0.8, 1.0, 1.2]     # Subset of weight values to test
+    # Core existing parameters (3 values each for thorough testing)
+    'INJURY_PENALTIES_MEDIUM': [20, 25, 30],         # Test injury tolerance range
+    'INJURY_PENALTIES_HIGH': [40, 45, 50],           # Test high injury penalty range
+    'POS_NEEDED_SCORE': [40, 45, 50],                # Test positional need scoring
+    'PROJECTION_BASE_SCORE': [90, 95, 100],          # Test projection weighting
+    'BASE_BYE_PENALTY': [20, 25, 30],                # Test bye week penalty range
+    'DRAFT_ORDER_WEIGHTS': [0.9, 1.0, 1.1],         # Test draft order influence
+
+    # Enhanced scoring parameters - Key multipliers for comprehensive testing
+    'ADP_EXCELLENT_MULTIPLIER': [1.10, 1.15, 1.20],        # ADP boost range
+    'ADP_POOR_MULTIPLIER': [0.90, 0.95],                    # ADP penalty range
+    'PLAYER_RATING_EXCELLENT_MULTIPLIER': [1.15, 1.20, 1.25],  # Player rating boost
+    'PLAYER_RATING_POOR_MULTIPLIER': [0.90, 0.95],             # Player rating penalty
+
+    # Total: 3^6 * 3 * 2 * 3 * 2 = 729 * 3 * 2 * 3 * 2 = 26,244 configurations
+    # This provides meaningful analysis while remaining computationally feasible
 }
 
 # Simulation settings
@@ -52,7 +62,14 @@ TEAM_STRATEGIES = {
 # Simulation data paths
 SIMULATION_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 PLAYERS_CSV_COPY = os.path.join(SIMULATION_DATA_DIR, 'players_simulation.csv')
-RESULTS_FILE = os.path.join(os.path.dirname(__file__), 'results.md')
+RESULTS_DIR = os.path.join(os.path.dirname(__file__), 'results')
+RESULTS_FILE = os.path.join(os.path.dirname(__file__), 'results.md')  # Legacy path for compatibility
+
+def get_timestamped_results_file():
+    """Generate timestamped results file path."""
+    from datetime import datetime
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    return os.path.join(RESULTS_DIR, f'result_{timestamp}.md')
 
 # Source data paths (to copy from)
 SOURCE_PLAYERS_CSV = os.path.join(os.path.dirname(__file__), '..', '..', 'shared_files', 'players.csv')

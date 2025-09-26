@@ -232,7 +232,7 @@ class ResultsAnalyzer:
         # Optimal Configuration
         if analysis['optimal_config']:
             optimal = analysis['optimal_config']
-            report_lines.append("## 🏆 Optimal Configuration")
+            report_lines.append("## Optimal Configuration")
             report_lines.append("")
             report_lines.append("**Configuration Parameters:**")
 
@@ -252,7 +252,7 @@ class ResultsAnalyzer:
             report_lines.append("")
 
         # Top 10 Configurations
-        report_lines.append("## 📊 Top 10 Configurations")
+        report_lines.append("## Top 10 Configurations")
         report_lines.append("")
         report_lines.append("| Rank | Win % | Total Pts | PPG | Consistency | Key Parameters |")
         report_lines.append("|------|-------|-----------|-----|-------------|----------------|")
@@ -271,7 +271,7 @@ class ResultsAnalyzer:
         report_lines.append("")
 
         # Parameter Analysis
-        report_lines.append("## 🔍 Parameter Analysis")
+        report_lines.append("## Parameter Analysis")
         report_lines.append("")
 
         for param_name, param_effects in analysis['parameter_analysis'].items():
@@ -291,7 +291,7 @@ class ResultsAnalyzer:
 
         # Performance Distribution
         if analysis['performance_distribution']:
-            report_lines.append("## 📈 Performance Distribution")
+            report_lines.append("## Performance Distribution")
             report_lines.append("")
 
             dist = analysis['performance_distribution']
@@ -303,7 +303,7 @@ class ResultsAnalyzer:
             report_lines.append("")
 
         # Statistical Summary
-        report_lines.append("## 📋 Statistical Summary")
+        report_lines.append("## Statistical Summary")
         report_lines.append("")
         stats = analysis['statistical_summary']
         report_lines.append(f"- **Performance Improvement Range**: {stats['performance_improvement_range']:.1%}")
@@ -313,7 +313,7 @@ class ResultsAnalyzer:
         report_lines.append("")
 
         # Key Insights
-        report_lines.append("## 💡 Key Insights")
+        report_lines.append("## Key Insights")
         report_lines.append("")
         report_lines.append("1. **Configuration optimization can significantly improve draft performance**")
 
@@ -329,7 +329,7 @@ class ResultsAnalyzer:
         report_lines.append("")
 
         # Recommendations
-        report_lines.append("## 🎯 Recommendations")
+        report_lines.append("## Recommendations")
         report_lines.append("")
         if analysis['optimal_config']:
             report_lines.append("**Use the optimal configuration parameters identified above for best results.**")

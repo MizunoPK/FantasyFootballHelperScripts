@@ -12,8 +12,10 @@ import os
 # Add parent directories to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from shared_files.FantasyPlayer import FantasyPlayer
+from shared_files.enhanced_scoring import EnhancedScoringCalculator
 from draft_helper.FantasyTeam import FantasyTeam
 from draft_helper import draft_helper_config as base_config
+from draft_helper.team_data_loader import TeamDataLoader
 
 
 class TeamStrategyManager:
@@ -31,6 +33,34 @@ class TeamStrategyManager:
         self.pos_needed_score = config_params.get('POS_NEEDED_SCORE', 50)
         self.projection_base_score = config_params.get('PROJECTION_BASE_SCORE', 100)
         self.base_bye_penalty = config_params.get('BASE_BYE_PENALTY', 20)
+
+        # Enhanced scoring configuration from simulation parameters
+        enhanced_scoring_config = {
+            # ADP multipliers
+            'adp_excellent_multiplier': config_params.get('ADP_EXCELLENT_MULTIPLIER', 1.15),
+            'adp_good_multiplier': config_params.get('ADP_GOOD_MULTIPLIER', 1.08),
+            'adp_poor_multiplier': config_params.get('ADP_POOR_MULTIPLIER', 0.92),
+
+            # Player rating multipliers
+            'player_rating_excellent_multiplier': config_params.get('PLAYER_RATING_EXCELLENT_MULTIPLIER', 1.20),
+            'player_rating_good_multiplier': config_params.get('PLAYER_RATING_GOOD_MULTIPLIER', 1.10),
+            'player_rating_poor_multiplier': config_params.get('PLAYER_RATING_POOR_MULTIPLIER', 0.90),
+
+            # Team quality multipliers
+            'team_excellent_multiplier': config_params.get('TEAM_EXCELLENT_MULTIPLIER', 1.12),
+            'team_good_multiplier': config_params.get('TEAM_GOOD_MULTIPLIER', 1.06),
+            'team_poor_multiplier': config_params.get('TEAM_POOR_MULTIPLIER', 0.94),
+
+            # Adjustment caps
+            'max_total_adjustment': config_params.get('MAX_TOTAL_ADJUSTMENT', 1.50),
+            'min_total_adjustment': config_params.get('MIN_TOTAL_ADJUSTMENT', 0.70)
+        }
+
+        # Initialize enhanced scoring calculator with configuration
+        self.enhanced_scorer = EnhancedScoringCalculator(enhanced_scoring_config)
+
+        # Initialize team data loader for offensive/defensive rankings
+        self.team_data_loader = TeamDataLoader()
 
     def get_team_picks(self, strategy: str, available_players: List[FantasyPlayer],
                       team_roster: FantasyTeam, round_num: int) -> List[FantasyPlayer]:
@@ -183,33 +213,50 @@ class TeamStrategyManager:
 
     def _draft_helper_strategy(self, available_players: List[FantasyPlayer],
                              team_roster: FantasyTeam, round_num: int) -> List[FantasyPlayer]:
-        """Draft helper strategy: uses similar logic to the actual draft helper"""
+        """Draft helper strategy: uses enhanced scoring with simulation parameter variations"""
 
-        # For now, use a simplified scoring approach similar to draft helper
-        # Creating a full DraftHelper instance would be complex due to its dependencies
         scored_players = []
 
         for player in available_players:
             if not team_roster.can_draft(player):
                 continue
 
-            # Simplified draft helper-like scoring
-            total_points = self._get_player_total_points(player)
-            score = total_points * self.projection_base_score / 100
+            # Base score from total fantasy points
+            base_points = self._get_player_total_points(player)
+
+            # Apply enhanced scoring with current parameter configuration
+            try:
+                team_offensive_rank = self.team_data_loader.get_team_offensive_rank(player.team)
+                team_defensive_rank = self.team_data_loader.get_team_defensive_rank(player.team)
+
+                enhanced_result = self.enhanced_scorer.calculate_enhanced_score(
+                    base_fantasy_points=base_points,
+                    position=player.position,
+                    adp=getattr(player, 'average_draft_position', None),
+                    player_rating=getattr(player, 'player_rating', None),
+                    team_offensive_rank=team_offensive_rank,
+                    team_defensive_rank=team_defensive_rank
+                )
+
+                # Get enhanced score and apply projection base multiplier
+                enhanced_score = enhanced_result['enhanced_score'] * self.projection_base_score / 100
+            except Exception:
+                # Fallback to basic scoring if enhanced scoring fails
+                enhanced_score = base_points * self.projection_base_score / 100
 
             # Add positional need score similar to draft helper
             positional_need = self._calculate_positional_need(player.position, team_roster)
-            score += positional_need * self.pos_needed_score
+            enhanced_score += positional_need * self.pos_needed_score
 
             # Apply injury penalties
             injury_penalty = self.injury_penalties.get(player.injury_status, 0)
-            score -= injury_penalty
+            enhanced_score -= injury_penalty
 
             # Add bye week considerations
             bye_conflicts = self._calculate_bye_conflicts(player, team_roster)
-            score -= bye_conflicts * self.base_bye_penalty
+            enhanced_score -= bye_conflicts * self.base_bye_penalty
 
-            scored_players.append((score, player))
+            scored_players.append((enhanced_score, player))
 
         # Sort by score descending
         scored_players.sort(reverse=True, key=lambda x: x[0])
