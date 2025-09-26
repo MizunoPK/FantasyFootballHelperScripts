@@ -30,9 +30,9 @@ PARAMETER_RANGES = {
 }
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 10           # Number of drafts to run per configuration
-PRELIMINARY_SIMULATIONS_PER_CONFIG = 3  # Reduced for preliminary testing
-TOP_CONFIGS_PERCENTAGE = 0.025          # Top 5% of configs advance to full testing
+SIMULATIONS_PER_CONFIG = 100           # Number of drafts to run per configuration
+PRELIMINARY_SIMULATIONS_PER_CONFIG = 20  # Reduced for preliminary testing
+TOP_CONFIGS_PERCENTAGE = 0.1          # Top 10% of configs advance to full testing
 
 # Parallel processing settings
 MAX_PARALLEL_THREADS = None             # Max concurrent threads for simulation

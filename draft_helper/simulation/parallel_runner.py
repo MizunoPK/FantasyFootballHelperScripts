@@ -47,7 +47,6 @@ class ParallelSimulationRunner:
             self.max_workers = MAX_PARALLEL_THREADS
         else:
             self.max_workers = min(6, multiprocessing.cpu_count())
-
         self.progress = SimulationProgress(0, 0, 0, 0, 0.0)
         self.results_lock = threading.Lock()
         self.progress_lock = threading.Lock()
