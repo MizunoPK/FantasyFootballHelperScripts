@@ -12,12 +12,12 @@ from typing import Dict, List, Tuple
 # Test parameters and their ranges (balanced for meaningful analysis)
 PARAMETER_RANGES = {
     # Core existing parameters (3 values each for thorough testing)
-    'INJURY_PENALTIES_MEDIUM': [20, 25, 30],         # Test injury tolerance range
-    'INJURY_PENALTIES_HIGH': [40, 45, 50],           # Test high injury penalty range
-    'POS_NEEDED_SCORE': [40, 45, 50],                # Test positional need scoring
-    'PROJECTION_BASE_SCORE': [90, 95, 100],          # Test projection weighting
-    'BASE_BYE_PENALTY': [20, 25, 30],                # Test bye week penalty range
-    'DRAFT_ORDER_WEIGHTS': [0.9, 1.0, 1.1],         # Test draft order influence
+    'INJURY_PENALTIES_MEDIUM': [15, 20],         # Test injury tolerance range
+    'INJURY_PENALTIES_HIGH': [30, 40],           # Test high injury penalty range
+    'POS_NEEDED_SCORE': [65, 75],                # Test positional need scoring
+    'PROJECTION_BASE_SCORE': [90, 100],          # Test projection weighting
+    'BASE_BYE_PENALTY': [10, 20],                # Test bye week penalty range
+    'DRAFT_ORDER_WEIGHTS': [1.0, 1.2],         # Test draft order influence
 
     # Enhanced scoring parameters - Key multipliers for comprehensive testing
     'ADP_EXCELLENT_MULTIPLIER': [1.10, 1.15, 1.20],        # ADP boost range
@@ -41,9 +41,9 @@ PARAMETER_RANGES = {
 }
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 10           # Number of drafts to run per configuration
-PRELIMINARY_SIMULATIONS_PER_CONFIG = 3  # Reduced for preliminary testing
-TOP_CONFIGS_PERCENTAGE = 0.025          # Top 5% of configs advance to full testing
+SIMULATIONS_PER_CONFIG = 50           # Number of drafts to run per configuration
+PRELIMINARY_SIMULATIONS_PER_CONFIG = 15  # Reduced for preliminary testing
+TOP_CONFIGS_PERCENTAGE = 0.05          # Top 5% of configs advance to full testing
 
 # Parallel processing settings
 MAX_PARALLEL_THREADS = None             # Max concurrent threads for simulation
