@@ -16,12 +16,14 @@ try:
     from . import draft_helper_constants as Constants
     from .team_data_loader import TeamDataLoader
     from .core.menu_system import MenuSystem
+    from .core.player_search import PlayerSearch
 except ImportError:
     # Fallback to absolute imports when run directly
     from FantasyTeam import FantasyTeam
     import draft_helper_constants as Constants
     from team_data_loader import TeamDataLoader
     from core.menu_system import MenuSystem
+    from core.player_search import PlayerSearch
 
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.enhanced_scoring import EnhancedScoringCalculator
@@ -193,6 +195,9 @@ class DraftHelper:
         # Initialize menu system
         self.menu_system = MenuSystem(self.team, STARTER_HELPER_AVAILABLE, self)
 
+        # Initialize player search system
+        self.player_search = PlayerSearch(self.players, self.logger)
+
         self.logger.info(f"DraftHelper initialized with {len(self.players)} players and team of {len(self.team.roster)} drafted players")
         if self.team_data_loader.is_team_data_available():
             self.logger.info(f"Team rankings loaded for {len(self.team_data_loader.get_available_teams())} teams")
@@ -227,6 +232,9 @@ class DraftHelper:
 
             # Reload team with updated data
             self.team = self.load_team()
+
+            # Update player search with new players list
+            self.player_search.players = self.players
 
             new_roster_size = len(self.team.roster)
 
@@ -695,80 +703,7 @@ class DraftHelper:
 
     def search_and_mark_player(self):
         """Search for player by name and mark as drafted"""
-        while True:
-            search_term = input("\nEnter player name (or part of name) to search: ").strip()
-
-            if not search_term:
-                print("Please enter a search term.")
-                continue
-
-            # Check if user wants to exit
-            if search_term.lower() == 'exit':
-                print("Returning to Main Menu...")
-                break
-
-            try:
-                # Find matching players (only drafted=0, case-insensitive, partial matches)
-                available_players = [p for p in self.players if p.drafted == 0]
-                matches = []
-
-                search_lower = search_term.lower()
-
-                # Search for partial matches in first or last name
-                for player in available_players:
-                    name_lower = player.name.lower()
-                    name_words = name_lower.split()
-
-                    # Check if search term matches any part of the full name or individual words
-                    if (search_lower in name_lower or
-                        any(search_lower in word or word.startswith(search_lower)
-                            for word in name_words)):
-                        matches.append(player)
-
-                if not matches:
-                    print(f"No players found matching '{search_term}'. Try again or type 'exit' to return to Main Menu.")
-                    continue
-
-                # Show matches - even if only one, let user confirm
-                print(f"\nFound {len(matches)} matching player(s):")
-                for i, player in enumerate(matches, start=1):
-                    print(f"{i}. {player}")
-
-                print(f"{len(matches) + 1}. Search again")
-
-                try:
-                    choice = int(input(f"Enter your choice (1-{len(matches) + 1}): ").strip())
-
-                    if 1 <= choice <= len(matches):
-                        # Mark selected player as drafted
-                        selected_player = matches[choice - 1]
-                        selected_player.drafted = 1
-                        self.save_players()
-                        print(f"✅ Marked {selected_player.name} as drafted by another team!")
-                        self.logger.info(f"Player {selected_player.name} marked as drafted=1")
-                        # Continue searching for more players
-                        continue
-                    elif choice == len(matches) + 1:
-                        # Search again
-                        continue
-                    else:
-                        print("Invalid choice. Please try again.")
-                        continue
-
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-                    continue
-                except Exception as e:
-                    print(f"Error marking player as drafted: {e}")
-                    print("Returning to Main Menu...")
-                    self.logger.error(f"Error marking player as drafted: {e}")
-                    break
-
-            except Exception as e:
-                print(f"Error during search: {e}")
-                print("Returning to previous menu...")
-                self.logger.error(f"Error during player search: {e}")
-                break
+        return self.player_search.search_and_mark_player_interactive(self.save_players)
 
     def run_trade_analysis_mode(self):
         """Trade Analysis Mode - run trade helper to optimize current roster"""
@@ -845,102 +780,31 @@ class DraftHelper:
 
     def search_and_drop_player(self):
         """Search for player by name and drop from roster (set drafted=0)"""
-        while True:
-            search_term = input("\nEnter player name (or part of name) to search: ").strip()
+        def save_with_roster_update():
+            """Custom save callback that handles team roster updates"""
+            # The player_search module will have already set drafted=0
+            # We need to find any players that were dropped and update team roster
+            current_roster_players = [p for p in self.players if p.drafted == 2]
 
-            if not search_term:
-                print("Please enter a search term.")
-                continue
+            # Rebuild team roster from current drafted=2 players
+            self.team.roster = current_roster_players
 
-            # Check if user wants to exit
-            if search_term.lower() == 'exit':
-                print("Returning to Main Menu...")
-                break
+            # Recalculate position counts
+            self.team.pos_counts = {}
+            for player in current_roster_players:
+                if player.position in self.team.pos_counts:
+                    self.team.pos_counts[player.position] += 1
+                else:
+                    self.team.pos_counts[player.position] = 1
 
-            try:
-                # Find matching players (only drafted != 0, case-insensitive, partial matches)
-                drafted_players = [p for p in self.players if p.drafted != 0]
-                matches = []
+            # Save to file
+            self.save_players()
 
-                search_lower = search_term.lower()
+            # Show updated roster
+            print(f"✓ Player has been dropped and is now available for draft.")
+            self.display_roster_by_draft_order()
 
-                # Search for partial matches in first or last name
-                for player in drafted_players:
-                    name_lower = player.name.lower()
-                    name_words = name_lower.split()
-
-                    # Check if search term matches beginning of first or last name
-                    for word in name_words:
-                        if word.startswith(search_lower):
-                            matches.append(player)
-                            break
-
-                if not matches:
-                    print(f"No drafted players found matching '{search_term}'. Try again or type 'exit' to return to Main Menu.")
-                    continue
-
-                # Display matches
-                print(f"\nFound {len(matches)} player(s) matching '{search_term}':")
-                for i, player in enumerate(matches, 1):
-                    status = "On Your Roster" if player.drafted == 2 else "Drafted by Others"
-                    print(f"{i}. {player.name} ({player.position}, {player.team}) - {status}")
-
-                choice_input = input(f"Select a player to drop (1-{len(matches)}) or 'exit' to return to Main Menu: ").strip()
-
-                if choice_input.lower() == 'exit':
-                    break
-
-                try:
-                    choice = int(choice_input)
-
-                    if 1 <= choice <= len(matches):
-                        # Player selected - confirm drop
-                        selected_player = matches[choice - 1]
-                        status = "your roster" if selected_player.drafted == 2 else "drafted players"
-                        confirm = input(f"Are you sure you want to drop {selected_player.name} from {status}? (y/n): ").strip().lower()
-
-                        if confirm in ['y', 'yes']:
-                            # Drop the player (set drafted=0)
-                            selected_player.drafted = 0
-
-                            # Remove from team roster if they were on our team
-                            if selected_player in self.team.roster:
-                                self.team.roster.remove(selected_player)
-                                # Update position counts
-                                if selected_player.position in self.team.pos_counts:
-                                    self.team.pos_counts[selected_player.position] = max(0,
-                                        self.team.pos_counts[selected_player.position] - 1)
-
-                            # Save changes to CSV
-                            self.save_players()
-                            print(f"✓ {selected_player.name} has been dropped and is now available for draft.")
-
-                            # Show updated roster if they were on our team
-                            self.display_roster_by_draft_order()
-
-                            self.logger.info(f"Player dropped: {selected_player.name} (drafted=0)")
-                            # Continue searching for more players
-                            continue
-                        else:
-                            print("Drop cancelled.")
-                            continue
-
-                    else:
-                        print("Invalid choice. Please enter a valid player number.")
-
-                except ValueError:
-                    print("Invalid input. Please enter a player number or 'exit'.")
-                except Exception as e:
-                    print(f"Error dropping player: {e}")
-                    print("Returning to previous menu...")
-                    self.logger.error(f"Error dropping player: {e}")
-                    break
-
-            except Exception as e:
-                print(f"Error during search: {e}")
-                print("Returning to previous menu...")
-                self.logger.error(f"Error during player search: {e}")
-                break
+        return self.player_search.search_and_drop_player_interactive(save_with_roster_update)
 
     def run_lock_unlock_player_mode(self):
         """Lock/Unlock Player Mode - toggle lock status for roster players"""
