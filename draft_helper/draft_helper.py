@@ -15,11 +15,13 @@ try:
     from .FantasyTeam import FantasyTeam
     from . import draft_helper_constants as Constants
     from .team_data_loader import TeamDataLoader
+    from .core.menu_system import MenuSystem
 except ImportError:
     # Fallback to absolute imports when run directly
     from FantasyTeam import FantasyTeam
     import draft_helper_constants as Constants
     from team_data_loader import TeamDataLoader
+    from core.menu_system import MenuSystem
 
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.enhanced_scoring import EnhancedScoringCalculator
@@ -187,6 +189,9 @@ class DraftHelper:
 
         # Initialize team data loader for offensive/defensive rankings
         self.team_data_loader = TeamDataLoader()
+
+        # Initialize menu system
+        self.menu_system = MenuSystem(self.team, STARTER_HELPER_AVAILABLE, self)
 
         self.logger.info(f"DraftHelper initialized with {len(self.players)} players and team of {len(self.team.roster)} drafted players")
         if self.team_data_loader.is_team_data_available():
@@ -541,95 +546,15 @@ class DraftHelper:
 
     def show_main_menu(self):
         """Display main menu and get user choice"""
-        print("\n" + "="*50)
-        print("MAIN MENU")
-        print("="*50)
-        print(f"Current roster: {len(self.team.roster)} / {Constants.MAX_PLAYERS} players")
-        print("="*50)
-        print("1. Add to Roster")
-        print("2. Mark Drafted Player")
-        print("3. Trade Analysis")
-        print("4. Drop Player")
-        print("5. Lock/Unlock Player")
-        if STARTER_HELPER_AVAILABLE:
-            print("6. Starter Helper")
-            print("7. Quit")
-            max_choice = 7
-        else:
-            print("6. Quit")
-            max_choice = 6
-        print("="*50)
-
-        try:
-            choice = int(input(f"Enter your choice (1-{max_choice}): ").strip())
-            return choice
-        except ValueError:
-            return -1
+        return self.menu_system.show_main_menu()
 
     def display_roster_by_draft_order(self):
         """Display current roster organized by assigned slots in draft order"""
-        print("\nCurrent Roster by Position:")
-        print("-" * 40)
-
-        # Get draft order positions
-        draft_order_positions = ['QB', 'RB', 'WR', 'TE', 'FLEX', 'K', 'DST']
-
-        # Create a map from player ID to player object for quick lookup
-        player_map = {player.id: player for player in self.team.roster}
-
-        # Display each position based on slot assignments
-        for position in draft_order_positions:
-            max_for_position = Constants.MAX_POSITIONS.get(position, 0)
-
-            if max_for_position > 0:
-                # Get players assigned to this slot
-                assigned_player_ids = self.team.slot_assignments.get(position, [])
-                assigned_players = [player_map[pid] for pid in assigned_player_ids if pid in player_map]
-
-                print(f"{position} ({len(assigned_players)}/{max_for_position}):")
-
-                if assigned_players:
-                    # Sort by fantasy points for consistent display
-                    assigned_players.sort(key=lambda p: p.fantasy_points, reverse=True)
-                    for i, player in enumerate(assigned_players, 1):
-                        print(f"  {position}{i}: {player.name} ({player.team}) - {player.fantasy_points:.1f} pts")
-
-                # Fill remaining slots with [Empty]
-                for i in range(len(assigned_players) + 1, max_for_position + 1):
-                    print(f"  {position}{i}: [Empty]")
-
-        print(f"\nTotal roster: {len(self.team.roster)}/{Constants.MAX_PLAYERS} players")
+        return self.menu_system.display_roster_by_draft_order()
 
     def display_roster_by_draft_rounds(self):
         """Display current roster organized by draft round order based on DRAFT_ORDER config"""
-        print("\nCurrent Roster by Draft Round:")
-        print("=" * 50)
-
-        # Create round-to-player mapping using optimal fit strategy
-        round_assignments = self._match_players_to_rounds()
-
-        # Display each round
-        for round_num in range(1, Constants.MAX_PLAYERS + 1):
-            # Get ideal position for this round (0-indexed for DRAFT_ORDER)
-            ideal_position = Constants.get_ideal_draft_position(round_num - 1)
-
-            # Get assigned player for this round
-            assigned_player = round_assignments.get(round_num)
-
-            if assigned_player:
-                # Player assigned - show with position match indicator
-                position_match = "OK" if assigned_player.position == ideal_position or \
-                               (ideal_position == "FLEX" and assigned_player.position in Constants.FLEX_ELIGIBLE_POSITIONS) \
-                               else "!!"
-
-                print(f"Round {round_num:2d} (Ideal: {ideal_position:4s}): {assigned_player.name:20s} "
-                      f"({assigned_player.position}) - {assigned_player.fantasy_points:6.1f} pts {position_match}")
-            else:
-                # No player assigned
-                print(f"Round {round_num:2d} (Ideal: {ideal_position:4s}): {'[Empty]':20s}")
-
-        print("\nLegend: OK = Matches ideal position, !! = Different from ideal")
-        print(f"Total: {len([p for p in round_assignments.values() if p])}/{Constants.MAX_PLAYERS} rounds filled")
+        return self.menu_system.display_roster_by_draft_rounds()
 
     def _match_players_to_rounds(self):
         """
@@ -1292,65 +1217,11 @@ class DraftHelper:
 
     def display_starter_lineup(self, optimal_lineup):
         """Display optimal starting lineup in starter_helper format"""
-        print("\n" + "="*80)
-        print(f"OPTIMAL STARTING LINEUP - WEEK {CURRENT_NFL_WEEK} ({NFL_SCORING_FORMAT.upper()} SCORING)")
-        print("="*80)
-
-        starters = [
-            (optimal_lineup.qb, "QB"),
-            (optimal_lineup.rb1, "RB"),
-            (optimal_lineup.rb2, "RB"),
-            (optimal_lineup.wr1, "WR"),
-            (optimal_lineup.wr2, "WR"),
-            (optimal_lineup.te, "TE"),
-            (optimal_lineup.flex, "FLEX"),
-            (optimal_lineup.k, "K"),
-            (optimal_lineup.dst, "DEF")
-        ]
-
-        for i, (recommendation, pos_label) in enumerate(starters, 1):
-            if recommendation:
-                name_team = f"{recommendation.name} ({recommendation.team})"
-                points_info = f"{recommendation.projected_points:.1f} pts"
-
-                # Add injury status
-                status_info = ""
-                if SHOW_INJURY_STATUS and recommendation.injury_status != "ACTIVE":
-                    status_info = f" [{recommendation.injury_status}]"
-
-                # Matchup info removed - using positional rankings instead
-
-                # Add penalty info
-                penalty_info = ""
-                if SHOW_PROJECTION_DETAILS and recommendation.reason != "No penalties":
-                    penalty_info = f" ({recommendation.reason})"
-
-                print(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{penalty_info}")
-            else:
-                print(f"{i:2d}. {pos_label:4s}: No available player")
-
-        print(f"{'-'*80}")
-        print(f"TOTAL PROJECTED POINTS: {optimal_lineup.total_projected_points:.1f}")
-        print(f"{'-'*80}")
+        return self.menu_system.display_starter_lineup(optimal_lineup)
 
     def display_bench_alternatives(self, bench_recommendations):
         """Display bench alternatives in starter_helper format"""
-        if not bench_recommendations:
-            return
-
-        print(f"\nTOP BENCH ALTERNATIVES:")
-        print(f"{'-'*60}")
-
-        for i, rec in enumerate(bench_recommendations, 1):
-            name_team = f"{rec.name} ({rec.team}) - {rec.position}"
-            points_info = f"{rec.projected_points:.1f} pts"
-
-            # Add injury status
-            status_info = ""
-            if SHOW_INJURY_STATUS and rec.injury_status != "ACTIVE":
-                status_info = f" [{rec.injury_status}]"
-
-            print(f"{i:2d}. {name_team:35s} - {points_info}{status_info}")
+        return self.menu_system.display_bench_alternatives(bench_recommendations)
 
     def generate_starter_output(self, optimal_lineup, bench_recs, roster_df, projections):
         """Generate output content for file saving"""
