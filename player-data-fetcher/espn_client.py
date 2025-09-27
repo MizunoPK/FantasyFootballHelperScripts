@@ -392,7 +392,7 @@ class ESPNClient(BaseAPIClient):
                             # Check for NaN values and treat them as None
                             if math.isnan(points):
                                 continue
-                            if position == 'DST' or points >= 0:  # Allow negative DST, filter negative others
+                            if position == 'DST' or points > 0:  # Allow zero/negative DST, filter zero/negative others
                                 return points
                         except (ValueError, TypeError):
                             continue
@@ -402,7 +402,7 @@ class ESPNClient(BaseAPIClient):
                             # Check for NaN values and treat them as None
                             if math.isnan(points):
                                 continue
-                            if position == 'DST' or points >= 0:  # Allow negative DST, filter negative others
+                            if position == 'DST' or points > 0:  # Allow zero/negative DST, filter zero/negative others
                                 return points
                         except (ValueError, TypeError):
                             continue

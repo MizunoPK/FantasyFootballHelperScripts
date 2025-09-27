@@ -61,11 +61,12 @@ class TestDSTByeWeekHandling:
             ]
         }
 
-        # Test the weekly projections population
-        await self.client._populate_weekly_projections(
-            dst_player, 'dst_test', 'Buffalo Defense', 'DST',
-            all_weeks_data=mock_player_stats
-        )
+        # Mock _get_all_weeks_data to return our test data
+        with patch.object(self.client, '_get_all_weeks_data', return_value=mock_player_stats):
+            # Test the weekly projections population
+            await self.client._populate_weekly_projections(
+                dst_player, 'dst_test', 'Buffalo Defense', 'DST'
+            )
 
         # Verify week 6 and 8 have actual data
         assert dst_player.get_week_points(6) == 8.5
@@ -101,10 +102,11 @@ class TestDSTByeWeekHandling:
             ]
         }
 
-        await self.client._populate_weekly_projections(
-            dst_player, 'dst_test2', 'Poor Defense', 'DST',
-            all_weeks_data=mock_player_stats
-        )
+        # Mock _get_all_weeks_data to return our test data
+        with patch.object(self.client, '_get_all_weeks_data', return_value=mock_player_stats):
+            await self.client._populate_weekly_projections(
+                dst_player, 'dst_test2', 'Poor Defense', 'DST'
+            )
 
         # Verify negative points are preserved for DST
         assert dst_player.get_week_points(5) == -3.5
@@ -142,10 +144,11 @@ class TestDSTByeWeekHandling:
             ]
         }
 
-        await self.client._populate_weekly_projections(
-            qb_player, 'qb_test', 'Test QB', 'QB',
-            all_weeks_data=mock_player_stats
-        )
+        # Mock _get_all_weeks_data to return our test data
+        with patch.object(self.client, '_get_all_weeks_data', return_value=mock_player_stats):
+            await self.client._populate_weekly_projections(
+                qb_player, 'qb_test', 'Test QB', 'QB'
+            )
 
         # Zero and negative points should be filtered for non-DST players
         assert qb_player.get_week_points(5) == 0.0  # Filtered to default
@@ -230,10 +233,10 @@ class TestDSTByeWeekHandling:
         # Mock player data with missing week (bye week)
         mock_player_stats = {'stats': []}  # No stats = bye week
 
-        await self.client._populate_weekly_projections(
-            dst_player, 'dst_logging_test', 'Test Defense', 'DST',
-            all_weeks_data=mock_player_stats
-        )
+        with patch.object(self.client, '_get_all_weeks_data', return_value=mock_player_stats):
+            await self.client._populate_weekly_projections(
+                dst_player, 'dst_logging_test', 'Test Defense', 'DST'
+            )
 
         # Verify logging was called for bye week
         self.client.logger.debug.assert_called()
@@ -270,10 +273,10 @@ class TestDSTByeWeekHandling:
             ]
         }
 
-        await self.client._populate_weekly_projections(
-            dst_player, 'dst_multi_test', 'Multi Bye Defense', 'DST',
-            all_weeks_data=mock_player_stats
-        )
+        with patch.object(self.client, '_get_all_weeks_data', return_value=mock_player_stats):
+            await self.client._populate_weekly_projections(
+                dst_player, 'dst_multi_test', 'Multi Bye Defense', 'DST'
+            )
 
         # Verify actual data is preserved
         assert dst_player.get_week_points(1) == 15.0

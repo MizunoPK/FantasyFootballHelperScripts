@@ -34,6 +34,7 @@ class StartingRecommendation:
     bye_week: int
     adjusted_score: float
     reason: str = ""
+    matchup_indicator: str = ""  # For matchup analysis display (^, o, v, or empty)
 
 
 @dataclass

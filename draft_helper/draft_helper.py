@@ -11,11 +11,18 @@ from io import StringIO
 parent_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(parent_dir))
 
-from FantasyTeam import FantasyTeam
-import draft_helper_constants as Constants
+try:
+    from .FantasyTeam import FantasyTeam
+    from . import draft_helper_constants as Constants
+    from .team_data_loader import TeamDataLoader
+except ImportError:
+    # Fallback to absolute imports when run directly
+    from FantasyTeam import FantasyTeam
+    import draft_helper_constants as Constants
+    from team_data_loader import TeamDataLoader
+
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.enhanced_scoring import EnhancedScoringCalculator
-from team_data_loader import TeamDataLoader
 
 # Import starter helper components
 sys.path.append(str(parent_dir / 'starter_helper'))
@@ -294,26 +301,31 @@ class DraftHelper:
 
         # Apply enhanced scoring if new data is available
         if hasattr(p, 'average_draft_position') or hasattr(p, 'player_rating'):
+            try:
+                # Get team rankings from team data loader
+                team_offensive_rank = self.team_data_loader.get_team_offensive_rank(p.team)
+                team_defensive_rank = self.team_data_loader.get_team_defensive_rank(p.team)
 
-            # Get team rankings from team data loader
-            team_offensive_rank = self.team_data_loader.get_team_offensive_rank(p.team)
-            team_defensive_rank = self.team_data_loader.get_team_defensive_rank(p.team)
+                enhanced_result = self.enhanced_scorer.calculate_enhanced_score(
+                    base_fantasy_points=base_score,
+                    position=p.position,
+                    adp=getattr(p, 'average_draft_position', None),
+                    player_rating=getattr(p, 'player_rating', None),
+                    team_offensive_rank=team_offensive_rank,
+                    team_defensive_rank=team_defensive_rank
+                )
 
-            enhanced_result = self.enhanced_scorer.calculate_enhanced_score(
-                base_fantasy_points=base_score,
-                position=p.position,
-                adp=getattr(p, 'average_draft_position', None),
-                player_rating=getattr(p, 'player_rating', None),
-                team_offensive_rank=team_offensive_rank,
-                team_defensive_rank=team_defensive_rank
-            )
+                projection_score = enhanced_result['enhanced_score']
 
-            projection_score = enhanced_result['enhanced_score']
+                # Log enhancement details if significant adjustment was made
+                if enhanced_result['total_multiplier'] != 1.0:
+                    adjustment_summary = self.enhanced_scorer.get_adjustment_summary(enhanced_result)
+                    self.logger.info(f"Enhanced scoring for {p.name}: {base_score:.1f} -> {projection_score:.1f} ({adjustment_summary})")
 
-            # Log enhancement details if significant adjustment was made
-            if enhanced_result['total_multiplier'] != 1.0:
-                adjustment_summary = self.enhanced_scorer.get_adjustment_summary(enhanced_result)
-                self.logger.info(f"Enhanced scoring for {p.name}: {base_score:.1f} -> {projection_score:.1f} ({adjustment_summary})")
+            except Exception as e:
+                # Enhanced scoring failed, fall back to basic scoring
+                self.logger.warning(f"Enhanced scoring failed for {p.name}: {e}. Using fallback scoring.")
+                projection_score = p.weighted_projection if p.weighted_projection else base_score
 
         else:
             # Fallback to weighted projection or fantasy points

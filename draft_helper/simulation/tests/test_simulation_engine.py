@@ -100,7 +100,7 @@ class TestDraftSimulationEngine(unittest.TestCase):
         expected_round2 = list(range(9, -1, -1))
         self.assertEqual(round2_order, expected_round2)
 
-    @patch('draft_helper.simulation.simulation_engine.TeamStrategyManager')
+    @patch('draft_helper.simulation.team_strategies.TeamStrategyManager')
     def test_make_team_pick(self, mock_strategy_manager_class):
         """Test making a team pick"""
         # Setup mock
@@ -119,7 +119,7 @@ class TestDraftSimulationEngine(unittest.TestCase):
 
     def test_draft_pick_dataclass(self):
         """Test DraftPick dataclass"""
-        player = FantasyPlayer("Test Player", "QB", "Team1")
+        player = FantasyPlayer(id="test1", name="Test Player", team="Team1", position="QB")
         pick = DraftPick(
             round_num=1,
             pick_num=1,
@@ -155,10 +155,12 @@ class TestDraftSimulationEngine(unittest.TestCase):
         """Test getting team by index"""
         engine = DraftSimulationEngine(self.sample_players_df, self.config_params)
 
-        # Valid index
+        # Valid index - after shuffle, team at list index 0 might have any team_index
         team = engine.get_team_by_index(0)
         self.assertIsNotNone(team)
-        self.assertEqual(team.team_index, 0)
+        self.assertIsInstance(team.team_index, int)
+        self.assertGreaterEqual(team.team_index, 0)
+        self.assertLess(team.team_index, 10)
 
         # Invalid index
         team = engine.get_team_by_index(15)
@@ -173,7 +175,7 @@ class TestDraftPickAndTeamDataClasses(unittest.TestCase):
 
     def test_draft_pick_creation(self):
         """Test creating DraftPick objects"""
-        player = FantasyPlayer("Test Player", "RB", "Team1")
+        player = FantasyPlayer(id="test2", name="Test Player", team="Team1", position="RB")
         pick = DraftPick(1, 5, 2, player, "aggressive")
 
         self.assertEqual(pick.round_num, 1)

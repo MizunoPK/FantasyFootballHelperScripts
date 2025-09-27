@@ -17,7 +17,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 # Import from local simulation config
-from config import SIMULATIONS_PER_CONFIG, PRELIMINARY_SIMULATIONS_PER_CONFIG, MAX_PARALLEL_THREADS
+from .config import SIMULATIONS_PER_CONFIG, PRELIMINARY_SIMULATIONS_PER_CONFIG, MAX_PARALLEL_THREADS
 
 @dataclass
 class SimulationTask:

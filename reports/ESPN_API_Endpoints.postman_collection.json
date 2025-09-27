@@ -1,0 +1,830 @@
+{
+  "info": {
+    "name": "ESPN Fantasy Football API Collection",
+    "description": "Comprehensive collection of ESPN API endpoints used by Fantasy Football Helper Scripts",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "season",
+      "value": "2025",
+      "description": "NFL Season Year"
+    },
+    {
+      "key": "current_week",
+      "value": "5",
+      "description": "Current NFL Week (1-18)"
+    },
+    {
+      "key": "player_id",
+      "value": "4046",
+      "description": "ESPN Player ID (example: Mahomes)"
+    },
+    {
+      "key": "team_id",
+      "value": "12",
+      "description": "ESPN Team ID (example: Kansas City Chiefs)"
+    },
+    {
+      "key": "ppr_id",
+      "value": "3",
+      "description": "Scoring Format (1=Standard, 2=Half-PPR, 3=PPR)"
+    }
+  ],
+  "item": [
+    {
+      "name": "Fantasy Football APIs",
+      "description": "ESPN Fantasy Football API endpoints for player projections and data",
+      "item": [
+        {
+          "name": "Season Projections - All Players",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              },
+              {
+                "key": "X-Fantasy-Filter",
+                "value": "{\"players\":{\"limit\":2000,\"sortPercOwned\":{\"sortPriority\":4,\"sortAsc\":false}}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{{season}}/segments/0/leaguedefaults/{{ppr_id}}?view=kona_player_info&scoringPeriodId=0",
+              "protocol": "https",
+              "host": [
+                "lm-api-reads",
+                "fantasy",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "v3",
+                "games",
+                "ffl",
+                "seasons",
+                "{{season}}",
+                "segments",
+                "0",
+                "leaguedefaults",
+                "{{ppr_id}}"
+              ],
+              "query": [
+                {
+                  "key": "view",
+                  "value": "kona_player_info"
+                },
+                {
+                  "key": "scoringPeriodId",
+                  "value": "0",
+                  "description": "0 = season projections"
+                }
+              ]
+            },
+            "description": "Gets season-long fantasy projections for all players (up to 2000). This is the main endpoint for bulk player data collection."
+          }
+        },
+        {
+          "name": "Weekly Data - Specific Player (All Weeks)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              },
+              {
+                "key": "X-Fantasy-Filter",
+                "value": "{\"players\":{\"filterIds\":{\"value\":[{{player_id}}]}}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{{season}}/segments/0/leaguedefaults/3?view=kona_player_info&scoringPeriodId=0",
+              "protocol": "https",
+              "host": [
+                "lm-api-reads",
+                "fantasy",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "v3",
+                "games",
+                "ffl",
+                "seasons",
+                "{{season}}",
+                "segments",
+                "0",
+                "leaguedefaults",
+                "3"
+              ],
+              "query": [
+                {
+                  "key": "view",
+                  "value": "kona_player_info"
+                },
+                {
+                  "key": "scoringPeriodId",
+                  "value": "0",
+                  "description": "0 = all available weekly data"
+                }
+              ]
+            },
+            "description": "Gets all weekly data for a specific player in one optimized call. This is the core of the 16x performance improvement."
+          }
+        },
+        {
+          "name": "Specific Week Projection - Single Player",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              },
+              {
+                "key": "X-Fantasy-Filter",
+                "value": "{\"players\":{\"filterIds\":{\"value\":[{{player_id}}]}}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{{season}}/segments/0/leaguedefaults/3?view=kona_player_info&scoringPeriodId={{current_week}}",
+              "protocol": "https",
+              "host": [
+                "lm-api-reads",
+                "fantasy",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "v3",
+                "games",
+                "ffl",
+                "seasons",
+                "{{season}}",
+                "segments",
+                "0",
+                "leaguedefaults",
+                "3"
+              ],
+              "query": [
+                {
+                  "key": "view",
+                  "value": "kona_player_info"
+                },
+                {
+                  "key": "scoringPeriodId",
+                  "value": "{{current_week}}",
+                  "description": "Specific week number (1-17)"
+                }
+              ]
+            },
+            "description": "Gets projection or actual performance data for a specific player and week. Used for current week analysis."
+          }
+        },
+        {
+          "name": "Past Week Actual Performance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              },
+              {
+                "key": "X-Fantasy-Filter",
+                "value": "{\"players\":{\"filterIds\":{\"value\":[{{player_id}}]}}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{{season}}/segments/0/leaguedefaults/3?view=kona_player_info&scoringPeriodId=4",
+              "protocol": "https",
+              "host": [
+                "lm-api-reads",
+                "fantasy",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "v3",
+                "games",
+                "ffl",
+                "seasons",
+                "{{season}}",
+                "segments",
+                "0",
+                "leaguedefaults",
+                "3"
+              ],
+              "query": [
+                {
+                  "key": "view",
+                  "value": "kona_player_info"
+                },
+                {
+                  "key": "scoringPeriodId",
+                  "value": "4",
+                  "description": "Past week for actual performance"
+                }
+              ]
+            },
+            "description": "Gets actual performance data for a past week. Used for historical analysis and validation."
+          }
+        }
+      ]
+    },
+    {
+      "name": "NFL Team Data APIs",
+      "description": "ESPN NFL API endpoints for team data, statistics, and schedules",
+      "item": [
+        {
+          "name": "All NFL Teams List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams",
+              "protocol": "https",
+              "host": [
+                "site",
+                "api",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "site",
+                "v2",
+                "sports",
+                "football",
+                "nfl",
+                "teams"
+              ]
+            },
+            "description": "Gets list of all NFL teams with basic information. Used for team rankings calculation."
+          }
+        },
+        {
+          "name": "Team Statistics - Specific Team",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{{team_id}}/statistics",
+              "protocol": "https",
+              "host": [
+                "site",
+                "api",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "site",
+                "v2",
+                "sports",
+                "football",
+                "nfl",
+                "teams",
+                "{{team_id}}",
+                "statistics"
+              ]
+            },
+            "description": "Gets detailed statistics for a specific NFL team. Used for offensive/defensive rankings calculation."
+          }
+        },
+        {
+          "name": "Current Week Schedule",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week={{current_week}}&dates={{season}}",
+              "protocol": "https",
+              "host": [
+                "site",
+                "api",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "site",
+                "v2",
+                "sports",
+                "football",
+                "nfl",
+                "scoreboard"
+              ],
+              "query": [
+                {
+                  "key": "seasontype",
+                  "value": "2",
+                  "description": "2 = regular season"
+                },
+                {
+                  "key": "week",
+                  "value": "{{current_week}}"
+                },
+                {
+                  "key": "dates",
+                  "value": "{{season}}"
+                }
+              ]
+            },
+            "description": "Gets current week's game schedule to determine opponent matchups for fantasy analysis."
+          }
+        }
+      ]
+    },
+    {
+      "name": "NFL Scoreboard APIs",
+      "description": "ESPN NFL scoreboard endpoints for game scores and results",
+      "item": [
+        {
+          "name": "Current Week Scoreboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
+              "protocol": "https",
+              "host": [
+                "site",
+                "api",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "site",
+                "v2",
+                "sports",
+                "football",
+                "nfl",
+                "scoreboard"
+              ]
+            },
+            "description": "Gets current week's game scores and status automatically."
+          }
+        },
+        {
+          "name": "Specific Week Scoreboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week={{current_week}}&dates={{season}}",
+              "protocol": "https",
+              "host": [
+                "site",
+                "api",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "site",
+                "v2",
+                "sports",
+                "football",
+                "nfl",
+                "scoreboard"
+              ],
+              "query": [
+                {
+                  "key": "seasontype",
+                  "value": "2",
+                  "description": "2 = regular season"
+                },
+                {
+                  "key": "week",
+                  "value": "{{current_week}}"
+                },
+                {
+                  "key": "dates",
+                  "value": "{{season}}"
+                }
+              ]
+            },
+            "description": "Gets scores and details for a specific week."
+          }
+        },
+        {
+          "name": "Recent Completed Games (Date Range)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20250901-20250908&limit=1000",
+              "protocol": "https",
+              "host": [
+                "site",
+                "api",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "site",
+                "v2",
+                "sports",
+                "football",
+                "nfl",
+                "scoreboard"
+              ],
+              "query": [
+                {
+                  "key": "dates",
+                  "value": "20250901-20250908",
+                  "description": "Date range in YYYYMMDD-YYYYMMDD format"
+                },
+                {
+                  "key": "limit",
+                  "value": "1000",
+                  "description": "High limit to get all games"
+                }
+              ]
+            },
+            "description": "Gets completed games from a specific date range for historical analysis."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test Requests",
+      "description": "Sample requests with actual player IDs for testing. First run 'Get All Players' to find current player IDs.",
+      "item": [
+        {
+          "name": "Get All Players (Find Player IDs)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              },
+              {
+                "key": "X-Fantasy-Filter",
+                "value": "{\"players\":{\"limit\":50,\"sortPercOwned\":{\"sortPriority\":4,\"sortAsc\":false}}}",
+                "type": "text",
+                "description": "Limited to top 50 players for easier browsing"
+              }
+            ],
+            "url": {
+              "raw": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{{season}}/segments/0/leaguedefaults/{{ppr_id}}?view=kona_player_info&scoringPeriodId=0",
+              "protocol": "https",
+              "host": [
+                "lm-api-reads",
+                "fantasy",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "v3",
+                "games",
+                "ffl",
+                "seasons",
+                "{{season}}",
+                "segments",
+                "0",
+                "leaguedefaults",
+                "{{ppr_id}}"
+              ],
+              "query": [
+                {
+                  "key": "view",
+                  "value": "kona_player_info"
+                },
+                {
+                  "key": "scoringPeriodId",
+                  "value": "0",
+                  "description": "0 = season projections"
+                }
+              ]
+            },
+            "description": "First run this to find current player IDs. Look for 'id' field in player objects. Use these IDs in other test requests."
+          }
+        },
+        {
+          "name": "Patrick Mahomes - All Weekly Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              },
+              {
+                "key": "X-Fantasy-Filter",
+                "value": "{\"players\":{\"filterIds\":{\"value\":[{{player_id}}]}}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2025/segments/0/leaguedefaults/3?view=kona_player_info&scoringPeriodId=0",
+              "protocol": "https",
+              "host": [
+                "lm-api-reads",
+                "fantasy",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "v3",
+                "games",
+                "ffl",
+                "seasons",
+                "2025",
+                "segments",
+                "0",
+                "leaguedefaults",
+                "3"
+              ],
+              "query": [
+                {
+                  "key": "view",
+                  "value": "kona_player_info"
+                },
+                {
+                  "key": "scoringPeriodId",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Test request for Patrick Mahomes (ESPN ID: 4046) to get all weekly fantasy data."
+          }
+        },
+        {
+          "name": "Christian McCaffrey - Current Week",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              },
+              {
+                "key": "X-Fantasy-Filter",
+                "value": "{\"players\":{\"filterIds\":{\"value\":[3916]}}}",
+                "type": "text",
+                "description": "McCaffrey ID - update this if needed"
+              }
+            ],
+            "url": {
+              "raw": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2025/segments/0/leaguedefaults/3?view=kona_player_info&scoringPeriodId=5",
+              "protocol": "https",
+              "host": [
+                "lm-api-reads",
+                "fantasy",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "v3",
+                "games",
+                "ffl",
+                "seasons",
+                "2025",
+                "segments",
+                "0",
+                "leaguedefaults",
+                "3"
+              ],
+              "query": [
+                {
+                  "key": "view",
+                  "value": "kona_player_info"
+                },
+                {
+                  "key": "scoringPeriodId",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Test request for Christian McCaffrey (ESPN ID: 3916) current week projection."
+          }
+        },
+        {
+          "name": "Historical Projection vs Actual Analysis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              },
+              {
+                "key": "X-Fantasy-Filter",
+                "value": "{\"players\":{\"filterIds\":{\"value\":[{{player_id}}]}}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2024/segments/0/leaguedefaults/3?view=kona_player_info&scoringPeriodId=0",
+              "protocol": "https",
+              "host": [
+                "lm-api-reads",
+                "fantasy",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "v3",
+                "games",
+                "ffl",
+                "seasons",
+                "2024",
+                "segments",
+                "0",
+                "leaguedefaults",
+                "3"
+              ],
+              "query": [
+                {
+                  "key": "view",
+                  "value": "kona_player_info"
+                },
+                {
+                  "key": "scoringPeriodId",
+                  "value": "0",
+                  "description": "0 = all weeks for 2024 season"
+                }
+              ]
+            },
+            "description": "Gets ALL weekly data for 2024 season (completed). Look for statSourceId: 1=projected, 0=actual. Compare projectedTotal vs appliedTotal for each week."
+          }
+        },
+        {
+          "name": "Specific Past Week - Projection vs Actual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              },
+              {
+                "key": "X-Fantasy-Filter",
+                "value": "{\"players\":{\"filterIds\":{\"value\":[{{player_id}}]}}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2024/segments/0/leaguedefaults/3?view=kona_player_info&scoringPeriodId=10",
+              "protocol": "https",
+              "host": [
+                "lm-api-reads",
+                "fantasy",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "v3",
+                "games",
+                "ffl",
+                "seasons",
+                "2024",
+                "segments",
+                "0",
+                "leaguedefaults",
+                "3"
+              ],
+              "query": [
+                {
+                  "key": "view",
+                  "value": "kona_player_info"
+                },
+                {
+                  "key": "scoringPeriodId",
+                  "value": "10",
+                  "description": "Week 10 of 2024 season (completed game)"
+                }
+              ]
+            },
+            "description": "Gets data for a specific past week (Week 10, 2024). You should see both statSourceId=1 (projected) and statSourceId=0 (actual) entries for the same week."
+          }
+        },
+        {
+          "name": "Kansas City Chiefs - Team Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12/statistics",
+              "protocol": "https",
+              "host": [
+                "site",
+                "api",
+                "espn",
+                "com"
+              ],
+              "path": [
+                "apis",
+                "site",
+                "v2",
+                "sports",
+                "football",
+                "nfl",
+                "teams",
+                "12",
+                "statistics"
+              ]
+            },
+            "description": "Test request for Kansas City Chiefs (Team ID: 12) statistics."
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set current date variables for testing",
+          "const now = new Date();",
+          "const currentYear = now.getFullYear();",
+          "const currentDate = now.toISOString().slice(0, 10).replace(/-/g, '');",
+          "",
+          "// Calculate date range for recent games (last 7 days)",
+          "const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);",
+          "const weekAgoDate = weekAgo.toISOString().slice(0, 10).replace(/-/g, '');",
+          "",
+          "pm.collectionVariables.set('current_date', currentDate);",
+          "pm.collectionVariables.set('week_ago_date', weekAgoDate);",
+          "",
+          "console.log('Current date:', currentDate);",
+          "console.log('Week ago date:', weekAgoDate);"
+        ]
+      }
+    }
+  ]
+}

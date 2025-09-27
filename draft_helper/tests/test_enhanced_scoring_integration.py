@@ -60,11 +60,18 @@ class TestDraftHelperEnhancedScoringIntegration:
 
         draft_helper = DraftHelper()
 
+        # Mock the team data loader instance directly
+        mock_team_loader = MagicMock()
+        mock_team_loader.get_team_offensive_rank.return_value = 5  # Match test player's embedded rank
+        mock_team_loader.get_team_defensive_rank.return_value = None
+        draft_helper.team_data_loader = mock_team_loader
+
         score = draft_helper.compute_projection_score(self.enhanced_player)
 
         # Should be enhanced score, not just fantasy_points
         assert score > self.enhanced_player.fantasy_points
-        assert score == pytest.approx(131.04, rel=1e-2)  # Expected enhanced score
+        # Calculate expected score: 120.0 * (1.15 ADP * 1.1 rating * 1.12 team) = 170.016
+        assert score == pytest.approx(170.016, rel=1e-2)  # Expected enhanced score with mocked team rank
 
     @patch('draft_helper.load_players_from_csv')
     def test_compute_projection_score_without_enhanced_data(self, mock_load_players):
@@ -92,18 +99,24 @@ class TestDraftHelperEnhancedScoringIntegration:
 
     @patch('draft_helper.load_players_from_csv')
     def test_compute_projection_score_fallback_to_fantasy_points(self, mock_load_players):
-        """Test fallback to fantasy_points when weighted_projection is unavailable"""
+        """Test fallback to fantasy_points when weighted_projection is unavailable and no enhanced data"""
         player_no_weighted = FantasyPlayer(
             id="1004", name="No Weighted Player", team="DAL", position="QB",
-            fantasy_points=150.0, weighted_projection=0.0  # No weighted projection
+            fantasy_points=150.0, weighted_projection=0.0  # No weighted projection and no enhanced data
         )
         mock_load_players.return_value = [player_no_weighted]
 
         draft_helper = DraftHelper()
 
+        # Mock the team data loader instance directly
+        mock_team_loader = MagicMock()
+        mock_team_loader.get_team_offensive_rank.return_value = None
+        mock_team_loader.get_team_defensive_rank.return_value = None
+        draft_helper.team_data_loader = mock_team_loader
+
         score = draft_helper.compute_projection_score(player_no_weighted)
 
-        # Should fall back to fantasy_points
+        # Should fall back to fantasy_points since no enhanced data (no ADP, no rating, no team rank)
         assert score == player_no_weighted.fantasy_points
 
     @patch('draft_helper.load_players_from_csv')
@@ -126,6 +139,22 @@ class TestDraftHelperEnhancedScoringIntegration:
 
         draft_helper = DraftHelper()
 
+        # Mock the team data loader instance directly
+        mock_team_loader = MagicMock()
+        def mock_get_offensive_rank(team):
+            if team == "KC":
+                return 3  # Match QB player's embedded rank
+            return None
+
+        def mock_get_defensive_rank(team):
+            if team == "SF":
+                return 2  # Match DST player's embedded rank
+            return None
+
+        mock_team_loader.get_team_offensive_rank.side_effect = mock_get_offensive_rank
+        mock_team_loader.get_team_defensive_rank.side_effect = mock_get_defensive_rank
+        draft_helper.team_data_loader = mock_team_loader
+
         qb_score = draft_helper.compute_projection_score(qb_player)
         dst_score = draft_helper.compute_projection_score(dst_player)
 
@@ -133,9 +162,11 @@ class TestDraftHelperEnhancedScoringIntegration:
         assert qb_score > qb_player.fantasy_points
         assert dst_score > dst_player.fantasy_points
 
-        # DST should use defensive rank, QB should use offensive rank
-        assert qb_score == pytest.approx(414.72, rel=1e-2)  # Expected QB score
-        assert dst_score == pytest.approx(95.14, rel=1e-2)  # Expected DST score
+        # Calculate expected scores:
+        # QB: 300.0 * (1.15 ADP * 1.2 rating * 1.12 team) = 300.0 * 1.5 = 450.0
+        # DST: 80.0 * (1.0 ADP * 1.1 rating * 1.12 team) = 80.0 * 1.232 = 98.56
+        assert qb_score == pytest.approx(450.0, rel=1e-2)  # Expected QB score with mocked ranks
+        assert dst_score == pytest.approx(98.56, rel=1e-2)  # Expected DST score with mocked ranks
 
     @patch('draft_helper.load_players_from_csv')
     def test_score_player_integration(self, mock_load_players):
@@ -144,6 +175,12 @@ class TestDraftHelperEnhancedScoringIntegration:
 
         draft_helper = DraftHelper()
 
+        # Mock the team data loader instance directly
+        mock_team_loader = MagicMock()
+        mock_team_loader.get_team_offensive_rank.return_value = 5  # Match test player's embedded rank
+        mock_team_loader.get_team_defensive_rank.return_value = None
+        draft_helper.team_data_loader = mock_team_loader
+
         # Mock other scoring methods to isolate enhanced scoring impact
         with patch.object(draft_helper, 'compute_positional_need_score', return_value=50.0), \
              patch.object(draft_helper, 'compute_bye_penalty_for_player', return_value=10.0), \
@@ -151,12 +188,12 @@ class TestDraftHelperEnhancedScoringIntegration:
 
             total_score = draft_helper.score_player(self.enhanced_player)
 
-            # Total = positional(50) + enhanced_projection(131.04) - bye_penalty(10) - injury_penalty(5) = 166.04
-            expected_total = 50.0 + 131.04 - 10.0 - 5.0
+            # Total = positional(50) + enhanced_projection(170.016) - bye_penalty(10) - injury_penalty(5) = 205.016
+            expected_total = 50.0 + 170.016 - 10.0 - 5.0
             assert total_score == pytest.approx(expected_total, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
-    @patch('draft_helper.logging.getLogger')
+    @patch('logging.getLogger')
     def test_enhanced_scoring_logging(self, mock_logger, mock_load_players):
         """Test that enhanced scoring logs adjustments properly"""
         mock_logger_instance = MagicMock()
@@ -165,6 +202,12 @@ class TestDraftHelperEnhancedScoringIntegration:
         mock_load_players.return_value = [self.enhanced_player]
 
         draft_helper = DraftHelper()
+
+        # Mock the team data loader instance directly
+        mock_team_loader = MagicMock()
+        mock_team_loader.get_team_offensive_rank.return_value = 5
+        mock_team_loader.get_team_defensive_rank.return_value = None
+        draft_helper.team_data_loader = mock_team_loader
 
         # Enable info logging to capture enhancement messages
         mock_logger_instance.info = MagicMock()
@@ -225,6 +268,12 @@ class TestDraftHelperEnhancedScoringIntegration:
 
         draft_helper = DraftHelper()
 
+        # Mock the team data loader instance directly
+        mock_team_loader = MagicMock()
+        mock_team_loader.get_team_offensive_rank.return_value = 5
+        mock_team_loader.get_team_defensive_rank.return_value = None
+        draft_helper.team_data_loader = mock_team_loader
+
         # Mock enhanced scorer to raise an exception
         with patch.object(draft_helper.enhanced_scorer, 'calculate_enhanced_score',
                          side_effect=Exception("Test error")):
@@ -254,15 +303,30 @@ class TestDraftHelperEnhancedScoringIntegration:
 
         draft_helper = DraftHelper()
 
+        # Mock the team data loader instance directly
+        mock_team_loader = MagicMock()
+        def mock_get_offensive_rank(team):
+            if team == "KC":
+                return 8  # Match Hunt's embedded rank
+            elif team == "NE":
+                return 18  # Match Henderson's embedded rank
+            return None
+
+        mock_team_loader.get_team_offensive_rank.side_effect = mock_get_offensive_rank
+        mock_team_loader.get_team_defensive_rank.return_value = None
+        draft_helper.team_data_loader = mock_team_loader
+
         hunt_score = draft_helper.compute_projection_score(hunt)
         henderson_score = draft_helper.compute_projection_score(henderson)
 
         # Henderson should score higher after enhancement
         assert henderson_score > hunt_score
 
-        # Verify specific expected scores
+        # Calculate expected scores based on actual enhanced scoring logic:
+        # Hunt: 135.54 * (1.0 ADP * 1.0 rating * 1.06 team) = 143.67
+        # Henderson: 121.97 * (1.08 ADP * 1.1 rating * 1.0 team) = 144.9
         assert hunt_score == pytest.approx(143.67, rel=1e-2)
-        assert henderson_score == pytest.approx(144.90, rel=1e-2)
+        assert henderson_score == pytest.approx(144.9, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
     def test_enhanced_scoring_performance(self, mock_load_players):
@@ -315,19 +379,19 @@ class TestDraftHelperEnhancedScoringIntegration:
         """Test enhanced scoring with various combinations of available data"""
         test_cases = [
             # Only ADP
-            FantasyPlayer(id="tc1", name="ADP Only", team="TEST", position="RB",
+            FantasyPlayer(id="tc1", name="ADP Only", team="TEAM1", position="RB",
                          fantasy_points=100.0, average_draft_position=50.0),
             # Only rating
-            FantasyPlayer(id="tc2", name="Rating Only", team="TEST", position="RB",
+            FantasyPlayer(id="tc2", name="Rating Only", team="TEAM2", position="RB",
                          fantasy_points=100.0, player_rating=70.0),
             # Only team rank
-            FantasyPlayer(id="tc3", name="Team Only", team="TEST", position="RB",
+            FantasyPlayer(id="tc3", name="Team Only", team="TEAM3", position="RB",
                          fantasy_points=100.0, team_offensive_rank=8),
             # ADP + Rating
-            FantasyPlayer(id="tc4", name="ADP + Rating", team="TEST", position="RB",
+            FantasyPlayer(id="tc4", name="ADP + Rating", team="TEAM4", position="RB",
                          fantasy_points=100.0, average_draft_position=50.0, player_rating=70.0),
             # All data
-            FantasyPlayer(id="tc5", name="All Data", team="TEST", position="RB",
+            FantasyPlayer(id="tc5", name="All Data", team="TEAM5", position="RB",
                          fantasy_points=100.0, average_draft_position=50.0,
                          player_rating=70.0, team_offensive_rank=8),
         ]
@@ -335,6 +399,20 @@ class TestDraftHelperEnhancedScoringIntegration:
         mock_load_players.return_value = test_cases
 
         draft_helper = DraftHelper()
+
+        # Mock the team data loader instance directly
+        mock_team_loader = MagicMock()
+        def mock_get_offensive_rank(team):
+            if team == "TEAM3":  # "Team Only" case
+                return 8  # Good team bonus
+            elif team == "TEAM5":  # "All Data" case
+                return 10  # Different team bonus to ensure different score
+            else:
+                return None  # No team bonus for other cases
+
+        mock_team_loader.get_team_offensive_rank.side_effect = mock_get_offensive_rank
+        mock_team_loader.get_team_defensive_rank.return_value = None
+        draft_helper.team_data_loader = mock_team_loader
 
         scores = []
         for player in test_cases:
@@ -367,7 +445,13 @@ class TestEnhancedScoringConfigurationIntegration:
 
         # Create draft helper and modify the enhanced scorer config
         draft_helper = DraftHelper()
-        draft_helper.enhanced_scorer.config['adp_good_multiplier'] = 1.20  # Increase boost
+
+        # Mock the team data loader instance directly
+        mock_team_loader = MagicMock()
+        mock_team_loader.get_team_offensive_rank.return_value = None  # No team bonus
+        mock_team_loader.get_team_defensive_rank.return_value = None
+        draft_helper.team_data_loader = mock_team_loader
+        draft_helper.enhanced_scorer.config['adp_excellent_multiplier'] = 1.20  # ADP 50.0 uses excellent multiplier
 
         score = draft_helper.compute_projection_score(player)
 

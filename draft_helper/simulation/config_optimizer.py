@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass
 import copy
 
-from config import PARAMETER_RANGES, TOP_CONFIGS_PERCENTAGE
+from .config import PARAMETER_RANGES, TOP_CONFIGS_PERCENTAGE
 
 @dataclass
 class ConfigResult:

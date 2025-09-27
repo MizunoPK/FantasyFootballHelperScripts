@@ -21,9 +21,20 @@ PARAMETER_RANGES = {
 
     # Enhanced scoring parameters - Key multipliers for comprehensive testing
     'ADP_EXCELLENT_MULTIPLIER': [1.10, 1.15, 1.20],        # ADP boost range
-    'ADP_POOR_MULTIPLIER': [0.90, 0.95],                    # ADP penalty range
+    'ADP_GOOD_MULTIPLIER': [1.05, 1.08, 1.10],             # ADP good range
+    'ADP_POOR_MULTIPLIER': [0.85, 0.90, 0.95],              # ADP penalty range
     'PLAYER_RATING_EXCELLENT_MULTIPLIER': [1.15, 1.20, 1.25],  # Player rating boost
-    'PLAYER_RATING_POOR_MULTIPLIER': [0.90, 0.95],             # Player rating penalty
+    'PLAYER_RATING_GOOD_MULTIPLIER': [1.08, 1.10, 1.12],      # Player rating good
+    'PLAYER_RATING_POOR_MULTIPLIER': [0.85, 0.90, 0.95],      # Player rating penalty
+
+    # Team performance multipliers
+    'TEAM_EXCELLENT_MULTIPLIER': [1.10, 1.12, 1.15],          # Team excellent performance
+    'TEAM_GOOD_MULTIPLIER': [1.04, 1.06, 1.08],               # Team good performance
+    'TEAM_POOR_MULTIPLIER': [0.92, 0.94, 0.96],               # Team poor performance
+
+    # Adjustment caps
+    'MAX_TOTAL_ADJUSTMENT': [1.45, 1.50, 1.55],               # Maximum total adjustment
+    'MIN_TOTAL_ADJUSTMENT': [0.65, 0.70, 0.75],               # Minimum total adjustment
 
     # Total: 3^6 * 3 * 2 * 3 * 2 = 729 * 3 * 2 * 3 * 2 = 26,244 configurations
     # This provides meaningful analysis while remaining computationally feasible

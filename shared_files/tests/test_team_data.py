@@ -252,15 +252,15 @@ class TestExtractTeamsFromPlayers:
         assert teams[1].team == 'KC'
         assert teams[2].team == 'PHI'
 
-        # Check team data extraction
+        # Check team data extraction - extract_teams_from_players no longer extracts ranking data
         phi_team = teams[2]  # PHI is last alphabetically
-        assert phi_team.offensive_rank == 8
-        assert phi_team.defensive_rank == 17
+        assert phi_team.offensive_rank is None  # Rankings no longer extracted from players
+        assert phi_team.defensive_rank is None  # Rankings no longer extracted from players
         assert phi_team.opponent is None  # Not populated by extraction
 
         kc_team = teams[1]  # KC is second
-        assert kc_team.offensive_rank == 1
-        assert kc_team.defensive_rank == 5
+        assert kc_team.offensive_rank is None  # Rankings no longer extracted from players
+        assert kc_team.defensive_rank is None  # Rankings no longer extracted from players
 
     def test_extract_teams_missing_attributes(self):
         """Test extraction when players don't have team ranking attributes."""
@@ -309,7 +309,8 @@ class TestExtractTeamsFromPlayers:
         # Should only get one PHI team entry
         assert len(teams) == 1
         assert teams[0].team == 'PHI'
-        assert teams[0].offensive_rank == 8
+        assert teams[0].offensive_rank is None  # Rankings no longer extracted from players
+        assert teams[0].defensive_rank is None  # Rankings no longer extracted from players
 
     def test_extract_teams_sorting(self):
         """Test that extracted teams are sorted alphabetically."""

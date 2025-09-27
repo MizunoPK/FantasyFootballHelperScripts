@@ -137,7 +137,7 @@ class TestConfigurationOptimizer(unittest.TestCase):
 
         self.assertEqual(result.config_params, config_params)
         self.assertEqual(result.simulations_run, 2)
-        self.assertEqual(result.avg_win_percentage, 0.65)  # (0.7 + 0.6) / 2
+        self.assertAlmostEqual(result.avg_win_percentage, 0.65, places=2)  # (0.7 + 0.6) / 2
         self.assertEqual(result.avg_total_points, 1575.0)  # (1600 + 1550) / 2
         self.assertEqual(result.user_team_rankings, [1, 2])
 

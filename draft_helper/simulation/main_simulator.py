@@ -18,7 +18,7 @@ from parallel_runner import ParallelSimulationRunner
 from results_analyzer import ResultsAnalyzer
 from simulation_engine import DraftSimulationEngine
 from season_simulator import SeasonSimulator
-from config import get_timestamped_results_file, RESULTS_DIR
+from .config import get_timestamped_results_file, RESULTS_DIR
 
 class MainSimulator:
     """Main orchestrator for draft simulation analysis"""

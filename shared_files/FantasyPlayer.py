@@ -119,6 +119,10 @@ class FantasyPlayer:
     score: float = 0.0  # Overall score for draft ranking
     weighted_projection: float = 0.0  # Normalized projection score
 
+    # Enhanced scoring fields for team context
+    team_offensive_rank: Optional[int] = None  # Team offensive quality rank (lower is better)
+    team_defensive_rank: Optional[int] = None  # Team defensive quality rank (lower is better)
+
     # Metadata
 
     def __post_init__(self):
@@ -172,7 +176,9 @@ class FantasyPlayer:
             week_17_points=safe_float_conversion(data.get('week_17_points'), None),
             injury_status=str(data.get('injury_status', 'UNKNOWN')),
             score=safe_float_conversion(data.get('score'), 0.0),
-            weighted_projection=safe_float_conversion(data.get('weighted_projection'), 0.0)
+            weighted_projection=safe_float_conversion(data.get('weighted_projection'), 0.0),
+            team_offensive_rank=safe_int_conversion(data.get('team_offensive_rank'), None),
+            team_defensive_rank=safe_int_conversion(data.get('team_defensive_rank'), None)
         )
     
     @classmethod

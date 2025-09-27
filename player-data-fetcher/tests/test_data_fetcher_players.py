@@ -329,7 +329,7 @@ class TestDataFetcherMain:
 
         # Mock week-by-week failure, should fallback
         mock_client._get_all_weeks_data.return_value = None
-        mock_client._calculate_remaining_season_projection.return_value = 150.5
+        mock_client._calculate_week_by_week_projection.return_value = 150.5
 
         with patch.object(sys.modules[__name__], "load_existing_players", return_value=mock_players):
             await fetch_and_update_players(settings, mock_client, mock_exporter)

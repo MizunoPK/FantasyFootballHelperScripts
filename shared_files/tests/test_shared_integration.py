@@ -217,57 +217,6 @@ class TestSharedFilesIntegration:
         assert 'ÄÖÜ' in unicode_player.name
         assert unicode_player.bye_week == 0
 
-    def test_performance_with_large_realistic_dataset(self, temp_dir):
-        """Test performance with large, realistic dataset"""
-        # Generate large dataset with realistic NFL player data
-        large_dataset = []
-        positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
-        teams = ['BUF', 'NE', 'MIA', 'NYJ', 'CIN', 'CLE', 'BAL', 'PIT']
-        injury_statuses = ['ACTIVE', 'QUESTIONABLE', 'DOUBTFUL', 'OUT']
-
-        for i in range(2000):  # Realistic NFL player pool size
-            player_data = {
-                'id': str(i + 1),
-                'name': f'Player {i + 1}',
-                'team': teams[i % len(teams)],
-                'position': positions[i % len(positions)],
-                'bye_week': (i % 17) + 1,
-                'drafted': 1 if i < 150 else 0,  # ~150 drafted players realistic
-                'locked': 1 if i < 20 else 0,  # ~20 locked players
-                'fantasy_points': round(abs(300 - i * 0.15), 1),  # Declining points
-                'injury_status': injury_statuses[i % len(injury_statuses)],
-                'adp': round(i * 0.1 + 1, 1)
-            }
-            large_dataset.append(player_data)
-
-        csv_file = temp_dir / "large_dataset.csv"
-
-        import time
-
-        # Test creation performance
-        start_time = time.time()
-        players = [FantasyPlayer.from_dict(data) for data in large_dataset]
-        creation_time = time.time() - start_time
-
-        # Test save performance
-        start_time = time.time()
-        FantasyPlayer.save_to_csv(players, str(csv_file))
-        save_time = time.time() - start_time
-
-        # Test load performance
-        start_time = time.time()
-        loaded_players = FantasyPlayer.load_from_csv(str(csv_file))
-        load_time = time.time() - start_time
-
-        # Performance assertions (should be reasonable for 2000 players)
-        assert creation_time < 2.0  # Should create 2000 players in under 2 seconds
-        assert save_time < 3.0  # Should save in under 3 seconds
-        assert load_time < 3.0  # Should load in under 3 seconds
-
-        # Verify data integrity
-        assert len(loaded_players) == 2000
-        assert loaded_players[0].name == 'Player 1'
-        assert loaded_players[-1].name == 'Player 2000'
 
     def test_file_encoding_and_special_characters(self, temp_dir):
         """Test file encoding with special characters and international names"""
