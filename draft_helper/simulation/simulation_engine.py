@@ -13,6 +13,7 @@ import os
 
 # Add parent directories to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(os.path.dirname(__file__))  # Add current directory for local imports
 from shared_files.FantasyPlayer import FantasyPlayer
 from draft_helper.FantasyTeam import FantasyTeam
 from draft_helper import draft_helper_config as base_config
@@ -51,7 +52,7 @@ class DraftSimulationEngine:
         self.current_pick = 1
 
         # Get draft teams CSV path (week 0) for positional rankings
-        from .data_manager import SimulationDataManager
+        from data_manager import SimulationDataManager
         self.data_manager = SimulationDataManager()
         self.draft_teams_csv_path = self.data_manager.teams_weekly_csvs[0]  # Week 0
 
@@ -63,7 +64,7 @@ class DraftSimulationEngine:
 
     def _initialize_teams(self) -> None:
         """Initialize all teams for the draft"""
-        from .config import TEAM_STRATEGIES
+        from config import TEAM_STRATEGIES
 
         team_index = 0
         for strategy, count in TEAM_STRATEGIES.items():
@@ -157,7 +158,7 @@ class DraftSimulationEngine:
 
     def _make_team_pick(self, team: SimulationTeam, round_num: int) -> Optional[FantasyPlayer]:
         """Make a draft pick for a specific team"""
-        from .team_strategies import TeamStrategyManager
+        from team_strategies import TeamStrategyManager
 
         strategy_manager = TeamStrategyManager(self.config_params, self.draft_teams_csv_path)
 
@@ -173,7 +174,7 @@ class DraftSimulationEngine:
             return None
 
         # Apply human error (15% chance to pick from top 10 instead of #1)
-        from .config import HUMAN_ERROR_RATE, SUBOPTIMAL_CHOICE_POOL
+        from config import HUMAN_ERROR_RATE, SUBOPTIMAL_CHOICE_POOL
 
         if random.random() < HUMAN_ERROR_RATE:
             # Pick from top N choices instead of the best

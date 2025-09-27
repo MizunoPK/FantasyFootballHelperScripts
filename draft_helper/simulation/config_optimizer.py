@@ -8,8 +8,12 @@ import itertools
 from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass
 import copy
+import sys
+import os
 
-from .config import PARAMETER_RANGES, TOP_CONFIGS_PERCENTAGE
+# Add current directory to path for local imports
+sys.path.append(os.path.dirname(__file__))
+from config import PARAMETER_RANGES, TOP_CONFIGS_PERCENTAGE
 
 @dataclass
 class ConfigResult:

@@ -12,13 +12,16 @@ from typing import Dict, Any, List
 # Add parent directories to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
+# Add current directory to path for local imports
+sys.path.append(os.path.dirname(__file__))
+
 from data_manager import SimulationDataManager
 from config_optimizer import ConfigurationOptimizer
 from parallel_runner import ParallelSimulationRunner
 from results_analyzer import ResultsAnalyzer
 from simulation_engine import DraftSimulationEngine
 from season_simulator import SeasonSimulator
-from .config import get_timestamped_results_file, RESULTS_DIR
+from config import get_timestamped_results_file, RESULTS_DIR
 
 class MainSimulator:
     """Main orchestrator for draft simulation analysis"""
@@ -36,12 +39,10 @@ class MainSimulator:
         print("=" * 50)
 
         try:
-            # Step 1: Setup data
-            print(">> Setting up simulation data...")
-            self.data_manager.setup_simulation_data()
-
+            # Step 1: Verify data exists
+            print(">> Verifying simulation data...")
             if not self.data_manager.verify_data_integrity():
-                raise Exception("Data integrity check failed")
+                raise Exception("Data integrity check failed - please ensure simulation data files are properly initialized")
 
             # Step 2: Load player data
             print(">> Loading player data...")

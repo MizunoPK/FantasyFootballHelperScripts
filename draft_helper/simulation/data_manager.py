@@ -6,7 +6,14 @@ import os
 import shutil
 import pandas as pd
 from typing import Optional, Tuple
-from .config import SIMULATION_DATA_DIR
+
+# Add parent directory to path for imports
+import sys
+from pathlib import Path
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir))
+
+from config import SIMULATION_DATA_DIR
 
 
 class SimulationDataManager:
@@ -26,44 +33,58 @@ class SimulationDataManager:
         self.players_actual_csv = os.path.join(self.data_dir, 'players_actual.csv')
 
         # Weekly teams data file paths (for positional rankings)
-        # Week 0: Draft phase, Weeks 1-18: Season phase
-        self.teams_weekly_csvs = {
-            week: os.path.join(self.data_dir, f'teams_week_{week}.csv')
-            for week in range(0, 19)  # Week 0 through Week 18
-        }
+        # Week 0: Draft phase and weeks 1-4 (preseason rankings - insufficient early season data)
+        # Weeks 5-18: Season phase with actual team performance data (enough games for reliable rankings)
+        self.teams_weekly_csvs = {}
+        self.teams_weekly_csvs[0] = os.path.join(self.data_dir, 'teams_week_0.csv')  # Draft + weeks 1-4
+        for week in range(5, 19):  # Weeks 5-18 have separate files
+            self.teams_weekly_csvs[week] = os.path.join(self.data_dir, f'teams_week_{week}.csv')
 
-    def setup_simulation_data(self) -> None:
-        """Copy source data files to simulation directory as both projected and actual versions"""
+    def setup_simulation_data(self, force_refresh: bool = False) -> None:
+        """Copy source data files to simulation directory as both projected and actual versions
+
+        Args:
+            force_refresh: If True, copy files even if they already exist
+        """
         # Create data directory if it doesn't exist
         os.makedirs(self.data_dir, exist_ok=True)
 
-        # Copy players.csv to both projected and actual versions
-        if os.path.exists(self.source_players_csv):
-            shutil.copy2(self.source_players_csv, self.players_projected_csv)
-            shutil.copy2(self.source_players_csv, self.players_actual_csv)
-            print(f"Copied {self.source_players_csv} to projected and actual versions")
-        else:
-            raise FileNotFoundError(f"Source players file not found: {self.source_players_csv}")
+        # Check if files need copying
+        should_copy_players = force_refresh or not os.path.exists(self.players_projected_csv) or not os.path.exists(self.players_actual_csv)
+        should_copy_teams = force_refresh or any(not os.path.exists(path) for path in self.teams_weekly_csvs.values())
 
-        # Copy teams.csv to all weekly versions (week 0 through week 18)
-        if os.path.exists(self.source_teams_csv):
-            for week in range(0, 19):
-                weekly_teams_path = self.teams_weekly_csvs[week]
-                shutil.copy2(self.source_teams_csv, weekly_teams_path)
-            print(f"Copied {self.source_teams_csv} to 19 weekly versions (week_0.csv through week_18.csv)")
-        else:
-            raise FileNotFoundError(f"Source teams file not found: {self.source_teams_csv}")
+        # Copy players.csv to both projected and actual versions if needed
+        if should_copy_players:
+            if os.path.exists(self.source_players_csv):
+                shutil.copy2(self.source_players_csv, self.players_projected_csv)
+                shutil.copy2(self.source_players_csv, self.players_actual_csv)
+                print(f"Copied {self.source_players_csv} to projected and actual versions")
+            else:
+                raise FileNotFoundError(f"Source players file not found: {self.source_players_csv}")
+
+        # Copy teams.csv to weekly versions (week 0 and weeks 5-18 only) if needed
+        if should_copy_teams:
+            if os.path.exists(self.source_teams_csv):
+                for week, weekly_teams_path in self.teams_weekly_csvs.items():
+                    shutil.copy2(self.source_teams_csv, weekly_teams_path)
+                print(f"Copied {self.source_teams_csv} to {len(self.teams_weekly_csvs)} weekly versions (week_0.csv + weeks_5-18.csv)")
+            else:
+                raise FileNotFoundError(f"Source teams file not found: {self.source_teams_csv}")
+
+        # If no copying was needed, indicate files are already present
+        if not should_copy_players and not should_copy_teams:
+            print("Simulation data files already exist with correct format")
 
     def get_players_projected_data(self) -> pd.DataFrame:
         """Load projected players data for draft decisions and lineup optimization"""
         if not os.path.exists(self.players_projected_csv):
-            self.setup_simulation_data()
+            raise FileNotFoundError(f"Projected players file not found: {self.players_projected_csv}. Please ensure simulation data is properly initialized.")
         return pd.read_csv(self.players_projected_csv)
 
     def get_players_actual_data(self) -> pd.DataFrame:
         """Load actual players data for final scoring"""
         if not os.path.exists(self.players_actual_csv):
-            self.setup_simulation_data()
+            raise FileNotFoundError(f"Actual players file not found: {self.players_actual_csv}. Please ensure simulation data is properly initialized.")
         return pd.read_csv(self.players_actual_csv)
 
     def get_teams_weekly_data(self, week: int) -> pd.DataFrame:
@@ -74,13 +95,20 @@ class SimulationDataManager:
 
         Returns:
             DataFrame with teams data for the specified week
+
+        Note:
+            Weeks 1-4 use week 0 data (preseason rankings) since there isn't
+            enough early season data to determine new team rankings.
         """
         if week not in range(0, 19):
             raise ValueError(f"Week must be between 0 and 18, got {week}")
 
-        weekly_teams_path = self.teams_weekly_csvs[week]
+        # Use week 0 data for weeks 1-4 (early season uses preseason rankings)
+        effective_week = week if week == 0 or week >= 5 else 0
+
+        weekly_teams_path = self.teams_weekly_csvs[effective_week]
         if not os.path.exists(weekly_teams_path):
-            self.setup_simulation_data()
+            raise FileNotFoundError(f"Weekly teams file not found: {weekly_teams_path}. Please ensure simulation data is properly initialized.")
         return pd.read_csv(weekly_teams_path)
 
     def get_draft_teams_data(self) -> pd.DataFrame:
