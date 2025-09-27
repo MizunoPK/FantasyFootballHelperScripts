@@ -17,6 +17,7 @@ try:
     from .team_data_loader import TeamDataLoader
     from .core.menu_system import MenuSystem
     from .core.player_search import PlayerSearch
+    from .core.roster_manager import RosterManager
 except ImportError:
     # Fallback to absolute imports when run directly
     from FantasyTeam import FantasyTeam
@@ -24,9 +25,11 @@ except ImportError:
     from team_data_loader import TeamDataLoader
     from core.menu_system import MenuSystem
     from core.player_search import PlayerSearch
+    from core.roster_manager import RosterManager
 
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.enhanced_scoring import EnhancedScoringCalculator
+from shared_files.positional_ranking_calculator import PositionalRankingCalculator
 
 # Import starter helper components
 sys.path.append(str(parent_dir / 'starter_helper'))
@@ -192,11 +195,55 @@ class DraftHelper:
         # Initialize team data loader for offensive/defensive rankings
         self.team_data_loader = TeamDataLoader()
 
+        # Initialize positional ranking calculator for matchup analysis
+        self.positional_ranking_calculator = None
+        try:
+            # Try to initialize with current week team data
+            from shared_config import CURRENT_NFL_WEEK
+            current_week = CURRENT_NFL_WEEK
+
+            # Try current week first
+            teams_file_path = f"data/teams_week_{current_week}.csv"
+            full_teams_path = Path(__file__).parent / "simulation" / teams_file_path
+
+            # If current week doesn't exist, try to find the nearest available week
+            if not full_teams_path.exists():
+                # Try weeks from current to 18
+                for week in range(current_week, 19):
+                    teams_file_path = f"data/teams_week_{week}.csv"
+                    full_teams_path = Path(__file__).parent / "simulation" / teams_file_path
+                    if full_teams_path.exists():
+                        self.logger.info(f"Using week {week} team data (current week {current_week} not available)")
+                        break
+                else:
+                    # Try week 0 as fallback
+                    teams_file_path = f"data/teams_week_0.csv"
+                    full_teams_path = Path(__file__).parent / "simulation" / teams_file_path
+                    if full_teams_path.exists():
+                        week = 0
+                        self.logger.info(f"Using week 0 team data as fallback")
+                    else:
+                        full_teams_path = None
+
+            if full_teams_path and full_teams_path.exists():
+                self.positional_ranking_calculator = PositionalRankingCalculator(teams_file_path=str(full_teams_path))
+                self.logger.info(f"Positional ranking calculator initialized with week {week if 'week' in locals() else current_week} data")
+                print(f"Positional ranking calculator loaded for week {week if 'week' in locals() else current_week}.")
+            else:
+                self.logger.warning(f"No team data files found in simulation/data/")
+                print("Warning: Positional ranking data not available.")
+        except Exception as e:
+            self.logger.error(f"Failed to initialize positional ranking calculator: {e}")
+            print(f"Warning: Could not load positional ranking calculator: {e}")
+
         # Initialize menu system
         self.menu_system = MenuSystem(self.team, STARTER_HELPER_AVAILABLE, self)
 
         # Initialize player search system
         self.player_search = PlayerSearch(self.players, self.logger)
+
+        # Initialize roster manager
+        self.roster_manager = RosterManager(self.team, self.logger)
 
         self.logger.info(f"DraftHelper initialized with {len(self.players)} players and team of {len(self.team.roster)} drafted players")
         if self.team_data_loader.is_team_data_available():
@@ -207,6 +254,14 @@ class DraftHelper:
             print("Warning: Team rankings not available - enhanced scoring will use default values.")
 
         print(f"DraftHelper initialized with {len(self.players)} players and team of {len(self.team.roster)} drafted players.")
+
+    def _match_players_to_rounds(self):
+        """Legacy method for compatibility - delegates to RosterManager"""
+        return self.roster_manager._match_players_to_rounds()
+
+    def _calculate_round_fit_score(self, player, round_num, ideal_position):
+        """Legacy method for compatibility - delegates to RosterManager"""
+        return self.roster_manager._calculate_round_fit_score(player, round_num, ideal_position)
 
     def load_team(self):
         """
@@ -235,6 +290,9 @@ class DraftHelper:
 
             # Update player search with new players list
             self.player_search.players = self.players
+
+            # Update roster manager with new team data
+            self.roster_manager.team = self.team
 
             new_roster_size = len(self.team.roster)
 
@@ -329,6 +387,27 @@ class DraftHelper:
                 )
 
                 projection_score = enhanced_result['enhanced_score']
+
+                # Apply positional ranking adjustment if available
+                if (self.positional_ranking_calculator and
+                    self.positional_ranking_calculator.is_positional_ranking_available() and
+                    p.team and p.position):
+                    try:
+                        from shared_config import CURRENT_NFL_WEEK
+                        current_week = CURRENT_NFL_WEEK
+
+                        ranking_adjusted_points, ranking_explanation = self.positional_ranking_calculator.calculate_positional_adjustment(
+                            player_team=p.team,
+                            position=p.position,
+                            base_points=projection_score,
+                            current_week=current_week
+                        )
+
+                        if ranking_adjusted_points != projection_score:
+                            self.logger.info(f"Positional ranking adjustment for {p.name}: {projection_score:.1f} -> {ranking_adjusted_points:.1f} ({ranking_explanation})")
+                            projection_score = ranking_adjusted_points
+                    except Exception as e:
+                        self.logger.warning(f"Failed to apply positional ranking adjustment for {p.name}: {e}")
 
                 # Log enhancement details if significant adjustment was made
                 if enhanced_result['total_multiplier'] != 1.0:
@@ -558,134 +637,19 @@ class DraftHelper:
 
     def display_roster_by_draft_order(self):
         """Display current roster organized by assigned slots in draft order"""
-        return self.menu_system.display_roster_by_draft_order()
+        return self.roster_manager.display_roster_by_draft_order()
 
     def display_roster_by_draft_rounds(self):
         """Display current roster organized by draft round order based on DRAFT_ORDER config"""
-        return self.menu_system.display_roster_by_draft_rounds()
+        return self.roster_manager.display_roster_by_draft_rounds()
 
-    def _match_players_to_rounds(self):
-        """
-        Match current roster players to draft round slots using optimal fit strategy.
-        Returns dictionary mapping round numbers to players.
-        """
-        round_assignments = {}  # round_num -> player
-        available_players = list(self.team.roster)  # Copy of roster players
-
-        # First pass: Assign players to rounds where their position perfectly matches the ideal
-        for round_num in range(1, Constants.MAX_PLAYERS + 1):
-            ideal_position = Constants.get_ideal_draft_position(round_num - 1)
-
-            # Find best matching player for this round
-            best_player = None
-            best_score = -1
-
-            for player in available_players:
-                # Calculate fit score for this player in this round
-                fit_score = self._calculate_round_fit_score(player, round_num, ideal_position)
-
-                if fit_score > best_score:
-                    best_score = fit_score
-                    best_player = player
-
-            # Assign best fitting player to this round
-            if best_player and best_score > 0:
-                round_assignments[round_num] = best_player
-                available_players.remove(best_player)
-
-        return round_assignments
-
-    def _calculate_round_fit_score(self, player, round_num, ideal_position):
-        """
-        Calculate how well a player fits in a specific draft round.
-        Returns higher scores for better fits.
-        """
-        base_score = player.fantasy_points  # Base score on player quality
-
-        # Position match bonuses
-        if player.position == ideal_position:
-            # Perfect position match
-            base_score += 1000
-        elif ideal_position == "FLEX" and player.position in Constants.FLEX_ELIGIBLE_POSITIONS:
-            # FLEX eligible
-            base_score += 500
-        elif player.position in Constants.FLEX_ELIGIBLE_POSITIONS and ideal_position in ["RB", "WR"]:
-            # FLEX player could fit RB/WR slot
-            base_score += 100
-        else:
-            # Position mismatch - still possible but heavily penalized
-            base_score -= 500
-
-        # Round number proximity bonus (prefer assigning high-value players to early rounds)
-        proximity_bonus = (Constants.MAX_PLAYERS - round_num + 1) * 10
-        base_score += proximity_bonus
-
-        return base_score
 
     def run_add_to_roster_mode(self):
         """Add to Roster Mode - shows recommendations and allows drafting to our team"""
-        print("\n" + "="*50)
-        print("ADD TO ROSTER MODE")
-        print("="*50)
-
-        # Show enhanced roster display by draft rounds
-        self.display_roster_by_draft_rounds()
-
-        while True:
-            print("\nTop draft recommendations based on your current roster:")
-            recommendations = self.recommend_next_picks()
-
-            if not recommendations:
-                print("No recommendations available (roster may be full or no available players).")
-                print("Returning to Main Menu...")
-                break
-
-            for i, p in enumerate(recommendations, start=1):
-                print(f"{i}. {p}")
-            print(f"{len(recommendations) + 1}. Back to Main Menu")
-
-            try:
-                choice = input(f"\nEnter your choice (1-{len(recommendations) + 1}): ").strip()
-
-                if choice.isdigit():
-                    index = int(choice) - 1
-
-                    # Check for Back option
-                    if index == len(recommendations):
-                        print("Returning to Main Menu...")
-                        break
-
-                    # Validate player selection
-                    if 0 <= index < len(recommendations):
-                        player_to_draft = recommendations[index]
-                        success = self.team.draft_player(player_to_draft)
-
-                        if success:
-                            print(f"\n✅ Successfully added {player_to_draft.name} to your roster!")
-                            self.save_players()
-                            self.logger.info(f"Player {player_to_draft.name} drafted to user's team (drafted=2)")
-
-                            # Show updated roster
-                            self.display_roster_by_draft_order()
-
-                            print("Returning to Main Menu...")
-                            break
-                        else:
-                            print(f"❌ Failed to add {player_to_draft.name}. Check roster limits.")
-                            print("Returning to Main Menu...")
-                            break
-                    else:
-                        print("Invalid selection. Please try again.")
-                else:
-                    print("Invalid input. Please enter a number.")
-
-            except ValueError:
-                print("Invalid input. Please enter a number.")
-            except Exception as e:
-                print(f"Error: {e}")
-                print("Returning to Main Menu...")
-                self.logger.error(f"Error in add to roster mode: {e}")
-                break
+        return self.roster_manager.run_add_to_roster_mode(
+            recommend_next_picks_func=self.recommend_next_picks,
+            save_players_func=self.save_players
+        )
 
     def run_mark_drafted_player_mode(self):
         """Mark Drafted Player Mode - allows marking other players as drafted=1"""
@@ -1437,129 +1401,11 @@ class DraftHelper:
         """
         Display a clear comparison between original and final roster, including runner-up trades
         """
-        if not trades_made:
-            print("\nNo beneficial trades found. Your roster is already optimized!")
-
-            # Still show runner-up trades if available for current players
-            if all_player_trades:
-                self.show_current_roster_with_alternatives(all_player_trades)
-            else:
-                print(f"\nCurrent roster:")
-                for p in sorted(self.team.roster, key=lambda x: x.position):
-                    score = self.score_player_for_trade(p)
-                    matchup_indicator = getattr(p, 'matchup_indicator', '') or ''
-                    print(f"  {p.name} ({p.position}) - {score:.2f} pts {matchup_indicator}")
-            return
-
-        # Get original roster by reversing all trades (using player IDs for comparison)
-        original_roster_ids = set(p.id for p in self.team.roster)
-        players_out = []
-        players_in = []
-
-        # Reverse the trades to find original roster
-        for trade in reversed(trades_made):
-            # Remove players that were traded in
-            if trade['in'].id in original_roster_ids:
-                original_roster_ids.remove(trade['in'].id)
-                players_in.append(trade['in'])
-
-            # Add back players that were traded out
-            original_roster_ids.add(trade['out'].id)
-            players_out.append(trade['out'])
-
-        # Remove duplicates while preserving order (last occurrence wins)
-        seen_out = set()
-        players_out_unique = []
-        for p in reversed(players_out):
-            if p.id not in seen_out:
-                seen_out.add(p.id)
-                players_out_unique.append(p)
-        players_out_unique.reverse()
-
-        seen_in = set()
-        players_in_unique = []
-        for p in reversed(players_in):
-            if p.id not in seen_in:
-                seen_in.add(p.id)
-                players_in_unique.append(p)
-        players_in_unique.reverse()
-
-        # Current final roster
-        final_roster_ids = set(p.id for p in self.team.roster)
-
-        # Players that stayed (in both original and final)
-        players_kept_ids = original_roster_ids.intersection(final_roster_ids)
-        players_kept = [p for p in self.team.roster if p.id in players_kept_ids]
-
-        print(f"\nROSTER ANALYSIS:")
-        print(f"Players kept: {len(players_kept)}")
-        print(f"Players traded out: {len(players_out_unique)}")
-        print(f"Players traded in: {len(players_in_unique)}")
-
-        # Show kept players first
-        if players_kept:
-            print(f"\n[KEPT] PLAYERS REMAINING ON ROSTER:")
-            for p in sorted(players_kept, key=lambda x: x.position):
-                score = self.score_player_for_trade(p)
-                matchup_indicator = getattr(p, 'matchup_indicator', '') or ''
-                print(f"  {p.name} ({p.position}) - {score:.2f} pts {matchup_indicator}")
-
-        print(f"\n[TRADES] RECOMMENDED CHANGES ({len(trades_made)} trades):")
-        for i, trade in enumerate(trades_made, 1):
-            out_score = self.score_player_for_trade(trade['out'])
-            in_score = self.score_player_for_trade(trade['in'])
-
-            # Get matchup indicators if available
-            out_matchup = getattr(trade['out'], 'matchup_indicator', '') or ''
-            in_matchup = getattr(trade['in'], 'matchup_indicator', '') or ''
-
-            print(f"  {i}. OUT: {trade['out'].name} ({trade['out'].position}) - {out_score:.2f} pts {out_matchup}")
-            print(f"     IN:  {trade['in'].name} ({trade['in'].position}) - {in_score:.2f} pts {in_matchup}")
-            print(f"     Net Improvement: +{trade['improvement']:.2f} pts")
-
-            # Show runner-ups for this trade (use stored data from when trade was made)
-            if 'runners_up' in trade:
-                player_trades = trade['runners_up']
-                # Find runner-ups (skip the main trade we just showed)
-                runners_up = []
-                for pt in player_trades:
-                    if pt['in'].id != trade['in'].id:  # Skip the main trade
-                        runners_up.append(pt)
-                    if len(runners_up) >= Constants.NUM_TRADE_RUNNERS_UP:
-                        break
-
-                if runners_up:
-                    for j, runner_up in enumerate(runners_up, 1):
-                        ru_score = self.score_player_for_trade(runner_up['in'])
-                        ru_matchup = getattr(runner_up['in'], 'matchup_indicator', '') or ''
-                        print(f"        Runner-up {j}: {runner_up['in'].name} - {ru_score:.2f} pts ({runner_up['improvement']:+.2f}) {ru_matchup}")
-            print()
-
-    def show_current_roster_with_alternatives(self, all_player_trades):
-        """
-        Show current roster with alternative trade options when no beneficial trades exist
-        """
-        print(f"\nCurrent roster with potential alternatives:")
-
-        for p in sorted(self.team.roster, key=lambda x: x.position):
-            if p.locked == 1:
-                continue
-
-            score = self.score_player_for_trade(p)
-            matchup_indicator = getattr(p, 'matchup_indicator', '') or ''
-            print(f"  {p.name} ({p.position}) - {score:.2f} pts {matchup_indicator}")
-
-            # Show alternatives that don't meet the threshold
-            if p.id in all_player_trades:
-                player_trades = all_player_trades[p.id]
-                alternatives = player_trades[:Constants.NUM_TRADE_RUNNERS_UP]
-
-                if alternatives:
-                    for j, alt in enumerate(alternatives, 1):
-                        alt_score = self.score_player_for_trade(alt['in'])
-                        alt_matchup = getattr(alt['in'], 'matchup_indicator', '') or ''
-                        print(f"        Alternative {j}: {alt['in'].name} - {alt_score:.2f} pts ({alt['improvement']:+.2f}) {alt_matchup}")
-            print()
+        return self.roster_manager.show_roster_comparison(
+            trades_made=trades_made,
+            all_player_trades=all_player_trades,
+            score_player_for_trade_func=self.score_player_for_trade
+        )
     
     def consolidate_trades(self, trades_made):
         """
