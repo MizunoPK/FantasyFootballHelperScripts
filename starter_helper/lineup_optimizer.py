@@ -19,7 +19,10 @@ from starter_helper_config import (
     INJURY_PENALTIES, BYE_WEEK_PENALTY, CURRENT_NFL_WEEK,
     QB, RB, WR, TE, K, DST, FLEX
 )
-from positional_ranking_calculator import PositionalRankingCalculator
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from shared_files.positional_ranking_calculator import PositionalRankingCalculator
 
 
 @dataclass

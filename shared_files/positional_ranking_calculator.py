@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Positional Ranking Calculator for Starter Helper
+Positional Ranking Calculator for Fantasy Football Helper Scripts
 
 This module calculates position-specific score adjustments based on team offensive/defensive
-rankings and opponent matchups. Integrates with the existing starter helper system to provide
-enhanced matchup-based scoring.
+rankings and opponent matchups. Integrates with the fantasy football system to provide
+enhanced matchup-based scoring across all modules.
 
 Author: Generated for NFL Fantasy Data Collection
 Last Updated: September 2025
@@ -14,9 +14,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent))
-from shared_files.TeamData import TeamData, load_teams_from_csv
+from .TeamData import TeamData, load_teams_from_csv
 
 
 class PositionalRankingCalculator:
@@ -36,7 +34,8 @@ class PositionalRankingCalculator:
         if teams_file_path:
             self.teams_file = Path(teams_file_path)
         else:
-            shared_files_dir = Path(__file__).parent.parent / "shared_files"
+            # When in shared_files, teams.csv is in the same directory
+            shared_files_dir = Path(__file__).parent
             self.teams_file = shared_files_dir / "teams.csv"
 
         self.team_data_cache: Dict[str, TeamData] = {}

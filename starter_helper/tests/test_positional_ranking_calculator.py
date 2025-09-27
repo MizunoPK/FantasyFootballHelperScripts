@@ -18,8 +18,7 @@ import logging
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent))
-from positional_ranking_calculator import PositionalRankingCalculator
+from shared_files.positional_ranking_calculator import PositionalRankingCalculator
 from shared_files.TeamData import save_teams_to_csv, TeamData
 
 
