@@ -50,6 +50,11 @@ class DraftSimulationEngine:
         self.current_round = 1
         self.current_pick = 1
 
+        # Get draft teams CSV path (week 0) for positional rankings
+        from .data_manager import SimulationDataManager
+        self.data_manager = SimulationDataManager()
+        self.draft_teams_csv_path = self.data_manager.teams_weekly_csvs[0]  # Week 0
+
         # Initialize teams
         self._initialize_teams()
 
@@ -154,7 +159,7 @@ class DraftSimulationEngine:
         """Make a draft pick for a specific team"""
         from .team_strategies import TeamStrategyManager
 
-        strategy_manager = TeamStrategyManager(self.config_params)
+        strategy_manager = TeamStrategyManager(self.config_params, self.draft_teams_csv_path)
 
         # Get top picks based on team strategy
         top_picks = strategy_manager.get_team_picks(

@@ -5,16 +5,22 @@ Simulates 17-week fantasy football season with weekly matchups between teams.
 """
 
 import random
+import pandas as pd
 from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass
 import sys
 import os
+import logging
 
 # Add parent directories to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from shared_files.FantasyPlayer import FantasyPlayer
 from draft_helper.FantasyTeam import FantasyTeam
 from shared_config import CURRENT_NFL_WEEK
+
+# Import starter_helper components for lineup optimization
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'starter_helper'))
+from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
 
 @dataclass
 class WeeklyMatchup:
@@ -41,11 +47,21 @@ class TeamSeasonStats:
 class SeasonSimulator:
     """Simulates a full fantasy football season after draft completion"""
 
-    def __init__(self, teams: List[Any], current_nfl_week: int = None):
+    def __init__(self, teams: List[Any], players_projected_df: pd.DataFrame, players_actual_df: pd.DataFrame, current_nfl_week: int = None):
         self.teams = teams
+        self.players_projected_df = players_projected_df
+        self.players_actual_df = players_actual_df
         self.current_nfl_week = current_nfl_week or CURRENT_NFL_WEEK
         self.matchups: List[WeeklyMatchup] = []
         self.season_stats: Dict[int, TeamSeasonStats] = {}
+
+        # Initialize data manager for weekly teams data access
+        sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+        from data_manager import SimulationDataManager
+        self.data_manager = SimulationDataManager()
+
+        # Initialize lineup optimizer for starter_helper integration
+        self.lineup_optimizer = LineupOptimizer()
 
     def simulate_full_season(self) -> Dict[str, Any]:
         """Simulate complete 17-week fantasy season"""
@@ -142,7 +158,8 @@ class SeasonSimulator:
         starting_lineup = self._get_optimal_starting_lineup(team.roster, week)
 
         for player in starting_lineup:
-            player_score = self._get_player_week_points(player, week)
+            # Use actual data for final scoring to determine winners
+            player_score = self._get_player_week_points_from_df(player, week, use_actual=True)
 
             # Apply bye week penalty if player is on bye
             if hasattr(player, 'bye_week') and player.bye_week == week:
@@ -160,46 +177,78 @@ class SeasonSimulator:
         return total_score
 
     def _get_optimal_starting_lineup(self, roster: FantasyTeam, week: int) -> List[FantasyPlayer]:
-        """Get the optimal starting lineup for a team for a specific week"""
+        """Get the optimal starting lineup for a team for a specific week using starter_helper logic"""
 
-        # This should use the starter helper logic to get the best lineup
-        # For now, use a simplified version
+        # Convert roster to DataFrame format expected by LineupOptimizer
+        roster_data = []
+        for player in roster.roster:
+            player_dict = {
+                'id': player.id,
+                'name': player.name,
+                'position': player.position,
+                'team': player.team,
+                'injury_status': getattr(player, 'injury_status', 'ACTIVE'),
+                'bye_week': getattr(player, 'bye_week', 0)
+            }
+            roster_data.append(player_dict)
 
+        roster_df = pd.DataFrame(roster_data)
+
+        # Create projections dictionary for this week using projected data
+        projections = {}
+        for player in roster.roster:
+            week_attr = f'week_{week}_points'
+            # Use projected data for lineup decisions
+            projected_points = self._get_player_week_points_from_df(player, week, use_actual=False)
+            projections[str(player.id)] = projected_points
+
+        # Create a lineup optimizer with the appropriate weekly teams data
+        weekly_teams_csv = self.data_manager.teams_weekly_csvs[week]
+        weekly_lineup_optimizer = self._create_weekly_lineup_optimizer(weekly_teams_csv)
+
+        # Use lineup optimizer to get optimal lineup
+        optimal_lineup = weekly_lineup_optimizer.optimize_lineup(roster_df, projections)
+
+        # Convert back to list of FantasyPlayer objects
         starting_lineup = []
-        available_players = roster.roster.copy()
+        starting_recommendations = optimal_lineup.get_all_starters()
 
-        # Required starting positions based on league rules
-        required_positions = {
-            'QB': 1,
-            'RB': 2,
-            'WR': 2,
-            'TE': 1,
-            'FLEX': 1,  # Can be RB or WR
-            'K': 1,
-            'DST': 1
-        }
+        for recommendation in starting_recommendations:
+            if recommendation:
+                # Find the corresponding FantasyPlayer object
+                player_id = recommendation.player_id
+                matching_player = None
+                for player in roster.roster:
+                    if str(player.id) == player_id:
+                        matching_player = player
+                        break
 
-        # Fill required positions
-        for position, count in required_positions.items():
-            if position == 'FLEX':
-                # FLEX can be RB or WR
-                flex_candidates = [p for p in available_players if p.position in ['RB', 'WR']]
-                flex_candidates.sort(key=lambda p: self._get_player_week_points(p, week), reverse=True)
-
-                for i in range(min(count, len(flex_candidates))):
-                    player = flex_candidates[i]
-                    starting_lineup.append(player)
-                    available_players.remove(player)
-            else:
-                position_players = [p for p in available_players if p.position == position]
-                position_players.sort(key=lambda p: self._get_player_week_points(p, week), reverse=True)
-
-                for i in range(min(count, len(position_players))):
-                    player = position_players[i]
-                    starting_lineup.append(player)
-                    available_players.remove(player)
+                if matching_player:
+                    starting_lineup.append(matching_player)
 
         return starting_lineup
+
+    def _create_weekly_lineup_optimizer(self, weekly_teams_csv_path: str) -> LineupOptimizer:
+        """Create a LineupOptimizer with weekly teams data for positional rankings"""
+        # Create a temporary class to override the LineupOptimizer initialization
+        class WeeklyLineupOptimizer(LineupOptimizer):
+            def __init__(self, teams_csv_path: str):
+                self.logger = logging.getLogger(__name__)
+
+                # Initialize positional ranking calculator with weekly teams data
+                try:
+                    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+                    from shared_files.positional_ranking_calculator import PositionalRankingCalculator
+                    self.positional_ranking_calculator = PositionalRankingCalculator(teams_file_path=teams_csv_path)
+                    if self.positional_ranking_calculator.is_positional_ranking_available():
+                        self.logger.debug(f"Positional ranking calculations enabled with weekly teams data: {teams_csv_path}")
+                    else:
+                        self.logger.debug(f"Positional ranking calculations disabled (weekly teams.csv not available): {teams_csv_path}")
+                except Exception as e:
+                    self.logger.warning(f"Failed to initialize positional ranking calculator with weekly teams data: {e}")
+                    self.positional_ranking_calculator = None
+
+        return WeeklyLineupOptimizer(weekly_teams_csv_path)
 
     def _calculate_league_average_score(self, week: int) -> float:
         """Calculate league average score for bye week comparisons"""
@@ -309,6 +358,22 @@ class SeasonSimulator:
         return rankings
 
     def _get_player_week_points(self, player: FantasyPlayer, week: int) -> float:
-        """Get points for a player for a specific week"""
+        """Get points for a player for a specific week from actual data (for final scoring)"""
         week_attr = f'week_{week}_points'
         return getattr(player, week_attr, 0.0) or 0.0
+
+    def _get_player_week_points_from_df(self, player: FantasyPlayer, week: int, use_actual: bool = True) -> float:
+        """Get points for a player from either projected or actual dataframe"""
+        player_df = self.players_actual_df if use_actual else self.players_projected_df
+
+        # Find player in dataframe
+        player_row = player_df[player_df['id'] == player.id]
+        if player_row.empty:
+            return 0.0
+
+        week_col = f'week_{week}_points'
+        if week_col in player_row.columns:
+            points = player_row[week_col].iloc[0]
+            return float(points) if pd.notna(points) else 0.0
+
+        return 0.0

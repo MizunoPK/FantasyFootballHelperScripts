@@ -21,8 +21,9 @@ from draft_helper.team_data_loader import TeamDataLoader
 class TeamStrategyManager:
     """Manages different team strategies for draft simulation"""
 
-    def __init__(self, config_params: Dict[str, Any]):
+    def __init__(self, config_params: Dict[str, Any], draft_teams_csv_path: Optional[str] = None):
         self.config_params = config_params
+        self.draft_teams_csv_path = draft_teams_csv_path
 
         # Override base config with simulation parameters
         self.injury_penalties = {
@@ -59,8 +60,11 @@ class TeamStrategyManager:
         # Initialize enhanced scoring calculator with configuration
         self.enhanced_scorer = EnhancedScoringCalculator(enhanced_scoring_config)
 
-        # Initialize team data loader for offensive/defensive rankings
-        self.team_data_loader = TeamDataLoader()
+        # Initialize team data loader for offensive/defensive rankings using week 0 teams data
+        if draft_teams_csv_path:
+            self.team_data_loader = TeamDataLoader(draft_teams_csv_path)
+        else:
+            self.team_data_loader = TeamDataLoader()
 
     def get_team_picks(self, strategy: str, available_players: List[FantasyPlayer],
                       team_roster: FantasyTeam, round_num: int) -> List[FantasyPlayer]:

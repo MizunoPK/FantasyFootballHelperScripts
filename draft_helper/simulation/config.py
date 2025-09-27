@@ -72,7 +72,6 @@ TEAM_STRATEGIES = {
 
 # Simulation data paths
 SIMULATION_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
-PLAYERS_CSV_COPY = os.path.join(SIMULATION_DATA_DIR, 'players_simulation.csv')
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), 'results')
 RESULTS_FILE = os.path.join(os.path.dirname(__file__), 'results.md')  # Legacy path for compatibility
 
@@ -81,9 +80,6 @@ def get_timestamped_results_file():
     from datetime import datetime
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     return os.path.join(RESULTS_DIR, f'result_{timestamp}.md')
-
-# Source data paths (to copy from)
-SOURCE_PLAYERS_CSV = os.path.join(os.path.dirname(__file__), '..', '..', 'shared_files', 'players.csv')
 
 # =============================================================================
 # VALIDATION

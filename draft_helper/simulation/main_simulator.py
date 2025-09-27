@@ -45,8 +45,9 @@ class MainSimulator:
 
             # Step 2: Load player data
             print(">> Loading player data...")
-            players_df = self.data_manager.get_players_data()
-            print(f"Loaded {len(players_df)} players")
+            players_projected_df = self.data_manager.get_players_projected_data()
+            players_actual_df = self.data_manager.get_players_actual_data()
+            print(f"Loaded {len(players_projected_df)} projected players and {len(players_actual_df)} actual players")
 
             # Step 3: Generate preliminary configurations
             print(">> Generating preliminary configurations...")
@@ -57,7 +58,7 @@ class MainSimulator:
             print(">> Running preliminary simulations...")
             preliminary_results = self.parallel_runner.run_preliminary_simulations(
                 preliminary_configs,
-                lambda config: self._run_single_complete_simulation(config, players_df)
+                lambda config: self._run_single_complete_simulation(config, players_projected_df, players_actual_df)
             )
 
             # Step 5: Analyze preliminary results
@@ -85,7 +86,7 @@ class MainSimulator:
             print(">> Running full simulations...")
             full_results = self.parallel_runner.run_full_simulations(
                 full_configs,
-                lambda config: self._run_single_complete_simulation(config, players_df)
+                lambda config: self._run_single_complete_simulation(config, players_projected_df, players_actual_df)
             )
 
             # Step 9: Analyze full results
@@ -133,26 +134,29 @@ class MainSimulator:
                 pass
             raise
 
-    def _run_single_complete_simulation(self, config_params: Dict[str, Any], players_df: pd.DataFrame) -> Dict[str, Any]:
+    def _run_single_complete_simulation(self, config_params: Dict[str, Any], players_projected_df: pd.DataFrame, players_actual_df: pd.DataFrame) -> Dict[str, Any]:
         """Run a single complete simulation (draft + season)"""
 
         try:
-            # Create a clean copy of players data for this simulation
-            simulation_players_df = players_df.copy()
+            # Create clean copies of both projected and actual data for this simulation
+            simulation_players_projected_df = players_projected_df.copy()
+            simulation_players_actual_df = players_actual_df.copy()
 
-            # Reset drafted status for all players in this copy
-            if 'drafted' in simulation_players_df.columns:
-                simulation_players_df['drafted'] = 0
+            # Reset drafted status for all players in both copies
+            if 'drafted' in simulation_players_projected_df.columns:
+                simulation_players_projected_df['drafted'] = 0
+            if 'drafted' in simulation_players_actual_df.columns:
+                simulation_players_actual_df['drafted'] = 0
 
-            # Run draft simulation
-            draft_engine = DraftSimulationEngine(simulation_players_df, config_params)
+            # Run draft simulation using projected data
+            draft_engine = DraftSimulationEngine(simulation_players_projected_df, config_params)
             draft_results = draft_engine.run_complete_draft()
 
             # Extract teams from draft results
             simulation_teams = draft_engine.teams
 
-            # Run season simulation
-            season_simulator = SeasonSimulator(simulation_teams)
+            # Run season simulation with both projected and actual data
+            season_simulator = SeasonSimulator(simulation_teams, simulation_players_projected_df, simulation_players_actual_df)
             season_results = season_simulator.simulate_full_season()
 
             # Combine results

@@ -12,7 +12,8 @@ Last Updated: September 2025
 
 import logging
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, List
+import pandas as pd
 
 from .TeamData import TeamData, load_teams_from_csv
 
@@ -20,17 +21,19 @@ from .TeamData import TeamData, load_teams_from_csv
 class PositionalRankingCalculator:
     """Calculates position-specific score adjustments based on team rankings and matchups."""
 
-    def __init__(self, teams_file_path: Optional[str] = None, config: Optional[Dict] = None):
+    def __init__(self, teams_file_path: Optional[str] = None, teams_dataframe: Optional[pd.DataFrame] = None, config: Optional[Dict] = None):
         """
         Initialize PositionalRankingCalculator.
 
         Args:
             teams_file_path: Path to teams.csv file. If None, uses shared_files/teams.csv
+            teams_dataframe: Teams data as pandas DataFrame. If provided, takes precedence over teams_file_path
             config: Configuration dictionary for adjustment factors
         """
         self.logger = logging.getLogger(__name__)
 
-        # Load teams data
+        # Store teams data source
+        self.teams_dataframe = teams_dataframe
         if teams_file_path:
             self.teams_file = Path(teams_file_path)
         else:
@@ -76,13 +79,22 @@ class PositionalRankingCalculator:
         }
 
     def _load_team_data(self) -> None:
-        """Load team data from teams.csv file."""
+        """Load team data from DataFrame or CSV file."""
         try:
-            if not self.teams_file.exists():
-                self.logger.warning(f"Teams file not found: {self.teams_file}. Positional rankings disabled.")
-                return
+            teams = []
 
-            teams = load_teams_from_csv(str(self.teams_file))
+            if self.teams_dataframe is not None:
+                # Load from provided DataFrame (preferred for simulation)
+                teams = self._load_teams_from_dataframe(self.teams_dataframe)
+                self.logger.debug(f"Loaded team data from DataFrame: {len(teams)} teams")
+            else:
+                # Load from file (default behavior)
+                if not self.teams_file.exists():
+                    self.logger.warning(f"Teams file not found: {self.teams_file}. Positional rankings disabled.")
+                    return
+
+                teams = load_teams_from_csv(str(self.teams_file))
+                self.logger.debug(f"Loaded team data from file: {len(teams)} teams")
 
             # Build team lookup cache
             self.team_data_cache = {team.team: team for team in teams}
@@ -92,6 +104,19 @@ class PositionalRankingCalculator:
         except Exception as e:
             self.logger.warning(f"Error loading team data: {e}. Positional rankings disabled.")
             self.team_data_cache = {}
+
+    def _load_teams_from_dataframe(self, teams_df: pd.DataFrame) -> List[TeamData]:
+        """Convert pandas DataFrame to list of TeamData objects."""
+        teams = []
+        for _, row in teams_df.iterrows():
+            team_data = TeamData(
+                team=row.get('team', ''),
+                offensive_rank=int(row.get('offensive_rank', 16)),  # Default to middle rank
+                defensive_rank=int(row.get('defensive_rank', 16)),  # Default to middle rank
+                opponent=row.get('opponent', '')
+            )
+            teams.append(team_data)
+        return teams
 
     def calculate_positional_adjustment(self,
                                       player_team: str,
