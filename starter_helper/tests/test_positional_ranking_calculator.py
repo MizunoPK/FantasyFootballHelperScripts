@@ -109,7 +109,7 @@ class TestPositionalRankingCalculator:
         }
 
         try:
-            calc = PositionalRankingCalculator(temp_path, custom_config)
+            calc = PositionalRankingCalculator(teams_file_path=temp_path, config=custom_config)
 
             # Should merge with defaults
             assert calc.config['adjustment_weight'] == 0.10
