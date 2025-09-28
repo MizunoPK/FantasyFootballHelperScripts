@@ -33,11 +33,12 @@ class SimulationDataManager:
         self.players_actual_csv = os.path.join(self.data_dir, 'players_actual.csv')
 
         # Weekly teams data file paths (for positional rankings)
-        # Week 0: Draft phase and weeks 1-4 (preseason rankings - insufficient early season data)
-        # Weeks 5-18: Season phase with actual team performance data (enough games for reliable rankings)
+        # Week 0: Draft phase (preseason rankings baseline)
+        # Weeks 1-4: Early season with regression adjustments
+        # Weeks 5-18: Season phase with actual team performance data
         self.teams_weekly_csvs = {}
-        self.teams_weekly_csvs[0] = os.path.join(self.data_dir, 'teams_week_0.csv')  # Draft + weeks 1-4
-        for week in range(5, 19):  # Weeks 5-18 have separate files
+        self.teams_weekly_csvs[0] = os.path.join(self.data_dir, 'teams_week_0.csv')  # Draft phase
+        for week in range(1, 19):  # Weeks 1-18 now have separate files
             self.teams_weekly_csvs[week] = os.path.join(self.data_dir, f'teams_week_{week}.csv')
 
     def setup_simulation_data(self, force_refresh: bool = False) -> None:
@@ -62,12 +63,12 @@ class SimulationDataManager:
             else:
                 raise FileNotFoundError(f"Source players file not found: {self.source_players_csv}")
 
-        # Copy teams.csv to weekly versions (week 0 and weeks 5-18 only) if needed
+        # Copy teams.csv to weekly versions (week 0 and weeks 1-18) if needed
         if should_copy_teams:
             if os.path.exists(self.source_teams_csv):
                 for week, weekly_teams_path in self.teams_weekly_csvs.items():
                     shutil.copy2(self.source_teams_csv, weekly_teams_path)
-                print(f"Copied {self.source_teams_csv} to {len(self.teams_weekly_csvs)} weekly versions (week_0.csv + weeks_5-18.csv)")
+                print(f"Copied {self.source_teams_csv} to {len(self.teams_weekly_csvs)} weekly versions (week_0.csv + weeks_1-18.csv)")
             else:
                 raise FileNotFoundError(f"Source teams file not found: {self.source_teams_csv}")
 
@@ -97,16 +98,15 @@ class SimulationDataManager:
             DataFrame with teams data for the specified week
 
         Note:
-            Weeks 1-4 use week 0 data (preseason rankings) since there isn't
-            enough early season data to determine new team rankings.
+            Week 0: Draft phase (preseason rankings baseline)
+            Weeks 1-4: Early season with regression adjustments from preseason
+            Weeks 5-18: Full season data with actual team performance
         """
         if week not in range(0, 19):
             raise ValueError(f"Week must be between 0 and 18, got {week}")
 
-        # Use week 0 data for weeks 1-4 (early season uses preseason rankings)
-        effective_week = week if week == 0 or week >= 5 else 0
-
-        weekly_teams_path = self.teams_weekly_csvs[effective_week]
+        # All weeks now have their own data files
+        weekly_teams_path = self.teams_weekly_csvs[week]
         if not os.path.exists(weekly_teams_path):
             raise FileNotFoundError(f"Weekly teams file not found: {weekly_teams_path}. Please ensure simulation data is properly initialized.")
         return pd.read_csv(weekly_teams_path)

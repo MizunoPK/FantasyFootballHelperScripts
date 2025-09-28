@@ -4,4 +4,4 @@ Create any new unit tests to cover the new implementations, and modify any relev
 Update rules files and readme files according to the new changes.
 Ask me any clarifying questions that would help you better understand and complete this objective - make sure to ask these questions before beginning development and pause development if you discover any new questions. 
 Once the objective is completely done, then move the associated file in potential_updates to the 'done' folder contained within the same potential_updates directory.
-Be VERY systematic when creating the TODO file and proceeding with the implementation.
+Be VERY systematic when creating the TODO file and proceeding with the implementation. Break the objective up into modualized components 

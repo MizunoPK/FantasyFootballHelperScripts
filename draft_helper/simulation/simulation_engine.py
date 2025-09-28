@@ -95,7 +95,8 @@ class DraftSimulationEngine:
                     position=row.get('position', ''),
                     team=row.get('team', ''),
                     injury_status=row.get('injury_status', 'LOW'),
-                    bye_week=row.get('bye_week', 0)
+                    bye_week=row.get('bye_week', 0),
+                    fantasy_points=float(row.get('fantasy_points', 0.0))
                 )
 
                 # Add weekly projections - set individual week fields
