@@ -2,6 +2,34 @@ Before starting changes, create a TODO file that maps out all the tasks that wil
 After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Test ALL unit tests across the entire repo. All tests across the entire repo must pass before we can mark an objective as complete. Make this a very clear and important TODO item.
 Create any new unit tests to cover the new implementations, and modify any relevant unit tests and test them to ensure they pass.
 Update rules files and readme files according to the new changes.
-Ask me any clarifying questions that would help you better understand and complete this objective - make sure to ask these questions before beginning development and pause development if you discover any new questions. 
+Ask me any clarifying questions that would help you better understand and complete this objective - make sure to ask these questions before beginning development and pause development if you discover any new questions.
 Once the objective is completely done, then move the associated file in potential_updates to the 'done' folder contained within the same potential_updates directory.
-Be VERY systematic when creating the TODO file and proceeding with the implementation. Break the objective up into modualized components 
+Be VERY systematic when creating the TODO file and proceeding with the implementation. Break the objective up into modualized components
+
+## PRE-COMMIT VALIDATION PROTOCOL
+
+When instructed to "validate and commit", "commit changes", or similar commit-related requests, you MUST follow the pre-commit validation checklist before making any commits:
+
+1. **MANDATORY CHECKLIST EXECUTION**: Copy `tests/pre_commit_validation_checklist.md` to `tests/temp_commit_checklist.md` and execute ALL 7 steps systematically.
+
+2. **COMPLETE VALIDATION REQUIRED**:
+   - Analyze ALL changed files (not just some)
+   - Add unit tests for new functionality with proper mocking
+   - Run entire repository test suite (100% pass rate required)
+   - Execute full integration testing using draft helper validation checklist
+   - Update documentation (README, CLAUDE.md, rules files) as needed
+
+3. **INTEGRATION TESTING MANDATORY**: Must execute all 23 steps from `draft_helper_validation_checklist.md` and verify:
+   - FLEX system working correctly (WR 4/4, FLEX 1/1)
+   - CSV data persistence functioning
+   - Point calculations accurate across all modes
+
+4. **COMMIT STANDARDS**:
+   - Brief, efficient commit messages
+   - NO icons, emojis, or Claude references
+   - Do NOT commit the checklist files
+   - Only commit when ALL validations pass
+
+5. **CLEANUP REQUIRED**: Delete `tests/temp_commit_checklist.md` and any temporary files after successful commit.
+
+**CRITICAL**: If ANY validation step fails, STOP and fix issues before attempting commit. No exceptions. 

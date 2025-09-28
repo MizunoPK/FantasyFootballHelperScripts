@@ -734,6 +734,34 @@ APPLY_INJURY_PENALTY_TO_ROSTER = False
 .venv\Scripts\python.exe run_nfl_scores_fetcher.py   # Should fetch recent games
 ```
 
+### Pre-Commit Validation Protocol
+**Rule**: When instructed to "validate and commit", "commit changes", or similar commit-related requests, you MUST follow the comprehensive pre-commit validation checklist:
+
+**MANDATORY CHECKLIST EXECUTION:**
+1. Copy `tests/pre_commit_validation_checklist.md` to `tests/temp_commit_checklist.md`
+2. Execute ALL 7 validation steps systematically:
+   - **Step 1**: Analyze ALL changed files (not just some)
+   - **Step 2**: Add unit tests for new functionality with proper mocking
+   - **Step 3**: Run entire repository test suite (100% pass rate required)
+   - **Step 4**: Execute full integration testing (all 23 draft helper validation steps)
+   - **Step 5**: Update documentation (README, CLAUDE.md, rules files) as needed
+   - **Step 6**: Commit with brief, efficient messages (no icons or Claude references)
+   - **Step 7**: Delete temporary checklist and cleanup files
+
+**CRITICAL VALIDATIONS:**
+- **Integration Testing**: Must execute all steps from `draft_helper_validation_checklist.md`
+- **FLEX System**: Verify WR (4/4) and FLEX (1/1) display correctly
+- **CSV Persistence**: Confirm all data changes reflected in `shared_files/players.csv`
+- **Point Consistency**: Validate fantasy points accurate across all modes
+
+**COMMIT STANDARDS:**
+- Brief, efficient commit messages
+- NO icons, emojis, or Claude references in commits
+- Do NOT commit checklist files or temporary files
+- Only commit when ALL validations pass
+
+**FAILURE PROTOCOL:** If ANY validation step fails, STOP and fix issues before attempting commit. No exceptions.
+
 ### Weekly Configuration Updates
 **Rule**: When making changes that affect weekly operations, ensure both config files are updated:
 - `player-data-fetcher/config.py` - `CURRENT_NFL_WEEK` setting

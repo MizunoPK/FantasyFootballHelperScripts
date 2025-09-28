@@ -1,4 +1,0 @@
-When asked to commit all changes, first analyze all changes that have occurred since the last commit. Do not only commit a portion of the files - analyze everything.
-Before committing, make a TODO file detailing what unit tests could be added to increase code coverage, and what needs to be updated in the documentation. Work through this new TODO file and keep it updated with your progress. Ensure that ALL unit tests, including the new ones, are passing before committing the changes. If there are any issues, alert the user about them.
-Delete the TODO file after finishing the work and before actually committing anything
-When committing the changes, do not include and icons or references to Claude. Be brief and efficient with the commit messages.

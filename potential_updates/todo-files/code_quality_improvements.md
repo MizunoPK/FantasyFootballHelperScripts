@@ -3,6 +3,30 @@
 ## Task Overview
 Systematic code quality improvements across the entire repository, focusing on consistency, maintainability, and modularity.
 
+## 🚨 **PRE-COMMIT VALIDATION PROTOCOL**
+
+**MANDATORY**: Before committing ANY changes during this code quality project, you MUST follow the pre-commit validation checklist:
+
+**When instructed to "validate and commit" or "commit changes" during this project:**
+1. **Copy** `tests/pre_commit_validation_checklist.md` to `tests/temp_commit_checklist.md`
+2. **Execute ALL 7 validation steps** systematically:
+   - Analyze ALL changed files (not just some)
+   - Add unit tests for new functionality with proper mocking
+   - Run entire repository test suite (100% pass rate required)
+   - Execute full integration testing (all 23 draft helper validation steps)
+   - Update documentation (README, CLAUDE.md, rules files) as needed
+   - Commit with brief, efficient messages (no icons or Claude references)
+   - Delete temporary checklist and cleanup files
+
+**CRITICAL VALIDATIONS**:
+- **Integration Testing**: Must execute all steps from `draft_helper_validation_checklist.md`
+- **FLEX System**: Verify WR (4/4) and FLEX (1/1) display correctly
+- **CSV Persistence**: Confirm all data changes reflected in `shared_files/players.csv`
+
+**FAILURE PROTOCOL**: If ANY validation step fails, STOP and fix issues before attempting commit.
+
+---
+
 ## CRITICAL SAFETY REQUIREMENTS
 - **NO FUNCTIONALITY CHANGES**: All changes must preserve exact existing functionality
 - **MANDATORY USER TESTING**: PAUSE after EVERY phase completion for user testing approval
@@ -14,7 +38,8 @@ Systematic code quality improvements across the entire repository, focusing on c
   - NO exceptions - cannot proceed to next step unless ALL tests pass
   - Run comprehensive test suite: `.venv\Scripts\python.exe -m pytest --tb=short`
   - Check every test folder: tests/, shared_files/tests/, draft_helper/tests/, starter_helper/tests/, player-data-fetcher/tests/, nfl-scores-fetcher/tests/
-- **🚨 MANDATORY COMMIT BEFORE PROCEEDING**: Before moving to next phase:
+- **🚨 MANDATORY COMMIT VALIDATION**: Before moving to next phase:
+  - **FOLLOW PRE-COMMIT VALIDATION PROTOCOL** (see above section)
   - Commit ALL changes made in current phase with descriptive commit message
   - Use format: "Complete Phase X: [phase description] - [brief summary of changes]"
   - NO work proceeds to next phase without committing current phase changes

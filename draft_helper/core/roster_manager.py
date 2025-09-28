@@ -39,17 +39,25 @@ class RosterManager:
         print(f"\nCurrent Roster by Position:")
         print("-" * 40)
 
+        # Create a map from player ID to player object for quick lookup
+        player_map = {player.id: player for player in self.team.roster}
+
+        # Display each position based on slot assignments (not original position)
         for pos in Constants.MAX_POSITIONS.keys():
-            roster_players = [p for p in self.team.roster if p.position == pos]
             max_count = Constants.MAX_POSITIONS[pos]
-            current_count = len(roster_players)
+
+            # Get players assigned to this slot (using slot_assignments, not position filtering)
+            assigned_player_ids = self.team.slot_assignments.get(pos, [])
+            assigned_players = [player_map[pid] for pid in assigned_player_ids if pid in player_map]
+            current_count = len(assigned_players)
 
             print(f"\n{pos} ({current_count}/{max_count}):")
-            if roster_players:
+            if assigned_players:
                 # Sort by fantasy points (highest first) for display
-                sorted_players = sorted(roster_players, key=lambda p: p.fantasy_points, reverse=True)
+                sorted_players = sorted(assigned_players, key=lambda p: p.fantasy_points, reverse=True)
                 for i, player in enumerate(sorted_players, 1):
-                    print(f"  {pos}{i}: {player.name} ({player.team}) - {player.fantasy_points:.1f} pts")
+                    locked_indicator = " (LOCKED)" if getattr(player, 'locked', False) else ""
+                    print(f"  {pos}{i}: {player.name} ({player.team}) - {player.fantasy_points:.1f} pts{locked_indicator}")
             else:
                 print(f"  (No {pos} players)")
 
