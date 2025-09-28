@@ -18,9 +18,14 @@ Last Updated: September 2025
 """
 
 import os
+import asyncio
+import json
+import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union, Any
 from datetime import datetime
+import pandas as pd
+import aiofiles
 from shared_files.logging_utils import setup_module_logging
 
 # Set up logging
@@ -258,6 +263,269 @@ class DataFileManager:
                 errors.append(f"Cap for {file_type} must be non-negative, got {cap}")
 
         return errors
+
+    # === Enhanced File Pattern Methods ===
+
+    def generate_timestamped_filename(self, prefix: str, extension: str, include_time: bool = True) -> str:
+        """
+        Generate timestamped filename with consistent format.
+
+        Args:
+            prefix: Filename prefix (e.g., 'players', 'scores')
+            extension: File extension without dot (e.g., 'csv', 'json')
+            include_time: Whether to include time in timestamp
+
+        Returns:
+            Timestamped filename string
+        """
+        if include_time:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        else:
+            timestamp = datetime.now().strftime('%Y%m%d')
+
+        return f"{prefix}_{timestamp}.{extension}"
+
+    def get_timestamped_path(self, prefix: str, extension: str, include_time: bool = True) -> Path:
+        """
+        Get full path for timestamped file in managed data folder.
+
+        Args:
+            prefix: Filename prefix
+            extension: File extension without dot
+            include_time: Whether to include time in timestamp
+
+        Returns:
+            Full Path object for timestamped file
+        """
+        filename = self.generate_timestamped_filename(prefix, extension, include_time)
+        return self.data_folder / filename
+
+    def get_latest_path(self, prefix: str, extension: str) -> Path:
+        """
+        Get path for 'latest' version of a file.
+
+        Args:
+            prefix: Filename prefix
+            extension: File extension without dot
+
+        Returns:
+            Full Path object for latest file
+        """
+        filename = f"{prefix}_latest.{extension}"
+        return self.data_folder / filename
+
+    async def save_dataframe_csv(self, df: pd.DataFrame, prefix: str,
+                                create_latest: bool = True, **csv_kwargs) -> Tuple[Path, Optional[Path]]:
+        """
+        Save DataFrame to timestamped CSV with optional latest copy.
+
+        Args:
+            df: DataFrame to save
+            prefix: Filename prefix
+            create_latest: Whether to create latest copy
+            **csv_kwargs: Additional arguments for to_csv()
+
+        Returns:
+            Tuple of (timestamped_path, latest_path)
+        """
+        # Set default CSV options
+        csv_options = {'index': False, 'encoding': 'utf-8'}
+        csv_options.update(csv_kwargs)
+
+        timestamped_path = self.get_timestamped_path(prefix, 'csv')
+
+        # Save timestamped version
+        df.to_csv(timestamped_path, **csv_options)
+        logger.info(f"Saved CSV: {timestamped_path}")
+
+        latest_path = None
+        if create_latest:
+            latest_path = self.get_latest_path(prefix, 'csv')
+            df.to_csv(latest_path, **csv_options)
+            logger.info(f"Saved latest CSV: {latest_path}")
+
+        # Enforce file caps
+        self.enforce_file_caps(str(timestamped_path))
+
+        return timestamped_path, latest_path
+
+    async def save_dataframe_excel(self, df: pd.DataFrame, prefix: str,
+                                  sheet_name: str = 'Sheet1', create_latest: bool = True,
+                                  **excel_kwargs) -> Tuple[Path, Optional[Path]]:
+        """
+        Save DataFrame to timestamped Excel with optional latest copy.
+
+        Args:
+            df: DataFrame to save
+            prefix: Filename prefix
+            sheet_name: Excel sheet name
+            create_latest: Whether to create latest copy
+            **excel_kwargs: Additional arguments for to_excel()
+
+        Returns:
+            Tuple of (timestamped_path, latest_path)
+        """
+        # Set default Excel options
+        excel_options = {'index': False, 'sheet_name': sheet_name}
+        excel_options.update(excel_kwargs)
+
+        timestamped_path = self.get_timestamped_path(prefix, 'xlsx')
+
+        # Save timestamped version
+        df.to_excel(timestamped_path, **excel_options)
+        logger.info(f"Saved Excel: {timestamped_path}")
+
+        latest_path = None
+        if create_latest:
+            latest_path = self.get_latest_path(prefix, 'xlsx')
+            df.to_excel(latest_path, **excel_options)
+            logger.info(f"Saved latest Excel: {latest_path}")
+
+        # Enforce file caps
+        self.enforce_file_caps(str(timestamped_path))
+
+        return timestamped_path, latest_path
+
+    def save_json_data(self, data: Any, prefix: str, create_latest: bool = True,
+                       **json_kwargs) -> Tuple[Path, Optional[Path]]:
+        """
+        Save data to timestamped JSON with optional latest copy.
+
+        Args:
+            data: Data to save (must be JSON serializable)
+            prefix: Filename prefix
+            create_latest: Whether to create latest copy
+            **json_kwargs: Additional arguments for json.dump()
+
+        Returns:
+            Tuple of (timestamped_path, latest_path)
+        """
+        # Set default JSON options
+        json_options = {'indent': 2, 'ensure_ascii': False}
+        json_options.update(json_kwargs)
+
+        timestamped_path = self.get_timestamped_path(prefix, 'json')
+
+        # Save timestamped version
+        with open(timestamped_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, **json_options)
+        logger.info(f"Saved JSON: {timestamped_path}")
+
+        latest_path = None
+        if create_latest:
+            latest_path = self.get_latest_path(prefix, 'json')
+            with open(latest_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, **json_options)
+            logger.info(f"Saved latest JSON: {latest_path}")
+
+        # Enforce file caps
+        self.enforce_file_caps(str(timestamped_path))
+
+        return timestamped_path, latest_path
+
+    async def export_multi_format(self, df: pd.DataFrame, prefix: str,
+                                 formats: List[str] = None, create_latest: bool = True,
+                                 sheet_name: str = 'Sheet1') -> Dict[str, Tuple[Path, Optional[Path]]]:
+        """
+        Export DataFrame to multiple formats concurrently.
+
+        Args:
+            df: DataFrame to export
+            prefix: Filename prefix for all formats
+            formats: List of formats to export ('csv', 'xlsx', 'json'). Defaults to all.
+            create_latest: Whether to create latest copies
+            sheet_name: Excel sheet name
+
+        Returns:
+            Dictionary mapping format to (timestamped_path, latest_path) tuples
+        """
+        if formats is None:
+            formats = ['csv', 'xlsx', 'json']
+
+        tasks = []
+        format_tasks = {}
+
+        if 'csv' in formats:
+            task = self.save_dataframe_csv(df, prefix, create_latest)
+            tasks.append(task)
+            format_tasks['csv'] = len(tasks) - 1
+
+        if 'xlsx' in formats:
+            task = self.save_dataframe_excel(df, prefix, sheet_name, create_latest)
+            tasks.append(task)
+            format_tasks['xlsx'] = len(tasks) - 1
+
+        if 'json' in formats:
+            # Convert DataFrame to JSON-serializable format
+            json_data = df.to_dict('records')
+            # JSON save is synchronous, so wrap it in a coroutine
+            async def save_json():
+                return self.save_json_data(json_data, prefix, create_latest)
+            task = save_json()
+            tasks.append(task)
+            format_tasks['json'] = len(tasks) - 1
+
+        # Execute all exports concurrently
+        results = await asyncio.gather(*tasks)
+
+        # Map results back to formats
+        export_results = {}
+        for format_name, task_index in format_tasks.items():
+            export_results[format_name] = results[task_index]
+
+        logger.info(f"Multi-format export completed for {prefix}: {list(export_results.keys())}")
+        return export_results
+
+    def create_backup_copy(self, source_path: Union[str, Path], backup_suffix: str = "_backup") -> Path:
+        """
+        Create backup copy of a file with timestamp.
+
+        Args:
+            source_path: Path to source file
+            backup_suffix: Suffix to add before timestamp
+
+        Returns:
+            Path to backup file
+        """
+        source_path = Path(source_path)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_name = f"{source_path.stem}{backup_suffix}_{timestamp}{source_path.suffix}"
+        backup_path = source_path.parent / backup_name
+
+        if source_path.exists():
+            shutil.copy2(source_path, backup_path)
+            logger.info(f"Created backup: {source_path} -> {backup_path}")
+        else:
+            logger.warning(f"Source file does not exist for backup: {source_path}")
+
+        return backup_path
+
+    def cleanup_old_backups(self, pattern: str, keep_count: int = 3) -> List[str]:
+        """
+        Clean up old backup files, keeping only the most recent ones.
+
+        Args:
+            pattern: Glob pattern to match backup files
+            keep_count: Number of recent backups to keep
+
+        Returns:
+            List of deleted backup file names
+        """
+        backup_files = list(self.data_folder.glob(pattern))
+        backup_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+        deleted_files = []
+        if len(backup_files) > keep_count:
+            files_to_delete = backup_files[keep_count:]
+            for file_path in files_to_delete:
+                try:
+                    file_path.unlink()
+                    deleted_files.append(file_path.name)
+                    logger.info(f"Deleted old backup: {file_path}")
+                except Exception as e:
+                    logger.error(f"Failed to delete backup {file_path}: {e}")
+
+        return deleted_files
 
 
 def log_file_operation(operation: str, file_path: str, additional_info: str = ""):

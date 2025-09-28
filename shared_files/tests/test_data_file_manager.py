@@ -11,10 +11,13 @@ Last Updated: September 2025
 import os
 import tempfile
 import unittest
+import asyncio
+import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock, mock_open
 import logging
+import pandas as pd
 
 # Set up the path for imports
 import sys
@@ -355,6 +358,201 @@ class TestDataFileManager(unittest.TestCase):
         # File should still exist
         files = self.manager.get_files_by_type('csv')
         self.assertEqual(len(files), 1)
+
+
+class TestEnhancedFilePatterns(unittest.TestCase):
+    """Test cases for enhanced file pattern methods in DataFileManager"""
+
+    def setUp(self):
+        """Set up test fixtures"""
+        self.test_dir = tempfile.mkdtemp()
+        self.manager = DataFileManager(self.test_dir, {'csv': 3, 'json': 3, 'xlsx': 3, 'txt': 3})
+
+    def tearDown(self):
+        """Clean up test fixtures"""
+        import shutil
+        try:
+            shutil.rmtree(self.test_dir)
+        except PermissionError:
+            # Windows file locks - try again after brief delay
+            import time
+            time.sleep(0.1)
+            try:
+                shutil.rmtree(self.test_dir)
+            except:
+                pass  # Skip cleanup if still locked
+
+    def test_generate_timestamped_filename(self):
+        """Test timestamped filename generation"""
+        filename = self.manager.generate_timestamped_filename('test', 'csv', include_time=True)
+
+        # Should match pattern: test_YYYYMMDD_HHMMSS.csv
+        self.assertTrue(filename.startswith('test_'))
+        self.assertTrue(filename.endswith('.csv'))
+        self.assertEqual(len(filename), len('test_YYYYMMDD_HHMMSS.csv'))
+
+        # Test without time
+        filename_no_time = self.manager.generate_timestamped_filename('test', 'json', include_time=False)
+        self.assertTrue(filename_no_time.startswith('test_'))
+        self.assertTrue(filename_no_time.endswith('.json'))
+        self.assertEqual(len(filename_no_time), len('test_YYYYMMDD.json'))
+
+    def test_get_timestamped_path(self):
+        """Test timestamped path generation"""
+        path = self.manager.get_timestamped_path('data', 'csv')
+
+        self.assertIsInstance(path, Path)
+        self.assertEqual(path.parent, Path(self.test_dir))
+        self.assertTrue(path.name.startswith('data_'))
+        self.assertTrue(path.name.endswith('.csv'))
+
+    def test_get_latest_path(self):
+        """Test latest file path generation"""
+        path = self.manager.get_latest_path('players', 'json')
+
+        self.assertIsInstance(path, Path)
+        self.assertEqual(path.parent, Path(self.test_dir))
+        self.assertEqual(path.name, 'players_latest.json')
+
+    def test_save_dataframe_csv(self):
+        """Test async CSV saving with DataFrame"""
+        async def run_csv_test():
+            with patch('pandas.DataFrame.to_csv') as mock_to_csv:
+                df = pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]})
+
+                timestamped_path, latest_path = await self.manager.save_dataframe_csv(df, 'test_data')
+
+                # Check paths
+                self.assertIsInstance(timestamped_path, Path)
+                self.assertTrue(timestamped_path.name.startswith('test_data_'))
+                self.assertTrue(timestamped_path.name.endswith('.csv'))
+
+                self.assertIsInstance(latest_path, Path)
+                self.assertEqual(latest_path.name, 'test_data_latest.csv')
+
+                # Check that DataFrame.to_csv was called
+                self.assertEqual(mock_to_csv.call_count, 2)  # Once for timestamped, once for latest
+
+        asyncio.run(run_csv_test())
+
+    def test_save_dataframe_excel(self):
+        """Test async Excel saving with DataFrame"""
+        async def run_excel_test():
+            with patch('pandas.DataFrame.to_excel') as mock_to_excel:
+                df = pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]})
+
+                timestamped_path, latest_path = await self.manager.save_dataframe_excel(
+                    df, 'test_data', sheet_name='TestSheet'
+                )
+
+                # Check paths
+                self.assertTrue(timestamped_path.name.startswith('test_data_'))
+                self.assertTrue(timestamped_path.name.endswith('.xlsx'))
+                self.assertEqual(latest_path.name, 'test_data_latest.xlsx')
+
+                # Check that DataFrame.to_excel was called
+                self.assertEqual(mock_to_excel.call_count, 2)
+
+        asyncio.run(run_excel_test())
+
+    def test_save_json_data(self):
+        """Test JSON saving"""
+        with patch('builtins.open', mock_open()) as mock_file:
+            test_data = {'key1': 'value1', 'key2': [1, 2, 3]}
+
+            timestamped_path, latest_path = self.manager.save_json_data(test_data, 'test_json')
+
+            # Check paths
+            self.assertTrue(timestamped_path.name.startswith('test_json_'))
+            self.assertTrue(timestamped_path.name.endswith('.json'))
+            self.assertEqual(latest_path.name, 'test_json_latest.json')
+
+            # Check that file open was called (once for timestamped, once for latest)
+            self.assertEqual(mock_file.call_count, 2)
+
+    def test_export_multi_format(self):
+        """Test multi-format export functionality"""
+        async def run_multi_format_test():
+            with patch('pandas.DataFrame.to_csv') as mock_to_csv, \
+                 patch('pandas.DataFrame.to_excel') as mock_to_excel, \
+                 patch('builtins.open', mock_open()) as mock_file:
+
+                df = pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]})
+
+                results = await self.manager.export_multi_format(df, 'multi_test', formats=['csv', 'xlsx', 'json'])
+
+                # Check that all formats were exported
+                self.assertIn('csv', results)
+                self.assertIn('xlsx', results)
+                self.assertIn('json', results)
+
+                # Check paths for each format
+                for format_name, (timestamped_path, latest_path) in results.items():
+                    self.assertTrue(timestamped_path.name.startswith('multi_test_'))
+                    self.assertTrue(timestamped_path.name.endswith(f'.{format_name}'))
+                    self.assertEqual(latest_path.name, f'multi_test_latest.{format_name}')
+
+        asyncio.run(run_multi_format_test())
+
+    def test_create_backup_copy(self):
+        """Test backup file creation"""
+        # Create a test file
+        test_file = Path(self.test_dir) / 'test_original.csv'
+        test_file.write_text("test,data\n1,2\n")
+
+        backup_path = self.manager.create_backup_copy(test_file)
+
+        # Check backup exists
+        self.assertTrue(backup_path.exists())
+        self.assertTrue(backup_path.name.startswith('test_original_backup_'))
+        self.assertTrue(backup_path.name.endswith('.csv'))
+
+        # Check content is the same
+        self.assertEqual(backup_path.read_text(), test_file.read_text())
+
+    def test_create_backup_copy_nonexistent_file(self):
+        """Test backup creation for non-existent file"""
+        nonexistent_file = Path(self.test_dir) / 'does_not_exist.csv'
+
+        backup_path = self.manager.create_backup_copy(nonexistent_file)
+
+        # Should return a backup path but file shouldn't exist
+        self.assertFalse(backup_path.exists())
+        self.assertTrue(backup_path.name.startswith('does_not_exist_backup_'))
+
+    def test_cleanup_old_backups(self):
+        """Test cleanup of old backup files"""
+        # Create multiple backup files with different timestamps
+        for i in range(5):
+            backup_file = Path(self.test_dir) / f'test_backup_{i:02d}_20241001_120000.csv'
+            backup_file.write_text(f"backup {i}")
+            # Modify the timestamp to simulate different creation times
+            timestamp = datetime.now().timestamp() - (i * 3600)  # 1 hour apart
+            os.utime(backup_file, (timestamp, timestamp))
+
+        # Keep only 3 most recent
+        deleted_files = self.manager.cleanup_old_backups('test_backup_*.csv', keep_count=3)
+
+        # Should delete 2 oldest files
+        self.assertEqual(len(deleted_files), 2)
+
+        # Check remaining files
+        remaining_files = list(Path(self.test_dir).glob('test_backup_*.csv'))
+        self.assertEqual(len(remaining_files), 3)
+
+    def test_async_method_execution(self):
+        """Test that async methods can be properly executed"""
+        async def run_async_test():
+            df = pd.DataFrame({'test': [1, 2, 3]})
+
+            # This should not raise any exceptions
+            with patch('pandas.DataFrame.to_csv'):
+                timestamped_path, latest_path = await self.manager.save_dataframe_csv(df, 'async_test')
+                self.assertIsNotNone(timestamped_path)
+                self.assertIsNotNone(latest_path)
+
+        # Run the async test
+        asyncio.run(run_async_test())
 
 
 if __name__ == '__main__':
