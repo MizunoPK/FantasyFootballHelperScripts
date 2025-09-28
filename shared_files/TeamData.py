@@ -13,6 +13,7 @@ Last Updated: September 2025
 from dataclasses import dataclass
 from typing import Optional, Dict, Any, List
 import pandas as pd
+from shared_files.csv_utils import read_csv_with_validation, write_csv_with_backup
 
 
 @dataclass
@@ -138,7 +139,8 @@ def load_teams_from_csv(file_path: str) -> List[TeamData]:
         Exception: If CSV format is invalid
     """
     try:
-        df = pd.read_csv(file_path)
+        # Use csv_utils for standardized reading with error handling
+        df = read_csv_with_validation(file_path)
         teams = []
 
         for _, row in df.iterrows():
@@ -245,5 +247,5 @@ def save_teams_to_csv(teams: List[TeamData], file_path: str) -> None:
     # Ensure consistent column order
     df = df[['team', 'offensive_rank', 'defensive_rank', 'opponent']]
 
-    # Save to CSV
-    df.to_csv(file_path, index=False)
+    # Save to CSV using standardized csv_utils
+    write_csv_with_backup(df, file_path, create_backup=True)

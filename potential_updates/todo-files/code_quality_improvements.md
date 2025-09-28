@@ -164,6 +164,39 @@ git commit -m "Complete Phase 1 Step X.X: [description] - [brief summary]"
 - [ ] 2.4.2 **🛑 PAUSE FOR USER TESTING** - Test validation functions
 - [ ] 2.4.3 Update modules to use validation_utils (one at a time) - TEST AFTER EACH
 
+**Step 2.1** - Create CSV Utils (RISKY) ✅ COMPLETED
+- [x] 2.1.1 Create shared_files/csv_utils.py with common CSV patterns
+- [x] 2.1.2 **🛑 PAUSE FOR USER TESTING** - Test CSV utility functions
+- [x] 2.1.3 Update shared_files/ to use csv_utils - TEST AFTER
+- [x] 2.1.4 Update player-data-fetcher/ to use csv_utils - TEST AFTER
+- [x] 2.1.5 **🛑 PAUSE FOR USER TESTING** - Test all CSV operations
+
+**Completion Status**: ✅ COMPLETED - All steps finished, validated, and tested
+
+**What was completed:**
+- ✅ 2.1.1 Created shared_files/csv_utils.py with comprehensive CSV utilities
+- ✅ 2.1.2 Created 21 unit tests for csv_utils with 100% pass rate
+- ✅ 2.1.3 Updated shared_files/ modules (FantasyPlayer.py, TeamData.py) to use csv_utils
+- ✅ 2.1.4 Updated player-data-fetcher/data_fetcher-players.py to use csv_utils
+- ✅ 2.1.5 Full integration testing completed - all 23 steps validated
+- ✅ Complete pre-commit validation protocol executed per updated rules
+
+**Step 2.2** - Create Logging Utils (RISKY) 🔄 NEXT
+- [ ] 2.2.1 Create shared_files/logging_utils.py with common logging patterns
+- [ ] 2.2.2 **🛑 PAUSE FOR USER TESTING** - Test logging utility functions
+- [ ] 2.2.3 Update all modules to use logging_utils (one at a time) - TEST AFTER EACH
+- [ ] 2.2.4 **🛑 PAUSE FOR USER TESTING** - Test all logging functionality
+
+**Step 2.3** - Enhance File Manager (MODERATE)
+- [ ] 2.3.1 Enhance data_file_manager.py with common file patterns
+- [ ] 2.3.2 Update modules to use enhanced file manager - TEST AFTER EACH
+- [ ] 2.3.3 **🛑 PAUSE FOR USER TESTING** - Test all file operations
+
+**Step 2.4** - Create Validation Utils (RISKY)
+- [ ] 2.4.1 Create shared_files/validation_utils.py
+- [ ] 2.4.2 **🛑 PAUSE FOR USER TESTING** - Test validation functions
+- [ ] 2.4.3 Update modules to use validation_utils (one at a time) - TEST AFTER EACH
+
 **Step 2.5** - Create Error Handler (RISKY)
 - [ ] 2.5.1 Create shared_files/error_handler.py
 - [ ] 2.5.2 **🛑 PAUSE FOR USER TESTING** - Test error handling
@@ -187,7 +220,7 @@ git add .
 git commit -m "Complete Phase 2 Step X.X: [description] - [brief summary]"
 ```
 
-**Completion Status**: 🔄 PENDING - Not started
+**Completion Status**: 🔄 PENDING - Step 2.1 Complete, Moving to Step 2.2
 
 ---
 

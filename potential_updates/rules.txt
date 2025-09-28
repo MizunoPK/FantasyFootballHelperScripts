@@ -8,28 +8,68 @@ Be VERY systematic when creating the TODO file and proceeding with the implement
 
 ## PRE-COMMIT VALIDATION PROTOCOL
 
-When instructed to "validate and commit", "commit changes", or similar commit-related requests, you MUST follow the pre-commit validation checklist before making any commits:
+**🚨 MANDATORY FOR EVERY STAGE COMPLETION** - This protocol must be executed at the completion of EVERY phase, step, or significant change before proceeding to the next stage:
 
-1. **MANDATORY CHECKLIST EXECUTION**: Copy `tests/pre_commit_validation_checklist.md` to `tests/temp_commit_checklist.md` and execute ALL 7 steps systematically.
+### **WHEN TO EXECUTE**:
+- ✅ After completing ANY phase step (e.g., Phase 2 Step 2.1)
+- ✅ Before moving to the next phase or step
+- ✅ When instructed to "validate and commit" or "commit changes"
+- ✅ At any major milestone or completion point
+- ✅ Before asking user for validation to proceed
 
-2. **COMPLETE VALIDATION REQUIRED**:
-   - Analyze ALL changed files (not just some)
-   - Add unit tests for new functionality with proper mocking
-   - Run entire repository test suite (100% pass rate required)
-   - Execute full integration testing using draft helper validation checklist
-   - Update documentation (README, CLAUDE.md, rules files) as needed
+### **MANDATORY EXECUTION STEPS**:
 
-3. **INTEGRATION TESTING MANDATORY**: Must execute all 23 steps from `draft_helper_validation_checklist.md` and verify:
-   - FLEX system working correctly (WR 4/4, FLEX 1/1)
-   - CSV data persistence functioning
-   - Point calculations accurate across all modes
+1. **COPY VALIDATION CHECKLIST**:
+   ```bash
+   cp tests/pre_commit_validation_checklist.md tests/temp_commit_checklist.md
+   ```
 
-4. **COMMIT STANDARDS**:
-   - Brief, efficient commit messages
+2. **EXECUTE ALL 7 VALIDATION STEPS SYSTEMATICALLY**:
+   - Step 1: Analyze ALL changed files (git status, git diff)
+   - Step 2: Add unit tests for new functionality with proper mocking
+   - Step 3: Run entire repository test suite (100% pass rate required)
+   - Step 4: Execute full integration testing (all 23 draft helper validation steps)
+   - Step 5: Update documentation (README, CLAUDE.md, rules files) as needed
+   - Step 6: Commit changes with proper format
+   - Step 7: Cleanup temporary files
+
+3. **INTEGRATION TESTING MANDATORY**: Must execute all 23 steps from `draft_helper_validation_checklist.md`:
+   ```bash
+   cp tests/draft_helper_validation_checklist.md tests/temp_integration_checklist.md
+   echo -e "2\nHunt\n6\nexit\n3\n\n4\nHunt\n1\ny\nHampton\n1\ny\nexit\n1\n1\n5\n15\ny\n16\n3\n\n5\n15\ny\n16\n6\n\n7\n" | python run_draft_helper.py
+   ```
+
+   **Verify:**
+   - ✅ FLEX system working correctly (WR 4/4, FLEX 1/1)
+   - ✅ CSV data persistence functioning
+   - ✅ Point calculations accurate across all modes
+   - ✅ All 7 menu options accessible and functional
+
+4. **UNIT TEST VALIDATION**:
+   ```bash
+   python -m pytest --tb=short  # Must be 100% pass rate
+   python -m pytest tests/ shared_files/tests/ draft_helper/tests/ starter_helper/tests/ -v
+   ```
+
+5. **COMMIT STANDARDS**:
+   - Format: "Complete Phase X Step Y: [description] - [brief summary]"
    - NO icons, emojis, or Claude references
-   - Do NOT commit the checklist files
+   - Do NOT commit checklist files
    - Only commit when ALL validations pass
 
-5. **CLEANUP REQUIRED**: Delete `tests/temp_commit_checklist.md` and any temporary files after successful commit.
+6. **CLEANUP REQUIRED**:
+   ```bash
+   rm tests/temp_commit_checklist.md
+   rm tests/temp_integration_checklist.md
+   ```
 
-**CRITICAL**: If ANY validation step fails, STOP and fix issues before attempting commit. No exceptions. 
+### **FAILURE PROTOCOL**:
+- **If ANY step fails**: STOP immediately, fix the issue, restart validation from Step 1
+- **If integration tests fail**: Debug the specific failure, fix code, re-run full validation
+- **If unit tests fail**: Fix failing tests, ensure 100% pass rate before proceeding
+- **No exceptions**: Cannot proceed to next stage without 100% validation success
+
+### **ENFORCEMENT**:
+- This protocol is MANDATORY and NON-NEGOTIABLE for every stage completion
+- Violation of this protocol requires immediate correction and re-validation
+- The user should be notified if this protocol was not followed properly 

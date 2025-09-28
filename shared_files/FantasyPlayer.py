@@ -12,6 +12,7 @@ Last Updated: September 2025
 from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any, List
 import pandas as pd
+from shared_files.csv_utils import read_csv_with_validation, write_csv_with_backup
 
 # Import will be done dynamically to avoid circular imports
 
@@ -198,21 +199,10 @@ class FantasyPlayer:
             pd.errors.ParserError: If the CSV file is malformed
         """
         try:
-            df = pd.read_csv(filepath)
-        except FileNotFoundError:
-            print(f"Error: CSV file not found at {filepath}")
-            raise
-        except pd.errors.EmptyDataError:
-            print(f"Error: CSV file is empty at {filepath}")
-            raise
-        except pd.errors.ParserError as e:
-            print(f"Error: CSV file is malformed at {filepath}: {e}")
-            raise
-        except PermissionError:
-            print(f"Error: Permission denied reading CSV file at {filepath}")
-            raise
+            # Use csv_utils for standardized reading with error handling
+            df = read_csv_with_validation(filepath)
         except Exception as e:
-            print(f"Error: Unexpected error reading CSV file at {filepath}: {e}")
+            print(f"Error reading CSV file at {filepath}: {e}")
             raise
 
         players = []
@@ -378,9 +368,9 @@ class FantasyPlayer:
 
     @classmethod
     def save_to_csv(cls, players: List['FantasyPlayer'], filepath: str) -> None:
-        """Save players to CSV file."""
+        """Save players to CSV file using standardized csv_utils."""
         df = players_to_dataframe(players)
-        df.to_csv(filepath, index=False)
+        write_csv_with_backup(df, filepath, create_backup=True)
 
     def __eq__(self, other):
         """Check equality based on player ID."""

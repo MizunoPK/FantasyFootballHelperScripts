@@ -35,6 +35,7 @@ from typing import Dict, List
 
 import pandas as pd
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from shared_files.csv_utils import read_csv_with_validation
 
 # Import our new modular components
 import sys
@@ -140,11 +141,9 @@ class NFLProjectionsCollector:
             return bye_weeks
             
         try:
-            df = pd.read_csv(bye_weeks_file)
-            
-            # Validate required columns
-            if 'Team' not in df.columns or 'ByeWeek' not in df.columns:
-                raise ValueError("CSV must contain 'Team' and 'ByeWeek' columns")
+            # Use csv_utils for standardized reading with validation
+            required_columns = ['Team', 'ByeWeek']
+            df = read_csv_with_validation(bye_weeks_file, required_columns)
             
             # Validate bye week values are reasonable (1-18)
             invalid_weeks = df[~df['ByeWeek'].between(1, 18)]
