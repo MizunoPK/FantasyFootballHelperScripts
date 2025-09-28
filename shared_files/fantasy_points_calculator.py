@@ -17,12 +17,12 @@ Author: Generated for NFL Fantasy Data Collection
 Last Updated: September 2025
 """
 
-import logging
 import math
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional, Union
 from pathlib import Path
 import sys
+from shared_files.logging_utils import setup_module_logging
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
@@ -57,7 +57,7 @@ class FantasyPointsExtractor:
         """
         self.config = config or FantasyPointsConfig()
         self.season = season
-        self.logger = logging.getLogger(__name__)
+        self.logger = setup_module_logging(__name__)
 
     def extract_week_points(
         self,

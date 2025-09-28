@@ -10,10 +10,10 @@ Author: Generated for NFL Fantasy Data Collection
 Last Updated: September 2025
 """
 
-import logging
 from pathlib import Path
 from typing import Dict, Optional, Tuple, List
 import pandas as pd
+from shared_files.logging_utils import setup_module_logging
 
 from .TeamData import TeamData, load_teams_from_csv
 
@@ -30,7 +30,7 @@ class PositionalRankingCalculator:
             teams_dataframe: Teams data as pandas DataFrame. If provided, takes precedence over teams_file_path
             config: Configuration dictionary for adjustment factors
         """
-        self.logger = logging.getLogger(__name__)
+        self.logger = setup_module_logging(__name__)
 
         # Store teams data source
         self.teams_dataframe = teams_dataframe

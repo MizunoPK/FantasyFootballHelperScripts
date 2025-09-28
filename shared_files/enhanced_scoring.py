@@ -11,7 +11,7 @@ Last Updated: September 2025
 """
 
 from typing import Optional, Dict, Any
-import logging
+from shared_files.logging_utils import setup_module_logging
 
 # Configuration constants - can be overridden by config files
 DEFAULT_SCORING_CONFIG = {
@@ -71,7 +71,7 @@ class EnhancedScoringCalculator:
         if config:
             self.config.update(config)
 
-        self.logger = logging.getLogger(__name__)
+        self.logger = setup_module_logging(__name__)
 
     def calculate_enhanced_score(
         self,

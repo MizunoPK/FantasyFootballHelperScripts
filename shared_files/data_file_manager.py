@@ -18,13 +18,13 @@ Last Updated: September 2025
 """
 
 import os
-import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
+from shared_files.logging_utils import setup_module_logging
 
 # Set up logging
-logger = logging.getLogger(__name__)
+logger = setup_module_logging(__name__)
 
 
 class DataFileManager:
@@ -304,7 +304,8 @@ def enforce_caps_for_new_file(new_file_path: str, data_folder: str = None) -> Di
 
 if __name__ == "__main__":
     # Example usage and testing
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    from shared_files.logging_utils import setup_basic_logging
+    setup_basic_logging(level='INFO', format_style='simple')
 
     # Test with current configuration
     try:
