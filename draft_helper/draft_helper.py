@@ -19,6 +19,7 @@ try:
     from .core.player_search import PlayerSearch
     from .core.roster_manager import RosterManager
     from .core.trade_analyzer import TradeAnalyzer
+    from .core.scoring_engine import ScoringEngine
 except ImportError:
     # Fallback to absolute imports when run directly
     from FantasyTeam import FantasyTeam
@@ -28,6 +29,7 @@ except ImportError:
     from core.player_search import PlayerSearch
     from core.roster_manager import RosterManager
     from core.trade_analyzer import TradeAnalyzer
+    from core.scoring_engine import ScoringEngine
 
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.enhanced_scoring import EnhancedScoringCalculator
@@ -250,6 +252,9 @@ class DraftHelper:
         # Initialize trade analyzer
         self.trade_analyzer = TradeAnalyzer(self.team, self.logger)
 
+        # Initialize scoring engine
+        self.scoring_engine = ScoringEngine(self.team, self.players, self.logger)
+
         self.logger.info(f"DraftHelper initialized with {len(self.players)} players and team of {len(self.team.roster)} drafted players")
         if self.team_data_loader.is_team_data_available():
             self.logger.info(f"Team rankings loaded for {len(self.team_data_loader.get_available_teams())} teams")
@@ -302,6 +307,10 @@ class DraftHelper:
             # Update trade analyzer with new team data
             self.trade_analyzer.team = self.team
 
+            # Update scoring engine with new team and players data
+            self.scoring_engine.team = self.team
+            self.scoring_engine.players = self.players
+
             new_roster_size = len(self.team.roster)
 
             # Log changes if any
@@ -325,170 +334,16 @@ class DraftHelper:
     - Returns a score that can be used to rank players for drafting.
     """
     def score_player(self, p):
-        self.logger.debug(f"Scoring player {p.name} (ID: {p.id}, Position: {p.position}, Bye: {p.bye_week}, Injury: {p.injury_status})")
-        # Calculate Position score based on where we are in the draft, and what positions are needed
-        pos_score = self.compute_positional_need_score(p)
-        self.logger.debug(f"Positional need score for {p.name}: {pos_score}")
-
-        # Calculate projection score
-        projection_score = self.compute_projection_score(p)
-        self.logger.debug(f"Projection score for {p.name}: {projection_score}")
-
-        # Calculate bye week penalty based on overlap with current starters/bench
-        # This discourages drafting too many players with the same bye week
-        bye_penalty = self.compute_bye_penalty_for_player(p)
-        self.logger.debug(f"Bye week penalty for {p.name}: {bye_penalty}")
-
-        # Apply a penalty if the player is not healthy
-        # This deprioritizes injured players in recommendations
-        injury_penalty = self.compute_injury_penalty(p)
-        self.logger.debug(f"Injury penalty for {p.name}: {injury_penalty}")
-
-        # Final score combines all factors
-        total_score = pos_score + projection_score - bye_penalty - injury_penalty
-        self.logger.debug(f"Total score for {p.name}: {total_score}")
-        return total_score
+        """
+        Calculate the total score for a player based on positional need, projections, penalties, and bonuses
+        """
+        return self.scoring_engine.score_player(
+            p,
+            enhanced_scorer=self.enhanced_scorer,
+            team_data_loader=self.team_data_loader,
+            positional_ranking_calculator=self.positional_ranking_calculator
+        )
     
-    # Function to compute the positional need score for a player
-    # This considers how many players are already drafted at that position
-    # And the pre-defined ideal draft order
-    def compute_positional_need_score(self, p):
-        self.logger.debug(f"compute_positional_need_score called for {p.name} (ID: {p.id})")
-        score = 0
-        pos = p.get_position_including_flex()
-        
-        # calculate score based on draft order
-        draft_weights = self.team.get_next_draft_position_weights()
-        if draft_weights is None:
-            # Draft is full, no positional need scoring
-            multiplier = 0.0
-            self.logger.debug(f"Draft is full, no positional need score for {p.name}")
-        else:
-            multiplier = draft_weights.get(pos, 0.0)
-            self.logger.debug(f"Computing positional need score for {p.name}: position={pos}, multiplier={multiplier}")
-        score += Constants.POS_NEEDED_SCORE * multiplier
-
-        return score
-
-    # Function to compute the ADP score for a player
-    # This is a simple inversion of the ADP value, where lower ADP means higher score
-    def compute_projection_score(self, p):
-        self.logger.debug(f"compute_projection_score called for {p.name} (ID: {p.id})")
-
-        # Use fantasy_points as base score (this is the main projection)
-        base_score = p.fantasy_points if p.fantasy_points else 0.0
-
-        # Apply enhanced scoring if new data is available
-        if hasattr(p, 'average_draft_position') or hasattr(p, 'player_rating'):
-            try:
-                # Get team rankings from team data loader
-                team_offensive_rank = self.team_data_loader.get_team_offensive_rank(p.team)
-                team_defensive_rank = self.team_data_loader.get_team_defensive_rank(p.team)
-
-                enhanced_result = self.enhanced_scorer.calculate_enhanced_score(
-                    base_fantasy_points=base_score,
-                    position=p.position,
-                    adp=getattr(p, 'average_draft_position', None),
-                    player_rating=getattr(p, 'player_rating', None),
-                    team_offensive_rank=team_offensive_rank,
-                    team_defensive_rank=team_defensive_rank
-                )
-
-                projection_score = enhanced_result['enhanced_score']
-
-                # Apply positional ranking adjustment if available
-                if (self.positional_ranking_calculator and
-                    self.positional_ranking_calculator.is_positional_ranking_available() and
-                    p.team and p.position):
-                    try:
-                        from shared_config import CURRENT_NFL_WEEK
-                        current_week = CURRENT_NFL_WEEK
-
-                        ranking_adjusted_points, ranking_explanation = self.positional_ranking_calculator.calculate_positional_adjustment(
-                            player_team=p.team,
-                            position=p.position,
-                            base_points=projection_score,
-                            current_week=current_week
-                        )
-
-                        if ranking_adjusted_points != projection_score:
-                            self.logger.info(f"Positional ranking adjustment for {p.name}: {projection_score:.1f} -> {ranking_adjusted_points:.1f} ({ranking_explanation})")
-                            projection_score = ranking_adjusted_points
-                    except Exception as e:
-                        self.logger.warning(f"Failed to apply positional ranking adjustment for {p.name}: {e}")
-
-                # Log enhancement details if significant adjustment was made
-                if enhanced_result['total_multiplier'] != 1.0:
-                    adjustment_summary = self.enhanced_scorer.get_adjustment_summary(enhanced_result)
-                    self.logger.info(f"Enhanced scoring for {p.name}: {base_score:.1f} -> {projection_score:.1f} ({adjustment_summary})")
-
-            except Exception as e:
-                # Enhanced scoring failed, fall back to basic scoring
-                self.logger.warning(f"Enhanced scoring failed for {p.name}: {e}. Using fallback scoring.")
-                projection_score = p.weighted_projection if p.weighted_projection else base_score
-
-        else:
-            # Fallback to weighted projection or fantasy points
-            projection_score = p.weighted_projection if p.weighted_projection else base_score
-
-        self.logger.debug(f"Computing projection score for {p.name}: base={base_score:.1f}, final={projection_score:.1f}")
-        return projection_score
-
-    # Function to compute the bye week penalty for a player
-    # This checks how many players are already drafted with the same bye week
-    # and applies a penalty based on the number of conflicts
-    def compute_bye_penalty_for_player(self, player, exclude_self=False):
-        self.logger.debug(f"compute_bye_penalty_for_player called for {player.name} (ID: {player.id}), exclude_self={exclude_self}")
-        # If player has no bye week, no penalty is applied
-        if not player.bye_week:
-            return 0
-
-        pos = player.position
-        bw = player.bye_week
-        penalty = 0
-
-        # Get the max number of players allowed at this position
-        max_pos = Constants.MAX_POSITIONS.get(pos, 0)
-        if max_pos == 0:  # Avoid division by zero
-            return 0
-        
-        # Use pre-computed bye week counts for efficiency
-        bye_week_count = 0
-        if bw in self.team.bye_week_counts:
-            bye_week_count = self.team.bye_week_counts[bw].get(pos, 0)
-            
-        # If excluding self and this player is on the roster, subtract 1 from count
-        if exclude_self and player.drafted == 2 and bye_week_count > 0:
-            bye_week_count -= 1
-            self.logger.debug(f"Excluding self from bye week count for {player.name}: reduced count to {bye_week_count}")
-        
-        if bye_week_count > 0:
-            penalty += Constants.BASE_BYE_PENALTY * bye_week_count / max_pos
-
-        self.logger.debug(f"Bye penalty for {player.name}: {penalty} (bye week: {bw}, count: {bye_week_count})")
-        return penalty
-
-    # Function to compute the injury penalty for a player
-    # This checks if the player is injured and applies a penalty
-    # In trade mode, can optionally ignore injury penalties for roster players (drafted=2)
-    def compute_injury_penalty(self, p, trade_mode=False):
-        self.logger.debug(f"compute_injury_penalty called for {p.name} (ID: {p.id}, trade_mode: {trade_mode})")
-
-        # Import current config values to get real-time settings
-        import draft_helper_config as config
-
-        # Check if we should skip injury penalties for roster players in trade mode
-        # Either through config setting OR explicit trade_mode parameter
-        in_trade_mode = config.TRADE_HELPER_MODE or trade_mode
-        if (in_trade_mode and
-            not config.APPLY_INJURY_PENALTY_TO_ROSTER and
-            p.drafted == 2):
-            self.logger.debug(f"Skipping injury penalty for roster player {p.name} (trade_mode={trade_mode}, APPLY_INJURY_PENALTY_TO_ROSTER=False)")
-            return 0
-
-        penalty = Constants.INJURY_PENALTIES.get(p.get_risk_level(), 0)
-        self.logger.debug(f"Injury penalty for {p.name}: {penalty} (risk level: {p.get_risk_level()})")
-        return penalty
 
     # Function to recommend the next players to draft based on team needs
     # This considers:
@@ -1175,40 +1030,32 @@ class DraftHelper:
         """
         Modified scoring function for trade evaluation
         Sets positional need weight to 0 and focuses on projections, injuries, bye weeks, and matchups
-        For roster players (drafted=2), excludes self from bye week penalty calculation
         """
-        self.logger.debug(f"Scoring player for trade: {player.name} (ID: {player.id})")
+        return self.scoring_engine.score_player_for_trade(
+            player,
+            positional_ranking_calculator=self.positional_ranking_calculator
+        )
 
-        # Use 0 weight for positional need as specified
-        pos_score = 0
+    def compute_positional_need_score(self, p):
+        """Legacy method for compatibility - delegates to ScoringEngine"""
+        return self.scoring_engine.compute_positional_need_score(p)
 
-        # Calculate projection score
-        projection_score = self.compute_projection_score(player)
-        self.logger.debug(f"Projection score for {player.name}: {projection_score}")
+    def compute_projection_score(self, p):
+        """Legacy method for compatibility - delegates to ScoringEngine"""
+        return self.scoring_engine.compute_projection_score(
+            p,
+            enhanced_scorer=self.enhanced_scorer,
+            team_data_loader=self.team_data_loader,
+            positional_ranking_calculator=self.positional_ranking_calculator
+        )
 
-        # Calculate bye week penalty - exclude self if this is a roster player
-        exclude_self = (player.drafted == 2)
-        bye_penalty = self.compute_bye_penalty_for_player(player, exclude_self=exclude_self)
-        self.logger.debug(f"Bye week penalty for {player.name}: {bye_penalty}")
+    def compute_bye_penalty_for_player(self, player, exclude_self=False):
+        """Legacy method for compatibility - delegates to ScoringEngine"""
+        return self.scoring_engine.compute_bye_penalty_for_player(player, exclude_self)
 
-        # Calculate injury penalty (in trade mode context)
-        injury_penalty = self.compute_injury_penalty(player, trade_mode=True)
-        self.logger.debug(f"Injury penalty for {player.name}: {injury_penalty}")
-
-        # Calculate matchup adjustment if available
-        matchup_adjustment = 0
-        if hasattr(player, 'matchup_adjustment') and player.matchup_adjustment is not None:
-            matchup_adjustment = player.matchup_adjustment
-            self.logger.debug(f"Matchup adjustment for {player.name}: {matchup_adjustment}")
-
-        # Calculate final score (higher is better)
-        total_score = pos_score + projection_score - bye_penalty - injury_penalty + matchup_adjustment
-
-        self.logger.debug(f"Total score for {player.name}: {total_score:.2f} "
-                         f"(pos: {pos_score}, proj: {projection_score:.2f}, "
-                         f"bye: -{bye_penalty:.2f}, injury: -{injury_penalty}, matchup: +{matchup_adjustment})")
-
-        return total_score
+    def compute_injury_penalty(self, p, trade_mode=False):
+        """Legacy method for compatibility - delegates to ScoringEngine"""
+        return self.scoring_engine.compute_injury_penalty(p, trade_mode)
 
     def show_roster_comparison(self, trades_made, all_player_trades=None):
         """
