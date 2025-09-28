@@ -114,6 +114,9 @@ class TestDraftHelperEnhancedScoringIntegration:
         mock_team_loader.get_team_defensive_rank.return_value = None
         draft_helper.team_data_loader = mock_team_loader
 
+        # Disable positional ranking calculator for this test
+        draft_helper.positional_ranking_calculator = None
+
         score = draft_helper.compute_projection_score(player_no_weighted)
 
         # Should fall back to fantasy_points since no enhanced data (no ADP, no rating, no team rank)
@@ -181,10 +184,14 @@ class TestDraftHelperEnhancedScoringIntegration:
         mock_team_loader.get_team_defensive_rank.return_value = None
         draft_helper.team_data_loader = mock_team_loader
 
+        # Disable positional ranking calculator for this test
+        draft_helper.positional_ranking_calculator = None
+
         # Mock other scoring methods to isolate enhanced scoring impact
-        with patch.object(draft_helper, 'compute_positional_need_score', return_value=50.0), \
-             patch.object(draft_helper, 'compute_bye_penalty_for_player', return_value=10.0), \
-             patch.object(draft_helper, 'compute_injury_penalty', return_value=5.0):
+        # Since scoring methods are now delegated to ScoringEngine, patch the ScoringEngine methods
+        with patch.object(draft_helper.scoring_engine, 'compute_positional_need_score', return_value=50.0), \
+             patch.object(draft_helper.scoring_engine, 'compute_bye_penalty_for_player', return_value=10.0), \
+             patch.object(draft_helper.scoring_engine, 'compute_injury_penalty', return_value=5.0):
 
             total_score = draft_helper.score_player(self.enhanced_player)
 
