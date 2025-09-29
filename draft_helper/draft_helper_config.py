@@ -121,6 +121,12 @@ def get_ideal_draft_position(round_num: int) -> str:
 def validate_config():
     """Validate configuration settings using shared validation utilities"""
     def validate_basic_settings():
+        """
+        Validate basic settings like MAX_PLAYERS and bye weeks.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate MAX_PLAYERS
@@ -139,6 +145,12 @@ def validate_config():
         return result
 
     def validate_position_settings():
+        """
+        Validate position settings including MAX_POSITIONS totals and limits.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate MAX_POSITIONS totals
@@ -154,6 +166,12 @@ def validate_config():
         return result
 
     def validate_draft_order():
+        """
+        Validate draft order configuration including round count and position weights.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         total_rounds = len(DRAFT_ORDER)
@@ -175,6 +193,12 @@ def validate_config():
         return result
 
     def validate_penalties():
+        """
+        Validate penalty settings including injury penalties, bye week penalties, and trade thresholds.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate injury penalties

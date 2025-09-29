@@ -136,6 +136,12 @@ LOGGING_FILE = './data/log.txt'
 def validate_config():
     """Validate configuration settings using shared validation utilities"""
     def validate_basic_settings():
+        """
+        Validate basic NFL settings like season, week, and scoring format.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate scoring format
@@ -154,6 +160,12 @@ def validate_config():
         return result
 
     def validate_lineup_requirements():
+        """
+        Validate starting lineup requirements and FLEX eligible positions.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate required positions are present
@@ -174,6 +186,12 @@ def validate_config():
         return result
 
     def validate_penalty_settings():
+        """
+        Validate injury and bye week penalty settings.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate injury penalties
@@ -188,6 +206,12 @@ def validate_config():
         return result
 
     def validate_display_settings():
+        """
+        Validate display settings, recommendation count, and API timeouts.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate recommendation count
