@@ -23,6 +23,7 @@ openpyxl>=3.1.0                     # Excel file format support
 # Testing framework
 pytest>=8.0.0                       # Unit testing framework
 pytest-asyncio>=0.24.0              # Async test support for starter_helper tests
+psutil>=7.0.0                       # System/memory profiling for performance tests
 
 # Optional: Enhanced testing
 colorama>=0.4.6                     # Color output for pytest (auto-installed with pytest)
