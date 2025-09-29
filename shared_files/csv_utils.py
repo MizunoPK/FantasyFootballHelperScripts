@@ -16,7 +16,15 @@ from typing import List, Dict, Any, Optional, Union
 import logging
 import asyncio
 
+from shared_files.error_handler import (
+    create_component_error_handler, FileOperationError, DataProcessingError,
+    handle_errors, safe_execute, error_context
+)
+
 logger = logging.getLogger(__name__)
+
+# Create error handler for this module
+error_handler = create_component_error_handler("csv_utils")
 
 
 def validate_csv_columns(filepath: Union[str, Path], required_columns: List[str]) -> bool:
@@ -31,29 +39,40 @@ def validate_csv_columns(filepath: Union[str, Path], required_columns: List[str]
         bool: True if all required columns are present, False otherwise
 
     Raises:
-        FileNotFoundError: If the CSV file doesn't exist
-        ValueError: If required columns are missing
+        FileOperationError: If the CSV file doesn't exist
+        DataProcessingError: If required columns are missing
     """
     filepath = Path(filepath)
 
-    if not filepath.exists():
-        raise FileNotFoundError(f"CSV file not found: {filepath}")
+    with error_context("validate_csv_columns", component="csv_utils",
+                      file_path=str(filepath)) as context:
 
-    try:
-        with open(filepath, 'r', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            existing_columns = set(reader.fieldnames or [])
-            missing_columns = [col for col in required_columns if col not in existing_columns]
+        if not filepath.exists():
+            raise FileOperationError(
+                f"CSV file not found: {filepath}",
+                context=context
+            )
 
-            if missing_columns:
-                logger.error(f"Missing required columns in {filepath}: {missing_columns}")
-                raise ValueError(f"Missing required columns: {missing_columns}")
+        try:
+            with open(filepath, 'r', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                existing_columns = set(reader.fieldnames or [])
+                missing_columns = [col for col in required_columns if col not in existing_columns]
 
-            return True
+                if missing_columns:
+                    raise DataProcessingError(
+                        f"Missing required columns: {missing_columns}",
+                        context=context
+                    )
 
-    except Exception as e:
-        logger.error(f"Error validating CSV columns in {filepath}: {e}")
-        raise
+                return True
+
+        except (OSError, UnicodeDecodeError) as e:
+            raise FileOperationError(
+                f"Error reading CSV file {filepath}: {e}",
+                context=context,
+                original_exception=e
+            )
 
 
 def read_csv_with_validation(filepath: Union[str, Path],
@@ -285,10 +304,12 @@ def merge_csv_files(input_files: List[Union[str, Path]],
         raise
 
 
+@handle_errors(default_return=pd.DataFrame(), component="csv_utils", operation="safe_csv_read")
 def safe_csv_read(filepath: Union[str, Path],
                  default_value: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """
     Safely read CSV file with fallback to default value if file doesn't exist.
+    Enhanced with standardized error handling.
 
     Args:
         filepath: Path to the CSV file
