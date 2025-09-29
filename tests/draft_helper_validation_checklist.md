@@ -44,17 +44,21 @@ python run_draft_helper.py
 ```bash
 python run_draft_helper.py
 2              # Mark Drafted Player
-Hunt           # Search for Hunt
-6              # Select Kareem Hunt (KC RB)
-               # (OR press Enter to return to Main Menu)
+[SEARCH_NAME]  # Search for any available player (drafted=0)
+1              # Select first result
 exit           # Return to main menu
 ```
 
 **✅ Expected Results**:
-- [ ] Search finds 6 players including "Kareem Hunt (KC RB)"
-- [ ] Successfully marks Kareem Hunt as drafted by another team
+- [ ] Search finds available players (drafted=0)
+- [ ] Successfully marks selected player as drafted by another team
 - [ ] Returns to main menu without errors
-- [ ] **CSV Validation**: `grep "Kareem Hunt" shared_files/players.csv` shows `drafted=1`
+- [ ] **CSV Validation**: Selected player shows `drafted=1` in CSV
+
+**📋 How to Choose Test Player**:
+- Use any common name fragment like "Smith", "Johnson", or "Brown"
+- Look for players showing as available in the search results
+- First result is usually fine for testing purposes
 
 ---
 
@@ -71,7 +75,7 @@ exit           # Return to main menu
 **✅ Expected Results**:
 - [ ] Waiver optimizer completes without errors
 - [ ] Shows current roster with accurate fantasy points (calculated scores, not raw fantasy points)
-- [ ] **CRITICAL**: Kareem Hunt does NOT appear in waiver recommendations
+- [ ] **CRITICAL**: Player marked in Test 1 does NOT appear in waiver recommendations
 - [ ] Returns to main menu after pressing Enter
 
 ---
@@ -83,19 +87,23 @@ exit           # Return to main menu
 **Input Sequence**:
 ```bash
 4              # Drop Player Mode
-Hunt           # Search for Hunt
-1              # Select Kareem Hunt (no confirmation needed)
-Hampton        # Search for Hampton
-1              # Select Omarion Hampton (no confirmation needed)
+[SEARCH_NAME1] # Search for player marked in Test 1
+1              # Select first result (no confirmation needed)
+[SEARCH_NAME2] # Search for any roster player (drafted=2)
+1              # Select first result (no confirmation needed)
 exit           # Return to main menu
 ```
 
 **✅ Expected Results**:
-- [ ] Successfully finds and drops Kareem Hunt (drafted=1 → drafted=0) - **NO CONFIRMATION PROMPT**
-- [ ] Successfully finds and drops Omarion Hampton (drafted=2 → drafted=0) - **NO CONFIRMATION PROMPT**
-- [ ] Roster display updates showing Hampton removed from roster
+- [ ] Successfully finds and drops Test 1 player (drafted=1 → drafted=0) - **NO CONFIRMATION PROMPT**
+- [ ] Successfully finds and drops roster player (drafted=2 → drafted=0) - **NO CONFIRMATION PROMPT**
+- [ ] Roster display updates showing roster player removed
 - [ ] **Roster Count**: Main menu shows updated roster count (decreases by 1)
 - [ ] **CSV Validation**: Both players show `drafted=0` in CSV
+
+**📋 How to Choose Test Players**:
+- First player: Use same search term from Test 1
+- Second player: Use any partial name from current roster display
 
 ---
 
@@ -106,16 +114,20 @@ exit           # Return to main menu
 **Input Sequence**:
 ```bash
 1              # Add to Roster
-1              # Select Omarion Hampton (should be #1 recommendation)
+1              # Select first recommendation
 ```
 
 **✅ Expected Results**:
-- [ ] **CRITICAL**: Omarion Hampton appears as #1 recommendation
+- [ ] **CRITICAL**: Player dropped in Test 3 should appear in top recommendations
 - [ ] **Point Display**: All recommendations show calculated scores (used for ranking), not raw fantasy points
-- [ ] Successfully adds Hampton back to roster
-- [ ] Roster display shows Hampton back in lineup
+- [ ] Successfully adds selected player back to roster
+- [ ] Roster display shows player back in lineup
 - [ ] **Roster Count**: Main menu shows updated roster count (increases by 1)
-- [ ] **CSV Validation**: Hampton shows `drafted=2` in CSV
+- [ ] **CSV Validation**: Added player shows `drafted=2` in CSV
+
+**📋 Expected Behavior**:
+- Player removed in Test 3 should be prioritized in recommendations
+- Recommendations are sorted by calculated score (highest first)
 
 ---
 
@@ -126,21 +138,26 @@ exit           # Return to main menu
 **Input Sequence**:
 ```bash
 5              # Lock/Unlock Player
-15             # Select Brian Robinson Jr. (currently locked) - NO CONFIRMATION
-16             # Back to main menu
+[ROSTER_NUM]   # Select any roster player number - NO CONFIRMATION
+[BACK_NUM]     # Back to main menu (check menu for correct number)
 3              # Waiver Optimizer
 [Enter]        # Return to main menu
 5              # Lock/Unlock Player
-15             # Select Brian Robinson Jr. - NO CONFIRMATION
-16             # Back to main menu
+[ROSTER_NUM]   # Select same player - NO CONFIRMATION
+[BACK_NUM]     # Back to main menu
 ```
 
 **✅ Expected Results**:
-- [ ] Shows current lock status (Brian Robinson Jr. initially locked)
-- [ ] Successfully unlocks Brian Robinson Jr. - **NO CONFIRMATION PROMPT**
-- [ ] **CRITICAL**: After unlocking, waiver optimizer may suggest trading Robinson
-- [ ] Successfully locks Brian Robinson Jr. again - **NO CONFIRMATION PROMPT**
+- [ ] Shows current lock status for all roster players
+- [ ] Successfully toggles lock status - **NO CONFIRMATION PROMPT**
+- [ ] **CRITICAL**: Lock status affects waiver optimizer suggestions
+- [ ] Successfully toggles lock status back - **NO CONFIRMATION PROMPT**
 - [ ] **CSV Validation**: Lock status changes reflected in CSV
+
+**📋 How to Choose Test Player**:
+- Look at the Lock/Unlock menu to see which players are listed
+- Choose any roster player number from the displayed list
+- Note the "Back to main menu" option number (usually last option)
 
 ---
 
@@ -164,13 +181,33 @@ exit           # Return to main menu
 
 ---
 
-### **Test 7: Clean Exit (Step 23)**
+### **Test 7: Trade Simulator Validation (Steps 20-22)**
+
+**🎯 Objective**: Verify trade simulation functionality (NEW)
+
+**Input Sequence**:
+```bash
+7              # Trade Simulator
+4              # Exit Trade Simulator
+```
+
+**✅ Expected Results**:
+- [ ] **Trade Simulator Menu**: Shows as option 7 (Quit moved to option 8)
+- [ ] **Roster Display**: Shows numbered list 1-15 with fantasy points
+- [ ] **Score Display**: Shows current total score and difference (should be +0.00 initially)
+- [ ] **Menu Options**: Shows 4 trade simulator options
+- [ ] **Exit**: Successfully returns to main menu
+- [ ] **State Preservation**: Original roster unchanged after exit
+
+---
+
+### **Test 8: Clean Exit (Step 23)**
 
 **🎯 Objective**: Verify proper application termination
 
 **Input Sequence**:
 ```bash
-7              # Quit
+8              # Quit (moved from option 7 to 8)
 ```
 
 **✅ Expected Results**:
@@ -212,10 +249,22 @@ exit           # Return to main menu
 For quick verification, run this automated test sequence:
 
 ```bash
-echo -e "2\nHunt\n6\nexit\n3\n\n4\nGainwell\n1\n1\n1\n5\n15\n16\n3\n\n5\n15\n16\n6\n\n7\n" | python run_draft_helper.py
+echo -e "2\nSmith\n1\nexit\n3\n\n4\nSmith\n1\nWalker\n1\nexit\n1\n1\n5\n1\n[BACK_NUM]\n3\n\n5\n1\n[BACK_NUM]\n6\n\n7\n4\n8\n" | python run_draft_helper.py
 ```
 
 **Expected Result**: Should complete without errors and show proper roster changes.
+
+**📋 Command Explanation**:
+- Uses generic search terms that should find players in most data states
+- Adapts to current roster composition
+- Tests all core functionality including new Trade Simulator
+- Replace `[BACK_NUM]` with actual back menu option number
+
+**Alternative Simple Test**:
+```bash
+echo -e "7\n4\n8\n" | python run_draft_helper.py
+```
+This tests Trade Simulator access and clean exit functionality.
 
 ---
 
@@ -241,11 +290,12 @@ echo -e "2\nHunt\n6\nexit\n3\n\n4\nGainwell\n1\n1\n1\n5\n15\n16\n3\n\n5\n15\n16\
 ## 📊 **Success Criteria**
 
 **✅ ALL TESTS PASSED**: Draft helper is fully functional
-- All 23 test steps completed without errors
+- All 24 test steps completed without errors (including Trade Simulator)
 - CSV file updates correctly reflect all changes
 - FLEX system working properly (4/4 WR + 1/1 FLEX)
 - Waiver optimizer excludes locked and drafted players
 - Starter helper generates valid lineups
+- Trade Simulator accessible as option 7 with full functionality
 - UI enhancements working: no confirmations, empty input exits, calculated scores shown
 - Roster count updates correctly after changes
 
@@ -253,6 +303,7 @@ echo -e "2\nHunt\n6\nexit\n3\n\n4\nGainwell\n1\n1\n1\n5\n15\n16\n3\n\n5\n15\n16\
 - Note specific failure points for debugging
 - Check error messages and CSV file state
 - Verify FLEX assignment logic if roster display is incorrect
+- Check Trade Simulator menu integration and functionality
 
 ---
 
@@ -266,16 +317,18 @@ Tester: [NAME]
 Duration: [MINUTES]
 
 Test 1 - Mark Drafted Player: ✅/❌
-Test 2 - Trade Analysis: ✅/❌
+Test 2 - Waiver Optimizer: ✅/❌
 Test 3 - Drop Player: ✅/❌
 Test 4 - Add to Roster: ✅/❌
 Test 5 - Lock/Unlock: ✅/❌
 Test 6 - Starter Helper: ✅/❌
-Test 7 - Clean Exit: ✅/❌
+Test 7 - Trade Simulator: ✅/❌
+Test 8 - Clean Exit: ✅/❌
 
 FLEX System: ✅/❌
 CSV Updates: ✅/❌
 Point Accuracy: ✅/❌
+Trade Simulator: ✅/❌
 
 Overall Result: ✅ PASS / ❌ FAIL
 Notes: [ADDITIONAL OBSERVATIONS]
@@ -283,4 +336,4 @@ Notes: [ADDITIONAL OBSERVATIONS]
 
 ---
 
-*This checklist validates all core draft helper functionality including the recently fixed FLEX assignment system.*
+*This checklist validates all core draft helper functionality including the FLEX assignment system and the new Trade Simulator feature. The test procedures are designed to be adaptive to any player data state.*
