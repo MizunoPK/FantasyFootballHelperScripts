@@ -6,7 +6,7 @@ This module handles all communication with ESPN's NFL API for game scores
 and statistics. Provides async operations with proper error handling and
 rate limiting.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

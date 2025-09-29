@@ -5,7 +5,7 @@ Player Data Fetcher Configuration
 This file contains all the frequently modified constants for the player data fetcher.
 Most important and frequently modified settings are at the top.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

@@ -5,7 +5,7 @@ NFL Scores Constants and Mappings
 This module contains all constant values and mappings used for NFL game scores
 collection from ESPN API. Separated for better maintainability.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

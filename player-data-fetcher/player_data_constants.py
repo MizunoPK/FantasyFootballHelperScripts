@@ -5,7 +5,7 @@ Player Data Constants and Mappings
 This module contains all constant values and mappings used for NFL player data collection
 from ESPN API. Separated from the main script for better maintainability.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

@@ -5,7 +5,7 @@ Team Data Loader for Draft Helper
 This module handles loading team offensive/defensive rankings from teams.csv
 for use in enhanced scoring calculations.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

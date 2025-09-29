@@ -24,7 +24,7 @@ Example Usage:
     # NFL_SCORES_CURRENT_WEEK=15
     # NFL_SCORES_OUTPUT_DIRECTORY=./data/nfl_scores
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 
 Dependencies:

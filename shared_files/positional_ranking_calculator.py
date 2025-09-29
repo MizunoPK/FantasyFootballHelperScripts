@@ -6,7 +6,7 @@ This module calculates position-specific score adjustments based on team offensi
 rankings and opponent matchups. Integrates with the fantasy football system to provide
 enhanced matchup-based scoring across all modules.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

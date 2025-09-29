@@ -4,7 +4,7 @@ NFL Scores Fetcher Package
 
 This package contains all modules for NFL game scores collection from ESPN API.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

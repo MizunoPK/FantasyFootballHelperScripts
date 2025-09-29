@@ -5,7 +5,7 @@ ESPN Current Week Projections Client
 This module handles ESPN API interactions specifically for current week projections.
 Optimized for roster players only to minimize API calls.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

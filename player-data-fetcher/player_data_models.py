@@ -5,7 +5,7 @@ Data Models for NFL Fantasy Football Data Collection
 This module contains all Pydantic data models used across the fantasy football
 data collection scripts. Separated for better organization and reusability.
 
-Author: Generated for NFL Fantasy Data Collection  
+Author: Kai Mizuno  
 Last Updated: September 2025
 """
 

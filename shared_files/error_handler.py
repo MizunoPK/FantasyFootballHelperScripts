@@ -12,7 +12,7 @@ Features:
 - Error context management for better debugging
 - Graceful degradation patterns
 
-Author: Generated for Fantasy Football Helper Scripts
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

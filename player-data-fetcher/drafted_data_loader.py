@@ -5,7 +5,7 @@ Drafted Data Loader Module
 This module handles loading and processing drafted player data from external CSV files.
 Provides fuzzy matching functionality to identify players and assign drafted states.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Created: September 2025
 """
 

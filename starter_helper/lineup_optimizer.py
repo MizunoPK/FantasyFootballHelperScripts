@@ -5,7 +5,7 @@ Fantasy Football Lineup Optimizer
 This module handles the core logic for recommending optimal starting lineups
 based on current week projections and league requirements.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

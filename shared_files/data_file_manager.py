@@ -13,7 +13,7 @@ Usage:
     manager = DataFileManager('path/to/data/folder', DEFAULT_FILE_CAPS)
     manager.enforce_file_caps('newly_created_file.csv')
 
-Author: Generated for Fantasy Football Helper Scripts
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

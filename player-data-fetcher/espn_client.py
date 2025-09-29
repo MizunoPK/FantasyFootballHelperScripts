@@ -5,7 +5,7 @@ ESPN Fantasy API Client
 This module handles all ESPN API interactions for fantasy football data collection.
 Separated from the main script for better organization and maintainability.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

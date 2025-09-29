@@ -13,7 +13,7 @@ Key Features:
 - Robust error handling and logging
 - Week-specific data extraction
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

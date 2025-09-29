@@ -6,7 +6,7 @@ This module provides scoring adjustments based on market wisdom and contextual f
 to improve accuracy over pure projection-based scoring. Integrates Average Draft Position (ADP),
 ESPN player ratings, and team quality context to better align with real fantasy manager evaluations.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

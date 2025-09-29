@@ -6,7 +6,7 @@ This module defines the TeamData class for NFL team-level data including
 offensive/defensive rankings and opponent information. Designed to be used
 alongside FantasyPlayer data for better separation of concerns.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

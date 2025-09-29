@@ -5,7 +5,7 @@ Data Export Module for NFL Game Scores
 This module handles all data export operations (CSV, JSON, Excel) with
 async file I/O for better performance.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

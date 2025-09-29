@@ -4,7 +4,7 @@ Player Data Fetcher Package
 
 This package contains all modules for NFL player data collection from ESPN API.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

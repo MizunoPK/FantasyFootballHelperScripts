@@ -13,7 +13,7 @@ Features:
 - Applies injury and bye week penalties
 - Shows bench alternatives
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 
 Dependencies:

@@ -5,7 +5,7 @@ Data Models for NFL Scores Collection
 This module contains all Pydantic data models used for NFL game score collection
 and analysis. Separated for better organization and reusability.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

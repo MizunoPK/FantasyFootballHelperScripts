@@ -6,7 +6,7 @@ Progress Tracking System for Player Data Fetcher
 Provides progress tracking with percentage completion and ETA calculation
 based on recent performance for improved accuracy.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 

@@ -20,7 +20,7 @@ Example Usage:
     # NFL_PROJ_SCORING_FORMAT=ppr
     # NFL_PROJ_OUTPUT_DIRECTORY=./projections
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 
 Dependencies:

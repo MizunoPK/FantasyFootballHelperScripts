@@ -5,7 +5,7 @@ FantasyPlayer Class Definition
 This module defines the FantasyPlayer class for NFL fantasy football player data.
 Designed to be used across multiple scripts for consistent player representation.
 
-Author: Generated for NFL Fantasy Data Collection
+Author: Kai Mizuno
 Last Updated: September 2025
 """
 
