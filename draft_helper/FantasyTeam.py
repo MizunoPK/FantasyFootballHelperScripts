@@ -179,12 +179,13 @@ class FantasyTeam:
             self.logger.debug(f"Position {pos} not FLEX eligible")
             return False
 
-        # Return whether the player's position is at the limit and the FLEX slot is available
-        pos_at_limit = self.pos_counts[pos] >= Constants.MAX_POSITIONS[pos]
-        flex_available = self.pos_counts[Constants.FLEX] < Constants.MAX_POSITIONS[Constants.FLEX]
-        result = pos_at_limit and flex_available
+        # Check actual slot occupancy, not position counts
+        # pos_counts includes players in FLEX slots, but we need to check natural position slots only
+        pos_slots_full = len(self.slot_assignments[pos]) >= Constants.MAX_POSITIONS[pos]
+        flex_available = len(self.slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]
+        result = pos_slots_full and flex_available
 
-        self.logger.debug(f"FLEX eligibility for {pos}: pos_at_limit={pos_at_limit} ({self.pos_counts[pos]}>={Constants.MAX_POSITIONS[pos]}), flex_available={flex_available} ({self.pos_counts[Constants.FLEX]}<{Constants.MAX_POSITIONS[Constants.FLEX]}), result={result}")
+        self.logger.debug(f"FLEX eligibility for {pos}: pos_slots_full={pos_slots_full} ({len(self.slot_assignments[pos])}>={Constants.MAX_POSITIONS[pos]}), flex_available={flex_available} ({len(self.slot_assignments[Constants.FLEX])}<{Constants.MAX_POSITIONS[Constants.FLEX]}), result={result}")
         return result
 
     # Method to check if a player can be drafted
@@ -218,7 +219,9 @@ class FantasyTeam:
             return False
         
         # Check if position limit is reached
-        if self.pos_counts[pos] >= Constants.MAX_POSITIONS[pos] and not self.flex_eligible(pos):
+        # Use slot occupancy for natural position, not pos_counts (which includes FLEX players)
+        natural_slots_full = len(self.slot_assignments[pos]) >= Constants.MAX_POSITIONS[pos]
+        if natural_slots_full and not self.flex_eligible(pos):
             self.logger.debug(f"Cannot draft player {player.id}, position {pos} limit reached.")
             return False
 
