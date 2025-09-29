@@ -62,7 +62,7 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 - **Configuration-Driven**: Modular config system with weekly `CURRENT_NFL_WEEK` updates
 
 **2. Draft Helper (`draft_helper/`)**
-- **Interactive Menu System**: Comprehensive 7-option menu with Add to Roster, Mark Drafted Player, Trade Analysis, Drop Player, Lock/Unlock Player, Starter Helper, and Quit
+- **Interactive Menu System**: Comprehensive 8-option menu with Add to Roster, Mark Drafted Player, Waiver Optimizer, Drop Player, Lock/Unlock Player, Starter Helper, Trade Simulator, and Quit
 - **Add to Roster Mode**: Draft recommendations with roster display, marks players as drafted=2 (your team)
 - **Mark Drafted Player Mode**: Fuzzy name search to mark others' picks as drafted=1, supports partial matches
 - **Roster Display by Position**: Shows players organized in draft order with specific names and fantasy points
@@ -78,6 +78,14 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
   - File output to `draft_helper/data/starter_helper/` directory
   - Same display format and functionality as standalone starter helper
   - Async implementation with graceful import fallbacks
+- **🆕 Trade Simulator** (Menu Option 7): Interactive trade simulation without affecting actual roster data
+  - Displays numbered roster list (1-15) with fantasy points and total team score
+  - Simulate multiple sequential trades with fuzzy player search
+  - Search both available (drafted=0) and drafted by others (drafted=1) players
+  - Real-time score comparison with original roster (total + per-position breakdown)
+  - Undo individual trades or reset to original roster
+  - No data persistence - all changes are temporary and reset on exit
+  - Full state management with error handling and input validation
 
 **3. Starter Helper (`starter_helper/`)**
 - **CSV-Based Projections**: Reads weekly projections from `week_N_points` columns (no API calls required)

@@ -14,8 +14,10 @@ from typing import Dict, List, Optional, Any, Tuple, Set
 
 try:
     from .. import draft_helper_constants as Constants
+    from .roster_calculator import RosterCalculator
 except ImportError:
     import draft_helper_constants as Constants
+    from core.roster_calculator import RosterCalculator
 
 
 class TradeAnalyzer:
@@ -33,6 +35,7 @@ class TradeAnalyzer:
         """
         self.team = team
         self.logger = logger or logging.getLogger(__name__)
+        self.roster_calculator = RosterCalculator(team, logger)
 
     def run_trade_helper(self, available_players: List, score_player_for_trade_func):
         """
@@ -43,24 +46,23 @@ class TradeAnalyzer:
             score_player_for_trade_func: Function to score players for trade evaluation
         """
         print("Welcome to the Start 7 Fantasy League Waiver Optimizer!")
-        print(f"Current roster: {len(self.team.roster)} / {Constants.MAX_PLAYERS} players")
-        print("Your current roster by position:")
-        for pos, count in self.team.pos_counts.items():
-            print(f"  {pos}: {count}")
+
+        # Use shared roster calculator for display
+        self.roster_calculator.display_roster_summary()
 
         # Get available players for trades (drafted=0)
         available_for_trade = [p for p in available_players if p.drafted == 0 and p.locked == 0]
         print(f"\nAnalyzing {len(available_for_trade)} available players for potential trades...")
 
-        # Calculate initial team score
-        initial_score = self.team.get_total_team_score(score_player_for_trade_func)
+        # Calculate initial team score using shared calculator
+        initial_score = self.roster_calculator.calculate_total_score(score_player_for_trade_func)
         print(f"Initial team score: {initial_score:.2f}")
 
         # Perform iterative improvement
         trades_made, all_player_trades = self.optimize_roster_iteratively(available_for_trade, score_player_for_trade_func)
 
         # Final results
-        final_score = self.team.get_total_team_score(score_player_for_trade_func)
+        final_score = self.roster_calculator.calculate_total_score(score_player_for_trade_func)
         total_improvement = final_score - initial_score
 
         print(f"\n{'='*60}")

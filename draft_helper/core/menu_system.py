@@ -69,11 +69,13 @@ class MenuSystem:
         print("5. Lock/Unlock Player")
         if self.starter_helper_available:
             print("6. Starter Helper")
+            print("7. Trade Simulator")
+            print("8. Quit")
+            max_choice = 8
+        else:
+            print("6. Trade Simulator")
             print("7. Quit")
             max_choice = 7
-        else:
-            print("6. Quit")
-            max_choice = 6
         print("="*50)
 
         try:

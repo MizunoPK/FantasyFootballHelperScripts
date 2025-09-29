@@ -20,6 +20,7 @@ try:
     from .core.roster_manager import RosterManager
     from .core.trade_analyzer import TradeAnalyzer
     from .core.scoring_engine import ScoringEngine
+    from .core.trade_simulator import TradeSimulator
 except ImportError:
     # Fallback to absolute imports when run directly
     from FantasyTeam import FantasyTeam
@@ -30,6 +31,7 @@ except ImportError:
     from core.roster_manager import RosterManager
     from core.trade_analyzer import TradeAnalyzer
     from core.scoring_engine import ScoringEngine
+    from core.trade_simulator import TradeSimulator
 
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.enhanced_scoring import EnhancedScoringCalculator
@@ -484,10 +486,15 @@ class DraftHelper:
                 if STARTER_HELPER_AVAILABLE:
                     await self.run_starter_helper_mode()
                 else:
+                    self.run_trade_simulator_mode()
+            elif choice == 7:
+                if STARTER_HELPER_AVAILABLE:
+                    self.run_trade_simulator_mode()
+                else:
                     print("Goodbye!")
                     self.logger.info("User exited interactive draft")
                     break
-            elif choice == 7:
+            elif choice == 8:
                 if STARTER_HELPER_AVAILABLE:
                     print("Goodbye!")
                     self.logger.info("User exited interactive draft")
@@ -542,6 +549,25 @@ class DraftHelper:
             run_trade_helper_func=self.run_trade_helper,
             save_players_func=self.save_players
         )
+
+    def run_trade_simulator_mode(self):
+        """Trade Simulator Mode - simulate trades without affecting actual roster data"""
+        try:
+            # Create trade simulator instance
+            trade_simulator = TradeSimulator(
+                team=self.team,
+                all_players=self.players,
+                scoring_function=self.score_player_for_trade,
+                logger=self.logger
+            )
+
+            # Run the trade simulator
+            trade_simulator.run_trade_simulator()
+
+        except Exception as e:
+            print(f"Error in trade simulator: {e}")
+            self.logger.error(f"Error in trade simulator mode: {e}")
+            input("\nPress Enter to return to Main Menu...")
 
     def run_drop_player_mode(self):
         """Drop Player Mode - allows removing players from roster (set drafted=0)"""
