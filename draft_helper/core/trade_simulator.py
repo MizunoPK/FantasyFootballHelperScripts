@@ -199,6 +199,8 @@ class TradeSimulator:
         success = self._execute_simulated_trade(player_to_trade_away, replacement_player)
         if success:
             print(f"\nTrade simulated: {player_to_trade_away.name} → {replacement_player.name}")
+            print("\nUpdated roster:")
+            self.roster_calculator.display_numbered_roster()
         else:
             print("Failed to simulate trade.")
 
@@ -335,6 +337,8 @@ class TradeSimulator:
             player_in.drafted = last_trade['player_in_original_drafted']
 
             print(f"Undid trade: {player_in.name} → {player_out.name}")
+            print("\nUpdated roster:")
+            self.roster_calculator.display_numbered_roster()
 
             if self.logger:
                 self.logger.info(f"Undid simulated trade: {player_in.name} → {player_out.name}")
