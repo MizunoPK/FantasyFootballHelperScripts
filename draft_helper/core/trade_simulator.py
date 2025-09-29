@@ -297,19 +297,27 @@ class TradeSimulator:
             'player_in_original_drafted': player_in.drafted
         }
 
+        # Temporarily mark the incoming player as available so draft_player can add them
+        # (replace_player calls draft_player which checks is_available())
+        original_player_in_drafted = player_in.drafted
+        player_in.drafted = 0
+
         # Execute the trade using team's replace_player method
         success = self.team.replace_player(player_out, player_in)
 
         if success:
-            # Update player states for simulation
-            player_out.drafted = 0  # Make available
-            player_in.drafted = 2   # Add to roster
+            # Player states are already updated by draft_player and remove_player
+            # player_out.drafted is set to 0 by remove_player
+            # player_in.drafted is set to 2 by draft_player
 
             # Track this trade
             self.trade_history.append(trade_info)
 
             if self.logger:
                 self.logger.info(f"Simulated trade: {player_out.name} → {player_in.name}")
+        else:
+            # If trade failed, restore the original drafted state
+            player_in.drafted = original_player_in_drafted
 
         return success
 
@@ -328,6 +336,10 @@ class TradeSimulator:
         player_out = last_trade['player_out']  # This was traded away, bring back
         player_in = last_trade['player_in']    # This was traded in, remove
 
+        # Temporarily mark the original player as available so we can bring them back
+        original_player_out_drafted = player_out.drafted
+        player_out.drafted = 0
+
         # Execute reverse trade
         success = self.team.replace_player(player_in, player_out)
 
@@ -343,7 +355,8 @@ class TradeSimulator:
             if self.logger:
                 self.logger.info(f"Undid simulated trade: {player_in.name} → {player_out.name}")
         else:
-            # If reverse failed, put the trade back
+            # If reverse failed, restore original state and put the trade back
+            player_out.drafted = original_player_out_drafted
             self.trade_history.append(last_trade)
             print("Failed to undo trade.")
 
