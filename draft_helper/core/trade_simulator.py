@@ -116,8 +116,8 @@ class TradeSimulator:
         print(f"\nCURRENT SIMULATED ROSTER ({len(self.trade_history)} trades made)")
         print("-" * 60)
 
-        # Display numbered roster (1-15)
-        current_roster = self.roster_calculator.display_numbered_roster()
+        # Display numbered roster (1-15) sorted by score
+        current_roster = self.roster_calculator.display_numbered_roster(self.scoring_function)
 
         # Calculate and display scores
         current_score = self.roster_calculator.calculate_total_score(self.scoring_function)
@@ -169,7 +169,7 @@ class TradeSimulator:
             return
 
         print("\nSelect a player from your roster to trade away:")
-        roster_list = self.roster_calculator.display_numbered_roster()
+        roster_list = self.roster_calculator.display_numbered_roster(self.scoring_function)
 
         try:
             choice = int(input(f"\nEnter player number (1-{len(roster_list)}): ").strip())
@@ -200,7 +200,7 @@ class TradeSimulator:
         if success:
             print(f"\nTrade simulated: {player_to_trade_away.name} → {replacement_player.name}")
             print("\nUpdated roster:")
-            self.roster_calculator.display_numbered_roster()
+            self.roster_calculator.display_numbered_roster(self.scoring_function)
         else:
             print("Failed to simulate trade.")
 
@@ -251,6 +251,8 @@ class TradeSimulator:
 
                     # Validate trade compatibility
                     if self._validate_trade_compatibility(player_to_trade_away, selected_player):
+                        # Check for bye week conflicts and warn user
+                        self._check_bye_week_conflicts(selected_player, player_to_trade_away)
                         return selected_player
                     else:
                         print("This trade is not valid. Please select a different player.")
@@ -277,6 +279,40 @@ class TradeSimulator:
         """
         # Use the team's existing validation logic
         return self.team._can_replace_player(player_out, player_in)
+
+    def _check_bye_week_conflicts(self, player_in: FantasyPlayer, player_out: FantasyPlayer) -> None:
+        """
+        Check if the incoming player has the same bye week as other roster players and warn user.
+
+        Args:
+            player_in: Player being traded in
+            player_out: Player being traded away (will be excluded from check)
+        """
+        # Check if the incoming player has a bye week
+        if not hasattr(player_in, 'bye_week') or player_in.bye_week is None:
+            return
+
+        incoming_bye = player_in.bye_week
+
+        # Find other roster players with the same bye week (excluding the player being traded away)
+        conflicting_players = []
+        for roster_player in self.team.roster:
+            if roster_player.id == player_out.id:
+                continue  # Skip the player being traded away
+
+            if (hasattr(roster_player, 'bye_week') and
+                roster_player.bye_week is not None and
+                roster_player.bye_week == incoming_bye):
+                conflicting_players.append(roster_player)
+
+        # Display warning if conflicts found
+        if conflicting_players:
+            print(f"\n⚠️  BYE WEEK CONFLICT WARNING ⚠️")
+            print(f"{player_in.name} has bye week {incoming_bye}")
+            print(f"Other players with bye week {incoming_bye}:")
+            for p in conflicting_players:
+                print(f"  - {p.name} ({p.position} - {p.team})")
+            print()
 
     def _execute_simulated_trade(self, player_out: FantasyPlayer, player_in: FantasyPlayer) -> bool:
         """
@@ -350,7 +386,7 @@ class TradeSimulator:
 
             print(f"Undid trade: {player_in.name} → {player_out.name}")
             print("\nUpdated roster:")
-            self.roster_calculator.display_numbered_roster()
+            self.roster_calculator.display_numbered_roster(self.scoring_function)
 
             if self.logger:
                 self.logger.info(f"Undid simulated trade: {player_in.name} → {player_out.name}")

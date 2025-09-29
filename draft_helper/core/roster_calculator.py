@@ -48,10 +48,13 @@ class RosterCalculator:
         for pos, count in self.team.pos_counts.items():
             print(f"  {pos}: {count}")
 
-    def display_numbered_roster(self):
+    def display_numbered_roster(self, scoring_function=None):
         """
         Display roster as numbered list 1-15 for trade simulator.
-        Shows players in roster order with their details.
+        Shows players sorted by score (highest to lowest) with their details.
+
+        Args:
+            scoring_function: Optional function to calculate player scores for sorting and display
 
         Returns:
             List of players in display order for selection reference
@@ -63,13 +66,25 @@ class RosterCalculator:
             print("No players in roster.")
             return []
 
+        # Sort roster by score if scoring function provided
+        roster_to_display = list(self.team.roster)
+        if scoring_function:
+            roster_to_display.sort(key=lambda p: scoring_function(p), reverse=True)
+
         # Display each player with number
-        for i, player in enumerate(self.team.roster, 1):
+        for i, player in enumerate(roster_to_display, 1):
             locked_indicator = " (LOCKED)" if getattr(player, 'locked', False) else ""
-            points_str = f"{getattr(player, 'fantasy_points', 0):.1f} pts"
+
+            # Use scoring function if provided, otherwise use fantasy_points
+            if scoring_function:
+                points = scoring_function(player)
+            else:
+                points = getattr(player, 'fantasy_points', 0)
+
+            points_str = f"{points:.1f} pts"
             print(f"{i:2d}. {player.name} ({player.position} - {player.team}) - {points_str}{locked_indicator}")
 
-        return self.team.roster
+        return roster_to_display
 
     def calculate_total_score(self, scoring_function: Callable) -> float:
         """
