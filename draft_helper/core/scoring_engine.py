@@ -286,14 +286,17 @@ class ScoringEngine:
         risk_level = p.get_risk_level()
         return Constants.INJURY_PENALTIES.get(risk_level, 0)
 
-    def score_player_for_trade(self, player, positional_ranking_calculator=None):
+    def score_player_for_trade(self, player, positional_ranking_calculator=None, enhanced_scorer=None, team_data_loader=None):
         """
         Modified scoring function for trade evaluation.
         Sets positional need weight to 0 and focuses on projections, injuries, bye weeks, and matchups.
+        Uses enhanced scoring for more accurate player valuations.
 
         Args:
             player: FantasyPlayer to evaluate
             positional_ranking_calculator: PositionalRankingCalculator instance
+            enhanced_scorer: EnhancedScoringCalculator instance for score multipliers
+            team_data_loader: TeamDataLoader instance for team rankings
 
         Returns:
             float: Trade score for the player
@@ -301,30 +304,16 @@ class ScoringEngine:
         # Use 0 weight for positional need as specified
         pos_score = 0
 
-        # Calculate projection score (same as draft mode)
-        projection_score = self.compute_projection_score(player)
+        # Calculate projection score with enhanced scoring (same as draft mode)
+        projection_score = self.compute_projection_score(
+            player,
+            enhanced_scorer=enhanced_scorer,
+            team_data_loader=team_data_loader,
+            positional_ranking_calculator=positional_ranking_calculator
+        )
         self.logger.debug(f"Projection score for {player.name}: {projection_score}")
 
-        # Apply positional ranking adjustment if available
-        if (positional_ranking_calculator and
-            positional_ranking_calculator.is_positional_ranking_available() and
-            player.team and player.position):
-            try:
-                from shared_config import CURRENT_NFL_WEEK
-                current_week = CURRENT_NFL_WEEK
-
-                ranking_adjusted_points, ranking_explanation = positional_ranking_calculator.calculate_positional_adjustment(
-                    player_team=player.team,
-                    position=player.position,
-                    base_points=projection_score,
-                    current_week=current_week
-                )
-
-                if ranking_adjusted_points != projection_score:
-                    self.logger.debug(f"Trade scoring - Positional ranking adjustment for {player.name}: {projection_score:.1f} -> {ranking_adjusted_points:.1f} ({ranking_explanation})")
-                    projection_score = ranking_adjusted_points
-            except Exception as e:
-                self.logger.warning(f"Failed to apply positional ranking adjustment for {player.name} in trade scoring: {e}")
+        # Positional ranking adjustment is already applied inside compute_projection_score
 
         # Calculate bye week penalty - exclude self if this is a roster player
         exclude_self = (player.drafted == 2)

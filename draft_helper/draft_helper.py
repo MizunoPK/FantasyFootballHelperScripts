@@ -1051,10 +1051,13 @@ class DraftHelper:
         """
         Modified scoring function for trade evaluation
         Sets positional need weight to 0 and focuses on projections, injuries, bye weeks, and matchups
+        Uses enhanced scoring for accurate player valuations
         """
         return self.scoring_engine.score_player_for_trade(
             player,
-            positional_ranking_calculator=self.positional_ranking_calculator
+            positional_ranking_calculator=self.positional_ranking_calculator,
+            enhanced_scorer=self.enhanced_scorer,
+            team_data_loader=self.team_data_loader
         )
 
     def compute_positional_need_score(self, p):
