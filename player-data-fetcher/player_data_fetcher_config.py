@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from shared_config import CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT
+from shared_files.validation_utils import ValidationResult, ConfigValidator, validate_multiple
 
 # =============================================================================
 # PLAYER DATA FETCHER SPECIFIC SETTINGS
@@ -117,20 +118,80 @@ PROGRESS_ETA_WINDOW_SIZE = 50          # ← Number of recent players to use for
 # =============================================================================
 
 def validate_config():
-    """Validate configuration settings"""
-    errors = []
+    """Validate configuration settings using shared validation utilities"""
+    def validate_basic_settings():
+        result = ValidationResult()
 
-    if NFL_SCORING_FORMAT not in ["ppr", "std", "half"]:
-        errors.append(f"Invalid NFL_SCORING_FORMAT: {NFL_SCORING_FORMAT}")
+        # Validate scoring format
+        valid_formats = ["ppr", "std", "half"]
+        if NFL_SCORING_FORMAT not in valid_formats:
+            result.add_error(f"Invalid NFL_SCORING_FORMAT: {NFL_SCORING_FORMAT}. Valid options: {valid_formats}", "NFL_SCORING_FORMAT", NFL_SCORING_FORMAT)
 
-    # POSITION_FALLBACK_CONFIG removed - week-by-week only system
+        # Validate NFL season
+        season_result = ConfigValidator.validate_range(NFL_SEASON, 2020, 2030, "NFL_SEASON")
+        result.errors.extend(season_result.errors)
 
-    # Validate mutual exclusivity of drafted data loading options
-    if PRESERVE_DRAFTED_VALUES and LOAD_DRAFTED_DATA_FROM_FILE:
-        errors.append("PRESERVE_DRAFTED_VALUES and LOAD_DRAFTED_DATA_FROM_FILE cannot both be enabled. Choose one method for loading drafted data.")
-        
-    if errors:
-        raise ValueError(f"Configuration validation failed: {'; '.join(errors)}")
+        # Validate current NFL week
+        week_result = ConfigValidator.validate_range(CURRENT_NFL_WEEK, 1, 22, "CURRENT_NFL_WEEK")
+        result.errors.extend(week_result.errors)
+
+        return result
+
+    def validate_optimization_settings():
+        result = ValidationResult()
+
+        # Validate player score threshold
+        if USE_SCORE_THRESHOLD:
+            threshold_result = ConfigValidator.validate_range(PLAYER_SCORE_THRESHOLD, 0.0, 500.0, "PLAYER_SCORE_THRESHOLD")
+            result.errors.extend(threshold_result.errors)
+
+        # Validate API settings
+        timeout_result = ConfigValidator.validate_range(REQUEST_TIMEOUT, 1, 300, "REQUEST_TIMEOUT")
+        result.errors.extend(timeout_result.errors)
+
+        delay_result = ConfigValidator.validate_range(RATE_LIMIT_DELAY, 0.0, 10.0, "RATE_LIMIT_DELAY")
+        result.errors.extend(delay_result.errors)
+
+        return result
+
+    def validate_mutually_exclusive_options():
+        result = ValidationResult()
+
+        # Validate mutual exclusivity of drafted data loading options
+        exclusive_groups = [["PRESERVE_DRAFTED_VALUES", "LOAD_DRAFTED_DATA_FROM_FILE"]]
+        config_dict = {
+            "PRESERVE_DRAFTED_VALUES": PRESERVE_DRAFTED_VALUES,
+            "LOAD_DRAFTED_DATA_FROM_FILE": LOAD_DRAFTED_DATA_FROM_FILE
+        }
+
+        mutually_exclusive_result = ConfigValidator.validate_mutually_exclusive(config_dict, exclusive_groups)
+        result.errors.extend(mutually_exclusive_result.errors)
+
+        return result
+
+    def validate_progress_settings():
+        result = ValidationResult()
+
+        if PROGRESS_TRACKING_ENABLED:
+            freq_result = ConfigValidator.validate_range(PROGRESS_UPDATE_FREQUENCY, 1, 100, "PROGRESS_UPDATE_FREQUENCY")
+            result.errors.extend(freq_result.errors)
+
+            window_result = ConfigValidator.validate_range(PROGRESS_ETA_WINDOW_SIZE, 5, 200, "PROGRESS_ETA_WINDOW_SIZE")
+            result.errors.extend(window_result.errors)
+
+        return result
+
+    # Run all validations
+    combined_result = validate_multiple([
+        validate_basic_settings,
+        validate_optimization_settings,
+        validate_mutually_exclusive_options,
+        validate_progress_settings
+    ])
+
+    if not combined_result.is_valid:
+        error_messages = combined_result.get_error_messages()
+        raise ValueError(f"Configuration validation failed: {'; '.join(error_messages)}")
 
 # Run validation on import
 if __name__ != "__main__":

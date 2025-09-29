@@ -605,7 +605,7 @@ class DraftHelper:
             print("-" * 40)
 
             # Display unlocked players
-            print(f"\n🔓 UNLOCKED PLAYERS ({len(unlocked_players)}):")
+            print(f"\nUNLOCKED PLAYERS ({len(unlocked_players)}):")
             if unlocked_players:
                 for i, player in enumerate(unlocked_players, 1):
                     print(f"  {i}. {player.name} ({player.position}, {player.team}) - {player.fantasy_points:.1f} pts")
@@ -613,7 +613,7 @@ class DraftHelper:
                 print("  (No unlocked players)")
 
             # Display locked players
-            print(f"\n🔒 LOCKED PLAYERS ({len(locked_players)}):")
+            print(f"\nLOCKED PLAYERS ({len(locked_players)}):")
             if locked_players:
                 for i, player in enumerate(locked_players, len(unlocked_players) + 1):
                     print(f"  {i}. {player.name} ({player.position}, {player.team}) - {player.fantasy_points:.1f} pts")

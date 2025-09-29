@@ -20,6 +20,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from shared_config import CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT
+from shared_files.validation_utils import ValidationResult, ConfigValidator, validate_multiple
 
 # =============================================================================
 # STARTER HELPER SPECIFIC SETTINGS
@@ -133,26 +134,86 @@ LOGGING_FILE = './data/log.txt'
 # =============================================================================
 
 def validate_config():
-    """Validate configuration settings"""
-    errors = []
+    """Validate configuration settings using shared validation utilities"""
+    def validate_basic_settings():
+        result = ValidationResult()
 
-    if NFL_SCORING_FORMAT not in ["ppr", "std", "half"]:
-        errors.append(f"Invalid NFL_SCORING_FORMAT: {NFL_SCORING_FORMAT}")
+        # Validate scoring format
+        valid_formats = ["ppr", "std", "half"]
+        if NFL_SCORING_FORMAT not in valid_formats:
+            result.add_error(f"Invalid NFL_SCORING_FORMAT: {NFL_SCORING_FORMAT}. Valid options: {valid_formats}", "NFL_SCORING_FORMAT", NFL_SCORING_FORMAT)
 
-    if CURRENT_NFL_WEEK < 1 or CURRENT_NFL_WEEK > 18:
-        errors.append(f"Invalid CURRENT_NFL_WEEK: {CURRENT_NFL_WEEK}")
+        # Validate current NFL week
+        week_result = ConfigValidator.validate_range(CURRENT_NFL_WEEK, 1, 18, "CURRENT_NFL_WEEK")
+        result.errors.extend(week_result.errors)
 
-    required_positions = [QB, RB, WR, TE, FLEX, K, DST]
-    for pos in required_positions:
-        if pos not in STARTING_LINEUP_REQUIREMENTS:
-            errors.append(f"Missing position in STARTING_LINEUP_REQUIREMENTS: {pos}")
+        # Validate NFL season
+        season_result = ConfigValidator.validate_range(NFL_SEASON, 2020, 2030, "NFL_SEASON")
+        result.errors.extend(season_result.errors)
 
-    if not FLEX_ELIGIBLE_POSITIONS:
-        errors.append("FLEX_ELIGIBLE_POSITIONS cannot be empty")
+        return result
 
+    def validate_lineup_requirements():
+        result = ValidationResult()
 
-    if errors:
-        raise ValueError(f"Configuration validation failed: {'; '.join(errors)}")
+        # Validate required positions are present
+        required_positions = [QB, RB, WR, TE, FLEX, K, DST]
+        for pos in required_positions:
+            if pos not in STARTING_LINEUP_REQUIREMENTS:
+                result.add_error(f"Missing position in STARTING_LINEUP_REQUIREMENTS: {pos}", "STARTING_LINEUP_REQUIREMENTS")
+
+        # Validate position requirements are positive
+        for position, count in STARTING_LINEUP_REQUIREMENTS.items():
+            pos_result = ConfigValidator.validate_range(count, 0, 5, f"STARTING_LINEUP_REQUIREMENTS[{position}]")
+            result.errors.extend(pos_result.errors)
+
+        # Validate FLEX eligible positions
+        if not FLEX_ELIGIBLE_POSITIONS:
+            result.add_error("FLEX_ELIGIBLE_POSITIONS cannot be empty", "FLEX_ELIGIBLE_POSITIONS")
+
+        return result
+
+    def validate_penalty_settings():
+        result = ValidationResult()
+
+        # Validate injury penalties
+        for injury_status, penalty in INJURY_PENALTIES.items():
+            penalty_result = ConfigValidator.validate_range(penalty, 0, 1000, f"INJURY_PENALTIES[{injury_status}]")
+            result.errors.extend(penalty_result.errors)
+
+        # Validate bye week penalty
+        bye_result = ConfigValidator.validate_range(BYE_WEEK_PENALTY, 0, 10000, "BYE_WEEK_PENALTY")
+        result.errors.extend(bye_result.errors)
+
+        return result
+
+    def validate_display_settings():
+        result = ValidationResult()
+
+        # Validate recommendation count
+        rec_result = ConfigValidator.validate_range(RECOMMENDATION_COUNT, 1, 100, "RECOMMENDATION_COUNT")
+        result.errors.extend(rec_result.errors)
+
+        # Validate API timeout settings
+        timeout_result = ConfigValidator.validate_range(REQUEST_TIMEOUT, 1, 300, "REQUEST_TIMEOUT")
+        result.errors.extend(timeout_result.errors)
+
+        delay_result = ConfigValidator.validate_range(RATE_LIMIT_DELAY, 0.0, 10.0, "RATE_LIMIT_DELAY")
+        result.errors.extend(delay_result.errors)
+
+        return result
+
+    # Run all validations
+    combined_result = validate_multiple([
+        validate_basic_settings,
+        validate_lineup_requirements,
+        validate_penalty_settings,
+        validate_display_settings
+    ])
+
+    if not combined_result.is_valid:
+        error_messages = combined_result.get_error_messages()
+        raise ValueError(f"Configuration validation failed: {'; '.join(error_messages)}")
 
 # Run validation on import
 if __name__ != "__main__":

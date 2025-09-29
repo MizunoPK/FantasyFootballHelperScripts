@@ -10,6 +10,12 @@ Last Updated: September 2025
 """
 
 from typing import Dict, List
+import sys
+from pathlib import Path
+
+# Add parent directory to path for shared_files imports
+sys.path.append(str(Path(__file__).parent.parent))
+from shared_files.validation_utils import ValidationResult, ConfigValidator, validate_multiple
 
 # =============================================================================
 # MOST FREQUENTLY MODIFIED SETTINGS
@@ -113,24 +119,89 @@ def get_ideal_draft_position(round_num: int) -> str:
 # =============================================================================
 
 def validate_config():
-    """Validate configuration settings"""
-    errors = []
-    
-    if not POSSIBLE_BYE_WEEKS:
-        errors.append("POSSIBLE_BYE_WEEKS cannot be empty")
-    
-    if MAX_PLAYERS <= 0:
-        errors.append("MAX_PLAYERS must be positive")
-        
-    if sum(MAX_POSITIONS.values()) < MAX_PLAYERS:
-        errors.append("MAX_POSITIONS total should be >= MAX_PLAYERS")
-        
-    total_rounds = len(DRAFT_ORDER)
-    if total_rounds != MAX_PLAYERS:
-        errors.append(f"DRAFT_ORDER has {total_rounds} rounds but MAX_PLAYERS is {MAX_PLAYERS}")
-        
-    if errors:
-        raise ValueError(f"Configuration validation failed: {'; '.join(errors)}")
+    """Validate configuration settings using shared validation utilities"""
+    def validate_basic_settings():
+        result = ValidationResult()
+
+        # Validate MAX_PLAYERS
+        max_players_result = ConfigValidator.validate_range(MAX_PLAYERS, 1, 50, "MAX_PLAYERS")
+        result.errors.extend(max_players_result.errors)
+
+        # Validate that POSSIBLE_BYE_WEEKS is not empty
+        if not POSSIBLE_BYE_WEEKS:
+            result.add_error("POSSIBLE_BYE_WEEKS cannot be empty", "POSSIBLE_BYE_WEEKS")
+
+        # Validate bye weeks are in valid range
+        for week in POSSIBLE_BYE_WEEKS:
+            week_result = ConfigValidator.validate_range(week, 1, 18, f"bye_week_{week}")
+            result.errors.extend(week_result.errors)
+
+        return result
+
+    def validate_position_settings():
+        result = ValidationResult()
+
+        # Validate MAX_POSITIONS totals
+        total_positions = sum(MAX_POSITIONS.values())
+        if total_positions < MAX_PLAYERS:
+            result.add_error(f"MAX_POSITIONS total ({total_positions}) should be >= MAX_PLAYERS ({MAX_PLAYERS})", "MAX_POSITIONS")
+
+        # Validate each position limit
+        for position, limit in MAX_POSITIONS.items():
+            pos_result = ConfigValidator.validate_range(limit, 0, 10, f"MAX_POSITIONS[{position}]")
+            result.errors.extend(pos_result.errors)
+
+        return result
+
+    def validate_draft_order():
+        result = ValidationResult()
+
+        total_rounds = len(DRAFT_ORDER)
+        if total_rounds != MAX_PLAYERS:
+            result.add_error(f"DRAFT_ORDER has {total_rounds} rounds but MAX_PLAYERS is {MAX_PLAYERS}", "DRAFT_ORDER")
+
+        # Validate each round has valid positions
+        for round_idx, round_prefs in enumerate(DRAFT_ORDER):
+            if not round_prefs:
+                result.add_error(f"Round {round_idx + 1} cannot have empty preferences", f"DRAFT_ORDER[{round_idx}]")
+
+            for position, weight in round_prefs.items():
+                if position not in list(MAX_POSITIONS.keys()):
+                    result.add_error(f"Invalid position '{position}' in round {round_idx + 1}", f"DRAFT_ORDER[{round_idx}]")
+
+                weight_result = ConfigValidator.validate_range(weight, 0.0, 2.0, f"DRAFT_ORDER[{round_idx}][{position}]")
+                result.errors.extend(weight_result.errors)
+
+        return result
+
+    def validate_penalties():
+        result = ValidationResult()
+
+        # Validate injury penalties
+        for injury_level, penalty in INJURY_PENALTIES.items():
+            penalty_result = ConfigValidator.validate_range(penalty, 0, 200, f"INJURY_PENALTIES[{injury_level}]")
+            result.errors.extend(penalty_result.errors)
+
+        # Validate other penalty settings
+        bye_penalty_result = ConfigValidator.validate_range(BASE_BYE_PENALTY, 0, 100, "BASE_BYE_PENALTY")
+        result.errors.extend(bye_penalty_result.errors)
+
+        trade_improvement_result = ConfigValidator.validate_range(MIN_TRADE_IMPROVEMENT, 0, 100, "MIN_TRADE_IMPROVEMENT")
+        result.errors.extend(trade_improvement_result.errors)
+
+        return result
+
+    # Run all validations
+    combined_result = validate_multiple([
+        validate_basic_settings,
+        validate_position_settings,
+        validate_draft_order,
+        validate_penalties
+    ])
+
+    if not combined_result.is_valid:
+        error_messages = combined_result.get_error_messages()
+        raise ValueError(f"Configuration validation failed: {'; '.join(error_messages)}")
 
 # Run validation on import
 if __name__ != "__main__":

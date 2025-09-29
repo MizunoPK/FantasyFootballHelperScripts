@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from shared_config import CURRENT_NFL_WEEK, NFL_SEASON
+from shared_files.validation_utils import ValidationResult, ConfigValidator, validate_multiple
 
 # Map shared variables to local names for backwards compatibility
 NFL_SCORES_SEASON = NFL_SEASON
@@ -59,20 +60,49 @@ LOGGING_FILE = './data/log.txt'
 # =============================================================================
 
 def validate_config():
-    """Validate configuration settings"""
-    errors = []
-    
-    if NFL_SCORES_SEASON <= 0:
-        errors.append("NFL_SCORES_SEASON must be positive")
-        
-    if NFL_SCORES_SEASON_TYPE not in [1, 2, 3, 4]:
-        errors.append("NFL_SCORES_SEASON_TYPE must be 1 (preseason), 2 (regular), 3 (postseason), or 4 (off-season)")
-        
-    if NFL_SCORES_CURRENT_WEEK <= 0:
-        errors.append("NFL_SCORES_CURRENT_WEEK must be positive")
-        
-    if errors:
-        raise ValueError(f"Configuration validation failed: {'; '.join(errors)}")
+    """Validate configuration settings using shared validation utilities"""
+    def validate_basic_settings():
+        result = ValidationResult()
+
+        # Validate NFL season
+        season_result = ConfigValidator.validate_range(NFL_SCORES_SEASON, 2020, 2030, "NFL_SCORES_SEASON")
+        result.errors.extend(season_result.errors)
+
+        # Validate current NFL week
+        week_result = ConfigValidator.validate_range(NFL_SCORES_CURRENT_WEEK, 1, 22, "NFL_SCORES_CURRENT_WEEK")
+        result.errors.extend(week_result.errors)
+
+        # Validate season type
+        valid_season_types = [1, 2, 3, 4]
+        if NFL_SCORES_SEASON_TYPE not in valid_season_types:
+            result.add_error(
+                f"NFL_SCORES_SEASON_TYPE must be 1 (preseason), 2 (regular), 3 (postseason), or 4 (off-season). Got: {NFL_SCORES_SEASON_TYPE}",
+                "NFL_SCORES_SEASON_TYPE", NFL_SCORES_SEASON_TYPE
+            )
+
+        return result
+
+    def validate_api_settings():
+        result = ValidationResult()
+
+        # Validate timeout settings
+        timeout_result = ConfigValidator.validate_range(REQUEST_TIMEOUT, 1, 300, "REQUEST_TIMEOUT")
+        result.errors.extend(timeout_result.errors)
+
+        delay_result = ConfigValidator.validate_range(RATE_LIMIT_DELAY, 0.0, 10.0, "RATE_LIMIT_DELAY")
+        result.errors.extend(delay_result.errors)
+
+        return result
+
+    # Run all validations
+    combined_result = validate_multiple([
+        validate_basic_settings,
+        validate_api_settings
+    ])
+
+    if not combined_result.is_valid:
+        error_messages = combined_result.get_error_messages()
+        raise ValueError(f"Configuration validation failed: {'; '.join(error_messages)}")
 
 # Run validation on import
 if __name__ != "__main__":
