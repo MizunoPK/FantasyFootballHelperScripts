@@ -151,7 +151,7 @@ class TestDataExporter:
     @pytest.mark.asyncio
     async def test_export_json_error_handling(self, exporter, sample_projection_data):
         """Test JSON export error handling"""
-        with patch('aiofiles.open', side_effect=Exception("JSON error")):
+        with patch.object(exporter.file_manager, 'save_json_data', side_effect=Exception("JSON error")):
             with pytest.raises(Exception):
                 await exporter.export_json(sample_projection_data)
 

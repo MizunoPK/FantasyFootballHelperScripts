@@ -179,7 +179,7 @@ class DataExporter:
         weekly_columns = [col for col in EXPORT_COLUMNS if col.startswith('week_') and col.endswith('_points')]
         for col in weekly_columns:
             if col in df.columns:
-                df[col] = df[col].fillna(0.0)
+                df[col] = df[col].fillna(0.0).infer_objects(copy=False)
 
         # Return DataFrame with standardized column order
         return df[EXPORT_COLUMNS]

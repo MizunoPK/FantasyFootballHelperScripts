@@ -35,7 +35,7 @@ from shared_files.validation_utils import (
 )
 
 
-class TestEnum(Enum):
+class SampleTestEnum(Enum):
     OPTION_A = "option_a"
     OPTION_B = "option_b"
     OPTION_C = "option_c"
@@ -113,14 +113,14 @@ class TestConfigValidator(unittest.TestCase):
 
     def test_validate_enum_value_success(self):
         """Test successful enum validation"""
-        result = ConfigValidator.validate_enum_value("option_a", TestEnum, "test_field")
+        result = ConfigValidator.validate_enum_value("option_a", SampleTestEnum, "test_field")
 
         self.assertTrue(result.is_valid)
         self.assertEqual(len(result.errors), 0)
 
     def test_validate_enum_value_invalid(self):
         """Test enum validation with invalid value"""
-        result = ConfigValidator.validate_enum_value("invalid_option", TestEnum, "test_field")
+        result = ConfigValidator.validate_enum_value("invalid_option", SampleTestEnum, "test_field")
 
         self.assertFalse(result.is_valid)
         self.assertEqual(len(result.errors), 1)
@@ -128,7 +128,7 @@ class TestConfigValidator(unittest.TestCase):
 
     def test_validate_enum_value_none(self):
         """Test enum validation with None value"""
-        result = ConfigValidator.validate_enum_value(None, TestEnum, "test_field")
+        result = ConfigValidator.validate_enum_value(None, SampleTestEnum, "test_field")
 
         self.assertFalse(result.is_valid)
         self.assertIn("cannot be None", result.errors[0]['message'])

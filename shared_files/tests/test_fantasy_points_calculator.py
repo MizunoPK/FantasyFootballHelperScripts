@@ -299,6 +299,3 @@ class TestConvenienceFunctions:
         print("✅ All fantasy points calculator tests passed - pure week-by-week system working!")
 
 
-# Test configuration for pytest
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

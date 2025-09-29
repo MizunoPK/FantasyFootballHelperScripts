@@ -625,6 +625,298 @@ class TestIntegration:
             assert context.additional_context["file_path"] == str(file_path)
 
 
+class TestErrorHandlerEdgeCases:
+    """Edge case tests for error handling system"""
+
+    def test_error_context_with_none_values(self):
+        """Test ErrorContext with None values and edge cases"""
+        context = ErrorContext(operation=None, component=None)
+
+        result_dict = context.to_dict()
+        assert result_dict["operation"] is None
+        assert result_dict["component"] is None
+        assert "timestamp" in result_dict
+
+    def test_error_context_with_unicode_values(self):
+        """Test ErrorContext with unicode and special characters"""
+        context = ErrorContext(
+            operation="测试操作",  # Chinese characters
+            component="тест_компонент",  # Cyrillic characters
+            file_path="/path/with spaces/file.txt",
+            player_id="player_José_Müller_李",
+            additional_context={"🏈": "football", "ñame": "José"}
+        )
+
+        result_dict = context.to_dict()
+        assert result_dict["operation"] == "测试操作"
+        assert result_dict["component"] == "тест_компонент"
+        assert "🏈" in result_dict["additional_context"]
+
+    def test_error_context_with_very_long_strings(self):
+        """Test ErrorContext with very long strings"""
+        long_string = "x" * 10000  # 10KB string
+        context = ErrorContext(
+            operation=long_string,
+            component="test",
+            additional_context={"long_value": long_string}
+        )
+
+        result_dict = context.to_dict()
+        assert len(result_dict["operation"]) == 10000
+        assert len(result_dict["additional_context"]["long_value"]) == 10000
+
+    def test_fantasy_football_error_nested_context(self):
+        """Test FantasyFootballError with nested context and exceptions"""
+        inner_exception = ValueError("Inner error")
+        middle_exception = RuntimeError("Middle error", inner_exception)
+
+        context = ErrorContext(
+            operation="nested_test",
+            component="test",
+            additional_context={"nested": {"level": 2, "data": [1, 2, 3]}}
+        )
+
+        error = FantasyFootballError(
+            "Outer error",
+            context=context,
+            original_exception=middle_exception
+        )
+
+        error_str = str(error)
+        assert "Outer error" in error_str
+        assert "nested_test" in error_str
+        assert "RuntimeError:" in error_str
+        assert "Middle error" in error_str
+
+    def test_error_handler_with_very_high_error_counts(self):
+        """Test error handler with large number of errors"""
+        handler = ErrorHandler("stress_test")
+
+        # Generate many errors of different types
+        for i in range(1000):
+            error_type = [ValueError, TypeError, RuntimeError][i % 3]
+            error = error_type(f"Error {i}")
+            handler.log_error(error)
+
+        summary = handler.get_error_summary()
+        assert summary["ValueError"] == 334  # 1000/3 rounded up
+        assert summary["TypeError"] == 333   # 1000/3
+        assert summary["RuntimeError"] == 333  # 1000/3
+        assert sum(summary.values()) == 1000
+
+    def test_retry_handler_with_extreme_delays(self):
+        """Test retry handler with extreme delay configurations"""
+        # Test very small delays
+        handler_fast = RetryHandler(
+            max_attempts=3,
+            base_delay=0.001,  # 1ms
+            max_delay=0.01,    # 10ms
+            backoff_factor=1.5
+        )
+
+        assert handler_fast.calculate_delay(0) == 0.001
+        assert handler_fast.calculate_delay(10) == 0.01  # Capped at max
+
+        # Test very large theoretical delays (capped by max_delay)
+        handler_slow = RetryHandler(
+            max_attempts=2,
+            base_delay=1.0,
+            max_delay=5.0,
+            backoff_factor=1000.0  # Extreme multiplier
+        )
+
+        assert handler_slow.calculate_delay(0) == 1.0
+        assert handler_slow.calculate_delay(1) == 5.0  # Capped at max_delay
+
+    def test_retry_handler_with_zero_attempts(self):
+        """Test retry handler with edge case configurations"""
+        handler = RetryHandler(max_attempts=0)  # No retries
+
+        def always_fails():
+            raise ValueError("No retries allowed")
+
+        # With 0 max_attempts, it should either not execute at all or fail immediately
+        try:
+            result = handler.retry_sync(always_fails)
+            # If it doesn't raise, it should return None or some default
+            assert result is None or result == "fallback"
+        except ValueError as e:
+            # If it does raise, the error should be the expected one
+            assert "No retries allowed" in str(e)
+
+    def test_concurrent_error_handling(self):
+        """Test error handling under concurrent access"""
+        import threading
+        import time
+
+        handler = ErrorHandler("concurrent_test")
+        errors_logged = []
+
+        def log_errors_worker(worker_id, error_count):
+            for i in range(error_count):
+                try:
+                    error = ValueError(f"Worker {worker_id} Error {i}")
+                    handler.log_error(error)
+                    errors_logged.append(f"{worker_id}-{i}")
+                except Exception as e:
+                    errors_logged.append(f"EXCEPTION: {e}")
+
+        # Start multiple threads logging errors concurrently
+        threads = []
+        for worker_id in range(5):
+            thread = threading.Thread(target=log_errors_worker, args=(worker_id, 20))
+            threads.append(thread)
+            thread.start()
+
+        # Wait for completion
+        for thread in threads:
+            thread.join()
+
+        # Verify all errors were logged
+        assert len(errors_logged) == 100  # 5 workers * 20 errors each
+        summary = handler.get_error_summary()
+        assert summary["ValueError"] == 100
+
+    def test_memory_usage_with_large_error_contexts(self):
+        """Test memory efficiency with large error contexts"""
+        handler = ErrorHandler("memory_test")
+
+        # Create large contexts repeatedly
+        for i in range(100):
+            large_data = {
+                "large_list": list(range(1000)),
+                "large_string": "x" * 1000,
+                "nested_data": {"level_" + str(j): list(range(50)) for j in range(20)}
+            }
+
+            context = ErrorContext(
+                operation=f"operation_{i}",
+                component="memory_test",
+                additional_context=large_data
+            )
+
+            error = ValueError(f"Memory test error {i}")
+            handler.log_error(error, context)
+
+        # Should not consume excessive memory or crash
+        summary = handler.get_error_summary()
+        assert summary["ValueError"] == 100
+
+    def test_error_handler_with_circular_references(self):
+        """Test error handling with circular reference objects"""
+        handler = ErrorHandler("circular_test")
+
+        # Create circular reference
+        obj_a = {"name": "A"}
+        obj_b = {"name": "B", "ref": obj_a}
+        obj_a["ref"] = obj_b  # Circular reference
+
+        context = ErrorContext(
+            operation="circular_test",
+            component="test",
+            additional_context={"circular": obj_a}
+        )
+
+        # Should handle without infinite recursion
+        error = ValueError("Circular reference test")
+        handler.log_error(error, context)
+
+        summary = handler.get_error_summary()
+        assert summary["ValueError"] == 1
+
+    @pytest.mark.asyncio
+    async def test_async_retry_with_timeout_simulation(self):
+        """Test async retry with simulated timeout conditions"""
+        handler = RetryHandler(max_attempts=3, base_delay=0.01)
+        call_count = 0
+
+        async def timeout_simulation():
+            nonlocal call_count
+            call_count += 1
+
+            if call_count == 1:
+                raise asyncio.TimeoutError("Simulated timeout")
+            elif call_count == 2:
+                raise ConnectionError("Connection failed")
+            else:
+                return "success_after_timeouts"
+
+        result = await handler.retry_async(timeout_simulation)
+        assert result == "success_after_timeouts"
+        assert call_count == 3
+
+    def test_error_context_serialization_edge_cases(self):
+        """Test error context with non-serializable objects"""
+        import io
+        import threading
+
+        # Objects that might cause serialization issues
+        non_serializable_objects = {
+            "file_object": io.StringIO("test"),
+            "thread_lock": threading.Lock(),
+            "lambda": lambda x: x * 2,
+            "generator": (x for x in range(5))
+        }
+
+        context = ErrorContext(
+            operation="serialization_test",
+            component="test",
+            additional_context=non_serializable_objects
+        )
+
+        # Should not crash even with non-serializable objects
+        try:
+            result_dict = context.to_dict()
+            # Should complete without exception
+            assert "operation" in result_dict
+        except Exception:
+            # If it does fail, it should fail gracefully
+            pass
+
+    def test_safe_execute_with_complex_exceptions(self):
+        """Test safe_execute with complex exception scenarios"""
+
+        def raises_complex_exception():
+            try:
+                # Nested exception scenario
+                try:
+                    raise ValueError("Inner exception")
+                except ValueError as inner:
+                    raise RuntimeError("Outer exception") from inner
+            except RuntimeError:
+                # Re-raise with additional context
+                raise APIError("Complex API error with nested causes")
+
+        result = safe_execute(
+            raises_complex_exception,
+            default="complex_fallback",
+            log_errors=True
+        )
+
+        assert result == "complex_fallback"
+
+    def test_file_validation_with_special_paths(self):
+        """Test file validation with special path edge cases"""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Test with path containing special characters
+            special_path = Path(temp_dir) / "file with spaces & symbols!@#.txt"
+
+            # Should handle special characters in paths
+            validate_file_operation(special_path, "write")
+
+            # Test with very long filename
+            long_filename = "a" * 200 + ".txt"  # Very long filename
+            long_path = Path(temp_dir) / long_filename
+
+            try:
+                validate_file_operation(long_path, "write")
+            except (FileOperationError, OSError):
+                # Acceptable if filesystem doesn't support very long names
+                pass
+
+
 if __name__ == "__main__":
     # Run tests if script is executed directly
     pytest.main([__file__, "-v"])

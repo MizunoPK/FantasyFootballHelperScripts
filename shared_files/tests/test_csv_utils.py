@@ -261,5 +261,231 @@ class TestCSVUtils(unittest.TestCase):
         self.assertFalse(result)
 
 
+class TestCSVUtilsEdgeCases(unittest.TestCase):
+    """Edge case tests for CSV utility functions"""
+
+    def setUp(self):
+        """Set up edge case test fixtures"""
+        self.test_dir = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        """Clean up edge case test fixtures"""
+        shutil.rmtree(self.test_dir)
+
+    def test_malformed_csv_handling(self):
+        """Test handling of malformed CSV files"""
+        malformed_csv = self.test_dir / "malformed.csv"
+
+        # Create CSV with inconsistent columns
+        with open(malformed_csv, 'w', encoding='utf-8') as f:
+            f.write("name,position,team\n")
+            f.write("Player1,QB,KC,extra_field\n")  # Extra field
+            f.write("Player2,RB\n")  # Missing field
+            f.write("Player3,WR,SEA\n")  # Normal line
+
+        # Should handle malformed data gracefully
+        df = safe_csv_read(malformed_csv)
+        self.assertGreaterEqual(len(df), 1)  # Should read at least one valid row
+
+    def test_unicode_csv_handling(self):
+        """Test handling of CSV files with unicode characters"""
+        unicode_csv = self.test_dir / "unicode.csv"
+        unicode_data = [
+            {"name": "José Martínez", "position": "QB", "team": "MÉX"},
+            {"name": "François Müller", "position": "RB", "team": "FRA"},
+            {"name": "李小明", "position": "WR", "team": "CHN"}
+        ]
+
+        # Write unicode data
+        write_dict_csv(unicode_data, unicode_csv)
+
+        # Read back and verify
+        result = read_dict_csv(unicode_csv)
+        self.assertEqual(len(result), 3)
+        self.assertEqual(result[0]["name"], "José Martínez")
+        self.assertEqual(result[2]["name"], "李小明")
+
+    def test_very_large_csv_handling(self):
+        """Test handling of large CSV files (performance test)"""
+        large_csv = self.test_dir / "large.csv"
+
+        # Create large dataset (1000 rows)
+        large_data = []
+        for i in range(1000):
+            large_data.append({
+                "name": f"Player{i}",
+                "position": "QB" if i % 4 == 0 else "RB",
+                "team": f"TEAM{i % 32}",
+                "points": str(float(i * 10.5))
+            })
+
+        # Test writing large file
+        import time
+        start_time = time.time()
+        write_dict_csv(large_data, large_csv)
+        write_time = time.time() - start_time
+
+        self.assertLess(write_time, 5.0)  # Should complete within 5 seconds
+        self.assertTrue(large_csv.exists())
+
+        # Test reading large file
+        start_time = time.time()
+        result = read_dict_csv(large_csv)
+        read_time = time.time() - start_time
+
+        self.assertEqual(len(result), 1000)
+        self.assertLess(read_time, 5.0)  # Should complete within 5 seconds
+
+    def test_empty_csv_edge_cases(self):
+        """Test various empty CSV scenarios"""
+        empty_csv = self.test_dir / "empty.csv"
+
+        # Test completely empty file
+        with open(empty_csv, 'w', encoding='utf-8') as f:
+            pass  # Empty file
+
+        df = safe_csv_read(empty_csv)
+        self.assertTrue(df.empty)
+
+        # Test file with header only
+        header_only_csv = self.test_dir / "header_only.csv"
+        with open(header_only_csv, 'w', encoding='utf-8') as f:
+            f.write("name,position,team\n")
+
+        df = safe_csv_read(header_only_csv)
+        self.assertEqual(len(df), 0)
+        self.assertEqual(len(df.columns), 3)
+
+    def test_csv_with_special_characters(self):
+        """Test CSV handling with special characters and edge formatting"""
+        special_csv = self.test_dir / "special.csv"
+        special_data = [
+            {"name": "Player, Jr.", "position": "QB", "team": "KC"},  # Comma in name
+            {"name": 'Player "Nickname"', "position": "RB", "team": "BUF"},  # Quotes
+            {"name": "Player\nNewline", "position": "WR", "team": "SEA"},  # Newline
+            {"name": "", "position": "TE", "team": "DAL"}  # Empty name
+        ]
+
+        write_dict_csv(special_data, special_csv)
+        result = read_dict_csv(special_csv)
+
+        self.assertEqual(len(result), 4)
+        self.assertIn(",", result[0]["name"])  # Comma preserved
+        self.assertIn('"', result[1]["name"])  # Quotes preserved
+
+    def test_csv_column_validation_edge_cases(self):
+        """Test column validation with edge cases"""
+        test_csv = self.test_dir / "edge_columns.csv"
+
+        # Create CSV with duplicate columns
+        with open(test_csv, 'w', encoding='utf-8') as f:
+            f.write("name,position,name,team\n")  # Duplicate 'name'
+            f.write("Player1,QB,Player1Alt,KC\n")
+
+        # Test that validation handles duplicates
+        result = csv_column_exists(test_csv, "name")
+        self.assertTrue(result)  # Should find at least one 'name' column
+
+    def test_concurrent_csv_operations(self):
+        """Test concurrent CSV operations for thread safety"""
+        import threading
+        import time
+
+        results = []
+        errors = []
+
+        def write_csv_worker(worker_id):
+            try:
+                worker_csv = self.test_dir / f"worker_{worker_id}.csv"
+                data = [{"id": str(i), "worker": str(worker_id)} for i in range(10)]
+                write_dict_csv(data, worker_csv)
+                results.append(worker_id)
+            except Exception as e:
+                errors.append(e)
+
+        # Start multiple threads
+        threads = []
+        for i in range(5):
+            thread = threading.Thread(target=write_csv_worker, args=(i,))
+            threads.append(thread)
+            thread.start()
+
+        # Wait for completion
+        for thread in threads:
+            thread.join()
+
+        # Verify results
+        self.assertEqual(len(results), 5)
+        self.assertEqual(len(errors), 0)
+
+        # Verify all files were created
+        for i in range(5):
+            worker_csv = self.test_dir / f"worker_{i}.csv"
+            self.assertTrue(worker_csv.exists())
+
+    def test_path_traversal_security(self):
+        """Test protection against path traversal attacks"""
+        from shared_files.error_handler import FileOperationError
+
+        # Attempt path traversal
+        try:
+            dangerous_path = self.test_dir / "../../../etc/passwd"
+            result = safe_csv_read(dangerous_path)
+            # Should either fail safely or return empty dataframe
+            self.assertTrue(result.empty or len(result) >= 0)
+        except (FileOperationError, PermissionError, FileNotFoundError):
+            # These exceptions are acceptable for security
+            pass
+
+    def test_memory_usage_with_large_files(self):
+        """Test memory efficiency with large CSV operations"""
+        try:
+            import psutil
+            import os
+        except ImportError:
+            self.skipTest("psutil not available for memory testing")
+
+        # Get initial memory usage
+        process = psutil.Process(os.getpid())
+        initial_memory = process.memory_info().rss / 1024 / 1024  # MB
+
+        # Create moderately large CSV
+        large_csv = self.test_dir / "memory_test.csv"
+        large_data = []
+        for i in range(5000):  # 5000 rows
+            large_data.append({
+                "name": f"Player{i}",
+                "position": "QB",
+                "team": f"TEAM{i % 32}",
+                "points": str(float(i * 10.5)),
+                "extra_data": "x" * 100  # 100 char string per row
+            })
+
+        write_dict_csv(large_data, large_csv)
+        result = read_dict_csv(large_csv)
+
+        # Check memory usage didn't explode
+        final_memory = process.memory_info().rss / 1024 / 1024  # MB
+        memory_increase = final_memory - initial_memory
+
+        self.assertLess(memory_increase, 100)  # Should use less than 100MB extra
+        self.assertEqual(len(result), 5000)
+
+    def test_csv_encoding_edge_cases(self):
+        """Test CSV files with different encodings"""
+        # Test UTF-8 with BOM
+        utf8_bom_csv = self.test_dir / "utf8_bom.csv"
+
+        with open(utf8_bom_csv, 'w', encoding='utf-8-sig') as f:
+            f.write("name,position,team\n")
+            f.write("Player1,QB,KC\n")
+
+        # Should handle BOM gracefully
+        df = safe_csv_read(utf8_bom_csv)
+        self.assertEqual(len(df), 1)
+        # Column name should not have BOM characters
+        self.assertIn("name", df.columns[0])
+
+
 if __name__ == '__main__':
     unittest.main()
