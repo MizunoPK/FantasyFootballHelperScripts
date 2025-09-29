@@ -97,14 +97,10 @@ class PlayerSearch:
             True if search completed successfully, False if user cancelled
         """
         while True:
-            search_term = input("\nEnter player name (or part of name) to search: ").strip()
+            search_term = input("\nEnter player name (or part of name) to search (or press Enter to return to Main Menu): ").strip()
 
-            if not search_term:
-                print("Please enter a search term.")
-                continue
-
-            # Check if user wants to exit
-            if search_term.lower() == 'exit':
+            # Check if user wants to exit (either 'exit' command or empty input)
+            if not search_term or search_term.lower() == 'exit':
                 print("Returning to Main Menu...")
                 return False
 
@@ -171,14 +167,10 @@ class PlayerSearch:
             True if search completed successfully, False if user cancelled
         """
         while True:
-            search_term = input("\nEnter player name (or part of name) to search: ").strip()
+            search_term = input("\nEnter player name (or part of name) to search (or press Enter to return to Main Menu): ").strip()
 
-            if not search_term:
-                print("Please enter a search term.")
-                continue
-
-            # Check if user wants to exit
-            if search_term.lower() == 'exit':
+            # Check if user wants to exit (either 'exit' command or empty input)
+            if not search_term or search_term.lower() == 'exit':
                 print("Returning to Main Menu...")
                 return False
 
@@ -219,22 +211,17 @@ class PlayerSearch:
                     choice = int(choice_input)
 
                     if 1 <= choice <= len(matches):
-                        # Player selected - confirm drop
+                        # Player selected - drop immediately (no confirmation)
                         selected_player = matches[choice - 1]
                         status = "your roster" if selected_player.drafted == 2 else "drafted players"
-                        confirm = input(f"Are you sure you want to drop {selected_player.name} from {status}? (y/n): ").strip().lower()
 
-                        if confirm in ['y', 'yes']:
-                            # Drop the player (set drafted=0)
-                            selected_player.drafted = 0
-                            save_callback()
-                            print(f"✅ Dropped {selected_player.name} from {status}!")
-                            if self.logger:
-                                self.logger.info(f"Player {selected_player.name} dropped (set drafted=0)")
-                            continue
-                        else:
-                            print("Drop cancelled.")
-                            continue
+                        # Drop the player (set drafted=0)
+                        selected_player.drafted = 0
+                        save_callback()
+                        print(f"✅ Dropped {selected_player.name} from {status}!")
+                        if self.logger:
+                            self.logger.info(f"Player {selected_player.name} dropped (set drafted=0)")
+                        continue
                     else:
                         print("Invalid choice. Please try again.")
                         continue

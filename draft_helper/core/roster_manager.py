@@ -170,7 +170,11 @@ class RosterManager:
                 break
 
             for i, p in enumerate(recommendations, start=1):
-                print(f"{i}. {p}")
+                # Show calculated score (used for ranking) instead of raw fantasy points
+                status = f" ({p.injury_status})" if p.injury_status != 'ACTIVE' else ""
+                drafted_status = " [DRAFTED]" if p.drafted == 1 else ""
+                score_display = getattr(p, 'score', p.fantasy_points)  # Use calculated score if available
+                print(f"{i}. {p.name} ({p.team} {p.position}) - {score_display:.1f} pts{status}{drafted_status}")
             print(f"{len(recommendations) + 1}. Back to Main Menu")
 
             try:

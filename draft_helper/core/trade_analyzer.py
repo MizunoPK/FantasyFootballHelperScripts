@@ -42,7 +42,7 @@ class TradeAnalyzer:
             available_players: List of available players for trading
             score_player_for_trade_func: Function to score players for trade evaluation
         """
-        print("Welcome to the Start 7 Fantasy League Trade Helper!")
+        print("Welcome to the Start 7 Fantasy League Waiver Optimizer!")
         print(f"Current roster: {len(self.team.roster)} / {Constants.MAX_PLAYERS} players")
         print("Your current roster by position:")
         for pos, count in self.team.pos_counts.items():
@@ -264,7 +264,7 @@ class TradeAnalyzer:
             save_players_func: Function to save player data
         """
         print("\n" + "="*50)
-        print("TRADE ANALYSIS MODE")
+        print("WAIVER OPTIMIZER MODE")
         print("="*50)
 
         # Check if we have a roster to analyze

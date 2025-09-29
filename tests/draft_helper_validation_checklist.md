@@ -24,7 +24,7 @@ timeout 10 python run_nfl_scores_fetcher.py
 
 # Test draft helper startup
 python run_draft_helper.py
-# Expected: Shows "Draft Helper!" or "Trade Helper!" menu
+# Expected: Shows "Draft Helper!" with "Waiver Optimizer" option in menu
 ```
 
 **✅ Startup Requirements**:
@@ -46,6 +46,7 @@ python run_draft_helper.py
 2              # Mark Drafted Player
 Hunt           # Search for Hunt
 6              # Select Kareem Hunt (KC RB)
+               # (OR press Enter to return to Main Menu)
 exit           # Return to main menu
 ```
 
@@ -57,20 +58,20 @@ exit           # Return to main menu
 
 ---
 
-### **Test 2: Trade Analysis Verification (Steps 5-7)**
+### **Test 2: Waiver Optimizer Verification (Steps 5-7)**
 
-**🎯 Objective**: Verify trade recommendations exclude drafted players
+**🎯 Objective**: Verify waiver recommendations exclude drafted players
 
 **Input Sequence**:
 ```bash
-3              # Trade Analysis
+3              # Waiver Optimizer
 [Enter]        # Acknowledge results
 ```
 
 **✅ Expected Results**:
-- [ ] Trade analysis completes without errors
-- [ ] Shows current roster with accurate fantasy points
-- [ ] **CRITICAL**: Kareem Hunt does NOT appear in trade recommendations
+- [ ] Waiver optimizer completes without errors
+- [ ] Shows current roster with accurate fantasy points (calculated scores, not raw fantasy points)
+- [ ] **CRITICAL**: Kareem Hunt does NOT appear in waiver recommendations
 - [ ] Returns to main menu after pressing Enter
 
 ---
@@ -83,18 +84,17 @@ exit           # Return to main menu
 ```bash
 4              # Drop Player Mode
 Hunt           # Search for Hunt
-1              # Select Kareem Hunt
-y              # Confirm drop
+1              # Select Kareem Hunt (no confirmation needed)
 Hampton        # Search for Hampton
-1              # Select Omarion Hampton
-y              # Confirm drop
+1              # Select Omarion Hampton (no confirmation needed)
 exit           # Return to main menu
 ```
 
 **✅ Expected Results**:
-- [ ] Successfully finds and drops Kareem Hunt (drafted=1 → drafted=0)
-- [ ] Successfully finds and drops Omarion Hampton (drafted=2 → drafted=0)
+- [ ] Successfully finds and drops Kareem Hunt (drafted=1 → drafted=0) - **NO CONFIRMATION PROMPT**
+- [ ] Successfully finds and drops Omarion Hampton (drafted=2 → drafted=0) - **NO CONFIRMATION PROMPT**
 - [ ] Roster display updates showing Hampton removed from roster
+- [ ] **Roster Count**: Main menu shows updated roster count (decreases by 1)
 - [ ] **CSV Validation**: Both players show `drafted=0` in CSV
 
 ---
@@ -111,9 +111,10 @@ exit           # Return to main menu
 
 **✅ Expected Results**:
 - [ ] **CRITICAL**: Omarion Hampton appears as #1 recommendation
-- [ ] All recommendations show accurate fantasy point values
+- [ ] **Point Display**: All recommendations show calculated scores (used for ranking), not raw fantasy points
 - [ ] Successfully adds Hampton back to roster
 - [ ] Roster display shows Hampton back in lineup
+- [ ] **Roster Count**: Main menu shows updated roster count (increases by 1)
 - [ ] **CSV Validation**: Hampton shows `drafted=2` in CSV
 
 ---
@@ -125,22 +126,20 @@ exit           # Return to main menu
 **Input Sequence**:
 ```bash
 5              # Lock/Unlock Player
-15             # Select Brian Robinson Jr. (currently locked)
-y              # Confirm unlock
+15             # Select Brian Robinson Jr. (currently locked) - NO CONFIRMATION
 16             # Back to main menu
-3              # Trade Analysis
+3              # Waiver Optimizer
 [Enter]        # Return to main menu
 5              # Lock/Unlock Player
-15             # Select Brian Robinson Jr.
-y              # Confirm lock
+15             # Select Brian Robinson Jr. - NO CONFIRMATION
 16             # Back to main menu
 ```
 
 **✅ Expected Results**:
 - [ ] Shows current lock status (Brian Robinson Jr. initially locked)
-- [ ] Successfully unlocks Brian Robinson Jr.
-- [ ] **CRITICAL**: After unlocking, trade analysis may suggest trading Robinson
-- [ ] Successfully locks Brian Robinson Jr. again
+- [ ] Successfully unlocks Brian Robinson Jr. - **NO CONFIRMATION PROMPT**
+- [ ] **CRITICAL**: After unlocking, waiver optimizer may suggest trading Robinson
+- [ ] Successfully locks Brian Robinson Jr. again - **NO CONFIRMATION PROMPT**
 - [ ] **CSV Validation**: Lock status changes reflected in CSV
 
 ---
@@ -193,10 +192,18 @@ y              # Confirm lock
 - [ ] **Lock Status**: Player locking persists in CSV with `locked=1/0`
 - [ ] **Draft Status**: Proper values: `drafted=0` (available), `drafted=1` (other team), `drafted=2` (your team)
 
+### **UI Enhancement Validation (NEW)**
+- [ ] **Roster Count**: Main menu accurately shows current roster count and updates after changes
+- [ ] **Point Display**: Add to Roster mode shows calculated scores (ranking values), not raw fantasy points
+- [ ] **No Confirmations**: Drop Player and Lock/Unlock modes proceed immediately without (y/n) prompts
+- [ ] **Fuzzy Search**: Empty input in Mark Drafted/Drop Player modes returns to main menu
+- [ ] **Waiver Optimizer**: Menu shows "Waiver Optimizer" instead of "Trade Analysis"
+
 ### **Point Calculation Validation**
 - [ ] **Consistency**: Fantasy points consistent across all modes
 - [ ] **Accuracy**: Points match expected ranges (200+ for top players)
-- [ ] **Trade Analysis**: Points properly calculated for trade recommendations
+- [ ] **Waiver Optimizer**: Points properly calculated for waiver recommendations
+- [ ] **Ranking Logic**: Add to Roster recommendations show calculated scores used for ranking
 
 ---
 
@@ -205,7 +212,7 @@ y              # Confirm lock
 For quick verification, run this automated test sequence:
 
 ```bash
-echo -e "2\nHunt\n6\nexit\n3\n\n4\nHunt\n1\ny\nHampton\n1\ny\nexit\n1\n1\n5\n15\ny\n16\n3\n\n5\n15\ny\n16\n6\n\n7\n" | python run_draft_helper.py
+echo -e "2\nHunt\n6\nexit\n3\n\n4\nGainwell\n1\n1\n1\n5\n15\n16\n3\n\n5\n15\n16\n6\n\n7\n" | python run_draft_helper.py
 ```
 
 **Expected Result**: Should complete without errors and show proper roster changes.
@@ -219,6 +226,9 @@ echo -e "2\nHunt\n6\nexit\n3\n\n4\nHunt\n1\ny\nHampton\n1\ny\nexit\n1\n1\n5\n15\
 - [ ] **CSV Permission Errors**: Ensure write permissions to `shared_files/players.csv`
 - [ ] **Search Failures**: Player name search should be case-insensitive and partial-match
 - [ ] **Lock State Persistence**: Lock changes should persist across menu actions
+- [ ] **Confirmation Prompts**: Should NOT appear in Drop Player or Lock/Unlock modes
+- [ ] **Point Display**: Add to Roster should show calculated scores, not raw fantasy points
+- [ ] **Roster Count**: Should update immediately after roster changes
 
 ### **If Tests Fail**:
 1. Check CSV file permissions and write access
@@ -234,8 +244,10 @@ echo -e "2\nHunt\n6\nexit\n3\n\n4\nHunt\n1\ny\nHampton\n1\ny\nexit\n1\n1\n5\n15\
 - All 23 test steps completed without errors
 - CSV file updates correctly reflect all changes
 - FLEX system working properly (4/4 WR + 1/1 FLEX)
-- Trade analysis excludes locked and drafted players
+- Waiver optimizer excludes locked and drafted players
 - Starter helper generates valid lineups
+- UI enhancements working: no confirmations, empty input exits, calculated scores shown
+- Roster count updates correctly after changes
 
 **❌ TESTS FAILED**: Issues require investigation
 - Note specific failure points for debugging

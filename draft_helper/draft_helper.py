@@ -311,6 +311,9 @@ class DraftHelper:
             self.scoring_engine.team = self.team
             self.scoring_engine.players = self.players
 
+            # Update menu system with new team data
+            self.menu_system.team = self.team
+
             new_roster_size = len(self.team.roster)
 
             # Log changes if any
@@ -533,7 +536,7 @@ class DraftHelper:
         return self.player_search.search_and_mark_player_interactive(self.save_players)
 
     def run_trade_analysis_mode(self):
-        """Trade Analysis Mode - run trade helper to optimize current roster"""
+        """Waiver Optimizer Mode - run waiver optimizer to optimize current roster"""
         return self.trade_analyzer.run_trade_analysis_mode(
             add_basic_matchup_indicators_func=self.add_basic_matchup_indicators,
             run_trade_helper_func=self.run_trade_helper,
@@ -630,30 +633,22 @@ class DraftHelper:
                     # Player selected - toggle lock status
                     if choice <= len(unlocked_players):
                         selected_player = unlocked_players[choice - 1]
-                        action = "lock"
                         new_status = 1
                     else:
                         selected_player = locked_players[choice - len(unlocked_players) - 1]
-                        action = "unlock"
                         new_status = 0
 
-                    confirm = input(f"Are you sure you want to {action} {selected_player.name}? (y/n): ").strip().lower()
+                    # Toggle lock status immediately (no confirmation)
+                    selected_player.locked = new_status
 
-                    if confirm in ['y', 'yes']:
-                        # Toggle lock status
-                        selected_player.locked = new_status
+                    # Save changes to CSV
+                    self.save_players()
 
-                        # Save changes to CSV
-                        self.save_players()
+                    status_text = "🔒 LOCKED" if new_status == 1 else "🔓 UNLOCKED"
+                    print(f"✓ {selected_player.name} is now {status_text}")
 
-                        status_text = "🔒 LOCKED" if new_status == 1 else "🔓 UNLOCKED"
-                        print(f"✓ {selected_player.name} is now {status_text}")
-
-                        self.logger.info(f"Player lock status changed: {selected_player.name} (locked={new_status})")
-                        # Continue the loop to show updated list
-                    else:
-                        print("Action cancelled.")
-                        # Continue the loop
+                    self.logger.info(f"Player lock status changed: {selected_player.name} (locked={new_status})")
+                    # Continue the loop to show updated list
 
                 elif choice == total_players + 1:
                     # Back to Main Menu
@@ -1076,8 +1071,8 @@ async def main():
     try:
         draft_helper = DraftHelper(Constants.PLAYERS_CSV)
 
-        # Always run interactive mode - trade analysis now available via menu
-        logger.info("Starting Interactive Fantasy Helper (Draft & Trade Analysis)")
+        # Always run interactive mode - waiver optimizer now available via menu
+        logger.info("Starting Interactive Fantasy Helper (Draft & Waiver Optimizer)")
         await draft_helper.run_interactive_draft()
 
     except Exception as e:

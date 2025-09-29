@@ -64,7 +64,7 @@ class MenuSystem:
         print("="*50)
         print("1. Add to Roster")
         print("2. Mark Drafted Player")
-        print("3. Trade Analysis")
+        print("3. Waiver Optimizer")
         print("4. Drop Player")
         print("5. Lock/Unlock Player")
         if self.starter_helper_available:
