@@ -181,27 +181,49 @@ exit           # Return to main menu
 
 ---
 
-### **Test 7: Trade Simulator Validation (Steps 20-22)**
+### **Test 7: Trade Simulator Interactive Test (Steps 20-25)**
 
-**🎯 Objective**: Verify trade simulation functionality (NEW)
+**🎯 Objective**: Verify trade simulation with actual player swap
 
 **Input Sequence**:
 ```bash
-7              # Trade Simulator
-4              # Exit Trade Simulator
+7                    # Trade Simulator
+1                    # Simulate Trade
+[ROSTER_PLAYER_NUM]  # Select any roster player to trade away
+[SEARCH_NAME]        # Search for any available replacement player
+1                    # Select first search result
+2                    # Undo Last Trade
+4                    # Exit Trade Simulator
 ```
 
 **✅ Expected Results**:
 - [ ] **Trade Simulator Menu**: Shows as option 7 (Quit moved to option 8)
-- [ ] **Roster Display**: Shows numbered list 1-15 with fantasy points
+- [ ] **Initial Roster Display**: Shows numbered list 1-15 with fantasy points and total score
 - [ ] **Score Display**: Shows current total score and difference (should be +0.00 initially)
-- [ ] **Menu Options**: Shows 4 trade simulator options
+- [ ] **Trade Execution**:
+  - [ ] Successfully removes selected player from roster
+  - [ ] Successfully adds replacement player to roster
+  - [ ] **CRITICAL**: Roster shows 15 players after trade (not 14)
+  - [ ] Replacement player appears in roster list
+  - [ ] Original player removed from roster list
+- [ ] **Score Update**: Total score updates to reflect new roster composition
+- [ ] **Undo Functionality**:
+  - [ ] Successfully reverses the trade
+  - [ ] Original player back in roster
+  - [ ] Replacement player removed from roster
+  - [ ] **CRITICAL**: Roster shows 15 players after undo (not 14)
+  - [ ] Score returns to original value
 - [ ] **Exit**: Successfully returns to main menu
 - [ ] **State Preservation**: Original roster unchanged after exit
 
+**📋 How to Choose Test Players**:
+- **Player to Trade**: Pick any roster player (avoid locked players)
+- **Replacement**: Search for any player name that returns results
+- **Expected**: System handles same-position trades even when FLEX position is occupied
+
 ---
 
-### **Test 8: Clean Exit (Step 23)**
+### **Test 8: Clean Exit (Step 26)**
 
 **🎯 Objective**: Verify proper application termination
 
@@ -290,12 +312,12 @@ This tests Trade Simulator access and clean exit functionality.
 ## 📊 **Success Criteria**
 
 **✅ ALL TESTS PASSED**: Draft helper is fully functional
-- All 24 test steps completed without errors (including Trade Simulator)
+- All 26 test steps completed without errors (including Trade Simulator with undo)
 - CSV file updates correctly reflect all changes
 - FLEX system working properly (4/4 WR + 1/1 FLEX)
 - Waiver optimizer excludes locked and drafted players
 - Starter helper generates valid lineups
-- Trade Simulator accessible as option 7 with full functionality
+- Trade Simulator maintains 15-player roster through trades and undos
 - UI enhancements working: no confirmations, empty input exits, calculated scores shown
 - Roster count updates correctly after changes
 
