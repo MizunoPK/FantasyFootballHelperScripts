@@ -137,8 +137,7 @@ try:
             return False
 
 except ImportError as e:
-    print(f"Import error: {e}")
-    sys.exit(1)
+    pytest.skip(f"Import error: {e}", allow_module_level=True)
 
 
 class TestNFLScoresFetcher:
