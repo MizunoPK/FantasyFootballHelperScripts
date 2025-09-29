@@ -74,16 +74,7 @@ class DataExporter:
     
     async def export_json(self, data: ProjectionData) -> str:
         """Export data to JSON format asynchronously"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename_suffix = f"_{data.scoring_format}"
-
-        filename = f"nfl_projections_season_{timestamp}{filename_suffix}.json"
-        filepath = self.output_dir / filename
-
         try:
-            # Ensure the output directory exists
-            filepath.parent.mkdir(parents=True, exist_ok=True)
-
             # Convert to JSON-serializable format
             json_data = {
                 "season": data.season,
@@ -93,118 +84,81 @@ class DataExporter:
                 "players": [player.model_dump() for player in data.players]
             }
 
-            # Write JSON file asynchronously
-            async with aiofiles.open(filepath, 'w', encoding='utf-8') as f:
-                await f.write(json.dumps(json_data, indent=2, default=str))
+            # Use enhanced file manager for consistent JSON export
+            prefix = f"nfl_projections_season_{data.scoring_format}"
+            timestamped_path, latest_path = self.file_manager.save_json_data(
+                json_data, prefix, create_latest=self.create_latest_files
+            )
 
-            # Create latest version if requested
-            if self.create_latest_files:
-                latest_filename = f"nfl_projections_latest_season.json"
-                latest_filepath = self.output_dir / latest_filename
-
-                async with aiofiles.open(latest_filepath, 'w', encoding='utf-8') as f:
-                    await f.write(json.dumps(json_data, indent=2, default=str))
-
-            # Enforce file caps after successful export
-            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
-            if deleted_files:
-                self.logger.info(f"File caps enforced for JSON: {deleted_files}")
-
-            return str(filepath)
+            return str(timestamped_path)
 
         except PermissionError as e:
-            self.logger.error(f"Permission denied writing JSON file {filepath}: {e}")
+            self.logger.error(f"Permission denied writing JSON file: {e}")
             raise
         except OSError as e:
-            self.logger.error(f"OS error writing JSON file {filepath}: {e}")
+            self.logger.error(f"OS error writing JSON file: {e}")
             raise
-        except json.JSONEncodeError as e:
-            self.logger.error(f"JSON serialization error for {filepath}: {e}")
+        except (TypeError, ValueError) as e:
+            self.logger.error(f"JSON serialization error: {e}")
             raise
         except Exception as e:
-            self.logger.error(f"Unexpected error exporting JSON file {filepath}: {e}")
+            self.logger.error(f"Unexpected error exporting JSON file: {e}")
             raise
     
     async def export_csv(self, data: ProjectionData) -> str:
         """Export data to CSV format asynchronously"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename_suffix = f"_{data.scoring_format}"
-
-        filename = f"nfl_projections_season_{timestamp}{filename_suffix}.csv"
-        filepath = self.output_dir / filename
-
         try:
-            # Ensure the output directory exists
-            filepath.parent.mkdir(parents=True, exist_ok=True)
-
             # Prepare DataFrame with standard column ordering
             df = self._prepare_export_dataframe(data)
 
-            # Write CSV asynchronously using asyncio thread pool
-            await asyncio.get_event_loop().run_in_executor(
-                None, lambda: df.to_csv(str(filepath), index=False)
+            # Use enhanced file manager for consistent CSV export
+            prefix = f"nfl_projections_season_{data.scoring_format}"
+            timestamped_path, latest_path = await self.file_manager.save_dataframe_csv(
+                df, prefix, create_latest=self.create_latest_files
             )
 
-            # Create latest version if requested
-            if self.create_latest_files:
-                latest_filename = f"nfl_projections_latest_season.csv"
-                latest_filepath = self.output_dir / latest_filename
-
-                await asyncio.get_event_loop().run_in_executor(
-                    None, lambda: df.to_csv(str(latest_filepath), index=False)
-                )
-
-            # Enforce file caps after successful export
-            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
-            if deleted_files:
-                self.logger.info(f"File caps enforced for CSV: {deleted_files}")
-
-            return str(filepath)
+            return str(timestamped_path)
 
         except PermissionError as e:
-            self.logger.error(f"Permission denied writing CSV file {filepath}: {e}")
+            self.logger.error(f"Permission denied writing CSV file: {e}")
             raise
         except OSError as e:
-            self.logger.error(f"OS error writing CSV file {filepath}: {e}")
+            self.logger.error(f"OS error writing CSV file: {e}")
             raise
         except ValueError as e:
-            self.logger.error(f"Data validation error for CSV export {filepath}: {e}")
+            self.logger.error(f"Data validation error for CSV export: {e}")
             raise
         except Exception as e:
-            self.logger.error(f"Unexpected error exporting CSV file {filepath}: {e}")
+            self.logger.error(f"Unexpected error exporting CSV file: {e}")
             raise
     
     async def export_excel(self, data: ProjectionData) -> str:
         """Export data to Excel format with position sheets asynchronously"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename_suffix = f"_{data.scoring_format}"
-        
-        filename = f"nfl_projections_season_{timestamp}{filename_suffix}.xlsx"
-        filepath = self.output_dir / filename
-        
         # Prepare DataFrame with standard column ordering
         df = self._prepare_export_dataframe(data)
-        
+
+        # Use enhanced file manager, but we need custom Excel writing for position sheets
+        prefix = f"nfl_projections_season_{data.scoring_format}"
+        timestamped_path = self.file_manager.get_timestamped_path(prefix, 'xlsx')
+
         # Create Excel writer and write sheets asynchronously
         await asyncio.get_event_loop().run_in_executor(
-            None, self._write_excel_sheets, df, str(filepath)
+            None, self._write_excel_sheets, df, str(timestamped_path)
         )
-        
+
         # Create latest version if requested
         if self.create_latest_files:
-            latest_filename = f"nfl_projections_latest_season.xlsx"
-            latest_filepath = self.output_dir / latest_filename
-
+            latest_path = self.file_manager.get_latest_path(prefix, 'xlsx')
             await asyncio.get_event_loop().run_in_executor(
-                None, self._write_excel_sheets, df, str(latest_filepath)
+                None, self._write_excel_sheets, df, str(latest_path)
             )
 
         # Enforce file caps after successful export
-        deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+        deleted_files = self.file_manager.enforce_file_caps(str(timestamped_path))
         if deleted_files:
             self.logger.info(f"File caps enforced for Excel: {deleted_files}")
 
-        return str(filepath)
+        return str(timestamped_path)
     
     def _create_dataframe(self, data: ProjectionData) -> pd.DataFrame:
         """Convert ProjectionData to pandas DataFrame"""

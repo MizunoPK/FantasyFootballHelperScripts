@@ -41,20 +41,14 @@ class ScoresDataExporter:
         # Initialize file manager for automatic file caps
         self.file_manager = DataFileManager(str(self.output_dir), DEFAULT_FILE_CAPS)
 
-    def _generate_timestamped_filename(self, prefix: str, extension: str) -> str:
-        """Generate a timestamped filename"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return f"{prefix}_{timestamp}.{extension}"
+    def _get_file_prefix(self, base_prefix: str, weekly_scores: 'WeeklyScores') -> str:
+        """Generate file prefix with week information"""
+        week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
+        return f"{base_prefix}{week_suffix}"
     
     async def export_json(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores") -> Optional[str]:
         """Export weekly scores to JSON format asynchronously"""
         try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
-
-            filename = f"{file_prefix}{week_suffix}_{timestamp}.json"
-            filepath = self.output_dir / filename
-
             # Convert to JSON-serializable format
             json_data = {
                 "week": weekly_scores.week,
@@ -66,24 +60,13 @@ class ScoresDataExporter:
                 "games": [self._game_to_dict(game) for game in weekly_scores.games]
             }
 
-            # Write JSON file asynchronously
-            async with aiofiles.open(filepath, 'w', encoding='utf-8') as f:
-                await f.write(json.dumps(json_data, indent=2, default=str))
+            # Use enhanced file manager for consistent JSON export
+            prefix = self._get_file_prefix(file_prefix, weekly_scores)
+            timestamped_path, latest_path = self.file_manager.save_json_data(
+                json_data, prefix, create_latest=self.create_latest_files
+            )
 
-            # Create latest version if requested
-            if self.create_latest_files:
-                latest_filename = f"{file_prefix}_latest.json"
-                latest_filepath = self.output_dir / latest_filename
-
-                async with aiofiles.open(latest_filepath, 'w', encoding='utf-8') as f:
-                    await f.write(json.dumps(json_data, indent=2, default=str))
-
-            # Enforce file caps after successful export
-            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
-            if deleted_files:
-                self.logger.info(f"File caps enforced for JSON: {deleted_files}")
-
-            return str(filepath)
+            return str(timestamped_path)
         except Exception as e:
             self.logger.error(f"Error exporting JSON: {e}")
             return None
@@ -91,35 +74,16 @@ class ScoresDataExporter:
     async def export_csv(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores") -> Optional[str]:
         """Export weekly scores to CSV format asynchronously"""
         try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
-
-            filename = f"{file_prefix}{week_suffix}_{timestamp}.csv"
-            filepath = self.output_dir / filename
-
             # Convert to DataFrame
             df = self._create_dataframe(weekly_scores.games)
 
-            # Write CSV asynchronously using asyncio thread pool
-            await asyncio.get_event_loop().run_in_executor(
-                None, lambda: df.to_csv(str(filepath), index=False)
+            # Use enhanced file manager for consistent CSV export
+            prefix = self._get_file_prefix(file_prefix, weekly_scores)
+            timestamped_path, latest_path = await self.file_manager.save_dataframe_csv(
+                df, prefix, create_latest=self.create_latest_files
             )
 
-            # Create latest version if requested
-            if self.create_latest_files:
-                latest_filename = f"{file_prefix}_latest.csv"
-                latest_filepath = self.output_dir / latest_filename
-
-                await asyncio.get_event_loop().run_in_executor(
-                    None, lambda: df.to_csv(str(latest_filepath), index=False)
-                )
-
-            # Enforce file caps after successful export
-            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
-            if deleted_files:
-                self.logger.info(f"File caps enforced for CSV: {deleted_files}")
-
-            return str(filepath)
+            return str(timestamped_path)
         except Exception as e:
             self.logger.error(f"Error exporting CSV: {e}")
             return None
@@ -127,35 +91,31 @@ class ScoresDataExporter:
     async def export_excel(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores") -> Optional[str]:
         """Export weekly scores to Excel format with multiple sheets asynchronously"""
         try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
-
-            filename = f"{file_prefix}{week_suffix}_{timestamp}.xlsx"
-            filepath = self.output_dir / filename
-
             # Convert to DataFrame
             df = self._create_dataframe(weekly_scores.games)
 
+            # Use enhanced file manager for path generation, but custom Excel writing
+            prefix = self._get_file_prefix(file_prefix, weekly_scores)
+            timestamped_path = self.file_manager.get_timestamped_path(prefix, 'xlsx')
+
             # Create Excel writer and write sheets asynchronously
             await asyncio.get_event_loop().run_in_executor(
-                None, self._write_excel_sheets, df, str(filepath), weekly_scores
+                None, self._write_excel_sheets, df, str(timestamped_path), weekly_scores
             )
 
             # Create latest version if requested
             if self.create_latest_files:
-                latest_filename = f"{file_prefix}_latest.xlsx"
-                latest_filepath = self.output_dir / latest_filename
-
+                latest_path = self.file_manager.get_latest_path(prefix, 'xlsx')
                 await asyncio.get_event_loop().run_in_executor(
-                    None, self._write_excel_sheets, df, str(latest_filepath), weekly_scores
+                    None, self._write_excel_sheets, df, str(latest_path), weekly_scores
                 )
 
             # Enforce file caps after successful export
-            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+            deleted_files = self.file_manager.enforce_file_caps(str(timestamped_path))
             if deleted_files:
                 self.logger.info(f"File caps enforced for Excel: {deleted_files}")
 
-            return str(filepath)
+            return str(timestamped_path)
         except Exception as e:
             self.logger.error(f"Error exporting Excel: {e}")
             return None
@@ -163,35 +123,31 @@ class ScoresDataExporter:
     async def export_condensed_excel(self, weekly_scores: WeeklyScores, file_prefix: str = "nfl_scores_condensed") -> Optional[str]:
         """Export condensed weekly scores to Excel format with team comparison sheets"""
         try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            week_suffix = f"_week{weekly_scores.week}" if weekly_scores.week > 0 else "_recent"
-
-            filename = f"{file_prefix}{week_suffix}_{timestamp}.xlsx"
-            filepath = self.output_dir / filename
-
             # Create condensed data
             condensed_data = self._create_condensed_dataframe(weekly_scores.games)
 
+            # Use enhanced file manager for path generation, but custom Excel writing
+            prefix = self._get_file_prefix(file_prefix, weekly_scores)
+            timestamped_path = self.file_manager.get_timestamped_path(prefix, 'xlsx')
+
             # Write condensed Excel file
             await asyncio.get_event_loop().run_in_executor(
-                None, self._write_condensed_excel_sheets, condensed_data, str(filepath), weekly_scores
+                None, self._write_condensed_excel_sheets, condensed_data, str(timestamped_path), weekly_scores
             )
 
             # Create latest version if requested
             if self.create_latest_files:
-                latest_filename = f"{file_prefix}_latest.xlsx"
-                latest_filepath = self.output_dir / latest_filename
-
+                latest_path = self.file_manager.get_latest_path(prefix, 'xlsx')
                 await asyncio.get_event_loop().run_in_executor(
-                    None, self._write_condensed_excel_sheets, condensed_data, str(latest_filepath), weekly_scores
+                    None, self._write_condensed_excel_sheets, condensed_data, str(latest_path), weekly_scores
                 )
 
             # Enforce file caps after successful export
-            deleted_files = self.file_manager.enforce_file_caps(str(filepath))
+            deleted_files = self.file_manager.enforce_file_caps(str(timestamped_path))
             if deleted_files:
                 self.logger.info(f"File caps enforced for condensed Excel: {deleted_files}")
 
-            return str(filepath)
+            return str(timestamped_path)
         except Exception as e:
             self.logger.error(f"Error exporting condensed Excel: {e}")
             return None

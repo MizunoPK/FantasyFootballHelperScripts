@@ -400,8 +400,8 @@ class DataFileManager:
         Returns:
             Tuple of (timestamped_path, latest_path)
         """
-        # Set default JSON options
-        json_options = {'indent': 2, 'ensure_ascii': False}
+        # Set default JSON options with datetime serialization support
+        json_options = {'indent': 2, 'ensure_ascii': False, 'default': str}
         json_options.update(json_kwargs)
 
         timestamped_path = self.get_timestamped_path(prefix, 'json')
