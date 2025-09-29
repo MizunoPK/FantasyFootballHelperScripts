@@ -63,14 +63,16 @@ class TestCSVUtils(unittest.TestCase):
 
     def test_validate_csv_columns_missing(self):
         """Test validation with missing columns"""
+        from shared_files.error_handler import DataProcessingError
         required_cols = ["name", "position", "missing_column"]
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(DataProcessingError) as context:
             validate_csv_columns(self.test_csv, required_cols)
         self.assertIn("missing_column", str(context.exception))
 
     def test_validate_csv_columns_file_not_found(self):
         """Test validation with non-existent file"""
-        with self.assertRaises(FileNotFoundError):
+        from shared_files.error_handler import FileOperationError
+        with self.assertRaises(FileOperationError):
             validate_csv_columns(self.test_dir / "nonexistent.csv", ["name"])
 
     def test_read_csv_with_validation_success(self):

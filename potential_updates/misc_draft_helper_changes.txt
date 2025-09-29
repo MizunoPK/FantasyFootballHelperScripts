@@ -1,5 +1,11 @@
+This file details miscelanious changes that are required for the draft helper.
+
 The recommendations in the draft helper's Add to Roster mode have confusion pts attached to each player. The number 1 recommendation can have less points shown than number 2 for example. Check what pts are being shown in the display, and update it to show whatever final point calculation is used to determine the order of the recommendations.
 
 For every Fuzzy Search logic in the draft_helper (e.g. Draft Player mode and Drop Player mode) - update to also allow going back to the main menu by hitting enter on an empty search in addition to being able to type 'exit'.
 
 Remove the Confirmation (y/n) inputs in each mode. When a user makes a selection, assume that they are already sure of their selection and proceed with the processing.
+
+After adding to the roster from Add to Roster mode, then 'Current roster: X / 15' on the main menu does not update tyo reflect the actual number of players on the roster. Fix this.
+
+Re-name the 'Trade Helper' to 'Waiver Optimizer'

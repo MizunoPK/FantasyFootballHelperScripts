@@ -9,7 +9,28 @@
 Before starting, ensure:
 - [ ] You're in the project root directory: `/home/kai/code/FantasyFootballHelperScripts`
 - [ ] Python virtual environment is activated
+- [ ] **Startup Validation**: Core applications start without errors
 - [ ] Draft helper can be launched with: `python run_draft_helper.py`
+
+### **Core Application Startup Tests**
+```bash
+# Test player data fetcher startup (10 second timeout)
+timeout 10 python run_player_data_fetcher.py
+# Expected: Shows startup message, loads config, no import errors
+
+# Test NFL scores fetcher startup (10 second timeout)
+timeout 10 python run_nfl_scores_fetcher.py
+# Expected: Shows startup message, begins operation, no import errors
+
+# Test draft helper startup
+python run_draft_helper.py
+# Expected: Shows "Draft Helper!" or "Trade Helper!" menu
+```
+
+**✅ Startup Requirements**:
+- [ ] Player data fetcher starts without import/config errors
+- [ ] NFL scores fetcher starts without import/config errors
+- [ ] Draft helper displays main menu properly
 
 ---
 

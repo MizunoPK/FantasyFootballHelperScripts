@@ -1,1 +1,8 @@
 We are going to add another option to to the main menu called 'Trade Simulator'
+WHen the mode is launched, I want it to show the current roster numbered 1-15, and show the total points from the roster in the same way that the current Waiver Optimizer does. It should perform the exact same calculations. Move the calculations into a shared file that both modes share.
+The new mode should allow the user to first select a player from the list of their roster. This will be the player that is simulated being traded away.
+Another search bar should appear that will let the user perform a search from players in a similar way to other search bars in other modes. It should perform a fuzzy search from the list of drafted=0 AND drafted=1 players. The user will be searching for a player to simulate trading for the player that was selected from the roster. The user will select from the list of results.
+The "new" team should then be displayed, and specifically calling out the difference in total points for the team between the actual roster and the simulated one.
+The user should then be allowed to select from their roster again, initiated another simulated trade. The new "roster" from the second trade should then be displayed and compared with the original real roster in the same way as the first trade. The second resulting simulated roster from the second trade should still include the player that the user recieved in the first simulated trade.
+The mode should go in a loop, continuously letting the user make trades until the user selects "exit"
+None of these operations should change any data in players.csv, and the internal data should reset upon going back to the main menu to align with the current state of players.csv

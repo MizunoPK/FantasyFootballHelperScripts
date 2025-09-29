@@ -24,7 +24,7 @@ Be VERY systematic when creating the TODO file and proceeding with the implement
    cp tests/pre_commit_validation_checklist.md tests/temp_commit_checklist.md
    ```
 
-2. **EXECUTE ALL 7 VALIDATION STEPS SYSTEMATICALLY**:
+2. **EXECUTE ALL VALIDATION STEPS SYSTEMATICALLY**:
    - Step 1: Analyze ALL changed files (git status, git diff)
    - Step 2: Add unit tests for new functionality with proper mocking
    - Step 3: Run entire repository test suite (100% pass rate required)
@@ -33,7 +33,22 @@ Be VERY systematic when creating the TODO file and proceeding with the implement
    - Step 6: Commit changes with proper format
    - Step 7: Cleanup temporary files
 
-3. **INTEGRATION TESTING MANDATORY**: Must execute all 23 steps from `draft_helper_validation_checklist.md`:
+3. **STARTUP VALIDATION MANDATORY**: Must verify core applications start without errors:
+   ```bash
+   # Test player data fetcher startup (should load config without errors)
+   timeout 10 python run_player_data_fetcher.py
+
+   # Test NFL scores fetcher startup (should load config without errors)
+   timeout 10 python run_nfl_scores_fetcher.py
+   ```
+
+   **Startup Requirements:**
+   - ✅ Player data fetcher starts without import/config errors
+   - ✅ NFL scores fetcher starts without import/config errors
+   - ✅ All required modules load properly
+   - ✅ Configuration files parse without errors
+
+4. **INTEGRATION TESTING MANDATORY**: Must execute all 23 steps from `draft_helper_validation_checklist.md`:
    ```bash
    cp tests/draft_helper_validation_checklist.md tests/temp_integration_checklist.md
    echo -e "2\nHunt\n6\nexit\n3\n\n4\nHunt\n1\ny\nHampton\n1\ny\nexit\n1\n1\n5\n15\ny\n16\n3\n\n5\n15\ny\n16\n6\n\n7\n" | python run_draft_helper.py
@@ -45,19 +60,19 @@ Be VERY systematic when creating the TODO file and proceeding with the implement
    - ✅ Point calculations accurate across all modes
    - ✅ All 7 menu options accessible and functional
 
-4. **UNIT TEST VALIDATION**:
+5. **UNIT TEST VALIDATION**:
    ```bash
    python -m pytest --tb=short  # Must be 100% pass rate
    python -m pytest tests/ shared_files/tests/ draft_helper/tests/ starter_helper/tests/ -v
    ```
 
-5. **COMMIT STANDARDS**:
+6. **COMMIT STANDARDS**:
    - Format: "Complete Phase X Step Y: [description] - [brief summary]"
    - NO icons, emojis, or Claude references
    - Do NOT commit checklist files
    - Only commit when ALL validations pass
 
-6. **CLEANUP REQUIRED**:
+7. **CLEANUP REQUIRED**:
    ```bash
    rm tests/temp_commit_checklist.md
    rm tests/temp_integration_checklist.md

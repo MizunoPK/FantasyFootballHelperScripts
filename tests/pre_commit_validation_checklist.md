@@ -106,6 +106,29 @@ All New Tests Pass: ✅/❌
 
 ## 🔧 **Step 4: Integration Testing**
 
+### **Core Application Startup Validation**
+- [ ] **Player Data Fetcher Startup Test**: Verify application starts without errors
+- [ ] **NFL Scores Fetcher Startup Test**: Verify application starts without errors
+
+### **Startup Test Execution**
+```bash
+# Test player data fetcher startup (should load config and show progress)
+timeout 10 python run_player_data_fetcher.py
+# Expected: Shows "Starting player data fetcher..." or similar, no import/config errors
+# Press Ctrl+C after startup confirmation
+
+# Test NFL scores fetcher startup (should load config and show progress)
+timeout 10 python run_nfl_scores_fetcher.py
+# Expected: Shows startup message or begins fetching, no import/config errors
+# Press Ctrl+C after startup confirmation
+```
+
+### **Startup Validation Results**
+- [ ] **Player Data Fetcher**: ✅ Starts successfully / ❌ Import/config errors
+- [ ] **NFL Scores Fetcher**: ✅ Starts successfully / ❌ Import/config errors
+- [ ] **No Import Errors**: All required modules load properly
+- [ ] **Configuration Loading**: All config files parse without errors
+
 ### **Draft Helper Validation**
 - [ ] Copy `draft_helper_validation_checklist.md` to `tests/temp_integration_checklist.md`
 - [ ] Execute all 23 integration test steps

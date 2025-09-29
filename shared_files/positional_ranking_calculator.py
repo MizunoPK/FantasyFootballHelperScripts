@@ -15,7 +15,7 @@ from typing import Dict, Optional, Tuple, List
 import pandas as pd
 from shared_files.logging_utils import setup_module_logging
 
-from .TeamData import TeamData, load_teams_from_csv
+from shared_files.TeamData import TeamData, load_teams_from_csv
 
 
 class PositionalRankingCalculator:

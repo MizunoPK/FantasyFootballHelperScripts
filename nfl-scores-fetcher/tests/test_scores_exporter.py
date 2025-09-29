@@ -235,7 +235,8 @@ class TestScoresExporter:
     @pytest.mark.asyncio
     async def test_export_json_error_handling(self, exporter, sample_weekly_scores):
         """Test JSON export error handling"""
-        with patch('aiofiles.open', side_effect=Exception("JSON error")):
+        # Test error handling by patching the file manager's save_json_data method
+        with patch.object(exporter.file_manager, 'save_json_data', side_effect=Exception("JSON error")):
             result = await exporter.export_json(sample_weekly_scores, "test.json")
             assert result is None
 
@@ -439,22 +440,16 @@ class TestScoresExporter:
 
     @pytest.mark.asyncio
     async def test_timestamp_filename_generation(self, exporter, sample_weekly_scores, temp_dir):
-        """Test timestamp-based filename generation"""
-        # Test with timestamp
-        timestamp_filename = exporter._generate_timestamped_filename("scores", "csv")
-        assert timestamp_filename.startswith("scores_")
-        assert timestamp_filename.endswith(".csv")
-        assert len(timestamp_filename) > len("scores_.csv")
+        """Test filename generation through actual export"""
+        # Test file naming through CSV export (which uses enhanced file manager)
+        result_filepath = await exporter.export_csv(sample_weekly_scores, "test_scores")
 
-        # Export with generated filename (export method will add its own timestamp)
-        result = await exporter.export_csv(sample_weekly_scores, "test_prefix")
-        assert isinstance(result, str) and "test_prefix" in result
-        from pathlib import Path
-        assert Path(result).exists()
-
-        # Test that second export also works (filenames may be same if within same second)
-        result2 = await exporter.export_csv(sample_weekly_scores, "test_prefix2")
-        assert isinstance(result2, str) and "test_prefix2" in result2
+        # Verify the filename follows the expected pattern
+        assert result_filepath is not None
+        filename = result_filepath.split("/")[-1]  # Get just the filename
+        assert "test_scores_week" in filename
+        assert filename.endswith(".csv")
+        assert "_20" in filename  # Should have a timestamp
 
     def test_data_validation_and_formatting(self, exporter):
         """Test data validation and formatting helpers"""
@@ -483,7 +478,8 @@ class TestScoresExporter:
     @pytest.mark.asyncio
     async def test_disk_space_error_handling(self, exporter, sample_weekly_scores):
         """Test handling of disk space errors"""
-        with patch('aiofiles.open', side_effect=OSError("No space left on device")):
+        # Test error handling by patching the file manager's save_json_data method
+        with patch.object(exporter.file_manager, 'save_json_data', side_effect=OSError("No space left on device")):
             result = await exporter.export_json(sample_weekly_scores, "test.json")
             assert result is None
 

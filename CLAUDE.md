@@ -448,6 +448,16 @@ INCLUDE_PLAYOFF_WEEKS = False                  # Regular season focus
 
 ### Pre-Change Functional Testing Protocol
 ```bash
+# STARTUP VALIDATION TESTS - Execute FIRST before full testing:
+
+# Test player data fetcher startup (10 second timeout)
+timeout 10 .venv\Scripts\python.exe run_player_data_fetcher.py
+# Verify: Shows startup message, loads config, no import/config errors
+
+# Test NFL scores fetcher startup (10 second timeout)
+timeout 10 .venv\Scripts\python.exe run_nfl_scores_fetcher.py
+# Verify: Shows startup message, begins operation, no import/config errors
+
 # Test all four core functions after configuration changes:
 
 # 1. Test player data fetcher with week-by-week projections
@@ -743,12 +753,13 @@ APPLY_INJURY_PENALTY_TO_ROSTER = False
    - **Step 1**: Analyze ALL changed files (not just some)
    - **Step 2**: Add unit tests for new functionality with proper mocking
    - **Step 3**: Run entire repository test suite (100% pass rate required)
-   - **Step 4**: Execute full integration testing (all 23 draft helper validation steps)
+   - **Step 4**: Execute startup validation and full integration testing
    - **Step 5**: Update documentation (README, CLAUDE.md, rules files) as needed
    - **Step 6**: Commit with brief, efficient messages (no icons or Claude references)
    - **Step 7**: Delete temporary checklist and cleanup files
 
 **CRITICAL VALIDATIONS:**
+- **Startup Validation**: Player data fetcher and NFL scores fetcher must start without import/config errors
 - **Integration Testing**: Must execute all steps from `draft_helper_validation_checklist.md`
 - **FLEX System**: Verify WR (4/4) and FLEX (1/1) display correctly
 - **CSV Persistence**: Confirm all data changes reflected in `shared_files/players.csv`

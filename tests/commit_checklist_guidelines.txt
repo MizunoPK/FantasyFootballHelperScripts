@@ -1,9 +1,0 @@
-This file details the guidelines for a pre-commit checklist that an agent should walk through before actually making any commit. Turn the following into a .md checklist that an agent will reference when it is told something along the lines of 'validate and commit'
-
-1. Analyze all changes that have occurred since the last commit. Do not only look at some of the changed files. Look at all of them. Update the checklist file with the context.
-2. Determine what unit tests could be added to increase the code coverage and edge case testing for the new code. Ensure that the unit tests do not rely on config files or static files that may be changed often - instead ensure that potentially modifiable constants or files are mocked or copied into a test file respectively.
-3. Run ALL unit tests across the entire repo. Ensure that every test passes.
-4. Make a copy of the draft_helper_validation_checklist.md file and work through the integration test steps it outlines. Keep the checklist copy updated as you progress. Once the tests have been run and pass, then delete the copied checklist file.
-5. Determine if any updates to the rules files or README files are needed based on the new changes. Make updates accordingly.
-6. Commit all changes. Do not include and icons or references to Claude. Be brief and efficient with the commit messages. Do not commit the commit checklist file.
-7. Delete the commit checklist file

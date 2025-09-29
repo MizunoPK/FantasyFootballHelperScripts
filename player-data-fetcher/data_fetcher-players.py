@@ -29,17 +29,18 @@ Dependencies:
 
 import asyncio
 import logging
+import sys
 from pathlib import Path
 from time import sleep
 from typing import Dict, List
 
 import pandas as pd
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from shared_files.csv_utils import read_csv_with_validation
 
-# Import our new modular components
-import sys
-from pathlib import Path
+# Add parent directory to path for shared_files access BEFORE importing shared_files
+sys.path.append(str(Path(__file__).parent.parent))
+from shared_files.csv_utils import read_csv_with_validation
+from shared_files.FantasyPlayer import FantasyPlayer
 
 # Get the path to the .env file in the parent directory
 ENV_FILE_PATH = Path(__file__).parent.parent / '.env'
@@ -48,10 +49,6 @@ ENV_FILE_PATH = Path(__file__).parent.parent / '.env'
 from player_data_models import ScoringFormat, ProjectionData, DataCollectionError
 from espn_client import ESPNClient
 from player_data_exporter import DataExporter
-
-# Now add parent to path for shared_files access
-sys.path.append(str(Path(__file__).parent.parent))
-from shared_files.FantasyPlayer import FantasyPlayer
 
 
 class Settings(BaseSettings):
