@@ -120,6 +120,12 @@ PROGRESS_ETA_WINDOW_SIZE = 50          # ← Number of recent players to use for
 def validate_config():
     """Validate configuration settings using shared validation utilities"""
     def validate_basic_settings():
+        """
+        Validate basic NFL settings like season, week, and scoring format.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate scoring format
@@ -138,6 +144,12 @@ def validate_config():
         return result
 
     def validate_optimization_settings():
+        """
+        Validate optimization-related settings like score thresholds and API timeouts.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate player score threshold
@@ -155,6 +167,14 @@ def validate_config():
         return result
 
     def validate_mutually_exclusive_options():
+        """
+        Validate that mutually exclusive options are not both enabled.
+
+        Ensures PRESERVE_DRAFTED_VALUES and LOAD_DRAFTED_DATA_FROM_FILE are not both True.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate mutual exclusivity of drafted data loading options
@@ -170,6 +190,12 @@ def validate_config():
         return result
 
     def validate_progress_settings():
+        """
+        Validate progress tracking settings like update frequency and ETA window size.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         if PROGRESS_TRACKING_ENABLED:

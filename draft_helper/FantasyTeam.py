@@ -13,7 +13,30 @@ import draft_helper_constants as Constants
 # It holds drafted players, manages roster limits, and draft order
 # It also provides methods to draft players and check roster status
 class FantasyTeam:
+    """
+    Manages a fantasy football team roster with position limits and draft order.
+
+    This class handles all aspects of team management including:
+    - Tracking drafted players and roster composition
+    - Enforcing position limits and FLEX eligibility rules
+    - Managing draft order and slot assignments
+    - Calculating team scores and bye week impacts
+
+    Attributes:
+        roster: List of FantasyPlayer instances on the team
+        pos_counts: Dictionary tracking count of players by position
+        slot_assignments: Dictionary tracking which players are in which slots
+        bye_week_counts: Dictionary tracking bye week distribution by position
+        draft_order: List representing draft order with player assignments
+    """
     def __init__(self, players=None):
+        """
+        Initialize a FantasyTeam instance.
+
+        Args:
+            players: Optional list of FantasyPlayer instances to initialize roster with.
+                    If None, starts with an empty roster.
+        """
         self.logger = logging.getLogger(__name__)
         self.logger.debug(f"FantasyTeam.__init__ called with {len(players) if players else 0} players")
         # Roster holds Player instances drafted so far
@@ -112,6 +135,13 @@ class FantasyTeam:
 
     # Method to get the next draft position weights based on the current roster
     def get_next_draft_position_weights(self):
+        """
+        Get the position weights for the next draft pick based on current roster needs.
+
+        Returns:
+            dict or None: Dictionary mapping positions to weight values for next pick,
+                         or None if draft is complete
+        """
         self.logger.debug("FantasyTeam.get_next_draft_position_weights called")
         # Find the next open draft position
         for i in range(Constants.MAX_PLAYERS):
@@ -130,6 +160,20 @@ class FantasyTeam:
     # This allows drafting a player into the FLEX spot when their main position is full
     # but there is still room in the FLEX slot.
     def flex_eligible(self, pos):
+        """
+        Check if a player of the given position can be drafted into the FLEX slot.
+
+        A position is FLEX eligible when:
+        1. The position is RB or WR (FLEX eligible positions)
+        2. The primary position slots are full
+        3. The FLEX slot is available
+
+        Args:
+            pos: Position string (e.g., 'RB', 'WR', 'QB')
+
+        Returns:
+            bool: True if the position can be drafted to FLEX, False otherwise
+        """
         # Check if player can be drafted as a FLEX
         if pos not in Constants.FLEX_ELIGIBLE_POSITIONS:
             self.logger.debug(f"Position {pos} not FLEX eligible")
@@ -145,6 +189,22 @@ class FantasyTeam:
 
     # Method to check if a player can be drafted
     def can_draft(self, player):
+        """
+        Check if a player can be drafted to the team.
+
+        Validates:
+        - Roster has space available
+        - Player's position is valid
+        - Position limit not exceeded (including FLEX eligibility)
+        - Player is available (not already drafted)
+        - Player has valid bye week
+
+        Args:
+            player: FantasyPlayer instance to check
+
+        Returns:
+            bool: True if player can be drafted, False otherwise
+        """
         self.logger.debug(f"FantasyTeam.can_draft called for player ID: {player.id}")
         # Check total roster space
         if len(self.roster) >= Constants.MAX_PLAYERS:
@@ -177,6 +237,18 @@ class FantasyTeam:
 
     # Method to draft a player onto the team
     def draft_player(self, player):
+        """
+        Draft a player onto the team.
+
+        Updates the player's drafted status, adds them to the roster,
+        assigns them to an appropriate slot, and updates all tracking data.
+
+        Args:
+            player: FantasyPlayer instance to draft
+
+        Returns:
+            bool: True if draft was successful, False if it failed
+        """
         self.logger.debug(f"FantasyTeam.draft_player called for player ID: {player.id}")
         can_draft = self.can_draft(player)
         if can_draft:
@@ -204,6 +276,18 @@ class FantasyTeam:
 
     # Method to remove a player from the team (for trade helper)
     def remove_player(self, player):
+        """
+        Remove a player from the team roster.
+
+        Removes the player from roster, clears their slot assignment,
+        updates all tracking data, and resets their drafted status.
+
+        Args:
+            player: FantasyPlayer instance to remove
+
+        Returns:
+            bool: True if removal was successful, False if player not found
+        """
         self.logger.debug(f"FantasyTeam.remove_player called for player ID: {player.id}")
         if player not in self.roster:
             self.logger.debug(f"Player {player.id} not in roster, cannot remove.")
@@ -249,6 +333,19 @@ class FantasyTeam:
 
     # Method to replace a player atomically (for trade helper)
     def replace_player(self, old_player, new_player):
+        """
+        Replace one player on the roster with another player.
+
+        This is used for trades and waiver moves. Validates that the new player
+        can fill the slot being vacated by the old player.
+
+        Args:
+            old_player: FantasyPlayer instance currently on roster
+            new_player: FantasyPlayer instance to add to roster
+
+        Returns:
+            bool: True if replacement was successful, False otherwise
+        """
         self.logger.debug(f"FantasyTeam.replace_player called: {old_player.id} -> {new_player.id}")
 
         # Check if we can make this swap while maintaining position constraints
@@ -343,6 +440,15 @@ class FantasyTeam:
 
     # Method to get total team score for trade optimization
     def get_total_team_score(self, scoring_function):
+        """
+        Calculate the total fantasy points for all players on the roster using a scoring function.
+
+        Args:
+            scoring_function: Function that takes a player and returns their score
+
+        Returns:
+            float: Sum of scores for all players on the team
+        """
         self.logger.debug("FantasyTeam.get_total_team_score called")
         total_score = 0
         for player in self.roster:
@@ -585,6 +691,12 @@ class FantasyTeam:
 
     # print the ideal draft order, and what the actual draft order is
     def print_draft_order(self):
+        """
+        Print the current draft order showing round-by-round roster composition.
+
+        Displays each round with the ideal position, actual player assigned,
+        and whether the assignment matches the ideal position.
+        """
         self.logger.debug("FantasyTeam.print_draft_order called")
         for i, pos in enumerate(Constants.DRAFT_ORDER):
             print(f"Round {i + 1}: {', '.join(pos.keys())} -- Drafted: {self.draft_order[i].name if self.draft_order[i] else 'None'} ({self.draft_order[i].position if self.draft_order[i] else 'None'})")

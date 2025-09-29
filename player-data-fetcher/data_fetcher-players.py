@@ -52,6 +52,21 @@ from player_data_exporter import DataExporter
 
 
 class Settings(BaseSettings):
+    """
+    Application settings loaded from environment variables and .env file.
+
+    Supports configuration via environment variables with NFL_PROJ_ prefix.
+    Falls back to default values if environment variables are not set.
+
+    Attributes:
+        scoring_format: Fantasy scoring format (PPR, Half-PPR, or Standard)
+        season: NFL season year
+        current_nfl_week: Current NFL week (1-18)
+        output_directory: Directory for output files
+        create_csv: Whether to create CSV output
+        create_json: Whether to create JSON output
+        create_excel: Whether to create Excel output
+    """
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE_PATH),
         env_file_encoding='utf-8',
@@ -105,6 +120,12 @@ class NFLProjectionsCollector:
     """Main collector class that coordinates data collection and export"""
     
     def __init__(self, settings: Settings):
+        """
+        Initialize the NFL projections collector.
+
+        Args:
+            settings: Application settings including API configuration and output options
+        """
         self.settings = settings
         self.logger = logging.getLogger(__name__)
 
@@ -300,6 +321,14 @@ async def main():
             logging.addLevelName(PROGRESS_LEVEL, 'PROGRESS')
 
             def progress(self, message, *args, **kwargs):
+                """
+                Custom logging method for progress tracking messages.
+
+                Args:
+                    message: Progress message to log
+                    *args: Positional arguments for message formatting
+                    **kwargs: Keyword arguments for logging configuration
+                """
                 if self.isEnabledFor(PROGRESS_LEVEL):
                     self._log(PROGRESS_LEVEL, message, args, **kwargs)
 

@@ -62,6 +62,12 @@ LOGGING_FILE = './data/log.txt'
 def validate_config():
     """Validate configuration settings using shared validation utilities"""
     def validate_basic_settings():
+        """
+        Validate basic NFL settings like season, week, and season type.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate NFL season
@@ -83,6 +89,12 @@ def validate_config():
         return result
 
     def validate_api_settings():
+        """
+        Validate API-related settings like timeouts and rate limits.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
         result = ValidationResult()
 
         # Validate timeout settings
