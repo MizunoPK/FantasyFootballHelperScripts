@@ -45,6 +45,10 @@ DEFAULT_SCORING_CONFIG = {
     "team_good_multiplier": 1.06,       # 6% boost for good team
     "team_poor_multiplier": 0.94,       # 6% penalty for poor team
 
+    # Total adjustment caps
+    "max_total_adjustment": 1.50,       # Cap total boost at 50%
+    "min_total_adjustment": 0.70,       # Cap total penalty at 30%
+
     # Position-specific settings
     "skill_positions": ["QB", "RB", "WR", "TE", "K"],  # Use offensive rankings
     "defense_positions": ["DEF", "DST", "D/ST"]        # Use defensive rankings

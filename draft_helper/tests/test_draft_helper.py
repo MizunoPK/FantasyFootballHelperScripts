@@ -179,6 +179,15 @@ class TestDraftHelper:
 
     def test_injury_penalty_roster_toggle(self, draft_helper_instance, sample_players):
         """Test APPLY_INJURY_PENALTY_TO_ROSTER toggle functionality"""
+        import importlib
+        import sys
+
+        # Force reload of draft_helper_config to ensure clean state
+        if 'draft_helper.draft_helper_config' in sys.modules:
+            importlib.reload(sys.modules['draft_helper.draft_helper_config'])
+        if 'draft_helper_config' in sys.modules:
+            importlib.reload(sys.modules['draft_helper_config'])
+
         # Create injured players with different drafted status
         injured_available = FantasyPlayer(
             id="avail_inj", name="Available Injured", position="RB", team="TEST",
