@@ -5,6 +5,12 @@ Scoring Engine Module for Draft Helper
 This module handles all player scoring and penalty calculation functionality,
 extracted from the main draft_helper.py for better modularity.
 
+This engine implements four distinct scoring modes:
+1. Add to Roster Mode: Draft recommendations with DRAFT_ORDER bonuses
+2. Waiver Optimizer: Trade analysis without DRAFT_ORDER bonuses
+3. Trade Simulator: Same as Waiver Optimizer
+4. Starter Helper: Weekly lineup optimization (separate module)
+
 Author: Kai Mizuno
 Last Updated: September 2025
 """
@@ -16,6 +22,13 @@ try:
     from .. import draft_helper_constants as Constants
 except ImportError:
     import draft_helper_constants as Constants
+
+try:
+    from .normalization_calculator import NormalizationCalculator
+    from .draft_order_calculator import DraftOrderCalculator
+except ImportError:
+    from normalization_calculator import NormalizationCalculator
+    from draft_order_calculator import DraftOrderCalculator
 
 
 class ScoringEngine:
@@ -36,9 +49,37 @@ class ScoringEngine:
         self.players = players
         self.logger = logger or logging.getLogger(__name__)
 
+        # Initialize calculator components
+        try:
+            from .. import draft_helper_config as config
+            normalization_scale = config.NORMALIZATION_MAX_SCALE
+        except ImportError:
+            import draft_helper_config as config
+            normalization_scale = config.NORMALIZATION_MAX_SCALE
+
+        self.normalization_calculator = NormalizationCalculator(
+            normalization_scale=normalization_scale,
+            logger=self.logger
+        )
+        self.draft_order_calculator = DraftOrderCalculator(
+            team=team,
+            logger=self.logger
+        )
+
+        self.logger.info("ScoringEngine initialized with normalization and DRAFT_ORDER calculators")
+
     def score_player(self, p, enhanced_scorer=None, team_data_loader=None, positional_ranking_calculator=None):
         """
-        Calculate the total score for a player based on positional need, projections, penalties, and bonuses.
+        Calculate score for Add to Roster Mode (7-step calculation).
+
+        New Scoring System:
+        1. Get normalized seasonal fantasy points (0-N scale)
+        2. Apply ADP multiplier
+        3. Apply Player Ranking multiplier
+        4. Apply Team ranking multiplier
+        5. Add DRAFT_ORDER bonus (round-based position priority)
+        6. Subtract Bye Week penalty
+        7. Subtract Injury penalty
 
         Args:
             p: FantasyPlayer to score
@@ -49,146 +90,115 @@ class ScoringEngine:
         Returns:
             float: Total score for the player
         """
-        # Calculate positional need score
-        pos_score = self.compute_positional_need_score(p)
-        self.logger.debug(f"Positional need score for {p.name}: {pos_score}")
+        # STEP 1: Normalize seasonal fantasy points to 0-N scale
+        normalized_score = self.normalization_calculator.normalize_player(p, self.players)
+        self.logger.debug(f"Step 1 - Normalized score for {p.name}: {normalized_score:.2f}")
 
-        # Calculate projection score
-        projection_score = self.compute_projection_score(p, enhanced_scorer, team_data_loader, positional_ranking_calculator)
-        self.logger.debug(f"Projection score for {p.name}: {projection_score}")
+        # STEPS 2-4: Apply enhanced scoring (ADP, Player Ranking, Team Ranking multipliers)
+        enhanced_score = self._apply_enhanced_scoring(
+            normalized_score, p, enhanced_scorer, team_data_loader, positional_ranking_calculator
+        )
+        self.logger.debug(f"Steps 2-4 - Enhanced score for {p.name}: {enhanced_score:.2f}")
 
-        # Calculate bye week penalty
+        # STEP 5: Add DRAFT_ORDER bonus (round-based position priority)
+        draft_bonus = self.draft_order_calculator.calculate_bonus(p)
+        draft_bonus_score = enhanced_score + draft_bonus
+        self.logger.debug(f"Step 5 - After DRAFT_ORDER bonus for {p.name}: {draft_bonus_score:.2f} (+{draft_bonus:.1f})")
+
+        # STEP 6: Subtract Bye Week penalty
         bye_penalty = self.compute_bye_penalty_for_player(p)
-        self.logger.debug(f"Bye week penalty for {p.name}: {bye_penalty}")
+        bye_adjusted_score = draft_bonus_score - bye_penalty
+        self.logger.debug(f"Step 6 - After bye penalty for {p.name}: {bye_adjusted_score:.2f} (-{bye_penalty:.1f})")
 
-        # Calculate injury penalty
+        # STEP 7: Subtract Injury penalty
         injury_penalty = self.compute_injury_penalty(p)
-        self.logger.debug(f"Injury penalty for {p.name}: {injury_penalty}")
+        final_score = bye_adjusted_score - injury_penalty
+        self.logger.debug(f"Step 7 - Final score for {p.name}: {final_score:.2f} (-{injury_penalty:.1f})")
 
-        # Calculate matchup adjustment if available
-        matchup_adjustment = 0
-        if hasattr(p, 'matchup_adjustment') and p.matchup_adjustment is not None:
-            matchup_adjustment = p.matchup_adjustment
-            self.logger.debug(f"Matchup adjustment for {p.name}: {matchup_adjustment}")
+        # Summary logging
+        self.logger.info(
+            f"Add to Roster scoring for {p.name}: "
+            f"norm={normalized_score:.1f} → enhanced={enhanced_score:.1f} → "
+            f"draft_bonus={draft_bonus_score:.1f} → bye={bye_adjusted_score:.1f} → "
+            f"final={final_score:.1f}"
+        )
 
-        # Calculate final score (higher is better)
-        total_score = pos_score + projection_score - bye_penalty - injury_penalty + matchup_adjustment
+        return final_score
 
-        self.logger.debug(f"Total score for {p.name}: {total_score:.2f} "
-                         f"(pos: {pos_score}, proj: {projection_score:.2f}, "
-                         f"bye: -{bye_penalty:.2f}, injury: -{injury_penalty}, matchup: +{matchup_adjustment})")
-
-        return total_score
-
-    def compute_positional_need_score(self, p):
+    def _apply_enhanced_scoring(self, base_score, player, enhanced_scorer=None, team_data_loader=None, positional_ranking_calculator=None):
         """
-        Calculate positional need score based on how many players of this position we have.
+        Apply enhanced scoring multipliers (Steps 2-4).
+
+        This method applies:
+        - Step 2: ADP multiplier
+        - Step 3: Player Ranking multiplier
+        - Step 4: Team ranking multiplier
 
         Args:
-            p: FantasyPlayer to evaluate
-
-        Returns:
-            float: Positional need score
-        """
-        pos = p.position
-        current_count = self.team.pos_counts.get(pos, 0)
-        max_limit = Constants.MAX_POSITIONS.get(pos, 0)
-
-        # Base positional need (higher = more needed)
-        if current_count < max_limit:
-            # Still need players at this position
-            need_score = (max_limit - current_count) * Constants.POS_NEEDED_SCORE
-        else:
-            # Already have enough players at this position
-            need_score = 0
-
-        # Apply FLEX considerations for RB/WR positions
-        if pos in Constants.FLEX_ELIGIBLE_POSITIONS:
-            flex_count = self.team.pos_counts.get("FLEX", 0)
-            flex_limit = Constants.MAX_POSITIONS.get("FLEX", 0)
-
-            if flex_count < flex_limit:
-                # Can still use FLEX position
-                flex_need = (flex_limit - flex_count) * Constants.POS_NEEDED_SCORE * 0.5
-                need_score += flex_need
-
-        return need_score
-
-    def compute_projection_score(self, p, enhanced_scorer=None, team_data_loader=None, positional_ranking_calculator=None):
-        """
-        Calculate projection score based on weekly fantasy points projections.
-
-        Args:
-            p: FantasyPlayer to evaluate
+            base_score: Base score (normalized fantasy points)
+            player: FantasyPlayer to score
             enhanced_scorer: EnhancedScoringCalculator instance
             team_data_loader: TeamDataLoader instance
             positional_ranking_calculator: PositionalRankingCalculator instance
 
         Returns:
-            float: Projection score
+            float: Score after all enhanced scoring multipliers
         """
-        # Use the remaining season projections if available, otherwise use full season
-        if hasattr(p, 'remaining_season_projection') and p.remaining_season_projection is not None and p.remaining_season_projection > 0:
-            base_score = p.remaining_season_projection
-        elif hasattr(p, 'weighted_projection') and p.weighted_projection is not None and p.weighted_projection > 0:
-            base_score = p.weighted_projection
-        else:
-            base_score = p.fantasy_points
+        if not enhanced_scorer or not team_data_loader:
+            # No enhanced scoring available
+            self.logger.debug(f"Enhanced scoring not available for {player.name}, using base score")
+            return base_score
 
-        self.logger.debug(f"Base fantasy points for {p.name}: {base_score}")
+        try:
+            # Get team rankings
+            team_offensive_rank = team_data_loader.get_team_offensive_rank(player.team)
+            team_defensive_rank = team_data_loader.get_team_defensive_rank(player.team)
 
-        # Apply enhanced scoring if available
-        if enhanced_scorer and team_data_loader:
-            try:
-                # Get team rankings from team data loader
-                team_offensive_rank = team_data_loader.get_team_offensive_rank(p.team)
-                team_defensive_rank = team_data_loader.get_team_defensive_rank(p.team)
+            # Apply enhanced scoring (ADP, Player Rating, Team Rankings)
+            enhanced_result = enhanced_scorer.calculate_enhanced_score(
+                base_fantasy_points=base_score,
+                position=player.position,
+                adp=getattr(player, 'average_draft_position', None),
+                player_rating=getattr(player, 'player_rating', None),
+                team_offensive_rank=team_offensive_rank,
+                team_defensive_rank=team_defensive_rank
+            )
 
-                enhanced_result = enhanced_scorer.calculate_enhanced_score(
-                    base_fantasy_points=base_score,
-                    position=p.position,
-                    adp=getattr(p, 'average_draft_position', None),
-                    player_rating=getattr(p, 'player_rating', None),
-                    team_offensive_rank=team_offensive_rank,
-                    team_defensive_rank=team_defensive_rank
-                )
+            enhanced_score = enhanced_result['enhanced_score']
 
-                projection_score = enhanced_result['enhanced_score']
+            # Apply positional ranking adjustment if available
+            if (positional_ranking_calculator and
+                positional_ranking_calculator.is_positional_ranking_available() and
+                player.team and player.position):
+                try:
+                    from shared_config import CURRENT_NFL_WEEK
+                    current_week = CURRENT_NFL_WEEK
 
-                # Apply positional ranking adjustment if available
-                if (positional_ranking_calculator and
-                    positional_ranking_calculator.is_positional_ranking_available() and
-                    p.team and p.position):
-                    try:
-                        from shared_config import CURRENT_NFL_WEEK
-                        current_week = CURRENT_NFL_WEEK
+                    ranking_adjusted_points, ranking_explanation = positional_ranking_calculator.calculate_positional_adjustment(
+                        player_team=player.team,
+                        position=player.position,
+                        base_points=enhanced_score,
+                        current_week=current_week
+                    )
 
-                        ranking_adjusted_points, ranking_explanation = positional_ranking_calculator.calculate_positional_adjustment(
-                            player_team=p.team,
-                            position=p.position,
-                            base_points=projection_score,
-                            current_week=current_week
-                        )
+                    if ranking_adjusted_points != enhanced_score:
+                        self.logger.info(f"Positional ranking adjustment for {player.name}: {enhanced_score:.1f} -> {ranking_adjusted_points:.1f} ({ranking_explanation})")
+                        enhanced_score = ranking_adjusted_points
+                except Exception as e:
+                    self.logger.warning(f"Failed to apply positional ranking adjustment for {player.name}: {e}")
 
-                        if ranking_adjusted_points != projection_score:
-                            self.logger.info(f"Positional ranking adjustment for {p.name}: {projection_score:.1f} -> {ranking_adjusted_points:.1f} ({ranking_explanation})")
-                            projection_score = ranking_adjusted_points
-                    except Exception as e:
-                        self.logger.warning(f"Failed to apply positional ranking adjustment for {p.name}: {e}")
+            # Log enhancement details if significant adjustment was made
+            if enhanced_result['total_multiplier'] != 1.0:
+                adjustment_summary = enhanced_scorer.get_adjustment_summary(enhanced_result)
+                self.logger.info(f"Enhanced scoring for {player.name}: {base_score:.1f} -> {enhanced_score:.1f} ({adjustment_summary})")
 
-                # Log enhancement details if significant adjustment was made
-                if enhanced_result['total_multiplier'] != 1.0:
-                    adjustment_summary = enhanced_scorer.get_adjustment_summary(enhanced_result)
-                    self.logger.info(f"Enhanced scoring for {p.name}: {base_score:.1f} -> {projection_score:.1f} ({adjustment_summary})")
+            return enhanced_score
 
-            except Exception as e:
-                # Enhanced scoring failed, fall back to basic scoring
-                self.logger.warning(f"Enhanced scoring failed for {p.name}: {e}. Using fallback scoring.")
-                projection_score = base_score
-        else:
-            projection_score = base_score
+        except Exception as e:
+            # Enhanced scoring failed, fall back to basic scoring
+            self.logger.warning(f"Enhanced scoring failed for {player.name}: {e}. Using base score.")
+            return base_score
 
-        return projection_score
 
     def compute_bye_penalty_for_player(self, player, exclude_self=False):
         """
