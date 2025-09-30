@@ -44,32 +44,40 @@ MAX_PLAYERS = 15  # Total roster size
 
 FLEX_ELIGIBLE_POSITIONS = [RB, WR]  # Positions eligible for FLEX spot
 
-# Draft Strategy - Ideal position priorities by round (FREQUENTLY MODIFIED)
+# Draft Strategy - Round-based position bonuses (FREQUENTLY MODIFIED)
+# Static point values added to player scores based on position fit for current round
 DRAFT_ORDER = [
-    {FLEX: 1.0 QB: 0.7},    # Round 1
-    {FLEX: 1.0, QB: 0.7},    # Round 2  
-    {FLEX: 1.0, QB: 0.8},    # Round 3
-    {FLEX: 1.0, QB: 0.8},    # Round 4
-    {QB: 1.0, FLEX: 0.7},    # Round 5
-    {TE: 1.0, FLEX: 0.7},    # Round 6
-    {FLEX: 1.0},             # Round 7
-    {QB: 1.0, FLEX: 0.7},    # Round 8
-    {TE: 1.0, FLEX: 0.7},    # Round 9
-    {FLEX: 1.0},             # Round 10
-    {FLEX: 1.0},             # Round 11
-    {K: 1.0},                # Round 12
-    {DST: 1.0},              # Round 13
-    {FLEX: 1.0},             # Round 14
-    {FLEX: 1.0}              # Round 15
+    {FLEX: 50, QB: 25},      # Round 1: FLEX priority (50 pts), QB secondary (25 pts)
+    {FLEX: 50, QB: 25},      # Round 2: FLEX priority, QB secondary
+    {FLEX: 50, QB: 30},      # Round 3: FLEX priority, QB increasing
+    {FLEX: 50, QB: 30},      # Round 4: FLEX priority, QB increasing
+    {QB: 50, FLEX: 25},      # Round 5: QB priority (50 pts), FLEX secondary (25 pts)
+    {TE: 50, FLEX: 25},      # Round 6: TE priority, FLEX secondary
+    {FLEX: 50},              # Round 7: FLEX only
+    {QB: 50, FLEX: 25},      # Round 8: QB priority, FLEX secondary
+    {TE: 50, FLEX: 25},      # Round 9: TE priority, FLEX secondary
+    {FLEX: 50},              # Round 10: FLEX only
+    {FLEX: 50},              # Round 11: FLEX only
+    {K: 50},                 # Round 12: Kicker
+    {DST: 50},               # Round 13: Defense
+    {FLEX: 50},              # Round 14: FLEX
+    {FLEX: 50}               # Round 15: FLEX
 ]
+
+# DRAFT_ORDER bonus configuration
+DRAFT_ORDER_PRIMARY_BONUS = 50    # Points for #1 priority position
+DRAFT_ORDER_SECONDARY_BONUS = 25  # Points for #2 priority position
 
 # =============================================================================
 # SCORING WEIGHTS (FREQUENTLY MODIFIED)
 # =============================================================================
 
-# Primary scoring components
-POS_NEEDED_SCORE = 65           # ← Weight for positional need (optimized from simulation)
-PROJECTION_BASE_SCORE = 95      # ← Base score for projections (optimized from simulation)
+# Normalization configuration
+NORMALIZATION_MAX_SCALE = 100.0  # ← Maximum value for normalized fantasy points (0-N scale)
+
+# Primary scoring components (DEPRECATED - will be removed in scoring overhaul)
+POS_NEEDED_SCORE = 65           # ← DEPRECATED: Weight for positional need (being removed)
+PROJECTION_BASE_SCORE = 95      # ← DEPRECATED: Base score for projections (being removed)
 
 # Penalty system (FREQUENTLY MODIFIED)
 BASE_BYE_PENALTY = 5           # ← Base penalty for bye week conflicts (optimized from simulation)
@@ -183,12 +191,13 @@ def validate_config():
             if not round_prefs:
                 result.add_error(f"Round {round_idx + 1} cannot have empty preferences", f"DRAFT_ORDER[{round_idx}]")
 
-            for position, weight in round_prefs.items():
+            for position, bonus_value in round_prefs.items():
                 if position not in list(MAX_POSITIONS.keys()):
                     result.add_error(f"Invalid position '{position}' in round {round_idx + 1}", f"DRAFT_ORDER[{round_idx}]")
 
-                weight_result = ConfigValidator.validate_range(weight, 0.0, 2.0, f"DRAFT_ORDER[{round_idx}][{position}]")
-                result.errors.extend(weight_result.errors)
+                # Validate bonus values (should be 0-100 for static point bonuses)
+                bonus_result = ConfigValidator.validate_range(bonus_value, 0.0, 100.0, f"DRAFT_ORDER[{round_idx}][{position}]")
+                result.errors.extend(bonus_result.errors)
 
         return result
 

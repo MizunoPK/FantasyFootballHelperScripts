@@ -11,13 +11,32 @@ from typing import Dict, List, Tuple
 
 # Test parameters and their ranges (balanced for meaningful analysis)
 PARAMETER_RANGES = {
-    # Core existing parameters (3 values each for thorough testing)
-    'INJURY_PENALTIES_MEDIUM': [15, 20],         # Test injury tolerance range
-    'INJURY_PENALTIES_HIGH': [30, 40],           # Test high injury penalty range
-    'POS_NEEDED_SCORE': [65, 75],                # Test positional need scoring
-    'PROJECTION_BASE_SCORE': [90, 100],          # Test projection weighting
-    'BASE_BYE_PENALTY': [10, 20],                # Test bye week penalty range
-    'DRAFT_ORDER_WEIGHTS': [1.0, 1.2],         # Test draft order influence
+    # === NEW SCORING SYSTEM PARAMETERS ===
+    # Normalization parameters
+    'NORMALIZATION_MAX_SCALE': [80, 100, 120],           # Test different scale values for normalization
+
+    # DRAFT_ORDER bonus parameters
+    'DRAFT_ORDER_PRIMARY_BONUS': [40, 50, 60],           # Test primary position bonus range
+    'DRAFT_ORDER_SECONDARY_BONUS': [20, 25, 30],         # Test secondary position bonus range
+
+    # Matchup multiplier parameters (for Starter Helper)
+    'MATCHUP_EXCELLENT_MULTIPLIER': [1.15, 1.2, 1.25],   # Very favorable matchup (rank diff >15)
+    'MATCHUP_GOOD_MULTIPLIER': [1.05, 1.1, 1.15],        # Favorable matchup (rank diff 6-15)
+    'MATCHUP_NEUTRAL_MULTIPLIER': [0.95, 1.0, 1.05],     # Neutral matchup (rank diff -5 to 5)
+    'MATCHUP_POOR_MULTIPLIER': [0.85, 0.9, 0.95],        # Unfavorable matchup (rank diff -15 to -6)
+    'MATCHUP_VERY_POOR_MULTIPLIER': [0.75, 0.8, 0.85],   # Very unfavorable matchup (rank diff <-15)
+
+    # === EXISTING PARAMETERS (KEPT FOR COMPATIBILITY) ===
+    # Core existing parameters
+    'INJURY_PENALTIES_MEDIUM': [15, 20],                 # Test injury tolerance range
+    'INJURY_PENALTIES_HIGH': [30, 40],                   # Test high injury penalty range
+    'BASE_BYE_PENALTY': [10, 20],                        # Test bye week penalty range
+
+    # DEPRECATED PARAMETERS (will be removed after scoring overhaul)
+    # 'POS_NEEDED_SCORE': [65, 75],                      # DEPRECATED: Positional need being removed
+    # 'PROJECTION_BASE_SCORE': [90, 100],                # DEPRECATED: Using normalization instead
+    # 'DRAFT_ORDER_WEIGHTS': [1.0, 1.2],                 # DEPRECATED: Using static bonuses instead
+
     # Enhanced scoring parameters - Key multipliers for comprehensive testing
     'ADP_EXCELLENT_MULTIPLIER': [1.10, 1.15, 1.20],        # ADP boost range
     'ADP_GOOD_MULTIPLIER': [1.05, 1.08, 1.10],             # ADP good range
@@ -31,9 +50,9 @@ PARAMETER_RANGES = {
     'TEAM_GOOD_MULTIPLIER': [1.04, 1.06, 1.08],               # Team good performance
     'TEAM_POOR_MULTIPLIER': [0.92, 0.94, 0.96],               # Team poor performance
 
-    # Adjustment caps
-    'MAX_TOTAL_ADJUSTMENT': [1.45, 1.50, 1.55],               # Maximum total adjustment
-    'MIN_TOTAL_ADJUSTMENT': [0.65, 0.70, 0.75],               # Minimum total adjustment
+    # Adjustment caps (DEPRECATED - will be removed after scoring overhaul)
+    # 'MAX_TOTAL_ADJUSTMENT': [1.45, 1.50, 1.55],            # DEPRECATED: Removing multiplier caps
+    # 'MIN_TOTAL_ADJUSTMENT': [0.65, 0.70, 0.75],            # DEPRECATED: Removing multiplier caps
 }
 
 # Simulation settings
