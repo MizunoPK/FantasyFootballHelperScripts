@@ -243,31 +243,36 @@ Starter Helper:
 
 ---
 
-## 📝 **CLARIFYING QUESTIONS FOR USER**
+## ✅ **CLARIFICATIONS RECEIVED FROM USER**
 
-Before beginning development, please clarify:
+All questions have been answered via `scoring_overhaul_clarification_questions.md`:
 
-1. **Matchup Data Source**: Where should team ranking data come from for matchup calculations? Should we:
-   - Use existing `teams.csv` file format?
-   - Create new matchup-specific data source?
-   - Integrate with ESPN API for live team rankings?
+1. **Matchup Data Source**: ✅ Use existing `teams.csv` with offensive_rank, defensive_rank, and opponent columns
+   - Data structure: `team,offensive_rank,defensive_rank,opponent`
+   - Already populated with ranks 1-32 and current week opponent matchups
+   - Use existing TeamDataLoader and extend as needed
 
-2. **Rank Difference Thresholds**: What specific rank difference ranges should trigger each multiplier level?
-   - Excellent matchup: rank difference > X?
-   - Good matchup: rank difference X to Y?
-   - Poor matchup: rank difference < Z?
+2. **Rank Difference Thresholds**: ✅ Formula: `(Opponent Defensive Rank) - (Player's Team Offensive Rank)`
+   - Excellent: >=15 = 1.2x multiplier
+   - Good: 6 to 14 = 1.1x multiplier
+   - Neutral: -5 to 5 = 1.0x multiplier
+   - Poor: -14 to -6 = 0.9x multiplier
+   - Very Poor: <=-15 = 0.8x multiplier
 
-3. **Opponent Team Detection**: How should we determine the opponent team for each player's team?
-   - Add opponent column to teams.csv?
-   - Use NFL schedule API?
-   - Manual configuration per week?
+3. **Opponent Team Detection**: ✅ Already in `teams.csv` as `opponent` column
+   - Updated weekly to reflect current matchups
+   - No additional data source needed
 
-4. **Backward Compatibility**: Should we maintain the old scoring system as an option, or completely replace it?
+4. **Backward Compatibility**: ✅ Clean break acceptable, no need for feature flags or migration
 
-5. **Configuration Location**: Should matchup multipliers be configurable in:
-   - `starter_helper_config.py` only?
-   - Both starter_helper and simulation configs?
-   - Separate matchup configuration file?
+5. **Configuration Location**: ✅ Add to `starter_helper_config.py` and simulation config ranges
+
+6. **Additional Requirements**:
+   - ✅ Normalization: 0-N scale (default 100), configurable for simulation
+   - ✅ Binary Injury: Zero out non-ACTIVE/QUESTIONABLE players
+   - ✅ Bye Weeks: Already 0.0 in player data, no additional logic needed
+   - ✅ Extensive Logging: Add detailed logging for debugging
+   - ✅ Liberal Unit Testing: Comprehensive test coverage required
 
 ---
 
@@ -299,7 +304,16 @@ Before beginning development, please clarify:
 
 **Keep this section updated as work progresses:**
 
-- [ ] Phase 1: Configuration System Setup - ⏳ Not Started
+- [🔄] Phase 1: Configuration System Setup - ✅ IN PROGRESS
+  - [✅] 1.1.1: Added matchup multiplier configuration to `starter_helper_config.py`
+    - Added `MATCHUP_MULTIPLIERS` dictionary with 5 rank difference ranges
+    - Added `MATCHUP_ENABLED_POSITIONS = [QB, RB, WR, TE]`
+    - Added `STARTER_HELPER_ACTIVE_STATUSES = ['ACTIVE', 'QUESTIONABLE']`
+    - Documentation added for formula: (Opponent Defense Rank) - (Team Offense Rank)
+  - [ ] 1.1.2: Update validation for new configuration
+  - [ ] 1.1.3: Update simulation config with parameter ranges
+  - [ ] 1.1.4: Create unit tests for new configuration
+
 - [ ] Phase 2: Injury System Overhaul - ⏳ Not Started
 - [ ] Phase 3: Remove Bye Week Penalties - ⏳ Not Started
 - [ ] Phase 4: Implement Matchup Multiplier System - ⏳ Not Started
@@ -308,7 +322,7 @@ Before beginning development, please clarify:
 - [ ] Phase 7: Integration Testing & Validation - ⏳ Not Started
 - [ ] Phase 8: Cleanup & Finalization - ⏳ Not Started
 
-**Last Progress Update**: 2025-09-30 - TODO file created, awaiting user clarification on questions
+**Last Progress Update**: 2025-09-30 - Phase 1 started, matchup configuration added to starter_helper_config.py
 
 ---
 

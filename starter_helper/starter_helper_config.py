@@ -48,11 +48,46 @@ SHOW_INJURY_STATUS = True           # Show injury status in recommendations
 RECOMMENDATION_COUNT = 15           # Number of total players to show
 
 # =============================================================================
-# POSITIONAL RANKING CONFIGURATION
+# MATCHUP MULTIPLIER CONFIGURATION
 # =============================================================================
 
-# Positional ranking adjustments are handled automatically via positional_ranking_calculator.py
-# which uses team offensive/defensive rankings from teams.csv to apply score adjustments
+# Matchup multipliers based on rank difference between team offense and opponent defense
+# Formula: (Opponent Defensive Rank) - (Player's Team Offensive Rank)
+# Positive difference = favorable matchup (good offense vs weak defense) = >1.0x multiplier
+# Negative difference = unfavorable matchup (weak offense vs strong defense) = <1.0x multiplier
+#
+# Only applies to QB, RB, WR, TE (not K or DST)
+
+# Positions eligible for matchup multipliers
+MATCHUP_ENABLED_POSITIONS = [QB, RB, WR, TE]
+
+# Matchup multiplier ranges (rank_difference: multiplier)
+# rank_difference = (opponent_defensive_rank) - (player_team_offensive_rank)
+MATCHUP_MULTIPLIERS = {
+    # Excellent matchup: rank difference >= 15 (e.g., #5 offense vs #25 defense)
+    (15, float('inf')): 1.2,
+
+    # Good matchup: rank difference 6 to 14
+    (6, 15): 1.1,
+
+    # Neutral matchup: rank difference -5 to 5
+    (-5, 6): 1.0,
+
+    # Poor matchup: rank difference -14 to -6
+    (-15, -5): 0.9,
+
+    # Very poor matchup: rank difference <= -15 (e.g., #25 offense vs #5 defense)
+    (float('-inf'), -14): 0.8,
+}
+
+# =============================================================================
+# BINARY INJURY STATUS CONFIGURATION
+# =============================================================================
+
+# Active injury statuses for starter helper (binary system)
+# Players with these statuses can play with their full projected score
+# All other injury statuses result in zero score
+STARTER_HELPER_ACTIVE_STATUSES = ['ACTIVE', 'QUESTIONABLE']
 
 # =============================================================================
 # ESPN API CONFIGURATION
