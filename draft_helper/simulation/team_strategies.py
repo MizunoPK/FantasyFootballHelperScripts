@@ -35,6 +35,13 @@ class TeamStrategyManager:
         self.projection_base_score = config_params.get('PROJECTION_BASE_SCORE', 100)
         self.base_bye_penalty = config_params.get('BASE_BYE_PENALTY', 20)
 
+        # DRAFT_ORDER bonus configuration from simulation parameters
+        self.draft_order_primary_bonus = config_params.get('DRAFT_ORDER_PRIMARY_BONUS', base_config.DRAFT_ORDER_PRIMARY_BONUS)
+        self.draft_order_secondary_bonus = config_params.get('DRAFT_ORDER_SECONDARY_BONUS', base_config.DRAFT_ORDER_SECONDARY_BONUS)
+
+        # Rebuild DRAFT_ORDER array with simulation-specific bonus values
+        self.draft_order = self._build_draft_order()
+
         # Enhanced scoring configuration from simulation parameters
         enhanced_scoring_config = {
             # ADP multipliers
@@ -65,6 +72,30 @@ class TeamStrategyManager:
             self.team_data_loader = TeamDataLoader(draft_teams_csv_path)
         else:
             self.team_data_loader = TeamDataLoader()
+
+    def _build_draft_order(self) -> List[Dict[str, float]]:
+        """Build DRAFT_ORDER array using simulation-specific bonus values"""
+        P = self.draft_order_primary_bonus
+        S = self.draft_order_secondary_bonus
+
+        # Same structure as draft_helper_config.py but with simulation values
+        return [
+            {base_config.FLEX: P, base_config.QB: S},        # Round 1
+            {base_config.FLEX: P, base_config.QB: S},        # Round 2
+            {base_config.FLEX: P, base_config.QB: S+5},      # Round 3
+            {base_config.FLEX: P, base_config.QB: S+5},      # Round 4
+            {base_config.QB: P, base_config.FLEX: S},        # Round 5
+            {base_config.TE: P, base_config.FLEX: S},        # Round 6
+            {base_config.FLEX: P},                           # Round 7
+            {base_config.QB: P, base_config.FLEX: S},        # Round 8
+            {base_config.TE: P, base_config.FLEX: S},        # Round 9
+            {base_config.FLEX: P},                           # Round 10
+            {base_config.FLEX: P},                           # Round 11
+            {base_config.K: P},                              # Round 12
+            {base_config.DST: P},                            # Round 13
+            {base_config.FLEX: P},                           # Round 14
+            {base_config.FLEX: P}                            # Round 15
+        ]
 
     def get_team_picks(self, strategy: str, available_players: List[FantasyPlayer],
                       team_roster: FantasyTeam, round_num: int) -> List[FantasyPlayer]:
@@ -248,9 +279,9 @@ class TeamStrategyManager:
                 # Fallback to basic scoring if enhanced scoring fails
                 enhanced_score = base_points * self.projection_base_score / 100
 
-            # Add positional need score similar to draft helper
-            positional_need = self._calculate_positional_need(player.position, team_roster)
-            enhanced_score += positional_need * self.pos_needed_score
+            # Add DRAFT_ORDER bonus based on current round (roster size)
+            draft_order_bonus = self._calculate_draft_order_bonus(player.position, team_roster)
+            enhanced_score += draft_order_bonus
 
             # Apply injury penalties
             injury_penalty = self.injury_penalties.get(player.injury_status, 0)
@@ -265,6 +296,26 @@ class TeamStrategyManager:
         # Sort by score descending
         scored_players.sort(reverse=True, key=lambda x: x[0])
         return [player for score, player in scored_players]
+
+    def _calculate_draft_order_bonus(self, position: str, team_roster: FantasyTeam) -> float:
+        """Calculate DRAFT_ORDER bonus based on current round (roster size)"""
+        current_round = len(team_roster.roster)  # 0-indexed
+
+        # Check if roster is full
+        if current_round >= len(self.draft_order):
+            return 0.0
+
+        round_priorities = self.draft_order[current_round]
+
+        # Check direct position match
+        if position in round_priorities:
+            return round_priorities[position]
+
+        # Check FLEX eligibility (RB or WR)
+        if position in base_config.FLEX_ELIGIBLE_POSITIONS and base_config.FLEX in round_priorities:
+            return round_priorities[base_config.FLEX]
+
+        return 0.0
 
     def _calculate_bye_conflicts(self, player: FantasyPlayer, team_roster: FantasyTeam) -> int:
         """Calculate number of bye week conflicts with current roster"""

@@ -44,29 +44,33 @@ MAX_PLAYERS = 15  # Total roster size
 
 FLEX_ELIGIBLE_POSITIONS = [RB, WR]  # Positions eligible for FLEX spot
 
-# Draft Strategy - Round-based position bonuses (FREQUENTLY MODIFIED)
-# Static point values added to player scores based on position fit for current round
-DRAFT_ORDER = [
-    {FLEX: 50, QB: 25},      # Round 1: FLEX priority (50 pts), QB secondary (25 pts)
-    {FLEX: 50, QB: 25},      # Round 2: FLEX priority, QB secondary
-    {FLEX: 50, QB: 30},      # Round 3: FLEX priority, QB increasing
-    {FLEX: 50, QB: 30},      # Round 4: FLEX priority, QB increasing
-    {QB: 50, FLEX: 25},      # Round 5: QB priority (50 pts), FLEX secondary (25 pts)
-    {TE: 50, FLEX: 25},      # Round 6: TE priority, FLEX secondary
-    {FLEX: 50},              # Round 7: FLEX only
-    {QB: 50, FLEX: 25},      # Round 8: QB priority, FLEX secondary
-    {TE: 50, FLEX: 25},      # Round 9: TE priority, FLEX secondary
-    {FLEX: 50},              # Round 10: FLEX only
-    {FLEX: 50},              # Round 11: FLEX only
-    {K: 50},                 # Round 12: Kicker
-    {DST: 50},               # Round 13: Defense
-    {FLEX: 50},              # Round 14: FLEX
-    {FLEX: 50}               # Round 15: FLEX
-]
-
-# DRAFT_ORDER bonus configuration
+# DRAFT_ORDER bonus configuration (FREQUENTLY MODIFIED)
 DRAFT_ORDER_PRIMARY_BONUS = 50    # Points for #1 priority position
 DRAFT_ORDER_SECONDARY_BONUS = 25  # Points for #2 priority position
+
+# Draft Strategy - Round-based position bonuses (FREQUENTLY MODIFIED)
+# Uses DRAFT_ORDER_PRIMARY_BONUS and DRAFT_ORDER_SECONDARY_BONUS variables
+# To adjust bonuses, modify the two variables above - changes apply to all rounds
+P = DRAFT_ORDER_PRIMARY_BONUS    # Alias for readability
+S = DRAFT_ORDER_SECONDARY_BONUS  # Alias for readability
+
+DRAFT_ORDER = [
+    {FLEX: P, QB: S},        # Round 1: FLEX priority, QB secondary
+    {FLEX: P, QB: S},        # Round 2: FLEX priority, QB secondary
+    {FLEX: P, QB: S+5},      # Round 3: FLEX priority, QB increasing (+5)
+    {FLEX: P, QB: S+5},      # Round 4: FLEX priority, QB increasing (+5)
+    {QB: P, FLEX: S},        # Round 5: QB priority, FLEX secondary
+    {TE: P, FLEX: S},        # Round 6: TE priority, FLEX secondary
+    {FLEX: P},               # Round 7: FLEX only
+    {QB: P, FLEX: S},        # Round 8: QB priority, FLEX secondary
+    {TE: P, FLEX: S},        # Round 9: TE priority, FLEX secondary
+    {FLEX: P},               # Round 10: FLEX only
+    {FLEX: P},               # Round 11: FLEX only
+    {K: P},                  # Round 12: Kicker
+    {DST: P},                # Round 13: Defense
+    {FLEX: P},               # Round 14: FLEX
+    {FLEX: P}                # Round 15: FLEX
+]
 
 # =============================================================================
 # SCORING WEIGHTS (FREQUENTLY MODIFIED)
