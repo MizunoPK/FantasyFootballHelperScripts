@@ -23,13 +23,12 @@
 
 | Phase | Parameters | Configs | Status | Start Date | Complete Date | Winner Config |
 |-------|-----------|---------|--------|------------|---------------|---------------|
-| **Baseline** | All @ baseline | 1 | ⏳ Pending | - | - | - |
-| **Phase 1** | Normalization + Draft Order | 8 | ⏳ Pending | - | - | - |
-| **Phase 2a** | ADP Adjustments | 8 | ⏳ Pending | - | - | - |
-| **Phase 2b** | Player Rating | 8 | ⏳ Pending | - | - | - |
-| **Phase 2c** | Team Quality | 8 | ⏳ Pending | - | - | - |
-| **Phase 3** | Matchup Multipliers | 32 | ⏳ Pending | - | - | - |
-| **Phase 4** | Injury & Bye | 8 | ⏳ Pending | - | - | - |
+| **Phase 1** | Normalization + Draft Order | 27 | ⏳ Pending | - | - | - |
+| **Phase 2a** | ADP Adjustments | 27 | ⏳ Pending | - | - | - |
+| **Phase 2b** | Player Rating | 27 | ⏳ Pending | - | - | - |
+| **Phase 2c** | Team Quality | 27 | ⏳ Pending | - | - | - |
+| **Phase 3** | Matchup Multipliers | 243 | ⏳ Pending | - | - | - |
+| **Phase 4** | Injury & Bye | 27 | ⏳ Pending | - | - | - |
 | **Phase 5** | Validation | 10-15 | ⏳ Pending | - | - | - |
 | **Phase 6** | Final Verification | 1 | ⏳ Pending | - | - | - |
 
@@ -37,51 +36,44 @@
 
 ---
 
-## Current Phase: Baseline & Setup
+## Current Phase: Phase 1 - Core Scoring Foundation
 
 ### Objectives
-1. Run baseline simulation with current default parameters
-2. Establish performance benchmarks
-3. Verify simulation infrastructure is working
-4. Validate result logging and analysis pipeline
+1. Test 27 combinations of normalization scale and draft order bonuses
+2. Establish optimal balance between scale and position bonuses
+3. Establish foundation for remaining phases
+4. Verify simulation infrastructure is working with 3-value testing
 
 ### Configuration
 
-**Run ID**: `baseline_001`
+**Run ID**: `phase1_core_scoring`
 **Date Started**: [NOT STARTED]
-**Simulations**: 20 (using `SIMULATIONS_PER_CONFIG`)
+**Simulations**: 20 per configuration (using `SIMULATIONS_PER_CONFIG`)
+**Total Configurations**: 27 (3^3 combinations)
 
-**Parameters** (All at baseline - first value in each range):
+**Parameters Under Test** (3 parameters with 3 values each):
 ```python
 {
-    # Core Scoring
-    'NORMALIZATION_MAX_SCALE': 100,
-    'DRAFT_ORDER_PRIMARY_BONUS': 50,
-    'DRAFT_ORDER_SECONDARY_BONUS': 25,
+    # UNDER TEST (3 values each = 27 combinations)
+    'NORMALIZATION_MAX_SCALE': [100, 110, 120],
+    'DRAFT_ORDER_PRIMARY_BONUS': [50, 55, 60],
+    'DRAFT_ORDER_SECONDARY_BONUS': [25, 27, 30],
 
-    # Matchup Multipliers
-    'MATCHUP_EXCELLENT_MULTIPLIER': 1.2,
-    'MATCHUP_GOOD_MULTIPLIER': 1.1,
-    'MATCHUP_NEUTRAL_MULTIPLIER': 1.0,
-    'MATCHUP_POOR_MULTIPLIER': 0.9,
-    'MATCHUP_VERY_POOR_MULTIPLIER': 0.8,
-
-    # Injury & Bye Penalties
-    'INJURY_PENALTIES_MEDIUM': 15,
-    'INJURY_PENALTIES_HIGH': 30,
-    'BASE_BYE_PENALTY': 10,
-
-    # ADP Adjustments
+    # FIXED AT BASELINE (middle value)
+    'MATCHUP_EXCELLENT_MULTIPLIER': 1.20,
+    'MATCHUP_GOOD_MULTIPLIER': 1.10,
+    'MATCHUP_NEUTRAL_MULTIPLIER': 1.00,
+    'MATCHUP_POOR_MULTIPLIER': 0.90,
+    'MATCHUP_VERY_POOR_MULTIPLIER': 0.80,
+    'INJURY_PENALTIES_MEDIUM': 15.0,
+    'INJURY_PENALTIES_HIGH': 30.0,
+    'BASE_BYE_PENALTY': 10.0,
     'ADP_EXCELLENT_MULTIPLIER': 1.15,
     'ADP_GOOD_MULTIPLIER': 1.08,
     'ADP_POOR_MULTIPLIER': 0.90,
-
-    # Player Rating Adjustments
     'PLAYER_RATING_EXCELLENT_MULTIPLIER': 1.20,
     'PLAYER_RATING_GOOD_MULTIPLIER': 1.10,
     'PLAYER_RATING_POOR_MULTIPLIER': 0.90,
-
-    # Team Quality Adjustments
     'TEAM_EXCELLENT_MULTIPLIER': 1.12,
     'TEAM_GOOD_MULTIPLIER': 1.06,
     'TEAM_POOR_MULTIPLIER': 0.94,
@@ -91,30 +83,18 @@
 ### How to Execute
 
 ```bash
-# 1. Verify current config matches baseline
-python -c "from draft_helper.simulation.config import PARAMETER_RANGES; print(PARAMETER_RANGES)"
+# Run Phase 1 simulation with JSON configuration
+python run_simulation.py draft_helper/simulation/parameters/phase1_core_scoring.json
 
-# 2. Run simulation (update simulation code to use single config)
-# Option A: Run via simulation script
-cd draft_helper/simulation
-python simulation_engine.py --config baseline_001 --sims 20
-
-# Option B: Run via Python
-python -c "
-from draft_helper.simulation.simulation_engine import run_simulation
-results = run_simulation(config_id='baseline_001', num_simulations=20)
-print(f'Completed: {results}')
-"
-
-# 3. Results will be saved to:
-# draft_helper/simulation/results/baseline_001_results.csv
-# draft_helper/simulation/results/baseline_001_summary.json
+# This will test all 27 combinations (3^3) automatically
+# Results will be saved to: draft_helper/simulation/results/result_YYYY-MM-DD_HH-MM-SS.md
 ```
 
 ### Expected Runtime
-- **Per simulation**: 10-15 minutes
-- **20 simulations**: 3.3-5 hours
-- **Recommended**: Run overnight
+- **Per configuration**: 20 simulations × 10-15 min = 3.3-5 hours
+- **Total for 27 configs**: 27 × 3.5 hours = ~95 hours (~4 days)
+- **With parallel execution (4-way)**: ~24 hours (~1 day)
+- **Recommended**: Use parallel execution or run over weekend
 
 ### Results to Capture
 
@@ -180,27 +160,21 @@ Example:
 
 ---
 
-## Next Phase: Phase 1 - Core Scoring Foundation
+## Next Phase: Phase 2a - ADP Adjustments
 
 ### Objectives
-1. Test 8 combinations of normalization scale and draft order bonuses
-2. Identify optimal balance between scale and position bonuses
-3. Establish foundation for remaining phases
+1. Test 27 combinations of ADP multipliers
+2. Find optimal ADP impact level
+3. Determine if following market consensus improves results
 
 ### Configuration Matrix
 
-| Config | NORM_SCALE | PRIMARY_BONUS | SECONDARY_BONUS | Description |
-|--------|-----------|---------------|-----------------|-------------|
-| **p1_001** | 100 | 50 | 25 | All baseline |
-| **p1_002** | 100 | 50 | 30 | +Secondary bonus |
-| **p1_003** | 100 | 60 | 25 | +Primary bonus |
-| **p1_004** | 100 | 60 | 30 | +Both bonuses |
-| **p1_005** | 120 | 50 | 25 | +Scale only |
-| **p1_006** | 120 | 50 | 30 | Scale + secondary |
-| **p1_007** | 120 | 60 | 25 | Scale + primary |
-| **p1_008** | 120 | 60 | 30 | All aggressive |
+**Parameters Under Test** (3 parameters with 3 values each = 27 combinations):
+- `ADP_EXCELLENT_MULTIPLIER`: [1.15, 1.175, 1.20]
+- `ADP_GOOD_MULTIPLIER`: [1.08, 1.09, 1.10]
+- `ADP_POOR_MULTIPLIER`: [0.85, 0.90, 0.95]
 
-**All Other Parameters**: Fixed at baseline values (from Baseline run)
+**All Other Parameters**: Fixed at Phase 1 winners + baseline values
 
 ### Execution Plan
 

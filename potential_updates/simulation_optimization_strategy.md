@@ -8,15 +8,15 @@
 
 ## Executive Summary
 
-The draft helper simulation tests 20 configurable parameters that affect draft strategy and weekly lineup optimization. With 20 parameters and 2 values each, we have **2^20 = 1,048,576** possible combinations. Running all combinations is computationally infeasible.
+The draft helper simulation tests 20 configurable parameters that affect draft strategy and weekly lineup optimization. With 20 parameters and 3 values each, we have **3^20 = 3,486,784,401** possible combinations. Running all combinations is computationally infeasible.
 
 This document outlines a **multi-phase optimization strategy** to systematically find optimal parameter values while maintaining manageable runtime by:
 1. Testing parameters in logical groups (4-6 phases)
-2. Using 2-value testing per parameter (baseline vs aggressive)
+2. Using 3-value testing per parameter (low/medium/high) for better resolution
 3. Employing statistical analysis to identify winning configurations
 4. Iteratively refining based on results
 
-**Estimated Total Runtime**: 40-120 hours (depending on simulations per config)
+**Estimated Total Runtime**: 120-360 hours (depending on simulations per config and parallelization)
 
 ---
 
@@ -25,36 +25,36 @@ This document outlines a **multi-phase optimization strategy** to systematically
 ### Parameter Inventory (20 Total Parameters)
 
 **Group 1: Normalization & Draft Order (3 parameters)**
-- `NORMALIZATION_MAX_SCALE`: [100, 120]
-- `DRAFT_ORDER_PRIMARY_BONUS`: [50, 60]
-- `DRAFT_ORDER_SECONDARY_BONUS`: [25, 30]
+- `NORMALIZATION_MAX_SCALE`: [100, 110, 120]
+- `DRAFT_ORDER_PRIMARY_BONUS`: [50, 55, 60]
+- `DRAFT_ORDER_SECONDARY_BONUS`: [25, 27, 30]
 
 **Group 2: Matchup Multipliers for Starter Helper (5 parameters)**
-- `MATCHUP_EXCELLENT_MULTIPLIER`: [1.2, 1.25]
-- `MATCHUP_GOOD_MULTIPLIER`: [1.1, 1.15]
-- `MATCHUP_NEUTRAL_MULTIPLIER`: [1.0, 1.05]
-- `MATCHUP_POOR_MULTIPLIER`: [0.9, 0.95]
-- `MATCHUP_VERY_POOR_MULTIPLIER`: [0.8, 0.85]
+- `MATCHUP_EXCELLENT_MULTIPLIER`: [1.20, 1.225, 1.25]
+- `MATCHUP_GOOD_MULTIPLIER`: [1.10, 1.125, 1.15]
+- `MATCHUP_NEUTRAL_MULTIPLIER`: [1.00, 1.025, 1.05]
+- `MATCHUP_POOR_MULTIPLIER`: [0.85, 0.90, 0.95]
+- `MATCHUP_VERY_POOR_MULTIPLIER`: [0.75, 0.80, 0.85]
 
 **Group 3: ADP Adjustments (3 parameters)**
-- `ADP_EXCELLENT_MULTIPLIER`: [1.15, 1.20]
-- `ADP_GOOD_MULTIPLIER`: [1.08, 1.10]
-- `ADP_POOR_MULTIPLIER`: [0.90, 0.95]
+- `ADP_EXCELLENT_MULTIPLIER`: [1.15, 1.175, 1.20]
+- `ADP_GOOD_MULTIPLIER`: [1.08, 1.09, 1.10]
+- `ADP_POOR_MULTIPLIER`: [0.85, 0.90, 0.95]
 
 **Group 4: Player Rating Adjustments (3 parameters)**
-- `PLAYER_RATING_EXCELLENT_MULTIPLIER`: [1.20, 1.25]
-- `PLAYER_RATING_GOOD_MULTIPLIER`: [1.10, 1.12]
-- `PLAYER_RATING_POOR_MULTIPLIER`: [0.90, 0.95]
+- `PLAYER_RATING_EXCELLENT_MULTIPLIER`: [1.20, 1.225, 1.25]
+- `PLAYER_RATING_GOOD_MULTIPLIER`: [1.10, 1.11, 1.12]
+- `PLAYER_RATING_POOR_MULTIPLIER`: [0.85, 0.90, 0.95]
 
 **Group 5: Team Quality Adjustments (3 parameters)**
-- `TEAM_EXCELLENT_MULTIPLIER`: [1.12, 1.15]
-- `TEAM_GOOD_MULTIPLIER`: [1.06, 1.08]
-- `TEAM_POOR_MULTIPLIER`: [0.94, 0.96]
+- `TEAM_EXCELLENT_MULTIPLIER`: [1.12, 1.135, 1.15]
+- `TEAM_GOOD_MULTIPLIER`: [1.06, 1.07, 1.08]
+- `TEAM_POOR_MULTIPLIER`: [0.92, 0.94, 0.96]
 
 **Group 6: Injury & Bye Penalties (3 parameters)**
-- `INJURY_PENALTIES_MEDIUM`: [15, 20]
-- `INJURY_PENALTIES_HIGH`: [30, 40]
-- `BASE_BYE_PENALTY`: [10, 20]
+- `INJURY_PENALTIES_MEDIUM`: [15, 17.5, 20]
+- `INJURY_PENALTIES_HIGH`: [30, 35, 40]
+- `BASE_BYE_PENALTY`: [10, 15, 20]
 
 ### Current Simulation Settings
 - **Simulations per config**: 20 (configurable via `SIMULATIONS_PER_CONFIG`)
@@ -70,37 +70,37 @@ This document outlines a **multi-phase optimization strategy** to systematically
 
 Each phase tests a subset of parameters while holding others at baseline values. This reduces the search space from 2^20 to manageable chunks.
 
-**Phase 1: Core Scoring Foundation** (3 parameters → 2^3 = 8 combinations)
+**Phase 1: Core Scoring Foundation** (3 parameters → 3^3 = 27 combinations)
 - Test: Normalization and Draft Order bonuses
-- Fixed: All other parameters at baseline (first value)
-- Runtime: ~2-6 hours (8 configs × 20 sims × 10-15 min per sim)
+- Fixed: All other parameters at baseline (middle value)
+- Runtime: ~6-18 hours (27 configs × 20 sims × 10-15 min per sim)
 - **Goal**: Establish optimal scale and draft bonus values
 
 **Phase 2: Enhanced Scoring Multipliers** (9 parameters in 3 sub-phases)
-- **Phase 2a: ADP Adjustments** (3 params → 8 combinations)
+- **Phase 2a: ADP Adjustments** (3 params → 27 combinations)
   - Test: ADP multipliers with Phase 1 winners
-  - Runtime: ~2-6 hours
+  - Runtime: ~6-18 hours
   - **Goal**: Find optimal ADP impact levels
 
-- **Phase 2b: Player Rating Adjustments** (3 params → 8 combinations)
+- **Phase 2b: Player Rating Adjustments** (3 params → 27 combinations)
   - Test: Player rating multipliers with Phase 1 + 2a winners
-  - Runtime: ~2-6 hours
+  - Runtime: ~6-18 hours
   - **Goal**: Find optimal player rating impact levels
 
-- **Phase 2c: Team Quality Adjustments** (3 params → 8 combinations)
+- **Phase 2c: Team Quality Adjustments** (3 params → 27 combinations)
   - Test: Team multipliers with Phase 1 + 2a + 2b winners
-  - Runtime: ~2-6 hours
+  - Runtime: ~6-18 hours
   - **Goal**: Find optimal team quality impact levels
 
-**Phase 3: Matchup Multipliers** (5 parameters → 2^5 = 32 combinations)
+**Phase 3: Matchup Multipliers** (5 parameters → 3^5 = 243 combinations)
 - Test: All matchup multipliers with Phase 1+2 winners
 - Fixed: Core and enhanced scoring at optimal values
-- Runtime: ~8-24 hours (32 configs × 20 sims)
+- Runtime: ~48-144 hours (243 configs × 20 sims) - **recommend parallel execution**
 - **Goal**: Find optimal matchup adjustment levels for weekly lineup optimization
 
-**Phase 4: Injury & Bye Penalties** (3 parameters → 2^3 = 8 combinations)
+**Phase 4: Injury & Bye Penalties** (3 parameters → 3^3 = 27 combinations)
 - Test: Penalty values with all previous winners
-- Runtime: ~2-6 hours
+- Runtime: ~6-18 hours
 - **Goal**: Find optimal risk tolerance and bye week handling
 
 **Phase 5: Validation & Refinement** (targeted testing)
