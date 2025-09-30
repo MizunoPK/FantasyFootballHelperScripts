@@ -274,11 +274,11 @@ class TeamStrategyManager:
                     team_defensive_rank=team_defensive_rank
                 )
 
-                # Get enhanced score and apply projection base multiplier
-                enhanced_score = enhanced_result['enhanced_score'] * self.projection_base_score / 100
+                # Get enhanced score (projection_base_score deprecated - no longer used)
+                enhanced_score = enhanced_result['enhanced_score']
             except Exception:
                 # Fallback to basic scoring if enhanced scoring fails
-                enhanced_score = base_points * self.projection_base_score / 100
+                enhanced_score = base_points
 
             # Add DRAFT_ORDER bonus based on current round (roster size)
             draft_order_bonus = self._calculate_draft_order_bonus(player.position, team_roster)

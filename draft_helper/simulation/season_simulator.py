@@ -233,6 +233,9 @@ class SeasonSimulator:
         # Create a temporary class to override the LineupOptimizer initialization
         class WeeklyLineupOptimizer(LineupOptimizer):
             def __init__(self, teams_csv_path: str):
+                # Call parent __init__ to initialize matchup_calculator and other attributes
+                super().__init__()
+
                 self.logger = logging.getLogger(__name__)
 
                 # Initialize positional ranking calculator with weekly teams data
