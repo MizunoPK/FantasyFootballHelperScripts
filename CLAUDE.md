@@ -156,6 +156,34 @@ MAX_POSITIONS = {
 .venv\Scripts\python.exe run_starter_helper.py
 ```
 
+### 4. Running Parameter Optimization Simulations
+```bash
+# 1. Create or select parameter configuration JSON file
+# 2. Run simulation with configuration
+python run_simulation.py draft_helper/simulation/parameters/baseline_parameters.json
+
+# Available configurations:
+# - baseline_parameters.json: Conservative default values (single values)
+# - parameter_template.json: Template with 2-value ranges for testing
+
+# 3. After simulation completes, tell Claude "new simulation result file is ready"
+# 4. Claude analyzes results, updates execution tracker, generates next iteration
+```
+
+**Parameter Configuration Format**:
+- JSON files stored in `draft_helper/simulation/parameters/`
+- Each parameter has a list of values to test in combinations
+- All 20 parameters required (see `parameters/README.md`)
+- Results saved to `draft_helper/simulation/results/` with timestamps
+
+**Workflow**:
+1. User runs: `python run_simulation.py parameters/iteration_1.json`
+2. Simulation generates timestamped results file
+3. User notifies Claude: "new simulation result file is ready"
+4. Claude reads strategy (`simulation_optimization_strategy.md`) and tracker
+5. Claude analyzes results, updates tracker with findings
+6. Claude generates next parameter JSON based on optimization strategy
+
 ---
 
 ## Testing
@@ -316,6 +344,7 @@ FantasyFootballHelperScripts/
 
 ## Recent Major Changes
 
+**JSON-Based Simulation** (Sept 2025): Parameter configs now use JSON files, removed PARAMETER_RANGES from code
 **Simulation Config** (Sept 2025): Reduced all parameters to 2-value ranges for efficient optimization
 **Enhanced Scoring** (Sept 2025): Fixed missing config keys, 100% test pass rate
 **Starter Helper Overhaul** (Sept 2025): 3-step scoring with matchup multipliers

@@ -40,46 +40,9 @@ from typing import Dict, List, Tuple
 # - BASE_BYE_PENALTY affects draft decisions, not weekly matchups
 # - Enhanced scoring multipliers compound (ADP * PLAYER_RATING * TEAM)
 
-# Test parameters and their ranges (2-value testing: baseline vs aggressive)
-PARAMETER_RANGES = {
-    # === NEW SCORING SYSTEM PARAMETERS ===
-    # Normalization parameters - Test baseline (100) vs higher granularity (120)
-    'NORMALIZATION_MAX_SCALE': [100, 120],
-
-    # DRAFT_ORDER bonus parameters - Test current default (50/25) vs more aggressive (60/30)
-    'DRAFT_ORDER_PRIMARY_BONUS': [50, 60],
-    'DRAFT_ORDER_SECONDARY_BONUS': [25, 30],
-
-    # Matchup multiplier parameters (for Starter Helper only during weekly matchups)
-    # Test current defaults vs slightly more aggressive matchup impact
-    'MATCHUP_EXCELLENT_MULTIPLIER': [1.2, 1.25],         # Very favorable matchup (rank diff >=15)
-    'MATCHUP_GOOD_MULTIPLIER': [1.1, 1.15],              # Favorable matchup (rank diff 6-14)
-    'MATCHUP_NEUTRAL_MULTIPLIER': [1.0, 1.05],           # Neutral matchup (rank diff -5 to 5)
-    'MATCHUP_POOR_MULTIPLIER': [0.9, 0.95],              # Unfavorable matchup (rank diff -14 to -6)
-    'MATCHUP_VERY_POOR_MULTIPLIER': [0.8, 0.85],         # Very unfavorable matchup (rank diff <=-15)
-
-    # === EXISTING PARAMETERS (KEPT FOR COMPATIBILITY) ===
-    # Core existing parameters - Already 2 values, no changes needed
-    'INJURY_PENALTIES_MEDIUM': [15, 20],                 # Test injury tolerance range
-    'INJURY_PENALTIES_HIGH': [30, 40],                   # Test high injury penalty range
-    'BASE_BYE_PENALTY': [10, 20],                        # Test bye week penalty (draft mode only, not starter_helper)
-
-    # Enhanced scoring parameters - Test moderate vs aggressive impact
-    # ADP multipliers - Test moderate vs aggressive ADP impact
-    'ADP_EXCELLENT_MULTIPLIER': [1.15, 1.20],
-    'ADP_GOOD_MULTIPLIER': [1.08, 1.10],
-    'ADP_POOR_MULTIPLIER': [0.90, 0.95],
-
-    # Player rating multipliers - Test current defaults vs higher player rating impact
-    'PLAYER_RATING_EXCELLENT_MULTIPLIER': [1.20, 1.25],
-    'PLAYER_RATING_GOOD_MULTIPLIER': [1.10, 1.12],
-    'PLAYER_RATING_POOR_MULTIPLIER': [0.90, 0.95],
-
-    # Team performance multipliers - Test current defaults vs higher team quality impact
-    'TEAM_EXCELLENT_MULTIPLIER': [1.12, 1.15],
-    'TEAM_GOOD_MULTIPLIER': [1.06, 1.08],
-    'TEAM_POOR_MULTIPLIER': [0.94, 0.96],
-}
+# NOTE: Parameter configurations are now loaded from JSON files in the parameters/ directory.
+# See parameters/README.md for documentation on creating parameter configuration files.
+# Use the parameter_loader module to load and validate configurations.
 
 # Simulation settings
 SIMULATIONS_PER_CONFIG = 20           # Number of drafts to run per configuration

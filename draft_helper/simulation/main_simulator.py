@@ -22,20 +22,46 @@ from results_analyzer import ResultsAnalyzer
 from simulation_engine import DraftSimulationEngine
 from season_simulator import SeasonSimulator
 from config import get_timestamped_results_file, RESULTS_DIR
+from parameter_loader import load_and_expand_config
 
 class MainSimulator:
     """Main orchestrator for draft simulation analysis"""
 
-    def __init__(self):
+    def __init__(self, parameter_config_path: str = None, parameter_config: Dict[str, List] = None):
+        """
+        Initialize the main simulator.
+
+        Args:
+            parameter_config_path: Path to JSON parameter configuration file
+            parameter_config: Direct parameter configuration dict (alternative to path)
+
+        Note: Must provide either parameter_config_path OR parameter_config
+        """
+        if parameter_config_path is None and parameter_config is None:
+            raise ValueError("Must provide either parameter_config_path or parameter_config")
+
+        # Load configuration if path provided
+        if parameter_config_path:
+            config_data, _ = load_and_expand_config(parameter_config_path)
+            self.config_name = config_data['config_name']
+            self.config_description = config_data['description']
+            parameter_config = config_data['parameters']
+        else:
+            self.config_name = "custom"
+            self.config_description = "Custom configuration"
+
         self.data_manager = SimulationDataManager()
-        self.config_optimizer = ConfigurationOptimizer()
+        self.config_optimizer = ConfigurationOptimizer(parameter_config)
         self.parallel_runner = ParallelSimulationRunner()
         self.results_analyzer = ResultsAnalyzer()
+        self.parameter_config = parameter_config
 
     def run_complete_analysis(self) -> str:
         """Run complete simulation analysis from start to finish"""
 
         print(">> Starting Draft Simulation Analysis")
+        print(f">> Configuration: {self.config_name}")
+        print(f">> Description: {self.config_description}")
         print("=" * 50)
 
         try:
@@ -182,11 +208,30 @@ class MainSimulator:
                 'total_matchups': 0
             }
 
-def run_simulation() -> str:
-    """Main entry point for running simulation"""
+def run_simulation(parameter_config_path: str = None, parameter_config: Dict[str, List] = None) -> str:
+    """
+    Main entry point for running simulation.
 
-    simulator = MainSimulator()
+    Args:
+        parameter_config_path: Path to JSON parameter configuration file
+        parameter_config: Direct parameter configuration dict (alternative to path)
+
+    Returns:
+        Path to the results file
+
+    Note: Must provide either parameter_config_path OR parameter_config
+    """
+    simulator = MainSimulator(parameter_config_path=parameter_config_path, parameter_config=parameter_config)
     return simulator.run_complete_analysis()
 
 if __name__ == "__main__":
-    run_simulation()
+    import sys
+    if len(sys.argv) > 1:
+        # If config path provided as argument, use it
+        config_path = sys.argv[1]
+        print(f"Loading configuration from: {config_path}")
+        run_simulation(parameter_config_path=config_path)
+    else:
+        print("Error: Must provide path to parameter configuration JSON file")
+        print("Usage: python main_simulator.py <path_to_config.json>")
+        sys.exit(1)

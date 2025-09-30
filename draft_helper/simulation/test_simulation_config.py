@@ -1,65 +1,136 @@
 """
 Unit tests for simulation configuration.
 
-Tests parameter range validation, coverage, and consistency with actual config constants.
+Tests simulation config settings and validates baseline/template parameter files.
 """
 
 import unittest
 import sys
 import os
+from pathlib import Path
 
 # Add parent directories to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from draft_helper.simulation import config as sim_config
-from draft_helper import draft_helper_config as base_config
+from draft_helper.simulation.parameter_loader import load_parameter_config, REQUIRED_PARAMETERS
 
 
 class TestSimulationConfig(unittest.TestCase):
-    """Test simulation configuration parameters"""
+    """Test simulation configuration"""
 
-    def test_all_parameters_have_two_values(self):
-        """Verify all parameters in PARAMETER_RANGES have exactly 2 values"""
-        for param_name, values in sim_config.PARAMETER_RANGES.items():
-            with self.subTest(parameter=param_name):
+    def test_simulation_settings_valid(self):
+        """Verify simulation settings are properly configured"""
+        self.assertGreater(sim_config.SIMULATIONS_PER_CONFIG, 0)
+        self.assertGreater(sim_config.PRELIMINARY_SIMULATIONS_PER_CONFIG, 0)
+        self.assertGreater(sim_config.TOP_CONFIGS_PERCENTAGE, 0)
+        self.assertLessEqual(sim_config.TOP_CONFIGS_PERCENTAGE, 1.0)
+
+    def test_league_settings_valid(self):
+        """Verify league settings are properly configured"""
+        self.assertGreater(sim_config.LEAGUE_SIZE, 0)
+        self.assertGreater(sim_config.NFL_SEASON_WEEKS, 0)
+        self.assertGreaterEqual(sim_config.HUMAN_ERROR_RATE, 0)
+        self.assertLessEqual(sim_config.HUMAN_ERROR_RATE, 1.0)
+
+    def test_team_strategies_match_league_size(self):
+        """Verify team strategies sum to league size"""
+        total_teams = sum(sim_config.TEAM_STRATEGIES.values())
+        self.assertEqual(
+            total_teams, sim_config.LEAGUE_SIZE,
+            f"Team strategies sum ({total_teams}) must equal LEAGUE_SIZE ({sim_config.LEAGUE_SIZE})"
+        )
+
+    def test_simulation_config_validation(self):
+        """Test that config validation function works"""
+        # Should not raise exception
+        sim_config.validate_simulation_config()
+
+    def test_baseline_parameters_exist(self):
+        """Verify baseline_parameters.json exists and is valid"""
+        params_dir = Path(__file__).parent / "parameters"
+        baseline_path = params_dir / "baseline_parameters.json"
+
+        self.assertTrue(
+            baseline_path.exists(),
+            f"baseline_parameters.json not found at {baseline_path}"
+        )
+
+        # Should load without errors
+        config = load_parameter_config(str(baseline_path))
+        self.assertEqual(config['config_name'], 'baseline')
+
+    def test_template_parameters_exist(self):
+        """Verify parameter_template.json exists and is valid"""
+        params_dir = Path(__file__).parent / "parameters"
+        template_path = params_dir / "parameter_template.json"
+
+        self.assertTrue(
+            template_path.exists(),
+            f"parameter_template.json not found at {template_path}"
+        )
+
+        # Should load without errors
+        config = load_parameter_config(str(template_path))
+        self.assertEqual(config['config_name'], 'template')
+
+    def test_baseline_has_all_required_parameters(self):
+        """Verify baseline_parameters.json has all 20 required parameters"""
+        params_dir = Path(__file__).parent / "parameters"
+        baseline_path = params_dir / "baseline_parameters.json"
+
+        if baseline_path.exists():
+            config = load_parameter_config(str(baseline_path))
+
+            self.assertEqual(
+                len(config['parameters']), len(REQUIRED_PARAMETERS),
+                f"Baseline should have {len(REQUIRED_PARAMETERS)} parameters"
+            )
+
+            for param in REQUIRED_PARAMETERS:
+                self.assertIn(
+                    param, config['parameters'],
+                    f"Required parameter {param} missing from baseline"
+                )
+
+    def test_baseline_parameters_single_values(self):
+        """Verify baseline parameters have single values (not ranges)"""
+        params_dir = Path(__file__).parent / "parameters"
+        baseline_path = params_dir / "parameters" / "baseline_parameters.json"
+
+        if baseline_path.exists():
+            config = load_parameter_config(str(baseline_path))
+
+            for param_name, values in config['parameters'].items():
+                self.assertEqual(
+                    len(values), 1,
+                    f"Baseline parameter {param_name} should have exactly 1 value"
+                )
+
+    def test_template_parameters_two_values(self):
+        """Verify template parameters have two values for testing"""
+        params_dir = Path(__file__).parent / "parameters"
+        template_path = params_dir / "parameter_template.json"
+
+        if template_path.exists():
+            config = load_parameter_config(str(template_path))
+
+            for param_name, values in config['parameters'].items():
                 self.assertEqual(
                     len(values), 2,
-                    f"{param_name} should have exactly 2 values, got {len(values)}"
+                    f"Template parameter {param_name} should have exactly 2 values"
                 )
 
-    def test_required_parameters_present(self):
-        """Verify all required parameters from scoring overhaul are present"""
-        required_params = [
-            'DRAFT_ORDER_PRIMARY_BONUS',
-            'DRAFT_ORDER_SECONDARY_BONUS',
-            'NORMALIZATION_MAX_SCALE',
-            'BASE_BYE_PENALTY',
-            'INJURY_PENALTIES_MEDIUM',
-            'INJURY_PENALTIES_HIGH',
-            'MATCHUP_EXCELLENT_MULTIPLIER',
-            'MATCHUP_GOOD_MULTIPLIER',
-            'MATCHUP_NEUTRAL_MULTIPLIER',
-            'MATCHUP_POOR_MULTIPLIER',
-            'MATCHUP_VERY_POOR_MULTIPLIER',
-            'ADP_EXCELLENT_MULTIPLIER',
-            'ADP_GOOD_MULTIPLIER',
-            'ADP_POOR_MULTIPLIER',
-            'PLAYER_RATING_EXCELLENT_MULTIPLIER',
-            'PLAYER_RATING_GOOD_MULTIPLIER',
-            'PLAYER_RATING_POOR_MULTIPLIER',
-            'TEAM_EXCELLENT_MULTIPLIER',
-            'TEAM_GOOD_MULTIPLIER',
-            'TEAM_POOR_MULTIPLIER',
-        ]
+    def test_parameter_values_reasonable(self):
+        """Verify parameter values in baseline are in reasonable ranges"""
+        params_dir = Path(__file__).parent / "parameters"
+        baseline_path = params_dir / "baseline_parameters.json"
 
-        for param in required_params:
-            with self.subTest(parameter=param):
-                self.assertIn(
-                    param, sim_config.PARAMETER_RANGES,
-                    f"Required parameter {param} missing from PARAMETER_RANGES"
-                )
+        if not baseline_path.exists():
+            self.skipTest("baseline_parameters.json not found")
 
-    def test_parameter_value_ranges_reasonable(self):
-        """Verify all parameter values are in reasonable ranges"""
+        config = load_parameter_config(str(baseline_path))
+
+        # Define reasonable ranges for validation
         ranges_validation = {
             'NORMALIZATION_MAX_SCALE': (50, 200),
             'DRAFT_ORDER_PRIMARY_BONUS': (30, 80),
@@ -84,8 +155,8 @@ class TestSimulationConfig(unittest.TestCase):
         }
 
         for param_name, (min_val, max_val) in ranges_validation.items():
-            if param_name in sim_config.PARAMETER_RANGES:
-                values = sim_config.PARAMETER_RANGES[param_name]
+            if param_name in config['parameters']:
+                values = config['parameters'][param_name]
                 for value in values:
                     with self.subTest(parameter=param_name, value=value):
                         self.assertGreaterEqual(
@@ -96,162 +167,6 @@ class TestSimulationConfig(unittest.TestCase):
                             value, max_val,
                             f"{param_name} value {value} above maximum {max_val}"
                         )
-
-    def test_first_value_is_baseline(self):
-        """Verify first value in each range is baseline/current default"""
-        baseline_expectations = {
-            'NORMALIZATION_MAX_SCALE': 100,
-            'DRAFT_ORDER_PRIMARY_BONUS': 50,
-            'DRAFT_ORDER_SECONDARY_BONUS': 25,
-            'MATCHUP_EXCELLENT_MULTIPLIER': 1.2,
-            'MATCHUP_GOOD_MULTIPLIER': 1.1,
-            'MATCHUP_NEUTRAL_MULTIPLIER': 1.0,
-            'MATCHUP_POOR_MULTIPLIER': 0.9,
-            'MATCHUP_VERY_POOR_MULTIPLIER': 0.8,
-        }
-
-        for param_name, expected_baseline in baseline_expectations.items():
-            if param_name in sim_config.PARAMETER_RANGES:
-                values = sim_config.PARAMETER_RANGES[param_name]
-                with self.subTest(parameter=param_name):
-                    self.assertEqual(
-                        values[0], expected_baseline,
-                        f"{param_name} first value should be baseline {expected_baseline}"
-                    )
-
-    def test_second_value_more_aggressive(self):
-        """Verify second value represents more aggressive/higher impact setting"""
-        for param_name, values in sim_config.PARAMETER_RANGES.items():
-            with self.subTest(parameter=param_name):
-                # For multipliers > 1.0, second should be higher
-                # For multipliers < 1.0, second should be higher (closer to 1.0)
-                # For penalties, second should be higher
-                if 'MULTIPLIER' in param_name:
-                    if values[0] >= 1.0:
-                        self.assertGreater(
-                            values[1], values[0],
-                            f"{param_name} second value should be more aggressive"
-                        )
-                    else:  # penalty multipliers < 1.0
-                        self.assertGreater(
-                            values[1], values[0],
-                            f"{param_name} second value should be less penalizing"
-                        )
-                elif 'BONUS' in param_name or 'SCALE' in param_name:
-                    self.assertGreater(
-                        values[1], values[0],
-                        f"{param_name} second value should be higher"
-                    )
-
-    def test_simulation_config_validation_passes(self):
-        """Verify simulation config validation passes with no errors"""
-        try:
-            sim_config.validate_simulation_config()
-        except ValueError as e:
-            self.fail(f"Simulation config validation failed: {e}")
-
-    def test_parameter_naming_matches_constants(self):
-        """Verify parameter names use uppercase convention matching actual configs"""
-        for param_name in sim_config.PARAMETER_RANGES.keys():
-            with self.subTest(parameter=param_name):
-                self.assertEqual(
-                    param_name, param_name.upper(),
-                    f"Parameter {param_name} should use uppercase naming"
-                )
-
-    def test_draft_order_defaults_align(self):
-        """Verify DRAFT_ORDER bonus defaults align with base_config"""
-        draft_primary_values = sim_config.PARAMETER_RANGES['DRAFT_ORDER_PRIMARY_BONUS']
-        draft_secondary_values = sim_config.PARAMETER_RANGES['DRAFT_ORDER_SECONDARY_BONUS']
-
-        # First values should match base config defaults
-        self.assertEqual(
-            draft_primary_values[0], base_config.DRAFT_ORDER_PRIMARY_BONUS,
-            "DRAFT_ORDER_PRIMARY_BONUS baseline should match base_config"
-        )
-        self.assertEqual(
-            draft_secondary_values[0], base_config.DRAFT_ORDER_SECONDARY_BONUS,
-            "DRAFT_ORDER_SECONDARY_BONUS baseline should match base_config"
-        )
-
-    def test_no_deprecated_parameters(self):
-        """Verify deprecated parameters are not in config"""
-        deprecated_params = [
-            'PLAYER_RATING_MAX_BOOST',  # Confirmed as mistake in requirements
-            'POS_NEEDED_SCORE',         # Deprecated in scoring overhaul
-            'PROJECTION_BASE_SCORE',    # Deprecated in scoring overhaul
-        ]
-
-        for param in deprecated_params:
-            with self.subTest(parameter=param):
-                self.assertNotIn(
-                    param, sim_config.PARAMETER_RANGES,
-                    f"Deprecated parameter {param} should not be in config"
-                )
-
-    def test_matchup_multipliers_cover_all_ranges(self):
-        """Verify all matchup multiplier ranges are covered"""
-        matchup_params = [
-            'MATCHUP_EXCELLENT_MULTIPLIER',
-            'MATCHUP_GOOD_MULTIPLIER',
-            'MATCHUP_NEUTRAL_MULTIPLIER',
-            'MATCHUP_POOR_MULTIPLIER',
-            'MATCHUP_VERY_POOR_MULTIPLIER',
-        ]
-
-        for param in matchup_params:
-            with self.subTest(parameter=param):
-                self.assertIn(
-                    param, sim_config.PARAMETER_RANGES,
-                    f"Matchup parameter {param} missing from config"
-                )
-
-
-class TestParameterCombinations(unittest.TestCase):
-    """Test parameter combination generation"""
-
-    def test_can_generate_parameter_combinations(self):
-        """Verify we can generate valid parameter combinations"""
-        from itertools import product
-
-        # Get all parameter names and values
-        param_names = list(sim_config.PARAMETER_RANGES.keys())
-        param_values = [sim_config.PARAMETER_RANGES[name] for name in param_names]
-
-        # Generate first few combinations
-        combinations = list(product(*param_values))
-
-        # Should have 2^20 = 1,048,576 combinations with 20 parameters
-        expected_combinations = 2 ** len(param_names)
-        self.assertEqual(
-            len(combinations), expected_combinations,
-            f"Should have {expected_combinations} parameter combinations"
-        )
-
-    def test_sample_combination_has_all_parameters(self):
-        """Verify a sample parameter combination contains all required keys"""
-        from itertools import product
-
-        param_names = list(sim_config.PARAMETER_RANGES.keys())
-        param_values = [sim_config.PARAMETER_RANGES[name] for name in param_names]
-
-        # Get first combination
-        first_combo = next(product(*param_values))
-
-        # Create config dict
-        config_dict = dict(zip(param_names, first_combo))
-
-        # Verify all required parameters present
-        required_params = [
-            'DRAFT_ORDER_PRIMARY_BONUS',
-            'DRAFT_ORDER_SECONDARY_BONUS',
-            'NORMALIZATION_MAX_SCALE',
-            'BASE_BYE_PENALTY',
-        ]
-
-        for param in required_params:
-            with self.subTest(parameter=param):
-                self.assertIn(param, config_dict, f"Parameter {param} missing from combination")
 
 
 if __name__ == '__main__':

@@ -13,7 +13,8 @@ import os
 
 # Add current directory to path for local imports
 sys.path.append(os.path.dirname(__file__))
-from config import PARAMETER_RANGES, TOP_CONFIGS_PERCENTAGE
+from config import TOP_CONFIGS_PERCENTAGE
+from parameter_loader import expand_parameter_combinations
 
 @dataclass
 class ConfigResult:
@@ -29,30 +30,51 @@ class ConfigResult:
 class ConfigurationOptimizer:
     """Manages configuration parameter testing and optimization"""
 
-    def __init__(self):
+    def __init__(self, parameter_config: Dict[str, List] = None):
+        """
+        Initialize the optimizer with parameter configuration.
+
+        Args:
+            parameter_config: Dictionary of parameter names to value lists.
+                            If None, must call set_parameter_config() before generating configs.
+        """
+        self.parameter_config = parameter_config
         self.preliminary_results: List[ConfigResult] = []
         self.full_results: List[ConfigResult] = []
 
+    def set_parameter_config(self, parameter_config: Dict[str, List]) -> None:
+        """
+        Set the parameter configuration for optimization.
+
+        Args:
+            parameter_config: Dictionary of parameter names to value lists
+        """
+        self.parameter_config = parameter_config
+
     def generate_preliminary_configs(self) -> List[Dict[str, Any]]:
-        """Generate reduced parameter combinations for preliminary testing"""
+        """
+        Generate all parameter combinations for testing.
 
-        # Use every 3rd value from parameter ranges
-        config_combinations = []
+        Returns:
+            List of configuration dictionaries, each representing one parameter combination
 
-        # Get all parameter combinations
-        param_names = list(PARAMETER_RANGES.keys())
-        param_values = [PARAMETER_RANGES[name] for name in param_names]
+        Raises:
+            ValueError: If parameter_config has not been set
+        """
+        if self.parameter_config is None:
+            raise ValueError("Parameter configuration not set. Call set_parameter_config() first.")
 
-        for combination in itertools.product(*param_values):
-            config = dict(zip(param_names, combination))
+        # Use parameter_loader to expand all combinations
+        config_combinations = expand_parameter_combinations(self.parameter_config)
 
-            # Handle DRAFT_ORDER weights - apply to existing structure
+        # Handle DRAFT_ORDER weights if present (legacy support)
+        processed_configs = []
+        for config in config_combinations:
             if 'DRAFT_ORDER_WEIGHTS' in config:
                 config = self._apply_draft_order_weights(config)
+            processed_configs.append(config)
 
-            config_combinations.append(config)
-
-        return config_combinations
+        return processed_configs
 
     def generate_full_configs(self, top_configs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Generate full parameter ranges around top performing configurations"""

@@ -1,0 +1,9 @@
+The Simulation folder has become a bit of a mess after several iterations of changes. I want to clean it up and prep it to easily perform the optimization simulations.
+See the simulation_optimization_strategy.md and simulation_execution_tracker.md files for context about the simulations we will be running to determine optimal configurations for the draft helper.
+I want to clean up the simulation folder's files, deleting test scripts that are no longer needed, deleting code that is no longer useful, and ensuring the code that is being run is doing exactly what we want.
+I want to update the way that we run the simulations and set up the configs. Instead of PARAMETER_RANGES being defined in Config.py, I want to set those values in json files and provide the json as a parameter when running the simulation.
+Have the json files be stored in a folder called 'parameters'.
+For example, starting the simulation would take the following command: 'python run_draft_helper.py --simulate iteration_1.json'
+After the simulation finishes, the user will tell claude what result file was created and then claude should update the execution tracker with the results and progress, then generate the next parameter json that the user should run.
+Ensure a comprehensize amount of unit tests are made to ensure that the simulator is doing exactly what we expect it to be doing.
+See the simulation_improvement files for context about recent changes that were made to the simulation and the goals of the simulation.
