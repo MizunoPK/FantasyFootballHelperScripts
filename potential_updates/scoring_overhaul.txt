@@ -4,7 +4,7 @@ Injury penalties and bye week penalties will continue to be used as they current
 
 
 The DRAFT_ORDER variable in the draft_helper config is going to be used for its originally intended behavior - which is to give players bonus points depending on if their position fits the expected positional priority based on the current round.
-The DRAFT_ORDER array should be updated such that it contains 15 dictionaries, where each dictionary has a static value that the scorer will add to the scores for players with certain positions if it is that round and the player matches that position.
+The DRAFT_ORDER array should be updated such that it contains 15 dictionaries, where each dictionary has a static value assoicate with a position as the key. The scorer will see what round the Draft is currently on, pull the dictionary for that round, and see if a player's position is contained in the dictionary. If it is, then the player will be given X amount of points, where X is the value associated with the player's position in the dictionary.
 For example, if DRAFT_ORDER[0]={FLEX: 50, QB: 25}, and it is currently round 1, then any RB or WR would recieve 50 extra points, and QBs would recieve 25 extra points.
 Maintain the positions and ordering that is currently in the existing DRAFT_ORDER variable, but update the values of the dictionary to static values.
 The static values should be able to be configured in the Simulation config. 
@@ -17,6 +17,7 @@ Remove the 'matchup consideration' in the Add to Roster calculations. The matchu
 For the Starter Helper, we are going to stick with having the projected points of the current week be the baseline without any normalization. The system should then apply a Match Up multiplier. This multiplier should be calculated based on the difference in rank between the player's team and the opponent's team. Only apply this multiplier to QB,WR,RB, & TE - do not apply it to K or DEF. The multiplier should be set in a similar way to ADP or Player Ranking in other modes, where certain ranges are associated with certain multipliers. This should be configurable in the Simulation just like ADP and Player Ranking are, so that the Simulation can make use of these when using the starter helper to determine weekly lineups.
 If the player is anything but ACTIVE or QUESTIONABLE, then their score should be zero'd out
 
+Completely remove the MIN_TOTAL_ADJUSTMENT and MAX_TOTAL_ADJUSTMENT - we are no longer going to cap the multipliers.
 
 To summarize, the scoring for players in each mode should look like this:
 Add to Roster Mode:
@@ -38,7 +39,7 @@ Waiver Optimizer:
 
 Starter Helper:
 1. Get the projected points for the player on the current week
-2. Apply Match Up multiplier
+2. Apply the Match Up multiplier
 3. Subtract the Injury Penalty (different from the injury penalty in other calculations, essentially should just make it so when a player is not ACTIVE or QUESTIONABLE then their score should be zero'd out)
 
 Trade Simulator:
@@ -55,3 +56,4 @@ Update documentation to reflect the changes.
 Ask me lots of questions to ensure you fully understand the objective, and ensure all details are included in the TODO file.
 Ensure the TODO file stays up to date with all new info and progress.
 Make any suggestions on ways to improve the plan for these changes.
+At the end, compile a new version of the Draft_Helper_Data_Usage_Report.md based on the changes that have been made to the scoring system
