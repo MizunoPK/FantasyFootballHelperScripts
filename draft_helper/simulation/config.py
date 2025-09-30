@@ -9,41 +9,76 @@ from typing import Dict, List, Tuple
 # SIMULATION PARAMETERS
 # =============================================================================
 
-# Test parameters and their ranges (balanced for meaningful analysis)
+# PARAMETER RANGE STRATEGY:
+# -------------------------
+# All parameters use 2-value testing for computational efficiency:
+#   - First value: Current default or baseline setting
+#   - Second value: More aggressive or higher impact setting
+#
+# This strategy allows meaningful comparison between conservative and aggressive
+# configurations while keeping total simulation combinations manageable.
+#
+# PARAMETER USAGE BY MODE:
+# -------------------------
+# Draft Mode (Initial Roster Construction):
+#   - DRAFT_ORDER bonuses (PRIMARY/SECONDARY)
+#   - NORMALIZATION_MAX_SCALE
+#   - BASE_BYE_PENALTY
+#   - INJURY_PENALTIES (MEDIUM/HIGH)
+#   - Enhanced scoring multipliers (ADP, PLAYER_RATING, TEAM)
+#
+# Starter Helper Mode (Weekly Lineup Optimization):
+#   - MATCHUP_MULTIPLIERS (EXCELLENT/GOOD/NEUTRAL/POOR/VERY_POOR)
+#   - Binary injury system (not point-based penalties)
+#   - NO bye week penalties (already 0.0 in data)
+#
+# INTERDEPENDENCIES:
+# ------------------
+# - DRAFT_ORDER bonuses interact with NORMALIZATION_MAX_SCALE
+# - Higher NORMALIZATION_MAX_SCALE increases point separation
+# - MATCHUP_MULTIPLIERS only affect Starter Helper weekly scoring
+# - BASE_BYE_PENALTY affects draft decisions, not weekly matchups
+# - Enhanced scoring multipliers compound (ADP * PLAYER_RATING * TEAM)
+
+# Test parameters and their ranges (2-value testing: baseline vs aggressive)
 PARAMETER_RANGES = {
     # === NEW SCORING SYSTEM PARAMETERS ===
-    # Normalization parameters
-    'NORMALIZATION_MAX_SCALE': [80, 100, 120],           # Test different scale values for normalization
+    # Normalization parameters - Test baseline (100) vs higher granularity (120)
+    'NORMALIZATION_MAX_SCALE': [100, 120],
 
-    # DRAFT_ORDER bonus parameters
-    'DRAFT_ORDER_PRIMARY_BONUS': [40, 50, 60],           # Test primary position bonus range
-    'DRAFT_ORDER_SECONDARY_BONUS': [20, 25, 30],         # Test secondary position bonus range
+    # DRAFT_ORDER bonus parameters - Test current default (50/25) vs more aggressive (60/30)
+    'DRAFT_ORDER_PRIMARY_BONUS': [50, 60],
+    'DRAFT_ORDER_SECONDARY_BONUS': [25, 30],
 
-    # Matchup multiplier parameters (for Starter Helper)
-    'MATCHUP_EXCELLENT_MULTIPLIER': [1.15, 1.2, 1.25],   # Very favorable matchup (rank diff >15)
-    'MATCHUP_GOOD_MULTIPLIER': [1.05, 1.1, 1.15],        # Favorable matchup (rank diff 6-15)
-    'MATCHUP_NEUTRAL_MULTIPLIER': [0.95, 1.0, 1.05],     # Neutral matchup (rank diff -5 to 5)
-    'MATCHUP_POOR_MULTIPLIER': [0.85, 0.9, 0.95],        # Unfavorable matchup (rank diff -15 to -6)
-    'MATCHUP_VERY_POOR_MULTIPLIER': [0.75, 0.8, 0.85],   # Very unfavorable matchup (rank diff <-15)
+    # Matchup multiplier parameters (for Starter Helper only during weekly matchups)
+    # Test current defaults vs slightly more aggressive matchup impact
+    'MATCHUP_EXCELLENT_MULTIPLIER': [1.2, 1.25],         # Very favorable matchup (rank diff >=15)
+    'MATCHUP_GOOD_MULTIPLIER': [1.1, 1.15],              # Favorable matchup (rank diff 6-14)
+    'MATCHUP_NEUTRAL_MULTIPLIER': [1.0, 1.05],           # Neutral matchup (rank diff -5 to 5)
+    'MATCHUP_POOR_MULTIPLIER': [0.9, 0.95],              # Unfavorable matchup (rank diff -14 to -6)
+    'MATCHUP_VERY_POOR_MULTIPLIER': [0.8, 0.85],         # Very unfavorable matchup (rank diff <=-15)
 
     # === EXISTING PARAMETERS (KEPT FOR COMPATIBILITY) ===
-    # Core existing parameters
+    # Core existing parameters - Already 2 values, no changes needed
     'INJURY_PENALTIES_MEDIUM': [15, 20],                 # Test injury tolerance range
     'INJURY_PENALTIES_HIGH': [30, 40],                   # Test high injury penalty range
-    'BASE_BYE_PENALTY': [10, 20],                        # Test bye week penalty range
+    'BASE_BYE_PENALTY': [10, 20],                        # Test bye week penalty (draft mode only, not starter_helper)
 
-    # Enhanced scoring parameters - Key multipliers for comprehensive testing
-    'ADP_EXCELLENT_MULTIPLIER': [1.10, 1.15, 1.20],        # ADP boost range
-    'ADP_GOOD_MULTIPLIER': [1.05, 1.08, 1.10],             # ADP good range
-    'ADP_POOR_MULTIPLIER': [0.85, 0.90, 0.95],              # ADP penalty range
-    'PLAYER_RATING_EXCELLENT_MULTIPLIER': [1.15, 1.20, 1.25],  # Player rating boost
-    'PLAYER_RATING_GOOD_MULTIPLIER': [1.08, 1.10, 1.12],      # Player rating good
-    'PLAYER_RATING_POOR_MULTIPLIER': [0.85, 0.90, 0.95],      # Player rating penalty
+    # Enhanced scoring parameters - Test moderate vs aggressive impact
+    # ADP multipliers - Test moderate vs aggressive ADP impact
+    'ADP_EXCELLENT_MULTIPLIER': [1.15, 1.20],
+    'ADP_GOOD_MULTIPLIER': [1.08, 1.10],
+    'ADP_POOR_MULTIPLIER': [0.90, 0.95],
 
-    # Team performance multipliers
-    'TEAM_EXCELLENT_MULTIPLIER': [1.10, 1.12, 1.15],          # Team excellent performance
-    'TEAM_GOOD_MULTIPLIER': [1.04, 1.06, 1.08],               # Team good performance
-    'TEAM_POOR_MULTIPLIER': [0.92, 0.94, 0.96],               # Team poor performance
+    # Player rating multipliers - Test current defaults vs higher player rating impact
+    'PLAYER_RATING_EXCELLENT_MULTIPLIER': [1.20, 1.25],
+    'PLAYER_RATING_GOOD_MULTIPLIER': [1.10, 1.12],
+    'PLAYER_RATING_POOR_MULTIPLIER': [0.90, 0.95],
+
+    # Team performance multipliers - Test current defaults vs higher team quality impact
+    'TEAM_EXCELLENT_MULTIPLIER': [1.12, 1.15],
+    'TEAM_GOOD_MULTIPLIER': [1.06, 1.08],
+    'TEAM_POOR_MULTIPLIER': [0.94, 0.96],
 }
 
 # Simulation settings

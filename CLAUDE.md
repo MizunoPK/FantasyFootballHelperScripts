@@ -109,7 +109,24 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 - **Bench Recommendations**: Shows top bench alternatives with matchup context
 - **Performance Optimized**: Handles large rosters efficiently (<1s with matchup calculations)
 
-**4. NFL Scores Fetcher (`nfl-scores-fetcher/`)**
+**4. Draft Helper Simulation (`draft_helper/simulation/`)**
+- **Comprehensive Draft Simulation**: Test different configuration strategies across full season
+- **2-Value Parameter Testing**: Efficient testing of baseline vs aggressive configurations
+- **20 Configurable Parameters**: All scoring overhaul parameters testable
+  - Normalization: `NORMALIZATION_MAX_SCALE` (100 vs 120)
+  - Draft Order: `DRAFT_ORDER_PRIMARY_BONUS` (50 vs 60), `SECONDARY_BONUS` (25 vs 30)
+  - Matchup Multipliers: 5 ranges (excellent/good/neutral/poor/very poor)
+  - Injury/Bye Penalties: `INJURY_PENALTIES_MEDIUM/HIGH`, `BASE_BYE_PENALTY`
+  - Enhanced Scoring: ADP, Player Rating, Team multipliers (3 each)
+- **Simulation Flow**:
+  1. **Draft Phase**: Uses projected data with Add to Roster scoring for initial rosters
+  2. **Weekly Matchups**: Uses Starter Helper with matchup multipliers for lineup optimization
+  3. **Scoring**: Uses actual data to determine match winners
+- **Multi-Strategy Testing**: 5 team strategies (conservative, aggressive, positional, value, draft_helper)
+- **Performance Optimized**: Parallel processing with configurable thread counts
+- **Comprehensive Tests**: 12 unit tests validate configuration coverage and consistency
+
+**5. NFL Scores Fetcher (`nfl-scores-fetcher/`)**
 - **Async Score Collection**: Recent NFL game data with configurable time windows
 - **Multi-Format Export**: CSV, JSON, Excel outputs for external spreadsheet integration
 - **Modular Architecture**: Standalone client and export components
