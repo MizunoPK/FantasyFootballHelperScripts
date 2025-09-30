@@ -18,7 +18,6 @@ PARAMETER_RANGES = {
     'PROJECTION_BASE_SCORE': [90, 100],          # Test projection weighting
     'BASE_BYE_PENALTY': [10, 20],                # Test bye week penalty range
     'DRAFT_ORDER_WEIGHTS': [1.0, 1.2],         # Test draft order influence
-
     # Enhanced scoring parameters - Key multipliers for comprehensive testing
     'ADP_EXCELLENT_MULTIPLIER': [1.10, 1.15, 1.20],        # ADP boost range
     'ADP_GOOD_MULTIPLIER': [1.05, 1.08, 1.10],             # ADP good range
@@ -35,15 +34,12 @@ PARAMETER_RANGES = {
     # Adjustment caps
     'MAX_TOTAL_ADJUSTMENT': [1.45, 1.50, 1.55],               # Maximum total adjustment
     'MIN_TOTAL_ADJUSTMENT': [0.65, 0.70, 0.75],               # Minimum total adjustment
-
-    # Total: 3^6 * 3 * 2 * 3 * 2 = 729 * 3 * 2 * 3 * 2 = 26,244 configurations
-    # This provides meaningful analysis while remaining computationally feasible
 }
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 50           # Number of drafts to run per configuration
-PRELIMINARY_SIMULATIONS_PER_CONFIG = 15  # Reduced for preliminary testing
-TOP_CONFIGS_PERCENTAGE = 0.05          # Top 5% of configs advance to full testing
+SIMULATIONS_PER_CONFIG = 20           # Number of drafts to run per configuration
+PRELIMINARY_SIMULATIONS_PER_CONFIG = 5  # Reduced for preliminary testing
+TOP_CONFIGS_PERCENTAGE = 0.01          # Top 1% of configs advance to full testing
 
 # Parallel processing settings
 MAX_PARALLEL_THREADS = None             # Max concurrent threads for simulation

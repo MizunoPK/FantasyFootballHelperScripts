@@ -46,7 +46,7 @@ FLEX_ELIGIBLE_POSITIONS = [RB, WR]  # Positions eligible for FLEX spot
 
 # Draft Strategy - Ideal position priorities by round (FREQUENTLY MODIFIED)
 DRAFT_ORDER = [
-    {FLEX: 1.0, QB: 0.7},    # Round 1
+    {FLEX: 1.0 QB: 0.7},    # Round 1
     {FLEX: 1.0, QB: 0.7},    # Round 2  
     {FLEX: 1.0, QB: 0.8},    # Round 3
     {FLEX: 1.0, QB: 0.8},    # Round 4

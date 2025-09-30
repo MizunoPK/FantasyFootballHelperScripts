@@ -77,25 +77,74 @@ Mock Usage:
 
 ## ✅ **Step 3: Full Repository Test Suite**
 
-### **Execute All Tests**
-- [ ] Run: `python -m pytest --tb=short`
-- [ ] Verify all existing tests still pass
-- [ ] Verify new tests execute and pass
-- [ ] Check for any test warnings or deprecations
-- [ ] Ensure no tests are skipped unexpectedly
+### **MANDATORY: Execute Complete Test Suite**
+
+**CRITICAL**: You MUST run the complete test suite across ALL modules. Do not skip this step.
+
+### **Required Test Commands**
+Execute ALL of the following test suites in order:
+
+```bash
+# 1. Core runner scripts (REQUIRED)
+python -m pytest tests/test_runner_scripts.py -v
+
+# 2. Draft helper tests (REQUIRED)
+python -m pytest draft_helper/tests/test_draft_helper.py -v
+
+# 3. Shared files tests (REQUIRED)
+python -m pytest shared_files/tests/ -v
+
+# 4. Player data fetcher tests (REQUIRED)
+python -m pytest player-data-fetcher/tests/ -v
+
+# 5. NFL scores fetcher tests (REQUIRED)
+python -m pytest nfl-scores-fetcher/tests/ -v
+
+# 6. Starter helper tests (REQUIRED)
+python -m pytest starter_helper/tests/ -v
+
+# 7. Full suite summary (REQUIRED - run this last for final verification)
+python -m pytest tests/ draft_helper/tests/test_draft_helper.py shared_files/tests/ --tb=short
+```
+
+**IMPORTANT**: If ANY test suite times out or fails, you MUST investigate and fix before proceeding.
 
 ### **Test Results Validation**
-- [ ] **Pass Rate**: 100% of tests must pass
+- [ ] **Core Tests**: 21/21 runner script tests pass
+- [ ] **Draft Helper Tests**: 34/34 tests pass
+- [ ] **Shared Files Tests**: All tests pass
+- [ ] **Player Data Fetcher Tests**: All tests pass
+- [ ] **NFL Scores Fetcher Tests**: All tests pass
+- [ ] **Starter Helper Tests**: All tests pass
+- [ ] **Pass Rate**: 100% of tests must pass (no exceptions)
 - [ ] **New Test Validation**: All newly added tests pass
 - [ ] **Regression Check**: No previously passing tests now fail
 - [ ] **Performance Check**: No significant test slowdown
 
 **Test Execution Results**:
 ```
-Total Tests: [X]
-Passed: [X]
-Failed: [0]
-Skipped: [X]
+Module: tests/test_runner_scripts.py
+  Tests: [X]/21 passed ✅/❌
+
+Module: draft_helper/tests/test_draft_helper.py
+  Tests: [X]/34 passed ✅/❌
+
+Module: shared_files/tests/
+  Tests: [X]/[X] passed ✅/❌
+
+Module: player-data-fetcher/tests/
+  Tests: [X]/[X] passed ✅/❌
+
+Module: nfl-scores-fetcher/tests/
+  Tests: [X]/[X] passed ✅/❌
+
+Module: starter_helper/tests/
+  Tests: [X]/[X] passed ✅/❌
+
+TOTAL TESTS: [X]
+PASSED: [X]
+FAILED: [0] ← MUST BE ZERO
+SKIPPED: [X]
 Duration: [X seconds]
 
 New Tests Added: [X]
