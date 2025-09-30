@@ -32,11 +32,6 @@ PARAMETER_RANGES = {
     'INJURY_PENALTIES_HIGH': [30, 40],                   # Test high injury penalty range
     'BASE_BYE_PENALTY': [10, 20],                        # Test bye week penalty range
 
-    # DEPRECATED PARAMETERS (will be removed after scoring overhaul)
-    # 'POS_NEEDED_SCORE': [65, 75],                      # DEPRECATED: Positional need being removed
-    # 'PROJECTION_BASE_SCORE': [90, 100],                # DEPRECATED: Using normalization instead
-    # 'DRAFT_ORDER_WEIGHTS': [1.0, 1.2],                 # DEPRECATED: Using static bonuses instead
-
     # Enhanced scoring parameters - Key multipliers for comprehensive testing
     'ADP_EXCELLENT_MULTIPLIER': [1.10, 1.15, 1.20],        # ADP boost range
     'ADP_GOOD_MULTIPLIER': [1.05, 1.08, 1.10],             # ADP good range
@@ -49,10 +44,6 @@ PARAMETER_RANGES = {
     'TEAM_EXCELLENT_MULTIPLIER': [1.10, 1.12, 1.15],          # Team excellent performance
     'TEAM_GOOD_MULTIPLIER': [1.04, 1.06, 1.08],               # Team good performance
     'TEAM_POOR_MULTIPLIER': [0.92, 0.94, 0.96],               # Team poor performance
-
-    # Adjustment caps (DEPRECATED - will be removed after scoring overhaul)
-    # 'MAX_TOTAL_ADJUSTMENT': [1.45, 1.50, 1.55],            # DEPRECATED: Removing multiplier caps
-    # 'MIN_TOTAL_ADJUSTMENT': [0.65, 0.70, 0.75],            # DEPRECATED: Removing multiplier caps
 }
 
 # Simulation settings

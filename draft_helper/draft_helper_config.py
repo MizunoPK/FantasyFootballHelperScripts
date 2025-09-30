@@ -79,10 +79,6 @@ DRAFT_ORDER = [
 # Normalization configuration
 NORMALIZATION_MAX_SCALE = 100.0  # ← Maximum value for normalized fantasy points (0-N scale)
 
-# Primary scoring components (DEPRECATED - will be removed in scoring overhaul)
-POS_NEEDED_SCORE = 65           # ← DEPRECATED: Weight for positional need (being removed)
-PROJECTION_BASE_SCORE = 95      # ← DEPRECATED: Base score for projections (being removed)
-
 # Penalty system (FREQUENTLY MODIFIED)
 BASE_BYE_PENALTY = 5           # ← Base penalty for bye week conflicts (optimized from simulation)
 

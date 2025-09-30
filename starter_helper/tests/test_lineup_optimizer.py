@@ -157,52 +157,51 @@ class TestLineupOptimizer:
         }
 
     def test_calculate_adjusted_score_no_penalties(self, optimizer):
-        """Test adjusted score calculation with no penalties"""
-        # Use bye week different from CURRENT_NFL_WEEK to avoid bye penalty
-        bye_week_no_penalty = CURRENT_NFL_WEEK + 3 if CURRENT_NFL_WEEK < 15 else CURRENT_NFL_WEEK - 3
-        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "ACTIVE", bye_week_no_penalty)
+        """Test adjusted score calculation with no penalties (ACTIVE player)"""
+        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "ACTIVE", 5)
 
         assert adjusted_score == 20.0
-        assert reason == "No penalties"
+        assert "No adjustments" in reason
 
-    def test_calculate_adjusted_score_injury_penalty(self, optimizer):
-        """Test adjusted score calculation with injury penalty"""
-        # Use bye week different from CURRENT_NFL_WEEK to avoid bye penalty
-        bye_week_no_penalty = CURRENT_NFL_WEEK + 3 if CURRENT_NFL_WEEK < 15 else CURRENT_NFL_WEEK - 3
-        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "MEDIUM", bye_week_no_penalty)
+    def test_calculate_adjusted_score_questionable_allowed(self, optimizer):
+        """Test that QUESTIONABLE players are allowed to play (binary injury system)"""
+        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "QUESTIONABLE", 5)
 
-        expected_penalty = INJURY_PENALTIES.get("MEDIUM", 0)
-        expected_score = 20.0 - expected_penalty
+        # QUESTIONABLE is in STARTER_HELPER_ACTIVE_STATUSES, so full score
+        assert adjusted_score == 20.0
+        assert "No adjustments" in reason
 
-        assert adjusted_score == max(0.0, expected_score)
-        # Since MEDIUM penalty is 0, no injury penalty should be mentioned
-        if expected_penalty > 0:
-            assert "injury penalty" in reason
-            assert "MEDIUM" in reason
-        else:
-            assert reason == "No penalties"
+    def test_calculate_adjusted_score_inactive_zeroed(self, optimizer):
+        """Test that inactive players get zeroed out (binary injury system)"""
+        # Test various inactive statuses
+        inactive_statuses = ["OUT", "DOUBTFUL", "INJURY_RESERVE", "SUSPENSION", "HIGH"]
 
-    def test_calculate_adjusted_score_bye_week_penalty(self, optimizer):
-        """Test adjusted score calculation with bye week penalty"""
-        adjusted_score, reason = optimizer.calculate_adjusted_score(15.0, "ACTIVE", CURRENT_NFL_WEEK)
+        for status in inactive_statuses:
+            adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, status, 5)
 
-        expected_score = 15.0 - BYE_WEEK_PENALTY
+            # All non-ACTIVE/QUESTIONABLE players should be zeroed out
+            assert adjusted_score == 0.0, f"Player with status {status} should be zeroed"
+            assert "Inactive" in reason, f"Reason should mention inactive for status {status}"
+            assert status in reason, f"Reason should include status {status}"
 
-        assert adjusted_score == max(0.0, expected_score)
-        assert "bye week penalty" in reason
+    def test_calculate_adjusted_score_out_player(self, optimizer):
+        """Test adjusted score for OUT player (should be zero)"""
+        adjusted_score, reason = optimizer.calculate_adjusted_score(15.0, "OUT", 5)
 
-    def test_calculate_adjusted_score_multiple_penalties(self, optimizer):
-        """Test adjusted score calculation with both injury and bye week penalties"""
-        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "MEDIUM", CURRENT_NFL_WEEK)
+        # OUT players should be zeroed out
+        assert adjusted_score == 0.0
+        assert "Inactive" in reason
+        assert "OUT" in reason
 
-        injury_penalty = INJURY_PENALTIES.get("MEDIUM", 0)
-        expected_score = 20.0 - injury_penalty - BYE_WEEK_PENALTY
+    def test_calculate_adjusted_score_bye_week_ignored(self, optimizer):
+        """Test that bye week is ignored in new scoring system"""
+        # Bye week should not affect score anymore
+        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "ACTIVE", CURRENT_NFL_WEEK)
 
-        assert adjusted_score == max(0.0, expected_score)
-        # Since MEDIUM penalty is 0, only bye week penalty should be mentioned
-        if injury_penalty > 0:
-            assert "injury penalty" in reason
-        assert "bye week penalty" in reason
+        # Score should remain unchanged (no bye week penalty)
+        assert adjusted_score == 20.0
+        assert "No adjustments" in reason
+        assert "bye" not in reason.lower()
 
     def test_create_starting_recommendation(self, optimizer, sample_roster_data):
         """Test creating a starting recommendation from player data"""
@@ -332,7 +331,7 @@ class TestLineupOptimizer:
                 assert bench_recs[i].adjusted_score >= bench_recs[i + 1].adjusted_score
 
     def test_injury_status_handling(self, optimizer):
-        """Test handling of various injury statuses"""
+        """Test that injury status uses binary system (OUT players zeroed)"""
         player_data = {
             'id': 1,
             'name': 'Test Player',
@@ -345,13 +344,12 @@ class TestLineupOptimizer:
         rec = optimizer.create_starting_recommendation(player_data, 20.0)
 
         assert rec.injury_status == 'OUT'
-        # Should have injury penalty applied
-        out_penalty = INJURY_PENALTIES.get('OUT', 0)
-        expected_score = 20.0 - out_penalty
-        assert rec.adjusted_score == max(0.0, expected_score)
+        # Binary injury system: OUT players get zero score
+        assert rec.adjusted_score == 0.0
+        assert "Inactive" in rec.reason
 
     def test_bye_week_current_week_handling(self, optimizer):
-        """Test handling of players on bye this week"""
+        """Test that bye week is ignored in new scoring system"""
         player_data = {
             'id': 1,
             'name': 'Bye Week Player',
@@ -364,10 +362,9 @@ class TestLineupOptimizer:
         rec = optimizer.create_starting_recommendation(player_data, 15.0)
 
         assert rec.bye_week == CURRENT_NFL_WEEK
-        # Should have bye week penalty applied
-        expected_score = 15.0 - BYE_WEEK_PENALTY
-        assert rec.adjusted_score == max(0.0, expected_score)
-        assert "bye week penalty" in rec.reason
+        # Bye week should NOT affect score in new system
+        assert rec.adjusted_score == 15.0
+        assert "bye" not in rec.reason.lower()
 
     def test_negative_adjusted_score_handling(self, optimizer):
         """Test that adjusted scores don't go below 0"""

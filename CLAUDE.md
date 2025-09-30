@@ -94,15 +94,20 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 - **CSV-Based Projections**: Reads weekly projections from `week_N_points` columns (no API calls required)
 - **Optimal Lineup Generation**: Creates best 9-player starting lineup with position constraints
 - **FLEX Optimization**: Automatically selects best available RB or WR for FLEX position
-- **Penalty System**: Applies injury and bye week penalties to player scores
-- **Matchup Analysis Engine** (NEW): Optional ESPN-powered matchup analysis with:
-  - 1-100 granular rating scale for precision matchup evaluation
-  - Team defense strength analysis (fantasy points allowed by position)
-  - Recent performance trends and home field advantage calculations
-  - Configurable 15% weight factor impact on recommendations
-  - Simple (★/○/●) or detailed display options with toggle control
-- **Bench Recommendations**: Shows top bench alternatives with optional matchup context
-- **Performance Optimized**: Handles large rosters efficiently (<1s offline, 3-5s with matchup analysis)
+- **🆕 3-Step Scoring System** (Updated September 2025):
+  1. **Base Projected Points**: Current week projections from CSV
+  2. **Matchup Multiplier**: Team offense rank vs opponent defense rank (0.8x to 1.2x)
+     - Excellent matchup (rank diff ≥15): 1.2x multiplier
+     - Good matchup (rank diff 6-14): 1.1x multiplier
+     - Neutral matchup (rank diff -5 to 5): 1.0x multiplier
+     - Poor matchup (rank diff -14 to -6): 0.9x multiplier
+     - Very poor matchup (rank diff ≤-15): 0.8x multiplier
+     - Only applies to QB, RB, WR, TE (K and DST unaffected)
+  3. **Binary Injury Filter**: Zero out non-ACTIVE/QUESTIONABLE players
+- **Removed Systems**: Bye week penalties removed (bye weeks already 0.0 in data), point-based injury penalties replaced with binary system
+- **Matchup Calculator**: Uses `teams.csv` with offensive_rank, defensive_rank, and opponent columns
+- **Bench Recommendations**: Shows top bench alternatives with matchup context
+- **Performance Optimized**: Handles large rosters efficiently (<1s with matchup calculations)
 
 **4. NFL Scores Fetcher (`nfl-scores-fetcher/`)**
 - **Async Score Collection**: Recent NFL game data with configurable time windows
@@ -174,6 +179,22 @@ The fantasy points calculation system has been enhanced to use intelligent week-
 - Implements 6-step Trade/Waiver scoring
 - Integrates all calculator classes and penalty systems
 
+**MatchupCalculator** (`starter_helper/matchup_calculator.py`)
+- Calculates matchup multipliers based on team offensive rank vs opponent defensive rank
+- Formula: rank_difference = (Opponent Defense Rank) - (Team Offense Rank)
+- Applies position-specific multipliers (QB, RB, WR, TE only)
+- Reads team data from `shared_files/teams.csv` with weekly opponent matchups
+- Provides matchup quality descriptors (excellent, good, neutral, poor, very poor)
+
+**LineupOptimizer** (`starter_helper/lineup_optimizer.py`)
+- Handles optimal starting lineup recommendations with 3-step scoring:
+  1. Base projected points from weekly CSV data
+  2. Matchup multiplier application (via MatchupCalculator)
+  3. Binary injury filter (zero out non-ACTIVE/QUESTIONABLE players)
+- FLEX position optimization for best available RB or WR
+- Bench recommendations with matchup-adjusted scores
+- Position constraints enforcement for league rules
+
 ### League Configuration ("Start 7 Fantasy League")
 
 **Roster Rules:**
@@ -237,11 +258,18 @@ Each module includes comprehensive validation and clear documentation of frequen
   - `DRAFTED_DATA` (path to CSV file, default: "./drafted_data.csv")
   - `MY_TEAM_NAME` (your fantasy team name for roster identification, default: "Sea Sharp")
 - **Trade Injury Settings**: `APPLY_INJURY_PENALTY_TO_ROSTER` (True=apply injury penalties to roster players, False=ignore injury penalties for roster players in trade analysis)
-- **Matchup Analysis Settings** (in `starter_helper/starter_helper_config.py`):
-  - `ENABLE_MATCHUP_ANALYSIS` (True=ESPN matchup analysis, False=offline mode)
-  - `MATCHUP_WEIGHT_FACTOR` (0.15=15% impact on recommendations, configurable)
-  - `SHOW_MATCHUP_SIMPLE` (True=★/○/● indicators, False=hide)
-  - `SHOW_MATCHUP_DETAILED` (True=rating breakdown, False=simple only)
+- **🆕 Matchup Multiplier Settings** (in `starter_helper/starter_helper_config.py`):
+  - `MATCHUP_MULTIPLIERS` (dictionary mapping rank difference ranges to multipliers)
+    - `(15, inf)`: 1.2x (excellent matchup)
+    - `(6, 15)`: 1.1x (good matchup)
+    - `(-5, 6)`: 1.0x (neutral matchup)
+    - `(-15, -5)`: 0.9x (poor matchup)
+    - `(-inf, -14)`: 0.8x (very poor matchup)
+  - `MATCHUP_ENABLED_POSITIONS` (list of positions: [QB, RB, WR, TE])
+  - `STARTER_HELPER_ACTIVE_STATUSES` (list of active statuses: ['ACTIVE', 'QUESTIONABLE'])
+- **Removed Settings** (deprecated in new scoring system):
+  - `INJURY_PENALTIES` (replaced with binary ACTIVE/QUESTIONABLE system for starter_helper)
+  - `BYE_WEEK_PENALTY` (removed, bye weeks already 0.0 in data)
 - **Scoring System Settings** (in `draft_helper/draft_helper_config.py`):
   - `NORMALIZATION_MAX_SCALE` (scale for normalizing fantasy points, default: 100.0)
   - `DRAFT_ORDER` (static point bonuses by position and round, 15 rounds configured)
@@ -261,6 +289,10 @@ Each module includes comprehensive validation and clear documentation of frequen
 **Key Data Files:**
 - `shared_files/players.csv` - Master player database (preserved between updates)
 - `shared_files/bye_weeks.csv` - NFL bye week schedule (manual, pre-season)
+- `shared_files/teams.csv` - Team rankings and matchups (manual, updated weekly)
+  - Format: `team,offensive_rank,defensive_rank,opponent`
+  - Used by MatchupCalculator for starter_helper scoring
+  - Update weekly to reflect current matchups and rankings
 - `shared_files/FantasyPlayer.py` - Shared player data model
 - Module-specific `data/` directories for exported data
 

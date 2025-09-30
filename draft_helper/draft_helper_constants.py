@@ -34,9 +34,9 @@ from draft_helper_config import (
     
     # Draft strategy
     DRAFT_ORDER, get_ideal_draft_position,
-    
+
     # Scoring weights
-    POS_NEEDED_SCORE, PROJECTION_BASE_SCORE, INJURY_PENALTIES,
+    NORMALIZATION_MAX_SCALE, INJURY_PENALTIES,
     BASE_BYE_PENALTY, POSSIBLE_BYE_WEEKS, MIN_TRADE_IMPROVEMENT,
     NUM_TRADE_RUNNERS_UP
 )

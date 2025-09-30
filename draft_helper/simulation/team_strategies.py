@@ -31,8 +31,9 @@ class TeamStrategyManager:
             "MEDIUM": config_params.get('INJURY_PENALTIES_MEDIUM', 25),
             "HIGH": config_params.get('INJURY_PENALTIES_HIGH', 50)
         }
-        self.pos_needed_score = config_params.get('POS_NEEDED_SCORE', 50)
-        self.projection_base_score = config_params.get('PROJECTION_BASE_SCORE', 100)
+        # DEPRECATED: Legacy scoring weights (no longer used in current scoring system)
+        # self.pos_needed_score = config_params.get('POS_NEEDED_SCORE', 50)
+        # self.projection_base_score = config_params.get('PROJECTION_BASE_SCORE', 100)
         self.base_bye_penalty = config_params.get('BASE_BYE_PENALTY', 20)
 
         # DRAFT_ORDER bonus configuration from simulation parameters

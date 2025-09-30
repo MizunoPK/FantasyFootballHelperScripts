@@ -166,8 +166,9 @@ def load_players_from_csv(filename):
     for player in players:
         
         # Calculate weighted_projection (normalized between 0-100)
+        # Uses NORMALIZATION_MAX_SCALE instead of deprecated PROJECTION_BASE_SCORE
         if player.fantasy_points and max_projection > 0:
-            player.weighted_projection = (player.fantasy_points / max_projection) * Constants.PROJECTION_BASE_SCORE
+            player.weighted_projection = (player.fantasy_points / max_projection) * Constants.NORMALIZATION_MAX_SCALE
         else:
             player.weighted_projection = 0.0
             

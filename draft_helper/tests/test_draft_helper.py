@@ -150,9 +150,8 @@ class TestDraftHelper:
 
     def test_scoring_weights_configuration(self):
         """Test scoring weights are reasonable"""
-        # Test positional need scoring
-        assert draft_config.POS_NEEDED_SCORE > 0
-        assert draft_config.PROJECTION_BASE_SCORE > 0
+        # Test normalization scale
+        assert draft_config.NORMALIZATION_MAX_SCALE > 0
 
         # Test penalty system
         assert draft_config.BASE_BYE_PENALTY >= 0
@@ -406,12 +405,9 @@ class TestDraftHelper:
 
     def test_scoring_format_consistency(self):
         """Test that scoring weights are internally consistent"""
-        # Projection base should be larger than penalties
-        assert draft_config.PROJECTION_BASE_SCORE > draft_config.BASE_BYE_PENALTY
-        assert draft_config.PROJECTION_BASE_SCORE > max(draft_config.INJURY_PENALTIES.values())
-
-        # Positional need should be meaningful relative to base score
-        assert draft_config.POS_NEEDED_SCORE <= draft_config.PROJECTION_BASE_SCORE
+        # Normalization scale should be larger than penalties
+        assert draft_config.NORMALIZATION_MAX_SCALE > draft_config.BASE_BYE_PENALTY
+        assert draft_config.NORMALIZATION_MAX_SCALE > max(draft_config.INJURY_PENALTIES.values())
 
     def test_interactive_menu_display_roster_by_draft_order(self, draft_helper_instance, sample_players):
         """Test the roster display functionality"""

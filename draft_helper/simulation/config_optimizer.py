@@ -105,8 +105,9 @@ class ConfigurationOptimizer:
         fine_ranges = {
             'INJURY_PENALTIES_MEDIUM': [-10, -5, 0, 5, 10],
             'INJURY_PENALTIES_HIGH': [-15, -10, -5, 0, 5, 10, 15],
-            'POS_NEEDED_SCORE': [-15, -10, -5, 0, 5, 10, 15],
-            'PROJECTION_BASE_SCORE': [-15, -10, -5, 0, 5, 10, 15],
+            # DEPRECATED: Legacy scoring weights (no longer used)
+            # 'POS_NEEDED_SCORE': [-15, -10, -5, 0, 5, 10, 15],
+            # 'PROJECTION_BASE_SCORE': [-15, -10, -5, 0, 5, 10, 15],
             'BASE_BYE_PENALTY': [-10, -5, 0, 5, 10],
             'DRAFT_ORDER_WEIGHTS': [-0.2, -0.1, 0, 0.1, 0.2]
         }
@@ -123,10 +124,11 @@ class ConfigurationOptimizer:
                     # Apply bounds checking
                     if param_name in ['INJURY_PENALTIES_MEDIUM', 'INJURY_PENALTIES_HIGH']:
                         new_value = max(0, min(100, new_value))
-                    elif param_name == 'POS_NEEDED_SCORE':
-                        new_value = max(0, min(150, new_value))
-                    elif param_name == 'PROJECTION_BASE_SCORE':
-                        new_value = max(50, min(200, new_value))
+                    # DEPRECATED: Legacy scoring weights (no longer used)
+                    # elif param_name == 'POS_NEEDED_SCORE':
+                    #     new_value = max(0, min(150, new_value))
+                    # elif param_name == 'PROJECTION_BASE_SCORE':
+                    #     new_value = max(50, min(200, new_value))
                     elif param_name == 'BASE_BYE_PENALTY':
                         new_value = max(0, min(100, new_value))
                     elif param_name == 'DRAFT_ORDER_WEIGHTS':

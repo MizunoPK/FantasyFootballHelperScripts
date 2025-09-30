@@ -17,12 +17,13 @@ import pandas as pd
 from starter_helper_config import (
     STARTING_LINEUP_REQUIREMENTS, FLEX_ELIGIBLE_POSITIONS,
     INJURY_PENALTIES, BYE_WEEK_PENALTY, CURRENT_NFL_WEEK,
+    STARTER_HELPER_ACTIVE_STATUSES,
     QB, RB, WR, TE, K, DST, FLEX
 )
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-from shared_files.positional_ranking_calculator import PositionalRankingCalculator
+from matchup_calculator import MatchupCalculator
 
 
 @dataclass
@@ -74,16 +75,16 @@ class LineupOptimizer:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-        # Initialize positional ranking calculator
+        # Initialize matchup calculator
         try:
-            self.positional_ranking_calculator = PositionalRankingCalculator()
-            if self.positional_ranking_calculator.is_positional_ranking_available():
-                self.logger.info("Positional ranking calculations enabled")
+            self.matchup_calculator = MatchupCalculator()
+            if self.matchup_calculator.is_matchup_available():
+                self.logger.info("Matchup multiplier calculations enabled")
             else:
-                self.logger.info("Positional ranking calculations disabled (teams.csv not available)")
+                self.logger.info("Matchup multiplier calculations disabled (teams.csv not available)")
         except Exception as e:
-            self.logger.warning(f"Failed to initialize positional ranking calculator: {e}")
-            self.positional_ranking_calculator = None
+            self.logger.warning(f"Failed to initialize matchup calculator: {e}")
+            self.matchup_calculator = None
 
     def calculate_adjusted_score(self,
                                 projected_points: float,
@@ -92,12 +93,17 @@ class LineupOptimizer:
                                 player_team: Optional[str] = None,
                                 player_position: Optional[str] = None) -> Tuple[float, str]:
         """
-        Calculate adjusted score for a player based on projections, penalties, and positional rankings
+        Calculate adjusted score for a player based on projections and binary injury system
+
+        Scoring System (3 steps):
+        1. Start with projected points for current week
+        2. Apply matchup multiplier (if positional ranking available)
+        3. Apply binary injury penalty (zero out non-ACTIVE/QUESTIONABLE players)
 
         Args:
             projected_points: Current week projected fantasy points
             injury_status: Player injury status
-            bye_week: Player's bye week number
+            bye_week: Player's bye week number (not used in current scoring)
             player_team: Player's team abbreviation (e.g., 'PHI', 'KC')
             player_position: Player position (e.g., 'QB', 'RB', 'WR')
 
@@ -107,40 +113,32 @@ class LineupOptimizer:
         adjusted_score = projected_points
         reasons = []
 
-        # Apply injury penalty
-        if injury_status in INJURY_PENALTIES:
-            penalty = INJURY_PENALTIES[injury_status]
-            adjusted_score -= penalty
-            if penalty > 0:
-                reasons.append(f"-{penalty} injury penalty ({injury_status})")
-
-        # Apply bye week penalty
-        if bye_week == CURRENT_NFL_WEEK:
-            adjusted_score -= BYE_WEEK_PENALTY
-            reasons.append(f"-{BYE_WEEK_PENALTY} bye week penalty")
-
-        # Apply positional ranking adjustment if available
-        if (self.positional_ranking_calculator and
-            self.positional_ranking_calculator.is_positional_ranking_available() and
+        # Step 2: Apply matchup multiplier if available
+        if (self.matchup_calculator and
+            self.matchup_calculator.is_matchup_available() and
             player_team and player_position):
 
-            ranking_adjusted_points, ranking_explanation = self.positional_ranking_calculator.calculate_positional_adjustment(
+            matchup_adjusted_points, matchup_explanation = self.matchup_calculator.calculate_matchup_adjustment(
                 player_team=player_team,
                 position=player_position,
-                base_points=adjusted_score,
-                current_week=CURRENT_NFL_WEEK
+                base_points=adjusted_score
             )
 
-            # Only apply the adjustment (not replace the entire score)
-            ranking_adjustment = ranking_adjusted_points - adjusted_score
-            adjusted_score = ranking_adjusted_points
+            # Apply the matchup adjustment
+            adjusted_score = matchup_adjusted_points
 
-            # Add explanation if significant adjustment
-            if abs(ranking_adjustment) >= 0.5:  # Show adjustments of 0.5 points or more
-                sign = "+" if ranking_adjustment > 0 else ""
-                reasons.append(f"{sign}{ranking_adjustment:.1f} rank adj ({ranking_explanation})")
+            # Add explanation if provided
+            if matchup_explanation:
+                reasons.append(matchup_explanation)
 
-        reason = "; ".join(reasons) if reasons else "No penalties"
+        # Step 3: Apply binary injury penalty (zero out non-active players)
+        # Players must be ACTIVE or QUESTIONABLE to play; all others get zero score
+        if injury_status.upper() not in STARTER_HELPER_ACTIVE_STATUSES:
+            adjusted_score = 0.0
+            reasons.append(f"Inactive ({injury_status})")
+            self.logger.debug(f"Player zeroed out due to injury status: {injury_status}")
+
+        reason = "; ".join(reasons) if reasons else "No adjustments"
         return max(0.0, adjusted_score), reason
 
 

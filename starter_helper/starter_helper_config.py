@@ -262,12 +262,59 @@ def validate_config():
 
         return result
 
+    def validate_matchup_settings():
+        """
+        Validate matchup multiplier settings and configuration.
+
+        Returns:
+            ValidationResult: Result object containing any validation errors
+        """
+        result = ValidationResult()
+
+        # Validate matchup enabled positions
+        if not MATCHUP_ENABLED_POSITIONS:
+            result.add_error("MATCHUP_ENABLED_POSITIONS cannot be empty", "MATCHUP_ENABLED_POSITIONS")
+
+        valid_positions = [QB, RB, WR, TE, K, DST]
+        for pos in MATCHUP_ENABLED_POSITIONS:
+            if pos not in valid_positions:
+                result.add_error(f"Invalid position in MATCHUP_ENABLED_POSITIONS: {pos}", "MATCHUP_ENABLED_POSITIONS", pos)
+
+        # Validate matchup multipliers
+        if not MATCHUP_MULTIPLIERS:
+            result.add_error("MATCHUP_MULTIPLIERS cannot be empty", "MATCHUP_MULTIPLIERS")
+
+        for (lower, upper), multiplier in MATCHUP_MULTIPLIERS.items():
+            # Validate range bounds
+            if lower != float('-inf') and lower != float('inf'):
+                if not isinstance(lower, (int, float)):
+                    result.add_error(f"Invalid lower bound in MATCHUP_MULTIPLIERS: {lower}", "MATCHUP_MULTIPLIERS", lower)
+
+            if upper != float('-inf') and upper != float('inf'):
+                if not isinstance(upper, (int, float)):
+                    result.add_error(f"Invalid upper bound in MATCHUP_MULTIPLIERS: {upper}", "MATCHUP_MULTIPLIERS", upper)
+
+            # Validate multiplier value (should be between 0.5 and 2.0 for reasonable adjustments)
+            mult_result = ConfigValidator.validate_range(multiplier, 0.5, 2.0, f"MATCHUP_MULTIPLIERS[{(lower, upper)}]")
+            result.errors.extend(mult_result.errors)
+
+        # Validate active statuses
+        if not STARTER_HELPER_ACTIVE_STATUSES:
+            result.add_error("STARTER_HELPER_ACTIVE_STATUSES cannot be empty", "STARTER_HELPER_ACTIVE_STATUSES")
+
+        for status in STARTER_HELPER_ACTIVE_STATUSES:
+            if not isinstance(status, str):
+                result.add_error(f"Invalid injury status in STARTER_HELPER_ACTIVE_STATUSES: {status}", "STARTER_HELPER_ACTIVE_STATUSES", status)
+
+        return result
+
     # Run all validations
     combined_result = validate_multiple([
         validate_basic_settings,
         validate_lineup_requirements,
         validate_penalty_settings,
-        validate_display_settings
+        validate_display_settings,
+        validate_matchup_settings
     ])
 
     if not combined_result.is_valid:
@@ -291,11 +338,14 @@ STRATEGY CHANGES:
 1. INJURY_PENALTIES - Adjust risk tolerance for questionable players
 2. SHOW_PROJECTION_DETAILS - Show/hide detailed projection information
 
-POSITIONAL RANKING:
+MATCHUP MULTIPLIERS:
 1. Team rankings are automatically loaded from teams.csv
-2. Adjustments are applied based on offensive/defensive rankings
-3. Configuration is handled in positional_ranking_calculator.py
-4. RECOMMENDATION_COUNT - Number of players to display
+2. Matchup adjustments applied based on offensive vs defensive rankings
+3. Formula: rank_diff = (Opponent Defense Rank) - (Team Offense Rank)
+4. Only applies to QB, RB, WR, TE (K and DST unaffected)
+5. MATCHUP_MULTIPLIERS - Configure multiplier ranges
+6. MATCHUP_ENABLED_POSITIONS - Positions eligible for matchup adjustments
+7. RECOMMENDATION_COUNT - Number of players to display
 
 FILE OUTPUT:
 1. SAVE_OUTPUT_TO_FILE - Enable/disable saving results to files
@@ -319,8 +369,12 @@ To show more/fewer recommendations:
 To adjust for standard scoring:
     NFL_SCORING_FORMAT = "std"
 
-To configure positional ranking adjustments:
-    Edit positional_ranking_calculator.py configuration
+To configure matchup multipliers:
+    # Make excellent matchups more impactful
+    MATCHUP_MULTIPLIERS[(15, float('inf'))] = 1.3  # Increase from 1.2x
+
+    # Disable matchup adjustments for a position
+    MATCHUP_ENABLED_POSITIONS = [QB, RB, WR]  # Exclude TE
 
 ⚠️ VALIDATION:
 Configuration is automatically validated on import. Invalid settings will

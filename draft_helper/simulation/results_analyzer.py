@@ -260,7 +260,8 @@ class ResultsAnalyzer:
         for config in analysis['top_10_configs']:
             key_params = []
             for param, value in config['config_params'].items():
-                if param in ['INJURY_PENALTIES_MEDIUM', 'INJURY_PENALTIES_HIGH', 'POS_NEEDED_SCORE']:
+                # DEPRECATED: POS_NEEDED_SCORE no longer used
+                if param in ['INJURY_PENALTIES_MEDIUM', 'INJURY_PENALTIES_HIGH']:
                     key_params.append(f"{param.split('_')[-1]}={value}")
 
             key_params_str = ", ".join(key_params[:3])  # Show first 3

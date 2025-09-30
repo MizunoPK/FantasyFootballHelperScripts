@@ -1,0 +1,21 @@
+I want to update the Draft Helper simulation to ensure that it is properly handling the configurations we set up or changed during the recent scoring overhaul
+Analyze the current state of the simulation implementation and cross refrence it with the info in the scoring_overal.txt, starter_helper_scoring_overhaul_todo.md, and scoring_overhaul_todo.md files to understand what changes were made and where the simulation is lacking
+
+Currently I expect that the Simulation config should allow for the testing of multiple possible values for the following variables:
+DRAFT_ORDER_PRIMARY_BONUS
+DRAFT_ORDER_SECONDARY_BONUS
+NORMALIZATION_MAX_SCALE
+BASE_BYE_PENALTY
+INJURY_PENALTIES
+MATCHUP_MULTIPLIERS
+"adp_excellent_multiplier"
+"adp_good_multiplier"
+"adp_poor_multiplier"
+"player_rating_good_multiplier" 
+"player_rating_poor_multiplier"
+"player_rating_max_boost"     
+"team_excellent_multiplier"
+"team_good_multiplier"
+"team_poor_multiplier"
+
+For each of the configs we are testing, initialize them to reasonable starting values to test for each based on your own judgement and knowledge of the existing goals and implementation. For now, cap the number of values tested for each variable to 2. For example, NORMALIZATION_MAX_SCALE=[100, 120]
