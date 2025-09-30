@@ -45,12 +45,12 @@ from typing import Dict, List, Tuple
 # Use the parameter_loader module to load and validate configurations.
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 20           # Number of drafts to run per configuration
+SIMULATIONS_PER_CONFIG = 15           # Number of drafts to run per configuration
 PRELIMINARY_SIMULATIONS_PER_CONFIG = 5  # Reduced for preliminary testing
 TOP_CONFIGS_PERCENTAGE = 0.01          # Top 1% of configs advance to full testing
 
 # Parallel processing settings
-MAX_PARALLEL_THREADS = None             # Max concurrent threads for simulation
+MAX_PARALLEL_THREADS = 7             # Max concurrent threads for simulation
                                        # None = auto-detect: min(6, CPU_COUNT)
                                        # Integer = explicit thread count
                                        # Examples: 1, 4, 8, 12, None
