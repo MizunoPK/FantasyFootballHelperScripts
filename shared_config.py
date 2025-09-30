@@ -20,7 +20,7 @@ Last Updated: September 2025
 # =============================================================================
 
 # NFL Season and Week Configuration (CRITICAL - UPDATE WEEKLY)
-CURRENT_NFL_WEEK = 4      # Current NFL week (1-18, update weekly)
+CURRENT_NFL_WEEK = 5      # Current NFL week (1-18, update weekly)
 NFL_SEASON = 2025        # Current NFL season year
 NFL_SCORING_FORMAT = "ppr"  # Fantasy scoring format: "ppr", "std", or "half"
 

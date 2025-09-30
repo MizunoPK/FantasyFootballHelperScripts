@@ -27,20 +27,21 @@ class TestDraftHelperEnhancedScoringIntegration:
     def setup_method(self):
         """Set up test data for each test method"""
         # Create test players with and without enhanced data
+        # IMPORTANT: Mark all test players as drafted=0 (available) for normalization to work correctly
         self.enhanced_player = FantasyPlayer(
             id="1001", name="Enhanced Player", team="KC", position="RB",
             fantasy_points=120.0, average_draft_position=50.0, player_rating=75.0,
-            team_offensive_rank=5, team_defensive_rank=None
+            team_offensive_rank=5, team_defensive_rank=None, drafted=0
         )
 
         self.basic_player = FantasyPlayer(
             id="1002", name="Basic Player", team="NE", position="RB",
-            fantasy_points=100.0, weighted_projection=100.0
+            fantasy_points=100.0, weighted_projection=100.0, drafted=0
         )
 
         self.zero_score_player = FantasyPlayer(
             id="1003", name="Zero Player", team="JAX", position="WR",
-            fantasy_points=0.0
+            fantasy_points=0.0, drafted=0
         )
 
     @patch('draft_helper.load_players_from_csv')
@@ -68,10 +69,11 @@ class TestDraftHelperEnhancedScoringIntegration:
 
         score = draft_helper.compute_projection_score(self.enhanced_player)
 
-        # Should be enhanced score, not just fantasy_points
-        assert score > self.enhanced_player.fantasy_points
-        # Calculate expected score: 120.0 * (1.15 ADP * 1.1 rating * 1.12 team) = 170.016
-        assert score == pytest.approx(170.016, rel=1e-2)  # Expected enhanced score with mocked team rank
+        # NEW SCORING SYSTEM: Normalize first, then apply multipliers
+        # Step 1: Normalize: (120 / 120) * 100 = 100.0 (this player is the max)
+        # Step 2-4: Apply multipliers: 100.0 * (1.15 ADP * 1.1 rating * 1.12 team) = 141.68
+        # With new normalization system, scores are scaled to 0-100 first
+        assert score == pytest.approx(141.68, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
     def test_compute_projection_score_without_enhanced_data(self, mock_load_players):
@@ -82,8 +84,11 @@ class TestDraftHelperEnhancedScoringIntegration:
 
         score = draft_helper.compute_projection_score(self.basic_player)
 
-        # Should fall back to weighted_projection
-        assert score == self.basic_player.weighted_projection
+        # NEW SCORING SYSTEM: Normalize first (no enhanced data means multiplier = 1.0)
+        # Step 1: Normalize: (100 / 100) * 100 = 100.0 (this player is the max)
+        # Steps 2-4: No multipliers = 1.0
+        # Result: 100.0
+        assert score == pytest.approx(100.0, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
     def test_compute_projection_score_zero_fantasy_points(self, mock_load_players):
@@ -102,7 +107,7 @@ class TestDraftHelperEnhancedScoringIntegration:
         """Test fallback to fantasy_points when weighted_projection is unavailable and no enhanced data"""
         player_no_weighted = FantasyPlayer(
             id="1004", name="No Weighted Player", team="DAL", position="QB",
-            fantasy_points=150.0, weighted_projection=0.0  # No weighted projection and no enhanced data
+            fantasy_points=150.0, weighted_projection=0.0, drafted=0  # No weighted projection and no enhanced data
         )
         mock_load_players.return_value = [player_no_weighted]
 
@@ -119,8 +124,11 @@ class TestDraftHelperEnhancedScoringIntegration:
 
         score = draft_helper.compute_projection_score(player_no_weighted)
 
-        # Should fall back to fantasy_points since no enhanced data (no ADP, no rating, no team rank)
-        assert score == player_no_weighted.fantasy_points
+        # NEW SCORING SYSTEM: Still normalize even without enhanced data
+        # Step 1: Normalize: (150 / 150) * 100 = 100.0 (this player is the max)
+        # Steps 2-4: No multipliers = 1.0
+        # Result: 100.0
+        assert score == pytest.approx(100.0, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
     def test_enhanced_scoring_with_different_positions(self, mock_load_players):
@@ -129,13 +137,13 @@ class TestDraftHelperEnhancedScoringIntegration:
         qb_player = FantasyPlayer(
             id="2001", name="Test QB", team="KC", position="QB",
             fantasy_points=300.0, average_draft_position=15.0, player_rating=85.0,
-            team_offensive_rank=3, team_defensive_rank=None
+            team_offensive_rank=3, team_defensive_rank=None, drafted=0
         )
 
         dst_player = FantasyPlayer(
             id="2002", name="Test DST", team="SF", position="DST",
             fantasy_points=80.0, average_draft_position=120.0, player_rating=60.0,
-            team_offensive_rank=None, team_defensive_rank=2
+            team_offensive_rank=None, team_defensive_rank=2, drafted=0
         )
 
         mock_load_players.return_value = [qb_player, dst_player]
@@ -161,15 +169,11 @@ class TestDraftHelperEnhancedScoringIntegration:
         qb_score = draft_helper.compute_projection_score(qb_player)
         dst_score = draft_helper.compute_projection_score(dst_player)
 
-        # Both should get enhanced scores
-        assert qb_score > qb_player.fantasy_points
-        assert dst_score > dst_player.fantasy_points
-
-        # Calculate expected scores:
-        # QB: 300.0 * (1.15 ADP * 1.2 rating * 1.12 team) = 300.0 * 1.5 = 450.0
-        # DST: 80.0 * (1.0 ADP * 1.1 rating * 1.12 team) = 80.0 * 1.232 = 98.56
-        assert qb_score == pytest.approx(450.0, rel=1e-2)  # Expected QB score with mocked ranks
-        assert dst_score == pytest.approx(98.56, rel=1e-2)  # Expected DST score with mocked ranks
+        # NEW SCORING SYSTEM: Normalize first, then apply multipliers
+        # QB: (300 / 300) * 100 * (1.15 ADP * 1.2 rating * 1.12 team) = 100 * 1.5456 = 154.56
+        # DST: (80 / 300) * 100 * (1.0 ADP * 1.1 rating * 1.12 team) = 26.67 * 1.232 = 32.86
+        assert qb_score == pytest.approx(154.56, rel=1e-2)
+        assert dst_score == pytest.approx(32.86, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
     def test_score_player_integration(self, mock_load_players):
@@ -187,16 +191,16 @@ class TestDraftHelperEnhancedScoringIntegration:
         # Disable positional ranking calculator for this test
         draft_helper.positional_ranking_calculator = None
 
-        # Mock other scoring methods to isolate enhanced scoring impact
-        # Since scoring methods are now delegated to ScoringEngine, patch the ScoringEngine methods
-        with patch.object(draft_helper.scoring_engine, 'compute_positional_need_score', return_value=50.0), \
+        # Mock penalties to isolate enhanced scoring impact
+        # NEW SCORING SYSTEM: Use DRAFT_ORDER bonus instead of positional need
+        with patch.object(draft_helper.scoring_engine.draft_order_calculator, 'calculate_bonus', return_value=50.0), \
              patch.object(draft_helper.scoring_engine, 'compute_bye_penalty_for_player', return_value=10.0), \
              patch.object(draft_helper.scoring_engine, 'compute_injury_penalty', return_value=5.0):
 
             total_score = draft_helper.score_player(self.enhanced_player)
 
-            # Total = positional(50) + enhanced_projection(170.016) - bye_penalty(10) - injury_penalty(5) = 205.016
-            expected_total = 50.0 + 170.016 - 10.0 - 5.0
+            # NEW SCORING SYSTEM: Total = normalized+enhanced(141.68) + draft_bonus(50) - bye(10) - injury(5) = 176.68
+            expected_total = 141.68 + 50.0 - 10.0 - 5.0
             assert total_score == pytest.approx(expected_total, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
@@ -245,8 +249,9 @@ class TestDraftHelperEnhancedScoringIntegration:
 
             score = draft_helper.compute_projection_score(self.enhanced_player)
 
-            # Should be just the base fantasy points (no enhancement)
-            assert score == self.enhanced_player.fantasy_points
+            # NEW SCORING SYSTEM: Still normalizes even with enhancement disabled
+            # (120 / 120) * 100 = 100.0
+            assert score == pytest.approx(100.0, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
     def test_enhanced_scoring_with_missing_attributes(self, mock_load_players):
@@ -254,7 +259,7 @@ class TestDraftHelperEnhancedScoringIntegration:
         # Player with only some enhanced data
         partial_player = FantasyPlayer(
             id="3001", name="Partial Player", team="GB", position="WR",
-            fantasy_points=90.0, average_draft_position=60.0  # Only has ADP
+            fantasy_points=90.0, average_draft_position=60.0, drafted=0  # Only has ADP
             # Missing: player_rating, team_offensive_rank, team_defensive_rank
         )
 
@@ -264,8 +269,9 @@ class TestDraftHelperEnhancedScoringIntegration:
 
         score = draft_helper.compute_projection_score(partial_player)
 
-        # Should apply ADP adjustment only
-        expected_score = 90.0 * 1.08  # ADP adjustment for 60.0
+        # NEW SCORING SYSTEM: Normalize first, then apply ADP multiplier
+        # (90 / 90) * 100 * 1.08 (ADP adjustment for 60.0) = 108.0
+        expected_score = 108.0
         assert score == pytest.approx(expected_score, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
@@ -288,8 +294,9 @@ class TestDraftHelperEnhancedScoringIntegration:
             # Should not crash and fall back to basic scoring
             score = draft_helper.compute_projection_score(self.enhanced_player)
 
-            # Should fall back to weighted_projection or fantasy_points
-            assert score == self.enhanced_player.fantasy_points
+            # NEW SCORING SYSTEM: Falls back to normalized score without multipliers
+            # (120 / 120) * 100 = 100.0
+            assert score == pytest.approx(100.0, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
     def test_hunt_vs_henderson_integration(self, mock_load_players):
@@ -297,13 +304,13 @@ class TestDraftHelperEnhancedScoringIntegration:
         hunt = FantasyPlayer(
             id='3059915', name='Kareem Hunt', team='KC', position='RB',
             fantasy_points=135.54, average_draft_position=120.0, player_rating=45.0,
-            team_offensive_rank=8, team_defensive_rank=None
+            team_offensive_rank=8, team_defensive_rank=None, drafted=0
         )
 
         henderson = FantasyPlayer(
             id='4432710', name='TreVeyon Henderson', team='NE', position='RB',
             fantasy_points=121.97, average_draft_position=85.0, player_rating=65.0,
-            team_offensive_rank=18, team_defensive_rank=None
+            team_offensive_rank=18, team_defensive_rank=None, drafted=0
         )
 
         mock_load_players.return_value = [hunt, henderson]
@@ -329,11 +336,11 @@ class TestDraftHelperEnhancedScoringIntegration:
         # Henderson should score higher after enhancement
         assert henderson_score > hunt_score
 
-        # Calculate expected scores based on actual enhanced scoring logic:
-        # Hunt: 135.54 * (1.0 ADP * 1.0 rating * 1.06 team) = 143.67
-        # Henderson: 121.97 * (1.08 ADP * 1.1 rating * 1.0 team) = 144.9
-        assert hunt_score == pytest.approx(143.67, rel=1e-2)
-        assert henderson_score == pytest.approx(144.9, rel=1e-2)
+        # NEW SCORING SYSTEM: Normalize first, then apply multipliers
+        # Hunt: (135.54 / 135.54) * 100 * (1.0 ADP * 1.0 rating * 1.06 team) = 100 * 1.06 = 106.0
+        # Henderson: (121.97 / 135.54) * 100 * (1.08 ADP * 1.1 rating * 1.0 team) = 90.0 * 1.188 = 106.92
+        assert hunt_score == pytest.approx(106.0, rel=1e-2)
+        assert henderson_score == pytest.approx(106.92, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
     def test_enhanced_scoring_performance(self, mock_load_players):
@@ -346,7 +353,7 @@ class TestDraftHelperEnhancedScoringIntegration:
             player = FantasyPlayer(
                 id=f"perf_{i}", name=f"Player {i}", team="TEST", position="RB",
                 fantasy_points=100.0 + i, average_draft_position=50.0 + i,
-                player_rating=60.0, team_offensive_rank=10
+                player_rating=60.0, team_offensive_rank=10, drafted=0
             )
             players.append(player)
 
@@ -387,20 +394,20 @@ class TestDraftHelperEnhancedScoringIntegration:
         test_cases = [
             # Only ADP
             FantasyPlayer(id="tc1", name="ADP Only", team="TEAM1", position="RB",
-                         fantasy_points=100.0, average_draft_position=50.0),
+                         fantasy_points=100.0, average_draft_position=50.0, drafted=0),
             # Only rating
             FantasyPlayer(id="tc2", name="Rating Only", team="TEAM2", position="RB",
-                         fantasy_points=100.0, player_rating=70.0),
+                         fantasy_points=100.0, player_rating=70.0, drafted=0),
             # Only team rank
             FantasyPlayer(id="tc3", name="Team Only", team="TEAM3", position="RB",
-                         fantasy_points=100.0, team_offensive_rank=8),
+                         fantasy_points=100.0, team_offensive_rank=8, drafted=0),
             # ADP + Rating
             FantasyPlayer(id="tc4", name="ADP + Rating", team="TEAM4", position="RB",
-                         fantasy_points=100.0, average_draft_position=50.0, player_rating=70.0),
+                         fantasy_points=100.0, average_draft_position=50.0, player_rating=70.0, drafted=0),
             # All data
             FantasyPlayer(id="tc5", name="All Data", team="TEAM5", position="RB",
                          fantasy_points=100.0, average_draft_position=50.0,
-                         player_rating=70.0, team_offensive_rank=8),
+                         player_rating=70.0, team_offensive_rank=8, drafted=0),
         ]
 
         mock_load_players.return_value = test_cases
@@ -445,7 +452,7 @@ class TestEnhancedScoringConfigurationIntegration:
         """Test that draft helper can use custom enhanced scoring configuration"""
         player = FantasyPlayer(
             id="cfg1", name="Config Test", team="TEST", position="RB",
-            fantasy_points=100.0, average_draft_position=50.0
+            fantasy_points=100.0, average_draft_position=50.0, drafted=0
         )
 
         mock_load_players.return_value = [player]
@@ -462,8 +469,9 @@ class TestEnhancedScoringConfigurationIntegration:
 
         score = draft_helper.compute_projection_score(player)
 
-        # Should use the modified configuration
-        expected_score = 100.0 * 1.20  # Custom multiplier
+        # NEW SCORING SYSTEM: Normalize first, then apply custom multiplier
+        # (100 / 100) * 100 * 1.20 = 120.0
+        expected_score = 120.0
         assert score == pytest.approx(expected_score, rel=1e-2)
 
     @patch('draft_helper.load_players_from_csv')
@@ -472,7 +480,7 @@ class TestEnhancedScoringConfigurationIntegration:
         player = FantasyPlayer(
             id="toggle1", name="Toggle Test", team="TEST", position="RB",
             fantasy_points=100.0, average_draft_position=25.0,  # Would give boost
-            player_rating=80.0  # Would give boost
+            player_rating=80.0, drafted=0  # Would give boost
         )
 
         mock_load_players.return_value = [player]
@@ -492,7 +500,9 @@ class TestEnhancedScoringConfigurationIntegration:
 
         # Enhanced should be higher than basic
         assert enhanced_score > basic_score
-        assert basic_score == player.fantasy_points  # Should be base points when disabled
+        # NEW SCORING SYSTEM: Basic score is normalized value without multipliers
+        # (100 / 100) * 100 = 100.0
+        assert basic_score == pytest.approx(100.0, rel=1e-2)
 
 
 if __name__ == "__main__":

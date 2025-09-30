@@ -244,21 +244,33 @@ class TestDraftHelper:
         assert isinstance(penalty, (int, float))
 
     def test_positional_need_scoring(self, draft_helper_instance, sample_players):
-        """Test positional need scoring logic"""
+        """Test new normalization + DRAFT_ORDER scoring logic (replaces positional need)"""
         qb_player = sample_players[2]  # QB position
-
-        # Test positional need score calculation
-        qb_need_score = draft_helper_instance.compute_positional_need_score(qb_player)
-
-        # Should be a valid score
-        assert isinstance(qb_need_score, (int, float))
-
-        # RB player positional need
         rb_player = sample_players[0]  # RB position
-        rb_need_score = draft_helper_instance.compute_positional_need_score(rb_player)
 
-        # Should be a valid score
-        assert isinstance(rb_need_score, (int, float))
+        # Test normalization scoring
+        normalized_qb = draft_helper_instance.scoring_engine.normalization_calculator.normalize_player(
+            qb_player, draft_helper_instance.players
+        )
+        normalized_rb = draft_helper_instance.scoring_engine.normalization_calculator.normalize_player(
+            rb_player, draft_helper_instance.players
+        )
+
+        # Should be valid normalized scores (0-N scale)
+        assert isinstance(normalized_qb, (int, float))
+        assert isinstance(normalized_rb, (int, float))
+        assert 0 <= normalized_qb <= draft_helper_instance.scoring_engine.normalization_calculator.normalization_scale
+        assert 0 <= normalized_rb <= draft_helper_instance.scoring_engine.normalization_calculator.normalization_scale
+
+        # Test DRAFT_ORDER bonus calculation
+        qb_bonus = draft_helper_instance.scoring_engine.draft_order_calculator.calculate_bonus(qb_player)
+        rb_bonus = draft_helper_instance.scoring_engine.draft_order_calculator.calculate_bonus(rb_player)
+
+        # Should be valid bonus scores
+        assert isinstance(qb_bonus, (int, float))
+        assert isinstance(rb_bonus, (int, float))
+        assert qb_bonus >= 0
+        assert rb_bonus >= 0
 
     def test_player_total_score_calculation(self, draft_helper_instance, sample_players):
         """Test complete player scoring calculation"""

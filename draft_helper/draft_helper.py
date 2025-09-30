@@ -1061,17 +1061,34 @@ class DraftHelper:
         )
 
     def compute_positional_need_score(self, p):
-        """Legacy method for compatibility - delegates to ScoringEngine"""
-        return self.scoring_engine.compute_positional_need_score(p)
+        """
+        Legacy method for compatibility - now uses DRAFT_ORDER bonus system.
+
+        The old positional need scoring has been replaced with DRAFT_ORDER bonuses.
+        This method now returns the DRAFT_ORDER bonus for the current round.
+        """
+        return self.scoring_engine.draft_order_calculator.calculate_bonus(p)
 
     def compute_projection_score(self, p):
-        """Legacy method for compatibility - delegates to ScoringEngine"""
-        return self.scoring_engine.compute_projection_score(
+        """
+        Legacy method for compatibility - now uses new normalization + enhanced scoring system.
+
+        Returns normalized + enhanced score (steps 1-4 of new scoring system).
+        This is equivalent to the old projection score but uses the new modular approach.
+        """
+        # STEP 1: Normalize seasonal fantasy points
+        normalized_score = self.scoring_engine.normalization_calculator.normalize_player(p, self.players)
+
+        # STEPS 2-4: Apply enhanced scoring (ADP, Player Ranking, Team Ranking multipliers)
+        enhanced_score = self.scoring_engine._apply_enhanced_scoring(
+            normalized_score,
             p,
             enhanced_scorer=self.enhanced_scorer,
             team_data_loader=self.team_data_loader,
             positional_ranking_calculator=self.positional_ranking_calculator
         )
+
+        return enhanced_score
 
     def compute_bye_penalty_for_player(self, player, exclude_self=False):
         """Legacy method for compatibility - delegates to ScoringEngine"""

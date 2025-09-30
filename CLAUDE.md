@@ -63,12 +63,15 @@ This is a Python 3.13.6 project using a virtual environment located at `.venv/` 
 
 **2. Draft Helper (`draft_helper/`)**
 - **Interactive Menu System**: Comprehensive 8-option menu with Add to Roster, Mark Drafted Player, Waiver Optimizer, Drop Player, Lock/Unlock Player, Starter Helper, Trade Simulator, and Quit
+- **7-Step Add to Roster Scoring**: Normalization → ADP → Player Rank → Team Rank → Draft Bonus → Bye → Injury
+- **6-Step Trade/Waiver Scoring**: Same as Add to Roster but without Draft Bonus for fair evaluation
+- **Modular Calculator Architecture**: Separate `NormalizationCalculator` and `DraftOrderCalculator` classes
 - **Add to Roster Mode**: Draft recommendations with roster display, marks players as drafted=2 (your team)
 - **Mark Drafted Player Mode**: Fuzzy name search to mark others' picks as drafted=1, supports partial matches
-- **Roster Display by Position**: Shows players organized in draft order with specific names and fantasy points
+- **Round-by-Round Roster Display**: Shows players organized by draft round with ideal vs actual positions
 - **Pure Greedy Trade Algorithm**: Simplified, efficient trade optimization without complex lookahead (trade mode)
 - **Trade Mode**: Weekly roster optimization with runner-up trade suggestions and configurable injury penalty handling
-- **FLEX Position Handling**: Advanced logic for RB/WR eligibility in FLEX slots
+- **FLEX Position Handling**: Advanced logic for RB/WR eligibility in FLEX slots (only RB and WR)
 - **Injury Risk Assessment**: Configurable penalties for LOW/MEDIUM/HIGH injury statuses
 - **Trade Mode Injury Toggle**: `APPLY_INJURY_PENALTY_TO_ROSTER` controls whether roster players (drafted=2) receive injury penalties in trade analysis
 - **Roster Validation**: Automatic enforcement of "Start 7 Fantasy League" construction rules
@@ -151,7 +154,25 @@ The fantasy points calculation system has been enhanced to use intelligent week-
 **DraftHelper** (`draft_helper/draft_helper.py`)
 - Core logic for player scoring and recommendations
 - Supports both draft and trade modes
-- Configurable penalties for bye weeks, injuries, positional needs
+- Configurable penalties for bye weeks and injuries
+- Legacy wrapper methods for backward compatibility
+
+**NormalizationCalculator** (`draft_helper/core/normalization_calculator.py`)
+- Normalizes fantasy points to 0-N scale (default: 0-100)
+- Formula: `(player_points / max_player_points) * normalization_scale`
+- Cache management for max player points (invalidated after draft picks)
+- Provides consistent baseline across all positions
+
+**DraftOrderCalculator** (`draft_helper/core/draft_order_calculator.py`)
+- Calculates round-based position bonuses using DRAFT_ORDER configuration
+- Current round detection: `len(roster)` (0-indexed)
+- FLEX eligibility rules (only RB and WR)
+- Round assignment algorithm for roster display
+
+**ScoringEngine** (`draft_helper/core/scoring_engine.py`)
+- Implements 7-step Add to Roster scoring
+- Implements 6-step Trade/Waiver scoring
+- Integrates all calculator classes and penalty systems
 
 ### League Configuration ("Start 7 Fantasy League")
 
@@ -221,7 +242,11 @@ Each module includes comprehensive validation and clear documentation of frequen
   - `MATCHUP_WEIGHT_FACTOR` (0.15=15% impact on recommendations, configurable)
   - `SHOW_MATCHUP_SIMPLE` (True=★/○/● indicators, False=hide)
   - `SHOW_MATCHUP_DETAILED` (True=rating breakdown, False=simple only)
-- **Draft Strategy**: `DRAFT_ORDER` array (position priorities by round with FLEX handling)
+- **Scoring System Settings** (in `draft_helper/draft_helper_config.py`):
+  - `NORMALIZATION_MAX_SCALE` (scale for normalizing fantasy points, default: 100.0)
+  - `DRAFT_ORDER` (static point bonuses by position and round, 15 rounds configured)
+  - `DRAFT_ORDER_PRIMARY_BONUS` (primary position bonus points, default: 50)
+  - `DRAFT_ORDER_SECONDARY_BONUS` (secondary position bonus points, default: 25)
 - **Trade Algorithm**: `MIN_TRADE_IMPROVEMENT` (point threshold for pure greedy recommendations)
 - **Injury Tolerance**: `INJURY_PENALTIES` (LOW/MEDIUM/HIGH risk assessment)
 
@@ -627,14 +652,23 @@ All testing dependencies are in requirements.txt:
 
 ### Frequently Adjusted Settings
 
-**Draft Strategy** (`draft_helper/config.py`):
+**Draft Strategy** (`draft_helper/draft_helper_config.py`):
 ```python
-# Position priorities by round (higher = more priority)
+# Static point bonuses by position and round
+DRAFT_ORDER_PRIMARY_BONUS = 50    # Primary position bonus
+DRAFT_ORDER_SECONDARY_BONUS = 25  # Secondary position bonus
+
 DRAFT_ORDER = [
-    {FLEX: 1.0, QB: 0.7},    # Round 1: Prefer FLEX players, consider QB
-    {QB: 1.0, FLEX: 0.7},    # Round 5: Prioritize QB, backup FLEX
-    # ... adjust based on league trends
+    {FLEX: 50, QB: 25},    # Round 1: FLEX players get 50 bonus, QB gets 25
+    {FLEX: 50, QB: 25},    # Round 2: Same priorities
+    {FLEX: 50, QB: 30},    # Round 3: Increased QB bonus
+    {FLEX: 50, QB: 30},    # Round 4: Same priorities
+    {QB: 50, FLEX: 25},    # Round 5: Prioritize QB (50 bonus)
+    {TE: 50, FLEX: 25},    # Round 6: TE priority
+    # ... all 15 rounds configured
 ]
+
+NORMALIZATION_MAX_SCALE = 100.0  # Normalize fantasy points to 0-100 scale
 ```
 
 **Risk Tolerance** (`draft_helper/config.py`):
@@ -662,8 +696,11 @@ APPLY_INJURY_PENALTY_TO_ROSTER = False  # Ignore injury penalties for roster pla
 # Conservative injury approach (avoid risk)
 INJURY_PENALTIES = {"MEDIUM": 40, "HIGH": 80}
 
-# Aggressive RB strategy (prioritize early)  
-DRAFT_ORDER[0] = {RB: 1.2, FLEX: 0.8}
+# Aggressive RB strategy (prioritize early)
+DRAFT_ORDER[0] = {RB: 60, WR: 40}  # Higher RB bonus in round 1
+
+# Higher normalization scale (more granular scoring)
+NORMALIZATION_MAX_SCALE = 120.0
 
 # High trade threshold (only suggest strong trades)
 MIN_TRADE_IMPROVEMENT = 15
@@ -678,7 +715,12 @@ APPLY_INJURY_PENALTY_TO_ROSTER = False
 - **Modular Async Architecture**: Completely refactored with httpx, aiofiles, and pydantic models
 - **Week-by-Week Projection System**: 16x performance improvement (646 vs 10,336 API calls)
 - **Pure Greedy Trade Algorithm**: Simplified from complex lookahead systems for better reliability
-- **Enhanced Roster UI**: Round-by-round display in Add to Roster Mode shows ideal vs actual positions by draft round
+- **Modular Scoring System**: Separate `NormalizationCalculator` and `DraftOrderCalculator` classes with 79 comprehensive tests
+- **7-Step Add to Roster Scoring**: Normalization → ADP → Player Rank → Team Rank → Draft Bonus → Bye → Injury
+- **6-Step Trade/Waiver Scoring**: Same as draft but without Draft Bonus for fair evaluation
+- **DRAFT_ORDER Static Bonuses**: Changed from weight multipliers to static point bonuses by position/round
+- **Normalization System**: 0-N scale normalization (default 0-100) for consistent baseline scoring
+- **Enhanced Roster UI**: Round-by-round display shows ideal vs actual positions with position matching indicators
 - **Smart Data Preservation**: Skip API calls for drafted players, maintain status between updates
 - **Multi-Format Export Pipeline**: Concurrent CSV, Excel, JSON export with timestamp tracking
 - **Configuration Validation**: Built-in validation for all modules with clear error messages

@@ -158,14 +158,18 @@ class TestLineupOptimizer:
 
     def test_calculate_adjusted_score_no_penalties(self, optimizer):
         """Test adjusted score calculation with no penalties"""
-        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "ACTIVE", 5)
+        # Use bye week different from CURRENT_NFL_WEEK to avoid bye penalty
+        bye_week_no_penalty = CURRENT_NFL_WEEK + 3 if CURRENT_NFL_WEEK < 15 else CURRENT_NFL_WEEK - 3
+        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "ACTIVE", bye_week_no_penalty)
 
         assert adjusted_score == 20.0
         assert reason == "No penalties"
 
     def test_calculate_adjusted_score_injury_penalty(self, optimizer):
         """Test adjusted score calculation with injury penalty"""
-        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "MEDIUM", 5)
+        # Use bye week different from CURRENT_NFL_WEEK to avoid bye penalty
+        bye_week_no_penalty = CURRENT_NFL_WEEK + 3 if CURRENT_NFL_WEEK < 15 else CURRENT_NFL_WEEK - 3
+        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "MEDIUM", bye_week_no_penalty)
 
         expected_penalty = INJURY_PENALTIES.get("MEDIUM", 0)
         expected_score = 20.0 - expected_penalty
@@ -415,7 +419,9 @@ if __name__ == "__main__":
         optimizer = LineupOptimizer()
 
         # Test basic functionality
-        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "ACTIVE", 5)
+        # Use bye week different from CURRENT_NFL_WEEK to avoid bye penalty
+        bye_week_no_penalty = CURRENT_NFL_WEEK + 3 if CURRENT_NFL_WEEK < 15 else CURRENT_NFL_WEEK - 3
+        adjusted_score, reason = optimizer.calculate_adjusted_score(20.0, "ACTIVE", bye_week_no_penalty)
         assert adjusted_score == 20.0
         assert reason == "No penalties"
         print("✅ Basic adjusted score calculation test passed")

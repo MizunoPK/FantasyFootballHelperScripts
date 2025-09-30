@@ -109,11 +109,13 @@ python -m venv .venv
 **Interactive Draft Features**:
 - **Persistent Main Menu**: Add to Roster, Mark Drafted Player, and Quit options
 - **Fuzzy Player Search**: Find players by partial first/last name matching
-- **Roster Display by Position**: Shows players organized in draft order with fantasy points
+- **Round-by-Round Roster Display**: Shows players organized by draft round with ideal vs actual positions
 - **Real-time CSV Updates**: All changes saved automatically to player database
+- **7-Step Scoring System**: Normalization → ADP → Player Rank → Team Rank → Draft Bonus → Bye → Injury
 
 **Trade Analysis Features**:
 - **Pure Greedy Optimization**: Simple, efficient trade algorithm without complex lookahead
+- **6-Step Scoring System**: Same as draft mode but without Draft Bonus (for fair trade evaluation)
 - **Position-based Recommendations**: Configurable draft strategy by round with FLEX eligibility
 - **Injury Risk Assessment**: Configurable penalties for different injury statuses, with option to ignore penalties for roster players
 - **Trade Impact Analysis**: Direct trade suggestions with runner-up alternatives
@@ -184,8 +186,13 @@ python -m venv .venv
 - `MIN_TRADE_IMPROVEMENT`: Point threshold for trade suggestions
 - `NUM_TRADE_RUNNERS_UP`: Number of alternative trades to show
 
+**Scoring System**:
+- `NORMALIZATION_MAX_SCALE`: Scale for normalizing fantasy points (default: 100.0)
+- `DRAFT_ORDER`: Static point bonuses by position and round (15 rounds configured)
+- `DRAFT_ORDER_PRIMARY_BONUS`: Primary position bonus points (default: 50)
+- `DRAFT_ORDER_SECONDARY_BONUS`: Secondary position bonus points (default: 25)
+
 **Draft Strategy**:
-- `DRAFT_ORDER`: Position priorities by round (frequently modified)
 - `MAX_POSITIONS`: Roster limits for each position
 - `INJURY_PENALTIES`: Risk tolerance for LOW/MEDIUM/HIGH injury statuses
 
@@ -245,6 +252,66 @@ The draft helper provides a comprehensive menu system for complete roster manage
 - **Confirmation Steps**: Prevent accidental drops with confirmation prompts
 - **Real-time Updates**: Roster display updates after every action
 - **Error Handling**: Graceful error recovery with helpful messages
+
+## 📊 Scoring System Architecture
+
+The draft helper uses a modular, multi-step scoring system that differs between draft mode and trade mode:
+
+### Add to Roster Mode (7-Step Scoring)
+Used during initial draft to evaluate all available players:
+
+1. **Normalization** - Scale seasonal fantasy points to 0-N range (default: 0-100)
+   - Formula: `(player_points / max_player_points) * NORMALIZATION_MAX_SCALE`
+   - Provides consistent baseline across all positions
+
+2. **ADP Multiplier** - Apply Average Draft Position adjustment
+   - Earlier ADP = higher multiplier (reflects consensus value)
+
+3. **Player Ranking Multiplier** - Apply position-specific ranking bonus
+   - Higher-ranked players within their position receive bonus
+
+4. **Team Ranking Multiplier** - Apply team strength adjustment
+   - Players on stronger offensive teams receive bonus
+
+5. **Draft Order Bonus** - Add round-based position bonuses
+   - Current round = roster size (0-indexed)
+   - Each round has ideal positions with static point bonuses
+   - Example: Round 1 = `{FLEX: 50, QB: 25}` means FLEX-eligible players get 50 bonus points
+   - FLEX eligibility: Only RB and WR positions
+
+6. **Bye Week Penalty** - Subtract penalty for upcoming bye weeks
+   - Penalizes players with byes in next few weeks
+
+7. **Injury Penalty** - Subtract penalty based on injury status
+   - LOW: 0 points (healthy)
+   - MEDIUM: 25 points (questionable, day-to-day)
+   - HIGH: 50 points (out, IR, suspended)
+
+### Trade/Waiver Mode (6-Step Scoring)
+Used for trade analysis and waiver wire pickups (no draft round context):
+
+Same as Add to Roster mode **except**:
+- **Step 5 removed**: No Draft Order Bonus (ensures fair comparison of all players)
+- All other steps identical to provide consistent evaluation
+
+### Key Design Principles
+- **Modular Calculators**: Separate `NormalizationCalculator` and `DraftOrderCalculator` classes
+- **Cache Management**: Normalization cache invalidated after each draft pick
+- **Position Awareness**: FLEX eligibility only for RB/WR positions
+- **Trade Fairness**: Draft bonuses removed in trade mode to avoid bias toward current roster construction
+
+### Configuration
+All scoring parameters are configurable in `draft_helper/draft_helper_config.py`:
+```python
+NORMALIZATION_MAX_SCALE = 100.0           # 0-100 normalized range
+DRAFT_ORDER_PRIMARY_BONUS = 50            # Primary position bonus
+DRAFT_ORDER_SECONDARY_BONUS = 25          # Secondary position bonus
+DRAFT_ORDER = [                           # 15 rounds configured
+    {FLEX: 50, QB: 25},                   # Round 1: Prefer FLEX, consider QB
+    {QB: 50, FLEX: 25},                   # Round 5: Prioritize QB
+    # ... all 15 rounds configured
+]
+```
 
 ## 🛠️ Advanced Features
 

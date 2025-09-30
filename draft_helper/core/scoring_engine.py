@@ -298,53 +298,55 @@ class ScoringEngine:
 
     def score_player_for_trade(self, player, positional_ranking_calculator=None, enhanced_scorer=None, team_data_loader=None):
         """
-        Modified scoring function for trade evaluation.
-        Sets positional need weight to 0 and focuses on projections, injuries, bye weeks, and matchups.
-        Uses enhanced scoring for more accurate player valuations.
+        Calculate score for Trade/Waiver Mode (6-step calculation).
+
+        New Scoring System (same as Add to Roster but WITHOUT DRAFT_ORDER bonus):
+        1. Get normalized seasonal fantasy points (0-N scale)
+        2. Apply ADP multiplier
+        3. Apply Player Ranking multiplier
+        4. Apply Team ranking multiplier
+        5. Subtract Bye Week penalty
+        6. Subtract Injury penalty
+
+        Note: No DRAFT_ORDER bonus - that's only for draft recommendations
 
         Args:
             player: FantasyPlayer to evaluate
             positional_ranking_calculator: PositionalRankingCalculator instance
-            enhanced_scorer: EnhancedScoringCalculator instance for score multipliers
-            team_data_loader: TeamDataLoader instance for team rankings
+            enhanced_scorer: EnhancedScoringCalculator instance
+            team_data_loader: TeamDataLoader instance
 
         Returns:
-            float: Trade score for the player
+            float: Trade/waiver score for the player
         """
-        # Use 0 weight for positional need as specified
-        pos_score = 0
+        # STEP 1: Normalize seasonal fantasy points to 0-N scale
+        normalized_score = self.normalization_calculator.normalize_player(player, self.players)
+        self.logger.debug(f"Step 1 - Normalized score for {player.name}: {normalized_score:.2f}")
 
-        # Calculate projection score with enhanced scoring (same as draft mode)
-        projection_score = self.compute_projection_score(
-            player,
-            enhanced_scorer=enhanced_scorer,
-            team_data_loader=team_data_loader,
-            positional_ranking_calculator=positional_ranking_calculator
+        # STEPS 2-4: Apply enhanced scoring (ADP, Player Ranking, Team Ranking multipliers)
+        enhanced_score = self._apply_enhanced_scoring(
+            normalized_score, player, enhanced_scorer, team_data_loader, positional_ranking_calculator
         )
-        self.logger.debug(f"Projection score for {player.name}: {projection_score}")
+        self.logger.debug(f"Steps 2-4 - Enhanced score for {player.name}: {enhanced_score:.2f}")
 
-        # Positional ranking adjustment is already applied inside compute_projection_score
+        # NOTE: No DRAFT_ORDER bonus for trade/waiver mode (Step 5 from Add to Roster is skipped)
 
-        # Calculate bye week penalty - exclude self if this is a roster player
+        # STEP 5: Subtract Bye Week penalty (exclude self if roster player)
         exclude_self = (player.drafted == 2)
         bye_penalty = self.compute_bye_penalty_for_player(player, exclude_self=exclude_self)
-        self.logger.debug(f"Bye week penalty for {player.name}: {bye_penalty}")
+        bye_adjusted_score = enhanced_score - bye_penalty
+        self.logger.debug(f"Step 5 - After bye penalty for {player.name}: {bye_adjusted_score:.2f} (-{bye_penalty:.1f})")
 
-        # Calculate injury penalty (in trade mode context)
+        # STEP 6: Subtract Injury penalty
         injury_penalty = self.compute_injury_penalty(player, trade_mode=True)
-        self.logger.debug(f"Injury penalty for {player.name}: {injury_penalty}")
+        final_score = bye_adjusted_score - injury_penalty
+        self.logger.debug(f"Step 6 - Final score for {player.name}: {final_score:.2f} (-{injury_penalty:.1f})")
 
-        # Calculate matchup adjustment if available
-        matchup_adjustment = 0
-        if hasattr(player, 'matchup_adjustment') and player.matchup_adjustment is not None:
-            matchup_adjustment = player.matchup_adjustment
-            self.logger.debug(f"Matchup adjustment for {player.name}: {matchup_adjustment}")
+        # Summary logging
+        self.logger.info(
+            f"Trade/Waiver scoring for {player.name}: "
+            f"norm={normalized_score:.1f} → enhanced={enhanced_score:.1f} → "
+            f"bye={bye_adjusted_score:.1f} → final={final_score:.1f}"
+        )
 
-        # Calculate final score (higher is better)
-        total_score = pos_score + projection_score - bye_penalty - injury_penalty + matchup_adjustment
-
-        self.logger.debug(f"Total score for {player.name}: {total_score:.2f} "
-                         f"(pos: {pos_score}, proj: {projection_score:.2f}, "
-                         f"bye: -{bye_penalty:.2f}, injury: -{injury_penalty}, matchup: +{matchup_adjustment})")
-
-        return total_score
+        return final_score
