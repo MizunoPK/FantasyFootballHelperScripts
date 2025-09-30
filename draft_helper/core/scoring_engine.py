@@ -49,12 +49,14 @@ class ScoringEngine:
         self.players = players
         self.logger = logger or logging.getLogger(__name__)
 
-        # Initialize calculator components
+        # Store config module reference for dynamic config access
         try:
             from .. import draft_helper_config as config
+            self.config = config
             normalization_scale = config.NORMALIZATION_MAX_SCALE
         except ImportError:
             import draft_helper_config as config
+            self.config = config
             normalization_scale = config.NORMALIZATION_MAX_SCALE
 
         self.normalization_calculator = NormalizationCalculator(
@@ -278,11 +280,17 @@ class ScoringEngine:
         if not hasattr(p, 'injury_status') or p.injury_status is None:
             return 0
 
-        # Import current config values to get real-time settings
-        try:
-            from .. import draft_helper_config as config
-        except ImportError:
-            import draft_helper_config as config
+        # Use self.config if available (from constructor), otherwise import config
+        # This ensures we read the current config state, not cached module values
+        if hasattr(self, 'config'):
+            config = self.config
+        else:
+            # Fallback to importing - read fresh values from module
+            try:
+                from .. import draft_helper_config as config_module
+            except ImportError:
+                import draft_helper_config as config_module
+            config = config_module
 
         # Check if we should skip injury penalties for roster players in trade mode
         # Either through config setting OR explicit trade_mode parameter

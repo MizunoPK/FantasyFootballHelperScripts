@@ -179,14 +179,17 @@ class TestDraftHelper:
 
     def test_injury_penalty_roster_toggle(self, draft_helper_instance, sample_players):
         """Test APPLY_INJURY_PENALTY_TO_ROSTER toggle functionality"""
-        import importlib
-        import sys
+        # Ensure we're working with the actual module the scoring_engine uses
+        # Get a fresh reference to the config module
+        import draft_helper.draft_helper_config as draft_config_fresh
 
-        # Force reload of draft_helper_config to ensure clean state
-        if 'draft_helper.draft_helper_config' in sys.modules:
-            importlib.reload(sys.modules['draft_helper.draft_helper_config'])
-        if 'draft_helper_config' in sys.modules:
-            importlib.reload(sys.modules['draft_helper_config'])
+        # Verify the scoring engine has the same config reference
+        if hasattr(draft_helper_instance.scoring_engine, 'config'):
+            # Scoring engine has config reference - ensure it matches
+            config_ref = draft_helper_instance.scoring_engine.config
+        else:
+            # Fallback to module import
+            config_ref = draft_config_fresh
 
         # Create injured players with different drafted status
         injured_available = FantasyPlayer(
@@ -198,25 +201,25 @@ class TestDraftHelper:
             fantasy_points=100.0, bye_week=7, injury_status="OUT", drafted=2
         )
 
-        # Save original config values
-        original_trade_mode = draft_config.TRADE_HELPER_MODE
-        original_apply_penalty = draft_config.APPLY_INJURY_PENALTY_TO_ROSTER
+        # Save original config values using the same module reference the scoring engine uses
+        original_trade_mode = config_ref.TRADE_HELPER_MODE
+        original_apply_penalty = config_ref.APPLY_INJURY_PENALTY_TO_ROSTER
 
         try:
             # Test in trade mode with penalty toggle ON (default behavior)
-            draft_config.TRADE_HELPER_MODE = True
-            draft_config.APPLY_INJURY_PENALTY_TO_ROSTER = True
+            config_ref.TRADE_HELPER_MODE = True
+            config_ref.APPLY_INJURY_PENALTY_TO_ROSTER = True
 
             available_penalty_on = draft_helper_instance.compute_injury_penalty(injured_available)
             roster_penalty_on = draft_helper_instance.compute_injury_penalty(injured_roster)
 
             # Both should have injury penalties when toggle is ON
-            expected_penalty = draft_config.INJURY_PENALTIES.get("HIGH", 50)
+            expected_penalty = config_ref.INJURY_PENALTIES.get("HIGH", 50)
             assert available_penalty_on == expected_penalty
             assert roster_penalty_on == expected_penalty
 
             # Test in trade mode with penalty toggle OFF
-            draft_config.APPLY_INJURY_PENALTY_TO_ROSTER = False
+            config_ref.APPLY_INJURY_PENALTY_TO_ROSTER = False
 
             available_penalty_off = draft_helper_instance.compute_injury_penalty(injured_available)
             roster_penalty_off = draft_helper_instance.compute_injury_penalty(injured_roster)
@@ -226,7 +229,7 @@ class TestDraftHelper:
             assert roster_penalty_off == 0  # No penalty for roster players
 
             # Test in draft mode (toggle should not affect)
-            draft_config.TRADE_HELPER_MODE = False
+            config_ref.TRADE_HELPER_MODE = False
 
             available_penalty_draft = draft_helper_instance.compute_injury_penalty(injured_available)
             roster_penalty_draft = draft_helper_instance.compute_injury_penalty(injured_roster)
@@ -237,8 +240,8 @@ class TestDraftHelper:
 
         finally:
             # Restore original config values
-            draft_config.TRADE_HELPER_MODE = original_trade_mode
-            draft_config.APPLY_INJURY_PENALTY_TO_ROSTER = original_apply_penalty
+            config_ref.TRADE_HELPER_MODE = original_trade_mode
+            config_ref.APPLY_INJURY_PENALTY_TO_ROSTER = original_apply_penalty
 
     def test_bye_week_penalty_calculation(self, draft_helper_instance, sample_players):
         """Test bye week penalty calculation"""
