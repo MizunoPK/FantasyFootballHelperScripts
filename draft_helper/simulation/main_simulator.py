@@ -65,23 +65,27 @@ class MainSimulator:
         print("=" * 50)
 
         try:
-            # Step 1: Verify data exists
+            # Step 1: Set up simulation data (copy from shared_files if needed)
+            print(">> Setting up simulation data...")
+            self.data_manager.setup_simulation_data()
+
+            # Step 2: Verify data integrity
             print(">> Verifying simulation data...")
             if not self.data_manager.verify_data_integrity():
                 raise Exception("Data integrity check failed - please ensure simulation data files are properly initialized")
 
-            # Step 2: Load player data
+            # Step 3: Load player data
             print(">> Loading player data...")
             players_projected_df = self.data_manager.get_players_projected_data()
             players_actual_df = self.data_manager.get_players_actual_data()
             print(f"Loaded {len(players_projected_df)} projected players and {len(players_actual_df)} actual players")
 
-            # Step 3: Generate preliminary configurations
+            # Step 4: Generate preliminary configurations
             print(">> Generating preliminary configurations...")
             preliminary_configs = self.config_optimizer.generate_preliminary_configs()
             print(f"Generated {len(preliminary_configs)} preliminary configurations")
 
-            # Step 4: Run preliminary simulations
+            # Step 5: Run preliminary simulations
             print(">> Running preliminary simulations...")
             preliminary_results = self.parallel_runner.run_preliminary_simulations(
                 preliminary_configs,
