@@ -4,7 +4,7 @@ Create any new unit tests to cover the new implementations, and modify any relev
 Update rules files and readme files according to the new changes.
 Ask me any clarifying questions that would help you better understand and complete this objective - make sure to ask these questions before beginning development and pause development if you discover any new questions.
 Once the objective is completely done, then move the associated file in potential_updates to the 'done' folder contained within the same potential_updates directory.
-Be VERY systematic when creating the TODO file and proceeding with the implementation. Break the objective up into modualized components
+Be VERY systematic when creating the TODO file and proceeding with the implementation. Break the objective up into modualized components. Each phase that is outlined in the todo file should leave the repo is a state that is still testable and functional, and should run the pre-commit checklist in its entirety. Do not skip any unit tests or interactive integration tests just because you think that the tests will not be effected by the change - assume everything is at risk of breaking no matter what you do.
 
 ## PRE-COMMIT VALIDATION PROTOCOL
 
