@@ -1,9 +1,8 @@
 """
-Data management for simulation - handles copying and isolating data files.
+Data management for simulation - handles verification and loading of static data files.
 """
 
 import os
-import shutil
 import pandas as pd
 from typing import Optional, Tuple
 
@@ -42,39 +41,35 @@ class SimulationDataManager:
             self.teams_weekly_csvs[week] = os.path.join(self.data_dir, f'teams_week_{week}.csv')
 
     def setup_simulation_data(self, force_refresh: bool = False) -> None:
-        """Copy source data files to simulation directory as both projected and actual versions
+        """Verify that static simulation data files exist in the data directory
 
         Args:
-            force_refresh: If True, copy files even if they already exist
+            force_refresh: Unused parameter kept for backward compatibility
         """
         # Create data directory if it doesn't exist
         os.makedirs(self.data_dir, exist_ok=True)
 
-        # Check if files need copying
-        should_copy_players = force_refresh or not os.path.exists(self.players_projected_csv) or not os.path.exists(self.players_actual_csv)
-        should_copy_teams = force_refresh or any(not os.path.exists(path) for path in self.teams_weekly_csvs.values())
+        # Verify required player files exist
+        missing_files = []
+        if not os.path.exists(self.players_projected_csv):
+            missing_files.append(self.players_projected_csv)
+        if not os.path.exists(self.players_actual_csv):
+            missing_files.append(self.players_actual_csv)
 
-        # Copy players.csv to both projected and actual versions if needed
-        if should_copy_players:
-            if os.path.exists(self.source_players_csv):
-                shutil.copy2(self.source_players_csv, self.players_projected_csv)
-                shutil.copy2(self.source_players_csv, self.players_actual_csv)
-                print(f"Copied {self.source_players_csv} to projected and actual versions")
-            else:
-                raise FileNotFoundError(f"Source players file not found: {self.source_players_csv}")
+        # Verify all weekly teams files exist
+        for week, weekly_teams_path in self.teams_weekly_csvs.items():
+            if not os.path.exists(weekly_teams_path):
+                missing_files.append(weekly_teams_path)
 
-        # Copy teams.csv to weekly versions (week 0 and weeks 1-18) if needed
-        if should_copy_teams:
-            if os.path.exists(self.source_teams_csv):
-                for week, weekly_teams_path in self.teams_weekly_csvs.items():
-                    shutil.copy2(self.source_teams_csv, weekly_teams_path)
-                print(f"Copied {self.source_teams_csv} to {len(self.teams_weekly_csvs)} weekly versions (week_0.csv + weeks_1-18.csv)")
-            else:
-                raise FileNotFoundError(f"Source teams file not found: {self.source_teams_csv}")
+        # Raise error if any files are missing
+        if missing_files:
+            error_msg = "Required simulation data files are missing:\n"
+            for file in missing_files:
+                error_msg += f"  - {file}\n"
+            error_msg += "\nPlease ensure all static simulation data files are present in the data directory."
+            raise FileNotFoundError(error_msg)
 
-        # If no copying was needed, indicate files are already present
-        if not should_copy_players and not should_copy_teams:
-            print("Simulation data files already exist with correct format")
+        print(f"Verified all simulation data files exist: {len(self.teams_weekly_csvs) + 2} files total")
 
     def get_players_projected_data(self) -> pd.DataFrame:
         """Load projected players data for draft decisions and lineup optimization"""
@@ -149,18 +144,9 @@ class SimulationDataManager:
                 print(f"Cleaned up simulation data: {file_path}")
 
     def verify_data_integrity(self) -> bool:
-        """Verify that simulation data is properly isolated"""
+        """Verify that all required static simulation data files exist"""
         try:
-            # Check that source files exist
-            if not os.path.exists(self.source_players_csv):
-                print(f"Warning: Source players file missing: {self.source_players_csv}")
-                return False
-
-            if not os.path.exists(self.source_teams_csv):
-                print(f"Warning: Source teams file missing: {self.source_teams_csv}")
-                return False
-
-            # Check that simulation files exist
+            # Check that all simulation files exist
             simulation_files = [
                 self.players_projected_csv,
                 self.players_actual_csv
@@ -174,28 +160,26 @@ class SimulationDataManager:
                     print(f"Warning: Simulation file missing: {sim_file}")
                     return False
 
-            # Load source files and compare structure with simulation files
-            source_players_df = pd.read_csv(self.source_players_csv)
-            source_teams_df = pd.read_csv(self.source_teams_csv)
+            # Verify players files have consistent structure
+            projected_df = pd.read_csv(self.players_projected_csv)
+            actual_df = pd.read_csv(self.players_actual_csv)
 
-            # Verify players files
-            for players_file in [self.players_projected_csv, self.players_actual_csv]:
-                sim_df = pd.read_csv(players_file)
-                if list(source_players_df.columns) != list(sim_df.columns):
-                    print(f"Warning: Column mismatch between source and {players_file}")
-                    return False
-                if len(source_players_df) != len(sim_df):
-                    print(f"Warning: Row count mismatch between source and {players_file}")
-                    return False
+            if list(projected_df.columns) != list(actual_df.columns):
+                print("Warning: Column mismatch between projected and actual player files")
+                return False
 
-            # Verify weekly teams files
+            if len(projected_df) != len(actual_df):
+                print("Warning: Row count mismatch between projected and actual player files")
+                return False
+
+            # Verify all weekly teams files have consistent structure
+            expected_columns = None
             for week, teams_file in self.teams_weekly_csvs.items():
-                sim_df = pd.read_csv(teams_file)
-                if list(source_teams_df.columns) != list(sim_df.columns):
-                    print(f"Warning: Column mismatch between source and {teams_file}")
-                    return False
-                if len(source_teams_df) != len(sim_df):
-                    print(f"Warning: Row count mismatch between source and {teams_file}")
+                teams_df = pd.read_csv(teams_file)
+                if expected_columns is None:
+                    expected_columns = list(teams_df.columns)
+                elif list(teams_df.columns) != expected_columns:
+                    print(f"Warning: Column mismatch in {teams_file}")
                     return False
 
             return True

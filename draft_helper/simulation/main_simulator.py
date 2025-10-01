@@ -65,35 +65,22 @@ class MainSimulator:
         print("=" * 50)
 
         try:
-            # Step 1: Set up simulation data (copy from shared_files only if missing)
-            print(">> Setting up simulation data...")
-            self.data_manager.setup_simulation_data(force_refresh=False)
+            # Step 1: Verify static simulation data files exist
+            print(">> Verifying simulation data files...")
+            self.data_manager.setup_simulation_data()
 
-            # Step 2: Verify data files exist (skip strict validation - simulation uses static baseline data)
-            print(">> Verifying simulation data files exist...")
-            import os
-            required_files = [
-                self.data_manager.players_projected_csv,
-                self.data_manager.players_actual_csv
-            ]
-            required_files.extend(self.data_manager.teams_weekly_csvs.values())
-
-            for file_path in required_files:
-                if not os.path.exists(file_path):
-                    raise Exception(f"Required simulation file missing: {file_path}")
-
-            # Step 3: Load player data
+            # Step 2: Load player data
             print(">> Loading player data...")
             players_projected_df = self.data_manager.get_players_projected_data()
             players_actual_df = self.data_manager.get_players_actual_data()
             print(f"Loaded {len(players_projected_df)} projected players and {len(players_actual_df)} actual players")
 
-            # Step 4: Generate preliminary configurations
+            # Step 3: Generate preliminary configurations
             print(">> Generating preliminary configurations...")
             preliminary_configs = self.config_optimizer.generate_preliminary_configs()
             print(f"Generated {len(preliminary_configs)} preliminary configurations")
 
-            # Step 5: Run preliminary simulations
+            # Step 4: Run preliminary simulations
             print(">> Running preliminary simulations...")
             preliminary_results = self.parallel_runner.run_preliminary_simulations(
                 preliminary_configs,

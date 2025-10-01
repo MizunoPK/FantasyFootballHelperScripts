@@ -370,7 +370,7 @@ class FantasyPlayer:
     def save_to_csv(cls, players: List['FantasyPlayer'], filepath: str) -> None:
         """Save players to CSV file using standardized csv_utils."""
         df = players_to_dataframe(players)
-        write_csv_with_backup(df, filepath, create_backup=True)
+        write_csv_with_backup(df, filepath, create_backup=False)
 
     def __eq__(self, other):
         """Check equality based on player ID."""

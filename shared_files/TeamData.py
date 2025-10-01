@@ -247,5 +247,5 @@ def save_teams_to_csv(teams: List[TeamData], file_path: str) -> None:
     # Ensure consistent column order
     df = df[['team', 'offensive_rank', 'defensive_rank', 'opponent']]
 
-    # Save to CSV using standardized csv_utils
-    write_csv_with_backup(df, file_path, create_backup=True)
+    # Save to CSV using standardized csv_utils (no backup needed)
+    write_csv_with_backup(df, file_path, create_backup=False)
