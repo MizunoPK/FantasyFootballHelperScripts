@@ -29,8 +29,11 @@ class PerformanceMetrics:
 class ResultsAnalyzer:
     """Analyzes simulation results and generates reports"""
 
-    def __init__(self):
+    def __init__(self, config_name: str = None, config_description: str = None, parameter_config_path: str = None):
         self.analysis_results: List[ConfigResult] = []
+        self.config_name = config_name
+        self.config_description = config_description
+        self.parameter_config_path = parameter_config_path
 
     def analyze_all_results(self, config_results: List[ConfigResult]) -> Dict[str, Any]:
         """Perform comprehensive analysis of all configuration results"""
@@ -224,6 +227,15 @@ class ResultsAnalyzer:
         # Header
         report_lines.append("# Draft Simulation Results")
         report_lines.append("")
+
+        # Configuration Info
+        if self.config_name:
+            report_lines.append(f"**Configuration Name**: {self.config_name}")
+        if self.config_description:
+            report_lines.append(f"**Configuration Description**: {self.config_description}")
+        if self.parameter_config_path:
+            report_lines.append(f"**Parameter File**: `{self.parameter_config_path}`")
+
         report_lines.append(f"**Analysis Date**: {analysis['analysis_metadata']['analysis_timestamp']}")
         report_lines.append(f"**Total Configurations Tested**: {analysis['statistical_summary']['total_configurations_tested']}")
         report_lines.append(f"**Total Simulations Run**: {analysis['statistical_summary']['total_simulations_run']}")

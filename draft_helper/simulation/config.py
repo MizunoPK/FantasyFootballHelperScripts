@@ -6,6 +6,15 @@ import os
 from typing import Dict, List, Tuple
 
 # =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+
+# Set logging level for simulation runs
+# Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Set to WARNING to suppress INFO logs from positional_ranking_calculator and other modules
+SIMULATION_LOG_LEVEL = "WARNING"
+
+# =============================================================================
 # SIMULATION PARAMETERS
 # =============================================================================
 
@@ -45,9 +54,9 @@ from typing import Dict, List, Tuple
 # Use the parameter_loader module to load and validate configurations.
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 15           # Number of drafts to run per configuration
-PRELIMINARY_SIMULATIONS_PER_CONFIG = 5  # Reduced for preliminary testing
-TOP_CONFIGS_PERCENTAGE = 0.01          # Top 1% of configs advance to full testing
+SIMULATIONS_PER_CONFIG = 1           # Number of drafts to run per configuration
+PRELIMINARY_SIMULATIONS_PER_CONFIG = 1  # Reduced for preliminary testing
+TOP_CONFIGS_PERCENTAGE = 0.2          # Top configs advance to full testing
 
 # Parallel processing settings
 MAX_PARALLEL_THREADS = 7             # Max concurrent threads for simulation

@@ -30,7 +30,7 @@ class TestFantasyPlayer:
     def sample_player_data(self):
         """Create sample player data for testing"""
         return {
-            'id': '12345',
+            'id': 12345,  # ID is now int
             'name': 'Test Player',
             'team': 'TEST',
             'position': 'RB',
@@ -46,7 +46,7 @@ class TestFantasyPlayer:
         """Test basic player creation with valid data"""
         player = FantasyPlayer(**sample_player_data)
 
-        assert player.id == '12345'
+        assert player.id == 12345
         assert player.name == 'Test Player'
         assert player.team == 'TEST'
         assert player.position == 'RB'
@@ -60,13 +60,13 @@ class TestFantasyPlayer:
     def test_player_creation_minimal(self):
         """Test player creation with minimal required data"""
         player = FantasyPlayer(
-            id='123',
+            id=123,  # ID is now int
             name='Minimal Player',
             team='TEST',
             position='QB'
         )
 
-        assert player.id == '123'
+        assert player.id == 123
         assert player.name == 'Minimal Player'
         assert player.position == 'QB'
         assert player.team == 'TEST'  # Set value
@@ -133,7 +133,7 @@ class TestFantasyPlayer:
         """Test from_dict method with valid data"""
         player = FantasyPlayer.from_dict(sample_player_data)
 
-        assert player.id == '12345'
+        assert player.id == 12345
         assert player.name == 'Test Player'
         assert player.fantasy_points == 150.5
         assert player.bye_week == 7
@@ -155,7 +155,7 @@ class TestFantasyPlayer:
         player = FantasyPlayer.from_dict(problematic_data)
 
         # Should handle all problematic values gracefully
-        assert player.id == '123'
+        assert player.id == 123
         assert player.name == 'Problematic Player'
         assert player.bye_week == 0  # Converted from 'nan'
         assert player.fantasy_points == 0.0  # Converted from 'invalid'
@@ -169,7 +169,7 @@ class TestFantasyPlayer:
         exported_dict = player.to_dict()
 
         # Should contain all the same data
-        assert exported_dict['id'] == '12345'
+        assert exported_dict['id'] == 12345
         assert exported_dict['name'] == 'Test Player'
         assert exported_dict['fantasy_points'] == 150.5
         assert exported_dict['bye_week'] == 7
@@ -194,7 +194,7 @@ class TestFantasyPlayer:
             players = FantasyPlayer.load_from_csv(csv_file_path)
 
             assert len(players) == 3
-            assert players[0].id == '1'
+            assert players[0].id == 1
             assert players[0].name == 'Player One'
             assert players[0].fantasy_points == 150.5
             assert players[1].drafted == 1
@@ -367,7 +367,7 @@ class TestFantasyPlayer:
         player = FantasyPlayer.from_dict(edge_case_data)
 
         # Should handle extreme values gracefully
-        assert player.id == '123'
+        assert player.id == 123
         assert player.name == 'Edge Case Player'
         # Infinity values should be converted to safe defaults
         assert isinstance(player.bye_week, int)
@@ -432,7 +432,7 @@ class TestFantasyPlayer:
         player = FantasyPlayer.from_dict(old_format_data)
 
         # Should create player with defaults for missing fields
-        assert player.id == '123'
+        assert player.id == 123
         assert player.name == 'Old Format Player'
         assert player.position == 'RB'
         assert hasattr(player, 'injury_status')  # Should have default

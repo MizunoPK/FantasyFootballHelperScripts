@@ -90,7 +90,7 @@ class DraftSimulationEngine:
             # Only include players who aren't already drafted
             if row.get('drafted', 0) == 0:
                 player = FantasyPlayer(
-                    id=str(idx),  # Use dataframe index as ID
+                    id=int(row.get('id', idx)),  # Use actual player ID from dataframe
                     name=row.get('name', ''),
                     position=row.get('position', ''),
                     team=row.get('team', ''),

@@ -81,7 +81,7 @@ class FantasyPlayer:
     """
     
     # Core identification
-    id: str
+    id: int  # Player ID (int to match CSV/dataframe format)
     name: str
     team: str
     position: str
@@ -147,7 +147,7 @@ class FantasyPlayer:
         processed_adp = safe_float_conversion(adp_value, 0.0) if adp_value is not None else None
 
         return cls(
-            id=str(data.get('id', '')),
+            id=safe_int_conversion(data.get('id'), 0),  # Keep ID as int to match dataframe
             name=str(data.get('name', '')),
             team=str(data.get('team', '')),
             position=str(data.get('position', '')),

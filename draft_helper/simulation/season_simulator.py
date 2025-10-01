@@ -60,9 +60,6 @@ class SeasonSimulator:
         from data_manager import SimulationDataManager
         self.data_manager = SimulationDataManager()
 
-        # Initialize lineup optimizer for starter_helper integration
-        self.lineup_optimizer = LineupOptimizer()
-
     def simulate_full_season(self) -> Dict[str, Any]:
         """Simulate complete 17-week fantasy season"""
 
@@ -233,10 +230,16 @@ class SeasonSimulator:
         # Create a temporary class to override the LineupOptimizer initialization
         class WeeklyLineupOptimizer(LineupOptimizer):
             def __init__(self, teams_csv_path: str):
-                # Call parent __init__ to initialize matchup_calculator and other attributes
-                super().__init__()
-
+                # Initialize logger first
                 self.logger = logging.getLogger(__name__)
+
+                # Initialize matchup calculator with weekly teams data
+                sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'starter_helper'))
+                from matchup_calculator import MatchupCalculator
+                self.matchup_calculator = MatchupCalculator(teams_csv_path=teams_csv_path)
+
+                if self.matchup_calculator.is_matchup_available():
+                    self.logger.debug(f"Matchup calculator initialized with weekly teams data: {teams_csv_path}")
 
                 # Initialize positional ranking calculator with weekly teams data
                 try:

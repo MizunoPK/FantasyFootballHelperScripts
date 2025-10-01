@@ -75,6 +75,39 @@ Contains all conservative/default values (single value per parameter). Use this 
 ### parameter_template.json
 Template showing the expected format with all 20 parameters. Use this as a starting point for creating new configurations.
 
+### demo_test.json
+Quick validation test with baseline values. Use this to verify simulation infrastructure works end-to-end.
+
+### phase1_iteration2_injury_bye_focus.json
+**CURRENT OPTIMIZATION FILE** - Focused test of high-impact injury and bye penalty parameters (27 combinations). This is the next configuration to run in the optimization strategy.
+
+### exhaustive_3value_test.json ⚠️
+**REFERENCE ONLY - DO NOT EXECUTE**
+
+This file documents the complete parameter space with 3 reasonable values for each of the 20 parameters.
+
+**Why this file exists:**
+- Documents reasonable value ranges for all parameters
+- Serves as reference when designing focused tests
+- Demonstrates why exhaustive testing is infeasible
+
+**Why NOT to run this:**
+- Creates 3^20 = **3,486,784,401 combinations** (3.5 billion)
+- Would take **66 million years** at 10 minutes per simulation
+- Even at 1 second per simulation, would take **110 years**
+- Would require **~350 TB** of storage for all results
+
+**Use this file for:**
+- Reference when creating new configurations
+- Understanding parameter value bounds
+- Documenting the "reasonable range" for each parameter
+- Educational purposes to understand computational constraints
+
+**Instead of running this, use:**
+- Phased testing approach (test parameter groups sequentially)
+- Focus on high-impact parameters first (injury/bye penalties)
+- Current optimization files like `phase1_iteration2_injury_bye_focus.json`
+
 ## Usage
 
 Run simulations with a configuration file:

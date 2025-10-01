@@ -5,6 +5,7 @@ Handles concurrent execution of multiple simulations to improve performance.
 """
 
 import concurrent.futures
+import logging
 import time
 from typing import List, Dict, Any, Callable, Optional
 import multiprocessing
@@ -22,7 +23,12 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__))
 
-from config import SIMULATIONS_PER_CONFIG, PRELIMINARY_SIMULATIONS_PER_CONFIG, MAX_PARALLEL_THREADS
+from config import SIMULATIONS_PER_CONFIG, PRELIMINARY_SIMULATIONS_PER_CONFIG, MAX_PARALLEL_THREADS, SIMULATION_LOG_LEVEL
+
+# Configure logging level for all threads
+logging.getLogger().setLevel(getattr(logging, SIMULATION_LOG_LEVEL, logging.WARNING))
+# Specifically suppress noisy loggers
+logging.getLogger('shared_files.positional_ranking_calculator').setLevel(logging.WARNING)
 
 @dataclass
 class SimulationTask:

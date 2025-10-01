@@ -99,7 +99,7 @@ class PositionalRankingCalculator:
             # Build team lookup cache
             self.team_data_cache = {team.team: team for team in teams}
 
-            self.logger.info(f"Loaded team data for positional ranking calculations: {len(self.team_data_cache)} teams")
+            self.logger.debug(f"Loaded team data for positional ranking calculations: {len(self.team_data_cache)} teams")
 
         except Exception as e:
             self.logger.warning(f"Error loading team data: {e}. Positional rankings disabled.")

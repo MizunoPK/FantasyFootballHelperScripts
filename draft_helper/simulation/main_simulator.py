@@ -6,6 +6,7 @@ Entry point for running complete draft simulation analysis.
 
 import sys
 import os
+import logging
 import pandas as pd
 from typing import Dict, Any, List
 
@@ -21,8 +22,14 @@ from parallel_runner import ParallelSimulationRunner
 from results_analyzer import ResultsAnalyzer
 from simulation_engine import DraftSimulationEngine
 from season_simulator import SeasonSimulator
-from config import get_timestamped_results_file, RESULTS_DIR
+from config import get_timestamped_results_file, RESULTS_DIR, SIMULATION_LOG_LEVEL
 from parameter_loader import load_and_expand_config
+
+# Configure logging level for simulation
+# Set environment variable so all modules use the simulation log level
+os.environ['SIMULATION_LOG_LEVEL'] = SIMULATION_LOG_LEVEL
+# Also set on root logger for any modules that don't check the env variable
+logging.getLogger().setLevel(getattr(logging, SIMULATION_LOG_LEVEL, logging.WARNING))
 
 class MainSimulator:
     """Main orchestrator for draft simulation analysis"""
@@ -40,6 +47,9 @@ class MainSimulator:
         if parameter_config_path is None and parameter_config is None:
             raise ValueError("Must provide either parameter_config_path or parameter_config")
 
+        # Store the original path
+        self.parameter_config_path = parameter_config_path
+
         # Load configuration if path provided
         if parameter_config_path:
             config_data, _ = load_and_expand_config(parameter_config_path)
@@ -53,7 +63,11 @@ class MainSimulator:
         self.data_manager = SimulationDataManager()
         self.config_optimizer = ConfigurationOptimizer(parameter_config)
         self.parallel_runner = ParallelSimulationRunner()
-        self.results_analyzer = ResultsAnalyzer()
+        self.results_analyzer = ResultsAnalyzer(
+            config_name=self.config_name,
+            config_description=self.config_description,
+            parameter_config_path=parameter_config_path
+        )
         self.parameter_config = parameter_config
 
     def run_complete_analysis(self) -> str:

@@ -277,8 +277,8 @@ class TestSharedFilesIntegration:
             player = FantasyPlayer.from_dict(data)
 
             # Basic validation
-            assert isinstance(player.id, str)
-            assert len(player.id) > 0
+            assert isinstance(player.id, int)
+            assert player.id > 0
             assert isinstance(player.name, str)
             assert len(player.name) > 0
             assert player.position in ['QB', 'RB', 'WR', 'TE', 'K', 'DST']

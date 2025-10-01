@@ -247,7 +247,7 @@ class TestEnhancedFantasyPlayerCSV:
         """Test CSV save/load roundtrip with enhanced fields"""
         original_players = [
             FantasyPlayer(
-                id="12345",
+                id=12345,
                 name="Test Player 1",
                 team="KC",
                 position="RB",
@@ -256,7 +256,7 @@ class TestEnhancedFantasyPlayerCSV:
                 player_rating=78.3,
             ),
             FantasyPlayer(
-                id="67890",
+                id=67890,
                 name="Test Player 2",
                 team="NE",
                 position="WR",
@@ -308,7 +308,7 @@ class TestEnhancedFantasyPlayerCSV:
             assert len(players) == 1
             player = players[0]
 
-            assert player.id == '12345'
+            assert player.id == 12345
             assert player.name == 'Test Player'
             assert player.average_draft_position is None
             assert player.player_rating is None

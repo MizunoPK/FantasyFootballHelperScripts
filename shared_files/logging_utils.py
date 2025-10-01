@@ -251,9 +251,12 @@ def setup_module_logging(module_name: str,
     if config is None:
         config = {}
 
+    # Check for simulation mode environment variable
+    simulation_log_level = os.environ.get('SIMULATION_LOG_LEVEL', None)
+
     # Default configuration for modules
     default_config = {
-        'level': 'INFO',
+        'level': simulation_log_level if simulation_log_level else 'INFO',
         'log_to_file': False,
         'log_format': 'standard',
         'enable_console': True
