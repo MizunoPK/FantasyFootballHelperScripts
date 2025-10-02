@@ -230,7 +230,7 @@ class TestDraftedDataLoader(unittest.TestCase):
         """Test that configuration validation works with new settings"""
         # This is an integration test to ensure the config validation catches conflicts
         from shared_files.configs.player_data_fetcher_config import validate_config
-        import shared_files.configs.player_data_fetcher_config as player_data_fetcher_config as config
+        import shared_files.configs.player_data_fetcher_config as config
 
         # Store original values
         original_preserve = config.PRESERVE_DRAFTED_VALUES
