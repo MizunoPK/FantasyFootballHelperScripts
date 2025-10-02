@@ -291,15 +291,19 @@ Each config file has built-in validation. Check logs for specific errors.
 ### Commit Standards
 - Brief, descriptive messages (50 chars or less)
 - No emojis or subjective prefixes
-- Include "Generated with Claude Code" and co-author tag
+- Do NOT include "Generated with Claude Code" and co-author tag
 - List major changes in body
 
 ### Pre-Commit Protocol
-When committing changes:
-1. Read through ALL changes via `git diff`
-2. Update documentation (README.md, CLAUDE.md) if needed
-3. Run test suite (all tests must pass)
-4. Include documentation updates in same commit
+When the user requests to commit changes (e.g., "commit changes", "verify and commit", "commit this"):
+1. **Follow the validation checklist**: Execute all steps in `tests/pre_commit_validation_checklist.md`
+2. **Key steps include**:
+   - Analyze all changes with `git status` and `git diff`
+   - Run complete test suite across all modules (100% pass rate required)
+   - Execute integration tests (startup validation, draft helper validation)
+   - Update documentation (README.md, CLAUDE.md) if functionality changed
+   - Stage and commit with clear, concise message
+3. **Do NOT skip steps**: The checklist ensures code quality and system stability
 
 ### Fantasy Football Development
 After code changes:

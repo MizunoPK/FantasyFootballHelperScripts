@@ -70,7 +70,7 @@ class MainSimulator:
         )
         self.parameter_config = parameter_config
 
-    def run_complete_analysis(self) -> str:
+    def run_complete_analysis(self):
         """Run complete simulation analysis from start to finish"""
 
         print(">> Starting Draft Simulation Analysis")
@@ -163,7 +163,7 @@ class MainSimulator:
             print(">> Simulation analysis completed successfully!")
             print(f">> Results saved to: {results_file_path}")
 
-            return results_file_path
+            return results_file_path, analysis
 
         except Exception as e:
             print(f">> Simulation failed: {e}")
@@ -221,7 +221,7 @@ class MainSimulator:
                 'total_matchups': 0
             }
 
-def run_simulation(parameter_config_path: str = None, parameter_config: Dict[str, List] = None) -> str:
+def run_simulation(parameter_config_path: str = None, parameter_config: Dict[str, List] = None):
     """
     Main entry point for running simulation.
 
