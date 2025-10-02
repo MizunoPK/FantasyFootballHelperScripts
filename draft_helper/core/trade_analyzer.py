@@ -15,9 +15,13 @@ from typing import Dict, List, Optional, Any, Tuple, Set
 try:
     from .. import draft_helper_constants as Constants
     from .roster_calculator import RosterCalculator
+    from .bye_week_visualizer import ByeWeekVisualizer
 except ImportError:
     import draft_helper_constants as Constants
     from core.roster_calculator import RosterCalculator
+    from core.bye_week_visualizer import ByeWeekVisualizer
+
+from shared_files.configs.shared_config import CURRENT_NFL_WEEK
 
 
 class TradeAnalyzer:
@@ -49,6 +53,11 @@ class TradeAnalyzer:
 
         # Use shared roster calculator for display
         self.roster_calculator.display_roster_summary()
+
+        # Display bye week summary for current roster
+        visualizer = ByeWeekVisualizer(self.logger)
+        bye_summary = visualizer.generate_bye_week_summary(list(self.team.roster), CURRENT_NFL_WEEK)
+        print(bye_summary)
 
         # Get available players for trades (drafted=0)
         available_for_trade = [p for p in available_players if p.drafted == 0 and p.locked == 0]
@@ -139,8 +148,12 @@ class TradeAnalyzer:
                 if len(recent_trades) > 20:
                     recent_trades = set(list(recent_trades)[-20:])
 
+                # Get bye week info for new player
+                visualizer = ByeWeekVisualizer(self.logger)
+                bye_week_str = visualizer.get_player_bye_week_string(new_player)
+
                 print(f"Trade {len(trades_made)}: {old_player.name} ({old_player.position}) -> "
-                      f"{new_player.name} ({new_player.position}) (+{improvement:.2f} points)")
+                      f"{new_player.name} ({new_player.position}) - {bye_week_str} - (+{improvement:.2f} points)")
             else:
                 self.logger.error(f"Failed to execute trade: {old_player.name} -> {new_player.name}")
                 break
