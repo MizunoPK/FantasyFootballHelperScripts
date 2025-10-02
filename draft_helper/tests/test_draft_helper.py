@@ -181,7 +181,10 @@ class TestDraftHelper:
         """Test APPLY_INJURY_PENALTY_TO_ROSTER toggle functionality"""
         # Ensure we're working with the actual module the scoring_engine uses
         # Get a fresh reference to the config module
-        import draft_helper.draft_helper_config as draft_config_fresh
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+        import draft_helper_config as draft_config_fresh
 
         # Verify the scoring engine has the same config reference
         if hasattr(draft_helper_instance.scoring_engine, 'config'):
