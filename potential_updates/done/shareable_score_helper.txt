@@ -1,0 +1,7 @@
+Our goal is to copy the nfl scores helper into a new version that can be more easily shared, seperate from the rest of the scripts.
+Create a new folder called 'condensed' within the scores helper directory
+Within the folder will be just a single python script that condenses the scores_helper functionality to a single script without dependancy on other files. 
+Any variables set in config files should be made into constants defined at the top of the new python file.
+The file will be run from the same directory that it lives in.
+Resulting data files should be stored in another data folder that lives in the same 'condensed' folder.
+Create a README that walks through how someone would get set up to use the script. Assume the reader knows nothing about Python and does not even have it installed yet. Walk them through what they will need to download and install, how to set up the script, how to use the script, and details about the resulting files.

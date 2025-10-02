@@ -185,9 +185,7 @@ class NFLScoresCollector:
         if completed_games:
             print(f"\nRecent Completed Games:")
             for game in completed_games[-5:]:  # Last 5 completed
-                home_score = game.home_team.score if game.home_team.score is not None else 0
-                away_score = game.away_team.score if game.away_team.score is not None else 0
-                print(f"   {game.away_team.display_name} {away_score} - {home_score} {game.home_team.display_name}")
+                print(f"   {game.away_team.display_name} {game.away_score} - {game.home_score} {game.home_team.display_name}")
 
 
 async def main():
