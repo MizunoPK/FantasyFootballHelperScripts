@@ -138,14 +138,9 @@ class TestDraftStarterIntegration(unittest.TestCase):
 
         except ImportError as e:
             # Skip test if starter helper module not available
-            print(f"DEBUG: ImportError caught: {e}")
-            import traceback
-            traceback.print_exc()
             self.skipTest(f"StarterHelper not available for integration testing: {e}")
         except Exception as e:
-            print(f"DEBUG: Other exception: {type(e).__name__}: {e}")
-            import traceback
-            traceback.print_exc()
+            # Re-raise any other exceptions
             raise
 
     def _load_players_from_csv(self, csv_path):
