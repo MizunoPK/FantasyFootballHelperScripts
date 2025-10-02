@@ -102,11 +102,28 @@ class TestDraftStarterIntegration(unittest.TestCase):
 
         # Mock starter helper logic to process this roster
         try:
-            from starter_helper.starter_helper import StarterHelper
+            import sys
+            from pathlib import Path
+            # Ensure root directory is FIRST in path for starter_helper import
+            root_dir = str(Path(__file__).parent.parent.parent)
+            # Remove any draft_helper paths that might interfere
+            sys.path = [p for p in sys.path if 'draft_helper' not in p or p == root_dir]
+            if root_dir not in sys.path:
+                sys.path.insert(0, root_dir)
 
-            # Initialize starter helper with the roster CSV
-            with patch('starter_helper.starter_helper.CURRENT_NFL_WEEK', 1):
-                starter_helper = StarterHelper(players_file=str(roster_csv))
+            # Import starter_helper module first to ensure it's recognized as a package
+            import starter_helper
+            from starter_helper.starter_helper import StarterHelper
+            from shared_files.FantasyPlayer import FantasyPlayer as StarterFantasyPlayer
+
+            # Mock the PLAYERS_CSV config to use our test CSV
+            with patch('starter_helper.starter_helper.CURRENT_NFL_WEEK', 1), \
+                 patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(roster_csv)):
+
+                starter_helper = StarterHelper()
+
+                # Load players from our test CSV
+                starter_helper.all_players = self._load_players_from_csv(roster_csv)
 
                 # Get only roster players (drafted=2)
                 roster_only = [p for p in starter_helper.all_players if p.drafted == 2]
@@ -119,9 +136,37 @@ class TestDraftStarterIntegration(unittest.TestCase):
                 expected_positions = {"QB", "RB", "WR", "TE", "K", "DST"}
                 self.assertTrue(expected_positions.issubset(positions))
 
-        except ImportError:
+        except ImportError as e:
             # Skip test if starter helper module not available
-            self.skipTest("StarterHelper not available for integration testing")
+            print(f"DEBUG: ImportError caught: {e}")
+            import traceback
+            traceback.print_exc()
+            self.skipTest(f"StarterHelper not available for integration testing: {e}")
+        except Exception as e:
+            print(f"DEBUG: Other exception: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
+
+    def _load_players_from_csv(self, csv_path):
+        """Helper to load players from CSV for testing"""
+        import pandas as pd
+        from shared_files.FantasyPlayer import FantasyPlayer
+
+        df = pd.read_csv(csv_path)
+        players = []
+        for _, row in df.iterrows():
+            player = FantasyPlayer(
+                id=str(row['id']),
+                name=row['name'],
+                position=row['position'],
+                team=row['team'],
+                fantasy_points=float(row['fantasy_points']),
+                drafted=int(row['drafted']),
+                locked=int(row['locked'])
+            )
+            players.append(player)
+        return players
 
     def test_roster_position_distribution_validation(self):
         """Test that roster meets starter helper position requirements"""

@@ -41,8 +41,14 @@ from shared_files.configs.starter_helper_config import (
     RECOMMENDATION_COUNT, STARTING_LINEUP_REQUIREMENTS,
     SAVE_OUTPUT_TO_FILE, DATA_DIR, get_timestamped_filepath, get_latest_filepath
 )
-# from espn_current_week_client import ESPNCurrentWeekClient  # No longer needed - using CSV weekly columns
-from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
+
+# Import local modules with proper path handling
+try:
+    from .lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
+except ImportError:
+    # Fallback for when running as script or from different module
+    sys.path.append(str(Path(__file__).parent))
+    from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
 
 
 class StarterHelper:
