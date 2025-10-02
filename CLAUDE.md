@@ -14,7 +14,7 @@ Fantasy Football Helper Scripts - Technical reference for Claude Code
 .venv\Scripts\activate
 .venv\Scripts\pip.exe install -r requirements.txt
 
-# Weekly routine: Update CURRENT_NFL_WEEK in shared_config.py
+# Weekly routine: Update CURRENT_NFL_WEEK in shared_files/configs/shared_config.py
 
 # Core scripts (all via run_*.py wrappers)
 .venv\Scripts\python.exe run_player_data_fetcher.py  # Fetch projections (8-15 min)
@@ -49,36 +49,36 @@ Fantasy Football Helper Scripts - Technical reference for Claude Code
 
 ### Weekly Update Required
 ```python
-# shared_config.py - Update every Tuesday
+# shared_files/configs/shared_config.py - Update every Tuesday
 CURRENT_NFL_WEEK = 5  # Current week (1-18)
 ```
 
 ### Draft Helper Modes
 ```python
-# draft_helper/config.py
+# shared_files/configs/draft_helper_config.py
 TRADE_HELPER_MODE = False  # Draft mode (initial roster)
 TRADE_HELPER_MODE = True   # Trade mode (weekly optimization)
 ```
 
 ### Frequently Modified Settings
 
-**Player Data Fetcher** (`player-data-fetcher/player_data_fetcher_config.py`):
+**Player Data Fetcher** (`shared_files/configs/player_data_fetcher_config.py`):
 - `SKIP_DRAFTED_PLAYER_UPDATES = True` - Skip API for drafted=1 players
 - `USE_SCORE_THRESHOLD = True` - Only update high-scoring players
 - `PLAYER_SCORE_THRESHOLD = 15.0` - Minimum points for update
 
-**Draft Helper** (`draft_helper/draft_helper_config.py`):
+**Draft Helper** (`shared_files/configs/draft_helper_config.py`):
 - `NORMALIZATION_MAX_SCALE = 100.0` - Point normalization scale
 - `DRAFT_ORDER_PRIMARY_BONUS = 50` - Primary position bonus
 - `DRAFT_ORDER_SECONDARY_BONUS = 25` - Secondary position bonus
 - `INJURY_PENALTIES = {"LOW": 0, "MEDIUM": 25, "HIGH": 50}`
 - `APPLY_INJURY_PENALTY_TO_ROSTER = False` - Roster injury toggle
 
-**Starter Helper** (`starter_helper/starter_helper_config.py`):
+**Starter Helper** (`shared_files/configs/starter_helper_config.py`):
 - `MATCHUP_MULTIPLIERS` - Matchup impact (0.8x to 1.2x)
 - `STARTER_HELPER_ACTIVE_STATUSES = ['ACTIVE', 'QUESTIONABLE']`
 
-**File Management** (`shared_config.py`):
+**File Management** (`shared_files/configs/shared_config.py`):
 - `DEFAULT_FILE_CAPS = 5` - Files per type (CSV, JSON, XLSX)
 - `ENABLE_FILE_CAPS = True` - Automatic cleanup
 - `DRY_RUN_MODE = False` - Test without deletion
@@ -113,7 +113,7 @@ Same as above **without** Draft Order bonus (step 5)
 **Bench**: 6 slots
 **Reserve**: 3 slots (injured)
 
-**Position Limits** (`draft_helper/config.py`):
+**Position Limits** (`shared_files/configs/draft_helper_config.py`):
 ```python
 MAX_POSITIONS = {
     QB: 2, RB: 4, WR: 4, FLEX: 1, TE: 2, K: 1, DST: 1
@@ -128,8 +128,8 @@ MAX_POSITIONS = {
 ```bash
 # 1. Update bye_weeks.csv (once per season)
 # 2. Configure for draft
-#    - player-data-fetcher/config.py: CURRENT_NFL_WEEK = 1
-#    - draft_helper/config.py: TRADE_HELPER_MODE = False
+#    - shared_files/configs/shared_config.py: CURRENT_NFL_WEEK = 1
+#    - shared_files/configs/draft_helper_config.py: TRADE_HELPER_MODE = False
 # 3. Fetch player data (8-15 min)
 .venv\Scripts\python.exe run_player_data_fetcher.py
 # 4. Run draft helper
@@ -138,9 +138,9 @@ MAX_POSITIONS = {
 
 ### 2. Weekly Trade Analysis
 ```bash
-# 1. Update CURRENT_NFL_WEEK in shared_config.py (every Tuesday!)
+# 1. Update CURRENT_NFL_WEEK in shared_files/configs/shared_config.py (every Tuesday!)
 # 2. Configure for trade mode
-#    - draft_helper/config.py: TRADE_HELPER_MODE = True
+#    - shared_files/configs/draft_helper_config.py: TRADE_HELPER_MODE = True
 # 3. Fetch updated data (1-2x per week)
 .venv\Scripts\python.exe run_player_data_fetcher.py
 # 4. Update players.csv with roster changes
@@ -150,7 +150,7 @@ MAX_POSITIONS = {
 
 ### 3. Weekly Lineup Optimization
 ```bash
-# 1. Update CURRENT_NFL_WEEK in shared_config.py
+# 1. Update CURRENT_NFL_WEEK in shared_files/configs/shared_config.py
 # 2. Update teams.csv with this week's matchups/rankings
 # 3. Run starter helper
 .venv\Scripts\python.exe run_starter_helper.py
@@ -320,21 +320,24 @@ After code changes:
 FantasyFootballHelperScripts/
 ├── run_*.py                        # Wrapper scripts
 ├── shared_files/                   # Shared utilities
+│   ├── configs/                   # Centralized configuration
+│   │   ├── shared_config.py       # Shared settings (CURRENT_NFL_WEEK, etc.)
+│   │   ├── draft_helper_config.py
+│   │   ├── starter_helper_config.py
+│   │   ├── player_data_fetcher_config.py
+│   │   └── nfl_scores_fetcher_config.py
 │   ├── players.csv                # Master player DB
 │   ├── bye_weeks.csv              # Bye schedule
 │   ├── teams.csv                  # Team data
 │   └── *.py                       # Shared classes
 ├── player-data-fetcher/           # ESPN data fetching
-│   ├── data/                      # Export files
-│   └── player_data_fetcher_config.py
+│   └── data/                      # Export files
 ├── draft_helper/                  # Draft/trade analysis
 │   ├── core/                      # Scoring engine
 │   ├── simulation/                # Parameter optimization
-│   ├── data/                      # Results
-│   └── draft_helper_config.py
+│   └── data/                      # Results
 ├── starter_helper/                # Weekly lineups
-│   ├── data/                      # Results
-│   └── starter_helper_config.py
+│   └── data/                      # Results
 ├── nfl-scores-fetcher/            # Game scores
 │   └── data/                      # Export files
 ├── tests/                         # Root-level tests
@@ -348,6 +351,7 @@ FantasyFootballHelperScripts/
 
 ## Recent Major Changes
 
+**Centralized Config** (Oct 2025): All config files moved to `shared_files/configs/` for better organization
 **JSON-Based Simulation** (Sept 2025): Parameter configs now use JSON files, removed PARAMETER_RANGES from code
 **Simulation Config** (Sept 2025): Reduced all parameters to 2-value ranges for efficient optimization
 **Enhanced Scoring** (Sept 2025): Fixed missing config keys, 100% test pass rate
