@@ -1,0 +1,4 @@
+I want to centralize the config files.
+Move all config files across the repo to the shared_files folder, in a subdirectory called 'configs'. You can essentially just look for any file with 'config' in the name. Rename any vague files to be more specific to what they are configs for.
+Also move the DEFAULT_SCORING_CONFIG config from enhanced_scoring.py to the shared_config file and give it a more unique name like ENHANCED_SCORING_CONFIG
+Run all unit tests and the entire integration test checklist to ensure nothing is broken. Refactor any tests that rely on the config files to point to the new locations.
