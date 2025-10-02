@@ -230,6 +230,12 @@ Before major changes:
 - Implements 7-step Add to Roster and 6-step Trade/Waiver scoring
 - Manages NormalizationCalculator, DraftOrderCalculator, enhanced scorers
 
+**ByeWeekVisualizer** (`draft_helper/core/bye_week_visualizer.py`)
+- Generates bye week summaries for roster display
+- Detects bye week conflicts (multiple starters at same position)
+- Shows weeks >= current week through week 18
+- Used in waiver optimizer and trade simulator
+
 **LineupOptimizer** (`starter_helper/lineup_optimizer.py`)
 - Optimal lineup generation with 3-step scoring
 - FLEX optimization, matchup calculations, bench recommendations
@@ -351,6 +357,7 @@ FantasyFootballHelperScripts/
 
 ## Recent Major Changes
 
+**Bye Week Visualizer** (Oct 2025): Added bye week summaries to waiver optimizer and trade simulator with conflict detection
 **Centralized Config** (Oct 2025): All config files moved to `shared_files/configs/` for better organization
 **JSON-Based Simulation** (Sept 2025): Parameter configs now use JSON files, removed PARAMETER_RANGES from code
 **Simulation Config** (Sept 2025): Reduced all parameters to 2-value ranges for efficient optimization
