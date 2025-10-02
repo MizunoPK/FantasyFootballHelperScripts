@@ -64,7 +64,7 @@ class DraftSimulationEngine:
 
     def _initialize_teams(self) -> None:
         """Initialize all teams for the draft"""
-        from config import TEAM_STRATEGIES
+        from shared_files.configs.simulation_config import TEAM_STRATEGIES
 
         team_index = 0
         for strategy, count in TEAM_STRATEGIES.items():
@@ -175,7 +175,7 @@ class DraftSimulationEngine:
             return None
 
         # Apply human error (15% chance to pick from top 10 instead of #1)
-        from config import HUMAN_ERROR_RATE, SUBOPTIMAL_CHOICE_POOL
+        from shared_files.configs.simulation_config import HUMAN_ERROR_RATE, SUBOPTIMAL_CHOICE_POOL
 
         if random.random() < HUMAN_ERROR_RATE:
             # Pick from top N choices instead of the best

@@ -23,7 +23,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__))
 
-from config import SIMULATIONS_PER_CONFIG, PRELIMINARY_SIMULATIONS_PER_CONFIG, MAX_PARALLEL_THREADS, SIMULATION_LOG_LEVEL
+from shared_files.configs.simulation_config import SIMULATIONS_PER_CONFIG, PRELIMINARY_SIMULATIONS_PER_CONFIG, MAX_PARALLEL_THREADS, SIMULATION_LOG_LEVEL
 
 # Configure logging level for all threads
 logging.getLogger().setLevel(getattr(logging, SIMULATION_LOG_LEVEL, logging.WARNING))

@@ -83,10 +83,16 @@ TEAM_STRATEGIES = {
 # FILE PATHS
 # =============================================================================
 
+# Get the simulation directory path (draft_helper/simulation/)
+_config_dir = os.path.dirname(__file__)  # shared_files/configs/
+_shared_files_dir = os.path.dirname(_config_dir)  # shared_files/
+_root_dir = os.path.dirname(_shared_files_dir)  # root
+_simulation_dir = os.path.join(_root_dir, 'draft_helper', 'simulation')
+
 # Simulation data paths
-SIMULATION_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
-RESULTS_DIR = os.path.join(os.path.dirname(__file__), 'results')
-RESULTS_FILE = os.path.join(os.path.dirname(__file__), 'results.md')  # Legacy path for compatibility
+SIMULATION_DATA_DIR = os.path.join(_simulation_dir, 'data')
+RESULTS_DIR = os.path.join(_simulation_dir, 'results')
+RESULTS_FILE = os.path.join(_simulation_dir, 'results.md')  # Legacy path for compatibility
 
 def get_timestamped_results_file():
     """Generate timestamped results file path."""

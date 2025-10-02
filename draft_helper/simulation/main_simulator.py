@@ -22,7 +22,7 @@ from parallel_runner import ParallelSimulationRunner
 from results_analyzer import ResultsAnalyzer
 from simulation_engine import DraftSimulationEngine
 from season_simulator import SeasonSimulator
-from config import get_timestamped_results_file, RESULTS_DIR, SIMULATION_LOG_LEVEL
+from shared_files.configs.simulation_config import get_timestamped_results_file, RESULTS_DIR, SIMULATION_LOG_LEVEL
 from parameter_loader import load_and_expand_config
 
 # Configure logging level for simulation

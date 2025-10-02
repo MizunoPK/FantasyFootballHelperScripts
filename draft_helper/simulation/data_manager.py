@@ -12,7 +12,7 @@ from pathlib import Path
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
-from config import SIMULATION_DATA_DIR
+from shared_files.configs.simulation_config import SIMULATION_DATA_DIR
 
 
 class SimulationDataManager:

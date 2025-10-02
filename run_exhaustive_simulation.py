@@ -37,28 +37,28 @@ PARAMETER_ARRAY = [
     "TEAM_POOR_MULTIPLIER",
 ]
 PARAMETER_RANGES = {
-    "NORMALIZATION_MAX_SCALE": 20,
-    "DRAFT_ORDER_PRIMARY_BONUS": 20,
-    "DRAFT_ORDER_SECONDARY_BONUS": 20,
-    "MATCHUP_EXCELLENT_MULTIPLIER": 0.2,
-    "MATCHUP_GOOD_MULTIPLIER": 0.2,
-    "MATCHUP_NEUTRAL_MULTIPLIER": 0.2,
-    "MATCHUP_POOR_MULTIPLIER": 0.2,
-    "MATCHUP_VERY_POOR_MULTIPLIER": 0.2,
-    "INJURY_PENALTIES_MEDIUM": 20,
-    "INJURY_PENALTIES_HIGH": 20,
-    "BASE_BYE_PENALTY": 20,
-    "ADP_EXCELLENT_MULTIPLIER": 0.2,
-    "ADP_GOOD_MULTIPLIER": 0.2,
-    "ADP_POOR_MULTIPLIER": 0.2,
-    "PLAYER_RATING_EXCELLENT_MULTIPLIER": 0.2,
-    "PLAYER_RATING_GOOD_MULTIPLIER": 0.2,
-    "PLAYER_RATING_POOR_MULTIPLIER": 0.2,
-    "TEAM_EXCELLENT_MULTIPLIER": 0.2,
-    "TEAM_GOOD_MULTIPLIER": 0.2,
-    "TEAM_POOR_MULTIPLIER": 0.2
+    "NORMALIZATION_MAX_SCALE": 40,
+    "DRAFT_ORDER_PRIMARY_BONUS": 40,
+    "DRAFT_ORDER_SECONDARY_BONUS": 40,
+    "MATCHUP_EXCELLENT_MULTIPLIER": 0.5,
+    "MATCHUP_GOOD_MULTIPLIER": 0.5,
+    "MATCHUP_NEUTRAL_MULTIPLIER": 0.5,
+    "MATCHUP_POOR_MULTIPLIER": 0.5,
+    "MATCHUP_VERY_POOR_MULTIPLIER": 0.5,
+    "INJURY_PENALTIES_MEDIUM": 40,
+    "INJURY_PENALTIES_HIGH": 40,
+    "BASE_BYE_PENALTY": 40,
+    "ADP_EXCELLENT_MULTIPLIER": 0.5,
+    "ADP_GOOD_MULTIPLIER": 0.5,
+    "ADP_POOR_MULTIPLIER": 0.5,
+    "PLAYER_RATING_EXCELLENT_MULTIPLIER": 0.5,
+    "PLAYER_RATING_GOOD_MULTIPLIER": 0.5,
+    "PLAYER_RATING_POOR_MULTIPLIER": 0.5,
+    "TEAM_EXCELLENT_MULTIPLIER": 0.5,
+    "TEAM_GOOD_MULTIPLIER": 0.5,
+    "TEAM_POOR_MULTIPLIER": 0.5
 }
-NUMBER_OF_TEST_VALUES = 10  # Number of test values per parameter
+NUMBER_OF_TEST_VALUES = 8  # Number of test values per parameter
 NUMBER_OF_RUNS = 50
 
 
@@ -69,22 +69,16 @@ from pathlib import Path
 from datetime import datetime
 import random
 
-def get_decimal_places(num):
-    if isinstance(num, float):
-        return len(str(num).split('.')[1]) if '.' in str(num) else 0
-    return 0
-
 def get_parameter_array(param_name, value, round_number):
     if PARAMETER_ARRAY[round_number % len(PARAMETER_ARRAY)] == param_name:
         # Create array of test values around the optimal value
         range_width = PARAMETER_RANGES[param_name]
 
-        decimals = get_decimal_places(value)
         # Generate the array
         random_values = [value]
         for _ in range(NUMBER_OF_TEST_VALUES):
             for _ in range(20):  # Try up to 20 times to get a unique value
-                val = round(random.uniform(value - range_width, value + range_width), decimals)
+                val = round(random.uniform(max(value - range_width, 0), value + range_width), 2)
                 if val not in random_values:
                     random_values.append(val)
                     break

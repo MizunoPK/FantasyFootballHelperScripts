@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Add parent directories to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from draft_helper.simulation import config as sim_config
+from shared_files.configs import simulation_config as sim_config
 from draft_helper.simulation.parameter_loader import load_parameter_config, REQUIRED_PARAMETERS
 
 

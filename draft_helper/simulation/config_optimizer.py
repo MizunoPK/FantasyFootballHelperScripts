@@ -13,7 +13,7 @@ import os
 
 # Add current directory to path for local imports
 sys.path.append(os.path.dirname(__file__))
-from config import TOP_CONFIGS_PERCENTAGE
+from shared_files.configs.simulation_config import TOP_CONFIGS_PERCENTAGE
 from parameter_loader import expand_parameter_combinations
 
 @dataclass
