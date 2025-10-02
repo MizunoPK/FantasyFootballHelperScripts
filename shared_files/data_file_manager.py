@@ -8,7 +8,7 @@ oldest files are automatically deleted to make room for new ones.
 
 Usage:
     from shared_files.data_file_manager import DataFileManager
-    from shared_config import DEFAULT_FILE_CAPS
+    from shared_files.configs.shared_config import DEFAULT_FILE_CAPS
 
     manager = DataFileManager('path/to/data/folder', DEFAULT_FILE_CAPS)
     manager.enforce_file_caps('newly_created_file.csv')
@@ -58,7 +58,7 @@ class DataFileManager:
         # Import default caps if not provided
         if file_caps is None:
             try:
-                from shared_config import DEFAULT_FILE_CAPS
+                from shared_files.configs.shared_config import DEFAULT_FILE_CAPS
                 file_caps = DEFAULT_FILE_CAPS
             except ImportError:
                 logger.warning("Could not import DEFAULT_FILE_CAPS, using built-in defaults")
@@ -109,7 +109,7 @@ class DataFileManager:
         """
         # Check if file caps are enabled
         try:
-            from shared_config import ENABLE_FILE_CAPS, DRY_RUN_MODE
+            from shared_files.configs.shared_config import ENABLE_FILE_CAPS, DRY_RUN_MODE
         except ImportError:
             ENABLE_FILE_CAPS = True
             DRY_RUN_MODE = False
@@ -152,7 +152,7 @@ class DataFileManager:
         """
         # Check if file caps are enabled
         try:
-            from shared_config import ENABLE_FILE_CAPS
+            from shared_files.configs.shared_config import ENABLE_FILE_CAPS
         except ImportError:
             ENABLE_FILE_CAPS = True
 
@@ -199,7 +199,7 @@ class DataFileManager:
         """
         # Check if file caps are enabled
         try:
-            from shared_config import ENABLE_FILE_CAPS
+            from shared_files.configs.shared_config import ENABLE_FILE_CAPS
         except ImportError:
             ENABLE_FILE_CAPS = True
 
@@ -577,7 +577,7 @@ if __name__ == "__main__":
 
     # Test with current configuration
     try:
-        from shared_config import DEFAULT_FILE_CAPS
+        from shared_files.configs.shared_config import DEFAULT_FILE_CAPS
         print(f"Default file caps: {DEFAULT_FILE_CAPS}")
 
         # Test validation

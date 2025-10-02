@@ -41,7 +41,7 @@ from shared_files.positional_ranking_calculator import PositionalRankingCalculat
 sys.path.append(str(parent_dir / 'starter_helper'))
 try:
     import pandas as pd
-    from starter_helper_config import (
+    from shared_files.configs.starter_helper_config import (
         CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT,
         SHOW_PROJECTION_DETAILS, SHOW_INJURY_STATUS,
         SAVE_OUTPUT_TO_FILE, get_timestamped_filepath, get_latest_filepath
@@ -206,7 +206,7 @@ class DraftHelper:
         self.positional_ranking_calculator = None
         try:
             # Try to initialize with current week team data
-            from shared_config import CURRENT_NFL_WEEK
+            from shared_files.configs.shared_config import CURRENT_NFL_WEEK
             current_week = CURRENT_NFL_WEEK
 
             # Try current week first

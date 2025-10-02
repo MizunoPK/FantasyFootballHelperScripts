@@ -34,7 +34,7 @@ import pandas as pd
 # Add parent directory to path for shared imports
 sys.path.append(str(Path(__file__).parent.parent))
 
-from starter_helper_config import (
+from shared_files.configs.starter_helper_config import (
     CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT,
     PLAYERS_CSV, LOGGING_ENABLED, LOGGING_LEVEL,
     SHOW_PROJECTION_DETAILS, SHOW_INJURY_STATUS,

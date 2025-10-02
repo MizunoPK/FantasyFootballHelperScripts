@@ -14,7 +14,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.enhanced_scoring import EnhancedScoringCalculator
 from draft_helper.FantasyTeam import FantasyTeam
-from draft_helper import draft_helper_config as base_config
+from shared_files.configs import draft_helper_config as base_config
 from draft_helper.team_data_loader import TeamDataLoader
 
 

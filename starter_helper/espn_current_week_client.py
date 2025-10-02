@@ -17,7 +17,7 @@ from contextlib import asynccontextmanager
 import httpx
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from starter_helper_config import (
+from shared_files.configs.starter_helper_config import (
     ESPN_USER_AGENT, REQUEST_TIMEOUT, RATE_LIMIT_DELAY,
     CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT,
     USE_CURRENT_WEEK_PROJECTIONS, FALLBACK_TO_SEASON_PROJECTIONS

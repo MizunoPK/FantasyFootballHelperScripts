@@ -51,11 +51,11 @@ class ScoringEngine:
 
         # Store config module reference for dynamic config access
         try:
-            from .. import draft_helper_config as config
+            from shared_files.configs import draft_helper_config as config
             self.config = config
             normalization_scale = config.NORMALIZATION_MAX_SCALE
         except ImportError:
-            import draft_helper_config as config
+            import shared_files.configs.draft_helper_config as config
             self.config = config
             normalization_scale = config.NORMALIZATION_MAX_SCALE
 
@@ -173,7 +173,7 @@ class ScoringEngine:
                 positional_ranking_calculator.is_positional_ranking_available() and
                 player.team and player.position):
                 try:
-                    from shared_config import CURRENT_NFL_WEEK
+                    from shared_files.configs.shared_config import CURRENT_NFL_WEEK
                     current_week = CURRENT_NFL_WEEK
 
                     ranking_adjusted_points, ranking_explanation = positional_ranking_calculator.calculate_positional_adjustment(
@@ -214,7 +214,7 @@ class ScoringEngine:
             float: Bye week penalty
         """
         try:
-            from shared_config import CURRENT_NFL_WEEK
+            from shared_files.configs.shared_config import CURRENT_NFL_WEEK
             current_week = CURRENT_NFL_WEEK
         except ImportError:
             current_week = 1
@@ -287,9 +287,9 @@ class ScoringEngine:
         else:
             # Fallback to importing - read fresh values from module
             try:
-                from .. import draft_helper_config as config_module
+                from shared_files.configs import draft_helper_config as config_module
             except ImportError:
-                import draft_helper_config as config_module
+                import shared_files.configs.draft_helper_config as config_module
             config = config_module
 
         # Check if we should skip injury penalties for roster players in trade mode

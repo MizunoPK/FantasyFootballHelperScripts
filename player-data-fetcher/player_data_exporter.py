@@ -28,7 +28,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.TeamData import TeamData, extract_teams_from_players, extract_teams_from_rankings, save_teams_to_csv
 from shared_files.data_file_manager import DataFileManager
-from shared_config import DEFAULT_FILE_CAPS
+from shared_files.configs.shared_config import DEFAULT_FILE_CAPS
 from player_data_constants import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, DRAFT_HELPER_PLAYERS_FILE, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE
 from drafted_data_loader import DraftedDataLoader
 

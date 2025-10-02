@@ -556,11 +556,11 @@ class ESPNClient(BaseAPIClient):
             Dictionary mapping team abbreviations to offensive/defensive ranks
         """
         try:
-            from player_data_fetcher_config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+            from shared_files.configs.player_data_fetcher_config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
             import sys
             import os
             sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-            from shared_config import CURRENT_NFL_WEEK, NFL_SEASON
+            from shared_files.configs.shared_config import CURRENT_NFL_WEEK, NFL_SEASON
 
             # Determine which season to use for statistics
             use_current_season = CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1
@@ -587,8 +587,8 @@ class ESPNClient(BaseAPIClient):
                 import sys
                 import os
                 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-                from shared_config import CURRENT_NFL_WEEK, NFL_SEASON
-                from player_data_fetcher_config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+                from shared_files.configs.shared_config import CURRENT_NFL_WEEK, NFL_SEASON
+                from shared_files.configs.player_data_fetcher_config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
                 use_current_season = CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1
                 target_season = NFL_SEASON if use_current_season else NFL_SEASON - 1
                 season_info = f"{target_season} season"
@@ -602,8 +602,8 @@ class ESPNClient(BaseAPIClient):
                 import sys
                 import os
                 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-                from shared_config import CURRENT_NFL_WEEK, NFL_SEASON
-                from player_data_fetcher_config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+                from shared_files.configs.shared_config import CURRENT_NFL_WEEK, NFL_SEASON
+                from shared_files.configs.player_data_fetcher_config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
                 use_current_season = CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1
 
                 if use_current_season:
@@ -718,7 +718,7 @@ class ESPNClient(BaseAPIClient):
             {'KC': 'DEN', 'DEN': 'KC', 'NE': 'BUF', 'BUF': 'NE', ...}
         """
         try:
-            from player_data_fetcher_config import CURRENT_NFL_WEEK, NFL_SEASON
+            from shared_files.configs.player_data_fetcher_config import CURRENT_NFL_WEEK, NFL_SEASON
 
             self.logger.info(f"Fetching week {CURRENT_NFL_WEEK} schedule from ESPN")
 
@@ -778,7 +778,7 @@ class ESPNClient(BaseAPIClient):
 
     async def _parse_espn_data(self, data: Dict[str, Any]) -> List[ESPNPlayerData]:
         """Parse ESPN API response into ESPNPlayerData objects"""
-        from player_data_fetcher_config import (
+        from shared_files.configs.player_data_fetcher_config import (
             PROGRESS_TRACKING_ENABLED, PROGRESS_UPDATE_FREQUENCY, PROGRESS_ETA_WINDOW_SIZE
         )
 

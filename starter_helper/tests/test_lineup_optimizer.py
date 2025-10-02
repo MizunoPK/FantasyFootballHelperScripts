@@ -20,7 +20,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
-from starter_helper_config import (
+from shared_files.configs.starter_helper_config import (
     STARTING_LINEUP_REQUIREMENTS, FLEX_ELIGIBLE_POSITIONS,
     INJURY_PENALTIES, BYE_WEEK_PENALTY, CURRENT_NFL_WEEK,
     QB, RB, WR, TE, K, DST, FLEX

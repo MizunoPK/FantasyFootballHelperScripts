@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from starter_helper import StarterHelper, main
 from lineup_optimizer import OptimalLineup, StartingRecommendation
-from starter_helper_config import CURRENT_NFL_WEEK, PLAYERS_CSV
+from shared_files.configs.starter_helper_config import CURRENT_NFL_WEEK, PLAYERS_CSV
 
 
 class TestStarterHelper:

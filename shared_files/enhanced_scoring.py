@@ -12,7 +12,7 @@ Last Updated: September 2025
 
 from typing import Optional, Dict, Any
 from shared_files.logging_utils import setup_module_logging
-from shared_config import ENHANCED_SCORING_CONFIG as DEFAULT_SCORING_CONFIG
+from shared_files.configs.shared_config import ENHANCED_SCORING_CONFIG as DEFAULT_SCORING_CONFIG
 
 
 class EnhancedScoringCalculator:

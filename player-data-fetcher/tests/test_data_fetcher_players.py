@@ -54,7 +54,7 @@ try:
 
         try:
             # Try to load from the mocked CSV path
-            from player_data_fetcher_config import PLAYERS_CSV
+            from shared_files.configs.player_data_fetcher_config import PLAYERS_CSV
             csv_path = Path(__file__).parent.parent / PLAYERS_CSV
 
             # Check if it's been patched to a different path

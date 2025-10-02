@@ -12,7 +12,7 @@ import pytest
 # Add parent directory to path to import config
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from starter_helper_config import (
+from shared_files.configs.starter_helper_config import (
     MATCHUP_MULTIPLIERS,
     MATCHUP_ENABLED_POSITIONS,
     STARTER_HELPER_ACTIVE_STATUSES,

@@ -16,7 +16,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.append(os.path.dirname(__file__))  # Add current directory for local imports
 from shared_files.FantasyPlayer import FantasyPlayer
 from draft_helper.FantasyTeam import FantasyTeam
-from draft_helper import draft_helper_config as base_config
+from shared_files.configs import draft_helper_config as base_config
 
 @dataclass
 class DraftPick:

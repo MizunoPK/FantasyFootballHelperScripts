@@ -19,7 +19,7 @@ from unittest.mock import MagicMock, patch
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import draft_helper
-import draft_helper_config as draft_config
+import shared_files.configs.draft_helper_config as draft_config
 import draft_helper_constants as Constants
 
 # Import FantasyPlayer from shared_files
@@ -184,7 +184,7 @@ class TestDraftHelper:
         import sys
         import os
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-        import draft_helper_config as draft_config_fresh
+        import shared_files.configs.draft_helper_config as draft_config_fresh
 
         # Verify the scoring engine has the same config reference
         if hasattr(draft_helper_instance.scoring_engine, 'config'):

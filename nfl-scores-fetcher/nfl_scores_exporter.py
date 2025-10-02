@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from shared_files.data_file_manager import DataFileManager
-from shared_config import DEFAULT_FILE_CAPS
+from shared_files.configs.shared_config import DEFAULT_FILE_CAPS
 
 
 class ScoresDataExporter:

@@ -17,7 +17,7 @@ import logging
 from typing import Dict, Optional, Tuple
 import pandas as pd
 
-from starter_helper_config import (
+from shared_files.configs.starter_helper_config import (
     MATCHUP_MULTIPLIERS,
     MATCHUP_ENABLED_POSITIONS,
     QB, RB, WR, TE, K, DST

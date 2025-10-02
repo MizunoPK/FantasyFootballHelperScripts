@@ -308,7 +308,7 @@ class NFLProjectionsCollector:
 async def main():
     """Main application entry point"""
     # Import configuration
-    from player_data_fetcher_config import (
+    from shared_files.configs.player_data_fetcher_config import (
         LOGGING_ENABLED, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE,
         PROGRESS_TRACKING_ENABLED
     )

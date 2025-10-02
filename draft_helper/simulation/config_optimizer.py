@@ -101,7 +101,7 @@ class ConfigurationOptimizer:
         import sys
         import os
         sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-        from draft_helper_config import DRAFT_ORDER
+        from shared_files.configs.draft_helper_config import DRAFT_ORDER
 
         weight_multiplier = config.get('DRAFT_ORDER_WEIGHTS', 1.0)
 

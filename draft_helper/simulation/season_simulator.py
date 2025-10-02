@@ -16,7 +16,7 @@ import logging
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from shared_files.FantasyPlayer import FantasyPlayer
 from draft_helper.FantasyTeam import FantasyTeam
-from shared_config import CURRENT_NFL_WEEK
+from shared_files.configs.shared_config import CURRENT_NFL_WEEK
 
 # Import starter_helper components for lineup optimization
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'starter_helper'))

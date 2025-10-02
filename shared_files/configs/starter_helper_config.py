@@ -19,7 +19,7 @@ from typing import Dict, List
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-from shared_config import CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT
+from shared_files.configs.shared_config import CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT
 from shared_files.validation_utils import ValidationResult, ConfigValidator, validate_multiple
 
 # =============================================================================

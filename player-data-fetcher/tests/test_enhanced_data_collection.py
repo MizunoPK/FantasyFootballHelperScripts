@@ -472,7 +472,7 @@ class TestEnhancedDataExportIntegration:
 
     def test_export_columns_include_enhanced_fields(self):
         """Test that export columns include enhanced fields"""
-        from player_data_fetcher_config import EXPORT_COLUMNS
+        from shared_files.configs.player_data_fetcher_config import EXPORT_COLUMNS
 
         expected_enhanced_columns = [
             'average_draft_position',
@@ -486,7 +486,7 @@ class TestEnhancedDataExportIntegration:
 
     def test_enhanced_fields_position_in_export_columns(self):
         """Test that enhanced fields are positioned appropriately in export columns"""
-        from player_data_fetcher_config import EXPORT_COLUMNS
+        from shared_files.configs.player_data_fetcher_config import EXPORT_COLUMNS
 
         # Enhanced fields should come after basic fields but before weekly points
         enhanced_fields = ['average_draft_position', 'player_rating', 'team_offensive_rank', 'team_defensive_rank']

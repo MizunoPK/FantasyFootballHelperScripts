@@ -47,7 +47,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 ENV_FILE_PATH = Path(__file__).parent.parent / '.env'
 
 # Import config.py settings
-import nfl_scores_fetcher_config as config
+import shared_files.configs.nfl_scores_fetcher_config as config
 
 from nfl_scores_models import GameScore, WeeklyScores, GameDataValidationError
 from nfl_api_client import NFLAPIClient
