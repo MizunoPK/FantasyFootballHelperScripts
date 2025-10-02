@@ -52,7 +52,7 @@ class TestDataFileManager(unittest.TestCase):
 
     def test_manager_initialization_with_defaults(self):
         """Test DataFileManager initialization with default caps"""
-        with patch('shared_config.DEFAULT_FILE_CAPS', {'csv': 5, 'json': 5}):
+        with patch('shared_files.configs.shared_config.DEFAULT_FILE_CAPS', {'csv': 5, 'json': 5}):
             manager = DataFileManager(self.test_dir, None)
             self.assertEqual(manager.file_caps['csv'], 5)
             self.assertEqual(manager.file_caps['json'], 5)
@@ -139,7 +139,7 @@ class TestDataFileManager(unittest.TestCase):
         self.assertEqual(len(remaining_files), 1)
         self.assertEqual(remaining_files[0].name, 'new.csv')
 
-    @patch('shared_config.ENABLE_FILE_CAPS', False)
+    @patch('shared_files.configs.shared_config.ENABLE_FILE_CAPS', False)
     def test_delete_oldest_files_caps_disabled(self):
         """Test that file deletion is skipped when caps are disabled"""
         # Create test files
@@ -153,7 +153,7 @@ class TestDataFileManager(unittest.TestCase):
         files = self.manager.get_files_by_type('csv')
         self.assertEqual(len(files), 2)
 
-    @patch('shared_config.DRY_RUN_MODE', True)
+    @patch('shared_files.configs.shared_config.DRY_RUN_MODE', True)
     def test_delete_oldest_files_dry_run(self):
         """Test dry run mode doesn't actually delete files"""
         # Create test files
@@ -223,7 +223,7 @@ class TestDataFileManager(unittest.TestCase):
         deleted = disabled_manager.enforce_file_caps(str(new_file))
         self.assertEqual(len(deleted), 0)
 
-    @patch('shared_config.ENABLE_FILE_CAPS', False)
+    @patch('shared_files.configs.shared_config.ENABLE_FILE_CAPS', False)
     def test_enforce_file_caps_globally_disabled(self):
         """Test file cap enforcement when globally disabled"""
         # Create files over the limit

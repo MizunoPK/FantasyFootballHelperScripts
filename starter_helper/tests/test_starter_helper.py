@@ -219,7 +219,7 @@ class TestStarterHelper:
     async def test_save_output_to_files(self, helper, temp_dir):
         """Test saving output to files"""
         with patch('starter_helper.SAVE_OUTPUT_TO_FILE', True), \
-             patch('starter_helper_config.DATA_DIR', str(temp_dir)):
+             patch('shared_files.configs.starter_helper_config.DATA_DIR', str(temp_dir)):
 
             test_content = "Test output content\nLine 2\nLine 3"
             helper.save_output_to_files(test_content)
