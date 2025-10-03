@@ -214,8 +214,8 @@ class TestDataFetcherMain:
             players = load_existing_players()
 
             assert len(players) == 2
-            assert players[0].id == '12345'
-            assert players[1].id == '67890'
+            assert players[0].id == 12345
+            assert players[1].id == 67890
             assert players[0].drafted == 0
             assert players[1].drafted == 1
         finally:

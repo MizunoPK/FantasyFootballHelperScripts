@@ -50,6 +50,14 @@ from player_data_models import ScoringFormat, ProjectionData, DataCollectionErro
 from espn_client import ESPNClient
 from player_data_exporter import DataExporter
 
+# Import NFL season configuration
+from player_data_constants import (
+    NFL_SEASON, CURRENT_NFL_WEEK, INCLUDE_PLAYOFF_WEEKS,
+    SKIP_DRAFTED_PLAYER_UPDATES, USE_SCORE_THRESHOLD, PLAYER_SCORE_THRESHOLD,
+    OUTPUT_DIRECTORY, CREATE_CSV, CREATE_JSON, CREATE_EXCEL,
+    REQUEST_TIMEOUT, RATE_LIMIT_DELAY
+)
+
 
 class Settings(BaseSettings):
     """
@@ -76,22 +84,23 @@ class Settings(BaseSettings):
 
     # Data Parameters
     scoring_format: ScoringFormat = ScoringFormat.PPR
-    season: int = 2025  # Current NFL season
+    season: int = NFL_SEASON  # Current NFL season (from config)
 
     # Week-by-Week Projection Settings (from config)
-    current_nfl_week: int = 3  # Current NFL week (1-18)
+    current_nfl_week: int = CURRENT_NFL_WEEK  # Current NFL week (1-18, from config)
     use_week_by_week_projections: bool = True  # Use week-by-week calculation
     use_remaining_season_projections: bool = False  # Use remaining games instead of full season
-    include_playoff_weeks: bool = False  # Include playoff weeks (19-22)
+    include_playoff_weeks: bool = INCLUDE_PLAYOFF_WEEKS  # Include playoff weeks (19-22, from config)
 
     # Optimization Settings (from config)
-    skip_drafted_player_updates: bool = False  # Skip API calls for drafted=1 players
-    use_score_threshold: bool = False  # Only update players above score threshold
-    player_score_threshold: float = 50.0  # Minimum fantasy points to trigger API update
+    skip_drafted_player_updates: bool = SKIP_DRAFTED_PLAYER_UPDATES  # Skip API calls for drafted=1 players (from config)
+    use_score_threshold: bool = USE_SCORE_THRESHOLD  # Only update players above score threshold (from config)
+    player_score_threshold: float = PLAYER_SCORE_THRESHOLD  # Minimum fantasy points to trigger API update (from config)
     
     def validate_settings(self) -> None:
         """Validate settings and warn about potential issues"""
-        current_year = 2025  # Current NFL season
+        import datetime
+        current_year = datetime.datetime.now().year
         
         if self.season > current_year:
             print(f"WARNING: Season {self.season} is in the future. ESPN may not have this data yet.")
@@ -104,16 +113,16 @@ class Settings(BaseSettings):
         if self.rate_limit_delay < 0.1:
             print(f"WARNING: Rate limit delay {self.rate_limit_delay}s may be too aggressive.")
     
-    # Output Configuration  
-    output_directory: str = "data"
-    create_csv: bool = True  # Whether to create CSV output
-    create_json: bool = True  # Whether to create JSON output
-    create_excel: bool = True  # Whether to create Excel output
+    # Output Configuration (from config)
+    output_directory: str = OUTPUT_DIRECTORY  # Output directory (from config)
+    create_csv: bool = CREATE_CSV  # Whether to create CSV output (from config)
+    create_json: bool = CREATE_JSON  # Whether to create JSON output (from config)
+    create_excel: bool = CREATE_EXCEL  # Whether to create Excel output (from config)
     create_latest_files: bool = True  # Whether to create latest versions
-    
-    # API Settings
-    request_timeout: int = 30
-    rate_limit_delay: float = 0.2  # 5 requests per second
+
+    # API Settings (from config)
+    request_timeout: int = REQUEST_TIMEOUT  # Request timeout in seconds (from config)
+    rate_limit_delay: float = RATE_LIMIT_DELAY  # Delay between requests (from config)
 
 
 class NFLProjectionsCollector:

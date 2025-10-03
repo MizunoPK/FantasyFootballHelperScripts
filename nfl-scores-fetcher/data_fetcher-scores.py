@@ -81,8 +81,9 @@ class Settings(BaseSettings):
     
     def validate_settings(self) -> None:
         """Validate settings and warn about potential issues"""
-        current_year = 2025  # Current NFL season
-        
+        import datetime
+        current_year = datetime.datetime.now().year
+
         if self.season > current_year:
             print(f"WARNING: Season {self.season} is in the future. ESPN may not have this data yet.")
         elif self.season < current_year - 1:

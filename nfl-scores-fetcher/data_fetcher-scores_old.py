@@ -47,6 +47,11 @@ from pydantic import BaseModel, Field  # Data validation and serialization
 from pydantic_settings import BaseSettings, SettingsConfigDict  # Environment variable management
 from tenacity import retry, stop_after_attempt, wait_random_exponential  # Retry logic with backoff
 
+# Import NFL season from centralized config
+import sys
+sys.path.append(str(Path(__file__).parent.parent))
+from shared_files.configs.shared_config import NFL_SEASON
+
 
 # Configuration Management
 # ========================
@@ -63,7 +68,7 @@ class Settings(BaseSettings):
     
     # Data Collection Parameters
     # ==========================
-    season: int = 2025  # NFL season year (2024 = 2024-2025 season)
+    season: int = NFL_SEASON  # NFL season year (from config)
     season_type: int = 2  # ESPN season type: 1=Preseason, 2=Regular Season, 3=Postseason
     current_week: Optional[int] = None  # Specific week to fetch; None = get recent games
     only_completed_games: bool = True  # Filter to only include finished games

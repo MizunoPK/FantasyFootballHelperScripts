@@ -58,7 +58,7 @@ OUTPUT_DIRECTORY = "./data"
 CREATE_CSV = True
 CREATE_JSON = False
 CREATE_EXCEL = False
-CREATE_CONDENSED_EXCEL = True
+CREATE_CONDENSED_EXCEL = False
 
 # File Paths (FREQUENTLY MODIFIED)
 PLAYERS_CSV = '../shared_files/players.csv'

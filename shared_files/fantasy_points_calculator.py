@@ -27,6 +27,9 @@ from shared_files.logging_utils import setup_module_logging
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
 
+# Import NFL season from centralized config
+from shared_files.configs.shared_config import NFL_SEASON
+
 
 @dataclass
 class FantasyPointsConfig:
@@ -47,13 +50,13 @@ class FantasyPointsExtractor:
     stat entries, with comprehensive fallback mechanisms and configurable behavior.
     """
 
-    def __init__(self, config: Optional[FantasyPointsConfig] = None, season: int = 2025):
+    def __init__(self, config: Optional[FantasyPointsConfig] = None, season: int = NFL_SEASON):
         """
         Initialize the fantasy points extractor
 
         Args:
             config: Configuration object. If None, uses default settings
-            season: Current NFL season year
+            season: Current NFL season year (defaults to NFL_SEASON from config)
         """
         self.config = config or FantasyPointsConfig()
         self.season = season
@@ -233,7 +236,7 @@ def extract_week_fantasy_points(
     position: str,
     player_name: str = "Unknown",
     config: Optional[FantasyPointsConfig] = None,
-    season: int = 2025,
+    season: int = NFL_SEASON,
     fallback_data: Optional[Dict[str, Any]] = None
 ) -> float:
     """

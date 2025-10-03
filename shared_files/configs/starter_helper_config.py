@@ -116,7 +116,7 @@ DATA_DIR = './data'
 # =============================================================================
 
 # Output file settings (FREQUENTLY MODIFIED)
-SAVE_OUTPUT_TO_FILE = True          # Enable/disable file output
+SAVE_OUTPUT_TO_FILE = False          # Enable/disable file output
 OUTPUT_FILE_PREFIX = 'starter_results'  # Prefix for output files
 LATEST_FILE_NAME = 'starter_results_latest.txt'  # Latest results file name
 
