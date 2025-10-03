@@ -207,24 +207,50 @@ timeout 10 .venv\Scripts\python.exe run_nfl_scores_fetcher.py
 timeout 10 .venv\Scripts\python.exe run_starter_helper.py
 ```
 
-### ⚠️ MANDATORY Interactive Integration Tests
-**CRITICAL**: Before ANY commit, you MUST run the interactive draft helper tests. Unit tests alone are NOT sufficient.
+### ⚠️ AUTOMATED Pre-Commit Validation (RECOMMENDED)
+**FASTEST WAY**: Run the automated validation script that checks EVERYTHING:
 
 ```bash
-# Run automated integration test sequence (2-3 minutes)
+# Run complete validation suite (3-5 minutes)
+python run_pre_commit_validation.py
+
+# This automatically runs:
+#   ✅ All unit tests (pytest)
+#   ✅ Startup validation tests
+#   ✅ Interactive integration tests
+#   ✅ Prints colored summary with pass/fail status
+```
+
+**Exit Codes**:
+- `0` = All tests passed, safe to commit
+- `1` = Some tests failed, DO NOT COMMIT
+
+### Manual Pre-Commit Validation (Alternative)
+If you prefer to run tests manually:
+
+**1. Unit Tests**:
+```bash
+python -m pytest --tb=short
+```
+
+**2. Startup Tests**:
+```bash
+timeout 10 python run_player_data_fetcher.py
+timeout 10 python run_nfl_scores_fetcher.py
+```
+
+**3. Interactive Integration Tests (MANDATORY)**:
+```bash
+# Run automated integration test sequence
 echo -e "2\nHunt\n1\nexit\n3\n\n4\nHunt\n1\nHampton\n1\nexit\n1\n1\n5\n15\n16\n3\n\n5\n15\n16\n6\n\n7\n4\n8\n" | python run_draft_helper.py
 
 # Verify success: Look for "✅ Marked", "✅ Dropped", "✅ Successfully added", "Goodbye!"
 ```
 
-**Why Required**: Interactive tests catch menu bugs, CSV persistence issues, and workflow problems that unit tests miss.
+**Why Interactive Tests Are Required**: They catch menu bugs, CSV persistence issues, and workflow problems that unit tests miss.
 
-### Pre-Commit Validation (ALWAYS REQUIRED)
-Follow the complete checklist in `tests/pre_commit_validation_checklist.md`:
-1. **Unit Tests**: Run full test suite (all tests must pass)
-2. **Startup Tests**: Verify all scripts start successfully
-3. **Interactive Tests**: Run draft helper integration tests (MANDATORY)
-4. **Verify**: Check for "✅" success markers in output
+### Pre-Commit Validation Checklist
+Complete checklist available in `tests/pre_commit_validation_checklist.md`
 
 **DO NOT SKIP** the interactive tests. They are required for every commit.
 

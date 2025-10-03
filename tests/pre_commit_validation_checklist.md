@@ -6,6 +6,29 @@
 
 ---
 
+## 🚀 **QUICK START: Automated Validation (RECOMMENDED)**
+
+**FASTEST METHOD**: Run the automated validation runner script:
+
+```bash
+python run_pre_commit_validation.py
+```
+
+This single command runs ALL validation steps:
+- ✅ All unit tests across all modules
+- ✅ Startup validation for all core scripts
+- ✅ Interactive integration tests for draft helper
+- ✅ Colored output with clear pass/fail indicators
+- ✅ Final summary with duration and detailed results
+
+**Exit Codes**:
+- `0` = All validations passed, safe to commit
+- `1` = Some validations failed, DO NOT COMMIT
+
+**If you prefer manual validation**, follow the detailed steps below.
+
+---
+
 ## 📊 **Step 1: Analyze All Changes**
 
 ### **Change Analysis**
