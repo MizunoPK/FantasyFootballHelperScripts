@@ -155,6 +155,8 @@ All New Tests Pass: ✅/❌
 
 ## 🔧 **Step 4: Integration Testing**
 
+**⚠️ CRITICAL**: Integration testing is MANDATORY and must include BOTH startup tests AND interactive draft helper tests. Do NOT skip the interactive tests.
+
 ### **Core Application Startup Validation**
 - [ ] **Player Data Fetcher Startup Test**: Verify application starts without errors
 - [ ] **NFL Scores Fetcher Startup Test**: Verify application starts without errors
@@ -178,38 +180,60 @@ timeout 10 python run_nfl_scores_fetcher.py
 - [ ] **No Import Errors**: All required modules load properly
 - [ ] **Configuration Loading**: All config files parse without errors
 
-### **Draft Helper Validation**
-- [ ] Copy `draft_helper_validation_checklist.md` to `tests/temp_integration_checklist.md`
-- [ ] Execute all 23 integration test steps
-- [ ] Update checklist with pass/fail status for each test
-- [ ] Validate FLEX system functionality
-- [ ] Verify CSV data persistence
-- [ ] Confirm point calculations accuracy
+---
 
-### **Integration Test Execution**
+### **🎯 MANDATORY: Draft Helper Interactive Integration Tests**
+
+**⚠️ IMPORTANT**: These tests MUST be run for every commit. They validate critical user-facing functionality that unit tests cannot catch.
+
+**Why These Tests Are Required**:
+- Unit tests only validate individual functions, NOT the complete user workflow
+- Interactive tests catch menu system bugs, CSV persistence issues, and integration problems
+- These tests have caught critical bugs that unit tests missed in the past
+- Takes only 2-3 minutes but prevents hours of debugging later
+
+### **Draft Helper Validation - REQUIRED STEPS**
+- [ ] **MUST DO**: Copy `draft_helper_validation_checklist.md` to `tests/temp_integration_checklist.md`
+- [ ] **MUST DO**: Execute automated integration test sequence (see below)
+- [ ] **MUST DO**: Verify all key test steps passed
+- [ ] **MUST DO**: Validate FLEX system functionality
+- [ ] **MUST DO**: Verify CSV data persistence
+- [ ] **MUST DO**: Confirm point calculations accuracy
+
+### **Integration Test Execution - AUTOMATED**
 ```bash
 # Copy checklist for working reference
 cp tests/draft_helper_validation_checklist.md tests/temp_integration_checklist.md
 
-# Execute integration test sequence
-echo -e "2\nHunt\n6\nexit\n3\n\n4\nHunt\n1\ny\nHampton\n1\ny\nexit\n1\n1\n5\n15\ny\n16\n3\n\n5\n15\ny\n16\n6\n\n7\n" | python run_draft_helper.py
+# Execute automated integration test sequence
+# This tests: Mark Drafted, Waiver Optimizer, Drop Player, Add to Roster, Lock/Unlock, Starter Helper, Trade Simulator
+echo -e "2\nHunt\n1\nexit\n3\n\n4\nHunt\n1\nHampton\n1\nexit\n1\n1\n5\n15\n16\n3\n\n5\n15\n16\n6\n\n7\n4\n8\n" | python run_draft_helper.py
+
+# Verify test output shows success markers
+# Expected: "✅ Marked", "✅ Dropped", "✅ Successfully added", "Goodbye!"
 ```
 
-- [ ] **Test 1-4**: Mark Drafted Player ✅/❌
-- [ ] **Test 5-7**: Trade Analysis ✅/❌
-- [ ] **Test 8-11**: Drop Player ✅/❌
-- [ ] **Test 12-13**: Add to Roster ✅/❌
-- [ ] **Test 14-19**: Lock/Unlock ✅/❌
-- [ ] **Test 20-22**: Starter Helper ✅/❌
-- [ ] **Test 23**: Clean Exit ✅/❌
+**Required Test Validations**:
+- [ ] **Test 1**: Mark Drafted Player - Player marked as drafted=1 ✅/❌
+- [ ] **Test 2**: Waiver Optimizer - Runs without errors ✅/❌
+- [ ] **Test 3**: Drop Player - Player dropped to drafted=0 ✅/❌
+- [ ] **Test 4**: Add to Roster - Player added to roster ✅/❌
+- [ ] **Test 5**: Lock/Unlock - Lock status toggles ✅/❌
+- [ ] **Test 6**: Starter Helper - Generates lineup ✅/❌
+- [ ] **Test 7**: Trade Simulator - Opens and exits cleanly ✅/❌
+- [ ] **Test 8**: Clean Exit - "Goodbye!" message ✅/❌
 
-### **Critical Validations**
+### **Critical Validations - MUST VERIFY**
 - [ ] **FLEX System**: WR (4/4) and FLEX (1/1) display correctly
 - [ ] **CSV Updates**: All changes reflected in `shared_files/players.csv`
 - [ ] **Point Consistency**: Fantasy points consistent across all modes
+- [ ] **No Errors**: No exceptions or error messages in output
+- [ ] **Success Markers**: Output contains "✅" markers for completed actions
 
 ### **Cleanup**
 - [ ] Delete `tests/temp_integration_checklist.md` after completion
+
+**⚠️ IF INTERACTIVE TESTS FAIL**: DO NOT COMMIT. Fix the issues first.
 
 ---
 

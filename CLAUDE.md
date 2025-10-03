@@ -207,12 +207,26 @@ timeout 10 .venv\Scripts\python.exe run_nfl_scores_fetcher.py
 timeout 10 .venv\Scripts\python.exe run_starter_helper.py
 ```
 
-### Pre-Change Validation
-Before major changes:
-1. Run full test suite (all 577 tests must pass)
-2. Run startup validation (all scripts start successfully)
-3. Test draft helper in both modes (draft and trade)
-4. Run player data fetcher for 10+ players
+### ⚠️ MANDATORY Interactive Integration Tests
+**CRITICAL**: Before ANY commit, you MUST run the interactive draft helper tests. Unit tests alone are NOT sufficient.
+
+```bash
+# Run automated integration test sequence (2-3 minutes)
+echo -e "2\nHunt\n1\nexit\n3\n\n4\nHunt\n1\nHampton\n1\nexit\n1\n1\n5\n15\n16\n3\n\n5\n15\n16\n6\n\n7\n4\n8\n" | python run_draft_helper.py
+
+# Verify success: Look for "✅ Marked", "✅ Dropped", "✅ Successfully added", "Goodbye!"
+```
+
+**Why Required**: Interactive tests catch menu bugs, CSV persistence issues, and workflow problems that unit tests miss.
+
+### Pre-Commit Validation (ALWAYS REQUIRED)
+Follow the complete checklist in `tests/pre_commit_validation_checklist.md`:
+1. **Unit Tests**: Run full test suite (all tests must pass)
+2. **Startup Tests**: Verify all scripts start successfully
+3. **Interactive Tests**: Run draft helper integration tests (MANDATORY)
+4. **Verify**: Check for "✅" success markers in output
+
+**DO NOT SKIP** the interactive tests. They are required for every commit.
 
 ---
 
