@@ -16,7 +16,8 @@ sys.path.append(os.path.dirname(__file__))
 from shared_files.configs.simulation_config import (
     TOP_CONFIGS_PERCENTAGE,
     FINE_GRAIN_OFFSETS,
-    FINE_GRAIN_BOUNDS
+    FINE_GRAIN_BOUNDS,
+    ENABLE_FINE_GRAIN_OFFSETS
 )
 from parameter_loader import expand_parameter_combinations
 
@@ -81,9 +82,28 @@ class ConfigurationOptimizer:
         return processed_configs
 
     def generate_full_configs(self, top_configs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Generate full parameter ranges around top performing configurations"""
+        """
+        Generate full parameter ranges around top performing configurations.
+
+        If ENABLE_FINE_GRAIN_OFFSETS is True, generates fine-grained variations
+        around each top config using FINE_GRAIN_OFFSETS.
+
+        If ENABLE_FINE_GRAIN_OFFSETS is False, returns the top configs unchanged
+        (runs full simulations on preliminary winners only - faster but less exploration).
+
+        Args:
+            top_configs: List of top-performing configurations from preliminary phase
+
+        Returns:
+            List of configurations to test in full simulation phase
+        """
+        # If fine-grain offsets disabled, just return top configs unchanged
+        if not ENABLE_FINE_GRAIN_OFFSETS:
+            print(f">> Fine-grain offsets DISABLED - using top {len(top_configs)} configs as-is")
+            return top_configs.copy()
 
         # For each top config, generate variations with finer granularity
+        print(f">> Fine-grain offsets ENABLED - generating variations for {len(top_configs)} top configs")
         full_configs = []
 
         for base_config in top_configs:

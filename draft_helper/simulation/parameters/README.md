@@ -72,7 +72,28 @@ Each parameter should have a list of values to test in combinations. Examples:
 The simulation uses a two-phase optimization approach:
 
 1. **Preliminary Phase**: Tests all combinations from your parameter JSON
-2. **Fine-Grain Phase**: For top performers, generates additional variations using fine-grain offsets
+2. **Fine-Grain Phase**: For top performers, generates additional variations using fine-grain offsets (optional)
+
+### Enabling/Disabling Fine-Grain Phase
+
+In `shared_files/configs/simulation_config.py`:
+
+```python
+ENABLE_FINE_GRAIN_OFFSETS = True   # Enable fine-grain variations (slower, more thorough)
+ENABLE_FINE_GRAIN_OFFSETS = False  # Disable (faster, only test top configs as-is)
+```
+
+**When to disable:**
+- Quick testing during development
+- Limited time available
+- Preliminary phase already found good configurations
+- Just want to validate top configs with more simulations
+
+**When to enable:**
+- Final optimization runs
+- Exploring parameter sensitivities
+- Need to find absolute best configuration
+- Have time for thorough testing
 
 ### Configuration
 
