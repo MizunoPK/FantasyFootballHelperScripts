@@ -67,6 +67,54 @@ Each parameter should have a list of values to test in combinations. Examples:
 - **Two values**: `[100, 120]` - Test both 100 and 120 in all combinations
 - **Multiple values**: `[100, 110, 120]` - Test all three values (more combinations)
 
+## Fine-Grain Variation Offsets
+
+The simulation uses a two-phase optimization approach:
+
+1. **Preliminary Phase**: Tests all combinations from your parameter JSON
+2. **Fine-Grain Phase**: For top performers, generates additional variations using fine-grain offsets
+
+### Configuration
+
+Fine-grain offsets are defined in `shared_files/configs/simulation_config.py`:
+
+- **FINE_GRAIN_OFFSETS**: Offset values to add/subtract from top configs
+- **FINE_GRAIN_BOUNDS**: Min/max limits for each parameter
+
+Example from `simulation_config.py`:
+```python
+FINE_GRAIN_OFFSETS = {
+    'INJURY_PENALTIES_MEDIUM': [-10, -5, 0, 5, 10],  # 5 variations
+    'INJURY_PENALTIES_HIGH': [-15, -10, -5, 0, 5, 10, 15],  # 7 variations
+    ...
+}
+```
+
+### How It Works
+
+If a top config has `INJURY_PENALTIES_MEDIUM = 25`, the fine-grain phase will test:
+- `25 + (-10) = 15`
+- `25 + (-5) = 20`
+- `25 + 0 = 25` (original)
+- `25 + 5 = 30`
+- `25 + 10 = 35`
+
+All values are clamped to their defined bounds in `FINE_GRAIN_BOUNDS`.
+
+### Customizing Offsets
+
+To customize fine-grain exploration:
+
+1. Edit `shared_files/configs/simulation_config.py`
+2. Modify `FINE_GRAIN_OFFSETS` for the parameters you want to explore more/less
+3. Update `FINE_GRAIN_BOUNDS` if you need different value ranges
+
+**Tips:**
+- More offsets = more thorough testing but longer runtime
+- Always include `0` to test the original top config value
+- Use symmetric ranges (e.g., `[-5, 0, 5]`) for balanced exploration
+- Scale offsets based on parameter magnitude (small offsets for 0-2 range, larger for 0-100 range)
+
 ## Example Files
 
 ### baseline_parameters.json

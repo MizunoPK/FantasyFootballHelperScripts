@@ -13,7 +13,11 @@ import os
 
 # Add current directory to path for local imports
 sys.path.append(os.path.dirname(__file__))
-from shared_files.configs.simulation_config import TOP_CONFIGS_PERCENTAGE
+from shared_files.configs.simulation_config import (
+    TOP_CONFIGS_PERCENTAGE,
+    FINE_GRAIN_OFFSETS,
+    FINE_GRAIN_BOUNDS
+)
 from parameter_loader import expand_parameter_combinations
 
 @dataclass
@@ -119,23 +123,22 @@ class ConfigurationOptimizer:
         return config
 
     def _generate_config_variations(self, base_config: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Generate fine-grained variations around a base configuration"""
+        """
+        Generate fine-grained variations around a base configuration.
 
+        Uses FINE_GRAIN_OFFSETS and FINE_GRAIN_BOUNDS from simulation_config.py
+        to create variations for each parameter in the base configuration.
+
+        Args:
+            base_config: Top-performing configuration to create variations around
+
+        Returns:
+            List of configuration variations including the original base config
+        """
         variations = [base_config.copy()]
 
-        # Define fine-grained ranges around base values
-        fine_ranges = {
-            'INJURY_PENALTIES_MEDIUM': [-10, -5, 0, 5, 10],
-            'INJURY_PENALTIES_HIGH': [-15, -10, -5, 0, 5, 10, 15],
-            # DEPRECATED: Legacy scoring weights (no longer used)
-            # 'POS_NEEDED_SCORE': [-15, -10, -5, 0, 5, 10, 15],
-            # 'PROJECTION_BASE_SCORE': [-15, -10, -5, 0, 5, 10, 15],
-            'BASE_BYE_PENALTY': [-10, -5, 0, 5, 10],
-            'DRAFT_ORDER_WEIGHTS': [-0.2, -0.1, 0, 0.1, 0.2]
-        }
-
-        # Generate variations for each parameter
-        for param_name, offsets in fine_ranges.items():
+        # Generate variations for each parameter that has defined offsets
+        for param_name, offsets in FINE_GRAIN_OFFSETS.items():
             if param_name in base_config:
                 base_value = base_config[param_name]
 
@@ -143,25 +146,12 @@ class ConfigurationOptimizer:
                     new_config = base_config.copy()
                     new_value = base_value + offset
 
-                    # Apply bounds checking
-                    if param_name in ['INJURY_PENALTIES_MEDIUM', 'INJURY_PENALTIES_HIGH']:
-                        new_value = max(0, min(100, new_value))
-                    # DEPRECATED: Legacy scoring weights (no longer used)
-                    # elif param_name == 'POS_NEEDED_SCORE':
-                    #     new_value = max(0, min(150, new_value))
-                    # elif param_name == 'PROJECTION_BASE_SCORE':
-                    #     new_value = max(50, min(200, new_value))
-                    elif param_name == 'BASE_BYE_PENALTY':
-                        new_value = max(0, min(100, new_value))
-                    elif param_name == 'DRAFT_ORDER_WEIGHTS':
-                        new_value = max(0.1, min(2.0, new_value))
+                    # Apply bounds checking if bounds are defined
+                    if param_name in FINE_GRAIN_BOUNDS:
+                        min_val, max_val = FINE_GRAIN_BOUNDS[param_name]
+                        new_value = max(min_val, min(max_val, new_value))
 
                     new_config[param_name] = new_value
-
-                    # Handle DRAFT_ORDER weights
-                    if param_name == 'DRAFT_ORDER_WEIGHTS':
-                        new_config = self._apply_draft_order_weights(new_config)
-
                     variations.append(new_config)
 
         return variations

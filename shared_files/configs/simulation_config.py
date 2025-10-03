@@ -70,6 +70,93 @@ NFL_SEASON_WEEKS = 17                 # Full season simulation
 HUMAN_ERROR_RATE = 0.3              # 30% chance of suboptimal pick
 SUBOPTIMAL_CHOICE_POOL = 5          # Pick from top 5 instead of #1
 
+# =============================================================================
+# FINE-GRAIN VARIATION OFFSETS
+# =============================================================================
+# These offsets are used in the second phase of optimization to generate
+# fine-grained variations around top-performing configurations.
+#
+# For each top configuration, the system creates variations by adding these
+# offset values to each parameter. For example, if a top config has
+# INJURY_PENALTIES_MEDIUM = 25, and offsets are [-10, -5, 0, 5, 10],
+# it will test: 15, 20, 25, 30, 35
+#
+# Offset Design Guidelines:
+# - Include 0 to test the original top config value
+# - Use symmetric ranges around 0 for balanced exploration
+# - Scale offsets based on parameter magnitude and typical range
+# - More offsets = more thorough testing but more computation time
+
+FINE_GRAIN_OFFSETS = {
+    # Core Scoring Parameters
+    'NORMALIZATION_MAX_SCALE': [-20, -10, 0, 10, 20],  # Scale: 80-120 typical
+    'DRAFT_ORDER_PRIMARY_BONUS': [-10, -5, 0, 5, 10],  # Scale: 40-60 typical
+    'DRAFT_ORDER_SECONDARY_BONUS': [-5, -2, 0, 2, 5],  # Scale: 20-30 typical
+
+    # Matchup Multipliers (decimal offsets for 0.8-1.2 range)
+    'MATCHUP_EXCELLENT_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+    'MATCHUP_GOOD_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+    'MATCHUP_NEUTRAL_MULTIPLIER': [-0.02, -0.01, 0, 0.01, 0.02],
+    'MATCHUP_POOR_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+    'MATCHUP_VERY_POOR_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+
+    # Injury & Bye Penalties
+    'INJURY_PENALTIES_MEDIUM': [-10, -5, 0, 5, 10],     # Scale: 15-35 typical
+    'INJURY_PENALTIES_HIGH': [-15, -10, -5, 0, 5, 10, 15],  # Scale: 35-65 typical
+    'BASE_BYE_PENALTY': [-10, -5, 0, 5, 10],            # Scale: 0-20 typical
+
+    # ADP Adjustments (decimal offsets for 0.9-1.2 range)
+    'ADP_EXCELLENT_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+    'ADP_GOOD_MULTIPLIER': [-0.03, -0.01, 0, 0.01, 0.03],
+    'ADP_POOR_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+
+    # Player Rating Adjustments (decimal offsets for 0.9-1.2 range)
+    'PLAYER_RATING_EXCELLENT_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+    'PLAYER_RATING_GOOD_MULTIPLIER': [-0.03, -0.01, 0, 0.01, 0.03],
+    'PLAYER_RATING_POOR_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+
+    # Team Quality Adjustments (decimal offsets for 0.9-1.2 range)
+    'TEAM_EXCELLENT_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+    'TEAM_GOOD_MULTIPLIER': [-0.03, -0.01, 0, 0.01, 0.03],
+    'TEAM_POOR_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+}
+
+# Parameter bounds for fine-grain variations
+# Format: {parameter_name: (min_value, max_value)}
+FINE_GRAIN_BOUNDS = {
+    # Core Scoring Parameters
+    'NORMALIZATION_MAX_SCALE': (50, 200),
+    'DRAFT_ORDER_PRIMARY_BONUS': (0, 100),
+    'DRAFT_ORDER_SECONDARY_BONUS': (0, 50),
+
+    # Matchup Multipliers
+    'MATCHUP_EXCELLENT_MULTIPLIER': (1.0, 1.5),
+    'MATCHUP_GOOD_MULTIPLIER': (1.0, 1.3),
+    'MATCHUP_NEUTRAL_MULTIPLIER': (0.95, 1.05),
+    'MATCHUP_POOR_MULTIPLIER': (0.7, 1.0),
+    'MATCHUP_VERY_POOR_MULTIPLIER': (0.5, 1.0),
+
+    # Injury & Bye Penalties
+    'INJURY_PENALTIES_MEDIUM': (0, 100),
+    'INJURY_PENALTIES_HIGH': (0, 100),
+    'BASE_BYE_PENALTY': (0, 100),
+
+    # ADP Adjustments
+    'ADP_EXCELLENT_MULTIPLIER': (1.0, 1.5),
+    'ADP_GOOD_MULTIPLIER': (1.0, 1.3),
+    'ADP_POOR_MULTIPLIER': (0.7, 1.0),
+
+    # Player Rating Adjustments
+    'PLAYER_RATING_EXCELLENT_MULTIPLIER': (1.0, 1.5),
+    'PLAYER_RATING_GOOD_MULTIPLIER': (1.0, 1.3),
+    'PLAYER_RATING_POOR_MULTIPLIER': (0.7, 1.0),
+
+    # Team Quality Adjustments
+    'TEAM_EXCELLENT_MULTIPLIER': (1.0, 1.5),
+    'TEAM_GOOD_MULTIPLIER': (1.0, 1.3),
+    'TEAM_POOR_MULTIPLIER': (0.7, 1.0),
+}
+
 # Team strategy distribution
 TEAM_STRATEGIES = {
     'conservative': 2,    # 2 teams use conservative strategy
@@ -122,6 +209,29 @@ def validate_simulation_config():
 
     if MAX_PARALLEL_THREADS is not None and MAX_PARALLEL_THREADS < 1:
         errors.append("MAX_PARALLEL_THREADS must be at least 1 or None for auto-detection")
+
+    # Validate fine-grain offsets - each parameter should have a list
+    for param_name, offsets in FINE_GRAIN_OFFSETS.items():
+        if not isinstance(offsets, list):
+            errors.append(f"FINE_GRAIN_OFFSETS['{param_name}'] must be a list, got {type(offsets).__name__}")
+        elif not offsets:
+            errors.append(f"FINE_GRAIN_OFFSETS['{param_name}'] cannot be empty")
+        elif 0 not in offsets:
+            errors.append(f"FINE_GRAIN_OFFSETS['{param_name}'] should include 0 to test the original value")
+
+    # Validate fine-grain bounds - each parameter should have (min, max) tuple
+    for param_name, bounds in FINE_GRAIN_BOUNDS.items():
+        if not isinstance(bounds, tuple) or len(bounds) != 2:
+            errors.append(f"FINE_GRAIN_BOUNDS['{param_name}'] must be a (min, max) tuple")
+        else:
+            min_val, max_val = bounds
+            if min_val >= max_val:
+                errors.append(f"FINE_GRAIN_BOUNDS['{param_name}'] min ({min_val}) must be < max ({max_val})")
+
+    # Check that offset parameters have corresponding bounds
+    missing_bounds = set(FINE_GRAIN_OFFSETS.keys()) - set(FINE_GRAIN_BOUNDS.keys())
+    if missing_bounds:
+        errors.append(f"Parameters in FINE_GRAIN_OFFSETS missing from FINE_GRAIN_BOUNDS: {missing_bounds}")
 
     if errors:
         raise ValueError(f"Simulation configuration validation failed: {'; '.join(errors)}")
