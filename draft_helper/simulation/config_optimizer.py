@@ -15,6 +15,7 @@ import os
 sys.path.append(os.path.dirname(__file__))
 from shared_files.configs.simulation_config import (
     TOP_CONFIGS_PERCENTAGE,
+    MINIMUM_TOP_CONFIGS,
     FINE_GRAIN_OFFSETS,
     FINE_GRAIN_BOUNDS,
     ENABLE_FINE_GRAIN_OFFSETS
@@ -177,7 +178,12 @@ class ConfigurationOptimizer:
         return variations
 
     def identify_top_configs(self, results: List[ConfigResult]) -> List[Dict[str, Any]]:
-        """Identify top performing configurations from preliminary results"""
+        """Identify top performing configurations from preliminary results
+
+        Uses the maximum of:
+        - TOP_CONFIGS_PERCENTAGE of total results
+        - MINIMUM_TOP_CONFIGS
+        """
 
         if not results:
             return []
@@ -185,8 +191,12 @@ class ConfigurationOptimizer:
         # Sort by average win percentage descending
         sorted_results = sorted(results, key=lambda x: x.avg_win_percentage, reverse=True)
 
-        # Take top percentage
-        top_count = max(1, int(len(sorted_results) * TOP_CONFIGS_PERCENTAGE))
+        # Calculate top count from percentage
+        percentage_count = int(len(sorted_results) * TOP_CONFIGS_PERCENTAGE)
+
+        # Use the maximum of percentage count and minimum configs, but cap at total available
+        top_count = max(1, min(max(percentage_count, MINIMUM_TOP_CONFIGS), len(sorted_results)))
+
         top_results = sorted_results[:top_count]
 
         return [result.config_params for result in top_results]

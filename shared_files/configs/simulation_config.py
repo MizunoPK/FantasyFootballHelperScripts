@@ -57,6 +57,9 @@ SIMULATION_LOG_LEVEL = "WARNING"
 SIMULATIONS_PER_CONFIG = 100           # Number of drafts to run per configuration
 PRELIMINARY_SIMULATIONS_PER_CONFIG = 30  # Reduced for preliminary testing
 TOP_CONFIGS_PERCENTAGE = 0.1          # Top configs advance to full testing
+MINIMUM_TOP_CONFIGS = 10              # Minimum number of top configs to test in full phase
+                                       # If total configs < this value, skip preliminary phase
+                                       # If percentage yields fewer configs, use this minimum instead
 
 # Fine-grain offset toggle
 ENABLE_FINE_GRAIN_OFFSETS = False      # Enable/disable fine-grain variation generation
@@ -211,6 +214,9 @@ def validate_simulation_config():
 
     if not (0 < TOP_CONFIGS_PERCENTAGE <= 1):
         errors.append("TOP_CONFIGS_PERCENTAGE must be between 0 and 1")
+
+    if MINIMUM_TOP_CONFIGS < 1:
+        errors.append("MINIMUM_TOP_CONFIGS must be at least 1")
 
     if MAX_PARALLEL_THREADS is not None and MAX_PARALLEL_THREADS < 1:
         errors.append("MAX_PARALLEL_THREADS must be at least 1 or None for auto-detection")

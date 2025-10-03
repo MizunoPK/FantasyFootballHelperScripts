@@ -67,9 +67,39 @@ Each parameter should have a list of values to test in combinations. Examples:
 - **Two values**: `[100, 120]` - Test both 100 and 120 in all combinations
 - **Multiple values**: `[100, 110, 120]` - Test all three values (more combinations)
 
-## Fine-Grain Variation Offsets
+## Two-Phase Optimization
 
-The simulation uses a two-phase optimization approach:
+The simulation uses a two-phase optimization approach to efficiently explore the parameter space:
+
+### Phase Selection Logic
+
+The simulation automatically determines whether to run preliminary testing based on the number of parameter combinations:
+
+```python
+# In shared_files/configs/simulation_config.py
+TOP_CONFIGS_PERCENTAGE = 0.1    # Top 10% advance to full testing
+MINIMUM_TOP_CONFIGS = 10        # Minimum configs for full testing
+```
+
+**Behavior:**
+1. **If total configs < MINIMUM_TOP_CONFIGS**: Skip preliminary phase entirely, run full testing on all configs
+2. **If total configs >= MINIMUM_TOP_CONFIGS**: Run two-phase optimization:
+   - **Preliminary Phase**: Quick testing (30 sims per config) on all combinations
+   - **Full Phase**: Thorough testing (100 sims per config) on top performers
+
+**Top Config Selection:**
+- Uses the **maximum** of `TOP_CONFIGS_PERCENTAGE` and `MINIMUM_TOP_CONFIGS`
+- Example: With 50 total configs and 10% threshold:
+  - Percentage: 50 × 0.1 = 5 configs
+  - Minimum: 10 configs
+  - **Result**: Tests top 10 configs (uses minimum since it's higher)
+
+**Example Scenarios:**
+- **8 total configs**: Skips preliminary, runs 100 simulations on all 8 configs
+- **20 total configs**: Runs 30 simulations on all 20, then 100 simulations on top 10
+- **200 total configs**: Runs 30 simulations on all 200, then 100 simulations on top 20 (10%)
+
+### Phase Details
 
 1. **Preliminary Phase**: Tests all combinations from your parameter JSON
 2. **Fine-Grain Phase**: For top performers, generates additional variations using fine-grain offsets (optional)

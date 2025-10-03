@@ -22,7 +22,12 @@ from parallel_runner import ParallelSimulationRunner
 from results_analyzer import ResultsAnalyzer
 from simulation_engine import DraftSimulationEngine
 from season_simulator import SeasonSimulator
-from shared_files.configs.simulation_config import get_timestamped_results_file, RESULTS_DIR, SIMULATION_LOG_LEVEL
+from shared_files.configs.simulation_config import (
+    get_timestamped_results_file,
+    RESULTS_DIR,
+    SIMULATION_LOG_LEVEL,
+    MINIMUM_TOP_CONFIGS
+)
 from parameter_loader import load_and_expand_config
 
 # Configure logging level for simulation
@@ -94,28 +99,40 @@ class MainSimulator:
             preliminary_configs = self.config_optimizer.generate_preliminary_configs()
             print(f"Generated {len(preliminary_configs)} preliminary configurations")
 
-            # Step 4: Run preliminary simulations
-            print(">> Running preliminary simulations...")
-            preliminary_results = self.parallel_runner.run_preliminary_simulations(
-                preliminary_configs,
-                lambda config: self._run_single_complete_simulation(config, players_projected_df, players_actual_df)
-            )
+            # Check if we should skip preliminary testing
+            skip_preliminary = len(preliminary_configs) < MINIMUM_TOP_CONFIGS
 
-            # Step 5: Analyze preliminary results
-            print(">> Analyzing preliminary results...")
-            preliminary_config_results = []
-            for config_key, result_data in preliminary_results.items():
-                config_result = self.config_optimizer.analyze_config_performance(
-                    result_data['config'],
-                    result_data['results']
+            if skip_preliminary:
+                print(f">> Total configs ({len(preliminary_configs)}) < MINIMUM_TOP_CONFIGS ({MINIMUM_TOP_CONFIGS})")
+                print(f">> Skipping preliminary phase and running full testing on all {len(preliminary_configs)} configs")
+
+                # Skip preliminary, go straight to full testing with all configs
+                top_configs = preliminary_configs
+                preliminary_config_results = []
+                self.config_optimizer.preliminary_results = []
+            else:
+                # Step 4: Run preliminary simulations
+                print(">> Running preliminary simulations...")
+                preliminary_results = self.parallel_runner.run_preliminary_simulations(
+                    preliminary_configs,
+                    lambda config: self._run_single_complete_simulation(config, players_projected_df, players_actual_df)
                 )
-                preliminary_config_results.append(config_result)
 
-            self.config_optimizer.preliminary_results = preliminary_config_results
+                # Step 5: Analyze preliminary results
+                print(">> Analyzing preliminary results...")
+                preliminary_config_results = []
+                for config_key, result_data in preliminary_results.items():
+                    config_result = self.config_optimizer.analyze_config_performance(
+                        result_data['config'],
+                        result_data['results']
+                    )
+                    preliminary_config_results.append(config_result)
 
-            # Step 6: Identify top configurations
-            top_configs = self.config_optimizer.identify_top_configs(preliminary_config_results)
-            print(f">> Identified {len(top_configs)} top configurations for full testing")
+                self.config_optimizer.preliminary_results = preliminary_config_results
+
+                # Step 6: Identify top configurations
+                top_configs = self.config_optimizer.identify_top_configs(preliminary_config_results)
+                print(f">> Identified {len(top_configs)} top configurations for full testing")
 
             # Step 7: Generate full configurations
             print(">> Generating full configurations...")
