@@ -250,7 +250,16 @@ class ResultsAnalyzer:
 
             for param, value in optimal['config_params'].items():
                 if param != 'DRAFT_ORDER':  # Skip complex object
-                    report_lines.append(f"- `{param}`: {value}")
+                    # Round numeric values to 2 decimal places to avoid long decimals
+                    if isinstance(value, (int, float)):
+                        rounded_value = round(value, 2)
+                        # Show as int if it's a whole number
+                        if rounded_value == int(rounded_value):
+                            report_lines.append(f"- `{param}`: {int(rounded_value)}")
+                        else:
+                            report_lines.append(f"- `{param}`: {rounded_value}")
+                    else:
+                        report_lines.append(f"- `{param}`: {value}")
 
             report_lines.append("")
             report_lines.append("**Performance Metrics:**")
@@ -352,7 +361,16 @@ class ResultsAnalyzer:
             optimal_params = analysis['optimal_config']['config_params']
             for param, value in optimal_params.items():
                 if param != 'DRAFT_ORDER':
-                    report_lines.append(f"- Set `{param}` to `{value}`")
+                    # Round numeric values to 2 decimal places
+                    if isinstance(value, (int, float)):
+                        rounded_value = round(value, 2)
+                        # Show as int if it's a whole number
+                        if rounded_value == int(rounded_value):
+                            report_lines.append(f"- Set `{param}` to `{int(rounded_value)}`")
+                        else:
+                            report_lines.append(f"- Set `{param}` to `{rounded_value}`")
+                    else:
+                        report_lines.append(f"- Set `{param}` to `{value}`")
 
         report_lines.append("")
         report_lines.append("**Monitor these high-impact parameters:**")

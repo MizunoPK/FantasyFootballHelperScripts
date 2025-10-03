@@ -118,13 +118,17 @@ class TestDraftStarterIntegration(unittest.TestCase):
             if root_dir not in sys.path:
                 sys.path.insert(0, root_dir)
 
-            # Use package-level import (same as starter_helper tests do)
-            # This works regardless of how the package was previously imported
-            from starter_helper import StarterHelper
+            # Import StarterHelper - try package import first, fall back to direct module import
+            try:
+                from starter_helper import StarterHelper
+            except (ImportError, AttributeError):
+                # If package import fails, try direct module import
+                from starter_helper.starter_helper import StarterHelper
+
             from shared_files.FantasyPlayer import FantasyPlayer as StarterFantasyPlayer
 
             # Mock the PLAYERS_CSV config to use our test CSV
-            with patch('starter_helper.starter_helper.CURRENT_NFL_WEEK', 1), \
+            with patch('shared_files.configs.starter_helper_config.CURRENT_NFL_WEEK', 1), \
                  patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(roster_csv)):
 
                 starter_helper = StarterHelper()
@@ -421,6 +425,83 @@ class TestDraftStarterIntegration(unittest.TestCase):
 
         # Should complete quickly (under 0.1 seconds for 10 iterations)
         self.assertLess(elapsed, 0.1)
+
+    def test_starter_helper_projection_method_integration(self):
+        """Test that draft_helper uses StarterHelper's get_current_week_projections method"""
+        try:
+            import pandas as pd
+            from pathlib import Path
+            import sys
+
+            # Ensure starter_helper is importable
+            root_dir = str(Path(__file__).parent.parent.parent)
+            if root_dir not in sys.path:
+                sys.path.insert(0, root_dir)
+
+            from starter_helper import StarterHelper
+            from shared_files.configs.starter_helper_config import CURRENT_NFL_WEEK
+
+            # Create test DataFrame with weekly projection columns
+            test_roster_data = []
+            for player in self.roster_players[:5]:  # Use first 5 players
+                player_dict = {
+                    'id': player.id,
+                    'name': player.name,
+                    'team': player.team,
+                    'position': player.position,
+                    'bye_week': 10,
+                    'fantasy_points': player.fantasy_points,
+                    'injury_status': 'ACTIVE',
+                    'drafted': 2,
+                    'locked': 0,
+                    'week_1_points': 25.0,
+                    'week_2_points': 22.0,
+                    'week_3_points': 28.0,
+                    'week_4_points': 20.0,
+                    'week_5_points': 24.0
+                }
+                test_roster_data.append(player_dict)
+
+            roster_df = pd.DataFrame(test_roster_data)
+
+            # Test that StarterHelper can load projections from this DataFrame
+            # Use the actual CURRENT_NFL_WEEK (should be week 5 based on config)
+            starter_helper = StarterHelper()
+            projections = starter_helper.get_current_week_projections(roster_df)
+
+            # Verify projections were loaded
+            self.assertEqual(len(projections), 5)
+
+            # Verify weekly column was used - get expected value for current week
+            expected_week_col = f'week_{CURRENT_NFL_WEEK}_points'
+            expected_value = test_roster_data[0][expected_week_col]  # Should be 24.0 for week 5
+
+            # Verify all players have the correct weekly projection
+            for player_id, points in projections.items():
+                if player_id in ['1', '2', '3', '4', '5']:
+                    self.assertEqual(points, expected_value,
+                                   f"Player {player_id} should have week {CURRENT_NFL_WEEK} projection of {expected_value}, got {points}")
+
+            # Test fallback when weekly column doesn't exist
+            roster_df_no_weekly = roster_df.drop(columns=[col for col in roster_df.columns if col.startswith('week_')])
+
+            starter_helper_fallback = StarterHelper()
+            fallback_projections = starter_helper_fallback.get_current_week_projections(roster_df_no_weekly)
+
+            # Verify fallback projections were calculated (fantasy_points / 17)
+            self.assertEqual(len(fallback_projections), 5)
+
+            # Verify fallback calculation used - check against original test data
+            for i, player_dict in enumerate(test_roster_data):
+                player_id = str(player_dict['id'])
+                if player_id in fallback_projections:
+                    expected = float(player_dict['fantasy_points']) / 17.0
+                    actual = fallback_projections[player_id]
+                    self.assertAlmostEqual(actual, expected, places=2,
+                                         msg=f"Player {player_id} fallback projection incorrect: expected {expected:.2f}, got {actual:.2f}")
+
+        except ImportError as e:
+            self.skipTest(f"StarterHelper not available for integration testing: {e}")
 
 
 if __name__ == '__main__':

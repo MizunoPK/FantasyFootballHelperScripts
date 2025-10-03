@@ -2,14 +2,17 @@
 """
 Runner Script for Exhaustive Simulation
 
-This script runs the exhaustive parameter optimization simulation with the
-exhaustive_start.json configuration file.
+This script runs the exhaustive parameter optimization simulation.
+
+On first run:
+- Automatically finds the most recent optimal_*.json file in draft_helper/simulation/parameters/
+- Determines which parameter has the most values (the parameter currently being tested)
+- Sets the starting round to match that parameter's position in PARAMETER_ARRAY
+
+This allows seamless continuation of exhaustive testing after interruption.
 
 Usage:
-    python run_big_simulation.py
-
-This is equivalent to:
-    python run_simulation.py draft_helper/simulation/parameters/exhaustive_start.json
+    python run_exhaustive_simulation.py
 
 Author: Kai Mizuno
 Last Updated: October 2025
@@ -37,29 +40,58 @@ PARAMETER_ARRAY = [
     "TEAM_POOR_MULTIPLIER",
 ]
 PARAMETER_RANGES = {
-    "NORMALIZATION_MAX_SCALE": 40,
-    "DRAFT_ORDER_PRIMARY_BONUS": 40,
-    "DRAFT_ORDER_SECONDARY_BONUS": 40,
-    "MATCHUP_EXCELLENT_MULTIPLIER": 0.5,
-    "MATCHUP_GOOD_MULTIPLIER": 0.5,
-    "MATCHUP_NEUTRAL_MULTIPLIER": 0.5,
-    "MATCHUP_POOR_MULTIPLIER": 0.5,
-    "MATCHUP_VERY_POOR_MULTIPLIER": 0.5,
-    "INJURY_PENALTIES_MEDIUM": 40,
-    "INJURY_PENALTIES_HIGH": 40,
-    "BASE_BYE_PENALTY": 40,
-    "ADP_EXCELLENT_MULTIPLIER": 0.5,
-    "ADP_GOOD_MULTIPLIER": 0.5,
-    "ADP_POOR_MULTIPLIER": 0.5,
-    "PLAYER_RATING_EXCELLENT_MULTIPLIER": 0.5,
-    "PLAYER_RATING_GOOD_MULTIPLIER": 0.5,
-    "PLAYER_RATING_POOR_MULTIPLIER": 0.5,
-    "TEAM_EXCELLENT_MULTIPLIER": 0.5,
-    "TEAM_GOOD_MULTIPLIER": 0.5,
-    "TEAM_POOR_MULTIPLIER": 0.5
+    "NORMALIZATION_MAX_SCALE": 20,
+    "DRAFT_ORDER_PRIMARY_BONUS": 20,
+    "DRAFT_ORDER_SECONDARY_BONUS": 20,
+    "MATCHUP_EXCELLENT_MULTIPLIER": 0.2,
+    "MATCHUP_GOOD_MULTIPLIER": 0.2,
+    "MATCHUP_NEUTRAL_MULTIPLIER": 0.2,
+    "MATCHUP_POOR_MULTIPLIER": 0.2,
+    "MATCHUP_VERY_POOR_MULTIPLIER": 0.2,
+    "INJURY_PENALTIES_MEDIUM": 20,
+    "INJURY_PENALTIES_HIGH": 20,
+    "BASE_BYE_PENALTY": 20,
+    "ADP_EXCELLENT_MULTIPLIER": 0.2,
+    "ADP_GOOD_MULTIPLIER": 0.2,
+    "ADP_POOR_MULTIPLIER": 0.2,
+    "PLAYER_RATING_EXCELLENT_MULTIPLIER": 0.2,
+    "PLAYER_RATING_GOOD_MULTIPLIER": 0.2,
+    "PLAYER_RATING_POOR_MULTIPLIER": 0.2,
+    "TEAM_EXCELLENT_MULTIPLIER": 0.2,
+    "TEAM_GOOD_MULTIPLIER": 0.2,
+    "TEAM_POOR_MULTIPLIER": 0.2
 }
-NUMBER_OF_TEST_VALUES = 8  # Number of test values per parameter
+
+# Absolute min/max bounds for each parameter (enforced regardless of PARAMETER_RANGES)
+# These bounds ensure generated values stay within valid ranges.
+# For example, ADP_POOR_MULTIPLIER: (0.5, 2.0) means generated values will never be < 0.5 or > 2.0
+# even if the optimal value ± PARAMETER_RANGES would go outside that range.
+PARAMETER_BOUNDS = {
+    "NORMALIZATION_MAX_SCALE": (60, 140),
+    "DRAFT_ORDER_PRIMARY_BONUS": (25, 100),
+    "DRAFT_ORDER_SECONDARY_BONUS": (25, 100),
+    "MATCHUP_EXCELLENT_MULTIPLIER": (1.0, 2.0),
+    "MATCHUP_GOOD_MULTIPLIER": (1.0, 2.0),
+    "MATCHUP_NEUTRAL_MULTIPLIER": (0.5, 1.5),
+    "MATCHUP_POOR_MULTIPLIER": (0.1, 1.0),
+    "MATCHUP_VERY_POOR_MULTIPLIER": (0.1, 1.0),
+    "INJURY_PENALTIES_MEDIUM": (0, 100),
+    "INJURY_PENALTIES_HIGH": (0, 100),
+    "BASE_BYE_PENALTY": (0, 100),
+    "ADP_EXCELLENT_MULTIPLIER": (1.0, 2.0),
+    "ADP_GOOD_MULTIPLIER": (1.0, 2.0),
+    "ADP_POOR_MULTIPLIER": (0.1, 1.0),
+    "PLAYER_RATING_EXCELLENT_MULTIPLIER": (1.0, 2.0),
+    "PLAYER_RATING_GOOD_MULTIPLIER": (1.0, 2.0),
+    "PLAYER_RATING_POOR_MULTIPLIER": (0.1, 1.0),
+    "TEAM_EXCELLENT_MULTIPLIER": (1.0, 2.0),
+    "TEAM_GOOD_MULTIPLIER": (1.0, 2.0),
+    "TEAM_POOR_MULTIPLIER": (0.1, 1.0)
+}
+NUMBER_OF_TEST_VALUES = 100  # Number of test values per parameter
 NUMBER_OF_RUNS = 50
+STARTING_PARAMETER = "MATCHUP_EXCELLENT_MULTIPLIER"
+STARTING_FILE = "optimal_2025-10-02_15-29-14.json"
 
 
 import sys
@@ -73,12 +105,19 @@ def get_parameter_array(param_name, value, round_number):
     if PARAMETER_ARRAY[round_number % len(PARAMETER_ARRAY)] == param_name:
         # Create array of test values around the optimal value
         range_width = PARAMETER_RANGES[param_name]
+        min_bound, max_bound = PARAMETER_BOUNDS.get(param_name, (0, float('inf')))
+
+        # Calculate search range, constrained by absolute bounds
+        search_min = max(value - range_width, min_bound)
+        search_max = min(value + range_width, max_bound)
 
         # Generate the array
         random_values = [value]
         for _ in range(NUMBER_OF_TEST_VALUES):
             for _ in range(20):  # Try up to 20 times to get a unique value
-                val = round(random.uniform(max(value - range_width, 0), value + range_width), 2)
+                val = round(random.uniform(search_min, search_max), 2)
+                # Ensure value is within bounds
+                val = max(min_bound, min(max_bound, val))
                 if val not in random_values:
                     random_values.append(val)
                     break
@@ -116,9 +155,12 @@ def prepare_json(analysis_data, round_number):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     # Create parameters dict with single-value arrays for each parameter
+    # Round all values to 2 decimal places to avoid long decimals
     parameters = {}
     for param_name, param_value in config_params.items():
-        parameters[param_name] = get_parameter_array(param_name, param_value, round_number)
+        # Round the base value to 2 decimals before creating array
+        rounded_value = round(param_value, 2)
+        parameters[param_name] = get_parameter_array(param_name, rounded_value, round_number)
 
     # Create the JSON structure
     json_data = {
@@ -167,15 +209,79 @@ def save_next_config_to_json(analysis_data, output_dir, round_number):
     return file_name
 
 
+def find_most_recent_optimal_json(parameter_path):
+    """
+    Find the most recent optimal_*.json file in the parameters directory.
+
+    Args:
+        parameter_path: Path to the parameters directory
+
+    Returns:
+        Filename of the most recent optimal JSON, or None if none found
+    """
+    optimal_files = list(parameter_path.glob("optimal_*.json"))
+    if not optimal_files:
+        return None
+
+    # Sort by modification time, most recent first
+    optimal_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return optimal_files[0].name
+
+
+def determine_starting_round(json_path):
+    """
+    Determine the starting round based on which parameter has the most values.
+
+    Args:
+        json_path: Path to the JSON configuration file
+
+    Returns:
+        Round number (1-indexed) to start from
+    """
+    with open(json_path, 'r') as f:
+        config = json.load(f)
+
+    parameters = config.get('parameters', {})
+
+    # Find parameter with most values
+    max_values = 0
+    max_param = None
+
+    for param_name, param_values in parameters.items():
+        if len(param_values) > max_values:
+            max_values = len(param_values)
+            max_param = param_name
+
+    if max_param is None or max_param not in PARAMETER_ARRAY:
+        # Default to first parameter if not found
+        return 1
+
+    # Return 1-indexed position in PARAMETER_ARRAY
+    return PARAMETER_ARRAY.index(max_param) + 1
+
+
 def main():
     """Main entry point for exhaustive simulation runner"""
 
     # Get the directories
     script_dir = Path(__file__).parent
     parameter_path = script_dir / "draft_helper" / "simulation" / "parameters"
-    json_file = "exhaustive_start.json"
 
-    for round_number in range(1, NUMBER_OF_RUNS+1):
+    # Find most recent optimal JSON file
+    json_file = find_most_recent_optimal_json(parameter_path)
+
+    if json_file is None:
+        # Fall back to hardcoded values if no optimal file found
+        print(">> No optimal_*.json files found, using hardcoded starting values")
+        json_file = STARTING_FILE
+        starting_round = PARAMETER_ARRAY.index(STARTING_PARAMETER) + 1
+    else:
+        print(f">> Found most recent optimal file: {json_file}")
+        json_path = parameter_path / json_file
+        starting_round = determine_starting_round(json_path)
+        print(f">> Determined starting round: {starting_round} (parameter: {PARAMETER_ARRAY[starting_round - 1]})")
+
+    for round_number in range(starting_round, NUMBER_OF_RUNS+1):
         print()
         print("#" * 80)
         print(f">> STARTING ROUND {round_number} OF EXHAUSTIVE SIMULATION")

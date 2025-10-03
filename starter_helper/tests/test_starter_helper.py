@@ -24,7 +24,7 @@ from io import StringIO
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from starter_helper import StarterHelper, main
-from lineup_optimizer import OptimalLineup, StartingRecommendation
+from starter_helper.lineup_optimizer import OptimalLineup, StartingRecommendation
 from shared_files.configs.starter_helper_config import CURRENT_NFL_WEEK, PLAYERS_CSV
 
 
@@ -66,7 +66,7 @@ class TestStarterHelper:
         csv_file = temp_dir / "test_players.csv"
         csv_file.write_text(sample_csv_data, encoding='utf-8')
 
-        with patch('starter_helper.PLAYERS_CSV', str(csv_file)):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(csv_file)):
             roster_players = helper.load_roster_players()
 
             # Should only load players with drafted=2
@@ -81,7 +81,7 @@ class TestStarterHelper:
 
     def test_load_roster_players_missing_file(self, helper):
         """Test loading roster players when file doesn't exist"""
-        with patch('starter_helper.PLAYERS_CSV', 'nonexistent_file.csv'):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', 'nonexistent_file.csv'):
             with pytest.raises(FileNotFoundError):
                 helper.load_roster_players()
 
@@ -91,7 +91,7 @@ class TestStarterHelper:
         csv_file = temp_dir / "test_players.csv"
         csv_file.write_text(sample_csv_data, encoding='utf-8')
 
-        with patch('starter_helper.PLAYERS_CSV', str(csv_file)):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(csv_file)):
             roster_players = helper.load_roster_players()
             projections = helper.get_current_week_projections(roster_players)
 
@@ -200,8 +200,8 @@ class TestStarterHelper:
         csv_file = temp_dir / "test_players.csv"
         csv_file.write_text(sample_csv_data, encoding='utf-8')
 
-        with patch('starter_helper.PLAYERS_CSV', str(csv_file)), \
-             patch('starter_helper.SHOW_PROJECTION_DETAILS', True):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(csv_file)), \
+             patch('shared_files.configs.starter_helper_config.SHOW_PROJECTION_DETAILS', True):
 
             roster_players = helper.load_roster_players()
             projections = helper.get_current_week_projections(roster_players)
@@ -218,7 +218,7 @@ class TestStarterHelper:
     @pytest.mark.asyncio
     async def test_save_output_to_files(self, helper, temp_dir):
         """Test saving output to files"""
-        with patch('starter_helper.SAVE_OUTPUT_TO_FILE', True), \
+        with patch('shared_files.configs.starter_helper_config.SAVE_OUTPUT_TO_FILE', True), \
              patch('shared_files.configs.starter_helper_config.DATA_DIR', str(temp_dir)):
 
             test_content = "Test output content\nLine 2\nLine 3"
@@ -236,7 +236,7 @@ class TestStarterHelper:
     @pytest.mark.asyncio
     async def test_save_output_disabled(self, helper):
         """Test that output saving is skipped when disabled"""
-        with patch('starter_helper.SAVE_OUTPUT_TO_FILE', False):
+        with patch('shared_files.configs.starter_helper_config.SAVE_OUTPUT_TO_FILE', False):
             # Should not raise any errors or create files
             helper.save_output_to_files("test content")
 
@@ -246,8 +246,8 @@ class TestStarterHelper:
         csv_file = temp_dir / "test_players.csv"
         csv_file.write_text(sample_csv_data, encoding='utf-8')
 
-        with patch('starter_helper.PLAYERS_CSV', str(csv_file)), \
-             patch('starter_helper.SAVE_OUTPUT_TO_FILE', False):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(csv_file)), \
+             patch('shared_files.configs.starter_helper_config.SAVE_OUTPUT_TO_FILE', False):
 
             # Should complete without errors
             await helper.run()
@@ -271,8 +271,8 @@ class TestStarterHelper:
         csv_file = temp_dir / "empty_roster.csv"
         csv_file.write_text(csv_data, encoding='utf-8')
 
-        with patch('starter_helper.PLAYERS_CSV', str(csv_file)), \
-             patch('starter_helper.SAVE_OUTPUT_TO_FILE', False):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(csv_file)), \
+             patch('shared_files.configs.starter_helper_config.SAVE_OUTPUT_TO_FILE', False):
 
             await helper.run()
 
@@ -282,8 +282,8 @@ class TestStarterHelper:
     @pytest.mark.asyncio
     async def test_run_error_handling(self, helper):
         """Test error handling in run method"""
-        with patch('starter_helper.PLAYERS_CSV', 'nonexistent_file.csv'), \
-             patch('starter_helper.SAVE_OUTPUT_TO_FILE', False):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', 'nonexistent_file.csv'), \
+             patch('shared_files.configs.starter_helper_config.SAVE_OUTPUT_TO_FILE', False):
 
             # Should handle FileNotFoundError gracefully
             with pytest.raises(FileNotFoundError):
@@ -306,8 +306,8 @@ class TestStarterHelper:
 
     def test_setup_logging_enabled(self, helper):
         """Test logging setup when enabled"""
-        with patch('starter_helper.LOGGING_ENABLED', True), \
-             patch('starter_helper.LOGGING_LEVEL', 'INFO'), \
+        with patch('shared_files.configs.starter_helper_config.LOGGING_ENABLED', True), \
+             patch('shared_files.configs.starter_helper_config.LOGGING_LEVEL', 'INFO'), \
              patch('logging.basicConfig') as mock_config:
 
             helper.setup_logging()
@@ -315,7 +315,7 @@ class TestStarterHelper:
 
     def test_setup_logging_disabled(self, helper):
         """Test logging setup when disabled"""
-        with patch('starter_helper.LOGGING_ENABLED', False), \
+        with patch('shared_files.configs.starter_helper_config.LOGGING_ENABLED', False), \
              patch('logging.disable') as mock_disable:
 
             helper.setup_logging()
@@ -327,7 +327,7 @@ class TestStarterHelper:
         csv_file = temp_dir / "test_players.csv"
         csv_file.write_text(sample_csv_data, encoding='utf-8')
 
-        with patch('starter_helper.PLAYERS_CSV', str(csv_file)):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(csv_file)):
             roster_players = helper.load_roster_players()
             projections = helper.get_current_week_projections(roster_players)
 
@@ -341,7 +341,7 @@ class TestStarterHelper:
     @pytest.mark.asyncio
     async def test_main_function_integration(self):
         """Test main function integration"""
-        with patch('starter_helper.StarterHelper') as mock_helper_class:
+        with patch('starter_helper.starter_helper.StarterHelper') as mock_helper_class:
             mock_helper = AsyncMock()
             mock_helper_class.return_value = mock_helper
 
@@ -367,8 +367,8 @@ class TestStarterHelper:
         import time
         start_time = time.time()
 
-        with patch('starter_helper.PLAYERS_CSV', str(csv_file)), \
-             patch('starter_helper.SAVE_OUTPUT_TO_FILE', False):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(csv_file)), \
+             patch('shared_files.configs.starter_helper_config.SAVE_OUTPUT_TO_FILE', False):
 
             await helper.run()
 
@@ -404,7 +404,7 @@ class TestStarterHelper:
         csv_file = temp_dir / "unicode_players.csv"
         csv_file.write_text(csv_data, encoding='utf-8')
 
-        with patch('starter_helper.PLAYERS_CSV', str(csv_file)):
+        with patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(csv_file)):
             roster_players = helper.load_roster_players()
             projections = helper.get_current_week_projections(roster_players)
 
@@ -448,7 +448,7 @@ if __name__ == "__main__":
             print("✅ Empty projections handling test passed")
 
             # Test main function
-            with patch('starter_helper.StarterHelper') as mock_helper_class:
+            with patch('starter_helper.starter_helper.StarterHelper') as mock_helper_class:
                 mock_helper = AsyncMock()
                 mock_helper_class.return_value = mock_helper
 

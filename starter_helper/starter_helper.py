@@ -34,13 +34,8 @@ import pandas as pd
 # Add parent directory to path for shared imports
 sys.path.append(str(Path(__file__).parent.parent))
 
-from shared_files.configs.starter_helper_config import (
-    CURRENT_NFL_WEEK, NFL_SEASON, NFL_SCORING_FORMAT,
-    PLAYERS_CSV, LOGGING_ENABLED, LOGGING_LEVEL,
-    SHOW_PROJECTION_DETAILS, SHOW_INJURY_STATUS,
-    RECOMMENDATION_COUNT, STARTING_LINEUP_REQUIREMENTS,
-    SAVE_OUTPUT_TO_FILE, DATA_DIR, get_timestamped_filepath, get_latest_filepath
-)
+# Import config module to allow tests to patch config.ATTRIBUTE_NAME
+from shared_files.configs import starter_helper_config as config
 
 # Import local modules with proper path handling
 try:
@@ -62,11 +57,11 @@ class StarterHelper:
 
     def setup_logging(self):
         """Configure logging based on config settings"""
-        if not LOGGING_ENABLED:
+        if not config.LOGGING_ENABLED:
             logging.disable(logging.CRITICAL)
             return
 
-        level = getattr(logging, LOGGING_LEVEL.upper(), logging.INFO)
+        level = getattr(logging, config.LOGGING_LEVEL.upper(), logging.INFO)
         logging.basicConfig(
             level=level,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -80,21 +75,21 @@ class StarterHelper:
         Args:
             output_content: The content to save to files
         """
-        if not SAVE_OUTPUT_TO_FILE:
+        if not config.SAVE_OUTPUT_TO_FILE:
             return
 
         try:
             # Ensure data directory exists
-            os.makedirs(DATA_DIR, exist_ok=True)
+            os.makedirs(config.DATA_DIR, exist_ok=True)
 
             # Save to timestamped file
-            timestamped_file = get_timestamped_filepath()
+            timestamped_file = config.get_timestamped_filepath()
             with open(timestamped_file, 'w', encoding='utf-8') as f:
                 f.write(output_content)
             self.logger.info(f"Results saved to: {timestamped_file}")
 
             # Save to latest file
-            latest_file = get_latest_filepath()
+            latest_file = config.get_latest_filepath()
             with open(latest_file, 'w', encoding='utf-8') as f:
                 f.write(output_content)
             self.logger.info(f"Latest results updated: {latest_file}")
@@ -121,13 +116,13 @@ class StarterHelper:
             DataFrame containing only roster players (drafted=2)
         """
         try:
-            # Load all players
-            players_df = pd.read_csv(PLAYERS_CSV)
+            # Load all players - use config module for testability
+            players_df = pd.read_csv(config.PLAYERS_CSV)
 
             # Filter for roster players (drafted=2)
             roster_players = players_df[players_df['drafted'] == 2].copy()
 
-            self.logger.info(f"Loaded {len(roster_players)} roster players from {PLAYERS_CSV}")
+            self.logger.info(f"Loaded {len(roster_players)} roster players from {config.PLAYERS_CSV}")
 
             # Log roster composition
             position_counts = roster_players['position'].value_counts()
@@ -136,7 +131,7 @@ class StarterHelper:
             return roster_players
 
         except FileNotFoundError:
-            self.logger.error(f"Players CSV file not found: {PLAYERS_CSV}")
+            self.logger.error(f"Players CSV file not found: {config.PLAYERS_CSV}")
             raise
         except Exception as e:
             self.logger.error(f"Error loading roster players: {str(e)}")
@@ -152,10 +147,10 @@ class StarterHelper:
         Returns:
             Dictionary mapping player_id to current week projected points
         """
-        self.logger.info(f"Reading Week {CURRENT_NFL_WEEK} projections from players.csv weekly columns")
+        self.logger.info(f"Reading Week {config.CURRENT_NFL_WEEK} projections from players.csv weekly columns")
 
         projections = {}
-        week_column = f"week_{CURRENT_NFL_WEEK}_points"
+        week_column = f"week_{config.CURRENT_NFL_WEEK}_points"
 
         # Check if the weekly column exists in the DataFrame
         if week_column not in roster_players.columns:
@@ -198,7 +193,7 @@ class StarterHelper:
     def display_optimal_lineup(self, lineup: OptimalLineup):
         """Display the optimal starting lineup"""
         self.print_and_capture(f"\n{'='*80}")
-        self.print_and_capture(f"OPTIMAL STARTING LINEUP - WEEK {CURRENT_NFL_WEEK} ({NFL_SCORING_FORMAT.upper()} SCORING)")
+        self.print_and_capture(f"OPTIMAL STARTING LINEUP - WEEK {config.CURRENT_NFL_WEEK} ({config.NFL_SCORING_FORMAT.upper()} SCORING)")
         self.print_and_capture(f"{'='*80}")
 
         # Define the order to display starters (as requested)
@@ -226,12 +221,12 @@ class StarterHelper:
 
                 # Add injury status if enabled
                 status_info = ""
-                if SHOW_INJURY_STATUS and recommendation.injury_status != "ACTIVE":
+                if config.SHOW_INJURY_STATUS and recommendation.injury_status != "ACTIVE":
                     status_info = f" [{recommendation.injury_status}]"
 
                 # Add penalty info if there are penalties
                 penalty_info = ""
-                if SHOW_PROJECTION_DETAILS and recommendation.reason != "No penalties":
+                if config.SHOW_PROJECTION_DETAILS and recommendation.reason != "No penalties":
                     penalty_info = f" ({recommendation.reason})"
 
                 self.print_and_capture(f"{i:2d}. {pos_label:4s}: {name_team:25s} - {points_info}{status_info}{penalty_info}")
@@ -259,17 +254,17 @@ class StarterHelper:
 
             # Add injury status
             status_info = ""
-            if SHOW_INJURY_STATUS and rec.injury_status != "ACTIVE":
+            if config.SHOW_INJURY_STATUS and rec.injury_status != "ACTIVE":
                 status_info = f" [{rec.injury_status}]"
 
             self.print_and_capture(f"{i:2d}. {name_team:35s} - {points_info}{status_info}")
 
     def display_roster_summary(self, roster_players: pd.DataFrame, projections: dict):
         """Display summary of all roster players with projections"""
-        if not SHOW_PROJECTION_DETAILS:
+        if not config.SHOW_PROJECTION_DETAILS:
             return
 
-        self.print_and_capture(f"\nFULL ROSTER - WEEK {CURRENT_NFL_WEEK} PROJECTIONS:")
+        self.print_and_capture(f"\nFULL ROSTER - WEEK {config.CURRENT_NFL_WEEK} PROJECTIONS:")
         self.print_and_capture(f"{'-'*80}")
 
         # Sort by projected points (descending)
@@ -289,7 +284,7 @@ class StarterHelper:
         # Sort by projected points
         roster_with_projections.sort(key=lambda x: x['projected'], reverse=True)
 
-        for i, player in enumerate(roster_with_projections[:RECOMMENDATION_COUNT], 1):
+        for i, player in enumerate(roster_with_projections[:config.RECOMMENDATION_COUNT], 1):
             name_pos = f"{player['name']} ({player['team']}) - {player['position']}"
             points_info = f"{player['projected']:.1f} pts"
 
@@ -298,7 +293,7 @@ class StarterHelper:
                 status_info = f" [{player['injury_status']}]"
 
             bye_info = ""
-            if player['bye_week'] == CURRENT_NFL_WEEK:
+            if player['bye_week'] == config.CURRENT_NFL_WEEK:
                 bye_info = " [BYE]"
 
             self.print_and_capture(f"{i:2d}. {name_pos:40s} - {points_info}{status_info}{bye_info}")
@@ -308,8 +303,8 @@ class StarterHelper:
         """Main execution method"""
         try:
             self.print_and_capture(f"Fantasy Football Starter Helper")
-            self.print_and_capture(f"Week {CURRENT_NFL_WEEK} of {NFL_SEASON} NFL Season")
-            self.print_and_capture(f"Scoring Format: {NFL_SCORING_FORMAT.upper()}")
+            self.print_and_capture(f"Week {config.CURRENT_NFL_WEEK} of {config.NFL_SEASON} NFL Season")
+            self.print_and_capture(f"Scoring Format: {config.NFL_SCORING_FORMAT.upper()}")
             self.print_and_capture("="*60)
 
             # Load roster players
@@ -344,11 +339,11 @@ class StarterHelper:
             # Display full roster if detailed view is enabled
             self.display_roster_summary(roster_players, projections)
 
-            self.print_and_capture(f"\nStarter recommendations complete for Week {CURRENT_NFL_WEEK}")
+            self.print_and_capture(f"\nStarter recommendations complete for Week {config.CURRENT_NFL_WEEK}")
             self.print_and_capture(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
             # Save output to files
-            if SAVE_OUTPUT_TO_FILE:
+            if config.SAVE_OUTPUT_TO_FILE:
                 output_content = self.output_buffer.getvalue()
                 self.save_output_to_files(output_content)
 
@@ -358,7 +353,7 @@ class StarterHelper:
             self.print_and_capture(error_msg)
 
             # Save output even if there was an error
-            if SAVE_OUTPUT_TO_FILE:
+            if config.SAVE_OUTPUT_TO_FILE:
                 output_content = self.output_buffer.getvalue()
                 self.save_output_to_files(output_content)
             raise
