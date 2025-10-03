@@ -1,0 +1,5 @@
+Fantasy Football Starter Helper
+Week 5 of 2025 NFL Season
+Scoring Format: PPR
+============================================================
+Error: [Errno 2] No such file or directory: '../shared_files/players.csv'

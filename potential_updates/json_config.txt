@@ -1,0 +1,4 @@
+Currently, the Simulator has been making json output files with optimal configuration values and continuously narrowing them down to get more optimal. Those files are in draft_helper/simulation/parameters.
+As those are made, I want a copy of the json to be placed in the 'shared_files/config' folder under the name 'optimal_parameters.json'. New files made by the simulation will override the previous file.
+As scripts get run, I want the parameters outlined in that JSON to be read in via the JSON, instead of being set as constants in the associated config files.
+Remove the constants from the config files, and instead make an OptimalParametersManager class which will handle reading in the json file and storing the parameters and their values. Scripts that use the parameters will import the OptimalParametersManager to get the data that they need

@@ -47,6 +47,7 @@ try:
         SAVE_OUTPUT_TO_FILE, get_timestamped_filepath, get_latest_filepath
     )
     from lineup_optimizer import LineupOptimizer, OptimalLineup, StartingRecommendation
+    from starter_helper import StarterHelper
     STARTER_HELPER_AVAILABLE = True
 except ImportError as e:
     print(f"Warning: Starter Helper functionality not available: {e}")
@@ -708,7 +709,8 @@ class DraftHelper:
             roster_data = []
             for player in self.players:
                 if player.drafted == 2:  # Only roster players
-                    roster_data.append({
+                    # Include all weekly projection columns from FantasyPlayer
+                    player_dict = {
                         'id': player.id,
                         'name': player.name,
                         'team': player.team,
@@ -718,7 +720,15 @@ class DraftHelper:
                         'injury_status': player.injury_status,
                         'drafted': player.drafted,
                         'locked': player.locked
-                    })
+                    }
+
+                    # Add weekly projection columns if available
+                    for week in range(1, 18):
+                        week_attr = f'week_{week}_points'
+                        if hasattr(player, week_attr):
+                            player_dict[week_attr] = getattr(player, week_attr)
+
+                    roster_data.append(player_dict)
 
             if not roster_data:
                 print("ERROR: No roster players found! Add players to your roster first.")
@@ -726,29 +736,21 @@ class DraftHelper:
                 return
 
             roster_df = pd.DataFrame(roster_data)
+
+            # Use StarterHelper's projection logic for consistency
+            starter_helper = StarterHelper()
+            projections = starter_helper.get_current_week_projections(roster_df)
+
             print(f"Fantasy Football Starter Helper")
             print(f"Week {CURRENT_NFL_WEEK} of {NFL_SEASON} NFL Season")
             print(f"Scoring Format: {NFL_SCORING_FORMAT.upper()}")
             print("="*60)
-
-            # Get current week projections (use fantasy_points as fallback)
-            projections = {}
-            for _, player_row in roster_df.iterrows():
-                player_id = str(player_row['id'])
-                # Use fantasy_points divided by 17 for weekly estimate (same as starter_helper fallback)
-                weekly_projection = float(player_row.get('fantasy_points', 0.0)) / 17.0
-                projections[player_id] = weekly_projection
-
             print(f"Loaded {len(roster_df)} roster players")
-            print(f"Using fantasy_points as fallback for weekly projections")
 
             # Initialize lineup optimizer
             optimizer = LineupOptimizer()
 
-            # Using positional rankings instead of matchup analysis
-            matchup_analysis = None
-
-            # Optimize lineup using positional rankings
+            # Optimize lineup using projections
             optimal_lineup = optimizer.optimize_lineup(roster_df, projections)
 
             # Display optimal lineup

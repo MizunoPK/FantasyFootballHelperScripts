@@ -54,9 +54,9 @@ SIMULATION_LOG_LEVEL = "WARNING"
 # Use the parameter_loader module to load and validate configurations.
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 50           # Number of drafts to run per configuration
-PRELIMINARY_SIMULATIONS_PER_CONFIG = 10  # Reduced for preliminary testing
-TOP_CONFIGS_PERCENTAGE = 0.2          # Top configs advance to full testing
+SIMULATIONS_PER_CONFIG = 10           # Number of drafts to run per configuration
+PRELIMINARY_SIMULATIONS_PER_CONFIG = 3  # Reduced for preliminary testing
+TOP_CONFIGS_PERCENTAGE = 0.1          # Top configs advance to full testing
 
 # Parallel processing settings
 MAX_PARALLEL_THREADS = 7             # Max concurrent threads for simulation
