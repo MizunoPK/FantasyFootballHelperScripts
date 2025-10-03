@@ -341,15 +341,38 @@ Each config file has built-in validation. Check logs for specific errors.
 - List major changes in body
 
 ### Pre-Commit Protocol
+**🚨 MANDATORY BEFORE EVERY COMMIT**
+
 When the user requests to commit changes (e.g., "commit changes", "verify and commit", "commit this"):
-1. **Follow the validation checklist**: Execute all steps in `tests/pre_commit_validation_checklist.md`
-2. **Key steps include**:
-   - Analyze all changes with `git status` and `git diff`
-   - Run complete test suite across all modules (100% pass rate required)
-   - Execute integration tests (startup validation, draft helper validation)
-   - Update documentation (README.md, CLAUDE.md) if functionality changed
-   - Stage and commit with clear, concise message
-3. **Do NOT skip steps**: The checklist ensures code quality and system stability
+
+**STEP 1: Run Automated Validation Script (REQUIRED)**
+```bash
+python run_pre_commit_validation.py
+```
+
+This single command validates EVERYTHING:
+- ✅ All unit tests across all modules
+- ✅ Startup validation for core scripts
+- ✅ Interactive integration tests
+- ✅ Exit code 0 = safe to commit, 1 = DO NOT COMMIT
+
+**Only proceed to commit if the script returns exit code 0.**
+
+**STEP 2: If Validation Passes, Commit Changes**
+1. Analyze all changes with `git status` and `git diff`
+2. Update documentation (README.md, CLAUDE.md) if functionality changed
+3. Stage and commit with clear, concise message
+4. Follow commit standards (see below)
+
+**STEP 3: If Validation Fails**
+- **STOP** - Do NOT commit
+- Fix failing tests or issues
+- Re-run `python run_pre_commit_validation.py`
+- Only commit when exit code is 0
+
+**Alternative Manual Method**: If the automated script cannot be used, follow all steps in `tests/pre_commit_validation_checklist.md` manually.
+
+**Do NOT skip validation**: The automated script ensures code quality and system stability
 
 ### Fantasy Football Development
 After code changes:

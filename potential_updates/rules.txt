@@ -19,6 +19,27 @@ Be VERY systematic when creating the TODO file and proceeding with the implement
 
 ### **MANDATORY EXECUTION STEPS**:
 
+**🚀 RECOMMENDED: Use Automated Validation Script**
+
+The FASTEST and most reliable method is to run the automated validation script:
+
+```bash
+python run_pre_commit_validation.py
+```
+
+This single command executes ALL validation steps:
+- ✅ Complete unit test suite across all modules
+- ✅ Startup validation for core scripts
+- ✅ Interactive integration tests for draft helper
+- ✅ Colored output with clear pass/fail indicators
+- ✅ Returns exit code 0 for success, 1 for failure
+
+**Exit Codes**:
+- `0` = All validations passed, safe to commit
+- `1` = Some validations failed, DO NOT COMMIT until issues are fixed
+
+**Alternative Manual Method** (if automated script cannot be used):
+
 1. **COPY VALIDATION CHECKLIST**:
    ```bash
    cp tests/pre_commit_validation_checklist.md tests/temp_commit_checklist.md
