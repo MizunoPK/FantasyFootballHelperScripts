@@ -1,0 +1,166 @@
+{
+  "config_name": "optimal_2025-10-03_16-22-25",
+  "description": "Optimal configuration found from simulation run at 2025-10-03_16-22-25. Win rate: 51.5%, Total points: 1638.2, PPG: 96.4, Consistency: 27.7",
+  "parameters": {
+    "ADP_EXCELLENT_MULTIPLIER": [
+      1.23
+    ],
+    "ADP_GOOD_MULTIPLIER": [
+      1.1
+    ],
+    "ADP_POOR_MULTIPLIER": [
+      0.52
+    ],
+    "BASE_BYE_PENALTY": [
+      6.21
+    ],
+    "DRAFT_ORDER_PRIMARY_BONUS": [
+      51.99
+    ],
+    "DRAFT_ORDER_SECONDARY_BONUS": [
+      30.1
+    ],
+    "INJURY_PENALTIES_HIGH": [
+      68.96
+    ],
+    "INJURY_PENALTIES_MEDIUM": [
+      13.23
+    ],
+    "MATCHUP_EXCELLENT_MULTIPLIER": [
+      1.14
+    ],
+    "MATCHUP_GOOD_MULTIPLIER": [
+      1.09
+    ],
+    "MATCHUP_NEUTRAL_MULTIPLIER": [
+      1.04
+    ],
+    "MATCHUP_POOR_MULTIPLIER": [
+      0.94
+    ],
+    "MATCHUP_VERY_POOR_MULTIPLIER": [
+      0.64
+    ],
+    "NORMALIZATION_MAX_SCALE": [
+      60.33,
+      60.38,
+      60.49,
+      60.75,
+      60.95,
+      60.99,
+      61.28,
+      61.91,
+      62.88,
+      62.96,
+      63.12,
+      64.59,
+      64.92,
+      65.16,
+      65.3,
+      66.73,
+      67.72,
+      68.08,
+      68.2,
+      68.74,
+      68.75,
+      69.05,
+      69.13,
+      69.43,
+      69.57,
+      69.63,
+      70.48,
+      70.66,
+      71.27,
+      71.47,
+      71.57,
+      71.9,
+      72.63,
+      72.65,
+      72.72,
+      73.06,
+      73.26,
+      73.57,
+      73.59,
+      73.93,
+      74.26,
+      74.38,
+      75.78,
+      75.82,
+      76.08,
+      76.26,
+      76.71,
+      76.89,
+      77.17,
+      77.22,
+      77.47,
+      77.65,
+      77.75,
+      77.76,
+      77.85,
+      78.11,
+      79.42,
+      79.69,
+      79.74,
+      79.97,
+      80.13,
+      80.4,
+      80.42,
+      80.94,
+      81.19,
+      81.45,
+      81.93,
+      82.15,
+      82.47,
+      82.75,
+      82.78,
+      83.14,
+      83.49,
+      83.54,
+      83.64,
+      84.02,
+      84.4,
+      84.75,
+      84.78,
+      84.84,
+      85.12,
+      85.17,
+      85.38,
+      85.55,
+      85.94,
+      86.33,
+      87.01,
+      87.37,
+      87.55,
+      87.6,
+      88.16,
+      88.21,
+      88.32,
+      88.86,
+      89.02,
+      89.77,
+      89.82,
+      89.93,
+      90.42,
+      90.85,
+      91.23
+    ],
+    "PLAYER_RATING_EXCELLENT_MULTIPLIER": [
+      1.18
+    ],
+    "PLAYER_RATING_GOOD_MULTIPLIER": [
+      1.01
+    ],
+    "PLAYER_RATING_POOR_MULTIPLIER": [
+      0.74
+    ],
+    "TEAM_EXCELLENT_MULTIPLIER": [
+      1.24
+    ],
+    "TEAM_GOOD_MULTIPLIER": [
+      1.2
+    ],
+    "TEAM_POOR_MULTIPLIER": [
+      0.64
+    ]
+  }
+}

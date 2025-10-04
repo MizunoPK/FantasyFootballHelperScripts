@@ -54,8 +54,8 @@ SIMULATION_LOG_LEVEL = "WARNING"
 # Use the parameter_loader module to load and validate configurations.
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 100           # Number of drafts to run per configuration
-PRELIMINARY_SIMULATIONS_PER_CONFIG = 30  # Reduced for preliminary testing
+SIMULATIONS_PER_CONFIG = 50           # Number of drafts to run per configuration
+PRELIMINARY_SIMULATIONS_PER_CONFIG = 10  # Reduced for preliminary testing
 TOP_CONFIGS_PERCENTAGE = 0.1          # Top configs advance to full testing
 MINIMUM_TOP_CONFIGS = 10              # Minimum number of top configs to test in full phase
                                        # If total configs < this value, skip preliminary phase

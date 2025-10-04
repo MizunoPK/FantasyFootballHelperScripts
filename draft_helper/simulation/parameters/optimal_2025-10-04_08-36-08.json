@@ -1,0 +1,71 @@
+{
+  "config_name": "optimal_2025-10-04_08-36-08",
+  "description": "Optimal configuration found from simulation run at 2025-10-04_08-36-08. Win rate: 51.4%, Total points: 1631.0, PPG: 95.9, Consistency: 27.8",
+  "parameters": {
+    "ADP_EXCELLENT_MULTIPLIER": [
+      1.08
+    ],
+    "ADP_GOOD_MULTIPLIER": [
+      1.08,
+      1.12,
+      1.15,
+      1.16,
+      1.21,
+      1.35
+    ],
+    "ADP_POOR_MULTIPLIER": [
+      0.52
+    ],
+    "BASE_BYE_PENALTY": [
+      18.85
+    ],
+    "DRAFT_ORDER_PRIMARY_BONUS": [
+      74.76
+    ],
+    "DRAFT_ORDER_SECONDARY_BONUS": [
+      38.57
+    ],
+    "INJURY_PENALTIES_HIGH": [
+      68.22
+    ],
+    "INJURY_PENALTIES_MEDIUM": [
+      4.68
+    ],
+    "MATCHUP_EXCELLENT_MULTIPLIER": [
+      1.23
+    ],
+    "MATCHUP_GOOD_MULTIPLIER": [
+      1.03
+    ],
+    "MATCHUP_NEUTRAL_MULTIPLIER": [
+      1.0
+    ],
+    "MATCHUP_POOR_MULTIPLIER": [
+      0.92
+    ],
+    "MATCHUP_VERY_POOR_MULTIPLIER": [
+      0.5
+    ],
+    "NORMALIZATION_MAX_SCALE": [
+      102.42
+    ],
+    "PLAYER_RATING_EXCELLENT_MULTIPLIER": [
+      1.21
+    ],
+    "PLAYER_RATING_GOOD_MULTIPLIER": [
+      1.15
+    ],
+    "PLAYER_RATING_POOR_MULTIPLIER": [
+      0.94
+    ],
+    "TEAM_EXCELLENT_MULTIPLIER": [
+      1.12
+    ],
+    "TEAM_GOOD_MULTIPLIER": [
+      1.32
+    ],
+    "TEAM_POOR_MULTIPLIER": [
+      0.64
+    ]
+  }
+}

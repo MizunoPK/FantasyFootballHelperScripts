@@ -1,0 +1,166 @@
+{
+  "config_name": "optimal_2025-10-03_18-52-53",
+  "description": "Optimal configuration found from simulation run at 2025-10-03_18-52-53. Win rate: 52.1%, Total points: 1633.0, PPG: 96.1, Consistency: 26.8",
+  "parameters": {
+    "ADP_EXCELLENT_MULTIPLIER": [
+      1.23
+    ],
+    "ADP_GOOD_MULTIPLIER": [
+      1.1
+    ],
+    "ADP_POOR_MULTIPLIER": [
+      0.52
+    ],
+    "BASE_BYE_PENALTY": [
+      6.21
+    ],
+    "DRAFT_ORDER_PRIMARY_BONUS": [
+      48.24
+    ],
+    "DRAFT_ORDER_SECONDARY_BONUS": [
+      25.43,
+      25.96,
+      26.08,
+      26.16,
+      27.01,
+      27.11,
+      27.27,
+      27.55,
+      27.59,
+      27.7,
+      28.4,
+      28.55,
+      28.58,
+      28.89,
+      28.94,
+      28.99,
+      29.4,
+      29.64,
+      29.69,
+      29.9,
+      30.1,
+      30.26,
+      30.38,
+      30.47,
+      30.49,
+      31.02,
+      31.52,
+      31.59,
+      31.69,
+      31.74,
+      32.23,
+      32.34,
+      32.53,
+      32.68,
+      33.02,
+      33.35,
+      33.78,
+      33.84,
+      33.94,
+      34.04,
+      34.17,
+      34.5,
+      34.75,
+      34.97,
+      36.7,
+      36.83,
+      36.84,
+      36.99,
+      37.18,
+      37.47,
+      37.87,
+      37.92,
+      37.95,
+      37.96,
+      38.4,
+      38.48,
+      38.72,
+      38.93,
+      39.09,
+      39.15,
+      39.25,
+      39.46,
+      39.58,
+      40.16,
+      40.31,
+      40.34,
+      40.38,
+      40.74,
+      41.49,
+      41.76,
+      41.98,
+      42.63,
+      42.68,
+      43.26,
+      43.28,
+      43.53,
+      43.86,
+      44.64,
+      44.68,
+      44.83,
+      44.88,
+      45.22,
+      45.29,
+      45.54,
+      45.75,
+      45.92,
+      46.23,
+      47.3,
+      47.42,
+      47.83,
+      48.24,
+      48.32,
+      48.38,
+      48.46,
+      48.77,
+      49.07,
+      49.15,
+      49.22,
+      49.49,
+      49.55,
+      49.76
+    ],
+    "INJURY_PENALTIES_HIGH": [
+      68.96
+    ],
+    "INJURY_PENALTIES_MEDIUM": [
+      13.23
+    ],
+    "MATCHUP_EXCELLENT_MULTIPLIER": [
+      1.14
+    ],
+    "MATCHUP_GOOD_MULTIPLIER": [
+      1.09
+    ],
+    "MATCHUP_NEUTRAL_MULTIPLIER": [
+      1.04
+    ],
+    "MATCHUP_POOR_MULTIPLIER": [
+      0.94
+    ],
+    "MATCHUP_VERY_POOR_MULTIPLIER": [
+      0.64
+    ],
+    "NORMALIZATION_MAX_SCALE": [
+      60.33
+    ],
+    "PLAYER_RATING_EXCELLENT_MULTIPLIER": [
+      1.18
+    ],
+    "PLAYER_RATING_GOOD_MULTIPLIER": [
+      1.01
+    ],
+    "PLAYER_RATING_POOR_MULTIPLIER": [
+      0.74
+    ],
+    "TEAM_EXCELLENT_MULTIPLIER": [
+      1.24
+    ],
+    "TEAM_GOOD_MULTIPLIER": [
+      1.2
+    ],
+    "TEAM_POOR_MULTIPLIER": [
+      0.64
+    ]
+  }
+}

@@ -23,7 +23,6 @@ PARAMETER_ARRAY = [
     "DRAFT_ORDER_SECONDARY_BONUS",
     "MATCHUP_EXCELLENT_MULTIPLIER", 
     "MATCHUP_GOOD_MULTIPLIER",
-    "MATCHUP_NEUTRAL_MULTIPLIER",
     "MATCHUP_POOR_MULTIPLIER",
     "MATCHUP_VERY_POOR_MULTIPLIER",
     "INJURY_PENALTIES_MEDIUM",
@@ -40,26 +39,25 @@ PARAMETER_ARRAY = [
     "TEAM_POOR_MULTIPLIER",
 ]
 PARAMETER_RANGES = {
-    "NORMALIZATION_MAX_SCALE": 20,
-    "DRAFT_ORDER_PRIMARY_BONUS": 20,
-    "DRAFT_ORDER_SECONDARY_BONUS": 20,
-    "MATCHUP_EXCELLENT_MULTIPLIER": 0.2,
-    "MATCHUP_GOOD_MULTIPLIER": 0.2,
-    "MATCHUP_NEUTRAL_MULTIPLIER": 0.2,
-    "MATCHUP_POOR_MULTIPLIER": 0.2,
-    "MATCHUP_VERY_POOR_MULTIPLIER": 0.2,
-    "INJURY_PENALTIES_MEDIUM": 20,
-    "INJURY_PENALTIES_HIGH": 20,
-    "BASE_BYE_PENALTY": 20,
-    "ADP_EXCELLENT_MULTIPLIER": 0.2,
-    "ADP_GOOD_MULTIPLIER": 0.2,
-    "ADP_POOR_MULTIPLIER": 0.2,
-    "PLAYER_RATING_EXCELLENT_MULTIPLIER": 0.2,
-    "PLAYER_RATING_GOOD_MULTIPLIER": 0.2,
-    "PLAYER_RATING_POOR_MULTIPLIER": 0.2,
-    "TEAM_EXCELLENT_MULTIPLIER": 0.2,
-    "TEAM_GOOD_MULTIPLIER": 0.2,
-    "TEAM_POOR_MULTIPLIER": 0.2
+    "NORMALIZATION_MAX_SCALE": 30,
+    "DRAFT_ORDER_PRIMARY_BONUS": 30,
+    "DRAFT_ORDER_SECONDARY_BONUS": 30,
+    "MATCHUP_EXCELLENT_MULTIPLIER": 0.3,
+    "MATCHUP_GOOD_MULTIPLIER": 0.3,
+    "MATCHUP_POOR_MULTIPLIER": 0.3,
+    "MATCHUP_VERY_POOR_MULTIPLIER": 0.3,
+    "INJURY_PENALTIES_MEDIUM": 30,
+    "INJURY_PENALTIES_HIGH": 30,
+    "BASE_BYE_PENALTY": 30,
+    "ADP_EXCELLENT_MULTIPLIER": 0.3,
+    "ADP_GOOD_MULTIPLIER": 0.3,
+    "ADP_POOR_MULTIPLIER": 0.3,
+    "PLAYER_RATING_EXCELLENT_MULTIPLIER": 0.3,
+    "PLAYER_RATING_GOOD_MULTIPLIER": 0.3,
+    "PLAYER_RATING_POOR_MULTIPLIER": 0.3,
+    "TEAM_EXCELLENT_MULTIPLIER": 0.3,
+    "TEAM_GOOD_MULTIPLIER": 0.3,
+    "TEAM_POOR_MULTIPLIER": 0.3
 }
 
 # Absolute min/max bounds for each parameter (enforced regardless of PARAMETER_RANGES)
@@ -72,7 +70,6 @@ PARAMETER_BOUNDS = {
     "DRAFT_ORDER_SECONDARY_BONUS": (25, 100),
     "MATCHUP_EXCELLENT_MULTIPLIER": (1.0, 2.0),
     "MATCHUP_GOOD_MULTIPLIER": (1.0, 2.0),
-    "MATCHUP_NEUTRAL_MULTIPLIER": (0.5, 1.5),
     "MATCHUP_POOR_MULTIPLIER": (0.1, 1.0),
     "MATCHUP_VERY_POOR_MULTIPLIER": (0.1, 1.0),
     "INJURY_PENALTIES_MEDIUM": (0, 100),
@@ -88,8 +85,8 @@ PARAMETER_BOUNDS = {
     "TEAM_GOOD_MULTIPLIER": (1.0, 2.0),
     "TEAM_POOR_MULTIPLIER": (0.1, 1.0)
 }
-NUMBER_OF_TEST_VALUES = 100  # Number of test values per parameter
-NUMBER_OF_RUNS = 50
+NUMBER_OF_TEST_VALUES = 5  # Number of test values per parameter
+NUMBER_OF_RUNS = 100
 STARTING_PARAMETER = "MATCHUP_EXCELLENT_MULTIPLIER"
 STARTING_FILE = "optimal_2025-10-02_15-29-14.json"
 
@@ -158,9 +155,12 @@ def prepare_json(analysis_data, round_number):
     # Round all values to 2 decimal places to avoid long decimals
     parameters = {}
     for param_name, param_value in config_params.items():
-        # Round the base value to 2 decimals before creating array
-        rounded_value = round(param_value, 2)
-        parameters[param_name] = get_parameter_array(param_name, rounded_value, round_number)
+        if param_name in PARAMETER_ARRAY:
+            # Round the base value to 2 decimals before creating array
+            rounded_value = round(param_value, 2)
+            parameters[param_name] = get_parameter_array(param_name, rounded_value, round_number)
+        else:
+            parameters[param_name] = [round(param_value, 2)]
 
     # Create the JSON structure
     json_data = {
