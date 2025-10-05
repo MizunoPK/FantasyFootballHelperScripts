@@ -174,7 +174,12 @@ class SeasonSimulator:
         return total_score
 
     def _get_optimal_starting_lineup(self, roster: FantasyTeam, week: int) -> List[FantasyPlayer]:
-        """Get the optimal starting lineup for a team for a specific week using starter_helper logic"""
+        """
+        Get the optimal starting lineup for a team for a specific week using starter_helper logic.
+
+        Uses projected data for current week projections, but actual data for consistency calculations.
+        This ensures consistency scoring reflects real performance variance, not projected variance.
+        """
 
         # Convert roster to DataFrame format expected by LineupOptimizer
         roster_data = []
@@ -187,6 +192,15 @@ class SeasonSimulator:
                 'injury_status': getattr(player, 'injury_status', 'ACTIVE'),
                 'bye_week': getattr(player, 'bye_week', 0)
             }
+
+            # Add actual weekly points data for consistency calculation
+            # Consistency should use ACTUAL performance data, not projections
+            for hist_week in range(1, week):  # Only weeks that have occurred
+                week_attr = f'week_{hist_week}_points'
+                # Get actual points from actual dataframe
+                actual_points = self._get_player_week_points_from_df(player, hist_week, use_actual=True)
+                player_dict[week_attr] = actual_points
+
             roster_data.append(player_dict)
 
         roster_df = pd.DataFrame(roster_data)
