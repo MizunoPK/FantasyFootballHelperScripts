@@ -73,6 +73,8 @@ TRADE_HELPER_MODE = True   # Trade mode (weekly optimization)
 - `DRAFT_ORDER_SECONDARY_BONUS = 25` - Secondary position bonus
 - `INJURY_PENALTIES = {"LOW": 0, "MEDIUM": 25, "HIGH": 50}`
 - `APPLY_INJURY_PENALTY_TO_ROSTER = False` - Roster injury toggle
+- `ENABLE_CONSISTENCY_SCORING = True` - CV-based volatility scoring
+- `CONSISTENCY_MULTIPLIERS = {"LOW": 1.08, "MEDIUM": 1.00, "HIGH": 0.92}`
 
 **Starter Helper** (`shared_files/configs/starter_helper_config.py`):
 - `MATCHUP_MULTIPLIERS` - Matchup impact (0.8x to 1.2x)
@@ -87,22 +89,24 @@ TRADE_HELPER_MODE = True   # Trade mode (weekly optimization)
 
 ## Scoring Systems
 
-### Draft Helper: Add to Roster (7 steps)
+### Draft Helper: Add to Roster (8 steps)
 1. **Normalize** fantasy points (0-100 scale)
 2. **ADP multiplier** (1.15x excellent, 1.08x good, 0.92x poor)
 3. **Player rating multiplier** (1.20x excellent, 1.10x good, 0.90x poor)
 4. **Team quality multiplier** (1.12x excellent, 1.06x good, 0.94x poor)
-5. **Draft order bonus** (position-specific by round)
-6. **Bye week penalty** (10-20 points, draft only)
-7. **Injury penalty** (0/25/50 points by risk level)
+5. **Consistency multiplier** (1.08x LOW volatility, 1.00x MEDIUM, 0.92x HIGH)
+6. **Draft order bonus** (position-specific by round)
+7. **Bye week penalty** (10-20 points, draft only)
+8. **Injury penalty** (0/25/50 points by risk level)
 
-### Draft Helper: Trade/Waiver (6 steps)
-Same as above **without** Draft Order bonus (step 5)
+### Draft Helper: Trade/Waiver (7 steps)
+Same as above **without** Draft Order bonus (step 6)
 
-### Starter Helper (3 steps)
+### Starter Helper (4 steps)
 1. **Base projections** from weekly CSV data
 2. **Matchup multiplier** (offense rank vs defense rank)
-3. **Binary injury filter** (zero out non-ACTIVE/QUESTIONABLE)
+3. **Consistency multiplier** (1.08x LOW volatility, 1.00x MEDIUM, 0.92x HIGH)
+4. **Binary injury filter** (zero out non-ACTIVE/QUESTIONABLE)
 
 ---
 
