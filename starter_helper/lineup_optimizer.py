@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from matchup_calculator import MatchupCalculator
+from shared_files.consistency_calculator import ConsistencyCalculator
 
 
 @dataclass
@@ -86,19 +87,25 @@ class LineupOptimizer:
             self.logger.warning(f"Failed to initialize matchup calculator: {e}")
             self.matchup_calculator = None
 
+        # Initialize consistency calculator
+        self.consistency_calculator = ConsistencyCalculator(logger=self.logger)
+        self.logger.info("Consistency calculator initialized")
+
     def calculate_adjusted_score(self,
                                 projected_points: float,
                                 injury_status: str,
                                 bye_week: int,
                                 player_team: Optional[str] = None,
-                                player_position: Optional[str] = None) -> Tuple[float, str]:
+                                player_position: Optional[str] = None,
+                                player_data: Optional[Dict] = None) -> Tuple[float, str]:
         """
         Calculate adjusted score for a player based on projections and binary injury system
 
-        Scoring System (3 steps):
+        Scoring System (4 steps):
         1. Start with projected points for current week
         2. Apply matchup multiplier (if positional ranking available)
-        3. Apply binary injury penalty (zero out non-ACTIVE/QUESTIONABLE players)
+        3. Apply consistency multiplier (CV-based volatility scoring)
+        4. Apply binary injury penalty (zero out non-ACTIVE/QUESTIONABLE players)
 
         Args:
             projected_points: Current week projected fantasy points
@@ -106,6 +113,7 @@ class LineupOptimizer:
             bye_week: Player's bye week number (not used in current scoring)
             player_team: Player's team abbreviation (e.g., 'PHI', 'KC')
             player_position: Player position (e.g., 'QB', 'RB', 'WR')
+            player_data: Optional dict with full player data for consistency calculation
 
         Returns:
             Tuple of (adjusted_score, reason_string)
@@ -131,7 +139,14 @@ class LineupOptimizer:
             if matchup_explanation:
                 reasons.append(matchup_explanation)
 
-        # Step 3: Apply binary injury penalty (zero out non-active players)
+        # Step 3: Apply consistency multiplier if player_data available
+        if player_data:
+            consistency_score, consistency_category = self._apply_consistency_scoring(adjusted_score, player_data)
+            adjusted_score = consistency_score
+            reasons.append(f"[{consistency_category} volatility]")
+            self.logger.debug(f"Consistency applied: {consistency_category} volatility")
+
+        # Step 4: Apply binary injury penalty (zero out non-active players)
         # Players must be ACTIVE or QUESTIONABLE to play; all others get zero score
         if injury_status.upper() not in STARTER_HELPER_ACTIVE_STATUSES:
             adjusted_score = 0.0
@@ -141,6 +156,63 @@ class LineupOptimizer:
         reason = "; ".join(reasons) if reasons else "No adjustments"
         return max(0.0, adjusted_score), reason
 
+    def _apply_consistency_scoring(self, base_score: float, player_data: Dict) -> Tuple[float, str]:
+        """
+        Apply consistency/volatility multiplier based on week-to-week performance variance.
+
+        Args:
+            base_score: Score before consistency adjustment
+            player_data: Dict containing player data with weekly projections
+
+        Returns:
+            tuple: (adjusted_score, volatility_category)
+        """
+        try:
+            # Import config to check if enabled
+            from shared_files.configs.draft_helper_config import (
+                ENABLE_CONSISTENCY_SCORING,
+                CONSISTENCY_MULTIPLIERS
+            )
+
+            if not ENABLE_CONSISTENCY_SCORING:
+                return base_score, 'MEDIUM'
+
+            # Create a simple object with name and weekly projection attributes
+            # ConsistencyCalculator only needs weekly_X_points attributes
+            class PlayerProxy:
+                def __init__(self, data):
+                    self.name = data.get('name', 'Unknown')
+                    # Copy all weekly projection attributes
+                    for week in range(1, 18):
+                        week_key = f'week_{week}_points'
+                        if week_key in data:
+                            setattr(self, week_key, data[week_key])
+                        else:
+                            setattr(self, week_key, None)
+
+            player = PlayerProxy(player_data)
+
+            # Calculate consistency metrics
+            consistency_result = self.consistency_calculator.calculate_consistency_score(player)
+            volatility_category = consistency_result['volatility_category']
+
+            # Get multiplier from config
+            multiplier = CONSISTENCY_MULTIPLIERS.get(volatility_category, 1.0)
+
+            # Apply multiplier
+            adjusted_score = base_score * multiplier
+
+            self.logger.debug(
+                f"Consistency for {player_data.get('name', 'Unknown')}: "
+                f"CV={consistency_result['coefficient_of_variation']:.3f}, "
+                f"category={volatility_category}, multiplier={multiplier:.2f}"
+            )
+
+            return adjusted_score, volatility_category
+
+        except Exception as e:
+            self.logger.warning(f"Consistency calculation failed: {e}. Using base score.")
+            return base_score, 'MEDIUM'
 
     def create_starting_recommendation(self,
                                      player_data: Dict,
@@ -161,7 +233,8 @@ class LineupOptimizer:
         adjusted_score, reason = self.calculate_adjusted_score(
             projected_points, injury_status, bye_week,
             player_team=player_data['team'],
-            player_position=player_data['position']
+            player_position=player_data['position'],
+            player_data=player_data
         )
 
         return StartingRecommendation(
