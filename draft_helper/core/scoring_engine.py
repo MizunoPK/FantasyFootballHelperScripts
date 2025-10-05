@@ -30,6 +30,14 @@ except ImportError:
     from normalization_calculator import NormalizationCalculator
     from draft_order_calculator import DraftOrderCalculator
 
+try:
+    from shared_files.consistency_calculator import ConsistencyCalculator
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.append(str(Path(__file__).parent.parent.parent))
+    from shared_files.consistency_calculator import ConsistencyCalculator
+
 
 class ScoringEngine:
     """
@@ -67,21 +75,25 @@ class ScoringEngine:
             team=team,
             logger=self.logger
         )
+        self.consistency_calculator = ConsistencyCalculator(
+            logger=self.logger
+        )
 
-        self.logger.info("ScoringEngine initialized with normalization and DRAFT_ORDER calculators")
+        self.logger.info("ScoringEngine initialized with normalization, DRAFT_ORDER, and consistency calculators")
 
     def score_player(self, p, enhanced_scorer=None, team_data_loader=None, positional_ranking_calculator=None):
         """
-        Calculate score for Add to Roster Mode (7-step calculation).
+        Calculate score for Add to Roster Mode (8-step calculation).
 
         New Scoring System:
         1. Get normalized seasonal fantasy points (0-N scale)
         2. Apply ADP multiplier
         3. Apply Player Ranking multiplier
         4. Apply Team ranking multiplier
-        5. Add DRAFT_ORDER bonus (round-based position priority)
-        6. Subtract Bye Week penalty
-        7. Subtract Injury penalty
+        5. Apply Consistency multiplier (CV-based volatility scoring)
+        6. Add DRAFT_ORDER bonus (round-based position priority)
+        7. Subtract Bye Week penalty
+        8. Subtract Injury penalty
 
         Args:
             p: FantasyPlayer to score
@@ -102,25 +114,30 @@ class ScoringEngine:
         )
         self.logger.debug(f"Steps 2-4 - Enhanced score for {p.name}: {enhanced_score:.2f}")
 
-        # STEP 5: Add DRAFT_ORDER bonus (round-based position priority)
-        draft_bonus = self.draft_order_calculator.calculate_bonus(p)
-        draft_bonus_score = enhanced_score + draft_bonus
-        self.logger.debug(f"Step 5 - After DRAFT_ORDER bonus for {p.name}: {draft_bonus_score:.2f} (+{draft_bonus:.1f})")
+        # STEP 5: Apply Consistency multiplier (CV-based volatility scoring)
+        consistency_score, consistency_category = self._apply_consistency_scoring(enhanced_score, p)
+        self.logger.debug(f"Step 5 - After consistency for {p.name}: {consistency_score:.2f} [{consistency_category} volatility]")
 
-        # STEP 6: Subtract Bye Week penalty
+        # STEP 6: Add DRAFT_ORDER bonus (round-based position priority)
+        draft_bonus = self.draft_order_calculator.calculate_bonus(p)
+        draft_bonus_score = consistency_score + draft_bonus
+        self.logger.debug(f"Step 6 - After DRAFT_ORDER bonus for {p.name}: {draft_bonus_score:.2f} (+{draft_bonus:.1f})")
+
+        # STEP 7: Subtract Bye Week penalty
         bye_penalty = self.compute_bye_penalty_for_player(p)
         bye_adjusted_score = draft_bonus_score - bye_penalty
-        self.logger.debug(f"Step 6 - After bye penalty for {p.name}: {bye_adjusted_score:.2f} (-{bye_penalty:.1f})")
+        self.logger.debug(f"Step 7 - After bye penalty for {p.name}: {bye_adjusted_score:.2f} (-{bye_penalty:.1f})")
 
-        # STEP 7: Subtract Injury penalty
+        # STEP 8: Subtract Injury penalty
         injury_penalty = self.compute_injury_penalty(p)
         final_score = bye_adjusted_score - injury_penalty
-        self.logger.debug(f"Step 7 - Final score for {p.name}: {final_score:.2f} (-{injury_penalty:.1f})")
+        self.logger.debug(f"Step 8 - Final score for {p.name}: {final_score:.2f} (-{injury_penalty:.1f})")
 
         # Summary logging
         self.logger.info(
             f"Add to Roster scoring for {p.name}: "
             f"norm={normalized_score:.1f} → enhanced={enhanced_score:.1f} → "
+            f"consistency={consistency_score:.1f} [{consistency_category}] → "
             f"draft_bonus={draft_bonus_score:.1f} → bye={bye_adjusted_score:.1f} → "
             f"final={final_score:.1f}"
         )
@@ -201,6 +218,48 @@ class ScoringEngine:
             self.logger.warning(f"Enhanced scoring failed for {player.name}: {e}. Using base score.")
             return base_score
 
+    def _apply_consistency_scoring(self, base_score, player):
+        """
+        Apply consistency/volatility multiplier based on week-to-week performance variance.
+
+        Uses coefficient of variation (CV) to categorize players:
+        - LOW volatility (CV < 0.3): Consistent performers get +8% bonus
+        - MEDIUM volatility (0.3 <= CV <= 0.6): Neutral (1.0x multiplier)
+        - HIGH volatility (CV > 0.6): Boom/bust players get -8% penalty
+
+        Args:
+            base_score: Score before consistency adjustment
+            player: FantasyPlayer to analyze
+
+        Returns:
+            tuple: (adjusted_score, volatility_category)
+        """
+        # Check if consistency scoring is enabled
+        if not self.config.ENABLE_CONSISTENCY_SCORING:
+            return base_score, 'MEDIUM'
+
+        try:
+            # Calculate consistency metrics
+            consistency_result = self.consistency_calculator.calculate_consistency_score(player)
+            volatility_category = consistency_result['volatility_category']
+
+            # Get multiplier from config
+            multiplier = self.config.CONSISTENCY_MULTIPLIERS.get(volatility_category, 1.0)
+
+            # Apply multiplier
+            adjusted_score = base_score * multiplier
+
+            self.logger.debug(
+                f"Consistency for {player.name}: CV={consistency_result['coefficient_of_variation']:.3f}, "
+                f"category={volatility_category}, multiplier={multiplier:.2f}, "
+                f"{base_score:.2f} -> {adjusted_score:.2f}"
+            )
+
+            return adjusted_score, volatility_category
+
+        except Exception as e:
+            self.logger.warning(f"Consistency calculation failed for {player.name}: {e}. Using base score.")
+            return base_score, 'MEDIUM'
 
     def compute_bye_penalty_for_player(self, player, exclude_self=False):
         """
@@ -306,15 +365,16 @@ class ScoringEngine:
 
     def score_player_for_trade(self, player, positional_ranking_calculator=None, enhanced_scorer=None, team_data_loader=None):
         """
-        Calculate score for Trade/Waiver Mode (6-step calculation).
+        Calculate score for Trade/Waiver Mode (7-step calculation).
 
         New Scoring System (same as Add to Roster but WITHOUT DRAFT_ORDER bonus):
         1. Get normalized seasonal fantasy points (0-N scale)
         2. Apply ADP multiplier
         3. Apply Player Ranking multiplier
         4. Apply Team ranking multiplier
-        5. Subtract Bye Week penalty
-        6. Subtract Injury penalty
+        5. Apply Consistency multiplier (CV-based volatility scoring)
+        6. Subtract Bye Week penalty
+        7. Subtract Injury penalty
 
         Note: No DRAFT_ORDER bonus - that's only for draft recommendations
 
@@ -337,23 +397,28 @@ class ScoringEngine:
         )
         self.logger.debug(f"Steps 2-4 - Enhanced score for {player.name}: {enhanced_score:.2f}")
 
-        # NOTE: No DRAFT_ORDER bonus for trade/waiver mode (Step 5 from Add to Roster is skipped)
+        # STEP 5: Apply Consistency multiplier (CV-based volatility scoring)
+        consistency_score, consistency_category = self._apply_consistency_scoring(enhanced_score, player)
+        self.logger.debug(f"Step 5 - After consistency for {player.name}: {consistency_score:.2f} [{consistency_category} volatility]")
 
-        # STEP 5: Subtract Bye Week penalty (exclude self if roster player)
+        # NOTE: No DRAFT_ORDER bonus for trade/waiver mode (Step 6 from Add to Roster is skipped)
+
+        # STEP 6: Subtract Bye Week penalty (exclude self if roster player)
         exclude_self = (player.drafted == 2)
         bye_penalty = self.compute_bye_penalty_for_player(player, exclude_self=exclude_self)
-        bye_adjusted_score = enhanced_score - bye_penalty
-        self.logger.debug(f"Step 5 - After bye penalty for {player.name}: {bye_adjusted_score:.2f} (-{bye_penalty:.1f})")
+        bye_adjusted_score = consistency_score - bye_penalty
+        self.logger.debug(f"Step 6 - After bye penalty for {player.name}: {bye_adjusted_score:.2f} (-{bye_penalty:.1f})")
 
-        # STEP 6: Subtract Injury penalty
+        # STEP 7: Subtract Injury penalty
         injury_penalty = self.compute_injury_penalty(player, trade_mode=True)
         final_score = bye_adjusted_score - injury_penalty
-        self.logger.debug(f"Step 6 - Final score for {player.name}: {final_score:.2f} (-{injury_penalty:.1f})")
+        self.logger.debug(f"Step 7 - Final score for {player.name}: {final_score:.2f} (-{injury_penalty:.1f})")
 
         # Summary logging
         self.logger.info(
             f"Trade/Waiver scoring for {player.name}: "
             f"norm={normalized_score:.1f} → enhanced={enhanced_score:.1f} → "
+            f"consistency={consistency_score:.1f} [{consistency_category}] → "
             f"bye={bye_adjusted_score:.1f} → final={final_score:.1f}"
         )
 
