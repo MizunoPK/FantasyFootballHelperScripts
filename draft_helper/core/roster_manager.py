@@ -34,6 +34,18 @@ class RosterManager:
         self.team = team
         self.logger = logger or logging.getLogger(__name__)
 
+    def _get_consistency_indicator(self, player):
+        """
+        Get consistency indicator symbol for display.
+
+        Returns:
+            str: Consistency indicator symbol or empty string
+        """
+        if hasattr(player, 'consistency_category') and player.consistency_category:
+            consistency_map = {"LOW": " ●", "MEDIUM": " ◐", "HIGH": " ○"}
+            return consistency_map.get(player.consistency_category, "")
+        return ""
+
     def display_roster_by_draft_order(self):
         """Display current roster organized by assigned slots in draft order"""
         print(f"\nCurrent Roster by Position:")
@@ -156,6 +168,8 @@ class RosterManager:
         print("\n" + "="*50)
         print("ADD TO ROSTER MODE")
         print("="*50)
+        print("Consistency: ● = Consistent (LOW volatility)  ◐ = Average  ○ = Boom/Bust (HIGH volatility)")
+        print("="*50)
 
         # Show enhanced roster display by draft rounds
         self.display_roster_by_draft_rounds()
@@ -174,7 +188,16 @@ class RosterManager:
                 status = f" ({p.injury_status})" if p.injury_status != 'ACTIVE' else ""
                 drafted_status = " [DRAFTED]" if p.drafted == 1 else ""
                 score_display = getattr(p, 'score', p.fantasy_points)  # Use calculated score if available
-                print(f"{i}. {p.name} ({p.team} {p.position}) - {score_display:.1f} pts{status}{drafted_status}")
+
+                # Show consistency category if available
+                consistency_indicator = ""
+                if hasattr(p, 'consistency_category') and p.consistency_category:
+                    consistency_map = {"LOW": "●", "MEDIUM": "◐", "HIGH": "○"}
+                    consistency_symbol = consistency_map.get(p.consistency_category, "")
+                    if consistency_symbol:
+                        consistency_indicator = f" {consistency_symbol}"
+
+                print(f"{i}. {p.name} ({p.team} {p.position}) - {score_display:.1f} pts{consistency_indicator}{status}{drafted_status}")
             print(f"{len(recommendations) + 1}. Back to Main Menu")
 
             try:
@@ -240,8 +263,8 @@ class RosterManager:
                 for p in sorted(self.team.roster, key=lambda x: x.position):
                     if score_player_for_trade_func:
                         score = score_player_for_trade_func(p)
-                        matchup_indicator = getattr(p, 'matchup_indicator', '') or ''
-                        print(f"  {p.name} ({p.position}) - {score:.2f} pts {matchup_indicator}")
+                        consistency_indicator = self._get_consistency_indicator(p)
+                        print(f"  {p.name} ({p.position}) - {score:.2f} pts{consistency_indicator}")
                     else:
                         print(f"  {p.name} ({p.position}) - {p.fantasy_points:.1f} pts")
             return
@@ -287,6 +310,8 @@ class RosterManager:
         players_kept = [p for p in self.team.roster if p.id in players_kept_ids]
 
         print(f"\nROSTER ANALYSIS:")
+        print("Consistency: ● = Consistent (LOW volatility)  ◐ = Average  ○ = Boom/Bust (HIGH volatility)")
+        print("="*60)
         print(f"Players kept: {len(players_kept)}")
         print(f"Players traded out: {len(players_out_unique)}")
         print(f"Players traded in: {len(players_in_unique)}")
@@ -297,8 +322,8 @@ class RosterManager:
             for p in sorted(players_kept, key=lambda x: x.position):
                 if score_player_for_trade_func:
                     score = score_player_for_trade_func(p)
-                    matchup_indicator = getattr(p, 'matchup_indicator', '') or ''
-                    print(f"  {p.name} ({p.position}) - {score:.2f} pts {matchup_indicator}")
+                    consistency_indicator = self._get_consistency_indicator(p)
+                    print(f"  {p.name} ({p.position}) - {score:.2f} pts{consistency_indicator}")
                 else:
                     print(f"  {p.name} ({p.position}) - {p.fantasy_points:.1f} pts")
 
@@ -308,12 +333,11 @@ class RosterManager:
                 out_score = score_player_for_trade_func(trade['out'])
                 in_score = score_player_for_trade_func(trade['in'])
 
-                # Get matchup indicators if available
-                out_matchup = getattr(trade['out'], 'matchup_indicator', '') or ''
-                in_matchup = getattr(trade['in'], 'matchup_indicator', '') or ''
+                out_consistency = self._get_consistency_indicator(trade['out'])
+                in_consistency = self._get_consistency_indicator(trade['in'])
 
-                print(f"  {i}. OUT: {trade['out'].name} ({trade['out'].position}) - {out_score:.2f} pts {out_matchup}")
-                print(f"     IN:  {trade['in'].name} ({trade['in'].position}) - {in_score:.2f} pts {in_matchup}")
+                print(f"  {i}. OUT: {trade['out'].name} ({trade['out'].position}) - {out_score:.2f} pts{out_consistency}")
+                print(f"     IN:  {trade['in'].name} ({trade['in'].position}) - {in_score:.2f} pts{in_consistency}")
                 print(f"     Net Improvement: +{trade['improvement']:.2f} pts")
             else:
                 print(f"  {i}. OUT: {trade['out'].name} ({trade['out'].position}) - {trade['out'].fantasy_points:.1f} pts")
@@ -335,8 +359,8 @@ class RosterManager:
                     for j, runner_up in enumerate(runners_up, 1):
                         if score_player_for_trade_func:
                             ru_score = score_player_for_trade_func(runner_up['in'])
-                            ru_matchup = getattr(runner_up['in'], 'matchup_indicator', '') or ''
-                            print(f"        Runner-up {j}: {runner_up['in'].name} - {ru_score:.2f} pts ({runner_up['improvement']:+.2f}) {ru_matchup}")
+                            ru_consistency = self._get_consistency_indicator(runner_up['in'])
+                            print(f"        Runner-up {j}: {runner_up['in'].name} - {ru_score:.2f} pts{ru_consistency} ({runner_up['improvement']:+.2f})")
                         else:
                             print(f"        Runner-up {j}: {runner_up['in'].name} - {runner_up['in'].fantasy_points:.1f} pts ({runner_up['improvement']:+.2f})")
             print()
@@ -346,6 +370,8 @@ class RosterManager:
         Show current roster with alternative trade options when no beneficial trades exist.
         """
         print(f"\nCurrent roster with potential alternatives:")
+        print("Consistency: ● = Consistent (LOW volatility)  ◐ = Average  ○ = Boom/Bust (HIGH volatility)")
+        print("-"*60)
 
         for p in sorted(self.team.roster, key=lambda x: x.position):
             if p.locked == 1:
@@ -353,8 +379,8 @@ class RosterManager:
 
             if score_player_for_trade_func:
                 score = score_player_for_trade_func(p)
-                matchup_indicator = getattr(p, 'matchup_indicator', '') or ''
-                print(f"  {p.name} ({p.position}) - {score:.2f} pts {matchup_indicator}")
+                consistency_indicator = self._get_consistency_indicator(p)
+                print(f"  {p.name} ({p.position}) - {score:.2f} pts{consistency_indicator}")
             else:
                 print(f"  {p.name} ({p.position}) - {p.fantasy_points:.1f} pts")
 
@@ -367,8 +393,8 @@ class RosterManager:
                     for j, alt in enumerate(alternatives, 1):
                         if score_player_for_trade_func:
                             alt_score = score_player_for_trade_func(alt['in'])
-                            alt_matchup = getattr(alt['in'], 'matchup_indicator', '') or ''
-                            print(f"        Alternative {j}: {alt['in'].name} - {alt_score:.2f} pts ({alt['improvement']:+.2f}) {alt_matchup}")
+                            alt_consistency = self._get_consistency_indicator(alt['in'])
+                            print(f"        Alternative {j}: {alt['in'].name} - {alt_score:.2f} pts{alt_consistency} ({alt['improvement']:+.2f})")
                         else:
                             print(f"        Alternative {j}: {alt['in'].name} - {alt['in'].fantasy_points:.1f} pts ({alt['improvement']:+.2f})")
             print()

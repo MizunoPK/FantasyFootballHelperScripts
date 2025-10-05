@@ -274,7 +274,7 @@ class TradeAnalyzer:
         Trade Analysis Mode - run trade helper to optimize current roster.
 
         Args:
-            add_basic_matchup_indicators_func: Function to add matchup indicators
+            add_basic_matchup_indicators_func: Function to add matchup indicators (not used)
             run_trade_helper_func: Function to run the trade helper
             save_players_func: Function to save player data
         """
@@ -304,8 +304,8 @@ class TradeAnalyzer:
             original_player_states[player.id] = player.drafted
 
         try:
-            # Add basic matchup indicators to players
-            add_basic_matchup_indicators_func()
+            # Note: Matchup indicators are not used in Waiver Optimizer mode
+            # Scoring is based on seasonal projections only
 
             # Run the trade helper analysis
             print("\nStarting trade analysis...")

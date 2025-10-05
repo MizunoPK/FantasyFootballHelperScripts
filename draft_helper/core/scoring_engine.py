@@ -116,6 +116,8 @@ class ScoringEngine:
 
         # STEP 5: Apply Consistency multiplier (CV-based volatility scoring)
         consistency_score, consistency_category = self._apply_consistency_scoring(enhanced_score, p)
+        # Store consistency category on player for display
+        p.consistency_category = consistency_category
         self.logger.debug(f"Step 5 - After consistency for {p.name}: {consistency_score:.2f} [{consistency_category} volatility]")
 
         # STEP 6: Add DRAFT_ORDER bonus (round-based position priority)
@@ -367,7 +369,7 @@ class ScoringEngine:
         """
         Calculate score for Trade/Waiver Mode (7-step calculation).
 
-        New Scoring System (same as Add to Roster but WITHOUT DRAFT_ORDER bonus):
+        New Scoring System (same as Add to Roster but WITHOUT DRAFT_ORDER bonus and matchup adjustments):
         1. Get normalized seasonal fantasy points (0-N scale)
         2. Apply ADP multiplier
         3. Apply Player Ranking multiplier
@@ -376,11 +378,11 @@ class ScoringEngine:
         6. Subtract Bye Week penalty
         7. Subtract Injury penalty
 
-        Note: No DRAFT_ORDER bonus - that's only for draft recommendations
+        Note: No DRAFT_ORDER bonus or matchup adjustments - those are only for draft recommendations
 
         Args:
             player: FantasyPlayer to evaluate
-            positional_ranking_calculator: PositionalRankingCalculator instance
+            positional_ranking_calculator: PositionalRankingCalculator instance (not used for trade mode)
             enhanced_scorer: EnhancedScoringCalculator instance
             team_data_loader: TeamDataLoader instance
 
@@ -392,13 +394,16 @@ class ScoringEngine:
         self.logger.debug(f"Step 1 - Normalized score for {player.name}: {normalized_score:.2f}")
 
         # STEPS 2-4: Apply enhanced scoring (ADP, Player Ranking, Team Ranking multipliers)
+        # Note: Pass None for positional_ranking_calculator to skip matchup adjustments
         enhanced_score = self._apply_enhanced_scoring(
-            normalized_score, player, enhanced_scorer, team_data_loader, positional_ranking_calculator
+            normalized_score, player, enhanced_scorer, team_data_loader, positional_ranking_calculator=None
         )
         self.logger.debug(f"Steps 2-4 - Enhanced score for {player.name}: {enhanced_score:.2f}")
 
         # STEP 5: Apply Consistency multiplier (CV-based volatility scoring)
         consistency_score, consistency_category = self._apply_consistency_scoring(enhanced_score, player)
+        # Store consistency category on player for display
+        player.consistency_category = consistency_category
         self.logger.debug(f"Step 5 - After consistency for {player.name}: {consistency_score:.2f} [{consistency_category} volatility]")
 
         # NOTE: No DRAFT_ORDER bonus for trade/waiver mode (Step 6 from Add to Roster is skipped)

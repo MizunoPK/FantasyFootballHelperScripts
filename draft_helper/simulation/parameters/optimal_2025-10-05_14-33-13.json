@@ -1,91 +1,66 @@
 {
-  "config_name": "optimal_2025-10-03_10-30-43",
-  "description": "Optimal configuration found from simulation run at 2025-10-03_10-30-43. Win rate: 54.1%, Total points: 1674.3, PPG: 98.5, Consistency: 30.3",
+  "config_name": "optimal_2025-10-05_14-33-13",
+  "description": "Optimal configuration found from simulation run at 2025-10-05_14-33-13. Win rate: 53.6%, Total points: 1641.8, PPG: 96.6, Consistency: 28.5",
   "parameters": {
     "ADP_EXCELLENT_MULTIPLIER": [
-      1.0,
-      1.01,
-      1.02,
-      1.03,
-      1.04,
-      1.05,
-      1.06,
-      1.07,
-      1.08,
-      1.09,
-      1.1,
-      1.11,
-      1.12,
-      1.13,
-      1.14,
-      1.15,
-      1.16,
-      1.17,
-      1.18,
-      1.19,
-      1.2,
-      1.21,
-      1.22,
-      1.23,
-      1.24,
-      1.25
+      1.18
     ],
     "ADP_GOOD_MULTIPLIER": [
-      1.29
+      1.08
     ],
     "ADP_POOR_MULTIPLIER": [
-      0.48
+      0.52
     ],
     "BASE_BYE_PENALTY": [
-      6.21
+      28.85
     ],
     "DRAFT_ORDER_PRIMARY_BONUS": [
-      31.99
+      74.76
     ],
     "DRAFT_ORDER_SECONDARY_BONUS": [
-      50.1
+      38.57
     ],
     "INJURY_PENALTIES_HIGH": [
-      68.96
+      68.22
     ],
     "INJURY_PENALTIES_MEDIUM": [
-      3.23
+      4.68
     ],
     "MATCHUP_EXCELLENT_MULTIPLIER": [
-      1.14
-    ],
-    "MATCHUP_GOOD_MULTIPLIER": [
-      1.09
-    ],
-    "MATCHUP_NEUTRAL_MULTIPLIER": [
-      1.04
-    ],
-    "MATCHUP_POOR_MULTIPLIER": [
-      0.94
-    ],
-    "MATCHUP_VERY_POOR_MULTIPLIER": [
-      0.64
-    ],
-    "NORMALIZATION_MAX_SCALE": [
-      71.47
-    ],
-    "PLAYER_RATING_EXCELLENT_MULTIPLIER": [
-      1.04
-    ],
-    "PLAYER_RATING_GOOD_MULTIPLIER": [
       1.23
     ],
+    "MATCHUP_GOOD_MULTIPLIER": [
+      1.03
+    ],
+    "MATCHUP_NEUTRAL_MULTIPLIER": [
+      1.0
+    ],
+    "MATCHUP_POOR_MULTIPLIER": [
+      0.92
+    ],
+    "MATCHUP_VERY_POOR_MULTIPLIER": [
+      0.5
+    ],
+    "NORMALIZATION_MAX_SCALE": [
+      102.42
+    ],
+    "PLAYER_RATING_EXCELLENT_MULTIPLIER": [
+      1.21
+    ],
+    "PLAYER_RATING_GOOD_MULTIPLIER": [
+      1.15
+    ],
     "PLAYER_RATING_POOR_MULTIPLIER": [
-      0.84
+      0.94
     ],
     "TEAM_EXCELLENT_MULTIPLIER": [
-      1.14
+      1.12
     ],
     "TEAM_GOOD_MULTIPLIER": [
-      1.01
+      1.32
     ],
     "TEAM_POOR_MULTIPLIER": [
-      0.84
+      0.64
     ]
   }
 }

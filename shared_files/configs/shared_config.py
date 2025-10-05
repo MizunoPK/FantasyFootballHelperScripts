@@ -46,26 +46,26 @@ ENHANCED_SCORING_CONFIG = {
     "adp_excellent_threshold": 50,      # Better than 50th overall pick
     "adp_good_threshold": 100,          # Better than 100th overall pick
     "adp_poor_threshold": 200,          # Worse than 200th overall pick
-    "adp_excellent_multiplier": 1.15,   # 15% boost for excellent ADP
-    "adp_good_multiplier": 1.08,        # 8% boost for good ADP
-    "adp_poor_multiplier": 0.92,        # 8% penalty for poor ADP
+    "adp_excellent_multiplier": 1.18,   # Optimized from simulation (was 1.15)
+    "adp_good_multiplier": 1.08,        # Optimized from simulation (unchanged)
+    "adp_poor_multiplier": 0.52,        # Optimized from simulation (was 0.92)
 
     # ESPN player rating adjustments
     "player_rating_excellent_threshold": 80,    # ESPN rating > 80
     "player_rating_good_threshold": 60,         # ESPN rating > 60
     "player_rating_poor_threshold": 30,         # ESPN rating < 30
-    "player_rating_excellent_multiplier": 1.20, # 20% boost for excellent rating
-    "player_rating_good_multiplier": 1.10,      # 10% boost for good rating
-    "player_rating_poor_multiplier": 0.90,      # 10% penalty for poor rating
+    "player_rating_excellent_multiplier": 1.21, # Optimized from simulation (was 1.20)
+    "player_rating_good_multiplier": 1.15,      # Optimized from simulation (was 1.10)
+    "player_rating_poor_multiplier": 0.94,      # Optimized from simulation (was 0.90)
     "player_rating_max_boost": 1.25,            # Cap total rating boost at 25%
 
     # Team quality context adjustments
     "team_excellent_threshold": 5,      # Top 5 team
     "team_good_threshold": 12,          # Top 12 team
     "team_poor_threshold": 25,          # Bottom 8 teams (32-25)
-    "team_excellent_multiplier": 1.12,  # 12% boost for excellent team
-    "team_good_multiplier": 1.06,       # 6% boost for good team
-    "team_poor_multiplier": 0.94,       # 6% penalty for poor team
+    "team_excellent_multiplier": 1.12,  # Optimized from simulation (unchanged)
+    "team_good_multiplier": 1.32,       # Optimized from simulation (was 1.06)
+    "team_poor_multiplier": 0.64,       # Optimized from simulation (was 0.94)
 
     # Total adjustment caps
     "max_total_adjustment": 1.50,       # Cap total boost at 50%

@@ -147,8 +147,8 @@ class TestADPAdjustments:
             adp=25.0  # Excellent ADP
         )
 
-        assert result['enhanced_score'] == 115.0  # 100 * 1.15
-        assert result['adjustments']['adp'] == 1.15
+        assert result['enhanced_score'] == 118.0  # 100 * 1.18 (optimized multiplier)
+        assert result['adjustments']['adp'] == 1.18  # Optimized from 1.15
         assert 'adp' not in result['missing_data']
 
     def test_adp_good_boost(self):
@@ -174,8 +174,8 @@ class TestADPAdjustments:
             adp=250.0  # Poor ADP
         )
 
-        assert result['enhanced_score'] == 92.0  # 100 * 0.92
-        assert result['adjustments']['adp'] == 0.92
+        assert result['enhanced_score'] == 70.0  # 100 * 0.52 capped at 0.70 min = 70.0
+        assert result['adjustments']['adp'] == 0.52  # Optimized from 0.92 (but capped at 0.70 in final)
 
     def test_adp_neutral_range(self):
         """Test ADP adjustment for neutral range (100-200)"""
@@ -197,7 +197,7 @@ class TestADPAdjustments:
 
         # Test at exact excellent threshold (50)
         result1 = calc.calculate_enhanced_score(100.0, "RB", adp=50.0)
-        assert result1['adjustments']['adp'] == 1.15
+        assert result1['adjustments']['adp'] == 1.18  # Optimized from 1.15
 
         # Test at exact good threshold (100)
         result2 = calc.calculate_enhanced_score(100.0, "RB", adp=100.0)
@@ -205,7 +205,7 @@ class TestADPAdjustments:
 
         # Test at exact poor threshold (200)
         result3 = calc.calculate_enhanced_score(100.0, "RB", adp=200.0)
-        assert result3['adjustments']['adp'] == 0.92
+        assert result3['adjustments']['adp'] == 0.52  # Poor ADP (optimized from 0.92)
 
     def test_adp_disabled(self):
         """Test that ADP adjustments are ignored when disabled"""
@@ -236,8 +236,8 @@ class TestPlayerRatingAdjustments:
             player_rating=85.0  # Excellent rating
         )
 
-        assert result['enhanced_score'] == 120.0  # 100 * 1.20
-        assert result['adjustments']['player_rating'] == 1.20
+        assert result['enhanced_score'] == 121.0  # 100 * 1.21 (optimized from 1.20)
+        assert result['adjustments']['player_rating'] == 1.21  # Optimized
 
     def test_player_rating_good_boost(self):
         """Test player rating adjustment for good rating (60-80)"""
@@ -249,8 +249,8 @@ class TestPlayerRatingAdjustments:
             player_rating=70.0  # Good rating
         )
 
-        assert result['enhanced_score'] == 110.0  # 100 * 1.10
-        assert result['adjustments']['player_rating'] == 1.10
+        assert result['enhanced_score'] == 115.0  # 100 * 1.15 (optimized from 1.10)
+        assert result['adjustments']['player_rating'] == 1.15  # Optimized
 
     def test_player_rating_poor_penalty(self):
         """Test player rating adjustment for poor rating (<= 30)"""
@@ -262,8 +262,8 @@ class TestPlayerRatingAdjustments:
             player_rating=25.0  # Poor rating
         )
 
-        assert result['enhanced_score'] == 90.0  # 100 * 0.90
-        assert result['adjustments']['player_rating'] == 0.90
+        assert result['enhanced_score'] == 94.0  # 100 * 0.94 (optimized from 0.90)
+        assert result['adjustments']['player_rating'] == 0.94  # Optimized
 
     def test_player_rating_neutral_range(self):
         """Test player rating adjustment for neutral range (30-60)"""
@@ -324,9 +324,9 @@ class TestCombinedAdjustments:
             player_rating=85.0,  # Excellent rating (+20%)
         )
 
-        # Combined ADP (+15%) and Rating (+20%) = 100 * 1.15 * 1.20 = 138
-        assert result['enhanced_score'] == 138.0
-        assert result['total_multiplier'] == 1.38
+        # Combined ADP (+18%) and Rating (+21%) = 100 * 1.18 * 1.21 = 142.78 (optimized)
+        assert result['enhanced_score'] == 142.78
+        assert result['total_multiplier'] == 1.428
         assert len(result['adjustments']) == 2
 
     def test_mixed_adjustments(self):
@@ -336,12 +336,12 @@ class TestCombinedAdjustments:
         result = calc.calculate_enhanced_score(
             base_fantasy_points=100.0,
             position="RB",
-            adp=25.0,  # Excellent ADP (+15%)
-            player_rating=20.0,  # Poor rating (-10%)
+            adp=25.0,  # Excellent ADP (+18%)
+            player_rating=20.0,  # Poor rating (-6%)
         )
 
-        # 100 * 1.15 * 0.90 = 103.5 (no team adjustment)
-        expected_score = 100.0 * 1.15 * 0.90
+        # 100 * 1.18 * 0.94 = 110.92 (optimized values)
+        expected_score = 100.0 * 1.18 * 0.94
         assert abs(result['enhanced_score'] - expected_score) < 0.01
 
     def test_max_total_adjustment_cap(self):
@@ -401,7 +401,8 @@ class TestCombinedAdjustments:
 
         # Verify the specific expected scores
         assert abs(hunt_result['enhanced_score'] - 135.54) < 0.01  # No adjustments
-        assert abs(henderson_result['enhanced_score'] - 144.90) < 0.01  # 121.97 * 1.08 * 1.10
+        # Henderson: 121.97 * 1.08 * 1.15 = 151.49 (rounded)
+        assert abs(henderson_result['enhanced_score'] - 151.49) < 0.01
 
 
 class TestAdjustmentSummary:
@@ -427,8 +428,8 @@ class TestAdjustmentSummary:
         )
 
         summary = calc.get_adjustment_summary(result)
-        assert "ADP boost (+15.0%)" in summary
-        assert "Total: +15.0%" in summary
+        assert "ADP boost (+18.0%)" in summary  # Optimized from +15.0%
+        assert "Total: +18.0%" in summary
 
     def test_single_negative_adjustment_summary(self):
         """Test adjustment summary for single negative adjustment"""
@@ -441,8 +442,9 @@ class TestAdjustmentSummary:
         )
 
         summary = calc.get_adjustment_summary(result)
-        assert "ADP penalty (8.0%)" in summary
-        assert "Total: -8.0%" in summary
+        # The summary shows the raw penalty (48%), but the total is capped at 30%
+        assert "ADP penalty (48.0%)" in summary  # 0.52 multiplier = 48% penalty
+        assert "Total: -30.0%" in summary  # Capped at 30% (0.70 min)
 
     def test_multiple_adjustments_summary(self):
         """Test adjustment summary for multiple adjustments"""
@@ -451,13 +453,13 @@ class TestAdjustmentSummary:
         result = calc.calculate_enhanced_score(
             base_fantasy_points=100.0,
             position="RB",
-            adp=40.0,  # +15%
-            player_rating=70.0,  # +10%
+            adp=40.0,  # +18%
+            player_rating=70.0,  # +15%
         )
 
         summary = calc.get_adjustment_summary(result)
-        assert "ADP boost (+15.0%)" in summary
-        assert "Rating boost (+10.0%)" in summary
+        assert "ADP boost (+18.0%)" in summary  # Optimized from +15.0%
+        assert "Rating boost (+15.0%)" in summary  # Optimized from +10.0%
         assert "Total:" in summary
         # No team boost expected without team ranking data
 
@@ -473,7 +475,7 @@ class TestConvenienceFunction:
             adp=50.0
         )
 
-        assert score == 115.0  # 100 * 1.15 (ADP 50 is excellent, not good)
+        assert score == 118.0  # 100 * 1.18 (ADP 50 is excellent, optimized from 1.15)
 
     def test_calculate_enhanced_player_score_with_config(self):
         """Test convenience function with custom config"""
@@ -625,13 +627,13 @@ class TestEdgeCases:
         result = calc.calculate_enhanced_score(
             base_fantasy_points=100.0,
             position="RB",
-            adp=25.0  # Creates 1.15 multiplier
+            adp=25.0  # Creates 1.18 multiplier (optimized)
         )
 
         # Result should be rounded to 2 decimal places
-        assert result['enhanced_score'] == 115.0
+        assert result['enhanced_score'] == 118.0
         # Multiplier should be rounded to 3 decimal places
-        assert result['total_multiplier'] == 1.15
+        assert result['total_multiplier'] == 1.18
 
     def test_configuration_validation(self):
         """Test that invalid configurations are handled properly"""

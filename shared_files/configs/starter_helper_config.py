@@ -65,19 +65,19 @@ MATCHUP_ENABLED_POSITIONS = [QB, RB, WR, TE]
 # rank_difference = (opponent_defensive_rank) - (player_team_offensive_rank)
 MATCHUP_MULTIPLIERS = {
     # Excellent matchup: rank difference >= 15 (e.g., #5 offense vs #25 defense)
-    (15, float('inf')): 1.2,
+    (15, float('inf')): 1.23,  # Optimized from simulation (was 1.2)
 
     # Good matchup: rank difference 6 to 14
-    (6, 15): 1.1,
+    (6, 15): 1.03,  # Optimized from simulation (was 1.1)
 
     # Neutral matchup: rank difference -5 to 5
-    (-5, 6): 1.0,
+    (-5, 6): 1.0,  # Optimized from simulation (unchanged)
 
     # Poor matchup: rank difference -14 to -6
-    (-15, -5): 0.9,
+    (-15, -5): 0.92,  # Optimized from simulation (was 0.9)
 
     # Very poor matchup: rank difference <= -15 (e.g., #25 offense vs #5 defense)
-    (float('-inf'), -14): 0.8,
+    (float('-inf'), -14): 0.5,  # Optimized from simulation (was 0.8)
 }
 
 # =============================================================================

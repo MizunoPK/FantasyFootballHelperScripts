@@ -140,12 +140,12 @@ class TestMatchupMultiplierRanges:
     def test_excellent_matchup_multiplier(self):
         """Test excellent matchup multiplier (rank difference >= 15)"""
         excellent_multiplier = MATCHUP_MULTIPLIERS[(15, float('inf'))]
-        assert excellent_multiplier == 1.2
+        assert excellent_multiplier == 1.23  # Optimized from 1.2
 
     def test_good_matchup_multiplier(self):
         """Test good matchup multiplier (rank difference 6-14)"""
         good_multiplier = MATCHUP_MULTIPLIERS[(6, 15)]
-        assert good_multiplier == 1.1
+        assert good_multiplier == 1.03  # Optimized from 1.1
 
     def test_neutral_matchup_multiplier(self):
         """Test neutral matchup multiplier (rank difference -5 to 5)"""
@@ -155,12 +155,12 @@ class TestMatchupMultiplierRanges:
     def test_poor_matchup_multiplier(self):
         """Test poor matchup multiplier (rank difference -14 to -6)"""
         poor_multiplier = MATCHUP_MULTIPLIERS[(-15, -5)]
-        assert poor_multiplier == 0.9
+        assert poor_multiplier == 0.92  # Optimized from 0.9
 
     def test_very_poor_matchup_multiplier(self):
         """Test very poor matchup multiplier (rank difference <= -15)"""
         very_poor_multiplier = MATCHUP_MULTIPLIERS[(float('-inf'), -14)]
-        assert very_poor_multiplier == 0.8
+        assert very_poor_multiplier == 0.5  # Optimized from 0.8
 
 
 class TestConfigurationIntegration:

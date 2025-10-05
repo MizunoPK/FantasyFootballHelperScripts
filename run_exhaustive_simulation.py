@@ -85,7 +85,7 @@ PARAMETER_BOUNDS = {
     "TEAM_GOOD_MULTIPLIER": (1.0, 2.0),
     "TEAM_POOR_MULTIPLIER": (0.1, 1.0)
 }
-NUMBER_OF_TEST_VALUES = 5  # Number of test values per parameter
+NUMBER_OF_TEST_VALUES = 0  # Number of test values per parameter
 NUMBER_OF_RUNS = 100
 STARTING_PARAMETER = "MATCHUP_EXCELLENT_MULTIPLIER"
 STARTING_FILE = "optimal_2025-10-02_15-29-14.json"
