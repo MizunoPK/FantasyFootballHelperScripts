@@ -45,8 +45,8 @@ MAX_PLAYERS = 15  # Total roster size
 FLEX_ELIGIBLE_POSITIONS = [RB, WR]  # Positions eligible for FLEX spot
 
 # DRAFT_ORDER bonus configuration (FREQUENTLY MODIFIED)
-DRAFT_ORDER_PRIMARY_BONUS = 50    # Points for #1 priority position
-DRAFT_ORDER_SECONDARY_BONUS = 25  # Points for #2 priority position
+DRAFT_ORDER_PRIMARY_BONUS = 74.76    # Optimized from simulation (was 50)
+DRAFT_ORDER_SECONDARY_BONUS = 38.57  # Optimized from simulation (was 25)
 
 # Draft Strategy - Round-based position bonuses (FREQUENTLY MODIFIED)
 # Uses DRAFT_ORDER_PRIMARY_BONUS and DRAFT_ORDER_SECONDARY_BONUS variables
@@ -77,23 +77,54 @@ DRAFT_ORDER = [
 # =============================================================================
 
 # Normalization configuration
-NORMALIZATION_MAX_SCALE = 100.0  # ← Maximum value for normalized fantasy points (0-N scale)
+NORMALIZATION_MAX_SCALE = 102.42  # ← Optimized from simulation (was 100.0)
 
 # Penalty system (FREQUENTLY MODIFIED)
-BASE_BYE_PENALTY = 5           # ← Base penalty for bye week conflicts (optimized from simulation)
+BASE_BYE_PENALTY = 18.85       # ← Optimized from simulation (was 5)
 
 INJURY_PENALTIES = {           # ← Risk tolerance settings (optimized from simulation)
     "LOW": 0,                  # Healthy/Active players
-    "MEDIUM": 15,              # ← Optimized from simulation (was 25)
-    "HIGH": 35                 # ← Optimized from simulation (was 50)
+    "MEDIUM": 4.68,            # ← Optimized from simulation (was 15)
+    "HIGH": 68.22              # ← Optimized from simulation (was 35)
 }
 
 # Trade optimization settings (FREQUENTLY MODIFIED)
-MIN_TRADE_IMPROVEMENT = 15     # ← Minimum point improvement required for a trade to be considered
+MIN_TRADE_IMPROVEMENT = 0     # ← Minimum point improvement required for a trade to be considered
 NUM_TRADE_RUNNERS_UP = 3      # ← Number of runner-up trades to show for each player
 
 # Bye weeks for NFL season
 POSSIBLE_BYE_WEEKS = [5, 6, 7, 8, 9, 10, 11, 12, 14]
+
+# =============================================================================
+# CONSISTENCY SCORING CONFIGURATION
+# =============================================================================
+
+# Enable/disable consistency scoring (based on week-to-week variance)
+ENABLE_CONSISTENCY_SCORING = True
+
+# Universal consistency multipliers (applied to all positions)
+# Rewards consistent players, penalizes volatile boom/bust players
+CONSISTENCY_MULTIPLIERS = {
+    'LOW': 1.08,      # CV < 0.3 (consistent performer)
+    'MEDIUM': 1.00,   # 0.3 <= CV <= 0.6 (moderate variance)
+    'HIGH': 0.92      # CV > 0.6 (volatile boom/bust)
+}
+
+# Coefficient of Variation (CV) thresholds
+# CV = standard_deviation / mean (measures relative variability)
+CONSISTENCY_CV_LOW_THRESHOLD = 0.3    # Below this = LOW volatility
+CONSISTENCY_CV_HIGH_THRESHOLD = 0.6   # Above this = HIGH volatility
+
+# Minimum weeks required for CV calculation
+# If fewer weeks available, defaults to MEDIUM category
+MINIMUM_WEEKS_FOR_CONSISTENCY = 3
+
+# Consistency weight tuning (optional, for future use)
+# Scales the impact of consistency multipliers
+CONSISTENCY_WEIGHT = 1.0  # 1.0 = full impact, 0.5 = half impact
+
+# Note: Only weeks < CURRENT_NFL_WEEK are used for ALL players
+# This ensures we only analyze actual performance, not future projections
 
 # =============================================================================
 # FILE PATHS
