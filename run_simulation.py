@@ -28,7 +28,7 @@ Examples:
   python run_simulation.py draft_helper/simulation/parameters/baseline_parameters.json
   python run_simulation.py draft_helper/simulation/parameters/parameter_template.json
 
-Configuration files should be JSON format with all 20 required parameters.
+Configuration files should be JSON format with all 23 required parameters.
 See draft_helper/simulation/parameters/README.md for documentation.
         """
     )

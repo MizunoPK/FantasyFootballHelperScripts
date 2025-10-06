@@ -127,6 +127,11 @@ FINE_GRAIN_OFFSETS = {
     'TEAM_EXCELLENT_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
     'TEAM_GOOD_MULTIPLIER': [-0.03, -0.01, 0, 0.01, 0.03],
     'TEAM_POOR_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],
+
+    # Consistency/Volatility Multipliers (decimal offsets for 0.9-1.1 range)
+    'CONSISTENCY_LOW_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],   # Consistent players
+    'CONSISTENCY_MEDIUM_MULTIPLIER': [0],                           # Baseline (always 1.0)
+    'CONSISTENCY_HIGH_MULTIPLIER': [-0.05, -0.02, 0, 0.02, 0.05],  # Volatile players
 }
 
 # Parameter bounds for fine-grain variations
@@ -163,6 +168,11 @@ FINE_GRAIN_BOUNDS = {
     'TEAM_EXCELLENT_MULTIPLIER': (1.0, 1.5),
     'TEAM_GOOD_MULTIPLIER': (1.0, 1.3),
     'TEAM_POOR_MULTIPLIER': (0.7, 1.0),
+
+    # Consistency/Volatility Multipliers
+    'CONSISTENCY_LOW_MULTIPLIER': (1.0, 1.2),    # Reward for consistency (always >= 1.0)
+    'CONSISTENCY_MEDIUM_MULTIPLIER': (1.0, 1.0), # Always 1.0 (baseline)
+    'CONSISTENCY_HIGH_MULTIPLIER': (0.8, 1.0),   # Penalty for volatility (always <= 1.0)
 }
 
 # Team strategy distribution

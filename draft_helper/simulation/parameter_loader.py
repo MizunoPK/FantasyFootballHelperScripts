@@ -9,7 +9,7 @@ import os
 from typing import Dict, List, Any
 from pathlib import Path
 
-# Required parameter names (all 20 parameters must be present)
+# Required parameter names (all 23 parameters must be present)
 REQUIRED_PARAMETERS = [
     # Core Scoring
     'NORMALIZATION_MAX_SCALE',
@@ -42,6 +42,11 @@ REQUIRED_PARAMETERS = [
     'TEAM_EXCELLENT_MULTIPLIER',
     'TEAM_GOOD_MULTIPLIER',
     'TEAM_POOR_MULTIPLIER',
+
+    # Consistency/Volatility Multipliers
+    'CONSISTENCY_LOW_MULTIPLIER',
+    'CONSISTENCY_MEDIUM_MULTIPLIER',
+    'CONSISTENCY_HIGH_MULTIPLIER',
 ]
 
 

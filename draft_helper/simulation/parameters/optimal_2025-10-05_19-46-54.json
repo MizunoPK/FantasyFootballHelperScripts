@@ -1,6 +1,6 @@
 {
-  "config_name": "optimal_2025-10-05_14-33-13",
-  "description": "Optimal configuration found from simulation run at 2025-10-05_14-33-13. Win rate: 53.6%, Total points: 1641.8, PPG: 96.6, Consistency: 28.5",
+  "config_name": "optimal_2025-10-05_19-46-54",
+  "description": "Optimal configuration found from simulation run at 2025-10-05_19-46-54. Win rate: 53.9%, Total points: 1649.0, PPG: 97.0, Consistency: 28.4",
   "parameters": {
     "ADP_EXCELLENT_MULTIPLIER": [
       1.18
@@ -21,7 +21,7 @@
       38.57
     ],
     "INJURY_PENALTIES_HIGH": [
-      68.22
+      78.22
     ],
     "INJURY_PENALTIES_MEDIUM": [
       4.68
@@ -61,15 +61,6 @@
     ],
     "TEAM_POOR_MULTIPLIER": [
       0.64
-    ],
-    "CONSISTENCY_LOW_MULTIPLIER": [
-      1.08
-    ],
-    "CONSISTENCY_MEDIUM_MULTIPLIER": [
-      1.00
-    ],
-    "CONSISTENCY_HIGH_MULTIPLIER": [
-      0.92
     ]
   }
 }

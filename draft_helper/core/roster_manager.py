@@ -36,13 +36,13 @@ class RosterManager:
 
     def _get_consistency_indicator(self, player):
         """
-        Get consistency indicator symbol for display.
+        Get consistency indicator text for display.
 
         Returns:
-            str: Consistency indicator symbol or empty string
+            str: Consistency indicator text or empty string
         """
         if hasattr(player, 'consistency_category') and player.consistency_category:
-            consistency_map = {"LOW": " ●", "MEDIUM": " ◐", "HIGH": " ○"}
+            consistency_map = {"LOW": " [Consistent]", "MEDIUM": " [Average]", "HIGH": " [Volatile]"}
             return consistency_map.get(player.consistency_category, "")
         return ""
 
@@ -168,8 +168,6 @@ class RosterManager:
         print("\n" + "="*50)
         print("ADD TO ROSTER MODE")
         print("="*50)
-        print("Consistency: ● = Consistent (LOW volatility)  ◐ = Average  ○ = Boom/Bust (HIGH volatility)")
-        print("="*50)
 
         # Show enhanced roster display by draft rounds
         self.display_roster_by_draft_rounds()
@@ -190,12 +188,7 @@ class RosterManager:
                 score_display = getattr(p, 'score', p.fantasy_points)  # Use calculated score if available
 
                 # Show consistency category if available
-                consistency_indicator = ""
-                if hasattr(p, 'consistency_category') and p.consistency_category:
-                    consistency_map = {"LOW": "●", "MEDIUM": "◐", "HIGH": "○"}
-                    consistency_symbol = consistency_map.get(p.consistency_category, "")
-                    if consistency_symbol:
-                        consistency_indicator = f" {consistency_symbol}"
+                consistency_indicator = self._get_consistency_indicator(p)
 
                 print(f"{i}. {p.name} ({p.team} {p.position}) - {score_display:.1f} pts{consistency_indicator}{status}{drafted_status}")
             print(f"{len(recommendations) + 1}. Back to Main Menu")
@@ -310,7 +303,6 @@ class RosterManager:
         players_kept = [p for p in self.team.roster if p.id in players_kept_ids]
 
         print(f"\nROSTER ANALYSIS:")
-        print("Consistency: ● = Consistent (LOW volatility)  ◐ = Average  ○ = Boom/Bust (HIGH volatility)")
         print("="*60)
         print(f"Players kept: {len(players_kept)}")
         print(f"Players traded out: {len(players_out_unique)}")
@@ -370,7 +362,6 @@ class RosterManager:
         Show current roster with alternative trade options when no beneficial trades exist.
         """
         print(f"\nCurrent roster with potential alternatives:")
-        print("Consistency: ● = Consistent (LOW volatility)  ◐ = Average  ○ = Boom/Bust (HIGH volatility)")
         print("-"*60)
 
         for p in sorted(self.team.roster, key=lambda x: x.position):

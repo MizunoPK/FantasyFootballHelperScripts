@@ -65,6 +65,14 @@ class TeamStrategyManager:
             'min_total_adjustment': config_params.get('MIN_TOTAL_ADJUSTMENT', 0.70)
         }
 
+        # Consistency/Volatility multipliers from simulation parameters
+        # Store these separately for dynamic config override
+        self.consistency_multipliers = {
+            'LOW': config_params.get('CONSISTENCY_LOW_MULTIPLIER', 1.08),
+            'MEDIUM': config_params.get('CONSISTENCY_MEDIUM_MULTIPLIER', 1.00),
+            'HIGH': config_params.get('CONSISTENCY_HIGH_MULTIPLIER', 0.92)
+        }
+
         # Initialize enhanced scoring calculator with configuration
         self.enhanced_scorer = EnhancedScoringCalculator(enhanced_scoring_config)
 
@@ -280,19 +288,22 @@ class TeamStrategyManager:
                 # Fallback to basic scoring if enhanced scoring fails
                 enhanced_score = base_points
 
+            # Apply consistency/volatility multiplier
+            consistency_score = self._apply_consistency_multiplier(enhanced_score, player)
+
             # Add DRAFT_ORDER bonus based on current round (roster size)
             draft_order_bonus = self._calculate_draft_order_bonus(player.position, team_roster)
-            enhanced_score += draft_order_bonus
+            final_score = consistency_score + draft_order_bonus
 
             # Apply injury penalties
             injury_penalty = self.injury_penalties.get(player.injury_status, 0)
-            enhanced_score -= injury_penalty
+            final_score -= injury_penalty
 
             # Add bye week considerations
             bye_conflicts = self._calculate_bye_conflicts(player, team_roster)
-            enhanced_score -= bye_conflicts * self.base_bye_penalty
+            final_score -= bye_conflicts * self.base_bye_penalty
 
-            scored_players.append((enhanced_score, player))
+            scored_players.append((final_score, player))
 
         # Sort by score descending
         scored_players.sort(reverse=True, key=lambda x: x[0])
@@ -386,3 +397,37 @@ class TeamStrategyManager:
             week_points = self._get_player_week_points(player, week)
             max_points = max(max_points, week_points)
         return max_points
+
+    def _apply_consistency_multiplier(self, base_score: float, player: FantasyPlayer) -> float:
+        """
+        Apply consistency/volatility multiplier based on player's week-to-week variance.
+
+        Uses coefficient of variation (CV) to categorize players:
+        - LOW volatility (CV < 0.3): Consistent performers
+        - MEDIUM volatility (0.3 <= CV <= 0.6): Neutral
+        - HIGH volatility (CV > 0.6): Boom/bust players
+
+        Args:
+            base_score: Score before consistency adjustment
+            player: Player to analyze
+
+        Returns:
+            Score after applying consistency multiplier
+        """
+        # Import ConsistencyCalculator
+        from shared_files.consistency_calculator import ConsistencyCalculator
+
+        try:
+            # Calculate consistency metrics
+            consistency_calc = ConsistencyCalculator()
+            result = consistency_calc.calculate_consistency_score(player)
+
+            # Get multiplier from simulation config (overrides base config if provided)
+            category = result['volatility_category']
+            multiplier = self.consistency_multipliers.get(category, 1.0)
+
+            return base_score * multiplier
+
+        except Exception:
+            # If consistency calculation fails, return base score unchanged
+            return base_score
