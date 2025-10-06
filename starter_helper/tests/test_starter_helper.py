@@ -57,9 +57,19 @@ class TestStarterHelper:
 12,Bench Player,BENCH,WR,8,1,0,150.0,ACTIVE,12.0"""
 
     @pytest.fixture
-    def helper(self):
+    def param_manager(self):
+        """Create ParameterJsonManager instance"""
+        from shared_files.parameter_json_manager import ParameterJsonManager
+        import os
+        param_path = os.path.join(os.path.dirname(__file__), '..', '..', 'shared_files', 'parameters.json')
+        return ParameterJsonManager(param_path)
+
+    @pytest.fixture
+    def helper(self, param_manager):
         """Create StarterHelper instance"""
-        return StarterHelper()
+        import os
+        param_path = os.path.join(os.path.dirname(__file__), '..', '..', 'shared_files', 'parameters.json')
+        return StarterHelper(parameter_json_path=param_path)
 
     @pytest.mark.asyncio
     async def test_load_roster_players_success(self, helper, temp_dir, sample_csv_data):

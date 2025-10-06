@@ -73,7 +73,17 @@ class OptimalLineup:
 class LineupOptimizer:
     """Handles optimal starting lineup recommendations"""
 
-    def __init__(self):
+    def __init__(self, param_manager=None):
+        """
+        Initialize LineupOptimizer with parameter configuration.
+
+        Args:
+            param_manager: ParameterJsonManager instance (required)
+        """
+        if param_manager is None:
+            raise ValueError("param_manager is required for LineupOptimizer")
+
+        self.param_manager = param_manager
         self.logger = logging.getLogger(__name__)
 
         # Initialize matchup calculator
@@ -169,10 +179,7 @@ class LineupOptimizer:
         """
         try:
             # Import config to check if enabled
-            from shared_files.configs.draft_helper_config import (
-                ENABLE_CONSISTENCY_SCORING,
-                CONSISTENCY_MULTIPLIERS
-            )
+            from shared_files.configs.draft_helper_config import ENABLE_CONSISTENCY_SCORING
 
             if not ENABLE_CONSISTENCY_SCORING:
                 return base_score, 'MEDIUM'
@@ -196,8 +203,13 @@ class LineupOptimizer:
             consistency_result = self.consistency_calculator.calculate_consistency_score(player)
             volatility_category = consistency_result['volatility_category']
 
-            # Get multiplier from config
-            multiplier = CONSISTENCY_MULTIPLIERS.get(volatility_category, 1.0)
+            # Get multiplier from param_manager (convert to dict format)
+            consistency_multipliers = {
+                'LOW': self.param_manager.CONSISTENCY_LOW_MULTIPLIER,
+                'MEDIUM': self.param_manager.CONSISTENCY_MEDIUM_MULTIPLIER,
+                'HIGH': self.param_manager.CONSISTENCY_HIGH_MULTIPLIER
+            }
+            multiplier = consistency_multipliers.get(volatility_category, 1.0)
 
             # Apply multiplier
             adjusted_score = base_score * multiplier

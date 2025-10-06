@@ -121,9 +121,17 @@ class TestLineupOptimizer:
     """Test suite for LineupOptimizer class"""
 
     @pytest.fixture
-    def optimizer(self):
+    def param_manager(self):
+        """Create ParameterJsonManager instance"""
+        from shared_files.parameter_json_manager import ParameterJsonManager
+        import os
+        param_path = os.path.join(os.path.dirname(__file__), '..', '..', 'shared_files', 'parameters.json')
+        return ParameterJsonManager(param_path)
+
+    @pytest.fixture
+    def optimizer(self, param_manager):
         """Create LineupOptimizer instance"""
-        return LineupOptimizer()
+        return LineupOptimizer(param_manager=param_manager)
 
     @pytest.fixture
     def sample_roster_data(self):

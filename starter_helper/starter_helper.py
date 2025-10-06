@@ -49,10 +49,23 @@ except ImportError:
 class StarterHelper:
     """Main class for generating starting lineup recommendations"""
 
-    def __init__(self):
+    def __init__(self, parameter_json_path=None):
+        """
+        Initialize StarterHelper with parameter configuration.
+
+        Args:
+            parameter_json_path: Path to parameters.json file (required)
+        """
+        if parameter_json_path is None:
+            raise ValueError("parameter_json_path is required for StarterHelper")
+
+        # Load parameter manager
+        from shared_files.parameter_json_manager import ParameterJsonManager
+        self.param_manager = ParameterJsonManager(parameter_json_path)
+
         self.setup_logging()
         self.logger = logging.getLogger(__name__)
-        self.optimizer = LineupOptimizer()
+        self.optimizer = LineupOptimizer(param_manager=self.param_manager)
         self.output_buffer = StringIO()
 
     def setup_logging(self):
@@ -365,7 +378,10 @@ class StarterHelper:
 
 async def main():
     """Main entry point"""
-    helper = StarterHelper()
+    # Default to shared_files/parameters.json
+    import os
+    default_path = os.path.join(os.path.dirname(__file__), '..', 'shared_files', 'parameters.json')
+    helper = StarterHelper(parameter_json_path=default_path)
     await helper.run()
 
 
