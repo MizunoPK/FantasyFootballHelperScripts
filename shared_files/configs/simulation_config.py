@@ -246,7 +246,10 @@ def validate_simulation_config():
             errors.append(f"FINE_GRAIN_BOUNDS['{param_name}'] must be a (min, max) tuple")
         else:
             min_val, max_val = bounds
-            if min_val >= max_val:
+            # Allow min == max for CONSISTENCY_MEDIUM_MULTIPLIER (always 1.0)
+            if min_val > max_val:
+                errors.append(f"FINE_GRAIN_BOUNDS['{param_name}'] min ({min_val}) must be <= max ({max_val})")
+            elif min_val == max_val and param_name != 'CONSISTENCY_MEDIUM_MULTIPLIER':
                 errors.append(f"FINE_GRAIN_BOUNDS['{param_name}'] min ({min_val}) must be < max ({max_val})")
 
     # Check that offset parameters have corresponding bounds

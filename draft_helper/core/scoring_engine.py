@@ -321,11 +321,11 @@ class ScoringEngine:
             else:
                 return Constants.BASE_BYE_PENALTY * 0.5  # Reduced penalty if covered by other FLEX
         else:
-            # For non-FLEX positions, standard penalty
+            # For non-FLEX positions (QB, TE, K, DST), only penalize if there's a conflict
             if same_position_bye_count >= 1:
                 return Constants.BASE_BYE_PENALTY * 1.5  # High penalty for position shortage
             else:
-                return Constants.BASE_BYE_PENALTY  # Standard penalty
+                return 0  # No penalty if no conflict at this position
 
     def compute_injury_penalty(self, p, trade_mode=False):
         """
