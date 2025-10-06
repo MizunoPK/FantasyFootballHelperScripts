@@ -36,36 +36,30 @@ PLAYERS_CSV = 'shared_files/players.csv'
 # =============================================================================
 
 # Enhanced scoring algorithm configuration (used by enhanced_scoring.py)
+# NOTE: Multiplier values (adp_*_multiplier, player_rating_*_multiplier, team_*_multiplier)
+#       are now loaded from parameters.json and should NOT be defined here.
+#       Only thresholds, enable flags, and non-tunable settings belong here.
 ENHANCED_SCORING_CONFIG = {
     # Enable/disable individual adjustment factors
     "enable_adp_adjustment": True,
     "enable_player_rating_adjustment": True,
     "enable_team_quality_adjustment": True,
 
-    # ADP-based market wisdom adjustments
-    "adp_excellent_threshold": 30,      # Better than 50th overall pick
-    "adp_good_threshold": 75,          # Better than 100th overall pick
-    "adp_poor_threshold": 150,          # Worse than 200th overall pick
-    "adp_excellent_multiplier": 1.18,   # Optimized from simulation (was 1.15)
-    "adp_good_multiplier": 1.08,        # Optimized from simulation (unchanged)
-    "adp_poor_multiplier": 0.52,        # Optimized from simulation (was 0.92)
+    # ADP thresholds (what defines "excellent", "good", "poor")
+    "adp_excellent_threshold": 30,      # Better than 30th overall pick
+    "adp_good_threshold": 75,           # Better than 75th overall pick
+    "adp_poor_threshold": 150,          # Worse than 150th overall pick
 
-    # ESPN player rating adjustments
+    # ESPN player rating thresholds
     "player_rating_excellent_threshold": 80,    # ESPN rating > 80
     "player_rating_good_threshold": 60,         # ESPN rating > 60
     "player_rating_poor_threshold": 30,         # ESPN rating < 30
-    "player_rating_excellent_multiplier": 1.21, # Optimized from simulation (was 1.20)
-    "player_rating_good_multiplier": 1.15,      # Optimized from simulation (was 1.10)
-    "player_rating_poor_multiplier": 0.94,      # Optimized from simulation (was 0.90)
     "player_rating_max_boost": 1.25,            # Cap total rating boost at 25%
 
-    # Team quality context adjustments
+    # Team quality thresholds (based on team rankings)
     "team_excellent_threshold": 5,      # Top 5 team
     "team_good_threshold": 12,          # Top 12 team
     "team_poor_threshold": 25,          # Bottom 8 teams (32-25)
-    "team_excellent_multiplier": 1.12,  # Optimized from simulation (unchanged)
-    "team_good_multiplier": 1.32,       # Optimized from simulation (was 1.06)
-    "team_poor_multiplier": 0.64,       # Optimized from simulation (was 0.94)
 
     # Total adjustment caps
     "max_total_adjustment": 1.50,       # Cap total boost at 50%
