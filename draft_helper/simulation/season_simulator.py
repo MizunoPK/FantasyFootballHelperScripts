@@ -47,11 +47,12 @@ class TeamSeasonStats:
 class SeasonSimulator:
     """Simulates a full fantasy football season after draft completion"""
 
-    def __init__(self, teams: List[Any], players_projected_df: pd.DataFrame, players_actual_df: pd.DataFrame, current_nfl_week: int = None):
+    def __init__(self, teams: List[Any], players_projected_df: pd.DataFrame, players_actual_df: pd.DataFrame, current_nfl_week: int = None, config_params: Dict[str, Any] = None):
         self.teams = teams
         self.players_projected_df = players_projected_df
         self.players_actual_df = players_actual_df
         self.current_nfl_week = current_nfl_week or CURRENT_NFL_WEEK
+        self.config_params = config_params or {}
         self.matchups: List[WeeklyMatchup] = []
         self.season_stats: Dict[int, TeamSeasonStats] = {}
 
@@ -275,10 +276,24 @@ class SeasonSimulator:
                     self.logger.warning(f"Failed to initialize positional ranking calculator with weekly teams data: {e}")
                     self.positional_ranking_calculator = None
 
-        # Load parameter manager for consistency calculations
-        from shared_files.parameter_json_manager import ParameterJsonManager
-        param_path = os.path.join(os.path.dirname(__file__), '..', '..', 'shared_files', 'parameters.json')
-        param_manager = ParameterJsonManager(param_path)
+        # Create a mock param_manager using simulation's config_params
+        # LineupOptimizer needs param_manager for consistency calculations
+        class MockParamManager:
+            """Mock param_manager that provides consistency multipliers from simulation config"""
+            def __init__(self, config_params):
+                # Extract consistency multipliers from simulation config
+                self.CONSISTENCY_LOW_MULTIPLIER = config_params.get('CONSISTENCY_LOW_MULTIPLIER', 1.08)
+                self.CONSISTENCY_MEDIUM_MULTIPLIER = config_params.get('CONSISTENCY_MEDIUM_MULTIPLIER', 1.00)
+                self.CONSISTENCY_HIGH_MULTIPLIER = config_params.get('CONSISTENCY_HIGH_MULTIPLIER', 0.92)
+
+                # Extract matchup multipliers from simulation config
+                self.MATCHUP_EXCELLENT_MULTIPLIER = config_params.get('MATCHUP_EXCELLENT_MULTIPLIER', 1.20)
+                self.MATCHUP_GOOD_MULTIPLIER = config_params.get('MATCHUP_GOOD_MULTIPLIER', 1.10)
+                self.MATCHUP_NEUTRAL_MULTIPLIER = config_params.get('MATCHUP_NEUTRAL_MULTIPLIER', 1.00)
+                self.MATCHUP_POOR_MULTIPLIER = config_params.get('MATCHUP_POOR_MULTIPLIER', 0.90)
+                self.MATCHUP_VERY_POOR_MULTIPLIER = config_params.get('MATCHUP_VERY_POOR_MULTIPLIER', 0.80)
+
+        param_manager = MockParamManager(self.config_params)
 
         return WeeklyLineupOptimizer(weekly_teams_csv_path, param_manager)
 

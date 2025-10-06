@@ -12,7 +12,7 @@ from typing import Dict, List, Tuple
 # Set logging level for simulation runs
 # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
 # Set to WARNING to suppress INFO logs from positional_ranking_calculator and other modules
-SIMULATION_LOG_LEVEL = "WARNING"
+SIMULATION_LOG_LEVEL = "INFO"
 
 # =============================================================================
 # SIMULATION PARAMETERS

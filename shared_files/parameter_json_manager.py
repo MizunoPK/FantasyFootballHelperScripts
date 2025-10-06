@@ -27,7 +27,7 @@ logger = setup_module_logging(__name__)
 
 # Configuration for logging verbosity
 # Set to False to suppress INFO logs (only show warnings/errors)
-VERBOSE_LOGGING = False
+VERBOSE_LOGGING = True
 
 
 class ParameterJsonManager:

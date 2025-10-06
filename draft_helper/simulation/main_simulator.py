@@ -213,7 +213,7 @@ class MainSimulator:
             simulation_teams = draft_engine.teams
 
             # Run season simulation with both projected and actual data
-            season_simulator = SeasonSimulator(simulation_teams, simulation_players_projected_df, simulation_players_actual_df)
+            season_simulator = SeasonSimulator(simulation_teams, simulation_players_projected_df, simulation_players_actual_df, config_params=config_params)
             season_results = season_simulator.simulate_full_season()
 
             # Combine results
