@@ -44,7 +44,7 @@ class ScoringEngine:
     Manages player scoring and penalty calculation operations for the draft helper.
     """
 
-    def __init__(self, team, players: List, logger: Optional[logging.Logger] = None):
+    def __init__(self, team, players: List, logger: Optional[logging.Logger] = None, param_manager=None):
         """
         Initialize the ScoringEngine.
 
@@ -52,28 +52,33 @@ class ScoringEngine:
             team: FantasyTeam instance
             players: List of all players
             logger: Logger instance for debugging
+            param_manager: ParameterJsonManager instance (required)
         """
         self.team = team
         self.players = players
         self.logger = logger or logging.getLogger(__name__)
 
-        # Store config module reference for dynamic config access
+        # Store parameter manager (required)
+        if param_manager is None:
+            raise ValueError("param_manager is required for ScoringEngine")
+        self.param_manager = param_manager
+
+        # Store config module reference for non-parameter settings
         try:
             from shared_files.configs import draft_helper_config as config
             self.config = config
-            normalization_scale = config.NORMALIZATION_MAX_SCALE
         except ImportError:
             import shared_files.configs.draft_helper_config as config
             self.config = config
-            normalization_scale = config.NORMALIZATION_MAX_SCALE
 
         self.normalization_calculator = NormalizationCalculator(
-            normalization_scale=normalization_scale,
+            normalization_scale=self.param_manager.NORMALIZATION_MAX_SCALE,
             logger=self.logger
         )
         self.draft_order_calculator = DraftOrderCalculator(
             team=team,
-            logger=self.logger
+            logger=self.logger,
+            param_manager=self.param_manager
         )
         self.consistency_calculator = ConsistencyCalculator(
             logger=self.logger
@@ -245,8 +250,13 @@ class ScoringEngine:
             consistency_result = self.consistency_calculator.calculate_consistency_score(player)
             volatility_category = consistency_result['volatility_category']
 
-            # Get multiplier from config
-            multiplier = self.config.CONSISTENCY_MULTIPLIERS.get(volatility_category, 1.0)
+            # Get multiplier from param_manager
+            consistency_multipliers = {
+                'LOW': self.param_manager.CONSISTENCY_LOW_MULTIPLIER,
+                'MEDIUM': self.param_manager.CONSISTENCY_MEDIUM_MULTIPLIER,
+                'HIGH': self.param_manager.CONSISTENCY_HIGH_MULTIPLIER
+            }
+            multiplier = consistency_multipliers.get(volatility_category, 1.0)
 
             # Apply multiplier
             adjusted_score = base_score * multiplier
@@ -306,17 +316,17 @@ class ScoringEngine:
         # Penalty scales with the fraction of position slots that share the bye week
         # Formula: (conflicts / max_position_slots) × BASE_BYE_PENALTY
         # Examples:
-        # - 0 RBs with same bye (max 4) = (0/4) × 18.85 = 0.00 penalty
-        # - 1 QB with same bye (max 2) = (1/2) × 18.85 = 9.43 penalty
-        # - 2 RBs with same bye (max 4) = (2/4) × 18.85 = 9.43 penalty
-        # - 3 WRs with same bye (max 4) = (3/4) × 18.85 = 14.14 penalty
-        # - 1 K with same bye (max 1) = (1/1) × 18.85 = 18.85 penalty (full penalty!)
+        # - 0 RBs with same bye (max 4) = (0/4) × BASE_BYE_PENALTY = 0.00 penalty
+        # - 1 QB with same bye (max 2) = (1/2) × BASE_BYE_PENALTY = penalty/2
+        # - 2 RBs with same bye (max 4) = (2/4) × BASE_BYE_PENALTY = penalty/2
+        # - 3 WRs with same bye (max 4) = (3/4) × BASE_BYE_PENALTY = 3*penalty/4
+        # - 1 K with same bye (max 1) = (1/1) × BASE_BYE_PENALTY = full penalty!
 
         max_position_slots = Constants.MAX_POSITIONS.get(position, 1)
         if max_position_slots == 0:
             return 0
 
-        penalty = (same_position_bye_count / max_position_slots) * Constants.BASE_BYE_PENALTY
+        penalty = (same_position_bye_count / max_position_slots) * self.param_manager.BASE_BYE_PENALTY
         return penalty
 
     def compute_injury_penalty(self, p, trade_mode=False):
@@ -355,7 +365,7 @@ class ScoringEngine:
 
         # Use the player's risk level method to determine penalty
         risk_level = p.get_risk_level()
-        return Constants.INJURY_PENALTIES.get(risk_level, 0)
+        return self.param_manager.INJURY_PENALTIES.get(risk_level, 0)
 
     def score_player_for_trade(self, player, positional_ranking_calculator=None, enhanced_scorer=None, team_data_loader=None):
         """

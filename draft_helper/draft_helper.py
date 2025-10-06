@@ -36,6 +36,7 @@ except ImportError:
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.enhanced_scoring import EnhancedScoringCalculator
 from shared_files.positional_ranking_calculator import PositionalRankingCalculator
+from shared_files.parameter_json_manager import ParameterJsonManager
 
 # Import starter helper components
 sys.path.append(str(parent_dir / 'starter_helper'))
@@ -167,9 +168,10 @@ def load_players_from_csv(filename):
     for player in players:
         
         # Calculate weighted_projection (normalized between 0-100)
-        # Uses NORMALIZATION_MAX_SCALE instead of deprecated PROJECTION_BASE_SCORE
+        # Note: This property is deprecated and not actively used - actual normalization
+        # happens in NormalizationCalculator using param_manager values
         if player.fantasy_points and max_projection > 0:
-            player.weighted_projection = (player.fantasy_points / max_projection) * Constants.NORMALIZATION_MAX_SCALE
+            player.weighted_projection = (player.fantasy_points / max_projection) * 100.0  # Default scale
         else:
             player.weighted_projection = 0.0
             
@@ -187,13 +189,24 @@ class DraftHelper:
     based on team needs, player ADP, and bye week considerations.
     """
 
-    def __init__(self, players_csv=Constants.PLAYERS_CSV):
+    def __init__(self, players_csv=Constants.PLAYERS_CSV, parameter_json_path=None):
         """
         Initialize the DraftHelper with players and team data.
         Loads players from the specified CSV files.
+
+        Args:
+            players_csv: Path to players CSV file
+            parameter_json_path: Path to parameter JSON file (required)
         """
         self.logger = logging.getLogger(__name__)
         self.players_csv = players_csv
+
+        # Initialize parameter manager (required)
+        if parameter_json_path is None:
+            raise ValueError("parameter_json_path is required")
+        self.param_manager = ParameterJsonManager(parameter_json_path)
+        self.logger.info(f"Loaded parameters: {self.param_manager.config_name}")
+
         self.players = load_players_from_csv(players_csv)
         self.team = self.load_team()
 
@@ -256,8 +269,8 @@ class DraftHelper:
         # Initialize trade analyzer
         self.trade_analyzer = TradeAnalyzer(self.team, self.logger)
 
-        # Initialize scoring engine
-        self.scoring_engine = ScoringEngine(self.team, self.players, self.logger)
+        # Initialize scoring engine with parameter manager
+        self.scoring_engine = ScoringEngine(self.team, self.players, self.logger, self.param_manager)
 
         self.logger.info(f"DraftHelper initialized with {len(self.players)} players and team of {len(self.team.roster)} drafted players")
         if self.team_data_loader.is_team_data_available():
@@ -1118,7 +1131,13 @@ async def main():
     logger = setup_logging()
 
     try:
-        draft_helper = DraftHelper(Constants.PLAYERS_CSV)
+        # Default parameter JSON path
+        param_json_path = str(Path(__file__).parent.parent / 'shared_files' / 'parameters.json')
+
+        draft_helper = DraftHelper(
+            players_csv=Constants.PLAYERS_CSV,
+            parameter_json_path=param_json_path
+        )
 
         # Always run interactive mode - waiver optimizer now available via menu
         logger.info("Starting Interactive Fantasy Helper (Draft & Waiver Optimizer)")

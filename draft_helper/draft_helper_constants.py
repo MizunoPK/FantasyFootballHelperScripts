@@ -35,10 +35,21 @@ from shared_files.configs.draft_helper_config import (
     # Draft strategy
     DRAFT_ORDER, get_ideal_draft_position,
 
-    # Scoring weights
-    NORMALIZATION_MAX_SCALE, INJURY_PENALTIES,
-    BASE_BYE_PENALTY, POSSIBLE_BYE_WEEKS, MIN_TRADE_IMPROVEMENT,
+    # Non-parameter settings (parameters now loaded via ParameterJsonManager)
+    POSSIBLE_BYE_WEEKS, MIN_TRADE_IMPROVEMENT,
     NUM_TRADE_RUNNERS_UP
 )
+
+# Note: The following parameters are now loaded from JSON via ParameterJsonManager:
+# - NORMALIZATION_MAX_SCALE
+# - INJURY_PENALTIES (nested dict)
+# - BASE_BYE_PENALTY
+# - DRAFT_ORDER_PRIMARY_BONUS
+# - DRAFT_ORDER_SECONDARY_BONUS
+# - ADP multipliers
+# - Player rating multipliers
+# - Team quality multipliers
+# - Matchup multipliers
+# - Consistency multipliers
 
 # Path is already correct in the script-specific config, no adjustment needed

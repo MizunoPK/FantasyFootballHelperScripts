@@ -48,7 +48,8 @@ class DraftOrderCalculator:
     def __init__(
         self,
         team,
-        logger: Optional[logging.Logger] = None
+        logger: Optional[logging.Logger] = None,
+        param_manager=None
     ):
         """
         Initialize the DRAFT_ORDER calculator.
@@ -56,9 +57,39 @@ class DraftOrderCalculator:
         Args:
             team: FantasyTeam instance
             logger: Logger instance for debugging
+            param_manager: ParameterJsonManager instance (required)
         """
         self.team = team
         self.logger = logger or logging.getLogger(__name__)
+
+        # Store parameter manager (required)
+        if param_manager is None:
+            raise ValueError("param_manager is required for DraftOrderCalculator")
+        self.param_manager = param_manager
+
+        # Build DRAFT_ORDER with actual parameter values from JSON
+        # Constants.DRAFT_ORDER has placeholder values (75.0, 40.0)
+        # We need to replace them with actual values from param_manager
+        P = self.param_manager.DRAFT_ORDER_PRIMARY_BONUS
+        S = self.param_manager.DRAFT_ORDER_SECONDARY_BONUS
+
+        self.draft_order = [
+            {Constants.FLEX: P, Constants.QB: S},        # Round 1
+            {Constants.FLEX: P, Constants.QB: S},        # Round 2
+            {Constants.FLEX: P, Constants.QB: S+5},      # Round 3
+            {Constants.FLEX: P, Constants.QB: S+5},      # Round 4
+            {Constants.QB: P, Constants.FLEX: S},        # Round 5
+            {Constants.TE: P, Constants.FLEX: S},        # Round 6
+            {Constants.FLEX: P},                         # Round 7
+            {Constants.QB: P, Constants.FLEX: S},        # Round 8
+            {Constants.TE: P, Constants.FLEX: S},        # Round 9
+            {Constants.FLEX: P},                         # Round 10
+            {Constants.FLEX: P},                         # Round 11
+            {Constants.K: P},                            # Round 12
+            {Constants.DST: P},                          # Round 13
+            {Constants.FLEX: P},                         # Round 14
+            {Constants.FLEX: P}                          # Round 15
+        ]
 
         self.logger.info("DraftOrderCalculator initialized")
 
@@ -97,10 +128,10 @@ class DraftOrderCalculator:
         Returns:
             dict: Position -> bonus points mapping (e.g., {'FLEX': 50, 'QB': 25})
         """
-        if round_index is None or round_index >= len(Constants.DRAFT_ORDER):
+        if round_index is None or round_index >= len(self.draft_order):
             return {}
 
-        priorities = Constants.DRAFT_ORDER[round_index]
+        priorities = self.draft_order[round_index]
 
         self.logger.debug(
             f"Round {round_index + 1} priorities: {priorities}"
@@ -192,7 +223,7 @@ class DraftOrderCalculator:
                 break
 
             round_index = round_num - 1
-            round_priorities = Constants.DRAFT_ORDER[round_index]
+            round_priorities = self.draft_order[round_index]
 
             if not round_priorities:
                 continue
@@ -246,10 +277,10 @@ class DraftOrderCalculator:
         # Count expected positions from DRAFT_ORDER (up to roster size)
         expected_position_slots = {}
         for round_index in range(len(roster)):
-            if round_index >= len(Constants.DRAFT_ORDER):
+            if round_index >= len(self.draft_order):
                 break
 
-            round_priorities = Constants.DRAFT_ORDER[round_index]
+            round_priorities = self.draft_order[round_index]
             if not round_priorities:
                 continue
 

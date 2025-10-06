@@ -44,13 +44,16 @@ MAX_PLAYERS = 15  # Total roster size
 
 FLEX_ELIGIBLE_POSITIONS = [RB, WR]  # Positions eligible for FLEX spot
 
-# DRAFT_ORDER bonus configuration (FREQUENTLY MODIFIED)
-DRAFT_ORDER_PRIMARY_BONUS = 74.76    # Optimized from simulation (was 50)
-DRAFT_ORDER_SECONDARY_BONUS = 38.57  # Optimized from simulation (was 25)
+# DRAFT_ORDER bonus configuration
+# NOTE: Actual bonus values are now loaded from parameters.json
+# These are placeholder values for the DRAFT_ORDER structure below
+# To modify bonus values, edit parameters.json instead
+DRAFT_ORDER_PRIMARY_BONUS = 75.0    # Placeholder - actual value from JSON
+DRAFT_ORDER_SECONDARY_BONUS = 40.0  # Placeholder - actual value from JSON
 
-# Draft Strategy - Round-based position bonuses (FREQUENTLY MODIFIED)
-# Uses DRAFT_ORDER_PRIMARY_BONUS and DRAFT_ORDER_SECONDARY_BONUS variables
-# To adjust bonuses, modify the two variables above - changes apply to all rounds
+# Draft Strategy - Round-based position bonuses
+# The structure below defines which positions get bonuses in each round
+# Actual bonus values (P and S) come from parameters.json via ParameterJsonManager
 P = DRAFT_ORDER_PRIMARY_BONUS    # Alias for readability
 S = DRAFT_ORDER_SECONDARY_BONUS  # Alias for readability
 
@@ -73,20 +76,20 @@ DRAFT_ORDER = [
 ]
 
 # =============================================================================
-# SCORING WEIGHTS (FREQUENTLY MODIFIED)
+# SCORING WEIGHTS
 # =============================================================================
-
-# Normalization configuration
-NORMALIZATION_MAX_SCALE = 102.42  # ← Optimized from simulation (was 100.0)
-
-# Penalty system (FREQUENTLY MODIFIED)
-BASE_BYE_PENALTY = 18.85       # ← Optimized from simulation (was 5)
-
-INJURY_PENALTIES = {           # ← Risk tolerance settings (optimized from simulation)
-    "LOW": 0,                  # Healthy/Active players
-    "MEDIUM": 4.68,            # ← Optimized from simulation (was 15)
-    "HIGH": 68.22              # ← Optimized from simulation (was 35)
-}
+# NOTE: All scoring parameters are now loaded from parameters.json
+# Parameters moved to JSON:
+# - NORMALIZATION_MAX_SCALE
+# - BASE_BYE_PENALTY
+# - INJURY_PENALTIES (nested dict with LOW, MEDIUM, HIGH)
+# - ADP multipliers (EXCELLENT, GOOD, POOR)
+# - Player rating multipliers (EXCELLENT, GOOD, POOR)
+# - Team quality multipliers (EXCELLENT, GOOD, POOR)
+# - Consistency multipliers (LOW, MEDIUM, HIGH)
+# - Matchup multipliers (5 levels)
+#
+# To modify these values, edit shared_files/parameters.json instead
 
 # Trade optimization settings (FREQUENTLY MODIFIED)
 MIN_TRADE_IMPROVEMENT = 0     # ← Minimum point improvement required for a trade to be considered
@@ -102,13 +105,8 @@ POSSIBLE_BYE_WEEKS = [5, 6, 7, 8, 9, 10, 11, 12, 14]
 # Enable/disable consistency scoring (based on week-to-week variance)
 ENABLE_CONSISTENCY_SCORING = True
 
-# Universal consistency multipliers (applied to all positions)
-# Rewards consistent players, penalizes volatile boom/bust players
-CONSISTENCY_MULTIPLIERS = {
-    'LOW': 1.08,      # CV < 0.3 (consistent performer)
-    'MEDIUM': 1.00,   # 0.3 <= CV <= 0.6 (moderate variance)
-    'HIGH': 0.92      # CV > 0.6 (volatile boom/bust)
-}
+# NOTE: Consistency multipliers are now loaded from parameters.json
+# CONSISTENCY_LOW_MULTIPLIER, CONSISTENCY_MEDIUM_MULTIPLIER, CONSISTENCY_HIGH_MULTIPLIER
 
 # Coefficient of Variation (CV) thresholds
 # CV = standard_deviation / mean (measures relative variability)
@@ -232,24 +230,19 @@ def validate_config():
 
         return result
 
-    def validate_penalties():
+    def validate_trade_settings():
         """
-        Validate penalty settings including injury penalties, bye week penalties, and trade thresholds.
+        Validate trade optimization settings.
+
+        Note: Penalty parameters (INJURY_PENALTIES, BASE_BYE_PENALTY) are now
+        validated by ParameterJsonManager when loading parameters.json
 
         Returns:
             ValidationResult: Result object containing any validation errors
         """
         result = ValidationResult()
 
-        # Validate injury penalties
-        for injury_level, penalty in INJURY_PENALTIES.items():
-            penalty_result = ConfigValidator.validate_range(penalty, 0, 200, f"INJURY_PENALTIES[{injury_level}]")
-            result.errors.extend(penalty_result.errors)
-
-        # Validate other penalty settings
-        bye_penalty_result = ConfigValidator.validate_range(BASE_BYE_PENALTY, 0, 100, "BASE_BYE_PENALTY")
-        result.errors.extend(bye_penalty_result.errors)
-
+        # Validate trade improvement threshold
         trade_improvement_result = ConfigValidator.validate_range(MIN_TRADE_IMPROVEMENT, 0, 100, "MIN_TRADE_IMPROVEMENT")
         result.errors.extend(trade_improvement_result.errors)
 
@@ -260,7 +253,7 @@ def validate_config():
         validate_basic_settings,
         validate_position_settings,
         validate_draft_order,
-        validate_penalties
+        validate_trade_settings
     ])
 
     if not combined_result.is_valid:
@@ -277,35 +270,31 @@ if __name__ != "__main__":
 """
 🎯 MOST FREQUENTLY MODIFIED SETTINGS:
 
-WEEKLY/DRAFT SEASON CHANGES:
-1. DRAFT_ORDER - Update strategy based on ADP trends and position scarcity
-2. INJURY_PENALTIES["MEDIUM"]/["HIGH"] - Adjust risk tolerance for your league
-3. MAX_POSITIONS - Adjust for different league roster requirements
+📊 SCORING PARAMETERS (edit shared_files/parameters.json):
+- All scoring multipliers (ADP, player rating, team quality, consistency, matchup)
+- Penalty values (BASE_BYE_PENALTY, INJURY_PENALTIES)
+- Normalization scale (NORMALIZATION_MAX_SCALE)
+- Draft order bonuses (DRAFT_ORDER_PRIMARY_BONUS, DRAFT_ORDER_SECONDARY_BONUS)
 
-STRATEGY CHANGES:
-1. TRADE_HELPER_MODE - Switch between draft and trade modes
-2. RECOMMENDATION_COUNT - How many players to suggest
-3. MIN_TRADE_IMPROVEMENT - Minimum point improvement to suggest a trade
-4. APPLY_INJURY_PENALTY_TO_ROSTER - Apply injury penalties to roster players in trade mode
-
-SCORING FORMAT CHANGES:
-1. BASE_BYE_PENALTY - Higher in smaller leagues, lower in larger leagues
-2. POS_NEEDED_SCORE - Weight for positional need in scoring
-
-DEBUGGING/TUNING:
-1. LOGGING_LEVEL = 'DEBUG' (detailed) vs 'INFO' (minimal)
+⚙️ CONFIG SETTINGS (edit this file):
+1. DRAFT_ORDER - Update round-based position priorities
+2. MAX_POSITIONS - Adjust for different league roster requirements
+3. TRADE_HELPER_MODE - Switch between draft and trade modes
+4. RECOMMENDATION_COUNT - How many players to suggest
+5. MIN_TRADE_IMPROVEMENT - Minimum point improvement to suggest a trade
+6. APPLY_INJURY_PENALTY_TO_ROSTER - Apply injury penalties to roster players in trade mode
+7. LOGGING_LEVEL - 'DEBUG' (detailed) vs 'INFO' (minimal)
 
 🔧 HOW TO MODIFY:
 
+To change scoring parameters (penalties, multipliers, bonuses):
+    Edit shared_files/parameters.json
+    Example: Change "BASE_BYE_PENALTY": 28.85 to a different value
+
 To change draft strategy for RB-heavy approach:
-    DRAFT_ORDER[0] = {RB: 1.2, FLEX: 0.8}  # Prioritize RB in round 1
-    
-To increase injury risk tolerance:
-    INJURY_PENALTIES["HIGH"] = 25  # Reduce penalty for injured players
-    
-To adjust for 12-team league (more scarcity):
-    BASE_BYE_PENALTY = 30  # Increase penalty for bye conflicts
-    
+    DRAFT_ORDER[0] = {RB: P, FLEX: S}  # Prioritize RB in round 1
+    (P and S values come from parameters.json)
+
 To only consider significant trades:
     MIN_TRADE_IMPROVEMENT = 15  # Only suggest trades with 15+ point improvement
 
@@ -313,6 +302,7 @@ To ignore injury penalties for roster players in trade analysis:
     APPLY_INJURY_PENALTY_TO_ROSTER = False  # Score roster players as if healthy
 
 ⚠️ VALIDATION:
-Configuration is automatically validated on import. Invalid settings will
-raise ValueError with details about what needs to be fixed.
+- Config validation happens on import (this file)
+- Parameter validation happens when loading parameters.json
+- Invalid settings will raise ValueError with details
 """

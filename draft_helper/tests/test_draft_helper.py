@@ -90,6 +90,7 @@ class TestDraftHelper:
         import tempfile
         import csv
         import os
+        from pathlib import Path
 
         temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv')
 
@@ -113,8 +114,11 @@ class TestDraftHelper:
 
             temp_file.close()
 
-            # Create DraftHelper with the temp file
-            helper = draft_helper.DraftHelper(temp_file.name)
+            # Use the shared parameters.json file for testing
+            param_json_path = str(Path(__file__).parent.parent.parent / 'shared_files' / 'parameters.json')
+
+            # Create DraftHelper with the temp file and parameter JSON
+            helper = draft_helper.DraftHelper(temp_file.name, parameter_json_path=param_json_path)
             yield helper
 
         finally:
@@ -148,14 +152,17 @@ class TestDraftHelper:
         assert hasattr(draft_config, 'MIN_TRADE_IMPROVEMENT')  # Trade functionality
         assert hasattr(draft_config, 'MAX_POSITIONS')  # Draft functionality
 
-    def test_scoring_weights_configuration(self):
+    def test_scoring_weights_configuration(self, draft_helper_instance):
         """Test scoring weights are reasonable"""
+        # Scoring parameters are now loaded from JSON via param_manager
+        param_manager = draft_helper_instance.param_manager
+
         # Test normalization scale
-        assert draft_config.NORMALIZATION_MAX_SCALE > 0
+        assert param_manager.NORMALIZATION_MAX_SCALE > 0
 
         # Test penalty system
-        assert draft_config.BASE_BYE_PENALTY >= 0
-        assert all(penalty >= 0 for penalty in draft_config.INJURY_PENALTIES.values())
+        assert param_manager.BASE_BYE_PENALTY >= 0
+        assert all(penalty >= 0 for penalty in param_manager.INJURY_PENALTIES.values())
 
     def test_injury_penalty_calculation(self, draft_helper_instance, sample_players):
         """Test injury penalty calculation"""
@@ -164,18 +171,21 @@ class TestDraftHelper:
         injured_player = sample_players[3]  # OUT
 
         # Test that injury penalties are applied correctly
-        active_penalty = draft_helper_instance.compute_injury_penalty(active_player)
-        questionable_penalty = draft_helper_instance.compute_injury_penalty(questionable_player)
-        injured_penalty = draft_helper_instance.compute_injury_penalty(injured_player)
+        active_penalty = draft_helper_instance.scoring_engine.compute_injury_penalty(active_player)
+        questionable_penalty = draft_helper_instance.scoring_engine.compute_injury_penalty(questionable_player)
+        injured_penalty = draft_helper_instance.scoring_engine.compute_injury_penalty(injured_player)
+
+        # Get expected values from param_manager
+        param_manager = draft_helper_instance.param_manager
 
         # Active should have lowest penalty
-        assert active_penalty == draft_config.INJURY_PENALTIES.get("LOW", 0)
+        assert active_penalty == param_manager.INJURY_PENALTIES.get("LOW", 0)
 
         # Injured should have highest penalty
-        assert injured_penalty == draft_config.INJURY_PENALTIES.get("HIGH", 50)
+        assert injured_penalty == param_manager.INJURY_PENALTIES.get("HIGH", 50)
 
         # Questionable should be in between
-        assert questionable_penalty == draft_config.INJURY_PENALTIES.get("MEDIUM", 25)
+        assert questionable_penalty == param_manager.INJURY_PENALTIES.get("MEDIUM", 25)
 
     def test_injury_penalty_roster_toggle(self, draft_helper_instance, sample_players):
         """Test APPLY_INJURY_PENALTY_TO_ROSTER toggle functionality"""
@@ -213,19 +223,19 @@ class TestDraftHelper:
             config_ref.TRADE_HELPER_MODE = True
             config_ref.APPLY_INJURY_PENALTY_TO_ROSTER = True
 
-            available_penalty_on = draft_helper_instance.compute_injury_penalty(injured_available)
-            roster_penalty_on = draft_helper_instance.compute_injury_penalty(injured_roster)
+            available_penalty_on = draft_helper_instance.scoring_engine.compute_injury_penalty(injured_available)
+            roster_penalty_on = draft_helper_instance.scoring_engine.compute_injury_penalty(injured_roster)
 
             # Both should have injury penalties when toggle is ON
-            expected_penalty = config_ref.INJURY_PENALTIES.get("HIGH", 50)
+            expected_penalty = draft_helper_instance.param_manager.INJURY_PENALTIES.get("HIGH", 50)
             assert available_penalty_on == expected_penalty
             assert roster_penalty_on == expected_penalty
 
             # Test in trade mode with penalty toggle OFF
             config_ref.APPLY_INJURY_PENALTY_TO_ROSTER = False
 
-            available_penalty_off = draft_helper_instance.compute_injury_penalty(injured_available)
-            roster_penalty_off = draft_helper_instance.compute_injury_penalty(injured_roster)
+            available_penalty_off = draft_helper_instance.scoring_engine.compute_injury_penalty(injured_available)
+            roster_penalty_off = draft_helper_instance.scoring_engine.compute_injury_penalty(injured_roster)
 
             # Available players should still have penalties, roster players should not
             assert available_penalty_off == expected_penalty  # Still penalized
@@ -418,11 +428,14 @@ class TestDraftHelper:
         for bye_week in draft_config.POSSIBLE_BYE_WEEKS:
             assert 1 <= bye_week <= 18
 
-    def test_scoring_format_consistency(self):
+    def test_scoring_format_consistency(self, draft_helper_instance):
         """Test that scoring weights are internally consistent"""
+        # Scoring parameters are now loaded from JSON
+        param_manager = draft_helper_instance.param_manager
+
         # Normalization scale should be larger than penalties
-        assert draft_config.NORMALIZATION_MAX_SCALE > draft_config.BASE_BYE_PENALTY
-        assert draft_config.NORMALIZATION_MAX_SCALE > max(draft_config.INJURY_PENALTIES.values())
+        assert param_manager.NORMALIZATION_MAX_SCALE > param_manager.BASE_BYE_PENALTY
+        assert param_manager.NORMALIZATION_MAX_SCALE > max(param_manager.INJURY_PENALTIES.values())
 
     def test_interactive_menu_display_roster_by_draft_order(self, draft_helper_instance, sample_players):
         """Test the roster display functionality"""
