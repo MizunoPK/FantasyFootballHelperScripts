@@ -770,7 +770,7 @@ class DraftHelper:
 
             # Use StarterHelper's projection logic for consistency
             # Pass the same parameter_json_path that DraftHelper is using
-            starter_helper = StarterHelper(parameter_json_path=self.param_manager.file)
+            starter_helper = StarterHelper(parameter_json_path=str(self.param_manager.json_file_path))
             projections = starter_helper.get_current_week_projections(roster_df)
 
             print(f"Fantasy Football Starter Helper")
