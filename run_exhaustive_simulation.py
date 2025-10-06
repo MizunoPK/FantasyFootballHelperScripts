@@ -272,12 +272,17 @@ def determine_starting_round(json_path):
 def main():
     """Main entry point for exhaustive simulation runner"""
 
+    print(">> EXHAUSTIVE SIMULATION STARTING...", flush=True)
+
     # Get the directories
     script_dir = Path(__file__).parent
     parameter_path = script_dir / "draft_helper" / "simulation" / "parameters" / "parameter_sets"
 
+    print(f">> Parameter path: {parameter_path}", flush=True)
+
     # Find most recent optimal JSON file
     json_file = find_most_recent_optimal_json(parameter_path)
+    print(f">> Found file: {json_file}", flush=True)
 
     if json_file is None:
         # Fall back to hardcoded values if no optimal file found
