@@ -5,6 +5,11 @@ Parameter JSON Manager
 Manages loading and validation of parameter JSON files for draft helper and starter helper.
 Provides centralized parameter management with validation and easy access patterns.
 
+Configuration:
+    VERBOSE_LOGGING: Set to True to enable INFO-level logs for parameter loading.
+                     Default is False to reduce log noise in production.
+                     Errors and warnings are always logged regardless of this setting.
+
 Author: Kai Mizuno
 Last Updated: October 2025
 """
@@ -19,6 +24,10 @@ from shared_files.logging_utils import setup_module_logging
 
 # Set up logging
 logger = setup_module_logging(__name__)
+
+# Configuration for logging verbosity
+# Set to False to suppress INFO logs (only show warnings/errors)
+VERBOSE_LOGGING = False
 
 
 class ParameterJsonManager:
@@ -75,12 +84,14 @@ class ParameterJsonManager:
         self.description: Optional[str] = None
         self.parameters: Dict[str, Any] = {}
 
-        logger.info(f"Initializing ParameterJsonManager with file: {self.json_file_path}")
+        if VERBOSE_LOGGING:
+            logger.info(f"Initializing ParameterJsonManager with file: {self.json_file_path}")
 
         try:
             self._load_json()
             self._validate_parameters()
-            logger.info(f"Successfully loaded parameters from {self.json_file_path}")
+            if VERBOSE_LOGGING:
+                logger.info(f"Successfully loaded parameters from {self.json_file_path}")
         except Exception as e:
             error_msg = f"Failed to load parameter file '{self.json_file_path}': {e}"
             logger.error(error_msg)
