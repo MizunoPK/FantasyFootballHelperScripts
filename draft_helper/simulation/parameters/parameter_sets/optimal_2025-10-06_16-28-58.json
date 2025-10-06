@@ -48,11 +48,6 @@
       0.92
     ],
     "MATCHUP_VERY_POOR_MULTIPLIER": [
-      0.24,
-      0.33,
-      0.34,
-      0.4,
-      0.5,
       0.76
     ],
     "NORMALIZATION_MAX_SCALE": [

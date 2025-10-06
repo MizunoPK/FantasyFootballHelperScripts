@@ -54,15 +54,15 @@ SIMULATION_LOG_LEVEL = "WARNING"
 # Use the parameter_loader module to load and validate configurations.
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 20           # Number of drafts to run per configuration
-PRELIMINARY_SIMULATIONS_PER_CONFIG = 10  # Reduced for preliminary testing
+SIMULATIONS_PER_CONFIG = 50           # Number of drafts to run per configuration
+PRELIMINARY_SIMULATIONS_PER_CONFIG = 1  # Reduced for preliminary testing
 TOP_CONFIGS_PERCENTAGE = 0.1          # Top configs advance to full testing
 MINIMUM_TOP_CONFIGS = 10              # Minimum number of top configs to test in full phase
                                        # If total configs < this value, skip preliminary phase
                                        # If percentage yields fewer configs, use this minimum instead
 
 # Fine-grain offset toggle
-ENABLE_FINE_GRAIN_OFFSETS = False      # Enable/disable fine-grain variation generation
+ENABLE_FINE_GRAIN_OFFSETS = True      # Enable/disable fine-grain variation generation
                                        # True: Generate variations around top configs using FINE_GRAIN_OFFSETS
                                        # False: Run full simulations on top configs only (faster, less exploration)
 
