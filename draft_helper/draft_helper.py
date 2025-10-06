@@ -769,7 +769,8 @@ class DraftHelper:
             roster_df = pd.DataFrame(roster_data)
 
             # Use StarterHelper's projection logic for consistency
-            starter_helper = StarterHelper()
+            # Pass the same parameter_json_path that DraftHelper is using
+            starter_helper = StarterHelper(parameter_json_path=self.param_manager.file)
             projections = starter_helper.get_current_week_projections(roster_df)
 
             print(f"Fantasy Football Starter Helper")
@@ -778,8 +779,8 @@ class DraftHelper:
             print("="*60)
             print(f"Loaded {len(roster_df)} roster players")
 
-            # Initialize lineup optimizer
-            optimizer = LineupOptimizer()
+            # Initialize lineup optimizer with param_manager
+            optimizer = LineupOptimizer(param_manager=self.param_manager)
 
             # Optimize lineup using projections
             optimal_lineup = optimizer.optimize_lineup(roster_df, projections)
