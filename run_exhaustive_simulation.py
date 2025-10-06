@@ -274,7 +274,7 @@ def main():
 
     # Get the directories
     script_dir = Path(__file__).parent
-    parameter_path = script_dir / "draft_helper" / "simulation" / "parameters"
+    parameter_path = script_dir / "draft_helper" / "simulation" / "parameters" / "parameter_sets"
 
     # Find most recent optimal JSON file
     json_file = find_most_recent_optimal_json(parameter_path)

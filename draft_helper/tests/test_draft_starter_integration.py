@@ -128,10 +128,11 @@ class TestDraftStarterIntegration(unittest.TestCase):
             from shared_files.FantasyPlayer import FantasyPlayer as StarterFantasyPlayer
 
             # Mock the PLAYERS_CSV config to use our test CSV
+            param_path = Path(__file__).parent.parent.parent / 'shared_files' / 'parameters.json'
             with patch('shared_files.configs.starter_helper_config.CURRENT_NFL_WEEK', 1), \
                  patch('shared_files.configs.starter_helper_config.PLAYERS_CSV', str(roster_csv)):
 
-                starter_helper = StarterHelper()
+                starter_helper = StarterHelper(parameter_json_path=str(param_path))
 
                 # Load players from our test CSV
                 starter_helper.all_players = self._load_players_from_csv(roster_csv)
@@ -466,7 +467,8 @@ class TestDraftStarterIntegration(unittest.TestCase):
 
             # Test that StarterHelper can load projections from this DataFrame
             # Use the actual CURRENT_NFL_WEEK (should be week 5 based on config)
-            starter_helper = StarterHelper()
+            param_path = Path(__file__).parent.parent.parent / 'shared_files' / 'parameters.json'
+            starter_helper = StarterHelper(parameter_json_path=str(param_path))
             projections = starter_helper.get_current_week_projections(roster_df)
 
             # Verify projections were loaded
@@ -485,7 +487,7 @@ class TestDraftStarterIntegration(unittest.TestCase):
             # Test fallback when weekly column doesn't exist
             roster_df_no_weekly = roster_df.drop(columns=[col for col in roster_df.columns if col.startswith('week_')])
 
-            starter_helper_fallback = StarterHelper()
+            starter_helper_fallback = StarterHelper(parameter_json_path=str(param_path))
             fallback_projections = starter_helper_fallback.get_current_week_projections(roster_df_no_weekly)
 
             # Verify fallback projections were calculated (fantasy_points / 17)

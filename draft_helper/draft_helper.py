@@ -210,8 +210,26 @@ class DraftHelper:
         self.players = load_players_from_csv(players_csv)
         self.team = self.load_team()
 
-        # Initialize enhanced scoring calculator
-        self.enhanced_scorer = EnhancedScoringCalculator()
+        # Build enhanced scoring config from JSON parameters
+        enhanced_scoring_config = {
+            # ADP multipliers
+            'adp_excellent_multiplier': self.param_manager.ADP_EXCELLENT_MULTIPLIER,
+            'adp_good_multiplier': self.param_manager.ADP_GOOD_MULTIPLIER,
+            'adp_poor_multiplier': self.param_manager.ADP_POOR_MULTIPLIER,
+
+            # Player rating multipliers
+            'player_rating_excellent_multiplier': self.param_manager.PLAYER_RATING_EXCELLENT_MULTIPLIER,
+            'player_rating_good_multiplier': self.param_manager.PLAYER_RATING_GOOD_MULTIPLIER,
+            'player_rating_poor_multiplier': self.param_manager.PLAYER_RATING_POOR_MULTIPLIER,
+
+            # Team quality multipliers
+            'team_excellent_multiplier': self.param_manager.TEAM_EXCELLENT_MULTIPLIER,
+            'team_good_multiplier': self.param_manager.TEAM_GOOD_MULTIPLIER,
+            'team_poor_multiplier': self.param_manager.TEAM_POOR_MULTIPLIER,
+        }
+
+        # Initialize enhanced scoring calculator with JSON parameters
+        self.enhanced_scorer = EnhancedScoringCalculator(enhanced_scoring_config)
 
         # Initialize team data loader for offensive/defensive rankings
         self.team_data_loader = TeamDataLoader()
