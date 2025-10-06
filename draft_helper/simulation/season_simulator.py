@@ -243,9 +243,12 @@ class SeasonSimulator:
         """Create a LineupOptimizer with weekly teams data for positional rankings"""
         # Create a temporary class to override the LineupOptimizer initialization
         class WeeklyLineupOptimizer(LineupOptimizer):
-            def __init__(self, teams_csv_path: str):
+            def __init__(self, teams_csv_path: str, param_manager):
                 # Initialize logger first
                 self.logger = logging.getLogger(__name__)
+
+                # Store param_manager
+                self.param_manager = param_manager
 
                 # Initialize matchup calculator with weekly teams data
                 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'starter_helper'))
@@ -255,9 +258,13 @@ class SeasonSimulator:
                 if self.matchup_calculator.is_matchup_available():
                     self.logger.debug(f"Matchup calculator initialized with weekly teams data: {teams_csv_path}")
 
+                # Initialize consistency calculator
+                sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+                from shared_files.consistency_calculator import ConsistencyCalculator
+                self.consistency_calculator = ConsistencyCalculator(logger=self.logger)
+
                 # Initialize positional ranking calculator with weekly teams data
                 try:
-                    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
                     from shared_files.positional_ranking_calculator import PositionalRankingCalculator
                     self.positional_ranking_calculator = PositionalRankingCalculator(teams_file_path=teams_csv_path)
                     if self.positional_ranking_calculator.is_positional_ranking_available():
@@ -268,7 +275,12 @@ class SeasonSimulator:
                     self.logger.warning(f"Failed to initialize positional ranking calculator with weekly teams data: {e}")
                     self.positional_ranking_calculator = None
 
-        return WeeklyLineupOptimizer(weekly_teams_csv_path)
+        # Load parameter manager for consistency calculations
+        from shared_files.parameter_json_manager import ParameterJsonManager
+        param_path = os.path.join(os.path.dirname(__file__), '..', '..', 'shared_files', 'parameters.json')
+        param_manager = ParameterJsonManager(param_path)
+
+        return WeeklyLineupOptimizer(weekly_teams_csv_path, param_manager)
 
     def _calculate_league_average_score(self, week: int) -> float:
         """Calculate league average score for bye week comparisons"""
