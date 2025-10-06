@@ -136,7 +136,7 @@ PLAYERS_CSV = '../shared_files/players.csv'  # Production player data
 # =============================================================================
 
 LOGGING_ENABLED = True         # ← Enable/disable logging
-LOGGING_LEVEL = 'INFO'         # ← DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOGGING_LEVEL = 'WARNING'         # ← DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOGGING_TO_FILE = False        # ← Console vs file logging
 LOGGING_FILE = './data/log.txt'
 

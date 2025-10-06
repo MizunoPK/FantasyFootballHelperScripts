@@ -148,21 +148,21 @@ class TestMultiplierSelection:
     def test_excellent_matchup_multiplier(self, calculator):
         """Test multiplier for excellent matchup (rank_diff >= 15)"""
         multiplier = calculator.get_multiplier_for_rank_difference(15)
-        assert multiplier == 1.2
+        assert multiplier == 1.23  # Updated to match optimized default
 
         multiplier = calculator.get_multiplier_for_rank_difference(20)
-        assert multiplier == 1.2
+        assert multiplier == 1.23  # Updated to match optimized default
 
     def test_good_matchup_multiplier(self, calculator):
         """Test multiplier for good matchup (rank_diff 6-14)"""
         multiplier = calculator.get_multiplier_for_rank_difference(6)
-        assert multiplier == 1.1
+        assert multiplier == 1.03  # Updated to match optimized default
 
         multiplier = calculator.get_multiplier_for_rank_difference(10)
-        assert multiplier == 1.1
+        assert multiplier == 1.03  # Updated to match optimized default
 
         multiplier = calculator.get_multiplier_for_rank_difference(14)
-        assert multiplier == 1.1
+        assert multiplier == 1.03  # Updated to match optimized default
 
     def test_neutral_matchup_multiplier(self, calculator):
         """Test multiplier for neutral matchup (rank_diff -5 to 5)"""
@@ -178,30 +178,30 @@ class TestMultiplierSelection:
     def test_poor_matchup_multiplier(self, calculator):
         """Test multiplier for poor matchup (rank_diff -14 to -6)"""
         multiplier = calculator.get_multiplier_for_rank_difference(-14)
-        assert multiplier == 0.9
+        assert multiplier == 0.92  # Updated to match optimized default
 
         multiplier = calculator.get_multiplier_for_rank_difference(-10)
-        assert multiplier == 0.9
+        assert multiplier == 0.92  # Updated to match optimized default
 
         multiplier = calculator.get_multiplier_for_rank_difference(-6)
-        assert multiplier == 0.9
+        assert multiplier == 0.92  # Updated to match optimized default
 
     def test_very_poor_matchup_multiplier(self, calculator):
         """Test multiplier for very poor matchup (rank_diff <= -15)"""
         multiplier = calculator.get_multiplier_for_rank_difference(-15)
-        assert multiplier == 0.8
+        assert multiplier == 0.5  # Updated to match optimized default
 
         multiplier = calculator.get_multiplier_for_rank_difference(-20)
-        assert multiplier == 0.8
+        assert multiplier == 0.5  # Updated to match optimized default
 
     def test_boundary_values(self, calculator):
         """Test multipliers at exact boundary values"""
         # Test boundaries between ranges
-        assert calculator.get_multiplier_for_rank_difference(14) == 1.1  # Good
-        assert calculator.get_multiplier_for_rank_difference(15) == 1.2  # Excellent
+        assert calculator.get_multiplier_for_rank_difference(14) == 1.03  # Good (updated)
+        assert calculator.get_multiplier_for_rank_difference(15) == 1.23  # Excellent (updated)
 
         assert calculator.get_multiplier_for_rank_difference(5) == 1.0   # Neutral
-        assert calculator.get_multiplier_for_rank_difference(6) == 1.1   # Good
+        assert calculator.get_multiplier_for_rank_difference(6) == 1.03   # Good (updated)
 
 
 class TestMatchupAdjustment:
@@ -265,14 +265,14 @@ class TestMatchupAdjustment:
     def test_matchup_adjustment_positive(self, calculator_with_mock_data):
         """Test matchup adjustment increases points for good matchup"""
         # BAD team offense #28 vs GOOD team defense #10
-        # diff = 10 - 28 = -18 (very poor matchup, 0.8x)
+        # diff = 10 - 28 = -18 (very poor matchup, 0.5x - updated)
         adjusted, explanation = calculator_with_mock_data.calculate_matchup_adjustment(
             'BAD', QB, 20.0
         )
 
-        assert adjusted == 16.0  # 20.0 * 0.8
-        assert "-4.0" in explanation  # Negative adjustment
-        assert "0.8x" in explanation
+        assert adjusted == 10.0  # 20.0 * 0.5 (updated multiplier)
+        assert "-10.0" in explanation  # Negative adjustment (updated)
+        assert "0.5x" in explanation  # Updated multiplier
 
     def test_matchup_adjustment_explanation_format(self, calculator_with_mock_data):
         """Test that explanation string has correct format"""

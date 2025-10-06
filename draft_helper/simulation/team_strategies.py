@@ -16,6 +16,7 @@ from shared_files.enhanced_scoring import EnhancedScoringCalculator
 from draft_helper.FantasyTeam import FantasyTeam
 from shared_files.configs import draft_helper_config as base_config
 from draft_helper.team_data_loader import TeamDataLoader
+from draft_helper.core.normalization_calculator import NormalizationCalculator
 
 
 class TeamStrategyManager:
@@ -72,6 +73,10 @@ class TeamStrategyManager:
             'MEDIUM': config_params.get('CONSISTENCY_MEDIUM_MULTIPLIER', 1.00),
             'HIGH': config_params.get('CONSISTENCY_HIGH_MULTIPLIER', 0.92)
         }
+
+        # Normalization scale from simulation parameters
+        normalization_scale = config_params.get('NORMALIZATION_MAX_SCALE', 100.0)
+        self.normalization_calculator = NormalizationCalculator(normalization_scale)
 
         # Initialize enhanced scoring calculator with configuration
         self.enhanced_scorer = EnhancedScoringCalculator(enhanced_scoring_config)
@@ -261,20 +266,29 @@ class TeamStrategyManager:
 
         scored_players = []
 
+        # STEP 1: Calculate max player points for normalization (done once per strategy call)
+        max_player_points = max(
+            (self._get_player_total_points(p) for p in available_players if not team_roster.can_draft(p) is False),
+            default=1.0
+        )
+
         for player in available_players:
             if not team_roster.can_draft(player):
                 continue
 
-            # Base score from total fantasy points
-            base_points = self._get_player_total_points(player)
+            # Calculate player's total points and normalize using simulation's normalization scale
+            player_total_points = self._get_player_total_points(player)
+            normalized_points = self.normalization_calculator.normalize_player_score(
+                player_total_points, max_player_points
+            )
 
-            # Apply enhanced scoring with current parameter configuration
+            # STEP 2: Apply enhanced scoring with current parameter configuration
             try:
                 team_offensive_rank = self.team_data_loader.get_team_offensive_rank(player.team)
                 team_defensive_rank = self.team_data_loader.get_team_defensive_rank(player.team)
 
                 enhanced_result = self.enhanced_scorer.calculate_enhanced_score(
-                    base_fantasy_points=base_points,
+                    base_fantasy_points=normalized_points,
                     position=player.position,
                     adp=getattr(player, 'average_draft_position', None),
                     player_rating=getattr(player, 'player_rating', None),
@@ -286,7 +300,7 @@ class TeamStrategyManager:
                 enhanced_score = enhanced_result['enhanced_score']
             except Exception:
                 # Fallback to basic scoring if enhanced scoring fails
-                enhanced_score = base_points
+                enhanced_score = normalized_points
 
             # Apply consistency/volatility multiplier
             consistency_score = self._apply_consistency_multiplier(enhanced_score, player)

@@ -199,7 +199,7 @@ class ParallelSimulationRunner:
             return result
 
         except Exception as e:
-            print(f"Error in simulation {task.simulation_id}: {e}")
+            print(f"Error in simulation {task.simulation_id}: {e}", flush=True)
             raise
 
     def _update_progress(self) -> None:
@@ -219,18 +219,23 @@ class ParallelSimulationRunner:
                 estimated_remaining_time = remaining_sims * avg_time_per_sim
                 self.progress.estimated_completion_time = time.time() + estimated_remaining_time
 
-            # Print progress every 5% or every 50 simulations
-            if (self.progress.completed_simulations % 50 == 0 or
-                self.progress.completed_simulations % max(1, self.progress.total_simulations // 20) == 0):
+            # Print progress more frequently at the start (first 10 sims), then every 5% or every 50 simulations
+            # This helps confirm simulations are running early on
+            should_print = (
+                self.progress.completed_simulations <= 10 or  # First 10 simulations
+                self.progress.completed_simulations % 50 == 0 or  # Every 50 sims
+                self.progress.completed_simulations % max(1, self.progress.total_simulations // 20) == 0  # Every 5%
+            )
 
+            if should_print:
                 elapsed_minutes = elapsed_time / 60
                 if self.progress.estimated_completion_time:
                     remaining_minutes = (self.progress.estimated_completion_time - time.time()) / 60
                     print(f"Progress: {self.progress.completed_simulations}/{self.progress.total_simulations} "
-                          f"({progress_pct:.1f}%) - {elapsed_minutes:.1f}m elapsed, ~{remaining_minutes:.1f}m remaining")
+                          f"({progress_pct:.1f}%) - {elapsed_minutes:.1f}m elapsed, ~{remaining_minutes:.1f}m remaining", flush=True)
                 else:
                     print(f"Progress: {self.progress.completed_simulations}/{self.progress.total_simulations} "
-                          f"({progress_pct:.1f}%) - {elapsed_minutes:.1f}m elapsed")
+                          f"({progress_pct:.1f}%) - {elapsed_minutes:.1f}m elapsed", flush=True)
 
     def _config_to_key(self, config: Dict[str, Any]) -> str:
         """Convert configuration to a unique string key"""

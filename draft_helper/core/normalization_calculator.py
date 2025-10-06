@@ -112,7 +112,7 @@ class NormalizationCalculator:
             return 0.0
 
         if player_points < 0:
-            self.logger.warning(f"Negative player_points ({player_points}), setting to 0")
+            self.logger.debug(f"Negative player_points ({player_points}), setting to 0")
             player_points = 0.0
 
         normalized = (player_points / max_player_points) * self.normalization_scale

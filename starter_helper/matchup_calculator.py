@@ -18,7 +18,6 @@ from typing import Dict, Optional, Tuple
 import pandas as pd
 
 from shared_files.configs.starter_helper_config import (
-    MATCHUP_MULTIPLIERS,
     MATCHUP_ENABLED_POSITIONS,
     QB, RB, WR, TE, K, DST
 )
@@ -38,16 +37,34 @@ class MatchupCalculator:
     Only applies to QB, RB, WR, TE positions (not K or DST).
     """
 
-    def __init__(self, teams_csv_path: str = '../shared_files/teams.csv'):
+    def __init__(self, teams_csv_path: str = '../shared_files/teams.csv',
+                 matchup_excellent: float = None,
+                 matchup_good: float = None,
+                 matchup_neutral: float = None,
+                 matchup_poor: float = None,
+                 matchup_very_poor: float = None):
         """
         Initialize the matchup calculator.
 
         Args:
             teams_csv_path: Path to teams.csv file with rankings and matchups
+            matchup_excellent: Multiplier for excellent matchups (rank_diff >= 15)
+            matchup_good: Multiplier for good matchups (rank_diff 6-14)
+            matchup_neutral: Multiplier for neutral matchups (rank_diff -5 to 5)
+            matchup_poor: Multiplier for poor matchups (rank_diff -14 to -6)
+            matchup_very_poor: Multiplier for very poor matchups (rank_diff <= -15)
         """
         self.logger = logging.getLogger(__name__)
         self.teams_csv_path = teams_csv_path
         self.team_data: Optional[pd.DataFrame] = None
+
+        # Use provided multipliers or fall back to config defaults
+        self.matchup_excellent = matchup_excellent if matchup_excellent is not None else 1.23
+        self.matchup_good = matchup_good if matchup_good is not None else 1.03
+        self.matchup_neutral = matchup_neutral if matchup_neutral is not None else 1.0
+        self.matchup_poor = matchup_poor if matchup_poor is not None else 0.92
+        self.matchup_very_poor = matchup_very_poor if matchup_very_poor is not None else 0.5
+
         self._load_team_data()
 
     def _load_team_data(self) -> None:
@@ -138,23 +155,23 @@ class MatchupCalculator:
             Multiplier value (e.g., 0.8, 1.0, 1.2)
         """
         # Check each range to find where rank_diff belongs
-        # Note: Ranges defined in config as tuples (lower, upper)
-        # (-inf, -14): very poor (0.8x)
-        # (-15, -5): poor (0.9x)
-        # (-5, 6): neutral (1.0x)
-        # (6, 15): good (1.1x)
-        # (15, inf): excellent (1.2x)
+        # Ranges:
+        # rank_diff <= -15: very poor matchup
+        # -14 to -6: poor matchup
+        # -5 to 5: neutral matchup
+        # 6 to 14: good matchup
+        # >= 15: excellent matchup
 
         if rank_diff <= -15:
-            return 0.8
+            return self.matchup_very_poor
         elif rank_diff <= -6:
-            return 0.9
+            return self.matchup_poor
         elif rank_diff <= 5:
-            return 1.0
+            return self.matchup_neutral
         elif rank_diff <= 14:
-            return 1.1
+            return self.matchup_good
         else:  # rank_diff >= 15
-            return 1.2
+            return self.matchup_excellent
 
     def calculate_matchup_adjustment(
         self,

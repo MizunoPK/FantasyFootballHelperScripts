@@ -61,24 +61,14 @@ RECOMMENDATION_COUNT = 15           # Number of total players to show
 # Positions eligible for matchup multipliers
 MATCHUP_ENABLED_POSITIONS = [QB, RB, WR, TE]
 
-# Matchup multiplier ranges (rank_difference: multiplier)
-# rank_difference = (opponent_defensive_rank) - (player_team_offensive_rank)
-MATCHUP_MULTIPLIERS = {
-    # Excellent matchup: rank difference >= 15 (e.g., #5 offense vs #25 defense)
-    (15, float('inf')): 1.23,  # Optimized from simulation (was 1.2)
-
-    # Good matchup: rank difference 6 to 14
-    (6, 15): 1.03,  # Optimized from simulation (was 1.1)
-
-    # Neutral matchup: rank difference -5 to 5
-    (-5, 6): 1.0,  # Optimized from simulation (unchanged)
-
-    # Poor matchup: rank difference -14 to -6
-    (-15, -5): 0.92,  # Optimized from simulation (was 0.9)
-
-    # Very poor matchup: rank difference <= -15 (e.g., #25 offense vs #5 defense)
-    (float('-inf'), -14): 0.5,  # Optimized from simulation (was 0.8)
-}
+# NOTE: Matchup multipliers are now loaded from parameters.json via ParameterJsonManager
+# The actual multiplier values are:
+#   - MATCHUP_EXCELLENT_MULTIPLIER (rank_diff >= 15)
+#   - MATCHUP_GOOD_MULTIPLIER (rank_diff 6-14)
+#   - MATCHUP_NEUTRAL_MULTIPLIER (rank_diff -5 to 5)
+#   - MATCHUP_POOR_MULTIPLIER (rank_diff -14 to -6)
+#   - MATCHUP_VERY_POOR_MULTIPLIER (rank_diff <= -15)
+# These are passed to MatchupCalculator via LineupOptimizer from param_manager
 
 # =============================================================================
 # BINARY INJURY STATUS CONFIGURATION
@@ -280,23 +270,9 @@ def validate_config():
             if pos not in valid_positions:
                 result.add_error(f"Invalid position in MATCHUP_ENABLED_POSITIONS: {pos}", "MATCHUP_ENABLED_POSITIONS", pos)
 
-        # Validate matchup multipliers
-        if not MATCHUP_MULTIPLIERS:
-            result.add_error("MATCHUP_MULTIPLIERS cannot be empty", "MATCHUP_MULTIPLIERS")
-
-        for (lower, upper), multiplier in MATCHUP_MULTIPLIERS.items():
-            # Validate range bounds
-            if lower != float('-inf') and lower != float('inf'):
-                if not isinstance(lower, (int, float)):
-                    result.add_error(f"Invalid lower bound in MATCHUP_MULTIPLIERS: {lower}", "MATCHUP_MULTIPLIERS", lower)
-
-            if upper != float('-inf') and upper != float('inf'):
-                if not isinstance(upper, (int, float)):
-                    result.add_error(f"Invalid upper bound in MATCHUP_MULTIPLIERS: {upper}", "MATCHUP_MULTIPLIERS", upper)
-
-            # Validate multiplier value (should be between 0.5 and 2.0 for reasonable adjustments)
-            mult_result = ConfigValidator.validate_range(multiplier, 0.5, 2.0, f"MATCHUP_MULTIPLIERS[{(lower, upper)}]")
-            result.errors.extend(mult_result.errors)
+        # NOTE: Matchup multipliers are now loaded from parameters.json
+        # Validation of multiplier values happens in ParameterJsonManager
+        # We only validate the enabled positions list here
 
         # Validate active statuses
         if not STARTER_HELPER_ACTIVE_STATUSES:
@@ -370,10 +346,15 @@ To adjust for standard scoring:
     NFL_SCORING_FORMAT = "std"
 
 To configure matchup multipliers:
-    # Make excellent matchups more impactful
-    MATCHUP_MULTIPLIERS[(15, float('inf'))] = 1.3  # Increase from 1.2x
+    # Multiplier values are now in shared_files/parameters.json
+    # Edit the following parameters in parameters.json:
+    #   - MATCHUP_EXCELLENT_MULTIPLIER
+    #   - MATCHUP_GOOD_MULTIPLIER
+    #   - MATCHUP_NEUTRAL_MULTIPLIER
+    #   - MATCHUP_POOR_MULTIPLIER
+    #   - MATCHUP_VERY_POOR_MULTIPLIER
 
-    # Disable matchup adjustments for a position
+    # To disable matchup adjustments for a position:
     MATCHUP_ENABLED_POSITIONS = [QB, RB, WR]  # Exclude TE
 
 ⚠️ VALIDATION:

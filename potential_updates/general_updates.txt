@@ -1,0 +1,15 @@
+Perform all of the following tasks. Perform them systematically and in whatever order you deam best, but make sure to follow the pre-commit checklist and run the pre-commit validation after every objective, ensuring all tests are passing, and commit before moving on.
+
+1. Move the parameters.json file to the shared_files/parameters folder
+2. Move players.csv, teams.csv, and bye_weeks.csv to a new 'data' folder contained within the shared_files directory
+3. Ensure that all tests are referencing a static version of players.csv, teams.csv, and bye_weeks.csv - the ones contained in the shared_files folder should be assumed to be dynamic and updating frequently with new data.
+4. Systematically ensure that every parameter contained in the parameters file is correctly being used in the simulation and is effecting the results of the simulation. The parameters should be used in the exact same way as in the real draft helper.
+5. Remove the starter_helper in the root directory. We are only ever going to be accessing the starter helper through the Draft Helper. Make sure the starter helper still works as normal when accessed through the draft helper menu, but consolidate all of the logic into the draft helper scripts and folder. Consolidate the starter_helper config into the draft_helper config as well.
+6. Validate that all unit tests are up to date, and look for ways to improver code coverage or address more edge cases. 
+7. Ensure that all the interactive integration tests are up to date and are thouroughly testing the entire application.
+8. Ensure that the pre_commit_validation is up to date and accurately testing all possible tests.
+9. Look for ways to improve the modularity of the draft helper. Make sure the simulation will still accurately simulate the draft helper after any changes are made.
+10. Look for ways to make the Config files more consolidated and easier for a user to parse.
+11. Look for ways to improve logging efforts
+12. Look for ways that documentation can be improved or added to
+13. Systematically verify that all config parameters outlined in parameters.json are getting properly loaded into the draft helper and are effecting the scores assigned during drafts, waivers, trades, and starter helper runs

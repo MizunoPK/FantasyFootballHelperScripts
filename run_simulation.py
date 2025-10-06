@@ -100,13 +100,26 @@ See draft_helper/simulation/parameters/README.md for documentation.
         print()
 
         # Run simulation
-        results_file = run_simulation(parameter_config_path=str(config_path))
+        results_file, analysis_data = run_simulation(parameter_config_path=str(config_path))
 
         print()
         print("=" * 70)
         print(">> Simulation completed successfully!")
         print(f">> Results saved to: {results_file}")
         print("=" * 70)
+
+        # Save optimal configuration in DraftHelper format to parameter_runs/
+        if analysis_data and 'optimal_config' in analysis_data:
+            # Import the save function
+            sys.path.insert(0, str(script_dir))
+            from run_exhaustive_simulation import save_draft_helper_config
+
+            parameter_runs_dir = script_dir / "draft_helper" / "simulation" / "parameters" / "parameter_runs"
+            parameter_runs_dir.mkdir(parents=True, exist_ok=True)
+            saved_file = save_draft_helper_config(analysis_data, parameter_runs_dir)
+            if saved_file:
+                print(f">> Optimal config also saved in DraftHelper format")
+        print()
         print()
         print("Next steps:")
         print("  1. Tell Claude: 'new simulation result file is ready'")

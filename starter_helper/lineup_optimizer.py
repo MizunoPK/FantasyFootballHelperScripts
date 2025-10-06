@@ -86,9 +86,15 @@ class LineupOptimizer:
         self.param_manager = param_manager
         self.logger = logging.getLogger(__name__)
 
-        # Initialize matchup calculator
+        # Initialize matchup calculator with parameters from param_manager
         try:
-            self.matchup_calculator = MatchupCalculator()
+            self.matchup_calculator = MatchupCalculator(
+                matchup_excellent=param_manager.MATCHUP_EXCELLENT_MULTIPLIER,
+                matchup_good=param_manager.MATCHUP_GOOD_MULTIPLIER,
+                matchup_neutral=param_manager.MATCHUP_NEUTRAL_MULTIPLIER,
+                matchup_poor=param_manager.MATCHUP_POOR_MULTIPLIER,
+                matchup_very_poor=param_manager.MATCHUP_VERY_POOR_MULTIPLIER
+            )
             if self.matchup_calculator.is_matchup_available():
                 self.logger.info("Matchup multiplier calculations enabled")
             else:

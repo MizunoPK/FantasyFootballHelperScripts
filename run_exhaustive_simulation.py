@@ -94,7 +94,7 @@ PARAMETER_BOUNDS = {
     "CONSISTENCY_MEDIUM_MULTIPLIER": (0.3, 2.0),
     "CONSISTENCY_HIGH_MULTIPLIER": (0.3, 2.0)
 }
-NUMBER_OF_TEST_VALUES = 0  # Number of test values per parameter
+NUMBER_OF_TEST_VALUES = 5  # Number of test values per parameter
 NUMBER_OF_RUNS = 100
 STARTING_PARAMETER = "MATCHUP_EXCELLENT_MULTIPLIER"
 STARTING_FILE = "optimal_2025-10-02_15-29-14.json"
@@ -185,6 +185,96 @@ def prepare_json(analysis_data, round_number):
     }
 
     return json_data, timestamp, performance
+
+
+def save_draft_helper_config(analysis_data, output_dir):
+    """
+    Save optimal configuration in DraftHelper/StarterHelper format (nested INJURY_PENALTIES).
+
+    This format is used by DraftHelper and StarterHelper via ParameterJsonManager.
+    Saved to parameter_runs/ directory.
+
+    Args:
+        analysis_data: Dictionary returned by run_simulation containing 'optimal_config'
+        output_dir: Directory to save the JSON file (parameter_runs/)
+
+    Returns:
+        Path to the saved JSON file, or None if no optimal config found
+    """
+    if not analysis_data or 'optimal_config' not in analysis_data:
+        return None
+
+    optimal_config = analysis_data['optimal_config']
+    if not optimal_config:
+        return None
+
+    config_params = optimal_config['config_params']
+    performance = optimal_config['performance']
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    # Convert flat simulation parameters to nested DraftHelper format
+    parameters = {
+        "NORMALIZATION_MAX_SCALE": round(config_params.get('NORMALIZATION_MAX_SCALE', 100.0), 2),
+        "DRAFT_ORDER_PRIMARY_BONUS": round(config_params.get('DRAFT_ORDER_PRIMARY_BONUS', 50), 2),
+        "DRAFT_ORDER_SECONDARY_BONUS": round(config_params.get('DRAFT_ORDER_SECONDARY_BONUS', 25), 2),
+        "BASE_BYE_PENALTY": round(config_params.get('BASE_BYE_PENALTY', 20), 2),
+
+        # Nested INJURY_PENALTIES structure for DraftHelper
+        "INJURY_PENALTIES": {
+            "LOW": 0,
+            "MEDIUM": round(config_params.get('INJURY_PENALTIES_MEDIUM', 25), 2),
+            "HIGH": round(config_params.get('INJURY_PENALTIES_HIGH', 50), 2)
+        },
+
+        # ADP multipliers
+        "ADP_EXCELLENT_MULTIPLIER": round(config_params.get('ADP_EXCELLENT_MULTIPLIER', 1.15), 2),
+        "ADP_GOOD_MULTIPLIER": round(config_params.get('ADP_GOOD_MULTIPLIER', 1.08), 2),
+        "ADP_POOR_MULTIPLIER": round(config_params.get('ADP_POOR_MULTIPLIER', 0.92), 2),
+
+        # Player rating multipliers
+        "PLAYER_RATING_EXCELLENT_MULTIPLIER": round(config_params.get('PLAYER_RATING_EXCELLENT_MULTIPLIER', 1.20), 2),
+        "PLAYER_RATING_GOOD_MULTIPLIER": round(config_params.get('PLAYER_RATING_GOOD_MULTIPLIER', 1.10), 2),
+        "PLAYER_RATING_POOR_MULTIPLIER": round(config_params.get('PLAYER_RATING_POOR_MULTIPLIER', 0.90), 2),
+
+        # Team quality multipliers
+        "TEAM_EXCELLENT_MULTIPLIER": round(config_params.get('TEAM_EXCELLENT_MULTIPLIER', 1.12), 2),
+        "TEAM_GOOD_MULTIPLIER": round(config_params.get('TEAM_GOOD_MULTIPLIER', 1.06), 2),
+        "TEAM_POOR_MULTIPLIER": round(config_params.get('TEAM_POOR_MULTIPLIER', 0.94), 2),
+
+        # Consistency multipliers
+        "CONSISTENCY_LOW_MULTIPLIER": round(config_params.get('CONSISTENCY_LOW_MULTIPLIER', 1.08), 2),
+        "CONSISTENCY_MEDIUM_MULTIPLIER": round(config_params.get('CONSISTENCY_MEDIUM_MULTIPLIER', 1.00), 2),
+        "CONSISTENCY_HIGH_MULTIPLIER": round(config_params.get('CONSISTENCY_HIGH_MULTIPLIER', 0.92), 2),
+
+        # Matchup multipliers
+        "MATCHUP_EXCELLENT_MULTIPLIER": round(config_params.get('MATCHUP_EXCELLENT_MULTIPLIER', 1.20), 2),
+        "MATCHUP_GOOD_MULTIPLIER": round(config_params.get('MATCHUP_GOOD_MULTIPLIER', 1.10), 2),
+        "MATCHUP_NEUTRAL_MULTIPLIER": round(config_params.get('MATCHUP_NEUTRAL_MULTIPLIER', 1.00), 2),
+        "MATCHUP_POOR_MULTIPLIER": round(config_params.get('MATCHUP_POOR_MULTIPLIER', 0.90), 2),
+        "MATCHUP_VERY_POOR_MULTIPLIER": round(config_params.get('MATCHUP_VERY_POOR_MULTIPLIER', 0.80), 2)
+    }
+
+    json_data = {
+        "config_name": f"optimal_{timestamp}",
+        "description": (
+            f"Optimal configuration from simulation at {timestamp}. "
+            f"Win rate: {performance['win_percentage']:.1%}, "
+            f"Total points: {performance['total_points']:.1f}, "
+            f"PPG: {performance['points_per_game']:.1f}, "
+            f"Consistency: {performance['consistency']:.1f}"
+        ),
+        "parameters": parameters
+    }
+
+    # Save to parameter_runs directory
+    file_name = f"optimal_{timestamp}.json"
+    output_path = Path(output_dir) / file_name
+
+    with open(output_path, 'w') as f:
+        json.dump(json_data, f, indent=2)
+
+    print(f">> DraftHelper format saved to: {output_path}")
+    return file_name
 
 
 def save_next_config_to_json(analysis_data, output_dir, round_number):
@@ -360,12 +450,17 @@ def main():
             print(f">> Results saved to: {results_file}")
             print("=" * 70)
 
-            # Save optimal configuration to JSON
-            params_dir = script_dir / "draft_helper" / "simulation" / "parameters"
-            next_config_file = save_next_config_to_json(analysis_data, params_dir, round_number)
+            # Save optimal configuration in two formats:
+            # 1. Simulation format (flat, arrays) -> parameter_sets/ for next round
+            next_config_file = save_next_config_to_json(analysis_data, parameter_path, round_number)
             if next_config_file is None:
                 print(">> No optimal configuration to save.")
                 return 0
+
+            # 2. DraftHelper format (nested INJURY_PENALTIES) -> parameter_runs/ for production use
+            parameter_runs_dir = script_dir / "draft_helper" / "simulation" / "parameters" / "parameter_runs"
+            parameter_runs_dir.mkdir(parents=True, exist_ok=True)
+            save_draft_helper_config(analysis_data, parameter_runs_dir)
 
             json_file = next_config_file
 
