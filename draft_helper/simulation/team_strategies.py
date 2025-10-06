@@ -299,9 +299,12 @@ class TeamStrategyManager:
             injury_penalty = self.injury_penalties.get(player.injury_status, 0)
             final_score -= injury_penalty
 
-            # Add bye week considerations
+            # Add bye week considerations (scaled by position capacity)
             bye_conflicts = self._calculate_bye_conflicts(player, team_roster)
-            final_score -= bye_conflicts * self.base_bye_penalty
+            max_position_slots = base_config.MAX_POSITIONS.get(player.position, 1)
+            if max_position_slots > 0:
+                bye_penalty = (bye_conflicts / max_position_slots) * self.base_bye_penalty
+                final_score -= bye_penalty
 
             scored_players.append((final_score, player))
 
@@ -330,13 +333,15 @@ class TeamStrategyManager:
         return 0.0
 
     def _calculate_bye_conflicts(self, player: FantasyPlayer, team_roster: FantasyTeam) -> int:
-        """Calculate number of bye week conflicts with current roster"""
+        """Calculate number of same-position bye week conflicts with current roster"""
         if not hasattr(player, 'bye_week'):
             return 0
 
         conflicts = 0
         for roster_player in team_roster.roster:
-            if hasattr(roster_player, 'bye_week') and roster_player.bye_week == player.bye_week:
+            if (roster_player.position == player.position and
+                hasattr(roster_player, 'bye_week') and
+                roster_player.bye_week == player.bye_week):
                 conflicts += 1
 
         return conflicts

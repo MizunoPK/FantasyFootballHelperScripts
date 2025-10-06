@@ -291,7 +291,7 @@ class ScoringEngine:
 
         position = player.position
 
-        # Calculate how many players at this position would be on bye the same week
+        # Calculate how many players at this position already have the same bye week
         roster_players = self.team.roster
         if exclude_self:
             roster_players = [p for p in roster_players if p.id != player.id]
@@ -303,29 +303,21 @@ class ScoringEngine:
                 roster_player.bye_week == player_bye_week):
                 same_position_bye_count += 1
 
-        # Apply penalty based on position and how many would be on bye
-        if position in Constants.FLEX_ELIGIBLE_POSITIONS:
-            # For FLEX eligible positions, consider cross-position coverage
-            all_flex_bye_count = 0
-            for roster_player in roster_players:
-                if (roster_player.position in Constants.FLEX_ELIGIBLE_POSITIONS and
-                    hasattr(roster_player, 'bye_week') and
-                    roster_player.bye_week == player_bye_week):
-                    all_flex_bye_count += 1
+        # Penalty scales with the fraction of position slots that share the bye week
+        # Formula: (conflicts / max_position_slots) × BASE_BYE_PENALTY
+        # Examples:
+        # - 0 RBs with same bye (max 4) = (0/4) × 18.85 = 0.00 penalty
+        # - 1 QB with same bye (max 2) = (1/2) × 18.85 = 9.43 penalty
+        # - 2 RBs with same bye (max 4) = (2/4) × 18.85 = 9.43 penalty
+        # - 3 WRs with same bye (max 4) = (3/4) × 18.85 = 14.14 penalty
+        # - 1 K with same bye (max 1) = (1/1) × 18.85 = 18.85 penalty (full penalty!)
 
-            # Less penalty if we have other FLEX-eligible players not on bye
-            if all_flex_bye_count >= 2:
-                return Constants.BASE_BYE_PENALTY * 1.5  # High penalty for multiple FLEX on bye
-            elif same_position_bye_count >= 1:
-                return Constants.BASE_BYE_PENALTY  # Standard penalty
-            else:
-                return Constants.BASE_BYE_PENALTY * 0.5  # Reduced penalty if covered by other FLEX
-        else:
-            # For non-FLEX positions (QB, TE, K, DST), only penalize if there's a conflict
-            if same_position_bye_count >= 1:
-                return Constants.BASE_BYE_PENALTY * 1.5  # High penalty for position shortage
-            else:
-                return 0  # No penalty if no conflict at this position
+        max_position_slots = Constants.MAX_POSITIONS.get(position, 1)
+        if max_position_slots == 0:
+            return 0
+
+        penalty = (same_position_bye_count / max_position_slots) * Constants.BASE_BYE_PENALTY
+        return penalty
 
     def compute_injury_penalty(self, p, trade_mode=False):
         """

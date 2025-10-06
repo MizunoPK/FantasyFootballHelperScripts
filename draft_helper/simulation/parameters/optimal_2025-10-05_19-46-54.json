@@ -61,6 +61,15 @@
     ],
     "TEAM_POOR_MULTIPLIER": [
       0.64
+    ],
+    "CONSISTENCY_LOW_MULTIPLIER": [
+      1.08
+    ],
+    "CONSISTENCY_MEDIUM_MULTIPLIER": [
+      1.00
+    ],
+    "CONSISTENCY_HIGH_MULTIPLIER": [
+      0.92
     ]
   }
 }

@@ -43,9 +43,9 @@ ENHANCED_SCORING_CONFIG = {
     "enable_team_quality_adjustment": True,
 
     # ADP-based market wisdom adjustments
-    "adp_excellent_threshold": 50,      # Better than 50th overall pick
-    "adp_good_threshold": 100,          # Better than 100th overall pick
-    "adp_poor_threshold": 200,          # Worse than 200th overall pick
+    "adp_excellent_threshold": 30,      # Better than 50th overall pick
+    "adp_good_threshold": 75,          # Better than 100th overall pick
+    "adp_poor_threshold": 150,          # Worse than 200th overall pick
     "adp_excellent_multiplier": 1.18,   # Optimized from simulation (was 1.15)
     "adp_good_multiplier": 1.08,        # Optimized from simulation (unchanged)
     "adp_poor_multiplier": 0.52,        # Optimized from simulation (was 0.92)

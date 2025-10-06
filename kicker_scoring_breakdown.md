@@ -49,10 +49,11 @@
   - Formula: 63.13 × 1.08 = 68.18
 
 #### Step 6: Bye Week Penalty
-- Bye Week: 5 (current week, already passed)
-- Same Position Conflicts: 0 (no other kickers on roster)
+- Bye Week: 5 (already passed, no penalty applied for past bye weeks)
+- Same Position Conflicts: 0 (no other kickers on roster with week 5 bye)
+- Max K Slots: 1
 - **Bye Penalty: 0.0**
-  - No penalty because bye week has passed AND no roster conflicts
+  - Formula: (0 conflicts / 1 max slots) × 18.85 (BASE_BYE_PENALTY) = 0
 - **After Bye Penalty: 68.18**
   - Formula: 68.18 - 0.0 = 68.18
 
@@ -93,9 +94,10 @@
 
 #### Step 6: Bye Week Penalty
 - Bye Week: 9 (future week)
-- Same Position Conflicts: 0 (no other kickers on roster)
+- Same Position Conflicts: 0 (no other kickers on roster with week 9 bye)
+- Max K Slots: 1
 - **Bye Penalty: 0.0**
-  - No penalty because there are no roster conflicts at the K position
+  - Formula: (0 conflicts / 1 max slots) × 18.85 (BASE_BYE_PENALTY) = 0
 - **After Bye Penalty: 46.43**
   - Formula: 46.43 - 0.0 = 46.43
 
@@ -147,10 +149,28 @@ Even though Chase McLaughlin has 2.5 more fantasy points on the season, Brandon 
 
 ---
 
-## Bug Fix Applied
+## Bye Week Penalty Logic - Position-Scaled Formula
 
-**Issue Found**: The bye week penalty logic was incorrectly applying a base penalty to non-FLEX positions (K, TE, QB, DST) even when there were no roster conflicts.
+**Issue Found**: The bye week penalty logic was overly complex with different rules for FLEX vs non-FLEX positions, and was incorrectly applying penalties even when there were no roster conflicts.
 
-**Fix Applied**: Modified `scoring_engine.py` line 328 to return `0` instead of `Constants.BASE_BYE_PENALTY` when there are no same-position bye week conflicts for non-FLEX positions.
+**New Logic Applied**: Position-scaled formula that accounts for roster depth:
+```
+Bye Week Penalty = (Same-Position Conflicts / Max Position Slots) × BASE_BYE_PENALTY
+```
 
-**Impact**: Both kickers now correctly show 0 bye week penalty since there are no other kickers on the roster to conflict with.
+**Examples** (BASE_BYE_PENALTY = 18.85):
+- **0 RBs** with same bye (max 4) → (0/4) × 18.85 = **0.00 penalty**
+- **1 QB** with same bye (max 2) → (1/2) × 18.85 = **9.43 penalty**
+- **2 RBs** with same bye (max 4) → (2/4) × 18.85 = **9.43 penalty**
+- **3 WRs** with same bye (max 4) → (3/4) × 18.85 = **14.14 penalty**
+- **1 K** with same bye (max 1) → (1/1) × 18.85 = **18.85 penalty** (full penalty!)
+
+**Why This Makes Sense**:
+- Positions with more depth (RB: 4, WR: 4) get proportionally smaller penalties per conflict
+- Positions with less depth (K: 1, DST: 1) get the full penalty immediately
+- Having 2/4 RBs on bye is the same severity as having 1/2 QBs on bye (both 50% of position depth)
+
+**Impact**:
+- Both kickers show 0 bye week penalty (0/1 × 18.85 = 0) since there are no other kickers on the roster
+- Logic now scales proportionally with position depth, treating shallow and deep positions fairly
+- More realistic penalty structure that reflects actual roster construction constraints
