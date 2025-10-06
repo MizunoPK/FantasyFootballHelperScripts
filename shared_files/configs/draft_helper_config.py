@@ -275,6 +275,7 @@ if __name__ != "__main__":
 - Penalty values (BASE_BYE_PENALTY, INJURY_PENALTIES)
 - Normalization scale (NORMALIZATION_MAX_SCALE)
 - Draft order bonuses (DRAFT_ORDER_PRIMARY_BONUS, DRAFT_ORDER_SECONDARY_BONUS)
+- Full parameter documentation: shared_files/README_parameters.md
 
 ⚙️ CONFIG SETTINGS (edit this file):
 1. DRAFT_ORDER - Update round-based position priorities

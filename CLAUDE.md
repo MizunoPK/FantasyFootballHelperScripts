@@ -67,18 +67,20 @@ TRADE_HELPER_MODE = True   # Trade mode (weekly optimization)
 - `USE_SCORE_THRESHOLD = True` - Only update high-scoring players
 - `PLAYER_SCORE_THRESHOLD = 15.0` - Minimum points for update
 
-**Draft Helper** (`shared_files/configs/draft_helper_config.py`):
-- `NORMALIZATION_MAX_SCALE = 100.0` - Point normalization scale
-- `DRAFT_ORDER_PRIMARY_BONUS = 50` - Primary position bonus
-- `DRAFT_ORDER_SECONDARY_BONUS = 25` - Secondary position bonus
-- `INJURY_PENALTIES = {"LOW": 0, "MEDIUM": 25, "HIGH": 50}`
+**Scoring Parameters** (`shared_files/parameters.json`):
+- All 22 scoring parameters loaded from JSON (see `shared_files/README_parameters.md`)
+- Key parameters: ADP multipliers, player rating multipliers, team quality multipliers
+- Consistency multipliers, matchup multipliers, injury penalties, bonuses
+- Easy parameter tuning for simulation optimization
+
+**Draft Helper Config** (`shared_files/configs/draft_helper_config.py`):
 - `APPLY_INJURY_PENALTY_TO_ROSTER = False` - Roster injury toggle
 - `ENABLE_CONSISTENCY_SCORING = True` - CV-based volatility scoring
-- `CONSISTENCY_MULTIPLIERS = {"LOW": 1.08, "MEDIUM": 1.00, "HIGH": 0.92}`
+- `MAX_POSITIONS`, `DRAFT_ORDER` structure (non-scoring settings)
 
-**Starter Helper** (`shared_files/configs/starter_helper_config.py`):
-- `MATCHUP_MULTIPLIERS` - Matchup impact (0.8x to 1.2x)
+**Starter Helper Config** (`shared_files/configs/starter_helper_config.py`):
 - `STARTER_HELPER_ACTIVE_STATUSES = ['ACTIVE', 'QUESTIONABLE']`
+- `STARTING_LINEUP_REQUIREMENTS`, position settings
 
 **File Management** (`shared_files/configs/shared_config.py`):
 - `DEFAULT_FILE_CAPS = 5` - Files per type (CSV, JSON, XLSX)
@@ -90,23 +92,25 @@ TRADE_HELPER_MODE = True   # Trade mode (weekly optimization)
 ## Scoring Systems
 
 ### Draft Helper: Add to Roster (8 steps)
-1. **Normalize** fantasy points (0-100 scale)
-2. **ADP multiplier** (1.15x excellent, 1.08x good, 0.92x poor)
-3. **Player rating multiplier** (1.20x excellent, 1.10x good, 0.90x poor)
-4. **Team quality multiplier** (1.12x excellent, 1.06x good, 0.94x poor)
-5. **Consistency multiplier** (1.08x LOW volatility, 1.00x MEDIUM, 0.92x HIGH)
-6. **Draft order bonus** (position-specific by round)
-7. **Bye week penalty** (10-20 points, draft only)
-8. **Injury penalty** (0/25/50 points by risk level)
+1. **Normalize** fantasy points (0-NORMALIZATION_MAX_SCALE)
+2. **ADP multiplier** (from parameters.json: excellent/good/poor)
+3. **Player rating multiplier** (from parameters.json: excellent/good/poor)
+4. **Team quality multiplier** (from parameters.json: excellent/good/poor)
+5. **Consistency multiplier** (from parameters.json: LOW/MEDIUM/HIGH volatility)
+6. **Draft order bonus** (DRAFT_ORDER_PRIMARY/SECONDARY_BONUS from parameters.json)
+7. **Bye week penalty** (BASE_BYE_PENALTY from parameters.json, draft only)
+8. **Injury penalty** (INJURY_PENALTIES from parameters.json: LOW/MEDIUM/HIGH)
 
 ### Draft Helper: Trade/Waiver (7 steps)
 Same as above **without** Draft Order bonus (step 6)
 
 ### Starter Helper (4 steps)
 1. **Base projections** from weekly CSV data
-2. **Matchup multiplier** (offense rank vs defense rank)
-3. **Consistency multiplier** (1.08x LOW volatility, 1.00x MEDIUM, 0.92x HIGH)
+2. **Matchup multiplier** (from parameters.json: 5 levels based on offense vs defense rank)
+3. **Consistency multiplier** (from parameters.json: LOW/MEDIUM/HIGH volatility)
 4. **Binary injury filter** (zero out non-ACTIVE/QUESTIONABLE)
+
+**All multipliers and parameters**: See `shared_files/README_parameters.md` for complete parameter documentation
 
 ---
 
@@ -177,8 +181,14 @@ python run_simulation.py draft_helper/simulation/parameters/baseline_parameters.
 **Parameter Configuration Format**:
 - JSON files stored in `draft_helper/simulation/parameters/`
 - Each parameter has a list of values to test in combinations
-- All 20 parameters required (see `parameters/README.md`)
+- All 22 parameters required (see `shared_files/README_parameters.md`)
 - Results saved to `draft_helper/simulation/results/` with timestamps
+
+**JSON Parameter System**:
+- DraftHelper and StarterHelper load parameters from `shared_files/parameters.json`
+- Simulation generates parameter combinations in `parameter_runs/` folder
+- Single source of truth for all scoring parameters
+- See `shared_files/README_parameters.md` for complete parameter documentation
 
 **Workflow**:
 1. User runs: `python run_simulation.py parameters/iteration_1.json`
