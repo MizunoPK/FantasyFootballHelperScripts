@@ -54,15 +54,15 @@ SIMULATION_LOG_LEVEL = "WARNING"
 # Use the parameter_loader module to load and validate configurations.
 
 # Simulation settings
-SIMULATIONS_PER_CONFIG = 50           # Number of drafts to run per configuration
-PRELIMINARY_SIMULATIONS_PER_CONFIG = 1  # Reduced for preliminary testing
+SIMULATIONS_PER_CONFIG = 200           # Number of drafts to run per configuration
+PRELIMINARY_SIMULATIONS_PER_CONFIG = 50  # Reduced for preliminary testing
 TOP_CONFIGS_PERCENTAGE = 0.1          # Top configs advance to full testing
 MINIMUM_TOP_CONFIGS = 10              # Minimum number of top configs to test in full phase
                                        # If total configs < this value, skip preliminary phase
                                        # If percentage yields fewer configs, use this minimum instead
 
 # Fine-grain offset toggle
-ENABLE_FINE_GRAIN_OFFSETS = False      # Enable/disable fine-grain variation generation
+ENABLE_FINE_GRAIN_OFFSETS = True      # Enable/disable fine-grain variation generation
                                        # True: Generate variations around top configs using FINE_GRAIN_OFFSETS
                                        # False: Run full simulations on top configs only (faster, less exploration)
 
@@ -75,7 +75,7 @@ MAX_PARALLEL_THREADS = 7             # Max concurrent threads for simulation
 # League settings
 LEAGUE_SIZE = 10                      # Number of teams in the draft
 NFL_SEASON_WEEKS = 17                 # Full season simulation
-HUMAN_ERROR_RATE = 0.3              # 30% chance of suboptimal pick
+HUMAN_ERROR_RATE = 0.5              # 50% chance of suboptimal pick
 SUBOPTIMAL_CHOICE_POOL = 5          # Pick from top 5 instead of #1
 
 # =============================================================================

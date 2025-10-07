@@ -346,6 +346,9 @@ class DraftHelper:
             self.scoring_engine.team = self.team
             self.scoring_engine.players = self.players
 
+            # Invalidate normalization cache since available players may have changed
+            self.scoring_engine.normalization_calculator.invalidate_cache()
+
             # Update menu system with new team data
             self.menu_system.team = self.team
 
