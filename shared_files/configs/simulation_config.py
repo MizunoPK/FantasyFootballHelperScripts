@@ -62,7 +62,7 @@ MINIMUM_TOP_CONFIGS = 10              # Minimum number of top configs to test in
                                        # If percentage yields fewer configs, use this minimum instead
 
 # Fine-grain offset toggle
-ENABLE_FINE_GRAIN_OFFSETS = True      # Enable/disable fine-grain variation generation
+ENABLE_FINE_GRAIN_OFFSETS = False      # Enable/disable fine-grain variation generation
                                        # True: Generate variations around top configs using FINE_GRAIN_OFFSETS
                                        # False: Run full simulations on top configs only (faster, less exploration)
 

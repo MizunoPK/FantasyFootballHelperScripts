@@ -23,6 +23,7 @@ class MockPlayer:
     """Mock FantasyPlayer for testing"""
     def __init__(self, name="Test Player"):
         self.name = name
+        self.bye_week = None  # Default: no bye week
         # Initialize all week attributes to None
         for week in range(1, 18):
             setattr(self, f'week_{week}_points', None)
@@ -138,12 +139,13 @@ class TestConsistencyCalculator:
         assert result['mean_points'] == 12.0  # (10+12+14)/3
 
     def test_zero_points_included_in_calculation(self, calculator):
-        """Test that 0.0 point weeks are included (represent real variance)"""
+        """Test that 0.0 point weeks are included (represent real variance) when NOT a bye week"""
         player = MockPlayer("Zero Point Week Player")
+        player.bye_week = None  # No bye week
 
-        # Include a 0-point week
+        # Include a 0-point week (not a bye)
         setattr(player, 'week_1_points', 10.0)
-        setattr(player, 'week_2_points', 0.0)  # Should be included
+        setattr(player, 'week_2_points', 0.0)  # Should be included (not a bye week)
         setattr(player, 'week_3_points', 12.0)
         setattr(player, 'week_4_points', 14.0)
 
@@ -152,6 +154,23 @@ class TestConsistencyCalculator:
         # Should use all 4 weeks including the 0
         assert result['weeks_analyzed'] == 4
         assert result['mean_points'] == 9.0  # (10+0+12+14)/4
+
+    def test_bye_week_excluded_from_calculation(self, calculator):
+        """Test that bye week is excluded from consistency calculation"""
+        player = MockPlayer("Bye Week Player")
+        player.bye_week = 2  # Bye week is week 2
+
+        # Week 2 has 0 points (bye week - should be excluded)
+        setattr(player, 'week_1_points', 10.0)
+        setattr(player, 'week_2_points', 0.0)  # Bye week - should be excluded
+        setattr(player, 'week_3_points', 12.0)
+        setattr(player, 'week_4_points', 14.0)
+
+        result = calculator.calculate_consistency_score(player)
+
+        # Should use 3 weeks (excluding bye week 2)
+        assert result['weeks_analyzed'] == 3
+        assert result['mean_points'] == 12.0  # (10+12+14)/3, excluding bye week
 
     def test_very_high_variance(self, calculator):
         """Test player with CV > 1.0 (very high variance)"""

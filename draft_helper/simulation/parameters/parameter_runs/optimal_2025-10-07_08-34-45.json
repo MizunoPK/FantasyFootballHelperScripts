@@ -1,6 +1,6 @@
 {
-  "config_name": "optimal_2025-10-06_22-24-49",
-  "description": "Optimal configuration from simulation at 2025-10-06_22-24-49. Win rate: 53.5%, Total points: 1603.1, PPG: 94.3, Consistency: 26.7",
+  "config_name": "optimal_2025-10-07_08-34-45",
+  "description": "Optimal configuration from simulation at 2025-10-07_08-34-45. Win rate: 53.2%, Total points: 1606.3, PPG: 94.5, Consistency: 25.1",
   "parameters": {
     "NORMALIZATION_MAX_SCALE": 123.54,
     "DRAFT_ORDER_PRIMARY_BONUS": 71.05,
@@ -12,13 +12,13 @@
       "HIGH": 78.22
     },
     "ADP_EXCELLENT_MULTIPLIER": 1.18,
-    "ADP_GOOD_MULTIPLIER": 1.08,
-    "ADP_POOR_MULTIPLIER": 0.52,
-    "PLAYER_RATING_EXCELLENT_MULTIPLIER": 1.21,
+    "ADP_GOOD_MULTIPLIER": 1.35,
+    "ADP_POOR_MULTIPLIER": 0.6,
+    "PLAYER_RATING_EXCELLENT_MULTIPLIER": 1.0,
     "PLAYER_RATING_GOOD_MULTIPLIER": 1.15,
     "PLAYER_RATING_POOR_MULTIPLIER": 0.94,
-    "TEAM_EXCELLENT_MULTIPLIER": 1.32,
-    "TEAM_GOOD_MULTIPLIER": 1.14,
+    "TEAM_EXCELLENT_MULTIPLIER": 1.14,
+    "TEAM_GOOD_MULTIPLIER": 1.32,
     "TEAM_POOR_MULTIPLIER": 0.64,
     "CONSISTENCY_LOW_MULTIPLIER": 1.5,
     "CONSISTENCY_MEDIUM_MULTIPLIER": 1.19,

@@ -371,7 +371,8 @@ class TestLineupOptimizer:
 
         assert rec.bye_week == CURRENT_NFL_WEEK
         # Bye week should NOT affect score in new system
-        assert rec.adjusted_score == 15.0
+        # But consistency multiplier IS applied (defaults to MEDIUM = 1.19)
+        assert rec.adjusted_score == pytest.approx(17.85, abs=0.01)  # 15.0 * 1.19
         assert "bye" not in rec.reason.lower()
 
     def test_negative_adjusted_score_handling(self, optimizer):
