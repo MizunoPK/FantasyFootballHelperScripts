@@ -131,28 +131,29 @@ class ConsistencyCalculator:
         Extract weekly projections for weeks that have already occurred.
 
         Only includes weeks < CURRENT_NFL_WEEK.
-        Filters out None values (missing projections) and bye week zeros.
+        Filters out None values (missing projections) and zero values.
+
+        Zero values are excluded because they could represent:
+        - Bye weeks (not actual performance)
+        - Benched/inactive players (not representative of playing ability)
+        - Data errors or missing projections
 
         Args:
             player: FantasyPlayer object
 
         Returns:
-            List of weekly projection values (floats)
+            List of weekly projection values (floats, all > 0)
         """
         weekly_points = []
 
         # Only analyze weeks that have occurred (weeks < CURRENT_NFL_WEEK)
         for week in range(1, CURRENT_NFL_WEEK):
-            # Skip bye week - zeros during bye don't represent performance variance
-            if hasattr(player, 'bye_week') and player.bye_week == week:
-                continue
-
             week_attr = f'week_{week}_points'
             if hasattr(player, week_attr):
                 points = getattr(player, week_attr)
-                # Filter out None values (missing data)
-                # Include 0.0 values for non-bye weeks (they represent real variance)
-                if points is not None:
+                # Filter out None values (missing data) and zeros
+                # Zeros could be bye weeks, benched players, or data issues
+                if points is not None and float(points) > 0:
                     weekly_points.append(float(points))
 
         return weekly_points

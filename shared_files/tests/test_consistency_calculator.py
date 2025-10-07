@@ -138,49 +138,50 @@ class TestConsistencyCalculator:
         assert result['weeks_analyzed'] == 3
         assert result['mean_points'] == 12.0  # (10+12+14)/3
 
-    def test_zero_points_included_in_calculation(self, calculator):
-        """Test that 0.0 point weeks are included (represent real variance) when NOT a bye week"""
+    def test_zero_points_excluded_from_calculation(self, calculator):
+        """Test that 0 point weeks are excluded (could be bye, benched, or data issues)"""
         player = MockPlayer("Zero Point Week Player")
         player.bye_week = None  # No bye week
 
-        # Include a 0-point week (not a bye)
+        # Week 2 has 0 points - should be excluded regardless of bye status
         setattr(player, 'week_1_points', 10.0)
-        setattr(player, 'week_2_points', 0.0)  # Should be included (not a bye week)
+        setattr(player, 'week_2_points', 0.0)  # Should be excluded (zero points)
         setattr(player, 'week_3_points', 12.0)
         setattr(player, 'week_4_points', 14.0)
 
         result = calculator.calculate_consistency_score(player)
 
-        # Should use all 4 weeks including the 0
-        assert result['weeks_analyzed'] == 4
-        assert result['mean_points'] == 9.0  # (10+0+12+14)/4
-
-    def test_bye_week_excluded_from_calculation(self, calculator):
-        """Test that bye week is excluded from consistency calculation"""
-        player = MockPlayer("Bye Week Player")
-        player.bye_week = 2  # Bye week is week 2
-
-        # Week 2 has 0 points (bye week - should be excluded)
-        setattr(player, 'week_1_points', 10.0)
-        setattr(player, 'week_2_points', 0.0)  # Bye week - should be excluded
-        setattr(player, 'week_3_points', 12.0)
-        setattr(player, 'week_4_points', 14.0)
-
-        result = calculator.calculate_consistency_score(player)
-
-        # Should use 3 weeks (excluding bye week 2)
+        # Should use 3 weeks (excluding the zero)
         assert result['weeks_analyzed'] == 3
-        assert result['mean_points'] == 12.0  # (10+12+14)/3, excluding bye week
+        assert result['mean_points'] == 12.0  # (10+12+14)/3, excluding zero
+
+    def test_multiple_zeros_excluded(self, calculator):
+        """Test that multiple zero weeks are all excluded"""
+        player = MockPlayer("Multiple Zeros Player")
+        player.bye_week = None
+
+        # Multiple zero weeks
+        setattr(player, 'week_1_points', 10.0)
+        setattr(player, 'week_2_points', 0.0)  # Excluded
+        setattr(player, 'week_3_points', 0.0)  # Excluded
+        setattr(player, 'week_4_points', 14.0)
+
+        result = calculator.calculate_consistency_score(player)
+
+        # Should only use weeks 1 and 4
+        assert result['weeks_analyzed'] == 2
+        # With only 2 weeks, defaults to MEDIUM (< minimum 3 weeks)
+        assert result['volatility_category'] == 'MEDIUM'
 
     def test_very_high_variance(self, calculator):
         """Test player with CV > 1.0 (very high variance)"""
         player = MockPlayer("Extreme Variance Player")
 
-        # Extreme variance: 0, 0, 50, 0 (mean=12.5, very high CV)
-        setattr(player, 'week_1_points', 0.0)
-        setattr(player, 'week_2_points', 0.0)
+        # Extreme variance: 2, 1, 50, 1 (boom/bust player)
+        setattr(player, 'week_1_points', 2.0)
+        setattr(player, 'week_2_points', 1.0)
         setattr(player, 'week_3_points', 50.0)
-        setattr(player, 'week_4_points', 0.0)
+        setattr(player, 'week_4_points', 1.0)
 
         result = calculator.calculate_consistency_score(player)
 
