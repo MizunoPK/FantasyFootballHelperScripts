@@ -6,6 +6,7 @@ This module contains all Pydantic data models used across the fantasy football
 data collection scripts. Separated for better organization and reusability.
 
 Author: Kai Mizuno  
+Last Updated: September 2025
 """
 
 from datetime import datetime

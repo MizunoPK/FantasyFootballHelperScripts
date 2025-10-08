@@ -7,12 +7,13 @@ Provides progress tracking with percentage completion and ETA calculation
 based on recent performance for improved accuracy.
 
 Author: Kai Mizuno
+Last Updated: September 2025
 """
 
 import logging
 import time
 from collections import deque
-from typing import Optional
+from typing import Optional, Tuple
 
 
 # Custom PROGRESS log level (set to highest level to always display, above CRITICAL)
@@ -32,9 +33,9 @@ class ProgressTracker:
     def __init__(
         self,
         total_players: int,
-        logger: Optional[logging.Logger],
         update_frequency: int = 10,
-        eta_window_size: int = 50
+        eta_window_size: int = 50,
+        logger: Optional[logging.Logger] = None
     ):
         """
         Initialize progress tracker.
@@ -48,7 +49,7 @@ class ProgressTracker:
         self.total_players = total_players
         self.update_frequency = update_frequency
         self.eta_window_size = eta_window_size
-        self.logger = logger
+        self.logger = logger or logging.getLogger(__name__)
 
         # Progress tracking
         self.processed_players = 0
@@ -58,6 +59,20 @@ class ProgressTracker:
         self.recent_times = deque(maxlen=eta_window_size)
         self.last_update_time = self.start_time
         self.last_update_count = 0
+
+        # Add custom PROGRESS log level if not already added
+        self._setup_progress_logging()
+
+    def _setup_progress_logging(self):
+        """Set up custom PROGRESS log level."""
+        if not hasattr(logging, 'PROGRESS'):
+            logging.addLevelName(PROGRESS_LEVEL, 'PROGRESS')
+
+            def progress(self, message, *args, **kwargs):
+                if self.isEnabledFor(PROGRESS_LEVEL):
+                    self._log(PROGRESS_LEVEL, message, args, **kwargs)
+
+            logging.Logger.progress = progress
 
     def update(self, increment: int = 1) -> bool:
         """
@@ -104,7 +119,11 @@ class ProgressTracker:
         if eta_str:
             message += f" - ETA: {eta_str}"
 
-        self.logger.info(f"[PROGRESS] {message}")
+        # Use PROGRESS level if available, otherwise INFO
+        if hasattr(self.logger, 'progress'):
+            self.logger.progress(message)
+        else:
+            self.logger.info(f"[PROGRESS] {message}")
 
     def _calculate_eta(self) -> str:
         """
@@ -210,4 +229,7 @@ class ProgressTracker:
 
         message = f"Completed processing {self.total_players} players in {self._format_duration(elapsed_time)}"
 
-        self.logger.info(f"[PROGRESS] {message}")
+        if hasattr(self.logger, 'progress'):
+            self.logger.progress(message)
+        else:
+            self.logger.info(f"[PROGRESS] {message}")

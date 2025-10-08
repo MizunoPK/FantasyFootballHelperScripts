@@ -10,20 +10,23 @@ Created: September 2025
 """
 
 import csv
-import logging
 import re
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
 
-from player_data_constants import LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
+from config import LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
+
+import sys
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.LoggingManager import get_logger
 
 
 class DraftedDataLoader:
     """Handles loading and fuzzy matching of drafted player data from CSV files"""
 
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger()
         self.drafted_players: Dict[str, str] = {}  # player_key -> team_name
         self.processed_players: Set[str] = set()  # Track processed players to avoid duplicates
 

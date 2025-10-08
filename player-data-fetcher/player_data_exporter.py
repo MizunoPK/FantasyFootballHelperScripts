@@ -10,11 +10,9 @@ Last Updated: September 2025
 """
 
 import asyncio
-import json
-import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 import csv
 
 import aiofiles
@@ -25,11 +23,12 @@ from player_data_models import ProjectionData, ESPNPlayerData
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-from shared_files.FantasyPlayer import FantasyPlayer
-from shared_files.TeamData import TeamData, extract_teams_from_players, extract_teams_from_rankings, save_teams_to_csv
-from shared_files.data_file_manager import DataFileManager
-from shared_files.configs.shared_config import DEFAULT_FILE_CAPS
-from player_data_constants import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, DRAFT_HELPER_PLAYERS_FILE, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE
+from utils.FantasyPlayer import FantasyPlayer
+from utils.TeamData import extract_teams_from_rankings, save_teams_to_csv
+from utils.data_file_manager import DataFileManager
+from utils.LoggingManager import get_logger
+from config import DEFAULT_FILE_CAPS
+from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, PLAYERS_CSV, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE
 from drafted_data_loader import DraftedDataLoader
 
 
@@ -40,7 +39,7 @@ class DataExporter:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.create_latest_files = create_latest_files
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger()
 
         # Initialize file manager for automatic file caps
         self.file_manager = DataFileManager(str(self.output_dir), DEFAULT_FILE_CAPS)
@@ -201,7 +200,7 @@ class DataExporter:
     def _load_existing_drafted_values(self):
         """Load existing drafted values from draft helper players file"""
         # Resolve path relative to the player-data-fetcher directory (parent of output_dir)
-        draft_file_path = Path(__file__).parent / DRAFT_HELPER_PLAYERS_FILE
+        draft_file_path = Path(__file__).parent / PLAYERS_CSV
         
         try:
             with open(draft_file_path, 'r', newline='', encoding='utf-8') as csvfile:
@@ -222,7 +221,7 @@ class DataExporter:
     def _load_existing_locked_values(self):
         """Load existing locked values from draft helper players file"""
         # Resolve path relative to the player-data-fetcher directory (parent of output_dir)
-        draft_file_path = Path(__file__).parent / DRAFT_HELPER_PLAYERS_FILE
+        draft_file_path = Path(__file__).parent / PLAYERS_CSV
         
         try:
             with open(draft_file_path, 'r', newline='', encoding='utf-8') as csvfile:
@@ -246,7 +245,7 @@ class DataExporter:
         espn_player_ids = {player.id for player in espn_fantasy_players}
 
         # Load existing players from CSV
-        draft_file_path = Path(__file__).parent / DRAFT_HELPER_PLAYERS_FILE
+        draft_file_path = Path(__file__).parent / PLAYERS_CSV
         skipped_players = []
 
         try:
@@ -378,10 +377,10 @@ class DataExporter:
         
         return output_files
     
-    async def export_to_shared_files(self, data: ProjectionData) -> str:
-        """Export data to shared_files/players.csv for use by draft helper"""
-        # Resolve path to shared_files/players.csv
-        draft_file_path = Path(__file__).parent / DRAFT_HELPER_PLAYERS_FILE
+    async def export_to_data(self, data: ProjectionData) -> str:
+        """Export data to data/players.csv for use by draft helper"""
+        # Resolve path to data/players.csv
+        draft_file_path = Path(__file__).parent / PLAYERS_CSV
 
         try:
             # Ensure the directory exists
@@ -450,9 +449,9 @@ class DataExporter:
             self.logger.error(f"Error exporting teams CSV: {e}")
             raise
 
-    async def export_teams_to_shared_files(self, data: ProjectionData) -> str:
+    async def export_teams_to_data(self, data: ProjectionData) -> str:
         """
-        Export team data to shared_files directory for consumption by other modules.
+        Export team data to data directory for consumption by other modules.
 
         Args:
             data: ProjectionData containing player information to extract team data from
@@ -461,15 +460,15 @@ class DataExporter:
             str: Path to the shared teams.csv file
         """
         try:
-            # Path to shared_files teams.csv
-            shared_files_dir = Path(__file__).parent.parent / "shared_files"
-            shared_teams_file = shared_files_dir / "teams.csv"
+            # Path to data teams.csv
+            data_dir = Path(__file__).parent.parent / "data"
+            shared_teams_file = data_dir / "teams.csv"
 
             # Extract team data from players using team rankings
             fantasy_players = self.get_fantasy_players(data)
             teams = extract_teams_from_rankings(fantasy_players, self.team_rankings, self.current_week_schedule)
 
-            # Save teams to shared_files
+            # Save teams to data
             save_teams_to_csv(teams, str(shared_teams_file))
 
             self.logger.info(f"Exported {len(teams)} teams to shared files: {shared_teams_file}")
@@ -507,12 +506,12 @@ class DataExporter:
                 tasks.append(self.export_excel(data))
 
             # Always export to shared files for integration
-            tasks.append(self.export_to_shared_files(data))
+            tasks.append(self.export_to_data(data))
 
             # Team data exports (new functionality)
             if create_csv:  # Only export teams CSV if CSV creation is enabled
                 tasks.append(self.export_teams_csv(data))
-            tasks.append(self.export_teams_to_shared_files(data))
+            tasks.append(self.export_teams_to_data(data))
 
             results = await asyncio.gather(*tasks)
 

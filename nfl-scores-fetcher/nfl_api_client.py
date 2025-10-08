@@ -11,9 +11,8 @@ Last Updated: September 2025
 """
 
 import asyncio
-import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 
 import httpx
@@ -21,6 +20,11 @@ from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from nfl_scores_models import GameScore, Team, NFLAPIError
 from scores_constants import ESPN_NFL_BASE_URL, ESPN_USER_AGENT, STATUS_IN_PROGRESS, STATUS_FINAL
+
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.LoggingManager import get_logger
 
 
 class NFLAPIClient:
@@ -41,7 +45,7 @@ class NFLAPIClient:
         self.client: Optional[httpx.AsyncClient] = None  # HTTP client (created in context manager)
         
         # Setup logging for debugging and monitoring
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger()
     
     @asynccontextmanager
     async def session(self):

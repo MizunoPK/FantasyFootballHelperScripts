@@ -11,14 +11,6 @@ Last Updated: September 2025
 
 from typing import Dict
 
-# Import frequently modified constants from script-specific config
-from shared_files.configs.nfl_scores_fetcher_config import (
-    NFL_SCORES_SEASON, NFL_SCORES_SEASON_TYPE, NFL_SCORES_CURRENT_WEEK,
-    NFL_SCORES_ONLY_COMPLETED_GAMES, OUTPUT_DIRECTORY, CREATE_CSV,
-    CREATE_JSON, CREATE_EXCEL, REQUEST_TIMEOUT, RATE_LIMIT_DELAY,
-    LOGGING_ENABLED, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE
-)
-
 # ESPN API Configuration
 ESPN_NFL_BASE_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl"
 ESPN_USER_AGENT = "NFL-Scores-Collector/2.0"

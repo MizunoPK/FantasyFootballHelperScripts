@@ -10,20 +10,23 @@ Last Updated: September 2025
 """
 
 import asyncio
+import json
+import logging
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
+import aiofiles
 import pandas as pd
 
 from nfl_scores_models import WeeklyScores, GameScore
 from scores_constants import NFL_TEAM_NAMES
-from config import DEFAULT_FILE_CAPS
 
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-from utils.data_file_manager import DataFileManager
-from utils.LoggingManager import get_logger
+from shared_files.data_file_manager import DataFileManager
+from shared_files.configs.shared_config import DEFAULT_FILE_CAPS
 
 
 class ScoresDataExporter:
@@ -33,7 +36,7 @@ class ScoresDataExporter:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.create_latest_files = create_latest_files
-        self.logger = get_logger()
+        self.logger = logging.getLogger(__name__)
 
         # Initialize file manager for automatic file caps
         self.file_manager = DataFileManager(str(self.output_dir), DEFAULT_FILE_CAPS)

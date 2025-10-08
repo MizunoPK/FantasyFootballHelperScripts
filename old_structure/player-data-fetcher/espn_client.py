@@ -11,6 +11,7 @@ Last Updated: September 2025
 
 import asyncio
 import csv
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Set
@@ -20,19 +21,18 @@ import httpx
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from player_data_models import ESPNPlayerData, ScoringFormat
+# Import shared fantasy points calculator
+import sys
 from pathlib import Path
+# Add shared_files to path using robust path resolution
+shared_files_path = Path(__file__).parent.parent / "shared_files"
+sys.path.insert(0, str(shared_files_path))
 from fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
 from player_data_constants import (
-    ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS
-)
-from config import (ESPN_USER_AGENT, ESPN_PLAYER_LIMIT,
-    CURRENT_NFL_WEEK,
+    ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS, ESPN_USER_AGENT, ESPN_PLAYER_LIMIT,
+    CURRENT_NFL_WEEK, INCLUDE_PLAYOFF_WEEKS, RECENT_WEEKS_FOR_AVERAGE,
     SKIP_DRAFTED_PLAYER_UPDATES, USE_SCORE_THRESHOLD, PLAYER_SCORE_THRESHOLD, PLAYERS_CSV
 )
-
-import sys
-sys.path.append(str(Path(__file__).parent.parent))
-from utils.LoggingManager import get_logger
 
 
 class ESPNAPIError(Exception):
@@ -55,7 +55,7 @@ class BaseAPIClient:
     
     def __init__(self, settings):
         self.settings = settings
-        self.logger = get_logger()
+        self.logger = logging.getLogger(__name__)
         self._client = None
         self._session_lock = asyncio.Lock()
     
@@ -86,7 +86,7 @@ class BaseAPIClient:
     @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10))
     async def _make_request(self, method: str, url: str, **kwargs) -> Dict[str, Any]:
         """Make HTTP request with retry logic"""
-        self.logger.debug(f"Making request to: {url}")
+        self.logger.info(f"Making request to: {url}")
         
         # Add rate limiting delay
         await asyncio.sleep(self.settings.rate_limit_delay)
@@ -103,7 +103,7 @@ class BaseAPIClient:
                 raise ESPNAPIError(f"ESPN API error: {response.status_code}")
                 
             response.raise_for_status()
-            self.logger.debug("Request successful")
+            self.logger.info("Request successful")
             return response.json()
             
         except httpx.RequestError as e:
@@ -262,7 +262,7 @@ class ESPNClient(BaseAPIClient):
                     self.logger.debug(f"{name} Week {week}: {week_points:.1f} points ({data_type})")
 
             if weeks_processed > 0:
-                self.logger.debug(f"Remaining season projection for {name}: {total_projection:.1f} points ({weeks_processed} weeks)")
+                self.logger.info(f"Remaining season projection for {name}: {total_projection:.1f} points ({weeks_processed} weeks)")
                 return total_projection
 
         except Exception as e:
@@ -556,11 +556,11 @@ class ESPNClient(BaseAPIClient):
             Dictionary mapping team abbreviations to offensive/defensive ranks
         """
         try:
-            from config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+            from shared_files.configs.player_data_fetcher_config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
             import sys
             import os
             sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-            from config import CURRENT_NFL_WEEK, NFL_SEASON
+            from shared_files.configs.shared_config import CURRENT_NFL_WEEK, NFL_SEASON
 
             # Determine which season to use for statistics
             use_current_season = CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1
@@ -587,8 +587,8 @@ class ESPNClient(BaseAPIClient):
                 import sys
                 import os
                 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-                from config import CURRENT_NFL_WEEK, NFL_SEASON
-                from config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+                from shared_files.configs.shared_config import CURRENT_NFL_WEEK, NFL_SEASON
+                from shared_files.configs.player_data_fetcher_config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
                 use_current_season = CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1
                 target_season = NFL_SEASON if use_current_season else NFL_SEASON - 1
                 season_info = f"{target_season} season"
@@ -602,8 +602,8 @@ class ESPNClient(BaseAPIClient):
                 import sys
                 import os
                 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-                from config import CURRENT_NFL_WEEK, NFL_SEASON
-                from config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+                from shared_files.configs.shared_config import CURRENT_NFL_WEEK, NFL_SEASON
+                from shared_files.configs.player_data_fetcher_config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
                 use_current_season = CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1
 
                 if use_current_season:
@@ -718,7 +718,7 @@ class ESPNClient(BaseAPIClient):
             {'KC': 'DEN', 'DEN': 'KC', 'NE': 'BUF', 'BUF': 'NE', ...}
         """
         try:
-            from config import CURRENT_NFL_WEEK, NFL_SEASON
+            from shared_files.configs.player_data_fetcher_config import CURRENT_NFL_WEEK, NFL_SEASON
 
             self.logger.info(f"Fetching week {CURRENT_NFL_WEEK} schedule from ESPN")
 
@@ -778,8 +778,8 @@ class ESPNClient(BaseAPIClient):
 
     async def _parse_espn_data(self, data: Dict[str, Any]) -> List[ESPNPlayerData]:
         """Parse ESPN API response into ESPNPlayerData objects"""
-        from config import (
-            PROGRESS_UPDATE_FREQUENCY, PROGRESS_ETA_WINDOW_SIZE
+        from shared_files.configs.player_data_fetcher_config import (
+            PROGRESS_TRACKING_ENABLED, PROGRESS_UPDATE_FREQUENCY, PROGRESS_ETA_WINDOW_SIZE
         )
 
         projections = []
@@ -796,13 +796,15 @@ class ESPNClient(BaseAPIClient):
         self.logger.info(f"Processing {len(players)} players from ESPN API")
 
         # Initialize progress tracker if enabled
-        from progress_tracker import ProgressTracker
-        progress_tracker = ProgressTracker(
-            total_players=len(players),
-            logger=self.logger,
-            update_frequency=PROGRESS_UPDATE_FREQUENCY,
-            eta_window_size=PROGRESS_ETA_WINDOW_SIZE
-        )
+        progress_tracker = None
+        if PROGRESS_TRACKING_ENABLED:
+            from progress_tracker import ProgressTracker
+            progress_tracker = ProgressTracker(
+                total_players=len(players),
+                update_frequency=PROGRESS_UPDATE_FREQUENCY,
+                eta_window_size=PROGRESS_ETA_WINDOW_SIZE,
+                logger=self.logger
+            )
 
         parsed_count = 0
         skipped_drafted_count = 0
