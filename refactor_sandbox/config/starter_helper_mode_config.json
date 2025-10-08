@@ -1,0 +1,14 @@
+{
+  "config_name": "Default",
+  "description": "Initial default parameters",
+  "parameters": {
+
+    "MATCHUP_MULTIPLIERS": {
+        "VERY POOR": 0.76,
+        "POOR": 0.92,
+        "GOOD": 1.14,
+        "EXCELLENT": 1.28
+    }
+    
+  }
+}

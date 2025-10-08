@@ -1,0 +1,8 @@
+{
+  "config_name": "Default",
+  "description": "Initial default parameters",
+  "parameters": {
+    "MIN_TRADE_IMPROVEMENT": 0,
+    "NUM_TRADE_RUNNERS_UP": 3
+  }
+}

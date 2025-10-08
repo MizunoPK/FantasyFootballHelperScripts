@@ -1,0 +1,73 @@
+{
+  "config_name": "Default",
+  "description": "Initial default parameters",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 6,
+    "NFL_SEASON": 2025,
+    "NFL_SCORING_FORMAT": "ppr",
+
+    "NORMALIZATION_MAX_SCALE": 123.54,
+    
+    "BASE_BYE_PENALTY": 28.85,
+
+    "INJURY_PENALTIES": {
+      "LOW": 0,
+      "MEDIUM": 9.68,
+      "HIGH": 78.22
+    },
+    
+    "ADP_SCORING": {
+        "THRESHOLDS": {
+            "POOR": 150,
+            "GOOD": 75,
+            "EXCELLENT": 30
+        },
+        "MULTIPLIERS": {
+            "POOR": 0.52,
+            "GOOD": 1.08,
+            "EXCELLENT": 1.18
+        }
+    },
+
+    "PLAYER_RATING_SCORING": {
+        "THRESHOLDS": {
+            "POOR": 30,
+            "GOOD": 60,
+            "EXCELLENT": 80
+        },
+        "MULTIPLIERS": {
+            "POOR": 0.94,
+            "GOOD": 1.15,
+            "EXCELLENT": 1.21
+        }
+    },
+
+    "TEAM_QUALITY_SCORING": {
+        "THRESHOLDS": {
+            "POOR": 25,
+            "GOOD": 12,
+            "EXCELLENT": 5
+        },
+        "TEAM_RATING_MULTIPLIERS": {
+            "POOR": 0.64,
+            "GOOD": 1.14,
+            "EXCELLENT": 1.32
+        },
+        "SKILL_POSITIONS": ["QB", "RB", "WR", "TE", "K"], 
+        "DEFENSE_POSITIONS": ["DEF", "DST", "D/ST"]
+    },
+
+    "CONSISTENCY_SCORING": {
+        "MIN_WEEKS": 3,
+        "THRESHOLDS": {
+            "LOW": 0.3,
+            "HIGH": 0.6
+        },
+        "MULTIPLIERS": {
+            "POOR": 0.66,
+            "GOOD": 1.19,
+            "EXCELLENT": 1.50
+        }
+    }
+  }
+}
