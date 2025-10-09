@@ -9,7 +9,7 @@ Author: Kai Mizuno
 
 from pathlib import Path
 import constants as Constants
-from util.LeagueConfigManager import LeagueConfigManager
+from util.ConfigManager import ConfigManager
 from util.PlayerManager import PlayerManager
 from util.TeamDataManager import TeamDataManager
 from add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
@@ -29,21 +29,23 @@ from utils.LoggingManager import setup_logger, get_logger
 
 class LeagueHelperManager:
 
-    def __init__(self, data_folder : Path, config_folder : Path):
+    def __init__(self, data_folder: Path):
         self.logger = get_logger()
 
-        self.league_config_manager = LeagueConfigManager(config_folder)
+        # Create single config manager that handles all configuration
+        self.config = ConfigManager(data_folder)
 
-        self.player_manager = PlayerManager(data_folder)
+        self.player_manager = PlayerManager(data_folder, config)
         self.team_data_manager = TeamDataManager(data_folder)
 
-        self.add_to_roster_mode_manager = AddToRosterModeManager(config_folder)
+        # Pass config manager to mode managers
+        self.add_to_roster_mode_manager = AddToRosterModeManager(self.config, self.player_manager, self.team_data_manager)
         self.drop_player_mode_manager = DropPlayerModeManager()
         self.lock_player_mode_manager = LockPlayerModeManager()
         self.mark_drafted_player_mode_manager = MarkDraftedPlayerModeManager()
-        self.starter_helper_mode_manager = StarterHelperModeManager(config_folder)
+        self.starter_helper_mode_manager = StarterHelperModeManager(self.config)
         self.trade_simulator_mode_manager = TradeSimulatorModeManager()
-        self.waiver_optimizer_mode_manager = WaiverOptimizerModeManager(config_folder)
+        self.waiver_optimizer_mode_manager = WaiverOptimizerModeManager(self.config)
 
 
     def start_interactive_mode(self):
@@ -118,9 +120,8 @@ def main():
 
     base_path = Path(__file__).parent.parent
     data_path = base_path / "data"
-    config_path = base_path / "config"
 
-    leagueHelper = LeagueHelperManager(data_path, config_path)
+    leagueHelper = LeagueHelperManager(data_path)
     leagueHelper.start_interactive_mode()
 
 

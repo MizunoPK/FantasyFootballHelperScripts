@@ -7,6 +7,7 @@ import sys
 from league_helper.util import FantasyTeam
 sys.path.append(str(Path(__file__).parent))
 import constants as Constants
+from ConfigManager import ConfigManager
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -16,8 +17,9 @@ from utils.LoggingManager import get_logger
 
 class PlayerManager:
 
-    def __init__(self, data_folder : Path):
+    def __init__(self, data_folder : Path, config : ConfigManager):
         self.logger = get_logger()
+        self.config = config
 
         self.file_str = str(data_folder / 'players.csv')
         

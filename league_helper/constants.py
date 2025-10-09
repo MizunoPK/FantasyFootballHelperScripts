@@ -5,6 +5,12 @@ LOG_NAME = "league_helper"
 LOGGING_FILE = './data/log.txt'
 LOGGING_FORMAT = 'detailed'     # detailed / standard / simple
 
+RECOMMENDATION_COUNT= 10
+
+# WAIVER OPTIMIZER CONSTANTS
+MIN_TRADE_IMPROVEMENT = 0,
+NUM_TRADE_RUNNERS_UP = 3
+
 # Position Constants
 RB, WR, QB, TE, K, DST, FLEX = 'RB', 'WR', 'QB', 'TE', 'K', 'DST', 'FLEX'
 

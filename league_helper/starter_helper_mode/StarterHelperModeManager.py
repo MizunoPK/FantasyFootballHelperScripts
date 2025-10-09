@@ -1,9 +1,11 @@
 
 
 from pathlib import Path
-from starter_helper_mode.StarterHelperConfigManager import StarterHelperConfigManager
+import sys
+sys.path.append(str(Path(__file__).parent.parent))
+from util.ConfigManager import ConfigManager
 
 class StarterHelperModeManager:
 
-    def __init__(self, config_folder : Path):
-        self.config = StarterHelperConfigManager(config_folder)
+    def __init__(self, config: ConfigManager):
+        self.config = config

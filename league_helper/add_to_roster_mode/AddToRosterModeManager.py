@@ -1,20 +1,25 @@
 
 
 from pathlib import Path
-from typing import Dict, List, Optional, Any
-from add_to_roster_mode.AddToRosterConfigManager import AddToRosterConfigManager
+from typing import Dict, Any, List
 
 import sys
 sys.path.append(str(Path(__file__).parent))
 import constants as Constants
 
+sys.path.append(str(Path(__file__).parent.parent))
+from util.ConfigManager import ConfigManager
+from util.PlayerManager import PlayerManager
+from util.TeamDataManager import TeamDataManager
+
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
+from utils.FantasyPlayer import FantasyPlayer
 
 class AddToRosterModeManager:
 
-    def __init__(self, config_folder : Path, player_manager, team_data_manager):
-        self.config = AddToRosterConfigManager(config_folder)
+    def __init__(self, config: ConfigManager, player_manager : PlayerManager, team_data_manager : TeamDataManager):
+        self.config = config
         self.logger = get_logger()
         self.set_managers(player_manager, team_data_manager)
 
@@ -149,7 +154,7 @@ class AddToRosterModeManager:
         return Constants.FLEX
     
     
-    def get_recommendations(self):
+    def get_recommendations(self) -> List[FantasyPlayer]:
         # get a list of available players that can be drafted
         available_players = [
             p for p in self.players
@@ -164,6 +169,6 @@ class AddToRosterModeManager:
         ranked_players = sorted(available_players, key=lambda x: x.score, reverse=True)
 
         # Return top recommended players
-        self.logger.info(f"Recommended next picks: {[p.name for p in ranked_players[:self.config.recommendation_count]]}")
-        return ranked_players[:self.config.recommendation_count]
+        self.logger.info(f"Recommended next picks: {[p.name for p in ranked_players[:Constants.RECOMMENDATION_COUNT]]}")
+        return ranked_players[:Constants.RECOMMENDATION_COUNT]
     
