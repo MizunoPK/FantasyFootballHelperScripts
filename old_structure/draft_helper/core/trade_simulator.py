@@ -21,12 +21,12 @@ try:
     from .. import draft_helper_constants as Constants
     from .roster_calculator import RosterCalculator
     from .player_search import PlayerSearch
-    from .bye_week_visualizer import ByeWeekVisualizer
+    from ....league_helper.util.bye_week_visualizer import ByeWeekVisualizer
 except ImportError:
     import draft_helper_constants as Constants
     from core.roster_calculator import RosterCalculator
     from core.player_search import PlayerSearch
-    from core.bye_week_visualizer import ByeWeekVisualizer
+    from league_helper.util.bye_week_visualizer import ByeWeekVisualizer
 
 from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.configs.shared_config import CURRENT_NFL_WEEK

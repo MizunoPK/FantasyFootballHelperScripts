@@ -17,7 +17,7 @@ from unittest.mock import patch, MagicMock
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
 
-from team_data_loader import TeamDataLoader
+from league_helper.util.TeamDataManager import TeamDataLoader
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from shared_files.TeamData import TeamData

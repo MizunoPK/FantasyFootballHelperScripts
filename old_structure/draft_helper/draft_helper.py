@@ -14,7 +14,7 @@ sys.path.insert(0, str(parent_dir))
 try:
     from .FantasyTeam import FantasyTeam
     from . import draft_helper_constants as Constants
-    from .team_data_loader import TeamDataLoader
+    from ...league_helper.util.TeamDataManager import TeamDataLoader
     from .core.menu_system import MenuSystem
     from .core.player_search import PlayerSearch
     from .core.roster_manager import RosterManager
@@ -25,7 +25,7 @@ except ImportError:
     # Fallback to absolute imports when run directly
     from FantasyTeam import FantasyTeam
     import draft_helper_constants as Constants
-    from team_data_loader import TeamDataLoader
+    from league_helper.util.TeamDataManager import TeamDataLoader
     from core.menu_system import MenuSystem
     from core.player_search import PlayerSearch
     from core.roster_manager import RosterManager

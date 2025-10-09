@@ -7,7 +7,7 @@ Manages general NFL settings and scoring parameters shared across all modes.
 from pathlib import Path
 from typing import Dict, Any
 
-from league_helper.util.ConfigManager import ConfigManager
+from util.ConfigManager import ConfigManager
 
 
 class LeagueConfigManager(ConfigManager):

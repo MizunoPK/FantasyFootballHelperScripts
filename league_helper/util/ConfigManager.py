@@ -9,6 +9,10 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict
 
+import sys
+sys.path.append(str(Path(__file__).parent.parent.parent))
+from utils.LoggingManager import get_logger
+
 
 class ConfigManager(ABC):
     """Abstract base class for all configuration managers."""
@@ -19,6 +23,7 @@ class ConfigManager(ABC):
         self.description: str = ""
         self.parameters: Dict[str, Any] = {}
         self.config_path = config_path
+        self.logger = get_logger()
         self._load_config()
 
     def _load_config(self) -> None:
@@ -36,6 +41,11 @@ class ConfigManager(ABC):
         self.config_name = data.get("config_name", "")
         self.description = data.get("description", "")
         self.parameters = data.get("parameters", {})
+
+        self.logger.debug(f"Loaded config file: {self.config_path}")
+        self.logger.info(f"Loaded config_name: {self.config_name}")
+        self.logger.debug(f"Loaded description: {self.description}")
+        self.logger.info(f"Loaded parameters: {self.parameters}")
 
         # Allow child classes to perform additional validation/processing
         self._post_load_validation()

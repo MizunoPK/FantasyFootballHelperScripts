@@ -15,7 +15,7 @@ from shared_files.FantasyPlayer import FantasyPlayer
 from shared_files.enhanced_scoring import EnhancedScoringCalculator
 from draft_helper.FantasyTeam import FantasyTeam
 from shared_files.configs import draft_helper_config as base_config
-from draft_helper.team_data_loader import TeamDataLoader
+from league_helper.util.TeamDataManager import TeamDataLoader
 from draft_helper.core.normalization_calculator import NormalizationCalculator
 
 

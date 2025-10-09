@@ -16,7 +16,7 @@ from pathlib import Path
 # Add parent directories to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from draft_helper.core.bye_week_visualizer import ByeWeekVisualizer
+from league_helper.util.bye_week_visualizer import ByeWeekVisualizer
 from shared_files.FantasyPlayer import FantasyPlayer
 
 

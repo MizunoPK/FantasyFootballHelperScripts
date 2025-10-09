@@ -9,34 +9,28 @@ Author: Kai Mizuno
 Last Updated: September 2025
 """
 
-import logging
 from pathlib import Path
 from typing import Dict, Optional
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
-from shared_files.TeamData import TeamData, load_teams_from_csv
+from utils.TeamData import TeamData, load_teams_from_csv
+from utils.LoggingManager import get_logger
 
 
-class TeamDataLoader:
+class TeamDataManager:
     """Loads and manages team ranking data from teams.csv file."""
 
-    def __init__(self, teams_file_path: Optional[str] = None):
+    def __init__(self, data_folder: Path):
         """
-        Initialize TeamDataLoader.
+        Initialize TeamDataManager.
 
         Args:
             teams_file_path: Path to teams.csv file. If None, uses shared_files/teams.csv
         """
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger()
 
-        if teams_file_path:
-            self.teams_file = Path(teams_file_path)
-        else:
-            # Default to shared_files/teams.csv
-            shared_files_dir = Path(__file__).parent.parent / "shared_files"
-            self.teams_file = shared_files_dir / "teams.csv"
-
+        self.teams_file = data_folder / 'teams.csv'
         self.team_data_cache: Dict[str, TeamData] = {}
         self._load_team_data()
 

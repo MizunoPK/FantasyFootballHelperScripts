@@ -2,7 +2,6 @@
   "config_name": "Default",
   "description": "Initial default parameters",
   "parameters": {
-    
     "DRAFT_ORDER_BONUSES": {
         "PRIMARY": 71,
         "SECONDARY": 52
