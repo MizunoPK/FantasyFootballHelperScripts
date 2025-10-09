@@ -707,16 +707,3 @@ class FantasyTeam:
         if is_rostered:
             matches -= 1
         return matches
-
-    # print the ideal draft order, and what the actual draft order is
-    def print_draft_order(self):
-        """
-        Print the current draft order showing round-by-round roster composition.
-
-        Displays each round with the ideal position, actual player assigned,
-        and whether the assignment matches the ideal position.
-        """
-        self.logger.debug("FantasyTeam.print_draft_order called")
-        for i, pos in enumerate(Constants.DRAFT_ORDER):
-            print(f"Round {i + 1}: {', '.join(pos.keys())} -- Drafted: {self.draft_order[i].name if self.draft_order[i] 
-                                                                        else 'None'} ({self.draft_order[i].position if self.draft_order[i] else 'None'})")
