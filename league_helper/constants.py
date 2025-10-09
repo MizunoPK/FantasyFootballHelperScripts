@@ -1,5 +1,5 @@
 
-LOGGING_LEVEL = 'DEBUG'      # ← DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
+LOGGING_LEVEL = 'WARNING'      # ← DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
 LOGGING_TO_FILE = False        # ← Console vs file logging
 LOG_NAME = "league_helper"
 LOGGING_FILE = './data/log.txt'
@@ -13,6 +13,8 @@ NUM_TRADE_RUNNERS_UP = 3
 
 # Position Constants
 RB, WR, QB, TE, K, DST, FLEX = 'RB', 'WR', 'QB', 'TE', 'K', 'DST', 'FLEX'
+OFFENSE_POSITIONS = ["QB", "RB", "WR", "TE", "K"]
+DEFENSE_POSITIONS = ["DEF", "DST", "D/ST"]
 
 # Roster Construction
 MAX_POSITIONS = {
@@ -30,11 +32,11 @@ MAX_PLAYERS = 15
 
 # Positions eligible for FLEX spot
 FLEX_ELIGIBLE_POSITIONS = [RB, WR]  
-def get_position_with_flex(player):
-    if player.position in FLEX_ELIGIBLE_POSITIONS:
+def get_position_with_flex(position):
+    if position in FLEX_ELIGIBLE_POSITIONS:
         return FLEX
     else:
-        return player.position
+        return position
 
 # Bye weeks for NFL season
 POSSIBLE_BYE_WEEKS = [5, 6, 7, 8, 9, 10, 11, 12, 14]

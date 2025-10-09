@@ -34,7 +34,7 @@
       {"FLEX": "P"},     
       {"FLEX": "P"},     
       {"K": "P"},     
-      {"DsT": "P"},  
+      {"DST": "P"},  
       {"FLEX": "P"},
       {"FLEX": "P"} 
     ],
@@ -76,14 +76,12 @@
             "GOOD": 10,
             "EXCELLENT": 5
         },
-        "TEAM_RATING_MULTIPLIERS": {
+        "MULTIPLIERS": {
             "VERY_POOR": 0.5,
             "POOR": 0.64,
             "GOOD": 1.14,
             "EXCELLENT": 1.32
-        },
-        "SKILL_POSITIONS": ["QB", "RB", "WR", "TE", "K"], 
-        "DEFENSE_POSITIONS": ["DEF", "DST", "D/ST"]
+        }
     },
 
     "CONSISTENCY_SCORING": {
@@ -110,7 +108,7 @@
             "EXCELLENT": 15
         },
         "MULTIPLIERS": {
-            "VERY POOR": 0.76,
+            "VERY_POOR": 0.76,
             "POOR": 0.92,
             "GOOD": 1.14,
             "EXCELLENT": 1.28

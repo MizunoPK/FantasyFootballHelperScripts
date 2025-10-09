@@ -23,7 +23,7 @@ class AddToRosterModeManager:
         self.logger = get_logger()
         self.set_managers(player_manager, team_data_manager)
 
-    def set_managers(self, player_manager, team_data_manager):
+    def set_managers(self, player_manager : PlayerManager, team_data_manager : TeamDataManager):
         self.player_manager = player_manager
         self.team_data_manager = team_data_manager
 
@@ -50,11 +50,9 @@ class AddToRosterModeManager:
                 # Show calculated score (used for ranking) instead of raw fantasy points
                 status = f" ({p.injury_status})" if p.injury_status != 'ACTIVE' else ""
                 score_display = getattr(p, 'score', p.fantasy_points)  # Use calculated score if available
+                consistency_rating = self.config.get_consistency_label(p.consistency)
 
-                # Show consistency category if available
-                consistency_indicator = self._get_consistency_indicator(p)
-
-                print(f"{i}. {p.name} ({p.team} {p.position}) - {score_display:.1f} pts{consistency_indicator} {status}")
+                print(f"{i}. {p.name} ({p.team} {p.position}) - {score_display:.1f} pts {status} [Consistency = {consistency_rating}]")
             print(f"{len(recommendations) + 1}. Back to Main Menu")
 
             try:
@@ -71,15 +69,15 @@ class AddToRosterModeManager:
                     # Validate player selection
                     if 0 <= index < len(recommendations):
                         player_to_draft = recommendations[index]
-                        success = self.team.draft_player(player_to_draft)
+                        success = self.player_manager.draft_player(player_to_draft)
 
                         if success:
                             print(f"\nSuccessfully added {player_to_draft.name} to your roster!")
-                            save_players_func()
+                            self.player_manager.update_players_file()
                             self.logger.info(f"Player {player_to_draft.name} drafted to user's team (drafted=2)")
 
                             # Show updated roster
-                            self.display_roster_by_draft_order()
+                            self._display_roster_by_draft_rounds()
 
                             print("Returning to Main Menu...")
                             break
@@ -114,7 +112,7 @@ class AddToRosterModeManager:
         round_assignments = self._match_players_to_rounds()
 
         for round_num in range(1, Constants.MAX_PLAYERS + 1):
-            ideal_position = self._get_ideal_draft_position(round_num - 1)
+            ideal_position = self.config.get_ideal_draft_position(round_num - 1)
 
             if round_num in round_assignments:
                 player = round_assignments[round_num]
@@ -135,35 +133,34 @@ class AddToRosterModeManager:
 
         # First pass: Assign players to rounds where their position perfectly matches the ideal
         for round_num in range(1, Constants.MAX_PLAYERS + 1):
-            ideal_position = self._get_ideal_draft_position(round_num - 1)
+            ideal_position = self.config.get_ideal_draft_position(round_num - 1)
 
             for player in available_players:
-                if Constants.get_position_with_flex(player) == ideal_position:
+                if Constants.get_position_with_flex(player.position) == ideal_position:
                     round_assignments[round_num] = player
                     available_players.remove(player)
                     break
 
         return round_assignments
     
-
-    def _get_ideal_draft_position(self, round_num: int) -> str:
-        """Get the ideal position to draft in a given round"""
-        if round_num < len(self.config.draft_order):
-            best_position = max(self.config.draft_order[round_num], key=self.config.draft_order[round_num].get)
-            return best_position
-        return Constants.FLEX
+    def _get_current_round(self) -> int:
+        round_assignments = self._match_players_to_rounds()
+        for round_num in range(1, Constants.MAX_PLAYERS + 1):
+            if round_num not in round_assignments:
+                return round_num 
     
     
     def get_recommendations(self) -> List[FantasyPlayer]:
         # get a list of available players that can be drafted
-        available_players = [
-            p for p in self.players
-            if self.player_manager.team.can_draft(p)
+        available_players : List[FantasyPlayer] = [
+            p for p in self.player_manager.players
+            if self.player_manager.can_draft(p)
         ]
 
         # Score each player
+        current_round=self._get_current_round()
         for p in available_players:
-            p.score = self.player_manager.score_player(p)
+            p.score = self.player_manager.score_player(p, draft_round=current_round)
 
         # Sort available players by score descending
         ranked_players = sorted(available_players, key=lambda x: x.score, reverse=True)

@@ -115,9 +115,11 @@ class FantasyPlayer:
     # Injury information
     injury_status: str = "UNKNOWN"  # ACTIVE, QUESTIONABLE, OUT, etc.
 
-    # Draft helper specific fields (computed later)
+    # League helper specific fields (computed later)
     score: float = 0.0  # Overall score for draft ranking
     weighted_projection: float = 0.0  # Normalized projection score
+    consistency: float = 0.0
+    matchup_score: int = 0
 
     # Enhanced scoring fields for team context
     team_offensive_rank: Optional[int] = None  # Team offensive quality rank (lower is better)
@@ -177,6 +179,8 @@ class FantasyPlayer:
             injury_status=str(data.get('injury_status', 'UNKNOWN')),
             score=safe_float_conversion(data.get('score'), 0.0),
             weighted_projection=safe_float_conversion(data.get('weighted_projection'), 0.0),
+            consistency=safe_float_conversion(data.get('consistency'), 0.0),
+            matchup_score=safe_int_conversion(data.get('matchup_score'), 0),
             team_offensive_rank=safe_int_conversion(data.get('team_offensive_rank'), None),
             team_defensive_rank=safe_int_conversion(data.get('team_defensive_rank'), None)
         )
@@ -295,6 +299,9 @@ class FantasyPlayer:
         """
         return self.drafted == 0 and self.locked == 0
     
+    def is_rostered(self) -> bool:
+        return self.drafted == 2
+    
     def is_locked(self) -> bool:
         """
         Check if player is locked from being drafted or traded.
@@ -303,24 +310,6 @@ class FantasyPlayer:
             True if player is locked, False otherwise
         """
         return self.locked == 1
-    
-    def is_seriously_injured(self) -> bool:
-        """
-        Check if player is seriously injured (OUT or on IR).
-        
-        Returns:
-            True if player is OUT or on INJURY_RESERVE
-        """
-        return self.injury_status in ['OUT', 'INJURY_RESERVE']
-    
-    def is_healthy(self) -> bool:
-        """
-        Check if player is healthy (not injured and active status).
-        
-        Returns:
-            True if player appears healthy for play
-        """
-        return self.injury_status in ['ACTIVE', 'UNKNOWN']
     
     def get_risk_level(self) -> str:
         """
@@ -331,9 +320,9 @@ class FantasyPlayer:
         """
         if self.injury_status == 'ACTIVE':
             return "LOW"
-        elif self.injury_status in ['QUESTIONABLE', 'UNKNOWN']:
+        elif self.injury_status in ['QUESTIONABLE']:
             return "MEDIUM"
-        elif self.injury_status in ['OUT', 'DOUBTFUL', 'INJURY_RESERVE', 'SUSPENSION']:
+        elif self.injury_status in ['OUT', 'DOUBTFUL', 'INJURY_RESERVE', 'SUSPENSION', 'UNKNOWN']:
             return "HIGH"
         else:
             return "MEDIUM"
@@ -391,54 +380,6 @@ class FantasyPlayer:
         """Setter for adp alias."""
         self.average_draft_position = value
 
-
-# Utility functions for working with FantasyPlayer lists
-def filter_by_position(players: List[FantasyPlayer], position: str) -> List[FantasyPlayer]:
-    """Filter players by position."""
-    return [p for p in players if p.position == position]
-
-
-def filter_available_players(players: List[FantasyPlayer]) -> List[FantasyPlayer]:
-    """Filter to only available (not drafted) players."""
-    return [p for p in players if p.is_available()]
-
-
-def filter_healthy_players(players: List[FantasyPlayer]) -> List[FantasyPlayer]:
-    """Filter to only healthy players."""
-    return [p for p in players if p.is_healthy()]
-
-
-def sort_by_fantasy_points(players: List[FantasyPlayer], reverse: bool = True) -> List[FantasyPlayer]:
-    """Sort players by fantasy points (highest first by default)."""
-    return sorted(players, key=lambda p: p.fantasy_points, reverse=reverse)
-
-
-def get_top_players_by_position(players: List[FantasyPlayer], position: str, count: int = 10) -> List[FantasyPlayer]:
-    """Get top N players for a specific position by fantasy points."""
-    position_players = filter_by_position(players, position)
-    sorted_players = sort_by_fantasy_points(position_players)
-    return sorted_players[:count]
-
-
 def players_to_dataframe(players: List[FantasyPlayer]) -> pd.DataFrame:
     """Convert list of FantasyPlayer objects to pandas DataFrame."""
     return pd.DataFrame([player.to_dict() for player in players])
-
-
-# Example usage
-if __name__ == "__main__":
-    # Example of loading from CSV
-    try:
-        players = FantasyPlayer.from_csv_file("data/nfl_projections/nfl_projections_latest_weekly.csv")
-        print(f"Loaded {len(players)} players from CSV")
-        
-        # Show top 5 QBs
-        top_qbs = get_top_players_by_position(players, 'QB', 5)
-        print("\nTop 5 QBs:")
-        for qb in top_qbs:
-            print(f"  {qb}")
-            
-    except FileNotFoundError:
-        print("CSV file not found. Run data_fetcher-players.py first to generate data.")
-    except Exception as e:
-        print(f"Error loading players: {e}")

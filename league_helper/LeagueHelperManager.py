@@ -35,8 +35,8 @@ class LeagueHelperManager:
         # Create single config manager that handles all configuration
         self.config = ConfigManager(data_folder)
 
-        self.player_manager = PlayerManager(data_folder, config)
         self.team_data_manager = TeamDataManager(data_folder)
+        self.player_manager = PlayerManager(data_folder, self.config, self.team_data_manager)
 
         # Pass config manager to mode managers
         self.add_to_roster_mode_manager = AddToRosterModeManager(self.config, self.player_manager, self.team_data_manager)
@@ -90,7 +90,7 @@ class LeagueHelperManager:
         print("\n" + "="*50)
         print("MAIN MENU")
         print("="*50)
-        print(f"Current roster: {len(self.player_manager.get_roster_len())} / {Constants.MAX_PLAYERS} players")
+        print(f"Current roster: {self.player_manager.get_roster_len()} / {Constants.MAX_PLAYERS} players")
         print("="*50)
         print("1. Add to Roster")
         print("2. Mark Drafted Player")

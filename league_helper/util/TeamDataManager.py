@@ -110,8 +110,76 @@ class TeamDataManager:
     def get_available_teams(self) -> list[str]:
         """Get list of all teams for which data is available."""
         return list(self.team_data_cache.keys())
+    
+    def is_matchup_available(self) -> bool:
+        """
+        Check if matchup calculations are available.
+
+        Returns:
+            True if team data is loaded and valid, False otherwise
+        """
+        return self.team_data_cache is not None and len(self.team_data_cache) > 0
 
     def reload_team_data(self) -> None:
         """Reload team data from teams.csv file (useful if file was updated)."""
         self.team_data_cache = {}
         self._load_team_data()
+
+
+    def get_rank_difference(self, player_team: str, is_defense = False) -> int:
+        """
+        Calculate rank difference for a player's team matchup.
+
+        Formula for Offensive positions: (Opponent Defensive Rank) - (Player's Team Offensive Rank)
+        Formula for Defensive positions: (Opponent Offensive Rank) - (Player's Team Defensive Rank)
+
+        Args:
+            player_team: Team abbreviation (e.g., 'KC', 'BUF')
+            is_defense: True if player is on defense/DST, False for offensive positions
+
+        Returns:
+            Rank difference integer, or 0 if data unavailable
+        """
+        if not self.is_matchup_available():
+            return 0
+
+        # Find player's team data
+        if is_defense:
+            team_rank = self.get_team_defensive_rank(player_team)
+        else:
+            team_rank = self.get_team_offensive_rank(player_team)
+
+        if team_rank is None:
+            self.logger.debug(f"Team not found in matchup data: {player_team}")
+            return 0
+
+        opponent_abbr = self.get_team_opponent(player_team)
+        if opponent_abbr is None:
+            self.logger.debug(f"No opponent found for team: {player_team}")
+            return 0
+
+        # Find opponent's rank (opposite side of ball)
+        if is_defense:
+            opponent_rank = self.get_team_offensive_rank(opponent_abbr)
+        else:
+            opponent_rank = self.get_team_defensive_rank(opponent_abbr)
+
+        if opponent_rank is None:
+            self.logger.debug(f"Opponent rank not found in matchup data: {opponent_abbr}")
+            return 0
+
+        # Calculate rank difference
+        rank_diff = int(opponent_rank) - int(team_rank)
+
+        if is_defense:
+            self.logger.debug(
+                f"Matchup for {player_team} vs {opponent_abbr}: "
+                f"DEF#{team_rank} vs OFF#{opponent_rank} = {rank_diff:+d}"
+            )
+        else:
+            self.logger.debug(
+                f"Matchup for {player_team} vs {opponent_abbr}: "
+                f"OFF#{team_rank} vs DEF#{opponent_rank} = {rank_diff:+d}"
+            )
+
+        return rank_diff

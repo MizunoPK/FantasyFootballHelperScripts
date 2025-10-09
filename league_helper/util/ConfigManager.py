@@ -9,8 +9,60 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import sys
+sys.path.append(str(Path(__file__).parent.parent))
+import constants as Constants
+
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
+from utils.FantasyPlayer import FantasyPlayer
+
+
+class ConfigKeys:
+    """Constants for JSON configuration keys."""
+
+    # Top Level Keys
+    CONFIG_NAME = "config_name"
+    DESCRIPTION = "description"
+    PARAMETERS = "parameters"
+
+    # Parameter Keys
+    CURRENT_NFL_WEEK = "CURRENT_NFL_WEEK"
+    NFL_SEASON = "NFL_SEASON"
+    NFL_SCORING_FORMAT = "NFL_SCORING_FORMAT"
+    NORMALIZATION_MAX_SCALE = "NORMALIZATION_MAX_SCALE"
+    BASE_BYE_PENALTY = "BASE_BYE_PENALTY"
+    INJURY_PENALTIES = "INJURY_PENALTIES"
+    ADP_SCORING = "ADP_SCORING"
+    PLAYER_RATING_SCORING = "PLAYER_RATING_SCORING"
+    TEAM_QUALITY_SCORING = "TEAM_QUALITY_SCORING"
+    CONSISTENCY_SCORING = "CONSISTENCY_SCORING"
+    MATCHUP_SCORING = "MATCHUP_SCORING"
+    DRAFT_ORDER_BONUSES = "DRAFT_ORDER_BONUSES"
+    DRAFT_ORDER = "DRAFT_ORDER"
+
+    # Draft Order scoring
+    DRAFT_ORDER_PRIMARY_LABEL = "P"
+    DRAFT_ORDER_SECONDARY_LABEL = "S"
+
+    # Nested Structure Keys
+    MULTIPLIERS = "MULTIPLIERS"
+    THRESHOLDS = "THRESHOLDS"
+    MIN_WEEKS = "MIN_WEEKS"
+
+    # Injury Level Keys
+    INJURY_LOW = "LOW"
+    INJURY_MEDIUM = "MEDIUM"
+    INJURY_HIGH = "HIGH"
+
+    # Bonus Type Keys
+    BONUS_PRIMARY = "PRIMARY"
+    BONUS_SECONDARY = "SECONDARY"
+
+    # Threshold/Multiplier Level Keys
+    VERY_POOR = "VERY_POOR"
+    POOR = "POOR"
+    GOOD = "GOOD"
+    EXCELLENT = "EXCELLENT"
 
 
 class ConfigManager:
@@ -23,6 +75,7 @@ class ConfigManager:
         Args:
             project_root: Root directory of the project
         """
+        self.keys = ConfigKeys()
         self.config_name: str = ""
         self.description: str = ""
         self.parameters: Dict[str, Any] = {}
@@ -64,9 +117,9 @@ class ConfigManager:
         self._validate_config_structure(data)
 
         # Store configuration data
-        self.config_name = data.get("config_name", "")
-        self.description = data.get("description", "")
-        self.parameters = data.get("parameters", {})
+        self.config_name = data.get(self.keys.CONFIG_NAME, "")
+        self.description = data.get(self.keys.DESCRIPTION, "")
+        self.parameters = data.get(self.keys.PARAMETERS, {})
 
         self.logger.debug(f"Loaded config file: {self.config_path}")
         self.logger.info(f"Loaded config_name: {self.config_name}")
@@ -86,7 +139,7 @@ class ConfigManager:
         Raises:
             ValueError: If required fields are missing
         """
-        required_fields = ["config_name", "description", "parameters"]
+        required_fields = [self.keys.CONFIG_NAME, self.keys.DESCRIPTION, self.keys.PARAMETERS]
         missing_fields = [field for field in required_fields if field not in data]
 
         if missing_fields:
@@ -94,26 +147,26 @@ class ConfigManager:
                 f"Configuration missing required fields: {', '.join(missing_fields)}"
             )
 
-        if not isinstance(data["parameters"], dict):
+        if not isinstance(data[self.keys.PARAMETERS], dict):
             raise ValueError("'parameters' field must be a dictionary")
 
     def _extract_parameters(self) -> None:
         """Extract and validate all parameters from the config."""
         # Required parameters
         required_params = [
-            "CURRENT_NFL_WEEK",
-            "NFL_SEASON",
-            "NFL_SCORING_FORMAT",
-            "NORMALIZATION_MAX_SCALE",
-            "BASE_BYE_PENALTY",
-            "INJURY_PENALTIES",
-            "ADP_SCORING",
-            "PLAYER_RATING_SCORING",
-            "TEAM_QUALITY_SCORING",
-            "CONSISTENCY_SCORING",
-            "MATCHUP_SCORING",
-            "DRAFT_ORDER_BONUSES",
-            "DRAFT_ORDER",
+            self.keys.CURRENT_NFL_WEEK,
+            self.keys.NFL_SEASON,
+            self.keys.NFL_SCORING_FORMAT,
+            self.keys.NORMALIZATION_MAX_SCALE,
+            self.keys.BASE_BYE_PENALTY,
+            self.keys.INJURY_PENALTIES,
+            self.keys.ADP_SCORING,
+            self.keys.PLAYER_RATING_SCORING,
+            self.keys.TEAM_QUALITY_SCORING,
+            self.keys.CONSISTENCY_SCORING,
+            self.keys.MATCHUP_SCORING,
+            self.keys.DRAFT_ORDER_BONUSES,
+            self.keys.DRAFT_ORDER,
         ]
 
         missing_params = [p for p in required_params if p not in self.parameters]
@@ -123,27 +176,27 @@ class ConfigManager:
             )
 
         # Extract league-wide parameters
-        self.current_nfl_week = self.parameters["CURRENT_NFL_WEEK"]
-        self.nfl_season = self.parameters["NFL_SEASON"]
-        self.nfl_scoring_format = self.parameters["NFL_SCORING_FORMAT"]
-        self.normalization_max_scale = self.parameters["NORMALIZATION_MAX_SCALE"]
-        self.base_bye_penalty = self.parameters["BASE_BYE_PENALTY"]
-        self.injury_penalties = self.parameters["INJURY_PENALTIES"]
-        self.adp_scoring = self.parameters["ADP_SCORING"]
-        self.player_rating_scoring = self.parameters["PLAYER_RATING_SCORING"]
-        self.team_quality_scoring = self.parameters["TEAM_QUALITY_SCORING"]
-        self.consistency_scoring = self.parameters["CONSISTENCY_SCORING"]
-        self.matchup_scoring = self.parameters["MATCHUP_SCORING"]
+        self.current_nfl_week = self.parameters[self.keys.CURRENT_NFL_WEEK]
+        self.nfl_season = self.parameters[self.keys.NFL_SEASON]
+        self.nfl_scoring_format = self.parameters[self.keys.NFL_SCORING_FORMAT]
+        self.normalization_max_scale = self.parameters[self.keys.NORMALIZATION_MAX_SCALE]
+        self.base_bye_penalty = self.parameters[self.keys.BASE_BYE_PENALTY]
+        self.injury_penalties = self.parameters[self.keys.INJURY_PENALTIES]
+        self.adp_scoring = self.parameters[self.keys.ADP_SCORING]
+        self.player_rating_scoring = self.parameters[self.keys.PLAYER_RATING_SCORING]
+        self.team_quality_scoring = self.parameters[self.keys.TEAM_QUALITY_SCORING]
+        self.consistency_scoring = self.parameters[self.keys.CONSISTENCY_SCORING]
+        self.matchup_scoring = self.parameters[self.keys.MATCHUP_SCORING]
 
         # Extract Add to Roster mode parameters
-        self.draft_order_bonuses = self.parameters["DRAFT_ORDER_BONUSES"]
-        self.draft_order = self.parameters["DRAFT_ORDER"]
+        self.draft_order_bonuses = self.parameters[self.keys.DRAFT_ORDER_BONUSES]
+        self.draft_order = self.parameters[self.keys.DRAFT_ORDER]
 
         # Extract Starter Helper mode parameters (optional - not in current config)
-        # Note: matchup_multipliers are accessed directly from matchup_scoring["MULTIPLIERS"]
+        # Note: matchup_multipliers are accessed directly from matchup_scoring[self.keys.MULTIPLIERS]
 
         # Validate injury penalties structure
-        required_injury_levels = ["LOW", "MEDIUM", "HIGH"]
+        required_injury_levels = [self.keys.INJURY_LOW, self.keys.INJURY_MEDIUM, self.keys.INJURY_HIGH]
         missing_levels = [
             level for level in required_injury_levels
             if level not in self.injury_penalties
@@ -154,7 +207,7 @@ class ConfigManager:
             )
 
         # Validate draft order bonuses structure
-        required_bonus_types = ["PRIMARY", "SECONDARY"]
+        required_bonus_types = [self.keys.BONUS_PRIMARY, self.keys.BONUS_SECONDARY]
         missing_bonus_types = [
             bonus_type for bonus_type in required_bonus_types
             if bonus_type not in self.draft_order_bonuses
@@ -192,6 +245,82 @@ class ConfigManager:
             True if parameter exists, False otherwise
         """
         return key in self.parameters
+    
+    def get_consistency_label(self, val):
+        if val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
+            return self.keys.EXCELLENT
+        elif val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.GOOD]:
+            return self.keys.GOOD
+        elif val >= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.POOR]:
+            return self.keys.POOR
+        elif val >= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
+            return self.keys.VERY_POOR
+        else:
+            return "NEUTRAL"
+
+    
+    def _get_multiplier(self, scoring_dict : Dict[str, Any], val, rising_thresholds=True):
+        # Handle None values - return neutral multiplier (1.0) when data is unavailable
+        if val is None:
+            return 1.0
+
+        if rising_thresholds:
+            if val <= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT]
+            elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD]
+            elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR]
+            elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR]
+            else:
+                return 1.0
+
+        if val <= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
+            return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT]
+        elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
+            return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD]
+        elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
+            return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR]
+        elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
+            return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR]
+        else:
+            return 1.0
+
+    def get_adp_multiplier(self, adp_val):
+        return self._get_multiplier(self.adp_scoring, adp_val, rising_thresholds=False)
+    
+    def get_player_rating_multiplier(self, rating):
+        return self._get_multiplier(self.player_rating_scoring, rating)
+    
+    def get_team_quality_multiplier(self, quality_rank : int):
+        return self._get_multiplier(self.team_quality_scoring, quality_rank, rising_thresholds=False)
+    
+    def get_consistency_multiplier(self, value):
+        return self._get_multiplier(self.consistency_scoring, value)
+    
+    def get_matchup_multiplier(self, value):
+        return self._get_multiplier(self.matchup_scoring, value)
+    
+    def get_draft_order_bonus(self, position : str, draft_round : int):
+        position_with_flex = Constants.get_position_with_flex(position)
+        ideal_positions = self.draft_order[draft_round]
+        if position_with_flex in ideal_positions:
+            if ideal_positions.get(position_with_flex) == self.keys.DRAFT_ORDER_PRIMARY_LABEL:
+                return self.draft_order_bonuses[self.keys.BONUS_PRIMARY]
+            else:
+                return self.draft_order_bonuses[self.keys.BONUS_SECONDARY]
+        else:
+            return 0
+        
+    def get_bye_week_penalty(self, num_matching_byes : int):
+        return self.base_bye_penalty * num_matching_byes
+        
+    def get_injury_penalty(self, risk_level : str):
+        if risk_level in self.injury_penalties:
+            return self.injury_penalties[risk_level]
+        else:
+            return self.injury_penalties[self.keys.INJURY_HIGH]
 
     def get_draft_position_for_round(self, round_number: int) -> Dict[str, str]:
         """
@@ -212,28 +341,14 @@ class ConfigManager:
             )
 
         return self.draft_order[round_number - 1]
-
-    def get_matchup_multiplier(self, matchup_level: str) -> float:
-        """
-        Get the multiplier for a specific matchup level.
-
-        Args:
-            matchup_level: The matchup quality level
-
-        Returns:
-            The multiplier value
-
-        Raises:
-            KeyError: If matchup level is not found
-        """
-        if "MULTIPLIERS" not in self.matchup_scoring:
-            raise KeyError("MATCHUP_SCORING missing MULTIPLIERS")
-
-        multipliers = self.matchup_scoring["MULTIPLIERS"]
-        if matchup_level not in multipliers:
-            raise KeyError(f"Unknown matchup level: {matchup_level}")
-
-        return multipliers[matchup_level]
+    
+    def get_ideal_draft_position(self, round_num: int) -> str:
+        """Get the ideal position to draft in a given round (returns PRIMARY='P' position)"""
+        if round_num < len(self.draft_order):
+            # IMPORTANT: Use min() not max() because 'P' (PRIMARY) < 'S' (SECONDARY) in string comparison
+            best_position = min(self.draft_order[round_num], key=self.draft_order[round_num].get)
+            return best_position
+        return 'FLEX'
 
     def __repr__(self) -> str:
         """String representation of the config manager."""

@@ -1,5 +1,8 @@
 import sys
 from pathlib import Path
+from typing import List
+
+from util.ConfigManager import ConfigManager
 
 parent_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(parent_dir))
@@ -8,6 +11,7 @@ import constants as Constants
 parent_dir = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(parent_dir))
 from utils.LoggingManager import get_logger
+from utils.FantasyPlayer import FantasyPlayer
 
 # FantasyTeam class to manage a fantasy football team
 # It holds drafted players, manages roster limits, and draft order
@@ -29,7 +33,7 @@ class FantasyTeam:
         bye_week_counts: Dictionary tracking bye week distribution by position
         draft_order: List representing draft order with player assignments
     """
-    def __init__(self, players=None):
+    def __init__(self, config : ConfigManager, players : List[FantasyPlayer] = []):
         """
         Initialize a FantasyTeam instance.
 
@@ -37,6 +41,7 @@ class FantasyTeam:
             players: Optional list of FantasyPlayer instances to initialize roster with.
                     If None, starts with an empty roster.
         """
+        self.config = config
         self.logger = get_logger()
         self.logger.debug(f"FantasyTeam.__init__ called with {len(players) if players else 0} players")
         # Roster holds Player instances drafted so far
@@ -53,7 +58,7 @@ class FantasyTeam:
             Constants.FLEX: 0
         }
 
-        # NEW: Explicit slot tracking - Track actual slot assignments
+        # Explicit slot tracking - Track actual slot assignments
         self.slot_assignments = {
             Constants.QB: [],     # List of player IDs in QB slots
             Constants.RB: [],     # List of player IDs in RB slots
@@ -82,7 +87,7 @@ class FantasyTeam:
             pos = player.position
             pos_with_flex = Constants.FLEX if pos in Constants.FLEX_ELIGIBLE_POSITIONS else pos
             for i in range(Constants.MAX_PLAYERS):
-                if self.draft_order[i] is None and pos_with_flex == Constants.get_ideal_draft_position(i):
+                if self.draft_order[i] is None and pos_with_flex == self.config.get_ideal_draft_position(i):
                     self.draft_order[i] = player
                     break
 
@@ -91,7 +96,7 @@ class FantasyTeam:
         self.logger.debug(f"draft_order after assignment: {[p.id if p else None for p in self.draft_order]}")
         self.logger.info(f"FantasyTeam initialized. Roster size: {len(self.roster)}")
 
-    def _assign_player_to_slot(self, player):
+    def _assign_player_to_slot(self, player : FantasyPlayer):
         """
         Assign a player to the appropriate slot and update counts.
 
@@ -146,8 +151,8 @@ class FantasyTeam:
         # Find the next open draft position
         for i in range(Constants.MAX_PLAYERS):
             if self.draft_order[i] is None:
-                self.logger.debug(f"Next draft position weights: {Constants.DRAFT_ORDER[i]}")
-                return Constants.DRAFT_ORDER[i]
+                self.logger.debug(f"Next draft position weights: {self.config.draft_order[i]}")
+                return self.config.draft_order[i]
         self.logger.debug("No draft position weights available (draft full)")
         return None
 
@@ -159,7 +164,7 @@ class FantasyTeam:
     # 3. The FLEX position itself is not yet filled to its max limit
     # This allows drafting a player into the FLEX spot when their main position is full
     # but there is still room in the FLEX slot.
-    def flex_eligible(self, pos):
+    def flex_eligible(self, pos : str):
         """
         Check if a player of the given position can be drafted into the FLEX slot.
 
@@ -189,7 +194,7 @@ class FantasyTeam:
         return result
 
     # Method to check if a player can be drafted
-    def can_draft(self, player):
+    def can_draft(self, player : FantasyPlayer) -> bool:
         """
         Check if a player can be drafted to the team.
 
@@ -239,7 +244,7 @@ class FantasyTeam:
         return True
 
     # Method to draft a player onto the team
-    def draft_player(self, player):
+    def draft_player(self, player : FantasyPlayer):
         """
         Draft a player onto the team.
 
@@ -278,7 +283,7 @@ class FantasyTeam:
             return False
 
     # Method to remove a player from the team (for trade helper)
-    def remove_player(self, player):
+    def remove_player(self, player : FantasyPlayer):
         """
         Remove a player from the team roster.
 
@@ -335,7 +340,7 @@ class FantasyTeam:
         return True
 
     # Method to replace a player atomically (for trade helper)
-    def replace_player(self, old_player, new_player):
+    def replace_player(self, old_player : FantasyPlayer, new_player : FantasyPlayer):
         """
         Replace one player on the roster with another player.
 
@@ -383,7 +388,7 @@ class FantasyTeam:
         return True
     
     # Helper method to check if a player replacement is valid
-    def _can_replace_player(self, old_player, new_player):
+    def _can_replace_player(self, old_player : FantasyPlayer, new_player : FantasyPlayer):
         """
         Check if a player replacement is valid using explicit slot tracking.
 
@@ -458,7 +463,7 @@ class FantasyTeam:
             total_score += scoring_function(player)
         return total_score
 
-    def get_players_by_slot(self, slot):
+    def get_players_by_slot(self, slot : str):
         """
         Get all players assigned to a specific slot.
 
@@ -471,7 +476,7 @@ class FantasyTeam:
         player_ids = self.slot_assignments.get(slot, [])
         return [p for p in self.roster if p.id in player_ids]
 
-    def get_weakest_player_by_position(self, position, scoring_function):
+    def get_weakest_player_by_position(self, position : str, scoring_function):
         """
         Get the weakest player of a given position for trade optimization.
 
@@ -691,6 +696,17 @@ class FantasyTeam:
         # Player is in roster but not in slot assignments - this is an error
         self.logger.warning(f"Player {player.name} ({player.id}) is in roster but not assigned to any slot")
         return None
+    
+    def get_matching_byes_in_roster(self, bye_week : int, position : str, is_rostered : bool):
+        matches = 0
+
+        for p in self.roster:
+            if p.bye_week == bye_week and p.position == position:
+                matches += 1
+
+        if is_rostered:
+            matches -= 1
+        return matches
 
     # print the ideal draft order, and what the actual draft order is
     def print_draft_order(self):
@@ -702,4 +718,5 @@ class FantasyTeam:
         """
         self.logger.debug("FantasyTeam.print_draft_order called")
         for i, pos in enumerate(Constants.DRAFT_ORDER):
-            print(f"Round {i + 1}: {', '.join(pos.keys())} -- Drafted: {self.draft_order[i].name if self.draft_order[i] else 'None'} ({self.draft_order[i].position if self.draft_order[i] else 'None'})")
+            print(f"Round {i + 1}: {', '.join(pos.keys())} -- Drafted: {self.draft_order[i].name if self.draft_order[i] 
+                                                                        else 'None'} ({self.draft_order[i].position if self.draft_order[i] else 'None'})")
