@@ -14,7 +14,6 @@ This module provides:
 - Mode-specific constants (waiver optimizer, recommendations)
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 # =============================================================================
@@ -92,20 +91,6 @@ def get_position_with_flex(position):
 # =============================================================================
 # Weeks in which NFL teams have bye weeks (no game)
 POSSIBLE_BYE_WEEKS = [5, 6, 7, 8, 9, 10, 11, 12, 14]
-
-# =============================================================================
-# STARTING LINEUP REQUIREMENTS (Start 7 Fantasy League)
-# =============================================================================
-# Number of players required at each position for a valid starting lineup
-STARTING_LINEUP_REQUIREMENTS = {
-    QB: 1,      # 1 Quarterback
-    RB: 2,      # 2 Running Backs
-    WR: 2,      # 2 Wide Receivers
-    TE: 1,      # 1 Tight End
-    FLEX: 1,    # 1 FLEX (Wide Receiver OR Running Back)
-    K: 1,       # 1 Kicker
-    DST: 1,     # 1 Defense/Special Teams
-}
 
 # =============================================================================
 # SCORING CONFIGURATION

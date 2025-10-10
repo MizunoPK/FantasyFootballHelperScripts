@@ -14,7 +14,6 @@ This module serves as the central hub that:
 - Coordinates data flow between different modes
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 from pathlib import Path

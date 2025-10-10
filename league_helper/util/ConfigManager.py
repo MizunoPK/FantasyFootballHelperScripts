@@ -14,7 +14,6 @@ This module handles:
 - Calculating penalties for injuries and bye weeks
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import json

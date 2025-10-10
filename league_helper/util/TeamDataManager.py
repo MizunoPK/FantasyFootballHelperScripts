@@ -18,7 +18,6 @@ Matchup calculations:
 - Positive values indicate favorable matchups
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 from pathlib import Path

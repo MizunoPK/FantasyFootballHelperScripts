@@ -26,7 +26,6 @@ The 9-step scoring algorithm:
 9. Injury Penalty (risk assessment)
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import csv
@@ -526,7 +525,9 @@ class PlayerManager:
         return player_score * multiplier
     
     def _apply_matchup_multiplier(self, p : FantasyPlayer, player_score : float):
-        multiplier = self.config.get_matchup_multiplier(p.matchup_score)
+        multiplier = 1.0
+        if p.position in Constants.MATCHUP_ENABLED_POSITIONS:
+            multiplier = self.config.get_matchup_multiplier(p.matchup_score)
         return player_score * multiplier
     
     def _apply_draft_order_bonus(self, p : FantasyPlayer, draft_round : int, player_score : float):

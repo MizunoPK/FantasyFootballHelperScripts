@@ -17,7 +17,6 @@ should be prioritized in each round, applying appropriate bonuses to
 guide recommendations.
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 from pathlib import Path
