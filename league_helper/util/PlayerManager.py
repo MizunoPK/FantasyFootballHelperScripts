@@ -1,3 +1,33 @@
+"""
+Player Manager
+
+Manages all player data, scoring calculations, and roster operations.
+This is the core module responsible for loading player data from CSV,
+calculating player scores using the 9-step scoring algorithm, and
+managing draft operations.
+
+Key responsibilities:
+- Loading and parsing player data from players.csv
+- Calculating consistency scores from weekly projections
+- Computing the 9-step scoring algorithm for player evaluation
+- Managing the team roster through FantasyTeam
+- Updating the CSV file with roster changes
+- Displaying roster information
+
+The 9-step scoring algorithm:
+1. Normalization (based on fantasy_points projection)
+2. ADP Multiplier (market wisdom adjustment)
+3. Player Rating Multiplier (expert consensus)
+4. Team Quality Multiplier (offensive/defensive strength)
+5. Consistency Multiplier (CV-based volatility)
+6. Matchup Multiplier (opponent strength)
+7. Draft Order Bonus (positional value by round)
+8. Bye Week Penalty (roster conflicts)
+9. Injury Penalty (risk assessment)
+
+Author: Kai Mizuno
+Date: 2024
+"""
 
 import csv
 from pathlib import Path
@@ -20,19 +50,62 @@ from utils.LoggingManager import get_logger
 
 
 class PlayerManager:
+    """
+    Manages player data, scoring, and roster operations.
+
+    This class is responsible for all player-related functionality including
+    loading player data from CSV, calculating scores using the 9-step algorithm,
+    managing the team roster, and persisting changes back to the CSV file.
+
+    Attributes:
+        logger: Logger instance for tracking operations
+        config (ConfigManager): Configuration manager for scoring parameters
+        team_data_manager (TeamDataManager): Manager for team rankings and matchups
+        file_str (str): Path to players.csv file
+        team (FantasyTeam): Current fantasy team roster
+        players (List[FantasyPlayer]): All available players
+        max_projection (int): Maximum fantasy points projection (for normalization)
+
+    Example:
+        >>> player_manager = PlayerManager(data_folder, config, team_data_manager)
+        >>> score = player_manager.score_player(player, draft_round=0)
+        >>> can_add = player_manager.can_draft(player)
+        >>> if can_add:
+        ...     player_manager.draft_player(player)
+        ...     player_manager.update_players_file()
+    """
 
     def __init__(self, data_folder : Path, config : ConfigManager, team_data_manager : TeamDataManager):
+        """
+        Initialize the Player Manager.
+
+        Args:
+            data_folder (Path): Path to data directory containing players.csv
+            config (ConfigManager): Configuration manager with scoring parameters
+            team_data_manager (TeamDataManager): Manager for team rankings and matchups
+
+        Side Effects:
+            - Loads all players from players.csv
+            - Calculates consistency scores for each player
+            - Initializes the team roster with drafted players
+            - Logs player loading statistics
+        """
         self.logger = get_logger()
+        self.logger.info("Initializing Player Manager")
+
         self.config = config
         self.team_data_manager = team_data_manager
 
         self.file_str = str(data_folder / 'players.csv')
+        self.logger.debug(f"Players CSV path: {self.file_str}")
+
         self.team: FantasyTeam
         self.players: List[FantasyPlayer] = []
         self.max_projection : int = 0
 
         self.load_players_from_csv()
         self.load_team()
+        self.logger.info(f"Player Manager initialized with {len(self.players)} players, {len(self.team.roster)} on roster")
 
 
     def load_players_from_csv(self):
@@ -165,13 +238,38 @@ class PlayerManager:
 
     def load_team(self):
         """
-        Load the current team from the player data
-        it will be players marked as drafted=2
+        Load the current team roster from player data.
+
+        Filters players where drafted=2 (drafted by user) and initializes
+        the FantasyTeam with these rostered players. Players with drafted=1
+        are drafted by opponents, drafted=0 are available.
+
+        Side Effects:
+            - Creates new FantasyTeam instance
+            - Assigns players to roster slots based on position priority
         """
         drafted_players = [p for p in self.players if p.drafted == 2]
+        self.logger.debug(f"Loading team roster with {len(drafted_players)} drafted players")
         self.team = FantasyTeam(self.config, drafted_players)
+        self.logger.info(f"Team loaded: {len(self.team.roster)} players on roster")
 
     def update_players_file(self) -> str:
+        """
+        Save current player data back to CSV file.
+
+        Sorts players by drafted status (available → opponents → us) and writes
+        all player data including weekly projections back to players.csv.
+
+        Returns:
+            str: Success message
+
+        Side Effects:
+            - Overwrites players.csv with current state
+            - Preserves all columns including weekly projections
+            - Sorts by drafted status for easier reading
+        """
+        self.logger.debug("Updating players CSV file")
+
         # Sort players by drafted value (ascending: 0=available, 1=drafted by others, 2=drafted by us)
         sorted_players = sorted(self.players, key=lambda p: p.drafted)
 
@@ -331,7 +429,7 @@ class PlayerManager:
         return cv, weeks_count
 
 
-    def score_player(self, p : FantasyPlayer, adp=True, player_rating=True, team_quality=True, consistency=True, matchup=False, draft_round=0, bye=True, injury=True) -> float:
+    def score_player(self, p : FantasyPlayer, adp=True, player_rating=True, team_quality=True, consistency=True, matchup=False, draft_round=-1, bye=True, injury=True) -> float:
         """
         Calculate score for a player (8-step calculation).
 
@@ -381,7 +479,9 @@ class PlayerManager:
             self.logger.debug(f"Step 6 - After matchup multiplier for {p.name}: {player_score:.2f}")
 
         # STEP 7: Add DRAFT_ORDER bonus (round-based position priority)
-        if (draft_round > 0):
+        # BUG FIX: Changed from draft_round > 0 to draft_round >= 0
+        # This allows round 0 (first round) to get bonuses, -1 is the disabled flag
+        if (draft_round >= 0):
             player_score = self._apply_draft_order_bonus(p, draft_round, player_score)
             self.logger.debug(f"Step 7 - After DRAFT_ORDER bonus for {p.name}: {player_score:.2f}")
 

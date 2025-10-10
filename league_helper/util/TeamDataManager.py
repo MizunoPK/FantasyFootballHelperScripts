@@ -1,12 +1,24 @@
 #!/usr/bin/env python3
 """
-Team Data Loader for Draft Helper
+Team Data Manager
 
-This module handles loading team offensive/defensive rankings from teams.csv
-for use in enhanced scoring calculations.
+Manages NFL team rankings and matchup data for scoring calculations.
+Loads team offensive/defensive rankings from teams.csv and provides
+matchup analysis for player scoring adjustments.
+
+Key responsibilities:
+- Loading team data from teams.csv
+- Caching team rankings (offensive and defensive)
+- Calculating matchup differentials for players
+- Providing opponent information for each team
+
+Matchup calculations:
+- Offensive players: opponent_defensive_rank - team_offensive_rank
+- Defensive players: opponent_offensive_rank - team_defensive_rank
+- Positive values indicate favorable matchups
 
 Author: Kai Mizuno
-Last Updated: September 2025
+Date: 2024
 """
 
 from pathlib import Path
@@ -19,16 +31,31 @@ from utils.LoggingManager import get_logger
 
 
 class TeamDataManager:
-    """Loads and manages team ranking data from teams.csv file."""
+    """
+    Loads and manages team ranking data from teams.csv file.
+
+    This class caches team data for efficient lookup during scoring calculations
+    and provides methods for matchup analysis.
+
+    Attributes:
+        logger: Logger instance for tracking operations
+        teams_file (Path): Path to teams.csv data file
+        team_data_cache (Dict[str, TeamData]): Cached team data by team abbreviation
+    """
 
     def __init__(self, data_folder: Path):
         """
-        Initialize TeamDataManager.
+        Initialize TeamDataManager and load team data.
 
         Args:
-            teams_file_path: Path to teams.csv file. If None, uses shared_files/teams.csv
+            data_folder (Path): Path to data directory containing teams.csv
+
+        Side Effects:
+            - Loads teams.csv into memory cache
+            - Logs warning if teams.csv is not found
         """
         self.logger = get_logger()
+        self.logger.debug("Initializing Team Data Manager")
 
         self.teams_file = data_folder / 'teams.csv'
         self.team_data_cache: Dict[str, TeamData] = {}

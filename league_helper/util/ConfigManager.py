@@ -1,7 +1,20 @@
 """
-Configuration manager for all league settings.
+Configuration Manager
 
-Manages all NFL settings, scoring parameters, and mode-specific configurations.
+Centralized configuration management for Fantasy Football League Helper.
+Loads and validates all league settings from league_config.json, providing
+type-safe access to scoring parameters, thresholds, multipliers, and
+mode-specific configurations.
+
+This module handles:
+- Loading and validating JSON configuration
+- Extracting NFL settings (season, week, scoring format)
+- Managing scoring thresholds and multipliers for all 9 scoring steps
+- Providing draft order bonuses and strategy
+- Calculating penalties for injuries and bye weeks
+
+Author: Kai Mizuno
+Date: 2024
 """
 
 import json
@@ -18,7 +31,18 @@ from utils.FantasyPlayer import FantasyPlayer
 
 
 class ConfigKeys:
-    """Constants for JSON configuration keys."""
+    """
+    Constants for JSON configuration keys.
+
+    This class defines all valid keys used in league_config.json, providing
+    a centralized reference for configuration structure. Using constants
+    prevents typos and makes refactoring easier.
+
+    The configuration follows a hierarchical structure:
+    - Top level: config_name, description, parameters
+    - Parameters: NFL settings, scoring configs, mode-specific settings
+    - Nested: thresholds, multipliers, bonuses for each scoring category
+    """
 
     # Top Level Keys
     CONFIG_NAME = "config_name"
@@ -66,14 +90,47 @@ class ConfigKeys:
 
 
 class ConfigManager:
-    """Manages all configuration settings from a single league_config.json file."""
+    """
+    Manages all configuration settings from league_config.json.
+
+    This class is the single source of truth for all league configuration,
+    including scoring parameters, thresholds, multipliers, and mode-specific
+    settings. It validates the JSON structure and provides type-safe access
+    to all configuration values.
+
+    Attributes:
+        config_name (str): Name of the configuration (e.g., "Default", "Test High Normalization")
+        description (str): Description of this configuration's purpose
+        current_nfl_week (int): Current NFL week number
+        nfl_season (int): Current NFL season year
+        nfl_scoring_format (str): Scoring format ("ppr", "std", "half")
+        normalization_max_scale (float): Maximum scale for normalized scores
+        base_bye_penalty (float): Base penalty per bye week conflict
+        injury_penalties (Dict[str, float]): Penalties by injury risk level (LOW/MEDIUM/HIGH)
+        adp_scoring (Dict): ADP thresholds and multipliers
+        player_rating_scoring (Dict): Player rating thresholds and multipliers
+        team_quality_scoring (Dict): Team quality thresholds and multipliers
+        consistency_scoring (Dict): Consistency thresholds and multipliers
+        matchup_scoring (Dict): Matchup thresholds and multipliers
+        draft_order_bonuses (Dict): PRIMARY and SECONDARY draft bonuses
+        draft_order (List[Dict]): Draft strategy by round
+
+    Example:
+        >>> config = ConfigManager(Path("./data"))
+        >>> adp_mult = config.get_adp_multiplier(15)  # ADP of 15 → returns multiplier
+        >>> draft_bonus = config.get_draft_order_bonus("RB", 1)  # RB in round 1 → returns bonus
+    """
 
     def __init__(self, data_folder: Path):
         """
         Initialize the config manager and load configuration.
 
         Args:
-            project_root: Root directory of the project
+            data_folder (Path): Path to the data directory containing league_config.json
+
+        Raises:
+            FileNotFoundError: If league_config.json is not found
+            ValueError: If configuration structure is invalid or missing required fields
         """
         self.keys = ConfigKeys()
         self.config_name: str = ""
@@ -106,12 +163,30 @@ class ConfigManager:
         self._load_config()
 
     def _load_config(self) -> None:
-        """Load and validate configuration from JSON file."""
+        """
+        Load and validate configuration from JSON file.
+
+        Reads league_config.json, validates its structure, extracts all parameters,
+        and stores them in instance variables for type-safe access.
+
+        Raises:
+            FileNotFoundError: If league_config.json does not exist
+            json.JSONDecodeError: If the JSON is malformed
+            ValueError: If required fields are missing or invalid
+        """
+        self.logger.debug(f"Loading configuration from: {self.config_path}")
+
         if not self.config_path.exists():
+            self.logger.error(f"Configuration file not found: {self.config_path}")
             raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
 
-        with open(self.config_path, 'r') as f:
-            data = json.load(f)
+        try:
+            with open(self.config_path, 'r') as f:
+                data = json.load(f)
+            self.logger.debug("Successfully loaded JSON configuration")
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Invalid JSON in configuration file: {e}")
+            raise
 
         # Validate required fields
         self._validate_config_structure(data)
@@ -121,13 +196,13 @@ class ConfigManager:
         self.description = data.get(self.keys.DESCRIPTION, "")
         self.parameters = data.get(self.keys.PARAMETERS, {})
 
-        self.logger.debug(f"Loaded config file: {self.config_path}")
-        self.logger.info(f"Loaded config_name: {self.config_name}")
-        self.logger.debug(f"Loaded description: {self.description}")
-        self.logger.info(f"Loaded parameters: {self.parameters}")
+        self.logger.info(f"Loaded configuration: '{self.config_name}'")
+        self.logger.debug(f"Description: {self.description}")
+        self.logger.debug(f"Parameters count: {len(self.parameters)}")
 
         # Extract and validate all parameters
         self._extract_parameters()
+        self.logger.info("Configuration loaded and validated successfully")
 
     def _validate_config_structure(self, data: Dict[str, Any]) -> None:
         """
@@ -137,18 +212,22 @@ class ConfigManager:
             data: The loaded JSON data
 
         Raises:
-            ValueError: If required fields are missing
+            ValueError: If required fields are missing or have invalid types
         """
         required_fields = [self.keys.CONFIG_NAME, self.keys.DESCRIPTION, self.keys.PARAMETERS]
         missing_fields = [field for field in required_fields if field not in data]
 
         if missing_fields:
-            raise ValueError(
-                f"Configuration missing required fields: {', '.join(missing_fields)}"
-            )
+            error_msg = f"Configuration missing required fields: {', '.join(missing_fields)}"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
 
         if not isinstance(data[self.keys.PARAMETERS], dict):
-            raise ValueError("'parameters' field must be a dictionary")
+            error_msg = "'parameters' field must be a dictionary"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        self.logger.debug("Configuration structure validation passed")
 
     def _extract_parameters(self) -> None:
         """Extract and validate all parameters from the config."""
@@ -247,6 +326,24 @@ class ConfigManager:
         return key in self.parameters
     
     def get_consistency_label(self, val):
+        """
+        Get a human-readable label for a consistency value.
+
+        Consistency is measured using Coefficient of Variation (CV) where
+        lower values indicate more consistent performance.
+
+        Args:
+            val (float): Coefficient of Variation (CV) value
+
+        Returns:
+            str: Label describing consistency level (EXCELLENT, GOOD, NEUTRAL, POOR, VERY_POOR)
+
+        Example:
+            >>> config.get_consistency_label(0.15)  # Very consistent
+            'EXCELLENT'
+            >>> config.get_consistency_label(0.9)   # Very inconsistent
+            'VERY_POOR'
+        """
         if val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
             return self.keys.EXCELLENT
         elif val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.GOOD]:
@@ -260,32 +357,63 @@ class ConfigManager:
 
     
     def _get_multiplier(self, scoring_dict : Dict[str, Any], val, rising_thresholds=True):
+        """
+        Get multiplier based on threshold logic.
+
+        Args:
+            scoring_dict: Dictionary with THRESHOLDS and MULTIPLIERS
+            val: Value to evaluate
+            rising_thresholds: True if higher values are better (e.g., player rating)
+                              False if lower values are better (e.g., ADP, team rank)
+
+        Returns:
+            float: Multiplier value
+
+        Logic:
+            rising_thresholds=True (higher is better):
+                - val >= EXCELLENT threshold → EXCELLENT multiplier
+                - val >= GOOD threshold → GOOD multiplier
+                - GOOD > val > POOR → neutral (1.0)
+                - val <= POOR threshold → POOR multiplier
+                - val <= VERY_POOR threshold → VERY_POOR multiplier
+
+            rising_thresholds=False (lower is better):
+                - val <= EXCELLENT threshold → EXCELLENT multiplier
+                - val <= GOOD threshold → GOOD multiplier
+                - GOOD < val < POOR → neutral (1.0)
+                - val >= POOR threshold → POOR multiplier
+                - val >= VERY_POOR threshold → VERY_POOR multiplier
+        """
         # Handle None values - return neutral multiplier (1.0) when data is unavailable
         if val is None:
             return 1.0
 
         if rising_thresholds:
+            # Higher values are better (e.g., player rating where 80+ is excellent)
+            # Check from best to worst
+            if val >= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT]
+            elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD]
+            elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR]
+            elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR]
+            else:
+                return 1.0
+        else:
+            # Lower values are better (e.g., ADP where 20 or less is excellent)
+            # Check from best to worst
             if val <= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
                 return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT]
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
                 return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD]
-            elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR]
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
                 return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR]
+            elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR]
             else:
                 return 1.0
-
-        if val <= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
-            return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT]
-        elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
-            return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD]
-        elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
-            return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR]
-        elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
-            return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR]
-        else:
-            return 1.0
 
     def get_adp_multiplier(self, adp_val):
         return self._get_multiplier(self.adp_scoring, adp_val, rising_thresholds=False)
@@ -297,7 +425,12 @@ class ConfigManager:
         return self._get_multiplier(self.team_quality_scoring, quality_rank, rising_thresholds=False)
     
     def get_consistency_multiplier(self, value):
-        return self._get_multiplier(self.consistency_scoring, value)
+        # BUG FIX: Consistency uses CV (coefficient of variation) where lower is better
+        # So we need rising_thresholds=False (like ADP and team quality)
+        # Special case: if value == 0.5 (insufficient data default), return neutral 1.0
+        if value == 0.5:
+            return 1.0
+        return self._get_multiplier(self.consistency_scoring, value, rising_thresholds=False)
     
     def get_matchup_multiplier(self, value):
         return self._get_multiplier(self.matchup_scoring, value)

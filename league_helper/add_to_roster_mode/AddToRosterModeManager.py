@@ -1,4 +1,24 @@
+"""
+Add to Roster Mode Manager
 
+Manages the draft assistant mode for building your fantasy roster.
+Provides intelligent player recommendations based on draft position strategy,
+team needs, and the 9-step scoring algorithm.
+
+Key features:
+- Real-time draft recommendations based on current round
+- Position-aware draft strategy (follows DRAFT_ORDER config)
+- Interactive player selection
+- Roster display by draft rounds
+- Automatic CSV updates after each pick
+
+The mode uses the configured DRAFT_ORDER to determine which positions
+should be prioritized in each round, applying appropriate bonuses to
+guide recommendations.
+
+Author: Kai Mizuno
+Date: 2024
+"""
 
 from pathlib import Path
 from typing import Dict, Any, List
@@ -17,10 +37,43 @@ from utils.LoggingManager import get_logger
 from utils.FantasyPlayer import FantasyPlayer
 
 class AddToRosterModeManager:
+    """
+    Manages the Add to Roster (draft assistant) mode.
+
+    This mode helps users build their fantasy roster by providing intelligent
+    player recommendations that consider:
+    - Current draft round and position strategy (PRIMARY/SECONDARY bonuses)
+    - Team composition and positional needs
+    - Player scores calculated via the 9-step algorithm
+    - Availability and roster limits
+
+    Attributes:
+        config (ConfigManager): Configuration manager with draft strategy
+        logger: Logger instance for tracking draft events
+        player_manager (PlayerManager): Manages player data and scoring
+        team_data_manager (TeamDataManager): Provides team rankings
+
+    Example workflow:
+        1. User enters Add to Roster mode
+        2. System shows current roster organized by draft rounds
+        3. System calculates top recommendations for current round
+        4. User selects a player to draft
+        5. Roster updated and saved to CSV
+        6. Returns to main menu
+    """
 
     def __init__(self, config: ConfigManager, player_manager : PlayerManager, team_data_manager : TeamDataManager):
+        """
+        Initialize Add to Roster Mode Manager.
+
+        Args:
+            config (ConfigManager): Configuration with draft order strategy
+            player_manager (PlayerManager): Manages players and scoring
+            team_data_manager (TeamDataManager): Provides team data
+        """
         self.config = config
         self.logger = get_logger()
+        self.logger.debug("Initializing Add to Roster Mode Manager")
         self.set_managers(player_manager, team_data_manager)
 
     def set_managers(self, player_manager : PlayerManager, team_data_manager : TeamDataManager):
@@ -29,7 +82,19 @@ class AddToRosterModeManager:
 
 
     def start_interactive_mode(self, player_manager, team_data_manager):
+        """
+        Start the interactive Add to Roster mode.
+
+        Displays current roster and provides player recommendations until
+        user drafts a player or chooses to return to main menu.
+
+        Args:
+            player_manager (PlayerManager): Updated player manager instance
+            team_data_manager (TeamDataManager): Updated team data manager instance
+        """
         self.set_managers(player_manager, team_data_manager)
+        self.logger.info("Entering Add to Roster interactive mode")
+
         print("\n" + "="*50)
         print("ADD TO ROSTER MODE")
         print("="*50)
@@ -37,11 +102,15 @@ class AddToRosterModeManager:
         # Show enhanced roster display by draft rounds
         self._display_roster_by_draft_rounds()
 
+        current_round = self._get_current_round()
+        self.logger.info(f"Current draft round: {current_round}/{Constants.MAX_PLAYERS}")
+
         while True:
             print("\nTop draft recommendations based on your current roster:")
             recommendations = self.get_recommendations()
 
             if not recommendations:
+                self.logger.warning("No recommendations available - roster full or no available players")
                 print("No recommendations available (roster may be full or no available players).")
                 print("Returning to Main Menu...")
                 break
