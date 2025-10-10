@@ -18,7 +18,7 @@ Author: Kai Mizuno
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -86,6 +86,7 @@ class ConfigKeys:
     POOR = "POOR"
     GOOD = "GOOD"
     EXCELLENT = "EXCELLENT"
+    NEUTRAL = "NEUTRAL"
 
 
 class ConfigManager:
@@ -355,7 +356,7 @@ class ConfigManager:
             return "NEUTRAL"
 
     
-    def _get_multiplier(self, scoring_dict : Dict[str, Any], val, rising_thresholds=True):
+    def _get_multiplier(self, scoring_dict : Dict[str, Any], val, rising_thresholds=True) -> Tuple[float, str]:
         """
         Get multiplier based on threshold logic.
 
@@ -385,65 +386,65 @@ class ConfigManager:
         """
         # Handle None values - return neutral multiplier (1.0) when data is unavailable
         if val is None:
-            return 1.0
+            return 1.0, self.keys.NEUTRAL
 
         if rising_thresholds:
             # Higher values are better (e.g., player rating where 80+ is excellent)
             # Check from best to worst
             if val >= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT]
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD]
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR]
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR]
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
             else:
-                return 1.0
+                return 1.0, self.keys.NEUTRAL
         else:
             # Lower values are better (e.g., ADP where 20 or less is excellent)
             # Check from best to worst
             if val <= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT]
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD]
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR]
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR]
+                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
             else:
-                return 1.0
+                return 1.0, self.keys.NEUTRAL
 
-    def get_adp_multiplier(self, adp_val):
+    def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
         return self._get_multiplier(self.adp_scoring, adp_val, rising_thresholds=False)
     
-    def get_player_rating_multiplier(self, rating):
+    def get_player_rating_multiplier(self, rating) -> Tuple[float, str]:
         return self._get_multiplier(self.player_rating_scoring, rating)
     
-    def get_team_quality_multiplier(self, quality_rank : int):
+    def get_team_quality_multiplier(self, quality_rank : int) -> Tuple[float, str]:
         return self._get_multiplier(self.team_quality_scoring, quality_rank, rising_thresholds=False)
     
-    def get_consistency_multiplier(self, value):
+    def get_consistency_multiplier(self, value) -> Tuple[float, str]:
         # BUG FIX: Consistency uses CV (coefficient of variation) where lower is better
         # So we need rising_thresholds=False (like ADP and team quality)
         # Special case: if value == 0.5 (insufficient data default), return neutral 1.0
         if value == 0.5:
-            return 1.0
+            return 1.0, self.keys.NEUTRAL
         return self._get_multiplier(self.consistency_scoring, value, rising_thresholds=False)
     
-    def get_matchup_multiplier(self, value):
+    def get_matchup_multiplier(self, value) -> Tuple[float, str]:
         return self._get_multiplier(self.matchup_scoring, value)
     
-    def get_draft_order_bonus(self, position : str, draft_round : int):
+    def get_draft_order_bonus(self, position : str, draft_round : int) -> Tuple[float, str]:
         position_with_flex = Constants.get_position_with_flex(position)
         ideal_positions = self.draft_order[draft_round]
         if position_with_flex in ideal_positions:
             if ideal_positions.get(position_with_flex) == self.keys.DRAFT_ORDER_PRIMARY_LABEL:
-                return self.draft_order_bonuses[self.keys.BONUS_PRIMARY]
+                return self.draft_order_bonuses[self.keys.BONUS_PRIMARY], self.keys.BONUS_PRIMARY
             else:
-                return self.draft_order_bonuses[self.keys.BONUS_SECONDARY]
+                return self.draft_order_bonuses[self.keys.BONUS_SECONDARY], self.keys.BONUS_SECONDARY
         else:
-            return 0
+            return 0, ""
         
     def get_bye_week_penalty(self, num_matching_byes : int):
         return self.base_bye_penalty * num_matching_byes

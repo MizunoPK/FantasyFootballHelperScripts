@@ -95,7 +95,7 @@ class LeagueHelperManager:
         self.drop_player_mode_manager = DropPlayerModeManager()
         self.lock_player_mode_manager = LockPlayerModeManager()
         self.mark_drafted_player_mode_manager = MarkDraftedPlayerModeManager()
-        self.starter_helper_mode_manager = StarterHelperModeManager(self.config)
+        self.starter_helper_mode_manager = StarterHelperModeManager(self.config, self.player_manager, self.team_data_manager)
         self.trade_simulator_mode_manager = TradeSimulatorModeManager()
         self.waiver_optimizer_mode_manager = WaiverOptimizerModeManager(self.config)
         self.logger.info("All mode managers initialized successfully")
@@ -130,7 +130,7 @@ class LeagueHelperManager:
 
             if choice == 1:
                 self.logger.info("Starting Add to Roster mode")
-                self.run_add_to_roster_mode()
+                self._run_add_to_roster_mode()
             elif choice == 2:
                 self.logger.info("Starting Mark Drafted Player mode")
                 self.run_mark_drafted_player_mode()
@@ -145,7 +145,7 @@ class LeagueHelperManager:
                 self.run_lock_unlock_player_mode()
             elif choice == 6:
                 self.logger.info("Starting Starter Helper mode")
-                self.run_starter_helper_mode()
+                self._run_starter_helper_mode()
             elif choice == 7:
                 self.logger.info("Starting Trade Simulator mode")
                 self.run_trade_simulator_mode()
@@ -204,7 +204,7 @@ class LeagueHelperManager:
             return -1
 
 
-    def run_add_to_roster_mode(self):
+    def _run_add_to_roster_mode(self):
         """
         Delegate to Add to Roster mode manager.
 
@@ -212,6 +212,15 @@ class LeagueHelperManager:
         manager to ensure it has the latest data.
         """
         self.add_to_roster_mode_manager.start_interactive_mode(self.player_manager, self.team_data_manager)
+
+    def _run_starter_helper_mode(self):
+        """
+        Delegate to Add to Roster mode manager.
+
+        Passes current player_manager and team_data_manager instances to the mode
+        manager to ensure it has the latest data.
+        """
+        self.starter_helper_mode_manager.show_recommended_starters(self.player_manager, self.team_data_manager)
 
 
 

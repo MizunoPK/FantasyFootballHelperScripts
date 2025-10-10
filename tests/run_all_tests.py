@@ -19,6 +19,7 @@ import subprocess
 from pathlib import Path
 from typing import List, Tuple
 import argparse
+import platform
 
 
 class TestRunner:
@@ -29,7 +30,12 @@ class TestRunner:
         self.detailed = detailed
         self.tests_dir = Path(__file__).parent
         self.project_root = self.tests_dir.parent
-        self.venv_python = self.project_root / ".venv" / "bin" / "python"
+
+        # Detect platform and use appropriate venv path
+        if platform.system() == "Windows":
+            self.venv_python = self.project_root / ".venv" / "Scripts" / "python.exe"
+        else:
+            self.venv_python = self.project_root / ".venv" / "bin" / "python"
 
         # Use system python if venv doesn't exist
         if not self.venv_python.exists():

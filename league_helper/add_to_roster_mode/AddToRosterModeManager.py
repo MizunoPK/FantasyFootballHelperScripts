@@ -30,6 +30,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from util.ConfigManager import ConfigManager
 from util.PlayerManager import PlayerManager
 from util.TeamDataManager import TeamDataManager
+from util.ScoredPlayer import ScoredPlayer
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
@@ -115,12 +116,7 @@ class AddToRosterModeManager:
                 break
 
             for i, p in enumerate(recommendations, start=1):
-                # Show calculated score (used for ranking) instead of raw fantasy points
-                status = f" ({p.injury_status})" if p.injury_status != 'ACTIVE' else ""
-                score_display = getattr(p, 'score', p.fantasy_points)  # Use calculated score if available
-                consistency_rating = self.config.get_consistency_label(p.consistency)
-
-                print(f"{i}. {p.name} ({p.team} {p.position}) - {score_display:.1f} pts {status} [Consistency = {consistency_rating}]")
+                print(f"{i}. {p}")
             print(f"{len(recommendations) + 1}. Back to Main Menu")
 
             try:
@@ -136,7 +132,7 @@ class AddToRosterModeManager:
 
                     # Validate player selection
                     if 0 <= index < len(recommendations):
-                        player_to_draft = recommendations[index]
+                        player_to_draft = recommendations[index].player
                         success = self.player_manager.draft_player(player_to_draft)
 
                         if success:
@@ -218,22 +214,21 @@ class AddToRosterModeManager:
                 return round_num 
     
     
-    def get_recommendations(self) -> List[FantasyPlayer]:
+    def get_recommendations(self) -> List[ScoredPlayer]:
         # get a list of available players that can be drafted
-        available_players : List[FantasyPlayer] = [
-            p for p in self.player_manager.players
-            if self.player_manager.can_draft(p)
-        ]
+        available_players = self.player_manager.get_player_list(drafted_vals=[0], can_draft=True)
 
         # Score each player
+        scored_players : List[ScoredPlayer] = []
         current_round=self._get_current_round()
         for p in available_players:
-            p.score = self.player_manager.score_player(p, draft_round=current_round)
+            scored_player = self.player_manager.score_player(p, draft_round=current_round)
+            scored_players.append(scored_player)
 
         # Sort available players by score descending
-        ranked_players = sorted(available_players, key=lambda x: x.score, reverse=True)
+        ranked_players = sorted(scored_players, key=lambda x: x.score, reverse=True)
 
         # Return top recommended players
-        self.logger.info(f"Recommended next picks: {[p.name for p in ranked_players[:Constants.RECOMMENDATION_COUNT]]}")
+        self.logger.info(f"Recommended next picks: {[p.player.name for p in ranked_players[:Constants.RECOMMENDATION_COUNT]]}")
         return ranked_players[:Constants.RECOMMENDATION_COUNT]
     

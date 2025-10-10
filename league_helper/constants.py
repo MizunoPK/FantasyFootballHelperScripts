@@ -63,7 +63,7 @@ MAX_POSITIONS = {
 MAX_PLAYERS = 15
 
 # Positions eligible for FLEX spot (RB or WR only)
-FLEX_ELIGIBLE_POSITIONS = [RB, WR]
+FLEX_ELIGIBLE_POSITIONS = [RB, WR, DST]
 
 def get_position_with_flex(position):
     """

@@ -30,7 +30,7 @@ Author: Kai Mizuno
 
 import csv
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 import statistics
 
 import sys
@@ -41,8 +41,8 @@ from util.FantasyTeam import FantasyTeam
 sys.path.append(str(Path(__file__).parent))
 import constants as Constants
 from ConfigManager import ConfigManager
+from ScoredPlayer import ScoredPlayer
 
-import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
@@ -115,7 +115,7 @@ class PlayerManager:
         and can fall back to the legacy format if needed.
         """
         players: list[FantasyPlayer] = []
-        max_projection = 0.0
+        self.max_projection = 0.0
         required_columns = ['id', 'name', 'team', 'position']
 
         # Track consistency data statistics
@@ -179,8 +179,8 @@ class PlayerManager:
                         players.append(player)
 
                         # Track max projection for normalization
-                        if player.fantasy_points and player.fantasy_points > max_projection:
-                            max_projection = player.fantasy_points
+                        if player.fantasy_points and player.fantasy_points > self.max_projection:
+                            self.max_projection = player.fantasy_points
 
                     except Exception as e:
                         error_count += 1
@@ -221,8 +221,8 @@ class PlayerManager:
             # Calculate weighted_projection (normalized between 0-100)
             # Note: This property is deprecated and not actively used - actual normalization
             # happens in NormalizationCalculator using param_manager values
-            if player.fantasy_points and max_projection > 0:
-                player.weighted_projection = (player.fantasy_points / max_projection) * self.config.normalization_max_scale  # Default scale
+            if player.fantasy_points and self.max_projection > 0:
+                player.weighted_projection = (player.fantasy_points / self.max_projection) * self.config.normalization_max_scale  # Default scale
             else:
                 player.weighted_projection = 0.0
                 
@@ -336,6 +336,18 @@ class PlayerManager:
     def draft_player(self, player_to_draft : FantasyPlayer) -> bool:
         return self.team.draft_player(player_to_draft)
     
+    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False) -> List[FantasyPlayer]:
+        player_list = [
+            p for p in self.players
+            if p.drafted in drafted_vals
+        ]
+        if can_draft:
+            drafted_players = [
+                p for p in player_list
+                if self.can_draft(p)
+            ]
+        return player_list
+    
 
     def display_roster_by_draft_order(self):
         """Display current roster organized by assigned slots in draft order"""
@@ -365,6 +377,53 @@ class PlayerManager:
                 print(f"  (No {pos} players)")
 
         print(f"\nTotal roster: {len(self.team.roster)}/{Constants.MAX_PLAYERS} players")
+
+
+    def get_weekly_projection(self, player, week=0) -> Tuple[float, float]:
+        """
+        Get weekly projection for a specific player and week.
+
+        This method retrieves the projected fantasy points for a player in a specific week
+        and calculates the normalized/weighted projection using the same scale as seasonal
+        projections (0-N scale based on normalization_max_scale).
+
+        Args:
+            player (FantasyPlayer): Player to get projection for
+            week (int): NFL week number (1-17). If 0 or outside valid range, uses current_nfl_week
+
+        Returns:
+            Tuple[float, float]: (original_points, weighted_points)
+                - original_points: Raw fantasy points projection for the week
+                - weighted_points: Normalized projection (0-N scale) calculated as
+                  (weekly_points / max_projection) * normalization_max_scale
+                - Returns (0.0, 0.0) if no valid projection data exists
+
+        Example:
+            >>> orig_pts, weighted_pts = player_manager.get_weekly_projection(player, week=5)
+            >>> print(f"Week 5 projection: {orig_pts:.1f} pts (normalized: {weighted_pts:.1f})")
+        """
+        # If week isn't in the valid range (1-17), use current week from config
+        if week not in range(1, 18):
+            week = self.config.current_nfl_week
+
+        # Construct the attribute name for this week's projection
+        week_attr = f'week_{week}_points'
+
+        # Check if player has projection data for this week
+        if hasattr(player, week_attr):
+            weekly_points = getattr(player, week_attr)
+            if weekly_points is not None and float(weekly_points) > 0:
+                weekly_points = float(weekly_points)
+                # Calculate normalized/weighted projection using same scale as seasonal projections
+                # This ensures weekly and seasonal scores are comparable
+                if self.max_projection > 0:
+                    weighted_projection = (weekly_points / self.max_projection) * self.config.normalization_max_scale
+                else:
+                    weighted_projection = 0.0
+                return weekly_points, weighted_projection
+
+        # Return zeros if no valid projection found
+        return 0.0, 0.0
 
 
     def _calculate_consistency(self, player : FantasyPlayer) -> tuple[float, int]:
@@ -428,7 +487,7 @@ class PlayerManager:
         return cv, weeks_count
 
 
-    def score_player(self, p : FantasyPlayer, adp=True, player_rating=True, team_quality=True, consistency=True, matchup=False, draft_round=-1, bye=True, injury=True) -> float:
+    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=True, player_rating=True, team_quality=True, consistency=True, matchup=False, draft_round=-1, bye=True, injury=True) -> ScoredPlayer:
         """
         Calculate score for a player (8-step calculation).
 
@@ -446,52 +505,64 @@ class PlayerManager:
         Returns:
             float: Total score for the player
         """
+        reasons = []
+        def add_to_reasons(r : str):
+            if r is not None and r != "":
+                reasons.append(r)
+
         # STEP 1: Normalize seasonal fantasy points to 0-N scale
-        player_score = self._get_normalized_fantasy_points(p)
+        player_score, reason = self._get_normalized_fantasy_points(p, use_weekly_projection)
+        add_to_reasons(reason)
         self.logger.debug(f"Step 1 - Normalized score for {p.name}: {player_score:.2f}")
 
         # STEP 2: Apply ADP multiplier
         if (adp):
-            player_score = self._apply_adp_multiplier(p, player_score)
+            player_score, reason = self._apply_adp_multiplier(p, player_score)
+            add_to_reasons(reason)
             self.logger.debug(f"Step 2 - ADP Enhanced score for {p.name}: {player_score:.2f}")
 
         # STEP 3: Apply Player Rating multiplier
         if (player_rating):
-            player_score = self._apply_player_rating_multiplier(p, player_score)
+            player_score, reason = self._apply_player_rating_multiplier(p, player_score)
+            add_to_reasons(reason)
             self.logger.debug(f"Step 3 - Player Rating Enhanced score for {p.name}: {player_score:.2f}")
 
         # STEP 4: Apply Team Quality multiplier
         if (team_quality):
-            player_score = self._apply_team_quality_multiplier(p, player_score)
+            player_score, reason = self._apply_team_quality_multiplier(p, player_score)
+            add_to_reasons(reason)
             self.logger.debug(f"Step 4 - Team Quality Enhanced score for {p.name}: {player_score:.2f}")
 
         # STEP 5: Apply Consistency multiplier (CV-based volatility scoring)
         if (consistency):
-            player_score = self._apply_consistency_multiplier(p, player_score)
-
+            player_score, reason = self._apply_consistency_multiplier(p, player_score)
+            add_to_reasons(reason)
             self.logger.debug(f"Step 5 - After consistency for {p.name}: {player_score:.2f}")
 
         # STEP 6: Apply Matchup multiplier
         if (matchup):
-            player_score = self._apply_matchup_multiplier(p, player_score)
-
+            player_score, reason = self._apply_matchup_multiplier(p, player_score)
+            add_to_reasons(reason)
             self.logger.debug(f"Step 6 - After matchup multiplier for {p.name}: {player_score:.2f}")
 
         # STEP 7: Add DRAFT_ORDER bonus (round-based position priority)
         # BUG FIX: Changed from draft_round > 0 to draft_round >= 0
         # This allows round 0 (first round) to get bonuses, -1 is the disabled flag
         if (draft_round >= 0):
-            player_score = self._apply_draft_order_bonus(p, draft_round, player_score)
+            player_score, reason = self._apply_draft_order_bonus(p, draft_round, player_score)
+            add_to_reasons(reason)
             self.logger.debug(f"Step 7 - After DRAFT_ORDER bonus for {p.name}: {player_score:.2f}")
 
         # STEP 8: Subtract Bye Week penalty
         if (bye):
-            player_score = self._apply_bye_week_penalty(p, player_score)
+            player_score, reason = self._apply_bye_week_penalty(p, player_score)
+            add_to_reasons(reason)
             self.logger.debug(f"Step 8 - After bye penalty for {p.name}: {player_score:.2f}")
 
         # STEP 9: Subtract Injury penalty
         if (injury):
-            player_score = self._apply_injury_penalty(p, player_score)
+            player_score, reason = self._apply_injury_penalty(p, player_score)
+            add_to_reasons(reason)
             self.logger.debug(f"Step 9 - Final score for {p.name}: {player_score:.2f}")
 
         # Summary logging
@@ -499,46 +570,64 @@ class PlayerManager:
             f"Scoring for {p.name}: final_score={player_score:.1f}"
         )
 
-        return player_score
+        p.score = player_score
+        return ScoredPlayer(p, player_score, reasons)
     
-    def _get_normalized_fantasy_points(self, p : FantasyPlayer) -> float:
-        return p.weighted_projection
+    def _get_normalized_fantasy_points(self, p : FantasyPlayer, use_weekly_projection : bool) -> Tuple[float, str]:
+        if use_weekly_projection:
+            orig_pts, weighted_pts = self.get_weekly_projection(p)
+        else:
+            orig_pts, weighted_pts = p.fantasy_points, p.weighted_projection
+
+        reason = f"Projected: {orig_pts:.2f} pts, Weighted: {weighted_pts:.2f} pts"
+        return weighted_pts, reason
     
-    def _apply_adp_multiplier(self, p : FantasyPlayer, player_score : float):
+    def _apply_adp_multiplier(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
         """Calculate ADP-based market wisdom adjustment multiplier."""
-        multiplier = self.config.get_adp_multiplier(p.adp)
-        return player_score * multiplier
+        multiplier, rating = self.config.get_adp_multiplier(p.adp)
+        reason = f"ADP: {rating}"
+        return player_score * multiplier, reason
     
-    def _apply_player_rating_multiplier(self, p : FantasyPlayer, player_score : float):
-        multiplier = self.config.get_player_rating_multiplier(p.player_rating)
-        return player_score * multiplier
+    def _apply_player_rating_multiplier(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
+        multiplier, rating = self.config.get_player_rating_multiplier(p.player_rating)
+        reason = f"Player Rating: {rating}"
+        return player_score * multiplier, reason
     
-    def _apply_team_quality_multiplier(self, p : FantasyPlayer, player_score : float):
+    def _apply_team_quality_multiplier(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
         quality_val = p.team_offensive_rank
         if p.position in Constants.DEFENSE_POSITIONS:
             quality_val = p.team_defensive_rank
-        multiplier = self.config.get_team_quality_multiplier(quality_val)
-        return player_score * multiplier
+        multiplier, rating = self.config.get_team_quality_multiplier(quality_val)
+        reason = f"Team Quality: {rating}"
+        return player_score * multiplier, reason
     
-    def _apply_consistency_multiplier(self, p : FantasyPlayer, player_score : float):
-        multiplier = self.config.get_consistency_multiplier(p.consistency)
-        return player_score * multiplier
+    def _apply_consistency_multiplier(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
+        multiplier, rating = self.config.get_consistency_multiplier(p.consistency)
+        reason = f"Consistency: {rating}"
+        return player_score * multiplier, reason
     
-    def _apply_matchup_multiplier(self, p : FantasyPlayer, player_score : float):
+    def _apply_matchup_multiplier(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
         multiplier = 1.0
+        rating = "NEUTRAL"
         if p.position in Constants.MATCHUP_ENABLED_POSITIONS:
-            multiplier = self.config.get_matchup_multiplier(p.matchup_score)
-        return player_score * multiplier
+            multiplier, rating = self.config.get_matchup_multiplier(p.matchup_score)
+        reason = f"Matchup: {rating}"
+        return player_score * multiplier, reason
     
-    def _apply_draft_order_bonus(self, p : FantasyPlayer, draft_round : int, player_score : float):
-        bonus = self.config.get_draft_order_bonus(p.position, draft_round)
-        return player_score + bonus
+    def _apply_draft_order_bonus(self, p : FantasyPlayer, draft_round : int, player_score : float) -> Tuple[float, str]:
+        bonus, bonus_type = self.config.get_draft_order_bonus(p.position, draft_round)
+        reason = ""
+        if bonus_type != "":
+            reason = f"Draft Order Bonus: {bonus_type}"
+        return player_score + bonus, reason
     
-    def _apply_bye_week_penalty(self, p : FantasyPlayer, player_score : float):
+    def _apply_bye_week_penalty(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
         num_matching_byes = self.team.get_matching_byes_in_roster(p.bye_week, p.position, p.is_rostered())
         penalty = self.config.get_bye_week_penalty(num_matching_byes)
-        return player_score - penalty
+        reason = "" if num_matching_byes == 0 else f"Number of Matching Bye Weeks: {num_matching_byes}"
+        return player_score - penalty, reason
 
-    def _apply_injury_penalty(self, p : FantasyPlayer, player_score : float):
+    def _apply_injury_penalty(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
         penalty = self.config.get_injury_penalty(p.get_risk_level())
-        return player_score - penalty
+        reason = "" if p.injury_status == "ACTIVE" else f"Injury: {p.injury_status}"
+        return player_score - penalty, reason
