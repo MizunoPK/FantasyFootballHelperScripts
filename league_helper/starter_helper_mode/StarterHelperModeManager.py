@@ -1,23 +1,14 @@
-#!/usr/bin/env python3
-"""
-Fantasy Football Lineup Optimizer
 
-This module handles the core logic for recommending optimal starting lineups
-based on current week projections and league requirements.
-
-Author: Kai Mizuno
-"""
-
-import logging
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
-import pandas as pd
 
 from pathlib import Path
-import sys
+from typing import Dict, Any, List, Tuple, Optional
+from dataclasses import dataclass
+
+
 sys.path.append(str(Path(__file__).parent))
 import constants as Constants
 
+import sys
 sys.path.append(str(Path(__file__).parent.parent))
 from util.ConfigManager import ConfigManager
 from util.PlayerManager import PlayerManager
@@ -26,6 +17,7 @@ from util.TeamDataManager import TeamDataManager
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
 from utils.FantasyPlayer import FantasyPlayer
+
 
 @dataclass
 class StartingRecommendation:
@@ -68,8 +60,7 @@ class OptimalLineup:
                 self.te, self.flex, self.k, self.dst]
 
 
-class LineupOptimizer:
-    """Handles optimal starting lineup recommendations"""
+class StarterHelperModeManager:
 
     def __init__(self, config: ConfigManager, player_manager : PlayerManager, team_data_manager : TeamDataManager):
         self.config = config
@@ -77,9 +68,14 @@ class LineupOptimizer:
         self.config = config
         self.logger = get_logger()
         self.logger.debug("Initializing Add to Roster Mode Manager")
+        self.set_managers(player_manager, team_data_manager)
+    
+    def set_managers(self, player_manager : PlayerManager, team_data_manager : TeamDataManager):
         self.player_manager = player_manager
         self.team_data_manager = team_data_manager
 
+    def show_reccommended_starters(self, player_manager, team_data_manager):
+        self.set_managers(player_manager, team_data_manager)
 
     def create_starting_recommendation(self,
                                      player_data: FantasyPlayer) -> StartingRecommendation:
@@ -130,3 +126,4 @@ class LineupOptimizer:
 
         self.logger.info(f"Lineup optimization complete. Total projected points: {lineup.total_projected_points:.1f}")
         return lineup, bench
+        
