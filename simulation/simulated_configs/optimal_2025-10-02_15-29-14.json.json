@@ -6,14 +6,14 @@
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
 
-    "NORMALIZATION_MAX_SCALE": 100,
+    "NORMALIZATION_MAX_SCALE": 123.54,
     
     "BASE_BYE_PENALTY": 28.85,
 
     "INJURY_PENALTIES": {
       "LOW": 0,
-      "MEDIUM": 0,
-      "HIGH": 100
+      "MEDIUM": 9.68,
+      "HIGH": 78.22
     },
 
     "DRAFT_ORDER_BONUSES": {
