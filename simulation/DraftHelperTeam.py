@@ -98,20 +98,27 @@ class DraftHelperTeam:
 
         Side Effects:
             - Adds player to self.roster
+            - Adds player to both PlayerManager.team.roster lists
             - Sets player.drafted = 2 in both projected_pm and actual_pm
             - Updates both PlayerManager CSV files
         """
         self.roster.append(player)
 
-        # Mark as drafted by this team (drafted=2) in both PlayerManagers
+        # Mark as drafted by this team (drafted=2) and add to team roster in both PlayerManagers
         for p in self.projected_pm.players:
             if p.id == player.id:
                 p.drafted = 2
+                # Add to team roster for StarterHelperModeManager
+                if p not in self.projected_pm.team.roster:
+                    self.projected_pm.team.roster.append(p)
                 break
 
         for p in self.actual_pm.players:
             if p.id == player.id:
                 p.drafted = 2
+                # Add to team roster for scoring
+                if p not in self.actual_pm.team.roster:
+                    self.actual_pm.team.roster.append(p)
                 break
 
         self.logger.debug(f"DraftHelperTeam drafted: {player.name} ({player.position})")
