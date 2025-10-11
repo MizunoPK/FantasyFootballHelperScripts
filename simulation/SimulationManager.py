@@ -15,14 +15,14 @@ CONFIGS_FOLDER = "./simulated_configs"
 NFL_SEASON= 2024
 LEAGUE_SIZE = 10                      # Number of teams in the draft
 NFL_SEASON_WEEKS = 17                 # Full season simulation
-HUMAN_ERROR_RATE = 0.5              # 50% chance of suboptimal pick
+HUMAN_ERROR_RATE = 0.2              # chance of suboptimal pick
 SUBOPTIMAL_CHOICE_POOL = 5          # Pick from top 5 instead of #1
 TEAM_STRATEGIES = {         # Team strategy distribution
-    'conservative': 2,      # 2 teams use conservative strategy
-    'aggressive': 2,        # 2 teams use aggressive strategy
-    'positional': 2,        # 2 teams use positional strategy
-    'value': 3,             # 3 teams use value strategy
-    'draft_helper': 1       # 1 team uses draft_helper logic
+    'adp_aggressive': 2,
+    'projected_points_agressive': 2,
+    'adp_with_draft_order': 2,
+    'projected_points_with_draft_order': 3,
+    'draft_helper': 1 
 }
 
 # ------ RANDOM GENERATION CONFIG -------
@@ -46,3 +46,13 @@ class SimulationManager:
 
     def __init__(self):
         pass
+
+
+
+    # Init the AddToDraftModeManager, StarterHelperModeManager, and all the simulated teams
+    # Generate the config set and pick one to run with
+    # Randomly determine draft order then run the draft in a snake draft order
+    # Run through the 17 weeks of the fantasy league, compiling the win rate of the DraftHelper team
+    # Compare the win rate to the previously completed sims then start another one
+    # After all configs run through all their sims, output the most optimal config to the simulated_configs folder
+    # Restart with the optimal config
