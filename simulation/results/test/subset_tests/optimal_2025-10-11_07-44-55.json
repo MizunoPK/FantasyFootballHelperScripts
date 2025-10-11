@@ -1,0 +1,157 @@
+{
+  "config_name": "Default",
+  "description": "Initial default parameters",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 6,
+    "NFL_SEASON": 2025,
+    "NFL_SCORING_FORMAT": "ppr",
+    "NORMALIZATION_MAX_SCALE": 123.54,
+    "BASE_BYE_PENALTY": 28.85,
+    "INJURY_PENALTIES": {
+      "LOW": 0,
+      "MEDIUM": 9.68,
+      "HIGH": 78.22
+    },
+    "DRAFT_ORDER_BONUSES": {
+      "PRIMARY": 71,
+      "SECONDARY": 52
+    },
+    "DRAFT_ORDER": [
+      {
+        "FLEX": "P",
+        "QB": "S"
+      },
+      {
+        "FLEX": "P",
+        "QB": "S"
+      },
+      {
+        "FLEX": "P",
+        "QB": "S"
+      },
+      {
+        "FLEX": "P",
+        "QB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "K": "P"
+      },
+      {
+        "DST": "P"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "FLEX": "P"
+      }
+    ],
+    "ADP_SCORING": {
+      "THRESHOLDS": {
+        "VERY_POOR": 150,
+        "POOR": 100,
+        "GOOD": 50,
+        "EXCELLENT": 20
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.8373092189736823,
+        "POOR": 0.8868038062605984,
+        "GOOD": 1.3270682030151955,
+        "EXCELLENT": 1.2984584505776042
+      }
+    },
+    "PLAYER_RATING_SCORING": {
+      "THRESHOLDS": {
+        "VERY_POOR": 20,
+        "POOR": 40,
+        "GOOD": 60,
+        "EXCELLENT": 80
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.8837349989233731,
+        "POOR": 0.8129839009063718,
+        "GOOD": 1.3065418282327406,
+        "EXCELLENT": 1.2830793648157957
+      }
+    },
+    "TEAM_QUALITY_SCORING": {
+      "THRESHOLDS": {
+        "VERY_POOR": 25,
+        "POOR": 18,
+        "GOOD": 10,
+        "EXCELLENT": 5
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.8188955377582324,
+        "POOR": 0.8760101902371982,
+        "GOOD": 1.3087373384913723,
+        "EXCELLENT": 1.3355446911693796
+      }
+    },
+    "CONSISTENCY_SCORING": {
+      "MIN_WEEKS": 3,
+      "THRESHOLDS": {
+        "VERY_POOR": 0.2,
+        "POOR": 0.4,
+        "GOOD": 0.6,
+        "EXCELLENT": 0.8
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.8604518873228804,
+        "POOR": 0.8508134656840778,
+        "GOOD": 1.2834657163594718,
+        "EXCELLENT": 1.341280217326144
+      }
+    },
+    "MATCHUP_SCORING": {
+      "THRESHOLDS": {
+        "VERY_POOR": -15,
+        "POOR": -6,
+        "GOOD": 6,
+        "EXCELLENT": 15
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.8429480423664969,
+        "POOR": 0.846357999227109,
+        "GOOD": 1.3390570069373615,
+        "EXCELLENT": 1.2979982060937612
+      }
+    }
+  },
+  "performance_metrics": {
+    "config_id": "config_00002",
+    "win_rate": 0.17647058823529413,
+    "total_wins": 6,
+    "total_losses": 28,
+    "total_games": 34,
+    "avg_points_per_league": 1310.77,
+    "total_points": 2621.54,
+    "num_simulations": 2,
+    "timestamp": "2025-10-11_07-44-55"
+  }
+}

@@ -1,0 +1,238 @@
+"""
+Parallel League Runner
+
+Runs multiple league simulations in parallel using ThreadPoolExecutor.
+Coordinates simulation execution and result collection with thread-safe
+progress tracking.
+
+Key Features:
+- Multi-threaded simulation execution
+- Thread-safe result collection
+- Progress tracking callbacks
+- Exception handling and error reporting
+- Configurable worker thread pool
+
+Author: Kai Mizuno
+Date: 2024
+"""
+
+from pathlib import Path
+from typing import Dict, Callable, Optional, Tuple
+from concurrent.futures import ThreadPoolExecutor, Future, as_completed
+import threading
+
+import sys
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.LoggingManager import get_logger
+
+sys.path.append(str(Path(__file__).parent))
+from SimulatedLeague import SimulatedLeague
+
+
+class ParallelLeagueRunner:
+    """
+    Runs multiple league simulations in parallel.
+
+    Uses ThreadPoolExecutor to run simulations concurrently, with thread-safe
+    progress tracking and result collection. Each simulation runs in isolation
+    with its own temporary data directories.
+
+    Attributes:
+        max_workers (int): Number of concurrent worker threads
+        data_folder (Path): Base folder containing 2024_season_data
+        logger: Logger instance
+        progress_callback (Optional[Callable]): Function called after each simulation
+        lock (threading.Lock): Lock for thread-safe progress updates
+    """
+
+    def __init__(
+        self,
+        max_workers: int = 4,
+        data_folder: Optional[Path] = None,
+        progress_callback: Optional[Callable[[int, int], None]] = None
+    ):
+        """
+        Initialize ParallelLeagueRunner.
+
+        Args:
+            max_workers (int): Number of concurrent worker threads (default 4)
+            data_folder (Optional[Path]): Base data folder, defaults to simulation/sim_data
+            progress_callback (Optional[Callable]): Function(completed, total) called
+                after each simulation completes
+        """
+        self.max_workers = max_workers
+        self.data_folder = data_folder or Path("simulation/sim_data")
+        self.logger = get_logger()
+        self.progress_callback = progress_callback
+        self.lock = threading.Lock()
+
+        self.logger.info(f"ParallelLeagueRunner initialized with {max_workers} workers")
+
+    def run_single_simulation(
+        self,
+        config_dict: dict,
+        simulation_id: int
+    ) -> Tuple[int, int, float]:
+        """
+        Run a single league simulation (thread-safe).
+
+        This method is executed by worker threads. It creates a SimulatedLeague,
+        runs the draft and season, and returns the DraftHelperTeam's results.
+
+        Args:
+            config_dict (dict): Configuration dictionary for this simulation
+            simulation_id (int): Unique ID for this simulation run
+
+        Returns:
+            Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
+
+        Raises:
+            Exception: Any exception during simulation is logged and re-raised
+        """
+        try:
+            self.logger.debug(f"[Sim {simulation_id}] Starting simulation")
+
+            # Create league with this config
+            league = SimulatedLeague(config_dict, self.data_folder)
+
+            # Run draft
+            self.logger.debug(f"[Sim {simulation_id}] Running draft")
+            league.run_draft()
+
+            # Run season
+            self.logger.debug(f"[Sim {simulation_id}] Running season")
+            league.run_season()
+
+            # Get results
+            wins, losses, total_points = league.get_draft_helper_results()
+
+            self.logger.debug(
+                f"[Sim {simulation_id}] Complete: {wins}W-{losses}L, {total_points:.2f} pts"
+            )
+
+            return wins, losses, total_points
+
+        except Exception as e:
+            self.logger.error(f"[Sim {simulation_id}] Failed: {e}", exc_info=True)
+            raise
+
+    def run_simulations_for_config(
+        self,
+        config_dict: dict,
+        num_simulations: int
+    ) -> list[Tuple[int, int, float]]:
+        """
+        Run multiple simulations for a single configuration in parallel.
+
+        Args:
+            config_dict (dict): Configuration dictionary
+            num_simulations (int): Number of simulations to run
+
+        Returns:
+            list[Tuple[int, int, float]]: List of (wins, losses, points) tuples
+
+        Example:
+            >>> runner = ParallelLeagueRunner(max_workers=8)
+            >>> results = runner.run_simulations_for_config(config, 100)
+            >>> # Returns 100 results: [(10, 7, 1404.62), (12, 5, 1523.45), ...]
+        """
+        self.logger.info(
+            f"Running {num_simulations} simulations with {self.max_workers} workers"
+        )
+
+        results = []
+        completed_count = 0
+
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            # Submit all simulation tasks
+            future_to_sim_id = {
+                executor.submit(self.run_single_simulation, config_dict, sim_id): sim_id
+                for sim_id in range(num_simulations)
+            }
+
+            # Collect results as they complete
+            for future in as_completed(future_to_sim_id):
+                sim_id = future_to_sim_id[future]
+
+                try:
+                    result = future.result()
+                    results.append(result)
+
+                    # Update progress (thread-safe)
+                    with self.lock:
+                        completed_count += 1
+                        if self.progress_callback:
+                            self.progress_callback(completed_count, num_simulations)
+
+                except Exception as e:
+                    self.logger.error(f"Simulation {sim_id} failed: {e}")
+                    # Continue with other simulations even if one fails
+
+        self.logger.info(
+            f"Completed {len(results)}/{num_simulations} simulations successfully"
+        )
+
+        return results
+
+    def run_multiple_configs(
+        self,
+        config_dicts: list[dict],
+        simulations_per_config: int
+    ) -> Dict[str, list[Tuple[int, int, float]]]:
+        """
+        Run simulations for multiple configurations.
+
+        This method runs simulations for each config sequentially, but each
+        config's simulations run in parallel. This approach ensures fair
+        comparison between configs (all get same treatment).
+
+        Args:
+            config_dicts (list[dict]): List of configuration dictionaries
+            simulations_per_config (int): Number of simulations per config
+
+        Returns:
+            Dict[str, list[Tuple[int, int, float]]]: {config_name: [results]}
+
+        Example:
+            >>> configs = [config1, config2, config3]
+            >>> results = runner.run_multiple_configs(configs, 100)
+            >>> # Returns {'config_0001': [(10, 7, 1404.62), ...], 'config_0002': [...]}
+        """
+        self.logger.info(
+            f"Running {len(config_dicts)} configs with {simulations_per_config} "
+            f"simulations each (total: {len(config_dicts) * simulations_per_config})"
+        )
+
+        all_results = {}
+
+        for idx, config_dict in enumerate(config_dicts, 1):
+            config_name = config_dict.get('config_name', f'config_{idx:04d}')
+
+            self.logger.info(
+                f"[{idx}/{len(config_dicts)}] Running simulations for {config_name}"
+            )
+
+            # Run simulations for this config
+            results = self.run_simulations_for_config(config_dict, simulations_per_config)
+            all_results[config_name] = results
+
+        self.logger.info(f"All {len(config_dicts)} configs completed")
+        return all_results
+
+    def test_single_run(self, config_dict: dict) -> Tuple[int, int, float]:
+        """
+        Test a single simulation run (synchronous, for debugging).
+
+        Args:
+            config_dict (dict): Configuration dictionary
+
+        Returns:
+            Tuple[int, int, float]: (wins, losses, points) for DraftHelperTeam
+
+        Example:
+            >>> runner = ParallelLeagueRunner()
+            >>> wins, losses, points = runner.test_single_run(config)
+            >>> print(f"Result: {wins}W-{losses}L, {points:.2f} pts")
+        """
+        self.logger.info("Running single test simulation")
+        return self.run_single_simulation(config_dict, simulation_id=0)

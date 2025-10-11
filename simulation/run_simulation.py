@@ -2,14 +2,12 @@
 Run Simulation Script
 
 Command-line interface for running fantasy football league simulations.
-Can be run from the project root directory.
-
 Provides three modes:
 - single: Test a single config (fast, for debugging)
 - subset: Test a small subset of configs (moderate, for validation)
 - full: Test all 46,656 configs (slow, for full optimization)
 
-Usage (from project root):
+Usage:
     python run_simulation.py single --sims 5
     python run_simulation.py subset --configs 20 --sims 10 --workers 4
     python run_simulation.py full --sims 100 --workers 8
@@ -22,8 +20,7 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add simulation directory to path for imports
-sys.path.append(str(Path(__file__).parent / "simulation"))
+sys.path.append(str(Path(__file__).parent))
 from SimulationManager import SimulationManager
 
 
@@ -84,7 +81,7 @@ Examples:
     # Full optimization mode
     full_parser = subparsers.add_parser(
         'full',
-        help='Run full optimization on all configs (slow)'
+        help='Run full optimization on all 46,656 configs (slow)'
     )
     full_parser.add_argument(
         '--sims',
@@ -126,22 +123,11 @@ Examples:
     baseline_path = Path(args.baseline)
     if not baseline_path.exists():
         print(f"Error: Baseline config not found: {baseline_path}")
-        print(f"  Searched at: {baseline_path.absolute()}")
-        print(f"\nAvailable configs:")
-        config_dir = Path("simulation/simulated_configs")
-        if config_dir.exists():
-            for config_file in sorted(config_dir.glob("*.json")):
-                print(f"  - {config_file}")
         sys.exit(1)
 
     data_folder = Path(args.data)
     if not data_folder.exists():
         print(f"Error: Data folder not found: {data_folder}")
-        print(f"  Searched at: {data_folder.absolute()}")
-        print(f"\nExpected structure:")
-        print(f"  {data_folder}/players_projected.csv")
-        print(f"  {data_folder}/players_actual.csv")
-        print(f"  {data_folder}/teams_week_N.csv")
         sys.exit(1)
 
     output_dir = Path(args.output)
