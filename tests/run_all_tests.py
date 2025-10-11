@@ -131,7 +131,7 @@ class TestRunner:
         test_files = self.discover_test_files()
 
         if not test_files:
-            print("❌ ERROR: No test files found!")
+            print("[ERROR] No test files found!")
             print(f"   Searched in: {self.tests_dir}")
             return False
 
@@ -164,9 +164,9 @@ class TestRunner:
 
             # Show results for this file
             if success:
-                print(f"✅ PASSED: {passed}/{total} tests")
+                print(f"[PASS] {passed}/{total} tests")
             else:
-                print(f"❌ FAILED: {passed}/{total} tests")
+                print(f"[FAIL] {passed}/{total} tests")
                 if self.verbose or self.detailed:
                     print("\nTest Output:")
                     print(output)
@@ -180,7 +180,7 @@ class TestRunner:
         print()
 
         for rel_path, success, passed, total, _ in all_results:
-            status = "✅ PASS" if success else "❌ FAIL"
+            status = "[PASS]" if success else "[FAIL]"
             print(f"{status}: {rel_path} ({passed}/{total})")
 
         print()
@@ -190,11 +190,11 @@ class TestRunner:
         all_passed = all(success for _, success, _, _, _ in all_results)
 
         if all_passed and total_passed == total_tests:
-            print(f"✅ SUCCESS: ALL {total_tests} TESTS PASSED (100%)")
+            print(f"SUCCESS: ALL {total_tests} TESTS PASSED (100%)")
             print("=" * 80)
             return True
         else:
-            print(f"❌ FAILURE: {total_passed}/{total_tests} TESTS PASSED ({total_passed/total_tests*100:.1f}%)")
+            print(f"FAILURE: {total_passed}/{total_tests} TESTS PASSED ({total_passed/total_tests*100:.1f}%)")
             print()
             print("STRICT REQUIREMENT: 100% of tests must pass")
             print()
@@ -204,7 +204,7 @@ class TestRunner:
             if failed_files:
                 print("Failed test files:")
                 for path, passed, total in failed_files:
-                    print(f"  • {path}: {passed}/{total} passed")
+                    print(f"  - {path}: {passed}/{total} passed")
 
             print("=" * 80)
             return False
@@ -253,18 +253,18 @@ class TestRunner:
             print("=" * 80)
 
             if result.returncode == 0 and passed_count == total_count:
-                print(f"✅ SUCCESS: ALL {total_count} TESTS PASSED (100%)")
+                print(f"SUCCESS: ALL {total_count} TESTS PASSED (100%)")
                 print("=" * 80)
                 return True
             else:
-                print(f"❌ FAILURE: {passed_count}/{total_count} TESTS PASSED")
+                print(f"FAILURE: {passed_count}/{total_count} TESTS PASSED")
                 print()
                 print("STRICT REQUIREMENT: 100% of tests must pass")
                 print("=" * 80)
                 return False
 
         except Exception as e:
-            print(f"❌ ERROR: {str(e)}")
+            print(f"ERROR: {str(e)}")
             return False
 
 

@@ -149,18 +149,22 @@ class TestOptimalLineupInitialization:
 
     def test_optimal_lineup_flex_priority_rb_over_wr(self):
         """Test FLEX slot filled by highest scoring flex-eligible player"""
-        rb = ScoredPlayer(FantasyPlayer(id=1, name="RB1", team="SF", position="RB"), 20.0, [])
-        wr = ScoredPlayer(FantasyPlayer(id=2, name="WR1", team="MIA", position="WR"), 22.0, [])
-        rb_flex = ScoredPlayer(FantasyPlayer(id=3, name="RB_FLEX", team="DAL", position="RB"), 18.0, [])
-        wr_flex = ScoredPlayer(FantasyPlayer(id=4, name="WR_FLEX", team="BUF", position="WR"), 19.0, [])
+        # Need at least 3 of one position to test FLEX behavior
+        # Create 2 RBs and 3 WRs to test FLEX
+        rb1 = ScoredPlayer(FantasyPlayer(id=1, name="RB1", team="SF", position="RB"), 25.0, [])
+        rb2 = ScoredPlayer(FantasyPlayer(id=2, name="RB2", team="DAL", position="RB"), 20.0, [])
+        wr1 = ScoredPlayer(FantasyPlayer(id=3, name="WR1", team="MIA", position="WR"), 24.0, [])
+        wr2 = ScoredPlayer(FantasyPlayer(id=4, name="WR2", team="BUF", position="WR"), 22.0, [])
+        wr_flex = ScoredPlayer(FantasyPlayer(id=5, name="WR_FLEX", team="CIN", position="WR"), 21.0, [])
 
-        # WR_FLEX has higher score (19.0) than RB_FLEX (18.0)
-        lineup = OptimalLineup([rb, wr, rb_flex, wr_flex])
+        # After sorting: RB1(25), WR1(24), WR2(22), WR_FLEX(21), RB2(20)
+        # RB1 → RB1, WR1 → WR1, WR2 → WR2, WR_FLEX → FLEX, RB2 → RB2
+        lineup = OptimalLineup([rb1, rb2, wr1, wr2, wr_flex])
 
-        # Should prioritize higher scoring WR for FLEX
+        # FLEX should be filled by WR_FLEX (3rd highest WR, but highest flex-eligible after RB/WR slots filled)
         assert lineup.flex == wr_flex
         assert lineup.flex.player.name == "WR_FLEX"
-        assert rb_flex in lineup.bench
+        assert lineup.flex.score == 21.0
 
     def test_optimal_lineup_complete_roster(self):
         """Test OptimalLineup with complete starting roster"""

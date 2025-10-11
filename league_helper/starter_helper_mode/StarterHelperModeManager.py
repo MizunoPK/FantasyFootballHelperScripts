@@ -70,31 +70,6 @@ class OptimalLineup:
         ...     if starter:
         ...         print(starter)
     """
-    qb: Optional[ScoredPlayer] = None
-    rb1: Optional[ScoredPlayer] = None
-    rb2: Optional[ScoredPlayer] = None
-    wr1: Optional[ScoredPlayer] = None
-    wr2: Optional[ScoredPlayer] = None
-    te: Optional[ScoredPlayer] = None
-    flex: Optional[ScoredPlayer] = None
-    k: Optional[ScoredPlayer] = None
-    dst: Optional[ScoredPlayer] = None
-    bench: List[ScoredPlayer] = []
-
-    @property
-    def total_projected_points(self) -> float:
-        """
-        Calculate total projected points for the starting lineup.
-
-        Returns:
-            float: Sum of all starters' projected points (bench excluded)
-        """
-        total = 0.0
-        for recommendation in self.get_all_starters():
-            if recommendation:
-                total += recommendation.score
-        return total
-
     def __init__(self, scored_players : List[ScoredPlayer]):
         """
         Initialize lineup by assigning players to optimal starting positions.
@@ -119,6 +94,19 @@ class OptimalLineup:
             - Assigns players to starting positions
             - Moves overflow players to bench
         """
+        # Initialize all positions to None and bench to empty list
+        # IMPORTANT: Must initialize bench in __init__ to avoid sharing across instances
+        self.qb: Optional[ScoredPlayer] = None
+        self.rb1: Optional[ScoredPlayer] = None
+        self.rb2: Optional[ScoredPlayer] = None
+        self.wr1: Optional[ScoredPlayer] = None
+        self.wr2: Optional[ScoredPlayer] = None
+        self.te: Optional[ScoredPlayer] = None
+        self.flex: Optional[ScoredPlayer] = None
+        self.k: Optional[ScoredPlayer] = None
+        self.dst: Optional[ScoredPlayer] = None
+        self.bench: List[ScoredPlayer] = []  # Must be instance variable, not class variable
+
         # Sort by adjusted score (highest first)
         scored_players.sort(key=lambda x: x.score, reverse=True)
 
@@ -165,6 +153,20 @@ class OptimalLineup:
                     self.bench.append(scored_player)
             else:
                 self.bench.append(scored_player)
+
+    @property
+    def total_projected_points(self) -> float:
+        """
+        Calculate total projected points for the starting lineup.
+
+        Returns:
+            float: Sum of all starters' projected points (bench excluded)
+        """
+        total = 0.0
+        for recommendation in self.get_all_starters():
+            if recommendation:
+                total += recommendation.score
+        return total
 
     def get_all_starters(self) -> List[Optional[ScoredPlayer]]:
         """Get all starting recommendations in order"""
@@ -249,11 +251,8 @@ class StarterHelperModeManager:
         print(f"\n{'='*50}")
         print(f"OPTIMAL STARTING LINEUP - WEEK {self.config.current_nfl_week} ({self.config.nfl_scoring_format.upper()} SCORING)")
         print(f"{'='*50}")
-        print(f"\n{'='*50}")
-        print(f"OPTIMAL STARTING LINEUP - WEEK {self.config.current_nfl_week} ({self.config.nfl_scoring_format.upper()} SCORING)")
-        print(f"{'='*50}")
 
-        # Define the order to display starters (as requested)
+        # Define the order to display starters
         starter_positions = [
             ("QB", lineup.qb),
             ("RB", lineup.rb1),
@@ -279,47 +278,108 @@ class StarterHelperModeManager:
     def create_starting_recommendation(self,
                                      player_data: FantasyPlayer) -> ScoredPlayer:
         """
-        Create a ScoredPlayer from player data
+        Create a ScoredPlayer using weekly projection scoring.
+
+        This method scores a player specifically for weekly lineup decisions,
+        using weekly projections instead of seasonal projections and enabling
+        only consistency and matchup multipliers (not ADP, rating, or team quality).
+
+        Scoring configuration:
+        - use_weekly_projection=True: Use week-specific projection data
+        - consistency=True: Apply CV-based volatility adjustment
+        - matchup=True: Apply opponent defensive strength adjustment
+        - adp=False: Don't use draft position (irrelevant for in-season)
+        - player_rating=False: Don't use expert ratings (irrelevant for weekly)
+        - team_quality=False: Don't use team rankings (irrelevant for weekly)
+
+        Args:
+            player_data (FantasyPlayer): Player to score for weekly lineup
 
         Returns:
-            ScoredPlayer object
+            ScoredPlayer: Player with calculated weekly score and reasoning
         """
-
-        scored_player = self.player_manager.score_player(player_data, use_weekly_projection=True, adp=False, player_rating=False, team_quality=False, consistency=True, matchup=True)
+        scored_player = self.player_manager.score_player(
+            player_data,
+            use_weekly_projection=True,
+            adp=False,
+            player_rating=False,
+            team_quality=False,
+            consistency=True,
+            matchup=True
+        )
 
         return scored_player
 
     def optimize_lineup(self) -> OptimalLineup:
         """
-        Optimize starting lineup based on current week projections
+        Optimize starting lineup based on current week projections.
 
-        Args:
-            roster_players: DataFrame of roster players (drafted=2)
-            projections: Dictionary mapping player_id to current week projections
+        This method scores all rostered players using weekly projections and
+        creates an OptimalLineup that automatically assigns the highest-scoring
+        players to starting positions (QB, RB1, RB2, WR1, WR2, TE, FLEX, K, DST).
+
+        Process:
+        1. Score each rostered player using weekly projections
+        2. Create OptimalLineup which sorts by score and assigns positions
+        3. Log total projected points for the optimal lineup
 
         Returns:
-            OptimalLineup object with best recommendations for each position
-        """
-        self.logger.info("Optimizing starting lineup for current week")
+            OptimalLineup: Complete lineup with starters and bench assignments
 
+        Side Effects:
+            - Logs lineup optimization start and completion
+            - Logs total projected points for optimal lineup
+        """
+        self.logger.info(
+            f"Optimizing starting lineup for Week {self.config.current_nfl_week} "
+            f"({self.config.nfl_scoring_format.upper()} scoring)"
+        )
+        self.logger.debug(f"Roster size: {len(self.player_manager.team.roster)} players")
+
+        # Score all rostered players using weekly projections
         scored_players = []
         for player in self.player_manager.team.roster:
-            recommendation = self.create_starting_recommendation(
-                player
-            )
+            recommendation = self.create_starting_recommendation(player)
             scored_players.append(recommendation)
+            self.logger.debug(
+                f"Scored {player.name} ({player.position}): {recommendation.score:.2f} pts"
+            )
 
-        # Iterate through the players and compile the lineup and bench
+        # Create optimal lineup (automatically sorts and assigns positions)
         lineup = OptimalLineup(scored_players)
 
-        self.logger.info(f"Lineup optimization complete. Total projected points: {lineup.total_projected_points:.1f}")
+        # Log the starting lineup composition
+        starters = lineup.get_all_starters()
+        starter_names = [
+            f"{s.player.position}:{s.player.name}({s.score:.1f})"
+            for s in starters if s is not None
+        ]
+        self.logger.info(f"Optimal starters: {', '.join(starter_names)}")
+        self.logger.info(
+            f"Lineup optimization complete. Total projected points: {lineup.total_projected_points:.1f}, "
+            f"Bench: {len(lineup.bench)} players"
+        )
         return lineup
-    
+
     def print_player_list(self, player_list : List[ScoredPlayer]):
+        """
+        Print formatted list of players with position labels and scores.
+
+        Displays each player in numbered list format with position label,
+        player information (from ScoredPlayer.__str__), and projected points.
+        Handles empty slots by printing "No available player".
+
+        Args:
+            player_list (List[Tuple[str, Optional[ScoredPlayer]]]): List of
+                (position_label, scored_player) tuples to display
+
+        Side Effects:
+            - Prints formatted player list to console
+            - Prints separator line after list
+        """
         for i, (pos_label, recommendation) in enumerate(player_list, 1):
             if recommendation:
                 print(f"{i:2d}. {pos_label:4s}: {recommendation}")
-
             else:
                 print(f"{i:2d}. {pos_label:4s}: No available player")
 

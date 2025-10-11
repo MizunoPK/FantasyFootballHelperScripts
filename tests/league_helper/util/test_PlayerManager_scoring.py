@@ -930,7 +930,7 @@ class TestFullScoringIntegration:
             injury=True
         )
 
-        assert abs(result - 307.4) < 0.01, f"Expected ~307.4, got {result}"
+        assert abs(result.score - 307.4) < 0.01, f"Expected ~307.4, got {result.score}"
 
     def test_score_player_default_flags(self, player_manager, test_player, mock_fantasy_team):
         """Test score_player with default flag values - BUG FIX: draft_round=-1"""
@@ -942,7 +942,7 @@ class TestFullScoringIntegration:
         # consistency=True, matchup=False, draft_round=-1, bye=True, injury=True
         # Should NOT include matchup multiplier or draft bonus
 
-        assert result > 0  # Should have a positive score
+        assert result.score > 0  # Should have a positive score
         # Exact value depends on test_player attributes
 
     def test_score_player_only_normalization(self, player_manager, test_player, mock_fantasy_team):
@@ -962,7 +962,7 @@ class TestFullScoringIntegration:
             injury=False
         )
 
-        assert result == 100.0, "Only normalization should return weighted_projection"
+        assert result.score == 100.0, "Only normalization should return weighted_projection"
 
     def test_score_player_negative_score_allowed(self, player_manager, test_player, mock_fantasy_team):
         """Verify negative scores are allowed (no bounds checking)"""
@@ -991,7 +991,7 @@ class TestFullScoringIntegration:
             injury=True
         )
 
-        assert result < 0, "Negative scores should be allowed"
+        assert result.score < 0, "Negative scores should be allowed"
 
     def test_score_player_draft_round_minus_one_disabled(self, player_manager, test_player, mock_fantasy_team):
         """Verify draft_round=-1 disables the bonus - BUG FIX"""
@@ -1011,7 +1011,7 @@ class TestFullScoringIntegration:
             injury=False
         )
 
-        assert result == 100.0, "draft_round=-1 should not apply bonus"
+        assert result.score == 100.0, "draft_round=-1 should not apply bonus"
 
     def test_score_player_waiver_mode_flags(self, player_manager, test_player, mock_fantasy_team):
         """Test flag configuration for Waiver Optimizer mode"""
@@ -1030,7 +1030,7 @@ class TestFullScoringIntegration:
             injury=True
         )
 
-        assert result > 0
+        assert result.score > 0
 
     def test_score_player_starter_helper_mode_flags(self, player_manager, test_player, mock_fantasy_team):
         """Test flag configuration for Starter Helper mode"""
@@ -1050,7 +1050,7 @@ class TestFullScoringIntegration:
         )
 
         # Should only have normalization + consistency + matchup
-        assert result > 0
+        assert result.score > 0
 
 
 # ============================================================================
@@ -1092,7 +1092,7 @@ class TestEdgeCases:
         )
 
         # All None should give neutral 1.0 multipliers, so score = weighted_projection
-        assert result == 100.0
+        assert result.score == 100.0
 
     def test_zero_fantasy_points_player(self, player_manager, mock_fantasy_team):
         """Player with 0 fantasy points should score 0"""
@@ -1109,7 +1109,7 @@ class TestEdgeCases:
 
         result = player_manager.score_player(player, draft_round=-1)
 
-        assert result <= 0  # Might be negative due to penalties
+        assert result.score <= 0  # Might be negative due to penalties
 
 
 if __name__ == "__main__":

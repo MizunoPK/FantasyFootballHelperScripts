@@ -386,6 +386,7 @@ class ConfigManager:
         """
         # Handle None values - return neutral multiplier (1.0) when data is unavailable
         if val is None:
+            self.logger.debug(f"Multiplier calculation received None value, returning NEUTRAL (1.0)")
             return 1.0, self.keys.NEUTRAL
 
         if rising_thresholds:
@@ -425,10 +426,24 @@ class ConfigManager:
         return self._get_multiplier(self.team_quality_scoring, quality_rank, rising_thresholds=False)
     
     def get_consistency_multiplier(self, value) -> Tuple[float, str]:
+        """
+        Get consistency multiplier based on coefficient of variation (CV).
+
+        Consistency uses CV where lower values indicate more consistent performance.
+        Special case: CV of 0.5 indicates insufficient data for calculation,
+        so we return a neutral multiplier.
+
+        Args:
+            value (float): Coefficient of Variation (0.5 = insufficient data flag)
+
+        Returns:
+            Tuple[float, str]: (multiplier, rating_label)
+        """
         # BUG FIX: Consistency uses CV (coefficient of variation) where lower is better
         # So we need rising_thresholds=False (like ADP and team quality)
         # Special case: if value == 0.5 (insufficient data default), return neutral 1.0
         if value == 0.5:
+            self.logger.debug("Consistency value 0.5 (insufficient data), returning NEUTRAL multiplier")
             return 1.0, self.keys.NEUTRAL
         return self._get_multiplier(self.consistency_scoring, value, rising_thresholds=False)
     

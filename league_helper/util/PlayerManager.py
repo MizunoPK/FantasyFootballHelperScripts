@@ -420,9 +420,16 @@ class PlayerManager:
                     weighted_projection = (weekly_points / self.max_projection) * self.config.normalization_max_scale
                 else:
                     weighted_projection = 0.0
+                self.logger.debug(
+                    f"Week {week} projection for {player.name}: {weekly_points:.2f} pts "
+                    f"(weighted: {weighted_projection:.2f})"
+                )
                 return weekly_points, weighted_projection
 
         # Return zeros if no valid projection found
+        self.logger.debug(
+            f"No valid projection data for {player.name} in week {week} (attribute: {week_attr})"
+        )
         return 0.0, 0.0
 
 
