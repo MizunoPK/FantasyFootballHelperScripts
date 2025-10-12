@@ -11,7 +11,6 @@ The DraftHelperTeam uses:
 - Two PlayerManager instances: one for projected data, one for actual scoring
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import sys

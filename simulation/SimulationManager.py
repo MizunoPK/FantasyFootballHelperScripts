@@ -19,6 +19,8 @@ Date: 2024
 """
 
 import time
+import copy
+import json
 from pathlib import Path
 from typing import Optional
 
@@ -54,10 +56,11 @@ class SimulationManager:
     def __init__(
         self,
         baseline_config_path: Path,
-        output_dir: Path = Path("simulation/results"),
-        num_simulations_per_config: int = 20,
-        max_workers: int = 7,
-        data_folder: Optional[Path] = None
+        output_dir: Path,
+        num_simulations_per_config : int,
+        max_workers : int,
+        data_folder: Path,
+        num_test_values: int = 5
     ):
         """
         Initialize SimulationManager.
@@ -67,7 +70,9 @@ class SimulationManager:
             output_dir (Path): Directory to save results (default: simulation/results)
             num_simulations_per_config (int): Simulations per config (default: 100)
             max_workers (int): Number of parallel workers (default: 8)
-            data_folder (Optional[Path]): Data folder, defaults to simulation/sim_data
+            data_folder (Path): Data folder, defaults to simulation/sim_data
+            num_test_values (int): Number of test values per parameter (default: 5)
+                Creates (num_test_values + 1)^6 total configurations
         """
         self.logger = get_logger()
         self.logger.info("Initializing SimulationManager")
@@ -76,21 +81,23 @@ class SimulationManager:
         self.output_dir = output_dir
         self.num_simulations_per_config = num_simulations_per_config
         self.max_workers = max_workers
+        self.num_test_values = num_test_values
 
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize components
-        self.config_generator = ConfigGenerator(baseline_config_path)
+        self.config_generator = ConfigGenerator(baseline_config_path, num_test_values=num_test_values)
         self.parallel_runner = ParallelLeagueRunner(
             max_workers=max_workers,
             data_folder=data_folder
         )
         self.results_manager = ResultsManager()
 
+        total_configs = (num_test_values + 1) ** 6
         self.logger.info(
-            f"SimulationManager initialized: {num_simulations_per_config} sims/config, "
-            f"{max_workers} workers"
+            f"SimulationManager initialized: {total_configs:,} configs, "
+            f"{num_simulations_per_config} sims/config, {max_workers} workers"
         )
 
     def run_full_optimization(self) -> Path:
@@ -206,87 +213,130 @@ class SimulationManager:
 
         return optimal_config_path
 
-    def run_subset_test(self, num_configs: int = 10) -> Path:
+    def run_iterative_optimization(self) -> Path:
         """
-        Run optimization on a small subset of configurations (for testing).
+        Run iterative parameter optimization (coordinate descent).
 
-        Useful for validating the full pipeline before running the complete
-        46,656 config optimization which can take hours/days.
+        Optimizes one parameter at a time in sequence, fixing previously optimized
+        parameters. Much faster than full grid search but finds local optimum only.
 
-        Args:
-            num_configs (int): Number of configs to test (default: 10)
+        Process:
+            1. Start with baseline config
+            2. For each parameter in PARAMETER_ORDER:
+               - Generate configs varying only that parameter
+               - Run simulations for each config
+               - Select best performing value
+               - Update current optimal config
+            3. Save final optimal config
 
         Returns:
             Path: Path to saved optimal configuration file
 
         Example:
-            >>> mgr = SimulationManager(baseline_path, num_simulations_per_config=10)
-            >>> optimal_path = mgr.run_subset_test(num_configs=20)
-            >>> # Tests 20 configs × 10 sims = 200 total simulations
+            >>> mgr = SimulationManager(baseline_path, num_simulations_per_config=100)
+            >>> optimal_config_path = mgr.run_iterative_optimization()
+            >>> # Optimizes 24 params × 6 values = 144 configs total
         """
         self.logger.info("=" * 80)
-        self.logger.info(f"RUNNING SUBSET TEST ({num_configs} configs)")
+        self.logger.info("STARTING ITERATIVE PARAMETER OPTIMIZATION")
         self.logger.info("=" * 80)
 
         start_time = time.time()
 
-        # Generate subset of configurations
-        self.logger.info("Generating parameter combinations...")
-        combinations = self.config_generator.generate_all_combinations()[:num_configs]
-        self.logger.info(f"Using first {len(combinations)} configurations for testing")
+        # Get parameter order
+        param_order = self.config_generator.PARAMETER_ORDER
+        num_params = len(param_order)
+        configs_per_param = self.num_test_values + 1
+        total_configs = num_params * configs_per_param
 
-        # Register configs
-        for idx, combo in enumerate(combinations):
-            config_id = f"config_{idx:05d}"
-            config_dict = self.config_generator.create_config_dict(combo)
-            self.results_manager.register_config(config_id, config_dict)
+        self.logger.info(f"Parameters to optimize: {num_params}")
+        self.logger.info(f"Configs per parameter: {configs_per_param}")
+        self.logger.info(f"Total configs: {total_configs}")
+        self.logger.info(f"Total simulations: {total_configs * self.num_simulations_per_config}")
+        self.logger.info("=" * 80)
 
-        # Run simulations
-        self.logger.info(f"Running {self.num_simulations_per_config} simulations per config...")
+        # Start with baseline config as current optimal
+        current_optimal_config = copy.deepcopy(self.config_generator.baseline_config)
 
-        progress_tracker = MultiLevelProgressTracker(
-            outer_total=len(combinations),
-            inner_total=self.num_simulations_per_config,
-            outer_desc="Configs",
-            inner_desc="Sims"
-        )
+        # Iterate through each parameter
+        for param_idx, param_name in enumerate(param_order, 1):
+            self.logger.info("=" * 80)
+            self.logger.info(f"OPTIMIZING PARAMETER {param_idx}/{num_params}: {param_name}")
+            self.logger.info("=" * 80)
 
-        def progress_callback(completed: int, total: int):
-            progress_tracker.update_inner(completed)
-
-        self.parallel_runner.progress_callback = progress_callback
-
-        for idx, combo in enumerate(combinations):
-            config_id = f"config_{idx:05d}"
-            config_dict = self.config_generator.create_config_dict(combo)
-
-            results = self.parallel_runner.run_simulations_for_config(
-                config_dict,
-                self.num_simulations_per_config
+            # Generate configs for this parameter
+            configs = self.config_generator.generate_single_parameter_configs(
+                param_name,
+                current_optimal_config
             )
 
-            for wins, losses, points in results:
-                self.results_manager.record_result(config_id, wins, losses, points)
+            self.logger.info(f"Testing {len(configs)} configurations...")
 
-            progress_tracker.next_outer()
+            # Clear previous results for clean comparison
+            self.results_manager = ResultsManager()
 
-        progress_tracker.finish()
+            # Run simulations for each config
+            for config_idx, config in enumerate(configs):
+                config_id = f"{param_name}_{config_idx}"
 
+                # Register config
+                self.results_manager.register_config(config_id, config)
+
+                # Run simulations
+                results = self.parallel_runner.run_simulations_for_config(
+                    config,
+                    self.num_simulations_per_config
+                )
+
+                # Record results
+                for wins, losses, points in results:
+                    self.results_manager.record_result(config_id, wins, losses, points)
+
+                self.logger.info(f"  Completed config {config_idx + 1}/{len(configs)}")
+
+            # Get best config for this parameter
+            best_result = self.results_manager.get_best_config()
+
+            if best_result:
+                self.logger.info("=" * 80)
+                self.logger.info(f"BEST VALUE FOR {param_name}:")
+                self.logger.info(f"  Win Rate: {best_result.get_win_rate():.2%}")
+                self.logger.info(f"  Avg Points: {best_result.get_avg_points_per_league():.2f}")
+                self.logger.info(f"  Record: {best_result.total_wins}W-{best_result.total_losses}L")
+
+                # Update current optimal config
+                current_optimal_config = best_result.config_dict
+
+                # Save intermediate result
+                intermediate_path = self.output_dir / f"intermediate_{param_idx:02d}_{param_name}.json"
+                with open(intermediate_path, 'w') as f:
+                    json.dump(current_optimal_config, f, indent=2)
+                self.logger.info(f"  Saved intermediate config: {intermediate_path.name}")
+            else:
+                self.logger.warning(f"No results for {param_name} - keeping previous optimal")
+
+        # Calculate elapsed time
         elapsed = time.time() - start_time
 
-        # Display results
+        # Display final summary
         self.logger.info("=" * 80)
-        self.logger.info("SUBSET TEST COMPLETE")
+        self.logger.info("ITERATIVE OPTIMIZATION COMPLETE")
         self.logger.info("=" * 80)
         self.logger.info(f"Total time: {self._format_time(elapsed)}")
+        self.logger.info(f"Optimized {num_params} parameters")
+        self.logger.info(f"Total configs tested: {total_configs}")
+        self.logger.info(f"Total simulations: {total_configs * self.num_simulations_per_config}")
 
-        self.results_manager.print_summary(top_n=min(5, num_configs))
+        # Save final optimal config
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        optimal_config_path = self.output_dir / f"optimal_iterative_{timestamp}.json"
 
-        # Save results
-        optimal_config_path = self.results_manager.save_optimal_config(
-            self.output_dir / "subset_tests"
-        )
-        self.logger.info(f"✓ Saved optimal config: {optimal_config_path}")
+        with open(optimal_config_path, 'w') as f:
+            json.dump(current_optimal_config, f, indent=2)
+
+        self.logger.info("=" * 80)
+        self.logger.info(f"✓ Final optimal config saved: {optimal_config_path}")
+        self.logger.info("=" * 80)
 
         return optimal_config_path
 

@@ -154,6 +154,9 @@ class PlayerManager:
                             error_count += 1
                             continue
 
+                        # Get the rest of season projected points
+                        player.fantasy_points = player.get_rest_of_season_projection(self.config.current_nfl_week)
+
                         # Calculate the consistency value and track statistics
                         consistency_val, weeks_count = self._calculate_consistency(player)
                         player.consistency = consistency_val
@@ -217,19 +220,23 @@ class PlayerManager:
         
         # Add computed properties needed by scoring calculations
         for player in players:
-            
+
             # Calculate weighted_projection (normalized between 0-100)
             # Note: This property is deprecated and not actively used - actual normalization
             # happens in NormalizationCalculator using param_manager values
             if player.fantasy_points and self.max_projection > 0:
-                player.weighted_projection = (player.fantasy_points / self.max_projection) * self.config.normalization_max_scale  # Default scale
+                player.weighted_projection = self.weight_projection(player.fantasy_points)
             else:
                 player.weighted_projection = 0.0
-                
+
             # Initialize draft helper specific properties if not already set
             if not hasattr(player, 'is_starter'):
                 player.is_starter = False  # To be set when added to FantasyTeam
-        
+
+        # Calculate baseline scores for all players (now that max_projection is set)
+        for player in players:
+            player.score = self.score_player(player, bye=False).score
+
         self.logger.info(f"Loaded {len(players)} players from {self.file_str}.")
 
         self.players = players
@@ -250,6 +257,12 @@ class PlayerManager:
         drafted_players = [p for p in self.players if p.drafted == 2]
         self.logger.debug(f"Loading team roster with {len(drafted_players)} drafted players")
         self.team = FantasyTeam(self.config, drafted_players)
+        # Go ahead and score the team
+        for p in drafted_players:
+            result = self.score_player(p)
+            print(result)
+            self.team.set_score(p.id, result.score)
+
         self.logger.info(f"Team loaded: {len(self.team.roster)} players on roster")
 
     def update_players_file(self) -> str:
@@ -336,10 +349,10 @@ class PlayerManager:
     def draft_player(self, player_to_draft : FantasyPlayer) -> bool:
         return self.team.draft_player(player_to_draft)
     
-    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False) -> List[FantasyPlayer]:
+    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_score : float = 0.0) -> List[FantasyPlayer]:
         player_list = [
             p for p in self.players
-            if p.drafted in drafted_vals
+            if p.drafted in drafted_vals and p.score >= min_score
         ]
         if can_draft:
             drafted_players = [
@@ -378,8 +391,18 @@ class PlayerManager:
 
         print(f"\nTotal roster: {len(self.team.roster)}/{Constants.MAX_PLAYERS} players")
 
+    def display_roster(self):
+        self.team.display_roster()
 
-    def get_weekly_projection(self, player, week=0) -> Tuple[float, float]:
+    def get_lowest_score_on_roster(self):
+        lowest_score = 0
+        for p in self.team.roster:
+            if p.score < lowest_score:
+                lowest_score = p.score
+        return lowest_score
+
+
+    def get_weekly_projection(self, player : FantasyPlayer, week=0) -> Tuple[float, float]:
         """
         Get weekly projection for a specific player and week.
 
@@ -406,32 +429,29 @@ class PlayerManager:
         if week not in range(1, 18):
             week = self.config.current_nfl_week
 
-        # Construct the attribute name for this week's projection
-        week_attr = f'week_{week}_points'
-
-        # Check if player has projection data for this week
-        if hasattr(player, week_attr):
-            weekly_points = getattr(player, week_attr)
-            if weekly_points is not None and float(weekly_points) > 0:
-                weekly_points = float(weekly_points)
-                # Calculate normalized/weighted projection using same scale as seasonal projections
-                # This ensures weekly and seasonal scores are comparable
-                if self.max_projection > 0:
-                    weighted_projection = (weekly_points / self.max_projection) * self.config.normalization_max_scale
-                else:
-                    weighted_projection = 0.0
-                self.logger.debug(
-                    f"Week {week} projection for {player.name}: {weekly_points:.2f} pts "
-                    f"(weighted: {weighted_projection:.2f})"
-                )
-                return weekly_points, weighted_projection
+        weekly_points = player.get_single_weekly_projection(week)
+        if weekly_points is not None and float(weekly_points) > 0:
+            weekly_points = float(weekly_points)
+            # Calculate normalized/weighted projection using same scale as seasonal projections
+            # This ensures weekly and seasonal scores are comparable
+            if self.max_projection > 0:
+                weighted_projection = self.weight_projection(weekly_points)
+            else:
+                weighted_projection = 0.0
+            self.logger.debug(
+                f"Week {week} projection for {player.name}: {weekly_points:.2f} pts "
+                f"(weighted: {weighted_projection:.2f})"
+            )
+            return weekly_points, weighted_projection
 
         # Return zeros if no valid projection found
         self.logger.debug(
-            f"No valid projection data for {player.name} in week {week} (attribute: {week_attr})"
+            f"No valid projection data for {player.name} in week {week}"
         )
         return 0.0, 0.0
 
+    def weight_projection(self, pts) -> float:
+        return (pts / self.max_projection) * self.config.normalization_max_scale
 
     def _calculate_consistency(self, player : FantasyPlayer) -> tuple[float, int]:
         """
@@ -494,7 +514,7 @@ class PlayerManager:
         return cv, weeks_count
 
 
-    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=True, player_rating=True, team_quality=True, consistency=True, matchup=False, draft_round=-1, bye=True, injury=True) -> ScoredPlayer:
+    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, consistency=True, matchup=False, draft_round=-1, bye=True, injury=True) -> ScoredPlayer:
         """
         Calculate score for a player (8-step calculation).
 
@@ -584,7 +604,8 @@ class PlayerManager:
         if use_weekly_projection:
             orig_pts, weighted_pts = self.get_weekly_projection(p)
         else:
-            orig_pts, weighted_pts = p.fantasy_points, p.weighted_projection
+            orig_pts = p.get_rest_of_season_projection(self.config.current_nfl_week)
+            weighted_pts = self.weight_projection(orig_pts)
 
         reason = f"Projected: {orig_pts:.2f} pts, Weighted: {weighted_pts:.2f} pts"
         return weighted_pts, reason

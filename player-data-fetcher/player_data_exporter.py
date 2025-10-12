@@ -27,9 +27,9 @@ from utils.FantasyPlayer import FantasyPlayer
 from utils.TeamData import extract_teams_from_rankings, save_teams_to_csv
 from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
+from utils.DraftedRosterManager import DraftedRosterManager
 from config import DEFAULT_FILE_CAPS
-from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, PLAYERS_CSV, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE
-from drafted_data_loader import DraftedDataLoader
+from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, PLAYERS_CSV, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
 
 
 class DataExporter:
@@ -56,10 +56,10 @@ class DataExporter:
         if PRESERVE_LOCKED_VALUES:
             self._load_existing_locked_values()
 
-        # Initialize drafted data loader if enabled
-        self.drafted_data_loader = DraftedDataLoader()
+        # Initialize drafted roster manager if enabled
+        self.drafted_roster_manager = DraftedRosterManager(DRAFTED_DATA, MY_TEAM_NAME)
         if LOAD_DRAFTED_DATA_FROM_FILE:
-            self.drafted_data_loader.load_drafted_data()
+            self.drafted_roster_manager.load_drafted_data()
 
     def set_team_rankings(self, team_rankings: dict):
         """Set team rankings data from ESPN client for team exports"""
@@ -341,8 +341,8 @@ class DataExporter:
         if SKIP_DRAFTED_PLAYER_UPDATES:
             fantasy_players = self._merge_skipped_drafted_players(fantasy_players)
 
-        # Apply drafted data from CSV file to players (NEW REVERSE SEARCH APPROACH)
-        fantasy_players = self.drafted_data_loader.apply_drafted_data_to_players(fantasy_players)
+        # Apply drafted data from CSV file to players using DraftedRosterManager
+        fantasy_players = self.drafted_roster_manager.apply_drafted_state_to_players(fantasy_players)
 
         return fantasy_players
     

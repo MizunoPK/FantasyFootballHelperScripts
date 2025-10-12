@@ -6,16 +6,15 @@ Can be run from the project root directory.
 
 Provides three modes:
 - single: Test a single config (fast, for debugging)
-- subset: Test a small subset of configs (moderate, for validation)
-- full: Test all 46,656 configs (slow, for full optimization)
+- full: Test all configs via grid search (slow, for exhaustive optimization)
+- iterative: Test parameters one at a time (fast, for coordinate descent)
 
 Usage (from project root):
     python run_simulation.py single --sims 5
-    python run_simulation.py subset --configs 20 --sims 10 --workers 4
-    python run_simulation.py full --sims 100 --workers 8
+    python run_simulation.py full --sims 100
+    python run_simulation.py iterative --sims 100
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import argparse
@@ -37,14 +36,14 @@ Examples:
   # Test single config with 5 simulations
   python run_simulation.py single --sims 5
 
-  # Test 20 configs with 10 simulations each using 4 workers
-  python run_simulation.py subset --configs 20 --sims 10 --workers 4
-
-  # Run full optimization of 46,656 configs with 100 sims each
+  # Run full grid search optimization (exhaustive but slow)
   python run_simulation.py full --sims 100 --workers 8
 
+  # Run iterative optimization (coordinate descent, much faster)
+  python run_simulation.py iterative --sims 100 --test-values 5
+
   # Use custom baseline config and output directory
-  python run_simulation.py subset --baseline my_config.json --output results/test1
+  python run_simulation.py iterative --baseline my_config.json --output results/test1
         """
     )
 
@@ -63,24 +62,6 @@ Examples:
         help='Number of simulations to run (default: 5)'
     )
 
-    # Subset mode
-    subset_parser = subparsers.add_parser(
-        'subset',
-        help='Test a subset of configurations (for validation)'
-    )
-    subset_parser.add_argument(
-        '--configs',
-        type=int,
-        default=10,
-        help='Number of configs to test (default: 10)'
-    )
-    subset_parser.add_argument(
-        '--sims',
-        type=int,
-        default=10,
-        help='Number of simulations per config (default: 10)'
-    )
-
     # Full optimization mode
     full_parser = subparsers.add_parser(
         'full',
@@ -93,25 +74,37 @@ Examples:
         help='Number of simulations per config (default: 100)'
     )
 
+    # Iterative optimization mode
+    iterative_parser = subparsers.add_parser(
+        'iterative',
+        help='Run iterative parameter optimization (coordinate descent)'
+    )
+    iterative_parser.add_argument(
+        '--sims',
+        type=int,
+        default=100,
+        help='Number of simulations per config (default: 100)'
+    )
+
     # Common arguments for all modes
-    for subparser in [single_parser, subset_parser, full_parser]:
+    for subparser in [single_parser, full_parser, iterative_parser]:
         subparser.add_argument(
             '--baseline',
             type=str,
-            default='simulation/simulated_configs/optimal_2025-10-02_15-29-14.json.json',
-            help='Path to baseline configuration JSON (default: simulation/simulated_configs/optimal_2025-10-02_15-29-14.json.json)'
+            default='',
+            help='Path to baseline configuration JSON (default: takes the most recent file in the output directory)'
         )
         subparser.add_argument(
             '--output',
             type=str,
-            default='simulation/results',
-            help='Output directory for results (default: simulation/results)'
+            default='simulation/simulation_configs',
+            help='Output directory for results (default: simulation/simulation_configs)'
         )
         subparser.add_argument(
             '--workers',
             type=int,
-            default=4,
-            help='Number of parallel worker threads (default: 4)'
+            default=7,
+            help='Number of parallel worker threads (default: 7)'
         )
         subparser.add_argument(
             '--data',
@@ -119,20 +112,57 @@ Examples:
             default='simulation/sim_data',
             help='Path to simulation data folder (default: simulation/sim_data)'
         )
+        subparser.add_argument(
+            '--test-values',
+            type=int,
+            default=5,
+            help='Number of test values per parameter (default: 5).'
+        )
 
     args = parser.parse_args()
 
-    # Validate paths
-    baseline_path = Path(args.baseline)
-    if not baseline_path.exists():
-        print(f"Error: Baseline config not found: {baseline_path}")
-        print(f"  Searched at: {baseline_path.absolute()}")
-        print(f"\nAvailable configs:")
-        config_dir = Path("simulation/simulated_configs")
-        if config_dir.exists():
-            for config_file in sorted(config_dir.glob("*.json")):
-                print(f"  - {config_file}")
-        sys.exit(1)
+    # Validate and resolve baseline path
+    output_dir = Path(args.output)
+
+    if args.baseline:
+        baseline_path = Path(args.baseline)
+        if not baseline_path.exists():
+            print(f"Warning: Specified baseline config not found: {baseline_path}")
+            print(f"  Searched at: {baseline_path.absolute()}")
+            print(f"  Attempting to use most recent config from output directory...")
+            baseline_path = None
+    else:
+        baseline_path = None
+
+    # If no baseline or baseline doesn't exist, find most recent optimal config in output_dir
+    if baseline_path is None:
+        # Look for optimal_*.json files in output directory
+        optimal_configs = list(output_dir.glob("optimal_*.json"))
+
+        if optimal_configs:
+            # Sort by modification time (most recent first)
+            optimal_configs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+            baseline_path = optimal_configs[0]
+            print(f"✓ Using most recent config from output directory: {baseline_path.name}")
+        else:
+            # Fall back to simulated_configs directory
+            config_dir = Path("simulation/simulated_configs")
+            if config_dir.exists():
+                optimal_configs = list(config_dir.glob("optimal_*.json"))
+                if optimal_configs:
+                    optimal_configs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+                    baseline_path = optimal_configs[0]
+                    print(f"✓ Using baseline config from simulated_configs: {baseline_path.name}")
+                else:
+                    print(f"Error: No optimal config files found in {output_dir} or {config_dir}")
+                    print(f"\nPlease provide a baseline config using --baseline argument")
+                    sys.exit(1)
+            else:
+                print(f"Error: No baseline config found")
+                print(f"  Output directory: {output_dir.absolute()}")
+                print(f"  Config directory: {config_dir.absolute()}")
+                print(f"\nPlease provide a baseline config using --baseline argument")
+                sys.exit(1)
 
     data_folder = Path(args.data)
     if not data_folder.exists():
@@ -143,8 +173,6 @@ Examples:
         print(f"  {data_folder}/players_actual.csv")
         print(f"  {data_folder}/teams_week_N.csv")
         sys.exit(1)
-
-    output_dir = Path(args.output)
 
     # Display configuration
     print("=" * 80)
@@ -166,91 +194,60 @@ Examples:
             output_dir=output_dir,
             num_simulations_per_config=args.sims,
             max_workers=args.workers,
-            data_folder=data_folder
+            data_folder=data_folder,
+            num_test_values=args.test_values
         )
 
         # Run single config test
         manager.run_single_config_test()
 
-    elif args.mode == 'subset':
-        print(f"Configs to test: {args.configs}")
-        print(f"Simulations per config: {args.sims}")
-        print(f"Total simulations: {args.configs * args.sims}")
-        print("=" * 80)
-
-        # Initialize manager
-        manager = SimulationManager(
-            baseline_config_path=baseline_path,
-            output_dir=output_dir,
-            num_simulations_per_config=args.sims,
-            max_workers=args.workers,
-            data_folder=data_folder
-        )
-
-        # Run subset test
-        optimal_path = manager.run_subset_test(num_configs=args.configs)
-        print(f"\nOptimal configuration saved to: {optimal_path}")
-
     elif args.mode == 'full':
-        print(f"Configs to test: 46,656")
+        total_configs = (args.test_values + 1) ** 6
         print(f"Simulations per config: {args.sims}")
-        print(f"Total simulations: {46656 * args.sims:,}")
+        print(f"Total configurations: {total_configs:,}")
+        print(f"Total simulations: {total_configs * args.sims:,}")
         print("=" * 80)
-        print("\nWARNING: Full optimization can take a long time!")
-        print(f"Estimated time: ~{estimate_time(args.sims, args.workers)}")
         print("")
 
-        response = input("Do you want to continue? (yes/no): ")
-        if response.lower() not in ['yes', 'y']:
-            print("Aborted.")
-            sys.exit(0)
-
         # Initialize manager
         manager = SimulationManager(
             baseline_config_path=baseline_path,
             output_dir=output_dir,
             num_simulations_per_config=args.sims,
             max_workers=args.workers,
-            data_folder=data_folder
+            data_folder=data_folder,
+            num_test_values=args.test_values
         )
 
         # Run full optimization
         optimal_path = manager.run_full_optimization()
         print(f"\nOptimal configuration saved to: {optimal_path}")
 
+    elif args.mode == 'iterative':
+        num_params = 24  # 4 scalars + 20 multipliers
+        configs_per_param = args.test_values + 1
+        total_configs = num_params * configs_per_param
+        print(f"Simulations per config: {args.sims}")
+        print(f"Parameters to optimize: {num_params}")
+        print(f"Configs per parameter: {configs_per_param}")
+        print(f"Total configurations: {total_configs}")
+        print(f"Total simulations: {total_configs * args.sims:,}")
+        print("=" * 80)
+        print("")
 
-def estimate_time(sims_per_config: int, workers: int) -> str:
-    """
-    Estimate total runtime for full optimization.
+        # Initialize manager
+        manager = SimulationManager(
+            baseline_config_path=baseline_path,
+            output_dir=output_dir,
+            num_simulations_per_config=args.sims,
+            max_workers=args.workers,
+            data_folder=data_folder,
+            num_test_values=args.test_values
+        )
 
-    Args:
-        sims_per_config (int): Number of simulations per config
-        workers (int): Number of parallel workers
-
-    Returns:
-        str: Human-readable time estimate
-    """
-    # Rough estimate: 1 simulation takes ~0.7 seconds
-    # With parallelization, effective rate is ~0.7/workers seconds per sim
-    total_sims = 46656 * sims_per_config
-    seconds_per_sim = 0.7 / workers
-    total_seconds = total_sims * seconds_per_sim
-
-    # Add 10% overhead for config generation, result aggregation, etc.
-    total_seconds *= 1.1
-
-    # Format as human-readable
-    if total_seconds < 3600:
-        minutes = int(total_seconds / 60)
-        return f"{minutes} minutes"
-    elif total_seconds < 86400:
-        hours = int(total_seconds / 3600)
-        minutes = int((total_seconds % 3600) / 60)
-        return f"{hours}h {minutes}m"
-    else:
-        days = int(total_seconds / 86400)
-        hours = int((total_seconds % 86400) / 3600)
-        return f"{days}d {hours}h"
+        # Run iterative optimization
+        optimal_path = manager.run_iterative_optimization()
+        print(f"\nOptimal configuration saved to: {optimal_path}")
 
 
 if __name__ == "__main__":

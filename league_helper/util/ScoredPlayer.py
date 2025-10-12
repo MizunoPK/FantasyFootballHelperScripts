@@ -31,7 +31,7 @@ class ScoredPlayer:
             Formatted string with player info and scoring reasons
         """
         # Header line with position, team, name, and score
-        header = f"[{self.player.position}] [{self.player.team}] {self.player.name} - {self.score:.2f} pts"
+        header = f"[{self.player.position}] [{self.player.team}] {self.player.name} - {self.score:.2f} pts (Bye={self.player.bye_week})"
 
         # Build the full string with reasons as bullet points
         lines = [header]

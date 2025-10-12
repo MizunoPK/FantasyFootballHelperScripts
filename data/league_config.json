@@ -47,10 +47,10 @@
             "EXCELLENT": 20
         },
         "MULTIPLIERS": {
-            "VERY_POOR": 0.5,
-            "POOR": 0.82,
-            "GOOD": 1.08,
-            "EXCELLENT": 1.18
+            "VERY_POOR": 0.9,
+            "POOR": 0.95,
+            "GOOD": 1.05,
+            "EXCELLENT": 1.1
         }
     },
 
@@ -62,10 +62,10 @@
             "EXCELLENT": 80
         },
         "MULTIPLIERS": {
-            "VERY_POOR": 0.7,
-            "POOR": 0.94,
-            "GOOD": 1.15,
-            "EXCELLENT": 1.21
+            "VERY_POOR": 0.9,
+            "POOR": 0.95,
+            "GOOD": 1.05,
+            "EXCELLENT": 1.1
         }
     },
 
@@ -77,10 +77,10 @@
             "EXCELLENT": 5
         },
         "MULTIPLIERS": {
-            "VERY_POOR": 0.5,
-            "POOR": 0.64,
-            "GOOD": 1.14,
-            "EXCELLENT": 1.32
+            "VERY_POOR": 0.9,
+            "POOR": 0.95,
+            "GOOD": 1.05,
+            "EXCELLENT": 1.1
         }
     },
 
@@ -93,10 +93,10 @@
             "EXCELLENT": 0.8
         },
         "MULTIPLIERS": {
-            "VERY_POOR": 0.5,
-            "POOR": 0.66,
-            "GOOD": 1.19,
-            "EXCELLENT": 1.50
+            "VERY_POOR": 0.9,
+            "POOR": 0.95,
+            "GOOD": 1.05,
+            "EXCELLENT": 1.1
         }
     },
 
@@ -108,10 +108,10 @@
             "EXCELLENT": 15
         },
         "MULTIPLIERS": {
-            "VERY_POOR": 0.76,
-            "POOR": 0.92,
-            "GOOD": 1.14,
-            "EXCELLENT": 1.28
+            "VERY_POOR": 0.9,
+            "POOR": 0.95,
+            "GOOD": 1.05,
+            "EXCELLENT": 1.1
         }
     }
   }

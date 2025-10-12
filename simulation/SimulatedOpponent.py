@@ -12,7 +12,6 @@ Strategies:
 - 'projected_points_with_draft_order': Use points with position priorities
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import sys

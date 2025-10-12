@@ -16,6 +16,8 @@ This module provides:
 Author: Kai Mizuno
 """
 
+FANTASY_TEAM_NAME = "Sea Sharp"
+
 # =============================================================================
 # LOGGING CONFIGURATION
 # =============================================================================
@@ -35,6 +37,7 @@ RECOMMENDATION_COUNT = 10  # Number of player recommendations to display
 # =============================================================================
 MIN_TRADE_IMPROVEMENT = 0  # Minimum score improvement to suggest a trade
 NUM_TRADE_RUNNERS_UP = 3   # Number of alternative trade suggestions to show
+MIN_PLAYER_SCORE_TO_CONSIDER_TRADE = 40
 
 # =============================================================================
 # POSITION CONSTANTS

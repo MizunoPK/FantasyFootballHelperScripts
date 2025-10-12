@@ -21,13 +21,10 @@ import constants as Constants
 from util.ConfigManager import ConfigManager
 from util.PlayerManager import PlayerManager
 from util.TeamDataManager import TeamDataManager
+from util.user_input import show_list_selection
 from add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
-from drop_player_mode.DropPlayerModeManager import DropPlayerModeManager
-from lock_player_mode.LockPlayerModeManager import LockPlayerModeManager
-from mark_drafted_player_mode.MarkDraftedPlayerModeManager import MarkDraftedPlayerModeManager
 from starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager
 from trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
-from waiver_optimizer_mode.WaiverOptimizerModeManager import WaiverOptimizerModeManager
 
 import constants
 
@@ -92,12 +89,8 @@ class LeagueHelperManager:
         # Initialize all mode managers with necessary dependencies
         self.logger.debug("Initializing mode managers")
         self.add_to_roster_mode_manager = AddToRosterModeManager(self.config, self.player_manager, self.team_data_manager)
-        self.drop_player_mode_manager = DropPlayerModeManager()
-        self.lock_player_mode_manager = LockPlayerModeManager()
-        self.mark_drafted_player_mode_manager = MarkDraftedPlayerModeManager()
         self.starter_helper_mode_manager = StarterHelperModeManager(self.config, self.player_manager, self.team_data_manager)
-        self.trade_simulator_mode_manager = TradeSimulatorModeManager()
-        self.waiver_optimizer_mode_manager = WaiverOptimizerModeManager(self.config)
+        self.trade_simulator_mode_manager = TradeSimulatorModeManager(data_folder, self.player_manager)
         self.logger.info("All mode managers initialized successfully")
 
 
@@ -115,7 +108,7 @@ class LeagueHelperManager:
         print(f"Currently drafted players: {self.player_manager.get_roster_len()} / {Constants.MAX_PLAYERS} max")
 
         # Show initial roster status
-        self.player_manager.display_roster_by_draft_order()
+        self.player_manager.display_roster()
 
         roster_size = self.player_manager.get_roster_len()
         self.logger.info(f"Interactive league helper started. Current roster size: {roster_size}/{Constants.MAX_PLAYERS}")
@@ -125,31 +118,22 @@ class LeagueHelperManager:
             self.logger.debug("Reloading player data before menu display")
             self.player_manager.reload_player_data()
 
-            choice = self.show_main_menu()
+            choice = show_list_selection("MAIN MENU", ["Add to Roster", "Starter Helper", "Trade Simulator", "Modify Player Data"], "Quit")
             self.logger.debug(f"User selected menu option: {choice}")
 
             if choice == 1:
                 self.logger.info("Starting Add to Roster mode")
                 self._run_add_to_roster_mode()
             elif choice == 2:
-                self.logger.info("Starting Mark Drafted Player mode")
-                self.run_mark_drafted_player_mode()
-            elif choice == 3:
-                self.logger.info("Starting Waiver Optimizer mode")
-                self.run_trade_analysis_mode()
-            elif choice == 4:
-                self.logger.info("Starting Drop Player mode")
-                self.run_drop_player_mode()
-            elif choice == 5:
-                self.logger.info("Starting Lock/Unlock Player mode")
-                self.run_lock_unlock_player_mode()
-            elif choice == 6:
                 self.logger.info("Starting Starter Helper mode")
                 self._run_starter_helper_mode()
-            elif choice == 7:
+            elif choice == 3:
                 self.logger.info("Starting Trade Simulator mode")
-                self.run_trade_simulator_mode()
-            elif choice == 8:
+                self._run_trade_simulator_mode()
+            elif choice == 4:
+                self.logger.info("Starting Modify Player Data mode")
+                self.run_modify_player_data_mode()
+            elif choice == 5:
                 print("Goodbye!")
                 self.logger.info("User exited League Helper application")
                 break
@@ -157,51 +141,6 @@ class LeagueHelperManager:
                 self.logger.warning(f"Invalid menu choice: {choice}")
                 print("Invalid choice. Please try again.")
 
-
-    def show_main_menu(self):
-        """
-        Display the main menu and get user's choice.
-
-        Shows all available modes and current roster status. Validates user input
-        and returns the selected choice number.
-
-        Returns:
-            int: The user's menu choice (1-8), or -1 if invalid input
-
-        Note:
-            Menu options:
-            1. Add to Roster - Draft players to your roster
-            2. Mark Drafted Player - Mark opponents' picks as unavailable
-            3. Waiver Optimizer - Find beneficial roster trades
-            4. Drop Player - Remove players from roster
-            5. Lock/Unlock Player - Protect players from trade suggestions
-            6. Starter Helper - Get weekly lineup recommendations
-            7. Trade Simulator - Simulate trades without saving
-            8. Quit - Exit the application
-        """
-        print("\n" + "="*50)
-        print("MAIN MENU")
-        print("="*50)
-        roster_len = self.player_manager.get_roster_len()
-        print(f"Current roster: {roster_len} / {Constants.MAX_PLAYERS} players")
-        print("="*50)
-        print("1. Add to Roster")
-        print("2. Mark Drafted Player")
-        print("3. Waiver Optimizer")
-        print("4. Drop Player")
-        print("5. Lock/Unlock Player")
-        print("6. Starter Helper")
-        print("7. Trade Simulator")
-        print("8. Quit")
-        max_choice = 8
-        print("="*50)
-
-        try:
-            choice = int(input(f"Enter your choice (1-{max_choice}): ").strip())
-            return choice
-        except ValueError:
-            self.logger.debug("User entered non-numeric input for menu choice")
-            return -1
 
 
     def _run_add_to_roster_mode(self):
@@ -215,12 +154,21 @@ class LeagueHelperManager:
 
     def _run_starter_helper_mode(self):
         """
-        Delegate to Add to Roster mode manager.
+        Delegate to Starter Helper mode manager.
 
         Passes current player_manager and team_data_manager instances to the mode
         manager to ensure it has the latest data.
         """
         self.starter_helper_mode_manager.show_recommended_starters(self.player_manager, self.team_data_manager)
+
+    def _run_trade_simulator_mode(self):
+        """
+        Delegate to Trade Simulator mode manager.
+
+        The Trade Simulator mode manager loads its own player and team data
+        during initialization to maintain independence from other modes.
+        """
+        self.trade_simulator_mode_manager.run_interactive_mode()
 
 
 

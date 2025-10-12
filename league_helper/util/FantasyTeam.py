@@ -45,7 +45,13 @@ class FantasyTeam:
         self.logger = get_logger()
         self.logger.debug(f"FantasyTeam.__init__ called with {len(players) if players else 0} players")
         # Roster holds Player instances drafted so far
-        self.roster = players if players else []
+        self.roster : List[FantasyPlayer] = []
+        self.injury_reserve : List[FantasyPlayer] = []
+        for player in players:
+            if player.injury_status not in ["ACTIVE", "QUESTIONABLE"]:
+                self.injury_reserve.append(player)
+            else:
+                self.roster.append(player)
 
         # Count positions
         self.pos_counts = {
@@ -95,6 +101,12 @@ class FantasyTeam:
         self.logger.debug(f"slot assignments after initialization: {self.slot_assignments}")
         self.logger.debug(f"draft_order after assignment: {[p.id if p else None for p in self.draft_order]}")
         self.logger.info(f"FantasyTeam initialized. Roster size: {len(self.roster)}")
+
+    def set_score(self, id : int, score : float):
+        for p in self.roster:
+            if p.id == id:
+                p.score = score
+                break
 
     def _assign_player_to_slot(self, player : FantasyPlayer):
         """
@@ -707,3 +719,31 @@ class FantasyTeam:
         if is_rostered:
             matches -= 1
         return matches
+    
+    def display_roster(self):
+        """Display current roster organized by position and calling out bye weeks"""
+        print(f"\nCurrent Roster by Position:")
+        print("-" * 40)
+
+        display_order = [Constants.QB, Constants.RB, Constants.WR, Constants.TE, Constants.K, Constants.DST]
+        byes = dict.fromkeys(Constants.POSSIBLE_BYE_WEEKS, [])
+
+        for pos in display_order:
+            print(f"--- {pos} ---")
+            pos_players = [p for p in self.roster if p.position == pos]
+            pos_players.sort(key=lambda item: item.score, reverse=True)
+            for p in pos_players:
+                byes[p.bye_week].append(p)
+                print(p)
+        print ("-- Injury Reserve --")
+        for ir in self.injury_reserve:
+            print(ir)
+        
+        print("-- Bye Weeks --")
+        for bye, player_list in byes.items():
+            if self.config.current_nfl_week <= bye:
+                name_list = [f"{n.name} ({n.position})" for n in player_list if n.bye_week == bye]
+                print(f"  Week {bye}: {name_list}")
+
+        print("------")
+        print(f"\nTotal roster: {len(self.roster)}/{Constants.MAX_PLAYERS} players")

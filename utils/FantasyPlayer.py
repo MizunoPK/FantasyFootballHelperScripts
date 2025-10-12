@@ -326,12 +326,36 @@ class FantasyPlayer:
             return "HIGH"
         else:
             return "MEDIUM"
+        
+    def get_weekly_projections(self) -> List[float]:
+        return [
+            self.week_1_points, self.week_2_points, self.week_3_points, self.week_4_points, 
+            self.week_5_points, self.week_6_points, self.week_7_points, self.week_8_points, 
+            self.week_9_points, self.week_10_points, self.week_11_points, self.week_12_points, 
+            self.week_13_points, self.week_14_points, self.week_15_points, self.week_16_points, 
+            self.week_17_points, ]
+    
+    def get_single_weekly_projection(self, week_num : int) -> float:
+        return self.get_weekly_projections()[week_num - 1]
+    
+    def get_rest_of_season_projection(self, current_week) -> float:
+        weekly_projections = self.get_weekly_projections()
+        total = 0.0
+        for i in range(current_week, 18):
+            total+=weekly_projections[i-1]
+
+        return total
     
     def __str__(self) -> str:
         """String representation of the player."""
         status = f" ({self.injury_status})" if self.injury_status != 'ACTIVE' else ""
-        drafted_status = " [DRAFTED]" if self.drafted == 1 else ""
-        return f"{self.name} ({self.team} {self.position}) - {self.fantasy_points:.1f} pts{status}{drafted_status}"
+        if self.drafted == 1:
+            drafted = "DRAFTED"
+        elif self.drafted == 2:
+            drafted = "ROSTERED"
+        else:
+            drafted = "AVAILABLE"
+        return f"{self.name} ({self.team} {self.position}) - {self.score:.1f} pts {status} [Bye={self.bye_week}] [{drafted}]"
     
     def __repr__(self) -> str:
         """Developer representation of the player."""

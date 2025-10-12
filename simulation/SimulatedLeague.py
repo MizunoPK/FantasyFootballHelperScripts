@@ -12,7 +12,6 @@ The simulation process:
 4. Track results and determine final standings
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import sys

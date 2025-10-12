@@ -134,7 +134,7 @@ class ParallelLeagueRunner:
         Example:
             >>> runner = ParallelLeagueRunner(max_workers=8)
             >>> results = runner.run_simulations_for_config(config, 100)
-            >>> # Returns 100 results: [(10, 7, 1404.62), (12, 5, 1523.45), ...]
+            >>> # Returns num_simulations results: [(10, 7, 1404.62), (12, 5, 1523.45), ...]
         """
         self.logger.info(
             f"Running {num_simulations} simulations with {self.max_workers} workers"

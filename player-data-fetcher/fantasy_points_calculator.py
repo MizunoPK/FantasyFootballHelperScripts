@@ -93,7 +93,7 @@ class FantasyPointsExtractor:
                 return points
 
             # No ESPN data available - return 0.0 (pure week-by-week system)
-            self.logger.info(f"No week-by-week data available for {player_name} week {week}, returning 0.0 points")
+            self.logger.debug(f"No week-by-week data available for {player_name} week {week}, returning 0.0 points")
             return 0.0
 
         except Exception as e:
