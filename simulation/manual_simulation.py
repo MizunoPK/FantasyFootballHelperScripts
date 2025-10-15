@@ -181,7 +181,7 @@ def main():
     logger.info("Starting manual simulation")
 
     # Load baseline config
-    config_path = Path("simulation/simulated_configs/optimal_2025-10-02_15-29-14.json.json")
+    config_path = Path("simulation/optimal_configs/optimal_2025-10-02_15-29-14.json.json")
     data_folder = Path("simulation/sim_data")
 
     print("\n" + "="*80)

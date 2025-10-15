@@ -2207,7 +2207,7 @@ FLEX_ELIGIBLE_POSITIONS = ["RB", "WR"]
 
 ## Document Maintenance
 
-**Last Updated**: 2025-10-09
+**Last Updated**: 2025-10-15
 
 **Update Triggers**:
 - New mode implemented
@@ -2237,8 +2237,19 @@ FLEX_ELIGIBLE_POSITIONS = ["RB", "WR"]
 8. **Reference**: Use `old_structure/` for understanding unimplemented logic
 
 **When Making Changes**:
+- Read `CLAUDE.md` for coding standards and workflow rules
 - Update config in `data/league_config.json` (single source of truth)
 - Scoring changes go in `PlayerManager.score_player()`
 - New modes get their own ModeManager class
-- Test everything (unit tests + interactive validation)
-- Update this documentation!
+- Follow error handling and logging patterns from `utils/`
+- Test everything (unit tests via `python tests/run_all_tests.py`)
+- Update this documentation and CLAUDE.md!
+
+**Coding Standards**:
+- Type hints required for all public methods
+- Use `Path` objects for file operations
+- Centralized error handling via `utils/error_handler.py`
+- Logging via `utils/LoggingManager.py`
+- CSV operations via `utils/csv_utils.py`
+- Google-style docstrings
+- See `CLAUDE.md` for complete standards

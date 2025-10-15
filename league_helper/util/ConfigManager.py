@@ -71,6 +71,7 @@ class ConfigKeys:
     MULTIPLIERS = "MULTIPLIERS"
     THRESHOLDS = "THRESHOLDS"
     MIN_WEEKS = "MIN_WEEKS"
+    WEIGHT = "WEIGHT"
 
     # Injury Level Keys
     INJURY_LOW = "LOW"
@@ -196,13 +197,13 @@ class ConfigManager:
         self.description = data.get(self.keys.DESCRIPTION, "")
         self.parameters = data.get(self.keys.PARAMETERS, {})
 
-        self.logger.info(f"Loaded configuration: '{self.config_name}'")
+        self.logger.debug(f"Loaded configuration: '{self.config_name}'")
         self.logger.debug(f"Description: {self.description}")
         self.logger.debug(f"Parameters count: {len(self.parameters)}")
 
         # Extract and validate all parameters
         self._extract_parameters()
-        self.logger.info("Configuration loaded and validated successfully")
+        self.logger.debug("Configuration loaded and validated successfully")
 
     def _validate_config_structure(self, data: Dict[str, Any]) -> None:
         """
@@ -385,36 +386,39 @@ class ConfigManager:
                 - val >= VERY_POOR threshold → VERY_POOR multiplier
         """
         # Handle None values - return neutral multiplier (1.0) when data is unavailable
-        if val is None:
+        if val == None:
             self.logger.debug(f"Multiplier calculation received None value, returning NEUTRAL (1.0)")
-            return 1.0, self.keys.NEUTRAL
+            multiplier, label = 1.0, self.keys.NEUTRAL
 
-        if rising_thresholds:
+        elif rising_thresholds:
             # Higher values are better (e.g., player rating where 80+ is excellent)
             # Check from best to worst
             if val >= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
+                multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
+                multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
+                multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
+                multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
             else:
-                return 1.0, self.keys.NEUTRAL
+                multiplier, label = 1.0, self.keys.NEUTRAL
         else:
             # Lower values are better (e.g., ADP where 20 or less is excellent)
             # Check from best to worst
             if val <= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
+                multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
+                multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
+                multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
-                return scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
+                multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
             else:
-                return 1.0, self.keys.NEUTRAL
+                multiplier, label = 1.0, self.keys.NEUTRAL
+            
+        multiplier = multiplier ** scoring_dict[self.keys.WEIGHT]
+        return multiplier, label
 
     def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
         return self._get_multiplier(self.adp_scoring, adp_val, rising_thresholds=False)

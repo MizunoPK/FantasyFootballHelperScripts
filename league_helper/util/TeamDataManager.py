@@ -72,7 +72,7 @@ class TeamDataManager:
             # Build team lookup cache
             self.team_data_cache = {team.team: team for team in teams}
 
-            self.logger.info(f"Loaded team data for {len(self.team_data_cache)} teams from {self.teams_file}")
+            self.logger.debug(f"Loaded team data for {len(self.team_data_cache)} teams from {self.teams_file}")
 
         except Exception as e:
             self.logger.warning(f"Error loading team data from {self.teams_file}: {e}. Team rankings will not be available.")

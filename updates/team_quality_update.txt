@@ -1,0 +1,3 @@
+Simulations have shown that the current team_quality scoring only reduces accuracy and does not benefit the system at all.
+We should look into ways to improve the team_quality scoring such that it actually helps improve accuracy of the Simulations.
+If needed, we can fetch more data from the ESPN API

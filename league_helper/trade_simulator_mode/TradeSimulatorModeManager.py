@@ -1,5 +1,6 @@
+import copy
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 from itertools import combinations
 
 from trade_simulator_mode.TradeSimTeam import TradeSimTeam
@@ -12,6 +13,8 @@ import constants as Constants
 sys.path.append(str(Path(__file__).parent.parent))
 from util.user_input import show_list_selection
 from util.PlayerManager import PlayerManager
+from util.ConfigManager import ConfigManager
+from util.FantasyTeam import FantasyTeam
 
 # Add parent directory to path for utils imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -30,7 +33,7 @@ class TradeSimulatorModeManager:
         team_rosters (Dict[str, List[FantasyPlayer]]): Dictionary mapping team names to their player rosters
     """
 
-    def __init__(self, data_folder: Path, player_manager : PlayerManager):
+    def __init__(self, data_folder: Path, player_manager : PlayerManager, config : ConfigManager):
         """
         Initialize TradeSimulatorModeManager.
 
@@ -41,6 +44,7 @@ class TradeSimulatorModeManager:
         self.logger = get_logger()
         self.data_folder = data_folder
         self.player_manager = player_manager
+        self.config = config
         self.team_rosters: Dict[str, List[FantasyPlayer]] = {}
 
         self.opponent_simulated_teams : List[TradeSimTeam] = []
@@ -55,13 +59,20 @@ class TradeSimulatorModeManager:
 
             # Enter whichever mode was selected
             if choice == 1:
-                loop = self.start_waiver_optimizer()
+                loop, sorted_trades = self.start_waiver_optimizer()
             elif choice == 2:
-                loop = self.start_trade_suggestor()
+                loop, sorted_trades = self.start_trade_suggestor()
             elif choice == 3:
-                loop = self.start_manual_trade()
+                loop, sorted_trades = self.start_manual_trade()
             else:
-                loop = False
+                loop, sorted_trades = False, []
+
+            if loop:
+                # Save to File
+                self.save_trades_to_file(sorted_trades)
+
+                # Wait
+                input("Press enter to continue...")
 
     def init_team_data(self):
         """
@@ -104,10 +115,11 @@ class TradeSimulatorModeManager:
         self.opponent_simulated_teams = []
         self.trade_snapshots = []
         for team_name, team_list in self.team_rosters.items():
-            self.opponent_simulated_teams.append(TradeSimTeam(team_name, team_list, self.player_manager))
+            if team_name != self.my_team.name:
+                self.opponent_simulated_teams.append(TradeSimTeam(team_name, team_list, self.player_manager))
 
     
-    def start_waiver_optimizer(self) -> bool:
+    def start_waiver_optimizer(self) -> Tuple[bool, List[TradeSnapshot]]:
         """
         Find optimal waiver wire pickups by analyzing 1-for-1, 2-for-2, and 3-for-3 trades.
 
@@ -117,14 +129,14 @@ class TradeSimulatorModeManager:
         self.logger.info("Starting Waiver Optimizer mode")
 
         # Get all waiver wire players (drafted=0)
-        lowest_score = self.player_manager.get_lowest_score_on_roster()
-        waiver_players = self.player_manager.get_player_list(drafted_vals=[0], min_score=lowest_score)
+        lowest_scores = self.player_manager.get_lowest_scores_on_roster()
+        waiver_players = self.player_manager.get_player_list(drafted_vals=[0], min_scores=lowest_scores)
         self.logger.info(f"Found {len(waiver_players)} players on waiver wire")
 
         if not waiver_players:
             print("\nNo players available on waivers.")
             input("\nPress Enter to continue...")
-            return True
+            return True, []
 
         # Create a TradeSimTeam for the waiver wire
         waiver_team = TradeSimTeam("Waiver Wire", waiver_players, self.player_manager, isOpponent=True)
@@ -136,7 +148,7 @@ class TradeSimulatorModeManager:
             their_team=waiver_team,
             is_waivers=True,
             one_for_one=True,
-            two_for_two=False,
+            two_for_two=True,
             three_for_three=False
         )
 
@@ -145,7 +157,7 @@ class TradeSimulatorModeManager:
         if not trade_combos:
             print("\nNo valid waiver pickups found that improve your team.")
             input("\nPress Enter to continue...")
-            return True
+            return True, []
 
         # Sort by improvement (descending)
         sorted_trades = sorted(
@@ -182,9 +194,9 @@ class TradeSimulatorModeManager:
             print()
 
         input("\nPress Enter to continue...")
-        return True
+        return True, sorted_trades
 
-    def start_trade_suggestor(self) -> bool:
+    def start_trade_suggestor(self) -> Tuple[bool, List[TradeSnapshot]]:
         """
         Find beneficial trades by analyzing all possible trades with opponent teams.
 
@@ -195,8 +207,7 @@ class TradeSimulatorModeManager:
 
         if not self.opponent_simulated_teams:
             print("\nNo opponent teams found.")
-            input("\nPress Enter to continue...")
-            return True
+            return True, []
 
         # Collect all possible trades from all opponents
         all_trades = []
@@ -211,9 +222,9 @@ class TradeSimulatorModeManager:
                 my_team=self.my_team,
                 their_team=opponent_team,
                 is_waivers=False,
-                one_for_one=True,
+                one_for_one=False,
                 two_for_two=True,
-                three_for_three=True
+                three_for_three=False
             )
 
             all_trades.extend(trade_combos)
@@ -223,8 +234,7 @@ class TradeSimulatorModeManager:
 
         if not all_trades:
             print("\nNo mutually beneficial trades found.")
-            input("\nPress Enter to continue...")
-            return True
+            return (True, [])
 
         # Sort by my team's improvement (descending)
         sorted_trades = sorted(
@@ -267,8 +277,7 @@ class TradeSimulatorModeManager:
                 print(f"    - {player.name} ({player.position}) - {player.team}")
             print()
 
-        input("\nPress Enter to continue...")
-        return True
+        return True, sorted_trades
 
     def start_manual_trade(self) -> bool:
         return False
@@ -304,11 +313,13 @@ class TradeSimulatorModeManager:
         if len(roster) > Constants.MAX_PLAYERS:
             return False
 
-        # Check position limits
-        position_counts = self._count_positions(roster)
-        for pos, count in position_counts.items():
-            max_allowed = Constants.MAX_POSITIONS.get(pos, 0)
-            if count > max_allowed:
+        # Try to make a FantasyTeam object and return false if any player cannot be added to the team
+        test_team = FantasyTeam(self.config, [])
+        for p in roster:
+            p_copy = copy.deepcopy(p)
+            p_copy.drafted = 0
+            drafted = test_team.draft_player(p_copy)
+            if not drafted:
                 return False
 
         return True
@@ -340,8 +351,8 @@ class TradeSimulatorModeManager:
             for my_player in my_roster:
                 for their_player in their_roster:
                     # Create new rosters after the trade
-                    my_new_roster = [p for p in my_roster if p != my_player] + [their_player]
-                    their_new_roster = [p for p in their_roster if p != their_player] + [my_player]
+                    my_new_roster = [p for p in my_roster if p.id != my_player.id] + [their_player]
+                    their_new_roster = [p for p in their_roster if p.id != their_player.id] + [my_player]
 
                     # Validate my team's roster (always required)
                     if not self._validate_roster(my_new_roster):
@@ -355,7 +366,10 @@ class TradeSimulatorModeManager:
                     my_new_team = TradeSimTeam(my_team.name, my_new_roster, self.player_manager, isOpponent=False)
                     their_new_team = TradeSimTeam(their_team.name, their_new_roster, self.player_manager, isOpponent=True)
 
-                    if my_new_team.team_score > my_team.team_score and their_new_team.team_score > their_team.team_score:
+                    our_roster_improved = my_new_team.team_score > my_team.team_score
+                    their_roster_improved = is_waivers or (their_new_team.team_score > their_team.team_score)
+
+                    if our_roster_improved and their_roster_improved:
                         # Create TradeSnapshot
                         snapshot = TradeSnapshot(
                             my_new_team=my_new_team,
@@ -389,7 +403,10 @@ class TradeSimulatorModeManager:
                     my_new_team = TradeSimTeam(my_team.name, my_new_roster, self.player_manager, isOpponent=False)
                     their_new_team = TradeSimTeam(their_team.name, their_new_roster, self.player_manager, isOpponent=True)
 
-                    if my_new_team.team_score > my_team.team_score and their_new_team.team_score > their_team.team_score:
+                    our_roster_improved = my_new_team.team_score > my_team.team_score
+                    their_roster_improved = is_waivers or (their_new_team.team_score > their_team.team_score)
+
+                    if our_roster_improved and their_roster_improved:
                         # Create TradeSnapshot
                         snapshot = TradeSnapshot(
                             my_new_team=my_new_team,
@@ -423,7 +440,10 @@ class TradeSimulatorModeManager:
                     my_new_team = TradeSimTeam(my_team.name, my_new_roster, self.player_manager, isOpponent=False)
                     their_new_team = TradeSimTeam(their_team.name, their_new_roster, self.player_manager, isOpponent=True)
 
-                    if my_new_team.team_score > my_team.team_score and their_new_team.team_score > their_team.team_score:
+                    our_roster_improved = my_new_team.team_score > my_team.team_score
+                    their_roster_improved = is_waivers or (their_new_team.team_score > their_team.team_score)
+
+                    if our_roster_improved and their_roster_improved:
                         # Create TradeSnapshot
                         snapshot = TradeSnapshot(
                             my_new_team=my_new_team,
@@ -434,3 +454,32 @@ class TradeSimulatorModeManager:
                         trade_combos.append(snapshot)
 
         return trade_combos
+    
+    def save_trades_to_file(self, sorted_trades : List[TradeSnapshot]):
+        # Open the file in write mode (it will create the file if it doesn't exist)
+        with open('./trade_info.txt', 'w') as file:
+            for i, trade in enumerate(sorted_trades, 1):
+                my_improvement = trade.my_new_team.team_score - self.my_team.team_score
+
+                # Get the original team score for comparison
+                original_their_team = None
+                for opp in self.opponent_simulated_teams:
+                    if opp.name == trade.their_new_team.name:
+                        original_their_team = opp
+                        break
+
+                their_improvement = trade.their_new_team.team_score - original_their_team.team_score if original_their_team else 0
+
+                file.write(f"#{i} - Trade with {trade.their_new_team.name}\n")
+                file.write(f"  My improvement: +{my_improvement:.2f} pts (New score: {trade.my_new_team.team_score:.2f})\n")
+                file.write(f"  Their improvement: +{their_improvement:.2f} pts (New score: {trade.their_new_team.team_score:.2f})\n")
+                file.write(f"  I give:\n")
+                
+                for player in trade.their_new_players:
+                    file.write(f"    - {player.name} ({player.position}) - {player.team}\n")
+                
+                file.write(f"  I receive:\n")
+                for player in trade.my_new_players:
+                    file.write(f"    - {player.name} ({player.position}) - {player.team}\n")
+                
+                file.write("\n")  # Adds a blank line between trades

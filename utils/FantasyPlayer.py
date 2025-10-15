@@ -342,7 +342,9 @@ class FantasyPlayer:
         weekly_projections = self.get_weekly_projections()
         total = 0.0
         for i in range(current_week, 18):
-            total+=weekly_projections[i-1]
+            week_projection = weekly_projections[i-1]
+            if week_projection is not None:
+                total += week_projection
 
         return total
     

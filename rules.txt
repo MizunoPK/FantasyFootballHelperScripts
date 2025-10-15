@@ -1,0 +1,101 @@
+Before starting changes, ask clarifying questions by creating a questions file in the updates folder. The questions file should be named with the pattern: `{objective_name}_questions.md`. This file should contain all clarifying questions that would help better understand and complete the objective. Wait for the user to answer these questions before creating the TODO file and beginning development. If new questions arise during development, pause and add them to the questions file.
+After receiving answers to clarifying questions, create a TODO file that maps out all the tasks that will need to be completed to accomplish this objective. As you complete the tasks, keep the file updated with your progress just in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made. Put the TODO file in the todo-files folder in the updates directory.
+After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Test ALL unit tests across the entire repo. All tests across the entire repo must pass before we can mark an objective as complete. Make this a very clear and important TODO item.
+Create any new unit tests to cover the new implementations, and modify any relevant unit tests and test them to ensure they pass.
+Update rules files and readme files according to the new changes.
+Once the objective is completely done, then move the associated file in updates to the 'done' folder contained within the same updates directory. Also delete the questions file once the objective is complete.
+Be VERY systematic when creating the TODO file and proceeding with the implementation. Break the objective up into modualized components. Each phase that is outlined in the todo file should leave the repo is a state that is still testable and functional, and should run the pre-commit checklist in its entirety. Do not skip any unit tests or interactive integration tests just because you think that the tests will not be effected by the change - assume everything is at risk of breaking no matter what you do.
+
+## PRE-COMMIT VALIDATION PROTOCOL
+
+**🚨 MANDATORY FOR EVERY STAGE COMPLETION** - This protocol must be executed at the completion of EVERY phase, step, or significant change before proceeding to the next stage:
+
+### **WHEN TO EXECUTE**:
+- ✅ After completing ANY phase step (e.g., Phase 2 Step 2.1)
+- ✅ Before moving to the next phase or step
+- ✅ When instructed to "validate and commit" or "commit changes"
+- ✅ At any major milestone or completion point
+- ✅ Before asking user for validation to proceed
+
+### **MANDATORY EXECUTION STEPS**:
+
+**🚀 REQUIRED: Run Unit Tests**
+
+Run the unit test suite to validate all changes:
+
+```bash
+python tests/run_all_tests.py
+```
+
+This command executes ALL unit tests:
+- ✅ Complete unit test suite in tests/ directory
+- ✅ Strict 100% pass requirement
+- ✅ Returns exit code 0 for success, 1 for failure
+
+**Exit Codes**:
+- `0` = All tests passed (100%), safe to commit
+- `1` = Some tests failed, DO NOT COMMIT until issues are fixed
+
+**Test Options**:
+```bash
+python tests/run_all_tests.py --verbose    # Show individual test names
+python tests/run_all_tests.py --detailed   # Full test output
+python tests/run_all_tests.py --single     # Faster single command mode
+```
+
+**Validation Steps**:
+
+1. **ANALYZE CHANGES**:
+   ```bash
+   git status
+   git diff
+   ```
+   - Review ALL changed files
+   - Understand impact of changes
+
+2. **ADD/UPDATE UNIT TESTS**:
+   - Add tests for new functionality in `tests/` directory
+   - Follow test structure: `tests/module_path/test_FileName.py`
+   - Use proper mocking to isolate functionality
+   - Ensure tests follow Arrange-Act-Assert pattern
+
+3. **RUN ALL UNIT TESTS** (MANDATORY):
+   ```bash
+   python tests/run_all_tests.py
+   ```
+   - **100% pass rate required**
+   - Fix any failing tests before proceeding
+   - Re-run until all tests pass
+
+4. **MANUAL TESTING** (if applicable):
+   - Test the affected functionality manually
+   - Run the main scripts to verify behavior:
+     ```bash
+     python run_league_helper.py   # League helper mode
+     python run_player_fetcher.py  # Player data fetcher
+     python run_simulation.py      # Simulation system
+     ```
+
+5. **UPDATE DOCUMENTATION**:
+   - Update README.md if functionality changed
+   - Update CLAUDE.md if workflow or architecture changed
+   - Update rules.txt if development process changed
+   - Update module-specific documentation as needed
+
+6. **COMMIT STANDARDS**:
+   - Format: "Brief description of change"
+   - Keep under 50 characters when possible
+   - NO emojis or icons
+   - Do NOT include "Generated with Claude Code" footer
+   - List major changes in commit body if needed
+
+### **FAILURE PROTOCOL**:
+- **If ANY test fails**: STOP immediately, fix the issue, re-run tests
+- **If unit tests fail**: Fix failing tests, ensure 100% pass rate before proceeding
+- **No exceptions**: Cannot proceed to next phase without 100% test success
+- **Cannot commit**: Do NOT commit code with failing tests
+
+### **ENFORCEMENT**:
+- This protocol is MANDATORY and NON-NEGOTIABLE for every stage completion
+- Violation of this protocol requires immediate correction and re-validation
+- The user should be notified if this protocol was not followed properly

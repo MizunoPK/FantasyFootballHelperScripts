@@ -1,0 +1,1 @@
+Have a toggle in constants that flips whether or not to have ALL the trade/waiver suggestions outputted to a file

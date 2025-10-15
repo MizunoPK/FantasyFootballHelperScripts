@@ -10,14 +10,6 @@ Parameters Varied:
 - BASE_BYE_PENALTY: ±10 from optimal, bounded [0, 40]
 - DRAFT_ORDER_BONUSES.PRIMARY: ±20 from optimal, bounded [25, 100]
 - DRAFT_ORDER_BONUSES.SECONDARY: ±20 from optimal, bounded [25, 75]
-- POSITIVE_MULTIPLIER: ±0.1 from optimal, bounded [1.0, 1.3]
-- NEGATIVE_MULTIPLIER: ±0.1 from optimal, bounded [0.7, 1.0]
-
-Multiplier Application:
-- POSITIVE_MULTIPLIER applies to GOOD and EXCELLENT ratings in all sections
-- NEGATIVE_MULTIPLIER applies to POOR and VERY_POOR ratings in all sections
-- For each config, generates unique multipliers per section (±0.05 variance)
-- THRESHOLDS remain constant (only MULTIPLIERS vary)
 
 Author: Kai Mizuno
 Date: 2024
@@ -39,10 +31,6 @@ class ConfigGenerator:
     """
     Generates configuration combinations for simulation optimization.
 
-    Creates 46,656 different configurations by varying 6 parameters with
-    6 values each (optimal + 5 random variations). Applies multipliers
-    to all scoring sections based on POSITIVE_MULTIPLIER and NEGATIVE_MULTIPLIER.
-
     Attributes:
         baseline_config (dict): Base configuration to vary from
         param_definitions (dict): Parameter ranges and bounds
@@ -51,55 +39,36 @@ class ConfigGenerator:
 
     # Parameter definitions: (range_val, min_val, max_val)
     PARAM_DEFINITIONS = {
-        'NORMALIZATION_MAX_SCALE': (10.0, 60.0, 140.0),
-        'BASE_BYE_PENALTY': (10.0, 0.0, 40.0),
-        'PRIMARY_BONUS': (10.0, 25.0, 100.0),
-        'SECONDARY_BONUS': (10.0, 25.0, 75.0),
-        'POSITIVE_MULTIPLIER': (0.1, 1.0, 1.3),
-        'NEGATIVE_MULTIPLIER': (0.1, 0.7, 1.0)
+        'NORMALIZATION_MAX_SCALE': (10.0, 50.0, 150.0),
+        'BASE_BYE_PENALTY': (10.0, 0.0, 50.0),
+        'PRIMARY_BONUS': (10.0, 0.0, 100.0),
+        'SECONDARY_BONUS': (10.0, 0.0, 75.0),
+        'ADP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
+        'PLAYER_RATING_SCORING_WEIGHT': (0.3, 0.0, 5.0),
+        'TEAM_QUALITY_SCORING_WEIGHT': (0.3, 0.0, 5.0),
+        'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
     }
 
-    # Scoring sections that need multipliers applied
+    # Scoring sections that need weights applied
     SCORING_SECTIONS = [
         'ADP_SCORING',
         'PLAYER_RATING_SCORING',
         'TEAM_QUALITY_SCORING',
-        'CONSISTENCY_SCORING',
         'MATCHUP_SCORING'
     ]
 
     # Parameter ordering for iterative optimization
-    # Scalar parameters first, then multipliers by section
+    # Scalar parameters first, then weights by section
     PARAMETER_ORDER = [
         'NORMALIZATION_MAX_SCALE',
         'BASE_BYE_PENALTY',
         'PRIMARY_BONUS',
         'SECONDARY_BONUS',
-        # ADP multipliers
-        'ADP_SCORING_MULTIPLIERS_EXCELLENT',
-        'ADP_SCORING_MULTIPLIERS_GOOD',
-        'ADP_SCORING_MULTIPLIERS_POOR',
-        'ADP_SCORING_MULTIPLIERS_VERY_POOR',
-        # Player Rating multipliers
-        'PLAYER_RATING_SCORING_MULTIPLIERS_EXCELLENT',
-        'PLAYER_RATING_SCORING_MULTIPLIERS_GOOD',
-        'PLAYER_RATING_SCORING_MULTIPLIERS_POOR',
-        'PLAYER_RATING_SCORING_MULTIPLIERS_VERY_POOR',
-        # Team Quality multipliers
-        'TEAM_QUALITY_SCORING_MULTIPLIERS_EXCELLENT',
-        'TEAM_QUALITY_SCORING_MULTIPLIERS_GOOD',
-        'TEAM_QUALITY_SCORING_MULTIPLIERS_POOR',
-        'TEAM_QUALITY_SCORING_MULTIPLIERS_VERY_POOR',
-        # Consistency multipliers
-        'CONSISTENCY_SCORING_MULTIPLIERS_EXCELLENT',
-        'CONSISTENCY_SCORING_MULTIPLIERS_GOOD',
-        'CONSISTENCY_SCORING_MULTIPLIERS_POOR',
-        'CONSISTENCY_SCORING_MULTIPLIERS_VERY_POOR',
-        # Matchup multipliers
-        'MATCHUP_SCORING_MULTIPLIERS_EXCELLENT',
-        'MATCHUP_SCORING_MULTIPLIERS_GOOD',
-        'MATCHUP_SCORING_MULTIPLIERS_POOR',
-        'MATCHUP_SCORING_MULTIPLIERS_VERY_POOR',
+        # Multiplier Weights
+        'ADP_SCORING_WEIGHT',
+        'PLAYER_RATING_SCORING_WEIGHT',
+        'TEAM_QUALITY_SCORING_WEIGHT',
+        'MATCHUP_SCORING_WEIGHT',
     ]
 
     def __init__(self, baseline_config_path: Path, num_test_values: int = 5):
@@ -196,15 +165,10 @@ class ConfigGenerator:
         value_sets : Dict[str, List[float]],
         param_name: str
     ) -> Dict[str, List[float]]:
-        mult_params = self.baseline_config['parameters'][param_name]["MULTIPLIERS"]
-        for param, val in mult_params.items():
-            full_name = f"{param_name}_MULTIPLIERS_{param}"
-
-            range, min, max = self.param_definitions['POSITIVE_MULTIPLIER']
-            if "POOR" in param:
-                range, min, max = self.param_definitions['NEGATIVE_MULTIPLIER']
-
-            value_sets[full_name] = self.generate_parameter_values(full_name, val, range, min, max )
+        base_weight = self.baseline_config['parameters'][param_name]["WEIGHT"]
+        full_name = f"{param_name}_WEIGHT"
+        range, min, max = self.param_definitions[full_name]
+        value_sets[full_name] = self.generate_parameter_values(full_name, base_weight, range, min, max )
 
         return value_sets
 
@@ -264,51 +228,13 @@ class ConfigGenerator:
         value_sets = self.generate_multiplier_parameter_values(value_sets, "TEAM_QUALITY_SCORING")
 
         # CONSISTENCY
-        value_sets = self.generate_multiplier_parameter_values(value_sets, "CONSISTENCY_SCORING")
+        # value_sets = self.generate_multiplier_parameter_values(value_sets, "CONSISTENCY_SCORING")
 
         # MATCHUP
         value_sets = self.generate_multiplier_parameter_values(value_sets, "MATCHUP_SCORING")
 
         self.logger.info(f"Generated {len(value_sets)} parameter value sets")
         return value_sets
-
-    def _extract_baseline_positive_multiplier(self, params: dict) -> float:
-        """
-        Extract average EXCELLENT multiplier from baseline config.
-
-        Args:
-            params (dict): Parameters section of config
-
-        Returns:
-            float: Average EXCELLENT multiplier across all sections
-        """
-        excellent_mults = []
-        for section in self.SCORING_SECTIONS:
-            if section in params and 'MULTIPLIERS' in params[section]:
-                excellent_mults.append(params[section]['MULTIPLIERS']['EXCELLENT'])
-
-        avg = sum(excellent_mults) / len(excellent_mults) if excellent_mults else 1.2
-        self.logger.debug(f"Baseline POSITIVE_MULTIPLIER (avg EXCELLENT): {avg:.3f}")
-        return avg
-
-    def _extract_baseline_negative_multiplier(self, params: dict) -> float:
-        """
-        Extract average POOR multiplier from baseline config.
-
-        Args:
-            params (dict): Parameters section of config
-
-        Returns:
-            float: Average POOR multiplier across all sections
-        """
-        poor_mults = []
-        for section in self.SCORING_SECTIONS:
-            if section in params and 'MULTIPLIERS' in params[section]:
-                poor_mults.append(params[section]['MULTIPLIERS']['POOR'])
-
-        avg = sum(poor_mults) / len(poor_mults) if poor_mults else 0.85
-        self.logger.debug(f"Baseline NEGATIVE_MULTIPLIER (avg POOR): {avg:.3f}")
-        return avg
 
     def generate_all_combinations(self) -> List[Dict[str, float]]:
         """
@@ -381,20 +307,14 @@ class ConfigGenerator:
         elif param_name == 'SECONDARY_BONUS':
             current_val = params['DRAFT_ORDER_BONUSES']['SECONDARY']
             range_val, min_val, max_val = self.param_definitions['SECONDARY_BONUS']
-        elif '_MULTIPLIERS_' in param_name:
+        elif '_WEIGHT' in param_name:
             # Extract section and multiplier type
             # Format: SECTION_SCORING_MULTIPLIERS_TYPE
-            parts = param_name.split('_MULTIPLIERS_')
+            parts = param_name.split('_WEIGHT')
             section = parts[0]  # e.g., 'ADP_SCORING'
-            mult_type = parts[1]  # e.g., 'EXCELLENT'
 
-            current_val = params[section]['MULTIPLIERS'][mult_type]
-
-            # Use POSITIVE or NEGATIVE multiplier ranges
-            if 'POOR' in mult_type:
-                range_val, min_val, max_val = self.param_definitions['NEGATIVE_MULTIPLIER']
-            else:
-                range_val, min_val, max_val = self.param_definitions['POSITIVE_MULTIPLIER']
+            current_val = params[section]['WEIGHT']
+            range_val, min_val, max_val = self.param_definitions[param_name]
         else:
             raise ValueError(f"Unknown parameter: {param_name}")
 
@@ -442,11 +362,10 @@ class ConfigGenerator:
         combination['PRIMARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['PRIMARY']
         combination['SECONDARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['SECONDARY']
 
-        # Multipliers for each section
-        for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'CONSISTENCY', 'MATCHUP']:
-            for mult_type in ['EXCELLENT', 'GOOD', 'POOR', 'VERY_POOR']:
-                param_name = f'{section}_SCORING_MULTIPLIERS_{mult_type}'
-                combination[param_name] = params[f'{section}_SCORING']['MULTIPLIERS'][mult_type]
+        # WEIGHTS for each section
+        for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'MATCHUP']:
+            param_name = f'{section}_SCORING_WEIGHT'
+            combination[param_name] = params[f'{section}_SCORING']['WEIGHT']
 
         return combination
 
@@ -463,7 +382,7 @@ class ConfigGenerator:
         Process:
             1. Deep copy baseline config
             2. Update varied parameters
-            3. Apply multipliers to all scoring sections
+            3. Apply weights to all scoring sections
         """
         # Deep copy baseline to avoid mutations
         config = copy.deepcopy(self.baseline_config)
@@ -474,12 +393,8 @@ class ConfigGenerator:
         params['BASE_BYE_PENALTY'] = combination['BASE_BYE_PENALTY']
         params['DRAFT_ORDER_BONUSES']['PRIMARY'] = combination['PRIMARY_BONUS']
         params['DRAFT_ORDER_BONUSES']['SECONDARY'] = combination['SECONDARY_BONUS']
-        for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'CONSISTENCY', 'MATCHUP']:
-            params[f'{parameter}_SCORING']['MULTIPLIERS']['VERY_POOR'] = combination[f'{parameter}_SCORING_MULTIPLIERS_VERY_POOR']
-            params[f'{parameter}_SCORING']['MULTIPLIERS']['POOR'] = combination[f'{parameter}_SCORING_MULTIPLIERS_POOR']
-            params[f'{parameter}_SCORING']['MULTIPLIERS']['GOOD'] = combination[f'{parameter}_SCORING_MULTIPLIERS_GOOD']
-            params[f'{parameter}_SCORING']['MULTIPLIERS']['EXCELLENT'] = combination[f'{parameter}_SCORING_MULTIPLIERS_EXCELLENT']
-
+        for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'MATCHUP']:
+            params[f'{parameter}_SCORING']['WEIGHT'] = combination[f'{parameter}_SCORING_WEIGHT']
         return config
 
     def generate_all_configs(self) -> List[dict]:

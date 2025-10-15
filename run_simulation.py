@@ -20,11 +20,18 @@ Author: Kai Mizuno
 import argparse
 import sys
 from pathlib import Path
+from utils.LoggingManager import setup_logger
 
 # Add simulation directory to path for imports
 sys.path.append(str(Path(__file__).parent / "simulation"))
 from SimulationManager import SimulationManager
 
+
+LOGGING_LEVEL = 'INFO'      # ← DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
+LOGGING_TO_FILE = False        # ← Console vs file logging
+LOG_NAME = "simulation"
+LOGGING_FILE = './simulation/log.txt'
+LOGGING_FORMAT = 'standard'     # detailed / standard / simple
 
 def main():
     """Main entry point for simulation CLI."""
@@ -46,6 +53,7 @@ Examples:
   python run_simulation.py iterative --baseline my_config.json --output results/test1
         """
     )
+    setup_logger(LOG_NAME, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE, LOGGING_FORMAT)
 
     # Mode selection
     subparsers = parser.add_subparsers(dest='mode', help='Simulation mode', required=True)
@@ -70,8 +78,8 @@ Examples:
     full_parser.add_argument(
         '--sims',
         type=int,
-        default=100,
-        help='Number of simulations per config (default: 100)'
+        default=50,
+        help='Number of simulations per config (default: 50)'
     )
 
     # Iterative optimization mode
@@ -82,8 +90,8 @@ Examples:
     iterative_parser.add_argument(
         '--sims',
         type=int,
-        default=100,
-        help='Number of simulations per config (default: 100)'
+        default=50,
+        help='Number of simulations per config (default: 50)'
     )
 
     # Common arguments for all modes
@@ -145,14 +153,14 @@ Examples:
             baseline_path = optimal_configs[0]
             print(f"✓ Using most recent config from output directory: {baseline_path.name}")
         else:
-            # Fall back to simulated_configs directory
-            config_dir = Path("simulation/simulated_configs")
+            # Fall back to optimal_configs directory
+            config_dir = Path("simulation/simulation_configs")
             if config_dir.exists():
                 optimal_configs = list(config_dir.glob("optimal_*.json"))
                 if optimal_configs:
                     optimal_configs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
                     baseline_path = optimal_configs[0]
-                    print(f"✓ Using baseline config from simulated_configs: {baseline_path.name}")
+                    print(f"✓ Using baseline config from simulation_configs: {baseline_path.name}")
                 else:
                     print(f"Error: No optimal config files found in {output_dir} or {config_dir}")
                     print(f"\nPlease provide a baseline config using --baseline argument")
@@ -209,19 +217,20 @@ Examples:
         print("=" * 80)
         print("")
 
+        while True:
         # Initialize manager
-        manager = SimulationManager(
-            baseline_config_path=baseline_path,
-            output_dir=output_dir,
-            num_simulations_per_config=args.sims,
-            max_workers=args.workers,
-            data_folder=data_folder,
-            num_test_values=args.test_values
-        )
+            manager = SimulationManager(
+                baseline_config_path=baseline_path,
+                output_dir=output_dir,
+                num_simulations_per_config=args.sims,
+                max_workers=args.workers,
+                data_folder=data_folder,
+                num_test_values=args.test_values
+            )
 
-        # Run full optimization
-        optimal_path = manager.run_full_optimization()
-        print(f"\nOptimal configuration saved to: {optimal_path}")
+            # Run full optimization
+            baseline_path = manager.run_full_optimization()
+            print(f"\nOptimal configuration saved to: {baseline_path}")
 
     elif args.mode == 'iterative':
         num_params = 24  # 4 scalars + 20 multipliers
@@ -235,19 +244,20 @@ Examples:
         print("=" * 80)
         print("")
 
-        # Initialize manager
-        manager = SimulationManager(
-            baseline_config_path=baseline_path,
-            output_dir=output_dir,
-            num_simulations_per_config=args.sims,
-            max_workers=args.workers,
-            data_folder=data_folder,
-            num_test_values=args.test_values
-        )
+        while True:
+            # Initialize manager
+            manager = SimulationManager(
+                baseline_config_path=baseline_path,
+                output_dir=output_dir,
+                num_simulations_per_config=args.sims,
+                max_workers=args.workers,
+                data_folder=data_folder,
+                num_test_values=args.test_values
+            )
 
-        # Run iterative optimization
-        optimal_path = manager.run_iterative_optimization()
-        print(f"\nOptimal configuration saved to: {optimal_path}")
+            # Run iterative optimization
+            baseline_path = manager.run_iterative_optimization()
+            print(f"\nOptimal configuration saved to: {baseline_path}")
 
 
 if __name__ == "__main__":

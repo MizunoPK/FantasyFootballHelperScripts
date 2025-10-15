@@ -40,6 +40,7 @@ class TestConfigGeneratorInitialization:
                     "SECONDARY": 40.0
                 },
                 "ADP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -48,6 +49,7 @@ class TestConfigGeneratorInitialization:
                     }
                 },
                 "PLAYER_RATING_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.25,
                         "GOOD": 1.15,
@@ -56,6 +58,7 @@ class TestConfigGeneratorInitialization:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
                         "GOOD": 1.2,
@@ -64,6 +67,7 @@ class TestConfigGeneratorInitialization:
                     }
                 },
                 "CONSISTENCY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.15,
                         "GOOD": 1.05,
@@ -72,6 +76,7 @@ class TestConfigGeneratorInitialization:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -121,15 +126,17 @@ class TestConfigGeneratorInitialization:
         assert 'BASE_BYE_PENALTY' in gen.param_definitions
         assert 'PRIMARY_BONUS' in gen.param_definitions
         assert 'SECONDARY_BONUS' in gen.param_definitions
-        assert 'POSITIVE_MULTIPLIER' in gen.param_definitions
-        assert 'NEGATIVE_MULTIPLIER' in gen.param_definitions
+        assert 'ADP_SCORING_WEIGHT' in gen.param_definitions
+        assert 'PLAYER_RATING_SCORING_WEIGHT' in gen.param_definitions
+        assert 'TEAM_QUALITY_SCORING_WEIGHT' in gen.param_definitions
+        assert 'MATCHUP_SCORING_WEIGHT' in gen.param_definitions
 
     def test_parameter_order_exists(self, temp_baseline_config):
         """Test that PARAMETER_ORDER list exists and has expected length"""
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 24  # 4 scalars + 20 multipliers (5 sections × 4)
+        assert len(gen.PARAMETER_ORDER) == 8  # 4 scalars + 4 weights
 
 
 class TestParameterValueGeneration:
@@ -148,6 +155,7 @@ class TestParameterValueGeneration:
                     "SECONDARY": 40.0
                 },
                 "ADP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -156,6 +164,7 @@ class TestParameterValueGeneration:
                     }
                 },
                 "PLAYER_RATING_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.25,
                         "GOOD": 1.15,
@@ -164,6 +173,7 @@ class TestParameterValueGeneration:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
                         "GOOD": 1.2,
@@ -172,6 +182,7 @@ class TestParameterValueGeneration:
                     }
                 },
                 "CONSISTENCY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.15,
                         "GOOD": 1.05,
@@ -180,6 +191,7 @@ class TestParameterValueGeneration:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -240,12 +252,16 @@ class TestParameterValueGeneration:
         """Test that value sets are generated for all parameters"""
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Should have 4 scalar + 20 multiplier parameters
-        assert len(value_sets) >= 24
+        # Should have 4 scalar + 4 weight parameters
+        assert len(value_sets) == 8
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'BASE_BYE_PENALTY' in value_sets
         assert 'PRIMARY_BONUS' in value_sets
         assert 'SECONDARY_BONUS' in value_sets
+        assert 'ADP_SCORING_WEIGHT' in value_sets
+        assert 'PLAYER_RATING_SCORING_WEIGHT' in value_sets
+        assert 'TEAM_QUALITY_SCORING_WEIGHT' in value_sets
+        assert 'MATCHUP_SCORING_WEIGHT' in value_sets
 
     def test_generate_all_parameter_value_sets_correct_value_count(self, generator):
         """Test that each value set has correct number of values"""
@@ -272,6 +288,7 @@ class TestCombinationGeneration:
                     "SECONDARY": 40.0
                 },
                 "ADP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -280,6 +297,7 @@ class TestCombinationGeneration:
                     }
                 },
                 "PLAYER_RATING_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.25,
                         "GOOD": 1.15,
@@ -288,6 +306,7 @@ class TestCombinationGeneration:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
                         "GOOD": 1.2,
@@ -296,6 +315,7 @@ class TestCombinationGeneration:
                     }
                 },
                 "CONSISTENCY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.15,
                         "GOOD": 1.05,
@@ -304,6 +324,7 @@ class TestCombinationGeneration:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -329,9 +350,9 @@ class TestCombinationGeneration:
         value_sets = generator.generate_all_parameter_value_sets()
 
         # Verify value sets exist for all expected parameters
-        assert len(value_sets) >= 24
+        assert len(value_sets) == 8  # 4 scalars + 4 weights
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
-        assert 'ADP_SCORING_MULTIPLIERS_EXCELLENT' in value_sets
+        assert 'ADP_SCORING_WEIGHT' in value_sets
 
         # Each value set should have correct number of values
         for param_name, values in value_sets.items():
@@ -368,6 +389,7 @@ class TestConfigDictCreation:
                     "SECONDARY": 40.0
                 },
                 "ADP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -376,6 +398,7 @@ class TestConfigDictCreation:
                     }
                 },
                 "PLAYER_RATING_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.25,
                         "GOOD": 1.15,
@@ -384,6 +407,7 @@ class TestConfigDictCreation:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
                         "GOOD": 1.2,
@@ -392,6 +416,7 @@ class TestConfigDictCreation:
                     }
                 },
                 "CONSISTENCY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.15,
                         "GOOD": 1.05,
@@ -400,6 +425,7 @@ class TestConfigDictCreation:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -422,26 +448,10 @@ class TestConfigDictCreation:
             'BASE_BYE_PENALTY': 30.0,
             'PRIMARY_BONUS': 55.0,
             'SECONDARY_BONUS': 45.0,
-            'ADP_SCORING_MULTIPLIERS_EXCELLENT': 1.3,
-            'ADP_SCORING_MULTIPLIERS_GOOD': 1.15,
-            'ADP_SCORING_MULTIPLIERS_POOR': 0.85,
-            'ADP_SCORING_MULTIPLIERS_VERY_POOR': 0.75,
-            'PLAYER_RATING_SCORING_MULTIPLIERS_EXCELLENT': 1.35,
-            'PLAYER_RATING_SCORING_MULTIPLIERS_GOOD': 1.20,
-            'PLAYER_RATING_SCORING_MULTIPLIERS_POOR': 0.80,
-            'PLAYER_RATING_SCORING_MULTIPLIERS_VERY_POOR': 0.70,
-            'TEAM_QUALITY_SCORING_MULTIPLIERS_EXCELLENT': 1.4,
-            'TEAM_QUALITY_SCORING_MULTIPLIERS_GOOD': 1.25,
-            'TEAM_QUALITY_SCORING_MULTIPLIERS_POOR': 0.75,
-            'TEAM_QUALITY_SCORING_MULTIPLIERS_VERY_POOR': 0.65,
-            'CONSISTENCY_SCORING_MULTIPLIERS_EXCELLENT': 1.2,
-            'CONSISTENCY_SCORING_MULTIPLIERS_GOOD': 1.1,
-            'CONSISTENCY_SCORING_MULTIPLIERS_POOR': 0.9,
-            'CONSISTENCY_SCORING_MULTIPLIERS_VERY_POOR': 0.8,
-            'MATCHUP_SCORING_MULTIPLIERS_EXCELLENT': 1.25,
-            'MATCHUP_SCORING_MULTIPLIERS_GOOD': 1.12,
-            'MATCHUP_SCORING_MULTIPLIERS_POOR': 0.88,
-            'MATCHUP_SCORING_MULTIPLIERS_VERY_POOR': 0.78
+            'ADP_SCORING_WEIGHT': 1.5,
+            'PLAYER_RATING_SCORING_WEIGHT': 1.3,
+            'TEAM_QUALITY_SCORING_WEIGHT': 1.2,
+            'MATCHUP_SCORING_WEIGHT': 1.4
         }
 
         return gen, combination
@@ -458,17 +468,17 @@ class TestConfigDictCreation:
         assert params['DRAFT_ORDER_BONUSES']['SECONDARY'] == 45.0
 
     def test_create_config_dict_updates_multipliers(self, generator_and_combo):
-        """Test that multipliers are updated in all sections"""
+        """Test that weights are updated in all sections"""
         gen, combination = generator_and_combo
         config = gen.create_config_dict(combination)
 
         params = config['parameters']
 
-        # Check ADP multipliers
-        assert params['ADP_SCORING']['MULTIPLIERS']['EXCELLENT'] == 1.3
-        assert params['ADP_SCORING']['MULTIPLIERS']['GOOD'] == 1.15
-        assert params['ADP_SCORING']['MULTIPLIERS']['POOR'] == 0.85
-        assert params['ADP_SCORING']['MULTIPLIERS']['VERY_POOR'] == 0.75
+        # Check weights for all scoring sections
+        assert params['ADP_SCORING']['WEIGHT'] == 1.5
+        assert params['PLAYER_RATING_SCORING']['WEIGHT'] == 1.3
+        assert params['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.2
+        assert params['MATCHUP_SCORING']['WEIGHT'] == 1.4
 
     def test_create_config_dict_immutability(self, generator_and_combo):
         """Test that creating configs doesn't mutate baseline"""
@@ -498,6 +508,7 @@ class TestIterativeOptimizationSupport:
                     "SECONDARY": 40.0
                 },
                 "ADP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -506,6 +517,7 @@ class TestIterativeOptimizationSupport:
                     }
                 },
                 "PLAYER_RATING_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.25,
                         "GOOD": 1.15,
@@ -514,6 +526,7 @@ class TestIterativeOptimizationSupport:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
                         "GOOD": 1.2,
@@ -522,6 +535,7 @@ class TestIterativeOptimizationSupport:
                     }
                 },
                 "CONSISTENCY_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.15,
                         "GOOD": 1.05,
@@ -530,6 +544,7 @@ class TestIterativeOptimizationSupport:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
                         "GOOD": 1.1,
@@ -572,22 +587,26 @@ class TestIterativeOptimizationSupport:
         config = generator.baseline_config
         combination = generator._extract_combination_from_config(config)
 
-        # Should have all parameters
+        # Should have all 8 parameters
         assert 'NORMALIZATION_MAX_SCALE' in combination
         assert 'BASE_BYE_PENALTY' in combination
         assert 'PRIMARY_BONUS' in combination
         assert 'SECONDARY_BONUS' in combination
-        assert 'ADP_SCORING_MULTIPLIERS_EXCELLENT' in combination
+        assert 'ADP_SCORING_WEIGHT' in combination
+        assert 'PLAYER_RATING_SCORING_WEIGHT' in combination
+        assert 'TEAM_QUALITY_SCORING_WEIGHT' in combination
+        assert 'MATCHUP_SCORING_WEIGHT' in combination
+        assert len(combination) == 8
 
     def test_generate_single_parameter_configs_for_multiplier(self, generator):
-        """Test generating configs for a multiplier parameter"""
+        """Test generating configs for a weight parameter"""
         base_config = generator.baseline_config
-        configs = generator.generate_single_parameter_configs('ADP_SCORING_MULTIPLIERS_EXCELLENT', base_config)
+        configs = generator.generate_single_parameter_configs('ADP_SCORING_WEIGHT', base_config)
 
         assert len(configs) == 3  # num_test_values + 1
 
-        # Extract multiplier values
-        values = [c['parameters']['ADP_SCORING']['MULTIPLIERS']['EXCELLENT'] for c in configs]
+        # Extract weight values
+        values = [c['parameters']['ADP_SCORING']['WEIGHT'] for c in configs]
         assert len(set(values)) > 1  # Should have variation
 
 

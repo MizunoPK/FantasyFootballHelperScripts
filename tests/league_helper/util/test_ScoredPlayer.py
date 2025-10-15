@@ -175,8 +175,8 @@ class TestScoredPlayerStringRepresentation:
         # Should have 1 header line + 4 reason lines = 5 total
         assert len(lines) == 5
 
-        # First line is header
-        assert lines[0] == "[RB] [SF] Christian McCaffrey - 150.75 pts"
+        # First line is header (includes bye week info)
+        assert lines[0] == "[RB] [SF] Christian McCaffrey - 150.75 pts (Bye=None)"
 
         # Each subsequent line is a reason
         for i, reason in enumerate(reasons, start=1):

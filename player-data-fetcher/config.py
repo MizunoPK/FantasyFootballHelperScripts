@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 from dataclasses import dataclass
 
-CURRENT_NFL_WEEK = 6     # Current NFL week (1-18, update weekly)
+CURRENT_NFL_WEEK = 7     # Current NFL week (1-18, update weekly)
 NFL_SEASON = 2025        # Current NFL season year
 
 # Data Preservation Settings (FREQUENTLY MODIFIED)
@@ -25,7 +25,7 @@ MY_TEAM_NAME = "Sea Sharp"           # Name of your fantasy team for identifying
 # Optimization Settings (FREQUENTLY MODIFIED)
 SKIP_DRAFTED_PLAYER_UPDATES = False  # Skip API calls for drafted=1 players (major optimization)
 USE_SCORE_THRESHOLD = False  # Only update players above score threshold (preserves low-scoring player data)
-PLAYER_SCORE_THRESHOLD = 50.0  # Minimum fantasy points to trigger API update
+PLAYER_SCORE_THRESHOLD = 40.0  # Minimum fantasy points to trigger API update
 
 # Output Settings (FREQUENTLY MODIFIED)
 OUTPUT_DIRECTORY = "./data"

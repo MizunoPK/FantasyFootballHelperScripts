@@ -30,9 +30,9 @@ class TradeSimTeam:
         total = 0
         for player in self.team:
             if self.isOpponent:
-                scored_player = self.player_manager.score_player(player, player_rating=False, team_quality=False, consistency=False)
+                scored_player = self.player_manager.score_player(player, adp=False, player_rating=False, team_quality=False, consistency=False, matchup=False, bye=False, injury=False)
             else:
-                scored_player = self.player_manager.score_player(player)
+                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, consistency=False, matchup=False, bye=True, injury=False)
             player.score = scored_player.score
             total += scored_player.score
 

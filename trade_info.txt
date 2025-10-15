@@ -1,0 +1,1250 @@
+#1 - Trade with The Injury Report
+  My improvement: +32.81 pts (New score: 844.90)
+  Their improvement: +0.05 pts (New score: 707.41)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - D'Andre Swift (RB) - CHI
+    - Calvin Ridley (WR) - TEN
+
+#2 - Trade with Pidgin
+  My improvement: +31.76 pts (New score: 843.85)
+  Their improvement: +1.22 pts (New score: 716.10)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Matthew Golden (WR) - GB
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Justice Hill (RB) - BAL
+
+#3 - Trade with Pidgin
+  My improvement: +31.62 pts (New score: 843.70)
+  Their improvement: +4.18 pts (New score: 719.06)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Matthew Golden (WR) - GB
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Tyler Allgeier (RB) - ATL
+
+#4 - Trade with Pidgin
+  My improvement: +29.25 pts (New score: 841.34)
+  Their improvement: +2.28 pts (New score: 717.16)
+  I give:
+    - Michael Pittman Jr. (WR) - IND
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Tyler Allgeier (RB) - ATL
+
+#5 - Trade with Pidgin
+  My improvement: +28.65 pts (New score: 840.74)
+  Their improvement: +2.83 pts (New score: 717.71)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Tyler Allgeier (RB) - ATL
+
+#6 - Trade with Pidgin
+  My improvement: +26.98 pts (New score: 839.06)
+  Their improvement: +5.62 pts (New score: 720.50)
+  I give:
+    - Michael Pittman Jr. (WR) - IND
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Justice Hill (RB) - BAL
+
+#7 - Trade with Pidgin
+  My improvement: +26.83 pts (New score: 838.92)
+  Their improvement: +8.58 pts (New score: 723.46)
+  I give:
+    - Michael Pittman Jr. (WR) - IND
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Tyler Allgeier (RB) - ATL
+
+#8 - Trade with Pidgin
+  My improvement: +26.38 pts (New score: 838.47)
+  Their improvement: +6.17 pts (New score: 721.05)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Justice Hill (RB) - BAL
+
+#9 - Trade with Pidgin
+  My improvement: +26.23 pts (New score: 838.32)
+  Their improvement: +9.13 pts (New score: 724.01)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Tyler Allgeier (RB) - ATL
+
+#10 - Trade with Bo-ner
+  My improvement: +23.58 pts (New score: 835.67)
+  Their improvement: +0.36 pts (New score: 893.56)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Bijan Robinson (RB) - ATL
+    - Elic Ayomanor (WR) - TEN
+
+#11 - Trade with Bo-ner
+  My improvement: +21.16 pts (New score: 833.25)
+  Their improvement: +6.66 pts (New score: 899.87)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Bijan Robinson (RB) - ATL
+    - Elic Ayomanor (WR) - TEN
+
+#12 - Trade with Bo-ner
+  My improvement: +20.81 pts (New score: 832.90)
+  Their improvement: +4.91 pts (New score: 898.12)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Matthew Golden (WR) - GB
+  I receive:
+    - George Pickens (WR) - DAL
+    - Kendre Miller (RB) - NO
+
+#13 - Trade with Bo-ner
+  My improvement: +20.23 pts (New score: 832.32)
+  Their improvement: +5.45 pts (New score: 898.65)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Javonte Williams (RB) - DAL
+    - Kendre Miller (RB) - NO
+
+#14 - Trade with Bo-ner
+  My improvement: +18.75 pts (New score: 830.84)
+  Their improvement: +4.45 pts (New score: 897.65)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Jonathan Taylor (RB) - IND
+    - Elic Ayomanor (WR) - TEN
+
+#15 - Trade with Bo-ner
+  My improvement: +18.39 pts (New score: 830.48)
+  Their improvement: +11.22 pts (New score: 904.42)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Matthew Golden (WR) - GB
+  I receive:
+    - George Pickens (WR) - DAL
+    - Kendre Miller (RB) - NO
+
+#16 - Trade with Bo-ner
+  My improvement: +16.56 pts (New score: 828.64)
+  Their improvement: +8.83 pts (New score: 902.03)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Matthew Golden (WR) - GB
+  I receive:
+    - Kendre Miller (RB) - NO
+    - Rashee Rice (WR) - KC
+
+#17 - Trade with Bo-ner
+  My improvement: +16.33 pts (New score: 828.42)
+  Their improvement: +10.75 pts (New score: 903.95)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Jonathan Taylor (RB) - IND
+    - Elic Ayomanor (WR) - TEN
+
+#18 - Trade with Bo-ner
+  My improvement: +16.03 pts (New score: 828.11)
+  Their improvement: +9.31 pts (New score: 902.51)
+  I give:
+    - Michael Pittman Jr. (WR) - IND
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - George Pickens (WR) - DAL
+    - Kendre Miller (RB) - NO
+
+#19 - Trade with Bo-ner
+  My improvement: +15.43 pts (New score: 827.51)
+  Their improvement: +9.86 pts (New score: 903.06)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - George Pickens (WR) - DAL
+    - Kendre Miller (RB) - NO
+
+#20 - Trade with The Injury Report
+  My improvement: +15.29 pts (New score: 827.38)
+  Their improvement: +14.43 pts (New score: 721.79)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Breece Hall (RB) - NYJ
+    - Jake Tonges (TE) - SF
+
+#21 - Trade with The Injury Report
+  My improvement: +14.59 pts (New score: 826.67)
+  Their improvement: +15.08 pts (New score: 722.44)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - D'Andre Swift (RB) - CHI
+    - Jake Tonges (TE) - SF
+
+#22 - Trade with Bo-ner
+  My improvement: +14.41 pts (New score: 826.50)
+  Their improvement: +18.29 pts (New score: 911.49)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Brock Bowers (TE) - LV
+    - Kendre Miller (RB) - NO
+
+#23 - Trade with Bo-ner
+  My improvement: +14.14 pts (New score: 826.22)
+  Their improvement: +15.13 pts (New score: 908.33)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Matthew Golden (WR) - GB
+  I receive:
+    - Kendre Miller (RB) - NO
+    - Rashee Rice (WR) - KC
+
+#24 - Trade with Bo-ner
+  My improvement: +13.61 pts (New score: 825.69)
+  Their improvement: +15.62 pts (New score: 908.82)
+  I give:
+    - Michael Pittman Jr. (WR) - IND
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - George Pickens (WR) - DAL
+    - Kendre Miller (RB) - NO
+
+#25 - Trade with Pidgin
+  My improvement: +13.45 pts (New score: 825.54)
+  Their improvement: +10.27 pts (New score: 725.16)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Kareem Hunt (RB) - KC
+  I receive:
+    - Justice Hill (RB) - BAL
+    - Tyler Allgeier (RB) - ATL
+
+#26 - Trade with Pidgin
+  My improvement: +13.09 pts (New score: 825.18)
+  Their improvement: +36.48 pts (New score: 751.36)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Justice Hill (RB) - BAL
+    - Tyler Allgeier (RB) - ATL
+
+#27 - Trade with Pidgin
+  My improvement: +13.05 pts (New score: 825.14)
+  Their improvement: +15.05 pts (New score: 729.94)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - Justice Hill (RB) - BAL
+
+#28 - Trade with Bo-ner
+  My improvement: +13.01 pts (New score: 825.10)
+  Their improvement: +16.17 pts (New score: 909.37)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - George Pickens (WR) - DAL
+    - Kendre Miller (RB) - NO
+
+#29 - Trade with Pidgin
+  My improvement: +12.90 pts (New score: 824.99)
+  Their improvement: +18.01 pts (New score: 732.90)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - Tyler Allgeier (RB) - ATL
+
+#30 - Trade with The Injury Report
+  My improvement: +12.87 pts (New score: 824.96)
+  Their improvement: +20.74 pts (New score: 728.09)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Breece Hall (RB) - NYJ
+    - Jake Tonges (TE) - SF
+
+#31 - Trade with Bo-ner
+  My improvement: +12.60 pts (New score: 824.68)
+  Their improvement: +2.16 pts (New score: 895.36)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Bo Nix (QB) - DEN
+    - Brock Bowers (TE) - LV
+
+#32 - Trade with The Injury Report
+  My improvement: +12.17 pts (New score: 824.26)
+  Their improvement: +21.38 pts (New score: 728.74)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - D'Andre Swift (RB) - CHI
+    - Jake Tonges (TE) - SF
+
+#33 - Trade with Bo-ner
+  My improvement: +11.99 pts (New score: 824.08)
+  Their improvement: +24.59 pts (New score: 917.79)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Brock Bowers (TE) - LV
+    - Kendre Miller (RB) - NO
+
+#34 - Trade with Bo-ner
+  My improvement: +11.77 pts (New score: 823.86)
+  Their improvement: +13.22 pts (New score: 906.43)
+  I give:
+    - Michael Pittman Jr. (WR) - IND
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Kendre Miller (RB) - NO
+    - Rashee Rice (WR) - KC
+
+#35 - Trade with The Injury Report
+  My improvement: +11.21 pts (New score: 823.29)
+  Their improvement: +0.90 pts (New score: 708.26)
+  I give:
+    - Patrick Mahomes (QB) - KC
+    - Tucker Kraft (TE) - GB
+  I receive:
+    - Josh Allen (QB) - BUF
+    - T.J. Hockenson (TE) - MIN
+
+#36 - Trade with Pidgin
+  My improvement: +11.20 pts (New score: 823.28)
+  Their improvement: +16.05 pts (New score: 730.93)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Justice Hill (RB) - BAL
+
+#37 - Trade with Bo-ner
+  My improvement: +11.17 pts (New score: 823.26)
+  Their improvement: +13.77 pts (New score: 906.98)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - Kendre Miller (RB) - NO
+    - Rashee Rice (WR) - KC
+
+#38 - Trade with Pidgin
+  My improvement: +11.05 pts (New score: 823.14)
+  Their improvement: +19.01 pts (New score: 733.89)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Tyler Allgeier (RB) - ATL
+
+#39 - Trade with Pidgin
+  My improvement: +11.04 pts (New score: 823.12)
+  Their improvement: +16.58 pts (New score: 731.46)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Kareem Hunt (RB) - KC
+  I receive:
+    - Justice Hill (RB) - BAL
+    - Tyler Allgeier (RB) - ATL
+
+#40 - Trade with Pidgin
+  My improvement: +10.63 pts (New score: 822.72)
+  Their improvement: +21.36 pts (New score: 736.24)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - Justice Hill (RB) - BAL
+
+#41 - Trade with The Injury Report
+  My improvement: +10.57 pts (New score: 822.66)
+  Their improvement: +4.24 pts (New score: 711.60)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Josh Allen (QB) - BUF
+    - Calvin Ridley (WR) - TEN
+
+#42 - Trade with Pidgin
+  My improvement: +10.48 pts (New score: 822.57)
+  Their improvement: +24.32 pts (New score: 739.20)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - Tyler Allgeier (RB) - ATL
+
+#43 - Trade with Bo-ner
+  My improvement: +9.68 pts (New score: 821.76)
+  Their improvement: +14.57 pts (New score: 907.77)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Dallas Goedert (TE) - PHI
+    - Kendre Miller (RB) - NO
+
+#44 - Trade with Pidgin
+  My improvement: +9.56 pts (New score: 821.65)
+  Their improvement: +15.51 pts (New score: 730.39)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Justice Hill (RB) - BAL
+    - Mark Andrews (TE) - BAL
+
+#45 - Trade with Pidgin
+  My improvement: +9.42 pts (New score: 821.50)
+  Their improvement: +18.47 pts (New score: 733.35)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Mark Andrews (TE) - BAL
+    - Tyler Allgeier (RB) - ATL
+
+#46 - Trade with Bo-ner
+  My improvement: +9.35 pts (New score: 821.44)
+  Their improvement: +19.53 pts (New score: 912.73)
+  I give:
+    - Michael Pittman Jr. (WR) - IND
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Kendre Miller (RB) - NO
+    - Rashee Rice (WR) - KC
+
+#47 - Trade with Pidgin
+  My improvement: +8.78 pts (New score: 820.86)
+  Their improvement: +22.35 pts (New score: 737.23)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Justice Hill (RB) - BAL
+
+#48 - Trade with Bo-ner
+  My improvement: +8.75 pts (New score: 820.84)
+  Their improvement: +20.08 pts (New score: 913.28)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - Kendre Miller (RB) - NO
+    - Rashee Rice (WR) - KC
+
+#49 - Trade with Pidgin
+  My improvement: +8.63 pts (New score: 820.72)
+  Their improvement: +25.31 pts (New score: 740.19)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Tyler Allgeier (RB) - ATL
+
+#50 - Trade with Pidgin
+  My improvement: +8.59 pts (New score: 820.68)
+  Their improvement: +3.88 pts (New score: 718.77)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - A.J. Brown (WR) - PHI
+
+#51 - Trade with The Injury Report
+  My improvement: +8.55 pts (New score: 820.63)
+  Their improvement: +1.57 pts (New score: 708.93)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Matthew Golden (WR) - GB
+  I receive:
+    - Jake Tonges (TE) - SF
+    - CeeDee Lamb (WR) - DAL
+
+#52 - Trade with The Injury Report
+  My improvement: +8.40 pts (New score: 820.49)
+  Their improvement: +17.27 pts (New score: 724.63)
+  I give:
+    - Travis Kelce (TE) - KC
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Breece Hall (RB) - NYJ
+    - Jake Tonges (TE) - SF
+
+#53 - Trade with The Injury Report
+  My improvement: +7.70 pts (New score: 819.79)
+  Their improvement: +17.92 pts (New score: 725.27)
+  I give:
+    - Travis Kelce (TE) - KC
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - D'Andre Swift (RB) - CHI
+    - Jake Tonges (TE) - SF
+
+#54 - Trade with Bo-ner
+  My improvement: +7.52 pts (New score: 819.61)
+  Their improvement: +21.12 pts (New score: 914.33)
+  I give:
+    - Travis Kelce (TE) - KC
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Brock Bowers (TE) - LV
+    - Kendre Miller (RB) - NO
+
+#55 - Trade with Pidgin
+  My improvement: +7.50 pts (New score: 819.59)
+  Their improvement: +18.14 pts (New score: 733.02)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Kenneth Walker III (RB) - SEA
+    - Justice Hill (RB) - BAL
+
+#56 - Trade with Pidgin
+  My improvement: +7.36 pts (New score: 819.44)
+  Their improvement: +21.10 pts (New score: 735.98)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Kenneth Walker III (RB) - SEA
+    - Tyler Allgeier (RB) - ATL
+
+#57 - Trade with Bo-ner
+  My improvement: +7.26 pts (New score: 819.35)
+  Their improvement: +20.87 pts (New score: 914.08)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Dallas Goedert (TE) - PHI
+    - Kendre Miller (RB) - NO
+
+#58 - Trade with Pidgin
+  My improvement: +7.14 pts (New score: 819.23)
+  Their improvement: +21.81 pts (New score: 736.69)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Justice Hill (RB) - BAL
+    - Mark Andrews (TE) - BAL
+
+#59 - Trade with Bo-ner
+  My improvement: +7.12 pts (New score: 819.20)
+  Their improvement: +0.95 pts (New score: 894.15)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Tucker Kraft (TE) - GB
+  I receive:
+    - George Pickens (WR) - DAL
+    - Brock Bowers (TE) - LV
+
+#60 - Trade with Pidgin
+  My improvement: +7.00 pts (New score: 819.08)
+  Their improvement: +24.77 pts (New score: 739.65)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Mark Andrews (TE) - BAL
+    - Tyler Allgeier (RB) - ATL
+
+#61 - Trade with Pidgin
+  My improvement: +6.96 pts (New score: 819.05)
+  Their improvement: +3.34 pts (New score: 718.23)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - Mark Andrews (TE) - BAL
+
+#62 - Trade with Bo-ner
+  My improvement: +6.87 pts (New score: 818.95)
+  Their improvement: +19.45 pts (New score: 912.65)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - Kendre Miller (RB) - NO
+    - Steelers D/ST (DST) - PIT
+
+#63 - Trade with The Injury Report
+  My improvement: +6.68 pts (New score: 818.76)
+  Their improvement: +3.73 pts (New score: 711.09)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Josh Allen (QB) - BUF
+    - Wan'Dale Robinson (WR) - NYG
+
+#64 - Trade with The Injury Report
+  My improvement: +5.98 pts (New score: 818.07)
+  Their improvement: +23.57 pts (New score: 730.93)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Breece Hall (RB) - NYJ
+    - Jake Tonges (TE) - SF
+
+#65 - Trade with Bo-ner
+  My improvement: +5.71 pts (New score: 817.79)
+  Their improvement: +5.00 pts (New score: 898.20)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Bo Nix (QB) - DEN
+    - Brock Bowers (TE) - LV
+
+#66 - Trade with Bo-ner
+  My improvement: +5.47 pts (New score: 817.56)
+  Their improvement: +1.22 pts (New score: 894.42)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Kareem Hunt (RB) - KC
+  I receive:
+    - Brock Bowers (TE) - LV
+    - Kendre Miller (RB) - NO
+
+#67 - Trade with Pidgin
+  My improvement: +5.46 pts (New score: 817.55)
+  Their improvement: +0.66 pts (New score: 715.55)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Kenneth Walker III (RB) - SEA
+    - A.J. Brown (WR) - PHI
+
+#68 - Trade with Pidgin
+  My improvement: +5.30 pts (New score: 817.39)
+  Their improvement: +1.19 pts (New score: 716.08)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Kareem Hunt (RB) - KC
+  I receive:
+    - Kenneth Walker III (RB) - SEA
+    - Tyler Allgeier (RB) - ATL
+
+#69 - Trade with The Injury Report
+  My improvement: +5.28 pts (New score: 817.37)
+  Their improvement: +24.22 pts (New score: 731.58)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - D'Andre Swift (RB) - CHI
+    - Jake Tonges (TE) - SF
+
+#70 - Trade with Bo-ner
+  My improvement: +5.10 pts (New score: 817.19)
+  Their improvement: +27.43 pts (New score: 920.63)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Brock Bowers (TE) - LV
+    - Kendre Miller (RB) - NO
+
+#71 - Trade with Pidgin
+  My improvement: +5.10 pts (New score: 817.19)
+  Their improvement: +4.34 pts (New score: 719.22)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Tucker Kraft (TE) - GB
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Mark Andrews (TE) - BAL
+
+#72 - Trade with Pidgin
+  My improvement: +5.10 pts (New score: 817.18)
+  Their improvement: +2.78 pts (New score: 717.66)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Jalen Hurts (QB) - PHI
+    - Tyler Allgeier (RB) - ATL
+
+#73 - Trade with Bo-ner
+  My improvement: +5.05 pts (New score: 817.14)
+  Their improvement: +3.32 pts (New score: 896.52)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - Bo Nix (QB) - DEN
+    - Steelers D/ST (DST) - PIT
+
+#74 - Trade with Pidgin
+  My improvement: +4.90 pts (New score: 816.99)
+  Their improvement: +5.97 pts (New score: 720.86)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - Kenneth Walker III (RB) - SEA
+
+#75 - Trade with The Injury Report
+  My improvement: +4.79 pts (New score: 816.88)
+  Their improvement: +14.18 pts (New score: 721.54)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Breece Hall (RB) - NYJ
+    - Calvin Ridley (WR) - TEN
+
+#76 - Trade with The Injury Report
+  My improvement: +4.73 pts (New score: 816.81)
+  Their improvement: +3.39 pts (New score: 710.75)
+  I give:
+    - Patrick Mahomes (QB) - KC
+    - Chase McLaughlin (K) - TB
+  I receive:
+    - Josh Allen (QB) - BUF
+    - Harrison Butker (K) - KC
+
+#77 - Trade with The Injury Report
+  My improvement: +4.68 pts (New score: 816.77)
+  Their improvement: +3.41 pts (New score: 710.76)
+  I give:
+    - Patrick Mahomes (QB) - KC
+    - Michael Pittman Jr. (WR) - IND
+  I receive:
+    - Josh Allen (QB) - BUF
+    - Calvin Ridley (WR) - TEN
+
+#78 - Trade with Pidgin
+  My improvement: +4.51 pts (New score: 816.60)
+  Their improvement: +17.23 pts (New score: 732.11)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - Justice Hill (RB) - BAL
+    - Eagles D/ST (DST) - PHI
+
+#79 - Trade with Bo-ner
+  My improvement: +4.45 pts (New score: 816.53)
+  Their improvement: +25.75 pts (New score: 918.95)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - Kendre Miller (RB) - NO
+    - Steelers D/ST (DST) - PIT
+
+#80 - Trade with Pidgin
+  My improvement: +4.36 pts (New score: 816.45)
+  Their improvement: +20.18 pts (New score: 735.07)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - Tyler Allgeier (RB) - ATL
+    - Eagles D/ST (DST) - PHI
+
+#81 - Trade with The Injury Report
+  My improvement: +4.32 pts (New score: 816.41)
+  Their improvement: +3.74 pts (New score: 711.10)
+  I give:
+    - Patrick Mahomes (QB) - KC
+    - Travis Kelce (TE) - KC
+  I receive:
+    - Josh Allen (QB) - BUF
+    - T.J. Hockenson (TE) - MIN
+
+#82 - Trade with The Injury Report
+  My improvement: +4.09 pts (New score: 816.18)
+  Their improvement: +14.83 pts (New score: 722.18)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - D'Andre Swift (RB) - CHI
+    - Calvin Ridley (WR) - TEN
+
+#83 - Trade with The Injury Report
+  My improvement: +4.08 pts (New score: 816.17)
+  Their improvement: +3.96 pts (New score: 711.31)
+  I give:
+    - Patrick Mahomes (QB) - KC
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - Josh Allen (QB) - BUF
+    - Calvin Ridley (WR) - TEN
+
+#84 - Trade with Pidgin
+  My improvement: +3.83 pts (New score: 815.92)
+  Their improvement: +0.12 pts (New score: 715.01)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Kenneth Walker III (RB) - SEA
+    - Mark Andrews (TE) - BAL
+
+#85 - Trade with The Injury Report
+  My improvement: +3.76 pts (New score: 815.85)
+  Their improvement: +5.97 pts (New score: 713.33)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Michael Pittman Jr. (WR) - IND
+  I receive:
+    - Jake Tonges (TE) - SF
+    - CeeDee Lamb (WR) - DAL
+
+#86 - Trade with Bo-ner
+  My improvement: +3.39 pts (New score: 815.48)
+  Their improvement: +1.15 pts (New score: 894.35)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Chase McLaughlin (K) - TB
+  I receive:
+    - Brock Bowers (TE) - LV
+    - Cameron Dicker (K) - LAC
+
+#87 - Trade with Bo-ner
+  My improvement: +3.30 pts (New score: 815.39)
+  Their improvement: +27.25 pts (New score: 920.45)
+  I give:
+    - TreVeyon Henderson (RB) - NE
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Bo Nix (QB) - DEN
+    - Kendre Miller (RB) - NO
+
+#88 - Trade with The Injury Report
+  My improvement: +3.16 pts (New score: 815.25)
+  Their improvement: +6.52 pts (New score: 713.88)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - Jake Tonges (TE) - SF
+    - CeeDee Lamb (WR) - DAL
+
+#89 - Trade with Pidgin
+  My improvement: +3.04 pts (New score: 815.13)
+  Their improvement: +6.97 pts (New score: 721.85)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Kenneth Walker III (RB) - SEA
+    - A.J. Brown (WR) - PHI
+
+#90 - Trade with Bo-ner
+  My improvement: +2.86 pts (New score: 814.95)
+  Their improvement: +4.86 pts (New score: 898.07)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Tucker Kraft (TE) - GB
+  I receive:
+    - Brock Bowers (TE) - LV
+    - Rashee Rice (WR) - KC
+
+#91 - Trade with Pidgin
+  My improvement: +2.83 pts (New score: 814.91)
+  Their improvement: +6.12 pts (New score: 721.01)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Jalen Hurts (QB) - PHI
+    - Justice Hill (RB) - BAL
+
+#92 - Trade with Bo-ner
+  My improvement: +2.79 pts (New score: 814.88)
+  Their improvement: +17.41 pts (New score: 910.61)
+  I give:
+    - Travis Kelce (TE) - KC
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Dallas Goedert (TE) - PHI
+    - Kendre Miller (RB) - NO
+
+#93 - Trade with Pidgin
+  My improvement: +2.70 pts (New score: 814.79)
+  Their improvement: +3.05 pts (New score: 717.93)
+  I give:
+    - Patrick Mahomes (QB) - KC
+    - Michael Pittman Jr. (WR) - IND
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - A.J. Brown (WR) - PHI
+
+#94 - Trade with Pidgin
+  My improvement: +2.68 pts (New score: 814.77)
+  Their improvement: +9.08 pts (New score: 723.97)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Jalen Hurts (QB) - PHI
+    - Tyler Allgeier (RB) - ATL
+
+#95 - Trade with Pidgin
+  My improvement: +2.68 pts (New score: 814.76)
+  Their improvement: +18.34 pts (New score: 733.23)
+  I give:
+    - Travis Kelce (TE) - KC
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Justice Hill (RB) - BAL
+    - Mark Andrews (TE) - BAL
+
+#96 - Trade with The Injury Report
+  My improvement: +2.61 pts (New score: 814.69)
+  Their improvement: +4.01 pts (New score: 711.37)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Josh Allen (QB) - BUF
+    - Breece Hall (RB) - NYJ
+
+#97 - Trade with Pidgin
+  My improvement: +2.53 pts (New score: 814.62)
+  Their improvement: +21.30 pts (New score: 736.19)
+  I give:
+    - Travis Kelce (TE) - KC
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Mark Andrews (TE) - BAL
+    - Tyler Allgeier (RB) - ATL
+
+#98 - Trade with The Injury Report
+  My improvement: +2.37 pts (New score: 814.46)
+  Their improvement: +20.48 pts (New score: 727.84)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Breece Hall (RB) - NYJ
+    - Calvin Ridley (WR) - TEN
+
+#99 - Trade with Pidgin
+  My improvement: +2.31 pts (New score: 814.40)
+  Their improvement: +0.28 pts (New score: 715.16)
+  I give:
+    - Rams D/ST (DST) - LAR
+    - Kareem Hunt (RB) - KC
+  I receive:
+    - Tyler Allgeier (RB) - ATL
+    - Eagles D/ST (DST) - PHI
+
+#100 - Trade with Pidgin
+  My improvement: +2.10 pts (New score: 814.19)
+  Their improvement: +3.60 pts (New score: 718.48)
+  I give:
+    - Patrick Mahomes (QB) - KC
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - A.J. Brown (WR) - PHI
+
+#101 - Trade with Pidgin
+  My improvement: +2.09 pts (New score: 814.18)
+  Their improvement: +23.53 pts (New score: 738.41)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - Justice Hill (RB) - BAL
+    - Eagles D/ST (DST) - PHI
+
+#102 - Trade with Pidgin
+  My improvement: +1.94 pts (New score: 814.03)
+  Their improvement: +26.49 pts (New score: 741.37)
+  I give:
+    - Rhamondre Stevenson (RB) - NE
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - Tyler Allgeier (RB) - ATL
+    - Eagles D/ST (DST) - PHI
+
+#103 - Trade with Pidgin
+  My improvement: +1.91 pts (New score: 813.99)
+  Their improvement: +5.06 pts (New score: 719.94)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - Eagles D/ST (DST) - PHI
+
+#104 - Trade with The Injury Report
+  My improvement: +1.91 pts (New score: 813.99)
+  Their improvement: +4.66 pts (New score: 712.01)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Josh Allen (QB) - BUF
+    - D'Andre Swift (RB) - CHI
+
+#105 - Trade with The Injury Report
+  My improvement: +1.67 pts (New score: 813.76)
+  Their improvement: +21.13 pts (New score: 728.49)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - D'Andre Swift (RB) - CHI
+    - Calvin Ridley (WR) - TEN
+
+#106 - Trade with The Injury Report
+  My improvement: +1.66 pts (New score: 813.74)
+  Their improvement: +4.41 pts (New score: 711.77)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Matthew Golden (WR) - GB
+  I receive:
+    - Jake Tonges (TE) - SF
+    - CeeDee Lamb (WR) - DAL
+
+#107 - Trade with Bo-ner
+  My improvement: +1.64 pts (New score: 813.73)
+  Their improvement: +2.76 pts (New score: 895.96)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Matthew Stafford (QB) - LAR
+    - Brock Bowers (TE) - LV
+
+#108 - Trade with Pidgin
+  My improvement: +1.41 pts (New score: 813.50)
+  Their improvement: +6.43 pts (New score: 721.31)
+  I give:
+    - Tucker Kraft (TE) - GB
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Kenneth Walker III (RB) - SEA
+    - Mark Andrews (TE) - BAL
+
+#109 - Trade with Bo-ner
+  My improvement: +1.25 pts (New score: 813.34)
+  Their improvement: +7.35 pts (New score: 900.55)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Kareem Hunt (RB) - KC
+  I receive:
+    - Bo Nix (QB) - DEN
+    - Kendre Miller (RB) - NO
+
+#110 - Trade with Bo-ner
+  My improvement: +0.99 pts (New score: 813.07)
+  Their improvement: +1.08 pts (New score: 894.28)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - Matthew Stafford (QB) - LAR
+    - Steelers D/ST (DST) - PIT
+
+#111 - Trade with Bo-ner
+  My improvement: +0.99 pts (New score: 813.07)
+  Their improvement: +23.41 pts (New score: 916.61)
+  I give:
+    - Chase McLaughlin (K) - TB
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Kendre Miller (RB) - NO
+    - Cameron Dicker (K) - LAC
+
+#112 - Trade with Bo-ner
+  My improvement: +0.97 pts (New score: 813.06)
+  Their improvement: +1.28 pts (New score: 894.48)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Bo Nix (QB) - DEN
+    - Dallas Goedert (TE) - PHI
+
+#113 - Trade with The Injury Report
+  My improvement: +0.90 pts (New score: 812.98)
+  Their improvement: +13.67 pts (New score: 721.03)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Wan'Dale Robinson (WR) - NYG
+    - Breece Hall (RB) - NYJ
+
+#114 - Trade with Bo-ner
+  My improvement: +0.89 pts (New score: 812.97)
+  Their improvement: +33.55 pts (New score: 926.76)
+  I give:
+    - Justin Fields (QB) - NYJ
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Bo Nix (QB) - DEN
+    - Kendre Miller (RB) - NO
+
+#115 - Trade with The Injury Report
+  My improvement: +0.79 pts (New score: 812.87)
+  Their improvement: +2.90 pts (New score: 710.26)
+  I give:
+    - Patrick Mahomes (QB) - KC
+    - Michael Pittman Jr. (WR) - IND
+  I receive:
+    - Josh Allen (QB) - BUF
+    - Wan'Dale Robinson (WR) - NYG
+
+#116 - Trade with Pidgin
+  My improvement: +0.48 pts (New score: 812.56)
+  Their improvement: +1.40 pts (New score: 716.28)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Kareem Hunt (RB) - KC
+  I receive:
+    - Mark Andrews (TE) - BAL
+    - Tyler Allgeier (RB) - ATL
+
+#117 - Trade with Bo-ner
+  My improvement: +0.37 pts (New score: 812.46)
+  Their improvement: +23.71 pts (New score: 916.91)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Dallas Goedert (TE) - PHI
+    - Kendre Miller (RB) - NO
+
+#118 - Trade with Pidgin
+  My improvement: +0.26 pts (New score: 812.34)
+  Their improvement: +24.65 pts (New score: 739.53)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Justice Hill (RB) - BAL
+    - Mark Andrews (TE) - BAL
+
+#119 - Trade with Bo-ner
+  My improvement: +0.23 pts (New score: 812.31)
+  Their improvement: +3.79 pts (New score: 896.99)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Jaylen Waddle (WR) - MIA
+  I receive:
+    - George Pickens (WR) - DAL
+    - Brock Bowers (TE) - LV
+
+#120 - Trade with The Injury Report
+  My improvement: +0.19 pts (New score: 812.28)
+  Their improvement: +14.32 pts (New score: 721.68)
+  I give:
+    - Jaxon Smith-Njigba (WR) - SEA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Wan'Dale Robinson (WR) - NYG
+    - D'Andre Swift (RB) - CHI
+
+#121 - Trade with The Injury Report
+  My improvement: +0.19 pts (New score: 812.27)
+  Their improvement: +3.45 pts (New score: 710.81)
+  I give:
+    - Patrick Mahomes (QB) - KC
+    - Khalil Shakir (WR) - BUF
+  I receive:
+    - Josh Allen (QB) - BUF
+    - Wan'Dale Robinson (WR) - NYG
+
+#122 - Trade with Bo-ner
+  My improvement: +0.17 pts (New score: 812.25)
+  Their improvement: +1.17 pts (New score: 894.38)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - TreVeyon Henderson (RB) - NE
+  I receive:
+    - Puka Nacua (WR) - LAR
+    - Kendre Miller (RB) - NO
+
+#123 - Trade with Pidgin
+  My improvement: +0.11 pts (New score: 812.20)
+  Their improvement: +27.61 pts (New score: 742.49)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Rhamondre Stevenson (RB) - NE
+  I receive:
+    - Mark Andrews (TE) - BAL
+    - Tyler Allgeier (RB) - ATL
+
+#124 - Trade with Pidgin
+  My improvement: +0.07 pts (New score: 812.16)
+  Their improvement: +6.18 pts (New score: 721.06)
+  I give:
+    - Travis Kelce (TE) - KC
+    - Justin Fields (QB) - NYJ
+  I receive:
+    - Kyler Murray (QB) - ARI
+    - Mark Andrews (TE) - BAL
+
+#125 - Trade with Pidgin
+  My improvement: +0.05 pts (New score: 812.14)
+  Their improvement: +6.05 pts (New score: 720.94)
+  I give:
+    - Jaylen Waddle (WR) - MIA
+    - Rams D/ST (DST) - LAR
+  I receive:
+    - A.J. Brown (WR) - PHI
+    - Eagles D/ST (DST) - PHI
+

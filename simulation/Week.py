@@ -103,7 +103,7 @@ class Week:
         Note:
             Teams with higher points win. Ties count as losses for both teams.
         """
-        self.logger.info(f"Simulating Week {self.week_number} with {len(self.matchups)} matchups")
+        self.logger.debug(f"Simulating Week {self.week_number} with {len(self.matchups)} matchups")
 
         for team1, team2 in self.matchups:
             # Both teams set their weekly lineup and get actual points scored
@@ -126,7 +126,7 @@ class Week:
             else:
                 self.logger.debug(f"Week {self.week_number}: Tie {points1:.2f}-{points2:.2f} (both lose)")
 
-        self.logger.info(f"Week {self.week_number} simulation complete")
+        self.logger.debug(f"Week {self.week_number} simulation complete")
         return self.results
 
     def get_result(self, team: Team) -> WeekResult:

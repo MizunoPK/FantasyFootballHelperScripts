@@ -229,6 +229,6 @@ class AddToRosterModeManager:
         ranked_players = sorted(scored_players, key=lambda x: x.score, reverse=True)
 
         # Return top recommended players
-        self.logger.info(f"Recommended next picks: {[p.player.name for p in ranked_players[:Constants.RECOMMENDATION_COUNT]]}")
+        self.logger.debug(f"Recommended next picks: {[p.player.name for p in ranked_players[:Constants.RECOMMENDATION_COUNT]]}")
         return ranked_players[:Constants.RECOMMENDATION_COUNT]
     

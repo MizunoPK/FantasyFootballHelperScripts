@@ -154,7 +154,7 @@ class ResultsManager:
             ValueError: If no results available
 
         Example:
-            >>> output_path = mgr.save_optimal_config(Path("simulation/simulated_configs"))
+            >>> output_path = mgr.save_optimal_config(Path("simulation/optimal_configs"))
             >>> print(f"Saved optimal config to {output_path}")
         """
         best_config = self.get_best_config()

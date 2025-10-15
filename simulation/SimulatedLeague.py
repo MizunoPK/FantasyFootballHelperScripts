@@ -93,7 +93,7 @@ class SimulatedLeague:
             FileNotFoundError: If data files are missing
         """
         self.logger = get_logger()
-        self.logger.info("Initializing SimulatedLeague")
+        self.logger.debug("Initializing SimulatedLeague")
 
         self.config_dict = config_dict
         self.data_folder = data_folder
@@ -137,7 +137,7 @@ class SimulatedLeague:
             Each team needs independent PlayerManager instances to track
             their own roster (drafted=2) vs opponents' rosters (drafted=1).
         """
-        self.logger.info("Initializing 10 teams with separate PlayerManager instances")
+        self.logger.debug("Initializing 10 teams with separate PlayerManager instances")
 
         # Create strategy list based on distribution
         strategies = []
@@ -180,14 +180,14 @@ class SimulatedLeague:
             if strategy == 'draft_helper':
                 team = DraftHelperTeam(projected_pm, actual_pm, config, team_data_mgr)
                 self.draft_helper_team = team
-                self.logger.info(f"Created DraftHelperTeam (team {idx})")
+                self.logger.debug(f"Created DraftHelperTeam (team {idx})")
             else:
                 team = SimulatedOpponent(projected_pm, actual_pm, config, team_data_mgr, strategy)
                 self.logger.debug(f"Created SimulatedOpponent (team {idx}, strategy: {strategy})")
 
             self.teams.append(team)
 
-        self.logger.info(f"Initialized {len(self.teams)} teams")
+        self.logger.debug(f"Initialized {len(self.teams)} teams")
 
     def _generate_schedule(self) -> None:
         """
@@ -196,9 +196,9 @@ class SimulatedLeague:
         Uses generate_schedule_for_nfl_season to create matchups where each
         team plays each other team twice (as close as possible in 17 weeks).
         """
-        self.logger.info("Generating 17-week round-robin schedule")
+        self.logger.debug("Generating 17-week round-robin schedule")
         self.season_schedule = generate_schedule_for_nfl_season(self.teams, num_weeks=17)
-        self.logger.info(f"Generated schedule: {len(self.season_schedule)} weeks")
+        self.logger.debug(f"Generated schedule: {len(self.season_schedule)} weeks")
 
     def run_draft(self) -> None:
         """
@@ -214,12 +214,12 @@ class SimulatedLeague:
             - Each team ends up with 15 players
             - All teams' PlayerManagers have consistent drafted status
         """
-        self.logger.info("Starting draft simulation")
+        self.logger.debug("Starting draft simulation")
 
         # Randomize initial draft order
         self.draft_order = self.teams.copy()
         random.shuffle(self.draft_order)
-        self.logger.info(f"Draft order randomized: {len(self.draft_order)} teams")
+        self.logger.debug(f"Draft order randomized: {len(self.draft_order)} teams")
 
         # Run 15 rounds
         for round_num in range(15):
@@ -248,7 +248,7 @@ class SimulatedLeague:
 
                 self.logger.debug(f"Round {round_num + 1}: {player.name} ({player.position}) drafted")
 
-        self.logger.info("Draft complete: All teams have 15 players")
+        self.logger.debug("Draft complete: All teams have 15 players")
 
     def run_season(self) -> None:
         """
@@ -263,10 +263,10 @@ class SimulatedLeague:
             - Updates self.week_results with Week objects
             - Each team accumulates wins/losses
         """
-        self.logger.info("Starting 17-week season simulation")
+        self.logger.debug("Starting 17-week season simulation")
 
         for week_num in range(1, 18):  # Weeks 1-17
-            self.logger.info(f"Simulating Week {week_num}/17")
+            self.logger.debug(f"Simulating Week {week_num}/17")
 
             # Update team rankings for this week
             self._update_team_rankings(week_num)
@@ -281,7 +281,7 @@ class SimulatedLeague:
             # Store results
             self.week_results.append(week)
 
-        self.logger.info("Season complete: 17 weeks simulated")
+        self.logger.debug("Season complete: 17 weeks simulated")
 
     def _update_team_rankings(self, week_num: int) -> None:
         """

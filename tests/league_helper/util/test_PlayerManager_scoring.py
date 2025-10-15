@@ -77,7 +77,8 @@ def mock_data_folder(tmp_path):
         "GOOD": 1.10,
         "POOR": 0.90,
         "VERY_POOR": 0.70
-      }
+      },
+      "WEIGHT": 1.0
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
@@ -91,7 +92,8 @@ def mock_data_folder(tmp_path):
         "GOOD": 1.15,
         "POOR": 0.95,
         "VERY_POOR": 0.75
-      }
+      },
+      "WEIGHT": 1.0
     },
     "TEAM_QUALITY_SCORING": {
       "THRESHOLDS": {
@@ -105,7 +107,8 @@ def mock_data_folder(tmp_path):
         "GOOD": 1.15,
         "POOR": 0.85,
         "VERY_POOR": 0.70
-      }
+      },
+      "WEIGHT": 1.0
     },
     "CONSISTENCY_SCORING": {
       "MIN_WEEKS": 3,
@@ -120,7 +123,8 @@ def mock_data_folder(tmp_path):
         "GOOD": 1.20,
         "POOR": 0.80,
         "VERY_POOR": 0.60
-      }
+      },
+      "WEIGHT": 1.0
     },
     "MATCHUP_SCORING": {
       "THRESHOLDS": {
@@ -134,7 +138,8 @@ def mock_data_folder(tmp_path):
         "GOOD": 1.10,
         "POOR": 0.90,
         "VERY_POOR": 0.75
-      }
+      },
+      "WEIGHT": 1.0
     }
   }
 }"""
@@ -195,7 +200,7 @@ def player_manager(mock_data_folder, config_manager, team_data_manager, mock_fan
     pm.file_str = str(mock_data_folder / "players.csv")
     pm.players = []
     pm.team = mock_fantasy_team
-    pm.max_projection = 0
+    pm.max_projection = 250.0  # Set to reasonable value to avoid division by zero
 
     return pm
 
@@ -224,12 +229,27 @@ def test_player():
     player.team_defensive_rank = 5
     player.matchup_score = 10  # Good matchup
 
-    # Set weekly points for consistency calculation
+    # Set weekly points for consistency calculation and rest-of-season projection
+    # Current week is 6, so weeks 6-17 will be used for ROS projection
+    # Set weeks 6-17 to sum to exactly 200.0 (12 weeks)
     player.week_1_points = 18.5
     player.week_2_points = 22.0
     player.week_3_points = 19.5
     player.week_4_points = 21.0
     player.week_5_points = 20.0
+    # Weeks 6-17: 11 weeks * 16.0 + 1 week * 24.0 = 176 + 24 = 200.0
+    player.week_6_points = 16.0
+    player.week_7_points = 16.0
+    player.week_8_points = 16.0
+    player.week_9_points = 16.0
+    player.week_10_points = 16.0
+    player.week_11_points = 16.0
+    player.week_12_points = 16.0
+    player.week_13_points = 16.0
+    player.week_14_points = 16.0
+    player.week_15_points = 16.0
+    player.week_16_points = 16.0
+    player.week_17_points = 24.0  # Extra to make sum exactly 200.0
 
     return player
 
@@ -293,7 +313,8 @@ class TestWeeklyProjections:
 
     def test_get_weekly_projection_missing_data_returns_zero(self, player_manager, test_player):
         """Test that missing weekly data returns (0.0, 0.0)"""
-        # Player has no week_10_points attribute
+        # Remove week_10_points from test_player to test missing data
+        del test_player.week_10_points
         orig_pts, weighted_pts = player_manager.get_weekly_projection(test_player, week=10)
 
         assert orig_pts == 0.0
@@ -341,16 +362,16 @@ class TestWeeklyProjections:
         assert "Weighted:" in reason
 
     def test_normalization_with_weekly_projection_disabled(self, player_manager, test_player):
-        """Test _get_normalized_fantasy_points with use_weekly_projection=False uses seasonal"""
-        test_player.week_6_points = 30.0  # Has weekly data
-        test_player.fantasy_points = 200.0  # Seasonal data
-        test_player.weighted_projection = 80.0  # Pre-calculated
+        """Test _get_normalized_fantasy_points with use_weekly_projection=False uses ROS"""
+        # Test player has weeks 6-17 summing to 200.0 (from fixture)
+        # Current week is 6, so ROS = sum of weeks 6-17 = 200.0
+        # Weighted = (200/250) * 100 = 80.0
 
         result, reason = player_manager._get_normalized_fantasy_points(test_player, use_weekly_projection=False)
 
-        # Should use seasonal projection
+        # Should use rest-of-season projection
         assert result == 80.0
-        assert "200.00" in reason  # Should show seasonal points
+        assert "200.00" in reason  # Should show ROS points
 
     def test_score_player_with_weekly_projection(self, player_manager, test_player, mock_fantasy_team):
         """Integration test: score_player with use_weekly_projection=True"""
@@ -947,7 +968,10 @@ class TestFullScoringIntegration:
 
     def test_score_player_only_normalization(self, player_manager, test_player, mock_fantasy_team):
         """Test score_player with all multipliers/bonuses disabled"""
-        test_player.weighted_projection = 100.0
+        # Need ROS projection to equal 250 pts to get weighted=100.0
+        # Set weeks 6-17 (12 weeks) to sum to 250.0
+        for week_num in range(6, 18):
+            setattr(test_player, f"week_{week_num}_points", 250.0 / 12)  # 20.833... per week
         mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
 
         result = player_manager.score_player(
@@ -962,7 +986,8 @@ class TestFullScoringIntegration:
             injury=False
         )
 
-        assert result.score == 100.0, "Only normalization should return weighted_projection"
+        # ROS = 250, weighted = (250/250)*100 = 100.0
+        assert abs(result.score - 100.0) < 0.01, "Only normalization should return 100.0"
 
     def test_score_player_negative_score_allowed(self, player_manager, test_player, mock_fantasy_team):
         """Verify negative scores are allowed (no bounds checking)"""
@@ -995,8 +1020,10 @@ class TestFullScoringIntegration:
 
     def test_score_player_draft_round_minus_one_disabled(self, player_manager, test_player, mock_fantasy_team):
         """Verify draft_round=-1 disables the bonus - BUG FIX"""
-        test_player.weighted_projection = 100.0
-        test_player.position = "RB"  # Would normally get bonus
+        # Need ROS projection to equal 250 pts to get weighted=100.0
+        for week_num in range(6, 18):
+            setattr(test_player, f"week_{week_num}_points", 250.0 / 12)  # 20.833... per week
+        test_player.position = "RB"  # Would normally get bonus in round 0
         mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
 
         result = player_manager.score_player(
@@ -1011,7 +1038,8 @@ class TestFullScoringIntegration:
             injury=False
         )
 
-        assert result.score == 100.0, "draft_round=-1 should not apply bonus"
+        # ROS = 250, weighted = (250/250)*100 = 100.0, no bonus
+        assert abs(result.score - 100.0) < 0.01, "draft_round=-1 should not apply bonus"
 
     def test_score_player_waiver_mode_flags(self, player_manager, test_player, mock_fantasy_team):
         """Test flag configuration for Waiver Optimizer mode"""
@@ -1067,7 +1095,6 @@ class TestEdgeCases:
             name="Edge Case",
             team="KC",
             position="RB",
-            weighted_projection=100.0,
             average_draft_position=None,
             player_rating=None,
             consistency=0.5,  # Default
@@ -1076,6 +1103,10 @@ class TestEdgeCases:
             injury_status="ACTIVE",
             bye_week=None
         )
+
+        # Set weekly projections to sum to 250 for ROS = 100.0 weighted
+        for week_num in range(6, 18):
+            setattr(player, f"week_{week_num}_points", 250.0 / 12)
 
         mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
 
@@ -1091,8 +1122,9 @@ class TestEdgeCases:
             injury=True
         )
 
-        # All None should give neutral 1.0 multipliers, so score = weighted_projection
-        assert result.score == 100.0
+        # All None should give neutral 1.0 multipliers
+        # ROS = 250, weighted = (250/250)*100 = 100.0
+        assert abs(result.score - 100.0) < 0.01
 
     def test_zero_fantasy_points_player(self, player_manager, mock_fantasy_team):
         """Player with 0 fantasy points should score 0"""

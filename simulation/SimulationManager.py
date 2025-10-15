@@ -257,6 +257,7 @@ class SimulationManager:
 
         # Start with baseline config as current optimal
         current_optimal_config = copy.deepcopy(self.config_generator.baseline_config)
+        win_percentage = 0.0
 
         # Iterate through each parameter
         for param_idx, param_name in enumerate(param_order, 1):
@@ -309,6 +310,9 @@ class SimulationManager:
 
                 # Save intermediate result
                 intermediate_path = self.output_dir / f"intermediate_{param_idx:02d}_{param_name}.json"
+                current_optimal_config["config_name"] = str(intermediate_path)
+                win_percentage = best_result.get_win_rate()
+                current_optimal_config["description"] = f"Win Rate: {win_percentage:.2f}"
                 with open(intermediate_path, 'w') as f:
                     json.dump(current_optimal_config, f, indent=2)
                 self.logger.info(f"  Saved intermediate config: {intermediate_path.name}")
@@ -330,6 +334,7 @@ class SimulationManager:
         # Save final optimal config
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         optimal_config_path = self.output_dir / f"optimal_iterative_{timestamp}.json"
+        current_optimal_config["config_name"] = str(optimal_config_path)
 
         with open(optimal_config_path, 'w') as f:
             json.dump(current_optimal_config, f, indent=2)

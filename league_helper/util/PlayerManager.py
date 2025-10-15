@@ -30,7 +30,7 @@ Author: Kai Mizuno
 
 import csv
 from pathlib import Path
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 import statistics
 
 import sys
@@ -90,7 +90,7 @@ class PlayerManager:
             - Logs player loading statistics
         """
         self.logger = get_logger()
-        self.logger.info("Initializing Player Manager")
+        self.logger.debug("Initializing Player Manager")
 
         self.config = config
         self.team_data_manager = team_data_manager
@@ -104,7 +104,7 @@ class PlayerManager:
 
         self.load_players_from_csv()
         self.load_team()
-        self.logger.info(f"Player Manager initialized with {len(self.players)} players, {len(self.team.roster)} on roster")
+        self.logger.debug(f"Player Manager initialized with {len(self.players)} players, {len(self.team.roster)} on roster")
 
 
     def load_players_from_csv(self):
@@ -194,7 +194,7 @@ class PlayerManager:
                     self.logger.warning(f"Warning: {error_count} rows had errors and were skipped out of {row_count} total rows")
 
                 # Log consistency data summary
-                self.logger.info(
+                self.logger.debug(
                     f"Consistency calculation: {consistency_stats['sufficient_data']} players with sufficient data, "
                     f"{consistency_stats['insufficient_data']} players defaulted to MEDIUM "
                     f"({consistency_stats['by_weeks'][0]} with 0 weeks, "
@@ -237,7 +237,7 @@ class PlayerManager:
         for player in players:
             player.score = self.score_player(player, bye=False).score
 
-        self.logger.info(f"Loaded {len(players)} players from {self.file_str}.")
+        self.logger.debug(f"Loaded {len(players)} players from {self.file_str}.")
 
         self.players = players
     
@@ -260,10 +260,9 @@ class PlayerManager:
         # Go ahead and score the team
         for p in drafted_players:
             result = self.score_player(p)
-            print(result)
             self.team.set_score(p.id, result.score)
 
-        self.logger.info(f"Team loaded: {len(self.team.roster)} players on roster")
+        self.logger.debug(f"Team loaded: {len(self.team.roster)} players on roster")
 
     def update_players_file(self) -> str:
         """
@@ -349,13 +348,16 @@ class PlayerManager:
     def draft_player(self, player_to_draft : FantasyPlayer) -> bool:
         return self.team.draft_player(player_to_draft)
     
-    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_score : float = 0.0) -> List[FantasyPlayer]:
+    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_scores : Dict[str,float] = {}) -> List[FantasyPlayer]:
+        for pos in Constants.ALL_POSITIONS:
+            if pos not in min_scores:
+                min_scores[pos] = 0.0
         player_list = [
             p for p in self.players
-            if p.drafted in drafted_vals and p.score >= min_score
+            if p.drafted in drafted_vals and p.score >= min_scores[p.position]
         ]
         if can_draft:
-            drafted_players = [
+            player_list = [
                 p for p in player_list
                 if self.can_draft(p)
             ]
@@ -394,12 +396,19 @@ class PlayerManager:
     def display_roster(self):
         self.team.display_roster()
 
-    def get_lowest_score_on_roster(self):
-        lowest_score = 0
+    def get_lowest_scores_on_roster(self):
+        lowest_scores = {
+            Constants.QB: 9999,
+            Constants.RB: 9999,
+            Constants.WR: 9999,
+            Constants.TE: 9999,
+            Constants.K: 9999,
+            Constants.DST: 9999,
+        }
         for p in self.team.roster:
-            if p.score < lowest_score:
-                lowest_score = p.score
-        return lowest_score
+            if p.score < lowest_scores[p.position]:
+                lowest_scores[p.position] = p.score
+        return lowest_scores
 
 
     def get_weekly_projection(self, player : FantasyPlayer, week=0) -> Tuple[float, float]:
@@ -514,7 +523,7 @@ class PlayerManager:
         return cv, weeks_count
 
 
-    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, consistency=True, matchup=False, draft_round=-1, bye=True, injury=True) -> ScoredPlayer:
+    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, consistency=False, matchup=False, draft_round=-1, bye=True, injury=True) -> ScoredPlayer:
         """
         Calculate score for a player (8-step calculation).
 
@@ -593,7 +602,7 @@ class PlayerManager:
             self.logger.debug(f"Step 9 - Final score for {p.name}: {player_score:.2f}")
 
         # Summary logging
-        self.logger.info(
+        self.logger.debug(
             f"Scoring for {p.name}: final_score={player_score:.1f}"
         )
 

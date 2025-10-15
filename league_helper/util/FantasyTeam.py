@@ -100,7 +100,7 @@ class FantasyTeam:
         self.logger.debug(f"position counts after labeling: {self.pos_counts}")
         self.logger.debug(f"slot assignments after initialization: {self.slot_assignments}")
         self.logger.debug(f"draft_order after assignment: {[p.id if p else None for p in self.draft_order]}")
-        self.logger.info(f"FantasyTeam initialized. Roster size: {len(self.roster)}")
+        self.logger.debug(f"FantasyTeam initialized. Roster size: {len(self.roster)}")
 
     def set_score(self, id : int, score : float):
         for p in self.roster:
@@ -278,7 +278,7 @@ class FantasyTeam:
             # Use explicit slot assignment
             try:
                 assigned_slot = self._assign_player_to_slot(player)
-                self.logger.info(f"DRAFT SUCCESS: {player.name} ({player.position}) → {assigned_slot} slot")
+                self.logger.debug(f"DRAFT SUCCESS: {player.name} ({player.position}) → {assigned_slot} slot")
             except ValueError as e:
                 # This should not happen if can_draft is working correctly
                 self.logger.error(f"DRAFT FAILED: Could not assign slot for {player.name}: {e}")

@@ -411,8 +411,9 @@ class TestStarterHelperModeManager:
             adp=False,
             player_rating=False,
             team_quality=False,
-            consistency=True,
-            matchup=True
+            matchup=True,
+            bye=False,
+            injury=False
         )
         assert result == expected_scored
 

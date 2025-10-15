@@ -71,7 +71,7 @@ class LeagueHelperManager:
             ValueError: If configuration is invalid
         """
         self.logger = get_logger()
-        self.logger.info("Initializing League Helper Manager")
+        self.logger.debug("Initializing League Helper Manager")
 
         # Create single config manager that handles all configuration
         self.logger.debug(f"Loading configuration from {data_folder}")
@@ -90,7 +90,7 @@ class LeagueHelperManager:
         self.logger.debug("Initializing mode managers")
         self.add_to_roster_mode_manager = AddToRosterModeManager(self.config, self.player_manager, self.team_data_manager)
         self.starter_helper_mode_manager = StarterHelperModeManager(self.config, self.player_manager, self.team_data_manager)
-        self.trade_simulator_mode_manager = TradeSimulatorModeManager(data_folder, self.player_manager)
+        self.trade_simulator_mode_manager = TradeSimulatorModeManager(data_folder, self.player_manager, self.config)
         self.logger.info("All mode managers initialized successfully")
 
 

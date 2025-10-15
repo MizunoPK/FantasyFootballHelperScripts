@@ -21,7 +21,7 @@ FANTASY_TEAM_NAME = "Sea Sharp"
 # =============================================================================
 # LOGGING CONFIGURATION
 # =============================================================================
-LOGGING_LEVEL = 'WARNING'      # DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
+LOGGING_LEVEL = 'INFO'      # DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
 LOGGING_TO_FILE = False        # Console vs file logging
 LOG_NAME = "league_helper"     # Logger name
 LOGGING_FILE = './data/log.txt'  # Log file path (if LOGGING_TO_FILE=True)
@@ -36,8 +36,7 @@ RECOMMENDATION_COUNT = 10  # Number of player recommendations to display
 # WAIVER OPTIMIZER CONSTANTS
 # =============================================================================
 MIN_TRADE_IMPROVEMENT = 0  # Minimum score improvement to suggest a trade
-NUM_TRADE_RUNNERS_UP = 3   # Number of alternative trade suggestions to show
-MIN_PLAYER_SCORE_TO_CONSIDER_TRADE = 40
+NUM_TRADE_RUNNERS_UP = 9   # Number of alternative trade suggestions to show
 
 # =============================================================================
 # POSITION CONSTANTS
@@ -45,6 +44,7 @@ MIN_PLAYER_SCORE_TO_CONSIDER_TRADE = 40
 RB, WR, QB, TE, K, DST, FLEX = 'RB', 'WR', 'QB', 'TE', 'K', 'DST', 'FLEX'
 
 # Position groupings for scoring calculations
+ALL_POSITIONS = [RB, WR, QB, TE, K, DST]
 OFFENSE_POSITIONS = ["QB", "RB", "WR", "TE", "K"]  # Offensive positions
 DEFENSE_POSITIONS = ["DEF", "DST", "D/ST"]         # Defensive position variations
 

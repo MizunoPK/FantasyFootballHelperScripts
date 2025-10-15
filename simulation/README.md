@@ -90,7 +90,7 @@ Tests all 46,656 configurations with 100 simulations each (4.6 million total sim
 ### Common Options (all modes)
 
 ```bash
---baseline PATH      # Path to baseline config (default: simulation/simulated_configs/optimal_2025-10-02_15-29-14.json.json)
+--baseline PATH      # Path to baseline config (default: simulation/optimal_configs/optimal_2025-10-02_15-29-14.json.json)
 --output PATH        # Output directory (default: simulation/results)
 --workers N          # Number of parallel threads (default: 4)
 --data PATH          # Data folder (default: simulation/sim_data)
@@ -297,7 +297,7 @@ ls simulation/sim_data/
 
 Check the baseline path:
 ```bash
-ls simulation/simulated_configs/optimal_2025-10-02_15-29-14.json.json
+ls simulation/optimal_configs/optimal_2025-10-02_15-29-14.json.json
 ```
 
 Or specify a custom baseline:

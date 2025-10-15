@@ -304,8 +304,9 @@ class StarterHelperModeManager:
             adp=False,
             player_rating=False,
             team_quality=False,
-            consistency=True,
-            matchup=True
+            matchup=True,
+            bye=False,
+            injury=False
         )
 
         return scored_player
@@ -330,7 +331,7 @@ class StarterHelperModeManager:
             - Logs lineup optimization start and completion
             - Logs total projected points for optimal lineup
         """
-        self.logger.info(
+        self.logger.debug(
             f"Optimizing starting lineup for Week {self.config.current_nfl_week} "
             f"({self.config.nfl_scoring_format.upper()} scoring)"
         )
@@ -354,8 +355,8 @@ class StarterHelperModeManager:
             f"{s.player.position}:{s.player.name}({s.score:.1f})"
             for s in starters if s is not None
         ]
-        self.logger.info(f"Optimal starters: {', '.join(starter_names)}")
-        self.logger.info(
+        self.logger.debug(f"Optimal starters: {', '.join(starter_names)}")
+        self.logger.debug(
             f"Lineup optimization complete. Total projected points: {lineup.total_projected_points:.1f}, "
             f"Bench: {len(lineup.bench)} players"
         )
