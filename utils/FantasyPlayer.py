@@ -357,7 +357,8 @@ class FantasyPlayer:
             drafted = "ROSTERED"
         else:
             drafted = "AVAILABLE"
-        return f"{self.name} ({self.team} {self.position}) - {self.score:.1f} pts {status} [Bye={self.bye_week}] [{drafted}]"
+        locked_indicator = " [LOCKED]" if self.locked == 1 else ""
+        return f"{self.name} ({self.team} {self.position}) - {self.score:.1f} pts {status} [Bye={self.bye_week}] [{drafted}]{locked_indicator}"
     
     def __repr__(self) -> str:
         """Developer representation of the player."""
