@@ -110,6 +110,22 @@ def mock_data_folder(tmp_path):
       },
       "WEIGHT": 1.0
     },
+    "PERFORMANCE_SCORING": {
+      "MIN_WEEKS": 3,
+      "THRESHOLDS": {
+        "VERY_POOR": -0.2,
+        "POOR": -0.1,
+        "GOOD": 0.1,
+        "EXCELLENT": 0.2
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.60,
+        "POOR": 0.80,
+        "GOOD": 1.20,
+        "EXCELLENT": 1.50
+      },
+      "WEIGHT": 1.0
+    },
     "CONSISTENCY_SCORING": {
       "MIN_WEEKS": 3,
       "THRESHOLDS": {
@@ -382,30 +398,28 @@ class TestWeeklyProjections:
         test_player.matchup_score = 10  # GOOD
         mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
 
-        # Score with weekly projection enabled, only consistency and matchup
+        # Score with weekly projection enabled, only matchup
         scored_player = player_manager.score_player(
             test_player,
             use_weekly_projection=True,
             adp=False,
             player_rating=False,
             team_quality=False,
-            consistency=True,
             matchup=True,
             draft_round=-1,
             bye=False,
             injury=False
         )
 
-        # Expected: (25/300)*100 = 8.33... * 1.50 (consistency) * 1.10 (matchup)
+        # Expected: (25/300)*100 = 8.33... * 1.10 (matchup)
         expected_base = (25.0 / 300.0) * 100.0
-        expected_final = expected_base * 1.50 * 1.10
+        expected_final = expected_base * 1.10
 
         assert abs(scored_player.score - expected_final) < 0.01
         assert scored_player.player == test_player
         assert len(scored_player.reason) > 0
         # Check reasons include weekly projection
         assert any("Projected: 25.00" in r for r in scored_player.reason)
-        assert any("Consistency:" in r for r in scored_player.reason)
         assert any("Matchup:" in r for r in scored_player.reason)
 
 
@@ -928,30 +942,29 @@ class TestFullScoringIntegration:
 
         mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
 
-        # Calculate expected score manually
+        # Calculate expected score manually (NO consistency multiplier)
         score = 80.0  # Normalization
         score = score * 1.20  # ADP: 96.0
         score = score * 1.25  # Player rating: 120.0
         score = score * 1.30  # Team quality: 156.0
-        score = score * 1.50  # Consistency: 234.0
-        score = score * 1.10  # Matchup: 257.4
-        score = score + 50  # Draft bonus (round 0, PRIMARY): 307.4
-        score = score - 0  # Bye penalty: 307.4
-        score = score - 0  # Injury penalty: 307.4
+        # No consistency multiplier
+        score = score * 1.10  # Matchup: 171.6
+        score = score + 50  # Draft bonus (round 0, PRIMARY): 221.6
+        score = score - 0  # Bye penalty: 221.6
+        score = score - 0  # Injury penalty: 221.6
 
         result = player_manager.score_player(
             test_player,
             adp=True,
             player_rating=True,
             team_quality=True,
-            consistency=True,
             matchup=True,
             draft_round=0,
             bye=True,
             injury=True
         )
 
-        assert abs(result.score - 307.4) < 0.01, f"Expected ~307.4, got {result.score}"
+        assert abs(result.score - 221.6) < 0.01, f"Expected ~221.6, got {result.score}"
 
     def test_score_player_default_flags(self, player_manager, test_player, mock_fantasy_team):
         """Test score_player with default flag values - BUG FIX: draft_round=-1"""
@@ -960,7 +973,6 @@ class TestFullScoringIntegration:
         result = player_manager.score_player(test_player)
 
         # With default flags: adp=True, player_rating=True, team_quality=True,
-        # consistency=True, matchup=False, draft_round=-1, bye=True, injury=True
         # Should NOT include matchup multiplier or draft bonus
 
         assert result.score > 0  # Should have a positive score
@@ -979,7 +991,6 @@ class TestFullScoringIntegration:
             adp=False,
             player_rating=False,
             team_quality=False,
-            consistency=False,
             matchup=False,
             draft_round=-1,  # Disabled
             bye=False,
@@ -1009,7 +1020,6 @@ class TestFullScoringIntegration:
             adp=True,
             player_rating=True,
             team_quality=True,
-            consistency=True,
             matchup=False,
             draft_round=-1,
             bye=True,
@@ -1031,7 +1041,6 @@ class TestFullScoringIntegration:
             adp=False,
             player_rating=False,
             team_quality=False,
-            consistency=False,
             matchup=False,
             draft_round=-1,  # DISABLED
             bye=False,
@@ -1051,7 +1060,6 @@ class TestFullScoringIntegration:
             adp=True,
             player_rating=True,
             team_quality=True,
-            consistency=True,
             matchup=True,  # Enabled for weekly
             draft_round=-1,  # Disabled for fair comparison
             bye=True,
@@ -1064,20 +1072,19 @@ class TestFullScoringIntegration:
         """Test flag configuration for Starter Helper mode"""
         mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
 
-        # Starter mode: only consistency and matchup
+        # Starter mode: only matchup
         result = player_manager.score_player(
             test_player,
             adp=False,
             player_rating=False,
             team_quality=False,
-            consistency=True,
             matchup=True,  # Most important for weekly
             draft_round=-1,
             bye=False,  # Already in week_N_points
             injury=False  # Filtered beforehand
         )
 
-        # Should only have normalization + consistency + matchup
+        # Should only have normalization + matchup
         assert result.score > 0
 
 
@@ -1115,7 +1122,6 @@ class TestEdgeCases:
             adp=True,
             player_rating=True,
             team_quality=True,
-            consistency=True,
             matchup=True,
             draft_round=-1,
             bye=True,

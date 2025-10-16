@@ -370,13 +370,22 @@ class ESPNClient(BaseAPIClient):
 
         Returns None if no ESPN data is available for this week, rather than falling back to position defaults.
         This ensures we only populate weekly columns with actual ESPN projection data.
+
+        IMPORTANT: ESPN returns multiple stat entries per week with different statSourceId values:
+        - statSourceId=0: Actual game results (what we want for completed weeks)
+        - statSourceId=1: Projected/estimated values (fallback for future weeks)
+
+        We must prioritize actual results (statSourceId=0) over projections (statSourceId=1).
         """
         try:
             stats = player_data.get('stats', [])
             if not stats:
                 return None
 
-            # Look for exact week match in current season
+            # Collect all matching entries for this week, categorized by source type
+            actual_entries = []  # statSourceId=0 (actual game results)
+            projected_entries = []  # statSourceId=1 (projections)
+
             for stat in stats:
                 if not isinstance(stat, dict):
                     continue
@@ -385,27 +394,49 @@ class ESPNClient(BaseAPIClient):
                 scoring_period = stat.get('scoringPeriodId')
 
                 if season_id == self.settings.season and scoring_period == week:
-                    # Check for actual ESPN data (prefer appliedTotal over projectedTotal)
+                    stat_source_id = stat.get('statSourceId')
+
+                    # Try to extract points from this stat entry
+                    points = None
                     if 'appliedTotal' in stat and stat['appliedTotal'] is not None:
                         try:
                             points = float(stat['appliedTotal'])
-                            # Check for NaN values and treat them as None
+                            # Check for NaN values
                             if math.isnan(points):
                                 continue
-                            if position == 'DST' or points > 0:  # Allow zero/negative DST, filter zero/negative others
-                                return points
                         except (ValueError, TypeError):
                             continue
                     elif 'projectedTotal' in stat and stat['projectedTotal'] is not None:
                         try:
                             points = float(stat['projectedTotal'])
-                            # Check for NaN values and treat them as None
+                            # Check for NaN values
                             if math.isnan(points):
                                 continue
-                            if position == 'DST' or points > 0:  # Allow zero/negative DST, filter zero/negative others
-                                return points
                         except (ValueError, TypeError):
                             continue
+
+                    # Categorize by source type
+                    if points is not None:
+                        if stat_source_id == 0:
+                            # statSourceId=0 = actual game results
+                            actual_entries.append(points)
+                        elif stat_source_id == 1:
+                            # statSourceId=1 = projections/estimates
+                            projected_entries.append(points)
+
+            # Priority 1: Use actual results if available (statSourceId=0)
+            if actual_entries:
+                # Filter out zero/negative for non-DST positions
+                valid_actuals = [p for p in actual_entries if position == 'DST' or p > 0]
+                if valid_actuals:
+                    return valid_actuals[0]  # Return first valid actual result
+
+            # Priority 2: Fall back to projections if no actual results (statSourceId=1)
+            if projected_entries:
+                # Filter out zero/negative for non-DST positions
+                valid_projected = [p for p in projected_entries if position == 'DST' or p > 0]
+                if valid_projected:
+                    return valid_projected[0]  # Return first valid projection
 
             # No ESPN data found for this week
             return None

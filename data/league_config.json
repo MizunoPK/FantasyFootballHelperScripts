@@ -116,13 +116,13 @@
       },
       "WEIGHT": 0.0
     },
-    "CONSISTENCY_SCORING": {
+    "PERFORMANCE_SCORING": {
       "MIN_WEEKS": 3,
       "THRESHOLDS": {
-        "VERY_POOR": 0.2,
-        "POOR": 0.4,
-        "GOOD": 0.6,
-        "EXCELLENT": 0.8
+        "VERY_POOR": -0.2,
+        "POOR": -0.1,
+        "GOOD": 0.1,
+        "EXCELLENT": 0.2
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,

@@ -457,7 +457,7 @@ class TradeSimulatorModeManager:
     
     def save_trades_to_file(self, sorted_trades : List[TradeSnapshot]):
         # Open the file in write mode (it will create the file if it doesn't exist)
-        with open('./trade_info.txt', 'w') as file:
+        with open('./league_helper/trade_simulator_mode/trade_info.txt', 'w') as file:
             for i, trade in enumerate(sorted_trades, 1):
                 my_improvement = trade.my_new_team.team_score - self.my_team.team_score
 

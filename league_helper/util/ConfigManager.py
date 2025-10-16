@@ -58,7 +58,8 @@ class ConfigKeys:
     ADP_SCORING = "ADP_SCORING"
     PLAYER_RATING_SCORING = "PLAYER_RATING_SCORING"
     TEAM_QUALITY_SCORING = "TEAM_QUALITY_SCORING"
-    CONSISTENCY_SCORING = "CONSISTENCY_SCORING"
+    CONSISTENCY_SCORING = "CONSISTENCY_SCORING"  # Deprecated - kept for backwards compatibility
+    PERFORMANCE_SCORING = "PERFORMANCE_SCORING"
     MATCHUP_SCORING = "MATCHUP_SCORING"
     DRAFT_ORDER_BONUSES = "DRAFT_ORDER_BONUSES"
     DRAFT_ORDER = "DRAFT_ORDER"
@@ -154,7 +155,8 @@ class ConfigManager:
         self.adp_scoring: Dict[str, Any] = {}
         self.player_rating_scoring: Dict[str, Any] = {}
         self.team_quality_scoring: Dict[str, Any] = {}
-        self.consistency_scoring: Dict[str, Any] = {}
+        self.consistency_scoring: Dict[str, Any] = {}  # Deprecated - kept for backwards compatibility
+        self.performance_scoring: Dict[str, Any] = {}
         self.matchup_scoring: Dict[str, Any] = {}
 
         # Add to Roster mode settings
@@ -243,7 +245,7 @@ class ConfigManager:
             self.keys.ADP_SCORING,
             self.keys.PLAYER_RATING_SCORING,
             self.keys.TEAM_QUALITY_SCORING,
-            self.keys.CONSISTENCY_SCORING,
+            self.keys.PERFORMANCE_SCORING,
             self.keys.MATCHUP_SCORING,
             self.keys.DRAFT_ORDER_BONUSES,
             self.keys.DRAFT_ORDER,
@@ -265,7 +267,9 @@ class ConfigManager:
         self.adp_scoring = self.parameters[self.keys.ADP_SCORING]
         self.player_rating_scoring = self.parameters[self.keys.PLAYER_RATING_SCORING]
         self.team_quality_scoring = self.parameters[self.keys.TEAM_QUALITY_SCORING]
-        self.consistency_scoring = self.parameters[self.keys.CONSISTENCY_SCORING]
+        self.performance_scoring = self.parameters[self.keys.PERFORMANCE_SCORING]
+        # Keep consistency_scoring as fallback for backwards compatibility
+        self.consistency_scoring = self.parameters.get(self.keys.CONSISTENCY_SCORING, self.performance_scoring)
         self.matchup_scoring = self.parameters[self.keys.MATCHUP_SCORING]
 
         # Extract Add to Roster mode parameters

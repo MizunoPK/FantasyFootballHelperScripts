@@ -30,13 +30,14 @@ Author: Kai Mizuno
 
 import csv
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 import statistics
 
 import sys
 import logging
 from util.TeamDataManager import TeamDataManager
 from util.FantasyTeam import FantasyTeam
+from util.ProjectedPointsManager import ProjectedPointsManager
 
 sys.path.append(str(Path(__file__).parent))
 import constants as Constants
@@ -94,6 +95,7 @@ class PlayerManager:
 
         self.config = config
         self.team_data_manager = team_data_manager
+        self.projected_points_manager = ProjectedPointsManager(config)
 
         self.file_str = str(data_folder / 'players.csv')
         self.logger.debug(f"Players CSV path: {self.file_str}")
@@ -522,24 +524,133 @@ class PlayerManager:
 
         return cv, weeks_count
 
-
-    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, consistency=False, matchup=False, draft_round=-1, bye=True, injury=True) -> ScoredPlayer:
+    def _calculate_performance_deviation(self, player: FantasyPlayer) -> Optional[float]:
         """
-        Calculate score for a player (8-step calculation).
+        Calculate performance deviation for a player based on actual vs projected points.
+
+        Measures how much a player's actual performance deviates from projected points
+        across historical weeks. Positive deviation = outperforming, negative = underperforming.
+
+        Formula: average((actual - projected) / projected) for all valid weeks
+
+        Only uses weeks < CURRENT_NFL_WEEK (weeks that have already occurred).
+        Requires minimum MIN_WEEKS weeks of data for reliable calculation.
+
+        Skipping criteria:
+        - Weeks where actual points = 0 (player didn't play)
+        - Weeks where projected = 0.0 AND actual ≠ 0.0 (unprojected performances)
+        - DST position players (insufficient historical projection data)
+
+        Args:
+            player: FantasyPlayer object with weekly projection and actual data
+
+        Returns:
+            Optional[float]: Average performance deviation as a percentage (e.g., 0.15 = +15%)
+                           Returns None if insufficient data or DST position
+        """
+        # Skip DST teams - insufficient historical projection data
+        if player.position == 'DST':
+            self.logger.debug(f"Skipping performance calculation for DST player: {player.name}")
+            return None
+
+        # Collect performance deviations for each valid week
+        deviations = []
+
+        # Only analyze weeks that have occurred (weeks < CURRENT_NFL_WEEK)
+        for week in range(1, self.config.current_nfl_week):
+            # Get actual points from player object
+            week_attr = f'week_{week}_points'
+            if not hasattr(player, week_attr):
+                continue
+
+            actual_points = getattr(player, week_attr)
+            if actual_points is None:
+                continue
+
+            actual_points = float(actual_points)
+
+            # Skip weeks where player didn't play (actual = 0)
+            if actual_points == 0:
+                continue
+
+            # Get projected points from ProjectedPointsManager
+            projected_points = self.projected_points_manager.get_projected_points(player, week)
+            if projected_points is None:
+                continue
+
+            # IMPORTANT: Skip weeks where projected = 0.0 AND actual ≠ 0.0
+            # This prevents division by zero and skewed metrics for unprojected performances
+            if projected_points == 0.0 and actual_points != 0.0:
+                self.logger.debug(
+                    f"Skipping week {week} for {player.name}: projected=0.0 but actual={actual_points:.2f}"
+                )
+                continue
+
+            # Skip if projected is 0 (even if actual is also 0) to avoid division by zero
+            if projected_points == 0.0:
+                continue
+
+            # Calculate deviation: (actual - projected) / projected
+            deviation = (actual_points - projected_points) / projected_points
+            deviations.append(deviation)
+
+            self.logger.debug(
+                f"Week {week} performance for {player.name}: "
+                f"actual={actual_points:.2f}, projected={projected_points:.2f}, "
+                f"deviation={deviation:.3f} ({deviation*100:.1f}%)"
+            )
+
+        weeks_count = len(deviations)
+
+        # Handle insufficient data
+        min_weeks = self.config.consistency_scoring[self.config.keys.MIN_WEEKS]
+        if weeks_count < min_weeks:
+            self.logger.debug(
+                f"Insufficient performance data for {player.name}: "
+                f"{weeks_count} weeks < {min_weeks} required"
+            )
+            return None
+
+        # Calculate average deviation
+        avg_deviation = statistics.mean(deviations)
+
+        self.logger.debug(
+            f"Performance deviation for {player.name}: {avg_deviation:.3f} "
+            f"({avg_deviation*100:.1f}%) across {weeks_count} weeks"
+        )
+
+        return avg_deviation
+
+
+    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, draft_round=-1, bye=True, injury=True) -> ScoredPlayer:
+        """
+        Calculate score for a player (9-step calculation).
 
         New Scoring System:
         1. Get normalized seasonal fantasy points (0-N scale)
         2. Apply ADP multiplier
         3. Apply Player Ranking multiplier
         4. Apply Team ranking multiplier
-        5. Apply Consistency multiplier (CV-based volatility scoring)
+        5. Apply Performance multiplier (actual vs projected deviation)
         6. Apply Matchup multiplier
         7. Add DRAFT_ORDER bonus (round-based position priority)
         8. Subtract Bye Week penalty
         9. Subtract Injury penalty
 
+        Args:
+            p: FantasyPlayer to score
+            use_weekly_projection: Use weekly projection instead of rest-of-season
+            adp: Apply ADP multiplier
+            player_rating: Apply player rating multiplier
+            team_quality: Apply team quality multiplier
+            performance: Apply performance multiplier (actual vs projected deviation)
+            matchup: Apply matchup multiplier
+            draft_round: Draft round for position bonus (-1 to disable)
+            bye: Apply bye week penalty
+            injury: Apply injury penalty
+
         Returns:
-            float: Total score for the player
+            ScoredPlayer: Scored player object with final score and reasons
         """
         reasons = []
         def add_to_reasons(r : str):
@@ -569,11 +680,11 @@ class PlayerManager:
             add_to_reasons(reason)
             self.logger.debug(f"Step 4 - Team Quality Enhanced score for {p.name}: {player_score:.2f}")
 
-        # STEP 5: Apply Consistency multiplier (CV-based volatility scoring)
-        if (consistency):
-            player_score, reason = self._apply_consistency_multiplier(p, player_score)
+        # STEP 5: Apply Performance multiplier (actual vs projected deviation)
+        if (performance):
+            player_score, reason = self._apply_performance_multiplier(p, player_score)
             add_to_reasons(reason)
-            self.logger.debug(f"Step 5 - After consistency for {p.name}: {player_score:.2f}")
+            self.logger.debug(f"Step 5 - After performance for {p.name}: {player_score:.2f}")
 
         # STEP 6: Apply Matchup multiplier
         if (matchup):
@@ -642,7 +753,62 @@ class PlayerManager:
         multiplier, rating = self.config.get_consistency_multiplier(p.consistency)
         reason = f"Consistency: {rating}"
         return player_score * multiplier, reason
-    
+
+    def _apply_performance_multiplier(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
+        """
+        Apply performance-based multiplier to player score.
+
+        Performance measures actual vs projected deviation. Players who consistently
+        outperform projections get a boost, underperformers get penalized.
+
+        Thresholds (based on average deviation):
+        - < -20%: VERY_POOR (0.95x multiplier)
+        - -20% to -10%: POOR (0.975x multiplier)
+        - -10% to +10%: AVERAGE (1.0x multiplier)
+        - +10% to +20%: GOOD (1.025x multiplier)
+        - > +20%: EXCELLENT (1.05x multiplier)
+
+        Args:
+            p: FantasyPlayer to evaluate
+            player_score: Current score before performance adjustment
+
+        Returns:
+            Tuple[float, str]: (adjusted_score, reason_string)
+                - If insufficient data or DST: returns (score, "")
+                - Otherwise: returns (score * multiplier, "Performance: RATING")
+        """
+        # Calculate performance deviation
+        deviation = self._calculate_performance_deviation(p)
+
+        # If insufficient data or DST, return neutral multiplier (no change)
+        if deviation is None:
+            return player_score, ""
+
+        # Get multiplier based on deviation thresholds
+        # Use consistency_scoring config for now (will be replaced with performance_scoring in Phase 4)
+        thresholds = self.config.consistency_scoring.get('THRESHOLDS', {})
+        multipliers = self.config.consistency_scoring.get('MULTIPLIERS', {})
+
+        # Determine rating based on deviation percentage
+        if deviation < -0.20:  # < -20%
+            multiplier = multipliers.get('VERY_POOR', 0.95)
+            rating = "VERY_POOR"
+        elif deviation < -0.10:  # -20% to -10%
+            multiplier = multipliers.get('POOR', 0.975)
+            rating = "POOR"
+        elif deviation < 0.10:  # -10% to +10%
+            multiplier = 1.0  # AVERAGE - neutral
+            rating = "AVERAGE"
+        elif deviation < 0.20:  # +10% to +20%
+            multiplier = multipliers.get('GOOD', 1.025)
+            rating = "GOOD"
+        else:  # >= +20%
+            multiplier = multipliers.get('EXCELLENT', 1.05)
+            rating = "EXCELLENT"
+
+        reason = f"Performance: {rating} ({deviation*100:+.1f}%)"
+        return player_score * multiplier, reason
+
     def _apply_matchup_multiplier(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
         multiplier = 1.0
         rating = "NEUTRAL"
