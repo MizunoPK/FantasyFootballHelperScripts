@@ -180,11 +180,11 @@ class StarterHelperModeManager:
 
     This class coordinates weekly lineup optimization by scoring roster players
     using weekly projections and assembling the highest-scoring starting lineup.
-    It uses consistency and matchup multipliers to refine weekly projections.
+    It uses performance and matchup multipliers to refine weekly projections.
 
     Scoring Parameters (for weekly lineups):
     - use_weekly_projection=True: Uses week-specific projections, not seasonal
-    - consistency=True: Adjusts for player volatility/reliability
+    - performance=True: Adjusts based on actual vs projected performance
     - matchup=True: Factors in opponent defensive strength
     - adp=False, player_rating=False, team_quality=False: Not used for weekly
 
@@ -282,11 +282,11 @@ class StarterHelperModeManager:
 
         This method scores a player specifically for weekly lineup decisions,
         using weekly projections instead of seasonal projections and enabling
-        only consistency and matchup multipliers (not ADP, rating, or team quality).
+        only performance and matchup multipliers (not ADP, rating, or team quality).
 
         Scoring configuration:
         - use_weekly_projection=True: Use week-specific projection data
-        - consistency=True: Apply CV-based volatility adjustment
+        - performance=True: Apply actual vs projected performance adjustment
         - matchup=True: Apply opponent defensive strength adjustment
         - adp=False: Don't use draft position (irrelevant for in-season)
         - player_rating=False: Don't use expert ratings (irrelevant for weekly)
@@ -304,6 +304,7 @@ class StarterHelperModeManager:
             adp=False,
             player_rating=False,
             team_quality=False,
+            performance=True,
             matchup=True,
             bye=False,
             injury=False

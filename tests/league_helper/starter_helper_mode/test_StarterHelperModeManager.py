@@ -411,6 +411,7 @@ class TestStarterHelperModeManager:
             adp=False,
             player_rating=False,
             team_quality=False,
+            performance=True,
             matchup=True,
             bye=False,
             injury=False

@@ -231,6 +231,22 @@ class NFLProjectionsCollector:
             shared_file = await self.exporter.export_to_data(data)
             output_files.append(shared_file)
 
+            # Update players_projected.csv with current and future week projections
+            # Per requirement #6: Update current week and everything upcoming
+            try:
+                projected_file = await self.exporter.export_projected_points_data(
+                    data,
+                    self.settings.current_nfl_week
+                )
+                output_files.append(projected_file)
+                self.logger.info("Updated players_projected.csv with current/future week projections")
+            except FileNotFoundError as e:
+                self.logger.warning(f"Skipping players_projected.csv update: {e}")
+            except Exception as e:
+                self.logger.error(f"Error updating players_projected.csv: {e}")
+                # Don't fail the entire export if projected points update fails
+                # This is a supplementary feature for performance scoring
+
         return output_files
     
     def get_fantasy_players(self, projection_data: Dict[str, ProjectionData]) -> Dict[str, List[FantasyPlayer]]:

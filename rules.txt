@@ -1,10 +1,74 @@
 Before starting changes, ask clarifying questions by creating a questions file in the updates folder. The questions file should be named with the pattern: `{objective_name}_questions.md`. This file should contain all clarifying questions that would help better understand and complete the objective. Wait for the user to answer these questions before creating the TODO file and beginning development. If new questions arise during development, pause and add them to the questions file.
 After receiving answers to clarifying questions, create a TODO file that maps out all the tasks that will need to be completed to accomplish this objective. As you complete the tasks, keep the file updated with your progress just in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made. Put the TODO file in the todo-files folder in the updates directory.
+Immediately after creating the TODO file, create a code changes documentation file in the updates folder (NOT the done folder yet) named `{objective_name}_code_changes.md`. This file should be updated incrementally as you work through each task in the TODO file. After completing each significant change, immediately document it in the code changes file with: file paths, line numbers, before/after code snippets, rationale, and impact. This ensures the documentation stays current and accurate throughout the implementation process. The file will be moved to updates/done when the objective is complete.
 After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Test ALL unit tests across the entire repo. All tests across the entire repo must pass before we can mark an objective as complete. Make this a very clear and important TODO item.
 Create any new unit tests to cover the new implementations, and modify any relevant unit tests and test them to ensure they pass.
 Update rules files and readme files according to the new changes.
+When the objective is complete, ensure the code changes documentation file is comprehensive and finalized. It should detail all code modifications made during the implementation, including: specific file paths and line numbers, before/after code snippets, rationale for each change, impact analysis, configuration changes, test modifications, and verification of files that were checked but not modified. This serves as a complete technical reference for understanding exactly what changed and why. Move this file from updates/ to updates/done/ along with the objective file.
 Once the objective is completely done, then move the associated file in updates to the 'done' folder contained within the same updates directory. Also delete the questions file once the objective is complete.
 Be VERY systematic when creating the TODO file and proceeding with the implementation. Break the objective up into modualized components. Each phase that is outlined in the todo file should leave the repo is a state that is still testable and functional, and should run the pre-commit checklist in its entirety. Do not skip any unit tests or interactive integration tests just because you think that the tests will not be effected by the change - assume everything is at risk of breaking no matter what you do.
+
+## REQUIREMENT VERIFICATION PROTOCOL
+
+**🚨 CRITICAL: FINAL VERIFICATION BEFORE MARKING OBJECTIVE COMPLETE** - This protocol must be executed before claiming an objective is complete:
+
+### **WHEN TO EXECUTE**:
+- ✅ After all implementation work appears to be complete
+- ✅ Before moving objective files to updates/done/
+- ✅ Before deleting questions files
+- ✅ Before claiming "objective complete" to the user
+
+### **MANDATORY VERIFICATION STEPS**:
+
+**📋 STEP 1: Re-read Original Requirements File**
+- Open and read EVERY LINE of the original `updates/{objective_name}.txt` file
+- Create a checklist of EVERY requirement mentioned (numbered or implied)
+- For each requirement, verify it has been implemented
+- Mark each requirement as ✅ DONE or ❌ MISSING
+
+**📋 STEP 2: Re-read Question Answers File**
+- Open and read EVERY ANSWER in `updates/{objective_name}_questions.md`
+- Create a checklist of EVERY answer that implies implementation work
+- For each answer, verify the implementation matches what was answered
+- Mark each answer as ✅ IMPLEMENTED or ❌ NOT IMPLEMENTED
+
+**📋 STEP 3: Search Codebase for Implementation**
+- Use Grep/Glob tools to search for evidence of each requirement
+- Verify files were actually modified as required
+- Check that new files were created if specified
+- Confirm no placeholder code or TODOs remain
+
+**📋 STEP 4: Identify Missing Requirements**
+- If ANY requirement is ❌ MISSING or ❌ NOT IMPLEMENTED:
+  - STOP immediately
+  - Create a new completion TODO file: `updates/todo-files/{objective_name}_completion_todo.md`
+  - Document ALL missing requirements
+  - Implement missing requirements before proceeding
+  - Re-run this verification protocol
+
+**📋 STEP 5: Document Verification**
+- Add a "Requirements Verification" section to the code changes file
+- List each requirement and its implementation status
+- Include file paths and line numbers as evidence
+- Confirm 100% requirement coverage
+
+### **ACCEPTANCE CRITERIA**:
+- ✅ ALL requirements from original file implemented (100% coverage)
+- ✅ ALL question answers reflected in implementation
+- ✅ NO missing functionality or partial implementations
+- ✅ NO half-measures or "mostly complete" status
+- ✅ Evidence of implementation exists in codebase (files, code, tests)
+- ✅ All unit tests pass (100%)
+- ✅ Manual testing confirms functionality works
+
+### **ENFORCEMENT**:
+- **NO EXCEPTIONS**: If even ONE requirement is missing, objective is NOT complete
+- **NO PARTIAL CREDIT**: "90% complete" = incomplete, must finish remaining 10%
+- **NO ASSUMPTIONS**: Just because something seems done doesn't mean it is - verify with code
+- **RE-VERIFICATION REQUIRED**: If new requirements discovered, re-run entire protocol
+
+### **FAILURE TO VERIFY = INCOMPLETE OBJECTIVE**:
+If this protocol is not executed, or if missing requirements are discovered after claiming completion, the objective must be reopened and completed properly. The user must be notified of any missing requirements immediately.
 
 ## PRE-COMMIT VALIDATION PROTOCOL
 

@@ -46,6 +46,7 @@ class ConfigGenerator:
         'ADP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PLAYER_RATING_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'TEAM_QUALITY_SCORING_WEIGHT': (0.3, 0.0, 5.0),
+        'PERFORMANCE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
     }
 
@@ -54,6 +55,7 @@ class ConfigGenerator:
         'ADP_SCORING',
         'PLAYER_RATING_SCORING',
         'TEAM_QUALITY_SCORING',
+        'PERFORMANCE_SCORING',
         'MATCHUP_SCORING'
     ]
 
@@ -68,6 +70,7 @@ class ConfigGenerator:
         'ADP_SCORING_WEIGHT',
         'PLAYER_RATING_SCORING_WEIGHT',
         'TEAM_QUALITY_SCORING_WEIGHT',
+        'PERFORMANCE_SCORING_WEIGHT',
         'MATCHUP_SCORING_WEIGHT',
     ]
 
@@ -227,8 +230,8 @@ class ConfigGenerator:
         # TEAM QUALITY
         value_sets = self.generate_multiplier_parameter_values(value_sets, "TEAM_QUALITY_SCORING")
 
-        # CONSISTENCY
-        # value_sets = self.generate_multiplier_parameter_values(value_sets, "CONSISTENCY_SCORING")
+        # PERFORMANCE
+        value_sets = self.generate_multiplier_parameter_values(value_sets, "PERFORMANCE_SCORING")
 
         # MATCHUP
         value_sets = self.generate_multiplier_parameter_values(value_sets, "MATCHUP_SCORING")
@@ -363,7 +366,7 @@ class ConfigGenerator:
         combination['SECONDARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['SECONDARY']
 
         # WEIGHTS for each section
-        for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'MATCHUP']:
+        for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_SCORING_WEIGHT'
             combination[param_name] = params[f'{section}_SCORING']['WEIGHT']
 
@@ -393,7 +396,7 @@ class ConfigGenerator:
         params['BASE_BYE_PENALTY'] = combination['BASE_BYE_PENALTY']
         params['DRAFT_ORDER_BONUSES']['PRIMARY'] = combination['PRIMARY_BONUS']
         params['DRAFT_ORDER_BONUSES']['SECONDARY'] = combination['SECONDARY_BONUS']
-        for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'MATCHUP']:
+        for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             params[f'{parameter}_SCORING']['WEIGHT'] = combination[f'{parameter}_SCORING_WEIGHT']
         return config
 
