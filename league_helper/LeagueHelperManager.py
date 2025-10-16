@@ -25,6 +25,7 @@ from util.user_input import show_list_selection
 from add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
 from starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager
 from trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+from modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager
 
 import constants
 
@@ -47,12 +48,9 @@ class LeagueHelperManager:
         team_data_manager (TeamDataManager): Handles team rankings and matchups
         player_manager (PlayerManager): Manages player data, scoring, and roster
         add_to_roster_mode_manager (AddToRosterModeManager): Draft mode handler
-        drop_player_mode_manager (DropPlayerModeManager): Drop player handler
-        lock_player_mode_manager (LockPlayerModeManager): Lock/unlock handler
-        mark_drafted_player_mode_manager (MarkDraftedPlayerModeManager): Mark drafted handler
         starter_helper_mode_manager (StarterHelperModeManager): Weekly lineup handler
         trade_simulator_mode_manager (TradeSimulatorModeManager): Trade simulation handler
-        waiver_optimizer_mode_manager (WaiverOptimizerModeManager): Waiver optimization handler
+        modify_player_data_mode_manager (ModifyPlayerDataModeManager): Player data modification handler
     """
 
     def __init__(self, data_folder: Path):
@@ -91,6 +89,7 @@ class LeagueHelperManager:
         self.add_to_roster_mode_manager = AddToRosterModeManager(self.config, self.player_manager, self.team_data_manager)
         self.starter_helper_mode_manager = StarterHelperModeManager(self.config, self.player_manager, self.team_data_manager)
         self.trade_simulator_mode_manager = TradeSimulatorModeManager(data_folder, self.player_manager, self.config)
+        self.modify_player_data_mode_manager = ModifyPlayerDataModeManager(self.player_manager)
         self.logger.info("All mode managers initialized successfully")
 
 
@@ -170,6 +169,14 @@ class LeagueHelperManager:
         """
         self.trade_simulator_mode_manager.run_interactive_mode()
 
+    def run_modify_player_data_mode(self):
+        """
+        Delegate to Modify Player Data mode manager.
+
+        Passes current player_manager instance to the mode manager
+        to ensure it has the latest data.
+        """
+        self.modify_player_data_mode_manager.start_interactive_mode(self.player_manager)
 
 
 def main():

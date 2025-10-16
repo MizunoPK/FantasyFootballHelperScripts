@@ -439,11 +439,75 @@ SUCCESS: ALL 291 TESTS PASSED (100%)
 
 ## Phase 4: Integrate with LeagueHelperManager
 
-### Status: Not Started
+### Status: ✅ COMPLETED
 
 ### Changes Made:
 
-(Changes will be documented here as Phase 4 progresses)
+#### 1. Modified `league_helper/LeagueHelperManager.py`
+
+**File**: `league_helper/LeagueHelperManager.py`
+**Change Type**: Modified existing manager
+
+**Changes**:
+
+1. **Added Import** (Line 28):
+   - Added: `from modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager`
+
+2. **Updated Docstring** (Lines 45-53):
+   - Removed outdated attributes (drop_player_mode_manager, lock_player_mode_manager, etc.)
+   - Added: `modify_player_data_mode_manager (ModifyPlayerDataModeManager): Player data modification handler`
+
+3. **Added Manager Initialization** (Line 95):
+   - Added: `self.modify_player_data_mode_manager = ModifyPlayerDataModeManager(self.player_manager)`
+   - Placed after trade_simulator_mode_manager initialization
+   - Follows existing pattern for mode manager initialization
+
+4. **Implemented run_modify_player_data_mode()** (Lines 172-179):
+   ```python
+   def run_modify_player_data_mode(self):
+       """
+       Delegate to Modify Player Data mode manager.
+
+       Passes current player_manager instance to the mode manager
+       to ensure it has the latest data.
+       """
+       self.modify_player_data_mode_manager.start_interactive_mode(self.player_manager)
+   ```
+
+**Rationale**:
+- Line 135 already calls `self.run_modify_player_data_mode()` but method didn't exist
+- Follows existing pattern from _run_add_to_roster_mode() and _run_starter_helper_mode()
+- Passes player_manager to ensure mode has latest data (matches other mode patterns)
+- Uses public method name (not prefixed with underscore) to match existing menu call
+
+**Impact**:
+- Completes integration of Modify Player Data mode into main menu
+- Menu option 4 now fully functional
+- Follows existing LeagueHelperManager patterns for consistency
+
+### Test Results:
+
+```bash
+Running: pytest --ignore=old_structure
+--------------------------------------------------------------------------------
+SUCCESS: ALL 291 TESTS PASSED (100%)
+```
+
+- **Test count**: 291 tests (unchanged from Phase 3)
+- **Pass rate**: 100%
+- **No regressions**: All existing tests still pass
+
+### Files Modified:
+1. `league_helper/LeagueHelperManager.py` - Added import, initialization, and method (5 lines added)
+
+### Verification:
+- ✅ ModifyPlayerDataModeManager imported correctly
+- ✅ Manager initialized in __init__
+- ✅ run_modify_player_data_mode() implemented
+- ✅ Method delegates to start_interactive_mode()
+- ✅ Passes player_manager for latest data
+- ✅ All 291 tests pass (no regressions)
+- ✅ Ready for manual integration testing
 
 ---
 
