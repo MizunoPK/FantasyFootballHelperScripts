@@ -131,21 +131,309 @@ SUCCESS: ALL 240 TESTS PASSED (100%)
 
 ## Phase 2: Create PlayerSearch Utility
 
-### Status: Not Started
+### Status: ✅ COMPLETED
 
 ### Changes Made:
 
-(Changes will be documented here as Phase 2 progresses)
+#### 1. Created `league_helper/util/player_search.py`
+
+**File**: `league_helper/util/player_search.py`
+**Lines**: 1-230 (new file)
+**Change Type**: New utility module
+
+**Key Components**:
+
+1. **PlayerSearch class** - Main fuzzy search utility
+   - `__init__(players: List[FantasyPlayer])` - Initialize with player list
+   - `search_players_by_name(search_term, drafted_filter, exact_match)` - Fuzzy name search with filtering
+   - `search_players_by_name_not_available(search_term, exact_match)` - Search drafted≠0 players (for Drop mode)
+   - `interactive_search(drafted_filter, prompt, not_available)` - Interactive continuous search loop
+   - `find_players_by_drafted_status(drafted_status)` - Filter by drafted status
+   - `get_roster_players()`, `get_available_players()`, `get_drafted_players()` - Convenience methods
+
+2. **Fuzzy Search Logic**:
+   - Case-insensitive matching (`search_term.lower()`)
+   - Partial name matching (first name, last name, or full name)
+   - Word-level matching (`word.startswith(search_lower)`)
+   - Substring matching (`search_lower in name_lower`)
+
+3. **Critical Design Fixes** (from TODO re-investigation):
+   - `interactive_search()` takes `drafted_filter` parameter (NOT pre-filtered list)
+   - `search_players_by_name_not_available()` handles "drafted != 0" case for Drop Player mode
+   - `not_available` parameter in `interactive_search()` for Drop Player mode
+
+**Rationale**:
+- Extracted fuzzy search from `old_structure/draft_helper/core/player_search.py` (lines 21-267)
+- Simplified for league_helper use (removed logger, removed specific mode methods)
+- Added `search_players_by_name_not_available()` to handle Drop Player filtering requirement
+- Follows corrected design from TODO re-investigation Phase (addresses CRITICAL DESIGN FLAWS)
+
+**Impact**:
+- Provides reusable fuzzy search functionality for all 4 Modify Player Data modes
+- Supports drafted status filtering (0, 1, 2, None, and "not available")
+- Enables continuous search workflow with "Search again" option
+- Returns None when user exits (empty input or 'exit')
+
+#### 2. Created `tests/league_helper/util/test_player_search.py`
+
+**File**: `tests/league_helper/util/test_player_search.py`
+**Lines**: 1-349 (new file)
+**Change Type**: New test file
+
+**Test Coverage**: 33 tests across 4 test classes
+
+**TestPlayerSearchBasic** (7 tests):
+- `test_init_stores_players()` - Verifies __init__ stores player list
+- `test_find_players_by_drafted_status_available()` - Tests drafted=0 filtering
+- `test_find_players_by_drafted_status_drafted()` - Tests drafted=1 filtering
+- `test_find_players_by_drafted_status_roster()` - Tests drafted=2 filtering
+- `test_get_roster_players()` - Tests convenience method
+- `test_get_available_players()` - Tests convenience method
+- `test_get_drafted_players()` - Tests convenience method
+
+**TestSearchPlayersByName** (14 tests):
+- `test_search_by_full_name()` - Full name matching
+- `test_search_by_first_name()` - First name matching
+- `test_search_by_last_name()` - Last name matching
+- `test_search_by_partial_name()` - Partial name matching
+- `test_search_case_insensitive()` - Case insensitivity
+- `test_search_empty_string_returns_empty_list()` - Empty input handling
+- `test_search_no_matches_returns_empty_list()` - No match handling
+- `test_search_with_drafted_filter_available()` - drafted_filter=0
+- `test_search_with_drafted_filter_drafted()` - drafted_filter=1
+- `test_search_with_drafted_filter_roster()` - drafted_filter=2
+- `test_search_with_drafted_filter_none_returns_all()` - drafted_filter=None
+- `test_search_exact_match_true()` - Exact matching mode
+- `test_search_exact_match_partial_fails()` - Exact match rejects partials
+- `test_search_locked_players_shown()` - Locked players appear in results
+
+**TestSearchPlayersNotAvailable** (10 tests):
+- `test_search_not_available_excludes_drafted_zero()` - Excludes drafted=0
+- `test_search_not_available_includes_drafted_one()` - Includes drafted=1
+- `test_search_not_available_includes_drafted_two()` - Includes drafted=2
+- `test_search_not_available_includes_both_drafted_statuses()` - Both 1 and 2
+- `test_search_not_available_empty_string()` - Empty input handling
+- `test_search_not_available_no_matches()` - No match handling
+- `test_search_not_available_case_insensitive()` - Case insensitivity
+- `test_search_not_available_fuzzy_matching()` - Fuzzy matching works
+- `test_search_not_available_exact_match_true()` - Exact matching mode
+- `test_search_not_available_exact_match_partial_fails()` - Exact match rejects partials
+
+**TestInteractiveSearchEdgeCases** (2 tests):
+- `test_interactive_search_validates_drafted_filter_parameter()` - Signature validation
+- `test_interactive_search_validates_not_available_parameter()` - Parameter defaults
+
+**Test Results**: ✅ All 33 tests passing
+
+**Rationale**:
+- Comprehensive coverage of all search methods
+- Tests all drafted status filtering combinations
+- Validates fuzzy matching behavior (case, partial, exact)
+- Tests `search_players_by_name_not_available()` for Drop Player mode
+- Validates interactive_search() signature (critical for Phase 3)
+
+### Test Results:
+
+```bash
+Running: tests/league_helper/util/test_player_search.py
+--------------------------------------------------------------------------------
+[PASS] 33/33 tests
+
+Running: pytest --ignore=old_structure
+--------------------------------------------------------------------------------
+SUCCESS: ALL 273 TESTS PASSED (100%)
+```
+
+- **Previous test count**: 240 tests (after Phase 1)
+- **New test count**: 273 tests (+33)
+- **Pass rate**: 100%
+
+### Files Created:
+1. `league_helper/util/player_search.py` - PlayerSearch utility (230 lines)
+2. `tests/league_helper/util/test_player_search.py` - 33 tests (349 lines)
+
+### Verification:
+- ✅ PlayerSearch class initializes with player list
+- ✅ Fuzzy search works (case-insensitive, partial matching)
+- ✅ drafted_filter parameter correctly filters (0, 1, 2, None)
+- ✅ search_players_by_name_not_available() excludes drafted=0
+- ✅ interactive_search() has correct signature (drafted_filter, prompt, not_available)
+- ✅ Convenience methods (get_roster_players, etc.) work correctly
+- ✅ All 273 tests pass (100% pass rate maintained)
 
 ---
 
 ## Phase 3: Create ModifyPlayerDataModeManager
 
-### Status: Not Started
+### Status: ✅ COMPLETED
 
 ### Changes Made:
 
-(Changes will be documented here as Phase 3 progresses)
+#### 1. Created Directory Structure
+
+**Directories Created**:
+- `league_helper/modify_player_data_mode/` - New mode directory
+- `tests/league_helper/modify_player_data_mode/` - Test directory
+
+**Package Files**:
+- `league_helper/modify_player_data_mode/__init__.py` - Empty package file
+- `tests/league_helper/modify_player_data_mode/__init__.py` - Empty package file
+
+#### 2. Created `league_helper/modify_player_data_mode/ModifyPlayerDataModeManager.py`
+
+**File**: `league_helper/modify_player_data_mode/ModifyPlayerDataModeManager.py`
+**Lines**: 1-258 (new file)
+**Change Type**: New manager module
+
+**Key Components**:
+
+1. **ModifyPlayerDataModeManager class** - Main mode manager
+   - `__init__(player_manager)` - Initialize with PlayerManager
+   - `set_managers(player_manager)` - Update manager reference (pattern from AddToRosterModeManager)
+   - `start_interactive_mode(player_manager)` - Entry point with 4-option menu
+   - `_mark_player_as_drafted()` - Mark as drafted mode (drafted=0 → drafted=1)
+   - `_mark_player_as_rostered()` - Mark as rostered mode (drafted=0 → drafted=2)
+   - `_drop_player()` - Drop player mode (drafted≠0 → drafted=0)
+   - `_lock_player()` - Lock player mode (toggle locked 0↔1)
+
+2. **Main Menu Loop** (lines 65-102):
+   - Uses `show_list_selection()` for menu display
+   - 4 options: Mark as Drafted, Mark as Rostered, Drop Player, Lock Player
+   - Option 5: Return to Main Menu
+   - Error handling with try/except
+   - KeyboardInterrupt handling
+
+3. **Mark Player as Drafted Mode** (lines 104-131):
+   - Creates PlayerSearch with `self.player_manager.players`
+   - Calls `interactive_search(drafted_filter=0)` - searches only available players
+   - Sets `selected_player.drafted = 1`
+   - Calls `self.player_manager.update_players_file()`
+   - Prints: `"✓ Marked {name} as drafted by another team!"`
+   - Logs action
+   - Returns to menu (continuous mode)
+
+4. **Mark Player as Rostered Mode** (lines 133-160):
+   - Calls `interactive_search(drafted_filter=0)` - searches only available players
+   - Sets `selected_player.drafted = 2`
+   - Calls `update_players_file()`
+   - Prints: `"✓ Added {name} to your roster!"`
+   - Returns to menu
+
+5. **Drop Player Mode** (lines 162-195):
+   - Calls `interactive_search(drafted_filter=None, not_available=True)` - searches drafted≠0
+   - Stores old status for message ("your roster" or "drafted players")
+   - Sets `selected_player.drafted = 0`
+   - Calls `update_players_file()`
+   - Prints: `"✓ Dropped {name} from {old_status}!"`
+   - Returns to menu
+
+6. **Lock Player Mode** (lines 197-234):
+   - Calls `interactive_search(drafted_filter=None)` - searches all players
+   - Stores `was_locked` state
+   - Toggles: `selected_player.locked = 0 if was_locked else 1`
+   - Calls `update_players_file()`
+   - Prints: `"🔒 Locked {name}!"` or `"🔓 Unlocked {name}!"`
+   - Returns to menu
+   - **Note**: [LOCKED] indicator automatically shows via FantasyPlayer.__str__()
+
+**Rationale**:
+- Follows AddToRosterModeManager pattern for consistency
+- Uses PlayerSearch for fuzzy searching in all 4 modes
+- Implements correct drafted_filter and not_available parameters (from TODO re-investigation fixes)
+- Calls update_players_file() after each modification (requirement line 8)
+- Returns to menu after each operation for continuous workflow (requirement line 8)
+- Handles user exit gracefully (returns None from interactive_search)
+
+**Impact**:
+- Provides complete 4-mode functionality for player data modification
+- Integrates with PlayerManager for CSV persistence
+- Uses PlayerSearch for consistent fuzzy search UX across all modes
+- Follows established league_helper patterns
+
+#### 3. Created `tests/league_helper/modify_player_data_mode/test_modify_player_data_mode.py`
+
+**File**: `tests/league_helper/modify_player_data_mode/test_modify_player_data_mode.py`
+**Lines**: 1-389 (new file)
+**Change Type**: New test file
+
+**Test Coverage**: 18 tests across 6 test classes
+
+**TestModifyPlayerDataModeManagerInit** (3 tests):
+- `test_init_stores_player_manager()` - Verifies __init__ stores PlayerManager
+- `test_init_creates_logger()` - Verifies logger creation
+- `test_set_managers_updates_player_manager()` - Tests set_managers() helper
+
+**TestMarkPlayerAsDrafted** (2 tests):
+- `test_mark_player_as_drafted_sets_drafted_to_one()` - Verifies drafted=1 after marking
+- `test_mark_player_as_drafted_handles_user_exit()` - Tests graceful exit (no file update)
+
+**TestMarkPlayerAsRostered** (2 tests):
+- `test_mark_player_as_rostered_sets_drafted_to_two()` - Verifies drafted=2 after marking
+- `test_mark_player_as_rostered_handles_user_exit()` - Tests graceful exit
+
+**TestDropPlayer** (3 tests):
+- `test_drop_player_sets_drafted_to_zero_from_roster()` - Tests dropping rostered player
+- `test_drop_player_sets_drafted_to_zero_from_drafted()` - Tests dropping drafted player
+- `test_drop_player_handles_user_exit()` - Tests graceful exit
+
+**TestLockPlayer** (3 tests):
+- `test_lock_player_toggles_from_zero_to_one()` - Tests locking (0→1)
+- `test_lock_player_toggles_from_one_to_zero()` - Tests unlocking (1→0)
+- `test_lock_player_handles_user_exit()` - Tests graceful exit
+
+**TestStartInteractiveMode** (5 tests):
+- `test_start_interactive_mode_exits_on_choice_5()` - Tests menu exit
+- `test_start_interactive_mode_calls_mark_as_drafted_for_choice_1()` - Tests choice 1 routing
+- `test_start_interactive_mode_calls_mark_as_rostered_for_choice_2()` - Tests choice 2 routing
+- `test_start_interactive_mode_calls_drop_player_for_choice_3()` - Tests choice 3 routing
+- `test_start_interactive_mode_calls_lock_player_for_choice_4()` - Tests choice 4 routing
+
+**Test Results**: ✅ All 18 tests passing
+
+**Rationale**:
+- Comprehensive coverage of all 4 modes
+- Tests both success paths and user exit scenarios
+- Validates drafted/locked status changes
+- Validates update_players_file() is called
+- Validates correct search parameters (drafted_filter, not_available)
+- Tests menu navigation and routing
+
+### Test Results:
+
+```bash
+Running: tests/league_helper/modify_player_data_mode/test_modify_player_data_mode.py
+--------------------------------------------------------------------------------
+[PASS] 18/18 tests
+
+Running: pytest --ignore=old_structure
+--------------------------------------------------------------------------------
+SUCCESS: ALL 291 TESTS PASSED (100%)
+```
+
+- **Previous test count**: 273 tests (after Phase 2)
+- **New test count**: 291 tests (+18)
+- **Pass rate**: 100%
+
+### Files Created:
+1. `league_helper/modify_player_data_mode/` - New directory
+2. `league_helper/modify_player_data_mode/__init__.py` - Package file
+3. `league_helper/modify_player_data_mode/ModifyPlayerDataModeManager.py` - Manager (258 lines)
+4. `tests/league_helper/modify_player_data_mode/` - Test directory
+5. `tests/league_helper/modify_player_data_mode/__init__.py` - Package file
+6. `tests/league_helper/modify_player_data_mode/test_modify_player_data_mode.py` - Tests (389 lines)
+
+### Verification:
+- ✅ ModifyPlayerDataModeManager initializes correctly
+- ✅ 4-option menu displays and routes correctly
+- ✅ Mark as Drafted mode: drafted=0 → drafted=1
+- ✅ Mark as Rostered mode: drafted=0 → drafted=2
+- ✅ Drop Player mode: drafted≠0 → drafted=0
+- ✅ Lock Player mode: toggles locked 0↔1
+- ✅ All modes call update_players_file()
+- ✅ All modes return to menu (continuous workflow)
+- ✅ User exit handled gracefully in all modes
+- ✅ Correct search parameters used (drafted_filter, not_available)
+- ✅ All 291 tests pass (100% pass rate maintained)
 
 ---
 
