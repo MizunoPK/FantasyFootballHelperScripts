@@ -222,7 +222,15 @@ class AddToRosterModeManager:
         scored_players : List[ScoredPlayer] = []
         current_round=self._get_current_round()
         for p in available_players:
-            scored_player = self.player_manager.score_player(p, draft_round=current_round, adp=True)
+            scored_player = self.player_manager.score_player(
+                p,
+                draft_round=current_round,
+                adp=True,
+                player_rating=True,
+                team_quality=True,
+                performance=True,
+                matchup=True
+            )
             scored_players.append(scored_player)
 
         # Sort available players by score descending

@@ -128,15 +128,15 @@ class TestConfigGeneratorInitialization:
         assert 'SECONDARY_BONUS' in gen.param_definitions
         assert 'ADP_SCORING_WEIGHT' in gen.param_definitions
         assert 'PLAYER_RATING_SCORING_WEIGHT' in gen.param_definitions
-        assert 'TEAM_QUALITY_SCORING_WEIGHT' in gen.param_definitions
         assert 'MATCHUP_SCORING_WEIGHT' in gen.param_definitions
+        assert 'PERFORMANCE_SCORING_WEIGHT' in gen.param_definitions
 
     def test_parameter_order_exists(self, temp_baseline_config):
         """Test that PARAMETER_ORDER list exists and has expected length"""
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 9  # 4 scalars + 5 weights
+        assert len(gen.PARAMETER_ORDER) == 8  # 4 scalars + 4 weights
 
 
 class TestParameterValueGeneration:
@@ -252,15 +252,14 @@ class TestParameterValueGeneration:
         """Test that value sets are generated for all parameters"""
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Should have 4 scalar + 5 weight parameters
-        assert len(value_sets) == 9
+        # Should have 4 scalar + 4 weight parameters
+        assert len(value_sets) == 8
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'BASE_BYE_PENALTY' in value_sets
         assert 'PRIMARY_BONUS' in value_sets
         assert 'SECONDARY_BONUS' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
         assert 'PLAYER_RATING_SCORING_WEIGHT' in value_sets
-        assert 'TEAM_QUALITY_SCORING_WEIGHT' in value_sets
         assert 'MATCHUP_SCORING_WEIGHT' in value_sets
         assert 'PERFORMANCE_SCORING_WEIGHT' in value_sets
 
@@ -350,8 +349,8 @@ class TestCombinationGeneration:
         # Instead, test that the method structure works by checking value sets
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Verify value sets exist for all expected parameters (4 scalars + 5 weights = 9 total)
-        assert len(value_sets) == 9  # 4 scalars + 4 weights
+        # Verify value sets exist for all expected parameters (4 scalars + 4 weights = 8 total)
+        assert len(value_sets) == 8  # 4 scalars + 4 weights
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
 
@@ -451,7 +450,6 @@ class TestConfigDictCreation:
             'SECONDARY_BONUS': 45.0,
             'ADP_SCORING_WEIGHT': 1.5,
             'PLAYER_RATING_SCORING_WEIGHT': 1.3,
-            'TEAM_QUALITY_SCORING_WEIGHT': 1.2,
             'PERFORMANCE_SCORING_WEIGHT': 1.1,
             'MATCHUP_SCORING_WEIGHT': 1.4
         }
@@ -479,9 +477,10 @@ class TestConfigDictCreation:
         # Check weights for all scoring sections
         assert params['ADP_SCORING']['WEIGHT'] == 1.5
         assert params['PLAYER_RATING_SCORING']['WEIGHT'] == 1.3
-        assert params['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.2
         assert params['PERFORMANCE_SCORING']['WEIGHT'] == 1.1
         assert params['MATCHUP_SCORING']['WEIGHT'] == 1.4
+        # TEAM_QUALITY_SCORING_WEIGHT is no longer varied, should remain at baseline
+        assert params['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.0
 
     def test_create_config_dict_immutability(self, generator_and_combo):
         """Test that creating configs doesn't mutate baseline"""
@@ -590,17 +589,16 @@ class TestIterativeOptimizationSupport:
         config = generator.baseline_config
         combination = generator._extract_combination_from_config(config)
 
-        # Should have all 8 parameters
+        # Should have all 8 parameters (4 scalar + 4 weights)
         assert 'NORMALIZATION_MAX_SCALE' in combination
         assert 'BASE_BYE_PENALTY' in combination
         assert 'PRIMARY_BONUS' in combination
         assert 'SECONDARY_BONUS' in combination
         assert 'ADP_SCORING_WEIGHT' in combination
         assert 'PLAYER_RATING_SCORING_WEIGHT' in combination
-        assert 'TEAM_QUALITY_SCORING_WEIGHT' in combination
         assert 'MATCHUP_SCORING_WEIGHT' in combination
         assert 'PERFORMANCE_SCORING_WEIGHT' in combination
-        assert len(combination) == 9
+        assert len(combination) == 8
 
     def test_generate_single_parameter_configs_for_multiplier(self, generator):
         """Test generating configs for a weight parameter"""

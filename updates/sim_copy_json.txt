@@ -1,2 +1,0 @@
-Before making the new optimal json files, go check what the current NFL week is set to in the config stored in the root data folder. Update the optimal json data to match what is in the root data folder's config file for CURRENT_NFL_WEEK.
-Write the new config details to both the usual optimal_*.json file and to the league_config.json file in the root data folder. Override the league_config.json file with the latest optimal version

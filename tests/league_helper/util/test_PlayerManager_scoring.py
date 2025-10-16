@@ -608,92 +608,11 @@ class TestTeamQualityMultiplier:
 
 
 # ============================================================================
-# STEP 5: CONSISTENCY MULTIPLIER TESTS (BUG FIX VERIFICATION)
+# STEP 5: PERFORMANCE MULTIPLIER TESTS
 # ============================================================================
-
-class TestConsistencyMultiplier:
-    """Test Step 5: Consistency multiplier - VERIFY BUG FIX"""
-
-    def test_consistency_excellent_low_cv(self, player_manager, test_player):
-        """CV <= 0.2 should get EXCELLENT (1.50) - LOW CV is GOOD!"""
-        test_player.consistency = 0.15
-        base_score = 100.0
-        result, reason = player_manager._apply_consistency_multiplier(test_player, base_score)
-        assert result == 100.0 * 1.50, "Low CV should get best multiplier"
-        assert reason == "Consistency: EXCELLENT"
-
-    def test_consistency_good_cv(self, player_manager, test_player):
-        """0.2 < CV <= 0.4 should get GOOD (1.20)"""
-        test_player.consistency = 0.35
-        base_score = 100.0
-        result, reason = player_manager._apply_consistency_multiplier(test_player, base_score)
-        assert result == 100.0 * 1.20
-        assert reason == "Consistency: GOOD"
-
-    def test_consistency_neutral_cv(self, player_manager, test_player):
-        """0.4 < CV < 0.6 should get NEUTRAL (1.0)"""
-        test_player.consistency = 0.5
-        base_score = 100.0
-        result, reason = player_manager._apply_consistency_multiplier(test_player, base_score)
-        assert result == 100.0 * 1.0
-        assert reason == "Consistency: NEUTRAL"
-
-    def test_consistency_poor_cv(self, player_manager, test_player):
-        """0.6 <= CV < 0.8 should get POOR (0.80)"""
-        test_player.consistency = 0.7
-        base_score = 100.0
-        result, reason = player_manager._apply_consistency_multiplier(test_player, base_score)
-        assert result == 100.0 * 0.80
-        assert reason == "Consistency: POOR"
-
-    def test_consistency_very_poor_high_cv(self, player_manager, test_player):
-        """CV >= 0.8 should get VERY_POOR (0.60) - HIGH CV is BAD!"""
-        test_player.consistency = 0.9
-        base_score = 100.0
-        result, reason = player_manager._apply_consistency_multiplier(test_player, base_score)
-        assert result == 100.0 * 0.60, "High CV should get worst multiplier"
-        assert reason == "Consistency: VERY_POOR"
-
-    def test_consistency_insufficient_data_default(self, player_manager, test_player):
-        """CV = 0.5 (insufficient data) should return NEUTRAL (1.0) - BUG FIX"""
-        test_player.consistency = 0.5
-        base_score = 100.0
-        result, reason = player_manager._apply_consistency_multiplier(test_player, base_score)
-        # The bug fix adds special handling for 0.5 to return 1.0
-        assert result == 100.0 * 1.0, "Insufficient data default should be neutral"
-        assert reason == "Consistency: NEUTRAL"
-
-    def test_consistency_calculation_sufficient_data(self, player_manager, test_player):
-        """Test _calculate_consistency with sufficient weekly data"""
-        # Set up 5 weeks of data (> MIN_WEEKS = 3)
-        test_player.week_1_points = 20.0
-        test_player.week_2_points = 22.0
-        test_player.week_3_points = 19.0
-        test_player.week_4_points = 21.0
-        test_player.week_5_points = 20.5
-
-        cv, weeks_count = player_manager._calculate_consistency(test_player)
-
-        assert weeks_count == 5
-        assert 0 <= cv <= 1  # CV should be in valid range
-        assert cv < 0.5  # This data is pretty consistent, CV should be low
-
-    def test_consistency_calculation_insufficient_data(self, player_manager):
-        """Test _calculate_consistency with insufficient data returns 0.5"""
-        # Create a new player with only 2 weeks of data (< MIN_WEEKS = 3)
-        player = FantasyPlayer(
-            id=999,
-            name="Insufficient Data Player",
-            team="KC",
-            position="RB",
-            week_1_points=20.0,
-            week_2_points=22.0
-        )
-
-        cv, weeks_count = player_manager._calculate_consistency(player)
-
-        assert weeks_count == 2
-        assert cv == 0.5, "Insufficient data should return default CV of 0.5"
+# Note: Performance scoring replaced the old consistency scoring feature.
+# Performance measures actual vs projected deviation, not coefficient of variation.
+# Tests for performance multiplier are in a separate test file.
 
 
 # ============================================================================

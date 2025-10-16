@@ -205,16 +205,23 @@ class SimulatedLeague:
         Run snake draft for all 10 teams.
 
         Draft process:
-        1. Randomize initial draft order
-        2. Run 15 rounds (150 total picks)
-        3. Snake order: Round 1 (1→10), Round 2 (10→1), Round 3 (1→10), etc.
-        4. After each pick, broadcast to all teams to mark player as drafted
+        1. Set all teams to week 1 (draft occurs before season, no performance history)
+        2. Randomize initial draft order
+        3. Run 15 rounds (150 total picks)
+        4. Snake order: Round 1 (1→10), Round 2 (10→1), Round 3 (1→10), etc.
+        5. After each pick, broadcast to all teams to mark player as drafted
 
         Side Effects:
             - Each team ends up with 15 players
             - All teams' PlayerManagers have consistent drafted status
+            - All teams' configs set to week 1 during draft (reset to proper week during season)
         """
         self.logger.debug("Starting draft simulation")
+
+        # Set all teams to week 1 for draft (no performance history yet)
+        for team in self.teams:
+            team.config.current_nfl_week = 1
+        self.logger.debug("Set all teams to week 1 for draft (no performance history)")
 
         # Randomize initial draft order
         self.draft_order = self.teams.copy()

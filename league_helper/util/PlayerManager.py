@@ -350,13 +350,18 @@ class PlayerManager:
     def draft_player(self, player_to_draft : FantasyPlayer) -> bool:
         return self.team.draft_player(player_to_draft)
     
-    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_scores : Dict[str,float] = {}) -> List[FantasyPlayer]:
+    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_scores : Dict[str,float] = {}, unlocked_only=False) -> List[FantasyPlayer]:
+        def is_unlocked(val):
+            if unlocked_only:
+                return val == 0
+            return True
+        
         for pos in Constants.ALL_POSITIONS:
             if pos not in min_scores:
                 min_scores[pos] = 0.0
         player_list = [
             p for p in self.players
-            if p.drafted in drafted_vals and p.score >= min_scores[p.position]
+            if p.drafted in drafted_vals and p.score >= min_scores[p.position] and is_unlocked(p.locked)
         ]
         if can_draft:
             player_list = [
@@ -622,7 +627,7 @@ class PlayerManager:
         return avg_deviation
 
 
-    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, draft_round=-1, bye=True, injury=True) -> ScoredPlayer:
+    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
         """
         Calculate score for a player (9-step calculation).
 
@@ -648,6 +653,7 @@ class PlayerManager:
             draft_round: Draft round for position bonus (-1 to disable)
             bye: Apply bye week penalty
             injury: Apply injury penalty
+            roster: Optional custom roster to use for bye week calculations (defaults to self.team.roster)
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
@@ -702,7 +708,7 @@ class PlayerManager:
 
         # STEP 8: Subtract Bye Week penalty
         if (bye):
-            player_score, reason = self._apply_bye_week_penalty(p, player_score)
+            player_score, reason = self._apply_bye_week_penalty(p, player_score, roster)
             add_to_reasons(reason)
             self.logger.debug(f"Step 8 - After bye penalty for {p.name}: {player_score:.2f}")
 
@@ -749,11 +755,6 @@ class PlayerManager:
         reason = f"Team Quality: {rating}"
         return player_score * multiplier, reason
     
-    def _apply_consistency_multiplier(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
-        multiplier, rating = self.config.get_consistency_multiplier(p.consistency)
-        reason = f"Consistency: {rating}"
-        return player_score * multiplier, reason
-
     def _apply_performance_multiplier(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
         """
         Apply performance-based multiplier to player score.
@@ -784,27 +785,8 @@ class PlayerManager:
         if deviation is None:
             return player_score, ""
 
-        # Get multiplier based on deviation thresholds
-        # Use consistency_scoring config for now (will be replaced with performance_scoring in Phase 4)
-        thresholds = self.config.consistency_scoring.get('THRESHOLDS', {})
-        multipliers = self.config.consistency_scoring.get('MULTIPLIERS', {})
-
-        # Determine rating based on deviation percentage
-        if deviation < -0.20:  # < -20%
-            multiplier = multipliers.get('VERY_POOR', 0.95)
-            rating = "VERY_POOR"
-        elif deviation < -0.10:  # -20% to -10%
-            multiplier = multipliers.get('POOR', 0.975)
-            rating = "POOR"
-        elif deviation < 0.10:  # -10% to +10%
-            multiplier = 1.0  # AVERAGE - neutral
-            rating = "AVERAGE"
-        elif deviation < 0.20:  # +10% to +20%
-            multiplier = multipliers.get('GOOD', 1.025)
-            rating = "GOOD"
-        else:  # >= +20%
-            multiplier = multipliers.get('EXCELLENT', 1.05)
-            rating = "EXCELLENT"
+        # Get multiplier and rating from ConfigManager
+        multiplier, rating = self.config.get_performance_multiplier(deviation)
 
         reason = f"Performance: {rating} ({deviation*100:+.1f}%)"
         return player_score * multiplier, reason
@@ -824,8 +806,34 @@ class PlayerManager:
             reason = f"Draft Order Bonus: {bonus_type}"
         return player_score + bonus, reason
     
-    def _apply_bye_week_penalty(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:
-        num_matching_byes = self.team.get_matching_byes_in_roster(p.bye_week, p.position, p.is_rostered())
+    def _apply_bye_week_penalty(self, p : FantasyPlayer, player_score : float, roster: Optional[List[FantasyPlayer]] = None) -> Tuple[float, str]:
+        """
+        Apply bye week penalty based on roster conflicts.
+
+        Args:
+            p: Player to evaluate
+            player_score: Current player score
+            roster: Optional custom roster to check for bye week conflicts. If None, uses self.team.roster
+
+        Returns:
+            Tuple[float, str]: (adjusted_score, reason_string)
+        """
+        # If custom roster provided, count matches manually
+        if roster is not None:
+            num_matching_byes = 0
+            is_rostered = p in roster
+
+            for roster_player in roster:
+                if roster_player.bye_week == p.bye_week and roster_player.position == p.position:
+                    num_matching_byes += 1
+
+            # If the player is already in the roster, don't count them as a match
+            if is_rostered:
+                num_matching_byes -= 1
+        else:
+            # Use the default FantasyTeam method
+            num_matching_byes = self.team.get_matching_byes_in_roster(p.bye_week, p.position, p.is_rostered())
+
         penalty = self.config.get_bye_week_penalty(num_matching_byes)
         reason = "" if num_matching_byes == 0 else f"Number of Matching Bye Weeks: {num_matching_byes}"
         return player_score - penalty, reason

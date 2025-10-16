@@ -1,3 +1,0 @@
-Update to ensure that any players marked as locked=1 are prevented from being considered for trades on any side
-During init, can probably just prevent those players from being saved to team data
-During waiver mode, can probably update the function that gets the waiver list to prevent locked players from being pulled in

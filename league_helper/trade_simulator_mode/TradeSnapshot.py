@@ -4,14 +4,26 @@ from typing import Dict, Any, List
 import sys
 from trade_simulator_mode.TradeSimTeam import TradeSimTeam
 
-sys.path.append(str(Path(__file__).parent.parent.parent))
-from utils.FantasyPlayer import FantasyPlayer
+sys.path.append(str(Path(__file__).parent.parent))
+from util.ScoredPlayer import ScoredPlayer
 
 class TradeSnapshot:
 
-    def __init__(self, my_new_team : TradeSimTeam, my_new_players : List[FantasyPlayer],
-                 their_new_team : TradeSimTeam, their_new_players : List[FantasyPlayer]):
+    def __init__(self, my_new_team : TradeSimTeam, my_new_players : List[ScoredPlayer],
+                 their_new_team : TradeSimTeam, their_new_players : List[ScoredPlayer],
+                 my_original_players : List[ScoredPlayer] = None):
+        """
+        Trade snapshot storing both new team state and original player scores.
+
+        Args:
+            my_new_team: My team after the trade
+            my_new_players: Players I receive (scored in new team context)
+            their_new_team: Their team after the trade
+            their_new_players: Players they receive (scored in new team context)
+            my_original_players: Players I give up (scored in original team context)
+        """
         self.my_new_team = my_new_team
         self.my_new_players = my_new_players
         self.their_new_team = their_new_team
         self.their_new_players = their_new_players
+        self.my_original_players = my_original_players if my_original_players is not None else []

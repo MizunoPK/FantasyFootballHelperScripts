@@ -1,8 +1,8 @@
 """
 Configuration Generator
 
-Generates parameter combinations for simulation optimization. Creates 46,656
-different configurations (6^6) by varying 6 key parameters, with 6 values per
+Generates parameter combinations for simulation optimization. Creates 7,776
+different configurations (6^5) by varying 5 key parameters, with 6 values per
 parameter (optimal + 5 random variations).
 
 Parameters Varied:
@@ -10,6 +10,7 @@ Parameters Varied:
 - BASE_BYE_PENALTY: ±10 from optimal, bounded [0, 40]
 - DRAFT_ORDER_BONUSES.PRIMARY: ±20 from optimal, bounded [25, 100]
 - DRAFT_ORDER_BONUSES.SECONDARY: ±20 from optimal, bounded [25, 75]
+- ADP_SCORING_WEIGHT, PLAYER_RATING_SCORING_WEIGHT, PERFORMANCE_SCORING_WEIGHT, MATCHUP_SCORING_WEIGHT
 
 Author: Kai Mizuno
 Date: 2024
@@ -45,7 +46,6 @@ class ConfigGenerator:
         'SECONDARY_BONUS': (10.0, 0.0, 75.0),
         'ADP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PLAYER_RATING_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'TEAM_QUALITY_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PERFORMANCE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
     }
@@ -54,7 +54,6 @@ class ConfigGenerator:
     SCORING_SECTIONS = [
         'ADP_SCORING',
         'PLAYER_RATING_SCORING',
-        'TEAM_QUALITY_SCORING',
         'PERFORMANCE_SCORING',
         'MATCHUP_SCORING'
     ]
@@ -62,6 +61,7 @@ class ConfigGenerator:
     # Parameter ordering for iterative optimization
     # Scalar parameters first, then weights by section
     PARAMETER_ORDER = [
+        'PERFORMANCE_SCORING_WEIGHT',
         'NORMALIZATION_MAX_SCALE',
         'BASE_BYE_PENALTY',
         'PRIMARY_BONUS',
@@ -69,8 +69,6 @@ class ConfigGenerator:
         # Multiplier Weights
         'ADP_SCORING_WEIGHT',
         'PLAYER_RATING_SCORING_WEIGHT',
-        'TEAM_QUALITY_SCORING_WEIGHT',
-        'PERFORMANCE_SCORING_WEIGHT',
         'MATCHUP_SCORING_WEIGHT',
     ]
 
@@ -177,7 +175,7 @@ class ConfigGenerator:
 
     def generate_all_parameter_value_sets(self) -> Dict[str, List[float]]:
         """
-        Generate value sets for all 6 parameters.
+        Generate value sets for all 8 parameters (4 scalar + 4 weights).
 
         Returns:
             Dict[str, List[float]]: {param_name: [N+1 values]} where N = num_test_values
@@ -227,9 +225,6 @@ class ConfigGenerator:
         # PLAYER RATING
         value_sets = self.generate_multiplier_parameter_values(value_sets, "PLAYER_RATING_SCORING")
 
-        # TEAM QUALITY
-        value_sets = self.generate_multiplier_parameter_values(value_sets, "TEAM_QUALITY_SCORING")
-
         # PERFORMANCE
         value_sets = self.generate_multiplier_parameter_values(value_sets, "PERFORMANCE_SCORING")
 
@@ -244,7 +239,7 @@ class ConfigGenerator:
         Generate all parameter combinations using itertools.product.
 
         Returns:
-            List[Dict[str, float]]: All combinations, each a dict with 6 params
+            List[Dict[str, float]]: All combinations, each a dict with 8 params
 
         Example:
             >>> combinations = gen.generate_all_combinations()
@@ -366,7 +361,7 @@ class ConfigGenerator:
         combination['SECONDARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['SECONDARY']
 
         # WEIGHTS for each section
-        for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
+        for section in ['ADP', 'PLAYER_RATING', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_SCORING_WEIGHT'
             combination[param_name] = params[f'{section}_SCORING']['WEIGHT']
 
@@ -396,7 +391,7 @@ class ConfigGenerator:
         params['BASE_BYE_PENALTY'] = combination['BASE_BYE_PENALTY']
         params['DRAFT_ORDER_BONUSES']['PRIMARY'] = combination['PRIMARY_BONUS']
         params['DRAFT_ORDER_BONUSES']['SECONDARY'] = combination['SECONDARY_BONUS']
-        for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
+        for parameter in ['ADP', 'PLAYER_RATING', 'PERFORMANCE', 'MATCHUP']:
             params[f'{parameter}_SCORING']['WEIGHT'] = combination[f'{parameter}_SCORING_WEIGHT']
         return config
 
@@ -408,11 +403,11 @@ class ConfigGenerator:
             List[dict]: All configurations ready for simulation
 
         Note:
-            Total configs = (num_test_values + 1)^6
+            Total configs = (num_test_values + 1)^8
             Each config is ~10KB
-            Example: 6^6 = 46,656 configs = ~450MB memory
+            Example: 6^8 = 1,679,616 configs = ~16GB memory
         """
-        total_configs = (self.num_test_values + 1) ** 6
+        total_configs = (self.num_test_values + 1) ** 8
         self.logger.info(f"Generating all {total_configs:,} complete configurations")
 
         combinations = self.generate_all_combinations()

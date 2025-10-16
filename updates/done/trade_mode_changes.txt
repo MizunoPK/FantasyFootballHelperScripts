@@ -1,0 +1,9 @@
+Here are a list of changes I want made to the various trade modes...
+For the Manual Trade Visualizer, I want to update the flow such that:
+Step 1: Select the team to trade with
+Step 2: Show my entire roster, then their entire roster. My roster will be numbered 1-15, and theirs numbered 16-30. Have the display be organized by position in the order of QB, RB, WR, TE, K, DST, then ordered by score
+Step 3: The user types out the numbers of all players they would like to have in the trade. So typing something like '2,6,18,21' would trade players 2 and 6 from my team and players 18 and 21 from their team
+Step 4: The trade is processed and the results displayed as normal
+If the trade is not possible due to position constraints, then alert the user and go back to Step 2.
+
+For the Trade Suggestor and Waiver Optimizer, have the resulting file output be named "trade_info_{timestamp}.txt" or "waiver_info_{timestamp}.txt" respectively

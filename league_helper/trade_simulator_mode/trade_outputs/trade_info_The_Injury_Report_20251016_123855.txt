@@ -1,0 +1,36 @@
+Trade with The Injury Report
+  My improvement: +106.35 pts (New score: 1288.63)
+  Their improvement: -21.62 pts (New score: 1060.20)
+  I give:
+    - [QB] [KC] Patrick Mahomes - 148.98 pts (Bye=10)
+            - Projected: 223.22 pts, Weighted: 134.33 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: EXCELLENT (+33.5%)
+    - [WR] [SEA] Jaxon Smith-Njigba - 149.79 pts (Bye=8)
+            - Projected: 210.96 pts, Weighted: 126.95 pts
+            - Player Rating: EXCELLENT
+            - Team Quality: EXCELLENT
+            - Performance: EXCELLENT (+31.6%)
+    - [RB] [NE] TreVeyon Henderson - 28.64 pts (Bye=14)
+            - Projected: 114.00 pts, Weighted: 68.61 pts
+            - Player Rating: EXCELLENT
+            - Team Quality: NEUTRAL
+            - Performance: VERY_POOR (-21.0%)
+            - Number of Matching Bye Weeks: 1
+  I receive:
+    - [QB] [BUF] Josh Allen - 146.98 pts (Bye=7)
+            - Projected: 215.44 pts, Weighted: 129.65 pts
+            - Player Rating: EXCELLENT
+            - Team Quality: EXCELLENT
+            - Performance: NEUTRAL (-8.9%)
+    - [RB] [NYJ] Breece Hall - 104.53 pts (Bye=9)
+            - Projected: 171.02 pts, Weighted: 102.92 pts
+            - Player Rating: GOOD
+            - Team Quality: VERY_POOR
+            - Performance: POOR (-15.6%)
+    - [WR] [DAL] CeeDee Lamb - 137.59 pts (Bye=10)
+            - Projected: 197.65 pts, Weighted: 118.94 pts
+            - Player Rating: EXCELLENT
+            - Team Quality: EXCELLENT
+            - Performance: GOOD (+18.5%)

@@ -231,8 +231,9 @@ class TestTradeSnapshotConstruction:
         my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
         their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
 
-        my_new_players = [sample_players[5]]
-        their_new_players = [sample_players[0]]
+        # Get scored players from the correct teams (players must be in the team's roster to be scored)
+        my_new_players = their_team.get_scored_players([sample_players[5]])
+        their_new_players = my_team.get_scored_players([sample_players[0]])
 
         snapshot = TradeSnapshot(my_team, my_new_players, their_team, their_new_players)
 
@@ -246,8 +247,9 @@ class TestTradeSnapshotConstruction:
         my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
         their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
 
-        my_new_players = [sample_players[5], sample_players[6]]
-        their_new_players = [sample_players[0], sample_players[1]]
+        # Get scored players from the correct teams (players must be in the team's roster to be scored)
+        my_new_players = their_team.get_scored_players([sample_players[5], sample_players[6]])
+        their_new_players = my_team.get_scored_players([sample_players[0], sample_players[1]])
 
         snapshot = TradeSnapshot(my_team, my_new_players, their_team, their_new_players)
 
@@ -259,8 +261,9 @@ class TestTradeSnapshotConstruction:
         my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
         their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
 
-        my_new_players = [sample_players[5]]
-        their_new_players = [sample_players[0]]
+        # Get scored players from the correct teams (players must be in the team's roster to be scored)
+        my_new_players = their_team.get_scored_players([sample_players[5]])
+        their_new_players = my_team.get_scored_players([sample_players[0]])
 
         snapshot = TradeSnapshot(my_team, my_new_players, their_team, their_new_players)
 
@@ -641,9 +644,9 @@ class TestTradeSuggestor:
                     # Check parameters of first call
                     call_args = mock_get.call_args_list[0][1]
                     assert call_args['is_waivers'] == False
-                    assert call_args['one_for_one'] == False
+                    assert call_args['one_for_one'] == True
                     assert call_args['two_for_two'] == True
-                    assert call_args['three_for_three'] == False
+                    assert call_args['three_for_three'] == True
 
 
 # =============================================================================
