@@ -151,6 +151,7 @@ class TradeSimulatorModeManager:
         waiver_team = TradeSimTeam("Waiver Wire", waiver_players, self.player_manager, isOpponent=True)
 
         # Get all possible waiver pickups (1-for-1, 2-for-2, and 3-for-3)
+        # Waiver optimizer must respect max position limits
         self.logger.info("Generating trade combinations...")
         trade_combos = self.get_trade_combinations(
             my_team=self.my_team,
@@ -158,7 +159,8 @@ class TradeSimulatorModeManager:
             is_waivers=True,
             one_for_one=True,
             two_for_two=True,
-            three_for_three=False
+            three_for_three=False,
+            ignore_max_positions=False
         )
 
         self.logger.info(f"Found {len(trade_combos)} valid waiver pickups")
@@ -228,13 +230,15 @@ class TradeSimulatorModeManager:
             print(f"  Checking trades with {opponent_team.name}...")
 
             # Get trade combinations (both 1-for-1 and 2-for-2)
+            # Trade suggestor ignores max position limits to allow more creative trades
             trade_combos = self.get_trade_combinations(
                 my_team=self.my_team,
                 their_team=opponent_team,
                 is_waivers=False,
                 one_for_one=True,
                 two_for_two=True,
-                three_for_three=True
+                three_for_three=True,
+                ignore_max_positions=True
             )
 
             all_trades.extend(trade_combos)
@@ -839,7 +843,8 @@ class TradeSimulatorModeManager:
         return True
 
     def get_trade_combinations(self, my_team : TradeSimTeam, their_team : TradeSimTeam, is_waivers = False,
-                               one_for_one : bool = True, two_for_two : bool = True, three_for_three : bool = False) -> List[TradeSnapshot]:
+                               one_for_one : bool = True, two_for_two : bool = True, three_for_three : bool = False,
+                               ignore_max_positions : bool = False) -> List[TradeSnapshot]:
         """
         Generate all valid trade combinations between two teams.
 
@@ -850,6 +855,7 @@ class TradeSimulatorModeManager:
             one_for_one (bool): If True, generate 1-for-1 trades
             two_for_two (bool): If True, generate 2-for-2 trades
             three_for_three (bool): If True, generate 3-for-3 trades
+            ignore_max_positions (bool): If True, skip max position validation (for trade suggestor/visualizer)
 
         Returns:
             List[TradeSnapshot]: List of all valid trade scenarios
@@ -869,11 +875,11 @@ class TradeSimulatorModeManager:
                     their_new_roster = [p for p in their_roster if p.id != their_player.id] + [my_player]
 
                     # Validate my team's roster (always required)
-                    if not self._validate_roster(my_new_roster):
+                    if not self._validate_roster(my_new_roster, ignore_max_positions=ignore_max_positions):
                         continue
 
                     # Validate their team's roster (only if not waivers)
-                    if not is_waivers and not self._validate_roster(their_new_roster):
+                    if not is_waivers and not self._validate_roster(their_new_roster, ignore_max_positions=ignore_max_positions):
                         continue
 
                     # Create new TradeSimTeam objects with updated rosters
@@ -910,11 +916,11 @@ class TradeSimulatorModeManager:
                     their_new_roster = [p for p in their_roster if p not in their_players] + list(my_players)
 
                     # Validate my team's roster (always required)
-                    if not self._validate_roster(my_new_roster):
+                    if not self._validate_roster(my_new_roster, ignore_max_positions=ignore_max_positions):
                         continue
 
                     # Validate their team's roster (only if not waivers)
-                    if not is_waivers and not self._validate_roster(their_new_roster):
+                    if not is_waivers and not self._validate_roster(their_new_roster, ignore_max_positions=ignore_max_positions):
                         continue
 
                     # Create new TradeSimTeam objects with updated rosters
@@ -951,11 +957,11 @@ class TradeSimulatorModeManager:
                     their_new_roster = [p for p in their_roster if p not in their_players] + list(my_players)
 
                     # Validate my team's roster (always required)
-                    if not self._validate_roster(my_new_roster):
+                    if not self._validate_roster(my_new_roster, ignore_max_positions=ignore_max_positions):
                         continue
 
                     # Validate their team's roster (only if not waivers)
-                    if not is_waivers and not self._validate_roster(their_new_roster):
+                    if not is_waivers and not self._validate_roster(their_new_roster, ignore_max_positions=ignore_max_positions):
                         continue
 
                     # Create new TradeSimTeam objects with updated rosters

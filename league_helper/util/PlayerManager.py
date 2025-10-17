@@ -22,7 +22,9 @@ The 9-step scoring algorithm:
 5. Consistency Multiplier (CV-based volatility)
 6. Matchup Multiplier (opponent strength)
 7. Draft Order Bonus (positional value by round)
-8. Bye Week Penalty (roster conflicts)
+8. Bye Week Penalty (same-position and different-position roster conflicts)
+   - BASE_BYE_PENALTY applied per same-position overlap
+   - DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY applied per different-position overlap
 9. Injury Penalty (risk assessment)
 
 Author: Kai Mizuno
@@ -236,8 +238,8 @@ class PlayerManager:
                 player.is_starter = False  # To be set when added to FantasyTeam
 
         # Calculate baseline scores for all players (now that max_projection is set)
-        for player in players:
-            player.score = self.score_player(player, bye=False).score
+        # for player in players:
+        #     player.score = self.score_player(player, bye=False).score
 
         self.logger.debug(f"Loaded {len(players)} players from {self.file_str}.")
 
@@ -402,6 +404,35 @@ class PlayerManager:
 
     def display_roster(self):
         self.team.display_roster()
+
+    def display_scored_roster(self):
+        """
+        Display scored roster players with their scoring details.
+
+        Shows each rostered player with their score and the reasons
+        contributing to that score. Recalculates scores with bye penalties
+        enabled to show how roster conflicts affect each player's value.
+        """
+        if not self.team.roster:
+            print("\nNo players on roster yet.")
+            return
+
+        print("\n" + "="*80)
+        print("SCORED ROSTER PLAYERS")
+        print("="*80)
+
+        # Recalculate scores with bye penalties enabled for display
+        scored_players = []
+        for player in self.team.roster:
+            scored_player = self.score_player(player, bye=True)
+            scored_players.append(scored_player)
+
+        # Sort by score (highest first) for better readability
+        scored_players.sort(key=lambda sp: sp.score, reverse=True)
+
+        for scored_player in scored_players:
+            print(str(scored_player))
+            print()  # Add blank line between players
 
     def get_lowest_scores_on_roster(self):
         lowest_scores = {
@@ -627,7 +658,7 @@ class PlayerManager:
         return avg_deviation
 
 
-    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
+    def score_player(self, p : FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
         """
         Calculate score for a player (9-step calculation).
 
@@ -810,6 +841,10 @@ class PlayerManager:
         """
         Apply bye week penalty based on roster conflicts.
 
+        Counts both same-position and different-position bye week overlaps separately,
+        applying BASE_BYE_PENALTY for same-position conflicts and
+        DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY for different-position conflicts.
+
         Args:
             p: Player to evaluate
             player_score: Current player score
@@ -818,24 +853,35 @@ class PlayerManager:
         Returns:
             Tuple[float, str]: (adjusted_score, reason_string)
         """
-        # If custom roster provided, count matches manually
-        if roster is not None:
-            num_matching_byes = 0
-            is_rostered = p in roster
+        # Determine which roster to use
+        roster_to_check = roster if roster is not None else self.team.roster
 
-            for roster_player in roster:
-                if roster_player.bye_week == p.bye_week and roster_player.position == p.position:
-                    num_matching_byes += 1
+        # Count same-position and different-position overlaps separately
+        num_same_position = 0
+        num_different_position = 0
 
-            # If the player is already in the roster, don't count them as a match
-            if is_rostered:
-                num_matching_byes -= 1
+        for roster_player in roster_to_check:
+            # Skip the player being scored
+            if roster_player.id == p.id:
+                continue
+
+            # Check for bye week match
+            if roster_player.bye_week == p.bye_week:
+                # Compare positions (use actual position, not FLEX)
+                if roster_player.position == p.position:
+                    num_same_position += 1
+                else:
+                    num_different_position += 1
+
+        # Calculate combined penalty
+        penalty = self.config.get_bye_week_penalty(num_same_position, num_different_position)
+
+        # Build reason string
+        if num_same_position == 0 and num_different_position == 0:
+            reason = ""
         else:
-            # Use the default FantasyTeam method
-            num_matching_byes = self.team.get_matching_byes_in_roster(p.bye_week, p.position, p.is_rostered())
+            reason = f"Bye Overlaps: {num_same_position} same-position, {num_different_position} different-position"
 
-        penalty = self.config.get_bye_week_penalty(num_matching_byes)
-        reason = "" if num_matching_byes == 0 else f"Number of Matching Bye Weeks: {num_matching_byes}"
         return player_score - penalty, reason
 
     def _apply_injury_penalty(self, p : FantasyPlayer, player_score : float) -> Tuple[float, str]:

@@ -21,6 +21,8 @@ sys.path.append(str(Path(__file__).parent.parent))
 from util.PlayerManager import PlayerManager
 from util.player_search import PlayerSearch
 from util.user_input import show_list_selection
+from util.DraftedDataWriter import DraftedDataWriter
+import constants as Constants
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
@@ -30,15 +32,22 @@ from utils.FantasyPlayer import FantasyPlayer
 class ModifyPlayerDataModeManager:
     """Manages the Modify Player Data interactive mode with 4 sub-modes."""
 
-    def __init__(self, player_manager: PlayerManager):
+    def __init__(self, player_manager: PlayerManager, data_folder: Path = None):
         """
         Initialize the Modify Player Data Mode Manager.
 
         Args:
             player_manager: PlayerManager instance with player data
+            data_folder: Path to data directory (optional, defaults to ../data relative to this file)
         """
         self.player_manager = player_manager
         self.logger = get_logger()
+
+        # Initialize drafted data writer
+        if data_folder is None:
+            data_folder = Path(__file__).parent.parent.parent / "data"
+        self.drafted_data_writer = DraftedDataWriter(data_folder / "drafted_data.csv")
+
         self.logger.info("Initializing Modify Player Data Mode Manager")
 
     def set_managers(self, player_manager: PlayerManager):
@@ -70,7 +79,6 @@ class ModifyPlayerDataModeManager:
                     "MODIFY PLAYER DATA",
                     [
                         "Mark Player as Drafted",
-                        "Mark Player as Rostered",
                         "Drop Player",
                         "Lock Player"
                     ],
@@ -81,15 +89,12 @@ class ModifyPlayerDataModeManager:
                     self.logger.info("User selected: Mark Player as Drafted")
                     self._mark_player_as_drafted()
                 elif choice == 2:
-                    self.logger.info("User selected: Mark Player as Rostered")
-                    self._mark_player_as_rostered()
-                elif choice == 3:
                     self.logger.info("User selected: Drop Player")
                     self._drop_player()
-                elif choice == 4:
+                elif choice == 3:
                     self.logger.info("User selected: Lock Player")
                     self._lock_player()
-                elif choice == 5:
+                elif choice == 4:
                     print("Returning to Main Menu...")
                     self.logger.info("User exited Modify Player Data mode")
                     break
@@ -107,9 +112,12 @@ class ModifyPlayerDataModeManager:
 
     def _mark_player_as_drafted(self):
         """
-        Mark a player as drafted by another team (drafted=0 → drafted=1).
+        Mark a player as drafted by a team (drafted=0 → drafted=1 or drafted=2).
 
         Searches only available players (drafted=0).
+        After selecting a player, prompts for team selection.
+        If team matches user's team (from constants), marks as drafted=2.
+        Otherwise marks as drafted=1 and adds to drafted_data.csv.
         """
         self.logger.info("Starting Mark Player as Drafted mode")
 
@@ -127,53 +135,58 @@ class ModifyPlayerDataModeManager:
             self.logger.info("User exited Mark Player as Drafted mode")
             return
 
-        # Mark player as drafted by another team
-        selected_player.drafted = 1
+        # Get all team names from drafted_data.csv
+        team_names = self.drafted_data_writer.get_all_team_names()
 
-        # Save changes to file
-        self.player_manager.update_players_file()
-
-        # Notify user
-        print(f"✓ Marked {selected_player.name} as drafted by another team!")
-        self.logger.info(f"Player {selected_player.name} marked as drafted=1")
-
-    def _mark_player_as_rostered(self):
-        """
-        Mark a player as rostered on your team (drafted=0 → drafted=2).
-
-        Searches only available players (drafted=0).
-        """
-        self.logger.info("Starting Mark Player as Rostered mode")
-
-        # Create searcher instance
-        searcher = PlayerSearch(self.player_manager.players)
-
-        # Interactive search for available players
-        selected_player = searcher.interactive_search(
-            drafted_filter=0,
-            prompt="Enter player name to add to your roster (or press Enter to return): "
-        )
-
-        # If user exited, return to menu
-        if selected_player is None:
-            self.logger.info("User exited Mark Player as Rostered mode")
+        if not team_names:
+            print("Error: No teams found in drafted_data.csv")
+            self.logger.error("No teams found in drafted_data.csv")
             return
 
-        # Mark player as on your roster
-        selected_player.drafted = 2
+        # Show team selection menu
+        print(f"\nSelect the team that drafted {selected_player.name}:")
+        team_choice = show_list_selection(
+            "TEAM SELECTION",
+            team_names,
+            "Cancel"
+        )
 
-        # Save changes to file
+        # Check if user cancelled
+        if team_choice == len(team_names) + 1:
+            print("Cancelled.")
+            self.logger.info("User cancelled team selection")
+            return
+
+        # Get selected team name
+        selected_team = team_names[team_choice - 1]
+
+        # Check if it's the user's team
+        if selected_team == Constants.FANTASY_TEAM_NAME:
+            # Mark as drafted=2 (on user's roster)
+            selected_player.drafted = 2
+            print(f"✓ Added {selected_player.name} to your roster ({selected_team})!")
+            self.logger.info(f"Player {selected_player.name} marked as drafted=2 (user's team)")
+        else:
+            # Mark as drafted=1 (drafted by another team)
+            selected_player.drafted = 1
+            print(f"✓ Marked {selected_player.name} as drafted by {selected_team}!")
+            self.logger.info(f"Player {selected_player.name} marked as drafted=1 (team: {selected_team})")
+
+        # Add to drafted_data.csv
+        if self.drafted_data_writer.add_player(selected_player, selected_team):
+            self.logger.info(f"Added {selected_player.name} to drafted_data.csv for team {selected_team}")
+        else:
+            print(f"Warning: Failed to add {selected_player.name} to drafted_data.csv")
+
+        # Save changes to players.csv
         self.player_manager.update_players_file()
-
-        # Notify user
-        print(f"✓ Added {selected_player.name} to your roster!")
-        self.logger.info(f"Player {selected_player.name} marked as drafted=2 (rostered)")
 
     def _drop_player(self):
         """
         Drop a player from drafted or rostered status (drafted≠0 → drafted=0).
 
         Searches only players with drafted != 0 (both drafted=1 and drafted=2).
+        Also removes the player from drafted_data.csv.
         """
         self.logger.info("Starting Drop Player mode")
 
@@ -195,10 +208,16 @@ class ModifyPlayerDataModeManager:
         # Store old status for message
         old_status = "your roster" if selected_player.drafted == 2 else "drafted players"
 
+        # Remove from drafted_data.csv
+        if self.drafted_data_writer.remove_player(selected_player):
+            self.logger.info(f"Removed {selected_player.name} from drafted_data.csv")
+        else:
+            print(f"Warning: Failed to remove {selected_player.name} from drafted_data.csv")
+
         # Drop the player (set to available)
         selected_player.drafted = 0
 
-        # Save changes to file
+        # Save changes to players.csv
         self.player_manager.update_players_file()
 
         # Notify user

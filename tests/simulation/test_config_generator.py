@@ -35,6 +35,7 @@ class TestConfigGeneratorInitialization:
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
                 "BASE_BYE_PENALTY": 25.0,
+                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -124,6 +125,7 @@ class TestConfigGeneratorInitialization:
 
         assert 'NORMALIZATION_MAX_SCALE' in gen.param_definitions
         assert 'BASE_BYE_PENALTY' in gen.param_definitions
+        assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in gen.param_definitions
         assert 'PRIMARY_BONUS' in gen.param_definitions
         assert 'SECONDARY_BONUS' in gen.param_definitions
         assert 'ADP_SCORING_WEIGHT' in gen.param_definitions
@@ -136,7 +138,7 @@ class TestConfigGeneratorInitialization:
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 8  # 4 scalars + 4 weights
+        assert len(gen.PARAMETER_ORDER) == 14  # 5 scalars + 4 weights + 5 threshold STEPS
 
 
 class TestParameterValueGeneration:
@@ -150,6 +152,7 @@ class TestParameterValueGeneration:
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
                 "BASE_BYE_PENALTY": 25.0,
+                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -252,10 +255,11 @@ class TestParameterValueGeneration:
         """Test that value sets are generated for all parameters"""
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Should have 4 scalar + 4 weight parameters
-        assert len(value_sets) == 8
+        # Should have 5 scalar + 4 weight + 5 threshold STEPS parameters
+        assert len(value_sets) == 14  # Updated for threshold STEPS
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'BASE_BYE_PENALTY' in value_sets
+        assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in value_sets
         assert 'PRIMARY_BONUS' in value_sets
         assert 'SECONDARY_BONUS' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
@@ -283,6 +287,7 @@ class TestCombinationGeneration:
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
                 "BASE_BYE_PENALTY": 25.0,
+                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -349,8 +354,8 @@ class TestCombinationGeneration:
         # Instead, test that the method structure works by checking value sets
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Verify value sets exist for all expected parameters (4 scalars + 4 weights = 8 total)
-        assert len(value_sets) == 8  # 4 scalars + 4 weights
+        # Verify value sets exist for all expected parameters (5 scalars + 4 weights = 9 total)
+        assert len(value_sets) == 14  # 5 scalars + 4 weights + 5 threshold STEPS
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
 
@@ -384,6 +389,7 @@ class TestConfigDictCreation:
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
                 "BASE_BYE_PENALTY": 25.0,
+                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -446,6 +452,7 @@ class TestConfigDictCreation:
         combination = {
             'NORMALIZATION_MAX_SCALE': 110.0,
             'BASE_BYE_PENALTY': 30.0,
+            'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY': 7.0,
             'PRIMARY_BONUS': 55.0,
             'SECONDARY_BONUS': 45.0,
             'ADP_SCORING_WEIGHT': 1.5,
@@ -464,6 +471,7 @@ class TestConfigDictCreation:
         params = config['parameters']
         assert params['NORMALIZATION_MAX_SCALE'] == 110.0
         assert params['BASE_BYE_PENALTY'] == 30.0
+        assert params['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY'] == 7.0
         assert params['DRAFT_ORDER_BONUSES']['PRIMARY'] == 55.0
         assert params['DRAFT_ORDER_BONUSES']['SECONDARY'] == 45.0
 
@@ -505,6 +513,7 @@ class TestIterativeOptimizationSupport:
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
                 "BASE_BYE_PENALTY": 25.0,
+                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -589,16 +598,17 @@ class TestIterativeOptimizationSupport:
         config = generator.baseline_config
         combination = generator._extract_combination_from_config(config)
 
-        # Should have all 8 parameters (4 scalar + 4 weights)
+        # Should have all 9 parameters (5 scalar + 4 weights)
         assert 'NORMALIZATION_MAX_SCALE' in combination
         assert 'BASE_BYE_PENALTY' in combination
+        assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in combination
         assert 'PRIMARY_BONUS' in combination
         assert 'SECONDARY_BONUS' in combination
         assert 'ADP_SCORING_WEIGHT' in combination
         assert 'PLAYER_RATING_SCORING_WEIGHT' in combination
         assert 'MATCHUP_SCORING_WEIGHT' in combination
         assert 'PERFORMANCE_SCORING_WEIGHT' in combination
-        assert len(combination) == 8
+        assert len(combination) == 14  # Updated for threshold STEPS parameters
 
     def test_generate_single_parameter_configs_for_multiplier(self, generator):
         """Test generating configs for a weight parameter"""

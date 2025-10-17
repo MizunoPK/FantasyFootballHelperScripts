@@ -48,6 +48,7 @@ def mock_data_folder(tmp_path):
     "NFL_SCORING_FORMAT": "ppr",
     "NORMALIZATION_MAX_SCALE": 100.0,
     "BASE_BYE_PENALTY": 25.0,
+    "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 10.0,
@@ -396,7 +397,7 @@ class TestWeeklyProjections:
         player_manager.max_projection = 300.0
         test_player.consistency = 0.15  # EXCELLENT
         test_player.matchup_score = 10  # GOOD
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        mock_fantasy_team.roster = []  # No bye overlaps
 
         # Score with weekly projection enabled, only matchup
         scored_player = player_manager.score_player(
@@ -745,42 +746,60 @@ class TestByeWeekPenalty:
 
     def test_bye_penalty_no_matches(self, player_manager, test_player, mock_fantasy_team):
         """No matching bye weeks should have 0 penalty"""
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        # Set up roster with no bye week overlaps
+        mock_fantasy_team.roster = []
         base_score = 100.0
         result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
         assert result == 100.0  # No penalty
-        assert reason == ""
+        assert reason == ""  # No reason when there are no overlaps
 
-    def test_bye_penalty_one_match(self, player_manager, test_player, mock_fantasy_team):
-        """One matching bye should apply BASE_BYE_PENALTY once"""
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 1
+    def test_bye_penalty_one_same_position_match(self, player_manager, test_player, mock_fantasy_team):
+        """One same-position bye match should apply BASE_BYE_PENALTY once"""
+        # test_player is RB with bye_week=7
+        other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
+        mock_fantasy_team.roster = [other_rb]
         base_score = 100.0
         result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
         assert result == 100.0 - 25.0  # BASE_BYE_PENALTY = 25
-        assert reason == "Number of Matching Bye Weeks: 1"
+        assert "1 same-position, 0 different-position" in reason
 
-    def test_bye_penalty_multiple_matches(self, player_manager, test_player, mock_fantasy_team):
-        """Multiple matching byes should multiply penalty"""
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 3
+    def test_bye_penalty_one_different_position_match(self, player_manager, test_player, mock_fantasy_team):
+        """One different-position bye match should apply DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY once"""
+        # test_player is RB with bye_week=7
+        other_qb = FantasyPlayer(id=99, name="Other QB", team="BUF", position="QB", bye_week=7, fantasy_points=150.0)
+        mock_fantasy_team.roster = [other_qb]
         base_score = 100.0
         result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
-        assert result == 100.0 - (25.0 * 3)  # 25.0
-        assert reason == "Number of Matching Bye Weeks: 3"
+        assert result == 100.0 - 5.0  # DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY = 5
+        assert "0 same-position, 1 different-position" in reason
 
-    def test_bye_penalty_calls_team_method_correctly(self, player_manager, test_player, mock_fantasy_team):
-        """Verify correct parameters passed to team.get_matching_byes_in_roster"""
-        test_player.bye_week = 7
-        test_player.position = "RB"
-        test_player.drafted = 0  # Not rostered
+    def test_bye_penalty_mixed_overlaps(self, player_manager, test_player, mock_fantasy_team):
+        """Multiple overlaps of both types should apply both penalties"""
+        # test_player is RB with bye_week=7
+        other_rb1 = FantasyPlayer(id=98, name="RB1", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
+        other_rb2 = FantasyPlayer(id=97, name="RB2", team="PHI", position="RB", bye_week=7, fantasy_points=140.0)
+        other_wr = FantasyPlayer(id=96, name="WR1", team="DAL", position="WR", bye_week=7, fantasy_points=130.0)
+        other_qb = FantasyPlayer(id=95, name="QB1", team="JAX", position="QB", bye_week=7, fantasy_points=200.0)
+        mock_fantasy_team.roster = [other_rb1, other_rb2, other_wr, other_qb]
 
         base_score = 100.0
         result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
+        # 2 same-position × 25 = 50, 2 different-position × 5 = 10, total = 60
+        assert result == 100.0 - 60.0
+        assert "2 same-position, 2 different-position" in reason
 
-        mock_fantasy_team.get_matching_byes_in_roster.assert_called_once_with(
-            7,  # bye_week
-            "RB",  # position
-            False  # is_rostered (drafted != 2)
-        )
+    def test_bye_penalty_excludes_player_being_scored(self, player_manager, test_player, mock_fantasy_team):
+        """Player being scored should be excluded from overlap counts"""
+        # test_player is RB with bye_week=7, id=12345
+        # Include test_player in roster (shouldn't count itself)
+        other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
+        mock_fantasy_team.roster = [test_player, other_rb]
+
+        base_score = 100.0
+        result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
+        # Should only count other_rb, not test_player itself
+        assert result == 100.0 - 25.0
+        assert "1 same-position, 0 different-position" in reason
 
 
 # ============================================================================
@@ -859,7 +878,7 @@ class TestFullScoringIntegration:
         test_player.bye_week = 7
         test_player.injury_status = "ACTIVE"
 
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        mock_fantasy_team.roster = []  # No bye overlaps
 
         # Calculate expected score manually (NO consistency multiplier)
         score = 80.0  # Normalization
@@ -887,7 +906,7 @@ class TestFullScoringIntegration:
 
     def test_score_player_default_flags(self, player_manager, test_player, mock_fantasy_team):
         """Test score_player with default flag values - BUG FIX: draft_round=-1"""
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        mock_fantasy_team.roster = []  # No bye overlaps
 
         result = player_manager.score_player(test_player)
 
@@ -903,7 +922,7 @@ class TestFullScoringIntegration:
         # Set weeks 6-17 (12 weeks) to sum to 250.0
         for week_num in range(6, 18):
             setattr(test_player, f"week_{week_num}_points", 250.0 / 12)  # 20.833... per week
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        mock_fantasy_team.roster = []  # No bye overlaps
 
         result = player_manager.score_player(
             test_player,
@@ -929,7 +948,11 @@ class TestFullScoringIntegration:
         test_player.injury_status = "OUT"  # HIGH (-75)
         test_player.position = "RB"
 
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 5  # 5 * 25 = 125 penalty
+        # Create 5 same-position bye overlaps
+        mock_fantasy_team.roster = [
+            FantasyPlayer(id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
+            for i in range(5)
+        ]  # 5 same-position × 25 = 125 penalty
 
         # Score: 10 * 0.70 * 0.75 * 0.70 * 0.60 = ~2.205
         # Then: 2.205 - 125 (bye) - 75 (injury) = ~-197.8
@@ -953,7 +976,7 @@ class TestFullScoringIntegration:
         for week_num in range(6, 18):
             setattr(test_player, f"week_{week_num}_points", 250.0 / 12)  # 20.833... per week
         test_player.position = "RB"  # Would normally get bonus in round 0
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        mock_fantasy_team.roster = []  # No bye overlaps
 
         result = player_manager.score_player(
             test_player,
@@ -971,7 +994,7 @@ class TestFullScoringIntegration:
 
     def test_score_player_waiver_mode_flags(self, player_manager, test_player, mock_fantasy_team):
         """Test flag configuration for Waiver Optimizer mode"""
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        mock_fantasy_team.roster = []  # No bye overlaps
 
         # Waiver mode: all except matchup=True, draft_round=-1 (disabled)
         result = player_manager.score_player(
@@ -989,7 +1012,7 @@ class TestFullScoringIntegration:
 
     def test_score_player_starter_helper_mode_flags(self, player_manager, test_player, mock_fantasy_team):
         """Test flag configuration for Starter Helper mode"""
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        mock_fantasy_team.roster = []  # No bye overlaps
 
         # Starter mode: only matchup
         result = player_manager.score_player(
@@ -1034,7 +1057,7 @@ class TestEdgeCases:
         for week_num in range(6, 18):
             setattr(player, f"week_{week_num}_points", 250.0 / 12)
 
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        mock_fantasy_team.roster = []  # No bye overlaps
 
         result = player_manager.score_player(
             player,
@@ -1062,7 +1085,7 @@ class TestEdgeCases:
             weighted_projection=0.0
         )
 
-        mock_fantasy_team.get_matching_byes_in_roster.return_value = 0
+        mock_fantasy_team.roster = []  # No bye overlaps
 
         result = player_manager.score_player(player, draft_round=-1)
 

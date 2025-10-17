@@ -1,1 +1,0 @@
-Make sure that all places in the code that would write to players.csv are updated to contain all of the new columns that the player_data_fetcher is now putting into it. I have had instances of the players.csv file getting reset and losing columns after doing things like the Assign as Drafted mode in draft_helper.

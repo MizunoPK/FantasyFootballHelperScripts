@@ -1,20 +1,20 @@
 {
-  "config_name": "simulation/simulation_configs/optimal_iterative_20251016_090433.json",
-  "description": "Win Rate: 0.79",
+  "config_name": "simulation/simulation_configs/intermediate_12_TEAM_QUALITY_SCORING_STEPS.json",
+  "description": "Win Rate: 0.68",
   "parameters": {
     "CURRENT_NFL_WEEK": 7,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 146.6283185116643,
-    "BASE_BYE_PENALTY": 44.64816261177184,
-    "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5,
+    "NORMALIZATION_MAX_SCALE": 150.0,
+    "BASE_BYE_PENALTY": 48.313267970640716,
+    "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 0.0,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 10,
       "HIGH": 100
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 66.84679290832068,
+      "PRIMARY": 66.29866837588541,
       "SECONDARY": 75.0
     },
     "DRAFT_ORDER": [
@@ -84,13 +84,13 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.678703044890475
+      "WEIGHT": 0.7944844842748879
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
-        "STEPS": 20
+        "STEPS": 21.33909870469345
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -98,13 +98,13 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.2136890151273816
+      "WEIGHT": 2.0911666090368555
     },
     "TEAM_QUALITY_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 6.25
+        "STEPS": 7.32052928938772
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -127,7 +127,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.8195480889193231
+      "WEIGHT": 1.095838942429308
     },
     "MATCHUP_SCORING": {
       "THRESHOLDS": {

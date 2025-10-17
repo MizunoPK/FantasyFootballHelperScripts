@@ -74,9 +74,10 @@
     ],
     "ADP_SCORING": {
       "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "DECREASING",
-        "STEPS": 37.5
+        "VERY_POOR": 150,
+        "POOR": 100,
+        "GOOD": 50,
+        "EXCELLENT": 20
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -88,9 +89,10 @@
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "INCREASING",
-        "STEPS": 20
+        "VERY_POOR": 20,
+        "POOR": 40,
+        "GOOD": 60,
+        "EXCELLENT": 80
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -102,9 +104,10 @@
     },
     "TEAM_QUALITY_SCORING": {
       "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "DECREASING",
-        "STEPS": 6.25
+        "VERY_POOR": 25,
+        "POOR": 18,
+        "GOOD": 10,
+        "EXCELLENT": 5
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -117,9 +120,10 @@
     "PERFORMANCE_SCORING": {
       "MIN_WEEKS": 3,
       "THRESHOLDS": {
-        "BASE_POSITION": 0.0,
-        "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.1
+        "VERY_POOR": -0.2,
+        "POOR": -0.1,
+        "GOOD": 0.1,
+        "EXCELLENT": 0.2
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -131,9 +135,10 @@
     },
     "MATCHUP_SCORING": {
       "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 7.5
+        "VERY_POOR": -15,
+        "POOR": -6,
+        "GOOD": 6,
+        "EXCELLENT": 15
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,

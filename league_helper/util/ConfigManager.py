@@ -90,6 +90,20 @@ class ConfigKeys:
     EXCELLENT = "EXCELLENT"
     NEUTRAL = "NEUTRAL"
 
+    # Parameterized Threshold Keys (new system)
+    BASE_POSITION = "BASE_POSITION"
+    DIRECTION = "DIRECTION"
+    STEPS = "STEPS"
+
+    # Direction Values
+    DIRECTION_INCREASING = "INCREASING"
+    DIRECTION_DECREASING = "DECREASING"
+    DIRECTION_BI_EXCELLENT_HI = "BI_EXCELLENT_HI"
+    DIRECTION_BI_EXCELLENT_LOW = "BI_EXCELLENT_LOW"
+
+    # Optional calculated field (for transparency in config files)
+    CALCULATED = "_calculated"
+
 
 class ConfigManager:
     """
@@ -163,7 +177,140 @@ class ConfigManager:
         self.draft_order_bonuses: Dict[str, float] = {}
         self.draft_order: List[Dict[str, str]] = []
 
+        # Threshold calculation cache
+        self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
+
         self._load_config()
+
+    def validate_threshold_params(self, base_pos: float, direction: str, steps: float) -> bool:
+        """
+        Validate threshold parameters.
+
+        Args:
+            base_pos: Base position value (typically 0)
+            direction: Direction type (INCREASING, DECREASING, BI_EXCELLENT_HI, BI_EXCELLENT_LOW)
+            steps: Step size between thresholds (must be positive)
+
+        Returns:
+            True if parameters are valid
+
+        Raises:
+            ValueError: If parameters are invalid
+        """
+        import math
+
+        # STEPS must be positive
+        if steps <= 0:
+            self.logger.error(f"STEPS must be positive, got {steps}")
+            raise ValueError(f"STEPS must be positive, got {steps}")
+
+        # Must be finite
+        if not math.isfinite(base_pos) or not math.isfinite(steps):
+            self.logger.error("BASE_POSITION and STEPS must be finite")
+            raise ValueError("BASE_POSITION and STEPS must be finite")
+
+        # DIRECTION must be valid
+        valid_dirs = [
+            self.keys.DIRECTION_INCREASING,
+            self.keys.DIRECTION_DECREASING,
+            self.keys.DIRECTION_BI_EXCELLENT_HI,
+            self.keys.DIRECTION_BI_EXCELLENT_LOW
+        ]
+        if direction not in valid_dirs:
+            self.logger.error(f"DIRECTION must be one of {valid_dirs}, got '{direction}'")
+            raise ValueError(f"DIRECTION must be one of {valid_dirs}, got '{direction}'")
+
+        return True
+
+    def calculate_thresholds(self, base_pos: float, direction: str, steps: float,
+                            scoring_type: str = "") -> Dict[str, float]:
+        """
+        Calculate threshold values from parameters.
+
+        This method implements the parameterized threshold system, replacing
+        hardcoded threshold values with calculated ones based on:
+        - BASE_POSITION: Starting point (typically 0)
+        - DIRECTION: How thresholds are arranged
+        - STEPS: Spacing between threshold levels
+
+        Args:
+            base_pos: Base position (typically 0)
+            direction: INCREASING, DECREASING, BI_EXCELLENT_HI, or BI_EXCELLENT_LOW
+            steps: Step size between thresholds
+            scoring_type: Optional scoring type for caching (e.g., "ADP_SCORING")
+
+        Returns:
+            Dict with VERY_POOR, POOR, GOOD, EXCELLENT threshold values
+
+        Examples:
+            >>> # INCREASING (player rating): VP=20, P=40, G=60, E=80
+            >>> config.calculate_thresholds(0, "INCREASING", 20)
+            {'VERY_POOR': 20, 'POOR': 40, 'GOOD': 60, 'EXCELLENT': 80}
+
+            >>> # DECREASING (ADP): E=37.5, G=75, P=112.5, VP=150
+            >>> config.calculate_thresholds(0, "DECREASING", 37.5)
+            {'EXCELLENT': 37.5, 'GOOD': 75, 'POOR': 112.5, 'VERY_POOR': 150}
+
+            >>> # BI_EXCELLENT_HI (performance): VP=-0.2, P=-0.1, G=0.1, E=0.2
+            >>> config.calculate_thresholds(0, "BI_EXCELLENT_HI", 0.1)
+            {'VERY_POOR': -0.2, 'POOR': -0.1, 'GOOD': 0.1, 'EXCELLENT': 0.2}
+        """
+        # Check cache first
+        cache_key = (scoring_type, base_pos, direction, steps)
+        if cache_key in self._threshold_cache:
+            return self._threshold_cache[cache_key]
+
+        # Validate parameters
+        self.validate_threshold_params(base_pos, direction, steps)
+
+        # Calculate thresholds based on direction
+        if direction == self.keys.DIRECTION_INCREASING:
+            # Higher values = better (e.g., player rating)
+            # Formula: VP=base+1s, P=base+2s, G=base+3s, E=base+4s
+            thresholds = {
+                self.keys.VERY_POOR: base_pos + steps,
+                self.keys.POOR: base_pos + (2 * steps),
+                self.keys.GOOD: base_pos + (3 * steps),
+                self.keys.EXCELLENT: base_pos + (4 * steps)
+            }
+
+        elif direction == self.keys.DIRECTION_DECREASING:
+            # Lower values = better (e.g., ADP rank)
+            # Formula: E=base+1s, G=base+2s, P=base+3s, VP=base+4s
+            thresholds = {
+                self.keys.EXCELLENT: base_pos + steps,
+                self.keys.GOOD: base_pos + (2 * steps),
+                self.keys.POOR: base_pos + (3 * steps),
+                self.keys.VERY_POOR: base_pos + (4 * steps)
+            }
+
+        elif direction == self.keys.DIRECTION_BI_EXCELLENT_HI:
+            # Bidirectional: positive deviation = excellent
+            # Formula: VP=base-2s, P=base-1s, G=base+1s, E=base+2s (1x/2x multipliers per user Q4)
+            thresholds = {
+                self.keys.VERY_POOR: base_pos - (steps * 2),
+                self.keys.POOR: base_pos - steps,
+                self.keys.GOOD: base_pos + steps,
+                self.keys.EXCELLENT: base_pos + (steps * 2)
+            }
+
+        elif direction == self.keys.DIRECTION_BI_EXCELLENT_LOW:
+            # Bidirectional: negative deviation = excellent (rare case)
+            # Formula: E=base-2s, G=base-1s, P=base+1s, VP=base+2s (1x/2x multipliers)
+            thresholds = {
+                self.keys.EXCELLENT: base_pos - (steps * 2),
+                self.keys.GOOD: base_pos - steps,
+                self.keys.POOR: base_pos + steps,
+                self.keys.VERY_POOR: base_pos + (steps * 2)
+            }
+
+        else:
+            # This should never happen due to validation, but included for safety
+            raise ValueError(f"Invalid direction: {direction}")
+
+        # Store in cache
+        self._threshold_cache[cache_key] = thresholds
+        return thresholds
 
     def _load_config(self) -> None:
         """
@@ -304,6 +451,36 @@ class ConfigManager:
         # Validate draft order is a list
         if not isinstance(self.draft_order, list):
             raise ValueError("DRAFT_ORDER must be a list")
+
+        # Pre-calculate parameterized thresholds if needed (backward compatible)
+        # Skip CONSISTENCY_SCORING as it's deprecated
+        for scoring_type in [self.keys.ADP_SCORING, self.keys.PLAYER_RATING_SCORING,
+                             self.keys.TEAM_QUALITY_SCORING, self.keys.PERFORMANCE_SCORING,
+                             self.keys.MATCHUP_SCORING]:
+            scoring_dict = self.parameters[scoring_type]
+            thresholds_config = scoring_dict[self.keys.THRESHOLDS]
+
+            # Check if parameterized (new format with BASE_POSITION, DIRECTION, STEPS)
+            if self.keys.BASE_POSITION in thresholds_config:
+                # Calculate thresholds from parameters
+                calculated = self.calculate_thresholds(
+                    thresholds_config[self.keys.BASE_POSITION],
+                    thresholds_config[self.keys.DIRECTION],
+                    thresholds_config[self.keys.STEPS],
+                    scoring_type
+                )
+
+                # Add calculated values to thresholds dict for direct access
+                # This maintains backward compatibility - existing code can continue
+                # to access thresholds_config[VERY_POOR], etc.
+                thresholds_config[self.keys.VERY_POOR] = calculated[self.keys.VERY_POOR]
+                thresholds_config[self.keys.POOR] = calculated[self.keys.POOR]
+                thresholds_config[self.keys.GOOD] = calculated[self.keys.GOOD]
+                thresholds_config[self.keys.EXCELLENT] = calculated[self.keys.EXCELLENT]
+
+                self.logger.debug(f"{scoring_type} thresholds calculated: E={calculated[self.keys.EXCELLENT]}, "
+                                 f"G={calculated[self.keys.GOOD]}, P={calculated[self.keys.POOR]}, "
+                                 f"VP={calculated[self.keys.VERY_POOR]}")
 
     def get_parameter(self, key: str, default: Any = None) -> Any:
         """
@@ -450,8 +627,20 @@ class ConfigManager:
         else:
             return 0, ""
         
-    def get_bye_week_penalty(self, num_matching_byes : int):
-        return self.base_bye_penalty * num_matching_byes
+    def get_bye_week_penalty(self, num_same_position : int, num_different_position : int = 0):
+        """
+        Calculate bye week penalty based on roster conflicts.
+
+        Args:
+            num_same_position: Number of same-position bye week conflicts
+            num_different_position: Number of different-position bye week conflicts (default: 0)
+
+        Returns:
+            float: Total bye week penalty
+        """
+        same_position_penalty = self.base_bye_penalty * num_same_position
+        different_position_penalty = self.parameters.get('DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY', 0) * num_different_position
+        return same_position_penalty + different_position_penalty
         
     def get_injury_penalty(self, risk_level : str):
         if risk_level in self.injury_penalties:

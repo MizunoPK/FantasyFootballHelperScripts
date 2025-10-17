@@ -4,20 +4,27 @@ A comprehensive parameter optimization system for the DraftHelper fantasy footba
 
 ## Overview
 
-This system tests 46,656 different parameter combinations (6 parameters with 6 values each) to find the configuration that maximizes win rate and points scored. Each configuration is tested across multiple simulated leagues with different opponents using various draft strategies.
+This system tests parameter combinations to find the configuration that maximizes win rate and points scored. Each configuration is tested across multiple simulated leagues with different opponents using various draft strategies.
+
+**Default configuration**: 10,077,696 combinations (9 parameters with 6 values each = 6^9)
 
 ### What Gets Optimized
 
-The system optimizes these 6 key parameters:
+The system optimizes these 9 key parameters:
 
-1. **NORMALIZATION_MAX_SCALE** (60-140): Score normalization ceiling
-2. **BASE_BYE_PENALTY** (0-40): Penalty for bye week conflicts
-3. **DRAFT_ORDER_BONUSES.PRIMARY** (25-100): Bonus for primary draft position
-4. **DRAFT_ORDER_BONUSES.SECONDARY** (25-75): Bonus for secondary draft position
-5. **POSITIVE_MULTIPLIER** (1.0-1.3): Multiplier for GOOD/EXCELLENT ratings
-6. **NEGATIVE_MULTIPLIER** (0.7-1.0): Multiplier for POOR/VERY_POOR ratings
+1. **NORMALIZATION_MAX_SCALE** (50-150): Score normalization ceiling
+2. **BASE_BYE_PENALTY** (0-50): Penalty for same-position bye week conflicts
+3. **DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY** (0-50): Penalty for different-position bye week conflicts
+4. **DRAFT_ORDER_BONUSES.PRIMARY** (0-100): Bonus for primary draft position
+5. **DRAFT_ORDER_BONUSES.SECONDARY** (0-75): Bonus for secondary draft position
+6. **ADP_SCORING_WEIGHT** (0-5): Weight for ADP scoring section
+7. **PLAYER_RATING_SCORING_WEIGHT** (0-5): Weight for player rating scoring section
+8. **PERFORMANCE_SCORING_WEIGHT** (0-5): Weight for performance scoring section
+9. **MATCHUP_SCORING_WEIGHT** (0-5): Weight for matchup scoring section
 
-Each parameter gets 6 test values: the baseline optimal value + 5 random variations within bounds.
+Each parameter gets 6 test values by default: the baseline optimal value + 5 random variations within bounds.
+
+**Note**: Due to the large number of combinations (10M+), iterative optimization is recommended over full cartesian product testing.
 
 ## Architecture
 
@@ -81,9 +88,9 @@ Tests 10 configurations with 10 simulations each (100 total simulations). Good f
 python run_simulation.py full --sims 100 --workers 8
 ```
 
-Tests all 46,656 configurations with 100 simulations each (4.6 million total simulations). This is the real optimization run.
+Tests all generated configurations with 100 simulations each. This is the real optimization run.
 
-**Estimated time**: With 8 workers, expect ~8-12 hours depending on hardware.
+**Estimated time**: Due to the large number of configurations (10M+ with 9 parameters), full cartesian product optimization is impractical. Consider using iterative optimization or subset testing instead.
 
 ## Command-Line Options
 
@@ -127,8 +134,8 @@ python simulation/run_simulation.py full --sims 100 --workers 8 --output results
 
 1. **Configuration Generation** (ConfigGenerator)
    - Loads baseline configuration
-   - Generates 46,656 parameter combinations
-   - Each combination varies 6 parameters
+   - Generates parameter combinations (default: 10,077,696 for 9 parameters)
+   - Each combination varies all optimizable parameters
 
 2. **League Simulation** (SimulatedLeague)
    - Creates 10-team league:
@@ -206,7 +213,7 @@ Complete results for all tested configurations:
 
 ```json
 {
-  "total_configs": 46656,
+  "total_configs": 10077696,
   "configs": {
     "config_00000": {
       "config_id": "config_00000",
@@ -220,6 +227,8 @@ Complete results for all tested configurations:
   }
 }
 ```
+
+**Note**: With 9 parameters generating 10M+ combinations, the all_results.json file would be extremely large. Consider using iterative optimization or database storage for full-scale runs.
 
 ## Testing
 
@@ -279,9 +288,12 @@ Based on average hardware (modern laptop/desktop):
 | Single | 1 | 5 | 5 | 2 | ~3 sec |
 | Subset | 10 | 10 | 100 | 4 | ~1-2 min |
 | Subset | 20 | 50 | 1,000 | 8 | ~10-15 min |
-| Full | 46,656 | 100 | 4.6M | 8 | ~8-12 hours |
+| Subset | 100 | 100 | 10,000 | 8 | ~2-3 hours |
+| Full | 10,077,696 | 100 | 1B+ | 8 | Impractical* |
 
 **Note**: Times vary based on CPU speed and system load. Single simulation takes ~0.7 seconds on average.
+
+\*Full cartesian product with 9 parameters (10M+ configs) is impractical. Use iterative optimization instead.
 
 ## Troubleshooting
 

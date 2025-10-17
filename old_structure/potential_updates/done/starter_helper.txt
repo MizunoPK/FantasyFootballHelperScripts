@@ -1,2 +1,0 @@
-We are going to integrate the starter_helper into the draft_helper.
-A new option to the main menu should be added called 'Starter Helper'. Selecting this option should result in the same functionality and output as the current starter_helper provides - where it outputs the best list of starters based on the current data and outputs the info to a file

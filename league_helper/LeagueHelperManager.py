@@ -89,7 +89,7 @@ class LeagueHelperManager:
         self.add_to_roster_mode_manager = AddToRosterModeManager(self.config, self.player_manager, self.team_data_manager)
         self.starter_helper_mode_manager = StarterHelperModeManager(self.config, self.player_manager, self.team_data_manager)
         self.trade_simulator_mode_manager = TradeSimulatorModeManager(data_folder, self.player_manager, self.config)
-        self.modify_player_data_mode_manager = ModifyPlayerDataModeManager(self.player_manager)
+        self.modify_player_data_mode_manager = ModifyPlayerDataModeManager(self.player_manager, data_folder)
         self.logger.info("All mode managers initialized successfully")
 
 
@@ -106,8 +106,8 @@ class LeagueHelperManager:
         print("Welcome to the Start 7 Fantasy League Helper!")
         print(f"Currently drafted players: {self.player_manager.get_roster_len()} / {Constants.MAX_PLAYERS} max")
 
-        # Show initial roster status
-        self.player_manager.display_roster()
+        # Show initial roster status with scoring details
+        self.player_manager.display_scored_roster()
 
         roster_size = self.player_manager.get_roster_len()
         self.logger.info(f"Interactive league helper started. Current roster size: {roster_size}/{Constants.MAX_PLAYERS}")

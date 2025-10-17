@@ -1,1 +1,0 @@
-When entering Add to Roster Mode, the system should show the list of the Roster in the order of the ideal draft order defined in the Config file. It should show what each round's ideal position is and what player is associated with that spot.

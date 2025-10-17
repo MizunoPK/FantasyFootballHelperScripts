@@ -1,5 +1,150 @@
 Before starting changes, ask clarifying questions by creating a questions file in the updates folder. The questions file should be named with the pattern: `{objective_name}_questions.md`. This file should contain all clarifying questions that would help better understand and complete the objective. Wait for the user to answer these questions before creating the TODO file and beginning development. If new questions arise during development, pause and add them to the questions file.
 After receiving answers to clarifying questions, create a TODO file that maps out all the tasks that will need to be completed to accomplish this objective. As you complete the tasks, keep the file updated with your progress just in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made. Put the TODO file in the todo-files folder in the updates directory.
+
+## TODO FILE VERIFICATION AND REFINEMENT PROTOCOL
+
+**🚨 MANDATORY AFTER GENERATING TODO FILE** - This iterative verification protocol must be executed after creating the initial TODO file and before beginning implementation:
+
+### **WHEN TO EXECUTE**:
+- ✅ Immediately after generating the initial TODO file
+- ✅ After receiving user's answers to clarifying questions
+- ✅ Before beginning any implementation work
+
+### **ITERATIVE REFINEMENT PROCESS (MINIMUM 3 ITERATIONS)**:
+
+**📋 ITERATION 1: Initial Verification**
+
+1. **Re-read ALL Source Documents**:
+   - Open and carefully read the original `updates/{objective_name}.txt` file line-by-line
+   - Open and carefully read the `updates/{objective_name}_questions.md` answers section
+   - Open and carefully read your newly created `updates/todo-files/{objective_name}_todo.md`
+
+2. **Cross-Reference Requirements**:
+   - Extract EVERY requirement from the original updates file (explicit and implied)
+   - Extract EVERY requirement from the question answers
+   - Compare against TODO file to verify ALL requirements are covered
+   - Mark any missing requirements: ❌ MISSING FROM TODO
+
+3. **Ask Clarifying Questions to Self**:
+   - What specific files will need to be modified for each task?
+   - What existing patterns or utilities in the codebase can be leveraged?
+   - Are there any edge cases or error scenarios not covered?
+   - What test files will need to be created or modified?
+   - Are there any dependencies between tasks that need ordering?
+   - What existing code should be examined before implementation?
+
+4. **Research Codebase**:
+   - Use Glob/Grep to find relevant existing code
+   - Look for similar implementations to maintain consistency
+   - Identify utility classes or helper functions to reuse
+   - Find test file patterns to follow
+   - Locate configuration files that may need updates
+
+5. **Update TODO File**:
+   - Add missing requirements as new tasks
+   - Add specific file paths to each task
+   - Add code references (e.g., "Similar to ClassName.method_name in file.py:line")
+   - Add test requirements for each implementation task
+   - Refine task descriptions with more technical specificity
+   - Add prerequisite relationships between tasks
+
+**📋 ITERATION 2: Deep Dive Verification**
+
+1. **Re-read Updated TODO File**:
+   - Review all changes made in Iteration 1
+   - Check if new questions emerged from codebase research
+
+2. **Ask Additional Clarifying Questions**:
+   - What data structures will be passed between functions?
+   - What error handling strategies should be used?
+   - Are there any performance considerations?
+   - What logging should be added for debugging?
+   - Should any constants be extracted to configuration files?
+   - What documentation needs to be updated?
+   - Are there any backward compatibility concerns?
+
+3. **Research Additional Code Patterns**:
+   - Find error handling patterns used in similar code
+   - Identify logging patterns and conventions
+   - Check configuration file structures
+   - Review existing documentation formats
+   - Look for data validation patterns
+
+4. **Update TODO File Again**:
+   - Add error handling tasks
+   - Add logging requirements
+   - Add documentation update tasks
+   - Add data validation requirements
+   - Refine implementation order based on dependencies
+   - Add code review checkpoints
+
+**📋 ITERATION 3: Final Verification**
+
+1. **Re-read ALL Documents One More Time**:
+   - Original updates file
+   - Question answers
+   - Fully refined TODO file
+
+2. **Ask Final Technical Questions**:
+   - Are there any integration points with other modules not addressed?
+   - What mock objects will be needed for testing?
+   - Are there any circular dependency risks?
+   - What happens if operations fail midway through?
+   - Are all file paths absolute or properly constructed?
+   - What cleanup operations are needed if errors occur?
+
+3. **Research Integration Points**:
+   - Use Grep to find all places existing code is called
+   - Identify all modules that might be affected
+   - Check for potential circular imports
+   - Review existing test mock patterns
+
+4. **Final TODO Update**:
+   - Add integration testing tasks
+   - Add cleanup/rollback requirements
+   - Add verification steps for each phase
+   - Add pre-commit validation checkpoints
+   - Ensure every task has specific, actionable steps
+   - Confirm task order prevents breaking the system
+
+### **DOCUMENTATION REQUIREMENTS**:
+
+After completing 3+ iterations, add a "Verification Summary" section to the TODO file documenting:
+- ✅ Number of iterations completed (minimum 3)
+- ✅ Number of requirements added after initial draft
+- ✅ Key codebase patterns/utilities identified for reuse
+- ✅ Critical dependencies or ordering requirements
+- ✅ Risk areas identified during research
+
+### **ACCEPTANCE CRITERIA**:
+- ✅ At least 3 complete verification iterations performed
+- ✅ Every requirement from original file covered in TODO
+- ✅ Every question answer reflected in TODO tasks
+- ✅ Specific file paths identified for each task
+- ✅ Existing code patterns researched and documented
+- ✅ Test requirements specified for each implementation
+- ✅ Task dependencies and ordering verified
+- ✅ Edge cases and error scenarios addressed
+- ✅ Documentation update tasks included
+- ✅ Pre-commit validation checkpoints added
+
+### **ENFORCEMENT**:
+- **NO SHORTCUTS**: Cannot skip iterations or rush through verification
+- **NO ASSUMPTIONS**: Must research codebase to validate approach
+- **NO VAGUE TASKS**: Each task must have specific technical details
+- **ITERATIVE IS MANDATORY**: Minimum 3 cycles of read-question-research-update
+- **DOCUMENT THE PROCESS**: Verification summary required in TODO file
+
+### **WHY THIS MATTERS**:
+Thorough TODO preparation prevents:
+- ❌ Discovering missing requirements mid-implementation
+- ❌ Breaking existing functionality due to unforeseen dependencies
+- ❌ Inconsistent code that doesn't match project patterns
+- ❌ Incomplete implementations that miss edge cases
+- ❌ Failed tests due to inadequate test planning
+- ❌ Rework and refactoring caused by poor initial planning
+
+A well-researched, thoroughly verified TODO file is the foundation of successful implementation.
 Immediately after creating the TODO file, create a code changes documentation file in the updates folder (NOT the done folder yet) named `{objective_name}_code_changes.md`. This file should be updated incrementally as you work through each task in the TODO file. After completing each significant change, immediately document it in the code changes file with: file paths, line numbers, before/after code snippets, rationale, and impact. This ensures the documentation stays current and accurate throughout the implementation process. The file will be moved to updates/done when the objective is complete.
 After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Test ALL unit tests across the entire repo. All tests across the entire repo must pass before we can mark an objective as complete. Make this a very clear and important TODO item.
 Create any new unit tests to cover the new implementations, and modify any relevant unit tests and test them to ensure they pass.

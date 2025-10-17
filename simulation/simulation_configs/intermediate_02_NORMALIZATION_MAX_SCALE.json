@@ -1,11 +1,11 @@
 {
-  "config_name": "simulation/simulation_configs/optimal_iterative_20251016_090433.json",
-  "description": "Win Rate: 0.79",
+  "config_name": "simulation/simulation_configs/intermediate_02_NORMALIZATION_MAX_SCALE.json",
+  "description": "Win Rate: 0.62",
   "parameters": {
     "CURRENT_NFL_WEEK": 7,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 146.6283185116643,
+    "NORMALIZATION_MAX_SCALE": 150.0,
     "BASE_BYE_PENALTY": 44.64816261177184,
     "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5,
     "INJURY_PENALTIES": {
@@ -127,7 +127,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.8195480889193231
+      "WEIGHT": 1.095838942429308
     },
     "MATCHUP_SCORING": {
       "THRESHOLDS": {

@@ -1,7 +1,0 @@
-In multiple scripts (draft_helper, nfl-scores-fetcher, player-data-fetcher, starter_helper) there are variables for the current NFL season and current week in the season. Move those variables to the shared_variables file at the root of the project such that all scripts share the same values for those variables.
-Search for any other similar variables that could be abstracted out to the shared_variables file, then confirm them with me before actually moving the variables.
-
-Before starting changes, create a TODO file that maps out all the tasks that will need to be completed to accomplish this objective. As you complete the tasks, keep the file updated with your progress just in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made. Put the TODO file in the todo-files folder in this directory.
-After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Create/modify any relevant unit tests and test them to ensure they pass.
-Update rules files and readme files according to the new changes.
-Ask me any clarifying questions that would help you better understand and complete this objective.

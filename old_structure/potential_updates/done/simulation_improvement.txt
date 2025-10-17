@@ -1,8 +1,0 @@
-We are going to be making a few few improvements to the draft_helper simulation
-Instead of copying over the current version of players.csv and teams.csv, we are going to use special simulation-specific files
-The draft_helper/simulation/data folder now contains 4 files: players_projected.csv, teams_projected.csv, players_actual.csv, and teams_actual.csv
-The 'projected' version of the files contains the data about how many points players were expected to get each week and over the course of the season. The 'actual' version of the files will contain the ACTUAL points that the players earned each week and over the course of the season
-When the simulation is drafting players onto the simulated teams, it should use the 'projected' versions of both files
-When the simulation is pitting two of the simulated teams against each other and simulating matches, then it should make use of the starter_helper to determine the Starting lineup to projected against the other team. Use the 'simulated' versions of the files to determine the Starters
-In the Simulation Config, add another parameter for the 
-When the simulation is simulating matches and determining which team won on a given week, it should use the the 'actual' version of the files
