@@ -1,3 +1,20 @@
+"""
+Fantasy Team Manager
+
+Manages a fantasy football team roster with position limits and draft order.
+Handles player drafting, roster operations, FLEX slot logic, and position limits.
+
+Key responsibilities:
+- Tracking drafted players and roster composition
+- Enforcing position limits (QB: 2, RB: 4, WR: 4, TE: 2, K: 1, DST: 1, FLEX: 1)
+- Managing FLEX eligibility (RB/WR/DST can fill FLEX when natural position full)
+- Slot assignment tracking (natural position vs FLEX)
+- Bye week tracking for roster optimization
+- Player replacement for trades
+
+Author: Kai Mizuno
+"""
+
 import sys
 from pathlib import Path
 from typing import List
@@ -13,9 +30,7 @@ sys.path.insert(0, str(parent_dir))
 from utils.LoggingManager import get_logger
 from utils.FantasyPlayer import FantasyPlayer
 
-# FantasyTeam class to manage a fantasy football team
-# It holds drafted players, manages roster limits, and draft order
-# It also provides methods to draft players and check roster status
+
 class FantasyTeam:
     """
     Manages a fantasy football team roster with position limits and draft order.
@@ -123,28 +138,50 @@ class FantasyTeam:
         """
         pos = player.position
 
-        # Try natural position first
+        # Slot assignment priority:
+        # 1. Always try natural position first (e.g., RB goes to RB slot)
+        # 2. If natural position is full and player is FLEX-eligible (RB/WR/DST),
+        #    then assign to FLEX slot
+        # 3. If both natural position and FLEX are full, raise error
+
+        # Check if natural position has available slots
         if len(self.slot_assignments[pos]) < Constants.MAX_POSITIONS[pos]:
+            # Natural position has space - assign here
             self.slot_assignments[pos].append(player.id)
             assigned_slot = pos
             self.logger.debug(f"SLOT ASSIGN: {player.name} ({pos}) → {pos} slot. Slot {pos} now has {len(self.slot_assignments[pos])} players")
-        # Try FLEX if eligible
+
+        # Natural position is full - try FLEX if eligible
         elif (pos in Constants.FLEX_ELIGIBLE_POSITIONS and
               len(self.slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]):
+            # Player is FLEX-eligible (RB/WR/DST) and FLEX has space
             self.slot_assignments[Constants.FLEX].append(player.id)
             assigned_slot = Constants.FLEX
             self.logger.debug(f"SLOT ASSIGN: {player.name} ({pos}) → FLEX slot. FLEX now has {len(self.slot_assignments[Constants.FLEX])} players")
+
+        # No available slots - cannot assign
         else:
             raise ValueError(f"Cannot assign {player.name} ({pos}) to any available slot. Slots full: {pos}={len(self.slot_assignments[pos])}/{Constants.MAX_POSITIONS[pos]}, FLEX={len(self.slot_assignments[Constants.FLEX])}/{Constants.MAX_POSITIONS[Constants.FLEX]}")
+
+        # Update position counts for tracking
+        # IMPORTANT: pos_counts tracks TWO things:
+        # 1. Total count of each position type (e.g., how many RBs on team)
+        # 2. Total count of players in FLEX slot specifically
 
         # Always increment the position count for the player's original position
         # This tracks total players by position regardless of slot assignment
         self.pos_counts[pos] += 1
+
         # Also increment FLEX count if assigned to FLEX slot
+        # This means FLEX-eligible positions contribute to TWO counts:
+        # - Their natural position count (for position limit enforcement)
+        # - The FLEX count (for FLEX slot limit enforcement)
         if assigned_slot == Constants.FLEX:
             self.pos_counts[Constants.FLEX] += 1
 
-        # Update bye week counts
+        # Update bye week tracking for bye week penalty calculations
+        # This helps identify roster construction issues where multiple
+        # players at the same position share the same bye week
         if player.bye_week and player.bye_week in self.bye_week_counts:
             self.bye_week_counts[player.bye_week][pos] += 1
 
@@ -171,7 +208,7 @@ class FantasyTeam:
     
     # Method to check if a player can be drafted as a FLEX position
     # A player is eligible to be labeled as the 'FLEX' position if:
-    # 1. Their position is one of the FLEX eligible positions (RB or WR)
+    # 1. Their position is one of the FLEX eligible positions (RB or WR or DST)
     # 2. Their primary position is already at the max limit
     # 3. The FLEX position itself is not yet filled to its max limit
     # This allows drafting a player into the FLEX spot when their main position is full
@@ -181,7 +218,7 @@ class FantasyTeam:
         Check if a player of the given position can be drafted into the FLEX slot.
 
         A position is FLEX eligible when:
-        1. The position is RB or WR (FLEX eligible positions)
+        1. The position is RB, WR, or DST (FLEX eligible positions)
         2. The primary position slots are full
         3. The FLEX slot is available
 
@@ -191,15 +228,25 @@ class FantasyTeam:
         Returns:
             bool: True if the position can be drafted to FLEX, False otherwise
         """
-        # Check if player can be drafted as a FLEX
+        # First requirement: Position must be one of the FLEX-eligible types
+        # Only RB, WR, and DST can fill the FLEX slot
+        # QB, TE, and K cannot be assigned to FLEX
         if pos not in Constants.FLEX_ELIGIBLE_POSITIONS:
             self.logger.debug(f"Position {pos} not FLEX eligible")
             return False
 
-        # Check actual slot occupancy, not position counts
-        # pos_counts includes players in FLEX slots, but we need to check natural position slots only
+        # Second requirement: Natural position slots must be full
+        # IMPORTANT: We check slot_assignments[pos], NOT pos_counts
+        # Why? pos_counts includes players in FLEX, which would give wrong results
+        # Example: 4 RBs total with 1 in FLEX would show pos_counts[RB]=5 (4+1)
+        #          but slot_assignments[RB]=4 (the actual RB slots)
         pos_slots_full = len(self.slot_assignments[pos]) >= Constants.MAX_POSITIONS[pos]
+
+        # Third requirement: FLEX slot must have space available
+        # The FLEX slot can only hold 1 player (MAX_POSITIONS[FLEX] = 1)
         flex_available = len(self.slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]
+
+        # Both conditions must be true: natural position full AND FLEX available
         result = pos_slots_full and flex_available
 
         self.logger.debug(f"FLEX eligibility for {pos}: pos_slots_full={pos_slots_full} ({len(self.slot_assignments[pos])}>={Constants.MAX_POSITIONS[pos]}), flex_available={flex_available} ({len(self.slot_assignments[Constants.FLEX])}<{Constants.MAX_POSITIONS[Constants.FLEX]}), result={result}")
