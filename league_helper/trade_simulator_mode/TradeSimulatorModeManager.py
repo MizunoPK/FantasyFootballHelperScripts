@@ -1,3 +1,25 @@
+"""
+Trade Simulator Mode Manager
+
+Manages trade simulation and analysis including waiver optimization,
+trade suggestions, and manual trade visualization. Evaluates trades using
+scoring engine with customizable parameters for user vs opponent teams.
+
+Key responsibilities:
+- Loading and organizing league rosters by team
+- Generating trade combinations (1-for-1, 2-for-2, 3-for-3)
+- Evaluating trade fairness using differential scoring
+- Providing interactive trade analysis modes (waiver, suggestor, manual)
+- Validating roster constraints and position limits
+- Persisting trade analyses to timestamped files
+
+Trade evaluation uses different scoring for user vs opponent:
+- User team: Full scoring (ADP, player rating, team quality, performance, bye penalties)
+- Opponent team: Simplified scoring (projections only, no external factors)
+
+Author: Kai Mizuno
+"""
+
 import copy
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
@@ -25,13 +47,21 @@ from utils.LoggingManager import get_logger
 
 class TradeSimulatorModeManager:
     """
-    Manages trade simulation modes including waiver optimization and trade analysis.
+    Manages trade simulation modes with roster validation and impact analysis.
+
+    Provides three interactive modes:
+    1. Waiver Optimizer - Find best waiver wire pickups
+    2. Trade Suggestor - Discover mutually beneficial trades
+    3. Manual Trade Visualizer - Analyze specific trade proposals
 
     Attributes:
         data_folder (Path): Path to data directory containing drafted_data.csv
         player_manager (PlayerManager): PlayerManager instance with all player data
+        config (ConfigManager): Configuration manager
         logger: Logger instance
         team_rosters (Dict[str, List[FantasyPlayer]]): Dictionary mapping team names to their player rosters
+        my_team (TradeSimTeam): User's team with scoring
+        opponent_simulated_teams (List[TradeSimTeam]): All opponent teams with scoring
     """
 
     def __init__(self, data_folder: Path, player_manager : PlayerManager, config : ConfigManager):

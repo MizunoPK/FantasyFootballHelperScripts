@@ -1,3 +1,20 @@
+"""
+Trade Simulation Team
+
+Represents a fantasy football team in trade simulation scenarios.
+Used by the trade simulator to evaluate trade fairness by scoring both teams
+with different scoring configurations (opponent vs user team scoring).
+
+Key responsibilities:
+- Managing team roster with injury filtering
+- Calculating team scores using PlayerManager scoring engine
+- Applying different scoring rules for opponent vs user teams
+- Caching ScoredPlayer objects for performance
+- Providing scored player data for trade evaluation display
+
+Author: Kai Mizuno
+"""
+
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -12,6 +29,12 @@ from utils.DraftedRosterManager import DraftedRosterManager
 from utils.FantasyPlayer import FantasyPlayer
 
 class TradeSimTeam:
+    """
+    Represents a fantasy football team in trade simulation with customizable scoring.
+
+    This class manages a team's roster and calculates team scores using different
+    scoring configurations based on whether it's the user's team or an opponent team.
+    """
 
     def __init__(self, name : str, team : List[FantasyPlayer], player_manager : PlayerManager, isOpponent = True):
         self.name = name

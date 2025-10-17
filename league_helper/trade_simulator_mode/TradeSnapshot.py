@@ -1,3 +1,19 @@
+"""
+Trade Snapshot Data Model
+
+Captures the complete state of a trade evaluation including both teams
+before and after the proposed trade. Stores scored player data in both
+original and new team contexts for accurate trade impact analysis.
+
+Key responsibilities:
+- Storing post-trade team states for both parties
+- Tracking players exchanged with scoring in new team context
+- Preserving original player scores for comparison
+- Providing data structure for trade visualization and analysis
+
+Author: Kai Mizuno
+"""
+
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -8,6 +24,12 @@ sys.path.append(str(Path(__file__).parent.parent))
 from util.ScoredPlayer import ScoredPlayer
 
 class TradeSnapshot:
+    """
+    Immutable snapshot of a trade evaluation with before/after team states.
+
+    Stores the complete state of both teams after a proposed trade, including
+    the scored players exchanged and the original scores for comparison.
+    """
 
     def __init__(self, my_new_team : TradeSimTeam, my_new_players : List[ScoredPlayer],
                  their_new_team : TradeSimTeam, their_new_players : List[ScoredPlayer],
