@@ -1,6 +1,6 @@
 {
-  "config_name": "simulation/simulation_configs/intermediate_01_PERFORMANCE_SCORING_WEIGHT.json",
-  "description": "Win Rate: 0.76",
+  "config_name": "simulation/simulation_configs/intermediate_14_MATCHUP_SCORING_STEPS.json",
+  "description": "Win Rate: 0.72",
   "parameters": {
     "CURRENT_NFL_WEEK": 7,
     "NFL_SEASON": 2025,
@@ -127,7 +127,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.1120931704070713
+      "WEIGHT": 1.095838942429308
     },
     "MATCHUP_SCORING": {
       "THRESHOLDS": {
