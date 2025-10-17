@@ -47,6 +47,11 @@ class TestConfigGeneratorInitialization:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 37.5
                     }
                 },
                 "PLAYER_RATING_SCORING": {
@@ -56,6 +61,11 @@ class TestConfigGeneratorInitialization:
                         "GOOD": 1.15,
                         "POOR": 0.85,
                         "VERY_POOR": 0.75
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 20.0
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
@@ -65,6 +75,11 @@ class TestConfigGeneratorInitialization:
                         "GOOD": 1.2,
                         "POOR": 0.8,
                         "VERY_POOR": 0.7
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 6.25
                     }
                 },
                 "PERFORMANCE_SCORING": {
@@ -74,6 +89,11 @@ class TestConfigGeneratorInitialization:
                         "GOOD": 1.05,
                         "POOR": 0.95,
                         "VERY_POOR": 0.85
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 0.1
                     }
                 },
                 "MATCHUP_SCORING": {
@@ -83,6 +103,11 @@ class TestConfigGeneratorInitialization:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 7.5
                     }
                 }
             }
@@ -164,6 +189,11 @@ class TestParameterValueGeneration:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 37.5
                     }
                 },
                 "PLAYER_RATING_SCORING": {
@@ -173,6 +203,11 @@ class TestParameterValueGeneration:
                         "GOOD": 1.15,
                         "POOR": 0.85,
                         "VERY_POOR": 0.75
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 20.0
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
@@ -182,6 +217,11 @@ class TestParameterValueGeneration:
                         "GOOD": 1.2,
                         "POOR": 0.8,
                         "VERY_POOR": 0.7
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 6.25
                     }
                 },
                 "PERFORMANCE_SCORING": {
@@ -191,6 +231,11 @@ class TestParameterValueGeneration:
                         "GOOD": 1.05,
                         "POOR": 0.95,
                         "VERY_POOR": 0.85
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 0.1
                     }
                 },
                 "MATCHUP_SCORING": {
@@ -200,6 +245,11 @@ class TestParameterValueGeneration:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 7.5
                     }
                 }
             }
@@ -299,6 +349,11 @@ class TestCombinationGeneration:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 37.5
                     }
                 },
                 "PLAYER_RATING_SCORING": {
@@ -308,6 +363,11 @@ class TestCombinationGeneration:
                         "GOOD": 1.15,
                         "POOR": 0.85,
                         "VERY_POOR": 0.75
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 20.0
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
@@ -317,6 +377,11 @@ class TestCombinationGeneration:
                         "GOOD": 1.2,
                         "POOR": 0.8,
                         "VERY_POOR": 0.7
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 6.25
                     }
                 },
                 "PERFORMANCE_SCORING": {
@@ -326,6 +391,11 @@ class TestCombinationGeneration:
                         "GOOD": 1.05,
                         "POOR": 0.95,
                         "VERY_POOR": 0.85
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 0.1
                     }
                 },
                 "MATCHUP_SCORING": {
@@ -335,6 +405,11 @@ class TestCombinationGeneration:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 7.5
                     }
                 }
             }
@@ -401,6 +476,11 @@ class TestConfigDictCreation:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 37.5
                     }
                 },
                 "PLAYER_RATING_SCORING": {
@@ -410,6 +490,11 @@ class TestConfigDictCreation:
                         "GOOD": 1.15,
                         "POOR": 0.85,
                         "VERY_POOR": 0.75
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 20.0
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
@@ -419,6 +504,11 @@ class TestConfigDictCreation:
                         "GOOD": 1.2,
                         "POOR": 0.8,
                         "VERY_POOR": 0.7
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 6.25
                     }
                 },
                 "PERFORMANCE_SCORING": {
@@ -428,6 +518,11 @@ class TestConfigDictCreation:
                         "GOOD": 1.05,
                         "POOR": 0.95,
                         "VERY_POOR": 0.85
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 0.1
                     }
                 },
                 "MATCHUP_SCORING": {
@@ -437,6 +532,11 @@ class TestConfigDictCreation:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 7.5
                     }
                 }
             }
@@ -525,6 +625,11 @@ class TestIterativeOptimizationSupport:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 37.5
                     }
                 },
                 "PLAYER_RATING_SCORING": {
@@ -534,6 +639,11 @@ class TestIterativeOptimizationSupport:
                         "GOOD": 1.15,
                         "POOR": 0.85,
                         "VERY_POOR": 0.75
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 20.0
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
@@ -543,6 +653,11 @@ class TestIterativeOptimizationSupport:
                         "GOOD": 1.2,
                         "POOR": 0.8,
                         "VERY_POOR": 0.7
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 6.25
                     }
                 },
                 "PERFORMANCE_SCORING": {
@@ -552,6 +667,11 @@ class TestIterativeOptimizationSupport:
                         "GOOD": 1.05,
                         "POOR": 0.95,
                         "VERY_POOR": 0.85
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 0.1
                     }
                 },
                 "MATCHUP_SCORING": {
@@ -561,6 +681,11 @@ class TestIterativeOptimizationSupport:
                         "GOOD": 1.1,
                         "POOR": 0.9,
                         "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 7.5
                     }
                 }
             }

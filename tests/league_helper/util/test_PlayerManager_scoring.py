@@ -219,6 +219,10 @@ def player_manager(mock_data_folder, config_manager, team_data_manager, mock_fan
     pm.team = mock_fantasy_team
     pm.max_projection = 250.0  # Set to reasonable value to avoid division by zero
 
+    # Mock projected_points_manager for performance calculations
+    pm.projected_points_manager = Mock()
+    pm.projected_points_manager.get_projected_points = Mock(return_value=None)
+
     return pm
 
 
