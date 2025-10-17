@@ -64,7 +64,7 @@ class TradeSimulatorModeManager:
         opponent_simulated_teams (List[TradeSimTeam]): All opponent teams with scoring
     """
 
-    def __init__(self, data_folder: Path, player_manager : PlayerManager, config : ConfigManager):
+    def __init__(self, data_folder: Path, player_manager : PlayerManager, config : ConfigManager) -> None:
         """
         Initialize TradeSimulatorModeManager.
 
@@ -82,7 +82,7 @@ class TradeSimulatorModeManager:
         self.trade_snapshots : List[TradeSnapshot] = []
         self.init_team_data()
 
-    def run_interactive_mode(self):
+    def run_interactive_mode(self) -> None:
         loop = True
         while (loop):
             self.init_team_data()
@@ -113,7 +113,7 @@ class TradeSimulatorModeManager:
                 # Wait
                 input("Press enter to continue...")
 
-    def init_team_data(self):
+    def init_team_data(self) -> None:
         """
         Initialize team roster data by organizing players by fantasy team.
 
@@ -1017,7 +1017,7 @@ class TradeSimulatorModeManager:
 
         return trade_combos
     
-    def save_trades_to_file(self, sorted_trades : List[TradeSnapshot]):
+    def save_trades_to_file(self, sorted_trades : List[TradeSnapshot]) -> None:
         """
         Save trade suggestions to timestamped file (for Trade Suggestor mode).
 
@@ -1061,7 +1061,7 @@ class TradeSimulatorModeManager:
 
         self.logger.info(f"Trades saved to {filename}")
 
-    def save_waiver_trades_to_file(self, sorted_trades : List[TradeSnapshot]):
+    def save_waiver_trades_to_file(self, sorted_trades : List[TradeSnapshot]) -> None:
         """
         Save waiver pickup suggestions to timestamped file (for Waiver Optimizer mode).
 

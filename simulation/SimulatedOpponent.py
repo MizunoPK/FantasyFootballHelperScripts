@@ -69,7 +69,7 @@ class SimulatedOpponent:
         config: ConfigManager,
         team_data_mgr: TeamDataManager,
         strategy: str
-    ):
+    ) -> None:
         """
         Initialize SimulatedOpponent.
 

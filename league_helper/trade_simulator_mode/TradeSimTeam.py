@@ -36,7 +36,7 @@ class TradeSimTeam:
     scoring configurations based on whether it's the user's team or an opponent team.
     """
 
-    def __init__(self, name : str, team : List[FantasyPlayer], player_manager : PlayerManager, isOpponent = True):
+    def __init__(self, name : str, team : List[FantasyPlayer], player_manager : PlayerManager, isOpponent: bool = True) -> None:
         self.name = name
 
         # Filter out injured players

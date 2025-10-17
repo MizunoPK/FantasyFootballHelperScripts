@@ -137,7 +137,7 @@ class ConfigManager:
         >>> draft_bonus = config.get_draft_order_bonus("RB", 1)  # RB in round 1 → returns bonus
     """
 
-    def __init__(self, data_folder: Path):
+    def __init__(self, data_folder: Path) -> None:
         """
         Initialize the config manager and load configuration.
 
@@ -507,7 +507,7 @@ class ConfigManager:
         """
         return key in self.parameters
     
-    def get_consistency_label(self, val):
+    def get_consistency_label(self, val: float) -> str:
         """
         Get a human-readable label for a consistency value.
 
@@ -627,7 +627,7 @@ class ConfigManager:
         else:
             return 0, ""
         
-    def get_bye_week_penalty(self, num_same_position : int, num_different_position : int = 0):
+    def get_bye_week_penalty(self, num_same_position : int, num_different_position : int = 0) -> float:
         """
         Calculate bye week penalty based on roster conflicts.
 
@@ -642,7 +642,7 @@ class ConfigManager:
         different_position_penalty = self.parameters.get('DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY', 0) * num_different_position
         return same_position_penalty + different_position_penalty
         
-    def get_injury_penalty(self, risk_level : str):
+    def get_injury_penalty(self, risk_level : str) -> float:
         if risk_level in self.injury_penalties:
             return self.injury_penalties[risk_level]
         else:

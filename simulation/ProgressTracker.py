@@ -31,7 +31,7 @@ class ProgressTracker:
         description (str): Description of the task being tracked
     """
 
-    def __init__(self, total: int, description: str = "Progress"):
+    def __init__(self, total: int, description: str = "Progress") -> None:
         """
         Initialize ProgressTracker.
 
@@ -217,7 +217,7 @@ class MultiLevelProgressTracker:
         inner_total: int,
         outer_desc: str = "Configs",
         inner_desc: str = "Simulations"
-    ):
+    ) -> None:
         """
         Initialize MultiLevelProgressTracker.
 

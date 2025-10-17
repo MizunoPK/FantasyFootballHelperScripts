@@ -34,7 +34,7 @@ class ResultsManager:
         logger: Logger instance
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize ResultsManager with empty results."""
         self.results: Dict[str, ConfigPerformance] = {}
         self.logger = get_logger()

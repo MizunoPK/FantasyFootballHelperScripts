@@ -17,7 +17,7 @@ Author: Kai Mizuno
 
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Optional, Callable
 
 from util.ConfigManager import ConfigManager
 
@@ -48,7 +48,7 @@ class FantasyTeam:
         bye_week_counts: Dictionary tracking bye week distribution by position
         draft_order: List representing draft order with player assignments
     """
-    def __init__(self, config : ConfigManager, players : List[FantasyPlayer] = []):
+    def __init__(self, config : ConfigManager, players : List[FantasyPlayer] = []) -> None:
         """
         Initialize a FantasyTeam instance.
 
@@ -117,13 +117,13 @@ class FantasyTeam:
         self.logger.debug(f"draft_order after assignment: {[p.id if p else None for p in self.draft_order]}")
         self.logger.debug(f"FantasyTeam initialized. Roster size: {len(self.roster)}")
 
-    def set_score(self, id : int, score : float):
+    def set_score(self, id : int, score : float) -> None:
         for p in self.roster:
             if p.id == id:
                 p.score = score
                 break
 
-    def _assign_player_to_slot(self, player : FantasyPlayer):
+    def _assign_player_to_slot(self, player : FantasyPlayer) -> str:
         """
         Assign a player to the appropriate slot and update counts.
 
@@ -188,7 +188,7 @@ class FantasyTeam:
         return assigned_slot
 
     # Method to get the next draft position weights based on the current roster
-    def get_next_draft_position_weights(self):
+    def get_next_draft_position_weights(self) -> Optional[Dict[str, str]]:
         """
         Get the position weights for the next draft pick based on current roster needs.
 
@@ -213,7 +213,7 @@ class FantasyTeam:
     # 3. The FLEX position itself is not yet filled to its max limit
     # This allows drafting a player into the FLEX spot when their main position is full
     # but there is still room in the FLEX slot.
-    def flex_eligible(self, pos : str):
+    def flex_eligible(self, pos : str) -> bool:
         """
         Check if a player of the given position can be drafted into the FLEX slot.
 
@@ -303,7 +303,7 @@ class FantasyTeam:
         return True
 
     # Method to draft a player onto the team
-    def draft_player(self, player : FantasyPlayer):
+    def draft_player(self, player : FantasyPlayer) -> bool:
         """
         Draft a player onto the team.
 
@@ -342,7 +342,7 @@ class FantasyTeam:
             return False
 
     # Method to remove a player from the team (for trade helper)
-    def remove_player(self, player : FantasyPlayer):
+    def remove_player(self, player : FantasyPlayer) -> bool:
         """
         Remove a player from the team roster.
 
@@ -399,7 +399,7 @@ class FantasyTeam:
         return True
 
     # Method to replace a player atomically (for trade helper)
-    def replace_player(self, old_player : FantasyPlayer, new_player : FantasyPlayer):
+    def replace_player(self, old_player : FantasyPlayer, new_player : FantasyPlayer) -> bool:
         """
         Replace one player on the roster with another player.
 
@@ -447,7 +447,7 @@ class FantasyTeam:
         return True
     
     # Helper method to check if a player replacement is valid
-    def _can_replace_player(self, old_player : FantasyPlayer, new_player : FantasyPlayer):
+    def _can_replace_player(self, old_player : FantasyPlayer, new_player : FantasyPlayer) -> bool:
         """
         Check if a player replacement is valid using explicit slot tracking.
 
@@ -506,7 +506,7 @@ class FantasyTeam:
         return False
 
     # Method to get total team score for trade optimization
-    def get_total_team_score(self, scoring_function):
+    def get_total_team_score(self, scoring_function: Callable[[FantasyPlayer], float]) -> float:
         """
         Calculate the total fantasy points for all players on the roster using a scoring function.
 
@@ -522,7 +522,7 @@ class FantasyTeam:
             total_score += scoring_function(player)
         return total_score
 
-    def get_players_by_slot(self, slot : str):
+    def get_players_by_slot(self, slot : str) -> List[FantasyPlayer]:
         """
         Get all players assigned to a specific slot.
 
@@ -535,7 +535,7 @@ class FantasyTeam:
         player_ids = self.slot_assignments.get(slot, [])
         return [p for p in self.roster if p.id in player_ids]
 
-    def get_weakest_player_by_position(self, position : str, scoring_function):
+    def get_weakest_player_by_position(self, position : str, scoring_function: Callable[[FantasyPlayer], float]) -> Optional[FantasyPlayer]:
         """
         Get the weakest player of a given position for trade optimization.
 
@@ -554,7 +554,7 @@ class FantasyTeam:
         weakest = min(position_players, key=scoring_function)
         return weakest
 
-    def get_optimal_slot_for_player(self, player):
+    def get_optimal_slot_for_player(self, player: FantasyPlayer) -> Optional[str]:
         """
         Determine the optimal slot assignment for a FLEX-eligible player.
 
@@ -585,7 +585,7 @@ class FantasyTeam:
         else:
             return None
 
-    def optimize_flex_assignments(self, scoring_function):
+    def optimize_flex_assignments(self, scoring_function: Callable[[FantasyPlayer], float]) -> bool:
         """
         Optimize FLEX assignments by moving the highest-scoring FLEX player
         to their natural position if possible.
@@ -642,7 +642,7 @@ class FantasyTeam:
 
         return optimized
 
-    def copy_team(self):
+    def copy_team(self) -> 'FantasyTeam':
         """Create a deep copy of the team for simulation purposes"""
         import copy
         new_team = FantasyTeam()
@@ -653,7 +653,7 @@ class FantasyTeam:
         new_team.bye_week_counts = copy.deepcopy(self.bye_week_counts)
         return new_team
 
-    def _recalculate_position_counts(self):
+    def _recalculate_position_counts(self) -> None:
         """Recalculate position counts based on current roster and slot assignments"""
         # Reset counts
         for pos in self.pos_counts:
@@ -666,7 +666,7 @@ class FantasyTeam:
         # Count players in FLEX slot
         self.pos_counts[Constants.FLEX] = len(self.slot_assignments[Constants.FLEX])
 
-    def validate_roster_integrity(self):
+    def validate_roster_integrity(self) -> bool:
         """Validate that position counts match actual roster composition and slot assignments"""
         errors = []
 
@@ -734,7 +734,7 @@ class FantasyTeam:
             self.logger.debug("Roster integrity validation passed")
             return True
 
-    def get_slot_assignment(self, player):
+    def get_slot_assignment(self, player: FantasyPlayer) -> Optional[str]:
         """
         Determine which slot a player is currently assigned to using explicit slot tracking.
 
@@ -756,7 +756,7 @@ class FantasyTeam:
         self.logger.warning(f"Player {player.name} ({player.id}) is in roster but not assigned to any slot")
         return None
     
-    def get_matching_byes_in_roster(self, bye_week : int, position : str, is_rostered : bool):
+    def get_matching_byes_in_roster(self, bye_week : int, position : str, is_rostered : bool) -> int:
         matches = 0
 
         for p in self.roster:
@@ -767,7 +767,7 @@ class FantasyTeam:
             matches -= 1
         return matches
     
-    def display_roster(self):
+    def display_roster(self) -> None:
         """Display current roster organized by position and calling out bye weeks"""
         print(f"\nCurrent Roster by Position:")
         print("-" * 40)

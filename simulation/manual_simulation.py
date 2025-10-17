@@ -175,7 +175,7 @@ def print_final_standings(league: SimulatedLeague) -> None:
         print("="*80)
 
 
-def main():
+def main() -> None:
     """Run single manual simulation for testing/validation."""
     logger = get_logger()
     logger.info("Starting manual simulation")

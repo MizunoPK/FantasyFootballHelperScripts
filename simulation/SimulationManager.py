@@ -61,7 +61,7 @@ class SimulationManager:
         max_workers : int,
         data_folder: Path,
         num_test_values: int = 5
-    ):
+    ) -> None:
         """
         Initialize SimulationManager.
 
@@ -151,7 +151,7 @@ class SimulationManager:
             inner_desc="Sims"
         )
 
-        def progress_callback(completed: int, total: int):
+        def progress_callback(completed: int, total: int) -> None:
             """Callback for inner progress updates."""
             progress_tracker.update_inner(completed)
 

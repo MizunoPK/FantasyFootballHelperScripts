@@ -77,7 +77,7 @@ class PlayerManager:
         ...     player_manager.update_players_file()
     """
 
-    def __init__(self, data_folder : Path, config : ConfigManager, team_data_manager : TeamDataManager):
+    def __init__(self, data_folder : Path, config : ConfigManager, team_data_manager : TeamDataManager) -> None:
         """
         Initialize the Player Manager.
 
@@ -111,7 +111,7 @@ class PlayerManager:
         self.logger.debug(f"Player Manager initialized with {len(self.players)} players, {len(self.team.roster)} on roster")
 
 
-    def load_players_from_csv(self):
+    def load_players_from_csv(self) -> None:
         """
         Load players from CSV file using the new FantasyPlayer class.
 
@@ -246,7 +246,7 @@ class PlayerManager:
         self.players = players
     
 
-    def load_team(self):
+    def load_team(self) -> None:
         """
         Load the current team roster from player data.
 
@@ -313,7 +313,7 @@ class PlayerManager:
         self.logger.info(f"Available players saved with {len(self.players)} players (sorted by drafted status, all enhanced columns preserved)")
     
 
-    def reload_player_data(self):
+    def reload_player_data(self) -> None:
         """
         Reload player data from CSV file and refresh team roster
         This is called before each main menu display to ensure data is up-to-date
@@ -353,7 +353,7 @@ class PlayerManager:
         return self.team.draft_player(player_to_draft)
     
     def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_scores : Dict[str,float] = {}, unlocked_only=False) -> List[FantasyPlayer]:
-        def is_unlocked(val):
+        def is_unlocked(val: int) -> bool:
             if unlocked_only:
                 return val == 0
             return True
@@ -373,7 +373,7 @@ class PlayerManager:
         return player_list
     
 
-    def display_roster_by_draft_order(self):
+    def display_roster_by_draft_order(self) -> None:
         """Display current roster organized by assigned slots in draft order"""
         print(f"\nCurrent Roster by Position:")
         print("-" * 40)
@@ -402,10 +402,10 @@ class PlayerManager:
 
         print(f"\nTotal roster: {len(self.team.roster)}/{Constants.MAX_PLAYERS} players")
 
-    def display_roster(self):
+    def display_roster(self) -> None:
         self.team.display_roster()
 
-    def display_scored_roster(self):
+    def display_scored_roster(self) -> None:
         """
         Display scored roster players with their scoring details.
 
@@ -434,7 +434,7 @@ class PlayerManager:
             print(str(scored_player))
             print()  # Add blank line between players
 
-    def get_lowest_scores_on_roster(self):
+    def get_lowest_scores_on_roster(self) -> Dict[str, float]:
         lowest_scores = {
             Constants.QB: 9999,
             Constants.RB: 9999,
@@ -690,7 +690,7 @@ class PlayerManager:
             ScoredPlayer: Scored player object with final score and reasons
         """
         reasons = []
-        def add_to_reasons(r : str):
+        def add_to_reasons(r : str) -> None:
             if r is not None and r != "":
                 reasons.append(r)
 

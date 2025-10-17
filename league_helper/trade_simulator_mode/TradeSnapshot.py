@@ -33,7 +33,7 @@ class TradeSnapshot:
 
     def __init__(self, my_new_team : TradeSimTeam, my_new_players : List[ScoredPlayer],
                  their_new_team : TradeSimTeam, their_new_players : List[ScoredPlayer],
-                 my_original_players : List[ScoredPlayer] = None):
+                 my_original_players : List[ScoredPlayer] = None) -> None:
         """
         Trade snapshot storing both new team state and original player scores.
 

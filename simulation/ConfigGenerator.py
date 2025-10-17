@@ -120,7 +120,7 @@ class ConfigGenerator:
         'MATCHUP_SCORING_STEPS',
     ]
 
-    def __init__(self, baseline_config_path: Path, num_test_values: int = 5):
+    def __init__(self, baseline_config_path: Path, num_test_values: int = 5) -> None:
         """
         Initialize ConfigGenerator with baseline configuration.
 

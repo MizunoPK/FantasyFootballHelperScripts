@@ -22,7 +22,7 @@ from utils.LoggingManager import get_logger
 class DraftedDataWriter:
     """Manages reading and writing to drafted_data.csv file."""
 
-    def __init__(self, csv_path: Path):
+    def __init__(self, csv_path: Path) -> None:
         """
         Initialize DraftedDataWriter.
 

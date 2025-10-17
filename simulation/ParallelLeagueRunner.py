@@ -50,7 +50,7 @@ class ParallelLeagueRunner:
         max_workers: int = 4,
         data_folder: Optional[Path] = None,
         progress_callback: Optional[Callable[[int, int], None]] = None
-    ):
+    ) -> None:
         """
         Initialize ParallelLeagueRunner.
 

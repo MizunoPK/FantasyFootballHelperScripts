@@ -32,7 +32,7 @@ class ConfigPerformance:
         num_simulations (int): Number of simulations completed
     """
 
-    def __init__(self, config_id: str, config_dict: dict):
+    def __init__(self, config_id: str, config_dict: dict) -> None:
         """
         Initialize ConfigPerformance tracker.
 

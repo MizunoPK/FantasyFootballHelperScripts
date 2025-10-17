@@ -80,7 +80,7 @@ class SimulatedLeague:
         'projected_points_with_draft_order': 3
     }
 
-    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data")):
+    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data")) -> None:
         """
         Initialize SimulatedLeague with configuration.
 
@@ -379,7 +379,7 @@ class SimulatedLeague:
             shutil.rmtree(self.temp_dir)
             self.logger.debug(f"Cleaned up temporary directory: {self.temp_dir}")
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Destructor to ensure cleanup happens."""
         try:
             self.cleanup()

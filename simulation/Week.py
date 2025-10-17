@@ -42,13 +42,13 @@ class WeekResult:
         won (bool): True if team won, False if lost or tied
     """
 
-    def __init__(self, team: Team, points_scored: float, points_against: float, won: bool):
+    def __init__(self, team: Team, points_scored: float, points_against: float, won: bool) -> None:
         self.team = team
         self.points_scored = points_scored
         self.points_against = points_against
         self.won = won
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         result = "W" if self.won else "L"
         return f"WeekResult({result}, {self.points_scored:.2f}-{self.points_against:.2f})"
 
@@ -66,7 +66,7 @@ class Week:
         logger: Logger instance
     """
 
-    def __init__(self, week_number: int, matchups: List[Tuple[Team, Team]]):
+    def __init__(self, week_number: int, matchups: List[Tuple[Team, Team]]) -> None:
         """
         Initialize Week with matchups.
 
@@ -155,5 +155,5 @@ class Week:
         """Get all matchups for this week."""
         return self.matchups.copy()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Week({self.week_number}, {len(self.matchups)} matchups)"

@@ -64,7 +64,7 @@ class DraftHelperTeam:
         actual_pm: PlayerManager,
         config: ConfigManager,
         team_data_mgr: TeamDataManager
-    ):
+    ) -> None:
         """
         Initialize DraftHelperTeam.
 
