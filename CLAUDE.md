@@ -2,7 +2,7 @@
 
 ## Quick Start for New Agents
 
-**FIRST**: Read `PROJECT_DOCUMENTATION.md` for complete architectural overview, system design, and implementation details.
+**FIRST**: Read `README.md` for project overview, installation instructions, and usage guide.
 
 **THIS FILE**: Contains workflow rules, coding standards, and commit protocols.
 
@@ -101,7 +101,7 @@ python tests/run_all_tests.py
 - `updates/done/` - Completed updates
 - `rules.txt` - Complete development workflow rules
 - `CLAUDE.md` - This file (Claude Code guidelines)
-- `PROJECT_DOCUMENTATION.md` - Complete architectural and implementation guide
+- `README.md` - Project documentation, installation, and usage guide
 
 ---
 
