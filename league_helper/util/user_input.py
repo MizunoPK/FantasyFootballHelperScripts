@@ -20,6 +20,34 @@ from typing import List
 
 
 def show_list_selection(title : str, options : List[str], quit_str : str) -> int:
+    """
+    Display a numbered menu and get user selection.
+
+    Presents a formatted menu with numbered options and a quit option,
+    then prompts the user for input with validation and retry logic.
+
+    Args:
+        title (str): Menu title to display at the top
+        options (List[str]): List of menu options to display (numbered 1-N)
+        quit_str (str): Label for the quit option (displayed as option N+1)
+
+    Returns:
+        int: User's choice as 1-based index (1 to len(options)+1)
+            - Values 1 to len(options) represent menu options
+            - Value len(options)+1 represents quit selection
+
+    Example:
+        >>> choice = show_list_selection("Main Menu", ["Option A", "Option B"], "Exit")
+        =========================
+        Main Menu
+        =========================
+        1. Option A
+        2. Option B
+        -----
+        3. Exit
+        =========================
+        Enter your choice (1-3): 1
+    """
     # Display menu header with title
     print("="*25)
     print(title)

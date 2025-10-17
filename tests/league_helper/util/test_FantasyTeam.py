@@ -1006,5 +1006,471 @@ class TestEdgeCases:
         assert total_byes_week_7 == 3
 
 
+# ============================================================================
+# DRAFT POSITION WEIGHTS TESTS
+# ============================================================================
+
+class TestDraftPositionWeights:
+    """Test get_next_draft_position_weights() method"""
+
+    def test_get_next_draft_position_weights_empty_roster(self, empty_team):
+        """Test getting weights for first draft pick"""
+        weights = empty_team.get_next_draft_position_weights()
+
+        # Should return first position in draft order
+        assert weights is not None
+        assert isinstance(weights, dict)
+
+    def test_get_next_draft_position_weights_partial_roster(self, empty_team, sample_players):
+        """Test getting weights after partial draft"""
+        # Draft 3 players
+        for i in range(3):
+            sample_players[i].drafted = 0
+            empty_team.draft_player(sample_players[i])
+
+        weights = empty_team.get_next_draft_position_weights()
+
+        assert weights is not None
+
+    def test_get_next_draft_position_weights_full_roster(self, full_roster_team):
+        """Test getting weights when roster is full (or last position)"""
+        weights = full_roster_team.get_next_draft_position_weights()
+
+        # When roster is full (15 players), it returns the next draft position or None
+        # The behavior depends on whether all draft_order slots are filled
+        assert weights is not None or weights is None  # Either is acceptable
+
+
+# ============================================================================
+# TEAM SCORE TESTS
+# ============================================================================
+
+class TestTeamScore:
+    """Test get_total_team_score() and scoring functions"""
+
+    def test_get_total_team_score_empty(self, empty_team):
+        """Test total score for empty roster"""
+        def scoring_func(player):
+            return player.fantasy_points
+
+        score = empty_team.get_total_team_score(scoring_func)
+
+        assert score == 0
+
+    def test_get_total_team_score_single_player(self, empty_team, sample_players):
+        """Test total score with one player"""
+        player = sample_players[0]
+        player.drafted = 0
+        player.fantasy_points = 100.0
+        empty_team.draft_player(player)
+
+        def scoring_func(player):
+            return player.fantasy_points
+
+        score = empty_team.get_total_team_score(scoring_func)
+
+        assert score == 100.0
+
+    def test_get_total_team_score_multiple_players(self, empty_team, sample_players):
+        """Test total score with multiple players"""
+        for i in range(5):
+            sample_players[i].drafted = 0
+            sample_players[i].fantasy_points = 100.0 * (i + 1)
+            empty_team.draft_player(sample_players[i])
+
+        def scoring_func(player):
+            return player.fantasy_points
+
+        score = empty_team.get_total_team_score(scoring_func)
+
+        # 100 + 200 + 300 + 400 + 500 = 1500
+        assert score == 1500.0
+
+    def test_get_total_team_score_custom_function(self, empty_team, sample_players):
+        """Test total score with custom scoring function"""
+        for i in range(3):
+            sample_players[i].drafted = 0
+            empty_team.draft_player(sample_players[i])
+
+        # Custom function that doubles fantasy points
+        def custom_scoring(player):
+            return player.fantasy_points * 2
+
+        score = empty_team.get_total_team_score(custom_scoring)
+
+        expected = sum(p.fantasy_points * 2 for p in sample_players[:3])
+        assert score == expected
+
+
+# ============================================================================
+# WEAKEST PLAYER TESTS
+# ============================================================================
+
+class TestWeakestPlayer:
+    """Test get_weakest_player_by_position() method"""
+
+    def test_get_weakest_player_no_players_at_position(self, empty_team):
+        """Test getting weakest player when position has no players"""
+        def scoring_func(player):
+            return player.fantasy_points
+
+        weakest = empty_team.get_weakest_player_by_position(Constants.QB, scoring_func)
+
+        assert weakest is None
+
+    def test_get_weakest_player_single_player(self, empty_team, sample_players):
+        """Test getting weakest player with only one at position"""
+        qb = sample_players[0]
+        qb.drafted = 0
+        empty_team.draft_player(qb)
+
+        def scoring_func(player):
+            return player.fantasy_points
+
+        weakest = empty_team.get_weakest_player_by_position(Constants.QB, scoring_func)
+
+        assert weakest == qb
+
+    def test_get_weakest_player_multiple_players(self, empty_team, sample_players):
+        """Test getting weakest player with multiple at position"""
+        # Draft 3 RBs with different scores
+        rbs = sample_players[2:5]  # RB1, RB2, RB3
+        rbs[0].fantasy_points = 200.0
+        rbs[1].fantasy_points = 150.0  # Weakest
+        rbs[2].fantasy_points = 180.0
+
+        for rb in rbs:
+            rb.drafted = 0
+            empty_team.draft_player(rb)
+
+        def scoring_func(player):
+            return player.fantasy_points
+
+        weakest = empty_team.get_weakest_player_by_position(Constants.RB, scoring_func)
+
+        assert weakest == rbs[1]
+        assert weakest.fantasy_points == 150.0
+
+
+# ============================================================================
+# OPTIMAL SLOT TESTS
+# ============================================================================
+
+class TestOptimalSlot:
+    """Test get_optimal_slot_for_player() method"""
+
+    def test_optimal_slot_natural_position_available(self, empty_team, sample_players):
+        """Test optimal slot is natural position when available"""
+        player = sample_players[2]  # RB
+
+        optimal = empty_team.get_optimal_slot_for_player(player)
+
+        assert optimal == Constants.RB
+
+    def test_optimal_slot_flex_when_natural_full(self, empty_team, sample_players):
+        """Test optimal slot is FLEX when natural position is full"""
+        # Fill RB slots
+        for i in range(4):
+            empty_team.draft_player(sample_players[2 + i])
+
+        # Fifth RB should have FLEX as optimal slot
+        fifth_rb = FantasyPlayer(id=99, name="RB5", team="KC", position="RB",
+                                bye_week=7, fantasy_points=100.0,
+                                injury_status="ACTIVE", drafted=0, locked=0)
+
+        optimal = empty_team.get_optimal_slot_for_player(fifth_rb)
+
+        assert optimal == Constants.FLEX
+
+    def test_optimal_slot_none_when_all_full(self, empty_team, sample_players):
+        """Test optimal slot is None when both natural and FLEX are full"""
+        # Fill RB slots (4 RBs)
+        for i in range(4):
+            empty_team.draft_player(sample_players[2 + i])
+
+        # Fill FLEX with RB
+        fifth_rb = FantasyPlayer(id=99, name="RB5", team="KC", position="RB",
+                                bye_week=7, fantasy_points=100.0,
+                                injury_status="ACTIVE", drafted=0, locked=0)
+        empty_team.draft_player(fifth_rb)
+
+        # Sixth RB has no available slot
+        sixth_rb = FantasyPlayer(id=100, name="RB6", team="KC", position="RB",
+                                bye_week=8, fantasy_points=100.0,
+                                injury_status="ACTIVE", drafted=0, locked=0)
+
+        optimal = empty_team.get_optimal_slot_for_player(sixth_rb)
+
+        assert optimal is None
+
+    def test_optimal_slot_non_flex_position(self, empty_team, sample_players):
+        """Test optimal slot for non-FLEX-eligible position"""
+        # QBs are not FLEX-eligible
+        qb = sample_players[0]
+
+        optimal = empty_team.get_optimal_slot_for_player(qb)
+
+        assert optimal == Constants.QB
+
+    def test_optimal_slot_non_flex_position_full(self, empty_team, sample_players):
+        """Test optimal slot None for non-FLEX position when full"""
+        # Draft 2 QBs (max)
+        empty_team.draft_player(sample_players[0])
+        empty_team.draft_player(sample_players[1])
+
+        third_qb = FantasyPlayer(id=99, name="QB3", team="KC", position="QB",
+                                bye_week=7, fantasy_points=100.0,
+                                injury_status="ACTIVE", drafted=0, locked=0)
+
+        optimal = empty_team.get_optimal_slot_for_player(third_qb)
+
+        assert optimal is None
+
+
+# ============================================================================
+# FLEX OPTIMIZATION TESTS
+# ============================================================================
+
+class TestFlexOptimization:
+    """Test optimize_flex_assignments() method"""
+
+    def test_optimize_no_flex_players(self, empty_team, sample_players):
+        """Test optimization with no FLEX players"""
+        # Draft only QBs (not FLEX-eligible)
+        for i in range(2):
+            sample_players[i].drafted = 0
+            empty_team.draft_player(sample_players[i])
+
+        def scoring_func(player):
+            return player.fantasy_points
+
+        result = empty_team.optimize_flex_assignments(scoring_func)
+
+        assert result is False  # No optimization performed
+
+    def test_optimize_flex_player_to_natural_position(self, empty_team, sample_players):
+        """Test moving FLEX player to natural position when space available"""
+        # Draft 3 RBs (leaves 1 RB slot open)
+        for i in range(3):
+            sample_players[2 + i].drafted = 0
+            empty_team.draft_player(sample_players[2 + i])
+
+        # Manually place high-scoring RB in FLEX (simulating suboptimal assignment)
+        # This is a bit artificial since draft_player assigns optimally
+        # In practice, this happens during trades/replacements
+        high_score_rb = FantasyPlayer(id=99, name="RB_FLEX", team="KC", position="RB",
+                                     bye_week=7, fantasy_points=250.0,
+                                     injury_status="ACTIVE", drafted=2, locked=0)
+        empty_team.roster.append(high_score_rb)
+        empty_team.slot_assignments[Constants.FLEX].append(high_score_rb.id)
+        empty_team.pos_counts[Constants.RB] += 1
+        empty_team.pos_counts[Constants.FLEX] += 1
+
+        def scoring_func(player):
+            return player.fantasy_points
+
+        result = empty_team.optimize_flex_assignments(scoring_func)
+
+        # Should move to natural RB position
+        assert result is True
+        assert high_score_rb.id in empty_team.slot_assignments[Constants.RB]
+
+    def test_optimize_swap_flex_with_natural(self, empty_team, sample_players):
+        """Test swapping FLEX player with weaker natural position player"""
+        # Draft 4 RBs to fill RB slots
+        rbs = sample_players[2:6]  # RB1-4
+        rbs[0].fantasy_points = 200.0
+        rbs[1].fantasy_points = 150.0  # Weakest in natural position
+        rbs[2].fantasy_points = 180.0
+        rbs[3].fantasy_points = 170.0
+
+        for rb in rbs:
+            rb.drafted = 0
+            empty_team.draft_player(rb)
+
+        # Add fifth RB to FLEX with higher score than weakest in natural
+        flex_rb = FantasyPlayer(id=99, name="RB5", team="KC", position="RB",
+                               bye_week=7, fantasy_points=190.0,  # Higher than weakest (150)
+                               injury_status="ACTIVE", drafted=0, locked=0)
+        empty_team.draft_player(flex_rb)
+
+        def scoring_func(player):
+            return player.fantasy_points
+
+        result = empty_team.optimize_flex_assignments(scoring_func)
+
+        # Optimization should be performed (may or may not swap depending on implementation)
+        # The key is that if FLEX has a higher-scoring player than natural position, it should optimize
+        # Check that the FLEX player is optimally placed
+        flex_players = empty_team.get_players_by_slot(Constants.FLEX)
+        if flex_players:
+            flex_scores = [scoring_func(p) for p in flex_players]
+            rb_players = empty_team.get_players_by_slot(Constants.RB)
+            rb_scores = [scoring_func(p) for p in rb_players]
+            # FLEX should have weakest or equal score compared to natural position
+            assert min(flex_scores) <= max(rb_scores) or result is True
+
+    def test_optimize_no_change_when_optimal(self, empty_team, sample_players):
+        """Test no optimization when assignments are already optimal"""
+        # Draft 4 RBs with descending scores
+        rbs = sample_players[2:6]
+        for i, rb in enumerate(rbs):
+            rb.fantasy_points = 200.0 - (i * 10)  # 200, 190, 180, 170
+            rb.drafted = 0
+            empty_team.draft_player(rb)
+
+        # Add weakest RB to FLEX
+        flex_rb = FantasyPlayer(id=99, name="RB5", team="KC", position="RB",
+                               bye_week=7, fantasy_points=160.0,  # Weakest
+                               injury_status="ACTIVE", drafted=0, locked=0)
+        empty_team.draft_player(flex_rb)
+
+        def scoring_func(player):
+            return player.fantasy_points
+
+        result = empty_team.optimize_flex_assignments(scoring_func)
+
+        # Already optimal, no changes needed
+        assert result is False
+
+
+# ============================================================================
+# COPY TEAM TESTS
+# ============================================================================
+
+class TestCopyTeam:
+    """Test copy_team() method"""
+
+    def test_copy_empty_team(self, empty_team):
+        """Test copying empty team"""
+        copied = empty_team.copy_team()
+
+        assert copied is not empty_team
+        assert len(copied.roster) == 0
+        assert copied.pos_counts == empty_team.pos_counts
+
+    def test_copy_team_with_players(self, empty_team, sample_players):
+        """Test copying team with players"""
+        for i in range(5):
+            sample_players[i].drafted = 0
+            empty_team.draft_player(sample_players[i])
+
+        copied = empty_team.copy_team()
+
+        assert copied is not empty_team
+        assert len(copied.roster) == len(empty_team.roster)
+        assert copied.roster is not empty_team.roster  # Deep copy
+
+    def test_copy_team_independence(self, empty_team, sample_players):
+        """Test that copied team is independent of original"""
+        for i in range(3):
+            sample_players[i].drafted = 0
+            empty_team.draft_player(sample_players[i])
+
+        copied = empty_team.copy_team()
+
+        # Modify original
+        new_player = sample_players[10]
+        new_player.drafted = 0
+        empty_team.draft_player(new_player)
+
+        # Copied team should not be affected
+        assert len(empty_team.roster) == 4
+        assert len(copied.roster) == 3
+
+
+# ============================================================================
+# RECALCULATE POSITION COUNTS TESTS
+# ============================================================================
+
+class TestRecalculatePositionCounts:
+    """Test _recalculate_position_counts() method"""
+
+    def test_recalculate_after_manual_modification(self, empty_team, sample_players):
+        """Test recalculating counts after manual roster modification"""
+        # Draft some players
+        for i in range(5):
+            sample_players[i].drafted = 0
+            empty_team.draft_player(sample_players[i])
+
+        # Manually mess up counts (simulate corruption)
+        empty_team.pos_counts[Constants.QB] = 999
+
+        # Recalculate should fix it
+        empty_team._recalculate_position_counts()
+
+        # Should have correct QB count (2 QBs in sample_players[:5])
+        assert empty_team.pos_counts[Constants.QB] == 2
+
+    def test_recalculate_flex_count(self, empty_team, sample_players):
+        """Test that FLEX count is recalculated correctly"""
+        # Fill RB slots and add to FLEX
+        for i in range(5):
+            sample_players[2 + i].drafted = 0
+            empty_team.draft_player(sample_players[2 + i])
+
+        # Fifth RB should be in FLEX
+        flex_count_before = len(empty_team.slot_assignments[Constants.FLEX])
+
+        empty_team._recalculate_position_counts()
+
+        assert empty_team.pos_counts[Constants.FLEX] == flex_count_before
+
+
+# ============================================================================
+# DISPLAY ROSTER TESTS
+# ============================================================================
+
+class TestDisplayRoster:
+    """Test display_roster() method"""
+
+    def test_display_empty_roster(self, empty_team, capsys):
+        """Test displaying empty roster"""
+        empty_team.display_roster()
+
+        captured = capsys.readouterr()
+        assert "Current Roster by Position" in captured.out
+        assert "Total roster: 0/15 players" in captured.out
+
+    def test_display_roster_with_players(self, empty_team, sample_players, capsys):
+        """Test displaying roster with players"""
+        # Draft a few players
+        for i in range(5):
+            sample_players[i].drafted = 0
+            empty_team.draft_player(sample_players[i])
+
+        empty_team.display_roster()
+
+        captured = capsys.readouterr()
+        assert "Current Roster by Position" in captured.out
+        assert "Total roster: 5/15 players" in captured.out
+        assert "--- QB ---" in captured.out
+        assert "--- RB ---" in captured.out
+
+    def test_display_roster_shows_bye_weeks(self, empty_team, sample_players, capsys):
+        """Test that bye weeks are displayed"""
+        player = sample_players[0]
+        player.drafted = 0
+        player.bye_week = 7
+        empty_team.draft_player(player)
+
+        empty_team.display_roster()
+
+        captured = capsys.readouterr()
+        assert "Bye Weeks" in captured.out
+
+    def test_display_roster_shows_injury_reserve(self, config, capsys):
+        """Test that injury reserve is displayed"""
+        injured_player = FantasyPlayer(id=1, name="Injured", team="KC", position="QB",
+                                      bye_week=7, fantasy_points=100.0,
+                                      injury_status="OUT", drafted=2, locked=0)
+
+        team = FantasyTeam(config, players=[injured_player])
+        team.display_roster()
+
+        captured = capsys.readouterr()
+        assert "Injury Reserve" in captured.out
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

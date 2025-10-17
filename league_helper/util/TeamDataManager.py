@@ -165,36 +165,56 @@ class TeamDataManager:
 
         Returns:
             Rank difference integer, or 0 if data unavailable
+
+        Example:
+            KC (OFF rank #3) vs BUF (DEF rank #25):
+            rank_diff = 25 - 3 = +22 (favorable matchup for KC offense)
+
+            MIA (DEF rank #10) vs NYJ (OFF rank #28):
+            rank_diff = 28 - 10 = +18 (favorable matchup for MIA defense)
         """
+        # Check if team data is loaded
         if not self.is_matchup_available():
             return 0
 
-        # Find player's team data
+        # Get the player's team rank (defensive rank for DST, offensive rank for skill positions)
+        # This represents how good the player's team is at their side of the ball
         if is_defense:
             team_rank = self.get_team_defensive_rank(player_team)
         else:
             team_rank = self.get_team_offensive_rank(player_team)
 
+        # Handle missing team data
         if team_rank is None:
             self.logger.debug(f"Team not found in matchup data: {player_team}")
             return 0
 
+        # Get the opponent team abbreviation
         opponent_abbr = self.get_team_opponent(player_team)
         if opponent_abbr is None:
             self.logger.debug(f"No opponent found for team: {player_team}")
             return 0
 
-        # Find opponent's rank (opposite side of ball)
+        # Get opponent's rank on the OPPOSITE side of the ball
+        # For offensive players: get opponent's defensive rank (how good are they at stopping offense?)
+        # For defensive players: get opponent's offensive rank (how good are they at scoring?)
         if is_defense:
             opponent_rank = self.get_team_offensive_rank(opponent_abbr)
         else:
             opponent_rank = self.get_team_defensive_rank(opponent_abbr)
 
+        # Handle missing opponent data
         if opponent_rank is None:
             self.logger.debug(f"Opponent rank not found in matchup data: {opponent_abbr}")
             return 0
 
-        # Calculate rank difference
+        # Calculate matchup differential
+        # Positive = favorable matchup (opponent is weak, player's team is strong)
+        # Negative = unfavorable matchup (opponent is strong, player's team is weak)
+        # Zero = neutral matchup (ranks are equal)
+        #
+        # Example: KC (OFF #3) vs BUF (DEF #25) → rank_diff = 25 - 3 = +22 (great matchup!)
+        # Example: KC (OFF #3) vs SF (DEF #1) → rank_diff = 1 - 3 = -2 (tough matchup)
         rank_diff = int(opponent_rank) - int(team_rank)
 
         if is_defense:

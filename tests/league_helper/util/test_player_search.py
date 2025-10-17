@@ -367,3 +367,76 @@ class TestInteractiveSearchEdgeCases:
         sig = inspect.signature(player_search.interactive_search)
         param = sig.parameters['not_available']
         assert param.default == False  # Default should be False
+
+
+class TestAdditionalEdgeCases:
+    """Additional edge case tests for comprehensive coverage."""
+
+    @pytest.fixture
+    def sample_players(self):
+        """Create sample players for edge case testing."""
+        return [
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=0, locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="D'Andre Swift", team="PHI", position="RB", bye_week=8, drafted=1, locked=0, score=85.0, fantasy_points=280.0),
+            FantasyPlayer(id=3, name="Amon-Ra St. Brown", team="DET", position="WR", bye_week=9, drafted=0, locked=0, score=92.0, fantasy_points=320.0),
+            FantasyPlayer(id=4, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted=2, locked=1, score=80.0, fantasy_points=250.0),
+        ]
+
+    @pytest.fixture
+    def player_search(self, sample_players):
+        """Create PlayerSearch instance."""
+        return PlayerSearch(sample_players)
+
+    def test_search_with_leading_trailing_whitespace(self, player_search):
+        """Test search with whitespace in term (doesn't auto-strip)."""
+        # Search term with whitespace won't match because implementation doesn't strip
+        matches = player_search.search_players_by_name("  Mahomes  ")
+        assert len(matches) == 0  # No match due to whitespace
+
+    def test_search_with_empty_players_list(self):
+        """Test search with empty players list returns empty."""
+        empty_search = PlayerSearch([])
+        matches = empty_search.search_players_by_name("Patrick")
+        assert len(matches) == 0
+
+    def test_search_with_apostrophe_in_search_term(self, player_search):
+        """Test search with apostrophe in search term."""
+        matches = player_search.search_players_by_name("D'Andre")
+        assert len(matches) == 1
+        assert matches[0].name == "D'Andre Swift"
+
+    def test_search_with_hyphen_in_search_term(self, player_search):
+        """Test search with hyphen in search term."""
+        matches = player_search.search_players_by_name("Amon-Ra")
+        assert len(matches) == 1
+        assert matches[0].name == "Amon-Ra St. Brown"
+
+    def test_search_multi_word_term(self, player_search):
+        """Test search with multi-word search term."""
+        matches = player_search.search_players_by_name("patrick mahomes")
+        assert len(matches) == 1
+        assert matches[0].name == "Patrick Mahomes"
+
+    def test_search_with_invalid_drafted_filter(self, player_search):
+        """Test search with invalid drafted_filter value (treats as no filter)."""
+        # drafted_filter=3 is invalid, should default to all players
+        matches = player_search.search_players_by_name("Swift", drafted_filter=3)
+        assert len(matches) == 1
+        assert matches[0].name == "D'Andre Swift"
+
+    def test_search_with_whitespace_only_term(self, player_search):
+        """Test search with whitespace-only term returns empty."""
+        matches = player_search.search_players_by_name("   ")
+        # Whitespace should be stripped, resulting in empty search
+        assert len(matches) == 0
+
+    def test_search_not_available_with_whitespace(self, player_search):
+        """Test search_players_by_name_not_available with whitespace (doesn't auto-strip)."""
+        # Search term with whitespace won't match because implementation doesn't strip
+        matches = player_search.search_players_by_name_not_available("  Kelce  ")
+        assert len(matches) == 0  # No match due to whitespace
+
+    def test_find_players_by_drafted_status_negative_value(self, player_search):
+        """Test find_players_by_drafted_status with negative value returns empty."""
+        matches = player_search.find_players_by_drafted_status(-1)
+        assert len(matches) == 0

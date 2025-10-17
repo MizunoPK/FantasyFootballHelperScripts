@@ -6,7 +6,6 @@ Helper class for managing drafted_data.csv file operations.
 Handles adding and removing players from the drafted roster CSV.
 
 Author: Kai Mizuno
-Last Updated: October 2025
 """
 
 import csv
@@ -39,21 +38,31 @@ class DraftedDataWriter:
         Returns:
             List of team names sorted alphabetically
         """
+        # Check if CSV file exists before attempting to read it
+        # This can happen if the user hasn't drafted any players yet
         if not self.csv_path.exists():
             self.logger.warning(f"Drafted data file not found: {self.csv_path}")
             return []
 
+        # Use a set to automatically handle duplicates
+        # Same team name may appear multiple times (one per drafted player)
         team_names: Set[str] = set()
 
         try:
+            # Read CSV file with proper encoding
             with open(self.csv_path, 'r', newline='', encoding='utf-8') as file:
                 csv_reader = csv.reader(file)
                 for row in csv_reader:
+                    # Each row format: ["Player Name POS - TEAM", "Team Name"]
+                    # We need the second column (index 1) for the fantasy team name
                     if len(row) >= 2:
                         team_name = row[1].strip()
+                        # Only add non-empty team names to the set
                         if team_name:
                             team_names.add(team_name)
 
+            # Return alphabetically sorted list of unique team names
+            # This makes team selection menus easier to navigate
             return sorted(list(team_names))
 
         except Exception as e:
@@ -104,27 +113,34 @@ class DraftedDataWriter:
             return False
 
         try:
-            # Read all rows
+            # Strategy: Read all rows, filter out the matching player, then write back
+            # We can't remove a line from CSV in-place, so we must rewrite the entire file
             rows = []
             player_found = False
 
+            # First pass: Read all rows and identify which one to remove
             with open(self.csv_path, 'r', newline='', encoding='utf-8') as file:
                 csv_reader = csv.reader(file)
                 for row in csv_reader:
                     if len(row) >= 2:
+                        # First column contains player info: "Player Name POS - TEAM"
                         player_info = row[0].strip()
-                        # Check if this row matches our player
+                        # Use fuzzy matching to identify the player
+                        # This handles name variations and formatting differences
                         if self._player_matches(player, player_info):
                             player_found = True
                             self.logger.info(f"Found and removing: {player_info}")
-                            continue  # Skip this row (remove it)
+                            continue  # Skip this row (effectively removing it)
+                    # Keep all other rows for rewriting
                     rows.append(row)
 
+            # Validate that we actually found and removed a player
             if not player_found:
                 self.logger.warning(f"Player {player.name} not found in drafted_data.csv")
                 return False
 
-            # Write back all rows except the removed one
+            # Second pass: Write back all rows except the removed one
+            # This completely rewrites the CSV file
             with open(self.csv_path, 'w', newline='', encoding='utf-8') as file:
                 csv_writer = csv.writer(file)
                 csv_writer.writerows(rows)
@@ -147,13 +163,17 @@ class DraftedDataWriter:
         Returns:
             bool: True if match found
         """
-        # Normalize both strings
+        # Normalize both strings for case-insensitive, punctuation-agnostic comparison
+        # This handles variations like "D'Andre Swift" vs "DAndre Swift"
         player_normalized = self._normalize_name(player.name)
         csv_normalized = self._normalize_name(csv_player_info)
 
-        # Check if player name appears in CSV entry
+        # Check if player name appears anywhere in CSV entry
+        # The CSV entry contains more than just the name (position, team)
         if player_normalized in csv_normalized:
-            # Also check position matches
+            # Additional validation: also check that position matches
+            # This prevents false positives for players with similar names
+            # Example: Avoid matching "Mike Williams WR" with "Michael Williams TE"
             if player.position.upper() in csv_player_info.upper():
                 return True
 
@@ -169,14 +189,21 @@ class DraftedDataWriter:
         Returns:
             Normalized lowercase name
         """
-        # Convert to lowercase and remove extra whitespace
+        # Step 1: Convert to lowercase and collapse multiple spaces into single spaces
+        # This handles inconsistent spacing like "Patrick  Mahomes" vs "Patrick Mahomes"
         normalized = ' '.join(name.lower().split())
 
-        # Remove common suffixes
+        # Step 2: Remove common name suffixes that vary in formatting
+        # Examples: "Ken Griffey Jr" vs "Ken Griffey Jr." vs "Ken Griffey"
         for suffix in [' jr', ' sr', ' iii', ' ii', ' iv']:
             normalized = normalized.replace(suffix, '')
 
-        # Remove punctuation
+        # Step 3: Remove punctuation characters that appear in names
+        # Periods: "T.J. Hockenson" → "tj hockenson"
+        # Apostrophes: "D'Andre Swift" → "dandre swift"
+        # Hyphens: "Ka'imi Fairbairn" → "kaimi fairbairn"
         normalized = normalized.replace('.', '').replace("'", '').replace('-', ' ')
 
+        # Step 4: Final cleanup - collapse any double spaces created by punctuation removal
+        # Example: "T.J. Hockenson" → "T J  Hockenson" → "tj hockenson"
         return ' '.join(normalized.split())

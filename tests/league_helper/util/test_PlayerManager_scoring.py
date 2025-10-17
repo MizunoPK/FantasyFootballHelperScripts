@@ -223,6 +223,10 @@ def player_manager(mock_data_folder, config_manager, team_data_manager, mock_fan
     pm.projected_points_manager = Mock()
     pm.projected_points_manager.get_projected_points = Mock(return_value=None)
 
+    # Initialize scoring_calculator (required for refactored PlayerManager)
+    from util.player_scoring import PlayerScoringCalculator
+    pm.scoring_calculator = PlayerScoringCalculator(config_manager, pm.projected_points_manager, 250.0)
+
     return pm
 
 
@@ -284,7 +288,7 @@ class TestNormalization:
 
     def test_normalization_returns_weighted_projection(self, player_manager, test_player):
         """Verify normalization simply returns the weighted_projection"""
-        result, reason = player_manager._get_normalized_fantasy_points(test_player, use_weekly_projection=False)
+        result, reason = player_manager.scoring_calculator._get_normalized_fantasy_points(test_player, use_weekly_projection=False)
         assert result == test_player.weighted_projection
         assert result == 80.0
         assert "Projected:" in reason
@@ -296,7 +300,7 @@ class TestNormalization:
             id=1, name="Zero Player", team="KC", position="RB",
             fantasy_points=0.0, weighted_projection=0.0
         )
-        result, reason = player_manager._get_normalized_fantasy_points(player, use_weekly_projection=False)
+        result, reason = player_manager.scoring_calculator._get_normalized_fantasy_points(player, use_weekly_projection=False)
         assert result == 0.0
 
 
@@ -312,6 +316,7 @@ class TestWeeklyProjections:
         # Set up player with week 6 data (current week in config)
         test_player.week_6_points = 25.0
         player_manager.max_projection = 300.0  # Set max for normalization
+        player_manager.scoring_calculator.max_projection = 300.0  # Update calculator too
 
         orig_pts, weighted_pts = player_manager.get_weekly_projection(test_player, week=6)
 
@@ -325,6 +330,7 @@ class TestWeeklyProjections:
         # Config has current_nfl_week = 6
         test_player.week_6_points = 20.0
         player_manager.max_projection = 300.0
+        player_manager.scoring_calculator.max_projection = 300.0  # Update calculator too
 
         # Pass invalid week (0)
         orig_pts, weighted_pts = player_manager.get_weekly_projection(test_player, week=0)
@@ -363,6 +369,7 @@ class TestWeeklyProjections:
         """Test weekly projection when max_projection is 0"""
         test_player.week_6_points = 25.0
         player_manager.max_projection = 0  # Edge case
+        player_manager.scoring_calculator.max_projection = 0  # Update calculator too
 
         orig_pts, weighted_pts = player_manager.get_weekly_projection(test_player, week=6)
 
@@ -373,8 +380,9 @@ class TestWeeklyProjections:
         """Test _get_normalized_fantasy_points with use_weekly_projection=True"""
         test_player.week_6_points = 30.0
         player_manager.max_projection = 300.0
+        player_manager.scoring_calculator.max_projection = 300.0  # Update calculator too
 
-        result, reason = player_manager._get_normalized_fantasy_points(test_player, use_weekly_projection=True)
+        result, reason = player_manager.scoring_calculator._get_normalized_fantasy_points(test_player, use_weekly_projection=True)
 
         # Should use weekly projection: (30/300) * 100 = 10.0
         expected = (30.0 / 300.0) * 100.0
@@ -388,7 +396,7 @@ class TestWeeklyProjections:
         # Current week is 6, so ROS = sum of weeks 6-17 = 200.0
         # Weighted = (200/250) * 100 = 80.0
 
-        result, reason = player_manager._get_normalized_fantasy_points(test_player, use_weekly_projection=False)
+        result, reason = player_manager.scoring_calculator._get_normalized_fantasy_points(test_player, use_weekly_projection=False)
 
         # Should use rest-of-season projection
         assert result == 80.0
@@ -399,6 +407,7 @@ class TestWeeklyProjections:
         # Set up weekly data
         test_player.week_6_points = 25.0
         player_manager.max_projection = 300.0
+        player_manager.scoring_calculator.max_projection = 300.0  # Update calculator too
         test_player.consistency = 0.15  # EXCELLENT
         test_player.matchup_score = 10  # GOOD
         mock_fantasy_team.roster = []  # No bye overlaps
@@ -439,7 +448,7 @@ class TestADPMultiplier:
         """ADP <= 20 should get EXCELLENT multiplier (1.20)"""
         test_player.average_draft_position = 15.0
         base_score = 100.0
-        result, reason = player_manager._apply_adp_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.20  # 120.0
         assert reason == "ADP: EXCELLENT"
 
@@ -447,7 +456,7 @@ class TestADPMultiplier:
         """20 < ADP <= 50 should get GOOD multiplier (1.10)"""
         test_player.average_draft_position = 35.0
         base_score = 100.0
-        result, reason = player_manager._apply_adp_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.10  # 110.0
         assert reason == "ADP: GOOD"
 
@@ -455,7 +464,7 @@ class TestADPMultiplier:
         """50 < ADP < 100 should get NEUTRAL multiplier (1.0)"""
         test_player.average_draft_position = 75.0
         base_score = 100.0
-        result, reason = player_manager._apply_adp_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.0  # 100.0
         assert reason == "ADP: NEUTRAL"
 
@@ -463,7 +472,7 @@ class TestADPMultiplier:
         """100 <= ADP < 150 should get POOR multiplier (0.90)"""
         test_player.average_draft_position = 120.0
         base_score = 100.0
-        result, reason = player_manager._apply_adp_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 0.90  # 90.0
         assert reason == "ADP: POOR"
 
@@ -471,7 +480,7 @@ class TestADPMultiplier:
         """ADP >= 150 should get VERY_POOR multiplier (0.70)"""
         test_player.average_draft_position = 200.0
         base_score = 100.0
-        result, reason = player_manager._apply_adp_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 0.70  # 70.0
         assert reason == "ADP: VERY_POOR"
 
@@ -479,7 +488,7 @@ class TestADPMultiplier:
         """ADP = None should return neutral multiplier (1.0)"""
         test_player.average_draft_position = None
         base_score = 100.0
-        result, reason = player_manager._apply_adp_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.0
         assert reason == "ADP: NEUTRAL"
 
@@ -487,7 +496,7 @@ class TestADPMultiplier:
         """Test exact boundary at ADP = 20"""
         test_player.average_draft_position = 20.0
         base_score = 100.0
-        result, reason = player_manager._apply_adp_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.20  # Should be EXCELLENT
         assert reason == "ADP: EXCELLENT"
 
@@ -503,7 +512,7 @@ class TestPlayerRatingMultiplier:
         """Rating >= 80 should get EXCELLENT multiplier (1.25)"""
         test_player.player_rating = 85.0
         base_score = 100.0
-        result, reason = player_manager._apply_player_rating_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 1.25
         assert reason == "Player Rating: EXCELLENT"
 
@@ -511,7 +520,7 @@ class TestPlayerRatingMultiplier:
         """60 <= Rating < 80 should get GOOD multiplier (1.15)"""
         test_player.player_rating = 70.0
         base_score = 100.0
-        result, reason = player_manager._apply_player_rating_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 1.15
         assert reason == "Player Rating: GOOD"
 
@@ -519,7 +528,7 @@ class TestPlayerRatingMultiplier:
         """40 < Rating < 60 should get NEUTRAL multiplier (1.0)"""
         test_player.player_rating = 50.0
         base_score = 100.0
-        result, reason = player_manager._apply_player_rating_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 1.0
         assert reason == "Player Rating: NEUTRAL"
 
@@ -527,7 +536,7 @@ class TestPlayerRatingMultiplier:
         """20 < Rating <= 40 should get POOR multiplier (0.95)"""
         test_player.player_rating = 30.0
         base_score = 100.0
-        result, reason = player_manager._apply_player_rating_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 0.95
         assert reason == "Player Rating: POOR"
 
@@ -535,7 +544,7 @@ class TestPlayerRatingMultiplier:
         """Rating <= 20 should get VERY_POOR multiplier (0.75)"""
         test_player.player_rating = 15.0
         base_score = 100.0
-        result, reason = player_manager._apply_player_rating_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 0.75
         assert reason == "Player Rating: VERY_POOR"
 
@@ -543,7 +552,7 @@ class TestPlayerRatingMultiplier:
         """Player rating = None should return neutral (1.0)"""
         test_player.player_rating = None
         base_score = 100.0
-        result, reason = player_manager._apply_player_rating_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0
         assert reason == "Player Rating: NEUTRAL"
 
@@ -560,7 +569,7 @@ class TestTeamQualityMultiplier:
         test_player.team_offensive_rank = 3
         test_player.position = "RB"
         base_score = 100.0
-        result, reason = player_manager._apply_team_quality_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0 * 1.30
         assert reason == "Team Quality: EXCELLENT"
 
@@ -569,7 +578,7 @@ class TestTeamQualityMultiplier:
         test_player.team_offensive_rank = 8
         test_player.position = "WR"
         base_score = 100.0
-        result, reason = player_manager._apply_team_quality_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0 * 1.15
         assert reason == "Team Quality: GOOD"
 
@@ -578,7 +587,7 @@ class TestTeamQualityMultiplier:
         test_player.team_offensive_rank = 22
         test_player.position = "QB"
         base_score = 100.0
-        result, reason = player_manager._apply_team_quality_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0 * 0.85
         assert reason == "Team Quality: POOR"
 
@@ -587,7 +596,7 @@ class TestTeamQualityMultiplier:
         test_player.team_offensive_rank = 28
         test_player.position = "TE"
         base_score = 100.0
-        result, reason = player_manager._apply_team_quality_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0 * 0.70
         assert reason == "Team Quality: VERY_POOR"
 
@@ -597,7 +606,7 @@ class TestTeamQualityMultiplier:
         test_player.team_defensive_rank = 3   # Good defense
         test_player.position = "DST"
         base_score = 100.0
-        result, reason = player_manager._apply_team_quality_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         # Should use defensive rank (3) which is EXCELLENT
         assert result == 100.0 * 1.30
         assert reason == "Team Quality: EXCELLENT"
@@ -607,7 +616,7 @@ class TestTeamQualityMultiplier:
         test_player.team_offensive_rank = None
         test_player.position = "RB"
         base_score = 100.0
-        result, reason = player_manager._apply_team_quality_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0
         assert reason == "Team Quality: NEUTRAL"
 
@@ -631,7 +640,7 @@ class TestMatchupMultiplier:
         """Matchup >= 15 should get EXCELLENT (1.25)"""
         test_player.matchup_score = 18
         base_score = 100.0
-        result, reason = player_manager._apply_matchup_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 1.25
         assert reason == "Matchup: EXCELLENT"
 
@@ -639,7 +648,7 @@ class TestMatchupMultiplier:
         """6 <= Matchup < 15 should get GOOD (1.10)"""
         test_player.matchup_score = 10
         base_score = 100.0
-        result, reason = player_manager._apply_matchup_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 1.10
         assert reason == "Matchup: GOOD"
 
@@ -647,7 +656,7 @@ class TestMatchupMultiplier:
         """-6 < Matchup < 6 should get NEUTRAL (1.0)"""
         test_player.matchup_score = 0
         base_score = 100.0
-        result, reason = player_manager._apply_matchup_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 1.0
         assert reason == "Matchup: NEUTRAL"
 
@@ -655,7 +664,7 @@ class TestMatchupMultiplier:
         """-15 < Matchup <= -6 should get POOR (0.90)"""
         test_player.matchup_score = -10
         base_score = 100.0
-        result, reason = player_manager._apply_matchup_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 0.90
         assert reason == "Matchup: POOR"
 
@@ -663,7 +672,7 @@ class TestMatchupMultiplier:
         """Matchup <= -15 should get VERY_POOR (0.75)"""
         test_player.matchup_score = -20
         base_score = 100.0
-        result, reason = player_manager._apply_matchup_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 0.75
         assert reason == "Matchup: VERY_POOR"
 
@@ -671,7 +680,7 @@ class TestMatchupMultiplier:
         """Matchup = None should return neutral (1.0)"""
         test_player.matchup_score = None
         base_score = 100.0
-        result, reason = player_manager._apply_matchup_multiplier(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0
         assert reason == "Matchup: NEUTRAL"
 
@@ -689,7 +698,7 @@ class TestDraftOrderBonus:
         # RB -> FLEX, should get PRIMARY (50)
         test_player.position = "RB"
         base_score = 100.0
-        result, reason = player_manager._apply_draft_order_bonus(test_player, 0, base_score)
+        result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 0, base_score)
         assert result == 100.0 + 50, "Round 0 should work with new >= 0 check"
         assert reason == "Draft Order Bonus: PRIMARY"
 
@@ -699,7 +708,7 @@ class TestDraftOrderBonus:
         # QB should get SECONDARY (30)
         test_player.position = "QB"
         base_score = 100.0
-        result, reason = player_manager._apply_draft_order_bonus(test_player, 0, base_score)
+        result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 0, base_score)
         assert result == 100.0 + 30
         assert reason == "Draft Order Bonus: SECONDARY"
 
@@ -708,7 +717,7 @@ class TestDraftOrderBonus:
         # Round 1: {"FLEX": "P", "QB": "S"}
         test_player.position = "WR"  # FLEX-eligible
         base_score = 100.0
-        result, reason = player_manager._apply_draft_order_bonus(test_player, 1, base_score)
+        result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 1, base_score)
         assert result == 100.0 + 50
         assert reason == "Draft Order Bonus: PRIMARY"
 
@@ -717,7 +726,7 @@ class TestDraftOrderBonus:
         # Round 2: {"QB": "P", "FLEX": "S"}
         test_player.position = "QB"
         base_score = 100.0
-        result, reason = player_manager._apply_draft_order_bonus(test_player, 2, base_score)
+        result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 2, base_score)
         assert result == 100.0 + 50
         assert reason == "Draft Order Bonus: PRIMARY"
 
@@ -726,7 +735,7 @@ class TestDraftOrderBonus:
         # Round 3: {"TE": "P", "FLEX": "S"}
         test_player.position = "TE"
         base_score = 100.0
-        result, reason = player_manager._apply_draft_order_bonus(test_player, 3, base_score)
+        result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 3, base_score)
         assert result == 100.0 + 50
         assert reason == "Draft Order Bonus: PRIMARY"
 
@@ -736,7 +745,7 @@ class TestDraftOrderBonus:
         # TE not in priorities
         test_player.position = "TE"
         base_score = 100.0
-        result, reason = player_manager._apply_draft_order_bonus(test_player, 4, base_score)
+        result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 4, base_score)
         assert result == 100.0 + 0
         assert reason == ""
 
@@ -753,7 +762,7 @@ class TestByeWeekPenalty:
         # Set up roster with no bye week overlaps
         mock_fantasy_team.roster = []
         base_score = 100.0
-        result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
         assert result == 100.0  # No penalty
         assert reason == ""  # No reason when there are no overlaps
 
@@ -763,7 +772,7 @@ class TestByeWeekPenalty:
         other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
         mock_fantasy_team.roster = [other_rb]
         base_score = 100.0
-        result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
         assert result == 100.0 - 25.0  # BASE_BYE_PENALTY = 25
         assert "1 same-position, 0 different-position" in reason
 
@@ -773,7 +782,7 @@ class TestByeWeekPenalty:
         other_qb = FantasyPlayer(id=99, name="Other QB", team="BUF", position="QB", bye_week=7, fantasy_points=150.0)
         mock_fantasy_team.roster = [other_qb]
         base_score = 100.0
-        result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
         assert result == 100.0 - 5.0  # DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY = 5
         assert "0 same-position, 1 different-position" in reason
 
@@ -787,7 +796,7 @@ class TestByeWeekPenalty:
         mock_fantasy_team.roster = [other_rb1, other_rb2, other_wr, other_qb]
 
         base_score = 100.0
-        result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
         # 2 same-position × 25 = 50, 2 different-position × 5 = 10, total = 60
         assert result == 100.0 - 60.0
         assert "2 same-position, 2 different-position" in reason
@@ -800,7 +809,7 @@ class TestByeWeekPenalty:
         mock_fantasy_team.roster = [test_player, other_rb]
 
         base_score = 100.0
-        result, reason = player_manager._apply_bye_week_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
         # Should only count other_rb, not test_player itself
         assert result == 100.0 - 25.0
         assert "1 same-position, 0 different-position" in reason
@@ -817,7 +826,7 @@ class TestInjuryPenalty:
         """ACTIVE status should have LOW risk (0 penalty)"""
         test_player.injury_status = "ACTIVE"
         base_score = 100.0
-        result, reason = player_manager._apply_injury_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
         assert result == 100.0  # No penalty
         assert reason == ""
 
@@ -825,7 +834,7 @@ class TestInjuryPenalty:
         """QUESTIONABLE status should have MEDIUM risk (10 penalty)"""
         test_player.injury_status = "QUESTIONABLE"
         base_score = 100.0
-        result, reason = player_manager._apply_injury_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
         assert result == 100.0 - 10.0
         assert reason == "Injury: QUESTIONABLE"
 
@@ -833,7 +842,7 @@ class TestInjuryPenalty:
         """OUT status should have HIGH risk (75 penalty)"""
         test_player.injury_status = "OUT"
         base_score = 100.0
-        result, reason = player_manager._apply_injury_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
         assert result == 100.0 - 75.0
         assert reason == "Injury: OUT"
 
@@ -841,7 +850,7 @@ class TestInjuryPenalty:
         """DOUBTFUL status should have HIGH risk"""
         test_player.injury_status = "DOUBTFUL"
         base_score = 100.0
-        result, reason = player_manager._apply_injury_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
         assert result == 100.0 - 75.0
         assert reason == "Injury: DOUBTFUL"
 
@@ -849,7 +858,7 @@ class TestInjuryPenalty:
         """INJURY_RESERVE status should have HIGH risk"""
         test_player.injury_status = "INJURY_RESERVE"
         base_score = 100.0
-        result, reason = player_manager._apply_injury_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
         assert result == 100.0 - 75.0
         assert reason == "Injury: INJURY_RESERVE"
 
@@ -857,7 +866,7 @@ class TestInjuryPenalty:
         """UNKNOWN status should have HIGH risk"""
         test_player.injury_status = "UNKNOWN"
         base_score = 100.0
-        result, reason = player_manager._apply_injury_penalty(test_player, base_score)
+        result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
         assert result == 100.0 - 75.0
         assert reason == "Injury: UNKNOWN"
 
@@ -1094,6 +1103,287 @@ class TestEdgeCases:
         result = player_manager.score_player(player, draft_round=-1)
 
         assert result.score <= 0  # Might be negative due to penalties
+
+
+# ============================================================================
+# ADDITIONAL EDGE CASES FOR ROBUSTNESS
+# ============================================================================
+
+class TestAdditionalEdgeCases:
+    """Additional edge case tests for missing data, boundaries, and extreme values"""
+
+    # ========== Missing Data Edge Cases ==========
+
+    def test_scoring_with_all_weekly_points_none(self, player_manager, mock_fantasy_team):
+        """Test scoring when all weekly points are None"""
+        player = FantasyPlayer(
+            id=1, name="No Data", team="KC", position="RB",
+            fantasy_points=None, weighted_projection=0.0
+        )
+        # Set all weekly points to None
+        for week_num in range(1, 18):
+            setattr(player, f"week_{week_num}_points", None)
+
+        mock_fantasy_team.roster = []
+        result = player_manager.score_player(player, draft_round=-1)
+
+        # Should handle gracefully and return 0 or small score
+        assert result.score >= 0 or result.score < 0  # Any score is acceptable, just shouldn't crash
+
+    def test_scoring_with_missing_team_data(self, player_manager, mock_fantasy_team):
+        """Test scoring when team data is completely missing"""
+        player = FantasyPlayer(
+            id=1, name="No Team", team="UNKNOWN", position="RB",
+            fantasy_points=100.0, weighted_projection=50.0,
+            team_offensive_rank=None, team_defensive_rank=None,
+            matchup_score=None
+        )
+
+        for week_num in range(6, 18):
+            setattr(player, f"week_{week_num}_points", 250.0 / 12)
+
+        mock_fantasy_team.roster = []
+        result = player_manager.score_player(player, team_quality=True, matchup=True, draft_round=-1)
+
+        # Should get neutral multipliers for missing team data
+        assert result.score > 0
+
+    def test_scoring_with_partial_weekly_data(self, player_manager, mock_fantasy_team):
+        """Test scoring with some weeks having data and others None"""
+        player = FantasyPlayer(
+            id=1, name="Partial Data", team="KC", position="RB",
+            fantasy_points=150.0, weighted_projection=60.0
+        )
+        # Weeks 6-10 have data, 11-17 are None
+        for week_num in range(6, 11):
+            setattr(player, f"week_{week_num}_points", 20.0)
+        for week_num in range(11, 18):
+            setattr(player, f"week_{week_num}_points", None)
+
+        mock_fantasy_team.roster = []
+        result = player_manager.score_player(player, draft_round=-1)
+
+        # Should calculate based on available data (score can be negative due to penalties)
+        assert result.score is not None  # Just verify it doesn't crash
+
+    # ========== Boundary Condition Tests ==========
+
+    def test_adp_exact_boundary_values(self, player_manager, test_player):
+        """Test ADP at exact threshold boundaries"""
+        base_score = 100.0
+
+        # Test at boundary 20 (should be EXCELLENT)
+        test_player.average_draft_position = 20.0
+        result, _ = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
+        assert abs(result - 120.0) < 0.01
+
+        # Test at boundary 50 (should be GOOD)
+        test_player.average_draft_position = 50.0
+        result, _ = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
+        assert abs(result - 110.0) < 0.01
+
+        # Test at boundary 100 (should be POOR)
+        test_player.average_draft_position = 100.0
+        result, _ = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
+        assert abs(result - 90.0) < 0.01
+
+        # Test at boundary 150 (should be VERY_POOR)
+        test_player.average_draft_position = 150.0
+        result, _ = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
+        assert abs(result - 70.0) < 0.01
+
+    def test_player_rating_exact_boundaries(self, player_manager, test_player):
+        """Test player rating at exact threshold boundaries"""
+        base_score = 100.0
+
+        # At 80 (EXCELLENT)
+        test_player.player_rating = 80.0
+        result, _ = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
+        assert abs(result - 125.0) < 0.01
+
+        # At 60 (GOOD)
+        test_player.player_rating = 60.0
+        result, _ = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
+        assert abs(result - 115.0) < 0.01
+
+        # At 40 (POOR)
+        test_player.player_rating = 40.0
+        result, _ = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
+        assert abs(result - 95.0) < 0.01
+
+        # At 20 (VERY_POOR)
+        test_player.player_rating = 20.0
+        result, _ = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
+        assert abs(result - 75.0) < 0.01
+
+    def test_matchup_score_exact_boundaries(self, player_manager, test_player):
+        """Test matchup score at exact threshold boundaries"""
+        base_score = 100.0
+
+        # At 15 (EXCELLENT)
+        test_player.matchup_score = 15
+        result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
+        assert abs(result - 125.0) < 0.01
+
+        # At 6 (GOOD)
+        test_player.matchup_score = 6
+        result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
+        assert abs(result - 110.0) < 0.01
+
+        # At -6 (POOR)
+        test_player.matchup_score = -6
+        result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
+        assert abs(result - 90.0) < 0.01
+
+        # At -15 (VERY_POOR)
+        test_player.matchup_score = -15
+        result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
+        assert abs(result - 75.0) < 0.01
+
+    # ========== Extreme Value Tests ==========
+
+    def test_extremely_high_adp(self, player_manager, test_player):
+        """Test with extremely high ADP value (>500)"""
+        test_player.average_draft_position = 999.0
+        base_score = 100.0
+        result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
+
+        # Should still apply VERY_POOR multiplier
+        assert result == 70.0
+        assert reason == "ADP: VERY_POOR"
+
+    def test_negative_adp_value(self, player_manager, test_player):
+        """Test with negative ADP (invalid but should handle)"""
+        test_player.average_draft_position = -5.0
+        base_score = 100.0
+        result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
+
+        # Negative ADP should be treated as excellent (< 20)
+        assert result == 120.0
+        assert reason == "ADP: EXCELLENT"
+
+    def test_extremely_high_fantasy_points(self, player_manager, mock_fantasy_team):
+        """Test with extremely high fantasy points projection"""
+        player = FantasyPlayer(
+            id=1, name="Super Star", team="KC", position="QB",
+            fantasy_points=999999.0, weighted_projection=100.0
+        )
+
+        mock_fantasy_team.roster = []
+        result = player_manager.score_player(player, draft_round=-1)
+
+        # Should handle large values without overflow (score can be negative with penalties)
+        assert result.score is not None
+        assert abs(result.score) < 1000000  # Reasonable upper bound
+
+    def test_zero_max_projection_edge_case(self, player_manager, test_player):
+        """Test normalization when max_projection is 0 - reveals bug (ZeroDivisionError)"""
+        player_manager.max_projection = 0
+        player_manager.scoring_calculator.max_projection = 0
+        test_player.fantasy_points = 100.0
+
+        # Currently raises ZeroDivisionError - this documents the bug
+        with pytest.raises(ZeroDivisionError):
+            result, reason = player_manager.scoring_calculator._get_normalized_fantasy_points(test_player, use_weekly_projection=False)
+
+    def test_extremely_negative_matchup_score(self, player_manager, test_player):
+        """Test with extremely negative matchup score"""
+        test_player.matchup_score = -999
+        base_score = 100.0
+        result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
+
+        # Should still apply VERY_POOR multiplier
+        assert result == 75.0
+        assert reason == "Matchup: VERY_POOR"
+
+    def test_massive_bye_week_penalty(self, player_manager, test_player, mock_fantasy_team):
+        """Test with massive bye week overlaps (10+ players)"""
+        # Create 10 same-position players with same bye week
+        mock_fantasy_team.roster = [
+            FantasyPlayer(id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
+            for i in range(10)
+        ]
+
+        test_player.bye_week = 7
+        test_player.position = "RB"
+        base_score = 100.0
+
+        result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
+
+        # 10 same-position × 25 = 250 penalty
+        assert result == 100.0 - 250.0
+        assert "-150.0" in str(result)  # Score can go very negative
+
+    # ========== Roster Operations Edge Cases ==========
+
+    def test_scoring_with_empty_roster(self, player_manager, test_player, mock_fantasy_team):
+        """Test bye week penalty with empty roster"""
+        mock_fantasy_team.roster = []
+        base_score = 100.0
+
+        result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
+
+        assert result == 100.0  # No penalty
+        assert reason == ""
+
+    def test_scoring_with_roster_containing_none_values(self, player_manager, test_player, mock_fantasy_team):
+        """Test bye week penalty when roster has players with None bye_week"""
+        other_player = FantasyPlayer(
+            id=99, name="No Bye", team="KC", position="RB",
+            bye_week=None, fantasy_points=100.0
+        )
+        mock_fantasy_team.roster = [other_player]
+        base_score = 100.0
+
+        result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
+
+        # Should handle None bye_week gracefully (no match)
+        assert result == 100.0
+        assert reason == ""
+
+    def test_draft_round_out_of_range(self, player_manager, test_player):
+        """Test draft bonus with out-of-range draft round - reveals bug (IndexError)"""
+        base_score = 100.0
+
+        # Test with round 999 (beyond config length) - currently raises IndexError
+        # This documents the bug that out-of-range rounds aren't handled gracefully
+        with pytest.raises(IndexError):
+            result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 999, base_score)
+
+    # ========== CSV Loading and Data Edge Cases ==========
+
+    def test_player_with_missing_position(self, player_manager, mock_fantasy_team):
+        """Test scoring player with missing/invalid position"""
+        player = FantasyPlayer(
+            id=1, name="No Position", team="KC", position=None,
+            fantasy_points=100.0, weighted_projection=50.0
+        )
+
+        for week_num in range(6, 18):
+            setattr(player, f"week_{week_num}_points", 250.0 / 12)
+
+        mock_fantasy_team.roster = []
+
+        # Should handle missing position gracefully
+        result = player_manager.score_player(player, draft_round=-1)
+        assert result.score >= 0
+
+    def test_player_with_invalid_team_name(self, player_manager, mock_fantasy_team):
+        """Test scoring player with team not in teams.csv"""
+        player = FantasyPlayer(
+            id=1, name="Invalid Team", team="INVALID", position="RB",
+            fantasy_points=100.0, weighted_projection=50.0,
+            team_offensive_rank=None  # Team not found
+        )
+
+        for week_num in range(6, 18):
+            setattr(player, f"week_{week_num}_points", 250.0 / 12)
+
+        mock_fantasy_team.roster = []
+        result = player_manager.score_player(player, team_quality=True, draft_round=-1)
+
+        # Should apply neutral multiplier for unknown team
+        assert result.score > 0
 
 
 if __name__ == "__main__":

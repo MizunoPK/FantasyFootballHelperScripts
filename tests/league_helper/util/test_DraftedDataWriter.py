@@ -452,3 +452,216 @@ class TestNormalizeName:
         result = drafted_writer._normalize_name("Stefon Diggs-Johnson")
 
         assert result == "stefon diggs johnson"
+
+
+class TestEdgeCases:
+    """Test suite for edge cases and boundary conditions."""
+
+    def test_add_player_creates_file_if_missing(self, tmp_path):
+        """Test that add_player creates the CSV file if it doesn't exist."""
+        csv_path = tmp_path / "new_drafted_data.csv"
+        # Don't create the file - let add_player create it
+
+        player = FantasyPlayer(
+            id=1, name="Patrick Mahomes", team="KC", position="QB",
+            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+        )
+
+        # Execute
+        drafted_writer = DraftedDataWriter(csv_path)
+        result = drafted_writer.add_player(player, "Team A")
+
+        # Verify - file created and player added
+        assert result is True
+        assert csv_path.exists()
+
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        assert len(rows) == 1
+        assert "Patrick Mahomes" in rows[0][0]
+
+    def test_add_player_with_special_characters_in_name(self, tmp_path):
+        """Test add_player handles special characters in player names."""
+        csv_path = tmp_path / "drafted_data.csv"
+        csv_path.touch()
+
+        player = FantasyPlayer(
+            id=1, name="D'Andre Swift", team="PHI", position="RB",
+            bye_week=7, drafted=1, locked=0, score=85.0, fantasy_points=280.0
+        )
+
+        # Execute
+        drafted_writer = DraftedDataWriter(csv_path)
+        result = drafted_writer.add_player(player, "Team O'Brien")
+
+        # Verify
+        assert result is True
+
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        assert rows[0][0] == "D'Andre Swift RB - PHI"
+        assert rows[0][1] == "Team O'Brien"
+
+    def test_add_player_with_empty_team_name(self, tmp_path):
+        """Test add_player handles empty team name."""
+        csv_path = tmp_path / "drafted_data.csv"
+        csv_path.touch()
+
+        player = FantasyPlayer(
+            id=1, name="Travis Kelce", team="KC", position="TE",
+            bye_week=7, drafted=1, locked=0, score=80.0, fantasy_points=250.0
+        )
+
+        # Execute with empty team name
+        drafted_writer = DraftedDataWriter(csv_path)
+        result = drafted_writer.add_player(player, "")
+
+        # Verify - still adds successfully
+        assert result is True
+
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        assert rows[0][0] == "Travis Kelce TE - KC"
+        assert rows[0][1] == ""
+
+    def test_add_player_with_very_long_name(self, tmp_path):
+        """Test add_player handles very long player names."""
+        csv_path = tmp_path / "drafted_data.csv"
+        csv_path.touch()
+
+        long_name = "A" * 100 + " " + "B" * 100  # 201 character name
+
+        player = FantasyPlayer(
+            id=1, name=long_name, team="KC", position="QB",
+            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+        )
+
+        # Execute
+        drafted_writer = DraftedDataWriter(csv_path)
+        result = drafted_writer.add_player(player, "Team A")
+
+        # Verify
+        assert result is True
+
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        assert long_name in rows[0][0]
+
+    def test_remove_player_from_single_entry_file(self, tmp_path):
+        """Test remove_player when file has only one entry."""
+        csv_path = tmp_path / "drafted_data.csv"
+        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(["Patrick Mahomes QB - KC", "Team A"])
+
+        player = FantasyPlayer(
+            id=1, name="Patrick Mahomes", team="KC", position="QB",
+            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+        )
+
+        # Execute
+        drafted_writer = DraftedDataWriter(csv_path)
+        result = drafted_writer.remove_player(player)
+
+        # Verify - file should be empty
+        assert result is True
+
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        assert len(rows) == 0
+
+    def test_get_all_team_names_with_special_characters(self, tmp_path):
+        """Test get_all_team_names with special characters in team names."""
+        csv_path = tmp_path / "drafted_data.csv"
+        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(["Patrick Mahomes QB - KC", "Team O'Brien"])
+            writer.writerow(["Josh Allen QB - BUF", "The #1 Team"])
+            writer.writerow(["Travis Kelce TE - KC", "Winners & Champions"])
+
+        # Execute
+        drafted_writer = DraftedDataWriter(csv_path)
+        teams = drafted_writer.get_all_team_names()
+
+        # Verify - sorted alphabetically with special characters
+        assert len(teams) == 3
+        assert "Team O'Brien" in teams
+        assert "The #1 Team" in teams
+        assert "Winners & Champions" in teams
+
+    def test_get_all_team_names_with_numeric_names(self, tmp_path):
+        """Test get_all_team_names with numeric team names."""
+        csv_path = tmp_path / "drafted_data.csv"
+        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(["Patrick Mahomes QB - KC", "123"])
+            writer.writerow(["Josh Allen QB - BUF", "456"])
+            writer.writerow(["Travis Kelce TE - KC", "789"])
+
+        # Execute
+        drafted_writer = DraftedDataWriter(csv_path)
+        teams = drafted_writer.get_all_team_names()
+
+        # Verify - numeric names handled
+        assert teams == ["123", "456", "789"]
+
+    def test_normalize_name_with_multiple_suffixes(self):
+        """Test _normalize_name with multiple suffix patterns."""
+        drafted_writer = DraftedDataWriter(Path("dummy.csv"))
+
+        # Test edge case: suffix at end after other text
+        result = drafted_writer._normalize_name("Patrick Mahomes II Jr")
+
+        # Should remove both suffixes
+        assert result == "patrick mahomes"
+
+    def test_player_matches_with_middle_initials(self):
+        """Test _player_matches handles middle initials."""
+        drafted_writer = DraftedDataWriter(Path("dummy.csv"))
+
+        player = FantasyPlayer(
+            id=1, name="D.J. Moore", team="CHI", position="WR",
+            bye_week=7, drafted=1, locked=0, score=85.0, fantasy_points=280.0
+        )
+
+        csv_info = "DJ Moore WR - CHI"
+
+        # Verify - should match despite punctuation differences
+        assert drafted_writer._player_matches(player, csv_info) is True
+
+    def test_add_player_multiple_times_same_player(self, tmp_path):
+        """Test add_player can add same player multiple times (for different teams)."""
+        csv_path = tmp_path / "drafted_data.csv"
+        csv_path.touch()
+
+        player = FantasyPlayer(
+            id=1, name="Patrick Mahomes", team="KC", position="QB",
+            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+        )
+
+        # Execute - add same player twice
+        drafted_writer = DraftedDataWriter(csv_path)
+        result1 = drafted_writer.add_player(player, "Team A")
+        result2 = drafted_writer.add_player(player, "Team B")
+
+        # Verify - both added (unusual but valid for testing data integrity)
+        assert result1 is True
+        assert result2 is True
+
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        assert len(rows) == 2
+        assert rows[0][1] == "Team A"
+        assert rows[1][1] == "Team B"

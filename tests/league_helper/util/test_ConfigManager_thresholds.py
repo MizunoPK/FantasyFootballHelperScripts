@@ -472,5 +472,221 @@ class TestExtractParametersIntegration:
         assert config.adp_scoring["THRESHOLDS"]["VERY_POOR"] == 150.0
 
 
+# ============================================================================
+# EDGE CASE TESTS
+# ============================================================================
+
+class TestConfigStructureEdgeCases:
+    """Test edge cases for config structure validation"""
+
+    def test_missing_config_name(self, temp_data_folder):
+        """Missing config_name should raise ValueError"""
+        config_content = {
+            "description": "Test config",
+            "parameters": {}
+        }
+        config_file = temp_data_folder / "league_config.json"
+        with open(config_file, 'w') as f:
+            json.dump(config_content, f)
+
+        with pytest.raises(ValueError, match="Configuration missing required fields.*config_name"):
+            ConfigManager(temp_data_folder)
+
+    def test_missing_description(self, temp_data_folder):
+        """Missing description should raise ValueError"""
+        config_content = {
+            "config_name": "Test",
+            "parameters": {}
+        }
+        config_file = temp_data_folder / "league_config.json"
+        with open(config_file, 'w') as f:
+            json.dump(config_content, f)
+
+        with pytest.raises(ValueError, match="Configuration missing required fields.*description"):
+            ConfigManager(temp_data_folder)
+
+    def test_missing_parameters(self, temp_data_folder):
+        """Missing parameters should raise ValueError"""
+        config_content = {
+            "config_name": "Test",
+            "description": "Test config"
+        }
+        config_file = temp_data_folder / "league_config.json"
+        with open(config_file, 'w') as f:
+            json.dump(config_content, f)
+
+        with pytest.raises(ValueError, match="Configuration missing required fields.*parameters"):
+            ConfigManager(temp_data_folder)
+
+    def test_parameters_not_dict(self, temp_data_folder):
+        """parameters field must be a dictionary"""
+        config_content = {
+            "config_name": "Test",
+            "description": "Test config",
+            "parameters": []  # List instead of dict
+        }
+        config_file = temp_data_folder / "league_config.json"
+        with open(config_file, 'w') as f:
+            json.dump(config_content, f)
+
+        with pytest.raises(ValueError, match="'parameters' field must be a dictionary"):
+            ConfigManager(temp_data_folder)
+
+    def test_malformed_json(self, temp_data_folder):
+        """Malformed JSON should raise JSONDecodeError"""
+        config_file = temp_data_folder / "league_config.json"
+        with open(config_file, 'w') as f:
+            f.write("{invalid json content")
+
+        with pytest.raises(json.JSONDecodeError):
+            ConfigManager(temp_data_folder)
+
+    def test_config_file_not_found(self, temp_data_folder):
+        """Missing config file should raise FileNotFoundError"""
+        # Don't create the config file
+        with pytest.raises(FileNotFoundError, match="Configuration file not found"):
+            ConfigManager(temp_data_folder)
+
+
+class TestMissingRequiredParameters:
+    """Test missing required parameters in config"""
+
+    def test_missing_current_nfl_week(self, temp_data_folder):
+        """Missing CURRENT_NFL_WEEK should raise ValueError"""
+        config_content = {
+            "config_name": "Test",
+            "description": "Test config",
+            "parameters": {
+                "NFL_SEASON": 2025,
+                "NFL_SCORING_FORMAT": "ppr"
+            }
+        }
+        config_file = temp_data_folder / "league_config.json"
+        with open(config_file, 'w') as f:
+            json.dump(config_content, f)
+
+        with pytest.raises(ValueError, match="Config missing required parameters.*CURRENT_NFL_WEEK"):
+            ConfigManager(temp_data_folder)
+
+    def test_missing_injury_penalty_level(self, minimal_hardcoded_config):
+        """Missing injury penalty level should raise ValueError"""
+        config_file = minimal_hardcoded_config / "league_config.json"
+        with open(config_file, 'r') as f:
+            data = json.load(f)
+
+        # Remove HIGH level
+        del data["parameters"]["INJURY_PENALTIES"]["HIGH"]
+
+        with open(config_file, 'w') as f:
+            json.dump(data, f)
+
+        with pytest.raises(ValueError, match="INJURY_PENALTIES missing levels.*HIGH"):
+            ConfigManager(minimal_hardcoded_config)
+
+    def test_missing_draft_bonus_type(self, minimal_hardcoded_config):
+        """Missing draft bonus type should raise ValueError"""
+        config_file = minimal_hardcoded_config / "league_config.json"
+        with open(config_file, 'r') as f:
+            data = json.load(f)
+
+        # Remove PRIMARY bonus
+        del data["parameters"]["DRAFT_ORDER_BONUSES"]["PRIMARY"]
+
+        with open(config_file, 'w') as f:
+            json.dump(data, f)
+
+        with pytest.raises(ValueError, match="DRAFT_ORDER_BONUSES missing types.*PRIMARY"):
+            ConfigManager(minimal_hardcoded_config)
+
+    def test_draft_order_not_list(self, minimal_hardcoded_config):
+        """DRAFT_ORDER must be a list"""
+        config_file = minimal_hardcoded_config / "league_config.json"
+        with open(config_file, 'r') as f:
+            data = json.load(f)
+
+        # Make DRAFT_ORDER a dict instead of list
+        data["parameters"]["DRAFT_ORDER"] = {"FLEX": "P"}
+
+        with open(config_file, 'w') as f:
+            json.dump(data, f)
+
+        with pytest.raises(ValueError, match="DRAFT_ORDER must be a list"):
+            ConfigManager(minimal_hardcoded_config)
+
+
+class TestGetterMethodEdgeCases:
+    """Test edge cases for getter methods"""
+
+    def test_get_parameter_with_default(self, minimal_hardcoded_config):
+        """get_parameter should return default for non-existent key"""
+        config = ConfigManager(minimal_hardcoded_config)
+        result = config.get_parameter("NON_EXISTENT_KEY", default="default_value")
+        assert result == "default_value"
+
+    def test_get_parameter_none_default(self, minimal_hardcoded_config):
+        """get_parameter should return None if no default provided"""
+        config = ConfigManager(minimal_hardcoded_config)
+        result = config.get_parameter("NON_EXISTENT_KEY")
+        assert result is None
+
+    def test_has_parameter_exists(self, minimal_hardcoded_config):
+        """has_parameter should return True for existing parameter"""
+        config = ConfigManager(minimal_hardcoded_config)
+        assert config.has_parameter("CURRENT_NFL_WEEK") is True
+
+    def test_has_parameter_not_exists(self, minimal_hardcoded_config):
+        """has_parameter should return False for non-existent parameter"""
+        config = ConfigManager(minimal_hardcoded_config)
+        assert config.has_parameter("NON_EXISTENT_KEY") is False
+
+    def test_get_draft_position_round_too_low(self, minimal_hardcoded_config):
+        """get_draft_position_for_round with round < 1 should raise IndexError"""
+        config = ConfigManager(minimal_hardcoded_config)
+        with pytest.raises(IndexError, match="Round number 0 out of range"):
+            config.get_draft_position_for_round(0)
+
+    def test_get_draft_position_round_too_high(self, minimal_hardcoded_config):
+        """get_draft_position_for_round with round > max should raise IndexError"""
+        config = ConfigManager(minimal_hardcoded_config)
+        max_round = len(config.draft_order)
+        with pytest.raises(IndexError, match=f"Round number {max_round + 1} out of range"):
+            config.get_draft_position_for_round(max_round + 1)
+
+    def test_get_draft_position_valid_round(self, minimal_hardcoded_config):
+        """get_draft_position_for_round with valid round should return dict"""
+        config = ConfigManager(minimal_hardcoded_config)
+        result = config.get_draft_position_for_round(1)
+        assert isinstance(result, dict)
+        assert "FLEX" in result
+
+    def test_get_injury_penalty_invalid_level(self, minimal_hardcoded_config):
+        """get_injury_penalty with invalid level should fall back to HIGH"""
+        config = ConfigManager(minimal_hardcoded_config)
+        result = config.get_injury_penalty("INVALID_LEVEL")
+        expected = config.injury_penalties["HIGH"]
+        assert result == expected
+
+    def test_get_bye_week_penalty_same_position_only(self, minimal_hardcoded_config):
+        """get_bye_week_penalty with only same position conflicts"""
+        config = ConfigManager(minimal_hardcoded_config)
+        result = config.get_bye_week_penalty(num_same_position=2)
+        expected = config.base_bye_penalty * 2
+        assert result == expected
+
+    def test_get_bye_week_penalty_different_position(self, minimal_hardcoded_config):
+        """get_bye_week_penalty with different position conflicts"""
+        config = ConfigManager(minimal_hardcoded_config)
+        # No DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY in config, should default to 0
+        result = config.get_bye_week_penalty(num_same_position=1, num_different_position=2)
+        expected = config.base_bye_penalty * 1  # different position penalty is 0
+        assert result == expected
+
+    def test_get_ideal_draft_position_out_of_range(self, minimal_hardcoded_config):
+        """get_ideal_draft_position with round >= len(draft_order) should return FLEX"""
+        config = ConfigManager(minimal_hardcoded_config)
+        result = config.get_ideal_draft_position(round_num=999)
+        assert result == 'FLEX'
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

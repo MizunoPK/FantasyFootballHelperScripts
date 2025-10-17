@@ -1,0 +1,595 @@
+"""
+Comprehensive Unit Tests for player_scoring.py
+
+Tests the PlayerScoringCalculator class which handles the 9-step scoring algorithm:
+1. Normalization
+2. ADP Multiplier
+3. Player Rating Multiplier
+4. Team Quality Multiplier
+5. Performance Multiplier (actual vs projected deviation)
+6. Matchup Multiplier
+7. Draft Order Bonus
+8. Bye Week Penalty
+9. Injury Penalty
+
+Author: Kai Mizuno
+"""
+
+import pytest
+from unittest.mock import Mock, MagicMock, patch
+from typing import List
+
+# Imports work via conftest.py which adds the necessary paths
+from util.player_scoring import PlayerScoringCalculator
+from util.ConfigManager import ConfigManager
+from util.ProjectedPointsManager import ProjectedPointsManager
+from utils.FantasyPlayer import FantasyPlayer
+
+
+# ============================================================================
+# FIXTURES
+# ============================================================================
+
+@pytest.fixture
+def mock_data_folder(tmp_path):
+    """Create temporary data folder with test config"""
+    data_folder = tmp_path / "data"
+    data_folder.mkdir()
+
+    # Create minimal league_config.json
+    config_content = """{
+  "config_name": "Test Config",
+  "description": "Test configuration for player_scoring unit tests",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 6,
+    "NFL_SEASON": 2025,
+    "NFL_SCORING_FORMAT": "ppr",
+    "NORMALIZATION_MAX_SCALE": 100.0,
+    "BASE_BYE_PENALTY": 25.0,
+    "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+    "INJURY_PENALTIES": {
+      "LOW": 0,
+      "MEDIUM": 10.0,
+      "HIGH": 75.0
+    },
+    "DRAFT_ORDER_BONUSES": {
+      "PRIMARY": 50,
+      "SECONDARY": 30
+    },
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P", "QB": "S"}
+    ],
+    "ADP_SCORING": {
+      "THRESHOLDS": {"EXCELLENT": 20, "GOOD": 50, "POOR": 100, "VERY_POOR": 150},
+      "MULTIPLIERS": {"EXCELLENT": 1.20, "GOOD": 1.10, "POOR": 0.90, "VERY_POOR": 0.70},
+      "WEIGHT": 1.0
+    },
+    "PLAYER_RATING_SCORING": {
+      "THRESHOLDS": {"EXCELLENT": 80, "GOOD": 60, "POOR": 40, "VERY_POOR": 20},
+      "MULTIPLIERS": {"EXCELLENT": 1.25, "GOOD": 1.15, "POOR": 0.95, "VERY_POOR": 0.75},
+      "WEIGHT": 1.0
+    },
+    "TEAM_QUALITY_SCORING": {
+      "THRESHOLDS": {"EXCELLENT": 5, "GOOD": 10, "POOR": 20, "VERY_POOR": 25},
+      "MULTIPLIERS": {"EXCELLENT": 1.30, "GOOD": 1.15, "POOR": 0.85, "VERY_POOR": 0.70},
+      "WEIGHT": 1.0
+    },
+    "PERFORMANCE_SCORING": {
+      "MIN_WEEKS": 3,
+      "THRESHOLDS": {"VERY_POOR": -0.2, "POOR": -0.1, "GOOD": 0.1, "EXCELLENT": 0.2},
+      "MULTIPLIERS": {"VERY_POOR": 0.60, "POOR": 0.80, "GOOD": 1.20, "EXCELLENT": 1.50},
+      "WEIGHT": 1.0
+    },
+    "CONSISTENCY_SCORING": {
+      "MIN_WEEKS": 3,
+      "THRESHOLDS": {"EXCELLENT": 0.2, "GOOD": 0.4, "POOR": 0.6, "VERY_POOR": 0.8},
+      "MULTIPLIERS": {"EXCELLENT": 1.50, "GOOD": 1.20, "POOR": 0.80, "VERY_POOR": 0.60},
+      "WEIGHT": 1.0
+    },
+    "MATCHUP_SCORING": {
+      "THRESHOLDS": {"EXCELLENT": 15, "GOOD": 6, "POOR": -6, "VERY_POOR": -15},
+      "MULTIPLIERS": {"EXCELLENT": 1.25, "GOOD": 1.10, "POOR": 0.90, "VERY_POOR": 0.75},
+      "WEIGHT": 1.0
+    }
+  }
+}"""
+
+    config_file = data_folder / "league_config.json"
+    config_file.write_text(config_content)
+
+    return data_folder
+
+
+@pytest.fixture
+def config_manager(mock_data_folder):
+    """Create ConfigManager with test configuration"""
+    return ConfigManager(mock_data_folder)
+
+
+@pytest.fixture
+def mock_projected_points_manager():
+    """Create mock ProjectedPointsManager"""
+    ppm = Mock(spec=ProjectedPointsManager)
+    ppm.get_projected_points = Mock(return_value=None)
+    return ppm
+
+
+@pytest.fixture
+def scoring_calculator(config_manager, mock_projected_points_manager):
+    """Create PlayerScoringCalculator for testing"""
+    return PlayerScoringCalculator(config_manager, mock_projected_points_manager, max_projection=250.0)
+
+
+@pytest.fixture
+def test_player():
+    """Create a test player with all attributes set"""
+    player = FantasyPlayer(
+        id=12345,
+        name="Test Player",
+        team="KC",
+        position="RB",
+        bye_week=7,
+        fantasy_points=200.0,
+        average_draft_position=15.0,
+        player_rating=85.0,
+        injury_status="ACTIVE",
+        drafted=0,
+        locked=0
+    )
+
+    # Set weekly points
+    for week in range(1, 18):
+        setattr(player, f"week_{week}_points", 20.0)
+
+    player.weighted_projection = 80.0
+    player.team_offensive_rank = 1
+    player.matchup_score = 10
+
+    return player
+
+
+# ============================================================================
+# INITIALIZATION TESTS
+# ============================================================================
+
+class TestInitialization:
+    """Test PlayerScoringCalculator initialization"""
+
+    def test_initialization_with_valid_parameters(self, config_manager, mock_projected_points_manager):
+        """Test successful initialization with valid parameters"""
+        calculator = PlayerScoringCalculator(config_manager, mock_projected_points_manager, 250.0)
+
+        assert calculator.config == config_manager
+        assert calculator.projected_points_manager == mock_projected_points_manager
+        assert calculator.max_projection == 250.0
+        assert calculator.logger is not None
+
+    def test_initialization_with_zero_max_projection(self, config_manager, mock_projected_points_manager):
+        """Test initialization with max_projection = 0"""
+        calculator = PlayerScoringCalculator(config_manager, mock_projected_points_manager, 0.0)
+
+        assert calculator.max_projection == 0.0
+
+    def test_initialization_with_negative_max_projection(self, config_manager, mock_projected_points_manager):
+        """Test initialization with negative max_projection"""
+        calculator = PlayerScoringCalculator(config_manager, mock_projected_points_manager, -100.0)
+
+        # Should allow negative (edge case)
+        assert calculator.max_projection == -100.0
+
+
+# ============================================================================
+# WEEKLY PROJECTION TESTS
+# ============================================================================
+
+class TestWeeklyProjection:
+    """Test get_weekly_projection() method"""
+
+    def test_get_weekly_projection_valid_week(self, scoring_calculator, test_player):
+        """Test getting weekly projection for a valid week"""
+        test_player.week_6_points = 25.0
+
+        orig_pts, weighted_pts = scoring_calculator.get_weekly_projection(test_player, week=6)
+
+        assert orig_pts == 25.0
+        expected_weighted = (25.0 / 250.0) * 100.0
+        assert abs(weighted_pts - expected_weighted) < 0.01
+
+    def test_get_weekly_projection_uses_current_week_when_zero(self, scoring_calculator, test_player):
+        """Test that week=0 defaults to current week"""
+        test_player.week_6_points = 30.0  # Current week is 6
+
+        orig_pts, weighted_pts = scoring_calculator.get_weekly_projection(test_player, week=0)
+
+        assert orig_pts == 30.0
+
+    def test_get_weekly_projection_uses_current_week_when_out_of_range(self, scoring_calculator, test_player):
+        """Test that week=99 defaults to current week"""
+        test_player.week_6_points = 35.0
+
+        orig_pts, weighted_pts = scoring_calculator.get_weekly_projection(test_player, week=99)
+
+        assert orig_pts == 35.0
+
+    def test_get_weekly_projection_missing_data_returns_zero(self, scoring_calculator, test_player):
+        """Test that missing weekly data returns (0.0, 0.0)"""
+        delattr(test_player, 'week_10_points')
+
+        orig_pts, weighted_pts = scoring_calculator.get_weekly_projection(test_player, week=10)
+
+        assert orig_pts == 0.0
+        assert weighted_pts == 0.0
+
+    def test_get_weekly_projection_none_value_returns_zero(self, scoring_calculator, test_player):
+        """Test that None weekly points returns (0.0, 0.0)"""
+        test_player.week_7_points = None
+
+        orig_pts, weighted_pts = scoring_calculator.get_weekly_projection(test_player, week=7)
+
+        assert orig_pts == 0.0
+        assert weighted_pts == 0.0
+
+    def test_get_weekly_projection_zero_value_returns_zero(self, scoring_calculator, test_player):
+        """Test that zero weekly points returns (0.0, 0.0)"""
+        test_player.week_8_points = 0.0
+
+        orig_pts, weighted_pts = scoring_calculator.get_weekly_projection(test_player, week=8)
+
+        assert orig_pts == 0.0
+        assert weighted_pts == 0.0
+
+    def test_get_weekly_projection_with_zero_max_projection(self, config_manager, mock_projected_points_manager, test_player):
+        """Test weekly projection when max_projection is 0"""
+        calculator = PlayerScoringCalculator(config_manager, mock_projected_points_manager, 0.0)
+        test_player.week_6_points = 25.0
+
+        orig_pts, weighted_pts = calculator.get_weekly_projection(test_player, week=6)
+
+        assert orig_pts == 25.0
+        # With max_projection=0, weighted should be 0 (not crash with division by zero)
+        assert weighted_pts == 0.0
+
+
+# ============================================================================
+# WEIGHT PROJECTION TESTS
+# ============================================================================
+
+class TestWeightProjection:
+    """Test weight_projection() method"""
+
+    def test_weight_projection_normal_value(self, scoring_calculator):
+        """Test weight_projection with normal value"""
+        result = scoring_calculator.weight_projection(125.0)
+
+        expected = (125.0 / 250.0) * 100.0
+        assert abs(result - expected) < 0.01
+
+    def test_weight_projection_zero_input(self, scoring_calculator):
+        """Test weight_projection with zero input"""
+        result = scoring_calculator.weight_projection(0.0)
+
+        assert result == 0.0
+
+    def test_weight_projection_max_value(self, scoring_calculator):
+        """Test weight_projection with max_projection value"""
+        result = scoring_calculator.weight_projection(250.0)
+
+        assert abs(result - 100.0) < 0.01
+
+    def test_weight_projection_over_max(self, scoring_calculator):
+        """Test weight_projection with value > max_projection"""
+        result = scoring_calculator.weight_projection(500.0)
+
+        expected = (500.0 / 250.0) * 100.0
+        assert abs(result - expected) < 0.01
+        assert result > 100.0  # Can exceed 100
+
+
+# ============================================================================
+# CONSISTENCY CALCULATION TESTS
+# ============================================================================
+
+class TestConsistencyCalculation:
+    """Test calculate_consistency() method"""
+
+    def test_calculate_consistency_with_sufficient_data(self, scoring_calculator, test_player):
+        """Test consistency calculation with sufficient weeks of data"""
+        # Set varying weekly points for weeks 1-5 (current week is 6)
+        test_player.week_1_points = 20.0
+        test_player.week_2_points = 22.0
+        test_player.week_3_points = 18.0
+        test_player.week_4_points = 21.0
+        test_player.week_5_points = 19.0
+
+        consistency, weeks_count = scoring_calculator.calculate_consistency(test_player)
+
+        assert weeks_count == 5
+        assert consistency > 0  # Should have some variation
+        assert consistency < 1.0  # CV should be reasonable
+
+    def test_calculate_consistency_insufficient_data(self, scoring_calculator, test_player):
+        """Test consistency calculation with insufficient data (< MIN_WEEKS)"""
+        # Set only 2 weeks of data (MIN_WEEKS = 3)
+        for week in range(1, 18):
+            setattr(test_player, f"week_{week}_points", None)
+        test_player.week_1_points = 20.0
+        test_player.week_2_points = 22.0
+
+        consistency, weeks_count = scoring_calculator.calculate_consistency(test_player)
+
+        assert weeks_count == 2
+        assert consistency == 0.5  # Default value
+
+    def test_calculate_consistency_with_none_values(self, scoring_calculator, test_player):
+        """Test consistency calculation ignores None values"""
+        test_player.week_1_points = 20.0
+        test_player.week_2_points = None  # Should be ignored
+        test_player.week_3_points = 22.0
+        test_player.week_4_points = 18.0
+        test_player.week_5_points = 21.0
+
+        consistency, weeks_count = scoring_calculator.calculate_consistency(test_player)
+
+        assert weeks_count == 4  # Should not count None
+        assert consistency > 0
+
+    def test_calculate_consistency_with_zero_values(self, scoring_calculator, test_player):
+        """Test consistency calculation ignores zero values"""
+        test_player.week_1_points = 20.0
+        test_player.week_2_points = 0.0  # Should be ignored
+        test_player.week_3_points = 22.0
+        test_player.week_4_points = 18.0
+        test_player.week_5_points = 21.0
+
+        consistency, weeks_count = scoring_calculator.calculate_consistency(test_player)
+
+        assert weeks_count == 4  # Should not count zero
+        assert consistency > 0
+
+    def test_calculate_consistency_perfect_consistency(self, scoring_calculator, test_player):
+        """Test consistency with identical weekly scores"""
+        # All weeks have same score = perfect consistency (CV = 0)
+        for week in range(1, 6):
+            setattr(test_player, f"week_{week}_points", 20.0)
+
+        consistency, weeks_count = scoring_calculator.calculate_consistency(test_player)
+
+        assert weeks_count == 5
+        assert consistency == 0.0  # Perfect consistency
+
+    def test_calculate_consistency_high_variation(self, scoring_calculator, test_player):
+        """Test consistency with high variation"""
+        test_player.week_1_points = 5.0
+        test_player.week_2_points = 35.0
+        test_player.week_3_points = 10.0
+        test_player.week_4_points = 30.0
+        test_player.week_5_points = 20.0
+
+        consistency, weeks_count = scoring_calculator.calculate_consistency(test_player)
+
+        assert weeks_count == 5
+        assert consistency > 0.3  # High variation = high CV
+
+
+# ============================================================================
+# PERFORMANCE DEVIATION TESTS
+# ============================================================================
+
+class TestPerformanceDeviation:
+    """Test calculate_performance_deviation() method"""
+
+    def test_calculate_performance_deviation_with_sufficient_data(self, scoring_calculator, test_player, mock_projected_points_manager):
+        """Test performance deviation with sufficient data"""
+        # Set up actual vs projected points for weeks 1-5
+        test_player.week_1_points = 22.0  # Actual
+        test_player.week_2_points = 18.0
+        test_player.week_3_points = 21.0
+        test_player.week_4_points = 19.0
+        test_player.week_5_points = 23.0
+
+        # Mock projected points (all 20.0)
+        mock_projected_points_manager.get_projected_points = Mock(return_value=20.0)
+
+        deviation = scoring_calculator.calculate_performance_deviation(test_player)
+
+        assert deviation is not None
+        # Average deviation: [(22-20)/20, (18-20)/20, (21-20)/20, (19-20)/20, (23-20)/20]
+        # = [0.1, -0.1, 0.05, -0.05, 0.15] => average = 0.03
+        assert abs(deviation - 0.03) < 0.05
+
+    def test_calculate_performance_deviation_returns_none_for_dst(self, scoring_calculator, test_player):
+        """Test that DST players return None"""
+        test_player.position = "DST"
+
+        deviation = scoring_calculator.calculate_performance_deviation(test_player)
+
+        assert deviation is None
+
+    def test_calculate_performance_deviation_insufficient_data(self, scoring_calculator, test_player, mock_projected_points_manager):
+        """Test performance deviation with insufficient data (< MIN_WEEKS)"""
+        # Set only 2 weeks of data
+        for week in range(1, 18):
+            setattr(test_player, f"week_{week}_points", None)
+        test_player.week_1_points = 20.0
+        test_player.week_2_points = 22.0
+        mock_projected_points_manager.get_projected_points = Mock(return_value=20.0)
+
+        deviation = scoring_calculator.calculate_performance_deviation(test_player)
+
+        assert deviation is None  # Insufficient data
+
+    def test_calculate_performance_deviation_skips_zero_actual(self, scoring_calculator, test_player, mock_projected_points_manager):
+        """Test that weeks with actual=0 are skipped"""
+        test_player.week_1_points = 20.0
+        test_player.week_2_points = 0.0  # Should be skipped
+        test_player.week_3_points = 22.0
+        test_player.week_4_points = 18.0
+        test_player.week_5_points = 21.0
+        mock_projected_points_manager.get_projected_points = Mock(return_value=20.0)
+
+        deviation = scoring_calculator.calculate_performance_deviation(test_player)
+
+        # Should calculate based on 4 weeks (skipping week 2)
+        assert deviation is not None
+
+    def test_calculate_performance_deviation_skips_zero_projected(self, scoring_calculator, test_player, mock_projected_points_manager):
+        """Test that weeks with projected=0 are skipped"""
+        test_player.week_1_points = 20.0
+        test_player.week_2_points = 22.0
+        test_player.week_3_points = 18.0
+        test_player.week_4_points = 21.0
+        test_player.week_5_points = 19.0
+
+        # Mock to return 0 for week 2
+        def get_proj(player, week):
+            return 0.0 if week == 2 else 20.0
+
+        mock_projected_points_manager.get_projected_points = Mock(side_effect=get_proj)
+
+        deviation = scoring_calculator.calculate_performance_deviation(test_player)
+
+        # Should calculate based on 4 weeks (skipping week 2)
+        assert deviation is not None
+
+
+# ============================================================================
+# INTEGRATION TESTS
+# ============================================================================
+
+class TestScoringIntegration:
+    """Integration tests for score_player() method"""
+
+    def test_score_player_with_all_flags_disabled(self, scoring_calculator, test_player):
+        """Test scoring with all multipliers/penalties disabled"""
+        # Set ROS projection to 250 for weighted = 100
+        for week in range(6, 18):
+            setattr(test_player, f"week_{week}_points", 250.0 / 12)
+
+        result = scoring_calculator.score_player(
+            test_player,
+            team_roster=[],
+            adp=False,
+            player_rating=False,
+            team_quality=False,
+            performance=False,
+            matchup=False,
+            draft_round=-1,
+            bye=False,
+            injury=False
+        )
+
+        # Should only have normalization
+        assert abs(result.score - 100.0) < 0.01
+
+    def test_score_player_with_adp_multiplier(self, scoring_calculator, test_player):
+        """Test scoring with only ADP multiplier enabled"""
+        test_player.average_draft_position = 15.0  # EXCELLENT
+        for week in range(6, 18):
+            setattr(test_player, f"week_{week}_points", 250.0 / 12)
+
+        result = scoring_calculator.score_player(
+            test_player,
+            team_roster=[],
+            adp=True,
+            player_rating=False,
+            team_quality=False,
+            performance=False,
+            matchup=False,
+            draft_round=-1,
+            bye=False,
+            injury=False
+        )
+
+        # 100 * 1.20 = 120
+        assert abs(result.score - 120.0) < 0.01
+
+    def test_score_player_with_bye_penalty(self, scoring_calculator, test_player):
+        """Test scoring with bye week penalty"""
+        for week in range(6, 18):
+            setattr(test_player, f"week_{week}_points", 250.0 / 12)
+        test_player.bye_week = 7
+
+        # Create roster with 2 same-position players on bye week 7
+        other_rb1 = FantasyPlayer(id=99, name="RB1", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
+        other_rb2 = FantasyPlayer(id=98, name="RB2", team="PHI", position="RB", bye_week=7, fantasy_points=100.0)
+
+        result = scoring_calculator.score_player(
+            test_player,
+            team_roster=[other_rb1, other_rb2],
+            adp=False,
+            player_rating=False,
+            team_quality=False,
+            performance=False,
+            matchup=False,
+            draft_round=-1,
+            bye=True,
+            injury=False
+        )
+
+        # 100 - (2 * 25) = 50
+        assert abs(result.score - 50.0) < 0.01
+
+    def test_score_player_with_injury_penalty(self, scoring_calculator, test_player):
+        """Test scoring with injury penalty"""
+        for week in range(6, 18):
+            setattr(test_player, f"week_{week}_points", 250.0 / 12)
+        test_player.injury_status = "OUT"  # HIGH risk
+
+        result = scoring_calculator.score_player(
+            test_player,
+            team_roster=[],
+            adp=False,
+            player_rating=False,
+            team_quality=False,
+            performance=False,
+            matchup=False,
+            draft_round=-1,
+            bye=False,
+            injury=True
+        )
+
+        # 100 - 75 = 25
+        assert abs(result.score - 25.0) < 0.01
+
+    def test_score_player_with_weekly_projection(self, scoring_calculator, test_player):
+        """Test scoring with use_weekly_projection=True"""
+        test_player.week_6_points = 25.0
+
+        result = scoring_calculator.score_player(
+            test_player,
+            team_roster=[],
+            use_weekly_projection=True,
+            adp=False,
+            player_rating=False,
+            team_quality=False,
+            performance=False,
+            matchup=False,
+            draft_round=-1,
+            bye=False,
+            injury=False
+        )
+
+        # (25/250) * 100 = 10
+        expected = (25.0 / 250.0) * 100.0
+        assert abs(result.score - expected) < 0.01
+
+    def test_score_player_returns_scored_player_object(self, scoring_calculator, test_player):
+        """Test that score_player returns a ScoredPlayer object"""
+        for week in range(6, 18):
+            setattr(test_player, f"week_{week}_points", 250.0 / 12)
+
+        result = scoring_calculator.score_player(
+            test_player,
+            team_roster=[],
+            draft_round=-1
+        )
+
+        assert result.player == test_player
+        assert isinstance(result.score, float)
+        assert isinstance(result.reason, list)
+        assert len(result.reason) > 0
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])

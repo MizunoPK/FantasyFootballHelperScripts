@@ -349,5 +349,99 @@ class TestScoredPlayerComparison:
         assert sorted_players[3].player.name == "Player C"  # 100.0
 
 
+class TestAdditionalEdgeCases:
+    """Additional edge case tests for comprehensive coverage"""
+
+    def test_scored_player_with_empty_string_reason(self):
+        """Test ScoredPlayer with empty string in reasons list"""
+        player = FantasyPlayer(
+            id=13,
+            name="Empty Reason Player",
+            team="DEN",
+            position="WR"
+        )
+        reasons = ["Valid Reason", "", "Another Valid Reason"]
+        scored_player = ScoredPlayer(player, 100.0, reasons)
+
+        result = str(scored_player)
+
+        # Empty reason should still appear as a bullet point
+        assert "- Valid Reason" in result
+        assert "-  \n" in result or "-" in result  # Empty reason appears as "- "
+        assert "- Another Valid Reason" in result
+
+    def test_scored_player_with_very_long_reason(self):
+        """Test ScoredPlayer with very long reason text"""
+        player = FantasyPlayer(
+            id=14,
+            name="Long Reason Player",
+            team="LAC",
+            position="TE"
+        )
+        # Create a very long reason (200+ characters)
+        long_reason = "A" * 200
+        reasons = ["Short reason", long_reason, "Another short reason"]
+        scored_player = ScoredPlayer(player, 88.0, reasons)
+
+        result = str(scored_player)
+
+        # Long reason should be included without truncation
+        assert long_reason in result
+        assert "- Short reason" in result
+        assert "- Another short reason" in result
+
+    def test_scored_player_with_unicode_name(self):
+        """Test ScoredPlayer with unicode characters in player name"""
+        player = FantasyPlayer(
+            id=15,
+            name="José Ramírez",
+            team="SF",
+            position="RB"
+        )
+        scored_player = ScoredPlayer(player, 95.5, ["Unicode Test"])
+
+        result = str(scored_player)
+
+        # Unicode characters should be preserved
+        assert "José Ramírez" in result
+        assert "95.50 pts" in result
+        assert "- Unicode Test" in result
+
+    def test_scored_player_with_whitespace_only_reason(self):
+        """Test ScoredPlayer with whitespace-only reason"""
+        player = FantasyPlayer(
+            id=16,
+            name="Whitespace Player",
+            team="GB",
+            position="QB"
+        )
+        reasons = ["Valid Reason", "   ", "Another Valid Reason"]
+        scored_player = ScoredPlayer(player, 110.0, reasons)
+
+        result = str(scored_player)
+
+        # Whitespace reason should appear as bullet with spaces
+        assert "- Valid Reason" in result
+        assert "-    " in result  # Three spaces after dash
+        assert "- Another Valid Reason" in result
+
+    def test_scored_player_with_none_bye_week(self):
+        """Test __str__ formatting when bye_week is None"""
+        player = FantasyPlayer(
+            id=17,
+            name="No Bye Player",
+            team="MIN",
+            position="DST",
+            bye_week=None
+        )
+        scored_player = ScoredPlayer(player, 75.0, ["Defense reason"])
+
+        result = str(scored_player)
+
+        # Should display "Bye=None" when bye_week is None
+        assert "[DST] [MIN] No Bye Player - 75.00 pts (Bye=None)" in result
+        assert "- Defense reason" in result
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

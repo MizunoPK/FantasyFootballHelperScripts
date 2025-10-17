@@ -26,7 +26,6 @@ import constants as Constants
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
-from utils.FantasyPlayer import FantasyPlayer
 
 
 class ConfigKeys:
@@ -137,6 +136,10 @@ class ConfigManager:
         >>> draft_bonus = config.get_draft_order_bonus("RB", 1)  # RB in round 1 → returns bonus
     """
 
+    # ============================================================================
+    # INITIALIZATION
+    # ============================================================================
+
     def __init__(self, data_folder: Path) -> None:
         """
         Initialize the config manager and load configuration.
@@ -181,6 +184,253 @@ class ConfigManager:
         self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
 
         self._load_config()
+
+    # ============================================================================
+    # PUBLIC CONFIGURATION ACCESS
+    # ============================================================================
+
+    def get_parameter(self, key: str, default: Any = None) -> Any:
+        """
+        Get a parameter value by key.
+
+        Args:
+            key: The parameter key
+            default: Default value if key not found
+
+        Returns:
+            The parameter value or default
+        """
+        return self.parameters.get(key, default)
+
+    def has_parameter(self, key: str) -> bool:
+        """
+        Check if a parameter exists.
+
+        Args:
+            key: The parameter key
+
+        Returns:
+            True if parameter exists, False otherwise
+        """
+        return key in self.parameters
+
+    def get_consistency_label(self, val: float) -> str:
+        """
+        Get a human-readable label for a consistency value.
+
+        Consistency is measured using Coefficient of Variation (CV) where
+        lower values indicate more consistent performance.
+
+        Args:
+            val (float): Coefficient of Variation (CV) value
+
+        Returns:
+            str: Label describing consistency level (EXCELLENT, GOOD, NEUTRAL, POOR, VERY_POOR)
+
+        Example:
+            >>> config.get_consistency_label(0.15)  # Very consistent
+            'EXCELLENT'
+            >>> config.get_consistency_label(0.9)   # Very inconsistent
+            'VERY_POOR'
+        """
+        if val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
+            return self.keys.EXCELLENT
+        elif val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.GOOD]:
+            return self.keys.GOOD
+        elif val >= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.POOR]:
+            return self.keys.POOR
+        elif val >= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
+            return self.keys.VERY_POOR
+        else:
+            return "NEUTRAL"
+
+    # ============================================================================
+    # PUBLIC MULTIPLIER GETTERS
+    # ============================================================================
+
+    def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
+        return self._get_multiplier(self.adp_scoring, adp_val, rising_thresholds=False)
+
+    def get_player_rating_multiplier(self, rating) -> Tuple[float, str]:
+        return self._get_multiplier(self.player_rating_scoring, rating)
+
+    def get_team_quality_multiplier(self, quality_rank : int) -> Tuple[float, str]:
+        return self._get_multiplier(self.team_quality_scoring, quality_rank, rising_thresholds=False)
+
+    def get_matchup_multiplier(self, value) -> Tuple[float, str]:
+        return self._get_multiplier(self.matchup_scoring, value)
+
+    def get_performance_multiplier(self, deviation: float) -> Tuple[float, str]:
+        return self._get_multiplier(self.performance_scoring, deviation)
+
+    # ============================================================================
+    # PUBLIC BONUS/PENALTY GETTERS
+    # ============================================================================
+
+    def get_draft_order_bonus(self, position : str, draft_round : int) -> Tuple[float, str]:
+        """
+        Get draft order bonus for a position in a specific round.
+
+        The draft strategy defines which positions to prioritize in each round.
+        PRIMARY positions get the highest bonus, SECONDARY positions get a smaller bonus,
+        and non-listed positions get no bonus.
+
+        Args:
+            position: Player position (QB, RB, WR, TE, K, DST, or FLEX)
+            draft_round: Draft round number (0-indexed)
+
+        Returns:
+            Tuple[float, str]: (bonus_points, bonus_type)
+                - bonus_points: Point bonus to add to score
+                - bonus_type: "PRIMARY", "SECONDARY", or "" (no bonus)
+
+        Example:
+            Round 1 strategy: {"RB": "P", "WR": "S"}
+            - get_draft_order_bonus("RB", 1) → (10.0, "PRIMARY")
+            - get_draft_order_bonus("WR", 1) → (5.0, "SECONDARY")
+            - get_draft_order_bonus("QB", 1) → (0, "")
+        """
+        # Convert position to FLEX-aware format
+        # For example, RB/WR/DST might be labeled as FLEX in later rounds
+        position_with_flex = Constants.get_position_with_flex(position)
+
+        # Get the ideal positions for this draft round
+        # This is a dictionary like {"RB": "P", "WR": "S", "FLEX": "P"}
+        ideal_positions = self.draft_order[draft_round]
+
+        # Check if this position is listed in the draft strategy for this round
+        if position_with_flex in ideal_positions:
+            # Get the priority label: "P" (PRIMARY) or "S" (SECONDARY)
+            priority = ideal_positions.get(position_with_flex)
+
+            if priority == self.keys.DRAFT_ORDER_PRIMARY_LABEL:
+                # This is a PRIMARY position for this round (highest bonus)
+                # Example: RB in round 1-2, QB in round 3
+                return self.draft_order_bonuses[self.keys.BONUS_PRIMARY], self.keys.BONUS_PRIMARY
+            else:
+                # This is a SECONDARY position for this round (smaller bonus)
+                # Example: WR in round 1 when RB is PRIMARY
+                return self.draft_order_bonuses[self.keys.BONUS_SECONDARY], self.keys.BONUS_SECONDARY
+        else:
+            # Position is not listed in this round's strategy (no bonus)
+            # Example: K or DST in early rounds
+            return 0, ""
+
+    def get_bye_week_penalty(self, num_same_position : int, num_different_position : int = 0) -> float:
+        """
+        Calculate bye week penalty based on roster conflicts.
+
+        Bye week conflicts reduce a player's value when rostering them would create
+        depth issues on a specific week. Two types of conflicts are tracked:
+
+        1. Same-position conflicts: More severe (e.g., 2 RBs both on bye week 7)
+           - Uses BASE_BYE_PENALTY per conflict
+           - Directly weakens a specific position during that week
+
+        2. Different-position conflicts: Less severe (e.g., RB + WR on bye week 7)
+           - Uses DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY per conflict
+           - Reduces overall roster depth but doesn't cripple one position
+
+        Args:
+            num_same_position: Number of same-position bye week conflicts
+            num_different_position: Number of different-position bye week conflicts (default: 0)
+
+        Returns:
+            float: Total bye week penalty (sum of both penalty types)
+
+        Example:
+            Config has BASE_BYE_PENALTY=5.0, DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY=2.0
+            Player shares bye week with 2 same-position and 1 different-position player:
+            penalty = (5.0 * 2) + (2.0 * 1) = 12.0 points
+        """
+        # Calculate penalty for same-position conflicts
+        # These are weighted more heavily because they create position-specific weakness
+        same_position_penalty = self.base_bye_penalty * num_same_position
+
+        # Calculate penalty for different-position conflicts
+        # These are weighted less heavily (default 0 if not configured)
+        different_position_penalty = self.parameters.get('DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY', 0) * num_different_position
+
+        # Return combined penalty
+        return same_position_penalty + different_position_penalty
+
+    def get_injury_penalty(self, risk_level : str) -> float:
+        """
+        Get injury penalty for a given risk level.
+
+        Args:
+            risk_level: Injury risk level (LOW, MEDIUM, or HIGH)
+
+        Returns:
+            float: Penalty points to subtract from player score
+
+        Note:
+            If an invalid risk level is provided, defaults to HIGH penalty
+            for safety (conservative approach to injury risk)
+        """
+        # Look up penalty for the given risk level
+        if risk_level in self.injury_penalties:
+            return self.injury_penalties[risk_level]
+        else:
+            # Default to HIGH penalty if risk level is unrecognized
+            # This is a conservative fallback to avoid drafting risky players
+            return self.injury_penalties[self.keys.INJURY_HIGH]
+
+    # ============================================================================
+    # PUBLIC DRAFT POSITION GETTERS
+    # ============================================================================
+
+    def get_draft_position_for_round(self, round_number: int) -> Dict[str, str]:
+        """
+        Get the draft order entry for a specific round.
+
+        Args:
+            round_number: The draft round (1-indexed)
+
+        Returns:
+            Dictionary mapping positions to priority ('P' or 'S')
+
+        Raises:
+            IndexError: If round_number is out of range
+        """
+        if round_number < 1 or round_number > len(self.draft_order):
+            raise IndexError(
+                f"Round number {round_number} out of range (1-{len(self.draft_order)})"
+            )
+
+        return self.draft_order[round_number - 1]
+
+    def get_ideal_draft_position(self, round_num: int) -> str:
+        """
+        Get the ideal position to draft in a given round (returns PRIMARY='P' position).
+
+        Args:
+            round_num: Draft round number (0-indexed)
+
+        Returns:
+            str: The PRIMARY position for this round, or 'FLEX' if round is out of range
+
+        Example:
+            Round 1 strategy: {"RB": "P", "WR": "S"}
+            → Returns "RB" (PRIMARY position)
+        """
+        # Check if round number is within the draft order list
+        if round_num < len(self.draft_order):
+            # Get the position with PRIMARY priority ("P") for this round
+            # IMPORTANT: Use min() not max() because in ASCII/Unicode:
+            # - 'P' (PRIMARY) = 80
+            # - 'S' (SECONDARY) = 83
+            # So 'P' < 'S', meaning min() returns the PRIMARY position
+            best_position = min(self.draft_order[round_num], key=self.draft_order[round_num].get)
+            return best_position
+
+        # If round number is out of range (beyond defined strategy), default to FLEX
+        # This allows flexible drafting in late rounds
+        return 'FLEX'
+
+    # ============================================================================
+    # PUBLIC THRESHOLD UTILITIES
+    # ============================================================================
 
     def validate_threshold_params(self, base_pos: float, direction: str, steps: float) -> bool:
         """
@@ -311,6 +561,10 @@ class ConfigManager:
         # Store in cache
         self._threshold_cache[cache_key] = thresholds
         return thresholds
+
+    # ============================================================================
+    # PRIVATE LOADING AND VALIDATION
+    # ============================================================================
 
     def _load_config(self) -> None:
         """
@@ -482,62 +736,10 @@ class ConfigManager:
                                  f"G={calculated[self.keys.GOOD]}, P={calculated[self.keys.POOR]}, "
                                  f"VP={calculated[self.keys.VERY_POOR]}")
 
-    def get_parameter(self, key: str, default: Any = None) -> Any:
-        """
-        Get a parameter value by key.
+    # ============================================================================
+    # PRIVATE MULTIPLIER CALCULATION
+    # ============================================================================
 
-        Args:
-            key: The parameter key
-            default: Default value if key not found
-
-        Returns:
-            The parameter value or default
-        """
-        return self.parameters.get(key, default)
-
-    def has_parameter(self, key: str) -> bool:
-        """
-        Check if a parameter exists.
-
-        Args:
-            key: The parameter key
-
-        Returns:
-            True if parameter exists, False otherwise
-        """
-        return key in self.parameters
-    
-    def get_consistency_label(self, val: float) -> str:
-        """
-        Get a human-readable label for a consistency value.
-
-        Consistency is measured using Coefficient of Variation (CV) where
-        lower values indicate more consistent performance.
-
-        Args:
-            val (float): Coefficient of Variation (CV) value
-
-        Returns:
-            str: Label describing consistency level (EXCELLENT, GOOD, NEUTRAL, POOR, VERY_POOR)
-
-        Example:
-            >>> config.get_consistency_label(0.15)  # Very consistent
-            'EXCELLENT'
-            >>> config.get_consistency_label(0.9)   # Very inconsistent
-            'VERY_POOR'
-        """
-        if val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
-            return self.keys.EXCELLENT
-        elif val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.GOOD]:
-            return self.keys.GOOD
-        elif val >= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.POOR]:
-            return self.keys.POOR
-        elif val >= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
-            return self.keys.VERY_POOR
-        else:
-            return "NEUTRAL"
-
-    
     def _get_multiplier(self, scoring_dict : Dict[str, Any], val, rising_thresholds=True) -> Tuple[float, str]:
         """
         Get multiplier based on threshold logic.
@@ -567,114 +769,68 @@ class ConfigManager:
                 - val >= VERY_POOR threshold → VERY_POOR multiplier
         """
         # Handle None values - return neutral multiplier (1.0) when data is unavailable
+        # This prevents crashes when player data is incomplete
         if val == None:
             self.logger.debug(f"Multiplier calculation received None value, returning NEUTRAL (1.0)")
             multiplier, label = 1.0, self.keys.NEUTRAL
 
         elif rising_thresholds:
-            # Higher values are better (e.g., player rating where 80+ is excellent)
-            # Check from best to worst
+            # RISING THRESHOLDS: Higher values are better
+            # Examples: player rating (80+ = excellent), performance deviation (+20% = excellent)
+
+            # Check thresholds from best to worst to find the appropriate multiplier
+            # The order is important: EXCELLENT → GOOD → (neutral) → POOR → VERY_POOR
+
             if val >= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
+                # Value exceeds EXCELLENT threshold (e.g., player rating >= 80)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
+                # Value exceeds GOOD threshold but not EXCELLENT (e.g., 60 <= rating < 80)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
+                # Value is below VERY_POOR threshold (e.g., rating <= 20)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
+                # Value is below POOR threshold but above VERY_POOR (e.g., 20 < rating <= 40)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
             else:
+                # Value is in the neutral zone between POOR and GOOD thresholds
+                # No adjustment applied (1.0x multiplier)
                 multiplier, label = 1.0, self.keys.NEUTRAL
         else:
-            # Lower values are better (e.g., ADP where 20 or less is excellent)
-            # Check from best to worst
+            # DECREASING THRESHOLDS: Lower values are better
+            # Examples: ADP (20 or less = excellent), team rank (1-10 = excellent)
+
+            # Check thresholds from best to worst
+            # The comparison operators are reversed compared to rising_thresholds
+
             if val <= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
+                # Value is below EXCELLENT threshold (e.g., ADP <= 20, rank <= 10)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
+                # Value is below GOOD threshold but above EXCELLENT (e.g., 20 < ADP <= 50)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
+                # Value exceeds VERY_POOR threshold (e.g., ADP >= 150, rank >= 25)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
+                # Value exceeds POOR threshold but below VERY_POOR (e.g., 100 <= ADP < 150)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
             else:
+                # Value is in the neutral zone between GOOD and POOR thresholds
+                # No adjustment applied (1.0x multiplier)
                 multiplier, label = 1.0, self.keys.NEUTRAL
-            
+
+        # Apply weight exponent to the multiplier
+        # Weight > 1 amplifies the multiplier effect (e.g., 1.05^2 = 1.1025)
+        # Weight < 1 dampens the multiplier effect (e.g., 1.05^0.5 = 1.0247)
+        # This allows fine-tuning of how much each factor influences the final score
         multiplier = multiplier ** scoring_dict[self.keys.WEIGHT]
         return multiplier, label
 
-    def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
-        return self._get_multiplier(self.adp_scoring, adp_val, rising_thresholds=False)
-    
-    def get_player_rating_multiplier(self, rating) -> Tuple[float, str]:
-        return self._get_multiplier(self.player_rating_scoring, rating)
-    
-    def get_team_quality_multiplier(self, quality_rank : int) -> Tuple[float, str]:
-        return self._get_multiplier(self.team_quality_scoring, quality_rank, rising_thresholds=False)
-    
-    def get_matchup_multiplier(self, value) -> Tuple[float, str]:
-        return self._get_multiplier(self.matchup_scoring, value)
-
-    def get_performance_multiplier(self, deviation: float) -> Tuple[float, str]:
-        return self._get_multiplier(self.performance_scoring, deviation)
-
-    def get_draft_order_bonus(self, position : str, draft_round : int) -> Tuple[float, str]:
-        position_with_flex = Constants.get_position_with_flex(position)
-        ideal_positions = self.draft_order[draft_round]
-        if position_with_flex in ideal_positions:
-            if ideal_positions.get(position_with_flex) == self.keys.DRAFT_ORDER_PRIMARY_LABEL:
-                return self.draft_order_bonuses[self.keys.BONUS_PRIMARY], self.keys.BONUS_PRIMARY
-            else:
-                return self.draft_order_bonuses[self.keys.BONUS_SECONDARY], self.keys.BONUS_SECONDARY
-        else:
-            return 0, ""
-        
-    def get_bye_week_penalty(self, num_same_position : int, num_different_position : int = 0) -> float:
-        """
-        Calculate bye week penalty based on roster conflicts.
-
-        Args:
-            num_same_position: Number of same-position bye week conflicts
-            num_different_position: Number of different-position bye week conflicts (default: 0)
-
-        Returns:
-            float: Total bye week penalty
-        """
-        same_position_penalty = self.base_bye_penalty * num_same_position
-        different_position_penalty = self.parameters.get('DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY', 0) * num_different_position
-        return same_position_penalty + different_position_penalty
-        
-    def get_injury_penalty(self, risk_level : str) -> float:
-        if risk_level in self.injury_penalties:
-            return self.injury_penalties[risk_level]
-        else:
-            return self.injury_penalties[self.keys.INJURY_HIGH]
-
-    def get_draft_position_for_round(self, round_number: int) -> Dict[str, str]:
-        """
-        Get the draft order entry for a specific round.
-
-        Args:
-            round_number: The draft round (1-indexed)
-
-        Returns:
-            Dictionary mapping positions to priority ('P' or 'S')
-
-        Raises:
-            IndexError: If round_number is out of range
-        """
-        if round_number < 1 or round_number > len(self.draft_order):
-            raise IndexError(
-                f"Round number {round_number} out of range (1-{len(self.draft_order)})"
-            )
-
-        return self.draft_order[round_number - 1]
-    
-    def get_ideal_draft_position(self, round_num: int) -> str:
-        """Get the ideal position to draft in a given round (returns PRIMARY='P' position)"""
-        if round_num < len(self.draft_order):
-            # IMPORTANT: Use min() not max() because 'P' (PRIMARY) < 'S' (SECONDARY) in string comparison
-            best_position = min(self.draft_order[round_num], key=self.draft_order[round_num].get)
-            return best_position
-        return 'FLEX'
+    # ============================================================================
+    # STRING REPRESENTATION
+    # ============================================================================
 
     def __repr__(self) -> str:
         """String representation of the config manager."""

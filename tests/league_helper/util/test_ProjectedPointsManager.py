@@ -259,3 +259,177 @@ class TestGetHistoricalProjectedPoints:
 
         assert len(historical) == 1
         assert historical == [18.4]
+
+
+class TestEdgeCases:
+    """Test suite for edge cases and boundary conditions."""
+
+    @patch('league_helper.util.ProjectedPointsManager.Path')
+    @patch('league_helper.util.ProjectedPointsManager.pd.read_csv')
+    def test_get_projected_points_week_zero(
+        self, mock_read_csv, mock_path, mock_config, mock_player, sample_projected_data
+    ):
+        """Test getting projected points for week 0 (invalid)."""
+        mock_path.return_value.exists.return_value = True
+        mock_read_csv.return_value = sample_projected_data
+
+        manager = ProjectedPointsManager(mock_config)
+        projected = manager.get_projected_points(mock_player, 0)
+
+        # Week 0 doesn't exist - should return None
+        assert projected is None
+
+    @patch('league_helper.util.ProjectedPointsManager.Path')
+    @patch('league_helper.util.ProjectedPointsManager.pd.read_csv')
+    def test_get_projected_points_week_negative(
+        self, mock_read_csv, mock_path, mock_config, mock_player, sample_projected_data
+    ):
+        """Test getting projected points for negative week."""
+        mock_path.return_value.exists.return_value = True
+        mock_read_csv.return_value = sample_projected_data
+
+        manager = ProjectedPointsManager(mock_config)
+        projected = manager.get_projected_points(mock_player, -1)
+
+        # Negative week doesn't exist - should return None
+        assert projected is None
+
+    @patch('league_helper.util.ProjectedPointsManager.Path')
+    @patch('league_helper.util.ProjectedPointsManager.pd.read_csv')
+    def test_get_projected_points_week_beyond_17(
+        self, mock_read_csv, mock_path, mock_config, mock_player, sample_projected_data
+    ):
+        """Test getting projected points for week > 17."""
+        mock_path.return_value.exists.return_value = True
+        mock_read_csv.return_value = sample_projected_data
+
+        manager = ProjectedPointsManager(mock_config)
+        projected = manager.get_projected_points(mock_player, 18)
+
+        # Week 18 data doesn't exist in sample - should return None
+        assert projected is None
+
+    @patch('league_helper.util.ProjectedPointsManager.Path')
+    @patch('league_helper.util.ProjectedPointsManager.pd.read_csv')
+    def test_get_projected_points_player_with_special_characters(
+        self, mock_read_csv, mock_path, mock_config, sample_projected_data
+    ):
+        """Test getting projected points for player with special characters in name."""
+        mock_path.return_value.exists.return_value = True
+        mock_read_csv.return_value = sample_projected_data
+
+        manager = ProjectedPointsManager(mock_config)
+
+        # Player name has hyphen and apostrophe in sample data
+        special_player = Mock()
+        special_player.name = "Amon-Ra St. Brown"
+
+        projected = manager.get_projected_points(special_player, 1)
+
+        # Should find match despite special characters
+        assert projected == 17.2
+
+    @patch('league_helper.util.ProjectedPointsManager.Path')
+    @patch('league_helper.util.ProjectedPointsManager.pd.read_csv')
+    def test_get_projected_points_player_with_whitespace(
+        self, mock_read_csv, mock_path, mock_config, sample_projected_data
+    ):
+        """Test that player name matching handles leading/trailing whitespace."""
+        mock_path.return_value.exists.return_value = True
+        mock_read_csv.return_value = sample_projected_data
+
+        manager = ProjectedPointsManager(mock_config)
+
+        whitespace_player = Mock()
+        whitespace_player.name = "  Saquon Barkley  "
+
+        projected = manager.get_projected_points(whitespace_player, 1)
+
+        # Should match despite whitespace
+        assert projected == 18.4
+
+    @patch('league_helper.util.ProjectedPointsManager.Path')
+    @patch('league_helper.util.ProjectedPointsManager.pd.read_csv')
+    def test_get_projected_points_array_reversed_range(
+        self, mock_read_csv, mock_path, mock_config, mock_player, sample_projected_data
+    ):
+        """Test get_projected_points_array with start > end (reversed range)."""
+        mock_path.return_value.exists.return_value = True
+        mock_read_csv.return_value = sample_projected_data
+
+        manager = ProjectedPointsManager(mock_config)
+        projected_array = manager.get_projected_points_array(mock_player, 5, 3)
+
+        # Reversed range should return empty list
+        assert projected_array == []
+
+    @patch('league_helper.util.ProjectedPointsManager.Path')
+    @patch('league_helper.util.ProjectedPointsManager.pd.read_csv')
+    def test_get_projected_points_array_full_season(
+        self, mock_read_csv, mock_path, mock_config, mock_player, sample_projected_data
+    ):
+        """Test get_projected_points_array for entire season (weeks 1-17)."""
+        mock_path.return_value.exists.return_value = True
+
+        # Extend sample data to have weeks 8-17
+        for week in range(8, 18):
+            sample_projected_data[f'week_{week}_points'] = [15.0 + week, 14.0 + week, 16.0 + week]
+
+        mock_read_csv.return_value = sample_projected_data
+
+        manager = ProjectedPointsManager(mock_config)
+        projected_array = manager.get_projected_points_array(mock_player, 1, 17)
+
+        # Should return 17 weeks of data
+        assert len(projected_array) == 17
+        assert projected_array[0] == 18.4  # Week 1
+        assert projected_array[6] == 20.2  # Week 7
+        assert projected_array[16] == 32.0  # Week 17
+
+    @patch('league_helper.util.ProjectedPointsManager.Path')
+    @patch('league_helper.util.ProjectedPointsManager.pd.read_csv')
+    def test_get_historical_projected_points_week_18(
+        self, mock_read_csv, mock_path, mock_config, mock_player, sample_projected_data
+    ):
+        """Test get_historical_projected_points at week 18 (end of season)."""
+        mock_path.return_value.exists.return_value = True
+
+        # Extend sample data to have weeks 8-17
+        for week in range(8, 18):
+            sample_projected_data[f'week_{week}_points'] = [15.0 + week, 14.0 + week, 16.0 + week]
+
+        mock_read_csv.return_value = sample_projected_data
+        mock_config.current_nfl_week = 18
+
+        manager = ProjectedPointsManager(mock_config)
+        historical = manager.get_historical_projected_points(mock_player)
+
+        # Should return weeks 1-17 (all historical data)
+        assert len(historical) == 17
+        assert historical[0] == 18.4  # Week 1
+        assert historical[16] == 32.0  # Week 17
+
+    @patch('league_helper.util.ProjectedPointsManager.Path')
+    @patch('league_helper.util.ProjectedPointsManager.pd.read_csv')
+    def test_get_projected_points_array_with_partial_nans(
+        self, mock_read_csv, mock_path, mock_config, mock_player, sample_projected_data
+    ):
+        """Test get_projected_points_array when some weeks have NaN values."""
+        mock_path.return_value.exists.return_value = True
+
+        # Add some NaN values
+        sample_projected_data.loc[0, 'week_2_points'] = pd.NA
+        sample_projected_data.loc[0, 'week_4_points'] = pd.NA
+
+        mock_read_csv.return_value = sample_projected_data
+
+        manager = ProjectedPointsManager(mock_config)
+        projected_array = manager.get_projected_points_array(mock_player, 1, 5)
+
+        # Should have None for NaN weeks
+        assert len(projected_array) == 5
+        assert projected_array[0] == 18.4  # Week 1
+        assert projected_array[1] is None  # Week 2 (NaN)
+        assert projected_array[2] == 19.3  # Week 3
+        assert projected_array[3] is None  # Week 4 (NaN)
+        assert projected_array[4] == 18.0  # Week 5
