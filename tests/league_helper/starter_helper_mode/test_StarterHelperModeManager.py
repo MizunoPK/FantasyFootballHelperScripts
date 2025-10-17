@@ -385,6 +385,8 @@ class TestStarterHelperModeManager:
         manager = StarterHelperModeManager(mock_config, mock_player_manager, mock_team_data_manager)
 
         new_player_manager = Mock(spec=PlayerManager)
+        new_player_manager.team = Mock()
+        new_player_manager.team.roster = []
         new_team_data_manager = Mock(spec=TeamDataManager)
 
         manager.set_managers(new_player_manager, new_team_data_manager)
@@ -502,6 +504,315 @@ class TestStarterHelperModeManager:
         bench_names = [p.player.name for p in lineup.bench]
         assert "RB4" in bench_names
         assert "RB5" in bench_names
+
+
+class TestOptimalLineupFLEXScenarios:
+    """Test advanced FLEX optimization scenarios"""
+
+    def test_optimal_lineup_dst_not_in_flex(self):
+        """Test that DST cannot fill FLEX slot (only RB/WR allowed)"""
+        # Create roster with only DST players
+        dst1 = ScoredPlayer(FantasyPlayer(id=1, name="DST1", team="SF", position="DST"), 15.0, [])
+        dst2 = ScoredPlayer(FantasyPlayer(id=2, name="DST2", team="DAL", position="DST"), 12.0, [])
+
+        lineup = OptimalLineup([dst1, dst2])
+
+        # Best DST should start in DST slot
+        assert lineup.dst == dst1
+        # Second DST should go to bench, NOT flex
+        assert lineup.flex is None
+        assert len(lineup.bench) == 1
+        assert lineup.bench[0] == dst2
+
+    def test_optimal_lineup_te_not_in_flex(self):
+        """Test that TE cannot fill FLEX slot (only RB/WR allowed)"""
+        # Create roster with only TE players
+        te1 = ScoredPlayer(FantasyPlayer(id=1, name="TE1", team="KC", position="TE"), 18.0, [])
+        te2 = ScoredPlayer(FantasyPlayer(id=2, name="TE2", team="SF", position="TE"), 15.0, [])
+
+        lineup = OptimalLineup([te1, te2])
+
+        # Best TE should start in TE slot
+        assert lineup.te == te1
+        # Second TE should go to bench, NOT flex
+        assert lineup.flex is None
+        assert len(lineup.bench) == 1
+        assert lineup.bench[0] == te2
+
+    def test_optimal_lineup_flex_wr_over_rb_by_score(self):
+        """Test FLEX filled by highest scoring RB/WR regardless of position"""
+        rb1 = ScoredPlayer(FantasyPlayer(id=1, name="RB1", team="SF", position="RB"), 22.0, [])
+        rb2 = ScoredPlayer(FantasyPlayer(id=2, name="RB2", team="DAL", position="RB"), 20.0, [])
+        rb3 = ScoredPlayer(FantasyPlayer(id=3, name="RB3", team="PHI", position="RB"), 18.0, [])
+        wr1 = ScoredPlayer(FantasyPlayer(id=4, name="WR1", team="MIA", position="WR"), 21.0, [])
+        wr2 = ScoredPlayer(FantasyPlayer(id=5, name="WR2", team="BUF", position="WR"), 19.0, [])
+        wr3 = ScoredPlayer(FantasyPlayer(id=6, name="WR3_FLEX", team="CIN", position="WR"), 19.5, [])
+
+        # After sorting by score: RB1(22), WR1(21), RB2(20), WR3(19.5), WR2(19), RB3(18)
+        # RB1→RB1, WR1→WR1, RB2→RB2, WR3→WR2, WR2→FLEX (highest remaining flex-eligible)
+        lineup = OptimalLineup([rb1, rb2, rb3, wr1, wr2, wr3])
+
+        # FLEX should be filled by WR2 (19.0), which is higher than RB3 (18.0)
+        assert lineup.flex.player.name == "WR2"
+        assert lineup.flex.score == 19.0
+        # RB3 should be on bench
+        assert len(lineup.bench) == 1
+        assert lineup.bench[0] == rb3
+
+    def test_optimal_lineup_mixed_positions_partial_roster(self):
+        """Test lineup with partial roster (missing some position types)"""
+        qb = ScoredPlayer(FantasyPlayer(id=1, name="QB", team="KC", position="QB"), 25.0, [])
+        rb = ScoredPlayer(FantasyPlayer(id=2, name="RB1", team="SF", position="RB"), 20.0, [])
+        wr = ScoredPlayer(FantasyPlayer(id=3, name="WR1", team="MIA", position="WR"), 22.0, [])
+        k = ScoredPlayer(FantasyPlayer(id=4, name="K", team="BAL", position="K"), 10.0, [])
+
+        lineup = OptimalLineup([qb, rb, wr, k])
+
+        # Filled positions
+        assert lineup.qb == qb
+        assert lineup.rb1 == rb
+        assert lineup.wr1 == wr
+        assert lineup.k == k
+
+        # Empty positions
+        assert lineup.rb2 is None
+        assert lineup.wr2 is None
+        assert lineup.te is None
+        assert lineup.flex is None
+        assert lineup.dst is None
+        assert len(lineup.bench) == 0
+
+        # Total should only include filled positions
+        assert lineup.total_projected_points == 77.0
+
+
+class TestStarterHelperInjuryHandling:
+    """Test injury status handling in lineup optimization"""
+
+    def test_optimize_lineup_includes_injured_players(self):
+        """Test that injured players are still included in optimization"""
+        # Create mock managers
+        config = Mock(spec=ConfigManager)
+        config.current_nfl_week = 5
+        config.nfl_scoring_format = "ppr"
+        player_manager = Mock(spec=PlayerManager)
+        player_manager.team = Mock()
+        team_data_manager = Mock(spec=TeamDataManager)
+
+        # Create roster with injured players
+        healthy_qb = FantasyPlayer(id=1, name="Healthy QB", team="KC", position="QB", injury_status="ACTIVE")
+        injured_qb = FantasyPlayer(id=2, name="Injured QB", team="BUF", position="QB", injury_status="QUESTIONABLE")
+
+        player_manager.team.roster = [healthy_qb, injured_qb]
+
+        # Mock scoring - injured player scores lower
+        def mock_score_player(player, **kwargs):
+            if player.name == "Healthy QB":
+                return ScoredPlayer(player, 25.0, [])
+            else:
+                return ScoredPlayer(player, 20.0, [])
+
+        player_manager.score_player.side_effect = mock_score_player
+
+        manager = StarterHelperModeManager(config, player_manager, team_data_manager)
+        lineup = manager.optimize_lineup()
+
+        # Healthy QB should start (higher score)
+        assert lineup.qb.player.name == "Healthy QB"
+        # Injured QB should be on bench (not filtered out)
+        assert len(lineup.bench) == 1
+        assert lineup.bench[0].player.name == "Injured QB"
+
+    def test_create_starting_recommendation_injury_parameter_false(self):
+        """Test that injury penalty is disabled for weekly lineup decisions"""
+        config = Mock(spec=ConfigManager)
+        player_manager = Mock(spec=PlayerManager)
+        player_manager.team = Mock()
+        player_manager.team.roster = []
+        team_data_manager = Mock(spec=TeamDataManager)
+
+        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB", injury_status="QUESTIONABLE")
+        expected_scored = ScoredPlayer(test_player, 100.0, [])
+
+        player_manager.score_player.return_value = expected_scored
+
+        manager = StarterHelperModeManager(config, player_manager, team_data_manager)
+        result = manager.create_starting_recommendation(test_player)
+
+        # Verify injury=False was passed (no injury penalty applied)
+        player_manager.score_player.assert_called_once_with(
+            test_player,
+            use_weekly_projection=True,
+            adp=False,
+            player_rating=False,
+            team_quality=False,
+            performance=True,
+            matchup=True,
+            bye=False,
+            injury=False
+        )
+
+
+class TestStarterHelperDisplayFunctionality:
+    """Test display and user interaction functionality"""
+
+    def test_show_recommended_starters_display(self, capsys):
+        """Test show_recommended_starters displays formatted lineup"""
+        config = Mock(spec=ConfigManager)
+        config.current_nfl_week = 8
+        config.nfl_scoring_format = "ppr"
+
+        player_manager = Mock(spec=PlayerManager)
+        player_manager.team = Mock()
+        team_data_manager = Mock(spec=TeamDataManager)
+
+        # Create minimal roster
+        qb = FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB")
+        player_manager.team.roster = [qb]
+
+        # Mock scoring
+        player_manager.score_player.return_value = ScoredPlayer(qb, 25.5, ["Weekly projection: 25.5"])
+
+        manager = StarterHelperModeManager(config, player_manager, team_data_manager)
+
+        # Mock input to avoid blocking
+        with patch('builtins.input', return_value=''):
+            manager.show_recommended_starters(player_manager, team_data_manager)
+
+        # Check output
+        captured = capsys.readouterr()
+        assert "OPTIMAL STARTING LINEUP - WEEK 8" in captured.out
+        assert "PPR SCORING" in captured.out
+        assert "Patrick Mahomes" in captured.out
+        assert "BENCH" in captured.out
+
+    def test_print_player_list_with_players(self, capsys):
+        """Test print_player_list displays formatted player information"""
+        config = Mock(spec=ConfigManager)
+        player_manager = Mock(spec=PlayerManager)
+        player_manager.team = Mock()
+        player_manager.team.roster = []
+        team_data_manager = Mock(spec=TeamDataManager)
+
+        manager = StarterHelperModeManager(config, player_manager, team_data_manager)
+
+        qb = ScoredPlayer(FantasyPlayer(id=1, name="QB", team="KC", position="QB"), 25.0, [])
+        rb = ScoredPlayer(FantasyPlayer(id=2, name="RB", team="SF", position="RB"), 20.0, [])
+
+        player_list = [("QB", qb), ("RB", rb)]
+
+        manager.print_player_list(player_list)
+
+        captured = capsys.readouterr()
+        assert "QB" in captured.out
+        assert "RB" in captured.out
+        assert "QB" in captured.out or "RB" in captured.out
+
+    def test_print_player_list_with_empty_slots(self, capsys):
+        """Test print_player_list handles empty slots gracefully"""
+        config = Mock(spec=ConfigManager)
+        player_manager = Mock(spec=PlayerManager)
+        player_manager.team = Mock()
+        player_manager.team.roster = []
+        team_data_manager = Mock(spec=TeamDataManager)
+
+        manager = StarterHelperModeManager(config, player_manager, team_data_manager)
+
+        player_list = [("QB", None), ("RB", None)]
+
+        manager.print_player_list(player_list)
+
+        captured = capsys.readouterr()
+        assert "No available player" in captured.out
+        # Should appear twice (once for each empty slot)
+        assert captured.out.count("No available player") == 2
+
+
+class TestStarterHelperEdgeCases:
+    """Test additional edge cases and boundary conditions"""
+
+    def test_optimize_lineup_single_player_roster(self):
+        """Test optimization with roster containing only one player"""
+        config = Mock(spec=ConfigManager)
+        config.current_nfl_week = 1
+        config.nfl_scoring_format = "standard"
+
+        player_manager = Mock(spec=PlayerManager)
+        player_manager.team = Mock()
+        team_data_manager = Mock(spec=TeamDataManager)
+
+        single_player = FantasyPlayer(id=1, name="Solo QB", team="KC", position="QB")
+        player_manager.team.roster = [single_player]
+
+        player_manager.score_player.return_value = ScoredPlayer(single_player, 30.0, [])
+
+        manager = StarterHelperModeManager(config, player_manager, team_data_manager)
+        lineup = manager.optimize_lineup()
+
+        # Only QB should be filled
+        assert lineup.qb.player.name == "Solo QB"
+        # All other positions empty
+        assert lineup.rb1 is None
+        assert lineup.wr1 is None
+        assert len(lineup.bench) == 0
+        assert lineup.total_projected_points == 30.0
+
+    def test_optimize_lineup_large_roster(self):
+        """Test optimization with 15-player roster (all positions filled + extras)"""
+        config = Mock(spec=ConfigManager)
+        config.current_nfl_week = 10
+        config.nfl_scoring_format = "half_ppr"
+
+        player_manager = Mock(spec=PlayerManager)
+        player_manager.team = Mock()
+        team_data_manager = Mock(spec=TeamDataManager)
+
+        # Create 15-player roster
+        roster = [
+            FantasyPlayer(id=1, name="QB1", team="KC", position="QB"),
+            FantasyPlayer(id=2, name="QB2", team="BUF", position="QB"),
+            FantasyPlayer(id=3, name="RB1", team="SF", position="RB"),
+            FantasyPlayer(id=4, name="RB2", team="DAL", position="RB"),
+            FantasyPlayer(id=5, name="RB3", team="PHI", position="RB"),
+            FantasyPlayer(id=6, name="RB4", team="MIA", position="RB"),
+            FantasyPlayer(id=7, name="WR1", team="MIA", position="WR"),
+            FantasyPlayer(id=8, name="WR2", team="BUF", position="WR"),
+            FantasyPlayer(id=9, name="WR3", team="CIN", position="WR"),
+            FantasyPlayer(id=10, name="WR4", team="DET", position="WR"),
+            FantasyPlayer(id=11, name="TE1", team="KC", position="TE"),
+            FantasyPlayer(id=12, name="TE2", team="SF", position="TE"),
+            FantasyPlayer(id=13, name="K1", team="BAL", position="K"),
+            FantasyPlayer(id=14, name="DST1", team="SF", position="DST"),
+            FantasyPlayer(id=15, name="DST2", team="DAL", position="DST"),
+        ]
+        player_manager.team.roster = roster
+
+        # Mock scoring with descending values
+        def mock_score_player(player, **kwargs):
+            base_scores = {"QB": 25, "RB": 20, "WR": 22, "TE": 15, "K": 10, "DST": 12}
+            position = player.position
+            # Add ID to create variety
+            score = base_scores.get(position, 10) + (20 - player.id) * 0.5
+            return ScoredPlayer(player, score, [])
+
+        player_manager.score_player.side_effect = mock_score_player
+
+        manager = StarterHelperModeManager(config, player_manager, team_data_manager)
+        lineup = manager.optimize_lineup()
+
+        # All starting positions should be filled
+        assert lineup.qb is not None
+        assert lineup.rb1 is not None
+        assert lineup.rb2 is not None
+        assert lineup.wr1 is not None
+        assert lineup.wr2 is not None
+        assert lineup.te is not None
+        assert lineup.flex is not None  # Should be filled by 3rd best RB or WR
+        assert lineup.k is not None
+        assert lineup.dst is not None
+
+        # Bench should have remaining 6 players
+        assert len(lineup.bench) == 6
 
 
 if __name__ == "__main__":

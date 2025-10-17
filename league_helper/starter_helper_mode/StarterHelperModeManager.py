@@ -17,12 +17,10 @@ Classes:
 - StarterHelperModeManager: Manages lineup optimization workflow
 
 Author: Kai Mizuno
-Date: 2025-10-10
 """
 
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
-from dataclasses import dataclass
+from typing import List, Tuple, Optional
 import sys
 
 sys.path.append(str(Path(__file__).parent))
@@ -94,63 +92,90 @@ class OptimalLineup:
             - Assigns players to starting positions
             - Moves overflow players to bench
         """
-        # Initialize all positions to None and bench to empty list
-        # IMPORTANT: Must initialize bench in __init__ to avoid sharing across instances
+        # Initialize all starting positions to None (unfilled slots)
+        # IMPORTANT: Must initialize bench in __init__ to avoid sharing list across instances
+        # Python class variables are shared, so we explicitly create instance variables
         self.qb: Optional[ScoredPlayer] = None
         self.rb1: Optional[ScoredPlayer] = None
         self.rb2: Optional[ScoredPlayer] = None
         self.wr1: Optional[ScoredPlayer] = None
         self.wr2: Optional[ScoredPlayer] = None
         self.te: Optional[ScoredPlayer] = None
-        self.flex: Optional[ScoredPlayer] = None
+        self.flex: Optional[ScoredPlayer] = None  # Can be filled by RB or WR (NOT TE or DST)
         self.k: Optional[ScoredPlayer] = None
         self.dst: Optional[ScoredPlayer] = None
         self.bench: List[ScoredPlayer] = []  # Must be instance variable, not class variable
 
-        # Sort by adjusted score (highest first)
+        # Sort players by score in descending order (highest scores first)
+        # This ensures we assign the best players to starting slots before bench overflow
+        # For example: If we have 3 RBs scoring 20, 18, 15 - they'll fill RB1, RB2, FLEX in that order
         scored_players.sort(key=lambda x: x.score, reverse=True)
 
-        # Iterate through the players and assign to starting positions or bench
+        # Iterate through sorted players and assign to optimal starting positions
+        # Assignment logic:
+        # 1. Fill dedicated position slots first (QB, RB1/RB2, WR1/WR2, TE, K, DST)
+        # 2. Then fill FLEX with remaining RB/WR (highest scoring flex-eligible player)
+        # 3. Overflow players go to bench
         for scored_player in scored_players:
             player = scored_player.player
+
+            # QB: Only 1 starting slot, overflow to bench
             if player.position == Constants.QB:
                 if self.qb is None:
-                    self.qb = scored_player
+                    self.qb = scored_player  # Assign first (highest-scoring) QB to starter
                 else:
-                    self.bench.append(scored_player)
+                    self.bench.append(scored_player)  # 2nd+ QB goes to bench
+
+            # RB: 2 dedicated slots (RB1, RB2) + eligible for FLEX (3rd RB can start)
             elif player.position == Constants.RB:
                 if self.rb1 is None:
-                    self.rb1 = scored_player
+                    self.rb1 = scored_player  # Highest-scoring RB → RB1
                 elif self.rb2 is None:
-                    self.rb2 = scored_player
+                    self.rb2 = scored_player  # 2nd RB → RB2
                 elif self.flex is None:
+                    # 3rd RB can fill FLEX if unfilled (RB/WR compete for FLEX by score)
                     self.flex = scored_player
                 else:
+                    # 4th+ RB goes to bench (RB1, RB2, FLEX all filled)
                     self.bench.append(scored_player)
+
+            # WR: 2 dedicated slots (WR1, WR2) + eligible for FLEX (3rd WR can start)
             elif player.position == Constants.WR:
                 if self.wr1 is None:
-                    self.wr1 = scored_player
+                    self.wr1 = scored_player  # Highest-scoring WR → WR1
                 elif self.wr2 is None:
-                    self.wr2 = scored_player
+                    self.wr2 = scored_player  # 2nd WR → WR2
                 elif self.flex is None:
+                    # 3rd WR can fill FLEX if unfilled (RB/WR compete for FLEX by score)
                     self.flex = scored_player
                 else:
+                    # 4th+ WR goes to bench (WR1, WR2, FLEX all filled)
                     self.bench.append(scored_player)
+
+            # TE: Only 1 starting slot, NOT eligible for FLEX in this league format
             elif player.position == Constants.TE:
                 if self.te is None:
-                    self.te = scored_player
+                    self.te = scored_player  # Assign first TE to starter
                 else:
+                    # 2nd+ TE goes to bench (cannot fill FLEX)
                     self.bench.append(scored_player)
+
+            # DST: Only 1 starting slot, NOT eligible for FLEX in this league format
             elif player.position == Constants.DST:
                 if self.dst is None:
-                    self.dst = scored_player
+                    self.dst = scored_player  # Assign first DST to starter
                 else:
+                    # 2nd+ DST goes to bench (cannot fill FLEX)
                     self.bench.append(scored_player)
+
+            # K: Only 1 starting slot, overflow to bench
             elif player.position == Constants.K:
                 if self.k is None:
-                    self.k = scored_player
+                    self.k = scored_player  # Assign first K to starter
                 else:
-                    self.bench.append(scored_player)
+                    self.bench.append(scored_player)  # 2nd+ K goes to bench
+
+            # Unknown position: Send directly to bench
             else:
                 self.bench.append(scored_player)
 
@@ -169,7 +194,14 @@ class OptimalLineup:
         return total
 
     def get_all_starters(self) -> List[Optional[ScoredPlayer]]:
-        """Get all starting recommendations in order"""
+        """
+        Get all starting positions in standard lineup order.
+
+        Returns:
+            List[Optional[ScoredPlayer]]: List of 9 starters in order:
+                [QB, RB1, RB2, WR1, WR2, TE, FLEX, K, DST]
+                Empty slots return None in their position.
+        """
         return [self.qb, self.rb1, self.rb2, self.wr1, self.wr2,
                 self.te, self.flex, self.k, self.dst]
 
@@ -199,6 +231,10 @@ class StarterHelperModeManager:
         >>> manager.show_recommended_starters(player_mgr, team_data_mgr)
     """
 
+    # ========================================================================
+    # INITIALIZATION
+    # ========================================================================
+
     def __init__(self, config: ConfigManager, player_manager : PlayerManager, team_data_manager : TeamDataManager):
         """
         Initialize the Starter Helper Mode Manager.
@@ -209,11 +245,13 @@ class StarterHelperModeManager:
             team_data_manager (TeamDataManager): Team data for matchup calculations
         """
         self.config = config
-        self.player_manager = player_manager
-        self.config = config
         self.logger = get_logger()
         self.logger.debug("Initializing Starter Helper Mode Manager")
         self.set_managers(player_manager, team_data_manager)
+
+    # ========================================================================
+    # MANAGER SETUP
+    # ========================================================================
 
     def set_managers(self, player_manager : PlayerManager, team_data_manager : TeamDataManager):
         """
@@ -225,6 +263,11 @@ class StarterHelperModeManager:
         """
         self.player_manager = player_manager
         self.team_data_manager = team_data_manager
+        self.logger.debug(f"Updated managers (roster size: {len(player_manager.team.roster)} players)")
+
+    # ========================================================================
+    # PUBLIC INTERFACE METHODS
+    # ========================================================================
 
     def show_recommended_starters(self, player_manager, team_data_manager):
         """
@@ -242,17 +285,25 @@ class StarterHelperModeManager:
             - Prints formatted lineup to console
             - Waits for user input before continuing
         """
+        self.logger.info(f"Entering Starter Helper mode (Week {self.config.current_nfl_week})")
+
+        # Update manager references to ensure we have latest roster data
+        # This is important if user made changes in another mode
         self.set_managers(player_manager, team_data_manager)
 
-        # Optimize lineup based on weekly projections
+        # Optimize lineup: score all roster players using weekly projections
+        # and assign best players to starting slots (QB, RB1/2, WR1/2, TE, FLEX, K, DST)
         lineup = self.optimize_lineup()
 
-        # Display the starting lineup header
+        # Display the starting lineup header with current week and scoring format
+        # Format example: "OPTIMAL STARTING LINEUP - WEEK 8 (PPR SCORING)"
         print(f"\n{'='*50}")
         print(f"OPTIMAL STARTING LINEUP - WEEK {self.config.current_nfl_week} ({self.config.nfl_scoring_format.upper()} SCORING)")
         print(f"{'='*50}")
 
-        # Define the order to display starters
+        # Create list of starting positions in display order
+        # Each tuple is (position_label, scored_player)
+        # Position labels are simplified for display (e.g., "DEF" instead of "DST")
         starter_positions = [
             ("QB", lineup.qb),
             ("RB", lineup.rb1),
@@ -260,20 +311,32 @@ class StarterHelperModeManager:
             ("WR", lineup.wr1),
             ("WR", lineup.wr2),
             ("TE", lineup.te),
-            ("FLEX", lineup.flex),
+            ("FLEX", lineup.flex),  # Can be RB or WR (highest scoring flex-eligible)
             ("K", lineup.k),
-            ("DEF", lineup.dst)
+            ("DEF", lineup.dst)  # Display as "DEF" instead of "DST" for brevity
         ]
+        # Bench players don't need position labels (empty string)
         bench_positions = [("", x) for x in lineup.bench]
 
+        # Print starting lineup with formatted player information
+        # Each line shows: position label, player name, team, projected points, scoring reasons
         self.print_player_list(starter_positions)
 
+        # Display bench section
         print(f"\n{'='*50}")
         print(f"BENCH")
         print(f"{'='*50}")
         self.print_player_list(bench_positions)
-        
+
+        # Wait for user acknowledgment before returning to main menu
+        # This prevents lineup from disappearing immediately
         input("Press Enter to Continue...")
+
+        self.logger.info(f"Exiting Starter Helper mode (Total projected: {lineup.total_projected_points:.1f} pts)")
+
+    # ========================================================================
+    # LINEUP OPTIMIZATION HELPERS
+    # ========================================================================
 
     def create_starting_recommendation(self,
                                      player_data: FantasyPlayer) -> ScoredPlayer:
@@ -332,38 +395,62 @@ class StarterHelperModeManager:
             - Logs lineup optimization start and completion
             - Logs total projected points for optimal lineup
         """
+        # Log optimization start with week and scoring format context
+        # This helps debug lineup decisions and track optimization runs
         self.logger.debug(
             f"Optimizing starting lineup for Week {self.config.current_nfl_week} "
             f"({self.config.nfl_scoring_format.upper()} scoring)"
         )
         self.logger.debug(f"Roster size: {len(self.player_manager.team.roster)} players")
 
-        # Score all rostered players using weekly projections
+        # Score all rostered players using weekly projections and performance/matchup adjustments
+        # This uses use_weekly_projection=True (NOT seasonal projections)
+        # Scoring factors: performance=True, matchup=True (ADP/rating/team_quality disabled for weekly)
         scored_players = []
         for player in self.player_manager.team.roster:
+            # Create ScoredPlayer with weekly projection score
+            # Each player gets a score based on:
+            # - Weekly projected fantasy points (base score)
+            # - Performance multiplier (recent actual vs projected)
+            # - Matchup multiplier (opponent defensive strength)
             recommendation = self.create_starting_recommendation(player)
             scored_players.append(recommendation)
+
+            # Log each player's calculated score for debugging
+            # Format: "Scored Patrick Mahomes (QB): 25.50 pts"
             self.logger.debug(
                 f"Scored {player.name} ({player.position}): {recommendation.score:.2f} pts"
             )
 
-        # Create optimal lineup (automatically sorts and assigns positions)
+        # Create OptimalLineup which automatically:
+        # 1. Sorts players by score (highest first)
+        # 2. Assigns players to optimal starting positions
+        # 3. Handles FLEX logic (RB/WR compete for 3rd flex slot)
+        # 4. Sends overflow players to bench
         lineup = OptimalLineup(scored_players)
 
-        # Log the starting lineup composition
+        # Log the final starting lineup composition for debugging
+        # Format: "QB:Patrick Mahomes(25.5), RB:Christian McCaffrey(22.3), ..."
         starters = lineup.get_all_starters()
         starter_names = [
             f"{s.player.position}:{s.player.name}({s.score:.1f})"
             for s in starters if s is not None
         ]
         self.logger.debug(f"Optimal starters: {', '.join(starter_names)}")
+
+        # Log optimization completion with total projected points and bench size
+        # Total points = sum of all starter scores (bench excluded)
         self.logger.debug(
             f"Lineup optimization complete. Total projected points: {lineup.total_projected_points:.1f}, "
             f"Bench: {len(lineup.bench)} players"
         )
         return lineup
 
-    def print_player_list(self, player_list : List[ScoredPlayer]):
+    # ========================================================================
+    # DISPLAY HELPERS
+    # ========================================================================
+
+    def print_player_list(self, player_list : List[Tuple[str, Optional[ScoredPlayer]]]):
         """
         Print formatted list of players with position labels and scores.
 
@@ -379,6 +466,10 @@ class StarterHelperModeManager:
             - Prints formatted player list to console
             - Prints separator line after list
         """
+        # Log the number of players being displayed (helps debug display issues)
+        filled_slots = sum(1 for _, p in player_list if p is not None)
+        self.logger.debug(f"Displaying {filled_slots}/{len(player_list)} filled positions")
+
         for i, (pos_label, recommendation) in enumerate(player_list, 1):
             if recommendation:
                 print(f"{i:2d}. {pos_label:4s}: {recommendation}")

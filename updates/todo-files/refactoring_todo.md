@@ -780,8 +780,19 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - ✅ Phase 2 summary statistics
 **Result**: Complete technical documentation of all Phase 2 changes with rationale, impact analysis, and verification status
 
-#### [ ] 2.12: COMMIT - Add to Roster Mode Complete
+#### [DONE] 2.12: COMMIT - Add to Roster Mode Complete
+**Status**: ✅ COMPLETED (2025-10-17)
+**Commit**: 2bfb84b
 **Commit message**: "Refactor add_to_roster_mode - tests, docs, cleanup"
+**Files committed**: 5 files
+  - league_helper/add_to_roster_mode/AddToRosterModeManager.py (modified)
+  - tests/league_helper/add_to_roster_mode/__init__.py (new)
+  - tests/league_helper/add_to_roster_mode/test_AddToRosterModeManager.py (new)
+  - updates/refactoring_code_changes.md (modified)
+  - updates/todo-files/refactoring_todo.md (modified)
+**Changes**: +1773 insertions, -89 deletions
+**Pre-commit validation**: ✅ All 970 tests passing (100%)
+**Result**: Phase 2 complete and committed
 
 ---
 
@@ -792,56 +803,182 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 
 ### Testing Tasks
 
-#### [ ] 3.1: Review and enhance StarterHelperModeManager tests
+#### [DONE] 3.1: Review and enhance StarterHelperModeManager tests
+**Status**: ✅ COMPLETED (2025-10-17)
 **File**: `tests/league_helper/starter_helper_mode/test_StarterHelperModeManager.py`
-**Current**: 24 tests
-**Action**: Add edge case tests for:
-- Optimal lineup generation with various roster compositions
-- FLEX optimization scenarios
-- Injury filtering edge cases
-- Week-specific scoring edge cases
-- Empty roster scenarios
-**Estimated additional tests**: 10-15 tests
+**Current**: 24 tests → 35 tests (+11 new tests)
+**Tests Added**:
+- **FLEX optimization scenarios** (4 tests):
+  - DST cannot fill FLEX slot
+  - TE cannot fill FLEX slot
+  - FLEX filled by highest scoring RB/WR
+  - Mixed positions partial roster
+- **Injury handling** (2 tests):
+  - Injured players included in optimization
+  - Injury penalty disabled for weekly decisions
+- **Display functionality** (3 tests):
+  - show_recommended_starters display formatting
+  - print_player_list with players
+  - print_player_list with empty slots
+- **Edge cases** (2 tests):
+  - Single player roster optimization
+  - Large 15-player roster optimization
+**Result**: ✅ All 981 tests passing (100%) - increased from 970 tests (+11 tests)
 
 ### Documentation Tasks
 
-#### [ ] 3.2: Add author attribution
+#### [DONE] 3.2: Add author attribution
+**Status**: ✅ COMPLETED (2025-10-17)
 **File**: `league_helper/starter_helper_mode/StarterHelperModeManager.py`
 **Action**: Verify/add "Author: Kai Mizuno"
+**Result**: Author attribution verified present at line 19
 
-#### [ ] 3.3: Remove date references
+#### [DONE] 3.3: Remove date references
+**Status**: ✅ COMPLETED (2025-10-17)
+**File**: `league_helper/starter_helper_mode/StarterHelperModeManager.py`
 **Action**: Check and remove dates
+**Changes**: Removed "Date: 2025-10-10" from line 20
+**Result**: No date references remain in file
 
-#### [ ] 3.4: Add heavy inline comments
+#### [DONE] 3.4: Add heavy inline comments
+**Status**: ✅ COMPLETED (2025-10-17)
 **Action**: Document all methods with inline comments
 **Focus**: Lineup optimization, FLEX logic, injury filtering
+**Changes made**:
+- **OptimalLineup.__init__()**: Added ~50 lines of inline comments
+  - Position assignment logic explained
+  - FLEX eligibility rules documented (RB/WR only, NOT TE/DST)
+  - Overflow handling explained
+  - Sorting strategy clarified
+- **show_recommended_starters()**: Added ~20 lines of inline comments
+  - Manager update rationale
+  - Display formatting explained
+  - Position label mapping documented
+  - User interaction flow clarified
+- **optimize_lineup()**: Added ~35 lines of inline comments
+  - Weekly scoring process explained
+  - Scoring factors documented (performance, matchup)
+  - OptimalLineup creation process detailed
+  - Logging strategy clarified
+**Result**: File now has ~105 lines of inline comments explaining all complex logic and decision points
+**Test Status**: ✅ All 981 tests passing (100%)
 
-#### [ ] 3.5: Standardize docstrings
+#### [DONE] 3.5: Standardize docstrings
+**Status**: ✅ COMPLETED (2025-10-17)
 **Action**: Ensure Google style
+**Changes made**:
+- ✅ Enhanced `get_all_starters()` docstring with Returns section
+- ✅ Fixed duplicate `self.config = config` assignment in `__init__` (bug fix)
+- ✅ Verified all methods have proper Google-style docstrings:
+  - OptimalLineup class and methods: Comprehensive docstrings with Args, Returns, Side Effects
+  - StarterHelperModeManager class: Detailed class docstring with Example
+  - All 6 methods: Proper Args, Returns, and Side Effects sections
+**Result**: All 7 methods have standardized Google-style docstrings
+**Test Status**: ✅ All 981 tests passing (100%)
 
 ### Code Organization Tasks
 
-#### [ ] 3.6: Reorganize methods by functionality
+#### [DONE] 3.6: Reorganize methods by functionality
+**Status**: ✅ COMPLETED (2025-10-17)
 **Action**: Group public interface, lineup generation, optimization, display helpers
+**Changes made**:
+- ✅ Reorganized all 6 methods into 4 logical sections:
+  1. **INITIALIZATION** (1 method): `__init__`
+  2. **MANAGER SETUP** (1 method): `set_managers`
+  3. **PUBLIC INTERFACE METHODS** (1 method): `show_recommended_starters`
+  4. **LINEUP OPTIMIZATION HELPERS** (2 methods): `create_starting_recommendation`, `optimize_lineup`
+  5. **DISPLAY HELPERS** (1 method): `print_player_list`
+- ✅ Added section header comments for clarity
+- ✅ Clear separation between public interface and internal helpers
+**Result**: File is now well-organized with logical grouping of methods by responsibility
+**Test Status**: ✅ All 981 tests passing (100%)
 
 ### Code Quality Tasks
 
-#### [ ] 3.7: Check for duplicate code
-**Action**: Compare with other modes
+#### [DONE] 3.7: Check for duplicate code
+**Status**: ✅ COMPLETED (2025-10-17)
+**Action**: Compare StarterHelperModeManager with all other mode managers
+**Analysis Performed**:
+- Compared 4 mode managers (1,666 total lines):
+  - StarterHelperModeManager.py (472 lines)
+  - AddToRosterModeManager.py (471 lines)
+  - TradeSimulatorModeManager.py (461 lines)
+  - ModifyPlayerDataModeManager.py (266 lines)
+**Findings**:
+- ❌ **No significant code duplication found**
+- ✅ **Architectural consistency identified** (GOOD - not duplication):
+  - All managers use `get_logger()` for logging initialization
+  - Entry points call `set_managers()` to refresh data
+  - Similar interactive loop patterns (standard menu-driven design)
+  - Section organization headers consistent across files
+- ✅ **`set_managers()` similarity** (StarterHelper ≈ AddToRoster):
+  - Both have identical 2-line implementation
+  - Decision: NOT worth extracting to base class (too simple, context-specific)
+- ✅ **Proper separation of concerns**:
+  - StarterHelper: Weekly lineup optimization (OptimalLineup, weekly projections)
+  - AddToRoster: Draft assistant (round tracking, draft bonuses)
+  - TradeSimulator: Trade analysis (waiver/trade/manual modes)
+  - ModifyPlayerData: Player data modification (draft/drop/lock)
+**Conclusion**: No code extraction needed. Similarities are architectural patterns (good design), not duplication (bad design). Each manager has distinct responsibilities with no overlapping logic requiring refactoring.
+**Test Status**: ✅ All 981 tests passing (100%)
 
-#### [ ] 3.8: Remove unused code
-**Action**: Clean up
+#### [DONE] 3.8: Remove unused code
+**Status**: ✅ COMPLETED (2025-10-17)
+**Action**: Remove unused imports and fix type hints
+**Changes made**:
+- ✅ Removed 3 unused imports from typing:
+  - `Dict` (not used in any type annotations)
+  - `Any` (not used in any type annotations)
+  - `dataclass` (not used - no @dataclass decorators in file)
+- ✅ Fixed type hint bug in `print_player_list()`:
+  - **Before**: `player_list : List[ScoredPlayer]` (INCORRECT)
+  - **After**: `player_list : List[Tuple[str, Optional[ScoredPlayer]]]` (CORRECT)
+  - Method signature now matches docstring and actual usage (unpacking tuples)
+- ✅ Kept required imports: `List`, `Tuple`, `Optional`
+**Result**: All unused code removed, type hints now accurate
+**Test Status**: ✅ All 981 tests passing (100%)
 
-#### [ ] 3.9: Improve logging
-**Action**: Add logging for lineup decisions
+#### [DONE] 3.9: Improve logging
+**Status**: ✅ COMPLETED (2025-10-17)
+**Action**: Add strategic logging to improve debugging and operation tracking
+**Changes made**:
+- ✅ Added logging to `set_managers()`:
+  - Logs manager update with roster size (DEBUG level)
+- ✅ Added entry/exit logging to `show_recommended_starters()`:
+  - Entry: Logs mode entry with current week (INFO level)
+  - Exit: Logs mode exit with total projected points (INFO level)
+- ✅ Added display logging to `print_player_list()`:
+  - Logs filled/total positions being displayed (DEBUG level)
+  - Helps debug display issues and empty slot scenarios
+- ✅ Updated tests to properly mock `player_manager.team.roster`:
+  - Fixed 4 failing tests by adding team attribute to mocks
+  - All mocks now properly support new logging statements
+**Result**: Enhanced logging coverage for debugging lineup optimization and display operations
+**Test Status**: ✅ All 981 tests passing (100%)
 
 ### Validation Tasks
 
-#### [ ] 3.10: Run full test suite
+#### [DONE] 3.10: Run full test suite
+**Status**: ✅ COMPLETED (2025-10-17)
 **Requirement**: 100% pass rate
+**Result**: ✅ All 981 tests passing (100%)
+**Test breakdown**:
+- StarterHelperModeManager tests: 35 tests (increased from 24)
+- All other tests: 946 tests
+- No failures, no errors
 
-#### [ ] 3.11: Update code_changes.md
-**Action**: Document StarterHelper refactoring
+#### [DONE] 3.11: Update code_changes.md
+**Status**: ✅ COMPLETED (2025-10-17)
+**Action**: Document StarterHelper refactoring in code_changes.md
+**Documentation Added**:
+- ✅ Complete Phase 3 overview section
+- ✅ Detailed entries for all 10 tasks (3.1-3.10)
+- ✅ Phase 3 summary statistics
+- ✅ Before/after code snippets for all major changes
+- ✅ Rationale and impact analysis for each modification
+- ✅ Verification status for all changes
+**Result**: Comprehensive documentation of all Phase 3 refactoring work
+**Location**: lines 1151-1651 in refactoring_code_changes.md
 
 #### [ ] 3.12: COMMIT - Starter Helper Mode Complete
 **Commit message**: "Refactor starter_helper_mode - tests, docs, cleanup"
