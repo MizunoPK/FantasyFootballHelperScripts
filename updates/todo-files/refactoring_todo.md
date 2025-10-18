@@ -1638,16 +1638,33 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Total tests**: 1231 → 1283 (+52)
 **Commit**: `9d85ee4` - "Add 52 comprehensive tests for data_file_manager (Phase 7 - Task 7.3)"
 
-#### [ ] 7.4: Create comprehensive tests for DraftedRosterManager.py
+#### [DONE] 7.4: Create comprehensive tests for DraftedRosterManager.py
+**Status**: ✅ COMPLETED (2025-10-17)
 **File**: `tests/utils/test_DraftedRosterManager.py` (NEW)
-**Priority**: HIGH - 562 lines, NO TESTS
-**Estimated tests**: 30-40 tests
-**Coverage areas**:
-- Roster loading from CSV
-- Player drafted status management
-- Roster queries
-- CSV updates
-- Edge cases
+**Tests added**: 58 new tests (0 → 58 tests, exceeded estimate of 30-40)
+**New test classes**:
+- TestDraftedRosterManagerInit (2 tests): Attributes, path handling
+- TestLoadDraftedData (8 tests): Valid CSV, empty rows, incomplete rows, duplicates, missing file, caching, clearing previous data
+- TestGetStats (2 tests): Correct totals, zeros for empty data
+- TestGetAllTeamNames (2 tests): Unique teams, empty set
+- TestGetPlayersByTeam (3 tests): Team organization, empty data, all teams initialized
+- TestApplyDraftedStateToPlayers (5 tests): User team=2, other team=1, undrafted=0, same list, no data
+- TestNormalizePlayerInfo (5 tests): Lowercase, whitespace removal, suffix removal, injury tags, punctuation
+- TestExtractPlayerComponents (3 tests): Standard format parsing, defense handling, invalid format
+- TestGetTeamAbbrFromName (2 tests): Known teams, unknown teams
+- TestSimilarityScore (3 tests): Identical strings, different strings, case-insensitive
+- TestPositionsEquivalent (4 tests): Same position, case-insensitive, defense variations, different positions
+- TestTeamsEquivalent (3 tests): Same team, case-insensitive, Washington variations
+- TestNormalizeTeamAbbr (3 tests): WSH→WAS, WAS unchanged, uppercase
+- TestFindOriginalInfoForKey (2 tests): Match found, no match
+- TestCreatePlayerLookup (3 tests): All keys, full name mapping, last name mapping
+- TestFindMatchingPlayer (2 tests): Exact match, no match
+- TestFindDefenseMatch (1 test): Full team name handling
+- TestValidatePlayerMatch (3 tests): Valid match, wrong position, wrong team
+- TestFuzzyMatchPlayer (3 tests): Close match, low similarity, validation
+**Result**: All 58 tests passing, comprehensive coverage of fuzzy matching logic
+**Total tests**: 1283 → 1341 (+58)
+**Commit**: `aed483b` - "Add 58 comprehensive tests for DraftedRosterManager (Phase 7 - Task 7.4)"
 
 #### [ ] 7.5: Create comprehensive tests for error_handler.py
 **File**: `tests/utils/test_error_handler.py` (NEW)
