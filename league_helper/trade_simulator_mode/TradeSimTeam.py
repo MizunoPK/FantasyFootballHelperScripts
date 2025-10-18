@@ -79,39 +79,14 @@ class TradeSimTeam:
 
         # Iterate through all active players on the team roster
         for player in self.team:
-            # ===== OPPONENT TEAM SCORING (Simplified) =====
-            # For opponent/waiver teams, use minimal scoring factors to approximate their value
-            # This gives a fair but simplified evaluation of their team strength
+            # ===== TEAM SCORING =====
+            # Score players with different bye penalty settings based on team type
             if self.isOpponent:
-                scored_player = self.player_manager.score_player(
-                    player,
-                    adp=False,              # No ADP bonus (opponent rosters don't benefit from draft position)
-                    player_rating=True,     # Include player rating (skill level assessment)
-                    team_quality=False,     # No team quality factor (opponent teams aren't optimized)
-                    performance=False,      # No performance history (simplify opponent scoring)
-                    matchup=False,          # No matchup bonus (not relevant for trade evaluation)
-                    bye=False,              # No bye week penalties (opponent rosters already account for this)
-                    injury=False,           # No injury penalty (injured players already filtered out in __init__)
-                    roster=self.team        # Pass roster for position context
-                )
-            # ===== USER TEAM SCORING (Comprehensive) =====
-            # For user team, use full scoring to accurately evaluate roster strength
-            # This includes all factors that affect user's team performance
+                # Opponent scoring: exclude bye penalties to avoid artificial score changes from roster composition
+                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, bye=False, injury=False, roster=self.team)
             else:
-                scored_player = self.player_manager.score_player(
-                    player,
-                    adp=False,              # No ADP bonus (trade evaluation uses current performance, not draft position)
-                    player_rating=True,     # Include player rating (skill level assessment)
-                    team_quality=True,      # Include team quality (offensive line, coaching, scheme fit)
-                    performance=True,       # Include performance history (consistency, recent form)
-                    matchup=False,          # No matchup bonus (trade evaluation is season-long, not weekly)
-                    bye=True,               # Include bye week penalties (affects roster optimization)
-                    injury=False,           # No injury penalty (injured players already filtered out in __init__)
-                    roster=self.team        # Pass roster for position context
-                )
-
-            # Update the player object with computed score
-            # This allows direct access to score without re-calculation
+                # User scoring: include all scoring components including bye penalties
+                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, bye=True, injury=False, roster=self.team)
             player.score = scored_player.score
 
             # Cache the ScoredPlayer object for later retrieval

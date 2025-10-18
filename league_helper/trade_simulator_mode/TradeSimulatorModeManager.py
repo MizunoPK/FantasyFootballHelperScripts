@@ -38,12 +38,28 @@ sys.path.append(str(Path(__file__).parent.parent))
 from util.user_input import show_list_selection
 from util.PlayerManager import PlayerManager
 from util.ConfigManager import ConfigManager
+from util.ScoredPlayer import ScoredPlayer
 
 # Add parent directory to path for utils imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.DraftedRosterManager import DraftedRosterManager
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
+
+ENABLE_ONE_FOR_ONE = True
+ENABLE_TWO_FOR_TWO = True
+ENABLE_THREE_FOR_THREE = True
+
+# =============================================================================
+# UNEQUAL TRADE CONFIGURATION
+# =============================================================================
+# Toggle unequal trade types (user can modify these)
+ENABLE_TWO_FOR_ONE = True    # Give 2 players, get 1 player
+ENABLE_ONE_FOR_TWO = True    # Give 1 player, get 2 players
+ENABLE_THREE_FOR_ONE = True  # Give 3 players, get 1 player
+ENABLE_ONE_FOR_THREE = True  # Give 1 player, get 3 players
+ENABLE_THREE_FOR_TWO = True  # Give 3 players, get 2 players
+ENABLE_TWO_FOR_THREE = True  # Give 2 players, get 3 players
 
 class TradeSimulatorModeManager:
     """
@@ -241,6 +257,12 @@ class TradeSimulatorModeManager:
             one_for_one=True,
             two_for_two=True,
             three_for_three=False,  # Disabled: too many combinations
+            two_for_one=False,  # Unequal trades disabled in waiver mode for now
+            one_for_two=False,
+            three_for_one=False,
+            one_for_three=False,
+            three_for_two=False,
+            two_for_three=False,
             ignore_max_positions=False  # Enforce position limits
         )
 
@@ -312,33 +334,98 @@ class TradeSimulatorModeManager:
             print("\nNo opponent teams found.")
             return True, []
 
-        # Collect all valid trades from all opponents
+        # Check for teams exceeding MAX_PLAYERS and log warnings
+        teams_over_limit = []
+
+        # Check my team
+        if len(self.my_team.team) > Constants.MAX_PLAYERS:
+            teams_over_limit.append((self.my_team.name, self.my_team.team))
+
+        # Check opponent teams
+        for opp_team in self.opponent_simulated_teams:
+            if len(opp_team.team) > Constants.MAX_PLAYERS:
+                teams_over_limit.append((opp_team.name, opp_team.team))
+
+        # Log warnings for teams over the limit
+        if teams_over_limit:
+            self.logger.warning("=" * 80)
+            self.logger.warning(f"ROSTER SIZE WARNING: {len(teams_over_limit)} team(s) exceed MAX_PLAYERS ({Constants.MAX_PLAYERS})")
+            self.logger.warning("=" * 80)
+
+            for team_name, roster in teams_over_limit:
+                player_names = [p.name for p in sorted(roster, key=lambda p: p.position)]
+                self.logger.warning(f"\n{team_name}: {len(roster)} active players")
+                self.logger.warning(f"  Players: {', '.join(player_names)}")
+
+            self.logger.warning("=" * 80 + "\n")
+
+        # Log trade analysis start
+        self.logger.info("=" * 80)
+        self.logger.info("BEGINNING TRADE ANALYSIS")
+        self.logger.info(f"My Team: {self.my_team.name} (Score: {self.my_team.team_score:.2f})")
+        self.logger.info(f"Opponent Teams: {len(self.opponent_simulated_teams)}")
+        self.logger.info("=" * 80 + "\n")
+
+        # Collect all possible trades from all opponents
         all_trades = []
 
         print("\nAnalyzing trades with opponent teams...")
-
-        # Iterate through each opponent and find mutually beneficial trades
+        import time
         for opponent_team in self.opponent_simulated_teams:
-            self.logger.info(f"Analyzing trades with {opponent_team.name}")
-            print(f"  Checking trades with {opponent_team.name}...")
+            start_time = time.time()
 
-            # Generate all possible trade combinations
-            # - 1-for-1, 2-for-2, AND 3-for-3 all enabled (explore all possibilities)
+            # Calculate expected combinations for this team
+            my_unlocked = len([p for p in self.my_team.team if p.locked != 1])
+            their_unlocked = len([p for p in opponent_team.team if p.locked != 1])
+
+            # Calculate combinations for each trade type
+            one_for_one_combos = my_unlocked * their_unlocked
+            two_for_two_combos = (my_unlocked * (my_unlocked - 1) // 2) * (their_unlocked * (their_unlocked - 1) // 2)
+
+            # New unequal trade combinations (only count if enabled)
+            two_for_one_combos = (my_unlocked * (my_unlocked - 1) // 2) * their_unlocked if ENABLE_TWO_FOR_ONE else 0
+            one_for_two_combos = my_unlocked * (their_unlocked * (their_unlocked - 1) // 2) if ENABLE_ONE_FOR_TWO else 0
+            three_for_one_combos = (my_unlocked * (my_unlocked - 1) * (my_unlocked - 2) // 6) * their_unlocked if ENABLE_THREE_FOR_ONE else 0
+            one_for_three_combos = my_unlocked * (their_unlocked * (their_unlocked - 1) * (their_unlocked - 2) // 6) if ENABLE_ONE_FOR_THREE else 0
+            three_for_two_combos = (my_unlocked * (my_unlocked - 1) * (my_unlocked - 2) // 6) * (their_unlocked * (their_unlocked - 1) // 2) if ENABLE_THREE_FOR_TWO else 0
+            two_for_three_combos = (my_unlocked * (my_unlocked - 1) // 2) * (their_unlocked * (their_unlocked - 1) * (their_unlocked - 2) // 6) if ENABLE_TWO_FOR_THREE else 0
+
+            total_expected = (one_for_one_combos + two_for_two_combos +
+                             two_for_one_combos + one_for_two_combos +
+                             three_for_one_combos + one_for_three_combos +
+                             three_for_two_combos + two_for_three_combos)
+
+            self.logger.info(f"Analyzing trades with {opponent_team.name}")
+            self.logger.info(f"  Team sizes: My={my_unlocked} unlocked, Their={their_unlocked} unlocked")
+            self.logger.info(f"  Expected combinations: 1:1={one_for_one_combos:,}, 2:2={two_for_two_combos:,}, "
+                           f"2:1={two_for_one_combos:,}, 1:2={one_for_two_combos:,}, "
+                           f"3:1={three_for_one_combos:,}, 1:3={one_for_three_combos:,}, "
+                           f"3:2={three_for_two_combos:,}, 2:3={two_for_three_combos:,}, Total={total_expected:,}")
+            print(f"  Checking trades with {opponent_team.name} ({total_expected:,} combinations)...")
+
+            # Get trade combinations with configurable trade types
+            # - Uses ENABLE_* constants for flexible configuration
             # - is_waivers=False: Both teams must improve
             # - ignore_max_positions=False: Enforce position limits (BUG FIX from origin/main)
             trade_combos = self.analyzer.get_trade_combinations(
                 my_team=self.my_team,
                 their_team=opponent_team,
                 is_waivers=False,
-                one_for_one=True,
-                two_for_two=True,
-                three_for_three=True,  # Enabled: more complex trades allowed
+                one_for_one=ENABLE_ONE_FOR_ONE,
+                two_for_two=ENABLE_TWO_FOR_TWO,
+                three_for_three=ENABLE_THREE_FOR_THREE,
+                two_for_one=ENABLE_TWO_FOR_ONE,
+                one_for_two=ENABLE_ONE_FOR_TWO,
+                three_for_one=ENABLE_THREE_FOR_ONE,
+                one_for_three=ENABLE_ONE_FOR_THREE,
+                three_for_two=ENABLE_THREE_FOR_TWO,
+                two_for_three=ENABLE_TWO_FOR_THREE,
                 ignore_max_positions=False  # Enforce position limits (BUG FIX)
             )
 
-            # Add trades from this opponent to master list
+            elapsed = time.time() - start_time
             all_trades.extend(trade_combos)
-            self.logger.info(f"Found {len(trade_combos)} valid trades with {opponent_team.name}")
+            self.logger.info(f"Found {len(trade_combos)} valid trades with {opponent_team.name} in {elapsed:.2f}s ({total_expected/elapsed:.0f} combos/sec)")
 
         self.logger.info(f"Total trades found: {len(all_trades)}")
 
@@ -393,6 +480,31 @@ class TradeSimulatorModeManager:
             print(f"  I receive:")
             for player in trade.my_new_players:
                 print(f"    - {player}")
+
+            # Display waiver recommendations if trade loses roster spots
+            if trade.waiver_recommendations:
+                print(f"  Recommended Waiver Adds (for me):")
+                for player in trade.waiver_recommendations:
+                    print(f"    - {player}")
+
+            # Display opponent waiver recommendations
+            if trade.their_waiver_recommendations:
+                print(f"  Recommended Waiver Adds (for {trade.their_new_team.name}):")
+                for player in trade.their_waiver_recommendations:
+                    print(f"    - {player}")
+
+            # Display dropped players (beyond the trade itself)
+            if trade.my_dropped_players:
+                print(f"  Players I Must Drop (to make room):")
+                for player in trade.my_dropped_players:
+                    print(f"    - {player}")
+
+            # Display opponent dropped players
+            if trade.their_dropped_players:
+                print(f"  Players {trade.their_new_team.name} Must Drop (to make room):")
+                for player in trade.their_dropped_players:
+                    print(f"    - {player}")
+
             print()
 
         # Pause before returning to menu

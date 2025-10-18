@@ -237,13 +237,13 @@ class TestGetTradeCombinations:
 
         my_team = Mock(spec=TradeSimTeam)
         my_team.team = my_roster
-        my_team.team_score = 45.0
+        my_team.team_score = 100.0  # Base score for testing MIN_TRADE_IMPROVEMENT
         my_team.name = "My Team"
         my_team.get_scored_players = Mock(return_value=[])
 
         their_team = Mock(spec=TradeSimTeam)
         their_team.team = their_roster
-        their_team.team_score = 37.0
+        their_team.team_score = 100.0  # Base score for testing MIN_TRADE_IMPROVEMENT
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
 
@@ -259,13 +259,13 @@ class TestGetTradeCombinations:
 
         # Mock TradeSimTeam constructor
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
-            # Create mock teams with improved scores
+            # Create mock teams with improved scores (must meet MIN_TRADE_IMPROVEMENT = 30)
             mock_my_new = Mock()
-            mock_my_new.team_score = 48.0  # Improved from 45.0
+            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 40.0  # Improved from 37.0
+            mock_their_new.team_score = 135.0  # Improved from 100.0 (+35 points)
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10  # Multiple trades possible
@@ -293,11 +293,11 @@ class TestGetTradeCombinations:
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 48.0
+            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 40.0
+            mock_their_new.team_score = 135.0  # Improved from 100.0 (+35 points)
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -342,7 +342,7 @@ class TestGetTradeCombinations:
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 48.0  # Improved from 45.0
+            mock_my_new.team_score = 105.0  # Improved from 100.0 (+5 points, exceeds MIN_WAIVER_IMPROVEMENT = 0)
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
@@ -378,13 +378,13 @@ class TestGetTradeCombinations:
 
         my_team = Mock(spec=TradeSimTeam)
         my_team.team = [qb1, rb1]  # QB locked, RB not locked
-        my_team.team_score = 45.0
+        my_team.team_score = 100.0
         my_team.name = "My Team"
         my_team.get_scored_players = Mock(return_value=[])
 
         their_team = Mock(spec=TradeSimTeam)
         their_team.team = [wr1]
-        their_team.team_score = 22.0
+        their_team.team_score = 100.0
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
 
@@ -392,11 +392,11 @@ class TestGetTradeCombinations:
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 48.0
+            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 25.0
+            mock_their_new.team_score = 135.0  # Improved from 100.0 (+35 points)
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -424,11 +424,11 @@ class TestGetTradeCombinations:
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 48.0  # Improved from 45.0
+            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 35.0  # Worse than 37.0
+            mock_their_new.team_score = 95.0  # Worse than 100.0 (decreased)
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -452,11 +452,11 @@ class TestGetTradeCombinations:
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 43.0  # Worse than 45.0
+            mock_my_new.team_score = 95.0  # Worse than 100.0 (decreased)
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 40.0  # Better than 37.0
+            mock_their_new.team_score = 135.0  # Better than 100.0 (+35 points)
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -502,13 +502,13 @@ class TestGetTradeCombinations:
 
         my_team = Mock(spec=TradeSimTeam)
         my_team.team = my_roster
-        my_team.team_score = 63.0
+        my_team.team_score = 100.0
         my_team.name = "My Team"
         my_team.get_scored_players = Mock(return_value=[])
 
         their_team = Mock(spec=TradeSimTeam)
         their_team.team = their_roster
-        their_team.team_score = 56.0
+        their_team.team_score = 100.0
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
 
@@ -516,11 +516,11 @@ class TestGetTradeCombinations:
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 66.0  # Improved
+            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 59.0  # Improved
+            mock_their_new.team_score = 135.0  # Improved from 100.0 (+35 points)
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
