@@ -70,11 +70,15 @@ class LoggingManager:
         """
         logger = logging.getLogger(name)
 
-        # Clear existing handlers
+        # Clear existing handlers to avoid duplicate log messages
+        # Multiple calls to setup_logger for the same name would otherwise accumulate handlers
         logger.handlers.clear()
+        # Disable propagation to prevent logs from bubbling up to root logger
+        # This prevents duplicate log messages when using hierarchical logger names (e.g., "app.module.submodule")
         logger.propagate = False
 
-        # Set logging level
+        # Set logging level (convert string to logging constant if needed)
+        # Allows both "INFO" and logging.INFO to be passed
         if isinstance(level, str):
             level = self.LEVEL_MAP.get(level.upper(), logging.INFO)
         logger.setLevel(level)
@@ -89,18 +93,22 @@ class LoggingManager:
             console_handler.setLevel(level)
             logger.addHandler(console_handler)
 
-        # File handler with rotation
+        # File handler with rotation to prevent unbounded log file growth
         if log_to_file:
+            # Auto-generate timestamped log file path if none provided
             if log_file_path is None:
                 log_file_path = self._generate_log_file_path(log_file_path, name)
 
             log_file_path = Path(log_file_path)
+            # Create parent directory if it doesn't exist (e.g., logs/)
             log_file_path.parent.mkdir(parents=True, exist_ok=True)
 
+            # RotatingFileHandler automatically rotates logs when they reach max_file_size
+            # Example: app.log → app.log.1 → app.log.2, keeping backup_count old files
             file_handler = logging.handlers.RotatingFileHandler(
                 log_file_path,
-                maxBytes=max_file_size,
-                backupCount=backup_count,
+                maxBytes=max_file_size,  # Default 10MB before rotation
+                backupCount=backup_count,  # Keep last 5 rotated files
                 encoding='utf-8'
             )
             file_handler.setFormatter(formatter)
@@ -125,16 +133,20 @@ class LoggingManager:
         return logging.Formatter(format_string, datefmt=self.TIMESTAMP_FORMAT)
 
     def _generate_log_file_path(self, log_path: str, logger_name: str) -> Path:
-        """Generate a log file path based on logger name."""
+        """Generate a log file path with timestamp for daily log rotation."""
+        # Use YYYYMMDD format for easy sorting and daily rotation
+        # Example: PlayerManager_20251017.log
         timestamp = datetime.now().strftime('%Y%m%d')
         filename = f"{logger_name}_{timestamp}.log"
 
-        # Create logs directory in project root
+        # Return path in logs directory (caller creates directory if needed)
         return log_path / filename
 
 
 
-# Global logging manager instance
+# Global logging manager instance (singleton-like pattern)
+# This ensures consistent logging configuration across all modules
+# Modules call setup_logger() or get_logger() convenience functions instead of creating their own manager
 _logging_manager = LoggingManager()
 
 
