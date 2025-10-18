@@ -12,9 +12,8 @@ Author: Kai Mizuno
 import logging
 import logging.handlers
 import sys
-import os
 from pathlib import Path
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Union
 from datetime import datetime
 
 

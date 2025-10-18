@@ -16,7 +16,6 @@ Usage:
 Author: Kai Mizuno
 """
 
-import os
 import asyncio
 import json
 import shutil

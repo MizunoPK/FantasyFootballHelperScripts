@@ -17,7 +17,7 @@ import asyncio
 
 from utils.error_handler import (
     create_component_error_handler, FileOperationError, DataProcessingError,
-    handle_errors, safe_execute, error_context
+    handle_errors, error_context
 )
 
 logger = logging.getLogger(__name__)
