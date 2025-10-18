@@ -108,29 +108,48 @@ class ProgressTracker:
 
     def _calculate_eta(self) -> str:
         """
-        Calculate ETA based on recent performance.
+        Calculate ETA (Estimated Time of Arrival) based on recent performance.
+
+        Uses a sliding window of recent processing times for more accurate predictions.
+        This adapts to changing processing speeds (e.g., faster for simple players,
+        slower for players with extensive weekly data).
+
+        Algorithm:
+        1. If complete: return "Complete"
+        2. If recent data available (recommended): Use average of last N players
+        3. If no recent data: Fall back to overall average
+        4. Calculate: remaining_players * average_time_per_player
 
         Returns:
             str: Formatted ETA string (e.g., "5m 32s") or empty string if can't calculate
         """
+        # Check if already complete
         if self.processed_players >= self.total_players:
             return "Complete"
 
+        # Calculate remaining work
         remaining_players = self.total_players - self.processed_players
 
         if not self.recent_times:
-            # Fall back to overall average if no recent data
+            # No recent performance data yet (early in processing)
+            # Fall back to overall average since start
             elapsed_time = time.time() - self.start_time
             if self.processed_players > 0:
+                # Calculate average time per player since start
                 avg_time_per_player = elapsed_time / self.processed_players
+                # Estimate remaining time based on overall average
                 estimated_remaining_time = remaining_players * avg_time_per_player
             else:
+                # No data at all yet (shouldn't happen in practice)
                 return ""
         else:
             # Use recent performance for more accurate ETA
+            # This adapts to changing speeds (e.g., API rate limiting, network conditions)
+            # By using last N players instead of overall average, ETA stays current
             recent_avg_time = sum(self.recent_times) / len(self.recent_times)
             estimated_remaining_time = remaining_players * recent_avg_time
 
+        # Convert seconds to human-readable format (e.g., "5m 32s")
         return self._format_duration(estimated_remaining_time)
 
     def _format_duration(self, seconds: float) -> str:
