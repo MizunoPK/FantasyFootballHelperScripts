@@ -47,6 +47,12 @@ def mock_trade():
     trade.my_new_players = ["WR1 (WR) - MIA", "TE1 (TE) - KC"]
     trade.their_new_players = ["QB1 (QB) - KC", "RB1 (RB) - SF"]
 
+    # Add new unequal trade fields (default to None/empty for basic tests)
+    trade.waiver_recommendations = None
+    trade.their_waiver_recommendations = None
+    trade.my_dropped_players = None
+    trade.their_dropped_players = None
+
     return trade
 
 
@@ -242,6 +248,11 @@ class TestSaveTradesToFile:
         trade2.their_new_team.name = "Other Team"
         trade2.my_original_players = ["RB2 (RB) - BUF"]
         trade2.my_new_players = ["WR2 (WR) - DAL"]
+        # Add new unequal trade fields
+        trade2.waiver_recommendations = None
+        trade2.their_waiver_recommendations = None
+        trade2.my_dropped_players = None
+        trade2.their_dropped_players = None
 
         opponent1 = Mock()
         opponent1.name = "Their Team"
@@ -348,6 +359,9 @@ class TestSaveWaiverTradesToFile:
         trade2.my_new_team.team_score = 83.0
         trade2.my_original_players = ["K1 (K) - BAL"]
         trade2.my_new_players = ["K2 (K) - SF"]
+        # Add new unequal trade fields
+        trade2.waiver_recommendations = None
+        trade2.my_dropped_players = None
 
         writer.save_waiver_trades_to_file([mock_trade, trade2], mock_team)
 
@@ -398,6 +412,9 @@ class TestSaveWaiverTradesToFile:
         trade.my_new_team.team_score = 85.0
         trade.my_original_players = ["QB1", "RB1"]  # 2 players
         trade.my_new_players = ["WR1", "TE1"]  # 2 players
+        # Add new unequal trade fields
+        trade.waiver_recommendations = None
+        trade.my_dropped_players = None
 
         writer.save_waiver_trades_to_file([trade], mock_team)
 

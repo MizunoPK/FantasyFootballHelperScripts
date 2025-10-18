@@ -408,6 +408,9 @@ Where:
 - `TradeSimulatorModeManager` - Main controller with 3 sub-modes
 - `TradeSimTeam` - Team representation for trade simulation
 - `TradeSnapshot` - Before/after comparison structure
+- `TradeAnalyzer` - Core trade generation and evaluation engine
+- `TradeDisplayHelper` - Display formatting for trade results
+- `TradeFileWriter` - File output for trade analysis
 
 **Output Format**:
 ```
@@ -421,6 +424,159 @@ ROSTER IMPACT:
   Change: -15.2 points (DECLINE)
 
 RECOMMENDATION: REJECT - Weakens overall roster strength
+```
+
+**Unequal Trade System Architecture**:
+
+The system supports 9 trade types total: 3 equal (1:1, 2:2, 3:3) and 6 unequal (2:1, 1:2, 3:1, 1:3, 3:2, 2:3).
+
+**Trade Type Selection**:
+```python
+# TradeAnalyzer.get_trade_combinations()
+def get_trade_combinations(
+    my_team: TradeSimTeam,
+    their_team: TradeSimTeam,
+    one_for_one: bool = True,
+    two_for_two: bool = False,
+    three_for_three: bool = False,
+    two_for_one: bool = False,
+    one_for_two: bool = False,
+    three_for_one: bool = False,
+    one_for_three: bool = False,
+    three_for_two: bool = False,
+    two_for_three: bool = False
+) -> List[TradeSnapshot]:
+    """
+    Generate all valid trades based on selected trade types.
+
+    Unequal trades create roster imbalances that require:
+    1. Waiver recommendations (when giving > receiving)
+    2. Drop recommendations (when receiving > giving violates MAX_PLAYERS)
+    """
+```
+
+**Waiver Recommendation System**:
+
+When a trade creates empty roster spots (giving away more players than receiving), the system automatically suggests waiver wire pickups:
+
+```python
+# TradeAnalyzer._generate_waiver_recommendations()
+def _generate_waiver_recommendations(
+    team: TradeSimTeam,
+    num_spots: int
+) -> List[ScoredPlayer]:
+    """
+    Generate waiver recommendations to fill empty roster spots.
+
+    Algorithm:
+    1. Get available players (drafted=0)
+    2. Score each player in context of post-trade roster
+    3. Sort by score (descending)
+    4. Return top N players to fill spots
+
+    Example: 2:1 trade loses 1 roster spot
+             → Recommend best available player from waivers
+    """
+```
+
+**Drop System for Roster Violations**:
+
+When receiving more players than giving away would violate MAX_PLAYERS (15), the system identifies which players to drop:
+
+```python
+# TradeAnalyzer._generate_drop_recommendations()
+def _generate_drop_recommendations(
+    team: TradeSimTeam,
+    num_to_drop: int
+) -> List[ScoredPlayer]:
+    """
+    Identify lowest-value players to drop when roster limit exceeded.
+
+    Algorithm:
+    1. Score all players in post-trade roster context
+    2. Sort by score (ascending - worst players first)
+    3. Return N lowest-scored players to drop
+    4. Ensures final roster size = MAX_PLAYERS (15)
+
+    Example: Team has 14 players, 1:2 trade adds net 1 player
+             → Final roster = 15 (no drop needed)
+
+             Team has 15 players, 1:2 trade adds net 1 player
+             → Final roster = 16 (VIOLATION)
+             → Drop lowest-scored player to reach 15
+    """
+```
+
+**Trade Snapshot Extended Fields**:
+
+```python
+@dataclass
+class TradeSnapshot:
+    # Existing fields (original feature)
+    my_new_team: TradeSimTeam           # My team after trade
+    their_new_team: TradeSimTeam        # Their team after trade
+    my_original_players: List[ScoredPlayer]  # Players I'm giving
+    my_new_players: List[ScoredPlayer]       # Players I'm receiving
+
+    # New fields for unequal trades
+    waiver_recommendations: List[ScoredPlayer] = None  # Waiver pickups for me
+    their_waiver_recommendations: List[ScoredPlayer] = None  # Waiver pickups for opponent
+    my_dropped_players: List[ScoredPlayer] = None  # Players I must drop
+    their_dropped_players: List[ScoredPlayer] = None  # Players opponent must drop
+```
+
+**MIN_TRADE_IMPROVEMENT Enforcement**:
+
+Trade suggestions enforce a 30-point minimum improvement threshold (vs 0 for waiver moves):
+
+```python
+# Constants in trade_simulator_mode/__init__.py
+MIN_TRADE_IMPROVEMENT = 30.0  # Both teams must improve by ≥30 points
+MIN_WAIVER_IMPROVEMENT = 0.0  # Waiver moves only need positive improvement
+
+# Enforcement in TradeAnalyzer
+def _filter_trades_by_improvement(
+    trades: List[TradeSnapshot],
+    my_original_score: float,
+    their_original_score: float,
+    is_waivers: bool
+) -> List[TradeSnapshot]:
+    """
+    Filter trades to only include mutually beneficial trades above threshold.
+
+    For regular trades: Both teams must improve by ≥ MIN_TRADE_IMPROVEMENT
+    For waiver moves: Only my team needs any positive improvement
+    """
+    threshold = MIN_WAIVER_IMPROVEMENT if is_waivers else MIN_TRADE_IMPROVEMENT
+
+    return [
+        trade for trade in trades
+        if (trade.my_new_team.team_score - my_original_score >= threshold and
+            trade.their_new_team.team_score - their_original_score >= threshold)
+    ]
+```
+
+**Display and File Output**:
+
+Both `TradeDisplayHelper.display_trade_result()` and `TradeFileWriter` methods include sections for:
+- Waiver recommendations (both teams)
+- Drop requirements (both teams)
+- Score improvements with proper sign handling (+/-)
+
+Example output:
+```
+Trade with Team ABC
+  My improvement: +45.50 pts (New score: 1045.50)
+  Their improvement: +32.00 pts (New score: 998.00)
+  I give:
+    - Player A (RB) - 85.5 pts
+    - Player B (WR) - 78.2 pts
+  I receive:
+    - Player C (QB) - 125.0 pts
+  Recommended Waiver Adds (for me):
+    - Waiver QB (QB) - 95.0 pts
+  Players I Must Drop (to make room):
+    - Bench Player (K) - 45.0 pts
 ```
 
 ---

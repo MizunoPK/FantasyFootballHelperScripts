@@ -94,6 +94,32 @@ class TradeFileWriter:
             for player in trade.my_new_players:
                 file.write(f"    - {player}\n")  # ScoredPlayer.__str__() includes score details
 
+            # Write waiver recommendations if trade loses roster spots
+            # These are automatically suggested pickups to fill empty roster spots
+            if trade.waiver_recommendations:
+                file.write(f"  Recommended Waiver Adds (for me):\n")
+                for player in trade.waiver_recommendations:
+                    file.write(f"    - {player}\n")
+
+            # Write opponent waiver recommendations (if applicable)
+            if trade.their_waiver_recommendations:
+                file.write(f"  Recommended Waiver Adds (for {opponent_name}):\n")
+                for player in trade.their_waiver_recommendations:
+                    file.write(f"    - {player}\n")
+
+            # Write players I must drop (beyond the trade itself)
+            # Required when receiving more players than giving away violates MAX_PLAYERS
+            if trade.my_dropped_players:
+                file.write(f"  Players I Must Drop (to make room):\n")
+                for player in trade.my_dropped_players:
+                    file.write(f"    - {player}\n")
+
+            # Write opponent dropped players (if applicable)
+            if trade.their_dropped_players:
+                file.write(f"  Players {opponent_name} Must Drop (to make room):\n")
+                for player in trade.their_dropped_players:
+                    file.write(f"    - {player}\n")
+
         # Return filename so caller can display success message
         return filename
 
@@ -149,6 +175,32 @@ class TradeFileWriter:
                 for player in trade.my_new_players:
                     file.write(f"    - {player}\n")
 
+                # Write waiver recommendations if trade loses roster spots
+                # These are automatically suggested pickups to fill empty roster spots
+                if trade.waiver_recommendations:
+                    file.write(f"  Recommended Waiver Adds (for me):\n")
+                    for player in trade.waiver_recommendations:
+                        file.write(f"    - {player}\n")
+
+                # Write opponent waiver recommendations (if applicable)
+                if trade.their_waiver_recommendations:
+                    file.write(f"  Recommended Waiver Adds (for {trade.their_new_team.name}):\n")
+                    for player in trade.their_waiver_recommendations:
+                        file.write(f"    - {player}\n")
+
+                # Write players I must drop (beyond the trade itself)
+                # Required when receiving more players than giving away violates MAX_PLAYERS
+                if trade.my_dropped_players:
+                    file.write(f"  Players I Must Drop (to make room):\n")
+                    for player in trade.my_dropped_players:
+                        file.write(f"    - {player}\n")
+
+                # Write opponent dropped players (if applicable)
+                if trade.their_dropped_players:
+                    file.write(f"  Players {trade.their_new_team.name} Must Drop (to make room):\n")
+                    for player in trade.their_dropped_players:
+                        file.write(f"    - {player}\n")
+
                 # Add blank line separator between trades for readability
                 file.write("\n")
 
@@ -199,6 +251,22 @@ class TradeFileWriter:
 
                 # Write new total team score after waiver moves
                 file.write(f"  New team score: {trade.my_new_team.team_score:.2f}\n")
+
+                # Write additional waiver recommendations if trade loses roster spots
+                # These are automatically suggested pickups to fill empty roster spots
+                # (Note: Regular waiver mode usually has balanced trades, but unequal trades may generate these)
+                if trade.waiver_recommendations:
+                    file.write(f"  Additional Waiver Recommendations:\n")
+                    for player in trade.waiver_recommendations:
+                        file.write(f"    - {player}\n")
+
+                # Write additional dropped players if needed
+                # Required when receiving more players than giving away violates MAX_PLAYERS
+                if trade.my_dropped_players:
+                    file.write(f"  Additional Players to Drop (to make room):\n")
+                    for player in trade.my_dropped_players:
+                        file.write(f"    - {player}\n")
+
                 # Add blank line separator between pickups for readability
                 file.write("\n")
 

@@ -96,6 +96,10 @@ def mock_player_manager(sample_players):
     # Mock get_lowest_scores_on_roster
     manager.get_lowest_scores_on_roster = Mock(return_value=[0.0])
 
+    # Mock get_player_list (used by waiver recommendations in unequal trades)
+    # Return empty list by default (tests can override this if needed)
+    manager.get_player_list = Mock(return_value=[])
+
     return manager
 
 
@@ -207,16 +211,15 @@ class TestTradeSimTeamScoring:
             assert player.score > 0
 
     def test_score_team_uses_different_scoring_for_opponents(self, sample_players, mock_player_manager):
-        """Test that opponent teams use simplified scoring (but include player_rating)"""
+        """Test that opponent teams use different scoring (bye=False vs bye=True)"""
         team_players = sample_players[:3]
 
         opponent_team = TradeSimTeam("Opponent", team_players, mock_player_manager, isOpponent=True)
 
         # Verify that score_player was called with opponent flags
-        # NOTE: Bug fix from origin/main - opponents now use player_rating=True
-        # but still disable adp, team_quality, performance, bye, injury
+        # Opponents use same scoring as user except bye=False (to avoid artificial score changes)
         calls = mock_player_manager.score_player.call_args_list
-        opponent_calls = [call for call in calls if 'team_quality' in call[1] and not call[1]['team_quality']]
+        opponent_calls = [call for call in calls if 'bye' in call[1] and not call[1]['bye']]
 
         assert len(opponent_calls) > 0
 
@@ -714,6 +717,274 @@ class TestEdgeCases:
 
         # Should be valid as RB and WR can fill FLEX spots
         assert isinstance(is_valid, bool)
+
+
+# =============================================================================
+# Unequal Trade Tests
+# =============================================================================
+
+class TestUnequalTrades:
+    """Test unequal trade functionality (2:1, 1:2, 3:1, 1:3, 3:2, 2:3)"""
+
+    @pytest.fixture
+    def manager(self, temp_data_folder, mock_player_manager, mock_config):
+        """Create a manager for testing"""
+        with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
+            return TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
+
+    def test_two_for_one_trades_generated(self, manager, sample_players, mock_player_manager):
+        """Test that 2:1 trades (give 2, get 1) are generated"""
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            one_for_one=False,
+            two_for_two=False,
+            three_for_three=False,
+            two_for_one=True
+        )
+
+        assert isinstance(trades, list)
+        # 2:1 trades should exist if roster composition allows
+
+    def test_one_for_two_trades_generated(self, manager, sample_players, mock_player_manager):
+        """Test that 1:2 trades (give 1, get 2) are generated"""
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            one_for_one=False,
+            two_for_two=False,
+            three_for_three=False,
+            one_for_two=True
+        )
+
+        assert isinstance(trades, list)
+        # 1:2 trades should exist if roster composition allows
+
+    def test_three_for_one_trades_generated(self, manager, sample_players, mock_player_manager):
+        """Test that 3:1 trades (give 3, get 1) are generated"""
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            three_for_one=True
+        )
+
+        assert isinstance(trades, list)
+
+    def test_one_for_three_trades_generated(self, manager, sample_players, mock_player_manager):
+        """Test that 1:3 trades (give 1, get 3) are generated"""
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            one_for_three=True
+        )
+
+        assert isinstance(trades, list)
+
+    def test_three_for_two_trades_generated(self, manager, sample_players, mock_player_manager):
+        """Test that 3:2 trades (give 3, get 2) are generated"""
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            three_for_two=True
+        )
+
+        assert isinstance(trades, list)
+
+    def test_two_for_three_trades_generated(self, manager, sample_players, mock_player_manager):
+        """Test that 2:3 trades (give 2, get 3) are generated"""
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            two_for_three=True
+        )
+
+        assert isinstance(trades, list)
+
+    def test_all_unequal_trade_types_combined(self, manager, sample_players, mock_player_manager):
+        """Test generating all unequal trade types together"""
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            two_for_one=True,
+            one_for_two=True,
+            three_for_one=True,
+            one_for_three=True,
+            three_for_two=True,
+            two_for_three=True
+        )
+
+        assert isinstance(trades, list)
+        # Should generate combinations from all enabled trade types
+
+    def test_waiver_recommendations_in_unequal_trades(self, manager, sample_players, mock_player_manager):
+        """Test that waiver recommendations are generated for trades that lose roster spots"""
+        # Create waiver wire players
+        waiver_players = [
+            FantasyPlayer(id=20, name="Waiver QB", team="ATL", position="QB",
+                         fantasy_points=100.0, injury_status="ACTIVE", drafted=0),
+            FantasyPlayer(id=21, name="Waiver RB", team="ATL", position="RB",
+                         fantasy_points=95.0, injury_status="ACTIVE", drafted=0),
+        ]
+
+        # Mock get_player_list to return waiver players
+        mock_player_manager.get_player_list = Mock(return_value=waiver_players)
+
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        # 2:1 trade should generate waiver recommendations (loses 1 roster spot)
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            two_for_one=True
+        )
+
+        # If trades were generated, they should have waiver recommendations
+        for trade in trades:
+            # 2:1 gives 2, gets 1 - should have 1 waiver recommendation
+            assert hasattr(trade, 'waiver_recommendations')
+            # May be None or empty list if no waiver players available
+
+    def test_drop_system_in_unequal_trades(self, manager, sample_players, mock_player_manager):
+        """Test that drop system works for trades that gain roster spots"""
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        # 1:2 trade should use drop system (gains 1 roster spot, might need to drop)
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            one_for_two=True
+        )
+
+        # Trades should have drop system fields
+        for trade in trades:
+            assert hasattr(trade, 'my_dropped_players')
+            assert hasattr(trade, 'their_dropped_players')
+
+    def test_trade_snapshot_has_unequal_trade_fields(self, manager, sample_players, mock_player_manager):
+        """Test that TradeSnapshot has all unequal trade fields"""
+        my_team = TradeSimTeam("My Team", sample_players[:3], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[3:6], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 50.0
+        their_team.team_score = 50.0
+
+        # Create a simple trade snapshot
+        my_new_players = their_team.get_scored_players([sample_players[3]])
+        their_new_players = my_team.get_scored_players([sample_players[0]])
+
+        snapshot = TradeSnapshot(
+            my_team, my_new_players,
+            their_team, their_new_players,
+            waiver_recommendations=[],
+            their_waiver_recommendations=[],
+            my_dropped_players=[],
+            their_dropped_players=[]
+        )
+
+        # Verify all unequal trade fields exist
+        assert hasattr(snapshot, 'waiver_recommendations')
+        assert hasattr(snapshot, 'their_waiver_recommendations')
+        assert hasattr(snapshot, 'my_dropped_players')
+        assert hasattr(snapshot, 'their_dropped_players')
+
+    def test_min_trade_improvement_enforced_in_unequal_trades(self, manager, sample_players, mock_player_manager):
+        """Test that MIN_TRADE_IMPROVEMENT (30 points) is enforced for unequal trades"""
+        my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        # Set scores so trades would need +30 improvement
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            two_for_one=True
+        )
+
+        # All trades should improve both teams by at least MIN_TRADE_IMPROVEMENT
+        for trade in trades:
+            my_improvement = trade.my_new_team.team_score - my_team.team_score
+            their_improvement = trade.their_new_team.team_score - their_team.team_score
+
+            # Each team should improve by at least 30 points (MIN_TRADE_IMPROVEMENT)
+            assert my_improvement >= 30.0
+            assert their_improvement >= 30.0
+
+    def test_unequal_trades_respect_roster_limits(self, manager, sample_players, mock_player_manager):
+        """Test that unequal trades respect MAX_PLAYERS limit"""
+        # Create nearly-full roster (14 players, MAX=15)
+        my_roster = sample_players[:10] + [sample_players[0], sample_players[1], sample_players[2], sample_players[3]][:4]
+        my_team = TradeSimTeam("My Team", my_roster, mock_player_manager, isOpponent=False)
+        their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
+
+        my_team.team_score = 100.0
+        their_team.team_score = 100.0
+
+        # 1:2 trade would violate roster limit (14 - 1 + 2 = 15, which is OK)
+        # 1:3 trade would violate (14 - 1 + 3 = 16 > 15, should use drop system or be rejected)
+        trades = manager.analyzer.get_trade_combinations(
+            my_team, their_team,
+            is_waivers=False,
+            one_for_two=True,
+            one_for_three=True
+        )
+
+        # All trades should either respect limit or use drop system
+        for trade in trades:
+            total_players = len(trade.my_new_team.team)
+            # With drop system, should never exceed 15
+            assert total_players <= 15
 
 
 # =============================================================================

@@ -247,5 +247,31 @@ class TradeDisplayHelper:
         for player in trade.my_new_players:
             print(f"    - {player}")  # ScoredPlayer.__str__() shows name, position, score, reasons
 
+        # Display waiver recommendations if trade loses roster spots
+        # These are automatically suggested pickups to fill empty roster spots
+        if trade.waiver_recommendations:
+            print(f"  Recommended Waiver Adds (for me):")
+            for player in trade.waiver_recommendations:
+                print(f"    - {player}")
+
+        # Display opponent waiver recommendations (if applicable)
+        if trade.their_waiver_recommendations:
+            print(f"  Recommended Waiver Adds (for {trade.their_new_team.name}):")
+            for player in trade.their_waiver_recommendations:
+                print(f"    - {player}")
+
+        # Display players I must drop (beyond the trade itself)
+        # Required when receiving more players than giving away violates MAX_PLAYERS
+        if trade.my_dropped_players:
+            print(f"  Players I Must Drop (to make room):")
+            for player in trade.my_dropped_players:
+                print(f"    - {player}")
+
+        # Display opponent dropped players (if applicable)
+        if trade.their_dropped_players:
+            print(f"  Players {trade.their_new_team.name} Must Drop (to make room):")
+            for player in trade.their_dropped_players:
+                print(f"    - {player}")
+
         # Print footer separator
         print("=" * 80)

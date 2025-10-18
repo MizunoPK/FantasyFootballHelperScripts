@@ -275,6 +275,11 @@ class TestDisplayTradeResult:
         trade.their_new_team = their_team
         trade.my_original_players = my_give
         trade.my_new_players = my_receive
+        # Add new unequal trade fields (default to None/empty for basic tests)
+        trade.waiver_recommendations = None
+        trade.their_waiver_recommendations = None
+        trade.my_dropped_players = None
+        trade.their_dropped_players = None
 
         return trade
 
@@ -349,6 +354,11 @@ class TestDisplayTradeResult:
         trade.their_new_team = their_team
         trade.my_original_players = [give1, give2]
         trade.my_new_players = [receive1, receive2]
+        # Add new unequal trade fields (default to None/empty for basic tests)
+        trade.waiver_recommendations = None
+        trade.their_waiver_recommendations = None
+        trade.my_dropped_players = None
+        trade.their_dropped_players = None
 
         TradeDisplayHelper.display_trade_result(trade, 145.0, 135.0)
 
