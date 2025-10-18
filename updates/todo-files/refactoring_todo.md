@@ -1578,17 +1578,24 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 
 ### Testing Tasks
 
-#### [ ] 7.1: Review and enhance FantasyPlayer tests
+#### [DONE] 7.1: Review and enhance FantasyPlayer tests
+**Status**: ✅ COMPLETED (2025-10-17)
 **File**: `tests/utils/test_FantasyPlayer.py`
-**Current**: 4 tests
-**Action**: Add comprehensive tests for:
-- All field initialization
-- `from_dict()` factory method
-- `is_available()` method
-- All property getters
-- String representation
-- Edge cases: Missing data, invalid data types
-**Estimated additional tests**: 20-25 tests
+**Tests added**: 44 new tests (4 → 48 tests, exceeded estimate of 20-25)
+**New test classes**:
+- TestFantasyPlayerInit (2 tests): Basic and full field initialization
+- TestFromDict (5 tests): Factory method, missing fields, string conversion, NaN handling, backward compatibility
+- TestPlayerMethods (6 tests): is_available, is_rostered, is_locked
+- TestRiskLevel (4 tests): All injury status risk levels (LOW, MEDIUM, HIGH)
+- TestWeeklyProjections (4 tests): get_weekly_projections, get_single_weekly_projection, get_rest_of_season_projection
+- TestToDict (1 test): Dictionary conversion
+- TestRepr (1 test): Developer representation
+- TestGetPositionIncludingFlex (4 tests): FLEX eligibility for RB/WR vs QB/TE/K
+- TestEqualityAndHashing (5 tests): __eq__, __hash__, set usage
+- TestAdpProperty (2 tests): Backward compatibility alias getter/setter
+- TestSafeConversionFunctions (10 tests): safe_int_conversion, safe_float_conversion edge cases
+**Result**: All 48 tests passing, comprehensive coverage achieved
+**Commit**: `6496dc6` - "Add 44 comprehensive tests for FantasyPlayer (Phase 7 - Task 7.1)"
 
 #### [ ] 7.2: Create comprehensive tests for csv_utils.py
 **File**: `tests/utils/test_csv_utils.py` (NEW)
