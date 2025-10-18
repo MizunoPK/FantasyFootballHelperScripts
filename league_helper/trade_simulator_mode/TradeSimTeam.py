@@ -37,6 +37,20 @@ class TradeSimTeam:
     """
 
     def __init__(self, name : str, team : List[FantasyPlayer], player_manager : PlayerManager, isOpponent: bool = True) -> None:
+        """
+        Initialize TradeSimTeam with roster and scoring configuration.
+
+        Filters out injured players (keeps only ACTIVE and QUESTIONABLE) and
+        calculates team score using PlayerManager's scoring engine with
+        different configurations for opponent vs user teams.
+
+        Args:
+            name (str): Team name for identification
+            team (List[FantasyPlayer]): Complete roster including injured players
+            player_manager (PlayerManager): PlayerManager instance for scoring
+            isOpponent (bool): If True, use simplified opponent scoring;
+                              if False, use comprehensive user team scoring. Defaults to True.
+        """
         self.name = name
 
         # Filter out injured players
