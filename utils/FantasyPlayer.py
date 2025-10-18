@@ -39,10 +39,13 @@ def safe_int_conversion(value, default=None):
         else:
             float_val = float(value)
 
-        # Check for infinity values
-        if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:  # NaN check
+        # Check for infinity and NaN values before converting to int
+        # float_val != float_val is the standard Python NaN check (NaN !=NaN is True)
+        # This prevents crashes when converting inf/NaN to int
+        if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:
             return default
 
+        # Safe to convert: truncates decimal part (e.g., 3.7 → 3)
         return int(float_val)
     except (ValueError, TypeError, OverflowError):
         return default
@@ -143,8 +146,11 @@ class FantasyPlayer:
         Returns:
             FantasyPlayer instance
         """
-        # Handle both 'adp' and 'average_draft_position' for backward compatibility
+        # Handle both 'adp' (old format) and 'average_draft_position' (new format) for backward compatibility
+        # Old CSV files use 'adp', new files use 'average_draft_position'
+        # Prefer 'average_draft_position' if available, fall back to 'adp'
         adp_value = data.get('average_draft_position') or data.get('adp')
+        # Convert to float if value exists, otherwise keep as None (no ADP data available)
         processed_adp = safe_float_conversion(adp_value, 0.0) if adp_value is not None else None
 
         return cls(
@@ -314,17 +320,24 @@ class FantasyPlayer:
     def get_risk_level(self) -> str:
         """
         Assess injury risk level based on status.
-        
+
         Returns:
             Risk level string: "LOW", "MEDIUM", "HIGH"
         """
+        # LOW risk: Player is fully healthy and expected to play
         if self.injury_status == 'ACTIVE':
             return "LOW"
+        # MEDIUM risk: Player may or may not play, monitor gameday status
         elif self.injury_status in ['QUESTIONABLE']:
             return "MEDIUM"
+        # HIGH risk: Player definitely won't play or status unknown
+        # OUT/DOUBTFUL: Won't play this week
+        # INJURY_RESERVE/SUSPENSION: Out for extended period
+        # UNKNOWN: No status data, assume risky
         elif self.injury_status in ['OUT', 'DOUBTFUL', 'INJURY_RESERVE', 'SUSPENSION', 'UNKNOWN']:
             return "HIGH"
         else:
+            # Catch-all for unrecognized statuses: assume moderate risk
             return "MEDIUM"
         
     def get_weekly_projections(self) -> List[float]:
@@ -339,34 +352,67 @@ class FantasyPlayer:
         return self.get_weekly_projections()[week_num - 1]
     
     def get_rest_of_season_projection(self, current_week) -> float:
+        """
+        Calculate total projected points from current week through week 17.
+
+        Args:
+            current_week: The current week number (1-17)
+
+        Returns:
+            Sum of projected points for remaining weeks
+        """
         weekly_projections = self.get_weekly_projections()
         total = 0.0
+        # Sum projections from current_week through week 17 (end of fantasy regular season)
+        # Example: current_week=10 → sum weeks 10, 11, 12, ..., 17
+        # Range goes to 18 because range is exclusive of upper bound
         for i in range(current_week, 18):
+            # Adjust for 0-based indexing: week 1 is at index 0
             week_projection = weekly_projections[i-1]
+            # Only add if projection exists (not None or NaN)
             if week_projection is not None:
                 total += week_projection
 
         return total
     
     def __str__(self) -> str:
-        """String representation of the player."""
+        """String representation of the player for display."""
+        # Show injury status only if not ACTIVE (reduce clutter)
         status = f" ({self.injury_status})" if self.injury_status != 'ACTIVE' else ""
+
+        # Drafted status:
+        # 0 = AVAILABLE (not drafted by anyone)
+        # 1 = DRAFTED (drafted by another team)
+        # 2 = ROSTERED (on our team)
         if self.drafted == 1:
             drafted = "DRAFTED"
         elif self.drafted == 2:
             drafted = "ROSTERED"
         else:
             drafted = "AVAILABLE"
+
+        # Show locked indicator for players that can't be drafted/traded
         locked_indicator = " [LOCKED]" if self.locked == 1 else ""
+
+        # Example output: "Patrick Mahomes (KC QB) - 15.3 pts (QUESTIONABLE) [Bye=7] [ROSTERED] [LOCKED]"
         return f"{self.name} ({self.team} {self.position}) - {self.score:.1f} pts {status} [Bye={self.bye_week}] [{drafted}]{locked_indicator}"
     
     def __repr__(self) -> str:
         """Developer representation of the player."""
         return f"FantasyPlayer(id='{self.id}', name='{self.name}', team='{self.team}', position='{self.position}', fantasy_points={self.fantasy_points})"
     
-    # Method to get the position including FLEX eligibility
     def get_position_including_flex(self):
-        # FLEX eligible positions: RB and WR
+        """
+        Get player's position with FLEX eligibility if applicable.
+
+        In fantasy football, FLEX positions can be filled by RB or WR.
+        This helps determine roster slot compatibility.
+
+        Returns:
+            'FLEX' for RB/WR players, original position otherwise (QB, TE, K, DEF)
+        """
+        # FLEX eligible positions: RB and WR only
+        # QB, TE, K, DEF are NOT FLEX eligible
         FLEX_ELIGIBLE_POSITIONS = ['RB', 'WR']
         return 'FLEX' if self.position in FLEX_ELIGIBLE_POSITIONS else self.position
 
@@ -388,13 +434,24 @@ class FantasyPlayer:
         write_csv_with_backup(df, filepath, create_backup=False)
 
     def __eq__(self, other):
-        """Check equality based on player ID."""
+        """
+        Check equality based on player ID.
+
+        This allows player comparisons and use in sets/dicts.
+        Two players are equal if they have the same ID.
+        """
         if not isinstance(other, FantasyPlayer):
             return False
+        # Use ID for equality (not name) to handle name changes/trades
         return self.id == other.id
 
     def __hash__(self):
-        """Make FantasyPlayer hashable based on ID."""
+        """
+        Make FantasyPlayer hashable based on ID.
+
+        This allows players to be used in sets and as dictionary keys.
+        Hash must be consistent with __eq__ (same ID → same hash).
+        """
         return hash(self.id)
 
     @property
