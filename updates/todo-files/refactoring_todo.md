@@ -1749,9 +1749,15 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - Performance optimizations and design patterns
 **Commit**: aea7875
 
-#### [ ] 7.11: Add heavy inline comments to data_file_manager.py
-**File**: `utils/data_file_manager.py` (529 lines)
-**Action**: Document all file operations
+#### [✓] 7.11: Add heavy inline comments to data_file_manager.py - DONE
+**File**: `utils/data_file_manager.py` (now 558 lines)
+**Added**: 30+ lines of inline comments explaining:
+- File sorting and cap enforcement logic with examples
+- Timestamped filename format (YYYYMMDD_HHMMSS)
+- Latest vs timestamped file strategy
+- Async multi-format export with concurrent execution
+- Backup operations and cleanup strategy
+**Commit**: 8bdd401
 
 #### [ ] 7.12: Add heavy inline comments to DraftedRosterManager.py
 **File**: `utils/DraftedRosterManager.py` (562 lines)
