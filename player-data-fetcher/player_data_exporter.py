@@ -33,7 +33,11 @@ from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUE
 
 class DataExporter:
     """Handles exporting projection data to various formats with async I/O"""
-    
+
+    # ============================================================================
+    # INITIALIZATION & CONFIGURATION
+    # ============================================================================
+
     def __init__(self, output_dir: str, create_latest_files: bool = True):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
@@ -69,7 +73,11 @@ class DataExporter:
         """Set current week schedule data from ESPN client for team exports"""
         self.current_week_schedule = schedule
         self.logger.info(f"Current week schedule set for {len(schedule)} teams")
-    
+
+    # ============================================================================
+    # FORMAT-SPECIFIC EXPORTS (JSON, CSV, Excel)
+    # ============================================================================
+
     async def export_json(self, data: ProjectionData) -> str:
         """Export data to JSON format asynchronously"""
         try:
@@ -157,7 +165,11 @@ class DataExporter:
             self.logger.info(f"File caps enforced for Excel: {deleted_files}")
 
         return str(timestamped_path)
-    
+
+    # ============================================================================
+    # DATAFRAME PREPARATION & HELPERS
+    # ============================================================================
+
     def _create_dataframe(self, data: ProjectionData) -> pd.DataFrame:
         """Convert ProjectionData to pandas DataFrame"""
         return pd.DataFrame([player.model_dump() for player in data.players])
@@ -195,7 +207,11 @@ class DataExporter:
                 if not position_df.empty:
                     position_df = position_df.sort_values('fantasy_points', ascending=False)
                     position_df.to_excel(writer, sheet_name=position, index=False)
-    
+
+    # ============================================================================
+    # DATA LOADING (Existing drafted/locked values)
+    # ============================================================================
+
     def _load_existing_drafted_values(self):
         """Load existing drafted values from draft helper players file"""
         # Resolve path relative to the player-data-fetcher directory (parent of output_dir)
@@ -237,6 +253,10 @@ class DataExporter:
             self.logger.warning(f"Draft helper file not found at {draft_file_path}. All locked values will be set to 0.")
         except Exception as e:
             self.logger.error(f"Error loading existing locked values: {e}. All locked values will be set to 0.")
+
+    # ============================================================================
+    # PLAYER CONVERSION (ESPN → FantasyPlayer)
+    # ============================================================================
 
     def _merge_skipped_drafted_players(self, espn_fantasy_players: List[FantasyPlayer]) -> List[FantasyPlayer]:
         """Merge ESPN players with drafted players that were skipped during API fetching"""
@@ -344,7 +364,11 @@ class DataExporter:
         fantasy_players = self.drafted_roster_manager.apply_drafted_state_to_players(fantasy_players)
 
         return fantasy_players
-    
+
+    # ============================================================================
+    # HIGH-LEVEL EXPORT ORCHESTRATION
+    # ============================================================================
+
     async def export_all_formats(self, data: ProjectionData, 
                                 create_csv: bool = True, 
                                 create_json: bool = True, 
@@ -373,9 +397,13 @@ class DataExporter:
                 self.logger.error(f"{export_type} export failed: {result.__class__.__name__}: {result}")
             else:
                 output_files.append(result)
-        
+
         return output_files
-    
+
+    # ============================================================================
+    # SHARED FILE EXPORTS (Integration with draft helper and other modules)
+    # ============================================================================
+
     async def export_to_data(self, data: ProjectionData) -> str:
         """Export data to data/players.csv for use by draft helper"""
         # Resolve path to data/players.csv
@@ -410,6 +438,10 @@ class DataExporter:
         except Exception as e:
             self.logger.error(f"Unexpected error exporting to shared files: {e}")
             raise
+
+    # ============================================================================
+    # TEAM DATA EXPORTS
+    # ============================================================================
 
     async def export_teams_csv(self, data: ProjectionData) -> str:
         """

@@ -2110,8 +2110,18 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Structure**: Exceptions → BaseAPIClient (4 methods) → ESPNClient (~25 methods)
 **Conclusion**: File is well-organized and maintainable at current size
 
-#### [ ] 8.14: Reorganize methods in large files
-**Action**: Group by functionality
+#### [✓] 8.14: Reorganize methods in large files - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**Files Modified**:
+- `player-data-fetcher/player_data_exporter.py` (632 lines)
+- `player-data-fetcher/espn_client.py` (1242 lines)
+- `player-data-fetcher/player_data_fetcher_main.py` (458 lines)
+**Changes**: Added section comment headers to all large files for better organization
+**Sections Added**:
+- player_data_exporter.py: 7 sections (Initialization, Format Exports, DataFrame Helpers, Data Loading, Player Conversion, High-level Orchestration, Shared Files, Team Exports)
+- espn_client.py: 4 sections (Initialization, Team Data, Player Weekly Projections, Main API & Parsing)
+- player_data_fetcher_main.py: 4 sections (Initialization & Setup, Data Collection, Data Export, Utility Methods)
+**Result**: All 190 player-data-fetcher tests passing (100%)
 
 ### Code Quality Tasks
 

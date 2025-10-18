@@ -189,6 +189,10 @@ class ESPNClient(BaseAPIClient):
     - Optimization: Can preserve data for low-scoring players (USE_SCORE_THRESHOLD)
     """
 
+    # ============================================================================
+    # INITIALIZATION & CONFIGURATION
+    # ============================================================================
+
     def __init__(self, settings):
         """
         Initialize ESPN API client for player data collection.
@@ -339,6 +343,9 @@ class ESPNClient(BaseAPIClient):
             # Unexpected error reading file, log and proceed without optimizations
             self.logger.error(f"Error loading optimization data: {e}. No optimizations will be applied.")
 
+    # ============================================================================
+    # TEAM DATA (Rankings, Schedule, Matchups)
+    # ============================================================================
 
     async def _fetch_team_rankings(self) -> Dict[str, Dict[str, int]]:
         """
@@ -379,6 +386,10 @@ class ESPNClient(BaseAPIClient):
             self.logger.error(f"Failed to fetch team rankings: {e}")
             # Return empty rankings - players will get None values
             return {}
+
+    # ============================================================================
+    # PLAYER WEEKLY PROJECTIONS (Week-by-week point calculations)
+    # ============================================================================
 
     async def _calculate_week_by_week_projection(self, player_id: str, name: str, position: str) -> float:
         """Calculate remaining season projection by summing current + future week projections"""
@@ -778,6 +789,10 @@ class ESPNClient(BaseAPIClient):
         except Exception as e:
             self.logger.warning(f"Failed to get week {week} projection for player {player_id}: {e}")
             return None
+
+    # ============================================================================
+    # MAIN API METHODS & DATA PARSING
+    # ============================================================================
 
     async def get_season_projections(self) -> List[ESPNPlayerData]:
         """Get season projections from ESPN"""

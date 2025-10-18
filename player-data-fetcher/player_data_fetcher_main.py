@@ -103,7 +103,11 @@ class Settings(BaseSettings):
 
 class NFLProjectionsCollector:
     """Main collector class that coordinates data collection and export"""
-    
+
+    # ============================================================================
+    # INITIALIZATION & SETUP
+    # ============================================================================
+
     def __init__(self, settings: Settings):
         """
         Initialize the NFL projections collector.
@@ -192,7 +196,11 @@ class NFLProjectionsCollector:
             self.logger.error("Players will not have bye week information")
 
         return bye_weeks
-    
+
+    # ============================================================================
+    # DATA COLLECTION
+    # ============================================================================
+
     async def collect_all_projections(self) -> Dict[str, ProjectionData]:
         """
         Collect all projection data from ESPN API.
@@ -261,7 +269,11 @@ class NFLProjectionsCollector:
     def _get_api_client(self) -> ESPNClient:
         """Get ESPN API client"""
         return ESPNClient(self.settings)
-    
+
+    # ============================================================================
+    # DATA EXPORT
+    # ============================================================================
+
     async def export_data(self, projection_data: Dict[str, ProjectionData]) -> List[str]:
         """
         Export all collected data to configured output formats.
@@ -337,7 +349,11 @@ class NFLProjectionsCollector:
                 # Don't append to output_files since update failed
 
         return output_files
-    
+
+    # ============================================================================
+    # UTILITY METHODS (Conversion & Display)
+    # ============================================================================
+
     def get_fantasy_players(self, projection_data: Dict[str, ProjectionData]) -> Dict[str, List[FantasyPlayer]]:
         """
         Convert projection data to FantasyPlayer objects for easy use by other scripts.
