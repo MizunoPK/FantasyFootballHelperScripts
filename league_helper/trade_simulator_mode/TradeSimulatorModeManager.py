@@ -1,4 +1,3 @@
-import copy
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 from itertools import combinations
@@ -15,7 +14,6 @@ sys.path.append(str(Path(__file__).parent.parent))
 from util.user_input import show_list_selection
 from util.PlayerManager import PlayerManager
 from util.ConfigManager import ConfigManager
-from util.FantasyTeam import FantasyTeam
 
 # Add parent directory to path for utils imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -229,8 +227,7 @@ class TradeSimulatorModeManager:
             self.logger.info(f"Analyzing trades with {opponent_team.name}")
             print(f"  Checking trades with {opponent_team.name}...")
 
-            # Get trade combinations (both 1-for-1 and 2-for-2)
-            # Trade suggestor ignores max position limits to allow more creative trades
+            # Get trade combinations
             trade_combos = self.get_trade_combinations(
                 my_team=self.my_team,
                 their_team=opponent_team,
@@ -238,7 +235,7 @@ class TradeSimulatorModeManager:
                 one_for_one=True,
                 two_for_two=True,
                 three_for_three=True,
-                ignore_max_positions=True
+                ignore_max_positions=False
             )
 
             all_trades.extend(trade_combos)
@@ -823,22 +820,42 @@ class TradeSimulatorModeManager:
         Returns:
             bool: True if roster is valid, False otherwise
         """
+        roster_size = len(roster)
+
         # Check total player count
-        if len(roster) > Constants.MAX_PLAYERS:
+        if roster_size > Constants.MAX_PLAYERS:
             return False
 
         # If ignoring max positions (manual trade mode), only check roster size
         if ignore_max_positions:
             return True
 
-        # Try to make a FantasyTeam object and return false if any player cannot be added to the team
-        test_team = FantasyTeam(self.config, [])
-        for p in roster:
-            p_copy = copy.deepcopy(p)
-            p_copy.drafted = 0
-            drafted = test_team.draft_player(p_copy)
-            if not drafted:
+        # Count players by position
+        position_counts = {pos: 0 for pos in Constants.MAX_POSITIONS.keys()}
+        for player in roster:
+            pos = player.position
+            if pos in position_counts:
+                position_counts[pos] += 1
+
+        # Validate non-FLEX-eligible positions against their individual max limits
+        # Note: RB, WR, and DST are FLEX-eligible, so we only check their combined total later
+        for pos in [Constants.QB, Constants.TE, Constants.K]:
+            if position_counts[pos] > Constants.MAX_POSITIONS[pos]:
                 return False
+
+        # For FLEX-eligible positions (RB, WR, DST), check total against available slots
+        # Total slots for FLEX-eligible positions = RB slots + WR slots + DST slots + FLEX slot
+        total_flex_eligible_slots = (Constants.MAX_POSITIONS[Constants.RB] +
+                                      Constants.MAX_POSITIONS[Constants.WR] +
+                                      Constants.MAX_POSITIONS[Constants.DST] +
+                                      Constants.MAX_POSITIONS[Constants.FLEX])
+
+        total_flex_eligible_players = (position_counts[Constants.RB] +
+                                        position_counts[Constants.WR] +
+                                        position_counts[Constants.DST])
+
+        if total_flex_eligible_players > total_flex_eligible_slots:
+            return False
 
         return True
 
@@ -862,9 +879,12 @@ class TradeSimulatorModeManager:
         """
         trade_combos : List[TradeSnapshot] = []
 
-        # Get the current rosters, filtering out locked players
+        # Get the current rosters, filtering out locked players for trading
+        # But keep locked players separate for position validation
         my_roster = [p for p in my_team.team if p.locked != 1]
+        my_locked = [p for p in my_team.team if p.locked == 1]
         their_roster = [p for p in their_team.team if p.locked != 1]
+        their_locked = [p for p in their_team.team if p.locked == 1]
 
         # Generate 1-for-1 trades
         if one_for_one:
@@ -874,13 +894,16 @@ class TradeSimulatorModeManager:
                     my_new_roster = [p for p in my_roster if p.id != my_player.id] + [their_player]
                     their_new_roster = [p for p in their_roster if p.id != their_player.id] + [my_player]
 
-                    # Validate my team's roster (always required)
-                    if not self._validate_roster(my_new_roster, ignore_max_positions=ignore_max_positions):
+                    # Validate my team's roster (always required) - include locked players in validation
+                    my_full_roster = my_new_roster + my_locked
+                    if not self._validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions):
                         continue
 
-                    # Validate their team's roster (only if not waivers)
-                    if not is_waivers and not self._validate_roster(their_new_roster, ignore_max_positions=ignore_max_positions):
-                        continue
+                    # Validate their team's roster (only if not waivers) - include locked players in validation
+                    if not is_waivers:
+                        their_full_roster = their_new_roster + their_locked
+                        if not self._validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                            continue
 
                     # Create new TradeSimTeam objects with updated rosters
                     my_new_team = TradeSimTeam(my_team.name, my_new_roster, self.player_manager, isOpponent=False)
@@ -915,13 +938,16 @@ class TradeSimulatorModeManager:
                     my_new_roster = [p for p in my_roster if p not in my_players] + list(their_players)
                     their_new_roster = [p for p in their_roster if p not in their_players] + list(my_players)
 
-                    # Validate my team's roster (always required)
-                    if not self._validate_roster(my_new_roster, ignore_max_positions=ignore_max_positions):
+                    # Validate my team's roster (always required) - include locked players in validation
+                    my_full_roster = my_new_roster + my_locked
+                    if not self._validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions):
                         continue
 
-                    # Validate their team's roster (only if not waivers)
-                    if not is_waivers and not self._validate_roster(their_new_roster, ignore_max_positions=ignore_max_positions):
-                        continue
+                    # Validate their team's roster (only if not waivers) - include locked players in validation
+                    if not is_waivers:
+                        their_full_roster = their_new_roster + their_locked
+                        if not self._validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                            continue
 
                     # Create new TradeSimTeam objects with updated rosters
                     my_new_team = TradeSimTeam(my_team.name, my_new_roster, self.player_manager, isOpponent=False)
@@ -956,13 +982,16 @@ class TradeSimulatorModeManager:
                     my_new_roster = [p for p in my_roster if p not in my_players] + list(their_players)
                     their_new_roster = [p for p in their_roster if p not in their_players] + list(my_players)
 
-                    # Validate my team's roster (always required)
-                    if not self._validate_roster(my_new_roster, ignore_max_positions=ignore_max_positions):
+                    # Validate my team's roster (always required) - include locked players in validation
+                    my_full_roster = my_new_roster + my_locked
+                    if not self._validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions):
                         continue
 
-                    # Validate their team's roster (only if not waivers)
-                    if not is_waivers and not self._validate_roster(their_new_roster, ignore_max_positions=ignore_max_positions):
-                        continue
+                    # Validate their team's roster (only if not waivers) - include locked players in validation
+                    if not is_waivers:
+                        their_full_roster = their_new_roster + their_locked
+                        if not self._validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                            continue
 
                     # Create new TradeSimTeam objects with updated rosters
                     my_new_team = TradeSimTeam(my_team.name, my_new_roster, self.player_manager, isOpponent=False)

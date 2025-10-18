@@ -238,8 +238,8 @@ class PlayerManager:
                 player.is_starter = False  # To be set when added to FantasyTeam
 
         # Calculate baseline scores for all players (now that max_projection is set)
-        # for player in players:
-        #     player.score = self.score_player(player, bye=False).score
+        for player in players:
+            player.score = self.score_player(player, bye=False).score
 
         self.logger.debug(f"Loaded {len(players)} players from {self.file_str}.")
 

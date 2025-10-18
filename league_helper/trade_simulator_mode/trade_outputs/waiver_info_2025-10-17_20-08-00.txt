@@ -1,0 +1,53 @@
+#1 - 2-for-2 Trade - Improvement: +3.20 pts
+  DROP:
+    - [RB] [NE] TreVeyon Henderson - 16.50 pts (Bye=14)
+            - Projected: 114.00 pts, Weighted: 70.18 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+    - [DST] [LAR] Rams D/ST - 35.30 pts (Bye=8)
+            - Projected: 59.71 pts, Weighted: 36.76 pts
+            - Player Rating: POOR
+            - Team Quality: EXCELLENT
+            - Bye Overlaps: 0 same-position, 2 different-position
+  ADD:
+    - [RB] [KC] Isiah Pacheco - 73.03 pts (Bye=10)
+            - Projected: 110.16 pts, Weighted: 67.82 pts
+            - Player Rating: GOOD
+            - Team Quality: EXCELLENT
+            - Performance: NEUTRAL (-7.6%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [DST] [HOU] Texans D/ST - 39.89 pts (Bye=6)
+            - Projected: 68.66 pts, Weighted: 42.27 pts
+            - Player Rating: POOR
+            - Team Quality: NEUTRAL
+  New team score: 1200.23
+
+#2 - 2-for-2 Trade - Improvement: +0.48 pts
+  DROP:
+    - [RB] [NE] TreVeyon Henderson - 16.50 pts (Bye=14)
+            - Projected: 114.00 pts, Weighted: 70.18 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+    - [DST] [LAR] Rams D/ST - 35.30 pts (Bye=8)
+            - Projected: 59.71 pts, Weighted: 36.76 pts
+            - Player Rating: POOR
+            - Team Quality: EXCELLENT
+            - Bye Overlaps: 0 same-position, 2 different-position
+  ADD:
+    - [RB] [KC] Isiah Pacheco - 73.03 pts (Bye=10)
+            - Projected: 110.16 pts, Weighted: 67.82 pts
+            - Player Rating: GOOD
+            - Team Quality: EXCELLENT
+            - Performance: NEUTRAL (-7.6%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [DST] [ATL] Falcons D/ST - 37.17 pts (Bye=5)
+            - Projected: 62.87 pts, Weighted: 38.71 pts
+            - Player Rating: POOR
+            - Team Quality: EXCELLENT
+            - Bye Overlaps: 0 same-position, 3 different-position
+  New team score: 1197.51
+
