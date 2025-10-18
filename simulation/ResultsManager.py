@@ -6,7 +6,6 @@ Tracks results for all 46,656 configurations, identifies the best performing
 configuration, and saves optimal configs to disk.
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import json

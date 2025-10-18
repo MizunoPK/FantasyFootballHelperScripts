@@ -11,7 +11,6 @@ For a 10-team league:
 - Fits into 17-week NFL season (one team short 1 game, or week 18 overflow)
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 from typing import List, Tuple, TypeVar

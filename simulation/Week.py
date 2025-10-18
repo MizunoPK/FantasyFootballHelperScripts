@@ -11,7 +11,6 @@ Each week:
 - Winners are determined (higher score wins, ties = both lose)
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import sys

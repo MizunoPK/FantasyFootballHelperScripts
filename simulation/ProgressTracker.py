@@ -8,7 +8,6 @@ Uses simple text-based progress indicators that work in any terminal.
 Provides both simple progress bars and detailed multi-level tracking.
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import time

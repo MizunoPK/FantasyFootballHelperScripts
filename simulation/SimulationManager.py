@@ -15,7 +15,6 @@ The full process:
 5. Save optimal config and full results
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import time

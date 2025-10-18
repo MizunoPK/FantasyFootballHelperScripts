@@ -13,7 +13,6 @@ Key Features:
 - Configurable worker thread pool
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 from pathlib import Path

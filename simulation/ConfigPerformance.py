@@ -9,7 +9,6 @@ Used by ResultsManager to compare different configurations and identify
 the optimal parameter settings.
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 from typing import Dict, Optional

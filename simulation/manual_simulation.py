@@ -14,7 +14,6 @@ Output:
     - Final standings (wins/losses/points for all teams)
 
 Author: Kai Mizuno
-Date: 2024
 """
 
 import sys
