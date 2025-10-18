@@ -1725,13 +1725,19 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 
 ### Documentation Tasks
 
-#### [ ] 7.8: Add author attribution to all utils files
+#### [✓] 7.8: Add author attribution to all utils files - DONE
 **Files**: All 7 utils files
-**Action**: Verify/add "Author: Kai Mizuno"
+**Status**: All files already contain "Author: Kai Mizuno"
+**Verified**: csv_utils.py, data_file_manager.py, DraftedRosterManager.py, error_handler.py, FantasyPlayer.py, LoggingManager.py, TeamData.py
 
-#### [ ] 7.9: Remove date references
-**Files**: csv_utils has "Last Updated: September 2025" - remove
-**Action**: Check all 7 files
+#### [✓] 7.9: Remove date references - DONE
+**Files**: 4 files had "Last Updated: September 2025" - removed from:
+- utils/csv_utils.py (line 9)
+- utils/data_file_manager.py (line 17)
+- utils/error_handler.py (line 16)
+- utils/TeamData.py (line 10)
+**Status**: All date references removed, tests passing
+**Commit**: 10fca82
 
 #### [ ] 7.10: Add heavy inline comments to csv_utils.py
 **File**: `utils/csv_utils.py` (357 lines)
