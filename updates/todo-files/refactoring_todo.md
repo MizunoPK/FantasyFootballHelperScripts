@@ -1850,10 +1850,22 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - data_file_manager.py: Removed os (imported but never used)
 - LoggingManager.py: Removed os, Dict, Any (imported but never used in type hints)
 **Status**: All 322 utils tests passing after cleanup
-**Commit**: [pending]
+**Commit**: d5a280c
 
-#### [ ] 7.19: Improve logging in utils
-**Action**: Add appropriate logging
+#### [✓] 7.19: Improve logging in utils - DONE
+**Analysis**:
+- csv_utils.py: 19 logging calls ✅
+- data_file_manager.py: 23 logging calls ✅
+- DraftedRosterManager.py: 10 logging calls ✅
+- error_handler.py: 7 logging calls ✅
+- LoggingManager.py: 5 logging calls ✅
+- **FantasyPlayer.py**: 11 print() statements converted to logger calls ✅
+- TeamData.py: Data class with no I/O operations - logging not needed ✅
+**Changes Made**:
+- FantasyPlayer.py: Replaced 11 print() statements with logger.error() and logger.warning() calls
+- Added logger import and initialization
+**Status**: All 48 FantasyPlayer tests passing
+**Commit**: 524bd28
 
 ### Validation Tasks
 
