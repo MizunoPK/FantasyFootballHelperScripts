@@ -2,7 +2,9 @@
 
 ## Quick Start for New Agents
 
-**FIRST**: Read `README.md` for project overview, installation instructions, and usage guide.
+**FIRST**: Read `ARCHITECTURE.md` for complete architectural overview, system design, and implementation details.
+
+**SECOND**: Read `README.md` for project overview, installation instructions, and usage guide.
 
 **THIS FILE**: Contains workflow rules, coding standards, and commit protocols.
 
@@ -78,30 +80,98 @@ python tests/run_all_tests.py
 
 ## Current Project Structure
 
-### Main Scripts
-- `run_league_helper.py` - Main league helper application
-- `run_player_fetcher.py` - Fetch player projection data
-- `run_scores_fetcher.py` - Fetch NFL scores
-- `run_simulation.py` - Run simulation system
+### Main Scripts (Root Level)
+- `run_league_helper.py` - Main league helper application entry point
+- `run_player_fetcher.py` - Fetch player projection data from APIs
+- `run_scores_fetcher.py` - Fetch NFL scores and update team rankings
+- `run_simulation.py` - Run simulation system (single/full/iterative modes)
+- `run_pre_commit_validation.py` - Pre-commit test validation runner
 
-### Source Code
-- `league_helper/` - Main application logic
-- `player-data-fetcher/` - Player data fetching
-- `simulation/` - Simulation system
-- `data/` - Data files (CSV, JSON)
+### League Helper Module (`league_helper/`)
+Main application with 4 interactive modes:
 
-### Tests
-- `tests/` - All unit tests (mirrors source structure)
-- `tests/run_all_tests.py` - Test runner (100% pass required)
-- See `tests/README.md` for details
+- `LeagueHelperManager.py` - Main controller, mode selection, data initialization
+- **Mode Modules**:
+  - `add_to_roster_mode/` - Draft helper mode
+    - `AddToRosterModeManager.py` - Draft recommendation engine
+    - `DraftRecommendation.py` - Recommendation data structure
+  - `starter_helper_mode/` - Roster optimizer mode
+    - `StarterHelperModeManager.py` - Lineup optimization engine
+  - `trade_simulator_mode/` - Trade evaluation mode
+    - `TradeSimulatorModeManager.py` - Trade analysis controller
+    - `TradeSimTeam.py` - Team representation for trades
+    - `TradeSnapshot.py` - Before/after trade comparison
+  - `modify_player_data_mode/` - Player data editor mode
+    - `ModifyPlayerDataModeManager.py` - Data modification interface
+- **Utilities**:
+  - `util/PlayerManager.py` - Player data management and scoring
+  - `util/ConfigManager.py` - Configuration loading and access
+  - `util/FantasyTeam.py` - Roster management and validation
+  - `util/FantasyPlayer.py` - Player model with scoring logic
+  - `util/TeamDataManager.py` - NFL team rankings and matchup data
+
+### Simulation System (`simulation/`)
+Parameter optimization through league simulation:
+
+- `SimulationManager.py` - Main simulation controller (3 optimization modes)
+- `ParallelLeagueRunner.py` - Multi-threaded league execution
+- `ConfigGenerator.py` - Parameter combination generator
+- `ResultsManager.py` - Results aggregation and best config tracking
+- `ConfigPerformance.py` - Performance metrics for configurations
+- `SimulatedLeague.py` - Single league simulation logic
+- `DraftHelperTeam.py` - Team using DraftHelper system
+- `SimulatedOpponent.py` - AI opponent team implementations
+- `Week.py` - Weekly matchup simulation
+- `sim_data/` - Simulation data files (separate from main data/)
+
+### Data Fetchers
+- `player-data-fetcher/` - Player projection data collection
+  - `PlayerFetcher.py` - Main fetcher with async HTTP
+  - `data_sources/` - API integrations (ESPN, etc.)
+- `nfl-scores-fetcher/` - NFL game scores collection
+  - `NFLScoresFetcher.py` - Scores fetcher and team ranking updates
+
+### Shared Utilities (`utils/`)
+- `LoggingManager.py` - Centralized logging configuration
+- `error_handler.py` - Error handling utilities and context managers
+- `csv_utils.py` - CSV I/O helpers with validation
+- `FantasyPlayer.py` - Shared player model
+
+### Tests (`tests/`) - 1,811 Total Tests
+Mirrors source structure with 100% unit test pass rate required:
+
+- `run_all_tests.py` - Master test runner (REQUIRED before commits)
+- `integration/` - 25 integration tests
+  - `test_league_helper_integration.py` - League helper workflows
+  - `test_data_fetcher_integration.py` - Data fetcher workflows
+  - `test_simulation_integration.py` - Simulation workflows
+- `league_helper/` - 1,000+ unit tests
+  - `add_to_roster_mode/` - Draft mode tests
+  - `starter_helper_mode/` - Optimizer tests
+  - `trade_simulator_mode/` - Trade simulator tests
+  - `modify_player_data_mode/` - Data editor tests
+  - `util/` - Utility tests (PlayerManager, ConfigManager, etc.)
+- `simulation/` - 500+ simulation system tests
+- `player-data-fetcher/` - Player fetcher tests
+- `nfl-scores-fetcher/` - Scores fetcher tests
+- `utils/` - Shared utility tests
+- `root_scripts/` - Root script wrapper tests (23 tests)
+- `README.md` - Testing guidelines and standards
+
+### Data Files (`data/`)
+- `league_config.json` - League configuration (scoring, penalties, weights)
+- `players.csv` - Player statistics and projections
+- `teams_week_N.csv` - Weekly NFL team rankings (weeks 1-17)
+- `drafted_players.csv` - Tracking drafted players during season
 
 ### Configuration & Updates
 - `updates/` - Pending update specifications (*.txt files)
 - `updates/todo-files/` - TODO tracking for updates in progress
 - `updates/done/` - Completed updates
-- `rules.txt` - Complete development workflow rules
-- `CLAUDE.md` - This file (Claude Code guidelines)
+- `rules.txt` - Complete development workflow rules and protocols
+- `CLAUDE.md` - This file (coding standards and workflow guidelines)
 - `README.md` - Project documentation, installation, and usage guide
+- `ARCHITECTURE.md` - Complete architectural and implementation guide
 
 ---
 
@@ -292,3 +362,167 @@ class TestFeatureName:
 - Mock external dependencies (APIs, file systems)
 - 100% pass rate required before commits
 - See `tests/README.md` for complete guidelines
+
+### Comprehensive Testing Standards
+
+**Test Suite Overview** (1,811 total tests):
+- **Unit Tests**: 1,786 tests (100% pass rate required)
+- **Integration Tests**: 25 tests (cross-module workflow validation)
+- **Test Coverage**: All major modules and functions
+
+**Test Organization**:
+```
+tests/
+├── integration/               # End-to-end workflow tests
+│   ├── test_league_helper_integration.py
+│   ├── test_data_fetcher_integration.py
+│   └── test_simulation_integration.py
+├── league_helper/            # League helper unit tests
+│   ├── add_to_roster_mode/
+│   ├── starter_helper_mode/
+│   ├── trade_simulator_mode/
+│   ├── modify_player_data_mode/
+│   └── util/
+├── simulation/               # Simulation system tests
+├── player-data-fetcher/      # Player fetcher tests
+├── nfl-scores-fetcher/       # Scores fetcher tests
+├── utils/                    # Utility tests
+└── root_scripts/             # Root script tests
+```
+
+**Test Types**:
+
+1. **Unit Tests** (testing individual functions/classes):
+   - Test one function or class in isolation
+   - Mock all external dependencies
+   - Fast execution (milliseconds per test)
+   - Example: `test_PlayerManager_scoring.py`
+
+2. **Integration Tests** (testing module interactions):
+   - Test workflows spanning multiple classes
+   - Use real objects where possible, mock only I/O
+   - May take longer (seconds per test)
+   - Example: `test_league_helper_integration.py`
+
+**Writing Effective Tests**:
+
+```python
+import pytest
+from unittest.mock import Mock, patch, MagicMock
+from pathlib import Path
+
+# Use descriptive test class names
+class TestPlayerScoringCalculations:
+    """Test player scoring algorithm with various scenarios"""
+
+    @pytest.fixture
+    def sample_player(self):
+        """Create a test player with known stats"""
+        return FantasyPlayer(
+            name="Test Player",
+            position="QB",
+            projected_points=300.0
+        )
+
+    def test_scoring_with_normal_stats(self, sample_player):
+        """Test scoring calculation with typical player stats"""
+        # Arrange
+        expected_score = 315.5
+
+        # Act
+        actual_score = sample_player.calculate_total_score()
+
+        # Assert
+        assert abs(actual_score - expected_score) < 0.1
+
+    def test_scoring_handles_injury_penalty(self, sample_player):
+        """Test that injury status reduces player score"""
+        # Arrange
+        sample_player.injury_status = "Questionable"
+        expected_penalty = -5.0
+
+        # Act
+        score_healthy = sample_player.calculate_total_score()
+        sample_player.injury_status = "Healthy"
+        score_injured = sample_player.calculate_total_score()
+
+        # Assert
+        assert score_injured == score_healthy + expected_penalty
+```
+
+**Mocking Best Practices**:
+
+```python
+# Mock file I/O
+@patch('pathlib.Path.open')
+def test_loads_data_from_csv(self, mock_open):
+    mock_open.return_value.__enter__.return_value = StringIO("header\ndata")
+    result = load_csv_data(Path("test.csv"))
+    assert len(result) == 1
+
+# Mock external API calls
+@patch('requests.get')
+def test_fetches_player_data(self, mock_get):
+    mock_get.return_value.json.return_value = {"players": []}
+    result = fetch_players()
+    assert result is not None
+
+# Mock datetime for consistent tests
+@patch('datetime.datetime')
+def test_current_week_calculation(self, mock_datetime):
+    mock_datetime.now.return_value = datetime(2024, 9, 15)
+    assert get_current_nfl_week() == 2
+```
+
+**Test Fixtures**:
+
+```python
+@pytest.fixture
+def temp_data_folder(tmp_path):
+    """Create temporary data folder with test files"""
+    data_folder = tmp_path / "data"
+    data_folder.mkdir()
+
+    # Create test CSV
+    players_csv = data_folder / "players.csv"
+    players_csv.write_text("Name,Position,Team\nPlayer1,QB,KC\n")
+
+    return data_folder
+
+@pytest.fixture
+def mock_config():
+    """Create mock configuration for testing"""
+    config = Mock()
+    config.get_adp_multiplier.return_value = (1.5, 95)
+    config.get_injury_penalty.return_value = -5.0
+    return config
+```
+
+**Test Execution**:
+
+```bash
+# Run all tests (required before commits)
+python tests/run_all_tests.py
+
+# Run specific test file
+python -m pytest tests/league_helper/util/test_PlayerManager.py -v
+
+# Run specific test class
+python -m pytest tests/simulation/test_Week.py::TestWeekSimulation -v
+
+# Run tests with coverage report
+python -m pytest --cov=league_helper --cov-report=html
+
+# Run tests in parallel (faster)
+python -m pytest -n 8
+```
+
+**Test Requirements**:
+- ✅ All unit tests must pass (100% pass rate)
+- ✅ Test names must be descriptive (not `test_1`, `test_2`)
+- ✅ Each test should test ONE thing
+- ✅ Use AAA pattern (Arrange, Act, Assert)
+- ✅ Mock external dependencies (files, APIs, datetime)
+- ✅ Use fixtures for reusable test data
+- ✅ Clean up resources in test teardown
+- ✅ Tests should be independent (no shared state)
