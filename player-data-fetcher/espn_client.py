@@ -6,7 +6,6 @@ This module handles all ESPN API interactions for fantasy football data collecti
 Separated from the main script for better organization and maintainability.
 
 Author: Kai Mizuno
-Last Updated: September 2025
 """
 
 import asyncio
