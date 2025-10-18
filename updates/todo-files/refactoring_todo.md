@@ -2053,9 +2053,19 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - player_data_exporter.py (line 9) ✅
 **Result**: No date references remain in any player-data-fetcher files
 
-#### [ ] 8.10: Add heavy inline comments to espn_client
-**File**: `player-data-fetcher/espn_client.py` (1009 lines)
-**Action**: Document API interaction logic
+#### [✓] 8.10: Add heavy inline comments to espn_client - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**File**: `player-data-fetcher/espn_client.py` (1009 lines → ~1180 lines with comments)
+**Comments added**: ~200+ lines of comprehensive inline documentation
+**Sections documented**:
+- BaseAPIClient class: Session management, HTTP client setup, race condition prevention
+- _make_request(): Retry logic with exponential backoff, rate limiting, HTTP error handling
+- ESPNClient.__init__(): Caching setup, optimization tracking, fantasy points extractor
+- _get_ppr_id(): ESPN scoring format ID mapping (Standard/PPR/Half-PPR)
+- _load_optimization_data(): Performance optimizations (drafted players, score threshold)
+- _get_all_weeks_data(): ESPN API endpoint details, query parameters, response structure
+- _extract_raw_espn_week_points(): Complex ESPN data prioritization logic (statSourceId=0 vs 1, appliedTotal vs projectedTotal)
+**Result**: All 20 espn_client tests passing (100%)
 
 #### [ ] 8.11: Add comments to remaining fetcher files
 **Action**: Document all files comprehensively
