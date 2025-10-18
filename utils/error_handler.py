@@ -130,24 +130,37 @@ class ErrorHandler:
                 component=self.component_name
             )
 
-        # Track error frequency
+        # Track error frequency for debugging and monitoring
+        # error_counts maps error type name to occurrence count
+        # Example: {'ValueError': 3, 'FileNotFoundError': 1, 'APIError': 2}
+        # This helps identify common error patterns across the system
         error_type = type(error).__name__
         self.error_counts[error_type] = self.error_counts.get(error_type, 0) + 1
 
-        # Prepare log message
+        # Prepare log message with error type and message
         base_message = f"{error_type}: {str(error)}"
 
+        # Append context information if detailed logging enabled
+        # Context provides debugging info: operation, component, file_path, player_id, etc.
+        # Example: "ValueError: Invalid input | Context: operation=load_players, component=PlayerManager, file_path=/data/players.csv"
         if self.enable_detailed_logging and context:
             context_info = context.to_dict()
+            # Only include non-None context values to keep logs clean
             context_str = ", ".join([f"{k}={v}" for k, v in context_info.items() if v is not None])
             base_message += f" | Context: {context_str}"
 
-        # Log with appropriate severity
+        # Dynamically select log method based on severity string
+        # getattr(logger, 'error') → logger.error, getattr(logger, 'warning') → logger.warning
+        # Falls back to logger.error if severity is invalid
         log_method = getattr(self.logger, severity.lower(), self.logger.error)
 
+        # Include full stack trace for ERROR/CRITICAL severity if requested
+        # exc_info=True captures the current exception context with traceback
+        # This is expensive, so only use for severe errors
         if include_traceback and severity in ("ERROR", "CRITICAL"):
             log_method(base_message, exc_info=True)
         else:
+            # For lower severity (WARNING, INFO, DEBUG), just log the message
             log_method(base_message)
 
     def handle_error(self, error: Exception, context: Optional[ErrorContext] = None,
@@ -224,8 +237,21 @@ class RetryHandler:
         self.backoff_factor = backoff_factor
 
     def calculate_delay(self, attempt: int) -> float:
-        """Calculate delay for a given attempt number"""
+        """
+        Calculate delay for a given attempt number using exponential backoff.
+
+        Formula: delay = base_delay * (backoff_factor ^ attempt)
+        Example with base_delay=1.0, backoff_factor=2.0:
+        - Attempt 0: 1.0 * (2.0^0) = 1.0s
+        - Attempt 1: 1.0 * (2.0^1) = 2.0s
+        - Attempt 2: 1.0 * (2.0^2) = 4.0s
+        - Attempt 3: 1.0 * (2.0^3) = 8.0s
+
+        Exponential backoff reduces load on failing services by increasing wait time
+        """
         delay = self.base_delay * (self.backoff_factor ** attempt)
+        # Cap delay at max_delay to prevent excessively long waits
+        # Example: max_delay=60.0 prevents waiting more than 1 minute
         return min(delay, self.max_delay)
 
     def retry_sync(self, func: Callable[..., T], *args, **kwargs) -> T:
@@ -243,21 +269,31 @@ class RetryHandler:
         Raises:
             Last exception if all retries fail
         """
+        # Track the most recent exception to re-raise if all retries fail
         last_exception = None
 
+        # Attempt loop: try up to max_attempts times
+        # Example with max_attempts=3: attempts 0, 1, 2
         for attempt in range(self.max_attempts):
             try:
+                # Success case: function executed without error, return immediately
                 return func(*args, **kwargs)
             except Exception as e:
+                # Function failed, save exception for potential re-raise
                 last_exception = e
 
-                if attempt < self.max_attempts - 1:  # Don't delay after last attempt
+                # Don't delay after the final attempt (no point waiting if we're done retrying)
+                # Example: max_attempts=3 → delay after attempts 0 and 1, but not after attempt 2
+                if attempt < self.max_attempts - 1:
                     delay = self.calculate_delay(attempt)
                     self.logger.debug(f"Retry attempt {attempt + 1} failed, waiting {delay:.2f}s: {e}")
-                    time.sleep(delay)
+                    time.sleep(delay)  # Block thread for calculated delay
                 else:
+                    # Final attempt failed, log error before re-raising
                     self.logger.error(f"All {self.max_attempts} retry attempts failed: {e}")
 
+        # All retries exhausted, re-raise the last exception
+        # This preserves the original exception type and message
         if last_exception:
             raise last_exception
 
@@ -313,16 +349,25 @@ def handle_errors(default_return: Any = None, reraise: bool = False,
     Returns:
         Decorated function with error handling
     """
+    # Decorator factory pattern: handle_errors() returns decorator function
+    # This allows parameterization: @handle_errors(default_return=[], reraise=True)
     def decorator(func: F) -> F:
+        # @functools.wraps preserves original function's metadata (__name__, __doc__, etc.)
+        # This is critical for debugging and introspection
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             try:
+                # Normal execution: call original function
                 return func(*args, **kwargs)
             except Exception as e:
+                # Exception occurred: create context with operation/component info
+                # Use provided operation/component or fall back to func.__name__/"unknown"
                 context = ErrorContext(
                     operation=operation or func.__name__,
                     component=component or "unknown"
                 )
+                # Delegate to global error handler for logging and recovery
+                # Returns default_return or re-raises based on reraise parameter
                 return _global_error_handler.handle_error(e, context, default_return, reraise)
         return wrapper
     return decorator
@@ -371,15 +416,20 @@ def retry_with_backoff(max_attempts: int = 3, base_delay: float = 1.0,
     Returns:
         Decorated function with retry logic
     """
+    # Create retry handler once per decorated function (closure captures config)
     retry_handler = RetryHandler(max_attempts, base_delay, max_delay, backoff_factor)
 
     def decorator(func: F) -> F:
+        # Detect if function is async or sync to apply appropriate retry logic
+        # asyncio.iscoroutinefunction returns True for async def functions
         if asyncio.iscoroutinefunction(func):
+            # Async function: use async wrapper with await
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
                 return await retry_handler.retry_async(func, *args, **kwargs)
             return async_wrapper
         else:
+            # Sync function: use sync wrapper with regular call
             @functools.wraps(func)
             def sync_wrapper(*args, **kwargs):
                 return retry_handler.retry_sync(func, *args, **kwargs)
@@ -402,6 +452,7 @@ def error_context(operation: str, component: str = "unknown", **context_kwargs):
             # Code that might raise exceptions
             data = load_player_data()
     """
+    # Create error context once at the start of the with block
     context = ErrorContext(
         operation=operation,
         component=component,
@@ -409,9 +460,14 @@ def error_context(operation: str, component: str = "unknown", **context_kwargs):
     )
 
     try:
+        # Yield context to the with block for potential use
+        # Code inside the with block executes here
         yield context
     except Exception as e:
+        # Exception occurred in with block: log it with context
         _global_error_handler.log_error(e, context)
+        # Re-raise to maintain exception propagation (doesn't suppress errors)
+        # This allows calling code to handle the exception if needed
         raise
 
 
@@ -489,18 +545,25 @@ def validate_file_operation(file_path: Union[str, Path], operation: str = "acces
         )
 
     if operation == "write":
-        # Check if parent directory exists and is writable
+        # For write operations, ensure parent directory exists
+        # This prevents "No such file or directory" errors during file writes
         parent = path.parent
         if not parent.exists():
+            # Parent doesn't exist: create it with all intermediate directories
+            # parents=True creates /a/b/c even if /a and /a/b don't exist
+            # exist_ok=True prevents error if directory already exists (race condition safety)
             try:
                 parent.mkdir(parents=True, exist_ok=True)
             except Exception as e:
+                # Failed to create directory (permissions, disk full, etc.)
                 raise FileOperationError(
                     f"Cannot create directory for file: {file_path}",
                     context=ErrorContext(operation="validate_write", component="file_validator"),
                     original_exception=e
                 )
         elif not parent.is_dir():
+            # Parent path exists but is a file, not a directory
+            # Example: trying to write /home/user/file.txt/data.csv where file.txt is a file
             raise FileOperationError(
                 f"Parent path is not a directory: {parent}",
                 context=ErrorContext(operation="validate_write", component="file_validator")
