@@ -2067,11 +2067,32 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - _extract_raw_espn_week_points(): Complex ESPN data prioritization logic (statSourceId=0 vs 1, appliedTotal vs projectedTotal)
 **Result**: All 20 espn_client tests passing (100%)
 
-#### [ ] 8.11: Add comments to remaining fetcher files
-**Action**: Document all files comprehensively
+#### [✓] 8.11: Add comments to remaining fetcher files - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**Files commented**:
+- player_data_fetcher_main.py: ~90 lines of inline comments added
+  - _load_bye_weeks(): Bye week data validation and error handling
+  - collect_all_projections(): Main data collection workflow
+  - export_data(): Multi-destination export logic
+- progress_tracker.py: ~20 lines of inline comments added
+  - _calculate_eta(): Adaptive ETA calculation with sliding window
+**Result**: All critical logic files now have comprehensive inline documentation
+**Note**: Simple files (config.py, player_data_constants.py, player_data_models.py) are self-explanatory mappings/models and don't require extensive inline comments
 
-#### [ ] 8.12: Standardize docstrings
-**Action**: Google style for all files
+#### [✓] 8.12: Standardize docstrings - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**Verification**: Scanned all 8 player-data-fetcher files
+**Result**: All files already use Google-style docstrings (Args:, Returns:, Raises:, Yields:)
+**Files verified**:
+- espn_client.py: 16+ docstrings with Google style ✅
+- fantasy_points_calculator.py: 10+ docstrings with Google style ✅
+- player_data_exporter.py: 20+ docstrings with Google style ✅
+- player_data_fetcher_main.py: 10+ docstrings with Google style ✅
+- player_data_models.py: Pydantic models with field descriptions ✅
+- progress_tracker.py: All docstrings use Google style ✅
+- config.py: Simple constants with inline comments ✅
+- player_data_constants.py: Simple mappings ✅
+**Action**: No changes needed - already compliant
 
 ### Code Organization Tasks
 
