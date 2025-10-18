@@ -17,7 +17,8 @@ Author: Kai Mizuno
 """
 
 from pathlib import Path
-import constants as Constants
+import sys
+import constants
 from util.ConfigManager import ConfigManager
 from util.PlayerManager import PlayerManager
 from util.TeamDataManager import TeamDataManager
@@ -26,10 +27,6 @@ from add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
 from starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager
 from trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
 from modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager
-
-import constants
-
-import sys
 sys.path.append(str(Path(__file__).parent.parent))
 from utils.LoggingManager import setup_logger, get_logger
 
@@ -104,13 +101,13 @@ class LeagueHelperManager:
         The loop continues until the user selects the Quit option.
         """
         print("Welcome to the Start 7 Fantasy League Helper!")
-        print(f"Currently drafted players: {self.player_manager.get_roster_len()} / {Constants.MAX_PLAYERS} max")
+        print(f"Currently drafted players: {self.player_manager.get_roster_len()} / {constants.MAX_PLAYERS} max")
 
         # Show initial roster status with scoring details
         self.player_manager.display_scored_roster()
 
         roster_size = self.player_manager.get_roster_len()
-        self.logger.info(f"Interactive league helper started. Current roster size: {roster_size}/{Constants.MAX_PLAYERS}")
+        self.logger.info(f"Interactive league helper started. Current roster size: {roster_size}/{constants.MAX_PLAYERS}")
 
         while True:
             # Reload player data from CSV before showing menu to ensure latest changes

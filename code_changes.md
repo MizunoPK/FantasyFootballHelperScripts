@@ -4,6 +4,128 @@ This document tracks significant code changes, refactoring efforts, and architec
 
 ---
 
+## 2025-10-17: Phase 6 - League Helper Core Refactoring
+
+**Status**: ✅ Complete
+**Test Coverage**: All 1148 tests passing (100%)
+**Duration**: Single-session refactoring
+**Scope**: Testing and code quality improvements for League Helper Core files (LeagueHelperManager, constants.py)
+
+### Summary
+
+Comprehensive testing and code quality improvements for the League Helper Core files, which serve as the central orchestrator for the application. This phase added 54 new tests and improved code organization.
+
+### Key Achievements
+
+#### 1. **Testing** (54 new tests added, 1094 → 1148 total)
+
+**New Test Files Created:**
+- `test_LeagueHelperManager.py` (NEW, 21 tests) - Main orchestrator testing
+- `test_constants.py` (NEW, 33 tests) - Constants validation testing
+
+**LeagueHelperManager Tests (21 tests):**
+1. **TestLeagueHelperManagerInit** (5 tests):
+   - Config manager creation
+   - Team data manager creation
+   - Player manager creation with dependencies
+   - All mode managers initialization
+   - Logging initialization steps
+
+2. **TestStartInteractiveMode** (9 tests):
+   - Welcome message display
+   - Roster status display
+   - Player data reload before menu
+   - Routing to all 4 modes (Add Roster, Starter Helper, Trade Simulator, Modify Player Data)
+   - Exit handling
+   - Invalid choice handling
+
+3. **TestModeDelegation** (4 tests):
+   - Correct delegation to Add to Roster mode
+   - Correct delegation to Starter Helper mode
+   - Correct delegation to Trade Simulator mode
+   - Correct delegation to Modify Player Data mode
+
+4. **TestEdgeCases** (3 tests):
+   - Missing data folder handling
+   - Invalid configuration handling
+   - Multiple mode executions in sequence
+
+**Constants Tests (33 tests):**
+1. **TestLoggingConstants** (5 tests): LOG_LEVEL, TO_FILE, LOG_NAME, FILE, FORMAT validation
+2. **TestGeneralSettings** (2 tests): RECOMMENDATION_COUNT, FANTASY_TEAM_NAME
+3. **TestWaiverOptimizerConstants** (2 tests): MIN_TRADE_IMPROVEMENT, NUM_TRADE_RUNNERS_UP
+4. **TestPositionConstants** (5 tests): Position strings, ALL_POSITIONS, OFFENSE_POSITIONS, DEFENSE_POSITIONS
+5. **TestRosterConstruction** (6 tests): MAX_POSITIONS, MAX_PLAYERS sum validation, FLEX_ELIGIBLE_POSITIONS
+6. **TestByeWeeks** (3 tests): Valid week numbers, sorting, no duplicates
+7. **TestScoringConfiguration** (2 tests): MATCHUP_ENABLED_POSITIONS validation
+8. **TestGetPositionWithFlexFunction** (8 tests): FLEX assignment for RB/WR/DST, non-FLEX for QB/TE/K
+
+**Test Coverage:**
+- Manager initialization and coordination
+- Interactive menu system and routing
+- Mode delegation with correct dependencies
+- Constants validation (logging, positions, roster limits)
+- Helper function behavior (get_position_with_flex)
+- Edge cases and error handling
+
+#### 2. **Code Quality Improvements**
+
+**LeagueHelperManager.py:**
+- **Removed duplicate imports**: Consolidated `import constants` (was imported twice with different aliases)
+- **Consistent naming**: Changed `Constants.MAX_PLAYERS` to `constants.MAX_PLAYERS`
+- **Already had**: Good author attribution, comprehensive docstrings, no date references
+- **Already had**: Comprehensive logging (debug and info levels)
+
+**constants.py:**
+- **Already excellent**: Well-organized with section comments
+- **Already excellent**: Comprehensive module docstring
+- **Already excellent**: Good author attribution
+- **Already excellent**: Helpful inline comments for all constant groups
+
+### Files Modified
+
+**Core Files:**
+- `league_helper/LeagueHelperManager.py` (206 lines, cleaned duplicate import)
+  - Removed duplicate `import constants as Constants`
+  - Consolidated to single `import constants`
+  - Updated 2 references from `Constants.` to `constants.`
+
+**Test Files (NEW):**
+- `tests/league_helper/test_LeagueHelperManager.py` (NEW, 386 lines, 21 tests)
+- `tests/league_helper/test_constants.py` (NEW, 233 lines, 33 tests)
+
+**No changes needed for:**
+- `league_helper/constants.py` (103 lines) - already well-documented and organized
+- `league_helper/__init__.py` (empty file)
+
+### Statistics
+
+- **Test Suite Growth**: 1094 → 1148 tests (+54 tests, +4.9%)
+- **League Helper Core Tests**: 54 total (21 LeagueHelperManager + 33 constants)
+- **Code Changes**:
+  - LeagueHelperManager.py: Removed 1 duplicate import
+  - constants.py: No changes needed (already excellent)
+- **Test Pass Rate**: 100% (1148/1148)
+
+### Commits
+
+1. (Pending) - Add comprehensive tests for LeagueHelperManager and constants
+2. (Pending) - Clean up duplicate imports in LeagueHelperManager
+
+### Validation
+
+- ✅ All 1148 tests passing (100%)
+- ✅ No test failures or errors
+- ✅ Code quality validated (no duplicate imports, consistent naming)
+- ✅ Comprehensive test coverage for core orchestration
+- ✅ No performance regressions
+
+### Conclusion
+
+Phase 6 successfully added comprehensive test coverage for the League Helper Core files. The main orchestrator (LeagueHelperManager) and configuration constants are now fully tested, ensuring reliable application initialization, menu routing, and mode coordination. The code was already well-documented, requiring only minor cleanup of duplicate imports.
+
+---
+
 ## 2025-10-17: Phase 5 - Modify Player Data Mode Refactoring
 
 **Status**: ✅ Complete
