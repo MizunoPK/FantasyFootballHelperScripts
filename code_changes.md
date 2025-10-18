@@ -4,6 +4,248 @@ This document tracks significant code changes, refactoring efforts, and architec
 
 ---
 
+## 2025-10-17: Phase 7 - Shared Utils Refactoring
+
+**Status**: ✅ Complete
+**Test Coverage**: All 1466 tests passing (100%)
+**Duration**: Multi-session refactoring
+**Scope**: Comprehensive testing, documentation, and code quality improvements for all 7 shared utility modules
+
+### Summary
+
+Complete refactoring of the shared utilities layer to achieve comprehensive test coverage, thorough inline documentation, and improved code quality. This phase added 318 new tests across 7 utility modules, added ~306 lines of inline comments explaining complex logic, and performed code cleanup to remove unused imports and improve logging practices.
+
+### Key Achievements
+
+#### 1. **Testing** (318 new tests added, 1148 → 1466 total)
+
+**New Test Files Created:**
+- `tests/utils/test_FantasyPlayer.py` (NEW, 48 tests) - Player data representation and conversions
+- `tests/utils/test_csv_utils.py` (NEW, 39 tests) - CSV operations and validation
+- `tests/utils/test_data_file_manager.py` (NEW, 52 tests) - File management and cap enforcement
+- `tests/utils/test_DraftedRosterManager.py` (NEW, 58 tests) - Fuzzy player matching and drafted roster tracking
+- `tests/utils/test_error_handler.py` (NEW, 50 tests) - Error handling patterns and retry logic
+- `tests/utils/test_LoggingManager.py` (NEW, 30 tests) - Logging configuration and setup
+- `tests/utils/test_TeamData.py` (NEW, 45 tests) - Team data representation and conversions
+
+**Test Coverage Highlights:**
+
+**FantasyPlayer Tests (48 tests):**
+- Initialization with various field combinations
+- CSV/Excel file loading with validation
+- Weekly projections and rest of season calculations
+- FLEX position eligibility rules
+- Equality, hashing, and set usage
+- Safe conversion functions for NaN handling
+- ADP backward compatibility (adp vs average_draft_position)
+
+**csv_utils Tests (39 tests):**
+- Column validation with missing/subset scenarios
+- Read/write operations with backup strategies
+- Async CSV writing with ThreadPoolExecutor
+- Dictionary-based CSV operations
+- CSV file merging and concatenation
+- Safe reading with default values
+- Column existence checking
+
+**data_file_manager Tests (52 tests):**
+- File cap enforcement and automatic cleanup
+- Timestamped filename generation (YYYYMMDD_HHMMSS)
+- Latest vs timestamped file strategies
+- Multi-format export (CSV, Excel, JSON)
+- Backup operations with cleanup
+- File type discovery and sorting
+
+**DraftedRosterManager Tests (58 tests):**
+- CSV data loading with normalization
+- Player info normalization (lowercase, whitespace, suffix removal)
+- Multi-index lookup table creation
+- 5-stage progressive matching (exact → defense → last name → first name → fuzzy)
+- Fuzzy matching with SequenceMatcher (0.75 threshold)
+- Defense name variations handling
+- Drafted state application (0=AVAILABLE, 1=DRAFTED, 2=ROSTERED)
+
+**error_handler Tests (50 tests):**
+- Error context tracking and logging
+- Custom exception hierarchy
+- Retry logic with exponential backoff
+- Sync/async decorators
+- Context managers with automatic error logging
+- File operation validation
+- Convenience functions for common error patterns
+
+**LoggingManager Tests (30 tests):**
+- Logger initialization with various configurations
+- Log format selection (detailed, standard, simple)
+- Console and file handler management
+- Rotating file handlers with size limits
+- Timestamped log file generation
+- Module-level convenience functions
+
+**TeamData Tests (45 tests):**
+- Team initialization and dictionary conversion
+- Safe type conversions with NaN handling
+- CSV loading and saving operations
+- Team extraction from player lists and rankings
+- Schedule data handling
+
+#### 2. **Documentation Improvements** (~306 lines of inline comments added)
+
+**Inline Comments Added:**
+
+**csv_utils.py** (+21 lines):
+- Backup strategy and atomic file operations (rename instead of copy)
+- Pytest temp file handling to avoid backup accumulation
+- Async execution with ThreadPoolExecutor pattern
+- CSV module requirements (newline='') and pandas behavior
+- Performance optimizations (O(1) set lookups)
+
+**data_file_manager.py** (+30 lines):
+- File sorting by modification time and cap enforcement logic
+- Timestamped filename format examples (player_data_20251017_143025.csv)
+- Latest vs timestamped file strategy explanation
+- Async multi-format export with concurrent execution
+- Backup operations and old backup cleanup strategy
+
+**DraftedRosterManager.py** (+99 insertions, -27 deletions):
+- CSV data format and normalization strategy
+- Regex patterns for cleaning player names (suffixes, injury tags, punctuation)
+- Multi-index lookup table creation for O(1) access
+- 5-stage progressive matching strategy with concrete examples
+- Defense name format variations ("Seattle Seahawks DEF" vs "Seahawks D/ST")
+- Fuzzy matching with SequenceMatcher and 0.75 threshold examples
+
+**error_handler.py** (+70 insertions, -7 deletions):
+- Error frequency tracking with dictionary examples
+- Context logging with formatted output examples
+- Dynamic log method selection using getattr
+- Exponential backoff calculation with formula and examples (1s, 2s, 4s, 8s)
+- Retry loop logic with attempt counting
+- Decorator factory pattern (two-level: factory → decorator → wrapper)
+- Async/sync function detection with asyncio.iscoroutinefunction
+- Context manager protocol with yield and exception re-raising
+
+**FantasyPlayer.py** (+66 insertions, -9 deletions):
+- NaN check pattern explanation (float_val != float_val)
+- Backward compatibility for ADP field names
+- Injury risk level categories (LOW/MEDIUM/HIGH)
+- Rest of season projection loop logic and week indexing
+- Drafted status codes (0=AVAILABLE, 1=DRAFTED, 2=ROSTERED)
+- FLEX eligibility rules (RB/WR only, not QB/TE/K/DEF)
+- Equality and hashing based on player ID
+
+**LoggingManager.py** (+20 insertions, -8 deletions):
+- Handler clearing to prevent duplicate log messages
+- Propagate=False to avoid hierarchical logger duplication
+- RotatingFileHandler with rotation examples (app.log → app.log.1)
+- Timestamped log filename format (YYYYMMDD for daily rotation)
+- Singleton-like global instance pattern for consistency
+
+#### 3. **Code Quality Improvements**
+
+**Docstring Standardization:**
+- Verified all 122 docstrings across 7 utils files use Google style (Args:, Returns:, Raises:)
+- No Sphinx-style formatting detected
+- All docstrings are comprehensive with examples where appropriate
+
+**File Organization:**
+- Verified all large files (data_file_manager: 558 lines, DraftedRosterManager: 634 lines, error_handler: 643 lines) are well-organized
+- Clear section markers separate public methods from private helpers
+- Logical grouping by functionality
+
+**Duplicate Code Analysis:**
+- Identified safe conversion functions in both FantasyPlayer and TeamData
+- Decision: Kept separate for module independence (acceptable duplication)
+- No other significant code duplication found
+
+**Unused Code Cleanup:**
+- Removed 5 unused imports across 3 files:
+  - csv_utils.py: safe_execute
+  - data_file_manager.py: os
+  - LoggingManager.py: os, Dict, Any
+
+**Logging Improvements:**
+- Converted 11 print() statements in FantasyPlayer.py to proper logger calls
+- Added appropriate log levels (logger.error(), logger.warning())
+- Verified comprehensive logging coverage across all utils modules
+
+**Date Reference Cleanup:**
+- Removed "Last Updated: September 2025" from 4 files:
+  - csv_utils.py, data_file_manager.py, error_handler.py, TeamData.py
+
+### Files Modified
+
+**Core Files:**
+- `utils/FantasyPlayer.py` (468 lines) - Added 66 lines of comments, converted 11 print statements to logging
+- `utils/csv_utils.py` (377 lines) - Added 21 lines of comments, removed 1 unused import
+- `utils/data_file_manager.py` (558 lines) - Added 30 lines of comments, removed 1 unused import
+- `utils/DraftedRosterManager.py` (634 lines) - Added 99 lines of comments (27 deletions)
+- `utils/error_handler.py` (654 lines) - Added 70 lines of comments (7 deletions)
+- `utils/LoggingManager.py` (175 lines) - Added 20 lines of comments (8 deletions), removed 3 unused imports
+- `utils/TeamData.py` (existing comments sufficient, date reference removed)
+
+**Test Files (ALL NEW):**
+- `tests/utils/test_FantasyPlayer.py` (NEW, 48 tests)
+- `tests/utils/test_csv_utils.py` (NEW, 39 tests)
+- `tests/utils/test_data_file_manager.py` (NEW, 52 tests)
+- `tests/utils/test_DraftedRosterManager.py` (NEW, 58 tests)
+- `tests/utils/test_error_handler.py` (NEW, 50 tests)
+- `tests/utils/test_LoggingManager.py` (NEW, 30 tests)
+- `tests/utils/test_TeamData.py` (NEW, 45 tests)
+
+### Statistics
+
+- **Test Suite Growth**: 1148 → 1466 tests (+318 tests, +27.7%)
+- **Utils Tests**: 322 total tests across 7 modules
+- **Code Changes**:
+  - Total inline comments added: ~306 lines
+  - Unused imports removed: 5 (from 3 files)
+  - print() statements converted: 11 (FantasyPlayer.py)
+  - Date references removed: 4
+  - Docstrings verified: 122 (all Google-style compliant)
+- **Test Pass Rate**: 100% (1466/1466)
+
+### Commits
+
+**Testing Commits:**
+1. `6496dc6` - Add 44 comprehensive tests for FantasyPlayer (Phase 7 - Task 7.1)
+2. `df1ba31` - Add 39 comprehensive tests for csv_utils (Phase 7 - Task 7.2)
+3. `9d85ee4` - Add 52 comprehensive tests for data_file_manager (Phase 7 - Task 7.3)
+4. `aed483b` - Add 58 comprehensive tests for DraftedRosterManager (Phase 7 - Task 7.4)
+5. `1a3adb0` - Add 50 comprehensive tests for error_handler (Phase 7 - Task 7.5)
+6. `56a55c5` - Add 30 tests for LoggingManager (Phase 7 - Task 7.6)
+7. `f50cc90` - Add 45 tests for TeamData (Phase 7 - Task 7.7)
+
+**Documentation Commits:**
+8. `10fca82` - Remove date references from 4 utils files (Phase 7 - Task 7.9)
+9. `aea7875` - Add inline comments to csv_utils (Phase 7 - Task 7.10)
+10. `8bdd401` - Add inline comments to data_file_manager (Phase 7 - Task 7.11)
+11. `bb4f779` - Add inline comments to DraftedRosterManager (Phase 7 - Task 7.12)
+12. `d0d6338` - Add inline comments to error_handler (Phase 7 - Task 7.13)
+13. `02cffe9` - Add inline comments to FantasyPlayer (Phase 7 - Task 7.14)
+14. `0992ef6` - Add inline comments to LoggingManager (Phase 7 - Task 7.14)
+
+**Code Quality Commits:**
+15. `d5a280c` - Remove unused imports from utils files (Phase 7 - Task 7.18)
+16. `524bd28` - Replace print statements with proper logging in FantasyPlayer (Phase 7 - Task 7.19)
+
+### Validation
+
+- ✅ All 1466 tests passing (100%)
+- ✅ No test failures or errors
+- ✅ All refactoring changes validated
+- ✅ Comprehensive test coverage for all utils modules
+- ✅ Extensive inline documentation added
+- ✅ Code quality improved (unused imports removed, logging standardized)
+- ✅ All docstrings follow Google style
+- ✅ No performance regressions
+
+### Conclusion
+
+Phase 7 successfully achieved comprehensive test coverage, thorough documentation, and improved code quality for all 7 shared utility modules. The utils layer now has 322 tests (27.7% increase in total test suite), extensive inline comments explaining complex logic patterns, and improved logging practices. This refactoring significantly improves maintainability and reduces future development risk for the entire codebase, as the utils layer is used by all other modules.
+
+---
+
 ## 2025-10-17: Phase 6 - League Helper Core Refactoring
 
 **Status**: ✅ Complete
