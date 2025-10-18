@@ -1705,15 +1705,23 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - TestMultipleHandlers (2 tests): Console and file handler management
 **Commit**: 56a55c5
 
-#### [ ] 7.7: Create comprehensive tests for TeamData.py
-**File**: `tests/utils/test_TeamData.py` (NEW)
-**Priority**: MEDIUM - 250 lines, NO TESTS
-**Estimated tests**: 20-25 tests
-**Coverage areas**:
-- TeamData class initialization
-- `load_teams_from_csv()` function
-- Field access and validation
-- Edge cases: Missing fields, invalid data
+#### [✓] 7.7: Create comprehensive tests for TeamData.py - DONE
+**File**: `tests/utils/test_TeamData.py` (NEW - 498 lines)
+**Tests Created**: 45 tests in 9 test classes
+**Test Growth**: 1421 → 1466 (+45 tests)
+**Status**: All tests passing
+**Test Classes**:
+- TestTeamDataInit (2 tests): Minimal and complete initialization
+- TestTeamDataFromDict (5 tests): Dictionary conversion with NaN handling
+- TestTeamDataToDict (2 tests): Export to dictionary
+- TestSafeIntConversion (11 tests): Safe integer conversion with edge cases
+- TestSafeStringConversion (7 tests): Safe string conversion with NaN detection
+- TestLoadTeamsFromCsv (4 tests): CSV loading with validation
+- TestSaveTeamsToCsv (3 tests): CSV export with empty list handling
+- TestExtractTeamsFromPlayers (5 tests): Extract unique teams from player list
+- TestExtractTeamsFromRankings (6 tests): Extract teams with rankings and schedules
+**Commit**: f50cc90
+**Note**: Fixed FantasyPlayer initialization to include required `id` parameter
 
 ### Documentation Tasks
 
