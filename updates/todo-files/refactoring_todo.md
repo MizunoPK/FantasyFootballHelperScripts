@@ -1466,61 +1466,108 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 ## PHASE 6: LEAGUE HELPER CORE
 
 **Files**: `league_helper/LeagueHelperManager.py`, `league_helper/constants.py`, `league_helper/__init__.py`
+**Status**: ✅ COMPLETE
 
 ### Testing Tasks
 
-#### [ ] 6.1: Create tests for LeagueHelperManager
-**File**: `tests/league_helper/test_LeagueHelperManager.py` (NEW)
-**Estimated tests**: 15-20 tests
-**Coverage areas**:
-- Initialization
-- Manager coordination
-- Menu display
-- Mode routing
-- Data reload between menu displays
-- Edge cases: Missing data files, invalid configurations
+#### [DONE] 6.1: Create tests for LeagueHelperManager
+**Status**: ✅ COMPLETED (2025-10-17)
+**File**: `tests/league_helper/test_LeagueHelperManager.py` (NEW, 386 lines)
+**Tests created**: 21 tests (exceeded estimate of 15-20)
+**Test classes**:
+- TestLeagueHelperManagerInit (5 tests): Config, TeamData, Player, mode managers, logging
+- TestStartInteractiveMode (9 tests): Welcome, roster status, data reload, routing, exit, invalid input
+- TestModeDelegation (4 tests): Correct delegation to all 4 modes
+- TestEdgeCases (3 tests): Missing data, invalid config, multiple modes
+**Result**: All 21 tests passing, comprehensive coverage achieved
 
-#### [ ] 6.2: Create tests for constants.py
-**File**: `tests/league_helper/test_constants.py` (NEW)
-**Estimated tests**: 5-10 tests
-**Coverage**: Validate all constants are defined correctly
+#### [DONE] 6.2: Create tests for constants.py
+**Status**: ✅ COMPLETED (2025-10-17)
+**File**: `tests/league_helper/test_constants.py` (NEW, 233 lines)
+**Tests created**: 33 tests (exceeded estimate of 5-10)
+**Test classes**:
+- TestLoggingConstants (5 tests): LOG_LEVEL, TO_FILE, NAME, FILE, FORMAT
+- TestGeneralSettings (2 tests): RECOMMENDATION_COUNT, FANTASY_TEAM_NAME
+- TestWaiverOptimizerConstants (2 tests): MIN_TRADE_IMPROVEMENT, NUM_TRADE_RUNNERS_UP
+- TestPositionConstants (5 tests): Position strings, ALL_POSITIONS, OFFENSE/DEFENSE
+- TestRosterConstruction (6 tests): MAX_POSITIONS, MAX_PLAYERS, FLEX_ELIGIBLE
+- TestByeWeeks (3 tests): Valid weeks, sorting, duplicates
+- TestScoringConfiguration (2 tests): MATCHUP_ENABLED_POSITIONS
+- TestGetPositionWithFlexFunction (8 tests): FLEX assignment logic
+**Result**: All 33 tests passing, complete constants validation
 
 ### Documentation Tasks
 
-#### [ ] 6.3: Add author attribution
-**Files**: LeagueHelperManager, constants
-**Action**: Verify/add
+#### [DONE] 6.3: Add author attribution
+**Status**: ✅ ALREADY COMPLETE (2025-10-17)
+**Files checked**:
+- LeagueHelperManager.py: "Author: Kai Mizuno" present (line 16)
+- constants.py: "Author: Kai Mizuno" present (line 16)
+**Result**: Attribution already exists in both files, no changes needed
 
-#### [ ] 6.4: Remove date references
-**Action**: Check and remove
+#### [DONE] 6.4: Remove date references
+**Status**: ✅ NOT NEEDED (2025-10-17)
+**Action**: Searched both files for date references
+**Result**: No date references found in either file
 
-#### [ ] 6.5: Add heavy inline comments
-**Action**: Document all methods in LeagueHelperManager
+#### [DONE] 6.5: Add heavy inline comments
+**Status**: ✅ ALREADY COMPLETE (2025-10-17)
+**Assessment**: LeagueHelperManager already has excellent inline comments
+**Existing comments**: Initialization steps, manager setup, menu loop logic, mode routing
+**Result**: Current inline comments are comprehensive, no additions needed
 
-#### [ ] 6.6: Standardize docstrings
-**Action**: Google style
+#### [DONE] 6.6: Standardize docstrings
+**Status**: ✅ ALREADY COMPLETE (2025-10-17)
+**Assessment**: All docstrings already follow Google-style format
+**Docstrings verified**: Class docstring, `__init__`, `start_interactive_mode`, all delegation methods, `main()`
+**Result**: All docstrings are comprehensive and properly formatted
 
 ### Code Quality Tasks
 
-#### [ ] 6.7: Check for duplicate code
-**Action**: Review initialization patterns
+#### [DONE] 6.7: Check for duplicate code
+**Status**: ✅ NOT NEEDED (2025-10-17)
+**Assessment**: File is clean orchestrator with no duplicated patterns
+**Result**: No duplicate code found
 
-#### [ ] 6.8: Remove unused code
-**Action**: Clean up
+#### [DONE] 6.8: Remove unused code
+**Status**: ✅ COMPLETED (2025-10-17)
+**Removed**: Duplicate import of `constants` (was imported twice)
+**Changes**:
+- Removed `import constants as Constants` (line 20)
+- Kept `import constants` (line 30, moved to line 21)
+- Updated 2 references from `Constants.` to `constants.`
+**Result**: Clean imports, consistent naming convention
 
-#### [ ] 6.9: Improve logging
-**Action**: Add logging for application lifecycle
+#### [DONE] 6.9: Improve logging
+**Status**: ✅ ALREADY COMPREHENSIVE (2025-10-17)
+**Current logging**: DEBUG and INFO levels for initialization and routing
+**Coverage**: Manager initialization, config loading, player data, mode selection, user actions
+**Assessment**: Logging is already comprehensive for application lifecycle
+**Result**: No additional logging needed
 
 ### Validation Tasks
 
-#### [ ] 6.10: Run full test suite
-**Requirement**: 100% pass rate
+#### [DONE] 6.10: Run full test suite
+**Status**: ✅ COMPLETED (2025-10-17)
+**Result**: ALL 1148 TESTS PASSED (100%)
+**Test breakdown**: 1094 existing + 21 LeagueHelperManager + 33 constants = 1148 total
+**Performance**: No regressions detected
 
-#### [ ] 6.11: Update code_changes.md
-**Action**: Document core refactoring
+#### [DONE] 6.11: Update code_changes.md
+**Status**: ✅ COMPLETED (2025-10-17)
+**Action**: Added comprehensive Phase 6 summary to code_changes.md
+**Content**: Testing achievements, code quality improvements, statistics, validation
+**Result**: Phase 6 fully documented
 
-#### [ ] 6.12: COMMIT - League Helper Core Complete
-**Commit message**: "Refactor league_helper core - tests, docs, cleanup"
+#### [DONE] 6.12: COMMIT - League Helper Core Complete
+**Status**: ✅ COMPLETED (2025-10-17)
+**Commit**: `4c84975` - "Add comprehensive tests for League Helper Core (Phase 6)"
+**Files committed**:
+- tests/league_helper/test_LeagueHelperManager.py (NEW, 386 lines, 21 tests)
+- tests/league_helper/test_constants.py (NEW, 233 lines, 33 tests)
+- league_helper/LeagueHelperManager.py (cleaned duplicate import)
+- code_changes.md (Phase 6 summary)
+**Result**: Phase 6 changes committed and documented
 
 ---
 
