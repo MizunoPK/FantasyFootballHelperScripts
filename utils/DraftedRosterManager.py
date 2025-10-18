@@ -86,28 +86,34 @@ class DraftedRosterManager:
                 csv_reader = csv.reader(file)
 
                 for row in csv_reader:
-                    # Skip empty rows
+                    # Skip empty rows or malformed data
+                    # Expected format: ["Player Name POS - TEAM", "Fantasy Team Name"]
                     if not row or len(row) < 2:
                         continue
 
-                    # Store original data
+                    # Store original data for later reverse lookup
+                    # This allows us to extract components from unnormalized strings
                     self._original_csv_data.append(row)
 
                     # Parse player info and team
-                    player_info = row[0].strip()
-                    team_name = row[1].strip()
+                    player_info = row[0].strip()  # "Amon-Ra St. Brown WR - DET"
+                    team_name = row[1].strip()    # "Sea Sharp"
 
                     if not player_info or not team_name:
                         continue
 
                     # Create normalized key for matching
+                    # Normalization removes punctuation, suffixes, injury tags, etc.
+                    # This improves fuzzy matching reliability
                     player_key = self._normalize_player_info(player_info)
 
                     # Handle duplicates - only use first occurrence
+                    # Duplicates can occur from CSV export errors or trades
                     if player_key in self.drafted_players:
                         self.logger.debug(f"Duplicate entry found for {player_info}, skipping")
                         continue
 
+                    # Store mapping: normalized_key -> fantasy_team_name
                     self.drafted_players[player_key] = team_name
 
                 self.logger.info(f"Loaded {len(self.drafted_players)} drafted players from {self.csv_path}")
@@ -270,21 +276,26 @@ class DraftedRosterManager:
         Returns:
             Normalized string for matching
         """
-        # Remove extra whitespace and convert to lowercase
+        # Collapse multiple spaces and convert to lowercase for case-insensitive matching
         normalized = re.sub(r'\s+', ' ', player_info.strip().lower())
 
-        # Remove common suffixes/prefixes
+        # Remove common name suffixes/prefixes (Jr., Sr., III, IV)
+        # These often differ between data sources (ESPN vs CSV)
         normalized = re.sub(r'\b(jr\.?|sr\.?|iii?|iv)\b', '', normalized)
 
-        # Remove noise text from CSV entries
+        # Remove noise text from CSV entries that ESPN includes
+        # "Q View News" = questionable with news link
+        # "Sus" = suspended, "IR" = injured reserve, "NFI-R" = non-football injury reserve
         normalized = re.sub(r'\b(q view news|view news)\b', '', normalized)
         normalized = re.sub(r'\b(sus|ir|nfi-r)\b', '', normalized)
+        # Remove standalone injury indicators (O = out, Q = questionable)
         normalized = re.sub(r'\s+(o|q)(\s|$)', r'\1', normalized)
 
-        # Normalize punctuation
+        # Normalize punctuation to handle name variations
+        # St. Brown -> St Brown, O'Dell -> ODell, Amon-Ra -> Amon Ra
         normalized = normalized.replace('.', '').replace("'", '').replace('-', ' ')
 
-        # Clean up multiple spaces
+        # Clean up any multiple spaces created by removals
         normalized = re.sub(r'\s+', ' ', normalized).strip()
 
         return normalized
@@ -395,21 +406,30 @@ class DraftedRosterManager:
         return None
 
     def _create_player_lookup(self, fantasy_players: List[FantasyPlayer]) -> Dict[str, any]:
-        """Create optimized lookup dictionaries for different matching strategies."""
+        """
+        Create optimized lookup dictionaries for different matching strategies.
+
+        Creates multiple indexes for O(1) lookups during matching:
+        - by_full_name: Single player per exact name (fastest match)
+        - by_last_name: List of players with same last name (handles first name variations)
+        - by_first_name: List of players with same first name (for unique names)
+        - by_position_team: List of players at position on team (for defenses)
+        - all_players: Full list for fuzzy matching fallback
+        """
         lookup = {
-            'by_full_name': {},
-            'by_last_name': {},
-            'by_first_name': {},
-            'by_position_team': {},
+            'by_full_name': {},      # Dict[str, FantasyPlayer]
+            'by_last_name': {},      # Dict[str, List[FantasyPlayer]]
+            'by_first_name': {},     # Dict[str, List[FantasyPlayer]]
+            'by_position_team': {},  # Dict[str, List[FantasyPlayer]]
             'all_players': fantasy_players
         }
 
         for player in fantasy_players:
-            # Full name lookup
+            # Full name lookup (O(1) access by exact name)
             full_name_key = player.name.lower().strip()
             lookup['by_full_name'][full_name_key] = player
 
-            # Last name lookup
+            # Last name lookup (handles "Josh Allen" vs "Joshua Allen")
             name_parts = player.name.split()
             if name_parts:
                 last_name_key = name_parts[-1].lower().strip()
@@ -417,13 +437,13 @@ class DraftedRosterManager:
                     lookup['by_last_name'][last_name_key] = []
                 lookup['by_last_name'][last_name_key].append(player)
 
-                # First name lookup
+                # First name lookup (for unique names like "Amon-Ra")
                 first_name_key = name_parts[0].lower().strip()
                 if first_name_key not in lookup['by_first_name']:
                     lookup['by_first_name'][first_name_key] = []
                 lookup['by_first_name'][first_name_key].append(player)
 
-            # Position + team lookup
+            # Position + team lookup (useful for defense matching: "DEF_SEA")
             pos_team_key = f"{player.position}_{player.team}".lower()
             if pos_team_key not in lookup['by_position_team']:
                 lookup['by_position_team'][pos_team_key] = []
@@ -438,9 +458,19 @@ class DraftedRosterManager:
         drafted_team: str,
         player_lookup: Dict
     ) -> Optional[FantasyPlayer]:
-        """Find matching player using progressive exact -> fuzzy matching strategy."""
+        """
+        Find matching player using progressive exact -> fuzzy matching strategy.
 
-        # Strategy 1: Exact full name match
+        Progressive strategy (fastest to slowest, most reliable to least):
+        1. Exact full name match (O(1) lookup)
+        2. Defense-specific matching (handles name format variations)
+        3. Exact last name + position/team validation (O(1) lookup)
+        4. Exact first name for unique names (O(1) lookup)
+        5. Fuzzy matching fallback (O(n) with similarity scoring)
+        """
+
+        # Strategy 1: Exact full name match (fastest, most reliable)
+        # Example: "Josh Allen" -> finds player with exact name match
         full_name_key = drafted_name.lower().strip()
         if full_name_key in player_lookup['by_full_name']:
             player = player_lookup['by_full_name'][full_name_key]
@@ -448,12 +478,16 @@ class DraftedRosterManager:
                 return player
 
         # Strategy 2: Defense-specific matching
+        # Defenses have inconsistent naming: "Seattle Seahawks DEF" vs "Seahawks D/ST"
+        # Requires special handling to match across formats
         if drafted_pos.upper() in ['DEF', 'DST', 'D/ST']:
             defense_match = self._find_defense_match(drafted_name, drafted_pos, drafted_team, player_lookup)
             if defense_match:
                 return defense_match
 
         # Strategy 3: Exact last name + validation
+        # Handles cases where first name differs slightly (nickname vs full name)
+        # Example: "Josh Allen" and "Joshua Allen" both match on "Allen"
         name_parts = drafted_name.split()
         if name_parts:
             last_name = name_parts[-1].lower().strip()
@@ -463,16 +497,21 @@ class DraftedRosterManager:
                         return player
 
         # Strategy 4: Exact first name + validation (for unique names)
+        # Only used when there's exactly one player with that first name
+        # Example: "Amon-Ra" is unique enough to match without last name
         if name_parts:
             first_name = name_parts[0].lower().strip()
             if first_name in player_lookup['by_first_name']:
                 candidates = player_lookup['by_first_name'][first_name]
+                # Only use if unambiguous (single candidate)
                 if len(candidates) == 1:
                     player = candidates[0]
                     if self._validate_player_match(player, drafted_pos, drafted_team):
                         return player
 
-        # Strategy 5: Fuzzy matching fallback
+        # Strategy 5: Fuzzy matching fallback (slowest, least reliable)
+        # Uses string similarity scoring (threshold >= 0.75)
+        # Example: "St Brown" matches "St. Brown" with high similarity
         return self._fuzzy_match_player(drafted_name, drafted_pos, drafted_team, player_lookup['all_players'])
 
     def _find_defense_match(
@@ -482,17 +521,30 @@ class DraftedRosterManager:
         drafted_team: str,
         player_lookup: Dict
     ) -> Optional[FantasyPlayer]:
-        """Special defense matching to handle name format differences."""
+        """
+        Special defense matching to handle name format differences.
+
+        Defenses have inconsistent naming across data sources:
+        - CSV: "Seattle Seahawks DEF" or "Seattle Seahawks"
+        - ESPN: "Seahawks D/ST" or "SEA D/ST"
+
+        This method tries multiple variations to find matches:
+        1. Team nickname variations (Seahawks, Seahawks D/ST, etc.)
+        2. Full name variations (Seattle Seahawks DEF, etc.)
+        3. Position + team code matching (DEF_SEA)
+        """
 
         name_variations = []
         base_name = drafted_name.lower().strip()
+        # Remove trailing "def" if present
         if base_name.endswith(' def'):
             base_name = base_name[:-4].strip()
 
-        # Try variations
+        # Generate nickname variations (last word of team name)
+        # "Seattle Seahawks" -> "Seahawks", "Seahawks D/ST", etc.
         name_parts = base_name.split()
         if len(name_parts) >= 2:
-            team_nickname = name_parts[-1]
+            team_nickname = name_parts[-1]  # "Seahawks"
             name_variations.extend([
                 team_nickname,
                 f"{team_nickname} d/st",
@@ -500,6 +552,8 @@ class DraftedRosterManager:
                 f"{team_nickname} dst",
             ])
 
+        # Generate full name variations
+        # "Seattle Seahawks" -> "Seattle Seahawks D/ST", etc.
         name_variations.extend([
             base_name,
             f"{base_name} d/st",
@@ -507,7 +561,7 @@ class DraftedRosterManager:
             f"{base_name} dst",
         ])
 
-        # Search for matches
+        # Try each name variation for exact match
         for variation in name_variations:
             variation_key = variation.lower().strip()
             if variation_key in player_lookup['by_full_name']:
@@ -515,10 +569,12 @@ class DraftedRosterManager:
                 if self._validate_player_match(player, drafted_pos, drafted_team):
                     return player
 
-        # Fallback: position + team matching
+        # Fallback: position + team matching (DEF_SEA, DST_SEA, etc.)
+        # This works when name format is too different but team code matches
         pos_team_key = f"{drafted_pos.upper()}_{drafted_team.upper()}"
         if pos_team_key in player_lookup['by_position_team']:
             candidates = player_lookup['by_position_team'][pos_team_key]
+            # Only use if unambiguous (exactly one defense for that team)
             if len(candidates) == 1:
                 return candidates[0]
 
@@ -541,19 +597,35 @@ class DraftedRosterManager:
         drafted_team: str,
         all_players: List[FantasyPlayer]
     ) -> Optional[FantasyPlayer]:
-        """Fallback fuzzy matching using similarity scoring."""
+        """
+        Fallback fuzzy matching using similarity scoring.
+
+        Uses SequenceMatcher to calculate string similarity ratio (0.0 to 1.0).
+        Threshold of 0.75 provides good balance between accuracy and recall.
+
+        Example matches:
+        - "St. Brown WR - DET" vs "St Brown WR - DET" = 0.98 (match)
+        - "Josh Allen QB - BUF" vs "Josh Allen QB - BUF" = 1.0 (perfect)
+        - "Chris Jones DT - KC" vs "Chris Smith DT - KC" = 0.87 (match)
+        - "Josh Allen QB - BUF" vs "Josh Allen QB - CLE" = 0.87 (rejected - wrong team)
+        """
         best_score = 0.0
         best_match = None
 
+        # Build normalized search string with position and team for context
         search_string = f"{drafted_name} {drafted_pos} - {drafted_team}".lower()
         normalized_search = self._normalize_player_info(search_string)
 
+        # Check each player for similarity
         for player in all_players:
             player_string = f"{player.name} {player.position} - {player.team}".lower()
             normalized_player = self._normalize_player_info(player_string)
 
+            # Calculate similarity ratio (0.0 to 1.0)
             score = self._similarity_score(normalized_search, normalized_player)
 
+            # Accept matches >= 0.75 similarity that pass validation
+            # 0.75 threshold avoids false positives while catching minor variations
             if score >= 0.75 and score > best_score:
                 if self._validate_player_match(player, drafted_pos, drafted_team):
                     best_score = score
