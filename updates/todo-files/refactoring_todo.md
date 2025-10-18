@@ -1759,9 +1759,17 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - Backup operations and cleanup strategy
 **Commit**: 8bdd401
 
-#### [ ] 7.12: Add heavy inline comments to DraftedRosterManager.py
+#### [✓] 7.12: Add heavy inline comments to DraftedRosterManager.py - DONE
 **File**: `utils/DraftedRosterManager.py` (562 lines)
-**Action**: Document roster management logic
+**Added**: 99 insertions, 27 deletions of inline comments explaining:
+- CSV data format and normalization strategy (lines 88-117)
+- Regex patterns for cleaning player names (removing suffixes, injury tags, punctuation)
+- Multi-index lookup table creation for O(1) access (by_full_name, by_last_name, by_first_name, by_position_team)
+- 5-stage progressive matching strategy (exact full name → defense-specific → last name → first name → fuzzy)
+- Defense name format variations handling ("Seattle Seahawks DEF" vs "Seahawks D/ST")
+- Fuzzy matching with SequenceMatcher and 0.75 threshold with concrete examples
+**Status**: All 58 DraftedRosterManager tests passing
+**Commit**: bb4f779
 
 #### [ ] 7.13: Add heavy inline comments to error_handler.py
 **File**: `utils/error_handler.py` (581 lines)
