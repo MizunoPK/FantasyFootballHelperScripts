@@ -2138,8 +2138,14 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - **Minor duplication**: Similar logging patterns (acceptable for consistency)
 **Recommendation**: Remove unused methods in Task 8.16
 
-#### [ ] 8.16: Remove unused code
-**Action**: Clean up
+#### [✓] 8.16: Remove unused code - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**File**: `player-data-fetcher/espn_client.py`
+**Removed**: 2 unused methods (~100 lines of duplicate code)
+- `_get_week_actual_performance()` (lines 692-741, 50 lines)
+- `_get_week_projection()` (lines 743-791, 50 lines)
+**Verification**: All 190 player-data-fetcher tests still passing (100%)
+**Result**: Cleaner codebase, reduced maintenance burden
 
 #### [ ] 8.17: Improve logging
 **Action**: Add comprehensive logging
