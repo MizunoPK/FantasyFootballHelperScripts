@@ -9,7 +9,6 @@ This module manages the Modify Player Data modes including:
 - Lock Player (toggle locked 0↔1)
 
 Author: Kai Mizuno
-Last Updated: October 2025
 """
 
 from pathlib import Path
