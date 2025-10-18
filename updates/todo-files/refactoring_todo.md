@@ -2001,10 +2001,17 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Coverage**: Model initialization and validation
 **Note**: Tests already exist from previous work
 
-#### [ ] 8.6: Create basic tests for progress_tracker
-**File**: `tests/player_data_fetcher/test_progress_tracker.py` (NEW)
-**Estimated tests**: 5-10 tests
-**Coverage**: Progress tracking operations
+#### [✓] 8.6: Create basic tests for progress_tracker - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**File**: `tests/player_data_fetcher/test_progress_tracker.py` (NEW, 187 lines)
+**Tests added**: 14 tests (exceeded estimate of 5-10)
+**Test classes**:
+- TestProgressTrackerInit (4 tests): Initialization, custom frequency/window, zero progress
+- TestProgressTrackerUpdate (5 tests): Increment, custom increment, multiple updates, log events, completion
+- TestProgressTrackerTiming (2 tests): Start time recording, last update time
+- TestEdgeCases (3 tests): Zero total, large total, large increments
+**Total tests**: 1520 → 1534 (+14)
+**Result**: All 14 tests passing (100%)
 
 #### [ ] 8.7: Create basic tests for config
 **File**: `tests/player_data_fetcher/test_config.py` (NEW)
