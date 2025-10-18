@@ -1786,9 +1786,29 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Status**: All 50 error_handler tests passing
 **Commit**: d0d6338
 
-#### [ ] 7.14: Add comments to remaining utils files
-**Files**: FantasyPlayer, LoggingManager, TeamData
-**Action**: Add comprehensive comments
+#### [✓] 7.14: Add comments to remaining utils files - DONE
+**Files**: FantasyPlayer (467 lines), LoggingManager (175 lines), TeamData (already had sufficient comments)
+**FantasyPlayer.py**:
+- Added 66 insertions, 9 deletions of inline comments
+- Explained NaN check pattern (float_val != float_val)
+- Documented backward compatibility for ADP field names (adp vs average_draft_position)
+- Detailed injury risk level categories (LOW/MEDIUM/HIGH) with explanations
+- Clarified rest of season projection loop logic and week indexing
+- Explained drafted status codes (0=AVAILABLE, 1=DRAFTED, 2=ROSTERED)
+- Documented FLEX eligibility rules (RB/WR only, not QB/TE/K/DEF)
+- Clarified equality and hashing based on player ID (not name)
+**LoggingManager.py**:
+- Added 20 insertions, 8 deletions of inline comments
+- Explained handler clearing to prevent duplicate log messages
+- Documented propagate=False to avoid hierarchical logger duplication
+- Clarified RotatingFileHandler with rotation examples (app.log → app.log.1 → app.log.2)
+- Explained timestamped log filename format (YYYYMMDD for daily rotation)
+- Documented singleton-like global instance pattern for consistency
+**TeamData.py**:
+- Already had sufficient inline comments from previous work
+- No additional comments needed
+**Status**: All tests passing (48 FantasyPlayer, 30 LoggingManager, 45 TeamData)
+**Commits**: 02cffe9 (FantasyPlayer), 0992ef6 (LoggingManager)
 
 #### [ ] 7.15: Standardize all docstrings to Google style
 **Files**: All utils files
