@@ -50,21 +50,21 @@ class ConfigGenerator:
 
     # Parameter definitions: (range_val, min_val, max_val)
     PARAM_DEFINITIONS = {
-        'NORMALIZATION_MAX_SCALE': (10.0, 50.0, 150.0),
-        'BASE_BYE_PENALTY': (10.0, 0.0, 50.0),
-        'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY': (10.0, 0.0, 50.0),
-        'PRIMARY_BONUS': (10.0, 0.0, 100.0),
-        'SECONDARY_BONUS': (10.0, 0.0, 75.0),
+        'NORMALIZATION_MAX_SCALE': (10.0, 50.0, 500.0),
+        'BASE_BYE_PENALTY': (10.0, 0.0, 200.0),
+        'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY': (10.0, 0.0, 200.0),
+        'PRIMARY_BONUS': (10.0, 0.0, 200.0),
+        'SECONDARY_BONUS': (10.0, 0.0, 200.0),
         'ADP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PLAYER_RATING_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PERFORMANCE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         # Threshold STEPS parameters (NEW)
-        'ADP_SCORING_STEPS': (5.0, 25.0, 50.0),
-        'PLAYER_RATING_SCORING_STEPS': (4.0, 12.0, 28.0),
-        'TEAM_QUALITY_SCORING_STEPS': (2.0, 4.0, 10.0),
-        'PERFORMANCE_SCORING_STEPS': (0.05, 0.05, 0.20),
-        'MATCHUP_SCORING_STEPS': (3.0, 4.0, 12.0),
+        'ADP_SCORING_STEPS': (5.0, 1.0, 60.0),
+        'PLAYER_RATING_SCORING_STEPS': (4.0, 1.0, 50.0),
+        'TEAM_QUALITY_SCORING_STEPS': (2.0, 1.0, 20.0),
+        'PERFORMANCE_SCORING_STEPS': (0.05, 0.05, 0.5),
+        'MATCHUP_SCORING_STEPS': (3.0, 1.0, 20.0),
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -102,7 +102,6 @@ class ConfigGenerator:
     # Parameter ordering for iterative optimization
     # Scalar parameters first, then weights, then threshold STEPS
     PARAMETER_ORDER = [
-        'PERFORMANCE_SCORING_WEIGHT',
         'NORMALIZATION_MAX_SCALE',
         'BASE_BYE_PENALTY',
         'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY',
@@ -111,6 +110,7 @@ class ConfigGenerator:
         # Multiplier Weights
         'ADP_SCORING_WEIGHT',
         'PLAYER_RATING_SCORING_WEIGHT',
+        'PERFORMANCE_SCORING_WEIGHT',
         'MATCHUP_SCORING_WEIGHT',
         # Threshold STEPS (NEW)
         'ADP_SCORING_STEPS',

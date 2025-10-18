@@ -325,7 +325,7 @@ class TradeSimulatorModeManager:
             # Generate all possible trade combinations
             # - 1-for-1, 2-for-2, AND 3-for-3 all enabled (explore all possibilities)
             # - is_waivers=False: Both teams must improve
-            # - ignore_max_positions=True: Allow creative trades (not restricted by position limits)
+            # - ignore_max_positions=False: Enforce position limits (BUG FIX from origin/main)
             trade_combos = self.analyzer.get_trade_combinations(
                 my_team=self.my_team,
                 their_team=opponent_team,
@@ -333,7 +333,7 @@ class TradeSimulatorModeManager:
                 one_for_one=True,
                 two_for_two=True,
                 three_for_three=True,  # Enabled: more complex trades allowed
-                ignore_max_positions=True  # Allow creative trades beyond position limits
+                ignore_max_positions=False  # Enforce position limits (BUG FIX)
             )
 
             # Add trades from this opponent to master list

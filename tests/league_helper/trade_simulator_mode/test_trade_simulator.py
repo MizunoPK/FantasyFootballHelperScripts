@@ -207,14 +207,16 @@ class TestTradeSimTeamScoring:
             assert player.score > 0
 
     def test_score_team_uses_different_scoring_for_opponents(self, sample_players, mock_player_manager):
-        """Test that opponent teams use simplified scoring"""
+        """Test that opponent teams use simplified scoring (but include player_rating)"""
         team_players = sample_players[:3]
 
         opponent_team = TradeSimTeam("Opponent", team_players, mock_player_manager, isOpponent=True)
 
         # Verify that score_player was called with opponent flags
+        # NOTE: Bug fix from origin/main - opponents now use player_rating=True
+        # but still disable adp, team_quality, performance, bye, injury
         calls = mock_player_manager.score_player.call_args_list
-        opponent_calls = [call for call in calls if 'player_rating' in call[1] and not call[1]['player_rating']]
+        opponent_calls = [call for call in calls if 'team_quality' in call[1] and not call[1]['team_quality']]
 
         assert len(opponent_calls) > 0
 

@@ -270,8 +270,8 @@ class PlayerManager:
                 player.is_starter = False  # Will be set to True when added to starting lineup
 
         # Calculate baseline scores for all players (now that max_projection is set)
-        # for player in players:
-        #     player.score = self.score_player(player, bye=False).score
+        for player in players:
+            player.score = self.score_player(player, bye=False).score
 
         self.logger.debug(f"Loaded {len(players)} players from {self.file_str}.")
 
@@ -547,7 +547,9 @@ class PlayerManager:
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
         """
+        # Use empty roster if team hasn't been initialized yet (during load_players_from_csv)
+        team_roster = self.team.roster if hasattr(self, 'team') and self.team else []
         return self.scoring_calculator.score_player(
-            p, self.team.roster, use_weekly_projection, adp, player_rating,
+            p, team_roster, use_weekly_projection, adp, player_rating,
             team_quality, performance, matchup, draft_round, bye, injury, roster
         )
