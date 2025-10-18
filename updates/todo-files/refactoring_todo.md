@@ -1327,8 +1327,10 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - Added template for future entries
 **Result**: Complete historical record of Phase 4 refactoring for future reference
 
-#### [ ] 4.14: COMMIT - Trade Simulator Mode Complete
-**Commit message**: "Refactor trade_simulator_mode - tests, docs, cleanup"
+#### [DONE] 4.14: COMMIT - Trade Simulator Mode Complete
+**Status**: ✅ COMPLETED (2025-10-17)
+**Commit**: 49d0fe4 - "Complete Phase 4 - Trade Simulator Mode refactoring"
+**Summary**: Final commit for Phase 4 with complete refactoring history, statistics, and validation results
 
 ---
 
@@ -1339,15 +1341,26 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 
 ### Testing Tasks
 
-#### [ ] 5.1: Review and enhance ModifyPlayerData tests
+#### [DONE] 5.1: Review and enhance ModifyPlayerData tests
+**Status**: ✅ COMPLETED (2025-10-17)
 **File**: `tests/league_helper/modify_player_data_mode/test_modify_player_data_mode.py`
-**Current**: 20 tests
-**Action**: Add edge case tests for:
-- Invalid player selections
-- Invalid data modifications
-- Boundary value modifications
-- CSV update failures
-**Estimated additional tests**: 10-15 tests
+**Test Growth**: 20 → 30 tests (+10 new tests)
+**New test class**: TestEdgeCases with comprehensive edge case coverage
+**Tests added**:
+- 4 new tests in TestStartInteractiveMode class:
+  * KeyboardInterrupt handling
+  * General exception handling
+  * Invalid choice handling
+  * Player manager update verification
+- 6 new tests in TestEdgeCases class:
+  * CSV add_player failure handling
+  * CSV remove_player failure handling
+  * Single team scenario
+  * Lock preserves drafted status
+  * Extreme/boundary value handling
+  * Multiple lock toggles
+**Coverage areas**: CSV failures, exception handling, boundary values, sequential operations
+**Result**: All 30 tests passing, comprehensive edge case coverage achieved
 
 ### Documentation Tasks
 
