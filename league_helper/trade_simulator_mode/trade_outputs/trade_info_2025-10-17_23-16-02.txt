@@ -1,0 +1,431 @@
+#1 - Trade with Bo-ner
+  My improvement: +47.12 pts (New score: 1232.23)
+  Their improvement: +45.05 pts (New score: 1216.43)
+  I give:
+    - [RB] [NE] TreVeyon Henderson - 27.13 pts (Bye=14)
+            - Projected: 114.02 pts, Weighted: 69.43 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+    - [K] [PIT] Chris Boswell - 54.20 pts (Bye=5)
+            - Projected: 94.34 pts, Weighted: 57.45 pts
+            - Player Rating: POOR
+            - Team Quality: GOOD
+            - Performance: NEUTRAL (+17.6%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+  I receive:
+    - [RB] [NO] Kendre Miller - 35.75 pts (Bye=11)
+            - Projected: 62.06 pts, Weighted: 37.79 pts
+            - Player Rating: POOR
+            - Team Quality: POOR
+            - Performance: GOOD (+26.3%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [K] [LAC] Cameron Dicker - 46.61 pts (Bye=12)
+            - Projected: 81.85 pts, Weighted: 49.85 pts
+            - Player Rating: POOR
+            - Team Quality: NEUTRAL
+            - Performance: NEUTRAL (+5.7%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+
+#2 - Trade with Bo-ner
+  My improvement: +47.07 pts (New score: 1232.18)
+  Their improvement: +45.10 pts (New score: 1216.48)
+  I give:
+    - [TE] [KC] Travis Kelce - 73.91 pts (Bye=10)
+            - Projected: 110.39 pts, Weighted: 67.23 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: GOOD (+32.7%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [NE] Rhamondre Stevenson - 33.24 pts (Bye=14)
+            - Projected: 129.12 pts, Weighted: 78.63 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: GOOD
+            - Performance: NEUTRAL (-1.2%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [TE] [PHI] Dallas Goedert - 77.22 pts (Bye=9)
+            - Projected: 120.67 pts, Weighted: 73.48 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: GOOD
+            - Performance: EXCELLENT (+77.4%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [DST] [PIT] Steelers D/ST - 30.93 pts (Bye=5)
+            - Projected: 53.37 pts, Weighted: 32.50 pts
+            - Player Rating: POOR
+            - Team Quality: EXCELLENT
+            - Bye Overlaps: 0 same-position, 3 different-position
+
+#3 - Trade with Pidgin
+  My improvement: +46.81 pts (New score: 1231.92)
+  Their improvement: +45.36 pts (New score: 1102.95)
+  I give:
+    - [TE] [KC] Travis Kelce - 73.91 pts (Bye=10)
+            - Projected: 110.39 pts, Weighted: 67.23 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: GOOD (+32.7%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [NE] Rhamondre Stevenson - 33.24 pts (Bye=14)
+            - Projected: 129.12 pts, Weighted: 78.63 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: GOOD
+            - Performance: NEUTRAL (-1.2%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [TE] [BAL] Mark Andrews - 62.11 pts (Bye=7)
+            - Projected: 99.03 pts, Weighted: 60.31 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: GOOD
+            - Performance: GOOD (+29.4%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [ATL] Tyler Allgeier - 45.78 pts (Bye=5)
+            - Projected: 74.30 pts, Weighted: 45.25 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: POOR
+            - Performance: GOOD (+35.6%)
+            - Bye Overlaps: 0 same-position, 3 different-position
+
+#4 - Trade with Fishoutawater
+  My improvement: +46.79 pts (New score: 1231.90)
+  Their improvement: +45.38 pts (New score: 1281.03)
+  I give:
+    - [TE] [GB] Tucker Kraft - 66.92 pts (Bye=5)
+            - Projected: 103.68 pts, Weighted: 63.14 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: EXCELLENT
+            - Performance: EXCELLENT (+44.8%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [RB] [NE] Rhamondre Stevenson - 33.24 pts (Bye=14)
+            - Projected: 129.12 pts, Weighted: 78.63 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: GOOD
+            - Performance: NEUTRAL (-1.2%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [RB] [TB] Rachaad White - 57.58 pts (Bye=9)
+            - Projected: 89.21 pts, Weighted: 54.33 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: EXCELLENT
+            - Performance: EXCELLENT (+79.6%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [TE] [NO] Juwan Johnson - 43.29 pts (Bye=11)
+            - Projected: 73.64 pts, Weighted: 44.84 pts
+            - Player Rating: POOR
+            - Team Quality: POOR
+            - Performance: EXCELLENT (+55.5%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+
+#5 - Trade with Bo-ner
+  My improvement: +46.77 pts (New score: 1231.88)
+  Their improvement: +45.40 pts (New score: 1216.78)
+  I give:
+    - [WR] [MIA] Jaylen Waddle - 106.49 pts (Bye=12)
+            - Projected: 160.45 pts, Weighted: 97.71 pts
+            - Player Rating: GOOD
+            - Team Quality: NEUTRAL
+            - Performance: GOOD (+31.1%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [NE] TreVeyon Henderson - 27.13 pts (Bye=14)
+            - Projected: 114.02 pts, Weighted: 69.43 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [WR] [DAL] George Pickens - 103.38 pts (Bye=10)
+            - Projected: 150.03 pts, Weighted: 91.37 pts
+            - Player Rating: GOOD
+            - Team Quality: EXCELLENT
+            - Performance: EXCELLENT (+73.7%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [DST] [PIT] Steelers D/ST - 30.93 pts (Bye=5)
+            - Projected: 53.37 pts, Weighted: 32.50 pts
+            - Player Rating: POOR
+            - Team Quality: EXCELLENT
+            - Bye Overlaps: 0 same-position, 3 different-position
+
+#6 - Trade with Saquon Deez
+  My improvement: +46.60 pts (New score: 1231.71)
+  Their improvement: +45.57 pts (New score: 1052.05)
+  I give:
+    - [RB] [NE] TreVeyon Henderson - 27.13 pts (Bye=14)
+            - Projected: 114.02 pts, Weighted: 69.43 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+    - [WR] [GB] Matthew Golden - 73.14 pts (Bye=5)
+            - Projected: 110.55 pts, Weighted: 67.32 pts
+            - Player Rating: GOOD
+            - Team Quality: EXCELLENT
+            - Performance: NEUTRAL (-0.7%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+  I receive:
+    - [WR] [CHI] DJ Moore - 74.34 pts (Bye=5)
+            - Projected: 115.76 pts, Weighted: 70.49 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-20.2%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [DST] [SF] 49ers D/ST - 26.45 pts (Bye=14)
+            - Projected: 46.44 pts, Weighted: 28.28 pts
+            - Player Rating: POOR
+            - Team Quality: NEUTRAL
+            - Bye Overlaps: 0 same-position, 1 different-position
+
+#7 - Trade with Bo-ner
+  My improvement: +46.59 pts (New score: 1231.70)
+  Their improvement: +45.58 pts (New score: 1216.96)
+  I give:
+    - [RB] [NE] TreVeyon Henderson - 27.13 pts (Bye=14)
+            - Projected: 114.02 pts, Weighted: 69.43 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+    - [QB] [NYJ] Justin Fields - 112.74 pts (Bye=9)
+            - Projected: 185.13 pts, Weighted: 112.74 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: NEUTRAL
+            - Performance: NEUTRAL (+0.0%)
+  I receive:
+    - [QB] [DEN] Bo Nix - 104.62 pts (Bye=12)
+            - Projected: 171.80 pts, Weighted: 104.62 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: NEUTRAL
+            - Performance: NEUTRAL (+7.0%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [RB] [NO] Kendre Miller - 35.75 pts (Bye=11)
+            - Projected: 62.06 pts, Weighted: 37.79 pts
+            - Player Rating: POOR
+            - Team Quality: POOR
+            - Performance: GOOD (+26.3%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+
+#8 - Trade with Saquon Deez
+  My improvement: +46.37 pts (New score: 1231.48)
+  Their improvement: +45.80 pts (New score: 1052.29)
+  I give:
+    - [WR] [MIA] Jaylen Waddle - 106.49 pts (Bye=12)
+            - Projected: 160.45 pts, Weighted: 97.71 pts
+            - Player Rating: GOOD
+            - Team Quality: NEUTRAL
+            - Performance: GOOD (+31.1%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [NE] Rhamondre Stevenson - 33.24 pts (Bye=14)
+            - Projected: 129.12 pts, Weighted: 78.63 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: GOOD
+            - Performance: NEUTRAL (-1.2%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [RB] [NO] Alvin Kamara - 94.78 pts (Bye=11)
+            - Projected: 147.11 pts, Weighted: 89.59 pts
+            - Player Rating: GOOD
+            - Team Quality: POOR
+            - Performance: NEUTRAL (-16.4%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [WR] [DEN] Marvin Mims Jr. - 45.24 pts (Bye=12)
+            - Projected: 74.28 pts, Weighted: 45.24 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: NEUTRAL
+            - Performance: NEUTRAL (+12.3%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+
+#9 - Trade with Bo-ner
+  My improvement: +45.98 pts (New score: 1231.09)
+  Their improvement: +46.19 pts (New score: 1217.57)
+  I give:
+    - [RB] [NE] TreVeyon Henderson - 27.13 pts (Bye=14)
+            - Projected: 114.02 pts, Weighted: 69.43 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+    - [QB] [NYJ] Justin Fields - 112.74 pts (Bye=9)
+            - Projected: 185.13 pts, Weighted: 112.74 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: NEUTRAL
+            - Performance: NEUTRAL (+0.0%)
+  I receive:
+    - [QB] [LAR] Matthew Stafford - 108.84 pts (Bye=8)
+            - Projected: 177.16 pts, Weighted: 107.88 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: GOOD
+            - Performance: NEUTRAL (+17.7%)
+            - Bye Overlaps: 0 same-position, 3 different-position
+    - [DST] [PIT] Steelers D/ST - 30.93 pts (Bye=5)
+            - Projected: 53.37 pts, Weighted: 32.50 pts
+            - Player Rating: POOR
+            - Team Quality: EXCELLENT
+            - Bye Overlaps: 0 same-position, 3 different-position
+
+#10 - Trade with Fishoutawater
+  My improvement: +45.91 pts (New score: 1231.02)
+  Their improvement: +46.26 pts (New score: 1281.91)
+  I give:
+    - [TE] [KC] Travis Kelce - 73.91 pts (Bye=10)
+            - Projected: 110.39 pts, Weighted: 67.23 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: GOOD (+32.7%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [NE] TreVeyon Henderson - 27.13 pts (Bye=14)
+            - Projected: 114.02 pts, Weighted: 69.43 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [RB] [TB] Rachaad White - 57.58 pts (Bye=9)
+            - Projected: 89.21 pts, Weighted: 54.33 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: EXCELLENT
+            - Performance: EXCELLENT (+79.6%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [TE] [NO] Juwan Johnson - 43.29 pts (Bye=11)
+            - Projected: 73.64 pts, Weighted: 44.84 pts
+            - Player Rating: POOR
+            - Team Quality: POOR
+            - Performance: EXCELLENT (+55.5%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+
+#11 - Trade with Annihilators
+  My improvement: +45.65 pts (New score: 1230.76)
+  Their improvement: +46.52 pts (New score: 1237.89)
+  I give:
+    - [WR] [SEA] Jaxon Smith-Njigba - 142.47 pts (Bye=8)
+            - Projected: 210.96 pts, Weighted: 128.47 pts
+            - Player Rating: GOOD
+            - Team Quality: EXCELLENT
+            - Performance: GOOD (+31.6%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [RB] [NE] TreVeyon Henderson - 27.13 pts (Bye=14)
+            - Projected: 114.02 pts, Weighted: 69.43 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [RB] [CIN] Chase Brown - 83.45 pts (Bye=10)
+            - Projected: 126.83 pts, Weighted: 77.24 pts
+            - Player Rating: EXCELLENT
+            - Team Quality: POOR
+            - Performance: VERY_POOR (-37.5%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [WR] [TB] Mike Evans - 85.72 pts (Bye=9)
+            - Projected: 129.57 pts, Weighted: 78.91 pts
+            - Player Rating: GOOD
+            - Team Quality: EXCELLENT
+            - Performance: NEUTRAL (-3.4%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+
+#12 - Trade with Fishoutawater
+  My improvement: +45.52 pts (New score: 1230.63)
+  Their improvement: +46.65 pts (New score: 1282.30)
+  I give:
+    - [WR] [MIA] Jaylen Waddle - 106.49 pts (Bye=12)
+            - Projected: 160.45 pts, Weighted: 97.71 pts
+            - Player Rating: GOOD
+            - Team Quality: NEUTRAL
+            - Performance: GOOD (+31.1%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [NE] TreVeyon Henderson - 27.13 pts (Bye=14)
+            - Projected: 114.02 pts, Weighted: 69.43 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [RB] [TB] Rachaad White - 57.58 pts (Bye=9)
+            - Projected: 89.21 pts, Weighted: 54.33 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: EXCELLENT
+            - Performance: EXCELLENT (+79.6%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [PIT] Kenneth Gainwell - 75.48 pts (Bye=5)
+            - Projected: 126.12 pts, Weighted: 76.81 pts
+            - Player Rating: POOR
+            - Team Quality: GOOD
+            - Performance: EXCELLENT (+44.5%)
+            - Bye Overlaps: 0 same-position, 3 different-position
+
+#13 - Trade with Bo-ner
+  My improvement: +45.49 pts (New score: 1230.60)
+  Their improvement: +46.68 pts (New score: 1218.06)
+  I give:
+    - [WR] [MIA] Jaylen Waddle - 106.49 pts (Bye=12)
+            - Projected: 160.45 pts, Weighted: 97.71 pts
+            - Player Rating: GOOD
+            - Team Quality: NEUTRAL
+            - Performance: GOOD (+31.1%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [NE] Rhamondre Stevenson - 33.24 pts (Bye=14)
+            - Projected: 129.12 pts, Weighted: 78.63 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: GOOD
+            - Performance: NEUTRAL (-1.2%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [WR] [DAL] George Pickens - 103.38 pts (Bye=10)
+            - Projected: 150.03 pts, Weighted: 91.37 pts
+            - Player Rating: GOOD
+            - Team Quality: EXCELLENT
+            - Performance: EXCELLENT (+73.7%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [RB] [NO] Kendre Miller - 35.75 pts (Bye=11)
+            - Projected: 62.06 pts, Weighted: 37.79 pts
+            - Player Rating: POOR
+            - Team Quality: POOR
+            - Performance: GOOD (+26.3%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+
+#14 - Trade with Fishoutawater
+  My improvement: +45.43 pts (New score: 1230.54)
+  Their improvement: +46.74 pts (New score: 1282.39)
+  I give:
+    - [QB] [KC] Patrick Mahomes - 149.47 pts (Bye=10)
+            - Projected: 223.23 pts, Weighted: 135.94 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: GOOD (+33.5%)
+            - Bye Overlaps: 0 same-position, 1 different-position
+    - [RB] [NE] Rhamondre Stevenson - 33.24 pts (Bye=14)
+            - Projected: 129.12 pts, Weighted: 78.63 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: GOOD
+            - Performance: NEUTRAL (-1.2%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [QB] [LAC] Justin Herbert - 106.58 pts (Bye=12)
+            - Projected: 175.01 pts, Weighted: 106.58 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: NEUTRAL
+            - Performance: NEUTRAL (+3.6%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [RB] [PIT] Kenneth Gainwell - 75.48 pts (Bye=5)
+            - Projected: 126.12 pts, Weighted: 76.81 pts
+            - Player Rating: POOR
+            - Team Quality: GOOD
+            - Performance: EXCELLENT (+44.5%)
+            - Bye Overlaps: 0 same-position, 3 different-position
+
+#15 - Trade with Saquon Deez
+  My improvement: +45.40 pts (New score: 1230.51)
+  Their improvement: +46.77 pts (New score: 1053.26)
+  I give:
+    - [RB] [NE] TreVeyon Henderson - 27.13 pts (Bye=14)
+            - Projected: 114.02 pts, Weighted: 69.43 pts
+            - Player Rating: GOOD
+            - Team Quality: GOOD
+            - Performance: POOR (-21.0%)
+            - Bye Overlaps: 1 same-position, 0 different-position
+  I receive:
+    - [DST] [SF] 49ers D/ST - 26.45 pts (Bye=14)
+            - Projected: 46.44 pts, Weighted: 28.28 pts
+            - Player Rating: POOR
+            - Team Quality: NEUTRAL
+            - Bye Overlaps: 0 same-position, 1 different-position
+

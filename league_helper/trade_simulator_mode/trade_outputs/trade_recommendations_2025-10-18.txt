@@ -1,0 +1,929 @@
+================================================================================
+FANTASY FOOTBALL TRADE RECOMMENDATIONS - WEEK 7, 2025
+================================================================================
+Based on expert analysis from FantasyPros, Reddit, Yahoo Sports, and other sources
+Generated: 2025-10-18
+Source File: trade_info_2025-10-18_06-36-20.txt
+
+================================================================================
+CURRENT ROSTER ANALYSIS
+================================================================================
+
+STRENGTHS:
+✓ QB: Patrick Mahomes (elite, performing well)
+✓ WR: Jaxon Smith-Njigba (WR core performing)
+✓ WR: Jaylen Waddle (WR15 in PPR, leading Miami WRs with Hill out for season)
+✓ TE: Travis Kelce (recent strong performances, sell-high window)
+
+WEAKNESSES:
+✗ RB: TreVeyon Henderson (MAJOR BUST - zero explosive runs, 46th in missed tackles)
+✗ RB: Rhamondre Stevenson (limited upside, though good Week 7 matchup)
+✗ RB: RJ Harvey (underperforming, <33% snap share in 5/6 games)
+✗ Overall RB depth is CRITICAL WEAKNESS
+
+PRIORITY: Upgrade RB position, dump Henderson
+
+================================================================================
+TRADE RECOMMENDATIONS - RANKED BEST TO WORST
+================================================================================
+
+--------------------------------------------------------------------------------
+RANK #1 - STRONGLY RECOMMEND ★★★★★
+Trade #7 from original file
+--------------------------------------------------------------------------------
+GIVE: TreVeyon Henderson + Rhamondre Stevenson
+GET:  Alvin Kamara + 49ers D/ST
+
+EXPERT REASONING:
+
+✓ DUMP HENDERSON: Experts unanimously say he's a bust
+  - Zero explosive runs through 6 weeks
+  - Ranks 46th in missed tackle rate, 47th in yards after contact
+  - Season-low 29.7% snap rate in Week 6
+  - FantasyPros: "Fantasy managers should panic about Henderson's poor output"
+  - Multiple sources recommend sitting or dropping him
+
+✓ UPGRADE TO KAMARA: Despite concerns, still a proven RB1/2
+  - Currently RB28 in half-PPR (7.9 PPG)
+  - Ankle injury concern (limited practice, questionable)
+  - BUT: Maintains receiving role (59.4% route share, 18.8% target share)
+  - Week 7 vs Patriots: Favorable passing game matchup (11th-highest YPC, 12th-most
+    receiving yards allowed to RBs)
+  - ESPN lists him as a "lineup lock" for Week 7
+  - One proven RB1/2 > Two underperforming RBs
+
+✓ STEVENSON CONSIDERATION: Has great Week 7 matchup but limited ceiling
+  - Titans allow 4th-most rushing TDs (at least one to RB every game)
+  - Stevenson gets 83% of goal-line attempts last 2 weeks
+  - BUT: Low overall volume (10.7 touches, 51.9 total yards per game)
+  - Only two top-20 finishes this season (RB6, RB18)
+  - Trading him now moves an average asset for a proven star
+
+WHY SAQUON DEEZ ACCEPTS THIS TRADE:
+
+THEIR ROSTER:
+- RBs: Saquon Barkley (elite RB1), Alvin Kamara, J.K. Dobbins
+- WRs: Davante Adams, DK Metcalf, DJ Moore, Emeka Egbuka, Jauan Jennings
+- Strong at WR, stacked at RB
+
+✓ DEPTH PLAY: They have Saquon Barkley as clear RB1
+  - Can afford to move Kamara (ankle injury concern)
+  - J.K. Dobbins is solid RB2
+  - Trading from strength to gain depth
+
+✓ GETS TWO PATRIOTS RBS: Hedging their bets on NE backfield
+  - Henderson has draft capital (high potential)
+  - Stevenson has goal-line role
+  - One might emerge as lead back ROS
+  - Two okay RBs > one injured RB
+
+✓ INJURY RISK MITIGATION: Kamara ankle injury is real
+  - They're selling before it gets worse
+  - Getting healthy bodies back
+
+✗ CONCERN: Downgrading RB quality significantly
+  - Kamara >> Henderson + Stevenson combined
+  - Only makes sense if they're worried about Kamara's health
+
+LIKELIHOOD THEY ACCEPT: Medium (30-40%)
+- They're strong at RB, might not need depth
+- Would need to be very concerned about Kamara's ankle
+- Better for you than them, but possible if injury scares them
+
+RISK LEVEL: Medium (Kamara's ankle injury)
+REWARD POTENTIAL: High (consolidates two weak RBs into one RB1/2)
+OVERALL GRADE: A
+
+--------------------------------------------------------------------------------
+RANK #2 - RECOMMEND ★★★★☆
+Trade #12 from original file
+--------------------------------------------------------------------------------
+GIVE: Jaylen Waddle + TreVeyon Henderson
+GET:  Chase Brown + Woody Marks
+
+EXPERT REASONING:
+
+✓ DUMP HENDERSON: (See Trade #7 reasoning above)
+
+✓ CHASE BROWN UPSIDE: Rated EXCELLENT player rating
+  - 83.45 actual points, 126.83 projected points
+  - Current performance is "VERY_POOR (-37.5%)" = BUY LOW opportunity
+  - Underperforming projections = positive regression expected
+  - On bad Bengals offense but clear lead back
+
+✓ WOODY MARKS BONUS: Performance rated EXCELLENT (+88.8%)
+  - Outperforming projections significantly
+  - 64.54 actual points on 108.80 projected
+  - Provides RB depth
+
+✗ WADDLE CONCERN: Giving up WR15 in PPR
+  - Leading Miami WRs with Tyreek Hill OUT FOR SEASON
+  - Since Week 5: 24.6% target share, 102.5 receiving yards per game
+  - Week 7 vs Browns: Favorable matchup (61.3% single high coverage)
+  - Against single high: 33.3% target share, 4.31 yards per route
+  - Will remain WR2 moving forward per FantasyPros
+
+VERDICT: This is a tough sell because Waddle is performing well and has a
+secure role. However, your RB situation is desperate and WR depth is solid
+(JSN, Pittman, Shakir, Golden). Getting two RBs with upside could balance
+your roster.
+
+WHY ANNIHILATORS ACCEPTS THIS TRADE:
+
+THEIR ROSTER:
+- RBs: Christian McCaffrey (RB1), Chase Brown, Chuba Hubbard, Jaylen Warren, Woody Marks
+- WRs: Garrett Wilson, Keenan Allen, Brian Thomas Jr., Nico Collins, Mike Evans
+- QB: Only Dak Prescott (no backup)
+- Stacked at both RB and WR
+
+✓ SELLING HIGH ON CHASE BROWN: Underperforming expectations
+  - Projected 126.83 points but only 83.45 actual (VERY_POOR -37.5%)
+  - Trading before further regression
+  - Has CMC as elite RB1, can afford to move Brown
+
+✓ SELLING HIGH ON WOODY MARKS: Overperforming bench piece
+  - Performing at +88.8% above expectations (unsustainable)
+  - Currently just bench depth behind CMC, Brown, Hubbard
+  - Perfect time to cash in on hot hand
+
+✓ UPGRADES WR CORPS: Waddle slots in as WR2/3
+  - Current WRs: Garrett Wilson (inconsistent), Keenan Allen (aging)
+  - Waddle (WR15) is immediate upgrade and younger
+  - Miami's clear WR1 with Hill out ROS
+  - Mike Evans injured often, Nico Collins injured
+  - Waddle provides consistency they lack
+
+✓ GETS HENDERSON: Lottery ticket RB
+  - Henderson has high draft capital
+  - If he figures it out, could be valuable
+  - Low risk addition since they're deep at RB
+
+LIKELIHOOD THEY ACCEPT: High (60-70%)
+- They have RB depth to spare (CMC, Hubbard, Warren)
+- WR corps is old/injured (Evans, Allen, Collins banged up)
+- Waddle is a clear WR upgrade for starting lineup
+- Selling two bench RBs for starting WR makes sense
+- They win if Waddle stays healthy and Brown regresses further
+
+RISK LEVEL: Medium-High (losing WR15 production)
+REWARD POTENTIAL: High (two RBs with upside, Brown buy-low)
+OVERALL GRADE: B+
+
+--------------------------------------------------------------------------------
+RANK #3 - CAUTIOUSLY RECOMMEND ★★★☆☆
+Trade #5 from original file
+--------------------------------------------------------------------------------
+GIVE: Jaylen Waddle + TreVeyon Henderson
+GET:  Tetairoa McMillan + Jordan Mason
+
+EXPERT REASONING:
+
+✓ DUMP HENDERSON: (See Trade #7 reasoning above)
+
+✓ JORDAN MASON: Vikings lead back with Aaron Jones on IR
+  - Week 7 vs Eagles: Favorable matchup
+    * Eagles rank 24th in yards per attempt allowed
+    * 30th in rushing first downs allowed
+    * Only 3 teams have surrendered more rushing TDs
+  - Recent Week 6: 13 carries for 52 yards + TD, 3 receptions
+  - Vikings gave him 2-year deal with $7M+ guaranteed = commitment
+  - RotoBaller: "Should be considered RB2/high-end Flex play"
+
+✗ MCMILLAN WEEK 7 CONCERN: Tough matchup this week
+  - Faces Jets CB Sauce Gardner in shadow coverage
+  - Gardner has allowed only 10 catches, 170 yards all season
+  - No WR has surpassed 57 yards in Gardner's coverage
+  - FantasyPros: "This might not be a banner week for him"
+
+✗ WADDLE CONCERN: (See Trade #12 reasoning above)
+  - Still giving up WR15 in PPR with secure role
+
+✓ MCMILLAN ROS: Strong rookie with upside
+  - WR28 in fantasy PPG
+  - 8th-most deep targets, 14th-most red zone targets
+  - 63.3 receiving yards per game
+  - "Star in the making" per FantasyPros
+
+VERDICT: Mason is a clear RB upgrade and McMillan has upside, but Week 7
+specifically is rough for McMillan. If you can absorb one down week,
+McMillan's ROS outlook is positive.
+
+WHY STRIKING SHIBAS ACCEPTS THIS TRADE:
+
+THEIR ROSTER:
+- RBs: De'Von Achane, Kyren Williams, Jordan Mason, Blake Corum, Aaron Jones (IR), Joe Mixon (NFI-R)
+- WRs: Justin Jefferson (WR1), Drake London, Tetairoa McMillan, Ladd McConkey, Stefon Diggs
+- QBs: Drake Maye, Jayden Daniels (dual-threat upside)
+- Deep at RB, need WR help behind Jefferson
+
+✓ RB DEPTH ALLOWS TRADE: Stacked at RB even without Mason
+  - De'Von Achane is explosive RB1
+  - Kyren Williams is solid RB2
+  - Aaron Jones returning from IR soon (Vikings lead back pre-injury)
+  - Joe Mixon could return (Texans RB1)
+  - Blake Corum as handcuff
+  - Can afford to move Mason for WR upgrade
+
+✓ WADDLE MASSIVE WR UPGRADE: Current WR2 is weak
+  - Justin Jefferson is elite WR1, but need better WR2
+  - Drake London inconsistent, McMillan is rookie
+  - Stefon Diggs older/declining, Ladd McConkey boom/bust
+  - Waddle (WR15 in PPR) is immediate WR2 upgrade
+  - Miami WR1 with Hill out = target monster ROS
+
+✓ HENDERSON LOTTERY TICKET: Has upside if he figures it out
+  - High draft capital (2nd round rookie)
+  - New England could pivot to him if Stevenson keeps struggling
+  - Zero risk for them given RB depth
+
+✗ SELLING McMillan: Rookie WR showing promise
+  - 8th-most deep targets, 14th-most red zone targets
+  - Panthers WR1 (volume floor)
+  - "Star in the making" per experts
+  - But Waddle is proven commodity vs rookie unknown
+
+LIKELIHOOD THEY ACCEPT: Very High (70-80%)
+- They're STACKED at RB (Achane, Williams, Jones returning, Mixon maybe)
+- WR corps is weak outside Jefferson
+- Mason is expendable with Jones/Mixon returning
+- Waddle + Henderson for McMillan + Mason favors them
+- This is a "selling from strength" trade for them
+
+RISK LEVEL: Medium (Waddle production, McMillan Week 7 matchup)
+REWARD POTENTIAL: Medium-High (Mason lead back role, McMillan upside)
+OVERALL GRADE: B
+
+--------------------------------------------------------------------------------
+RANK #4 - NEUTRAL/CONSIDER ★★★☆☆
+Trade #9 from original file
+--------------------------------------------------------------------------------
+GIVE: Patrick Mahomes + TreVeyon Henderson
+GET:  Drake Maye + Jordan Mason
+
+EXPERT REASONING:
+
+✓ DUMP HENDERSON: (See Trade #7 reasoning above)
+
+✓ JORDAN MASON: (See Trade #5 reasoning above)
+  - Gets you the RB help you desperately need
+
+✗ MAHOMES DOWNGRADE: Trading elite QB for rookie
+  - Mahomes: 149.47 actual points, 223.23 projected (GOOD rating)
+  - Drake Maye: 125.57 actual points, 200.21 projected (NEUTRAL rating)
+  - Mahomes performing at 33.5% above baseline vs Maye's 25.2%
+  - Maye is on Patriots (worse offense than Chiefs)
+
+✓ MAYE UPSIDE: Young QB with rushing ability
+  - Still has GOOD performance rating
+  - Rookie with growth potential
+  - Same bye week concern (Week 14)
+
+VERDICT: You're trading an elite QB for an RB upgrade. In most formats,
+elite QBs are less scarce than RBs, so this could make sense. However,
+Mahomes is having a great season. Only do this if you're desperate for RB
+help and believe Justin Fields can fill in adequately.
+
+WHY STRIKING SHIBAS ACCEPTS THIS TRADE:
+
+THEIR ROSTER: (Same as Trade #5)
+- RBs: De'Von Achane, Kyren Williams, Jordan Mason, Blake Corum, Aaron Jones (IR), Joe Mixon (NFI-R)
+- WRs: Justin Jefferson, Drake London, Tetairoa McMillan, Ladd McConkey, Stefon Diggs
+- QBs: Drake Maye, Jayden Daniels
+- Deep at RB, have TWO promising young QBs
+
+✓ MAHOMES ELITE UPGRADE: Massive QB improvement
+  - Drake Maye is promising rookie but still just NEUTRAL rating
+  - Jayden Daniels has upside but unproven
+  - Mahomes is ELITE QB1 (149.47 pts, +33.5% performance)
+  - Chiefs offense >>> Patriots/Commanders
+  - Locks in QB1 spot ROS
+
+✓ CAN SPARE MASON: (Same reasoning as Trade #5)
+  - Aaron Jones returning from IR (was Vikings RB1)
+  - Joe Mixon could return (Texans RB1)
+  - Achane + Williams can carry RB duties
+  - Trading from RB surplus
+
+✓ HENDERSON LOTTERY TICKET: Free addition
+  - Has high upside if he breaks out
+  - Low-risk with their RB depth
+
+✗ DOWNGRADE FROM TWO QBs TO ONE: Flexibility loss
+  - Had Drake Maye vs bad defenses, Daniels for rushing upside
+  - Now stuck with just Mahomes (though he's elite)
+  - Superflex leagues would hate this, standard it's fine
+
+LIKELIHOOD THEY ACCEPT: Medium-High (65-75%)
+- Mahomes is a clear upgrade over Maye/Daniels
+- They can afford to trade Mason (RB depth)
+- If this is a 1QB league, getting elite QB is valuable
+- If superflex/2QB league, they probably decline (need 2 QBs)
+- Trade makes sense if they want to consolidate talent
+
+RISK LEVEL: Medium-High (downgrading elite QB position)
+REWARD POTENTIAL: Medium (Mason RB help, but QB downgrade hurts)
+OVERALL GRADE: C+
+
+--------------------------------------------------------------------------------
+RANK #5 - DO NOT RECOMMEND ★★☆☆☆
+Trade #1 from original file
+--------------------------------------------------------------------------------
+GIVE: Jaylen Waddle + Rhamondre Stevenson
+GET:  Xavier Worthy + Tony Pollard
+
+EXPERT REASONING:
+
+✗ TONY POLLARD: Experts say AVOID at all costs
+  - Currently RB32 in half-PPR (9.6 PPG)
+  - Week 6: OUT-SNAPPED by Tyjae Spears (59% vs 43%)
+  - Routes dipped to just 25% in Week 6
+  - Week 7 matchup: "Brutal" vs Patriots
+  - FantasyPros: "Trending in the completely wrong direction"
+  - "Priority SELL candidate for weeks"
+  - "Merely an emergency RB2/Flex in 12-team leagues"
+  - Brian Callahan fired = uncertain backfield direction
+
+✓ XAVIER WORTHY: Good Week 7 matchup but concerns
+  - Week 7 vs Raiders: Great matchup (2nd-most receiving yards allowed to WRs)
+  - Since Week 4: 70.2% route share, 19.4% target share, 22.4% first-read share
+  - Should see single high coverage (favorable for Worthy)
+  - Expected: 3.13 yards per route run vs single high
+
+  BUT: Rashee Rice returning next week
+  - When Rice played last year, Worthy averaged just 4 targets, 5 fantasy PPG
+  - Rice limited Worthy to 34 yards or less in 3 games
+  - Rice will be "No. 1 WR showcase" per experts
+  - Worthy becomes clear WR2 on offense
+
+✗ WADDLE CONCERN: Giving up WR15 for uncertain WR situation
+  - Waddle has secure WR2 role ROS
+  - Worthy has question marks after Week 7
+
+VERDICT: Pollard is a landmine. Experts universally hate this trade for you.
+Even if Worthy has one good week, he'll lose targets to Rice. You're giving
+up Waddle's consistency for volatility.
+
+WHY THE ESKIMO BROTHERS ACCEPTS THIS TRADE:
+
+THEIR ROSTER:
+- RBs: Travis Etienne (RB1), Tony Pollard, Jacory Croskey-Merritt, Quinshon Judkins, Kimani Vidal
+- WRs: Tee Higgins, Rome Odunze, Courtland Sutton, Rashid Shaheed, Xavier Worthy
+- TEs: Darren Waller, George Kittle (IR)
+- QB: Baker Mayfield, Jaxson Dart
+- Weak at RB after Etienne, decent at WR
+
+✓ UPGRADES RB DEPTH: Gets Stevenson for Pollard
+  - Pollard is trending DOWN (out-snapped, brutal matchups)
+  - Stevenson has goal-line role, better Week 7 matchup
+  - Lateral move at worst, possible upgrade
+
+✓ SELLS WORTHY BEFORE RICE RETURNS: Smart timing
+  - Rashee Rice returning next week tanks Worthy's value
+  - Worthy will go from WR2 to clear WR3 on Chiefs
+  - Selling at peak value (good Week 7 matchup)
+
+✓ WADDLE CLEAR WR UPGRADE: Better than their WR corps
+  - Waddle (WR15) >> Tee Higgins (injured/inconsistent)
+  - Better than Rome Odunze (rookie), Sutton (declining)
+  - Gives them legit WR1/WR2 with Waddle + Higgins
+
+✓ GETS LOTTERY TICKET: Stevenson could emerge
+  - Patriots might shift to Stevenson-heavy approach
+  - Goal-line role is valuable in PPR
+  - Upside > Pollard's downside
+
+LIKELIHOOD THEY ACCEPT: Very High (75-85%)
+- They're desperate to dump Pollard before complete collapse
+- Worthy value is about to crash with Rice returning
+- Waddle is a massive WR upgrade for them
+- Stevenson > Pollard ROS (both low-end but Stevenson safer)
+- This trade heavily favors them, which is why it's bad for you
+
+RISK LEVEL: High (Pollard trending down, Worthy role uncertain)
+REWARD POTENTIAL: Low (Pollard has minimal upside)
+OVERALL GRADE: D
+
+--------------------------------------------------------------------------------
+RANK #6 - DO NOT RECOMMEND ★★☆☆☆
+Trade #4 from original file
+--------------------------------------------------------------------------------
+GIVE: Rhamondre Stevenson + RJ Harvey
+GET:  Tony Pollard + Kimani Vidal
+
+EXPERT REASONING:
+
+✗ TONY POLLARD: (See Trade #1 reasoning above)
+  - Do not acquire this player
+
+✗ KIMANI VIDAL: Rated VERY_POOR player rating
+  - 35.31 actual points, 66.41 projected
+  - Backup on Chargers behind J.K. Dobbins
+  - No standalone value
+
+✗ RJ HARVEY: While underperforming, still has more upside than these returns
+  - Harvey is struggling but on a Sean Payton offense
+  - At least has potential if Dobbins gets hurt
+
+✗ STEVENSON: Has good Week 7 matchup
+  - Why trade him for Pollard who has brutal matchup?
+
+VERDICT: Trading two underperforming RBs for two worse RBs. This makes your
+RB situation even worse. Hard pass.
+
+WHY THE ESKIMO BROTHERS ACCEPTS THIS TRADE:
+
+THEIR ROSTER: (Same as Trade #1)
+- RBs: Travis Etienne (RB1), Tony Pollard, Jacory Croskey-Merritt, Quinshon Judkins, Kimani Vidal
+- WRs: Tee Higgins, Rome Odunze, Courtland Sutton, Rashid Shaheed, Xavier Worthy
+- Weak RB depth behind Etienne
+
+✓ DUMPS POLLARD + VIDAL: Selling low but getting out
+  - Pollard trending down hard (see Trade #1 analysis)
+  - Kimani Vidal is VERY_POOR rated backup
+  - Trading two sinking ships
+
+✓ GETS STEVENSON: Slight RB upgrade
+  - Stevenson has better Week 7 matchup than Pollard
+  - Goal-line role (83% of attempts last 2 weeks)
+  - Patriots RB situation might improve
+
+✓ GETS RJ HARVEY: Sean Payton RB lottery ticket
+  - Harvey is on Broncos (Payton typically supports RB production)
+  - Has upside if Dobbins gets hurt
+  - Better than Vidal (chargers backup)
+
+✗ DOWNGRADING QUALITY: Getting two struggling RBs
+  - Stevenson and Harvey are both underperforming
+  - Neither has shown RB2 upside yet
+  - Quantity over quality play
+
+LIKELIHOOD THEY ACCEPT: Medium (50-60%)
+- Depends on how desperate they are to dump Pollard
+- If they believe in Stevenson/Harvey upside > Pollard/Vidal
+- Harvey at least has Sean Payton, Vidal has nothing
+- They might just hold Pollard and hope he turns it around
+- Lateral move at best, so not super compelling for them
+
+RISK LEVEL: Very High (getting worse players)
+REWARD POTENTIAL: Very Low (no upside here)
+OVERALL GRADE: F
+
+--------------------------------------------------------------------------------
+RANK #7 - DO NOT RECOMMEND ★☆☆☆☆
+Trade #3 from original file
+--------------------------------------------------------------------------------
+GIVE: Rhamondre Stevenson
+GET:  Justice Hill
+
+EXPERT REASONING:
+
+✗ JUSTICE HILL: Ravens have BYE in Week 7
+  - ZERO fantasy value for Week 7
+  - You'd be trading Stevenson (great Week 7 matchup) for a player on bye
+  - This makes no sense for this week
+
+✓ HILL ROS: Has some value in PPR
+  - Passing-catching complement to Derrick Henry
+  - Viable weekly flex option in PPR formats
+  - Would get first crack at lead role if Henry injured
+
+✗ STEVENSON WEEK 7: Excellent matchup you'd be giving up
+  - Titans allow most rushing TDs to RBs (at least 1 every game)
+  - Stevenson gets 83% of goal-line attempts
+  - Patriots projected 24.5 points (9th-best)
+
+VERDICT: Terrible timing. Even if Hill has ROS value, you can't start him
+Week 7. Don't trade away a good Week 7 matchup for a bye week player.
+
+WHY PIDGIN ACCEPTS THIS TRADE:
+
+THEIR ROSTER:
+- RBs: Kenneth Walker III (RB1), Justice Hill, Tyler Allgeier, Zach Charbonnet, Trey Benson (IR), Bam Knight
+- WRs: A.J. Brown (elite WR1), Cooper Kupp, Zay Flowers, Darnell Mooney
+- TEs: Kyle Pitts, Mark Andrews (both inconsistent)
+- QBs: Jalen Hurts, Kyler Murray
+- Good at WR/QB, need RB depth
+
+✓ STEVENSON IMMEDIATE HELP: Week 7 starter
+  - Hill is on bye Week 7, can't help them
+  - Stevenson has elite Week 7 matchup (Titans allow most rushing TDs)
+  - Gets goal-line work (83% of attempts)
+  - Immediate RB2 plug-in this week
+
+✓ RB DEPTH UPGRADE: Kenneth Walker injury-prone
+  - Walker is their only reliable RB
+  - Allgeier, Charbonnet, Benson all backups
+  - Stevenson gives them legit RB2
+  - Better than Hill (backup to Derrick Henry)
+
+✗ LOSES HILL ROS VALUE: Hill has PPR upside
+  - Hill is passing-catching complement to Henry
+  - Viable flex in PPR formats
+  - Stevenson only marginally better ROS
+  - Both are low-end RB2/Flex plays
+
+LIKELIHOOD THEY ACCEPT: Medium-Low (40-50%)
+- Depends if they need Week 7 help desperately
+- If they're fighting for playoffs, immediate help matters
+- If they're comfortable, they might hold Hill for ROS
+- Hill has more upside in PPR, Stevenson safer floor
+- Lateral move that helps Week 7 but not much else
+
+RISK LEVEL: High (no Week 7 value)
+REWARD POTENTIAL: Low (Hill is just a flex option)
+OVERALL GRADE: F
+
+--------------------------------------------------------------------------------
+RANK #8 - DO NOT RECOMMEND ★☆☆☆☆
+Trade #6 from original file
+--------------------------------------------------------------------------------
+GIVE: Travis Kelce + Rhamondre Stevenson
+GET:  Tony Pollard + Darren Waller
+
+EXPERT REASONING:
+
+✓ KELCE SELL WINDOW: Experts say sell high NOW
+  - Recent strong games: 7-61-1 vs Jags, 6-78-0 vs Lions
+  - Rashee Rice returning = major concern
+  - Last year with Rice: Kelce averaged 4 targets, 5 fantasy PPG
+  - With Rice emerging, Kelce limited to 34 yards or less in 3 games
+  - Multiple experts: "Sell high immediately"
+  - "Use strong performances to move Kelce before offense shifts to Rice"
+  - Current trade value: 15.67 (ranks 5th among TEs)
+
+✗ TONY POLLARD: (See Trade #1 reasoning above)
+  - This is NOT the return you want for Kelce
+
+✗ DARREN WALLER: Not enough of an upgrade
+  - Rated POOR player rating
+  - 55.86 actual points vs Kelce's 73.91
+  - Performance: EXCELLENT (+150.2%) but small sample concerns
+  - On Miami (less target volume than Kelce on Chiefs)
+
+✗ STEVENSON: Good Week 7 matchup being wasted
+
+VERDICT: You should sell Kelce high, but NOT for Pollard + Waller. This is
+selling low disguised as selling high. If you're moving Kelce, get a quality
+RB1 or WR1 in return, not Pollard who experts hate.
+
+WHY THE ESKIMO BROTHERS ACCEPTS THIS TRADE:
+
+THEIR ROSTER: (Same as Trades #1, #4)
+- RBs: Travis Etienne (RB1), Tony Pollard, Jacory Croskey-Merritt, Quinshon Judkins, Kimani Vidal
+- WRs: Tee Higgins, Rome Odunze, Courtland Sutton, Rashid Shaheed, Xavier Worthy
+- TEs: Darren Waller, George Kittle (IR)
+- Weak at RB, have two TEs already
+
+✓ KELCE ELITE UPGRADE: Massive TE improvement
+  - Kelce (73.91 pts) >> Waller (55.86 pts)
+  - Kelce on Chiefs offense vs Waller on Dolphins
+  - Even with Rashee Rice returning, Kelce > Waller
+  - Locks in top-5 TE ROS
+
+✓ DUMPS POLLARD: (See Trade #1 analysis)
+  - Pollard trending down, desperate to sell
+  - Getting Stevenson (goal-line work) is lateral/upgrade
+  - Even if Stevenson struggles, better than Pollard's trajectory
+
+✓ HAVE KITTLE BACKUP: George Kittle on IR
+  - Kittle could return and be their TE1
+  - Trading Waller while he has value (overperforming +150.2%)
+  - Kelce + Kittle is elite TE duo
+
+LIKELIHOOD THEY ACCEPT: Very High (80-90%)
+- Getting elite TE1 for overperforming TE2 + trash RB
+- Kelce is a massive upgrade even with Rice concerns
+- Dumping Pollard is addition by subtraction
+- Stevenson at least playable, Pollard is not
+- This trade HEAVILY favors them, which is why it's terrible for you
+
+RISK LEVEL: Very High (terrible return for Kelce)
+REWARD POTENTIAL: Very Low (downgrading at both positions)
+OVERALL GRADE: F
+
+--------------------------------------------------------------------------------
+RANK #9 - DO NOT RECOMMEND ★☆☆☆☆
+Trade #2 from original file
+--------------------------------------------------------------------------------
+GIVE: TreVeyon Henderson + Chris Boswell
+GET:  Justice Hill + Jake Elliott
+
+EXPERT REASONING:
+
+✓ DUMP HENDERSON: (See Trade #7 reasoning above)
+
+✗ JUSTICE HILL: (See Trade #3 reasoning above)
+  - Ravens bye Week 7 = no value this week
+  - Not enough of an upgrade over Henderson to justify losing Boswell
+
+✗ KICKER DOWNGRADE: Boswell > Elliott
+  - Boswell: 54.20 actual points, 94.34 projected
+  - Elliott: 48.19 actual points, 83.88 projected
+  - Boswell on better Steelers offense
+  - Performance: Boswell +17.6% vs Elliott -16.4%
+
+VERDICT: Yes, dump Henderson, but not for a bye-week player and a kicker
+downgrade. You can get better value for Henderson + Boswell elsewhere.
+
+WHY PIDGIN ACCEPTS THIS TRADE:
+
+THEIR ROSTER: (Same as Trade #3)
+- RBs: Kenneth Walker III, Justice Hill, Tyler Allgeier, Zach Charbonnet, Trey Benson (IR), Bam Knight
+- WRs: A.J. Brown, Cooper Kupp, Zay Flowers, Darnell Mooney
+- K: Jake Elliott
+- Need RB depth behind Walker
+
+✓ HENDERSON UPSIDE: Lottery ticket RB
+  - High draft capital rookie
+  - If he breaks out, could be valuable
+  - Better upside than their backups (Allgeier, Charbonnet)
+  - Zero downside given Hill is on bye anyway
+
+✓ BOSWELL UPGRADE: Kicker improvement
+  - Boswell (54.20 pts) > Elliott (48.19 pts)
+  - Boswell on better offense (Steelers > Eagles)
+  - Performance: Boswell +17.6% vs Elliott -16.4%
+  - Getting better kicker as bonus
+
+✗ TRADES AWAY HILL: Has PPR value ROS
+  - Hill is viable weekly flex (passing-catching role)
+  - Henderson is currently bust
+  - Trading proven commodity for unknown
+  - Hill > Henderson ROS (unless Henderson breaks out)
+
+LIKELIHOOD THEY ACCEPT: Medium (45-55%)
+- Hill is on bye Week 7 anyway, so timing doesn't hurt them
+- If they believe in Henderson's upside, makes sense
+- Boswell upgrade sweetens the deal
+- But Hill has proven value, Henderson doesn't
+- Would need to really believe Patriots pivot to Henderson
+
+RISK LEVEL: Medium-High (Hill on bye, kicker downgrade)
+REWARD POTENTIAL: Very Low (marginal upgrade at RB)
+OVERALL GRADE: F
+
+--------------------------------------------------------------------------------
+RANK #10 - DO NOT RECOMMEND ★☆☆☆☆
+Trade #10 from original file
+--------------------------------------------------------------------------------
+GIVE: TreVeyon Henderson + RJ Harvey
+GET:  Justice Hill + Tyler Allgeier
+
+EXPERT REASONING:
+
+✓ DUMP HENDERSON: (See Trade #7 reasoning above)
+
+✗ JUSTICE HILL: (See Trade #3 reasoning above)
+  - Ravens bye Week 7
+  - No value this week when you need RB help
+
+✓ TYLER ALLGEIER: Some upside as Falcons backup
+  - 45.78 actual points, 74.30 projected
+  - Performance: GOOD (+35.6%)
+  - Could have value if Bijan Robinson gets hurt
+  - Week 7: Bye week (same as Ravens)
+
+✗ RJ HARVEY: While struggling, at least playable
+  - Harvey has more upside than Allgeier
+  - Sean Payton offense vs Falcons backup role
+
+VERDICT: Trading two struggling but playable RBs for two bye-week RBs. This
+leaves you with NO RB options for Week 7. Terrible timing.
+
+WHY PIDGIN ACCEPTS THIS TRADE:
+
+THEIR ROSTER: (Same as Trades #2, #3)
+- RBs: Kenneth Walker III, Justice Hill, Tyler Allgeier, Zach Charbonnet, Trey Benson (IR), Bam Knight
+- WRs: A.J. Brown, Cooper Kupp, Zay Flowers, Darnell Mooney
+- Need RB depth behind Walker
+
+✓ QUANTITY FOR LOTTERY TICKETS: Two unknowns for two bench pieces
+  - Henderson has draft capital, could break out
+  - RJ Harvey on Sean Payton offense (RB-friendly system)
+  - Both have theoretical upside > Hill/Allgeier
+
+✓ HILL + ALLGEIER ON BYE: Don't need them Week 7
+  - Both are on bye Week 7 (Ravens, Falcons)
+  - Can't help their team this week anyway
+  - No downside to trading them now
+
+✓ ALLGEIER EXPENDABLE: Backup to Bijan Robinson
+  - Tyler Allgeier is just Bijan handcuff
+  - No standalone value unless Bijan injured
+  - Harvey could have standalone value in Broncos system
+
+✗ TRADING PROVEN FOR UNPROVEN: Hill/Allgeier have shown production
+  - Hill: +115.6% performance (48.71 pts actual)
+  - Allgeier: +35.6% performance (45.78 pts actual)
+  - Both outperforming, Henderson/Harvey underperforming
+  - Giving up current production for future hope
+
+LIKELIHOOD THEY ACCEPT: Low (25-35%)
+- Hill and Allgeier are both outperforming expectations
+- Henderson is a confirmed bust so far
+- Harvey is struggling (sub-33% snaps most games)
+- Trading two assets performing well for two busts
+- Only makes sense if they're very high on Henderson/Harvey upside
+- Probably decline unless they love the lottery ticket approach
+
+RISK LEVEL: Very High (both returns on bye Week 7)
+REWARD POTENTIAL: Very Low (backups with limited upside)
+OVERALL GRADE: F
+
+================================================================================
+SUMMARY & ACTION PLAN
+================================================================================
+
+IMMEDIATE RECOMMENDATIONS (SORTED BY ACCEPTANCE LIKELIHOOD):
+
+1. PRIORITIZE TRADE #5 (McMillan + Mason) - 70-80% acceptance likelihood ★★★
+   - Striking Shibas VERY LIKELY to accept
+   - They're stacked at RB (Achane, Williams, Jones/Mixon returning)
+   - Need WR2 behind Justin Jefferson badly
+   - Waddle is immediate starter, Mason expendable for them
+   - INITIATE THIS TRADE FIRST
+
+2. PRIORITIZE TRADE #12 (Chase Brown + Woody Marks) - 60-70% acceptance likelihood ★★★
+   - Annihilators LIKELY to accept
+   - They have CMC as RB1, can spare Brown/Marks
+   - WR corps old/injured (Evans, Allen, Collins banged up)
+   - Waddle is clear upgrade, selling high on overperforming Marks
+   - STRONG SECOND OPTION
+
+3. CONSIDER TRADE #9 (Drake Maye + Mason) - 65-75% acceptance likelihood ★★
+   - Striking Shibas might accept for Mahomes upgrade
+   - QB upgrade + dumping expendable Mason
+   - BUT you're downgrading from elite QB
+   - Only if desperate for RB help
+
+4. AVOID TRADE #7 (Kamara deal) - 30-40% acceptance likelihood ★
+   - Saquon Deez UNLIKELY to accept
+   - They're strong at RB, don't need depth
+   - Would need to be very scared of Kamara's ankle injury
+   - Try proposing but don't expect acceptance
+
+5. AVOID ALL TONY POLLARD TRADES
+   - Trades #1, #4, #6 all involve Pollard
+   - Experts universally negative on Pollard
+   - Out-snapped, brutal matchups, trending wrong direction
+   - Even though opponents would accept, terrible for you
+
+6. DON'T TRADE FOR BYE WEEK PLAYERS (Week 7)
+   - Justice Hill (Trades #2, #3, #10): Ravens bye
+   - Tyler Allgeier (Trade #10): Falcons bye
+   - Need players who can help you WIN THIS WEEK
+
+7. IF SELLING KELCE, get better return than Pollard + Waller
+   - Kelce should fetch an RB1 or high-end WR1
+   - Don't sell low just because Rice is returning
+
+================================================================================
+TRADE RANKINGS SUMMARY (VALUE + ACCEPTANCE LIKELIHOOD)
+================================================================================
+
+TIER 1 - BEST VALUE + HIGH ACCEPTANCE:
+#3. Trade #5: Get McMillan + Jordan Mason (Grade B, 70-80% accept) ★★★ BEST BET
+#2. Trade #12: Get Chase Brown + Woody Marks (Grade B+, 60-70% accept) ★★★
+
+TIER 2 - GOOD VALUE BUT LOWER ACCEPTANCE:
+#1. Trade #7: Get Kamara + 49ers D/ST (Grade A, 30-40% accept) ★ TRY BUT DON'T EXPECT
+#4. Trade #9: Get Drake Maye + Jordan Mason (Grade C+, 65-75% accept) ★★
+
+TIER 3 - BAD TRADES BUT THEY'D ACCEPT:
+#5. Trade #1: Get Worthy + Pollard (Grade D, 75-85% accept) - AVOID
+#8. Trade #6: Get Pollard + Waller (Grade F, 80-90% accept) - AVOID
+#6. Trade #4: Get Pollard + Vidal (Grade F, 50-60% accept) - AVOID
+
+TIER 4 - BAD TRADES + QUESTIONABLE ACCEPTANCE:
+#7. Trade #3: Get Justice Hill (Grade F, 40-50% accept) - AVOID
+#9. Trade #2: Get Hill + Elliott (Grade F, 45-55% accept) - AVOID
+#10. Trade #10: Get Hill + Allgeier (Grade F, 25-35% accept) - AVOID
+
+================================================================================
+REALISTIC TRADE STRATEGY (ACCEPTANCE LIKELIHOOD RANKING)
+================================================================================
+
+MOST LIKELY TO BE ACCEPTED (prioritize proposing these):
+1. Trade #6: Pollard + Waller (80-90%) - BUT TERRIBLE VALUE, DON'T DO IT
+2. Trade #1: Worthy + Pollard (75-85%) - BUT TERRIBLE VALUE, DON'T DO IT
+3. Trade #5: McMillan + Mason (70-80%) - GOOD VALUE, DO THIS ★★★
+4. Trade #9: Drake Maye + Mason (65-75%) - OKAY VALUE, CONSIDER IF DESPERATE
+5. Trade #12: Chase Brown + Woody Marks (60-70%) - GOOD VALUE, DO THIS ★★★
+
+MODERATELY LIKELY TO BE ACCEPTED:
+6. Trade #4: Pollard + Vidal (50-60%) - TERRIBLE VALUE, AVOID
+7. Trade #2: Hill + Elliott (45-55%) - TERRIBLE VALUE, AVOID
+8. Trade #3: Justice Hill (40-50%) - TERRIBLE VALUE, AVOID
+
+UNLIKELY TO BE ACCEPTED:
+9. Trade #7: Kamara (30-40%) - BEST VALUE BUT HARD TO GET
+10. Trade #10: Hill + Allgeier (25-35%) - TERRIBLE VALUE ANYWAY
+
+KEY PLAYERS TO AVOID ACQUIRING:
+❌ Tony Pollard (in Trades #1, #4, #6)
+❌ Justice Hill for Week 7 (in Trades #2, #3, #10)
+❌ Kimani Vidal (in Trade #4)
+
+KEY PLAYERS TO TARGET:
+✓ Alvin Kamara (Trade #7) - Best value, but hard to get
+✓ Chase Brown (Trade #12) - Good value, likely accepted
+✓ Jordan Mason (Trades #5, #9) - Very good value, very likely accepted
+✓ Woody Marks (Trade #12) - Good value, likely accepted
+
+================================================================================
+KEY INSIGHT: BEST VALUE ≠ MOST LIKELY TO BE ACCEPTED
+================================================================================
+
+The best trade for YOU (Trade #7: Kamara) has only 30-40% acceptance likelihood
+because Saquon Deez doesn't need the depth and Kamara is too valuable to them.
+
+The worst trades for YOU (Trades #1, #6: Pollard deals) have 75-90% acceptance
+likelihood because The Eskimo Brothers are DESPERATE to dump Pollard and get
+your better players.
+
+WINNING STRATEGY:
+1. Propose Trade #5 to Striking Shibas (70-80% acceptance, Grade B)
+   - They NEED WR help behind Jefferson
+   - They're STACKED at RB and can spare Mason
+   - Aaron Jones/Joe Mixon returning makes Mason expendable
+   - This trade benefits both sides (win-win)
+
+2. Propose Trade #12 to Annihilators (60-70% acceptance, Grade B+)
+   - They NEED WR consistency (Evans/Allen/Collins injured)
+   - They can spare RB depth (have CMC as stud RB1)
+   - Selling high on Woody Marks (overperforming +88.8%)
+   - Chase Brown buy-low opportunity
+
+3. Throw out Trade #7 to Saquon Deez (30-40% acceptance, Grade A)
+   - Worth trying, but don't expect acceptance
+   - If Kamara's ankle scares them, they might bite
+   - Best value if it works
+
+DON'T FALL INTO THE TRAP:
+- Just because they'll accept doesn't mean you should do it
+- The Eskimo Brothers would LOVE to give you Pollard
+- That's exactly why you shouldn't take him
+
+================================================================================
+OPPONENT ROSTER ANALYSIS SUMMARY
+================================================================================
+
+TEAMS MOST LIKELY TO TRADE WITH YOU:
+
+1. STRIKING SHIBAS (Trades #5, #9) - BEST TRADE PARTNER
+   - Surplus: RBs (Achane, Williams, Mason, Jones/Mixon returning)
+   - Need: WR2 behind Justin Jefferson
+   - Your offer: Waddle solves their biggest weakness
+   - Win-win scenario
+
+2. ANNIHILATORS (Trade #12) - GOOD TRADE PARTNER
+   - Surplus: RB depth (CMC, Brown, Hubbard, Warren, Marks)
+   - Need: Consistent WR (Evans/Allen/Collins all injured/old)
+   - Your offer: Waddle provides WR consistency
+   - Win-win scenario
+
+3. THE ESKIMO BROTHERS (Trades #1, #4, #6) - AVOID
+   - Surplus: None (weak roster)
+   - Need: Everything (desperate)
+   - Your offer: They'd love it, you'd hate it
+   - Win-lose scenario (they win, you lose)
+
+4. PIDGIN (Trades #2, #3, #10) - MARGINAL
+   - Surplus: None really
+   - Need: RB depth behind Kenneth Walker
+   - Your offer: Lateral moves, bye week issues
+   - Lose-lose scenario (neither benefits much)
+
+5. SAQUON DEEZ (Trade #7) - HARD TO TRADE WITH
+   - Surplus: RB depth (Saquon, Kamara, Dobbins)
+   - Need: None (well-rounded team)
+   - Your offer: Good, but they don't need it
+   - Only works if Kamara injury scares them
+
+================================================================================
+FINAL RECOMMENDATION
+================================================================================
+
+PROPOSE IN THIS ORDER:
+
+1ST: Trade #5 to Striking Shibas (Waddle + Henderson for McMillan + Mason)
+     → 70-80% acceptance, Grade B, helps both teams
+
+2ND: Trade #12 to Annihilators (Waddle + Henderson for Brown + Marks)
+     → 60-70% acceptance, Grade B+, helps both teams
+
+3RD: Trade #7 to Saquon Deez (Henderson + Stevenson for Kamara + 49ers DST)
+     → 30-40% acceptance, Grade A, but worth a shot
+
+IF ALL FAIL: Hold your players, don't panic trade into bad deals with
+The Eskimo Brothers just because they'll accept. Bad trades that get accepted
+are still bad trades.
+
+YOUR LEVERAGE: Multiple teams need what you have (Waddle, Stevenson)
+- Use that leverage to get fair deals
+- Don't settle for bad returns just to make a trade
+- Henderson is a bust, but others don't know that yet (use him as sweetener)
+
+================================================================================
+END OF RECOMMENDATIONS
+================================================================================

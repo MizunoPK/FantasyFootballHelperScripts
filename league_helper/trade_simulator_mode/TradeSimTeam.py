@@ -32,8 +32,10 @@ class TradeSimTeam:
         total = 0
         for player in self.team:
             if self.isOpponent:
-                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=False, performance=False, matchup=False, bye=False, injury=False, roster=self.team)
+                # Opponent scoring: exclude bye penalties to avoid artificial score changes from roster composition
+                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, bye=False, injury=False, roster=self.team)
             else:
+                # User scoring: include all scoring components
                 scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, bye=True, injury=False, roster=self.team)
             player.score = scored_player.score
             self.scored_players[player.id] = scored_player  # Store the ScoredPlayer object

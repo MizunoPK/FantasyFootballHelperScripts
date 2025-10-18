@@ -10,6 +10,7 @@ Provides three modes:
 - iterative: Test parameters one at a time (fast, for coordinate descent)
 
 Usage (from project root):
+    python run_simulation.py                       # defaults to iterative mode
     python run_simulation.py single --sims 5
     python run_simulation.py full --sims 100
     python run_simulation.py iterative --sims 100
@@ -33,6 +34,15 @@ LOG_NAME = "simulation"
 LOGGING_FILE = './simulation/log.txt'
 LOGGING_FORMAT = 'standard'     # detailed / standard / simple
 
+DEFAULT_MODE='iterative'
+DEFAULT_SIMS=100
+DEFAULT_BASELINE=''
+DEFAULT_OUTPUT='simulation/simulation_configs'
+DEFAULT_WORKERS=7
+DEFAULT_DATA='simulation/sim_data'
+DEFAULT_TEST_VALUES=10
+
+
 def main():
     """Main entry point for simulation CLI."""
     parser = argparse.ArgumentParser(
@@ -40,23 +50,26 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  # Run iterative optimization (default mode)
+  python run_simulation.py
+
   # Test single config with 5 simulations
   python run_simulation.py single --sims 5
 
   # Run full grid search optimization (exhaustive but slow)
   python run_simulation.py full --sims 100 --workers 8
 
-  # Run iterative optimization (coordinate descent, much faster)
+  # Run iterative optimization with custom settings
   python run_simulation.py iterative --sims 100 --test-values 5
 
   # Use custom baseline config and output directory
-  python run_simulation.py iterative --baseline my_config.json --output results/test1
+  python run_simulation.py --baseline my_config.json --output results/test1
         """
     )
     setup_logger(LOG_NAME, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE, LOGGING_FORMAT)
 
     # Mode selection
-    subparsers = parser.add_subparsers(dest='mode', help='Simulation mode', required=True)
+    subparsers = parser.add_subparsers(dest='mode', help='Simulation mode', required=False)
 
     # Single config mode
     single_parser = subparsers.add_parser(
@@ -66,7 +79,7 @@ Examples:
     single_parser.add_argument(
         '--sims',
         type=int,
-        default=5,
+        default=DEFAULT_SIMS,
         help='Number of simulations to run (default: 5)'
     )
 
@@ -78,7 +91,7 @@ Examples:
     full_parser.add_argument(
         '--sims',
         type=int,
-        default=50,
+        default=DEFAULT_SIMS,
         help='Number of simulations per config (default: 50)'
     )
 
@@ -90,7 +103,7 @@ Examples:
     iterative_parser.add_argument(
         '--sims',
         type=int,
-        default=50,
+        default=DEFAULT_SIMS,
         help='Number of simulations per config (default: 50)'
     )
 
@@ -99,35 +112,52 @@ Examples:
         subparser.add_argument(
             '--baseline',
             type=str,
-            default='',
+            default=DEFAULT_BASELINE,
             help='Path to baseline configuration JSON (default: takes the most recent file in the output directory)'
         )
         subparser.add_argument(
             '--output',
             type=str,
-            default='simulation/simulation_configs',
+            default=DEFAULT_OUTPUT,
             help='Output directory for results (default: simulation/simulation_configs)'
         )
         subparser.add_argument(
             '--workers',
             type=int,
-            default=7,
+            default=DEFAULT_WORKERS,
             help='Number of parallel worker threads (default: 7)'
         )
         subparser.add_argument(
             '--data',
             type=str,
-            default='simulation/sim_data',
+            default=DEFAULT_DATA,
             help='Path to simulation data folder (default: simulation/sim_data)'
         )
         subparser.add_argument(
             '--test-values',
             type=int,
-            default=5,
-            help='Number of test values per parameter (default: 5).'
+            default=DEFAULT_TEST_VALUES,
+            help='Number of test values per parameter.'
         )
 
     args = parser.parse_args()
+
+    # Set default mode if not provided
+    if args.mode is None:
+        args.mode = DEFAULT_MODE
+        # Set default values for iterative mode when no mode specified
+        if not hasattr(args, 'sims'):
+            args.sims = DEFAULT_SIMS
+        if not hasattr(args, 'baseline'):
+            args.baseline = DEFAULT_BASELINE
+        if not hasattr(args, 'output'):
+            args.output = DEFAULT_OUTPUT
+        if not hasattr(args, 'workers'):
+            args.workers = DEFAULT_WORKERS
+        if not hasattr(args, 'data'):
+            args.data = DEFAULT_DATA
+        if not hasattr(args, 'test_values'):
+            args.test_values = DEFAULT_TEST_VALUES
 
     # Validate and resolve baseline path
     output_dir = Path(args.output)
