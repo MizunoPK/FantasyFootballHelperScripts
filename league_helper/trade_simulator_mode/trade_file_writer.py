@@ -57,34 +57,44 @@ class TradeFileWriter:
               I receive:
                 - Player Name (POS) - TEAM
         """
-        # Generate timestamp
+        # STEP 1: Generate unique timestamp for filename (YYYYMMDD_HHMMSS format)
+        # Ensures each file has a unique name and is easily sortable by time
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        # Sanitize opponent name (replace spaces with underscores)
+        # STEP 2: Sanitize opponent name for filesystem compatibility
+        # Replace spaces with underscores (e.g., "Team Name" → "Team_Name")
         sanitized_name = opponent_name.replace(" ", "_")
 
-        # Create filename
+        # STEP 3: Construct filename with opponent name and timestamp
+        # Example: trade_info_Team_Name_20251017_143022.txt
         filename = f"./league_helper/trade_simulator_mode/trade_outputs/trade_info_{sanitized_name}_{timestamp}.txt"
 
-        # Calculate improvements
+        # STEP 4: Calculate score improvements for both teams
         my_improvement = trade.my_new_team.team_score - original_my_score
+        # Determine sign for display (+ for gains, - for losses)
         my_improvement_sign = "+" if my_improvement >= 0.0 else "-"
         their_improvement = trade.their_new_team.team_score - original_their_score
         their_improvement_sign = "+" if their_improvement >= 0.0 else "-"
 
-        # Write to file
+        # STEP 5: Write trade details to file
         with open(filename, 'w') as file:
+            # Write header with opponent name
             file.write(f"Trade with {opponent_name}\n")
+            # Write score improvements with absolute values (sign already included)
             file.write(f"  My improvement: {my_improvement_sign}{abs(my_improvement):.2f} pts (New score: {trade.my_new_team.team_score:.2f})\n")
             file.write(f"  Their improvement: {their_improvement_sign}{abs(their_improvement):.2f} pts (New score: {trade.their_new_team.team_score:.2f})\n")
+
+            # Write players I'm giving up (original scores from old roster context)
             file.write(f"  I give:\n")
-            # Show original scored players (from original roster context)
             for player in trade.my_original_players:
-                file.write(f"    - {player}\n")
+                file.write(f"    - {player}\n")  # ScoredPlayer.__str__() includes score details
+
+            # Write players I'm receiving (new scores from new roster context)
             file.write(f"  I receive:\n")
             for player in trade.my_new_players:
-                file.write(f"    - {player}\n")
+                file.write(f"    - {player}\n")  # ScoredPlayer.__str__() includes score details
 
+        # Return filename so caller can display success message
         return filename
 
     def save_trades_to_file(self, sorted_trades: List[TradeSnapshot], my_team: TradeSimTeam, opponent_simulated_teams: List[TradeSimTeam]) -> None:
@@ -99,41 +109,50 @@ class TradeFileWriter:
         File naming: trade_info_{timestamp}.txt (format: YYYY-MM-DD_HH-MM-SS)
         Location: ./league_helper/trade_simulator_mode/trade_outputs/
         """
-        # Generate timestamp
+        # Generate unique timestamp for filename (YYYY-MM-DD_HH-MM-SS format)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-        # Create filename with timestamp
+        # Construct filename (no opponent name - this file contains trades with ALL opponents)
         filename = f'./league_helper/trade_simulator_mode/trade_outputs/trade_info_{timestamp}.txt'
 
-        # Open the file in write mode (it will create the file if it doesn't exist)
+        # Write all trade suggestions to file
         with open(filename, 'w') as file:
+            # Process each trade in ranked order (best first)
             for i, trade in enumerate(sorted_trades, 1):
+                # Calculate MY improvement (compare new score vs original my_team score)
                 my_improvement = trade.my_new_team.team_score - my_team.team_score
 
-                # Get the original team score for comparison
+                # Look up ORIGINAL opponent team score for comparison
+                # TradeSnapshot has NEW team scores, but we need original for improvement calculation
                 original_their_team = None
                 for opp in opponent_simulated_teams:
                     if opp.name == trade.their_new_team.name:
                         original_their_team = opp
                         break
 
+                # Calculate THEIR improvement (or 0 if opponent team not found)
                 their_improvement = trade.their_new_team.team_score - original_their_team.team_score if original_their_team else 0
 
+                # Write trade header with rank number
                 file.write(f"#{i} - Trade with {trade.their_new_team.name}\n")
+                # Note: Assumes positive improvements (trades are pre-filtered to be mutually beneficial)
                 file.write(f"  My improvement: +{my_improvement:.2f} pts (New score: {trade.my_new_team.team_score:.2f})\n")
                 file.write(f"  Their improvement: +{their_improvement:.2f} pts (New score: {trade.their_new_team.team_score:.2f})\n")
-                file.write(f"  I give:\n")
 
-                # Show original scored players (from original roster context)
+                # Write players I give (original scores from old roster context)
+                file.write(f"  I give:\n")
                 for player in trade.my_original_players:
                     file.write(f"    - {player}\n")
 
+                # Write players I receive (new scores from new roster context)
                 file.write(f"  I receive:\n")
                 for player in trade.my_new_players:
                     file.write(f"    - {player}\n")
 
-                file.write("\n")  # Adds a blank line between trades
+                # Add blank line separator between trades for readability
+                file.write("\n")
 
+        # Log success message
         self.logger.info(f"Trades saved to {filename}")
 
     def save_waiver_trades_to_file(self, sorted_trades: List[TradeSnapshot], my_team: TradeSimTeam) -> None:
@@ -147,31 +166,41 @@ class TradeFileWriter:
         File naming: waiver_info_{timestamp}.txt (format: YYYY-MM-DD_HH-MM-SS)
         Location: ./league_helper/trade_simulator_mode/trade_outputs/
         """
-        # Generate timestamp
+        # Generate unique timestamp for filename (YYYY-MM-DD_HH-MM-SS format)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-        # Create filename with timestamp
+        # Construct filename (waiver_info prefix differentiates from trade files)
         filename = f'./league_helper/trade_simulator_mode/trade_outputs/waiver_info_{timestamp}.txt'
 
-        # Open the file in write mode (it will create the file if it doesn't exist)
+        # Write all waiver pickup suggestions to file
         with open(filename, 'w') as file:
+            # Process each waiver pickup in ranked order (best first)
             for i, trade in enumerate(sorted_trades, 1):
+                # Calculate score improvement
                 improvement = trade.my_new_team.team_score - my_team.team_score
+
+                # Determine trade type label (1-for-1, 2-for-2, 3-for-3)
+                # All waivers are balanced (same number dropped as added)
                 num_players = len(trade.my_new_players)
                 trade_type = f"{num_players}-for-{num_players}"
 
+                # Write trade header with rank, type, and improvement
                 file.write(f"#{i} - {trade_type} Trade - Improvement: +{improvement:.2f} pts\n")
-                file.write(f"  DROP:\n")
 
-                # Show original scored players (from original roster context)
+                # Write players to DROP from roster (original scores from old roster context)
+                file.write(f"  DROP:\n")
                 for drop_player in trade.my_original_players:
                     file.write(f"    - {drop_player}\n")
 
+                # Write players to ADD from waivers (new scores from new roster context)
                 file.write(f"  ADD:\n")
                 for add_player in trade.my_new_players:
                     file.write(f"    - {add_player}\n")
 
+                # Write new total team score after waiver moves
                 file.write(f"  New team score: {trade.my_new_team.team_score:.2f}\n")
-                file.write("\n")  # Adds a blank line between trades
+                # Add blank line separator between pickups for readability
+                file.write("\n")
 
+        # Log success message
         self.logger.info(f"Waiver pickups saved to {filename}")

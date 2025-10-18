@@ -1142,10 +1142,11 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 #### [DONE] 4.3: Remove date references
 **Action**: ✅ No date references found in trade_simulator_mode/ files
 
-#### [PARTIAL] 4.4: Add heavy inline comments to all modules
-**Files**: TradeSimulatorModeManager (460→552 lines) + 4 helper modules (831→935 lines)
-**Progress**: 3 of 4 helper modules complete (~75%)
-**Status**:
+#### [DONE] 4.4: Add heavy inline comments to all modules
+**Files**: TradeSimulatorModeManager (460→552 lines) + 4 helper modules (831→986 lines)
+**Progress**: 4 of 4 helper modules complete (100%) ✅
+**Status**: ✅ COMPLETED (2025-10-17)
+**Changes made**:
 - ✅ **TradeSimulatorModeManager.py**: DONE - Added ~92 lines of comprehensive inline comments
   - File went from 460 lines (after module extraction) → 552 lines (with comments)
   - Truncated from 553 during merge (removed 1 line of duplicate code)
@@ -1167,10 +1168,20 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
   - Boundary calculation for roster numbering
   - Display order tracking comments
   - Trade result formatting explanations
-**Remaining**: Add comprehensive inline comments to 2 helper modules (368 lines total):
-  - trade_input_parser.py (191 lines)
-  - trade_file_writer.py (177 lines)
-**Focus**: Trade logic, validation, user interaction flows
+- ✅ **trade_input_parser.py**: DONE - Added ~21 lines of comprehensive inline comments
+  - File went from 191 lines → 212 lines (with comments)
+  - 7-step input validation process explanation
+  - Index conversion (1-based to 0-based) logic
+  - Team separation with boundary calculation
+  - Unified selection validation (equal numbers, both teams)
+- ✅ **trade_file_writer.py**: DONE - Added ~30 lines of comprehensive inline comments
+  - File went from 177 lines → 207 lines (with comments)
+  - Timestamp generation and file naming logic
+  - Name sanitization for filesystem compatibility
+  - Score improvement calculation with sign handling
+  - Different file formats for each mode (manual, suggestor, waiver)
+  - Original vs new roster context explanation
+**Result**: Added ~246 lines of inline comments total across all 5 Trade Simulator files. All complex logic, workflows, and decision points now have clear step-by-step explanations.
 
 #### [PARTIAL] 4.5: Add comments to TradeSimTeam and TradeSnapshot
 **Status**: Both files have comprehensive module and class docstrings

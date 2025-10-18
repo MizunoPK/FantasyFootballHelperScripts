@@ -55,39 +55,47 @@ class TradeInputParser:
             >>> parse_player_selection("1,99", 5)
             None
         """
-        # Strip whitespace
+        # STEP 1: Clean input (remove leading/trailing whitespace)
         input_str = input_str.strip()
 
-        # Check for exit
+        # STEP 2: Check for exit command (case-insensitive)
+        # User can type "exit", "EXIT", "Exit", etc. to cancel operation
         if input_str.lower() == 'exit':
             return None
 
-        # Check for empty input
+        # STEP 3: Reject empty input (after stripping whitespace)
         if not input_str:
             return None
 
-        # Split by comma and strip whitespace from each element
+        # STEP 4: Split by comma and clean each part
+        # Handles: "1,2,3" or "1, 2, 3" or "1 , 2 , 3"
         parts = [part.strip() for part in input_str.split(',')]
 
-        # Try to convert to integers
+        # STEP 5: Convert all parts to integers
+        # If any part contains non-numeric characters, conversion fails
         indices = []
         try:
             for part in parts:
                 index = int(part)
                 indices.append(index)
         except ValueError:
-            # Invalid characters
+            # Invalid characters detected (e.g., "1,abc,3")
             return None
 
-        # Validate range [1, max_index]
+        # STEP 6: Validate all indices are within valid range [1, max_index]
+        # Uses 1-based indexing (user sees numbers starting from 1)
         for index in indices:
             if index < 1 or index > max_index:
+                # Index out of bounds
                 return None
 
-        # Check for duplicates
+        # STEP 7: Check for duplicate selections
+        # Convert to set (removes duplicates) and compare length
+        # If lengths differ, duplicates were present
         if len(indices) != len(set(indices)):
             return None
 
+        # All validation passed - return parsed indices
         return indices
 
     @staticmethod
@@ -104,7 +112,8 @@ class TradeInputParser:
         """
         players = []
         for index in indices:
-            # Convert 1-based to 0-based
+            # Convert 1-based index (user-facing) to 0-based (Python list indexing)
+            # Example: User selects "1" → access roster[0]
             players.append(roster[index - 1])
         return players
 
@@ -127,15 +136,20 @@ class TradeInputParser:
             Input: [2, 6, 14, 21], roster_boundary=14
             Output: ([2, 6], [1, 8])  # Their indices adjusted to be 1-based relative to their roster
         """
+        # Initialize lists for separated indices
         my_indices = []
         their_indices = []
 
+        # Separate indices based on which roster they belong to
         for index in unified_indices:
             if index < roster_boundary:
-                # Player from my roster
+                # Index is before boundary → player from MY roster
+                # Keep as-is (already 1-based relative to my roster)
                 my_indices.append(index)
             else:
-                # Player from their roster - adjust to be relative to their roster (1-based)
+                # Index is at or after boundary → player from THEIR roster
+                # Adjust to be 1-based relative to THEIR roster start
+                # Example: If boundary=14 and index=21, their index = 21-14+1 = 8
                 their_indices.append(index - roster_boundary + 1)
 
         return my_indices, their_indices
@@ -171,21 +185,28 @@ class TradeInputParser:
             >>> parse_unified_player_selection("1,2,3", 30, 14)
             None  # Invalid: all from my team
         """
-        # Use existing parser for basic validation
+        # STEP 1: Parse and validate basic input (numbers, range, duplicates)
+        # Delegates to parse_player_selection for common validation
         unified_indices = TradeInputParser.parse_player_selection(input_str, max_index)
 
+        # If basic validation failed, propagate the None
         if unified_indices is None:
             return None
 
-        # Split into my players and their players
+        # STEP 2: Split unified indices into separate lists by team
+        # Players before boundary are mine, players at/after boundary are theirs
         my_indices, their_indices = TradeInputParser.split_players_by_team(unified_indices, roster_boundary)
 
-        # Validate at least 1 player from each team
+        # STEP 3: Validate at least 1 player from EACH team
+        # Trade requires players from both sides (can't trade with myself)
         if len(my_indices) < 1 or len(their_indices) < 1:
             return None
 
-        # Validate equal numbers from each team
+        # STEP 4: Validate EQUAL numbers from each team
+        # Manual trade visualizer requires balanced trades (1-for-1, 2-for-2, etc.)
+        # Prevents unfair trades like 3-for-1
         if len(my_indices) != len(their_indices):
             return None
 
+        # All validation passed - return separated indices
         return my_indices, their_indices
