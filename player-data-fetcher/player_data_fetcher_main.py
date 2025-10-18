@@ -134,52 +134,101 @@ class NFLProjectionsCollector:
         self.logger.info("Using ESPN hidden API - free but unofficial and may change")
     
     def _load_bye_weeks(self) -> Dict[str, int]:
-        """Load bye weeks from CSV file with robust error handling"""
+        """
+        Load bye week schedule from CSV file with robust error handling.
+
+        Bye weeks are when NFL teams don't play (1 week per team per season).
+        Players on bye weeks score 0 points and shouldn't be started.
+
+        File format (data/bye_weeks.csv):
+        Team,ByeWeek
+        KC,10
+        SF,9
+        ...
+
+        Returns:
+            Dict mapping team abbreviation to bye week number (1-18)
+            Example: {'KC': 10, 'SF': 9, 'BUF': 7}
+        """
         bye_weeks = {}
+
         # Look for bye_weeks.csv in parent directory's data folder
+        # Path: player-data-fetcher/../data/bye_weeks.csv = project_root/data/bye_weeks.csv
         bye_weeks_file = self.script_dir.parent / "data" / "bye_weeks.csv"
-        
+
         if not bye_weeks_file.exists():
+            # File missing = first run or file deleted
+            # Not fatal: players just won't have bye week data
             self.logger.warning(f"Bye weeks file not found: {bye_weeks_file}")
             return bye_weeks
-            
+
         try:
-            # Use csv_utils for standardized reading with validation
+            # Use standardized CSV reading with column validation
+            # Ensures file has required 'Team' and 'ByeWeek' columns
             required_columns = ['Team', 'ByeWeek']
             df = read_csv_with_validation(bye_weeks_file, required_columns)
-            
-            # Validate bye week values are reasonable (1-18)
+
+            # Data validation: Bye weeks must be between 1-18 (NFL regular season length)
+            # Invalid values could be typos or old data
             invalid_weeks = df[~df['ByeWeek'].between(1, 18)]
             if not invalid_weeks.empty:
+                # Log but don't crash - just filter out invalid entries
                 self.logger.warning(f"Invalid bye weeks found: {invalid_weeks[['Team', 'ByeWeek']].to_dict('records')}")
-            
-            # Filter to valid weeks only
+
+            # Filter to only valid bye weeks (between 1 and 18)
             valid_df = df[df['ByeWeek'].between(1, 18)]
+
+            # Convert DataFrame to dictionary for fast lookups
+            # Format: {'KC': 10, 'SF': 9, ...}
             bye_weeks = dict(zip(valid_df['Team'], valid_df['ByeWeek']))
-            
+
             self.logger.info(f"Loaded bye weeks for {len(bye_weeks)} teams")
             self.logger.debug(f"Bye weeks data: {bye_weeks}")
-            
+
         except Exception as e:
+            # CSV read failed or column missing
+            # Not fatal: proceed without bye week data
             self.logger.error(f"Failed to load bye weeks from {bye_weeks_file}: {e}")
             self.logger.error("Players will not have bye week information")
-            
+
         return bye_weeks
     
     async def collect_all_projections(self) -> Dict[str, ProjectionData]:
-        """Collect season projections"""
+        """
+        Collect all projection data from ESPN API.
+
+        Main data collection workflow:
+        1. Create ESPN API client
+        2. Pass bye weeks data to client for player enrichment
+        3. Fetch season projections (includes week-by-week data)
+        4. Fetch team rankings (offensive/defensive quality)
+        5. Fetch current week schedule (matchups)
+        6. Package everything into ProjectionData objects
+
+        Returns:
+            Dict with 'season' key containing ProjectionData for all players
+        """
+        # Create ESPN API client with configured settings
         client = self._get_api_client()
-        # Pass bye weeks data to the client
+
+        # Pass bye weeks data to client so it can enrich player data
+        # Client will add bye_week field to each player based on their team
         client.bye_weeks = self.bye_weeks
-        
+
+        # Use async context manager to ensure HTTP client is properly closed
         async with client.session():
             results = {}
 
-            # Get season projections
+            # Fetch season projections from ESPN API
             self.logger.info("Collecting season projections")
             try:
+                # get_season_projections() returns List[ESPNPlayerData]
+                # This makes one API call to get basic player info, then
+                # additional calls for each player to get week-by-week projections
                 season_projections = await client.get_season_projections()
 
+                # Package raw player data into ProjectionData model
+                # This validates data structure and adds metadata
                 season_data = ProjectionData(
                     season=self.settings.season,
                     scoring_format=self.settings.scoring_format.value,
@@ -190,17 +239,21 @@ class NFLProjectionsCollector:
                 results['season'] = season_data
                 self.logger.info(f"Collected {len(season_projections)} season projections")
 
-                # Get team rankings and schedule from client (they were fetched during get_season_projections)
+                # Extract team data that was cached during projection fetching
+                # Team rankings: offensive/defensive quality (1-32 ranking)
+                # Schedule: current week matchups (team → opponent)
                 team_rankings = client.team_rankings
                 current_week_schedule = client.current_week_schedule
                 self.logger.info(f"Collected team rankings for {len(team_rankings)} teams")
                 self.logger.info(f"Collected current week schedule for {len(current_week_schedule)} teams")
 
-                # Store team rankings and schedule for the exporter to use
+                # Store for later use by exporter (needs this for teams.csv)
                 self.team_rankings = team_rankings
                 self.current_week_schedule = current_week_schedule
 
             except Exception as e:
+                # Don't crash entire app if projection fetch fails
+                # Return empty results dict instead
                 self.logger.error(f"Failed to collect season projections: {e}")
 
             return results
@@ -210,14 +263,43 @@ class NFLProjectionsCollector:
         return ESPNClient(self.settings)
     
     async def export_data(self, projection_data: Dict[str, ProjectionData]) -> List[str]:
-        """Export all projection data based on configuration settings"""
-        # Set team rankings and schedule in exporter before exporting
+        """
+        Export all collected data to configured output formats.
+
+        Exports to multiple destinations:
+        1. Timestamped files in player-data-fetcher/data/ (CSV/JSON/Excel)
+        2. Shared data/players.csv (for draft helper integration)
+        3. Shared data/teams.csv (team quality rankings)
+        4. Shared data/players_projected.csv (week-by-week projections for performance tracking)
+
+        File organization:
+        - player-data-fetcher/data/nfl_projections_season_PPR_20241018_120000.csv (timestamped)
+        - player-data-fetcher/data/nfl_projections_season_PPR_latest.csv (latest version)
+        - player-data-fetcher/data/teams_20241018_120000.csv (timestamped team data)
+        - player-data-fetcher/data/teams_latest.csv (latest team data)
+        - data/players.csv (shared with draft helper - full player data)
+        - data/teams.csv (shared with league helper - team quality data)
+        - data/players_projected.csv (shared with league helper - week-by-week projections)
+
+        Args:
+            projection_data: Dict containing ProjectionData objects to export
+
+        Returns:
+            List of file paths created during export
+        """
+        # Pass team data to exporter so it can create teams.csv
+        # Team rankings: offensive/defensive quality (used for matchup evaluation)
+        # Schedule: current week matchups (used for opponent strength)
         self.exporter.set_team_rankings(self.team_rankings)
         self.exporter.set_current_week_schedule(self.current_week_schedule)
 
         output_files = []
 
+        # Export each projection type (typically just 'season')
         for data_type, data in projection_data.items():
+            # Export to all configured formats (CSV/JSON/Excel)
+            # Also creates timestamped and latest versions
+            # Also creates teams.csv with team quality rankings
             files = await self.exporter.export_all_formats_with_teams(
                 data,
                 create_csv=self.settings.create_csv,
@@ -227,25 +309,32 @@ class NFLProjectionsCollector:
             output_files.extend(files)
             self.logger.info(f"Exported {data_type} projections to configured formats")
 
-            # Also export to data/players.csv for draft helper integration
+            # Export to shared data/players.csv for draft helper integration
+            # This file is read by the draft helper to get current player projections
+            # Format: Full player data with all fields (id, name, team, position, fantasy_points, etc.)
             shared_file = await self.exporter.export_to_data(data)
             output_files.append(shared_file)
 
             # Update players_projected.csv with current and future week projections
-            # Per requirement #6: Update current week and everything upcoming
+            # Per requirement #6: "Update current week and everything upcoming"
+            # This preserves historical weeks and only updates current + future weeks
+            # Used by league helper for performance tracking against projections
             try:
                 projected_file = await self.exporter.export_projected_points_data(
                     data,
-                    self.settings.current_nfl_week
+                    self.settings.current_nfl_week  # Only update this week and beyond
                 )
                 output_files.append(projected_file)
                 self.logger.info("Updated players_projected.csv with current/future week projections")
             except FileNotFoundError as e:
+                # File doesn't exist yet - this is normal for first run
+                # Skip update but don't crash the entire export
                 self.logger.warning(f"Skipping players_projected.csv update: {e}")
             except Exception as e:
+                # Unexpected error updating projected points
+                # Log error but don't fail entire export - this is a supplementary feature
                 self.logger.error(f"Error updating players_projected.csv: {e}")
-                # Don't fail the entire export if projected points update fails
-                # This is a supplementary feature for performance scoring
+                # Don't append to output_files since update failed
 
         return output_files
     
