@@ -23,18 +23,43 @@ from pathlib import Path
 from utils.LoggingManager import setup_logger
 
 # Add simulation directory to path for imports
+# This allows us to import SimulationManager from simulation/SimulationManager.py
 sys.path.append(str(Path(__file__).parent / "simulation"))
 from SimulationManager import SimulationManager
 
 
-LOGGING_LEVEL = 'INFO'      # ← DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
-LOGGING_TO_FILE = False        # ← Console vs file logging
-LOG_NAME = "simulation"
-LOGGING_FILE = './simulation/log.txt'
+# Logging configuration - adjust these settings to control verbosity
+LOGGING_LEVEL = 'INFO'          # DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
+LOGGING_TO_FILE = False         # True = log to file, False = log to console
+LOG_NAME = "simulation"         # Logger name for this module
+LOGGING_FILE = './simulation/log.txt'  # Log file path (only used if LOGGING_TO_FILE=True)
 LOGGING_FORMAT = 'standard'     # detailed / standard / simple
 
 def main():
-    """Main entry point for simulation CLI."""
+    """
+    Main entry point for simulation CLI.
+
+    Provides three simulation modes:
+    - single: Test baseline config (fast, for debugging)
+    - full: Grid search all parameter combinations (exhaustive, slow)
+    - iterative: Coordinate descent optimization (fast, local optimum)
+
+    Parses command-line arguments, validates paths, initializes SimulationManager,
+    and executes the selected optimization mode.
+
+    Command-line Arguments:
+        mode (str): Required. One of: single, full, iterative
+        --sims (int): Number of simulations per config
+        --baseline (str): Path to baseline configuration JSON
+        --output (str): Output directory for results
+        --workers (int): Number of parallel worker threads
+        --data (str): Path to simulation data folder
+        --test-values (int): Number of test values per parameter
+
+    Raises:
+        SystemExit: If baseline config or data folder not found
+    """
+    # Create argument parser with examples in help text
     parser = argparse.ArgumentParser(
         description="Run fantasy football league simulations for parameter optimization",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -53,12 +78,16 @@ Examples:
   python run_simulation.py iterative --baseline my_config.json --output results/test1
         """
     )
+
+    # Initialize logging system
     setup_logger(LOG_NAME, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE, LOGGING_FORMAT)
 
-    # Mode selection
+    # Create subparsers for three different simulation modes
+    # User must choose one: single, full, or iterative
     subparsers = parser.add_subparsers(dest='mode', help='Simulation mode', required=True)
 
-    # Single config mode
+    # MODE 1: Single config mode - runs just the baseline config for testing
+    # Useful for quick validation that the simulation system is working
     single_parser = subparsers.add_parser(
         'single',
         help='Test a single configuration (fast, for debugging)'
@@ -70,7 +99,8 @@ Examples:
         help='Number of simulations to run (default: 5)'
     )
 
-    # Full optimization mode
+    # MODE 2: Full optimization mode - tests ALL parameter combinations (grid search)
+    # WARNING: Very slow! Tests (test_values+1)^6 configurations
     full_parser = subparsers.add_parser(
         'full',
         help='Run full optimization on all configs (slow)'
@@ -82,7 +112,8 @@ Examples:
         help='Number of simulations per config (default: 50)'
     )
 
-    # Iterative optimization mode
+    # MODE 3: Iterative optimization mode - optimizes one parameter at a time
+    # Much faster than full mode, finds local optimum via coordinate descent
     iterative_parser = subparsers.add_parser(
         'iterative',
         help='Run iterative parameter optimization (coordinate descent)'
@@ -94,7 +125,7 @@ Examples:
         help='Number of simulations per config (default: 50)'
     )
 
-    # Common arguments for all modes
+    # Add common arguments that apply to all three modes
     for subparser in [single_parser, full_parser, iterative_parser]:
         subparser.add_argument(
             '--baseline',
@@ -127,51 +158,69 @@ Examples:
             help='Number of test values per parameter (default: 5).'
         )
 
+    # Parse command-line arguments
     args = parser.parse_args()
 
-    # Validate and resolve baseline path
+    # Resolve output directory path
     output_dir = Path(args.output)
 
+    # BASELINE CONFIG RESOLUTION
+    # Priority order:
+    # 1. User-specified --baseline path (if it exists)
+    # 2. Most recent optimal_*.json in output directory
+    # 3. Most recent optimal_*.json in simulation/simulation_configs
+    # 4. Error if none found
+
     if args.baseline:
+        # User specified a baseline config path
         baseline_path = Path(args.baseline)
         if not baseline_path.exists():
+            # Specified path doesn't exist - warn and fall back to auto-detection
             print(f"Warning: Specified baseline config not found: {baseline_path}")
             print(f"  Searched at: {baseline_path.absolute()}")
             print(f"  Attempting to use most recent config from output directory...")
             baseline_path = None
     else:
+        # No baseline specified - will auto-detect below
         baseline_path = None
 
-    # If no baseline or baseline doesn't exist, find most recent optimal config in output_dir
+    # If no baseline or baseline doesn't exist, find most recent optimal config
     if baseline_path is None:
-        # Look for optimal_*.json files in output directory
+        # Auto-detect baseline config by searching for optimal_*.json files
+
+        # First, look in the output directory (most likely location)
         optimal_configs = list(output_dir.glob("optimal_*.json"))
 
         if optimal_configs:
+            # Found configs in output dir - use the most recent one
             # Sort by modification time (most recent first)
             optimal_configs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
             baseline_path = optimal_configs[0]
             print(f"✓ Using most recent config from output directory: {baseline_path.name}")
         else:
-            # Fall back to optimal_configs directory
+            # No configs in output dir - fall back to default simulation_configs directory
             config_dir = Path("simulation/simulation_configs")
             if config_dir.exists():
                 optimal_configs = list(config_dir.glob("optimal_*.json"))
                 if optimal_configs:
+                    # Found configs in fallback directory - use most recent
                     optimal_configs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
                     baseline_path = optimal_configs[0]
                     print(f"✓ Using baseline config from simulation_configs: {baseline_path.name}")
                 else:
+                    # No configs found anywhere - error out
                     print(f"Error: No optimal config files found in {output_dir} or {config_dir}")
                     print(f"\nPlease provide a baseline config using --baseline argument")
                     sys.exit(1)
             else:
+                # Fallback directory doesn't exist - error out
                 print(f"Error: No baseline config found")
                 print(f"  Output directory: {output_dir.absolute()}")
                 print(f"  Config directory: {config_dir.absolute()}")
                 print(f"\nPlease provide a baseline config using --baseline argument")
                 sys.exit(1)
 
+    # Validate data folder exists and contains required files
     data_folder = Path(args.data)
     if not data_folder.exists():
         print(f"Error: Data folder not found: {data_folder}")
@@ -182,7 +231,7 @@ Examples:
         print(f"  {data_folder}/teams_week_N.csv")
         sys.exit(1)
 
-    # Display configuration
+    # Display configuration summary to user
     print("=" * 80)
     print("FANTASY FOOTBALL SIMULATION OPTIMIZER")
     print("=" * 80)
@@ -192,11 +241,13 @@ Examples:
     print(f"Output directory: {output_dir}")
     print(f"Worker threads: {args.workers}")
 
+    # Execute the appropriate mode based on user selection
     if args.mode == 'single':
+        # SINGLE MODE: Run baseline config only for quick testing
         print(f"Simulations: {args.sims}")
         print("=" * 80)
 
-        # Initialize manager
+        # Initialize SimulationManager with baseline config
         manager = SimulationManager(
             baseline_config_path=baseline_path,
             output_dir=output_dir,
@@ -206,10 +257,12 @@ Examples:
             num_test_values=args.test_values
         )
 
-        # Run single config test
+        # Run N simulations with baseline config and display results
         manager.run_single_config_test()
 
     elif args.mode == 'full':
+        # FULL MODE: Grid search across all parameter combinations
+        # WARNING: Tests (test_values+1)^6 configurations - VERY SLOW!
         total_configs = (args.test_values + 1) ** 6
         print(f"Simulations per config: {args.sims}")
         print(f"Total configurations: {total_configs:,}")
@@ -217,8 +270,9 @@ Examples:
         print("=" * 80)
         print("")
 
+        # Infinite loop - continuously optimize using previous optimal config as new baseline
         while True:
-        # Initialize manager
+            # Initialize manager with current baseline
             manager = SimulationManager(
                 baseline_config_path=baseline_path,
                 output_dir=output_dir,
@@ -228,11 +282,13 @@ Examples:
                 num_test_values=args.test_values
             )
 
-            # Run full optimization
+            # Run exhaustive grid search optimization
             baseline_path = manager.run_full_optimization()
             print(f"\nOptimal configuration saved to: {baseline_path}")
 
     elif args.mode == 'iterative':
+        # ITERATIVE MODE: Coordinate descent - optimize one parameter at a time
+        # Much faster than full mode, but finds local optimum only
         num_params = 24  # 4 scalars + 20 multipliers
         configs_per_param = args.test_values + 1
         total_configs = num_params * configs_per_param
@@ -244,8 +300,9 @@ Examples:
         print("=" * 80)
         print("")
 
+        # Infinite loop - continuously optimize using previous optimal config as new baseline
         while True:
-            # Initialize manager
+            # Initialize manager with current baseline
             manager = SimulationManager(
                 baseline_config_path=baseline_path,
                 output_dir=output_dir,
@@ -255,7 +312,7 @@ Examples:
                 num_test_values=args.test_values
             )
 
-            # Run iterative optimization
+            # Run coordinate descent optimization (one parameter at a time)
             baseline_path = manager.run_iterative_optimization()
             print(f"\nOptimal configuration saved to: {baseline_path}")
 
