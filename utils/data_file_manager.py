@@ -74,10 +74,13 @@ class DataFileManager:
         """
         try:
             # Get all files with the specified extension
+            # Pattern is case-insensitive by using .lower()
             pattern = f"*.{file_extension.lower()}"
             files = list(self.data_folder.glob(pattern))
 
             # Sort by modification time (oldest first)
+            # st_mtime is seconds since epoch, lower = older
+            # This ensures we delete oldest files when enforcing caps
             files.sort(key=lambda f: f.stat().st_mtime)
 
             self.logger.debug(f"Found {len(files)} {file_extension} files in {self.data_folder}")
@@ -99,10 +102,13 @@ class DataFileManager:
             List of deleted file names (for logging)
         """
 
+        # Early return if nothing to delete
         if count_to_delete <= 0:
             return []
 
+        # Get all files sorted by modification time (oldest first)
         files = self.get_files_by_type(file_extension)
+        # Take first N files (oldest) for deletion
         files_to_delete = files[:count_to_delete]
         deleted_files = []
 
@@ -128,14 +134,17 @@ class DataFileManager:
             Dictionary mapping file extensions to lists of deleted files
         """
 
-        # Get file extension
+        # Extract file extension from the new file
+        # .lstrip('.') removes leading dot from suffix (.csv -> csv)
         new_file = Path(new_file_path)
         file_extension = new_file.suffix.lstrip('.').lower()
 
+        # Skip if no cap is configured for this file type
         if file_extension not in self.file_caps:
             self.logger.debug(f"No cap configured for .{file_extension} files")
             return {}
 
+        # Cap of 0 or negative means unlimited files (no enforcement)
         cap = self.file_caps[file_extension]
         if cap <= 0:
             self.logger.debug(f"File cap disabled for .{file_extension} files (cap={cap})")
@@ -148,6 +157,8 @@ class DataFileManager:
         self.logger.info(f"File cap check: {current_count} {file_extension} files, cap is {cap}")
 
         deleted_files = {}
+        # Only delete if we exceed the cap
+        # Example: cap=5, current=7 -> delete 2 oldest files
         if current_count > cap:
             files_to_delete = current_count - cap
             self.logger.info(f"Exceeds cap by {files_to_delete}, deleting oldest files")
@@ -236,11 +247,15 @@ class DataFileManager:
         Returns:
             Timestamped filename string
         """
+        # Generate timestamp in sortable format
+        # With time: YYYYMMDD_HHMMSS (e.g., 20250117_143052)
+        # Without time: YYYYMMDD (e.g., 20250117)
         if include_time:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         else:
             timestamp = datetime.now().strftime('%Y%m%d')
 
+        # Format: prefix_timestamp.extension (e.g., players_20250117_143052.csv)
         return f"{prefix}_{timestamp}.{extension}"
 
     def get_timestamped_path(self, prefix: str, extension: str, include_time: bool = True) -> Path:
@@ -286,23 +301,27 @@ class DataFileManager:
         Returns:
             Tuple of (timestamped_path, latest_path)
         """
-        # Set default CSV options
+        # Set default CSV options (no index, UTF-8 encoding)
+        # User can override with csv_kwargs
         csv_options = {'index': False, 'encoding': 'utf-8'}
         csv_options.update(csv_kwargs)
 
         timestamped_path = self.get_timestamped_path(prefix, 'csv')
 
-        # Save timestamped version
+        # Save timestamped version for historical record
         df.to_csv(timestamped_path, **csv_options)
         self.logger.info(f"Saved CSV: {timestamped_path}")
 
+        # Optionally save a "latest" version for easy access
+        # This gets overwritten each time, providing current snapshot
         latest_path = None
         if create_latest:
             latest_path = self.get_latest_path(prefix, 'csv')
             df.to_csv(latest_path, **csv_options)
             self.logger.info(f"Saved latest CSV: {latest_path}")
 
-        # Enforce file caps
+        # Enforce file caps after saving (deletes old timestamped files)
+        # Latest files are not subject to caps
         self.enforce_file_caps(str(timestamped_path))
 
         return timestamped_path, latest_path
@@ -397,11 +416,13 @@ class DataFileManager:
         Returns:
             Dictionary mapping format to (timestamped_path, latest_path) tuples
         """
+        # Default to exporting all supported formats
         if formats is None:
             formats = ['csv', 'xlsx', 'json']
 
+        # Build list of async tasks for concurrent execution
         tasks = []
-        format_tasks = {}
+        format_tasks = {}  # Maps format name to task index
 
         if 'csv' in formats:
             task = self.save_dataframe_csv(df, prefix, create_latest)
@@ -414,16 +435,17 @@ class DataFileManager:
             format_tasks['xlsx'] = len(tasks) - 1
 
         if 'json' in formats:
-            # Convert DataFrame to JSON-serializable format
+            # Convert DataFrame to JSON-serializable format (list of dicts)
             json_data = df.to_dict('records')
-            # JSON save is synchronous, so wrap it in a coroutine
+            # JSON save is synchronous, so wrap it in a coroutine for async execution
             async def save_json():
                 return self.save_json_data(json_data, prefix, create_latest)
             task = save_json()
             tasks.append(task)
             format_tasks['json'] = len(tasks) - 1
 
-        # Execute all exports concurrently
+        # Execute all exports concurrently for performance
+        # asyncio.gather runs all tasks in parallel
         results = await asyncio.gather(*tasks)
 
         # Map results back to formats
@@ -447,10 +469,13 @@ class DataFileManager:
         """
         source_path = Path(source_path)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        # Build backup filename: original_stem + suffix + timestamp + extension
+        # Example: players.csv -> players_backup_20250117_143052.csv
         backup_name = f"{source_path.stem}{backup_suffix}_{timestamp}{source_path.suffix}"
         backup_path = source_path.parent / backup_name
 
         if source_path.exists():
+            # shutil.copy2 preserves metadata (timestamps, permissions)
             shutil.copy2(source_path, backup_path)
             self.logger.info(f"Created backup: {source_path} -> {backup_path}")
         else:
@@ -469,10 +494,15 @@ class DataFileManager:
         Returns:
             List of deleted backup file names
         """
+        # Find all backup files matching the glob pattern
         backup_files = list(self.data_folder.glob(pattern))
+        # Sort by modification time (newest first) using reverse=True
+        # This way we keep the most recent backups
         backup_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
         deleted_files = []
+        # Delete all backups beyond keep_count (oldest ones)
+        # Example: keep_count=3, total=5 -> delete files at indices 3,4 (2 oldest)
         if len(backup_files) > keep_count:
             files_to_delete = backup_files[keep_count:]
             for file_path in files_to_delete:
