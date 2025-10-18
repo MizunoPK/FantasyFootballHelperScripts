@@ -6,7 +6,6 @@ This module contains all constant values and mappings used for NFL game scores
 collection from ESPN API. Separated for better maintainability.
 
 Author: Kai Mizuno
-Last Updated: September 2025
 """
 
 from typing import Dict

@@ -6,7 +6,6 @@ This module handles all data export operations (CSV, JSON, Excel) with
 async file I/O for better performance.
 
 Author: Kai Mizuno
-Last Updated: September 2025
 """
 
 import asyncio

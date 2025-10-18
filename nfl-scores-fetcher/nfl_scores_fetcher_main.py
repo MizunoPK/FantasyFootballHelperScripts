@@ -25,7 +25,6 @@ Example Usage:
     # NFL_SCORES_OUTPUT_DIRECTORY=./data/nfl_scores
 
 Author: Kai Mizuno
-Last Updated: September 2025
 
 Dependencies:
     pip install httpx pydantic python-dotenv pandas openpyxl

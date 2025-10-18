@@ -6,7 +6,6 @@ This module contains all Pydantic data models used for NFL game score collection
 and analysis. Separated for better organization and reusability.
 
 Author: Kai Mizuno
-Last Updated: September 2025
 """
 
 from datetime import datetime, timezone
