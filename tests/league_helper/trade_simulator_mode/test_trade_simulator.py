@@ -309,7 +309,7 @@ class TestTradeSimulatorModeManagerPositionValidation:
     def test_count_positions_basic(self, manager, sample_players):
         """Test basic position counting"""
         roster = sample_players[:10]  # Mix of positions
-        counts = manager._count_positions(roster)
+        counts = manager.analyzer.count_positions(roster)
 
         assert isinstance(counts, dict)
         assert counts['QB'] == 2  # Mahomes, Allen
@@ -321,7 +321,7 @@ class TestTradeSimulatorModeManagerPositionValidation:
 
     def test_count_positions_empty_roster(self, manager):
         """Test counting positions with empty roster"""
-        counts = manager._count_positions([])
+        counts = manager.analyzer.count_positions([])
 
         # All positions should have 0
         for pos, count in counts.items():
@@ -330,7 +330,7 @@ class TestTradeSimulatorModeManagerPositionValidation:
     def test_count_positions_single_position(self, manager, sample_players):
         """Test counting with only one position"""
         roster = [sample_players[0], sample_players[1]]  # Two QBs
-        counts = manager._count_positions(roster)
+        counts = manager.analyzer.count_positions(roster)
 
         assert counts['QB'] == 2
         assert counts['RB'] == 0
@@ -339,7 +339,7 @@ class TestTradeSimulatorModeManagerPositionValidation:
     def test_validate_roster_valid(self, manager, sample_players):
         """Test validation of valid roster"""
         roster = sample_players[:10]  # Within limits
-        is_valid = manager._validate_roster(roster)
+        is_valid = manager.analyzer.validate_roster(roster)
 
         assert is_valid == True
 
@@ -349,7 +349,7 @@ class TestTradeSimulatorModeManagerPositionValidation:
         roster = sample_players + [sample_players[0]]  # 12 + 1 = 13, add more
         roster = roster + [sample_players[1], sample_players[2], sample_players[3]]  # Total 16
 
-        is_valid = manager._validate_roster(roster)
+        is_valid = manager.analyzer.validate_roster(roster)
 
         # Should fail due to exceeding MAX_PLAYERS (15)
         if len(roster) > 15:
@@ -362,14 +362,14 @@ class TestTradeSimulatorModeManagerPositionValidation:
                  FantasyPlayer(id=99, name="Third QB", team="GB", position="QB",
                              fantasy_points=200.0, injury_status="ACTIVE")]
 
-        is_valid = manager._validate_roster(roster)
+        is_valid = manager.analyzer.validate_roster(roster)
 
         # Should fail due to exceeding QB limit
         assert is_valid == False
 
     def test_validate_roster_empty(self, manager):
         """Test validation of empty roster"""
-        is_valid = manager._validate_roster([])
+        is_valid = manager.analyzer.validate_roster([])
 
         assert is_valid == True  # Empty roster is valid
 
@@ -396,7 +396,7 @@ class TestGetTradeCombinations:
         my_team.team_score = 100.0
         their_team.team_score = 100.0
 
-        trades = manager.get_trade_combinations(
+        trades = manager.analyzer.get_trade_combinations(
             my_team, their_team,
             is_waivers=False,
             one_for_one=True,
@@ -416,7 +416,7 @@ class TestGetTradeCombinations:
         my_team.team_score = 100.0
         their_team.team_score = 100.0
 
-        trades = manager.get_trade_combinations(
+        trades = manager.analyzer.get_trade_combinations(
             my_team, their_team,
             is_waivers=False,
             one_for_one=False,
@@ -434,7 +434,7 @@ class TestGetTradeCombinations:
         my_team.team_score = 100.0
         their_team.team_score = 100.0
 
-        trades = manager.get_trade_combinations(
+        trades = manager.analyzer.get_trade_combinations(
             my_team, their_team,
             is_waivers=False,
             one_for_one=False,
@@ -449,7 +449,7 @@ class TestGetTradeCombinations:
         my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
         their_team = TradeSimTeam("Their Team", sample_players[5:10], mock_player_manager, isOpponent=True)
 
-        trades = manager.get_trade_combinations(
+        trades = manager.analyzer.get_trade_combinations(
             my_team, their_team,
             is_waivers=False,
             one_for_one=True,
@@ -464,7 +464,7 @@ class TestGetTradeCombinations:
         my_team = TradeSimTeam("My Team", sample_players[:5], mock_player_manager, isOpponent=False)
         their_team = TradeSimTeam("Waiver Wire", sample_players[5:10], mock_player_manager, isOpponent=True)
 
-        trades = manager.get_trade_combinations(
+        trades = manager.analyzer.get_trade_combinations(
             my_team, their_team,
             is_waivers=True,  # This should skip their team validation
             one_for_one=True,
@@ -483,7 +483,7 @@ class TestGetTradeCombinations:
         my_team.team_score = 50.0
         their_team.team_score = 50.0
 
-        trades = manager.get_trade_combinations(
+        trades = manager.analyzer.get_trade_combinations(
             my_team, their_team,
             is_waivers=True,
             one_for_one=True,
@@ -508,7 +508,7 @@ class TestGetTradeCombinations:
         original_my_score = my_team.team_score
         original_their_score = their_team.team_score
 
-        trades = manager.get_trade_combinations(
+        trades = manager.analyzer.get_trade_combinations(
             my_team, their_team,
             is_waivers=False,
             one_for_one=True,
@@ -566,7 +566,7 @@ class TestWaiverOptimizer:
 
     def test_waiver_optimizer_calls_get_trade_combinations(self, manager_with_waivers):
         """Test that waiver optimizer calls trade generation"""
-        with patch.object(manager_with_waivers, 'get_trade_combinations', return_value=[]) as mock_get:
+        with patch.object(manager_with_waivers.analyzer, 'get_trade_combinations', return_value=[]) as mock_get:
             with patch('builtins.input', return_value=''):
                 with patch('builtins.print'):
                     manager_with_waivers.start_waiver_optimizer()
@@ -626,7 +626,7 @@ class TestTradeSuggestor:
 
     def test_trade_suggestor_checks_all_opponents(self, manager_with_opponents):
         """Test that trade suggestor analyzes all opponent teams"""
-        with patch.object(manager_with_opponents, 'get_trade_combinations', return_value=[]) as mock_get:
+        with patch.object(manager_with_opponents.analyzer, 'get_trade_combinations', return_value=[]) as mock_get:
             with patch('builtins.input', return_value=''):
                 with patch('builtins.print'):
                     manager_with_opponents.start_trade_suggestor()
@@ -636,7 +636,7 @@ class TestTradeSuggestor:
 
     def test_trade_suggestor_uses_correct_parameters(self, manager_with_opponents):
         """Test that trade suggestor uses correct trade parameters"""
-        with patch.object(manager_with_opponents, 'get_trade_combinations', return_value=[]) as mock_get:
+        with patch.object(manager_with_opponents.analyzer, 'get_trade_combinations', return_value=[]) as mock_get:
             with patch('builtins.input', return_value=''):
                 with patch('builtins.print'):
                     manager_with_opponents.start_trade_suggestor()
@@ -678,7 +678,7 @@ class TestEdgeCases:
         my_team = TradeSimTeam("Empty My Team", [], mock_player_manager, isOpponent=False)
         their_team = TradeSimTeam("Empty Their Team", [], mock_player_manager, isOpponent=True)
 
-        trades = manager.get_trade_combinations(my_team, their_team)
+        trades = manager.analyzer.get_trade_combinations(my_team, their_team)
 
         assert len(trades) == 0
 
@@ -690,7 +690,7 @@ class TestEdgeCases:
         my_team = TradeSimTeam("Minimal Team", sample_players[:1], mock_player_manager, isOpponent=False)
         their_team = TradeSimTeam("Minimal Team 2", sample_players[1:2], mock_player_manager, isOpponent=True)
 
-        trades = manager.get_trade_combinations(my_team, their_team, one_for_one=True)
+        trades = manager.analyzer.get_trade_combinations(my_team, their_team, one_for_one=True)
 
         # Should generate at most 1 trade (1x1)
         assert len(trades) <= 1
@@ -708,7 +708,7 @@ class TestEdgeCases:
             sample_players[5],  # WR
         ]
 
-        is_valid = manager._validate_roster(roster)
+        is_valid = manager.analyzer.validate_roster(roster)
 
         # Should be valid as RB and WR can fill FLEX spots
         assert isinstance(is_valid, bool)
