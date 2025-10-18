@@ -1615,16 +1615,28 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Total tests**: 1192 → 1231 (+39)
 **Commit**: `df1ba31` - "Add 39 comprehensive tests for csv_utils (Phase 7 - Task 7.2)"
 
-#### [ ] 7.3: Create comprehensive tests for data_file_manager.py
+#### [DONE] 7.3: Create comprehensive tests for data_file_manager.py
+**Status**: ✅ COMPLETED (2025-10-17)
 **File**: `tests/utils/test_data_file_manager.py` (NEW)
-**Priority**: HIGH - 529 lines, NO TESTS
-**Estimated tests**: 40-50 tests
-**Coverage areas**:
-- All file loading methods
-- All file writing methods
-- Path resolution
-- Error handling for missing/corrupt files
-- Edge cases
+**Tests added**: 52 new tests (0 → 52 tests, exceeded estimate of 40-50)
+**New test classes**:
+- TestDataFileManagerInit (4 tests): Folder creation, custom/default caps, path setting
+- TestGetFilesByType (5 tests): File discovery sorted by time, extension filtering, empty results, case handling
+- TestDeleteOldestFiles (4 tests): Correct count deletion, zero/negative count, missing files
+- TestEnforceFileCaps (5 tests): Excess deletion, keeping newest, unconfigured extensions, zero cap, under cap behavior
+- TestCleanupAllFileTypes (3 tests): All caps enforcement, disabled caps skip, under caps returns empty
+- TestGetFileCounts (2 tests): Correct counts, zero for missing types
+- TestValidateCaps (5 tests): Valid caps, non-dict detection, non-string file type, non-integer cap, negative cap
+- TestTimestampedFilenames (4 tests): With/without time, timestamped path, latest path generation
+- TestSaveDataframeCsv (4 tests): Timestamped file creation, latest copy, skip latest, cap enforcement
+- TestSaveDataframeExcel (3 tests): Excel file creation, latest copy, custom sheet name
+- TestSaveJsonData (4 tests): JSON file creation, latest copy, valid content, nested structures
+- TestExportMultiFormat (3 tests): All default formats, specific formats, latest copies
+- TestBackupOperations (5 tests): Backup creation, timestamp inclusion, missing source handling, old backup cleanup, under limit behavior
+- TestModuleLevelFunctions (2 tests): Auto-detect data folder, explicit data folder parameter
+**Result**: All 52 tests passing, comprehensive coverage achieved
+**Total tests**: 1231 → 1283 (+52)
+**Commit**: `9d85ee4` - "Add 52 comprehensive tests for data_file_manager (Phase 7 - Task 7.3)"
 
 #### [ ] 7.4: Create comprehensive tests for DraftedRosterManager.py
 **File**: `tests/utils/test_DraftedRosterManager.py` (NEW)
