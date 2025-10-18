@@ -2125,8 +2125,18 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 
 ### Code Quality Tasks
 
-#### [ ] 8.15: Check for duplicate code
-**Action**: Identify patterns
+#### [✓] 8.15: Check for duplicate code - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**Analysis**: Reviewed all 8 player-data-fetcher Python files for code duplication
+**Findings**:
+- **Major duplication**: `_get_week_actual_performance()` and `_get_week_projection()` in espn_client.py (lines 692-791)
+  - Nearly identical methods (~100 lines total)
+  - Only minor differences in data extraction logic
+  - **Note**: Both methods appear to be UNUSED dead code (no callers found)
+  - Will be removed in Task 8.16
+- **Minor duplication**: Repetitive error handling patterns (acceptable for clarity)
+- **Minor duplication**: Similar logging patterns (acceptable for consistency)
+**Recommendation**: Remove unused methods in Task 8.16
 
 #### [ ] 8.16: Remove unused code
 **Action**: Clean up
