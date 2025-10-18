@@ -1977,10 +1977,22 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Coverage**: Scoring calculations for all positions (QB, RB, WR, TE, K, DEF)
 **Note**: Tests already exist from previous work
 
-#### [ ] 8.4: Create basic tests for player_data_exporter
-**File**: `tests/player_data_fetcher/test_player_data_exporter.py` (NEW)
-**Estimated tests**: 10-15 tests
-**Coverage**: Export to CSV/JSON/Excel
+#### [✓] 8.4: Create basic tests for player_data_exporter - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**File**: `tests/player_data_fetcher/test_player_data_exporter.py` (NEW, 287 lines)
+**Tests added**: 17 tests (exceeded estimate of 10-15)
+**Test classes**:
+- TestDataExporterInit (3 tests): Initialization, output directory creation, settings
+- TestSetTeamData (2 tests): Setting team rankings and schedules
+- TestCreateDataFrame (2 tests): DataFrame creation with/without players
+- TestPrepareExportDataFrame (1 test): Export DataFrame preparation
+- TestGetFantasyPlayers (2 tests): FantasyPlayer conversion, empty data handling
+- TestExportJSON (2 tests): JSON export, empty data handling
+- TestExportCSV (2 tests): CSV export with single/multiple players
+- TestExportExcel (1 test): Excel export
+- TestExportAllFormats (2 tests): All formats export, selective format export
+**Total tests**: 1503 → 1520 (+17)
+**Result**: All 17 tests passing (100%)
 
 #### [✓] 8.5: Create basic tests for player_data_models - DONE
 **Status**: ✅ COMPLETED (existing)
