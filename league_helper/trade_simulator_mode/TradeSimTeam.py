@@ -52,16 +52,63 @@ class TradeSimTeam:
         self.score_team()
 
     def score_team(self) -> float:
+        """
+        Calculate total team score using PlayerManager's scoring engine.
+
+        Uses different scoring configurations based on team type:
+        - Opponent teams: Simplified scoring (projections + player rating only)
+        - User team: Comprehensive scoring (projections + rating + team quality + performance + bye penalties)
+
+        Returns:
+            float: Total team score (sum of all player scores)
+        """
         total = 0
+
+        # Iterate through all active players on the team roster
         for player in self.team:
+            # ===== OPPONENT TEAM SCORING (Simplified) =====
+            # For opponent/waiver teams, use minimal scoring factors to approximate their value
+            # This gives a fair but simplified evaluation of their team strength
             if self.isOpponent:
-                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=False, performance=False, matchup=False, bye=False, injury=False, roster=self.team)
+                scored_player = self.player_manager.score_player(
+                    player,
+                    adp=False,              # No ADP bonus (opponent rosters don't benefit from draft position)
+                    player_rating=True,     # Include player rating (skill level assessment)
+                    team_quality=False,     # No team quality factor (opponent teams aren't optimized)
+                    performance=False,      # No performance history (simplify opponent scoring)
+                    matchup=False,          # No matchup bonus (not relevant for trade evaluation)
+                    bye=False,              # No bye week penalties (opponent rosters already account for this)
+                    injury=False,           # No injury penalty (injured players already filtered out in __init__)
+                    roster=self.team        # Pass roster for position context
+                )
+            # ===== USER TEAM SCORING (Comprehensive) =====
+            # For user team, use full scoring to accurately evaluate roster strength
+            # This includes all factors that affect user's team performance
             else:
-                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, bye=True, injury=False, roster=self.team)
+                scored_player = self.player_manager.score_player(
+                    player,
+                    adp=False,              # No ADP bonus (trade evaluation uses current performance, not draft position)
+                    player_rating=True,     # Include player rating (skill level assessment)
+                    team_quality=True,      # Include team quality (offensive line, coaching, scheme fit)
+                    performance=True,       # Include performance history (consistency, recent form)
+                    matchup=False,          # No matchup bonus (trade evaluation is season-long, not weekly)
+                    bye=True,               # Include bye week penalties (affects roster optimization)
+                    injury=False,           # No injury penalty (injured players already filtered out in __init__)
+                    roster=self.team        # Pass roster for position context
+                )
+
+            # Update the player object with computed score
+            # This allows direct access to score without re-calculation
             player.score = scored_player.score
-            self.scored_players[player.id] = scored_player  # Store the ScoredPlayer object
+
+            # Cache the ScoredPlayer object for later retrieval
+            # Needed for displaying trade details with scoring breakdown
+            self.scored_players[player.id] = scored_player
+
+            # Accumulate total team score
             total += scored_player.score
 
+        # Store computed team score and return
         self.team_score = total
         return total
 

@@ -1183,19 +1183,24 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
   - Original vs new roster context explanation
 **Result**: Added ~246 lines of inline comments total across all 5 Trade Simulator files. All complex logic, workflows, and decision points now have clear step-by-step explanations.
 
-#### [PARTIAL] 4.5: Add comments to TradeSimTeam and TradeSnapshot
-**Status**: Both files have comprehensive module and class docstrings
-**TradeSimTeam.py** (77 lines):
+#### [DONE] 4.5: Add comments to TradeSimTeam and TradeSnapshot
+**Status**: ✅ COMPLETED (2025-10-17)
+**TradeSimTeam.py** (78→113 lines):
 - ✅ Detailed module docstring (lines 1-16) with key responsibilities
 - ✅ Class docstring (lines 31-37) explaining purpose
-- ❓ **score_team()** method may benefit from inline comments (opponent vs user scoring logic)
+- ✅ **score_team()** method enhanced with comprehensive inline comments (+35 lines)
+  - Enhanced docstring explaining opponent vs user scoring configurations
+  - Detailed inline comments for opponent team scoring (simplified scoring)
+  - Detailed inline comments for user team scoring (comprehensive scoring)
+  - Explanation of each scoring parameter (adp, player_rating, team_quality, performance, matchup, bye, injury)
+  - Comments on score caching and total accumulation
 - ✅ **get_scored_players()** method has Google-style docstring
 **TradeSnapshot.py** (50 lines):
 - ✅ Detailed module docstring (lines 1-15) with key responsibilities
 - ✅ Class docstring (lines 26-32) explaining immutable snapshot concept
 - ✅ **__init__** has comprehensive docstring with Args documentation
-- ✅ File is very simple (just data class), probably doesn't need additional inline comments
-**Assessment**: TradeSimTeam.score_team() is the only method that might benefit from inline comments explaining the different scoring configurations for opponents vs user teams
+- ✅ File is very simple (just data class), no additional inline comments needed
+**Result**: TradeSimTeam.score_team() now has excellent inline comment coverage explaining the critical difference between opponent and user team scoring configurations
 
 #### [PARTIAL] 4.6: Standardize docstrings
 **Status**: Helper modules have Google-style docstrings
