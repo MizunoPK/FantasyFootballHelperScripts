@@ -1597,21 +1597,23 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Result**: All 48 tests passing, comprehensive coverage achieved
 **Commit**: `6496dc6` - "Add 44 comprehensive tests for FantasyPlayer (Phase 7 - Task 7.1)"
 
-#### [ ] 7.2: Create comprehensive tests for csv_utils.py
+#### [DONE] 7.2: Create comprehensive tests for csv_utils.py
+**Status**: ✅ COMPLETED (2025-10-17)
 **File**: `tests/utils/test_csv_utils.py` (NEW)
-**Priority**: HIGH - 357 lines, heavily used, NO TESTS
-**Estimated tests**: 30-40 tests
-**Coverage areas**:
-- `validate_csv_columns()` - valid/invalid columns
-- `read_csv_with_validation()` - various CSV formats
-- `write_csv_with_backup()` - backup creation
-- `write_csv_async()` - async operations
-- `read_dict_csv()` - dictionary format
-- `write_dict_csv()` - dictionary writing
-- `merge_csv_files()` - merging operations
-- `safe_csv_read()` - error handling
-- `csv_column_exists()` - column checking
-- Edge cases: Missing files, corrupt CSV, encoding issues, empty files
+**Tests added**: 39 new tests (0 → 39 tests, exceeded estimate of 30-40)
+**New test classes**:
+- TestValidateCsvColumns (5 tests): Column validation with all/subset columns, missing columns/file, empty required list
+- TestReadCsvWithValidation (6 tests): Reading with/without validation, custom encoding, error handling for missing file/columns
+- TestWriteCsvWithBackup (5 tests): New file creation, backup handling for existing files (with temp file skip note), parent directory creation, custom encoding
+- TestWriteCsvAsync (3 tests): Async file creation, parent directory creation, custom encoding
+- TestReadDictCsv (5 tests): List of dicts return, column validation, error handling for missing file/columns, empty file
+- TestWriteDictCsv (4 tests): File creation with correct data, custom fieldnames order, empty data handling, parent directory creation
+- TestMergeCsvFiles (4 tests): File concatenation, skipping missing files, error for no valid files, unsupported merge method
+- TestSafeCsvRead (4 tests): DataFrame return for existing file, empty DataFrame for missing file, custom default value, error handling
+- TestCsvColumnExists (4 tests): True for existing columns, False for missing column/file, graceful read error handling
+**Result**: All 39 tests passing, comprehensive coverage achieved
+**Total tests**: 1192 → 1231 (+39)
+**Commit**: `df1ba31` - "Add 39 comprehensive tests for csv_utils (Phase 7 - Task 7.2)"
 
 #### [ ] 7.3: Create comprehensive tests for data_file_manager.py
 **File**: `tests/utils/test_data_file_manager.py` (NEW)
