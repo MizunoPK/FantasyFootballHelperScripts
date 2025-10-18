@@ -998,7 +998,7 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **New Modules Created**:
 - `trade_display_helper.py` (202 lines) - Display and visualization
 - `trade_input_parser.py` (191 lines) - Input parsing and player selection
-- `trade_analyzer.py` (243 lines) - Trade analysis and validation
+- `trade_analyzer.py` (261 lines) - Trade analysis and validation
 - `trade_file_writer.py` (177 lines) - File output operations
 
 ### Testing Tasks
@@ -1103,32 +1103,88 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Test Status**: ✅ All 19 tests passing (100%)
 **Full Suite**: ✅ All 1084 tests passing (1065 + 19 new = 1084)
 
-**ALL TESTING TASKS COMPLETE (4.1a-d)**: ✅ Added 103 new tests total (981→1084)
+#### [DONE] 4.1e: Integrate bug fixes from origin/main (MERGE)
+**Status**: ✅ COMPLETED (2025-10-17)
+**Action**: Pull and merge bug fixes from origin/main into refactored code
+**Bug fixes integrated**:
+- **Trade suggestor**: Changed `ignore_max_positions=True` → `False` to enforce position limits (prevents invalid trades)
+- **Opponent scoring**: Changed `player_rating=False` → `True` for more accurate opponent team evaluation
+- **Locked player handling**: Locked players now excluded from trades but included in roster validation (prevents trading locked players while maintaining position limits)
+**Files modified**:
+- `TradeSimulatorModeManager.py`: Applied ignore_max_positions=False fix in start_trade_suggestor()
+- `trade_analyzer.py`: Added locked player validation logic to all 3 trade generation sections (+18 lines, 243→261)
+- `TradeSimTeam.py`: Updated opponent scoring to include player_rating=True
+- `PlayerManager.py`: Fixed team initialization order issue (handle missing team during load_players_from_csv)
+- `test_trade_simulator.py`: Updated test to match new opponent scoring behavior
+**Merge conflicts resolved**:
+- Kept refactored structure while applying bug fixes
+- Truncated duplicate code from TradeSimulatorModeManager.py (removed 300+ lines of old methods moved to helpers)
+- Maintained detailed module docstrings from refactored version
+**Test Status**: ✅ All 1084 tests passing (100%)
+**Commit**: 15268fe - "Merge branch 'origin/main' - Integrate bug fixes"
+
+**ALL TESTING TASKS COMPLETE (4.1a-e)**: ✅ Added 103 new tests + integrated 3 critical bug fixes (981→1084)
 
 ### Documentation Tasks
 
-#### [PARTIAL] 4.2: Add author attribution to all files
+#### [DONE] 4.2: Add author attribution to all files
 **Files**: TradeSimulatorModeManager, TradeSimTeam, TradeSnapshot, 4 helper modules
-**Status**: ✅ All 7 files have "Author: Kai Mizuno"
-**Remaining**: Verify no other files missing attribution
+**Status**: ✅ COMPLETED (2025-10-17) - All 7 files have "Author: Kai Mizuno"
+**Verified files**:
+- ✅ TradeSimulatorModeManager.py (line 30)
+- ✅ TradeSimTeam.py (line 15)
+- ✅ TradeSnapshot.py (line 14)
+- ✅ trade_display_helper.py (line 8)
+- ✅ trade_input_parser.py (line 8)
+- ✅ trade_analyzer.py (line 7)
+- ✅ trade_file_writer.py (line 8)
 
 #### [DONE] 4.3: Remove date references
 **Action**: ✅ No date references found in trade_simulator_mode/ files
 
 #### [PARTIAL] 4.4: Add heavy inline comments to all modules
-**Files**: TradeSimulatorModeManager (460→553 lines) + 4 helper modules (813 lines)
+**Files**: TradeSimulatorModeManager (460→552 lines) + 4 helper modules (831→935 lines)
+**Progress**: 3 of 4 helper modules complete (~75%)
 **Status**:
 - ✅ **TradeSimulatorModeManager.py**: DONE - Added ~92 lines of comprehensive inline comments
+  - File went from 460 lines (after module extraction) → 552 lines (with comments)
+  - Truncated from 553 during merge (removed 1 line of duplicate code)
   - run_interactive_mode: Main loop workflow
   - init_team_data: Team roster loading and TradeSimTeam creation
   - start_waiver_optimizer: Waiver wire analysis flow
   - start_trade_suggestor: Trade suggestion analysis flow
   - start_manual_trade: 4-step manual trade workflow with validation loop
-**Remaining**: Add comprehensive inline comments to 4 helper modules (813 lines)
+- ✅ **trade_analyzer.py**: DONE - Added ~54 lines of comprehensive inline comments
+  - File went from 261 lines → 315 lines (with comments)
+  - Comprehensive workflow comments for get_trade_combinations()
+  - Detailed explanation of locked player handling (BUG FIX)
+  - Step-by-step validation and scoring logic
+  - Comments on mutual improvement requirement
+  - TradeSnapshot creation process explained
+- ✅ **trade_display_helper.py**: DONE - Added ~49 lines of comprehensive inline comments
+  - File went from 202 lines → 251 lines (with comments)
+  - Detailed side-by-side display logic explanation
+  - Boundary calculation for roster numbering
+  - Display order tracking comments
+  - Trade result formatting explanations
+**Remaining**: Add comprehensive inline comments to 2 helper modules (368 lines total):
+  - trade_input_parser.py (191 lines)
+  - trade_file_writer.py (177 lines)
 **Focus**: Trade logic, validation, user interaction flows
 
-#### [ ] 4.5: Add comments to TradeSimTeam and TradeSnapshot
-**Action**: Document helper classes with heavy inline comments
+#### [PARTIAL] 4.5: Add comments to TradeSimTeam and TradeSnapshot
+**Status**: Both files have comprehensive module and class docstrings
+**TradeSimTeam.py** (77 lines):
+- ✅ Detailed module docstring (lines 1-16) with key responsibilities
+- ✅ Class docstring (lines 31-37) explaining purpose
+- ❓ **score_team()** method may benefit from inline comments (opponent vs user scoring logic)
+- ✅ **get_scored_players()** method has Google-style docstring
+**TradeSnapshot.py** (50 lines):
+- ✅ Detailed module docstring (lines 1-15) with key responsibilities
+- ✅ Class docstring (lines 26-32) explaining immutable snapshot concept
+- ✅ **__init__** has comprehensive docstring with Args documentation
+- ✅ File is very simple (just data class), probably doesn't need additional inline comments
+**Assessment**: TradeSimTeam.score_team() is the only method that might benefit from inline comments explaining the different scoring configurations for opponents vs user teams
 
 #### [PARTIAL] 4.6: Standardize docstrings
 **Status**: Helper modules have Google-style docstrings
