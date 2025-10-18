@@ -392,7 +392,11 @@ class PlayerScoringCalculator:
             # This sums all remaining weeks from current week through week 17
             orig_pts = p.get_rest_of_season_projection(self.config.current_nfl_week)
             # Normalize to 0-N scale for comparability across all players
-            weighted_pts = self.weight_projection(orig_pts)
+            # Check for zero max_projection to avoid division by zero
+            if self.max_projection > 0:
+                weighted_pts = self.weight_projection(orig_pts)
+            else:
+                weighted_pts = 0.0
 
         # Format reason string showing both raw and normalized values
         reason = f"Projected: {orig_pts:.2f} pts, Weighted: {weighted_pts:.2f} pts"

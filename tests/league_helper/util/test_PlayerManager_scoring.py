@@ -1277,14 +1277,17 @@ class TestAdditionalEdgeCases:
         assert abs(result.score) < 1000000  # Reasonable upper bound
 
     def test_zero_max_projection_edge_case(self, player_manager, test_player):
-        """Test normalization when max_projection is 0 - reveals bug (ZeroDivisionError)"""
+        """Test normalization when max_projection is 0 - should handle gracefully (BUG FIXED)"""
         player_manager.max_projection = 0
         player_manager.scoring_calculator.max_projection = 0
         test_player.fantasy_points = 100.0
 
-        # Currently raises ZeroDivisionError - this documents the bug
-        with pytest.raises(ZeroDivisionError):
-            result, reason = player_manager.scoring_calculator._get_normalized_fantasy_points(test_player, use_weekly_projection=False)
+        # BUG FIX: Now handles zero max_projection gracefully instead of raising ZeroDivisionError
+        result, reason = player_manager.scoring_calculator._get_normalized_fantasy_points(test_player, use_weekly_projection=False)
+
+        # Should return 0.0 when max_projection is 0
+        assert result == 0.0
+        assert "Weighted: 0.00" in reason
 
     def test_extremely_negative_matchup_score(self, player_manager, test_player):
         """Test with extremely negative matchup score"""
