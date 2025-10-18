@@ -2013,10 +2013,22 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Total tests**: 1520 → 1534 (+14)
 **Result**: All 14 tests passing (100%)
 
-#### [ ] 8.7: Create basic tests for config
-**File**: `tests/player_data_fetcher/test_config.py` (NEW)
-**Estimated tests**: 5-10 tests
-**Coverage**: Configuration loading and validation
+#### [✓] 8.7: Create basic tests for config - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**File**: `tests/player-data-fetcher/test_config.py` (NEW, 207 lines)
+**Tests added**: 30 tests (exceeded estimate of 5-10)
+**Test classes**:
+- TestNFLConfiguration (2 tests): Week/season validation
+- TestDataPreservationSettings (5 tests): Boolean/string validation
+- TestOptimizationSettings (3 tests): Boolean/numeric validation
+- TestOutputSettings (5 tests): Output configuration validation
+- TestLoggingConfiguration (4 tests): Log level/format validation
+- TestProgressTrackingConfiguration (2 tests): Positive integer validation
+- TestESPNAPIConfiguration (4 tests): API settings validation
+- TestExportConfiguration (3 tests): List validation, required fields
+- TestTeamRankingsConfiguration (1 test): Min weeks validation
+**Total tests**: 1534 → 1564 (+30)
+**Result**: All 190 player-data-fetcher tests passing (100%)
 
 ### Documentation Tasks
 
