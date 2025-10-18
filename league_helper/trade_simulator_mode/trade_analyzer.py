@@ -24,6 +24,7 @@ from util.FantasyTeam import FantasyTeam
 # Add parent directory to path for utils imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
+from utils.LoggingManager import get_logger
 
 from trade_simulator_mode.TradeSimTeam import TradeSimTeam
 from trade_simulator_mode.TradeSnapshot import TradeSnapshot
@@ -49,6 +50,7 @@ class TradeAnalyzer:
         """
         self.player_manager = player_manager
         self.config = config
+        self.logger = get_logger()
 
     def count_positions(self, roster: List[FantasyPlayer]) -> Dict[str, int]:
         """
@@ -139,6 +141,10 @@ class TradeAnalyzer:
         Returns:
             List[TradeSnapshot]: List of all valid trade scenarios
         """
+        # Log trade generation start with configuration
+        mode = "Waiver Optimizer" if is_waivers else "Trade Suggestor"
+        self.logger.info(f"Generating trade combinations ({mode}): 1-for-1={one_for_one}, 2-for-2={two_for_two}, 3-for-3={three_for_three}")
+
         # Initialize list to store all valid trades
         trade_combos: List[TradeSnapshot] = []
 
@@ -154,6 +160,9 @@ class TradeAnalyzer:
         my_locked = [p for p in my_team.team if p.locked == 1]  # Locked players (not tradeable)
         their_roster = [p for p in their_team.team if p.locked != 1]  # Tradeable players only
         their_locked = [p for p in their_team.team if p.locked == 1]  # Locked players (not tradeable)
+
+        # Log locked player filtering results
+        self.logger.debug(f"Filtered rosters: my_tradeable={len(my_roster)}, my_locked={len(my_locked)}, their_tradeable={len(their_roster)}, their_locked={len(their_locked)}")
 
         # ===== GENERATE 1-FOR-1 TRADES =====
         # Try every combination of swapping 1 player from my team with 1 player from their team
@@ -310,6 +319,9 @@ class TradeAnalyzer:
                             my_original_players=my_original_scored
                         )
                         trade_combos.append(snapshot)
+
+        # Log trade generation completion with result count
+        self.logger.info(f"Generated {len(trade_combos)} valid trade combinations")
 
         # Return all valid trades found
         return trade_combos

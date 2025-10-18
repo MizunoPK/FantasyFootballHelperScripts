@@ -1281,8 +1281,22 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 - All 41 Trade Simulator tests passing after cleanup
 **Result**: Codebase is clean - no commented-out code, no unused functions, no dead code paths
 
-#### [ ] 4.11: Improve logging
-**Action**: Add logging for trade operations
+#### [DONE] 4.11: Improve logging
+**Status**: ✅ COMPLETED (2025-10-17)
+**Action**: Add essential logging to trade_analyzer.py - the most critical file with no logging
+**Changes made**:
+- Added logger import from LoggingManager
+- Initialized logger in __init__() method
+- Added INFO-level logging for trade generation start and completion
+  * Logs mode (Waiver Optimizer vs Trade Suggestor) and enabled trade types
+  * Logs total count of valid trades generated
+- Added DEBUG-level logging for locked player filtering
+  * Logs counts of tradeable vs locked players for both teams
+**Result**: All 24 trade_analyzer tests passing. Core trade generation logic now has visibility into:
+  - Trade generation configuration and mode
+  - Locked player handling (important for bug fix validation)
+  - Result counts for debugging and monitoring
+**Note**: Focused on high-priority logging for trade_analyzer.py (had NO logging). Other files already have adequate logging or are low-priority for logging (display helpers, data models)
 
 ### Validation Tasks
 
