@@ -12,8 +12,10 @@ from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any, List
 import pandas as pd
 from utils.csv_utils import read_csv_with_validation, write_csv_with_backup
+from utils.LoggingManager import get_logger
 
 # Import will be done dynamically to avoid circular imports
+logger = get_logger()
 
 def safe_int_conversion(value, default=None):
     """
@@ -211,7 +213,7 @@ class FantasyPlayer:
             # Use csv_utils for standardized reading with error handling
             df = read_csv_with_validation(filepath)
         except Exception as e:
-            print(f"Error reading CSV file at {filepath}: {e}")
+            logger.error(f"Error reading CSV file at {filepath}: {e}")
             raise
 
         players = []
@@ -223,11 +225,11 @@ class FantasyPlayer:
                 players.append(player)
             except Exception as e:
                 failed_rows += 1
-                print(f"Warning: Failed to parse player row {row_idx + 1}: {e}")
+                logger.warning(f"Failed to parse player row {row_idx + 1}: {e}")
                 continue
 
         if failed_rows > 0:
-            print(f"Warning: Failed to parse {failed_rows} out of {len(df)} rows")
+            logger.warning(f"Failed to parse {failed_rows} out of {len(df)} rows")
 
         return players
     
@@ -251,23 +253,23 @@ class FantasyPlayer:
         try:
             df = pd.read_excel(filepath, sheet_name=sheet_name)
         except FileNotFoundError:
-            print(f"Error: Excel file not found at {filepath}")
+            logger.error(f"Excel file not found at {filepath}")
             raise
         except ValueError as e:
             if "Worksheet" in str(e) and "does not exist" in str(e):
-                print(f"Error: Sheet '{sheet_name}' not found in Excel file {filepath}")
+                logger.error(f"Sheet '{sheet_name}' not found in Excel file {filepath}")
             else:
-                print(f"Error: Invalid Excel file format at {filepath}: {e}")
+                logger.error(f"Invalid Excel file format at {filepath}: {e}")
             raise
         except PermissionError:
-            print(f"Error: Permission denied reading Excel file at {filepath}")
+            logger.error(f"Permission denied reading Excel file at {filepath}")
             raise
         except Exception as e:
-            print(f"Error: Unexpected error reading Excel file at {filepath}: {e}")
+            logger.error(f"Unexpected error reading Excel file at {filepath}: {e}")
             raise
 
         if df.empty:
-            print(f"Warning: Excel sheet '{sheet_name}' is empty in {filepath}")
+            logger.warning(f"Excel sheet '{sheet_name}' is empty in {filepath}")
             return []
 
         players = []
@@ -279,11 +281,11 @@ class FantasyPlayer:
                 players.append(player)
             except Exception as e:
                 failed_rows += 1
-                print(f"Warning: Failed to parse player row {row_idx + 1} from sheet '{sheet_name}': {e}")
+                logger.warning(f"Failed to parse player row {row_idx + 1} from sheet '{sheet_name}': {e}")
                 continue
 
         if failed_rows > 0:
-            print(f"Warning: Failed to parse {failed_rows} out of {len(df)} rows from sheet '{sheet_name}'")
+            logger.warning(f"Failed to parse {failed_rows} out of {len(df)} rows from sheet '{sheet_name}'")
 
         return players
     
