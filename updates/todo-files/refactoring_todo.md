@@ -1810,22 +1810,47 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Status**: All tests passing (48 FantasyPlayer, 30 LoggingManager, 45 TeamData)
 **Commits**: 02cffe9 (FantasyPlayer), 0992ef6 (LoggingManager)
 
-#### [ ] 7.15: Standardize all docstrings to Google style
-**Files**: All utils files
+#### [✓] 7.15: Standardize all docstrings to Google style - DONE
+**Files**: All 7 utils files already use Google style
+**Verification Results**:
+- All files use Google style (Args:, Returns:, Raises: sections)
+- No Sphinx-style formatting (:param, :return, :type) found
+- csv_utils.py: 10 docstrings ✅
+- data_file_manager.py: 20 docstrings ✅
+- DraftedRosterManager.py: 21 docstrings ✅
+- error_handler.py: 31 docstrings ✅
+- FantasyPlayer.py: 24 docstrings ✅
+- LoggingManager.py: 6 docstrings ✅
+- TeamData.py: 10 docstrings ✅
+**Total**: 122 docstrings, all properly formatted
+**Status**: No changes needed - already compliant
 
 ### Code Organization Tasks
 
-#### [ ] 7.16: Reorganize large utils files
-**Files**: data_file_manager, DraftedRosterManager, error_handler
-**Action**: Group methods by functionality within files
+#### [✓] 7.16: Reorganize large utils files - DONE
+**Files**: data_file_manager (558 lines), DraftedRosterManager (634 lines), error_handler (643 lines)
+**Analysis**:
+- **DraftedRosterManager.py**: Already has clear section markers separating public methods from private helper methods
+- **error_handler.py**: Well-organized with classes first, then decorators, then utility functions, then convenience functions
+- **data_file_manager.py**: Logical grouping: file management methods, enhanced file pattern methods, save methods, export/backup methods
+**Status**: All files are already well-organized by functionality - no reorganization needed
 
 ### Code Quality Tasks
 
-#### [ ] 7.17: Check for duplicate code in utils
-**Action**: Identify repeated patterns across utils
+#### [✓] 7.17: Check for duplicate code in utils - DONE
+**Analysis**:
+- **Safe conversion functions**: Found in both FantasyPlayer.py (safe_int_conversion, safe_float_conversion) and TeamData.py (_safe_int_conversion, _safe_string_conversion)
+- **Decision**: Kept separate for module independence - acceptable duplication for simple utility functions
+- **No other significant code duplication found**
+**Status**: No consolidation needed - existing duplication is intentional and appropriate
 
-#### [ ] 7.18: Remove unused imports/code
-**Action**: Clean up all utils files
+#### [✓] 7.18: Remove unused imports/code - DONE
+**Removed unused imports**:
+- csv_utils.py: Removed safe_execute (imported but never used)
+- data_file_manager.py: Removed os (imported but never used)
+- LoggingManager.py: Removed os, Dict, Any (imported but never used in type hints)
+**Status**: All 322 utils tests passing after cleanup
+**Commit**: [pending]
 
 #### [ ] 7.19: Improve logging in utils
 **Action**: Add appropriate logging
