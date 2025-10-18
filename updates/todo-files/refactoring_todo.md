@@ -1935,17 +1935,27 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 
 ## PHASE 8: PLAYER DATA FETCHER
 
-**Directory**: `player-data-fetcher/` (7 files: config, espn_client, fantasy_points_calculator, player_data_constants, player_data_exporter, player_data_fetcher_main, player_data_models, progress_tracker)
-**Tests**: NONE - need basic smoke tests
+**Directory**: `player-data-fetcher/` (8 files: config, espn_client, fantasy_points_calculator, player_data_constants, player_data_exporter, player_data_fetcher_main, player_data_models, progress_tracker)
+**Tests**: 2 test files exist (92 tests total), need 5 more test files
 **Note**: espn_client is 1009 lines
 
 ### Testing Tasks
 
-#### [ ] 8.1: Create basic smoke tests for player_data_fetcher_main
-**File**: `tests/player_data_fetcher/test_player_data_fetcher_main.py` (NEW)
-**Priority**: BASIC smoke tests only
-**Estimated tests**: 10-15 tests
-**Coverage**: Basic initialization, configuration loading, error handling
+#### [✓] 8.1: Create basic smoke tests for player_data_fetcher_main - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**File**: `tests/player-data-fetcher/test_player_data_fetcher_main.py` (NEW, 338 lines)
+**Tests added**: 17 tests (exceeded estimate of 10-15)
+**Test classes**:
+- TestSettings (5 tests): Default/custom initialization, validate_settings with various seasons
+- TestNFLProjectionsCollectorInit (2 tests): Basic initialization, empty dicts initialization
+- TestLoadByeWeeks (4 tests): Success, invalid week numbers, file not found, read exception
+- TestGetApiClient (1 test): Returns client instance
+- TestPrintSummary (2 tests): With projections, with empty data
+- TestGetFantasyPlayers (1 test): Returns dict with correct structure
+- TestCollectAllProjections (1 test): Basic async collection
+- TestExportData (1 test): Basic export workflow
+**Total tests**: 1466 → 1483 (+17)
+**Result**: All 109 player-data-fetcher tests passing (100%)
 
 #### [ ] 8.2: Create basic tests for espn_client
 **File**: `tests/player_data_fetcher/test_espn_client.py` (NEW)
@@ -1953,20 +1963,24 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Estimated tests**: 15-20 tests
 **Coverage**: Client initialization, basic API call mocking, error handling
 
-#### [ ] 8.3: Create basic tests for fantasy_points_calculator
-**File**: `tests/player_data_fetcher/test_fantasy_points_calculator.py` (NEW)
-**Estimated tests**: 10-15 tests
-**Coverage**: Scoring calculations for different positions
+#### [✓] 8.3: Create basic tests for fantasy_points_calculator - DONE
+**Status**: ✅ COMPLETED (existing)
+**File**: `tests/player_data_fetcher/test_fantasy_points_calculator.py` (EXISTS)
+**Tests added**: 44 tests
+**Coverage**: Scoring calculations for all positions (QB, RB, WR, TE, K, DEF)
+**Note**: Tests already exist from previous work
 
 #### [ ] 8.4: Create basic tests for player_data_exporter
 **File**: `tests/player_data_fetcher/test_player_data_exporter.py` (NEW)
 **Estimated tests**: 10-15 tests
 **Coverage**: Export to CSV/JSON/Excel
 
-#### [ ] 8.5: Create basic tests for player_data_models
-**File**: `tests/player_data_fetcher/test_player_data_models.py` (NEW)
-**Estimated tests**: 10-15 tests
+#### [✓] 8.5: Create basic tests for player_data_models - DONE
+**Status**: ✅ COMPLETED (existing)
+**File**: `tests/player_data_fetcher/test_player_data_models.py` (EXISTS)
+**Tests added**: 48 tests
 **Coverage**: Model initialization and validation
+**Note**: Tests already exist from previous work
 
 #### [ ] 8.6: Create basic tests for progress_tracker
 **File**: `tests/player_data_fetcher/test_progress_tracker.py` (NEW)
