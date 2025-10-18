@@ -25,7 +25,6 @@ from util.PlayerManager import PlayerManager
 from util.ScoredPlayer import ScoredPlayer
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from utils.DraftedRosterManager import DraftedRosterManager
 from utils.FantasyPlayer import FantasyPlayer
 
 class TradeSimTeam:
