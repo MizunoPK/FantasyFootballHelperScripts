@@ -2096,11 +2096,19 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 
 ### Code Organization Tasks
 
-#### [ ] 8.13: Consider breaking up espn_client.py
-**File**: `espn_client.py` (1009 lines)
-**Decision**: Evaluate if splitting improves clarity
-**If split**: Consider player_client.py, matchup_client.py, etc.
-**Otherwise**: Reorganize methods within file
+#### [✓] 8.13: Consider breaking up espn_client.py - DONE
+**Status**: ✅ COMPLETED (2025-10-18)
+**File**: `player-data-fetcher/espn_client.py` (1242 lines after comments added)
+**Analysis**: Evaluated file structure (3 exception classes, 2 main classes, 29 methods total)
+**Decision**: KEEP AS SINGLE FILE - splitting would reduce maintainability
+**Rationale**:
+- Cohesive module: All ESPN API logic in one place (HTTP, team data, player projections)
+- Clear organization: Methods already logically grouped (optimization, team data, player parsing)
+- Tight coupling: ESPN API interactions are interdependent (team rankings affect player data)
+- Well-documented: ~200+ lines of inline comments added in Task 8.10
+- Splitting would break flow: Understanding ESPN data structures requires seeing complete lifecycle
+**Structure**: Exceptions → BaseAPIClient (4 methods) → ESPNClient (~25 methods)
+**Conclusion**: File is well-organized and maintainable at current size
 
 #### [ ] 8.14: Reorganize methods in large files
 **Action**: Group by functionality
