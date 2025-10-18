@@ -7,7 +7,6 @@ offensive/defensive rankings and opponent information. Designed to be used
 alongside FantasyPlayer data for better separation of concerns.
 
 Author: Kai Mizuno
-Last Updated: September 2025
 """
 
 from dataclasses import dataclass

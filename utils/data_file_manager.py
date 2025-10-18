@@ -14,7 +14,6 @@ Usage:
     manager.enforce_file_caps('newly_created_file.csv')
 
 Author: Kai Mizuno
-Last Updated: September 2025
 """
 
 import os

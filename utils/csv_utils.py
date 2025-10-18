@@ -6,7 +6,6 @@ Provides common CSV operations used across multiple modules in the fantasy footb
 Consolidates repetitive CSV reading/writing patterns and standardizes error handling.
 
 Author: Kai Mizuno
-Last Updated: September 2025
 """
 
 import csv
