@@ -1771,9 +1771,20 @@ Documentation/              (README, CLAUDE.md, new ARCHITECTURE.md)
 **Status**: All 58 DraftedRosterManager tests passing
 **Commit**: bb4f779
 
-#### [ ] 7.13: Add heavy inline comments to error_handler.py
-**File**: `utils/error_handler.py` (581 lines)
-**Action**: Document error handling patterns
+#### [✓] 7.13: Add heavy inline comments to error_handler.py - DONE
+**File**: `utils/error_handler.py` (now 654 lines)
+**Added**: 70 insertions, 7 deletions of inline comments explaining:
+- Error frequency tracking with dictionary examples (error_counts pattern)
+- Context logging with formatted output examples
+- Dynamic log method selection using getattr
+- Exponential backoff calculation with formula and concrete examples (1s, 2s, 4s, 8s)
+- Retry loop logic with attempt counting and delay strategy
+- Decorator factory pattern (two-level: factory → decorator → wrapper)
+- Async/sync function detection with asyncio.iscoroutinefunction
+- Context manager protocol with yield and exception re-raising
+- File validation logic with parent directory creation (parents=True, exist_ok=True)
+**Status**: All 50 error_handler tests passing
+**Commit**: d0d6338
 
 #### [ ] 7.14: Add comments to remaining utils files
 **Files**: FantasyPlayer, LoggingManager, TeamData
