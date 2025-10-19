@@ -8,7 +8,7 @@ Author: Kai Mizuno
 """
 
 import copy
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 from itertools import combinations
 from pathlib import Path
 
@@ -114,6 +114,74 @@ class TradeAnalyzer:
         # All players successfully added to test team - roster is valid
         return True
 
+    def count_position_violations(self, roster: List[FantasyPlayer]) -> int:
+        """
+        Count the number of position limit violations in a roster.
+
+        A violation occurs when a roster exceeds the maximum allowed players at a position.
+        This method attempts to construct a valid team and counts how many players can't fit.
+
+        Args:
+            roster (List[FantasyPlayer]): The roster to check
+
+        Returns:
+            int: Number of players that exceed position limits (0 = no violations)
+
+        Example:
+            >>> roster_with_2_TE = [player1_TE, player2_TE, ...]  # Max TE is 1
+            >>> count_position_violations(roster_with_2_TE)
+            1  # One TE over the limit
+        """
+        # Try to draft all players into a test team
+        test_team = FantasyTeam(self.config, [])
+        violations = 0
+
+        for p in roster:
+            # Deep copy to avoid modifying original
+            p_copy = copy.deepcopy(p)
+            p_copy.drafted = 0
+
+            # Try to draft - if it fails, it's a violation
+            drafted = test_team.draft_player(p_copy)
+            if not drafted:
+                violations += 1
+
+        return violations
+
+    def validate_roster_lenient(self, original_roster: List[FantasyPlayer], new_roster: List[FantasyPlayer]) -> bool:
+        """
+        Validate that a new roster doesn't worsen position violations.
+
+        This lenient validation allows trades even if a team already violates position limits,
+        as long as the trade doesn't make the violations worse.
+
+        Args:
+            original_roster (List[FantasyPlayer]): The roster before the trade
+            new_roster (List[FantasyPlayer]): The roster after the trade
+
+        Returns:
+            bool: True if trade is acceptable (violations don't increase), False otherwise
+
+        Example:
+            Team has 2 TEs (max 1) = 1 violation
+            Trade gives them a RB for a WR (still 2 TEs) = 1 violation
+            Result: True (violations stayed same)
+
+            Trade gives them another TE (now 3 TEs) = 2 violations
+            Result: False (violations got worse)
+        """
+        # Always enforce MAX_PLAYERS limit
+        if len(new_roster) > Constants.MAX_PLAYERS:
+            return False
+
+        # Count violations before and after trade
+        violations_before = self.count_position_violations(original_roster)
+        violations_after = self.count_position_violations(new_roster)
+
+        # Allow trade if violations don't increase
+        # (violations_after <= violations_before)
+        return violations_after <= violations_before
+
     def _get_waiver_recommendations(self, num_spots: int) -> List[ScoredPlayer]:
         """
         Get top N waiver wire recommendations to fill roster spots.
@@ -168,7 +236,7 @@ class TradeAnalyzer:
 
         # Return top num_spots (or fewer if not enough available)
         result_count = min(num_spots, len(ranked_players))
-        self.logger.info(f"Generated {result_count} waiver recommendations (requested: {num_spots})")
+        self.logger.debug(f"Generated {result_count} waiver recommendations (requested: {num_spots})")
 
         return ranked_players[:result_count]
 
@@ -225,6 +293,138 @@ class TradeAnalyzer:
         self.logger.debug(f"Found {len(droppable_players)} droppable players from {team.name}")
         return droppable_players
 
+    def process_manual_trade(
+        self,
+        my_team: TradeSimTeam,
+        their_team: TradeSimTeam,
+        my_selected_players: List[FantasyPlayer],
+        their_selected_players: List[FantasyPlayer],
+        my_dropped_players: Optional[List[FantasyPlayer]] = None,
+        their_dropped_players: Optional[List[FantasyPlayer]] = None
+    ) -> Tuple[Optional[TradeSnapshot], List[FantasyPlayer], List[FantasyPlayer]]:
+        """
+        Process a manual trade with waiver/drop handling.
+
+        This is the shared logic for manual trade processing that handles:
+        1. Calculating net roster changes and waiver needs
+        2. Adding waiver recommendations when losing roster spots
+        3. Validating rosters with all adjustments
+        4. Returning drop candidates if roster invalid
+
+        Args:
+            my_team (TradeSimTeam): My current team
+            their_team (TradeSimTeam): Opponent's current team
+            my_selected_players (List[FantasyPlayer]): Players I'm giving away
+            their_selected_players (List[FantasyPlayer]): Players I'm receiving
+            my_dropped_players (Optional[List[FantasyPlayer]]): Players I'm dropping (if any)
+            their_dropped_players (Optional[List[FantasyPlayer]]): Players they're dropping (if any)
+
+        Returns:
+            Tuple containing:
+                - TradeSnapshot: Trade snapshot if valid, None if roster invalid
+                - List[FantasyPlayer]: My drop candidates (if roster invalid and no drops provided)
+                - List[FantasyPlayer]: Their drop candidates (if roster invalid and no drops provided)
+
+        Example workflow:
+            # First attempt (no drops)
+            snapshot, my_drops, their_drops = process_manual_trade(my_team, their_team, [p1], [p2, p3])
+            if snapshot:
+                # Trade valid, display it
+            else:
+                # Trade invalid, prompt user to select from my_drops/their_drops
+                # Then retry with selected drops
+                snapshot, _, _ = process_manual_trade(..., my_dropped_players=[user_selection])
+        """
+        # Initialize dropped players lists
+        if my_dropped_players is None:
+            my_dropped_players = []
+        if their_dropped_players is None:
+            their_dropped_players = []
+
+        # Get locked players (must be included in roster validation)
+        my_roster = [p for p in my_team.team if p.locked != 1]
+        my_locked = [p for p in my_team.team if p.locked == 1]
+        their_roster = [p for p in their_team.team if p.locked != 1]
+        their_locked = [p for p in their_team.team if p.locked == 1]
+
+        # Calculate net roster change (positive = gaining players, negative = losing players)
+        my_net_change = len(their_selected_players) - len(my_selected_players)
+        their_net_change = len(my_selected_players) - len(their_selected_players)
+
+        # Get waiver recommendations based on net roster change
+        # If losing players (net negative), recommend waivers to fill spots
+        my_waiver_spots_needed = max(0, -my_net_change)
+        their_waiver_spots_needed = max(0, -their_net_change)
+
+        my_waiver_recs = self._get_waiver_recommendations(my_waiver_spots_needed)
+        their_waiver_recs = self._get_waiver_recommendations(their_waiver_spots_needed)
+
+        # Create new rosters after trade
+        my_new_roster = [p for p in my_roster if p not in my_selected_players and p not in my_dropped_players] + their_selected_players
+        their_new_roster = [p for p in their_roster if p not in their_selected_players and p not in their_dropped_players] + my_selected_players
+
+        # Add waiver recommendations to rosters
+        my_new_roster_with_waivers = my_new_roster + [rec.player for rec in my_waiver_recs]
+        their_new_roster_with_waivers = their_new_roster + [rec.player for rec in their_waiver_recs]
+
+        # Validate my team's roster (include locked players)
+        my_full_roster = my_new_roster_with_waivers + my_locked
+        my_roster_valid = self.validate_roster(my_full_roster, ignore_max_positions=True)
+
+        # Validate their team's roster (include locked players)
+        their_full_roster = their_new_roster_with_waivers + their_locked
+        their_roster_valid = self.validate_roster(their_full_roster, ignore_max_positions=True)
+
+        # If either roster is invalid, return drop candidates
+        if not my_roster_valid or not their_roster_valid:
+            my_drop_candidates = []
+            their_drop_candidates = []
+
+            if not my_roster_valid:
+                # Get drop candidates for my team
+                my_drop_candidates = self._get_lowest_scored_players_per_position(
+                    my_team,
+                    exclude_players=my_selected_players,
+                    num_per_position=2
+                )
+                self.logger.debug(f"My roster invalid - providing {len(my_drop_candidates)} drop candidates")
+
+            if not their_roster_valid:
+                # Get drop candidates for their team
+                their_drop_candidates = self._get_lowest_scored_players_per_position(
+                    their_team,
+                    exclude_players=their_selected_players,
+                    num_per_position=2
+                )
+                self.logger.debug(f"Their roster invalid - providing {len(their_drop_candidates)} drop candidates")
+
+            return (None, my_drop_candidates, their_drop_candidates)
+
+        # Both rosters valid - create trade snapshot
+        my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers, self.player_manager, isOpponent=False)
+        their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers, self.player_manager, isOpponent=True)
+
+        # Get scored representations
+        my_original_scored = my_team.get_scored_players(my_selected_players)
+        my_dropped_scored = my_team.get_scored_players(my_dropped_players) if my_dropped_players else []
+        their_dropped_scored = their_team.get_scored_players(their_dropped_players) if their_dropped_players else []
+
+        # Create snapshot
+        snapshot = TradeSnapshot(
+            my_new_team=my_new_team,
+            my_new_players=my_new_team.get_scored_players(their_selected_players),
+            their_new_team=their_new_team,
+            their_new_players=their_new_team.get_scored_players(my_selected_players),
+            my_original_players=my_original_scored,
+            waiver_recommendations=my_waiver_recs,
+            their_waiver_recommendations=their_waiver_recs,
+            my_dropped_players=my_dropped_scored,
+            their_dropped_players=their_dropped_scored
+        )
+
+        self.logger.info(f"Manual trade processed successfully: {len(my_selected_players)}-for-{len(their_selected_players)}")
+        return (snapshot, [], [])
+
     def get_trade_combinations(self, my_team: TradeSimTeam, their_team: TradeSimTeam, is_waivers=False,
                                one_for_one: bool = True, two_for_two: bool = True, three_for_three: bool = False,
                                two_for_one: bool = False, one_for_two: bool = False,
@@ -276,8 +476,22 @@ class TradeAnalyzer:
         their_roster = [p for p in their_team.team if p.locked != 1]  # Tradeable players only
         their_locked = [p for p in their_team.team if p.locked == 1]  # Locked players (not tradeable)
 
+        # Store original full rosters for lenient validation (includes locked players)
+        my_original_full_roster = my_roster + my_locked
+        their_original_full_roster = their_roster + their_locked
+
         # Log locked player filtering results
         self.logger.debug(f"Filtered rosters: my_tradeable={len(my_roster)}, my_locked={len(my_locked)}, their_tradeable={len(their_roster)}, their_locked={len(their_locked)}")
+
+        # Define lenient validation helper that allows trades if violations don't worsen
+        def validate_trade_roster(original_full: List[FantasyPlayer], new_full: List[FantasyPlayer]) -> bool:
+            """Helper to validate roster using lenient rules if ignore_max_positions=False"""
+            if ignore_max_positions:
+                # Manual trade mode - only check MAX_PLAYERS
+                return len(new_full) <= Constants.MAX_PLAYERS
+            else:
+                # Trade suggestor mode - allow if violations don't increase
+                return self.validate_roster_lenient(original_full, new_full)
 
         # ===== GENERATE 1-FOR-1 TRADES =====
         # Try every combination of swapping 1 player from my team with 1 player from their team
@@ -294,7 +508,7 @@ class TradeAnalyzer:
                     # Add locked players to get full roster for position limit validation
                     # Locked players count toward position limits even though they weren't traded
                     my_full_roster = my_new_roster + my_locked
-                    if not self.validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions):
+                    if not validate_trade_roster(my_original_full_roster, my_full_roster):
                         # Trade would violate position limits or roster size - skip this combination
                         continue
 
@@ -303,7 +517,7 @@ class TradeAnalyzer:
                     # For regular trades, ensure their roster remains valid too
                     if not is_waivers:
                         their_full_roster = their_new_roster + their_locked
-                        if not self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                        if not validate_trade_roster(their_original_full_roster, their_full_roster):
                             # Trade would violate opponent's position limits - skip this combination
                             continue
 
@@ -362,12 +576,12 @@ class TradeAnalyzer:
 
                     # Validate rosters (include locked players in position limit check)
                     my_full_roster = my_new_roster + my_locked
-                    if not self.validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions):
+                    if not validate_trade_roster(my_original_full_roster, my_full_roster):
                         continue
 
                     if not is_waivers:
                         their_full_roster = their_new_roster + their_locked
-                        if not self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                        if not validate_trade_roster(their_original_full_roster, their_full_roster):
                             continue
 
                     # Score rosters and check for mutual improvement
@@ -416,12 +630,12 @@ class TradeAnalyzer:
 
                     # Validate rosters (include locked players in position limit check)
                     my_full_roster = my_new_roster + my_locked
-                    if not self.validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions):
+                    if not validate_trade_roster(my_original_full_roster, my_full_roster):
                         continue
 
                     if not is_waivers:
                         their_full_roster = their_new_roster + their_locked
-                        if not self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                        if not validate_trade_roster(their_original_full_roster, their_full_roster):
                             continue
 
                     # Score rosters and check for mutual improvement
@@ -474,13 +688,13 @@ class TradeAnalyzer:
 
                     # Validate my team's roster (include locked players)
                     my_full_roster = my_new_roster_with_waivers + my_locked
-                    if not self.validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions):
+                    if not validate_trade_roster(my_original_full_roster, my_full_roster):
                         continue
 
                     # Validate their team's roster (only if not waivers)
                     if not is_waivers:
                         their_full_roster = their_new_roster_with_waivers + their_locked
-                        their_roster_valid = self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions)
+                        their_roster_valid = validate_trade_roster(their_original_full_roster, their_full_roster)
 
                         # If opponent validation fails, try drop variations
                         if not their_roster_valid:
@@ -494,7 +708,7 @@ class TradeAnalyzer:
                                 their_roster_with_drop = [p for p in their_new_roster_with_waivers if p != drop_player]
                                 their_full_roster_with_drop = their_roster_with_drop + their_locked
 
-                                if not self.validate_roster(their_full_roster_with_drop, ignore_max_positions=ignore_max_positions):
+                                if not validate_trade_roster(their_original_full_roster, their_full_roster_with_drop):
                                     continue
 
                                 # Create teams with drop
@@ -573,9 +787,9 @@ class TradeAnalyzer:
                     my_new_roster_with_waivers = my_new_roster
                     their_new_roster_with_waivers = their_new_roster + [rec.player for rec in their_waiver_recs]
 
-                    # Validate my team's roster
+                    # Validate my team's roster using lenient validation (allows existing violations)
                     my_full_roster = my_new_roster_with_waivers + my_locked
-                    my_roster_valid = self.validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions)
+                    my_roster_valid = validate_trade_roster(my_original_full_roster, my_full_roster)
 
                     # If my validation fails, try drop variations
                     if not my_roster_valid:
@@ -588,13 +802,13 @@ class TradeAnalyzer:
                             my_roster_with_drop = [p for p in my_new_roster if p != drop_player]
                             my_full_roster_with_drop = my_roster_with_drop + my_locked
 
-                            if not self.validate_roster(my_full_roster_with_drop, ignore_max_positions=ignore_max_positions):
+                            if not validate_trade_roster(my_original_full_roster, my_full_roster_with_drop):
                                 continue
 
-                            # Validate opponent
+                            # Validate opponent using lenient validation
                             if not is_waivers:
                                 their_full_roster = their_new_roster_with_waivers + their_locked
-                                if not self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                                if not validate_trade_roster(their_original_full_roster, their_full_roster):
                                     continue
 
                             # Create teams with drop
@@ -632,10 +846,10 @@ class TradeAnalyzer:
                         else:
                             continue
 
-                    # Validate their team's roster
+                    # Validate their team's roster using lenient validation
                     if not is_waivers:
                         their_full_roster = their_new_roster_with_waivers + their_locked
-                        if not self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                        if not validate_trade_roster(their_original_full_roster, their_full_roster):
                             continue
 
                     # Create teams
@@ -681,12 +895,12 @@ class TradeAnalyzer:
                     their_new_roster_with_waivers = their_new_roster
 
                     my_full_roster = my_new_roster_with_waivers + my_locked
-                    if not self.validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions):
+                    if not validate_trade_roster(my_original_full_roster, my_full_roster):
                         continue
 
                     if not is_waivers:
                         their_full_roster = their_new_roster_with_waivers + their_locked
-                        their_roster_valid = self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions)
+                        their_roster_valid = validate_trade_roster(their_original_full_roster, their_full_roster)
 
                         if not their_roster_valid:
                             drop_candidates = self._get_lowest_scored_players_per_position(
@@ -698,7 +912,7 @@ class TradeAnalyzer:
                                 their_roster_with_drops = [p for p in their_new_roster_with_waivers if p not in drop_combo]
                                 their_full_roster_with_drops = their_roster_with_drops + their_locked
 
-                                if not self.validate_roster(their_full_roster_with_drops, ignore_max_positions=ignore_max_positions):
+                                if not validate_trade_roster(their_original_full_roster, their_full_roster_with_drops):
                                     continue
 
                                 my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers, self.player_manager, isOpponent=False)
@@ -771,7 +985,7 @@ class TradeAnalyzer:
                     their_new_roster_with_waivers = their_new_roster + [rec.player for rec in their_waiver_recs]
 
                     my_full_roster = my_new_roster_with_waivers + my_locked
-                    my_roster_valid = self.validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions)
+                    my_roster_valid = validate_trade_roster(my_original_full_roster, my_full_roster)
 
                     if not my_roster_valid:
                         drop_candidates = self._get_lowest_scored_players_per_position(
@@ -783,12 +997,12 @@ class TradeAnalyzer:
                             my_roster_with_drops = [p for p in my_new_roster if p not in drop_combo]
                             my_full_roster_with_drops = my_roster_with_drops + my_locked
 
-                            if not self.validate_roster(my_full_roster_with_drops, ignore_max_positions=ignore_max_positions):
+                            if not validate_trade_roster(my_original_full_roster, my_full_roster_with_drops):
                                 continue
 
                             if not is_waivers:
                                 their_full_roster = their_new_roster_with_waivers + their_locked
-                                if not self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                                if not validate_trade_roster(their_original_full_roster, their_full_roster):
                                     continue
 
                             my_new_team_with_drops = TradeSimTeam(my_team.name, my_roster_with_drops, self.player_manager, isOpponent=False)
@@ -826,7 +1040,7 @@ class TradeAnalyzer:
 
                     if not is_waivers:
                         their_full_roster = their_new_roster_with_waivers + their_locked
-                        if not self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                        if not validate_trade_roster(their_original_full_roster, their_full_roster):
                             continue
 
                     my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers, self.player_manager, isOpponent=False)
@@ -871,12 +1085,12 @@ class TradeAnalyzer:
                     their_new_roster_with_waivers = their_new_roster
 
                     my_full_roster = my_new_roster_with_waivers + my_locked
-                    if not self.validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions):
+                    if not validate_trade_roster(my_original_full_roster, my_full_roster):
                         continue
 
                     if not is_waivers:
                         their_full_roster = their_new_roster_with_waivers + their_locked
-                        their_roster_valid = self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions)
+                        their_roster_valid = validate_trade_roster(their_original_full_roster, their_full_roster)
 
                         if not their_roster_valid:
                             drop_candidates = self._get_lowest_scored_players_per_position(
@@ -888,7 +1102,7 @@ class TradeAnalyzer:
                                 their_roster_with_drop = [p for p in their_new_roster_with_waivers if p != drop_player]
                                 their_full_roster_with_drop = their_roster_with_drop + their_locked
 
-                                if not self.validate_roster(their_full_roster_with_drop, ignore_max_positions=ignore_max_positions):
+                                if not validate_trade_roster(their_original_full_roster, their_full_roster_with_drop):
                                     continue
 
                                 my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers, self.player_manager, isOpponent=False)
@@ -962,7 +1176,7 @@ class TradeAnalyzer:
                     their_new_roster_with_waivers = their_new_roster + [rec.player for rec in their_waiver_recs]
 
                     my_full_roster = my_new_roster_with_waivers + my_locked
-                    my_roster_valid = self.validate_roster(my_full_roster, ignore_max_positions=ignore_max_positions)
+                    my_roster_valid = validate_trade_roster(my_original_full_roster, my_full_roster)
 
                     if not my_roster_valid:
                         drop_candidates = self._get_lowest_scored_players_per_position(
@@ -974,12 +1188,12 @@ class TradeAnalyzer:
                             my_roster_with_drop = [p for p in my_new_roster if p != drop_player]
                             my_full_roster_with_drop = my_roster_with_drop + my_locked
 
-                            if not self.validate_roster(my_full_roster_with_drop, ignore_max_positions=ignore_max_positions):
+                            if not validate_trade_roster(my_original_full_roster, my_full_roster_with_drop):
                                 continue
 
                             if not is_waivers:
                                 their_full_roster = their_new_roster_with_waivers + their_locked
-                                if not self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                                if not validate_trade_roster(their_original_full_roster, their_full_roster):
                                     continue
 
                             my_new_team_with_drop = TradeSimTeam(my_team.name, my_roster_with_drop, self.player_manager, isOpponent=False)
@@ -1017,7 +1231,7 @@ class TradeAnalyzer:
 
                     if not is_waivers:
                         their_full_roster = their_new_roster_with_waivers + their_locked
-                        if not self.validate_roster(their_full_roster, ignore_max_positions=ignore_max_positions):
+                        if not validate_trade_roster(their_original_full_roster, their_full_roster):
                             continue
 
                     my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers, self.player_manager, isOpponent=False)

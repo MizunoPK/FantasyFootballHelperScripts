@@ -1,0 +1,28 @@
+Trade with The Eskimo Brothers
+  My improvement: -104.44 pts (New score: 1097.05)
+  Their improvement: +12.27 pts (New score: 1089.11)
+  I give:
+    - [RB] [LV] Ashton Jeanty - 102.28 pts (Bye=8)
+            - Projected: 148.94 pts, Weighted: 90.70 pts
+            - Player Rating: EXCELLENT
+            - Team Quality: POOR
+            - Performance: NEUTRAL (-4.6%)
+            - Bye Overlaps: 0 same-position, 2 different-position
+    - [WR] [IND] Michael Pittman Jr. - 78.58 pts (Bye=11)
+            - Projected: 121.31 pts, Weighted: 73.88 pts
+            - Player Rating: GOOD
+            - Team Quality: EXCELLENT
+            - Performance: POOR (-18.7%)
+  I receive:
+    - [WR] [DEN] Courtland Sutton - 39.93 pts (Bye=12)
+            - Projected: 132.30 pts, Weighted: 80.57 pts
+            - Player Rating: GOOD
+            - Team Quality: NEUTRAL
+            - Performance: NEUTRAL (+14.8%)
+            - Bye Overlaps: 1 same-position, 1 different-position
+    - [RB] [CLE] Quinshon Judkins - 82.57 pts (Bye=9)
+            - Projected: 131.36 pts, Weighted: 79.99 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: POOR
+            - Performance: EXCELLENT (+74.4%)
+            - Bye Overlaps: 0 same-position, 1 different-position

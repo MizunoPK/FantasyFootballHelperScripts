@@ -26,6 +26,7 @@ class TradeInputParser:
     - Getting players by indices from rosters
     - Splitting unified selections into my/their players
     - Parsing and validating unified player selections
+    - Providing detailed error messages for invalid inputs
     """
 
     @staticmethod
@@ -162,7 +163,7 @@ class TradeInputParser:
         Validates that:
         - Input is valid (numbers, in range, no duplicates)
         - At least 1 player from each team
-        - Equal number of players from each team
+        - Supports both equal and unequal trades (1-for-2, 2-for-1, 2-for-3, etc.)
 
         Args:
             input_str (str): User input string with comma-separated numbers
@@ -176,12 +177,13 @@ class TradeInputParser:
                 - Any number is out of range [1, max_index]
                 - Duplicate numbers detected
                 - Empty input
-                - Not equal numbers from each team
                 - Less than 1 player from either team
 
         Examples:
             >>> parse_unified_player_selection("2,6,18,21", 30, 14)
-            ([2, 6], [5, 8])  # Valid: 2 from my team, 2 from their team
+            ([2, 6], [5, 8])  # Valid: 2-for-2 trade
+            >>> parse_unified_player_selection("4,17,18", 30, 14)
+            ([4], [4, 5])  # Valid: 1-for-2 trade
             >>> parse_unified_player_selection("1,2,3", 30, 14)
             None  # Invalid: all from my team
         """
@@ -202,11 +204,66 @@ class TradeInputParser:
         if len(my_indices) < 1 or len(their_indices) < 1:
             return None
 
-        # STEP 4: Validate EQUAL numbers from each team
-        # Manual trade visualizer requires balanced trades (1-for-1, 2-for-2, etc.)
-        # Prevents unfair trades like 3-for-1
-        if len(my_indices) != len(their_indices):
-            return None
-
         # All validation passed - return separated indices
+        # Note: Equal and unequal trades are both supported
         return my_indices, their_indices
+
+    @staticmethod
+    def parse_with_error_message(input_str: str, max_index: int, roster_boundary: int) -> Tuple[Optional[Tuple[List[int], List[int]]], str]:
+        """
+        Parse player selection and return detailed error message if invalid.
+
+        Args:
+            input_str (str): User input string
+            max_index (int): Maximum valid index
+            roster_boundary (int): Index where opponent roster starts
+
+        Returns:
+            Tuple of (parsed_result, error_message):
+                - If valid: ((my_indices, their_indices), "")
+                - If invalid: (None, "descriptive error message")
+        """
+        # Check for exit command
+        if input_str.strip().lower() == 'exit':
+            return (None, "")
+
+        # Check for empty input
+        if not input_str.strip():
+            return (None, "Error: No players selected. Please enter player numbers separated by commas.")
+
+        # Try to parse basic selection
+        unified_indices = TradeInputParser.parse_player_selection(input_str, max_index)
+
+        if unified_indices is None:
+            # Determine specific error
+            parts = [part.strip() for part in input_str.split(',')]
+
+            # Check for non-numeric input
+            try:
+                indices = [int(part) for part in parts]
+            except ValueError:
+                return (None, "Error: Invalid input. Please enter only numbers separated by commas (e.g., '4,17,18').")
+
+            # Check for out of range
+            for idx in indices:
+                if idx < 1 or idx > max_index:
+                    return (None, f"Error: Player number {idx} is out of range. Valid range is 1-{max_index}.")
+
+            # Check for duplicates
+            if len(indices) != len(set(indices)):
+                return (None, "Error: Duplicate player numbers detected. Each player can only be selected once.")
+
+            # Unknown error
+            return (None, "Error: Invalid input format.")
+
+        # Split by team
+        my_indices, their_indices = TradeInputParser.split_players_by_team(unified_indices, roster_boundary)
+
+        # Check if players from both teams
+        if len(my_indices) < 1:
+            return (None, f"Error: You must select at least one player from your team (numbers 1-{roster_boundary-1}).")
+        if len(their_indices) < 1:
+            return (None, f"Error: You must select at least one player from the opponent's team (numbers {roster_boundary}+).")
+
+        # Valid trade
+        return ((my_indices, their_indices), "")

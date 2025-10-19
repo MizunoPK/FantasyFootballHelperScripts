@@ -39,7 +39,9 @@ MIN_WAIVER_IMPROVEMENT = 0  # Minimum score improvement to suggest a trade
 NUM_TRADE_RUNNERS_UP = 9   # Number of alternative trade suggestions to show
 
 # TRADE SUGGESTOR
-MIN_TRADE_IMPROVEMENT = 30
+MIN_TRADE_IMPROVEMENT = 0
+# VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Bo-ner", "Saquon Deez", "The Eskimo Brothers"]
+VALID_TEAMS = ["The Eskimo Brothers"]
 
 # =============================================================================
 # POSITION CONSTANTS
@@ -59,8 +61,8 @@ MAX_POSITIONS = {
     QB: 2,      # 2 Quarterbacks
     RB: 4,      # 4 Running Backs
     WR: 4,      # 4 Wide Receivers
-    FLEX: 1,    # 1 FLEX (RB or WR only)
-    TE: 2,      # 2 Tight Ends
+    FLEX: 2,    # 1 FLEX (RB or WR only)
+    TE: 1,      # 2 Tight Ends
     K: 1,       # 1 Kicker
     DST: 1,     # 1 Defense/Special Teams
 }

@@ -1,7 +1,42 @@
+Jacksonville Jaguars DEF,Fishoutawater
+Denver Broncos DEF View News,Chase-ing points
+Indianapolis Colts DEF View News,Annihilators
+Los Angeles Rams DEF,Sea Sharp
+Detroit Lions DEF,The Injury Report
+New England Patriots DEF,Striking Shibas
+Pittsburgh Steelers DEF,Bo-ner
+Philadelphia Eagles DEF,Pidgin
+San Francisco 49ers DEF View News,Saquon Deez
+Green Bay Packers DEF View News,The Eskimo Brothers
+Brandon Aubrey K - DAL,The Eskimo Brothers
+Jason Myers K - SEA,Annihilators
+Eddy Pineiro K - SF,Striking Shibas
+Cameron Dicker K - LAC,Bo-ner
+Spencer Shrader K - IND IR,Fishoutawater
+Matt Gay K - WAS,Saquon Deez
+Harrison Butker K - KC,The Injury Report
+Chris Boswell K - PIT,Sea Sharp
+Jake Bates K - DET,Chase-ing points
+Wil Lutz K - DEN,Fishoutawater
+Jake Elliott K - PHI,Pidgin
+Dak Prescott QB - DAL,Annihilators
+De'Von Achane RB - MIA,Striking Shibas
+George Pickens WR - DAL,Bo-ner
+Daniel Jones QB - IND,Chase-ing points
+Javonte Williams RB - DAL,Bo-ner
+Justin Herbert QB - LAC,Fishoutawater
+Jared Goff QB - DET,Fishoutawater
+Matthew Stafford QB - LAR,Bo-ner
+Emeka Egbuka WR - TB Q View News,Saquon Deez
+James Cook RB - BUF,Chase-ing points
+Josh Jacobs RB - GB Q,Chase-ing points
+Jahmyr Gibbs RB - DET,Fishoutawater
+Caleb Williams QB - CHI,The Injury Report
+Ja'Marr Chase WR - CIN,Chase-ing points
 Christian McCaffrey RB - SF,Annihilators
 Patrick Mahomes QB - KC,Sea Sharp
 Jonathan Taylor RB - IND,Bo-ner
-Puka Nacua WR - LAR Q View News,Bo-ner
+Puka Nacua WR - LAR O,Bo-ner
 Josh Allen QB - BUF,The Injury Report
 Jaxon Smith-Njigba WR - SEA,Sea Sharp
 Amon-Ra St. Brown WR - DET,Fishoutawater
@@ -9,35 +44,23 @@ Baker Mayfield QB - TB,The Eskimo Brothers
 Jalen Hurts QB - PHI,Pidgin
 Bijan Robinson RB - ATL,Bo-ner
 Drake Maye QB - NE,Striking Shibas
-Dak Prescott QB - DAL,Annihilators
-De'Von Achane RB - MIA,Striking Shibas
-George Pickens WR - DAL,Bo-ner
-Daniel Jones QB - IND,Chase-ing points
-Javonte Williams RB - DAL,Bo-ner
-Ja'Marr Chase WR - CIN,Chase-ing points
-Justin Herbert QB - LAC,Fishoutawater
-Jared Goff QB - DET,Fishoutawater
-Matthew Stafford QB - LAR,Bo-ner
-Emeka Egbuka WR - TB Q,Saquon Deez
-James Cook RB - BUF,Chase-ing points
-Josh Jacobs RB - GB Q View News,Chase-ing points
-Jahmyr Gibbs RB - DET,Fishoutawater
-Caleb Williams QB - CHI,The Injury Report
 Sam Darnold QB - SEA,Saquon Deez
 Kyren Williams RB - LAR,Striking Shibas
-Garrett Wilson WR - NYJ D View News,Annihilators
+Garrett Wilson WR - NYJ D,Annihilators
 Cam Skattebo RB - NYG,Chase-ing points
 Jake Ferguson TE - DAL,Fishoutawater
 Bo Nix QB - DEN,Bo-ner
-Deebo Samuel Sr. WR - WAS Q View News,Chase-ing points
+Deebo Samuel Sr. WR - WAS O View News,Chase-ing points
 Lamar Jackson QB - BAL Q,Saquon Deez
 Ashton Jeanty RB - LV,Sea Sharp
 Justin Fields QB - NYJ,Sea Sharp
 Saquon Barkley RB - PHI,Saquon Deez
 Jordan Love QB - GB,Chase-ing points
-Rico Dowdle RB - CAR View News,The Injury Report
+Rico Dowdle RB - CAR,The Injury Report
 Drake London WR - ATL,Striking Shibas
-Quentin Johnston WR - LAC Q View News,Fishoutawater
+DK Metcalf WR - PIT,Saquon Deez
+Tre Tucker WR - LV,Bo-ner
+Quentin Johnston WR - LAC,Fishoutawater
 Jaylen Waddle WR - MIA,Sea Sharp
 Travis Etienne RB - JAX,The Eskimo Brothers
 Rome Odunze WR - CHI,The Eskimo Brothers
@@ -50,110 +73,84 @@ Zay Flowers WR - BAL,Pidgin
 Michael Pittman WR - IND,Sea Sharp
 Justin Jefferson WR - MIN,Striking Shibas
 Jayden Daniels QB - WAS,Striking Shibas
-DK Metcalf WR - PIT,Saquon Deez
 David Montgomery RB - DET,Chase-ing points
 Dallas Goedert TE - PHI,Bo-ner
 Kyler Murray QB - ARI Q View News,Pidgin
-Chris Olave WR - NO Q View News,Fishoutawater
+Chris Olave WR - NO,Fishoutawater
 Omarion Hampton RB - LAC IR,Sea Sharp
 Tetairoa McMillan WR - CAR,Striking Shibas
 J.K. Dobbins RB - DEN,Saquon Deez
 Wan'Dale Robinson WR - NYG,The Injury Report
-D'Andre Swift RB - CHI,The Injury Report
+Tee Higgins WR - CIN,The Eskimo Brothers
 Derrick Henry RB - BAL,Fishoutawater
-Travis Kelce TE - KC,Sea Sharp
-Bucky Irving RB - TB D,The Injury Report
+Jaylen Warren RB - PIT,Annihilators
+Bucky Irving RB - TB O View News,The Injury Report
 Ladd McConkey WR - LAC,Striking Shibas
 Breece Hall RB - NYJ,The Injury Report
 Brian Thomas Jr. WR - JAX,Annihilators
-Stefon Diggs WR - NE Q View News,Striking Shibas
+Stefon Diggs WR - NE Q,Striking Shibas
+Chase Brown RB - CIN,Annihilators
 Sam LaPorta TE - DET,Annihilators
 Nico Collins WR - HOU,Annihilators
-Alvin Kamara RB - NO Q View News,Saquon Deez
+Alvin Kamara RB - NO,Saquon Deez
 Rachaad White RB - TB,Fishoutawater
 Kenneth Walker III RB - SEA,Pidgin
-Marvin Harrison Jr. WR - ARI Q View News,Chase-ing points
+Marvin Harrison Jr. WR - ARI,Chase-ing points
 DeVonta Smith WR - PHI,Chase-ing points
 Dalton Kincaid TE - BUF Q,Saquon Deez
 Jacory Croskey-Merritt RB - WAS,The Eskimo Brothers
+Kenneth Gainwell RB - PIT,Fishoutawater
 Hunter Henry TE - NE,Saquon Deez
 Quinshon Judkins RB - CLE,The Eskimo Brothers
 Romeo Doubs WR - GB,Fishoutawater
-Jake Tonges TE - SF,The Injury Report
 Khalil Shakir WR - BUF,Sea Sharp
 Tucker Kraft TE - GB,Sea Sharp
-Tony Pollard RB - TEN,The Eskimo Brothers
-Kenneth Gainwell RB - PIT,Fishoutawater
-Jakobi Meyers WR - LV Q View News,Bo-ner
 Jordan Mason RB - MIN,Striking Shibas
 Kendrick Bourne WR - SF,The Injury Report
-Zach Ertz TE - WAS,Fishoutawater
+Harold Fannin Jr. TE - CLE,Annihilators
+Zach Ertz TE - WAS Q,Fishoutawater
 Jaxson Dart QB - NYG,The Eskimo Brothers
 A.J. Brown WR - PHI,Pidgin
-Chase Brown RB - CIN,Annihilators
-Chuba Hubbard RB - CAR Q View News,Annihilators
+Chuba Hubbard RB - CAR,Annihilators
 Cooper Kupp WR - SEA,Pidgin
 Juwan Johnson TE - NO,Fishoutawater
 Justice Hill RB - BAL,Pidgin
-Jaylen Warren RB - PIT,Annihilators
-Ricky Pearsall WR - SF Q View News,Striking Shibas
+Ricky Pearsall WR - SF O,Striking Shibas
 Rhamondre Stevenson RB - NE,Sea Sharp
-Tee Higgins WR - CIN,The Eskimo Brothers
 Kyle Pitts TE - ATL,Pidgin
 Mark Andrews TE - BAL,Pidgin
 Elic Ayomanor WR - TEN,Bo-ner
-Nick Chubb RB - HOU,Chase-ing points
+Nick Chubb RB - HOU View News,Chase-ing points
 RJ Harvey RB - DEN,Sea Sharp
-DJ Moore WR - CHI Q View News,Saquon Deez
-TreVeyon Henderson RB - NE,Sea Sharp
-Darren Waller TE - MIA Q View News,The Eskimo Brothers
-Brock Bowers TE - LV Q View News,Bo-ner
+DJ Moore WR - CHI,Saquon Deez
+Luke McCaffrey WR - WAS View News,The Eskimo Brothers
+Darren Waller TE - MIA,The Eskimo Brothers
+Brock Bowers TE - LV D,Bo-ner
 Marvin Mims Jr. WR - DEN,Saquon Deez
-Woody Marks RB - HOU,Annihilators
+Woody Marks RB - HOU View News,Annihilators
 Tyler Allgeier RB - ATL,Pidgin
 Zach Charbonnet RB - SEA,Pidgin
 T.J. Hockenson TE - MIN,The Injury Report
-Matthew Golden WR - GB,Sea Sharp
-Xavier Worthy WR - KC,The Eskimo Brothers
-CeeDee Lamb WR - DAL Q View News,The Injury Report
+CeeDee Lamb WR - DAL,The Injury Report
 Trey Benson RB - ARI IR,Pidgin
 Mike Evans WR - TB Q View News,Annihilators
 Kendre Miller RB - NO,Bo-ner
-Jauan Jennings WR - SF Q View News,Saquon Deez
+Jauan Jennings WR - SF,Saquon Deez
 Jordan Addison WR - MIN,Chase-ing points
 Kimani Vidal RB - LAC,The Eskimo Brothers
-Blake Corum RB - LAR Q View News,Striking Shibas
-Terry McLaurin WR - WAS Q View News,The Injury Report
-Bam Knight RB - ARI Q View News,Pidgin
+Blake Corum RB - LAR,Striking Shibas
+Terry McLaurin WR - WAS O,The Injury Report
+Bam Knight RB - ARI,Pidgin
 Aaron Jones RB - MIN IR,Striking Shibas
 Joe Burrow QB - CIN IR,Chase-ing points
-Darnell Mooney WR - ATL Q View News,Pidgin
-George Kittle TE - SF IR View News,The Eskimo Brothers
-Chris Godwin Jr. WR - TB D,The Injury Report
-Hassan Haskins RB - LAC,Annihilators
+Ollie Gordon II RB - MIA,The Eskimo Brothers
+Darnell Mooney WR - ATL Q,Pidgin
+George Kittle TE - SF View News,The Eskimo Brothers
+Chris Godwin Jr. WR - TB O View News,The Injury Report
 Brandon Aiyuk WR - SF PUP,Bo-ner
+Jalen Coker WR - CAR Q View News,Sea Sharp
 Joe Mixon RB - HOU NFI-R,Striking Shibas
-Rashee Rice WR - KC View News,Bo-ner
-Brandon Aubrey K - DAL,The Eskimo Brothers
-Eddy Pineiro K - SF,Striking Shibas
-Cameron Dicker K - LAC,Bo-ner
-Spencer Shrader K - IND IR,Fishoutawater
-Matt Gay K - WAS,Saquon Deez
-Harrison Butker K - KC,The Injury Report
-Matt Prater K - BUF,Annihilators
-Jake Bates K - DET,Chase-ing points
-Wil Lutz K - DEN,Fishoutawater
-Jake Elliott K - PHI,Pidgin
-Jacksonville Jaguars DEF,Fishoutawater
-Denver Broncos DEF View News,Chase-ing points
-Indianapolis Colts DEF View News,Annihilators
-Los Angeles Rams DEF,Sea Sharp
-Detroit Lions DEF,The Injury Report
-New England Patriots DEF,Striking Shibas
-Pittsburgh Steelers DEF,Bo-ner
-Philadelphia Eagles DEF,Pidgin
-San Francisco 49ers DEF View News,Saquon Deez
-Green Bay Packers DEF View News,The Eskimo Brothers
-Chris Boswell K - PIT,Sea Sharp
-Jalen Coker WR - CAR,Sea Sharp
-Rashid Shaheed WR - NO,The Eskimo Brothers
+Rashee Rice WR - KC,Bo-ner
+D'Andre Swift RB - CHI,Sea Sharp
+Travis Kelce TE - KC,The Injury Report
+TreVeyon Henderson RB - NE,The Injury Report

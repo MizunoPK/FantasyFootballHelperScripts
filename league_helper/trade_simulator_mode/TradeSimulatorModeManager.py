@@ -46,20 +46,20 @@ from utils.DraftedRosterManager import DraftedRosterManager
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 
-ENABLE_ONE_FOR_ONE = True
-ENABLE_TWO_FOR_TWO = True
-ENABLE_THREE_FOR_THREE = True
+ENABLE_ONE_FOR_ONE = False
+ENABLE_TWO_FOR_TWO = False
+ENABLE_THREE_FOR_THREE = False
 
 # =============================================================================
 # UNEQUAL TRADE CONFIGURATION
 # =============================================================================
 # Toggle unequal trade types (user can modify these)
-ENABLE_TWO_FOR_ONE = True    # Give 2 players, get 1 player
+ENABLE_TWO_FOR_ONE = False    # Give 2 players, get 1 player
 ENABLE_ONE_FOR_TWO = True    # Give 1 player, get 2 players
-ENABLE_THREE_FOR_ONE = True  # Give 3 players, get 1 player
-ENABLE_ONE_FOR_THREE = True  # Give 1 player, get 3 players
-ENABLE_THREE_FOR_TWO = True  # Give 3 players, get 2 players
-ENABLE_TWO_FOR_THREE = True  # Give 2 players, get 3 players
+ENABLE_THREE_FOR_ONE = False  # Give 3 players, get 1 player
+ENABLE_ONE_FOR_THREE = False  # Give 1 player, get 3 players
+ENABLE_THREE_FOR_TWO = False  # Give 3 players, get 2 players
+ENABLE_TWO_FOR_THREE = False  # Give 2 players, get 3 players
 
 class TradeSimulatorModeManager:
     """
@@ -216,7 +216,7 @@ class TradeSimulatorModeManager:
         # Create TradeSimTeam for each opponent
         # isOpponent=True (default) means simplified scoring (projections only)
         for team_name, team_list in self.team_rosters.items():
-            if team_name != self.my_team.name:
+            if team_name in Constants.VALID_TEAMS:
                 self.opponent_simulated_teams.append(TradeSimTeam(team_name, team_list, self.player_manager))
 
     
@@ -512,15 +512,18 @@ class TradeSimulatorModeManager:
 
     def start_manual_trade(self) -> Tuple[bool, List[TradeSnapshot]]:
         """
-        Manual trade visualization mode.
+        Manual trade visualization mode with unequal trade support.
 
         Allows user to manually select players for a trade and see the impact.
+        Supports equal trades (1-for-1, 2-for-2) and unequal trades (1-for-2, 2-for-1, etc.)
+        with automatic waiver recommendations and interactive drop selection.
 
-        New Workflow (redesigned 2025-10-16):
+        Workflow:
         Step 1: Select opponent team to trade with
         Step 2: Display combined roster (both teams numbered sequentially, organized by position/score)
-        Step 3: User enters unified selection (e.g., '2,6,18,21' for players from both rosters)
-        Step 4: Process trade with validation loop (restart on constraint violation)
+        Step 3: User enters unified selection (e.g., '4,17,18' for 1-for-2 trade)
+        Step 4: Process trade with waiver/drop handling
+        Step 5: If drops needed, prompt user to select which player(s) to drop
 
         Returns:
             Tuple[bool, List[TradeSnapshot]]: (True, [trade]) or (True, []) to continue menu loop
@@ -552,9 +555,11 @@ class TradeSimulatorModeManager:
         opponent = sorted_teams[choice - 1]
         self.logger.info(f"Selected opponent: {opponent.name}")
 
-        # ========== STEP 2-4: Validation loop ==========
+        # ========== STEP 2-5: Input and processing loop ==========
         # Loop until user provides valid trade or cancels
-        # Restarts from Step 2 if trade violates roster constraints
+        my_dropped_players = []
+        their_dropped_players = []
+
         while True:
             # ========== STEP 2: Display combined roster ==========
             # Shows both rosters side-by-side, organized by position and score
@@ -572,20 +577,14 @@ class TradeSimulatorModeManager:
             max_index = len(self.my_team.team) + len(opponent.team)
 
             # ========== STEP 3: Get unified player selection ==========
-            # User enters comma-separated numbers (e.g., "2,6,18,21")
-            # Numbers 1-13 are from my team, 14+ are from opponent
+            # User enters comma-separated numbers (e.g., "4,17,18" for 1-for-2 trade)
             print()
             selection_input = input(
                 f"Enter player numbers to trade (comma-separated, or 'exit' to cancel): "
             ).strip()
 
-            # Parse input and split into my indices and their indices
-            # Returns None if:
-            #   - User typed 'exit'
-            #   - Invalid input format
-            #   - Unequal number of players from each team
-            #   - Less than 1 player from either team
-            parsed_result = self.input_parser.parse_unified_player_selection(
+            # Parse input with detailed error messages
+            parsed_result, error_message = self.input_parser.parse_with_error_message(
                 selection_input,
                 max_index,
                 roster_boundary
@@ -593,9 +592,13 @@ class TradeSimulatorModeManager:
 
             # Handle cancellation or invalid input
             if parsed_result is None:
-                print("Trade cancelled.")
-                self.logger.info("Trade cancelled by user or invalid selection")
-                return (True, [])
+                if error_message:
+                    print(f"\n{error_message}\n")
+                    continue  # Loop back to input prompt
+                else:
+                    print("Trade cancelled.")
+                    self.logger.info("Trade cancelled by user")
+                    return (True, [])
 
             # Extract indices for each team
             my_indices, their_indices = parsed_result
@@ -605,51 +608,97 @@ class TradeSimulatorModeManager:
             my_selected_players = self.input_parser.get_players_by_indices(my_display_order, my_indices)
             their_selected_players = self.input_parser.get_players_by_indices(their_display_order, their_indices)
 
-            # ========== STEP 4: Create new rosters and validate ==========
-            # Simulate the trade by swapping selected players
-            my_new_roster = [p for p in self.my_team.team if p not in my_selected_players] + their_selected_players
-            their_new_roster = [p for p in opponent.team if p not in their_selected_players] + my_selected_players
+            # Log trade type
+            trade_type = f"{len(my_selected_players)}-for-{len(their_selected_players)}"
+            self.logger.info(f"Processing {trade_type} trade")
 
-            # Validate both rosters
-            # ignore_max_positions=True: Manual trades not restricted by position limits
-            # (allows creative trades like 4 RBs if user wants)
-            my_roster_valid = self.analyzer.validate_roster(my_new_roster, ignore_max_positions=True)
-            their_roster_valid = self.analyzer.validate_roster(their_new_roster, ignore_max_positions=True)
+            # ========== STEP 4: Process trade with shared waiver/drop logic ==========
+            # Use TradeAnalyzer's shared method for processing manual trades
+            # This handles:
+            #   - Calculating waiver needs based on net roster change
+            #   - Adding waiver recommendations
+            #   - Validating rosters
+            #   - Returning drop candidates if roster invalid
+            snapshot, my_drop_candidates, their_drop_candidates = self.analyzer.process_manual_trade(
+                my_team=self.my_team,
+                their_team=opponent,
+                my_selected_players=my_selected_players,
+                their_selected_players=their_selected_players,
+                my_dropped_players=my_dropped_players if my_dropped_players else None,
+                their_dropped_players=their_dropped_players if their_dropped_players else None
+            )
 
-            # If either roster is invalid, show error and restart from Step 2
-            if not my_roster_valid or not their_roster_valid:
-                print("\nError: Not a valid trade. Please try again.\n")
-                self.logger.warning("Trade violates roster constraints")
-                # Loop continues - user must re-select players
+            # ========== STEP 5: Handle drops if needed ==========
+            if snapshot is None:
+                # Roster invalid - need to select players to drop
+                print("\n" + "="*80)
+                print("ROSTER CONSTRAINT VIOLATION")
+                print("="*80)
+
+                # Handle MY team drops
+                if my_drop_candidates:
+                    print("\nYour roster would exceed limits. Select a player to drop:")
+                    print()
+                    for i, player in enumerate(my_drop_candidates, 1):
+                        print(f"  {i}. {player.name} ({player.position}) - {player.team} - Score: {player.score:.2f}")
+                    print()
+
+                    while True:
+                        drop_input = input("Enter player number to drop (or 'cancel'): ").strip()
+                        if drop_input.lower() == 'cancel':
+                            print("Trade cancelled.")
+                            return (True, [])
+
+                        try:
+                            drop_idx = int(drop_input)
+                            if 1 <= drop_idx <= len(my_drop_candidates):
+                                my_dropped_players = [my_drop_candidates[drop_idx - 1]]
+                                self.logger.info(f"User selected to drop: {my_dropped_players[0].name}")
+                                break
+                            else:
+                                print(f"Invalid selection. Please enter a number between 1 and {len(my_drop_candidates)}.")
+                        except ValueError:
+                            print("Invalid input. Please enter a number.")
+
+                # Handle THEIR team drops (for display purposes)
+                if their_drop_candidates:
+                    print(f"\n{opponent.name}'s roster would exceed limits. They would need to drop one of:")
+                    print()
+                    for i, player in enumerate(their_drop_candidates, 1):
+                        print(f"  {i}. {player.name} ({player.position}) - {player.team} - Score: {player.score:.2f}")
+                    print()
+
+                    while True:
+                        drop_input = input("Enter player number they would drop (or 'cancel'): ").strip()
+                        if drop_input.lower() == 'cancel':
+                            print("Trade cancelled.")
+                            return (True, [])
+
+                        try:
+                            drop_idx = int(drop_input)
+                            if 1 <= drop_idx <= len(their_drop_candidates):
+                                their_dropped_players = [their_drop_candidates[drop_idx - 1]]
+                                self.logger.info(f"Selected drop for {opponent.name}: {their_dropped_players[0].name}")
+                                break
+                            else:
+                                print(f"Invalid selection. Please enter a number between 1 and {len(their_drop_candidates)}.")
+                        except ValueError:
+                            print("Invalid input. Please enter a number.")
+
+                # Retry trade processing with selected drops
+                print("\nRetrying trade with selected drops...")
                 continue
 
-            # Trade is valid - break out of validation loop
+            # ========== Trade valid - break out of loop ==========
             break
 
-        # ========== Create TradeSnapshot and display results ==========
-        # Create TradeSimTeam objects with new rosters for scoring
-        my_new_team = TradeSimTeam(self.my_team.name, my_new_roster, self.player_manager, isOpponent=False)
-        their_new_team = TradeSimTeam(opponent.name, their_new_roster, self.player_manager, isOpponent=True)
-
-        # Get scored player representations from ORIGINAL team context
-        # This shows players with their scores BEFORE the trade
-        my_original_scored = self.my_team.get_scored_players(my_selected_players)
-
-        # Create TradeSnapshot encapsulating all trade information
-        trade = TradeSnapshot(
-            my_new_team=my_new_team,  # My team after trade
-            my_new_players=my_new_team.get_scored_players(their_selected_players),  # Players I receive
-            their_new_team=their_new_team,  # Their team after trade
-            their_new_players=their_new_team.get_scored_players(my_selected_players),  # Players they receive
-            my_original_players=my_original_scored  # Players I'm giving away
-        )
-
+        # ========== Display trade results ==========
         # Capture original scores for impact calculation
         original_my_score = self.my_team.team_score
         original_their_score = opponent.team_score
 
-        # Display trade impact analysis
-        self.display_helper.display_trade_result(trade, original_my_score, original_their_score)
+        # Display trade impact analysis (already shows waivers/drops if present)
+        self.display_helper.display_trade_result(snapshot, original_my_score, original_their_score)
 
         # ========== Optionally save to file ==========
         print()
@@ -657,8 +706,8 @@ class TradeSimulatorModeManager:
 
         if save_input == 'y':
             # Save to timestamped file in trade_outputs/
-            filename = self.file_writer.save_manual_trade_to_file(trade, opponent.name, original_my_score, original_their_score)
+            filename = self.file_writer.save_manual_trade_to_file(snapshot, opponent.name, original_my_score, original_their_score)
             print(f"\nTrade saved to: {filename}")
             self.logger.info(f"Trade saved to {filename}")
 
-        return (True, [trade])
+        return (True, [snapshot])
