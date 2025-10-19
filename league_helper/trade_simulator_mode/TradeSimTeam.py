@@ -52,10 +52,10 @@ class TradeSimTeam:
         """
         self.name = name
 
-        # Filter out injured players
+        # Filter out injured reserve players
         self.team : List[FantasyPlayer] = []
         for p in team:
-            if p.injury_status in ['ACTIVE', 'QUESTIONABLE']:
+            if p.injury_status in ['ACTIVE', 'QUESTIONABLE', 'OUT']:
                 self.team.append(p)
 
         self.player_manager = player_manager

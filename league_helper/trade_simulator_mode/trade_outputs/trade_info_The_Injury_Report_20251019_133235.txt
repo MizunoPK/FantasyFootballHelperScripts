@@ -1,0 +1,16 @@
+Trade with The Injury Report
+  My improvement: +8.71 pts (New score: 1317.24)
+  Their improvement: -8.71 pts (New score: 1239.75)
+  I give:
+    - [QB] [NYJ] Justin Fields - 112.37 pts (Bye=9)
+            - Projected: 185.12 pts, Weighted: 114.45 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: VERY_POOR
+            - Performance: NEUTRAL (+0.0%)
+  I receive:
+    - [QB] [HOU] C.J. Stroud - 121.09 pts (Bye=6)
+            - Projected: 199.47 pts, Weighted: 123.33 pts
+            - Player Rating: NEUTRAL
+            - Team Quality: VERY_POOR
+            - Performance: NEUTRAL (+3.5%)
+            - The player's bye week has already passed.

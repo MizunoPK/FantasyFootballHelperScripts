@@ -330,13 +330,13 @@ class FantasyPlayer:
         if self.injury_status == 'ACTIVE':
             return "LOW"
         # MEDIUM risk: Player may or may not play, monitor gameday status
-        elif self.injury_status in ['QUESTIONABLE']:
+        elif self.injury_status in ['QUESTIONABLE', 'OUT', 'DOUBTFUL']:
             return "MEDIUM"
         # HIGH risk: Player definitely won't play or status unknown
         # OUT/DOUBTFUL: Won't play this week
         # INJURY_RESERVE/SUSPENSION: Out for extended period
         # UNKNOWN: No status data, assume risky
-        elif self.injury_status in ['OUT', 'DOUBTFUL', 'INJURY_RESERVE', 'SUSPENSION', 'UNKNOWN']:
+        elif self.injury_status in ['INJURY_RESERVE', 'SUSPENSION', 'UNKNOWN']:
             return "HIGH"
         else:
             # Catch-all for unrecognized statuses: assume moderate risk

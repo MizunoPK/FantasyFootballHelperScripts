@@ -46,15 +46,15 @@ from utils.DraftedRosterManager import DraftedRosterManager
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 
-ENABLE_ONE_FOR_ONE = False
-ENABLE_TWO_FOR_TWO = False
+ENABLE_ONE_FOR_ONE = True
+ENABLE_TWO_FOR_TWO = True
 ENABLE_THREE_FOR_THREE = False
 
 # =============================================================================
 # UNEQUAL TRADE CONFIGURATION
 # =============================================================================
 # Toggle unequal trade types (user can modify these)
-ENABLE_TWO_FOR_ONE = False    # Give 2 players, get 1 player
+ENABLE_TWO_FOR_ONE = True    # Give 2 players, get 1 player
 ENABLE_ONE_FOR_TWO = True    # Give 1 player, get 2 players
 ENABLE_THREE_FOR_ONE = False  # Give 3 players, get 1 player
 ENABLE_ONE_FOR_THREE = False  # Give 1 player, get 3 players

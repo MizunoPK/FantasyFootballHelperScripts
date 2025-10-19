@@ -528,10 +528,14 @@ class PlayerScoringCalculator:
         num_same_position = 0
         num_different_position = 0
 
+        # Return if the player's bye week has already passed
+        if p.bye_week < self.config.current_nfl_week:
+            return player_score, "The player's bye week has already passed."
+
         # Iterate through roster to find bye week overlaps
         for roster_player in roster:
             # Skip the player being scored (avoid counting them against themselves)
-            if roster_player.id == p.id:
+            if roster_player.id == p.id or roster_player.bye_week < self.config.current_nfl_week:
                 continue
 
             # Check if this roster player has the same bye week

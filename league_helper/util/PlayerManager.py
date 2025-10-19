@@ -495,7 +495,7 @@ class PlayerManager:
             Constants.DST: 9999,
         }
         for p in self.team.roster:
-            if p.score < lowest_scores[p.position]:
+            if p.score < lowest_scores[p.position] and p.locked == 0:
                 lowest_scores[p.position] = p.score
         return lowest_scores
 
