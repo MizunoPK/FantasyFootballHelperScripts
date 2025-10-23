@@ -101,13 +101,13 @@ class LeagueHelperManager:
         The loop continues until the user selects the Quit option.
         """
         print("Welcome to the Start 7 Fantasy League Helper!")
-        print(f"Currently drafted players: {self.player_manager.get_roster_len()} / {constants.MAX_PLAYERS} max")
+        print(f"Currently drafted players: {self.player_manager.get_roster_len()} / {self.config.max_players} max")
 
         # Show initial roster status with scoring details
         self.player_manager.display_scored_roster()
 
         roster_size = self.player_manager.get_roster_len()
-        self.logger.info(f"Interactive league helper started. Current roster size: {roster_size}/{constants.MAX_PLAYERS}")
+        self.logger.info(f"Interactive league helper started. Current roster size: {roster_size}/{self.config.max_players}")
 
         while True:
             # Reload player data from CSV before showing menu to ensure latest changes

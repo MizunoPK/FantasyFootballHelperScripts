@@ -29,7 +29,10 @@ def mock_player_manager():
 @pytest.fixture
 def mock_config():
     """Create a mock ConfigManager"""
-    return Mock()
+    config = Mock()
+    config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
+    config.max_players = 15
+    return config
 
 
 @pytest.fixture
@@ -41,21 +44,21 @@ def analyzer(mock_player_manager, mock_config):
 @pytest.fixture
 def sample_players():
     """Create sample FantasyPlayer objects for testing"""
-    qb1 = FantasyPlayer(id=1, name="QB1", team="KC", position="QB", fantasy_points=25.0)
+    qb1 = FantasyPlayer(id=1, name="QB1", team="KC", position="QB", fantasy_points=25.0, injury_status="ACTIVE")
     qb1.locked = 0
-    rb1 = FantasyPlayer(id=2, name="RB1", team="SF", position="RB", fantasy_points=20.0)
+    rb1 = FantasyPlayer(id=2, name="RB1", team="SF", position="RB", fantasy_points=20.0, injury_status="ACTIVE")
     rb1.locked = 0
-    rb2 = FantasyPlayer(id=3, name="RB2", team="BUF", position="RB", fantasy_points=18.0)
+    rb2 = FantasyPlayer(id=3, name="RB2", team="BUF", position="RB", fantasy_points=18.0, injury_status="ACTIVE")
     rb2.locked = 0
-    wr1 = FantasyPlayer(id=4, name="WR1", team="MIA", position="WR", fantasy_points=22.0)
+    wr1 = FantasyPlayer(id=4, name="WR1", team="MIA", position="WR", fantasy_points=22.0, injury_status="ACTIVE")
     wr1.locked = 0
-    wr2 = FantasyPlayer(id=5, name="WR2", team="DAL", position="WR", fantasy_points=19.0)
+    wr2 = FantasyPlayer(id=5, name="WR2", team="DAL", position="WR", fantasy_points=19.0, injury_status="ACTIVE")
     wr2.locked = 0
-    te1 = FantasyPlayer(id=6, name="TE1", team="KC", position="TE", fantasy_points=15.0)
+    te1 = FantasyPlayer(id=6, name="TE1", team="KC", position="TE", fantasy_points=15.0, injury_status="ACTIVE")
     te1.locked = 0
-    k1 = FantasyPlayer(id=7, name="K1", team="BAL", position="K", fantasy_points=10.0)
+    k1 = FantasyPlayer(id=7, name="K1", team="BAL", position="K", fantasy_points=10.0, injury_status="ACTIVE")
     k1.locked = 0
-    dst1 = FantasyPlayer(id=8, name="DST1", team="PIT", position="DST", fantasy_points=12.0)
+    dst1 = FantasyPlayer(id=8, name="DST1", team="PIT", position="DST", fantasy_points=12.0, injury_status="ACTIVE")
     dst1.locked = 0
 
     return {
@@ -138,9 +141,9 @@ class TestCountPositions:
 class TestValidateRoster:
     """Test validate_roster method"""
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_validate_valid_roster(self, analyzer, sample_players, mock_config):
         """Test validating a valid roster"""
+        mock_config.max_players = 15
         roster = [sample_players['qb1'], sample_players['rb1'], sample_players['wr1']]
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.FantasyTeam') as mock_team:
@@ -151,30 +154,29 @@ class TestValidateRoster:
             result = analyzer.validate_roster(roster)
             assert result is True
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 2)
-    def test_validate_roster_exceeds_max_players(self, analyzer, sample_players):
+    def test_validate_roster_exceeds_max_players(self, analyzer, sample_players, mock_config):
         """Test that roster exceeding MAX_PLAYERS is invalid"""
+        mock_config.max_players = 2
         roster = [sample_players['qb1'], sample_players['rb1'], sample_players['wr1']]
         result = analyzer.validate_roster(roster)
         assert result is False
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 2)
-    def test_validate_roster_with_ignore_max_positions(self, analyzer, sample_players):
+    def test_validate_roster_with_ignore_max_positions(self, analyzer, sample_players, mock_config):
         """Test that ignore_max_positions allows roster over limit for positions but not total"""
+        mock_config.max_players = 2
         roster = [sample_players['qb1'], sample_players['rb1'], sample_players['wr1']]
         # Should still fail because total roster size (3) > MAX_PLAYERS (2)
         result = analyzer.validate_roster(roster, ignore_max_positions=True)
         assert result is False
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 5)
-    def test_validate_roster_ignores_position_limits_when_flag_set(self, analyzer, sample_players):
+    def test_validate_roster_ignores_position_limits_when_flag_set(self, analyzer, sample_players, mock_config):
         """Test that ignore_max_positions skips position validation"""
+        mock_config.max_players = 5
         roster = [sample_players['qb1'], sample_players['rb1']]
         # With ignore flag, should only check roster size
         result = analyzer.validate_roster(roster, ignore_max_positions=True)
         assert result is True
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_validate_empty_roster(self, analyzer):
         """Test validating an empty roster"""
         with patch('league_helper.trade_simulator_mode.trade_analyzer.FantasyTeam') as mock_team:
@@ -184,7 +186,6 @@ class TestValidateRoster:
             result = analyzer.validate_roster([])
             assert result is True
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_validate_roster_at_max_boundary(self, analyzer, sample_players):
         """Test validating roster at exact MAX_PLAYERS boundary"""
         # Create roster with exactly MAX_PLAYERS (15)
@@ -198,7 +199,6 @@ class TestValidateRoster:
             result = analyzer.validate_roster(roster)
             assert result is True
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_validate_roster_with_position_violation(self, analyzer, sample_players):
         """Test that roster with position violations is invalid"""
         roster = [sample_players['qb1'], sample_players['rb1']]
@@ -212,7 +212,6 @@ class TestValidateRoster:
             result = analyzer.validate_roster(roster)
             assert result is False
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_validate_roster_team_construction_failure(self, analyzer, sample_players):
         """Test that roster is invalid if team construction fails"""
         roster = [sample_players['qb1']]
@@ -249,13 +248,12 @@ class TestGetTradeCombinations:
 
         return my_team, their_team
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_get_trade_combinations_one_for_one(self, analyzer, mock_teams):
         """Test generating 1-for-1 trade combinations"""
         my_team, their_team = mock_teams
 
         # Mock validate_roster to return True
-        analyzer.validate_roster = Mock(return_value=True)
+        analyzer.validate_roster_lenient = Mock(return_value=True)
 
         # Mock TradeSimTeam constructor
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
@@ -283,13 +281,12 @@ class TestGetTradeCombinations:
                 # Should have generated some 1-for-1 trades (2 my players * 2 their players = 4 max)
                 assert len(results) > 0
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_get_trade_combinations_two_for_two(self, analyzer, mock_teams):
         """Test generating 2-for-2 trade combinations"""
         my_team, their_team = mock_teams
 
         # Mock validate_roster to return True
-        analyzer.validate_roster = Mock(return_value=True)
+        analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
@@ -315,13 +312,12 @@ class TestGetTradeCombinations:
                 # Should have generated some 2-for-2 trades
                 assert len(results) > 0
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_get_trade_combinations_no_valid_trades(self, analyzer, mock_teams):
         """Test when no valid trades exist (all violate roster rules)"""
         my_team, their_team = mock_teams
 
-        # Mock validate_roster to always return False
-        analyzer.validate_roster = Mock(return_value=False)
+        # Mock validate_roster_lenient to always return False (all trades violate rules)
+        analyzer.validate_roster_lenient = Mock(return_value=False)
 
         results = analyzer.get_trade_combinations(
             my_team, their_team,
@@ -332,17 +328,16 @@ class TestGetTradeCombinations:
 
         assert len(results) == 0
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_get_trade_combinations_waivers(self, analyzer, mock_teams):
         """Test waiver trades (is_waivers=True skips their roster validation)"""
         my_team, their_team = mock_teams
 
-        # Mock validate_roster: True for my team, False for their team
-        analyzer.validate_roster = Mock(side_effect=lambda roster, **kwargs: roster == my_team.team or len(roster) < 5)
+        # Mock validate_roster_lenient: Always return True for waivers
+        analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 105.0  # Improved from 100.0 (+5 points, exceeds MIN_WAIVER_IMPROVEMENT = 0)
+            mock_my_new.team_score = 106.0  # Improved from 100.0 (+6 points, exceeds MIN_WAIVER_IMPROVEMENT = 5)
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
@@ -388,7 +383,7 @@ class TestGetTradeCombinations:
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
 
-        analyzer.validate_roster = Mock(return_value=True)
+        analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
@@ -415,12 +410,11 @@ class TestGetTradeCombinations:
                 # So should generate 1 trade: RB1 for WR1
                 assert len(results) == 1
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_get_trade_combinations_only_my_team_improves(self, analyzer, mock_teams):
         """Test that trades where only my team improves are rejected"""
         my_team, their_team = mock_teams
 
-        analyzer.validate_roster = Mock(return_value=True)
+        analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
@@ -443,12 +437,11 @@ class TestGetTradeCombinations:
             # Should reject all trades (their team gets worse)
             assert len(results) == 0
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_get_trade_combinations_only_their_team_improves(self, analyzer, mock_teams):
         """Test that trades where only their team improves are rejected"""
         my_team, their_team = mock_teams
 
-        analyzer.validate_roster = Mock(return_value=True)
+        analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
@@ -493,7 +486,6 @@ class TestGetTradeCombinations:
         # No trades possible with empty rosters
         assert len(results) == 0
 
-    @patch('league_helper.trade_simulator_mode.trade_analyzer.Constants.MAX_PLAYERS', 15)
     def test_get_trade_combinations_three_for_three(self, analyzer, sample_players, mock_player_manager):
         """Test generating 3-for-3 trade combinations"""
         # Need at least 3 players per team
@@ -512,7 +504,7 @@ class TestGetTradeCombinations:
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
 
-        analyzer.validate_roster = Mock(return_value=True)
+        analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()

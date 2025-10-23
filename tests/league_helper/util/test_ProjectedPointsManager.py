@@ -14,6 +14,8 @@ def mock_config():
     """Create a mock ConfigManager."""
     config = Mock()
     config.current_nfl_week = 7
+    config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
+    config.max_players = 15
     return config
 
 

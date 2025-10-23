@@ -356,6 +356,8 @@ class TestStarterHelperModeManager:
         config.current_nfl_week = 5
         config.nfl_scoring_format = "ppr"
         config.normalization_max_scale = 100.0
+        config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
+        config.max_players = 15
         return config
 
     @pytest.fixture

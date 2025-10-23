@@ -80,6 +80,15 @@ def mock_data_folder(tmp_path):
       {"FLEX": "P"},
       {"FLEX": "P"}
     ],
+    "MAX_POSITIONS": {
+      "QB": 2,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 2,
+      "TE": 1,
+      "K": 1,
+      "DST": 1
+    },
     "ADP_SCORING": {
       "THRESHOLDS": {
         "EXCELLENT": 20,
@@ -733,7 +742,7 @@ class TestFlexEligibility:
         assert empty_team.flex_eligible(Constants.QB) is False
 
     def test_flex_not_eligible_when_flex_full(self, empty_team, sample_players):
-        """Test FLEX eligibility false when FLEX slot is full"""
+        """Test FLEX eligibility false when FLEX slots are full (2 slots)"""
         # Fill RB slots (4 RBs)
         for i in range(4):
             sample_players[2 + i].drafted = 0
@@ -745,7 +754,13 @@ class TestFlexEligibility:
                                 injury_status="ACTIVE", drafted=0, locked=0)
         empty_team.draft_player(fifth_rb)
 
-        # Now FLEX is full, so RB should not be FLEX-eligible
+        # Add sixth RB to FLEX slot (fills second FLEX slot)
+        sixth_rb = FantasyPlayer(id=100, name="RB6", team="KC", position="RB",
+                                bye_week=8, fantasy_points=100.0,
+                                injury_status="ACTIVE", drafted=0, locked=0)
+        empty_team.draft_player(sixth_rb)
+
+        # Now BOTH FLEX slots are full, so RB should not be FLEX-eligible
         assert empty_team.flex_eligible(Constants.RB) is False
 
 
@@ -1183,23 +1198,29 @@ class TestOptimalSlot:
         assert optimal == Constants.FLEX
 
     def test_optimal_slot_none_when_all_full(self, empty_team, sample_players):
-        """Test optimal slot is None when both natural and FLEX are full"""
+        """Test optimal slot is None when both natural and FLEX slots are full (2 FLEX slots)"""
         # Fill RB slots (4 RBs)
         for i in range(4):
             empty_team.draft_player(sample_players[2 + i])
 
-        # Fill FLEX with RB
+        # Fill first FLEX slot with RB
         fifth_rb = FantasyPlayer(id=99, name="RB5", team="KC", position="RB",
                                 bye_week=7, fantasy_points=100.0,
                                 injury_status="ACTIVE", drafted=0, locked=0)
         empty_team.draft_player(fifth_rb)
 
-        # Sixth RB has no available slot
+        # Fill second FLEX slot with RB
         sixth_rb = FantasyPlayer(id=100, name="RB6", team="KC", position="RB",
                                 bye_week=8, fantasy_points=100.0,
                                 injury_status="ACTIVE", drafted=0, locked=0)
+        empty_team.draft_player(sixth_rb)
 
-        optimal = empty_team.get_optimal_slot_for_player(sixth_rb)
+        # Seventh RB has no available slot
+        seventh_rb = FantasyPlayer(id=101, name="RB7", team="KC", position="RB",
+                                bye_week=9, fantasy_points=100.0,
+                                injury_status="ACTIVE", drafted=0, locked=0)
+
+        optimal = empty_team.get_optimal_slot_for_player(seventh_rb)
 
         assert optimal is None
 

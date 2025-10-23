@@ -37,12 +37,13 @@ LOGGING_FILE = './simulation/log.txt'  # Log file path (only used if LOGGING_TO_
 LOGGING_FORMAT = 'standard'     # detailed / standard / simple
 
 DEFAULT_MODE='iterative'
-DEFAULT_SIMS=100
+DEFAULT_SIMS=50
 DEFAULT_BASELINE=''
 DEFAULT_OUTPUT='simulation/simulation_configs'
 DEFAULT_WORKERS=7
 DEFAULT_DATA='simulation/sim_data'
-DEFAULT_TEST_VALUES=10
+DEFAULT_TEST_VALUES=5
+NUM_PARAMETERS_TO_TEST=2
 
 
 def main():
@@ -283,7 +284,8 @@ Examples:
             num_simulations_per_config=args.sims,
             max_workers=args.workers,
             data_folder=data_folder,
-            num_test_values=args.test_values
+            num_test_values=args.test_values,
+            num_parameters_to_test=NUM_PARAMETERS_TO_TEST
         )
 
         # Run N simulations with baseline config and display results
@@ -338,7 +340,8 @@ Examples:
                 num_simulations_per_config=args.sims,
                 max_workers=args.workers,
                 data_folder=data_folder,
-                num_test_values=args.test_values
+                num_test_values=args.test_values,
+                num_parameters_to_test=NUM_PARAMETERS_TO_TEST
             )
 
             # Run coordinate descent optimization (one parameter at a time)

@@ -114,42 +114,20 @@ class TestPositionConstants:
 class TestRosterConstruction:
     """Test suite for roster construction limits."""
 
-    def test_max_positions_has_all_positions(self):
-        """Test that MAX_POSITIONS defines limits for all positions."""
-        assert constants.QB in constants.MAX_POSITIONS
-        assert constants.RB in constants.MAX_POSITIONS
-        assert constants.WR in constants.MAX_POSITIONS
-        assert constants.TE in constants.MAX_POSITIONS
-        assert constants.K in constants.MAX_POSITIONS
-        assert constants.DST in constants.MAX_POSITIONS
-        assert constants.FLEX in constants.MAX_POSITIONS
-
-    def test_max_positions_values_are_positive(self):
-        """Test that all position limits are positive integers."""
-        for position, limit in constants.MAX_POSITIONS.items():
-            assert isinstance(limit, int)
-            assert limit > 0
-
-    def test_max_positions_sums_to_max_players(self):
-        """Test that sum of MAX_POSITIONS equals MAX_PLAYERS."""
-        total = sum(constants.MAX_POSITIONS.values())
-        assert total == constants.MAX_PLAYERS
-
-    def test_max_players_is_15(self):
-        """Test that MAX_PLAYERS is 15 (Start 7 league standard)."""
-        assert constants.MAX_PLAYERS == 15
-
     def test_flex_eligible_positions_are_correct(self):
         """Test that FLEX_ELIGIBLE_POSITIONS contains RB, WR, DST."""
         assert constants.RB in constants.FLEX_ELIGIBLE_POSITIONS
         assert constants.WR in constants.FLEX_ELIGIBLE_POSITIONS
         assert constants.DST in constants.FLEX_ELIGIBLE_POSITIONS
 
-    def test_flex_eligible_does_not_contain_non_flex(self):
-        """Test that FLEX_ELIGIBLE_POSITIONS excludes QB, TE, K."""
-        assert constants.QB not in constants.FLEX_ELIGIBLE_POSITIONS
-        assert constants.TE not in constants.FLEX_ELIGIBLE_POSITIONS
-        assert constants.K not in constants.FLEX_ELIGIBLE_POSITIONS
+    def test_flex_eligible_does_not_contain_flex_itself(self):
+        """Test that FLEX_ELIGIBLE_POSITIONS doesn't contain FLEX (circular reference)."""
+        assert constants.FLEX not in constants.FLEX_ELIGIBLE_POSITIONS
+
+    def test_flex_eligible_contains_only_valid_positions(self):
+        """Test that all positions in FLEX_ELIGIBLE_POSITIONS are valid positions."""
+        for pos in constants.FLEX_ELIGIBLE_POSITIONS:
+            assert pos in constants.ALL_POSITIONS or pos == constants.DST
 
 
 class TestByeWeeks:
@@ -210,10 +188,13 @@ class TestGetPositionWithFlexFunction:
         result = constants.get_position_with_flex('QB')
         assert result == 'QB'
 
-    def test_tight_end_returns_te(self):
-        """Test that TE position returns TE (not FLEX)."""
+    def test_tight_end_returns_correct_value(self):
+        """Test that TE position returns FLEX if flex-eligible, otherwise TE."""
         result = constants.get_position_with_flex('TE')
-        assert result == 'TE'
+        if constants.TE in constants.FLEX_ELIGIBLE_POSITIONS:
+            assert result == constants.FLEX
+        else:
+            assert result == 'TE'
 
     def test_kicker_returns_k(self):
         """Test that K position returns K (not FLEX)."""

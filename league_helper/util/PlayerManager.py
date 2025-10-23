@@ -169,7 +169,7 @@ class PlayerManager:
 
                         # Validate position is one of the allowed values (QB, RB, WR, TE, K, DST)
                         # Invalid positions would break roster management logic
-                        if player.position not in Constants.MAX_POSITIONS:
+                        if player.position not in self.config.max_positions:
                             self.logger.warning(f"Warning: Invalid position '{player.position}' for player {player.name} on row {row_num}, skipping")
                             error_count += 1
                             continue
@@ -297,6 +297,7 @@ class PlayerManager:
         for p in drafted_players:
             result = self.score_player(p)
             self.team.set_score(p.id, result.score)
+        # self.team.display_roster()
 
         self.logger.debug(f"Team loaded: {len(self.team.roster)} players on roster")
 
@@ -433,8 +434,8 @@ class PlayerManager:
         player_map = {player.id: player for player in self.team.roster}
 
         # Display each position based on slot assignments (not original position)
-        for pos in Constants.MAX_POSITIONS.keys():
-            max_count = Constants.MAX_POSITIONS[pos]
+        for pos in self.config.max_positions.keys():
+            max_count = self.config.max_positions[pos]
 
             # Get players assigned to this slot (using slot_assignments, not position filtering)
             assigned_player_ids = self.team.slot_assignments.get(pos, [])
@@ -451,7 +452,7 @@ class PlayerManager:
             else:
                 print(f"  (No {pos} players)")
 
-        print(f"\nTotal roster: {len(self.team.roster)}/{Constants.MAX_PLAYERS} players")
+        print(f"\nTotal roster: {len(self.team.roster)}/{self.config.max_players} players")
 
     def display_roster(self) -> None:
         self.team.display_roster()

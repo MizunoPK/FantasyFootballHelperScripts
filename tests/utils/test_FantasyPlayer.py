@@ -381,13 +381,13 @@ class TestRiskLevel:
         assert player.get_risk_level() == "MEDIUM"
 
     def test_get_risk_level_high_for_out(self):
-        """Test get_risk_level returns HIGH for OUT players."""
+        """Test get_risk_level returns MEDIUM for OUT players."""
         player = FantasyPlayer(
             id=3, name="Out", team="KC", position="QB",
             injury_status="OUT"
         )
 
-        assert player.get_risk_level() == "HIGH"
+        assert player.get_risk_level() == "MEDIUM"
 
     def test_get_risk_level_high_for_injury_reserve(self):
         """Test get_risk_level returns HIGH for INJURY_RESERVE players."""

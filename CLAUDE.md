@@ -318,7 +318,7 @@ penalty = config.get_injury_penalty(risk_level)
 ### Naming Conventions
 - **Classes**: `PascalCase` (PlayerManager, ConfigManager)
 - **Functions/Methods**: `snake_case` (load_players, get_score)
-- **Constants**: `UPPER_SNAKE_CASE` (MAX_PLAYERS, LOGGING_LEVEL)
+- **Constants**: `UPPER_SNAKE_CASE` (RECOMMENDATION_COUNT, LOGGING_LEVEL)
 - **Private**: `_leading_underscore` (_validate_config)
 - **Modules**: `snake_case` (error_handler.py, csv_utils.py)
 

@@ -1,13 +1,64 @@
-Before starting changes, ask clarifying questions by creating a questions file in the updates folder. The questions file should be named with the pattern: `{objective_name}_questions.md`. This file should contain all clarifying questions that would help better understand and complete the objective. Wait for the user to answer these questions before creating the TODO file and beginning development. If new questions arise during development, pause and add them to the questions file.
-After receiving answers to clarifying questions, create a TODO file that maps out all the tasks that will need to be completed to accomplish this objective. As you complete the tasks, keep the file updated with your progress just in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made. Put the TODO file in the todo-files folder in the updates directory.
+## OBJECTIVE PLANNING WORKFLOW
+
+Before starting changes, follow this mandatory workflow:
+
+### **STEP 1: Create Draft TODO File**
+
+Create an initial TODO file that maps out all the tasks needed to accomplish the objective. This draft is based solely on the original specification file (`updates/{objective_name}.txt`). The TODO file should be named `updates/todo-files/{objective_name}_todo.md`.
+
+The draft TODO should include:
+- High-level phases and tasks
+- Anticipated file modifications
+- Testing requirements
+- Documentation updates
+
+As you complete tasks, keep the file updated with your progress in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made.
+
+### **STEP 2: First Verification Round (3 Iterations)**
+
+Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL (detailed below) with **3 complete iterations** to research the codebase, identify patterns, and refine the draft TODO file. This happens BEFORE creating the questions file.
+
+### **STEP 3: Create Questions File**
+
+After completing the first 3 verification iterations, create a questions file based on ambiguities, implementation choices, and user preference decisions discovered during codebase research. The questions file should be named `updates/{objective_name}_questions.md`.
+
+This file should contain:
+- Clarifying questions about requirements
+- Implementation approach options (with recommendations based on codebase research)
+- User preference questions
+- Questions that arose during the first verification round
+
+**IMPORTANT**: Wait for the user to answer these questions before proceeding to Step 4.
+
+### **STEP 4: Update TODO with Question Answers**
+
+After receiving user answers, update the TODO file to reflect:
+- User's chosen implementation approaches
+- Clarified requirements from answers
+- Adjusted task priorities based on answers
+- Any new tasks revealed by the answers
+
+### **STEP 5: Second Verification Round (3 More Iterations)**
+
+Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL again with **3 additional complete iterations** to:
+- Validate that question answers are fully integrated
+- Research any new patterns needed based on answers
+- Refine implementation details
+- Finalize task order and dependencies
+
+After completing both verification rounds (6 total iterations), the TODO file should be comprehensive and ready for implementation.
+
+---
 
 ## TODO FILE VERIFICATION AND REFINEMENT PROTOCOL
 
-**🚨 MANDATORY AFTER GENERATING TODO FILE** - This iterative verification protocol must be executed after creating the initial TODO file and before beginning implementation:
+**🚨 MANDATORY** - This iterative verification protocol must be executed:
+1. After creating the draft TODO file (3 iterations)
+2. After receiving user's answers to questions (3 more iterations)
 
 ### **WHEN TO EXECUTE**:
-- ✅ Immediately after generating the initial TODO file
-- ✅ After receiving user's answers to clarifying questions
+- ✅ Immediately after generating the draft TODO file (STEP 2 - First 3 iterations)
+- ✅ After updating TODO with user's question answers (STEP 5 - Second 3 iterations)
 - ✅ Before beginning any implementation work
 
 ### **ITERATIVE REFINEMENT PROCESS (MINIMUM 3 ITERATIONS)**:
@@ -16,14 +67,15 @@ After receiving answers to clarifying questions, create a TODO file that maps ou
 
 1. **Re-read ALL Source Documents**:
    - Open and carefully read the original `updates/{objective_name}.txt` file line-by-line
-   - Open and carefully read the `updates/{objective_name}_questions.md` answers section
-   - Open and carefully read your newly created `updates/todo-files/{objective_name}_todo.md`
+   - Open and carefully read the `updates/{objective_name}_questions.md` answers section (if Step 5 - second verification round)
+   - Open and carefully read your TODO file `updates/todo-files/{objective_name}_todo.md`
 
 2. **Cross-Reference Requirements**:
    - Extract EVERY requirement from the original updates file (explicit and implied)
-   - Extract EVERY requirement from the question answers
+   - Extract EVERY requirement from the question answers (if Step 5 - second verification round)
    - Compare against TODO file to verify ALL requirements are covered
    - Mark any missing requirements: ❌ MISSING FROM TODO
+   - During first verification round (Step 2): Identify ambiguities to ask about in questions file
 
 3. **Ask Clarifying Questions to Self**:
    - What specific files will need to be modified for each task?
@@ -78,12 +130,12 @@ After receiving answers to clarifying questions, create a TODO file that maps ou
    - Refine implementation order based on dependencies
    - Add code review checkpoints
 
-**📋 ITERATION 3: Final Verification**
+**📋 ITERATION 3: Final Verification (of current round)**
 
 1. **Re-read ALL Documents One More Time**:
    - Original updates file
-   - Question answers
-   - Fully refined TODO file
+   - Question answers (if Step 5 - second verification round)
+   - Fully refined TODO file (for this round)
 
 2. **Ask Final Technical Questions**:
    - Are there any integration points with other modules not addressed?
@@ -109,15 +161,21 @@ After receiving answers to clarifying questions, create a TODO file that maps ou
 
 ### **DOCUMENTATION REQUIREMENTS**:
 
-After completing 3+ iterations, add a "Verification Summary" section to the TODO file documenting:
-- ✅ Number of iterations completed (minimum 3)
+After completing each verification round (3 iterations per round), add/update a "Verification Summary" section to the TODO file documenting:
+- ✅ Number of iterations completed (3 for first round, 6 total after second round)
 - ✅ Number of requirements added after initial draft
 - ✅ Key codebase patterns/utilities identified for reuse
 - ✅ Critical dependencies or ordering requirements
 - ✅ Risk areas identified during research
+- ✅ Questions identified for user clarification (first round)
+- ✅ Question answers integrated into plan (second round)
 
-### **ACCEPTANCE CRITERIA**:
-- ✅ At least 3 complete verification iterations performed
+### **ACCEPTANCE CRITERIA** (before beginning implementation):
+- ✅ First verification round complete (3 iterations on draft TODO)
+- ✅ Questions file created with thoughtful, research-backed questions
+- ✅ User answers received for all questions
+- ✅ Second verification round complete (3 more iterations with answers integrated)
+- ✅ Total: 6 complete verification iterations performed
 - ✅ Every requirement from original file covered in TODO
 - ✅ Every question answer reflected in TODO tasks
 - ✅ Specific file paths identified for each task
@@ -130,10 +188,12 @@ After completing 3+ iterations, add a "Verification Summary" section to the TODO
 
 ### **ENFORCEMENT**:
 - **NO SHORTCUTS**: Cannot skip iterations or rush through verification
+- **TWO ROUNDS REQUIRED**: Must complete both verification rounds (3 iterations each = 6 total)
+- **QUESTIONS REQUIRED**: Must create questions file after first verification round
 - **NO ASSUMPTIONS**: Must research codebase to validate approach
 - **NO VAGUE TASKS**: Each task must have specific technical details
-- **ITERATIVE IS MANDATORY**: Minimum 3 cycles of read-question-research-update
-- **DOCUMENT THE PROCESS**: Verification summary required in TODO file
+- **ITERATIVE IS MANDATORY**: Minimum 6 total cycles of read-question-research-update
+- **DOCUMENT THE PROCESS**: Verification summary required in TODO file after each round
 
 ### **WHY THIS MATTERS**:
 Thorough TODO preparation prevents:

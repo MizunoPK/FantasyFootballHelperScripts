@@ -1,21 +1,21 @@
 {
-  "config_name": "simulation/simulation_configs/optimal_iterative_20251018_164021.json",
-  "description": "Win Rate: 0.78",
+  "config_name": "simulation/simulation_configs/optimal_iterative_20251019_155250.json",
+  "description": "Win Rate: 0.73",
   "parameters": {
-    "CURRENT_NFL_WEEK": 7,
+    "CURRENT_NFL_WEEK": 8,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 150.64082590183995,
-    "BASE_BYE_PENALTY": 52.679894623264246,
-    "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 0.0,
+    "NORMALIZATION_MAX_SCALE": 141.67703079140796,
+    "BASE_BYE_PENALTY": 41.3376210022945,
+    "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 1.9523025294345953,
     "INJURY_PENALTIES": {
       "LOW": 0,
-      "MEDIUM": 10,
+      "MEDIUM": 0,
       "HIGH": 100
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 65.4778607229873,
-      "SECONDARY": 75.72392177918212
+      "PRIMARY": 70.7874847549599,
+      "SECONDARY": 72.86631970156644
     },
     "DRAFT_ORDER": [
       {
@@ -72,11 +72,20 @@
         "FLEX": "P"
       }
     ],
+    "MAX_POSITIONS": {
+      "QB": 2,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 2,
+      "TE": 1,
+      "K": 1,
+      "DST": 1
+    },
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 40.115775479337046
+        "STEPS": 35.36196550319079
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -84,13 +93,13 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.5532006590684926
+      "WEIGHT": 1.3105230819094893
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
-        "STEPS": 22.57018773093661
+        "STEPS": 22.061082771834826
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -98,13 +107,13 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.868304635311456
+      "WEIGHT": 2.732987507067976
     },
     "TEAM_QUALITY_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 4.853599993563716
+        "STEPS": 4.732919621248519
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -119,7 +128,7 @@
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.17534719006739471
+        "STEPS": 0.16653352315952885
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -127,13 +136,13 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.2512279088676537
+      "WEIGHT": 1.1317730786118523
     },
     "MATCHUP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 1.4725919390207003
+        "STEPS": 5.898216858510263
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -141,7 +150,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.4929040464593397
+      "WEIGHT": 1.6185717370476833
     }
   }
 }

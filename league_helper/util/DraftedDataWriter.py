@@ -163,8 +163,23 @@ class DraftedDataWriter:
         Returns:
             bool: True if match found
         """
-        # Normalize both strings for case-insensitive, punctuation-agnostic comparison
-        # This handles variations like "D'Andre Swift" vs "DAndre Swift"
+        # Special handling for DST/DEF positions
+        # players.csv uses "Steelers D/ST" while drafted_data.csv uses "Pittsburgh Steelers DEF"
+        # The team names don't match exactly (nickname vs full name), so we need special logic
+        if player.position.upper() == "DST":
+            # Check if CSV entry is a DEF/DST entry
+            if "DEF" in csv_player_info.upper() or "DST" in csv_player_info.upper():
+                # Extract team nickname from player name (e.g., "Steelers" from "Steelers D/ST")
+                # DST names in players.csv are formatted as "{Nickname} D/ST"
+                player_team_nickname = player.name.replace(" D/ST", "").strip()
+
+                # Normalize and check if nickname appears in CSV entry
+                # This handles "Steelers D/ST" matching "Pittsburgh Steelers DEF"
+                if self._normalize_name(player_team_nickname) in self._normalize_name(csv_player_info):
+                    return True
+            return False
+
+        # Regular player matching logic
         player_normalized = self._normalize_name(player.name)
         csv_normalized = self._normalize_name(csv_player_info)
 
@@ -174,7 +189,8 @@ class DraftedDataWriter:
             # Additional validation: also check that position matches
             # This prevents false positives for players with similar names
             # Example: Avoid matching "Mike Williams WR" with "Michael Williams TE"
-            if player.position.upper() in csv_player_info.upper():
+            position_to_match = player.position.upper()
+            if position_to_match in csv_player_info.upper():
                 return True
 
         return False

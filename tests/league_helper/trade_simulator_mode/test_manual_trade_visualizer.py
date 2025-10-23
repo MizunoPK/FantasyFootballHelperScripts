@@ -477,10 +477,13 @@ class TestParseUnifiedPlayerSelection:
         assert result is None
 
     def test_unequal_numbers_returns_none(self):
-        """Test unequal numbers from each team returns None."""
-        # 3 from my team, 1 from their team
+        """Test unequal trades are now ALLOWED (3-for-1 in this case)."""
+        # 3 from my team, 1 from their team (3-for-1 trade)
         result = self.parser.parse_unified_player_selection("1,2,3,14", 26, 14)
-        assert result is None
+        assert result is not None
+        my_indices, their_indices = result
+        assert my_indices == [1, 2, 3]
+        assert their_indices == [1]  # 14 is first player in their roster
 
     def test_all_from_one_team_returns_none(self):
         """Test all selections from one team returns None."""
@@ -512,21 +515,82 @@ class TestParseUnifiedPlayerSelection:
 class TestStartManualTradeIntegration:
     """Integration tests for start_manual_trade method."""
 
-    def setup_method(self):
-        """Setup test fixtures."""
-        data_folder = project_root / "data"
-        config = ConfigManager(data_folder)
-        team_data_mgr = TeamDataManager(data_folder)
-        player_manager = PlayerManager(data_folder, config, team_data_mgr)
-        self.manager = TradeSimulatorModeManager(data_folder, player_manager, config)
+    @pytest.fixture
+    def mock_data_folder(self, tmp_path):
+        """Create temporary data folder with test files."""
+        data_folder = tmp_path / "data"
+        data_folder.mkdir()
 
-    def test_no_opponent_teams(self):
+        # Create minimal league_config.json with all required parameters
+        config_file = data_folder / "league_config.json"
+        config_content = {
+            "config_name": "test",
+            "description": "test config",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 1,
+                "NFL_SEASON": 2025,
+                "NFL_SCORING_FORMAT": "ppr",
+                "NORMALIZATION_MAX_SCALE": 100.0,
+                "BASE_BYE_PENALTY": 25.0,
+                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+                "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": 10, "HIGH": 75},
+                "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
+                "DRAFT_ORDER": [{"FLEX": "P"}],
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "ADP_SCORING": {
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 35},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                },
+                "PLAYER_RATING_SCORING": {
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 22},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                },
+                "TEAM_QUALITY_SCORING": {
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 5},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                },
+                "PERFORMANCE_SCORING": {
+                    "MIN_WEEKS": 3,
+                    "THRESHOLDS": {"BASE_POSITION": 0.0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 0.15},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                },
+                "MATCHUP_SCORING": {
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 6},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                }
+            }
+        }
+        import json
+        config_file.write_text(json.dumps(config_content, indent=2))
+
+        # Create minimal players.csv
+        players_file = data_folder / "players.csv"
+        players_file.write_text("id,name,team,position,bye_week,fantasy_points,injury_status,drafted,locked\n")
+
+        # Create minimal teams.csv
+        teams_file = data_folder / "teams_latest.csv"
+        teams_file.write_text("team,rank,offensive_rank,defensive_rank\n")
+
+        return data_folder
+
+    def test_no_opponent_teams(self, mock_data_folder):
         """Test handling when no opponent teams available."""
+        # Setup with mock data folder
+        config = ConfigManager(mock_data_folder)
+        team_data_mgr = TeamDataManager(mock_data_folder)
+        player_manager = PlayerManager(mock_data_folder, config, team_data_mgr)
+        manager = TradeSimulatorModeManager(mock_data_folder, player_manager, config)
+
         # Clear opponent teams
-        self.manager.opponent_simulated_teams = []
+        manager.opponent_simulated_teams = []
 
         # Execute
-        result = self.manager.start_manual_trade()
+        result = manager.start_manual_trade()
 
         # Verify
         assert result == (True, [])

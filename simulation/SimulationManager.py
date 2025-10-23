@@ -59,7 +59,8 @@ class SimulationManager:
         num_simulations_per_config : int,
         max_workers : int,
         data_folder: Path,
-        num_test_values: int = 5
+        num_test_values: int = 5,
+        num_parameters_to_test: int = 1
     ) -> None:
         """
         Initialize SimulationManager.
@@ -81,12 +82,13 @@ class SimulationManager:
         self.num_simulations_per_config = num_simulations_per_config
         self.max_workers = max_workers
         self.num_test_values = num_test_values
+        self.num_parameters_to_test = num_parameters_to_test
 
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize components
-        self.config_generator = ConfigGenerator(baseline_config_path, num_test_values=num_test_values)
+        self.config_generator = ConfigGenerator(baseline_config_path, num_test_values=num_test_values, num_parameters_to_test=num_parameters_to_test)
         self.parallel_runner = ParallelLeagueRunner(
             max_workers=max_workers,
             data_folder=data_folder
@@ -265,7 +267,7 @@ class SimulationManager:
             self.logger.info("=" * 80)
 
             # Generate configs for this parameter
-            configs = self.config_generator.generate_single_parameter_configs(
+            configs = self.config_generator.generate_iterative_combinations(
                 param_name,
                 current_optimal_config
             )

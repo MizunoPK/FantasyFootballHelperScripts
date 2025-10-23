@@ -62,6 +62,7 @@ class ConfigKeys:
     MATCHUP_SCORING = "MATCHUP_SCORING"
     DRAFT_ORDER_BONUSES = "DRAFT_ORDER_BONUSES"
     DRAFT_ORDER = "DRAFT_ORDER"
+    MAX_POSITIONS = "MAX_POSITIONS"
 
     # Draft Order scoring
     DRAFT_ORDER_PRIMARY_LABEL = "P"
@@ -180,6 +181,9 @@ class ConfigManager:
         self.draft_order_bonuses: Dict[str, float] = {}
         self.draft_order: List[Dict[str, str]] = []
 
+        # Roster construction limits
+        self.max_positions: Dict[str, int] = {}
+
         # Threshold calculation cache
         self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
 
@@ -188,6 +192,16 @@ class ConfigManager:
     # ============================================================================
     # PUBLIC CONFIGURATION ACCESS
     # ============================================================================
+
+    @property
+    def max_players(self) -> int:
+        """
+        Calculate total roster size as sum of MAX_POSITIONS.
+
+        Returns:
+            int: Total maximum players allowed (sum of all position limits)
+        """
+        return sum(self.max_positions.values())
 
     def get_parameter(self, key: str, default: Any = None) -> Any:
         """
@@ -331,25 +345,57 @@ class ConfigManager:
            - Uses DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY per conflict
            - Reduces overall roster depth but doesn't cripple one position
 
+        The penalty is scaled based on how many bye weeks remain in the season.
+        As more bye weeks pass, the penalty decreases since there are fewer weeks
+        to worry about. This scaling ensures the penalty is highest early in the season
+        (when all bye weeks are ahead) and decreases as the season progresses.
+
+        Bye Week Scaling Formula:
+            scale_factor = bye_weeks_remaining / TOTAL_BYE_WEEKS
+            - Week 1-4 (before byes start): 9/9 = 1.0 (full penalty)
+            - Week 8 (6 weeks remain): 6/9 = 0.67 (reduced penalty)
+            - Week 14+ (all byes passed): 0/9 = 0.0 (no penalty)
+
         Args:
             num_same_position: Number of same-position bye week conflicts
             num_different_position: Number of different-position bye week conflicts (default: 0)
 
         Returns:
-            float: Total bye week penalty (sum of both penalty types)
+            float: Total bye week penalty (sum of both penalty types, scaled by remaining bye weeks)
 
         Example:
-            Config has BASE_BYE_PENALTY=5.0, DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY=2.0
+            Week 8, Config has BASE_BYE_PENALTY=5.0, DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY=2.0
             Player shares bye week with 2 same-position and 1 different-position player:
-            penalty = (5.0 * 2) + (2.0 * 1) = 12.0 points
+            scale_factor = 6/9 = 0.67
+            penalty = (5.0 * 0.67 * 2) + (2.0 * 0.67 * 1) = 6.7 + 1.34 = 8.04 points
         """
-        # Calculate penalty for same-position conflicts
-        # These are weighted more heavily because they create position-specific weakness
-        same_position_penalty = self.base_bye_penalty * num_same_position
+        # Bye week range constants (NFL bye weeks typically span weeks 5-13)
+        BYE_WEEK_START = 5
+        BYE_WEEK_END = 13
+        TOTAL_BYE_WEEKS = 9  # weeks 5, 6, 7, 8, 9, 10, 11, 12, 13
 
-        # Calculate penalty for different-position conflicts
+        # Calculate how many bye weeks remain based on current NFL week
+        if self.current_nfl_week < BYE_WEEK_START:
+            # Before bye weeks start, all 9 weeks remain
+            bye_weeks_remaining = TOTAL_BYE_WEEKS
+        elif self.current_nfl_week > BYE_WEEK_END:
+            # After all bye weeks have passed, 0 weeks remain
+            bye_weeks_remaining = 0
+        else:
+            # During bye week period, count remaining weeks (inclusive of current week)
+            # Example: Week 8 → weeks 8,9,10,11,12,13 remain = 6 weeks
+            bye_weeks_remaining = BYE_WEEK_END - self.current_nfl_week + 1
+
+        # Calculate scale factor (decreases as more bye weeks pass)
+        scale_factor = bye_weeks_remaining / TOTAL_BYE_WEEKS
+
+        # Calculate penalty for same-position conflicts (scaled)
+        # These are weighted more heavily because they create position-specific weakness
+        same_position_penalty = self.base_bye_penalty * scale_factor * num_same_position
+
+        # Calculate penalty for different-position conflicts (scaled)
         # These are weighted less heavily (default 0 if not configured)
-        different_position_penalty = self.parameters.get('DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY', 0) * num_different_position
+        different_position_penalty = self.parameters.get('DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY', 0) * scale_factor * num_different_position
 
         # Return combined penalty
         return same_position_penalty + different_position_penalty
@@ -650,6 +696,7 @@ class ConfigManager:
             self.keys.MATCHUP_SCORING,
             self.keys.DRAFT_ORDER_BONUSES,
             self.keys.DRAFT_ORDER,
+            self.keys.MAX_POSITIONS,
         ]
 
         missing_params = [p for p in required_params if p not in self.parameters]
@@ -676,6 +723,9 @@ class ConfigManager:
         # Extract Add to Roster mode parameters
         self.draft_order_bonuses = self.parameters[self.keys.DRAFT_ORDER_BONUSES]
         self.draft_order = self.parameters[self.keys.DRAFT_ORDER]
+
+        # Extract roster construction limits
+        self.max_positions = self.parameters[self.keys.MAX_POSITIONS]
 
         # Extract Starter Helper mode parameters (optional - not in current config)
         # Note: matchup_multipliers are accessed directly from matchup_scoring[self.keys.MULTIPLIERS]
@@ -705,6 +755,24 @@ class ConfigManager:
         # Validate draft order is a list
         if not isinstance(self.draft_order, list):
             raise ValueError("DRAFT_ORDER must be a list")
+
+        # Validate MAX_POSITIONS structure (strict validation)
+        required_positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST', 'FLEX']
+        missing_positions = [pos for pos in required_positions if pos not in self.max_positions]
+        if missing_positions:
+            error_msg = f"MAX_POSITIONS missing required positions: {', '.join(missing_positions)}"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        # Validate all values are positive integers
+        for pos, limit in self.max_positions.items():
+            if not isinstance(limit, int) or limit <= 0:
+                error_msg = f"MAX_POSITIONS[{pos}] must be a positive integer, got: {limit} (type: {type(limit).__name__})"
+                self.logger.error(error_msg)
+                raise ValueError(error_msg)
+
+        # Log successful validation
+        self.logger.debug(f"MAX_POSITIONS validated: {sum(self.max_positions.values())} total roster spots")
 
         # Pre-calculate parameterized thresholds if needed (backward compatible)
         # Skip CONSISTENCY_SCORING as it's deprecated

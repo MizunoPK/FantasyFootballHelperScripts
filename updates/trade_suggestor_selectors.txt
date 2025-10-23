@@ -1,0 +1,4 @@
+We are going to be adding more selections to the Trade Suggestor flow to make it easier to customize the output.
+When the user first enters the Trade suggestor section, it should present the user with a list of the teams they can trade with like what happens in the Trade Visualizer. The user will select just one team to find trades for.
+The system should then present another list selection for what types of trades to look for. This will be 1:1,1:2,2:1,2:2,3:2,2:3,3:3. They should be numbered 1-7 and the user should be able to select multiple in a comma seperated list like when the user is selecting multiple players in the Trade Visualizer
+The system will then look for trades with the specific team and only looking for the selected combinations

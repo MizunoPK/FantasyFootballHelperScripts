@@ -221,9 +221,12 @@ class TestParseUnifiedPlayerSelection:
         assert result is None
 
     def test_parse_invalid_unequal_numbers(self):
-        """Test that unequal numbers from each team returns None"""
+        """Test that unequal trades are now ALLOWED (2-for-1, 3-for-1, etc.)"""
         result = TradeInputParser.parse_unified_player_selection("1,2,14", 30, 14)
-        assert result is None
+        assert result is not None
+        my_indices, their_indices = result
+        assert my_indices == [1, 2]
+        assert their_indices == [1]  # 14 is first player in their roster
 
     def test_parse_invalid_input_string(self):
         """Test that invalid input string returns None"""

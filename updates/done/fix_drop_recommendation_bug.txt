@@ -1,0 +1,78 @@
+Fix Drop Recommendation Bug in Trade Suggestor
+==================================================
+
+ISSUE:
+------
+When a trade would put a team over a position limit, the drop recommendation system
+suggests dropping the globally lowest-scoring player instead of the lowest-scoring
+player from the over-limit position.
+
+EXAMPLE:
+User receives QB in trade (already has 2 QBs, max is 2)
+- Post-trade: 3 QBs (over limit!)
+- Should suggest: Drop lowest-scoring QB
+- Actually suggests: Drop lowest-scoring DST (globally worst player)
+
+ROOT CAUSE:
+-----------
+File: league_helper/trade_simulator_mode/trade_analyzer.py
+Function: _get_lowest_scored_players_per_position (lines 275-327)
+
+The function returns the lowest-scoring players from ALL positions, without checking
+which positions are actually over the limit. It's called when roster validation fails,
+but doesn't know WHY it failed (over MAX_PLAYERS vs. over position limit).
+
+SOLUTION:
+---------
+Create a new position-aware drop recommendation function that:
+1. Takes the post-trade roster
+2. Calculates position counts
+3. Identifies which positions exceed MAX_POSITIONS limits
+4. Returns drop candidates ONLY from over-limit positions
+5. Falls back to lowest-scoring from all positions if MAX_PLAYERS exceeded but no position over-limit
+
+NEW FUNCTION SIGNATURE:
+-----------------------
+def _get_position_aware_drop_candidates(
+    self,
+    team: TradeSimTeam,
+    post_trade_roster: List[FantasyPlayer],
+    exclude_players: List[FantasyPlayer],
+    num_per_position: int = 2
+) -> List[FantasyPlayer]:
+    """
+    Get drop candidates from positions that exceed MAX_POSITIONS limits.
+
+    Args:
+        team: Original team for scoring context
+        post_trade_roster: Roster after trade (to check position counts)
+        exclude_players: Players to exclude (being traded away)
+        num_per_position: How many drops to suggest per over-limit position
+
+    Returns:
+        List of drop candidates from over-limit positions only
+    """
+
+IMPLEMENTATION STEPS:
+--------------------
+1. Calculate position counts for post_trade_roster
+2. Identify positions where count > MAX_POSITIONS[position]
+3. If any positions over-limit:
+   - Return lowest-scoring players from those positions only
+4. Else (just over MAX_PLAYERS):
+   - Return lowest-scoring players from all positions (current behavior)
+
+CHANGES REQUIRED:
+-----------------
+1. Add new function: _get_position_aware_drop_candidates()
+2. Update calls in process_manual_trade (lines 422, 431)
+3. Update calls in unequal trade sections (around line 756)
+4. Keep original _get_lowest_scored_players_per_position for backward compatibility
+
+TEST CASES:
+-----------
+1. Test QB over-limit → only suggests QB drops
+2. Test multiple positions over-limit → suggests from all over-limit positions
+3. Test MAX_PLAYERS exceeded but no position over-limit → suggests from all positions
+4. Test with locked players (should not be suggested)
+5. Test with excluded players (should not be suggested)

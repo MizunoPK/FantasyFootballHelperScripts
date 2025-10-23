@@ -1,0 +1,1 @@
+Add an option to the Trade Visualizer that allows you to visualize a specific trade between one or more of the user's players and one or more of the waiver players 

@@ -54,6 +54,7 @@ def minimal_hardcoded_config(temp_data_folder):
             "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": 10.0, "HIGH": 75.0},
             "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
             "DRAFT_ORDER": [{"FLEX": "P", "QB": "S"}],
+            "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
             "ADP_SCORING": {
                 "THRESHOLDS": {
                     "VERY_POOR": 150,
@@ -130,6 +131,7 @@ def parameterized_config(temp_data_folder):
             "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": 10.0, "HIGH": 75.0},
             "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
             "DRAFT_ORDER": [{"FLEX": "P", "QB": "S"}],
+            "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
             "ADP_SCORING": {
                 "THRESHOLDS": {
                     "BASE_POSITION": 0,
@@ -667,19 +669,25 @@ class TestGetterMethodEdgeCases:
         assert result == expected
 
     def test_get_bye_week_penalty_same_position_only(self, minimal_hardcoded_config):
-        """get_bye_week_penalty with only same position conflicts"""
+        """get_bye_week_penalty with only same position conflicts (with scaling)"""
         config = ConfigManager(minimal_hardcoded_config)
         result = config.get_bye_week_penalty(num_same_position=2)
-        expected = config.base_bye_penalty * 2
-        assert result == expected
+        # Week 6, bye weeks 5-13 (9 total), 8 weeks remain
+        # Scale factor = 8/9 = 0.8889
+        # Expected = 25 * 0.8889 * 2 = 44.44
+        expected = config.base_bye_penalty * (8/9) * 2
+        assert abs(result - expected) < 0.01
 
     def test_get_bye_week_penalty_different_position(self, minimal_hardcoded_config):
-        """get_bye_week_penalty with different position conflicts"""
+        """get_bye_week_penalty with different position conflicts (with scaling)"""
         config = ConfigManager(minimal_hardcoded_config)
         # No DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY in config, should default to 0
         result = config.get_bye_week_penalty(num_same_position=1, num_different_position=2)
-        expected = config.base_bye_penalty * 1  # different position penalty is 0
-        assert result == expected
+        # Week 6, bye weeks 5-13 (9 total), 8 weeks remain
+        # Scale factor = 8/9 = 0.8889
+        # Expected = 25 * 0.8889 * 1 + 0 * 0.8889 * 2 = 22.22
+        expected = config.base_bye_penalty * (8/9) * 1  # different position penalty is 0
+        assert abs(result - expected) < 0.01
 
     def test_get_ideal_draft_position_out_of_range(self, minimal_hardcoded_config):
         """get_ideal_draft_position with round >= len(draft_order) should return FLEX"""

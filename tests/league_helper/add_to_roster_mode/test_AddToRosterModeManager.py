@@ -87,6 +87,15 @@ def mock_data_folder(tmp_path):
       {"FLEX": "P"},
       {"FLEX": "P"}
     ],
+    "MAX_POSITIONS": {
+      "QB": 2,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 2,
+      "TE": 1,
+      "K": 1,
+      "DST": 1
+    },
     "ADP_SCORING": {
       "THRESHOLDS": {"EXCELLENT": 20, "GOOD": 50, "POOR": 100, "VERY_POOR": 150},
       "MULTIPLIERS": {"EXCELLENT": 1.20, "GOOD": 1.10, "POOR": 0.90, "VERY_POOR": 0.70},
@@ -773,7 +782,7 @@ class TestEdgeCases:
         # Should match as many as possible (some to RB slots, some to FLEX-primary rounds)
         assert len(result) > 0
         # But not all 10 can be matched (only 15 total rounds)
-        assert len(result) <= Constants.MAX_PLAYERS
+        assert len(result) <= add_to_roster_manager.config.max_players
 
     def test_get_current_round_when_roster_is_full(self, add_to_roster_manager):
         """Test _get_current_round returns None when roster is completely full"""

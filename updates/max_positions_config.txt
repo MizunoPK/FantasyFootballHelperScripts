@@ -1,0 +1,5 @@
+Move the MAX_POSITIONS away from constants.py and into the config.json file
+Update the ConfigManager to read in the values
+This will let us manipulate it throughout the season depending on the cirumstances while keeping the simulation consistent
+be careful to ensure that all places that make use of the MAX_POSITIONS constant are updated to make use of the config version
+For now, keep the MAX_POSITIONS config the same for all simulation runs. Testing different variations of the MAX_POSITIONS may be a future enhavement but should not be considerred now

@@ -40,6 +40,7 @@ class TestConfigGeneratorInitialization:
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
                 },
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -182,6 +183,7 @@ class TestParameterValueGeneration:
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
                 },
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -342,6 +344,7 @@ class TestCombinationGeneration:
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
                 },
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -469,6 +472,7 @@ class TestConfigDictCreation:
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
                 },
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -618,6 +622,7 @@ class TestIterativeOptimizationSupport:
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
                 },
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -778,5 +783,284 @@ class TestEdgeCases:
         try:
             with pytest.raises(ValueError, match="missing 'parameters' section"):
                 ConfigGenerator(temp_path)
+        finally:
+            temp_path.unlink()
+
+
+class TestGenerateIterativeCombinations:
+    """Test generate_iterative_combinations with random parameter exploration"""
+
+    @pytest.fixture
+    def baseline_config_dict(self):
+        """Create baseline config dictionary for testing"""
+        return {
+            "config_name": "test_baseline",
+            "parameters": {
+                "NORMALIZATION_MAX_SCALE": 100.0,
+                "BASE_BYE_PENALTY": 25.0,
+                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+                "DRAFT_ORDER_BONUSES": {
+                    "PRIMARY": 50.0,
+                    "SECONDARY": 40.0
+                },
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "ADP_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.2,
+                        "GOOD": 1.1,
+                        "POOR": 0.9,
+                        "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 37.5
+                    }
+                },
+                "PLAYER_RATING_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.25,
+                        "GOOD": 1.15,
+                        "POOR": 0.85,
+                        "VERY_POOR": 0.75
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 20.0
+                    }
+                },
+                "TEAM_QUALITY_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.3,
+                        "GOOD": 1.2,
+                        "POOR": 0.8,
+                        "VERY_POOR": 0.7
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 6.25
+                    }
+                },
+                "PERFORMANCE_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.15,
+                        "GOOD": 1.05,
+                        "POOR": 0.95,
+                        "VERY_POOR": 0.85
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 0.1
+                    }
+                },
+                "MATCHUP_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.2,
+                        "GOOD": 1.1,
+                        "POOR": 0.9,
+                        "VERY_POOR": 0.8
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "STEPS": 7.5
+                    }
+                }
+            }
+        }
+
+    @pytest.fixture
+    def test_config_generator(self, baseline_config_dict):
+        """Create ConfigGenerator instance for testing"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_dict, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=2)
+            yield generator
+        finally:
+            temp_path.unlink()
+
+    def test_with_num_parameters_1_base_only(self, baseline_config_dict):
+        """Test with NUM_PARAMETERS_TO_TEST=1 (base parameter only)"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_dict, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=1)
+            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+
+            # Should return N+1 configs (5+1 = 6)
+            assert len(configs) == 6
+
+            # All configs should be complete dictionaries
+            for config in configs:
+                assert 'parameters' in config
+                assert 'config_name' in config
+        finally:
+            temp_path.unlink()
+
+    def test_with_num_parameters_2_base_plus_one_random(self, baseline_config_dict):
+        """Test with NUM_PARAMETERS_TO_TEST=2 (base + 1 random)"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_dict, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=2)
+            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+
+            # Should return 2*(N+1) + (N+1)^2 configs
+            # With N=5: 2*6 + 36 = 48 total
+            assert len(configs) == 48
+
+            # Verify all configs are valid
+            for config in configs:
+                assert 'parameters' in config
+                assert 'NORMALIZATION_MAX_SCALE' in config['parameters']
+        finally:
+            temp_path.unlink()
+
+    def test_with_num_parameters_3_base_plus_two_random(self, baseline_config_dict):
+        """Test with NUM_PARAMETERS_TO_TEST=3 (base + 2 random)"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_dict, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=3)
+            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+
+            # Should return 3*(N+1) + (N+1)^3 configs
+            # With N=5: 3*6 + 216 = 234 total
+            assert len(configs) == 234
+
+            # Verify all configs are valid
+            for config in configs:
+                assert 'parameters' in config
+        finally:
+            temp_path.unlink()
+
+    def test_edge_case_num_parameters_exceeds_available(self, baseline_config_dict):
+        """Test with NUM_PARAMETERS_TO_TEST > 14 (should cap at 14)"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_dict, f)
+            temp_path = Path(f.name)
+
+        try:
+            # Use num_test_values=1 to keep cartesian product small (2^14 = 16,384 configs)
+            generator = ConfigGenerator(temp_path, num_test_values=1, num_parameters_to_test=20)
+
+            # Should cap at 14 parameters
+            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+
+            # Should generate configs (capped at 14 params)
+            # Individual: 14*2 = 28
+            # Combinations: 2^14 = 16,384
+            # Total: 16,412 configs
+            assert len(configs) == 16412
+            assert all('parameters' in config for config in configs)
+        finally:
+            temp_path.unlink()
+
+    def test_edge_case_invalid_param_name(self, test_config_generator):
+        """Test with invalid parameter name (should raise ValueError)"""
+        with pytest.raises(ValueError, match="Unknown parameter: INVALID_PARAM"):
+            test_config_generator.generate_iterative_combinations('INVALID_PARAM', test_config_generator.baseline_config)
+
+    def test_randomness_varies_parameter_selection(self, baseline_config_dict):
+        """Test that random parameter selection varies between runs"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_dict, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=2)
+
+            # Run twice and check that configs might differ due to random selection
+            # Note: We can't guarantee difference, but both runs should succeed
+            configs1 = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+            configs2 = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+
+            # Both runs should generate same number of configs
+            assert len(configs1) == len(configs2) == 48
+
+            # Both should be valid
+            assert all('parameters' in config for config in configs1)
+            assert all('parameters' in config for config in configs2)
+        finally:
+            temp_path.unlink()
+
+    def test_config_structure_is_valid(self, test_config_generator):
+        """Test that all returned configs have valid structure"""
+        configs = test_config_generator.generate_iterative_combinations(
+            'BASE_BYE_PENALTY',
+            test_config_generator.baseline_config
+        )
+
+        for config in configs:
+            # Check required top-level keys
+            assert 'config_name' in config
+            assert 'parameters' in config
+
+            # Check parameters section has expected keys
+            params = config['parameters']
+            assert 'NORMALIZATION_MAX_SCALE' in params
+            assert 'BASE_BYE_PENALTY' in params
+            assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in params
+            assert 'DRAFT_ORDER_BONUSES' in params
+            assert 'ADP_SCORING' in params
+            assert 'PLAYER_RATING_SCORING' in params
+            assert 'PERFORMANCE_SCORING' in params
+            assert 'MATCHUP_SCORING' in params
+
+    def test_combination_configs_have_multiple_params_varied(self, baseline_config_dict):
+        """Test that combination configs actually vary multiple parameters"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_dict, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path, num_test_values=2, num_parameters_to_test=2)
+            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+
+            # With N=2: 2*3 + 9 = 15 total configs
+            assert len(configs) == 15
+
+            # Last 9 configs should be combinations (cartesian product of 3x3)
+            combination_configs = configs[-9:]
+
+            # Extract NORMALIZATION_MAX_SCALE values from combination configs
+            norm_values = set()
+            for config in combination_configs:
+                norm_values.add(config['parameters']['NORMALIZATION_MAX_SCALE'])
+
+            # Should have 3 unique values (N+1 = 3)
+            assert len(norm_values) == 3
+        finally:
+            temp_path.unlink()
+
+    def test_edge_case_num_parameters_zero_defaults_to_one(self, baseline_config_dict):
+        """Test that num_parameters_to_test=0 defaults to 1"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_dict, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=0)
+            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+
+            # Should default to 1, returning N+1 configs
+            assert len(configs) == 6
         finally:
             temp_path.unlink()

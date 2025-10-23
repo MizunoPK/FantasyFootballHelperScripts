@@ -99,10 +99,10 @@ class FantasyTeam:
         # Structure: {bye_week: {position: count}}
         self.bye_week_counts = {}
         for bye_week in Constants.POSSIBLE_BYE_WEEKS:
-            self.bye_week_counts[bye_week] = {pos: 0 for pos in Constants.MAX_POSITIONS.keys()}
+            self.bye_week_counts[bye_week] = {pos: 0 for pos in self.config.max_positions.keys()}
 
         # Set up the draft order list
-        self.draft_order = [None] * Constants.MAX_PLAYERS
+        self.draft_order = [None] * self.config.max_players
 
         # Initialize slot assignments for existing players
         for player in self.roster:
@@ -112,7 +112,7 @@ class FantasyTeam:
         for player in self.roster:
             pos = player.position
             pos_with_flex = Constants.FLEX if pos in Constants.FLEX_ELIGIBLE_POSITIONS else pos
-            for i in range(Constants.MAX_PLAYERS):
+            for i in range(self.config.max_players):
                 if self.draft_order[i] is None and pos_with_flex == self.config.get_ideal_draft_position(i):
                     self.draft_order[i] = player
                     break
@@ -146,19 +146,19 @@ class FantasyTeam:
         """
         self.logger.debug(f"FantasyTeam.can_draft called for player ID: {player.id}")
         # Check total roster space
-        if len(self.roster) >= Constants.MAX_PLAYERS:
+        if len(self.roster) >= self.config.max_players:
             self.logger.debug("Roster full, cannot draft.")
             return False
 
         # Check if player position is valid
         pos = player.position
-        if pos not in Constants.MAX_POSITIONS:
+        if pos not in self.config.max_positions:
             self.logger.debug(f"Invalid position {pos}, cannot draft.")
             return False
 
         # Check if position limit is reached
         # Use slot occupancy for natural position, not pos_counts (which includes FLEX players)
-        natural_slots_full = len(self.slot_assignments[pos]) >= Constants.MAX_POSITIONS[pos]
+        natural_slots_full = len(self.slot_assignments[pos]) >= self.config.max_positions[pos]
         if natural_slots_full and not self.flex_eligible(pos):
             self.logger.debug(f"Cannot draft player {player.id}, position {pos} limit reached.")
             return False
@@ -263,7 +263,7 @@ class FantasyTeam:
             self.bye_week_counts[player.bye_week][player.position] -= 1
 
         # Remove from draft order
-        for i in range(Constants.MAX_PLAYERS):
+        for i in range(self.config.max_players):
             if self.draft_order[i] == player:
                 self.draft_order[i] = None
                 break
@@ -335,7 +335,7 @@ class FantasyTeam:
         """
         self.logger.debug("FantasyTeam.get_next_draft_position_weights called")
         # Find the next open draft position
-        for i in range(Constants.MAX_PLAYERS):
+        for i in range(self.config.max_players):
             if self.draft_order[i] is None:
                 self.logger.debug(f"Next draft position weights: {self.config.draft_order[i]}")
                 return self.config.draft_order[i]
@@ -409,15 +409,15 @@ class FantasyTeam:
 
         # For non-FLEX eligible positions, only one option
         if pos not in Constants.FLEX_ELIGIBLE_POSITIONS:
-            if len(self.slot_assignments[pos]) < Constants.MAX_POSITIONS[pos]:
+            if len(self.slot_assignments[pos]) < self.config.max_positions[pos]:
                 return pos
             else:
                 return None
 
         # For FLEX-eligible positions, prioritize natural position
-        if len(self.slot_assignments[pos]) < Constants.MAX_POSITIONS[pos]:
+        if len(self.slot_assignments[pos]) < self.config.max_positions[pos]:
             return pos
-        elif len(self.slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]:
+        elif len(self.slot_assignments[Constants.FLEX]) < self.config.max_positions[Constants.FLEX]:
             return Constants.FLEX
         else:
             return None
@@ -513,16 +513,16 @@ class FantasyTeam:
         # Why? pos_counts includes players in FLEX, which would give wrong results
         # Example: 4 RBs total with 1 in FLEX would show pos_counts[RB]=5 (4+1)
         #          but slot_assignments[RB]=4 (the actual RB slots)
-        pos_slots_full = len(self.slot_assignments[pos]) >= Constants.MAX_POSITIONS[pos]
+        pos_slots_full = len(self.slot_assignments[pos]) >= self.config.max_positions[pos]
 
         # Third requirement: FLEX slot must have space available
         # The FLEX slot can only hold 1 player (MAX_POSITIONS[FLEX] = 1)
-        flex_available = len(self.slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]
+        flex_available = len(self.slot_assignments[Constants.FLEX]) < self.config.max_positions[Constants.FLEX]
 
         # Both conditions must be true: natural position full AND FLEX available
         result = pos_slots_full and flex_available
 
-        self.logger.debug(f"FLEX eligibility for {pos}: pos_slots_full={pos_slots_full} ({len(self.slot_assignments[pos])}>={Constants.MAX_POSITIONS[pos]}), flex_available={flex_available} ({len(self.slot_assignments[Constants.FLEX])}<{Constants.MAX_POSITIONS[Constants.FLEX]}), result={result}")
+        self.logger.debug(f"FLEX eligibility for {pos}: pos_slots_full={pos_slots_full} ({len(self.slot_assignments[pos])}>={self.config.max_positions[pos]}), flex_available={flex_available} ({len(self.slot_assignments[Constants.FLEX])}<{self.config.max_positions[Constants.FLEX]}), result={result}")
         return result
 
     def validate_roster_integrity(self) -> bool:
@@ -551,14 +551,14 @@ class FantasyTeam:
 
         # Check that no position exceeds maximum
         for pos, count in slot_based_counts.items():
-            max_allowed = Constants.MAX_POSITIONS.get(pos, 0)
+            max_allowed = self.config.max_positions.get(pos, 0)
             if count > max_allowed:
                 errors.append(f"Position {pos}: {count} players > {max_allowed} maximum allowed")
 
         # Check total roster size
         total_players = len(self.roster)
-        if total_players > Constants.MAX_PLAYERS:
-            errors.append(f"Total roster: {total_players} players > {Constants.MAX_PLAYERS} maximum")
+        if total_players > self.config.max_players:
+            errors.append(f"Total roster: {total_players} players > {self.config.max_players} maximum")
 
         # Check for duplicate players
         player_ids = [p.id for p in self.roster]
@@ -636,7 +636,7 @@ class FantasyTeam:
             natural_pos = flex_player.position
 
             # Check if natural position has available space
-            if len(self.slot_assignments[natural_pos]) < Constants.MAX_POSITIONS[natural_pos]:
+            if len(self.slot_assignments[natural_pos]) < self.config.max_positions[natural_pos]:
                 # Check if there's a weaker player in natural position to potentially move to FLEX
                 natural_pos_players = self.get_players_by_slot(natural_pos)
 
@@ -726,7 +726,7 @@ class FantasyTeam:
 
         # Display roster size summary
         print("------")
-        print(f"\nTotal roster: {len(self.roster)}/{Constants.MAX_PLAYERS} players")
+        print(f"\nTotal roster: {len(self.roster)}/{self.config.max_players} players")
 
     # ============================================================================
     # PRIVATE SLOT MANAGEMENT
@@ -754,7 +754,7 @@ class FantasyTeam:
         # 3. If both natural position and FLEX are full, raise error
 
         # Check if natural position has available slots
-        if len(self.slot_assignments[pos]) < Constants.MAX_POSITIONS[pos]:
+        if len(self.slot_assignments[pos]) < self.config.max_positions[pos]:
             # Natural position has space - assign here
             self.slot_assignments[pos].append(player.id)
             assigned_slot = pos
@@ -762,7 +762,7 @@ class FantasyTeam:
 
         # Natural position is full - try FLEX if eligible
         elif (pos in Constants.FLEX_ELIGIBLE_POSITIONS and
-              len(self.slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]):
+              len(self.slot_assignments[Constants.FLEX]) < self.config.max_positions[Constants.FLEX]):
             # Player is FLEX-eligible (RB/WR/DST) and FLEX has space
             self.slot_assignments[Constants.FLEX].append(player.id)
             assigned_slot = Constants.FLEX
@@ -770,7 +770,7 @@ class FantasyTeam:
 
         # No available slots - cannot assign
         else:
-            raise ValueError(f"Cannot assign {player.name} ({pos}) to any available slot. Slots full: {pos}={len(self.slot_assignments[pos])}/{Constants.MAX_POSITIONS[pos]}, FLEX={len(self.slot_assignments[Constants.FLEX])}/{Constants.MAX_POSITIONS[Constants.FLEX]}")
+            raise ValueError(f"Cannot assign {player.name} ({pos}) to any available slot. Slots full: {pos}={len(self.slot_assignments[pos])}/{self.config.max_positions[pos]}, FLEX={len(self.slot_assignments[Constants.FLEX])}/{self.config.max_positions[Constants.FLEX]}")
 
         # Update position counts for tracking
         # IMPORTANT: pos_counts tracks TWO things:
@@ -841,13 +841,13 @@ class FantasyTeam:
             new_pos = new_player.position
 
             # Try natural position first
-            if len(temp_slot_assignments[new_pos]) < Constants.MAX_POSITIONS[new_pos]:
+            if len(temp_slot_assignments[new_pos]) < self.config.max_positions[new_pos]:
                 self.logger.debug(f"Replace validation: {new_player.name} can fit in {new_pos} slot")
                 return True
 
             # Try FLEX if eligible
             elif (new_pos in Constants.FLEX_ELIGIBLE_POSITIONS and
-                  len(temp_slot_assignments[Constants.FLEX]) < Constants.MAX_POSITIONS[Constants.FLEX]):
+                  len(temp_slot_assignments[Constants.FLEX]) < self.config.max_positions[Constants.FLEX]):
                 self.logger.debug(f"Replace validation: {new_player.name} can fit in FLEX slot")
                 return True
 

@@ -125,13 +125,13 @@ class AddToRosterModeManager:
 
         # Show enhanced roster display by draft rounds
         # This helps user understand their draft strategy and position needs
-        self.logger.debug(f"Displaying roster for user ({self.player_manager.get_roster_len()}/{Constants.MAX_PLAYERS} players)")
+        self.logger.debug(f"Displaying roster for user ({self.player_manager.get_roster_len()}/{self.config.max_players} players)")
         self._display_roster_by_draft_rounds()
 
         # Calculate which draft round we're currently in (1-15)
         # This determines which position bonuses apply to recommendations
         current_round = self._get_current_round()
-        self.logger.info(f"Current draft round: {current_round}/{Constants.MAX_PLAYERS}")
+        self.logger.info(f"Current draft round: {current_round}/{self.config.max_players}")
 
         # Main interaction loop - continues until user drafts a player or exits
         while True:
@@ -342,7 +342,7 @@ class AddToRosterModeManager:
 
         # Display all 15 draft rounds (even empty ones)
         # This helps user understand their draft strategy and which positions to prioritize
-        for round_num in range(1, Constants.MAX_PLAYERS + 1):
+        for round_num in range(1, self.config.max_players + 1):
             # Get the ideal position for this round from the DRAFT_ORDER config
             # For example, round 1 might be "FLEX" (PRIMARY), round 3 might be "QB" (PRIMARY)
             # This uses 0-based indexing for the config list
@@ -360,7 +360,7 @@ class AddToRosterModeManager:
 
         # Display roster status summary (e.g., "5/15 players drafted")
         # This helps user track overall draft progress
-        print(f"\nRoster Status: {self.player_manager.get_roster_len()}/{Constants.MAX_PLAYERS} players drafted")
+        print(f"\nRoster Status: {self.player_manager.get_roster_len()}/{self.config.max_players} players drafted")
 
     # ========================================================================
     # PRIVATE ROUND CALCULATION HELPERS
@@ -409,7 +409,7 @@ class AddToRosterModeManager:
         # 1. Most positions (QB, TE, K, DST) are non-FLEX and have limited round options
         # 2. FLEX positions (RB, WR, DST) have many valid rounds to choose from
         # 3. We process rounds sequentially, ensuring no conflicts
-        for round_num in range(1, Constants.MAX_PLAYERS + 1):
+        for round_num in range(1, self.config.max_players + 1):
             # Get the ideal position for this round (e.g., "QB", "FLEX", "TE")
             # This determines what type of player should go in this round
             ideal_position = self.config.get_ideal_draft_position(round_num - 1)
@@ -457,7 +457,7 @@ class AddToRosterModeManager:
 
         # Find the first empty round by checking rounds 1 through 15 sequentially
         # The first round without an assignment is our "current round"
-        for round_num in range(1, Constants.MAX_PLAYERS + 1):
+        for round_num in range(1, self.config.max_players + 1):
             if round_num not in round_assignments:
                 # Found an empty round - this is where we should draft next
                 self.logger.debug(f"Calculated current round: {round_num} (roster has {len(round_assignments)} players)")

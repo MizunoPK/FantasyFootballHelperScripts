@@ -120,7 +120,7 @@ class ConfigGenerator:
         'MATCHUP_SCORING_STEPS',
     ]
 
-    def __init__(self, baseline_config_path: Path, num_test_values: int = 5) -> None:
+    def __init__(self, baseline_config_path: Path, num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:
         """
         Initialize ConfigGenerator with baseline configuration.
 
@@ -140,6 +140,7 @@ class ConfigGenerator:
         self.baseline_config = self.load_baseline_config(baseline_config_path)
         self.param_definitions = self.PARAM_DEFINITIONS
         self.num_test_values = num_test_values
+        self.num_parameters_to_test = num_parameters_to_test
 
         self.logger.info("ConfigGenerator initialized successfully")
 
@@ -334,6 +335,133 @@ class ConfigGenerator:
         self.logger.info(f"Generated {len(combinations)} combinations")
 
         return combinations
+    
+    def generate_iterative_combinations(self, param_name: str, base_config: dict) -> List[dict]:
+        """
+        Generate configs for iterative optimization with random parameter exploration.
+
+        Creates configs for:
+        1. Base parameter (provided param_name)
+        2. NUM_PARAMETERS_TO_TEST - 1 randomly selected parameters
+        3. Cartesian product of all parameter values (all combinations)
+
+        Args:
+            param_name (str): Base parameter to optimize
+            base_config (dict): Current optimal configuration
+
+        Returns:
+            List[dict]: Complete configs ready for simulation
+
+        Example:
+            With NUM_PARAMETERS_TO_TEST=2, N=5:
+            - Base param: 6 individual configs
+            - 1 random param: 6 individual configs
+            - Cartesian combinations: 6^2 = 36 combination configs
+            - Total: 48 configs
+
+        Raises:
+            ValueError: If param_name not in PARAMETER_ORDER
+        """
+        # Task 2.0: Input Validation and Error Handling
+        if param_name not in self.PARAMETER_ORDER:
+            raise ValueError(f"Unknown parameter: {param_name}")
+
+        # Validate and cap num_parameters_to_test
+        num_params_to_test = self.num_parameters_to_test
+        if num_params_to_test < 1:
+            self.logger.warning(f"num_parameters_to_test={num_params_to_test} is invalid, defaulting to 1")
+            num_params_to_test = 1
+
+        max_params = len(self.PARAMETER_ORDER)
+        if num_params_to_test > max_params:
+            self.logger.info(f"num_parameters_to_test={num_params_to_test} exceeds available parameters ({max_params}), capping at {max_params}")
+            num_params_to_test = max_params
+
+        # Calculate and warn about performance
+        num_values = self.num_test_values + 1
+        expected_combinations = num_values ** num_params_to_test
+        if expected_combinations > 1000:
+            self.logger.warning(
+                f"Cartesian product will generate {expected_combinations:,} combination configs. "
+                f"This may impact performance. Consider reducing NUM_PARAMETERS_TO_TEST or num_test_values."
+            )
+
+        self.logger.info(f"Generating configs with cartesian product strategy for {num_params_to_test} parameters")
+
+        # Task 2.1: Random Parameter Selection
+        num_random = num_params_to_test - 1
+        random_params = []
+
+        if num_random > 0:
+            # Create pool excluding base parameter
+            available_params = [p for p in self.PARAMETER_ORDER if p != param_name]
+            random_params = random.sample(available_params, num_random)
+            self.logger.info(f"Selected {num_random} random parameters: {random_params}")
+        else:
+            self.logger.info("NUM_PARAMETERS_TO_TEST=1, testing only base parameter (no random selection)")
+
+        # Task 2.2: Generate Individual Parameter Configs
+        all_params = [param_name] + random_params
+        param_configs = {}
+
+        # Generate configs for base parameter
+        base_configs = self.generate_single_parameter_configs(param_name, base_config)
+        param_configs[param_name] = base_configs
+
+        # Generate configs for each random parameter
+        for random_param in random_params:
+            configs = self.generate_single_parameter_configs(random_param, base_config)
+            param_configs[random_param] = configs
+
+        # Task 2.3: Generate Combination Configs (Cartesian Product)
+        combination_configs = []
+
+        if num_params_to_test > 1:
+            # Extract parameter values from generated configs
+            param_values = {}
+            for param in all_params:
+                param_values[param] = []
+                for config in param_configs[param]:
+                    combination = self._extract_combination_from_config(config)
+                    param_values[param].append(combination[param])
+
+            # Generate cartesian product of all values
+            value_lists = [param_values[p] for p in all_params]
+
+            for value_tuple in product(*value_lists):
+                # Create combination with all params from base_config
+                combination = self._extract_combination_from_config(base_config)
+
+                # Update with values from this tuple
+                for param, value in zip(all_params, value_tuple):
+                    combination[param] = value
+
+                # Create full config
+                config = self.create_config_dict(combination)
+                combination_configs.append(config)
+
+        # Task 2.4: Merge All Configs and Add Logging
+        all_configs = []
+
+        # Add all individual parameter configs
+        for param in all_params:
+            all_configs.extend(param_configs[param])
+
+        # Add combination configs
+        all_configs.extend(combination_configs)
+
+        # Log detailed breakdown
+        random_param_str = ', '.join(random_params) if random_params else 'none'
+        individual_count = sum(len(param_configs[p]) for p in all_params)
+
+        self.logger.info(
+            f"Generated {len(all_configs)} total configs:\n"
+            f"  - Base parameter ({param_name}): {len(param_configs[param_name])} configs\n"
+            f"  - Random parameters ({random_param_str}): {individual_count - len(param_configs[param_name])} configs\n"
+            f"  - Combination configs: {len(combination_configs)} configs"
+        )
+
+        return all_configs
 
     def generate_single_parameter_configs(
         self,
