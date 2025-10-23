@@ -33,7 +33,8 @@ def temp_baseline_config():
         "config_name": "test_baseline",
         "parameters": {
             "NORMALIZATION_MAX_SCALE": 100.0,
-            "BASE_BYE_PENALTY": 25.0,
+            "SAME_POS_BYE_WEIGHT": 1.0,
+            "DIFF_POS_BYE_WEIGHT": 1.0,
             "DRAFT_ORDER_BONUSES": {"PRIMARY": 50.0, "SECONDARY": 40.0}
         }
     }
@@ -208,8 +209,10 @@ class TestFullOptimization:
 
             # Mock combinations (use small number for testing)
             mock_config_gen.generate_all_combinations.return_value = [
-                {"NORMALIZATION_MAX_SCALE": 100.0, "BASE_BYE_PENALTY": 25.0},
-                {"NORMALIZATION_MAX_SCALE": 110.0, "BASE_BYE_PENALTY": 30.0}
+                {"NORMALIZATION_MAX_SCALE": 100.0, "SAME_POS_BYE_WEIGHT": 1.0,
+            "DIFF_POS_BYE_WEIGHT": 1.0},
+                {"NORMALIZATION_MAX_SCALE": 110.0, "SAME_POS_BYE_WEIGHT": 1.0,
+            "DIFF_POS_BYE_WEIGHT": 1.0}
             ]
 
             mock_config_gen.create_config_dict.side_effect = lambda combo: {

@@ -47,7 +47,8 @@ def mock_data_folder(tmp_path):
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
     "NORMALIZATION_MAX_SCALE": 100.0,
-    "BASE_BYE_PENALTY": 25.0,
+    "SAME_POS_BYE_WEIGHT": 1.0,
+            "DIFF_POS_BYE_WEIGHT": 1.0,
     "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
     "INJURY_PENALTIES": {
       "LOW": 0,
@@ -576,14 +577,23 @@ class TestScoringIntegration:
         assert abs(result.score - 120.0) < 0.01
 
     def test_score_player_with_bye_penalty(self, scoring_calculator, test_player):
-        """Test scoring with bye week penalty (with scaling)"""
+        """Test scoring with median-based bye week penalty"""
         for week in range(6, 18):
             setattr(test_player, f"week_{week}_points", 250.0 / 12)
         test_player.bye_week = 7
 
         # Create roster with 2 same-position players on bye week 7
         other_rb1 = FantasyPlayer(id=99, name="RB1", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
+        other_rb1.week_1_points = 10.0
+        other_rb1.week_2_points = 12.0
+        other_rb1.week_3_points = 14.0
+        # Median = 12.0
+
         other_rb2 = FantasyPlayer(id=98, name="RB2", team="PHI", position="RB", bye_week=7, fantasy_points=100.0)
+        other_rb2.week_1_points = 8.0
+        other_rb2.week_2_points = 10.0
+        other_rb2.week_3_points = 9.0
+        # Median = 9.0
 
         result = scoring_calculator.score_player(
             test_player,
@@ -599,13 +609,10 @@ class TestScoringIntegration:
             injury=False
         )
 
-        # Bye week penalty calculation with scaling:
-        # Current week = 6, bye week range = 5-13 (9 weeks)
-        # Weeks remaining = 13 - 6 + 1 = 8
-        # Scale factor = 8/9 = 0.8889
-        # Penalty = 25 * 0.8889 * 2 = 44.44
-        # Score = 100 - 44.44 = 55.56
-        assert abs(result.score - 55.56) < 0.01
+        # Bye week penalty calculation (median-based):
+        # Penalty = (12.0 + 9.0) ** 1.0 = 21.0
+        # Score = 100 - 21.0 = 79.0
+        assert abs(result.score - 79.0) < 0.01
 
     def test_score_player_with_injury_penalty(self, scoring_calculator, test_player):
         """Test scoring with injury penalty"""

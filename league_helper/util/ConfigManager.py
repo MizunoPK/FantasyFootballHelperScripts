@@ -17,6 +17,7 @@ Author: Kai Mizuno
 """
 
 import json
+import statistics
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -26,6 +27,7 @@ import constants as Constants
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class ConfigKeys:
@@ -52,7 +54,8 @@ class ConfigKeys:
     NFL_SEASON = "NFL_SEASON"
     NFL_SCORING_FORMAT = "NFL_SCORING_FORMAT"
     NORMALIZATION_MAX_SCALE = "NORMALIZATION_MAX_SCALE"
-    BASE_BYE_PENALTY = "BASE_BYE_PENALTY"
+    SAME_POS_BYE_WEIGHT = "SAME_POS_BYE_WEIGHT"
+    DIFF_POS_BYE_WEIGHT = "DIFF_POS_BYE_WEIGHT"
     INJURY_PENALTIES = "INJURY_PENALTIES"
     ADP_SCORING = "ADP_SCORING"
     PLAYER_RATING_SCORING = "PLAYER_RATING_SCORING"
@@ -170,7 +173,8 @@ class ConfigManager:
 
         # Scoring parameters
         self.normalization_max_scale: float = 0.0
-        self.base_bye_penalty: float = 0.0
+        self.same_pos_bye_weight: float = 0.0
+        self.diff_pos_bye_weight: float = 0.0
         self.injury_penalties: Dict[str, float] = {}
         self.adp_scoring: Dict[str, Any] = {}
         self.player_rating_scoring: Dict[str, Any] = {}
@@ -375,75 +379,87 @@ class ConfigManager:
             # Example: K or DST in early rounds
             return 0, ""
 
-    def get_bye_week_penalty(self, num_same_position : int, num_different_position : int = 0) -> float:
+    def get_bye_week_penalty(self, same_pos_players: List[FantasyPlayer], diff_pos_players: List[FantasyPlayer]) -> float:
         """
-        Calculate bye week penalty based on roster conflicts.
+        Calculate bye week penalty based on median weekly scores of conflicting players.
 
         Bye week conflicts reduce a player's value when rostering them would create
-        depth issues on a specific week. Two types of conflicts are tracked:
+        depth issues on a specific week. The penalty is calculated using the median
+        weekly points of players who share the same bye week, then applying exponential
+        scaling based on position overlap.
 
-        1. Same-position conflicts: More severe (e.g., 2 RBs both on bye week 7)
-           - Uses BASE_BYE_PENALTY per conflict
-           - Directly weakens a specific position during that week
+        Algorithm:
+        1. For each player in same_pos_players: calculate median from weeks 1-17
+        2. For each player in diff_pos_players: calculate median from weeks 1-17
+        3. Sum all medians for each list
+        4. Apply exponential scaling: same_total ** SAME_POS_BYE_WEIGHT + diff_total ** DIFF_POS_BYE_WEIGHT
 
-        2. Different-position conflicts: Less severe (e.g., RB + WR on bye week 7)
-           - Uses DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY per conflict
-           - Reduces overall roster depth but doesn't cripple one position
-
-        The penalty is scaled based on how many bye weeks remain in the season.
-        As more bye weeks pass, the penalty decreases since there are fewer weeks
-        to worry about. This scaling ensures the penalty is highest early in the season
-        (when all bye weeks are ahead) and decreases as the season progresses.
-
-        Bye Week Scaling Formula:
-            scale_factor = bye_weeks_remaining / TOTAL_BYE_WEEKS
-            - Week 1-4 (before byes start): 9/9 = 1.0 (full penalty)
-            - Week 8 (6 weeks remain): 6/9 = 0.67 (reduced penalty)
-            - Week 14+ (all byes passed): 0/9 = 0.0 (no penalty)
+        The exponential scaling allows the penalty to grow non-linearly with the
+        impact of losing multiple players. Weight values typically range 0.0-3.0:
+        - weight=1.0: Linear scaling (no exponentiation)
+        - weight>1.0: Penalty grows faster (emphasizes multiple conflicts)
+        - weight<1.0: Penalty grows slower (dampens multiple conflicts)
 
         Args:
-            num_same_position: Number of same-position bye week conflicts
-            num_different_position: Number of different-position bye week conflicts (default: 0)
+            same_pos_players: List of players on roster with same position and same bye week
+            diff_pos_players: List of players on roster with different position and same bye week
 
         Returns:
-            float: Total bye week penalty (sum of both penalty types, scaled by remaining bye weeks)
+            float: Total bye week penalty (exponentially scaled sum)
 
         Example:
-            Week 8, Config has BASE_BYE_PENALTY=5.0, DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY=2.0
-            Player shares bye week with 2 same-position and 1 different-position player:
-            scale_factor = 6/9 = 0.67
-            penalty = (5.0 * 0.67 * 2) + (2.0 * 0.67 * 1) = 6.7 + 1.34 = 8.04 points
+            Config has SAME_POS_BYE_WEIGHT=1.5, DIFF_POS_BYE_WEIGHT=1.0
+            same_pos_players = [RB with median 15.0, RB with median 12.0] → total 27.0
+            diff_pos_players = [WR with median 18.0] → total 18.0
+            penalty = 27.0 ** 1.5 + 18.0 ** 1.0 = 140.3 + 18.0 = 158.3 points
         """
-        # Bye week range constants (NFL bye weeks typically span weeks 5-13)
-        BYE_WEEK_START = 5
-        BYE_WEEK_END = 13
-        TOTAL_BYE_WEEKS = 9  # weeks 5, 6, 7, 8, 9, 10, 11, 12, 13
+        def calculate_player_median(player: FantasyPlayer) -> float:
+            """
+            Calculate median weekly points for a player from weeks 1-17.
 
-        # Calculate how many bye weeks remain based on current NFL week
-        if self.current_nfl_week < BYE_WEEK_START:
-            # Before bye weeks start, all 9 weeks remain
-            bye_weeks_remaining = TOTAL_BYE_WEEKS
-        elif self.current_nfl_week > BYE_WEEK_END:
-            # After all bye weeks have passed, 0 weeks remain
-            bye_weeks_remaining = 0
-        else:
-            # During bye week period, count remaining weeks (inclusive of current week)
-            # Example: Week 8 → weeks 8,9,10,11,12,13 remain = 6 weeks
-            bye_weeks_remaining = BYE_WEEK_END - self.current_nfl_week + 1
+            Filters out None and zero values, returns 0.0 if no valid data.
+            """
+            try:
+                # Collect valid weekly points (skip None and zeros)
+                valid_weeks = [
+                    points for week in range(1, 18)
+                    if (points := getattr(player, f'week_{week}_points')) is not None
+                    and points > 0
+                ]
 
-        # Calculate scale factor (decreases as more bye weeks pass)
-        scale_factor = bye_weeks_remaining / TOTAL_BYE_WEEKS
+                if not valid_weeks:
+                    self.logger.warning(f"No valid weekly data for {player.name}, using 0.0 median")
+                    return 0.0
 
-        # Calculate penalty for same-position conflicts (scaled)
-        # These are weighted more heavily because they create position-specific weakness
-        same_position_penalty = self.base_bye_penalty * scale_factor * num_same_position
+                median = statistics.median(valid_weeks)
+                self.logger.debug(f"Median for {player.name}: {median:.2f} from {len(valid_weeks)} valid weeks")
+                return median
 
-        # Calculate penalty for different-position conflicts (scaled)
-        # These are weighted less heavily (default 0 if not configured)
-        different_position_penalty = self.parameters.get('DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY', 0) * scale_factor * num_different_position
+            except statistics.StatisticsError as e:
+                self.logger.error(f"Failed to calculate median for {player.name}: {e}")
+                return 0.0
+            except Exception as e:
+                self.logger.error(f"Unexpected error calculating median for {player.name}: {e}")
+                return 0.0
 
-        # Return combined penalty
-        return same_position_penalty + different_position_penalty
+        # Calculate median totals for each list
+        same_pos_median_total = sum(calculate_player_median(p) for p in same_pos_players)
+        diff_pos_median_total = sum(calculate_player_median(p) for p in diff_pos_players)
+
+        # Apply exponential scaling
+        same_penalty = same_pos_median_total ** self.same_pos_bye_weight
+        diff_penalty = diff_pos_median_total ** self.diff_pos_bye_weight
+
+        total_penalty = same_penalty + diff_penalty
+
+        self.logger.debug(
+            f"Bye penalty calculation: "
+            f"same_pos_median={same_pos_median_total:.2f}^{self.same_pos_bye_weight}={same_penalty:.2f}, "
+            f"diff_pos_median={diff_pos_median_total:.2f}^{self.diff_pos_bye_weight}={diff_penalty:.2f}, "
+            f"total={total_penalty:.2f}"
+        )
+
+        return total_penalty
 
     def get_injury_penalty(self, risk_level : str) -> float:
         """
@@ -732,7 +748,8 @@ class ConfigManager:
             self.keys.NFL_SEASON,
             self.keys.NFL_SCORING_FORMAT,
             self.keys.NORMALIZATION_MAX_SCALE,
-            self.keys.BASE_BYE_PENALTY,
+            self.keys.SAME_POS_BYE_WEIGHT,
+            self.keys.DIFF_POS_BYE_WEIGHT,
             self.keys.INJURY_PENALTIES,
             self.keys.ADP_SCORING,
             self.keys.PLAYER_RATING_SCORING,
@@ -756,7 +773,8 @@ class ConfigManager:
         self.nfl_season = self.parameters[self.keys.NFL_SEASON]
         self.nfl_scoring_format = self.parameters[self.keys.NFL_SCORING_FORMAT]
         self.normalization_max_scale = self.parameters[self.keys.NORMALIZATION_MAX_SCALE]
-        self.base_bye_penalty = self.parameters[self.keys.BASE_BYE_PENALTY]
+        self.same_pos_bye_weight = self.parameters[self.keys.SAME_POS_BYE_WEIGHT]
+        self.diff_pos_bye_weight = self.parameters[self.keys.DIFF_POS_BYE_WEIGHT]
         self.injury_penalties = self.parameters[self.keys.INJURY_PENALTIES]
         self.adp_scoring = self.parameters[self.keys.ADP_SCORING]
         self.player_rating_scoring = self.parameters[self.keys.PLAYER_RATING_SCORING]

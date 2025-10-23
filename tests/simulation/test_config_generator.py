@@ -34,8 +34,8 @@ class TestConfigGeneratorInitialization:
             "config_name": "test_baseline",
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
-                "BASE_BYE_PENALTY": 25.0,
-                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+                "SAME_POS_BYE_WEIGHT": 1.0,
+                "DIFF_POS_BYE_WEIGHT": 1.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -158,15 +158,16 @@ class TestConfigGeneratorInitialization:
         config = gen.baseline_config
         assert config['config_name'] == 'test_baseline'
         assert config['parameters']['NORMALIZATION_MAX_SCALE'] == 100.0
-        assert config['parameters']['BASE_BYE_PENALTY'] == 25.0
+        assert config['parameters']['SAME_POS_BYE_WEIGHT'] == 1.0
+        assert config['parameters']['DIFF_POS_BYE_WEIGHT'] == 1.0
 
     def test_param_definitions_exist(self, temp_baseline_config):
         """Test that all parameter definitions are present"""
         gen = ConfigGenerator(temp_baseline_config)
 
         assert 'NORMALIZATION_MAX_SCALE' in gen.param_definitions
-        assert 'BASE_BYE_PENALTY' in gen.param_definitions
-        assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in gen.param_definitions
+        assert 'SAME_POS_BYE_WEIGHT' in gen.param_definitions
+        assert 'DIFF_POS_BYE_WEIGHT' in gen.param_definitions
         assert 'PRIMARY_BONUS' in gen.param_definitions
         assert 'SECONDARY_BONUS' in gen.param_definitions
         assert 'ADP_SCORING_WEIGHT' in gen.param_definitions
@@ -192,8 +193,8 @@ class TestParameterValueGeneration:
             "config_name": "test_config",
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
-                "BASE_BYE_PENALTY": 25.0,
-                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+                "SAME_POS_BYE_WEIGHT": 1.0,
+                "DIFF_POS_BYE_WEIGHT": 1.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -340,8 +341,8 @@ class TestParameterValueGeneration:
         # Should have 5 scalar + 5 weight + 6 threshold STEPS parameters
         assert len(value_sets) == 16  # Updated for threshold STEPS + SCHEDULE_SCORING
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
-        assert 'BASE_BYE_PENALTY' in value_sets
-        assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in value_sets
+        assert 'SAME_POS_BYE_WEIGHT' in value_sets
+        assert 'DIFF_POS_BYE_WEIGHT' in value_sets
         assert 'PRIMARY_BONUS' in value_sets
         assert 'SECONDARY_BONUS' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
@@ -369,8 +370,8 @@ class TestCombinationGeneration:
             "config_name": "test_config",
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
-                "BASE_BYE_PENALTY": 25.0,
-                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+                "SAME_POS_BYE_WEIGHT": 1.0,
+                "DIFF_POS_BYE_WEIGHT": 1.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -498,7 +499,8 @@ class TestCombinationGeneration:
 
         # Verify all required parameters are present
         assert 'NORMALIZATION_MAX_SCALE' in test_combo
-        assert 'BASE_BYE_PENALTY' in test_combo
+        assert 'SAME_POS_BYE_WEIGHT' in test_combo
+        assert 'DIFF_POS_BYE_WEIGHT' in test_combo
         assert 'PRIMARY_BONUS' in test_combo
         assert 'SECONDARY_BONUS' in test_combo
 
@@ -513,8 +515,8 @@ class TestConfigDictCreation:
             "config_name": "test_config",
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
-                "BASE_BYE_PENALTY": 25.0,
-                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+                "SAME_POS_BYE_WEIGHT": 1.0,
+                "DIFF_POS_BYE_WEIGHT": 1.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -617,8 +619,8 @@ class TestConfigDictCreation:
 
         combination = {
             'NORMALIZATION_MAX_SCALE': 110.0,
-            'BASE_BYE_PENALTY': 30.0,
-            'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY': 7.0,
+            'SAME_POS_BYE_WEIGHT': 1.5,
+            'DIFF_POS_BYE_WEIGHT': 1.2,
             'PRIMARY_BONUS': 55.0,
             'SECONDARY_BONUS': 45.0,
             'ADP_SCORING_WEIGHT': 1.5,
@@ -637,8 +639,8 @@ class TestConfigDictCreation:
 
         params = config['parameters']
         assert params['NORMALIZATION_MAX_SCALE'] == 110.0
-        assert params['BASE_BYE_PENALTY'] == 30.0
-        assert params['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY'] == 7.0
+        assert params['SAME_POS_BYE_WEIGHT'] == 1.5
+        assert params['DIFF_POS_BYE_WEIGHT'] == 1.2
         assert params['DRAFT_ORDER_BONUSES']['PRIMARY'] == 55.0
         assert params['DRAFT_ORDER_BONUSES']['SECONDARY'] == 45.0
 
@@ -680,8 +682,8 @@ class TestIterativeOptimizationSupport:
             "config_name": "test_config",
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
-                "BASE_BYE_PENALTY": 25.0,
-                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+                "SAME_POS_BYE_WEIGHT": 1.0,
+                "DIFF_POS_BYE_WEIGHT": 1.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -809,8 +811,8 @@ class TestIterativeOptimizationSupport:
 
         # Should have all parameters (5 scalar + 5 weights + 6 threshold STEPS)
         assert 'NORMALIZATION_MAX_SCALE' in combination
-        assert 'BASE_BYE_PENALTY' in combination
-        assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in combination
+        assert 'SAME_POS_BYE_WEIGHT' in combination
+        assert 'DIFF_POS_BYE_WEIGHT' in combination
         assert 'PRIMARY_BONUS' in combination
         assert 'SECONDARY_BONUS' in combination
         assert 'ADP_SCORING_WEIGHT' in combination
@@ -877,8 +879,8 @@ class TestGenerateIterativeCombinations:
             "config_name": "test_baseline",
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
-                "BASE_BYE_PENALTY": 25.0,
-                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+                "SAME_POS_BYE_WEIGHT": 1.0,
+                "DIFF_POS_BYE_WEIGHT": 1.0,
                 "DRAFT_ORDER_BONUSES": {
                     "PRIMARY": 50.0,
                     "SECONDARY": 40.0
@@ -1099,7 +1101,7 @@ class TestGenerateIterativeCombinations:
     def test_config_structure_is_valid(self, test_config_generator):
         """Test that all returned configs have valid structure"""
         configs = test_config_generator.generate_iterative_combinations(
-            'BASE_BYE_PENALTY',
+            'SAME_POS_BYE_WEIGHT',
             test_config_generator.baseline_config
         )
 
@@ -1111,8 +1113,8 @@ class TestGenerateIterativeCombinations:
             # Check parameters section has expected keys
             params = config['parameters']
             assert 'NORMALIZATION_MAX_SCALE' in params
-            assert 'BASE_BYE_PENALTY' in params
-            assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in params
+            assert 'SAME_POS_BYE_WEIGHT' in params
+            assert 'DIFF_POS_BYE_WEIGHT' in params
             assert 'DRAFT_ORDER_BONUSES' in params
             assert 'ADP_SCORING' in params
             assert 'PLAYER_RATING_SCORING' in params

@@ -6,8 +6,8 @@
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
     "NORMALIZATION_MAX_SCALE": 141.67703079140796,
-    "BASE_BYE_PENALTY": 41.3376210022945,
-    "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 1.9523025294345953,
+    "SAME_POS_BYE_WEIGHT": 1.0,
+    "DIFF_POS_BYE_WEIGHT": 1.0,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 0,
@@ -155,7 +155,7 @@
     },
     "SCHEDULE_SCORING": {
       "THRESHOLDS": {
-        "BASE_POSITION": 16,
+        "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
         "STEPS": 8
       },
@@ -165,7 +165,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.0
+      "WEIGHT": 1.0
     }
   }
 }

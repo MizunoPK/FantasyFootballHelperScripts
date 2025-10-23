@@ -132,7 +132,8 @@ class TestConfigGeneratorIntegration:
         # Verify config structure
         assert "parameters" in config_dict
         assert "NORMALIZATION_MAX_SCALE" in config_dict["parameters"]
-        assert "BASE_BYE_PENALTY" in config_dict["parameters"]
+        assert "SAME_POS_BYE_WEIGHT" in config_dict["parameters"]
+        assert "DIFF_POS_BYE_WEIGHT" in config_dict["parameters"]
 
 
 class TestSimulationManagerIntegration:

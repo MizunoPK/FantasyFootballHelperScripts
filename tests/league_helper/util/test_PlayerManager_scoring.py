@@ -48,7 +48,8 @@ def mock_data_folder(tmp_path):
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
     "NORMALIZATION_MAX_SCALE": 100.0,
-    "BASE_BYE_PENALTY": 25.0,
+    "SAME_POS_BYE_WEIGHT": 1.0,
+            "DIFF_POS_BYE_WEIGHT": 1.0,
     "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
     "INJURY_PENALTIES": {
       "LOW": 0,
@@ -799,43 +800,74 @@ class TestByeWeekPenalty:
         assert reason == ""  # No reason when there are no overlaps
 
     def test_bye_penalty_one_same_position_match(self, player_manager, test_player, mock_fantasy_team):
-        """One same-position bye match should apply BASE_BYE_PENALTY once"""
+        """One same-position bye match should apply median-based penalty"""
         # test_player is RB with bye_week=7
-        # At week 6: scale_factor = 8/9, penalty = 25 * (8/9) = 22.222...
         other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
+        # Add weekly points for median calculation
+        other_rb.week_1_points = 10.0
+        other_rb.week_2_points = 12.0
+        other_rb.week_3_points = 15.0
+        # Median = 12.0
+
         mock_fantasy_team.roster = [other_rb]
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
-        expected_penalty = 25.0 * (8.0/9.0)
+        # Expected penalty = 12.0 ** 1.0 + 0 ** 1.0 = 12.0
+        expected_penalty = 12.0
         assert abs(result - (100.0 - expected_penalty)) < 0.01
         assert "1 same-position, 0 different-position" in reason
 
     def test_bye_penalty_one_different_position_match(self, player_manager, test_player, mock_fantasy_team):
-        """One different-position bye match should apply DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY once"""
+        """One different-position bye match should apply median-based penalty"""
         # test_player is RB with bye_week=7
-        # At week 6: scale_factor = 8/9, penalty = 5 * (8/9) = 4.444...
         other_qb = FantasyPlayer(id=99, name="Other QB", team="BUF", position="QB", bye_week=7, fantasy_points=150.0)
+        # Add weekly points for median calculation
+        other_qb.week_1_points = 18.0
+        other_qb.week_2_points = 20.0
+        other_qb.week_3_points = 22.0
+        # Median = 20.0
+
         mock_fantasy_team.roster = [other_qb]
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
-        expected_penalty = 5.0 * (8.0/9.0)
+        # Expected penalty = 0 ** 1.0 + 20.0 ** 1.0 = 20.0
+        expected_penalty = 20.0
         assert abs(result - (100.0 - expected_penalty)) < 0.01
         assert "0 same-position, 1 different-position" in reason
 
     def test_bye_penalty_mixed_overlaps(self, player_manager, test_player, mock_fantasy_team):
-        """Multiple overlaps of both types should apply both penalties"""
+        """Multiple overlaps of both types should apply both median-based penalties"""
         # test_player is RB with bye_week=7
         other_rb1 = FantasyPlayer(id=98, name="RB1", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
+        other_rb1.week_1_points = 10.0
+        other_rb1.week_2_points = 12.0
+        other_rb1.week_3_points = 14.0
+        # Median = 12.0
+
         other_rb2 = FantasyPlayer(id=97, name="RB2", team="PHI", position="RB", bye_week=7, fantasy_points=140.0)
+        other_rb2.week_1_points = 8.0
+        other_rb2.week_2_points = 10.0
+        other_rb2.week_3_points = 9.0
+        # Median = 9.0
+
         other_wr = FantasyPlayer(id=96, name="WR1", team="DAL", position="WR", bye_week=7, fantasy_points=130.0)
+        other_wr.week_1_points = 15.0
+        other_wr.week_2_points = 18.0
+        other_wr.week_3_points = 16.0
+        # Median = 16.0
+
         other_qb = FantasyPlayer(id=95, name="QB1", team="JAX", position="QB", bye_week=7, fantasy_points=200.0)
+        other_qb.week_1_points = 20.0
+        other_qb.week_2_points = 22.0
+        other_qb.week_3_points = 24.0
+        # Median = 22.0
+
         mock_fantasy_team.roster = [other_rb1, other_rb2, other_wr, other_qb]
 
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
-        # At week 6: scale_factor = 8/9
-        # 2 same-position × 25 × (8/9) = 44.444..., 2 different-position × 5 × (8/9) = 8.888..., total = 53.333...
-        expected_penalty = (2 * 25.0 * (8.0/9.0)) + (2 * 5.0 * (8.0/9.0))
+        # Expected penalty = (12 + 9) ** 1.0 + (16 + 22) ** 1.0 = 21 + 38 = 59.0
+        expected_penalty = 59.0
         assert abs(result - (100.0 - expected_penalty)) < 0.01
         assert "2 same-position, 2 different-position" in reason
 
@@ -844,13 +876,18 @@ class TestByeWeekPenalty:
         # test_player is RB with bye_week=7, id=12345
         # Include test_player in roster (shouldn't count itself)
         other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
+        other_rb.week_1_points = 10.0
+        other_rb.week_2_points = 12.0
+        other_rb.week_3_points = 14.0
+        # Median = 12.0
+
         mock_fantasy_team.roster = [test_player, other_rb]
 
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
         # Should only count other_rb, not test_player itself
-        # At week 6: scale_factor = 8/9, penalty = 25 * (8/9) = 22.222...
-        expected_penalty = 25.0 * (8.0/9.0)
+        # Expected penalty = 12.0 ** 1.0 + 0 ** 1.0 = 12.0
+        expected_penalty = 12.0
         assert abs(result - (100.0 - expected_penalty)) < 0.01
         assert "1 same-position, 0 different-position" in reason
 
@@ -1010,13 +1047,18 @@ class TestFullScoringIntegration:
         test_player.position = "RB"
 
         # Create 5 same-position bye overlaps
-        mock_fantasy_team.roster = [
-            FantasyPlayer(id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
-            for i in range(5)
-        ]  # 5 same-position × 25 = 125 penalty
+        mock_fantasy_team.roster = []
+        for i in range(5):
+            rb = FantasyPlayer(id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
+            # Add weekly points for median calculation (median = 20.0 each)
+            rb.week_1_points = 18.0
+            rb.week_2_points = 20.0
+            rb.week_3_points = 22.0
+            mock_fantasy_team.roster.append(rb)
+        # Median-based penalty: (5 × 20.0) ** 1.0 = 100.0
 
         # Score: 10 * 0.70 * 0.75 * 0.70 * 0.60 = ~2.205
-        # Then: 2.205 - 125 (bye) - 75 (injury) = ~-197.8
+        # Then: 2.205 - 100 (bye) - 75 (injury) = ~-172.8
 
         result = player_manager.score_player(
             test_player,
@@ -1348,12 +1390,18 @@ class TestAdditionalEdgeCases:
         assert reason == "Matchup: VERY_POOR (0.75x)"
 
     def test_massive_bye_week_penalty(self, player_manager, test_player, mock_fantasy_team):
-        """Test with massive bye week overlaps (10+ players)"""
+        """Test with massive bye week overlaps (10+ players) - median-based"""
         # Create 10 same-position players with same bye week
-        mock_fantasy_team.roster = [
-            FantasyPlayer(id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
-            for i in range(10)
-        ]
+        roster_players = []
+        for i in range(10):
+            player = FantasyPlayer(id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
+            # Add weekly points - each player has median of 10.0
+            player.week_1_points = 8.0
+            player.week_2_points = 10.0
+            player.week_3_points = 12.0
+            roster_players.append(player)
+
+        mock_fantasy_team.roster = roster_players
 
         test_player.bye_week = 7
         test_player.position = "RB"
@@ -1361,11 +1409,10 @@ class TestAdditionalEdgeCases:
 
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
 
-        # At week 6: scale_factor = 8/9
-        # 10 same-position × 25 × (8/9) = 222.222... penalty
-        expected_penalty = 10 * 25.0 * (8.0/9.0)
+        # Expected penalty = (10 players × 10.0 median) ** 1.0 = 100.0
+        expected_penalty = 100.0
         assert abs(result - (100.0 - expected_penalty)) < 0.01
-        assert result < -100.0  # Score can go very negative
+        assert result == 0.0  # Score becomes 0 with this penalty
 
     # ========== Roster Operations Edge Cases ==========
 

@@ -50,7 +50,8 @@ def minimal_hardcoded_config(temp_data_folder):
             "NFL_SEASON": 2025,
             "NFL_SCORING_FORMAT": "ppr",
             "NORMALIZATION_MAX_SCALE": 100.0,
-            "BASE_BYE_PENALTY": 25.0,
+            "SAME_POS_BYE_WEIGHT": 1.0,
+            "DIFF_POS_BYE_WEIGHT": 1.0,
             "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": 10.0, "HIGH": 75.0},
             "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
             "DRAFT_ORDER": [{"FLEX": "P", "QB": "S"}],
@@ -138,7 +139,8 @@ def parameterized_config(temp_data_folder):
             "NFL_SEASON": 2025,
             "NFL_SCORING_FORMAT": "ppr",
             "NORMALIZATION_MAX_SCALE": 100.0,
-            "BASE_BYE_PENALTY": 25.0,
+            "SAME_POS_BYE_WEIGHT": 1.0,
+            "DIFF_POS_BYE_WEIGHT": 1.0,
             "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": 10.0, "HIGH": 75.0},
             "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
             "DRAFT_ORDER": [{"FLEX": "P", "QB": "S"}],
@@ -719,24 +721,63 @@ class TestGetterMethodEdgeCases:
         assert result == expected
 
     def test_get_bye_week_penalty_same_position_only(self, minimal_hardcoded_config):
-        """get_bye_week_penalty with only same position conflicts (with scaling)"""
+        """get_bye_week_penalty with only same position conflicts (median-based)"""
+        from utils.FantasyPlayer import FantasyPlayer
+
         config = ConfigManager(minimal_hardcoded_config)
-        result = config.get_bye_week_penalty(num_same_position=2)
-        # Week 6, bye weeks 5-13 (9 total), 8 weeks remain
-        # Scale factor = 8/9 = 0.8889
-        # Expected = 25 * 0.8889 * 2 = 44.44
-        expected = config.base_bye_penalty * (8/9) * 2
+
+        # Create mock players with weekly points
+        player1 = FantasyPlayer(id=1, name="RB1", team="KC", position="RB")
+        player1.week_1_points = 10.0
+        player1.week_2_points = 15.0
+        player1.week_3_points = 12.0
+        # Median = 12.0
+
+        player2 = FantasyPlayer(id=2, name="RB2", team="DAL", position="RB")
+        player2.week_1_points = 20.0
+        player2.week_2_points = 18.0
+        player2.week_3_points = 22.0
+        # Median = 20.0
+
+        same_pos_players = [player1, player2]
+        diff_pos_players = []
+
+        result = config.get_bye_week_penalty(same_pos_players, diff_pos_players)
+        # Expected = (12 + 20) ** 1.0 + 0 ** 1.0 = 32.0
+        expected = 32.0
         assert abs(result - expected) < 0.01
 
     def test_get_bye_week_penalty_different_position(self, minimal_hardcoded_config):
-        """get_bye_week_penalty with different position conflicts (with scaling)"""
+        """get_bye_week_penalty with different position conflicts (median-based)"""
+        from utils.FantasyPlayer import FantasyPlayer
+
         config = ConfigManager(minimal_hardcoded_config)
-        # No DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY in config, should default to 0
-        result = config.get_bye_week_penalty(num_same_position=1, num_different_position=2)
-        # Week 6, bye weeks 5-13 (9 total), 8 weeks remain
-        # Scale factor = 8/9 = 0.8889
-        # Expected = 25 * 0.8889 * 1 + 0 * 0.8889 * 2 = 22.22
-        expected = config.base_bye_penalty * (8/9) * 1  # different position penalty is 0
+
+        # Create mock players
+        same_pos_player = FantasyPlayer(id=1, name="RB1", team="KC", position="RB")
+        same_pos_player.week_1_points = 10.0
+        same_pos_player.week_2_points = 15.0
+        same_pos_player.week_3_points = 12.0
+        # Median = 12.0
+
+        diff_pos_player1 = FantasyPlayer(id=2, name="WR1", team="DAL", position="WR")
+        diff_pos_player1.week_1_points = 8.0
+        diff_pos_player1.week_2_points = 10.0
+        diff_pos_player1.week_3_points = 12.0
+        # Median = 10.0
+
+        diff_pos_player2 = FantasyPlayer(id=3, name="TE1", team="SF", position="TE")
+        diff_pos_player2.week_1_points = 5.0
+        diff_pos_player2.week_2_points = 7.0
+        diff_pos_player2.week_3_points = 6.0
+        # Median = 6.0
+
+        same_pos_players = [same_pos_player]
+        diff_pos_players = [diff_pos_player1, diff_pos_player2]
+
+        result = config.get_bye_week_penalty(same_pos_players, diff_pos_players)
+        # Expected = 12 ** 1.0 + (10 + 6) ** 1.0 = 12 + 16 = 28.0
+        expected = 28.0
         assert abs(result - expected) < 0.01
 
     def test_get_ideal_draft_position_out_of_range(self, minimal_hardcoded_config):

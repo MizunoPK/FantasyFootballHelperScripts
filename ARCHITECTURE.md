@@ -199,8 +199,14 @@ Where:
   ADP Bonus = Interpolated multiplier from ADP curve
   Consistency Bonus = Consistency Rating × Position Multiplier
   Injury Penalty = Config penalty based on injury status
-  Bye Week Penalty = Config penalty for bye week clustering
+  Bye Week Penalty = Median-based exponential penalty (see details below)
   Team Multiplier = Offensive/Defensive rank adjustment
+
+Bye Week Penalty Calculation:
+  1. Collect players with same bye week (same position and different position)
+  2. Calculate median weekly points (weeks 1-17) for each player
+  3. Sum medians for same-position and different-position groups
+  4. Apply exponential scaling: (same_sum ** SAME_POS_BYE_WEIGHT) + (diff_sum ** DIFF_POS_BYE_WEIGHT)
 ```
 
 **Data Structures**:
@@ -277,7 +283,7 @@ class FantasyPlayer:
 class ConfigManager:
     def get_adp_multiplier(self, adp: float) -> Tuple[float, int]
     def get_injury_penalty(self, injury_status: str) -> float
-    def get_bye_week_penalty(self, position: str) -> float
+    def get_bye_week_penalty(self, same_pos_players: List[FantasyPlayer], diff_pos_players: List[FantasyPlayer]) -> float
     def get_consistency_multiplier(self, position: str) -> float
     def get_team_multiplier(self, team: str, week: int) -> float
     def get_position_with_flex(self, position: str) -> str  # Returns 'FLEX' if eligible
@@ -664,7 +670,7 @@ Results → ResultsManager → Best Config
 - `adp_multiplier_at_0/50/100/150/200` - ADP curve shape (5 params)
 - `consistency_multiplier_qb/rb/wr/te/k/dst` - Position bonuses (6 params)
 - `injury_penalty_questionable/doubtful/out/ir` - Injury penalties (4 params)
-- `bye_week_penalty_qb/rb/wr/te/k/dst` - Bye penalties (6 params)
+- `SAME_POS_BYE_WEIGHT` / `DIFF_POS_BYE_WEIGHT` - Bye penalty exponential weights (2 params)
 - `team_offense_weight/team_defense_weight` - Team strength weights (2 params)
 
 ---
@@ -841,7 +847,7 @@ AddToRosterModeManager.run()
     │                 ├─── Apply ADP multiplier (from config)
     │                 ├─── Apply consistency bonus (from config)
     │                 ├─── Apply injury penalty (from config)
-    │                 └─── Apply bye week penalty (from config)
+    │                 └─── Apply median-based bye week penalty (from config)
     │
     ├─── Sort by total_score (descending)
     │

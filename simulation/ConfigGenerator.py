@@ -9,8 +9,8 @@ Example: (5+1)^16 = ~2.8 trillion configurations
 
 Parameters Varied:
 1. NORMALIZATION_MAX_SCALE: ±10 from optimal, bounded [50, 500]
-2. BASE_BYE_PENALTY: ±10 from optimal, bounded [0, 200]
-3. DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY: ±10 from optimal, bounded [0, 200]
+2. SAME_POS_BYE_WEIGHT: ±0.2 from optimal, bounded [0, 3]
+3. DIFF_POS_BYE_WEIGHT: ±0.2 from optimal, bounded [0, 3]
 4. DRAFT_ORDER_BONUSES.PRIMARY: ±10 from optimal, bounded [0, 200]
 5. DRAFT_ORDER_BONUSES.SECONDARY: ±10 from optimal, bounded [0, 200]
 6. ADP_SCORING_WEIGHT: ±0.3 from optimal, bounded [0, 5]
@@ -52,23 +52,23 @@ class ConfigGenerator:
 
     # Parameter definitions: (range_val, min_val, max_val)
     PARAM_DEFINITIONS = {
+        'SAME_POS_BYE_WEIGHT': (0.2, 0.0, 3.0),
+        'DIFF_POS_BYE_WEIGHT': (0.2, 0.0, 3.0),
+        'SCHEDULE_SCORING_STEPS': (2.0, 1.0, 15.0),
+        'SCHEDULE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'NORMALIZATION_MAX_SCALE': (10.0, 50.0, 500.0),
-        'BASE_BYE_PENALTY': (10.0, 0.0, 200.0),
-        'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY': (10.0, 0.0, 200.0),
         'PRIMARY_BONUS': (10.0, 0.0, 200.0),
         'SECONDARY_BONUS': (10.0, 0.0, 200.0),
         'ADP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PLAYER_RATING_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PERFORMANCE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'SCHEDULE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         # Threshold STEPS parameters (NEW)
         'ADP_SCORING_STEPS': (5.0, 1.0, 60.0),
         'PLAYER_RATING_SCORING_STEPS': (4.0, 1.0, 50.0),
         'TEAM_QUALITY_SCORING_STEPS': (2.0, 1.0, 20.0),
         'PERFORMANCE_SCORING_STEPS': (0.05, 0.05, 0.5),
         'MATCHUP_SCORING_STEPS': (3.0, 1.0, 20.0),
-        'SCHEDULE_SCORING_STEPS': (2.0, 1.0, 15.0),
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -94,7 +94,7 @@ class ConfigGenerator:
             "DIRECTION": "BI_EXCELLENT_HI"
         },
         "SCHEDULE_SCORING": {
-            "BASE_POSITION": 16,
+            "BASE_POSITION": 0,
             "DIRECTION": "INCREASING"
         }
     }
@@ -112,8 +112,8 @@ class ConfigGenerator:
     # Scalar parameters first, then weights, then threshold STEPS
     PARAMETER_ORDER = [
         'NORMALIZATION_MAX_SCALE',
-        'BASE_BYE_PENALTY',
-        'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY',
+        'SAME_POS_BYE_WEIGHT',
+        'DIFF_POS_BYE_WEIGHT',
         'PRIMARY_BONUS',
         'SECONDARY_BONUS',
         # Multiplier Weights
@@ -260,18 +260,18 @@ class ConfigGenerator:
             *self.param_definitions['NORMALIZATION_MAX_SCALE']
         )
 
-        # BASE_BYE_PENALTY
-        value_sets['BASE_BYE_PENALTY'] = self.generate_parameter_values(
-            'BASE_BYE_PENALTY',
-            params['BASE_BYE_PENALTY'],
-            *self.param_definitions['BASE_BYE_PENALTY']
+        # SAME_POS_BYE_WEIGHT
+        value_sets['SAME_POS_BYE_WEIGHT'] = self.generate_parameter_values(
+            'SAME_POS_BYE_WEIGHT',
+            params['SAME_POS_BYE_WEIGHT'],
+            *self.param_definitions['SAME_POS_BYE_WEIGHT']
         )
 
-        # DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY
-        value_sets['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY'] = self.generate_parameter_values(
-            'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY',
-            params['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY'],
-            *self.param_definitions['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY']
+        # DIFF_POS_BYE_WEIGHT
+        value_sets['DIFF_POS_BYE_WEIGHT'] = self.generate_parameter_values(
+            'DIFF_POS_BYE_WEIGHT',
+            params['DIFF_POS_BYE_WEIGHT'],
+            *self.param_definitions['DIFF_POS_BYE_WEIGHT']
         )
 
         # PRIMARY_BONUS
@@ -509,12 +509,12 @@ class ConfigGenerator:
         if param_name == 'NORMALIZATION_MAX_SCALE':
             current_val = params['NORMALIZATION_MAX_SCALE']
             range_val, min_val, max_val = self.param_definitions['NORMALIZATION_MAX_SCALE']
-        elif param_name == 'BASE_BYE_PENALTY':
-            current_val = params['BASE_BYE_PENALTY']
-            range_val, min_val, max_val = self.param_definitions['BASE_BYE_PENALTY']
-        elif param_name == 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY':
-            current_val = params['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY']
-            range_val, min_val, max_val = self.param_definitions['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY']
+        elif param_name == 'SAME_POS_BYE_WEIGHT':
+            current_val = params['SAME_POS_BYE_WEIGHT']
+            range_val, min_val, max_val = self.param_definitions['SAME_POS_BYE_WEIGHT']
+        elif param_name == 'DIFF_POS_BYE_WEIGHT':
+            current_val = params['DIFF_POS_BYE_WEIGHT']
+            range_val, min_val, max_val = self.param_definitions['DIFF_POS_BYE_WEIGHT']
         elif param_name == 'PRIMARY_BONUS':
             current_val = params['DRAFT_ORDER_BONUSES']['PRIMARY']
             range_val, min_val, max_val = self.param_definitions['PRIMARY_BONUS']
@@ -580,8 +580,8 @@ class ConfigGenerator:
 
         # Scalar parameters
         combination['NORMALIZATION_MAX_SCALE'] = params['NORMALIZATION_MAX_SCALE']
-        combination['BASE_BYE_PENALTY'] = params['BASE_BYE_PENALTY']
-        combination['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY'] = params['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY']
+        combination['SAME_POS_BYE_WEIGHT'] = params['SAME_POS_BYE_WEIGHT']
+        combination['DIFF_POS_BYE_WEIGHT'] = params['DIFF_POS_BYE_WEIGHT']
         combination['PRIMARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['PRIMARY']
         combination['SECONDARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['SECONDARY']
 
@@ -628,8 +628,8 @@ class ConfigGenerator:
 
         # Update scalar parameters
         params['NORMALIZATION_MAX_SCALE'] = combination['NORMALIZATION_MAX_SCALE']
-        params['BASE_BYE_PENALTY'] = combination['BASE_BYE_PENALTY']
-        params['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY'] = combination['DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY']
+        params['SAME_POS_BYE_WEIGHT'] = combination['SAME_POS_BYE_WEIGHT']
+        params['DIFF_POS_BYE_WEIGHT'] = combination['DIFF_POS_BYE_WEIGHT']
         params['DRAFT_ORDER_BONUSES']['PRIMARY'] = combination['PRIMARY_BONUS']
         params['DRAFT_ORDER_BONUSES']['SECONDARY'] = combination['SECONDARY_BONUS']
 

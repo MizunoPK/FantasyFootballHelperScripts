@@ -621,9 +621,9 @@ class PlayerScoringCalculator:
         """
         Apply bye week penalty based on roster conflicts (Step 9).
 
-        Counts both same-position and different-position bye week overlaps separately,
-        applying BASE_BYE_PENALTY for same-position conflicts and
-        DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY for different-position conflicts.
+        Collects players with same-position and different-position bye week overlaps,
+        then calculates penalty based on median weekly scores using exponential scaling.
+        Penalty calculation: (same_median_total ** SAME_POS_BYE_WEIGHT) + (diff_median_total ** DIFF_POS_BYE_WEIGHT)
 
         Args:
             p: Player to evaluate
@@ -633,11 +633,11 @@ class PlayerScoringCalculator:
         Returns:
             Tuple[float, str]: (adjusted_score, reason_string)
         """
-        # Count bye week conflicts separately by position relationship
+        # Collect bye week conflicts separately by position relationship
         # Same-position conflicts are more severe (e.g., 2 RBs both on bye)
         # Different-position conflicts are less severe (e.g., RB + WR on bye)
-        num_same_position = 0
-        num_different_position = 0
+        same_pos_players = []
+        diff_pos_players = []
 
         # Return if the player's bye week is None or has already passed
         if p.bye_week is None:
@@ -649,7 +649,7 @@ class PlayerScoringCalculator:
         # Iterate through roster to find bye week overlaps
         for roster_player in roster:
             # Skip the player being scored (avoid counting them against themselves)
-            # Also skip roster players with None bye_week
+            # Also skip roster players with None bye_week or bye week already passed
             if roster_player.id == p.id:
                 continue
             if roster_player.bye_week is None or roster_player.bye_week < self.config.current_nfl_week:
@@ -660,21 +660,19 @@ class PlayerScoringCalculator:
                 # Compare positions (use actual position, not FLEX assignment)
                 # Same position overlap is worse since it weakens a specific position
                 if roster_player.position == p.position:
-                    num_same_position += 1
+                    same_pos_players.append(roster_player)
                 else:
                     # Different position overlap is less critical
-                    num_different_position += 1
+                    diff_pos_players.append(roster_player)
 
-        # Calculate total penalty using config-defined weights
-        # BASE_BYE_PENALTY applies to same-position overlaps
-        # DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY applies to different-position overlaps
-        penalty = self.config.get_bye_week_penalty(num_same_position, num_different_position)
+        # Calculate total penalty using median-based exponential scaling
+        penalty = self.config.get_bye_week_penalty(same_pos_players, diff_pos_players)
 
         # Build reason string (only show if there are actual conflicts)
-        if num_same_position == 0 and num_different_position == 0:
+        if len(same_pos_players) == 0 and len(diff_pos_players) == 0:
             reason = ""  # No conflicts = no reason string
         else:
-            reason = f"Bye Overlaps: {num_same_position} same-position, {num_different_position} different-position ({-penalty:.1f} pts)"
+            reason = f"Bye Overlaps: {len(same_pos_players)} same-position, {len(diff_pos_players)} different-position ({-penalty:.1f} pts)"
 
         # Subtract penalty from score (penalty reduces player value)
         return player_score - penalty, reason
