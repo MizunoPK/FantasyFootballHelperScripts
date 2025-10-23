@@ -172,14 +172,23 @@ class TradeSimulatorModeManager:
         Initialize team roster data by organizing players by fantasy team.
 
         Uses the PlayerManager's player list and DraftedRosterManager to:
-        1. Load drafted_data.csv
-        2. Match players to their fantasy teams using fuzzy matching
-        3. Create team_rosters dict mapping team names to player lists
+        1. Reload player data from CSV (resets any state changes from previous simulations)
+        2. Load drafted_data.csv
+        3. Match players to their fantasy teams using fuzzy matching
+        4. Create team_rosters dict mapping team names to player lists
 
         Side Effects:
+            - Reloads all player data from CSV (resets drafted, locked, score state)
             - Populates self.team_rosters with Dict[team_name, List[FantasyPlayer]]
         """
         self.logger.info("Initializing team data for Trade Simulator")
+
+        # CRITICAL: Reload player data from CSV to reset any state changes
+        # This ensures drafted status, locked status, and scores are fresh
+        # Without this, simulations can become inconsistent (e.g., waiver recommendations
+        # may differ between runs due to stale locked/drafted state)
+        self.logger.debug("Reloading player data from CSV to reset state")
+        self.player_manager.reload_player_data()
 
         # Get all players from PlayerManager (includes projections, ADPs, and injury data)
         all_players = self.player_manager.players
