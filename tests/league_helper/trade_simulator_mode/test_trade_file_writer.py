@@ -682,41 +682,46 @@ class TestParseScoringReasons:
         assert parsed["Weighted Proj"] == 22.0
 
     def test_parses_adp_rating(self, writer):
-        """Test parsing of ADP rating"""
+        """Test parsing of ADP rating and multiplier"""
         reasons = ["ADP: EXCELLENT (1.05x)"]
         parsed = writer._parse_scoring_reasons(reasons)
 
         assert parsed["ADP Rating"] == "EXCELLENT"
+        assert parsed["ADP Multiplier"] == 1.05
 
     def test_parses_player_rating(self, writer):
-        """Test parsing of player rating"""
+        """Test parsing of player rating and multiplier"""
         reasons = ["Player Rating: GOOD (1.02x)"]
         parsed = writer._parse_scoring_reasons(reasons)
 
         assert parsed["Player Rating"] == "GOOD"
+        assert parsed["Player Rating Multiplier"] == 1.02
 
     def test_parses_team_quality(self, writer):
-        """Test parsing of team quality"""
+        """Test parsing of team quality and multiplier"""
         reasons = ["Team Quality: VERY_POOR (0.95x)"]
         parsed = writer._parse_scoring_reasons(reasons)
 
         assert parsed["Team Quality"] == "VERY_POOR"
+        assert parsed["Team Quality Multiplier"] == 0.95
 
     def test_parses_performance_with_percentage(self, writer):
-        """Test parsing of performance with percentage"""
+        """Test parsing of performance with percentage and multiplier"""
         reasons = ["Performance: GOOD (+15.3%, 1.03x)"]
         parsed = writer._parse_scoring_reasons(reasons)
 
         assert parsed["Performance"] == "GOOD"
         assert parsed["Perf %"] == "+15.3"
+        assert parsed["Performance Multiplier"] == 1.03
 
     def test_parses_schedule_with_rank(self, writer):
-        """Test parsing of schedule with opponent rank"""
+        """Test parsing of schedule with opponent rank and multiplier"""
         reasons = ["Schedule: EXCELLENT (avg opp def rank: 12.5, 1.05x)"]
         parsed = writer._parse_scoring_reasons(reasons)
 
         assert parsed["Schedule"] == "EXCELLENT"
         assert parsed["Avg Opp Rank"] == 12.5
+        assert parsed["Schedule Multiplier"] == 1.05
 
     def test_parses_bye_overlaps(self, writer):
         """Test parsing of bye week overlaps"""
@@ -744,7 +749,8 @@ class TestParseScoringReasons:
         parsed = writer._parse_scoring_reasons(reasons)
 
         assert parsed["ADP Rating"] == "EXCELLENT"
-        assert len(parsed) == 1
+        assert parsed["ADP Multiplier"] == 1.05
+        assert len(parsed) == 2
 
     def test_parses_multiple_reasons(self, writer):
         """Test parsing multiple reasons together"""

@@ -1419,13 +1419,19 @@ class TradeFileWriter:
             ('Base Projected', 'Base Projected', float, 2),
             ('Weighted Proj', 'Weighted Proj', float, 2),
             ('ADP Rating', 'ADP Rating', str, None),
+            ('ADP Mult', 'ADP Multiplier', float, 3),
             ('Player Rating', 'Player Rating', str, None),
+            ('Player Mult', 'Player Rating Multiplier', float, 3),
             ('Team Quality', 'Team Quality', str, None),
+            ('Team Mult', 'Team Quality Multiplier', float, 3),
             ('Performance', 'Performance', str, None),
             ('Perf %', 'Perf %', str, None),
+            ('Perf Mult', 'Performance Multiplier', float, 3),
             ('Matchup', 'Matchup', str, None),
+            ('Matchup Mult', 'Matchup Multiplier', float, 3),
             ('Schedule', 'Schedule', str, None),
             ('Avg Opp Rank', 'Avg Opp Rank', float, 1),
+            ('Sched Mult', 'Schedule Multiplier', float, 3),
             ('Draft Bonus', 'Draft Bonus', str, None),
             ('Injury Status', 'Injury Status', str, None)
         ]
@@ -1513,41 +1519,47 @@ class TradeFileWriter:
 
             # Step 2: ADP
             elif "ADP:" in reason:
-                match = re.search(r'ADP: ([A-Z_]+)', reason)
+                match = re.search(r'ADP: ([A-Z_]+) \(([\d.]+)x\)', reason)
                 if match:
                     parsed["ADP Rating"] = match.group(1)
+                    parsed["ADP Multiplier"] = float(match.group(2))
 
             # Step 3: Player Rating
             elif "Player Rating:" in reason:
-                match = re.search(r'Player Rating: ([A-Z_]+)', reason)
+                match = re.search(r'Player Rating: ([A-Z_]+) \(([\d.]+)x\)', reason)
                 if match:
                     parsed["Player Rating"] = match.group(1)
+                    parsed["Player Rating Multiplier"] = float(match.group(2))
 
             # Step 4: Team Quality
             elif "Team Quality:" in reason:
-                match = re.search(r'Team Quality: ([A-Z_]+)', reason)
+                match = re.search(r'Team Quality: ([A-Z_]+) \(([\d.]+)x\)', reason)
                 if match:
                     parsed["Team Quality"] = match.group(1)
+                    parsed["Team Quality Multiplier"] = float(match.group(2))
 
             # Step 5: Performance
             elif "Performance:" in reason:
-                match = re.search(r'Performance: ([A-Z_]+) \(([+-][\d.]+)%, [\d.]+x\)', reason)
+                match = re.search(r'Performance: ([A-Z_]+) \(([+-][\d.]+)%, ([\d.]+)x\)', reason)
                 if match:
                     parsed["Performance"] = match.group(1)
                     parsed["Perf %"] = match.group(2)
+                    parsed["Performance Multiplier"] = float(match.group(3))
 
             # Step 6: Matchup
             elif "Matchup:" in reason:
-                match = re.search(r'Matchup: ([A-Z_]+)', reason)
+                match = re.search(r'Matchup: ([A-Z_]+) \(([\d.]+)x\)', reason)
                 if match:
                     parsed["Matchup"] = match.group(1)
+                    parsed["Matchup Multiplier"] = float(match.group(2))
 
             # Step 7: Schedule
             elif "Schedule:" in reason:
-                match = re.search(r'Schedule: ([A-Z_]+) \(avg opp def rank: ([\d.]+), [\d.]+x\)', reason)
+                match = re.search(r'Schedule: ([A-Z_]+) \(avg opp def rank: ([\d.]+), ([\d.]+)x\)', reason)
                 if match:
                     parsed["Schedule"] = match.group(1)
                     parsed["Avg Opp Rank"] = float(match.group(2))
+                    parsed["Schedule Multiplier"] = float(match.group(3))
 
             # Step 8: Draft Order Bonus
             elif "Draft Order Bonus:" in reason:
