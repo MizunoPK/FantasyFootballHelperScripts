@@ -537,6 +537,7 @@ class TestStartManualTradeIntegration:
                 "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
                 "DRAFT_ORDER": [{"FLEX": "P"}],
                 "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 35},
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},

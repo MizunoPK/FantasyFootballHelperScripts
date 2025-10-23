@@ -63,6 +63,7 @@ def valid_config(temp_data_folder):
                 "K": 1,
                 "DST": 1
             },
+            "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
             "ADP_SCORING": {
                 "THRESHOLDS": {
                     "BASE_POSITION": 0,
@@ -177,6 +178,7 @@ class TestMaxPositionsValidation:
                     "K": 1,
                     "DST": 1
                 },
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 35.0},
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
@@ -237,6 +239,7 @@ class TestMaxPositionsValidation:
                     "K": 1,
                     "DST": 1
                 },
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 35.0},
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
@@ -297,6 +300,7 @@ class TestMaxPositionsValidation:
                     "K": 0,
                     "DST": 1
                 },
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 35.0},
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},

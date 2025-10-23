@@ -41,6 +41,7 @@ class TestConfigGeneratorInitialization:
                     "SECONDARY": 40.0
                 },
                 "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -184,6 +185,7 @@ class TestParameterValueGeneration:
                     "SECONDARY": 40.0
                 },
                 "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -345,6 +347,7 @@ class TestCombinationGeneration:
                     "SECONDARY": 40.0
                 },
                 "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -473,6 +476,7 @@ class TestConfigDictCreation:
                     "SECONDARY": 40.0
                 },
                 "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -623,6 +627,7 @@ class TestIterativeOptimizationSupport:
                     "SECONDARY": 40.0
                 },
                 "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -804,6 +809,7 @@ class TestGenerateIterativeCombinations:
                     "SECONDARY": 40.0
                 },
                 "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "ADP_SCORING": {
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {

@@ -76,6 +76,7 @@ def mock_data_folder(tmp_path):
       "K": 1,
       "DST": 1
     },
+    "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
     "ADP_SCORING": {
       "THRESHOLDS": {
         "EXCELLENT": 20,
@@ -743,24 +744,14 @@ class TestDraftOrderBonus:
     def test_draft_bonus_round_3_te_gets_bonus(self, player_manager, test_player):
         """Round 3 TE should get appropriate bonus based on flex eligibility"""
         # Round 3: {"TE": "P", "FLEX": "S"}
-        # If TE is flex-eligible, it gets FLEX bonus (S=30), otherwise TE bonus (P=50)
+        # TE is NOT FLEX-eligible (only RB/WR are), so it gets TE-specific PRIMARY bonus
         test_player.position = "TE"
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 3, base_score)
 
-        # TE gets either PRIMARY (50) if not flex-eligible or SECONDARY (30) if flex-eligible
-        import sys
-        sys.path.insert(0, str(Path(__file__).parent.parent.parent / "league_helper"))
-        import constants
-
-        if constants.TE in constants.FLEX_ELIGIBLE_POSITIONS:
-            # TE is flex-eligible, so gets FLEX bonus (SECONDARY)
-            assert result == 100.0 + 30
-            assert reason == "Draft Order Bonus: SECONDARY"
-        else:
-            # TE not flex-eligible, gets TE-specific bonus (PRIMARY)
-            assert result == 100.0 + 50
-            assert reason == "Draft Order Bonus: PRIMARY"
+        # TE gets PRIMARY bonus (50) since it's not FLEX-eligible
+        assert result == 100.0 + 50
+        assert reason == "Draft Order Bonus: PRIMARY"
 
     def test_draft_bonus_no_match_returns_zero(self, player_manager, test_player):
         """Position not in round's priorities returns 0 bonus"""

@@ -89,6 +89,7 @@ def mock_data_folder(tmp_path):
       "K": 1,
       "DST": 1
     },
+    "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
     "ADP_SCORING": {
       "THRESHOLDS": {
         "EXCELLENT": 20,
@@ -248,12 +249,13 @@ def full_roster_team(config, sample_players):
         sample_players[8],  # WR3
         sample_players[9],  # WR4
         sample_players[10], # TE1
-        sample_players[11], # TE2
         sample_players[12], # K1
         sample_players[13], # DST1
-        # Need one more player for FLEX (15 total)
+        # Additional RBs for FLEX (15 total)
         FantasyPlayer(id=15, name="RB5", team="ATL", position="RB", bye_week=11,
-                     fantasy_points=130.0, injury_status="ACTIVE", drafted=0, locked=0)
+                     fantasy_points=130.0, injury_status="ACTIVE", drafted=0, locked=0),
+        FantasyPlayer(id=16, name="RB6", team="GB", position="RB", bye_week=12,
+                     fantasy_points=125.0, injury_status="ACTIVE", drafted=0, locked=0)
     ]
 
     # Mark all as drafted
@@ -973,14 +975,29 @@ class TestEdgeCases:
 
     def test_draft_exactly_max_players(self, empty_team, sample_players):
         """Test drafting exactly MAX_PLAYERS (15)"""
-        # Draft 15 players
-        for i in range(15):
-            if i < len(sample_players):
-                player = sample_players[i]
-            else:
-                player = FantasyPlayer(id=100+i, name=f"Extra{i}", team="KC",
-                                      position="RB", bye_week=7, fantasy_points=100.0,
-                                      injury_status="ACTIVE", drafted=0, locked=0)
+        # Draft 15 players (skip TE2 since TE is not FLEX-eligible and only 1 TE slot exists)
+        players_to_draft = [
+            sample_players[0],  # QB1
+            sample_players[1],  # QB2
+            sample_players[2],  # RB1
+            sample_players[3],  # RB2
+            sample_players[4],  # RB3
+            sample_players[5],  # RB4
+            sample_players[6],  # WR1
+            sample_players[7],  # WR2
+            sample_players[8],  # WR3
+            sample_players[9],  # WR4
+            sample_players[10], # TE1
+            # Skip sample_players[11] (TE2) - TE not FLEX-eligible, only 1 TE slot
+            sample_players[12], # K1
+            sample_players[13], # DST1
+            FantasyPlayer(id=115, name="RB5", team="ATL", position="RB", bye_week=11,
+                         fantasy_points=130.0, injury_status="ACTIVE", drafted=0, locked=0),
+            FantasyPlayer(id=116, name="WR5", team="GB", position="WR", bye_week=12,
+                         fantasy_points=125.0, injury_status="ACTIVE", drafted=0, locked=0)
+        ]
+
+        for player in players_to_draft:
             player.drafted = 0
             empty_team.draft_player(player)
 

@@ -414,6 +414,8 @@ class FantasyPlayer:
             'FLEX' for RB/WR players, original position otherwise (QB, TE, K, DEF)
         """
         # FLEX eligible positions: RB and WR only
+        # This hardcoded value matches FLEX_ELIGIBLE_POSITIONS in league_config.json
+        # Kept hardcoded to avoid adding config dependency to FantasyPlayer data class
         # QB, TE, K, DEF are NOT FLEX eligible
         FLEX_ELIGIBLE_POSITIONS = ['RB', 'WR']
         return 'FLEX' if self.position in FLEX_ELIGIBLE_POSITIONS else self.position

@@ -81,6 +81,7 @@
       "K": 1,
       "DST": 1
     },
+    "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,

@@ -8,10 +8,10 @@ other application-wide settings.
 This module provides:
 - Logging configuration (level, format, output)
 - Position constants (QB, RB, WR, TE, K, DST, FLEX)
-- Position groupings (FLEX-eligible positions)
 - Mode-specific constants (waiver optimizer, recommendations)
 
-Note: Roster construction limits (MAX_POSITIONS, MAX_PLAYERS) moved to league_config.json
+Note: Roster construction limits (MAX_POSITIONS, MAX_PLAYERS) and FLEX-eligible
+positions (FLEX_ELIGIBLE_POSITIONS) moved to league_config.json
 
 Author: Kai Mizuno
 """
@@ -56,33 +56,12 @@ DEFENSE_POSITIONS = ["DEF", "DST", "D/ST"]         # Defensive position variatio
 # =============================================================================
 # ROSTER CONSTRUCTION
 # =============================================================================
-# NOTE: MAX_POSITIONS and MAX_PLAYERS have been moved to league_config.json
-# for runtime configuration. Access via ConfigManager.max_positions and
-# ConfigManager.max_players property.
-
-# Positions eligible for FLEX spot (RB or WR only)
-FLEX_ELIGIBLE_POSITIONS = [RB, WR, TE, DST]
-
-def get_position_with_flex(position):
-    """
-    Determine if a position should be considered for FLEX assignment.
-
-    Args:
-        position (str): Player position (RB, WR, QB, TE, K, DST)
-
-    Returns:
-        str: FLEX if position is RB or WR, otherwise the original position
-
-    Example:
-        >>> get_position_with_flex('RB')
-        'FLEX'
-        >>> get_position_with_flex('QB')
-        'QB'
-    """
-    if position in FLEX_ELIGIBLE_POSITIONS:
-        return FLEX
-    else:
-        return position
+# NOTE: MAX_POSITIONS, MAX_PLAYERS, and FLEX_ELIGIBLE_POSITIONS have been moved
+# to league_config.json for runtime configuration. Access via:
+# - ConfigManager.max_positions
+# - ConfigManager.max_players
+# - ConfigManager.flex_eligible_positions
+# - ConfigManager.get_position_with_flex(position)
 
 # =============================================================================
 # BYE WEEKS

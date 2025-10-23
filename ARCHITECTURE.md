@@ -266,7 +266,8 @@ class FantasyPlayer:
   "roster_settings": {
     "lineup_size": 15,
     "qb_slots": 2, "rb_slots": 4, "wr_slots": 4,
-    "te_slots": 2, "flex_slots": 2, "k_slots": 1, "dst_slots": 1
+    "te_slots": 2, "flex_slots": 2, "k_slots": 1, "dst_slots": 1,
+    "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"]
   }
 }
 ```
@@ -279,6 +280,7 @@ class ConfigManager:
     def get_bye_week_penalty(self, position: str) -> float
     def get_consistency_multiplier(self, position: str) -> float
     def get_team_multiplier(self, team: str, week: int) -> float
+    def get_position_with_flex(self, position: str) -> str  # Returns 'FLEX' if eligible
 ```
 
 ---

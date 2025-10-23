@@ -55,6 +55,7 @@ def minimal_hardcoded_config(temp_data_folder):
             "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
             "DRAFT_ORDER": [{"FLEX": "P", "QB": "S"}],
             "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+            "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
             "ADP_SCORING": {
                 "THRESHOLDS": {
                     "VERY_POOR": 150,
@@ -132,6 +133,7 @@ def parameterized_config(temp_data_folder):
             "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
             "DRAFT_ORDER": [{"FLEX": "P", "QB": "S"}],
             "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+            "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
             "ADP_SCORING": {
                 "THRESHOLDS": {
                     "BASE_POSITION": 0,

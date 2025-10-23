@@ -111,7 +111,7 @@ class FantasyTeam:
         # place in the draft order
         for player in self.roster:
             pos = player.position
-            pos_with_flex = Constants.FLEX if pos in Constants.FLEX_ELIGIBLE_POSITIONS else pos
+            pos_with_flex = Constants.FLEX if pos in self.config.flex_eligible_positions else pos
             for i in range(self.config.max_players):
                 if self.draft_order[i] is None and pos_with_flex == self.config.get_ideal_draft_position(i):
                     self.draft_order[i] = player
@@ -408,7 +408,7 @@ class FantasyTeam:
         pos = player.position
 
         # For non-FLEX eligible positions, only one option
-        if pos not in Constants.FLEX_ELIGIBLE_POSITIONS:
+        if pos not in self.config.flex_eligible_positions:
             if len(self.slot_assignments[pos]) < self.config.max_positions[pos]:
                 return pos
             else:
@@ -502,9 +502,9 @@ class FantasyTeam:
             bool: True if the position can be drafted to FLEX, False otherwise
         """
         # First requirement: Position must be one of the FLEX-eligible types
-        # Only RB, WR, and DST can fill the FLEX slot
-        # QB, TE, and K cannot be assigned to FLEX
-        if pos not in Constants.FLEX_ELIGIBLE_POSITIONS:
+        # Only RB and WR can fill the FLEX slot
+        # QB, TE, K, and DST cannot be assigned to FLEX
+        if pos not in self.config.flex_eligible_positions:
             self.logger.debug(f"Position {pos} not FLEX eligible")
             return False
 
@@ -761,9 +761,9 @@ class FantasyTeam:
             self.logger.debug(f"SLOT ASSIGN: {player.name} ({pos}) → {pos} slot. Slot {pos} now has {len(self.slot_assignments[pos])} players")
 
         # Natural position is full - try FLEX if eligible
-        elif (pos in Constants.FLEX_ELIGIBLE_POSITIONS and
+        elif (pos in self.config.flex_eligible_positions and
               len(self.slot_assignments[Constants.FLEX]) < self.config.max_positions[Constants.FLEX]):
-            # Player is FLEX-eligible (RB/WR/DST) and FLEX has space
+            # Player is FLEX-eligible (RB/WR) and FLEX has space
             self.slot_assignments[Constants.FLEX].append(player.id)
             assigned_slot = Constants.FLEX
             self.logger.debug(f"SLOT ASSIGN: {player.name} ({pos}) → FLEX slot. FLEX now has {len(self.slot_assignments[Constants.FLEX])} players")
@@ -817,8 +817,8 @@ class FantasyTeam:
             return True
 
         # For FLEX eligible positions (RB <-> WR trades), check using explicit slot tracking
-        if (old_player.position in Constants.FLEX_ELIGIBLE_POSITIONS and
-            new_player.position in Constants.FLEX_ELIGIBLE_POSITIONS):
+        if (old_player.position in self.config.flex_eligible_positions and
+            new_player.position in self.config.flex_eligible_positions):
 
             # Find which slot the old player currently occupies
             old_player_slot = None
@@ -846,7 +846,7 @@ class FantasyTeam:
                 return True
 
             # Try FLEX if eligible
-            elif (new_pos in Constants.FLEX_ELIGIBLE_POSITIONS and
+            elif (new_pos in self.config.flex_eligible_positions and
                   len(temp_slot_assignments[Constants.FLEX]) < self.config.max_positions[Constants.FLEX]):
                 self.logger.debug(f"Replace validation: {new_player.name} can fit in FLEX slot")
                 return True

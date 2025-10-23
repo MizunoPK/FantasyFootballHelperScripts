@@ -417,10 +417,10 @@ class AddToRosterModeManager:
             # Try to find a player whose position matches this round's ideal
             # We iterate through all available (not yet assigned) players
             for player in available_players:
-                # Convert player's actual position to FLEX if eligible (RB/WR/DST)
+                # Convert player's actual position to FLEX if eligible (RB/WR only)
                 # For example, "RB" becomes "FLEX", "QB" stays "QB"
-                # This allows RB/WR/DST to match FLEX-ideal rounds
-                if Constants.get_position_with_flex(player.position) == ideal_position:
+                # This allows RB/WR to match FLEX-ideal rounds
+                if self.config.get_position_with_flex(player.position) == ideal_position:
                     # Found a perfect match! Assign player to this round
                     round_assignments[round_num] = player
 

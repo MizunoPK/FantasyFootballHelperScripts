@@ -73,6 +73,7 @@ def mock_config():
     config.nfl_season = 2025
     config.nfl_scoring_format = "ppr"
     config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
+    config.flex_eligible_positions = ['RB', 'WR']
     config.max_players = 15
     return config
 
@@ -352,7 +353,19 @@ class TestTradeSimulatorModeManagerPositionValidation:
 
     def test_validate_roster_valid(self, manager, sample_players):
         """Test validation of valid roster"""
-        roster = sample_players[:10]  # Within limits
+        # Create a valid roster (skip second TE since TE is not FLEX-eligible and only 1 TE slot exists)
+        roster = [
+            sample_players[0],  # QB1
+            sample_players[1],  # QB2
+            sample_players[2],  # RB1
+            sample_players[3],  # RB2
+            sample_players[4],  # WR1
+            sample_players[5],  # WR2
+            sample_players[6],  # TE1
+            # Skip sample_players[7] (TE2) - TE not FLEX-eligible, only 1 TE slot
+            sample_players[8],  # K1
+            sample_players[9],  # DST1
+        ]
         is_valid = manager.analyzer.validate_roster(roster)
 
         assert is_valid == True

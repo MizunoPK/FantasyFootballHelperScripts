@@ -113,21 +113,8 @@ class TestPositionConstants:
 
 class TestRosterConstruction:
     """Test suite for roster construction limits."""
-
-    def test_flex_eligible_positions_are_correct(self):
-        """Test that FLEX_ELIGIBLE_POSITIONS contains RB, WR, DST."""
-        assert constants.RB in constants.FLEX_ELIGIBLE_POSITIONS
-        assert constants.WR in constants.FLEX_ELIGIBLE_POSITIONS
-        assert constants.DST in constants.FLEX_ELIGIBLE_POSITIONS
-
-    def test_flex_eligible_does_not_contain_flex_itself(self):
-        """Test that FLEX_ELIGIBLE_POSITIONS doesn't contain FLEX (circular reference)."""
-        assert constants.FLEX not in constants.FLEX_ELIGIBLE_POSITIONS
-
-    def test_flex_eligible_contains_only_valid_positions(self):
-        """Test that all positions in FLEX_ELIGIBLE_POSITIONS are valid positions."""
-        for pos in constants.FLEX_ELIGIBLE_POSITIONS:
-            assert pos in constants.ALL_POSITIONS or pos == constants.DST
+    # Note: FLEX_ELIGIBLE_POSITIONS tests moved to test_ConfigManager_flex_eligible_positions.py
+    # since FLEX_ELIGIBLE_POSITIONS is now a config parameter
 
 
 class TestByeWeeks:
@@ -165,49 +152,5 @@ class TestScoringConfiguration:
         assert constants.DST not in constants.MATCHUP_ENABLED_POSITIONS
 
 
-class TestGetPositionWithFlexFunction:
-    """Test suite for get_position_with_flex() helper function."""
-
-    def test_running_back_returns_flex(self):
-        """Test that RB position returns FLEX."""
-        result = constants.get_position_with_flex('RB')
-        assert result == constants.FLEX
-
-    def test_wide_receiver_returns_flex(self):
-        """Test that WR position returns FLEX."""
-        result = constants.get_position_with_flex('WR')
-        assert result == constants.FLEX
-
-    def test_defense_returns_flex(self):
-        """Test that DST position returns FLEX."""
-        result = constants.get_position_with_flex('DST')
-        assert result == constants.FLEX
-
-    def test_quarterback_returns_qb(self):
-        """Test that QB position returns QB (not FLEX)."""
-        result = constants.get_position_with_flex('QB')
-        assert result == 'QB'
-
-    def test_tight_end_returns_correct_value(self):
-        """Test that TE position returns FLEX if flex-eligible, otherwise TE."""
-        result = constants.get_position_with_flex('TE')
-        if constants.TE in constants.FLEX_ELIGIBLE_POSITIONS:
-            assert result == constants.FLEX
-        else:
-            assert result == 'TE'
-
-    def test_kicker_returns_k(self):
-        """Test that K position returns K (not FLEX)."""
-        result = constants.get_position_with_flex('K')
-        assert result == 'K'
-
-    def test_flex_returns_flex(self):
-        """Test that FLEX position returns FLEX."""
-        result = constants.get_position_with_flex('FLEX')
-        assert result == constants.FLEX
-
-    def test_all_flex_eligible_positions_return_flex(self):
-        """Test that all FLEX-eligible positions return FLEX."""
-        for position in constants.FLEX_ELIGIBLE_POSITIONS:
-            result = constants.get_position_with_flex(position)
-            assert result == constants.FLEX
+# Note: get_position_with_flex() function tests moved to test_ConfigManager_flex_eligible_positions.py
+# since get_position_with_flex() is now a ConfigManager instance method

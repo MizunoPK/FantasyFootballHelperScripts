@@ -69,6 +69,7 @@ def mock_data_folder(tmp_path):
       "K": 1,
       "DST": 1
     },
+    "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
     "ADP_SCORING": {
       "THRESHOLDS": {"EXCELLENT": 20, "GOOD": 50, "POOR": 100, "VERY_POOR": 150},
       "MULTIPLIERS": {"EXCELLENT": 1.20, "GOOD": 1.10, "POOR": 0.90, "VERY_POOR": 0.70},

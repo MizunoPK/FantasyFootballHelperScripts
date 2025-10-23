@@ -63,6 +63,7 @@ class ConfigKeys:
     DRAFT_ORDER_BONUSES = "DRAFT_ORDER_BONUSES"
     DRAFT_ORDER = "DRAFT_ORDER"
     MAX_POSITIONS = "MAX_POSITIONS"
+    FLEX_ELIGIBLE_POSITIONS = "FLEX_ELIGIBLE_POSITIONS"
 
     # Draft Order scoring
     DRAFT_ORDER_PRIMARY_LABEL = "P"
@@ -183,6 +184,7 @@ class ConfigManager:
 
         # Roster construction limits
         self.max_positions: Dict[str, int] = {}
+        self.flex_eligible_positions: List[str] = []
 
         # Threshold calculation cache
         self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
@@ -202,6 +204,31 @@ class ConfigManager:
             int: Total maximum players allowed (sum of all position limits)
         """
         return sum(self.max_positions.values())
+
+    def get_position_with_flex(self, position: str) -> str:
+        """
+        Determine if a position should be considered for FLEX assignment.
+
+        In fantasy football, certain positions (typically RB/WR) can fill FLEX slots.
+        This method checks if a given position is FLEX-eligible according to the
+        league configuration.
+
+        Args:
+            position: Player's natural position (QB, RB, WR, TE, K, DST)
+
+        Returns:
+            'FLEX' if position is in flex_eligible_positions, otherwise the original position
+
+        Example:
+            >>> config.get_position_with_flex('RB')
+            'FLEX'
+            >>> config.get_position_with_flex('QB')
+            'QB'
+        """
+        if position in self.flex_eligible_positions:
+            return 'FLEX'
+        else:
+            return position
 
     def get_parameter(self, key: str, default: Any = None) -> Any:
         """
@@ -305,8 +332,8 @@ class ConfigManager:
             - get_draft_order_bonus("QB", 1) → (0, "")
         """
         # Convert position to FLEX-aware format
-        # For example, RB/WR/DST might be labeled as FLEX in later rounds
-        position_with_flex = Constants.get_position_with_flex(position)
+        # For example, RB/WR might be labeled as FLEX in later rounds
+        position_with_flex = self.get_position_with_flex(position)
 
         # Get the ideal positions for this draft round
         # This is a dictionary like {"RB": "P", "WR": "S", "FLEX": "P"}
@@ -697,6 +724,7 @@ class ConfigManager:
             self.keys.DRAFT_ORDER_BONUSES,
             self.keys.DRAFT_ORDER,
             self.keys.MAX_POSITIONS,
+            self.keys.FLEX_ELIGIBLE_POSITIONS,
         ]
 
         missing_params = [p for p in required_params if p not in self.parameters]
@@ -726,6 +754,7 @@ class ConfigManager:
 
         # Extract roster construction limits
         self.max_positions = self.parameters[self.keys.MAX_POSITIONS]
+        self.flex_eligible_positions = self.parameters[self.keys.FLEX_ELIGIBLE_POSITIONS]
 
         # Extract Starter Helper mode parameters (optional - not in current config)
         # Note: matchup_multipliers are accessed directly from matchup_scoring[self.keys.MULTIPLIERS]
@@ -773,6 +802,34 @@ class ConfigManager:
 
         # Log successful validation
         self.logger.debug(f"MAX_POSITIONS validated: {sum(self.max_positions.values())} total roster spots")
+
+        # Validate FLEX_ELIGIBLE_POSITIONS structure
+        if not isinstance(self.flex_eligible_positions, list):
+            error_msg = f"FLEX_ELIGIBLE_POSITIONS must be a list, got: {type(self.flex_eligible_positions).__name__}"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        if len(self.flex_eligible_positions) == 0:
+            error_msg = "FLEX_ELIGIBLE_POSITIONS must contain at least one position"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        # Validate no circular reference (FLEX can't be in FLEX_ELIGIBLE_POSITIONS)
+        if 'FLEX' in self.flex_eligible_positions:
+            error_msg = "FLEX_ELIGIBLE_POSITIONS cannot contain 'FLEX' (circular reference)"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        # Validate all positions are valid
+        valid_positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
+        invalid_positions = [pos for pos in self.flex_eligible_positions if pos not in valid_positions]
+        if invalid_positions:
+            error_msg = f"FLEX_ELIGIBLE_POSITIONS contains invalid positions: {', '.join(invalid_positions)}"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        # Log successful validation
+        self.logger.debug(f"FLEX_ELIGIBLE_POSITIONS validated: {', '.join(self.flex_eligible_positions)}")
 
         # Pre-calculate parameterized thresholds if needed (backward compatible)
         # Skip CONSISTENCY_SCORING as it's deprecated
