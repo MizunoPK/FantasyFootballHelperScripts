@@ -438,3 +438,329 @@ class TestSaveWaiverTradesToFile:
         # Verify new team score appears
         assert any("New team score:" in call for call in calls)
         assert any("85.00" in call for call in calls)  # mock_trade.my_new_team.team_score
+
+
+class TestSaveManualTradeToExcel:
+    """Test save_manual_trade_to_excel method"""
+
+    @pytest.fixture
+    def mock_scored_player(self):
+        """Create a mock ScoredPlayer with reason list"""
+        player_obj = Mock()
+        player_obj.name = "Test Player"
+        player_obj.position = "RB"
+        player_obj.team = "KC"
+        player_obj.id = 1
+        player_obj.bye_week = 7
+
+        scored_player = Mock()
+        scored_player.player = player_obj
+        scored_player.score = 25.5
+        scored_player.reason = [
+            "Projected: 20.0 pts, Weighted: 22.0 pts",
+            "Player Rating: EXCELLENT (1.05x)",
+            "Team Quality: GOOD (1.02x)",
+            "Performance: GOOD (+15.3%, 1.03x)",
+            "Schedule: GOOD (avg opp def rank: 15.2, 1.02x)"
+        ]
+        return scored_player
+
+    @pytest.fixture
+    def mock_team_for_excel(self, mock_scored_player):
+        """Create a mock TradeSimTeam for Excel export"""
+        team = Mock(spec=TradeSimTeam)
+        team.name = "Test Team"
+        team.team_score = 100.0
+        team.scored_players = {1: mock_scored_player}
+        return team
+
+    @pytest.fixture
+    def mock_trade_for_excel(self, mock_scored_player, mock_team_for_excel):
+        """Create a mock TradeSnapshot for Excel export"""
+        trade = Mock(spec=TradeSnapshot)
+
+        # Mock teams
+        trade.my_new_team = mock_team_for_excel
+        trade.their_new_team = mock_team_for_excel
+
+        # Mock player lists
+        trade.my_original_players = [mock_scored_player]
+        trade.my_new_players = [mock_scored_player]
+        trade.their_original_players = [mock_scored_player]
+        trade.their_new_players = [mock_scored_player]
+
+        # Mock optional lists
+        trade.waiver_recommendations = None
+        trade.their_waiver_recommendations = None
+        trade.my_dropped_players = None
+        trade.their_dropped_players = None
+
+        return trade
+
+    @patch.object(TradeFileWriter, '_apply_sheet_formatting')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.DataFrame.to_excel')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.ExcelWriter')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.datetime')
+    def test_creates_excel_file_with_correct_name(
+        self, mock_datetime, mock_excel_writer, mock_to_excel, mock_formatting, writer,
+        mock_trade_for_excel, mock_team_for_excel
+    ):
+        """Test that Excel file is created with correct filename"""
+        mock_datetime.now.return_value.strftime.return_value = "20251017_120000"
+
+        # Mock ExcelWriter context manager
+        mock_writer_instance = MagicMock()
+        mock_excel_writer.return_value.__enter__.return_value = mock_writer_instance
+        mock_writer_instance.sheets = {
+            "Summary": Mock(),
+            "Trade Impact Analysis": Mock(),
+            "Initial Rosters": Mock(),
+            "Final Rosters": Mock(),
+            "Detailed Calculations": Mock()
+        }
+
+        filename = writer.save_manual_trade_to_excel(
+            mock_trade_for_excel,
+            "Opponent Team",
+            80.0,
+            70.0,
+            mock_team_for_excel,
+            mock_team_for_excel
+        )
+
+        # Verify filename
+        assert filename == "./league_helper/trade_simulator_mode/trade_outputs/trade_info_Opponent_Team_20251017_120000.xlsx"
+
+        # Verify ExcelWriter was called with engine='openpyxl'
+        mock_excel_writer.assert_called_once_with(filename, engine='openpyxl')
+
+    @patch.object(TradeFileWriter, '_apply_sheet_formatting')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.DataFrame.to_excel')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.ExcelWriter')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.DataFrame')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.datetime')
+    def test_creates_all_required_sheets(
+        self, mock_datetime, mock_dataframe, mock_excel_writer, mock_to_excel, mock_formatting, writer,
+        mock_trade_for_excel, mock_team_for_excel
+    ):
+        """Test that all 5 sheets are created"""
+        mock_datetime.now.return_value.strftime.return_value = "20251017_120000"
+
+        # Mock ExcelWriter
+        mock_writer_instance = MagicMock()
+        mock_excel_writer.return_value.__enter__.return_value = mock_writer_instance
+        mock_writer_instance.sheets = {
+            "Summary": Mock(),
+            "Trade Impact Analysis": Mock(),
+            "Initial Rosters": Mock(),
+            "Final Rosters": Mock(),
+            "Detailed Calculations": Mock()
+        }
+
+        # Mock DataFrame
+        mock_df = Mock()
+        mock_dataframe.return_value = mock_df
+
+        writer.save_manual_trade_to_excel(
+            mock_trade_for_excel,
+            "Opponent",
+            80.0,
+            70.0,
+            mock_team_for_excel,
+            mock_team_for_excel
+        )
+
+        # Verify to_excel was called with correct sheet names
+        sheet_names = [call[1].get('sheet_name') for call in mock_df.to_excel.call_args_list]
+        assert "Summary" in sheet_names
+        assert "Trade Impact Analysis" in sheet_names
+        assert "Initial Rosters" in sheet_names
+        assert "Final Rosters" in sheet_names
+        assert "Detailed Calculations" in sheet_names
+
+    @patch.object(TradeFileWriter, '_apply_sheet_formatting')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.DataFrame.to_excel')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.ExcelWriter')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.datetime')
+    def test_sanitizes_opponent_name_in_filename(
+        self, mock_datetime, mock_excel_writer, mock_to_excel, mock_formatting, writer,
+        mock_trade_for_excel, mock_team_for_excel
+    ):
+        """Test that opponent name spaces are replaced with underscores"""
+        mock_datetime.now.return_value.strftime.return_value = "20251017_120000"
+
+        mock_writer_instance = MagicMock()
+        mock_excel_writer.return_value.__enter__.return_value = mock_writer_instance
+        mock_writer_instance.sheets = {
+            "Summary": Mock(),
+            "Trade Impact Analysis": Mock(),
+            "Initial Rosters": Mock(),
+            "Final Rosters": Mock(),
+            "Detailed Calculations": Mock()
+        }
+
+        filename = writer.save_manual_trade_to_excel(
+            mock_trade_for_excel,
+            "Team With Spaces",
+            80.0,
+            70.0,
+            mock_team_for_excel,
+            mock_team_for_excel
+        )
+
+        assert "Team_With_Spaces" in filename
+        assert "Team With Spaces" not in filename
+
+    @patch.object(TradeFileWriter, '_apply_sheet_formatting')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.DataFrame.to_excel')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.ExcelWriter')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.datetime')
+    def test_logs_excel_creation(
+        self, mock_datetime, mock_excel_writer, mock_to_excel, mock_formatting, writer,
+        mock_trade_for_excel, mock_team_for_excel
+    ):
+        """Test that logger is called during Excel creation"""
+        mock_datetime.now.return_value.strftime.return_value = "20251017_120000"
+
+        mock_writer_instance = MagicMock()
+        mock_excel_writer.return_value.__enter__.return_value = mock_writer_instance
+        mock_writer_instance.sheets = {
+            "Summary": Mock(),
+            "Trade Impact Analysis": Mock(),
+            "Initial Rosters": Mock(),
+            "Final Rosters": Mock(),
+            "Detailed Calculations": Mock()
+        }
+
+        writer.save_manual_trade_to_excel(
+            mock_trade_for_excel,
+            "Opponent",
+            80.0,
+            70.0,
+            mock_team_for_excel,
+            mock_team_for_excel
+        )
+
+        # Verify logger.info was called
+        assert writer.logger.info.called
+
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.ExcelWriter')
+    @patch('league_helper.trade_simulator_mode.trade_file_writer.datetime')
+    def test_exception_handling(
+        self, mock_datetime, mock_excel_writer, writer,
+        mock_trade_for_excel, mock_team_for_excel
+    ):
+        """Test that exceptions are caught and logged"""
+        mock_datetime.now.return_value.strftime.return_value = "20251017_120000"
+
+        # Make ExcelWriter raise an exception
+        mock_excel_writer.side_effect = Exception("Excel creation failed")
+
+        with pytest.raises(Exception):
+            writer.save_manual_trade_to_excel(
+                mock_trade_for_excel,
+                "Opponent",
+                80.0,
+                70.0,
+                mock_team_for_excel,
+                mock_team_for_excel
+            )
+
+        # Verify error was logged
+        assert writer.logger.error.called
+
+
+class TestParseScoringReasons:
+    """Test _parse_scoring_reasons helper method"""
+
+    def test_parses_projected_points(self, writer):
+        """Test parsing of projected points"""
+        reasons = ["Projected: 20.5 pts, Weighted: 22.0 pts"]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["Base Projected"] == 20.5
+        assert parsed["Weighted Proj"] == 22.0
+
+    def test_parses_adp_rating(self, writer):
+        """Test parsing of ADP rating"""
+        reasons = ["ADP: EXCELLENT (1.05x)"]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["ADP Rating"] == "EXCELLENT"
+
+    def test_parses_player_rating(self, writer):
+        """Test parsing of player rating"""
+        reasons = ["Player Rating: GOOD (1.02x)"]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["Player Rating"] == "GOOD"
+
+    def test_parses_team_quality(self, writer):
+        """Test parsing of team quality"""
+        reasons = ["Team Quality: VERY_POOR (0.95x)"]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["Team Quality"] == "VERY_POOR"
+
+    def test_parses_performance_with_percentage(self, writer):
+        """Test parsing of performance with percentage"""
+        reasons = ["Performance: GOOD (+15.3%, 1.03x)"]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["Performance"] == "GOOD"
+        assert parsed["Perf %"] == "+15.3"
+
+    def test_parses_schedule_with_rank(self, writer):
+        """Test parsing of schedule with opponent rank"""
+        reasons = ["Schedule: EXCELLENT (avg opp def rank: 12.5, 1.05x)"]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["Schedule"] == "EXCELLENT"
+        assert parsed["Avg Opp Rank"] == 12.5
+
+    def test_parses_bye_overlaps(self, writer):
+        """Test parsing of bye week overlaps"""
+        reasons = ["Bye Overlaps: 2 same-position, 3 different-position (-10.5 pts)"]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["Bye Same-Pos"] == 2
+        assert parsed["Bye Diff-Pos"] == 3
+
+    def test_parses_injury_status(self, writer):
+        """Test parsing of injury status"""
+        reasons = ["Injury: QUESTIONABLE (-5.0 pts)"]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["Injury Status"] == "QUESTIONABLE"
+
+    def test_handles_empty_reasons(self, writer):
+        """Test handling of empty reason list"""
+        parsed = writer._parse_scoring_reasons([])
+        assert parsed == {}
+
+    def test_handles_empty_strings(self, writer):
+        """Test handling of empty strings in reasons"""
+        reasons = ["", "ADP: EXCELLENT (1.05x)", ""]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["ADP Rating"] == "EXCELLENT"
+        assert len(parsed) == 1
+
+    def test_parses_multiple_reasons(self, writer):
+        """Test parsing multiple reasons together"""
+        reasons = [
+            "Projected: 20.5 pts, Weighted: 22.0 pts",
+            "ADP: EXCELLENT (1.05x)",
+            "Player Rating: GOOD (1.02x)",
+            "Team Quality: EXCELLENT (1.05x)",
+            "Performance: GOOD (+15.3%, 1.03x)",
+            "Schedule: GOOD (avg opp def rank: 15.2, 1.02x)",
+            "Bye Overlaps: 1 same-position, 0 different-position (-5.0 pts)",
+            "Injury: ACTIVE (-0.0 pts)"
+        ]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert len(parsed) >= 10  # Should have multiple fields
+        assert parsed["Base Projected"] == 20.5
+        assert parsed["ADP Rating"] == "EXCELLENT"
+        assert parsed["Performance"] == "GOOD"

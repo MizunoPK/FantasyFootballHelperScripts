@@ -412,7 +412,7 @@ Where:
 - `TradeSnapshot` - Before/after comparison structure
 - `TradeAnalyzer` - Core trade generation and evaluation engine
 - `TradeDisplayHelper` - Display formatting for trade results
-- `TradeFileWriter` - File output for trade analysis
+- `TradeFileWriter` - File output for trade analysis (txt and Excel formats)
 
 **Output Format**:
 ```

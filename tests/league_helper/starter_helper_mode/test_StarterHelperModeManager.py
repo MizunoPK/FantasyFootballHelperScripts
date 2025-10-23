@@ -417,6 +417,7 @@ class TestStarterHelperModeManager:
             team_quality=False,
             performance=True,
             matchup=True,
+            schedule=False,
             bye=False,
             injury=False
         )
@@ -641,7 +642,7 @@ class TestStarterHelperInjuryHandling:
         manager = StarterHelperModeManager(config, player_manager, team_data_manager)
         result = manager.create_starting_recommendation(test_player)
 
-        # Verify injury=False was passed (no injury penalty applied)
+        # Verify injury=False and schedule=False were passed
         player_manager.score_player.assert_called_once_with(
             test_player,
             use_weekly_projection=True,
@@ -650,6 +651,7 @@ class TestStarterHelperInjuryHandling:
             team_quality=False,
             performance=True,
             matchup=True,
+            schedule=False,
             bye=False,
             injury=False
         )

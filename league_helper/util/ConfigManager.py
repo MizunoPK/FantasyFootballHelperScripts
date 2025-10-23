@@ -60,6 +60,7 @@ class ConfigKeys:
     CONSISTENCY_SCORING = "CONSISTENCY_SCORING"  # Deprecated - kept for backwards compatibility
     PERFORMANCE_SCORING = "PERFORMANCE_SCORING"
     MATCHUP_SCORING = "MATCHUP_SCORING"
+    SCHEDULE_SCORING = "SCHEDULE_SCORING"
     DRAFT_ORDER_BONUSES = "DRAFT_ORDER_BONUSES"
     DRAFT_ORDER = "DRAFT_ORDER"
     MAX_POSITIONS = "MAX_POSITIONS"
@@ -300,6 +301,23 @@ class ConfigManager:
 
     def get_matchup_multiplier(self, value) -> Tuple[float, str]:
         return self._get_multiplier(self.matchup_scoring, value)
+
+    def get_schedule_multiplier(self, schedule_value) -> Tuple[float, str]:
+        """
+        Get schedule multiplier based on average future opponent defense rank.
+
+        Args:
+            schedule_value: Average defense rank of future opponents (1-32)
+                           Higher rank = worse defenses = easier schedule = higher multiplier
+
+        Returns:
+            Tuple (multiplier, rating_label)
+        """
+        return self._get_multiplier(
+            self.schedule_scoring,
+            schedule_value,
+            rising_thresholds=True  # Higher rank = better schedule
+        )
 
     def get_performance_multiplier(self, deviation: float) -> Tuple[float, str]:
         return self._get_multiplier(self.performance_scoring, deviation)
@@ -748,6 +766,14 @@ class ConfigManager:
         self.consistency_scoring = self.parameters.get(self.keys.CONSISTENCY_SCORING, self.performance_scoring)
         self.matchup_scoring = self.parameters[self.keys.MATCHUP_SCORING]
 
+        # Schedule scoring is optional (for backward compatibility)
+        # Default to matchup_scoring structure if not present
+        self.schedule_scoring = self.parameters.get(self.keys.SCHEDULE_SCORING, {
+            "THRESHOLDS": {"VERY_POOR": 8, "POOR": 12, "GOOD": 20, "EXCELLENT": 24},
+            "MULTIPLIERS": {"EXCELLENT": 1.0, "GOOD": 1.0, "POOR": 1.0, "VERY_POOR": 1.0},
+            "WEIGHT": 0.0  # Weight 0 = disabled by default
+        })
+
         # Extract Add to Roster mode parameters
         self.draft_order_bonuses = self.parameters[self.keys.DRAFT_ORDER_BONUSES]
         self.draft_order = self.parameters[self.keys.DRAFT_ORDER]
@@ -835,7 +861,11 @@ class ConfigManager:
         # Skip CONSISTENCY_SCORING as it's deprecated
         for scoring_type in [self.keys.ADP_SCORING, self.keys.PLAYER_RATING_SCORING,
                              self.keys.TEAM_QUALITY_SCORING, self.keys.PERFORMANCE_SCORING,
-                             self.keys.MATCHUP_SCORING]:
+                             self.keys.MATCHUP_SCORING, self.keys.SCHEDULE_SCORING]:
+            # Skip if scoring type not in config (e.g., SCHEDULE_SCORING is optional)
+            if scoring_type not in self.parameters:
+                continue
+
             scoring_dict = self.parameters[scoring_type]
             thresholds_config = scoring_dict[self.keys.THRESHOLDS]
 

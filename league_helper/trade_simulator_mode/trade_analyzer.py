@@ -257,7 +257,8 @@ class TradeAnalyzer:
                 player_rating=True,
                 team_quality=True,
                 performance=True,
-                matchup=False
+                matchup=False,
+                schedule=True
             )
             scored_players.append(scored_player)
 

@@ -29,6 +29,7 @@ from league_helper.trade_simulator_mode.trade_file_writer import TradeFileWriter
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 from league_helper.util.ScoredPlayer import ScoredPlayer
 from utils.FantasyPlayer import FantasyPlayer
 
@@ -584,7 +585,8 @@ class TestStartManualTradeIntegration:
         # Setup with mock data folder
         config = ConfigManager(mock_data_folder)
         team_data_mgr = TeamDataManager(mock_data_folder)
-        player_manager = PlayerManager(mock_data_folder, config, team_data_mgr)
+        season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
+        player_manager = PlayerManager(mock_data_folder, config, team_data_mgr, season_schedule_mgr)
         manager = TradeSimulatorModeManager(mock_data_folder, player_manager, config)
 
         # Clear opponent teams

@@ -50,6 +50,7 @@ class DataExporter:
         # Initialize team rankings and schedule data (will be set by data collector)
         self.team_rankings = {}
         self.current_week_schedule = {}
+        self.position_defense_rankings = {}
 
         # Load existing drafted and locked values if preservation is enabled
         self.existing_drafted_values = {}
@@ -73,6 +74,11 @@ class DataExporter:
         """Set current week schedule data from ESPN client for team exports"""
         self.current_week_schedule = schedule
         self.logger.info(f"Current week schedule set for {len(schedule)} teams")
+
+    def set_position_defense_rankings(self, rankings: dict):
+        """Set position-specific defense rankings from ESPN client"""
+        self.position_defense_rankings = rankings
+        self.logger.info(f"Position defense rankings set for {len(rankings)} teams")
 
     # ============================================================================
     # FORMAT-SPECIFIC EXPORTS (JSON, CSV, Excel)
@@ -460,7 +466,12 @@ class DataExporter:
 
             # Extract team data from players using team rankings
             fantasy_players = self.get_fantasy_players(data)
-            teams = extract_teams_from_rankings(fantasy_players, self.team_rankings, self.current_week_schedule)
+            teams = extract_teams_from_rankings(
+                fantasy_players,
+                self.team_rankings,
+                self.current_week_schedule,
+                self.position_defense_rankings
+            )
 
             # Save teams to CSV
             save_teams_to_csv(teams, str(filepath))
@@ -497,7 +508,12 @@ class DataExporter:
 
             # Extract team data from players using team rankings
             fantasy_players = self.get_fantasy_players(data)
-            teams = extract_teams_from_rankings(fantasy_players, self.team_rankings, self.current_week_schedule)
+            teams = extract_teams_from_rankings(
+                fantasy_players,
+                self.team_rankings,
+                self.current_week_schedule,
+                self.position_defense_rankings
+            )
 
             # Save teams to data
             save_teams_to_csv(teams, str(shared_teams_file))

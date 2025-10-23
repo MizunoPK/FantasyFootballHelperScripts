@@ -598,13 +598,13 @@ All questions answered. See `updates/espn_api_investigation_results.md` for deta
 
 ---
 
-## PHASE 6: Update Matchup Scoring (Position-Specific Defense)
+## PHASE 6: Update Matchup Scoring (Position-Specific Defense) ✅ COMPLETE
 
-### Task 6.1: Add Helper Method to TeamDataManager
+### Task 6.1: Add Helper Method to TeamDataManager ✅
 **File**: `league_helper/util/TeamDataManager.py`
 **Location**: Add around line 100 (after `get_team_defensive_rank`)
 
-- [ ] Add position-specific defense rank getter:
+- [x] Add position-specific defense rank getter:
   ```python
   def get_team_defense_vs_position_rank(self, team: str, position: str) -> Optional[int]:
       """
@@ -642,13 +642,13 @@ All questions answered. See `updates/espn_api_investigation_results.md` for deta
 
       return rank
   ```
-- [ ] Add docstring with examples
+- [x] Add docstring with examples
 
-### Task 6.2: Update get_rank_difference Method
+### Task 6.2: Update get_rank_difference Method ✅
 **File**: `league_helper/util/TeamDataManager.py`
 **Location**: Lines 155-231
 
-- [ ] Update signature to accept position:
+- [x] Update signature to accept position:
   ```python
   def get_rank_difference(self, team: str, position: str) -> int:
       """
@@ -689,11 +689,11 @@ All questions answered. See `updates/espn_api_investigation_results.md` for deta
       return rank_diff
   ```
 
-### Task 6.3: Update PlayerManager to Pass Position
+### Task 6.3: Update PlayerManager to Pass Position ✅
 **File**: `league_helper/util/PlayerManager.py`
 **Location**: Lines 202-206 (where matchup_score is calculated)
 
-- [ ] Update matchup_score calculation:
+- [x] Update matchup_score calculation:
   ```python
   # Calculate matchup score using position-specific defense
   player.matchup_score = self.team_data_manager.get_rank_difference(
@@ -702,24 +702,24 @@ All questions answered. See `updates/espn_api_investigation_results.md` for deta
   )
   ```
 
-### Task 6.4: Update Tests
+### Task 6.4: Update Tests ✅
 **Files**:
 - `tests/league_helper/util/test_TeamDataManager.py`
 - `tests/league_helper/util/test_PlayerManager.py`
 
-- [ ] Update mock TeamData fixtures to include position-specific ranks
-- [ ] Test `get_team_defense_vs_position_rank` for each position
-- [ ] Test `get_rank_difference` with position parameter
-- [ ] Verify QB uses def_vs_qb_rank
-- [ ] Verify RB uses def_vs_rb_rank
-- [ ] Verify WR uses def_vs_wr_rank
-- [ ] Verify TE uses def_vs_te_rank
-- [ ] Verify K uses def_vs_k_rank
-- [ ] Verify DST uses overall defensive_rank
+- [x] Update mock TeamData fixtures to include position-specific ranks
+- [x] Test `get_team_defense_vs_position_rank` for each position
+- [x] Test `get_rank_difference` with position parameter
+- [x] Verify QB uses def_vs_qb_rank
+- [x] Verify RB uses def_vs_rb_rank
+- [x] Verify WR uses def_vs_wr_rank
+- [x] Verify TE uses def_vs_te_rank
+- [x] Verify K uses def_vs_k_rank
+- [x] Verify DST uses overall defensive_rank
 
-### Task 6.5: Validation Checkpoint
-- [ ] Run ALL unit tests: `python tests/run_all_tests.py`
-- [ ] Verify 100% pass rate
+### Task 6.5: Validation Checkpoint ✅
+- [x] Run ALL unit tests: `python tests/run_all_tests.py`
+- [x] Verify 100% pass rate (1893/1893 tests passed)
 - [ ] Commit changes
 
 ---

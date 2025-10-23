@@ -30,6 +30,7 @@ sys.path.append(str(project_root / "league_helper" / "util"))
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
 # Import simulation classes
 sys.path.append(str(Path(__file__).parent))
@@ -167,14 +168,21 @@ class SimulatedLeague:
             # Create ConfigManager (shared across both PlayerManagers for this team)
             config = ConfigManager(team_dir)
 
+            # Copy season schedule for SeasonScheduleManager
+            if (self.data_folder / "season_schedule.csv").exists():
+                shutil.copy(self.data_folder / "season_schedule.csv", team_dir / "season_schedule.csv")
+
+            # Create SeasonScheduleManager (for opponent lookups)
+            season_schedule_mgr = SeasonScheduleManager(team_dir)
+
             # Create TeamDataManager (will be updated week-by-week)
             # For draft, use week 0 or week 1 rankings
             shutil.copy(self.data_folder / "teams_week_1.csv", team_dir / "teams.csv")
-            team_data_mgr = TeamDataManager(team_dir)
+            team_data_mgr = TeamDataManager(team_dir, season_schedule_mgr, config.current_nfl_week)
 
             # Create PlayerManagers for projected and actual data
-            projected_pm = PlayerManager(team_dir, config, team_data_mgr)
-            actual_pm = PlayerManager(team_actual_dir, config, team_data_mgr)
+            projected_pm = PlayerManager(team_dir, config, team_data_mgr, season_schedule_mgr)
+            actual_pm = PlayerManager(team_actual_dir, config, team_data_mgr, season_schedule_mgr)
 
             # Create team based on strategy
             if strategy == 'draft_helper':

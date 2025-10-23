@@ -29,6 +29,8 @@ import constants as Constants
 from ConfigManager import ConfigManager
 from ScoredPlayer import ScoredPlayer
 from ProjectedPointsManager import ProjectedPointsManager
+from TeamDataManager import TeamDataManager
+from SeasonScheduleManager import SeasonScheduleManager
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
@@ -47,10 +49,21 @@ class PlayerScoringCalculator:
         config (ConfigManager): Configuration manager for scoring parameters
         projected_points_manager (ProjectedPointsManager): Manager for projected points
         max_projection (float): Maximum fantasy points projection for normalization
+        team_data_manager (TeamDataManager): Manager for team rankings and matchups
+        season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
+        current_nfl_week (int): Current NFL week number
         logger: Logger instance
     """
 
-    def __init__(self, config: ConfigManager, projected_points_manager: ProjectedPointsManager, max_projection: float) -> None:
+    def __init__(
+        self,
+        config: ConfigManager,
+        projected_points_manager: ProjectedPointsManager,
+        max_projection: float,
+        team_data_manager: TeamDataManager,
+        season_schedule_manager: SeasonScheduleManager,
+        current_nfl_week: int
+    ) -> None:
         """
         Initialize PlayerScoringCalculator.
 
@@ -58,10 +71,16 @@ class PlayerScoringCalculator:
             config (ConfigManager): Configuration manager with scoring parameters
             projected_points_manager (ProjectedPointsManager): Manager for projected points
             max_projection (float): Maximum fantasy points projection for normalization
+            team_data_manager (TeamDataManager): Manager for team rankings and matchups
+            season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
+            current_nfl_week (int): Current NFL week number
         """
         self.config = config
         self.projected_points_manager = projected_points_manager
         self.max_projection = max_projection
+        self.team_data_manager = team_data_manager
+        self.season_schedule_manager = season_schedule_manager
+        self.current_nfl_week = current_nfl_week
         self.logger = get_logger()
 
     def get_weekly_projection(self, player: FantasyPlayer, week=0) -> Tuple[float, float]:
@@ -281,9 +300,62 @@ class PlayerScoringCalculator:
 
         return avg_deviation
 
-    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
+    def _calculate_schedule_value(self, player: FantasyPlayer) -> Optional[float]:
         """
-        Calculate score for a player (9-step calculation).
+        Calculate schedule strength value based on future opponents.
+
+        Minimum 2 future games required for calculation.
+        End of season returns None.
+
+        Args:
+            player: Player to calculate schedule for
+
+        Returns:
+            Average defense rank of future opponents (1-32)
+            Higher rank = easier schedule (facing worse defenses)
+            None if insufficient future games (< 2)
+        """
+        # Get future opponents
+        future_opponents = self.season_schedule_manager.get_future_opponents(
+            player.team,
+            self.current_nfl_week
+        )
+
+        if not future_opponents:
+            self.logger.debug(f"{player.name}: No future games (end of season)")
+            return None
+
+        # Get position-specific defense ranks for each opponent
+        defense_ranks = []
+        for opponent in future_opponents:
+            rank = self.team_data_manager.get_team_defense_vs_position_rank(
+                opponent,
+                player.position
+            )
+            if rank is not None:
+                defense_ranks.append(rank)
+
+        # Require minimum 2 future games
+        if len(defense_ranks) < 2:
+            self.logger.debug(
+                f"{player.name}: Insufficient future games ({len(defense_ranks)}) "
+                f"for schedule calculation (minimum 2 required)"
+            )
+            return None
+
+        # Calculate average defense rank
+        avg_rank = sum(defense_ranks) / len(defense_ranks)
+
+        self.logger.debug(
+            f"{player.name} schedule: {len(defense_ranks)} future games, "
+            f"avg defense rank: {avg_rank:.1f}"
+        )
+
+        return avg_rank
+
+    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
+        """
+        Calculate score for a player (10-step calculation).
 
         New Scoring System:
         1. Get normalized seasonal fantasy points (0-N scale)
@@ -291,10 +363,11 @@ class PlayerScoringCalculator:
         3. Apply Player Ranking multiplier
         4. Apply Team ranking multiplier
         5. Apply Performance multiplier (actual vs projected deviation)
-        6. Apply Matchup multiplier
-        7. Add DRAFT_ORDER bonus (round-based position priority)
-        8. Subtract Bye Week penalty
-        9. Subtract Injury penalty
+        6. Apply Matchup multiplier (current week opponent)
+        7. Apply Schedule multiplier (future opponents strength)
+        8. Add DRAFT_ORDER bonus (round-based position priority)
+        9. Subtract Bye Week penalty
+        10. Subtract Injury penalty
 
         Args:
             p: FantasyPlayer to score
@@ -304,7 +377,8 @@ class PlayerScoringCalculator:
             player_rating: Apply player rating multiplier
             team_quality: Apply team quality multiplier
             performance: Apply performance multiplier (actual vs projected deviation)
-            matchup: Apply matchup multiplier
+            matchup: Apply matchup multiplier (current week opponent)
+            schedule: Apply schedule strength multiplier (future opponents) - DEFAULT TRUE
             draft_round: Draft round for position bonus (-1 to disable)
             bye: Apply bye week penalty
             injury: Apply injury penalty
@@ -353,25 +427,31 @@ class PlayerScoringCalculator:
             add_to_reasons(reason)
             self.logger.debug(f"Step 6 - After matchup multiplier for {p.name}: {player_score:.2f}")
 
-        # STEP 7: Add DRAFT_ORDER bonus (round-based position priority)
+        # STEP 7: Apply Schedule multiplier (future opponent difficulty)
+        if schedule:
+            player_score, reason = self._apply_schedule_multiplier(p, player_score)
+            add_to_reasons(reason)
+            self.logger.debug(f"Step 7 - After schedule multiplier for {p.name}: {player_score:.2f}")
+
+        # STEP 8: Add DRAFT_ORDER bonus (round-based position priority)
         # BUG FIX: Changed from draft_round > 0 to draft_round >= 0
         # This allows round 0 (first round) to get bonuses, -1 is the disabled flag
         if draft_round >= 0:
             player_score, reason = self._apply_draft_order_bonus(p, draft_round, player_score)
             add_to_reasons(reason)
-            self.logger.debug(f"Step 7 - After DRAFT_ORDER bonus for {p.name}: {player_score:.2f}")
+            self.logger.debug(f"Step 8 - After DRAFT_ORDER bonus for {p.name}: {player_score:.2f}")
 
-        # STEP 8: Subtract Bye Week penalty
+        # STEP 9: Subtract Bye Week penalty
         if bye:
             player_score, reason = self._apply_bye_week_penalty(p, player_score, roster if roster is not None else team_roster)
             add_to_reasons(reason)
-            self.logger.debug(f"Step 8 - After bye penalty for {p.name}: {player_score:.2f}")
+            self.logger.debug(f"Step 9 - After bye penalty for {p.name}: {player_score:.2f}")
 
-        # STEP 9: Subtract Injury penalty
+        # STEP 10: Subtract Injury penalty
         if injury:
             player_score, reason = self._apply_injury_penalty(p, player_score)
             add_to_reasons(reason)
-            self.logger.debug(f"Step 9 - Final score for {p.name}: {player_score:.2f}")
+            self.logger.debug(f"Step 10 - Final score for {p.name}: {player_score:.2f}")
 
         # Summary logging
         self.logger.debug(
@@ -409,7 +489,7 @@ class PlayerScoringCalculator:
         # Lower ADP (earlier picks) = higher multiplier (e.g., 1.05x)
         # Higher ADP (later picks) = lower multiplier (e.g., 0.95x)
         multiplier, rating = self.config.get_adp_multiplier(p.adp)
-        reason = f"ADP: {rating}"
+        reason = f"ADP: {rating} ({multiplier:.2f}x)"
         return player_score * multiplier, reason
 
     def _apply_player_rating_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
@@ -419,7 +499,7 @@ class PlayerScoringCalculator:
         # Higher ratings (80+) = EXCELLENT multiplier (e.g., 1.05x)
         # Lower ratings (<20) = POOR multiplier (e.g., 0.95x)
         multiplier, rating = self.config.get_player_rating_multiplier(p.player_rating)
-        reason = f"Player Rating: {rating}"
+        reason = f"Player Rating: {rating} ({multiplier:.2f}x)"
         return player_score * multiplier, reason
 
     def _apply_team_quality_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
@@ -435,7 +515,7 @@ class PlayerScoringCalculator:
         # Better teams (rank 1-10) = higher multiplier
         # Worse teams (rank 23-32) = lower multiplier
         multiplier, rating = self.config.get_team_quality_multiplier(quality_val)
-        reason = f"Team Quality: {rating}"
+        reason = f"Team Quality: {rating} ({multiplier:.2f}x)"
         return player_score * multiplier, reason
 
     def _apply_performance_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
@@ -471,7 +551,7 @@ class PlayerScoringCalculator:
         # Get multiplier and rating from ConfigManager
         multiplier, rating = self.config.get_performance_multiplier(deviation)
 
-        reason = f"Performance: {rating} ({deviation*100:+.1f}%)"
+        reason = f"Performance: {rating} ({deviation*100:+.1f}%, {multiplier:.2f}x)"
         return player_score * multiplier, reason
 
     def _apply_matchup_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
@@ -487,11 +567,42 @@ class PlayerScoringCalculator:
         if p.position in Constants.MATCHUP_ENABLED_POSITIONS:
             multiplier, rating = self.config.get_matchup_multiplier(p.matchup_score)
 
-        reason = f"Matchup: {rating}"
+        reason = f"Matchup: {rating} ({multiplier:.2f}x)"
         return player_score * multiplier, reason
 
+    def _apply_schedule_multiplier(self, player: FantasyPlayer, player_score: float) -> Tuple[float, str]:
+        """
+        Apply schedule strength multiplier based on future opponent difficulty.
+
+        Args:
+            player: Player to score
+            player_score: Current score before schedule adjustment
+
+        Returns:
+            Tuple (new_score, reason_string)
+        """
+        # Calculate schedule value
+        schedule_value = self._calculate_schedule_value(player)
+
+        if schedule_value is None:
+            return player_score, ""
+
+        # Get multiplier and rating
+        multiplier, rating = self.config.get_schedule_multiplier(schedule_value)
+
+        # Apply multiplier
+        new_score = player_score * multiplier
+        reason = f"Schedule: {rating} (avg opp def rank: {schedule_value:.1f}, {multiplier:.2f}x)"
+
+        self.logger.debug(
+            f"{player.name}: Schedule multiplier {multiplier:.3f} "
+            f"({schedule_value:.1f} avg rank) -> {player_score:.2f} to {new_score:.2f}"
+        )
+
+        return new_score, reason
+
     def _apply_draft_order_bonus(self, p: FantasyPlayer, draft_round: int, player_score: float) -> Tuple[float, str]:
-        """Add draft order bonus (Step 7)."""
+        """Add draft order bonus (Step 8)."""
         # Get position-specific bonus for the current draft round
         # Different positions have different values at different rounds
         # Example: QB gets PRIMARY bonus in early rounds, RB/WR get higher bonuses
@@ -501,14 +612,14 @@ class PlayerScoringCalculator:
         # Only add reason text if there's an actual bonus (not empty string)
         reason = ""
         if bonus_type != "":
-            reason = f"Draft Order Bonus: {bonus_type}"
+            reason = f"Draft Order Bonus: {bonus_type} ({bonus:+.1f} pts)"
 
         # Add bonus to score (not multiply, since it's a flat point adjustment)
         return player_score + bonus, reason
 
     def _apply_bye_week_penalty(self, p: FantasyPlayer, player_score: float, roster: List[FantasyPlayer]) -> Tuple[float, str]:
         """
-        Apply bye week penalty based on roster conflicts (Step 8).
+        Apply bye week penalty based on roster conflicts (Step 9).
 
         Counts both same-position and different-position bye week overlaps separately,
         applying BASE_BYE_PENALTY for same-position conflicts and
@@ -563,13 +674,13 @@ class PlayerScoringCalculator:
         if num_same_position == 0 and num_different_position == 0:
             reason = ""  # No conflicts = no reason string
         else:
-            reason = f"Bye Overlaps: {num_same_position} same-position, {num_different_position} different-position"
+            reason = f"Bye Overlaps: {num_same_position} same-position, {num_different_position} different-position ({-penalty:.1f} pts)"
 
         # Subtract penalty from score (penalty reduces player value)
         return player_score - penalty, reason
 
     def _apply_injury_penalty(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
-        """Apply injury penalty (Step 9)."""
+        """Apply injury penalty (Step 10)."""
         # Get injury penalty based on player's risk level
         # Risk levels: ACTIVE (no penalty), QUESTIONABLE (small penalty),
         #              DOUBTFUL/OUT (large penalty), IR (very large penalty)
@@ -577,7 +688,7 @@ class PlayerScoringCalculator:
 
         # Only show injury reason if player is not fully active
         # This keeps the reason list clean for healthy players
-        reason = "" if p.injury_status == "ACTIVE" else f"Injury: {p.injury_status}"
+        reason = "" if p.injury_status == "ACTIVE" else f"Injury: {p.injury_status} ({-penalty:.1f} pts)"
 
         # Subtract penalty from score (injury reduces player value)
         return player_score - penalty, reason

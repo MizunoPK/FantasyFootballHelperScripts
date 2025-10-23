@@ -101,6 +101,7 @@ Main application with 4 interactive modes:
     - `TradeSimulatorModeManager.py` - Trade analysis controller
     - `TradeSimTeam.py` - Team representation for trades
     - `TradeSnapshot.py` - Before/after trade comparison
+    - `TradeFileWriter.py` - File export (txt and Excel) for trade analysis
   - `modify_player_data_mode/` - Player data editor mode
     - `ModifyPlayerDataModeManager.py` - Data modification interface
 - **Utilities**:

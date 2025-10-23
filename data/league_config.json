@@ -81,7 +81,7 @@
       "K": 1,
       "DST": 1
     },
-    "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
+    "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR", "DST", "TE"],
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
@@ -152,6 +152,20 @@
         "EXCELLENT": 1.05
       },
       "WEIGHT": 1.6185717370476833
+    },
+    "SCHEDULE_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 16,
+        "DIRECTION": "INCREASING",
+        "STEPS": 8
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.0
     }
   }
 }

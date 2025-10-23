@@ -21,12 +21,15 @@ Author: Kai Mizuno
 """
 
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
 from utils.TeamData import TeamData, load_teams_from_csv
 from utils.LoggingManager import get_logger
+
+if TYPE_CHECKING:
+    from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
 
 class TeamDataManager:
@@ -40,14 +43,18 @@ class TeamDataManager:
         logger: Logger instance for tracking operations
         teams_file (Path): Path to teams.csv data file
         team_data_cache (Dict[str, TeamData]): Cached team data by team abbreviation
+        season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
+        current_nfl_week (int): Current NFL week number
     """
 
-    def __init__(self, data_folder: Path):
+    def __init__(self, data_folder: Path, season_schedule_manager: Optional['SeasonScheduleManager'] = None, current_nfl_week: int = 1):
         """
         Initialize TeamDataManager and load team data.
 
         Args:
             data_folder (Path): Path to data directory containing teams.csv
+            season_schedule_manager (Optional[SeasonScheduleManager]): Season schedule manager for opponent lookups
+            current_nfl_week (int): Current NFL week number (default: 1)
 
         Side Effects:
             - Loads teams.csv into memory cache
@@ -58,6 +65,8 @@ class TeamDataManager:
 
         self.teams_file = data_folder / 'teams.csv'
         self.team_data_cache: Dict[str, TeamData] = {}
+        self.season_schedule_manager = season_schedule_manager
+        self.current_nfl_week = current_nfl_week
         self._load_team_data()
 
     def _load_team_data(self) -> None:
@@ -104,18 +113,71 @@ class TeamDataManager:
         team_data = self.team_data_cache.get(team)
         return team_data.defensive_rank if team_data else None
 
+    def get_team_defense_vs_position_rank(self, team: str, position: str) -> Optional[int]:
+        """
+        Get team's defense ranking against a specific position.
+
+        Uses position-specific defense rankings (e.g., def_vs_qb_rank) to provide
+        more accurate matchup analysis. For defensive positions (DST, DEF, D/ST),
+        returns the overall defensive rank.
+
+        Args:
+            team: Team abbreviation (e.g., 'PHI', 'KC')
+            position: Player position (QB, RB, WR, TE, K, DST, DEF, D/ST)
+
+        Returns:
+            Position-specific defense rank (1-32) or None if not found.
+            Lower rank = better defense against that position.
+
+        Example:
+            >>> manager.get_team_defense_vs_position_rank('PHI', 'QB')
+            5  # PHI has 5th-best defense vs QB
+            >>> manager.get_team_defense_vs_position_rank('KC', 'RB')
+            20  # KC has 20th-ranked defense vs RB
+        """
+        team_data = self.team_data_cache.get(team)
+        if not team_data:
+            return None
+
+        # Check if position is defense (use overall defensive rank)
+        import sys
+        sys.path.append(str(Path(__file__).parent))
+        from constants import DEFENSE_POSITIONS
+
+        if position in DEFENSE_POSITIONS:
+            return team_data.defensive_rank
+
+        # Return position-specific rank
+        position_rank_map = {
+            'QB': team_data.def_vs_qb_rank,
+            'RB': team_data.def_vs_rb_rank,
+            'WR': team_data.def_vs_wr_rank,
+            'TE': team_data.def_vs_te_rank,
+            'K': team_data.def_vs_k_rank
+        }
+
+        rank = position_rank_map.get(position)
+
+        if rank is None:
+            self.logger.warning(f"No position-specific defense rank for {team} vs {position}")
+
+        return rank
+
     def get_team_opponent(self, team: str) -> Optional[str]:
         """
-        Get team's next opponent.
+        Get team's current week opponent from season schedule.
 
         Args:
             team: Team abbreviation (e.g., 'PHI', 'KC')
 
         Returns:
-            Opponent team abbreviation or None if not available
+            Opponent team abbreviation or None if not available or bye week
         """
-        team_data = self.team_data_cache.get(team)
-        return team_data.opponent if team_data else None
+        if self.season_schedule_manager is None:
+            self.logger.warning("SeasonScheduleManager not available for opponent lookup")
+            return None
+
+        return self.season_schedule_manager.get_opponent(team, self.current_nfl_week)
 
     def get_team_data(self, team: str) -> Optional[TeamData]:
         """
@@ -152,41 +214,34 @@ class TeamDataManager:
         self._load_team_data()
 
 
-    def get_rank_difference(self, player_team: str, is_defense = False) -> int:
+    def get_rank_difference(self, player_team: str, position: str) -> int:
         """
-        Calculate rank difference for a player's team matchup.
+        Calculate matchup quality using position-specific defense rankings.
 
-        Formula for Offensive positions: (Opponent Defensive Rank) - (Player's Team Offensive Rank)
-        Formula for Defensive positions: (Opponent Offensive Rank) - (Player's Team Defensive Rank)
+        Formula for Offensive positions: (Opponent Position-Specific DEF Rank) - (Team OFF Rank)
+        Formula for Defensive positions: (Opponent OFF Rank) - (Team DEF Rank)
 
         Args:
             player_team: Team abbreviation (e.g., 'KC', 'BUF')
-            is_defense: True if player is on defense/DST, False for offensive positions
+            position: Player position (QB, RB, WR, TE, K, DST, DEF, D/ST)
+                     Determines which opponent defense rank to use
 
         Returns:
             Rank difference integer, or 0 if data unavailable
+            Positive = favorable matchup, Negative = tough matchup
 
         Example:
-            KC (OFF rank #3) vs BUF (DEF rank #25):
-            rank_diff = 25 - 3 = +22 (favorable matchup for KC offense)
+            KC QB (OFF rank #3) vs BUF (DEF vs QB rank #25):
+            rank_diff = 25 - 3 = +22 (great matchup for KC QB)
 
-            MIA (DEF rank #10) vs NYJ (OFF rank #28):
-            rank_diff = 28 - 10 = +18 (favorable matchup for MIA defense)
+            KC RB (OFF rank #3) vs BUF (DEF vs RB rank #5):
+            rank_diff = 5 - 3 = +2 (decent matchup for KC RB)
+
+            MIA DST (DEF rank #10) vs NYJ (OFF rank #28):
+            rank_diff = 28 - 10 = +18 (great matchup for MIA DST)
         """
         # Check if team data is loaded
         if not self.is_matchup_available():
-            return 0
-
-        # Get the player's team rank (defensive rank for DST, offensive rank for skill positions)
-        # This represents how good the player's team is at their side of the ball
-        if is_defense:
-            team_rank = self.get_team_defensive_rank(player_team)
-        else:
-            team_rank = self.get_team_offensive_rank(player_team)
-
-        # Handle missing team data
-        if team_rank is None:
-            self.logger.debug(f"Team not found in matchup data: {player_team}")
             return 0
 
         # Get the opponent team abbreviation
@@ -195,37 +250,45 @@ class TeamDataManager:
             self.logger.debug(f"No opponent found for team: {player_team}")
             return 0
 
-        # Get opponent's rank on the OPPOSITE side of the ball
-        # For offensive players: get opponent's defensive rank (how good are they at stopping offense?)
-        # For defensive players: get opponent's offensive rank (how good are they at scoring?)
+        # Check if player is on defense
+        import sys
+        sys.path.append(str(Path(__file__).parent))
+        from constants import DEFENSE_POSITIONS
+        is_defense = position in DEFENSE_POSITIONS
+
+        # Get the player's team rank (defensive for DST, offensive for skill positions)
         if is_defense:
+            team_rank = self.get_team_defensive_rank(player_team)
+        else:
+            team_rank = self.get_team_offensive_rank(player_team)
+
+        # Handle missing team data
+        if team_rank is None:
+            self.logger.debug(f"Team rank not found: {player_team}")
+            return 0
+
+        # Get opponent's rank (position-specific defense for offensive players)
+        if is_defense:
+            # For DST: use opponent's offensive rank
             opponent_rank = self.get_team_offensive_rank(opponent_abbr)
         else:
-            opponent_rank = self.get_team_defensive_rank(opponent_abbr)
+            # For offensive positions: use opponent's position-specific defense rank
+            opponent_rank = self.get_team_defense_vs_position_rank(opponent_abbr, position)
 
         # Handle missing opponent data
         if opponent_rank is None:
-            self.logger.debug(f"Opponent rank not found in matchup data: {opponent_abbr}")
+            self.logger.debug(f"Opponent rank not found: {opponent_abbr} vs {position}")
             return 0
 
         # Calculate matchup differential
-        # Positive = favorable matchup (opponent is weak, player's team is strong)
-        # Negative = unfavorable matchup (opponent is strong, player's team is weak)
-        # Zero = neutral matchup (ranks are equal)
-        #
-        # Example: KC (OFF #3) vs BUF (DEF #25) → rank_diff = 25 - 3 = +22 (great matchup!)
-        # Example: KC (OFF #3) vs SF (DEF #1) → rank_diff = 1 - 3 = -2 (tough matchup)
+        # Positive = favorable matchup (weak opponent defense, strong team offense)
+        # Negative = tough matchup (strong opponent defense, weak team offense)
         rank_diff = int(opponent_rank) - int(team_rank)
 
-        if is_defense:
-            self.logger.debug(
-                f"Matchup for {player_team} vs {opponent_abbr}: "
-                f"DEF#{team_rank} vs OFF#{opponent_rank} = {rank_diff:+d}"
-            )
-        else:
-            self.logger.debug(
-                f"Matchup for {player_team} vs {opponent_abbr}: "
-                f"OFF#{team_rank} vs DEF#{opponent_rank} = {rank_diff:+d}"
-            )
+        self.logger.debug(
+            f"Matchup for {player_team} {position}: "
+            f"Off rank {team_rank} vs {opponent_abbr} Def rank {opponent_rank} "
+            f"= {rank_diff:+d}"
+        )
 
         return rank_diff

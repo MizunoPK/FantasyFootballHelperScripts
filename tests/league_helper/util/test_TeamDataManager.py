@@ -44,13 +44,13 @@ def mock_data_folder(tmp_path):
 @pytest.fixture
 def sample_teams_csv():
     """Sample teams.csv content for testing"""
-    return """team,offensive_rank,defensive_rank,opponent
-KC,1,5,LV
-BUF,2,3,MIA
-PHI,3,8,NYG
-DAL,15,20,WAS
-JAX,28,30,IND
-SF,4,1,ARI
+    return """team,offensive_rank,defensive_rank
+KC,1,5
+BUF,2,3
+PHI,3,8
+DAL,15,20
+JAX,28,30
+SF,4,1
 """
 
 
@@ -63,15 +63,24 @@ def populated_data_folder(mock_data_folder, sample_teams_csv):
 
 
 @pytest.fixture
-def team_manager(populated_data_folder):
+def mock_season_schedule_manager():
+    """Mock SeasonScheduleManager for testing"""
+    mock_manager = Mock()
+    # Default behavior: return None (no opponent)
+    mock_manager.get_opponent.return_value = None
+    return mock_manager
+
+
+@pytest.fixture
+def team_manager(populated_data_folder, mock_season_schedule_manager):
     """TeamDataManager with valid data loaded"""
-    return TeamDataManager(populated_data_folder)
+    return TeamDataManager(populated_data_folder, mock_season_schedule_manager, 1)
 
 
 @pytest.fixture
 def empty_team_manager(mock_data_folder):
     """TeamDataManager with no teams.csv file"""
-    return TeamDataManager(mock_data_folder)
+    return TeamDataManager(mock_data_folder, None, 1)
 
 
 # ============================================================================
@@ -93,7 +102,7 @@ class TestInitialization:
 
     def test_init_sets_teams_file_path(self, populated_data_folder):
         """Test that teams_file path is set correctly"""
-        manager = TeamDataManager(populated_data_folder)
+        manager = TeamDataManager(populated_data_folder, None, 1)
         expected_path = populated_data_folder / "teams.csv"
         assert manager.teams_file == expected_path
 
@@ -119,11 +128,10 @@ class TestLoadTeamData:
         kc_data = team_manager.team_data_cache['KC']
         assert kc_data.offensive_rank == 1
         assert kc_data.defensive_rank == 5
-        assert kc_data.opponent == 'LV'
 
     def test_load_missing_file(self, mock_data_folder):
         """Test loading when file doesn't exist"""
-        manager = TeamDataManager(mock_data_folder)
+        manager = TeamDataManager(mock_data_folder, None, 1)
         assert manager.team_data_cache == {}
 
     def test_load_invalid_csv_format(self, mock_data_folder):
@@ -132,7 +140,7 @@ class TestLoadTeamData:
         teams_file = mock_data_folder / "teams.csv"
         teams_file.write_text("invalid,csv,format\nno,proper,headers")
 
-        manager = TeamDataManager(mock_data_folder)
+        manager = TeamDataManager(mock_data_folder, None, 1)
         # Should handle gracefully - may load partial/invalid data
         # The CSV loader creates entries with empty/None values
         # This is acceptable defensive behavior
@@ -143,7 +151,7 @@ class TestLoadTeamData:
         teams_file = mock_data_folder / "teams.csv"
         teams_file.write_text("")
 
-        manager = TeamDataManager(mock_data_folder)
+        manager = TeamDataManager(mock_data_folder, None, 1)
         assert manager.team_data_cache == {}
 
 
@@ -175,15 +183,27 @@ class TestGetterMethods:
         """Test getting defensive rank for invalid team"""
         assert team_manager.get_team_defensive_rank('INVALID') is None
 
-    def test_get_team_opponent_valid(self, team_manager):
+    def test_get_team_opponent_valid(self, populated_data_folder):
         """Test getting opponent for valid team"""
-        assert team_manager.get_team_opponent('KC') == 'LV'
-        assert team_manager.get_team_opponent('BUF') == 'MIA'
-        assert team_manager.get_team_opponent('PHI') == 'NYG'
+        mock_schedule = Mock()
+        mock_schedule.get_opponent.side_effect = lambda team, week: {
+            ('KC', 1): 'LV',
+            ('BUF', 1): 'MIA',
+            ('PHI', 1): 'NYG'
+        }.get((team, week))
 
-    def test_get_team_opponent_invalid(self, team_manager):
+        manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
+        assert manager.get_team_opponent('KC') == 'LV'
+        assert manager.get_team_opponent('BUF') == 'MIA'
+        assert manager.get_team_opponent('PHI') == 'NYG'
+
+    def test_get_team_opponent_invalid(self, populated_data_folder):
         """Test getting opponent for invalid team"""
-        assert team_manager.get_team_opponent('INVALID') is None
+        mock_schedule = Mock()
+        mock_schedule.get_opponent.return_value = None
+
+        manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
+        assert manager.get_team_opponent('INVALID') is None
 
     def test_get_team_data_valid(self, team_manager):
         """Test getting complete TeamData object"""
@@ -192,7 +212,6 @@ class TestGetterMethods:
         assert team_data.team == 'KC'
         assert team_data.offensive_rank == 1
         assert team_data.defensive_rank == 5
-        assert team_data.opponent == 'LV'
 
     def test_get_team_data_invalid(self, team_manager):
         """Test getting TeamData for invalid team"""
@@ -245,13 +264,13 @@ class TestReloadData:
 
     def test_reload_team_data(self, populated_data_folder):
         """Test reloading team data"""
-        manager = TeamDataManager(populated_data_folder)
+        manager = TeamDataManager(populated_data_folder, None, 1)
         assert len(manager.team_data_cache) == 6
 
         # Modify the file
         teams_file = populated_data_folder / "teams.csv"
-        teams_file.write_text("""team,offensive_rank,defensive_rank,opponent
-KC,1,5,LV
+        teams_file.write_text("""team,offensive_rank,defensive_rank
+KC,1,5
 """)
 
         # Reload
@@ -276,111 +295,121 @@ class TestRankDifference:
 
     def test_offensive_player_favorable_matchup(self, team_manager):
         """Test offensive player with favorable matchup (positive diff)"""
-        # KC offense (#1) vs LV defense
-        # Need to add LV to test data
-        # For now, test with existing teams
+        # KC offense (#1) vs opponent - testing with incomplete data
 
-        # Add teams for complete matchup
         manager = team_manager
-        # KC (#1 OFF) vs LV - we need LV data
-        # Let's test with complete data
-
-        # PHI (#3 OFF) vs NYG - we need NYG data
-        # For this test, assume NYG has worse defense than PHI offense
-        # This would give positive rank diff (favorable)
-
-        # Actually, let's test with incomplete data first
-        diff = manager.get_rank_difference('KC', is_defense=False)
+        # Test with QB position (uses position-specific defense rank)
+        diff = manager.get_rank_difference('KC', 'QB')
         # Since LV isn't in our test data, should return 0
         assert diff == 0
 
     def test_offensive_player_unfavorable_matchup(self, populated_data_folder):
         """Test offensive player with unfavorable matchup (negative diff)"""
-        # Create complete matchup data
-        teams_csv = """team,offensive_rank,defensive_rank,opponent
-KC,1,15,BUF
-BUF,10,3,KC
+        # Create complete matchup data with position-specific defense ranks
+        teams_csv = """team,offensive_rank,defensive_rank,def_vs_qb_rank,def_vs_rb_rank,def_vs_wr_rank,def_vs_te_rank,def_vs_k_rank
+KC,1,15,,,,,
+BUF,10,3,3,5,4,6,8
 """
         teams_file = populated_data_folder / "teams.csv"
         teams_file.write_text(teams_csv)
 
-        manager = TeamDataManager(populated_data_folder)
+        # Mock schedule manager to return BUF as KC's opponent
+        mock_schedule = Mock()
+        mock_schedule.get_opponent.return_value = 'BUF'
 
-        # KC offense (#1) vs BUF defense (#3)
-        # Rank diff = 3 - 1 = +2 (favorable for KC)
-        diff = manager.get_rank_difference('KC', is_defense=False)
+        manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
+
+        # KC QB (#1 OFF) vs BUF defense vs QB (#3)
+        # Rank diff = 3 - 1 = +2 (favorable for KC QB)
+        diff = manager.get_rank_difference('KC', 'QB')
         assert diff == 2
 
     def test_defensive_player_favorable_matchup(self, populated_data_folder):
         """Test defensive player with favorable matchup"""
-        teams_csv = """team,offensive_rank,defensive_rank,opponent
-SF,10,1,DAL
-DAL,25,20,SF
+        teams_csv = """team,offensive_rank,defensive_rank,def_vs_qb_rank,def_vs_rb_rank,def_vs_wr_rank,def_vs_te_rank,def_vs_k_rank
+SF,10,1,,,,,
+DAL,25,20,,,,,
 """
         teams_file = populated_data_folder / "teams.csv"
         teams_file.write_text(teams_csv)
 
-        manager = TeamDataManager(populated_data_folder)
+        # Mock schedule manager to return DAL as SF's opponent
+        mock_schedule = Mock()
+        mock_schedule.get_opponent.return_value = 'DAL'
+
+        manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
 
         # SF defense (#1) vs DAL offense (#25)
         # Rank diff = 25 - 1 = +24 (very favorable for SF DST)
-        diff = manager.get_rank_difference('SF', is_defense=True)
+        diff = manager.get_rank_difference('SF', 'DST')
         assert diff == 24
 
     def test_defensive_player_unfavorable_matchup(self, populated_data_folder):
         """Test defensive player with unfavorable matchup"""
-        teams_csv = """team,offensive_rank,defensive_rank,opponent
-JAX,30,28,KC
-KC,1,15,JAX
+        teams_csv = """team,offensive_rank,defensive_rank,def_vs_qb_rank,def_vs_rb_rank,def_vs_wr_rank,def_vs_te_rank,def_vs_k_rank
+JAX,30,28,,,,,
+KC,1,15,,,,,
 """
         teams_file = populated_data_folder / "teams.csv"
         teams_file.write_text(teams_csv)
 
-        manager = TeamDataManager(populated_data_folder)
+        # Mock schedule manager to return KC as JAX's opponent
+        mock_schedule = Mock()
+        mock_schedule.get_opponent.return_value = 'KC'
+
+        manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
 
         # JAX defense (#28) vs KC offense (#1)
         # Rank diff = 1 - 28 = -27 (very unfavorable for JAX DST)
-        diff = manager.get_rank_difference('JAX', is_defense=True)
+        diff = manager.get_rank_difference('JAX', 'DST')
         assert diff == -27
 
     def test_rank_difference_neutral_matchup(self, populated_data_folder):
         """Test matchup with equal ranks"""
-        teams_csv = """team,offensive_rank,defensive_rank,opponent
-TEAM1,15,10,TEAM2
-TEAM2,20,15,TEAM1
+        teams_csv = """team,offensive_rank,defensive_rank,def_vs_qb_rank,def_vs_rb_rank,def_vs_wr_rank,def_vs_te_rank,def_vs_k_rank
+TEAM1,15,10,,15,,,
+TEAM2,20,15,,,,,
 """
         teams_file = populated_data_folder / "teams.csv"
         teams_file.write_text(teams_csv)
 
-        manager = TeamDataManager(populated_data_folder)
+        # Mock schedule manager to return TEAM2 as TEAM1's opponent
+        mock_schedule = Mock()
+        mock_schedule.get_opponent.return_value = 'TEAM2'
 
-        # TEAM1 offense (#15) vs TEAM2 defense (#15)
+        manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
+
+        # TEAM1 RB (#15 OFF) vs TEAM2 defense vs RB (#15)
         # Rank diff = 15 - 15 = 0 (neutral)
-        diff = manager.get_rank_difference('TEAM1', is_defense=False)
+        diff = manager.get_rank_difference('TEAM1', 'RB')
         assert diff == 0
 
     def test_rank_difference_no_matchup_data(self, empty_team_manager):
         """Test rank difference with no data loaded"""
-        diff = empty_team_manager.get_rank_difference('KC', is_defense=False)
+        diff = empty_team_manager.get_rank_difference('KC', 'QB')
         assert diff == 0
 
     def test_rank_difference_invalid_team(self, team_manager):
         """Test rank difference for team not in data"""
-        diff = team_manager.get_rank_difference('INVALID', is_defense=False)
+        diff = team_manager.get_rank_difference('INVALID', 'QB')
         assert diff == 0
 
     def test_rank_difference_no_opponent_data(self, populated_data_folder):
         """Test rank difference when opponent data missing"""
-        teams_csv = """team,offensive_rank,defensive_rank,opponent
-KC,1,5,LV
+        teams_csv = """team,offensive_rank,defensive_rank,def_vs_qb_rank,def_vs_rb_rank,def_vs_wr_rank,def_vs_te_rank,def_vs_k_rank
+KC,1,5,,,,,
 """
         # LV not in data, so no opponent data available
         teams_file = populated_data_folder / "teams.csv"
         teams_file.write_text(teams_csv)
 
-        manager = TeamDataManager(populated_data_folder)
+        # Mock schedule manager to return LV (which is not in the data)
+        mock_schedule = Mock()
+        mock_schedule.get_opponent.return_value = 'LV'
 
-        diff = manager.get_rank_difference('KC', is_defense=False)
+        manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
+
+        diff = manager.get_rank_difference('KC', 'QB')
         # Should return 0 when opponent data missing
         assert diff == 0
 
@@ -394,13 +423,13 @@ class TestEdgeCases:
 
     def test_team_with_none_values(self, mock_data_folder):
         """Test handling teams with None values"""
-        teams_csv = """team,offensive_rank,defensive_rank,opponent
-KC,1,,LV
+        teams_csv = """team,offensive_rank,defensive_rank
+KC,1,
 """
         teams_file = mock_data_folder / "teams.csv"
         teams_file.write_text(teams_csv)
 
-        manager = TeamDataManager(mock_data_folder)
+        manager = TeamDataManager(mock_data_folder, None, 1)
 
         # Should handle None defensive rank gracefully
         defensive_rank = manager.get_team_defensive_rank('KC')
@@ -415,28 +444,39 @@ KC,1,,LV
 
     def test_multiple_teams_same_opponent(self, populated_data_folder):
         """Test handling multiple teams with same opponent"""
-        teams_csv = """team,offensive_rank,defensive_rank,opponent
-KC,1,5,LV
-BUF,2,3,LV
+        teams_csv = """team,offensive_rank,defensive_rank
+KC,1,5
+BUF,2,3
 """
         teams_file = populated_data_folder / "teams.csv"
         teams_file.write_text(teams_csv)
 
-        manager = TeamDataManager(populated_data_folder)
+        # Mock schedule manager to return LV for both teams
+        mock_schedule = Mock()
+        mock_schedule.get_opponent.return_value = 'LV'
+
+        manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
 
         assert manager.get_team_opponent('KC') == 'LV'
         assert manager.get_team_opponent('BUF') == 'LV'
 
     def test_circular_opponents(self, populated_data_folder):
         """Test handling circular opponent references"""
-        teams_csv = """team,offensive_rank,defensive_rank,opponent
-KC,1,5,BUF
-BUF,2,3,KC
+        teams_csv = """team,offensive_rank,defensive_rank
+KC,1,5
+BUF,2,3
 """
         teams_file = populated_data_folder / "teams.csv"
         teams_file.write_text(teams_csv)
 
-        manager = TeamDataManager(populated_data_folder)
+        # Mock schedule manager to return opposite teams
+        mock_schedule = Mock()
+        mock_schedule.get_opponent.side_effect = lambda team, week: {
+            ('KC', 1): 'BUF',
+            ('BUF', 1): 'KC'
+        }.get((team, week))
+
+        manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
 
         assert manager.get_team_opponent('KC') == 'BUF'
         assert manager.get_team_opponent('BUF') == 'KC'

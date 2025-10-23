@@ -38,6 +38,7 @@ import statistics
 import sys
 import logging
 from util.TeamDataManager import TeamDataManager
+from util.SeasonScheduleManager import SeasonScheduleManager
 from util.FantasyTeam import FantasyTeam
 from util.ProjectedPointsManager import ProjectedPointsManager
 
@@ -64,13 +65,14 @@ class PlayerManager:
         logger: Logger instance for tracking operations
         config (ConfigManager): Configuration manager for scoring parameters
         team_data_manager (TeamDataManager): Manager for team rankings and matchups
+        season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
         file_str (str): Path to players.csv file
         team (FantasyTeam): Current fantasy team roster
         players (List[FantasyPlayer]): All available players
         max_projection (int): Maximum fantasy points projection (for normalization)
 
     Example:
-        >>> player_manager = PlayerManager(data_folder, config, team_data_manager)
+        >>> player_manager = PlayerManager(data_folder, config, team_data_manager, season_schedule_manager)
         >>> score = player_manager.score_player(player, draft_round=0)
         >>> can_add = player_manager.can_draft(player)
         >>> if can_add:
@@ -78,7 +80,13 @@ class PlayerManager:
         ...     player_manager.update_players_file()
     """
 
-    def __init__(self, data_folder : Path, config : ConfigManager, team_data_manager : TeamDataManager) -> None:
+    def __init__(
+        self,
+        data_folder: Path,
+        config: ConfigManager,
+        team_data_manager: TeamDataManager,
+        season_schedule_manager: SeasonScheduleManager
+    ) -> None:
         """
         Initialize the Player Manager.
 
@@ -86,6 +94,7 @@ class PlayerManager:
             data_folder (Path): Path to data directory containing players.csv
             config (ConfigManager): Configuration manager with scoring parameters
             team_data_manager (TeamDataManager): Manager for team rankings and matchups
+            season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
 
         Side Effects:
             - Loads all players from players.csv
@@ -98,10 +107,18 @@ class PlayerManager:
 
         self.config = config
         self.team_data_manager = team_data_manager
+        self.season_schedule_manager = season_schedule_manager
         self.projected_points_manager = ProjectedPointsManager(config)
 
         # Initialize scoring calculator (max_projection will be updated in load_players_from_csv)
-        self.scoring_calculator = PlayerScoringCalculator(config, self.projected_points_manager, 0.0)
+        self.scoring_calculator = PlayerScoringCalculator(
+            config,
+            self.projected_points_manager,
+            0.0,
+            team_data_manager,
+            season_schedule_manager,
+            config.current_nfl_week
+        )
 
         self.file_str = str(data_folder / 'players.csv')
         self.logger.debug(f"Players CSV path: {self.file_str}")
@@ -200,9 +217,8 @@ class PlayerManager:
                         player.team_defensive_rank = self.team_data_manager.get_team_defensive_rank(player.team)
 
                         # Calculate matchup score (favorable/unfavorable matchup this week)
-                        # Based on opponent's defensive/offensive rank differential
-                        is_def = player.position in Constants.DEFENSE_POSITIONS
-                        matchup_score = self.team_data_manager.get_rank_difference(player.team, is_def)
+                        # Uses position-specific defense rankings for more accurate matchup analysis
+                        matchup_score = self.team_data_manager.get_rank_difference(player.team, player.position)
                         player.matchup_score = matchup_score
 
                         # Add validated player to the list
@@ -515,9 +531,9 @@ class PlayerManager:
         """
         return self.scoring_calculator.get_weekly_projection(player, week)
 
-    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
         """
-        Calculate score for a player (9-step calculation).
+        Calculate score for a player (10-step calculation).
 
         Delegates to PlayerScoringCalculator for all scoring logic.
 
@@ -527,10 +543,11 @@ class PlayerManager:
         3. Apply Player Ranking multiplier
         4. Apply Team ranking multiplier
         5. Apply Performance multiplier (actual vs projected deviation)
-        6. Apply Matchup multiplier
-        7. Add DRAFT_ORDER bonus (round-based position priority)
-        8. Subtract Bye Week penalty
-        9. Subtract Injury penalty
+        6. Apply Matchup multiplier (current week opponent)
+        7. Apply Schedule multiplier (future opponents strength)
+        8. Add DRAFT_ORDER bonus (round-based position priority)
+        9. Subtract Bye Week penalty
+        10. Subtract Injury penalty
 
         Args:
             p: FantasyPlayer to score
@@ -539,7 +556,8 @@ class PlayerManager:
             player_rating: Apply player rating multiplier
             team_quality: Apply team quality multiplier
             performance: Apply performance multiplier (actual vs projected deviation)
-            matchup: Apply matchup multiplier
+            matchup: Apply matchup multiplier (current week opponent)
+            schedule: Apply schedule strength multiplier (future opponents) - DEFAULT TRUE
             draft_round: Draft round for position bonus (-1 to disable)
             bye: Apply bye week penalty
             injury: Apply injury penalty
@@ -552,5 +570,5 @@ class PlayerManager:
         team_roster = self.team.roster if hasattr(self, 'team') and self.team else []
         return self.scoring_calculator.score_player(
             p, team_roster, use_weekly_projection, adp, player_rating,
-            team_quality, performance, matchup, draft_round, bye, injury, roster
+            team_quality, performance, matchup, schedule, draft_round, bye, injury, roster
         )

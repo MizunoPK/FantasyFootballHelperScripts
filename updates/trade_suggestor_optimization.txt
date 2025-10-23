@@ -1,0 +1,2 @@
+find ways to optimize the way that the waiver optimizer and trade suggestor look for possible trades
+Find ways to reduce the number of trades checks, like if you know already that moving a player to another team will violate position constraints then reduce the number of combinations considered that we know will not work out

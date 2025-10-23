@@ -720,4 +720,20 @@ class TradeSimulatorModeManager:
             print(f"\nTrade saved to: {filename}")
             self.logger.info(f"Trade saved to {filename}")
 
+            # Always create Excel file alongside txt file
+            try:
+                excel_filename = self.file_writer.save_manual_trade_to_excel(
+                    snapshot,
+                    opponent.name,
+                    original_my_score,
+                    original_their_score,
+                    self.my_team,
+                    opponent
+                )
+                print(f"Excel file saved: {excel_filename}")
+                self.logger.info(f"Excel file saved to {excel_filename}")
+            except Exception as e:
+                self.logger.error(f"Failed to save Excel file: {e}", exc_info=True)
+                print("Note: Excel file could not be created (txt file saved successfully)")
+
         return (True, [snapshot])

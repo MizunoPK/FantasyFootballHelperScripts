@@ -38,21 +38,18 @@ class TestTeamDataInit:
         assert team.team == 'KC'
         assert team.offensive_rank is None
         assert team.defensive_rank is None
-        assert team.opponent is None
 
     def test_team_data_initialization_complete(self):
         """Test TeamData initializes with all fields."""
         team = TeamData(
             team='PHI',
             offensive_rank=5,
-            defensive_rank=12,
-            opponent='DAL'
+            defensive_rank=12
         )
 
         assert team.team == 'PHI'
         assert team.offensive_rank == 5
         assert team.defensive_rank == 12
-        assert team.opponent == 'DAL'
 
 
 class TestTeamDataFromDict:
@@ -63,8 +60,7 @@ class TestTeamDataFromDict:
         data = {
             'team': 'BUF',
             'offensive_rank': 3,
-            'defensive_rank': 8,
-            'opponent': 'MIA'
+            'defensive_rank': 8
         }
 
         team = TeamData.from_dict(data)
@@ -72,7 +68,6 @@ class TestTeamDataFromDict:
         assert team.team == 'BUF'
         assert team.offensive_rank == 3
         assert team.defensive_rank == 8
-        assert team.opponent == 'MIA'
 
     def test_from_dict_missing_optional_fields(self):
         """Test from_dict() with only team field."""
@@ -83,7 +78,6 @@ class TestTeamDataFromDict:
         assert team.team == 'KC'
         assert team.offensive_rank is None
         assert team.defensive_rank is None
-        assert team.opponent is None
 
     def test_from_dict_handles_string_ranks(self):
         """Test from_dict() converts string ranks to int."""
@@ -103,15 +97,13 @@ class TestTeamDataFromDict:
         data = {
             'team': 'NE',
             'offensive_rank': 'nan',
-            'defensive_rank': float('nan'),
-            'opponent': 'NaN'
+            'defensive_rank': float('nan')
         }
 
         team = TeamData.from_dict(data)
 
         assert team.offensive_rank is None
         assert team.defensive_rank is None
-        assert team.opponent is None
 
     def test_from_dict_empty_team(self):
         """Test from_dict() with empty team field."""
@@ -131,7 +123,11 @@ class TestTeamDataToDict:
             team='DAL',
             offensive_rank=7,
             defensive_rank=20,
-            opponent='NYG'
+            def_vs_qb_rank=5,
+            def_vs_rb_rank=12,
+            def_vs_wr_rank=8,
+            def_vs_te_rank=15,
+            def_vs_k_rank=20
         )
 
         result = team.to_dict()
@@ -140,7 +136,11 @@ class TestTeamDataToDict:
             'team': 'DAL',
             'offensive_rank': 7,
             'defensive_rank': 20,
-            'opponent': 'NYG'
+            'def_vs_qb_rank': 5,
+            'def_vs_rb_rank': 12,
+            'def_vs_wr_rank': 8,
+            'def_vs_te_rank': 15,
+            'def_vs_k_rank': 20
         }
 
     def test_to_dict_partial_data(self):
@@ -152,7 +152,6 @@ class TestTeamDataToDict:
         assert result['team'] == 'GB'
         assert result['offensive_rank'] == 4
         assert result['defensive_rank'] is None
-        assert result['opponent'] is None
 
 
 class TestSafeIntConversion:
@@ -263,9 +262,9 @@ class TestLoadTeamsFromCsv:
         """Test loads teams from valid CSV file."""
         csv_file = tmp_path / "teams.csv"
         csv_file.write_text(
-            "team,offensive_rank,defensive_rank,opponent\n"
-            "KC,5,12,DEN\n"
-            "BUF,3,8,MIA\n"
+            "team,offensive_rank,defensive_rank\n"
+            "KC,5,12\n"
+            "BUF,3,8\n"
         )
 
         teams = load_teams_from_csv(str(csv_file))
@@ -280,9 +279,9 @@ class TestLoadTeamsFromCsv:
         """Test loads teams with missing/NaN values."""
         csv_file = tmp_path / "teams.csv"
         csv_file.write_text(
-            "team,offensive_rank,defensive_rank,opponent\n"
-            "PHI,10,,DAL\n"
-            "NE,,15,\n"
+            "team,offensive_rank,defensive_rank\n"
+            "PHI,10,\n"
+            "NE,,15\n"
         )
 
         teams = load_teams_from_csv(str(csv_file))
@@ -303,7 +302,7 @@ class TestLoadTeamsFromCsv:
     def test_load_teams_from_csv_empty_file(self, tmp_path):
         """Test handles empty CSV file."""
         csv_file = tmp_path / "teams.csv"
-        csv_file.write_text("team,offensive_rank,defensive_rank,opponent\n")
+        csv_file.write_text("team,offensive_rank,defensive_rank\n")
 
         teams = load_teams_from_csv(str(csv_file))
 
@@ -317,7 +316,7 @@ class TestSaveTeamsToCsv:
         """Test saves teams to CSV file."""
         csv_file = tmp_path / "output.csv"
         teams = [
-            TeamData(team='KC', offensive_rank=5, defensive_rank=12, opponent='DEN'),
+            TeamData(team='KC', offensive_rank=5, defensive_rank=12),
             TeamData(team='BUF', offensive_rank=3, defensive_rank=8)
         ]
 
@@ -326,7 +325,9 @@ class TestSaveTeamsToCsv:
         assert csv_file.exists()
         df = pd.read_csv(csv_file)
         assert len(df) == 2
-        assert list(df.columns) == ['team', 'offensive_rank', 'defensive_rank', 'opponent']
+        assert list(df.columns) == ['team', 'offensive_rank', 'defensive_rank',
+                                     'def_vs_qb_rank', 'def_vs_rb_rank', 'def_vs_wr_rank',
+                                     'def_vs_te_rank', 'def_vs_k_rank']
         assert df.iloc[0]['team'] == 'KC'
 
     def test_save_teams_to_csv_empty_list(self, tmp_path):
@@ -339,7 +340,9 @@ class TestSaveTeamsToCsv:
         assert csv_file.exists()
         df = pd.read_csv(csv_file)
         assert len(df) == 0
-        assert list(df.columns) == ['team', 'offensive_rank', 'defensive_rank', 'opponent']
+        assert list(df.columns) == ['team', 'offensive_rank', 'defensive_rank',
+                                     'def_vs_qb_rank', 'def_vs_rb_rank', 'def_vs_wr_rank',
+                                     'def_vs_te_rank', 'def_vs_k_rank']
 
     def test_save_teams_to_csv_with_none_values(self, tmp_path):
         """Test saves teams with None values."""
@@ -396,7 +399,6 @@ class TestExtractTeamsFromPlayers:
         for team in teams:
             assert team.offensive_rank is None
             assert team.defensive_rank is None
-            assert team.opponent is None
 
     def test_extract_teams_from_players_skips_empty_teams(self):
         """Test skips players with empty team field."""
@@ -454,10 +456,8 @@ class TestExtractTeamsFromRankings:
 
         teams = extract_teams_from_rankings(sample_players, team_rankings, schedule)
 
-        kc_team = next(t for t in teams if t.team == 'KC')
-        buf_team = next(t for t in teams if t.team == 'BUF')
-        assert kc_team.opponent == 'DEN'
-        assert buf_team.opponent == 'MIA'
+        # Schedule parameter is deprecated but function should still work
+        assert len(teams) == 2
 
     def test_extract_teams_from_rankings_missing_team_ranking(self, sample_players):
         """Test handles teams not in rankings."""
@@ -480,8 +480,8 @@ class TestExtractTeamsFromRankings:
         """Test works without schedule data."""
         teams = extract_teams_from_rankings(sample_players, team_rankings)
 
-        for team in teams:
-            assert team.opponent is None
+        # Should work without schedule parameter
+        assert len(teams) == 2
 
     def test_extract_teams_from_rankings_skips_duplicates(self):
         """Test processes each team only once."""

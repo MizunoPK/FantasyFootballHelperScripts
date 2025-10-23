@@ -276,6 +276,7 @@ class AddToRosterModeManager:
             # - team_quality: Consider offensive/defensive team ranks
             # - performance: Account for recent weekly performance trends
             # - matchup: Apply upcoming opponent difficulty adjustments
+            # - schedule: Apply future schedule strength (rest of season)
             #
             # The draft_round parameter is critical - it determines which positions
             # get PRIMARY (+50) or SECONDARY (+30) bonuses based on DRAFT_ORDER
@@ -286,7 +287,8 @@ class AddToRosterModeManager:
                 player_rating=True,         # Enable player rating multiplier
                 team_quality=True,          # Enable team quality multiplier
                 performance=True,           # Enable performance deviation
-                matchup=True                # Enable matchup multiplier
+                matchup=True,               # Enable matchup multiplier
+                schedule=True               # Enable schedule strength multiplier
             )
             scored_players.append(scored_player)
 

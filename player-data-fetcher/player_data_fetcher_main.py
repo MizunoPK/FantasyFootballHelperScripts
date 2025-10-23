@@ -127,6 +127,7 @@ class NFLProjectionsCollector:
         # Initialize team rankings and schedule data (will be populated during data collection)
         self.team_rankings = {}
         self.current_week_schedule = {}
+        self.position_defense_rankings = {}
 
         # Initialize exporter with path relative to script location
         output_path = self.script_dir / self.settings.output_directory
@@ -250,14 +251,18 @@ class NFLProjectionsCollector:
                 # Extract team data that was cached during projection fetching
                 # Team rankings: offensive/defensive quality (1-32 ranking)
                 # Schedule: current week matchups (team → opponent)
+                # Position defense rankings: position-specific defense rankings (1-32 per position)
                 team_rankings = client.team_rankings
                 current_week_schedule = client.current_week_schedule
+                position_defense_rankings = client.position_defense_rankings
                 self.logger.info(f"Collected team rankings for {len(team_rankings)} teams")
                 self.logger.info(f"Collected current week schedule for {len(current_week_schedule)} teams")
+                self.logger.info(f"Collected position defense rankings for {len(position_defense_rankings)} teams")
 
                 # Store for later use by exporter (needs this for teams.csv)
                 self.team_rankings = team_rankings
                 self.current_week_schedule = current_week_schedule
+                self.position_defense_rankings = position_defense_rankings
 
             except Exception as e:
                 # Don't crash entire app if projection fetch fails
@@ -302,8 +307,10 @@ class NFLProjectionsCollector:
         # Pass team data to exporter so it can create teams.csv
         # Team rankings: offensive/defensive quality (used for matchup evaluation)
         # Schedule: current week matchups (used for opponent strength)
+        # Position defense rankings: position-specific defense rankings (used for schedule scoring)
         self.exporter.set_team_rankings(self.team_rankings)
         self.exporter.set_current_week_schedule(self.current_week_schedule)
+        self.exporter.set_position_defense_rankings(self.position_defense_rankings)
 
         output_files = []
 

@@ -106,6 +106,16 @@ def minimal_hardcoded_config(temp_data_folder):
                 },
                 "MULTIPLIERS": {"EXCELLENT": 1.25, "GOOD": 1.10, "POOR": 0.90, "VERY_POOR": 0.75},
                 "WEIGHT": 1.0
+            },
+            "SCHEDULE_SCORING": {
+                "THRESHOLDS": {
+                    "VERY_POOR": 8,
+                    "POOR": 12,
+                    "GOOD": 20,
+                    "EXCELLENT": 24
+                },
+                "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                "WEIGHT": 1.0
             }
         }
     }
@@ -178,6 +188,15 @@ def parameterized_config(temp_data_folder):
                     "STEPS": 7.5
                 },
                 "MULTIPLIERS": {"EXCELLENT": 1.25, "GOOD": 1.10, "POOR": 0.90, "VERY_POOR": 0.75},
+                "WEIGHT": 1.0
+            },
+            "SCHEDULE_SCORING": {
+                "THRESHOLDS": {
+                    "BASE_POSITION": 16,
+                    "DIRECTION": "INCREASING",
+                    "STEPS": 8
+                },
+                "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
                 "WEIGHT": 1.0
             }
         }
@@ -430,6 +449,31 @@ class TestBackwardCompatibility:
         mult, label = config.get_adp_multiplier(60.0)  # Should be GOOD (< 75)
         assert label == "GOOD"
 
+    def test_get_schedule_multiplier_with_calculated_thresholds(self, parameterized_config):
+        """get_schedule_multiplier() should work with calculated thresholds"""
+        config = ConfigManager(parameterized_config)
+
+        # SCHEDULE thresholds: BASE=16, DIRECTION=INCREASING, STEPS=8
+        # VERY_POOR = 24, POOR = 32, GOOD = 40, EXCELLENT = 48
+        # Higher rank = worse defense = easier schedule = better for player
+        # For rising_thresholds: EXCELLENT if >=48, GOOD if >=40, POOR if <=32, VERY_POOR if <=24
+
+        mult, label = config.get_schedule_multiplier(50.0)  # Should be EXCELLENT (>= 48)
+        assert label == "EXCELLENT"
+        assert mult == 1.05
+
+        mult, label = config.get_schedule_multiplier(44.0)  # Should be GOOD (>= 40, < 48)
+        assert label == "GOOD"
+        assert mult == 1.025
+
+        mult, label = config.get_schedule_multiplier(30.0)  # Should be POOR (<= 32, > 24)
+        assert label == "POOR"
+        assert mult == 0.975
+
+        mult, label = config.get_schedule_multiplier(20.0)  # Should be VERY_POOR (<= 24)
+        assert label == "VERY_POOR"
+        assert mult == 0.95
+
 
 # ============================================================================
 # INTEGRATION TESTS
@@ -439,7 +483,7 @@ class TestExtractParametersIntegration:
     """Test _extract_parameters() pre-calculation integration"""
 
     def test_all_scoring_types_calculated(self, parameterized_config):
-        """All 5 scoring types should have calculated thresholds"""
+        """All 6 scoring types should have calculated thresholds"""
         config = ConfigManager(parameterized_config)
 
         # ADP
@@ -461,6 +505,10 @@ class TestExtractParametersIntegration:
         # MATCHUP
         assert "EXCELLENT" in config.matchup_scoring["THRESHOLDS"]
         assert config.matchup_scoring["THRESHOLDS"]["EXCELLENT"] == 15.0
+
+        # SCHEDULE
+        assert "EXCELLENT" in config.schedule_scoring["THRESHOLDS"]
+        assert config.schedule_scoring["THRESHOLDS"]["EXCELLENT"] == 48
 
     def test_original_params_preserved(self, parameterized_config):
         """Original BASE_POSITION, DIRECTION, STEPS should be preserved"""

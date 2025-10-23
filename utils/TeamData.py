@@ -3,8 +3,8 @@
 TeamData Class Definition
 
 This module defines the TeamData class for NFL team-level data including
-offensive/defensive rankings and opponent information. Designed to be used
-alongside FantasyPlayer data for better separation of concerns.
+offensive/defensive rankings and position-specific defense rankings. Designed
+to be used alongside FantasyPlayer data for better separation of concerns.
 
 Author: Kai Mizuno
 """
@@ -18,10 +18,10 @@ from utils.csv_utils import read_csv_with_validation, write_csv_with_backup
 @dataclass
 class TeamData:
     """
-    Represents NFL team data with offensive/defensive rankings and opponent info.
+    Represents NFL team data with offensive/defensive rankings and position-specific defense.
 
     This class separates team-level data from individual player data for better
-    data organization and enables enhanced matchup analysis in starter_helper.
+    data organization and enables enhanced matchup analysis.
     """
 
     # Core team identification
@@ -31,8 +31,12 @@ class TeamData:
     offensive_rank: Optional[int] = None  # Team offensive quality ranking (1-32)
     defensive_rank: Optional[int] = None  # Team defensive quality ranking (1-32)
 
-    # Matchup information
-    opponent: Optional[str] = None  # Next opponent team abbreviation (for current week)
+    # Position-specific defense rankings (lower rank = better defense vs that position)
+    def_vs_qb_rank: Optional[int] = None  # Defense rank vs QB (1-32, 1=best)
+    def_vs_rb_rank: Optional[int] = None  # Defense rank vs RB (1-32, 1=best)
+    def_vs_wr_rank: Optional[int] = None  # Defense rank vs WR (1-32, 1=best)
+    def_vs_te_rank: Optional[int] = None  # Defense rank vs TE (1-32, 1=best)
+    def_vs_k_rank: Optional[int] = None   # Defense rank vs K (1-32, 1=best)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'TeamData':
@@ -49,7 +53,11 @@ class TeamData:
             team=data.get('team', ''),
             offensive_rank=_safe_int_conversion(data.get('offensive_rank'), None),
             defensive_rank=_safe_int_conversion(data.get('defensive_rank'), None),
-            opponent=_safe_string_conversion(data.get('opponent', None))
+            def_vs_qb_rank=_safe_int_conversion(data.get('def_vs_qb_rank'), None),
+            def_vs_rb_rank=_safe_int_conversion(data.get('def_vs_rb_rank'), None),
+            def_vs_wr_rank=_safe_int_conversion(data.get('def_vs_wr_rank'), None),
+            def_vs_te_rank=_safe_int_conversion(data.get('def_vs_te_rank'), None),
+            def_vs_k_rank=_safe_int_conversion(data.get('def_vs_k_rank'), None)
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -58,7 +66,11 @@ class TeamData:
             'team': self.team,
             'offensive_rank': self.offensive_rank,
             'defensive_rank': self.defensive_rank,
-            'opponent': self.opponent
+            'def_vs_qb_rank': self.def_vs_qb_rank,
+            'def_vs_rb_rank': self.def_vs_rb_rank,
+            'def_vs_wr_rank': self.def_vs_wr_rank,
+            'def_vs_te_rank': self.def_vs_te_rank,
+            'def_vs_k_rank': self.def_vs_k_rank
         }
 
 
@@ -178,15 +190,19 @@ def extract_teams_from_players(players: List['FantasyPlayer']) -> List[TeamData]
         team_data_map[team] = TeamData(
             team=team,
             offensive_rank=None,  # Rankings no longer available in player data
-            defensive_rank=None,  # Rankings no longer available in player data
-            opponent=None  # Will be populated separately with matchup data
+            defensive_rank=None   # Rankings no longer available in player data
         )
 
     # Return sorted list by team name for consistent ordering
     return sorted(team_data_map.values(), key=lambda x: x.team)
 
 
-def extract_teams_from_rankings(players: List['FantasyPlayer'], team_rankings: dict, schedule_data: dict = None) -> List[TeamData]:
+def extract_teams_from_rankings(
+    players: List['FantasyPlayer'],
+    team_rankings: dict,
+    schedule_data: dict = None,
+    position_defense_rankings: dict = None
+) -> List[TeamData]:
     """
     Extract unique team data using team rankings from ESPN API.
 
@@ -194,8 +210,9 @@ def extract_teams_from_rankings(players: List['FantasyPlayer'], team_rankings: d
         players: List of FantasyPlayer objects to get team list from
         team_rankings: Dictionary with team rankings from ESPN API
             Format: {'KC': {'offensive_rank': 5, 'defensive_rank': 12}, ...}
-        schedule_data: Optional dictionary with weekly opponent information
-            Format: {'KC': 'DEN', 'NE': 'BUF', ...} (team -> opponent for current week)
+        schedule_data: Optional dictionary (deprecated, kept for backward compatibility)
+        position_defense_rankings: Optional dictionary with position-specific defense ranks
+            Format: {'KC': {'def_vs_qb_rank': 5, 'def_vs_rb_rank': 12, ...}, ...}
 
     Returns:
         List of TeamData objects with teams and their rankings
@@ -211,16 +228,18 @@ def extract_teams_from_rankings(players: List['FantasyPlayer'], team_rankings: d
         # Get rankings from the ESPN client data
         team_ranking_data = team_rankings.get(team, {})
 
-        # Get opponent data if provided
-        opponent = None
-        if schedule_data and team in schedule_data:
-            opponent = schedule_data[team]
+        # Get position-specific defense rankings if provided
+        position_ranks = position_defense_rankings.get(team, {}) if position_defense_rankings else {}
 
         team_data_map[team] = TeamData(
             team=team,
             offensive_rank=team_ranking_data.get('offensive_rank', None),
             defensive_rank=team_ranking_data.get('defensive_rank', None),
-            opponent=opponent  # Populated from schedule data if available
+            def_vs_qb_rank=position_ranks.get('def_vs_qb_rank', None),
+            def_vs_rb_rank=position_ranks.get('def_vs_rb_rank', None),
+            def_vs_wr_rank=position_ranks.get('def_vs_wr_rank', None),
+            def_vs_te_rank=position_ranks.get('def_vs_te_rank', None),
+            def_vs_k_rank=position_ranks.get('def_vs_k_rank', None)
         )
 
     # Return sorted list by team name for consistent ordering
@@ -237,14 +256,18 @@ def save_teams_to_csv(teams: List[TeamData], file_path: str) -> None:
     """
     if not teams:
         # Create empty CSV with proper headers
-        df = pd.DataFrame(columns=['team', 'offensive_rank', 'defensive_rank', 'opponent'])
+        df = pd.DataFrame(columns=['team', 'offensive_rank', 'defensive_rank',
+                                    'def_vs_qb_rank', 'def_vs_rb_rank', 'def_vs_wr_rank',
+                                    'def_vs_te_rank', 'def_vs_k_rank'])
     else:
         # Convert teams to dictionaries for DataFrame creation
         team_dicts = [team.to_dict() for team in teams]
         df = pd.DataFrame(team_dicts)
 
     # Ensure consistent column order
-    df = df[['team', 'offensive_rank', 'defensive_rank', 'opponent']]
+    df = df[['team', 'offensive_rank', 'defensive_rank',
+             'def_vs_qb_rank', 'def_vs_rb_rank', 'def_vs_wr_rank',
+             'def_vs_te_rank', 'def_vs_k_rank']]
 
     # Save to CSV using standardized csv_utils (no backup needed)
     write_csv_with_backup(df, file_path, create_backup=False)

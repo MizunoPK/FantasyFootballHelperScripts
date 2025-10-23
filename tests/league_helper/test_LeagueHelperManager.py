@@ -31,6 +31,7 @@ class TestLeagueHelperManagerInit:
         """Create mock manager instances."""
         with patch('league_helper.LeagueHelperManager.ConfigManager') as mock_config, \
              patch('league_helper.LeagueHelperManager.TeamDataManager') as mock_team_data, \
+             patch('league_helper.LeagueHelperManager.SeasonScheduleManager') as mock_season_schedule, \
              patch('league_helper.LeagueHelperManager.PlayerManager') as mock_player, \
              patch('league_helper.LeagueHelperManager.AddToRosterModeManager') as mock_add_roster, \
              patch('league_helper.LeagueHelperManager.StarterHelperModeManager') as mock_starter, \
@@ -56,6 +57,7 @@ class TestLeagueHelperManagerInit:
             yield {
                 'config': mock_config,
                 'team_data': mock_team_data,
+                'season_schedule': mock_season_schedule,
                 'player': mock_player,
                 'add_roster': mock_add_roster,
                 'starter': mock_starter,
@@ -75,10 +77,15 @@ class TestLeagueHelperManagerInit:
         assert manager.config == mock_managers['config_instance']
 
     def test_init_creates_team_data_manager(self, mock_data_folder, mock_managers):
-        """Test that initialization creates TeamDataManager with correct path."""
+        """Test that initialization creates TeamDataManager with correct dependencies."""
         manager = LeagueHelperManager(mock_data_folder)
 
-        mock_managers['team_data'].assert_called_once_with(mock_data_folder)
+        # TeamDataManager now requires season_schedule_manager and current_nfl_week
+        mock_managers['team_data'].assert_called_once_with(
+            mock_data_folder,
+            mock_managers['season_schedule'].return_value,
+            mock_managers['config_instance'].current_nfl_week
+        )
         assert manager.team_data_manager is not None
 
     def test_init_creates_player_manager(self, mock_data_folder, mock_managers):
@@ -88,7 +95,8 @@ class TestLeagueHelperManagerInit:
         mock_managers['player'].assert_called_once_with(
             mock_data_folder,
             mock_managers['config_instance'],
-            mock_managers['team_data'].return_value
+            mock_managers['team_data'].return_value,
+            mock_managers['season_schedule'].return_value
         )
         assert manager.player_manager == mock_managers['player_instance']
 

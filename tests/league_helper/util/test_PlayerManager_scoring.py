@@ -234,9 +234,27 @@ def player_manager(mock_data_folder, config_manager, team_data_manager, mock_fan
     pm.projected_points_manager = Mock()
     pm.projected_points_manager.get_projected_points = Mock(return_value=None)
 
+    # Create mock managers
+    pm.team_data_manager = Mock()
+    pm.team_data_manager.get_team_offensive_rank = Mock(return_value=10)
+    pm.team_data_manager.get_team_defensive_rank = Mock(return_value=15)
+    pm.team_data_manager.get_team_defense_vs_position_rank = Mock(return_value=18)
+
+    pm.season_schedule_manager = Mock()
+    pm.season_schedule_manager.get_opponent = Mock(return_value='DAL')
+    pm.season_schedule_manager.is_schedule_available = Mock(return_value=True)
+    pm.season_schedule_manager.get_future_opponents = Mock(return_value=['DAL', 'PHI', 'NYG'])
+
     # Initialize scoring_calculator (required for refactored PlayerManager)
     from util.player_scoring import PlayerScoringCalculator
-    pm.scoring_calculator = PlayerScoringCalculator(config_manager, pm.projected_points_manager, 250.0)
+    pm.scoring_calculator = PlayerScoringCalculator(
+        config_manager,
+        pm.projected_points_manager,
+        250.0,
+        pm.team_data_manager,
+        pm.season_schedule_manager,
+        6
+    )
 
     return pm
 
@@ -461,7 +479,7 @@ class TestADPMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.20  # 120.0
-        assert reason == "ADP: EXCELLENT"
+        assert reason == "ADP: EXCELLENT (1.20x)"
 
     def test_adp_good_threshold(self, player_manager, test_player):
         """20 < ADP <= 50 should get GOOD multiplier (1.10)"""
@@ -469,7 +487,7 @@ class TestADPMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.10  # 110.0
-        assert reason == "ADP: GOOD"
+        assert reason == "ADP: GOOD (1.10x)"
 
     def test_adp_neutral_range(self, player_manager, test_player):
         """50 < ADP < 100 should get NEUTRAL multiplier (1.0)"""
@@ -477,7 +495,7 @@ class TestADPMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.0  # 100.0
-        assert reason == "ADP: NEUTRAL"
+        assert reason == "ADP: NEUTRAL (1.00x)"
 
     def test_adp_poor_threshold(self, player_manager, test_player):
         """100 <= ADP < 150 should get POOR multiplier (0.90)"""
@@ -485,7 +503,7 @@ class TestADPMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 0.90  # 90.0
-        assert reason == "ADP: POOR"
+        assert reason == "ADP: POOR (0.90x)"
 
     def test_adp_very_poor_threshold(self, player_manager, test_player):
         """ADP >= 150 should get VERY_POOR multiplier (0.70)"""
@@ -493,7 +511,7 @@ class TestADPMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 0.70  # 70.0
-        assert reason == "ADP: VERY_POOR"
+        assert reason == "ADP: VERY_POOR (0.70x)"
 
     def test_adp_none_returns_neutral(self, player_manager, test_player):
         """ADP = None should return neutral multiplier (1.0)"""
@@ -501,7 +519,7 @@ class TestADPMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.0
-        assert reason == "ADP: NEUTRAL"
+        assert reason == "ADP: NEUTRAL (1.00x)"
 
     def test_adp_boundary_at_20(self, player_manager, test_player):
         """Test exact boundary at ADP = 20"""
@@ -509,7 +527,7 @@ class TestADPMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_adp_multiplier(test_player, base_score)
         assert result == 100.0 * 1.20  # Should be EXCELLENT
-        assert reason == "ADP: EXCELLENT"
+        assert reason == "ADP: EXCELLENT (1.20x)"
 
 
 # ============================================================================
@@ -525,7 +543,7 @@ class TestPlayerRatingMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 1.25
-        assert reason == "Player Rating: EXCELLENT"
+        assert reason == "Player Rating: EXCELLENT (1.25x)"
 
     def test_player_rating_good(self, player_manager, test_player):
         """60 <= Rating < 80 should get GOOD multiplier (1.15)"""
@@ -533,7 +551,7 @@ class TestPlayerRatingMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 1.15
-        assert reason == "Player Rating: GOOD"
+        assert reason == "Player Rating: GOOD (1.15x)"
 
     def test_player_rating_neutral(self, player_manager, test_player):
         """40 < Rating < 60 should get NEUTRAL multiplier (1.0)"""
@@ -541,7 +559,7 @@ class TestPlayerRatingMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 1.0
-        assert reason == "Player Rating: NEUTRAL"
+        assert reason == "Player Rating: NEUTRAL (1.00x)"
 
     def test_player_rating_poor(self, player_manager, test_player):
         """20 < Rating <= 40 should get POOR multiplier (0.95)"""
@@ -549,7 +567,7 @@ class TestPlayerRatingMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 0.95
-        assert reason == "Player Rating: POOR"
+        assert reason == "Player Rating: POOR (0.95x)"
 
     def test_player_rating_very_poor(self, player_manager, test_player):
         """Rating <= 20 should get VERY_POOR multiplier (0.75)"""
@@ -557,7 +575,7 @@ class TestPlayerRatingMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0 * 0.75
-        assert reason == "Player Rating: VERY_POOR"
+        assert reason == "Player Rating: VERY_POOR (0.75x)"
 
     def test_player_rating_none_returns_neutral(self, player_manager, test_player):
         """Player rating = None should return neutral (1.0)"""
@@ -565,7 +583,7 @@ class TestPlayerRatingMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_player_rating_multiplier(test_player, base_score)
         assert result == 100.0
-        assert reason == "Player Rating: NEUTRAL"
+        assert reason == "Player Rating: NEUTRAL (1.00x)"
 
 
 # ============================================================================
@@ -582,7 +600,7 @@ class TestTeamQualityMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0 * 1.30
-        assert reason == "Team Quality: EXCELLENT"
+        assert reason == "Team Quality: EXCELLENT (1.30x)"
 
     def test_team_quality_good_offensive(self, player_manager, test_player):
         """5 < Offensive rank <= 10 should get GOOD (1.15)"""
@@ -591,7 +609,7 @@ class TestTeamQualityMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0 * 1.15
-        assert reason == "Team Quality: GOOD"
+        assert reason == "Team Quality: GOOD (1.15x)"
 
     def test_team_quality_poor_offensive(self, player_manager, test_player):
         """20 <= Offensive rank < 25 should get POOR (0.85)"""
@@ -600,7 +618,7 @@ class TestTeamQualityMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0 * 0.85
-        assert reason == "Team Quality: POOR"
+        assert reason == "Team Quality: POOR (0.85x)"
 
     def test_team_quality_very_poor_offensive(self, player_manager, test_player):
         """Offensive rank >= 25 should get VERY_POOR (0.70)"""
@@ -609,7 +627,7 @@ class TestTeamQualityMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0 * 0.70
-        assert reason == "Team Quality: VERY_POOR"
+        assert reason == "Team Quality: VERY_POOR (0.70x)"
 
     def test_team_quality_defense_uses_defensive_rank(self, player_manager, test_player):
         """DST position should use team_defensive_rank"""
@@ -620,7 +638,7 @@ class TestTeamQualityMultiplier:
         result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         # Should use defensive rank (3) which is EXCELLENT
         assert result == 100.0 * 1.30
-        assert reason == "Team Quality: EXCELLENT"
+        assert reason == "Team Quality: EXCELLENT (1.30x)"
 
     def test_team_quality_none_returns_neutral(self, player_manager, test_player):
         """Team rank = None should return neutral (1.0)"""
@@ -629,7 +647,7 @@ class TestTeamQualityMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_team_quality_multiplier(test_player, base_score)
         assert result == 100.0
-        assert reason == "Team Quality: NEUTRAL"
+        assert reason == "Team Quality: NEUTRAL (1.00x)"
 
 
 # ============================================================================
@@ -653,7 +671,7 @@ class TestMatchupMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 1.25
-        assert reason == "Matchup: EXCELLENT"
+        assert reason == "Matchup: EXCELLENT (1.25x)"
 
     def test_matchup_good(self, player_manager, test_player):
         """6 <= Matchup < 15 should get GOOD (1.10)"""
@@ -661,7 +679,7 @@ class TestMatchupMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 1.10
-        assert reason == "Matchup: GOOD"
+        assert reason == "Matchup: GOOD (1.10x)"
 
     def test_matchup_neutral(self, player_manager, test_player):
         """-6 < Matchup < 6 should get NEUTRAL (1.0)"""
@@ -669,7 +687,7 @@ class TestMatchupMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 1.0
-        assert reason == "Matchup: NEUTRAL"
+        assert reason == "Matchup: NEUTRAL (1.00x)"
 
     def test_matchup_poor(self, player_manager, test_player):
         """-15 < Matchup <= -6 should get POOR (0.90)"""
@@ -677,7 +695,7 @@ class TestMatchupMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 0.90
-        assert reason == "Matchup: POOR"
+        assert reason == "Matchup: POOR (0.90x)"
 
     def test_matchup_very_poor(self, player_manager, test_player):
         """Matchup <= -15 should get VERY_POOR (0.75)"""
@@ -685,7 +703,7 @@ class TestMatchupMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0 * 0.75
-        assert reason == "Matchup: VERY_POOR"
+        assert reason == "Matchup: VERY_POOR (0.75x)"
 
     def test_matchup_none_returns_neutral(self, player_manager, test_player):
         """Matchup = None should return neutral (1.0)"""
@@ -693,7 +711,7 @@ class TestMatchupMultiplier:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0
-        assert reason == "Matchup: NEUTRAL"
+        assert reason == "Matchup: NEUTRAL (1.00x)"
 
 
 # ============================================================================
@@ -711,7 +729,7 @@ class TestDraftOrderBonus:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 0, base_score)
         assert result == 100.0 + 50, "Round 0 should work with new >= 0 check"
-        assert reason == "Draft Order Bonus: PRIMARY"
+        assert reason == "Draft Order Bonus: PRIMARY (+50.0 pts)"
 
     def test_draft_bonus_round_0_secondary_position(self, player_manager, test_player):
         """Round 0 with SECONDARY position should get SECONDARY bonus"""
@@ -721,7 +739,7 @@ class TestDraftOrderBonus:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 0, base_score)
         assert result == 100.0 + 30
-        assert reason == "Draft Order Bonus: SECONDARY"
+        assert reason == "Draft Order Bonus: SECONDARY (+30.0 pts)"
 
     def test_draft_bonus_round_1_flex_gets_primary(self, player_manager, test_player):
         """Round 1 FLEX-eligible should get PRIMARY"""
@@ -730,7 +748,7 @@ class TestDraftOrderBonus:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 1, base_score)
         assert result == 100.0 + 50
-        assert reason == "Draft Order Bonus: PRIMARY"
+        assert reason == "Draft Order Bonus: PRIMARY (+50.0 pts)"
 
     def test_draft_bonus_round_2_qb_gets_primary(self, player_manager, test_player):
         """Round 2 QB should get PRIMARY"""
@@ -739,7 +757,7 @@ class TestDraftOrderBonus:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 2, base_score)
         assert result == 100.0 + 50
-        assert reason == "Draft Order Bonus: PRIMARY"
+        assert reason == "Draft Order Bonus: PRIMARY (+50.0 pts)"
 
     def test_draft_bonus_round_3_te_gets_bonus(self, player_manager, test_player):
         """Round 3 TE should get appropriate bonus based on flex eligibility"""
@@ -751,7 +769,7 @@ class TestDraftOrderBonus:
 
         # TE gets PRIMARY bonus (50) since it's not FLEX-eligible
         assert result == 100.0 + 50
-        assert reason == "Draft Order Bonus: PRIMARY"
+        assert reason == "Draft Order Bonus: PRIMARY (+50.0 pts)"
 
     def test_draft_bonus_no_match_returns_zero(self, player_manager, test_player):
         """Position not in round's priorities returns 0 bonus"""
@@ -858,7 +876,7 @@ class TestInjuryPenalty:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
         assert result == 100.0 - 10.0
-        assert reason == "Injury: QUESTIONABLE"
+        assert reason == "Injury: QUESTIONABLE (-10.0 pts)"
 
     def test_injury_risk_out(self, player_manager, test_player):
         """OUT status should get penalty based on its risk level"""
@@ -870,7 +888,7 @@ class TestInjuryPenalty:
         risk_level = test_player.get_risk_level()
         expected_penalty = player_manager.config.get_injury_penalty(risk_level)
         assert result == base_score - expected_penalty
-        assert reason == "Injury: OUT"
+        assert reason == "Injury: OUT (-10.0 pts)"
 
     def test_injury_risk_doubtful(self, player_manager, test_player):
         """DOUBTFUL status should get penalty based on its risk level"""
@@ -882,7 +900,7 @@ class TestInjuryPenalty:
         risk_level = test_player.get_risk_level()
         expected_penalty = player_manager.config.get_injury_penalty(risk_level)
         assert result == base_score - expected_penalty
-        assert reason == "Injury: DOUBTFUL"
+        assert reason == "Injury: DOUBTFUL (-10.0 pts)"
 
     def test_injury_high_risk_injury_reserve(self, player_manager, test_player):
         """INJURY_RESERVE status should have HIGH risk"""
@@ -890,7 +908,7 @@ class TestInjuryPenalty:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
         assert result == 100.0 - 75.0
-        assert reason == "Injury: INJURY_RESERVE"
+        assert reason == "Injury: INJURY_RESERVE (-75.0 pts)"
 
     def test_injury_high_risk_unknown(self, player_manager, test_player):
         """UNKNOWN status should have HIGH risk"""
@@ -898,7 +916,7 @@ class TestInjuryPenalty:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
         assert result == 100.0 - 75.0
-        assert reason == "Injury: UNKNOWN"
+        assert reason == "Injury: UNKNOWN (-75.0 pts)"
 
 
 # ============================================================================
@@ -1280,7 +1298,7 @@ class TestAdditionalEdgeCases:
 
         # Should still apply VERY_POOR multiplier
         assert result == 70.0
-        assert reason == "ADP: VERY_POOR"
+        assert reason == "ADP: VERY_POOR (0.70x)"
 
     def test_negative_adp_value(self, player_manager, test_player):
         """Test with negative ADP (invalid but should handle)"""
@@ -1290,7 +1308,7 @@ class TestAdditionalEdgeCases:
 
         # Negative ADP should be treated as excellent (< 20)
         assert result == 120.0
-        assert reason == "ADP: EXCELLENT"
+        assert reason == "ADP: EXCELLENT (1.20x)"
 
     def test_extremely_high_fantasy_points(self, player_manager, mock_fantasy_team):
         """Test with extremely high fantasy points projection"""
@@ -1327,7 +1345,7 @@ class TestAdditionalEdgeCases:
 
         # Should still apply VERY_POOR multiplier
         assert result == 75.0
-        assert reason == "Matchup: VERY_POOR"
+        assert reason == "Matchup: VERY_POOR (0.75x)"
 
     def test_massive_bye_week_penalty(self, player_manager, test_player, mock_fantasy_team):
         """Test with massive bye week overlaps (10+ players)"""

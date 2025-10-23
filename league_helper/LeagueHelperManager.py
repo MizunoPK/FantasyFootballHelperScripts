@@ -22,6 +22,7 @@ import constants
 from util.ConfigManager import ConfigManager
 from util.PlayerManager import PlayerManager
 from util.TeamDataManager import TeamDataManager
+from util.SeasonScheduleManager import SeasonScheduleManager
 from util.user_input import show_list_selection
 from add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
 from starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager
@@ -73,12 +74,16 @@ class LeagueHelperManager:
         self.config = ConfigManager(data_folder)
         self.logger.info(f"Configuration loaded: {self.config.config_name} (Week {self.config.current_nfl_week})")
 
-        # Initialize core data managers
+        # Initialize Season Schedule Manager first (needed by TeamDataManager)
+        self.logger.debug("Initializing Season Schedule Manager")
+        self.season_schedule_manager = SeasonScheduleManager(data_folder)
+
+        # Initialize Team Data Manager with schedule manager for opponent lookups
         self.logger.debug("Initializing Team Data Manager")
-        self.team_data_manager = TeamDataManager(data_folder)
+        self.team_data_manager = TeamDataManager(data_folder, self.season_schedule_manager, self.config.current_nfl_week)
 
         self.logger.debug("Initializing Player Manager")
-        self.player_manager = PlayerManager(data_folder, self.config, self.team_data_manager)
+        self.player_manager = PlayerManager(data_folder, self.config, self.team_data_manager, self.season_schedule_manager)
         self.logger.info(f"Player data loaded: {len(self.player_manager.players)} total players")
 
         # Initialize all mode managers with necessary dependencies

@@ -23,6 +23,8 @@ from typing import List
 from util.player_scoring import PlayerScoringCalculator
 from util.ConfigManager import ConfigManager
 from util.ProjectedPointsManager import ProjectedPointsManager
+from util.TeamDataManager import TeamDataManager
+from util.SeasonScheduleManager import SeasonScheduleManager
 from utils.FantasyPlayer import FantasyPlayer
 
 
@@ -126,9 +128,35 @@ def mock_projected_points_manager():
 
 
 @pytest.fixture
-def scoring_calculator(config_manager, mock_projected_points_manager):
+def mock_team_data_manager():
+    """Create mock TeamDataManager"""
+    tdm = Mock(spec=TeamDataManager)
+    tdm.get_team_offensive_rank = Mock(return_value=10)
+    tdm.get_team_defensive_rank = Mock(return_value=15)
+    return tdm
+
+
+@pytest.fixture
+def mock_season_schedule_manager():
+    """Create mock SeasonScheduleManager"""
+    ssm = Mock(spec=SeasonScheduleManager)
+    ssm.get_opponent = Mock(return_value='DAL')
+    ssm.get_future_opponents = Mock(return_value=['DAL', 'NYG', 'PHI'])
+    ssm.is_schedule_available = Mock(return_value=True)
+    return ssm
+
+
+@pytest.fixture
+def scoring_calculator(config_manager, mock_projected_points_manager, mock_team_data_manager, mock_season_schedule_manager):
     """Create PlayerScoringCalculator for testing"""
-    return PlayerScoringCalculator(config_manager, mock_projected_points_manager, max_projection=250.0)
+    return PlayerScoringCalculator(
+        config_manager,
+        mock_projected_points_manager,
+        max_projection=250.0,
+        team_data_manager=mock_team_data_manager,
+        season_schedule_manager=mock_season_schedule_manager,
+        current_nfl_week=6
+    )
 
 
 @pytest.fixture
@@ -166,24 +194,48 @@ def test_player():
 class TestInitialization:
     """Test PlayerScoringCalculator initialization"""
 
-    def test_initialization_with_valid_parameters(self, config_manager, mock_projected_points_manager):
+    def test_initialization_with_valid_parameters(self, config_manager, mock_projected_points_manager, mock_team_data_manager, mock_season_schedule_manager):
         """Test successful initialization with valid parameters"""
-        calculator = PlayerScoringCalculator(config_manager, mock_projected_points_manager, 250.0)
+        calculator = PlayerScoringCalculator(
+            config_manager,
+            mock_projected_points_manager,
+            250.0,
+            mock_team_data_manager,
+            mock_season_schedule_manager,
+            6
+        )
 
         assert calculator.config == config_manager
         assert calculator.projected_points_manager == mock_projected_points_manager
         assert calculator.max_projection == 250.0
+        assert calculator.team_data_manager == mock_team_data_manager
+        assert calculator.season_schedule_manager == mock_season_schedule_manager
+        assert calculator.current_nfl_week == 6
         assert calculator.logger is not None
 
-    def test_initialization_with_zero_max_projection(self, config_manager, mock_projected_points_manager):
+    def test_initialization_with_zero_max_projection(self, config_manager, mock_projected_points_manager, mock_team_data_manager, mock_season_schedule_manager):
         """Test initialization with max_projection = 0"""
-        calculator = PlayerScoringCalculator(config_manager, mock_projected_points_manager, 0.0)
+        calculator = PlayerScoringCalculator(
+            config_manager,
+            mock_projected_points_manager,
+            0.0,
+            mock_team_data_manager,
+            mock_season_schedule_manager,
+            6
+        )
 
         assert calculator.max_projection == 0.0
 
-    def test_initialization_with_negative_max_projection(self, config_manager, mock_projected_points_manager):
+    def test_initialization_with_negative_max_projection(self, config_manager, mock_projected_points_manager, mock_team_data_manager, mock_season_schedule_manager):
         """Test initialization with negative max_projection"""
-        calculator = PlayerScoringCalculator(config_manager, mock_projected_points_manager, -100.0)
+        calculator = PlayerScoringCalculator(
+            config_manager,
+            mock_projected_points_manager,
+            -100.0,
+            mock_team_data_manager,
+            mock_season_schedule_manager,
+            6
+        )
 
         # Should allow negative (edge case)
         assert calculator.max_projection == -100.0
@@ -249,9 +301,16 @@ class TestWeeklyProjection:
         assert orig_pts == 0.0
         assert weighted_pts == 0.0
 
-    def test_get_weekly_projection_with_zero_max_projection(self, config_manager, mock_projected_points_manager, test_player):
+    def test_get_weekly_projection_with_zero_max_projection(self, config_manager, mock_projected_points_manager, mock_team_data_manager, mock_season_schedule_manager, test_player):
         """Test weekly projection when max_projection is 0"""
-        calculator = PlayerScoringCalculator(config_manager, mock_projected_points_manager, 0.0)
+        calculator = PlayerScoringCalculator(
+            config_manager,
+            mock_projected_points_manager,
+            0.0,
+            mock_team_data_manager,
+            mock_season_schedule_manager,
+            6
+        )
         test_player.week_6_points = 25.0
 
         orig_pts, weighted_pts = calculator.get_weekly_projection(test_player, week=6)
@@ -484,6 +543,7 @@ class TestScoringIntegration:
             team_quality=False,
             performance=False,
             matchup=False,
+            schedule=False,
             draft_round=-1,
             bye=False,
             injury=False
@@ -506,6 +566,7 @@ class TestScoringIntegration:
             team_quality=False,
             performance=False,
             matchup=False,
+            schedule=False,
             draft_round=-1,
             bye=False,
             injury=False
@@ -532,6 +593,7 @@ class TestScoringIntegration:
             team_quality=False,
             performance=False,
             matchup=False,
+            schedule=False,
             draft_round=-1,
             bye=True,
             injury=False
@@ -559,6 +621,7 @@ class TestScoringIntegration:
             team_quality=False,
             performance=False,
             matchup=False,
+            schedule=False,
             draft_round=-1,
             bye=False,
             injury=True
@@ -583,6 +646,7 @@ class TestScoringIntegration:
             team_quality=False,
             performance=False,
             matchup=False,
+            schedule=False,
             draft_round=-1,
             bye=False,
             injury=False
@@ -600,7 +664,8 @@ class TestScoringIntegration:
         result = scoring_calculator.score_player(
             test_player,
             team_roster=[],
-            draft_round=-1
+            draft_round=-1,
+            schedule=False
         )
 
         assert result.player == test_player

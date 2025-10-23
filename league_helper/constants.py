@@ -40,8 +40,8 @@ NUM_TRADE_RUNNERS_UP = 4   # Number of alternative trade suggestions to show
 
 # TRADE SUGGESTOR
 MIN_TRADE_IMPROVEMENT = 0
-# VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Bo-ner", "Saquon Deez", "The Eskimo Brothers", "Pidgin"]
-VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Bo-ner", "The Eskimo Brothers"]
+# VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Big Nix energy", "Saquon Deez", "The Eskimo Brothers", "Pidgin"]
+VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Big Nix energy", "The Eskimo Brothers"]
 
 # =============================================================================
 # POSITION CONSTANTS

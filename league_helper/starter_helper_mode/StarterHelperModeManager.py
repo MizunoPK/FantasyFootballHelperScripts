@@ -350,7 +350,8 @@ class StarterHelperModeManager:
         Scoring configuration:
         - use_weekly_projection=True: Use week-specific projection data
         - performance=True: Apply actual vs projected performance adjustment
-        - matchup=True: Apply opponent defensive strength adjustment
+        - matchup=True: Apply opponent defensive strength adjustment (THIS WEEK)
+        - schedule=False: Don't use future schedule strength (irrelevant for weekly)
         - adp=False: Don't use draft position (irrelevant for in-season)
         - player_rating=False: Don't use expert ratings (irrelevant for weekly)
         - team_quality=False: Don't use team rankings (irrelevant for weekly)
@@ -369,6 +370,7 @@ class StarterHelperModeManager:
             team_quality=False,
             performance=True,
             matchup=True,
+            schedule=False,  # EXPLICIT: No schedule scoring for weekly decisions
             bye=False,
             injury=False
         )

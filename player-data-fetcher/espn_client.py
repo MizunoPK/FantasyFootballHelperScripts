@@ -954,6 +954,189 @@ class ESPNClient(BaseAPIClient):
             self.logger.error(f"Failed to fetch current week schedule: {e}")
             return {}
 
+    async def _fetch_full_season_schedule(self) -> Dict[int, Dict[str, str]]:
+        """
+        Fetch complete season schedule for all weeks.
+
+        Returns:
+            Dict[week_number, Dict[team, opponent]]
+            Example: {1: {'KC': 'BAL', 'BAL': 'KC', ...}, 2: {...}, ...}
+        """
+        try:
+            from config import NFL_SEASON
+            import asyncio
+
+            full_schedule = {}
+
+            self.logger.info("Fetching full season schedule (weeks 1-18)")
+
+            for week in range(1, 19):  # Weeks 1-18
+                self.logger.debug(f"Fetching schedule for week {week}/18")
+
+                # ESPN scoreboard API endpoint
+                url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
+                params = {
+                    "seasontype": 2,  # Regular season
+                    "week": week,
+                    "dates": NFL_SEASON
+                }
+
+                data = await self._make_request("GET", url, params=params)
+
+                # Parse schedule for this week
+                week_schedule = {}
+                events = data.get('events', [])
+
+                for event in events:
+                    try:
+                        competitions = event.get('competitions', [])
+                        if not competitions:
+                            continue
+
+                        competition = competitions[0]
+                        competitors = competition.get('competitors', [])
+
+                        if len(competitors) != 2:
+                            continue
+
+                        # Get team abbreviations
+                        team1_data = competitors[0].get('team', {})
+                        team2_data = competitors[1].get('team', {})
+
+                        team1 = team1_data.get('abbreviation', '')
+                        team2 = team2_data.get('abbreviation', '')
+
+                        # Normalize team names (ESPN uses WAS, we use WSH)
+                        team1 = 'WSH' if team1 == 'WAS' else team1
+                        team2 = 'WSH' if team2 == 'WAS' else team2
+
+                        if team1 and team2:
+                            week_schedule[team1] = team2
+                            week_schedule[team2] = team1
+
+                    except Exception as e:
+                        self.logger.debug(f"Error parsing event in week {week}: {e}")
+                        continue
+
+                full_schedule[week] = week_schedule
+
+                # Rate limiting between requests
+                await asyncio.sleep(0.2)
+
+            self.logger.info(f"Successfully fetched schedule for {len(full_schedule)} weeks")
+            return full_schedule
+
+        except Exception as e:
+            self.logger.error(f"Failed to fetch full season schedule: {e}")
+            return {}
+
+    def _calculate_position_defense_rankings(
+        self,
+        players: List[ESPNPlayerData],
+        schedule: Dict[int, Dict[str, str]],
+        current_week: int
+    ) -> Dict[str, Dict[str, int]]:
+        """
+        Calculate position-specific defense rankings for all teams.
+
+        Args:
+            players: List of all players with weekly stats (from ESPN API)
+            schedule: Dict mapping {week: {team: opponent}} for all weeks
+            current_week: Current NFL week (1-17)
+
+        Returns:
+            Dict[team, {'def_vs_qb_rank': int, 'def_vs_rb_rank': int, ...}]
+            Rankings are 1-32 where 1 = best defense (fewest points allowed)
+        """
+        from collections import defaultdict
+
+        self.logger.info(f"Calculating position-specific defense rankings for week {current_week}")
+
+        # Track points allowed by each defense to each position
+        defense_stats = defaultdict(lambda: defaultdict(float))
+
+        # All 32 NFL teams
+        all_teams = [
+            'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
+            'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
+            'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
+            'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
+        ]
+
+        # For each player, accumulate points scored against their opponents
+        for player in players:
+            # Only process offensive positions (QB, RB, WR, TE, K)
+            if player.position not in ['QB', 'RB', 'WR', 'TE', 'K']:
+                continue
+
+            # Get all opponents this team has faced (weeks 1 to current_week-1)
+            for week in range(1, current_week):
+                # Get week's opponent for player's team
+                week_schedule = schedule.get(week, {})
+                opponent_defense = week_schedule.get(player.team)
+
+                if not opponent_defense:
+                    continue
+
+                # Get player's actual points for this week (from ESPN data)
+                week_points = player.get_week_points(week)
+
+                # Only use actual stats (week_points will be None for future weeks)
+                if week_points is None:
+                    continue
+
+                # Skip negative/zero points for non-DST positions
+                if week_points <= 0 and player.position != 'DST':
+                    continue
+
+                # Accumulate points allowed by opponent's defense
+                if player.position == 'QB':
+                    defense_stats[opponent_defense]['vs_qb'] += week_points
+                elif player.position == 'RB':
+                    defense_stats[opponent_defense]['vs_rb'] += week_points
+                elif player.position == 'WR':
+                    defense_stats[opponent_defense]['vs_wr'] += week_points
+                elif player.position == 'TE':
+                    defense_stats[opponent_defense]['vs_te'] += week_points
+                elif player.position == 'K':
+                    defense_stats[opponent_defense]['vs_k'] += week_points
+
+        # Rank defenses for each position (lower points allowed = better rank)
+        rankings = {}
+        for position in ['vs_qb', 'vs_rb', 'vs_wr', 'vs_te', 'vs_k']:
+            # Get teams that have data for this position
+            teams_with_data = [
+                (team, stats[position])
+                for team, stats in defense_stats.items()
+                if position in stats and stats[position] > 0
+            ]
+
+            # Sort teams by total points allowed (ascending = better defense)
+            sorted_teams = sorted(teams_with_data, key=lambda x: x[1])
+
+            # Assign ranks (1 = fewest points = best defense)
+            for rank, (team, points_allowed) in enumerate(sorted_teams, 1):
+                if team not in rankings:
+                    rankings[team] = {}
+                rankings[team][f'def_{position}_rank'] = rank
+                self.logger.debug(
+                    f"{team} {position}: Rank {rank} ({points_allowed:.1f} points allowed)"
+                )
+
+        # Fill in neutral ranks (16) for teams with no data or missing positions
+        for team in all_teams:
+            if team not in rankings:
+                rankings[team] = {}
+
+            for position in ['vs_qb', 'vs_rb', 'vs_wr', 'vs_te', 'vs_k']:
+                rank_key = f'def_{position}_rank'
+                if rank_key not in rankings[team]:
+                    rankings[team][rank_key] = 16  # Neutral rank (middle of 32 teams)
+
+        self.logger.info(f"Calculated position-specific rankings for {len(rankings)} teams across 5 positions")
+
+        return rankings
+
     async def _parse_espn_data(self, data: Dict[str, Any]) -> List[ESPNPlayerData]:
         """Parse ESPN API response into ESPNPlayerData objects"""
         from config import (
@@ -967,8 +1150,12 @@ class ESPNClient(BaseAPIClient):
         team_rankings = await self._fetch_team_rankings()
         current_week_schedule = await self._fetch_current_week_schedule()
 
+        # Fetch full season schedule for position-specific defense calculation
+        full_season_schedule = await self._fetch_full_season_schedule()
+
         # Store schedule data for later use
         self.current_week_schedule = current_week_schedule
+        self.full_season_schedule = full_season_schedule
 
         players = data.get('players', [])
         self.logger.info(f"Processing {len(players)} players from ESPN API")
@@ -1152,5 +1339,16 @@ class ESPNClient(BaseAPIClient):
         # Log filtering statistics
         if unknown_position_count > 0:
             self.logger.info(f"Filtered out {unknown_position_count} players with unknown positions")
+
+        # Calculate position-specific defense rankings
+        from config import CURRENT_NFL_WEEK
+        position_defense_rankings = self._calculate_position_defense_rankings(
+            projections,
+            full_season_schedule,
+            CURRENT_NFL_WEEK
+        )
+
+        # Store position defense rankings for later use
+        self.position_defense_rankings = position_defense_rankings
 
         return projections

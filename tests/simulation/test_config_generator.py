@@ -111,6 +111,20 @@ class TestConfigGeneratorInitialization:
                         "DIRECTION": "BI_EXCELLENT_HI",
                         "STEPS": 7.5
                     }
+                },
+                "SCHEDULE_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.05,
+                        "GOOD": 1.025,
+                        "POOR": 0.975,
+                        "VERY_POOR": 0.95
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 16,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 8.0
+                    }
                 }
             }
         }
@@ -165,7 +179,7 @@ class TestConfigGeneratorInitialization:
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 14  # 5 scalars + 4 weights + 5 threshold STEPS
+        assert len(gen.PARAMETER_ORDER) == 16  # 5 scalars + 5 weights + 6 threshold STEPS
 
 
 class TestParameterValueGeneration:
@@ -255,6 +269,20 @@ class TestParameterValueGeneration:
                         "DIRECTION": "BI_EXCELLENT_HI",
                         "STEPS": 7.5
                     }
+                },
+                "SCHEDULE_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.05,
+                        "GOOD": 1.025,
+                        "POOR": 0.975,
+                        "VERY_POOR": 0.95
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 16,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 8.0
+                    }
                 }
             }
         }
@@ -309,8 +337,8 @@ class TestParameterValueGeneration:
         """Test that value sets are generated for all parameters"""
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Should have 5 scalar + 4 weight + 5 threshold STEPS parameters
-        assert len(value_sets) == 14  # Updated for threshold STEPS
+        # Should have 5 scalar + 5 weight + 6 threshold STEPS parameters
+        assert len(value_sets) == 16  # Updated for threshold STEPS + SCHEDULE_SCORING
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'BASE_BYE_PENALTY' in value_sets
         assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in value_sets
@@ -320,6 +348,7 @@ class TestParameterValueGeneration:
         assert 'PLAYER_RATING_SCORING_WEIGHT' in value_sets
         assert 'MATCHUP_SCORING_WEIGHT' in value_sets
         assert 'PERFORMANCE_SCORING_WEIGHT' in value_sets
+        assert 'SCHEDULE_SCORING_WEIGHT' in value_sets
 
     def test_generate_all_parameter_value_sets_correct_value_count(self, generator):
         """Test that each value set has correct number of values"""
@@ -417,6 +446,20 @@ class TestCombinationGeneration:
                         "DIRECTION": "BI_EXCELLENT_HI",
                         "STEPS": 7.5
                     }
+                },
+                "SCHEDULE_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.05,
+                        "GOOD": 1.025,
+                        "POOR": 0.975,
+                        "VERY_POOR": 0.95
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 16,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 8.0
+                    }
                 }
             }
         }
@@ -435,10 +478,11 @@ class TestCombinationGeneration:
         # Instead, test that the method structure works by checking value sets
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Verify value sets exist for all expected parameters (5 scalars + 4 weights = 9 total)
-        assert len(value_sets) == 14  # 5 scalars + 4 weights + 5 threshold STEPS
+        # Verify value sets exist for all expected parameters
+        assert len(value_sets) == 16  # 5 scalars + 5 weights + 6 threshold STEPS
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
+        assert 'SCHEDULE_SCORING_WEIGHT' in value_sets
 
         # Each value set should have correct number of values
         for param_name, values in value_sets.items():
@@ -546,6 +590,20 @@ class TestConfigDictCreation:
                         "DIRECTION": "BI_EXCELLENT_HI",
                         "STEPS": 7.5
                     }
+                },
+                "SCHEDULE_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.05,
+                        "GOOD": 1.025,
+                        "POOR": 0.975,
+                        "VERY_POOR": 0.95
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 16,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 8.0
+                    }
                 }
             }
         }
@@ -566,7 +624,8 @@ class TestConfigDictCreation:
             'ADP_SCORING_WEIGHT': 1.5,
             'PLAYER_RATING_SCORING_WEIGHT': 1.3,
             'PERFORMANCE_SCORING_WEIGHT': 1.1,
-            'MATCHUP_SCORING_WEIGHT': 1.4
+            'MATCHUP_SCORING_WEIGHT': 1.4,
+            'SCHEDULE_SCORING_WEIGHT': 1.2
         }
 
         return gen, combination
@@ -595,6 +654,7 @@ class TestConfigDictCreation:
         assert params['PLAYER_RATING_SCORING']['WEIGHT'] == 1.3
         assert params['PERFORMANCE_SCORING']['WEIGHT'] == 1.1
         assert params['MATCHUP_SCORING']['WEIGHT'] == 1.4
+        assert params['SCHEDULE_SCORING']['WEIGHT'] == 1.2
         # TEAM_QUALITY_SCORING_WEIGHT is no longer varied, should remain at baseline
         assert params['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.0
 
@@ -697,6 +757,20 @@ class TestIterativeOptimizationSupport:
                         "DIRECTION": "BI_EXCELLENT_HI",
                         "STEPS": 7.5
                     }
+                },
+                "SCHEDULE_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.05,
+                        "GOOD": 1.025,
+                        "POOR": 0.975,
+                        "VERY_POOR": 0.95
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 16,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 8.0
+                    }
                 }
             }
         }
@@ -733,7 +807,7 @@ class TestIterativeOptimizationSupport:
         config = generator.baseline_config
         combination = generator._extract_combination_from_config(config)
 
-        # Should have all 9 parameters (5 scalar + 4 weights)
+        # Should have all parameters (5 scalar + 5 weights + 6 threshold STEPS)
         assert 'NORMALIZATION_MAX_SCALE' in combination
         assert 'BASE_BYE_PENALTY' in combination
         assert 'DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY' in combination
@@ -743,7 +817,8 @@ class TestIterativeOptimizationSupport:
         assert 'PLAYER_RATING_SCORING_WEIGHT' in combination
         assert 'MATCHUP_SCORING_WEIGHT' in combination
         assert 'PERFORMANCE_SCORING_WEIGHT' in combination
-        assert len(combination) == 14  # Updated for threshold STEPS parameters
+        assert 'SCHEDULE_SCORING_WEIGHT' in combination
+        assert len(combination) == 16  # Updated for threshold STEPS parameters + SCHEDULE_SCORING
 
     def test_generate_single_parameter_configs_for_multiplier(self, generator):
         """Test generating configs for a weight parameter"""
@@ -879,6 +954,20 @@ class TestGenerateIterativeCombinations:
                         "DIRECTION": "BI_EXCELLENT_HI",
                         "STEPS": 7.5
                     }
+                },
+                "SCHEDULE_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.05,
+                        "GOOD": 1.025,
+                        "POOR": 0.975,
+                        "VERY_POOR": 0.95
+                    },
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 16,
+                        "DIRECTION": "INCREASING",
+                        "STEPS": 8.0
+                    }
                 }
             }
         }
@@ -958,23 +1047,23 @@ class TestGenerateIterativeCombinations:
             temp_path.unlink()
 
     def test_edge_case_num_parameters_exceeds_available(self, baseline_config_dict):
-        """Test with NUM_PARAMETERS_TO_TEST > 14 (should cap at 14)"""
+        """Test with NUM_PARAMETERS_TO_TEST > 16 (should cap at 16)"""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             json.dump(baseline_config_dict, f)
             temp_path = Path(f.name)
 
         try:
-            # Use num_test_values=1 to keep cartesian product small (2^14 = 16,384 configs)
+            # Use num_test_values=1 to keep cartesian product small (2^16 = 65,536 configs)
             generator = ConfigGenerator(temp_path, num_test_values=1, num_parameters_to_test=20)
 
-            # Should cap at 14 parameters
+            # Should cap at 16 parameters
             configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
 
-            # Should generate configs (capped at 14 params)
-            # Individual: 14*2 = 28
-            # Combinations: 2^14 = 16,384
-            # Total: 16,412 configs
-            assert len(configs) == 16412
+            # Should generate configs (capped at 16 params)
+            # Individual: 16*2 = 32
+            # Combinations: 2^16 = 65,536
+            # Total: 65,568 configs
+            assert len(configs) == 65568
             assert all('parameters' in config for config in configs)
         finally:
             temp_path.unlink()
