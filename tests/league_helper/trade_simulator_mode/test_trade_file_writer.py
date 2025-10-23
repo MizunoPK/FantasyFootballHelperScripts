@@ -724,12 +724,13 @@ class TestParseScoringReasons:
         assert parsed["Schedule Multiplier"] == 1.05
 
     def test_parses_bye_overlaps(self, writer):
-        """Test parsing of bye week overlaps"""
+        """Test parsing of bye week overlaps and penalty points"""
         reasons = ["Bye Overlaps: 2 same-position, 3 different-position (-10.5 pts)"]
         parsed = writer._parse_scoring_reasons(reasons)
 
         assert parsed["Bye Same-Pos"] == 2
         assert parsed["Bye Diff-Pos"] == 3
+        assert parsed["Bye Penalty"] == -10.5
 
     def test_parses_injury_status(self, writer):
         """Test parsing of injury status"""

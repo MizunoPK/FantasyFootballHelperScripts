@@ -1454,7 +1454,8 @@ class TradeFileWriter:
         # Show Initial/Final/Δ for these
         multi_value_components = [
             ('Bye Same-Pos', 'Bye Same-Pos', int, 0),
-            ('Bye Diff-Pos', 'Bye Diff-Pos', int, 0)
+            ('Bye Diff-Pos', 'Bye Diff-Pos', int, 0),
+            ('Bye Penalty', 'Bye Penalty', float, 2)
         ]
 
         for col_name, parsed_key, data_type, precision in multi_value_components:
@@ -1569,10 +1570,11 @@ class TradeFileWriter:
 
             # Step 9: Bye Week Penalty
             elif "Bye Overlaps:" in reason:
-                match = re.search(r'Bye Overlaps: (\d+) same-position, (\d+) different-position', reason)
+                match = re.search(r'Bye Overlaps: (\d+) same-position, (\d+) different-position \(([+-]?[\d.]+) pts\)', reason)
                 if match:
                     parsed["Bye Same-Pos"] = int(match.group(1))
                     parsed["Bye Diff-Pos"] = int(match.group(2))
+                    parsed["Bye Penalty"] = float(match.group(3))
 
             # Step 10: Injury
             elif "Injury:" in reason:
