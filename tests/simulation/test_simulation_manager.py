@@ -291,8 +291,8 @@ class TestIterativeOptimization:
             mock_config_gen.baseline_config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
             mock_config_gen.PARAMETER_ORDER = ['NORMALIZATION_MAX_SCALE', 'BASE_BYE_PENALTY']  # Only 2 for testing
 
-            # Mock single parameter configs
-            mock_config_gen.generate_single_parameter_configs.return_value = [
+            # Mock iterative combinations
+            mock_config_gen.generate_iterative_combinations.return_value = [
                 {"config_name": "test1", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}},
                 {"config_name": "test2", "parameters": {"NORMALIZATION_MAX_SCALE": 110.0}}
             ]
@@ -338,7 +338,7 @@ class TestIterativeOptimization:
         manager.run_iterative_optimization()
 
         # Should generate configs for each parameter (2 parameters in PARAMETER_ORDER)
-        assert mock_config_gen.generate_single_parameter_configs.call_count == 2
+        assert mock_config_gen.generate_iterative_combinations.call_count == 2
 
     def test_iterative_optimization_runs_simulations_for_each_param(self, mock_manager_for_iterative):
         """Test that simulations are run for each parameter's configs"""

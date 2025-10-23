@@ -303,7 +303,7 @@ class TestExportData:
     """Test export_data method"""
 
     @pytest.mark.asyncio
-    @patch('player_data_exporter.DataExporter')
+    @patch('player_data_fetcher_main.DataExporter')  # Patch in the module where it's imported
     async def test_export_data_basic(self, mock_exporter_class):
         """Test export_data calls exporter methods"""
         # Mock exporter instance

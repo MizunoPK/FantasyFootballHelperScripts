@@ -72,6 +72,8 @@ def mock_config():
     config.current_nfl_week = 7
     config.nfl_season = 2025
     config.nfl_scoring_format = "ppr"
+    config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
+    config.max_players = 15
     return config
 
 
@@ -94,7 +96,9 @@ def mock_player_manager(sample_players):
     manager.team.roster = sample_players[:5]  # First 5 players on user's team
 
     # Mock get_lowest_scores_on_roster
-    manager.get_lowest_scores_on_roster = Mock(return_value=[0.0])
+    manager.get_lowest_scores_on_roster = Mock(return_value={
+        "QB": 0.0, "RB": 0.0, "WR": 0.0, "TE": 0.0, "K": 0.0, "DST": 0.0
+    })
 
     # Mock get_player_list (used by waiver recommendations in unequal trades)
     # Return empty list by default (tests can override this if needed)
@@ -140,14 +144,19 @@ class TestTradeSimTeamInitialization:
         assert team.team_score >= 0
 
     def test_initialization_filters_injured_players(self, sample_players, mock_player_manager):
-        """Test that injured players are filtered out"""
-        # Include injured player (id=11, status=OUT)
-        team_players = sample_players[:6] + [sample_players[10]]  # Add OUT player
+        """Test that severely injured players (IR) are filtered out, but OUT players are kept"""
+        # Create an IR player that should be filtered
+        ir_player = FantasyPlayer(id=99, name="IR Player", team="NYG", position="RB",
+                                 fantasy_points=180.0, injury_status="IR")
+        # Include IR player and OUT player
+        team_players = sample_players[:6] + [sample_players[10]] + [ir_player]  # Add OUT and IR players
         team = TradeSimTeam("Test Team", team_players, mock_player_manager)
 
-        # OUT player should be filtered
-        assert len(team.team) < len(team_players)
-        assert all(p.injury_status in ['ACTIVE', 'QUESTIONABLE'] for p in team.team)
+        # IR player should be filtered, but OUT player should be kept
+        assert len(team.team) == len(team_players) - 1  # Only IR filtered
+        assert all(p.injury_status in ['ACTIVE', 'QUESTIONABLE', 'OUT'] for p in team.team)
+        assert all(p.id != 99 for p in team.team)  # IR player filtered out
+        assert any(p.injury_status == 'OUT' for p in team.team)  # OUT player kept
 
     def test_initialization_keeps_questionable_players(self, sample_players, mock_player_manager):
         """Test that QUESTIONABLE players are kept"""
@@ -535,7 +544,7 @@ class TestWaiverOptimizer:
     """Test waiver optimizer functionality"""
 
     @pytest.fixture
-    def manager_with_waivers(self, temp_data_folder, mock_player_manager, sample_players):
+    def manager_with_waivers(self, temp_data_folder, mock_player_manager, mock_config, sample_players):
         """Create manager with waiver wire players"""
         # Set some players as available (drafted=0)
         for i in range(5, 10):
@@ -582,7 +591,7 @@ class TestWaiverOptimizer:
                     assert call_args['is_waivers'] == True
                     assert call_args['one_for_one'] == True
                     assert call_args['two_for_two'] == True
-                    assert call_args['three_for_three'] == False
+                    assert call_args['three_for_three'] == True  # WAIVERS_THREE_FOR_THREE is True
 
 
 # =============================================================================
@@ -593,7 +602,7 @@ class TestTradeSuggestor:
     """Test trade suggestor functionality"""
 
     @pytest.fixture
-    def manager_with_opponents(self, temp_data_folder, mock_player_manager, sample_players):
+    def manager_with_opponents(self, temp_data_folder, mock_player_manager, mock_config, sample_players):
         """Create manager with opponent teams"""
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
             manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
@@ -649,7 +658,7 @@ class TestTradeSuggestor:
                     # Check parameters of first call
                     call_args = mock_get.call_args_list[0][1]
                     assert call_args['is_waivers'] == False
-                    assert call_args['one_for_one'] == True
+                    assert call_args['one_for_one'] == False  # ENABLE_ONE_FOR_ONE is False
                     assert call_args['two_for_two'] == True
                     assert call_args['three_for_three'] == True
 
@@ -668,14 +677,17 @@ class TestEdgeCases:
                          fantasy_points=180.0, injury_status="OUT"),
             FantasyPlayer(id=100, name="Injured 2", team="NYJ", position="WR",
                          fantasy_points=170.0, injury_status="DOUBTFUL"),
+            FantasyPlayer(id=101, name="Injured 3", team="NYJ", position="QB",
+                         fantasy_points=200.0, injury_status="IR"),
         ]
 
         team = TradeSimTeam("Injured Team", injured_players, mock_player_manager)
 
-        assert len(team.team) == 0  # All should be filtered
-        assert team.team_score == 0
+        # OUT players kept, DOUBTFUL and IR filtered
+        assert len(team.team) == 1  # Only OUT player kept
+        assert team.team[0].injury_status == "OUT"
 
-    def test_get_trade_combinations_with_empty_teams(self, temp_data_folder, mock_player_manager):
+    def test_get_trade_combinations_with_empty_teams(self, temp_data_folder, mock_player_manager, mock_config):
         """Test trade generation with empty teams"""
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
             manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
@@ -687,7 +699,7 @@ class TestEdgeCases:
 
         assert len(trades) == 0
 
-    def test_get_trade_combinations_with_minimal_rosters(self, temp_data_folder, mock_player_manager, sample_players):
+    def test_get_trade_combinations_with_minimal_rosters(self, temp_data_folder, mock_player_manager, mock_config, sample_players):
         """Test trade generation with very small rosters"""
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
             manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
@@ -700,7 +712,7 @@ class TestEdgeCases:
         # Should generate at most 1 trade (1x1)
         assert len(trades) <= 1
 
-    def test_position_validation_with_flex_positions(self, temp_data_folder, mock_player_manager, sample_players):
+    def test_position_validation_with_flex_positions(self, temp_data_folder, mock_player_manager, mock_config, sample_players):
         """Test position validation correctly handles FLEX-eligible positions"""
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
             manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
@@ -994,7 +1006,7 @@ class TestUnequalTrades:
 class TestIntegration:
     """Integration tests for full trade simulator workflows"""
 
-    def test_full_waiver_optimizer_workflow(self, temp_data_folder, mock_player_manager, sample_players):
+    def test_full_waiver_optimizer_workflow(self, temp_data_folder, mock_player_manager, mock_config, sample_players):
         """Test complete waiver optimizer workflow"""
         # Setup
         for i in range(5, 10):
@@ -1015,7 +1027,7 @@ class TestIntegration:
         assert isinstance(result[1], list)
         assert mock_player_manager.get_player_list.called
 
-    def test_full_trade_suggestor_workflow(self, temp_data_folder, mock_player_manager, sample_players):
+    def test_full_trade_suggestor_workflow(self, temp_data_folder, mock_player_manager, mock_config, sample_players):
         """Test complete trade suggestor workflow"""
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
             manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)

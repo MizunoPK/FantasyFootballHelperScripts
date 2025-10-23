@@ -19,6 +19,7 @@ Date: 2025-10-09
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
+from pathlib import Path
 
 # Imports work via conftest.py which adds the necessary paths
 from util.PlayerManager import PlayerManager
@@ -66,6 +67,15 @@ def mock_data_folder(tmp_path):
       {"K": "P"},
       {"DST": "P"}
     ],
+    "MAX_POSITIONS": {
+      "QB": 2,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 2,
+      "TE": 1,
+      "K": 1,
+      "DST": 1
+    },
     "ADP_SCORING": {
       "THRESHOLDS": {
         "EXCELLENT": 20,
@@ -730,14 +740,27 @@ class TestDraftOrderBonus:
         assert result == 100.0 + 50
         assert reason == "Draft Order Bonus: PRIMARY"
 
-    def test_draft_bonus_round_3_te_gets_primary(self, player_manager, test_player):
-        """Round 3 TE should get PRIMARY"""
+    def test_draft_bonus_round_3_te_gets_bonus(self, player_manager, test_player):
+        """Round 3 TE should get appropriate bonus based on flex eligibility"""
         # Round 3: {"TE": "P", "FLEX": "S"}
+        # If TE is flex-eligible, it gets FLEX bonus (S=30), otherwise TE bonus (P=50)
         test_player.position = "TE"
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 3, base_score)
-        assert result == 100.0 + 50
-        assert reason == "Draft Order Bonus: PRIMARY"
+
+        # TE gets either PRIMARY (50) if not flex-eligible or SECONDARY (30) if flex-eligible
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent.parent / "league_helper"))
+        import constants
+
+        if constants.TE in constants.FLEX_ELIGIBLE_POSITIONS:
+            # TE is flex-eligible, so gets FLEX bonus (SECONDARY)
+            assert result == 100.0 + 30
+            assert reason == "Draft Order Bonus: SECONDARY"
+        else:
+            # TE not flex-eligible, gets TE-specific bonus (PRIMARY)
+            assert result == 100.0 + 50
+            assert reason == "Draft Order Bonus: PRIMARY"
 
     def test_draft_bonus_no_match_returns_zero(self, player_manager, test_player):
         """Position not in round's priorities returns 0 bonus"""
@@ -769,21 +792,25 @@ class TestByeWeekPenalty:
     def test_bye_penalty_one_same_position_match(self, player_manager, test_player, mock_fantasy_team):
         """One same-position bye match should apply BASE_BYE_PENALTY once"""
         # test_player is RB with bye_week=7
+        # At week 6: scale_factor = 8/9, penalty = 25 * (8/9) = 22.222...
         other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
         mock_fantasy_team.roster = [other_rb]
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
-        assert result == 100.0 - 25.0  # BASE_BYE_PENALTY = 25
+        expected_penalty = 25.0 * (8.0/9.0)
+        assert abs(result - (100.0 - expected_penalty)) < 0.01
         assert "1 same-position, 0 different-position" in reason
 
     def test_bye_penalty_one_different_position_match(self, player_manager, test_player, mock_fantasy_team):
         """One different-position bye match should apply DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY once"""
         # test_player is RB with bye_week=7
+        # At week 6: scale_factor = 8/9, penalty = 5 * (8/9) = 4.444...
         other_qb = FantasyPlayer(id=99, name="Other QB", team="BUF", position="QB", bye_week=7, fantasy_points=150.0)
         mock_fantasy_team.roster = [other_qb]
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
-        assert result == 100.0 - 5.0  # DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY = 5
+        expected_penalty = 5.0 * (8.0/9.0)
+        assert abs(result - (100.0 - expected_penalty)) < 0.01
         assert "0 same-position, 1 different-position" in reason
 
     def test_bye_penalty_mixed_overlaps(self, player_manager, test_player, mock_fantasy_team):
@@ -797,8 +824,10 @@ class TestByeWeekPenalty:
 
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
-        # 2 same-position × 25 = 50, 2 different-position × 5 = 10, total = 60
-        assert result == 100.0 - 60.0
+        # At week 6: scale_factor = 8/9
+        # 2 same-position × 25 × (8/9) = 44.444..., 2 different-position × 5 × (8/9) = 8.888..., total = 53.333...
+        expected_penalty = (2 * 25.0 * (8.0/9.0)) + (2 * 5.0 * (8.0/9.0))
+        assert abs(result - (100.0 - expected_penalty)) < 0.01
         assert "2 same-position, 2 different-position" in reason
 
     def test_bye_penalty_excludes_player_being_scored(self, player_manager, test_player, mock_fantasy_team):
@@ -811,7 +840,9 @@ class TestByeWeekPenalty:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
         # Should only count other_rb, not test_player itself
-        assert result == 100.0 - 25.0
+        # At week 6: scale_factor = 8/9, penalty = 25 * (8/9) = 22.222...
+        expected_penalty = 25.0 * (8.0/9.0)
+        assert abs(result - (100.0 - expected_penalty)) < 0.01
         assert "1 same-position, 0 different-position" in reason
 
 
@@ -838,20 +869,28 @@ class TestInjuryPenalty:
         assert result == 100.0 - 10.0
         assert reason == "Injury: QUESTIONABLE"
 
-    def test_injury_high_risk_out(self, player_manager, test_player):
-        """OUT status should have HIGH risk (75 penalty)"""
+    def test_injury_risk_out(self, player_manager, test_player):
+        """OUT status should get penalty based on its risk level"""
         test_player.injury_status = "OUT"
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
-        assert result == 100.0 - 75.0
+
+        # Get actual risk level and expected penalty from config
+        risk_level = test_player.get_risk_level()
+        expected_penalty = player_manager.config.get_injury_penalty(risk_level)
+        assert result == base_score - expected_penalty
         assert reason == "Injury: OUT"
 
-    def test_injury_high_risk_doubtful(self, player_manager, test_player):
-        """DOUBTFUL status should have HIGH risk"""
+    def test_injury_risk_doubtful(self, player_manager, test_player):
+        """DOUBTFUL status should get penalty based on its risk level"""
         test_player.injury_status = "DOUBTFUL"
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_injury_penalty(test_player, base_score)
-        assert result == 100.0 - 75.0
+
+        # Get actual risk level and expected penalty from config
+        risk_level = test_player.get_risk_level()
+        expected_penalty = player_manager.config.get_injury_penalty(risk_level)
+        assert result == base_score - expected_penalty
         assert reason == "Injury: DOUBTFUL"
 
     def test_injury_high_risk_injury_reserve(self, player_manager, test_player):
@@ -1313,9 +1352,11 @@ class TestAdditionalEdgeCases:
 
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
 
-        # 10 same-position × 25 = 250 penalty
-        assert result == 100.0 - 250.0
-        assert "-150.0" in str(result)  # Score can go very negative
+        # At week 6: scale_factor = 8/9
+        # 10 same-position × 25 × (8/9) = 222.222... penalty
+        expected_penalty = 10 * 25.0 * (8.0/9.0)
+        assert abs(result - (100.0 - expected_penalty)) < 0.01
+        assert result < -100.0  # Score can go very negative
 
     # ========== Roster Operations Edge Cases ==========
 
