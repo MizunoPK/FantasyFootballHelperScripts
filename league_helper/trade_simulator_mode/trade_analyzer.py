@@ -251,6 +251,8 @@ class TradeAnalyzer:
         scored_players: List[ScoredPlayer] = []
         for p in available_players:
             # Use current week for matchup scoring
+            # IMPORTANT: Pass post_trade_roster to calculate bye week overlaps correctly
+            # If post_trade_roster is None, score_player will calculate bye overlaps as 0 (no context)
             scored_player = self.player_manager.score_player(
                 p,
                 adp=False,
@@ -258,7 +260,8 @@ class TradeAnalyzer:
                 team_quality=True,
                 performance=True,
                 matchup=False,
-                schedule=True
+                schedule=True,
+                roster=post_trade_roster
             )
             scored_players.append(scored_player)
 
