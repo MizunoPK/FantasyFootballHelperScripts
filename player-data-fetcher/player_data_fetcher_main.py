@@ -285,8 +285,8 @@ class NFLProjectionsCollector:
 
         Exports to multiple destinations:
         1. Timestamped files in player-data-fetcher/data/ (CSV/JSON/Excel)
-        2. Shared data/players.csv (for draft helper integration)
-        3. Shared data/teams.csv (team quality rankings)
+        2. Shared data/players.csv (for draft helper integration) [configured via PLAYERS_CSV]
+        3. Shared data/teams.csv (team quality rankings) [configured via TEAMS_CSV]
         4. Shared data/players_projected.csv (week-by-week projections for performance tracking)
 
         File organization:
@@ -294,8 +294,8 @@ class NFLProjectionsCollector:
         - player-data-fetcher/data/nfl_projections_season_PPR_latest.csv (latest version)
         - player-data-fetcher/data/teams_20241018_120000.csv (timestamped team data)
         - player-data-fetcher/data/teams_latest.csv (latest team data)
-        - data/players.csv (shared with draft helper - full player data)
-        - data/teams.csv (shared with league helper - team quality data)
+        - data/players.csv (shared with draft helper - full player data) [path: PLAYERS_CSV in config.py]
+        - data/teams.csv (shared with league helper - team quality data) [path: TEAMS_CSV in config.py]
         - data/players_projected.csv (shared with league helper - week-by-week projections)
 
         Args:

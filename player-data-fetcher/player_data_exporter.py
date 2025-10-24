@@ -28,7 +28,7 @@ from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
 from config import DEFAULT_FILE_CAPS
-from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, PLAYERS_CSV, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
+from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, PLAYERS_CSV, TEAMS_CSV, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
 
 
 class DataExporter:
@@ -502,9 +502,8 @@ class DataExporter:
             str: Path to the shared teams.csv file
         """
         try:
-            # Path to data teams.csv
-            data_dir = Path(__file__).parent.parent / "data"
-            shared_teams_file = data_dir / "teams.csv"
+            # Resolve path to teams.csv (configured in config.py)
+            shared_teams_file = Path(__file__).parent / TEAMS_CSV
 
             # Extract team data from players using team rankings
             fantasy_players = self.get_fantasy_players(data)

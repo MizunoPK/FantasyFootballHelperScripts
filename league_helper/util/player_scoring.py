@@ -556,16 +556,11 @@ class PlayerScoringCalculator:
 
     def _apply_matchup_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
         """Apply matchup multiplier (Step 6)."""
-        # Default to neutral multiplier (no adjustment)
-        multiplier = 1.0
-        rating = "NEUTRAL"
-
-        # Only apply matchup adjustments to matchup-sensitive positions
+        # Apply matchup adjustments to all positions
         # Matchup score represents opponent strength differential
         # Positive score = favorable matchup (weak opponent)
         # Negative score = unfavorable matchup (strong opponent)
-        if p.position in Constants.MATCHUP_ENABLED_POSITIONS:
-            multiplier, rating = self.config.get_matchup_multiplier(p.matchup_score)
+        multiplier, rating = self.config.get_matchup_multiplier(p.matchup_score)
 
         reason = f"Matchup: {rating} ({multiplier:.2f}x)"
         return player_score * multiplier, reason

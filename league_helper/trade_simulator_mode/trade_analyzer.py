@@ -442,7 +442,8 @@ class TradeAnalyzer:
         my_selected_players: List[FantasyPlayer],
         their_selected_players: List[FantasyPlayer],
         my_dropped_players: Optional[List[FantasyPlayer]] = None,
-        their_dropped_players: Optional[List[FantasyPlayer]] = None
+        their_dropped_players: Optional[List[FantasyPlayer]] = None,
+        is_waivers: bool = False
     ) -> Tuple[Optional[TradeSnapshot], List[FantasyPlayer], List[FantasyPlayer]]:
         """
         Process a manual trade with waiver/drop handling.
@@ -460,6 +461,8 @@ class TradeAnalyzer:
             their_selected_players (List[FantasyPlayer]): Players I'm receiving
             my_dropped_players (Optional[List[FantasyPlayer]]): Players I'm dropping (if any)
             their_dropped_players (Optional[List[FantasyPlayer]]): Players they're dropping (if any)
+            is_waivers (bool): If True, skip validation and waiver recommendations for their team
+                              (used when trading with waiver wire). Defaults to False.
 
         Returns:
             Tuple containing:
@@ -521,7 +524,12 @@ class TradeAnalyzer:
         their_waiver_spots_needed = max(0, -their_net_change)
 
         my_waiver_recs = self._get_waiver_recommendations(my_waiver_spots_needed, post_trade_roster=my_new_roster + my_locked)
-        their_waiver_recs = self._get_waiver_recommendations(their_waiver_spots_needed, post_trade_roster=their_new_roster + their_locked)
+
+        # Skip waiver recommendations for waiver "team"
+        if is_waivers:
+            their_waiver_recs = []
+        else:
+            their_waiver_recs = self._get_waiver_recommendations(their_waiver_spots_needed, post_trade_roster=their_new_roster + their_locked)
 
         # Add waiver recommendations to rosters
         my_new_roster_with_waivers = my_new_roster + [rec.player for rec in my_waiver_recs]
@@ -548,7 +556,12 @@ class TradeAnalyzer:
                         f"WR={sum(1 for p in their_full_roster if p.position=='WR')}, "
                         f"TE={sum(1 for p in their_full_roster if p.position=='TE')}")
 
-        their_roster_valid = self.validate_roster_lenient(their_original_full_roster, their_full_roster)
+        # Skip validation for waiver "team"
+        if is_waivers:
+            their_roster_valid = True
+            self.logger.info("Skipping roster validation for waiver team")
+        else:
+            their_roster_valid = self.validate_roster_lenient(their_original_full_roster, their_full_roster)
 
         # If either roster is invalid, return drop candidates
         if not my_roster_valid or not their_roster_valid:
@@ -568,14 +581,16 @@ class TradeAnalyzer:
 
             if not their_roster_valid:
                 # Get position-aware drop candidates for their team
-                # Pass the full post-trade roster to identify which positions are over-limit
-                their_drop_candidates = self._get_position_aware_drop_candidates(
-                    their_team,
-                    post_trade_roster=their_new_roster_with_waivers + their_locked,
-                    exclude_players=their_selected_players,
-                    num_per_position=2
-                )
-                self.logger.debug(f"Their roster invalid - providing {len(their_drop_candidates)} drop candidates")
+                # Skip for waiver team - they have no roster constraints
+                if not is_waivers:
+                    # Pass the full post-trade roster to identify which positions are over-limit
+                    their_drop_candidates = self._get_position_aware_drop_candidates(
+                        their_team,
+                        post_trade_roster=their_new_roster_with_waivers + their_locked,
+                        exclude_players=their_selected_players,
+                        num_per_position=2
+                    )
+                    self.logger.debug(f"Their roster invalid - providing {len(their_drop_candidates)} drop candidates")
 
             return (None, my_drop_candidates, their_drop_candidates)
 

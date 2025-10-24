@@ -55,6 +55,7 @@
   ```
 
 **Recommendation**: Option B (bottom) - Clear separation between real teams and waiver wire
+Answer: Option B
 
 ---
 
@@ -82,7 +83,7 @@
 - Cons: Selecting it still shows error message
 - Example: `8. Waiver (0 players available)`
 
-**Recommendation**: Option B (hide if empty) - Following DRY principle, check once and handle cleanly
+Answer: Option C
 
 ---
 
@@ -110,7 +111,7 @@
 - Pros: Maximum flexibility
 - Cons: Extra UI step, more complex
 
-**Recommendation**: Option A (filtered) - Consistent with waiver optimizer behavior, reduces noise
+**Answer**: Option A (filtered) - Consistent with waiver optimizer behavior, reduces noise
 
 ---
 
@@ -137,7 +138,7 @@
 - Pros: Smart fallback, prevents empty results
 - Cons: More complex logic
 
-**Recommendation**: Option A (no toggle) - Keep it simple, match waiver optimizer behavior
+**Answer**: Option A (no toggle) - Keep it simple, match waiver optimizer behavior
 
 **Note**: If you selected Option B or C for Question 3, this question may not apply.
 
@@ -166,7 +167,7 @@
 - Pros: Configurable without code changes
 - Cons: Requires editing constants file
 
-**Recommendation**: Option A (hardcoded "Waiver Wire") - Consistency is more valuable than customization here
+**Answer**: Option A (hardcoded "Waiver Wire") - Consistency is more valuable than customization here
 
 ---
 

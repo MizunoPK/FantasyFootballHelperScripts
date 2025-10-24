@@ -52,23 +52,23 @@ class ConfigGenerator:
 
     # Parameter definitions: (range_val, min_val, max_val)
     PARAM_DEFINITIONS = {
+        'NORMALIZATION_MAX_SCALE': (10.0, 50.0, 500.0),
         'SAME_POS_BYE_WEIGHT': (0.2, 0.0, 3.0),
         'DIFF_POS_BYE_WEIGHT': (0.2, 0.0, 3.0),
-        'SCHEDULE_SCORING_STEPS': (2.0, 1.0, 15.0),
-        'SCHEDULE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'NORMALIZATION_MAX_SCALE': (10.0, 50.0, 500.0),
         'PRIMARY_BONUS': (10.0, 0.0, 200.0),
         'SECONDARY_BONUS': (10.0, 0.0, 200.0),
         'ADP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PLAYER_RATING_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PERFORMANCE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
+        'SCHEDULE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         # Threshold STEPS parameters (NEW)
         'ADP_SCORING_STEPS': (5.0, 1.0, 60.0),
         'PLAYER_RATING_SCORING_STEPS': (4.0, 1.0, 50.0),
         'TEAM_QUALITY_SCORING_STEPS': (2.0, 1.0, 20.0),
         'PERFORMANCE_SCORING_STEPS': (0.05, 0.05, 0.5),
         'MATCHUP_SCORING_STEPS': (3.0, 1.0, 20.0),
+        'SCHEDULE_SCORING_STEPS': (2.0, 1.0, 15.0),
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -111,9 +111,11 @@ class ConfigGenerator:
     # Parameter ordering for iterative optimization
     # Scalar parameters first, then weights, then threshold STEPS
     PARAMETER_ORDER = [
-        'NORMALIZATION_MAX_SCALE',
         'SAME_POS_BYE_WEIGHT',
         'DIFF_POS_BYE_WEIGHT',
+        'SCHEDULE_SCORING_WEIGHT',
+        'SCHEDULE_SCORING_STEPS',
+        'NORMALIZATION_MAX_SCALE',
         'PRIMARY_BONUS',
         'SECONDARY_BONUS',
         # Multiplier Weights
@@ -121,14 +123,12 @@ class ConfigGenerator:
         'PLAYER_RATING_SCORING_WEIGHT',
         'PERFORMANCE_SCORING_WEIGHT',
         'MATCHUP_SCORING_WEIGHT',
-        'SCHEDULE_SCORING_WEIGHT',
         # Threshold STEPS (NEW)
         'ADP_SCORING_STEPS',
         'PLAYER_RATING_SCORING_STEPS',
         'TEAM_QUALITY_SCORING_STEPS',
         'PERFORMANCE_SCORING_STEPS',
         'MATCHUP_SCORING_STEPS',
-        'SCHEDULE_SCORING_STEPS',
     ]
 
     def __init__(self, baseline_config_path: Path, num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:

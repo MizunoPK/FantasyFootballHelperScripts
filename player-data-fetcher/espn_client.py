@@ -741,11 +741,15 @@ class ESPNClient(BaseAPIClient):
             from config import CURRENT_NFL_WEEK, NFL_SEASON
 
             # Determine which season to use for statistics
-            use_current_season = CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1
-            target_season = NFL_SEASON if use_current_season else NFL_SEASON - 1
+            use_current_season = CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
 
-            self.logger.info(f"Team rankings: Using {'current' if use_current_season else 'previous'} season ({target_season}) data. "
+            self.logger.info(f"Team rankings: Using {'current season' if use_current_season else 'neutral'} data. "
                            f"Current week: {CURRENT_NFL_WEEK}, Min weeks needed: {MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS}")
+
+            # Use neutral rankings if not enough weeks have passed
+            if not use_current_season:
+                self.logger.info(f"Not enough weeks for current season rankings - using neutral data (all ranks = 16)")
+                return self._get_fallback_team_rankings()
 
             # ESPN team IDs mapping (standard NFL team IDs)
             team_ids = {
@@ -755,8 +759,8 @@ class ESPNClient(BaseAPIClient):
                 25: 'SF', 26: 'SEA', 27: 'TB', 28: 'WSH', 29: 'CAR', 30: 'JAX', 33: 'BAL', 34: 'HOU'
             }
 
-            # Use the helper method to calculate rankings for the target season
-            return await self._calculate_team_rankings_for_season(target_season, team_ids)
+            # Use the helper method to calculate rankings for the current season
+            return await self._calculate_team_rankings_for_season(NFL_SEASON, team_ids)
 
         except Exception as e:
             # Handle case where variables might not be defined yet
@@ -767,35 +771,15 @@ class ESPNClient(BaseAPIClient):
                 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
                 from config import CURRENT_NFL_WEEK, NFL_SEASON
                 from config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
-                use_current_season = CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1
-                target_season = NFL_SEASON if use_current_season else NFL_SEASON - 1
-                season_info = f"{target_season} season"
+                use_current_season = CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+                season_info = f"{NFL_SEASON} season" if use_current_season else "neutral data"
             except:
                 pass
 
             self.logger.error(f"Error calculating team rankings for {season_info}: {e}")
 
-            # Try fallback approach if we can determine the variables
-            try:
-                import sys
-                import os
-                sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-                from config import CURRENT_NFL_WEEK, NFL_SEASON
-                from config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
-                use_current_season = CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1
-
-                if use_current_season:
-                    self.logger.info(f"Attempting fallback to previous season ({NFL_SEASON - 1}) data...")
-                    team_ids = {
-                        1: 'ATL', 2: 'BUF', 3: 'CHI', 4: 'CIN', 5: 'CLE', 6: 'DAL', 7: 'DEN', 8: 'DET',
-                        9: 'GB', 10: 'TEN', 11: 'IND', 12: 'KC', 13: 'LV', 14: 'LAR', 15: 'MIA', 16: 'MIN',
-                        17: 'NE', 18: 'NO', 19: 'NYG', 20: 'NYJ', 21: 'PHI', 22: 'ARI', 23: 'PIT', 24: 'LAC',
-                        25: 'SF', 26: 'SEA', 27: 'TB', 28: 'WSH', 29: 'CAR', 30: 'JAX', 33: 'BAL', 34: 'HOU'
-                    }
-                    return await self._calculate_team_rankings_for_season(NFL_SEASON - 1, team_ids)
-            except Exception as fallback_error:
-                self.logger.warning(f"Previous season fallback also failed: {fallback_error}")
-
+            # Always fall back to neutral rankings on error
+            self.logger.info(f"Falling back to neutral team rankings (all ranks = 16)")
             return self._get_fallback_team_rankings()
 
     async def _calculate_team_rankings_for_season(self, season: int, team_ids: Dict[int, str]) -> Dict[str, Dict[str, int]]:

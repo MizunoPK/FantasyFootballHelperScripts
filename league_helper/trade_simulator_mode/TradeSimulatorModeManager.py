@@ -547,9 +547,21 @@ class TradeSimulatorModeManager:
             return (True, [])
 
         # ========== STEP 1: Select opponent team ==========
+        # Calculate waiver players for "Waiver" option
+        # Filter by MIN_WAIVER_IMPROVEMENT threshold (same as waiver optimizer)
+        lowest_scores = self.player_manager.get_lowest_scores_on_roster()
+        for pos, score in lowest_scores.items():
+            lowest_scores[pos] = score + Constants.MIN_WAIVER_IMPROVEMENT
+        waiver_players = self.player_manager.get_player_list(drafted_vals=[0], min_scores=lowest_scores, unlocked_only=True)
+        waiver_count = len(waiver_players)
+        self.logger.info(f"Found {waiver_count} waiver players (filtered by MIN_WAIVER_IMPROVEMENT)")
+
         # Sort teams alphabetically for consistent display
         sorted_teams = sorted(self.opponent_simulated_teams, key=lambda t: t.name)
         opponent_names = [team.name for team in sorted_teams]
+
+        # Add "Waiver" option at bottom of list
+        opponent_names.append(f"Waiver ({waiver_count} players)")
 
         # Show opponent selection menu
         print()
@@ -561,9 +573,23 @@ class TradeSimulatorModeManager:
             self.logger.info("Trade cancelled - no opponent selected")
             return (True, [])
 
-        # Get selected opponent
-        opponent = sorted_teams[choice - 1]
-        self.logger.info(f"Selected opponent: {opponent.name}")
+        # Check if "Waiver" option was selected (last option in list)
+        if choice == len(opponent_names):
+            # Waiver selected - check if any players available
+            if waiver_count == 0:
+                print("\nNo players available on waivers.")
+                self.logger.warning("No waiver players available")
+                return (True, [])
+
+            # Create TradeSimTeam for waiver wire
+            opponent = TradeSimTeam("Waiver Wire", waiver_players, self.player_manager, isOpponent=True)
+            is_waivers = True
+            self.logger.info("Selected Waiver Wire for manual trade")
+        else:
+            # Regular team selected
+            opponent = sorted_teams[choice - 1]
+            is_waivers = False
+            self.logger.info(f"Selected opponent: {opponent.name}")
 
         # ========== STEP 2-5: Input and processing loop ==========
         # Loop until user provides valid trade or cancels
@@ -644,7 +670,8 @@ class TradeSimulatorModeManager:
                 my_selected_players=my_selected_players,
                 their_selected_players=their_selected_players,
                 my_dropped_players=my_dropped_players if my_dropped_players else None,
-                their_dropped_players=their_dropped_players if their_dropped_players else None
+                their_dropped_players=their_dropped_players if their_dropped_players else None,
+                is_waivers=is_waivers
             )
 
             # ========== STEP 5: Handle drops if needed ==========

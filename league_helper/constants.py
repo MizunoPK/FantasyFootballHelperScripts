@@ -68,10 +68,3 @@ DEFENSE_POSITIONS = ["DEF", "DST", "D/ST"]         # Defensive position variatio
 # =============================================================================
 # Weeks in which NFL teams have bye weeks (no game)
 POSSIBLE_BYE_WEEKS = [5, 6, 7, 8, 9, 10, 11, 12, 14]
-
-# =============================================================================
-# SCORING CONFIGURATION
-# =============================================================================
-# Positions that receive matchup multiplier adjustments in scoring
-# (Kickers and Defense excluded as they don't use matchup scoring)
-MATCHUP_ENABLED_POSITIONS = [QB, RB, WR, TE]

@@ -37,13 +37,14 @@ DEFAULT_FILE_CAPS = {'csv': 5, 'json': 5, 'xlsx': 5, 'txt': 5}
 
 # File Paths (FREQUENTLY MODIFIED)
 PLAYERS_CSV = '../data/players.csv'
+TEAMS_CSV = f'../data/teams.csv'  # Output path for team quality rankings
 
 # Team Rankings Configuration (FREQUENTLY MODIFIED)
 MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS = 3  # Minimum games played to use current season data
-# When CURRENT_NFL_WEEK >= MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS + 1, use current season stats
-# Otherwise, fall back to previous season data or neutral rankings
-# Example: If set to 5 and CURRENT_NFL_WEEK is 6+, uses 2025 data. If week 4 or less, uses 2024 data.
-# This ensures rankings are based on meaningful sample sizes rather than small early-season samples.
+# When CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS, use current season stats
+# Otherwise, fall back to neutral rankings
+# Example: If set to 5 and CURRENT_NFL_WEEK is 6+, uses 2025 data. If week 4 or less, uses neutral data.
+# Neutral data is having all ranks set to 16
 
 # =============================================================================
 # LOGGING CONFIGURATION

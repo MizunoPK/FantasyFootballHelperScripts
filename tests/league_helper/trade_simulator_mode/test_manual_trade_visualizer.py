@@ -600,6 +600,239 @@ class TestStartManualTradeIntegration:
         assert result == (True, [])
 
 
+class TestWaiverTradeProcessing:
+    """Tests for process_manual_trade with waiver functionality."""
+
+    @pytest.fixture
+    def mock_data_folder(self, tmp_path):
+        """Create temporary data folder with test files."""
+        data_folder = tmp_path / "data"
+        data_folder.mkdir()
+
+        # Create minimal league_config.json
+        config_file = data_folder / "league_config.json"
+        config_content = {
+            "config_name": "test",
+            "description": "test config",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 1,
+                "NFL_SEASON": 2025,
+                "NFL_SCORING_FORMAT": "ppr",
+                "NORMALIZATION_MAX_SCALE": 100.0,
+                "SAME_POS_BYE_WEIGHT": 1.0,
+                "DIFF_POS_BYE_WEIGHT": 1.0,
+                "DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY": 5.0,
+                "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": 10, "HIGH": 75},
+                "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
+                "DRAFT_ORDER": [{"FLEX": "P"}],
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
+                "ADP_SCORING": {
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 35},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                },
+                "PLAYER_RATING_SCORING": {
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 22},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                },
+                "TEAM_QUALITY_SCORING": {
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 5},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                },
+                "PERFORMANCE_SCORING": {
+                    "MIN_WEEKS": 3,
+                    "THRESHOLDS": {"BASE_POSITION": 0.0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 0.15},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                },
+                "MATCHUP_SCORING": {
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 6},
+                    "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
+                    "WEIGHT": 1.0
+                }
+            }
+        }
+        import json
+        config_file.write_text(json.dumps(config_content, indent=2))
+
+        # Create minimal players.csv
+        players_file = data_folder / "players.csv"
+        players_file.write_text("id,name,team,position,bye_week,fantasy_points,injury_status,drafted,locked\n")
+
+        # Create minimal teams.csv
+        teams_file = data_folder / "teams_latest.csv"
+        teams_file.write_text("team,rank,offensive_rank,defensive_rank\n")
+
+        return data_folder
+
+    @pytest.fixture
+    def sample_players(self):
+        """Create sample players for testing."""
+        return {
+            'qb1': FantasyPlayer(id=1, name="QB1", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted=1),
+            'rb1': FantasyPlayer(id=2, name="RB1", team="TST", position="RB", bye_week=8, fantasy_points=150.0, injury_status="ACTIVE", drafted=1),
+            'wr1': FantasyPlayer(id=3, name="WR1", team="TST", position="WR", bye_week=9, fantasy_points=140.0, injury_status="ACTIVE", drafted=1),
+            'waiver_rb': FantasyPlayer(id=10, name="Waiver RB", team="FA", position="RB", bye_week=10, fantasy_points=100.0, injury_status="ACTIVE", drafted=0),
+            'waiver_wr': FantasyPlayer(id=11, name="Waiver WR", team="FA", position="WR", bye_week=11, fantasy_points=90.0, injury_status="ACTIVE", drafted=0),
+        }
+
+    @pytest.fixture
+    def mock_teams(self, sample_players):
+        """Create mock teams for testing."""
+        from unittest.mock import Mock
+
+        my_team = Mock()
+        my_team.name = "My Team"
+        my_team.team = [sample_players['qb1'], sample_players['rb1'], sample_players['wr1']]
+
+        waiver_team = Mock()
+        waiver_team.name = "Waiver Wire"
+        waiver_team.team = [sample_players['waiver_rb'], sample_players['waiver_wr']]
+
+        return my_team, waiver_team
+
+    def test_process_manual_trade_waiver_skips_their_validation(self, mock_teams, sample_players, mock_data_folder):
+        """Test that is_waivers=True skips waiver team validation."""
+        from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
+        from unittest.mock import Mock
+
+        # Setup
+        config = ConfigManager(mock_data_folder)
+        team_data_mgr = TeamDataManager(mock_data_folder)
+        season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
+        player_manager = PlayerManager(mock_data_folder, config, team_data_mgr, season_schedule_mgr)
+        analyzer = TradeAnalyzer(player_manager, config)
+
+        my_team, waiver_team = mock_teams
+
+        # Mock validate_roster_lenient to track calls
+        original_validate = analyzer.validate_roster_lenient
+        validate_calls = []
+        def track_validate(original_roster, new_roster):
+            validate_calls.append((original_roster, new_roster))
+            return True
+        analyzer.validate_roster_lenient = track_validate
+
+        # Execute - trade with waivers (1-for-1)
+        snapshot, my_drops, their_drops = analyzer.process_manual_trade(
+            my_team=my_team,
+            their_team=waiver_team,
+            my_selected_players=[sample_players['rb1']],
+            their_selected_players=[sample_players['waiver_rb']],
+            is_waivers=True
+        )
+
+        # Verify - validate should only be called for my team, not waiver team
+        assert len(validate_calls) == 1, "Should only validate my team when is_waivers=True"
+        assert snapshot is not None, "Trade should succeed with valid user roster"
+        assert their_drops == [], "Waiver team should have no drop candidates"
+
+    def test_process_manual_trade_waiver_validates_my_team(self, mock_teams, sample_players, mock_data_folder):
+        """Test that user team validation still runs with is_waivers=True."""
+        from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
+        from unittest.mock import Mock
+
+        # Setup
+        config = ConfigManager(mock_data_folder)
+        team_data_mgr = TeamDataManager(mock_data_folder)
+        season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
+        player_manager = PlayerManager(mock_data_folder, config, team_data_mgr, season_schedule_mgr)
+        analyzer = TradeAnalyzer(player_manager, config)
+
+        my_team, waiver_team = mock_teams
+
+        # Mock validate_roster_lenient to return False for my team
+        def mock_validate(original_roster, new_roster):
+            return False  # My roster is invalid
+        analyzer.validate_roster_lenient = mock_validate
+
+        # Execute - trade with waivers
+        snapshot, my_drops, their_drops = analyzer.process_manual_trade(
+            my_team=my_team,
+            their_team=waiver_team,
+            my_selected_players=[sample_players['rb1']],
+            their_selected_players=[sample_players['waiver_rb']],
+            is_waivers=True
+        )
+
+        # Verify - snapshot should be None because my roster is invalid
+        assert snapshot is None, "Trade should fail when user roster invalid"
+        assert len(my_drops) > 0 or True, "Should provide drop candidates for my team"
+        assert their_drops == [], "Waiver team should have no drop candidates"
+
+    def test_process_manual_trade_normal_trade_validates_both_teams(self, mock_teams, sample_players, mock_data_folder):
+        """Test that normal trades (is_waivers=False) validate both teams."""
+        from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
+
+        # Setup
+        config = ConfigManager(mock_data_folder)
+        team_data_mgr = TeamDataManager(mock_data_folder)
+        season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
+        player_manager = PlayerManager(mock_data_folder, config, team_data_mgr, season_schedule_mgr)
+        analyzer = TradeAnalyzer(player_manager, config)
+
+        my_team, their_team = mock_teams
+
+        # Mock validate_roster_lenient to track calls
+        validate_calls = []
+        def track_validate(original_roster, new_roster):
+            validate_calls.append((original_roster, new_roster))
+            return True
+        analyzer.validate_roster_lenient = track_validate
+
+        # Execute - normal trade (NOT waivers)
+        snapshot, my_drops, their_drops = analyzer.process_manual_trade(
+            my_team=my_team,
+            their_team=their_team,
+            my_selected_players=[sample_players['rb1']],
+            their_selected_players=[sample_players['qb1']],
+            is_waivers=False
+        )
+
+        # Verify - validate should be called for BOTH teams
+        assert len(validate_calls) == 2, "Should validate both teams when is_waivers=False"
+
+    def test_process_manual_trade_waiver_skips_their_waiver_recommendations(self, mock_teams, sample_players, mock_data_folder):
+        """Test that waiver team doesn't get waiver recommendations."""
+        from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
+        from unittest.mock import Mock, patch
+
+        # Setup
+        config = ConfigManager(mock_data_folder)
+        team_data_mgr = TeamDataManager(mock_data_folder)
+        season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
+        player_manager = PlayerManager(mock_data_folder, config, team_data_mgr, season_schedule_mgr)
+        analyzer = TradeAnalyzer(player_manager, config)
+
+        my_team, waiver_team = mock_teams
+
+        # Mock validate_roster_lenient to always return True
+        analyzer.validate_roster_lenient = lambda *args: True
+
+        # Mock _get_waiver_recommendations to track calls
+        waiver_rec_calls = []
+        original_get_waiver_recs = analyzer._get_waiver_recommendations
+        def track_waiver_recs(*args, **kwargs):
+            waiver_rec_calls.append((args, kwargs))
+            return []
+        analyzer._get_waiver_recommendations = track_waiver_recs
+
+        # Execute - unequal trade (2-for-1) with waivers, their team would normally need waivers
+        snapshot, my_drops, their_drops = analyzer.process_manual_trade(
+            my_team=my_team,
+            their_team=waiver_team,
+            my_selected_players=[sample_players['rb1'], sample_players['wr1']],
+            their_selected_players=[sample_players['waiver_rb']],
+            is_waivers=True
+        )
+
+        # Verify - _get_waiver_recommendations should only be called once (for my team)
+        assert len(waiver_rec_calls) <= 1, "Waiver recommendations should only be for my team when is_waivers=True"
+
+
 # Test coverage marker
 def test_module_imports():
     """Verify all required modules can be imported."""

@@ -135,22 +135,9 @@ class TestByeWeeks:
         assert len(constants.POSSIBLE_BYE_WEEKS) == len(set(constants.POSSIBLE_BYE_WEEKS))
 
 
-class TestScoringConfiguration:
-    """Test suite for scoring configuration constants."""
-
-    def test_matchup_enabled_positions_are_offensive(self):
-        """Test that matchup multipliers apply only to offensive skill positions."""
-        # K and DST should NOT have matchup multipliers
-        assert constants.QB in constants.MATCHUP_ENABLED_POSITIONS
-        assert constants.RB in constants.MATCHUP_ENABLED_POSITIONS
-        assert constants.WR in constants.MATCHUP_ENABLED_POSITIONS
-        assert constants.TE in constants.MATCHUP_ENABLED_POSITIONS
-
-    def test_matchup_enabled_excludes_kicker_and_defense(self):
-        """Test that kickers and defense don't use matchup scoring."""
-        assert constants.K not in constants.MATCHUP_ENABLED_POSITIONS
-        assert constants.DST not in constants.MATCHUP_ENABLED_POSITIONS
-
+# Note: MATCHUP_ENABLED_POSITIONS constant was deprecated (2025-10-24)
+# All positions now receive matchup multipliers unconditionally
+# Removed TestScoringConfiguration class that tested deprecated behavior
 
 # Note: get_position_with_flex() function tests moved to test_ConfigManager_flex_eligible_positions.py
 # since get_position_with_flex() is now a ConfigManager instance method

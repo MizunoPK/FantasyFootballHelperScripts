@@ -446,9 +446,9 @@ class ConfigManager:
         same_pos_median_total = sum(calculate_player_median(p) for p in same_pos_players)
         diff_pos_median_total = sum(calculate_player_median(p) for p in diff_pos_players)
 
-        # Apply exponential scaling
-        same_penalty = same_pos_median_total ** self.same_pos_bye_weight
-        diff_penalty = diff_pos_median_total ** self.diff_pos_bye_weight
+        # Apply scaling
+        same_penalty = same_pos_median_total * self.same_pos_bye_weight
+        diff_penalty = diff_pos_median_total * self.diff_pos_bye_weight
 
         total_penalty = same_penalty + diff_penalty
 
