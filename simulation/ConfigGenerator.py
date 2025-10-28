@@ -62,6 +62,9 @@ class ConfigGenerator:
         'PERFORMANCE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'SCHEDULE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
+        # IMPACT_SCALE parameters for additive scoring (NEW)
+        'MATCHUP_IMPACT_SCALE': (25.0, 100.0, 200.0),
+        'SCHEDULE_IMPACT_SCALE': (20.0, 40.0, 120.0),
         # Threshold STEPS parameters (NEW)
         'ADP_SCORING_STEPS': (5.0, 1.0, 60.0),
         'PLAYER_RATING_SCORING_STEPS': (4.0, 1.0, 50.0),
@@ -129,6 +132,9 @@ class ConfigGenerator:
         'TEAM_QUALITY_SCORING_STEPS',
         'PERFORMANCE_SCORING_STEPS',
         'MATCHUP_SCORING_STEPS',
+        # Impact Scales (ADDITIVE SCORING)
+        'MATCHUP_IMPACT_SCALE',
+        'SCHEDULE_IMPACT_SCALE',
     ]
 
     def __init__(self, baseline_config_path: Path, num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:
@@ -235,7 +241,7 @@ class ConfigGenerator:
 
     def generate_all_parameter_value_sets(self) -> Dict[str, List[float]]:
         """
-        Generate value sets for all 16 parameters (5 scalar + 5 weights + 6 threshold STEPS).
+        Generate value sets for all 18 parameters (5 scalar + 5 weights + 6 threshold STEPS + 2 IMPACT_SCALE).
 
         Returns:
             Dict[str, List[float]]: {param_name: [N+1 values]} where N = num_test_values
@@ -307,11 +313,26 @@ class ConfigGenerator:
         for scoring_type in ["ADP_SCORING", "PLAYER_RATING_SCORING", "TEAM_QUALITY_SCORING",
                              "PERFORMANCE_SCORING", "MATCHUP_SCORING", "SCHEDULE_SCORING"]:
             steps_param = f"{scoring_type}_STEPS"
-            current_steps = params[scoring_type]['THRESHOLDS']['STEPS']
-            range_val, min_val, max_val = self.param_definitions[steps_param]
-            value_sets[steps_param] = self.generate_parameter_values(
-                steps_param,
-                current_steps,
+            # Check if using parameterized format (has STEPS key)
+            if 'STEPS' in params[scoring_type]['THRESHOLDS']:
+                current_steps = params[scoring_type]['THRESHOLDS']['STEPS']
+                range_val, min_val, max_val = self.param_definitions[steps_param]
+                value_sets[steps_param] = self.generate_parameter_values(
+                    steps_param,
+                    current_steps,
+                    range_val,
+                    min_val,
+                    max_val
+                )
+
+        # IMPACT_SCALE parameters (additive scoring - NEW)
+        for scoring_type in ["MATCHUP_SCORING", "SCHEDULE_SCORING"]:
+            impact_param = scoring_type.replace('_SCORING', '_IMPACT_SCALE')
+            current_impact = params[scoring_type]['IMPACT_SCALE']
+            range_val, min_val, max_val = self.param_definitions[impact_param]
+            value_sets[impact_param] = self.generate_parameter_values(
+                impact_param,
+                current_impact,
                 range_val,
                 min_val,
                 max_val
@@ -537,6 +558,14 @@ class ConfigGenerator:
 
             current_val = params[section]['THRESHOLDS']['STEPS']
             range_val, min_val, max_val = self.param_definitions[param_name]
+        elif '_IMPACT_SCALE' in param_name:
+            # Extract section for IMPACT_SCALE (additive scoring)
+            # Format: SECTION_IMPACT_SCALE (e.g., 'MATCHUP_IMPACT_SCALE')
+            parts = param_name.split('_IMPACT_SCALE')
+            section = parts[0] + '_SCORING'  # e.g., 'MATCHUP_SCORING'
+
+            current_val = params[section]['IMPACT_SCALE']
+            range_val, min_val, max_val = self.param_definitions[param_name]
         else:
             raise ValueError(f"Unknown parameter: {param_name}")
 
@@ -605,6 +634,11 @@ class ConfigGenerator:
                     if 'STEPS' in baseline_thresholds:
                         combination[param_name] = baseline_thresholds['STEPS']
 
+        # IMPACT_SCALE for additive scoring (NEW)
+        for section in ['MATCHUP', 'SCHEDULE']:
+            param_name = f'{section}_IMPACT_SCALE'
+            combination[param_name] = params[f'{section}_SCORING']['IMPACT_SCALE']
+
         return combination
 
     def create_config_dict(self, combination: Dict[str, float]) -> dict:
@@ -632,6 +666,10 @@ class ConfigGenerator:
         params['DIFF_POS_BYE_WEIGHT'] = combination['DIFF_POS_BYE_WEIGHT']
         params['DRAFT_ORDER_BONUSES']['PRIMARY'] = combination['PRIMARY_BONUS']
         params['DRAFT_ORDER_BONUSES']['SECONDARY'] = combination['SECONDARY_BONUS']
+
+        # Update IMPACT_SCALE for additive scoring (NEW)
+        params['MATCHUP_SCORING']['IMPACT_SCALE'] = combination['MATCHUP_IMPACT_SCALE']
+        params['SCHEDULE_SCORING']['IMPACT_SCALE'] = combination['SCHEDULE_IMPACT_SCALE']
 
         # Update weights
         for parameter in ['ADP', 'PLAYER_RATING', 'PERFORMANCE', 'MATCHUP', 'SCHEDULE']:

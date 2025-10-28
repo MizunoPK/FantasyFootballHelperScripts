@@ -190,23 +190,44 @@ class PlayerManager:
 
 **Scoring Algorithm**:
 ```
-Total Score = Base Score + ADP Bonus + Consistency Bonus
-              - Injury Penalty - Bye Week Penalty
-              + Team Strength Multiplier
+Total Score = Base Score + Multiplicative Factors + Additive Bonuses/Penalties
+
+Multiplicative Factors (applied to base score):
+  - ADP Multiplier (e.g., ×1.20 for top picks)
+  - Player Rating Multiplier (e.g., ×1.25 for elite players)
+  - Team Quality Multiplier (e.g., ×1.30 for top offenses)
+
+Additive Bonuses/Penalties (added to score):
+  - Draft Order Bonus (e.g., +50 pts for primary position)
+  - Matchup Bonus: (IMPACT_SCALE × multiplier) - IMPACT_SCALE (e.g., +37.5 pts)
+  - Schedule Bonus: (IMPACT_SCALE × multiplier) - IMPACT_SCALE (e.g., +20.0 pts)
+  - Bye Week Penalty (median-based exponential)
+  - Injury Penalty
 
 Where:
-  Base Score = Projected Points × Projected Points Multiplier
-  ADP Bonus = Interpolated multiplier from ADP curve
-  Consistency Bonus = Consistency Rating × Position Multiplier
-  Injury Penalty = Config penalty based on injury status
-  Bye Week Penalty = Median-based exponential penalty (see details below)
-  Team Multiplier = Offensive/Defensive rank adjustment
+  Base Score = Projected Points (normalized)
+  MATCHUP_SCORING.IMPACT_SCALE = 150.0 (default, range: 100-200)
+  SCHEDULE_SCORING.IMPACT_SCALE = 80.0 (default, range: 40-120)
+
+Matchup/Schedule Bonus Formula:
+  bonus = (IMPACT_SCALE × weighted_multiplier) - IMPACT_SCALE
+
+  Examples (MATCHUP_SCORING.IMPACT_SCALE = 150.0):
+    - EXCELLENT (1.25): (150 × 1.25) - 150 = +37.5 pts
+    - GOOD (1.10): (150 × 1.10) - 150 = +15.0 pts
+    - NEUTRAL (1.0): (150 × 1.0) - 150 = 0.0 pts
+    - POOR (0.90): (150 × 0.90) - 150 = -15.0 pts
 
 Bye Week Penalty Calculation:
   1. Collect players with same bye week (same position and different position)
   2. Calculate median weekly points (weeks 1-17) for each player
   3. Sum medians for same-position and different-position groups
   4. Apply exponential scaling: (same_sum ** SAME_POS_BYE_WEIGHT) + (diff_sum ** DIFF_POS_BYE_WEIGHT)
+
+Design Philosophy:
+  - Multiplicative factors scale with player value (better for relative comparisons)
+  - Additive bonuses provide consistent impact (prevents compounding effects)
+  - Matchup/Schedule use additive system to avoid over-valuing elite players in good matchups
 ```
 
 **Data Structures**:

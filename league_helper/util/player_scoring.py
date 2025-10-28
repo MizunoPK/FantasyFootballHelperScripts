@@ -555,19 +555,25 @@ class PlayerScoringCalculator:
         return player_score * multiplier, reason
 
     def _apply_matchup_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
-        """Apply matchup multiplier (Step 6)."""
-        # Apply matchup adjustments to all positions
+        """Apply matchup additive bonus (Step 6)."""
+        # Apply matchup adjustments to all positions as additive bonuses
         # Matchup score represents opponent strength differential
-        # Positive score = favorable matchup (weak opponent)
-        # Negative score = unfavorable matchup (strong opponent)
+        # Positive score = favorable matchup (weak opponent) → positive bonus
+        # Negative score = unfavorable matchup (strong opponent) → negative penalty
+        # All players get same absolute bonus for same matchup (environmental factor)
         multiplier, rating = self.config.get_matchup_multiplier(p.matchup_score)
+        impact_scale = self.config.matchup_scoring['IMPACT_SCALE']
+        bonus = (impact_scale * multiplier) - impact_scale
 
-        reason = f"Matchup: {rating} ({multiplier:.2f}x)"
-        return player_score * multiplier, reason
+        reason = f"Matchup: {rating} ({bonus:+.1f} pts)"
+        return player_score + bonus, reason
 
     def _apply_schedule_multiplier(self, player: FantasyPlayer, player_score: float) -> Tuple[float, str]:
         """
-        Apply schedule strength multiplier based on future opponent difficulty.
+        Apply schedule strength additive bonus based on future opponent difficulty.
+
+        Schedule bonuses are additive (not multiplicative) because schedule represents
+        environmental opportunity available equally to all players, not ability multipliers.
 
         Args:
             player: Player to score
@@ -585,12 +591,16 @@ class PlayerScoringCalculator:
         # Get multiplier and rating
         multiplier, rating = self.config.get_schedule_multiplier(schedule_value)
 
-        # Apply multiplier
-        new_score = player_score * multiplier
-        reason = f"Schedule: {rating} (avg opp def rank: {schedule_value:.1f}, {multiplier:.2f}x)"
+        # Calculate additive bonus
+        impact_scale = self.config.schedule_scoring['IMPACT_SCALE']
+        bonus = (impact_scale * multiplier) - impact_scale
+
+        # Apply bonus
+        new_score = player_score + bonus
+        reason = f"Schedule: {rating} (avg opp def rank: {schedule_value:.1f}, {bonus:+.1f} pts)"
 
         self.logger.debug(
-            f"{player.name}: Schedule multiplier {multiplier:.3f} "
+            f"{player.name}: Schedule bonus {bonus:+.1f} pts "
             f"({schedule_value:.1f} avg rank) -> {player_score:.2f} to {new_score:.2f}"
         )
 

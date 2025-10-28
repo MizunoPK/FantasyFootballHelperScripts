@@ -99,6 +99,7 @@ class TestConfigGeneratorInitialization:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
@@ -113,6 +114,7 @@ class TestConfigGeneratorInitialization:
                     }
                 },
                 "SCHEDULE_SCORING": {
+                    "IMPACT_SCALE": 80.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.05,
@@ -174,13 +176,15 @@ class TestConfigGeneratorInitialization:
         assert 'PLAYER_RATING_SCORING_WEIGHT' in gen.param_definitions
         assert 'MATCHUP_SCORING_WEIGHT' in gen.param_definitions
         assert 'PERFORMANCE_SCORING_WEIGHT' in gen.param_definitions
+        assert 'MATCHUP_IMPACT_SCALE' in gen.param_definitions
+        assert 'SCHEDULE_IMPACT_SCALE' in gen.param_definitions
 
     def test_parameter_order_exists(self, temp_baseline_config):
         """Test that PARAMETER_ORDER list exists and has expected length"""
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 16  # 5 scalars + 5 weights + 6 threshold STEPS
+        assert len(gen.PARAMETER_ORDER) == 18  # 5 scalars + 5 weights + 6 threshold STEPS + 2 IMPACT_SCALE
 
 
 class TestParameterValueGeneration:
@@ -258,6 +262,7 @@ class TestParameterValueGeneration:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
@@ -272,6 +277,7 @@ class TestParameterValueGeneration:
                     }
                 },
                 "SCHEDULE_SCORING": {
+                    "IMPACT_SCALE": 80.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.05,
@@ -339,7 +345,7 @@ class TestParameterValueGeneration:
         value_sets = generator.generate_all_parameter_value_sets()
 
         # Should have 5 scalar + 5 weight + 6 threshold STEPS parameters
-        assert len(value_sets) == 16  # Updated for threshold STEPS + SCHEDULE_SCORING
+        assert len(value_sets) == 18  # Updated for threshold STEPS + SCHEDULE_SCORING + IMPACT_SCALE
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'SAME_POS_BYE_WEIGHT' in value_sets
         assert 'DIFF_POS_BYE_WEIGHT' in value_sets
@@ -350,6 +356,8 @@ class TestParameterValueGeneration:
         assert 'MATCHUP_SCORING_WEIGHT' in value_sets
         assert 'PERFORMANCE_SCORING_WEIGHT' in value_sets
         assert 'SCHEDULE_SCORING_WEIGHT' in value_sets
+        assert 'MATCHUP_IMPACT_SCALE' in value_sets
+        assert 'SCHEDULE_IMPACT_SCALE' in value_sets
 
     def test_generate_all_parameter_value_sets_correct_value_count(self, generator):
         """Test that each value set has correct number of values"""
@@ -435,6 +443,7 @@ class TestCombinationGeneration:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
@@ -449,6 +458,7 @@ class TestCombinationGeneration:
                     }
                 },
                 "SCHEDULE_SCORING": {
+                    "IMPACT_SCALE": 80.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.05,
@@ -480,7 +490,7 @@ class TestCombinationGeneration:
         value_sets = generator.generate_all_parameter_value_sets()
 
         # Verify value sets exist for all expected parameters
-        assert len(value_sets) == 16  # 5 scalars + 5 weights + 6 threshold STEPS
+        assert len(value_sets) == 18  # 5 scalars + 5 weights + 6 threshold STEPS + 2 IMPACT_SCALE
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
         assert 'SCHEDULE_SCORING_WEIGHT' in value_sets
@@ -580,6 +590,7 @@ class TestConfigDictCreation:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
@@ -594,6 +605,7 @@ class TestConfigDictCreation:
                     }
                 },
                 "SCHEDULE_SCORING": {
+                    "IMPACT_SCALE": 80.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.05,
@@ -627,7 +639,9 @@ class TestConfigDictCreation:
             'PLAYER_RATING_SCORING_WEIGHT': 1.3,
             'PERFORMANCE_SCORING_WEIGHT': 1.1,
             'MATCHUP_SCORING_WEIGHT': 1.4,
-            'SCHEDULE_SCORING_WEIGHT': 1.2
+            'SCHEDULE_SCORING_WEIGHT': 1.2,
+            'MATCHUP_IMPACT_SCALE': 175.0,
+            'SCHEDULE_IMPACT_SCALE': 90.0
         }
 
         return gen, combination
@@ -643,6 +657,8 @@ class TestConfigDictCreation:
         assert params['DIFF_POS_BYE_WEIGHT'] == 1.2
         assert params['DRAFT_ORDER_BONUSES']['PRIMARY'] == 55.0
         assert params['DRAFT_ORDER_BONUSES']['SECONDARY'] == 45.0
+        assert params['MATCHUP_SCORING']['IMPACT_SCALE'] == 175.0
+        assert params['SCHEDULE_SCORING']['IMPACT_SCALE'] == 90.0
 
     def test_create_config_dict_updates_multipliers(self, generator_and_combo):
         """Test that weights are updated in all sections"""
@@ -747,6 +763,7 @@ class TestIterativeOptimizationSupport:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
@@ -761,6 +778,7 @@ class TestIterativeOptimizationSupport:
                     }
                 },
                 "SCHEDULE_SCORING": {
+                    "IMPACT_SCALE": 80.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.05,
@@ -809,7 +827,7 @@ class TestIterativeOptimizationSupport:
         config = generator.baseline_config
         combination = generator._extract_combination_from_config(config)
 
-        # Should have all parameters (5 scalar + 5 weights + 6 threshold STEPS)
+        # Should have all parameters (5 scalar + 5 weights + 6 threshold STEPS + 2 IMPACT_SCALE)
         assert 'NORMALIZATION_MAX_SCALE' in combination
         assert 'SAME_POS_BYE_WEIGHT' in combination
         assert 'DIFF_POS_BYE_WEIGHT' in combination
@@ -820,7 +838,9 @@ class TestIterativeOptimizationSupport:
         assert 'MATCHUP_SCORING_WEIGHT' in combination
         assert 'PERFORMANCE_SCORING_WEIGHT' in combination
         assert 'SCHEDULE_SCORING_WEIGHT' in combination
-        assert len(combination) == 16  # Updated for threshold STEPS parameters + SCHEDULE_SCORING
+        assert 'MATCHUP_IMPACT_SCALE' in combination
+        assert 'SCHEDULE_IMPACT_SCALE' in combination
+        assert len(combination) == 18  # Updated for threshold STEPS parameters + SCHEDULE_SCORING + IMPACT_SCALE
 
     def test_generate_single_parameter_configs_for_multiplier(self, generator):
         """Test generating configs for a weight parameter"""
@@ -944,6 +964,7 @@ class TestGenerateIterativeCombinations:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.2,
@@ -958,6 +979,7 @@ class TestGenerateIterativeCombinations:
                     }
                 },
                 "SCHEDULE_SCORING": {
+                    "IMPACT_SCALE": 80.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.05,
@@ -1049,23 +1071,23 @@ class TestGenerateIterativeCombinations:
             temp_path.unlink()
 
     def test_edge_case_num_parameters_exceeds_available(self, baseline_config_dict):
-        """Test with NUM_PARAMETERS_TO_TEST > 16 (should cap at 16)"""
+        """Test with NUM_PARAMETERS_TO_TEST > 18 (should cap at 18)"""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             json.dump(baseline_config_dict, f)
             temp_path = Path(f.name)
 
         try:
-            # Use num_test_values=1 to keep cartesian product small (2^16 = 65,536 configs)
+            # Use num_test_values=1 to keep cartesian product small (2^18 = 262,144 configs)
             generator = ConfigGenerator(temp_path, num_test_values=1, num_parameters_to_test=20)
 
-            # Should cap at 16 parameters
+            # Should cap at 18 parameters
             configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
 
-            # Should generate configs (capped at 16 params)
-            # Individual: 16*2 = 32
-            # Combinations: 2^16 = 65,536
-            # Total: 65,568 configs
-            assert len(configs) == 65568
+            # Should generate configs (capped at 18 params)
+            # Individual: 18*2 = 36
+            # Combinations: 2^18 = 262,144
+            # Total: 262,180 configs
+            assert len(configs) == 262180
             assert all('parameters' in config for config in configs)
         finally:
             temp_path.unlink()

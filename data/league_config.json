@@ -5,17 +5,17 @@
     "CURRENT_NFL_WEEK": 8,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 141.67703079140796,
-    "SAME_POS_BYE_WEIGHT": 1.0,
-    "DIFF_POS_BYE_WEIGHT": 1.0,
+    "NORMALIZATION_MAX_SCALE": 148.77464126010355,
+    "SAME_POS_BYE_WEIGHT": 0.0,
+    "DIFF_POS_BYE_WEIGHT": 0.0,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 0,
       "HIGH": 100
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 70.7874847549599,
-      "SECONDARY": 72.86631970156644
+      "PRIMARY": 66.84679290832068,
+      "SECONDARY": 75.0
     },
     "DRAFT_ORDER": [
       {
@@ -89,9 +89,10 @@
     ],
     "ADP_SCORING": {
       "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "DECREASING",
-        "STEPS": 35.36196550319079
+        "VERY_POOR": 150,
+        "POOR": 100,
+        "GOOD": 50,
+        "EXCELLENT": 20
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -99,13 +100,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.3105230819094893
+      "WEIGHT": 0.6903399305370368
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "INCREASING",
-        "STEPS": 22.061082771834826
+        "VERY_POOR": 20,
+        "POOR": 40,
+        "GOOD": 60,
+        "EXCELLENT": 80
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -113,13 +115,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.732987507067976
+      "WEIGHT": 2.307242999510051
     },
     "TEAM_QUALITY_SCORING": {
       "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "DECREASING",
-        "STEPS": 4.732919621248519
+        "VERY_POOR": 25,
+        "POOR": 18,
+        "GOOD": 10,
+        "EXCELLENT": 5
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -127,28 +130,30 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.3573337942451747
+      "WEIGHT": 0.0
     },
     "PERFORMANCE_SCORING": {
       "MIN_WEEKS": 3,
       "THRESHOLDS": {
-        "BASE_POSITION": 0.0,
-        "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.16653352315952885
+        "VERY_POOR": -0.2,
+        "POOR": -0.1,
+        "GOOD": 0.1,
+        "EXCELLENT": 0.2
       },
       "MULTIPLIERS": {
-        "VERY_POOR": 0.95,
-        "POOR": 0.975,
+        "VERY_POOR": 0.96,
+        "POOR": 0.925,
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.1317730786118523
+      "WEIGHT": 0.6276694825158204
     },
     "MATCHUP_SCORING": {
+      "IMPACT_SCALE": 150.0,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 5.898216858510263
+        "STEPS": 7.5
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -156,21 +161,22 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.6185717370476833
+      "WEIGHT": 0.9500804060705965
     },
     "SCHEDULE_SCORING": {
+      "IMPACT_SCALE": 80.0,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
         "STEPS": 8
       },
       "MULTIPLIERS": {
-        "VERY_POOR": 0.95,
-        "POOR": 0.975,
-        "GOOD": 1.025,
-        "EXCELLENT": 1.05
+        "VERY_POOR": 1.0,
+        "POOR": 1.0,
+        "GOOD": 1.0,
+        "EXCELLENT": 1.0
       },
-      "WEIGHT": 1.0
+      "WEIGHT": 0.0
     }
   }
 }

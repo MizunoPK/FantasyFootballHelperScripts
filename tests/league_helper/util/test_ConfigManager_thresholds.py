@@ -99,6 +99,7 @@ def minimal_hardcoded_config(temp_data_folder):
                 "WEIGHT": 1.0
             },
             "MATCHUP_SCORING": {
+                "IMPACT_SCALE": 150.0,
                 "THRESHOLDS": {
                     "VERY_POOR": -15,
                     "POOR": -6,
@@ -109,6 +110,7 @@ def minimal_hardcoded_config(temp_data_folder):
                 "WEIGHT": 1.0
             },
             "SCHEDULE_SCORING": {
+                "IMPACT_SCALE": 80.0,
                 "THRESHOLDS": {
                     "VERY_POOR": 8,
                     "POOR": 12,
@@ -184,6 +186,7 @@ def parameterized_config(temp_data_folder):
                 "WEIGHT": 1.0
             },
             "MATCHUP_SCORING": {
+                "IMPACT_SCALE": 150.0,
                 "THRESHOLDS": {
                     "BASE_POSITION": 0,
                     "DIRECTION": "BI_EXCELLENT_HI",
@@ -193,6 +196,7 @@ def parameterized_config(temp_data_folder):
                 "WEIGHT": 1.0
             },
             "SCHEDULE_SCORING": {
+                "IMPACT_SCALE": 80.0,
                 "THRESHOLDS": {
                     "BASE_POSITION": 16,
                     "DIRECTION": "INCREASING",

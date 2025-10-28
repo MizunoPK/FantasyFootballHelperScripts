@@ -156,6 +156,7 @@ def mock_data_folder(tmp_path):
       "WEIGHT": 1.0
     },
     "MATCHUP_SCORING": {
+      "IMPACT_SCALE": 150.0,
       "THRESHOLDS": {
         "EXCELLENT": 15,
         "GOOD": 6,
@@ -169,6 +170,22 @@ def mock_data_folder(tmp_path):
         "VERY_POOR": 0.75
       },
       "WEIGHT": 1.0
+    },
+    "SCHEDULE_SCORING": {
+      "IMPACT_SCALE": 80.0,
+      "THRESHOLDS": {
+        "EXCELLENT": 24,
+        "GOOD": 20,
+        "POOR": 12,
+        "VERY_POOR": 8
+      },
+      "MULTIPLIERS": {
+        "EXCELLENT": 1.0,
+        "GOOD": 1.0,
+        "POOR": 1.0,
+        "VERY_POOR": 1.0
+      },
+      "WEIGHT": 0.0
     }
   }
 }"""
@@ -455,9 +472,10 @@ class TestWeeklyProjections:
             injury=False
         )
 
-        # Expected: (25/300)*100 = 8.33... * 1.10 (matchup)
+        # Expected: (25/300)*100 = 8.33... + 15.0 (matchup GOOD bonus)
+        # matchup_score = 10 (GOOD): bonus = (150*1.10)-150 = +15.0
         expected_base = (25.0 / 300.0) * 100.0
-        expected_final = expected_base * 1.10
+        expected_final = expected_base + 15.0
 
         assert abs(scored_player.score - expected_final) < 0.01
         assert scored_player.player == test_player
@@ -667,52 +685,63 @@ class TestMatchupMultiplier:
     """Test Step 6: Matchup multiplier application"""
 
     def test_matchup_excellent(self, player_manager, test_player):
-        """Matchup >= 15 should get EXCELLENT (1.25)"""
+        """Matchup >= 15 should get EXCELLENT (+37.5 pts with IMPACT_SCALE=150.0)"""
         test_player.matchup_score = 18
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        assert result == 100.0 * 1.25
-        assert reason == "Matchup: EXCELLENT (1.25x)"
+        # IMPACT_SCALE=150.0, multiplier=1.25: bonus = (150*1.25)-150 = +37.5
+        assert result == pytest.approx(100.0 + 37.5, abs=0.1)
+        assert "EXCELLENT" in reason
+        assert "pts" in reason
 
     def test_matchup_good(self, player_manager, test_player):
-        """6 <= Matchup < 15 should get GOOD (1.10)"""
+        """6 <= Matchup < 15 should get GOOD (+15.0 pts with IMPACT_SCALE=150.0)"""
         test_player.matchup_score = 10
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        assert result == 100.0 * 1.10
-        assert reason == "Matchup: GOOD (1.10x)"
+        # IMPACT_SCALE=150.0, multiplier=1.10: bonus = (150*1.10)-150 = +15.0
+        assert result == pytest.approx(100.0 + 15.0, abs=0.1)
+        assert "GOOD" in reason
+        assert "pts" in reason
 
     def test_matchup_neutral(self, player_manager, test_player):
-        """-6 < Matchup < 6 should get NEUTRAL (1.0)"""
+        """-6 < Matchup < 6 should get NEUTRAL (0.0 pts)"""
         test_player.matchup_score = 0
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        assert result == 100.0 * 1.0
-        assert reason == "Matchup: NEUTRAL (1.00x)"
+        # IMPACT_SCALE=150.0, multiplier=1.0: bonus = (150*1.0)-150 = 0.0
+        assert result == pytest.approx(100.0, abs=0.1)
+        assert "NEUTRAL" in reason
+        assert "pts" in reason
 
     def test_matchup_poor(self, player_manager, test_player):
-        """-15 < Matchup <= -6 should get POOR (0.90)"""
+        """-15 < Matchup <= -6 should get POOR (-15.0 pts with IMPACT_SCALE=150.0)"""
         test_player.matchup_score = -10
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        assert result == 100.0 * 0.90
-        assert reason == "Matchup: POOR (0.90x)"
+        # IMPACT_SCALE=150.0, multiplier=0.90: bonus = (150*0.90)-150 = -15.0
+        assert result == pytest.approx(100.0 - 15.0, abs=0.1)
+        assert "POOR" in reason
+        assert "pts" in reason
 
     def test_matchup_very_poor(self, player_manager, test_player):
-        """Matchup <= -15 should get VERY_POOR (0.75)"""
+        """Matchup <= -15 should get VERY_POOR (-37.5 pts with IMPACT_SCALE=150.0)"""
         test_player.matchup_score = -20
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        assert result == 100.0 * 0.75
-        assert reason == "Matchup: VERY_POOR (0.75x)"
+        # IMPACT_SCALE=150.0, multiplier=0.75: bonus = (150*0.75)-150 = -37.5
+        assert result == pytest.approx(100.0 - 37.5, abs=0.1)
+        assert "VERY_POOR" in reason
+        assert "pts" in reason
 
     def test_matchup_none_returns_neutral(self, player_manager, test_player):
-        """Matchup = None should return neutral (1.0)"""
+        """Matchup = None should return neutral (0.0 pts bonus)"""
         test_player.matchup_score = None
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == 100.0
-        assert reason == "Matchup: NEUTRAL (1.00x)"
+        assert "NEUTRAL" in reason
+        assert "pts" in reason
 
 
 # ============================================================================
@@ -984,10 +1013,10 @@ class TestFullScoringIntegration:
         score = score * 1.25  # Player rating: 120.0
         score = score * 1.30  # Team quality: 156.0
         # No consistency multiplier
-        score = score * 1.10  # Matchup: 171.6
-        score = score + 50  # Draft bonus (round 0, PRIMARY): 221.6
-        score = score - 0  # Bye penalty: 221.6
-        score = score - 0  # Injury penalty: 221.6
+        score = score + 15.0  # Matchup GOOD bonus: (150*1.10)-150 = +15.0 → 171.0
+        score = score + 50  # Draft bonus (round 0, PRIMARY): 221.0
+        score = score - 0  # Bye penalty: 221.0
+        score = score - 0  # Injury penalty: 221.0
 
         result = player_manager.score_player(
             test_player,
@@ -1000,7 +1029,7 @@ class TestFullScoringIntegration:
             injury=True
         )
 
-        assert abs(result.score - 221.6) < 0.01, f"Expected ~221.6, got {result.score}"
+        assert abs(result.score - 221.0) < 0.01, f"Expected ~221.0, got {result.score}"
 
     def test_score_player_default_flags(self, player_manager, test_player, mock_fantasy_team):
         """Test score_player with default flag values - BUG FIX: draft_round=-1"""
@@ -1307,28 +1336,28 @@ class TestAdditionalEdgeCases:
         assert abs(result - 75.0) < 0.01
 
     def test_matchup_score_exact_boundaries(self, player_manager, test_player):
-        """Test matchup score at exact threshold boundaries"""
+        """Test matchup score at exact threshold boundaries with additive scoring"""
         base_score = 100.0
 
-        # At 15 (EXCELLENT)
+        # At 15 (EXCELLENT): bonus = (150*1.25)-150 = +37.5
         test_player.matchup_score = 15
         result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        assert abs(result - 125.0) < 0.01
+        assert abs(result - 137.5) < 0.01
 
-        # At 6 (GOOD)
+        # At 6 (GOOD): bonus = (150*1.10)-150 = +15.0
         test_player.matchup_score = 6
         result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        assert abs(result - 110.0) < 0.01
+        assert abs(result - 115.0) < 0.01
 
-        # At -6 (POOR)
+        # At -6 (POOR): bonus = (150*0.90)-150 = -15.0
         test_player.matchup_score = -6
         result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        assert abs(result - 90.0) < 0.01
+        assert abs(result - 85.0) < 0.01
 
-        # At -15 (VERY_POOR)
+        # At -15 (VERY_POOR): bonus = (150*0.75)-150 = -37.5
         test_player.matchup_score = -15
         result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        assert abs(result - 75.0) < 0.01
+        assert abs(result - 62.5) < 0.01
 
     # ========== Extreme Value Tests ==========
 
@@ -1380,14 +1409,15 @@ class TestAdditionalEdgeCases:
         assert "Weighted: 0.00" in reason
 
     def test_extremely_negative_matchup_score(self, player_manager, test_player):
-        """Test with extremely negative matchup score"""
+        """Test with extremely negative matchup score (additive scoring)"""
         test_player.matchup_score = -999
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
 
-        # Should still apply VERY_POOR multiplier
-        assert result == 75.0
-        assert reason == "Matchup: VERY_POOR (0.75x)"
+        # Should still apply VERY_POOR bonus: (150*0.75)-150 = -37.5
+        assert result == pytest.approx(100.0 - 37.5, abs=0.1)
+        assert "VERY_POOR" in reason
+        assert "pts" in reason
 
     def test_massive_bye_week_penalty(self, player_manager, test_player, mock_fantasy_team):
         """Test with massive bye week overlaps (10+ players) - median-based"""

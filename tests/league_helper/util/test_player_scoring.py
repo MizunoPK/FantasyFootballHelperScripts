@@ -101,9 +101,16 @@ def mock_data_folder(tmp_path):
       "WEIGHT": 1.0
     },
     "MATCHUP_SCORING": {
+      "IMPACT_SCALE": 150.0,
       "THRESHOLDS": {"EXCELLENT": 15, "GOOD": 6, "POOR": -6, "VERY_POOR": -15},
       "MULTIPLIERS": {"EXCELLENT": 1.25, "GOOD": 1.10, "POOR": 0.90, "VERY_POOR": 0.75},
       "WEIGHT": 1.0
+    },
+    "SCHEDULE_SCORING": {
+      "IMPACT_SCALE": 80.0,
+      "THRESHOLDS": {"EXCELLENT": 24, "GOOD": 20, "POOR": 12, "VERY_POOR": 8},
+      "MULTIPLIERS": {"EXCELLENT": 1.0, "GOOD": 1.0, "POOR": 1.0, "VERY_POOR": 1.0},
+      "WEIGHT": 0.0
     }
   }
 }"""

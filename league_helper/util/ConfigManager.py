@@ -792,6 +792,12 @@ class ConfigManager:
             "WEIGHT": 0.0  # Weight 0 = disabled by default
         })
 
+        # Validate IMPACT_SCALE is present (required as of additive scoring)
+        if 'IMPACT_SCALE' not in self.matchup_scoring:
+            raise ValueError("MATCHUP_SCORING missing required parameter: IMPACT_SCALE")
+        if 'IMPACT_SCALE' not in self.schedule_scoring:
+            raise ValueError("SCHEDULE_SCORING missing required parameter: IMPACT_SCALE")
+
         # Extract Add to Roster mode parameters
         self.draft_order_bonuses = self.parameters[self.keys.DRAFT_ORDER_BONUSES]
         self.draft_order = self.parameters[self.keys.DRAFT_ORDER]

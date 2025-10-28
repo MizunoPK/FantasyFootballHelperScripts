@@ -562,9 +562,16 @@ class TestStartManualTradeIntegration:
                     "WEIGHT": 1.0
                 },
                 "MATCHUP_SCORING": {
+                    "IMPACT_SCALE": 150.0,
                     "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 6},
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
                     "WEIGHT": 1.0
+                },
+                "SCHEDULE_SCORING": {
+                    "IMPACT_SCALE": 80.0,
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 8},
+                    "MULTIPLIERS": {"EXCELLENT": 1.0, "GOOD": 1.0, "POOR": 1.0, "VERY_POOR": 1.0},
+                    "WEIGHT": 0.0
                 }
             }
         }
@@ -649,9 +656,16 @@ class TestWaiverTradeProcessing:
                     "WEIGHT": 1.0
                 },
                 "MATCHUP_SCORING": {
+                    "IMPACT_SCALE": 150.0,
                     "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 6},
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
                     "WEIGHT": 1.0
+                },
+                "SCHEDULE_SCORING": {
+                    "IMPACT_SCALE": 80.0,
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 8},
+                    "MULTIPLIERS": {"EXCELLENT": 1.0, "GOOD": 1.0, "POOR": 1.0, "VERY_POOR": 1.0},
+                    "WEIGHT": 0.0
                 }
             }
         }

@@ -153,6 +153,7 @@ def mock_data_folder(tmp_path):
       "WEIGHT": 1.0
     },
     "MATCHUP_SCORING": {
+      "IMPACT_SCALE": 150.0,
       "THRESHOLDS": {
         "EXCELLENT": 15,
         "GOOD": 6,
@@ -166,6 +167,22 @@ def mock_data_folder(tmp_path):
         "VERY_POOR": 0.75
       },
       "WEIGHT": 1.0
+    },
+    "SCHEDULE_SCORING": {
+      "IMPACT_SCALE": 80.0,
+      "THRESHOLDS": {
+        "EXCELLENT": 24,
+        "GOOD": 20,
+        "POOR": 12,
+        "VERY_POOR": 8
+      },
+      "MULTIPLIERS": {
+        "EXCELLENT": 1.0,
+        "GOOD": 1.0,
+        "POOR": 1.0,
+        "VERY_POOR": 1.0
+      },
+      "WEIGHT": 0.0
     }
   }
 }"""
@@ -301,21 +318,22 @@ class TestInitialization:
         assert all(p in team.roster for p in roster)
 
     def test_init_separates_injury_reserve(self, config, sample_players):
-        """Test that injured players go to injury_reserve"""
+        """Test that only HIGH-risk injured players go to injury_reserve"""
         roster = sample_players[:3]
-        roster[0].injury_status = "ACTIVE"
-        roster[1].injury_status = "OUT"  # Should go to IR
-        roster[2].injury_status = "INJURY_RESERVE"  # Should go to IR
+        roster[0].injury_status = "ACTIVE"  # LOW risk → active roster
+        roster[1].injury_status = "OUT"  # MEDIUM risk → active roster (counts toward position limits)
+        roster[2].injury_status = "INJURY_RESERVE"  # HIGH risk → IR (doesn't count toward limits)
 
         for p in roster:
             p.drafted = 2
 
         team = FantasyTeam(config, players=roster)
 
-        assert len(team.roster) == 1  # Only ACTIVE player
-        assert len(team.injury_reserve) == 2  # OUT and INJURY_RESERVE
+        # ACTIVE and OUT players stay on active roster (count toward position limits)
+        assert len(team.roster) == 2  # ACTIVE and OUT players
+        assert len(team.injury_reserve) == 1  # Only INJURY_RESERVE
         assert roster[0] in team.roster
-        assert roster[1] in team.injury_reserve
+        assert roster[1] in team.roster  # OUT is MEDIUM risk, stays on roster
         assert roster[2] in team.injury_reserve
 
     def test_init_questionable_goes_to_active_roster(self, config, sample_players):
