@@ -1,0 +1,152 @@
+Convert Matchup and Schedule scoring from multiplicative to additive bonus system.
+
+## Goal
+Change matchup and schedule factors from multiplicative (scaling with player value) to additive (fixed bonuses independent of player quality). This better reflects that matchups and schedules represent environmental opportunities available equally to all players, rather than ability multipliers.
+
+## Rationale
+
+### Current System (Multiplicative)
+- Matchup/schedule apply as multipliers that scale with player score
+- Elite players benefit more from good matchups in absolute terms
+- Example: EXCELLENT matchup gives Mahomes (120 pts) +5.86, backup QB (50 pts) +2.44
+- Philosophy: "Elite players exploit favorable situations better"
+
+### Proposed System (Additive)
+- Matchup/schedule apply as fixed point bonuses/penalties
+- All players receive same absolute bonus for same situation
+- Example: EXCELLENT matchup gives everyone +7.26 pts regardless of base score
+- Philosophy: "Favorable matchups provide X additional points available to whoever plays"
+
+### Why This Makes Sense
+**Matchup/Schedule are ENVIRONMENTAL factors (opportunity), not ABILITY factors (skill)**
+
+Multiplicative factors (keep as-is):
+- ADP: Market consensus on total player value (intrinsic quality)
+- Player Rating: Talent and skill level (intrinsic quality)
+- Team Quality: High-quality opportunities that scale with player role/skill
+- Performance: Systematic over/underperformance indicating projection error
+
+Additive factors (current + new):
+- Draft Order Bonus: Positional scarcity at specific rounds (already additive)
+- Bye Week Penalty: Roster construction constraint (already additive)
+- Injury Penalty: Binary availability constraint (already additive)
+- **Matchup (NEW)**: Weekly environmental opportunity
+- **Schedule (NEW)**: Rest-of-season environmental opportunity
+
+## Core Requirements
+
+### Configuration Changes
+
+Add `IMPACT_SCALE` parameter to both MATCHUP_SCORING and SCHEDULE_SCORING sections:
+
+```json
+"MATCHUP_SCORING": {
+  "IMPACT_SCALE": 150.0,
+  "THRESHOLDS": {
+    "BASE_POSITION": 0,
+    "DIRECTION": "BI_EXCELLENT_HI",
+    "STEPS": 7.5
+  },
+  "MULTIPLIERS": {
+    "VERY_POOR": 0.95,
+    "POOR": 0.975,
+    "GOOD": 1.025,
+    "EXCELLENT": 1.05
+  },
+  "WEIGHT": 0.95
+},
+
+"SCHEDULE_SCORING": {
+  "IMPACT_SCALE": 80.0,
+  "THRESHOLDS": {
+    "BASE_POSITION": 0,
+    "DIRECTION": "INCREASING",
+    "STEPS": 8
+  },
+  "MULTIPLIERS": {
+    "VERY_POOR": 0.95,
+    "POOR": 0.975,
+    "GOOD": 1.025,
+    "EXCELLENT": 1.05
+  },
+  "WEIGHT": 1.0
+}
+```
+
+### How Configuration Values Are Used
+
+**IMPACT_SCALE:**
+- The base value from which all bonuses/penalties are calculated
+- Represents the maximum potential swing in points for this factor
+- Higher values = larger bonus/penalty magnitudes
+- Example: `IMPACT_SCALE: 150.0` means bonuses will range from approximately -7.5 to +7.5 pts
+
+**THRESHOLDS (parameterized):**
+- Determines which multiplier category a player falls into based on their matchup/schedule value
+- `BASE_POSITION`: The neutral point (typically 0)
+- `DIRECTION`: How values map to quality ("BI_EXCELLENT_HI" for matchup, "INCREASING" for schedule)
+- `STEPS`: The spacing between threshold levels
+
+Calculated thresholds determine rating categories:
+```python
+# ConfigManager calculates these at load time
+thresholds = config.calculate_thresholds(BASE_POSITION, DIRECTION, STEPS)
+# Example for MATCHUP: {VERY_POOR: -15, POOR: -7.5, GOOD: 7.5, EXCELLENT: 15}
+
+# Then during scoring, player value is compared to thresholds
+if matchup_value >= thresholds['EXCELLENT']:
+    multiplier = MULTIPLIERS['EXCELLENT']  # 1.05
+elif matchup_value >= thresholds['GOOD']:
+    multiplier = MULTIPLIERS['GOOD']  # 1.025
+# ... etc
+```
+
+**MULTIPLIERS:**
+- Applied to IMPACT_SCALE to calculate the actual bonus
+- Values > 1.0 create positive bonuses
+- Values < 1.0 create negative penalties
+- Value = 1.0 creates neutral (0 bonus)
+
+**WEIGHT:**
+- Exponent applied to the multiplier before calculating bonus
+- Allows fine-tuning of bonus magnitude independently from IMPACT_SCALE
+- Higher weight = more extreme bonuses/penalties
+- Weight = 1.0 uses multipliers as-is
+
+**Bonus Calculation Formula:**
+```python
+# 1. Determine which multiplier to use based on player's value vs thresholds
+base_multiplier = get_multiplier_for_value(player_value, thresholds, multipliers)
+
+# 2. Apply weight exponent
+weighted_multiplier = base_multiplier ** WEIGHT
+
+# 3. Calculate additive bonus
+bonus = (IMPACT_SCALE * weighted_multiplier) - IMPACT_SCALE
+
+# 4. Add to player score
+final_score = player_score + bonus
+```
+
+**Example Calculation (MATCHUP_SCORING):**
+```python
+# Player has matchup_score = +10 (favorable matchup)
+# IMPACT_SCALE = 150.0
+# WEIGHT = 0.95
+# THRESHOLDS: {GOOD: 7.5, EXCELLENT: 15}
+# MULTIPLIERS: {GOOD: 1.025}
+
+# Step 1: 10 >= 7.5 (GOOD threshold), so use GOOD multiplier
+base_multiplier = 1.025
+
+# Step 2: Apply weight
+weighted_multiplier = 1.025 ** 0.95 = 1.0246
+
+# Step 3: Calculate bonus
+bonus = (150.0 * 1.0246) - 150.0 = 153.69 - 150.0 = +3.69 pts
+
+# Step 4: Every player with this matchup gets +3.69 pts
+player_score = player_score + 3.69
+```
+
+These will be optimized via simulation and thus should also be made testable via the ConfigGenerator.
