@@ -4,6 +4,8 @@
 
 **Status**: Second Verification Round COMPLETE (6/6 iterations) - Ready for Implementation
 
+**Workflow**: Implement Phases 1-5 → User runs simulation (Phase 6) → User decides to keep or revert
+
 **Important**: Keep this file updated with progress as you complete each task for continuity across sessions.
 
 **Iteration 1 Changes**:
@@ -249,36 +251,39 @@
 
 ---
 
-## Phase 6: Simulation Validation and Optimization
+## Phase 6: Simulation Validation and Optimization (USER-DRIVEN)
 
-### 6.1 Run full parameter re-optimization
-- [ ] **Command**: `python run_simulation.py iterative --sims 100 --workers 8`
-- [ ] Re-optimize ALL parameters (including new IMPACT_SCALE values)
+**IMPORTANT**: Phase 6 is the USER'S responsibility. Implementation work stops after Phase 5.
+
+### 6.1 User runs full parameter re-optimization
+- [ ] **USER ACTION**: Run `python run_simulation.py iterative --sims 100 --workers 8`
+- [ ] **USER ACTION**: Re-optimize ALL parameters (including new IMPACT_SCALE values)
 - [ ] Target: 16+ parameters optimized with additive scoring system
 - [ ] **Note**: This will take several hours (or days depending on configuration)
-- [ ] Record final optimized win rate
-- [ ] Document optimized parameter values
+- [ ] **USER ACTION**: Record final optimized win rate
+- [ ] **USER ACTION**: Document optimized parameter values
 
-### 6.2 Evaluate results against acceptance criteria
-- [ ] Check if optimized win rate ≥70%
-- [ ] **If ≥70%**: Accept implementation, update config with optimal values, proceed to finalization
-- [ ] **If <70%**: Revert commit, keep current system, document findings
-- [ ] Review draft behavior patterns for any anomalies
-- [ ] Check for streaming behavior issues (over-valuing waiver players)
-- [ ] Document full results in code changes file
+### 6.2 User evaluates results against acceptance criteria
+- [ ] **USER ACTION**: Check if optimized win rate ≥70%
+- [ ] **USER ACTION - If ≥70%**: Accept implementation, update config with optimal values, proceed to Phase 7
+- [ ] **USER ACTION - If <70%**: Revert commit, keep current system, document findings
+- [ ] **USER ACTION**: Review draft behavior patterns for any anomalies
+- [ ] **USER ACTION**: Check for streaming behavior issues (over-valuing waiver players)
 
-### 6.3 Update config with optimal values (if accepted)
-- [ ] Update `data/league_config.json` with optimized IMPACT_SCALE values
-- [ ] Update all other optimized parameter values
-- [ ] Verify config is valid JSON
-- [ ] Test config loads without errors
-- [ ] Commit updated config
+### 6.3 User updates config with optimal values (if accepted)
+- [ ] **USER ACTION**: Update `data/league_config.json` with optimized IMPACT_SCALE values
+- [ ] **USER ACTION**: Update all other optimized parameter values
+- [ ] **USER ACTION**: Verify config is valid JSON
+- [ ] **USER ACTION**: Test config loads without errors
+- [ ] **USER ACTION**: Commit updated config (or request commit)
 
 ---
 
-## Phase 7: Final Validation and Completion
+## Phase 7: Final Validation and Completion (ONLY IF USER ACCEPTS RESULTS)
 
-### 7.1 Requirement Verification Protocol (MANDATORY)
+**IMPORTANT**: Phase 7 only happens if user evaluates results in Phase 6 and decides to keep the implementation.
+
+### 7.1 Requirement Verification Protocol (MANDATORY - if keeping changes)
 - [ ] Re-read `updates/additive_matchup_schedule_scoring.txt`
 - [ ] Create checklist of EVERY requirement
 - [ ] Verify each requirement is implemented
@@ -286,19 +291,26 @@
 - [ ] If ANY missing: create completion TODO and implement
 - [ ] Document verification in code changes file
 
-### 7.2 Pre-Commit Validation (MANDATORY)
+### 7.2 Pre-Commit Validation (MANDATORY - if keeping changes)
 - [ ] Run `python tests/run_all_tests.py`
 - [ ] Verify 100% pass rate
 - [ ] Run manual testing (if applicable)
 - [ ] Review all changes with `git status` and `git diff`
 - [ ] Verify documentation is complete and accurate
 
-### 7.3 Finalize and Move Files
+### 7.3 Finalize and Move Files (if keeping changes)
 - [ ] Finalize code changes documentation file
 - [ ] Move `additive_matchup_schedule_scoring.txt` to `updates/done/`
 - [ ] Move `additive_matchup_schedule_scoring_code_changes.md` to `updates/done/`
+- [ ] Move `additive_matchup_schedule_scoring_todo.md` to `updates/done/`
 - [ ] Delete `additive_matchup_schedule_scoring_questions.md` (after answers integrated)
 - [ ] Mark objective as COMPLETE
+
+### 7.4 Alternative: If Reverting Changes
+- [ ] **USER ACTION**: Run `git revert <commit_hash>` to undo implementation
+- [ ] **USER ACTION**: Document why results were unacceptable (win rate, behavior issues, etc.)
+- [ ] **USER ACTION**: Keep planning files in `updates/` folder for future reference
+- [ ] **USER ACTION**: Update planning docs with lessons learned
 
 ---
 
@@ -344,8 +356,9 @@
 
 **Implementation Strategy**:
 - Direct implementation of additive scoring (no A/B testing or feature flags)
-- Full re-optimization after implementation
-- Accept if win rate ≥70%, otherwise revert commit
+- Implementation work stops after Phase 5 (Documentation)
+- User runs simulation and evaluates results in Phase 6
+- User decides to keep (≥70% win rate) or revert (<70% win rate)
 - Breaking change: IMPACT_SCALE is REQUIRED (existing configs will fail)
 
 **Next Step**: Begin implementation following Phase 1 → Phase 7 sequence
@@ -355,10 +368,14 @@
 ## Notes
 
 - **Implementation Approach**: Direct implementation, no feature flags or A/B testing
-- **Rollback Plan**: If simulation win rate <70%, revert commit and keep current system
+- **Workflow Responsibility**:
+  - Agent: Implements Phases 1-5 (Config, Code, Tests, Documentation)
+  - User: Runs simulation and evaluates results (Phase 6)
+  - User: Decides to keep (Phase 7) or revert changes based on performance
+- **Rollback Plan**: If simulation win rate <70%, user reverts commit and keeps current system
 - **Breaking Change**: IMPACT_SCALE is REQUIRED - configs without it will fail to load (ValueError)
 - **Philosophy Change**: Matchup/schedule are ENVIRONMENTAL (additive) not ABILITY (multiplicative)
 - **Watch For**: Streaming behavior becoming too dominant with additive bonuses
 - **Testing**: Every phase must pass 100% unit tests before proceeding
 - **Session Continuity**: Update this file with progress for multi-session work
-- **Optimization**: Full re-optimization of ALL parameters after implementation (comprehensive approach)
+- **Optimization**: Full re-optimization of ALL parameters run by user after implementation (comprehensive approach)
