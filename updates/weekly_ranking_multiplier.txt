@@ -1,0 +1,764 @@
+WEEKLY RANKING MULTIPLIER - STARTER HELPER ENHANCEMENT
+===============================================================================
+
+Date: 2025-11-02
+Status: Objective - Ready for Implementation Planning
+
+Related Research:
+    docs/player_ratings/player_rating_analysis_report.md
+    updates/player_rating_implementation.txt
+    EMPIRICAL_TEST_RESULTS.md (ESPN API rankings object discovery)
+
+===============================================================================
+
+OBJECTIVE
+
+Add a new weekly ranking multiplier to the player scoring system that uses
+ESPN's expert consensus weekly rankings to improve lineup recommendations in
+Starter Helper mode.
+
+This multiplier will help identify players who experts predict will perform
+well in the upcoming week, separate from their season-long value. It will
+work similarly to the existing ADP and Player Rating multipliers but focus
+specifically on week-to-week expert predictions.
+
+SCOPE:
+  - Add new multiplier step to 9-step scoring algorithm (becomes 10-step)
+  - Only applied in Starter Helper mode (weekly lineup decisions)
+  - NOT applied in Add to Roster mode (draft decisions use ROS rankings)
+  - Uses ESPN API weekly rankings data (rankings["1-18"] for each week)
+  - Configurable multipliers in league_config.json (similar to ADP)
+
+
+MOTIVATION
+
+**Problem**: Current scoring uses ROS (rest-of-season) player ratings which
+reflect season-long value but don't account for weekly matchup-specific expert
+predictions.
+
+**Example Scenario**:
+  - Patrick Mahomes (QB1 ROS ranking) playing against #1 pass defense
+  - Experts predict he'll have a mediocre week despite high season value
+  - Current system: High score (based on ROS rating + projections)
+  - Desired system: Moderate score (expert weekly ranking reflects tough matchup)
+
+**Solution**: Add weekly ranking multiplier that captures expert consensus on
+week-specific performance expectations.
+
+**Key Insight from Research**:
+ESPN API provides separate rankings for each week:
+  - rankings["0"]: ROS (rest-of-season) rankings
+  - rankings["1"]: Week 1 rankings
+  - rankings["2"]: Week 2 rankings
+  - ... rankings["18"]: Week 18 rankings
+
+Each contains position-specific expert consensus (averageRank field) that
+reflects weekly matchup quality, injury concerns, and role changes.
+
+
+DISTINCTION FROM EXISTING MULTIPLIERS
+
+Current Multipliers (9-step algorithm):
+  1. Normalization (fantasy_points projection)
+  2. ADP Multiplier (draft market consensus - pre-season static)
+  3. Player Rating Multiplier (expert season rankings - ROS value)
+  4. Team Quality Multiplier (offensive/defensive strength)
+  5. Performance Multiplier (actual vs projected deviation)
+  6. Matchup Multiplier (opponent strength vs position)
+  7. Schedule Multiplier (future opponent difficulty)
+  8. Draft Order Bonus (positional value by round)
+  9. Bye Week Penalty (roster conflicts)
+  10. Injury Penalty (risk assessment)
+
+New Multiplier (Step 3.5 - between Player Rating and Team Quality):
+  → Weekly Ranking Multiplier (expert week-specific predictions)
+
+DIFFERENCES:
+  - ADP: Pre-season market consensus (static, never updates)
+  - Player Rating: Season-long expert rankings (ROS value, updates weekly)
+  - Weekly Ranking: Week-specific expert rankings (matchup-aware, week-by-week)
+
+RELATIONSHIP TO MATCHUP MULTIPLIER:
+  - Matchup Multiplier (Step 6): Statistical (opponent rank vs position)
+  - Weekly Ranking Multiplier: Expert judgment (considers matchup + other factors)
+  - Weekly rankings incorporate matchup data PLUS expert analysis of:
+    - Recent performance trends
+    - Injury reports (player and teammates)
+    - Weather conditions
+    - Game script expectations
+    - Coaching changes
+    - Vegas lines and totals
+
+
+DATA SOURCE - ESPN API Weekly Rankings
+---------------------------------------
+
+DISCOVERED: ESPN API provides weekly rankings through rankings object
+
+STRUCTURE:
+  player['rankings']['{week}']  # Week-specific rankings
+
+  For week 10:
+    player['rankings']['10'] = [
+        {
+            'rank': 2,                    # Individual expert's rank
+            'rankSourceId': 5,            # Which expert
+            'rankType': 'PPR',            # Scoring format
+            'slotId': 0,                  # Position (0=QB, 2=RB, 4=WR, 6=TE)
+            'averageRank': 1.875,         # CONSENSUS RANK (use this!)
+            'published': True
+        },
+        # ... more expert rankings
+    ]
+
+KEY FIELD: 'averageRank' - Consensus rank across all expert sources
+
+POSITION VALIDATION: 'slotId' must match player position
+  - 0 = QB
+  - 2 = RB
+  - 4 = WR
+  - 6 = TE
+  - 17 = K
+  - 16 = DST/D/ST
+
+SCORING FORMAT: Filter by 'rankType' == 'PPR' (match league scoring)
+
+AVAILABILITY:
+  - Weekly rankings available for weeks 1-18
+  - Updated throughout the week as expert predictions change
+  - Reflects latest news, injuries, and matchup analysis
+
+
+IMPLEMENTATION OVERVIEW
+------------------------
+
+The implementation requires changes across multiple components:
+
+1. **Data Model** (utils/FantasyPlayer.py)
+   - Add weekly_ranking field to store current week's expert ranking
+   - Type: Optional[float] (1.0 = best at position for this week)
+
+2. **Data Fetcher** (player-data-fetcher/espn_client.py)
+   - Extract weekly ranking from ESPN API rankings[{week}]
+   - Validate position matches (slotId)
+   - Filter by PPR scoring format
+   - Use averageRank consensus value
+   - Add to players.csv export
+
+3. **Configuration** (data/league_config.json)
+   - Add WEEKLY_RANKING_SCORING section
+   - Define thresholds and multipliers (similar to ADP_SCORING)
+   - Position-specific or universal thresholds
+
+4. **Config Manager** (league_helper/util/ConfigManager.py)
+   - Add get_weekly_ranking_multiplier() method
+   - Parse WEEKLY_RANKING_SCORING configuration
+   - Return (multiplier, rating) tuple
+
+5. **Scoring Calculator** (league_helper/util/player_scoring.py)
+   - Add _apply_weekly_ranking_multiplier() method (Step 3.5)
+   - Only apply when use_weekly_projection=True (Starter Helper mode)
+   - Skip in draft mode (use_weekly_projection=False)
+
+6. **Mode-Specific Logic**
+   - Starter Helper: Enable weekly ranking multiplier
+   - Add to Roster (Draft): Disable weekly ranking multiplier
+
+
+DETAILED IMPLEMENTATION REQUIREMENTS
+--------------------------------------
+
+### REQUIRED CHANGE 1: Add weekly_ranking Field
+
+File: utils/FantasyPlayer.py
+Location: Class FantasyPlayer, after player_rating field
+
+CURRENT:
+    player_rating: Optional[float] = None  # 0-100 scale from ESPN rankings
+
+PROPOSED:
+    player_rating: Optional[float] = None  # 0-100 ROS expert consensus
+    weekly_ranking: Optional[float] = None  # Week-specific expert consensus rank (1=best)
+
+
+### REQUIRED CHANGE 2: Extract Weekly Rankings from ESPN API
+
+File: player-data-fetcher/espn_client.py
+Location: After player_rating extraction (lines ~1250-1300)
+
+LOGIC:
+  1. Get current NFL week from config
+  2. Extract rankings[{week}] for current week
+  3. Find PPR entry with averageRank
+  4. Validate slotId matches player position
+  5. Store averageRank as weekly_ranking
+
+PSEUDOCODE:
+    from player_data_fetcher.config import CURRENT_NFL_WEEK
+
+    # Extract weekly ranking for current week
+    weekly_ranking = None
+    current_week_str = str(CURRENT_NFL_WEEK)
+
+    rankings_weekly = player_info.get('rankings', {}).get(current_week_str, [])
+
+    # Find PPR consensus ranking for this week
+    for entry in rankings_weekly:
+        if entry.get('rankType') == 'PPR' and 'averageRank' in entry:
+            # Validate position matches
+            slot_id = entry.get('slotId')
+            expected_slot = self._position_to_slot_id(position)
+
+            if slot_id == expected_slot:
+                weekly_ranking = entry['averageRank']
+                break
+
+    # Add to player data
+    player_data['weekly_ranking'] = weekly_ranking
+
+HELPER FUNCTION (reuse from player_rating implementation):
+    def _position_to_slot_id(self, position: str) -> int:
+        """Convert position to ESPN slotId"""
+        POSITION_TO_SLOT = {
+            'QB': 0, 'RB': 2, 'WR': 4, 'TE': 6, 'K': 17, 'DST': 16, 'D/ST': 16
+        }
+        return POSITION_TO_SLOT.get(position.upper(), -1)
+
+
+### REQUIRED CHANGE 3: Add CSV Export
+
+File: player-data-fetcher/espn_client.py
+Location: CSV writing section
+
+Add 'weekly_ranking' to CSV columns and data row export.
+
+
+### REQUIRED CHANGE 4: Configuration
+
+File: data/league_config.json
+Location: After PLAYER_RATING_SCORING section
+
+PROPOSED:
+    "WEEKLY_RANKING_SCORING": {
+        "THRESHOLDS": {
+            "BASE_POSITION": 1,              // Rank 1 = best weekly pick
+            "DIRECTION": "INCREASING",       // Higher rank = worse
+            "STEPS": 3.0                     // Threshold steps (rank 1-4, 5-7, 8-10, etc.)
+        },
+        "MULTIPLIERS": {
+            "EXCELLENT": 1.05,               // Rank 1-4: Top weekly picks
+            "GOOD": 1.025,                   // Rank 5-7: Good weekly options
+            "AVERAGE": 1.0,                  // Rank 8-10: Average
+            "POOR": 0.975,                   // Rank 11-15: Below average
+            "VERY_POOR": 0.95                // Rank 16+: Poor weekly option
+        }
+    }
+
+RATIONALE FOR THRESHOLDS:
+  - Rank 1-4: Elite weekly picks (top tier at position)
+  - Rank 5-7: Strong starters (high confidence)
+  - Rank 8-10: Average starters (neutral)
+  - Rank 11-15: Questionable starts (risky)
+  - Rank 16+: Avoid if possible (bench/waiver)
+
+POSITION-SPECIFIC ALTERNATIVE:
+    "WEEKLY_RANKING_SCORING": {
+        "QB": {
+            "THRESHOLDS": {...},
+            "MULTIPLIERS": {...}
+        },
+        "RB": {
+            "THRESHOLDS": {...},
+            "MULTIPLIERS": {...}
+        },
+        // ... etc for WR, TE, K, DST
+    }
+
+RECOMMENDATION: Start with universal thresholds, make position-specific later
+if needed. Position depth already accounted for in the weekly rankings themselves
+(QB12 might be rank 12, not compared to RB12).
+
+
+### REQUIRED CHANGE 5: Config Manager Method
+
+File: league_helper/util/ConfigManager.py
+Location: After get_player_rating_multiplier() method
+
+PROPOSED:
+    def get_weekly_ranking_multiplier(self, weekly_ranking: Optional[float]) -> Tuple[float, str]:
+        """
+        Calculate multiplier based on ESPN weekly expert consensus ranking.
+
+        Weekly rankings reflect expert predictions for the upcoming week,
+        accounting for matchups, injuries, and recent performance trends.
+
+        Args:
+            weekly_ranking: Expert consensus rank for this week (1 = best at position)
+
+        Returns:
+            Tuple[float, str]: (multiplier, rating_label)
+                - multiplier: 0.95 to 1.05 based on weekly rank
+                - rating: "EXCELLENT", "GOOD", "AVERAGE", "POOR", "VERY_POOR"
+
+        Example:
+            >>> config.get_weekly_ranking_multiplier(2.5)
+            (1.05, "EXCELLENT")  # Rank 2.5 = top weekly pick
+        """
+        if weekly_ranking is None:
+            # No weekly ranking data available
+            return 1.0, "N/A"
+
+        config = self.config.get("WEEKLY_RANKING_SCORING", {})
+        thresholds = config.get("THRESHOLDS", {})
+        multipliers = config.get("MULTIPLIERS", {})
+
+        base = thresholds.get("BASE_POSITION", 1)
+        direction = thresholds.get("DIRECTION", "INCREASING")
+        steps = thresholds.get("STEPS", 3.0)
+
+        # Calculate category based on rank
+        # Lower rank (1-4) = better = EXCELLENT
+        # Higher rank (16+) = worse = VERY_POOR
+        if direction == "INCREASING":
+            # Higher values = worse (typical for rankings)
+            if weekly_ranking <= base + steps:
+                rating = "EXCELLENT"
+            elif weekly_ranking <= base + (steps * 2):
+                rating = "GOOD"
+            elif weekly_ranking <= base + (steps * 3):
+                rating = "AVERAGE"
+            elif weekly_ranking <= base + (steps * 5):
+                rating = "POOR"
+            else:
+                rating = "VERY_POOR"
+        else:
+            # Lower values = worse (unlikely but supported)
+            if weekly_ranking >= base - steps:
+                rating = "EXCELLENT"
+            elif weekly_ranking >= base - (steps * 2):
+                rating = "GOOD"
+            elif weekly_ranking >= base - (steps * 3):
+                rating = "AVERAGE"
+            elif weekly_ranking >= base - (steps * 5):
+                rating = "POOR"
+            else:
+                rating = "VERY_POOR"
+
+        multiplier = multipliers.get(rating, 1.0)
+        return multiplier, rating
+
+
+### REQUIRED CHANGE 6: Scoring Calculator Method
+
+File: league_helper/util/player_scoring.py
+Location: After _apply_player_rating_multiplier() (Step 3), before _apply_team_quality_multiplier() (Step 4)
+
+PROPOSED:
+    def _apply_weekly_ranking_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
+        """
+        Apply weekly ranking multiplier (Step 3.5 - Starter Helper only).
+
+        Weekly rankings represent expert consensus predictions for the upcoming
+        week, accounting for matchups, injuries, recent trends, and game context.
+
+        This multiplier is ONLY applied in Starter Helper mode (weekly lineup
+        decisions). It is NOT applied in Add to Roster mode (draft decisions
+        should use ROS player ratings instead).
+
+        Multipliers (configurable in league_config.json):
+        - Rank 1-4 (EXCELLENT): 1.05x (top weekly picks)
+        - Rank 5-7 (GOOD): 1.025x (strong starters)
+        - Rank 8-10 (AVERAGE): 1.0x (neutral)
+        - Rank 11-15 (POOR): 0.975x (risky starts)
+        - Rank 16+ (VERY_POOR): 0.95x (avoid if possible)
+
+        Args:
+            p: FantasyPlayer to evaluate
+            player_score: Current score before weekly ranking adjustment
+
+        Returns:
+            Tuple[float, str]: (adjusted_score, reason_string)
+                - If no weekly ranking data: returns (score, "")
+                - Otherwise: returns (score * multiplier, "Weekly Rank: RATING (Nx)")
+        """
+        # Check if weekly ranking data is available
+        if p.weekly_ranking is None:
+            # No weekly ranking data (old data or API issue)
+            return player_score, ""
+
+        # Get weekly ranking multiplier from config
+        multiplier, rating = self.config.get_weekly_ranking_multiplier(p.weekly_ranking)
+
+        # Format reason string with rank, rating, and multiplier
+        reason = f"Weekly Rank: #{p.weekly_ranking:.1f} {rating} ({multiplier:.2f}x)"
+
+        return player_score * multiplier, reason
+
+
+### REQUIRED CHANGE 7: Add to Scoring Algorithm
+
+File: league_helper/util/player_scoring.py
+Location: In score_player_internal() method, after Step 3
+
+CURRENT (Steps 3-4):
+    # STEP 3: Apply Player Rating multiplier
+    if player_rating:
+        player_score, reason = self._apply_player_rating_multiplier(p, player_score)
+        add_to_reasons(reason)
+        self.logger.debug(f"Step 3 - Player Rating Enhanced score for {p.name}: {player_score:.2f}")
+
+    # STEP 4: Apply Team Quality multiplier
+    if team_quality:
+        player_score, reason = self._apply_team_quality_multiplier(p, player_score)
+        add_to_reasons(reason)
+        self.logger.debug(f"Step 4 - Team Quality Enhanced score for {p.name}: {player_score:.2f}")
+
+PROPOSED (Steps 3-3.5-4):
+    # STEP 3: Apply Player Rating multiplier (ROS expert consensus)
+    if player_rating:
+        player_score, reason = self._apply_player_rating_multiplier(p, player_score)
+        add_to_reasons(reason)
+        self.logger.debug(f"Step 3 - Player Rating Enhanced score for {p.name}: {player_score:.2f}")
+
+    # STEP 3.5: Apply Weekly Ranking multiplier (week-specific expert consensus)
+    # ONLY applied when using weekly projections (Starter Helper mode)
+    if use_weekly_projection and p.weekly_ranking is not None:
+        player_score, reason = self._apply_weekly_ranking_multiplier(p, player_score)
+        add_to_reasons(reason)
+        self.logger.debug(f"Step 3.5 - Weekly Ranking Enhanced score for {p.name}: {player_score:.2f}")
+
+    # STEP 4: Apply Team Quality multiplier
+    if team_quality:
+        player_score, reason = self._apply_team_quality_multiplier(p, player_score)
+        add_to_reasons(reason)
+        self.logger.debug(f"Step 4 - Team Quality Enhanced score for {p.name}: {player_score:.2f}")
+
+CONDITIONAL LOGIC:
+  - use_weekly_projection=True: Starter Helper mode → Apply weekly ranking
+  - use_weekly_projection=False: Add to Roster mode → Skip weekly ranking
+
+
+### REQUIRED CHANGE 8: Update Documentation
+
+File: league_helper/util/PlayerManager.py
+Location: Module docstring (lines 17-28)
+
+CURRENT (9-step algorithm):
+    The 9-step scoring algorithm:
+    1. Normalization (based on fantasy_points projection)
+    2. ADP Multiplier (market wisdom adjustment)
+    3. Player Rating Multiplier (expert consensus)
+    4. Team Quality Multiplier (offensive/defensive strength)
+    5. Consistency Multiplier (CV-based volatility)
+    6. Matchup Multiplier (opponent strength)
+    7. Draft Order Bonus (positional value by round)
+    8. Bye Week Penalty (same-position and different-position roster conflicts)
+    9. Injury Penalty (risk assessment)
+
+PROPOSED (10-step algorithm):
+    The 10-step scoring algorithm:
+    1. Normalization (based on fantasy_points projection)
+    2. ADP Multiplier (market wisdom adjustment - pre-season)
+    3. Player Rating Multiplier (ROS expert consensus - season value)
+    3.5. Weekly Ranking Multiplier (week-specific expert consensus - Starter Helper only)
+    4. Team Quality Multiplier (offensive/defensive strength)
+    5. Performance Multiplier (actual vs projected deviation)
+    6. Matchup Multiplier (opponent strength)
+    7. Schedule Multiplier (future opponent difficulty)
+    8. Draft Order Bonus (positional value by round)
+    9. Bye Week Penalty (roster conflicts)
+    10. Injury Penalty (risk assessment)
+
+NOTE: Step numbers 4-10 remain the same, Step 3.5 is inserted conditionally.
+
+
+TESTING PROCEDURE
+-----------------
+
+### Phase 1: Data Fetching
+1. Update utils/FantasyPlayer.py with weekly_ranking field
+2. Update player-data-fetcher/espn_client.py to extract weekly rankings
+3. Run player fetcher: python run_player_fetcher.py
+4. Validate players.csv:
+   - weekly_ranking column exists
+   - Values are position-specific (QB1 has ~1-2, not ~50)
+   - Values are week-specific (check against ESPN website for verification)
+
+### Phase 2: Configuration
+5. Add WEEKLY_RANKING_SCORING to league_config.json
+6. Add get_weekly_ranking_multiplier() to ConfigManager.py
+7. Test config method:
+   ```python
+   config = ConfigManager(data_folder)
+   mult, rating = config.get_weekly_ranking_multiplier(2.5)
+   assert mult == 1.05 and rating == "EXCELLENT"
+   mult, rating = config.get_weekly_ranking_multiplier(12.0)
+   assert mult == 0.975 and rating == "POOR"
+   ```
+
+### Phase 3: Scoring Integration
+8. Add _apply_weekly_ranking_multiplier() to player_scoring.py
+9. Add Step 3.5 to score_player_internal() method
+10. Update PlayerManager.py documentation
+
+### Phase 4: Mode-Specific Testing
+11. Test Starter Helper mode:
+    - Run: python run_league_helper.py
+    - Select: Starter Helper mode
+    - Verify: Scoring reasons include "Weekly Rank: #X.X RATING (Nx)"
+    - Verify: High-ranked players get boosted scores
+    - Verify: Low-ranked players get penalized scores
+
+12. Test Add to Roster mode (draft):
+    - Run: python run_league_helper.py
+    - Select: Add to Roster mode
+    - Verify: Scoring reasons DO NOT include weekly ranking
+    - Verify: Only ROS player rating multiplier applied
+
+### Phase 5: Unit Tests
+13. Run all unit tests: python tests/run_all_tests.py
+14. May need to update tests to handle new field
+15. Add new unit tests for weekly ranking multiplier
+
+### Phase 6: Validation
+16. Compare lineup recommendations before/after:
+    - Pick a week with known tough matchups (e.g., elite QB vs #1 pass D)
+    - Check if weekly ranking multiplier correctly penalizes
+17. Verify against ESPN expert consensus:
+    - Check ESPN's sit/start recommendations for the week
+    - Our weekly rankings should align with their predictions
+
+
+EXPECTED IMPACT
+----------------
+
+### Improved Lineup Decisions
+
+**Scenario 1: Tough Matchup for Elite Player**
+  Player: Josh Allen (QB1 ROS, rank 1.5)
+  Week 10 Matchup: vs #1 pass defense (Denver)
+
+  Before (no weekly ranking):
+    - ROS Rating: 100 (rank 1.5) → 1.05x multiplier
+    - Projected: 22 pts
+    - Score: High (elite player always favored)
+
+  After (with weekly ranking):
+    - ROS Rating: 100 (rank 1.5) → 1.05x multiplier
+    - Weekly Rank: 8.5 (experts predict average week) → 1.0x multiplier
+    - Projected: 22 pts
+    - Score: Moderate (matchup concern reflected)
+
+**Scenario 2: Favorable Matchup for Mid-Tier Player**
+  Player: Gardner Minshew (QB15 ROS, rank 18.0)
+  Week 10 Matchup: vs #32 pass defense (Panthers)
+
+  Before (no weekly ranking):
+    - ROS Rating: 45 (rank 18) → 0.975x multiplier
+    - Projected: 18 pts
+    - Score: Low-moderate (mediocre QB)
+
+  After (with weekly ranking):
+    - ROS Rating: 45 (rank 18) → 0.975x multiplier
+    - Weekly Rank: 5.0 (experts like matchup) → 1.025x multiplier
+    - Projected: 18 pts
+    - Score: Moderate (streaming option recognized)
+
+### Quantitative Impact
+
+With typical multiplier values (0.95x to 1.05x):
+  - Maximum boost: +5% to score (rank 1 weekly pick)
+  - Typical boost: +2.5% to score (rank 5-7 good matchup)
+  - Neutral: No change (rank 8-10 average)
+  - Typical penalty: -2.5% to score (rank 11-15 poor matchup)
+  - Maximum penalty: -5% to score (rank 16+ avoid)
+
+For a player with score 80 points:
+  - EXCELLENT weekly rank: 80 * 1.05 = 84 pts (+4 pts)
+  - GOOD weekly rank: 80 * 1.025 = 82 pts (+2 pts)
+  - POOR weekly rank: 80 * 0.975 = 78 pts (-2 pts)
+  - VERY_POOR weekly rank: 80 * 0.95 = 76 pts (-4 pts)
+
+This is significant enough to change lineup decisions between close players.
+
+
+ALIGNMENT WITH EXISTING SYSTEM
+-------------------------------
+
+### Relationship to Current Multipliers
+
+**Complementary, Not Redundant:**
+
+1. **Player Rating Multiplier (Step 3)**
+   - Source: ROS expert consensus rankings
+   - Reflects: Season-long value, talent level, opportunity
+   - Use case: "How good is this player for the rest of the season?"
+   - Applied: Both draft mode and lineup mode
+   - Updates: Weekly (but reflects long-term outlook)
+
+2. **Weekly Ranking Multiplier (Step 3.5)** ← NEW
+   - Source: Week-specific expert consensus rankings
+   - Reflects: Matchup quality, injuries, recent form, game context
+   - Use case: "How good is this player for THIS specific week?"
+   - Applied: Lineup mode only (Starter Helper)
+   - Updates: Weekly (reflects short-term outlook)
+
+3. **Matchup Multiplier (Step 6)**
+   - Source: Statistical (opponent rank vs position)
+   - Reflects: Historical defensive performance vs position
+   - Use case: "How tough is the opponent statistically?"
+   - Applied: Both modes
+   - Updates: Weekly (based on actual game results)
+
+**Why All Three?**
+  - Player Rating: Long-term talent assessment (stable)
+  - Weekly Ranking: Expert judgment combining multiple factors (dynamic)
+  - Matchup: Statistical component strength (objective)
+
+All three capture different aspects of player value and work together
+to provide a comprehensive evaluation.
+
+
+CONFIGURATION TUNING
+---------------------
+
+### Initial Conservative Values
+
+Start with subtle multipliers to avoid over-weighting weekly rankings:
+
+    "MULTIPLIERS": {
+        "EXCELLENT": 1.03,     // Rank 1-4: +3% boost
+        "GOOD": 1.015,         // Rank 5-7: +1.5% boost
+        "AVERAGE": 1.0,        // Rank 8-10: Neutral
+        "POOR": 0.985,         // Rank 11-15: -1.5% penalty
+        "VERY_POOR": 0.97      // Rank 16+: -3% penalty
+    }
+
+### Aggressive Values (If Needed Later)
+
+If initial values prove too subtle:
+
+    "MULTIPLIERS": {
+        "EXCELLENT": 1.08,     // Rank 1-4: +8% boost
+        "GOOD": 1.04,          // Rank 5-7: +4% boost
+        "AVERAGE": 1.0,        // Rank 8-10: Neutral
+        "POOR": 0.96,          // Rank 11-15: -4% penalty
+        "VERY_POOR": 0.92      // Rank 16+: -8% penalty
+    }
+
+### Simulation-Based Tuning
+
+Use simulation system to find optimal multiplier values:
+  1. Run simulations with different WEEKLY_RANKING_SCORING configurations
+  2. Measure impact on lineup optimization accuracy
+  3. Compare to actual weekly results
+  4. Tune multipliers to maximize correlation with actual performance
+
+
+ROLLBACK PROCEDURE
+------------------
+
+If weekly ranking multiplier causes issues:
+
+1. Disable in configuration:
+   ```json
+   "WEEKLY_RANKING_SCORING": {
+       "MULTIPLIERS": {
+           "EXCELLENT": 1.0,
+           "GOOD": 1.0,
+           "AVERAGE": 1.0,
+           "POOR": 1.0,
+           "VERY_POOR": 1.0
+       }
+   }
+   ```
+   This effectively disables the multiplier without code changes.
+
+2. Remove field from CSV:
+   - Revert espn_client.py changes
+   - Re-run player fetcher
+   - Old players.csv format restored
+
+3. Remove from scoring:
+   - Comment out Step 3.5 in player_scoring.py
+   - Scoring algorithm reverts to 9 steps
+
+
+IMPLEMENTATION CHECKLIST
+-------------------------
+
+### Phase 1: Data Model (Foundation)
+  [ ] Add weekly_ranking field to FantasyPlayer class
+  [ ] Update FantasyPlayer docstring
+
+### Phase 2: Data Fetcher (Extract Weekly Rankings)
+  [ ] Import CURRENT_NFL_WEEK in espn_client.py
+  [ ] Add _position_to_slot_id() helper method (or reuse from player_rating)
+  [ ] Extract rankings[{week}] for current week
+  [ ] Filter by PPR and validate slotId
+  [ ] Store averageRank as weekly_ranking
+  [ ] Add weekly_ranking to CSV export columns
+
+### Phase 3: Configuration (Define Multipliers)
+  [ ] Add WEEKLY_RANKING_SCORING to league_config.json
+  [ ] Define thresholds (base, direction, steps)
+  [ ] Define multipliers (EXCELLENT to VERY_POOR)
+  [ ] Add get_weekly_ranking_multiplier() to ConfigManager.py
+  [ ] Test config method with sample values
+
+### Phase 4: Scoring Integration (Apply Multiplier)
+  [ ] Add _apply_weekly_ranking_multiplier() to player_scoring.py
+  [ ] Add Step 3.5 to score_player_internal()
+  [ ] Add conditional: only if use_weekly_projection=True
+  [ ] Update PlayerManager.py docstring (9→10 step algorithm)
+
+### Phase 5: Testing (Verify Behavior)
+  [ ] Run player fetcher, validate weekly_ranking in CSV
+  [ ] Test ConfigManager.get_weekly_ranking_multiplier()
+  [ ] Test Starter Helper mode (should apply multiplier)
+  [ ] Test Add to Roster mode (should NOT apply multiplier)
+  [ ] Run all unit tests: python tests/run_all_tests.py
+
+### Phase 6: Validation (Real-World Testing)
+  [ ] Compare recommendations to ESPN sit/start advice
+  [ ] Verify tough matchups get penalized appropriately
+  [ ] Verify favorable matchups get boosted appropriately
+  [ ] Tune multiplier values if needed
+
+### Phase 7: Documentation
+  [ ] Update README.md with 10-step algorithm
+  [ ] Update ARCHITECTURE.md with weekly ranking details
+  [ ] Document in CLAUDE.md for future reference
+
+
+NEXT STEPS
+----------
+
+After completing this objective file:
+
+1. **Create TODO tracking file**: updates/todo-files/weekly_ranking_multiplier_todo.md
+2. **Create questions file** (if needed): updates/weekly_ranking_multiplier_questions.md
+3. **Begin implementation** following the checklist above
+4. **Test thoroughly** with both Starter Helper and Add to Roster modes
+5. **Tune configuration** using simulation system
+6. **Document results** and move to updates/done/ when complete
+
+
+REFERENCES
+----------
+
+Related Documentation:
+  - ESPN API Rankings: EMPIRICAL_TEST_RESULTS.md
+  - Player Rating Research: docs/player_ratings/player_rating_analysis_report.md
+  - Player Rating Implementation: updates/player_rating_implementation.txt
+  - Current Scoring Algorithm: league_helper/util/player_scoring.py
+  - Configuration: data/league_config.json
+
+Key Files:
+  - utils/FantasyPlayer.py (data model)
+  - player-data-fetcher/espn_client.py (data fetching)
+  - league_helper/util/ConfigManager.py (configuration)
+  - league_helper/util/player_scoring.py (scoring logic)
+  - league_helper/starter_helper_mode/StarterHelperModeManager.py (mode usage)
+
+===============================================================================

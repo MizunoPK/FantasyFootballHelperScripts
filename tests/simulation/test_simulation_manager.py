@@ -386,6 +386,36 @@ class TestIterativeOptimization:
         assert optimal_path.exists()
         assert 'optimal_iterative' in optimal_path.name
 
+    def test_iterative_optimization_cleans_up_old_intermediate_files(self, mock_manager_for_iterative, temp_output_dir):
+        """Test that old intermediate files are deleted before starting new optimization"""
+        manager, mock_results, mock_parallel, mock_config_gen = mock_manager_for_iterative
+
+        # Create some fake intermediate files from a previous run
+        old_intermediate_1 = temp_output_dir / "intermediate_01_OLD_PARAM.json"
+        old_intermediate_2 = temp_output_dir / "intermediate_99_ANOTHER_OLD.json"
+        old_intermediate_1.write_text('{"old": "config1"}')
+        old_intermediate_2.write_text('{"old": "config2"}')
+
+        # Verify old files exist
+        assert old_intermediate_1.exists()
+        assert old_intermediate_2.exists()
+
+        # Run optimization
+        manager.run_iterative_optimization()
+
+        # Verify old intermediate files were deleted
+        assert not old_intermediate_1.exists()
+        assert not old_intermediate_2.exists()
+
+        # Verify new intermediate files were created
+        new_intermediate_files = list(temp_output_dir.glob("intermediate_*.json"))
+        assert len(new_intermediate_files) == 2  # One per parameter in mock
+
+        # Verify new files don't have the old names
+        new_file_names = [f.name for f in new_intermediate_files]
+        assert "intermediate_01_OLD_PARAM.json" not in new_file_names
+        assert "intermediate_99_ANOTHER_OLD.json" not in new_file_names
+
 
 class TestTimeFormatting:
     """Test time formatting helper method"""

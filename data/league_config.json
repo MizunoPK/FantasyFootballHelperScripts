@@ -1,21 +1,21 @@
 {
-  "config_name": "simulation/simulation_configs/optimal_iterative_20251019_155250.json",
-  "description": "Win Rate: 0.73",
+  "config_name": "simulation/simulation_configs/optimal_iterative_20251102_105828.json",
+  "description": "Win Rate: 0.76",
   "parameters": {
-    "CURRENT_NFL_WEEK": 8,
+    "CURRENT_NFL_WEEK": 10,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 148.77464126010355,
-    "SAME_POS_BYE_WEIGHT": 0.0,
-    "DIFF_POS_BYE_WEIGHT": 0.0,
+    "NORMALIZATION_MAX_SCALE": 105.01467963908847,
+    "SAME_POS_BYE_WEIGHT": 0.4270719931348723,
+    "DIFF_POS_BYE_WEIGHT": 0.4417041852107654,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 0,
       "HIGH": 100
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 66.84679290832068,
-      "SECONDARY": 75.0
+      "PRIMARY": 81.63820523910373,
+      "SECONDARY": 87.96323122074631
     },
     "DRAFT_ORDER": [
       {
@@ -60,10 +60,12 @@
         "FLEX": "P"
       },
       {
-        "K": "P"
+        "K": "P",
+        "FLEX": "S"
       },
       {
-        "DST": "P"
+        "DST": "P",
+        "FLEX": "S"
       },
       {
         "FLEX": "P"
@@ -89,10 +91,9 @@
     ],
     "ADP_SCORING": {
       "THRESHOLDS": {
-        "VERY_POOR": 150,
-        "POOR": 100,
-        "GOOD": 50,
-        "EXCELLENT": 20
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 26.940395226996877
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -100,14 +101,13 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.6903399305370368
+      "WEIGHT": 1.9356728036133104
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
-        "VERY_POOR": 20,
-        "POOR": 40,
-        "GOOD": 60,
-        "EXCELLENT": 80
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 28.28665672163539
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -115,14 +115,13 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.307242999510051
+      "WEIGHT": 2.0495431084336464
     },
     "TEAM_QUALITY_SCORING": {
       "THRESHOLDS": {
-        "VERY_POOR": 25,
-        "POOR": 18,
-        "GOOD": 10,
-        "EXCELLENT": 5
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 1.0475899671798965
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -130,30 +129,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.0
+      "WEIGHT": 0.3573337942451747
     },
     "PERFORMANCE_SCORING": {
       "MIN_WEEKS": 3,
       "THRESHOLDS": {
-        "VERY_POOR": -0.2,
-        "POOR": -0.1,
-        "GOOD": 0.1,
-        "EXCELLENT": 0.2
-      },
-      "MULTIPLIERS": {
-        "VERY_POOR": 0.96,
-        "POOR": 0.925,
-        "GOOD": 1.025,
-        "EXCELLENT": 1.05
-      },
-      "WEIGHT": 0.6276694825158204
-    },
-    "MATCHUP_SCORING": {
-      "IMPACT_SCALE": 150.0,
-      "THRESHOLDS": {
-        "BASE_POSITION": 0,
+        "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 7.5
+        "STEPS": 0.2295799423833918
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -161,7 +144,22 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.9500804060705965
+      "WEIGHT": 0.19998697166494606
+    },
+    "MATCHUP_SCORING": {
+      "IMPACT_SCALE": 108.37629512182852,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 6.8865811653622035
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.6778481670093686
     },
     "SCHEDULE_SCORING": {
       "IMPACT_SCALE": 80.0,
@@ -171,10 +169,10 @@
         "STEPS": 8
       },
       "MULTIPLIERS": {
-        "VERY_POOR": 1.0,
-        "POOR": 1.0,
-        "GOOD": 1.0,
-        "EXCELLENT": 1.0
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
       },
       "WEIGHT": 0.0
     }

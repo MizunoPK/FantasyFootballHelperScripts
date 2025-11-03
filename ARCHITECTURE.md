@@ -94,7 +94,10 @@ The Fantasy Football Helper Scripts is a comprehensive Python-based system desig
 │                   DATA ACCESS LAYER                          │
 │  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
 │  │ CSV Utils    │  │ Player Fetcher│ │ Scores Fetcher  │  │
+│  │              │  │ (ESPN API)    │ │                 │  │
 │  └──────────────┘  └──────────────┘  └─────────────────┘  │
+│                                                              │
+│  ESPN API Documentation: docs/espn_api_endpoints.md         │
 └─────────────────────────────────────────────────────────────┘
                             │
                             ▼

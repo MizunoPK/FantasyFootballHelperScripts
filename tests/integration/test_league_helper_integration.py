@@ -45,6 +45,19 @@ def temp_data_folder(tmp_path):
 8,Mark Andrews,TE,BAL,13,210.3,ACTIVE,5.1
 """)
 
+    # Create minimal players_projected.csv (required by ProjectedPointsManager)
+    players_projected_csv = data_folder / "players_projected.csv"
+    players_projected_csv.write_text("""id,name,week_1_points,week_2_points,week_3_points,week_4_points,week_5_points,week_6_points,week_7_points,week_8_points,week_9_points,week_10_points,week_11_points,week_12_points,week_13_points,week_14_points,week_15_points,week_16_points,week_17_points
+1,Patrick Mahomes,22.5,21.3,23.1,20.5,22.0,21.5,0.0,23.5,22.8,21.9,22.3,20.8,21.2,22.6,23.0,21.7,22.4
+2,Josh Allen,21.8,20.9,22.4,21.0,21.5,20.3,21.7,22.1,21.3,22.5,21.9,0.0,20.7,21.8,22.2,21.4,21.6
+3,Justin Jefferson,18.5,17.8,19.2,18.0,18.7,17.5,18.9,19.1,18.3,19.5,18.9,19.3,0.0,18.6,19.0,18.2,18.8
+4,Tyreek Hill,17.9,17.2,18.6,17.4,18.1,16.9,18.3,18.5,17.7,0.0,18.3,18.7,18.1,18.0,18.4,17.6,18.2
+5,Christian McCaffrey,20.5,19.8,21.2,20.0,20.7,19.5,20.9,21.1,0.0,21.5,20.9,21.3,20.7,20.6,21.0,20.2,20.8
+6,Austin Ekeler,16.5,15.8,17.2,16.0,0.0,15.5,16.9,17.1,16.3,17.5,16.9,17.3,16.7,16.6,17.0,16.2,16.8
+7,Travis Kelce,14.5,13.8,15.2,14.0,14.7,13.5,0.0,15.1,14.3,15.5,14.9,15.3,14.7,14.6,15.0,14.2,14.8
+8,Mark Andrews,13.5,12.8,14.2,13.0,13.7,12.5,13.9,14.1,13.3,14.5,13.9,14.3,0.0,13.6,14.0,13.2,13.8
+""")
+
     # Create minimal teams.csv
     teams_csv = data_folder / "teams.csv"
     teams_csv.write_text("""Team Name,Position,Player Name

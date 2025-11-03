@@ -477,20 +477,23 @@ class TestGetRecommendations:
             assert any(call.kwargs.get('draft_round') == 5 for call in calls)
 
     def test_get_recommendations_enables_all_scoring_factors(self, add_to_roster_manager, mock_player_manager):
-        """Test that all scoring factors are enabled"""
+        """Test that scoring factors are configured correctly for draft mode"""
         with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
             add_to_roster_manager.get_recommendations()
 
-            # Check that score_player was called with all flags True
+            # Check that score_player was called with correct flags
             calls = mock_player_manager.score_player.call_args_list
             assert len(calls) > 0
-            # Check first call has all flags
+            # Check first call has correct flags
             first_call = calls[0].kwargs
+            # Enabled: ADP, Player Rating, Team Quality
             assert first_call.get('adp') == True
             assert first_call.get('player_rating') == True
             assert first_call.get('team_quality') == True
-            assert first_call.get('performance') == True
-            assert first_call.get('matchup') == True
+            # Disabled: Performance, Matchup, Schedule (situational factors not used in draft)
+            assert first_call.get('performance') == False
+            assert first_call.get('matchup') == False
+            assert first_call.get('schedule') == False
 
     def test_get_recommendations_empty_when_no_available_players(self, add_to_roster_manager):
         """Test that empty list returned when no available players"""

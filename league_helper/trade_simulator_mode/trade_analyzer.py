@@ -166,7 +166,7 @@ class TradeAnalyzer:
                 violation_players.append(f"{p.name} ({p.position})")
 
         if violations > 0:
-            self.logger.info(f"Position violations: {violations} players cannot fit: {', '.join(violation_players)}")
+            self.logger.debug(f"Position violations: {violations} players cannot fit: {', '.join(violation_players)}")
 
         return violations
 
@@ -201,12 +201,12 @@ class TradeAnalyzer:
         violations_after = self.count_position_violations(new_roster)
 
         # DEBUG: Log violation counts
-        self.logger.info(f"Violations before: {violations_before}, after: {violations_after}")
+        self.logger.debug(f"Violations before: {violations_before}, after: {violations_after}")
 
         # Allow trade if violations don't increase
         # (violations_after <= violations_before)
         result = violations_after <= violations_before
-        self.logger.info(f"Validation result: {result} (violations_after <= violations_before)")
+        self.logger.debug(f"Validation result: {result} (violations_after <= violations_before)")
         return result
 
     def _get_waiver_recommendations(self, num_spots: int, post_trade_roster: List[FantasyPlayer] = None) -> List[ScoredPlayer]:

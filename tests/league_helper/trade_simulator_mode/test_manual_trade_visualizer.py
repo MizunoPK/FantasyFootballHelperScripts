@@ -582,6 +582,10 @@ class TestStartManualTradeIntegration:
         players_file = data_folder / "players.csv"
         players_file.write_text("id,name,team,position,bye_week,fantasy_points,injury_status,drafted,locked\n")
 
+        # Create minimal players_projected.csv (required by ProjectedPointsManager)
+        players_projected_file = data_folder / "players_projected.csv"
+        players_projected_file.write_text("id,name,week_1_points,week_2_points,week_3_points,week_4_points,week_5_points,week_6_points,week_7_points,week_8_points,week_9_points,week_10_points,week_11_points,week_12_points,week_13_points,week_14_points,week_15_points,week_16_points,week_17_points\n")
+
         # Create minimal teams.csv
         teams_file = data_folder / "teams_latest.csv"
         teams_file.write_text("team,rank,offensive_rank,defensive_rank\n")
@@ -675,6 +679,10 @@ class TestWaiverTradeProcessing:
         # Create minimal players.csv
         players_file = data_folder / "players.csv"
         players_file.write_text("id,name,team,position,bye_week,fantasy_points,injury_status,drafted,locked\n")
+
+        # Create minimal players_projected.csv (required by ProjectedPointsManager)
+        players_projected_file = data_folder / "players_projected.csv"
+        players_projected_file.write_text("id,name,week_1_points,week_2_points,week_3_points,week_4_points,week_5_points,week_6_points,week_7_points,week_8_points,week_9_points,week_10_points,week_11_points,week_12_points,week_13_points,week_14_points,week_15_points,week_16_points,week_17_points\n")
 
         # Create minimal teams.csv
         teams_file = data_folder / "teams_latest.csv"

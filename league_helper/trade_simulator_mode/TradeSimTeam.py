@@ -83,7 +83,7 @@ class TradeSimTeam:
             # Score players with different bye penalty settings based on team type
             if self.isOpponent:
                 # Opponent scoring: exclude bye penalties to avoid artificial score changes from roster composition
-                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, bye=False, injury=False, roster=self.team)
+                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=False, bye=False, injury=False, roster=self.team)
             else:
                 # User scoring: include all scoring components including bye penalties
                 scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, bye=True, injury=False, roster=self.team)

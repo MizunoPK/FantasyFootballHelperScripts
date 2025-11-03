@@ -108,7 +108,7 @@ class PlayerManager:
         self.config = config
         self.team_data_manager = team_data_manager
         self.season_schedule_manager = season_schedule_manager
-        self.projected_points_manager = ProjectedPointsManager(config)
+        self.projected_points_manager = ProjectedPointsManager(config, data_folder)
 
         # Initialize scoring calculator (max_projection will be updated in load_players_from_csv)
         self.scoring_calculator = PlayerScoringCalculator(
@@ -287,7 +287,16 @@ class PlayerManager:
 
         # Calculate baseline scores for all players (now that max_projection is set)
         for player in players:
-            player.score = self.score_player(player, bye=False).score
+            player.score = self.score_player(player, 
+                                             adp=False,
+                                             player_rating=True,
+                                             team_quality=True,
+                                             performance=False,
+                                             matchup=False,
+                                             schedule=False,
+                                             bye=False,
+                                             injury=True
+                                             ).score
 
         self.logger.debug(f"Loaded {len(players)} players from {self.file_str}.")
 
@@ -311,7 +320,16 @@ class PlayerManager:
         self.team = FantasyTeam(self.config, drafted_players)
         # Go ahead and score the team
         for p in drafted_players:
-            result = self.score_player(p)
+            result = self.score_player(p, 
+                                        adp=False,
+                                        player_rating=True,
+                                        team_quality=True,
+                                        performance=True,
+                                        matchup=False,
+                                        schedule=True,
+                                        bye=True,
+                                        injury=True
+                                        )
             self.team.set_score(p.id, result.score)
         # self.team.display_roster()
 
@@ -492,7 +510,14 @@ class PlayerManager:
         # Recalculate scores with bye penalties enabled for display
         scored_players = []
         for player in self.team.roster:
-            scored_player = self.score_player(player, bye=True)
+            scored_player = self.score_player(player, adp=False,
+                                             player_rating=True,
+                                             team_quality=True,
+                                             performance=True,
+                                             matchup=False,
+                                             schedule=True,
+                                             bye=True,
+                                             injury=True)
             scored_players.append(scored_player)
 
         # Sort by score (highest first) for better readability
@@ -531,7 +556,7 @@ class PlayerManager:
         """
         return self.scoring_calculator.get_weekly_projection(player, week)
 
-    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
         """
         Calculate score for a player (10-step calculation).
 

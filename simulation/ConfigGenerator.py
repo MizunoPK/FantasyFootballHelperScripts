@@ -2,10 +2,10 @@
 Configuration Generator
 
 Generates parameter combinations for simulation optimization. Creates combinations
-by varying 16 key parameters, with N+1 values per parameter (optimal + N random variations).
+by varying 15 key parameters, with N+1 values per parameter (optimal + N random variations).
 
-Total configurations = (N+1)^16 where N = num_test_values (default: 5)
-Example: (5+1)^16 = ~2.8 trillion configurations
+Total configurations = (N+1)^15 where N = num_test_values (default: 5)
+Example: (5+1)^15 = ~470 billion configurations
 
 Parameters Varied:
 1. NORMALIZATION_MAX_SCALE: ±10 from optimal, bounded [50, 500]
@@ -17,13 +17,14 @@ Parameters Varied:
 7. PLAYER_RATING_SCORING_WEIGHT: ±0.3 from optimal, bounded [0, 5]
 8. PERFORMANCE_SCORING_WEIGHT: ±0.3 from optimal, bounded [0, 5]
 9. MATCHUP_SCORING_WEIGHT: ±0.3 from optimal, bounded [0, 5]
-10. SCHEDULE_SCORING_WEIGHT: ±0.3 from optimal, bounded [0, 5]
-11. ADP_SCORING_STEPS: ±5 from optimal, bounded [1, 60]
-12. PLAYER_RATING_SCORING_STEPS: ±4 from optimal, bounded [1, 50]
-13. TEAM_QUALITY_SCORING_STEPS: ±2 from optimal, bounded [1, 20]
-14. PERFORMANCE_SCORING_STEPS: ±0.05 from optimal, bounded [0.05, 0.5]
-15. MATCHUP_SCORING_STEPS: ±3 from optimal, bounded [1, 20]
-16. SCHEDULE_SCORING_STEPS: ±2 from optimal, bounded [1, 15]
+10. ADP_SCORING_STEPS: ±5 from optimal, bounded [1, 60]
+11. PLAYER_RATING_SCORING_STEPS: ±4 from optimal, bounded [1, 50]
+12. TEAM_QUALITY_SCORING_STEPS: ±2 from optimal, bounded [1, 20]
+13. PERFORMANCE_SCORING_STEPS: ±0.05 from optimal, bounded [0.05, 0.5]
+14. MATCHUP_SCORING_STEPS: ±3 from optimal, bounded [1, 20]
+15. MATCHUP_IMPACT_SCALE: ±25 from optimal, bounded [0, 300]
+
+Note: SCHEDULE_SCORING parameters are disabled (not optimized)
 
 Author: Kai Mizuno
 """
@@ -50,28 +51,35 @@ class ConfigGenerator:
         logger: Logger instance
     """
 
-    # Parameter definitions: (range_val, min_val, max_val)
+    # Parameter definitions ordered to match league_config.json structure
+    # Format: (range_val, min_val, max_val)
     PARAM_DEFINITIONS = {
+        # Normalization and Bye Penalties
         'NORMALIZATION_MAX_SCALE': (10.0, 50.0, 500.0),
         'SAME_POS_BYE_WEIGHT': (0.2, 0.0, 3.0),
         'DIFF_POS_BYE_WEIGHT': (0.2, 0.0, 3.0),
+        # Draft Order Bonuses
         'PRIMARY_BONUS': (10.0, 0.0, 200.0),
         'SECONDARY_BONUS': (10.0, 0.0, 200.0),
+        # ADP Scoring
         'ADP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'PLAYER_RATING_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'PERFORMANCE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'SCHEDULE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        # IMPACT_SCALE parameters for additive scoring (NEW)
-        'MATCHUP_IMPACT_SCALE': (25.0, 100.0, 200.0),
-        'SCHEDULE_IMPACT_SCALE': (20.0, 40.0, 120.0),
-        # Threshold STEPS parameters (NEW)
         'ADP_SCORING_STEPS': (5.0, 1.0, 60.0),
+        # Player Rating Scoring
+        'PLAYER_RATING_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PLAYER_RATING_SCORING_STEPS': (4.0, 1.0, 50.0),
+        # Team Quality Scoring (no WEIGHT - not optimized)
         'TEAM_QUALITY_SCORING_STEPS': (2.0, 1.0, 20.0),
+        # Performance Scoring
+        'PERFORMANCE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'PERFORMANCE_SCORING_STEPS': (0.05, 0.05, 0.5),
+        # Matchup Scoring (additive)
+        'MATCHUP_IMPACT_SCALE': (25.0, 0.0, 300.0),
+        'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
         'MATCHUP_SCORING_STEPS': (3.0, 1.0, 20.0),
-        'SCHEDULE_SCORING_STEPS': (2.0, 1.0, 15.0),
+        # Schedule Scoring (additive)
+        # 'SCHEDULE_IMPACT_SCALE': (20.0, 0.0, 300.0),
+        # 'SCHEDULE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
+        # 'SCHEDULE_SCORING_STEPS': (2.0, 1.0, 15.0),
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -96,10 +104,10 @@ class ConfigGenerator:
             "BASE_POSITION": 0,
             "DIRECTION": "BI_EXCELLENT_HI"
         },
-        "SCHEDULE_SCORING": {
-            "BASE_POSITION": 0,
-            "DIRECTION": "INCREASING"
-        }
+        # "SCHEDULE_SCORING": {
+        #     "BASE_POSITION": 0,
+        #     "DIRECTION": "INCREASING"
+        # }
     }
 
     # Scoring sections that need weights applied
@@ -108,33 +116,38 @@ class ConfigGenerator:
         'PLAYER_RATING_SCORING',
         'PERFORMANCE_SCORING',
         'MATCHUP_SCORING',
-        'SCHEDULE_SCORING'
+        # 'SCHEDULE_SCORING'  # DISABLED
     ]
 
     # Parameter ordering for iterative optimization
-    # Scalar parameters first, then weights, then threshold STEPS
+    # Ordered to match league_config.json structure
     PARAMETER_ORDER = [
+        # Normalization and Bye Penalties
+        'NORMALIZATION_MAX_SCALE',
         'SAME_POS_BYE_WEIGHT',
         'DIFF_POS_BYE_WEIGHT',
-        'SCHEDULE_SCORING_WEIGHT',
-        'SCHEDULE_SCORING_STEPS',
-        'NORMALIZATION_MAX_SCALE',
+        # Draft Order Bonuses
         'PRIMARY_BONUS',
         'SECONDARY_BONUS',
-        # Multiplier Weights
+        # ADP Scoring
         'ADP_SCORING_WEIGHT',
-        'PLAYER_RATING_SCORING_WEIGHT',
-        'PERFORMANCE_SCORING_WEIGHT',
-        'MATCHUP_SCORING_WEIGHT',
-        # Threshold STEPS (NEW)
         'ADP_SCORING_STEPS',
+        # Player Rating Scoring
+        'PLAYER_RATING_SCORING_WEIGHT',
         'PLAYER_RATING_SCORING_STEPS',
+        # Team Quality Scoring (no WEIGHT - not in param_definitions)
         'TEAM_QUALITY_SCORING_STEPS',
+        # Performance Scoring
+        'PERFORMANCE_SCORING_WEIGHT',
         'PERFORMANCE_SCORING_STEPS',
-        'MATCHUP_SCORING_STEPS',
-        # Impact Scales (ADDITIVE SCORING)
+        # Matchup Scoring (additive)
         'MATCHUP_IMPACT_SCALE',
-        'SCHEDULE_IMPACT_SCALE',
+        'MATCHUP_SCORING_WEIGHT',
+        'MATCHUP_SCORING_STEPS',
+        # Schedule Scoring (additive) - DISABLED
+        # 'SCHEDULE_IMPACT_SCALE',
+        # 'SCHEDULE_SCORING_WEIGHT',
+        # 'SCHEDULE_SCORING_STEPS',
     ]
 
     def __init__(self, baseline_config_path: Path, num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:
@@ -306,12 +319,12 @@ class ConfigGenerator:
         # MATCHUP
         value_sets = self.generate_multiplier_parameter_values(value_sets, "MATCHUP_SCORING")
 
-        # SCHEDULE
-        value_sets = self.generate_multiplier_parameter_values(value_sets, "SCHEDULE_SCORING")
+        # SCHEDULE - DISABLED
+        # value_sets = self.generate_multiplier_parameter_values(value_sets, "SCHEDULE_SCORING")
 
         # Threshold STEPS parameters (NEW) - Note: TEAM_QUALITY doesn't have a WEIGHT
         for scoring_type in ["ADP_SCORING", "PLAYER_RATING_SCORING", "TEAM_QUALITY_SCORING",
-                             "PERFORMANCE_SCORING", "MATCHUP_SCORING", "SCHEDULE_SCORING"]:
+                             "PERFORMANCE_SCORING", "MATCHUP_SCORING"]:
             steps_param = f"{scoring_type}_STEPS"
             # Check if using parameterized format (has STEPS key)
             if 'STEPS' in params[scoring_type]['THRESHOLDS']:
@@ -326,7 +339,8 @@ class ConfigGenerator:
                 )
 
         # IMPACT_SCALE parameters (additive scoring - NEW)
-        for scoring_type in ["MATCHUP_SCORING", "SCHEDULE_SCORING"]:
+        # Only MATCHUP_SCORING - SCHEDULE_SCORING disabled
+        for scoring_type in ["MATCHUP_SCORING"]:
             impact_param = scoring_type.replace('_SCORING', '_IMPACT_SCALE')
             current_impact = params[scoring_type]['IMPACT_SCALE']
             range_val, min_val, max_val = self.param_definitions[impact_param]
@@ -614,13 +628,13 @@ class ConfigGenerator:
         combination['PRIMARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['PRIMARY']
         combination['SECONDARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['SECONDARY']
 
-        # WEIGHTS for each section
-        for section in ['ADP', 'PLAYER_RATING', 'PERFORMANCE', 'MATCHUP', 'SCHEDULE']:
+        # WEIGHTS for each section (SCHEDULE disabled)
+        for section in ['ADP', 'PLAYER_RATING', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_SCORING_WEIGHT'
             combination[param_name] = params[f'{section}_SCORING']['WEIGHT']
 
-        # STEPS for each scoring type (NEW) - only if parameterized format
-        for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP', 'SCHEDULE']:
+        # STEPS for each scoring type (NEW) - only if parameterized format (SCHEDULE disabled)
+        for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_SCORING_STEPS'
             thresholds = params[f'{section}_SCORING']['THRESHOLDS']
             # Check if using parameterized format (has STEPS key)
@@ -634,8 +648,8 @@ class ConfigGenerator:
                     if 'STEPS' in baseline_thresholds:
                         combination[param_name] = baseline_thresholds['STEPS']
 
-        # IMPACT_SCALE for additive scoring (NEW)
-        for section in ['MATCHUP', 'SCHEDULE']:
+        # IMPACT_SCALE for additive scoring (NEW) - Only MATCHUP, SCHEDULE disabled
+        for section in ['MATCHUP']:
             param_name = f'{section}_IMPACT_SCALE'
             combination[param_name] = params[f'{section}_SCORING']['IMPACT_SCALE']
 
@@ -667,16 +681,16 @@ class ConfigGenerator:
         params['DRAFT_ORDER_BONUSES']['PRIMARY'] = combination['PRIMARY_BONUS']
         params['DRAFT_ORDER_BONUSES']['SECONDARY'] = combination['SECONDARY_BONUS']
 
-        # Update IMPACT_SCALE for additive scoring (NEW)
+        # Update IMPACT_SCALE for additive scoring (NEW) - SCHEDULE disabled
         params['MATCHUP_SCORING']['IMPACT_SCALE'] = combination['MATCHUP_IMPACT_SCALE']
-        params['SCHEDULE_SCORING']['IMPACT_SCALE'] = combination['SCHEDULE_IMPACT_SCALE']
+        # params['SCHEDULE_SCORING']['IMPACT_SCALE'] = combination['SCHEDULE_IMPACT_SCALE']
 
-        # Update weights
-        for parameter in ['ADP', 'PLAYER_RATING', 'PERFORMANCE', 'MATCHUP', 'SCHEDULE']:
+        # Update weights (SCHEDULE disabled)
+        for parameter in ['ADP', 'PLAYER_RATING', 'PERFORMANCE', 'MATCHUP']:
             params[f'{parameter}_SCORING']['WEIGHT'] = combination[f'{parameter}_SCORING_WEIGHT']
 
-        # Update threshold STEPS (NEW)
-        for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP', 'SCHEDULE']:
+        # Update threshold STEPS (NEW) - SCHEDULE disabled
+        for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             steps_param = f'{parameter}_SCORING_STEPS'
             if steps_param in combination:
                 fixed_params = self.THRESHOLD_FIXED_PARAMS[f'{parameter}_SCORING']

@@ -68,7 +68,10 @@ class FantasyTeam:
         self.roster : List[FantasyPlayer] = []
         self.injury_reserve : List[FantasyPlayer] = []
         for player in players:
-            if player.injury_status not in ["ACTIVE", "QUESTIONABLE"]:
+            # Use get_risk_level() for consistency with trade_analyzer
+            # HIGH risk (INJURY_RESERVE, SUSPENSION, UNKNOWN) → IR slot (doesn't count toward limits)
+            # MEDIUM/LOW risk (OUT, QUESTIONABLE, ACTIVE) → active roster (counts toward limits)
+            if player.get_risk_level() == "HIGH":
                 self.injury_reserve.append(player)
             else:
                 self.roster.append(player)

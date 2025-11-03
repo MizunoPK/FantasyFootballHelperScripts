@@ -1,0 +1,7 @@
+The goal of this update is to create thourough reports on the ESPN API used by the player-data-fetcher and place the reports in the docs folder.
+I want a detailed analysis on:
+- The various endpoints available to us
+- All the pieces of player data available to us 
+- All the pieces of NFL team data available to us
+
+This analysis should not be specific to the player-data-fetcher's context. These reports should be about the ESPN API in general and be able to be used as a reference either for the player-data-fetcher or any other future scripts.

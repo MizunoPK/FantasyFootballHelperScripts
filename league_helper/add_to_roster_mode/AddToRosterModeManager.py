@@ -265,7 +265,7 @@ class AddToRosterModeManager:
         # while round 3 might give +50 points to QB (per DRAFT_ORDER config)
         current_round=self._get_current_round()
 
-        # Score each player with all scoring factors enabled
+        # Score each player with most scoring factors enabled
         for p in available_players:
             # Call PlayerManager's score_player method with draft_round parameter
             # This enables draft order bonuses (Step 7) based on current round
@@ -275,8 +275,6 @@ class AddToRosterModeManager:
             # - player_rating: Apply expert rating multiplier
             # - team_quality: Consider offensive/defensive team ranks
             # - performance: Account for recent weekly performance trends
-            # - matchup: Apply upcoming opponent difficulty adjustments
-            # - schedule: Apply future schedule strength (rest of season)
             #
             # The draft_round parameter is critical - it determines which positions
             # get PRIMARY (+50) or SECONDARY (+30) bonuses based on DRAFT_ORDER
@@ -286,9 +284,9 @@ class AddToRosterModeManager:
                 adp=True,                   # Enable ADP multiplier
                 player_rating=True,         # Enable player rating multiplier
                 team_quality=True,          # Enable team quality multiplier
-                performance=True,           # Enable performance deviation
-                matchup=True,               # Enable matchup multiplier
-                schedule=True               # Enable schedule strength multiplier
+                performance=False,           # Disable performance deviation
+                matchup=False,               # Disable matchup multiplier
+                schedule=False               # Disable schedule strength multiplier
             )
             scored_players.append(scored_player)
 

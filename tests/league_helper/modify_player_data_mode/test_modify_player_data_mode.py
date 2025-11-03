@@ -364,8 +364,9 @@ class TestLockPlayer:
         manager.update_players_file = Mock()
         return manager
 
+    @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
-    def test_lock_player_toggles_from_zero_to_one(self, mock_search_class, mock_player_manager, sample_players):
+    def test_lock_player_toggles_from_zero_to_one(self, mock_search_class, mock_print, mock_player_manager, sample_players):
         """Test that locking a player toggles locked from 0 to 1."""
         # Setup
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
@@ -387,8 +388,9 @@ class TestLockPlayer:
             prompt="Enter player name to lock/unlock (or press Enter to return): "
         )
 
+    @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
-    def test_lock_player_toggles_from_one_to_zero(self, mock_search_class, mock_player_manager, sample_players):
+    def test_lock_player_toggles_from_one_to_zero(self, mock_search_class, mock_print, mock_player_manager, sample_players):
         """Test that unlocking a player toggles locked from 1 to 0."""
         # Setup
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
@@ -406,8 +408,63 @@ class TestLockPlayer:
         assert locked_player.locked == 0
         mock_player_manager.update_players_file.assert_called_once()
 
+    @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
-    def test_lock_player_handles_user_exit(self, mock_search_class, mock_player_manager):
+    def test_lock_player_displays_locked_players_list(self, mock_search_class, mock_print, mock_player_manager, sample_players):
+        """Test that _lock_player() displays list of currently locked players."""
+        # Setup
+        mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
+        # Travis Kelce is locked=1, Patrick Mahomes is locked=0
+
+        # Mock interactive_search to return None (user exits)
+        mock_searcher = Mock()
+        mock_searcher.interactive_search.return_value = None
+        mock_search_class.return_value = mock_searcher
+
+        # Execute
+        mode_manager._lock_player()
+
+        # Verify that locked players header was printed
+        print_calls = [str(call) for call in mock_print.call_args_list]
+        printed_output = ' '.join(print_calls)
+
+        # Check that the locked players section was displayed
+        assert any('CURRENTLY LOCKED PLAYERS' in str(call) for call in print_calls)
+        # Check that Travis Kelce (locked=1) appears in output
+        assert any('Travis Kelce' in str(call) for call in print_calls)
+        # Check that total locked players count appears
+        assert any('Total locked players: 1' in str(call) for call in print_calls)
+
+    @patch('builtins.print')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
+    def test_lock_player_displays_no_locked_players_message(self, mock_search_class, mock_print):
+        """Test that _lock_player() displays 'no locked players' message when none are locked."""
+        # Setup - create players with all locked=0
+        unlocked_players = [
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=2, locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="Josh Allen", team="BUF", position="QB", bye_week=10, drafted=1, locked=0, score=90.0, fantasy_points=330.0),
+        ]
+        mock_player_manager = Mock()
+        mock_player_manager.players = unlocked_players
+
+        mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
+
+        # Mock interactive_search to return None (user exits)
+        mock_searcher = Mock()
+        mock_searcher.interactive_search.return_value = None
+        mock_search_class.return_value = mock_searcher
+
+        # Execute
+        mode_manager._lock_player()
+
+        # Verify that "NO LOCKED PLAYERS" message was displayed
+        print_calls = [str(call) for call in mock_print.call_args_list]
+        assert any('NO LOCKED PLAYERS' in str(call) for call in print_calls)
+        assert any('No players are currently locked' in str(call) for call in print_calls)
+
+    @patch('builtins.print')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
+    def test_lock_player_handles_user_exit(self, mock_search_class, mock_print, mock_player_manager):
         """Test that lock player handles user exit gracefully."""
         # Setup
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
@@ -663,9 +720,10 @@ class TestEdgeCases:
         # Verify - should be drafted=2 (user's team)
         assert available_player.drafted == 2
 
+    @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.DraftedDataWriter')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
-    def test_lock_player_preserves_drafted_status(self, mock_search_class, mock_writer_class, mock_player_manager, sample_players):
+    def test_lock_player_preserves_drafted_status(self, mock_search_class, mock_writer_class, mock_print, mock_player_manager, sample_players):
         """Test that locking a player doesn't change drafted status."""
         # Setup
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
@@ -732,9 +790,10 @@ class TestEdgeCases:
         assert player_with_extreme_values.drafted == 1
         mock_writer.add_player.assert_called_once()
 
+    @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.DraftedDataWriter')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
-    def test_lock_player_multiple_times(self, mock_search_class, mock_writer_class, mock_player_manager, sample_players):
+    def test_lock_player_multiple_times(self, mock_search_class, mock_writer_class, mock_print, mock_player_manager, sample_players):
         """Test locking the same player multiple times toggles correctly."""
         # Setup
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)

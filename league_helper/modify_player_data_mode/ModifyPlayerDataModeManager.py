@@ -316,13 +316,14 @@ class ModifyPlayerDataModeManager:
         Toggle a player's locked status (locked 0↔1).
 
         Interactive workflow:
-        1. Search for any player (available, drafted, or rostered)
-        2. Determine current locked state (locked=0 or locked=1)
-        3. Toggle the locked status:
+        1. Display all currently locked players
+        2. Search for any player (available, drafted, or rostered)
+        3. Determine current locked state (locked=0 or locked=1)
+        4. Toggle the locked status:
            - If locked (1) → unlock (0)
            - If unlocked (0) → lock (1)
-        4. Save changes to players.csv
-        5. Display visual feedback (🔒 locked / 🔓 unlocked)
+        5. Save changes to players.csv
+        6. Display visual feedback (🔒 locked / 🔓 unlocked)
 
         Locked players have special behavior in Trade Simulator:
         - Excluded from trade combinations (cannot be traded)
@@ -333,7 +334,46 @@ class ModifyPlayerDataModeManager:
         """
         self.logger.info("Starting Lock Player mode")
 
-        # STEP 1: Search for any player to lock/unlock
+        # STEP 1: Display all currently locked players
+        locked_players = [p for p in self.player_manager.players if p.locked == 1]
+
+        if locked_players:
+            print("\n" + "=" * 80)
+            print("🔒 CURRENTLY LOCKED PLAYERS")
+            print("=" * 80)
+
+            # Sort locked players by position, then by name
+            locked_players.sort(key=lambda p: (p.position, p.name))
+
+            # Group by position for cleaner display
+            current_position = None
+            for player in locked_players:
+                if player.position != current_position:
+                    current_position = player.position
+                    print(f"\n{current_position}:")
+
+                # Display player with team and drafted status
+                drafted_status = ""
+                if player.drafted == 2:
+                    drafted_status = " [YOUR ROSTER]"
+                elif player.drafted == 1:
+                    drafted_status = " [DRAFTED]"
+
+                print(f"  • {player.name} ({player.team}){drafted_status}")
+
+            print("\n" + "=" * 80)
+            print(f"Total locked players: {len(locked_players)}")
+            print("=" * 80 + "\n")
+        else:
+            print("\n" + "=" * 80)
+            print("🔓 NO LOCKED PLAYERS")
+            print("=" * 80)
+            print("No players are currently locked.")
+            print("=" * 80 + "\n")
+
+        self.logger.info(f"Displayed {len(locked_players)} locked players")
+
+        # STEP 2: Search for any player to lock/unlock
         # Search all players regardless of drafted status (drafted=0, 1, or 2)
         # Locked players cannot be traded in Trade Simulator, but are included in roster validation
         searcher = PlayerSearch(self.player_manager.players)
@@ -342,29 +382,29 @@ class ModifyPlayerDataModeManager:
             prompt="Enter player name to lock/unlock (or press Enter to return): "
         )
 
-        # STEP 2: Handle user exit (pressed Enter without selecting)
+        # STEP 3: Handle user exit (pressed Enter without selecting)
         # Return to main menu if no player was selected
         if selected_player is None:
             self.logger.info("User exited Lock Player mode")
             return
 
-        # STEP 3: Determine current locked state for toggle operation
+        # STEP 4: Determine current locked state for toggle operation
         # locked=1: Player is locked (cannot be traded)
         # locked=0: Player is unlocked (can be traded)
         was_locked = selected_player.locked == 1
 
-        # STEP 4: Toggle the locked status
+        # STEP 5: Toggle the locked status
         # If locked (1) → unlock (0)
         # If unlocked (0) → lock (1)
         # Locked players are excluded from Trade Simulator combinations
         # but still count toward position limits in roster validation
         selected_player.locked = 0 if was_locked else 1
 
-        # STEP 5: Persist changes to players.csv
+        # STEP 6: Persist changes to players.csv
         # This saves the updated locked status to disk
         self.player_manager.update_players_file()
 
-        # STEP 6: Notify user with visual feedback
+        # STEP 7: Notify user with visual feedback
         # Use lock/unlock emojis to clearly indicate the new state
         if selected_player.locked == 1:
             print(f"🔒 Locked {selected_player.name}!")

@@ -46,7 +46,8 @@ from utils.DraftedRosterManager import DraftedRosterManager
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 
-WAIVERS_THREE_FOR_THREE = True
+WAIVERS_TWO_FOR_TWO = False
+WAIVERS_THREE_FOR_THREE = False
 
 ENABLE_ONE_FOR_ONE = False
 ENABLE_TWO_FOR_TWO = True
@@ -267,7 +268,7 @@ class TradeSimulatorModeManager:
             their_team=waiver_team,
             is_waivers=True,
             one_for_one=True,
-            two_for_two=True,
+            two_for_two=WAIVERS_TWO_FOR_TWO,
             three_for_three=WAIVERS_THREE_FOR_THREE,
             two_for_one=False,  # Unequal trades disabled in waiver mode for now
             one_for_two=False,

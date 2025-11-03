@@ -256,6 +256,19 @@ class SimulationManager:
         self.logger.info(f"Total simulations: {total_configs * self.num_simulations_per_config}")
         self.logger.info("=" * 80)
 
+        # Clean up any existing intermediate files from previous runs
+        intermediate_files = list(self.output_dir.glob("intermediate_*.json"))
+        if intermediate_files:
+            self.logger.info(f"Cleaning up {len(intermediate_files)} intermediate files from previous runs...")
+            for intermediate_file in intermediate_files:
+                try:
+                    intermediate_file.unlink()
+                    self.logger.debug(f"  Deleted: {intermediate_file.name}")
+                except Exception as e:
+                    self.logger.warning(f"  Failed to delete {intermediate_file.name}: {e}")
+            self.logger.info("✓ Cleanup complete")
+            self.logger.info("=" * 80)
+
         # Start with baseline config as current optimal
         current_optimal_config = copy.deepcopy(self.config_generator.baseline_config)
         win_percentage = 0.0

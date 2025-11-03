@@ -10,12 +10,12 @@ Author: Kai Mizuno
 
 from dataclasses import dataclass
 
-CURRENT_NFL_WEEK = 8     # Current NFL week (1-18, update weekly)
+CURRENT_NFL_WEEK = 9     # Current NFL week (1-18, update weekly)
 NFL_SEASON = 2025        # Current NFL season year
 
 # Data Preservation Settings (FREQUENTLY MODIFIED)
 PRESERVE_DRAFTED_VALUES = False   # Keep draft status between data updates
-PRESERVE_LOCKED_VALUES = False    # Keep locked players between data updates
+PRESERVE_LOCKED_VALUES = True    # Keep locked players between data updates
 
 # Drafted Data Loading Settings (FREQUENTLY MODIFIED)
 LOAD_DRAFTED_DATA_FROM_FILE = True  # Load drafted state from external CSV file (alternative to PRESERVE_DRAFTED_VALUES)

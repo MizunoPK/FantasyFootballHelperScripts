@@ -1,0 +1,4 @@
+Carefully analze the reports in docs/espn
+I want a comprehensive analysis on if there are methods we could pursue to improve the accuracy of all the team ranking values contained in teams.csv
+I am currently not confident that the ranking scores for the columns like offensive ranking and positional defense ranking are properly representing the real team rankings. I want a report to be made on the data that we could pull on the teams from the espn api and how we can use that to calculate team rankings
+Place this report in a new folder at docs/team_rankings

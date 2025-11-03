@@ -155,11 +155,16 @@ class SimulatedLeague:
             team_dir.mkdir()
 
             # Copy player data files for this team
+            # players.csv is used by PlayerManager for roster management
             shutil.copy(self.data_folder / "players_projected.csv", team_dir / "players.csv")
+            # players_projected.csv is used by ProjectedPointsManager for performance calculations
+            shutil.copy(self.data_folder / "players_projected.csv", team_dir / "players_projected.csv")
 
             team_actual_dir = self.temp_dir / f"team_{idx}_actual"
             team_actual_dir.mkdir()
             shutil.copy(self.data_folder / "players_actual.csv", team_actual_dir / "players.csv")
+            # Copy players_projected.csv to actual directory as well for ProjectedPointsManager
+            shutil.copy(self.data_folder / "players_projected.csv", team_actual_dir / "players_projected.csv")
 
             # Copy config to team directory
             shutil.copy(self.config_path, team_dir / "league_config.json")

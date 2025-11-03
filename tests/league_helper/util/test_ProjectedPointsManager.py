@@ -61,13 +61,14 @@ class TestProjectedPointsManagerInit:
         assert 'name_lower' in manager.projected_data.columns
         mock_read_csv.assert_called_once()
 
-    @patch('league_helper.util.ProjectedPointsManager.Path')
-    def test_init_raises_error_if_file_not_found(self, mock_path, mock_config):
+    def test_init_raises_error_if_file_not_found(self, tmp_path, mock_config):
         """Test that __init__ raises FileNotFoundError if file doesn't exist."""
-        mock_path.return_value.exists.return_value = False
+        # Create empty data folder without players_projected.csv
+        empty_data_folder = tmp_path / "empty_data"
+        empty_data_folder.mkdir()
 
         with pytest.raises(FileNotFoundError, match="Projected points file not found"):
-            ProjectedPointsManager(mock_config)
+            ProjectedPointsManager(mock_config, empty_data_folder)
 
 
 class TestGetProjectedPoints:
