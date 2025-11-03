@@ -96,7 +96,7 @@ class FantasyPlayer:
     locked: int = 0  # 0 = not locked, 1 = locked (cannot be drafted or traded)
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None  # ESPN's ADP data
-    player_rating: Optional[float] = None  # ESPN's internal player rating system
+    player_rating: Optional[float] = None  # 0-100 scale from ESPN position-specific consensus rankings
 
     # Weekly projections (weeks 1-17 fantasy regular season only)
     week_1_points: Optional[float] = None

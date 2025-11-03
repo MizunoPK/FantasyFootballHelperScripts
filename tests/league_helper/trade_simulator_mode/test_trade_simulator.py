@@ -603,8 +603,8 @@ class TestWaiverOptimizer:
                     call_args = mock_get.call_args[1]
                     assert call_args['is_waivers'] == True
                     assert call_args['one_for_one'] == True
-                    assert call_args['two_for_two'] == True
-                    assert call_args['three_for_three'] == True  # WAIVERS_THREE_FOR_THREE is True
+                    assert call_args['two_for_two'] == False  # WAIVERS_TWO_FOR_TWO is False
+                    assert call_args['three_for_three'] == False  # WAIVERS_THREE_FOR_THREE is False
 
 
 # =============================================================================

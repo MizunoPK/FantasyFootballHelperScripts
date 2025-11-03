@@ -693,12 +693,24 @@ class ESPNClient(BaseAPIClient):
     # MAIN API METHODS & DATA PARSING
     # ============================================================================
 
-    async def get_season_projections(self) -> List[ESPNPlayerData]:
-        """Get season projections from ESPN"""
+    async def get_season_projections(self, season: Optional[int] = None) -> List[ESPNPlayerData]:
+        """
+        Get season projections from ESPN.
+
+        Args:
+            season: Optional season year (defaults to settings.season if not provided).
+                   Use season=2024 to fetch historical data for simulation validation.
+
+        Returns:
+            List of player data with projections
+        """
         ppr_id = self._get_ppr_id()
-        
+        use_season = season if season is not None else self.settings.season
+
+        self.logger.info(f"Fetching season projections for {use_season}")
+
         # ESPN's main fantasy API endpoint for player projections
-        url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{self.settings.season}/segments/0/leaguedefaults/{ppr_id}"
+        url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{use_season}/segments/0/leaguedefaults/{ppr_id}"
         
         params = {
             "view": "kona_player_info",
@@ -1121,10 +1133,142 @@ class ESPNClient(BaseAPIClient):
 
         return rankings
 
+    # ============================================================================
+    # PLAYER RATING HELPER FUNCTIONS
+    # ============================================================================
+
+    def _position_to_slot_id(self, position: str) -> int:
+        """
+        Map position string to ESPN slotId for rankings validation.
+
+        ESPN uses different IDs for positions vs ranking slots:
+        - Position IDs (defaultPositionId): QB=1, RB=2, WR=3, TE=4, K=5, DST=16
+        - Slot IDs (slotId in rankings): QB=0, RB=2, WR=4, TE=6, K=17, DST=16
+
+        Args:
+            position: Position string (QB, RB, WR, TE, K, DST, D/ST)
+
+        Returns:
+            ESPN slotId for ranking validation, or -1 if unknown
+        """
+        # Handle D/ST alias
+        if position == 'D/ST':
+            position = 'DST'
+
+        slot_mapping = {
+            'QB': 0,
+            'RB': 2,
+            'WR': 4,
+            'TE': 6,
+            'K': 17,
+            'DST': 16
+        }
+        return slot_mapping.get(position, -1)
+
+    def _convert_positional_rank_to_rating(self, positional_rank: float) -> float:
+        """
+        Convert ESPN position-specific rank to 0-100 rating scale.
+
+        Uses a tiered formula that values elite positional players highest:
+        - Top 2 (Tier 1): 95-100 rating
+        - Ranks 3-5 (Tier 2): 80-94 rating
+        - Ranks 6-12 (Tier 3): 66-79 rating
+        - Ranks 13-24 (Tier 4): 50-65 rating
+        - Ranks 25-50 (Tier 5): 30-49 rating
+        - Ranks 50+ (Tier 6): 10-29 rating
+
+        Args:
+            positional_rank: ESPN consensus positional rank (e.g., 1.0 for QB1, 5.5 for RB6)
+
+        Returns:
+            Rating on 0-100 scale (actually 10-100 with floor)
+        """
+        if positional_rank <= 2:  # Elite tier (QB1-2, RB1-2, etc.)
+            return 100.0 - (positional_rank - 1.0) * 2.5  # 100 to 97.5
+        elif positional_rank <= 5:  # Top 5 starters
+            return 94.0 - (positional_rank - 2.0) * 4.67  # 94 to 80
+        elif positional_rank <= 12:  # Quality starters
+            return 79.0 - (positional_rank - 5.0) * 1.86  # 79 to 66
+        elif positional_rank <= 24:  # Flex/Bye week starters
+            return 65.0 - (positional_rank - 12.0) * 1.25  # 65 to 50
+        elif positional_rank <= 50:  # Deep bench
+            return 49.0 - (positional_rank - 24.0) * 0.73  # 49 to 30
+        else:  # Waiver wire
+            return max(10.0, 29.0 - (positional_rank - 50.0) * 0.38)  # 29 to 10 (floor at 10)
+
+    def _get_positional_rank_from_overall(
+        self,
+        overall_draft_rank: int,
+        position: str,
+        all_players_data: List[Dict[str, Any]]
+    ) -> Optional[float]:
+        """
+        Calculate position-specific rank from overall draft rank.
+
+        Used for Week 1 when ROS rankings aren't available yet. Groups all players
+        by position and calculates where this player ranks within their position.
+
+        Args:
+            overall_draft_rank: ESPN overall draft rank (1-300+)
+            position: Player position (QB, RB, WR, TE, K, DST)
+            all_players_data: List of all player dicts with draft ranks and position IDs
+
+        Returns:
+            Positional rank (e.g., 5.0 for 5th QB), or None if can't calculate
+        """
+        # Handle D/ST alias
+        if position == 'D/ST':
+            position = 'DST'
+
+        # Get ESPN position ID for grouping
+        position_id = self._position_to_position_id(position)
+        if position_id == -1:
+            return None
+
+        # Group players by position and sort by draft rank
+        same_position_players = [
+            p for p in all_players_data
+            if p.get('position_id') == position_id and p.get('draft_rank') is not None
+        ]
+
+        if not same_position_players:
+            return None
+
+        # Sort by draft rank (lower is better)
+        same_position_players.sort(key=lambda p: p['draft_rank'])
+
+        # Find this player's position-specific rank
+        for idx, player in enumerate(same_position_players, start=1):
+            if player['draft_rank'] == overall_draft_rank:
+                return float(idx)
+
+        return None
+
+    def _position_to_position_id(self, position: str) -> int:
+        """
+        Map position string to ESPN defaultPositionId for player grouping.
+
+        Args:
+            position: Position string (QB, RB, WR, TE, K, DST, D/ST)
+
+        Returns:
+            ESPN defaultPositionId, or -1 if unknown
+        """
+        from player_data_constants import ESPN_POSITION_MAPPINGS
+
+        # Handle D/ST alias
+        if position == 'D/ST':
+            position = 'DST'
+
+        # ESPN_POSITION_MAPPINGS: {1: 'QB', 2: 'RB', ...}
+        # Need reverse mapping: {'QB': 1, 'RB': 2, ...}
+        reverse_mapping = {v: k for k, v in ESPN_POSITION_MAPPINGS.items()}
+        return reverse_mapping.get(position, -1)
+
     async def _parse_espn_data(self, data: Dict[str, Any]) -> List[ESPNPlayerData]:
         """Parse ESPN API response into ESPNPlayerData objects"""
         from config import (
-            PROGRESS_UPDATE_FREQUENCY, PROGRESS_ETA_WINDOW_SIZE
+            PROGRESS_UPDATE_FREQUENCY, PROGRESS_ETA_WINDOW_SIZE, CURRENT_NFL_WEEK
         )
 
         projections = []
@@ -1152,6 +1296,27 @@ class ESPNClient(BaseAPIClient):
             update_frequency=PROGRESS_UPDATE_FREQUENCY,
             eta_window_size=PROGRESS_ETA_WINDOW_SIZE
         )
+
+        # Week 1 preprocessing: Collect all player draft ranks for position-specific calculation
+        all_players_with_ranks = []
+        if CURRENT_NFL_WEEK <= 1:
+            self.logger.info(f"Calculating position-specific ranks for Week {CURRENT_NFL_WEEK} (processing {len(players)} players)")
+            for player in players:
+                player_info = player.get('player', {})
+                draft_ranks = player_info.get('draftRanksByRankType', {})
+                ppr_rank_data = draft_ranks.get('PPR', {})
+
+                if ppr_rank_data and 'rank' in ppr_rank_data:
+                    draft_rank = ppr_rank_data['rank']
+                    position_id = player_info.get('defaultPositionId')
+
+                    if position_id:
+                        all_players_with_ranks.append({
+                            'draft_rank': draft_rank,
+                            'position_id': position_id
+                        })
+
+            self.logger.info(f"Grouped {len(all_players_with_ranks)} players for position-specific ranking")
 
         parsed_count = 0
         skipped_drafted_count = 0
@@ -1246,23 +1411,73 @@ class ESPNClient(BaseAPIClient):
                 if ownership_data and 'averageDraftPosition' in ownership_data:
                     average_draft_position = float(ownership_data['averageDraftPosition'])
 
-                # Extract ESPN player rating (using draft rank as proxy)
+                # Extract ESPN player rating (position-specific consensus rankings)
                 player_rating = None
-                draft_ranks = player_info.get('draftRanksByRankType', {})
-                ppr_rank_data = draft_ranks.get('PPR', {})
+                positional_rank = None
 
-                if ppr_rank_data and 'rank' in ppr_rank_data:
-                    # Convert ESPN draft rank (1-2000+) to rating scale (15-100)
-                    # Lower rank number = higher rating
-                    draft_rank = ppr_rank_data['rank']
-                    if draft_rank <= 50:  # Elite players
-                        player_rating = 100.0 - (draft_rank - 1) * 0.4  # 100 to 80.4
-                    elif draft_rank <= 150:  # Good players
-                        player_rating = 80.0 - (draft_rank - 50) * 0.25  # 80 to 55
-                    elif draft_rank <= 300:  # Average players
-                        player_rating = 55.0 - (draft_rank - 150) * 0.2  # 55 to 25
-                    else:  # Deep/waiver players
-                        player_rating = max(15.0, 25.0 - (draft_rank - 300) * 0.01)  # 25 to 15
+                # Determine which ranking source to use based on current week
+                if CURRENT_NFL_WEEK <= 1:
+                    # Pre-season/Week 1: Use draft rankings (ROS not updated yet)
+                    # Convert overall draft rank to position-specific
+                    draft_ranks = player_info.get('draftRanksByRankType', {})
+                    ppr_rank_data = draft_ranks.get('PPR', {})
+
+                    if ppr_rank_data and 'rank' in ppr_rank_data:
+                        draft_rank = ppr_rank_data['rank']
+                        positional_rank = self._get_positional_rank_from_overall(
+                            draft_rank, position, all_players_with_ranks
+                        )
+
+                        if positional_rank is None:
+                            self.logger.warning(
+                                f"No draft rank found for {name} (ID: {id}), using default rating"
+                            )
+                else:
+                    # During season (Week 2+): Use ROS consensus rankings from rankings object
+                    rankings_ros = player_info.get('rankings', {}).get('0', [])
+
+                    if rankings_ros:
+                        # rankings['0'] is ROS (rest of season) aggregate
+                        # Look for PPR rankType with averageRank field
+                        expected_slot_id = self._position_to_slot_id(position)
+
+                        for ranking_entry in rankings_ros:
+                            if ranking_entry.get('rankType') == 'PPR':
+                                actual_slot_id = ranking_entry.get('slotId')
+
+                                # Validate slotId matches position
+                                if actual_slot_id == expected_slot_id:
+                                    if 'averageRank' in ranking_entry:
+                                        positional_rank = ranking_entry['averageRank']
+                                        break
+                                elif actual_slot_id is not None and expected_slot_id != -1:
+                                    self.logger.warning(
+                                        f"slotId mismatch for {name}: expected {expected_slot_id}, got {actual_slot_id}, skipping"
+                                    )
+
+                # Convert positional rank to 0-100 rating scale
+                if positional_rank is not None:
+                    player_rating = self._convert_positional_rank_to_rating(positional_rank)
+                else:
+                    # Fallback: Use original overall draft rank formula
+                    draft_ranks = player_info.get('draftRanksByRankType', {})
+                    ppr_rank_data = draft_ranks.get('PPR', {})
+
+                    if ppr_rank_data and 'rank' in ppr_rank_data:
+                        draft_rank = ppr_rank_data['rank']
+                        # Original formula preserved as fallback
+                        if draft_rank <= 50:  # Elite players
+                            player_rating = 100.0 - (draft_rank - 1) * 0.4  # 100 to 80.4
+                        elif draft_rank <= 150:  # Good players
+                            player_rating = 80.0 - (draft_rank - 50) * 0.25  # 80 to 55
+                        elif draft_rank <= 300:  # Average players
+                            player_rating = 55.0 - (draft_rank - 150) * 0.2  # 55 to 25
+                        else:  # Deep/waiver players
+                            player_rating = max(15.0, 25.0 - (draft_rank - 300) * 0.01)  # 25 to 15
+
+                        self.logger.warning(
+                            f"Rankings object missing for {name} (ID: {id}), using draft rank fallback"
+                        )
 
                 # Create player projection
 
