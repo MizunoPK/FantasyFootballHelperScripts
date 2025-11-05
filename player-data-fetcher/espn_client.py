@@ -1433,11 +1433,36 @@ class ESPNClient(BaseAPIClient):
                                 f"No draft rank found for {name} (ID: {id}), using default rating"
                             )
                 else:
-                    # During season (Week 2+): Use ROS consensus rankings from rankings object
-                    rankings_ros = player_info.get('rankings', {}).get('0', [])
+                    # During season (Week 2+): Use current week's ROS consensus rankings
+                    # rankings[N] = "ROS consensus snapshot taken during Week N"
+                    # Use current week's snapshot for most up-to-date expert consensus
+                    # Exception: Week 1 uses rankings['0'] (pre-season) since Week 1 rankings may be sparse
+
+                    ranking_key = '0' if CURRENT_NFL_WEEK == 1 else str(CURRENT_NFL_WEEK)
+                    rankings_ros = player_info.get('rankings', {}).get(ranking_key, [])
+
+                    if not rankings_ros:
+                        # Fallback: Find the most recent available week (working backwards from current week)
+                        all_rankings = player_info.get('rankings', {})
+
+                        # Try weeks in descending order from current week down to week 1
+                        for fallback_week in range(CURRENT_NFL_WEEK - 1, 0, -1):
+                            fallback_key = str(fallback_week)
+                            if fallback_key in all_rankings and all_rankings[fallback_key]:
+                                rankings_ros = all_rankings[fallback_key]
+                                self.logger.debug(
+                                    f"No rankings['{ranking_key}'] for {name}, using rankings['{fallback_key}'] (most recent available)"
+                                )
+                                break
+
+                        # Final fallback to rankings['0'] if no weekly data exists
+                        if not rankings_ros and '0' in all_rankings:
+                            rankings_ros = all_rankings['0']
+                            self.logger.debug(
+                                f"No weekly rankings for {name}, using rankings['0'] (pre-season)"
+                            )
 
                     if rankings_ros:
-                        # rankings['0'] is ROS (rest of season) aggregate
                         # Look for PPR rankType with averageRank field
                         expected_slot_id = self._position_to_slot_id(position)
 
