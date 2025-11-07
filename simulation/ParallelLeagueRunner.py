@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Dict, Callable, Optional, Tuple
 from concurrent.futures import ThreadPoolExecutor, Future, as_completed
 import threading
+import gc
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -26,6 +27,10 @@ from utils.LoggingManager import get_logger
 
 sys.path.append(str(Path(__file__).parent))
 from SimulatedLeague import SimulatedLeague
+
+
+# Garbage collection frequency - force GC every N simulations to prevent memory accumulation
+GC_FREQUENCY = 10
 
 
 class ParallelLeagueRunner:
@@ -114,6 +119,11 @@ class ParallelLeagueRunner:
         except Exception as e:
             self.logger.error(f"[Sim {simulation_id}] Failed: {e}", exc_info=True)
             raise
+        finally:
+            # Explicit cleanup to prevent memory accumulation
+            # Previously relied on __del__() which caused OOM when Python GC delayed cleanup
+            league.cleanup()
+            self.logger.debug(f"[Sim {simulation_id}] Cleanup complete")
 
     def run_simulations_for_config(
         self,
@@ -162,6 +172,11 @@ class ParallelLeagueRunner:
                         completed_count += 1
                         if self.progress_callback:
                             self.progress_callback(completed_count, num_simulations)
+
+                        # Force garbage collection periodically to prevent memory accumulation
+                        if completed_count % GC_FREQUENCY == 0:
+                            gc.collect()
+                            self.logger.debug(f"Forced GC after {completed_count} simulations")
 
                 except Exception as e:
                     self.logger.error(f"Simulation {sim_id} failed: {e}")

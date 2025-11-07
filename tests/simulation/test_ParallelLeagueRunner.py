@@ -555,3 +555,94 @@ class TestEdgeCases:
         result = runner.run_single_simulation(config, simulation_id=1)
 
         assert result == (0, 17, 500.00)
+
+
+class TestParallelLeagueRunnerCleanup:
+    """Test cleanup behavior for memory management (OOM fix)"""
+
+    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    def test_cleanup_called_on_success(self, mock_league_class):
+        """Test that cleanup is called on successful simulation"""
+        # Arrange: Mock SimulatedLeague with cleanup method
+        mock_league = Mock()
+        mock_league.get_draft_helper_results.return_value = (10, 7, 1234.56)
+        mock_league_class.return_value = mock_league
+
+        runner = ParallelLeagueRunner()
+
+        # Act: Run single simulation
+        result = runner.run_single_simulation({}, simulation_id=1)
+
+        # Assert: cleanup() was called exactly once
+        mock_league.cleanup.assert_called_once()
+        assert result == (10, 7, 1234.56)
+
+    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    def test_cleanup_called_on_draft_exception(self, mock_league_class):
+        """Test that cleanup is called even when draft raises exception"""
+        # Arrange: Mock league that raises exception during draft
+        mock_league = Mock()
+        mock_league.run_draft.side_effect = Exception("Draft failed")
+        mock_league_class.return_value = mock_league
+
+        runner = ParallelLeagueRunner()
+
+        # Act: Run simulation (expect exception)
+        with pytest.raises(Exception, match="Draft failed"):
+            runner.run_single_simulation({}, simulation_id=1)
+
+        # Assert: cleanup() was STILL called (finally block)
+        mock_league.cleanup.assert_called_once()
+
+    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    def test_cleanup_called_on_season_exception(self, mock_league_class):
+        """Test that cleanup is called even when season raises exception"""
+        # Arrange: Mock league that raises exception during season
+        mock_league = Mock()
+        mock_league.run_season.side_effect = Exception("Season failed")
+        mock_league_class.return_value = mock_league
+
+        runner = ParallelLeagueRunner()
+
+        # Act: Run simulation (expect exception)
+        with pytest.raises(Exception, match="Season failed"):
+            runner.run_single_simulation({}, simulation_id=1)
+
+        # Assert: cleanup() was STILL called (finally block)
+        mock_league.cleanup.assert_called_once()
+
+    @patch('simulation.ParallelLeagueRunner.gc')
+    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    def test_gc_forced_every_10_simulations(self, mock_league_class, mock_gc):
+        """Test that GC is forced every 10 simulations"""
+        # Arrange: Mock successful simulations
+        mock_league = Mock()
+        mock_league.get_draft_helper_results.return_value = (10, 7, 1234.56)
+        mock_league_class.return_value = mock_league
+
+        runner = ParallelLeagueRunner(max_workers=1)
+
+        # Act: Run 25 simulations
+        results = runner.run_simulations_for_config({}, num_simulations=25)
+
+        # Assert: gc.collect() called at 10, 20 (2 times total)
+        assert mock_gc.collect.call_count == 2
+        assert len(results) == 25
+
+    @patch('simulation.ParallelLeagueRunner.gc')
+    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    def test_gc_not_called_for_less_than_10_sims(self, mock_league_class, mock_gc):
+        """Test that GC is not called when simulations < GC_FREQUENCY"""
+        # Arrange
+        mock_league = Mock()
+        mock_league.get_draft_helper_results.return_value = (10, 7, 1234.56)
+        mock_league_class.return_value = mock_league
+
+        runner = ParallelLeagueRunner(max_workers=1)
+
+        # Act: Run only 5 simulations
+        results = runner.run_simulations_for_config({}, num_simulations=5)
+
+        # Assert: gc.collect() never called (no 10th simulation)
+        mock_gc.collect.assert_not_called()
+        assert len(results) == 5

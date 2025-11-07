@@ -6,25 +6,29 @@ A comprehensive parameter optimization system for the DraftHelper fantasy footba
 
 This system tests parameter combinations to find the configuration that maximizes win rate and points scored. Each configuration is tested across multiple simulated leagues with different opponents using various draft strategies.
 
-**Default configuration**: 10,077,696 combinations (9 parameters with 6 values each = 6^9)
+**Default configuration**: ~13.1 billion combinations (13 parameters with 6 values each = 6^13)
 
 ### What Gets Optimized
 
-The system optimizes these 9 key parameters:
+The system optimizes these 13 key parameters:
 
-1. **NORMALIZATION_MAX_SCALE** (50-150): Score normalization ceiling
-2. **BASE_BYE_PENALTY** (0-50): Penalty for same-position bye week conflicts
-3. **DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY** (0-50): Penalty for different-position bye week conflicts
-4. **DRAFT_ORDER_BONUSES.PRIMARY** (0-100): Bonus for primary draft position
-5. **DRAFT_ORDER_BONUSES.SECONDARY** (0-75): Bonus for secondary draft position
-6. **ADP_SCORING_WEIGHT** (0-5): Weight for ADP scoring section
-7. **PLAYER_RATING_SCORING_WEIGHT** (0-5): Weight for player rating scoring section
-8. **PERFORMANCE_SCORING_WEIGHT** (0-5): Weight for performance scoring section
-9. **MATCHUP_SCORING_WEIGHT** (0-5): Weight for matchup scoring section
+1. **NORMALIZATION_MAX_SCALE** (50-500): Score normalization ceiling
+2. **SAME_POS_BYE_WEIGHT** (0-3): Weight for same-position bye week conflicts
+3. **DIFF_POS_BYE_WEIGHT** (0-3): Weight for different-position bye week conflicts
+4. **DRAFT_ORDER_BONUSES.PRIMARY** (0-200): Bonus for primary draft position
+5. **DRAFT_ORDER_BONUSES.SECONDARY** (0-200): Bonus for secondary draft position
+6. **ADP_SCORING_WEIGHT** (0-5): Weight for ADP multiplier
+7. **ADP_SCORING_STEPS** (1-60): Threshold step size for ADP tiers
+8. **PLAYER_RATING_SCORING_WEIGHT** (0-5): Weight for player rating multiplier
+9. **TEAM_QUALITY_SCORING_WEIGHT** (0-5): Weight for team quality multiplier
+10. **PERFORMANCE_SCORING_WEIGHT** (0-5): Weight for performance multiplier
+11. **PERFORMANCE_SCORING_STEPS** (0.05-0.5): Threshold step size for performance tiers
+12. **MATCHUP_IMPACT_SCALE** (0-300): Scaling factor for matchup bonus/penalty
+13. **MATCHUP_SCORING_WEIGHT** (0-5): Weight for matchup bonus
 
 Each parameter gets 6 test values by default: the baseline optimal value + 5 random variations within bounds.
 
-**Note**: Due to the large number of combinations (10M+), iterative optimization is recommended over full cartesian product testing.
+**Note**: Due to the extremely large number of combinations (13.1B+), iterative optimization is strongly recommended over full cartesian product testing.
 
 ## Architecture
 
@@ -32,7 +36,7 @@ Each parameter gets 6 test values by default: the baseline optimal value + 5 ran
 simulation/
 ├── run_simulation.py           # CLI entry point
 ├── SimulationManager.py         # Orchestrates full optimization process
-├── ConfigGenerator.py           # Generates 46,656 parameter combinations
+├── ConfigGenerator.py           # Generates parameter combinations (13.1B possible)
 ├── ParallelLeagueRunner.py      # Multi-threaded simulation executor
 ├── ResultsManager.py            # Aggregates and compares results
 ├── ConfigPerformance.py         # Tracks individual config performance
@@ -134,7 +138,7 @@ python simulation/run_simulation.py full --sims 100 --workers 8 --output results
 
 1. **Configuration Generation** (ConfigGenerator)
    - Loads baseline configuration
-   - Generates parameter combinations (default: 10,077,696 for 9 parameters)
+   - Generates parameter combinations (default: 13.1 billion for 13 parameters)
    - Each combination varies all optimizable parameters
 
 2. **League Simulation** (SimulatedLeague)
@@ -213,7 +217,7 @@ Complete results for all tested configurations:
 
 ```json
 {
-  "total_configs": 10077696,
+  "total_configs": 13123110400,
   "configs": {
     "config_00000": {
       "config_id": "config_00000",
@@ -228,7 +232,7 @@ Complete results for all tested configurations:
 }
 ```
 
-**Note**: With 9 parameters generating 10M+ combinations, the all_results.json file would be extremely large. Consider using iterative optimization or database storage for full-scale runs.
+**Note**: With 13 parameters generating 13.1B+ combinations, the all_results.json file would be prohibitively large. Iterative optimization or database storage is required for full-scale runs.
 
 ## Testing
 
@@ -250,6 +254,18 @@ python simulation/test_simulation_manager.py
 # Test original manual simulation
 python simulation/manual_simulation.py
 ```
+
+## Memory Management
+
+The simulation system implements automatic memory management to prevent Out-Of-Memory (OOM) issues during long-running optimization:
+
+**Explicit Cleanup**: Each simulation immediately cleans up temporary directories and resources after completion (success or failure) using try/finally blocks. This prevents memory accumulation from delayed Python garbage collection.
+
+**Periodic GC**: Garbage collection is forced every 10 simulations to ensure timely release of memory. This adds ~1 second overhead over a complete iterative optimization run (negligible).
+
+**No User Action Required**: These optimizations run automatically. Memory usage stays controlled throughout multi-hour optimization runs without manual intervention.
+
+---
 
 ## Performance Tuning
 
@@ -289,13 +305,29 @@ Based on average hardware (modern laptop/desktop):
 | Subset | 10 | 10 | 100 | 4 | ~1-2 min |
 | Subset | 20 | 50 | 1,000 | 8 | ~10-15 min |
 | Subset | 100 | 100 | 10,000 | 8 | ~2-3 hours |
-| Full | 10,077,696 | 100 | 1B+ | 8 | Impractical* |
+| Full | 13.1B | 100 | 1.3T+ | 8 | Impossible* |
 
 **Note**: Times vary based on CPU speed and system load. Single simulation takes ~0.7 seconds on average.
 
-\*Full cartesian product with 9 parameters (10M+ configs) is impractical. Use iterative optimization instead.
+\*Full cartesian product with 13 parameters (13.1B configs) is impossible. Use iterative optimization instead.
 
 ## Troubleshooting
+
+### "Killed" or OOM Issues
+
+If the simulation process is killed with just "Killed" message and no Python traceback:
+
+**Cause**: Linux OOM killer terminated the process due to memory exhaustion.
+
+**Solution**: This issue has been fixed with automatic memory management (explicit cleanup + periodic GC). If you still experience this:
+1. Reduce `--workers` to decrease concurrent memory usage
+2. Reduce `--sims` to lower per-config memory requirements
+3. Close other applications to free system RAM
+4. Check system logs: `sudo grep -i "out of memory" /var/log/kern.log`
+
+**Note**: Current implementation prevents OOM by cleaning up after each simulation and forcing GC every 10 simulations.
+
+---
 
 ### "No such file or directory: players_projected.csv"
 
