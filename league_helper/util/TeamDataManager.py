@@ -218,8 +218,8 @@ class TeamDataManager:
         """
         Calculate matchup quality using position-specific defense rankings.
 
-        Formula for Offensive positions: (Opponent Position-Specific DEF Rank) - (Team OFF Rank)
-        Formula for Defensive positions: (Opponent OFF Rank) - (Team DEF Rank)
+        Formula for Offensive positions: (Opponent Position-Specific DEF Rank)
+        Formula for Defensive positions: (Opponent OFF Rank)
 
         Args:
             player_team: Team abbreviation (e.g., 'KC', 'BUF')
@@ -227,18 +227,19 @@ class TeamDataManager:
                      Determines which opponent defense rank to use
 
         Returns:
-            Rank difference integer, or 0 if data unavailable
-            Positive = favorable matchup, Negative = tough matchup
+            Opponent defense rank integer, or 0 if data unavailable
+            Higher rank = weaker defense = favorable matchup
+            Lower rank = stronger defense = tough matchup
 
         Example:
-            KC QB (OFF rank #3) vs BUF (DEF vs QB rank #25):
-            rank_diff = 25 - 3 = +22 (great matchup for KC QB)
+            KC QB vs BUF (DEF vs QB rank #25):
+            matchup_score = 25 (favorable - BUF weak vs QB)
 
-            KC RB (OFF rank #3) vs BUF (DEF vs RB rank #5):
-            rank_diff = 5 - 3 = +2 (decent matchup for KC RB)
+            KC RB vs BUF (DEF vs RB rank #5):
+            matchup_score = 5 (tough - BUF strong vs RB)
 
-            MIA DST (DEF rank #10) vs NYJ (OFF rank #28):
-            rank_diff = 28 - 10 = +18 (great matchup for MIA DST)
+            MIA DST vs NYJ (OFF rank #28):
+            matchup_score = 28 (favorable - NYJ weak offense)
         """
         # Check if team data is loaded
         if not self.is_matchup_available():
@@ -256,18 +257,7 @@ class TeamDataManager:
         from constants import DEFENSE_POSITIONS
         is_defense = position in DEFENSE_POSITIONS
 
-        # Get the player's team rank (defensive for DST, offensive for skill positions)
-        if is_defense:
-            team_rank = self.get_team_defensive_rank(player_team)
-        else:
-            team_rank = self.get_team_offensive_rank(player_team)
-
-        # Handle missing team data
-        if team_rank is None:
-            self.logger.debug(f"Team rank not found: {player_team}")
-            return 0
-
-        # Get opponent's rank (position-specific defense for offensive players)
+        # Get opponent's rank (position-specific defense for offensive players, offensive rank for DST)
         if is_defense:
             # For DST: use opponent's offensive rank
             opponent_rank = self.get_team_offensive_rank(opponent_abbr)
@@ -280,15 +270,15 @@ class TeamDataManager:
             self.logger.debug(f"Opponent rank not found: {opponent_abbr} vs {position}")
             return 0
 
-        # Calculate matchup differential
-        # Positive = favorable matchup (weak opponent defense, strong team offense)
-        # Negative = tough matchup (strong opponent defense, weak team offense)
-        rank_diff = int(opponent_rank) - int(team_rank)
+        # Return opponent defense rank directly
+        # Higher rank = weaker defense = favorable matchup (e.g., rank 32 = weakest defense)
+        # Lower rank = stronger defense = tough matchup (e.g., rank 1 = strongest defense)
+        matchup_score = int(opponent_rank)
 
         self.logger.debug(
             f"Matchup for {player_team} {position}: "
-            f"Off rank {team_rank} vs {opponent_abbr} Def rank {opponent_rank} "
-            f"= {rank_diff:+d}"
+            f"vs {opponent_abbr} Def rank {opponent_rank} "
+            f"= {matchup_score}"
         )
 
-        return rank_diff
+        return matchup_score

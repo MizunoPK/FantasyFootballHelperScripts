@@ -165,6 +165,20 @@ Mirrors source structure with 100% unit test pass rate required:
 - `teams_week_N.csv` - Weekly NFL team rankings (weeks 1-17)
 - `drafted_players.csv` - Tracking drafted players during season
 
+### Documentation (`docs/`)
+- `docs/scoring/` - **Comprehensive scoring algorithm documentation** (10,469 lines, 328KB)
+  - `README.md` - Scoring algorithm overview, flow diagram, mode usage, dependencies
+  - `01_normalization.md` - Fantasy points normalization (Step 1)
+  - `02_adp_multiplier.md` - Average Draft Position market wisdom (Step 2)
+  - `03_player_rating_multiplier.md` - Expert consensus rankings (Step 3) **[RECENTLY UPDATED]**
+  - `04_team_quality_multiplier.md` - Team offensive/defensive strength (Step 4)
+  - `05_performance_multiplier.md` - Actual vs projected deviation (Step 5)
+  - `06_matchup_multiplier.md` - Current opponent strength (Step 6)
+  - `07_schedule_multiplier.md` - Future opponent strength (Step 7)
+  - `08_draft_order_bonus.md` - Position-specific draft value (Step 8)
+  - `09_bye_week_penalty.md` - Roster conflict penalty (Step 9)
+  - `10_injury_penalty.md` - Injury risk assessment (Step 10)
+
 ### Configuration & Updates
 - `updates/` - Pending update specifications (*.txt files)
 - `updates/todo-files/` - TODO tracking for updates in progress

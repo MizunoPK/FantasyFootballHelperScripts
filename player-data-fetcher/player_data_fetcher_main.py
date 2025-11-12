@@ -10,6 +10,7 @@ Author: Kai Mizuno
 """
 
 import asyncio
+import shutil
 import sys
 from pathlib import Path
 from time import sleep
@@ -34,7 +35,8 @@ from config import (
     SKIP_DRAFTED_PLAYER_UPDATES, USE_SCORE_THRESHOLD, PLAYER_SCORE_THRESHOLD,
     OUTPUT_DIRECTORY, CREATE_CSV, CREATE_JSON, CREATE_EXCEL,
     REQUEST_TIMEOUT, RATE_LIMIT_DELAY, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE,
-    LOG_NAME, LOGGING_FORMAT
+    LOG_NAME, LOGGING_FORMAT,
+    ENABLE_HISTORICAL_DATA_SAVE
 )
 
 
@@ -357,6 +359,65 @@ class NFLProjectionsCollector:
 
         return output_files
 
+    def save_to_historical_data(self) -> bool:
+        """
+        Save current data files to historical data folder for the current week.
+
+        Checks config flag ENABLE_HISTORICAL_DATA_SAVE before proceeding.
+        Checks if data/historical_data/{Season}/{WeekNumber}/ exists.
+        If not, creates it and copies players.csv, players_projected.csv, teams.csv.
+        If it exists, skips (files already saved for this week).
+
+        Week numbers are zero-padded (01, 02, ..., 11, 12).
+
+        Returns:
+            bool: True if files were saved, False if already saved, disabled, or error occurred
+        """
+        # Check if feature is enabled
+        if not ENABLE_HISTORICAL_DATA_SAVE:
+            self.logger.debug("Historical data auto-save disabled via config")
+            return False
+
+        try:
+            # Construct zero-padded week number (e.g., "01", "11")
+            week_number = f"{CURRENT_NFL_WEEK:02d}"
+
+            # Construct historical data path: data/historical_data/{Season}/{WeekNumber}/
+            # Use parent of script_dir to get project root, then navigate to data folder
+            historical_folder = self.script_dir.parent / "data" / "historical_data" / str(NFL_SEASON) / week_number
+
+            # Check if folder already exists
+            if historical_folder.exists():
+                self.logger.info(f"Historical data already saved for Week {CURRENT_NFL_WEEK} (folder {week_number} exists)")
+                return False
+
+            # Create folder with parents=True to create season folder if needed
+            self.logger.info(f"Creating historical data folder: {historical_folder}")
+            historical_folder.mkdir(parents=True, exist_ok=True)
+
+            # Define source files to copy
+            data_folder = self.script_dir.parent / "data"
+            files_to_copy = ["players.csv", "players_projected.csv", "teams.csv"]
+
+            # Copy each file using shutil.copy2 to preserve metadata
+            for filename in files_to_copy:
+                source = data_folder / filename
+                destination = historical_folder / filename
+
+                if source.exists():
+                    shutil.copy2(str(source), str(destination))
+                    self.logger.debug(f"Copied {filename} to {historical_folder}")
+                else:
+                    self.logger.warning(f"Source file not found: {source}")
+
+            self.logger.info(f"Successfully saved historical data for Week {CURRENT_NFL_WEEK} to {historical_folder}")
+            return True
+
+        except Exception as e:
+            # Log warning but don't crash - this is a supplementary feature
+            self.logger.warning(f"Failed to save historical data: {e}")
+            return False
+
     # ============================================================================
     # UTILITY METHODS (Conversion & Display)
     # ============================================================================
@@ -440,7 +501,20 @@ async def main():
         
         # Export data
         output_files = await collector.export_data(projection_data)
-        
+
+        # Auto-save to historical data folder (if enabled via config)
+        try:
+            saved = collector.save_to_historical_data()
+            if saved:
+                print(f"\n[INFO] Saved weekly data to historical folder")
+            elif not ENABLE_HISTORICAL_DATA_SAVE:
+                logger.debug("Historical data auto-save disabled via config")
+            else:
+                print(f"\n[INFO] Weekly data already saved for Week {settings.current_nfl_week}")
+        except Exception as e:
+            logger.warning(f"Failed to save historical data: {e}")
+            print(f"\n[WARNING] Could not save to historical folder: {e}")
+
         # Print summary
         collector.print_summary(projection_data)
         

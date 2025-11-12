@@ -1,0 +1,16 @@
+The new player rating calculations during the player-data-fetcher's runs are not behaving like I want them to. They involve converting a rank to a rating that is split into tiers, when I'd rather just have normalized positional ranks.
+Here is the flow I would like to see occur in the espn client regarding the positional ranks:
+1. The current week's ranking is taken from the rankings object (unchanged from current implementation)
+2. Compile a map of all positions and their associated lowest and highest rank
+3. After processing all players, normalize each of their ranks to be between 1 and 100 based on the lowest and highest ranks noted in the last step. A 1 should still be for the worst player, and a 100 should still be for the best player.
+4. Make sure that the player's player_rating data is set to the normalized positional rating calculated like above
+
+The simulation needs to be updated with the new calculation method as well. The agent should
+1. Read through players_projected_backup.csv and players_actual_backup.csv in the simulation/sim_data folder
+2. Determine the lowest and highest rank for each position
+3. Create new versions of players_projected.csv and players_actual.csv by copying the backup versions then update the player_rating column for each player to be normalized based on their min and max positional player ranking found in the last step
+
+Note: The player_rating column is being turned into the equivalent of a positional_ranking
+  column. We are going to take the player ranking value from the espn data, convert it to a normalized positional ranking, then save that
+  value to the player_rating column. For the simulation, we'd be taking the initial values from the _backup player_rating column instead
+  of from the espn data 

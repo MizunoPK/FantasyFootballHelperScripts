@@ -2,29 +2,28 @@
 Configuration Generator
 
 Generates parameter combinations for simulation optimization. Creates combinations
-by varying 15 key parameters, with N+1 values per parameter (optimal + N random variations).
+by varying 13 key parameters, with N+1 values per parameter (optimal + N random variations).
 
-Total configurations = (N+1)^15 where N = num_test_values (default: 5)
-Example: (5+1)^15 = ~470 billion configurations
+Total configurations = (N+1)^13 where N = num_test_values (default: 5)
+Example: (5+1)^13 = ~13.1 billion configurations
 
 Parameters Varied:
-1. NORMALIZATION_MAX_SCALE: ±10 from optimal, bounded [50, 500]
-2. SAME_POS_BYE_WEIGHT: ±0.2 from optimal, bounded [0, 3]
-3. DIFF_POS_BYE_WEIGHT: ±0.2 from optimal, bounded [0, 3]
-4. DRAFT_ORDER_BONUSES.PRIMARY: ±10 from optimal, bounded [0, 200]
-5. DRAFT_ORDER_BONUSES.SECONDARY: ±10 from optimal, bounded [0, 200]
-6. ADP_SCORING_WEIGHT: ±0.3 from optimal, bounded [0, 5]
-7. PLAYER_RATING_SCORING_WEIGHT: ±0.3 from optimal, bounded [0, 5]
-8. PERFORMANCE_SCORING_WEIGHT: ±0.3 from optimal, bounded [0, 5]
-9. MATCHUP_SCORING_WEIGHT: ±0.3 from optimal, bounded [0, 5]
-10. ADP_SCORING_STEPS: ±5 from optimal, bounded [1, 60]
-11. PLAYER_RATING_SCORING_STEPS: ±4 from optimal, bounded [1, 50]
-12. TEAM_QUALITY_SCORING_STEPS: ±2 from optimal, bounded [1, 20]
-13. PERFORMANCE_SCORING_STEPS: ±0.05 from optimal, bounded [0.05, 0.5]
-14. MATCHUP_SCORING_STEPS: ±3 from optimal, bounded [1, 20]
-15. MATCHUP_IMPACT_SCALE: ±25 from optimal, bounded [0, 300]
+1. NORMALIZATION_MAX_SCALE: Random values in [50, 500]
+2. SAME_POS_BYE_WEIGHT: Random values in [0, 3]
+3. DIFF_POS_BYE_WEIGHT: Random values in [0, 3]
+4. DRAFT_ORDER_BONUSES.PRIMARY: Random values in [0, 200]
+5. DRAFT_ORDER_BONUSES.SECONDARY: Random values in [0, 200]
+6. ADP_SCORING_WEIGHT: Random values in [0, 5]
+7. ADP_SCORING_STEPS: Random values in [1, 60]
+8. PLAYER_RATING_SCORING_WEIGHT: Random values in [0, 5]
+9. TEAM_QUALITY_SCORING_WEIGHT: Random values in [0, 5]
+10. PERFORMANCE_SCORING_WEIGHT: Random values in [0, 5]
+11. PERFORMANCE_SCORING_STEPS: Random values in [0.05, 0.5]
+12. MATCHUP_IMPACT_SCALE: Random values in [0, 300]
+13. MATCHUP_SCORING_WEIGHT: Random values in [0, 5]
 
-Note: SCHEDULE_SCORING parameters are disabled (not optimized)
+Note: PLAYER_RATING_SCORING_STEPS, TEAM_QUALITY_SCORING_STEPS, MATCHUP_SCORING_STEPS,
+      and all SCHEDULE_SCORING parameters are disabled (not optimized)
 
 Author: Kai Mizuno
 """
@@ -52,34 +51,34 @@ class ConfigGenerator:
     """
 
     # Parameter definitions ordered to match league_config.json structure
-    # Format: (range_val, min_val, max_val)
+    # Format: (min_val, max_val)
     PARAM_DEFINITIONS = {
         # Normalization and Bye Penalties
-        'NORMALIZATION_MAX_SCALE': (10.0, 50.0, 500.0),
-        'SAME_POS_BYE_WEIGHT': (0.2, 0.0, 3.0),
-        'DIFF_POS_BYE_WEIGHT': (0.2, 0.0, 3.0),
+        'NORMALIZATION_MAX_SCALE': (100.0, 150.0),
+        'SAME_POS_BYE_WEIGHT': (0.0, 0.5),
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.5),
         # Draft Order Bonuses
-        'PRIMARY_BONUS': (10.0, 0.0, 200.0),
-        'SECONDARY_BONUS': (10.0, 0.0, 200.0),
+        'PRIMARY_BONUS': (50, 100.0),
+        'SECONDARY_BONUS': (50, 100.0),
         # ADP Scoring
-        'ADP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'ADP_SCORING_STEPS': (5.0, 1.0, 60.0),
+        'ADP_SCORING_WEIGHT': (1.0, 3.0),
+        'ADP_SCORING_STEPS': (20.0, 60.0),
         # Player Rating Scoring
-        'PLAYER_RATING_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'PLAYER_RATING_SCORING_STEPS': (4.0, 1.0, 50.0),
-        # Team Quality Scoring (no WEIGHT - not optimized)
-        'TEAM_QUALITY_SCORING_STEPS': (2.0, 1.0, 20.0),
+        'PLAYER_RATING_SCORING_WEIGHT': (0.5, 3.0),
+        'PLAYER_RATING_SCORING_STEPS': (10, 40),
+        'TEAM_QUALITY_SCORING_WEIGHT': (0.0, 3.0),
+        'TEAM_QUALITY_SCORING_STEPS': (1.0, 10.0),
         # Performance Scoring
-        'PERFORMANCE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'PERFORMANCE_SCORING_STEPS': (0.05, 0.05, 0.5),
+        'PERFORMANCE_SCORING_WEIGHT': (0.0, 3.0),
+        'PERFORMANCE_SCORING_STEPS': (0.05, 0.4),
         # Matchup Scoring (additive)
-        'MATCHUP_IMPACT_SCALE': (25.0, 0.0, 300.0),
-        'MATCHUP_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        'MATCHUP_SCORING_STEPS': (3.0, 1.0, 20.0),
+        'MATCHUP_IMPACT_SCALE': (50.0, 200.0),
+        'MATCHUP_SCORING_WEIGHT': (0.0, 3.0),
+        'MATCHUP_SCORING_STEPS': (1.0, 10.0),
         # Schedule Scoring (additive)
-        # 'SCHEDULE_IMPACT_SCALE': (20.0, 0.0, 300.0),
-        # 'SCHEDULE_SCORING_WEIGHT': (0.3, 0.0, 5.0),
-        # 'SCHEDULE_SCORING_STEPS': (2.0, 1.0, 15.0),
+        # 'SCHEDULE_IMPACT_SCALE': (0.0, 300.0),
+        # 'SCHEDULE_SCORING_WEIGHT': (0.0, 5.0),
+        # 'SCHEDULE_SCORING_STEPS': (1.0, 15.0),
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -102,7 +101,7 @@ class ConfigGenerator:
         },
         "MATCHUP_SCORING": {
             "BASE_POSITION": 0,
-            "DIRECTION": "BI_EXCELLENT_HI"
+            "DIRECTION": "INCREASING"  # Updated to match league_config.json (direct opponent rank 1-32)
         },
         # "SCHEDULE_SCORING": {
         #     "BASE_POSITION": 0,
@@ -135,7 +134,8 @@ class ConfigGenerator:
         # Player Rating Scoring
         'PLAYER_RATING_SCORING_WEIGHT',
         'PLAYER_RATING_SCORING_STEPS',
-        # Team Quality Scoring (no WEIGHT - not in param_definitions)
+        # Team Quality Scoring
+        'TEAM_QUALITY_SCORING_WEIGHT',
         'TEAM_QUALITY_SCORING_STEPS',
         # Performance Scoring
         'PERFORMANCE_SCORING_WEIGHT',
@@ -147,7 +147,6 @@ class ConfigGenerator:
         # Schedule Scoring (additive) - DISABLED
         # 'SCHEDULE_IMPACT_SCALE',
         # 'SCHEDULE_SCORING_WEIGHT',
-        # 'SCHEDULE_SCORING_STEPS',
     ]
 
     def __init__(self, baseline_config_path: Path, num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:
@@ -204,7 +203,6 @@ class ConfigGenerator:
         self,
         param_name: str,
         optimal_val: float,
-        range_val: float,
         min_val: float,
         max_val: float
     ) -> List[float]:
@@ -214,7 +212,6 @@ class ConfigGenerator:
         Args:
             param_name (str): Parameter name (for logging)
             optimal_val (float): Optimal/baseline value
-            range_val (float): ± range for random values
             min_val (float): Minimum allowed value
             max_val (float): Maximum allowed value
 
@@ -224,17 +221,14 @@ class ConfigGenerator:
 
         Example:
             >>> gen = ConfigGenerator(baseline_path, num_test_values=5)
-            >>> values = gen.generate_parameter_values('NORMALIZATION_MAX_SCALE', 100, 20, 60, 140)
+            >>> values = gen.generate_parameter_values('NORMALIZATION_MAX_SCALE', 100, 60, 140)
             >>> # Returns [100.0, 94.3, 118.7, 83.2, 105.9, 112.1] (6 values)
         """
         values = [optimal_val]
 
-        # Generate N random values within range, bounded by min/max
-        for i in range(self.num_test_values):
-            # Random value in [optimal - range, optimal + range]
-            rand_val = optimal_val + random.uniform(-range_val, range_val)
-            # Clamp to [min_val, max_val]
-            rand_val = max(min_val, min(max_val, rand_val))
+        # Generate N random values between min and max
+        for _ in range(self.num_test_values):
+            rand_val = random.uniform(min_val, max_val)
             values.append(rand_val)
 
         self.logger.debug(f"{param_name}: {len(values)} values generated (min={min(values):.2f}, max={max(values):.2f})")
@@ -247,14 +241,14 @@ class ConfigGenerator:
     ) -> Dict[str, List[float]]:
         base_weight = self.baseline_config['parameters'][param_name]["WEIGHT"]
         full_name = f"{param_name}_WEIGHT"
-        range, min, max = self.param_definitions[full_name]
-        value_sets[full_name] = self.generate_parameter_values(full_name, base_weight, range, min, max )
+        min_val, max_val = self.param_definitions[full_name]
+        value_sets[full_name] = self.generate_parameter_values(full_name, base_weight, min_val, max_val)
 
         return value_sets
 
     def generate_all_parameter_value_sets(self) -> Dict[str, List[float]]:
         """
-        Generate value sets for all 18 parameters (5 scalar + 5 weights + 6 threshold STEPS + 2 IMPACT_SCALE).
+        Generate value sets for all 13 parameters (5 scalar + 5 weights + 2 threshold STEPS + 1 IMPACT_SCALE).
 
         Returns:
             Dict[str, List[float]]: {param_name: [N+1 values]} where N = num_test_values
@@ -313,6 +307,9 @@ class ConfigGenerator:
         # PLAYER RATING
         value_sets = self.generate_multiplier_parameter_values(value_sets, "PLAYER_RATING_SCORING")
 
+        # TEAM QUALITY
+        value_sets = self.generate_multiplier_parameter_values(value_sets, "TEAM_QUALITY_SCORING")
+
         # PERFORMANCE
         value_sets = self.generate_multiplier_parameter_values(value_sets, "PERFORMANCE_SCORING")
 
@@ -322,18 +319,17 @@ class ConfigGenerator:
         # SCHEDULE - DISABLED
         # value_sets = self.generate_multiplier_parameter_values(value_sets, "SCHEDULE_SCORING")
 
-        # Threshold STEPS parameters (NEW) - Note: TEAM_QUALITY doesn't have a WEIGHT
-        for scoring_type in ["ADP_SCORING", "PLAYER_RATING_SCORING", "TEAM_QUALITY_SCORING",
-                             "PERFORMANCE_SCORING", "MATCHUP_SCORING"]:
+        # Threshold STEPS parameters - only for sections with STEPS in PARAM_DEFINITIONS
+        # (PLAYER_RATING, TEAM_QUALITY, MATCHUP, SCHEDULE are disabled)
+        for scoring_type in ["ADP_SCORING", "PERFORMANCE_SCORING"]:
             steps_param = f"{scoring_type}_STEPS"
             # Check if using parameterized format (has STEPS key)
             if 'STEPS' in params[scoring_type]['THRESHOLDS']:
                 current_steps = params[scoring_type]['THRESHOLDS']['STEPS']
-                range_val, min_val, max_val = self.param_definitions[steps_param]
+                min_val, max_val = self.param_definitions[steps_param]
                 value_sets[steps_param] = self.generate_parameter_values(
                     steps_param,
                     current_steps,
-                    range_val,
                     min_val,
                     max_val
                 )
@@ -343,11 +339,10 @@ class ConfigGenerator:
         for scoring_type in ["MATCHUP_SCORING"]:
             impact_param = scoring_type.replace('_SCORING', '_IMPACT_SCALE')
             current_impact = params[scoring_type]['IMPACT_SCALE']
-            range_val, min_val, max_val = self.param_definitions[impact_param]
+            min_val, max_val = self.param_definitions[impact_param]
             value_sets[impact_param] = self.generate_parameter_values(
                 impact_param,
                 current_impact,
-                range_val,
                 min_val,
                 max_val
             )
@@ -360,12 +355,12 @@ class ConfigGenerator:
         Generate all parameter combinations using itertools.product.
 
         Returns:
-            List[Dict[str, float]]: All combinations, each a dict with 8 params
+            List[Dict[str, float]]: All combinations, each a dict with 13 params
 
         Example:
             >>> combinations = gen.generate_all_combinations()
             >>> combinations[0]
-            {'NORMALIZATION_MAX_SCALE': 100.0, 'BASE_BYE_PENALTY': 25.0, ...}
+            {'NORMALIZATION_MAX_SCALE': 100.0, 'ADP_SCORING_WEIGHT': 1.94, ...}
         """
         self.logger.info("Generating all parameter combinations")
 
@@ -543,19 +538,19 @@ class ConfigGenerator:
         # Determine range and bounds based on parameter type
         if param_name == 'NORMALIZATION_MAX_SCALE':
             current_val = params['NORMALIZATION_MAX_SCALE']
-            range_val, min_val, max_val = self.param_definitions['NORMALIZATION_MAX_SCALE']
+            min_val, max_val = self.param_definitions['NORMALIZATION_MAX_SCALE']
         elif param_name == 'SAME_POS_BYE_WEIGHT':
             current_val = params['SAME_POS_BYE_WEIGHT']
-            range_val, min_val, max_val = self.param_definitions['SAME_POS_BYE_WEIGHT']
+            min_val, max_val = self.param_definitions['SAME_POS_BYE_WEIGHT']
         elif param_name == 'DIFF_POS_BYE_WEIGHT':
             current_val = params['DIFF_POS_BYE_WEIGHT']
-            range_val, min_val, max_val = self.param_definitions['DIFF_POS_BYE_WEIGHT']
+            min_val, max_val = self.param_definitions['DIFF_POS_BYE_WEIGHT']
         elif param_name == 'PRIMARY_BONUS':
             current_val = params['DRAFT_ORDER_BONUSES']['PRIMARY']
-            range_val, min_val, max_val = self.param_definitions['PRIMARY_BONUS']
+            min_val, max_val = self.param_definitions['PRIMARY_BONUS']
         elif param_name == 'SECONDARY_BONUS':
             current_val = params['DRAFT_ORDER_BONUSES']['SECONDARY']
-            range_val, min_val, max_val = self.param_definitions['SECONDARY_BONUS']
+            min_val, max_val = self.param_definitions['SECONDARY_BONUS']
         elif '_WEIGHT' in param_name:
             # Extract section and multiplier type
             # Format: SECTION_SCORING_WEIGHT
@@ -563,7 +558,7 @@ class ConfigGenerator:
             section = parts[0]  # e.g., 'ADP_SCORING'
 
             current_val = params[section]['WEIGHT']
-            range_val, min_val, max_val = self.param_definitions[param_name]
+            min_val, max_val = self.param_definitions[param_name]
         elif '_STEPS' in param_name:
             # Extract section for threshold STEPS
             # Format: SECTION_SCORING_STEPS
@@ -571,7 +566,7 @@ class ConfigGenerator:
             section = parts[0]  # e.g., 'ADP_SCORING'
 
             current_val = params[section]['THRESHOLDS']['STEPS']
-            range_val, min_val, max_val = self.param_definitions[param_name]
+            min_val, max_val = self.param_definitions[param_name]
         elif '_IMPACT_SCALE' in param_name:
             # Extract section for IMPACT_SCALE (additive scoring)
             # Format: SECTION_IMPACT_SCALE (e.g., 'MATCHUP_IMPACT_SCALE')
@@ -579,7 +574,7 @@ class ConfigGenerator:
             section = parts[0] + '_SCORING'  # e.g., 'MATCHUP_SCORING'
 
             current_val = params[section]['IMPACT_SCALE']
-            range_val, min_val, max_val = self.param_definitions[param_name]
+            min_val, max_val = self.param_definitions[param_name]
         else:
             raise ValueError(f"Unknown parameter: {param_name}")
 
@@ -587,7 +582,6 @@ class ConfigGenerator:
         test_values = self.generate_parameter_values(
             param_name,
             current_val,
-            range_val,
             min_val,
             max_val
         )
@@ -629,24 +623,28 @@ class ConfigGenerator:
         combination['SECONDARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['SECONDARY']
 
         # WEIGHTS for each section (SCHEDULE disabled)
-        for section in ['ADP', 'PLAYER_RATING', 'PERFORMANCE', 'MATCHUP']:
+        for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_SCORING_WEIGHT'
             combination[param_name] = params[f'{section}_SCORING']['WEIGHT']
 
-        # STEPS for each scoring type (NEW) - only if parameterized format (SCHEDULE disabled)
+        # STEPS for each scoring type - extract all that are present in config
+        # Only ADP and PERFORMANCE STEPS are actively optimized, but others may be in PARAMETER_ORDER
         for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_SCORING_STEPS'
-            thresholds = params[f'{section}_SCORING']['THRESHOLDS']
-            # Check if using parameterized format (has STEPS key)
-            if 'STEPS' in thresholds:
-                combination[param_name] = thresholds['STEPS']
-            else:
-                # Old format - use default value from baseline if it exists
-                # This handles backward compatibility with test fixtures
-                if 'THRESHOLDS' in self.baseline_config['parameters'][f'{section}_SCORING']:
-                    baseline_thresholds = self.baseline_config['parameters'][f'{section}_SCORING']['THRESHOLDS']
-                    if 'STEPS' in baseline_thresholds:
-                        combination[param_name] = baseline_thresholds['STEPS']
+            scoring_key = f'{section}_SCORING'
+            if scoring_key in params and 'THRESHOLDS' in params[scoring_key]:
+                thresholds = params[scoring_key]['THRESHOLDS']
+                # Check if using parameterized format (has STEPS key)
+                if 'STEPS' in thresholds:
+                    combination[param_name] = thresholds['STEPS']
+                else:
+                    # Old format - use default value from baseline if it exists
+                    # This handles backward compatibility with test fixtures
+                    if scoring_key in self.baseline_config['parameters']:
+                        if 'THRESHOLDS' in self.baseline_config['parameters'][scoring_key]:
+                            baseline_thresholds = self.baseline_config['parameters'][scoring_key]['THRESHOLDS']
+                            if 'STEPS' in baseline_thresholds:
+                                combination[param_name] = baseline_thresholds['STEPS']
 
         # IMPACT_SCALE for additive scoring (NEW) - Only MATCHUP, SCHEDULE disabled
         for section in ['MATCHUP']:
@@ -686,11 +684,12 @@ class ConfigGenerator:
         # params['SCHEDULE_SCORING']['IMPACT_SCALE'] = combination['SCHEDULE_IMPACT_SCALE']
 
         # Update weights (SCHEDULE disabled)
-        for parameter in ['ADP', 'PLAYER_RATING', 'PERFORMANCE', 'MATCHUP']:
+        for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             params[f'{parameter}_SCORING']['WEIGHT'] = combination[f'{parameter}_SCORING_WEIGHT']
 
-        # Update threshold STEPS (NEW) - SCHEDULE disabled
-        for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
+        # Update threshold STEPS - only sections with STEPS in PARAM_DEFINITIONS
+        # (PLAYER_RATING, TEAM_QUALITY, MATCHUP, SCHEDULE disabled)
+        for parameter in ['ADP', 'PERFORMANCE']:
             steps_param = f'{parameter}_SCORING_STEPS'
             if steps_param in combination:
                 fixed_params = self.THRESHOLD_FIXED_PARAMS[f'{parameter}_SCORING']
@@ -710,18 +709,18 @@ class ConfigGenerator:
             List[dict]: All configurations ready for simulation
 
         Note:
-            Total configs = (num_test_values + 1)^16
+            Total configs = (num_test_values + 1)^13
             Each config is ~10KB
-            Example: 6^16 = ~2.8 trillion configs = impractical for full cartesian product
+            Example: 6^13 = ~13.1 billion configs = impractical for full cartesian product
             For practical use, use iterative optimization instead
         """
-        total_configs = (self.num_test_values + 1) ** 16
+        total_configs = (self.num_test_values + 1) ** 13
         self.logger.info(f"Generating all {total_configs:,} complete configurations")
 
         combinations = self.generate_all_combinations()
         configs = []
 
-        for idx, combo in enumerate(combinations):
+        for combo in combinations:
             config = self.create_config_dict(combo)
             configs.append(config)
 

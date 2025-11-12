@@ -35,13 +35,13 @@ RECOMMENDATION_COUNT = 10  # Number of player recommendations to display
 # =============================================================================
 # WAIVER OPTIMIZER CONSTANTS
 # =============================================================================
-MIN_WAIVER_IMPROVEMENT = 5  # Minimum score improvement to suggest a trade
-NUM_TRADE_RUNNERS_UP = 4   # Number of alternative trade suggestions to show
+MIN_WAIVER_IMPROVEMENT = 0  # Minimum score improvement to suggest a trade
+NUM_TRADE_RUNNERS_UP = 9   # Number of alternative trade suggestions to show
 
 # TRADE SUGGESTOR
 MIN_TRADE_IMPROVEMENT = 0
-# VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Silly Rabbit Nix is 4 Kids", "Saquon Deez", "The Eskimo Brothers", "Pidgin"]
-VALID_TEAMS = ["Fishoutawater"]
+VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Bo Him-ian Rhapsody", "Saquon Deez", "The Eskimo Brothers", "Pidgin"]
+# VALID_TEAMS = ["Fishoutawater"]
 
 # =============================================================================
 # POSITION CONSTANTS

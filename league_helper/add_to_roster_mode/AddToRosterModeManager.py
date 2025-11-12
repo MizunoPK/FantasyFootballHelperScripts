@@ -286,7 +286,9 @@ class AddToRosterModeManager:
                 team_quality=True,          # Enable team quality multiplier
                 performance=False,           # Disable performance deviation
                 matchup=False,               # Disable matchup multiplier
-                schedule=False               # Disable schedule strength multiplier
+                schedule=False,               # Disable schedule strength multiplier
+                bye=True,
+                injury=True
             )
             scored_players.append(scored_player)
 

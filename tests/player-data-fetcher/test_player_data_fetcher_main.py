@@ -332,3 +332,194 @@ class TestExportData:
 
             assert isinstance(output_files, list)
             assert len(output_files) > 0
+
+
+class TestHistoricalDataSave:
+    """Test save_to_historical_data method"""
+
+    @patch('player_data_exporter.DataExporter')
+    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
+    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 11)
+    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
+    def test_save_creates_folder_when_missing(self, mock_exporter, tmp_path):
+        """Test that historical data folder is created if it doesn't exist"""
+        settings = Settings()
+
+        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+            collector = NFLProjectionsCollector(settings)
+
+            # Override script_dir to use tmp_path
+            collector.script_dir = tmp_path / "player-data-fetcher"
+            collector.script_dir.mkdir()
+
+            # Create data folder with test files
+            data_folder = tmp_path / "data"
+            data_folder.mkdir()
+            (data_folder / "players.csv").write_text("test players")
+            (data_folder / "players_projected.csv").write_text("test projected")
+            (data_folder / "teams.csv").write_text("test teams")
+
+            # Call save method
+            result = collector.save_to_historical_data()
+
+            # Verify folder was created with zero-padded week number
+            historical_folder = tmp_path / "data" / "historical_data" / "2025" / "11"
+            assert historical_folder.exists()
+            assert result is True
+
+    @patch('player_data_exporter.DataExporter')
+    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
+    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 11)
+    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
+    def test_save_copies_three_files_with_zero_padding(self, mock_exporter, tmp_path):
+        """Test that all 3 files are copied with zero-padded week number"""
+        settings = Settings()
+
+        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+            collector = NFLProjectionsCollector(settings)
+
+            # Override script_dir
+            collector.script_dir = tmp_path / "player-data-fetcher"
+            collector.script_dir.mkdir()
+
+            # Create data folder with test files
+            data_folder = tmp_path / "data"
+            data_folder.mkdir()
+            (data_folder / "players.csv").write_text("test players data")
+            (data_folder / "players_projected.csv").write_text("test projected data")
+            (data_folder / "teams.csv").write_text("test teams data")
+
+            # Call save method
+            result = collector.save_to_historical_data()
+
+            # Verify all files were copied
+            historical_folder = tmp_path / "data" / "historical_data" / "2025" / "11"
+            assert (historical_folder / "players.csv").exists()
+            assert (historical_folder / "players_projected.csv").exists()
+            assert (historical_folder / "teams.csv").exists()
+
+            # Verify file contents
+            assert (historical_folder / "players.csv").read_text() == "test players data"
+            assert (historical_folder / "players_projected.csv").read_text() == "test projected data"
+            assert (historical_folder / "teams.csv").read_text() == "test teams data"
+
+            assert result is True
+
+    @patch('player_data_exporter.DataExporter')
+    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
+    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 11)
+    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
+    def test_save_skips_when_folder_exists(self, mock_exporter, tmp_path):
+        """Test that save operation is skipped when weekly folder already exists"""
+        settings = Settings()
+
+        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+            collector = NFLProjectionsCollector(settings)
+
+            # Override script_dir
+            collector.script_dir = tmp_path / "player-data-fetcher"
+            collector.script_dir.mkdir()
+
+            # Create data folder with test files
+            data_folder = tmp_path / "data"
+            data_folder.mkdir()
+            (data_folder / "players.csv").write_text("test")
+            (data_folder / "players_projected.csv").write_text("test")
+            (data_folder / "teams.csv").write_text("test")
+
+            # Create historical folder (already exists)
+            historical_folder = tmp_path / "data" / "historical_data" / "2025" / "11"
+            historical_folder.mkdir(parents=True)
+
+            # Call save method
+            result = collector.save_to_historical_data()
+
+            # Should return False (already exists, skip)
+            assert result is False
+
+    @patch('player_data_exporter.DataExporter')
+    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', False)
+    def test_save_respects_config_flag_disabled(self, mock_exporter, tmp_path):
+        """Test that save is skipped when ENABLE_HISTORICAL_DATA_SAVE is False"""
+        settings = Settings()
+
+        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+            collector = NFLProjectionsCollector(settings)
+
+            # Override script_dir
+            collector.script_dir = tmp_path / "player-data-fetcher"
+
+            # Call save method
+            result = collector.save_to_historical_data()
+
+            # Should return False (disabled)
+            assert result is False
+
+            # Verify no folder was created
+            historical_folder = tmp_path / "data" / "historical_data"
+            assert not historical_folder.exists()
+
+    @patch('player_data_exporter.DataExporter')
+    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
+    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 1)
+    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
+    def test_save_constructs_zero_padded_path(self, mock_exporter, tmp_path):
+        """Test that week number is zero-padded (e.g., 01, 02)"""
+        settings = Settings()
+
+        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+            collector = NFLProjectionsCollector(settings)
+
+            # Override script_dir
+            collector.script_dir = tmp_path / "player-data-fetcher"
+            collector.script_dir.mkdir()
+
+            # Create data folder with test files
+            data_folder = tmp_path / "data"
+            data_folder.mkdir()
+            (data_folder / "players.csv").write_text("test")
+            (data_folder / "players_projected.csv").write_text("test")
+            (data_folder / "teams.csv").write_text("test")
+
+            # Call save method with week 1
+            result = collector.save_to_historical_data()
+
+            # Verify folder created with zero-padded number "01" (not "1")
+            historical_folder = tmp_path / "data" / "historical_data" / "2025" / "01"
+            assert historical_folder.exists()
+            assert result is True
+
+    @patch('player_data_exporter.DataExporter')
+    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
+    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 11)
+    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
+    def test_save_handles_missing_source_file(self, mock_exporter, tmp_path):
+        """Test graceful handling when source file is missing"""
+        settings = Settings()
+
+        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+            collector = NFLProjectionsCollector(settings)
+
+            # Override script_dir
+            collector.script_dir = tmp_path / "player-data-fetcher"
+            collector.script_dir.mkdir()
+
+            # Create data folder but with only 2 files (missing teams.csv)
+            data_folder = tmp_path / "data"
+            data_folder.mkdir()
+            (data_folder / "players.csv").write_text("test")
+            (data_folder / "players_projected.csv").write_text("test")
+            # Intentionally not creating teams.csv
+
+            # Call save method - should still succeed for existing files
+            result = collector.save_to_historical_data()
+
+            # Should still return True (partial success)
+            assert result is True
+
+            # Verify 2 files were copied
+            historical_folder = tmp_path / "data" / "historical_data" / "2025" / "11"
+            assert (historical_folder / "players.csv").exists()
+            assert (historical_folder / "players_projected.csv").exists()
+            # teams.csv should not exist
+            assert not (historical_folder / "teams.csv").exists()

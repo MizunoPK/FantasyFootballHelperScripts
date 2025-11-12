@@ -1,21 +1,21 @@
 {
-  "config_name": "simulation/simulation_configs/optimal_iterative_20251102_105828.json",
-  "description": "Win Rate: 0.76",
+  "config_name": "simulation/simulation_configs/optimal_iterative_20251107_194637.json",
+  "description": "Win Rate: 0.74",
   "parameters": {
-    "CURRENT_NFL_WEEK": 10,
+    "CURRENT_NFL_WEEK": 11,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 105.01467963908847,
-    "SAME_POS_BYE_WEIGHT": 0.4270719931348723,
-    "DIFF_POS_BYE_WEIGHT": 0.4417041852107654,
+    "NORMALIZATION_MAX_SCALE": 129.3980536042144,
+    "SAME_POS_BYE_WEIGHT": 0.4224105904019155,
+    "DIFF_POS_BYE_WEIGHT": 0.16312046041817152,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 0,
       "HIGH": 100
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 81.63820523910373,
-      "SECONDARY": 87.96323122074631
+      "PRIMARY": 85.7408381861009,
+      "SECONDARY": 94.62036179378356
     },
     "DRAFT_ORDER": [
       {
@@ -76,24 +76,22 @@
     ],
     "MAX_POSITIONS": {
       "QB": 2,
-      "RB": 4,
-      "WR": 4,
-      "FLEX": 2,
-      "TE": 1,
+      "RB": 3,
+      "WR": 3,
+      "FLEX": 3,
+      "TE": 2,
       "K": 1,
       "DST": 1
     },
     "FLEX_ELIGIBLE_POSITIONS": [
       "RB",
-      "WR",
-      "DST",
-      "TE"
+      "WR"
     ],
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 26.940395226996877
+        "STEPS": 32.268618801448
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -101,13 +99,13 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.9356728036133104
+      "WEIGHT": 2.808290873461697
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
-        "STEPS": 28.28665672163539
+        "STEPS": 20
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -115,13 +113,13 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.0495431084336464
+      "WEIGHT": 0.7931596191637781
     },
     "TEAM_QUALITY_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 1.0475899671798965
+        "STEPS": 6
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -129,14 +127,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.3573337942451747
+      "WEIGHT": 0.7863701095223943
     },
     "PERFORMANCE_SCORING": {
       "MIN_WEEKS": 3,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.2295799423833918
+        "STEPS": 0.3112580181091078
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -144,29 +142,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.19998697166494606
+      "WEIGHT": 0.5770528501106625
     },
     "MATCHUP_SCORING": {
-      "IMPACT_SCALE": 108.37629512182852,
-      "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 6.8865811653622035
-      },
-      "MULTIPLIERS": {
-        "VERY_POOR": 0.95,
-        "POOR": 0.975,
-        "GOOD": 1.025,
-        "EXCELLENT": 1.05
-      },
-      "WEIGHT": 0.6778481670093686
-    },
-    "SCHEDULE_SCORING": {
-      "IMPACT_SCALE": 80.0,
+      "IMPACT_SCALE": 185.1525173185212,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
-        "STEPS": 8
+        "STEPS": 6
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -174,7 +157,22 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.0
+      "WEIGHT": 0.5147172590226383
+    },
+    "SCHEDULE_SCORING": {
+      "IMPACT_SCALE": 185.1525173185212,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 6
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.5147172590226383
     }
   }
 }

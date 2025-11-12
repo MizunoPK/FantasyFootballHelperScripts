@@ -345,16 +345,16 @@ class StarterHelperModeManager:
 
         This method scores a player specifically for weekly lineup decisions,
         using weekly projections instead of seasonal projections and enabling
-        only performance and matchup multipliers (not ADP, rating, or team quality).
+        performance, matchup, and team quality multipliers (not ADP or rating).
 
         Scoring configuration:
         - use_weekly_projection=True: Use week-specific projection data
         - performance=True: Apply actual vs projected performance adjustment
         - matchup=True: Apply opponent defensive strength adjustment (THIS WEEK)
+        - team_quality=True: Apply team offensive/defensive strength (quality context)
         - schedule=False: Don't use future schedule strength (irrelevant for weekly)
         - adp=False: Don't use draft position (irrelevant for in-season)
         - player_rating=False: Don't use expert ratings (irrelevant for weekly)
-        - team_quality=False: Don't use team rankings (irrelevant for weekly)
 
         Args:
             player_data (FantasyPlayer): Player to score for weekly lineup
@@ -367,10 +367,10 @@ class StarterHelperModeManager:
             use_weekly_projection=True,
             adp=False,
             player_rating=False,
-            team_quality=False,
+            team_quality=True,
             performance=True,
             matchup=True,
-            schedule=False,  # EXPLICIT: No schedule scoring for weekly decisions
+            schedule=False,
             bye=False,
             injury=False
         )

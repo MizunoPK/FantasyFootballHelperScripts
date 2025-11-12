@@ -185,7 +185,7 @@ class TestConfigGeneratorInitialization:
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 15  # 5 scalars + 4 weights + 5 threshold STEPS + 1 IMPACT_SCALE (SCHEDULE disabled)
+        assert len(gen.PARAMETER_ORDER) == 16  # 5 scalars + 5 weights + 5 threshold STEPS + 1 IMPACT_SCALE (SCHEDULE disabled)
 
 
 class TestParameterValueGeneration:
@@ -306,7 +306,7 @@ class TestParameterValueGeneration:
     def test_generate_parameter_values_correct_count(self, generator):
         """Test that correct number of values are generated"""
         values = generator.generate_parameter_values(
-            'TEST_PARAM', 100.0, 20.0, 60.0, 140.0
+            'TEST_PARAM', 100.0, 60.0, 140.0
         )
 
         # Should have num_test_values + 1 (optimal + N random)
@@ -316,7 +316,7 @@ class TestParameterValueGeneration:
         """Test that optimal value is included as first value"""
         optimal = 100.0
         values = generator.generate_parameter_values(
-            'TEST_PARAM', optimal, 20.0, 60.0, 140.0
+            'TEST_PARAM', optimal, 60.0, 140.0
         )
 
         assert values[0] == optimal
@@ -324,7 +324,7 @@ class TestParameterValueGeneration:
     def test_generate_parameter_values_respects_bounds(self, generator):
         """Test that generated values respect min/max bounds"""
         values = generator.generate_parameter_values(
-            'TEST_PARAM', 100.0, 20.0, 60.0, 140.0
+            'TEST_PARAM', 100.0, 60.0, 140.0
         )
 
         for val in values:
@@ -334,7 +334,7 @@ class TestParameterValueGeneration:
         """Test that random values vary from optimal"""
         optimal = 100.0
         values = generator.generate_parameter_values(
-            'TEST_PARAM', optimal, 20.0, 60.0, 140.0
+            'TEST_PARAM', optimal, 60.0, 140.0
         )
 
         # At least one value should differ from optimal
@@ -345,8 +345,8 @@ class TestParameterValueGeneration:
         """Test that value sets are generated for all parameters"""
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Should have 5 scalar + 5 weight + 6 threshold STEPS parameters
-        assert len(value_sets) == 15  # Updated for threshold STEPS + IMPACT_SCALE (SCHEDULE disabled)
+        # Should have 5 scalar + 5 weight + 2 threshold STEPS + 1 IMPACT_SCALE
+        assert len(value_sets) == 13  # Only ADP and PERFORMANCE have STEPS; only MATCHUP has IMPACT_SCALE (others disabled)
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'SAME_POS_BYE_WEIGHT' in value_sets
         assert 'DIFF_POS_BYE_WEIGHT' in value_sets
@@ -492,7 +492,7 @@ class TestCombinationGeneration:
         value_sets = generator.generate_all_parameter_value_sets()
 
         # Verify value sets exist for all expected parameters
-        assert len(value_sets) == 15  # 5 scalars + 4 weights + 5 threshold STEPS + 1 IMPACT_SCALE (SCHEDULE disabled)
+        assert len(value_sets) == 13  # 5 scalars + 5 weights + 2 threshold STEPS + 1 IMPACT_SCALE (only ADP, PERFORMANCE, MATCHUP optimized)
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
         # SCHEDULE disabled
@@ -640,9 +640,12 @@ class TestConfigDictCreation:
             'SECONDARY_BONUS': 45.0,
             'ADP_SCORING_WEIGHT': 1.5,
             'PLAYER_RATING_SCORING_WEIGHT': 1.3,
+            'TEAM_QUALITY_SCORING_WEIGHT': 1.2,
             'PERFORMANCE_SCORING_WEIGHT': 1.1,
             'MATCHUP_SCORING_WEIGHT': 1.4,
             # SCHEDULE_SCORING_WEIGHT: DISABLED (not optimized)
+            'ADP_SCORING_STEPS': 40.0,
+            'PERFORMANCE_SCORING_STEPS': 0.12,
             'MATCHUP_IMPACT_SCALE': 175.0,
             # SCHEDULE_IMPACT_SCALE: DISABLED (not optimized)
         }
@@ -673,11 +676,10 @@ class TestConfigDictCreation:
         # Check weights for optimized scoring sections
         assert params['ADP_SCORING']['WEIGHT'] == 1.5
         assert params['PLAYER_RATING_SCORING']['WEIGHT'] == 1.3
+        assert params['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.2
         assert params['PERFORMANCE_SCORING']['WEIGHT'] == 1.1
         assert params['MATCHUP_SCORING']['WEIGHT'] == 1.4
         # SCHEDULE_SCORING.WEIGHT not tested (not optimized)
-        # TEAM_QUALITY_SCORING_WEIGHT is no longer varied, should remain at baseline
-        assert params['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.0
 
     def test_create_config_dict_immutability(self, generator_and_combo):
         """Test that creating configs doesn't mutate baseline"""
@@ -830,7 +832,7 @@ class TestIterativeOptimizationSupport:
         config = generator.baseline_config
         combination = generator._extract_combination_from_config(config)
 
-        # Should have all parameters (5 scalar + 5 weights + 6 threshold STEPS + 2 IMPACT_SCALE)
+        # Should have all parameters (5 scalar + 5 weights + 5 threshold STEPS + 1 IMPACT_SCALE)
         assert 'NORMALIZATION_MAX_SCALE' in combination
         assert 'SAME_POS_BYE_WEIGHT' in combination
         assert 'DIFF_POS_BYE_WEIGHT' in combination
@@ -838,13 +840,19 @@ class TestIterativeOptimizationSupport:
         assert 'SECONDARY_BONUS' in combination
         assert 'ADP_SCORING_WEIGHT' in combination
         assert 'PLAYER_RATING_SCORING_WEIGHT' in combination
+        assert 'TEAM_QUALITY_SCORING_WEIGHT' in combination
         assert 'MATCHUP_SCORING_WEIGHT' in combination
         assert 'PERFORMANCE_SCORING_WEIGHT' in combination
         # SCHEDULE disabled
         # assert 'SCHEDULE_SCORING_WEIGHT' in combination
+        assert 'ADP_SCORING_STEPS' in combination
+        assert 'PLAYER_RATING_SCORING_STEPS' in combination
+        assert 'TEAM_QUALITY_SCORING_STEPS' in combination
+        assert 'PERFORMANCE_SCORING_STEPS' in combination
+        assert 'MATCHUP_SCORING_STEPS' in combination
         assert 'MATCHUP_IMPACT_SCALE' in combination
         # assert 'SCHEDULE_IMPACT_SCALE' in combination
-        assert len(combination) == 15  # Updated for threshold STEPS parameters + IMPACT_SCALE (SCHEDULE disabled)
+        assert len(combination) == 16  # 5 scalars + 5 weights + 5 STEPS + 1 IMPACT_SCALE
 
     def test_generate_single_parameter_configs_for_multiplier(self, generator):
         """Test generating configs for a weight parameter"""
@@ -1075,23 +1083,23 @@ class TestGenerateIterativeCombinations:
             temp_path.unlink()
 
     def test_edge_case_num_parameters_exceeds_available(self, baseline_config_dict):
-        """Test with NUM_PARAMETERS_TO_TEST > 15 (should cap at 15)"""
+        """Test with NUM_PARAMETERS_TO_TEST > 16 (should cap at 16)"""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             json.dump(baseline_config_dict, f)
             temp_path = Path(f.name)
 
         try:
-            # Use num_test_values=1 to keep cartesian product small (2^15 = 32,768 configs)
+            # Use num_test_values=1 to keep cartesian product small (2^16 = 65,536 configs)
             generator = ConfigGenerator(temp_path, num_test_values=1, num_parameters_to_test=20)
 
-            # Should cap at 15 parameters (SCHEDULE_SCORING disabled)
+            # Should cap at 16 parameters (PARAMETER_ORDER length)
             configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
 
-            # Should generate configs (capped at 15 params)
-            # Individual: 15*2 = 30
-            # Combinations: 2^15 = 32,768
-            # Total: 32,798 configs
-            assert len(configs) == 32798
+            # Should generate configs (capped at 16 params)
+            # Individual: 16*2 = 32
+            # Combinations: 2^16 = 65,536
+            # Total: 65,568 configs
+            assert len(configs) == 65568
             assert all('parameters' in config for config in configs)
         finally:
             temp_path.unlink()

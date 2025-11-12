@@ -1,20 +1,21 @@
 """
 Player Scoring Calculator
 
-Helper class for calculating player scores using the 9-step scoring algorithm.
+Helper class for calculating player scores using the 10-step scoring algorithm.
 Handles all scoring-related calculations including normalization, multipliers,
 bonuses, and penalties.
 
-The 9-step scoring algorithm:
+The 10-step scoring algorithm:
 1. Normalization (based on fantasy_points projection)
 2. ADP Multiplier (market wisdom adjustment)
 3. Player Rating Multiplier (expert consensus)
 4. Team Quality Multiplier (offensive/defensive strength)
 5. Performance Multiplier (actual vs projected deviation)
-6. Matchup Multiplier (opponent strength)
-7. Draft Order Bonus (positional value by round)
-8. Bye Week Penalty (same-position and different-position roster conflicts)
-9. Injury Penalty (risk assessment)
+6. Matchup Bonus/Penalty (opponent strength)
+7. Schedule Bonus/Penalty (future opponent strength)
+8. Draft Order Bonus (positional value by round)
+9. Bye Week Penalty (same-position and different-position roster conflicts)
+10. Injury Penalty (risk assessment)
 
 Author: Kai Mizuno
 """
@@ -39,7 +40,7 @@ from utils.LoggingManager import get_logger
 
 class PlayerScoringCalculator:
     """
-    Calculator for player scoring using the 9-step algorithm.
+    Calculator for player scoring using the 10-step algorithm.
 
     Handles all scoring calculations including normalization, multipliers,
     bonuses, and penalties. Separated from PlayerManager to improve

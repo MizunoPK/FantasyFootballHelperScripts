@@ -304,7 +304,7 @@ class TestRankDifference:
         assert diff == 0
 
     def test_offensive_player_unfavorable_matchup(self, populated_data_folder):
-        """Test offensive player with unfavorable matchup (negative diff)"""
+        """Test offensive player with tough matchup (strong defense)"""
         # Create complete matchup data with position-specific defense ranks
         teams_csv = """team,offensive_rank,defensive_rank,def_vs_qb_rank,def_vs_rb_rank,def_vs_wr_rank,def_vs_te_rank,def_vs_k_rank
 KC,1,15,,,,,
@@ -319,10 +319,10 @@ BUF,10,3,3,5,4,6,8
 
         manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
 
-        # KC QB (#1 OFF) vs BUF defense vs QB (#3)
-        # Rank diff = 3 - 1 = +2 (favorable for KC QB)
+        # KC QB vs BUF defense vs QB (#3)
+        # matchup_score = 3 (tough - low rank = strong defense)
         diff = manager.get_rank_difference('KC', 'QB')
-        assert diff == 2
+        assert diff == 3
 
     def test_defensive_player_favorable_matchup(self, populated_data_folder):
         """Test defensive player with favorable matchup"""
@@ -339,10 +339,10 @@ DAL,25,20,,,,,
 
         manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
 
-        # SF defense (#1) vs DAL offense (#25)
-        # Rank diff = 25 - 1 = +24 (very favorable for SF DST)
+        # SF DST vs DAL offense (#25)
+        # matchup_score = 25 (favorable - high rank = weak offense)
         diff = manager.get_rank_difference('SF', 'DST')
-        assert diff == 24
+        assert diff == 25
 
     def test_defensive_player_unfavorable_matchup(self, populated_data_folder):
         """Test defensive player with unfavorable matchup"""
@@ -359,16 +359,16 @@ KC,1,15,,,,,
 
         manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
 
-        # JAX defense (#28) vs KC offense (#1)
-        # Rank diff = 1 - 28 = -27 (very unfavorable for JAX DST)
+        # JAX DST vs KC offense (#1)
+        # matchup_score = 1 (tough - low rank = strong offense)
         diff = manager.get_rank_difference('JAX', 'DST')
-        assert diff == -27
+        assert diff == 1
 
     def test_rank_difference_neutral_matchup(self, populated_data_folder):
-        """Test matchup with equal ranks"""
+        """Test matchup with mid-tier defense"""
         teams_csv = """team,offensive_rank,defensive_rank,def_vs_qb_rank,def_vs_rb_rank,def_vs_wr_rank,def_vs_te_rank,def_vs_k_rank
 TEAM1,15,10,,15,,,
-TEAM2,20,15,,,,,
+TEAM2,20,15,,15,,,
 """
         teams_file = populated_data_folder / "teams.csv"
         teams_file.write_text(teams_csv)
@@ -379,10 +379,10 @@ TEAM2,20,15,,,,,
 
         manager = TeamDataManager(populated_data_folder, mock_schedule, 1)
 
-        # TEAM1 RB (#15 OFF) vs TEAM2 defense vs RB (#15)
-        # Rank diff = 15 - 15 = 0 (neutral)
+        # TEAM1 RB vs TEAM2 defense vs RB (#15)
+        # matchup_score = 15 (mid-tier defense)
         diff = manager.get_rank_difference('TEAM1', 'RB')
-        assert diff == 0
+        assert diff == 15
 
     def test_rank_difference_no_matchup_data(self, empty_team_manager):
         """Test rank difference with no data loaded"""

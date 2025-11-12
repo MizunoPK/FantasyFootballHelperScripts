@@ -291,9 +291,9 @@ class PlayerManager:
                                              adp=False,
                                              player_rating=True,
                                              team_quality=True,
-                                             performance=False,
+                                             performance=True,
                                              matchup=False,
-                                             schedule=False,
+                                             schedule=True,
                                              bye=False,
                                              injury=True
                                              ).score

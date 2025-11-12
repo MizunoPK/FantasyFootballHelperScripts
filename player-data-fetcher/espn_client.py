@@ -1165,37 +1165,6 @@ class ESPNClient(BaseAPIClient):
         }
         return slot_mapping.get(position, -1)
 
-    def _convert_positional_rank_to_rating(self, positional_rank: float) -> float:
-        """
-        Convert ESPN position-specific rank to 0-100 rating scale.
-
-        Uses a tiered formula that values elite positional players highest:
-        - Top 2 (Tier 1): 95-100 rating
-        - Ranks 3-5 (Tier 2): 80-94 rating
-        - Ranks 6-12 (Tier 3): 66-79 rating
-        - Ranks 13-24 (Tier 4): 50-65 rating
-        - Ranks 25-50 (Tier 5): 30-49 rating
-        - Ranks 50+ (Tier 6): 10-29 rating
-
-        Args:
-            positional_rank: ESPN consensus positional rank (e.g., 1.0 for QB1, 5.5 for RB6)
-
-        Returns:
-            Rating on 0-100 scale (actually 10-100 with floor)
-        """
-        if positional_rank <= 2:  # Elite tier (QB1-2, RB1-2, etc.)
-            return 100.0 - (positional_rank - 1.0) * 2.5  # 100 to 97.5
-        elif positional_rank <= 5:  # Top 5 starters
-            return 94.0 - (positional_rank - 2.0) * 4.67  # 94 to 80
-        elif positional_rank <= 12:  # Quality starters
-            return 79.0 - (positional_rank - 5.0) * 1.86  # 79 to 66
-        elif positional_rank <= 24:  # Flex/Bye week starters
-            return 65.0 - (positional_rank - 12.0) * 1.25  # 65 to 50
-        elif positional_rank <= 50:  # Deep bench
-            return 49.0 - (positional_rank - 24.0) * 0.73  # 49 to 30
-        else:  # Waiver wire
-            return max(10.0, 29.0 - (positional_rank - 50.0) * 0.38)  # 29 to 10 (floor at 10)
-
     def _get_positional_rank_from_overall(
         self,
         overall_draft_rank: int,
@@ -1317,6 +1286,99 @@ class ESPNClient(BaseAPIClient):
                         })
 
             self.logger.info(f"Grouped {len(all_players_with_ranks)} players for position-specific ranking")
+
+        # Preprocessing pass: Collect positional rank ranges for normalization
+        # This is required to normalize player ratings to 1-100 scale where 100=best, 1=worst
+        self.logger.info(f"Collecting positional rank ranges for normalization (processing {len(players)} players)")
+        position_rank_ranges = {}  # {position: {'min': float, 'max': float, 'count': int}}
+        player_positional_ranks = {}  # Temporary storage: {player_id: positional_rank}
+
+        for player in players:
+            try:
+                player_info = player.get('player', {})
+                player_id = str(player_info.get('id', ''))
+
+                if not player_id:
+                    continue
+
+                # Extract position
+                position_id = player_info.get('defaultPositionId')
+                position = ESPN_POSITION_MAPPINGS.get(position_id, 'UNKNOWN')
+
+                if position == 'UNKNOWN':
+                    continue
+
+                # Extract positional rank using same logic as main loop (lines 1418-1482)
+                positional_rank = None
+
+                if CURRENT_NFL_WEEK <= 1:
+                    # Week 1: Use draft rankings converted to positional
+                    draft_ranks = player_info.get('draftRanksByRankType', {})
+                    ppr_rank_data = draft_ranks.get('PPR', {})
+
+                    if ppr_rank_data and 'rank' in ppr_rank_data:
+                        draft_rank = ppr_rank_data['rank']
+                        positional_rank = self._get_positional_rank_from_overall(
+                            draft_rank, position, all_players_with_ranks
+                        )
+                else:
+                    # Week 2+: Use current week's ROS consensus rankings
+                    ranking_key = '0' if CURRENT_NFL_WEEK == 1 else str(CURRENT_NFL_WEEK)
+                    rankings_ros = player_info.get('rankings', {}).get(ranking_key, [])
+
+                    if not rankings_ros:
+                        # Fallback to most recent available week
+                        all_rankings = player_info.get('rankings', {})
+                        for fallback_week in range(CURRENT_NFL_WEEK - 1, 0, -1):
+                            fallback_key = str(fallback_week)
+                            if fallback_key in all_rankings and all_rankings[fallback_key]:
+                                rankings_ros = all_rankings[fallback_key]
+                                break
+
+                        if not rankings_ros and '0' in all_rankings:
+                            rankings_ros = all_rankings['0']
+
+                    if rankings_ros:
+                        expected_slot_id = self._position_to_slot_id(position)
+                        for ranking_entry in rankings_ros:
+                            if ranking_entry.get('rankType') == 'PPR':
+                                actual_slot_id = ranking_entry.get('slotId')
+                                if actual_slot_id == expected_slot_id:
+                                    if 'averageRank' in ranking_entry:
+                                        positional_rank = ranking_entry['averageRank']
+                                        break
+
+                # Track min/max for this position if we have a valid rank
+                if positional_rank is not None:
+                    player_positional_ranks[player_id] = positional_rank
+
+                    if position not in position_rank_ranges:
+                        position_rank_ranges[position] = {
+                            'min': positional_rank,
+                            'max': positional_rank,
+                            'count': 1
+                        }
+                    else:
+                        position_rank_ranges[position]['min'] = min(
+                            position_rank_ranges[position]['min'], positional_rank
+                        )
+                        position_rank_ranges[position]['max'] = max(
+                            position_rank_ranges[position]['max'], positional_rank
+                        )
+                        position_rank_ranges[position]['count'] += 1
+
+            except Exception as e:
+                # Log but don't fail entire preprocessing on single player error
+                self.logger.debug(f"Error collecting rank for player {player_id}: {e}")
+                continue
+
+        # Log position rank ranges for visibility
+        self.logger.info(f"Position rank ranges collected for {len(position_rank_ranges)} positions:")
+        for position, ranges in sorted(position_rank_ranges.items()):
+            self.logger.info(
+                f"  {position}: {ranges['min']:.1f}-{ranges['max']:.1f} "
+                f"({ranges['count']} players with ranks)"
+            )
 
         parsed_count = 0
         skipped_drafted_count = 0
@@ -1480,11 +1542,17 @@ class ESPNClient(BaseAPIClient):
                                         f"slotId mismatch for {name}: expected {expected_slot_id}, got {actual_slot_id}, skipping"
                                     )
 
-                # Convert positional rank to 0-100 rating scale
+                # Store positional rank for post-processing normalization
+                # Player ratings will be normalized in post-processing pass after all players collected
                 if positional_rank is not None:
-                    player_rating = self._convert_positional_rank_to_rating(positional_rank)
+                    # Store in temporary dict for normalization (Step 2.2)
+                    # Normalization happens in post-processing to ensure we have min/max for all positions
+                    player_positional_ranks[id] = positional_rank
+                    player_rating = None  # Will be set in post-processing normalization
                 else:
-                    # Fallback: Use original overall draft rank formula
+                    # Fallback: Use original overall draft rank formula for players without rankings
+                    # This preserves backward compatibility (Decision 10)
+                    player_rating = None  # Default to None
                     draft_ranks = player_info.get('draftRanksByRankType', {})
                     ppr_rank_data = draft_ranks.get('PPR', {})
 
@@ -1574,5 +1642,85 @@ class ESPNClient(BaseAPIClient):
 
         # Store position defense rankings for later use
         self.position_defense_rankings = position_defense_rankings
+
+        # Post-processing: Normalize player ratings (Step 2.3)
+        # Now that we have all players and know min/max for each position, normalize ratings to 1-100 scale
+        self.logger.info(f"Normalizing player ratings for {len(player_positional_ranks)} players with positional ranks")
+
+        normalized_count = 0
+        fallback_count = 0
+
+        for projection in projections:
+            # Only normalize players that have a stored positional_rank
+            if projection.id in player_positional_ranks:
+                positional_rank = player_positional_ranks[projection.id]
+                position = projection.position
+
+                # Get min/max for this player's position
+                if position in position_rank_ranges:
+                    min_rank = position_rank_ranges[position]['min']
+                    max_rank = position_rank_ranges[position]['max']
+
+                    # Handle division by zero: if min == max, use neutral rating (Decision 2)
+                    if min_rank == max_rank:
+                        projection.player_rating = 50.0
+                        self.logger.debug(
+                            f"Single rank for position {position} (rank={min_rank}), "
+                            f"using neutral rating 50.0 for {projection.name}"
+                        )
+                    else:
+                        # Apply normalization formula (Decision 1)
+                        # normalized = 1 + ((rank - max_rank) / (min_rank - max_rank)) * 99
+                        # This gives: min_rank (best) → 100, max_rank (worst) → 1
+                        normalized = 1 + ((positional_rank - max_rank) / (min_rank - max_rank)) * 99
+                        projection.player_rating = normalized
+
+                        # Validation: ensure rating is within expected range
+                        if not (1.0 <= normalized <= 100.0):
+                            self.logger.warning(
+                                f"Normalized rating out of range for {projection.name}: {normalized:.2f} "
+                                f"(rank={positional_rank}, min={min_rank}, max={max_rank})"
+                            )
+
+                        # Log extreme ratings for visibility
+                        if normalized >= 99.5 or normalized <= 1.5:
+                            self.logger.debug(
+                                f"Extreme rating for {projection.name} ({position}): {normalized:.1f} "
+                                f"(rank={positional_rank:.1f})"
+                            )
+
+                    normalized_count += 1
+
+                    # Log progress every 100 players (DEBUG level to avoid spam)
+                    if normalized_count % 100 == 0:
+                        self.logger.debug(f"Normalized {normalized_count} player ratings...")
+
+                else:
+                    # Position not in ranges dict (shouldn't happen, but handle gracefully)
+                    self.logger.warning(
+                        f"Position {position} not in rank ranges for {projection.name}, "
+                        f"player_rating will remain None"
+                    )
+                    fallback_count += 1
+            elif projection.player_rating is None:
+                # Player has no positional_rank and no fallback rating
+                # This is expected for some players (preserved data, no rankings available, etc.)
+                fallback_count += 1
+
+        # Log normalization summary
+        self.logger.info(
+            f"Player rating normalization complete: {normalized_count} normalized, "
+            f"{fallback_count} using fallback or None"
+        )
+
+        # Warn if more than 10% using fallback (Decision 8)
+        total_players = len(projections)
+        if total_players > 0:
+            fallback_percentage = (fallback_count / total_players) * 100
+            if fallback_percentage > 10:
+                self.logger.warning(
+                    f"High fallback usage: {fallback_percentage:.1f}% of players "
+                    f"({fallback_count}/{total_players}) using fallback or have no rating"
+                )
 
         return projections

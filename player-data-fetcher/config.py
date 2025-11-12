@@ -10,12 +10,12 @@ Author: Kai Mizuno
 
 from dataclasses import dataclass
 
-CURRENT_NFL_WEEK = 9     # Current NFL week (1-18, update weekly)
+CURRENT_NFL_WEEK = 11     # Current NFL week (1-18, update weekly)
 NFL_SEASON = 2025        # Current NFL season year
 
 # Data Preservation Settings (FREQUENTLY MODIFIED)
 PRESERVE_DRAFTED_VALUES = False   # Keep draft status between data updates
-PRESERVE_LOCKED_VALUES = True    # Keep locked players between data updates
+PRESERVE_LOCKED_VALUES = False    # Keep locked players between data updates
 
 # Drafted Data Loading Settings (FREQUENTLY MODIFIED)
 LOAD_DRAFTED_DATA_FROM_FILE = True  # Load drafted state from external CSV file (alternative to PRESERVE_DRAFTED_VALUES)
@@ -45,6 +45,9 @@ MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS = 3  # Minimum games played to use current
 # Otherwise, fall back to neutral rankings
 # Example: If set to 5 and CURRENT_NFL_WEEK is 6+, uses 2025 data. If week 4 or less, uses neutral data.
 # Neutral data is having all ranks set to 16
+
+# Historical Data Auto-Save Configuration (FREQUENTLY MODIFIED)
+ENABLE_HISTORICAL_DATA_SAVE = True  # Automatically save weekly data snapshots to historical folder
 
 # =============================================================================
 # LOGGING CONFIGURATION
