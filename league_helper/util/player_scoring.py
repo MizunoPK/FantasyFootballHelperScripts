@@ -79,6 +79,7 @@ class PlayerScoringCalculator:
         self.config = config
         self.projected_points_manager = projected_points_manager
         self.max_projection = max_projection
+        self.max_weekly_projection: float = 0.0  # Current weekly max for normalization
         self.team_data_manager = team_data_manager
         self.season_schedule_manager = season_schedule_manager
         self.current_nfl_week = current_nfl_week
@@ -114,12 +115,9 @@ class PlayerScoringCalculator:
         weekly_points = player.get_single_weekly_projection(week)
         if weekly_points is not None and float(weekly_points) > 0:
             weekly_points = float(weekly_points)
-            # Calculate normalized/weighted projection using same scale as seasonal projections
-            # This ensures weekly and seasonal scores are comparable
-            if self.max_projection > 0:
-                weighted_projection = self.weight_projection(weekly_points)
-            else:
-                weighted_projection = 0.0
+            # Calculate normalized/weighted projection using weekly max for normalization
+            # This uses use_weekly_max=True to normalize against the week's top projection
+            weighted_projection = self.weight_projection(weekly_points, use_weekly_max=True)
             self.logger.debug(
                 f"Week {week} projection for {player.name}: {weekly_points:.2f} pts "
                 f"(weighted: {weighted_projection:.2f})"
@@ -132,17 +130,39 @@ class PlayerScoringCalculator:
         )
         return 0.0, 0.0
 
-    def weight_projection(self, pts: float) -> float:
+    def weight_projection(self, pts: float, use_weekly_max: bool = False) -> float:
         """
         Calculate weighted projection using normalization scale.
 
         Args:
             pts (float): Raw fantasy points
+            use_weekly_max (bool): If True, use max_weekly_projection for normalization.
+                                   If False, use max_projection (ROS). Default: False.
 
         Returns:
             float: Weighted projection (0-N scale)
         """
-        return (pts / self.max_projection) * self.config.normalization_max_scale
+        # Choose which max to use for normalization
+        chosen_max = self.max_weekly_projection if use_weekly_max else self.max_projection
+
+        # Safety check: if max is 0, log warning and return 0.0
+        if chosen_max == 0:
+            self.logger.warning(
+                f"Max projection is 0.0 ({'weekly' if use_weekly_max else 'ROS'}), "
+                f"returning 0.0 normalized score (data quality issue)"
+            )
+            return 0.0
+
+        # Calculate normalized score
+        normalized_score = (pts / chosen_max) * self.config.normalization_max_scale
+
+        # Debug logging
+        self.logger.debug(
+            f"Normalization: {pts:.2f} pts / {chosen_max:.2f} ({'weekly' if use_weekly_max else 'ROS'} max) "
+            f"* {self.config.normalization_max_scale} = {normalized_score:.2f}"
+        )
+
+        return normalized_score
 
     def calculate_consistency(self, player: FantasyPlayer) -> Tuple[float, int]:
         """

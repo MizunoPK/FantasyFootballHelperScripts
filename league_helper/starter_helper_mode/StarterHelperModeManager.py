@@ -405,6 +405,10 @@ class StarterHelperModeManager:
         )
         self.logger.debug(f"Roster size: {len(self.player_manager.team.roster)} players")
 
+        # Calculate and set max weekly projection for this week's normalization
+        max_weekly = self.player_manager.calculate_max_weekly_projection(self.config.current_nfl_week)
+        self.player_manager.scoring_calculator.max_weekly_projection = max_weekly
+
         # Score all rostered players using weekly projections and performance/matchup adjustments
         # This uses use_weekly_projection=True (NOT seasonal projections)
         # Scoring factors: performance=True, matchup=True (ADP/rating/team_quality disabled for weekly)

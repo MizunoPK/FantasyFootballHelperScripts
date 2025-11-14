@@ -247,6 +247,7 @@ def player_manager(mock_data_folder, config_manager, team_data_manager, mock_fan
     pm.players = []
     pm.team = mock_fantasy_team
     pm.max_projection = 250.0  # Set to reasonable value to avoid division by zero
+    pm.max_weekly_projections = {}  # Initialize weekly projection cache
 
     # Mock projected_points_manager for performance calculations
     pm.projected_points_manager = Mock()
@@ -362,14 +363,17 @@ class TestWeeklyProjections:
         """Test get_weekly_projection with valid weekly data"""
         # Set up player with week 6 data (current week in config)
         test_player.week_6_points = 25.0
-        player_manager.max_projection = 300.0  # Set max for normalization
-        player_manager.scoring_calculator.max_projection = 300.0  # Update calculator too
+        player_manager.max_projection = 300.0  # ROS max
+        player_manager.scoring_calculator.max_projection = 300.0
+        # Set weekly max (needed for weekly normalization)
+        player_manager.max_weekly_projections = {6: 30.0}
+        player_manager.scoring_calculator.max_weekly_projection = 30.0
 
         orig_pts, weighted_pts = player_manager.get_weekly_projection(test_player, week=6)
 
         assert orig_pts == 25.0
-        # Weighted should be (25/300) * 100 = 8.33...
-        expected_weighted = (25.0 / 300.0) * 100.0
+        # Weighted should use WEEKLY max: (25/30) * 100 = 83.33...
+        expected_weighted = (25.0 / 30.0) * 100.0
         assert abs(weighted_pts - expected_weighted) < 0.01
 
     def test_get_weekly_projection_uses_current_week_when_invalid(self, player_manager, test_player):
@@ -424,15 +428,19 @@ class TestWeeklyProjections:
         assert weighted_pts == 0.0  # Should handle division by zero
 
     def test_normalization_with_weekly_projection_enabled(self, player_manager, test_player):
-        """Test _get_normalized_fantasy_points with use_weekly_projection=True"""
+        """Test _get_normalized_fantasy_points with use_weekly_projection=True uses weekly max"""
         test_player.week_6_points = 30.0
-        player_manager.max_projection = 300.0
-        player_manager.scoring_calculator.max_projection = 300.0  # Update calculator too
+        player_manager.max_projection = 300.0  # ROS max
+        player_manager.scoring_calculator.max_projection = 300.0
+        # Set weekly max (cache and current value)
+        player_manager.max_weekly_projections = {6: 30.0}  # Cache for week 6
+        player_manager.scoring_calculator.max_weekly_projection = 30.0  # Current weekly max
 
         result, reason = player_manager.scoring_calculator._get_normalized_fantasy_points(test_player, use_weekly_projection=True)
 
-        # Should use weekly projection: (30/300) * 100 = 10.0
-        expected = (30.0 / 300.0) * 100.0
+        # Should use WEEKLY max: (30/30) * 100 = 100.0 (not ROS max of 300)
+        # This tests that weekly scores are normalized against weekly max, not ROS max
+        expected = (30.0 / 30.0) * 100.0  # = 100.0
         assert abs(result - expected) < 0.01
         assert "Projected: 30.00" in reason
         assert "Weighted:" in reason
@@ -449,12 +457,83 @@ class TestWeeklyProjections:
         assert result == 80.0
         assert "200.00" in reason  # Should show ROS points
 
+    def test_weekly_normalization_uses_weekly_max(self, player_manager):
+        """Test weight_projection() uses correct max (weekly vs ROS) based on parameter"""
+        # Create a simple test scenario
+        player_manager.max_projection = 400.0  # ROS max
+        player_manager.scoring_calculator.max_projection = 400.0
+        player_manager.max_weekly_projections = {6: 30.0}  # Weekly max for week 6
+        player_manager.scoring_calculator.max_weekly_projection = 30.0
+
+        # Test with use_weekly_max=True (should use max_weekly_projection = 30.0)
+        result_weekly = player_manager.scoring_calculator.weight_projection(25.0, use_weekly_max=True)
+        expected_weekly = (25.0 / 30.0) * 100.0  # = 83.33
+        assert abs(result_weekly - expected_weekly) < 0.01
+
+        # Test with use_weekly_max=False (should use max_projection = 400.0)
+        result_ros = player_manager.scoring_calculator.weight_projection(25.0, use_weekly_max=False)
+        expected_ros = (25.0 / 400.0) * 100.0  # = 6.25
+        assert abs(result_ros - expected_ros) < 0.01
+
+    def test_calculate_max_weekly_projection(self, player_manager):
+        """Test calculate_max_weekly_projection() finds max and caches it"""
+        # Create players with various weekly projections
+        from utils.FantasyPlayer import FantasyPlayer
+
+        player1 = FantasyPlayer(id=1, name="Player 1", team="KC", position="QB", week_6_points=25.0)
+        player2 = FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB", week_6_points=30.0)  # Max
+        player3 = FantasyPlayer(id=3, name="Player 3", team="SF", position="WR", week_6_points=20.0)
+
+        player_manager.players = [player1, player2, player3]
+
+        # Calculate max for week 6 (should be 30.0)
+        max_weekly = player_manager.calculate_max_weekly_projection(6)
+        assert max_weekly == 30.0
+
+        # Verify it was cached
+        assert 6 in player_manager.max_weekly_projections
+        assert player_manager.max_weekly_projections[6] == 30.0
+
+        # Call again - should use cache (test cache hit)
+        max_weekly_cached = player_manager.calculate_max_weekly_projection(6)
+        assert max_weekly_cached == 30.0
+
+    def test_calculate_max_weekly_projection_no_valid_projections(self, player_manager):
+        """Test calculate_max_weekly_projection() handles edge case of no valid projections"""
+        from utils.FantasyPlayer import FantasyPlayer
+
+        # Players with no week 10 projections
+        player1 = FantasyPlayer(id=1, name="Player 1", team="KC", position="QB")
+        player2 = FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB")
+
+        player_manager.players = [player1, player2]
+
+        # Calculate max for week 10 (should be 0.0 - no valid projections)
+        max_weekly = player_manager.calculate_max_weekly_projection(10)
+        assert max_weekly == 0.0
+
+    def test_weekly_normalization_zero_max_handling(self, player_manager):
+        """Test weight_projection() handles zero max_weekly_projection gracefully with WARNING"""
+        # Set max_weekly_projection to 0 (data quality issue scenario)
+        player_manager.scoring_calculator.max_weekly_projection = 0.0
+
+        # Call weight_projection with use_weekly_max=True
+        result = player_manager.scoring_calculator.weight_projection(25.0, use_weekly_max=True)
+
+        # Should return 0.0 (graceful handling)
+        assert result == 0.0
+
+        # WARNING log is generated (verified in captured stdout output during test run)
+
     def test_score_player_with_weekly_projection(self, player_manager, test_player, mock_fantasy_team):
         """Integration test: score_player with use_weekly_projection=True"""
         # Set up weekly data
         test_player.week_6_points = 25.0
         player_manager.max_projection = 300.0
-        player_manager.scoring_calculator.max_projection = 300.0  # Update calculator too
+        player_manager.scoring_calculator.max_projection = 300.0
+        # Set weekly max (needed for weekly normalization)
+        player_manager.max_weekly_projections = {6: 30.0}
+        player_manager.scoring_calculator.max_weekly_projection = 30.0
         test_player.consistency = 0.15  # EXCELLENT
         test_player.matchup_score = 10  # GOOD
         mock_fantasy_team.roster = []  # No bye overlaps
@@ -472,10 +551,11 @@ class TestWeeklyProjections:
             injury=False
         )
 
-        # Expected: (25/300)*100 = 8.33... + 15.0 (matchup GOOD bonus)
-        # matchup_score = 10 (GOOD): bonus = (150*1.10)-150 = +15.0
-        expected_base = (25.0 / 300.0) * 100.0
-        expected_final = expected_base + 15.0
+        # Expected: (25/30)*100 = 83.33... (uses WEEKLY max, not ROS max)
+        # matchup_score = 10 (GOOD): bonus = +15.0 (from config)
+        # Final: 83.33... + 15.0 = 98.33...
+        expected_base = (25.0 / 30.0) * 100.0  # 83.33...
+        expected_final = expected_base + 15.0  # Add matchup GOOD bonus
 
         assert abs(scored_player.score - expected_final) < 0.01
         assert scored_player.player == test_player

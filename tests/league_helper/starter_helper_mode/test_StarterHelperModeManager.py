@@ -366,6 +366,11 @@ class TestStarterHelperModeManager:
         player_manager = Mock(spec=PlayerManager)
         player_manager.team = Mock()
         player_manager.team.roster = []
+        # Mock scoring_calculator for weekly normalization
+        player_manager.scoring_calculator = Mock()
+        player_manager.scoring_calculator.max_weekly_projection = 0.0
+        # Mock calculate_max_weekly_projection to return a reasonable value
+        player_manager.calculate_max_weekly_projection = Mock(return_value=30.0)
         return player_manager
 
     @pytest.fixture
@@ -600,6 +605,9 @@ class TestStarterHelperInjuryHandling:
         config.nfl_scoring_format = "ppr"
         player_manager = Mock(spec=PlayerManager)
         player_manager.team = Mock()
+        player_manager.scoring_calculator = Mock()
+        player_manager.scoring_calculator.max_weekly_projection = 0.0
+        player_manager.calculate_max_weekly_projection = Mock(return_value=30.0)
         team_data_manager = Mock(spec=TeamDataManager)
 
         # Create roster with injured players
@@ -668,6 +676,9 @@ class TestStarterHelperDisplayFunctionality:
 
         player_manager = Mock(spec=PlayerManager)
         player_manager.team = Mock()
+        player_manager.scoring_calculator = Mock()
+        player_manager.scoring_calculator.max_weekly_projection = 0.0
+        player_manager.calculate_max_weekly_projection = Mock(return_value=30.0)
         team_data_manager = Mock(spec=TeamDataManager)
 
         # Create minimal roster
@@ -743,6 +754,9 @@ class TestStarterHelperEdgeCases:
 
         player_manager = Mock(spec=PlayerManager)
         player_manager.team = Mock()
+        player_manager.scoring_calculator = Mock()
+        player_manager.scoring_calculator.max_weekly_projection = 0.0
+        player_manager.calculate_max_weekly_projection = Mock(return_value=30.0)
         team_data_manager = Mock(spec=TeamDataManager)
 
         single_player = FantasyPlayer(id=1, name="Solo QB", team="KC", position="QB")
@@ -769,6 +783,9 @@ class TestStarterHelperEdgeCases:
 
         player_manager = Mock(spec=PlayerManager)
         player_manager.team = Mock()
+        player_manager.scoring_calculator = Mock()
+        player_manager.scoring_calculator.max_weekly_projection = 0.0
+        player_manager.calculate_max_weekly_projection = Mock(return_value=30.0)
         team_data_manager = Mock(spec=TeamDataManager)
 
         # Create 15-player roster

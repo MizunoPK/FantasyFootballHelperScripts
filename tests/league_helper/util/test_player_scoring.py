@@ -259,11 +259,14 @@ class TestWeeklyProjection:
     def test_get_weekly_projection_valid_week(self, scoring_calculator, test_player):
         """Test getting weekly projection for a valid week"""
         test_player.week_6_points = 25.0
+        # Set max weekly projection for week 6 (weekly normalization uses this, not ROS max)
+        scoring_calculator.max_weekly_projection = 30.0
 
         orig_pts, weighted_pts = scoring_calculator.get_weekly_projection(test_player, week=6)
 
         assert orig_pts == 25.0
-        expected_weighted = (25.0 / 250.0) * 100.0
+        # Weekly normalization: (25.0 / 30.0) * 100.0 = 83.33...
+        expected_weighted = (25.0 / 30.0) * 100.0
         assert abs(weighted_pts - expected_weighted) < 0.01
 
     def test_get_weekly_projection_uses_current_week_when_zero(self, scoring_calculator, test_player):
@@ -650,6 +653,8 @@ class TestScoringIntegration:
     def test_score_player_with_weekly_projection(self, scoring_calculator, test_player):
         """Test scoring with use_weekly_projection=True"""
         test_player.week_6_points = 25.0
+        # Set max weekly projection for week 6 (weekly normalization uses this, not ROS max)
+        scoring_calculator.max_weekly_projection = 30.0
 
         result = scoring_calculator.score_player(
             test_player,
@@ -666,8 +671,8 @@ class TestScoringIntegration:
             injury=False
         )
 
-        # (25/250) * 100 = 10
-        expected = (25.0 / 250.0) * 100.0
+        # Weekly normalization: (25/30) * 100 = 83.33...
+        expected = (25.0 / 30.0) * 100.0
         assert abs(result.score - expected) < 0.01
 
     def test_score_player_returns_scored_player_object(self, scoring_calculator, test_player):

@@ -1137,6 +1137,39 @@ class ESPNClient(BaseAPIClient):
     # PLAYER RATING HELPER FUNCTIONS
     # ============================================================================
 
+    def _has_consensus_ranking(self, rankings_list: List[Dict], position: str) -> bool:
+        """
+        Check if a rankings list has a valid consensus ranking entry.
+
+        Consensus rankings have:
+        - rankSourceId == 0 (ESPN's aggregated consensus)
+        - rankType == 'PPR'
+        - slotId matching the player's position
+        - averageRank field present
+
+        Args:
+            rankings_list: List of ranking entries from ESPN API
+            position: Player position (QB, RB, WR, TE, K, DST)
+
+        Returns:
+            True if valid consensus ranking exists, False otherwise
+        """
+        if not rankings_list:
+            return False
+
+        expected_slot_id = self._position_to_slot_id(position)
+        if expected_slot_id == -1:
+            return False
+
+        for ranking in rankings_list:
+            if (ranking.get('rankSourceId') == 0 and
+                ranking.get('rankType') == 'PPR' and
+                ranking.get('slotId') == expected_slot_id and
+                'averageRank' in ranking):
+                return True
+
+        return False
+
     def _position_to_slot_id(self, position: str) -> int:
         """
         Map position string to ESPN slotId for rankings validation.
@@ -1325,28 +1358,46 @@ class ESPNClient(BaseAPIClient):
                     # Week 2+: Use current week's ROS consensus rankings
                     ranking_key = '0' if CURRENT_NFL_WEEK == 1 else str(CURRENT_NFL_WEEK)
                     rankings_ros = player_info.get('rankings', {}).get(ranking_key, [])
+                    all_rankings = player_info.get('rankings', {})
 
-                    if not rankings_ros:
-                        # Fallback to most recent available week
-                        all_rankings = player_info.get('rankings', {})
+                    # Check if current week has valid consensus ranking
+                    has_consensus = self._has_consensus_ranking(rankings_ros, position)
+
+                    if not rankings_ros or not has_consensus:
+                        # Fallback: Find the most recent week with valid consensus rankings
                         for fallback_week in range(CURRENT_NFL_WEEK - 1, 0, -1):
                             fallback_key = str(fallback_week)
                             if fallback_key in all_rankings and all_rankings[fallback_key]:
-                                rankings_ros = all_rankings[fallback_key]
-                                break
+                                fallback_rankings = all_rankings[fallback_key]
+                                if self._has_consensus_ranking(fallback_rankings, position):
+                                    rankings_ros = fallback_rankings
+                                    break
 
-                        if not rankings_ros and '0' in all_rankings:
+                        if (not rankings_ros or not self._has_consensus_ranking(rankings_ros, position)) and '0' in all_rankings:
                             rankings_ros = all_rankings['0']
 
                     if rankings_ros:
                         expected_slot_id = self._position_to_slot_id(position)
+
+                        # First pass: Look for consensus rankings (rankSourceId=0) with averageRank
                         for ranking_entry in rankings_ros:
-                            if ranking_entry.get('rankType') == 'PPR':
+                            if (ranking_entry.get('rankType') == 'PPR' and
+                                ranking_entry.get('rankSourceId') == 0):
                                 actual_slot_id = ranking_entry.get('slotId')
                                 if actual_slot_id == expected_slot_id:
                                     if 'averageRank' in ranking_entry:
                                         positional_rank = ranking_entry['averageRank']
                                         break
+
+                        # Second pass: If no consensus found, try any PPR entry with averageRank
+                        if positional_rank is None:
+                            for ranking_entry in rankings_ros:
+                                if ranking_entry.get('rankType') == 'PPR':
+                                    actual_slot_id = ranking_entry.get('slotId')
+                                    if actual_slot_id == expected_slot_id:
+                                        if 'averageRank' in ranking_entry:
+                                            positional_rank = ranking_entry['averageRank']
+                                            break
 
                 # Track min/max for this position if we have a valid rank
                 if positional_rank is not None:
@@ -1502,45 +1553,74 @@ class ESPNClient(BaseAPIClient):
 
                     ranking_key = '0' if CURRENT_NFL_WEEK == 1 else str(CURRENT_NFL_WEEK)
                     rankings_ros = player_info.get('rankings', {}).get(ranking_key, [])
+                    all_rankings = player_info.get('rankings', {})
 
-                    if not rankings_ros:
-                        # Fallback: Find the most recent available week (working backwards from current week)
-                        all_rankings = player_info.get('rankings', {})
+                    # Check if current week has valid consensus ranking (rankSourceId=0 with averageRank)
+                    has_consensus = self._has_consensus_ranking(rankings_ros, position)
+
+                    if not rankings_ros or not has_consensus:
+                        # Fallback: Find the most recent week with valid consensus rankings
+                        # (working backwards from current week)
 
                         # Try weeks in descending order from current week down to week 1
                         for fallback_week in range(CURRENT_NFL_WEEK - 1, 0, -1):
                             fallback_key = str(fallback_week)
                             if fallback_key in all_rankings and all_rankings[fallback_key]:
-                                rankings_ros = all_rankings[fallback_key]
-                                self.logger.debug(
-                                    f"No rankings['{ranking_key}'] for {name}, using rankings['{fallback_key}'] (most recent available)"
-                                )
-                                break
+                                fallback_rankings = all_rankings[fallback_key]
+                                # Check if this week has valid consensus ranking
+                                if self._has_consensus_ranking(fallback_rankings, position):
+                                    rankings_ros = fallback_rankings
+                                    self.logger.debug(
+                                        f"No valid consensus rankings['{ranking_key}'] for {name}, using rankings['{fallback_key}'] (most recent with consensus)"
+                                    )
+                                    break
 
-                        # Final fallback to rankings['0'] if no weekly data exists
-                        if not rankings_ros and '0' in all_rankings:
+                        # Final fallback to rankings['0'] if no weekly data with consensus exists
+                        if (not rankings_ros or not self._has_consensus_ranking(rankings_ros, position)) and '0' in all_rankings:
                             rankings_ros = all_rankings['0']
                             self.logger.debug(
-                                f"No weekly rankings for {name}, using rankings['0'] (pre-season)"
+                                f"No weekly consensus rankings for {name}, using rankings['0'] (pre-season)"
                             )
 
                     if rankings_ros:
                         # Look for PPR rankType with averageRank field
+                        # PRIORITY: rankSourceId=0 (consensus rankings) which always have averageRank
                         expected_slot_id = self._position_to_slot_id(position)
 
+                        # First pass: Look for consensus rankings (rankSourceId=0) with averageRank
                         for ranking_entry in rankings_ros:
-                            if ranking_entry.get('rankType') == 'PPR':
+                            if (ranking_entry.get('rankType') == 'PPR' and
+                                ranking_entry.get('rankSourceId') == 0):
                                 actual_slot_id = ranking_entry.get('slotId')
 
                                 # Validate slotId matches position
                                 if actual_slot_id == expected_slot_id:
                                     if 'averageRank' in ranking_entry:
                                         positional_rank = ranking_entry['averageRank']
+                                        self.logger.debug(
+                                            f"Found consensus ranking for {name}: {positional_rank}"
+                                        )
                                         break
-                                elif actual_slot_id is not None and expected_slot_id != -1:
-                                    self.logger.warning(
-                                        f"slotId mismatch for {name}: expected {expected_slot_id}, got {actual_slot_id}, skipping"
-                                    )
+
+                        # Second pass: If no consensus found, try any PPR entry with averageRank
+                        # (This preserves backward compatibility)
+                        if positional_rank is None:
+                            for ranking_entry in rankings_ros:
+                                if ranking_entry.get('rankType') == 'PPR':
+                                    actual_slot_id = ranking_entry.get('slotId')
+
+                                    # Validate slotId matches position
+                                    if actual_slot_id == expected_slot_id:
+                                        if 'averageRank' in ranking_entry:
+                                            positional_rank = ranking_entry['averageRank']
+                                            self.logger.debug(
+                                                f"Found non-consensus ranking for {name}: {positional_rank}"
+                                            )
+                                            break
+                                    elif actual_slot_id is not None and expected_slot_id != -1:
+                                        self.logger.debug(
+                                            f"slotId mismatch for {name}: expected {expected_slot_id}, got {actual_slot_id}, skipping"
+                                        )
 
                 # Store positional rank for post-processing normalization
                 # Player ratings will be normalized in post-processing pass after all players collected

@@ -145,21 +145,31 @@ def get_weekly_projection(self, player: FantasyPlayer, week=0) -> Tuple[float, f
 ### Step 3: Calculate Normalized Score
 
 **Method**: `PlayerScoringCalculator.weight_projection()`
-**File**: `league_helper/util/player_scoring.py:134-144`
+**File**: `league_helper/util/player_scoring.py:136-168`
 
 ```python
-def weight_projection(self, pts: float) -> float:
+def weight_projection(self, pts: float, use_weekly_max: bool = False) -> float:
     """
     Calculate weighted projection using normalization scale.
 
     Args:
-        pts: Raw fantasy points
+        pts (float): Raw fantasy points
+        use_weekly_max (bool): If True, use max_weekly_projection for normalization.
+                               If False, use max_projection (ROS). Default: False.
 
     Returns:
         float: Weighted projection (0-N scale)
     """
-    return (pts / self.max_projection) * self.config.normalization_max_scale
+    chosen_max = self.max_weekly_projection if use_weekly_max else self.max_projection
+
+    if chosen_max == 0:
+        # Safety check for data quality issues
+        return 0.0
+
+    return (pts / chosen_max) * self.config.normalization_max_scale
 ```
+
+The `max_weekly_projection` is calculated on-demand and cached in `PlayerManager.max_weekly_projections` dict. Starter Helper mode sets this before scoring players each week.
 
 **Complete Flow**:
 ```
@@ -173,6 +183,14 @@ weight_projection(180.0) → (180.0 / 380.0) * 105.01 = 49.74
     ↓
 Return (raw=180.0, normalized=49.74)
 ```
+
+---
+
+## Single-Week vs ROS Normalization
+
+League Helper uses different normalization denominators depending on the scoring mode. **Starter Helper mode** (weekly lineup optimization) normalizes against the maximum single-week projection for that specific week, ensuring weekly scores use the full 0-N scale. **Draft Helper and Trade Simulator modes** normalize against the maximum rest-of-season (ROS) projection across all players.
+
+**Example**: If the top weekly projection for Week 10 is 30 points and the top ROS projection is 400 points, a player with 25 weekly points would score `(25/30) * 100 = 83.3` in Starter Helper mode vs `(25/400) * 100 = 6.25` in Draft Helper mode. This allows weekly scores to be more differentiated and comparable within the week while preserving season-long value assessment for draft/trade decisions.
 
 ---
 

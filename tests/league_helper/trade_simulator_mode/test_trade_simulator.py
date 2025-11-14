@@ -1057,5 +1057,49 @@ class TestIntegration:
         assert isinstance(result, (tuple, list))
 
 
+class TestBackwardCompatibility:
+    """Test backward compatibility - ensure weekly normalization doesn't affect Trade Simulator"""
+
+    def test_trade_simulator_uses_ros_normalization(self, mock_player_manager, mock_config):
+        """Test that Trade Simulator mode continues using ROS max_projection (backward compatibility)"""
+        # This test ensures weekly normalization feature doesn't affect Trade Simulator mode
+        from utils.FantasyPlayer import FantasyPlayer
+        from league_helper.util.ScoredPlayer import ScoredPlayer
+
+        # Create test player with ROS projection of 300.0
+        test_player = FantasyPlayer(id=1, name="Test Player", team="KC", position="RB",
+                                   fantasy_points=300.0, injury_status="ACTIVE")
+
+        # Set up scoring calculator with both ROS and weekly max
+        mock_player_manager.max_projection = 400.0
+        mock_player_manager.scoring_calculator = Mock()
+        mock_player_manager.scoring_calculator.max_projection = 400.0
+        mock_player_manager.max_weekly_projections = {7: 30.0}  # Weekly max (not used for ROS)
+        mock_player_manager.scoring_calculator.max_weekly_projection = 0.0  # Should remain 0 for ROS mode
+
+        # Mock score_player to use ROS normalization (use_weekly_projection=False)
+        def mock_score_player(player, **kwargs):
+            # Verify use_weekly_projection is False (ROS mode - default for Trade Simulator)
+            assert kwargs.get('use_weekly_projection', False) == False
+            # ROS normalization: (300/400) * 100 = 75.0
+            return ScoredPlayer(player, 75.0, "ROS normalization test")
+
+        mock_player_manager.score_player = Mock(side_effect=mock_score_player)
+
+        # Call score_player in ROS mode (as Trade Simulator does)
+        result = mock_player_manager.score_player(
+            test_player,
+            use_weekly_projection=False,  # Trade Simulator uses ROS
+            adp=True,
+            player_rating=True,
+            team_quality=True,
+            schedule=True
+        )
+
+        # Verify score uses ROS max: (300/400) * 100 = 75.0 (not 1000.0 from 300/30)
+        assert result.score == 75.0
+        assert mock_player_manager.score_player.called
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

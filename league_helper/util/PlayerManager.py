@@ -126,6 +126,7 @@ class PlayerManager:
         self.team: FantasyTeam
         self.players: List[FantasyPlayer] = []
         self.max_projection : int = 0
+        self.max_weekly_projections: Dict[int, float] = {}  # Cache for weekly max projections
 
         self.load_players_from_csv()
         self.load_team()
@@ -141,6 +142,7 @@ class PlayerManager:
         """
         players: list[FantasyPlayer] = []
         self.max_projection = 0.0
+        self.max_weekly_projections = {}  # Clear weekly projection cache on reload
 
         # Define required columns for basic player data
         # These are the minimum fields needed to create a valid FantasyPlayer
@@ -301,7 +303,37 @@ class PlayerManager:
         self.logger.debug(f"Loaded {len(players)} players from {self.file_str}.")
 
         self.players = players
-    
+
+    def calculate_max_weekly_projection(self, week_num: int) -> float:
+        """
+        Calculate the maximum weekly projection for a given week across all players.
+
+        Uses caching to avoid recalculating the same week multiple times.
+        This is used for normalizing weekly projections in Starter Helper mode.
+
+        Args:
+            week_num (int): NFL week number (1-17)
+
+        Returns:
+            float: Maximum weekly projection for the given week (0.0 if no valid projections)
+        """
+        # Check cache first
+        if week_num in self.max_weekly_projections:
+            self.logger.debug(f"Week {week_num} max projection (cached): {self.max_weekly_projections[week_num]:.2f} pts")
+            return self.max_weekly_projections[week_num]
+
+        # Calculate max weekly projection by iterating through all players
+        max_weekly = 0.0
+        for player in self.players:
+            weekly_points = player.get_single_weekly_projection(week_num)
+            if weekly_points is not None and weekly_points > max_weekly:
+                max_weekly = float(weekly_points)
+
+        # Cache the result for future calls
+        self.max_weekly_projections[week_num] = max_weekly
+
+        self.logger.debug(f"Week {week_num} max projection (calculated): {max_weekly:.2f} pts")
+        return max_weekly
 
     def load_team(self) -> None:
         """

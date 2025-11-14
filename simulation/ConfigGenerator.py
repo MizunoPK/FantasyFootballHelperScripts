@@ -72,7 +72,7 @@ class ConfigGenerator:
         'PERFORMANCE_SCORING_WEIGHT': (0.0, 3.0),
         'PERFORMANCE_SCORING_STEPS': (0.05, 0.4),
         # Matchup Scoring (additive)
-        'MATCHUP_IMPACT_SCALE': (50.0, 200.0),
+        'MATCHUP_IMPACT_SCALE': (50.0, 250.0),
         'MATCHUP_SCORING_WEIGHT': (0.0, 3.0),
         'MATCHUP_SCORING_STEPS': (1.0, 10.0),
         # Schedule Scoring (additive)
