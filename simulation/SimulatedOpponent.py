@@ -259,6 +259,10 @@ class SimulatedOpponent:
         max_weekly = self.projected_pm.calculate_max_weekly_projection(week)
         self.projected_pm.scoring_calculator.max_weekly_projection = max_weekly
 
+        # Also set for actual_pm (used to get actual points scored)
+        max_weekly_actual = self.actual_pm.calculate_max_weekly_projection(week)
+        self.actual_pm.scoring_calculator.max_weekly_projection = max_weekly_actual
+
         # Get roster players grouped by position
         qbs = [p for p in self.roster if p.position == 'QB']
         rbs = [p for p in self.roster if p.position == 'RB']
