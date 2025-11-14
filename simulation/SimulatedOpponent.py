@@ -255,6 +255,10 @@ class SimulatedOpponent:
             Uses same position counts as StarterHelper:
             1 QB, 2 RB, 2 WR, 1 TE, 1 FLEX (RB/WR/TE), 1 K, 1 DST
         """
+        # Calculate and set max weekly projection for this week's normalization
+        max_weekly = self.projected_pm.calculate_max_weekly_projection(week)
+        self.projected_pm.scoring_calculator.max_weekly_projection = max_weekly
+
         # Get roster players grouped by position
         qbs = [p for p in self.roster if p.position == 'QB']
         rbs = [p for p in self.roster if p.position == 'RB']

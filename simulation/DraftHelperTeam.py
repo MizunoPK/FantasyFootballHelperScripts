@@ -187,6 +187,10 @@ class DraftHelperTeam:
         # Get optimal lineup based on projections
         lineup = self.starter_helper_mgr.optimize_lineup()
 
+        # Calculate and set max weekly projection for actual_pm (used to get actual points)
+        max_weekly_actual = self.actual_pm.calculate_max_weekly_projection(week)
+        self.actual_pm.scoring_calculator.max_weekly_projection = max_weekly_actual
+
         # Calculate actual points scored
         total_actual_points = 0.0
 
