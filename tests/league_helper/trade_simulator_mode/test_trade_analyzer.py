@@ -225,6 +225,140 @@ class TestValidateRoster:
             assert result is False
 
 
+class TestCountMinPositionViolations:
+    """Test count_min_position_violations method"""
+
+    def test_count_violations_roster_meets_all_minimums(self, analyzer, sample_players):
+        """Test roster that meets all minimum requirements returns 0 violations"""
+        roster = [
+            sample_players['qb1'],  # 1 QB (MIN = 1)
+            sample_players['rb1'], sample_players['rb2'], sample_players['rb1'],  # 3 RBs (MIN = 3)
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],  # 3 WRs (MIN = 3)
+            sample_players['te1'],  # 1 TE (MIN = 1)
+            sample_players['k1'],   # 1 K (MIN = 1)
+            sample_players['dst1']  # 1 DST (MIN = 1)
+        ]
+        result = analyzer.count_min_position_violations(roster)
+        assert result == 0
+
+    def test_count_violations_one_position_below_minimum(self, analyzer, sample_players):
+        """Test roster below minimum for one position returns 1 violation"""
+        roster = [
+            # Missing QB (0 QBs, MIN = 1)
+            sample_players['rb1'], sample_players['rb2'], sample_players['rb1'],  # 3 RBs
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],  # 3 WRs
+            sample_players['te1'],
+            sample_players['k1'],
+            sample_players['dst1']
+        ]
+        result = analyzer.count_min_position_violations(roster)
+        assert result == 1
+
+    def test_count_violations_multiple_positions_below_minimum(self, analyzer, sample_players):
+        """Test roster below minimum for multiple positions returns correct count"""
+        roster = [
+            # Missing QB (0 QBs, MIN = 1)
+            sample_players['rb1'],  # Only 1 RB (MIN = 3)
+            sample_players['wr1'],  # Only 1 WR (MIN = 3)
+            sample_players['te1'],
+            sample_players['k1'],
+            sample_players['dst1']
+        ]
+        result = analyzer.count_min_position_violations(roster)
+        assert result == 3  # QB, RB, WR all below minimum
+
+    def test_count_violations_at_exactly_minimum(self, analyzer, sample_players):
+        """Test roster at exactly minimum returns 0 violations"""
+        roster = [
+            sample_players['qb1'],  # 1 QB (exactly MIN)
+            sample_players['rb1'], sample_players['rb2'], sample_players['rb1'],  # 3 RBs (exactly MIN)
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],  # 3 WRs (exactly MIN)
+            sample_players['te1'],  # 1 TE (exactly MIN)
+            sample_players['k1'],   # 1 K (exactly MIN)
+            sample_players['dst1']  # 1 DST (exactly MIN)
+        ]
+        result = analyzer.count_min_position_violations(roster)
+        assert result == 0
+
+    def test_count_violations_empty_roster(self, analyzer):
+        """Test empty roster returns violations for all positions"""
+        roster = []
+        result = analyzer.count_min_position_violations(roster)
+        assert result == 6  # All 6 positions (QB, RB, WR, TE, K, DST) below minimum
+
+
+class TestValidateMinPositionsLenient:
+    """Test validate_min_positions_lenient method"""
+
+    def test_validate_trade_maintains_minimums(self, analyzer, sample_players):
+        """Test trade that maintains minimum requirements returns True"""
+        original = [
+            sample_players['qb1'],
+            sample_players['rb1'], sample_players['rb2'], sample_players['rb1'],
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],
+            sample_players['te1'], sample_players['k1'], sample_players['dst1']
+        ]
+        new = [
+            sample_players['qb1'],  # Still have 1 QB
+            sample_players['rb1'], sample_players['rb2'], sample_players['rb1'],  # Still have 3 RBs
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],  # Still have 3 WRs
+            sample_players['te1'], sample_players['k1'], sample_players['dst1']
+        ]
+        result = analyzer.validate_min_positions_lenient(original, new)
+        assert result is True
+
+    def test_validate_trade_worsens_violations_returns_false(self, analyzer, sample_players):
+        """Test trade that worsens violations returns False"""
+        original = [
+            sample_players['qb1'],  # Has QB
+            sample_players['rb1'], sample_players['rb2'],  # 2 RBs (1 violation - short 1 RB)
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],
+            sample_players['te1'], sample_players['k1'], sample_players['dst1']
+        ]
+        new = [
+            # Missing QB now (1 violation)
+            sample_players['rb1'], sample_players['rb2'],  # Still 2 RBs (1 violation)
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],
+            sample_players['te1'], sample_players['k1'], sample_players['dst1']
+        ]
+        result = analyzer.validate_min_positions_lenient(original, new)
+        assert result is False  # Violations increased from 1 (RB) to 2 (QB + RB)
+
+    def test_validate_trade_keeps_same_violations_returns_true(self, analyzer, sample_players):
+        """Test trade that keeps same violations returns True (lenient)"""
+        original = [
+            sample_players['qb1'],
+            sample_players['rb1'], sample_players['rb2'],  # 2 RBs (1 violation - short 1 RB)
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],
+            sample_players['te1'], sample_players['k1'], sample_players['dst1']
+        ]
+        new = [
+            sample_players['qb1'],
+            sample_players['rb1'], sample_players['rb2'],  # Still 2 RBs (still 1 violation)
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],
+            sample_players['te1'], sample_players['k1'], sample_players['dst1']
+        ]
+        result = analyzer.validate_min_positions_lenient(original, new)
+        assert result is True  # Same violations allowed
+
+    def test_validate_trade_improves_violations_returns_true(self, analyzer, sample_players):
+        """Test trade that improves violations returns True"""
+        original = [
+            sample_players['qb1'],
+            sample_players['rb1'], sample_players['rb2'],  # 2 RBs (1 violation)
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],
+            sample_players['te1'], sample_players['k1'], sample_players['dst1']
+        ]
+        new = [
+            sample_players['qb1'],
+            sample_players['rb1'], sample_players['rb2'], sample_players['rb1'],  # 3 RBs (0 violations)
+            sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],
+            sample_players['te1'], sample_players['k1'], sample_players['dst1']
+        ]
+        result = analyzer.validate_min_positions_lenient(original, new)
+        assert result is True  # Improved violations
+
+
 class TestGetTradeCombinations:
     """Test get_trade_combinations method"""
 

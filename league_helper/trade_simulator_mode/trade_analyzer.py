@@ -53,6 +53,16 @@ class TradeAnalyzer:
         self.config = config
         self.logger = get_logger()
 
+        # Validate MIN_POSITIONS vs MAX_POSITIONS compatibility
+        for pos in Constants.MIN_POSITIONS.keys():
+            min_val = Constants.MIN_POSITIONS[pos]
+            max_val = self.config.max_positions.get(pos, 0)
+            if min_val > max_val:
+                self.logger.warning(
+                    f"Configuration warning: MIN_POSITIONS[{pos}]={min_val} "
+                    f"exceeds MAX_POSITIONS[{pos}]={max_val}"
+                )
+
     def count_positions(self, roster: List[FantasyPlayer]) -> Dict[str, int]:
         """
         Count the number of players at each position in a roster.
@@ -170,6 +180,50 @@ class TradeAnalyzer:
 
         return violations
 
+    def count_min_position_violations(self, roster: List[FantasyPlayer]) -> int:
+        """
+        Count the number of minimum position requirement violations in a roster.
+
+        A violation occurs when a roster has fewer players at a position than
+        the minimum required by Constants.MIN_POSITIONS.
+
+        Args:
+            roster (List[FantasyPlayer]): The roster to check
+
+        Returns:
+            int: Number of positions below minimum (0 = no violations)
+
+        Example:
+            >>> roster_with_1_QB = [qb1, rb1, rb2, wr1, wr2, wr3, te1, k1, dst1]
+            >>> count_min_position_violations(roster_with_1_QB)
+            0  # Has 1 QB (meets MIN of 1)
+
+            >>> roster_with_0_QB = [rb1, rb2, wr1, wr2, wr3, te1, k1, dst1]
+            >>> count_min_position_violations(roster_with_0_QB)
+            1  # Missing QB (below MIN of 1)
+        """
+        # Count current positions in roster (includes FLEX assignments)
+        position_counts = self.count_positions(roster)
+
+        # Count violations (positions below minimum)
+        violations = 0
+        violation_details = []
+
+        for position, min_required in Constants.MIN_POSITIONS.items():
+            current_count = position_counts.get(position, 0)
+            if current_count < min_required:
+                violations += 1
+                shortage = min_required - current_count
+                violation_details.append(f"{position}: {current_count}/{min_required} (short {shortage})")
+
+        if violations > 0:
+            self.logger.debug(
+                f"Min position violations: {violations} positions below minimum - "
+                f"{', '.join(violation_details)}"
+            )
+
+        return violations
+
     def validate_roster_lenient(self, original_roster: List[FantasyPlayer], new_roster: List[FantasyPlayer]) -> bool:
         """
         Validate that a new roster doesn't worsen position violations.
@@ -207,6 +261,53 @@ class TradeAnalyzer:
         # (violations_after <= violations_before)
         result = violations_after <= violations_before
         self.logger.debug(f"Validation result: {result} (violations_after <= violations_before)")
+        return result
+
+    def validate_min_positions_lenient(
+        self,
+        original_roster: List[FantasyPlayer],
+        new_roster: List[FantasyPlayer]
+    ) -> bool:
+        """
+        Validate that a new roster doesn't worsen minimum position violations.
+
+        This lenient validation allows trades even if a team already violates
+        minimum position requirements, as long as the trade doesn't make the
+        violations worse.
+
+        Args:
+            original_roster (List[FantasyPlayer]): The roster before the trade
+            new_roster (List[FantasyPlayer]): The roster after the trade
+
+        Returns:
+            bool: True if trade is acceptable (violations don't increase), False otherwise
+
+        Example:
+            Team has 2 RBs (below MIN of 3) = 1 violation
+            Trade gives them QB for WR (still 2 RBs) = 1 violation
+            Result: True (violations stayed same)
+
+            Trade gives them another QB for RB (now 1 RB) = 2 violations
+            Result: False (violations got worse)
+        """
+        # Count violations before and after trade
+        violations_before = self.count_min_position_violations(original_roster)
+        violations_after = self.count_min_position_violations(new_roster)
+
+        # DEBUG: Log violation counts
+        self.logger.debug(
+            f"Min position violations - before: {violations_before}, after: {violations_after}"
+        )
+
+        # Allow trade if violations don't increase
+        result = violations_after <= violations_before
+
+        if not result:
+            self.logger.debug(
+                f"Min position validation failed: trade would worsen violations "
+                f"({violations_before} → {violations_after})"
+            )
+
         return result
 
     def _get_waiver_recommendations(self, num_spots: int, post_trade_roster: List[FantasyPlayer] = None) -> List[ScoredPlayer]:
@@ -718,6 +819,12 @@ class TradeAnalyzer:
                         # Trade would violate position limits or roster size - skip this combination
                         continue
 
+                    # STEP 2.5: Validate minimum positions (Waiver Optimizer + Trade Suggestor modes)
+                    if not ignore_max_positions:
+                        if not self.validate_min_positions_lenient(my_original_full_roster, my_full_roster):
+                            self.logger.debug("Trade rejected: would worsen minimum position violations")
+                            continue
+
                     # STEP 3: Create their full roster and validate (only validate if not waiver mode)
                     # Waiver wire doesn't have position limits, so skip validation
                     # For regular trades, ensure their roster remains valid too
@@ -788,6 +895,12 @@ class TradeAnalyzer:
                     if not validate_trade_roster(my_original_full_roster, my_full_roster):
                         continue
 
+                    # Validate minimum positions (Waiver Optimizer + Trade Suggestor modes)
+                    if not ignore_max_positions:
+                        if not self.validate_min_positions_lenient(my_original_full_roster, my_full_roster):
+                            self.logger.debug("Trade rejected: would worsen minimum position violations")
+                            continue
+
                     # Create their full roster and validate (only validate if not waiver mode)
                     their_full_roster = their_new_roster + their_locked
                     if not is_waivers:
@@ -843,6 +956,12 @@ class TradeAnalyzer:
                     my_full_roster = my_new_roster + my_locked
                     if not validate_trade_roster(my_original_full_roster, my_full_roster):
                         continue
+
+                    # Validate minimum positions (Waiver Optimizer + Trade Suggestor modes)
+                    if not ignore_max_positions:
+                        if not self.validate_min_positions_lenient(my_original_full_roster, my_full_roster):
+                            self.logger.debug("Trade rejected: would worsen minimum position violations")
+                            continue
 
                     # Create their full roster and validate (only validate if not waiver mode)
                     their_full_roster = their_new_roster + their_locked
@@ -904,6 +1023,12 @@ class TradeAnalyzer:
                     my_full_roster = my_new_roster_with_waivers + my_locked
                     if not validate_trade_roster(my_original_full_roster, my_full_roster):
                         continue
+
+                    # Validate minimum positions (Waiver Optimizer + Trade Suggestor modes)
+                    if not ignore_max_positions:
+                        if not self.validate_min_positions_lenient(my_original_full_roster, my_full_roster):
+                            self.logger.debug("Trade rejected: would worsen minimum position violations")
+                            continue
 
                     # Validate their team's roster (only if not waivers)
                     if not is_waivers:
@@ -1008,6 +1133,12 @@ class TradeAnalyzer:
                     # Validate my team's roster using lenient validation (allows existing violations)
                     my_full_roster = my_new_roster_with_waivers + my_locked
                     my_roster_valid = validate_trade_roster(my_original_full_roster, my_full_roster)
+
+                    # Validate minimum positions (Waiver Optimizer + Trade Suggestor modes)
+                    if my_roster_valid and not ignore_max_positions:
+                        my_roster_valid = self.validate_min_positions_lenient(my_original_full_roster, my_full_roster)
+                        if not my_roster_valid:
+                            self.logger.debug("Trade rejected: would worsen minimum position violations")
 
                     # If my validation fails, try drop variations
                     if not my_roster_valid:

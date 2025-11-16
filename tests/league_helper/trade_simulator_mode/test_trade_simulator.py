@@ -579,7 +579,7 @@ class TestWaiverOptimizer:
                 assert isinstance(result[0], bool)
                 assert isinstance(result[1], list)
 
-    def test_waiver_optimizer_handles_no_waiver_players(self, temp_data_folder, mock_player_manager):
+    def test_waiver_optimizer_handles_no_waiver_players(self, temp_data_folder, mock_player_manager, mock_config):
         """Test waiver optimizer with no available players"""
         mock_player_manager.get_player_list = Mock(return_value=[])
 
@@ -640,7 +640,7 @@ class TestTradeSuggestor:
                     assert isinstance(result[0], bool)
                     assert isinstance(result[1], list)
 
-    def test_trade_suggestor_handles_no_opponents(self, temp_data_folder, mock_player_manager):
+    def test_trade_suggestor_handles_no_opponents(self, temp_data_folder, mock_player_manager, mock_config):
         """Test trade suggestor with no opponent teams"""
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
             manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)

@@ -38,6 +38,20 @@ RECOMMENDATION_COUNT = 10  # Number of player recommendations to display
 MIN_WAIVER_IMPROVEMENT = 0  # Minimum score improvement to suggest a trade
 NUM_TRADE_RUNNERS_UP = 9   # Number of alternative trade suggestions to show
 
+# Minimum position requirements for trade validation
+# Applies to Waiver Optimizer and Trade Suggestor modes
+# Ensures trades don't leave user's team below minimum thresholds
+# Note: Counts total players by position (including FLEX assignments)
+# Note: No FLEX entry - FLEX-eligible players counted toward natural position
+MIN_POSITIONS = {
+    "QB": 1,
+    "RB": 3,
+    "WR": 3,
+    "TE": 1,
+    "K": 1,
+    "DST": 1
+}
+
 # TRADE SUGGESTOR
 MIN_TRADE_IMPROVEMENT = 0
 VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Bo Him-ian Rhapsody", "Saquon Deez", "The Eskimo Brothers", "Pidgin"]

@@ -74,6 +74,41 @@ class TestWaiverOptimizerConstants:
         assert constants.NUM_TRADE_RUNNERS_UP > 0
 
 
+class TestMinPositionsConstant:
+    """Test suite for minimum position requirements."""
+
+    def test_min_positions_exists(self):
+        """Test that MIN_POSITIONS constant exists."""
+        assert hasattr(constants, 'MIN_POSITIONS')
+        assert isinstance(constants.MIN_POSITIONS, dict)
+
+    def test_min_positions_has_all_positions(self):
+        """Test that MIN_POSITIONS covers all standard positions except FLEX."""
+        required_positions = [constants.QB, constants.RB, constants.WR,
+                            constants.TE, constants.K, constants.DST]
+        for pos in required_positions:
+            assert pos in constants.MIN_POSITIONS
+
+    def test_min_positions_no_flex(self):
+        """Test that FLEX is not in MIN_POSITIONS."""
+        assert constants.FLEX not in constants.MIN_POSITIONS
+
+    def test_min_positions_are_positive_integers(self):
+        """Test that all minimum values are positive integers."""
+        for pos, min_val in constants.MIN_POSITIONS.items():
+            assert isinstance(min_val, int)
+            assert min_val > 0
+
+    def test_min_positions_values_are_reasonable(self):
+        """Test that minimum position values are reasonable."""
+        assert constants.MIN_POSITIONS[constants.QB] >= 1
+        assert constants.MIN_POSITIONS[constants.RB] >= 1
+        assert constants.MIN_POSITIONS[constants.WR] >= 1
+        assert constants.MIN_POSITIONS[constants.TE] >= 1
+        assert constants.MIN_POSITIONS[constants.K] >= 1
+        assert constants.MIN_POSITIONS[constants.DST] >= 1
+
+
 class TestPositionConstants:
     """Test suite for position constant definitions."""
 
