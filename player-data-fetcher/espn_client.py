@@ -771,8 +771,8 @@ class ESPNClient(BaseAPIClient):
                 25: 'SF', 26: 'SEA', 27: 'TB', 28: 'WSH', 29: 'CAR', 30: 'JAX', 33: 'BAL', 34: 'HOU'
             }
 
-            # Use the helper method to calculate rankings for the current season
-            return await self._calculate_team_rankings_for_season(NFL_SEASON, team_ids)
+            # Use rolling window to calculate rankings from recent weeks
+            return await self._calculate_rolling_window_rankings(CURRENT_NFL_WEEK, MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS)
 
         except Exception as e:
             # Handle case where variables might not be defined yet
@@ -797,7 +797,12 @@ class ESPNClient(BaseAPIClient):
     async def _calculate_team_rankings_for_season(self, season: int, team_ids: Dict[int, str]) -> Dict[str, Dict[str, int]]:
         """
         Helper method to calculate team rankings for a specific season.
-        Used for both current season and fallback scenarios.
+
+        DEPRECATED: This method uses cumulative season statistics from ESPN's team stats API.
+        It has been replaced by _calculate_rolling_window_rankings() which uses a rolling
+        window of recent game scores for more current team performance assessment.
+
+        Kept for potential historical analysis use cases.
         """
         team_stats = {}
         # Get all teams now that we have a working endpoint
@@ -863,6 +868,153 @@ class ESPNClient(BaseAPIClient):
             return team_rankings
         else:
             raise Exception(f"Insufficient team data for {season} season: only {len(team_stats)} teams")
+
+    async def _calculate_rolling_window_rankings(
+        self,
+        current_week: int,
+        min_weeks: int
+    ) -> Dict[str, Dict[str, int]]:
+        """
+        Calculate team rankings from rolling window of recent weeks.
+
+        Uses game scores from the most recent MIN_WEEKS previous weeks to calculate
+        offensive and defensive rankings. This provides more current team performance
+        compared to cumulative season statistics.
+
+        Rolling Window Example (MIN_WEEKS=4, current_week=10):
+        - Analyzes weeks 6, 7, 8, 9 (previous 4 weeks)
+        - Excludes current week (10) and earlier weeks (1-5)
+
+        Args:
+            current_week: Current NFL week (1-18)
+            min_weeks: Number of weeks to include in rolling window
+
+        Returns:
+            Dict[team, {'offensive_rank': int, 'defensive_rank': int}]
+            Rankings are 1-32 where 1 = best, 16 = neutral
+        """
+        from collections import defaultdict
+
+        # Step 1: Determine rolling window (PREVIOUS weeks only)
+        window_start = max(1, current_week - min_weeks)
+        window_weeks = list(range(window_start, current_week))
+
+        self.logger.info(
+            f"Calculating rolling {len(window_weeks)}-week rankings "
+            f"from weeks {window_start} to {current_week - 1}"
+        )
+
+        # Step 2: Fetch scoreboard data for each week in window
+        all_games = []
+        for week in window_weeks:
+            try:
+                week_games = await self._fetch_week_scores(week)
+                # Only use completed games
+                completed_games = [g for g in week_games if g['is_completed']]
+                all_games.extend(completed_games)
+                self.logger.debug(
+                    f"Week {week}: {len(completed_games)} completed games fetched"
+                )
+            except Exception as e:
+                self.logger.warning(f"Failed to fetch week {week} scores: {e}")
+                continue
+
+        if not all_games:
+            self.logger.error("No games fetched for rolling window, using neutral rankings")
+            return self._get_fallback_team_rankings()
+
+        # Step 3: Aggregate performance by team
+        team_offensive = defaultdict(lambda: {'points_scored': 0, 'games': 0})
+        team_defensive = defaultdict(lambda: {'points_allowed': 0, 'games': 0})
+
+        for game in all_games:
+            home_team = game['home_team']
+            away_team = game['away_team']
+            home_score = game['home_score']
+            away_score = game['away_score']
+
+            # Offensive stats: points scored
+            team_offensive[home_team]['points_scored'] += home_score
+            team_offensive[home_team]['games'] += 1
+            team_offensive[away_team]['points_scored'] += away_score
+            team_offensive[away_team]['games'] += 1
+
+            # Defensive stats: points allowed
+            team_defensive[home_team]['points_allowed'] += away_score
+            team_defensive[home_team]['games'] += 1
+            team_defensive[away_team]['points_allowed'] += home_score
+            team_defensive[away_team]['games'] += 1
+
+        # Step 4: Calculate per-game averages (handles bye weeks)
+        team_offensive_avg = {}
+        team_defensive_avg = {}
+
+        for team, stats in team_offensive.items():
+            if stats['games'] > 0:
+                avg = stats['points_scored'] / stats['games']
+                team_offensive_avg[team] = avg
+                self.logger.debug(
+                    f"{team} offense: {stats['points_scored']} pts in "
+                    f"{stats['games']} games = {avg:.1f} ppg"
+                )
+
+        for team, stats in team_defensive.items():
+            if stats['games'] > 0:
+                avg = stats['points_allowed'] / stats['games']
+                team_defensive_avg[team] = avg
+                self.logger.debug(
+                    f"{team} defense: {stats['points_allowed']} pts allowed in "
+                    f"{stats['games']} games = {avg:.1f} ppg allowed"
+                )
+
+        # Step 5: Rank teams (offensive: higher ppg = better, defensive: lower ppg allowed = better)
+        sorted_offensive = sorted(
+            team_offensive_avg.items(),
+            key=lambda x: x[1],
+            reverse=True  # Higher ppg = better
+        )
+        sorted_defensive = sorted(
+            team_defensive_avg.items(),
+            key=lambda x: x[1],
+            reverse=False  # Lower ppg allowed = better
+        )
+
+        # Step 6: Assign ranks
+        team_rankings = {}
+
+        for rank, (team, avg) in enumerate(sorted_offensive, 1):
+            team_rankings[team] = {'offensive_rank': rank}
+            self.logger.debug(f"{team}: offensive_rank={rank} ({avg:.1f} ppg)")
+
+        for rank, (team, avg) in enumerate(sorted_defensive, 1):
+            if team in team_rankings:
+                team_rankings[team]['defensive_rank'] = rank
+            else:
+                team_rankings[team] = {'defensive_rank': rank}
+            self.logger.debug(f"{team}: defensive_rank={rank} ({avg:.1f} ppg allowed)")
+
+        # Step 7: Fill in neutral ranks for teams with no data
+        all_nfl_teams = [
+            'KC', 'NE', 'LAC', 'LAR', 'SF', 'DAL', 'PHI', 'NYG', 'WSH', 'CHI',
+            'GB', 'MIN', 'DET', 'ATL', 'CAR', 'NO', 'TB', 'SEA', 'ARI', 'BAL',
+            'PIT', 'CLE', 'CIN', 'BUF', 'MIA', 'NYJ', 'TEN', 'IND', 'HOU', 'JAX',
+            'LV', 'DEN'
+        ]
+
+        for team in all_nfl_teams:
+            if team not in team_rankings:
+                team_rankings[team] = {'offensive_rank': 16, 'defensive_rank': 16}
+            elif 'offensive_rank' not in team_rankings[team]:
+                team_rankings[team]['offensive_rank'] = 16
+            elif 'defensive_rank' not in team_rankings[team]:
+                team_rankings[team]['defensive_rank'] = 16
+
+        self.logger.info(
+            f"Rolling window rankings complete: {len(all_games)} games analyzed, "
+            f"{len(team_rankings)} teams ranked"
+        )
+
+        return team_rankings
 
     def _extract_stat_value(self, stats, stat_name: str) -> float:
         """Extract a specific stat value from ESPN stats structure"""
@@ -1026,6 +1178,84 @@ class ESPNClient(BaseAPIClient):
             self.logger.error(f"Failed to fetch full season schedule: {e}")
             return {}
 
+    async def _fetch_week_scores(self, week: int) -> List[Dict]:
+        """
+        Fetch game scores for a specific week from ESPN scoreboard API.
+
+        Args:
+            week: NFL week number (1-18)
+
+        Returns:
+            List of game dictionaries with structure:
+            [
+                {
+                    'home_team': 'KC',
+                    'away_team': 'DEN',
+                    'home_score': 27,
+                    'away_score': 14,
+                    'is_completed': True
+                },
+                ...
+            ]
+        """
+        from config import NFL_SEASON
+
+        url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
+        params = {
+            "seasontype": 2,  # Regular season
+            "week": week,
+            "dates": NFL_SEASON
+        }
+
+        data = await self._make_request("GET", url, params=params)
+        games = []
+
+        for event in data.get('events', []):
+            competitions = event.get('competitions', [])
+            if not competitions:
+                continue
+
+            competition = competitions[0]
+            status = competition.get('status', {}).get('type', {})
+            is_completed = status.get('completed', False)
+
+            competitors = competition.get('competitors', [])
+            if len(competitors) != 2:
+                continue
+
+            # Parse home and away teams
+            home_data = None
+            away_data = None
+
+            for competitor in competitors:
+                if competitor.get('homeAway') == 'home':
+                    home_data = competitor
+                else:
+                    away_data = competitor
+
+            if not home_data or not away_data:
+                continue
+
+            # Extract team abbreviations and scores
+            home_abbrev = home_data.get('team', {}).get('abbreviation', '')
+            away_abbrev = away_data.get('team', {}).get('abbreviation', '')
+            home_score = int(home_data.get('score', 0))
+            away_score = int(away_data.get('score', 0))
+
+            # Handle WSH/WAS abbreviation mapping
+            home_abbrev = 'WSH' if home_abbrev == 'WAS' else home_abbrev
+            away_abbrev = 'WSH' if away_abbrev == 'WAS' else away_abbrev
+
+            games.append({
+                'home_team': home_abbrev,
+                'away_team': away_abbrev,
+                'home_score': home_score,
+                'away_score': away_score,
+                'is_completed': is_completed
+            })
+
+        return games
+
     def _calculate_position_defense_rankings(
         self,
         players: List[ESPNPlayerData],
@@ -1033,7 +1263,15 @@ class ESPNClient(BaseAPIClient):
         current_week: int
     ) -> Dict[str, Dict[str, int]]:
         """
-        Calculate position-specific defense rankings for all teams.
+        Calculate position-specific defense rankings for all teams using a rolling window.
+
+        Uses the most recent MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS weeks of data
+        to calculate how many points each defense has allowed to each position.
+
+        Rolling Window Example (MIN_WEEKS=4, current_week=10):
+        - Analyzes weeks 6, 7, 8, 9 (previous 4 weeks)
+        - Excludes current week (10) and earlier weeks (1-5)
+        - Ranks defenses based on points allowed to QB, RB, WR, TE, K
 
         Args:
             players: List of all players with weekly stats (from ESPN API)
@@ -1059,14 +1297,18 @@ class ESPNClient(BaseAPIClient):
             'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
         ]
 
+        # Calculate rolling window for position-specific rankings (consistent with overall rankings)
+        from config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+        window_start = max(1, current_week - MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS)
+
         # For each player, accumulate points scored against their opponents
         for player in players:
             # Only process offensive positions (QB, RB, WR, TE, K)
             if player.position not in ['QB', 'RB', 'WR', 'TE', 'K']:
                 continue
 
-            # Get all opponents this team has faced (weeks 1 to current_week-1)
-            for week in range(1, current_week):
+            # Get opponents faced in rolling window (previous MIN_WEEKS weeks)
+            for week in range(window_start, current_week):
                 # Get week's opponent for player's team
                 week_schedule = schedule.get(week, {})
                 opponent_defense = week_schedule.get(player.team)

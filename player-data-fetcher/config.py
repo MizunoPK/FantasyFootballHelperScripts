@@ -40,10 +40,11 @@ PLAYERS_CSV = '../data/players.csv'
 TEAMS_CSV = f'../data/teams.csv'  # Output path for team quality rankings
 
 # Team Rankings Configuration (FREQUENTLY MODIFIED)
-MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS = 3  # Minimum games played to use current season data
-# When CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS, use current season stats
+MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS = 4  # Rolling window size for team rankings
+# When CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS, use rolling window of recent weeks
 # Otherwise, fall back to neutral rankings
-# Example: If set to 5 and CURRENT_NFL_WEEK is 6+, uses 2025 data. If week 4 or less, uses neutral data.
+# Example: If set to 4 and CURRENT_NFL_WEEK is 5+, uses rolling 4-week window of previous weeks.
+# Week 5: uses weeks 1-4. Week 10: uses weeks 6-9 (rolling window).
 # Neutral data is having all ranks set to 16
 
 # Historical Data Auto-Save Configuration (FREQUENTLY MODIFIED)

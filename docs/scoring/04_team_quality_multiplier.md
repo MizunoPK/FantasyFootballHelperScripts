@@ -400,20 +400,40 @@ TEN,32,12,22,29,28,10,24
 
 ### Team Ranking Calculation Logic
 
-**Step 1: Fetch Team Statistics from ESPN API**
+**Step 1: Calculate Rankings Using Rolling Window**
 
-**File**: `player-data-fetcher/espn_client.py:739-867`
+**File**: `player-data-fetcher/espn_client.py:739-1012`
 
-**Method**: `_calculate_team_rankings_from_stats()`
+**Main Method**: `_calculate_team_rankings_from_stats()` → `_calculate_rolling_window_rankings()`
 
-The ESPN client fetches team statistics from ESPN's hidden team stats API endpoint and calculates offensive/defensive rankings based on aggregated statistics.
+The ESPN client uses a **rolling window approach** to calculate team rankings from recent game performance, providing more current team assessments compared to cumulative season statistics.
 
-**Key Logic**:
-- Fetches current season team statistics from ESPN API
-- Minimum weeks requirement (`MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS = 3`)
-- If insufficient data, uses neutral rankings (all teams ranked 16)
-- Calculates composite scores for offensive and defensive performance
-- Ranks teams 1-32 based on scores (1 = best, 32 = worst)
+**Rolling Window Configuration**:
+- **Window Size**: `MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS = 4` (previous 4 weeks)
+- **Previous Weeks Only**: Excludes current week (uses only completed games)
+- **Example (Week 10)**: Uses weeks 6, 7, 8, 9 (rolling 4-week window)
+- **Early Season (Weeks 1-4)**: Uses neutral rankings (all teams = rank 16)
+
+**Calculation Process**:
+
+1. **Fetch Game Scores**: `_fetch_week_scores()` extracts scores from ESPN scoreboard API for each week in the rolling window
+2. **Aggregate Performance**: Accumulates points scored/allowed per team across all games in window
+3. **Calculate Averages**: Divides by actual games played (handles bye weeks correctly)
+4. **Rank Teams**:
+   - **Offensive Rank**: Based on points scored per game (higher = better)
+   - **Defensive Rank**: Based on points allowed per game (lower = better)
+5. **Position-Specific Rankings**: `_calculate_position_defense_rankings()` uses same rolling window for consistency
+
+**Why Rolling Window?**
+- **More Current**: Recent 4 weeks better reflects team's current form than full-season averages
+- **Handles Improvement/Decline**: Teams that improve mid-season get better rankings faster
+- **Fair Comparison**: Bye weeks handled by dividing by actual games played
+- **Consistent**: All 7 rankings (offensive, defensive, 5× position-specific) use same window
+
+**Early Season Behavior**:
+- **Weeks 1-4**: Not enough previous weeks for 4-week window → neutral rankings (rank 16)
+- **Week 5+**: Full rolling window available (4 previous weeks)
+- This prevents volatile rankings from small sample sizes
 
 **Step 2: Store Rankings**
 
