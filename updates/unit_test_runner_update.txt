@@ -1,0 +1,4 @@
+There are enough unit tests now that the run_all_tests is taking too long to wait on
+I'd like to have each module in the unit tests folder have a dedicated runner that is used to test that module specifically
+Instead of having the run_all_tests script, have directions in the unit tests folder for a claude agent to know how to effectively test all unit tests 
+Update all relevant documentation such as readmes and the rules.txt with the new info on how to run tests

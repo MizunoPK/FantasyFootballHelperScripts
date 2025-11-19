@@ -570,14 +570,15 @@ class TestWaiverOptimizer:
             return TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
 
     def test_waiver_optimizer_returns_bool(self, manager_with_waivers):
-        """Test that waiver optimizer returns tuple of (bool, list)"""
-        with patch('builtins.input', return_value=''):
+        """Test that waiver optimizer returns tuple of (bool, list, str)"""
+        with patch('league_helper.trade_simulator_mode.TradeSimulatorModeManager.show_list_selection', return_value=1):
             with patch('builtins.print'):
                 result = manager_with_waivers.start_waiver_optimizer()
                 assert isinstance(result, tuple)
-                assert len(result) == 2
+                assert len(result) == 3  # Updated: now returns (bool, list, str)
                 assert isinstance(result[0], bool)
                 assert isinstance(result[1], list)
+                assert isinstance(result[2], str)  # Mode name
 
     def test_waiver_optimizer_handles_no_waiver_players(self, temp_data_folder, mock_player_manager, mock_config):
         """Test waiver optimizer with no available players"""
@@ -586,15 +587,15 @@ class TestWaiverOptimizer:
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
             manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
 
-        with patch('builtins.input', return_value=''):
+        with patch('league_helper.trade_simulator_mode.TradeSimulatorModeManager.show_list_selection', return_value=1):
             with patch('builtins.print'):
                 result = manager.start_waiver_optimizer()
-                assert result == (True, [])
+                assert result == (True, [], "Rest of Season")  # Updated: includes mode string
 
     def test_waiver_optimizer_calls_get_trade_combinations(self, manager_with_waivers):
         """Test that waiver optimizer calls trade generation"""
         with patch.object(manager_with_waivers.analyzer, 'get_trade_combinations', return_value=[]) as mock_get:
-            with patch('builtins.input', return_value=''):
+            with patch('league_helper.trade_simulator_mode.TradeSimulatorModeManager.show_list_selection', return_value=1):
                 with patch('builtins.print'):
                     manager_with_waivers.start_waiver_optimizer()
 
@@ -1030,14 +1031,16 @@ class TestIntegration:
             manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
 
         # Execute
-        with patch('builtins.input', return_value=''):
+        with patch('league_helper.trade_simulator_mode.TradeSimulatorModeManager.show_list_selection', return_value=1):
             with patch('builtins.print'):
                 result = manager.start_waiver_optimizer()
 
         # Verify
         assert isinstance(result, tuple)
+        assert len(result) == 3  # Updated: now returns (bool, list, str)
         assert result[0] == True
         assert isinstance(result[1], list)
+        assert isinstance(result[2], str)  # Mode name
         assert mock_player_manager.get_player_list.called
 
     def test_full_trade_suggestor_workflow(self, temp_data_folder, mock_player_manager, mock_config, sample_players):

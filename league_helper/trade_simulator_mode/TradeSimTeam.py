@@ -35,7 +35,7 @@ class TradeSimTeam:
     scoring configurations based on whether it's the user's team or an opponent team.
     """
 
-    def __init__(self, name : str, team : List[FantasyPlayer], player_manager : PlayerManager, isOpponent: bool = True) -> None:
+    def __init__(self, name : str, team : List[FantasyPlayer], player_manager : PlayerManager, isOpponent: bool = True, use_weekly_scoring: bool = False) -> None:
         """
         Initialize TradeSimTeam with roster and scoring configuration.
 
@@ -49,6 +49,9 @@ class TradeSimTeam:
             player_manager (PlayerManager): PlayerManager instance for scoring
             isOpponent (bool): If True, use simplified opponent scoring;
                               if False, use comprehensive user team scoring. Defaults to True.
+            use_weekly_scoring (bool): If True, use weekly projections with matchup scoring
+                                      (matches Starter Helper). If False, use seasonal
+                                      projections with standard scoring. Defaults to False.
         """
         self.name = name
 
@@ -60,6 +63,7 @@ class TradeSimTeam:
 
         self.player_manager = player_manager
         self.isOpponent = isOpponent
+        self.use_weekly_scoring = use_weekly_scoring
         self.team_score = 0
         self.scored_players : Dict[int, ScoredPlayer] = {}  # Maps player ID to ScoredPlayer
         self.score_team()
@@ -68,9 +72,13 @@ class TradeSimTeam:
         """
         Calculate total team score using PlayerManager's scoring engine.
 
-        Uses different scoring configurations based on team type:
-        - Opponent teams: Simplified scoring (projections + player rating only)
-        - User team: Comprehensive scoring (projections + rating + team quality + performance + bye penalties)
+        Uses different scoring configurations based on team type and scoring mode:
+        - Weekly scoring (use_weekly_scoring=True): Matches Starter Helper exactly
+          (weekly projections, matchup=True, player_rating=False, schedule=False)
+        - Seasonal scoring (use_weekly_scoring=False): Standard scoring
+          (seasonal projections, matchup=False, player_rating=True, schedule=True)
+        - Opponent teams (isOpponent=True): No bye penalties
+        - User team (isOpponent=False): Include bye penalties (seasonal mode only)
 
         Returns:
             float: Total team score (sum of all player scores)
@@ -79,14 +87,38 @@ class TradeSimTeam:
 
         # Iterate through all active players on the team roster
         for player in self.team:
-            # ===== TEAM SCORING =====
-            # Score players with different bye penalty settings based on team type
-            if self.isOpponent:
-                # Opponent scoring: exclude bye penalties to avoid artificial score changes from roster composition
-                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, bye=False, injury=False, roster=self.team)
+            # Determine scoring parameters based on mode
+            if self.use_weekly_scoring:
+                # CURRENT WEEK MODE: Match Starter Helper EXACTLY
+                # Uses weekly projections with matchup and performance multipliers
+                scored_player = self.player_manager.score_player(
+                    player,
+                    use_weekly_projection=True,  # Weekly, not seasonal
+                    adp=False,
+                    player_rating=False,         # Disabled for weekly
+                    team_quality=True,           # Included per Q2
+                    performance=True,            # Recent actual vs projected
+                    matchup=True,                # Enabled for weekly
+                    schedule=False,              # Disabled for weekly
+                    bye=False,                   # Never penalize in weekly mode
+                    injury=False,
+                    roster=self.team
+                )
+            elif self.isOpponent:
+                # REST OF SEASON MODE - Opponent scoring (no bye penalties)
+                scored_player = self.player_manager.score_player(
+                    player, adp=False, player_rating=True, team_quality=True,
+                    performance=True, matchup=False, schedule=True, bye=False,
+                    injury=False, roster=self.team
+                )
             else:
-                # User scoring: include all scoring components including bye penalties
-                scored_player = self.player_manager.score_player(player, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, bye=True, injury=False, roster=self.team)
+                # REST OF SEASON MODE - User team scoring (includes bye penalties)
+                scored_player = self.player_manager.score_player(
+                    player, adp=False, player_rating=True, team_quality=True,
+                    performance=True, matchup=False, schedule=True, bye=True,
+                    injury=False, roster=self.team
+                )
+
             player.score = scored_player.score
 
             # Cache the ScoredPlayer object for later retrieval

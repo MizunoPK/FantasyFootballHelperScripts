@@ -342,10 +342,10 @@ class TestSaveWaiverTradesToFile:
 
         writer.save_waiver_trades_to_file([mock_trade], mock_team)
 
-        # Verify file was opened with correct name
+        # Verify file was opened with correct name (defaults to Rest of Season mode)
         mock_file.assert_called_once()
         filename = mock_file.call_args[0][0]
-        assert "waiver_info_2025-10-17_12-00-00.txt" in filename
+        assert "waiver_ros_2025-10-17_12-00-00.txt" in filename
 
     @patch('builtins.open', new_callable=mock_open)
     @patch('league_helper.trade_simulator_mode.trade_file_writer.datetime')

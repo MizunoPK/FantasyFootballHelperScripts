@@ -185,7 +185,7 @@ class TestConfigGeneratorInitialization:
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 16  # 5 scalars + 5 weights + 5 threshold STEPS + 1 IMPACT_SCALE (SCHEDULE disabled)
+        assert len(gen.PARAMETER_ORDER) == 13  # 5 scalars + 5 weights + 2 threshold STEPS + 1 IMPACT_SCALE (SCHEDULE disabled, some STEPS disabled)
 
 
 class TestParameterValueGeneration:
@@ -1083,23 +1083,24 @@ class TestGenerateIterativeCombinations:
             temp_path.unlink()
 
     def test_edge_case_num_parameters_exceeds_available(self, baseline_config_dict):
-        """Test with NUM_PARAMETERS_TO_TEST > 16 (should cap at 16)"""
+        """Test with NUM_PARAMETERS_TO_TEST > 13 (should cap at 13)"""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             json.dump(baseline_config_dict, f)
             temp_path = Path(f.name)
 
         try:
-            # Use num_test_values=1 to keep cartesian product small (2^16 = 65,536 configs)
+            # Use num_test_values=1 to keep cartesian product small (2^13 = 8,192 configs)
             generator = ConfigGenerator(temp_path, num_test_values=1, num_parameters_to_test=20)
 
-            # Should cap at 16 parameters (PARAMETER_ORDER length)
+            # Should cap at 13 parameters (PARAMETER_ORDER length)
             configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
 
-            # Should generate configs (capped at 16 params)
-            # Individual: 16*2 = 32
-            # Combinations: 2^16 = 65,536
-            # Total: 65,568 configs
-            assert len(configs) == 65568
+            # Should generate configs (capped at 13 params)
+            # Base parameter: 2 configs
+            # Random parameters (12): 24 configs (12 * 2)
+            # Combinations: 2^13 = 8,192
+            # Total: 8,218 configs
+            assert len(configs) == 8218
             assert all('parameters' in config for config in configs)
         finally:
             temp_path.unlink()

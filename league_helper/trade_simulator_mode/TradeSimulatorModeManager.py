@@ -136,30 +136,33 @@ class TradeSimulatorModeManager:
             choice = show_list_selection("TRADE SIMULATOR", ["Waiver Optimizer", "Trade Suggestor", "Manual Trade Visualizer"], "Back to Main Menu")
 
             # Execute selected mode and capture results
-            # Each mode returns (continue_loop, sorted_trades)
+            # Each mode returns (continue_loop, sorted_trades) or (continue_loop, sorted_trades, mode_name)
             if choice == 1:
                 # Waiver Optimizer: Find best waiver wire pickups
-                loop, sorted_trades = self.start_waiver_optimizer()
+                loop, sorted_trades, mode_name = self.start_waiver_optimizer()
                 mode = "waiver"
             elif choice == 2:
                 # Trade Suggestor: Find mutually beneficial trades with opponents
                 loop, sorted_trades = self.start_trade_suggestor()
                 mode = "trade"
+                mode_name = ""
             elif choice == 3:
                 # Manual Trade Visualizer: Analyze specific user-proposed trade
                 loop, sorted_trades = self.start_manual_trade()
                 mode = "manual"
+                mode_name = ""
             else:
                 # User selected "Back to Main Menu"
                 loop, sorted_trades = False, []
                 mode = None
+                mode_name = ""
 
             # Save results to file if mode completed successfully with trade data
             if loop and sorted_trades:
                 # Use mode-specific save method
                 if mode == "waiver":
                     # Waiver file format: DROP/ADD with improvement per trade
-                    self.file_writer.save_waiver_trades_to_file(sorted_trades, self.my_team)
+                    self.file_writer.save_waiver_trades_to_file(sorted_trades, self.my_team, mode_name)
                 elif mode == "trade":
                     # Trade suggestor file format: numbered trades with both teams' improvements
                     self.file_writer.save_trades_to_file(sorted_trades, self.my_team, self.opponent_simulated_teams)
@@ -232,14 +235,48 @@ class TradeSimulatorModeManager:
                 self.opponent_simulated_teams.append(TradeSimTeam(team_name, team_list, self.player_manager))
 
     
-    def start_waiver_optimizer(self) -> Tuple[bool, List[TradeSnapshot]]:
+    def start_waiver_optimizer(self) -> Tuple[bool, List[TradeSnapshot], str]:
         """
         Find optimal waiver wire pickups by analyzing 1-for-1, 2-for-2, and 3-for-3 trades.
 
+        Prompts user to select between:
+        - Rest of Season: Seasonal projections with standard multipliers
+        - Current Week: Weekly projections matching Starter Helper scoring
+
         Returns:
-            Tuple[bool, List[TradeSnapshot]]: (True to continue, sorted trades)
+            Tuple[bool, List[TradeSnapshot], str]:
+                - bool: True to loop back to menu, False to exit
+                - List[TradeSnapshot]: Sorted trade recommendations
+                - str: Mode name for file output ("Rest of Season" or "Current Week")
         """
         self.logger.info("Starting Waiver Optimizer mode")
+
+        # STEP 1: Mode selection
+        mode_choice = show_list_selection(
+            "WAIVER OPTIMIZER - SELECT MODE",
+            ["Rest of Season", "Current Week"],
+            "Cancel"
+        )
+
+        # Handle cancellation
+        if mode_choice > 2:  # User selected Cancel
+            self.logger.info("User cancelled Waiver Optimizer")
+            return True, [], ""
+
+        # Determine mode
+        use_weekly_scoring = (mode_choice == 2)
+        mode_name = "Current Week" if use_weekly_scoring else "Rest of Season"
+        self.logger.info(f"Waiver Optimizer mode selected: {mode_name}")
+
+        # STEP 2: Set max_weekly_projection if using weekly scoring
+        if use_weekly_scoring:
+            max_weekly = self.player_manager.calculate_max_weekly_projection(
+                self.config.current_nfl_week
+            )
+            self.player_manager.scoring_calculator.max_weekly_projection = max_weekly
+            self.logger.info(
+                f"Set max_weekly_projection to {max_weekly:.2f} for week {self.config.current_nfl_week}"
+            )
 
         # Get all waiver wire players (drafted=0)
         # Only consider players with scores above our weakest roster players
@@ -252,11 +289,26 @@ class TradeSimulatorModeManager:
 
         if not waiver_players:
             print("\nNo players available on waivers.")
-            return True, []
+            return True, [], mode_name
+
+        # Re-create my_team with mode-specific scoring
+        my_team = TradeSimTeam(
+            Constants.FANTASY_TEAM_NAME,
+            self.player_manager.team.roster,
+            self.player_manager,
+            isOpponent=False,
+            use_weekly_scoring=use_weekly_scoring
+        )
 
         # Create a TradeSimTeam for the waiver wire
         # Waiver "team" is treated as opponent for scoring purposes
-        waiver_team = TradeSimTeam("Waiver Wire", waiver_players, self.player_manager, isOpponent=True)
+        waiver_team = TradeSimTeam(
+            "Waiver Wire",
+            waiver_players,
+            self.player_manager,
+            isOpponent=True,
+            use_weekly_scoring=use_weekly_scoring
+        )
 
         # Generate all possible waiver pickups
         # - 1-for-1 and 2-for-2 enabled, 3-for-3 disabled (too many combinations)
@@ -264,7 +316,7 @@ class TradeSimulatorModeManager:
         # - ignore_max_positions=False: MUST respect position limits (real roster constraint)
         self.logger.info("Generating trade combinations...")
         trade_combos = self.analyzer.get_trade_combinations(
-            my_team=self.my_team,
+            my_team=my_team,
             their_team=waiver_team,
             is_waivers=True,
             one_for_one=True,
@@ -283,20 +335,20 @@ class TradeSimulatorModeManager:
 
         if not trade_combos:
             print("\nNo valid waiver pickups found that improve your team.")
-            return True, []
+            return True, [], mode_name
 
         # Sort by improvement (highest improvement first)
         sorted_trades = sorted(
             trade_combos,
-            key=lambda t: (t.my_new_team.team_score - self.my_team.team_score),
+            key=lambda t: (t.my_new_team.team_score - my_team.team_score),
             reverse=True
         )
 
         # Display header
         print("\n" + "="*80)
-        print("WAIVER OPTIMIZER - Top Pickup Opportunities")
+        print(f"WAIVER OPTIMIZER - {mode_name.upper()}")
         print("="*80)
-        print(f"Current team score: {self.my_team.team_score:.2f}")
+        print(f"Current team score: {my_team.team_score:.2f}")
         print(f"Found {len(sorted_trades)} beneficial waiver pickups")
         print()
 
@@ -330,7 +382,7 @@ class TradeSimulatorModeManager:
             print()
 
         # Pause before returning to menu
-        return True, sorted_trades
+        return True, sorted_trades, mode_name
 
     def start_trade_suggestor(self) -> Tuple[bool, List[TradeSnapshot]]:
         """

@@ -20,8 +20,9 @@ Author: Kai Mizuno
 import time
 import copy
 import json
+import re
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -214,21 +215,130 @@ class SimulationManager:
 
         return optimal_config_path
 
+    def _detect_resume_state(self) -> Tuple[bool, int, Optional[Path]]:
+        """
+        Detect if iterative optimization should resume from a previous run.
+
+        Scans the output directory for intermediate_*.json files and determines
+        whether to resume optimization from where it left off or start fresh.
+
+        Returns:
+            Tuple[bool, int, Optional[Path]]: A tuple containing:
+                - should_resume (bool): True if resuming, False if starting fresh
+                - start_idx (int): Index to start from (0 if starting fresh)
+                - last_config_path (Optional[Path]): Path to last intermediate file if resuming
+
+        Logic:
+            - No intermediate files → (False, 0, None) - start from beginning
+            - Files for all parameters → (False, 0, None) - completed, cleanup and restart
+            - Files for some parameters → (True, highest_idx, path) - resume from next parameter
+            - Parameter order mismatch → (False, 0, None) - validation failed, start fresh
+            - Corrupted files → Skip invalid files, use highest valid index found
+        """
+        # Get all intermediate files
+        intermediate_files = list(self.output_dir.glob("intermediate_*.json"))
+
+        if not intermediate_files:
+            self.logger.debug("No intermediate files found")
+            return (False, 0, None)
+
+        # Parse all files and collect valid ones
+        valid_files = []
+        param_order = self.config_generator.PARAMETER_ORDER
+        pattern = r'intermediate_(\d+)_(.+)\.json'
+
+        for filepath in intermediate_files:
+            filename = filepath.name
+            match = re.match(pattern, filename)
+
+            if not match:
+                self.logger.warning(f"Skipping file with invalid name format: {filename}")
+                continue
+
+            try:
+                param_idx = int(match.group(1))
+                param_name = match.group(2)
+
+                # Validate parameter order (strict validation per user preference)
+                if param_idx > len(param_order):
+                    # Index exceeds parameter count - treat as completed run
+                    self.logger.debug(f"File {filename}: idx {param_idx} > {len(param_order)} (completed run)")
+                    continue
+
+                # Check parameter name matches expected parameter at this index
+                expected_param = param_order[param_idx - 1]  # idx is 1-based in filename
+                if param_name != expected_param:
+                    self.logger.warning(
+                        f"Parameter order mismatch in {filename}: "
+                        f"expected '{expected_param}', found '{param_name}'. "
+                        f"Starting fresh."
+                    )
+                    return (False, 0, None)
+
+                # Try to parse JSON to ensure file is not corrupted
+                with open(filepath, 'r') as f:
+                    config = json.load(f)
+
+                # Validate required fields
+                if 'config_name' not in config or 'parameters' not in config:
+                    self.logger.warning(f"Skipping corrupted intermediate file (missing fields): {filename}")
+                    continue
+
+                # File is valid
+                valid_files.append((param_idx, param_name, filepath))
+
+            except json.JSONDecodeError:
+                self.logger.warning(f"Skipping corrupted intermediate file (invalid JSON): {filename}")
+                continue
+            except Exception as e:
+                self.logger.warning(f"Error processing {filename}: {e}")
+                continue
+
+        # No valid files found
+        if not valid_files:
+            self.logger.debug("No valid intermediate files found after validation")
+            return (False, 0, None)
+
+        # Find highest valid index
+        valid_files.sort(key=lambda x: x[0])
+        highest_idx, highest_param, highest_path = valid_files[-1]
+
+        # Check if all parameters are complete
+        if highest_idx >= len(param_order):
+            self.logger.debug(f"All parameters complete (idx {highest_idx} >= {len(param_order)})")
+            return (False, 0, None)
+
+        # Resume from next parameter
+        self.logger.debug(
+            f"Found {len(valid_files)} valid intermediate files, "
+            f"highest: {highest_param} (idx {highest_idx})"
+        )
+        return (True, highest_idx, highest_path)
+
     def run_iterative_optimization(self) -> Path:
         """
-        Run iterative parameter optimization (coordinate descent).
+        Run iterative parameter optimization (coordinate descent) with auto-resume support.
 
         Optimizes one parameter at a time in sequence, fixing previously optimized
         parameters. Much faster than full grid search but finds local optimum only.
 
+        **Auto-Resume Feature:**
+            If interrupted mid-optimization, automatically resumes from the last completed
+            parameter based on existing intermediate_*.json files in the output directory.
+            - Detects partial runs and continues where it left off
+            - Validates parameter order consistency before resuming
+            - Cleans up intermediate files when optimization completes
+
         Process:
-            1. Start with baseline config
-            2. For each parameter in PARAMETER_ORDER:
+            1. Detect resume state from intermediate files (if any)
+            2. Start with baseline config (or resume from last intermediate config)
+            3. For each parameter in PARAMETER_ORDER (starting from resume point):
                - Generate configs varying only that parameter
                - Run simulations for each config
                - Select best performing value
                - Update current optimal config
-            3. Save final optimal config
+               - Save intermediate result
+            4. Save final optimal config and cleanup intermediate files
 
         Returns:
             Path: Path to saved optimal configuration file
@@ -237,6 +347,7 @@ class SimulationManager:
             >>> mgr = SimulationManager(baseline_path, num_simulations_per_config=100)
             >>> optimal_config_path = mgr.run_iterative_optimization()
             >>> # Optimizes 24 params × 6 values = 144 configs total
+            >>> # If interrupted, restart will resume from last completed parameter
         """
         self.logger.info("=" * 80)
         self.logger.info("STARTING ITERATIVE PARAMETER OPTIMIZATION")
@@ -256,25 +367,50 @@ class SimulationManager:
         self.logger.info(f"Total simulations: {total_configs * self.num_simulations_per_config}")
         self.logger.info("=" * 80)
 
-        # Clean up any existing intermediate files from previous runs
-        intermediate_files = list(self.output_dir.glob("intermediate_*.json"))
-        if intermediate_files:
-            self.logger.info(f"Cleaning up {len(intermediate_files)} intermediate files from previous runs...")
-            for intermediate_file in intermediate_files:
-                try:
-                    intermediate_file.unlink()
-                    self.logger.debug(f"  Deleted: {intermediate_file.name}")
-                except Exception as e:
-                    self.logger.warning(f"  Failed to delete {intermediate_file.name}: {e}")
-            self.logger.info("✓ Cleanup complete")
-            self.logger.info("=" * 80)
+        # Detect if we should resume from a previous run
+        should_resume, start_idx, last_config_path = self._detect_resume_state()
 
-        # Start with baseline config as current optimal
-        current_optimal_config = copy.deepcopy(self.config_generator.baseline_config)
+        if should_resume:
+            # Resume from previous run
+            self.logger.info(f"Found {len(list(self.output_dir.glob('intermediate_*.json')))} intermediate files, "
+                           f"resuming from parameter {start_idx + 1} of {num_params}")
+
+            # Load config from last intermediate file
+            try:
+                with open(last_config_path, 'r') as f:
+                    current_optimal_config = json.load(f)
+                self.logger.info(f"✓ Loaded config from {last_config_path.name}")
+            except Exception as e:
+                self.logger.warning(f"Failed to load resume config: {e}. Starting fresh.")
+                should_resume = False
+                start_idx = 0
+                current_optimal_config = copy.deepcopy(self.config_generator.baseline_config)
+        else:
+            # Starting fresh - cleanup any existing intermediate files
+            intermediate_files = list(self.output_dir.glob("intermediate_*.json"))
+            if intermediate_files:
+                reason = "completed run detected" if intermediate_files else "no intermediate files"
+                self.logger.info(f"Starting optimization from beginning ({reason})")
+                self.logger.info(f"Cleaning up {len(intermediate_files)} intermediate files from completed run")
+                for intermediate_file in intermediate_files:
+                    try:
+                        intermediate_file.unlink()
+                        self.logger.debug(f"  Deleted: {intermediate_file.name}")
+                    except Exception as e:
+                        self.logger.warning(f"  Failed to delete {intermediate_file.name}: {e}")
+                self.logger.info("✓ Cleanup complete")
+            else:
+                self.logger.info("Starting optimization from beginning (no intermediate files)")
+
+            # Start with baseline config as current optimal
+            current_optimal_config = copy.deepcopy(self.config_generator.baseline_config)
+            start_idx = 0
+
+        self.logger.info("=" * 80)
         win_percentage = 0.0
 
-        # Iterate through each parameter
-        for param_idx, param_name in enumerate(param_order, 1):
+        # Iterate through each parameter (starting from start_idx if resuming)
+        for param_idx, param_name in enumerate(param_order[start_idx:], start=start_idx + 1):
             self.logger.info("=" * 80)
             self.logger.info(f"OPTIMIZING PARAMETER {param_idx}/{num_params}: {param_name}")
             self.logger.info("=" * 80)

@@ -54,27 +54,27 @@ class ConfigGenerator:
     # Format: (min_val, max_val)
     PARAM_DEFINITIONS = {
         # Normalization and Bye Penalties
-        'NORMALIZATION_MAX_SCALE': (100.0, 150.0),
-        'SAME_POS_BYE_WEIGHT': (0.0, 0.5),
-        'DIFF_POS_BYE_WEIGHT': (0.0, 0.5),
+        'NORMALIZATION_MAX_SCALE': (110.0, 140.0),
+        'SAME_POS_BYE_WEIGHT': (0.2, 0.5),
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.2),
         # Draft Order Bonuses
-        'PRIMARY_BONUS': (50, 100.0),
-        'SECONDARY_BONUS': (50, 100.0),
+        'PRIMARY_BONUS': (70, 90.0),
+        'SECONDARY_BONUS': (75, 95.0),
         # ADP Scoring
-        'ADP_SCORING_WEIGHT': (1.0, 3.0),
-        'ADP_SCORING_STEPS': (20.0, 60.0),
+        'ADP_SCORING_WEIGHT': (2.0, 3.0),
+        'ADP_SCORING_STEPS': (25.0, 40.0),
         # Player Rating Scoring
-        'PLAYER_RATING_SCORING_WEIGHT': (0.5, 3.0),
-        'PLAYER_RATING_SCORING_STEPS': (10, 40),
-        'TEAM_QUALITY_SCORING_WEIGHT': (0.0, 3.0),
-        'TEAM_QUALITY_SCORING_STEPS': (1.0, 10.0),
+        'PLAYER_RATING_SCORING_WEIGHT': (0.5, 1.5),
+        'PLAYER_RATING_SCORING_STEPS': (15, 25),
+        'TEAM_QUALITY_SCORING_WEIGHT': (1.5, 3.0),
+        'TEAM_QUALITY_SCORING_STEPS': (4.0, 8.0),
         # Performance Scoring
-        'PERFORMANCE_SCORING_WEIGHT': (0.0, 3.0),
-        'PERFORMANCE_SCORING_STEPS': (0.05, 0.4),
+        'PERFORMANCE_SCORING_WEIGHT': (1.5, 3.0),
+        'PERFORMANCE_SCORING_STEPS': (0.15, 0.3),
         # Matchup Scoring (additive)
-        'MATCHUP_IMPACT_SCALE': (50.0, 250.0),
-        'MATCHUP_SCORING_WEIGHT': (0.0, 3.0),
-        'MATCHUP_SCORING_STEPS': (1.0, 10.0),
+        'MATCHUP_IMPACT_SCALE': (100.0, 150.0),
+        'MATCHUP_SCORING_WEIGHT': (0.5, 1.0),
+        'MATCHUP_SCORING_STEPS': (4.0, 8.0),
         # Schedule Scoring (additive)
         # 'SCHEDULE_IMPACT_SCALE': (0.0, 300.0),
         # 'SCHEDULE_SCORING_WEIGHT': (0.0, 5.0),
@@ -133,17 +133,17 @@ class ConfigGenerator:
         'ADP_SCORING_STEPS',
         # Player Rating Scoring
         'PLAYER_RATING_SCORING_WEIGHT',
-        'PLAYER_RATING_SCORING_STEPS',
+        # 'PLAYER_RATING_SCORING_STEPS',
         # Team Quality Scoring
         'TEAM_QUALITY_SCORING_WEIGHT',
-        'TEAM_QUALITY_SCORING_STEPS',
+        # 'TEAM_QUALITY_SCORING_STEPS',
         # Performance Scoring
         'PERFORMANCE_SCORING_WEIGHT',
         'PERFORMANCE_SCORING_STEPS',
         # Matchup Scoring (additive)
         'MATCHUP_IMPACT_SCALE',
         'MATCHUP_SCORING_WEIGHT',
-        'MATCHUP_SCORING_STEPS',
+        # 'MATCHUP_SCORING_STEPS',
         # Schedule Scoring (additive) - DISABLED
         # 'SCHEDULE_IMPACT_SCALE',
         # 'SCHEDULE_SCORING_WEIGHT',

@@ -1,0 +1,4 @@
+I want to make an adjustment to the way that the player data fetcher will calculate all the ranking data that gets stored in teams.csv
+I believe that currently, the system will first see if CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS, and if so then it will use the data from all weeks in the season to determine each of the rankings.
+I want to update this such that, when CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS, then it just uses the latest MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS weeks for the ranking calculations instead of the entire season.
+I also want to update MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS to be 4.

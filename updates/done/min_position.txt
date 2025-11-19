@@ -1,0 +1,12 @@
+Add minimum positions in addition to max for waiver optimizer
+This will only be relevant for the waiver optimizer and should be used to ensure that suggested trades do not make the user's resulting team have any positions that fall below the assoicated minimum for that position
+put this dict in the constants file
+Use this as the default:
+MIN_POSITIONS = {
+    QB: 1,
+    RB: 3,
+    WR: 3,
+    TE: 1,
+    K: 1,
+    DST: 1
+}

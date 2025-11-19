@@ -14,13 +14,18 @@ The draft TODO should include:
 
 As you complete tasks, keep the file updated with your progress in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made.
 
-### **STEP 2: First Verification Round (3 Iterations)**
+### **STEP 2: First Verification Round (5 Iterations)**
 
-Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL (detailed below) with **3 complete iterations** to research the codebase, identify patterns, and refine the draft TODO file. This happens BEFORE creating the questions file.
+Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL (detailed below) with **5 complete iterations** to research the codebase, identify patterns, and refine the draft TODO file. This happens BEFORE creating the questions file.
+
+**Iteration Breakdown**:
+- **Iterations 1-3**: Standard verification (research, cross-reference, refine)
+- **Iteration 4**: Continue refinement with deeper technical details
+- **Iteration 5**: **SKEPTICAL RE-VERIFICATION** - Assume nothing written so far is accurate. Re-verify ALL claims, assumptions, file paths, method names, patterns, and implementation strategies from scratch. Question everything and validate with fresh codebase research.
 
 ### **STEP 3: Create Questions File**
 
-After completing the first 3 verification iterations, create a questions file based on ambiguities, implementation choices, and user preference decisions discovered during codebase research. The questions file should be named `updates/{objective_name}_questions.md`.
+After completing the first 5 verification iterations (including skeptical re-verification), create a questions file based on ambiguities, implementation choices, and user preference decisions discovered during codebase research. The questions file should be named `updates/{objective_name}_questions.md`.
 
 This file should contain:
 - Clarifying questions about requirements
@@ -38,30 +43,36 @@ After receiving user answers, update the TODO file to reflect:
 - Adjusted task priorities based on answers
 - Any new tasks revealed by the answers
 
-### **STEP 5: Second Verification Round (3 More Iterations)**
+### **STEP 5: Second Verification Round (7 More Iterations)**
 
-Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL again with **3 additional complete iterations** to:
+Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL again with **7 additional complete iterations** to:
 - Validate that question answers are fully integrated
 - Research any new patterns needed based on answers
 - Refine implementation details
 - Finalize task order and dependencies
 
-After completing both verification rounds (6 total iterations), the TODO file should be comprehensive and ready for implementation.
+**Iteration Breakdown**:
+- **Iterations 6-8**: Verification with user answers integrated
+- **Iteration 9**: Continue refinement with implementation-specific details
+- **Iteration 10**: **SKEPTICAL RE-VERIFICATION** - Again, assume nothing is accurate. Re-verify ALL claims, especially those based on user answers. Validate that answers are correctly interpreted and integrated. Fresh codebase research required.
+- **Iterations 11-12**: Final refinement and preparation for implementation
+
+After completing both verification rounds (**12 total iterations**), the TODO file should be comprehensive, thoroughly validated, and ready for implementation.
 
 ---
 
 ## TODO FILE VERIFICATION AND REFINEMENT PROTOCOL
 
 **🚨 MANDATORY** - This iterative verification protocol must be executed:
-1. After creating the draft TODO file (3 iterations)
-2. After receiving user's answers to questions (3 more iterations)
+1. After creating the draft TODO file (5 iterations - including skeptical re-verification)
+2. After receiving user's answers to questions (7 more iterations - including skeptical re-verification)
 
 ### **WHEN TO EXECUTE**:
-- ✅ Immediately after generating the draft TODO file (STEP 2 - First 3 iterations)
-- ✅ After updating TODO with user's question answers (STEP 5 - Second 3 iterations)
+- ✅ Immediately after generating the draft TODO file (STEP 2 - First 5 iterations)
+- ✅ After updating TODO with user's question answers (STEP 5 - Second 7 iterations)
 - ✅ Before beginning any implementation work
 
-### **ITERATIVE REFINEMENT PROCESS (MINIMUM 3 ITERATIONS)**:
+### **ITERATIVE REFINEMENT PROCESS (12 TOTAL ITERATIONS)**:
 
 **📋 ITERATION 1: Initial Verification**
 
@@ -130,7 +141,7 @@ After completing both verification rounds (6 total iterations), the TODO file sh
    - Refine implementation order based on dependencies
    - Add code review checkpoints
 
-**📋 ITERATION 3: Final Verification (of current round)**
+**📋 ITERATION 3: Deep Dive Verification**
 
 1. **Re-read ALL Documents One More Time**:
    - Original updates file
@@ -151,7 +162,7 @@ After completing both verification rounds (6 total iterations), the TODO file sh
    - Check for potential circular imports
    - Review existing test mock patterns
 
-4. **Final TODO Update**:
+4. **TODO Update**:
    - Add integration testing tasks
    - Add cleanup/rollback requirements
    - Add verification steps for each phase
@@ -159,52 +170,147 @@ After completing both verification rounds (6 total iterations), the TODO file sh
    - Ensure every task has specific, actionable steps
    - Confirm task order prevents breaking the system
 
+**📋 ITERATION 4: Enhanced Technical Detail**
+
+1. **Implementation-Specific Research**:
+   - Research exact method signatures needed
+   - Identify return types and data structures
+   - Find example usages of similar patterns in codebase
+   - Document edge cases with code examples
+
+2. **Performance and Optimization**:
+   - Consider performance implications of approach
+   - Identify potential bottlenecks
+   - Research caching strategies if needed
+   - Document any async/await patterns needed
+
+3. **TODO Enhancement**:
+   - Add specific code examples to tasks
+   - Document exact API endpoints/parameters
+   - Add performance considerations
+   - Include optimization opportunities
+
+**📋 ITERATION 5 (First Round) / ITERATION 10 (Second Round): SKEPTICAL RE-VERIFICATION**
+
+🚨 **CRITICAL**: Assume NOTHING written so far is accurate. Start fresh.
+
+1. **Question Everything**:
+   - Is the file path I documented actually correct? (Verify with Read/Glob)
+   - Does that method I referenced actually exist? (Verify with Grep)
+   - Is that pattern I identified actually used? (Re-search codebase)
+   - Are my assumptions about data flow correct? (Re-trace through code)
+   - Did I misunderstand the original requirement? (Re-read specification)
+
+2. **Fresh Codebase Validation**:
+   - Re-search for ALL file paths mentioned in TODO
+   - Re-verify ALL method names and line numbers
+   - Re-validate ALL code patterns claimed
+   - Re-check ALL dependencies and imports
+   - Re-examine ALL test patterns documented
+
+3. **Requirement Re-Verification**:
+   - Re-read original specification word-by-word
+   - Re-read user question answers (if second round)
+   - List requirements again from scratch
+   - Compare new list against TODO
+   - Identify discrepancies or misinterpretations
+
+4. **Comprehensive Corrections**:
+   - Fix any incorrect file paths
+   - Correct any wrong method names
+   - Update any misunderstood patterns
+   - Revise any flawed implementation strategies
+   - Document what was corrected and why
+
+5. **Document Re-Verification**:
+   - Add "Skeptical Re-Verification Results" section to TODO
+   - List what was verified as correct
+   - List what was found to be incorrect and corrected
+   - Document confidence level in current plan
+
+**📋 ITERATIONS 6-9 (Second Round): Standard Verification**
+
+Continue with standard verification process (same as Iterations 1-4) but with user answers integrated.
+
+**📋 ITERATIONS 11-12 (Second Round): Final Preparation**
+
+1. **Final Integration Check**:
+   - Verify all user answers are reflected in implementation plan
+   - Cross-check dependencies one final time
+   - Validate testing strategy is comprehensive
+   - Confirm documentation updates are complete
+
+2. **Implementation Readiness**:
+   - Ensure every task is actionable and clear
+   - Verify no ambiguities remain
+   - Confirm all code references are accurate
+   - Validate execution order is optimal
+
+3. **Risk Assessment**:
+   - Document remaining risks
+   - Identify potential blockers
+   - Plan mitigation strategies
+   - Set success criteria
+
 ### **DOCUMENTATION REQUIREMENTS**:
 
-After completing each verification round (3 iterations per round), add/update a "Verification Summary" section to the TODO file documenting:
-- ✅ Number of iterations completed (3 for first round, 6 total after second round)
+After completing each verification round, add/update a "Verification Summary" section to the TODO file documenting:
+- ✅ Number of iterations completed (5 for first round, 12 total after second round)
 - ✅ Number of requirements added after initial draft
 - ✅ Key codebase patterns/utilities identified for reuse
 - ✅ Critical dependencies or ordering requirements
 - ✅ Risk areas identified during research
 - ✅ Questions identified for user clarification (first round)
 - ✅ Question answers integrated into plan (second round)
+- ✅ **Skeptical re-verification results** (corrections made, confidence level)
 
 ### **ACCEPTANCE CRITERIA** (before beginning implementation):
-- ✅ First verification round complete (3 iterations on draft TODO)
+- ✅ First verification round complete (5 iterations on draft TODO, including skeptical re-verification)
 - ✅ Questions file created with thoughtful, research-backed questions
 - ✅ User answers received for all questions
-- ✅ Second verification round complete (3 more iterations with answers integrated)
-- ✅ Total: 6 complete verification iterations performed
+- ✅ Second verification round complete (7 more iterations with answers integrated, including second skeptical re-verification)
+- ✅ **Total: 12 complete verification iterations performed** (with 2 skeptical re-verifications)
 - ✅ Every requirement from original file covered in TODO
 - ✅ Every question answer reflected in TODO tasks
-- ✅ Specific file paths identified for each task
-- ✅ Existing code patterns researched and documented
+- ✅ Specific file paths identified for each task (verified multiple times)
+- ✅ Existing code patterns researched and documented (validated in skeptical phases)
 - ✅ Test requirements specified for each implementation
 - ✅ Task dependencies and ordering verified
 - ✅ Edge cases and error scenarios addressed
 - ✅ Documentation update tasks included
 - ✅ Pre-commit validation checkpoints added
+- ✅ **All claims and assumptions verified through skeptical re-verification**
 
 ### **ENFORCEMENT**:
 - **NO SHORTCUTS**: Cannot skip iterations or rush through verification
-- **TWO ROUNDS REQUIRED**: Must complete both verification rounds (3 iterations each = 6 total)
+- **TWO ROUNDS REQUIRED**: Must complete both verification rounds (5 iterations + 7 iterations = 12 total)
+- **SKEPTICAL PHASES MANDATORY**: Must complete iteration 5 and iteration 10 as skeptical re-verifications
 - **QUESTIONS REQUIRED**: Must create questions file after first verification round
 - **NO ASSUMPTIONS**: Must research codebase to validate approach
 - **NO VAGUE TASKS**: Each task must have specific technical details
-- **ITERATIVE IS MANDATORY**: Minimum 6 total cycles of read-question-research-update
+- **ITERATIVE IS MANDATORY**: Minimum 12 total cycles of read-question-research-update
 - **DOCUMENT THE PROCESS**: Verification summary required in TODO file after each round
+- **FRESH EYES REQUIRED**: Skeptical iterations must approach verification as if seeing the plan for the first time
 
 ### **WHY THIS MATTERS**:
-Thorough TODO preparation prevents:
+Thorough TODO preparation with skeptical re-verification prevents:
 - ❌ Discovering missing requirements mid-implementation
 - ❌ Breaking existing functionality due to unforeseen dependencies
 - ❌ Inconsistent code that doesn't match project patterns
 - ❌ Incomplete implementations that miss edge cases
 - ❌ Failed tests due to inadequate test planning
 - ❌ Rework and refactoring caused by poor initial planning
+- ❌ **Incorrect assumptions about code structure or API behavior**
+- ❌ **Pursuing implementation strategies based on misunderstood patterns**
+- ❌ **Building on top of incorrect file paths or method references**
 
-A well-researched, thoroughly verified TODO file is the foundation of successful implementation.
+**The skeptical re-verification phases (iterations 5 and 10) are critical** because they force the agent to:
+1. Challenge its own assumptions
+2. Re-validate all claims with fresh codebase research
+3. Catch errors that might have been overlooked in earlier iterations
+4. Ensure the plan is built on accurate, verified information
+
+A well-researched, thoroughly verified, and skeptically re-validated TODO file is the foundation of successful implementation.
 Immediately after creating the TODO file, create a code changes documentation file in the updates folder (NOT the done folder yet) named `{objective_name}_code_changes.md`. This file should be updated incrementally as you work through each task in the TODO file. After completing each significant change, immediately document it in the code changes file with: file paths, line numbers, before/after code snippets, rationale, and impact. This ensures the documentation stays current and accurate throughout the implementation process. The file will be moved to updates/done when the objective is complete.
 After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Test ALL unit tests across the entire repo. All tests across the entire repo must pass before we can mark an objective as complete. Make this a very clear and important TODO item.
 Create any new unit tests to cover the new implementations, and modify any relevant unit tests and test them to ensure they pass.

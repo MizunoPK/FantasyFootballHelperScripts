@@ -162,9 +162,9 @@
     "SCHEDULE_SCORING": {
       "IMPACT_SCALE": 185.1525173185212,
       "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "INCREASING",
-        "STEPS": 6
+        "BASE_POSITION": 16,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 2
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,

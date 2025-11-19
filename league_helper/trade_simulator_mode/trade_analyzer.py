@@ -697,8 +697,8 @@ class TradeAnalyzer:
 
         # Both rosters valid - create trade snapshot
         # Use full rosters (including locked players) for accurate scoring
-        my_new_team = TradeSimTeam(my_team.name, my_full_roster, self.player_manager, isOpponent=False)
-        their_new_team = TradeSimTeam(their_team.name, their_full_roster, self.player_manager, isOpponent=True)
+        my_new_team = TradeSimTeam(my_team.name, my_full_roster, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+        their_new_team = TradeSimTeam(their_team.name, their_full_roster, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
         # Get scored representations
         my_original_scored = my_team.get_scored_players(my_selected_players)
@@ -841,8 +841,8 @@ class TradeAnalyzer:
                     # IR players are auto-filtered by TradeSimTeam.__init__ so we don't add them here
                     # isOpponent=False for user team (uses full scoring: ADP, rating, team quality, bye, etc.)
                     # isOpponent=True for opponent team (uses simplified scoring: projections + rating only)
-                    my_new_team = TradeSimTeam(my_team.name, my_full_roster, self.player_manager, isOpponent=False)
-                    their_new_team = TradeSimTeam(their_team.name, their_full_roster, self.player_manager, isOpponent=True)
+                    my_new_team = TradeSimTeam(my_team.name, my_full_roster, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                    their_new_team = TradeSimTeam(their_team.name, their_full_roster, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                     # Check if trade improves both teams' scores
                     # Waiver mode: use MIN_WAIVER_IMPROVEMENT threshold (allows smaller improvements)
@@ -909,8 +909,8 @@ class TradeAnalyzer:
 
                     # Score rosters and check for mutual improvement
                     # Include locked players in scoring for accurate team score comparison
-                    my_new_team = TradeSimTeam(my_team.name, my_full_roster, self.player_manager, isOpponent=False)
-                    their_new_team = TradeSimTeam(their_team.name, their_full_roster, self.player_manager, isOpponent=True)
+                    my_new_team = TradeSimTeam(my_team.name, my_full_roster, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                    their_new_team = TradeSimTeam(their_team.name, their_full_roster, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                     # Waiver mode: use MIN_WAIVER_IMPROVEMENT threshold
                     # Trade mode: use MIN_TRADE_IMPROVEMENT threshold (30 points minimum)
@@ -971,8 +971,8 @@ class TradeAnalyzer:
 
                     # Score rosters and check for mutual improvement
                     # Include locked players in scoring for accurate team score comparison
-                    my_new_team = TradeSimTeam(my_team.name, my_full_roster, self.player_manager, isOpponent=False)
-                    their_new_team = TradeSimTeam(their_team.name, their_full_roster, self.player_manager, isOpponent=True)
+                    my_new_team = TradeSimTeam(my_team.name, my_full_roster, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                    their_new_team = TradeSimTeam(their_team.name, their_full_roster, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                     # Waiver mode: use MIN_WAIVER_IMPROVEMENT threshold
                     # Trade mode: use MIN_TRADE_IMPROVEMENT threshold (30 points minimum)
@@ -1054,8 +1054,8 @@ class TradeAnalyzer:
                                     continue
 
                                 # Create teams with drop
-                                my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False)
-                                their_new_team_with_drop = TradeSimTeam(their_team.name, their_roster_with_drop + their_locked, self.player_manager, isOpponent=True)
+                                my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                                their_new_team_with_drop = TradeSimTeam(their_team.name, their_roster_with_drop + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                                 # Check improvement
                                 our_roster_improved = (my_new_team.team_score - my_team.team_score) >= Constants.MIN_TRADE_IMPROVEMENT
@@ -1085,8 +1085,8 @@ class TradeAnalyzer:
                                 continue
 
                     # Create teams with waivers (include locked players for accurate scoring)
-                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False)
-                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True)
+                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                     # Check improvement (waiver vs trade thresholds)
                     if is_waivers:
@@ -1164,8 +1164,8 @@ class TradeAnalyzer:
                                     continue
 
                             # Create teams with drop
-                            my_new_team_with_drop = TradeSimTeam(my_team.name, my_roster_with_drop + my_locked, self.player_manager, isOpponent=False)
-                            their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True)
+                            my_new_team_with_drop = TradeSimTeam(my_team.name, my_roster_with_drop + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                            their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                             # Check improvement
                             if is_waivers:
@@ -1205,8 +1205,8 @@ class TradeAnalyzer:
                             continue
 
                     # Create teams (include locked players for accurate scoring)
-                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False)
-                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True)
+                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                     # Check improvement
                     if is_waivers:
@@ -1271,8 +1271,8 @@ class TradeAnalyzer:
                                 if not validate_trade_roster(their_original_full_roster, their_full_roster_with_drops):
                                     continue
 
-                                my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False)
-                                their_new_team_with_drops = TradeSimTeam(their_team.name, their_roster_with_drops + their_locked, self.player_manager, isOpponent=True)
+                                my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                                their_new_team_with_drops = TradeSimTeam(their_team.name, their_roster_with_drops + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                                 our_roster_improved = (my_new_team.team_score - my_team.team_score) >= Constants.MIN_TRADE_IMPROVEMENT
                                 their_roster_improved = (their_new_team_with_drops.team_score - their_team.team_score) >= Constants.MIN_TRADE_IMPROVEMENT
@@ -1301,8 +1301,8 @@ class TradeAnalyzer:
                                 continue
 
                     # Create teams (include locked players for accurate scoring)
-                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False)
-                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True)
+                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                     if is_waivers:
                         our_roster_improved = (my_new_team.team_score - my_team.team_score) > Constants.MIN_WAIVER_IMPROVEMENT
@@ -1366,8 +1366,8 @@ class TradeAnalyzer:
                                 if not validate_trade_roster(their_original_full_roster, their_full_roster):
                                     continue
 
-                            my_new_team_with_drops = TradeSimTeam(my_team.name, my_roster_with_drops + my_locked, self.player_manager, isOpponent=False)
-                            their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True)
+                            my_new_team_with_drops = TradeSimTeam(my_team.name, my_roster_with_drops + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                            their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                             if is_waivers:
                                 our_roster_improved = (my_new_team_with_drops.team_score - my_team.team_score) > Constants.MIN_WAIVER_IMPROVEMENT
@@ -1405,8 +1405,8 @@ class TradeAnalyzer:
                             continue
 
                     # Create teams (include locked players for accurate scoring)
-                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False)
-                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True)
+                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                     if is_waivers:
                         our_roster_improved = (my_new_team.team_score - my_team.team_score) > Constants.MIN_WAIVER_IMPROVEMENT
@@ -1471,8 +1471,8 @@ class TradeAnalyzer:
                                 if not validate_trade_roster(their_original_full_roster, their_full_roster_with_drop):
                                     continue
 
-                                my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False)
-                                their_new_team_with_drop = TradeSimTeam(their_team.name, their_roster_with_drop + their_locked, self.player_manager, isOpponent=True)
+                                my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                                their_new_team_with_drop = TradeSimTeam(their_team.name, their_roster_with_drop + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                                 our_roster_improved = (my_new_team.team_score - my_team.team_score) >= Constants.MIN_TRADE_IMPROVEMENT
                                 their_roster_improved = (their_new_team_with_drop.team_score - their_team.team_score) >= Constants.MIN_TRADE_IMPROVEMENT
@@ -1501,8 +1501,8 @@ class TradeAnalyzer:
                                 continue
 
                     # Create teams (include locked players for accurate scoring)
-                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False)
-                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True)
+                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                     if is_waivers:
                         our_roster_improved = (my_new_team.team_score - my_team.team_score) > Constants.MIN_WAIVER_IMPROVEMENT
@@ -1567,8 +1567,8 @@ class TradeAnalyzer:
                                 if not validate_trade_roster(their_original_full_roster, their_full_roster):
                                     continue
 
-                            my_new_team_with_drop = TradeSimTeam(my_team.name, my_roster_with_drop + my_locked, self.player_manager, isOpponent=False)
-                            their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True)
+                            my_new_team_with_drop = TradeSimTeam(my_team.name, my_roster_with_drop + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                            their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                             if is_waivers:
                                 our_roster_improved = (my_new_team_with_drop.team_score - my_team.team_score) > Constants.MIN_WAIVER_IMPROVEMENT
@@ -1606,8 +1606,8 @@ class TradeAnalyzer:
                             continue
 
                     # Create teams (include locked players for accurate scoring)
-                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False)
-                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True)
+                    my_new_team = TradeSimTeam(my_team.name, my_new_roster_with_waivers + my_locked, self.player_manager, isOpponent=False, use_weekly_scoring=my_team.use_weekly_scoring)
+                    their_new_team = TradeSimTeam(their_team.name, their_new_roster_with_waivers + their_locked, self.player_manager, isOpponent=True, use_weekly_scoring=their_team.use_weekly_scoring)
 
                     if is_waivers:
                         our_roster_improved = (my_new_team.team_score - my_team.team_score) > Constants.MIN_WAIVER_IMPROVEMENT

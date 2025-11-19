@@ -289,25 +289,33 @@ class TradeFileWriter:
         # Log success message
         self.logger.info(f"Trades saved to {filename}")
 
-    def save_waiver_trades_to_file(self, sorted_trades: List[TradeSnapshot], my_team: TradeSimTeam) -> None:
+    def save_waiver_trades_to_file(self, sorted_trades: List[TradeSnapshot], my_team: TradeSimTeam, mode: str = "Rest of Season") -> None:
         """
         Save waiver pickup suggestions to timestamped file (for Waiver Optimizer mode).
 
         Args:
             sorted_trades (List[TradeSnapshot]): List of trade snapshots to save
             my_team (TradeSimTeam): The user's team
+            mode (str): Scoring mode used ("Rest of Season" or "Current Week")
 
-        File naming: waiver_info_{timestamp}.txt (format: YYYY-MM-DD_HH-MM-SS)
+        File naming: waiver_{mode_suffix}_{timestamp}.txt (format: YYYY-MM-DD_HH-MM-SS)
         Location: ./league_helper/trade_simulator_mode/trade_outputs/
         """
         # Generate unique timestamp for filename (YYYY-MM-DD_HH-MM-SS format)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-        # Construct filename (waiver_info prefix differentiates from trade files)
-        filename = f'./league_helper/trade_simulator_mode/trade_outputs/waiver_info_{timestamp}.txt'
+        # Determine mode suffix for filename (Q4: include mode in filename)
+        mode_suffix = "weekly" if mode == "Current Week" else "ros"
+
+        # Construct filename with mode suffix
+        filename = f'./league_helper/trade_simulator_mode/trade_outputs/waiver_{mode_suffix}_{timestamp}.txt'
 
         # Write all waiver pickup suggestions to file
         with open(filename, 'w') as file:
+            # Write header with mode (Q3: minimal display - show mode name only)
+            file.write("=" * 80 + "\n")
+            file.write(f"WAIVER OPTIMIZER - {mode.upper()}\n")
+            file.write("=" * 80 + "\n\n")
             # Process each waiver pickup in ranked order (best first)
             for i, trade in enumerate(sorted_trades, 1):
                 # Calculate score improvement

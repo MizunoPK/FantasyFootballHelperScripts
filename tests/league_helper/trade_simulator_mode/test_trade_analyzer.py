@@ -373,12 +373,14 @@ class TestGetTradeCombinations:
         my_team.team_score = 100.0  # Base score for testing MIN_TRADE_IMPROVEMENT
         my_team.name = "My Team"
         my_team.get_scored_players = Mock(return_value=[])
+        my_team.use_weekly_scoring = False  # Default to Rest of Season mode
 
         their_team = Mock(spec=TradeSimTeam)
         their_team.team = their_roster
         their_team.team_score = 100.0  # Base score for testing MIN_TRADE_IMPROVEMENT
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
+        their_team.use_weekly_scoring = False  # Default to Rest of Season mode
 
         return my_team, their_team
 
@@ -510,12 +512,14 @@ class TestGetTradeCombinations:
         my_team.team_score = 100.0
         my_team.name = "My Team"
         my_team.get_scored_players = Mock(return_value=[])
+        my_team.use_weekly_scoring = False  # DEFAULT to Rest of Season mode
 
         their_team = Mock(spec=TradeSimTeam)
         their_team.team = [wr1]
         their_team.team_score = 100.0
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
+        their_team.use_weekly_scoring = False  # DEFAULT to Rest of Season mode
 
         analyzer.validate_roster_lenient = Mock(return_value=True)
 
@@ -631,12 +635,14 @@ class TestGetTradeCombinations:
         my_team.team_score = 100.0
         my_team.name = "My Team"
         my_team.get_scored_players = Mock(return_value=[])
+        my_team.use_weekly_scoring = False  # DEFAULT to Rest of Season mode
 
         their_team = Mock(spec=TradeSimTeam)
         their_team.team = their_roster
         their_team.team_score = 100.0
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
+        their_team.use_weekly_scoring = False  # DEFAULT to Rest of Season mode
 
         analyzer.validate_roster_lenient = Mock(return_value=True)
 

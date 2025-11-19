@@ -387,10 +387,11 @@ class TestIterativeOptimization:
         assert 'optimal_iterative' in optimal_path.name
 
     def test_iterative_optimization_cleans_up_old_intermediate_files(self, mock_manager_for_iterative, temp_output_dir):
-        """Test that old intermediate files are deleted before starting new optimization"""
+        """Test that intermediate files are cleaned up when starting fresh (not resuming)"""
         manager, mock_results, mock_parallel, mock_config_gen = mock_manager_for_iterative
 
-        # Create some fake intermediate files from a previous run
+        # Create intermediate files that will be detected as completed run
+        # (param_idx > PARAMETER_ORDER length causes cleanup)
         old_intermediate_1 = temp_output_dir / "intermediate_01_OLD_PARAM.json"
         old_intermediate_2 = temp_output_dir / "intermediate_99_ANOTHER_OLD.json"
         old_intermediate_1.write_text('{"old": "config1"}')
@@ -400,7 +401,7 @@ class TestIterativeOptimization:
         assert old_intermediate_1.exists()
         assert old_intermediate_2.exists()
 
-        # Run optimization
+        # Run optimization - should cleanup because files are from completed/invalid run
         manager.run_iterative_optimization()
 
         # Verify old intermediate files were deleted
@@ -415,6 +416,152 @@ class TestIterativeOptimization:
         new_file_names = [f.name for f in new_intermediate_files]
         assert "intermediate_01_OLD_PARAM.json" not in new_file_names
         assert "intermediate_99_ANOTHER_OLD.json" not in new_file_names
+
+
+class TestResumeDetection:
+    """Test resume detection functionality"""
+
+    @pytest.fixture
+    def manager(self, temp_baseline_config, temp_output_dir, temp_data_folder):
+        """Create a SimulationManager for testing resume detection"""
+        with patch('SimulationManager.ConfigGenerator') as MockConfigGenerator, \
+             patch('SimulationManager.ParallelLeagueRunner') as MockParallelRunner, \
+             patch('SimulationManager.ResultsManager') as MockResultsManager:
+
+            # Setup mocks
+            mock_config_gen = MockConfigGenerator.return_value
+            mock_config_gen.baseline_config = {
+                "config_name": "test",
+                "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}
+            }
+            mock_config_gen.PARAMETER_ORDER = [
+                'NORMALIZATION_MAX_SCALE',
+                'SAME_POS_BYE_WEIGHT',
+                'DIFF_POS_BYE_WEIGHT',
+                'PRIMARY_BONUS'
+            ]
+
+            manager = SimulationManager(
+                baseline_config_path=temp_baseline_config,
+                output_dir=temp_output_dir,
+                num_simulations_per_config=1,
+                max_workers=2,
+                data_folder=temp_data_folder,
+                num_test_values=1
+            )
+
+            return manager
+
+    def test_detect_resume_state_no_files(self, manager):
+        """Test resume detection with no intermediate files"""
+        should_resume, start_idx, last_path = manager._detect_resume_state()
+
+        assert should_resume is False
+        assert start_idx == 0
+        assert last_path is None
+
+    def test_detect_resume_state_partial_run(self, manager, temp_output_dir):
+        """Test resume detection with partial run (2 of 4 parameters complete)"""
+        # Create valid intermediate files
+        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
+        file1 = temp_output_dir / "intermediate_01_NORMALIZATION_MAX_SCALE.json"
+        file2 = temp_output_dir / "intermediate_02_SAME_POS_BYE_WEIGHT.json"
+        file1.write_text(json.dumps(config))
+        file2.write_text(json.dumps(config))
+
+        should_resume, start_idx, last_path = manager._detect_resume_state()
+
+        assert should_resume is True
+        assert start_idx == 2  # Resume from index 2 (3rd parameter)
+        assert last_path == file2
+
+    def test_detect_resume_state_completed_run(self, manager, temp_output_dir):
+        """Test resume detection with all parameters complete"""
+        # Create intermediate files for all 4 parameters
+        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
+        for i in range(1, 5):
+            param_name = manager.config_generator.PARAMETER_ORDER[i-1]
+            file = temp_output_dir / f"intermediate_{i:02d}_{param_name}.json"
+            file.write_text(json.dumps(config))
+
+        should_resume, start_idx, last_path = manager._detect_resume_state()
+
+        # All parameters complete - should NOT resume
+        assert should_resume is False
+        assert start_idx == 0
+        assert last_path is None
+
+    def test_detect_resume_state_corrupted_json(self, manager, temp_output_dir):
+        """Test resume detection skips corrupted JSON files"""
+        # Create one valid file and one corrupted file
+        valid_config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
+        file1 = temp_output_dir / "intermediate_01_NORMALIZATION_MAX_SCALE.json"
+        file2 = temp_output_dir / "intermediate_02_SAME_POS_BYE_WEIGHT.json"
+        file1.write_text(json.dumps(valid_config))
+        file2.write_text("{ invalid json }")  # Corrupted
+
+        should_resume, start_idx, last_path = manager._detect_resume_state()
+
+        # Should skip corrupted file and use highest valid (file1)
+        assert should_resume is True
+        assert start_idx == 1  # Resume from index 1 (2nd parameter)
+        assert last_path == file1
+
+    def test_detect_resume_state_missing_fields(self, manager, temp_output_dir):
+        """Test resume detection skips files with missing required fields"""
+        # Create file with missing 'parameters' field
+        invalid_config = {"config_name": "test"}  # Missing 'parameters'
+        file1 = temp_output_dir / "intermediate_01_NORMALIZATION_MAX_SCALE.json"
+        file1.write_text(json.dumps(invalid_config))
+
+        should_resume, start_idx, last_path = manager._detect_resume_state()
+
+        # Should skip invalid file
+        assert should_resume is False
+        assert start_idx == 0
+        assert last_path is None
+
+    def test_detect_resume_state_parameter_order_mismatch(self, manager, temp_output_dir):
+        """Test resume detection with parameter order mismatch"""
+        # Create file with wrong parameter name at index 1
+        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
+        file1 = temp_output_dir / "intermediate_01_WRONG_PARAM.json"
+        file1.write_text(json.dumps(config))
+
+        should_resume, start_idx, last_path = manager._detect_resume_state()
+
+        # Should detect mismatch and NOT resume
+        assert should_resume is False
+        assert start_idx == 0
+        assert last_path is None
+
+    def test_detect_resume_state_invalid_filename_format(self, manager, temp_output_dir):
+        """Test resume detection skips files with invalid filename format"""
+        # Create file with invalid name format
+        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
+        file1 = temp_output_dir / "invalid_filename.json"
+        file1.write_text(json.dumps(config))
+
+        should_resume, start_idx, last_path = manager._detect_resume_state()
+
+        # Should skip invalid filename
+        assert should_resume is False
+        assert start_idx == 0
+        assert last_path is None
+
+    def test_detect_resume_state_param_idx_exceeds_order(self, manager, temp_output_dir):
+        """Test resume detection when param_idx exceeds PARAMETER_ORDER length"""
+        # Create file with idx beyond parameter count (idx=99 > 4 parameters)
+        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
+        file1 = temp_output_dir / "intermediate_99_EXTRA_PARAM.json"
+        file1.write_text(json.dumps(config))
+
+        should_resume, start_idx, last_path = manager._detect_resume_state()
+
+        # Should treat as completed run
+        assert should_resume is False
+        assert start_idx == 0
+        assert last_path is None
 
 
 class TestTimeFormatting:

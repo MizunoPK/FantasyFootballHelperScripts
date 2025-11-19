@@ -1,0 +1,3 @@
+I want to update the Waiver Optimizer such that when it is entered, the user is asked to pick between "Rest of Season" or "Current Week"
+If "Rest of Season" is selected, then the current behavior is used without any changes.
+If "Current Week" is selected, then I want to generate potential swaps in the current roster from waivers that we can 'stream' for the current week. This would involve using the same scoring calculation that the Starter Helper uses instead of the standard scoring calculation that the Rest of Season version will still use. This means we'll be using single-week projected points, matchup scoring, and performance scoring.

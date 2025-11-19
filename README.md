@@ -130,18 +130,31 @@ Interactive application with **four main modes**:
 
 #### 3. Trade Simulator Mode
 Three trade evaluation sub-modes:
-- **Manual Trade Visualizer**: Evaluate individual trades manually with before/after comparison (exports to txt and Excel files)
-- **Search Trade Opportunities**: Find best possible trades with your league based on roster needs
-- **Full Trade Simulation**: Generate and rank all possible trades across all teams
+
+##### 1. Waiver Optimizer
+Find optimal waiver wire pickups (drop/add combinations) with two scoring modes:
+
+**Mode Selection**:
+- **Rest of Season**: Seasonal projections with standard scoring (player rating, schedule strength)
+- **Current Week**: Weekly projections for streaming (matches Starter Helper scoring with matchup multipliers)
+
+**Use Cases**:
+- **Rest of Season**: Target long-term value, season-long pickups
+- **Current Week**: Stream positions (QB, TE, K, DST) based on weekly matchups
+
+##### 2. Trade Suggestor
+Find mutually beneficial trades with league opponents based on roster needs.
+
+##### 3. Manual Trade Visualizer
+Evaluate specific trade proposals with before/after comparison (exports to txt and Excel files).
 
 **Supported Trade Types:**
 - **Equal Trades**: 1-for-1, 2-for-2, 3-for-3 (balanced player exchanges)
 - **Unequal Trades**: 2-for-1, 1-for-2, 3-for-1, 1-for-3, 3-for-2, 2-for-3 (asymmetric exchanges)
-- **Waiver Optimizer**: Drop/add combinations from waiver wire
 
 **Advanced Features:**
-- **Waiver Recommendations**: Automatically suggests waiver wire pickups when trading away more players than receiving (fills empty roster spots)
-- **Drop System**: Handles roster limit violations by identifying lowest-value players to drop when receiving more players than giving away
+- **Waiver Recommendations**: Automatically suggests waiver wire pickups when trading away more players than receiving
+- **Drop System**: Identifies lowest-value players to drop when receiving more players than giving away
 - **Trade Threshold**: Enforces minimum 30-point improvement for trade suggestions (0-point minimum for waiver moves)
 
 #### 4. Modify Player Data Mode
@@ -175,6 +188,10 @@ python run_simulation.py iterative --sims 100 --workers 8
 - Total configs: 14 parameters x configs per parameter
 - Much faster than full grid search (~2-3 hours vs days)
 - **Configuration**: Edit NUM_PARAMETERS_TO_TEST in `simulation/ConfigGenerator.py` to explore multiple parameters simultaneously
+- **Auto-resume**: If interrupted mid-optimization, automatically resumes from last completed parameter
+  - Detects existing intermediate_*.json files and continues where it left off
+  - Validates parameter order consistency before resuming
+  - Cleans up intermediate files when full optimization completes
 
 3. **Full Grid Search** (exhaustive):
 ```bash
