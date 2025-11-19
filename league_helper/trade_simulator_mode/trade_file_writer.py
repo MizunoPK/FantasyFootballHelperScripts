@@ -326,8 +326,9 @@ class TradeFileWriter:
                 num_players = len(trade.my_new_players)
                 trade_type = f"{num_players}-for-{num_players}"
 
-                # Write trade header with rank, type, and improvement
-                file.write(f"#{i} - {trade_type} Trade - Improvement: +{improvement:.2f} pts\n")
+                # Write trade header with rank, type, and improvement (dynamic sign)
+                sign = "+" if improvement >= 0 else ""
+                file.write(f"#{i} - {trade_type} Trade - Improvement: {sign}{improvement:.2f} pts\n")
 
                 # Write players to DROP from roster (original scores from old roster context)
                 file.write(f"  DROP:\n")

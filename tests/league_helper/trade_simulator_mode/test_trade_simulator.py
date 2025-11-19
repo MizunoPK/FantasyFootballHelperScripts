@@ -570,15 +570,16 @@ class TestWaiverOptimizer:
             return TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
 
     def test_waiver_optimizer_returns_bool(self, manager_with_waivers):
-        """Test that waiver optimizer returns tuple of (bool, list, str)"""
+        """Test that waiver optimizer returns tuple of (bool, list, str, Optional[TradeSimTeam])"""
         with patch('league_helper.trade_simulator_mode.TradeSimulatorModeManager.show_list_selection', return_value=1):
             with patch('builtins.print'):
                 result = manager_with_waivers.start_waiver_optimizer()
                 assert isinstance(result, tuple)
-                assert len(result) == 3  # Updated: now returns (bool, list, str)
+                assert len(result) == 4  # Updated: now returns (bool, list, str, Optional[TradeSimTeam])
                 assert isinstance(result[0], bool)
                 assert isinstance(result[1], list)
                 assert isinstance(result[2], str)  # Mode name
+                # result[3] is Optional[TradeSimTeam] - can be None or TradeSimTeam
 
     def test_waiver_optimizer_handles_no_waiver_players(self, temp_data_folder, mock_player_manager, mock_config):
         """Test waiver optimizer with no available players"""
@@ -590,7 +591,7 @@ class TestWaiverOptimizer:
         with patch('league_helper.trade_simulator_mode.TradeSimulatorModeManager.show_list_selection', return_value=1):
             with patch('builtins.print'):
                 result = manager.start_waiver_optimizer()
-                assert result == (True, [], "Rest of Season")  # Updated: includes mode string
+                assert result == (True, [], "Rest of Season", None)  # Updated: includes mode string and my_team
 
     def test_waiver_optimizer_calls_get_trade_combinations(self, manager_with_waivers):
         """Test that waiver optimizer calls trade generation"""
@@ -1037,10 +1038,11 @@ class TestIntegration:
 
         # Verify
         assert isinstance(result, tuple)
-        assert len(result) == 3  # Updated: now returns (bool, list, str)
+        assert len(result) == 4  # Updated: now returns (bool, list, str, Optional[TradeSimTeam])
         assert result[0] == True
         assert isinstance(result[1], list)
         assert isinstance(result[2], str)  # Mode name
+        # result[3] is Optional[TradeSimTeam] - can be None or TradeSimTeam
         assert mock_player_manager.get_player_list.called
 
     def test_full_trade_suggestor_workflow(self, temp_data_folder, mock_player_manager, mock_config, sample_players):

@@ -35,7 +35,7 @@ RECOMMENDATION_COUNT = 10  # Number of player recommendations to display
 # =============================================================================
 # WAIVER OPTIMIZER CONSTANTS
 # =============================================================================
-MIN_WAIVER_IMPROVEMENT = 0  # Minimum score improvement to suggest a trade
+MIN_WAIVER_IMPROVEMENT = -20  # Minimum score improvement to suggest a trade
 NUM_TRADE_RUNNERS_UP = 9   # Number of alternative trade suggestions to show
 
 # Minimum position requirements for trade validation

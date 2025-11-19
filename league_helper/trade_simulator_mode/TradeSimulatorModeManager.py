@@ -21,7 +21,7 @@ Author: Kai Mizuno
 """
 
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 from trade_simulator_mode.TradeSimTeam import TradeSimTeam
 from trade_simulator_mode.TradeSnapshot import TradeSnapshot
@@ -137,9 +137,10 @@ class TradeSimulatorModeManager:
 
             # Execute selected mode and capture results
             # Each mode returns (continue_loop, sorted_trades) or (continue_loop, sorted_trades, mode_name)
+            my_team_for_file = None  # Will be set for waiver mode
             if choice == 1:
                 # Waiver Optimizer: Find best waiver wire pickups
-                loop, sorted_trades, mode_name = self.start_waiver_optimizer()
+                loop, sorted_trades, mode_name, my_team_for_file = self.start_waiver_optimizer()
                 mode = "waiver"
             elif choice == 2:
                 # Trade Suggestor: Find mutually beneficial trades with opponents
@@ -162,7 +163,9 @@ class TradeSimulatorModeManager:
                 # Use mode-specific save method
                 if mode == "waiver":
                     # Waiver file format: DROP/ADD with improvement per trade
-                    self.file_writer.save_waiver_trades_to_file(sorted_trades, self.my_team, mode_name)
+                    # Use mode-specific my_team if available, otherwise fall back to self.my_team
+                    team_for_file = my_team_for_file if my_team_for_file else self.my_team
+                    self.file_writer.save_waiver_trades_to_file(sorted_trades, team_for_file, mode_name)
                 elif mode == "trade":
                     # Trade suggestor file format: numbered trades with both teams' improvements
                     self.file_writer.save_trades_to_file(sorted_trades, self.my_team, self.opponent_simulated_teams)
@@ -235,7 +238,7 @@ class TradeSimulatorModeManager:
                 self.opponent_simulated_teams.append(TradeSimTeam(team_name, team_list, self.player_manager))
 
     
-    def start_waiver_optimizer(self) -> Tuple[bool, List[TradeSnapshot], str]:
+    def start_waiver_optimizer(self) -> Tuple[bool, List[TradeSnapshot], str, Optional[TradeSimTeam]]:
         """
         Find optimal waiver wire pickups by analyzing 1-for-1, 2-for-2, and 3-for-3 trades.
 
@@ -244,10 +247,11 @@ class TradeSimulatorModeManager:
         - Current Week: Weekly projections matching Starter Helper scoring
 
         Returns:
-            Tuple[bool, List[TradeSnapshot], str]:
+            Tuple[bool, List[TradeSnapshot], str, Optional[TradeSimTeam]]:
                 - bool: True to loop back to menu, False to exit
                 - List[TradeSnapshot]: Sorted trade recommendations
                 - str: Mode name for file output ("Rest of Season" or "Current Week")
+                - Optional[TradeSimTeam]: My team with mode-specific scoring (for file output)
         """
         self.logger.info("Starting Waiver Optimizer mode")
 
@@ -261,7 +265,7 @@ class TradeSimulatorModeManager:
         # Handle cancellation
         if mode_choice > 2:  # User selected Cancel
             self.logger.info("User cancelled Waiver Optimizer")
-            return True, [], ""
+            return True, [], "", None
 
         # Determine mode
         use_weekly_scoring = (mode_choice == 2)
@@ -289,7 +293,7 @@ class TradeSimulatorModeManager:
 
         if not waiver_players:
             print("\nNo players available on waivers.")
-            return True, [], mode_name
+            return True, [], mode_name, None
 
         # Re-create my_team with mode-specific scoring
         my_team = TradeSimTeam(
@@ -335,7 +339,7 @@ class TradeSimulatorModeManager:
 
         if not trade_combos:
             print("\nNo valid waiver pickups found that improve your team.")
-            return True, [], mode_name
+            return True, [], mode_name, None
 
         # Sort by improvement (highest improvement first)
         sorted_trades = sorted(
@@ -357,15 +361,16 @@ class TradeSimulatorModeManager:
 
         # Display each waiver pickup in numbered format
         for i, trade in enumerate(sorted_trades[:display_count], 1):
-            # Calculate improvement from trade
-            improvement = trade.my_new_team.team_score - self.my_team.team_score
+            # Calculate improvement from trade (use local my_team with mode-specific scoring)
+            improvement = trade.my_new_team.team_score - my_team.team_score
 
             # Determine trade type label (1-for-1, 2-for-2, etc.)
             num_players = len(trade.my_new_players)
             trade_type = f"{num_players}-for-{num_players}"
 
-            # Display trade header
-            print(f"#{i} - {trade_type} Trade - Improvement: +{improvement:.2f} pts")
+            # Display trade header with dynamic sign
+            sign = "+" if improvement >= 0 else ""
+            print(f"#{i} - {trade_type} Trade - Improvement: {sign}{improvement:.2f} pts")
 
             # Show players being dropped
             print(f"  DROP:")
@@ -381,8 +386,8 @@ class TradeSimulatorModeManager:
             print(f"  New team score: {trade.my_new_team.team_score:.2f}")
             print()
 
-        # Pause before returning to menu
-        return True, sorted_trades, mode_name
+        # Return my_team with mode-specific scoring for file output
+        return True, sorted_trades, mode_name, my_team
 
     def start_trade_suggestor(self) -> Tuple[bool, List[TradeSnapshot]]:
         """
