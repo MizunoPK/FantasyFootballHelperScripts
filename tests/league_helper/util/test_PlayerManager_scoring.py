@@ -193,16 +193,8 @@ def mock_data_folder(tmp_path):
     config_file = data_folder / "league_config.json"
     config_file.write_text(config_content)
 
-    # Create minimal teams.csv
-    teams_content = """team,offensive_rank,defensive_rank,opponent
-KC,1,5,LV
-BUF,2,3,MIA
-PHI,3,8,NYG
-DAL,15,20,WAS
-JAX,28,30,IND"""
-
-    teams_file = data_folder / "teams.csv"
-    teams_file.write_text(teams_content)
+    # Note: teams.csv no longer used - team data is now in team_data folder
+    # The team_data_manager fixture creates the team_data folder with per-team files
 
     # Create minimal players.csv (will be populated by tests)
     players_content = """id,name,team,position,bye_week,fantasy_points,injury_status,drafted,locked,average_draft_position,player_rating,week_1_points,week_2_points,week_3_points,week_4_points,week_5_points,week_6_points,week_7_points,week_8_points,week_9_points,week_10_points,week_11_points,week_12_points,week_13_points,week_14_points,week_15_points,week_16_points,week_17_points
@@ -221,9 +213,22 @@ def config_manager(mock_data_folder):
 
 
 @pytest.fixture
-def team_data_manager(mock_data_folder):
+def team_data_manager(mock_data_folder, config_manager):
     """Create TeamDataManager with test data"""
-    return TeamDataManager(mock_data_folder)
+    # Create team_data folder with a test team file
+    team_data_folder = mock_data_folder / "team_data"
+    team_data_folder.mkdir(exist_ok=True)
+
+    # Create KC.csv with test data
+    kc_content = """week,QB,RB,WR,TE,K,points_scored,points_allowed
+1,20.5,25.3,35.2,8.1,9.0,28,17
+2,18.3,22.1,31.5,7.8,8.5,24,21
+3,22.1,28.5,38.3,9.2,10.1,31,14
+4,19.8,24.2,33.1,8.5,9.3,27,20
+5,21.3,26.8,36.7,8.8,9.8,29,18"""
+    (team_data_folder / "KC.csv").write_text(kc_content)
+
+    return TeamDataManager(mock_data_folder, config_manager, None, 6)
 
 
 @pytest.fixture

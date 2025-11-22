@@ -40,7 +40,7 @@ def sample_config_dict():
         "parameters": {
             "num_teams": 10,
             "draft_rounds": 15,
-            "season_weeks": 17
+            "season_weeks": 16
         }
     }
 
@@ -180,7 +180,7 @@ class TestLoadConfig:
         params = config["parameters"]
         assert params["num_teams"] == 10
         assert params["draft_rounds"] == 15
-        assert params["season_weeks"] == 17
+        assert params["season_weeks"] == 16
 
     def test_load_config_nonexistent_file(self, tmp_path):
         """Test loading nonexistent file raises error"""
@@ -562,7 +562,7 @@ class TestMain:
         assert "FANTASY FOOTBALL LEAGUE SIMULATION" in captured.out
         assert "10 teams total" in captured.out
         assert "Snake draft" in captured.out
-        assert "17-week regular season" in captured.out
+        assert "16-week regular season" in captured.out
 
     @patch('simulation.manual_simulation.SimulatedLeague')
     @patch('simulation.manual_simulation.load_config')

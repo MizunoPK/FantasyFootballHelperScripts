@@ -1,0 +1,373 @@
+TEAM DATA ARCHITECTURE REFACTOR
+================================
+
+Overview: Replace centralized teams.csv with per-team historical data files and on-the-fly ranking calculations.
+
+================================================================================
+CURRENT STATE (VERIFIED)
+================================================================================
+
+1. TEAMS.CSV CREATION (player-data-fetcher)
+-------------------------------------------
+
+Files involved:
+- player-data-fetcher/config.py (line 40): TEAMS_CSV = '../data/teams.csv'
+- player-data-fetcher/config.py (line 43): MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS = 5
+- player-data-fetcher/espn_client.py: _calculate_rolling_window_rankings() (lines 872-1017)
+- player-data-fetcher/espn_client.py: _calculate_position_defense_rankings() (lines 1259-1376)
+- player-data-fetcher/player_data_exporter.py: export_teams_csv() (lines 452-492)
+- player-data-fetcher/player_data_exporter.py: export_teams_to_data() (lines 494-525)
+- utils/TeamData.py: extract_teams_from_rankings(), save_teams_to_csv()
+
+Current process:
+a) ESPN client fetches game scores for rolling window (weeks current_week-5 to current_week-1)
+b) Calculates offensive_rank: points scored per game (higher = better = rank 1)
+c) Calculates defensive_rank: points allowed per game (lower = better = rank 1)
+d) Calculates position-specific defense ranks: fantasy points allowed to each position
+e) Exports to:
+   - player-data-fetcher/data/teams_TIMESTAMP.csv (timestamped)
+   - player-data-fetcher/data/teams_latest.csv (latest link)
+   - data/teams.csv (shared with league_helper)
+
+Current CSV format (8 columns, 32 rows):
+- team, offensive_rank, defensive_rank
+- def_vs_qb_rank, def_vs_rb_rank, def_vs_wr_rank, def_vs_te_rank, def_vs_k_rank
+
+
+2. TEAMS.CSV USAGE (league_helper)
+----------------------------------
+
+Files involved:
+- league_helper/util/TeamDataManager.py (lines 35-283)
+- league_helper/util/PlayerManager.py (lines 218-219 - sets player team ranks)
+- league_helper/util/player_scoring.py (lines 526-540 - _apply_team_quality_multiplier)
+
+TeamDataManager loads data/teams.csv and provides:
+- get_team_offensive_rank(team) -> int (line 90)
+- get_team_defensive_rank(team) -> int (line 103)
+- get_team_defense_vs_position_rank(team, position) -> int (line 116)
+- get_rank_difference(player_team, position) -> int (matchup score) (line 217)
+
+PlayerManager (lines 218-219) caches these values on FantasyPlayer objects:
+- player.team_offensive_rank
+- player.team_defensive_rank
+
+Used by scoring system:
+- Team Quality (Step 4): Uses team_offensive_rank for offensive players (QB, RB, WR, TE, K), team_defensive_rank for DST
+- Matchup (Step 6): Uses position-specific defense ranks (def_vs_qb_rank, etc.) via get_rank_difference()
+- Schedule (Step 7): Uses position-specific defense ranks for future opponents via get_team_defense_vs_position_rank()
+
+
+3. TEAMS.CSV USAGE (simulation)
+-------------------------------
+
+Files involved:
+- simulation/sim_data/teams_week_N.csv (18 files, weeks 1-18)
+- simulation/SimulatedLeague.py (lines 183-186, 310-325)
+
+Current process:
+- Simulation uses pre-generated teams_week_N.csv files
+- Same format as teams.csv
+- SimulatedLeague copies teams_week_N.csv to teams.csv in each team's temp directory
+- TeamDataManager loads from this copied teams.csv
+
+Note: Week 1 teams_week_1.csv has all ranks = 16 (neutral, no data yet)
+
+
+4. HISTORICAL DATA SAVING
+-------------------------
+
+Files involved:
+- player-data-fetcher/player_data_fetcher_main.py: save_to_historical_data() (lines 362-419)
+
+Current process:
+- Copies 3 files to data/historical_data/{Season}/{WeekNumber}/:
+  - players.csv
+  - players_projected.csv
+  - teams.csv
+
+
+================================================================================
+PROPOSED CHANGES
+================================================================================
+
+1. PLAYER DATA FETCHER CHANGES
+------------------------------
+
+A. Remove teams.csv generation
+   - Stop creating data/teams.csv
+   - Stop creating player-data-fetcher/data/teams_TIMESTAMP.csv
+   - Stop creating player-data-fetcher/data/teams_latest.csv
+   - Remove config.py line 40: TEAMS_CSV
+   - Remove config.py line 43: MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+
+B. Create new team_data folder structure
+   - Location: data/team_data/
+   - Create one CSV file per team (e.g., KC.csv, MIN.csv, GB.csv)
+
+C. Team CSV file format
+   - Rows: Each week of the season (1-17)
+   - Columns: Each position (QB, RB, WR, TE, K)
+   - Values: Fantasy points allowed to that position in that week
+
+   Example (MIN.csv):
+   week,QB,RB,WR,TE,K
+   1,18.5,22.3,31.2,8.4,9.0
+   2,24.1,19.8,28.7,12.1,7.5
+   3,15.3,25.6,35.4,6.8,11.2
+   ...
+
+   Note: Need to also store offensive/defensive points for overall rankings.
+   Consider adding columns: points_scored, points_allowed
+
+   Updated format:
+   week,QB,RB,WR,TE,K,points_scored,points_allowed
+   1,18.5,22.3,31.2,8.4,9.0,28,17
+   2,24.1,19.8,28.7,12.1,7.5,21,31
+   ...
+   12,0,0,0,0,0,0,0    # Current week (no data yet)
+   13,0,0,0,0,0,0,0    # Future week
+   ...
+
+   **Note**: When running the player data fetcher, all weeks >= CURRENT_NFL_WEEK
+   will have all values set to 0 (no data available for current/future weeks).
+   Only completed weeks (< CURRENT_NFL_WEEK) will contain actual data.
+
+D. Historical data changes
+   - Instead of saving teams.csv to historical data folder
+   - Create the data/team_data/ folder with all 32 team files
+   - This replaces the single teams.csv file in historical_data/{Season}/{WeekNumber}/
+
+
+--------------------------------------------------------------------------------
+2. LEAGUE CONFIG CHANGES
+--------------------------------------------------------------------------------
+
+Add a "MIN_WEEKS" sub-parameter to the following scoring sections in data/league_config.json:
+
+A. TEAM_QUALITY_SCORING
+   - Add: "MIN_WEEKS": 5
+
+B. MATCHUP_SCORING
+   - Add: "MIN_WEEKS": 5
+
+C. SCHEDULE_SCORING
+   - Add: "MIN_WEEKS": 5
+
+Default value of 5 mimics current MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS constant.
+
+Example:
+```json
+"MATCHUP_SCORING": {
+  "MIN_WEEKS": 5,
+  "IMPACT_SCALE": 115.44420719076365,
+  "THRESHOLDS": { ... },
+  "MULTIPLIERS": { ... },
+  "WEIGHT": 0.8029220831479209
+}
+```
+
+--------------------------------------------------------------------------------
+3. TEAM DATA MANAGER CHANGES
+--------------------------------------------------------------------------------
+
+Files to modify:
+- league_helper/util/TeamDataManager.py
+
+A. Data loading
+   - Load all individual team CSV files from data/team_data/
+   - Store complete historical data (all weeks, all positions) for each team
+   - Replace team_data_cache with new structure containing weekly breakdown
+
+B. On-the-fly ranking calculations
+   - Calculate rankings when TeamDataManager is initialized
+   - Use the MIN_WEEKS value from the relevant scoring config (accessed via ConfigManager)
+   - Rankings computed from the previous X weeks of data (where X = MIN_WEEKS)
+
+C. Ranking calculation methods
+
+   Overall Offensive Rank (for team_quality scoring):
+   - Sum points_scored by team over past X weeks
+   - Divide by games played (handles bye weeks)
+   - Rank 1-32 (most points per game = rank 1)
+
+   Overall Defensive Rank (for team_quality scoring - DST only):
+   - Sum points_allowed by team over past X weeks
+   - Divide by games played
+   - Rank 1-32 (fewest points per game = rank 1)
+
+   Position-Specific Defense Ranks (for matchup/schedule scoring):
+   - Sum fantasy points allowed to each position over past X weeks
+   - Rank 1-32 (fewest points = rank 1 = best defense)
+
+D. Existing methods to update
+   - get_team_offensive_rank() -> calculate on-the-fly or use cached value
+   - get_team_defensive_rank() -> calculate on-the-fly or use cached value
+   - get_team_defense_vs_position_rank() -> calculate on-the-fly or use cached value
+   - Remove reload_team_data() or update to reload CSV files
+
+E. New initialization
+   - Accept ConfigManager reference to access MIN_WEEKS values
+   - Calculate all rankings once during initialization
+   - Store computed rankings for efficient lookup during scoring
+
+--------------------------------------------------------------------------------
+4. SIMULATION SYSTEM CHANGES
+--------------------------------------------------------------------------------
+
+Files to modify:
+- simulation/SimulationManager.py or new data generation script
+- simulation/sim_data/ structure
+
+A. Generate team_data files from players_actual.csv
+   - Use the season_schedule.csv (already exists in sim_data/)
+   - For each team, for each week:
+     - Find all players that played against that team (using schedule)
+     - Sum fantasy points scored by position against that defense
+     - Also track points_scored and points_allowed for overall rankings
+     - Write to team's CSV file
+   - Do NOT rely on player data fetcher for simulation data
+   - Create all 32 files in simulation/sim_data/team_data/
+
+B. Remove teams_week_N.csv files
+   - Delete simulation/sim_data/teams_week_1.csv through teams_week_18.csv
+   - Replace with team_data folder
+
+C. Update SimulatedLeague.py
+   - Remove code that copies teams_week_N.csv to teams.csv (lines 183-186, 310-325)
+   - Instead, copy the team_data folder to each team's temp directory
+   - Or update TeamDataManager to accept a data_folder parameter
+
+D. Add MIN_WEEKS to simulation configuration
+   - simulation/ConfigGenerator.py needs to generate MIN_WEEKS values
+   - Add to TEAM_QUALITY_SCORING, MATCHUP_SCORING, SCHEDULE_SCORING
+   - This allows testing different rolling window sizes
+   - **Default range**: (3, 6) for all three MIN_WEEKS parameters
+
+--------------------------------------------------------------------------------
+5. BACKWARDS COMPATIBILITY
+--------------------------------------------------------------------------------
+
+NO BACKWARDS COMPATIBILITY with teams.csv
+
+- Remove all references to teams.csv throughout codebase
+- Remove teams.csv loading logic
+- Remove teams.csv export logic
+- Update all documentation
+- Update all tests
+
+--------------------------------------------------------------------------------
+6. FILES TO MODIFY
+--------------------------------------------------------------------------------
+
+Player Data Fetcher:
+- player-data-fetcher/config.py
+  - Remove: TEAMS_CSV (line 40)
+  - Remove: MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS (line 43)
+- player-data-fetcher/espn_client.py
+  - Keep ranking calculation logic but output to new format
+  - Update _calculate_rolling_window_rankings()
+  - Update _calculate_position_defense_rankings()
+- player-data-fetcher/player_data_exporter.py
+  - Remove: export_teams_csv() (lines 452-492)
+  - Remove: export_teams_to_data() (lines 494-525)
+  - Add: new export method for team_data folder
+- player-data-fetcher/player_data_fetcher_main.py
+  - Update: save_to_historical_data() (lines 362-419)
+    - Change files_to_copy to not include teams.csv
+    - Add logic to copy team_data folder instead
+
+League Helper:
+- data/league_config.json
+  - Add MIN_WEEKS to TEAM_QUALITY_SCORING, MATCHUP_SCORING, SCHEDULE_SCORING
+- league_helper/util/TeamDataManager.py (major refactor)
+  - New data loading from team_data/*.csv files
+  - On-the-fly ranking calculations
+  - Accept ConfigManager for MIN_WEEKS access
+- league_helper/util/PlayerManager.py
+  - Update lines 218-219 to use new TeamDataManager methods
+- league_helper/util/ConfigManager.py
+  - Add methods to read MIN_WEEKS from scoring configs
+- league_helper/LeagueHelperManager.py
+  - Update initialization to pass ConfigManager to TeamDataManager
+
+Simulation:
+- simulation/SimulationManager.py or new script
+  - Generate team_data files from players_actual.csv
+- simulation/ConfigGenerator.py
+  - Add MIN_WEEKS as testable parameter
+- simulation/SimulatedLeague.py
+  - Update _update_team_rankings() (lines 310-325)
+  - Remove teams_week_N.csv copying logic
+- simulation/sim_data/
+  - Remove: teams_week_1.csv through teams_week_18.csv
+  - Add: team_data/ folder with 32 team CSV files
+
+Utils:
+- utils/TeamData.py
+  - Keep TeamData dataclass
+  - Remove: load_teams_from_csv()
+  - Remove: extract_teams_from_rankings()
+  - Remove: save_teams_to_csv()
+  - Add: new functions for team_data format
+
+Data Files:
+- Create: data/team_data/ folder
+- Remove: data/teams.csv
+- Remove: player-data-fetcher/data/teams_*.csv files
+
+Tests:
+- tests/utils/test_TeamData.py - Update for new format
+- tests/league_helper/util/test_TeamDataManager.py - Major updates
+- tests/player-data-fetcher/test_config.py - Remove MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS test
+- tests/integration/ - Update integration tests
+- All tests referencing teams.csv
+
+Documentation:
+- docs/scoring/04_team_quality_multiplier.md
+- docs/scoring/06_matchup_multiplier.md
+- docs/scoring/07_schedule_multiplier.md
+- README.md
+- ARCHITECTURE.md
+- CLAUDE.md
+- simulation/README.md
+
+--------------------------------------------------------------------------------
+7. BENEFITS
+--------------------------------------------------------------------------------
+
+- More granular historical data (per-team, per-week, per-position)
+- Configurable rolling window per scoring type via league_config.json
+- Simulation can test different MIN_WEEKS values
+- Cleaner separation of concerns
+- Better data for future analysis features
+- Removes duplicated MIN_WEEKS constant between config.py and league_config.json
+
+--------------------------------------------------------------------------------
+8. IMPLEMENTATION ORDER
+--------------------------------------------------------------------------------
+
+Phase 1: Create new data structure
+1. Define new team CSV format with all required columns
+2. Update player data fetcher to generate team_data folder
+3. Update historical data save to use new format
+
+Phase 2: Update league_helper
+4. Add MIN_WEEKS to league_config.json
+5. Update ConfigManager to read MIN_WEEKS
+6. Refactor TeamDataManager to load new format and calculate rankings
+
+Phase 3: Update simulation
+7. Create script to generate sim_data/team_data from players_actual.csv
+8. Update SimulatedLeague to use new format
+9. Add MIN_WEEKS to simulation configs
+
+Phase 4: Cleanup
+10. Remove all teams.csv references
+11. Delete teams_week_N.csv files
+12. Update tests
+13. Update documentation
+
+--------------------------------------------------------------------------------
+END OF SPECIFICATION
+--------------------------------------------------------------------------------

@@ -3,29 +3,29 @@ Player Manager
 
 Manages all player data, scoring calculations, and roster operations.
 This is the core module responsible for loading player data from CSV,
-calculating player scores using the 9-step scoring algorithm, and
+calculating player scores using the 10-step scoring algorithm, and
 managing draft operations.
 
 Key responsibilities:
 - Loading and parsing player data from players.csv
-- Calculating consistency scores from weekly projections
-- Computing the 9-step scoring algorithm for player evaluation
+- Computing the 10-step scoring algorithm for player evaluation
 - Managing the team roster through FantasyTeam
 - Updating the CSV file with roster changes
 - Displaying roster information
 
-The 9-step scoring algorithm:
+The 10-step scoring algorithm:
 1. Normalization (based on fantasy_points projection)
 2. ADP Multiplier (market wisdom adjustment)
 3. Player Rating Multiplier (expert consensus)
 4. Team Quality Multiplier (offensive/defensive strength)
-5. Consistency Multiplier (CV-based volatility)
+5. Performance Multiplier (actual vs projected deviation)
 6. Matchup Multiplier (opponent strength)
-7. Draft Order Bonus (positional value by round)
-8. Bye Week Penalty (same-position and different-position roster conflicts)
+7. Schedule Multiplier (future opponent strength)
+8. Draft Order Bonus (positional value by round)
+9. Bye Week Penalty (same-position and different-position roster conflicts)
    - BASE_BYE_PENALTY applied per same-position overlap
    - DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY applied per different-position overlap
-9. Injury Penalty (risk assessment)
+10. Injury Penalty (risk assessment)
 
 Author: Kai Mizuno
 """
@@ -58,7 +58,7 @@ class PlayerManager:
     Manages player data, scoring, and roster operations.
 
     This class is responsible for all player-related functionality including
-    loading player data from CSV, calculating scores using the 9-step algorithm,
+    loading player data from CSV, calculating scores using the 10-step algorithm,
     managing the team roster, and persisting changes back to the CSV file.
 
     Attributes:
@@ -98,7 +98,7 @@ class PlayerManager:
 
         Side Effects:
             - Loads all players from players.csv
-            - Calculates consistency scores for each player
+            - Initializes team rankings and matchup data for each player
             - Initializes the team roster with drafted players
             - Logs player loading statistics
         """
@@ -148,13 +148,6 @@ class PlayerManager:
         # These are the minimum fields needed to create a valid FantasyPlayer
         required_columns = ['id', 'name', 'team', 'position']
 
-        # Track consistency data statistics for logging purposes
-        # This helps monitor data quality and identify players with insufficient historical data
-        consistency_stats = {
-            'sufficient_data': 0,      # Players with MIN_WEEKS or more of data
-            'insufficient_data': 0,    # Players defaulted to MEDIUM consistency
-            'by_weeks': {0: 0, 1: 0, 2: 0}  # Breakdown of players by weeks of data
-        }
 
         try:
             with open(self.file_str, newline='', encoding='utf-8') as csvfile:
@@ -197,22 +190,6 @@ class PlayerManager:
                         # This adjusts for the current point in the season (early vs late season)
                         player.fantasy_points = player.get_rest_of_season_projection(self.config.current_nfl_week)
 
-                        # Calculate consistency score (coefficient of variation) from historical weekly data
-                        # Returns (consistency_value, weeks_with_data) tuple
-                        consistency_val, weeks_count = self.scoring_calculator.calculate_consistency(player)
-                        player.consistency = consistency_val
-
-                        # Update consistency statistics for logging
-                        # Track how many players have sufficient data vs. defaults
-                        min_weeks = self.config.consistency_scoring[self.config.keys.MIN_WEEKS]
-                        if weeks_count >= min_weeks:
-                            consistency_stats['sufficient_data'] += 1
-                        else:
-                            # Players with insufficient data get default consistency rating (MEDIUM)
-                            consistency_stats['insufficient_data'] += 1
-                            if weeks_count in consistency_stats['by_weeks']:
-                                consistency_stats['by_weeks'][weeks_count] += 1
-
                         # Load team quality rankings for scoring calculations
                         # Offensive rank used for offensive players, defensive rank used for DST
                         player.team_offensive_rank = self.team_data_manager.get_team_offensive_rank(player.team)
@@ -244,16 +221,6 @@ class PlayerManager:
                 # This is needed for normalization calculations in score_player()
                 self.scoring_calculator.max_projection = self.max_projection
 
-                # Log summary of consistency data quality
-                # Helps identify if most players have sufficient historical data
-                self.logger.debug(
-                    f"Consistency calculation: {consistency_stats['sufficient_data']} players with sufficient data, "
-                    f"{consistency_stats['insufficient_data']} players defaulted to MEDIUM "
-                    f"({consistency_stats['by_weeks'][0]} with 0 weeks, "
-                    f"{consistency_stats['by_weeks'][1]} with 1 week, "
-                    f"{consistency_stats['by_weeks'][2]} with 2 weeks)"
-                )
-                        
         except FileNotFoundError:
             self.logger.error(f"Error: File {self.file_str} not found.")
             return []

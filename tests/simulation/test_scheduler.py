@@ -208,13 +208,13 @@ class TestGenerateDoubleRoundRobin:
 class TestGenerateScheduleForNFLSeason:
     """Test schedule generation for NFL season length"""
 
-    def test_default_17_weeks(self):
-        """Test default 17-week NFL season"""
+    def test_default_16_weeks(self):
+        """Test default 16-week NFL season"""
         teams = list(range(1, 11))  # 10 teams
         schedule = generate_schedule_for_nfl_season(teams)
 
-        # Should be trimmed to 17 weeks (from 18)
-        assert len(schedule) == 17
+        # Should be trimmed to 16 weeks (from 18)
+        assert len(schedule) == 16
 
     def test_custom_week_count(self):
         """Test custom number of weeks"""
@@ -234,7 +234,7 @@ class TestGenerateScheduleForNFLSeason:
     def test_trimming_preserves_structure(self):
         """Test that trimming preserves valid weekly structure"""
         teams = list(range(1, 11))
-        schedule = generate_schedule_for_nfl_season(teams, num_weeks=17)
+        schedule = generate_schedule_for_nfl_season(teams, num_weeks=16)
 
         # Each week should still have valid matchups
         for week in schedule:
@@ -317,9 +317,9 @@ class TestScheduleIntegration:
         full_schedule = generate_double_round_robin(teams)
         assert len(full_schedule) == 18
 
-        # Trim to 17 weeks for NFL season
-        nfl_schedule = generate_schedule_for_nfl_season(teams, num_weeks=17)
-        assert len(nfl_schedule) == 17
+        # Trim to 16 weeks for NFL season
+        nfl_schedule = generate_schedule_for_nfl_season(teams, num_weeks=16)
+        assert len(nfl_schedule) == 16
 
         # Validate trimmed schedule
         assert validate_schedule(nfl_schedule, teams) == True

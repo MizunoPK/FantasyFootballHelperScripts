@@ -146,7 +146,7 @@ python simulation/run_simulation.py full --sims 100 --workers 8 --output results
      - 1 DraftHelperTeam (system being tested)
      - 9 SimulatedOpponents with different strategies
    - Runs snake draft (15 rounds, 150 picks)
-   - Simulates 17-week regular season
+   - Simulates 16-week regular season
    - Tracks wins, losses, and points
 
 3. **Parallel Execution** (ParallelLeagueRunner)

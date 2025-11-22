@@ -11,10 +11,10 @@
 The Performance Multiplier evaluates how a player's actual fantasy points compare to their weekly projections over the season. Players who consistently exceed projections receive a boost (up to 1.05x), while those who underperform receive a penalty (down to 0.95x). This metric captures execution quality and reliability beyond raw statistical projections.
 
 **Key Characteristics**:
-- **Historical comparison**: Uses past weeks' actual vs projected performance
-- **Minimum data requirement**: Requires at least 3 weeks of valid data (configurable)
+- **Rolling window**: Uses only the last MIN_WEEKS weeks (not entire season) for recent performance trends
+- **Minimum data requirement**: MIN_WEEKS serves as both window size AND minimum required weeks (default: 3)
 - **Position exclusions**: DST players excluded (insufficient projection data)
-- **Week filtering**: Only analyzes weeks that have already occurred (weeks < CURRENT_NFL_WEEK)
+- **Week filtering**: Only analyzes the rolling window of recent completed weeks
 - **Smart skipping**: Ignores weeks where player didn't play (actual=0) or projections missing
 
 **Formula**:
@@ -60,14 +60,16 @@ Multiplier = lookup deviation in thresholds → apply weight exponent
 ### Step 1: Calculate Performance Deviation
 
 **Method**: `PlayerScoringCalculator.calculate_performance_deviation()`
-**File**: `league_helper/util/player_scoring.py:206-301`
+**File**: `league_helper/util/player_scoring.py:167-262`
 
 ```python
 def calculate_performance_deviation(self, player: FantasyPlayer) -> Optional[float]:
     """
     Calculate performance deviation for a player based on actual vs projected points.
 
-    Formula: average((actual - projected) / projected) for all valid weeks
+    Formula: average((actual - projected) / projected) for valid weeks in rolling window
+
+    Uses MIN_WEEKS as both the rolling window size AND minimum data requirement.
 
     Returns:
         Optional[float]: Average performance deviation as percentage (e.g., 0.15 = +15%)
@@ -77,10 +79,17 @@ def calculate_performance_deviation(self, player: FantasyPlayer) -> Optional[flo
     if player.position == 'DST':
         return None
 
+    # Get MIN_WEEKS for rolling window size
+    min_weeks = self.config.performance_scoring['MIN_WEEKS']  # Default: 3
+
+    # Calculate rolling window start (use last MIN_WEEKS completed weeks)
+    # Example: current_week=10, min_weeks=4 -> analyze weeks 6,7,8,9
+    start_week = max(1, self.config.current_nfl_week - min_weeks)
+
     deviations = []
 
-    # Only analyze weeks that have occurred (weeks < CURRENT_NFL_WEEK)
-    for week in range(1, self.config.current_nfl_week):
+    # Analyze only the rolling window (recent MIN_WEEKS weeks)
+    for week in range(start_week, self.config.current_nfl_week):
         # Get actual points from player object
         actual_points = getattr(player, f'week_{week}_points')
         if actual_points is None or actual_points == 0:
@@ -95,8 +104,7 @@ def calculate_performance_deviation(self, player: FantasyPlayer) -> Optional[flo
         deviation = (actual_points - projected_points) / projected_points
         deviations.append(deviation)
 
-    # Require minimum weeks of data
-    min_weeks = self.config.performance_scoring['MIN_WEEKS']  # Default: 3
+    # Require minimum weeks of data (MIN_WEEKS is both window size and minimum)
     if len(deviations) < min_weeks:
         return None
 
@@ -106,7 +114,7 @@ def calculate_performance_deviation(self, player: FantasyPlayer) -> Optional[flo
 
 **Key Logic**:
 1. **Position check**: Immediately return None for DST players
-2. **Week iteration**: Loop through weeks 1 to (CURRENT_NFL_WEEK - 1)
+2. **Rolling window**: Only analyze the last MIN_WEEKS completed weeks (not entire season)
 3. **Data validation**: Skip weeks with missing or zero actual/projected points
 4. **Deviation calculation**: `(actual - projected) / projected` for each valid week
 5. **Minimum requirement**: Need at least MIN_WEEKS (3) valid weeks

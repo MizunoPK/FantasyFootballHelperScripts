@@ -59,7 +59,7 @@ class LeagueHelperManager:
             data_folder (Path): Path to the data directory containing:
                 - league_config.json: League configuration
                 - players.csv: Player database
-                - teams.csv: Team rankings
+                - team_data/: Per-team historical rankings
                 - bye_weeks.csv: Bye week schedule
 
         Raises:
@@ -78,9 +78,9 @@ class LeagueHelperManager:
         self.logger.debug("Initializing Season Schedule Manager")
         self.season_schedule_manager = SeasonScheduleManager(data_folder)
 
-        # Initialize Team Data Manager with schedule manager for opponent lookups
+        # Initialize Team Data Manager with config and schedule manager
         self.logger.debug("Initializing Team Data Manager")
-        self.team_data_manager = TeamDataManager(data_folder, self.season_schedule_manager, self.config.current_nfl_week)
+        self.team_data_manager = TeamDataManager(data_folder, self.config, self.season_schedule_manager, self.config.current_nfl_week)
 
         self.logger.debug("Initializing Player Manager")
         self.player_manager = PlayerManager(data_folder, self.config, self.team_data_manager, self.season_schedule_manager)
@@ -191,7 +191,7 @@ def main():
     The application expects a 'data' directory at the project root containing:
     - league_config.json
     - players.csv
-    - teams.csv
+    - team_data/
     - bye_weeks.csv
     """
     setup_logger(constants.LOG_NAME, constants.LOGGING_LEVEL, constants.LOGGING_TO_FILE, constants.LOGGING_FILE, constants.LOGGING_FORMAT)

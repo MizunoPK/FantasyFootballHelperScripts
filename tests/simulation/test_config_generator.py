@@ -71,6 +71,7 @@ class TestConfigGeneratorInitialization:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "MIN_WEEKS": 5,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
@@ -99,6 +100,7 @@ class TestConfigGeneratorInitialization:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 5,
                     "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -185,7 +187,7 @@ class TestConfigGeneratorInitialization:
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 13  # 5 scalars + 5 weights + 2 threshold STEPS + 1 IMPACT_SCALE (SCHEDULE disabled, some STEPS disabled)
+        assert len(gen.PARAMETER_ORDER) == 16  # 5 scalars + 5 weights + 3 MIN_WEEKS + 2 threshold STEPS + 1 IMPACT_SCALE (SCHEDULE disabled, some STEPS disabled)
 
 
 class TestParameterValueGeneration:
@@ -235,6 +237,7 @@ class TestParameterValueGeneration:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "MIN_WEEKS": 5,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
@@ -263,6 +266,7 @@ class TestParameterValueGeneration:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 5,
                     "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -345,8 +349,8 @@ class TestParameterValueGeneration:
         """Test that value sets are generated for all parameters"""
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Should have 5 scalar + 5 weight + 2 threshold STEPS + 1 IMPACT_SCALE
-        assert len(value_sets) == 13  # Only ADP and PERFORMANCE have STEPS; only MATCHUP has IMPACT_SCALE (others disabled)
+        # Should have 5 scalar + 5 weight + 2 MIN_WEEKS + 2 threshold STEPS + 1 IMPACT_SCALE
+        assert len(value_sets) == 16  # Only ADP and PERFORMANCE have STEPS; only MATCHUP has IMPACT_SCALE; 3 MIN_WEEKS (others disabled)
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'SAME_POS_BYE_WEIGHT' in value_sets
         assert 'DIFF_POS_BYE_WEIGHT' in value_sets
@@ -417,6 +421,7 @@ class TestCombinationGeneration:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "MIN_WEEKS": 5,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
@@ -445,6 +450,7 @@ class TestCombinationGeneration:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 5,
                     "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -492,7 +498,7 @@ class TestCombinationGeneration:
         value_sets = generator.generate_all_parameter_value_sets()
 
         # Verify value sets exist for all expected parameters
-        assert len(value_sets) == 13  # 5 scalars + 5 weights + 2 threshold STEPS + 1 IMPACT_SCALE (only ADP, PERFORMANCE, MATCHUP optimized)
+        assert len(value_sets) == 16  # 5 scalars + 5 weights + 3 MIN_WEEKS + 2 threshold STEPS + 1 IMPACT_SCALE (only ADP, PERFORMANCE, MATCHUP optimized)
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
         # SCHEDULE disabled
@@ -565,6 +571,7 @@ class TestConfigDictCreation:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "MIN_WEEKS": 5,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
@@ -593,6 +600,7 @@ class TestConfigDictCreation:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 5,
                     "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -740,6 +748,7 @@ class TestIterativeOptimizationSupport:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "MIN_WEEKS": 5,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
@@ -768,6 +777,7 @@ class TestIterativeOptimizationSupport:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 5,
                     "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -852,7 +862,7 @@ class TestIterativeOptimizationSupport:
         assert 'MATCHUP_SCORING_STEPS' in combination
         assert 'MATCHUP_IMPACT_SCALE' in combination
         # assert 'SCHEDULE_IMPACT_SCALE' in combination
-        assert len(combination) == 16  # 5 scalars + 5 weights + 5 STEPS + 1 IMPACT_SCALE
+        assert len(combination) == 19  # 5 scalars + 5 weights + 3 MIN_WEEKS + 5 STEPS + 1 IMPACT_SCALE
 
     def test_generate_single_parameter_configs_for_multiplier(self, generator):
         """Test generating configs for a weight parameter"""
@@ -948,6 +958,7 @@ class TestGenerateIterativeCombinations:
                     }
                 },
                 "TEAM_QUALITY_SCORING": {
+                    "MIN_WEEKS": 5,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
                         "EXCELLENT": 1.3,
@@ -976,6 +987,7 @@ class TestGenerateIterativeCombinations:
                     }
                 },
                 "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 5,
                     "IMPACT_SCALE": 150.0,
                     "WEIGHT": 1.0,
                     "MULTIPLIERS": {
@@ -1089,18 +1101,18 @@ class TestGenerateIterativeCombinations:
             temp_path = Path(f.name)
 
         try:
-            # Use num_test_values=1 to keep cartesian product small (2^13 = 8,192 configs)
+            # Use num_test_values=1 to keep cartesian product small (2^16 = 65,536 configs)
             generator = ConfigGenerator(temp_path, num_test_values=1, num_parameters_to_test=20)
 
-            # Should cap at 13 parameters (PARAMETER_ORDER length)
+            # Should cap at 16 parameters (PARAMETER_ORDER length)
             configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
 
-            # Should generate configs (capped at 13 params)
+            # Should generate configs (capped at 16 params)
             # Base parameter: 2 configs
-            # Random parameters (12): 24 configs (12 * 2)
-            # Combinations: 2^13 = 8,192
-            # Total: 8,218 configs
-            assert len(configs) == 8218
+            # Random parameters (15): 30 configs (15 * 2)
+            # Combinations: 2^16 = 65,536
+            # Total: 65,568 configs
+            assert len(configs) == 65568
             assert all('parameters' in config for config in configs)
         finally:
             temp_path.unlink()

@@ -195,12 +195,12 @@ class TestExportConfiguration:
             assert field in config.EXPORT_COLUMNS
 
 
-class TestTeamRankingsConfiguration:
-    """Test team rankings configuration"""
+class TestTeamDataConfiguration:
+    """Test team data configuration"""
 
-    def test_min_weeks_for_current_season_rankings_is_positive(self):
-        """Test MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS is positive integer"""
-        assert isinstance(config.MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS, int)
-        assert config.MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS > 0
-        # Should be a reasonable number of weeks
-        assert config.MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS <= 18
+    def test_team_data_folder_is_valid_path(self):
+        """Test TEAM_DATA_FOLDER is a valid path string"""
+        assert isinstance(config.TEAM_DATA_FOLDER, str)
+        assert len(config.TEAM_DATA_FOLDER) > 0
+        # Should be a relative path
+        assert 'team_data' in config.TEAM_DATA_FOLDER

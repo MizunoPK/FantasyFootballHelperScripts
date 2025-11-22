@@ -58,19 +58,32 @@ def temp_data_folder(tmp_path):
 8,Mark Andrews,13.5,12.8,14.2,13.0,13.7,12.5,13.9,14.1,13.3,14.5,13.9,14.3,0.0,13.6,14.0,13.2,13.8
 """)
 
-    # Create minimal teams.csv
-    teams_csv = data_folder / "teams.csv"
-    teams_csv.write_text("""Team Name,Position,Player Name
-MyTeam,QB,
-MyTeam,RB,
-MyTeam,RB,
-MyTeam,WR,
-MyTeam,WR,
-MyTeam,TE,
-MyTeam,FLEX,
-MyTeam,K,
-MyTeam,DST,
-MyTeam,BENCH,
+    # Note: teams.csv no longer used - team data is now in team_data folder
+
+    # Create team_data folder with per-team weekly data (new format)
+    team_data_folder = data_folder / "team_data"
+    team_data_folder.mkdir()
+
+    # Create KC team data (teams from players.csv)
+    kc_csv = team_data_folder / "KC.csv"
+    kc_csv.write_text("""week,QB,RB,WR,TE,K,points_scored,points_allowed
+1,20.5,25.3,35.2,8.1,9.0,31,17
+2,18.3,22.1,31.5,7.8,8.5,28,21
+3,22.1,28.5,38.3,9.2,10.1,35,14
+4,19.8,24.2,33.1,8.5,9.3,30,20
+5,21.3,26.8,36.7,8.8,9.8,33,18
+6,20.8,25.5,34.9,8.6,9.5,31,19
+""")
+
+    # Create BUF team data
+    buf_csv = team_data_folder / "BUF.csv"
+    buf_csv.write_text("""week,QB,RB,WR,TE,K,points_scored,points_allowed
+1,22.1,24.0,33.5,7.5,8.8,32,15
+2,20.5,23.2,35.1,8.0,9.2,30,18
+3,21.8,25.5,34.8,7.9,9.0,31,16
+4,19.2,22.8,32.5,7.3,8.6,29,19
+5,20.8,24.1,33.9,7.7,8.9,30,17
+6,21.5,24.8,34.2,7.8,9.1,31,17
 """)
 
     # Copy league_config.json from actual data folder
@@ -289,9 +302,7 @@ class TestErrorRecovery:
         players_csv = data_folder / "players_projected.csv"
         players_csv.write_text("Invalid,CSV,Header\nBad,Data,Here\n")
 
-        # Create minimal teams CSV
-        teams_csv = data_folder / "teams.csv"
-        teams_csv.write_text("Team Name,Position,Player Name\n")
+        # Note: teams.csv no longer used - team data is now in team_data folder
 
         # Create minimal config
         config_json = data_folder / "league_config.json"

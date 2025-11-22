@@ -2,13 +2,13 @@
 Simulated League
 
 Orchestrates a complete fantasy football league simulation including draft
-and 17-week season. Manages 10 teams (1 DraftHelperTeam + 9 SimulatedOpponents)
+and 16-week season. Manages 10 teams (1 DraftHelperTeam + 9 SimulatedOpponents)
 through the entire process.
 
 The simulation process:
 1. Initialize teams with separate PlayerManager instances
 2. Run snake draft (15 rounds, 150 total picks)
-3. Run 17-week regular season with round-robin matchups
+3. Run 16-week regular season with round-robin matchups
 4. Track results and determine final standings
 
 Author: Kai Mizuno
@@ -180,10 +180,16 @@ class SimulatedLeague:
             # Create SeasonScheduleManager (for opponent lookups)
             season_schedule_mgr = SeasonScheduleManager(team_dir)
 
-            # Create TeamDataManager (will be updated week-by-week)
-            # For draft, use week 0 or week 1 rankings
-            shutil.copy(self.data_folder / "teams_week_1.csv", team_dir / "teams.csv")
-            team_data_mgr = TeamDataManager(team_dir, season_schedule_mgr, config.current_nfl_week)
+            # Copy team_data folder for TeamDataManager (new format with per-team historical data)
+            team_data_source = self.data_folder / "team_data"
+            team_data_dest = team_dir / "team_data"
+            if team_data_source.exists():
+                shutil.copytree(team_data_source, team_data_dest)
+            else:
+                self.logger.warning(f"team_data folder not found: {team_data_source}")
+
+            # Create TeamDataManager (will recalculate rankings for each week)
+            team_data_mgr = TeamDataManager(team_dir, config, season_schedule_mgr, config.current_nfl_week)
 
             # Create PlayerManagers for projected and actual data
             projected_pm = PlayerManager(team_dir, config, team_data_mgr, season_schedule_mgr)
@@ -204,13 +210,13 @@ class SimulatedLeague:
 
     def _generate_schedule(self) -> None:
         """
-        Generate 17-week round-robin schedule.
+        Generate 16-week round-robin schedule.
 
         Uses generate_schedule_for_nfl_season to create matchups where each
-        team plays each other team twice (as close as possible in 17 weeks).
+        team plays each other team twice (as close as possible in 16 weeks).
         """
-        self.logger.debug("Generating 17-week round-robin schedule")
-        self.season_schedule = generate_schedule_for_nfl_season(self.teams, num_weeks=17)
+        self.logger.debug("Generating 16-week round-robin schedule")
+        self.season_schedule = generate_schedule_for_nfl_season(self.teams, num_weeks=16)
         self.logger.debug(f"Generated schedule: {len(self.season_schedule)} weeks")
 
     def run_draft(self) -> None:
@@ -272,7 +278,7 @@ class SimulatedLeague:
 
     def run_season(self) -> None:
         """
-        Simulate 17-week regular season.
+        Simulate 16-week regular season.
 
         For each week:
         1. Update team rankings (load teams_week_N.csv)
@@ -283,10 +289,10 @@ class SimulatedLeague:
             - Updates self.week_results with Week objects
             - Each team accumulates wins/losses
         """
-        self.logger.debug("Starting 17-week season simulation")
+        self.logger.debug("Starting 16-week season simulation")
 
-        for week_num in range(1, 18):  # Weeks 1-17
-            self.logger.debug(f"Simulating Week {week_num}/17")
+        for week_num in range(1, 17):  # Weeks 1-16
+            self.logger.debug(f"Simulating Week {week_num}/16")
 
             # Update team rankings for this week
             self._update_team_rankings(week_num)
@@ -307,22 +313,16 @@ class SimulatedLeague:
         """
         Update team rankings for all teams for the given week.
 
-        Copies teams_week_N.csv to each team's directory so TeamDataManager
-        can load the current week's rankings.
+        Uses TeamDataManager's set_current_week method to recalculate rankings
+        based on the rolling window of historical data up to this week.
 
         Args:
             week_num (int): Week number (1-17)
         """
-        teams_file = self.data_folder / f"teams_week_{week_num}.csv"
-
-        if not teams_file.exists():
-            self.logger.warning(f"teams_week_{week_num}.csv not found, using week 1 rankings")
-            teams_file = self.data_folder / "teams_week_1.csv"
-
-        # Copy to each team's directory
-        for idx in range(len(self.teams)):
-            team_dir = self.temp_dir / f"team_{idx}"
-            shutil.copy(teams_file, team_dir / "teams.csv")
+        # Update each team's TeamDataManager to recalculate rankings for this week
+        for team in self.teams:
+            if hasattr(team, 'team_data_mgr') and team.team_data_mgr:
+                team.team_data_mgr.set_current_week(week_num)
 
         self.logger.debug(f"Updated team rankings for week {week_num}")
 
@@ -384,13 +384,24 @@ class SimulatedLeague:
 
     def cleanup(self) -> None:
         """
-        Clean up temporary files created during simulation.
+        Clean up temporary files and internal state after simulation.
 
-        Should be called after simulation is complete to free disk space.
+        Should be called after simulation is complete to free disk space
+        and memory. Clears all large objects to help garbage collector.
         """
+        # Clean up temporary directory
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
             self.logger.debug(f"Cleaned up temporary directory: {self.temp_dir}")
+
+        # Clear large internal objects to free memory immediately
+        # This prevents memory accumulation when GC is delayed
+        self.teams = None
+        self.draft_helper_team = None
+        self.week_results = None
+        self.season_schedule = None
+        self.draft_order = None
+        self.config_dict = None
 
     def __del__(self) -> None:
         """Destructor to ensure cleanup happens."""

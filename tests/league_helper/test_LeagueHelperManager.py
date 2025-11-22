@@ -80,9 +80,10 @@ class TestLeagueHelperManagerInit:
         """Test that initialization creates TeamDataManager with correct dependencies."""
         manager = LeagueHelperManager(mock_data_folder)
 
-        # TeamDataManager now requires season_schedule_manager and current_nfl_week
+        # TeamDataManager requires config_manager, season_schedule_manager and current_nfl_week
         mock_managers['team_data'].assert_called_once_with(
             mock_data_folder,
+            mock_managers['config_instance'],
             mock_managers['season_schedule'].return_value,
             mock_managers['config_instance'].current_nfl_week
         )

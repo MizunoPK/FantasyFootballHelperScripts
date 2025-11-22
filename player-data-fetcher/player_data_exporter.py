@@ -23,12 +23,12 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
-from utils.TeamData import extract_teams_from_rankings, save_teams_to_csv
+from utils.TeamData import save_team_weekly_data, NFL_TEAMS
 from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
 from config import DEFAULT_FILE_CAPS
-from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, PLAYERS_CSV, TEAMS_CSV, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
+from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, PLAYERS_CSV, TEAM_DATA_FOLDER, SKIP_DRAFTED_PLAYER_UPDATES, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
 
 
 class DataExporter:
@@ -51,6 +51,7 @@ class DataExporter:
         self.team_rankings = {}
         self.current_week_schedule = {}
         self.position_defense_rankings = {}
+        self.team_weekly_data = {}  # Per-team, per-week data for new format
 
         # Load existing drafted and locked values if preservation is enabled
         self.existing_drafted_values = {}
@@ -79,6 +80,11 @@ class DataExporter:
         """Set position-specific defense rankings from ESPN client"""
         self.position_defense_rankings = rankings
         self.logger.info(f"Position defense rankings set for {len(rankings)} teams")
+
+    def set_team_weekly_data(self, data: dict):
+        """Set per-team, per-week data for new team_data format export"""
+        self.team_weekly_data = data
+        self.logger.info(f"Team weekly data set for {len(data)} teams")
 
     # ============================================================================
     # FORMAT-SPECIFIC EXPORTS (JSON, CSV, Excel)
@@ -451,77 +457,65 @@ class DataExporter:
 
     async def export_teams_csv(self, data: ProjectionData) -> str:
         """
-        Export team data to CSV format.
+        Export team data to local data directory in team_data folder format.
+
+        Creates individual CSV files for each NFL team containing weekly data.
 
         Args:
-            data: ProjectionData containing player information to extract team data from
+            data: ProjectionData containing player information
 
         Returns:
-            str: Path to the created teams CSV file
+            str: Path to the team_data folder
         """
         try:
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename = f"teams_{timestamp}.csv"
-            filepath = self.output_dir / filename
+            # Create team_data folder in output directory
+            team_data_folder = self.output_dir / "team_data"
+            team_data_folder.mkdir(exist_ok=True)
 
-            # Extract team data from players using team rankings
-            fantasy_players = self.get_fantasy_players(data)
-            teams = extract_teams_from_rankings(
-                fantasy_players,
-                self.team_rankings,
-                self.current_week_schedule,
-                self.position_defense_rankings
-            )
+            # Get team weekly data from ESPN client (should be set by caller)
+            if not hasattr(self, 'team_weekly_data') or not self.team_weekly_data:
+                self.logger.warning("No team weekly data available for export")
+                return ""
 
-            # Save teams to CSV
-            save_teams_to_csv(teams, str(filepath))
+            # Save to team_data folder
+            save_team_weekly_data(str(team_data_folder), self.team_weekly_data)
 
-            # Create latest file link if requested
-            if self.create_latest_files:
-                latest_filepath = self.output_dir / "teams_latest.csv"
-                save_teams_to_csv(teams, str(latest_filepath))
-
-            # Apply file caps management
-            self.file_manager.cleanup_all_file_types()
-
-            self.logger.info(f"Exported {len(teams)} teams to: {filepath}")
-            return str(filepath)
+            self.logger.info(f"Exported team data for {len(self.team_weekly_data)} teams to: {team_data_folder}")
+            return str(team_data_folder)
 
         except Exception as e:
-            self.logger.error(f"Error exporting teams CSV: {e}")
+            self.logger.error(f"Error exporting team data: {e}")
             raise
 
     async def export_teams_to_data(self, data: ProjectionData) -> str:
         """
-        Export team data to data directory for consumption by other modules.
+        Export team data to shared data directory for consumption by other modules.
+
+        Creates team_data folder with individual CSV files for each NFL team.
 
         Args:
-            data: ProjectionData containing player information to extract team data from
+            data: ProjectionData containing player information
 
         Returns:
-            str: Path to the shared teams.csv file
+            str: Path to the team_data folder
         """
         try:
-            # Resolve path to teams.csv (configured in config.py)
-            shared_teams_file = Path(__file__).parent / TEAMS_CSV
+            # Resolve path to team_data folder (configured in config.py)
+            shared_team_data_folder = Path(__file__).parent / TEAM_DATA_FOLDER
 
-            # Extract team data from players using team rankings
-            fantasy_players = self.get_fantasy_players(data)
-            teams = extract_teams_from_rankings(
-                fantasy_players,
-                self.team_rankings,
-                self.current_week_schedule,
-                self.position_defense_rankings
-            )
+            # Get team weekly data from ESPN client (should be set by caller)
+            if not hasattr(self, 'team_weekly_data') or not self.team_weekly_data:
+                self.logger.warning("No team weekly data available for export")
+                return ""
 
-            # Save teams to data
-            save_teams_to_csv(teams, str(shared_teams_file))
+            # Save to shared team_data folder
+            save_team_weekly_data(str(shared_team_data_folder), self.team_weekly_data)
 
-            self.logger.info(f"Exported {len(teams)} teams to shared files: {shared_teams_file}")
-            return str(shared_teams_file)
+            self.logger.info(f"Exported team data for {len(self.team_weekly_data)} teams to: {shared_team_data_folder}")
+            return str(shared_team_data_folder)
 
         except Exception as e:
-            self.logger.error(f"Error exporting teams to shared files: {e}")
+            self.logger.error(f"Error exporting team data to shared folder: {e}")
             raise
 
     async def export_projected_points_data(self, data: ProjectionData, current_nfl_week: int) -> str:

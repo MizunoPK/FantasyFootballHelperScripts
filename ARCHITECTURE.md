@@ -104,7 +104,7 @@ The Fantasy Football Helper Scripts is a comprehensive Python-based system desig
 ┌─────────────────────────────────────────────────────────────┐
 │                   DATA STORAGE LAYER                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
-│  │ players.csv  │  │league_config │  │teams_week_N.csv │  │
+│  │ players.csv  │  │league_config │  │ team_data/      │  │
 │  └──────────────┘  └──────────────┘  └─────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -825,21 +825,23 @@ class PlayerProjection(BaseModel):
 **Workflow**:
 ```
 1. Fetch scores for each week (1-17)
-2. Calculate team rankings based on:
-   - Win/loss record
-   - Points scored
-   - Points allowed
-3. Generate teams_week_N.csv files
-4. Update offensive and defensive rankings
+2. Update per-team historical data files with:
+   - Fantasy points allowed by position (QB, RB, WR, TE, K)
+   - Total points scored and allowed
+3. Generate team_data/*.csv files (one per NFL team)
+4. Rankings calculated on-the-fly from rolling window
 ```
 
-**Team Rankings Output** (`data/teams_week_N.csv`):
+**Team Data Output** (`data/team_data/{TEAM}.csv`):
 ```csv
-Team,Rank,Offense_Rank,Defense_Rank,Points_For,Points_Against
-KC,1,3,5,28.5,18.2
-SF,2,1,12,31.2,22.1
-BUF,3,2,8,29.8,19.5
+week,QB,RB,WR,TE,K,points_scored,points_allowed
+1,20.5,25.3,35.2,8.1,9.0,98.1,78.3
+2,18.2,30.1,28.9,12.3,7.5,97.0,92.1
+3,22.8,22.0,31.5,9.8,11.0,97.1,85.4
 ```
+
+**Rankings Calculation**:
+TeamDataManager calculates rankings on-the-fly using a configurable rolling window (MIN_WEEKS parameter). This provides more recent/relevant team strength data rather than full-season averages.
 
 ---
 
@@ -950,7 +952,7 @@ User selects: Trade Simulator Mode → Manual Trade Visualizer
 
 TradeSimulatorModeManager.run_manual_trade()
     │
-    ├─── Load user roster from data/teams.csv
+    ├─── Load user roster from data/drafted_players.csv
     │
     ├─── User inputs:
     │       Give: [Christian McCaffrey]
@@ -1015,14 +1017,18 @@ LeagueHelperManager
    │
    ├── ConfigManager(data_folder / "league_config.json")  # Load first
    │
-   ├── TeamDataManager(data_folder / "teams_week_*.csv")  # Load team data
+   ├── SeasonScheduleManager(data_folder)  # Load schedule for opponent lookups
    │
-   └── PlayerManager(data_folder / "players.csv", config, team_data)
+   ├── TeamDataManager(data_folder, config, schedule, current_week)  # Load team data
+   │   └── Loads: team_data/*.csv (per-team historical data)
+   │   └── Calculates rankings on-the-fly from rolling window
+   │
+   └── PlayerManager(data_folder / "players.csv", config, team_data, schedule)
        │
        └── Load players → Calculate scores using config
 ```
 
-**Rationale**: ConfigManager must load first because PlayerManager needs config values for scoring calculations.
+**Rationale**: ConfigManager must load first because TeamDataManager and PlayerManager need config values. TeamDataManager needs MIN_WEEKS config for rolling window calculations.
 
 ---
 

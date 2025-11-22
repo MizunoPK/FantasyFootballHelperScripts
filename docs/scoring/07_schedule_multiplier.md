@@ -1,5 +1,7 @@
 # Schedule Multiplier (Step 7)
 
+> **Note**: This documentation references the old `teams.csv` format. Team data is now stored in `data/team_data/` folder with per-team CSV files. Rankings are calculated on-the-fly using a configurable rolling window (MIN_WEEKS). See `TeamDataManager.py` for current implementation.
+
 ## Overview
 
 **Type**: Additive bonus (point adjustment)

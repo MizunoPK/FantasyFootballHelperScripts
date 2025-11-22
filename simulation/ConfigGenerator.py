@@ -68,17 +68,21 @@ class ConfigGenerator:
         'PLAYER_RATING_SCORING_STEPS': (15, 25),
         'TEAM_QUALITY_SCORING_WEIGHT': (1.5, 3.0),
         'TEAM_QUALITY_SCORING_STEPS': (4.0, 8.0),
+        'TEAM_QUALITY_MIN_WEEKS': (3, 6),
         # Performance Scoring
         'PERFORMANCE_SCORING_WEIGHT': (1.5, 3.0),
         'PERFORMANCE_SCORING_STEPS': (0.15, 0.3),
+        'PERFORMANCE_MIN_WEEKS': (2, 8),
         # Matchup Scoring (additive)
         'MATCHUP_IMPACT_SCALE': (100.0, 150.0),
         'MATCHUP_SCORING_WEIGHT': (0.5, 1.0),
         'MATCHUP_SCORING_STEPS': (4.0, 8.0),
+        'MATCHUP_MIN_WEEKS': (3, 6),
         # Schedule Scoring (additive)
         # 'SCHEDULE_IMPACT_SCALE': (0.0, 300.0),
         # 'SCHEDULE_SCORING_WEIGHT': (0.0, 5.0),
         # 'SCHEDULE_SCORING_STEPS': (1.0, 15.0),
+        # 'SCHEDULE_MIN_WEEKS': (3, 6),
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -137,13 +141,16 @@ class ConfigGenerator:
         # Team Quality Scoring
         'TEAM_QUALITY_SCORING_WEIGHT',
         # 'TEAM_QUALITY_SCORING_STEPS',
+        'TEAM_QUALITY_MIN_WEEKS',
         # Performance Scoring
         'PERFORMANCE_SCORING_WEIGHT',
         'PERFORMANCE_SCORING_STEPS',
+        'PERFORMANCE_MIN_WEEKS',
         # Matchup Scoring (additive)
         'MATCHUP_IMPACT_SCALE',
         'MATCHUP_SCORING_WEIGHT',
         # 'MATCHUP_SCORING_STEPS',
+        'MATCHUP_MIN_WEEKS',
         # Schedule Scoring (additive) - DISABLED
         # 'SCHEDULE_IMPACT_SCALE',
         # 'SCHEDULE_SCORING_WEIGHT',
@@ -343,6 +350,18 @@ class ConfigGenerator:
             value_sets[impact_param] = self.generate_parameter_values(
                 impact_param,
                 current_impact,
+                min_val,
+                max_val
+            )
+
+        # MIN_WEEKS parameters for rolling window calculations
+        for scoring_type in ["TEAM_QUALITY_SCORING", "PERFORMANCE_SCORING", "MATCHUP_SCORING"]:
+            min_weeks_param = scoring_type.replace('_SCORING', '_MIN_WEEKS')
+            current_min_weeks = params[scoring_type].get('MIN_WEEKS', 5)
+            min_val, max_val = self.param_definitions[min_weeks_param]
+            value_sets[min_weeks_param] = self.generate_parameter_values(
+                min_weeks_param,
+                current_min_weeks,
                 min_val,
                 max_val
             )
@@ -575,6 +594,14 @@ class ConfigGenerator:
 
             current_val = params[section]['IMPACT_SCALE']
             min_val, max_val = self.param_definitions[param_name]
+        elif '_MIN_WEEKS' in param_name:
+            # Extract section for MIN_WEEKS
+            # Format: SECTION_MIN_WEEKS (e.g., 'TEAM_QUALITY_MIN_WEEKS')
+            parts = param_name.split('_MIN_WEEKS')
+            section = parts[0] + '_SCORING'  # e.g., 'TEAM_QUALITY_SCORING'
+
+            current_val = params[section].get('MIN_WEEKS', 5)
+            min_val, max_val = self.param_definitions[param_name]
         else:
             raise ValueError(f"Unknown parameter: {param_name}")
 
@@ -626,6 +653,11 @@ class ConfigGenerator:
         for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_SCORING_WEIGHT'
             combination[param_name] = params[f'{section}_SCORING']['WEIGHT']
+
+        # MIN_WEEKS for relevant sections
+        for section in ['TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
+            param_name = f'{section}_MIN_WEEKS'
+            combination[param_name] = params[f'{section}_SCORING'].get('MIN_WEEKS', 5)
 
         # STEPS for each scoring type - extract all that are present in config
         # Only ADP and PERFORMANCE STEPS are actively optimized, but others may be in PARAMETER_ORDER
@@ -686,6 +718,12 @@ class ConfigGenerator:
         # Update weights (SCHEDULE disabled)
         for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             params[f'{parameter}_SCORING']['WEIGHT'] = combination[f'{parameter}_SCORING_WEIGHT']
+
+        # Update MIN_WEEKS for sections that use it
+        for parameter in ['TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
+            min_weeks_param = f'{parameter}_MIN_WEEKS'
+            if min_weeks_param in combination:
+                params[f'{parameter}_SCORING']['MIN_WEEKS'] = int(combination[min_weeks_param])
 
         # Update threshold STEPS - only sections with STEPS in PARAM_DEFINITIONS
         # (PLAYER_RATING, TEAM_QUALITY, MATCHUP, SCHEDULE disabled)

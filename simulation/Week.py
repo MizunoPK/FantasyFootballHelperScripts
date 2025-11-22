@@ -70,14 +70,14 @@ class Week:
         Initialize Week with matchups.
 
         Args:
-            week_number (int): Week number (1-17)
+            week_number (int): Week number (1-16)
             matchups (List[Tuple[Team, Team]]): List of team matchups
 
         Raises:
-            ValueError: If week_number is not between 1 and 17
+            ValueError: If week_number is not between 1 and 16
         """
-        if not (1 <= week_number <= 17):
-            raise ValueError(f"Week number must be between 1 and 17, got {week_number}")
+        if not (1 <= week_number <= 16):
+            raise ValueError(f"Week number must be between 1 and 16, got {week_number}")
 
         self.logger = get_logger()
         self.week_number = week_number

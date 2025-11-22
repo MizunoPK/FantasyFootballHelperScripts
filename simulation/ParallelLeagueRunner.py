@@ -30,7 +30,8 @@ from SimulatedLeague import SimulatedLeague
 
 
 # Garbage collection frequency - force GC every N simulations to prevent memory accumulation
-GC_FREQUENCY = 10
+# Lower value = more aggressive memory management, slightly more overhead
+GC_FREQUENCY = 5
 
 
 class ParallelLeagueRunner:
@@ -123,6 +124,8 @@ class ParallelLeagueRunner:
             # Explicit cleanup to prevent memory accumulation
             # Previously relied on __del__() which caused OOM when Python GC delayed cleanup
             league.cleanup()
+            # Explicitly delete to help garbage collector free memory immediately
+            del league
             self.logger.debug(f"[Sim {simulation_id}] Cleanup complete")
 
     def run_simulations_for_config(

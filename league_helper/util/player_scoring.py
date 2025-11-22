@@ -164,77 +164,18 @@ class PlayerScoringCalculator:
 
         return normalized_score
 
-    def calculate_consistency(self, player: FantasyPlayer) -> Tuple[float, int]:
-        """
-        Calculate consistency score for a player based on weekly projections.
-        Value equals the coefficient of variation.
-
-        Only uses weeks < CURRENT_NFL_WEEK (weeks that have already occurred).
-        Requires minimum MIN_WEEKS weeks of data for reliable calculation.
-
-        Args:
-            player: FantasyPlayer object with weekly projection data
-
-        Returns:
-            tuple: (consistency_score, weeks_count)
-                - consistency_score: the calculated values between 0 and 1 associated with how consistent a player's scores have been
-                - weeks_count: number of weeks with data used in calculation
-        """
-        # Extract weekly scores for weeks that have occurred
-        weekly_points = []
-
-        # Only analyze weeks that have occurred (weeks < CURRENT_NFL_WEEK)
-        for week in range(1, self.config.current_nfl_week):
-            week_attr = f'week_{week}_points'
-            if hasattr(player, week_attr):
-                points = getattr(player, week_attr)
-                # Filter out None values (missing data) and zeros
-                # Zeros could be bye weeks, benched players, or data issues
-                if points is not None and float(points) > 0:
-                    weekly_points.append(float(points))
-
-        weeks_count = len(weekly_points)
-
-        # Handle insufficient data
-        min_weeks = self.config.consistency_scoring[self.config.keys.MIN_WEEKS]
-        if weeks_count < min_weeks:
-            # Return default consistency score without logging individual warnings
-            return 0.5, weeks_count
-
-        # Calculate statistics
-        mean_points = statistics.mean(weekly_points)
-
-        # Handle zero mean (avoid division by zero)
-        if mean_points == 0:
-            return 0.5, weeks_count
-
-        # Calculate standard deviation
-        if len(weekly_points) == 1:
-            std_dev = 0.0
-        else:
-            std_dev = statistics.stdev(weekly_points)
-
-        # Calculate coefficient of variation
-        cv = std_dev / mean_points if mean_points > 0 else 0.0
-
-        self.logger.debug(
-                f"Consistency for {player.name}: mean={mean_points:.2f}, "
-                f"std_dev={std_dev:.2f}, CV={cv:.3f}"
-            )
-
-        return cv, weeks_count
-
     def calculate_performance_deviation(self, player: FantasyPlayer) -> Optional[float]:
         """
         Calculate performance deviation for a player based on actual vs projected points.
 
         Measures how much a player's actual performance deviates from projected points
-        across historical weeks. Positive deviation = outperforming, negative = underperforming.
+        across recent weeks using a rolling window. Positive deviation = outperforming,
+        negative = underperforming.
 
-        Formula: average((actual - projected) / projected) for all valid weeks
+        Formula: average((actual - projected) / projected) for valid weeks in rolling window
 
-        Only uses weeks < CURRENT_NFL_WEEK (weeks that have already occurred).
-        Requires minimum MIN_WEEKS weeks of data for reliable calculation.
+        Uses MIN_WEEKS as both the rolling window size AND minimum data requirement.
+        Only analyzes the most recent MIN_WEEKS weeks that have occurred.
 
         Skipping criteria:
         - Weeks where actual points = 0 (player didn't play)
@@ -253,11 +194,18 @@ class PlayerScoringCalculator:
             self.logger.debug(f"Skipping performance calculation for DST player: {player.name}")
             return None
 
-        # Collect performance deviations for each valid week
+        # Get MIN_WEEKS for rolling window size
+        min_weeks = self.config.performance_scoring[self.config.keys.MIN_WEEKS]
+
+        # Calculate rolling window start (use last MIN_WEEKS completed weeks)
+        # Example: current_week=10, min_weeks=4 -> analyze weeks 6,7,8,9
+        start_week = max(1, self.config.current_nfl_week - min_weeks)
+
+        # Collect performance deviations for each valid week in rolling window
         deviations = []
 
-        # Only analyze weeks that have occurred (weeks < CURRENT_NFL_WEEK)
-        for week in range(1, self.config.current_nfl_week):
+        # Analyze only the rolling window (recent MIN_WEEKS weeks)
+        for week in range(start_week, self.config.current_nfl_week):
             # Get actual points from player object
             week_attr = f'week_{week}_points'
             if not hasattr(player, week_attr):
@@ -302,8 +250,7 @@ class PlayerScoringCalculator:
 
         weeks_count = len(deviations)
 
-        # Handle insufficient data
-        min_weeks = self.config.consistency_scoring[self.config.keys.MIN_WEEKS]
+        # Handle insufficient data (MIN_WEEKS is both window size and minimum requirement)
         if weeks_count < min_weeks:
             self.logger.debug(
                 f"Insufficient performance data for {player.name}: "
@@ -648,8 +595,8 @@ class PlayerScoringCalculator:
         Apply bye week penalty based on roster conflicts (Step 9).
 
         Collects players with same-position and different-position bye week overlaps,
-        then calculates penalty based on median weekly scores using exponential scaling.
-        Penalty calculation: (same_median_total ** SAME_POS_BYE_WEIGHT) + (diff_median_total ** DIFF_POS_BYE_WEIGHT)
+        then calculates penalty based on median weekly scores using linear scaling.
+        Penalty calculation: (same_median_total * SAME_POS_BYE_WEIGHT) + (diff_median_total * DIFF_POS_BYE_WEIGHT)
 
         Args:
             p: Player to evaluate

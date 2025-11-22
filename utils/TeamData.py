@@ -135,139 +135,126 @@ def _safe_string_conversion(value):
     return str_val
 
 
-def load_teams_from_csv(file_path: str) -> List[TeamData]:
+def load_team_weekly_data(team_data_folder: str) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Load TeamData objects from CSV file.
+    Load all team weekly data from team_data folder.
 
     Args:
-        file_path: Path to the teams.csv file
+        team_data_folder: Path to folder containing team CSV files (e.g., KC.csv, MIN.csv)
 
     Returns:
-        List of TeamData objects
+        Dict mapping team abbreviation to list of weekly data dicts
+        Format: {'KC': [{'week': 1, 'pts_allowed_to_QB': 18.5, ...}, ...], ...}
 
     Raises:
-        FileNotFoundError: If teams.csv file doesn't exist
-        Exception: If CSV format is invalid
+        FileNotFoundError: If team_data folder doesn't exist
+    """
+    from pathlib import Path
+
+    folder_path = Path(team_data_folder)
+    if not folder_path.exists():
+        raise FileNotFoundError(f"Team data folder not found: {team_data_folder}")
+
+    team_weekly_data = {}
+
+    # Load each team's CSV file
+    for csv_file in folder_path.glob("*.csv"):
+        team_abbr = csv_file.stem  # e.g., 'KC' from 'KC.csv'
+        weekly_data = load_single_team_data(str(csv_file))
+        team_weekly_data[team_abbr] = weekly_data
+
+    return team_weekly_data
+
+
+def load_single_team_data(file_path: str) -> List[Dict[str, Any]]:
+    """
+    Load weekly data for a single team from CSV file.
+
+    Args:
+        file_path: Path to team CSV file (e.g., KC.csv)
+
+    Returns:
+        List of weekly data dicts, one per week
+        Format: [{'week': 1, 'pts_allowed_to_QB': 18.5, 'pts_allowed_to_RB': 22.3,
+                  'pts_allowed_to_WR': 31.2, 'pts_allowed_to_TE': 8.4, 'pts_allowed_to_K': 9.0,
+                  'points_scored': 28, 'points_allowed': 17}, ...]
+
+    Raises:
+        FileNotFoundError: If file doesn't exist
     """
     try:
-        # Use csv_utils for standardized reading with error handling
         df = read_csv_with_validation(file_path)
-        teams = []
+        weekly_data = []
 
         for _, row in df.iterrows():
-            team_data = TeamData.from_dict(row.to_dict())
-            teams.append(team_data)
+            week_data = {
+                'week': _safe_int_conversion(row.get('week'), 0),
+                'pts_allowed_to_QB': float(row.get('pts_allowed_to_QB', 0) or 0),
+                'pts_allowed_to_RB': float(row.get('pts_allowed_to_RB', 0) or 0),
+                'pts_allowed_to_WR': float(row.get('pts_allowed_to_WR', 0) or 0),
+                'pts_allowed_to_TE': float(row.get('pts_allowed_to_TE', 0) or 0),
+                'pts_allowed_to_K': float(row.get('pts_allowed_to_K', 0) or 0),
+                'points_scored': float(row.get('points_scored', 0) or 0),
+                'points_allowed': float(row.get('points_allowed', 0) or 0)
+            }
+            weekly_data.append(week_data)
 
-        return teams
+        return weekly_data
     except FileNotFoundError:
-        raise FileNotFoundError(f"teams.csv file not found: {file_path}")
+        raise FileNotFoundError(f"Team data file not found: {file_path}")
     except Exception as e:
-        raise Exception(f"Error loading teams from CSV: {str(e)}")
+        raise Exception(f"Error loading team data from {file_path}: {str(e)}")
 
 
-def extract_teams_from_players(players: List['FantasyPlayer']) -> List[TeamData]:
+def save_team_weekly_data(team_data_folder: str, team_weekly_data: Dict[str, List[Dict[str, Any]]]) -> None:
     """
-    Extract unique team data from a list of FantasyPlayer objects.
+    Save all team weekly data to team_data folder.
 
     Args:
-        players: List of FantasyPlayer objects containing team ranking data
-
-    Returns:
-        List of TeamData objects with unique teams and their rankings
-
-    Note:
-        This function is deprecated since team ranking data is no longer stored
-        in FantasyPlayer objects. Use extract_teams_from_rankings() instead.
+        team_data_folder: Path to folder for team CSV files
+        team_weekly_data: Dict mapping team abbreviation to list of weekly data
+            Format: {'KC': [{'week': 1, 'pts_allowed_to_QB': 18.5, ...}, ...], ...}
     """
-    team_data_map = {}
+    from pathlib import Path
 
-    for player in players:
-        team = player.team
-        if not team or team in team_data_map:
-            continue  # Skip empty teams or already processed teams
+    folder_path = Path(team_data_folder)
+    folder_path.mkdir(parents=True, exist_ok=True)
 
-        # Create team data with no ranking info (rankings are handled separately now)
-        team_data_map[team] = TeamData(
-            team=team,
-            offensive_rank=None,  # Rankings no longer available in player data
-            defensive_rank=None   # Rankings no longer available in player data
-        )
-
-    # Return sorted list by team name for consistent ordering
-    return sorted(team_data_map.values(), key=lambda x: x.team)
+    for team_abbr, weekly_data in team_weekly_data.items():
+        file_path = folder_path / f"{team_abbr}.csv"
+        save_single_team_data(str(file_path), weekly_data)
 
 
-def extract_teams_from_rankings(
-    players: List['FantasyPlayer'],
-    team_rankings: dict,
-    schedule_data: dict = None,
-    position_defense_rankings: dict = None
-) -> List[TeamData]:
+def save_single_team_data(file_path: str, weekly_data: List[Dict[str, Any]]) -> None:
     """
-    Extract unique team data using team rankings from ESPN API.
+    Save weekly data for a single team to CSV file.
 
     Args:
-        players: List of FantasyPlayer objects to get team list from
-        team_rankings: Dictionary with team rankings from ESPN API
-            Format: {'KC': {'offensive_rank': 5, 'defensive_rank': 12}, ...}
-        schedule_data: Optional dictionary (deprecated, kept for backward compatibility)
-        position_defense_rankings: Optional dictionary with position-specific defense ranks
-            Format: {'KC': {'def_vs_qb_rank': 5, 'def_vs_rb_rank': 12, ...}, ...}
-
-    Returns:
-        List of TeamData objects with teams and their rankings
+        file_path: Output CSV file path (e.g., KC.csv)
+        weekly_data: List of weekly data dicts
+            Format: [{'week': 1, 'pts_allowed_to_QB': 18.5, 'pts_allowed_to_RB': 22.3, ...}, ...]
     """
-    team_data_map = {}
-
-    # Get unique teams from players
-    for player in players:
-        team = player.team
-        if not team or team in team_data_map:
-            continue  # Skip empty teams or already processed teams
-
-        # Get rankings from the ESPN client data
-        team_ranking_data = team_rankings.get(team, {})
-
-        # Get position-specific defense rankings if provided
-        position_ranks = position_defense_rankings.get(team, {}) if position_defense_rankings else {}
-
-        team_data_map[team] = TeamData(
-            team=team,
-            offensive_rank=team_ranking_data.get('offensive_rank', None),
-            defensive_rank=team_ranking_data.get('defensive_rank', None),
-            def_vs_qb_rank=position_ranks.get('def_vs_qb_rank', None),
-            def_vs_rb_rank=position_ranks.get('def_vs_rb_rank', None),
-            def_vs_wr_rank=position_ranks.get('def_vs_wr_rank', None),
-            def_vs_te_rank=position_ranks.get('def_vs_te_rank', None),
-            def_vs_k_rank=position_ranks.get('def_vs_k_rank', None)
-        )
-
-    # Return sorted list by team name for consistent ordering
-    return sorted(team_data_map.values(), key=lambda x: x.team)
-
-
-def save_teams_to_csv(teams: List[TeamData], file_path: str) -> None:
-    """
-    Save TeamData objects to CSV file.
-
-    Args:
-        teams: List of TeamData objects to save
-        file_path: Output CSV file path
-    """
-    if not teams:
+    if not weekly_data:
         # Create empty CSV with proper headers
-        df = pd.DataFrame(columns=['team', 'offensive_rank', 'defensive_rank',
-                                    'def_vs_qb_rank', 'def_vs_rb_rank', 'def_vs_wr_rank',
-                                    'def_vs_te_rank', 'def_vs_k_rank'])
+        df = pd.DataFrame(columns=['week', 'pts_allowed_to_QB', 'pts_allowed_to_RB',
+                                   'pts_allowed_to_WR', 'pts_allowed_to_TE', 'pts_allowed_to_K',
+                                   'points_scored', 'points_allowed'])
     else:
-        # Convert teams to dictionaries for DataFrame creation
-        team_dicts = [team.to_dict() for team in teams]
-        df = pd.DataFrame(team_dicts)
+        df = pd.DataFrame(weekly_data)
 
     # Ensure consistent column order
-    df = df[['team', 'offensive_rank', 'defensive_rank',
-             'def_vs_qb_rank', 'def_vs_rb_rank', 'def_vs_wr_rank',
-             'def_vs_te_rank', 'def_vs_k_rank']]
+    columns = ['week', 'pts_allowed_to_QB', 'pts_allowed_to_RB', 'pts_allowed_to_WR',
+               'pts_allowed_to_TE', 'pts_allowed_to_K', 'points_scored', 'points_allowed']
+    df = df[columns]
 
-    # Save to CSV using standardized csv_utils (no backup needed)
+    # Save to CSV
     write_csv_with_backup(df, file_path, create_backup=False)
+
+
+# NFL team abbreviations (all 32 teams)
+NFL_TEAMS = [
+    'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
+    'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
+    'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
+    'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
+]

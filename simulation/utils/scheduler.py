@@ -114,17 +114,17 @@ def generate_double_round_robin(teams: List[T]) -> List[List[Tuple[T, T]]]:
     return full_schedule
 
 
-def generate_schedule_for_nfl_season(teams: List[T], num_weeks: int = 17) -> List[List[Tuple[T, T]]]:
+def generate_schedule_for_nfl_season(teams: List[T], num_weeks: int = 16) -> List[List[Tuple[T, T]]]:
     """
     Generate schedule that fits into NFL season length.
 
-    For a 10-team league playing in a 17-week NFL season:
+    For a 10-team league playing in a 16-week NFL season:
     - Double round-robin would be 18 weeks
     - This function generates the full 18 weeks and trims to fit
 
     Args:
         teams (List[T]): List of teams (must have even number)
-        num_weeks (int): Number of weeks in NFL season (default 17)
+        num_weeks (int): Number of weeks in NFL season (default 16)
 
     Returns:
         List[List[Tuple[T, T]]]: Schedule trimmed to num_weeks

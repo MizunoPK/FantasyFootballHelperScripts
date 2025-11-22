@@ -131,7 +131,7 @@ class ConfigManager:
         adp_scoring (Dict): ADP thresholds and multipliers
         player_rating_scoring (Dict): Player rating thresholds and multipliers
         team_quality_scoring (Dict): Team quality thresholds and multipliers
-        consistency_scoring (Dict): Consistency thresholds and multipliers
+        performance_scoring (Dict): Performance deviation thresholds and multipliers
         matchup_scoring (Dict): Matchup thresholds and multipliers
         draft_order_bonuses (Dict): PRIMARY and SECONDARY draft bonuses
         draft_order (List[Dict]): Draft strategy by round
@@ -260,36 +260,6 @@ class ConfigManager:
         """
         return key in self.parameters
 
-    def get_consistency_label(self, val: float) -> str:
-        """
-        Get a human-readable label for a consistency value.
-
-        Consistency is measured using Coefficient of Variation (CV) where
-        lower values indicate more consistent performance.
-
-        Args:
-            val (float): Coefficient of Variation (CV) value
-
-        Returns:
-            str: Label describing consistency level (EXCELLENT, GOOD, NEUTRAL, POOR, VERY_POOR)
-
-        Example:
-            >>> config.get_consistency_label(0.15)  # Very consistent
-            'EXCELLENT'
-            >>> config.get_consistency_label(0.9)   # Very inconsistent
-            'VERY_POOR'
-        """
-        if val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
-            return self.keys.EXCELLENT
-        elif val <= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.GOOD]:
-            return self.keys.GOOD
-        elif val >= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.POOR]:
-            return self.keys.POOR
-        elif val >= self.consistency_scoring[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
-            return self.keys.VERY_POOR
-        else:
-            return "NEUTRAL"
-
     # ============================================================================
     # PUBLIC MULTIPLIER GETTERS
     # ============================================================================
@@ -325,6 +295,37 @@ class ConfigManager:
 
     def get_performance_multiplier(self, deviation: float) -> Tuple[float, str]:
         return self._get_multiplier(self.performance_scoring, deviation)
+
+    # ============================================================================
+    # PUBLIC MIN_WEEKS GETTERS
+    # ============================================================================
+
+    def get_team_quality_min_weeks(self) -> int:
+        """
+        Get MIN_WEEKS for team quality scoring calculations.
+
+        Returns:
+            int: Number of weeks for rolling window (default 5)
+        """
+        return self.team_quality_scoring.get(self.keys.MIN_WEEKS, 5)
+
+    def get_matchup_min_weeks(self) -> int:
+        """
+        Get MIN_WEEKS for matchup scoring calculations.
+
+        Returns:
+            int: Number of weeks for rolling window (default 5)
+        """
+        return self.matchup_scoring.get(self.keys.MIN_WEEKS, 5)
+
+    def get_schedule_min_weeks(self) -> int:
+        """
+        Get MIN_WEEKS for schedule scoring calculations.
+
+        Returns:
+            int: Number of weeks for rolling window (default 5)
+        """
+        return self.schedule_scoring.get(self.keys.MIN_WEEKS, 5)
 
     # ============================================================================
     # PUBLIC BONUS/PENALTY GETTERS
@@ -385,33 +386,32 @@ class ConfigManager:
 
         Bye week conflicts reduce a player's value when rostering them would create
         depth issues on a specific week. The penalty is calculated using the median
-        weekly points of players who share the same bye week, then applying exponential
+        weekly points of players who share the same bye week, then applying linear
         scaling based on position overlap.
 
         Algorithm:
         1. For each player in same_pos_players: calculate median from weeks 1-17
         2. For each player in diff_pos_players: calculate median from weeks 1-17
         3. Sum all medians for each list
-        4. Apply exponential scaling: same_total ** SAME_POS_BYE_WEIGHT + diff_total ** DIFF_POS_BYE_WEIGHT
+        4. Apply linear scaling: same_total * SAME_POS_BYE_WEIGHT + diff_total * DIFF_POS_BYE_WEIGHT
 
-        The exponential scaling allows the penalty to grow non-linearly with the
-        impact of losing multiple players. Weight values typically range 0.0-3.0:
-        - weight=1.0: Linear scaling (no exponentiation)
-        - weight>1.0: Penalty grows faster (emphasizes multiple conflicts)
-        - weight<1.0: Penalty grows slower (dampens multiple conflicts)
+        The linear scaling allows the penalty to grow proportionally with player quality.
+        Weight values typically range 0.0-1.0:
+        - Higher weight = larger penalty per point of median value
+        - Same-position weight is higher than different-position (more impactful)
 
         Args:
             same_pos_players: List of players on roster with same position and same bye week
             diff_pos_players: List of players on roster with different position and same bye week
 
         Returns:
-            float: Total bye week penalty (exponentially scaled sum)
+            float: Total bye week penalty (linearly scaled sum)
 
         Example:
-            Config has SAME_POS_BYE_WEIGHT=1.5, DIFF_POS_BYE_WEIGHT=1.0
+            Config has SAME_POS_BYE_WEIGHT=0.403, DIFF_POS_BYE_WEIGHT=0.176
             same_pos_players = [RB with median 15.0, RB with median 12.0] → total 27.0
             diff_pos_players = [WR with median 18.0] → total 18.0
-            penalty = 27.0 ** 1.5 + 18.0 ** 1.0 = 140.3 + 18.0 = 158.3 points
+            penalty = 27.0 * 0.403 + 18.0 * 0.176 = 10.88 + 3.17 = 14.05 points
         """
         def calculate_player_median(player: FantasyPlayer) -> float:
             """
@@ -454,8 +454,8 @@ class ConfigManager:
 
         self.logger.debug(
             f"Bye penalty calculation: "
-            f"same_pos_median={same_pos_median_total:.2f}^{self.same_pos_bye_weight}={same_penalty:.2f}, "
-            f"diff_pos_median={diff_pos_median_total:.2f}^{self.diff_pos_bye_weight}={diff_penalty:.2f}, "
+            f"same_pos_median={same_pos_median_total:.2f}*{self.same_pos_bye_weight}={same_penalty:.2f}, "
+            f"diff_pos_median={diff_pos_median_total:.2f}*{self.diff_pos_bye_weight}={diff_penalty:.2f}, "
             f"total={total_penalty:.2f}"
         )
 

@@ -1,5 +1,7 @@
 # Matchup Multiplier (Step 6)
 
+> **Note**: This documentation references the old `teams.csv` format. Team data is now stored in `data/team_data/` folder with per-team CSV files containing position-specific points allowed. Rankings are calculated on-the-fly using a configurable rolling window (MIN_WEEKS). See `TeamDataManager.py` for current implementation.
+
 ## Overview
 
 **Type**: Additive (flat point bonus/penalty, not percentage)

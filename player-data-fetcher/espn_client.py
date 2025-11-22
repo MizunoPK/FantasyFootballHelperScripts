@@ -746,17 +746,19 @@ class ESPNClient(BaseAPIClient):
             Dictionary mapping team abbreviations to offensive/defensive ranks
         """
         try:
-            from config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
             import sys
             import os
             sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
             from config import CURRENT_NFL_WEEK, NFL_SEASON
 
+            # Minimum weeks needed for reliable rankings (hardcoded default)
+            min_weeks_for_rankings = 5
+
             # Determine which season to use for statistics
-            use_current_season = CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+            use_current_season = CURRENT_NFL_WEEK > min_weeks_for_rankings
 
             self.logger.info(f"Team rankings: Using {'current season' if use_current_season else 'neutral'} data. "
-                           f"Current week: {CURRENT_NFL_WEEK}, Min weeks needed: {MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS}")
+                           f"Current week: {CURRENT_NFL_WEEK}, Min weeks needed: {min_weeks_for_rankings}")
 
             # Use neutral rankings if not enough weeks have passed
             if not use_current_season:
@@ -772,7 +774,7 @@ class ESPNClient(BaseAPIClient):
             }
 
             # Use rolling window to calculate rankings from recent weeks
-            return await self._calculate_rolling_window_rankings(CURRENT_NFL_WEEK, MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS)
+            return await self._calculate_rolling_window_rankings(CURRENT_NFL_WEEK, min_weeks_for_rankings)
 
         except Exception as e:
             # Handle case where variables might not be defined yet
@@ -782,8 +784,8 @@ class ESPNClient(BaseAPIClient):
                 import os
                 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
                 from config import CURRENT_NFL_WEEK, NFL_SEASON
-                from config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
-                use_current_season = CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
+                min_weeks_for_rankings = 5
+                use_current_season = CURRENT_NFL_WEEK > min_weeks_for_rankings
                 season_info = f"{NFL_SEASON} season" if use_current_season else "neutral data"
             except:
                 pass
@@ -1265,7 +1267,7 @@ class ESPNClient(BaseAPIClient):
         """
         Calculate position-specific defense rankings for all teams using a rolling window.
 
-        Uses the most recent MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS weeks of data
+        Uses the most recent 5 weeks of data (default rolling window)
         to calculate how many points each defense has allowed to each position.
 
         Rolling Window Example (MIN_WEEKS=4, current_week=10):
@@ -1298,8 +1300,8 @@ class ESPNClient(BaseAPIClient):
         ]
 
         # Calculate rolling window for position-specific rankings (consistent with overall rankings)
-        from config import MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS
-        window_start = max(1, current_week - MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS)
+        min_weeks_for_rankings = 5  # Default rolling window size
+        window_start = max(1, current_week - min_weeks_for_rankings)
 
         # For each player, accumulate points scored against their opponents
         for player in players:
@@ -1374,6 +1376,94 @@ class ESPNClient(BaseAPIClient):
         self.logger.info(f"Calculated position-specific rankings for {len(rankings)} teams across 5 positions")
 
         return rankings
+
+    def _collect_team_weekly_data(
+        self,
+        players: List[ESPNPlayerData],
+        schedule: Dict[int, Dict[str, str]],
+        current_week: int
+    ) -> Dict[str, List[Dict[str, Any]]]:
+        """
+        Collect per-team, per-week data for the new team_data format.
+
+        For each team and each completed week, collects:
+        - Fantasy points allowed by position (QB, RB, WR, TE, K)
+        - Total points scored by team
+        - Total points allowed by team
+
+        Args:
+            players: List of all players with weekly stats
+            schedule: Dict mapping {week: {team: opponent}}
+            current_week: Current NFL week (1-17)
+
+        Returns:
+            Dict[team, List[{week, QB, RB, WR, TE, K, points_scored, points_allowed}]]
+        """
+        from collections import defaultdict
+
+        self.logger.info(f"Collecting team weekly data through week {current_week - 1}")
+
+        # All 32 NFL teams
+        all_teams = [
+            'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
+            'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
+            'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
+            'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
+        ]
+
+        # Initialize data structure: {team: {week: {QB: 0, RB: 0, ...}}}
+        team_week_data = {team: {} for team in all_teams}
+        for team in all_teams:
+            for week in range(1, current_week):
+                team_week_data[team][week] = {
+                    'QB': 0.0, 'RB': 0.0, 'WR': 0.0, 'TE': 0.0, 'K': 0.0,
+                    'points_scored': 0.0, 'points_allowed': 0.0
+                }
+
+        # Collect fantasy points
+        for player in players:
+            if player.position not in ['QB', 'RB', 'WR', 'TE', 'K']:
+                continue
+
+            player_team = player.team
+            if not player_team or player_team not in all_teams:
+                continue
+
+            for week in range(1, current_week):
+                week_points = player.get_week_points(week)
+                if week_points is None or week_points <= 0:
+                    continue
+
+                # Add to team's points_scored
+                if player_team in team_week_data and week in team_week_data[player_team]:
+                    team_week_data[player_team][week]['points_scored'] += week_points
+
+                # Add to opponent's position-specific points allowed
+                week_schedule = schedule.get(week, {})
+                opponent = week_schedule.get(player_team)
+                if opponent and opponent in team_week_data:
+                    team_week_data[opponent][week][player.position] += week_points
+                    team_week_data[opponent][week]['points_allowed'] += week_points
+
+        # Convert to list format with descriptive column names
+        result = {}
+        for team in all_teams:
+            result[team] = []
+            for week in range(1, current_week):
+                week_data = team_week_data[team].get(week, {})
+                result[team].append({
+                    'week': week,
+                    'pts_allowed_to_QB': round(week_data.get('QB', 0.0), 1),
+                    'pts_allowed_to_RB': round(week_data.get('RB', 0.0), 1),
+                    'pts_allowed_to_WR': round(week_data.get('WR', 0.0), 1),
+                    'pts_allowed_to_TE': round(week_data.get('TE', 0.0), 1),
+                    'pts_allowed_to_K': round(week_data.get('K', 0.0), 1),
+                    'points_scored': round(week_data.get('points_scored', 0.0), 1),
+                    'points_allowed': round(week_data.get('points_allowed', 0.0), 1)
+                })
+
+        self.logger.info(f"Collected weekly data for {len(result)} teams through week {current_week - 1}")
+        return result
 
     # ============================================================================
     # PLAYER RATING HELPER FUNCTIONS

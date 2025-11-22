@@ -194,7 +194,7 @@ def main() -> None:
     print("  - 9 SimulatedOpponents (various strategies)")
     print(f"\nSimulation process:")
     print("  - Snake draft (15 rounds, 150 total picks)")
-    print("  - 17-week regular season")
+    print("  - 16-week regular season")
     print("  - Round-robin schedule (each team plays each other ~2x)")
 
     # Load config

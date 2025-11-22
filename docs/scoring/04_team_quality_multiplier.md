@@ -1,5 +1,7 @@
 # Team Quality Multiplier (Step 4)
 
+> **Note**: This documentation references the old `teams.csv` format. Team data is now stored in `data/team_data/` folder with per-team CSV files (e.g., `KC.csv`, `BUF.csv`). Rankings are calculated on-the-fly using a configurable rolling window (MIN_WEEKS). See `TeamDataManager.py` for current implementation.
+
 ## Overview
 
 **Type**: Multiplicative (percentage adjustment)
@@ -25,7 +27,7 @@ Team Rank (1-32) → Multiplier lookup → Apply weight exponent
 **Implementation**:
 - **Data Collection**: `player-data-fetcher/espn_client.py` (team rankings from ESPN API)
 - **Multiplier Application**: `league_helper/util/player_scoring.py:505-519`
-- **Data Storage**: `data/teams.csv` and `player-data-fetcher/data/teams_latest.csv`
+- **Data Storage**: `data/team_data/*.csv` (per-team historical data)
 
 ---
 

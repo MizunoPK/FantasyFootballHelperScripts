@@ -17,7 +17,7 @@ aiofiles>=23.0.0                    # Async file I/O for concurrent export
 python-dotenv>=1.0.0                # Environment variable management
 
 # Data processing and export
-pandas>=2.0.0                       # Data manipulation and CSV/Excel processing
+pandas>=2.1.0                       # Data manipulation and CSV/Excel processing
 openpyxl>=3.1.0                     # Excel file format support
 
 # Testing framework

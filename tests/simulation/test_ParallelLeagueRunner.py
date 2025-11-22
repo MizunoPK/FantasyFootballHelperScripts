@@ -614,7 +614,7 @@ class TestParallelLeagueRunnerCleanup:
     @patch('simulation.ParallelLeagueRunner.gc')
     @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
     def test_gc_forced_every_10_simulations(self, mock_league_class, mock_gc):
-        """Test that GC is forced every 10 simulations"""
+        """Test that GC is forced every GC_FREQUENCY simulations"""
         # Arrange: Mock successful simulations
         mock_league = Mock()
         mock_league.get_draft_helper_results.return_value = (10, 7, 1234.56)
@@ -625,13 +625,13 @@ class TestParallelLeagueRunnerCleanup:
         # Act: Run 25 simulations
         results = runner.run_simulations_for_config({}, num_simulations=25)
 
-        # Assert: gc.collect() called at 10, 20 (2 times total)
-        assert mock_gc.collect.call_count == 2
+        # Assert: gc.collect() called at 5, 10, 15, 20, 25 (5 times total with GC_FREQUENCY=5)
+        assert mock_gc.collect.call_count == 5
         assert len(results) == 25
 
     @patch('simulation.ParallelLeagueRunner.gc')
     @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
-    def test_gc_not_called_for_less_than_10_sims(self, mock_league_class, mock_gc):
+    def test_gc_not_called_for_less_than_gc_frequency(self, mock_league_class, mock_gc):
         """Test that GC is not called when simulations < GC_FREQUENCY"""
         # Arrange
         mock_league = Mock()
@@ -640,9 +640,9 @@ class TestParallelLeagueRunnerCleanup:
 
         runner = ParallelLeagueRunner(max_workers=1)
 
-        # Act: Run only 5 simulations
-        results = runner.run_simulations_for_config({}, num_simulations=5)
+        # Act: Run only 4 simulations (less than GC_FREQUENCY=5)
+        results = runner.run_simulations_for_config({}, num_simulations=4)
 
-        # Assert: gc.collect() never called (no 10th simulation)
+        # Assert: gc.collect() never called (no 5th simulation)
         mock_gc.collect.assert_not_called()
-        assert len(results) == 5
+        assert len(results) == 4

@@ -3,89 +3,276 @@
 Team Data Manager
 
 Manages NFL team rankings and matchup data for scoring calculations.
-Loads team offensive/defensive rankings from teams.csv and provides
-matchup analysis for player scoring adjustments.
+Loads per-team historical data from team_data folder and calculates
+rankings on-the-fly using configurable rolling windows.
 
 Key responsibilities:
-- Loading team data from teams.csv
-- Caching team rankings (offensive and defensive)
-- Calculating matchup differentials for players
-- Providing opponent information for each team
-
-Matchup calculations:
-- Offensive players: opponent_defensive_rank - team_offensive_rank
-- Defensive players: opponent_offensive_rank - team_defensive_rank
-- Positive values indicate favorable matchups
+- Loading team weekly data from team_data/*.csv files
+- Calculating offensive/defensive rankings from rolling window
+- Calculating position-specific defense rankings
+- Providing matchup analysis for player scoring adjustments
 
 Author: Kai Mizuno
 """
 
 from pathlib import Path
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Dict, List, Optional, Any, TYPE_CHECKING
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
-from utils.TeamData import TeamData, load_teams_from_csv
+from utils.TeamData import TeamData, load_team_weekly_data, NFL_TEAMS
 from utils.LoggingManager import get_logger
 
 if TYPE_CHECKING:
     from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+    from league_helper.util.ConfigManager import ConfigManager
 
 
 class TeamDataManager:
     """
-    Loads and manages team ranking data from teams.csv file.
+    Loads and manages team ranking data calculated from per-team historical files.
 
-    This class caches team data for efficient lookup during scoring calculations
-    and provides methods for matchup analysis.
+    This class loads weekly data from team_data/*.csv files and calculates
+    rankings on-the-fly based on configurable MIN_WEEKS rolling windows.
 
     Attributes:
         logger: Logger instance for tracking operations
-        teams_file (Path): Path to teams.csv data file
-        team_data_cache (Dict[str, TeamData]): Cached team data by team abbreviation
+        data_folder (Path): Path to data directory containing team_data folder
+        config_manager (ConfigManager): Configuration manager for MIN_WEEKS values
+        team_weekly_data (Dict): Raw weekly data for each team
+        offensive_ranks (Dict[str, int]): Calculated offensive rankings
+        defensive_ranks (Dict[str, int]): Calculated defensive rankings
+        position_ranks (Dict[str, Dict[str, int]]): Position-specific defense rankings
         season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
         current_nfl_week (int): Current NFL week number
     """
 
-    def __init__(self, data_folder: Path, season_schedule_manager: Optional['SeasonScheduleManager'] = None, current_nfl_week: int = 1):
+    def __init__(self, data_folder: Path, config_manager: 'ConfigManager',
+                 season_schedule_manager: Optional['SeasonScheduleManager'] = None,
+                 current_nfl_week: int = 1):
         """
         Initialize TeamDataManager and load team data.
 
         Args:
-            data_folder (Path): Path to data directory containing teams.csv
-            season_schedule_manager (Optional[SeasonScheduleManager]): Season schedule manager for opponent lookups
+            data_folder (Path): Path to data directory containing team_data folder
+            config_manager (ConfigManager): Configuration manager for MIN_WEEKS access
+            season_schedule_manager (Optional[SeasonScheduleManager]): Season schedule manager
             current_nfl_week (int): Current NFL week number (default: 1)
 
         Side Effects:
-            - Loads teams.csv into memory cache
-            - Logs warning if teams.csv is not found
+            - Loads team_data/*.csv files into memory
+            - Calculates rankings based on MIN_WEEKS rolling window
         """
         self.logger = get_logger()
         self.logger.debug("Initializing Team Data Manager")
 
-        self.teams_file = data_folder / 'teams.csv'
+        self.data_folder = Path(data_folder)
+        self.config_manager = config_manager
+        self.team_data_folder = self.data_folder / 'team_data'
+
+        # Raw weekly data: {team: [{week: 1, QB: 18.5, ...}, ...]}
+        self.team_weekly_data: Dict[str, List[Dict[str, Any]]] = {}
+
+        # Calculated rankings
+        self.offensive_ranks: Dict[str, int] = {}
+        self.defensive_ranks: Dict[str, int] = {}
+        self.position_ranks: Dict[str, Dict[str, int]] = {}  # {team: {QB: rank, RB: rank, ...}}
+
+        # Legacy cache for compatibility (stores TeamData objects)
         self.team_data_cache: Dict[str, TeamData] = {}
+
         self.season_schedule_manager = season_schedule_manager
         self.current_nfl_week = current_nfl_week
+
         self._load_team_data()
+        self._calculate_rankings()
 
     def _load_team_data(self) -> None:
-        """Load team data from teams.csv file."""
+        """Load team weekly data from team_data folder."""
         try:
-            if not self.teams_file.exists():
-                self.logger.warning(f"Teams file not found: {self.teams_file}. Team rankings will not be available.")
+            if not self.team_data_folder.exists():
+                self.logger.warning(f"Team data folder not found: {self.team_data_folder}. Team rankings will not be available.")
                 return
 
-            teams = load_teams_from_csv(str(self.teams_file))
-
-            # Build team lookup cache
-            self.team_data_cache = {team.team: team for team in teams}
-
-            self.logger.debug(f"Loaded team data for {len(self.team_data_cache)} teams from {self.teams_file}")
+            self.team_weekly_data = load_team_weekly_data(str(self.team_data_folder))
+            self.logger.debug(f"Loaded team data for {len(self.team_weekly_data)} teams from {self.team_data_folder}")
 
         except Exception as e:
-            self.logger.warning(f"Error loading team data from {self.teams_file}: {e}. Team rankings will not be available.")
-            self.team_data_cache = {}
+            self.logger.warning(f"Error loading team data from {self.team_data_folder}: {e}. Team rankings will not be available.")
+            self.team_weekly_data = {}
+
+    def _calculate_rankings(self) -> None:
+        """
+        Calculate all rankings based on current week and MIN_WEEKS settings.
+
+        Uses different rolling windows for different ranking types:
+        - Offensive/defensive ranks: TEAM_QUALITY_MIN_WEEKS window
+        - Position-specific defense ranks: MATCHUP_MIN_WEEKS window
+        """
+        if not self.team_weekly_data:
+            self.logger.debug("No team data available for ranking calculation")
+            return
+
+        # Get MIN_WEEKS values from config
+        team_quality_min_weeks = self.config_manager.get_team_quality_min_weeks()
+        matchup_min_weeks = self.config_manager.get_matchup_min_weeks()
+
+        # Check if we have enough weeks of data (use smaller of the two)
+        min_required = min(team_quality_min_weeks, matchup_min_weeks)
+        if self.current_nfl_week <= min_required:
+            self.logger.debug(f"Week {self.current_nfl_week} < MIN_WEEKS {min_required}, using neutral rankings")
+            self._set_neutral_rankings()
+            return
+
+        end_week = self.current_nfl_week - 1  # Last completed week
+        positions = ['QB', 'RB', 'WR', 'TE', 'K']
+
+        # Calculate offensive/defensive rankings using team_quality_min_weeks
+        tq_start_week = max(1, end_week - team_quality_min_weeks + 1)
+        self.logger.debug(f"Team quality rankings from weeks {tq_start_week}-{end_week}")
+
+        offensive_totals = {}
+        defensive_totals = {}
+
+        for team, weeks_data in self.team_weekly_data.items():
+            off_total = 0.0
+            def_total = 0.0
+            games = 0
+
+            for week_data in weeks_data:
+                week_num = week_data.get('week', 0)
+                if tq_start_week <= week_num <= end_week:
+                    points_scored = week_data.get('points_scored', 0)
+                    points_allowed = week_data.get('points_allowed', 0)
+
+                    # Skip bye weeks (all zeros)
+                    if points_scored == 0 and points_allowed == 0:
+                        continue
+
+                    off_total += points_scored
+                    def_total += points_allowed
+                    games += 1
+
+            offensive_totals[team] = (off_total, games)
+            defensive_totals[team] = (def_total, games)
+
+        # Calculate position-specific rankings using matchup_min_weeks
+        mu_start_week = max(1, end_week - matchup_min_weeks + 1)
+        self.logger.debug(f"Position rankings from weeks {mu_start_week}-{end_week}")
+
+        position_totals = {}
+
+        for team, weeks_data in self.team_weekly_data.items():
+            pos_totals = {pos: [0.0, 0] for pos in positions}
+
+            for week_data in weeks_data:
+                week_num = week_data.get('week', 0)
+                if mu_start_week <= week_num <= end_week:
+                    points_scored = week_data.get('points_scored', 0)
+                    points_allowed = week_data.get('points_allowed', 0)
+
+                    # Skip bye weeks (all zeros)
+                    if points_scored == 0 and points_allowed == 0:
+                        continue
+
+                    for pos in positions:
+                        pos_points = week_data.get(f'pts_allowed_to_{pos}', 0)
+                        pos_totals[pos][0] += pos_points
+                        pos_totals[pos][1] += 1
+
+            position_totals[team] = pos_totals
+
+        # Calculate per-game averages and rank
+        self._rank_offensive(offensive_totals)
+        self._rank_defensive(defensive_totals)
+        self._rank_positions(position_totals, positions)
+
+        # Build team_data_cache for compatibility
+        self._build_team_data_cache()
+
+        self.logger.debug(f"Calculated rankings for {len(self.offensive_ranks)} teams")
+
+    def _set_neutral_rankings(self) -> None:
+        """Set all rankings to neutral (16) for early season."""
+        for team in NFL_TEAMS:
+            self.offensive_ranks[team] = 16
+            self.defensive_ranks[team] = 16
+            self.position_ranks[team] = {
+                'QB': 16, 'RB': 16, 'WR': 16, 'TE': 16, 'K': 16
+            }
+        self._build_team_data_cache()
+
+    def _rank_offensive(self, totals: Dict[str, tuple]) -> None:
+        """Rank teams by offensive production (higher points = better = rank 1)."""
+        # Calculate per-game averages
+        averages = []
+        for team, (total, games) in totals.items():
+            avg = total / games if games > 0 else 0
+            averages.append((team, avg))
+
+        # Sort by average descending (most points = rank 1)
+        averages.sort(key=lambda x: x[1], reverse=True)
+
+        for rank, (team, _) in enumerate(averages, 1):
+            self.offensive_ranks[team] = rank
+
+    def _rank_defensive(self, totals: Dict[str, tuple]) -> None:
+        """Rank teams by defensive production (fewer points allowed = better = rank 1)."""
+        # Calculate per-game averages
+        averages = []
+        for team, (total, games) in totals.items():
+            avg = total / games if games > 0 else float('inf')
+            averages.append((team, avg))
+
+        # Sort by average ascending (fewest points = rank 1)
+        averages.sort(key=lambda x: x[1])
+
+        for rank, (team, _) in enumerate(averages, 1):
+            self.defensive_ranks[team] = rank
+
+    def _rank_positions(self, totals: Dict[str, Dict], positions: List[str]) -> None:
+        """Rank teams by position-specific defense (fewer points = better = rank 1)."""
+        for pos in positions:
+            averages = []
+            for team, pos_data in totals.items():
+                total, games = pos_data[pos]
+                avg = total / games if games > 0 else float('inf')
+                averages.append((team, avg))
+
+            # Sort by average ascending (fewest points allowed = rank 1)
+            averages.sort(key=lambda x: x[1])
+
+            for rank, (team, _) in enumerate(averages, 1):
+                if team not in self.position_ranks:
+                    self.position_ranks[team] = {}
+                self.position_ranks[team][pos] = rank
+
+    def _build_team_data_cache(self) -> None:
+        """Build team_data_cache from calculated rankings for compatibility."""
+        for team in self.offensive_ranks.keys():
+            pos_ranks = self.position_ranks.get(team, {})
+            self.team_data_cache[team] = TeamData(
+                team=team,
+                offensive_rank=self.offensive_ranks.get(team),
+                defensive_rank=self.defensive_ranks.get(team),
+                def_vs_qb_rank=pos_ranks.get('QB'),
+                def_vs_rb_rank=pos_ranks.get('RB'),
+                def_vs_wr_rank=pos_ranks.get('WR'),
+                def_vs_te_rank=pos_ranks.get('TE'),
+                def_vs_k_rank=pos_ranks.get('K')
+            )
+
+    def set_current_week(self, week_num: int) -> None:
+        """
+        Update current week and recalculate rankings.
+
+        Used by simulation to update rankings each week.
+
+        Args:
+            week_num: New NFL week number
+        """
+        self.current_nfl_week = week_num
+        self._calculate_rankings()
 
     def get_team_offensive_rank(self, team: str) -> Optional[int]:
         """
@@ -97,8 +284,7 @@ class TeamDataManager:
         Returns:
             Team offensive rank (1-32) or None if not available
         """
-        team_data = self.team_data_cache.get(team)
-        return team_data.offensive_rank if team_data else None
+        return self.offensive_ranks.get(team)
 
     def get_team_defensive_rank(self, team: str) -> Optional[int]:
         """
@@ -110,16 +296,11 @@ class TeamDataManager:
         Returns:
             Team defensive rank (1-32) or None if not available
         """
-        team_data = self.team_data_cache.get(team)
-        return team_data.defensive_rank if team_data else None
+        return self.defensive_ranks.get(team)
 
     def get_team_defense_vs_position_rank(self, team: str, position: str) -> Optional[int]:
         """
         Get team's defense ranking against a specific position.
-
-        Uses position-specific defense rankings (e.g., def_vs_qb_rank) to provide
-        more accurate matchup analysis. For defensive positions (DST, DEF, D/ST),
-        returns the overall defensive rank.
 
         Args:
             team: Team abbreviation (e.g., 'PHI', 'KC')
@@ -127,36 +308,17 @@ class TeamDataManager:
 
         Returns:
             Position-specific defense rank (1-32) or None if not found.
-            Lower rank = better defense against that position.
-
-        Example:
-            >>> manager.get_team_defense_vs_position_rank('PHI', 'QB')
-            5  # PHI has 5th-best defense vs QB
-            >>> manager.get_team_defense_vs_position_rank('KC', 'RB')
-            20  # KC has 20th-ranked defense vs RB
         """
-        team_data = self.team_data_cache.get(team)
-        if not team_data:
-            return None
-
         # Check if position is defense (use overall defensive rank)
         import sys
         sys.path.append(str(Path(__file__).parent))
         from constants import DEFENSE_POSITIONS
 
         if position in DEFENSE_POSITIONS:
-            return team_data.defensive_rank
+            return self.defensive_ranks.get(team)
 
-        # Return position-specific rank
-        position_rank_map = {
-            'QB': team_data.def_vs_qb_rank,
-            'RB': team_data.def_vs_rb_rank,
-            'WR': team_data.def_vs_wr_rank,
-            'TE': team_data.def_vs_te_rank,
-            'K': team_data.def_vs_k_rank
-        }
-
-        rank = position_rank_map.get(position)
+        pos_ranks = self.position_ranks.get(team, {})
+        rank = pos_ranks.get(position)
 
         if rank is None:
             self.logger.warning(f"No position-specific defense rank for {team} vs {position}")
@@ -193,12 +355,12 @@ class TeamDataManager:
 
     def is_team_data_available(self) -> bool:
         """Check if team data is loaded and available."""
-        return bool(self.team_data_cache)
+        return bool(self.offensive_ranks)
 
     def get_available_teams(self) -> list[str]:
         """Get list of all teams for which data is available."""
-        return list(self.team_data_cache.keys())
-    
+        return list(self.offensive_ranks.keys())
+
     def is_matchup_available(self) -> bool:
         """
         Check if matchup calculations are available.
@@ -206,46 +368,32 @@ class TeamDataManager:
         Returns:
             True if team data is loaded and valid, False otherwise
         """
-        return self.team_data_cache is not None and len(self.team_data_cache) > 0
+        return bool(self.offensive_ranks)
 
     def reload_team_data(self) -> None:
-        """Reload team data from teams.csv file (useful if file was updated)."""
+        """Reload team data from team_data folder and recalculate rankings."""
+        self.team_weekly_data = {}
+        self.offensive_ranks = {}
+        self.defensive_ranks = {}
+        self.position_ranks = {}
         self.team_data_cache = {}
         self._load_team_data()
-
+        self._calculate_rankings()
 
     def get_rank_difference(self, player_team: str, position: str) -> int:
         """
         Calculate matchup quality using position-specific defense rankings.
 
-        Formula for Offensive positions: (Opponent Position-Specific DEF Rank)
-        Formula for Defensive positions: (Opponent OFF Rank)
-
         Args:
             player_team: Team abbreviation (e.g., 'KC', 'BUF')
             position: Player position (QB, RB, WR, TE, K, DST, DEF, D/ST)
-                     Determines which opponent defense rank to use
 
         Returns:
             Opponent defense rank integer, or 0 if data unavailable
-            Higher rank = weaker defense = favorable matchup
-            Lower rank = stronger defense = tough matchup
-
-        Example:
-            KC QB vs BUF (DEF vs QB rank #25):
-            matchup_score = 25 (favorable - BUF weak vs QB)
-
-            KC RB vs BUF (DEF vs RB rank #5):
-            matchup_score = 5 (tough - BUF strong vs RB)
-
-            MIA DST vs NYJ (OFF rank #28):
-            matchup_score = 28 (favorable - NYJ weak offense)
         """
-        # Check if team data is loaded
         if not self.is_matchup_available():
             return 0
 
-        # Get the opponent team abbreviation
         opponent_abbr = self.get_team_opponent(player_team)
         if opponent_abbr is None:
             self.logger.debug(f"No opponent found for team: {player_team}")
@@ -257,22 +405,15 @@ class TeamDataManager:
         from constants import DEFENSE_POSITIONS
         is_defense = position in DEFENSE_POSITIONS
 
-        # Get opponent's rank (position-specific defense for offensive players, offensive rank for DST)
         if is_defense:
-            # For DST: use opponent's offensive rank
             opponent_rank = self.get_team_offensive_rank(opponent_abbr)
         else:
-            # For offensive positions: use opponent's position-specific defense rank
             opponent_rank = self.get_team_defense_vs_position_rank(opponent_abbr, position)
 
-        # Handle missing opponent data
         if opponent_rank is None:
             self.logger.debug(f"Opponent rank not found: {opponent_abbr} vs {position}")
             return 0
 
-        # Return opponent defense rank directly
-        # Higher rank = weaker defense = favorable matchup (e.g., rank 32 = weakest defense)
-        # Lower rank = stronger defense = tough matchup (e.g., rank 1 = strongest defense)
         matchup_score = int(opponent_rank)
 
         self.logger.debug(

@@ -37,15 +37,7 @@ DEFAULT_FILE_CAPS = {'csv': 5, 'json': 5, 'xlsx': 5, 'txt': 5}
 
 # File Paths (FREQUENTLY MODIFIED)
 PLAYERS_CSV = '../data/players.csv'
-TEAMS_CSV = f'../data/teams.csv'  # Output path for team quality rankings
-
-# Team Rankings Configuration (FREQUENTLY MODIFIED)
-MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS = 4  # Rolling window size for team rankings
-# When CURRENT_NFL_WEEK > MIN_WEEKS_FOR_CURRENT_SEASON_RANKINGS, use rolling window of recent weeks
-# Otherwise, fall back to neutral rankings
-# Example: If set to 4 and CURRENT_NFL_WEEK is 5+, uses rolling 4-week window of previous weeks.
-# Week 5: uses weeks 1-4. Week 10: uses weeks 6-9 (rolling window).
-# Neutral data is having all ranks set to 16
+TEAM_DATA_FOLDER = '../data/team_data'  # Output folder for per-team historical data files
 
 # Historical Data Auto-Save Configuration (FREQUENTLY MODIFIED)
 ENABLE_HISTORICAL_DATA_SAVE = True  # Automatically save weekly data snapshots to historical folder

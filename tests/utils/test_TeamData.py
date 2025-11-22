@@ -20,12 +20,17 @@ from utils.TeamData import (
     TeamData,
     _safe_int_conversion,
     _safe_string_conversion,
-    load_teams_from_csv,
-    save_teams_to_csv,
-    extract_teams_from_players,
-    extract_teams_from_rankings
+    load_team_weekly_data,
+    save_team_weekly_data,
+    load_single_team_data,
+    save_single_team_data,
+    NFL_TEAMS
 )
 from utils.FantasyPlayer import FantasyPlayer
+
+# Note: Old functions (load_teams_from_csv, save_teams_to_csv, extract_teams_from_players,
+# extract_teams_from_rankings) have been removed as part of team_data refactor.
+# Tests using these functions are marked with pytest.skip until updated.
 
 
 class TestTeamDataInit:
@@ -255,6 +260,7 @@ class TestSafeStringConversion:
         assert _safe_string_conversion('  PHI  ') == 'PHI'
 
 
+@pytest.mark.skip(reason="Function load_teams_from_csv removed in team_data refactor")
 class TestLoadTeamsFromCsv:
     """Test suite for load_teams_from_csv() function."""
 
@@ -309,6 +315,7 @@ class TestLoadTeamsFromCsv:
         assert len(teams) == 0
 
 
+@pytest.mark.skip(reason="Function save_teams_to_csv removed in team_data refactor")
 class TestSaveTeamsToCsv:
     """Test suite for save_teams_to_csv() function."""
 
@@ -361,6 +368,7 @@ class TestSaveTeamsToCsv:
         assert pd.isna(df.iloc[1]['offensive_rank'])
 
 
+@pytest.mark.skip(reason="Function extract_teams_from_players removed in team_data refactor")
 class TestExtractTeamsFromPlayers:
     """Test suite for extract_teams_from_players() function."""
 
@@ -420,6 +428,7 @@ class TestExtractTeamsFromPlayers:
         assert len(teams) == 0
 
 
+@pytest.mark.skip(reason="Function extract_teams_from_rankings removed in team_data refactor")
 class TestExtractTeamsFromRankings:
     """Test suite for extract_teams_from_rankings() function."""
 

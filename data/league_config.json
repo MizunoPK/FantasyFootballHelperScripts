@@ -118,6 +118,7 @@
       "WEIGHT": 0.7845296005385178
     },
     "TEAM_QUALITY_SCORING": {
+      "MIN_WEEKS": 5,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -147,6 +148,7 @@
       "WEIGHT": 2.6818053275930778
     },
     "MATCHUP_SCORING": {
+      "MIN_WEEKS": 5,
       "IMPACT_SCALE": 115.44420719076365,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
@@ -162,6 +164,7 @@
       "WEIGHT": 0.8029220831479209
     },
     "SCHEDULE_SCORING": {
+      "MIN_WEEKS": 5,
       "IMPACT_SCALE": 108.44420719076365,
       "THRESHOLDS": {
         "BASE_POSITION": 16,

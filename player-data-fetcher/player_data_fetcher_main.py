@@ -130,6 +130,7 @@ class NFLProjectionsCollector:
         self.team_rankings = {}
         self.current_week_schedule = {}
         self.position_defense_rankings = {}
+        self.team_weekly_data = {}
 
         # Initialize exporter with path relative to script location
         output_path = self.script_dir / self.settings.output_directory
@@ -261,10 +262,18 @@ class NFLProjectionsCollector:
                 self.logger.info(f"Collected current week schedule for {len(current_week_schedule)} teams")
                 self.logger.info(f"Collected position defense rankings for {len(position_defense_rankings)} teams")
 
-                # Store for later use by exporter (needs this for teams.csv)
+                # Store for later use by exporter (needs this for team_data)
                 self.team_rankings = team_rankings
                 self.current_week_schedule = current_week_schedule
                 self.position_defense_rankings = position_defense_rankings
+
+                # Collect per-team, per-week data for new team_data format
+                self.team_weekly_data = client._collect_team_weekly_data(
+                    season_projections,
+                    client.full_season_schedule,
+                    self.settings.current_nfl_week
+                )
+                self.logger.info(f"Collected team weekly data for {len(self.team_weekly_data)} teams")
 
             except Exception as e:
                 # Don't crash entire app if projection fetch fails
@@ -288,7 +297,7 @@ class NFLProjectionsCollector:
         Exports to multiple destinations:
         1. Timestamped files in player-data-fetcher/data/ (CSV/JSON/Excel)
         2. Shared data/players.csv (for draft helper integration) [configured via PLAYERS_CSV]
-        3. Shared data/teams.csv (team quality rankings) [configured via TEAMS_CSV]
+        3. Shared data/team_data/ folder (per-team historical rankings)
         4. Shared data/players_projected.csv (week-by-week projections for performance tracking)
 
         File organization:
@@ -297,7 +306,7 @@ class NFLProjectionsCollector:
         - player-data-fetcher/data/teams_20241018_120000.csv (timestamped team data)
         - player-data-fetcher/data/teams_latest.csv (latest team data)
         - data/players.csv (shared with draft helper - full player data) [path: PLAYERS_CSV in config.py]
-        - data/teams.csv (shared with league helper - team quality data) [path: TEAMS_CSV in config.py]
+        - data/team_data/*.csv (shared with league helper - per-team historical data)
         - data/players_projected.csv (shared with league helper - week-by-week projections)
 
         Args:
@@ -306,13 +315,14 @@ class NFLProjectionsCollector:
         Returns:
             List of file paths created during export
         """
-        # Pass team data to exporter so it can create teams.csv
+        # Pass team data to exporter so it can create team_data files
         # Team rankings: offensive/defensive quality (used for matchup evaluation)
         # Schedule: current week matchups (used for opponent strength)
         # Position defense rankings: position-specific defense rankings (used for schedule scoring)
         self.exporter.set_team_rankings(self.team_rankings)
         self.exporter.set_current_week_schedule(self.current_week_schedule)
         self.exporter.set_position_defense_rankings(self.position_defense_rankings)
+        self.exporter.set_team_weekly_data(self.team_weekly_data)
 
         output_files = []
 
@@ -320,7 +330,7 @@ class NFLProjectionsCollector:
         for data_type, data in projection_data.items():
             # Export to all configured formats (CSV/JSON/Excel)
             # Also creates timestamped and latest versions
-            # Also creates teams.csv with team quality rankings
+            # Also creates team_data folder with per-team historical data
             files = await self.exporter.export_all_formats_with_teams(
                 data,
                 create_csv=self.settings.create_csv,
@@ -365,7 +375,7 @@ class NFLProjectionsCollector:
 
         Checks config flag ENABLE_HISTORICAL_DATA_SAVE before proceeding.
         Checks if data/historical_data/{Season}/{WeekNumber}/ exists.
-        If not, creates it and copies players.csv, players_projected.csv, teams.csv.
+        If not, creates it and copies players.csv, players_projected.csv, team_data/.
         If it exists, skips (files already saved for this week).
 
         Week numbers are zero-padded (01, 02, ..., 11, 12).
@@ -397,7 +407,7 @@ class NFLProjectionsCollector:
 
             # Define source files to copy
             data_folder = self.script_dir.parent / "data"
-            files_to_copy = ["players.csv", "players_projected.csv", "teams.csv"]
+            files_to_copy = ["players.csv", "players_projected.csv"]
 
             # Copy each file using shutil.copy2 to preserve metadata
             for filename in files_to_copy:
@@ -409,6 +419,15 @@ class NFLProjectionsCollector:
                     self.logger.debug(f"Copied {filename} to {historical_folder}")
                 else:
                     self.logger.warning(f"Source file not found: {source}")
+
+            # Copy team_data folder (replaces teams.csv in historical data)
+            team_data_source = data_folder / "team_data"
+            team_data_dest = historical_folder / "team_data"
+            if team_data_source.exists():
+                shutil.copytree(str(team_data_source), str(team_data_dest))
+                self.logger.debug(f"Copied team_data folder to {historical_folder}")
+            else:
+                self.logger.warning(f"Team data folder not found: {team_data_source}")
 
             self.logger.info(f"Successfully saved historical data for Week {CURRENT_NFL_WEEK} to {historical_folder}")
             return True
