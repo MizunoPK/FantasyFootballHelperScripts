@@ -1,0 +1,21 @@
+{
+    "name": "Late Burst FLEX",
+    "description": "Get QB/TE early, then 6 straight FLEX picks.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "QB": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

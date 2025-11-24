@@ -1,0 +1,21 @@
+{
+    "name": "Contrarian",
+    "description": "Go against consensus - QB/TE early, RB/WR late.",
+    "DRAFT_ORDER": [
+      {"QB": "P", "TE": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"QB": "P", "TE": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

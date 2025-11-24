@@ -209,6 +209,51 @@ python run_simulation.py full --sims 100 --workers 8
 5. Repeats N times per configuration
 6. Identifies configuration with best win rate
 
+### Draft Order Strategy Analyzer (`run_draft_order_simulation.py`)
+
+Tests all 75 draft order strategies to identify which strategies perform best in league simulations. Produces a JSON report mapping each strategy to its win percentage.
+
+**Usage:**
+```bash
+# Default: 15 simulations per strategy (~10-15 minutes)
+python run_draft_order_simulation.py
+
+# More accurate: 50 simulations per strategy (~30-45 minutes)
+python run_draft_order_simulation.py --sims 50
+
+# Quick test: 5 simulations per strategy (~3-5 minutes)
+python run_draft_order_simulation.py --sims 5
+```
+
+**Output:**
+Generates `simulation/draft_order_results/draft_order_win_rates_YYYYMMDD_HHMMSS.json`:
+```json
+{
+  "metadata": {
+    "timestamp": "2025-11-24 12:34:56",
+    "num_simulations_per_file": 15,
+    "total_files_tested": 75,
+    "successful_files": 75,
+    "failed_files": [],
+    "baseline_config": "auto-detected",
+    "runtime_minutes": 12.5
+  },
+  "results": {
+    "1": 70.2,
+    "2": 80.1,
+    "3": 65.8,
+    ...
+  }
+}
+```
+
+**Draft Strategies Tested:**
+- Zero RB, Hero RB, Robust RB strategies
+- WR-first, TE-premium strategies
+- QB early vs late strategies
+- Balanced, contrarian, and value-based approaches
+- 75 unique strategies total
+
 ### Player Data Fetcher (`run_player_fetcher.py`)
 
 Downloads current player projections from data sources and saves to `data/players.csv`.

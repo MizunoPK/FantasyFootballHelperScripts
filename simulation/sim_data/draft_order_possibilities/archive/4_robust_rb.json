@@ -1,0 +1,21 @@
+{
+    "name": "Robust RB",
+    "description": "Heavy RB investment early: 2 in first 3, 3 in first 5, 4 in first 6.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P", "QB": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"}
+    ]
+}

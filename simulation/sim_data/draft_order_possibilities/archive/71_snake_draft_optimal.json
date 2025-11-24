@@ -1,0 +1,21 @@
+{
+    "name": "Snake Draft Optimal",
+    "description": "Optimized for snake draft format turns.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

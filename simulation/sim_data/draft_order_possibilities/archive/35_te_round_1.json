@@ -1,0 +1,21 @@
+{
+    "name": "TE Round 1",
+    "description": "Elite TE first pick (Kelce tier), massive positional advantage.",
+    "DRAFT_ORDER": [
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P", "QB": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

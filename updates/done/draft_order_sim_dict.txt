@@ -1,0 +1,8 @@
+I want to make a special version of run_simulation.py that helps us compile a json file that indicates how effective each draft mode possibility is.
+The new script would run a simulation for every file in the draft mode possibilities, and add the results of the run to the new json file.
+The new file should associate files with their win percentage
+E.g.:
+{
+    "1": 70.2
+    "2": 80.1
+}

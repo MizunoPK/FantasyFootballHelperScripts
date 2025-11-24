@@ -1,0 +1,21 @@
+{
+    "name": "Early DST",
+    "description": "Secure elite defense in round 10, stream K last.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P", "QB": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"FLEX": "P"}
+    ]
+}

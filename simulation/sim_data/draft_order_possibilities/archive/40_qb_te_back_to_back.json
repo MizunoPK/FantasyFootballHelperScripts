@@ -1,0 +1,21 @@
+{
+    "name": "QB TE Back to Back",
+    "description": "QB then TE in consecutive rounds twice.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P", "QB": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

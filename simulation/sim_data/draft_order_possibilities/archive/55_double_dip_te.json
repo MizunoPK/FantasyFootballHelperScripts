@@ -1,0 +1,21 @@
+{
+    "name": "Double Dip TE",
+    "description": "Both TEs in consecutive rounds 5-6.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"TE": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

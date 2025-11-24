@@ -1,0 +1,21 @@
+{
+    "name": "QB Round 1",
+    "description": "Elite QB first pick, sacrifice early RB/WR for positional edge.",
+    "DRAFT_ORDER": [
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"TE": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

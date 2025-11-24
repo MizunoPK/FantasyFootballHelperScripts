@@ -1,0 +1,21 @@
+{
+    "name": "Zero RB",
+    "description": "Avoid RBs until round 5+, stack WR/TE early. Best for PPR formats.",
+    "DRAFT_ORDER": [
+      {"TE": "P", "QB": "S"},
+      {"FLEX": "P", "QB": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P", "QB": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

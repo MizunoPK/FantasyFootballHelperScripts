@@ -60,6 +60,8 @@ class ConfigGenerator:
         # Draft Order Bonuses
         'PRIMARY_BONUS': (70, 90.0),
         'SECONDARY_BONUS': (75, 95.0),
+        # Draft Order File (discrete integer 1-10, top performing strategies)
+        'DRAFT_ORDER_FILE': (1, 10),
         # ADP Scoring
         'ADP_SCORING_WEIGHT': (2.0, 3.0),
         'ADP_SCORING_STEPS': (25.0, 40.0),
@@ -132,6 +134,8 @@ class ConfigGenerator:
         # Draft Order Bonuses
         'PRIMARY_BONUS',
         'SECONDARY_BONUS',
+        # Draft Order File
+        'DRAFT_ORDER_FILE',
         # ADP Scoring
         'ADP_SCORING_WEIGHT',
         'ADP_SCORING_STEPS',
@@ -240,6 +244,72 @@ class ConfigGenerator:
 
         self.logger.debug(f"{param_name}: {len(values)} values generated (min={min(values):.2f}, max={max(values):.2f})")
         return values
+
+    def generate_discrete_parameter_values(
+        self,
+        param_name: str,
+        optimal_val: int,
+        min_val: int,
+        max_val: int
+    ) -> List[int]:
+        """
+        Generate N+1 discrete integer values for a parameter: optimal + N random variations.
+
+        Args:
+            param_name (str): Parameter name (for logging)
+            optimal_val (int): Optimal/baseline value
+            min_val (int): Minimum allowed value
+            max_val (int): Maximum allowed value
+
+        Returns:
+            List[int]: (N+1) values [optimal, rand1, rand2, ..., randN]
+                where N = self.num_test_values
+
+        Example:
+            >>> gen = ConfigGenerator(baseline_path, num_test_values=5)
+            >>> values = gen.generate_discrete_parameter_values('DRAFT_ORDER_FILE', 1, 1, 30)
+            >>> # Returns [1, 15, 23, 7, 28, 12] (6 values)
+        """
+        values = [optimal_val]
+
+        # Generate N random integers excluding optimal_val
+        available = [i for i in range(min_val, max_val + 1) if i != optimal_val]
+        num_to_sample = min(self.num_test_values, len(available))
+        random_vals = random.sample(available, num_to_sample)
+        values.extend(random_vals)
+
+        self.logger.debug(f"{param_name}: {len(values)} discrete values generated")
+        return values
+
+    def _load_draft_order_from_file(self, file_num: int) -> list:
+        """
+        Load DRAFT_ORDER array from numbered file.
+
+        Args:
+            file_num (int): File number (1-30)
+
+        Returns:
+            list: DRAFT_ORDER array from the file
+
+        Raises:
+            FileNotFoundError: If no matching file found
+        """
+        draft_order_dir = Path(__file__).parent / "sim_data" / "draft_order_possibilities"
+
+        # Try pattern with suffix first (e.g., 2_zero_rb.json)
+        matches = list(draft_order_dir.glob(f"{file_num}_*.json"))
+        if not matches:
+            # Try exact match (e.g., 1.json)
+            matches = list(draft_order_dir.glob(f"{file_num}.json"))
+
+        if not matches:
+            raise FileNotFoundError(f"No draft order file found for number {file_num} in {draft_order_dir}")
+
+        with open(matches[0], 'r') as f:
+            data = json.load(f)
+
+        self.logger.debug(f"Loaded DRAFT_ORDER from {matches[0].name}")
+        return data['DRAFT_ORDER']
 
     def generate_multiplier_parameter_values(
         self,
@@ -570,6 +640,22 @@ class ConfigGenerator:
         elif param_name == 'SECONDARY_BONUS':
             current_val = params['DRAFT_ORDER_BONUSES']['SECONDARY']
             min_val, max_val = self.param_definitions['SECONDARY_BONUS']
+        elif param_name == 'DRAFT_ORDER_FILE':
+            current_val = params.get('DRAFT_ORDER_FILE', 1)
+            min_val, max_val = self.param_definitions['DRAFT_ORDER_FILE']
+            # Use discrete values for file selection
+            test_values = self.generate_discrete_parameter_values(
+                param_name, int(current_val), int(min_val), int(max_val)
+            )
+            # Create config for each test value
+            configs = []
+            for test_val in test_values:
+                combination = self._extract_combination_from_config(base_config)
+                combination[param_name] = test_val
+                config = self.create_config_dict(combination)
+                configs.append(config)
+            self.logger.info(f"Generated {len(configs)} configs for {param_name}")
+            return configs
         elif '_WEIGHT' in param_name:
             # Extract section and multiplier type
             # Format: SECTION_SCORING_WEIGHT
@@ -648,6 +734,7 @@ class ConfigGenerator:
         combination['DIFF_POS_BYE_WEIGHT'] = params['DIFF_POS_BYE_WEIGHT']
         combination['PRIMARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['PRIMARY']
         combination['SECONDARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['SECONDARY']
+        combination['DRAFT_ORDER_FILE'] = params.get('DRAFT_ORDER_FILE', 1)
 
         # WEIGHTS for each section (SCHEDULE disabled)
         for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
@@ -710,6 +797,11 @@ class ConfigGenerator:
         params['DIFF_POS_BYE_WEIGHT'] = combination['DIFF_POS_BYE_WEIGHT']
         params['DRAFT_ORDER_BONUSES']['PRIMARY'] = combination['PRIMARY_BONUS']
         params['DRAFT_ORDER_BONUSES']['SECONDARY'] = combination['SECONDARY_BONUS']
+
+        # Update DRAFT_ORDER_FILE and load corresponding DRAFT_ORDER
+        draft_order_file = int(combination.get('DRAFT_ORDER_FILE', 1))
+        params['DRAFT_ORDER_FILE'] = draft_order_file
+        params['DRAFT_ORDER'] = self._load_draft_order_from_file(draft_order_file)
 
         # Update IMPACT_SCALE for additive scoring (NEW) - SCHEDULE disabled
         params['MATCHUP_SCORING']['IMPACT_SCALE'] = combination['MATCHUP_IMPACT_SCALE']

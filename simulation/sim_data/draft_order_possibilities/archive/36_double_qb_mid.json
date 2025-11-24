@@ -1,0 +1,21 @@
+{
+    "name": "Double QB Mid",
+    "description": "Both QBs in rounds 5-6, secure backup early.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

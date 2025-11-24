@@ -1,0 +1,21 @@
+{
+    "name": "TE Premium Early",
+    "description": "Target Bowers/McBride in round 2, elite TE advantage.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "QB": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P", "QB": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

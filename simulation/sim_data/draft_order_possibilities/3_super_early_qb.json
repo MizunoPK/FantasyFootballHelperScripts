@@ -1,0 +1,21 @@
+{
+    "name": "Super Early QB",
+    "description": "Elite QB round 1-2, Josh Allen/Lamar at peak value.",
+    "DRAFT_ORDER": [
+      {"QB": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}

@@ -187,7 +187,7 @@ class TestConfigGeneratorInitialization:
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 16  # 5 scalars + 5 weights + 3 MIN_WEEKS + 2 threshold STEPS + 1 IMPACT_SCALE (SCHEDULE disabled, some STEPS disabled)
+        assert len(gen.PARAMETER_ORDER) == 17  # 5 scalars + 5 weights + 3 MIN_WEEKS + 2 threshold STEPS + 1 IMPACT_SCALE + 1 DRAFT_ORDER_FILE (SCHEDULE disabled, some STEPS disabled)
 
 
 class TestParameterValueGeneration:
@@ -862,7 +862,7 @@ class TestIterativeOptimizationSupport:
         assert 'MATCHUP_SCORING_STEPS' in combination
         assert 'MATCHUP_IMPACT_SCALE' in combination
         # assert 'SCHEDULE_IMPACT_SCALE' in combination
-        assert len(combination) == 19  # 5 scalars + 5 weights + 3 MIN_WEEKS + 5 STEPS + 1 IMPACT_SCALE
+        assert len(combination) == 20  # 5 scalars + 5 weights + 3 MIN_WEEKS + 5 STEPS + 1 IMPACT_SCALE + 1 DRAFT_ORDER_FILE
 
     def test_generate_single_parameter_configs_for_multiplier(self, generator):
         """Test generating configs for a weight parameter"""
@@ -1107,12 +1107,12 @@ class TestGenerateIterativeCombinations:
             # Should cap at 16 parameters (PARAMETER_ORDER length)
             configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
 
-            # Should generate configs (capped at 16 params)
+            # Should generate configs (capped at 17 params)
             # Base parameter: 2 configs
-            # Random parameters (15): 30 configs (15 * 2)
-            # Combinations: 2^16 = 65,536
-            # Total: 65,568 configs
-            assert len(configs) == 65568
+            # Random parameters (16): 32 configs (16 * 2)
+            # Combinations: 2^17 = 131,072
+            # Total: 131,106 configs
+            assert len(configs) == 131106
             assert all('parameters' in config for config in configs)
         finally:
             temp_path.unlink()
@@ -1206,5 +1206,169 @@ class TestGenerateIterativeCombinations:
 
             # Should default to 1, returning N+1 configs
             assert len(configs) == 6
+        finally:
+            temp_path.unlink()
+
+
+class TestDraftOrderFile:
+    """Test DRAFT_ORDER_FILE parameter functionality"""
+
+    @pytest.fixture
+    def baseline_config_with_draft_order(self):
+        """Create baseline config with DRAFT_ORDER_FILE"""
+        config = {
+            "config_name": "test_baseline",
+            "parameters": {
+                "NORMALIZATION_MAX_SCALE": 100.0,
+                "SAME_POS_BYE_WEIGHT": 1.0,
+                "DIFF_POS_BYE_WEIGHT": 1.0,
+                "DRAFT_ORDER_BONUSES": {
+                    "PRIMARY": 50.0,
+                    "SECONDARY": 40.0
+                },
+                "DRAFT_ORDER_FILE": 1,
+                "DRAFT_ORDER": [{"FLEX": "P", "QB": "S"}] * 15,
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
+                "ADP_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {"EXCELLENT": 1.2, "GOOD": 1.1, "POOR": 0.9, "VERY_POOR": 0.8},
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 37.5}
+                },
+                "PLAYER_RATING_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {"EXCELLENT": 1.25, "GOOD": 1.15, "POOR": 0.85, "VERY_POOR": 0.75},
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 20.0}
+                },
+                "TEAM_QUALITY_SCORING": {
+                    "MIN_WEEKS": 5,
+                    "WEIGHT": 1.0,
+                    "MULTIPLIERS": {"EXCELLENT": 1.3, "GOOD": 1.2, "POOR": 0.8, "VERY_POOR": 0.7},
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 6.25}
+                },
+                "PERFORMANCE_SCORING": {
+                    "WEIGHT": 1.0,
+                    "MIN_WEEKS": 5,
+                    "MULTIPLIERS": {"EXCELLENT": 1.15, "GOOD": 1.05, "POOR": 0.95, "VERY_POOR": 0.85},
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 0.1}
+                },
+                "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 5,
+                    "WEIGHT": 1.0,
+                    "IMPACT_SCALE": 100.0,
+                    "MULTIPLIERS": {"EXCELLENT": 1.2, "GOOD": 1.1, "POOR": 0.9, "VERY_POOR": 0.8},
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.25}
+                }
+            }
+        }
+        return config
+
+    def test_draft_order_file_in_param_definitions(self):
+        """Test DRAFT_ORDER_FILE is in PARAM_DEFINITIONS with correct range"""
+        assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
+        min_val, max_val = ConfigGenerator.PARAM_DEFINITIONS['DRAFT_ORDER_FILE']
+        assert min_val == 1
+        assert max_val == 10
+
+    def test_draft_order_file_in_parameter_order(self):
+        """Test DRAFT_ORDER_FILE is in PARAMETER_ORDER after SECONDARY_BONUS"""
+        assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAMETER_ORDER
+        secondary_idx = ConfigGenerator.PARAMETER_ORDER.index('SECONDARY_BONUS')
+        draft_order_idx = ConfigGenerator.PARAMETER_ORDER.index('DRAFT_ORDER_FILE')
+        assert draft_order_idx == secondary_idx + 1
+
+    def test_generate_discrete_parameter_values(self, baseline_config_with_draft_order):
+        """Test discrete value generation for DRAFT_ORDER_FILE"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_with_draft_order, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path, num_test_values=5)
+            values = generator.generate_discrete_parameter_values('DRAFT_ORDER_FILE', 1, 1, 30)
+
+            # Should have N+1 values
+            assert len(values) == 6
+            # First value should be optimal
+            assert values[0] == 1
+            # All values should be integers in range
+            for v in values:
+                assert isinstance(v, int)
+                assert 1 <= v <= 30
+            # All values should be unique
+            assert len(set(values)) == 6
+        finally:
+            temp_path.unlink()
+
+    def test_extract_combination_includes_draft_order_file(self, baseline_config_with_draft_order):
+        """Test _extract_combination_from_config includes DRAFT_ORDER_FILE"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_with_draft_order, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path)
+            combination = generator._extract_combination_from_config(baseline_config_with_draft_order)
+
+            assert 'DRAFT_ORDER_FILE' in combination
+            assert combination['DRAFT_ORDER_FILE'] == 1
+        finally:
+            temp_path.unlink()
+
+    def test_generate_single_parameter_configs_draft_order_file(self, baseline_config_with_draft_order):
+        """Test generating configs for DRAFT_ORDER_FILE parameter"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_with_draft_order, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path, num_test_values=3)
+            configs = generator.generate_single_parameter_configs(
+                'DRAFT_ORDER_FILE',
+                baseline_config_with_draft_order
+            )
+
+            # Should have N+1 configs
+            assert len(configs) == 4
+
+            # Each config should have DRAFT_ORDER_FILE and DRAFT_ORDER
+            for config in configs:
+                assert 'DRAFT_ORDER_FILE' in config['parameters']
+                assert 'DRAFT_ORDER' in config['parameters']
+                # DRAFT_ORDER should be a list
+                assert isinstance(config['parameters']['DRAFT_ORDER'], list)
+        finally:
+            temp_path.unlink()
+
+    def test_create_config_dict_loads_draft_order(self, baseline_config_with_draft_order):
+        """Test create_config_dict loads DRAFT_ORDER from file"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_with_draft_order, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path)
+            combination = generator._extract_combination_from_config(baseline_config_with_draft_order)
+
+            # Test with file 1
+            combination['DRAFT_ORDER_FILE'] = 1
+            config = generator.create_config_dict(combination)
+
+            assert config['parameters']['DRAFT_ORDER_FILE'] == 1
+            assert isinstance(config['parameters']['DRAFT_ORDER'], list)
+            assert len(config['parameters']['DRAFT_ORDER']) == 15
+        finally:
+            temp_path.unlink()
+
+    def test_load_draft_order_from_file_not_found(self, baseline_config_with_draft_order):
+        """Test _load_draft_order_from_file raises error for invalid file number"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(baseline_config_with_draft_order, f)
+            temp_path = Path(f.name)
+
+        try:
+            generator = ConfigGenerator(temp_path)
+            with pytest.raises(FileNotFoundError):
+                generator._load_draft_order_from_file(999)
         finally:
             temp_path.unlink()

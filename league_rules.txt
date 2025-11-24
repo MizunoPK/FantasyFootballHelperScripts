@@ -1,0 +1,38 @@
+This is called a Start 7 Fantasy League				
+You will be drafting 14 players and a defense				
+of those you will be using 7 players, a kicker and a defense each week				
+Your 7 players starting each week will be arranged like so:				
+				
+1 Quarterback				
+2 Running Backs				
+2 Wide Recievers 		<- these are the 7 starters		
+1 Tight end				
+1 Wide Reciever or Running back				
+				
+1 Kicker				
+and 1 Defense				
+				
+Any player not starting for your team in a given week will be on your bench or in your reserve				
+you have 6 bench slots (these are your backups)				
+				
+and 3 reserve slots for injured players				
+				
+
+
+SCORING:			
+Passing Yards:	1 point per 25 yards					
+Passing Touchdowns:	4 points					
+Interceptions Thrown:	-2 points					
+Rushing Yards:	1 point per 10 yards					
+Rushing Touchdowns:	6 points					
+Receptions:	1 point					
+Receiving Yards:	1 point per 10 yards					
+Receiving Touchdowns:	6 points					
+Kickoff and Punt Return Touchdowns:	6 points					
+Fumble Recovered for TD:	6 points					
+Fumbles Lost:	-2 points					
+2-Point Conversions:	2 points					
+						
+Your starting players and defense will earn you points through the outcomes of their weekly games						
+you will be battling someone else in the league to earn more points than they did that week						
+At the end of the season the 6 teams with the best record will advance to the playoffs to determine the winner

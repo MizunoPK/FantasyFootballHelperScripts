@@ -1,0 +1,4 @@
+We are going to add DRAFT_ORDER as a configurable parameter in the iterative simulation.
+The config range will be defined as (1,30)
+The numbers selected from the range will correspond to files in simulation/sim_data/draft_order_possibilities
+When creating the configs that are being tested, DRAFT_ORDER will be set to whatever it is set to in the file number that was chosen

@@ -1,0 +1,21 @@
+{
+    "name": "Late Round QB",
+    "description": "QB dead zone approach - wait until rounds 11-12.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"QB": "P", "K": "S"},
+      {"K": "P", "DST": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"}
+    ]
+}

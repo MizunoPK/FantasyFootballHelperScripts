@@ -1,0 +1,21 @@
+{
+    "name": "Late QB Value",
+    "description": "Wait on QB until rounds 10-11, maximize RB/WR early.",
+    "DRAFT_ORDER": [
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
+    ]
+}
