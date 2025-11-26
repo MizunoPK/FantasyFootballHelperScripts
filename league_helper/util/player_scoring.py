@@ -169,17 +169,20 @@ class PlayerScoringCalculator:
         Calculate performance deviation for a player based on actual vs projected points.
 
         Measures how much a player's actual performance deviates from projected points
-        across recent weeks using a rolling window. Positive deviation = outperforming,
+        across recent weeks using dynamic lookback. Positive deviation = outperforming,
         negative = underperforming.
 
-        Formula: average((actual - projected) / projected) for valid weeks in rolling window
+        Formula: average((actual - projected) / projected) for valid weeks
 
-        Uses MIN_WEEKS as both the rolling window size AND minimum data requirement.
-        Only analyzes the most recent MIN_WEEKS weeks that have occurred.
+        Dynamic Lookback Logic:
+        - Looks back from current_week - 1 to find MIN_WEEKS valid (non-zero) weeks
+        - Skips bye weeks and injury weeks (actual = 0) automatically
+        - Maximum lookback limit: 2 * MIN_WEEKS weeks to ensure data freshness
+        - Returns None if MIN_WEEKS valid weeks cannot be found within the limit
 
         Skipping criteria:
-        - Weeks where actual points = 0 (player didn't play)
-        - Weeks where projected = 0.0 AND actual ≠ 0.0 (unprojected performances)
+        - Weeks where actual points = 0 (player didn't play - bye/injury)
+        - Weeks where projected = 0.0 (no projection data available)
         - DST position players (insufficient historical projection data)
 
         Args:
@@ -194,67 +197,58 @@ class PlayerScoringCalculator:
             self.logger.debug(f"Skipping performance calculation for DST player: {player.name}")
             return None
 
-        # Get MIN_WEEKS for rolling window size
+        # Get MIN_WEEKS for minimum valid weeks requirement
         min_weeks = self.config.performance_scoring[self.config.keys.MIN_WEEKS]
 
-        # Calculate rolling window start (use last MIN_WEEKS completed weeks)
-        # Example: current_week=10, min_weeks=4 -> analyze weeks 6,7,8,9
-        start_week = max(1, self.config.current_nfl_week - min_weeks)
+        # Calculate maximum lookback limit (2x MIN_WEEKS for data freshness)
+        max_lookback = min_weeks * 2
+        earliest_week = max(1, self.config.current_nfl_week - max_lookback)
 
-        # Collect performance deviations for each valid week in rolling window
+        # Collect performance deviations using dynamic lookback
+        # Start from most recent completed week and work backwards
         deviations = []
+        week = self.config.current_nfl_week - 1
 
-        # Analyze only the rolling window (recent MIN_WEEKS weeks)
-        for week in range(start_week, self.config.current_nfl_week):
+        while len(deviations) < min_weeks and week >= earliest_week:
             # Get actual points from player object
             week_attr = f'week_{week}_points'
-            if not hasattr(player, week_attr):
-                continue
+            if hasattr(player, week_attr):
+                actual_points = getattr(player, week_attr)
 
-            actual_points = getattr(player, week_attr)
-            if actual_points is None:
-                continue
+                if actual_points is not None:
+                    actual_points = float(actual_points)
 
-            actual_points = float(actual_points)
+                    # Skip weeks where player didn't play (actual = 0)
+                    # This handles bye weeks and injury weeks automatically
+                    if actual_points > 0:
+                        # Get projected points from ProjectedPointsManager
+                        projected_points = self.projected_points_manager.get_projected_points(player, week)
 
-            # Skip weeks where player didn't play (actual = 0)
-            if actual_points == 0:
-                continue
+                        if projected_points is not None and projected_points > 0:
+                            # Calculate deviation: (actual - projected) / projected
+                            deviation = (actual_points - projected_points) / projected_points
+                            deviations.append(deviation)
 
-            # Get projected points from ProjectedPointsManager
-            projected_points = self.projected_points_manager.get_projected_points(player, week)
-            if projected_points is None:
-                continue
+                            self.logger.debug(
+                                f"Week {week} performance for {player.name}: "
+                                f"actual={actual_points:.2f}, projected={projected_points:.2f}, "
+                                f"deviation={deviation:.3f} ({deviation*100:.1f}%)"
+                            )
+                        elif projected_points == 0.0:
+                            self.logger.debug(
+                                f"Skipping week {week} for {player.name}: projected=0.0"
+                            )
 
-            # IMPORTANT: Skip weeks where projected = 0.0 AND actual ≠ 0.0
-            # This prevents division by zero and skewed metrics for unprojected performances
-            if projected_points == 0.0 and actual_points != 0.0:
-                self.logger.debug(
-                    f"Skipping week {week} for {player.name}: projected=0.0 but actual={actual_points:.2f}"
-                )
-                continue
-
-            # Skip if projected is 0 (even if actual is also 0) to avoid division by zero
-            if projected_points == 0.0:
-                continue
-
-            # Calculate deviation: (actual - projected) / projected
-            deviation = (actual_points - projected_points) / projected_points
-            deviations.append(deviation)
-
-            self.logger.debug(
-                f"Week {week} performance for {player.name}: "
-                f"actual={actual_points:.2f}, projected={projected_points:.2f}, "
-                f"deviation={deviation:.3f} ({deviation*100:.1f}%)"
-            )
+            week -= 1
 
         weeks_count = len(deviations)
 
-        # Handle insufficient data (MIN_WEEKS is both window size and minimum requirement)
+        # Handle insufficient data (MIN_WEEKS is strict minimum requirement)
         if weeks_count < min_weeks:
             self.logger.debug(
                 f"Insufficient performance data for {player.name}: "
-                f"{weeks_count} weeks < {min_weeks} required"
+                f"{weeks_count} valid weeks found < {min_weeks} required "
+                f"(looked back to week {earliest_week})"
             )
             return None
 

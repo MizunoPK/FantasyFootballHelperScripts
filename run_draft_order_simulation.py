@@ -40,7 +40,7 @@ LOGGING_FILE = './simulation/draft_order_log.txt'
 LOGGING_FORMAT = 'standard'
 
 # Default values
-DEFAULT_SIMS = 15
+DEFAULT_SIMS = 50
 DEFAULT_OUTPUT = 'simulation/draft_order_results'
 DEFAULT_WORKERS = 7
 DEFAULT_DATA = 'simulation/sim_data'

@@ -1,0 +1,39 @@
+# Objective: MIN_WEEKS Non-Zero Lookback Enhancement
+
+## Problem Statement
+Currently, scoring methods that use the MIN_WEEKS parameter from league_config are calculating multipliers based on the most recent N weeks of data, regardless of whether those weeks contain meaningful (non-zero) values. This causes players with recent bye weeks to be excluded from receiving certain scoring multipliers (e.g., Performance multiplier) because their recent week data contains zeros.
+
+## Current Behavior
+- System looks at the latest MIN_WEEKS number of weeks
+- If a player had a bye week recently, that week counts as 0 points
+- Players with bye weeks in their recent history may not meet thresholds or get excluded from calculations
+- Example: If MIN_WEEKS=3 and a player had a bye in week 11, looking at weeks 10-12 includes a 0 which skews the calculation
+
+## Desired Behavior
+- For every parameter that uses MIN_WEEKS, the scoring methods should look back further in time to find MIN_WEEKS total weeks with non-zero values
+- The system should skip over bye weeks (0 point weeks) and continue looking back until it finds enough valid data points
+- Example: If MIN_WEEKS=3 and a player had a bye in week 11, the system should use weeks 10, 9, and 8 (skipping week 11) to get 3 valid weeks of data
+
+## Scope
+1. Identify all places in the codebase where MIN_WEEKS is used from league_config
+2. For each usage, update the logic to:
+   - Look back through available weeks
+   - Skip weeks with 0 points (bye weeks)
+   - Collect MIN_WEEKS number of non-zero week values
+   - Use those values for the calculation
+3. Consider edge cases:
+   - What if there aren't enough non-zero weeks available? (Use what's available)
+   - What about players who actually scored 0 points (not bye week)? (Need to distinguish - check if player had a game that week)
+   - Injury weeks where player didn't play? (Should also be skipped)
+
+## Files Likely Affected
+- league_helper/util/PlayerManager.py (scoring calculations)
+- league_config.json (MIN_WEEKS parameter definitions)
+- Possibly other scoring-related files
+
+## Acceptance Criteria
+- Players with recent bye weeks receive appropriate scoring multipliers
+- The system uses the most recent MIN_WEEKS non-zero/valid game weeks for calculations
+- All existing unit tests pass
+- New unit tests cover the non-zero lookback behavior
+- Performance multiplier (and any other MIN_WEEKS-dependent multipliers) work correctly for players with bye weeks in recent history

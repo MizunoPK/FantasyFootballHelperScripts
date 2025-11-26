@@ -652,3 +652,168 @@ class TestIntegrationScenarios:
         assert player.fantasy_points == 150.5
         assert player.get_week_points(1) == 15.0
         assert player.get_week_points(2) == 20.0
+
+
+class TestESPNPlayerDataProjectedWeeks:
+    """Test projected_weeks dictionary functionality for players_projected.csv export"""
+
+    def test_projected_weeks_default_empty_dict(self):
+        """Test that projected_weeks defaults to empty dict"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        assert player.projected_weeks == {}
+
+    def test_set_week_projected_valid_week(self):
+        """Test setting projected points for a valid week"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        player.set_week_projected(1, 22.5)
+        assert player.projected_weeks[1] == 22.5
+
+    def test_set_week_projected_all_weeks(self):
+        """Test setting projected points for all weeks 1-17"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        for week in range(1, 18):
+            player.set_week_projected(week, float(week * 5))
+
+        for week in range(1, 18):
+            assert player.projected_weeks[week] == float(week * 5)
+
+    def test_set_week_projected_invalid_week_low(self):
+        """Test setting projected points for week < 1 is ignored"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        player.set_week_projected(0, 25.5)
+        assert 0 not in player.projected_weeks
+
+    def test_set_week_projected_invalid_week_high(self):
+        """Test setting projected points for week > 17 is ignored"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        player.set_week_projected(18, 25.5)
+        assert 18 not in player.projected_weeks
+
+    def test_get_week_projected_set_value(self):
+        """Test getting projected points for a week that was set"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        player.set_week_projected(10, 30.2)
+        assert player.get_week_projected(10) == 30.2
+
+    def test_get_week_projected_unset_value(self):
+        """Test getting projected points for a week that was not set returns None"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        assert player.get_week_projected(5) is None
+
+    def test_get_week_projected_invalid_week_low(self):
+        """Test getting projected points for week < 1 returns None"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        assert player.get_week_projected(0) is None
+
+    def test_get_week_projected_invalid_week_high(self):
+        """Test getting projected points for week > 17 returns None"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        assert player.get_week_projected(18) is None
+
+    def test_get_all_weekly_projected_no_points_set(self):
+        """Test get_all_weekly_projected with no points set"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        all_projected = player.get_all_weekly_projected()
+        assert len(all_projected) == 17
+        assert all(all_projected[w] is None for w in range(1, 18))
+
+    def test_get_all_weekly_projected_some_points_set(self):
+        """Test get_all_weekly_projected with some weeks set"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        player.set_week_projected(1, 20.0)
+        player.set_week_projected(5, 25.0)
+        player.set_week_projected(17, 30.0)
+
+        all_projected = player.get_all_weekly_projected()
+        assert all_projected[1] == 20.0
+        assert all_projected[5] == 25.0
+        assert all_projected[17] == 30.0
+        assert all_projected[2] is None
+        assert all_projected[10] is None
+
+    def test_get_all_weekly_projected_all_points_set(self):
+        """Test get_all_weekly_projected with all weeks set"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        for week in range(1, 18):
+            player.set_week_projected(week, 20.0)
+
+        all_projected = player.get_all_weekly_projected()
+        assert len(all_projected) == 17
+        assert all(all_projected[w] == 20.0 for w in range(1, 18))
+
+    def test_projected_independent_of_week_points(self):
+        """Test that projected_weeks is independent of week_N_points fields"""
+        player = ESPNPlayerData(
+            id="12345",
+            name="Test Player",
+            team="TB",
+            position="QB"
+        )
+        # Set different values for actual and projected
+        player.set_week_points(1, 38.76)  # Actual score
+        player.set_week_projected(1, 20.83)  # Projected score
+
+        # They should be independent
+        assert player.get_week_points(1) == 38.76
+        assert player.get_week_projected(1) == 20.83
+        assert player.get_week_points(1) != player.get_week_projected(1)

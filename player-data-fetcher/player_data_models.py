@@ -70,6 +70,11 @@ class ESPNPlayerData(BaseModel):
     api_source: str = "ESPN"
     updated_at: datetime = Field(default_factory=datetime.now)
 
+    # Projected weekly points (statSourceId=1 from ESPN API)
+    # Stored as dictionary: {week_number: projected_points}
+    # Used for players_projected.csv which contains projection-only values
+    projected_weeks: Dict[int, float] = Field(default_factory=dict)
+
     def set_week_points(self, week: int, points: float):
         """Set points for a specific week (fantasy regular season weeks 1-17 only)"""
         if 1 <= week <= 17:
@@ -87,6 +92,31 @@ class ESPNPlayerData(BaseModel):
             week: self.get_week_points(week)
             for week in range(1, 18)
         }
+
+    def set_week_projected(self, week: int, points: float):
+        """Set projected points for a specific week (fantasy regular season weeks 1-17 only)
+
+        These are projection-only values from ESPN's statSourceId=1, used for
+        players_projected.csv which contains projections for ALL weeks.
+        """
+        if 1 <= week <= 17:
+            self.projected_weeks[week] = points
+
+    def get_week_projected(self, week: int) -> Optional[float]:
+        """Get projected points for a specific week (fantasy regular season weeks 1-17 only)
+
+        Returns the projection-only value (statSourceId=1) for the specified week.
+        """
+        if 1 <= week <= 17:
+            return self.projected_weeks.get(week)
+        return None
+
+    def get_all_weekly_projected(self) -> Dict[int, Optional[float]]:
+        """Get all weekly projected points as a dictionary (weeks 1-17 only)
+
+        Returns projection-only values for all weeks, used for players_projected.csv.
+        """
+        return {week: self.projected_weeks.get(week) for week in range(1, 18)}
 
 
 class PlayerProjection(ESPNPlayerData):

@@ -36,7 +36,9 @@ This identifies players trending up or down relative to expectations.
 deviation = (actual_points - projected_points) / projected_points
 ```
 
-For each week in the rolling window (last MIN_WEEKS completed weeks), calculate deviation then average across all valid weeks.
+For each valid week (working backwards from the most recent), calculate deviation then average across MIN_WEEKS valid weeks.
+
+**Dynamic Lookback**: The algorithm works backwards from `current_week - 1`, skipping bye weeks and injury weeks (where actual = 0), until it finds MIN_WEEKS valid data points. This ensures players with recent bye weeks aren't penalized with missing data.
 
 ### Threshold System
 
@@ -101,26 +103,29 @@ def calculate_performance_deviation(self, player: FantasyPlayer) -> Optional[flo
     if player.position == 'DST':
         return None
 
-    # Get MIN_WEEKS for rolling window size
+    # Get MIN_WEEKS for minimum valid weeks requirement
     min_weeks = self.config.performance_scoring[self.config.keys.MIN_WEEKS]
 
-    # Calculate rolling window start (use last MIN_WEEKS completed weeks)
-    start_week = max(1, self.config.current_nfl_week - min_weeks)
+    # Calculate maximum lookback limit (2x MIN_WEEKS for data freshness)
+    max_lookback = min_weeks * 2
+    earliest_week = max(1, self.config.current_nfl_week - max_lookback)
 
+    # Dynamic lookback: work backwards from most recent week
     deviations = []
-    # Analyze only the rolling window (recent MIN_WEEKS weeks)
-    for week in range(start_week, self.config.current_nfl_week):
+    week = self.config.current_nfl_week - 1
+
+    while len(deviations) < min_weeks and week >= earliest_week:
         actual = getattr(player, f'week_{week}_points')
         projected = self.projected_points_manager.get_projected_points(player, week)
 
-        # Skip invalid weeks
-        if actual == 0 or projected == 0:
-            continue
+        # Skip invalid weeks (bye weeks, injuries, missing data)
+        if actual > 0 and projected > 0:
+            deviation = (actual - projected) / projected
+            deviations.append(deviation)
 
-        deviation = (actual - projected) / projected
-        deviations.append(deviation)
+        week -= 1
 
-    # Require minimum weeks (MIN_WEEKS is both window size and minimum)
+    # Require minimum weeks (strict requirement)
     if len(deviations) < min_weeks:
         return None
 
@@ -212,12 +217,19 @@ Returns `None` if fewer than MIN_WEEKS valid weeks in the rolling window:
 - Early season common (before MIN_WEEKS have been played)
 - Players with many missed games in recent weeks
 
-### Rolling Window
+### Dynamic Lookback
 
-Performance now uses a rolling window of the most recent MIN_WEEKS:
-- Example: current_week=10, MIN_WEEKS=3 → analyzes weeks 7, 8, 9
-- This captures recent trends rather than season-long averages
-- Matches how Matchup uses rolling windows for defense rankings
+Performance uses dynamic lookback to find MIN_WEEKS valid data points:
+- Works backwards from `current_week - 1`
+- Skips bye weeks and injury weeks (actual = 0) automatically
+- Maximum lookback limit: `2 × MIN_WEEKS` weeks for data freshness
+- Example: current_week=10, MIN_WEEKS=3, bye week 8 → uses weeks 9, 7, 6 (skipping 8)
+- This ensures players with recent bye weeks still get proper scoring
+
+**Why 2x Lookback Limit?**
+- Balances data freshness with availability
+- If valid weeks can't be found within `2 × MIN_WEEKS`, data is too sparse/stale
+- Example: MIN_WEEKS=3 → look back max 6 weeks from current week
 
 ## Relationship to Other Steps
 

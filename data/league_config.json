@@ -1,85 +1,45 @@
 {
-  "config_name": "simulation/simulation_configs/intermediate_10_PERFORMANCE_SCORING_WEIGHT.json",
-  "description": "Win Rate: 0.77",
+  "config_name": "simulation/simulation_configs/intermediate_06_DRAFT_ORDER_FILE.json",
+  "description": "Win Rate: 0.84",
   "parameters": {
-    "CURRENT_NFL_WEEK": 12,
+    "CURRENT_NFL_WEEK": 13,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 134.78685224507583,
-    "SAME_POS_BYE_WEIGHT": 0.4027848401978631,
-    "DIFF_POS_BYE_WEIGHT": 0.176323310359434,
+    "NORMALIZATION_MAX_SCALE": 116.56481044620453,
+    "SAME_POS_BYE_WEIGHT": 0.21106431238341677,
+    "DIFF_POS_BYE_WEIGHT": 0.05743774484782922,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 0,
       "HIGH": 100
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 72.80827305473109,
+      "PRIMARY": 77.48406136219677,
       "SECONDARY": 80.47084473431896
     },
     "DRAFT_ORDER_FILE": 1,
     "DRAFT_ORDER": [
-      {
-        "FLEX": "P",
-        "QB": "S"
-      },
-      {
-        "FLEX": "P",
-        "QB": "S"
-      },
-      {
-        "FLEX": "P",
-        "QB": "S"
-      },
-      {
-        "FLEX": "P",
-        "QB": "S"
-      },
-      {
-        "QB": "P",
-        "FLEX": "S"
-      },
-      {
-        "TE": "P",
-        "FLEX": "S"
-      },
-      {
-        "FLEX": "P"
-      },
-      {
-        "QB": "P",
-        "FLEX": "S"
-      },
-      {
-        "TE": "P",
-        "FLEX": "S"
-      },
-      {
-        "FLEX": "P"
-      },
-      {
-        "FLEX": "P"
-      },
-      {
-        "K": "P",
-        "FLEX": "S"
-      },
-      {
-        "DST": "P",
-        "FLEX": "S"
-      },
-      {
-        "FLEX": "P"
-      },
-      {
-        "FLEX": "P"
-      }
+      {"FLEX": "P", "QB": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P", "TE": "S"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P", "QB": "S"},
+      {"TE": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"QB": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"},
+      {"K": "P", "FLEX": "S"},
+      {"DST": "P", "FLEX": "S"},
+      {"FLEX": "P"},
+      {"FLEX": "P"}
     ],
     "MAX_POSITIONS": {
       "QB": 2,
-      "RB": 3,
-      "WR": 3,
-      "FLEX": 3,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 1,
       "TE": 2,
       "K": 1,
       "DST": 1
@@ -87,7 +47,6 @@
     "FLEX_ELIGIBLE_POSITIONS": [
       "RB",
       "WR",
-      "TE",
       "DST"
     ],
     "ADP_SCORING": {
@@ -166,7 +125,7 @@
     },
     "SCHEDULE_SCORING": {
       "MIN_WEEKS": 5,
-      "IMPACT_SCALE": 108.44420719076365,
+      "IMPACT_SCALE": 115.44420719076365,
       "THRESHOLDS": {
         "BASE_POSITION": 16,
         "DIRECTION": "BI_EXCELLENT_HI",

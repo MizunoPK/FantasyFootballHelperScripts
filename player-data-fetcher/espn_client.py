@@ -454,14 +454,19 @@ class ESPNClient(BaseAPIClient):
             "player": {
               "id": 12345,
               "stats": [
-                {"seasonId": 2024, "scoringPeriodId": 1, "appliedTotal": 15.2, "statSourceId": 0, ...},
-                {"seasonId": 2024, "scoringPeriodId": 1, "projectedTotal": 14.8, "statSourceId": 1, ...},
+                {"seasonId": 2024, "scoringPeriodId": 1, "appliedTotal": 15.2, "statSourceId": 0, ...},  # Actual
+                {"seasonId": 2024, "scoringPeriodId": 1, "appliedTotal": 14.8, "statSourceId": 1, ...},  # Projection
                 {"seasonId": 2024, "scoringPeriodId": 2, "appliedTotal": 18.5, "statSourceId": 0, ...},
                 ...
               ]
             }
           }]
         }
+
+        ESPN API Structure:
+        - statSourceId=0 + appliedTotal = Actual game scores
+        - statSourceId=1 + appliedTotal = ESPN projections
+        - NOTE: 'projectedTotal' field does NOT exist in ESPN's current API
 
         Args:
             player_id: ESPN player ID (numeric string)
@@ -497,7 +502,8 @@ class ESPNClient(BaseAPIClient):
                 return None
 
             # Return player data containing 'stats' array with all weekly data
-            # Each stat entry has: seasonId, scoringPeriodId, appliedTotal, projectedTotal, statSourceId
+            # Each stat entry has: seasonId, scoringPeriodId, appliedTotal, statSourceId
+            # NOTE: statSourceId=0 means actual scores, statSourceId=1 means projections
             return players[0].get('player', {})
 
         except Exception as e:
@@ -509,9 +515,10 @@ class ESPNClient(BaseAPIClient):
         """
         Extract points for a specific week from player data using shared logic
 
-        NOTE: This now uses the shared FantasyPointsExtractor for consistent logic
-        across all modules. The prefer_actual parameter has been removed as we
-        now standardize on always preferring appliedTotal over projectedTotal.
+        NOTE: This uses the shared FantasyPointsExtractor for consistent logic.
+        ESPN API uses appliedTotal field with statSourceId to distinguish:
+        - statSourceId=0 + appliedTotal = Actual game scores
+        - statSourceId=1 + appliedTotal = ESPN projections
         """
         try:
             # Use shared fantasy points extractor
@@ -532,7 +539,11 @@ class ESPNClient(BaseAPIClient):
 
     async def _populate_weekly_projections(self, player_data: ESPNPlayerData, player_id: str, name: str, position: str):
         """
-        Populate weekly projections for a player if week-by-week projections are enabled
+        Populate weekly projections for a player.
+
+        This method populates two sets of data:
+        1. week_N_points: Smart values (actual for past weeks, projection for future)
+        2. projected_weeks: Projection-only values (statSourceId=1 for ALL weeks)
 
         Args:
             player_data: The ESPNPlayerData object to populate
@@ -540,8 +551,6 @@ class ESPNClient(BaseAPIClient):
             name: Player name for logging
             position: Player position
         """
-        # Week-by-week projections are always enabled
-
         try:
             # Get all weekly data for this player
             all_weeks_data = await self._get_all_weeks_data(player_id, position)
@@ -551,46 +560,58 @@ class ESPNClient(BaseAPIClient):
             # Determine week range (limit to 17 for fantasy regular season)
             end_week = 17
 
-            # Collect weekly projections for all weeks
+            # Collect weekly data for all weeks
             for week in range(1, end_week + 1):
-                # Get raw points from ESPN data without fallbacks
-                espn_points = self._extract_raw_espn_week_points(all_weeks_data, week, position)
+                # Get smart value for week_N_points (actual for past, projection for future)
+                smart_points = self._extract_raw_espn_week_points(all_weeks_data, week, position, 'smart')
 
-                if espn_points is not None and (espn_points > 0 or position == 'DST'):
-                    player_data.set_week_points(week, espn_points)
-                    self.logger.debug(f"{name} Week {week}: {espn_points:.1f} points (ESPN data)")
+                if smart_points is not None and (smart_points > 0 or position == 'DST'):
+                    player_data.set_week_points(week, smart_points)
+                    self.logger.debug(f"{name} Week {week}: {smart_points:.1f} points (smart)")
                 else:
-                    # Set to 0.0 when no ESPN data available (likely bye week for DST teams)
                     player_data.set_week_points(week, 0.0)
                     if position == 'DST':
                         self.logger.debug(f"{name} Week {week}: 0.0 points (likely bye week)")
                     else:
                         self.logger.debug(f"{name} Week {week}: 0.0 points (no data)")
 
+                # Get projection-only value for projected_weeks dictionary
+                # This is used for players_projected.csv which needs projection values for ALL weeks
+                projected_points = self._extract_raw_espn_week_points(all_weeks_data, week, position, 'projection')
+
+                if projected_points is not None and (projected_points > 0 or position == 'DST'):
+                    player_data.set_week_projected(week, projected_points)
+                    self.logger.debug(f"{name} Week {week}: {projected_points:.1f} projected")
+                else:
+                    player_data.set_week_projected(week, 0.0)
+
         except Exception as e:
             self.logger.warning(f"Failed to populate weekly projections for {name}: {str(e)}")
 
-    def _extract_raw_espn_week_points(self, player_data: dict, week: int, position: str) -> Optional[float]:
+    def _extract_raw_espn_week_points(
+        self,
+        player_data: dict,
+        week: int,
+        position: str,
+        source_type: str = 'smart'
+    ) -> Optional[float]:
         """
         Extract fantasy points for a specific week from ESPN's complex data structure.
 
         This method handles ESPN's multi-layered stat system where the same week can have:
         - Multiple stat entries (actual vs projected)
-        - Multiple point values (appliedTotal vs projectedTotal)
         - Multiple data sources (statSourceId=0 for actuals, statSourceId=1 for projections)
 
         ESPN Data Structure (for one week):
         [
           {"seasonId": 2024, "scoringPeriodId": 7, "statSourceId": 0, "appliedTotal": 18.2, ...},  # Actual results
-          {"seasonId": 2024, "scoringPeriodId": 7, "statSourceId": 1, "projectedTotal": 15.8, ...}  # Projections
+          {"seasonId": 2024, "scoringPeriodId": 7, "statSourceId": 1, "appliedTotal": 15.8, ...}   # Projections
         ]
 
-        Priority Logic:
-        1. statSourceId=0 + appliedTotal: Actual game results (HIGHEST PRIORITY for completed weeks)
-        2. statSourceId=0 + projectedTotal: Official projection from ESPN (for completed weeks without actuals)
-        3. statSourceId=1 + appliedTotal: Projected actuals (for future weeks)
-        4. statSourceId=1 + projectedTotal: Projected estimate (LOWEST PRIORITY for future weeks)
-        5. None: No ESPN data available (likely bye week or player inactive)
+        ESPN API Structure:
+        - statSourceId=0 + appliedTotal = Actual game scores (for completed weeks)
+        - statSourceId=1 + appliedTotal = ESPN projections (for all weeks)
+        - NOTE: The 'projectedTotal' field does NOT exist in ESPN's current API
 
         Special handling:
         - DST positions: Allow negative fantasy points (e.g., -2.0 for bad defense performance)
@@ -601,6 +622,10 @@ class ESPNClient(BaseAPIClient):
             player_data: Dict from _get_all_weeks_data containing 'stats' array
             week: Week number (1-18)
             position: Player position (QB, RB, WR, TE, K, DST)
+            source_type: Data extraction mode:
+                - 'smart' (default): Actual if available, fallback to projection
+                - 'actual': Only return statSourceId=0 data (actual game scores)
+                - 'projection': Only return statSourceId=1 data (ESPN projections)
 
         Returns:
             Float: Fantasy points for the week, or None if no ESPN data available
@@ -611,11 +636,11 @@ class ESPNClient(BaseAPIClient):
             if not stats:
                 return None
 
-            # Separate stat entries by data source quality
-            # statSourceId=0: Actual game results (high quality, use for completed weeks)
-            # statSourceId=1: Projected/estimated values (lower quality, use for future weeks)
+            # Separate stat entries by data source
+            # statSourceId=0: Actual game results (for completed weeks)
+            # statSourceId=1: ESPN projections (for all weeks)
             actual_entries = []  # statSourceId=0 (actual game results)
-            projected_entries = []  # statSourceId=1 (projections/estimates)
+            projected_entries = []  # statSourceId=1 (ESPN projections)
 
             # Scan all stat entries to find matching week
             for stat in stats:
@@ -630,8 +655,9 @@ class ESPNClient(BaseAPIClient):
                     # This stat entry is for the week we're looking for
                     stat_source_id = stat.get('statSourceId')
 
-                    # Try to extract fantasy points from this stat entry
-                    # Priority: appliedTotal (actual/realized) > projectedTotal (forecast)
+                    # Extract fantasy points from appliedTotal field
+                    # NOTE: ESPN API uses appliedTotal for both actuals and projections
+                    # The difference is determined by statSourceId (0=actual, 1=projection)
                     points = None
                     if 'appliedTotal' in stat and stat['appliedTotal'] is not None:
                         try:
@@ -642,47 +668,48 @@ class ESPNClient(BaseAPIClient):
                         except (ValueError, TypeError):
                             # Invalid data type, skip this entry
                             continue
-                    elif 'projectedTotal' in stat and stat['projectedTotal'] is not None:
-                        try:
-                            points = float(stat['projectedTotal'])
-                            # Validate: ESPN sometimes returns NaN, which we must skip
-                            if math.isnan(points):
-                                continue
-                        except (ValueError, TypeError):
-                            # Invalid data type, skip this entry
-                            continue
 
-                    # Categorize valid points by data source quality
+                    # Categorize valid points by data source
                     if points is not None:
                         if stat_source_id == 0:
-                            # statSourceId=0 = actual game results (HIGHEST QUALITY)
-                            # Use this for weeks that have already been played
+                            # statSourceId=0 = actual game results
                             actual_entries.append(points)
                         elif stat_source_id == 1:
-                            # statSourceId=1 = projections/estimates (LOWER QUALITY)
-                            # Use this for future weeks or as fallback
+                            # statSourceId=1 = ESPN projections
                             projected_entries.append(points)
 
-            # PRIORITY 1: Use actual game results if available (statSourceId=0)
-            # These are the most reliable data points for completed weeks
-            if actual_entries:
-                # Filter out zero/negative values for non-DST positions
-                # (DST can have negative points, other positions cannot)
-                valid_actuals = [p for p in actual_entries if position == 'DST' or p > 0]
-                if valid_actuals:
-                    return valid_actuals[0]  # Return first valid actual result
+            # Return based on source_type parameter
+            if source_type == 'actual':
+                # Only return actual game results (statSourceId=0)
+                if actual_entries:
+                    valid_actuals = [p for p in actual_entries if position == 'DST' or p > 0]
+                    if valid_actuals:
+                        return valid_actuals[0]
+                return None
 
-            # PRIORITY 2: Fall back to projections if no actual results (statSourceId=1)
-            # Used for future weeks or when actual data isn't available yet
-            if projected_entries:
-                # Filter out zero/negative values for non-DST positions
-                valid_projected = [p for p in projected_entries if position == 'DST' or p > 0]
-                if valid_projected:
-                    return valid_projected[0]  # Return first valid projection
+            elif source_type == 'projection':
+                # Only return ESPN projections (statSourceId=1)
+                if projected_entries:
+                    valid_projected = [p for p in projected_entries if position == 'DST' or p > 0]
+                    if valid_projected:
+                        return valid_projected[0]
+                return None
 
-            # No valid ESPN data found for this week
-            # This is normal for bye weeks or inactive players
-            return None
+            else:  # source_type == 'smart' (default)
+                # Smart mode: Actual if available, fallback to projection
+                # PRIORITY 1: Use actual game results if available (statSourceId=0)
+                if actual_entries:
+                    valid_actuals = [p for p in actual_entries if position == 'DST' or p > 0]
+                    if valid_actuals:
+                        return valid_actuals[0]
+
+                # PRIORITY 2: Fall back to projections (statSourceId=1)
+                if projected_entries:
+                    valid_projected = [p for p in projected_entries if position == 'DST' or p > 0]
+                    if valid_projected:
+                        return valid_projected[0]
+
+                return None
 
         except Exception as e:
             # Log debug message but don't crash - return None to indicate no data

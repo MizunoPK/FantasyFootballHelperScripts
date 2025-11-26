@@ -7,8 +7,9 @@ from ESPN API data. Used by both player-data-fetcher and starter-helper to ensur
 consistent fantasy points calculations across the entire system.
 
 Key Features:
-- Standardized priority: appliedTotal (actual) → projectedTotal (projected) → fallbacks
-- Comprehensive fallback logic including ADP-based estimation
+- Standardized extraction using ESPN's statSourceId + appliedTotal structure
+- statSourceId=0 + appliedTotal = Actual game scores
+- statSourceId=1 + appliedTotal = ESPN projections
 - Configurable behavior for different use cases
 - Robust error handling and logging
 - Week-specific data extraction
@@ -34,7 +35,7 @@ class FantasyPointsConfig:
     """Configuration for fantasy points calculation - Pure week-by-week system only"""
 
     # Priority settings
-    prefer_actual_over_projected: bool = True  # Always prefer appliedTotal over projectedTotal
+    prefer_actual_over_projected: bool = True  # Prefer statSourceId=0 (actuals) over statSourceId=1 (projections)
     include_negative_dst_points: bool = True   # Allow negative points for DST positions
 
     # Pure week-by-week system: No fallbacks, returns 0.0 when no ESPN data available
@@ -110,12 +111,16 @@ class FantasyPointsExtractor:
         """
         Extract fantasy points from ESPN stats array
 
-        Standardized logic: appliedTotal (actual) → projectedTotal (projected) → None
+        ESPN API Structure:
+        - statSourceId=0 + appliedTotal = Actual game scores
+        - statSourceId=1 + appliedTotal = ESPN projections
+        - NOTE: The 'projectedTotal' field does NOT exist in ESPN's current API
 
         Args:
             player_data: ESPN player data dictionary
             week: Target week number
             position: Player position for validation
+            current_nfl_week: Current NFL week (used for smart priority selection)
 
         Returns:
             Fantasy points if found, None if not available
@@ -127,6 +132,10 @@ class FantasyPointsExtractor:
                 self.logger.debug("No stats array found in player data")
                 return None
 
+            # Separate entries by statSourceId
+            actual_points = None  # statSourceId=0
+            projected_points = None  # statSourceId=1
+
             for stat in stats:
                 # Validate stat entry structure
                 if not isinstance(stat, dict):
@@ -134,59 +143,54 @@ class FantasyPointsExtractor:
 
                 season_id = stat.get('seasonId')
                 scoring_period = stat.get('scoringPeriodId')
-                stat_entry = stat  # ESPN data has appliedTotal/projectedTotal directly in stat, not nested
+                stat_source_id = stat.get('statSourceId')
 
-                # Only use current season data - no historical fallback
+                # Only use current season data for the target week
                 if scoring_period == week and season_id == self.season:
-                    points = None
+                    # Extract appliedTotal (the only points field in ESPN's API)
+                    if 'appliedTotal' in stat and stat['appliedTotal'] is not None:
+                        try:
+                            points = float(stat['appliedTotal'])
+                        except (ValueError, TypeError):
+                            continue
 
-                    # WEEK-BASED PRIORITY LOGIC:
-                    # Past weeks (week < current): appliedTotal → projectedTotal
-                    # Current/Future weeks (week >= current): projectedTotal → appliedTotal
-                    # Legacy behavior (when current_nfl_week is None): appliedTotal → projectedTotal
+                        if stat_source_id == 0:
+                            actual_points = points
+                            self.logger.debug(f"Found actual (statSourceId=0) for week {week}: {points}")
+                        elif stat_source_id == 1:
+                            projected_points = points
+                            self.logger.debug(f"Found projection (statSourceId=1) for week {week}: {points}")
 
-                    if current_nfl_week is not None:
-                        if week < current_nfl_week:
-                            # Past weeks: prefer appliedTotal (actual scores)
-                            if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
-                                points = float(stat_entry['appliedTotal'])
-                                self.logger.debug(f"Found appliedTotal for past week {week}: {points}")
-                            elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
-                                points = float(stat_entry['projectedTotal'])
-                                self.logger.debug(f"Found projectedTotal fallback for past week {week}: {points}")
-                        else:
-                            # Current/Future weeks: prefer projectedTotal (projected scores)
-                            if 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
-                                points = float(stat_entry['projectedTotal'])
-                                self.logger.debug(f"Found projectedTotal for current/future week {week}: {points}")
-                            elif 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
-                                points = float(stat_entry['appliedTotal'])
-                                self.logger.debug(f"Found appliedTotal fallback for current/future week {week}: {points}")
+            # SMART PRIORITY LOGIC based on week
+            # For past weeks: prefer actual scores
+            # For current/future weeks: prefer projections
+            # Legacy mode (no current_nfl_week): prefer actuals
+            points = None
+
+            if current_nfl_week is not None:
+                if week < current_nfl_week:
+                    # Past weeks: prefer actual, fallback to projection
+                    points = actual_points if actual_points is not None else projected_points
+                else:
+                    # Current/Future weeks: prefer projection, fallback to actual
+                    points = projected_points if projected_points is not None else actual_points
+            else:
+                # Legacy behavior: prefer actual (for backward compatibility)
+                points = actual_points if actual_points is not None else projected_points
+
+            # Validate points (handle negative points based on position and config)
+            if points is not None:
+                if points < 0:
+                    # Handle negative points
+                    if position == 'DST' and self.config.include_negative_dst_points:
+                        return points
                     else:
-                        # Legacy behavior: prefer appliedTotal (for backward compatibility)
-                        if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
-                            points = float(stat_entry['appliedTotal'])
-                            self.logger.debug(f"Found appliedTotal (legacy mode): {points}")
-                        elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
-                            points = float(stat_entry['projectedTotal'])
-                            self.logger.debug(f"Found projectedTotal fallback (legacy mode): {points}")
+                        self.logger.debug(f"Skipping negative points {points} for {position} position")
+                        return None
+                else:
+                    return points
 
-                    # Validate points (handle negative points based on position and config)
-                    if points is not None:
-                        if points < 0:
-                            # Handle negative points
-                            if position == 'DST' and self.config.include_negative_dst_points:
-                                # Allow negative DST points if configured
-                                return points
-                            else:
-                                # Skip negative points for non-DST or when DST negatives disabled
-                                self.logger.debug(f"Skipping negative points {points} for {position} position")
-                                continue
-                        else:
-                            # Non-negative points are always allowed
-                            return points
-
-            # No current season data found
+            # No data found for this week
             return None
 
         except (ValueError, TypeError, KeyError) as e:
@@ -200,24 +204,25 @@ class FantasyPointsExtractor:
         Extract fantasy points directly from a single ESPN stat entry
 
         This method is for the simpler use case where you already have the stat entry
-        and just need to extract points with standardized priority.
+        and just need to extract points.
+
+        ESPN API uses appliedTotal for both actual scores and projections.
+        The distinction is made via statSourceId (0=actual, 1=projection).
 
         Args:
             stat_entry: ESPN stat entry dictionary
 
         Returns:
-            Fantasy points from the stat entry
+            Fantasy points from the stat entry (appliedTotal value)
         """
         try:
             # Handle None stat_entry
             if stat_entry is None:
                 return 0.0
 
-            # STANDARDIZED PRIORITY: appliedTotal → projectedTotal → 0.0
+            # Extract appliedTotal (the only points field in ESPN's API)
             if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
                 return float(stat_entry['appliedTotal'])
-            elif 'projectedTotal' in stat_entry and stat_entry['projectedTotal'] is not None:
-                return float(stat_entry['projectedTotal'])
             else:
                 return 0.0
 

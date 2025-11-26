@@ -1,0 +1,386 @@
+# Game Data Fetcher - Update Specification
+
+## Objective
+Update the player data fetcher to create a new file called `game_data.csv` alongside the existing data files (players.csv, players_projected.csv, and team_data/). This file will contain game-level data from the ESPN API that is useful for predicting player performance.
+
+## Background
+Based on the ESPN API research documented in:
+- `docs/research/ESPN_NFL_Game_Data_Research_Report.md`
+- `docs/research/ESPN_API_Predictive_Fields_Report.md`
+
+We have verified that the ESPN API provides game-level data including venue information, weather (for future games only), and game scores.
+
+## Data Source
+- **ESPN Scoreboard API**: `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard`
+  - Query params: `seasontype=2`, `week={week}`, `dates={season}`
+- **ESPN Summary API**: `https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary`
+  - Query params: `event={game_id}`
+
+## Output File
+- **File Name**: `game_data.csv`
+- **Location**: `data/game_data.csv` (shared data folder, same as players.csv)
+- **Historical Data**: Save to `data/historical_data/{Season}/{WeekNumber}/game_data.csv` following existing pattern
+
+## CSV Columns
+The game_data.csv file should have the following columns:
+
+| Column Name | Type | Description | Source | Notes |
+|------------|------|-------------|--------|-------|
+| `week` | int | NFL week number (1-18) | Scoreboard: `week.number` | Required |
+| `home_team` | str | Home team abbreviation | Scoreboard: `competitors[homeAway="home"].team.abbreviation` | e.g., "DET" |
+| `away_team` | str | Away team abbreviation | Scoreboard: `competitors[homeAway="away"].team.abbreviation` | e.g., "GB" |
+| `temperature` | int or None | Temperature in Fahrenheit | Summary: `gameInfo.weather.temperature` | None for past games or indoor |
+| `gust` | int or None | Wind gust speed in mph | Summary: `gameInfo.weather.gust` | None for past games |
+| `precipitation` | int or None | Precipitation chance (%) | Summary: `gameInfo.weather.precipitation` | None for past games |
+| `home_team_score` | int or None | Home team final score | Scoreboard: `competitors[homeAway="home"].score` | None for future games |
+| `away_team_score` | int or None | Away team final score | Scoreboard: `competitors[homeAway="away"].score` | None for future games |
+| `indoor` | bool | Whether stadium is indoor | Scoreboard: `venue.indoor` | True/False |
+| `grass` | bool or None | Whether field is natural grass | Summary: `gameInfo.venue.grass` | True/False, may need summary API |
+| `neutral_site` | bool | Whether game is at neutral site | Scoreboard: `competition.neutralSite` | True for international games |
+| `country` | str | Country of venue | Scoreboard: `venue.address.country` | "USA", "Brazil", "England", etc. |
+| `city` | str | City of venue | Scoreboard: `venue.address.city` | e.g., "Detroit" |
+| `state` | str or None | State of venue (USA only) | Scoreboard: `venue.address.state` | None for international games |
+| `date` | str | Game date in ISO 8601 format | Scoreboard: `date` | e.g., "2025-11-27T17:30Z" |
+
+## Behavior Requirements
+
+### 1. File Creation
+- If `game_data.csv` does not exist in `data/`, create it with headers
+- If it exists, read it to determine which weeks already have data
+
+### 2. Week Detection Logic
+```python
+# Pseudo-code for determining which weeks to fetch
+existing_weeks = set()  # weeks that already have any data in the file
+weeks_to_fetch = []
+
+for week in range(1, CURRENT_NFL_WEEK + 1):
+    if week not in existing_weeks:
+        weeks_to_fetch.append(week)
+```
+
+### 3. Score Backfill for Previous Week
+When the fetcher runs, it should also check if the previous week's games have scores populated:
+
+```python
+# Pseudo-code for score backfill
+previous_week = CURRENT_NFL_WEEK - 1
+
+if previous_week >= 1:
+    # Find all games from previous week in the CSV
+    previous_week_games = get_games_for_week(previous_week)
+
+    for game in previous_week_games:
+        if game['home_team_score'] is None or game['away_team_score'] is None:
+            # Fetch updated data from ESPN API
+            updated_game = fetch_game_from_espn(previous_week, game['home_team'], game['away_team'])
+
+            # Update the scores in the CSV
+            game['home_team_score'] = updated_game['home_team_score']
+            game['away_team_score'] = updated_game['away_team_score']
+```
+
+**Why this is needed**:
+- When the fetcher runs during a week, games from the current week are future games with no scores
+- The next time it runs (the following week), those games are now completed
+- We need to go back and fill in the scores for games that were fetched as "future" but are now "completed"
+- Only need to check (CURRENT_NFL_WEEK - 1) since older weeks would have been backfilled in previous runs
+
+### 4. Data Fetching
+For each week that needs data:
+1. Fetch scoreboard for that week using ESPN Scoreboard API
+2. For each game in the scoreboard:
+   - Extract basic game info (teams, venue, date, indoor)
+   - If game is completed (`status.type.completed == True`):
+     - Extract scores
+   - For weather and grass field:
+     - Fetch summary API for that game
+     - Weather will be None for completed games
+     - Grass is available for all games
+3. Append all games from that week to the CSV
+
+### 5. Handling Missing Data
+- **Weather for past games**: Weather is NOT available from ESPN API for completed games. Enter `None` for temperature, gust, and precipitation for any game where `status.type.state == "post"`
+- **Scores for future games**: Scores will be `None` for scheduled games
+- **State for international games**: State will be `None` when country is not "USA"
+- **Any unavailable field**: Use `None` (not empty string, not "N/A")
+
+### 6. Historical Data Saving
+Follow existing pattern in `save_to_historical_data()`:
+- Check if `data/historical_data/{Season}/{WeekNumber}/` exists
+- If not, create it and copy `game_data.csv` to that folder
+- If it exists, skip (already saved for this week)
+
+## Implementation Location
+
+### New Files
+- `player-data-fetcher/game_data_fetcher.py` - New module for fetching game data
+- `player-data-fetcher/game_data_models.py` - Pydantic models for game data (optional, can use dataclass)
+
+### Modified Files
+- `player-data-fetcher/player_data_fetcher_main.py` - Add call to game data collection
+- `player-data-fetcher/player_data_exporter.py` - Add game data export method
+- `player-data-fetcher/config.py` - Add any new config options
+
+## Example Output
+
+```csv
+week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_team_score,indoor,grass,neutral_site,country,city,state,date
+1,KC,LAC,None,None,None,24,21,False,False,True,Brazil,Sao Paulo,None,2025-09-06T00:00Z
+1,BAL,BUF,72,15,10,27,24,False,True,False,USA,Baltimore,MD,2025-09-08T17:00Z
+1,MIN,NYG,None,None,None,28,6,True,False,False,USA,Minneapolis,MN,2025-09-08T13:00Z
+...
+12,HOU,BUF,None,None,None,23,20,True,False,False,USA,Houston,TX,2025-11-21T01:15Z
+13,DET,GB,37,39,56,None,None,True,False,False,USA,Detroit,MI,2025-11-27T17:30Z
+```
+
+## Notes
+
+### Weather Availability (from research)
+- Weather is ONLY available for future/scheduled games (~1 week before game)
+- Weather is NEVER available for completed games (key doesn't exist in API response)
+- For indoor stadiums, weather is still provided (it's the outdoor forecast at that location)
+
+### Score Types (from research)
+- `score` field in ESPN API is a STRING, not an integer - convert to int
+- For scheduled games, score is "0" - should be None in our output
+
+### Indoor Field Location (from research)
+- `indoor` is ONLY in scoreboard endpoint, NOT in summary
+- `grass` is ONLY in summary endpoint, NOT in scoreboard
+- Need to call both endpoints to get both fields
+
+### API Rate Limiting
+- Use existing `RATE_LIMIT_DELAY` from config.py (0.2s between requests)
+- Use existing `REQUEST_TIMEOUT` from config.py (30s)
+
+## Testing Requirements
+- Add unit tests in `tests/player-data-fetcher/test_game_data_fetcher.py`
+- Test file creation when none exists
+- Test week detection logic
+- Test handling of missing data (None values)
+- Test historical data saving
+- Mock ESPN API responses for testing
+
+---
+
+# Part 2: Historical Weather Backfill Script (AccuWeather)
+
+## Objective
+Create a separate standalone script to backfill historical weather data for completed games where ESPN does not provide weather information. This script uses the AccuWeather API to fetch historical weather conditions.
+
+## Background
+- ESPN API does NOT provide weather data for completed games
+- AccuWeather API provides historical weather data back to January 1, 2010
+- User has obtained an AccuWeather API key stored in `.env` file
+
+## Script Location
+- **New File**: `weather_backfill.py` (root level, separate from player-data-fetcher)
+- **Config**: Uses `.env` file for API key
+
+## AccuWeather API Details
+
+### API Documentation
+- [AccuWeather Historical API Guide](https://apidev.accuweather.com/developers/historical-guide)
+- [AccuWeather Historical Current Conditions](https://developer.accuweather.com/core-weather/historical)
+
+### Required Endpoints
+
+1. **Location Search** (to get locationKey):
+   ```
+   GET http://dataservice.accuweather.com/locations/v1/cities/search
+   Query params: apikey={key}, q={city,state}
+   ```
+
+2. **Historical Conditions** (past 24 hours - free tier):
+   ```
+   GET http://dataservice.accuweather.com/currentconditions/v1/{locationKey}/historical/24
+   Query params: apikey={key}
+   ```
+
+3. **Historical Daily** (Enterprise - if available):
+   ```
+   GET http://dataservice.accuweather.com/currentconditions/v1/{locationKey}/historical
+   Query params: apikey={key}, details=true
+   ```
+
+### API Key Storage
+```env
+# .env file
+ACCUWEATHER_API_KEY=your_api_key_here
+```
+
+### Rate Limiting
+- Free tier: 50 calls/day
+- Consider caching location keys to reduce API calls
+- Add delay between requests (1-2 seconds recommended)
+
+## Script Behavior
+
+### 1. Input
+- Path to a `game_data.csv` file (2025 data or simulation 2024 data)
+- The script reads the CSV and identifies rows with `None` weather values
+
+### 2. Processing Logic
+```python
+# Pseudo-code
+for each row in game_data.csv:
+    if temperature is None AND indoor is False:
+        # This is an outdoor game without weather data
+        city = row['city']
+        state = row['state']  # May be None for international
+        country = row['country']
+        game_date = row['date']
+
+        # Get AccuWeather location key
+        location_key = get_location_key(city, state, country)
+
+        # Fetch historical weather for that date
+        weather = get_historical_weather(location_key, game_date)
+
+        # Update row with weather data
+        row['temperature'] = weather['temperature']
+        row['gust'] = weather.get('wind_gust')  # May not be available
+        row['precipitation'] = weather.get('precipitation')  # May not be available
+```
+
+### 3. Output
+- Updates the input CSV file in-place (or creates a new file with `_with_weather` suffix)
+- Logs which games were updated and which failed
+
+### 4. Indoor Games
+- Skip weather backfill for indoor games (`indoor == True`)
+- Weather doesn't affect indoor games, so None is acceptable
+
+## Command Line Interface
+
+```bash
+# Backfill 2025 data (main league helper data)
+python weather_backfill.py --input data/game_data.csv
+
+# Backfill 2024 simulation data
+python weather_backfill.py --input simulation/sim_data/game_data.csv
+
+# Dry run (show what would be updated without making changes)
+python weather_backfill.py --input data/game_data.csv --dry-run
+
+# Specify output file instead of in-place update
+python weather_backfill.py --input data/game_data.csv --output data/game_data_with_weather.csv
+```
+
+## Location Key Caching
+
+To minimize API calls, cache location keys:
+
+```python
+# Cache file: data/accuweather_location_cache.json
+{
+    "Detroit,MI,USA": "348428",
+    "Green Bay,WI,USA": "331515",
+    "London,,England": "328328",
+    ...
+}
+```
+
+- Load cache at startup
+- Save cache after each new location lookup
+- Location keys don't change, so cache is persistent
+
+## Error Handling
+
+- **Rate limit exceeded**: Stop and report progress, allow resuming later
+- **Location not found**: Log warning, skip game, continue
+- **API error**: Retry with backoff, then skip if persistent
+- **Invalid date**: Log warning, skip game
+
+---
+
+# Part 3: 2024 Season Game Data for Simulation
+
+## Objective
+Create a `game_data.csv` file with 2024 NFL season data for use by the simulation system.
+
+## Background
+- Simulation uses 2024 historical data (`simulation/sim_data/`)
+- Currently has: `players_projected.csv`, `players_actual.csv`, `season_schedule.csv`, `team_data/`
+- Need to add: `game_data.csv` with 2024 game information
+
+## Output Location
+- **File**: `simulation/sim_data/game_data.csv`
+- Same format as the 2025 `data/game_data.csv`
+
+## Data Source
+- ESPN API with `dates=2024` parameter
+- All 18 weeks of 2024 regular season
+
+## Creation Process
+
+### Step 1: Fetch 2024 Game Data from ESPN
+```bash
+# Run game data fetcher with 2024 season parameter
+python run_game_data_fetcher.py --season 2024 --output simulation/sim_data/game_data.csv
+```
+
+Or create a one-time script:
+```python
+# fetch_2024_game_data.py
+# Fetches all 18 weeks of 2024 NFL season
+# Outputs to simulation/sim_data/game_data.csv
+```
+
+### Step 2: Backfill Weather with AccuWeather
+```bash
+# After creating the file, backfill historical weather
+python weather_backfill.py --input simulation/sim_data/game_data.csv
+```
+
+## Expected Output
+
+The 2024 `game_data.csv` should contain:
+- All 272 regular season games (17 games × 32 teams / 2)
+- Complete scores for all games (season is finished)
+- Weather data backfilled via AccuWeather for outdoor games
+- Venue information (indoor, grass, location)
+
+## Example 2024 Data
+
+```csv
+week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_team_score,indoor,grass,neutral_site,country,city,state,date
+1,KC,BAL,78,12,5,27,20,False,False,False,USA,Kansas City,MO,2024-09-05T00:20Z
+1,PHI,GB,82,8,0,34,29,False,True,False,USA,Philadelphia,PA,2024-09-06T00:15Z
+1,GB,PHI,None,None,None,29,34,False,True,True,Brazil,Sao Paulo,None,2024-09-06T23:00Z
+...
+18,BUF,MIA,28,15,20,21,14,False,True,False,USA,Orchard Park,NY,2025-01-05T18:00Z
+```
+
+## Integration with Simulation
+
+The simulation system can use this data for:
+- Weather-adjusted player projections
+- Home/away advantage modeling
+- Venue-specific performance analysis
+- International game impact assessment
+
+## New Files Summary
+
+| File | Purpose | Location |
+|------|---------|----------|
+| `weather_backfill.py` | Backfill historical weather using AccuWeather | Root |
+| `data/game_data.csv` | 2025 season game data | Main data folder |
+| `simulation/sim_data/game_data.csv` | 2024 season game data for simulation | Simulation data |
+| `data/accuweather_location_cache.json` | Cached AccuWeather location keys | Main data folder |
+
+## Testing Requirements (Additional)
+
+### weather_backfill.py Tests
+- Add unit tests in `tests/test_weather_backfill.py`
+- Test location key caching
+- Test dry-run mode
+- Test handling of indoor games (should skip)
+- Test error handling (rate limits, invalid locations)
+- Mock AccuWeather API responses
+
+### 2024 Game Data Tests
+- Verify all 18 weeks are present
+- Verify all games have scores (no None scores for 2024)
+- Verify weather backfill worked for outdoor games

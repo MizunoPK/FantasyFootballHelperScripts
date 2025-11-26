@@ -60,7 +60,7 @@ class ConfigGenerator:
         # Draft Order Bonuses
         'PRIMARY_BONUS': (70, 90.0),
         'SECONDARY_BONUS': (75, 95.0),
-        # Draft Order File (discrete integer 1-10, top performing strategies)
+        # Draft Order File (discrete integer 1-6, top performing strategies)
         'DRAFT_ORDER_FILE': (1, 10),
         # ADP Scoring
         'ADP_SCORING_WEIGHT': (2.0, 3.0),
@@ -135,7 +135,7 @@ class ConfigGenerator:
         'PRIMARY_BONUS',
         'SECONDARY_BONUS',
         # Draft Order File
-        'DRAFT_ORDER_FILE',
+        # 'DRAFT_ORDER_FILE',
         # ADP Scoring
         'ADP_SCORING_WEIGHT',
         'ADP_SCORING_STEPS',

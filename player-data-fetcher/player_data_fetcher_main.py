@@ -346,26 +346,17 @@ class NFLProjectionsCollector:
             shared_file = await self.exporter.export_to_data(data)
             output_files.append(shared_file)
 
-            # Update players_projected.csv with current and future week projections
-            # Per requirement #6: "Update current week and everything upcoming"
-            # This preserves historical weeks and only updates current + future weeks
+            # Export players_projected.csv with projection-only data
+            # Creates file from scratch with statSourceId=1 (ESPN projections) for ALL weeks
             # Used by league helper for performance tracking against projections
             try:
-                projected_file = await self.exporter.export_projected_points_data(
-                    data,
-                    self.settings.current_nfl_week  # Only update this week and beyond
-                )
+                projected_file = await self.exporter.export_projected_points_data(data)
                 output_files.append(projected_file)
-                self.logger.info("Updated players_projected.csv with current/future week projections")
-            except FileNotFoundError as e:
-                # File doesn't exist yet - this is normal for first run
-                # Skip update but don't crash the entire export
-                self.logger.warning(f"Skipping players_projected.csv update: {e}")
+                self.logger.info("Exported players_projected.csv with projection-only data")
             except Exception as e:
-                # Unexpected error updating projected points
+                # Error exporting projected points
                 # Log error but don't fail entire export - this is a supplementary feature
-                self.logger.error(f"Error updating players_projected.csv: {e}")
-                # Don't append to output_files since update failed
+                self.logger.error(f"Error exporting players_projected.csv: {e}")
 
         return output_files
 

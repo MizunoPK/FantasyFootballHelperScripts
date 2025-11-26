@@ -518,115 +518,54 @@ class DataExporter:
             self.logger.error(f"Error exporting team data to shared folder: {e}")
             raise
 
-    async def export_projected_points_data(self, data: ProjectionData, current_nfl_week: int) -> str:
+    async def export_projected_points_data(self, data: ProjectionData) -> str:
         """
-        Update players_projected.csv with current and future week projections.
+        Export players_projected.csv with projection-only data.
 
-        This method preserves historical projections (weeks 1 to current_nfl_week-1)
-        and only updates the current week and future weeks with new projection data.
+        Creates file from scratch using statSourceId=1 projection values (from
+        the projected_weeks dictionary) for ALL weeks 1-17. Does NOT require
+        existing file - completely regenerates on each run.
 
-        Per requirement #6 from update_consistency.txt:
-        "Update the player_data_fetcher such that every time the player_data_fetcher
-        is run, the info for the current week and everything upcoming is updated in
-        that players_projected.csv file."
-
-        Per Q10 answer: "Update only the current week. Leave historical weeks alone"
+        This ensures players_projected.csv contains only ESPN projection data
+        (statSourceId=1), not actual game scores.
 
         Args:
-            data: ProjectionData containing new player projections
-            current_nfl_week: Current NFL week (1-18)
+            data: ProjectionData containing player projections with projected_weeks populated
 
         Returns:
-            str: Path to the updated players_projected.csv file
+            str: Path to the created players_projected.csv file
 
         Raises:
-            FileNotFoundError: If players_projected.csv doesn't exist
-            Exception: For other errors during file operations
+            Exception: For errors during file operations
         """
         try:
             # Path to players_projected.csv
             projected_file_path = Path(__file__).parent.parent / "data" / "players_projected.csv"
 
-            if not projected_file_path.exists():
-                self.logger.error(f"players_projected.csv not found at {projected_file_path}")
-                raise FileNotFoundError(f"players_projected.csv must exist before updating: {projected_file_path}")
+            # Ensure directory exists
+            projected_file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Load existing players_projected.csv
-            existing_df = pd.read_csv(projected_file_path)
-            self.logger.info(f"Loaded {len(existing_df)} players from existing players_projected.csv")
+            # Build rows directly from ESPNPlayerData projected_weeks dictionary
+            rows = []
+            for player in data.players:
+                row = {'id': player.id, 'name': player.name}
+                for week in range(1, 18):
+                    # Use the projected_weeks dictionary (statSourceId=1 values)
+                    row[f'week_{week}_points'] = player.get_week_projected(week) or 0.0
+                rows.append(row)
 
-            # Get new projection data as FantasyPlayer objects
-            fantasy_players = self.get_fantasy_players(data)
+            df = pd.DataFrame(rows)
 
-            # Create a mapping of player ID to new projections
-            new_projections = {}
-            for player in fantasy_players:
-                new_projections[player.id] = player
-
-            # Determine which week columns to update (current week and beyond)
-            weeks_to_update = [f'week_{week}_points' for week in range(current_nfl_week, 18)]
-
-            self.logger.info(f"Updating weeks {current_nfl_week} through 17 (preserving weeks 1-{current_nfl_week-1})")
-
-            # Update existing players' projections
-            updated_count = 0
-            new_player_count = 0
-
-            for idx, row in existing_df.iterrows():
-                player_id = row['id']
-
-                if player_id in new_projections:
-                    new_player = new_projections[player_id]
-
-                    # Update only current and future weeks, preserve historical
-                    for week_col in weeks_to_update:
-                        week_num = int(week_col.split('_')[1])
-                        new_value = getattr(new_player, week_col, 0.0)
-                        existing_df.at[idx, week_col] = new_value
-
-                    updated_count += 1
-
-                    # Remove from dict so we know which players are new
-                    del new_projections[player_id]
-
-            # Add any new players that weren't in the existing file
-            if new_projections:
-                new_rows = []
-                for player_id, player in new_projections.items():
-                    new_row = {
-                        'id': player.id,
-                        'name': player.name
-                    }
-
-                    # Add all week columns (new players get full projection data)
-                    for week in range(1, 18):
-                        week_col = f'week_{week}_points'
-                        new_row[week_col] = getattr(player, week_col, 0.0)
-
-                    new_rows.append(new_row)
-                    new_player_count += 1
-
-                # Append new players to existing dataframe
-                new_df = pd.DataFrame(new_rows)
-                existing_df = pd.concat([existing_df, new_df], ignore_index=True)
-
-                self.logger.info(f"Added {new_player_count} new players to players_projected.csv")
-
-            # Save updated dataframe back to CSV
+            # Write to CSV (full recreation)
             async with aiofiles.open(str(projected_file_path), mode='w', newline='', encoding='utf-8') as csvfile:
-                await csvfile.write(existing_df.to_csv(index=False))
+                await csvfile.write(df.to_csv(index=False))
 
-            self.logger.info(
-                f"Updated players_projected.csv: {updated_count} existing players updated, "
-                f"{new_player_count} new players added"
-            )
+            self.logger.info(f"Exported {len(df)} players to players_projected.csv (full recreation with projection-only data)")
 
             return str(projected_file_path)
 
-        except FileNotFoundError:
-            raise
         except Exception as e:
-            self.logger.error(f"Error updating players_projected.csv: {e}")
+            self.logger.error(f"Error exporting players_projected.csv: {e}")
             raise
 
     async def export_all_formats_with_teams(self, data: ProjectionData,

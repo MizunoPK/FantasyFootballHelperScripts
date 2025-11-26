@@ -87,21 +87,23 @@ class TestExtractStatEntryPoints:
 
         assert result == 25.5
 
-    def test_extract_projected_total_when_no_applied(self):
-        """Test extracting projectedTotal as fallback"""
+    def test_extract_returns_zero_when_no_applied_total(self):
+        """Test returns 0.0 when no appliedTotal (projectedTotal doesn't exist in ESPN API)"""
         extractor = FantasyPointsExtractor()
-        stat_entry = {'projectedTotal': 20.3}
+        stat_entry = {'someOtherField': 20.3}
 
         result = extractor.extract_stat_entry_points(stat_entry)
 
-        assert result == 20.3
+        # appliedTotal is the only field - returns 0.0 when missing
+        assert result == 0.0
 
-    def test_extract_prefers_applied_over_projected(self):
-        """Test appliedTotal takes priority over projectedTotal"""
+    def test_extract_ignores_extra_fields(self):
+        """Test appliedTotal is extracted regardless of other fields present"""
         extractor = FantasyPointsExtractor()
         stat_entry = {
             'appliedTotal': 25.5,
-            'projectedTotal': 20.3
+            'someOtherField': 20.3,
+            'statSourceId': 0
         }
 
         result = extractor.extract_stat_entry_points(stat_entry)
@@ -126,18 +128,19 @@ class TestExtractStatEntryPoints:
         assert result == 0.0
 
     def test_extract_handles_null_applied_total(self):
-        """Test handles null appliedTotal"""
+        """Test handles null appliedTotal - returns 0.0 since appliedTotal is the only field"""
         extractor = FantasyPointsExtractor()
-        stat_entry = {'appliedTotal': None, 'projectedTotal': 15.0}
+        stat_entry = {'appliedTotal': None}
 
         result = extractor.extract_stat_entry_points(stat_entry)
 
-        assert result == 15.0
+        # Since projectedTotal doesn't exist in ESPN API, returns 0.0
+        assert result == 0.0
 
-    def test_extract_handles_null_both_values(self):
-        """Test handles null values for both fields"""
+    def test_extract_handles_null_applied_total_with_other_fields(self):
+        """Test handles null appliedTotal even with other fields present"""
         extractor = FantasyPointsExtractor()
-        stat_entry = {'appliedTotal': None, 'projectedTotal': None}
+        stat_entry = {'appliedTotal': None, 'statSourceId': 0}
 
         result = extractor.extract_stat_entry_points(stat_entry)
 
@@ -165,8 +168,8 @@ class TestExtractStatEntryPoints:
 class TestExtractFromStatsArray:
     """Test _extract_from_stats_array method"""
 
-    def test_extract_from_stats_array_applied_total(self):
-        """Test extracting appliedTotal from stats array"""
+    def test_extract_from_stats_array_actual_points(self):
+        """Test extracting actual points (statSourceId=0) from stats array"""
         extractor = FantasyPointsExtractor(season=2024)
         player_data = {
             'player': {
@@ -174,6 +177,7 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 25.5
                     }
                 ]
@@ -184,8 +188,8 @@ class TestExtractFromStatsArray:
 
         assert result == 25.5
 
-    def test_extract_from_stats_array_projected_total(self):
-        """Test extracting projectedTotal from stats array"""
+    def test_extract_from_stats_array_projection_points(self):
+        """Test extracting projection points (statSourceId=1) from stats array"""
         extractor = FantasyPointsExtractor(season=2024)
         player_data = {
             'player': {
@@ -193,7 +197,8 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
-                        'projectedTotal': 20.3
+                        'statSourceId': 1,
+                        'appliedTotal': 20.3
                     }
                 ]
             }
@@ -212,11 +217,13 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 4,
+                        'statSourceId': 0,
                         'appliedTotal': 15.0
                     },
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 25.5
                     }
                 ]
@@ -236,11 +243,13 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2023,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 15.0
                     },
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 25.5
                     }
                 ]
@@ -260,6 +269,7 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 4,
+                        'statSourceId': 0,
                         'appliedTotal': 15.0
                     }
                 ]
@@ -297,6 +307,7 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': -5.0
                     }
                 ]
@@ -316,6 +327,7 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': -5.0
                     }
                 ]
@@ -336,6 +348,7 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': -5.0
                     }
                 ]
@@ -347,7 +360,7 @@ class TestExtractFromStatsArray:
         assert result is None
 
     def test_extract_from_stats_array_week_priority_past_week(self):
-        """Test prioritizes appliedTotal for past weeks"""
+        """Test prioritizes actual (statSourceId=0) for past weeks"""
         extractor = FantasyPointsExtractor(season=2024)
         player_data = {
             'player': {
@@ -355,8 +368,14 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 3,
-                        'appliedTotal': 25.5,
-                        'projectedTotal': 20.0
+                        'statSourceId': 0,
+                        'appliedTotal': 25.5
+                    },
+                    {
+                        'seasonId': 2024,
+                        'scoringPeriodId': 3,
+                        'statSourceId': 1,
+                        'appliedTotal': 20.0
                     }
                 ]
             }
@@ -369,7 +388,7 @@ class TestExtractFromStatsArray:
         assert result == 25.5
 
     def test_extract_from_stats_array_week_priority_future_week(self):
-        """Test prioritizes projectedTotal for future weeks"""
+        """Test prioritizes projection (statSourceId=1) for future weeks"""
         extractor = FantasyPointsExtractor(season=2024)
         player_data = {
             'player': {
@@ -377,8 +396,14 @@ class TestExtractFromStatsArray:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 8,
-                        'appliedTotal': 25.5,
-                        'projectedTotal': 20.0
+                        'statSourceId': 0,
+                        'appliedTotal': 25.5
+                    },
+                    {
+                        'seasonId': 2024,
+                        'scoringPeriodId': 8,
+                        'statSourceId': 1,
+                        'appliedTotal': 20.0
                     }
                 ]
             }
@@ -403,6 +428,7 @@ class TestExtractWeekPoints:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 25.5
                     }
                 ]
@@ -432,7 +458,7 @@ class TestExtractWeekPoints:
         assert result == 0.0
 
     def test_extract_week_points_with_current_nfl_week(self):
-        """Test extraction with current_nfl_week parameter"""
+        """Test extraction with current_nfl_week parameter prefers actual for past weeks"""
         extractor = FantasyPointsExtractor(season=2024)
         player_data = {
             'player': {
@@ -440,8 +466,14 @@ class TestExtractWeekPoints:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 3,
-                        'appliedTotal': 25.5,
-                        'projectedTotal': 20.0
+                        'statSourceId': 0,
+                        'appliedTotal': 25.5
+                    },
+                    {
+                        'seasonId': 2024,
+                        'scoringPeriodId': 3,
+                        'statSourceId': 1,
+                        'appliedTotal': 20.0
                     }
                 ]
             }
@@ -465,6 +497,7 @@ class TestConvenienceFunctions:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 25.5
                     }
                 ]
@@ -486,6 +519,7 @@ class TestConvenienceFunctions:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': -5.0
                     }
                 ]
@@ -525,6 +559,7 @@ class TestEdgeCases:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 0.0
                     }
                 ]
@@ -562,6 +597,7 @@ class TestEdgeCases:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 19,
+                        'statSourceId': 0,
                         'appliedTotal': 30.0
                     }
                 ]
@@ -572,8 +608,8 @@ class TestEdgeCases:
 
         assert result == 30.0
 
-    def test_extract_with_multiple_stat_entries(self):
-        """Test extraction with multiple stat entries for same week"""
+    def test_extract_with_multiple_stat_entries_same_source(self):
+        """Test extraction with multiple stat entries for same week with same statSourceId"""
         extractor = FantasyPointsExtractor(season=2024)
         player_data = {
             'player': {
@@ -581,21 +617,23 @@ class TestEdgeCases:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 15.0
                     },
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 25.5
                     }
                 ]
             }
         }
 
-        # Should return first matching entry
+        # Should return last matching entry for the same statSourceId
         result = extractor.extract_week_points(player_data, 5, 'RB', 'Test Player')
 
-        assert result == 15.0
+        assert result == 25.5
 
     def test_extract_handles_invalid_stat_structure(self):
         """Test handles invalid stat entry structure"""
@@ -607,6 +645,7 @@ class TestEdgeCases:
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,
+                        'statSourceId': 0,
                         'appliedTotal': 25.5
                     }
                 ]
@@ -627,9 +666,9 @@ class TestIntegrationScenarios:
         player_data = {
             'player': {
                 'stats': [
-                    {'seasonId': 2024, 'scoringPeriodId': 1, 'appliedTotal': 20.0},
-                    {'seasonId': 2024, 'scoringPeriodId': 2, 'appliedTotal': 25.0},
-                    {'seasonId': 2024, 'scoringPeriodId': 3, 'appliedTotal': 30.0}
+                    {'seasonId': 2024, 'scoringPeriodId': 1, 'statSourceId': 0, 'appliedTotal': 20.0},
+                    {'seasonId': 2024, 'scoringPeriodId': 2, 'statSourceId': 0, 'appliedTotal': 25.0},
+                    {'seasonId': 2024, 'scoringPeriodId': 3, 'statSourceId': 0, 'appliedTotal': 30.0}
                 ]
             }
         }
@@ -643,25 +682,30 @@ class TestIntegrationScenarios:
         assert week3 == 30.0
 
     def test_mixed_actual_and_projected_data(self):
-        """Test handling mix of actual and projected data"""
+        """Test handling mix of actual (statSourceId=0) and projected (statSourceId=1) data"""
         extractor = FantasyPointsExtractor(season=2024)
         player_data = {
             'player': {
                 'stats': [
-                    {'seasonId': 2024, 'scoringPeriodId': 1, 'appliedTotal': 20.0},
-                    {'seasonId': 2024, 'scoringPeriodId': 2, 'projectedTotal': 22.0},
-                    {'seasonId': 2024, 'scoringPeriodId': 3, 'appliedTotal': 25.0, 'projectedTotal': 23.0}
+                    # Week 1: actual only
+                    {'seasonId': 2024, 'scoringPeriodId': 1, 'statSourceId': 0, 'appliedTotal': 20.0},
+                    # Week 2: projection only
+                    {'seasonId': 2024, 'scoringPeriodId': 2, 'statSourceId': 1, 'appliedTotal': 22.0},
+                    # Week 3: both actual and projection
+                    {'seasonId': 2024, 'scoringPeriodId': 3, 'statSourceId': 0, 'appliedTotal': 25.0},
+                    {'seasonId': 2024, 'scoringPeriodId': 3, 'statSourceId': 1, 'appliedTotal': 23.0}
                 ]
             }
         }
 
+        # Without current_nfl_week, defaults to preferring actuals
         week1 = extractor.extract_week_points(player_data, 1, 'WR', 'Player')
         week2 = extractor.extract_week_points(player_data, 2, 'WR', 'Player')
         week3 = extractor.extract_week_points(player_data, 3, 'WR', 'Player')
 
-        assert week1 == 20.0  # appliedTotal
-        assert week2 == 22.0  # projectedTotal
-        assert week3 == 25.0  # appliedTotal (preferred)
+        assert week1 == 20.0  # actual (only source)
+        assert week2 == 22.0  # projection (only source)
+        assert week3 == 25.0  # actual (preferred in legacy mode)
 
     def test_dst_with_negative_and_positive_points(self):
         """Test DST with both negative and positive performances"""
@@ -669,9 +713,9 @@ class TestIntegrationScenarios:
         player_data = {
             'player': {
                 'stats': [
-                    {'seasonId': 2024, 'scoringPeriodId': 1, 'appliedTotal': 15.0},
-                    {'seasonId': 2024, 'scoringPeriodId': 2, 'appliedTotal': -5.0},
-                    {'seasonId': 2024, 'scoringPeriodId': 3, 'appliedTotal': 8.0}
+                    {'seasonId': 2024, 'scoringPeriodId': 1, 'statSourceId': 0, 'appliedTotal': 15.0},
+                    {'seasonId': 2024, 'scoringPeriodId': 2, 'statSourceId': 0, 'appliedTotal': -5.0},
+                    {'seasonId': 2024, 'scoringPeriodId': 3, 'statSourceId': 0, 'appliedTotal': 8.0}
                 ]
             }
         }

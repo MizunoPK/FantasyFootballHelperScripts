@@ -447,6 +447,120 @@ class TestPerformanceDeviation:
         # Should calculate based on 4 weeks (skipping week 2)
         assert deviation is not None
 
+    def test_calculate_performance_deviation_dynamic_lookback_with_bye_week(self, scoring_calculator, test_player, mock_projected_points_manager):
+        """Test dynamic lookback skips bye weeks and finds MIN_WEEKS valid data"""
+        # current_nfl_week=6, MIN_WEEKS=3, max_lookback=6 (2x MIN_WEEKS)
+        # Player had bye week 4 (actual=0)
+        # Old behavior: window [3,4,5] -> only weeks 3,5 valid -> returns None
+        # New behavior: looks back, skips week 4, uses weeks 5,3,2 -> returns deviation
+        test_player.week_1_points = 18.0
+        test_player.week_2_points = 19.0
+        test_player.week_3_points = 21.0
+        test_player.week_4_points = 0.0   # Bye week - should be skipped
+        test_player.week_5_points = 22.0
+
+        mock_projected_points_manager.get_projected_points = Mock(return_value=20.0)
+
+        deviation = scoring_calculator.calculate_performance_deviation(test_player)
+
+        # Should find 3 valid weeks (5, 3, 2) by looking back past bye week
+        assert deviation is not None
+        # Deviations: week5=(22-20)/20=0.1, week3=(21-20)/20=0.05, week2=(19-20)/20=-0.05
+        # Average = (0.1 + 0.05 + -0.05) / 3 = 0.0333
+        assert abs(deviation - 0.0333) < 0.01
+
+    def test_calculate_performance_deviation_dynamic_lookback_multiple_bye_weeks(self, scoring_calculator, test_player, mock_projected_points_manager):
+        """Test dynamic lookback handles multiple consecutive zero weeks"""
+        # Player had two zero weeks (weeks 3 and 4)
+        test_player.week_1_points = 18.0
+        test_player.week_2_points = 19.0
+        test_player.week_3_points = 0.0   # Zero - should be skipped
+        test_player.week_4_points = 0.0   # Zero - should be skipped
+        test_player.week_5_points = 22.0
+
+        mock_projected_points_manager.get_projected_points = Mock(return_value=20.0)
+
+        deviation = scoring_calculator.calculate_performance_deviation(test_player)
+
+        # Should find 3 valid weeks (5, 2, 1) by looking back past zero weeks
+        assert deviation is not None
+
+    def test_calculate_performance_deviation_respects_max_lookback_limit(self, mock_data_folder):
+        """Test that lookback respects 2x MIN_WEEKS limit"""
+        from util.ConfigManager import ConfigManager
+        from util.TeamDataManager import TeamDataManager
+        from util.SeasonScheduleManager import SeasonScheduleManager
+
+        # Create a new config with CURRENT_NFL_WEEK=10
+        config_content = """{
+  "config_name": "Test Config",
+  "description": "Test config for max lookback limit test",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 10,
+    "NFL_SEASON": 2025,
+    "NFL_SCORING_FORMAT": "ppr",
+    "NORMALIZATION_MAX_SCALE": 100.0,
+    "SAME_POS_BYE_WEIGHT": 1.0,
+    "DIFF_POS_BYE_WEIGHT": 1.0,
+    "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": 10.0, "HIGH": 75.0},
+    "DRAFT_ORDER_BONUSES": {"PRIMARY": 50, "SECONDARY": 30},
+    "DRAFT_ORDER": [{"FLEX": "P"}],
+    "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+    "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
+    "ADP_SCORING": {"THRESHOLDS": {"EXCELLENT": 20}, "MULTIPLIERS": {"EXCELLENT": 1.0}, "WEIGHT": 1.0},
+    "PLAYER_RATING_SCORING": {"THRESHOLDS": {"EXCELLENT": 80}, "MULTIPLIERS": {"EXCELLENT": 1.0}, "WEIGHT": 1.0},
+    "TEAM_QUALITY_SCORING": {"THRESHOLDS": {"EXCELLENT": 5}, "MULTIPLIERS": {"EXCELLENT": 1.0}, "WEIGHT": 1.0},
+    "PERFORMANCE_SCORING": {"MIN_WEEKS": 3, "THRESHOLDS": {"EXCELLENT": 0.2}, "MULTIPLIERS": {"EXCELLENT": 1.5}, "WEIGHT": 1.0},
+    "MATCHUP_SCORING": {"IMPACT_SCALE": 150.0, "THRESHOLDS": {"EXCELLENT": 15}, "MULTIPLIERS": {"EXCELLENT": 1.0}, "WEIGHT": 1.0},
+    "SCHEDULE_SCORING": {"IMPACT_SCALE": 80.0, "THRESHOLDS": {"EXCELLENT": 24}, "MULTIPLIERS": {"EXCELLENT": 1.0}, "WEIGHT": 0.0}
+  }
+}"""
+        config_file = mock_data_folder / "league_config.json"
+        config_file.write_text(config_content)
+
+        config = ConfigManager(mock_data_folder)
+        mock_ppm = Mock()
+        mock_ppm.get_projected_points = Mock(return_value=20.0)
+        mock_tdm = Mock(spec=TeamDataManager)
+        mock_ssm = Mock(spec=SeasonScheduleManager)
+
+        calculator = PlayerScoringCalculator(config, mock_ppm, 250.0, mock_tdm, mock_ssm, 10)
+
+        # Create player with valid data only in weeks 1-3 (too old)
+        # current_week=10, MIN_WEEKS=3, max_lookback=6 -> earliest_week = 10-6 = 4
+        # Data in weeks 1-3 is outside the lookback window
+        player = FantasyPlayer(id=1, name="Test", team="KC", position="QB")
+        for week in range(1, 18):
+            setattr(player, f"week_{week}_points", None)
+        player.week_1_points = 20.0
+        player.week_2_points = 22.0
+        player.week_3_points = 18.0
+        # Weeks 4-9 are all zeros or None (simulating long injury)
+
+        deviation = calculator.calculate_performance_deviation(player)
+
+        # Should return None because valid data (weeks 1-3) is outside max lookback window
+        assert deviation is None
+
+    def test_calculate_performance_deviation_uses_most_recent_valid_weeks(self, scoring_calculator, test_player, mock_projected_points_manager):
+        """Test that dynamic lookback uses most recent valid weeks first"""
+        # All weeks have data, but we should use weeks 5, 4, 3 (most recent 3)
+        test_player.week_1_points = 10.0  # Old - shouldn't be used
+        test_player.week_2_points = 12.0  # Old - shouldn't be used
+        test_player.week_3_points = 21.0  # Should be used (3rd most recent valid)
+        test_player.week_4_points = 19.0  # Should be used (2nd most recent valid)
+        test_player.week_5_points = 22.0  # Should be used (most recent valid)
+
+        mock_projected_points_manager.get_projected_points = Mock(return_value=20.0)
+
+        deviation = scoring_calculator.calculate_performance_deviation(test_player)
+
+        assert deviation is not None
+        # Should use weeks 5, 4, 3 (most recent 3 valid weeks)
+        # Deviations: week5=(22-20)/20=0.1, week4=(19-20)/20=-0.05, week3=(21-20)/20=0.05
+        # Average = (0.1 + -0.05 + 0.05) / 3 = 0.0333
+        assert abs(deviation - 0.0333) < 0.01
+
 
 # ============================================================================
 # INTEGRATION TESTS

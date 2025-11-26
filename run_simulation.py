@@ -37,13 +37,13 @@ LOGGING_FILE = './simulation/log.txt'  # Log file path (only used if LOGGING_TO_
 LOGGING_FORMAT = 'standard'     # detailed / standard / simple
 
 DEFAULT_MODE='iterative'
-DEFAULT_SIMS=15
+DEFAULT_SIMS=20
 DEFAULT_BASELINE=''
 DEFAULT_OUTPUT='simulation/simulation_configs'
 DEFAULT_WORKERS=7
 DEFAULT_DATA='simulation/sim_data'
-DEFAULT_TEST_VALUES=4
-NUM_PARAMETERS_TO_TEST=2
+DEFAULT_TEST_VALUES=5
+NUM_PARAMETERS_TO_TEST=1
 
 
 def main():

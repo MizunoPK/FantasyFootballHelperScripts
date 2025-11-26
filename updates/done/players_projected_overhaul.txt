@@ -1,0 +1,81 @@
+OBJECTIVE: Overhaul players_projected.csv Creation in Player Data Fetcher
+
+BACKGROUND:
+Research has been completed on the ESPN API and current implementation. See:
+- docs/research/players_projected_implementation_analysis.md
+- docs/research/espn_api_historical_projections_research.md
+
+KEY FINDINGS FROM RESEARCH:
+1. ESPN API provides projections via statSourceId=1 + appliedTotal field
+2. ESPN API provides actual scores via statSourceId=0 + appliedTotal field
+3. The projectedTotal field mentioned in code comments does NOT exist
+4. ESPN retains historical projection data even after games are played
+5. Current code prioritizes statSourceId=0 (actuals) - this is CORRECT for players.csv
+6. Current players_projected.csv has mixed data (some actuals, some projections) - this is the bug
+
+IMPORTANT CONTEXT:
+- We need to extract BOTH values from ESPN and be smart about which goes where
+- players.csv week columns should use:
+  * ACTUAL scores (statSourceId=0) for weeks < CURRENT_NFL_WEEK
+  * PROJECTED values (statSourceId=1) for weeks >= CURRENT_NFL_WEEK
+- players_projected.csv week columns should ALWAYS use:
+  * PROJECTED values (statSourceId=1) for ALL weeks 1-17
+
+REQUIREMENTS:
+
+1. EXTRACT BOTH ACTUAL AND PROJECTED VALUES
+   - When fetching player data, extract BOTH statSourceId=0 (actuals) AND statSourceId=1 (projections)
+   - Store both sets of values for weeks 1-17 for each player
+   - For players.csv:
+     * Use actuals (statSourceId=0) for past weeks (week < CURRENT_NFL_WEEK)
+     * Use projections (statSourceId=1) for current and future weeks (week >= CURRENT_NFL_WEEK)
+   - For players_projected.csv:
+     * Use projections (statSourceId=1) for ALL weeks 1-17
+
+2. RECREATE FILE EACH RUN (NOT UPDATE/APPEND)
+   - players_projected.csv should be completely regenerated on each fetcher run
+   - Follow the same pattern as players.csv (full recreation)
+   - Do NOT try to preserve historical weeks or append to existing data
+   - This ensures data consistency and avoids the mixed data problem
+
+3. FILE FORMAT
+   - Same structure as current: id, name, week_1_points, week_2_points, ..., week_17_points
+   - All week columns should contain PROJECTION values (statSourceId=1)
+   - This is essentially a projection-only version of player weekly data
+
+4. HISTORICAL DATA SAVING
+   - Continue saving to historical_data folder as before
+   - Path: data/historical_data/{SEASON}/{WEEK}/players_projected.csv
+   - This preserves point-in-time snapshots of projections
+
+5. CODE CHANGES NEEDED
+   - Modify espn_client.py:
+     * Keep existing _extract_raw_espn_week_points() behavior for actuals (used by players.csv)
+     * Add new method to extract statSourceId=1 projection data OR
+     * Add parameter to existing method to choose which source to extract
+     * Store BOTH actual and projected values in player data model
+   - Modify player data model (ESPNPlayerData or similar):
+     * Add fields for projected week values (separate from actual week values)
+     * e.g., week_1_projected, week_2_projected, etc. OR a separate projected_weeks dict
+   - Modify player_data_exporter.py:
+     * Update export_projected_points_data() to recreate file from scratch
+     * Use the projected values (statSourceId=1) when writing players_projected.csv
+   - Update outdated code comments that reference non-existent projectedTotal field
+
+6. UPDATE COMMENTS
+   - Fix misleading comments in espn_client.py lines 579-585, 458 that mention projectedTotal
+   - Document the correct ESPN API structure:
+     * statSourceId=0 + appliedTotal = Actual game scores
+     * statSourceId=1 + appliedTotal = ESPN projections
+
+TESTING:
+- Verify all week columns contain projection values (not actuals)
+- Compare output against ESPN API to confirm statSourceId=1 values are used
+- Verify file is completely regenerated (not appended)
+- Verify historical_data saving still works
+
+NOTES:
+- ESPN may update projection values over time, so values retrieved today may differ
+  slightly from original pre-game projections
+- Bye weeks should show 0.0 (ESPN returns 0.0 for statSourceId=1 on bye weeks)
+- Future weeks (not yet played) will also have projection data from statSourceId=1
