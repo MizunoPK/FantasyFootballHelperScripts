@@ -36,7 +36,7 @@ from config import (
     OUTPUT_DIRECTORY, CREATE_CSV, CREATE_JSON, CREATE_EXCEL,
     REQUEST_TIMEOUT, RATE_LIMIT_DELAY, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE,
     LOG_NAME, LOGGING_FORMAT,
-    ENABLE_HISTORICAL_DATA_SAVE
+    ENABLE_HISTORICAL_DATA_SAVE, ENABLE_GAME_DATA_FETCH
 )
 
 
@@ -398,7 +398,7 @@ class NFLProjectionsCollector:
 
             # Define source files to copy
             data_folder = self.script_dir.parent / "data"
-            files_to_copy = ["players.csv", "players_projected.csv"]
+            files_to_copy = ["players.csv", "players_projected.csv", "game_data.csv"]
 
             # Copy each file using shutil.copy2 to preserve metadata
             for filename in files_to_copy:
@@ -426,6 +426,46 @@ class NFLProjectionsCollector:
         except Exception as e:
             # Log warning but don't crash - this is a supplementary feature
             self.logger.warning(f"Failed to save historical data: {e}")
+            return False
+
+    def fetch_game_data(self) -> bool:
+        """
+        Fetch game-level data (venue, weather, scores) from ESPN and Open-Meteo APIs.
+
+        Checks config flag ENABLE_GAME_DATA_FETCH before proceeding.
+        Creates/updates data/game_data.csv with game information.
+
+        Returns:
+            bool: True if game data was fetched successfully, False if disabled or error
+        """
+        # Check if feature is enabled
+        if not ENABLE_GAME_DATA_FETCH:
+            self.logger.debug("Game data fetching disabled via config")
+            return False
+
+        try:
+            # Import here to avoid circular dependencies
+            from game_data_fetcher import fetch_game_data as do_fetch_game_data
+
+            self.logger.info("Fetching game data (venue, weather, scores)...")
+
+            # Determine output path
+            data_folder = self.script_dir.parent / "data"
+            output_path = data_folder / "game_data.csv"
+
+            # Fetch game data
+            result_path = do_fetch_game_data(
+                output_path=output_path,
+                season=self.settings.season,
+                current_week=self.settings.current_nfl_week
+            )
+
+            self.logger.info(f"Game data saved to: {result_path}")
+            return True
+
+        except Exception as e:
+            # Log error but don't crash - this is a supplementary feature
+            self.logger.error(f"Failed to fetch game data: {e}")
             return False
 
     # ============================================================================
@@ -511,6 +551,17 @@ async def main():
         
         # Export data
         output_files = await collector.export_data(projection_data)
+
+        # Fetch game data (venue, weather, scores) - if enabled via config
+        try:
+            game_data_fetched = collector.fetch_game_data()
+            if game_data_fetched:
+                print(f"\n[INFO] Game data (venue, weather, scores) fetched successfully")
+            elif not ENABLE_GAME_DATA_FETCH:
+                logger.debug("Game data fetching disabled via config")
+        except Exception as e:
+            logger.warning(f"Failed to fetch game data: {e}")
+            print(f"\n[WARNING] Could not fetch game data: {e}")
 
         # Auto-save to historical data folder (if enabled via config)
         try:

@@ -64,6 +64,9 @@ class ConfigKeys:
     PERFORMANCE_SCORING = "PERFORMANCE_SCORING"
     MATCHUP_SCORING = "MATCHUP_SCORING"
     SCHEDULE_SCORING = "SCHEDULE_SCORING"
+    TEMPERATURE_SCORING = "TEMPERATURE_SCORING"
+    WIND_SCORING = "WIND_SCORING"
+    LOCATION_MODIFIERS = "LOCATION_MODIFIERS"
     DRAFT_ORDER_BONUSES = "DRAFT_ORDER_BONUSES"
     DRAFT_ORDER = "DRAFT_ORDER"
     MAX_POSITIONS = "MAX_POSITIONS"
@@ -78,6 +81,13 @@ class ConfigKeys:
     THRESHOLDS = "THRESHOLDS"
     MIN_WEEKS = "MIN_WEEKS"
     WEIGHT = "WEIGHT"
+    IDEAL_TEMPERATURE = "IDEAL_TEMPERATURE"
+    IMPACT_SCALE = "IMPACT_SCALE"
+
+    # Location Modifier Keys
+    LOCATION_HOME = "HOME"
+    LOCATION_AWAY = "AWAY"
+    LOCATION_INTERNATIONAL = "INTERNATIONAL"
 
     # Injury Level Keys
     INJURY_LOW = "LOW"
@@ -182,6 +192,10 @@ class ConfigManager:
         self.consistency_scoring: Dict[str, Any] = {}  # Deprecated - kept for backwards compatibility
         self.performance_scoring: Dict[str, Any] = {}
         self.matchup_scoring: Dict[str, Any] = {}
+        self.schedule_scoring: Dict[str, Any] = {}
+        self.temperature_scoring: Dict[str, Any] = {}
+        self.wind_scoring: Dict[str, Any] = {}
+        self.location_modifiers: Dict[str, float] = {}
 
         # Add to Roster mode settings
         self.draft_order_bonuses: Dict[str, float] = {}
@@ -295,6 +309,78 @@ class ConfigManager:
 
     def get_performance_multiplier(self, deviation: float) -> Tuple[float, str]:
         return self._get_multiplier(self.performance_scoring, deviation)
+
+    def get_temperature_distance(self, temperature: int) -> float:
+        """
+        Calculate distance from ideal temperature.
+
+        Args:
+            temperature (int): Actual game temperature in Fahrenheit
+
+        Returns:
+            float: Absolute distance from ideal temperature (0 = ideal, higher = worse)
+
+        Example:
+            >>> config.get_temperature_distance(75)  # If ideal is 60
+            15.0
+            >>> config.get_temperature_distance(45)  # If ideal is 60
+            15.0
+        """
+        ideal_temp = self.temperature_scoring.get(self.keys.IDEAL_TEMPERATURE, 60)
+        return abs(temperature - ideal_temp)
+
+    def get_temperature_multiplier(self, temp_distance: float) -> Tuple[float, str]:
+        """
+        Get temperature multiplier based on distance from ideal.
+
+        Lower distance = better (closer to ideal temperature).
+        Uses DECREASING direction: E=base+1s, G=base+2s, P=base+3s, VP=base+4s
+
+        Args:
+            temp_distance (float): Distance from ideal temperature (from get_temperature_distance)
+
+        Returns:
+            Tuple[float, str]: (multiplier, tier_name)
+        """
+        return self._get_multiplier(self.temperature_scoring, temp_distance, rising_thresholds=False)
+
+    def get_wind_multiplier(self, wind_gust: float) -> Tuple[float, str]:
+        """
+        Get wind multiplier based on gust speed.
+
+        Lower wind = better (calmer conditions).
+        Uses DECREASING direction: E=base+1s, G=base+2s, P=base+3s, VP=base+4s
+
+        Args:
+            wind_gust (float): Wind gust speed in mph
+
+        Returns:
+            Tuple[float, str]: (multiplier, tier_name)
+        """
+        return self._get_multiplier(self.wind_scoring, wind_gust, rising_thresholds=False)
+
+    def get_location_modifier(self, is_home: bool, is_international: bool) -> float:
+        """
+        Get location modifier based on game location.
+
+        Args:
+            is_home (bool): True if team is playing at home
+            is_international (bool): True if game is outside USA
+
+        Returns:
+            float: Location modifier (positive = bonus, negative = penalty)
+
+        Priority:
+            1. International games always use INTERNATIONAL modifier (regardless of home/away)
+            2. Domestic home games use HOME modifier
+            3. Domestic away games use AWAY modifier
+        """
+        if is_international:
+            return self.location_modifiers.get(self.keys.LOCATION_INTERNATIONAL, 0.0)
+        elif is_home:
+            return self.location_modifiers.get(self.keys.LOCATION_HOME, 0.0)
+        else:
+            return self.location_modifiers.get(self.keys.LOCATION_AWAY, 0.0)
 
     # ============================================================================
     # PUBLIC MIN_WEEKS GETTERS
@@ -798,6 +884,51 @@ class ConfigManager:
         if 'IMPACT_SCALE' not in self.schedule_scoring:
             raise ValueError("SCHEDULE_SCORING missing required parameter: IMPACT_SCALE")
 
+        # Temperature scoring is optional (for backward compatibility)
+        # Default to disabled (WEIGHT=0) if not present
+        self.temperature_scoring = self.parameters.get(self.keys.TEMPERATURE_SCORING, {
+            "IDEAL_TEMPERATURE": 60,
+            "IMPACT_SCALE": 50.0,
+            "THRESHOLDS": {
+                "BASE_POSITION": 0,
+                "DIRECTION": "DECREASING",
+                "STEPS": 10
+            },
+            "MULTIPLIERS": {
+                "VERY_POOR": 0.95,
+                "POOR": 0.975,
+                "GOOD": 1.025,
+                "EXCELLENT": 1.05
+            },
+            "WEIGHT": 0.0  # Weight 0 = disabled by default
+        })
+
+        # Wind scoring is optional (for backward compatibility)
+        # Default to disabled (WEIGHT=0) if not present
+        self.wind_scoring = self.parameters.get(self.keys.WIND_SCORING, {
+            "IMPACT_SCALE": 60.0,
+            "THRESHOLDS": {
+                "BASE_POSITION": 0,
+                "DIRECTION": "DECREASING",
+                "STEPS": 8
+            },
+            "MULTIPLIERS": {
+                "VERY_POOR": 0.95,
+                "POOR": 0.975,
+                "GOOD": 1.025,
+                "EXCELLENT": 1.05
+            },
+            "WEIGHT": 0.0  # Weight 0 = disabled by default
+        })
+
+        # Location modifiers are optional (for backward compatibility)
+        # Default to neutral (0) if not present
+        self.location_modifiers = self.parameters.get(self.keys.LOCATION_MODIFIERS, {
+            "HOME": 0.0,
+            "AWAY": 0.0,
+            "INTERNATIONAL": 0.0
+        })
+
         # Extract Add to Roster mode parameters
         self.draft_order_bonuses = self.parameters[self.keys.DRAFT_ORDER_BONUSES]
         self.draft_order = self.parameters[self.keys.DRAFT_ORDER]
@@ -883,10 +1014,12 @@ class ConfigManager:
 
         # Pre-calculate parameterized thresholds if needed (backward compatible)
         # Skip CONSISTENCY_SCORING as it's deprecated
+        # Include TEMPERATURE_SCORING and WIND_SCORING (optional game condition scoring)
         for scoring_type in [self.keys.ADP_SCORING, self.keys.PLAYER_RATING_SCORING,
                              self.keys.TEAM_QUALITY_SCORING, self.keys.PERFORMANCE_SCORING,
-                             self.keys.MATCHUP_SCORING, self.keys.SCHEDULE_SCORING]:
-            # Skip if scoring type not in config (e.g., SCHEDULE_SCORING is optional)
+                             self.keys.MATCHUP_SCORING, self.keys.SCHEDULE_SCORING,
+                             self.keys.TEMPERATURE_SCORING, self.keys.WIND_SCORING]:
+            # Skip if scoring type not in config (e.g., SCHEDULE_SCORING, TEMPERATURE_SCORING are optional)
             if scoring_type not in self.parameters:
                 continue
 

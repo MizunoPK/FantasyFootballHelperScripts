@@ -177,6 +177,10 @@ class SimulatedLeague:
             if (self.data_folder / "season_schedule.csv").exists():
                 shutil.copy(self.data_folder / "season_schedule.csv", team_dir / "season_schedule.csv")
 
+            # Copy game_data.csv for GameDataManager (weather/location scoring)
+            if (self.data_folder / "game_data.csv").exists():
+                shutil.copy(self.data_folder / "game_data.csv", team_dir / "game_data.csv")
+
             # Create SeasonScheduleManager (for opponent lookups)
             season_schedule_mgr = SeasonScheduleManager(team_dir)
 

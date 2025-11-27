@@ -424,7 +424,10 @@ class TestStarterHelperModeManager:
             matchup=True,
             schedule=False,
             bye=False,
-            injury=False
+            injury=False,
+            temperature=True,
+            wind=True,
+            location=True
         )
         assert result == expected_scored
 
@@ -661,7 +664,10 @@ class TestStarterHelperInjuryHandling:
             matchup=True,
             schedule=False,
             bye=False,
-            injury=False
+            injury=False,
+            temperature=True,
+            wind=True,
+            location=True
         )
 
 

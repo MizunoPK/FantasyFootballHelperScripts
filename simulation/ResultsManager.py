@@ -214,6 +214,94 @@ class ResultsManager:
 
         self.logger.info(f"Saved all results ({len(self.results)} configs) to {output_path}")
 
+    def update_league_config(
+        self,
+        optimal_config_path: Path,
+        league_config_path: Path
+    ) -> None:
+        """
+        Update league_config.json with values from optimal config.
+
+        Preserves certain parameters from the original config while updating
+        the rest from the optimal config. Also maps MATCHUP_SCORING values
+        to SCHEDULE_SCORING.
+
+        Args:
+            optimal_config_path (Path): Path to optimal_*.json file
+            league_config_path (Path): Path to data/league_config.json
+
+        Preserved parameters (from original):
+            - CURRENT_NFL_WEEK
+            - NFL_SEASON
+            - MAX_POSITIONS
+            - FLEX_ELIGIBLE_POSITIONS
+
+        MATCHUP -> SCHEDULE mapping:
+            - SCHEDULE_SCORING.MIN_WEEKS = MATCHUP_SCORING.MIN_WEEKS
+            - SCHEDULE_SCORING.IMPACT_SCALE = MATCHUP_SCORING.IMPACT_SCALE
+            - SCHEDULE_SCORING.WEIGHT = MATCHUP_SCORING.WEIGHT
+
+        Example:
+            >>> mgr.update_league_config(
+            ...     Path("simulation/optimal_2024.json"),
+            ...     Path("data/league_config.json")
+            ... )
+        """
+        # Parameters to preserve from original config
+        PRESERVE_KEYS = [
+            'CURRENT_NFL_WEEK',
+            'NFL_SEASON',
+            'MAX_POSITIONS',
+            'FLEX_ELIGIBLE_POSITIONS'
+        ]
+
+        # Load optimal config
+        with open(optimal_config_path, 'r') as f:
+            optimal_config = json.load(f)
+
+        # Load original league config
+        with open(league_config_path, 'r') as f:
+            original_config = json.load(f)
+
+        self.logger.info(f"Updating league config from {optimal_config_path.name}")
+
+        # Start with optimal config (copy config_name and description as-is)
+        updated_config = {
+            'config_name': optimal_config.get('config_name', ''),
+            'description': optimal_config.get('description', ''),
+            'parameters': optimal_config['parameters'].copy()
+        }
+
+        # Preserve specific keys from original config
+        for key in PRESERVE_KEYS:
+            if key in original_config['parameters']:
+                updated_config['parameters'][key] = original_config['parameters'][key]
+                self.logger.debug(f"Preserved {key} from original config")
+
+        # Apply MATCHUP -> SCHEDULE mapping
+        if 'MATCHUP_SCORING' in updated_config['parameters']:
+            matchup = updated_config['parameters']['MATCHUP_SCORING']
+            schedule = updated_config['parameters'].get('SCHEDULE_SCORING', {})
+
+            schedule['MIN_WEEKS'] = matchup.get('MIN_WEEKS', schedule.get('MIN_WEEKS'))
+            schedule['IMPACT_SCALE'] = matchup.get('IMPACT_SCALE', schedule.get('IMPACT_SCALE'))
+            schedule['WEIGHT'] = matchup.get('WEIGHT', schedule.get('WEIGHT'))
+
+            updated_config['parameters']['SCHEDULE_SCORING'] = schedule
+            self.logger.debug("Applied MATCHUP -> SCHEDULE mapping")
+
+        # Remove performance_metrics if present (not part of league config)
+        if 'performance_metrics' in updated_config:
+            del updated_config['performance_metrics']
+
+        # Write updated config
+        with open(league_config_path, 'w') as f:
+            json.dump(updated_config, f, indent=2)
+
+        self.logger.info(f"Updated {league_config_path} with optimal parameters")
+        self.logger.info(f"  Preserved: {', '.join(PRESERVE_KEYS)}")
+        self.logger.info(f"  MATCHUP->SCHEDULE: MIN_WEEKS, IMPACT_SCALE, WEIGHT")
+
     def print_summary(self, top_n: int = 10) -> None:
         """
         Print summary of results to console.

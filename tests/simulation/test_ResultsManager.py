@@ -543,3 +543,356 @@ class TestIntegrationScenarios:
 
         # Verify save was attempted
         assert mock_file.called
+
+
+class TestUpdateLeagueConfig:
+    """Test update_league_config functionality"""
+
+    def test_update_league_config_preserves_required_keys(self, tmp_path):
+        """Test that preserved keys are kept from original config"""
+        # Create original league config
+        original_config = {
+            "config_name": "original",
+            "description": "Original config",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 1,
+                "NFL_SEASON": 2025,
+                "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR", "DST"],
+                "NORMALIZATION_MAX_SCALE": 100.0,
+                "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 5,
+                    "IMPACT_SCALE": 50.0,
+                    "WEIGHT": 1.0
+                },
+                "SCHEDULE_SCORING": {
+                    "MIN_WEEKS": 3,
+                    "IMPACT_SCALE": 75.0,
+                    "WEIGHT": 0.5
+                }
+            }
+        }
+        league_config_path = tmp_path / "league_config.json"
+        with open(league_config_path, 'w') as f:
+            json.dump(original_config, f)
+
+        # Create optimal config with different values
+        optimal_config = {
+            "config_name": "optimal",
+            "description": "Win Rate: 0.85",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 13,
+                "NFL_SEASON": 2024,
+                "MAX_POSITIONS": {"QB": 3, "RB": 5, "WR": 5},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
+                "NORMALIZATION_MAX_SCALE": 150.0,
+                "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 3,
+                    "IMPACT_SCALE": 107.0,
+                    "WEIGHT": 0.4
+                },
+                "SCHEDULE_SCORING": {
+                    "MIN_WEEKS": 5,
+                    "IMPACT_SCALE": 108.0,
+                    "WEIGHT": 0.8
+                }
+            }
+        }
+        optimal_config_path = tmp_path / "optimal.json"
+        with open(optimal_config_path, 'w') as f:
+            json.dump(optimal_config, f)
+
+        # Update league config
+        mgr = ResultsManager()
+        mgr.update_league_config(optimal_config_path, league_config_path)
+
+        # Read updated config
+        with open(league_config_path, 'r') as f:
+            updated_config = json.load(f)
+
+        # Verify preserved keys are from original
+        assert updated_config["parameters"]["CURRENT_NFL_WEEK"] == 1
+        assert updated_config["parameters"]["NFL_SEASON"] == 2025
+        assert updated_config["parameters"]["MAX_POSITIONS"] == {"QB": 2, "RB": 4, "WR": 4}
+        assert updated_config["parameters"]["FLEX_ELIGIBLE_POSITIONS"] == ["RB", "WR", "DST"]
+
+    def test_update_league_config_copies_other_parameters(self, tmp_path):
+        """Test that non-preserved parameters are copied from optimal"""
+        # Create original league config
+        original_config = {
+            "config_name": "original",
+            "description": "Original config",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 1,
+                "NFL_SEASON": 2025,
+                "MAX_POSITIONS": {"QB": 2},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
+                "NORMALIZATION_MAX_SCALE": 100.0,
+                "MATCHUP_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 50.0, "WEIGHT": 1.0},
+                "SCHEDULE_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 75.0, "WEIGHT": 0.5}
+            }
+        }
+        league_config_path = tmp_path / "league_config.json"
+        with open(league_config_path, 'w') as f:
+            json.dump(original_config, f)
+
+        # Create optimal config
+        optimal_config = {
+            "config_name": "optimal",
+            "description": "Win Rate: 0.80",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 13,
+                "NFL_SEASON": 2024,
+                "MAX_POSITIONS": {"QB": 3},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB"],
+                "NORMALIZATION_MAX_SCALE": 150.0,
+                "MATCHUP_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 107.0, "WEIGHT": 0.4},
+                "SCHEDULE_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 108.0, "WEIGHT": 0.8}
+            }
+        }
+        optimal_config_path = tmp_path / "optimal.json"
+        with open(optimal_config_path, 'w') as f:
+            json.dump(optimal_config, f)
+
+        # Update league config
+        mgr = ResultsManager()
+        mgr.update_league_config(optimal_config_path, league_config_path)
+
+        # Read updated config
+        with open(league_config_path, 'r') as f:
+            updated_config = json.load(f)
+
+        # Verify non-preserved parameter is from optimal
+        assert updated_config["parameters"]["NORMALIZATION_MAX_SCALE"] == 150.0
+
+    def test_update_league_config_matchup_to_schedule_mapping(self, tmp_path):
+        """Test that MATCHUP_SCORING values are copied to SCHEDULE_SCORING"""
+        # Create original league config
+        original_config = {
+            "config_name": "original",
+            "description": "Original",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 1,
+                "NFL_SEASON": 2025,
+                "MAX_POSITIONS": {"QB": 2},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
+                "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 5,
+                    "IMPACT_SCALE": 50.0,
+                    "THRESHOLDS": {"BASE_POSITION": 0},
+                    "MULTIPLIERS": {"GOOD": 1.025},
+                    "WEIGHT": 1.0
+                },
+                "SCHEDULE_SCORING": {
+                    "MIN_WEEKS": 3,
+                    "IMPACT_SCALE": 75.0,
+                    "THRESHOLDS": {"BASE_POSITION": 16},
+                    "MULTIPLIERS": {"GOOD": 1.05},
+                    "WEIGHT": 0.5
+                }
+            }
+        }
+        league_config_path = tmp_path / "league_config.json"
+        with open(league_config_path, 'w') as f:
+            json.dump(original_config, f)
+
+        # Create optimal config with specific MATCHUP values
+        optimal_config = {
+            "config_name": "optimal",
+            "description": "Win Rate: 0.80",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 13,
+                "NFL_SEASON": 2024,
+                "MAX_POSITIONS": {"QB": 2},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB"],
+                "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 3,
+                    "IMPACT_SCALE": 107.45,
+                    "THRESHOLDS": {"BASE_POSITION": 0},
+                    "MULTIPLIERS": {"GOOD": 1.025},
+                    "WEIGHT": 0.409
+                },
+                "SCHEDULE_SCORING": {
+                    "MIN_WEEKS": 5,
+                    "IMPACT_SCALE": 108.44,
+                    "THRESHOLDS": {"BASE_POSITION": 16},
+                    "MULTIPLIERS": {"GOOD": 1.05},
+                    "WEIGHT": 0.80
+                }
+            }
+        }
+        optimal_config_path = tmp_path / "optimal.json"
+        with open(optimal_config_path, 'w') as f:
+            json.dump(optimal_config, f)
+
+        # Update league config
+        mgr = ResultsManager()
+        mgr.update_league_config(optimal_config_path, league_config_path)
+
+        # Read updated config
+        with open(league_config_path, 'r') as f:
+            updated_config = json.load(f)
+
+        # Verify MATCHUP values are copied to SCHEDULE
+        schedule = updated_config["parameters"]["SCHEDULE_SCORING"]
+        matchup = updated_config["parameters"]["MATCHUP_SCORING"]
+
+        assert schedule["MIN_WEEKS"] == matchup["MIN_WEEKS"] == 3
+        assert schedule["IMPACT_SCALE"] == matchup["IMPACT_SCALE"] == 107.45
+        assert schedule["WEIGHT"] == matchup["WEIGHT"] == 0.409
+
+        # Verify THRESHOLDS and MULTIPLIERS are NOT copied from MATCHUP
+        # (They should remain from optimal's SCHEDULE_SCORING)
+        assert schedule["THRESHOLDS"]["BASE_POSITION"] == 16
+        assert schedule["MULTIPLIERS"]["GOOD"] == 1.05
+
+    def test_update_league_config_copies_config_name_and_description(self, tmp_path):
+        """Test that config_name and description are copied from optimal"""
+        # Create original league config
+        original_config = {
+            "config_name": "original_name",
+            "description": "Original description",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 1,
+                "NFL_SEASON": 2025,
+                "MAX_POSITIONS": {"QB": 2},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
+                "MATCHUP_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 50.0, "WEIGHT": 1.0},
+                "SCHEDULE_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 75.0, "WEIGHT": 0.5}
+            }
+        }
+        league_config_path = tmp_path / "league_config.json"
+        with open(league_config_path, 'w') as f:
+            json.dump(original_config, f)
+
+        # Create optimal config
+        optimal_config = {
+            "config_name": "simulation/optimal_iterative_20251126.json",
+            "description": "Win Rate: 0.85",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 13,
+                "NFL_SEASON": 2024,
+                "MAX_POSITIONS": {"QB": 2},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB"],
+                "MATCHUP_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 107.0, "WEIGHT": 0.4},
+                "SCHEDULE_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 108.0, "WEIGHT": 0.8}
+            }
+        }
+        optimal_config_path = tmp_path / "optimal.json"
+        with open(optimal_config_path, 'w') as f:
+            json.dump(optimal_config, f)
+
+        # Update league config
+        mgr = ResultsManager()
+        mgr.update_league_config(optimal_config_path, league_config_path)
+
+        # Read updated config
+        with open(league_config_path, 'r') as f:
+            updated_config = json.load(f)
+
+        # Verify config_name and description are from optimal
+        assert updated_config["config_name"] == "simulation/optimal_iterative_20251126.json"
+        assert updated_config["description"] == "Win Rate: 0.85"
+
+    def test_update_league_config_removes_performance_metrics(self, tmp_path):
+        """Test that performance_metrics are removed from saved config"""
+        # Create original league config
+        original_config = {
+            "config_name": "original",
+            "description": "Original",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 1,
+                "NFL_SEASON": 2025,
+                "MAX_POSITIONS": {"QB": 2},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
+                "MATCHUP_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 50.0, "WEIGHT": 1.0},
+                "SCHEDULE_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 75.0, "WEIGHT": 0.5}
+            }
+        }
+        league_config_path = tmp_path / "league_config.json"
+        with open(league_config_path, 'w') as f:
+            json.dump(original_config, f)
+
+        # Create optimal config with performance_metrics
+        optimal_config = {
+            "config_name": "optimal",
+            "description": "Win Rate: 0.80",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 13,
+                "NFL_SEASON": 2024,
+                "MAX_POSITIONS": {"QB": 2},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB"],
+                "MATCHUP_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 107.0, "WEIGHT": 0.4},
+                "SCHEDULE_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 108.0, "WEIGHT": 0.8}
+            },
+            "performance_metrics": {
+                "config_id": "config_001",
+                "win_rate": 0.8,
+                "total_wins": 800,
+                "total_losses": 200
+            }
+        }
+        optimal_config_path = tmp_path / "optimal.json"
+        with open(optimal_config_path, 'w') as f:
+            json.dump(optimal_config, f)
+
+        # Update league config
+        mgr = ResultsManager()
+        mgr.update_league_config(optimal_config_path, league_config_path)
+
+        # Read updated config
+        with open(league_config_path, 'r') as f:
+            updated_config = json.load(f)
+
+        # Verify performance_metrics is not present
+        assert "performance_metrics" not in updated_config
+
+    def test_update_league_config_handles_missing_preserved_keys(self, tmp_path):
+        """Test graceful handling when original config missing preserved keys"""
+        # Create original league config WITHOUT all preserved keys
+        original_config = {
+            "config_name": "original",
+            "description": "Original",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 1,
+                # Missing NFL_SEASON, MAX_POSITIONS, FLEX_ELIGIBLE_POSITIONS
+                "MATCHUP_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 50.0, "WEIGHT": 1.0},
+                "SCHEDULE_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 75.0, "WEIGHT": 0.5}
+            }
+        }
+        league_config_path = tmp_path / "league_config.json"
+        with open(league_config_path, 'w') as f:
+            json.dump(original_config, f)
+
+        # Create optimal config
+        optimal_config = {
+            "config_name": "optimal",
+            "description": "Win Rate: 0.80",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 13,
+                "NFL_SEASON": 2024,
+                "MAX_POSITIONS": {"QB": 2},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB"],
+                "MATCHUP_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 107.0, "WEIGHT": 0.4},
+                "SCHEDULE_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 108.0, "WEIGHT": 0.8}
+            }
+        }
+        optimal_config_path = tmp_path / "optimal.json"
+        with open(optimal_config_path, 'w') as f:
+            json.dump(optimal_config, f)
+
+        # Update league config - should not raise error
+        mgr = ResultsManager()
+        mgr.update_league_config(optimal_config_path, league_config_path)
+
+        # Read updated config
+        with open(league_config_path, 'r') as f:
+            updated_config = json.load(f)
+
+        # Verify CURRENT_NFL_WEEK was preserved (it existed)
+        assert updated_config["parameters"]["CURRENT_NFL_WEEK"] == 1
+
+        # Other preserved keys should be from optimal (since they didn't exist in original)
+        assert updated_config["parameters"]["NFL_SEASON"] == 2024
+        assert updated_config["parameters"]["MAX_POSITIONS"] == {"QB": 2}
+        assert updated_config["parameters"]["FLEX_ELIGIBLE_POSITIONS"] == ["RB"]

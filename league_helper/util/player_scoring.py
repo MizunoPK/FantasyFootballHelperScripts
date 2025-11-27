@@ -32,6 +32,8 @@ from ScoredPlayer import ScoredPlayer
 from ProjectedPointsManager import ProjectedPointsManager
 from TeamDataManager import TeamDataManager
 from SeasonScheduleManager import SeasonScheduleManager
+from GameDataManager import GameDataManager
+from upcoming_game_model import UpcomingGame
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
@@ -63,7 +65,8 @@ class PlayerScoringCalculator:
         max_projection: float,
         team_data_manager: TeamDataManager,
         season_schedule_manager: SeasonScheduleManager,
-        current_nfl_week: int
+        current_nfl_week: int,
+        game_data_manager: Optional[GameDataManager] = None
     ) -> None:
         """
         Initialize PlayerScoringCalculator.
@@ -75,6 +78,8 @@ class PlayerScoringCalculator:
             team_data_manager (TeamDataManager): Manager for team rankings and matchups
             season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
             current_nfl_week (int): Current NFL week number
+            game_data_manager (Optional[GameDataManager]): Manager for game conditions
+                (temperature, wind, location). If None, game condition scoring is disabled.
         """
         self.config = config
         self.projected_points_manager = projected_points_manager
@@ -83,6 +88,7 @@ class PlayerScoringCalculator:
         self.team_data_manager = team_data_manager
         self.season_schedule_manager = season_schedule_manager
         self.current_nfl_week = current_nfl_week
+        self.game_data_manager = game_data_manager
         self.logger = get_logger()
 
     def get_weekly_projection(self, player: FantasyPlayer, week=0) -> Tuple[float, float]:
@@ -315,11 +321,11 @@ class PlayerScoringCalculator:
 
         return avg_rank
 
-    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False) -> ScoredPlayer:
         """
-        Calculate score for a player (10-step calculation).
+        Calculate score for a player (13-step calculation).
 
-        New Scoring System:
+        Scoring System:
         1. Get normalized seasonal fantasy points (0-N scale)
         2. Apply ADP multiplier
         3. Apply Player Ranking multiplier
@@ -330,6 +336,9 @@ class PlayerScoringCalculator:
         8. Add DRAFT_ORDER bonus (round-based position priority)
         9. Subtract Bye Week penalty
         10. Subtract Injury penalty
+        11. Apply Temperature bonus/penalty (game conditions)
+        12. Apply Wind bonus/penalty (game conditions, QB/WR/K only)
+        13. Apply Location bonus/penalty (home/away/international)
 
         Args:
             p: FantasyPlayer to score
@@ -345,6 +354,9 @@ class PlayerScoringCalculator:
             bye: Apply bye week penalty
             injury: Apply injury penalty
             roster: Optional custom roster to use for bye week calculations (defaults to team_roster)
+            temperature: Apply temperature bonus/penalty (game conditions)
+            wind: Apply wind bonus/penalty (game conditions, QB/WR/K only)
+            location: Apply location bonus/penalty (home/away/international)
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
@@ -413,7 +425,25 @@ class PlayerScoringCalculator:
         if injury:
             player_score, reason = self._apply_injury_penalty(p, player_score)
             add_to_reasons(reason)
-            self.logger.debug(f"Step 10 - Final score for {p.name}: {player_score:.2f}")
+            self.logger.debug(f"Step 10 - After injury penalty for {p.name}: {player_score:.2f}")
+
+        # STEP 11: Apply Temperature bonus/penalty (game conditions)
+        if temperature:
+            player_score, reason = self._apply_temperature_scoring(p, player_score)
+            add_to_reasons(reason)
+            self.logger.debug(f"Step 11 - After temperature scoring for {p.name}: {player_score:.2f}")
+
+        # STEP 12: Apply Wind bonus/penalty (game conditions, QB/WR/K only)
+        if wind:
+            player_score, reason = self._apply_wind_scoring(p, player_score)
+            add_to_reasons(reason)
+            self.logger.debug(f"Step 12 - After wind scoring for {p.name}: {player_score:.2f}")
+
+        # STEP 13: Apply Location bonus/penalty (home/away/international)
+        if location:
+            player_score, reason = self._apply_location_modifier(p, player_score)
+            add_to_reasons(reason)
+            self.logger.debug(f"Step 13 - Final score for {p.name}: {player_score:.2f}")
 
         # Summary logging
         self.logger.debug(
@@ -657,3 +687,167 @@ class PlayerScoringCalculator:
 
         # Subtract penalty from score (injury reduces player value)
         return player_score - penalty, reason
+
+    # ============================================================================
+    # GAME CONDITION SCORING (Steps 11-13)
+    # ============================================================================
+
+    def _apply_temperature_scoring(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
+        """
+        Apply temperature bonus/penalty (Step 11).
+
+        Temperature affects all positions. Players perform best around 60°F (ideal).
+        Extreme cold or heat degrades performance.
+
+        Args:
+            p (FantasyPlayer): Player being scored
+            player_score (float): Current score before temperature adjustment
+
+        Returns:
+            Tuple[float, str]: (adjusted_score, reason_string)
+                - reason_string is empty if no adjustment applied
+        """
+        # Skip if no game data manager
+        if not self.game_data_manager:
+            return player_score, ""
+
+        # Get game for player's team (use config week for simulation support)
+        game = self.game_data_manager.get_game(p.team, self.config.current_nfl_week)
+
+        # Skip if bye week (no game)
+        if not game:
+            return player_score, ""
+
+        # Skip if indoor game (no weather effects)
+        if game.indoor:
+            return player_score, ""
+
+        # Skip if no temperature data
+        if game.temperature is None:
+            return player_score, ""
+
+        # Calculate temperature distance from ideal
+        temp_distance = self.config.get_temperature_distance(game.temperature)
+
+        # Get multiplier (lower distance = better = higher multiplier)
+        multiplier, tier = self.config.get_temperature_multiplier(temp_distance)
+
+        # Calculate additive bonus using IMPACT_SCALE
+        # Formula: bonus = (IMPACT_SCALE * multiplier) - IMPACT_SCALE
+        impact_scale = self.config.temperature_scoring.get('IMPACT_SCALE', 50.0)
+        weight = self.config.temperature_scoring.get('WEIGHT', 1.0)
+        bonus = ((impact_scale * multiplier) - impact_scale) * weight
+
+        # Build reason string
+        ideal_temp = self.config.temperature_scoring.get('IDEAL_TEMPERATURE', 60)
+        if bonus >= 0:
+            reason = f"Temp: {game.temperature}°F ({tier}, +{bonus:.1f} pts)"
+        else:
+            reason = f"Temp: {game.temperature}°F ({tier}, {bonus:.1f} pts)"
+
+        return player_score + bonus, reason
+
+    def _apply_wind_scoring(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
+        """
+        Apply wind bonus/penalty (Step 12).
+
+        Wind only affects QB, WR, and K positions (passing game and kicking).
+        Other positions (RB, TE, DST) are not affected.
+
+        Args:
+            p (FantasyPlayer): Player being scored
+            player_score (float): Current score before wind adjustment
+
+        Returns:
+            Tuple[float, str]: (adjusted_score, reason_string)
+                - reason_string is empty if no adjustment applied
+        """
+        # Skip if position not affected by wind
+        if p.position not in Constants.WIND_AFFECTED_POSITIONS:
+            return player_score, ""
+
+        # Skip if no game data manager
+        if not self.game_data_manager:
+            return player_score, ""
+
+        # Get game for player's team (use config week for simulation support)
+        game = self.game_data_manager.get_game(p.team, self.config.current_nfl_week)
+
+        # Skip if bye week (no game)
+        if not game:
+            return player_score, ""
+
+        # Skip if indoor game (no wind effects)
+        if game.indoor:
+            return player_score, ""
+
+        # Skip if no wind data
+        if game.wind_gust is None:
+            return player_score, ""
+
+        # Get multiplier (lower wind = better = higher multiplier)
+        multiplier, tier = self.config.get_wind_multiplier(game.wind_gust)
+
+        # Calculate additive bonus using IMPACT_SCALE
+        # Formula: bonus = (IMPACT_SCALE * multiplier) - IMPACT_SCALE
+        impact_scale = self.config.wind_scoring.get('IMPACT_SCALE', 60.0)
+        weight = self.config.wind_scoring.get('WEIGHT', 1.0)
+        bonus = ((impact_scale * multiplier) - impact_scale) * weight
+
+        # Build reason string
+        if bonus >= 0:
+            reason = f"Wind: {game.wind_gust}mph ({tier}, +{bonus:.1f} pts)"
+        else:
+            reason = f"Wind: {game.wind_gust}mph ({tier}, {bonus:.1f} pts)"
+
+        return player_score + bonus, reason
+
+    def _apply_location_modifier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
+        """
+        Apply location bonus/penalty (Step 13).
+
+        Home games provide a bonus, away games a penalty, and international
+        games have a larger penalty due to travel and unfamiliar environment.
+
+        Args:
+            p (FantasyPlayer): Player being scored
+            player_score (float): Current score before location adjustment
+
+        Returns:
+            Tuple[float, str]: (adjusted_score, reason_string)
+                - reason_string is empty if no adjustment applied
+        """
+        # Skip if no game data manager
+        if not self.game_data_manager:
+            return player_score, ""
+
+        # Get game for player's team (use config week for simulation support)
+        game = self.game_data_manager.get_game(p.team, self.config.current_nfl_week)
+
+        # Skip if bye week (no game)
+        if not game:
+            return player_score, ""
+
+        # Determine location type
+        is_home = game.is_home_game(p.team)
+        is_international = game.is_international()
+
+        # Get location modifier
+        modifier = self.config.get_location_modifier(is_home, is_international)
+
+        # Build reason string
+        if is_international:
+            location_type = f"International ({game.country})"
+        elif is_home:
+            location_type = "Home"
+        else:
+            location_type = "Away"
+
+        if modifier == 0:
+            return player_score, ""
+        elif modifier > 0:
+            reason = f"Location: {location_type} (+{modifier:.1f} pts)"
+        else:
+            reason = f"Location: {location_type} ({modifier:.1f} pts)"
+
+        return player_score + modifier, reason

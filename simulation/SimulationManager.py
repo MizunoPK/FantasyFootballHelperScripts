@@ -21,6 +21,7 @@ import time
 import copy
 import json
 import re
+import signal
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -61,7 +62,8 @@ class SimulationManager:
         max_workers : int,
         data_folder: Path,
         num_test_values: int = 5,
-        num_parameters_to_test: int = 1
+        num_parameters_to_test: int = 1,
+        auto_update_league_config: bool = True
     ) -> None:
         """
         Initialize SimulationManager.
@@ -84,6 +86,13 @@ class SimulationManager:
         self.max_workers = max_workers
         self.num_test_values = num_test_values
         self.num_parameters_to_test = num_parameters_to_test
+        self.data_folder = data_folder
+        self.auto_update_league_config = auto_update_league_config
+
+        # Track current optimal config for graceful shutdown
+        self._current_optimal_config_path: Optional[Path] = None
+        self._original_sigint_handler = None
+        self._original_sigterm_handler = None
 
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -101,6 +110,50 @@ class SimulationManager:
             f"SimulationManager initialized: {total_configs:,} configs, "
             f"{num_simulations_per_config} sims/config, {max_workers} workers"
         )
+
+    def _setup_signal_handlers(self) -> None:
+        """
+        Set up signal handlers for graceful shutdown.
+
+        Registers handlers for SIGINT (Ctrl+C) and SIGTERM to ensure
+        league_config.json is updated before the process exits.
+        """
+        self._original_sigint_handler = signal.signal(signal.SIGINT, self._handle_shutdown_signal)
+        self._original_sigterm_handler = signal.signal(signal.SIGTERM, self._handle_shutdown_signal)
+
+    def _restore_signal_handlers(self) -> None:
+        """Restore original signal handlers."""
+        if self._original_sigint_handler is not None:
+            signal.signal(signal.SIGINT, self._original_sigint_handler)
+        if self._original_sigterm_handler is not None:
+            signal.signal(signal.SIGTERM, self._original_sigterm_handler)
+
+    def _handle_shutdown_signal(self, signum: int, frame) -> None:
+        """
+        Handle shutdown signal by updating league config before exiting.
+
+        Args:
+            signum: Signal number received
+            frame: Current stack frame (unused)
+        """
+        signal_name = "SIGINT" if signum == signal.SIGINT else "SIGTERM"
+        self.logger.info(f"\nReceived {signal_name} - performing graceful shutdown...")
+
+        # Update league config if we have an optimal config saved
+        if self.auto_update_league_config and self._current_optimal_config_path:
+            league_config_path = Path(__file__).parent.parent / "data" / "league_config.json"
+            if league_config_path.exists() and self._current_optimal_config_path.exists():
+                self.logger.info(f"Updating league config before shutdown...")
+                self.results_manager.update_league_config(
+                    self._current_optimal_config_path,
+                    league_config_path
+                )
+                self.logger.info(f"✓ Updated league config: {league_config_path}")
+
+        # Restore original handlers and re-raise signal
+        self._restore_signal_handlers()
+        self.logger.info("Shutdown complete. Exiting...")
+        raise SystemExit(0)
 
     def run_full_optimization(self) -> Path:
         """
@@ -123,6 +176,10 @@ class SimulationManager:
         self.logger.info("=" * 80)
         self.logger.info("STARTING FULL CONFIGURATION OPTIMIZATION")
         self.logger.info("=" * 80)
+
+        # Set up signal handlers for graceful shutdown
+        if self.auto_update_league_config:
+            self._setup_signal_handlers()
 
         start_time = time.time()
 
@@ -203,6 +260,21 @@ class SimulationManager:
         # Save optimal config
         optimal_config_path = self.results_manager.save_optimal_config(self.output_dir)
         self.logger.info(f"✓ Saved optimal config: {optimal_config_path}")
+
+        # Track for graceful shutdown
+        self._current_optimal_config_path = optimal_config_path
+
+        # Update league_config.json in the root data folder with optimal parameters
+        if self.auto_update_league_config:
+            league_config_path = Path(__file__).parent.parent / "data" / "league_config.json"
+            if league_config_path.exists():
+                self.results_manager.update_league_config(optimal_config_path, league_config_path)
+                self.logger.info(f"✓ Updated league config: {league_config_path}")
+            else:
+                self.logger.warning(f"league_config.json not found at {league_config_path}, skipping update")
+
+            # Restore signal handlers now that we're done
+            self._restore_signal_handlers()
 
         # Save all results
         all_results_path = self.output_dir / "all_results.json"
@@ -353,6 +425,10 @@ class SimulationManager:
         self.logger.info("STARTING ITERATIVE PARAMETER OPTIMIZATION")
         self.logger.info("=" * 80)
 
+        # Set up signal handlers for graceful shutdown
+        if self.auto_update_league_config:
+            self._setup_signal_handlers()
+
         start_time = time.time()
 
         # Get parameter order
@@ -466,6 +542,9 @@ class SimulationManager:
                 with open(intermediate_path, 'w') as f:
                     json.dump(current_optimal_config, f, indent=2)
                 self.logger.info(f"  Saved intermediate config: {intermediate_path.name}")
+
+                # Track for graceful shutdown
+                self._current_optimal_config_path = intermediate_path
             else:
                 self.logger.warning(f"No results for {param_name} - keeping previous optimal")
 
@@ -489,8 +568,25 @@ class SimulationManager:
         with open(optimal_config_path, 'w') as f:
             json.dump(current_optimal_config, f, indent=2)
 
-        self.logger.info("=" * 80)
         self.logger.info(f"✓ Final optimal config saved: {optimal_config_path}")
+
+        # Track final config for graceful shutdown
+        self._current_optimal_config_path = optimal_config_path
+
+        # Update league_config.json in the root data folder with optimal parameters
+        if self.auto_update_league_config:
+            league_config_path = Path(__file__).parent.parent / "data" / "league_config.json"
+            if league_config_path.exists():
+                self.results_manager.update_league_config(optimal_config_path, league_config_path)
+                self.logger.info(f"✓ Updated league config: {league_config_path}")
+            else:
+                self.logger.warning(f"league_config.json not found at {league_config_path}, skipping update")
+
+            # Restore signal handlers now that we're done
+            self._restore_signal_handlers()
+
+        self.logger.info("=" * 80)
+        self.logger.info("ITERATIVE OPTIMIZATION COMPLETE")
         self.logger.info("=" * 80)
 
         return optimal_config_path

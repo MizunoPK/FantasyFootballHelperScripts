@@ -1,39 +1,77 @@
 {
-  "config_name": "simulation/simulation_configs/intermediate_06_DRAFT_ORDER_FILE.json",
-  "description": "Win Rate: 0.84",
+  "config_name": "simulation/simulation_configs/optimal_iterative_20251127_072354.json",
+  "description": "Win Rate: 0.76",
   "parameters": {
     "CURRENT_NFL_WEEK": 13,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 116.56481044620453,
-    "SAME_POS_BYE_WEIGHT": 0.21106431238341677,
-    "DIFF_POS_BYE_WEIGHT": 0.05743774484782922,
+    "NORMALIZATION_MAX_SCALE": 112.43941712582075,
+    "SAME_POS_BYE_WEIGHT": 0.3464952842879715,
+    "DIFF_POS_BYE_WEIGHT": 0.11325821165371473,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 0,
       "HIGH": 100
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 77.48406136219677,
-      "SECONDARY": 80.47084473431896
+      "PRIMARY": 75.79418028719338,
+      "SECONDARY": 92.41788607946198
     },
     "DRAFT_ORDER_FILE": 1,
     "DRAFT_ORDER": [
-      {"FLEX": "P", "QB": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"FLEX": "P", "TE": "S"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P", "QB": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"K": "P", "FLEX": "S"},
-      {"DST": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"}
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P",
+        "TE": "S"
+      },
+      {
+        "FLEX": "P",
+        "TE": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "FLEX": "P"
+      }
     ],
     "MAX_POSITIONS": {
       "QB": 2,
@@ -53,7 +91,7 @@
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 31.62926416039984
+        "STEPS": 25.90934784092259
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -61,7 +99,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.8461960771804837
+      "WEIGHT": 2.9867485818556774
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
@@ -75,7 +113,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.7845296005385178
+      "WEIGHT": 1.2646099694205906
     },
     "TEAM_QUALITY_SCORING": {
       "MIN_WEEKS": 5,
@@ -90,14 +128,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.7770940189669755
+      "WEIGHT": 1.8198626708446852
     },
     "PERFORMANCE_SCORING": {
-      "MIN_WEEKS": 3,
+      "MIN_WEEKS": 6,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.2149955879219791
+        "STEPS": 0.2930196154884389
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -105,11 +143,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.6818053275930778
+      "WEIGHT": 3.7338035434670935
     },
     "MATCHUP_SCORING": {
-      "MIN_WEEKS": 5,
-      "IMPACT_SCALE": 115.44420719076365,
+      "MIN_WEEKS": 3,
+      "IMPACT_SCALE": 107.45000010749315,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
@@ -121,11 +159,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.8029220831479209
+      "WEIGHT": 0.40938785405498446
     },
     "SCHEDULE_SCORING": {
-      "MIN_WEEKS": 5,
-      "IMPACT_SCALE": 115.44420719076365,
+      "MIN_WEEKS": 3,
+      "IMPACT_SCALE": 107.45000010749315,
       "THRESHOLDS": {
         "BASE_POSITION": 16,
         "DIRECTION": "BI_EXCELLENT_HI",
@@ -137,7 +175,43 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.8029220831479209
+      "WEIGHT": 0.40938785405498446
+    },
+    "TEMPERATURE_SCORING": {
+      "IMPACT_SCALE": 73.60663300285756,
+      "WEIGHT": 0.7810708110569544,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 10
+      },
+      "IDEAL_TEMPERATURE": 60,
+      "MULTIPLIERS": {
+        "EXCELLENT": 1.05,
+        "GOOD": 1.025,
+        "POOR": 0.975,
+        "VERY_POOR": 0.95
+      }
+    },
+    "WIND_SCORING": {
+      "IMPACT_SCALE": 43.284791681582135,
+      "WEIGHT": 0.7082385896784169,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 8
+      },
+      "MULTIPLIERS": {
+        "EXCELLENT": 1.05,
+        "GOOD": 1.025,
+        "POOR": 0.975,
+        "VERY_POOR": 0.95
+      }
+    },
+    "LOCATION_MODIFIERS": {
+      "HOME": 1.0218193462122986,
+      "AWAY": -2.6799624848073393,
+      "INTERNATIONAL": -6.011032515419269
     }
   }
 }

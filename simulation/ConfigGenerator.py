@@ -54,37 +54,40 @@ class ConfigGenerator:
     # Format: (min_val, max_val)
     PARAM_DEFINITIONS = {
         # Normalization and Bye Penalties
-        'NORMALIZATION_MAX_SCALE': (110.0, 140.0),
+        'NORMALIZATION_MAX_SCALE': (100.0, 140.0),
         'SAME_POS_BYE_WEIGHT': (0.2, 0.5),
         'DIFF_POS_BYE_WEIGHT': (0.0, 0.2),
         # Draft Order Bonuses
-        'PRIMARY_BONUS': (70, 90.0),
-        'SECONDARY_BONUS': (75, 95.0),
+        'PRIMARY_BONUS': (65, 90.0),
+        'SECONDARY_BONUS': (80, 100.0),
         # Draft Order File (discrete integer 1-6, top performing strategies)
         'DRAFT_ORDER_FILE': (1, 10),
         # ADP Scoring
-        'ADP_SCORING_WEIGHT': (2.0, 3.0),
-        'ADP_SCORING_STEPS': (25.0, 40.0),
+        'ADP_SCORING_WEIGHT': (1.5, 2.5),
+        'ADP_SCORING_STEPS': (20.0, 35.0),
         # Player Rating Scoring
-        'PLAYER_RATING_SCORING_WEIGHT': (0.5, 1.5),
-        'PLAYER_RATING_SCORING_STEPS': (15, 25),
-        'TEAM_QUALITY_SCORING_WEIGHT': (1.5, 3.0),
-        'TEAM_QUALITY_SCORING_STEPS': (4.0, 8.0),
+        'PLAYER_RATING_SCORING_WEIGHT': (0.3, 1.3),
+        # Team Quality Scoring
+        'TEAM_QUALITY_SCORING_WEIGHT': (1.3, 2.0),
         'TEAM_QUALITY_MIN_WEEKS': (3, 6),
         # Performance Scoring
-        'PERFORMANCE_SCORING_WEIGHT': (1.5, 3.0),
-        'PERFORMANCE_SCORING_STEPS': (0.15, 0.3),
+        'PERFORMANCE_SCORING_WEIGHT': (2.0, 4.0),
+        'PERFORMANCE_SCORING_STEPS': (0.15, 0.35),
         'PERFORMANCE_MIN_WEEKS': (2, 8),
         # Matchup Scoring (additive)
         'MATCHUP_IMPACT_SCALE': (100.0, 150.0),
-        'MATCHUP_SCORING_WEIGHT': (0.5, 1.0),
-        'MATCHUP_SCORING_STEPS': (4.0, 8.0),
+        'MATCHUP_SCORING_WEIGHT': (0.2, 1.0),
         'MATCHUP_MIN_WEEKS': (3, 6),
-        # Schedule Scoring (additive)
-        # 'SCHEDULE_IMPACT_SCALE': (0.0, 300.0),
-        # 'SCHEDULE_SCORING_WEIGHT': (0.0, 5.0),
-        # 'SCHEDULE_SCORING_STEPS': (1.0, 15.0),
-        # 'SCHEDULE_MIN_WEEKS': (3, 6),
+        # Temperature Scoring (game conditions)
+        'TEMPERATURE_IMPACT_SCALE': (30.0, 80.0),
+        'TEMPERATURE_SCORING_WEIGHT': (0.5, 2.0),
+        # Wind Scoring (game conditions, QB/WR/K only)
+        'WIND_IMPACT_SCALE': (40.0, 100.0),
+        'WIND_SCORING_WEIGHT': (0.5, 2.0),
+        # Location Modifiers
+        'LOCATION_HOME': (0.0, 5.0),
+        'LOCATION_AWAY': (-5.0, 0.0),
+        'LOCATION_INTERNATIONAL': (-10.0, 0.0),
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -112,7 +115,18 @@ class ConfigGenerator:
         # "SCHEDULE_SCORING": {
         #     "BASE_POSITION": 0,
         #     "DIRECTION": "INCREASING"
-        # }
+        # },
+        "TEMPERATURE_SCORING": {
+            "BASE_POSITION": 0,
+            "DIRECTION": "DECREASING",  # Lower distance from ideal = better
+            "STEPS": 10,
+            "IDEAL_TEMPERATURE": 60
+        },
+        "WIND_SCORING": {
+            "BASE_POSITION": 0,
+            "DIRECTION": "DECREASING",  # Lower wind = better
+            "STEPS": 8
+        }
     }
 
     # Scoring sections that need weights applied
@@ -121,43 +135,47 @@ class ConfigGenerator:
         'PLAYER_RATING_SCORING',
         'PERFORMANCE_SCORING',
         'MATCHUP_SCORING',
-        # 'SCHEDULE_SCORING'  # DISABLED
+        # 'SCHEDULE_SCORING',  # DISABLED
+        'TEMPERATURE_SCORING',  # Game conditions
+        'WIND_SCORING',  # Game conditions (QB/WR/K only)
     ]
 
     # Parameter ordering for iterative optimization
     # Ordered to match league_config.json structure
     PARAMETER_ORDER = [
         # Normalization and Bye Penalties
-        'NORMALIZATION_MAX_SCALE',
-        'SAME_POS_BYE_WEIGHT',
-        'DIFF_POS_BYE_WEIGHT',
-        # Draft Order Bonuses
-        'PRIMARY_BONUS',
-        'SECONDARY_BONUS',
-        # Draft Order File
-        # 'DRAFT_ORDER_FILE',
-        # ADP Scoring
-        'ADP_SCORING_WEIGHT',
-        'ADP_SCORING_STEPS',
-        # Player Rating Scoring
-        'PLAYER_RATING_SCORING_WEIGHT',
-        # 'PLAYER_RATING_SCORING_STEPS',
-        # Team Quality Scoring
-        'TEAM_QUALITY_SCORING_WEIGHT',
-        # 'TEAM_QUALITY_SCORING_STEPS',
-        'TEAM_QUALITY_MIN_WEEKS',
-        # Performance Scoring
-        'PERFORMANCE_SCORING_WEIGHT',
-        'PERFORMANCE_SCORING_STEPS',
-        'PERFORMANCE_MIN_WEEKS',
-        # Matchup Scoring (additive)
-        'MATCHUP_IMPACT_SCALE',
-        'MATCHUP_SCORING_WEIGHT',
-        # 'MATCHUP_SCORING_STEPS',
-        'MATCHUP_MIN_WEEKS',
-        # Schedule Scoring (additive) - DISABLED
-        # 'SCHEDULE_IMPACT_SCALE',
-        # 'SCHEDULE_SCORING_WEIGHT',
+        # 'NORMALIZATION_MAX_SCALE',
+        # 'SAME_POS_BYE_WEIGHT',
+        # 'DIFF_POS_BYE_WEIGHT',
+        # # Draft Order Bonuses
+        # 'PRIMARY_BONUS',
+        # 'SECONDARY_BONUS',
+        # # Draft Order File
+        # # 'DRAFT_ORDER_FILE',
+        # # ADP Scoring
+        # 'ADP_SCORING_WEIGHT',
+        # 'ADP_SCORING_STEPS',
+        # # Player Rating Scoring
+        # 'PLAYER_RATING_SCORING_WEIGHT',
+        # # Team Quality Scoring
+        # 'TEAM_QUALITY_SCORING_WEIGHT',
+        # 'TEAM_QUALITY_MIN_WEEKS',
+        # # Performance Scoring
+        # 'PERFORMANCE_SCORING_WEIGHT',
+        # 'PERFORMANCE_SCORING_STEPS',
+        # 'PERFORMANCE_MIN_WEEKS',
+        # # Matchup Scoring (additive)
+        # 'MATCHUP_IMPACT_SCALE',
+        # 'MATCHUP_SCORING_WEIGHT',
+        # 'MATCHUP_MIN_WEEKS',
+        # Game Condition Scoring
+        'TEMPERATURE_IMPACT_SCALE',
+        'TEMPERATURE_SCORING_WEIGHT',
+        'WIND_IMPACT_SCALE',
+        'WIND_SCORING_WEIGHT',
+        'LOCATION_HOME',
+        'LOCATION_AWAY',
+        'LOCATION_INTERNATIONAL',
     ]
 
     def __init__(self, baseline_config_path: Path, num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:
@@ -436,6 +454,41 @@ class ConfigGenerator:
                 max_val
             )
 
+        # Game conditions: Temperature and Wind scoring
+        for section in ['TEMPERATURE', 'WIND']:
+            scoring_key = f'{section}_SCORING'
+            if scoring_key in params:
+                # IMPACT_SCALE
+                impact_param = f'{section}_IMPACT_SCALE'
+                if impact_param in self.param_definitions:
+                    current_impact = params[scoring_key].get('IMPACT_SCALE', 50.0)
+                    min_val, max_val = self.param_definitions[impact_param]
+                    value_sets[impact_param] = self.generate_parameter_values(
+                        impact_param, current_impact, min_val, max_val
+                    )
+
+                # WEIGHT
+                weight_param = f'{section}_SCORING_WEIGHT'
+                if weight_param in self.param_definitions:
+                    current_weight = params[scoring_key].get('WEIGHT', 1.0)
+                    min_val, max_val = self.param_definitions[weight_param]
+                    value_sets[weight_param] = self.generate_parameter_values(
+                        weight_param, current_weight, min_val, max_val
+                    )
+
+        # Game conditions: Location modifiers
+        location_modifiers = params.get('LOCATION_MODIFIERS', {})
+        for loc_type in ['HOME', 'AWAY', 'INTERNATIONAL']:
+            param_name = f'LOCATION_{loc_type}'
+            if param_name in self.param_definitions:
+                # Default values: HOME=2.0, AWAY=-2.0, INTERNATIONAL=-5.0
+                defaults = {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0}
+                current_val = location_modifiers.get(loc_type, defaults[loc_type])
+                min_val, max_val = self.param_definitions[param_name]
+                value_sets[param_name] = self.generate_parameter_values(
+                    param_name, current_val, min_val, max_val
+                )
+
         self.logger.info(f"Generated {len(value_sets)} parameter value sets")
         return value_sets
 
@@ -688,6 +741,13 @@ class ConfigGenerator:
 
             current_val = params[section].get('MIN_WEEKS', 5)
             min_val, max_val = self.param_definitions[param_name]
+        elif param_name.startswith('LOCATION_'):
+            # Location modifiers (HOME, AWAY, INTERNATIONAL)
+            # Format: LOCATION_TYPE (e.g., 'LOCATION_HOME')
+            location_type = param_name.replace('LOCATION_', '')  # e.g., 'HOME'
+            location_modifiers = params.get('LOCATION_MODIFIERS', {})
+            current_val = location_modifiers.get(location_type, 0.0)
+            min_val, max_val = self.param_definitions[param_name]
         else:
             raise ValueError(f"Unknown parameter: {param_name}")
 
@@ -770,6 +830,23 @@ class ConfigGenerator:
             param_name = f'{section}_IMPACT_SCALE'
             combination[param_name] = params[f'{section}_SCORING']['IMPACT_SCALE']
 
+        # Game conditions: Temperature and Wind scoring
+        for section in ['TEMPERATURE', 'WIND']:
+            scoring_key = f'{section}_SCORING'
+            if scoring_key in params:
+                # Extract IMPACT_SCALE
+                impact_param = f'{section}_IMPACT_SCALE'
+                combination[impact_param] = params[scoring_key].get('IMPACT_SCALE', 50.0)
+                # Extract WEIGHT
+                weight_param = f'{section}_SCORING_WEIGHT'
+                combination[weight_param] = params[scoring_key].get('WEIGHT', 1.0)
+
+        # Game conditions: Location modifiers
+        location_modifiers = params.get('LOCATION_MODIFIERS', {})
+        combination['LOCATION_HOME'] = location_modifiers.get('HOME', 2.0)
+        combination['LOCATION_AWAY'] = location_modifiers.get('AWAY', -2.0)
+        combination['LOCATION_INTERNATIONAL'] = location_modifiers.get('INTERNATIONAL', -5.0)
+
         return combination
 
     def create_config_dict(self, combination: Dict[str, float]) -> dict:
@@ -828,6 +905,63 @@ class ConfigGenerator:
                     'DIRECTION': fixed_params['DIRECTION'],
                     'STEPS': combination[steps_param]
                 }
+
+        # Update game conditions: Temperature and Wind scoring
+        for section in ['TEMPERATURE', 'WIND']:
+            scoring_key = f'{section}_SCORING'
+            impact_param = f'{section}_IMPACT_SCALE'
+            weight_param = f'{section}_SCORING_WEIGHT'
+
+            # Ensure scoring section exists with default structure
+            if scoring_key not in params:
+                params[scoring_key] = {
+                    'MULTIPLIERS': {
+                        'EXCELLENT': 1.05,
+                        'GOOD': 1.025,
+                        'POOR': 0.975,
+                        'VERY_POOR': 0.95
+                    }
+                }
+
+            # Update IMPACT_SCALE if present in combination
+            if impact_param in combination:
+                params[scoring_key]['IMPACT_SCALE'] = combination[impact_param]
+
+            # Update WEIGHT if present in combination
+            if weight_param in combination:
+                params[scoring_key]['WEIGHT'] = combination[weight_param]
+
+            # Ensure threshold structure from fixed params
+            if scoring_key in self.THRESHOLD_FIXED_PARAMS:
+                fixed_params = self.THRESHOLD_FIXED_PARAMS[scoring_key]
+                if 'THRESHOLDS' not in params[scoring_key]:
+                    params[scoring_key]['THRESHOLDS'] = {}
+                params[scoring_key]['THRESHOLDS']['BASE_POSITION'] = fixed_params['BASE_POSITION']
+                params[scoring_key]['THRESHOLDS']['DIRECTION'] = fixed_params['DIRECTION']
+                params[scoring_key]['THRESHOLDS']['STEPS'] = fixed_params['STEPS']
+                # Preserve IDEAL_TEMPERATURE if present
+                if 'IDEAL_TEMPERATURE' in fixed_params:
+                    params[scoring_key]['IDEAL_TEMPERATURE'] = fixed_params['IDEAL_TEMPERATURE']
+
+            # Ensure MULTIPLIERS exist (in case baseline config lacks them)
+            if 'MULTIPLIERS' not in params[scoring_key]:
+                params[scoring_key]['MULTIPLIERS'] = {
+                    'EXCELLENT': 1.05,
+                    'GOOD': 1.025,
+                    'POOR': 0.975,
+                    'VERY_POOR': 0.95
+                }
+
+        # Update game conditions: Location modifiers
+        if 'LOCATION_MODIFIERS' not in params:
+            params['LOCATION_MODIFIERS'] = {}
+
+        if 'LOCATION_HOME' in combination:
+            params['LOCATION_MODIFIERS']['HOME'] = combination['LOCATION_HOME']
+        if 'LOCATION_AWAY' in combination:
+            params['LOCATION_MODIFIERS']['AWAY'] = combination['LOCATION_AWAY']
+        if 'LOCATION_INTERNATIONAL' in combination:
+            params['LOCATION_MODIFIERS']['INTERNATIONAL'] = combination['LOCATION_INTERNATIONAL']
 
         return config
 

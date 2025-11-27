@@ -35,7 +35,7 @@ RECOMMENDATION_COUNT = 10  # Number of player recommendations to display
 # =============================================================================
 # WAIVER OPTIMIZER CONSTANTS
 # =============================================================================
-MIN_WAIVER_IMPROVEMENT = -20  # Minimum score improvement to suggest a trade
+MIN_WAIVER_IMPROVEMENT = 0  # Minimum score improvement to suggest a trade
 NUM_TRADE_RUNNERS_UP = 9   # Number of alternative trade suggestions to show
 
 # Minimum position requirements for trade validation
@@ -66,6 +66,10 @@ RB, WR, QB, TE, K, DST, FLEX = 'RB', 'WR', 'QB', 'TE', 'K', 'DST', 'FLEX'
 ALL_POSITIONS = [RB, WR, QB, TE, K, DST]
 OFFENSE_POSITIONS = ["QB", "RB", "WR", "TE", "K"]  # Offensive positions
 DEFENSE_POSITIONS = ["DEF", "DST", "D/ST"]         # Defensive position variations
+
+# Wind-affected positions (passing game and kicking affected by wind)
+# Wind scoring only applies to these positions
+WIND_AFFECTED_POSITIONS = ["QB", "WR", "K"]
 
 # =============================================================================
 # ROSTER CONSTRUCTION

@@ -37,7 +37,7 @@ LOGGING_FILE = './simulation/log.txt'  # Log file path (only used if LOGGING_TO_
 LOGGING_FORMAT = 'standard'     # detailed / standard / simple
 
 DEFAULT_MODE='iterative'
-DEFAULT_SIMS=20
+DEFAULT_SIMS=50
 DEFAULT_BASELINE=''
 DEFAULT_OUTPUT='simulation/simulation_configs'
 DEFAULT_WORKERS=7

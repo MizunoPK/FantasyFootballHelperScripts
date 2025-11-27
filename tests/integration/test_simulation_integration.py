@@ -115,19 +115,24 @@ class TestConfigGeneratorIntegration:
 
     def test_config_generator_creates_combinations(self, baseline_config):
         """Test config generator creates parameter combinations"""
-        generator = ConfigGenerator(baseline_config, num_test_values=2)
+        generator = ConfigGenerator(baseline_config, num_test_values=1)
 
-        combinations = generator.generate_all_combinations()
+        # Use generate_all_parameter_value_sets instead of full cartesian product
+        # Full cartesian product is impractical with 19+ parameters
+        value_sets = generator.generate_all_parameter_value_sets()
 
-        # With 2 test values, should generate (2+1)^6 = 729 combinations
-        assert len(combinations) > 0
+        # Should have 19+ parameter value sets (including game conditions)
+        assert len(value_sets) >= 16
+        assert 'NORMALIZATION_MAX_SCALE' in value_sets
+        assert 'ADP_SCORING_WEIGHT' in value_sets
 
     def test_config_dict_has_required_fields(self, baseline_config):
         """Test generated config dicts have all required fields"""
         generator = ConfigGenerator(baseline_config, num_test_values=1)
 
-        combinations = generator.generate_all_combinations()
-        config_dict = generator.create_config_dict(combinations[0])
+        # Use single parameter configs instead of full cartesian product
+        configs = generator.generate_single_parameter_configs('NORMALIZATION_MAX_SCALE', generator.baseline_config)
+        config_dict = configs[0]
 
         # Verify config structure
         assert "parameters" in config_dict
@@ -149,7 +154,8 @@ class TestSimulationManagerIntegration:
             num_simulations_per_config=2,
             max_workers=2,
             data_folder=temp_simulation_data,
-            num_test_values=2
+            num_test_values=2,
+            auto_update_league_config=False  # Disable to avoid modifying real config
         )
 
         assert manager is not None
@@ -165,7 +171,8 @@ class TestSimulationManagerIntegration:
             num_simulations_per_config=1,
             max_workers=1,
             data_folder=temp_simulation_data,
-            num_test_values=1
+            num_test_values=1,
+            auto_update_league_config=False  # Disable to avoid modifying real config
         )
 
         # Run single config test (should not raise exception)
@@ -316,7 +323,8 @@ class TestEndToEndSimulationWorkflow:
             num_simulations_per_config=2,
             max_workers=1,
             data_folder=temp_simulation_data,
-            num_test_values=1
+            num_test_values=1,
+            auto_update_league_config=False  # Disable to avoid modifying real config
         )
 
         # Note: Full simulation workflow requires complete environment setup
@@ -349,7 +357,8 @@ class TestErrorHandling:
             output_dir=tmp_path / "results",
             num_simulations_per_config=1,
             max_workers=1,
-            data_folder=nonexistent_path
+            data_folder=nonexistent_path,
+            auto_update_league_config=False  # Disable to avoid modifying real config
         )
 
         # Verify it initialized (doesn't fail until running simulations)

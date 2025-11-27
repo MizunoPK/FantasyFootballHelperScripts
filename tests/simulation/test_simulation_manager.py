@@ -77,7 +77,8 @@ class TestSimulationManagerInitialization:
             num_simulations_per_config=5,
             max_workers=4,
             data_folder=temp_data_folder,
-            num_test_values=2
+            num_test_values=2,
+            auto_update_league_config=False  # Disable to avoid modifying real config
         )
 
         assert manager.baseline_config_path == temp_baseline_config
@@ -96,7 +97,8 @@ class TestSimulationManagerInitialization:
                 output_dir=output_dir,
                 num_simulations_per_config=5,
                 max_workers=4,
-                data_folder=temp_data_folder
+                data_folder=temp_data_folder,
+                auto_update_league_config=False  # Disable to avoid modifying real config
             )
 
             assert output_dir.exists()
@@ -112,7 +114,8 @@ class TestSimulationManagerInitialization:
             output_dir=temp_output_dir,
             num_simulations_per_config=5,
             max_workers=4,
-            data_folder=temp_data_folder
+            data_folder=temp_data_folder,
+            auto_update_league_config=False  # Disable to avoid modifying real config
         )
 
         assert hasattr(manager, 'config_generator')
@@ -159,7 +162,8 @@ class TestSingleConfigTest:
                 output_dir=temp_output_dir,
                 num_simulations_per_config=3,
                 max_workers=4,
-                data_folder=temp_data_folder
+                data_folder=temp_data_folder,
+                auto_update_league_config=False  # Disable to avoid modifying real config
             )
 
             return manager, mock_results, mock_parallel
@@ -235,7 +239,8 @@ class TestFullOptimization:
                 num_simulations_per_config=1,
                 max_workers=2,
                 data_folder=temp_data_folder,
-                num_test_values=1  # Will create 2^6 = 64 configs (but we mock to 2)
+                num_test_values=1,  # Will create 2^6 = 64 configs (but we mock to 2)
+                auto_update_league_config=False  # Disable to avoid modifying real config
             )
 
             return manager, mock_results, mock_parallel, mock_config_gen
@@ -326,7 +331,8 @@ class TestIterativeOptimization:
                 num_simulations_per_config=1,
                 max_workers=2,
                 data_folder=temp_data_folder,
-                num_test_values=1
+                num_test_values=1,
+                auto_update_league_config=False  # Disable to avoid modifying real config
             )
 
             # Replace the results_manager with our properly mocked one
@@ -447,7 +453,8 @@ class TestResumeDetection:
                 num_simulations_per_config=1,
                 max_workers=2,
                 data_folder=temp_data_folder,
-                num_test_values=1
+                num_test_values=1,
+                auto_update_league_config=False  # Disable to avoid modifying real config
             )
 
             return manager
@@ -575,7 +582,8 @@ class TestTimeFormatting:
             output_dir=temp_output_dir,
             num_simulations_per_config=1,
             max_workers=1,
-            data_folder=temp_data_folder
+            data_folder=temp_data_folder,
+            auto_update_league_config=False  # Disable to avoid modifying real config
         )
 
     def test_format_time_seconds(self, manager):

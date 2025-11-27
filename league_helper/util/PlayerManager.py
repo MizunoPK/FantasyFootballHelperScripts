@@ -41,6 +41,7 @@ from util.TeamDataManager import TeamDataManager
 from util.SeasonScheduleManager import SeasonScheduleManager
 from util.FantasyTeam import FantasyTeam
 from util.ProjectedPointsManager import ProjectedPointsManager
+from util.GameDataManager import GameDataManager
 
 sys.path.append(str(Path(__file__).parent))
 import constants as Constants
@@ -106,9 +107,13 @@ class PlayerManager:
         self.logger.debug("Initializing Player Manager")
 
         self.config = config
+        self.data_folder = data_folder
         self.team_data_manager = team_data_manager
         self.season_schedule_manager = season_schedule_manager
         self.projected_points_manager = ProjectedPointsManager(config, data_folder)
+
+        # Initialize GameDataManager for weather/location scoring (optional)
+        self.game_data_manager = GameDataManager(data_folder, config.current_nfl_week)
 
         # Initialize scoring calculator (max_projection will be updated in load_players_from_csv)
         self.scoring_calculator = PlayerScoringCalculator(
@@ -117,7 +122,8 @@ class PlayerManager:
             0.0,
             team_data_manager,
             season_schedule_manager,
-            config.current_nfl_week
+            config.current_nfl_week,
+            self.game_data_manager
         )
 
         self.file_str = str(data_folder / 'players.csv')
@@ -555,13 +561,13 @@ class PlayerManager:
         """
         return self.scoring_calculator.get_weekly_projection(player, week)
 
-    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False) -> ScoredPlayer:
         """
-        Calculate score for a player (10-step calculation).
+        Calculate score for a player (13-step calculation).
 
         Delegates to PlayerScoringCalculator for all scoring logic.
 
-        New Scoring System:
+        Scoring System:
         1. Get normalized seasonal fantasy points (0-N scale)
         2. Apply ADP multiplier
         3. Apply Player Ranking multiplier
@@ -572,6 +578,9 @@ class PlayerManager:
         8. Add DRAFT_ORDER bonus (round-based position priority)
         9. Subtract Bye Week penalty
         10. Subtract Injury penalty
+        11. Apply Temperature bonus/penalty (game conditions)
+        12. Apply Wind bonus/penalty (game conditions, QB/WR/K only)
+        13. Apply Location bonus/penalty (home/away/international)
 
         Args:
             p: FantasyPlayer to score
@@ -586,6 +595,9 @@ class PlayerManager:
             bye: Apply bye week penalty
             injury: Apply injury penalty
             roster: Optional custom roster to use for bye week calculations (defaults to self.team.roster)
+            temperature: Apply temperature bonus/penalty (game conditions)
+            wind: Apply wind bonus/penalty (game conditions, QB/WR/K only)
+            location: Apply location bonus/penalty (home/away/international)
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
@@ -594,5 +606,6 @@ class PlayerManager:
         team_roster = self.team.roster if hasattr(self, 'team') and self.team else []
         return self.scoring_calculator.score_player(
             p, team_roster, use_weekly_projection, adp, player_rating,
-            team_quality, performance, matchup, schedule, draft_round, bye, injury, roster
+            team_quality, performance, matchup, schedule, draft_round, bye, injury, roster,
+            temperature, wind, location
         )

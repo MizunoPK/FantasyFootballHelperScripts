@@ -1,6 +1,6 @@
 # Fantasy Football Scoring Algorithm V2
 
-This documentation provides a comprehensive analysis of the 10-step scoring algorithm used by the League Helper system.
+This documentation provides a comprehensive analysis of the 13-step scoring algorithm used by the League Helper system.
 
 ## Table of Contents
 
@@ -14,14 +14,18 @@ This documentation provides a comprehensive analysis of the 10-step scoring algo
 8. [08_draft_order_bonus.md](08_draft_order_bonus.md) - Position-Specific Draft Value (Step 8)
 9. [09_bye_week_penalty.md](09_bye_week_penalty.md) - Roster Conflict Penalty (Step 9)
 10. [10_injury_penalty.md](10_injury_penalty.md) - Injury Risk Assessment (Step 10)
+11. [11_temperature_scoring.md](11_temperature_scoring.md) - Weather Temperature Adjustment (Step 11)
+12. [12_wind_scoring.md](12_wind_scoring.md) - Wind Conditions Adjustment (Step 12)
+13. [13_location_scoring.md](13_location_scoring.md) - Home/Away/International Adjustment (Step 13)
 
 ---
 
 ## Algorithm Overview
 
-The scoring algorithm evaluates fantasy football players using a 10-step calculation that combines:
+The scoring algorithm evaluates fantasy football players using a 13-step calculation that combines:
 - **Multipliers** (Steps 2-5): Proportionally adjust base score
-- **Additive Bonuses/Penalties** (Steps 6-10): Add or subtract fixed points
+- **Additive Bonuses/Penalties** (Steps 6-13): Add or subtract fixed points
+- **Game Conditions** (Steps 11-13): Weather and location adjustments
 
 ### Scoring Flow
 
@@ -52,10 +56,21 @@ The scoring algorithm evaluates fantasy football players using a 10-step calcula
 │                                                                      │
 │  ┌─────────────┐  ┌─────────────┐                                   │
 │  │   Step 9    │  │   Step 10   │                                   │
-│  │  Bye Week   │→ │   Injury    │  → FINAL SCORE                    │
+│  │  Bye Week   │→ │   Injury    │                                   │
 │  │   Penalty   │  │   Penalty   │                                   │
 │  │  (-0-50 pts)│  │ (-0-100 pts)│                                   │
 │  └─────────────┘  └─────────────┘                                   │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────────────┐
+│                 GAME CONDITION ADJUSTMENTS (Weekly)                 │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                  │
+│  │   Step 11   │  │   Step 12   │  │   Step 13   │                  │
+│  │ Temperature │→ │    Wind     │→ │  Location   │  → FINAL SCORE  │
+│  │   Bonus     │  │   Bonus     │  │   Bonus     │                  │
+│  │ (±2.5 pts)  │  │ (±3.0 pts)  │  │ (+2/-2/-5)  │                  │
+│  └─────────────┘  └─────────────┘  └─────────────┘                  │
+│  (All positions)  (QB/WR/K only)  (All positions)                   │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -73,6 +88,9 @@ final_score = (
     + draft_order_bonus
     - bye_week_penalty
     - injury_penalty
+    + temperature_bonus      # Step 11 (game conditions)
+    + wind_bonus             # Step 12 (game conditions, QB/WR/K only)
+    + location_modifier      # Step 13 (game conditions)
 )
 ```
 
@@ -94,6 +112,9 @@ Each League Helper mode uses different scoring flags based on its purpose:
 | 8 | Draft Order | ✅ (round-based) | ❌ | ❌ | ❌ |
 | 9 | Bye Week | ✅ | ❌ | ✅ | ❌ |
 | 10 | Injury | ✅ | ❌ | ❌ | ❌ |
+| 11 | Temperature | ❌ | ✅ | ❌ | ❌ |
+| 12 | Wind | ❌ | ✅ | ❌ | ❌ |
+| 13 | Location | ❌ | ✅ | ❌ | ❌ |
 
 ### Mode Descriptions
 
@@ -129,18 +150,21 @@ Each League Helper mode uses different scoring flags based on its purpose:
 | `data/players_projected.csv` | Pre-season projections | Step 5 (baseline) |
 | `data/team_data/{TEAM}.csv` | Weekly team performance | Steps 4, 6, 7 |
 | `data/season_schedule.csv` | NFL schedule | Steps 6, 7 |
+| `data/game_data.csv` | Game conditions (temp, wind, location) | Steps 11-13 |
 | `data/league_config.json` | Scoring configuration | All steps |
 
 ### Key Implementation Files
 
 | File | Purpose |
 |------|---------|
-| `league_helper/util/player_scoring.py` | Main 10-step algorithm |
+| `league_helper/util/player_scoring.py` | Main 13-step algorithm |
 | `league_helper/util/ConfigManager.py` | Multiplier/penalty calculations |
 | `league_helper/util/TeamDataManager.py` | Team rankings (rolling windows) |
 | `league_helper/util/SeasonScheduleManager.py` | Schedule data |
 | `league_helper/util/ProjectedPointsManager.py` | Pre-season projections |
+| `league_helper/util/GameDataManager.py` | Game conditions (temp, wind, location) |
 | `player-data-fetcher/espn_client.py` | ESPN API data extraction |
+| `player-data-fetcher/game_data_fetcher.py` | Game conditions data fetcher |
 
 ---
 
@@ -211,11 +235,21 @@ All multipliers use the same base range (0.95-1.05), with weights amplifying or 
 | 8 | Draft Order | 0 pts | +80 pts | N/A |
 | 9 | Bye Week | 0 pts | -50+ pts | Linear |
 | 10 | Injury | 0 pts | -100 pts | Fixed |
+| 11 | Temperature | -2.5 pts | +2.5 pts | 50.0 |
+| 12 | Wind | -3.0 pts | +3.0 pts | 60.0 |
+| 13 | Location | -5.0 pts | +2.0 pts | Fixed |
 
 ---
 
 ## Version Information
 
-- **Algorithm Version**: 10-step scoring system
-- **Documentation Date**: 2025-11-20
+- **Algorithm Version**: 13-step scoring system (v2.1)
+- **Documentation Date**: 2025-11-26
 - **Source Code Reference**: `league_helper/util/player_scoring.py`
+
+### Recent Updates
+- **v2.1 (2025-11-26)**: Added game conditions scoring (Steps 11-13)
+  - Temperature scoring (all positions)
+  - Wind scoring (QB, WR, K only)
+  - Location scoring (home/away/international)
+  - Data source: `data/game_data.csv` via GameDataManager

@@ -345,13 +345,16 @@ class StarterHelperModeManager:
 
         This method scores a player specifically for weekly lineup decisions,
         using weekly projections instead of seasonal projections and enabling
-        performance, matchup, and team quality multipliers (not ADP or rating).
+        performance, matchup, team quality, and game condition multipliers.
 
         Scoring configuration:
         - use_weekly_projection=True: Use week-specific projection data
         - performance=True: Apply actual vs projected performance adjustment
         - matchup=True: Apply opponent defensive strength adjustment (THIS WEEK)
         - team_quality=True: Apply team offensive/defensive strength (quality context)
+        - temperature=True: Apply temperature bonus/penalty based on game conditions
+        - wind=True: Apply wind bonus/penalty (QB/WR/K only)
+        - location=True: Apply home/away/international bonus/penalty
         - schedule=False: Don't use future schedule strength (irrelevant for weekly)
         - adp=False: Don't use draft position (irrelevant for in-season)
         - player_rating=False: Don't use expert ratings (irrelevant for weekly)
@@ -372,7 +375,10 @@ class StarterHelperModeManager:
             matchup=True,
             schedule=False,
             bye=False,
-            injury=False
+            injury=False,
+            temperature=True,
+            wind=True,
+            location=True
         )
 
         return scored_player

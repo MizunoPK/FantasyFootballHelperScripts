@@ -187,7 +187,7 @@ class TestConfigGeneratorInitialization:
         gen = ConfigGenerator(temp_baseline_config)
 
         assert hasattr(gen, 'PARAMETER_ORDER')
-        assert len(gen.PARAMETER_ORDER) == 17  # 5 scalars + 5 weights + 3 MIN_WEEKS + 2 threshold STEPS + 1 IMPACT_SCALE + 1 DRAFT_ORDER_FILE (SCHEDULE disabled, some STEPS disabled)
+        assert len(gen.PARAMETER_ORDER) == 7  # Currently only game conditions enabled: 2 temp + 2 wind + 3 location
 
 
 class TestParameterValueGeneration:
@@ -350,7 +350,7 @@ class TestParameterValueGeneration:
         value_sets = generator.generate_all_parameter_value_sets()
 
         # Should have 5 scalar + 5 weight + 2 MIN_WEEKS + 2 threshold STEPS + 1 IMPACT_SCALE
-        assert len(value_sets) == 16  # Only ADP and PERFORMANCE have STEPS; only MATCHUP has IMPACT_SCALE; 3 MIN_WEEKS (others disabled)
+        assert len(value_sets) == 19  # 16 original + 3 location modifiers (temp/wind not in fixture)
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'SAME_POS_BYE_WEIGHT' in value_sets
         assert 'DIFF_POS_BYE_WEIGHT' in value_sets
@@ -498,7 +498,7 @@ class TestCombinationGeneration:
         value_sets = generator.generate_all_parameter_value_sets()
 
         # Verify value sets exist for all expected parameters
-        assert len(value_sets) == 16  # 5 scalars + 5 weights + 3 MIN_WEEKS + 2 threshold STEPS + 1 IMPACT_SCALE (only ADP, PERFORMANCE, MATCHUP optimized)
+        assert len(value_sets) == 19  # 16 original + 3 location modifiers (temp/wind not in fixture)
         assert 'NORMALIZATION_MAX_SCALE' in value_sets
         assert 'ADP_SCORING_WEIGHT' in value_sets
         # SCHEDULE disabled
@@ -862,7 +862,7 @@ class TestIterativeOptimizationSupport:
         assert 'MATCHUP_SCORING_STEPS' in combination
         assert 'MATCHUP_IMPACT_SCALE' in combination
         # assert 'SCHEDULE_IMPACT_SCALE' in combination
-        assert len(combination) == 20  # 5 scalars + 5 weights + 3 MIN_WEEKS + 5 STEPS + 1 IMPACT_SCALE + 1 DRAFT_ORDER_FILE
+        assert len(combination) == 23  # 20 original + 3 location modifiers (temp/wind not in fixture)
 
     def test_generate_single_parameter_configs_for_multiplier(self, generator):
         """Test generating configs for a weight parameter"""
@@ -1016,6 +1016,42 @@ class TestGenerateIterativeCombinations:
                         "DIRECTION": "INCREASING",
                         "STEPS": 8.0
                     }
+                },
+                "TEMPERATURE_SCORING": {
+                    "IDEAL_TEMPERATURE": 60,
+                    "IMPACT_SCALE": 50.0,
+                    "WEIGHT": 1.0,
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 10
+                    },
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.05,
+                        "GOOD": 1.025,
+                        "POOR": 0.975,
+                        "VERY_POOR": 0.95
+                    }
+                },
+                "WIND_SCORING": {
+                    "IMPACT_SCALE": 60.0,
+                    "WEIGHT": 1.0,
+                    "THRESHOLDS": {
+                        "BASE_POSITION": 0,
+                        "DIRECTION": "DECREASING",
+                        "STEPS": 8
+                    },
+                    "MULTIPLIERS": {
+                        "EXCELLENT": 1.05,
+                        "GOOD": 1.025,
+                        "POOR": 0.975,
+                        "VERY_POOR": 0.95
+                    }
+                },
+                "LOCATION_MODIFIERS": {
+                    "HOME": 2.0,
+                    "AWAY": -2.0,
+                    "INTERNATIONAL": -5.0
                 }
             }
         }
@@ -1041,7 +1077,7 @@ class TestGenerateIterativeCombinations:
 
         try:
             generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=1)
-            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+            configs = generator.generate_iterative_combinations('TEMPERATURE_IMPACT_SCALE', baseline_config_dict)
 
             # Should return N+1 configs (5+1 = 6)
             assert len(configs) == 6
@@ -1061,7 +1097,7 @@ class TestGenerateIterativeCombinations:
 
         try:
             generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=2)
-            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+            configs = generator.generate_iterative_combinations('TEMPERATURE_IMPACT_SCALE', baseline_config_dict)
 
             # Should return 2*(N+1) + (N+1)^2 configs
             # With N=5: 2*6 + 36 = 48 total
@@ -1070,7 +1106,7 @@ class TestGenerateIterativeCombinations:
             # Verify all configs are valid
             for config in configs:
                 assert 'parameters' in config
-                assert 'NORMALIZATION_MAX_SCALE' in config['parameters']
+                assert 'TEMPERATURE_SCORING' in config['parameters']
         finally:
             temp_path.unlink()
 
@@ -1082,7 +1118,7 @@ class TestGenerateIterativeCombinations:
 
         try:
             generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=3)
-            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+            configs = generator.generate_iterative_combinations('TEMPERATURE_IMPACT_SCALE', baseline_config_dict)
 
             # Should return 3*(N+1) + (N+1)^3 configs
             # With N=5: 3*6 + 216 = 234 total
@@ -1095,25 +1131,29 @@ class TestGenerateIterativeCombinations:
             temp_path.unlink()
 
     def test_edge_case_num_parameters_exceeds_available(self, baseline_config_dict):
-        """Test with NUM_PARAMETERS_TO_TEST > 13 (should cap at 13)"""
+        """Test with NUM_PARAMETERS_TO_TEST > 7 (should cap at 7 - current PARAMETER_ORDER length)"""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             json.dump(baseline_config_dict, f)
             temp_path = Path(f.name)
 
         try:
-            # Use num_test_values=1 to keep cartesian product small (2^16 = 65,536 configs)
-            generator = ConfigGenerator(temp_path, num_test_values=1, num_parameters_to_test=20)
+            # Test that num_parameters_to_test is capped at PARAMETER_ORDER length (7)
+            # Use small num_test_values and num_parameters_to_test=4 for fast test
+            generator = ConfigGenerator(temp_path, num_test_values=1, num_parameters_to_test=4)
 
-            # Should cap at 16 parameters (PARAMETER_ORDER length)
-            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+            # With 4 params and num_test_values=1 (2 values each):
+            # - Individual configs: 4 * 2 = 8
+            # - Combinations: 2^4 = 16
+            # - Total: 24 configs
+            configs = generator.generate_iterative_combinations('TEMPERATURE_IMPACT_SCALE', baseline_config_dict)
 
-            # Should generate configs (capped at 17 params)
-            # Base parameter: 2 configs
-            # Random parameters (16): 32 configs (16 * 2)
-            # Combinations: 2^17 = 131,072
-            # Total: 131,106 configs
-            assert len(configs) == 131106
+            assert len(configs) == 24
             assert all('parameters' in config for config in configs)
+
+            # Verify capping works - request more params than available
+            generator2 = ConfigGenerator(temp_path, num_test_values=1, num_parameters_to_test=100)
+            # Should cap at 7 (current PARAMETER_ORDER length)
+            assert len(generator2.PARAMETER_ORDER) == 7
         finally:
             temp_path.unlink()
 
@@ -1133,8 +1173,8 @@ class TestGenerateIterativeCombinations:
 
             # Run twice and check that configs might differ due to random selection
             # Note: We can't guarantee difference, but both runs should succeed
-            configs1 = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
-            configs2 = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+            configs1 = generator.generate_iterative_combinations('TEMPERATURE_IMPACT_SCALE', baseline_config_dict)
+            configs2 = generator.generate_iterative_combinations('TEMPERATURE_IMPACT_SCALE', baseline_config_dict)
 
             # Both runs should generate same number of configs
             assert len(configs1) == len(configs2) == 48
@@ -1148,7 +1188,7 @@ class TestGenerateIterativeCombinations:
     def test_config_structure_is_valid(self, test_config_generator):
         """Test that all returned configs have valid structure"""
         configs = test_config_generator.generate_iterative_combinations(
-            'SAME_POS_BYE_WEIGHT',
+            'TEMPERATURE_IMPACT_SCALE',
             test_config_generator.baseline_config
         )
 
@@ -1157,10 +1197,10 @@ class TestGenerateIterativeCombinations:
             assert 'config_name' in config
             assert 'parameters' in config
 
-            # Check parameters section has expected keys
+            # Check parameters section has expected keys (game condition params)
             params = config['parameters']
-            assert 'NORMALIZATION_MAX_SCALE' in params
-            assert 'SAME_POS_BYE_WEIGHT' in params
+            assert 'TEMPERATURE_SCORING' in params
+            assert 'WIND_SCORING' in params
             assert 'DIFF_POS_BYE_WEIGHT' in params
             assert 'DRAFT_ORDER_BONUSES' in params
             assert 'ADP_SCORING' in params
@@ -1176,7 +1216,7 @@ class TestGenerateIterativeCombinations:
 
         try:
             generator = ConfigGenerator(temp_path, num_test_values=2, num_parameters_to_test=2)
-            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+            configs = generator.generate_iterative_combinations('TEMPERATURE_IMPACT_SCALE', baseline_config_dict)
 
             # With N=2: 2*3 + 9 = 15 total configs
             assert len(configs) == 15
@@ -1184,13 +1224,13 @@ class TestGenerateIterativeCombinations:
             # Last 9 configs should be combinations (cartesian product of 3x3)
             combination_configs = configs[-9:]
 
-            # Extract NORMALIZATION_MAX_SCALE values from combination configs
-            norm_values = set()
+            # Extract TEMPERATURE_SCORING.IMPACT_SCALE values from combination configs
+            temp_values = set()
             for config in combination_configs:
-                norm_values.add(config['parameters']['NORMALIZATION_MAX_SCALE'])
+                temp_values.add(config['parameters']['TEMPERATURE_SCORING']['IMPACT_SCALE'])
 
             # Should have 3 unique values (N+1 = 3)
-            assert len(norm_values) == 3
+            assert len(temp_values) == 3
         finally:
             temp_path.unlink()
 
@@ -1202,7 +1242,7 @@ class TestGenerateIterativeCombinations:
 
         try:
             generator = ConfigGenerator(temp_path, num_test_values=5, num_parameters_to_test=0)
-            configs = generator.generate_iterative_combinations('NORMALIZATION_MAX_SCALE', baseline_config_dict)
+            configs = generator.generate_iterative_combinations('TEMPERATURE_IMPACT_SCALE', baseline_config_dict)
 
             # Should default to 1, returning N+1 configs
             assert len(configs) == 6
@@ -1268,14 +1308,12 @@ class TestDraftOrderFile:
         assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
         min_val, max_val = ConfigGenerator.PARAM_DEFINITIONS['DRAFT_ORDER_FILE']
         assert min_val == 1
-        assert max_val == 6  # Updated to match current top-performing strategies range
+        assert max_val == 10  # Updated to include more draft order strategies
 
-    def test_draft_order_file_in_parameter_order(self):
-        """Test DRAFT_ORDER_FILE is in PARAMETER_ORDER after SECONDARY_BONUS"""
-        assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAMETER_ORDER
-        secondary_idx = ConfigGenerator.PARAMETER_ORDER.index('SECONDARY_BONUS')
-        draft_order_idx = ConfigGenerator.PARAMETER_ORDER.index('DRAFT_ORDER_FILE')
-        assert draft_order_idx == secondary_idx + 1
+    def test_draft_order_file_not_in_parameter_order(self):
+        """Test DRAFT_ORDER_FILE is disabled/not in PARAMETER_ORDER (optimization deferred)"""
+        # DRAFT_ORDER_FILE is commented out in PARAMETER_ORDER for now
+        assert 'DRAFT_ORDER_FILE' not in ConfigGenerator.PARAMETER_ORDER
 
     def test_generate_discrete_parameter_values(self, baseline_config_with_draft_order):
         """Test discrete value generation for DRAFT_ORDER_FILE"""

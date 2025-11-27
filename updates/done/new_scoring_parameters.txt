@@ -1,0 +1,8 @@
+We are going to be implementing the new scoring parameters that are outlined in the docs/research/game_conditions_scoring_implementation.md file. Read that for more details and requirements.
+
+The main phases we want to do are:
+Update league_config.json to contain the new parameters.
+Add a GameDataManager to the league helper
+Add the 3 new scoring bonuses/penalties
+Update the simulation to allow for testing of different parameters for the new scoring
+

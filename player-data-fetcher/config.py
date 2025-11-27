@@ -24,8 +24,8 @@ MY_TEAM_NAME = "Sea Sharp"           # Name of your fantasy team for identifying
 
 # Optimization Settings (FREQUENTLY MODIFIED)
 SKIP_DRAFTED_PLAYER_UPDATES = False  # Skip API calls for drafted=1 players (major optimization)
-USE_SCORE_THRESHOLD = False  # Only update players above score threshold (preserves low-scoring player data)
-PLAYER_SCORE_THRESHOLD = 40.0  # Minimum fantasy points to trigger API update
+USE_SCORE_THRESHOLD = True  # Only update players above score threshold (preserves low-scoring player data)
+PLAYER_SCORE_THRESHOLD = 10.0  # Minimum fantasy points to trigger API update
 
 # Output Settings (FREQUENTLY MODIFIED)
 OUTPUT_DIRECTORY = "./data"
@@ -38,9 +38,14 @@ DEFAULT_FILE_CAPS = {'csv': 5, 'json': 5, 'xlsx': 5, 'txt': 5}
 # File Paths (FREQUENTLY MODIFIED)
 PLAYERS_CSV = '../data/players.csv'
 TEAM_DATA_FOLDER = '../data/team_data'  # Output folder for per-team historical data files
+GAME_DATA_CSV = '../data/game_data.csv'  # Output file for game-level data (venue, weather, scores)
+COORDINATES_JSON = 'coordinates.json'  # Stadium coordinates for weather lookups
 
 # Historical Data Auto-Save Configuration (FREQUENTLY MODIFIED)
 ENABLE_HISTORICAL_DATA_SAVE = True  # Automatically save weekly data snapshots to historical folder
+
+# Game Data Fetcher Configuration (FREQUENTLY MODIFIED)
+ENABLE_GAME_DATA_FETCH = True  # Enable game data fetching during player data collection
 
 # =============================================================================
 # LOGGING CONFIGURATION
