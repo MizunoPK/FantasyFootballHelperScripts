@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 320px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+    }
+    h1 {
+      font-size: 16px;
+      margin: 0 0 12px 0;
+      color: #013369;
+    }
+    .status {
+      padding: 8px;
+      margin-bottom: 12px;
+      border-radius: 4px;
+      background: #f0f0f0;
+    }
+    .status.error {
+      background: #ffe0e0;
+      color: #c00;
+    }
+    .status.success {
+      background: #e0ffe0;
+      color: #060;
+    }
+    .info {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    button.primary {
+      background: #013369;
+      color: white;
+    }
+    button.primary:hover {
+      background: #024a8f;
+    }
+    button.secondary {
+      background: #d50a0a;
+      color: white;
+    }
+    button.secondary:hover {
+      background: #b00808;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .progress {
+      margin: 12px 0;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #013369;
+      transition: width 0.3s;
+    }
+    .progress-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    #playerCount {
+      font-weight: bold;
+    }
+    .instructions {
+      font-size: 11px;
+      color: #888;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <h1>NFL Fantasy Exporter</h1>
+
+  <div id="status" class="status">Ready to extract data</div>
+
+  <div class="info">
+    Players found: <span id="playerCount">0</span>
+  </div>
+
+  <div id="progressContainer" class="progress" style="display: none;">
+    <div class="progress-bar">
+      <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+    </div>
+    <div id="progressText" class="progress-text">Extracting page 1...</div>
+  </div>
+
+  <button id="extractBtn" class="primary">Extract Current Page</button>
+  <button id="extractAllBtn" class="secondary">Extract All Pages</button>
+  <button id="downloadBtn" class="primary" disabled>Download CSV</button>
+
+  <div class="instructions">
+    <strong>Instructions:</strong><br>
+    1. Navigate to NFL Fantasy "All Taken Players" page<br>
+    2. Click "Extract All Pages" to get all owned players<br>
+    3. Download the CSV file
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -54,40 +54,40 @@ class ConfigGenerator:
     # Format: (min_val, max_val)
     PARAM_DEFINITIONS = {
         # Normalization and Bye Penalties
-        'NORMALIZATION_MAX_SCALE': (100.0, 140.0),
-        'SAME_POS_BYE_WEIGHT': (0.2, 0.5),
-        'DIFF_POS_BYE_WEIGHT': (0.0, 0.2),
+        'NORMALIZATION_MAX_SCALE': (100.0, 150.0),
+        'SAME_POS_BYE_WEIGHT': (0.1, 0.5),
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3),
         # Draft Order Bonuses
-        'PRIMARY_BONUS': (65, 90.0),
-        'SECONDARY_BONUS': (80, 100.0),
-        # Draft Order File (discrete integer 1-6, top performing strategies)
+        'PRIMARY_BONUS': (60, 100.0),
+        'SECONDARY_BONUS': (60, 100.0),
+        # Draft Order File (discrete integer 1-10, draft order strategies)
         'DRAFT_ORDER_FILE': (1, 10),
         # ADP Scoring
-        'ADP_SCORING_WEIGHT': (1.5, 2.5),
-        'ADP_SCORING_STEPS': (20.0, 35.0),
+        'ADP_SCORING_WEIGHT': (0.0, 3.0),
+        'ADP_SCORING_STEPS': (10.0, 45.0),
         # Player Rating Scoring
-        'PLAYER_RATING_SCORING_WEIGHT': (0.3, 1.3),
+        'PLAYER_RATING_SCORING_WEIGHT': (0.0, 3.0),
         # Team Quality Scoring
-        'TEAM_QUALITY_SCORING_WEIGHT': (1.3, 2.0),
-        'TEAM_QUALITY_MIN_WEEKS': (3, 6),
+        'TEAM_QUALITY_SCORING_WEIGHT': (0.0, 3.0),
+        'TEAM_QUALITY_MIN_WEEKS': (1, 17),
         # Performance Scoring
-        'PERFORMANCE_SCORING_WEIGHT': (2.0, 4.0),
-        'PERFORMANCE_SCORING_STEPS': (0.15, 0.35),
-        'PERFORMANCE_MIN_WEEKS': (2, 8),
+        'PERFORMANCE_SCORING_WEIGHT': (0.0, 4.0),
+        'PERFORMANCE_SCORING_STEPS': (0.1, 0.4),
+        'PERFORMANCE_MIN_WEEKS': (1, 17),
         # Matchup Scoring (additive)
-        'MATCHUP_IMPACT_SCALE': (100.0, 150.0),
-        'MATCHUP_SCORING_WEIGHT': (0.2, 1.0),
-        'MATCHUP_MIN_WEEKS': (3, 6),
+        'MATCHUP_IMPACT_SCALE': (75.0, 175.0),
+        'MATCHUP_SCORING_WEIGHT': (0.0, 3.0),
+        'MATCHUP_MIN_WEEKS': (1, 17),
         # Temperature Scoring (game conditions)
-        'TEMPERATURE_IMPACT_SCALE': (30.0, 80.0),
-        'TEMPERATURE_SCORING_WEIGHT': (0.5, 2.0),
+        'TEMPERATURE_IMPACT_SCALE': (10.0, 100.0),
+        'TEMPERATURE_SCORING_WEIGHT': (0.0, 3.0),
         # Wind Scoring (game conditions, QB/WR/K only)
-        'WIND_IMPACT_SCALE': (40.0, 100.0),
-        'WIND_SCORING_WEIGHT': (0.5, 2.0),
+        'WIND_IMPACT_SCALE': (10.0, 100.0),
+        'WIND_SCORING_WEIGHT': (0.0, 3.0),
         # Location Modifiers
-        'LOCATION_HOME': (0.0, 5.0),
-        'LOCATION_AWAY': (-5.0, 0.0),
-        'LOCATION_INTERNATIONAL': (-10.0, 0.0),
+        'LOCATION_HOME': (0.0, 10.0),
+        'LOCATION_AWAY': (-10.0, 0.0),
+        'LOCATION_INTERNATIONAL': (-15.0, 0.0),
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -144,30 +144,30 @@ class ConfigGenerator:
     # Ordered to match league_config.json structure
     PARAMETER_ORDER = [
         # Normalization and Bye Penalties
-        # 'NORMALIZATION_MAX_SCALE',
-        # 'SAME_POS_BYE_WEIGHT',
-        # 'DIFF_POS_BYE_WEIGHT',
-        # # Draft Order Bonuses
-        # 'PRIMARY_BONUS',
-        # 'SECONDARY_BONUS',
-        # # Draft Order File
-        # # 'DRAFT_ORDER_FILE',
-        # # ADP Scoring
-        # 'ADP_SCORING_WEIGHT',
-        # 'ADP_SCORING_STEPS',
-        # # Player Rating Scoring
-        # 'PLAYER_RATING_SCORING_WEIGHT',
-        # # Team Quality Scoring
-        # 'TEAM_QUALITY_SCORING_WEIGHT',
-        # 'TEAM_QUALITY_MIN_WEEKS',
-        # # Performance Scoring
-        # 'PERFORMANCE_SCORING_WEIGHT',
-        # 'PERFORMANCE_SCORING_STEPS',
-        # 'PERFORMANCE_MIN_WEEKS',
-        # # Matchup Scoring (additive)
-        # 'MATCHUP_IMPACT_SCALE',
-        # 'MATCHUP_SCORING_WEIGHT',
-        # 'MATCHUP_MIN_WEEKS',
+        'NORMALIZATION_MAX_SCALE',
+        'SAME_POS_BYE_WEIGHT',
+        'DIFF_POS_BYE_WEIGHT',
+        # Draft Order Bonuses
+        'PRIMARY_BONUS',
+        'SECONDARY_BONUS',
+        # Draft Order File
+        'DRAFT_ORDER_FILE',
+        # ADP Scoring
+        'ADP_SCORING_WEIGHT',
+        'ADP_SCORING_STEPS',
+        # Player Rating Scoring
+        'PLAYER_RATING_SCORING_WEIGHT',
+        # Team Quality Scoring
+        'TEAM_QUALITY_SCORING_WEIGHT',
+        'TEAM_QUALITY_MIN_WEEKS',
+        # Performance Scoring
+        'PERFORMANCE_SCORING_WEIGHT',
+        'PERFORMANCE_SCORING_STEPS',
+        'PERFORMANCE_MIN_WEEKS',
+        # Matchup Scoring (additive)
+        'MATCHUP_IMPACT_SCALE',
+        'MATCHUP_SCORING_WEIGHT',
+        'MATCHUP_MIN_WEEKS',
         # Game Condition Scoring
         'TEMPERATURE_IMPACT_SCALE',
         'TEMPERATURE_SCORING_WEIGHT',

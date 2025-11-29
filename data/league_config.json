@@ -1,21 +1,21 @@
 {
-  "config_name": "simulation/simulation_configs/optimal_iterative_20251127_072354.json",
-  "description": "Win Rate: 0.76",
+  "config_name": "simulation/simulation_configs/intermediate_16_MATCHUP_MIN_WEEKS.json",
+  "description": "Win Rate: 0.78",
   "parameters": {
     "CURRENT_NFL_WEEK": 13,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 112.43941712582075,
-    "SAME_POS_BYE_WEIGHT": 0.3464952842879715,
-    "DIFF_POS_BYE_WEIGHT": 0.11325821165371473,
+    "NORMALIZATION_MAX_SCALE": 117.21316373311922,
+    "SAME_POS_BYE_WEIGHT": 0.23792160067241613,
+    "DIFF_POS_BYE_WEIGHT": 0.08668642039320403,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 0,
       "HIGH": 100
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 75.79418028719338,
-      "SECONDARY": 92.41788607946198
+      "PRIMARY": 64.10339069941433,
+      "SECONDARY": 91.42526360460911
     },
     "DRAFT_ORDER_FILE": 1,
     "DRAFT_ORDER": [
@@ -74,10 +74,10 @@
       }
     ],
     "MAX_POSITIONS": {
-      "QB": 2,
+      "QB": 1,
       "RB": 4,
       "WR": 4,
-      "FLEX": 1,
+      "FLEX": 2,
       "TE": 2,
       "K": 1,
       "DST": 1
@@ -85,13 +85,14 @@
     "FLEX_ELIGIBLE_POSITIONS": [
       "RB",
       "WR",
-      "DST"
+      "DST",
+      "TE"
     ],
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 25.90934784092259
+        "STEPS": 33.62088957347317
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -99,7 +100,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.9867485818556774
+      "WEIGHT": 2.5303307907699506
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
@@ -113,10 +114,10 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.2646099694205906
+      "WEIGHT": 0.28116451049134183
     },
     "TEAM_QUALITY_SCORING": {
-      "MIN_WEEKS": 5,
+      "MIN_WEEKS": 12,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -128,14 +129,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.8198626708446852
+      "WEIGHT": 0.6725707108011133
     },
     "PERFORMANCE_SCORING": {
-      "MIN_WEEKS": 6,
+      "MIN_WEEKS": 9,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.2930196154884389
+        "STEPS": 0.26158203017026865
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -143,11 +144,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 3.7338035434670935
+      "WEIGHT": 2.3111046724939333
     },
     "MATCHUP_SCORING": {
-      "MIN_WEEKS": 3,
-      "IMPACT_SCALE": 107.45000010749315,
+      "MIN_WEEKS": 12,
+      "IMPACT_SCALE": 115.79150716840608,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
@@ -159,11 +160,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.40938785405498446
+      "WEIGHT": 0.8355011935858028
     },
     "SCHEDULE_SCORING": {
-      "MIN_WEEKS": 3,
-      "IMPACT_SCALE": 107.45000010749315,
+      "MIN_WEEKS": 12,
+      "IMPACT_SCALE": 115.79150716840608,
       "THRESHOLDS": {
         "BASE_POSITION": 16,
         "DIRECTION": "BI_EXCELLENT_HI",
@@ -175,11 +176,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.40938785405498446
+      "WEIGHT": 0.8355011935858028
     },
     "TEMPERATURE_SCORING": {
-      "IMPACT_SCALE": 73.60663300285756,
-      "WEIGHT": 0.7810708110569544,
+      "IMPACT_SCALE": 45.232189682901925,
+      "WEIGHT": 1.2026595053903946,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -194,8 +195,8 @@
       }
     },
     "WIND_SCORING": {
-      "IMPACT_SCALE": 43.284791681582135,
-      "WEIGHT": 0.7082385896784169,
+      "IMPACT_SCALE": 80.49753921194389,
+      "WEIGHT": 0.5217227733532867,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -209,9 +210,9 @@
       }
     },
     "LOCATION_MODIFIERS": {
-      "HOME": 1.0218193462122986,
-      "AWAY": -2.6799624848073393,
-      "INTERNATIONAL": -6.011032515419269
+      "HOME": 2.008507957944199,
+      "AWAY": -6.873006225257392,
+      "INTERNATIONAL": -9.950251125275695
     }
   }
 }
