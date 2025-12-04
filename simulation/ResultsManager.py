@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 import json
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Tuple
 from datetime import datetime
 
 import sys
@@ -18,7 +18,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from utils.LoggingManager import get_logger
 
 sys.path.append(str(Path(__file__).parent))
-from ConfigPerformance import ConfigPerformance
+from ConfigPerformance import ConfigPerformance, WEEK_RANGES
 
 
 class ResultsManager:
@@ -78,6 +78,100 @@ class ResultsManager:
 
         self.results[config_id].add_league_result(wins, losses, points)
         self.logger.debug(f"Recorded result for {config_id}: {wins}W-{losses}L, {points:.2f} pts")
+
+    def record_week_results(
+        self,
+        config_id: str,
+        week_results: List[Tuple[int, bool, float]]
+    ) -> None:
+        """
+        Record per-week results from a single league simulation.
+
+        This enables per-week-range performance tracking for week-by-week
+        config optimization.
+
+        Args:
+            config_id (str): Configuration identifier
+            week_results: List of (week, won, points) tuples for each week
+
+        Raises:
+            KeyError: If config_id not registered
+
+        Example:
+            >>> week_data = [
+            ...     (1, True, 125.5),   # Week 1: Won
+            ...     (2, False, 98.3),   # Week 2: Lost
+            ...     # ... weeks 3-16
+            ... ]
+            >>> mgr.record_week_results("config_0001", week_data)
+        """
+        if config_id not in self.results:
+            raise KeyError(f"Config {config_id} not registered. Call register_config() first.")
+
+        self.results[config_id].add_week_results(week_results)
+
+        # Log summary
+        wins = sum(1 for _, won, _ in week_results if won)
+        losses = len(week_results) - wins
+        points = sum(pts for _, _, pts in week_results)
+        self.logger.debug(
+            f"Recorded week results for {config_id}: {wins}W-{losses}L, {points:.2f} pts"
+        )
+
+    def get_best_config_for_range(self, week_range: str) -> Optional[ConfigPerformance]:
+        """
+        Get the best performing configuration for a specific week range.
+
+        Args:
+            week_range (str): Week range string ("1-5", "6-11", or "12-17")
+
+        Returns:
+            Optional[ConfigPerformance]: Best config for that range, or None
+
+        Example:
+            >>> best_early = mgr.get_best_config_for_range("1-5")
+            >>> print(f"Best for weeks 1-5: {best_early.config_id}")
+        """
+        if not self.results:
+            self.logger.warning("No results available to compare")
+            return None
+
+        if week_range not in WEEK_RANGES:
+            raise ValueError(f"Invalid week range: {week_range}. Must be one of {WEEK_RANGES}")
+
+        best_config = None
+        best_win_rate = -1.0
+
+        for config_perf in self.results.values():
+            win_rate = config_perf.get_win_rate_for_range(week_range)
+            if win_rate > best_win_rate:
+                best_win_rate = win_rate
+                best_config = config_perf
+
+        if best_config:
+            self.logger.info(
+                f"Best config for {week_range}: {best_config.config_id} "
+                f"(win_rate={best_win_rate:.4f})"
+            )
+
+        return best_config
+
+    def get_best_configs_per_range(self) -> Dict[str, Optional[ConfigPerformance]]:
+        """
+        Get the best performing configuration for each week range.
+
+        Returns:
+            Dict[str, Optional[ConfigPerformance]]: {week_range: best_config}
+
+        Example:
+            >>> best_per_range = mgr.get_best_configs_per_range()
+            >>> for range_name, config in best_per_range.items():
+            ...     print(f"{range_name}: {config.config_id}")
+        """
+        return {
+            week_range: self.get_best_config_for_range(week_range)
+            for week_range in WEEK_RANGES
+        }
 
     def get_best_config(self) -> Optional[ConfigPerformance]:
         """
@@ -139,9 +233,87 @@ class ResultsManager:
 
         return sorted_configs[:n]
 
+    # Parameters that belong in base config (not week-specific)
+    BASE_CONFIG_PARAMS = [
+        'CURRENT_NFL_WEEK',
+        'NFL_SEASON',
+        'NFL_SCORING_FORMAT',
+        'NORMALIZATION_MAX_SCALE',
+        'SAME_POS_BYE_WEIGHT',
+        'DIFF_POS_BYE_WEIGHT',
+        'INJURY_PENALTIES',
+        'DRAFT_ORDER_BONUSES',
+        'DRAFT_ORDER_FILE',
+        'DRAFT_ORDER',
+        'MAX_POSITIONS',
+        'FLEX_ELIGIBLE_POSITIONS',
+        'ADP_SCORING'
+    ]
+
+    # Parameters that belong in week-specific configs
+    WEEK_SPECIFIC_PARAMS = [
+        'PLAYER_RATING_SCORING',
+        'TEAM_QUALITY_SCORING',
+        'PERFORMANCE_SCORING',
+        'MATCHUP_SCORING',
+        'SCHEDULE_SCORING',
+        'TEMPERATURE_SCORING',
+        'WIND_SCORING',
+        'LOCATION_MODIFIERS'
+    ]
+
+    def _extract_base_params(self, config_dict: dict) -> dict:
+        """
+        Extract base (non-week-specific) parameters from a config.
+
+        Args:
+            config_dict (dict): Full configuration dictionary
+
+        Returns:
+            dict: Config dict with only base parameters
+        """
+        params = config_dict.get('parameters', {})
+        base_params = {
+            key: params[key]
+            for key in self.BASE_CONFIG_PARAMS
+            if key in params
+        }
+
+        return {
+            'config_name': config_dict.get('config_name', 'Optimal Base Config'),
+            'description': 'Base configuration (non-week-specific parameters)',
+            'parameters': base_params
+        }
+
+    def _extract_week_params(self, config_dict: dict) -> dict:
+        """
+        Extract week-specific parameters from a config.
+
+        Args:
+            config_dict (dict): Full configuration dictionary
+
+        Returns:
+            dict: Config dict with only week-specific parameters
+        """
+        params = config_dict.get('parameters', {})
+        week_params = {
+            key: params[key]
+            for key in self.WEEK_SPECIFIC_PARAMS
+            if key in params
+        }
+
+        return {
+            'config_name': config_dict.get('config_name', 'Week-Specific Config'),
+            'description': 'Week-specific scoring parameters',
+            'parameters': week_params
+        }
+
     def save_optimal_config(self, output_dir: Path) -> Path:
         """
         Save the best configuration to a JSON file with timestamp.
+
+        This is the legacy method that saves a single config file.
+        For week-by-week configs, use save_optimal_configs_folder().
 
         Args:
             output_dir (Path): Directory to save config to
@@ -188,6 +360,260 @@ class ResultsManager:
 
         self.logger.info(f"Saved optimal config to {output_path}")
         return output_path
+
+    def save_optimal_configs_folder(self, output_dir: Path) -> Path:
+        """
+        Save optimal configs as a folder with 4 config files.
+
+        Creates a folder containing:
+        - league_config.json: Base config from best OVERALL config
+        - week1-5.json: Week-specific params from best config for weeks 1-5
+        - week6-11.json: Week-specific params from best config for weeks 6-11
+        - week12-17.json: Week-specific params from best config for weeks 12-17
+
+        Args:
+            output_dir (Path): Parent directory to create folder in
+
+        Returns:
+            Path: Path to created folder
+
+        Raises:
+            ValueError: If no results available
+
+        Example:
+            >>> folder_path = mgr.save_optimal_configs_folder(Path("simulation/optimal_configs"))
+            >>> print(f"Saved configs to {folder_path}")
+        """
+        # Get best overall config (for base params)
+        best_overall = self.get_best_config()
+        if best_overall is None:
+            raise ValueError("No results available to save")
+
+        # Get best config for each week range
+        best_per_range = self.get_best_configs_per_range()
+
+        # Create output directory if it doesn't exist
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate folder name with timestamp
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        folder_name = f"optimal_{timestamp}"
+        folder_path = output_dir / folder_name
+        folder_path.mkdir(parents=True, exist_ok=True)
+
+        # Save base config (from best overall)
+        base_config = self._extract_base_params(best_overall.config_dict)
+        base_config['performance_metrics'] = {
+            'config_id': best_overall.config_id,
+            'overall_win_rate': best_overall.get_win_rate(),
+            'total_wins': best_overall.total_wins,
+            'total_losses': best_overall.total_losses,
+            'num_simulations': best_overall.num_simulations,
+            'timestamp': timestamp
+        }
+
+        with open(folder_path / 'league_config.json', 'w') as f:
+            json.dump(base_config, f, indent=2)
+        self.logger.info(f"Saved base config from {best_overall.config_id}")
+
+        # Save week-specific configs
+        week_range_files = {
+            '1-5': 'week1-5.json',
+            '6-11': 'week6-11.json',
+            '12-17': 'week12-17.json'
+        }
+
+        for week_range, filename in week_range_files.items():
+            best_for_range = best_per_range.get(week_range)
+
+            if best_for_range:
+                week_config = self._extract_week_params(best_for_range.config_dict)
+                week_config['performance_metrics'] = {
+                    'config_id': best_for_range.config_id,
+                    'week_range': week_range,
+                    'win_rate_for_range': best_for_range.get_win_rate_for_range(week_range),
+                    'overall_win_rate': best_for_range.get_win_rate(),
+                    'timestamp': timestamp
+                }
+
+                with open(folder_path / filename, 'w') as f:
+                    json.dump(week_config, f, indent=2)
+
+                self.logger.info(
+                    f"Saved {filename} from {best_for_range.config_id} "
+                    f"(win_rate={best_for_range.get_win_rate_for_range(week_range):.4f})"
+                )
+
+        self.logger.info(f"Saved optimal configs folder to {folder_path}")
+        return folder_path
+
+    def save_intermediate_folder(
+        self,
+        output_dir: Path,
+        param_index: int,
+        param_name: str,
+        base_config: dict,
+        week_configs: Dict[str, dict],
+        overall_performance: Optional[Dict[str, Any]] = None,
+        week_range_performance: Optional[Dict[str, Dict[str, Any]]] = None
+    ) -> Path:
+        """
+        Save intermediate optimization state as a folder with 4 config files.
+
+        This is called during iterative optimization to save progress after
+        each parameter is optimized. The folder can be used to resume
+        optimization if interrupted.
+
+        Args:
+            output_dir (Path): Parent directory to create folder in
+            param_index (int): Index of parameter being optimized (for naming)
+            param_name (str): Name of parameter being optimized (for naming)
+            base_config (dict): Current best base config
+            week_configs (Dict[str, dict]): Current best week configs
+                Keys: "1-5", "6-11", "12-17"
+            overall_performance (Optional[Dict]): Overall performance metrics
+                Keys: 'win_rate', 'total_wins', 'total_losses', 'config_id'
+            week_range_performance (Optional[Dict]): Per-range performance metrics
+                Keys: "1-5", "6-11", "12-17" each containing win_rate and config_id
+
+        Returns:
+            Path: Path to created folder
+
+        Example:
+            >>> folder_path = mgr.save_intermediate_folder(
+            ...     Path("simulation/optimal_configs"),
+            ...     5,
+            ...     "PLAYER_RATING_SCORING_WEIGHT",
+            ...     base_config,
+            ...     {"1-5": week1_5_config, "6-11": week6_11_config, "12-17": week12_17_config},
+            ...     overall_performance={'win_rate': 0.65, 'config_id': 'config_001'},
+            ...     week_range_performance={'1-5': {'win_rate': 0.70}, '6-11': {'win_rate': 0.62}}
+            ... )
+        """
+        # Create output directory if it doesn't exist
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate folder name with index and parameter name
+        folder_name = f"intermediate_{param_index:02d}_{param_name}"
+        folder_path = output_dir / folder_name
+        folder_path.mkdir(parents=True, exist_ok=True)
+
+        # Add performance metrics to base config if provided
+        if overall_performance:
+            base_config['performance_metrics'] = {
+                'optimized_parameter': param_name,
+                'parameter_index': param_index,
+                'overall_win_rate': overall_performance.get('win_rate'),
+                'total_wins': overall_performance.get('total_wins'),
+                'total_losses': overall_performance.get('total_losses'),
+                'config_id': overall_performance.get('config_id'),
+                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+
+        # Save base config (league_config.json)
+        with open(folder_path / 'league_config.json', 'w') as f:
+            json.dump(base_config, f, indent=2)
+        self.logger.debug(f"Saved intermediate base config to {folder_path / 'league_config.json'}")
+
+        # Save week-specific configs
+        week_range_files = {
+            '1-5': 'week1-5.json',
+            '6-11': 'week6-11.json',
+            '12-17': 'week12-17.json'
+        }
+
+        for week_range, filename in week_range_files.items():
+            if week_range in week_configs:
+                week_config = week_configs[week_range]
+
+                # Add week-specific performance metrics if provided
+                if week_range_performance and week_range in week_range_performance:
+                    perf = week_range_performance[week_range]
+                    week_config['performance_metrics'] = {
+                        'optimized_parameter': param_name,
+                        'week_range': week_range,
+                        'win_rate_for_range': perf.get('win_rate'),
+                        'config_id': perf.get('config_id'),
+                        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+
+                with open(folder_path / filename, 'w') as f:
+                    json.dump(week_config, f, indent=2)
+                self.logger.debug(f"Saved intermediate {filename}")
+
+        self.logger.info(f"Saved intermediate configs to {folder_path}")
+        return folder_path
+
+    @staticmethod
+    def load_configs_from_folder(folder_path: Path) -> Tuple[dict, Dict[str, dict]]:
+        """
+        Load all config files from a folder.
+
+        Loads the folder structure created by save_intermediate_folder()
+        or save_optimal_configs_folder():
+        - league_config.json (base parameters)
+        - week1-5.json, week6-11.json, week12-17.json (week-specific params)
+
+        Args:
+            folder_path (Path): Path to folder containing config files
+
+        Returns:
+            Tuple[dict, Dict[str, dict]]: (base_config, week_configs)
+                - base_config: The league_config.json contents
+                - week_configs: {"1-5": config, "6-11": config, "12-17": config}
+
+        Raises:
+            ValueError: If folder doesn't exist or required files are missing
+
+        Example:
+            >>> base_config, week_configs = ResultsManager.load_configs_from_folder(
+            ...     Path("simulation/optimal_configs/intermediate_05_PLAYER_RATING")
+            ... )
+            >>> print(f"Base config: {base_config['config_name']}")
+            >>> print(f"Week 1-5: {week_configs['1-5']['config_name']}")
+        """
+        logger = get_logger()
+        folder_path = Path(folder_path)
+
+        if not folder_path.exists():
+            raise ValueError(f"Config folder does not exist: {folder_path}")
+
+        if not folder_path.is_dir():
+            raise ValueError(f"Path is not a directory: {folder_path}")
+
+        # Required files
+        required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+        missing_files = []
+
+        for filename in required_files:
+            if not (folder_path / filename).exists():
+                missing_files.append(filename)
+
+        if missing_files:
+            raise ValueError(
+                f"Missing required config files in {folder_path}: {', '.join(missing_files)}"
+            )
+
+        # Load base config
+        with open(folder_path / 'league_config.json', 'r') as f:
+            base_config = json.load(f)
+        logger.debug(f"Loaded base config from {folder_path / 'league_config.json'}")
+
+        # Load week-specific configs
+        week_configs = {}
+        week_file_mapping = {
+            'week1-5.json': '1-5',
+            'week6-11.json': '6-11',
+            'week12-17.json': '12-17'
+        }
+
+        for filename, week_range in week_file_mapping.items():
+            with open(folder_path / filename, 'r') as f:
+                week_configs[week_range] = json.load(f)
+            logger.debug(f"Loaded {filename}")
+
+        logger.info(f"Loaded configs from folder: {folder_path}")
+        return base_config, week_configs
 
     def save_all_results(self, output_path: Path) -> None:
         """

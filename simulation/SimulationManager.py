@@ -22,8 +22,9 @@ import copy
 import json
 import re
 import signal
+import shutil
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, List
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -34,6 +35,7 @@ from ConfigGenerator import ConfigGenerator
 from ParallelLeagueRunner import ParallelLeagueRunner
 from ResultsManager import ResultsManager
 from ProgressTracker import MultiLevelProgressTracker
+from ConfigPerformance import WEEK_RANGES
 
 
 class SimulationManager:
@@ -291,40 +293,55 @@ class SimulationManager:
         """
         Detect if iterative optimization should resume from a previous run.
 
-        Scans the output directory for intermediate_*.json files and determines
+        Scans the output directory for intermediate_*/ folders and determines
         whether to resume optimization from where it left off or start fresh.
+
+        Per Q3 answer: If old intermediate_*.json files are detected (from the old
+        system), raises an error requiring manual cleanup.
 
         Returns:
             Tuple[bool, int, Optional[Path]]: A tuple containing:
                 - should_resume (bool): True if resuming, False if starting fresh
                 - start_idx (int): Index to start from (0 if starting fresh)
-                - last_config_path (Optional[Path]): Path to last intermediate file if resuming
+                - last_config_path (Optional[Path]): Path to last intermediate folder if resuming
 
         Logic:
-            - No intermediate files → (False, 0, None) - start from beginning
-            - Files for all parameters → (False, 0, None) - completed, cleanup and restart
-            - Files for some parameters → (True, highest_idx, path) - resume from next parameter
+            - No intermediate folders → (False, 0, None) - start from beginning
+            - Folders for all parameters → (False, 0, None) - completed, cleanup and restart
+            - Folders for some parameters → (True, highest_idx, path) - resume from next parameter
             - Parameter order mismatch → (False, 0, None) - validation failed, start fresh
-            - Corrupted files → Skip invalid files, use highest valid index found
+            - Invalid folders → Skip invalid folders, use highest valid index found
+            - Old .json files detected → Raise ValueError requiring cleanup
         """
-        # Get all intermediate files
-        intermediate_files = list(self.output_dir.glob("intermediate_*.json"))
+        # Check for old-style JSON files (per Q3: error and stop)
+        old_json_files = list(self.output_dir.glob("intermediate_*.json"))
+        if old_json_files:
+            raise ValueError(
+                f"Found {len(old_json_files)} old intermediate_*.json files in {self.output_dir}. "
+                f"The new system uses folder structure. Please delete these files manually and restart."
+            )
 
-        if not intermediate_files:
-            self.logger.debug("No intermediate files found")
+        # Get all intermediate folders
+        intermediate_folders = [
+            p for p in self.output_dir.glob("intermediate_*")
+            if p.is_dir()
+        ]
+
+        if not intermediate_folders:
+            self.logger.debug("No intermediate folders found")
             return (False, 0, None)
 
-        # Parse all files and collect valid ones
-        valid_files = []
+        # Parse all folders and collect valid ones
+        valid_folders = []
         param_order = self.config_generator.PARAMETER_ORDER
-        pattern = r'intermediate_(\d+)_(.+)\.json'
+        pattern = r'intermediate_(\d+)_(.+)'
 
-        for filepath in intermediate_files:
-            filename = filepath.name
-            match = re.match(pattern, filename)
+        for folder_path in intermediate_folders:
+            folder_name = folder_path.name
+            match = re.match(pattern, folder_name)
 
             if not match:
-                self.logger.warning(f"Skipping file with invalid name format: {filename}")
+                self.logger.warning(f"Skipping folder with invalid name format: {folder_name}")
                 continue
 
             try:
@@ -333,47 +350,44 @@ class SimulationManager:
 
                 # Validate parameter order (strict validation per user preference)
                 if param_idx > len(param_order):
-                    # Index exceeds parameter count - treat as completed run
-                    self.logger.debug(f"File {filename}: idx {param_idx} > {len(param_order)} (completed run)")
+                    self.logger.debug(f"Folder {folder_name}: idx {param_idx} > {len(param_order)} (completed run)")
                     continue
 
                 # Check parameter name matches expected parameter at this index
-                expected_param = param_order[param_idx - 1]  # idx is 1-based in filename
+                expected_param = param_order[param_idx - 1]  # idx is 1-based in folder name
                 if param_name != expected_param:
                     self.logger.warning(
-                        f"Parameter order mismatch in {filename}: "
+                        f"Parameter order mismatch in {folder_name}: "
                         f"expected '{expected_param}', found '{param_name}'. "
                         f"Starting fresh."
                     )
                     return (False, 0, None)
 
-                # Try to parse JSON to ensure file is not corrupted
-                with open(filepath, 'r') as f:
-                    config = json.load(f)
+                # Check that folder contains required files
+                required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+                missing_files = [f for f in required_files if not (folder_path / f).exists()]
 
-                # Validate required fields
-                if 'config_name' not in config or 'parameters' not in config:
-                    self.logger.warning(f"Skipping corrupted intermediate file (missing fields): {filename}")
+                if missing_files:
+                    self.logger.warning(
+                        f"Skipping incomplete folder {folder_name}: missing {', '.join(missing_files)}"
+                    )
                     continue
 
-                # File is valid
-                valid_files.append((param_idx, param_name, filepath))
+                # Folder is valid
+                valid_folders.append((param_idx, param_name, folder_path))
 
-            except json.JSONDecodeError:
-                self.logger.warning(f"Skipping corrupted intermediate file (invalid JSON): {filename}")
-                continue
             except Exception as e:
-                self.logger.warning(f"Error processing {filename}: {e}")
+                self.logger.warning(f"Error processing {folder_name}: {e}")
                 continue
 
-        # No valid files found
-        if not valid_files:
-            self.logger.debug("No valid intermediate files found after validation")
+        # No valid folders found
+        if not valid_folders:
+            self.logger.debug("No valid intermediate folders found after validation")
             return (False, 0, None)
 
         # Find highest valid index
-        valid_files.sort(key=lambda x: x[0])
-        highest_idx, highest_param, highest_path = valid_files[-1]
+        valid_folders.sort(key=lambda x: x[0])
+        highest_idx, highest_param, highest_path = valid_folders[-1]
 
         # Check if all parameters are complete
         if highest_idx >= len(param_order):
@@ -382,7 +396,7 @@ class SimulationManager:
 
         # Resume from next parameter
         self.logger.debug(
-            f"Found {len(valid_files)} valid intermediate files, "
+            f"Found {len(valid_folders)} valid intermediate folders, "
             f"highest: {highest_param} (idx {highest_idx})"
         )
         return (True, highest_idx, highest_path)
@@ -394,35 +408,24 @@ class SimulationManager:
         Optimizes one parameter at a time in sequence, fixing previously optimized
         parameters. Much faster than full grid search but finds local optimum only.
 
+        **Week-by-Week Optimization:**
+            - BASE parameters are optimized for overall best performance
+            - WEEK-SPECIFIC parameters are optimized per week range (1-5, 6-11, 12-17)
+            - Output is a folder with 4 config files
+
         **Auto-Resume Feature:**
             If interrupted mid-optimization, automatically resumes from the last completed
-            parameter based on existing intermediate_*.json files in the output directory.
-            - Detects partial runs and continues where it left off
-            - Validates parameter order consistency before resuming
-            - Cleans up intermediate files when optimization completes
-
-        Process:
-            1. Detect resume state from intermediate files (if any)
-            2. Start with baseline config (or resume from last intermediate config)
-            3. For each parameter in PARAMETER_ORDER (starting from resume point):
-               - Generate configs varying only that parameter
-               - Run simulations for each config
-               - Select best performing value
-               - Update current optimal config
-               - Save intermediate result
-            4. Save final optimal config and cleanup intermediate files
+            parameter based on existing intermediate_*/ folders in the output directory.
 
         Returns:
-            Path: Path to saved optimal configuration file
+            Path: Path to saved optimal configuration folder
 
         Example:
             >>> mgr = SimulationManager(baseline_path, num_simulations_per_config=100)
-            >>> optimal_config_path = mgr.run_iterative_optimization()
-            >>> # Optimizes 24 params × 6 values = 144 configs total
-            >>> # If interrupted, restart will resume from last completed parameter
+            >>> optimal_config_folder = mgr.run_iterative_optimization()
         """
         self.logger.info("=" * 80)
-        self.logger.info("STARTING ITERATIVE PARAMETER OPTIMIZATION")
+        self.logger.info("STARTING ITERATIVE PARAMETER OPTIMIZATION (WEEK-BY-WEEK)")
         self.logger.info("=" * 80)
 
         # Set up signal handlers for graceful shutdown
@@ -446,55 +449,58 @@ class SimulationManager:
         # Detect if we should resume from a previous run
         should_resume, start_idx, last_config_path = self._detect_resume_state()
 
+        # Initialize base_config and week_configs
         if should_resume:
-            # Resume from previous run
-            self.logger.info(f"Found {len(list(self.output_dir.glob('intermediate_*.json')))} intermediate files, "
-                           f"resuming from parameter {start_idx + 1} of {num_params}")
+            # Resume from previous run - load from folder
+            self.logger.info(f"Found intermediate folders, resuming from parameter {start_idx + 1} of {num_params}")
 
-            # Load config from last intermediate file
             try:
-                with open(last_config_path, 'r') as f:
-                    current_optimal_config = json.load(f)
-                self.logger.info(f"✓ Loaded config from {last_config_path.name}")
+                base_config, week_configs = ResultsManager.load_configs_from_folder(last_config_path)
+                self.logger.info(f"✓ Loaded configs from {last_config_path.name}")
             except Exception as e:
                 self.logger.warning(f"Failed to load resume config: {e}. Starting fresh.")
                 should_resume = False
                 start_idx = 0
-                current_optimal_config = copy.deepcopy(self.config_generator.baseline_config)
+                base_config, week_configs = self._initialize_configs_from_baseline()
         else:
-            # Starting fresh - cleanup any existing intermediate files
-            intermediate_files = list(self.output_dir.glob("intermediate_*.json"))
-            if intermediate_files:
-                reason = "completed run detected" if intermediate_files else "no intermediate files"
-                self.logger.info(f"Starting optimization from beginning ({reason})")
-                self.logger.info(f"Cleaning up {len(intermediate_files)} intermediate files from completed run")
-                for intermediate_file in intermediate_files:
+            # Starting fresh - cleanup any existing intermediate folders
+            intermediate_folders = [p for p in self.output_dir.glob("intermediate_*") if p.is_dir()]
+            if intermediate_folders:
+                self.logger.info(f"Cleaning up {len(intermediate_folders)} intermediate folders")
+                for folder in intermediate_folders:
                     try:
-                        intermediate_file.unlink()
-                        self.logger.debug(f"  Deleted: {intermediate_file.name}")
+                        shutil.rmtree(folder)
+                        self.logger.debug(f"  Deleted: {folder.name}")
                     except Exception as e:
-                        self.logger.warning(f"  Failed to delete {intermediate_file.name}: {e}")
+                        self.logger.warning(f"  Failed to delete {folder.name}: {e}")
                 self.logger.info("✓ Cleanup complete")
             else:
-                self.logger.info("Starting optimization from beginning (no intermediate files)")
+                self.logger.info("Starting optimization from beginning (no intermediate folders)")
 
-            # Start with baseline config as current optimal
-            current_optimal_config = copy.deepcopy(self.config_generator.baseline_config)
+            # Initialize from baseline
+            base_config, week_configs = self._initialize_configs_from_baseline()
             start_idx = 0
 
         self.logger.info("=" * 80)
-        win_percentage = 0.0
 
         # Iterate through each parameter (starting from start_idx if resuming)
         for param_idx, param_name in enumerate(param_order[start_idx:], start=start_idx + 1):
             self.logger.info("=" * 80)
             self.logger.info(f"OPTIMIZING PARAMETER {param_idx}/{num_params}: {param_name}")
+
+            # Check if this is a base or week-specific parameter
+            is_week_specific = self.config_generator.is_week_specific_param(param_name)
+            param_type = "WEEK-SPECIFIC" if is_week_specific else "BASE"
+            self.logger.info(f"  Type: {param_type}")
             self.logger.info("=" * 80)
+
+            # Create merged config for generating variations
+            merged_config = self._merge_configs(base_config, week_configs)
 
             # Generate configs for this parameter
             configs = self.config_generator.generate_iterative_combinations(
                 param_name,
-                current_optimal_config
+                merged_config
             )
 
             self.logger.info(f"Testing {len(configs)} configurations...")
@@ -502,51 +508,104 @@ class SimulationManager:
             # Clear previous results for clean comparison
             self.results_manager = ResultsManager()
 
-            # Run simulations for each config
+            # Run simulations for each config WITH WEEK TRACKING
             for config_idx, config in enumerate(configs):
                 config_id = f"{param_name}_{config_idx}"
 
                 # Register config
                 self.results_manager.register_config(config_id, config)
 
-                # Run simulations
-                results = self.parallel_runner.run_simulations_for_config(
+                # Run simulations WITH WEEK TRACKING
+                week_results_list = self.parallel_runner.run_simulations_for_config_with_weeks(
                     config,
                     self.num_simulations_per_config
                 )
 
-                # Record results
-                for wins, losses, points in results:
-                    self.results_manager.record_result(config_id, wins, losses, points)
+                # Record per-week results
+                for week_results in week_results_list:
+                    self.results_manager.record_week_results(config_id, week_results)
 
                 self.logger.info(f"  Completed config {config_idx + 1}/{len(configs)}")
 
-            # Get best config for this parameter
-            best_result = self.results_manager.get_best_config()
+            # Update configs based on results and collect performance metrics
+            overall_performance = None
+            week_range_performance = {}
 
-            if best_result:
+            if is_week_specific:
+                # For week-specific params, find best per range
                 self.logger.info("=" * 80)
-                self.logger.info(f"BEST VALUE FOR {param_name}:")
-                self.logger.info(f"  Win Rate: {best_result.get_win_rate():.2%}")
-                self.logger.info(f"  Avg Points: {best_result.get_avg_points_per_league():.2f}")
-                self.logger.info(f"  Record: {best_result.total_wins}W-{best_result.total_losses}L")
+                self.logger.info(f"BEST VALUES FOR {param_name} (per week range):")
 
-                # Update current optimal config
-                current_optimal_config = best_result.config_dict
+                for week_range in WEEK_RANGES:
+                    best_for_range = self.results_manager.get_best_config_for_range(week_range)
+                    if best_for_range:
+                        win_rate = best_for_range.get_win_rate_for_range(week_range)
+                        self.logger.info(f"  {week_range}: Win Rate {win_rate:.2%}")
 
-                # Save intermediate result
-                intermediate_path = self.output_dir / f"intermediate_{param_idx:02d}_{param_name}.json"
-                current_optimal_config["config_name"] = str(intermediate_path)
-                win_percentage = best_result.get_win_rate()
-                current_optimal_config["description"] = f"Win Rate: {win_percentage:.2f}"
-                with open(intermediate_path, 'w') as f:
-                    json.dump(current_optimal_config, f, indent=2)
-                self.logger.info(f"  Saved intermediate config: {intermediate_path.name}")
+                        # Collect performance metrics for this week range
+                        week_range_performance[week_range] = {
+                            'win_rate': win_rate,
+                            'config_id': best_for_range.config_id
+                        }
 
-                # Track for graceful shutdown
-                self._current_optimal_config_path = intermediate_path
+                        # Update the corresponding week_config with the best params
+                        self._update_week_config_param(
+                            week_configs[week_range],
+                            param_name,
+                            best_for_range.config_dict
+                        )
             else:
-                self.logger.warning(f"No results for {param_name} - keeping previous optimal")
+                # For base params, find overall best
+                best_result = self.results_manager.get_best_config()
+
+                if best_result:
+                    self.logger.info("=" * 80)
+                    self.logger.info(f"BEST VALUE FOR {param_name}:")
+                    self.logger.info(f"  Win Rate: {best_result.get_win_rate():.2%}")
+                    self.logger.info(f"  Avg Points: {best_result.get_avg_points_per_league():.2f}")
+
+                    # Collect overall performance metrics
+                    overall_performance = {
+                        'win_rate': best_result.get_win_rate(),
+                        'total_wins': best_result.total_wins,
+                        'total_losses': best_result.total_losses,
+                        'config_id': best_result.config_id
+                    }
+
+                    # Update base_config with the best params
+                    self._update_base_config_param(base_config, param_name, best_result.config_dict)
+
+            # Also collect current best overall performance for reference in all configs
+            current_best = self.results_manager.get_best_config()
+            if current_best and not overall_performance:
+                overall_performance = {
+                    'win_rate': current_best.get_win_rate(),
+                    'total_wins': current_best.total_wins,
+                    'total_losses': current_best.total_losses,
+                    'config_id': current_best.config_id
+                }
+
+            # Collect week range performance if not already collected
+            if not week_range_performance:
+                for week_range in WEEK_RANGES:
+                    best_for_range = self.results_manager.get_best_config_for_range(week_range)
+                    if best_for_range:
+                        week_range_performance[week_range] = {
+                            'win_rate': best_for_range.get_win_rate_for_range(week_range),
+                            'config_id': best_for_range.config_id
+                        }
+
+            # Save intermediate result as folder with performance metrics
+            self.results_manager.save_intermediate_folder(
+                self.output_dir,
+                param_idx,
+                param_name,
+                base_config,
+                week_configs,
+                overall_performance=overall_performance,
+                week_range_performance=week_range_performance
+            )
+            self.logger.info(f"  Saved intermediate folder: intermediate_{param_idx:02d}_{param_name}/")
 
         # Calculate elapsed time
         elapsed = time.time() - start_time
@@ -560,27 +619,82 @@ class SimulationManager:
         self.logger.info(f"Total configs tested: {total_configs}")
         self.logger.info(f"Total simulations: {total_configs * self.num_simulations_per_config}")
 
-        # Save final optimal config
+        # Save final optimal config as folder
         timestamp = time.strftime("%Y%m%d_%H%M%S")
-        optimal_config_path = self.output_dir / f"optimal_iterative_{timestamp}.json"
-        current_optimal_config["config_name"] = str(optimal_config_path)
+        final_folder = self.output_dir / f"optimal_iterative_{timestamp}"
+        final_folder.mkdir(parents=True, exist_ok=True)
 
-        with open(optimal_config_path, 'w') as f:
-            json.dump(current_optimal_config, f, indent=2)
+        # Collect final performance metrics
+        final_best = self.results_manager.get_best_config()
+        final_overall_performance = None
+        if final_best:
+            final_overall_performance = {
+                'win_rate': final_best.get_win_rate(),
+                'total_wins': final_best.total_wins,
+                'total_losses': final_best.total_losses,
+                'config_id': final_best.config_id
+            }
 
-        self.logger.info(f"✓ Final optimal config saved: {optimal_config_path}")
+        final_week_range_performance = {}
+        for week_range in WEEK_RANGES:
+            best_for_range = self.results_manager.get_best_config_for_range(week_range)
+            if best_for_range:
+                final_week_range_performance[week_range] = {
+                    'win_rate': best_for_range.get_win_rate_for_range(week_range),
+                    'config_id': best_for_range.config_id
+                }
 
-        # Track final config for graceful shutdown
-        self._current_optimal_config_path = optimal_config_path
+        # Add metadata and performance metrics to base config
+        base_config['config_name'] = f"Optimal Base Config ({timestamp})"
+        base_config['description'] = 'Optimized base parameters for all weeks'
+        if final_overall_performance:
+            base_config['performance_metrics'] = {
+                'overall_win_rate': final_overall_performance['win_rate'],
+                'total_wins': final_overall_performance['total_wins'],
+                'total_losses': final_overall_performance['total_losses'],
+                'config_id': final_overall_performance['config_id'],
+                'total_parameters_optimized': num_params,
+                'total_configs_tested': total_configs,
+                'optimization_time_seconds': elapsed,
+                'timestamp': timestamp
+            }
 
-        # Update league_config.json in the root data folder with optimal parameters
+        with open(final_folder / 'league_config.json', 'w') as f:
+            json.dump(base_config, f, indent=2)
+
+        week_file_mapping = {'1-5': 'week1-5.json', '6-11': 'week6-11.json', '12-17': 'week12-17.json'}
+        for week_range, filename in week_file_mapping.items():
+            week_configs[week_range]['config_name'] = f"Optimal {filename} ({timestamp})"
+            week_configs[week_range]['description'] = f'Optimized week-specific params for weeks {week_range}'
+
+            # Add week-specific performance metrics
+            if week_range in final_week_range_performance:
+                perf = final_week_range_performance[week_range]
+                week_configs[week_range]['performance_metrics'] = {
+                    'week_range': week_range,
+                    'win_rate_for_range': perf['win_rate'],
+                    'config_id': perf['config_id'],
+                    'timestamp': timestamp
+                }
+
+            with open(final_folder / filename, 'w') as f:
+                json.dump(week_configs[week_range], f, indent=2)
+
+        self.logger.info(f"✓ Final optimal configs saved: {final_folder}")
+
+        # Update data/configs folder (per Q5: update folder)
         if self.auto_update_league_config:
-            league_config_path = Path(__file__).parent.parent / "data" / "league_config.json"
-            if league_config_path.exists():
-                self.results_manager.update_league_config(optimal_config_path, league_config_path)
-                self.logger.info(f"✓ Updated league config: {league_config_path}")
+            data_configs_path = Path(__file__).parent.parent / "data" / "configs"
+            if data_configs_path.exists():
+                # Copy each file from final folder to data/configs
+                for config_file in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+                    src = final_folder / config_file
+                    dst = data_configs_path / config_file
+                    if src.exists():
+                        shutil.copy2(src, dst)
+                self.logger.info(f"✓ Updated data/configs folder: {data_configs_path}")
             else:
-                self.logger.warning(f"league_config.json not found at {league_config_path}, skipping update")
+                self.logger.warning(f"data/configs folder not found at {data_configs_path}, skipping update")
 
             # Restore signal handlers now that we're done
             self._restore_signal_handlers()
@@ -589,7 +703,128 @@ class SimulationManager:
         self.logger.info("ITERATIVE OPTIMIZATION COMPLETE")
         self.logger.info("=" * 80)
 
-        return optimal_config_path
+        return final_folder
+
+    def _initialize_configs_from_baseline(self) -> Tuple[dict, Dict[str, dict]]:
+        """
+        Initialize base_config and week_configs from the baseline config.
+
+        Returns:
+            Tuple[dict, Dict[str, dict]]: (base_config, week_configs)
+        """
+        baseline = copy.deepcopy(self.config_generator.baseline_config)
+
+        # Extract base params
+        base_config = self.results_manager._extract_base_params(baseline)
+
+        # Extract week params (same for all ranges initially)
+        week_params = self.results_manager._extract_week_params(baseline)
+        week_configs = {
+            '1-5': copy.deepcopy(week_params),
+            '6-11': copy.deepcopy(week_params),
+            '12-17': copy.deepcopy(week_params)
+        }
+
+        return base_config, week_configs
+
+    def _merge_configs(self, base_config: dict, week_configs: Dict[str, dict]) -> dict:
+        """
+        Merge base_config and week_configs into a single config for generating variations.
+
+        Uses week 1-5 config as representative for week-specific params.
+
+        Args:
+            base_config: Base configuration
+            week_configs: Week-specific configurations
+
+        Returns:
+            dict: Merged configuration
+        """
+        merged = copy.deepcopy(base_config)
+        if 'parameters' not in merged:
+            merged['parameters'] = {}
+
+        # Merge in week-specific params from week 1-5
+        week1_5_params = week_configs.get('1-5', {}).get('parameters', {})
+        merged['parameters'].update(week1_5_params)
+
+        return merged
+
+    def _update_base_config_param(self, base_config: dict, param_name: str, best_config: dict) -> None:
+        """
+        Update a parameter in base_config from the best configuration.
+
+        Args:
+            base_config: Base configuration to update
+            param_name: Parameter name (from PARAMETER_ORDER)
+            best_config: Best performing configuration
+        """
+        # Map parameter name to config section
+        section = self.config_generator.PARAM_TO_SECTION_MAP.get(param_name)
+        if not section:
+            return
+
+        best_params = best_config.get('parameters', {})
+        if 'parameters' not in base_config:
+            base_config['parameters'] = {}
+
+        # Handle nested params
+        if param_name in ['PRIMARY_BONUS', 'SECONDARY_BONUS']:
+            if section not in base_config['parameters']:
+                base_config['parameters'][section] = {}
+            key = 'PRIMARY' if 'PRIMARY' in param_name else 'SECONDARY'
+            if section in best_params:
+                base_config['parameters'][section][key] = best_params[section].get(key)
+        elif param_name in ['ADP_SCORING_WEIGHT', 'ADP_SCORING_STEPS']:
+            if section not in base_config['parameters']:
+                base_config['parameters'][section] = {}
+            key = 'WEIGHT' if 'WEIGHT' in param_name else 'STEPS'
+            if section in best_params and 'THRESHOLDS' in best_params[section]:
+                if key == 'STEPS':
+                    base_config['parameters'][section].setdefault('THRESHOLDS', {})['STEPS'] = \
+                        best_params[section]['THRESHOLDS'].get('STEPS')
+                else:
+                    base_config['parameters'][section]['WEIGHT'] = best_params[section].get('WEIGHT')
+        elif section == param_name:
+            # Direct param (not nested)
+            if section in best_params:
+                base_config['parameters'][section] = best_params[section]
+
+    def _update_week_config_param(self, week_config: dict, param_name: str, best_config: dict) -> None:
+        """
+        Update a week-specific parameter in week_config from the best configuration.
+
+        Args:
+            week_config: Week configuration to update
+            param_name: Parameter name (from PARAMETER_ORDER)
+            best_config: Best performing configuration for this week range
+        """
+        section = self.config_generator.PARAM_TO_SECTION_MAP.get(param_name)
+        if not section:
+            return
+
+        best_params = best_config.get('parameters', {})
+        if 'parameters' not in week_config:
+            week_config['parameters'] = {}
+
+        # All week-specific params are nested in their section
+        if section in best_params:
+            if section not in week_config['parameters']:
+                week_config['parameters'][section] = {}
+
+            # Extract the specific key being optimized
+            if 'WEIGHT' in param_name:
+                week_config['parameters'][section]['WEIGHT'] = best_params[section].get('WEIGHT')
+            elif 'MIN_WEEKS' in param_name:
+                week_config['parameters'][section]['MIN_WEEKS'] = best_params[section].get('MIN_WEEKS')
+            elif 'IMPACT_SCALE' in param_name:
+                week_config['parameters'][section]['IMPACT_SCALE'] = best_params[section].get('IMPACT_SCALE')
+            elif 'STEPS' in param_name:
+                week_config['parameters'][section].setdefault('THRESHOLDS', {})['STEPS'] = \
+                    best_params[section].get('THRESHOLDS', {}).get('STEPS')
+            elif 'HOME' in param_name or 'AWAY' in param_name or 'INTERNATIONAL' in param_name:
+                key = param_name.replace('LOCATION_', '')
+                week_config['parameters'][section][key] = best_params[section].get(key)
 
     def run_single_config_test(self, config_id: str = "test") -> None:
         """

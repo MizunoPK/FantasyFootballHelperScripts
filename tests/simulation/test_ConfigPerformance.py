@@ -359,9 +359,15 @@ class TestToDict:
 
         expected_keys = {
             'config_id', 'total_wins', 'total_losses', 'total_points',
-            'num_simulations', 'total_games', 'win_rate', 'avg_points_per_league'
+            'num_simulations', 'total_games', 'win_rate', 'avg_points_per_league',
+            'week_range_performance'
         }
         assert set(result.keys()) == expected_keys
+
+        # Verify week_range_performance structure
+        assert set(result['week_range_performance'].keys()) == {'1-5', '6-11', '12-17'}
+        for week_range in result['week_range_performance'].values():
+            assert set(week_range.keys()) == {'wins', 'losses', 'points', 'win_rate'}
 
 
 class TestStringRepresentations:
@@ -505,3 +511,229 @@ class TestIntegrationScenarios:
         # Verify serialization
         data = perf.to_dict()
         assert data['num_simulations'] == 10
+
+
+# ============================================================================
+# NEW: Per-Week Range Tracking Tests
+# ============================================================================
+
+class TestGetWeekRange:
+    """Test get_week_range() function."""
+
+    def test_weeks_1_to_5_return_1_5(self):
+        """Weeks 1-5 should return '1-5' range."""
+        from simulation.ConfigPerformance import get_week_range
+        for week in range(1, 6):
+            assert get_week_range(week) == "1-5"
+
+    def test_weeks_6_to_11_return_6_11(self):
+        """Weeks 6-11 should return '6-11' range."""
+        from simulation.ConfigPerformance import get_week_range
+        for week in range(6, 12):
+            assert get_week_range(week) == "6-11"
+
+    def test_weeks_12_to_17_return_12_17(self):
+        """Weeks 12-17 should return '12-17' range."""
+        from simulation.ConfigPerformance import get_week_range
+        for week in range(12, 18):
+            assert get_week_range(week) == "12-17"
+
+    def test_week_0_raises_error(self):
+        """Week 0 should raise ValueError."""
+        from simulation.ConfigPerformance import get_week_range
+        with pytest.raises(ValueError, match="Invalid week number: 0"):
+            get_week_range(0)
+
+    def test_week_18_raises_error(self):
+        """Week 18 should raise ValueError."""
+        from simulation.ConfigPerformance import get_week_range
+        with pytest.raises(ValueError, match="Invalid week number: 18"):
+            get_week_range(18)
+
+
+class TestAddWeekResults:
+    """Test add_week_results() method."""
+
+    def test_add_week_results_updates_totals(self):
+        """add_week_results should update overall totals."""
+        perf = ConfigPerformance("config_001", {})
+
+        # 5 wins, 3 losses across weeks 1-8
+        week_results = [
+            (1, True, 120.0),
+            (2, True, 110.0),
+            (3, False, 90.0),
+            (4, True, 130.0),
+            (5, False, 85.0),
+            (6, True, 125.0),
+            (7, False, 95.0),
+            (8, True, 115.0),
+        ]
+
+        perf.add_week_results(week_results)
+
+        assert perf.total_wins == 5
+        assert perf.total_losses == 3
+        assert perf.total_points == pytest.approx(870.0)
+        assert perf.num_simulations == 1
+
+    def test_add_week_results_updates_per_range(self):
+        """add_week_results should update per-week-range tracking."""
+        perf = ConfigPerformance("config_001", {})
+
+        week_results = [
+            # Week 1-5 range: 3 wins, 2 losses
+            (1, True, 120.0),
+            (2, True, 110.0),
+            (3, False, 90.0),
+            (4, True, 130.0),
+            (5, False, 85.0),
+            # Week 6-11 range: 2 wins, 2 losses
+            (6, True, 125.0),
+            (7, False, 95.0),
+            (8, True, 115.0),
+            (9, False, 100.0),
+            # Week 12-17 range: 1 win, 1 loss
+            (12, True, 140.0),
+            (13, False, 80.0),
+        ]
+
+        perf.add_week_results(week_results)
+
+        # Check per-range wins
+        assert perf.week_range_wins["1-5"] == 3
+        assert perf.week_range_wins["6-11"] == 2
+        assert perf.week_range_wins["12-17"] == 1
+
+        # Check per-range losses
+        assert perf.week_range_losses["1-5"] == 2
+        assert perf.week_range_losses["6-11"] == 2
+        assert perf.week_range_losses["12-17"] == 1
+
+    def test_add_multiple_leagues(self):
+        """Adding multiple leagues should accumulate results."""
+        perf = ConfigPerformance("config_001", {})
+
+        # League 1
+        perf.add_week_results([
+            (1, True, 100.0),
+            (2, False, 90.0),
+            (6, True, 110.0),
+        ])
+
+        # League 2
+        perf.add_week_results([
+            (1, False, 80.0),
+            (2, True, 120.0),
+            (6, False, 95.0),
+        ])
+
+        assert perf.num_simulations == 2
+        assert perf.total_wins == 3
+        assert perf.total_losses == 3
+        assert perf.week_range_wins["1-5"] == 2
+        assert perf.week_range_losses["1-5"] == 2
+
+
+class TestGetWinRateForRange:
+    """Test get_win_rate_for_range() method."""
+
+    def test_win_rate_for_range_no_games(self):
+        """Should return 0.0 when no games in range."""
+        perf = ConfigPerformance("config_001", {})
+        assert perf.get_win_rate_for_range("1-5") == 0.0
+
+    def test_win_rate_for_range_perfect_record(self):
+        """Should return 1.0 for perfect record in range."""
+        perf = ConfigPerformance("config_001", {})
+        perf.add_week_results([
+            (1, True, 100.0),
+            (2, True, 110.0),
+            (3, True, 120.0),
+        ])
+        assert perf.get_win_rate_for_range("1-5") == 1.0
+
+    def test_win_rate_for_range_winless_record(self):
+        """Should return 0.0 for winless record in range."""
+        perf = ConfigPerformance("config_001", {})
+        perf.add_week_results([
+            (6, False, 80.0),
+            (7, False, 85.0),
+        ])
+        assert perf.get_win_rate_for_range("6-11") == 0.0
+
+    def test_win_rate_for_range_mixed(self):
+        """Should calculate correct win rate for mixed results."""
+        perf = ConfigPerformance("config_001", {})
+        perf.add_week_results([
+            (1, True, 100.0),
+            (2, True, 110.0),
+            (3, False, 90.0),
+            (4, True, 120.0),
+            (5, False, 85.0),
+        ])
+        # 3 wins, 2 losses = 60%
+        assert perf.get_win_rate_for_range("1-5") == pytest.approx(0.6)
+
+
+class TestWeekRangePerformanceIntegration:
+    """Integration tests for per-week-range tracking."""
+
+    def test_full_16_week_season(self):
+        """Test tracking a full 16-week season."""
+        perf = ConfigPerformance("config_001", {})
+
+        # Simulate a 10-6 season with varying performance by range
+        week_results = [
+            # Weeks 1-5: 4-1 (strong start)
+            (1, True, 120.0), (2, True, 115.0), (3, True, 125.0),
+            (4, False, 90.0), (5, True, 130.0),
+            # Weeks 6-11: 3-3 (mid-season slump)
+            (6, True, 110.0), (7, False, 95.0), (8, True, 105.0),
+            (9, False, 88.0), (10, True, 118.0), (11, False, 92.0),
+            # Weeks 12-16: 3-2 (playoff push - only 5 games in range for sim)
+            (12, True, 140.0), (13, False, 85.0), (14, True, 135.0),
+            (15, False, 82.0), (16, True, 142.0),
+        ]
+
+        perf.add_week_results(week_results)
+
+        # Overall: 10-6
+        assert perf.total_wins == 10
+        assert perf.total_losses == 6
+        assert perf.get_win_rate() == pytest.approx(10/16)
+
+        # Per-range performance
+        assert perf.get_win_rate_for_range("1-5") == pytest.approx(4/5)  # 80%
+        assert perf.get_win_rate_for_range("6-11") == pytest.approx(3/6)  # 50%
+        assert perf.get_win_rate_for_range("12-17") == pytest.approx(3/5)  # 60%
+
+    def test_different_configs_best_in_different_ranges(self):
+        """Different configs can be best in different week ranges."""
+        config_a = ConfigPerformance("config_a", {})
+        config_b = ConfigPerformance("config_b", {})
+
+        # Config A: Strong early, weak late
+        config_a.add_week_results([
+            (1, True, 120.0), (2, True, 115.0), (3, True, 125.0),
+            (4, True, 110.0), (5, True, 130.0),  # 5-0 in weeks 1-5
+            (12, False, 85.0), (13, False, 80.0), (14, False, 75.0),
+            (15, False, 70.0), (16, False, 65.0),  # 0-5 in weeks 12-16
+        ])
+
+        # Config B: Weak early, strong late
+        config_b.add_week_results([
+            (1, False, 85.0), (2, False, 80.0), (3, False, 75.0),
+            (4, False, 70.0), (5, False, 65.0),  # 0-5 in weeks 1-5
+            (12, True, 140.0), (13, True, 135.0), (14, True, 145.0),
+            (15, True, 150.0), (16, True, 155.0),  # 5-0 in weeks 12-16
+        ])
+
+        # Same overall record (5-5 each)
+        assert config_a.get_win_rate() == config_b.get_win_rate()
+
+        # But different range performance
+        assert config_a.get_win_rate_for_range("1-5") == 1.0
+        assert config_b.get_win_rate_for_range("1-5") == 0.0
+        assert config_a.get_win_rate_for_range("12-17") == 0.0
+        assert config_b.get_win_rate_for_range("12-17") == 1.0

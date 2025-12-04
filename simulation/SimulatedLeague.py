@@ -359,6 +359,41 @@ class SimulatedLeague:
 
         return wins, losses, total_points
 
+    def get_draft_helper_results_by_week(self) -> List[Tuple[int, bool, float]]:
+        """
+        Get per-week results for the DraftHelperTeam.
+
+        Returns a list of tuples, one for each week played:
+        - week_number (int): The week number (1-16)
+        - won (bool): True if DraftHelperTeam won that week
+        - points (float): Points scored that week
+
+        This is used for per-week-range performance tracking to determine
+        which configs perform best in different parts of the season.
+
+        Returns:
+            List[Tuple[int, bool, float]]: Per-week results
+
+        Example:
+            >>> results = league.get_draft_helper_results_by_week()
+            >>> results[0]
+            (1, True, 125.5)  # Week 1: Won with 125.5 points
+        """
+        if not self.draft_helper_team:
+            raise ValueError("DraftHelperTeam not found in league")
+
+        week_results = []
+
+        for week in self.week_results:
+            result = week.get_result(self.draft_helper_team)
+            week_results.append((
+                week.week_number,
+                result.won,
+                result.points_scored
+            ))
+
+        return week_results
+
     def get_all_team_results(self) -> Dict[str, Tuple[int, int, float]]:
         """
         Get results for all teams (for analysis/debugging).

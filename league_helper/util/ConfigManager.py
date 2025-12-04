@@ -160,8 +160,12 @@ class ConfigManager:
         """
         Initialize the config manager and load configuration.
 
+        Supports two folder structures:
+        1. New structure: data/configs/league_config.json + week{N}-{M}.json files
+        2. Legacy structure: data/league_config.json (for tests and backward compatibility)
+
         Args:
-            data_folder (Path): Path to the data directory containing league_config.json
+            data_folder (Path): Path to the data directory containing config files
 
         Raises:
             FileNotFoundError: If league_config.json is not found
@@ -173,8 +177,18 @@ class ConfigManager:
         self.parameters: Dict[str, Any] = {}
         self.logger = get_logger()
 
-        # Set config path to data/league_config.json
-        self.config_path = data_folder / 'league_config.json'
+        # Check for new folder structure: data/configs/
+        configs_folder = data_folder / 'configs'
+        if configs_folder.exists() and (configs_folder / 'league_config.json').exists():
+            # New structure: use configs subfolder
+            self.config_path = configs_folder / 'league_config.json'
+            self.configs_folder = configs_folder
+            self.logger.debug(f"Using new config structure: {configs_folder}")
+        else:
+            # Legacy structure: direct league_config.json in data folder
+            self.config_path = data_folder / 'league_config.json'
+            self.configs_folder = None
+            self.logger.debug(f"Using legacy config structure: {self.config_path}")
 
         # League settings
         self.current_nfl_week: int = 0
@@ -209,6 +223,74 @@ class ConfigManager:
         self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
 
         self._load_config()
+
+    # ============================================================================
+    # WEEK-SPECIFIC CONFIG LOADING
+    # ============================================================================
+
+    def _get_week_config_filename(self, week: int) -> str:
+        """
+        Get the week-specific config filename for a given week number.
+
+        Week ranges:
+        - Weeks 1-5: week1-5.json
+        - Weeks 6-11: week6-11.json
+        - Weeks 12-17: week12-17.json
+
+        Args:
+            week (int): NFL week number (1-17)
+
+        Returns:
+            str: Filename for the week-specific config
+
+        Raises:
+            ValueError: If week is outside valid range (1-17)
+        """
+        if 1 <= week <= 5:
+            return "week1-5.json"
+        elif 6 <= week <= 11:
+            return "week6-11.json"
+        elif 12 <= week <= 17:
+            return "week12-17.json"
+        else:
+            raise ValueError(f"Invalid week number: {week}. Must be between 1 and 17.")
+
+    def _load_week_config(self, week: int) -> Dict[str, Any]:
+        """
+        Load week-specific config parameters and return them for merging.
+
+        Only loads if configs_folder is set (new folder structure).
+        Returns empty dict if using legacy structure or if week config not found.
+
+        Args:
+            week (int): NFL week number to load config for
+
+        Returns:
+            Dict[str, Any]: Week-specific parameters to merge, or empty dict
+        """
+        if self.configs_folder is None:
+            # Legacy mode - no week-specific configs
+            self.logger.debug("Legacy config mode, skipping week-specific config")
+            return {}
+
+        week_filename = self._get_week_config_filename(week)
+        week_config_path = self.configs_folder / week_filename
+
+        if not week_config_path.exists():
+            self.logger.warning(f"Week config not found: {week_config_path}")
+            return {}
+
+        try:
+            with open(week_config_path, 'r') as f:
+                week_data = json.load(f)
+            self.logger.debug(f"Loaded week config: {week_filename}")
+
+            # Return the parameters section for merging
+            return week_data.get(self.keys.PARAMETERS, {})
+
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Invalid JSON in week config {week_filename}: {e}")
+            raise
 
     # ============================================================================
     # PUBLIC CONFIGURATION ACCESS
@@ -761,10 +843,17 @@ class ConfigManager:
 
     def _load_config(self) -> None:
         """
-        Load and validate configuration from JSON file.
+        Load and validate configuration from JSON file(s).
 
-        Reads league_config.json, validates its structure, extracts all parameters,
-        and stores them in instance variables for type-safe access.
+        For new folder structure (data/configs/):
+        1. Load base config (league_config.json)
+        2. Extract CURRENT_NFL_WEEK to determine which week config to load
+        3. Load week-specific config (week{N}-{M}.json)
+        4. Merge week-specific parameters over base parameters
+        5. Validate and extract all parameters
+
+        For legacy structure (data/league_config.json):
+        - Load single config file as before
 
         Raises:
             FileNotFoundError: If league_config.json does not exist
@@ -796,6 +885,27 @@ class ConfigManager:
         self.logger.debug(f"Loaded configuration: '{self.config_name}'")
         self.logger.debug(f"Description: {self.description}")
         self.logger.debug(f"Parameters count: {len(self.parameters)}")
+
+        # For new folder structure: load and merge week-specific config
+        if self.configs_folder is not None:
+            # Get CURRENT_NFL_WEEK from base config (required for week config selection)
+            if self.keys.CURRENT_NFL_WEEK not in self.parameters:
+                raise ValueError("Base config missing required parameter: CURRENT_NFL_WEEK")
+
+            current_week = self.parameters[self.keys.CURRENT_NFL_WEEK]
+            self.logger.debug(f"Current NFL week: {current_week}")
+
+            # Load week-specific parameters
+            week_params = self._load_week_config(current_week)
+
+            if week_params:
+                # Merge week-specific params over base params
+                # Week-specific values override base values for the same keys
+                self.parameters.update(week_params)
+                self.logger.info(
+                    f"Merged week config ({self._get_week_config_filename(current_week)}): "
+                    f"{len(week_params)} parameters"
+                )
 
         # Extract and validate all parameters
         self._extract_parameters()

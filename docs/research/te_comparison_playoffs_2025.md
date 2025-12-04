@@ -1,13 +1,132 @@
 # Tight End Comparison for Fantasy Playoffs (Weeks 14-17, 2025)
 
 *Analysis Date: November 27, 2025 | Season Week 13*
-*Last Verified: November 28, 2025 (Fourth Pass - Projected Points Analysis)*
+*Last Verified: November 29, 2025 (Fifth Pass - Strange Unavailable, Alternatives Analysis)*
 
 ## Executive Summary
 
-As a **4th seed** entering playoffs, every week matters - no bye week luxury. This analysis compares four tight end options for Weeks 14-17, with emphasis on Week 15 (Round 1 must-win).
+As a **4th seed** entering playoffs, every week matters - no bye week luxury. This analysis compares tight end options for Weeks 14-17, with emphasis on Week 15 (Round 1 must-win).
 
-**Recommendation:** Keep **Waller + Strange**, drop Goedert and Gadsden.
+**UPDATE (Nov 29):** Brenton Strange has been claimed by another team and is no longer available.
+
+**Recommendation:** Keep **Waller + Theo Johnson**, drop Goedert and Gadsden.
+
+---
+
+## CRITICAL UPDATE: Strange Unavailable - Alternatives Analysis
+
+Brenton Strange was claimed by another manager. After analyzing all available TEs (drafted=0), **Theo Johnson (NYG)** emerges as the best replacement despite a Week 14 BYE.
+
+### Why Theo Johnson Over Other Options
+
+| Player | TDs | YPG | Week 14 | Playoff Schedule | Verdict |
+|--------|-----|-----|---------|------------------|---------|
+| **Theo Johnson (NYG)** | **5 in 6 games** | 35.6 | ❌ BYE | WSH, MIN, @LV | **BEST** |
+| Zach Ertz (WSH) | 4 | 34.5 | @MIN | @NYG, vsPHI, vsDAL | Good but PHI Week 16 |
+| Colston Loveland (CHI) | 3 (since bye) | 47.9* | @GB | vsCLE, vsGB, @SF | Emerging but SF brutal |
+| AJ Barner (SEA) | 5 | 30.6 | @ATL | vsIND, vsLAR, @CAR | Solid floor |
+
+*Loveland's YPG is since bye week (last 7 games)
+
+### Theo Johnson Profile (VERIFIED - Nov 29, 2025)
+
+| Stat | Value | Notes |
+|------|-------|-------|
+| Fantasy Ranking | **TE13** | PPR leagues |
+| Receptions | 39 | 3.3/game (12 games) |
+| Yards | 427 | **35.6/game** |
+| **TDs** | **5** | **5 TDs in last 6 games** - HOT |
+| Targets | 60 | 5.0/game |
+| Target Share | 17.9% | Since Week 4 with Dart |
+| First-Read Share | 21% | High priority target |
+
+**Strengths:**
+- **5 TDs in last 6 games** - scorching hot streak (VERIFIED)
+- 65+ yards and/or TD in 6 of 9 games with Jaxson Dart (VERIFIED)
+- 17-game pace with Dart: 66 catches, 644 yards, **12 TDs** (VERIFIED)
+- Week 13 streamer recommendation by SI Fantasy
+- Young (24) and ascending
+
+**Weaknesses:**
+- **BYE Week 14** - must use Waller that week
+- Giants offense inconsistent overall
+- TD-dependent (similar to Goedert)
+
+**Playoff Schedule:**
+| Week | Opponent | Matchup Rating | Notes |
+|------|----------|----------------|-------|
+| 14 | **BYE** | ❌ N/A | Use Waller @ NYJ |
+| 15 | vs WSH | 🟢 **Good** | Home, Commanders mid vs TEs |
+| 16 | vs MIN | 🟡 Decent | Vikings neutral vs TEs |
+| 17 | @ LV | 🟢 **Good** | Raiders bad overall |
+
+### Johnson vs Strange Comparison
+
+| Factor | Theo Johnson | Brenton Strange |
+|--------|--------------|-----------------|
+| TDs | **5 in 6 games** | 0 all season |
+| QB Connection | Jaxson Dart (locked) | Mac Jones (limited) |
+| Hot Streak | ✅ Scorching | ❌ Just returned |
+| Week 14 | ❌ BYE | ✅ vs IND |
+| Week 15 | vs WSH (good) | vs NYJ (good) |
+| Week 16 | vs MIN (better) | @ DEN (neutral) |
+| Week 17 | @ LV (good) | @ IND (smash) |
+| Age/Trajectory | 24, ascending | 24, ascending |
+
+**Verdict:** Johnson's TD production (5 in 6 games) and Dart connection outweigh the Week 14 BYE. Waller covers Week 14 @ NYJ anyway.
+
+### Other Available TEs Considered
+
+#### Zach Ertz (WSH) - Runner-Up
+
+| Stat | Value |
+|------|-------|
+| Receptions | 39 (3.5/game) |
+| Yards | 387 (34.5/game) |
+| TDs | 4 |
+| Targets | 57 (5.2/game) |
+| Target Share | 17.3% |
+
+- With Daniels: 22 catches, 216 yards, 4 TDs on 30 targets
+- Fresh off BYE Week 12
+- **Concern:** Week 16 vs PHI (2nd-best vs TEs) is brutal
+- **Concern:** Age 35, 5 drops this season
+
+#### Colston Loveland (CHI) - High Upside
+
+| Stat | Value (Since Bye) |
+|------|-------------------|
+| Receptions | 25 (3.6/game) |
+| Yards | 335 (47.9/game) |
+| TDs | 3 |
+| Targets | 32 (4.6/game) |
+
+- **TE5 in PPG since Week 9** (VERIFIED)
+- Week 9 breakout: 6 catches, 118 yards, 2 TDs
+- 65% snap rate, leads Bears TEs
+- **Concern:** Week 17 @ SF is brutal matchup
+
+#### AJ Barner (SEA) - Consistent Floor
+
+| Stat | Value |
+|------|-------|
+| Receptions | 31 (3.1/game) |
+| Yards | 306 (30.6/game) |
+| TDs | 5 (4 rec + 1 rush) |
+
+- Week 11 career-best: 10 catches, 70 yards on 11 targets
+- Week 15 vs IND is excellent (Colts 3rd-most yards to TEs)
+- **Concern:** Low ceiling, Seahawks offense inconsistent
+
+### Sources for Alternatives Analysis (Nov 29, 2025)
+
+- [ESPN - Theo Johnson](https://www.espn.com/nfl/player/_/id/4429148/theo-johnson) - 39 rec, 427 yds, 5 TDs
+- [SI - Week 13 TE Streamers](https://www.si.com/onsi/fantasy/waiver-wire/week-13-fantasy-football-tight-end-streamers-start-theo-johnson-jaxson-dart-return) - Johnson recommendation
+- [FantasyPros - Zach Ertz](https://www.fantasypros.com/nfl/players/zach-ertz.php) - 39 rec, 387 yds, 4 TDs
+- [FantasyPros - Colston Loveland](https://www.fantasypros.com/nfl/players/colston-loveland.php) - TE5 since Week 9
+- [ESPN - AJ Barner](https://www.espn.com/nfl/player/_/id/4576297/aj-barner) - 31 rec, 306 yds, 5 TDs
+- [Giants Schedule](https://www.giants.com/schedule/) - Week 14 BYE, Week 15 vs WSH, Week 16 vs MIN, Week 17 @ LV
+- [Pro Football Reference - TE Fantasy Points Against](https://www.pro-football-reference.com/years/2025/fantasy-points-against-TE.htm)
 
 ---
 
@@ -480,24 +599,24 @@ For a 4th seed who must win Weeks 15-17, the playoff projections matter more.
 
 ---
 
-## Optimal Starter by Week
+## Optimal Starter by Week (UPDATED - Nov 29)
 
 | Week | Recommended Starter | Backup Option | Reasoning |
 |------|---------------------|---------------|-----------|
-| **14** | **Strange vs IND** | Waller @ NYJ | Colts allow 5th-most to TEs, home game |
-| **15** | **Strange vs NYJ** | Waller @ PIT | Must-win week - need floor vs leaky Jets at home |
-| **16** | **Waller vs CIN** | Strange @ DEN | Bengals 32nd vs TEs - smash spot, primetime |
-| **17** | **Waller vs TB** | Strange @ IND | Both excellent; Waller home vs collapsing D |
+| **14** | **Waller @ NYJ** | — | Johnson on BYE, Jets leaky middle of field |
+| **15** | **Johnson vs WSH** | Waller @ PIT | Home game, Dart connection hot, Commanders mid vs TEs |
+| **16** | **Waller vs CIN** | Johnson vs MIN | Bengals 32nd vs TEs - smash spot, primetime |
+| **17** | **Johnson @ LV** or **Waller vs TB** | Either works | Both excellent matchups - start based on health/form |
 
 ---
 
-## Final Recommendation
+## Final Recommendation (UPDATED - Nov 29)
 
 ### Keep:
 | Player | Role |
 |--------|------|
-| **Waller** | Primary starter Weeks 16-17, elite RZ upside, best matchups |
-| **Strange** | Primary starter Weeks 14-15, high floor, excellent schedule |
+| **Waller** | Primary starter Week 14 and Week 16, elite RZ upside, CIN matchup is smash |
+| **Theo Johnson** | Primary starter Weeks 15 and 17, hot TD streak, Dart connection |
 
 ### Drop:
 | Player | Reasoning |
@@ -505,12 +624,12 @@ For a 4th seed who must win Weeks 15-17, the playoff projections matter more.
 | **Goedert** | TD-dependent, brutal playoff matchups (LV 4th-best, BUF #1 vs TEs), low yardage floor |
 | **Gadsden** | PHI Week 14 and KC Week 15 are brutal for must-win games, recent slump |
 
-### Why Waller + Strange:
-1. **Best combined playoff schedule** - covers all weeks optimally
-2. **Complementary strengths** - Strange's floor + Waller's TD ceiling
-3. **Week 15 safety** - Strange vs NYJ at home is much safer than Goedert vs LV or Gadsden @ KC
-4. **Week 17 insurance** - If Waller struggles, Strange @ IND is also a smash spot
-5. **Home games when it matters** - Strange home Weeks 14-15, Waller home Weeks 16-17
+### Why Waller + Johnson (Strange Unavailable):
+1. **Johnson's TD production** - 5 TDs in last 6 games vs Strange's 0 TDs all season
+2. **Dart connection** - 17-game pace of 12 TDs with starting QB locked in
+3. **Waller covers Week 14** - Johnson's BYE is manageable with Waller @ NYJ
+4. **Better Week 16 matchup** - Johnson vs MIN is better than Strange @ DEN
+5. **Complementary schedule** - Waller for Weeks 14/16, Johnson for Weeks 15/17
 
 ### Counter-Arguments (For Transparency):
 
@@ -536,14 +655,16 @@ For a 4th seed who must win Weeks 15-17, the playoff projections matter more.
 
 ---
 
-## Action Items
+## Action Items (UPDATED - Nov 29)
 
 | Priority | Action | Drop | Add |
 |----------|--------|------|-----|
-| 1 | Add Waller to IR slot | — | Waller |
-| 2 | Add Strange | Goedert OR Gadsden | Strange |
-| 3 | When Waller activates | Purdy | Waller → active roster |
-| 4 | When Hampton activates | Tracy | Hampton → active roster |
+| 1 | Add Theo Johnson | Goedert | **Theo Johnson** |
+| 2 | Keep Waller | — | Already rostered |
+| 3 | Drop Gadsden (Week 15) | Gadsden | FLEX depth or hold |
+| 4 | When Hampton activates | Streaming DST | Hampton → active roster |
+
+**Note:** Strange is no longer available - claimed by another team. Theo Johnson is the recommended replacement despite Week 14 BYE (Waller covers).
 
 ---
 

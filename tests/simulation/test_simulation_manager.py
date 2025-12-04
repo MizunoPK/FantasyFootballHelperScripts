@@ -16,6 +16,7 @@ Date: 2025
 import pytest
 import json
 import tempfile
+import shutil
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, call
 import sys
@@ -25,26 +26,91 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "simulation"))
 from SimulationManager import SimulationManager
 
 
-# Module-level fixtures (shared across all test classes)
-@pytest.fixture
-def temp_baseline_config():
-    """Create a temporary baseline config file"""
-    config = {
-        "config_name": "test_baseline",
-        "parameters": {
-            "NORMALIZATION_MAX_SCALE": 100.0,
-            "SAME_POS_BYE_WEIGHT": 1.0,
-            "DIFF_POS_BYE_WEIGHT": 1.0,
-            "DRAFT_ORDER_BONUSES": {"PRIMARY": 50.0, "SECONDARY": 40.0}
+def create_test_config_folder(tmp_path: Path) -> Path:
+    """Create a test config folder with all required files for ConfigGenerator."""
+    config_folder = tmp_path / "test_configs"
+    config_folder.mkdir(parents=True, exist_ok=True)
+
+    # Base parameters
+    base_config = {
+        'config_name': 'test_baseline',
+        'description': 'Test base config',
+        'parameters': {
+            'NORMALIZATION_MAX_SCALE': 100.0,
+            'SAME_POS_BYE_WEIGHT': 1.0,
+            'DIFF_POS_BYE_WEIGHT': 1.0,
+            'DRAFT_ORDER_BONUSES': {'PRIMARY': 50.0, 'SECONDARY': 40.0},
+            'DRAFT_ORDER_FILE': 1,
+            'DRAFT_ORDER': [{"FLEX": "P", "QB": "S"}] * 15,
+            'MAX_POSITIONS': {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+            'FLEX_ELIGIBLE_POSITIONS': ["RB", "WR"],
+            'ADP_SCORING': {
+                'WEIGHT': 1.0,
+                'MULTIPLIERS': {'EXCELLENT': 1.2, 'GOOD': 1.1, 'POOR': 0.9, 'VERY_POOR': 0.8},
+                'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 37.5}
+            },
         }
     }
+    with open(config_folder / 'league_config.json', 'w') as f:
+        json.dump(base_config, f, indent=2)
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump(config, f)
-        temp_path = Path(f.name)
+    # Week-specific params
+    week_params = {
+        'PLAYER_RATING_SCORING': {
+            'WEIGHT': 1.0,
+            'MULTIPLIERS': {'EXCELLENT': 1.25, 'GOOD': 1.15, 'POOR': 0.85, 'VERY_POOR': 0.75},
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 20.0}
+        },
+        'TEAM_QUALITY_SCORING': {
+            'MIN_WEEKS': 5, 'WEIGHT': 1.0,
+            'MULTIPLIERS': {'EXCELLENT': 1.3, 'GOOD': 1.2, 'POOR': 0.8, 'VERY_POOR': 0.7},
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 6.25}
+        },
+        'PERFORMANCE_SCORING': {
+            'WEIGHT': 1.0, 'MIN_WEEKS': 5,
+            'MULTIPLIERS': {'EXCELLENT': 1.15, 'GOOD': 1.05, 'POOR': 0.95, 'VERY_POOR': 0.85},
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'BI_EXCELLENT_HI', 'STEPS': 0.1}
+        },
+        'MATCHUP_SCORING': {
+            'MIN_WEEKS': 5, 'IMPACT_SCALE': 150.0, 'WEIGHT': 1.0,
+            'MULTIPLIERS': {'EXCELLENT': 1.2, 'GOOD': 1.1, 'POOR': 0.9, 'VERY_POOR': 0.8},
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'BI_EXCELLENT_HI', 'STEPS': 7.5}
+        },
+        'SCHEDULE_SCORING': {
+            'IMPACT_SCALE': 80.0, 'WEIGHT': 1.0,
+            'MULTIPLIERS': {'EXCELLENT': 1.05, 'GOOD': 1.025, 'POOR': 0.975, 'VERY_POOR': 0.95},
+            'THRESHOLDS': {'BASE_POSITION': 16, 'DIRECTION': 'INCREASING', 'STEPS': 8.0}
+        },
+        'TEMPERATURE_SCORING': {
+            'IDEAL_TEMPERATURE': 60, 'IMPACT_SCALE': 50.0, 'WEIGHT': 1.0,
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 10},
+            'MULTIPLIERS': {'EXCELLENT': 1.05, 'GOOD': 1.025, 'POOR': 0.975, 'VERY_POOR': 0.95}
+        },
+        'WIND_SCORING': {
+            'IMPACT_SCALE': 60.0, 'WEIGHT': 1.0,
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 8},
+            'MULTIPLIERS': {'EXCELLENT': 1.05, 'GOOD': 1.025, 'POOR': 0.975, 'VERY_POOR': 0.95}
+        },
+        'LOCATION_MODIFIERS': {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0},
+    }
 
-    yield temp_path
-    temp_path.unlink()
+    for week_file in ['week1-5.json', 'week6-11.json', 'week12-17.json']:
+        week_config = {
+            'config_name': f'Test {week_file}',
+            'description': f'Test week config for {week_file}',
+            'parameters': week_params
+        }
+        with open(config_folder / week_file, 'w') as f:
+            json.dump(week_config, f, indent=2)
+
+    return config_folder
+
+
+# Module-level fixtures (shared across all test classes)
+@pytest.fixture
+def temp_baseline_config(tmp_path):
+    """Create a temporary baseline config folder for testing"""
+    return create_test_config_folder(tmp_path)
 
 
 @pytest.fixture
@@ -52,10 +118,8 @@ def temp_output_dir():
     """Create a temporary output directory"""
     temp_dir = Path(tempfile.mkdtemp())
     yield temp_dir
-    # Cleanup
-    for file in temp_dir.glob('*'):
-        file.unlink()
-    temp_dir.rmdir()
+    # Cleanup (handle both files and directories)
+    shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 @pytest.fixture
@@ -299,6 +363,9 @@ class TestIterativeOptimization:
             mock_config_gen.baseline_config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
             mock_config_gen.PARAMETER_ORDER = ['NORMALIZATION_MAX_SCALE', 'BASE_BYE_PENALTY']  # Only 2 for testing
 
+            # Mock is_week_specific_param - first param is week-specific, second is base
+            mock_config_gen.is_week_specific_param.side_effect = lambda p: p == 'NORMALIZATION_MAX_SCALE'
+
             # Mock iterative combinations
             mock_config_gen.generate_iterative_combinations.return_value = [
                 {"config_name": "test1", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}},
@@ -306,24 +373,44 @@ class TestIterativeOptimization:
             ]
 
             mock_parallel = MockParallelRunner.return_value
-            mock_parallel.run_simulations_for_config.return_value = [
-                (10, 7, 1404.62)
-            ]
+            # Mock week-based results (list of WeekResults-like objects)
+            mock_week_result = Mock()
+            mock_week_result.week_range = '1-5'
+            mock_week_result.wins = 10
+            mock_week_result.losses = 7
+            mock_parallel.run_simulations_for_config_with_weeks.return_value = [mock_week_result]
 
             # Mock ResultsManager
             mock_results_class = MockResultsManager
             mock_results_instance = Mock()
 
+            # Mock extract methods for _initialize_configs_from_baseline
+            mock_results_instance._extract_base_params.return_value = {
+                "config_name": "test",
+                "parameters": {"BASE_BYE_PENALTY": 1.0}
+            }
+            mock_results_instance._extract_week_params.return_value = {
+                "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}
+            }
+
             # Create mock config performance
             mock_best_config = Mock()
+            mock_best_config.config_id = "test_config_001"  # JSON serializable string
             mock_best_config.get_win_rate.return_value = 0.60
+            mock_best_config.get_win_rate_for_range.return_value = 0.60
             mock_best_config.get_avg_points_per_league.return_value = 1400.0
             mock_best_config.total_wins = 10
             mock_best_config.total_losses = 7
             mock_best_config.config_dict = {"config_name": "best", "parameters": {"NORMALIZATION_MAX_SCALE": 110.0}}
 
             mock_results_instance.get_best_config.return_value = mock_best_config
+            mock_results_instance.get_best_config_for_range.return_value = mock_best_config
+            mock_results_instance.save_intermediate_folder.return_value = temp_output_dir / "intermediate_01_TEST"
             mock_results_class.return_value = mock_results_instance
+            mock_results_class.load_configs_from_folder.return_value = (
+                {"config_name": "loaded", "parameters": {}},
+                {"1-5": {"parameters": {}}, "6-11": {"parameters": {}}, "12-17": {"parameters": {}}}
+            )
 
             manager = SimulationManager(
                 baseline_config_path=temp_baseline_config,
@@ -338,7 +425,8 @@ class TestIterativeOptimization:
             # Replace the results_manager with our properly mocked one
             manager.results_manager = mock_results_instance
 
-            return manager, mock_results_instance, mock_parallel, mock_config_gen
+            # Use yield instead of return to keep patches active during test
+            yield manager, mock_results_instance, mock_parallel, mock_config_gen
 
     def test_iterative_optimization_iterates_through_parameters(self, mock_manager_for_iterative):
         """Test that optimization iterates through all parameters"""
@@ -356,72 +444,91 @@ class TestIterativeOptimization:
         manager.run_iterative_optimization()
 
         # Should run simulations for 2 configs per parameter × 2 parameters = 4 times
-        assert mock_parallel.run_simulations_for_config.call_count == 4
+        # Uses run_simulations_for_config_with_weeks for week-based tracking
+        assert mock_parallel.run_simulations_for_config_with_weeks.call_count == 4
 
     def test_iterative_optimization_updates_optimal_config(self, mock_manager_for_iterative, temp_output_dir):
-        """Test that optimal config is saved and intermediate configs exist"""
+        """Test that optimal config folder is saved"""
         manager, mock_results, mock_parallel, mock_config_gen = mock_manager_for_iterative
 
         optimal_path = manager.run_iterative_optimization()
 
-        # Verify optimization completed and saved final optimal config
+        # Verify optimization completed and saved final optimal config folder
         assert optimal_path.exists()
+        assert optimal_path.is_dir()
         assert 'optimal_iterative' in optimal_path.name
 
-        # Verify intermediate configs were created
-        intermediate_files = list(temp_output_dir.glob("intermediate_*.json"))
-        assert len(intermediate_files) >= 2  # One per parameter
+        # Verify folder contains required files
+        required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+        for filename in required_files:
+            assert (optimal_path / filename).exists(), f"Missing {filename} in optimal folder"
 
     def test_iterative_optimization_saves_intermediate_configs(self, mock_manager_for_iterative, temp_output_dir):
-        """Test that intermediate configs are saved"""
+        """Test that intermediate config folders are saved via results_manager"""
         manager, mock_results, mock_parallel, mock_config_gen = mock_manager_for_iterative
 
         manager.run_iterative_optimization()
 
-        # Check that intermediate files were created
-        intermediate_files = list(temp_output_dir.glob("intermediate_*.json"))
-        assert len(intermediate_files) == 2  # One per parameter
+        # Check that save_intermediate_folder was called (2 times, one per parameter)
+        assert mock_results.save_intermediate_folder.call_count == 2
 
     def test_iterative_optimization_saves_final_optimal(self, mock_manager_for_iterative, temp_output_dir):
-        """Test that final optimal config is saved"""
+        """Test that final optimal config folder is saved with all required files"""
         manager, mock_results, mock_parallel, mock_config_gen = mock_manager_for_iterative
 
         optimal_path = manager.run_iterative_optimization()
 
-        # Verify final optimal config exists
+        # Verify final optimal config folder exists with proper structure
         assert optimal_path.exists()
+        assert optimal_path.is_dir()
         assert 'optimal_iterative' in optimal_path.name
 
-    def test_iterative_optimization_cleans_up_old_intermediate_files(self, mock_manager_for_iterative, temp_output_dir):
-        """Test that intermediate files are cleaned up when starting fresh (not resuming)"""
+        # Verify all config files exist
+        assert (optimal_path / 'league_config.json').exists()
+        assert (optimal_path / 'week1-5.json').exists()
+        assert (optimal_path / 'week6-11.json').exists()
+        assert (optimal_path / 'week12-17.json').exists()
+
+    def test_iterative_optimization_cleans_up_old_intermediate_folders(self, mock_manager_for_iterative, temp_output_dir):
+        """Test that intermediate folders are cleaned up when starting fresh (not resuming)"""
         manager, mock_results, mock_parallel, mock_config_gen = mock_manager_for_iterative
 
-        # Create intermediate files that will be detected as completed run
+        # Create intermediate folders that will be detected as completed run
         # (param_idx > PARAMETER_ORDER length causes cleanup)
-        old_intermediate_1 = temp_output_dir / "intermediate_01_OLD_PARAM.json"
-        old_intermediate_2 = temp_output_dir / "intermediate_99_ANOTHER_OLD.json"
-        old_intermediate_1.write_text('{"old": "config1"}')
-        old_intermediate_2.write_text('{"old": "config2"}')
+        old_intermediate_1 = temp_output_dir / "intermediate_01_OLD_PARAM"
+        old_intermediate_2 = temp_output_dir / "intermediate_99_ANOTHER_OLD"
+        old_intermediate_1.mkdir(parents=True)
+        old_intermediate_2.mkdir(parents=True)
 
-        # Verify old files exist
+        # Verify old folders exist
         assert old_intermediate_1.exists()
         assert old_intermediate_2.exists()
 
-        # Run optimization - should cleanup because files are from completed/invalid run
+        # Run optimization - should cleanup because folders are from completed/invalid run
         manager.run_iterative_optimization()
 
-        # Verify old intermediate files were deleted
+        # Verify old intermediate folders were deleted
         assert not old_intermediate_1.exists()
         assert not old_intermediate_2.exists()
 
-        # Verify new intermediate files were created
-        new_intermediate_files = list(temp_output_dir.glob("intermediate_*.json"))
-        assert len(new_intermediate_files) == 2  # One per parameter in mock
 
-        # Verify new files don't have the old names
-        new_file_names = [f.name for f in new_intermediate_files]
-        assert "intermediate_01_OLD_PARAM.json" not in new_file_names
-        assert "intermediate_99_ANOTHER_OLD.json" not in new_file_names
+def create_intermediate_folder(output_dir: Path, param_idx: int, param_name: str) -> Path:
+    """Create a valid intermediate folder with all required config files."""
+    folder = output_dir / f"intermediate_{param_idx:02d}_{param_name}"
+    folder.mkdir(parents=True, exist_ok=True)
+
+    # Create base config
+    base_config = {"config_name": "test", "parameters": {"BASE_PARAM": 100.0}}
+    with open(folder / "league_config.json", "w") as f:
+        json.dump(base_config, f)
+
+    # Create week configs
+    week_config = {"parameters": {"WEEK_PARAM": 50.0}}
+    for week_file in ["week1-5.json", "week6-11.json", "week12-17.json"]:
+        with open(folder / week_file, "w") as f:
+            json.dump(week_config, f)
+
+    return folder
 
 
 class TestResumeDetection:
@@ -460,7 +567,7 @@ class TestResumeDetection:
             return manager
 
     def test_detect_resume_state_no_files(self, manager):
-        """Test resume detection with no intermediate files"""
+        """Test resume detection with no intermediate folders"""
         should_resume, start_idx, last_path = manager._detect_resume_state()
 
         assert should_resume is False
@@ -469,27 +576,22 @@ class TestResumeDetection:
 
     def test_detect_resume_state_partial_run(self, manager, temp_output_dir):
         """Test resume detection with partial run (2 of 4 parameters complete)"""
-        # Create valid intermediate files
-        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
-        file1 = temp_output_dir / "intermediate_01_NORMALIZATION_MAX_SCALE.json"
-        file2 = temp_output_dir / "intermediate_02_SAME_POS_BYE_WEIGHT.json"
-        file1.write_text(json.dumps(config))
-        file2.write_text(json.dumps(config))
+        # Create valid intermediate folders
+        folder1 = create_intermediate_folder(temp_output_dir, 1, "NORMALIZATION_MAX_SCALE")
+        folder2 = create_intermediate_folder(temp_output_dir, 2, "SAME_POS_BYE_WEIGHT")
 
         should_resume, start_idx, last_path = manager._detect_resume_state()
 
         assert should_resume is True
         assert start_idx == 2  # Resume from index 2 (3rd parameter)
-        assert last_path == file2
+        assert last_path == folder2
 
     def test_detect_resume_state_completed_run(self, manager, temp_output_dir):
         """Test resume detection with all parameters complete"""
-        # Create intermediate files for all 4 parameters
-        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
+        # Create intermediate folders for all 4 parameters
         for i in range(1, 5):
             param_name = manager.config_generator.PARAMETER_ORDER[i-1]
-            file = temp_output_dir / f"intermediate_{i:02d}_{param_name}.json"
-            file.write_text(json.dumps(config))
+            create_intermediate_folder(temp_output_dir, i, param_name)
 
         should_resume, start_idx, last_path = manager._detect_resume_state()
 
@@ -498,42 +600,45 @@ class TestResumeDetection:
         assert start_idx == 0
         assert last_path is None
 
-    def test_detect_resume_state_corrupted_json(self, manager, temp_output_dir):
-        """Test resume detection skips corrupted JSON files"""
-        # Create one valid file and one corrupted file
-        valid_config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
-        file1 = temp_output_dir / "intermediate_01_NORMALIZATION_MAX_SCALE.json"
-        file2 = temp_output_dir / "intermediate_02_SAME_POS_BYE_WEIGHT.json"
-        file1.write_text(json.dumps(valid_config))
-        file2.write_text("{ invalid json }")  # Corrupted
+    def test_detect_resume_state_corrupted_folder(self, manager, temp_output_dir):
+        """Test resume detection skips incomplete folders"""
+        # Create one valid folder and one incomplete folder
+        folder1 = create_intermediate_folder(temp_output_dir, 1, "NORMALIZATION_MAX_SCALE")
+
+        # Create incomplete folder (missing some files)
+        folder2 = temp_output_dir / "intermediate_02_SAME_POS_BYE_WEIGHT"
+        folder2.mkdir(parents=True)
+        # Only create league_config.json, missing week files
+        with open(folder2 / "league_config.json", "w") as f:
+            json.dump({"parameters": {}}, f)
 
         should_resume, start_idx, last_path = manager._detect_resume_state()
 
-        # Should skip corrupted file and use highest valid (file1)
+        # Should skip incomplete folder and use highest valid (folder1)
         assert should_resume is True
         assert start_idx == 1  # Resume from index 1 (2nd parameter)
-        assert last_path == file1
+        assert last_path == folder1
 
-    def test_detect_resume_state_missing_fields(self, manager, temp_output_dir):
-        """Test resume detection skips files with missing required fields"""
-        # Create file with missing 'parameters' field
-        invalid_config = {"config_name": "test"}  # Missing 'parameters'
-        file1 = temp_output_dir / "intermediate_01_NORMALIZATION_MAX_SCALE.json"
-        file1.write_text(json.dumps(invalid_config))
+    def test_detect_resume_state_missing_files(self, manager, temp_output_dir):
+        """Test resume detection skips folders with missing required files"""
+        # Create folder with missing week files
+        folder = temp_output_dir / "intermediate_01_NORMALIZATION_MAX_SCALE"
+        folder.mkdir(parents=True)
+        # Only create league_config.json
+        with open(folder / "league_config.json", "w") as f:
+            json.dump({"parameters": {}}, f)
 
         should_resume, start_idx, last_path = manager._detect_resume_state()
 
-        # Should skip invalid file
+        # Should skip invalid folder
         assert should_resume is False
         assert start_idx == 0
         assert last_path is None
 
     def test_detect_resume_state_parameter_order_mismatch(self, manager, temp_output_dir):
         """Test resume detection with parameter order mismatch"""
-        # Create file with wrong parameter name at index 1
-        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
-        file1 = temp_output_dir / "intermediate_01_WRONG_PARAM.json"
-        file1.write_text(json.dumps(config))
+        # Create folder with wrong parameter name at index 1
+        create_intermediate_folder(temp_output_dir, 1, "WRONG_PARAM")
 
         should_resume, start_idx, last_path = manager._detect_resume_state()
 
@@ -543,25 +648,24 @@ class TestResumeDetection:
         assert last_path is None
 
     def test_detect_resume_state_invalid_filename_format(self, manager, temp_output_dir):
-        """Test resume detection skips files with invalid filename format"""
-        # Create file with invalid name format
-        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
-        file1 = temp_output_dir / "invalid_filename.json"
-        file1.write_text(json.dumps(config))
+        """Test resume detection skips folders with invalid filename format"""
+        # Create folder with invalid name format (no underscore separator)
+        folder = temp_output_dir / "invalid_foldername"
+        folder.mkdir(parents=True)
+        with open(folder / "league_config.json", "w") as f:
+            json.dump({"parameters": {}}, f)
 
         should_resume, start_idx, last_path = manager._detect_resume_state()
 
-        # Should skip invalid filename
+        # Should skip invalid folder name
         assert should_resume is False
         assert start_idx == 0
         assert last_path is None
 
     def test_detect_resume_state_param_idx_exceeds_order(self, manager, temp_output_dir):
         """Test resume detection when param_idx exceeds PARAMETER_ORDER length"""
-        # Create file with idx beyond parameter count (idx=99 > 4 parameters)
-        config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
-        file1 = temp_output_dir / "intermediate_99_EXTRA_PARAM.json"
-        file1.write_text(json.dumps(config))
+        # Create folder with idx beyond parameter count (idx=99 > 4 parameters)
+        create_intermediate_folder(temp_output_dir, 99, "EXTRA_PARAM")
 
         should_resume, start_idx, last_path = manager._detect_resume_state()
 

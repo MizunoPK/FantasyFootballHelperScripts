@@ -75,32 +75,102 @@ TestTeam,BENCH,
     return data_folder
 
 
+def create_test_config_folder(tmp_path: Path) -> Path:
+    """Create a test config folder with all required files for ConfigGenerator."""
+    config_folder = tmp_path / "test_configs"
+    config_folder.mkdir(parents=True, exist_ok=True)
+
+    # Try to load from actual data/configs folder if it exists
+    actual_configs = project_root / "data" / "configs"
+    if actual_configs.exists():
+        # Copy from real configs
+        for config_file in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+            src = actual_configs / config_file
+            if src.exists():
+                with open(src) as f:
+                    data = json.load(f)
+                with open(config_folder / config_file, 'w') as f:
+                    json.dump(data, f, indent=2)
+        return config_folder
+
+    # Fallback: create minimal config structure
+    base_config = {
+        'config_name': 'test_baseline',
+        'description': 'Test base config',
+        'parameters': {
+            'NORMALIZATION_MAX_SCALE': 145.0,
+            'SAME_POS_BYE_WEIGHT': 1.0,
+            'DIFF_POS_BYE_WEIGHT': 1.0,
+            'DRAFT_ORDER_BONUSES': {'PRIMARY': 50.0, 'SECONDARY': 40.0},
+            'DRAFT_ORDER_FILE': 1,
+            'DRAFT_ORDER': [{"FLEX": "P", "QB": "S"}] * 15,
+            'MAX_POSITIONS': {"QB": 2, "RB": 4, "WR": 4, "FLEX": 2, "TE": 1, "K": 1, "DST": 1},
+            'FLEX_ELIGIBLE_POSITIONS': ["RB", "WR"],
+            'ADP_SCORING': {
+                'WEIGHT': 1.0,
+                'MULTIPLIERS': {'EXCELLENT': 1.2, 'GOOD': 1.1, 'POOR': 0.9, 'VERY_POOR': 0.8},
+                'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 37.5}
+            },
+        }
+    }
+    with open(config_folder / 'league_config.json', 'w') as f:
+        json.dump(base_config, f, indent=2)
+
+    week_params = {
+        'PLAYER_RATING_SCORING': {
+            'WEIGHT': 1.0,
+            'MULTIPLIERS': {'EXCELLENT': 1.25, 'GOOD': 1.15, 'POOR': 0.85, 'VERY_POOR': 0.75},
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 20.0}
+        },
+        'TEAM_QUALITY_SCORING': {
+            'MIN_WEEKS': 5, 'WEIGHT': 1.0,
+            'MULTIPLIERS': {'EXCELLENT': 1.3, 'GOOD': 1.2, 'POOR': 0.8, 'VERY_POOR': 0.7},
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 6.25}
+        },
+        'PERFORMANCE_SCORING': {
+            'WEIGHT': 1.0, 'MIN_WEEKS': 5,
+            'MULTIPLIERS': {'EXCELLENT': 1.15, 'GOOD': 1.05, 'POOR': 0.95, 'VERY_POOR': 0.85},
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'BI_EXCELLENT_HI', 'STEPS': 0.1}
+        },
+        'MATCHUP_SCORING': {
+            'MIN_WEEKS': 5, 'IMPACT_SCALE': 150.0, 'WEIGHT': 1.0,
+            'MULTIPLIERS': {'EXCELLENT': 1.2, 'GOOD': 1.1, 'POOR': 0.9, 'VERY_POOR': 0.8},
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'BI_EXCELLENT_HI', 'STEPS': 7.5}
+        },
+        'SCHEDULE_SCORING': {
+            'IMPACT_SCALE': 80.0, 'WEIGHT': 1.0,
+            'MULTIPLIERS': {'EXCELLENT': 1.05, 'GOOD': 1.025, 'POOR': 0.975, 'VERY_POOR': 0.95},
+            'THRESHOLDS': {'BASE_POSITION': 16, 'DIRECTION': 'INCREASING', 'STEPS': 8.0}
+        },
+        'TEMPERATURE_SCORING': {
+            'IDEAL_TEMPERATURE': 60, 'IMPACT_SCALE': 50.0, 'WEIGHT': 1.0,
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 10},
+            'MULTIPLIERS': {'EXCELLENT': 1.05, 'GOOD': 1.025, 'POOR': 0.975, 'VERY_POOR': 0.95}
+        },
+        'WIND_SCORING': {
+            'IMPACT_SCALE': 60.0, 'WEIGHT': 1.0,
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 8},
+            'MULTIPLIERS': {'EXCELLENT': 1.05, 'GOOD': 1.025, 'POOR': 0.975, 'VERY_POOR': 0.95}
+        },
+        'LOCATION_MODIFIERS': {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0},
+    }
+
+    for week_file in ['week1-5.json', 'week6-11.json', 'week12-17.json']:
+        week_config = {
+            'config_name': f'Test {week_file}',
+            'description': f'Test week config for {week_file}',
+            'parameters': week_params
+        }
+        with open(config_folder / week_file, 'w') as f:
+            json.dump(week_config, f, indent=2)
+
+    return config_folder
+
+
 @pytest.fixture
 def baseline_config(tmp_path):
-    """Create a baseline configuration file by copying from actual configs"""
-    # Copy an actual working config from simulation_configs
-    source_config = project_root / "simulation" / "simulation_configs" / "intermediate_01_PERFORMANCE_SCORING_WEIGHT.json"
-
-    if source_config.exists():
-        # Use actual working config
-        config_path = tmp_path / "baseline_config.json"
-        with open(source_config) as f:
-            config_data = json.load(f)
-
-        # Simplify for testing - use baseline values
-        config_data["config_name"] = "Test Baseline"
-        config_data["description"] = "Test configuration for integration tests"
-
-        config_path.write_text(json.dumps(config_data, indent=2))
-        return config_path
-    else:
-        # Fallback to data/league_config.json
-        source_config = project_root / "data" / "league_config.json"
-        config_path = tmp_path / "baseline_config.json"
-        with open(source_config) as f:
-            config_data = json.load(f)
-        config_path.write_text(json.dumps(config_data, indent=2))
-        return config_path
+    """Create a baseline configuration folder for testing"""
+    return create_test_config_folder(tmp_path)
 
 
 class TestConfigGeneratorIntegration:
@@ -202,8 +272,8 @@ class TestParallelLeagueRunnerIntegration:
             data_folder=temp_simulation_data
         )
 
-        # Load baseline config
-        with open(baseline_config) as f:
+        # Load baseline config from folder
+        with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
         # Note: Full simulation test requires complete environment setup (player data, team data, etc.)
@@ -232,8 +302,8 @@ class TestResultsManagerIntegration:
         """Test results manager can register configs"""
         manager = ResultsManager()
 
-        # Load config
-        with open(baseline_config) as f:
+        # Load config from folder
+        with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
         manager.register_config("test_config_1", config_dict)
@@ -245,8 +315,8 @@ class TestResultsManagerIntegration:
         """Test results manager can record simulation results"""
         manager = ResultsManager()
 
-        # Load and register config
-        with open(baseline_config) as f:
+        # Load and register config from folder
+        with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
         manager.register_config("test_config_1", config_dict)
@@ -268,8 +338,8 @@ class TestConfigPerformanceIntegration:
 
     def test_config_performance_initialization(self, baseline_config):
         """Test ConfigPerformance initializes correctly"""
-        # Load config
-        with open(baseline_config) as f:
+        # Load config from folder
+        with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
         perf = ConfigPerformance("test_config", config_dict)
@@ -279,8 +349,8 @@ class TestConfigPerformanceIntegration:
 
     def test_config_performance_adds_results(self, baseline_config):
         """Test ConfigPerformance can add simulation results"""
-        # Load config
-        with open(baseline_config) as f:
+        # Load config from folder
+        with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
         perf = ConfigPerformance("test_config", config_dict)
@@ -294,8 +364,8 @@ class TestConfigPerformanceIntegration:
 
     def test_config_performance_calculates_win_rate(self, baseline_config):
         """Test ConfigPerformance calculates win rate correctly"""
-        # Load config
-        with open(baseline_config) as f:
+        # Load config from folder
+        with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
         perf = ConfigPerformance("test_config", config_dict)

@@ -679,11 +679,12 @@ class TestStarterHelperDisplayFunctionality:
         config = Mock(spec=ConfigManager)
         config.current_nfl_week = 8
         config.nfl_scoring_format = "ppr"
+        config.normalization_max_scale = 100.0
 
         player_manager = Mock(spec=PlayerManager)
         player_manager.team = Mock()
         player_manager.scoring_calculator = Mock()
-        player_manager.scoring_calculator.max_weekly_projection = 0.0
+        player_manager.scoring_calculator.max_weekly_projection = 30.0
         player_manager.calculate_max_weekly_projection = Mock(return_value=30.0)
         team_data_manager = Mock(spec=TeamDataManager)
 
@@ -705,6 +706,8 @@ class TestStarterHelperDisplayFunctionality:
         assert "OPTIMAL STARTING LINEUP - WEEK 8" in captured.out
         assert "PPR SCORING" in captured.out
         assert "Patrick Mahomes" in captured.out
+        assert "COMBINED PROJECTED POINTS" in captured.out
+        assert "ADJUSTED PROJECTED POINTS" in captured.out
         assert "BENCH" in captured.out
 
     def test_print_player_list_with_players(self, capsys):

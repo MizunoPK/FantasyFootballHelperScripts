@@ -16,7 +16,7 @@ Author: Kai Mizuno
 """
 
 from pathlib import Path
-from typing import Dict, Callable, Optional, Tuple
+from typing import Dict, Callable, Optional, Tuple, List
 from concurrent.futures import ThreadPoolExecutor, Future, as_completed
 import threading
 import gc
@@ -128,6 +128,65 @@ class ParallelLeagueRunner:
             del league
             self.logger.debug(f"[Sim {simulation_id}] Cleanup complete")
 
+    def run_single_simulation_with_weeks(
+        self,
+        config_dict: dict,
+        simulation_id: int
+    ) -> List[Tuple[int, bool, float]]:
+        """
+        Run a single league simulation and return per-week results (thread-safe).
+
+        Like run_single_simulation, but returns per-week breakdown for
+        week-by-week config optimization.
+
+        Args:
+            config_dict (dict): Configuration dictionary for this simulation
+            simulation_id (int): Unique ID for this simulation run
+
+        Returns:
+            List[Tuple[int, bool, float]]: Per-week results as list of
+                (week_number, won, points) tuples
+
+        Raises:
+            Exception: Any exception during simulation is logged and re-raised
+        """
+        try:
+            self.logger.debug(f"[Sim {simulation_id}] Starting simulation (with week data)")
+
+            # Create league with this config
+            league = SimulatedLeague(config_dict, self.data_folder)
+
+            # Run draft
+            self.logger.debug(f"[Sim {simulation_id}] Running draft")
+            league.run_draft()
+
+            # Run season
+            self.logger.debug(f"[Sim {simulation_id}] Running season")
+            league.run_season()
+
+            # Get per-week results
+            week_results = league.get_draft_helper_results_by_week()
+
+            # Log summary
+            wins = sum(1 for _, won, _ in week_results if won)
+            losses = len(week_results) - wins
+            total_pts = sum(pts for _, _, pts in week_results)
+
+            self.logger.debug(
+                f"[Sim {simulation_id}] Complete: {wins}W-{losses}L, {total_pts:.2f} pts"
+            )
+
+            return week_results
+
+        except Exception as e:
+            self.logger.error(f"[Sim {simulation_id}] Failed: {e}", exc_info=True)
+            raise
+        finally:
+            # Explicit cleanup to prevent memory accumulation
+            league.cleanup()
+            del league
+            self.logger.debug(f"[Sim {simulation_id}] Cleanup complete")
+
     def run_simulations_for_config(
         self,
         config_dict: dict,
@@ -187,6 +246,73 @@ class ParallelLeagueRunner:
 
         self.logger.info(
             f"Completed {len(results)}/{num_simulations} simulations successfully"
+        )
+
+        return results
+
+    def run_simulations_for_config_with_weeks(
+        self,
+        config_dict: dict,
+        num_simulations: int
+    ) -> list[List[Tuple[int, bool, float]]]:
+        """
+        Run multiple simulations for a single configuration with per-week tracking.
+
+        Like run_simulations_for_config, but returns per-week results for
+        week-by-week config optimization.
+
+        Args:
+            config_dict (dict): Configuration dictionary
+            num_simulations (int): Number of simulations to run
+
+        Returns:
+            list[List[Tuple[int, bool, float]]]: List of per-week results,
+                where each inner list contains (week, won, points) tuples
+
+        Example:
+            >>> runner = ParallelLeagueRunner(max_workers=8)
+            >>> results = runner.run_simulations_for_config_with_weeks(config, 100)
+            >>> # Returns num_simulations results, each with 16 week entries:
+            >>> # [[(1, True, 125.5), (2, False, 98.3), ...], ...]
+        """
+        self.logger.info(
+            f"Running {num_simulations} simulations with week tracking ({self.max_workers} workers)"
+        )
+
+        results = []
+        completed_count = 0
+
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            # Submit all simulation tasks using the week-tracking version
+            future_to_sim_id = {
+                executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id): sim_id
+                for sim_id in range(num_simulations)
+            }
+
+            # Collect results as they complete
+            for future in as_completed(future_to_sim_id):
+                sim_id = future_to_sim_id[future]
+
+                try:
+                    result = future.result()
+                    results.append(result)
+
+                    # Update progress (thread-safe)
+                    with self.lock:
+                        completed_count += 1
+                        if self.progress_callback:
+                            self.progress_callback(completed_count, num_simulations)
+
+                        # Force garbage collection periodically
+                        if completed_count % GC_FREQUENCY == 0:
+                            gc.collect()
+                            self.logger.debug(f"Forced GC after {completed_count} simulations")
+
+                except Exception as e:
+                    self.logger.error(f"Simulation {sim_id} failed: {e}")
+
+        self.logger.info(
+            f"Completed {len(results)}/{num_simulations} simulations successfully (with weeks)"
         )
 
         return results

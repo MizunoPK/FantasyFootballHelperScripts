@@ -86,29 +86,99 @@ def temp_data_folder(tmp_path):
 6,21.5,24.8,34.2,7.8,9.1,31,17
 """)
 
-    # Copy league_config.json from actual data folder
-    source_config = project_root / "data" / "league_config.json"
-    if source_config.exists():
-        shutil.copy(source_config, data_folder / "league_config.json")
+    # Copy configs folder structure from actual data folder (new folder-based config system)
+    source_configs_folder = project_root / "data" / "configs"
+    dest_configs_folder = data_folder / "configs"
+
+    if source_configs_folder.exists():
+        # Copy the entire configs folder
+        shutil.copytree(source_configs_folder, dest_configs_folder)
     else:
-        # Create minimal config if source doesn't exist
-        config_json = data_folder / "league_config.json"
-        config_json.write_text("""{
+        # Create minimal config folder structure if source doesn't exist
+        dest_configs_folder.mkdir()
+
+        # Create base league_config.json
+        base_config = dest_configs_folder / "league_config.json"
+        base_config.write_text("""{
     "config_name": "Test Config",
     "description": "Test configuration for integration tests",
-    "current_nfl_week": 1,
-    "scoring": {
-        "qb": {"pass_yards": 0.04, "pass_tds": 4, "interceptions": -2},
-        "rb": {"rush_yards": 0.1, "rush_tds": 6, "receptions": 1, "rec_yards": 0.1, "rec_tds": 6},
-        "wr": {"receptions": 1, "rec_yards": 0.1, "rec_tds": 6},
-        "te": {"receptions": 1, "rec_yards": 0.1, "rec_tds": 6}
-    },
-    "thresholds": {
-        "projected_points_multiplier": 1.0,
-        "adp_multipliers": [[0, 1.0]],
-        "injury_penalties": {"Healthy": 0, "Questionable": -5, "Doubtful": -15, "Out": -100}
+    "parameters": {
+        "CURRENT_NFL_WEEK": 1,
+        "NFL_SEASON": 2025,
+        "NFL_SCORING_FORMAT": "ppr",
+        "NORMALIZATION_MAX_SCALE": 100.0,
+        "SAME_POS_BYE_WEIGHT": 0.2,
+        "DIFF_POS_BYE_WEIGHT": 0.1,
+        "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": -5, "HIGH": -100},
+        "DRAFT_ORDER_BONUSES": {"PRIMARY": 10, "SECONDARY": 5},
+        "DRAFT_ORDER": [{"FLEX": "P"}, {"FLEX": "P"}, {"FLEX": "P"}],
+        "MAX_POSITIONS": {"QB": 1, "RB": 4, "WR": 4, "FLEX": 2, "TE": 2, "K": 1, "DST": 1},
+        "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR", "TE"],
+        "ADP_SCORING": {
+            "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 30},
+            "MULTIPLIERS": {"VERY_POOR": 0.95, "POOR": 0.975, "GOOD": 1.025, "EXCELLENT": 1.05},
+            "WEIGHT": 1.0
+        }
     }
 }""")
+
+        # Create week-specific configs with week-specific parameters
+        week_params_base = """{
+    "config_name": "Test Config",
+    "description": "Week-specific test configuration",
+    "parameters": {
+        "PLAYER_RATING_SCORING": {
+            "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 20},
+            "MULTIPLIERS": {"VERY_POOR": 0.95, "POOR": 0.975, "GOOD": 1.025, "EXCELLENT": 1.05},
+            "WEIGHT": 1.0
+        },
+        "TEAM_QUALITY_SCORING": {
+            "MIN_WEEKS": 5,
+            "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 6},
+            "MULTIPLIERS": {"VERY_POOR": 0.95, "POOR": 0.975, "GOOD": 1.025, "EXCELLENT": 1.05},
+            "WEIGHT": 1.0
+        },
+        "PERFORMANCE_SCORING": {
+            "MIN_WEEKS": 5,
+            "THRESHOLDS": {"BASE_POSITION": 0.0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 0.2},
+            "MULTIPLIERS": {"VERY_POOR": 0.95, "POOR": 0.975, "GOOD": 1.025, "EXCELLENT": 1.05},
+            "WEIGHT": 1.0
+        },
+        "MATCHUP_SCORING": {
+            "MIN_WEEKS": 5,
+            "IMPACT_SCALE": 100.0,
+            "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6},
+            "MULTIPLIERS": {"VERY_POOR": 0.95, "POOR": 0.975, "GOOD": 1.025, "EXCELLENT": 1.05},
+            "WEIGHT": 1.0
+        },
+        "SCHEDULE_SCORING": {
+            "MIN_WEEKS": 5,
+            "IMPACT_SCALE": 100.0,
+            "THRESHOLDS": {"BASE_POSITION": 16, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 4},
+            "MULTIPLIERS": {"VERY_POOR": 0.95, "POOR": 0.975, "GOOD": 1.025, "EXCELLENT": 1.05},
+            "WEIGHT": 1.0
+        },
+        "TEMPERATURE_SCORING": {
+            "IMPACT_SCALE": 50.0,
+            "WEIGHT": 0.5,
+            "IDEAL_TEMPERATURE": 60,
+            "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 10},
+            "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95}
+        },
+        "WIND_SCORING": {
+            "IMPACT_SCALE": 50.0,
+            "WEIGHT": 0.5,
+            "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 8},
+            "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95}
+        },
+        "LOCATION_MODIFIERS": {"HOME": 2.0, "AWAY": -2.0, "INTERNATIONAL": -3.0}
+    }
+}"""
+
+        # Write week config files
+        (dest_configs_folder / "week1-5.json").write_text(week_params_base)
+        (dest_configs_folder / "week6-11.json").write_text(week_params_base)
+        (dest_configs_folder / "week12-17.json").write_text(week_params_base)
 
     return data_folder
 

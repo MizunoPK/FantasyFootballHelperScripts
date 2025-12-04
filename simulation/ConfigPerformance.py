@@ -5,14 +5,45 @@ Tracks performance metrics for a single configuration across multiple
 league simulations. Aggregates wins, losses, and total points to calculate
 win rate and average performance.
 
+Now includes per-week-range tracking for week-by-week config optimization:
+- Week ranges: 1-5, 6-11, 12-17
+- Tracks wins/losses/points per range for optimal config selection
+
 Used by ResultsManager to compare different configurations and identify
 the optimal parameter settings.
 
 Author: Kai Mizuno
 """
 
-from typing import Dict, Optional
+from typing import Dict, List, Tuple, Optional
 import json
+
+
+# Week range definitions
+WEEK_RANGES = ["1-5", "6-11", "12-17"]
+
+
+def get_week_range(week: int) -> str:
+    """
+    Get the week range string for a given week number.
+
+    Args:
+        week (int): NFL week number (1-17)
+
+    Returns:
+        str: Week range string ("1-5", "6-11", or "12-17")
+
+    Raises:
+        ValueError: If week is outside valid range (1-17)
+    """
+    if 1 <= week <= 5:
+        return "1-5"
+    elif 6 <= week <= 11:
+        return "6-11"
+    elif 12 <= week <= 17:
+        return "12-17"
+    else:
+        raise ValueError(f"Invalid week number: {week}. Must be between 1 and 17.")
 
 
 class ConfigPerformance:
@@ -22,6 +53,10 @@ class ConfigPerformance:
     Aggregates results from multiple league simulations to calculate overall
     performance metrics including win rate and average points per league.
 
+    Also tracks per-week-range performance for week-by-week optimization:
+    - Week ranges: 1-5, 6-11, 12-17
+    - Each range tracks wins, losses, and points separately
+
     Attributes:
         config_id (str): Unique identifier for this configuration
         config_dict (dict): Full configuration dictionary
@@ -29,6 +64,9 @@ class ConfigPerformance:
         total_losses (int): Total losses across all simulations
         total_points (float): Total points scored across all simulations
         num_simulations (int): Number of simulations completed
+        week_range_wins (Dict[str, int]): Wins per week range
+        week_range_losses (Dict[str, int]): Losses per week range
+        week_range_points (Dict[str, float]): Points per week range
     """
 
     def __init__(self, config_id: str, config_dict: dict) -> None:
@@ -46,9 +84,17 @@ class ConfigPerformance:
         self.total_points = 0.0
         self.num_simulations = 0
 
+        # Per-week-range tracking
+        self.week_range_wins: Dict[str, int] = {r: 0 for r in WEEK_RANGES}
+        self.week_range_losses: Dict[str, int] = {r: 0 for r in WEEK_RANGES}
+        self.week_range_points: Dict[str, float] = {r: 0.0 for r in WEEK_RANGES}
+
     def add_league_result(self, wins: int, losses: int, points: float) -> None:
         """
-        Add results from a single league simulation.
+        Add results from a single league simulation (aggregate mode).
+
+        This is the legacy method that adds aggregate results without
+        per-week breakdown. Use add_week_results() for per-week tracking.
 
         Args:
             wins (int): Number of wins in this league
@@ -66,6 +112,75 @@ class ConfigPerformance:
         self.total_losses += losses
         self.total_points += points
         self.num_simulations += 1
+
+    def add_week_results(self, week_results: List[Tuple[int, bool, float]]) -> None:
+        """
+        Add results from a single league simulation with per-week breakdown.
+
+        Updates both overall totals and per-week-range tracking.
+
+        Args:
+            week_results: List of (week, won, points) tuples for each week played
+                - week (int): Week number (1-16)
+                - won (bool): True if won that week
+                - points (float): Points scored that week
+
+        Example:
+            >>> perf = ConfigPerformance("config_0001", config_dict)
+            >>> week_results = [
+            ...     (1, True, 120.5),   # Week 1: Win with 120.5 pts
+            ...     (2, False, 95.3),   # Week 2: Loss with 95.3 pts
+            ...     # ... weeks 3-16
+            ... ]
+            >>> perf.add_week_results(week_results)
+        """
+        total_wins = 0
+        total_losses = 0
+        total_points = 0.0
+
+        for week, won, points in week_results:
+            # Get the week range for this week
+            week_range = get_week_range(week)
+
+            # Update per-range tracking
+            if won:
+                self.week_range_wins[week_range] += 1
+                total_wins += 1
+            else:
+                self.week_range_losses[week_range] += 1
+                total_losses += 1
+
+            self.week_range_points[week_range] += points
+            total_points += points
+
+        # Update overall totals
+        self.total_wins += total_wins
+        self.total_losses += total_losses
+        self.total_points += total_points
+        self.num_simulations += 1
+
+    def get_week_range_games(self, week_range: str) -> int:
+        """Get total games played in a specific week range."""
+        return self.week_range_wins[week_range] + self.week_range_losses[week_range]
+
+    def get_win_rate_for_range(self, week_range: str) -> float:
+        """
+        Calculate win rate for a specific week range.
+
+        Args:
+            week_range (str): Week range string ("1-5", "6-11", or "12-17")
+
+        Returns:
+            float: Win rate for that range, or 0.0 if no games
+
+        Example:
+            >>> perf.get_win_rate_for_range("1-5")
+            0.75  # 75% win rate in weeks 1-5
+        """
+        total_games = self.get_week_range_games(week_range)
+        if total_games == 0:
+            return 0.0
+        return self.week_range_wins[week_range] / total_games
 
     @property
     def total_games(self) -> int:
@@ -163,10 +278,15 @@ class ConfigPerformance:
                 'total_points': 150000.0,
                 'num_simulations': 100,
                 'win_rate': 0.6111,
-                'avg_points_per_league': 1500.0
+                'avg_points_per_league': 1500.0,
+                'week_range_performance': {
+                    '1-5': {'wins': 80, 'losses': 20, 'win_rate': 0.80},
+                    '6-11': {'wins': 90, 'losses': 60, 'win_rate': 0.60},
+                    '12-17': {'wins': 50, 'losses': 60, 'win_rate': 0.45}
+                }
             }
         """
-        return {
+        result = {
             'config_id': self.config_id,
             'total_wins': self.total_wins,
             'total_losses': self.total_losses,
@@ -174,8 +294,20 @@ class ConfigPerformance:
             'num_simulations': self.num_simulations,
             'total_games': self.total_games,
             'win_rate': self.get_win_rate(),
-            'avg_points_per_league': self.get_avg_points_per_league()
+            'avg_points_per_league': self.get_avg_points_per_league(),
+            'week_range_performance': {}
         }
+
+        # Add per-week-range performance
+        for week_range in WEEK_RANGES:
+            result['week_range_performance'][week_range] = {
+                'wins': self.week_range_wins[week_range],
+                'losses': self.week_range_losses[week_range],
+                'points': self.week_range_points[week_range],
+                'win_rate': self.get_win_rate_for_range(week_range)
+            }
+
+        return result
 
     def __repr__(self) -> str:
         """String representation for debugging."""

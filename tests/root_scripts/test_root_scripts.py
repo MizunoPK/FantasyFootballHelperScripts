@@ -215,10 +215,24 @@ class TestRunSimulation:
     @patch('run_simulation.Path')
     def test_single_mode_argument_parsing(self, mock_path_class, mock_sim_manager):
         """Test single mode argument parsing"""
-        # Mock Path behavior
+        # Create a mock config folder that supports the / operator for file paths
+        mock_folder = Mock()
+        mock_folder.name = "optimal_test_folder"
+        mock_folder.is_dir.return_value = True
+        mock_folder.stat.return_value = Mock(st_mtime=1.0)
+
+        # Mock file that exists
+        mock_file = Mock()
+        mock_file.exists.return_value = True
+
+        # Mock the / operator to return file paths
+        mock_folder.__truediv__ = Mock(return_value=mock_file)
+
+        # Mock Path behavior - now uses folder-based configs
         mock_path = Mock()
-        mock_path.glob.return_value = [Mock(stat=Mock(return_value=Mock(st_mtime=1.0)))]
-        mock_path.name = "optimal_test.json"
+        mock_path.glob.return_value = [mock_folder]
+        mock_path.name = "optimal_test_folder"
+        mock_path.exists.return_value = True
         mock_path_class.return_value = mock_path
 
         # Mock data folder existence

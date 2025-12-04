@@ -1,0 +1,7 @@
+We are going to update the way that config parameters are loaded into the league helper
+I have made a new folder at data/configs. I have made 4 files within it. One is a copy of league_config.json but without many of the scoring parameter sections. The other 3 are files that all contain the same scoring parameters that were removed from league_config, but with some different values for the parameters in each file.
+The 3 extra files are called 'week{startNum}-{endNum}.json' and the goal of each file is to define how the scoring parameters will behave in specific weeks.
+E.g. the week1-5.json file will have its values applied when the league helper is run when CURRENT_NFL_WEEK = 1, 2, 3, 4, or 5
+We are going to be updating the simulation such that when it is testing different config combinations, it determines which config produced the best win rate for each block of weeks. One config may perform better for week1-5 than for week6-11.
+When creating files based on simulation results, we'll make folders instead of single files and have each folder named the same as what files currently are set for by the simulation then have the 4 config files that were decided on contained within the folder
+The original league_config.json will be depreciated and deleted from the data folder. No need for backward compatability.

@@ -1,0 +1,118 @@
+{
+    "config_name": "simulation/simulation_configs/intermediate_03_DIFF_POS_BYE_WEIGHT.json",
+  "description": "Win Rate: 0.92",
+  "parameters": {
+    "PLAYER_RATING_SCORING": {
+    "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 20
+    },
+    "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+    },
+    "WEIGHT": 1.7932447064906794
+    },
+    "TEAM_QUALITY_SCORING": {
+    "MIN_WEEKS": 6,
+    "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 6
+    },
+    "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+    },
+    "WEIGHT": 0.5127530416656525
+    },
+    "PERFORMANCE_SCORING": {
+    "MIN_WEEKS": 9,
+    "THRESHOLDS": {
+        "BASE_POSITION": 0.0,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 0.3467220889061969
+    },
+    "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+    },
+    "WEIGHT": 3.9446781593548463
+    },
+    "MATCHUP_SCORING": {
+    "MIN_WEEKS": 10,
+    "IMPACT_SCALE": 106.1935841190249,
+    "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 6
+    },
+    "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+    },
+    "WEIGHT": 0.9204307165723935
+    },
+    "SCHEDULE_SCORING": {
+    "MIN_WEEKS": 10,
+    "IMPACT_SCALE": 106.1935841190249,
+    "THRESHOLDS": {
+        "BASE_POSITION": 16,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 2
+    },
+    "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+    },
+    "WEIGHT": 0.9204307165723935
+    },
+    "TEMPERATURE_SCORING": {
+    "IMPACT_SCALE": 61.802243806624794,
+    "WEIGHT": 0.7172277887736904,
+    "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 10
+    },
+    "IDEAL_TEMPERATURE": 60,
+    "MULTIPLIERS": {
+        "EXCELLENT": 1.05,
+        "GOOD": 1.025,
+        "POOR": 0.975,
+        "VERY_POOR": 0.95
+    }
+    },
+    "WIND_SCORING": {
+        "IMPACT_SCALE": 53.812235553973835,
+        "WEIGHT": 0.7614038924797053,
+        "THRESHOLDS": {
+            "BASE_POSITION": 0,
+            "DIRECTION": "DECREASING",
+            "STEPS": 8
+        },
+        "MULTIPLIERS": {
+            "EXCELLENT": 1.05,
+            "GOOD": 1.025,
+            "POOR": 0.975,
+            "VERY_POOR": 0.95
+        }
+    },
+    "LOCATION_MODIFIERS": {
+        "HOME": 2.008507957944199,
+        "AWAY": -3.462809956914233,
+        "INTERNATIONAL": -1.887020846055405
+    }
+    }
+}

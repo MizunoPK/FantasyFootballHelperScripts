@@ -37,12 +37,12 @@ LOGGING_FILE = './simulation/log.txt'  # Log file path (only used if LOGGING_TO_
 LOGGING_FORMAT = 'standard'     # detailed / standard / simple
 
 DEFAULT_MODE='iterative'
-DEFAULT_SIMS=10
+DEFAULT_SIMS=25
 DEFAULT_BASELINE=''
 DEFAULT_OUTPUT='simulation/simulation_configs'
 DEFAULT_WORKERS=7
 DEFAULT_DATA='simulation/sim_data'
-DEFAULT_TEST_VALUES=30
+DEFAULT_TEST_VALUES=20
 NUM_PARAMETERS_TO_TEST=1
 
 
@@ -197,9 +197,25 @@ Examples:
     # BASELINE CONFIG RESOLUTION
     # Priority order:
     # 1. User-specified --baseline path (if it exists)
-    # 2. Most recent optimal_*.json in output directory
-    # 3. Most recent optimal_*.json in simulation/simulation_configs
+    # 2. Most recent optimal_*/ folder in output directory
+    # 3. Most recent optimal_*/ folder in simulation/simulation_configs
     # 4. Error if none found
+    #
+    # Note: The system now uses folder-based configs with 4 files:
+    #   league_config.json, week1-5.json, week6-11.json, week12-17.json
+
+    def find_config_folders(search_dir: Path, pattern: str) -> list:
+        """Find config folders matching pattern, sorted by modification time (newest first)."""
+        folders = [p for p in search_dir.glob(pattern) if p.is_dir()]
+        # Validate folders have required files
+        required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+        valid_folders = []
+        for folder in folders:
+            if all((folder / f).exists() for f in required_files):
+                valid_folders.append(folder)
+        # Sort by modification time (most recent first)
+        valid_folders.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        return valid_folders
 
     if args.baseline:
         # User specified a baseline config path
@@ -214,54 +230,54 @@ Examples:
         # No baseline specified - will auto-detect below
         baseline_path = None
 
-    # If no baseline or baseline doesn't exist, find most recent optimal config
+    # If no baseline or baseline doesn't exist, find most recent optimal config folder
     if baseline_path is None:
-        # Auto-detect baseline config by searching for config files
+        # Auto-detect baseline config by searching for config folders
 
-        # For iterative mode, prefer intermediate files (for resuming interrupted runs)
-        # For other modes, use optimal files
+        # For iterative mode, prefer intermediate folders (for resuming interrupted runs)
+        # For other modes, use optimal folders
         if args.mode == 'iterative':
-            # Check for intermediate files first (indicates interrupted run)
-            intermediate_files = list(output_dir.glob("intermediate_*.json"))
-            if intermediate_files:
-                # Found intermediate files - use most recent to resume interrupted run
-                # Sort by modification time (most recent first)
-                intermediate_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-                baseline_path = intermediate_files[0]
-                print(f"✓ Found intermediate files - resuming from: {baseline_path.name}")
+            # Check for intermediate folders first (indicates interrupted run)
+            intermediate_folders = find_config_folders(output_dir, "intermediate_*")
+            if intermediate_folders:
+                # Found intermediate folders - use most recent to resume interrupted run
+                baseline_path = intermediate_folders[0]
+                print(f"✓ Found intermediate folders - resuming from: {baseline_path.name}")
 
-        # If no intermediate files (or not iterative mode), look for optimal configs
+        # If no intermediate folders (or not iterative mode), look for optimal config folders
         if baseline_path is None:
             # First, look in the output directory (most likely location)
-            optimal_configs = list(output_dir.glob("optimal_*.json"))
+            optimal_folders = find_config_folders(output_dir, "optimal_*")
 
-            if optimal_configs:
-                # Found configs in output dir - use the most recent one
-                # Sort by modification time (most recent first)
-                optimal_configs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-                baseline_path = optimal_configs[0]
-                print(f"✓ Using most recent config from output directory: {baseline_path.name}")
+            if optimal_folders:
+                # Found config folders in output dir - use the most recent one
+                baseline_path = optimal_folders[0]
+                print(f"✓ Using most recent config folder from output directory: {baseline_path.name}")
             else:
-                # No configs in output dir - fall back to default simulation_configs directory
+                # No config folders in output dir - fall back to default simulation_configs directory
                 config_dir = Path("simulation/simulation_configs")
                 if config_dir.exists():
-                    optimal_configs = list(config_dir.glob("optimal_*.json"))
-                    if optimal_configs:
-                        # Found configs in fallback directory - use most recent
-                        optimal_configs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-                        baseline_path = optimal_configs[0]
-                        print(f"✓ Using baseline config from simulation_configs: {baseline_path.name}")
+                    optimal_folders = find_config_folders(config_dir, "optimal_*")
+                    if optimal_folders:
+                        # Found config folders in fallback directory - use most recent
+                        baseline_path = optimal_folders[0]
+                        print(f"✓ Using baseline config folder from simulation_configs: {baseline_path.name}")
                     else:
-                        # No configs found anywhere - error out
-                        print(f"Error: No optimal config files found in {output_dir} or {config_dir}")
-                        print(f"\nPlease provide a baseline config using --baseline argument")
+                        # No config folders found anywhere - error out
+                        print(f"Error: No optimal config folders found in {output_dir} or {config_dir}")
+                        print(f"\nExpected folder structure with files:")
+                        print(f"  optimal_*/league_config.json")
+                        print(f"  optimal_*/week1-5.json")
+                        print(f"  optimal_*/week6-11.json")
+                        print(f"  optimal_*/week12-17.json")
+                        print(f"\nPlease provide a baseline config folder using --baseline argument")
                         sys.exit(1)
                 else:
                     # Fallback directory doesn't exist - error out
                     print(f"Error: No baseline config found")
                     print(f"  Output directory: {output_dir.absolute()}")
                     print(f"  Config directory: {config_dir.absolute()}")
-                    print(f"\nPlease provide a baseline config using --baseline argument")
+                    print(f"\nPlease provide a baseline config folder using --baseline argument")
                     sys.exit(1)
 
     # Validate data folder exists and contains required files

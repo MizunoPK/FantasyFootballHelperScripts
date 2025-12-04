@@ -678,15 +678,18 @@ Results → ResultsManager → Best Config
    - SLOW: 7,776 configs @ 5 test values
    ```
 
-3. **Iterative Optimization** (Coordinate Descent)
+3. **Iterative Optimization** (Coordinate Descent with Week-by-Week Tracking)
    ```
    - For each parameter (24 total):
        Generate test values (baseline ± offsets)
-       Run N simulations per value
-       Select best value
-       Update baseline
-   - Repeat until convergence
+       Run N simulations with per-week tracking
+       If BASE param: Select overall best value
+       If WEEK-SPECIFIC param: Select best per week range (1-5, 6-11, 12-17)
+       Update baseline configs
+       Save intermediate folder checkpoint
+   - Output: Folder with 4 config files (league_config + 3 week configs)
    - FAST: 144 configs @ 6 test values
+   - Auto-resume: Detects intermediate folders and resumes from last checkpoint
    ```
 
 **Key Parameters Optimized**:
@@ -900,7 +903,7 @@ RunSimulation CLI
     ▼
 SimulationManager.__init__()
     │
-    ├─── Loads baseline config from JSON
+    ├─── Loads baseline config from folder (4 files: league_config.json + week configs)
     ├─── Initializes ParallelLeagueRunner
     └─── Initializes ResultsManager
     │
@@ -909,13 +912,15 @@ SimulationManager.run_iterative_optimization()
     │
     ├─── For each parameter (24 total):
     │       │
+    │       ├─── Check parameter type (BASE or WEEK-SPECIFIC)
+    │       │
     │       ├─── ConfigGenerator.generate_variations(param, baseline)
     │       │        │
     │       │        └─── Returns: [baseline-2, baseline-1, baseline, baseline+1, baseline+2]
     │       │
     │       ├─── For each variation:
     │       │       │
-    │       │       ├─── ParallelLeagueRunner.run_simulations_for_config(config, 100)
+    │       │       ├─── ParallelLeagueRunner.run_simulations_for_config_with_weeks(config, 100)
     │       │       │        │
     │       │       │        └─── ThreadPoolExecutor submits 100 tasks
     │       │       │                 │
@@ -929,18 +934,23 @@ SimulationManager.run_iterative_optimization()
     │       │       │                 │       │               │
     │       │       │                 │       │               └─── Load actual stats from players_actual.csv
     │       │       │                 │       │
-    │       │       │                 │       └─── Return (wins, losses, points)
+    │       │       │                 │       └─── Return per-week results (week, won, points)
     │       │       │                 │
     │       │       │                 ├─── Task 2-100: (same as Task 1)
     │       │       │                 │
-    │       │       │                 └─── Aggregate results
+    │       │       │                 └─── Aggregate results by week range (1-5, 6-11, 12-17)
     │       │       │
-    │       │       └─── ResultsManager.record_result(config_id, wins, losses, points)
+    │       │       └─── ResultsManager.record_week_results(config_id, week_results)
     │       │
-    │       ├─── Select variation with highest win rate
-    │       └─── Update baseline for next parameter
+    │       ├─── If BASE param: Select best overall → update base_config
+    │       ├─── If WEEK-SPECIFIC param: Select best per range → update week_configs
+    │       └─── Save intermediate folder: intermediate_XX_PARAM/
     │
-    └─── Save optimal config to simulation/simulation_configs/optimal_TIMESTAMP.json
+    └─── Save optimal config folder: optimal_iterative_TIMESTAMP/
+              ├── league_config.json (BASE params)
+              ├── week1-5.json (WEEK-SPECIFIC params for weeks 1-5)
+              ├── week6-11.json (WEEK-SPECIFIC params for weeks 6-11)
+              └── week12-17.json (WEEK-SPECIFIC params for weeks 12-17)
 ```
 
 ---

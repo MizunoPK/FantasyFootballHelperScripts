@@ -1,0 +1,107 @@
+{
+  "config_name": "simulation/simulation_configs/intermediate_03_DIFF_POS_BYE_WEIGHT.json",
+  "description": "Win Rate: 0.92",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 14,
+    "NFL_SEASON": 2025,
+    "NFL_SCORING_FORMAT": "ppr",
+    "NORMALIZATION_MAX_SCALE": 137.59086632186956,
+    "SAME_POS_BYE_WEIGHT": 0.19558801932555567,
+    "DIFF_POS_BYE_WEIGHT": 0.02199332452137057,
+    "INJURY_PENALTIES": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 100
+    },
+    "DRAFT_ORDER_BONUSES": {
+      "PRIMARY": 63.6497443839134,
+      "SECONDARY": 96.50024934571101
+    },
+    "DRAFT_ORDER_FILE": 3,
+    "DRAFT_ORDER": [
+      {
+        "FLEX": "P",
+        "QB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P",
+        "TE": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "FLEX": "P",
+        "QB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      },
+      {
+        "FLEX": "P"
+      }
+    ],
+    "MAX_POSITIONS": {
+      "QB": 1,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 3,
+      "TE": 1,
+      "K": 1,
+      "DST": 1
+    },
+    "FLEX_ELIGIBLE_POSITIONS": [
+      "RB",
+      "WR",
+      "DST",
+      "TE"
+    ],
+    "ADP_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 16.762187501426567
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 2.941451195712283
+    }
+  }
+}

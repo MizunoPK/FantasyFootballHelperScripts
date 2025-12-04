@@ -193,6 +193,27 @@ class OptimalLineup:
                 total += recommendation.score
         return total
 
+    def get_total_raw_projected_points(self, current_week: int) -> float:
+        """
+        Calculate total unweighted projected points for the starting lineup.
+
+        This sums the raw weekly projection for each starter (before any
+        scoring multipliers are applied), giving the expected fantasy points.
+
+        Args:
+            current_week (int): The current NFL week number (1-17)
+
+        Returns:
+            float: Sum of all starters' raw weekly projected points
+        """
+        total = 0.0
+        for recommendation in self.get_all_starters():
+            if recommendation:
+                weekly_projection = recommendation.player.get_single_weekly_projection(current_week)
+                if weekly_projection is not None:
+                    total += weekly_projection
+        return total
+
     def get_all_starters(self) -> List[Optional[ScoredPlayer]]:
         """
         Get all starting positions in standard lineup order.
@@ -321,6 +342,22 @@ class StarterHelperModeManager:
         # Print starting lineup with formatted player information
         # Each line shows: position label, player name, team, projected points, scoring reasons
         self.print_player_list(starter_positions)
+
+        # Display combined projected points for starters
+        total_raw_projected = lineup.get_total_raw_projected_points(self.config.current_nfl_week)
+        print(f"\n{'='*50}")
+        print(f"COMBINED PROJECTED POINTS: {total_raw_projected:.1f} pts")
+
+        # Display adjusted projected points (weighted scores converted back to points scale)
+        # This takes the final scores (with all multipliers applied) and reverses normalization
+        # to show what the projection would be after accounting for matchups, performance, etc.
+        total_weighted_score = lineup.total_projected_points
+        max_weekly = self.player_manager.scoring_calculator.max_weekly_projection
+        normalization_scale = self.config.normalization_max_scale
+
+        if normalization_scale > 0 and max_weekly > 0:
+            adjusted_projected = (total_weighted_score / normalization_scale) * max_weekly
+            print(f"ADJUSTED PROJECTED POINTS: {adjusted_projected:.1f} pts")
 
         # Display bench section
         print(f"\n{'='*50}")

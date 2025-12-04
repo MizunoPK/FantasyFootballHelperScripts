@@ -2,28 +2,42 @@
 Configuration Generator
 
 Generates parameter combinations for simulation optimization. Creates combinations
-by varying 13 key parameters, with N+1 values per parameter (optimal + N random variations).
+by varying 23 key parameters, with N+1 values per parameter (optimal + N random variations).
 
-Total configurations = (N+1)^13 where N = num_test_values (default: 5)
-Example: (5+1)^13 = ~13.1 billion configurations
+Total configurations = (N+1)^23 where N = num_test_values (default: 5)
+For practical use, iterative optimization tests one parameter at a time.
 
-Parameters Varied:
-1. NORMALIZATION_MAX_SCALE: Random values in [50, 500]
-2. SAME_POS_BYE_WEIGHT: Random values in [0, 3]
-3. DIFF_POS_BYE_WEIGHT: Random values in [0, 3]
-4. DRAFT_ORDER_BONUSES.PRIMARY: Random values in [0, 200]
-5. DRAFT_ORDER_BONUSES.SECONDARY: Random values in [0, 200]
-6. ADP_SCORING_WEIGHT: Random values in [0, 5]
-7. ADP_SCORING_STEPS: Random values in [1, 60]
-8. PLAYER_RATING_SCORING_WEIGHT: Random values in [0, 5]
-9. TEAM_QUALITY_SCORING_WEIGHT: Random values in [0, 5]
-10. PERFORMANCE_SCORING_WEIGHT: Random values in [0, 5]
-11. PERFORMANCE_SCORING_STEPS: Random values in [0.05, 0.5]
-12. MATCHUP_IMPACT_SCALE: Random values in [0, 300]
-13. MATCHUP_SCORING_WEIGHT: Random values in [0, 5]
+Parameters Varied (with ranges):
 
-Note: PLAYER_RATING_SCORING_STEPS, TEAM_QUALITY_SCORING_STEPS, MATCHUP_SCORING_STEPS,
-      and all SCHEDULE_SCORING parameters are disabled (not optimized)
+Base Config Parameters:
+  1. NORMALIZATION_MAX_SCALE: [50, 300] - Point spread scaling
+  2. SAME_POS_BYE_WEIGHT: [0.0, 1.0] - Same position bye penalty
+  3. DIFF_POS_BYE_WEIGHT: [0.0, 0.8] - Different position bye penalty
+  4. PRIMARY_BONUS: [0, 200] - Primary draft order bonus
+  5. SECONDARY_BONUS: [0, 150] - Secondary draft order bonus
+  6. DRAFT_ORDER_FILE: [1, 10] - Draft strategy file (discrete)
+  7. ADP_SCORING_WEIGHT: [0.0, 5.0] - ADP influence weight
+  8. ADP_SCORING_STEPS: [5, 50] - ADP picks per tier
+
+Week-Specific Parameters:
+  9. PLAYER_RATING_SCORING_WEIGHT: [0.0, 5.0] - Expert ranking weight
+  10. TEAM_QUALITY_SCORING_WEIGHT: [0.0, 3.0] - Team strength weight
+  11. TEAM_QUALITY_MIN_WEEKS: [2, 12] - Min weeks of team data
+  12. PERFORMANCE_SCORING_WEIGHT: [0.0, 5.0] - Performance deviation weight
+  13. PERFORMANCE_SCORING_STEPS: [0.05, 0.5] - Deviation % per tier
+  14. PERFORMANCE_MIN_WEEKS: [2, 14] - Min weeks of performance data
+  15. MATCHUP_IMPACT_SCALE: [0, 250] - Matchup additive impact max
+  16. MATCHUP_SCORING_WEIGHT: [0.0, 4.0] - Matchup weight
+  17. MATCHUP_MIN_WEEKS: [2, 14] - Min weeks of matchup data
+  18. TEMPERATURE_IMPACT_SCALE: [0, 150] - Temperature impact max
+  19. TEMPERATURE_SCORING_WEIGHT: [0.0, 3.0] - Temperature weight
+  20. WIND_IMPACT_SCALE: [0, 150] - Wind impact max
+  21. WIND_SCORING_WEIGHT: [0.0, 3.0] - Wind weight
+  22. LOCATION_HOME: [-5, 15] - Home field modifier
+  23. LOCATION_AWAY: [-15, 5] - Away game modifier
+  24. LOCATION_INTERNATIONAL: [-20, 5] - International game modifier
+
+Note: SCHEDULE_SCORING is disabled (not optimized)
 
 Author: Kai Mizuno
 """
@@ -39,6 +53,13 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent))
 from utils.LoggingManager import get_logger
 
+sys.path.append(str(Path(__file__).parent))
+from ResultsManager import ResultsManager
+
+# Import the class-level constants from ResultsManager
+BASE_CONFIG_PARAMS = ResultsManager.BASE_CONFIG_PARAMS
+WEEK_SPECIFIC_PARAMS = ResultsManager.WEEK_SPECIFIC_PARAMS
+
 
 class ConfigGenerator:
     """
@@ -52,42 +73,63 @@ class ConfigGenerator:
 
     # Parameter definitions ordered to match league_config.json structure
     # Format: (min_val, max_val)
+    #
+    # Design principles for ranges:
+    # - WEIGHT params: (0.0, 5.0) allows "disabled" to "very important"
+    # - IMPACT_SCALE params: (0.0, max) where max is meaningful additive impact
+    # - MIN_WEEKS params: (2, 14) covers early to late season data needs
+    # - STEPS params: Based on underlying metric granularity
+    # - All ranges should be wide enough to find optimal values
+    #
     PARAM_DEFINITIONS = {
-        # Normalization and Bye Penalties
-        'NORMALIZATION_MAX_SCALE': (100.0, 150.0),
-        'SAME_POS_BYE_WEIGHT': (0.1, 0.5),
-        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3),
-        # Draft Order Bonuses
-        'PRIMARY_BONUS': (60, 100.0),
-        'SECONDARY_BONUS': (60, 100.0),
-        # Draft Order File (discrete integer 1-10, draft order strategies)
+        # Normalization: Controls point spread scaling (50-300 gives good range)
+        'NORMALIZATION_MAX_SCALE': (50.0, 300.0),
+
+        # Bye Penalties: Exponential weights for roster bye conflicts
+        # Higher = more penalty for overlapping byes
+        'SAME_POS_BYE_WEIGHT': (0.0, 1.0),      # Same position bye overlap
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.8),      # Different position bye overlap
+
+        # Draft Order Bonuses: Points added for drafting positions at right time
+        'PRIMARY_BONUS': (0.0, 200.0),          # Primary position bonus (e.g., RB early)
+        'SECONDARY_BONUS': (0.0, 150.0),        # Secondary position bonus
+
+        # Draft Order File: Discrete integer selecting draft strategy file (1-10)
         'DRAFT_ORDER_FILE': (1, 10),
-        # ADP Scoring
-        'ADP_SCORING_WEIGHT': (0.0, 3.0),
-        'ADP_SCORING_STEPS': (10.0, 45.0),
-        # Player Rating Scoring
-        'PLAYER_RATING_SCORING_WEIGHT': (0.0, 3.0),
-        # Team Quality Scoring
+
+        # ADP Scoring: Average Draft Position market wisdom
+        'ADP_SCORING_WEIGHT': (0.0, 5.0),       # How much ADP influences score
+        'ADP_SCORING_STEPS': (5.0, 50.0),       # ADP difference per tier (picks)
+
+        # Player Rating Scoring: Expert consensus rankings
+        'PLAYER_RATING_SCORING_WEIGHT': (0.0, 5.0),
+
+        # Team Quality Scoring: NFL team offensive/defensive strength
         'TEAM_QUALITY_SCORING_WEIGHT': (0.0, 3.0),
-        'TEAM_QUALITY_MIN_WEEKS': (1, 17),
-        # Performance Scoring
-        'PERFORMANCE_SCORING_WEIGHT': (0.0, 4.0),
-        'PERFORMANCE_SCORING_STEPS': (0.1, 0.4),
-        'PERFORMANCE_MIN_WEEKS': (1, 17),
-        # Matchup Scoring (additive)
-        'MATCHUP_IMPACT_SCALE': (75.0, 175.0),
-        'MATCHUP_SCORING_WEIGHT': (0.0, 3.0),
-        'MATCHUP_MIN_WEEKS': (1, 17),
-        # Temperature Scoring (game conditions)
-        'TEMPERATURE_IMPACT_SCALE': (10.0, 100.0),
+        'TEAM_QUALITY_MIN_WEEKS': (2, 12),      # Min weeks of data needed
+
+        # Performance Scoring: Actual vs projected deviation
+        'PERFORMANCE_SCORING_WEIGHT': (0.0, 5.0),
+        'PERFORMANCE_SCORING_STEPS': (0.05, 0.5),  # Deviation % per tier
+        'PERFORMANCE_MIN_WEEKS': (2, 14),       # Min weeks of data needed
+
+        # Matchup Scoring: Current week opponent strength (additive)
+        'MATCHUP_IMPACT_SCALE': (0.0, 250.0),   # Max additive points impact
+        'MATCHUP_SCORING_WEIGHT': (0.0, 4.0),   # Weight applied to impact
+        'MATCHUP_MIN_WEEKS': (2, 14),           # Min weeks of matchup data
+
+        # Temperature Scoring: Game weather temperature impact
+        'TEMPERATURE_IMPACT_SCALE': (0.0, 150.0),  # Max additive impact
         'TEMPERATURE_SCORING_WEIGHT': (0.0, 3.0),
-        # Wind Scoring (game conditions, QB/WR/K only)
-        'WIND_IMPACT_SCALE': (10.0, 100.0),
+
+        # Wind Scoring: Game weather wind impact (affects QB/WR/K most)
+        'WIND_IMPACT_SCALE': (0.0, 150.0),      # Max additive impact
         'WIND_SCORING_WEIGHT': (0.0, 3.0),
-        # Location Modifiers
-        'LOCATION_HOME': (0.0, 10.0),
-        'LOCATION_AWAY': (-10.0, 0.0),
-        'LOCATION_INTERNATIONAL': (-15.0, 0.0),
+
+        # Location Modifiers: Home/away/international game adjustments
+        'LOCATION_HOME': (-5.0, 15.0),          # Home field advantage
+        'LOCATION_AWAY': (-15.0, 5.0),          # Away penalty (can be positive)
+        'LOCATION_INTERNATIONAL': (-20.0, 5.0),  # International game adjustment
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -178,24 +220,200 @@ class ConfigGenerator:
         'LOCATION_INTERNATIONAL',
     ]
 
-    def __init__(self, baseline_config_path: Path, num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:
+    # Maps PARAMETER_ORDER names to their parent config section names
+    # Used to determine if a parameter is BASE or WEEK-SPECIFIC
+    PARAM_TO_SECTION_MAP = {
+        # Base config parameters
+        'NORMALIZATION_MAX_SCALE': 'NORMALIZATION_MAX_SCALE',  # Direct param
+        'SAME_POS_BYE_WEIGHT': 'SAME_POS_BYE_WEIGHT',          # Direct param
+        'DIFF_POS_BYE_WEIGHT': 'DIFF_POS_BYE_WEIGHT',          # Direct param
+        'PRIMARY_BONUS': 'DRAFT_ORDER_BONUSES',                # Nested
+        'SECONDARY_BONUS': 'DRAFT_ORDER_BONUSES',              # Nested
+        'DRAFT_ORDER_FILE': 'DRAFT_ORDER_FILE',                # Direct param
+        'ADP_SCORING_WEIGHT': 'ADP_SCORING',                   # Nested
+        'ADP_SCORING_STEPS': 'ADP_SCORING',                    # Nested
+        # Week-specific parameters
+        'PLAYER_RATING_SCORING_WEIGHT': 'PLAYER_RATING_SCORING',
+        'TEAM_QUALITY_SCORING_WEIGHT': 'TEAM_QUALITY_SCORING',
+        'TEAM_QUALITY_MIN_WEEKS': 'TEAM_QUALITY_SCORING',
+        'PERFORMANCE_SCORING_WEIGHT': 'PERFORMANCE_SCORING',
+        'PERFORMANCE_SCORING_STEPS': 'PERFORMANCE_SCORING',
+        'PERFORMANCE_MIN_WEEKS': 'PERFORMANCE_SCORING',
+        'MATCHUP_IMPACT_SCALE': 'MATCHUP_SCORING',
+        'MATCHUP_SCORING_WEIGHT': 'MATCHUP_SCORING',
+        'MATCHUP_MIN_WEEKS': 'MATCHUP_SCORING',
+        'TEMPERATURE_IMPACT_SCALE': 'TEMPERATURE_SCORING',
+        'TEMPERATURE_SCORING_WEIGHT': 'TEMPERATURE_SCORING',
+        'WIND_IMPACT_SCALE': 'WIND_SCORING',
+        'WIND_SCORING_WEIGHT': 'WIND_SCORING',
+        'LOCATION_HOME': 'LOCATION_MODIFIERS',
+        'LOCATION_AWAY': 'LOCATION_MODIFIERS',
+        'LOCATION_INTERNATIONAL': 'LOCATION_MODIFIERS',
+    }
+
+    def is_base_param(self, param_name: str) -> bool:
         """
-        Initialize ConfigGenerator with baseline configuration.
+        Check if a parameter belongs to the base config (not week-specific).
 
         Args:
-            baseline_config_path (Path): Path to baseline config JSON file
-            num_test_values (int): Number of random values to generate per parameter (default: 5)
-                This creates (num_test_values + 1) total values per parameter (optimal + random)
+            param_name (str): Parameter name from PARAMETER_ORDER
+
+        Returns:
+            bool: True if parameter belongs to base config, False otherwise
+
+        Example:
+            >>> gen.is_base_param('NORMALIZATION_MAX_SCALE')
+            True
+            >>> gen.is_base_param('PLAYER_RATING_SCORING_WEIGHT')
+            False
+        """
+        if param_name not in self.PARAM_TO_SECTION_MAP:
+            self.logger.warning(f"Unknown parameter: {param_name}")
+            return False
+
+        section = self.PARAM_TO_SECTION_MAP[param_name]
+        return section in BASE_CONFIG_PARAMS
+
+    def is_week_specific_param(self, param_name: str) -> bool:
+        """
+        Check if a parameter belongs to week-specific configs.
+
+        Args:
+            param_name (str): Parameter name from PARAMETER_ORDER
+
+        Returns:
+            bool: True if parameter is week-specific, False otherwise
+
+        Example:
+            >>> gen.is_week_specific_param('PLAYER_RATING_SCORING_WEIGHT')
+            True
+            >>> gen.is_week_specific_param('NORMALIZATION_MAX_SCALE')
+            False
+        """
+        if param_name not in self.PARAM_TO_SECTION_MAP:
+            self.logger.warning(f"Unknown parameter: {param_name}")
+            return False
+
+        section = self.PARAM_TO_SECTION_MAP[param_name]
+        return section in WEEK_SPECIFIC_PARAMS
+
+    @staticmethod
+    def load_baseline_from_folder(folder_path: Path) -> dict:
+        """
+        Load baseline configuration from a folder containing config files.
+
+        Loads the folder structure created by save_optimal_configs_folder():
+        - league_config.json (base parameters)
+        - week1-5.json (early season week-specific params)
+        - week6-11.json (mid season week-specific params)
+        - week12-17.json (late season week-specific params)
+
+        Merges all files into a unified config dict for optimization.
+        Week-specific params are taken from week1-5.json as the starting point
+        (optimization will find best values for each range).
+
+        Args:
+            folder_path (Path): Path to folder containing config files
+
+        Returns:
+            dict: Unified configuration dictionary
 
         Raises:
-            FileNotFoundError: If baseline config file doesn't exist
-            ValueError: If baseline config is invalid
+            ValueError: If folder doesn't exist or required files are missing
+
+        Example:
+            >>> config = ConfigGenerator.load_baseline_from_folder(Path("data/configs"))
+            >>> config['parameters']['NORMALIZATION_MAX_SCALE']
+            145.0
+        """
+        logger = get_logger()
+        folder_path = Path(folder_path)
+
+        if not folder_path.exists():
+            raise ValueError(f"Config folder does not exist: {folder_path}")
+
+        if not folder_path.is_dir():
+            raise ValueError(f"Path is not a directory: {folder_path}")
+
+        # Required files
+        required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+        missing_files = []
+
+        for filename in required_files:
+            if not (folder_path / filename).exists():
+                missing_files.append(filename)
+
+        if missing_files:
+            raise ValueError(
+                f"Missing required config files in {folder_path}: {', '.join(missing_files)}"
+            )
+
+        # Load base config
+        base_config_path = folder_path / 'league_config.json'
+        with open(base_config_path, 'r') as f:
+            base_config = json.load(f)
+
+        logger.debug(f"Loaded base config from {base_config_path}")
+
+        # Load week-specific configs
+        week_configs = {}
+        for week_file in ['week1-5.json', 'week6-11.json', 'week12-17.json']:
+            week_path = folder_path / week_file
+            with open(week_path, 'r') as f:
+                week_configs[week_file] = json.load(f)
+            logger.debug(f"Loaded {week_file}")
+
+        # Merge into unified config
+        # Start with base config, then merge week-specific params from week1-5.json
+        # (we use first week range as initial values for optimization)
+        unified_config = base_config.copy()
+
+        if 'parameters' not in unified_config:
+            unified_config['parameters'] = {}
+
+        # Merge week-specific parameters from week1-5.json
+        week1_5_params = week_configs['week1-5.json'].get('parameters', {})
+        for param in WEEK_SPECIFIC_PARAMS:
+            if param in week1_5_params:
+                unified_config['parameters'][param] = week1_5_params[param]
+
+        # Update config name to indicate it's merged from folder
+        unified_config['config_name'] = f"Merged from {folder_path}"
+
+        logger.info(f"Loaded baseline config from folder: {folder_path}")
+        return unified_config
+
+    def __init__(self, baseline_config_path: Path, num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:
+        """
+        Initialize ConfigGenerator with baseline configuration from a folder.
+
+        The baseline must be a folder containing the week-by-week config structure:
+        - league_config.json (base parameters)
+        - week1-5.json, week6-11.json, week12-17.json (week-specific params)
+
+        Args:
+            baseline_config_path (Path): Path to config folder (NOT a single JSON file)
+            num_test_values (int): Number of random values to generate per parameter (default: 5)
+                This creates (num_test_values + 1) total values per parameter (optimal + random)
+            num_parameters_to_test (int): Number of parameters to test simultaneously (default: 1)
+
+        Raises:
+            ValueError: If path is a file instead of folder, or folder is missing required files
         """
         self.logger = get_logger()
-        self.logger.info(f"Initializing ConfigGenerator with baseline: {baseline_config_path}")
+        baseline_config_path = Path(baseline_config_path)
+
+        # Validate: must be a folder, not a file (per Q2 answer: folder only, no backward compatibility)
+        if baseline_config_path.is_file():
+            raise ValueError(
+                f"ConfigGenerator requires a folder path, not a file: {baseline_config_path}\n"
+                f"Expected folder structure with: league_config.json, week1-5.json, week6-11.json, week12-17.json"
+            )
+
+        self.logger.info(f"Initializing ConfigGenerator with baseline folder: {baseline_config_path}")
         self.logger.info(f"Test values per parameter: {num_test_values} (total values: {num_test_values + 1})")
 
-        self.baseline_config = self.load_baseline_config(baseline_config_path)
+        self.baseline_config = self.load_baseline_from_folder(baseline_config_path)
         self.param_definitions = self.PARAM_DEFINITIONS
         self.num_test_values = num_test_values
         self.num_parameters_to_test = num_parameters_to_test

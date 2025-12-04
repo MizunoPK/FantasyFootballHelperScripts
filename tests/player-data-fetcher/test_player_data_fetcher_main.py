@@ -109,8 +109,12 @@ class TestLoadByeWeeks:
 
     @patch('player_data_exporter.DataExporter')
     @patch('player_data_fetcher_main.read_csv_with_validation')
-    def test_load_bye_weeks_success(self, mock_read_csv, mock_exporter):
+    @patch('pathlib.Path.exists')
+    def test_load_bye_weeks_success(self, mock_exists, mock_read_csv, mock_exporter):
         """Test loading bye weeks from valid CSV file"""
+        # Mock file exists check to return True for bye_weeks.csv
+        mock_exists.return_value = True
+
         # Mock CSV data
         mock_df = pd.DataFrame({
             'Team': ['KC', 'SF', 'BUF'],
@@ -128,8 +132,12 @@ class TestLoadByeWeeks:
 
     @patch('player_data_exporter.DataExporter')
     @patch('player_data_fetcher_main.read_csv_with_validation')
-    def test_load_bye_weeks_invalid_week_numbers(self, mock_read_csv, mock_exporter):
+    @patch('pathlib.Path.exists')
+    def test_load_bye_weeks_invalid_week_numbers(self, mock_exists, mock_read_csv, mock_exporter):
         """Test loading bye weeks filters out invalid week numbers"""
+        # Mock file exists check to return True for bye_weeks.csv
+        mock_exists.return_value = True
+
         # Mock CSV data with invalid bye weeks
         mock_df = pd.DataFrame({
             'Team': ['KC', 'SF', 'INVALID'],

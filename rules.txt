@@ -14,18 +14,20 @@ The draft TODO should include:
 
 As you complete tasks, keep the file updated with your progress in case a new Claude agent in a new session needs to finish the work. Ensure this TODO file has everything it needs to maintain consistent work - including a note about keeping the file up to date on progress made.
 
-### **STEP 2: First Verification Round (5 Iterations)**
+### **STEP 2: First Verification Round (7 Iterations)**
 
-Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL (detailed below) with **5 complete iterations** to research the codebase, identify patterns, and refine the draft TODO file. This happens BEFORE creating the questions file.
+Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL (detailed below) with **7 complete iterations** to research the codebase, identify patterns, and refine the draft TODO file. This happens BEFORE creating the questions file.
 
 **Iteration Breakdown**:
 - **Iterations 1-3**: Standard verification (research, cross-reference, refine)
 - **Iteration 4**: Continue refinement with deeper technical details
-- **Iteration 5**: **SKEPTICAL RE-VERIFICATION** - Assume nothing written so far is accurate. Re-verify ALL claims, assumptions, file paths, method names, patterns, and implementation strategies from scratch. Question everything and validate with fresh codebase research.
+- **Iteration 5**: **END-TO-END DATA FLOW VERIFICATION** - For each requirement, trace from entry point to output. Identify what calls each new method. Document integration points.
+- **Iteration 6**: **SKEPTICAL RE-VERIFICATION** - Assume nothing written so far is accurate. Re-verify ALL claims, assumptions, file paths, method names, patterns, and implementation strategies from scratch. Question everything and validate with fresh codebase research.
+- **Iteration 7**: **INTEGRATION GAP CHECK** - Review all new methods/classes planned. For each one, verify the TODO includes a task to modify the CALLER. If a new method has no caller modification task, add one.
 
 ### **STEP 3: Create Questions File**
 
-After completing the first 5 verification iterations (including skeptical re-verification), create a questions file based on ambiguities, implementation choices, and user preference decisions discovered during codebase research. The questions file should be named `updates/{objective_name}_questions.md`.
+After completing the first 7 verification iterations (including skeptical re-verification and integration gap check), create a questions file based on ambiguities, implementation choices, and user preference decisions discovered during codebase research. The questions file should be named `updates/{objective_name}_questions.md`.
 
 This file should contain:
 - Clarifying questions about requirements
@@ -43,36 +45,39 @@ After receiving user answers, update the TODO file to reflect:
 - Adjusted task priorities based on answers
 - Any new tasks revealed by the answers
 
-### **STEP 5: Second Verification Round (7 More Iterations)**
+### **STEP 5: Second Verification Round (9 More Iterations)**
 
-Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL again with **7 additional complete iterations** to:
+Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL again with **9 additional complete iterations** to:
 - Validate that question answers are fully integrated
 - Research any new patterns needed based on answers
 - Refine implementation details
 - Finalize task order and dependencies
+- Verify end-to-end integration
 
 **Iteration Breakdown**:
-- **Iterations 6-8**: Verification with user answers integrated
-- **Iteration 9**: Continue refinement with implementation-specific details
-- **Iteration 10**: **SKEPTICAL RE-VERIFICATION** - Again, assume nothing is accurate. Re-verify ALL claims, especially those based on user answers. Validate that answers are correctly interpreted and integrated. Fresh codebase research required.
-- **Iterations 11-12**: Final refinement and preparation for implementation
+- **Iterations 8-10**: Verification with user answers integrated
+- **Iteration 11**: Continue refinement with implementation-specific details
+- **Iteration 12**: **END-TO-END DATA FLOW VERIFICATION** - Re-trace from entry point to output for each requirement with user answers integrated. Update integration points based on chosen approaches.
+- **Iteration 13**: **SKEPTICAL RE-VERIFICATION** - Again, assume nothing is accurate. Re-verify ALL claims, especially those based on user answers. Validate that answers are correctly interpreted and integrated. Fresh codebase research required.
+- **Iteration 14**: **INTEGRATION GAP CHECK** - Final review of all new methods/classes. For EACH new component, document: (1) what file it's in, (2) what existing code will call it, (3) what modification is needed in the caller. Flag any orphan code.
+- **Iterations 15-16**: Final refinement, preparation for implementation, and creation of integration verification checklist
 
-After completing both verification rounds (**12 total iterations**), the TODO file should be comprehensive, thoroughly validated, and ready for implementation.
+After completing both verification rounds (**16 total iterations**), the TODO file should be comprehensive, thoroughly validated, and ready for implementation.
 
 ---
 
 ## TODO FILE VERIFICATION AND REFINEMENT PROTOCOL
 
 **🚨 MANDATORY** - This iterative verification protocol must be executed:
-1. After creating the draft TODO file (5 iterations - including skeptical re-verification)
-2. After receiving user's answers to questions (7 more iterations - including skeptical re-verification)
+1. After creating the draft TODO file (7 iterations - including data flow verification, skeptical re-verification, and integration gap check)
+2. After receiving user's answers to questions (9 more iterations - including data flow verification, skeptical re-verification, and integration gap check)
 
 ### **WHEN TO EXECUTE**:
-- ✅ Immediately after generating the draft TODO file (STEP 2 - First 5 iterations)
-- ✅ After updating TODO with user's question answers (STEP 5 - Second 7 iterations)
+- ✅ Immediately after generating the draft TODO file (STEP 2 - First 7 iterations)
+- ✅ After updating TODO with user's question answers (STEP 5 - Second 9 iterations)
 - ✅ Before beginning any implementation work
 
-### **ITERATIVE REFINEMENT PROCESS (12 TOTAL ITERATIONS)**:
+### **ITERATIVE REFINEMENT PROCESS (16 TOTAL ITERATIONS)**:
 
 **📋 ITERATION 1: Initial Verification**
 
@@ -190,7 +195,40 @@ After completing both verification rounds (**12 total iterations**), the TODO fi
    - Add performance considerations
    - Include optimization opportunities
 
-**📋 ITERATION 5 (First Round) / ITERATION 10 (Second Round): SKEPTICAL RE-VERIFICATION**
+**📋 ITERATION 5 (First Round) / ITERATION 12 (Second Round): END-TO-END DATA FLOW VERIFICATION**
+
+🚨 **CRITICAL**: Trace the complete path from user action to system output.
+
+1. **Identify Entry Points**:
+   - List ALL user-facing scripts (run_*.py)
+   - List ALL manager classes that orchestrate operations
+   - For EACH requirement, identify which entry point triggers it
+
+2. **Trace Data Flow**:
+   - For EACH requirement, document the complete path:
+     ```
+     Entry: run_simulation.py
+       → SimulationManager.run_iterative_optimization()
+       → ParallelLeagueRunner.run_simulations_for_config()
+       → ResultsManager.save_optimal_config()  ← CURRENT
+       → ResultsManager.save_optimal_configs_folder()  ← REQUIRED
+     ```
+   - Identify WHERE in the flow the new code fits
+   - Identify WHAT existing code needs to change
+
+3. **Document Integration Points**:
+   - For EACH new method/class, document:
+     - What file it will be in
+     - What existing method will CALL it
+     - What line in the caller needs to change
+   - Add these as explicit TODO tasks
+
+4. **Verify No Orphan Code**:
+   - Review each new component planned
+   - Confirm each has a caller identified
+   - If any new code has no caller → add integration task
+
+**📋 ITERATION 6 (First Round) / ITERATION 13 (Second Round): SKEPTICAL RE-VERIFICATION**
 
 🚨 **CRITICAL**: Assume NOTHING written so far is accurate. Start fresh.
 
@@ -220,6 +258,7 @@ After completing both verification rounds (**12 total iterations**), the TODO fi
    - Correct any wrong method names
    - Update any misunderstood patterns
    - Revise any flawed implementation strategies
+   - **Add missing integration tasks** (caller modifications)
    - Document what was corrected and why
 
 5. **Document Re-Verification**:
@@ -228,11 +267,51 @@ After completing both verification rounds (**12 total iterations**), the TODO fi
    - List what was found to be incorrect and corrected
    - Document confidence level in current plan
 
-**📋 ITERATIONS 6-9 (Second Round): Standard Verification**
+**📋 ITERATION 7 (First Round) / ITERATION 14 (Second Round): INTEGRATION GAP CHECK**
+
+🚨 **CRITICAL**: Final check that all new code will actually be used.
+
+1. **Create Integration Matrix**:
+   For EACH new component, fill out:
+   ```
+   | New Component | File | Called By | Caller File:Line | Caller Modification Task |
+   |---------------|------|-----------|------------------|--------------------------|
+   | save_optimal_configs_folder() | ResultsManager.py | run_iterative_optimization() | SimulationManager.py:261 | Task 4.2 |
+   ```
+
+2. **Verify Caller Modifications in TODO**:
+   - For each row in the matrix, confirm a TODO task exists to modify the caller
+   - If missing → add the task immediately
+   - Flag with ⚠️ if integration was previously overlooked
+
+3. **Check for Orphan Code**:
+   - Any new component without a caller = orphan code
+   - Either add caller modification task OR remove the orphan component
+   - Document decision in TODO
+
+4. **Verify Entry Point Coverage**:
+   - For each entry point affected by requirements
+   - Trace through to output
+   - Confirm all new code is in the execution path
+
+5. **🚨 Check Entry Script File Discovery Patterns** (NEW):
+   - If output format changes (e.g., JSON → folder, single file → multiple files):
+     - List all `run_*.py` scripts that auto-detect or find these files
+     - Verify glob patterns match new output format
+     - Verify file validation logic matches new structure
+     - Add TODO tasks for any entry script updates needed
+   - Create Entry Script Update Matrix:
+     ```
+     | Output Change | Entry Script | Discovery Pattern | Needs Update? | TODO Task |
+     |---------------|--------------|-------------------|---------------|-----------|
+     | JSON → folder | run_simulation.py | glob("optimal_*.json") | YES | Task 5.1 |
+     ```
+
+**📋 ITERATIONS 8-11 (Second Round): Standard Verification with Answers**
 
 Continue with standard verification process (same as Iterations 1-4) but with user answers integrated.
 
-**📋 ITERATIONS 11-12 (Second Round): Final Preparation**
+**📋 ITERATIONS 15-16 (Second Round): Final Preparation**
 
 1. **Final Integration Check**:
    - Verify all user answers are reflected in implementation plan
@@ -246,7 +325,17 @@ Continue with standard verification process (same as Iterations 1-4) but with us
    - Confirm all code references are accurate
    - Validate execution order is optimal
 
-3. **Risk Assessment**:
+3. **Create Integration Verification Checklist**:
+   - List every new method/class with its caller
+   - Create a checklist to verify during implementation:
+     ```
+     □ New method created: save_optimal_configs_folder()
+     □ Caller modified: SimulationManager.py:261
+     □ Entry point tested: python run_simulation.py --mode iterative
+     □ Output verified: folder with 4 files created
+     ```
+
+4. **Risk Assessment**:
    - Document remaining risks
    - Identify potential blockers
    - Plan mitigation strategies
@@ -255,21 +344,23 @@ Continue with standard verification process (same as Iterations 1-4) but with us
 ### **DOCUMENTATION REQUIREMENTS**:
 
 After completing each verification round, add/update a "Verification Summary" section to the TODO file documenting:
-- ✅ Number of iterations completed (5 for first round, 12 total after second round)
+- ✅ Number of iterations completed (7 for first round, 16 total after second round)
 - ✅ Number of requirements added after initial draft
 - ✅ Key codebase patterns/utilities identified for reuse
 - ✅ Critical dependencies or ordering requirements
 - ✅ Risk areas identified during research
 - ✅ Questions identified for user clarification (first round)
 - ✅ Question answers integrated into plan (second round)
+- ✅ **Data flow traces** for each requirement (entry point → output)
+- ✅ **Integration matrix** showing new components and their callers
 - ✅ **Skeptical re-verification results** (corrections made, confidence level)
 
 ### **ACCEPTANCE CRITERIA** (before beginning implementation):
-- ✅ First verification round complete (5 iterations on draft TODO, including skeptical re-verification)
+- ✅ First verification round complete (7 iterations on draft TODO, including data flow, skeptical re-verification, and integration gap check)
 - ✅ Questions file created with thoughtful, research-backed questions
 - ✅ User answers received for all questions
-- ✅ Second verification round complete (7 more iterations with answers integrated, including second skeptical re-verification)
-- ✅ **Total: 12 complete verification iterations performed** (with 2 skeptical re-verifications)
+- ✅ Second verification round complete (9 more iterations with answers integrated, including second data flow, skeptical re-verification, and integration gap check)
+- ✅ **Total: 16 complete verification iterations performed** (with 2 data flow verifications, 2 skeptical re-verifications, 2 integration gap checks)
 - ✅ Every requirement from original file covered in TODO
 - ✅ Every question answer reflected in TODO tasks
 - ✅ Specific file paths identified for each task (verified multiple times)
@@ -280,17 +371,24 @@ After completing each verification round, add/update a "Verification Summary" se
 - ✅ Documentation update tasks included
 - ✅ Pre-commit validation checkpoints added
 - ✅ **All claims and assumptions verified through skeptical re-verification**
+- ✅ **Data flow traced from entry point to output for each requirement**
+- ✅ **Integration matrix created showing all new components and their callers**
+- ✅ **Caller modifications included in TODO (not just new method creation)**
+- ✅ **Integration verification checklist created for implementation phase**
 
 ### **ENFORCEMENT**:
 - **NO SHORTCUTS**: Cannot skip iterations or rush through verification
-- **TWO ROUNDS REQUIRED**: Must complete both verification rounds (5 iterations + 7 iterations = 12 total)
-- **SKEPTICAL PHASES MANDATORY**: Must complete iteration 5 and iteration 10 as skeptical re-verifications
+- **TWO ROUNDS REQUIRED**: Must complete both verification rounds (7 iterations + 9 iterations = 16 total)
+- **DATA FLOW PHASES MANDATORY**: Must complete iterations 5 and 12 as end-to-end data flow verification
+- **SKEPTICAL PHASES MANDATORY**: Must complete iterations 6 and 13 as skeptical re-verifications
+- **INTEGRATION GAP PHASES MANDATORY**: Must complete iterations 7 and 14 as integration gap checks
 - **QUESTIONS REQUIRED**: Must create questions file after first verification round
 - **NO ASSUMPTIONS**: Must research codebase to validate approach
 - **NO VAGUE TASKS**: Each task must have specific technical details
-- **ITERATIVE IS MANDATORY**: Minimum 12 total cycles of read-question-research-update
+- **ITERATIVE IS MANDATORY**: Minimum 16 total cycles of read-question-research-update
 - **DOCUMENT THE PROCESS**: Verification summary required in TODO file after each round
 - **FRESH EYES REQUIRED**: Skeptical iterations must approach verification as if seeing the plan for the first time
+- **INTEGRATION MATRIX REQUIRED**: Must create matrix showing new components and their callers
 
 ### **WHY THIS MATTERS**:
 Thorough TODO preparation with skeptical re-verification prevents:
@@ -303,14 +401,31 @@ Thorough TODO preparation with skeptical re-verification prevents:
 - ❌ **Incorrect assumptions about code structure or API behavior**
 - ❌ **Pursuing implementation strategies based on misunderstood patterns**
 - ❌ **Building on top of incorrect file paths or method references**
+- ❌ **Creating infrastructure methods that are never called from entry points**
+- ❌ **Building components without wiring them into the actual system**
+- ❌ **Changing output formats without updating entry script file discovery patterns**
 
-**The skeptical re-verification phases (iterations 5 and 10) are critical** because they force the agent to:
+**The specialized verification phases are critical**:
+
+**Data Flow Verification (iterations 5 and 12)** forces the agent to:
+1. Trace the complete path from user action to system output
+2. Identify where new code fits in the execution flow
+3. Document what existing code needs to change to use new code
+4. Prevent orphan code that is never called
+
+**Skeptical Re-Verification (iterations 6 and 13)** forces the agent to:
 1. Challenge its own assumptions
 2. Re-validate all claims with fresh codebase research
 3. Catch errors that might have been overlooked in earlier iterations
 4. Ensure the plan is built on accurate, verified information
 
-A well-researched, thoroughly verified, and skeptically re-validated TODO file is the foundation of successful implementation.
+**Integration Gap Check (iterations 7 and 14)** forces the agent to:
+1. Create a matrix of new components and their callers
+2. Verify every new method has a corresponding caller modification task
+3. Flag and fix any orphan code before implementation begins
+4. Ensure the TODO includes both infrastructure AND integration tasks
+
+A well-researched, thoroughly verified, and integration-validated TODO file is the foundation of successful implementation.
 Immediately after creating the TODO file, create a code changes documentation file in the updates folder (NOT the done folder yet) named `{objective_name}_code_changes.md`. This file should be updated incrementally as you work through each task in the TODO file. After completing each significant change, immediately document it in the code changes file with: file paths, line numbers, before/after code snippets, rationale, and impact. This ensures the documentation stays current and accurate throughout the implementation process. The file will be moved to updates/done when the objective is complete.
 After updates are complete, verify that all unit tests still pass and test the system to ensure it is functional. Test ALL unit tests across the entire repo. All tests across the entire repo must pass before we can mark an objective as complete. Make this a very clear and important TODO item.
 Create any new unit tests to cover the new implementations, and modify any relevant unit tests and test them to ensure they pass.
@@ -318,6 +433,159 @@ Update rules files and readme files according to the new changes.
 When the objective is complete, ensure the code changes documentation file is comprehensive and finalized. It should detail all code modifications made during the implementation, including: specific file paths and line numbers, before/after code snippets, rationale for each change, impact analysis, configuration changes, test modifications, and verification of files that were checked but not modified. This serves as a complete technical reference for understanding exactly what changed and why. Move this file from updates/ to updates/done/ along with the objective file.
 Once the objective is completely done, then move the associated file in updates to the 'done' folder contained within the same updates directory. Also delete the questions file once the objective is complete.
 Be VERY systematic when creating the TODO file and proceeding with the implementation. Break the objective up into modualized components. Each phase that is outlined in the todo file should leave the repo is a state that is still testable and functional, and should run the pre-commit checklist in its entirety. Do not skip any unit tests or interactive integration tests just because you think that the tests will not be effected by the change - assume everything is at risk of breaking no matter what you do.
+
+## END-TO-END DATA FLOW VERIFICATION PROTOCOL
+
+**🚨 CRITICAL: INFRASTRUCTURE vs INTEGRATION** - Creating helper methods, utility functions, or infrastructure components is NOT the same as integrating them into the system. This protocol ensures new code is actually USED, not just created.
+
+### **THE INFRASTRUCTURE TRAP**:
+A common failure pattern is:
+1. ✅ Create new methods/classes that implement required functionality
+2. ✅ Write tests for those new methods
+3. ✅ Tests pass
+4. ❌ **BUT**: The new methods are never called from entry points
+5. ❌ **RESULT**: Feature appears complete but doesn't actually work for users
+
+**Example of this failure**:
+- Requirement: "Simulation should output folders instead of single files"
+- What was done: Created `save_optimal_configs_folder()` method with tests
+- What was missed: `SimulationManager.run_iterative_optimization()` still calls `save_optimal_config()` (single file)
+- Result: Method exists, tests pass, but simulation still outputs single files
+
+### **WHEN TO EXECUTE**:
+- ✅ During TODO file creation (identify entry points that need modification)
+- ✅ During skeptical re-verification (trace data flow for each requirement)
+- ✅ After implementation (verify new code is called from entry points)
+- ✅ Before marking objective complete (final integration check)
+
+### **MANDATORY VERIFICATION STEPS**:
+
+**📋 STEP 1: Identify ALL Entry Points**
+
+Entry points are user-facing scripts or functions where execution begins:
+- Root scripts: `run_*.py` files
+- Main functions: `if __name__ == "__main__"` blocks
+- Manager classes: Top-level orchestrators (e.g., `SimulationManager`, `LeagueHelperManager`)
+- CLI commands: User-invoked operations
+
+For each requirement, ask:
+- "What script/function does the user run to trigger this?"
+- "What is the entry point for this feature?"
+
+**📋 STEP 2: Trace Data Flow from Entry to Output**
+
+For each requirement, trace the COMPLETE path:
+```
+Entry Point → Manager/Controller → Service/Helper → Output
+```
+
+Document this flow in the TODO file:
+```
+Requirement: "Simulation outputs folders"
+Entry Point: run_simulation.py → SimulationManager.run_iterative_optimization()
+Current Flow: ... → ResultsManager.save_optimal_config() → single file
+Required Flow: ... → ResultsManager.save_optimal_configs_folder() → folder with 4 files
+Files to Modify: SimulationManager.py (change method call)
+```
+
+**📋 STEP 3: Verify Integration Points**
+
+For each NEW method/class created, answer:
+- "What existing code will CALL this new code?"
+- "Is there a modification needed in the caller?"
+- "Have I added the call, or just created the method?"
+
+Create an integration checklist:
+```
+New Method: ResultsManager.save_optimal_configs_folder()
+Called By: SimulationManager.run_iterative_optimization() ← NEEDS MODIFICATION
+Current Call: save_optimal_config()
+New Call: save_optimal_configs_folder()
+Status: ❌ NOT INTEGRATED (method exists but not called)
+```
+
+**📋 STEP 4: Test from Entry Point**
+
+After implementation, verify by starting from the entry point:
+1. Run the actual user-facing script
+2. Verify the output matches requirements
+3. Don't just run unit tests - run the actual feature
+
+```bash
+# Don't just run: pytest tests/simulation/test_ResultsManager.py
+# Also run: python run_simulation.py --mode iterative
+# Then verify: ls simulation/optimal_configs/  # Should show folders, not files
+```
+
+### **INTEGRATION CHECKLIST TEMPLATE**:
+
+Add this to TODO file for each new component:
+
+```markdown
+## Integration Verification
+
+### New Component: [ClassName.method_name()]
+- [ ] Method implemented
+- [ ] Unit tests pass
+- [ ] Called from: [CallerClass.caller_method()]
+- [ ] Caller modified to use new method
+- [ ] Entry point tested: [script_name.py]
+- [ ] Output verified: [expected output description]
+
+### Data Flow Trace:
+Entry: [entry_point]
+  → [step 1]
+  → [step 2]
+  → [NEW: step using new component]
+  → Output: [expected output]
+```
+
+### **RED FLAGS TO WATCH FOR**:
+
+🚩 "I created a new method but didn't modify any existing code to call it"
+🚩 "The tests pass but I haven't run the actual script"
+🚩 "I built the infrastructure but the manager/controller still uses the old approach"
+🚩 "I added capability but didn't wire it into the execution path"
+🚩 "I changed the output format but entry scripts still look for the old format"
+🚩 "I changed file structure but CLI auto-detection still uses old patterns"
+
+### **ENTRY POINT FILE DISCOVERY CHECKLIST**:
+
+🚨 **CRITICAL**: When output formats change (e.g., single file → folder, JSON → CSV), entry point scripts often have file discovery logic that must be updated.
+
+**Common Entry Script Patterns That Need Updating**:
+1. **Auto-detection patterns**: `glob("optimal_*.json")` → `glob("optimal_*/")` with `.is_dir()` check
+2. **File validation logic**: Checking for `.json` extension → checking for folder with required files
+3. **Path resolution**: Loading single file → loading folder with multiple files
+4. **Error messages**: "No .json files found" → "No config folders found"
+5. **Help text and documentation**: Describing old format → describing new format
+
+**When Output Format Changes, Check These Files**:
+- `run_*.py` - All CLI entry scripts
+- Argument parser help text
+- Default path constants
+- File/folder discovery functions
+- Validation and error handling
+- README and documentation examples
+
+**Verification Template**:
+```
+Output Format Change: Single JSON → Folder with 4 files
+Files Creating Output: ResultsManager.save_optimal_configs_folder()
+Entry Scripts Affected: run_simulation.py
+Discovery Pattern Change: glob("optimal_*.json") → glob("optimal_*/") + folder validation
+Error Message Update: "No optimal config files" → "No optimal config folders"
+Help Text Update: --baseline accepts folder path, not JSON file
+✅ All entry script patterns updated to match new output format
+```
+
+### **ENFORCEMENT**:
+- **NO ORPHAN CODE**: Every new method must have an identified caller
+- **TRACE REQUIRED**: Data flow must be documented from entry point to output
+- **INTEGRATION MANDATORY**: Creating infrastructure without integration = incomplete
+- **END-TO-END TEST**: Must verify from user entry point, not just unit tests
+
+---
 
 ## REQUIREMENT VERIFICATION PROTOCOL
 
@@ -349,15 +617,33 @@ Be VERY systematic when creating the TODO file and proceeding with the implement
 - Check that new files were created if specified
 - Confirm no placeholder code or TODOs remain
 
-**📋 STEP 4: Identify Missing Requirements**
-- If ANY requirement is ❌ MISSING or ❌ NOT IMPLEMENTED:
+**📋 STEP 4: Verify End-to-End Integration**
+- For each NEW method/function created:
+  - Search codebase to find what CALLS this method
+  - If nothing calls it → ❌ INTEGRATION MISSING
+  - Verify the caller is in the execution path from entry point
+- For each requirement:
+  - Trace from entry point (run_*.py) to output
+  - Verify the new code is in the execution path
+  - Run the actual script to confirm behavior (not just unit tests)
+- Create integration evidence:
+  ```
+  Requirement: "Simulation outputs folders"
+  New Method: save_optimal_configs_folder()
+  Called By: SimulationManager.run_iterative_optimization() line 261
+  Entry Point: run_simulation.py --mode iterative
+  Verified: ✅ Running script produces folder output
+  ```
+
+**📋 STEP 5: Identify Missing Requirements**
+- If ANY requirement is ❌ MISSING or ❌ NOT IMPLEMENTED or ❌ INTEGRATION MISSING:
   - STOP immediately
   - Create a new completion TODO file: `updates/todo-files/{objective_name}_completion_todo.md`
-  - Document ALL missing requirements
+  - Document ALL missing requirements and integration gaps
   - Implement missing requirements before proceeding
   - Re-run this verification protocol
 
-**📋 STEP 5: Document Verification**
+**📋 STEP 6: Document Verification**
 - Add a "Requirements Verification" section to the code changes file
 - List each requirement and its implementation status
 - Include file paths and line numbers as evidence
@@ -371,15 +657,29 @@ Be VERY systematic when creating the TODO file and proceeding with the implement
 - ✅ Evidence of implementation exists in codebase (files, code, tests)
 - ✅ All unit tests pass (100%)
 - ✅ Manual testing confirms functionality works
+- ✅ **ALL new methods have identified callers (no orphan code)**
+- ✅ **Integration verified from entry point to output**
+- ✅ **Actual scripts run and produce expected behavior (not just unit tests)**
 
 ### **ENFORCEMENT**:
 - **NO EXCEPTIONS**: If even ONE requirement is missing, objective is NOT complete
 - **NO PARTIAL CREDIT**: "90% complete" = incomplete, must finish remaining 10%
 - **NO ASSUMPTIONS**: Just because something seems done doesn't mean it is - verify with code
 - **RE-VERIFICATION REQUIRED**: If new requirements discovered, re-run entire protocol
+- **NO ORPHAN CODE**: Methods that exist but are never called = incomplete implementation
+- **INTEGRATION REQUIRED**: Infrastructure without integration = feature doesn't work
 
 ### **FAILURE TO VERIFY = INCOMPLETE OBJECTIVE**:
 If this protocol is not executed, or if missing requirements are discovered after claiming completion, the objective must be reopened and completed properly. The user must be notified of any missing requirements immediately.
+
+**Common Integration Failures to Check**:
+- ❌ Created helper method but manager still uses old method
+- ❌ Added new output format but save function still uses old format
+- ❌ Built infrastructure but controller not updated to use it
+- ❌ Tests pass but running actual script shows old behavior
+- ❌ Changed output format (JSON → folder) but entry script still looks for old format
+- ❌ Entry script glob patterns don't match new file/folder structure
+- ❌ Error messages reference old format instead of new format
 
 ## PRE-COMMIT VALIDATION PROTOCOL
 
