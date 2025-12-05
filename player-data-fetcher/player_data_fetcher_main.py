@@ -123,8 +123,19 @@ class NFLProjectionsCollector:
         # Store script directory for path resolution
         self.script_dir = Path(__file__).parent
 
-        # Load bye weeks data
-        self.bye_weeks = self._load_bye_weeks()
+        # Check for required season_schedule.csv and derive bye weeks from it
+        schedule_path = self.script_dir.parent / "data" / "season_schedule.csv"
+        if not schedule_path.exists():
+            error_msg = (
+                f"Error: season_schedule.csv not found at {schedule_path}\n"
+                "Please run the schedule-data-fetcher first to generate this file:\n"
+                "  python run_scores_fetcher.py"
+            )
+            self.logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
+
+        # Derive bye weeks from season schedule
+        self.bye_weeks = self._derive_bye_weeks_from_schedule(schedule_path)
 
         # Initialize team rankings and schedule data (will be populated during data collection)
         self.team_rankings = {}
@@ -141,63 +152,67 @@ class NFLProjectionsCollector:
         
         self.logger.info("Using ESPN hidden API - free but unofficial and may change")
     
-    def _load_bye_weeks(self) -> Dict[str, int]:
+    def _derive_bye_weeks_from_schedule(self, schedule_path: Path) -> Dict[str, int]:
         """
-        Load bye week schedule from CSV file with robust error handling.
+        Derive bye week schedule from season_schedule.csv.
 
-        Bye weeks are when NFL teams don't play (1 week per team per season).
-        Players on bye weeks score 0 points and shouldn't be started.
+        A team's bye week is the only week in the NFL regular season (weeks 1-18)
+        where they don't have a scheduled game. This is derived by finding which
+        week is missing from each team's schedule.
 
-        File format (data/bye_weeks.csv):
-        Team,ByeWeek
-        KC,10
-        SF,9
-        ...
+        Args:
+            schedule_path: Path to season_schedule.csv file
 
         Returns:
             Dict mapping team abbreviation to bye week number (1-18)
             Example: {'KC': 10, 'SF': 9, 'BUF': 7}
+
+        File format (data/season_schedule.csv):
+            week,team,opponent
+            1,ARI,NO
+            1,ATL,TB
+            ...
         """
+        import pandas as pd
+
         bye_weeks = {}
-
-        # Look for bye_weeks.csv in parent directory's data folder
-        # Path: player-data-fetcher/../data/bye_weeks.csv = project_root/data/bye_weeks.csv
-        bye_weeks_file = self.script_dir.parent / "data" / "bye_weeks.csv"
-
-        if not bye_weeks_file.exists():
-            # File missing = first run or file deleted
-            # Not fatal: players just won't have bye week data
-            self.logger.warning(f"Bye weeks file not found: {bye_weeks_file}")
-            return bye_weeks
+        all_weeks = set(range(1, 19))  # NFL regular season weeks 1-18
 
         try:
-            # Use standardized CSV reading with column validation
-            # Ensures file has required 'Team' and 'ByeWeek' columns
-            required_columns = ['Team', 'ByeWeek']
-            df = read_csv_with_validation(bye_weeks_file, required_columns)
+            # Load season schedule
+            df = pd.read_csv(schedule_path)
 
-            # Data validation: Bye weeks must be between 1-18 (NFL regular season length)
-            # Invalid values could be typos or old data
-            invalid_weeks = df[~df['ByeWeek'].between(1, 18)]
-            if not invalid_weeks.empty:
-                # Log but don't crash - just filter out invalid entries
-                self.logger.warning(f"Invalid bye weeks found: {invalid_weeks[['Team', 'ByeWeek']].to_dict('records')}")
+            # Get unique teams from schedule
+            teams = df['team'].unique()
 
-            # Filter to only valid bye weeks (between 1 and 18)
-            valid_df = df[df['ByeWeek'].between(1, 18)]
+            if len(teams) != 32:
+                self.logger.warning(f"Expected 32 NFL teams, found {len(teams)}")
 
-            # Convert DataFrame to dictionary for fast lookups
-            # Format: {'KC': 10, 'SF': 9, ...}
-            bye_weeks = dict(zip(valid_df['Team'], valid_df['ByeWeek']))
+            # For each team, find their bye week (the week they don't play)
+            for team in teams:
+                # Get all weeks this team has games scheduled
+                team_games = df[df['team'] == team]
+                weeks_playing = set(team_games['week'].unique())
 
-            self.logger.info(f"Loaded bye weeks for {len(bye_weeks)} teams")
+                # Bye week is the missing week from the regular season
+                bye_week_set = all_weeks - weeks_playing
+
+                if len(bye_week_set) == 1:
+                    bye_weeks[team] = bye_week_set.pop()
+                elif len(bye_week_set) == 0:
+                    self.logger.warning(f"Team {team} has no bye week (plays all 18 weeks)")
+                else:
+                    # Multiple missing weeks - data issue or schedule not complete
+                    self.logger.warning(f"Team {team} has multiple bye weeks: {bye_week_set}")
+                    # Use the first missing week
+                    bye_weeks[team] = min(bye_week_set)
+
+            self.logger.info(f"Derived bye weeks for {len(bye_weeks)} teams from schedule")
             self.logger.debug(f"Bye weeks data: {bye_weeks}")
 
         except Exception as e:
-            # CSV read failed or column missing
-            # Not fatal: proceed without bye week data
-            self.logger.error(f"Failed to load bye weeks from {bye_weeks_file}: {e}")
-            self.logger.error("Players will not have bye week information")
+            self.logger.error(f"Failed to derive bye weeks from {schedule_path}: {e}")
+            raise
 
         return bye_weeks
 

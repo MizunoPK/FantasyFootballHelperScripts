@@ -1,5 +1,0 @@
-Replace Add to Roster mode with a Draft Mode.
-In this mode, the list of teams would first be shown in a list and the user will be prompted to give the draft order. Teams will be listed A,B,C, etc and the user will in an input type "CBA..." to determine the order.
-An excel sheet should then be created that is going to mimic the example sheet located at 
-The teams should be listed in the order that they were provided by the user.
-The system should then use the same search as the Mark Drafted Player mode

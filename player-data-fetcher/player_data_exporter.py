@@ -294,7 +294,7 @@ class DataExporter:
                             name=row.get('name', ''),
                             team=row.get('team', ''),
                             position=row.get('position', ''),
-                            bye_week=int(row.get('bye_week', 0)),
+                            bye_week=int(float(row.get('bye_week', 0) or 0)),
                             drafted=drafted_value,
                             locked=int(row.get('locked', 0)),
                             fantasy_points=float(row.get('fantasy_points', 0.0)),

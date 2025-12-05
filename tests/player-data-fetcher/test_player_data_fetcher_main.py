@@ -78,11 +78,13 @@ class TestNFLProjectionsCollectorInit:
     """Test NFLProjectionsCollector initialization"""
 
     @patch('player_data_exporter.DataExporter')
-    def test_collector_basic_initialization(self, mock_exporter):
+    @patch('pathlib.Path.exists')
+    def test_collector_basic_initialization(self, mock_exists, mock_exporter):
         """Test NFLProjectionsCollector can be initialized"""
+        mock_exists.return_value = True  # season_schedule.csv exists
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             assert collector.settings == settings
@@ -92,11 +94,13 @@ class TestNFLProjectionsCollectorInit:
             assert isinstance(collector.current_week_schedule, dict)
 
     @patch('player_data_exporter.DataExporter')
-    def test_collector_initializes_empty_dicts(self, mock_exporter):
+    @patch('pathlib.Path.exists')
+    def test_collector_initializes_empty_dicts(self, mock_exists, mock_exporter):
         """Test collector initializes empty dictionaries"""
+        mock_exists.return_value = True  # season_schedule.csv exists
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={'KC': 10}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={'KC': 10}):
             collector = NFLProjectionsCollector(settings)
 
             assert collector.team_rankings == {}
@@ -104,22 +108,25 @@ class TestNFLProjectionsCollectorInit:
             assert collector.bye_weeks == {'KC': 10}
 
 
-class TestLoadByeWeeks:
-    """Test _load_bye_weeks method"""
+class TestDeriveBveWeeksFromSchedule:
+    """Test _derive_bye_weeks_from_schedule method"""
 
     @patch('player_data_exporter.DataExporter')
-    @patch('player_data_fetcher_main.read_csv_with_validation')
     @patch('pathlib.Path.exists')
-    def test_load_bye_weeks_success(self, mock_exists, mock_read_csv, mock_exporter):
-        """Test loading bye weeks from valid CSV file"""
-        # Mock file exists check to return True for bye_weeks.csv
-        mock_exists.return_value = True
+    @patch('pandas.read_csv')
+    def test_derive_bye_weeks_success(self, mock_read_csv, mock_exists, mock_exporter):
+        """Test deriving bye weeks from valid schedule data"""
+        mock_exists.return_value = True  # season_schedule.csv exists
 
-        # Mock CSV data
-        mock_df = pd.DataFrame({
-            'Team': ['KC', 'SF', 'BUF'],
-            'ByeWeek': [10, 9, 7]
-        })
+        # Create mock schedule data - KC plays all weeks except week 10
+        schedule_data = []
+        for week in range(1, 19):
+            if week != 10:  # KC has bye week 10
+                schedule_data.append({'week': week, 'team': 'KC', 'opponent': 'OPP'})
+            if week != 9:  # SF has bye week 9
+                schedule_data.append({'week': week, 'team': 'SF', 'opponent': 'OPP'})
+
+        mock_df = pd.DataFrame(schedule_data)
         mock_read_csv.return_value = mock_df
 
         settings = Settings()
@@ -127,62 +134,94 @@ class TestLoadByeWeeks:
 
         assert 'KC' in collector.bye_weeks
         assert 'SF' in collector.bye_weeks
-        assert 'BUF' in collector.bye_weeks
         assert collector.bye_weeks['KC'] == 10
+        assert collector.bye_weeks['SF'] == 9
 
     @patch('player_data_exporter.DataExporter')
-    @patch('player_data_fetcher_main.read_csv_with_validation')
+    def test_derive_bye_weeks_missing_schedule_raises_error(self, mock_exporter):
+        """Test that missing season_schedule.csv raises FileNotFoundError"""
+        settings = Settings()
+
+        # Don't mock Path.exists - let it check the actual file system
+        # Since the test runs from a different directory, the file won't exist
+        with patch('pathlib.Path.exists', return_value=False):
+            with pytest.raises(FileNotFoundError) as exc_info:
+                NFLProjectionsCollector(settings)
+
+            assert "season_schedule.csv not found" in str(exc_info.value)
+
+    @patch('player_data_exporter.DataExporter')
     @patch('pathlib.Path.exists')
-    def test_load_bye_weeks_invalid_week_numbers(self, mock_exists, mock_read_csv, mock_exporter):
-        """Test loading bye weeks filters out invalid week numbers"""
-        # Mock file exists check to return True for bye_weeks.csv
+    @patch('pandas.read_csv')
+    def test_derive_bye_weeks_handles_team_with_no_bye(self, mock_read_csv, mock_exists, mock_exporter):
+        """Test handling team that plays all 18 weeks (no bye)"""
         mock_exists.return_value = True
 
-        # Mock CSV data with invalid bye weeks
-        mock_df = pd.DataFrame({
-            'Team': ['KC', 'SF', 'INVALID'],
-            'ByeWeek': [10, 9, 99]  # 99 is invalid
-        })
+        # Create schedule where team plays all 18 weeks
+        schedule_data = [{'week': week, 'team': 'KC', 'opponent': 'OPP'} for week in range(1, 19)]
+        mock_df = pd.DataFrame(schedule_data)
         mock_read_csv.return_value = mock_df
 
         settings = Settings()
         collector = NFLProjectionsCollector(settings)
 
-        # Should only load valid weeks (1-18)
-        assert 'KC' in collector.bye_weeks
-        assert 'SF' in collector.bye_weeks
-        assert 'INVALID' not in collector.bye_weeks
+        # Team with no bye should not be in bye_weeks dict
+        assert 'KC' not in collector.bye_weeks
 
     @patch('player_data_exporter.DataExporter')
-    def test_load_bye_weeks_file_not_found(self, mock_exporter):
-        """Test loading bye weeks when file doesn't exist returns empty dict"""
+    @patch('pathlib.Path.exists')
+    @patch('pandas.read_csv')
+    def test_derive_bye_weeks_handles_team_with_multiple_byes(self, mock_read_csv, mock_exists, mock_exporter):
+        """Test handling team with multiple missing weeks (uses minimum)"""
+        mock_exists.return_value = True
+
+        # Create schedule where team is missing weeks 5 and 10
+        schedule_data = []
+        for week in range(1, 19):
+            if week not in [5, 10]:
+                schedule_data.append({'week': week, 'team': 'KC', 'opponent': 'OPP'})
+        mock_df = pd.DataFrame(schedule_data)
+        mock_read_csv.return_value = mock_df
+
         settings = Settings()
         collector = NFLProjectionsCollector(settings)
 
-        # If file doesn't exist, should return empty dict (won't crash)
-        assert isinstance(collector.bye_weeks, dict)
+        # Should use minimum bye week (5)
+        assert collector.bye_weeks['KC'] == 5
 
     @patch('player_data_exporter.DataExporter')
-    @patch('player_data_fetcher_main.read_csv_with_validation')
-    def test_load_bye_weeks_read_exception(self, mock_read_csv, mock_exporter):
-        """Test loading bye weeks handles CSV read exceptions"""
-        mock_read_csv.side_effect = Exception("CSV read error")
+    @patch('pathlib.Path.exists')
+    @patch('pandas.read_csv')
+    def test_derive_bye_weeks_logs_warning_for_non_32_teams(self, mock_read_csv, mock_exists, mock_exporter):
+        """Test that warning is logged when not 32 teams found"""
+        mock_exists.return_value = True
+
+        # Create schedule with only 2 teams
+        schedule_data = []
+        for week in range(1, 18):  # 17 games = bye week 18
+            schedule_data.append({'week': week, 'team': 'KC', 'opponent': 'SF'})
+            schedule_data.append({'week': week, 'team': 'SF', 'opponent': 'KC'})
+        mock_df = pd.DataFrame(schedule_data)
+        mock_read_csv.return_value = mock_df
 
         settings = Settings()
+        # Should not crash, just log warning
         collector = NFLProjectionsCollector(settings)
 
-        # Should return empty dict and not crash
-        assert collector.bye_weeks == {}
+        assert len(collector.bye_weeks) == 2
+        assert collector.bye_weeks['KC'] == 18
+        assert collector.bye_weeks['SF'] == 18
 
 
 class TestGetApiClient:
     """Test _get_api_client method"""
 
     @patch('player_data_exporter.DataExporter')
-    def test_get_api_client_returns_client(self, mock_exporter):
+    @patch('pathlib.Path.exists', return_value=True)
+    def test_get_api_client_returns_client(self, mock_exists, mock_exporter):
         """Test _get_api_client returns ESPN client"""
         settings = Settings()
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
             client = collector._get_api_client()
 
@@ -194,12 +233,13 @@ class TestPrintSummary:
     """Test print_summary method"""
 
     @patch('player_data_exporter.DataExporter')
+    @patch('pathlib.Path.exists', return_value=True)
     @patch('builtins.print')
-    def test_print_summary_with_projections(self, mock_print, mock_exporter):
+    def test_print_summary_with_projections(self, mock_print, mock_exists, mock_exporter):
         """Test print_summary displays projection data correctly"""
         settings = Settings(season=2024, scoring_format=ScoringFormat.PPR)
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             # Create mock projection data
@@ -226,7 +266,7 @@ class TestPrintSummary:
         """Test print_summary handles empty data"""
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             # Empty projection data
@@ -250,7 +290,7 @@ class TestGetFantasyPlayers:
         mock_exporter_class.return_value = mock_exporter
 
         settings = Settings()
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             projection_data = {
@@ -278,7 +318,7 @@ class TestCollectAllProjections:
         """Test collect_all_projections returns results"""
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             # Mock API client
@@ -324,7 +364,7 @@ class TestExportData:
         mock_exporter_class.return_value = mock_exporter
 
         settings = Settings()
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             projection_data = {
@@ -353,7 +393,7 @@ class TestHistoricalDataSave:
         """Test that historical data folder is created if it doesn't exist"""
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             # Override script_dir to use tmp_path
@@ -386,7 +426,7 @@ class TestHistoricalDataSave:
         """Test that files and team_data folder are copied with zero-padded week number"""
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             # Override script_dir
@@ -429,7 +469,7 @@ class TestHistoricalDataSave:
         """Test that save operation is skipped when weekly folder already exists"""
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             # Override script_dir
@@ -462,7 +502,7 @@ class TestHistoricalDataSave:
         """Test that save is skipped when ENABLE_HISTORICAL_DATA_SAVE is False"""
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             # Override script_dir
@@ -486,7 +526,7 @@ class TestHistoricalDataSave:
         """Test that week number is zero-padded (e.g., 01, 02)"""
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             # Override script_dir
@@ -519,7 +559,7 @@ class TestHistoricalDataSave:
         """Test graceful handling when source file is missing"""
         settings = Settings()
 
-        with patch.object(NFLProjectionsCollector, '_load_bye_weeks', return_value={}):
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
             # Override script_dir

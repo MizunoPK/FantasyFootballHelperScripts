@@ -1834,7 +1834,7 @@ class ESPNClient(BaseAPIClient):
                         name=preserved_data.get('name', name),
                         team=preserved_data.get('team', ''),
                         position=preserved_data.get('position', ''),
-                        bye_week=int(preserved_data.get('bye_week', 0)) if preserved_data.get('bye_week') else None,
+                        bye_week=int(float(preserved_data.get('bye_week'))) if preserved_data.get('bye_week') else None,
                         fantasy_points=float(preserved_data.get('fantasy_points', 0.0)),
                         injury_status=preserved_data.get('injury_status', 'UNKNOWN'),
                         average_draft_position=float(preserved_data.get('average_draft_position', 0.0)) if preserved_data.get('average_draft_position') else None

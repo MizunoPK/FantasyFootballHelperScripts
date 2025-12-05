@@ -2,21 +2,33 @@
 
 **Objective File**: `updates/player-fetcher-bye-week-from-schedule.txt`
 **Created**: 2025-12-03
-**Status**: Verification Round 1 Complete - Ready for Questions
+**Status**: Verification Round 2 In Progress (User Answers Received)
+
+---
+
+## User Answers (Received 2025-12-04)
+
+**Q1: NFL Scores Exporter** → **Option A: Leave as-is**
+- Do not update nfl-scores-fetcher
+- It will silently fail if bye_weeks.csv missing (acceptable)
+
+**Q2: Error Handling Strictness** → **Option A: Fatal error**
+- Raise `FileNotFoundError` if season_schedule.csv missing
+- User must run schedule-data-fetcher first
 
 ---
 
 ## Progress Tracking
 
-**IMPORTANT**: Keep this file updated as you complete tasks. If a new Claude agent continues this work, they should be able to pick up exactly where the previous agent left off.
+**STATUS: COMPLETE** ✅
 
-- [ ] Phase 1: Remove bye_weeks.csv Loading
-- [ ] Phase 2: Add Season Schedule Dependency
-- [ ] Phase 3: Derive Bye Weeks from Schedule
-- [ ] Phase 4: Update ESPN Client Integration
-- [ ] Phase 5: Update Tests
-- [ ] Phase 6: Update Documentation
-- [ ] Phase 7: Final Validation
+- [x] Phase 1: Remove bye_weeks.csv Loading
+- [x] Phase 2: Add Season Schedule Dependency
+- [x] Phase 3: Derive Bye Weeks from Schedule
+- [x] Phase 4: Update ESPN Client Integration (no changes needed - interface unchanged)
+- [x] Phase 5: Update Tests (24 tests pass)
+- [x] Phase 6: Update Documentation
+- [x] Phase 7: Final Validation (2249/2249 tests pass - 100%)
 
 ---
 
@@ -265,8 +277,95 @@ Output: players.csv with bye_week column
 3. `league_helper/LeagueHelperManager.py` - Docstring cleanup (lines 63, 195)
 4. `player-data-fetcher/espn_client.py` - Docstring update (line 202)
 
-### Potential Additional File (Pending User Decision)
-- `nfl-scores-fetcher/nfl_scores_exporter.py` - Also references bye_weeks.csv (line 200)
+### Out of Scope (Per User Answer Q1)
+- `nfl-scores-fetcher/nfl_scores_exporter.py` - Leave as-is, will silently fail without bye_weeks.csv
+
+---
+
+## Second Verification Round: COMPLETE (9/9 iterations)
+
+### Iterations 8-11: Standard Verification with User Answers (POST-IMPLEMENTATION)
+
+**User Answers Applied**:
+- Q1 (nfl-scores-fetcher): Leave as-is - no changes needed ✅
+- Q2 (Error handling): Fatal error if season_schedule.csv missing ✅
+
+**Requirements Cross-Reference (All 12 requirements verified)**:
+| # | Requirement | Implementation | Status |
+|---|-------------|----------------|--------|
+| 1 | Remove `_load_bye_weeks()` method | Replaced with `_derive_bye_weeks_from_schedule()` | ✅ |
+| 2 | Remove CSV file loading references | No `bye_weeks.csv` in player-data-fetcher | ✅ |
+| 3 | Check if `season_schedule.csv` exists | Line 128: `if not schedule_path.exists()` | ✅ |
+| 4 | Raise error with specific message | Lines 129-135: `FileNotFoundError` | ✅ |
+| 5 | Error includes path + instructions | "python run_scores_fetcher.py" | ✅ |
+| 6 | Load season_schedule.csv | Line 183: `pd.read_csv(schedule_path)` | ✅ |
+| 7 | For each team, find missing week | Lines 192-208: loop + set difference | ✅ |
+| 8 | Build bye_weeks dict | Line 201: `bye_weeks[team] = ...` | ✅ |
+| 9 | Validate 32 teams | Lines 188-189: warning logged | ✅ |
+| 10 | Log warning for no bye | Line 203: warning | ✅ |
+| 11 | Log warning for multiple byes | Line 206: warning | ✅ |
+| 12 | ESPN client interface unchanged | Line 243: `client.bye_weeks = self.bye_weeks` | ✅ |
+
+### Iteration 12: End-to-End Data Flow Re-verification (POST-IMPLEMENTATION)
+
+```
+Entry: run_player_fetcher.py (line 36)
+  → subprocess.run(player_data_fetcher_main.py)
+  → main() at line 547
+    → NFLProjectionsCollector(settings) at line 560
+      → __init__() at line 113
+        → Check schedule_path.exists() (line 128) ✅
+        → _derive_bye_weeks_from_schedule(schedule_path) (line 138) ✅
+          → pd.read_csv(schedule_path) (line 183)
+          → For each team, find missing week (lines 192-208)
+          → Returns bye_weeks dict ✅
+    → collector.collect_all_projections() at line 561
+      → client.bye_weeks = self.bye_weeks at line 243 ✅
+      → ESPN client uses bye_weeks.get(team) at line 1867 ✅
+Output: players.csv with bye_week column populated ✅
+```
+
+### Iteration 13: Skeptical Re-verification (POST-IMPLEMENTATION)
+
+**Fresh codebase searches (assume nothing is correct)**:
+| Search | Expected | Actual | Status |
+|--------|----------|--------|--------|
+| `_load_bye_weeks` in player-data-fetcher | None | None | ✅ |
+| `bye_weeks.csv` in player-data-fetcher | None | None | ✅ |
+| `_derive_bye_weeks_from_schedule` exists | Yes | Lines 138, 155 | ✅ |
+| `_load_bye_weeks` in tests | None | None | ✅ |
+| `TestLoadByeWeeks` class | None | None | ✅ |
+| `season_schedule.csv` exists | Yes | 545 lines | ✅ |
+| Format correct | `week,team,opponent` | `week,team,opponent` | ✅ |
+| 32 teams × 17 games | 544 rows | 544 rows | ✅ |
+
+### Iteration 14: Integration Gap Check (POST-IMPLEMENTATION)
+
+| Component | File | Integration | Status |
+|-----------|------|-------------|--------|
+| Source method | `_derive_bye_weeks_from_schedule` (main:155) | Created | ✅ |
+| Instance storage | `self.bye_weeks` (main:138) | Connected | ✅ |
+| ESPN client pass | `client.bye_weeks = self.bye_weeks` (main:243) | Connected | ✅ |
+| ESPN client store | `self.bye_weeks` (espn_client:215) | Receives | ✅ |
+| ESPN client use | `bye_weeks.get(team)` (espn_client:1867) | Uses | ✅ |
+| Schedule generator | `ScheduleFetcher._identify_bye_weeks` | Separate (generates CSV) | ✅ |
+| NFL scores exporter | `nfl_scores_exporter.py` | Left as-is per Q1 | ✅ |
+
+**No orphan code. No broken integrations.**
+
+### Iterations 15-16: Final Verification (POST-IMPLEMENTATION)
+
+**Implementation Verification Checklist (ALL COMPLETE)**:
+- [x] Delete `_load_bye_weeks()` method (lines 144-202)
+- [x] Add schedule file existence check (line 128)
+- [x] Create `_derive_bye_weeks_from_schedule()` method (line 155)
+- [x] Update initialization to call new method (line 138)
+- [x] Delete `TestLoadByeWeeks` class
+- [x] Update patches to new method name
+- [x] Create new `TestDeriveBveWeeksFromSchedule` class (5 tests)
+- [x] Update LeagueHelperManager docstrings (lines 63, 195)
+- [x] Run full test suite: **2249/2249 tests pass (100%)**
+- [x] Verify no orphan `bye_weeks.csv` references in source code
 
 ---
 
@@ -274,7 +373,7 @@ Output: players.csv with bye_week column
 
 If you are a new Claude agent continuing this work:
 1. Read this TODO file completely
-2. Check verification summary - first round is complete
-3. Wait for user answers to questions before proceeding
-4. After answers, complete second verification round (9 iterations)
-5. Then begin implementation following the phases
+2. Both verification rounds are complete (16 total iterations)
+3. User answers received and integrated
+4. Ready for implementation - follow phases in order
+5. Run tests after each phase

@@ -60,7 +60,7 @@ class LeagueHelperManager:
                 - league_config.json: League configuration
                 - players.csv: Player database
                 - team_data/: Per-team historical rankings
-                - bye_weeks.csv: Bye week schedule
+                - season_schedule.csv: NFL season schedule
 
         Raises:
             FileNotFoundError: If required data files are missing
@@ -192,7 +192,7 @@ def main():
     - league_config.json
     - players.csv
     - team_data/
-    - bye_weeks.csv
+    - season_schedule.csv
     """
     setup_logger(constants.LOG_NAME, constants.LOGGING_LEVEL, constants.LOGGING_TO_FILE, constants.LOGGING_FILE, constants.LOGGING_FORMAT)
 
