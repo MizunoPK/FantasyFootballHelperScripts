@@ -1,5 +1,7 @@
 ## OBJECTIVE PLANNING WORKFLOW
 
+**🚨 MANDATORY: 3 VERIFICATION ROUNDS BEFORE DEVELOPMENT** - The agent must complete 3 full rounds of verification iterations before beginning any implementation work.
+
 Before starting changes, follow this mandatory workflow:
 
 ### **STEP 1: Create Draft TODO File**
@@ -20,7 +22,7 @@ Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL (detailed below) with
 
 **Iteration Breakdown**:
 - **Iterations 1-3**: Standard verification (research, cross-reference, refine)
-- **Iteration 4**: Continue refinement with deeper technical details
+- **Iteration 4**: Continue refinement with deeper technical details + **ALGORITHM TRACEABILITY MATRIX**
 - **Iteration 5**: **END-TO-END DATA FLOW VERIFICATION** - For each requirement, trace from entry point to output. Identify what calls each new method. Document integration points.
 - **Iteration 6**: **SKEPTICAL RE-VERIFICATION** - Assume nothing written so far is accurate. Re-verify ALL claims, assumptions, file paths, method names, patterns, and implementation strategies from scratch. Question everything and validate with fresh codebase research.
 - **Iteration 7**: **INTEGRATION GAP CHECK** - Review all new methods/classes planned. For each one, verify the TODO includes a task to modify the CALLER. If a new method has no caller modification task, add one.
@@ -37,6 +39,113 @@ This file should contain:
 
 **IMPORTANT**: Wait for the user to answer these questions before proceeding to Step 4.
 
+---
+
+## QUESTIONS FILE TEMPLATE
+
+The questions file (`updates/{objective_name}_questions.md`) must follow this structured format for EVERY question:
+
+```markdown
+# {Objective Name} - Questions
+
+## Question 1: {Brief Title}
+
+### Context
+{Explain the background and why this question is being asked. Include relevant findings from codebase research, constraints discovered, or ambiguities in the original specification that necessitate clarification.}
+
+### Question
+{State the specific question or problem that needs to be resolved. Be clear and direct about what decision needs to be made.}
+
+### Options
+
+**Option A: {Option Title}**
+- Description: {What this option entails}
+- Pros: {Benefits of this approach}
+- Cons: {Drawbacks or risks}
+
+**Option B: {Option Title}**
+- Description: {What this option entails}
+- Pros: {Benefits of this approach}
+- Cons: {Drawbacks or risks}
+
+**Option C: {Option Title}** (if applicable)
+- Description: {What this option entails}
+- Pros: {Benefits of this approach}
+- Cons: {Drawbacks or risks}
+
+### Agent Recommendation
+{State the agent's recommended option and provide clear reasoning for why this option is preferred based on codebase research, existing patterns, and technical considerations.}
+
+### User Answer
+> **Selected Option:**
+>
+> **Additional Notes/Elaboration:**
+>
+>
+
+---
+
+## Question 2: {Brief Title}
+
+{Repeat the same structure for each additional question}
+```
+
+### TEMPLATE REQUIREMENTS:
+
+1. **Context Section**: Must explain WHY this question arose - reference specific findings from codebase research, conflicts in requirements, or gaps in the specification
+2. **Question Section**: Must be a clear, answerable question - not vague or open-ended
+3. **Options Section**: Must provide at least 2 concrete options with pros/cons for each
+4. **Agent Recommendation**: Must state a clear preference with technical justification
+5. **User Answer Section**: Must include dedicated, clearly marked space for:
+   - The selected option
+   - Room for elaboration or additional context from the user
+
+### EXAMPLE:
+
+```markdown
+## Question 1: Configuration Storage Format
+
+### Context
+During codebase research, I found that the project currently stores configuration in JSON files (`data/configs/*.json`). The new feature requires storing additional nested configuration data. The existing JSON structure uses flat key-value pairs, which may not accommodate the hierarchical data cleanly. I also noticed the simulation module uses a similar pattern in `sim_data/` that could be referenced.
+
+### Question
+What format should be used for storing the new hierarchical configuration data?
+
+### Options
+
+**Option A: Extend Existing JSON Structure**
+- Description: Add nested objects to the existing JSON files
+- Pros: Maintains consistency with current approach, no new dependencies
+- Cons: May make files harder to read, requires updating all JSON parsers
+
+**Option B: Create Separate YAML Files**
+- Description: Use YAML format for new hierarchical configs
+- Pros: Better readability for nested data, supports comments
+- Cons: Introduces new dependency, mixed config formats in project
+
+**Option C: Use Python Dataclasses with JSON Serialization**
+- Description: Define config structure in Python, serialize to JSON
+- Pros: Type safety, IDE support, validation built-in
+- Cons: More initial setup, requires migration of existing configs
+
+### Agent Recommendation
+I recommend **Option A: Extend Existing JSON Structure** because the codebase already has established patterns for JSON handling in `ConfigManager.py` (lines 45-89), and the additional complexity of nested objects is manageable. This maintains consistency and avoids introducing new dependencies.
+
+### User Answer
+> **Selected Option:**
+>
+> **Additional Notes/Elaboration:**
+>
+>
+```
+
+### ENFORCEMENT:
+- **ALL questions must follow this template** - incomplete questions are not acceptable
+- **Context is mandatory** - questions without context lack the information needed for informed decisions
+- **Options are mandatory** - never present a question without proposed solutions
+- **Recommendations are mandatory** - the agent must provide informed guidance
+- **User answer space is mandatory** - must be clearly marked and easy to fill in
+
 ### **STEP 4: Update TODO with Question Answers**
 
 After receiving user answers, update the TODO file to reflect:
@@ -45,7 +154,7 @@ After receiving user answers, update the TODO file to reflect:
 - Adjusted task priorities based on answers
 - Any new tasks revealed by the answers
 
-### **STEP 5: Second Verification Round (9 More Iterations)**
+### **STEP 5: Second Verification Round (9 Iterations)**
 
 Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL again with **9 additional complete iterations** to:
 - Validate that question answers are fully integrated
@@ -56,13 +165,37 @@ Execute the TODO FILE VERIFICATION AND REFINEMENT PROTOCOL again with **9 additi
 
 **Iteration Breakdown**:
 - **Iterations 8-10**: Verification with user answers integrated
-- **Iteration 11**: Continue refinement with implementation-specific details
+- **Iteration 11**: Continue refinement with implementation-specific details + **ALGORITHM TRACEABILITY MATRIX** update
 - **Iteration 12**: **END-TO-END DATA FLOW VERIFICATION** - Re-trace from entry point to output for each requirement with user answers integrated. Update integration points based on chosen approaches.
 - **Iteration 13**: **SKEPTICAL RE-VERIFICATION** - Again, assume nothing is accurate. Re-verify ALL claims, especially those based on user answers. Validate that answers are correctly interpreted and integrated. Fresh codebase research required.
 - **Iteration 14**: **INTEGRATION GAP CHECK** - Final review of all new methods/classes. For EACH new component, document: (1) what file it's in, (2) what existing code will call it, (3) what modification is needed in the caller. Flag any orphan code.
 - **Iterations 15-16**: Final refinement, preparation for implementation, and creation of integration verification checklist
 
-After completing both verification rounds (**16 total iterations**), the TODO file should be comprehensive, thoroughly validated, and ready for implementation.
+### **STEP 6: Third Verification Round (8 Iterations) - FINAL PRE-IMPLEMENTATION CHECK**
+
+**🚨 CRITICAL**: Execute a THIRD verification round with **8 additional iterations** focusing on algorithm correctness and implementation readiness. This round catches issues that slipped through the first two rounds.
+
+**Iteration Breakdown**:
+- **Iterations 17-18**: **FRESH EYES REVIEW** - Re-read the original spec as if seeing it for the first time. Compare every line against the TODO. Look for subtle requirements that may have been overlooked or simplified.
+- **Iteration 19**: **ALGORITHM DEEP DIVE** - For EVERY algorithm, calculation, or conditional logic in the spec:
+  - Quote the exact spec text
+  - Document the planned implementation approach
+  - Verify conditional branches match exactly (if week < X then A, else B)
+  - Flag any simplifications or deviations
+- **Iteration 20**: **EDGE CASE VERIFICATION** - Identify all edge cases mentioned in spec. Verify each has a corresponding implementation task and test case.
+- **Iteration 21**: **TEST COVERAGE PLANNING** - For each algorithm, plan behavior tests (not just structure tests). Tests must verify the algorithm produces correct outputs, not just that code exists.
+- **Iteration 22**: **SKEPTICAL RE-VERIFICATION #3** - Final skeptical pass. Assume Rounds 1 and 2 both missed something. Re-verify with adversarial mindset.
+- **Iteration 23**: **INTEGRATION GAP CHECK #3** - Final integration verification. Every new component must have an identified caller.
+- **Iteration 24**: **IMPLEMENTATION READINESS CHECKLIST** - Create final checklist confirming:
+  - All requirements mapped to tasks
+  - All algorithms documented with exact logic
+  - All integration points identified
+  - All test cases planned
+  - Ready to begin implementation
+
+After completing all three verification rounds (**24 total iterations**), the TODO file should be comprehensive, thoroughly validated, and ready for implementation.
+
+**WHY 3 ROUNDS?**: Experience shows that algorithm-level bugs (like incorrect conditional logic or missing per-iteration recalculations) often slip through 2 rounds of verification. The third round with its focus on algorithm deep-dive and adversarial review catches these subtle issues before implementation begins.
 
 ---
 
@@ -194,6 +327,20 @@ After completing both verification rounds (**16 total iterations**), the TODO fi
    - Document exact API endpoints/parameters
    - Add performance considerations
    - Include optimization opportunities
+
+4. **🚨 ALGORITHM TRACEABILITY MATRIX** (NEW):
+   - For each calculation, formula, or algorithm in the spec:
+     - Extract the EXACT logic from the spec (quote it word-for-word)
+     - Document which code file/method will implement it
+     - Note any conditional logic (e.g., "if week < X then A, else B")
+   - Create matrix in TODO file:
+     ```
+     | Spec Section | Algorithm Description | Code Location | Conditional Logic |
+     |--------------|----------------------|---------------|-------------------|
+     | Lines 158-186 | players_projected week columns | weekly_snapshot_generator.py | week < X: historical, week >= X: current |
+     | Lines 241-276 | player_rating calculation | weekly_snapshot_generator.py | week 1: draft rank, week 2+: cumulative points |
+     ```
+   - This matrix will be verified during implementation
 
 **📋 ITERATION 5 (First Round) / ITERATION 12 (Second Round): END-TO-END DATA FLOW VERIFICATION**
 
@@ -344,7 +491,7 @@ Continue with standard verification process (same as Iterations 1-4) but with us
 ### **DOCUMENTATION REQUIREMENTS**:
 
 After completing each verification round, add/update a "Verification Summary" section to the TODO file documenting:
-- ✅ Number of iterations completed (7 for first round, 16 total after second round)
+- ✅ Number of iterations completed (7 for first round, 16 after second round, 24 total after third round)
 - ✅ Number of requirements added after initial draft
 - ✅ Key codebase patterns/utilities identified for reuse
 - ✅ Critical dependencies or ordering requirements
@@ -354,13 +501,15 @@ After completing each verification round, add/update a "Verification Summary" se
 - ✅ **Data flow traces** for each requirement (entry point → output)
 - ✅ **Integration matrix** showing new components and their callers
 - ✅ **Skeptical re-verification results** (corrections made, confidence level)
+- ✅ **Algorithm traceability matrix** for calculations/formulas with conditional logic
 
 ### **ACCEPTANCE CRITERIA** (before beginning implementation):
 - ✅ First verification round complete (7 iterations on draft TODO, including data flow, skeptical re-verification, and integration gap check)
 - ✅ Questions file created with thoughtful, research-backed questions
 - ✅ User answers received for all questions
 - ✅ Second verification round complete (9 more iterations with answers integrated, including second data flow, skeptical re-verification, and integration gap check)
-- ✅ **Total: 16 complete verification iterations performed** (with 2 data flow verifications, 2 skeptical re-verifications, 2 integration gap checks)
+- ✅ **Third verification round complete** (8 iterations with algorithm deep-dive, edge case verification, test planning, and final skeptical review)
+- ✅ **Total: 24 complete verification iterations performed** (3 rounds with 3 data flow verifications, 3 skeptical re-verifications, 3 integration gap checks)
 - ✅ Every requirement from original file covered in TODO
 - ✅ Every question answer reflected in TODO tasks
 - ✅ Specific file paths identified for each task (verified multiple times)
@@ -375,20 +524,25 @@ After completing each verification round, add/update a "Verification Summary" se
 - ✅ **Integration matrix created showing all new components and their callers**
 - ✅ **Caller modifications included in TODO (not just new method creation)**
 - ✅ **Integration verification checklist created for implementation phase**
+- ✅ **Algorithm traceability matrix created for all calculations/formulas in spec**
+- ✅ **Conditional logic from spec documented explicitly (if X then A, else B)**
 
 ### **ENFORCEMENT**:
 - **NO SHORTCUTS**: Cannot skip iterations or rush through verification
-- **TWO ROUNDS REQUIRED**: Must complete both verification rounds (7 iterations + 9 iterations = 16 total)
-- **DATA FLOW PHASES MANDATORY**: Must complete iterations 5 and 12 as end-to-end data flow verification
-- **SKEPTICAL PHASES MANDATORY**: Must complete iterations 6 and 13 as skeptical re-verifications
-- **INTEGRATION GAP PHASES MANDATORY**: Must complete iterations 7 and 14 as integration gap checks
+- **THREE ROUNDS REQUIRED**: Must complete all three verification rounds (7 + 9 + 8 = 24 total iterations)
+- **DATA FLOW PHASES MANDATORY**: Must complete iterations 5, 12 as end-to-end data flow verification
+- **SKEPTICAL PHASES MANDATORY**: Must complete iterations 6, 13, and 22 as skeptical re-verifications
+- **INTEGRATION GAP PHASES MANDATORY**: Must complete iterations 7, 14, and 23 as integration gap checks
+- **ALGORITHM DEEP DIVE MANDATORY**: Must complete iteration 19 with exact spec-to-code comparison
+- **ALGORITHM TRACEABILITY MANDATORY**: Must create matrix for all calculations with conditional logic
 - **QUESTIONS REQUIRED**: Must create questions file after first verification round
 - **NO ASSUMPTIONS**: Must research codebase to validate approach
 - **NO VAGUE TASKS**: Each task must have specific technical details
-- **ITERATIVE IS MANDATORY**: Minimum 16 total cycles of read-question-research-update
+- **ITERATIVE IS MANDATORY**: Minimum 24 total cycles of read-question-research-update
 - **DOCUMENT THE PROCESS**: Verification summary required in TODO file after each round
 - **FRESH EYES REQUIRED**: Skeptical iterations must approach verification as if seeing the plan for the first time
 - **INTEGRATION MATRIX REQUIRED**: Must create matrix showing new components and their callers
+- **NO SIMPLIFIED ALGORITHMS**: If spec has conditional logic, implementation must have matching conditions
 
 ### **WHY THIS MATTERS**:
 Thorough TODO preparation with skeptical re-verification prevents:
@@ -404,26 +558,41 @@ Thorough TODO preparation with skeptical re-verification prevents:
 - ❌ **Creating infrastructure methods that are never called from entry points**
 - ❌ **Building components without wiring them into the actual system**
 - ❌ **Changing output formats without updating entry script file discovery patterns**
+- ❌ **Implementing simplified logic that ignores conditional requirements in the spec**
+- ❌ **Writing code that "looks right" structurally but calculates incorrectly**
 
 **The specialized verification phases are critical**:
 
-**Data Flow Verification (iterations 5 and 12)** forces the agent to:
+**Data Flow Verification (iterations 5, 12)** forces the agent to:
 1. Trace the complete path from user action to system output
 2. Identify where new code fits in the execution flow
 3. Document what existing code needs to change to use new code
 4. Prevent orphan code that is never called
 
-**Skeptical Re-Verification (iterations 6 and 13)** forces the agent to:
+**Skeptical Re-Verification (iterations 6, 13, 22)** forces the agent to:
 1. Challenge its own assumptions
 2. Re-validate all claims with fresh codebase research
 3. Catch errors that might have been overlooked in earlier iterations
 4. Ensure the plan is built on accurate, verified information
 
-**Integration Gap Check (iterations 7 and 14)** forces the agent to:
+**Integration Gap Check (iterations 7, 14, 23)** forces the agent to:
 1. Create a matrix of new components and their callers
 2. Verify every new method has a corresponding caller modification task
 3. Flag and fix any orphan code before implementation begins
 4. Ensure the TODO includes both infrastructure AND integration tasks
+
+**Algorithm Traceability Matrix (iterations 4, 11, 19)** forces the agent to:
+1. Extract EXACT algorithm descriptions from the spec (not paraphrased)
+2. Document conditional logic explicitly (if week < X, then A; else B)
+3. Map each algorithm to a specific code location
+4. Prevent "simplified implementations" that ignore spec conditions
+5. Catch cases where code structure is right but calculation logic is wrong
+
+**Third Round Algorithm Deep Dive (iteration 19)** forces the agent to:
+1. Quote exact spec text for every algorithm and calculation
+2. Verify each conditional branch matches spec exactly
+3. Flag any simplifications or deviations from spec
+4. Ensure behavior tests are planned (not just structure tests)
 
 A well-researched, thoroughly verified, and integration-validated TODO file is the foundation of successful implementation.
 Immediately after creating the TODO file, create a code changes documentation file in the updates folder (NOT the done folder yet) named `{objective_name}_code_changes.md`. This file should be updated incrementally as you work through each task in the TODO file. After completing each significant change, immediately document it in the code changes file with: file paths, line numbers, before/after code snippets, rationale, and impact. This ensures the documentation stays current and accurate throughout the implementation process. The file will be moved to updates/done when the objective is complete.
@@ -617,6 +786,44 @@ Help Text Update: --baseline accepts folder path, not JSON file
 - Check that new files were created if specified
 - Confirm no placeholder code or TODOs remain
 
+**📋 STEP 3.5: 🚨 ALGORITHM VERIFICATION (NEW - CRITICAL)**
+
+For each algorithm/calculation in the spec, verify the implementation matches **exactly**:
+
+1. **Extract Algorithm from Spec**:
+   - Quote the exact algorithm description from the original spec file
+   - Note any conditional logic (if/else, week-specific, position-specific)
+   - Identify edge cases mentioned in the spec
+
+2. **Read Implementation Code**:
+   - Open the file that implements this algorithm
+   - Read the actual code line-by-line
+   - Compare each condition and calculation to the spec
+
+3. **Verify Logic Matches**:
+   - For each conditional in the spec, find the corresponding code condition
+   - For each calculation formula, verify the code implements it correctly
+   - Check that edge cases are handled as specified
+
+4. **Create Algorithm Verification Matrix**:
+   ```
+   | Spec Line | Algorithm | Code File:Line | Spec Says | Code Does | Match? |
+   |-----------|-----------|----------------|-----------|-----------|--------|
+   | 158-186 | projected weeks | generator.py:195 | week >= X: use current week projection | uses current_week_projection | ✅ |
+   | 241-276 | player_rating | generator.py:147 | week 2+: cumulative points | copies same rating | ❌ MISMATCH |
+   ```
+
+5. **Fix Mismatches Immediately**:
+   - Any ❌ MISMATCH requires immediate correction
+   - Re-verify after fixing
+   - Update tests to cover the algorithm behavior
+
+**Common Algorithm Verification Failures**:
+- ❌ Spec says "recalculate per iteration" but code calculates once
+- ❌ Spec says "use value A for condition X, value B for condition Y" but code uses same value
+- ❌ Spec describes conditional logic but code uses simplified unconditional logic
+- ❌ Spec mentions edge cases but code doesn't handle them
+
 **📋 STEP 4: Verify End-to-End Integration**
 - For each NEW method/function created:
   - Search codebase to find what CALLS this method
@@ -660,6 +867,7 @@ Help Text Update: --baseline accepts folder path, not JSON file
 - ✅ **ALL new methods have identified callers (no orphan code)**
 - ✅ **Integration verified from entry point to output**
 - ✅ **Actual scripts run and produce expected behavior (not just unit tests)**
+- ✅ **Minimum 3 quality control review rounds completed and documented**
 
 ### **ENFORCEMENT**:
 - **NO EXCEPTIONS**: If even ONE requirement is missing, objective is NOT complete
@@ -668,6 +876,7 @@ Help Text Update: --baseline accepts folder path, not JSON file
 - **RE-VERIFICATION REQUIRED**: If new requirements discovered, re-run entire protocol
 - **NO ORPHAN CODE**: Methods that exist but are never called = incomplete implementation
 - **INTEGRATION REQUIRED**: Infrastructure without integration = feature doesn't work
+- **3 QC ROUNDS REQUIRED**: Must complete and document 3 quality control review rounds
 
 ### **FAILURE TO VERIFY = INCOMPLETE OBJECTIVE**:
 If this protocol is not executed, or if missing requirements are discovered after claiming completion, the objective must be reopened and completed properly. The user must be notified of any missing requirements immediately.
@@ -680,6 +889,82 @@ If this protocol is not executed, or if missing requirements are discovered afte
 - ❌ Changed output format (JSON → folder) but entry script still looks for old format
 - ❌ Entry script glob patterns don't match new file/folder structure
 - ❌ Error messages reference old format instead of new format
+
+---
+
+## QUALITY CONTROL REVIEW PROTOCOL
+
+**🚨 MANDATORY: MINIMUM 3 REVIEW ROUNDS** - After implementation appears complete, the agent must perform at least 3 independent quality control review rounds before marking an objective as complete.
+
+### **THE REVIEW PROMPT**:
+
+For each round, the agent must execute this review:
+
+> **"Review the TODO file, code changes, and original requirements to ensure nothing was skipped, left out, or done incorrectly."**
+
+### **REVIEW ROUND REQUIREMENTS**:
+
+**📋 ROUND 1: Initial Quality Review**
+1. Re-read the original requirements file (`updates/{objective_name}.txt`)
+2. Re-read the TODO file (`updates/todo-files/{objective_name}_todo.md`)
+3. Re-read the code changes file (`updates/{objective_name}_code_changes.md`)
+4. Cross-reference all three documents
+5. Identify any discrepancies, missing items, or incorrect implementations
+6. Document findings and fix any issues found
+
+**📋 ROUND 2: Deep Verification Review**
+1. With fresh perspective, repeat the same review process
+2. Focus on algorithm correctness and edge cases
+3. Verify conditional logic matches spec exactly
+4. Check that tests actually validate the behavior (not just structure)
+5. Document findings and fix any issues found
+
+**📋 ROUND 3: Final Skeptical Review**
+1. Assume previous reviews missed something
+2. Re-read spec with "adversarial" mindset - actively look for gaps
+3. Verify every algorithm, calculation, and conditional
+4. Confirm all requirements have corresponding tests
+5. Document final verification status
+
+### **WHAT TO CHECK IN EACH ROUND**:
+
+| Document | What to Verify |
+|----------|---------------|
+| Original Requirements | Every line has been addressed |
+| TODO File | All tasks marked complete, no orphan items |
+| Code Changes | All changes documented, line numbers accurate |
+| Algorithm Logic | Conditional logic matches spec exactly |
+| Test Coverage | Behavior tests exist (not just structure tests) |
+
+### **ROUND DOCUMENTATION**:
+
+After each round, document in the code changes file:
+```
+## Quality Control Round [N]
+- Reviewed: [date/time]
+- Issues Found: [list or "None"]
+- Issues Fixed: [list or "N/A"]
+- Status: ✅ PASSED / ❌ ISSUES FOUND (fixed)
+```
+
+### **ENFORCEMENT**:
+
+- **MINIMUM 3 ROUNDS**: Cannot mark objective complete with fewer than 3 review rounds
+- **DOCUMENT EACH ROUND**: Each round must be documented in code changes file
+- **FIX BEFORE PROCEEDING**: If issues found in round N, fix them before round N+1
+- **FRESH PERSPECTIVE**: Each round should approach review as if seeing it for first time
+- **NO RUSHING**: Each round must be thorough, not a cursory check
+
+### **WHY 3 ROUNDS?**:
+
+Experience shows that:
+- Round 1 catches obvious issues
+- Round 2 catches algorithm/logic issues missed in Round 1
+- Round 3 catches subtle issues that require "adversarial" thinking
+
+The `players_projected.csv` week logic and `player_rating` recalculation issues were both caught on review rounds after initial implementation appeared complete. Multiple review rounds are essential for quality.
+
+---
 
 ## PRE-COMMIT VALIDATION PROTOCOL
 
@@ -734,6 +1019,18 @@ python tests/run_all_tests.py --single     # Faster single command mode
    - Use proper mocking to isolate functionality
    - Ensure tests follow Arrange-Act-Assert pattern
 
+   **🚨 ALGORITHM BEHAVIOR TESTS (CRITICAL)**:
+   - For each algorithm/calculation in the spec, write tests that verify:
+     - The calculation produces expected output for known inputs
+     - Conditional logic works correctly (test both branches)
+     - Edge cases are handled as specified
+   - Example: If spec says "week 1 uses draft rank, week 2+ uses cumulative points":
+     - Test that week 1 output uses draft-based values
+     - Test that week 5 output differs from week 1 (uses performance-based values)
+     - Test the boundary case (week 2 transition)
+   - **Structure tests don't catch algorithm bugs** - a file can exist with wrong logic
+   - Write tests that would FAIL if the algorithm is implemented incorrectly
+
 3. **RUN ALL UNIT TESTS** (MANDATORY):
    ```bash
    python tests/run_all_tests.py
@@ -754,7 +1051,7 @@ python tests/run_all_tests.py --single     # Faster single command mode
 5. **UPDATE DOCUMENTATION**:
    - Update README.md if functionality changed
    - Update CLAUDE.md if workflow or architecture changed
-   - Update rules.txt if development process changed
+   - Update rules.md if development process changed
    - Update module-specific documentation as needed
 
 6. **COMMIT STANDARDS**:

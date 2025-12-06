@@ -350,7 +350,7 @@ python run_simulation.py     # Test simulation with performance scoring
 
 ## Pre-Commit Validation Checklist
 
-**EXECUTE AT END OF EVERY PHASE** (see rules.txt lines 9-102):
+**EXECUTE AT END OF EVERY PHASE** (see rules.md lines 9-102):
 
 1. ✅ Analyze changes: `git status` and `git diff`
 2. ✅ Run all unit tests: `python tests/run_all_tests.py`

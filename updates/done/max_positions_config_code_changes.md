@@ -64,7 +64,7 @@
 **Documentation**:
 - [ ] `CLAUDE.md` - Update references to MAX_POSITIONS
 - [ ] `README.md` - Update configuration documentation
-- [ ] `rules.txt` - Update if needed
+- [ ] `rules.md` - Update if needed
 
 ---
 

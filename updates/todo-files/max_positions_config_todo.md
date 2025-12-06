@@ -282,8 +282,8 @@ def max_players(self) -> int:
 - [ ] Update configuration documentation
 - [ ] Add note about league_config.json structure
 
-### Task 4.4: Update rules.txt if needed
-**File**: `/home/kai/code/FantasyFootballHelperScriptsRefactored/rules.txt`
+### Task 4.4: Update rules.md if needed
+**File**: `/home/kai/code/FantasyFootballHelperScriptsRefactored/rules.md`
 - [ ] Check for MAX_POSITIONS references
 - [ ] Update if present
 

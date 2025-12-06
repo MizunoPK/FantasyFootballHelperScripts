@@ -1,21 +1,21 @@
 {
-  "config_name": "simulation/simulation_configs/intermediate_03_DIFF_POS_BYE_WEIGHT.json",
-  "description": "Win Rate: 0.92",
+  "config_name": "Optimal Base Config (20251205_153646)",
+  "description": "Optimized base parameters for all weeks",
   "parameters": {
-    "CURRENT_NFL_WEEK": 14,
+    "CURRENT_NFL_WEEK": 13,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 137.59086632186956,
-    "SAME_POS_BYE_WEIGHT": 0.19558801932555567,
-    "DIFF_POS_BYE_WEIGHT": 0.02199332452137057,
+    "NORMALIZATION_MAX_SCALE": 142.31697803584836,
+    "SAME_POS_BYE_WEIGHT": 0.6086564547613803,
+    "DIFF_POS_BYE_WEIGHT": 0.22751787815140656,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 0,
       "HIGH": 100
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 63.6497443839134,
-      "SECONDARY": 96.50024934571101
+      "PRIMARY": 75.06018739903439,
+      "SECONDARY": 96.06706070486874
     },
     "DRAFT_ORDER_FILE": 3,
     "DRAFT_ORDER": [
@@ -75,25 +75,23 @@
       }
     ],
     "MAX_POSITIONS": {
-      "QB": 1,
+      "QB": 2,
       "RB": 4,
       "WR": 4,
-      "FLEX": 3,
-      "TE": 1,
+      "FLEX": 1,
+      "TE": 2,
       "K": 1,
       "DST": 1
     },
     "FLEX_ELIGIBLE_POSITIONS": [
       "RB",
-      "WR",
-      "DST",
-      "TE"
+      "WR"
     ],
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 16.762187501426567
+        "STEPS": 9.964034869473341
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -101,7 +99,17 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.941451195712283
+      "WEIGHT": 4.442275396615367
     }
+  },
+  "performance_metrics": {
+    "overall_win_rate": 0.8925,
+    "total_wins": 357,
+    "total_losses": 43,
+    "config_id": "LOCATION_INTERNATIONAL_16",
+    "total_parameters_optimized": 24,
+    "total_configs_tested": 504,
+    "optimization_time_seconds": 27229.003962039948,
+    "timestamp": "20251205_153646"
   }
 }

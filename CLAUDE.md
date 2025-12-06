@@ -19,13 +19,13 @@ When the user requests to prepare for updates based on files in the `updates/` f
 1. **Read the update file** from `updates/` folder
 2. **Create a questions file** (if needed) to clarify requirements
 3. **Create TODO tracking file** in `updates/todo-files/` before starting
-4. **Follow all rules** documented in `rules.txt`
+4. **Follow all rules** documented in `rules.md`
 5. **Track progress** for multi-session work
 6. **Move completed files** to `updates/done/` when finished
 
 ### Workflow Details
 
-The complete workflow for handling updates is documented in `rules.txt`. Key principles:
+The complete workflow for handling updates is documented in `rules.md`. Key principles:
 
 - **Ask questions first**: Create `{objective_name}_questions.md` in `updates/` folder
 - **Plan systematically**: Create detailed TODO file in `updates/todo-files/`
@@ -34,7 +34,7 @@ The complete workflow for handling updates is documented in `rules.txt`. Key pri
 - **Test thoroughly**: 100% test pass rate required before completion
 - **Complete the cycle**: Move update file to `updates/done/` when finished
 
-See `rules.txt` for the complete protocol including pre-commit validation requirements.
+See `rules.md` for the complete protocol including pre-commit validation requirements.
 
 ### Commit Standards
 - Brief, descriptive messages (50 chars or less)
@@ -183,7 +183,7 @@ Mirrors source structure with 100% unit test pass rate required:
 - `updates/` - Pending update specifications (*.txt files)
 - `updates/todo-files/` - TODO tracking for updates in progress
 - `updates/done/` - Completed updates
-- `rules.txt` - Complete development workflow rules and protocols
+- `rules.md` - Complete development workflow rules and protocols
 - `CLAUDE.md` - This file (coding standards and workflow guidelines)
 - `README.md` - Project documentation, installation, and usage guide
 - `ARCHITECTURE.md` - Complete architectural and implementation guide

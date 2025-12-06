@@ -267,6 +267,43 @@ Downloads current player projections from data sources and saves to `data/player
 
 Downloads NFL game scores and updates team rankings.
 
+### Historical Data Compiler (`compile_historical_data.py`)
+
+Standalone script that compiles historical NFL season data from ESPN APIs for simulation testing.
+
+**Usage:**
+```bash
+# Compile 2024 season data
+python compile_historical_data.py --year 2024
+
+# With verbose logging
+python compile_historical_data.py --year 2024 --verbose
+
+# Custom output directory
+python compile_historical_data.py --year 2024 --output-dir /path/to/output
+```
+
+**Output Structure:**
+```
+simulation/sim_data/{YEAR}/
+├── season_schedule.csv       # Full season schedule with bye weeks
+├── game_data.csv             # Game results with weather data
+├── team_data/                # 32 team CSV files (defensive stats)
+│   ├── KC.csv
+│   └── ... (all 32 teams)
+└── weeks/                    # Point-in-time weekly snapshots
+    ├── week_01/
+    │   ├── players.csv       # Actual + projected points
+    │   └── players_projected.csv
+    └── ... week_17/
+```
+
+**Features:**
+- Fetches player data from ESPN Fantasy API (actual and projected points)
+- Fetches game data from ESPN Scoreboard API with weather from Open-Meteo
+- Creates point-in-time snapshots for each week (what the system would "see" at that point)
+- Supports seasons 2021+ (weekly data available)
+
 ## Project Structure
 
 ```

@@ -89,7 +89,7 @@ Please answer each question by indicating A or B (or provide an alternative appr
 
 After you answer these questions:
 1. I will update the TODO file with your answers
-2. Run 7 more verification iterations (as per rules.txt)
+2. Run 7 more verification iterations (as per rules.md)
 3. Begin implementation
 
 ---

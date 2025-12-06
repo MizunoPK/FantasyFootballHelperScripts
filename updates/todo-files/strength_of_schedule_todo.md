@@ -1323,7 +1323,7 @@ All questions answered. See `updates/espn_api_investigation_results.md` for deta
 - [ ] Final commit of documentation
 - [ ] Review all changes: `git status`, `git diff`
 - [ ] Ensure no debug code or TODOs remain
-- [ ] Run requirement verification protocol (rules.txt)
+- [ ] Run requirement verification protocol (rules.md)
 - [ ] Move strength_of_schedule.txt to updates/done/
 - [ ] Move strength_of_schedule_code_changes.md to updates/done/
 - [ ] Delete strength_of_schedule_questions.md

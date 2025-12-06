@@ -145,7 +145,7 @@ Replace BASE_BYE_PENALTY and DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY with new param
 - [ ] **Task 5.2**: Update CLAUDE.md if needed
   - Add any new architectural patterns
 
-- [ ] **Task 5.3**: Update rules.txt if needed
+- [ ] **Task 5.3**: Update rules.md if needed
   - Document any new development patterns
 
 ### Phase 6: Validation and Completion

@@ -1608,7 +1608,7 @@ For additional information:
 - **User Guide**: See README.md
 - **Development Workflow**: See CLAUDE.md
 - **Testing Guidelines**: See tests/README.md
-- **Update Protocol**: See rules.txt
+- **Update Protocol**: See rules.md
 
 ---
 

@@ -118,4 +118,4 @@ Questions file: `updates/performance_rolling_window_questions.md`
 - **Tests**: All 1981 tests pass (100%)
 
 ### Lesson Learned
-**Verification iterations were skipped** - only 1-2 iterations done instead of required 12. This caused a missed dependency (`PlayerManager.py` calling `calculate_consistency()`) that broke tests. The rules.txt verification process exists specifically to catch these issues. Future updates should complete all verification iterations before implementation.
+**Verification iterations were skipped** - only 1-2 iterations done instead of required 12. This caused a missed dependency (`PlayerManager.py` calling `calculate_consistency()`) that broke tests. The rules.md verification process exists specifically to catch these issues. Future updates should complete all verification iterations before implementation.

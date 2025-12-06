@@ -117,7 +117,7 @@ Create a comprehensive analysis report on ESPN API data available for calculatin
 
 ### First Verification Round (Before Questions File)
 - **Iteration 1**: ✅ COMPLETE
-  - Re-read all source documents (team_ranking_research.txt, rules.txt, ESPN docs)
+  - Re-read all source documents (team_ranking_research.txt, rules.md, ESPN docs)
   - Researched current implementation in espn_client.py
   - Found position-specific defense ranking implementation (lines 1017-1097)
   - Discovered previous investigation: `updates/done/espn_api_investigation_results.md`

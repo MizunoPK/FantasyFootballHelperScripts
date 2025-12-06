@@ -428,7 +428,7 @@ def _parse_player_selection(self, input_str: str, max_index: int) -> Optional[Li
 ## Phase 4: Final Verification (MANDATORY)
 
 ### Step 4.1: Requirement Verification Protocol
-**Reference**: rules.txt lines 11-71
+**Reference**: rules.md lines 11-71
 
 **Process:**
 - [ ] Re-read original `updates/manual_trade_visualizer.txt` file
@@ -468,7 +468,7 @@ def _parse_player_selection(self, input_str: str, max_index: int) -> Optional[Li
 - [ ] Q12: No additional features
 
 ### Step 4.2: Pre-Commit Validation Protocol
-**Reference**: rules.txt lines 73-166
+**Reference**: rules.md lines 73-166
 
 **MANDATORY STEPS (100% pass required):**
 

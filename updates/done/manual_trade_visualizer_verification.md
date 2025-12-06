@@ -8,7 +8,7 @@
 
 ## REQUIREMENT VERIFICATION PROTOCOL
 
-Per `rules.txt`, verifying all requirements from original specification.
+Per `rules.md`, verifying all requirements from original specification.
 
 ### Original Requirements (from manual_trade_visualizer.txt)
 
