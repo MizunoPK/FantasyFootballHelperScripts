@@ -284,10 +284,13 @@ class TestConfigGeneratorInitialization:
         assert isinstance(gen.param_definitions, dict)
         assert len(gen.param_definitions) > 0
 
-        # Each param definition should be a tuple of (min_val, max_val)
+        # Each param definition should be a tuple of (min_val, max_val, precision)
         for param_name, definition in gen.param_definitions.items():
             assert isinstance(definition, tuple), f"{param_name} should be a tuple"
-            assert len(definition) == 2, f"{param_name} should have (min, max)"
+            assert len(definition) == 3, f"{param_name} should have (min, max, precision)"
+            min_val, max_val, precision = definition
+            assert isinstance(precision, int), f"{param_name} precision should be int"
+            assert precision >= 0, f"{param_name} precision should be >= 0"
 
     def test_parameter_order_exists(self, temp_baseline_config):
         """Test that PARAMETER_ORDER list exists"""
@@ -310,8 +313,10 @@ class TestParameterValueGeneration:
 
     def test_generate_parameter_values_correct_count(self, generator):
         """Test that correct number of values are generated"""
+        # With precision=0 (integers) for range 60-140, there are 81 possible values
+        # Since num_test_values=2 < 81, we get 3 values (optimal + 2 random)
         values = generator.generate_parameter_values(
-            'TEST_PARAM', 100.0, 60.0, 140.0
+            'TEST_PARAM', 100, 60, 140, 0
         )
 
         # Should have num_test_values + 1 (optimal + N random)
@@ -319,9 +324,9 @@ class TestParameterValueGeneration:
 
     def test_generate_parameter_values_includes_optimal(self, generator):
         """Test that optimal value is included as first value"""
-        optimal = 100.0
+        optimal = 100
         values = generator.generate_parameter_values(
-            'TEST_PARAM', optimal, 60.0, 140.0
+            'TEST_PARAM', optimal, 60, 140, 0
         )
 
         assert values[0] == optimal
@@ -329,22 +334,116 @@ class TestParameterValueGeneration:
     def test_generate_parameter_values_respects_bounds(self, generator):
         """Test that generated values respect min/max bounds"""
         values = generator.generate_parameter_values(
-            'TEST_PARAM', 100.0, 60.0, 140.0
+            'TEST_PARAM', 100, 60, 140, 0
         )
 
         for val in values:
-            assert 60.0 <= val <= 140.0
+            assert 60 <= val <= 140
 
     def test_generate_parameter_values_random_variation(self, generator):
         """Test that random values vary from optimal"""
-        optimal = 100.0
+        optimal = 100
         values = generator.generate_parameter_values(
-            'TEST_PARAM', optimal, 60.0, 140.0
+            'TEST_PARAM', optimal, 60, 140, 0
         )
 
         # At least one value should differ from optimal
         non_optimal_values = [v for v in values[1:] if v != optimal]
         assert len(non_optimal_values) >= 1
+
+    def test_generate_parameter_values_precision_0_returns_integers(self, generator):
+        """Test that precision=0 generates integer values"""
+        values = generator.generate_parameter_values(
+            'TEST_PARAM', 100, 60, 140, 0
+        )
+
+        for val in values:
+            assert isinstance(val, int), f"Expected int, got {type(val)}: {val}"
+
+    def test_generate_parameter_values_precision_1(self, generator):
+        """Test that precision=1 generates 0.1 step values"""
+        values = generator.generate_parameter_values(
+            'TEST_PARAM', 0.3, 0.0, 0.5, 1
+        )
+
+        # With 6 possible values [0.0, 0.1, 0.2, 0.3, 0.4, 0.5] and num_test_values=2,
+        # we get 3 values (optimal + 2 random)
+        assert len(values) == 3
+        assert values[0] == 0.3
+        for val in values:
+            # Check each value is at 0.1 precision
+            assert round(val, 1) == val
+
+    def test_generate_parameter_values_precision_2(self, generator):
+        """Test that precision=2 generates 0.01 step values"""
+        values = generator.generate_parameter_values(
+            'TEST_PARAM', 1.50, 1.00, 2.00, 2
+        )
+
+        assert values[0] == 1.50
+        for val in values:
+            # Check each value is at 0.01 precision
+            assert round(val, 2) == val
+
+    def test_generate_parameter_values_full_enumeration(self, generator):
+        """Test that when num_test_values >= possible values, all values returned"""
+        # Range 0.0 to 0.5 with precision 1 = 6 possible values
+        # num_test_values = 2, but if we bump it higher, we should get all 6
+        config = {"config_name": "test_config", "parameters": {}}
+        import tempfile
+        from tests.simulation.test_config_generator import create_test_config_folder
+        with tempfile.TemporaryDirectory() as tmp:
+            from pathlib import Path
+            config_folder = create_test_config_folder(config, Path(tmp))
+            gen = ConfigGenerator(config_folder, num_test_values=10)  # > 6 possible values
+            values = gen.generate_parameter_values('TEST_PARAM', 0.3, 0.0, 0.5, 1)
+
+        # Should return all 6 possible values
+        assert len(values) == 6
+        # Optimal should be first
+        assert values[0] == 0.3
+        # Should contain all possible values
+        assert set(values) == {0.0, 0.1, 0.2, 0.3, 0.4, 0.5}
+
+    def test_generate_discrete_range_precision_0(self, generator):
+        """Test _generate_discrete_range with precision=0 (integers)"""
+        values = generator._generate_discrete_range(100, 105, 0)
+
+        assert values == [100, 101, 102, 103, 104, 105]
+        for v in values:
+            assert isinstance(v, int)
+
+    def test_generate_discrete_range_precision_1(self, generator):
+        """Test _generate_discrete_range with precision=1 (0.1 steps)"""
+        values = generator._generate_discrete_range(0.0, 0.5, 1)
+
+        assert values == [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+        for v in values:
+            assert round(v, 1) == v
+
+    def test_generate_discrete_range_precision_2(self, generator):
+        """Test _generate_discrete_range with precision=2 (0.01 steps)"""
+        values = generator._generate_discrete_range(0.10, 0.15, 2)
+
+        assert values == [0.10, 0.11, 0.12, 0.13, 0.14, 0.15]
+        for v in values:
+            assert round(v, 2) == v
+
+    def test_generate_discrete_range_negative_values(self, generator):
+        """Test _generate_discrete_range handles negative values"""
+        # precision=1 means 0.1 steps, so -10.0 to 0.0 has 101 values
+        values = generator._generate_discrete_range(-10.0, 0.0, 1)
+
+        assert len(values) == 101  # (-10.0, -9.9, ..., -0.1, 0.0)
+        assert values[0] == -10.0
+        assert values[-1] == 0.0  # -0.0 equals 0.0
+
+    def test_generate_discrete_range_integer_negative(self, generator):
+        """Test _generate_discrete_range with precision=0 for negative integers"""
+        values = generator._generate_discrete_range(-5, 0, 0)
+
+        assert len(values) == 6  # [-5, -4, -3, -2, -1, 0]
+        assert values == [-5, -4, -3, -2, -1, 0]
 
     def test_generate_all_parameter_value_sets_returns_all_params(self, generator):
         """Test that value sets are generated with valid structure"""
@@ -773,21 +872,23 @@ class TestDraftOrderFile:
         }
 
     def test_draft_order_file_in_param_definitions(self):
-        """Test DRAFT_ORDER_FILE is in PARAM_DEFINITIONS with correct range"""
+        """Test DRAFT_ORDER_FILE is in PARAM_DEFINITIONS with correct range and precision"""
         assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
-        min_val, max_val = ConfigGenerator.PARAM_DEFINITIONS['DRAFT_ORDER_FILE']
+        min_val, max_val, precision = ConfigGenerator.PARAM_DEFINITIONS['DRAFT_ORDER_FILE']
         assert min_val == 1
         assert max_val == 100  # Range expanded to include 100 draft order strategies
+        assert precision == 0  # Integers
 
     def test_draft_order_file_in_parameter_order(self):
         """Test DRAFT_ORDER_FILE is included in PARAMETER_ORDER for optimization"""
         assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAMETER_ORDER
 
-    def test_generate_discrete_parameter_values(self, baseline_config_with_draft_order, tmp_path):
-        """Test discrete value generation for DRAFT_ORDER_FILE"""
+    def test_generate_parameter_values_for_draft_order(self, baseline_config_with_draft_order, tmp_path):
+        """Test discrete integer value generation for DRAFT_ORDER_FILE (precision=0)"""
         config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
-        values = generator.generate_discrete_parameter_values('DRAFT_ORDER_FILE', 1, 1, 30)
+        # Use unified method with precision=0 for integers
+        values = generator.generate_parameter_values('DRAFT_ORDER_FILE', 1, 1, 30, 0)
 
         assert len(values) == 6
         assert values[0] == 1

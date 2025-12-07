@@ -81,55 +81,59 @@ class ConfigGenerator:
     # - STEPS params: Based on underlying metric granularity
     # - All ranges should be wide enough to find optimal values
     #
+    # PARAM_DEFINITIONS format: (min, max, precision)
+    # - precision 0 = integers
+    # - precision 1 = 0.1 steps
+    # - precision 2 = 0.01 steps
     PARAM_DEFINITIONS = {
         # Normalization: Controls point spread scaling (50-300 gives good range)
-        'NORMALIZATION_MAX_SCALE': (100.0, 175.0),
+        'NORMALIZATION_MAX_SCALE': (100, 175, 0),
 
         # Bye Penalties: Exponential weights for roster bye conflicts
         # Higher = more penalty for overlapping byes
-        'SAME_POS_BYE_WEIGHT': (0.0, 0.5),      # Same position bye overlap
-        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3),      # Different position bye overlap
+        'SAME_POS_BYE_WEIGHT': (0.0, 0.5, 1),      # Same position bye overlap
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3, 1),      # Different position bye overlap
 
         # Draft Order Bonuses: Points added for drafting positions at right time
-        'PRIMARY_BONUS': (50.0, 100.0),          # Primary position bonus (e.g., RB early)
-        'SECONDARY_BONUS': (50.0, 100.0),        # Secondary position bonus
+        'PRIMARY_BONUS': (50, 100, 0),          # Primary position bonus (e.g., RB early)
+        'SECONDARY_BONUS': (50, 100, 0),        # Secondary position bonus
 
         # Draft Order File: Discrete integer selecting draft strategy file (1-100)
-        'DRAFT_ORDER_FILE': (1, 100),
+        'DRAFT_ORDER_FILE': (1, 100, 0),
 
         # ADP Scoring: Average Draft Position market wisdom
-        'ADP_SCORING_WEIGHT': (0.0, 5.0),       # How much ADP influences score
-        'ADP_SCORING_STEPS': (5.0, 50.0),       # ADP difference per tier (picks)
+        'ADP_SCORING_WEIGHT': (1.00, 4.00, 2),       # How much ADP influences score
+        'ADP_SCORING_STEPS': (5, 30, 0),       # ADP difference per tier (picks)
 
         # Player Rating Scoring: Expert consensus rankings
-        'PLAYER_RATING_SCORING_WEIGHT': (0.0, 5.0),
+        'PLAYER_RATING_SCORING_WEIGHT': (1.00, 4.00, 2),
 
         # Team Quality Scoring: NFL team offensive/defensive strength
-        'TEAM_QUALITY_SCORING_WEIGHT': (0.0, 3.0),
-        'TEAM_QUALITY_MIN_WEEKS': (2, 12),      # Min weeks of data needed
+        'TEAM_QUALITY_SCORING_WEIGHT': (0.00, 3.00, 2),
+        'TEAM_QUALITY_MIN_WEEKS': (2, 12, 0),      # Min weeks of data needed
 
         # Performance Scoring: Actual vs projected deviation
-        'PERFORMANCE_SCORING_WEIGHT': (0.0, 5.0),
-        'PERFORMANCE_SCORING_STEPS': (0.05, 0.5),  # Deviation % per tier
-        'PERFORMANCE_MIN_WEEKS': (2, 14),       # Min weeks of data needed
+        'PERFORMANCE_SCORING_WEIGHT': (0.00, 3.00, 2),
+        'PERFORMANCE_SCORING_STEPS': (0.10, 0.40, 2),  # Deviation % per tier
+        'PERFORMANCE_MIN_WEEKS': (2, 14, 0),       # Min weeks of data needed
 
         # Matchup Scoring: Current week opponent strength (additive)
-        'MATCHUP_IMPACT_SCALE': (0.0, 250.0),   # Max additive points impact
-        'MATCHUP_SCORING_WEIGHT': (0.0, 4.0),   # Weight applied to impact
-        'MATCHUP_MIN_WEEKS': (2, 14),           # Min weeks of matchup data
+        'MATCHUP_IMPACT_SCALE': (50, 200, 0),   # Max additive points impact
+        'MATCHUP_SCORING_WEIGHT': (0.0, 3.0, 1),   # Weight applied to impact
+        'MATCHUP_MIN_WEEKS': (2, 14, 0),           # Min weeks of matchup data
 
         # Temperature Scoring: Game weather temperature impact
-        'TEMPERATURE_IMPACT_SCALE': (0.0, 150.0),  # Max additive impact
-        'TEMPERATURE_SCORING_WEIGHT': (0.0, 3.0),
+        'TEMPERATURE_IMPACT_SCALE': (0.0, 150.0, 1),  # Max additive impact
+        'TEMPERATURE_SCORING_WEIGHT': (0.0, 3.0, 1),
 
         # Wind Scoring: Game weather wind impact (affects QB/WR/K most)
-        'WIND_IMPACT_SCALE': (0.0, 150.0),      # Max additive impact
-        'WIND_SCORING_WEIGHT': (0.0, 3.0),
+        'WIND_IMPACT_SCALE': (0.0, 150.0, 1),      # Max additive impact
+        'WIND_SCORING_WEIGHT': (0.0, 3.0, 1),
 
         # Location Modifiers: Home/away/international game adjustments
-        'LOCATION_HOME': (0.0, 10.0),          # Home field advantage
-        'LOCATION_AWAY': (-10.0, 0.0),          # Away penalty (can be positive)
-        'LOCATION_INTERNATIONAL': (-20.0, 0.0),  # International game adjustment
+        'LOCATION_HOME': (0.0, 10.0, 1),          # Home field advantage
+        'LOCATION_AWAY': (-10.0, 0.0, 1),          # Away penalty (can be positive)
+        'LOCATION_INTERNATIONAL': (-20.0, 0.0, 1),  # International game adjustment
     }
 
     # Fixed threshold parameters (not varied during optimization)
@@ -185,6 +189,8 @@ class ConfigGenerator:
     # Parameter ordering for iterative optimization
     # Ordered to match league_config.json structure
     PARAMETER_ORDER = [
+        # Draft Order File
+        'DRAFT_ORDER_FILE',
         # Normalization and Bye Penalties
         'NORMALIZATION_MAX_SCALE',
         'SAME_POS_BYE_WEIGHT',
@@ -192,8 +198,6 @@ class ConfigGenerator:
         # Draft Order Bonuses
         'PRIMARY_BONUS',
         'SECONDARY_BONUS',
-        # Draft Order File
-        'DRAFT_ORDER_FILE',
         # ADP Scoring
         'ADP_SCORING_WEIGHT',
         'ADP_SCORING_STEPS',
@@ -446,76 +450,98 @@ class ConfigGenerator:
         self.logger.debug(f"Loaded config: {config.get('config_name', 'Unknown')}")
         return config
 
+    def _generate_discrete_range(
+        self,
+        min_val: float,
+        max_val: float,
+        precision: int
+    ) -> List[float]:
+        """
+        Generate all possible discrete values at given precision.
+
+        Args:
+            min_val (float): Minimum value
+            max_val (float): Maximum value
+            precision (int): Decimal places (0=integers, 1=0.1 steps, 2=0.01 steps)
+
+        Returns:
+            List[float]: All possible values from min to max at given precision
+
+        Example:
+            >>> gen._generate_discrete_range(0.0, 0.5, 1)
+            [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+            >>> gen._generate_discrete_range(100, 105, 0)
+            [100, 101, 102, 103, 104, 105]
+        """
+        step = 10 ** (-precision)
+        values = []
+        current = min_val
+        # Account for floating-point errors with small tolerance
+        while current <= max_val + step / 2:
+            if precision > 0:
+                values.append(round(current, precision))
+            else:
+                values.append(int(round(current)))
+            current += step
+        return values
+
     def generate_parameter_values(
         self,
         param_name: str,
         optimal_val: float,
         min_val: float,
-        max_val: float
+        max_val: float,
+        precision: int
     ) -> List[float]:
         """
-        Generate N+1 values for a parameter: optimal + N random variations.
+        Generate discrete parameter values at specified precision level.
+
+        Values are selected from discrete set derived from (min, max, precision).
+        When num_test_values >= possible values, returns ALL values with optimal first.
+        Otherwise returns optimal + random sample from remaining values.
 
         Args:
             param_name (str): Parameter name (for logging)
             optimal_val (float): Optimal/baseline value
             min_val (float): Minimum allowed value
             max_val (float): Maximum allowed value
+            precision (int): Decimal places (0=integers, 1=0.1 steps, 2=0.01 steps)
 
         Returns:
-            List[float]: (N+1) values [optimal, rand1, rand2, ..., randN]
-                where N = self.num_test_values
+            List[float]: Values with optimal first, then additional test values
 
         Example:
             >>> gen = ConfigGenerator(baseline_path, num_test_values=5)
-            >>> values = gen.generate_parameter_values('NORMALIZATION_MAX_SCALE', 100, 60, 140)
-            >>> # Returns [100.0, 94.3, 118.7, 83.2, 105.9, 112.1] (6 values)
+            >>> # Precision 1 (0.1 steps) with 6 possible values [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+            >>> values = gen.generate_parameter_values('SAME_POS_BYE_WEIGHT', 0.3, 0.0, 0.5, 1)
+            >>> # Returns [0.3, 0.0, 0.1, 0.2, 0.4, 0.5] (all 6 values, optimal first)
         """
-        values = [optimal_val]
+        possible_values = self._generate_discrete_range(min_val, max_val, precision)
 
-        # Generate N random values between min and max
-        for _ in range(self.num_test_values):
-            rand_val = random.uniform(min_val, max_val)
-            values.append(rand_val)
+        # Round optimal to match precision
+        if precision > 0:
+            optimal_rounded = round(optimal_val, precision)
+        else:
+            optimal_rounded = int(round(optimal_val))
 
-        self.logger.debug(f"{param_name}: {len(values)} values generated (min={min(values):.2f}, max={max(values):.2f})")
-        return values
-
-    def generate_discrete_parameter_values(
-        self,
-        param_name: str,
-        optimal_val: int,
-        min_val: int,
-        max_val: int
-    ) -> List[int]:
-        """
-        Generate N+1 discrete integer values for a parameter: optimal + N random variations.
-
-        Args:
-            param_name (str): Parameter name (for logging)
-            optimal_val (int): Optimal/baseline value
-            min_val (int): Minimum allowed value
-            max_val (int): Maximum allowed value
-
-        Returns:
-            List[int]: (N+1) values [optimal, rand1, rand2, ..., randN]
-                where N = self.num_test_values
-
-        Example:
-            >>> gen = ConfigGenerator(baseline_path, num_test_values=5)
-            >>> values = gen.generate_discrete_parameter_values('DRAFT_ORDER_FILE', 1, 1, 30)
-            >>> # Returns [1, 15, 23, 7, 28, 12] (6 values)
-        """
-        values = [optimal_val]
-
-        # Generate N random integers excluding optimal_val
-        available = [i for i in range(min_val, max_val + 1) if i != optimal_val]
-        num_to_sample = min(self.num_test_values, len(available))
-        random_vals = random.sample(available, num_to_sample)
-        values.extend(random_vals)
-
-        self.logger.debug(f"{param_name}: {len(values)} discrete values generated")
-        return values
+        if self.num_test_values >= len(possible_values):
+            # Return all values with optimal first
+            if optimal_rounded in possible_values:
+                values = [optimal_rounded] + [v for v in possible_values if v != optimal_rounded]
+            else:
+                # Optimal outside range, still include it first
+                values = [optimal_rounded] + possible_values
+            self.logger.debug(f"{param_name}: {len(values)} values (all discrete, optimal first)")
+            return values
+        else:
+            # Sample subset: optimal first, then random samples
+            values = [optimal_rounded]
+            remaining = [v for v in possible_values if v != optimal_rounded]
+            num_to_sample = min(self.num_test_values, len(remaining))
+            if num_to_sample > 0:
+                values.extend(random.sample(remaining, num_to_sample))
+            self.logger.debug(f"{param_name}: {len(values)} values (subset of {len(possible_values)} possible)")
+            return values
 
     def _load_draft_order_from_file(self, file_num: int) -> list:
         """
@@ -554,8 +580,8 @@ class ConfigGenerator:
     ) -> Dict[str, List[float]]:
         base_weight = self.baseline_config['parameters'][param_name]["WEIGHT"]
         full_name = f"{param_name}_WEIGHT"
-        min_val, max_val = self.param_definitions[full_name]
-        value_sets[full_name] = self.generate_parameter_values(full_name, base_weight, min_val, max_val)
+        min_val, max_val, precision = self.param_definitions[full_name]
+        value_sets[full_name] = self.generate_parameter_values(full_name, base_weight, min_val, max_val, precision)
 
         return value_sets
 
@@ -639,12 +665,13 @@ class ConfigGenerator:
             # Check if using parameterized format (has STEPS key)
             if 'STEPS' in params[scoring_type]['THRESHOLDS']:
                 current_steps = params[scoring_type]['THRESHOLDS']['STEPS']
-                min_val, max_val = self.param_definitions[steps_param]
+                min_val, max_val, precision = self.param_definitions[steps_param]
                 value_sets[steps_param] = self.generate_parameter_values(
                     steps_param,
                     current_steps,
                     min_val,
-                    max_val
+                    max_val,
+                    precision
                 )
 
         # IMPACT_SCALE parameters (additive scoring - NEW)
@@ -652,24 +679,26 @@ class ConfigGenerator:
         for scoring_type in ["MATCHUP_SCORING"]:
             impact_param = scoring_type.replace('_SCORING', '_IMPACT_SCALE')
             current_impact = params[scoring_type]['IMPACT_SCALE']
-            min_val, max_val = self.param_definitions[impact_param]
+            min_val, max_val, precision = self.param_definitions[impact_param]
             value_sets[impact_param] = self.generate_parameter_values(
                 impact_param,
                 current_impact,
                 min_val,
-                max_val
+                max_val,
+                precision
             )
 
         # MIN_WEEKS parameters for rolling window calculations
         for scoring_type in ["TEAM_QUALITY_SCORING", "PERFORMANCE_SCORING", "MATCHUP_SCORING"]:
             min_weeks_param = scoring_type.replace('_SCORING', '_MIN_WEEKS')
             current_min_weeks = params[scoring_type].get('MIN_WEEKS', 5)
-            min_val, max_val = self.param_definitions[min_weeks_param]
+            min_val, max_val, precision = self.param_definitions[min_weeks_param]
             value_sets[min_weeks_param] = self.generate_parameter_values(
                 min_weeks_param,
                 current_min_weeks,
                 min_val,
-                max_val
+                max_val,
+                precision
             )
 
         # Game conditions: Temperature and Wind scoring
@@ -680,18 +709,18 @@ class ConfigGenerator:
                 impact_param = f'{section}_IMPACT_SCALE'
                 if impact_param in self.param_definitions:
                     current_impact = params[scoring_key].get('IMPACT_SCALE', 50.0)
-                    min_val, max_val = self.param_definitions[impact_param]
+                    min_val, max_val, precision = self.param_definitions[impact_param]
                     value_sets[impact_param] = self.generate_parameter_values(
-                        impact_param, current_impact, min_val, max_val
+                        impact_param, current_impact, min_val, max_val, precision
                     )
 
                 # WEIGHT
                 weight_param = f'{section}_SCORING_WEIGHT'
                 if weight_param in self.param_definitions:
                     current_weight = params[scoring_key].get('WEIGHT', 1.0)
-                    min_val, max_val = self.param_definitions[weight_param]
+                    min_val, max_val, precision = self.param_definitions[weight_param]
                     value_sets[weight_param] = self.generate_parameter_values(
-                        weight_param, current_weight, min_val, max_val
+                        weight_param, current_weight, min_val, max_val, precision
                     )
 
         # Game conditions: Location modifiers
@@ -702,9 +731,9 @@ class ConfigGenerator:
                 # Default values: HOME=2.0, AWAY=-2.0, INTERNATIONAL=-5.0
                 defaults = {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0}
                 current_val = location_modifiers.get(loc_type, defaults[loc_type])
-                min_val, max_val = self.param_definitions[param_name]
+                min_val, max_val, precision = self.param_definitions[param_name]
                 value_sets[param_name] = self.generate_parameter_values(
-                    param_name, current_val, min_val, max_val
+                    param_name, current_val, min_val, max_val, precision
                 )
 
         self.logger.info(f"Generated {len(value_sets)} parameter value sets")
@@ -898,35 +927,22 @@ class ConfigGenerator:
         # Determine range and bounds based on parameter type
         if param_name == 'NORMALIZATION_MAX_SCALE':
             current_val = params['NORMALIZATION_MAX_SCALE']
-            min_val, max_val = self.param_definitions['NORMALIZATION_MAX_SCALE']
+            min_val, max_val, precision = self.param_definitions['NORMALIZATION_MAX_SCALE']
         elif param_name == 'SAME_POS_BYE_WEIGHT':
             current_val = params['SAME_POS_BYE_WEIGHT']
-            min_val, max_val = self.param_definitions['SAME_POS_BYE_WEIGHT']
+            min_val, max_val, precision = self.param_definitions['SAME_POS_BYE_WEIGHT']
         elif param_name == 'DIFF_POS_BYE_WEIGHT':
             current_val = params['DIFF_POS_BYE_WEIGHT']
-            min_val, max_val = self.param_definitions['DIFF_POS_BYE_WEIGHT']
+            min_val, max_val, precision = self.param_definitions['DIFF_POS_BYE_WEIGHT']
         elif param_name == 'PRIMARY_BONUS':
             current_val = params['DRAFT_ORDER_BONUSES']['PRIMARY']
-            min_val, max_val = self.param_definitions['PRIMARY_BONUS']
+            min_val, max_val, precision = self.param_definitions['PRIMARY_BONUS']
         elif param_name == 'SECONDARY_BONUS':
             current_val = params['DRAFT_ORDER_BONUSES']['SECONDARY']
-            min_val, max_val = self.param_definitions['SECONDARY_BONUS']
+            min_val, max_val, precision = self.param_definitions['SECONDARY_BONUS']
         elif param_name == 'DRAFT_ORDER_FILE':
             current_val = params.get('DRAFT_ORDER_FILE', 1)
-            min_val, max_val = self.param_definitions['DRAFT_ORDER_FILE']
-            # Use discrete values for file selection
-            test_values = self.generate_discrete_parameter_values(
-                param_name, int(current_val), int(min_val), int(max_val)
-            )
-            # Create config for each test value
-            configs = []
-            for test_val in test_values:
-                combination = self._extract_combination_from_config(base_config)
-                combination[param_name] = test_val
-                config = self.create_config_dict(combination)
-                configs.append(config)
-            self.logger.info(f"Generated {len(configs)} configs for {param_name}")
-            return configs
+            min_val, max_val, precision = self.param_definitions['DRAFT_ORDER_FILE']
         elif '_WEIGHT' in param_name:
             # Extract section and multiplier type
             # Format: SECTION_SCORING_WEIGHT
@@ -934,7 +950,7 @@ class ConfigGenerator:
             section = parts[0]  # e.g., 'ADP_SCORING'
 
             current_val = params[section]['WEIGHT']
-            min_val, max_val = self.param_definitions[param_name]
+            min_val, max_val, precision = self.param_definitions[param_name]
         elif '_STEPS' in param_name:
             # Extract section for threshold STEPS
             # Format: SECTION_SCORING_STEPS
@@ -942,7 +958,7 @@ class ConfigGenerator:
             section = parts[0]  # e.g., 'ADP_SCORING'
 
             current_val = params[section]['THRESHOLDS']['STEPS']
-            min_val, max_val = self.param_definitions[param_name]
+            min_val, max_val, precision = self.param_definitions[param_name]
         elif '_IMPACT_SCALE' in param_name:
             # Extract section for IMPACT_SCALE (additive scoring)
             # Format: SECTION_IMPACT_SCALE (e.g., 'MATCHUP_IMPACT_SCALE')
@@ -950,7 +966,7 @@ class ConfigGenerator:
             section = parts[0] + '_SCORING'  # e.g., 'MATCHUP_SCORING'
 
             current_val = params[section]['IMPACT_SCALE']
-            min_val, max_val = self.param_definitions[param_name]
+            min_val, max_val, precision = self.param_definitions[param_name]
         elif '_MIN_WEEKS' in param_name:
             # Extract section for MIN_WEEKS
             # Format: SECTION_MIN_WEEKS (e.g., 'TEAM_QUALITY_MIN_WEEKS')
@@ -958,23 +974,24 @@ class ConfigGenerator:
             section = parts[0] + '_SCORING'  # e.g., 'TEAM_QUALITY_SCORING'
 
             current_val = params[section].get('MIN_WEEKS', 5)
-            min_val, max_val = self.param_definitions[param_name]
+            min_val, max_val, precision = self.param_definitions[param_name]
         elif param_name.startswith('LOCATION_'):
             # Location modifiers (HOME, AWAY, INTERNATIONAL)
             # Format: LOCATION_TYPE (e.g., 'LOCATION_HOME')
             location_type = param_name.replace('LOCATION_', '')  # e.g., 'HOME'
             location_modifiers = params.get('LOCATION_MODIFIERS', {})
             current_val = location_modifiers.get(location_type, 0.0)
-            min_val, max_val = self.param_definitions[param_name]
+            min_val, max_val, precision = self.param_definitions[param_name]
         else:
             raise ValueError(f"Unknown parameter: {param_name}")
 
-        # Generate test values
+        # Generate test values (unified precision-aware method)
         test_values = self.generate_parameter_values(
             param_name,
             current_val,
             min_val,
-            max_val
+            max_val,
+            precision
         )
 
         # Create config for each test value
