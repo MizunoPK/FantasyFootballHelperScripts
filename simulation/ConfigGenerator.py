@@ -83,16 +83,16 @@ class ConfigGenerator:
     #
     PARAM_DEFINITIONS = {
         # Normalization: Controls point spread scaling (50-300 gives good range)
-        'NORMALIZATION_MAX_SCALE': (50.0, 300.0),
+        'NORMALIZATION_MAX_SCALE': (100.0, 175.0),
 
         # Bye Penalties: Exponential weights for roster bye conflicts
         # Higher = more penalty for overlapping byes
-        'SAME_POS_BYE_WEIGHT': (0.0, 1.0),      # Same position bye overlap
-        'DIFF_POS_BYE_WEIGHT': (0.0, 0.8),      # Different position bye overlap
+        'SAME_POS_BYE_WEIGHT': (0.0, 0.5),      # Same position bye overlap
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3),      # Different position bye overlap
 
         # Draft Order Bonuses: Points added for drafting positions at right time
-        'PRIMARY_BONUS': (0.0, 200.0),          # Primary position bonus (e.g., RB early)
-        'SECONDARY_BONUS': (0.0, 150.0),        # Secondary position bonus
+        'PRIMARY_BONUS': (50.0, 100.0),          # Primary position bonus (e.g., RB early)
+        'SECONDARY_BONUS': (50.0, 100.0),        # Secondary position bonus
 
         # Draft Order File: Discrete integer selecting draft strategy file (1-100)
         'DRAFT_ORDER_FILE': (1, 100),
@@ -127,9 +127,9 @@ class ConfigGenerator:
         'WIND_SCORING_WEIGHT': (0.0, 3.0),
 
         # Location Modifiers: Home/away/international game adjustments
-        'LOCATION_HOME': (-5.0, 15.0),          # Home field advantage
-        'LOCATION_AWAY': (-15.0, 5.0),          # Away penalty (can be positive)
-        'LOCATION_INTERNATIONAL': (-20.0, 5.0),  # International game adjustment
+        'LOCATION_HOME': (0.0, 10.0),          # Home field advantage
+        'LOCATION_AWAY': (-10.0, 0.0),          # Away penalty (can be positive)
+        'LOCATION_INTERNATIONAL': (-20.0, 0.0),  # International game adjustment
     }
 
     # Fixed threshold parameters (not varied during optimization)

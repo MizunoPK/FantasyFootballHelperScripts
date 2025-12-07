@@ -777,7 +777,7 @@ class TestDraftOrderFile:
         assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
         min_val, max_val = ConfigGenerator.PARAM_DEFINITIONS['DRAFT_ORDER_FILE']
         assert min_val == 1
-        assert max_val == 10  # Updated to include more draft order strategies
+        assert max_val == 100  # Range expanded to include 100 draft order strategies
 
     def test_draft_order_file_in_parameter_order(self):
         """Test DRAFT_ORDER_FILE is included in PARAMETER_ORDER for optimization"""

@@ -993,6 +993,13 @@ class SimulationManager:
                         best_params[section]['THRESHOLDS'].get('STEPS')
                 else:
                     base_config['parameters'][section]['WEIGHT'] = best_params[section].get('WEIGHT')
+        elif param_name == 'DRAFT_ORDER_FILE':
+            # Special case: DRAFT_ORDER_FILE requires updating both the file number
+            # AND the DRAFT_ORDER array (which is loaded from the file)
+            if 'DRAFT_ORDER_FILE' in best_params:
+                base_config['parameters']['DRAFT_ORDER_FILE'] = best_params['DRAFT_ORDER_FILE']
+            if 'DRAFT_ORDER' in best_params:
+                base_config['parameters']['DRAFT_ORDER'] = best_params['DRAFT_ORDER']
         elif section == param_name:
             # Direct param (not nested)
             if section in best_params:
