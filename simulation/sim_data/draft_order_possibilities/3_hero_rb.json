@@ -1,21 +1,21 @@
 {
     "name": "Hero RB",
-    "description": "One elite RB in round 1, then wait until round 5+ for more RBs.",
+    "description": "One elite RB in round 1, load up on WR, then more RBs mid-late.",
     "DRAFT_ORDER": [
-      {"FLEX": "P", "QB": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"FLEX": "P", "TE": "S"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P", "QB": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"K": "P", "FLEX": "S"},
-      {"DST": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"}
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "TE": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"QB": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
     ]
 }

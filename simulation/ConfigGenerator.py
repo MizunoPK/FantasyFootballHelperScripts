@@ -94,8 +94,8 @@ class ConfigGenerator:
         'PRIMARY_BONUS': (0.0, 200.0),          # Primary position bonus (e.g., RB early)
         'SECONDARY_BONUS': (0.0, 150.0),        # Secondary position bonus
 
-        # Draft Order File: Discrete integer selecting draft strategy file (1-10)
-        'DRAFT_ORDER_FILE': (1, 10),
+        # Draft Order File: Discrete integer selecting draft strategy file (1-100)
+        'DRAFT_ORDER_FILE': (1, 100),
 
         # ADP Scoring: Average Draft Position market wisdom
         'ADP_SCORING_WEIGHT': (0.0, 5.0),       # How much ADP influences score

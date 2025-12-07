@@ -24,10 +24,7 @@ from fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfi
 from player_data_constants import (
     ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS
 )
-from config import (ESPN_USER_AGENT, ESPN_PLAYER_LIMIT,
-    CURRENT_NFL_WEEK,
-    SKIP_DRAFTED_PLAYER_UPDATES, USE_SCORE_THRESHOLD, PLAYER_SCORE_THRESHOLD, PLAYERS_CSV
-)
+from config import (ESPN_USER_AGENT, ESPN_PLAYER_LIMIT, CURRENT_NFL_WEEK)
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -185,8 +182,7 @@ class ESPNClient(BaseAPIClient):
     - Calculates week-by-week projections (weeks 1-17) for each player
     - Fetches team quality rankings (offensive/defensive) from ESPN stats
     - Fetches current week schedule/matchups
-    - Optimization: Can skip API calls for drafted players (SKIP_DRAFTED_PLAYER_UPDATES)
-    - Optimization: Can preserve data for low-scoring players (USE_SCORE_THRESHOLD)
+    - Uses bulk API fetch with scoringPeriodId=0 for all weekly stats in one call
     """
 
     # ============================================================================
@@ -200,7 +196,6 @@ class ESPNClient(BaseAPIClient):
         Sets up:
         - HTTP client session (inherited from BaseAPIClient)
         - Bye week mappings for NFL teams
-        - Optimization tracking (drafted players, low-score players)
         - Team rankings cache (offensive/defensive quality)
         - Current week schedule cache (team matchups)
         - Shared fantasy points extractor for consistent scoring calculations
@@ -213,16 +208,6 @@ class ESPNClient(BaseAPIClient):
         # Bye week data: team abbreviation → bye week number (1-18)
         # Loaded from external CSV file, populated by main script
         self.bye_weeks: Dict[str, int] = {}
-
-        # OPTIMIZATION: Track drafted player IDs to skip expensive API calls
-        # Players with drafted=1 in players.csv (already on other teams)
-        # Skipping these saves ~50% of API calls in mid-season
-        self.drafted_player_ids: Set[str] = set()
-
-        # OPTIMIZATION: Preserve data for low-scoring players to avoid API calls
-        # Players below PLAYER_SCORE_THRESHOLD get their data preserved from players.csv
-        # Key = player ID, Value = dict of all player data from CSV
-        self.low_score_player_data: Dict[str, Dict] = {}
 
         # Team quality rankings cache: team abbrev → {'offensive_rank': N, 'defensive_rank': N}
         # Fetched once per session from ESPN team stats API
@@ -243,11 +228,6 @@ class ESPNClient(BaseAPIClient):
             include_negative_dst_points=True
         )
         self.fantasy_points_extractor = FantasyPointsExtractor(fp_config, settings.season)
-
-        # Load optimization data if any optimization features are enabled
-        # This reads players.csv to identify which players to skip/preserve
-        if SKIP_DRAFTED_PLAYER_UPDATES or USE_SCORE_THRESHOLD:
-            self._load_optimization_data()
     
     def _get_ppr_id(self) -> int:
         """
@@ -267,81 +247,6 @@ class ESPNClient(BaseAPIClient):
             ScoringFormat.HALF_PPR: 2
         }
         return scoring_map.get(self.settings.scoring_format, 3)
-
-    def _load_optimization_data(self):
-        """
-        Load player data from players.csv to enable performance optimizations.
-
-        This method implements two major performance optimizations:
-
-        1. SKIP_DRAFTED_PLAYER_UPDATES (config flag):
-           - Identifies players with drafted=1 (already drafted by other teams)
-           - These players don't need weekly API calls since we won't draft them
-           - Saves ~50% of API calls in mid-season (hundreds of players)
-           - Players with drafted=2 (our roster) are NEVER skipped
-
-        2. USE_SCORE_THRESHOLD (config flag):
-           - Identifies players below PLAYER_SCORE_THRESHOLD fantasy points
-           - Preserves their existing data from players.csv instead of API calls
-           - Focuses API calls on high-value players who might be drafted
-           - Players with drafted=2 (our roster) are ALWAYS updated regardless of score
-
-        Data structure loaded:
-        - drafted_player_ids: Set of player IDs with drafted=1 to skip
-        - low_score_player_data: Dict of player IDs → full CSV row data for players below threshold
-
-        Note: These optimizations dramatically reduce API call volume (70-80% reduction)
-        while maintaining accuracy for players we actually care about drafting.
-        """
-        try:
-            # Path to players.csv (shared data file with draft helper)
-            players_file_path = Path(__file__).parent / PLAYERS_CSV
-
-            with open(players_file_path, 'r', newline='', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    # Get player ID (required for all optimizations)
-                    player_id = row.get('id')
-                    if not player_id:
-                        continue
-
-                    # Get player metadata for optimization decisions
-                    drafted_value = int(row.get('drafted', 0))  # 0=available, 1=drafted by others, 2=our roster
-                    fantasy_points = float(row.get('fantasy_points', 0.0))  # Season projection
-
-                    # OPTIMIZATION 1: Track drafted=1 players to skip API calls
-                    # Players already drafted by other teams don't need updates
-                    if SKIP_DRAFTED_PLAYER_UPDATES and drafted_value == 1:
-                        self.drafted_player_ids.add(player_id)
-
-                    # OPTIMIZATION 2: Track low-scoring players to preserve data
-                    if USE_SCORE_THRESHOLD:
-                        # Always update players on our roster (drafted=2) regardless of score
-                        # This ensures we have fresh data for our team evaluation
-                        if drafted_value == 2:
-                            pass  # Don't add to low_score_player_data, always update our players
-
-                        # Preserve data for low-scoring players (below threshold)
-                        # Save entire CSV row so we can use it without API calls
-                        elif fantasy_points < PLAYER_SCORE_THRESHOLD:
-                            self.low_score_player_data[player_id] = dict(row)
-
-            # Log optimization statistics
-            optimization_messages = []
-            if SKIP_DRAFTED_PLAYER_UPDATES:
-                optimization_messages.append(f"{len(self.drafted_player_ids)} drafted player IDs to skip")
-            if USE_SCORE_THRESHOLD:
-                optimization_messages.append(f"{len(self.low_score_player_data)} low-score players to preserve (threshold: {PLAYER_SCORE_THRESHOLD})")
-
-            if optimization_messages:
-                self.logger.info(f"Loaded optimization data: {', '.join(optimization_messages)}")
-
-        except FileNotFoundError:
-            # File missing = first run or file deleted, proceed without optimizations
-            self.logger.warning(f"Players file not found at {players_file_path}. No optimizations will be applied.")
-        except Exception as e:
-            # Unexpected error reading file, log and proceed without optimizations
-            self.logger.error(f"Error loading optimization data: {e}. No optimizations will be applied.")
 
     # ============================================================================
     # TEAM DATA (Rankings, Schedule, Matchups)
@@ -391,13 +296,23 @@ class ESPNClient(BaseAPIClient):
     # PLAYER WEEKLY PROJECTIONS (Week-by-week point calculations)
     # ============================================================================
 
-    async def _calculate_week_by_week_projection(self, player_id: str, name: str, position: str) -> float:
-        """Calculate remaining season projection by summing current + future week projections"""
+    def _calculate_week_by_week_projection(self, player_info: dict, name: str, position: str) -> float:
+        """
+        Calculate remaining season projection by summing current + future week projections.
 
+        Uses stats array from bulk API response (no additional API calls needed).
+
+        Args:
+            player_info: Player data dict containing 'stats' array from bulk fetch
+            name: Player name for logging
+            position: Player position (QB, RB, WR, TE, K, DST)
+
+        Returns:
+            Total projected fantasy points for remaining season
+        """
         try:
-            # Get all weekly data for this player in a single optimized call
-            all_weeks_data = await self._get_all_weeks_data(player_id, position)
-            if not all_weeks_data:
+            # Stats are already in player_info from bulk fetch (no API call needed)
+            if not player_info.get('stats'):
                 return 0.0
 
             # Only calculate for remaining season (current week + future weeks)
@@ -411,7 +326,7 @@ class ESPNClient(BaseAPIClient):
                 week_points = None
 
                 # Extract week points using standardized logic (always prefers actual over projected)
-                week_points = self._extract_week_points(all_weeks_data, week, position=position, player_name=name)
+                week_points = self._extract_week_points(player_info, week, position=position, player_name=name)
 
                 # Determine data type for logging (current week = current, future weeks = projected)
                 if week == CURRENT_NFL_WEEK:
@@ -432,84 +347,6 @@ class ESPNClient(BaseAPIClient):
             self.logger.warning(f"Week-by-week calculation failed for {name}: {e}")
 
         return 0.0
-
-    async def _get_all_weeks_data(self, player_id: str, position: str) -> Optional[dict]:
-        """
-        Get all weekly stat data for a player in a single optimized API call.
-
-        This method fetches ALL available weekly data for a player (weeks 1-18) in one API request
-        instead of making 18 separate requests (one per week). This is a major performance optimization.
-
-        ESPN API Endpoint:
-        - URL: https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{season}/segments/0/leaguedefaults/3
-        - Query params:
-          - view=kona_player_info: Get detailed player information
-          - scoringPeriodId=0: Special value meaning "all weeks" (not a specific week number)
-        - Headers:
-          - X-Fantasy-Filter: JSON filter to select specific player by ID
-
-        Response structure:
-        {
-          "players": [{
-            "player": {
-              "id": 12345,
-              "stats": [
-                {"seasonId": 2024, "scoringPeriodId": 1, "appliedTotal": 15.2, "statSourceId": 0, ...},  # Actual
-                {"seasonId": 2024, "scoringPeriodId": 1, "appliedTotal": 14.8, "statSourceId": 1, ...},  # Projection
-                {"seasonId": 2024, "scoringPeriodId": 2, "appliedTotal": 18.5, "statSourceId": 0, ...},
-                ...
-              ]
-            }
-          }]
-        }
-
-        ESPN API Structure:
-        - statSourceId=0 + appliedTotal = Actual game scores
-        - statSourceId=1 + appliedTotal = ESPN projections
-        - NOTE: 'projectedTotal' field does NOT exist in ESPN's current API
-
-        Args:
-            player_id: ESPN player ID (numeric string)
-            position: Player position (QB, RB, WR, TE, K, DST)
-
-        Returns:
-            Dict containing player data with 'stats' array, or None if player not found
-        """
-        try:
-            # ESPN Fantasy League API endpoint for player projections
-            url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{self.settings.season}/segments/0/leaguedefaults/3"
-
-            # Query parameters
-            params = {
-                'view': 'kona_player_info',  # ESPN view name for detailed player data
-                'scoringPeriodId': 0  # 0 = get ALL weeks (optimization to avoid 18 separate API calls)
-            }
-
-            # Request headers with player filter
-            headers = {
-                'User-Agent': ESPN_USER_AGENT,  # Required by ESPN to identify client
-                # X-Fantasy-Filter is ESPN's proprietary JSON filter syntax to select specific players
-                # filterIds.value=[{player_id}] = only return this specific player
-                'X-Fantasy-Filter': f'{{"players":{{"filterIds":{{"value":[{player_id}]}}}}}}'
-            }
-
-            # Make API request with automatic retry and rate limiting
-            data = await self._make_request('GET', url, params=params, headers=headers)
-            players = data.get('players', [])
-
-            if not players:
-                # Player not found in ESPN database (rookie, practice squad, etc.)
-                return None
-
-            # Return player data containing 'stats' array with all weekly data
-            # Each stat entry has: seasonId, scoringPeriodId, appliedTotal, statSourceId
-            # NOTE: statSourceId=0 means actual scores, statSourceId=1 means projections
-            return players[0].get('player', {})
-
-        except Exception as e:
-            # Log warning but don't crash - caller will handle None return
-            self.logger.warning(f"Failed to get all weeks data for player {player_id}: {e}")
-            return None
 
     def _extract_week_points(self, player_data: dict, week: int, position: str, player_name: str = "Unknown") -> float:
         """
@@ -537,9 +374,11 @@ class ESPNClient(BaseAPIClient):
             self.logger.error(f"Error extracting week points for {player_name} week {week}: {str(e)}")
             return 0.0
 
-    async def _populate_weekly_projections(self, player_data: ESPNPlayerData, player_id: str, name: str, position: str):
+    def _populate_weekly_projections(self, player_data: ESPNPlayerData, player_info: dict, name: str, position: str):
         """
         Populate weekly projections for a player.
+
+        Uses stats array from bulk API response (no additional API calls needed).
 
         This method populates two sets of data:
         1. week_N_points: Smart values (actual for past weeks, projection for future)
@@ -547,14 +386,13 @@ class ESPNClient(BaseAPIClient):
 
         Args:
             player_data: The ESPNPlayerData object to populate
-            player_id: ESPN player ID
+            player_info: Player data dict containing 'stats' array from bulk fetch
             name: Player name for logging
             position: Player position
         """
         try:
-            # Get all weekly data for this player
-            all_weeks_data = await self._get_all_weeks_data(player_id, position)
-            if not all_weeks_data:
+            # Stats are already in player_info from bulk fetch (no API call needed)
+            if not player_info.get('stats'):
                 return
 
             # Determine week range (limit to 17 for fantasy regular season)
@@ -563,7 +401,7 @@ class ESPNClient(BaseAPIClient):
             # Collect weekly data for all weeks
             for week in range(1, end_week + 1):
                 # Get smart value for week_N_points (actual for past, projection for future)
-                smart_points = self._extract_raw_espn_week_points(all_weeks_data, week, position, 'smart')
+                smart_points = self._extract_raw_espn_week_points(player_info, week, position, 'smart')
 
                 if smart_points is not None and (smart_points > 0 or position == 'DST'):
                     player_data.set_week_points(week, smart_points)
@@ -577,7 +415,7 @@ class ESPNClient(BaseAPIClient):
 
                 # Get projection-only value for projected_weeks dictionary
                 # This is used for players_projected.csv which needs projection values for ALL weeks
-                projected_points = self._extract_raw_espn_week_points(all_weeks_data, week, position, 'projection')
+                projected_points = self._extract_raw_espn_week_points(player_info, week, position, 'projection')
 
                 if projected_points is not None and (projected_points > 0 or position == 'DST'):
                     player_data.set_week_projected(week, projected_points)
@@ -619,7 +457,7 @@ class ESPNClient(BaseAPIClient):
         - NaN values: Treated as invalid and skipped
 
         Args:
-            player_data: Dict from _get_all_weeks_data containing 'stats' array
+            player_data: Dict containing 'stats' array (from bulk fetch)
             week: Week number (1-18)
             position: Player position (QB, RB, WR, TE, K, DST)
             source_type: Data extraction mode:
@@ -1791,8 +1629,6 @@ class ESPNClient(BaseAPIClient):
             )
 
         parsed_count = 0
-        skipped_drafted_count = 0
-        skipped_low_score_count = 0
         for player in players:
             try:
                 # Extract basic info
@@ -1816,35 +1652,6 @@ class ESPNClient(BaseAPIClient):
                 pro_team_id = player_info.get('proTeamId')
                 team = ESPN_TEAM_MAPPINGS.get(pro_team_id, 'UNK')
 
-                # OPTIMIZATION: Skip expensive API calls for drafted=1 players if enabled
-                if SKIP_DRAFTED_PLAYER_UPDATES and id in self.drafted_player_ids:
-                    self.logger.debug(f"Skipping API calls for drafted player: {name} (ID: {id})")
-                    skipped_drafted_count += 1
-                    if progress_tracker:
-                        progress_tracker.update()
-                    continue
-
-                # OPTIMIZATION: Skip API calls for low-scoring players and preserve their data
-                if USE_SCORE_THRESHOLD and id in self.low_score_player_data:
-                    self.logger.debug(f"Preserving data for low-scoring player: {name} (ID: {id})")
-                    # Add preserved player data to projections without API calls
-                    preserved_data = self.low_score_player_data[id]
-                    preserved_projection = ESPNPlayerData(
-                        id=id,
-                        name=preserved_data.get('name', name),
-                        team=preserved_data.get('team', ''),
-                        position=preserved_data.get('position', ''),
-                        bye_week=int(float(preserved_data.get('bye_week'))) if preserved_data.get('bye_week') else None,
-                        fantasy_points=float(preserved_data.get('fantasy_points', 0.0)),
-                        injury_status=preserved_data.get('injury_status', 'UNKNOWN'),
-                        average_draft_position=float(preserved_data.get('average_draft_position', 0.0)) if preserved_data.get('average_draft_position') else None
-                    )
-                    projections.append(preserved_projection)
-                    skipped_low_score_count += 1
-                    if progress_tracker:
-                        progress_tracker.update()
-                    continue
-
                 # Skip players not on active NFL rosters (free agents, practice squad, etc.)
                 if team == 'UNK':
                     if progress_tracker:
@@ -1867,7 +1674,8 @@ class ESPNClient(BaseAPIClient):
                 bye_week = self.bye_weeks.get(team)
                 
                 # Extract fantasy points using ONLY week-by-week calculation
-                fantasy_points = await self._calculate_week_by_week_projection(id, name, position)
+                # Uses stats from bulk fetch (no additional API call needed)
+                fantasy_points = self._calculate_week_by_week_projection(player_info, name, position)
                 
                 # Fantasy points are already positive from our selection logic above
                 
@@ -2028,7 +1836,8 @@ class ESPNClient(BaseAPIClient):
                 )
 
                 # Collect weekly projections for this player
-                await self._populate_weekly_projections(projection, id, name, position)
+                # Uses stats from bulk fetch (no additional API call needed)
+                self._populate_weekly_projections(projection, player_info, name, position)
                 
                 projections.append(projection)
                 parsed_count += 1
@@ -2050,18 +1859,8 @@ class ESPNClient(BaseAPIClient):
                     progress_tracker.update()
                 continue
         
-        # Log parsing results with optimization info
-        optimization_messages = []
-        if SKIP_DRAFTED_PLAYER_UPDATES and skipped_drafted_count > 0:
-            optimization_messages.append(f"skipped {skipped_drafted_count} drafted players")
-        if USE_SCORE_THRESHOLD and skipped_low_score_count > 0:
-            optimization_messages.append(f"preserved {skipped_low_score_count} low-scoring players")
-
-        if optimization_messages:
-            self.logger.info(f"Successfully parsed {parsed_count} players with projections "
-                           f"({', '.join(optimization_messages)} for optimization)")
-        else:
-            self.logger.info(f"Successfully parsed {parsed_count} players with projections")
+        # Log parsing results
+        self.logger.info(f"Successfully parsed {parsed_count} players with projections")
 
         # Complete progress tracking
         if progress_tracker:

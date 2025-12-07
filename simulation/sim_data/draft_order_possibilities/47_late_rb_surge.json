@@ -1,0 +1,21 @@
+{
+    "name": "Late RB Surge",
+    "description": "Only 2 RBs early, then 2 more RBs in rounds 10-11.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "QB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

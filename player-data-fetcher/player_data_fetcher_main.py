@@ -32,7 +32,6 @@ from player_data_exporter import DataExporter
 # Import NFL season configuration
 from config import (
     NFL_SEASON, CURRENT_NFL_WEEK,
-    SKIP_DRAFTED_PLAYER_UPDATES, USE_SCORE_THRESHOLD, PLAYER_SCORE_THRESHOLD,
     OUTPUT_DIRECTORY, CREATE_CSV, CREATE_JSON, CREATE_EXCEL,
     REQUEST_TIMEOUT, RATE_LIMIT_DELAY, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE,
     LOG_NAME, LOGGING_FORMAT,
@@ -69,11 +68,6 @@ class Settings(BaseSettings):
     # Week-by-Week Projection Settings (from config)
     current_nfl_week: int = CURRENT_NFL_WEEK  # Current NFL week (1-18, from config)
 
-    # Optimization Settings (from config)
-    skip_drafted_player_updates: bool = SKIP_DRAFTED_PLAYER_UPDATES  # Skip API calls for drafted=1 players (from config)
-    use_score_threshold: bool = USE_SCORE_THRESHOLD  # Only update players above score threshold (from config)
-    player_score_threshold: float = PLAYER_SCORE_THRESHOLD  # Minimum fantasy points to trigger API update (from config)
-    
     def validate_settings(self) -> None:
         """Validate settings and warn about potential issues"""
         import datetime

@@ -1,0 +1,21 @@
+{
+    "name": "QB-RB Stack",
+    "description": "Pair QB and RB picks together in consecutive rounds.",
+    "DRAFT_ORDER": [
+      {"QB": "P", "RB": "S"},
+      {"RB": "P", "QB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

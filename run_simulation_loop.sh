@@ -6,7 +6,7 @@ trap "echo 'Stopping simulation loop...'; exit 0" SIGINT SIGTERM
 
 while true; do
     echo "Starting simulation at $(date)"
-    python run_simulation.py
+    python run_simulation.py --use-processes
     exit_code=$?
 
     if [ $exit_code -eq 137 ] || [ $exit_code -eq 143 ]; then

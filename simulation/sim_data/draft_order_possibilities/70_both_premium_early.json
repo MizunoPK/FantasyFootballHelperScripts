@@ -1,0 +1,21 @@
+{
+    "name": "Both Premium Early",
+    "description": "QB round 1, TE round 2. Lock in elite at both premium positions.",
+    "DRAFT_ORDER": [
+      {"QB": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

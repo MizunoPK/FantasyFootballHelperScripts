@@ -1,0 +1,21 @@
+{
+    "name": "Double TE Early",
+    "description": "Both TEs in rounds 1-2, elite TE advantage maximized.",
+    "DRAFT_ORDER": [
+      {"TE": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

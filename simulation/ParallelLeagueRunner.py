@@ -1,25 +1,27 @@
 """
 Parallel League Runner
 
-Runs multiple league simulations in parallel using ThreadPoolExecutor.
-Coordinates simulation execution and result collection with thread-safe
-progress tracking.
+Runs multiple league simulations in parallel using ThreadPoolExecutor or
+ProcessPoolExecutor. Coordinates simulation execution and result collection
+with thread-safe progress tracking.
 
 Key Features:
-- Multi-threaded simulation execution
+- Multi-threaded simulation execution (ThreadPoolExecutor, default)
+- Multi-process simulation execution (ProcessPoolExecutor, optional)
 - Thread-safe result collection
 - Progress tracking callbacks
 - Exception handling and error reporting
-- Configurable worker thread pool
+- Configurable worker pool
 
 Author: Kai Mizuno
 """
 
 from pathlib import Path
 from typing import Dict, Callable, Optional, Tuple, List
-from concurrent.futures import ThreadPoolExecutor, Future, as_completed
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, Future, as_completed
 import threading
 import gc
+import multiprocessing
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -34,17 +36,86 @@ from SimulatedLeague import SimulatedLeague
 GC_FREQUENCY = 5
 
 
+# =============================================================================
+# Module-level functions for ProcessPoolExecutor (can't pickle instance methods)
+# =============================================================================
+
+def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, float]:
+    """
+    Run a single simulation in a separate process.
+
+    This is a module-level function required for ProcessPoolExecutor,
+    which cannot pickle instance methods.
+
+    Args:
+        args: Tuple of (config_dict, simulation_id, data_folder)
+
+    Returns:
+        Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
+    """
+    config_dict, simulation_id, data_folder = args
+    league = None
+    try:
+        league = SimulatedLeague(config_dict, data_folder)
+        league.run_draft()
+        league.run_season()
+        wins, losses, total_points = league.get_draft_helper_results()
+        return wins, losses, total_points
+    finally:
+        if league:
+            league.cleanup()
+            del league
+
+
+def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path]) -> List[Tuple[int, bool, float]]:
+    """
+    Run a single simulation with week tracking in a separate process.
+
+    This is a module-level function required for ProcessPoolExecutor.
+
+    Args:
+        args: Tuple of (config_dict, simulation_id, data_folder)
+
+    Returns:
+        List[Tuple[int, bool, float]]: Per-week results as list of
+            (week_number, won, points) tuples
+    """
+    config_dict, simulation_id, data_folder = args
+    league = None
+    try:
+        league = SimulatedLeague(config_dict, data_folder)
+        league.run_draft()
+        league.run_season()
+        week_results = league.get_draft_helper_results_by_week()
+        return week_results
+    finally:
+        if league:
+            league.cleanup()
+            del league
+
+
 class ParallelLeagueRunner:
     """
     Runs multiple league simulations in parallel.
 
-    Uses ThreadPoolExecutor to run simulations concurrently, with thread-safe
-    progress tracking and result collection. Each simulation runs in isolation
-    with its own temporary data directories.
+    Uses ThreadPoolExecutor (default) or ProcessPoolExecutor to run simulations
+    concurrently, with thread-safe progress tracking and result collection.
+    Each simulation runs in isolation with its own temporary data directories.
+
+    ThreadPoolExecutor (default):
+        - Lower overhead, shared memory
+        - Limited by Python GIL for CPU-bound work
+        - Best for I/O-bound or mixed workloads
+
+    ProcessPoolExecutor (use_processes=True):
+        - True parallelism, bypasses GIL
+        - Higher overhead (process creation, serialization)
+        - Best for CPU-bound simulations on multi-core systems
 
     Attributes:
-        max_workers (int): Number of concurrent worker threads
-        data_folder (Path): Base folder containing 2024_season_data
+        max_workers (int): Number of concurrent workers
+        data_folder (Path): Base folder containing season data
+        use_processes (bool): If True, use ProcessPoolExecutor for true parallelism
         logger: Logger instance
         progress_callback (Optional[Callable]): Function called after each simulation
         lock (threading.Lock): Lock for thread-safe progress updates
@@ -54,24 +125,44 @@ class ParallelLeagueRunner:
         self,
         max_workers: int = 4,
         data_folder: Optional[Path] = None,
-        progress_callback: Optional[Callable[[int, int], None]] = None
+        progress_callback: Optional[Callable[[int, int], None]] = None,
+        use_processes: bool = False
     ) -> None:
         """
         Initialize ParallelLeagueRunner.
 
         Args:
-            max_workers (int): Number of concurrent worker threads (default 4)
+            max_workers (int): Number of concurrent workers (default 4)
             data_folder (Optional[Path]): Base data folder, defaults to simulation/sim_data
             progress_callback (Optional[Callable]): Function(completed, total) called
                 after each simulation completes
+            use_processes (bool): If True, use ProcessPoolExecutor for true parallelism.
+                Default False uses ThreadPoolExecutor. ProcessPoolExecutor bypasses
+                Python's GIL, providing real speedup on multi-core systems for
+                CPU-bound simulation work.
         """
         self.max_workers = max_workers
         self.data_folder = data_folder or Path("simulation/sim_data")
+        self.use_processes = use_processes
         self.logger = get_logger()
         self.progress_callback = progress_callback
         self.lock = threading.Lock()
 
-        self.logger.info(f"ParallelLeagueRunner initialized with {max_workers} workers")
+        executor_type = "ProcessPoolExecutor" if use_processes else "ThreadPoolExecutor"
+        self.logger.info(f"ParallelLeagueRunner initialized with {max_workers} workers ({executor_type})")
+
+    def set_data_folder(self, data_folder: Path) -> None:
+        """
+        Update the data folder for subsequent simulations.
+
+        This allows reusing the same runner across multiple seasons/datasets
+        without recreating the ThreadPoolExecutor.
+
+        Args:
+            data_folder (Path): New data folder path
+        """
+        self.data_folder = data_folder
+        self.logger.debug(f"ParallelLeagueRunner data_folder updated to: {data_folder}")
 
     def run_single_simulation(
         self,
@@ -195,6 +286,9 @@ class ParallelLeagueRunner:
         """
         Run multiple simulations for a single configuration in parallel.
 
+        Uses ThreadPoolExecutor (default) or ProcessPoolExecutor based on
+        the use_processes setting.
+
         Args:
             config_dict (dict): Configuration dictionary
             num_simulations (int): Number of simulations to run
@@ -207,19 +301,34 @@ class ParallelLeagueRunner:
             >>> results = runner.run_simulations_for_config(config, 100)
             >>> # Returns num_simulations results: [(10, 7, 1404.62), (12, 5, 1523.45), ...]
         """
+        executor_type = "processes" if self.use_processes else "threads"
         self.logger.info(
-            f"Running {num_simulations} simulations with {self.max_workers} workers"
+            f"Running {num_simulations} simulations with {self.max_workers} {executor_type}"
         )
 
         results = []
         completed_count = 0
 
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            # Submit all simulation tasks
-            future_to_sim_id = {
-                executor.submit(self.run_single_simulation, config_dict, sim_id): sim_id
-                for sim_id in range(num_simulations)
-            }
+        # Choose executor type based on use_processes flag
+        ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
+
+        with ExecutorClass(max_workers=self.max_workers) as executor:
+            if self.use_processes:
+                # ProcessPoolExecutor: use module-level function with args tuple
+                sim_args = [
+                    (config_dict, sim_id, self.data_folder)
+                    for sim_id in range(num_simulations)
+                ]
+                future_to_sim_id = {
+                    executor.submit(_run_simulation_process, args): args[1]
+                    for args in sim_args
+                }
+            else:
+                # ThreadPoolExecutor: use instance method (can access self)
+                future_to_sim_id = {
+                    executor.submit(self.run_single_simulation, config_dict, sim_id): sim_id
+                    for sim_id in range(num_simulations)
+                }
 
             # Collect results as they complete
             for future in as_completed(future_to_sim_id):
@@ -236,6 +345,7 @@ class ParallelLeagueRunner:
                             self.progress_callback(completed_count, num_simulations)
 
                         # Force garbage collection periodically to prevent memory accumulation
+                        # Note: GC in main process doesn't affect worker processes
                         if completed_count % GC_FREQUENCY == 0:
                             gc.collect()
                             self.logger.debug(f"Forced GC after {completed_count} simulations")
@@ -259,7 +369,8 @@ class ParallelLeagueRunner:
         Run multiple simulations for a single configuration with per-week tracking.
 
         Like run_simulations_for_config, but returns per-week results for
-        week-by-week config optimization.
+        week-by-week config optimization. Uses ThreadPoolExecutor (default) or
+        ProcessPoolExecutor based on the use_processes setting.
 
         Args:
             config_dict (dict): Configuration dictionary
@@ -275,19 +386,34 @@ class ParallelLeagueRunner:
             >>> # Returns num_simulations results, each with 16 week entries:
             >>> # [[(1, True, 125.5), (2, False, 98.3), ...], ...]
         """
+        executor_type = "processes" if self.use_processes else "threads"
         self.logger.info(
-            f"Running {num_simulations} simulations with week tracking ({self.max_workers} workers)"
+            f"Running {num_simulations} simulations with week tracking ({self.max_workers} {executor_type})"
         )
 
         results = []
         completed_count = 0
 
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            # Submit all simulation tasks using the week-tracking version
-            future_to_sim_id = {
-                executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id): sim_id
-                for sim_id in range(num_simulations)
-            }
+        # Choose executor type based on use_processes flag
+        ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
+
+        with ExecutorClass(max_workers=self.max_workers) as executor:
+            if self.use_processes:
+                # ProcessPoolExecutor: use module-level function with args tuple
+                sim_args = [
+                    (config_dict, sim_id, self.data_folder)
+                    for sim_id in range(num_simulations)
+                ]
+                future_to_sim_id = {
+                    executor.submit(_run_simulation_with_weeks_process, args): args[1]
+                    for args in sim_args
+                }
+            else:
+                # ThreadPoolExecutor: use instance method (can access self)
+                future_to_sim_id = {
+                    executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id): sim_id
+                    for sim_id in range(num_simulations)
+                }
 
             # Collect results as they complete
             for future in as_completed(future_to_sim_id):

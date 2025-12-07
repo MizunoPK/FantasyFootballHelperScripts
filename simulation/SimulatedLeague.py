@@ -2,13 +2,13 @@
 Simulated League
 
 Orchestrates a complete fantasy football league simulation including draft
-and 16-week season. Manages 10 teams (1 DraftHelperTeam + 9 SimulatedOpponents)
+and 17-week season. Manages 10 teams (1 DraftHelperTeam + 9 SimulatedOpponents)
 through the entire process.
 
 The simulation process:
 1. Initialize teams with separate PlayerManager instances
 2. Run snake draft (15 rounds, 150 total picks)
-3. Run 16-week regular season with round-robin matchups
+3. Run 17-week regular season with round-robin matchups
 4. Track results and determine final standings
 
 Author: Kai Mizuno
@@ -19,8 +19,9 @@ import random
 import shutil
 import tempfile
 import json
+import csv
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 
 # Add league_helper to path
 project_root = Path(__file__).parent.parent
@@ -115,6 +116,12 @@ class SimulatedLeague:
         self.season_schedule: List[List[Tuple]] = []
         self.week_results: List[Week] = []
 
+        # Cache for pre-loaded week data (historical data optimization)
+        self.week_data_cache: Dict[int, Dict] = {}
+
+        # Pre-load all 17 weeks of player data if historical structure exists
+        self._preload_all_weeks()
+
         # Initialize all teams
         self._initialize_teams()
 
@@ -129,16 +136,17 @@ class SimulatedLeague:
         - 1 DraftHelperTeam
         - 9 SimulatedOpponents with strategy distribution
 
-        Each team gets:
-        - Its own copy of players_projected.csv (for decisions)
-        - Its own copy of players_actual.csv (for scoring)
-        - Shared ConfigManager and TeamDataManager
+        OPTIMIZATION: Uses shared read-only directories instead of per-team copies.
+        Each team gets its own PlayerManager instance (with independent in-memory state)
+        but all teams share the same underlying data files.
 
         Note:
             Each team needs independent PlayerManager instances to track
             their own roster (drafted=2) vs opponents' rosters (drafted=1).
+            This works because PlayerManager loads data into memory and modifications
+            are made to in-memory objects, not written back to files during simulation.
         """
-        self.logger.debug("Initializing 10 teams with separate PlayerManager instances")
+        self.logger.debug("Initializing 10 teams with shared data directories (optimized)")
 
         # Create strategy list based on distribution
         strategies = []
@@ -148,80 +156,192 @@ class SimulatedLeague:
         # Shuffle to randomize which teams get which strategies
         random.shuffle(strategies)
 
-        # Create each team
+        # Determine player data source paths
+        # For historical data structure, use week 1 data for initial setup
+        weeks_folder = self.data_folder / "weeks" / "week_01"
+        if weeks_folder.exists():
+            # Historical structure: use week 1 data
+            players_projected_path = weeks_folder / "players_projected.csv"
+            players_actual_path = weeks_folder / "players.csv"
+            self.logger.debug("Using historical week 1 data for initial team setup")
+        else:
+            # Legacy flat structure
+            players_projected_path = self.data_folder / "players_projected.csv"
+            players_actual_path = self.data_folder / "players_actual.csv"
+
+        # OPTIMIZATION: Create shared directories ONCE instead of per-team
+        shared_projected_dir = self._create_shared_data_dir(
+            "shared_projected", players_projected_path, players_projected_path
+        )
+        shared_actual_dir = self._create_shared_data_dir(
+            "shared_actual", players_actual_path, players_projected_path
+        )
+
+        # Create shared ConfigManager (all teams use same config)
+        shared_config = ConfigManager(shared_projected_dir)
+
+        # Create shared SeasonScheduleManager
+        shared_schedule_mgr = SeasonScheduleManager(shared_projected_dir)
+
+        # Create shared TeamDataManager
+        shared_team_data_mgr = TeamDataManager(
+            shared_projected_dir, shared_config, shared_schedule_mgr, shared_config.current_nfl_week
+        )
+
+        # Create each team using shared directories
         for idx, strategy in enumerate(strategies):
-            # Create team-specific directory
-            team_dir = self.temp_dir / f"team_{idx}"
-            team_dir.mkdir()
-
-            # Copy player data files for this team
-            # players.csv is used by PlayerManager for roster management
-            shutil.copy(self.data_folder / "players_projected.csv", team_dir / "players.csv")
-            # players_projected.csv is used by ProjectedPointsManager for performance calculations
-            shutil.copy(self.data_folder / "players_projected.csv", team_dir / "players_projected.csv")
-
-            team_actual_dir = self.temp_dir / f"team_{idx}_actual"
-            team_actual_dir.mkdir()
-            shutil.copy(self.data_folder / "players_actual.csv", team_actual_dir / "players.csv")
-            # Copy players_projected.csv to actual directory as well for ProjectedPointsManager
-            shutil.copy(self.data_folder / "players_projected.csv", team_actual_dir / "players_projected.csv")
-
-            # Copy config to team directory
-            shutil.copy(self.config_path, team_dir / "league_config.json")
-            shutil.copy(self.config_path, team_actual_dir / "league_config.json")
-
-            # Create ConfigManager (shared across both PlayerManagers for this team)
-            config = ConfigManager(team_dir)
-
-            # Copy season schedule for SeasonScheduleManager
-            if (self.data_folder / "season_schedule.csv").exists():
-                shutil.copy(self.data_folder / "season_schedule.csv", team_dir / "season_schedule.csv")
-
-            # Copy game_data.csv for GameDataManager (weather/location scoring)
-            if (self.data_folder / "game_data.csv").exists():
-                shutil.copy(self.data_folder / "game_data.csv", team_dir / "game_data.csv")
-
-            # Create SeasonScheduleManager (for opponent lookups)
-            season_schedule_mgr = SeasonScheduleManager(team_dir)
-
-            # Copy team_data folder for TeamDataManager (new format with per-team historical data)
-            team_data_source = self.data_folder / "team_data"
-            team_data_dest = team_dir / "team_data"
-            if team_data_source.exists():
-                shutil.copytree(team_data_source, team_data_dest)
-            else:
-                self.logger.warning(f"team_data folder not found: {team_data_source}")
-
-            # Create TeamDataManager (will recalculate rankings for each week)
-            team_data_mgr = TeamDataManager(team_dir, config, season_schedule_mgr, config.current_nfl_week)
-
-            # Create PlayerManagers for projected and actual data
-            projected_pm = PlayerManager(team_dir, config, team_data_mgr, season_schedule_mgr)
-            actual_pm = PlayerManager(team_actual_dir, config, team_data_mgr, season_schedule_mgr)
+            # Each team gets independent PlayerManager instances
+            # PlayerManager loads data into memory, so each team has its own in-memory state
+            projected_pm = PlayerManager(shared_projected_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
+            actual_pm = PlayerManager(shared_actual_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
 
             # Create team based on strategy
             if strategy == 'draft_helper':
-                team = DraftHelperTeam(projected_pm, actual_pm, config, team_data_mgr)
+                team = DraftHelperTeam(projected_pm, actual_pm, shared_config, shared_team_data_mgr)
                 self.draft_helper_team = team
                 self.logger.debug(f"Created DraftHelperTeam (team {idx})")
             else:
-                team = SimulatedOpponent(projected_pm, actual_pm, config, team_data_mgr, strategy)
+                team = SimulatedOpponent(projected_pm, actual_pm, shared_config, shared_team_data_mgr, strategy)
                 self.logger.debug(f"Created SimulatedOpponent (team {idx}, strategy: {strategy})")
 
             self.teams.append(team)
 
-        self.logger.debug(f"Initialized {len(self.teams)} teams")
+        self.logger.debug(f"Initialized {len(self.teams)} teams (using shared data directories)")
+
+    def _create_shared_data_dir(self, dir_name: str, players_csv_path: Path, players_projected_path: Path) -> Path:
+        """
+        Create a shared data directory with all required files.
+
+        This is called ONCE per simulation to create shared directories that all teams
+        can read from. This optimization reduces file I/O from ~60 copies per simulation
+        to just 2 directories.
+
+        Args:
+            dir_name (str): Name for the shared directory (e.g., "shared_projected")
+            players_csv_path (Path): Source path for players.csv
+            players_projected_path (Path): Source path for players_projected.csv
+
+        Returns:
+            Path: Path to the created shared directory
+        """
+        shared_dir = self.temp_dir / dir_name
+        shared_dir.mkdir()
+
+        # Copy player data files
+        shutil.copy(players_csv_path, shared_dir / "players.csv")
+        shutil.copy(players_projected_path, shared_dir / "players_projected.csv")
+
+        # Copy config
+        shutil.copy(self.config_path, shared_dir / "league_config.json")
+
+        # Copy season schedule if exists
+        if (self.data_folder / "season_schedule.csv").exists():
+            shutil.copy(self.data_folder / "season_schedule.csv", shared_dir / "season_schedule.csv")
+
+        # Copy game_data.csv if exists
+        if (self.data_folder / "game_data.csv").exists():
+            shutil.copy(self.data_folder / "game_data.csv", shared_dir / "game_data.csv")
+
+        # Copy team_data folder (contains NFL team historical data)
+        team_data_source = self.data_folder / "team_data"
+        if team_data_source.exists():
+            shutil.copytree(team_data_source, shared_dir / "team_data")
+        else:
+            self.logger.warning(f"team_data folder not found: {team_data_source}")
+
+        self.logger.debug(f"Created shared data directory: {shared_dir}")
+        return shared_dir
 
     def _generate_schedule(self) -> None:
         """
-        Generate 16-week round-robin schedule.
+        Generate 17-week round-robin schedule.
 
         Uses generate_schedule_for_nfl_season to create matchups where each
-        team plays each other team twice (as close as possible in 16 weeks).
+        team plays each other team twice (as close as possible in 17 weeks).
         """
-        self.logger.debug("Generating 16-week round-robin schedule")
-        self.season_schedule = generate_schedule_for_nfl_season(self.teams, num_weeks=16)
+        self.logger.debug("Generating 17-week round-robin schedule")
+        self.season_schedule = generate_schedule_for_nfl_season(self.teams, num_weeks=17)
         self.logger.debug(f"Generated schedule: {len(self.season_schedule)} weeks")
+
+    def _preload_all_weeks(self) -> None:
+        """
+        Pre-load all 17 weeks of player data into memory cache.
+
+        This optimization reduces disk I/O from 340 reads (17 weeks × 10 teams × 2 files)
+        to just 17 reads per simulation. Data is parsed once and shared across all teams.
+
+        Only loads data if historical structure (weeks/week_XX/) exists.
+        Falls back gracefully if using legacy flat structure.
+        """
+        weeks_folder = self.data_folder / "weeks"
+
+        if not weeks_folder.exists():
+            self.logger.debug("No weeks/ folder found - using legacy flat structure")
+            return
+
+        self.logger.debug("Pre-loading all 17 weeks of player data")
+
+        for week_num in range(1, 18):
+            week_folder = weeks_folder / f"week_{week_num:02d}"
+            players_file = week_folder / "players.csv"
+
+            if players_file.exists():
+                self.week_data_cache[week_num] = self._parse_players_csv(players_file)
+                self.logger.debug(f"Cached week {week_num}: {len(self.week_data_cache[week_num])} players")
+            else:
+                self.logger.warning(f"Week {week_num} players.csv not found at {players_file}")
+
+        self.logger.debug(f"Pre-loaded {len(self.week_data_cache)} weeks of player data")
+
+    def _parse_players_csv(self, filepath: Path) -> Dict[int, Dict[str, Any]]:
+        """
+        Parse players.csv into dictionary format keyed by player ID.
+
+        Args:
+            filepath (Path): Path to players.csv file
+
+        Returns:
+            Dict[int, Dict[str, Any]]: Player data keyed by player ID
+        """
+        players = {}
+        with open(filepath, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                try:
+                    player_id = int(row.get('id', 0))
+                    if player_id > 0:
+                        players[player_id] = dict(row)
+                except (ValueError, KeyError):
+                    continue
+        return players
+
+    def _load_week_data(self, week_num: int) -> None:
+        """
+        Load week-specific player data from pre-loaded cache.
+
+        Updates all teams' PlayerManagers with the week's data.
+        This is called at the start of each week during run_season().
+
+        Args:
+            week_num (int): Week number (1-17)
+
+        Note:
+            Does nothing if week data was not pre-loaded (legacy mode).
+        """
+        if week_num not in self.week_data_cache:
+            # Legacy mode - no week-specific data available
+            return
+
+        week_player_data = self.week_data_cache[week_num]
+
+        # Update each team's PlayerManagers with week-specific data
+        for team in self.teams:
+            if hasattr(team, 'projected_pm') and hasattr(team.projected_pm, 'set_player_data'):
+                team.projected_pm.set_player_data(week_player_data)
+            if hasattr(team, 'actual_pm') and hasattr(team.actual_pm, 'set_player_data'):
+                team.actual_pm.set_player_data(week_player_data)
+
+        self.logger.debug(f"Loaded week {week_num} data for all teams")
 
     def run_draft(self) -> None:
         """
@@ -282,7 +402,7 @@ class SimulatedLeague:
 
     def run_season(self) -> None:
         """
-        Simulate 16-week regular season.
+        Simulate 17-week regular season.
 
         For each week:
         1. Update team rankings (load teams_week_N.csv)
@@ -293,10 +413,13 @@ class SimulatedLeague:
             - Updates self.week_results with Week objects
             - Each team accumulates wins/losses
         """
-        self.logger.debug("Starting 16-week season simulation")
+        self.logger.debug("Starting 17-week season simulation")
 
-        for week_num in range(1, 17):  # Weeks 1-16
-            self.logger.debug(f"Simulating Week {week_num}/16")
+        for week_num in range(1, 18):  # Weeks 1-17
+            self.logger.debug(f"Simulating Week {week_num}/17")
+
+            # Load week-specific player data from pre-loaded cache (if available)
+            self._load_week_data(week_num)
 
             # Update team rankings for this week
             self._update_team_rankings(week_num)

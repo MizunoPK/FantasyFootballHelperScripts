@@ -1,0 +1,21 @@
+{
+    "name": "FLEX Early",
+    "description": "FLEX pick in round 2, maximize early flexibility.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

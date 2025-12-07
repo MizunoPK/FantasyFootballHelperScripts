@@ -1,0 +1,21 @@
+{
+    "name": "Robust RB",
+    "description": "Secure RB depth early, 4 RBs by round 8 to handle injuries.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

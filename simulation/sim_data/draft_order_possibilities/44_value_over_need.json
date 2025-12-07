@@ -1,0 +1,21 @@
+{
+    "name": "Value Over Need",
+    "description": "Always take best available regardless of roster need.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "TE": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "TE": "S"},
+      {"TE": "P", "QB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "QB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

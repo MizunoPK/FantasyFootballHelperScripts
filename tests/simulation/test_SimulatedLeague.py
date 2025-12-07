@@ -244,25 +244,25 @@ class TestScheduleGeneration:
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        mock_gen_schedule.assert_called_once_with(league.teams, num_weeks=16)
+        mock_gen_schedule.assert_called_once_with(league.teams, num_weeks=17)
 
     @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
     @patch('simulation.SimulatedLeague.generate_schedule_for_nfl_season')
     @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    def test_generate_schedule_creates_16_weeks(self, mock_init_teams, mock_gen_schedule,
+    def test_generate_schedule_creates_17_weeks(self, mock_init_teams, mock_gen_schedule,
                                                mock_mkdtemp, sample_config_dict, tmp_path):
-        """Test that 16-week schedule is generated"""
+        """Test that 17-week schedule is generated"""
         temp_dir = tmp_path / "temp_league"
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Mock 16 weeks of schedule
-        mock_schedule = [[Mock()] for _ in range(16)]
+        # Mock 17 weeks of schedule
+        mock_schedule = [[Mock()] for _ in range(17)]
         mock_gen_schedule.return_value = mock_schedule
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        assert len(league.season_schedule) == 16
+        assert len(league.season_schedule) == 17
 
 
 # ============================================================================
@@ -396,24 +396,24 @@ class TestSeasonSimulation:
     @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
     @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
     @patch('simulation.SimulatedLeague.Week')
-    def test_run_season_simulates_16_weeks(self, mock_week_class, mock_gen_schedule,
+    def test_run_season_simulates_17_weeks(self, mock_week_class, mock_gen_schedule,
                                           mock_init_teams, mock_mkdtemp,
                                           sample_config_dict, tmp_path):
-        """Test that 16 weeks are simulated"""
+        """Test that 17 weeks are simulated"""
         temp_dir = tmp_path / "temp_league"
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock schedule (16 weeks)
-        mock_schedule = [[(Mock(), Mock())] for _ in range(16)]
+        # Create mock schedule (17 weeks)
+        mock_schedule = [[(Mock(), Mock())] for _ in range(17)]
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
         league.season_schedule = mock_schedule
 
         league.run_season()
 
-        # Week class should be instantiated 16 times
-        assert mock_week_class.call_count == 16
+        # Week class should be instantiated 17 times
+        assert mock_week_class.call_count == 17
 
     @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
     @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
@@ -428,16 +428,16 @@ class TestSeasonSimulation:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock schedule
-        mock_schedule = [[(Mock(), Mock())] for _ in range(16)]
+        # Create mock schedule (17 weeks)
+        mock_schedule = [[(Mock(), Mock())] for _ in range(17)]
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
         league.season_schedule = mock_schedule
 
         league.run_season()
 
-        # Rankings should be updated 16 times (once per week)
-        assert mock_update_rankings.call_count == 16
+        # Rankings should be updated 17 times (once per week)
+        assert mock_update_rankings.call_count == 17
 
     @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
     @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
@@ -451,16 +451,16 @@ class TestSeasonSimulation:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock schedule
-        mock_schedule = [[(Mock(), Mock())] for _ in range(16)]
+        # Create mock schedule (17 weeks)
+        mock_schedule = [[(Mock(), Mock())] for _ in range(17)]
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
         league.season_schedule = mock_schedule
 
         league.run_season()
 
-        # 16 week results should be stored
-        assert len(league.week_results) == 16
+        # 17 week results should be stored
+        assert len(league.week_results) == 17
 
 
 # ============================================================================

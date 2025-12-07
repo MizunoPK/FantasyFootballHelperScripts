@@ -19,6 +19,7 @@ from utils.LoggingManager import get_logger
 
 sys.path.append(str(Path(__file__).parent))
 from ConfigPerformance import ConfigPerformance, WEEK_RANGES
+from config_cleanup import cleanup_old_optimal_folders
 
 
 class ResultsManager:
@@ -395,6 +396,9 @@ class ResultsManager:
         # Create output directory if it doesn't exist
         output_dir.mkdir(parents=True, exist_ok=True)
 
+        # Clean up old optimal folders if we're at the limit
+        cleanup_old_optimal_folders(output_dir)
+
         # Generate folder name with timestamp
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         folder_name = f"optimal_{timestamp}"
@@ -661,6 +665,7 @@ class ResultsManager:
             - NFL_SEASON
             - MAX_POSITIONS
             - FLEX_ELIGIBLE_POSITIONS
+            - INJURY_PENALTIES
 
         MATCHUP -> SCHEDULE mapping:
             - SCHEDULE_SCORING.MIN_WEEKS = MATCHUP_SCORING.MIN_WEEKS
@@ -678,7 +683,8 @@ class ResultsManager:
             'CURRENT_NFL_WEEK',
             'NFL_SEASON',
             'MAX_POSITIONS',
-            'FLEX_ELIGIBLE_POSITIONS'
+            'FLEX_ELIGIBLE_POSITIONS',
+            'INJURY_PENALTIES'
         ]
 
         # Load optimal config
@@ -727,6 +733,124 @@ class ResultsManager:
         self.logger.info(f"Updated {league_config_path} with optimal parameters")
         self.logger.info(f"  Preserved: {', '.join(PRESERVE_KEYS)}")
         self.logger.info(f"  MATCHUP->SCHEDULE: MIN_WEEKS, IMPACT_SCALE, WEIGHT")
+
+    def update_configs_folder(
+        self,
+        optimal_folder: Path,
+        target_folder: Path
+    ) -> None:
+        """
+        Update target config folder with values from optimal folder.
+
+        Updates all config files (league_config.json and week-specific files)
+        while preserving user-maintained parameters and applying MATCHUP->SCHEDULE
+        mapping for week files.
+
+        Args:
+            optimal_folder: Path to optimal_* folder with source configs
+            target_folder: Path to data/configs folder to update
+
+        Preserved parameters (in league_config.json only):
+            - CURRENT_NFL_WEEK
+            - NFL_SEASON
+            - MAX_POSITIONS
+            - FLEX_ELIGIBLE_POSITIONS
+            - INJURY_PENALTIES
+
+        MATCHUP -> SCHEDULE mapping (in week files):
+            - SCHEDULE_SCORING.MIN_WEEKS = MATCHUP_SCORING.MIN_WEEKS
+            - SCHEDULE_SCORING.IMPACT_SCALE = MATCHUP_SCORING.IMPACT_SCALE
+            - SCHEDULE_SCORING.WEIGHT = MATCHUP_SCORING.WEIGHT
+        """
+        # Parameters to preserve from original league_config.json
+        PRESERVE_KEYS = [
+            'CURRENT_NFL_WEEK',
+            'NFL_SEASON',
+            'MAX_POSITIONS',
+            'FLEX_ELIGIBLE_POSITIONS',
+            'INJURY_PENALTIES'
+        ]
+
+        # Config files to process
+        CONFIG_FILES = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+
+        # Ensure target folder exists
+        target_folder.mkdir(parents=True, exist_ok=True)
+
+        for config_file in CONFIG_FILES:
+            optimal_path = optimal_folder / config_file
+            target_path = target_folder / config_file
+
+            if not optimal_path.exists():
+                self.logger.warning(f"Optimal config not found: {optimal_path}")
+                continue
+
+            # Load optimal config
+            with open(optimal_path, 'r') as f:
+                optimal_config = json.load(f)
+
+            # Check if target exists (for preservation)
+            if target_path.exists():
+                with open(target_path, 'r') as f:
+                    original_config = json.load(f)
+
+                if config_file == 'league_config.json':
+                    # Preserve specified keys from original
+                    updated_config = optimal_config.copy()
+                    if 'parameters' not in updated_config:
+                        updated_config['parameters'] = {}
+
+                    for key in PRESERVE_KEYS:
+                        if 'parameters' in original_config and key in original_config['parameters']:
+                            updated_config['parameters'][key] = original_config['parameters'][key]
+                            self.logger.debug(f"Preserved {key} from original config")
+                else:
+                    # Week files: apply MATCHUP -> SCHEDULE mapping
+                    updated_config = optimal_config.copy()
+                    self._apply_matchup_to_schedule_mapping(updated_config)
+            else:
+                # Target doesn't exist - use optimal directly
+                updated_config = optimal_config.copy()
+                if config_file != 'league_config.json':
+                    self._apply_matchup_to_schedule_mapping(updated_config)
+                self.logger.info(f"Created new config (no original to preserve): {config_file}")
+
+            # Write updated config
+            with open(target_path, 'w') as f:
+                json.dump(updated_config, f, indent=2)
+
+            self.logger.info(f"Updated {config_file}")
+
+        self.logger.info(f"✓ Updated configs folder: {target_folder}")
+
+    def _apply_matchup_to_schedule_mapping(self, config: dict) -> None:
+        """
+        Apply MATCHUP_SCORING values to SCHEDULE_SCORING in a config.
+
+        Args:
+            config: Config dict to modify in place
+        """
+        if 'parameters' not in config:
+            return
+
+        params = config['parameters']
+        if 'MATCHUP_SCORING' not in params:
+            self.logger.warning("MATCHUP_SCORING not found, skipping SCHEDULE mapping")
+            return
+
+        matchup = params['MATCHUP_SCORING']
+        schedule = params.get('SCHEDULE_SCORING', {})
+
+        # Apply mapping
+        if 'MIN_WEEKS' in matchup:
+            schedule['MIN_WEEKS'] = matchup['MIN_WEEKS']
+        if 'IMPACT_SCALE' in matchup:
+            schedule['IMPACT_SCALE'] = matchup['IMPACT_SCALE']
+        if 'WEIGHT' in matchup:
+            schedule['WEIGHT'] = matchup['WEIGHT']
+
+        params['SCHEDULE_SCORING'] = schedule
+        self.logger.debug("Applied MATCHUP -> SCHEDULE mapping")
 
     def print_summary(self, top_n: int = 10) -> None:
         """

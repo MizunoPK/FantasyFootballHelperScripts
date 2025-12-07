@@ -1,0 +1,21 @@
+{
+    "name": "Four WR Start",
+    "description": "All 4 WRs in first 4 rounds, PPR target domination.",
+    "DRAFT_ORDER": [
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "TE": "S"},
+      {"RB": "P", "TE": "S"},
+      {"TE": "P", "RB": "S"},
+      {"RB": "P", "QB": "S"},
+      {"QB": "P", "RB": "S"},
+      {"TE": "P", "RB": "S"},
+      {"QB": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

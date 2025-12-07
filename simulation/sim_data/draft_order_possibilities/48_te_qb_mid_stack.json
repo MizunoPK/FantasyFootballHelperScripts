@@ -1,0 +1,21 @@
+{
+    "name": "TE-QB Mid Stack",
+    "description": "Stack TE and QB in rounds 5-7, skill positions early/late.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "QB": "S"},
+      {"QB": "P", "TE": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

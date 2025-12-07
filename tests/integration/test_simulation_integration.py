@@ -29,11 +29,36 @@ from ResultsManager import ResultsManager
 from ConfigPerformance import ConfigPerformance
 
 
+def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None:
+    """Create a mock historical season folder structure for testing."""
+    season_folder = data_folder / year
+    season_folder.mkdir(parents=True, exist_ok=True)
+
+    # Create required root files
+    (season_folder / "season_schedule.csv").write_text("week,home,away\n1,KC,DET\n")
+    (season_folder / "game_data.csv").write_text("week,home,away\n1,KC,DET\n")
+
+    # Create team_data folder
+    (season_folder / "team_data").mkdir(exist_ok=True)
+    (season_folder / "team_data" / "KC.csv").write_text("week,points\n1,30\n")
+
+    # Create weeks folder with all 17 weeks
+    weeks_folder = season_folder / "weeks"
+    weeks_folder.mkdir(exist_ok=True)
+    for week_num in range(1, 18):
+        week_folder = weeks_folder / f"week_{week_num:02d}"
+        week_folder.mkdir(exist_ok=True)
+        (week_folder / "players.csv").write_text("id,name,team,position\n1,Test Player,KC,QB\n")
+
+
 @pytest.fixture
 def temp_simulation_data(tmp_path):
-    """Create temporary simulation data folder"""
+    """Create temporary simulation data folder with historical season structure"""
     data_folder = tmp_path / "sim_data"
     data_folder.mkdir()
+
+    # Create mock historical season folder structure
+    create_mock_historical_season(data_folder)
 
     # Create minimal players_projected.csv with correct column names
     players_csv = data_folder / "players_projected.csv"
@@ -417,22 +442,20 @@ class TestErrorHandling:
     """Integration tests for error handling"""
 
     def test_simulation_handles_missing_data_folder(self, baseline_config, tmp_path):
-        """Test simulation handles missing data folder gracefully"""
+        """Test simulation fails fast with missing historical data folder"""
         nonexistent_path = Path("/nonexistent/sim_data")
 
-        # SimulationManager initializes successfully even with non-existent path
-        # It only fails when actually running simulations
-        manager = SimulationManager(
-            baseline_config_path=baseline_config,
-            output_dir=tmp_path / "results",
-            num_simulations_per_config=1,
-            max_workers=1,
-            data_folder=nonexistent_path,
-            auto_update_league_config=False  # Disable to avoid modifying real config
-        )
-
-        # Verify it initialized (doesn't fail until running simulations)
-        assert manager is not None
+        # SimulationManager now requires historical season folders (20XX/) during init
+        # This is a "fail loudly" design - we catch configuration errors early
+        with pytest.raises(FileNotFoundError, match="No historical season folders"):
+            SimulationManager(
+                baseline_config_path=baseline_config,
+                output_dir=tmp_path / "results",
+                num_simulations_per_config=1,
+                max_workers=1,
+                data_folder=nonexistent_path,
+                auto_update_league_config=False  # Disable to avoid modifying real config
+            )
 
     def test_simulation_handles_invalid_baseline_config(self, tmp_path, temp_simulation_data):
         """Test simulation handles invalid baseline config"""

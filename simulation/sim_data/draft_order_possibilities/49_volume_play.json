@@ -1,0 +1,21 @@
+{
+    "name": "Volume Play",
+    "description": "Target high-volume pass catchers and workhorse RBs.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "TE": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

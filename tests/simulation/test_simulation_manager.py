@@ -122,12 +122,47 @@ def temp_output_dir():
     shutil.rmtree(temp_dir, ignore_errors=True)
 
 
+def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None:
+    """Create a mock historical season folder structure for testing."""
+    season_folder = data_folder / year
+    season_folder.mkdir(parents=True, exist_ok=True)
+
+    # Create required root files
+    (season_folder / "season_schedule.csv").write_text("week,home,away\n1,KC,DET\n")
+    (season_folder / "game_data.csv").write_text("week,home,away\n1,KC,DET\n")
+
+    # Create team_data folder
+    (season_folder / "team_data").mkdir(exist_ok=True)
+    (season_folder / "team_data" / "KC.csv").write_text("week,points\n1,30\n")
+
+    # Create weeks folder with all 17 weeks
+    # Include 200 mock players with valid fantasy_points for draft validation
+    weeks_folder = season_folder / "weeks"
+    weeks_folder.mkdir(exist_ok=True)
+    player_lines = ["id,name,team,position,drafted,fantasy_points"]
+    for i in range(1, 201):  # 200 players needed for 10-team draft
+        pos = ["QB", "RB", "WR", "TE", "K", "DST"][i % 6]
+        player_lines.append(f"{i},Player{i},KC,{pos},0,{100 + i}")
+    player_csv_content = "\n".join(player_lines)
+    for week_num in range(1, 18):
+        week_folder = weeks_folder / f"week_{week_num:02d}"
+        week_folder.mkdir(exist_ok=True)
+        (week_folder / "players.csv").write_text(player_csv_content)
+        (week_folder / "players_projected.csv").write_text(player_csv_content)
+
+
 @pytest.fixture
 def temp_data_folder():
-    """Create a temporary data folder"""
+    """Create a temporary data folder with mock historical season structure"""
     temp_dir = Path(tempfile.mkdtemp())
+
+    # Create mock historical season folder structure
+    create_mock_historical_season(temp_dir)
+
     yield temp_dir
-    temp_dir.rmdir()
+
+    # Cleanup
+    shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 class TestSimulationManagerInitialization:

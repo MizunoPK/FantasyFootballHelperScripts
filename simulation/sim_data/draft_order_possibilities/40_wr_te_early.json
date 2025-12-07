@@ -1,0 +1,21 @@
+{
+    "name": "WR-TE Early",
+    "description": "Stack WR and TE in first 3 rounds for PPR target share.",
+    "DRAFT_ORDER": [
+      {"WR": "P", "TE": "S"},
+      {"TE": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "QB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

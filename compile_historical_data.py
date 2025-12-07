@@ -39,7 +39,7 @@ from historical_data_compiler.constants import (
 from historical_data_compiler.http_client import BaseHTTPClient
 from historical_data_compiler.schedule_fetcher import fetch_and_write_schedule
 from historical_data_compiler.game_data_fetcher import fetch_and_write_game_data
-from historical_data_compiler.player_data_fetcher import fetch_and_write_player_data
+from historical_data_compiler.player_data_fetcher import fetch_player_data
 from historical_data_compiler.team_data_calculator import calculate_and_write_team_data
 from historical_data_compiler.weekly_snapshot_generator import generate_weekly_snapshots
 
@@ -187,7 +187,7 @@ async def compile_season_data(year: int, output_dir: Path) -> None:
 
         # Phase 3: Fetch player data
         logger.info("[3/5] Fetching player data...")
-        players = await fetch_and_write_player_data(year, output_dir, http_client, bye_weeks)
+        players = await fetch_player_data(year, http_client, bye_weeks)
         logger.info(f"  - Player data fetched for {len(players)} players")
 
         # Phase 4: Calculate team data

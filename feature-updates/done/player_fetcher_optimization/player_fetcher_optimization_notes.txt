@@ -1,0 +1,17 @@
+# Player Data Fetcher Optimization
+
+## Problem
+The player-data-fetcher takes ~15 minutes to run while the historical-data-compiler only takes ~2 minutes, even though they fetch similar data.
+
+## Root Cause Analysis
+The historical data compiler makes ONE bulk API call with `scoringPeriodId=0` which returns all ~1500 players with ALL their weekly stats in a single response.
+
+The player-data-fetcher makes individual API calls per player (~1500 requests) to get weekly projections via `_get_all_weeks_data()`, plus rate limiting delays between each request.
+
+## Desired Outcome
+Optimize the player-data-fetcher to use the same bulk approach as the historical data compiler, reducing runtime from ~15 minutes to ~2 minutes.
+
+## Technical Notes
+- Historical compiler: `scoringPeriodId=0` in params = all weeks in one response
+- Player fetcher: Calls `_calculate_week_by_week_projection()` per player which calls `_get_all_weeks_data()`
+- Rate limiting: 0.1-0.5s delay per request adds up to ~2.5-12 minutes just for delays

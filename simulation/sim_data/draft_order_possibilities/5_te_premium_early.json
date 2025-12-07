@@ -1,21 +1,21 @@
 {
     "name": "TE Premium Early",
-    "description": "Target Bowers/McBride in round 2, elite TE advantage.",
+    "description": "Elite TE round 1, second TE round 4. Kelce/Andrews strategy.",
     "DRAFT_ORDER": [
-      {"FLEX": "P", "QB": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"FLEX": "P", "QB": "S"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"K": "P", "FLEX": "S"},
-      {"DST": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"}
+      {"TE": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
     ]
 }

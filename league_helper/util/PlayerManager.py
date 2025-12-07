@@ -32,7 +32,7 @@ Author: Kai Mizuno
 
 import csv
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 import statistics
 
 import sys
@@ -459,6 +459,7 @@ class PlayerManager:
             player_list = [
                 p for p in player_list
                 if self.can_draft(p)  # Check if player can fit on current roster
+                and p.fantasy_points and p.fantasy_points > 0  # Exclude players with no projection
             ]
 
         return player_list
@@ -609,3 +610,72 @@ class PlayerManager:
             team_quality, performance, matchup, schedule, draft_round, bye, injury, roster,
             temperature, wind, location
         )
+
+    def set_player_data(self, player_data: Dict[int, Dict[str, Any]]) -> None:
+        """
+        Update player data from pre-loaded week-specific cache.
+
+        This method is used by simulation to load week-specific player data
+        without re-reading CSV files. Updates player attributes from the provided
+        data dictionary and recalculates derived values (max_projection, weighted_projection).
+
+        Args:
+            player_data (Dict[int, Dict[str, Any]]): Player data keyed by player ID.
+                Each dict should match the CSV format with keys like 'fantasy_points',
+                'week_1_points', etc.
+
+        Side Effects:
+            - Updates self.players with new data
+            - Recalculates self.max_projection
+            - Updates weighted_projection for each player
+            - Updates scoring_calculator.max_projection
+        """
+        if not player_data:
+            return
+
+        self.logger.debug(f"Updating player data from cache ({len(player_data)} players)")
+
+        # Track max_projection for normalization
+        new_max_projection = 0.0
+
+        # Update each existing player if we have data for them
+        for player in self.players:
+            if player.id in player_data:
+                data = player_data[player.id]
+
+                # Update weekly projections (most important for simulation)
+                for week in range(1, 18):
+                    week_key = f'week_{week}_points'
+                    if week_key in data:
+                        try:
+                            value = float(data[week_key]) if data[week_key] else None
+                            setattr(player, week_key, value)
+                        except (ValueError, TypeError):
+                            pass
+
+                # Update fantasy_points (ROS projection) if available
+                if 'fantasy_points' in data:
+                    try:
+                        player.fantasy_points = float(data['fantasy_points']) if data['fantasy_points'] else 0.0
+                    except (ValueError, TypeError):
+                        pass
+
+                # Update injury status if available
+                if 'injury_status' in data:
+                    player.injury_status = str(data['injury_status'])
+
+            # Track max projection for normalization
+            if player.fantasy_points and player.fantasy_points > new_max_projection:
+                new_max_projection = player.fantasy_points
+
+        # Update max_projection and scoring calculator
+        if new_max_projection > 0:
+            self.max_projection = new_max_projection
+            self.scoring_calculator.max_projection = new_max_projection
+
+            # Recalculate weighted_projection for all players
+            for player in self.players:
+                if player.fantasy_points and self.max_projection > 0:
+                    player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
+
+        self.logger.debug(f"Player data updated, max_projection={self.max_projection:.2f}")

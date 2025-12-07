@@ -58,23 +58,6 @@ class TestDataPreservationSettings:
         assert isinstance(config.MY_TEAM_NAME, str)
 
 
-class TestOptimizationSettings:
-    """Test optimization configuration"""
-
-    def test_skip_drafted_player_updates_is_boolean(self):
-        """Test SKIP_DRAFTED_PLAYER_UPDATES is boolean"""
-        assert isinstance(config.SKIP_DRAFTED_PLAYER_UPDATES, bool)
-
-    def test_use_score_threshold_is_boolean(self):
-        """Test USE_SCORE_THRESHOLD is boolean"""
-        assert isinstance(config.USE_SCORE_THRESHOLD, bool)
-
-    def test_player_score_threshold_is_numeric(self):
-        """Test PLAYER_SCORE_THRESHOLD is a number"""
-        assert isinstance(config.PLAYER_SCORE_THRESHOLD, (int, float))
-        assert config.PLAYER_SCORE_THRESHOLD >= 0
-
-
 class TestOutputSettings:
     """Test output configuration"""
 

@@ -37,12 +37,12 @@ LOGGING_FILE = './simulation/log.txt'  # Log file path (only used if LOGGING_TO_
 LOGGING_FORMAT = 'standard'     # detailed / standard / simple
 
 DEFAULT_MODE='iterative'
-DEFAULT_SIMS=25
+DEFAULT_SIMS=5
 DEFAULT_BASELINE=''
 DEFAULT_OUTPUT='simulation/simulation_configs'
 DEFAULT_WORKERS=7
 DEFAULT_DATA='simulation/sim_data'
-DEFAULT_TEST_VALUES=20
+DEFAULT_TEST_VALUES=49
 NUM_PARAMETERS_TO_TEST=1
 
 
@@ -50,7 +50,7 @@ def main():
     """
     Main entry point for simulation CLI.
 
-    Provides three simulation modes:
+    Provides three simulation modes:````````````````````````
     - single: Test baseline config (fast, for debugging)
     - full: Grid search all parameter combinations (exhaustive, slow)
     - iterative: Coordinate descent optimization (fast, local optimum)
@@ -95,6 +95,17 @@ Examples:
 
     # Initialize logging system
     setup_logger(LOG_NAME, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE, LOGGING_FORMAT)
+
+    # Add common arguments to main parser for when no subcommand is specified
+    # This allows: python run_simulation.py --use-processes --sims 100
+    parser.add_argument('--sims', type=int, default=DEFAULT_SIMS, help='Number of simulations per config')
+    parser.add_argument('--baseline', type=str, default=DEFAULT_BASELINE, help='Path to baseline configuration')
+    parser.add_argument('--output', type=str, default=DEFAULT_OUTPUT, help='Output directory for results')
+    parser.add_argument('--workers', type=int, default=DEFAULT_WORKERS, help='Number of parallel workers')
+    parser.add_argument('--data', type=str, default=DEFAULT_DATA, help='Path to simulation data folder')
+    parser.add_argument('--test-values', type=int, default=DEFAULT_TEST_VALUES, help='Number of test values per parameter')
+    parser.add_argument('--use-processes', action='store_true', default=False,
+                        help='Use ProcessPoolExecutor for true parallelism (bypasses GIL)')
 
     # Mode selection - defaults to iterative mode if not specified
     subparsers = parser.add_subparsers(dest='mode', help='Simulation mode', required=False)
@@ -170,6 +181,14 @@ Examples:
             default=DEFAULT_TEST_VALUES,
             help='Number of test values per parameter.'
         )
+        subparser.add_argument(
+            '--use-processes',
+            action='store_true',
+            default=False,
+            help='Use ProcessPoolExecutor for true parallelism (bypasses GIL). '
+                 'Default uses ThreadPoolExecutor. Recommended for CPU-bound simulations '
+                 'on multi-core systems.'
+        )
 
     # Parse command-line arguments
     args = parser.parse_args()
@@ -177,19 +196,7 @@ Examples:
     # Set default mode if not provided
     if args.mode is None:
         args.mode = DEFAULT_MODE
-        # Set default values for iterative mode when no mode specified
-        if not hasattr(args, 'sims'):
-            args.sims = DEFAULT_SIMS
-        if not hasattr(args, 'baseline'):
-            args.baseline = DEFAULT_BASELINE
-        if not hasattr(args, 'output'):
-            args.output = DEFAULT_OUTPUT
-        if not hasattr(args, 'workers'):
-            args.workers = DEFAULT_WORKERS
-        if not hasattr(args, 'data'):
-            args.data = DEFAULT_DATA
-        if not hasattr(args, 'test_values'):
-            args.test_values = DEFAULT_TEST_VALUES
+        # Main parser already has all arguments defined, no need to set defaults
 
     # Validate and resolve baseline path
     output_dir = Path(args.output)
@@ -292,6 +299,7 @@ Examples:
         sys.exit(1)
 
     # Display configuration summary to user
+    executor_type = "ProcessPoolExecutor" if args.use_processes else "ThreadPoolExecutor"
     print("=" * 80)
     print("FANTASY FOOTBALL SIMULATION OPTIMIZER")
     print("=" * 80)
@@ -299,7 +307,7 @@ Examples:
     print(f"Baseline config: {baseline_path}")
     print(f"Data folder: {data_folder}")
     print(f"Output directory: {output_dir}")
-    print(f"Worker threads: {args.workers}")
+    print(f"Workers: {args.workers} ({executor_type})")
 
     # Execute the appropriate mode based on user selection
     if args.mode == 'single':
@@ -315,7 +323,8 @@ Examples:
             max_workers=args.workers,
             data_folder=data_folder,
             num_test_values=args.test_values,
-            num_parameters_to_test=NUM_PARAMETERS_TO_TEST
+            num_parameters_to_test=NUM_PARAMETERS_TO_TEST,
+            use_processes=args.use_processes
         )
 
         # Run N simulations with baseline config and display results
@@ -340,7 +349,8 @@ Examples:
                 num_simulations_per_config=args.sims,
                 max_workers=args.workers,
                 data_folder=data_folder,
-                num_test_values=args.test_values
+                num_test_values=args.test_values,
+                use_processes=args.use_processes
             )
 
             # Run exhaustive grid search optimization
@@ -371,7 +381,8 @@ Examples:
                 max_workers=args.workers,
                 data_folder=data_folder,
                 num_test_values=args.test_values,
-                num_parameters_to_test=NUM_PARAMETERS_TO_TEST
+                num_parameters_to_test=NUM_PARAMETERS_TO_TEST,
+                use_processes=args.use_processes
             )
 
             # Run coordinate descent optimization (one parameter at a time)

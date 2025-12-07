@@ -1,0 +1,6 @@
+We are going to be updating the simulation to make use of the new historical data that was compiled by the latest compile_historical_data.py script
+During the simulation, I want the sim to find all of the '20XX' folders in the sim_data folder. For each config that is tested, it is going to perform a simulation using each year's data. The win rates for configs will now reflect the wins and losses across ALL seasons instead of just one. For each season in the sim_data folder, the simulation will go through the process of simulating a draft and 17 weeks of matches for each config being tested.
+For the draft simulations, the data loaded in should be the files from the season being simulated and it should make use of the players.csv and players_projected.csv files contained in the weeks/week_01 folder
+When simulating matches and determining starters, the simulation should use the files from the season being simulated and it should make use of the players.csv and players_projected.csv files that correspond to the week being simulated
+
+Reference feature-updates/done/historical-data-compiler for information on the data that was compiled to be used for this feature

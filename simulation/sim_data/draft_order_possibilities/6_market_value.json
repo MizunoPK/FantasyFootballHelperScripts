@@ -1,21 +1,21 @@
 {
     "name": "Market Value",
-    "description": "Get market-priced value at each position.",
+    "description": "Follow ADP trends, balanced approach across all positions.",
     "DRAFT_ORDER": [
-      {"FLEX": "P", "QB": "S"},
-      {"FLEX": "P", "TE": "S"},
-      {"FLEX": "P"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"TE": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"QB": "P", "FLEX": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"K": "P", "FLEX": "S"},
-      {"DST": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"}
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "TE": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
     ]
 }

@@ -1,0 +1,21 @@
+{
+    "name": "Modified Zero RB",
+    "description": "Only 1 RB by round 4, remaining 3 RBs in rounds 8-11.",
+    "DRAFT_ORDER": [
+      {"WR": "P", "TE": "S"},
+      {"WR": "P", "TE": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "QB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

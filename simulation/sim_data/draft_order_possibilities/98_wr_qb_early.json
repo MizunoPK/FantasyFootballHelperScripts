@@ -1,0 +1,21 @@
+{
+    "name": "WR-QB Early",
+    "description": "Prioritize WR and QB in first 4 rounds for passing upside.",
+    "DRAFT_ORDER": [
+      {"WR": "P", "QB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"FLEX": "P", "WR": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

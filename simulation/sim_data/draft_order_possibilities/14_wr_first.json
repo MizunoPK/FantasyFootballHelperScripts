@@ -1,0 +1,21 @@
+{
+    "name": "WR First",
+    "description": "Elite WR round 1, capitalize on PPR target share.",
+    "DRAFT_ORDER": [
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "WR": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

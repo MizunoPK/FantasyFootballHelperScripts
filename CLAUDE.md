@@ -12,29 +12,93 @@
 
 ## Project-Specific Rules
 
-### When User Requests "Update" or "Prepare for Updates Based on *.txt"
+### Feature Development Workflow Overview
 
-When the user requests to prepare for updates based on files in the `updates/` folder, follow this workflow:
+The feature development process has two phases:
 
-1. **Read the update file** from `updates/` folder
-2. **Create a questions file** (if needed) to clarify requirements
-3. **Create TODO tracking file** in `updates/todo-files/` before starting
-4. **Follow all rules** documented in `rules.md`
-5. **Track progress** for multi-session work
-6. **Move completed files** to `updates/done/` when finished
+1. **Planning Phase** - User says "Help me develop the {feature-name} feature"
+2. **Implementation Phase** - User says "Prepare for updates based on {feature-name}"
 
-### Workflow Details
+---
 
-The complete workflow for handling updates is documented in `rules.md`. Key principles:
+### Phase 1: When User Says "Help Me Develop {feature-name}"
 
-- **Ask questions first**: Create `{objective_name}_questions.md` in `updates/` folder
-- **Plan systematically**: Create detailed TODO file in `updates/todo-files/`
-- **Validate at every phase**: Run unit tests after each major step
-- **Update documentation**: Modify README, CLAUDE.md, and rules files as needed
-- **Test thoroughly**: 100% test pass rate required before completion
-- **Complete the cycle**: Move update file to `updates/done/` when finished
+**Trigger phrases:** "Help me develop...", "I want to plan...", "Let's work on the specification for..."
 
-See `rules.md` for the complete protocol including pre-commit validation requirements.
+**Prerequisites:** User has created `feature-updates/{feature-name}.txt` with initial scratchwork notes.
+
+**Workflow:**
+1. **Follow `feature-updates/guides/feature_planning_guide.md`** - This guide structures the planning conversation
+2. **Create the feature folder** `feature-updates/{feature-name}/`
+3. **Move original notes** into folder as `{feature_name}_notes.txt`
+4. **Create planning files:**
+   - `README.md` - Context for future agents
+   - `{feature_name}_specs.md` - **Primary specification** (detailed, structured requirements)
+   - `{feature_name}_checklist.md` - Tracks what's resolved vs pending
+5. **Guide the conversation** - Help user think through edge cases, data sources, scope
+6. **Document as you go** - Update `_specs.md` as questions are answered
+7. **Complete planning before implementation** - All checklist items should be `[x]`
+
+**🚨 IMPORTANT:** Do NOT skip any steps in the planning guide. Thorough planning prevents rework.
+
+---
+
+### Phase 2: When User Says "Prepare for Updates Based on {feature-name}"
+
+**Trigger phrases:** "Prepare for updates...", "Implement the...", "Start development on..."
+
+**Prerequisites:** Planning phase complete. Feature folder should contain:
+- `{feature_name}_notes.txt` - Original scratchwork (reference only)
+- `{feature_name}_specs.md` - **Primary specification** (USE THIS for implementation)
+- `{feature_name}_checklist.md` - All items marked `[x]`
+- `README.md` - Status shows "Ready for Implementation"
+
+**Workflow:**
+1. **Follow `feature-updates/guides/feature_development_guide.md`** - Complete workflow for implementation
+2. **Read `{feature_name}_specs.md`** as the primary specification (NOT the `_notes.txt`)
+3. **Create in the feature folder:**
+   - `{name}_questions.md` - Questions discovered during verification
+   - `{name}_todo.md` - Implementation tracking
+   - `{name}_code_changes.md` - Documentation of all changes
+4. **Complete 24 verification iterations** (3 rounds) before implementing
+5. **Run unit tests** after each major step
+6. **Complete 3 QC review rounds** before marking complete
+7. **Move entire folder** to `feature-updates/done/{feature-name}/` when finished
+
+**🚨 IMPORTANT:** Do NOT skip any steps in the development guide. No shortcuts allowed.
+
+---
+
+### Key Principles
+
+- **Keep files together**: All working files stay in `feature-updates/{feature-name}/`
+- **Specs vs Notes**: Use `_specs.md` for implementation, `_notes.txt` is just reference
+- **No skipping steps**: Both guides have mandatory steps that must be followed
+- **Validate constantly**: Run unit tests after each major step (100% pass required)
+- **Document everything**: Keep `_code_changes.md` updated incrementally
+- **Quality control**: Complete 3 QC review rounds before completion
+- **Clean completion**: Move entire folder to `feature-updates/done/` when finished
+
+See the individual guides for complete protocols and templates.
+
+---
+
+### Resuming In-Progress Feature Work
+
+**BEFORE starting any feature-related work**, check for in-progress features:
+
+1. **Check for active feature folders:** Look in `feature-updates/` for any folders (excluding `done/` and `guides/`)
+
+2. **If found, READ THE README.md FIRST:** The README contains an "Agent Status" section at the top with:
+   - Current phase and step
+   - Next action to take
+   - Full workflow checklist showing what's done vs remaining
+
+3. **Continue from where the previous agent left off** - Don't restart the workflow
+
+**Why this matters:** Session compaction can interrupt agents mid-workflow. The README.md serves as the persistent state file that survives context window limits.
+
+---
 
 ### Commit Standards
 - Brief, descriptive messages (50 chars or less)
@@ -180,10 +244,21 @@ Mirrors source structure with 100% unit test pass rate required:
   - `10_injury_penalty.md` - Injury risk assessment (Step 10)
 
 ### Configuration & Updates
-- `updates/` - Pending update specifications (*.txt files)
-- `updates/todo-files/` - TODO tracking for updates in progress
-- `updates/done/` - Completed updates
-- `rules.md` - Complete development workflow rules and protocols
+- `feature-updates/` - Root folder for feature development
+  - `{feature-name}.txt` - Initial scratchwork from user (before planning)
+  - `{feature-name}/` - Feature folder (created during planning phase)
+    - `{name}_notes.txt` - Original scratchwork (moved from root)
+    - `{name}_specs.md` - **Primary specification** (detailed requirements)
+    - `{name}_checklist.md` - Tracks resolved vs pending decisions
+    - `{name}_questions.md` - Questions for user (created during development)
+    - `{name}_todo.md` - Implementation tracking
+    - `{name}_code_changes.md` - Documentation of all changes
+    - `README.md` - Context for agents
+- `feature-updates/done/` - Completed feature folders (moved here after completion)
+- `feature-updates/guides/` - Workflow guides for feature development
+  - `feature_planning_guide.md` - Guide for Phase 1 (planning)
+  - `feature_development_guide.md` - Guide for Phase 2 (implementation)
+  - `README.md` - Guide overview and quick reference
 - `CLAUDE.md` - This file (coding standards and workflow guidelines)
 - `README.md` - Project documentation, installation, and usage guide
 - `ARCHITECTURE.md` - Complete architectural and implementation guide

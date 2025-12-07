@@ -144,8 +144,12 @@ class SimulatedOpponent:
         Raises:
             ValueError: If no players are available
         """
-        # Get available players (drafted = 0)
-        available_players = [p for p in self.projected_pm.players if p.drafted == 0]
+        # Get available players (drafted = 0 AND has valid fantasy_points projection)
+        # Filter out players with 0/null fantasy_points (retired, injured, inactive players)
+        available_players = [
+            p for p in self.projected_pm.players
+            if p.drafted == 0 and p.fantasy_points and p.fantasy_points > 0
+        ]
 
         if not available_players:
             raise ValueError("No available players to draft")

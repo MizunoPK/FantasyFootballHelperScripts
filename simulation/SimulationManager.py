@@ -17,12 +17,14 @@ The full process:
 Author: Kai Mizuno
 """
 
-import time
+import csv
 import copy
 import json
 import re
 import signal
 import shutil
+import time
+import warnings
 from pathlib import Path
 from typing import Optional, Tuple, Dict, List
 
@@ -36,6 +38,7 @@ from ParallelLeagueRunner import ParallelLeagueRunner
 from ResultsManager import ResultsManager
 from ProgressTracker import MultiLevelProgressTracker
 from ConfigPerformance import WEEK_RANGES
+from config_cleanup import cleanup_old_optimal_folders
 
 
 class SimulationManager:
@@ -65,7 +68,8 @@ class SimulationManager:
         data_folder: Path,
         num_test_values: int = 5,
         num_parameters_to_test: int = 1,
-        auto_update_league_config: bool = True
+        auto_update_league_config: bool = True,
+        use_processes: bool = False
     ) -> None:
         """
         Initialize SimulationManager.
@@ -78,6 +82,10 @@ class SimulationManager:
             data_folder (Path): Data folder, defaults to simulation/sim_data
             num_test_values (int): Number of test values per parameter (default: 5)
                 Creates (num_test_values + 1)^6 total configurations
+            use_processes (bool): If True, use ProcessPoolExecutor for true parallelism.
+                Default False uses ThreadPoolExecutor. ProcessPoolExecutor bypasses
+                Python's GIL, providing real speedup on multi-core systems for
+                CPU-bound simulation work.
         """
         self.logger = get_logger()
         self.logger.info("Initializing SimulationManager")
@@ -90,6 +98,7 @@ class SimulationManager:
         self.num_parameters_to_test = num_parameters_to_test
         self.data_folder = data_folder
         self.auto_update_league_config = auto_update_league_config
+        self.use_processes = use_processes
 
         # Track current optimal config for graceful shutdown
         self._current_optimal_config_path: Optional[Path] = None
@@ -103,15 +112,143 @@ class SimulationManager:
         self.config_generator = ConfigGenerator(baseline_config_path, num_test_values=num_test_values, num_parameters_to_test=num_parameters_to_test)
         self.parallel_runner = ParallelLeagueRunner(
             max_workers=max_workers,
-            data_folder=data_folder
+            data_folder=data_folder,
+            use_processes=use_processes
         )
         self.results_manager = ResultsManager()
 
         total_configs = (num_test_values + 1) ** 6
+        executor_type = "ProcessPoolExecutor" if use_processes else "ThreadPoolExecutor"
         self.logger.info(
             f"SimulationManager initialized: {total_configs:,} configs, "
-            f"{num_simulations_per_config} sims/config, {max_workers} workers"
+            f"{num_simulations_per_config} sims/config, {max_workers} workers ({executor_type})"
         )
+
+        # Discover available historical seasons
+        self.available_seasons = self._discover_seasons()
+        self.logger.info(f"Discovered {len(self.available_seasons)} historical seasons: {[s.name for s in self.available_seasons]}")
+
+    def _discover_seasons(self) -> List[Path]:
+        """
+        Find all valid historical season folders (20XX/) in data_folder.
+
+        Validates each folder has required structure before including.
+        Fails loudly if no valid seasons are found.
+
+        Returns:
+            List[Path]: Sorted list of valid season folder paths
+
+        Raises:
+            FileNotFoundError: If no historical season folders exist
+        """
+        season_folders = sorted(self.data_folder.glob("20*/"))
+
+        if not season_folders:
+            raise FileNotFoundError(
+                f"No historical season folders (20XX/) found in {self.data_folder}. "
+                "Run compile_historical_data.py first."
+            )
+
+        valid = []
+        for folder in season_folders:
+            self._validate_season_strict(folder)  # Raises on invalid
+            valid.append(folder)
+
+        return valid
+
+    def _validate_season_strict(self, folder: Path) -> None:
+        """
+        Validate season folder has all required structure.
+
+        Checks for:
+        - season_schedule.csv
+        - game_data.csv
+        - team_data/ folder
+        - weeks/ folder with all 17 week subfolders
+        - players.csv in each week folder
+
+        Args:
+            folder (Path): Season folder to validate
+
+        Raises:
+            FileNotFoundError: If any required file/folder is missing
+        """
+        year = folder.name
+
+        # Check required root files
+        required_files = [folder / "season_schedule.csv", folder / "game_data.csv"]
+        for req_file in required_files:
+            if not req_file.exists():
+                raise FileNotFoundError(f"Season {year} missing: {req_file.name}")
+
+        # Check team_data folder
+        if not (folder / "team_data").exists():
+            raise FileNotFoundError(f"Season {year} missing team_data/")
+
+        # Check weeks folder
+        weeks_folder = folder / "weeks"
+        if not weeks_folder.exists():
+            raise FileNotFoundError(f"Season {year} missing weeks/")
+
+        # Check all 17 weeks exist with required files
+        for week_num in range(1, 18):
+            week_folder = weeks_folder / f"week_{week_num:02d}"
+            if not week_folder.exists():
+                raise FileNotFoundError(f"Season {year} missing week_{week_num:02d}/")
+            if not (week_folder / "players.csv").exists():
+                raise FileNotFoundError(f"Season {year} week_{week_num:02d}/ missing players.csv")
+
+    def _validate_season_data(self, season_folder: Path) -> bool:
+        """
+        Validate season has sufficient valid player data for simulation.
+
+        A season needs at least 150 valid players (drafted=0 AND fantasy_points>0)
+        to support a 10-team draft with 15 picks each.
+
+        Args:
+            season_folder (Path): Path to season folder
+
+        Returns:
+            bool: True if season has sufficient data, False otherwise
+        """
+        MIN_VALID_PLAYERS = 150  # 10 teams × 15 picks
+
+        # Check week 1 players_projected.csv for valid player count
+        players_file = season_folder / "weeks" / "week_01" / "players_projected.csv"
+        if not players_file.exists():
+            players_file = season_folder / "weeks" / "week_01" / "players.csv"
+
+        if not players_file.exists():
+            self.logger.warning(f"Season {season_folder.name}: No player CSV found")
+            return False
+
+        try:
+            with open(players_file, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                valid_count = 0
+                for row in reader:
+                    drafted = row.get('drafted', '0')
+                    fp = row.get('fantasy_points', '')
+                    try:
+                        fp_val = float(fp) if fp else 0
+                    except (ValueError, TypeError):
+                        fp_val = 0
+                    if drafted == '0' and fp_val > 0:
+                        valid_count += 1
+
+                if valid_count < MIN_VALID_PLAYERS:
+                    self.logger.warning(
+                        f"Season {season_folder.name}: Only {valid_count} valid players "
+                        f"(need {MIN_VALID_PLAYERS}+ for draft)"
+                    )
+                    return False
+
+                self.logger.debug(f"Season {season_folder.name}: {valid_count} valid players - OK")
+                return True
+
+        except Exception as e:
+            self.logger.warning(f"Season {season_folder.name}: Error reading player data: {e}")
+            return False
 
     def _setup_signal_handlers(self) -> None:
         """
@@ -157,9 +294,76 @@ class SimulationManager:
         self.logger.info("Shutdown complete. Exiting...")
         raise SystemExit(0)
 
+    def _run_season_simulations_with_weeks(
+        self,
+        config_dict: dict,
+        num_simulations_per_season: int
+    ) -> List[List[Tuple[int, bool, float]]]:
+        """
+        Run simulations across ALL historical seasons with per-week tracking.
+
+        This method runs the specified number of simulations for each discovered
+        historical season and aggregates the results. Each season uses its own
+        data folder with week-specific player data.
+
+        Args:
+            config_dict (dict): Configuration dictionary
+            num_simulations_per_season (int): Number of simulations per season
+
+        Returns:
+            List[List[Tuple[int, bool, float]]]: Aggregated per-week results from
+                all seasons and simulations. Each inner list is a single simulation's
+                week results: [(week_num, won, points), ...]
+
+        Note:
+            Win rate should be calculated as: Total wins / Total games
+            across ALL seasons, not averaged per season.
+        """
+        all_results = []
+        total_seasons = len(self.available_seasons)
+
+        self.logger.info(f"Running simulations across {total_seasons} historical seasons")
+
+        for season_idx, season_folder in enumerate(self.available_seasons):
+            # Validate season has sufficient player data
+            if not self._validate_season_data(season_folder):
+                self.logger.warning(f"Skipping season {season_folder.name} - insufficient valid player data")
+                continue
+            season_name = season_folder.name
+            self.logger.debug(f"Season {season_idx + 1}/{total_seasons}: {season_name}")
+
+            # OPTIMIZATION: Reuse existing runner, just update data folder
+            # This avoids recreating ThreadPoolExecutor for each season
+            self.parallel_runner.set_data_folder(season_folder)
+
+            # Run simulations for this season
+            season_results = self.parallel_runner.run_simulations_for_config_with_weeks(
+                config_dict,
+                num_simulations_per_season
+            )
+
+            # Add to aggregated results
+            all_results.extend(season_results)
+
+            self.logger.debug(
+                f"  Season {season_name}: {len(season_results)} simulations complete"
+            )
+
+        total_simulations = len(all_results)
+        self.logger.info(
+            f"Multi-season simulations complete: {total_simulations} total "
+            f"({num_simulations_per_season} x {total_seasons} seasons)"
+        )
+
+        return all_results
+
     def run_full_optimization(self) -> Path:
         """
         Run complete optimization process for all 46,656 configurations.
+
+        .. deprecated::
+            This method uses single-season data only. Use `run_iterative_optimization()`
+            instead for multi-season validation across all historical data.
 
         This is the main entry point for the simulation system. It:
         1. Generates all parameter combinations
@@ -175,6 +379,13 @@ class SimulationManager:
             >>> optimal_config_path = mgr.run_full_optimization()
             >>> print(f"Optimal config saved to: {optimal_config_path}")
         """
+        warnings.warn(
+            "run_full_optimization() uses single-season data only. "
+            "Use run_iterative_optimization() for multi-season validation.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+
         self.logger.info("=" * 80)
         self.logger.info("STARTING FULL CONFIGURATION OPTIMIZATION")
         self.logger.info("=" * 80)
@@ -515,8 +726,8 @@ class SimulationManager:
                 # Register config
                 self.results_manager.register_config(config_id, config)
 
-                # Run simulations WITH WEEK TRACKING
-                week_results_list = self.parallel_runner.run_simulations_for_config_with_weeks(
+                # Run simulations WITH WEEK TRACKING across ALL historical seasons
+                week_results_list = self._run_season_simulations_with_weeks(
                     config,
                     self.num_simulations_per_config
                 )
@@ -620,6 +831,8 @@ class SimulationManager:
         self.logger.info(f"Total simulations: {total_configs * self.num_simulations_per_config}")
 
         # Save final optimal config as folder
+        # Clean up old optimal folders if we're at the limit
+        cleanup_old_optimal_folders(self.output_dir)
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         final_folder = self.output_dir / f"optimal_iterative_{timestamp}"
         final_folder.mkdir(parents=True, exist_ok=True)
@@ -686,13 +899,8 @@ class SimulationManager:
         if self.auto_update_league_config:
             data_configs_path = Path(__file__).parent.parent / "data" / "configs"
             if data_configs_path.exists():
-                # Copy each file from final folder to data/configs
-                for config_file in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
-                    src = final_folder / config_file
-                    dst = data_configs_path / config_file
-                    if src.exists():
-                        shutil.copy2(src, dst)
-                self.logger.info(f"✓ Updated data/configs folder: {data_configs_path}")
+                # Use smart update that preserves user-maintained parameters
+                self.results_manager.update_configs_folder(final_folder, data_configs_path)
             else:
                 self.logger.warning(f"data/configs folder not found at {data_configs_path}, skipping update")
 
@@ -830,6 +1038,10 @@ class SimulationManager:
         """
         Run simulations for a single configuration (for debugging).
 
+        .. deprecated::
+            This method uses single-season data only. Use `run_iterative_optimization()`
+            instead for multi-season validation across all historical data.
+
         Args:
             config_id (str): Identifier for this test config (default: "test")
 
@@ -838,6 +1050,13 @@ class SimulationManager:
             >>> mgr.run_single_config_test(config_id="baseline_test")
             >>> # Runs 5 simulations with baseline config
         """
+        warnings.warn(
+            "run_single_config_test() uses single-season data only. "
+            "Use run_iterative_optimization() for multi-season validation.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+
         self.logger.info("=" * 80)
         self.logger.info("RUNNING SINGLE CONFIG TEST")
         self.logger.info("=" * 80)

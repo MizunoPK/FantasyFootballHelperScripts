@@ -1,0 +1,21 @@
+{
+    "name": "Late Pick Optimal",
+    "description": "Optimized for draft positions 9-12, capitalize on turn picks.",
+    "DRAFT_ORDER": [
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "QB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

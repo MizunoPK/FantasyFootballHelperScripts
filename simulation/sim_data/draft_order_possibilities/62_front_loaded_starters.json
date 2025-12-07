@@ -1,0 +1,21 @@
+{
+    "name": "Front-Loaded Starters",
+    "description": "All starting positions filled by round 7, depth rounds 8-13.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "QB": "S"},
+      {"QB": "P", "TE": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

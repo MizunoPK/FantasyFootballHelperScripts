@@ -1141,3 +1141,347 @@ class TestPerWeekRangeMethods:
         mgr = ResultsManager()
         with pytest.raises(ValueError, match="No results available"):
             mgr.save_optimal_configs_folder(Path("/tmp"))
+
+
+# ============================================================================
+# Test: update_configs_folder() Method
+# ============================================================================
+
+class TestUpdateConfigsFolder:
+    """Tests for update_configs_folder functionality."""
+
+    def create_optimal_configs(self, folder: Path) -> None:
+        """Create sample optimal config files in a folder."""
+        folder.mkdir(parents=True, exist_ok=True)
+
+        # league_config.json
+        league_config = {
+            "config_name": "optimal_test",
+            "description": "Win Rate: 0.85",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 13,
+                "NFL_SEASON": 2024,
+                "MAX_POSITIONS": {"QB": 3, "RB": 5},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB"],
+                "INJURY_PENALTIES": {"OUT": -100},
+                "NORMALIZATION_MAX_SCALE": 150.0
+            },
+            "performance_metrics": {
+                "config_id": "optimal",
+                "win_rate": 0.85,
+                "total_wins": 850
+            }
+        }
+        with open(folder / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+
+        # Week files with MATCHUP_SCORING and SCHEDULE_SCORING
+        for week_file in ["week1-5.json", "week6-11.json", "week12-17.json"]:
+            week_config = {
+                "config_name": f"optimal_test_{week_file}",
+                "parameters": {
+                    "MATCHUP_SCORING": {
+                        "MIN_WEEKS": 3,
+                        "IMPACT_SCALE": 107.45,
+                        "WEIGHT": 0.409,
+                        "THRESHOLDS": {"BASE_POSITION": 0}
+                    },
+                    "SCHEDULE_SCORING": {
+                        "MIN_WEEKS": 5,
+                        "IMPACT_SCALE": 108.44,
+                        "WEIGHT": 0.80,
+                        "THRESHOLDS": {"BASE_POSITION": 16}
+                    },
+                    "PLAYER_RATING_SCORING": {"WEIGHT": 2.0}
+                },
+                "performance_metrics": {
+                    "config_id": "optimal",
+                    "win_rate": 0.85
+                }
+            }
+            with open(folder / week_file, 'w') as f:
+                json.dump(week_config, f)
+
+    def create_original_configs(self, folder: Path) -> None:
+        """Create sample original config files in target folder."""
+        folder.mkdir(parents=True, exist_ok=True)
+
+        # league_config.json with user-maintained values
+        league_config = {
+            "config_name": "original",
+            "description": "Original config",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 1,
+                "NFL_SEASON": 2025,
+                "MAX_POSITIONS": {"QB": 2, "RB": 4},
+                "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR", "DST"],
+                "INJURY_PENALTIES": {"OUT": -50, "DOUBTFUL": -25},
+                "NORMALIZATION_MAX_SCALE": 100.0
+            }
+        }
+        with open(folder / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+
+        # Week files
+        for week_file in ["week1-5.json", "week6-11.json", "week12-17.json"]:
+            week_config = {
+                "config_name": f"original_{week_file}",
+                "parameters": {
+                    "MATCHUP_SCORING": {
+                        "MIN_WEEKS": 5,
+                        "IMPACT_SCALE": 50.0,
+                        "WEIGHT": 1.0
+                    },
+                    "SCHEDULE_SCORING": {
+                        "MIN_WEEKS": 3,
+                        "IMPACT_SCALE": 75.0,
+                        "WEIGHT": 0.5
+                    }
+                }
+            }
+            with open(folder / week_file, 'w') as f:
+                json.dump(week_config, f)
+
+    def test_update_configs_folder_preserves_league_config_parameters(self, tmp_path):
+        """Test that preserved parameters are kept from original league_config.json."""
+        optimal_folder = tmp_path / "optimal"
+        target_folder = tmp_path / "data" / "configs"
+
+        self.create_optimal_configs(optimal_folder)
+        self.create_original_configs(target_folder)
+
+        mgr = ResultsManager()
+        mgr.update_configs_folder(optimal_folder, target_folder)
+
+        # Read updated league_config
+        with open(target_folder / "league_config.json", 'r') as f:
+            updated = json.load(f)
+
+        # Verify preserved parameters are from original
+        assert updated["parameters"]["CURRENT_NFL_WEEK"] == 1
+        assert updated["parameters"]["NFL_SEASON"] == 2025
+        assert updated["parameters"]["MAX_POSITIONS"] == {"QB": 2, "RB": 4}
+        assert updated["parameters"]["FLEX_ELIGIBLE_POSITIONS"] == ["RB", "WR", "DST"]
+        assert updated["parameters"]["INJURY_PENALTIES"] == {"OUT": -50, "DOUBTFUL": -25}
+
+        # Verify non-preserved parameters are from optimal
+        assert updated["parameters"]["NORMALIZATION_MAX_SCALE"] == 150.0
+
+    def test_update_configs_folder_applies_matchup_to_schedule_mapping(self, tmp_path):
+        """Test that MATCHUP_SCORING values are copied to SCHEDULE_SCORING in week files."""
+        optimal_folder = tmp_path / "optimal"
+        target_folder = tmp_path / "data" / "configs"
+
+        self.create_optimal_configs(optimal_folder)
+        self.create_original_configs(target_folder)
+
+        mgr = ResultsManager()
+        mgr.update_configs_folder(optimal_folder, target_folder)
+
+        # Check each week file
+        for week_file in ["week1-5.json", "week6-11.json", "week12-17.json"]:
+            with open(target_folder / week_file, 'r') as f:
+                updated = json.load(f)
+
+            matchup = updated["parameters"]["MATCHUP_SCORING"]
+            schedule = updated["parameters"]["SCHEDULE_SCORING"]
+
+            # Verify MATCHUP values copied to SCHEDULE
+            assert schedule["MIN_WEEKS"] == matchup["MIN_WEEKS"] == 3
+            assert schedule["IMPACT_SCALE"] == matchup["IMPACT_SCALE"] == 107.45
+            assert schedule["WEIGHT"] == matchup["WEIGHT"] == 0.409
+
+            # Verify other SCHEDULE values preserved (THRESHOLDS not mapped)
+            assert schedule["THRESHOLDS"]["BASE_POSITION"] == 16
+
+    def test_update_configs_folder_handles_missing_target_files(self, tmp_path):
+        """Test that configs are created from optimal when target doesn't exist."""
+        optimal_folder = tmp_path / "optimal"
+        target_folder = tmp_path / "data" / "configs"
+
+        self.create_optimal_configs(optimal_folder)
+        # Do NOT create original configs - target folder is empty
+
+        mgr = ResultsManager()
+        mgr.update_configs_folder(optimal_folder, target_folder)
+
+        # Verify all files were created
+        assert (target_folder / "league_config.json").exists()
+        assert (target_folder / "week1-5.json").exists()
+        assert (target_folder / "week6-11.json").exists()
+        assert (target_folder / "week12-17.json").exists()
+
+        # Verify league_config has optimal values (no preservation possible)
+        with open(target_folder / "league_config.json", 'r') as f:
+            league_config = json.load(f)
+
+        assert league_config["parameters"]["CURRENT_NFL_WEEK"] == 13
+        assert league_config["parameters"]["NFL_SEASON"] == 2024
+
+    def test_update_configs_folder_logs_warning_for_missing_matchup_scoring(self, tmp_path):
+        """Test that warning is logged when MATCHUP_SCORING is missing."""
+        optimal_folder = tmp_path / "optimal"
+        target_folder = tmp_path / "data" / "configs"
+
+        # Create optimal folder
+        optimal_folder.mkdir(parents=True, exist_ok=True)
+
+        # Create league_config.json
+        league_config = {
+            "config_name": "optimal",
+            "parameters": {
+                "CURRENT_NFL_WEEK": 13,
+                "NFL_SEASON": 2024
+            }
+        }
+        with open(optimal_folder / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+
+        # Create week file WITHOUT MATCHUP_SCORING
+        week_config = {
+            "config_name": "optimal_week",
+            "parameters": {
+                "SCHEDULE_SCORING": {
+                    "MIN_WEEKS": 5,
+                    "IMPACT_SCALE": 108.0,
+                    "WEIGHT": 0.8
+                }
+            }
+        }
+        with open(optimal_folder / "week1-5.json", 'w') as f:
+            json.dump(week_config, f)
+
+        # Should complete without error (warning logged internally)
+        mgr = ResultsManager()
+        mgr.update_configs_folder(optimal_folder, target_folder)
+
+        # Verify file was still created
+        assert (target_folder / "week1-5.json").exists()
+
+        # Verify SCHEDULE_SCORING unchanged (MATCHUP mapping couldn't apply)
+        with open(target_folder / "week1-5.json", 'r') as f:
+            updated = json.load(f)
+        assert updated["parameters"]["SCHEDULE_SCORING"]["MIN_WEEKS"] == 5
+
+    def test_update_configs_folder_keeps_performance_metrics(self, tmp_path):
+        """Test that performance_metrics are kept in updated files."""
+        optimal_folder = tmp_path / "optimal"
+        target_folder = tmp_path / "data" / "configs"
+
+        self.create_optimal_configs(optimal_folder)
+        self.create_original_configs(target_folder)
+
+        mgr = ResultsManager()
+        mgr.update_configs_folder(optimal_folder, target_folder)
+
+        # Verify performance_metrics are preserved
+        with open(target_folder / "league_config.json", 'r') as f:
+            league_config = json.load(f)
+        assert "performance_metrics" in league_config
+        assert league_config["performance_metrics"]["win_rate"] == 0.85
+
+        with open(target_folder / "week1-5.json", 'r') as f:
+            week_config = json.load(f)
+        assert "performance_metrics" in week_config
+
+    def test_update_configs_folder_missing_optimal_file_logs_warning(self, tmp_path):
+        """Test that warning is logged when optimal file is missing."""
+        optimal_folder = tmp_path / "optimal"
+        target_folder = tmp_path / "data" / "configs"
+
+        # Create only league_config.json in optimal folder
+        optimal_folder.mkdir(parents=True, exist_ok=True)
+        league_config = {
+            "config_name": "optimal",
+            "parameters": {"CURRENT_NFL_WEEK": 13}
+        }
+        with open(optimal_folder / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+
+        # Do NOT create week files
+
+        mgr = ResultsManager()
+        mgr.update_configs_folder(optimal_folder, target_folder)
+
+        # Only league_config.json should exist in target
+        assert (target_folder / "league_config.json").exists()
+        assert not (target_folder / "week1-5.json").exists()
+
+    def test_update_configs_folder_creates_target_folder_if_missing(self, tmp_path):
+        """Test that target folder is created if it doesn't exist."""
+        optimal_folder = tmp_path / "optimal"
+        target_folder = tmp_path / "nonexistent" / "path" / "configs"
+
+        self.create_optimal_configs(optimal_folder)
+
+        # Target folder doesn't exist
+        assert not target_folder.exists()
+
+        mgr = ResultsManager()
+        mgr.update_configs_folder(optimal_folder, target_folder)
+
+        # Target folder should now exist with files
+        assert target_folder.exists()
+        assert (target_folder / "league_config.json").exists()
+
+
+class TestApplyMatchupToScheduleMapping:
+    """Tests for _apply_matchup_to_schedule_mapping helper method."""
+
+    def test_applies_all_mapped_values(self):
+        """Test all three values are mapped from MATCHUP to SCHEDULE."""
+        config = {
+            "parameters": {
+                "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 3,
+                    "IMPACT_SCALE": 107.0,
+                    "WEIGHT": 0.4,
+                    "THRESHOLDS": {"BASE_POSITION": 0}
+                },
+                "SCHEDULE_SCORING": {
+                    "MIN_WEEKS": 5,
+                    "IMPACT_SCALE": 108.0,
+                    "WEIGHT": 0.8,
+                    "THRESHOLDS": {"BASE_POSITION": 16}
+                }
+            }
+        }
+
+        mgr = ResultsManager()
+        mgr._apply_matchup_to_schedule_mapping(config)
+
+        schedule = config["parameters"]["SCHEDULE_SCORING"]
+        assert schedule["MIN_WEEKS"] == 3
+        assert schedule["IMPACT_SCALE"] == 107.0
+        assert schedule["WEIGHT"] == 0.4
+        # THRESHOLDS should NOT be mapped
+        assert schedule["THRESHOLDS"]["BASE_POSITION"] == 16
+
+    def test_handles_missing_parameters_key(self):
+        """Test graceful handling when config has no parameters key."""
+        config = {"config_name": "test"}
+
+        mgr = ResultsManager()
+        # Should not raise error
+        mgr._apply_matchup_to_schedule_mapping(config)
+
+    def test_creates_schedule_scoring_if_missing(self):
+        """Test SCHEDULE_SCORING is created if it doesn't exist."""
+        config = {
+            "parameters": {
+                "MATCHUP_SCORING": {
+                    "MIN_WEEKS": 3,
+                    "IMPACT_SCALE": 107.0,
+                    "WEIGHT": 0.4
+                }
+            }
+        }
+
+        mgr = ResultsManager()
+        mgr._apply_matchup_to_schedule_mapping(config)
+
+        assert "SCHEDULE_SCORING" in config["parameters"]
+        schedule = config["parameters"]["SCHEDULE_SCORING"]
+        assert schedule["MIN_WEEKS"] == 3
+        assert schedule["IMPACT_SCALE"] == 107.0
+        assert schedule["WEIGHT"] == 0.4

@@ -1,0 +1,21 @@
+{
+    "name": "QB Streaming",
+    "description": "Both QBs in rounds 12-13, full punt on position. Stream weekly.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

@@ -1,0 +1,21 @@
+{
+    "name": "Target Hog",
+    "description": "WR/TE with highest target shares, volume over efficiency.",
+    "DRAFT_ORDER": [
+      {"WR": "P", "TE": "S"},
+      {"TE": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"FLEX": "P", "WR": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

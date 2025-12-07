@@ -1,0 +1,21 @@
+{
+    "name": "Four RB Start",
+    "description": "All 4 RBs in first 4 rounds, maximum RB security.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "TE": "S"},
+      {"WR": "P", "TE": "S"},
+      {"TE": "P", "WR": "S"},
+      {"WR": "P", "QB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "WR": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

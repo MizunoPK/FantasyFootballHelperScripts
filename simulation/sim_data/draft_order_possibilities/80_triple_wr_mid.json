@@ -1,0 +1,21 @@
+{
+    "name": "Triple WR Mid",
+    "description": "WR-WR-WR in rounds 5-7, target mid-round WR value.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "RB": "S"},
+      {"QB": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "RB": "S"},
+      {"QB": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"FLEX": "P", "WR": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

@@ -596,7 +596,8 @@ class ConfigManager:
                 ]
 
                 if not valid_weeks:
-                    self.logger.warning(f"No valid weekly data for {player.name}, using 0.0 median")
+                    # Expected for players who didn't play (retired, injured, rookies)
+                    self.logger.debug(f"No valid weekly data for {player.name}, using 0.0 median")
                     return 0.0
 
                 median = statistics.median(valid_weeks)

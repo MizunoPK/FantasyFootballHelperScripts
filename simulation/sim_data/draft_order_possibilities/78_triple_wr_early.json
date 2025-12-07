@@ -1,0 +1,21 @@
+{
+    "name": "Triple WR Early",
+    "description": "WR-WR-WR in rounds 1-3, PPR target domination.",
+    "DRAFT_ORDER": [
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "TE": "S"},
+      {"RB": "P", "TE": "S"},
+      {"TE": "P", "RB": "S"},
+      {"QB": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "RB": "S"},
+      {"QB": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"FLEX": "P", "WR": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

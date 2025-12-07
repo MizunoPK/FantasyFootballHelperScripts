@@ -38,7 +38,7 @@ from .game_data_fetcher import (
 from .player_data_fetcher import (
     PlayerDataFetcher,
     PlayerData,
-    fetch_and_write_player_data,
+    fetch_player_data,
 )
 
 from .team_data_calculator import (
@@ -73,7 +73,7 @@ __all__ = [
     # Player Data
     'PlayerDataFetcher',
     'PlayerData',
-    'fetch_and_write_player_data',
+    'fetch_player_data',
     # Team Data
     'TeamDataCalculator',
     'calculate_and_write_team_data',

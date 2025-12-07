@@ -1,21 +1,21 @@
 {
     "name": "Aggressive TE",
-    "description": "Double down on TE rounds 2-3, Bowers/McBride/Kittle tier.",
+    "description": "Lock in elite TE early rounds 2-3, build around positional advantage.",
     "DRAFT_ORDER": [
-      {"FLEX": "P", "QB": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"FLEX": "P", "QB": "S"},
-      {"FLEX": "P"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"K": "P", "FLEX": "S"},
-      {"DST": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"}
+      {"RB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"TE": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
     ]
 }

@@ -93,21 +93,21 @@ class TestWeek:
         """Test week number validation - too low"""
         matchups = []
 
-        with pytest.raises(ValueError, match="Week number must be between 1 and 16"):
+        with pytest.raises(ValueError, match="Week number must be between 1 and 17"):
             Week(0, matchups)
 
     def test_week_number_validation_max(self):
         """Test week number validation - too high"""
         matchups = []
 
-        with pytest.raises(ValueError, match="Week number must be between 1 and 16"):
-            Week(17, matchups)
+        with pytest.raises(ValueError, match="Week number must be between 1 and 17"):
+            Week(18, matchups)
 
     def test_week_number_validation_negative(self):
         """Test week number validation - negative"""
         matchups = []
 
-        with pytest.raises(ValueError, match="Week number must be between 1 and 16"):
+        with pytest.raises(ValueError, match="Week number must be between 1 and 17"):
             Week(-1, matchups)
 
     def test_week_number_edge_cases_valid(self):
@@ -118,9 +118,9 @@ class TestWeek:
         week1 = Week(1, matchups)
         assert week1.week_number == 1
 
-        # Week 16 should be valid
-        week16 = Week(16, matchups)
-        assert week16.week_number == 16
+        # Week 17 should be valid (updated from 16)
+        week17 = Week(17, matchups)
+        assert week17.week_number == 17
 
     def test_simulate_week_single_matchup_team1_wins(self):
         """Test simulating a week with one matchup - team1 wins"""

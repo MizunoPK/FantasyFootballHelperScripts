@@ -1,21 +1,21 @@
 {
     "name": "Double QB Mid",
-    "description": "Both QBs in rounds 5-6, secure backup early.",
+    "description": "Both QBs in rounds 5-6, stack skill positions early and late.",
     "DRAFT_ORDER": [
-      {"FLEX": "P", "TE": "S"},
-      {"FLEX": "P", "TE": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"QB": "P", "FLEX": "S"},
-      {"QB": "P", "FLEX": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"K": "P", "FLEX": "S"},
-      {"DST": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"}
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"QB": "P", "TE": "S"},
+      {"QB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
     ]
 }

@@ -1,5 +1,5 @@
 {
-  "config_name": "Optimal week1-5.json (20251205_153646)",
+  "config_name": "Optimal week1-5.json (20251206_202501)",
   "description": "Optimized week-specific params for weeks 1-5",
   "parameters": {
     "PLAYER_RATING_SCORING": {
@@ -64,7 +64,7 @@
     },
     "SCHEDULE_SCORING": {
       "MIN_WEEKS": 5,
-      "IMPACT_SCALE": 108.44420719076365,
+      "IMPACT_SCALE": 127.18395086042469,
       "THRESHOLDS": {
         "BASE_POSITION": 16,
         "DIRECTION": "BI_EXCELLENT_HI",
@@ -76,7 +76,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.8029220831479209
+      "WEIGHT": 0.9141034145521472
     },
     "TEMPERATURE_SCORING": {
       "IMPACT_SCALE": 41.57562579185367,
@@ -117,8 +117,8 @@
   },
   "performance_metrics": {
     "week_range": "1-5",
-    "win_rate_for_range": 0.904,
-    "config_id": "LOCATION_INTERNATIONAL_11",
-    "timestamp": "20251205_153646"
+    "win_rate_for_range": 0.0,
+    "config_id": "LOCATION_INTERNATIONAL_0",
+    "timestamp": "20251206_202501"
   }
 }

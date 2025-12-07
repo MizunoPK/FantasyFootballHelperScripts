@@ -1,0 +1,21 @@
+{
+    "name": "Early Late Split",
+    "description": "Heavy rounds 1-4 and 10-13, lighter middle rounds.",
+    "DRAFT_ORDER": [
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"WR": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
+    ]
+}

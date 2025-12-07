@@ -514,18 +514,20 @@ class PlayerDataFetcher:
         self.logger.info(f"Wrote {len(players)} players to {output_path}")
 
 
-async def fetch_and_write_player_data(
+async def fetch_player_data(
     year: int,
-    output_dir: Path,
     http_client: BaseHTTPClient,
     bye_weeks: Dict[str, int]
 ) -> List[PlayerData]:
     """
-    Convenience function to fetch player data and write CSV files.
+    Fetch player data from ESPN Fantasy API.
+
+    Note: This function only fetches data. Player CSV files are written
+    by the weekly_snapshot_generator which creates point-in-time snapshots
+    in the weeks/week_NN/ folders.
 
     Args:
         year: NFL season year
-        output_dir: Output directory
         http_client: HTTP client instance
         bye_weeks: Dict mapping team to bye week
 
@@ -534,13 +536,4 @@ async def fetch_and_write_player_data(
     """
     fetcher = PlayerDataFetcher(http_client)
     players = await fetcher.fetch_all_players(year, bye_weeks)
-
-    # Write players.csv
-    players_path = output_dir / PLAYERS_FILE
-    fetcher.write_players_csv(players, players_path)
-
-    # Write players_projected.csv
-    projected_path = output_dir / PLAYERS_PROJECTED_FILE
-    fetcher.write_players_projected_csv(players, projected_path)
-
     return players

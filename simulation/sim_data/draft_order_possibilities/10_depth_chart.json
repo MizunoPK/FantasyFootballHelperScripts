@@ -1,21 +1,21 @@
 {
     "name": "Depth Chart",
-    "description": "Build roster depth before starters.",
+    "description": "Build RB/WR depth first 4 rounds, fill starters later.",
     "DRAFT_ORDER": [
-      {"FLEX": "P", "QB": "S"},
-      {"FLEX": "P", "TE": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"TE": "P", "FLEX": "S"},
-      {"QB": "P", "FLEX": "S"},
-      {"TE": "P", "FLEX": "S"},
-      {"QB": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"},
-      {"K": "P", "FLEX": "S"},
-      {"DST": "P", "FLEX": "S"},
-      {"FLEX": "P"},
-      {"FLEX": "P"}
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"TE": "P", "WR": "S"},
+      {"QB": "P", "WR": "S"},
+      {"RB": "P", "WR": "S"},
+      {"WR": "P", "RB": "S"},
+      {"FLEX": "P", "RB": "S"},
+      {"K": "P"},
+      {"DST": "P"}
     ]
 }

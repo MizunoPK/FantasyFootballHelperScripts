@@ -22,11 +22,6 @@ LOAD_DRAFTED_DATA_FROM_FILE = True  # Load drafted state from external CSV file 
 DRAFTED_DATA = "../data/drafted_data.csv"  # Path to CSV file containing drafted player data (now in root data/ directory)
 MY_TEAM_NAME = "Sea Sharp"           # Name of your fantasy team for identifying roster players (drafted=2)
 
-# Optimization Settings (FREQUENTLY MODIFIED)
-SKIP_DRAFTED_PLAYER_UPDATES = False  # Skip API calls for drafted=1 players (major optimization)
-USE_SCORE_THRESHOLD = True  # Only update players above score threshold (preserves low-scoring player data)
-PLAYER_SCORE_THRESHOLD = 10.0  # Minimum fantasy points to trigger API update
-
 # Output Settings (FREQUENTLY MODIFIED)
 OUTPUT_DIRECTORY = "./data"
 CREATE_CSV = True
