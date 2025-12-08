@@ -33,6 +33,10 @@ This guide covers the implementation workflow for features that have completed t
 | Simplified algorithm logic | Spec says "if X then A, else B" but code uses only A | Use **Algorithm Traceability Matrix** - match spec exactly |
 | Tests pass but behavior wrong | Structure tests don't catch logic errors | Write **behavior tests** that would fail if algorithm is wrong |
 | Skipping QC rounds | Subtle bugs slip through | Complete all **3 QC review rounds** before marking done |
+| Heavy mocking hides real bugs | Mocked tests pass but real code has issues | Write **integration tests with real objects** (see Testing Anti-Patterns) |
+| Output existence ≠ correctness | Files exist but contain wrong data | Write **output content validation tests** that verify file contents |
+| Untested private methods | Critical logic in private methods never exercised | Test **private methods with critical logic** through their callers or directly |
+| Parameter dependencies missed | Updating param A requires updating param B | Use **Parameter Dependency Check** - document and test all dependencies |
 
 ---
 
@@ -63,6 +67,87 @@ A common failure pattern that causes features to appear complete but not work:
 1. A task to modify the caller
 2. An entry in the Integration Matrix
 3. Verification that it's in the execution path from entry point to output
+
+---
+
+## Critical Warning: Testing Anti-Patterns
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ⚠️  TESTING ANTI-PATTERNS - TESTS PASS BUT BUGS EXIST          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+These patterns cause tests to pass while bugs remain undetected:
+
+### Anti-Pattern 1: Heavy Mocking Hides Real Bugs
+
+**Problem:** Tests mock dependencies so thoroughly that actual code paths are never executed.
+
+**Example:** Tests mock `ConfigGenerator`, `ParallelRunner`, and `ResultsManager`. The real `_update_base_config_param` method never runs, so bugs in parameter update logic go undetected.
+
+**Prevention:**
+- Write at least ONE integration test per feature that uses **real objects** (not mocks)
+- Reserve mocking for external I/O (APIs, file systems) - not internal classes
+- Ask: "If I change the implementation, would this test fail?"
+
+### Anti-Pattern 2: Output Existence Tests (Files Exist ≠ Files Correct)
+
+**Problem:** Tests verify output files exist but don't validate their contents.
+
+**Example:**
+```python
+# BAD: Only checks file exists
+assert (output_path / 'config.json').exists()
+
+# GOOD: Validates file contents
+config = json.load(open(output_path / 'config.json'))
+assert config['DRAFT_ORDER'][0] == expected_draft_order[0]
+```
+
+**Prevention:**
+- Every output file test must include **content validation**
+- Check that related fields are consistent (e.g., `DRAFT_ORDER_FILE: 3` means `DRAFT_ORDER` matches file 3)
+- Verify output formats match expected schemas
+
+### Anti-Pattern 3: Untested Private Methods with Critical Logic
+
+**Problem:** Private methods (`_method_name`) contain critical business logic but are never tested because they're "internal."
+
+**Example:** `_update_base_config_param` handles all parameter updates in iterative optimization but has zero test coverage.
+
+**Prevention:**
+- Identify private methods with **branching logic** (if/elif/else)
+- Test through callers with specific inputs that exercise each branch
+- OR test directly if logic is complex enough to warrant it
+
+### Anti-Pattern 4: Missing Parameter Dependency Tests
+
+**Problem:** Parameters have semantic dependencies that aren't captured in tests.
+
+**Example:** `DRAFT_ORDER_FILE` is a pointer to a file; updating it requires also updating `DRAFT_ORDER` array. Tests don't verify this relationship.
+
+**Prevention:**
+- Document parameter dependencies explicitly in specs
+- Create tests that verify: "When X changes, Y is also updated correctly"
+- Use the **Parameter Dependency Checklist** below
+
+### Parameter Dependency Checklist
+
+When adding parameters that reference other data, verify:
+
+```
+□ Parameter has clear documentation of what it references
+□ Test exists that changes the parameter and verifies dependent data updates
+□ Update method handles both the parameter AND its dependencies
+□ Output validation test confirms parameter and dependencies are consistent
+```
+
+**Real Example:** For `DRAFT_ORDER_FILE`:
+- [x] Documentation: "Points to draft_order_possibilities/{N}_*.json file"
+- [x] Test: When `DRAFT_ORDER_FILE` changes from 1 to 3, `DRAFT_ORDER` array matches file 3
+- [x] Update method: `_update_base_config_param` copies both `DRAFT_ORDER_FILE` AND `DRAFT_ORDER`
+- [x] Output test: Saved config has `DRAFT_ORDER` matching `DRAFT_ORDER_FILE`
 
 ---
 
@@ -354,7 +439,7 @@ Use this table to know exactly what to do at each iteration:
 | 18 | Fresh Eyes #2 | Special | Fresh Eyes Review | Continue fresh perspective review |
 | 19 | Algorithm Deep Dive | Special | Algorithm Traceability | Quote exact spec text; verify match |
 | 20 | Edge Cases | Special | Edge Case Verification | Each edge case has task + test |
-| 21 | Test Planning | Special | Test Coverage Planning | Plan behavior tests (not just structure) |
+| 21 | Test Planning | Special | Test Coverage Planning | Plan behavior tests; avoid Testing Anti-Patterns |
 | 22 | Final Assumption Check | Special | Skeptical Re-verification | Final assumption challenge |
 | 23 | Final Caller Check | Special | Integration Gap Check | Final orphan code check |
 | 24 | Readiness Check | Special | Implementation Readiness | Final checklist before coding |
@@ -372,7 +457,7 @@ Use this table to know exactly what to do at each iteration:
 | **Integration Gap Check** | 7, 14, 23 | Every new method has a caller | `protocols_reference.md` |
 | **Fresh Eyes Review** | 17, 18 | Re-read spec with fresh perspective | `protocols_reference.md` |
 | **Edge Case Verification** | 20 | Every edge case has task + test | `protocols_reference.md` |
-| **Test Coverage Planning** | 21 | Plan behavior tests that catch bugs | `protocols_reference.md` |
+| **Test Coverage Planning** | 21 | Plan behavior tests; avoid anti-patterns | See "Testing Anti-Patterns" section above |
 | **Implementation Readiness** | 24 | Final checklist before coding | `protocols_reference.md` |
 | **Requirement Verification** | Before complete | 100% spec coverage | `protocols_reference.md` |
 | **Quality Control Review** | After implementation | 3 rounds minimum | `protocols_reference.md` |
@@ -513,7 +598,7 @@ Integrate user's answers into the TODO:
 | 17-18 | Fresh Eyes Review | Re-read spec as if first time |
 | 19 | Algorithm Deep Dive | Quote exact spec text; verify code matches |
 | 20 | Edge Case Verification | Each edge case has task + test |
-| 21 | Test Coverage Planning | Plan behavior tests (not just structure) |
+| 21 | Test Coverage Planning | Plan behavior tests; check for Testing Anti-Patterns |
 | 22 | Skeptical Re-verification #3 | Final assumption challenge |
 | 23 | Integration Gap Check #3 | Final orphan code check |
 | 24 | Implementation Readiness | Final checklist before coding |
@@ -565,10 +650,20 @@ See `protocols_reference.md` for detailed steps.
 
 See `protocols_reference.md` for detailed steps.
 
+**QC Round Checklist (verify during each round):**
+```
+□ Tests use real objects where possible (not excessive mocking)
+□ Output file tests validate CONTENT, not just existence
+□ Private methods with branching logic are tested through callers
+□ Parameter dependencies are tested (changing A also updates B)
+□ At least one integration test runs the actual feature end-to-end
+```
+
 Document each round in code_changes.md:
 ```
 ## Quality Control Round [N]
 - Reviewed: [date/time]
+- Testing Anti-Patterns Checked: [list which were verified]
 - Issues Found: [list or "None"]
 - Issues Fixed: [list or "N/A"]
 - Status: PASSED / ISSUES FOUND (fixed)
@@ -629,6 +724,7 @@ These rules are **mandatory and non-negotiable**:
 | **Lessons Learned** | Must review and apply guide updates |
 | **No Orphan Code** | Every new method must have a caller |
 | **No Assumptions** | Research codebase to validate approach |
+| **No Testing Anti-Patterns** | Avoid heavy mocking, test output contents, test dependencies |
 
 **If ANY rule is violated:** Stop, correct, and re-validate.
 

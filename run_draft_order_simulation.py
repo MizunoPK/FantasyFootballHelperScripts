@@ -30,6 +30,7 @@ from utils.LoggingManager import setup_logger, get_logger
 # Add simulation directory to path
 sys.path.append(str(Path(__file__).parent / "simulation"))
 from ParallelLeagueRunner import ParallelLeagueRunner
+from ConfigGenerator import ConfigGenerator
 
 
 # Logging configuration
@@ -40,7 +41,7 @@ LOGGING_FILE = './simulation/draft_order_log.txt'
 LOGGING_FORMAT = 'standard'
 
 # Default values
-DEFAULT_SIMS = 50
+DEFAULT_SIMS = 5
 DEFAULT_OUTPUT = 'simulation/draft_order_results'
 DEFAULT_WORKERS = 7
 DEFAULT_DATA = 'simulation/sim_data'
@@ -126,31 +127,145 @@ def load_draft_order_from_file(file_num: int, data_folder: Path) -> list:
     return data['DRAFT_ORDER']
 
 
+def validate_season_data(season_folder: Path) -> bool:
+    """
+    Validate season has sufficient valid player data for simulation.
+
+    A season needs at least 150 valid players (drafted=0 AND fantasy_points>0)
+    to support a 10-team draft with 15 picks each.
+
+    Args:
+        season_folder (Path): Path to season folder
+
+    Returns:
+        bool: True if season has sufficient data, False otherwise
+    """
+    import csv
+    logger = get_logger()
+    MIN_VALID_PLAYERS = 150  # 10 teams × 15 picks
+
+    # Check week 1 players_projected.csv for valid player count
+    players_file = season_folder / "weeks" / "week_01" / "players_projected.csv"
+    if not players_file.exists():
+        players_file = season_folder / "weeks" / "week_01" / "players.csv"
+
+    if not players_file.exists():
+        logger.warning(f"Season {season_folder.name}: No player CSV found")
+        return False
+
+    try:
+        with open(players_file, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            valid_count = 0
+            for row in reader:
+                drafted = row.get('drafted', '0')
+                fp = row.get('fantasy_points', '')
+                try:
+                    fp_val = float(fp) if fp else 0
+                except (ValueError, TypeError):
+                    fp_val = 0
+                if drafted == '0' and fp_val > 0:
+                    valid_count += 1
+
+            if valid_count < MIN_VALID_PLAYERS:
+                logger.warning(
+                    f"Season {season_folder.name}: Only {valid_count} valid players "
+                    f"(need {MIN_VALID_PLAYERS}+ for draft)"
+                )
+                return False
+
+            logger.debug(f"Season {season_folder.name}: {valid_count} valid players - OK")
+            return True
+
+    except Exception as e:
+        logger.warning(f"Season {season_folder.name}: Error reading player data: {e}")
+        return False
+
+
+def discover_season_folders(data_folder: Path) -> List[Path]:
+    """
+    Discover available historical season folders (2021, 2022, 2024, etc.).
+
+    Validates each season has both:
+    1. Required folder structure (weeks/week_XX/)
+    2. Sufficient valid player data (150+ draftable players)
+
+    Args:
+        data_folder (Path): Base simulation data folder
+
+    Returns:
+        List[Path]: List of valid season folder paths, sorted
+
+    Raises:
+        FileNotFoundError: If no season folders found
+    """
+    logger = get_logger()
+
+    season_folders = sorted(data_folder.glob("20*/"))
+
+    if not season_folders:
+        raise FileNotFoundError(
+            f"No historical season folders (20XX/) found in {data_folder}. "
+            "Run compile_historical_data.py first."
+        )
+
+    # Validate each season has required structure AND sufficient player data
+    valid_seasons = []
+    for folder in season_folders:
+        # Check for week data structure
+        weeks_dir = folder / "weeks"
+        if not weeks_dir.exists() or not any(weeks_dir.glob("week_*")):
+            logger.warning(f"Skipping {folder.name} - missing weeks/ structure")
+            continue
+
+        # Validate sufficient player data
+        if not validate_season_data(folder):
+            logger.warning(f"Skipping {folder.name} - insufficient player data")
+            continue
+
+        valid_seasons.append(folder)
+        logger.debug(f"Found valid season: {folder.name}")
+
+    if not valid_seasons:
+        raise FileNotFoundError(
+            f"No valid season folders with sufficient data found in {data_folder}"
+        )
+
+    logger.info(f"Discovered {len(valid_seasons)} valid seasons: {[f.name for f in valid_seasons]}")
+    return valid_seasons
+
+
 def run_simulation_for_draft_order(
     file_num: int,
     baseline_config: dict,
-    num_sims: int,
+    num_sims_per_season: int,
     runner: ParallelLeagueRunner,
-    data_folder: Path
+    data_folder: Path,
+    season_folders: List[Path]
 ) -> Tuple[int, float, bool]:
     """
-    Run simulations for a single draft order file.
+    Run multi-season simulations for a single draft order file.
+
+    Iterates through all available season folders (2021, 2022, 2024, etc.)
+    and aggregates results across seasons for robust validation.
 
     Args:
         file_num (int): Draft order file number
         baseline_config (dict): Baseline configuration to use
-        num_sims (int): Number of simulations to run
+        num_sims_per_season (int): Number of simulations per season
         runner (ParallelLeagueRunner): Initialized runner instance
-        data_folder (Path): Base data folder
+        data_folder (Path): Base data folder (for loading draft order files)
+        season_folders (List[Path]): List of season folders to simulate
 
     Returns:
         Tuple[int, float, bool]: (file_num, win_percentage, success)
             - file_num: The draft order file number
-            - win_percentage: Win percentage (0.0-100.0)
+            - win_percentage: Win percentage (0.0-100.0) across all seasons
             - success: True if simulation succeeded, False if failed
 
     Example:
-        >>> file_num, win_pct, success = run_simulation_for_draft_order(1, config, 15, runner, data_folder)
+        >>> file_num, win_pct, success = run_simulation_for_draft_order(
+        ...     1, config, 5, runner, data_folder, season_folders)
         >>> print(f"File {file_num}: {win_pct}% win rate")
         File 1: 72.5% win rate
     """
@@ -167,13 +282,30 @@ def run_simulation_for_draft_order(
         config['parameters']['DRAFT_ORDER_FILE'] = file_num
         config['parameters']['DRAFT_ORDER'] = draft_order
 
-        # Run simulations
-        logger.info(f"Testing draft order file {file_num}...")
-        results = runner.run_simulations_for_config(config, num_sims)
+        # Run simulations across all seasons
+        logger.info(f"Testing draft order file {file_num} across {len(season_folders)} seasons...")
 
-        # Aggregate results
-        total_wins = sum(wins for wins, losses, points in results)
-        total_losses = sum(losses for wins, losses, points in results)
+        total_wins = 0
+        total_losses = 0
+
+        for season_folder in season_folders:
+            # Update runner to use this season's data
+            runner.set_data_folder(season_folder)
+
+            # Run simulations for this season using week-by-week method
+            season_results = runner.run_simulations_for_config_with_weeks(
+                config, num_sims_per_season
+            )
+
+            # Aggregate season results
+            # run_simulations_for_config_with_weeks returns List[List[Tuple[week, won, points]]]
+            for sim_result in season_results:
+                for _week_num, won, _points in sim_result:
+                    if won:
+                        total_wins += 1
+                    else:
+                        total_losses += 1
+
         total_games = total_wins + total_losses
 
         # Calculate win percentage
@@ -235,16 +367,42 @@ def save_results_json(
     return output_file
 
 
-def load_baseline_config(baseline_path: Optional[Path], output_dir: Path) -> dict:
+def find_config_folders(search_dir: Path, pattern: str) -> list:
     """
-    Load baseline configuration file.
+    Find config folders matching pattern, sorted by modification time (newest first).
 
     Args:
-        baseline_path (Optional[Path]): Path to baseline config, or None to auto-detect
-        output_dir (Path): Output directory to search for configs
+        search_dir (Path): Directory to search in
+        pattern (str): Glob pattern for folder names (e.g., "optimal_*")
 
     Returns:
-        dict: Loaded configuration dictionary
+        list: List of valid config folder paths, sorted newest first
+    """
+    folders = [p for p in search_dir.glob(pattern) if p.is_dir()]
+    # Validate folders have required files
+    required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+    valid_folders = []
+    for folder in folders:
+        if all((folder / f).exists() for f in required_files):
+            valid_folders.append(folder)
+    # Sort by modification time (most recent first)
+    valid_folders.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return valid_folders
+
+
+def load_baseline_config(baseline_path: Optional[Path]) -> Tuple[dict, Path]:
+    """
+    Load baseline configuration from folder.
+
+    The system now uses folder-based configs with multiple files:
+    - league_config.json (base parameters)
+    - week1-5.json, week6-11.json, week12-17.json (week-specific params)
+
+    Args:
+        baseline_path (Optional[Path]): Path to baseline config folder, or None to auto-detect
+
+    Returns:
+        Tuple[dict, Path]: (Loaded configuration dictionary, path to config folder)
 
     Raises:
         SystemExit: If no baseline config found
@@ -256,26 +414,34 @@ def load_baseline_config(baseline_path: Optional[Path], output_dir: Path) -> dic
         if not baseline_path.exists():
             logger.error(f"Specified baseline config not found: {baseline_path}")
             sys.exit(1)
+        if not baseline_path.is_dir():
+            logger.error(f"Baseline must be a folder, not a file: {baseline_path}")
+            logger.error("Expected folder with: league_config.json, week1-5.json, week6-11.json, week12-17.json")
+            sys.exit(1)
     else:
-        # Auto-detect: look for most recent optimal_*.json
+        # Auto-detect: look for most recent optimal_*/ folder
         config_dir = Path("simulation/simulation_configs")
-        optimal_configs = list(config_dir.glob("optimal_*.json"))
 
-        if not optimal_configs:
-            logger.error(f"No optimal config files found in {config_dir}")
-            logger.error("Please provide a baseline config using --baseline argument")
+        if not config_dir.exists():
+            logger.error(f"Config directory not found: {config_dir}")
+            logger.error("Please provide a baseline config folder using --baseline argument")
             sys.exit(1)
 
-        # Sort by modification time (most recent first)
-        optimal_configs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-        baseline_path = optimal_configs[0]
-        logger.info(f"Using baseline config: {baseline_path.name}")
+        optimal_folders = find_config_folders(config_dir, "optimal_*")
 
-    # Load config
-    with open(baseline_path, 'r') as f:
-        config = json.load(f)
+        if not optimal_folders:
+            logger.error(f"No optimal config folders found in {config_dir}")
+            logger.error("Expected folders with: league_config.json, week1-5.json, week6-11.json, week12-17.json")
+            logger.error("Please provide a baseline config folder using --baseline argument")
+            sys.exit(1)
 
-    return config
+        baseline_path = optimal_folders[0]
+        logger.info(f"Using baseline config folder: {baseline_path.name}")
+
+    # Load config using ConfigGenerator's folder loader
+    config = ConfigGenerator.load_baseline_from_folder(baseline_path)
+
+    return config, baseline_path
 
 
 def main():
@@ -339,6 +505,13 @@ Examples:
         default=DEFAULT_DATA,
         help=f'Path to simulation data folder (default: {DEFAULT_DATA})'
     )
+    parser.add_argument(
+        '--use-processes',
+        action='store_true',
+        default=False,
+        help='Use ProcessPoolExecutor for true parallelism (bypasses GIL). '
+             'Recommended for CPU-bound simulations on multi-core systems.'
+    )
 
     args = parser.parse_args()
 
@@ -357,13 +530,24 @@ Examples:
     logger.info(f"Output directory: {output_dir}")
 
     # Load baseline config
-    baseline_config = load_baseline_config(baseline_path, output_dir)
+    baseline_config, actual_baseline_path = load_baseline_config(baseline_path)
     logger.info(f"Baseline config loaded: {baseline_config.get('config_name', 'unknown')}")
+    logger.info(f"Baseline path: {actual_baseline_path}")
 
     # Validate data folder
     draft_order_dir = data_folder / "draft_order_possibilities"
     if not draft_order_dir.exists():
         logger.error(f"Draft order directory not found: {draft_order_dir}")
+        sys.exit(1)
+
+    # Discover available seasons for multi-season validation
+    logger.info("=" * 80)
+    logger.info("DISCOVERING HISTORICAL SEASONS")
+    logger.info("=" * 80)
+    try:
+        season_folders = discover_season_folders(data_folder)
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
 
     # Discover draft order files
@@ -373,20 +557,29 @@ Examples:
     draft_order_files = discover_draft_order_files(draft_order_dir)
     logger.info(f"Found {len(draft_order_files)} draft order files to test")
 
-    # Estimate runtime
-    estimated_time_min = (len(draft_order_files) * args.sims * 5) / (args.workers * 60)
+    # Estimate runtime (accounts for multi-season simulation)
+    # Each draft order runs sims_per_season * num_seasons * 17_weeks simulations
+    total_sims = len(draft_order_files) * args.sims * len(season_folders) * 17
+    estimated_time_min = (total_sims * 0.1) / (args.workers * 60)  # ~0.1s per sim
+    logger.info(f"Simulations per draft order: {args.sims} per season x {len(season_folders)} seasons")
+    logger.info(f"Total simulations: {total_sims:,}")
     logger.info(f"Estimated runtime: {estimated_time_min:.1f} minutes")
 
     # Initialize parallel runner
     logger.info("=" * 80)
     logger.info("INITIALIZING SIMULATION RUNNER")
     logger.info("=" * 80)
-    runner = ParallelLeagueRunner(max_workers=args.workers, data_folder=data_folder)
-    logger.info(f"Runner initialized with {args.workers} workers")
+    runner = ParallelLeagueRunner(
+        max_workers=args.workers,
+        data_folder=data_folder,
+        use_processes=args.use_processes
+    )
+    executor_type = "ProcessPoolExecutor" if args.use_processes else "ThreadPoolExecutor"
+    logger.info(f"Runner initialized with {args.workers} workers ({executor_type})")
 
     # Run simulations for all draft orders
     logger.info("=" * 80)
-    logger.info("RUNNING SIMULATIONS")
+    logger.info("RUNNING MULTI-SEASON SIMULATIONS")
     logger.info("=" * 80)
 
     start_time = time.time()
@@ -394,13 +587,14 @@ Examples:
     failed_files = []
 
     for idx, file_num in enumerate(draft_order_files, start=1):
-        # Run simulation for this draft order
+        # Run multi-season simulation for this draft order
         file_num, win_pct, success = run_simulation_for_draft_order(
             file_num,
             baseline_config,
             args.sims,
             runner,
-            data_folder
+            data_folder,
+            season_folders
         )
 
         if success:
@@ -437,11 +631,13 @@ Examples:
     # Create metadata
     metadata = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "num_simulations_per_file": args.sims,
+        "num_simulations_per_season": args.sims,
+        "seasons_used": [f.name for f in season_folders],
+        "num_seasons": len(season_folders),
         "total_files_tested": len(draft_order_files),
         "successful_files": len(results),
         "failed_files": failed_files,
-        "baseline_config": str(baseline_path) if baseline_path else "auto-detected",
+        "baseline_config": str(actual_baseline_path),
         "runtime_minutes": round(elapsed_time / 60, 2)
     }
 

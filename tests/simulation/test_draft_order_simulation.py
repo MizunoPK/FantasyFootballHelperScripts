@@ -176,17 +176,27 @@ class TestResultsAggregation:
         draft_order_dir.mkdir()
         (draft_order_dir / "1.json").write_text(json.dumps({"DRAFT_ORDER": [{"FLEX": "P"}]}))
 
+        # Create mock season folder
+        season_folder = tmp_path / "2024"
+        season_folder.mkdir()
+        (season_folder / "weeks").mkdir()
+        (season_folder / "weeks" / "week_01").mkdir()
+        season_folders = [season_folder]
+
         # Mock ParallelLeagueRunner
         mock_runner = Mock()
-        # Simulate results: 10 wins, 7 losses across multiple simulations
-        mock_runner.run_simulations_for_config.return_value = [
-            (6, 4, 1400.0),  # 6W-4L
-            (4, 3, 1350.0)   # 4W-3L
+        # Simulate week-by-week results: List[List[Tuple[week, won, points]]]
+        # 10 wins, 7 losses across simulations
+        mock_runner.run_simulations_for_config_with_weeks.return_value = [
+            [(1, True, 100), (2, True, 110), (3, True, 105), (4, False, 95), (5, True, 120),
+             (6, False, 90), (7, True, 115), (8, True, 108)],  # 6W-2L
+            [(1, True, 102), (2, False, 88), (3, True, 107), (4, False, 91), (5, True, 118),
+             (6, False, 85), (7, True, 112), (8, False, 80), (9, False, 78)]  # 4W-5L
         ]
         # Total: 10W-7L = 58.8% win rate
 
         file_num, win_pct, success = run_simulation_for_draft_order(
-            1, baseline_config, 2, mock_runner, tmp_path
+            1, baseline_config, 2, mock_runner, tmp_path, season_folders
         )
 
         assert success is True
@@ -207,12 +217,19 @@ class TestResultsAggregation:
         draft_order_dir.mkdir()
         (draft_order_dir / "1.json").write_text(json.dumps({"DRAFT_ORDER": [{"FLEX": "P"}]}))
 
+        # Create mock season folder
+        season_folder = tmp_path / "2024"
+        season_folder.mkdir()
+        (season_folder / "weeks").mkdir()
+        (season_folder / "weeks" / "week_01").mkdir()
+        season_folders = [season_folder]
+
         mock_runner = Mock()
         # No games played (shouldn't happen in practice, but handle gracefully)
-        mock_runner.run_simulations_for_config.return_value = []
+        mock_runner.run_simulations_for_config_with_weeks.return_value = []
 
         file_num, win_pct, success = run_simulation_for_draft_order(
-            1, baseline_config, 0, mock_runner, tmp_path
+            1, baseline_config, 0, mock_runner, tmp_path, season_folders
         )
 
         assert success is True
@@ -232,12 +249,19 @@ class TestResultsAggregation:
         draft_order_dir.mkdir()
         (draft_order_dir / "1.json").write_text(json.dumps({"DRAFT_ORDER": [{"FLEX": "P"}]}))
 
+        # Create mock season folder
+        season_folder = tmp_path / "2024"
+        season_folder.mkdir()
+        (season_folder / "weeks").mkdir()
+        (season_folder / "weeks" / "week_01").mkdir()
+        season_folders = [season_folder]
+
         mock_runner = Mock()
         # Simulate failure
-        mock_runner.run_simulations_for_config.side_effect = Exception("Simulation error")
+        mock_runner.run_simulations_for_config_with_weeks.side_effect = Exception("Simulation error")
 
         file_num, win_pct, success = run_simulation_for_draft_order(
-            1, baseline_config, 2, mock_runner, tmp_path
+            1, baseline_config, 2, mock_runner, tmp_path, season_folders
         )
 
         assert success is False
@@ -258,14 +282,21 @@ class TestResultsAggregation:
         draft_order_dir.mkdir()
         (draft_order_dir / "1.json").write_text(json.dumps({"DRAFT_ORDER": [{"FLEX": "P"}]}))
 
+        # Create mock season folder
+        season_folder = tmp_path / "2024"
+        season_folder.mkdir()
+        (season_folder / "weeks").mkdir()
+        (season_folder / "weeks" / "week_01").mkdir()
+        season_folders = [season_folder]
+
         mock_runner = Mock()
         # 2 wins, 1 loss = 66.666...%
-        mock_runner.run_simulations_for_config.return_value = [
-            (2, 1, 1400.0)
+        mock_runner.run_simulations_for_config_with_weeks.return_value = [
+            [(1, True, 100), (2, True, 110), (3, False, 95)]  # 2W-1L
         ]
 
         file_num, win_pct, success = run_simulation_for_draft_order(
-            1, baseline_config, 1, mock_runner, tmp_path
+            1, baseline_config, 1, mock_runner, tmp_path, season_folders
         )
 
         assert win_pct == 66.7  # Should be rounded to 1 decimal
@@ -357,13 +388,24 @@ class TestIntegration:
             draft_order = [{"FLEX": "P"}] * 15
             (draft_order_dir / f"{i}.json").write_text(json.dumps({"DRAFT_ORDER": draft_order}))
 
+        # Create mock season folder
+        season_folder = tmp_path / "2024"
+        season_folder.mkdir()
+        (season_folder / "weeks").mkdir()
+        (season_folder / "weeks" / "week_01").mkdir()
+        season_folders = [season_folder]
+
         # Discover files
         file_numbers = discover_draft_order_files(draft_order_dir)
         assert len(file_numbers) == 3
 
-        # Mock simulation
+        # Mock simulation - week-by-week results
         mock_runner = Mock()
-        mock_runner.run_simulations_for_config.return_value = [(10, 7, 1400.0)]
+        mock_runner.run_simulations_for_config_with_weeks.return_value = [
+            [(1, True, 100), (2, True, 110), (3, False, 95), (4, True, 105),
+             (5, False, 90), (6, True, 115), (7, True, 108), (8, False, 85),
+             (9, True, 120), (10, True, 112)]  # 7W-3L = 70%
+        ]
 
         baseline_config = {
             "config_name": "test",
@@ -374,7 +416,7 @@ class TestIntegration:
         results = {}
         for file_num in file_numbers:
             file_num, win_pct, success = run_simulation_for_draft_order(
-                file_num, baseline_config, 1, mock_runner, tmp_path
+                file_num, baseline_config, 1, mock_runner, tmp_path, season_folders
             )
             if success:
                 results[str(file_num)] = win_pct

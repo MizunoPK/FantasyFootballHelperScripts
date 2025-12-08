@@ -91,8 +91,8 @@ class ConfigGenerator:
 
         # Bye Penalties: Exponential weights for roster bye conflicts
         # Higher = more penalty for overlapping byes
-        'SAME_POS_BYE_WEIGHT': (0.0, 0.5, 1),      # Same position bye overlap
-        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3, 1),      # Different position bye overlap
+        'SAME_POS_BYE_WEIGHT': (0.0, 0.5, 2),      # Same position bye overlap
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3, 2),      # Different position bye overlap
 
         # Draft Order Bonuses: Points added for drafting positions at right time
         'PRIMARY_BONUS': (50, 100, 0),          # Primary position bonus (e.g., RB early)
@@ -102,33 +102,33 @@ class ConfigGenerator:
         'DRAFT_ORDER_FILE': (1, 100, 0),
 
         # ADP Scoring: Average Draft Position market wisdom
-        'ADP_SCORING_WEIGHT': (1.00, 4.00, 2),       # How much ADP influences score
+        'ADP_SCORING_WEIGHT': (1.00, 6.00, 2),       # How much ADP influences score
         'ADP_SCORING_STEPS': (5, 30, 0),       # ADP difference per tier (picks)
 
         # Player Rating Scoring: Expert consensus rankings
-        'PLAYER_RATING_SCORING_WEIGHT': (1.00, 4.00, 2),
+        'PLAYER_RATING_SCORING_WEIGHT': (0.50, 4.00, 2),
 
         # Team Quality Scoring: NFL team offensive/defensive strength
         'TEAM_QUALITY_SCORING_WEIGHT': (0.00, 3.00, 2),
         'TEAM_QUALITY_MIN_WEEKS': (2, 12, 0),      # Min weeks of data needed
 
         # Performance Scoring: Actual vs projected deviation
-        'PERFORMANCE_SCORING_WEIGHT': (0.00, 3.00, 2),
-        'PERFORMANCE_SCORING_STEPS': (0.10, 0.40, 2),  # Deviation % per tier
+        'PERFORMANCE_SCORING_WEIGHT': (0.00, 6.00, 2),
+        'PERFORMANCE_SCORING_STEPS': (0.01, 0.30, 2),  # Deviation % per tier
         'PERFORMANCE_MIN_WEEKS': (2, 14, 0),       # Min weeks of data needed
 
         # Matchup Scoring: Current week opponent strength (additive)
         'MATCHUP_IMPACT_SCALE': (50, 200, 0),   # Max additive points impact
-        'MATCHUP_SCORING_WEIGHT': (0.0, 3.0, 1),   # Weight applied to impact
+        'MATCHUP_SCORING_WEIGHT': (0.0, 3.0, 2),   # Weight applied to impact
         'MATCHUP_MIN_WEEKS': (2, 14, 0),           # Min weeks of matchup data
 
         # Temperature Scoring: Game weather temperature impact
-        'TEMPERATURE_IMPACT_SCALE': (0.0, 150.0, 1),  # Max additive impact
-        'TEMPERATURE_SCORING_WEIGHT': (0.0, 3.0, 1),
+        'TEMPERATURE_IMPACT_SCALE': (0.0, 150.0, 0),  # Max additive impact
+        'TEMPERATURE_SCORING_WEIGHT': (0.0, 3.0, 2),
 
         # Wind Scoring: Game weather wind impact (affects QB/WR/K most)
-        'WIND_IMPACT_SCALE': (0.0, 150.0, 1),      # Max additive impact
-        'WIND_SCORING_WEIGHT': (0.0, 3.0, 1),
+        'WIND_IMPACT_SCALE': (0.0, 150.0, 0),      # Max additive impact
+        'WIND_SCORING_WEIGHT': (0.0, 3.0, 2),
 
         # Location Modifiers: Home/away/international game adjustments
         'LOCATION_HOME': (0.0, 10.0, 1),          # Home field advantage
@@ -190,7 +190,7 @@ class ConfigGenerator:
     # Ordered to match league_config.json structure
     PARAMETER_ORDER = [
         # Draft Order File
-        'DRAFT_ORDER_FILE',
+        # 'DRAFT_ORDER_FILE',
         # Normalization and Bye Penalties
         'NORMALIZATION_MAX_SCALE',
         'SAME_POS_BYE_WEIGHT',

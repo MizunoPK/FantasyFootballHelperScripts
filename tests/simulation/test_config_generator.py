@@ -879,9 +879,13 @@ class TestDraftOrderFile:
         assert max_val == 100  # Range expanded to include 100 draft order strategies
         assert precision == 0  # Integers
 
-    def test_draft_order_file_in_parameter_order(self):
-        """Test DRAFT_ORDER_FILE is included in PARAMETER_ORDER for optimization"""
-        assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAMETER_ORDER
+    def test_draft_order_file_not_in_parameter_order(self):
+        """Test DRAFT_ORDER_FILE is NOT in PARAMETER_ORDER (handled by separate script)"""
+        # DRAFT_ORDER_FILE is intentionally excluded from PARAMETER_ORDER
+        # because it's optimized by the dedicated run_draft_order_simulation.py script
+        assert 'DRAFT_ORDER_FILE' not in ConfigGenerator.PARAMETER_ORDER
+        # But it IS in PARAM_DEFINITIONS for use by the draft order simulation
+        assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
 
     def test_generate_parameter_values_for_draft_order(self, baseline_config_with_draft_order, tmp_path):
         """Test discrete integer value generation for DRAFT_ORDER_FILE (precision=0)"""

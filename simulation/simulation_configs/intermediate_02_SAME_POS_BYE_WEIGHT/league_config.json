@@ -1,0 +1,119 @@
+{
+  "config_name": "Merged from simulation/simulation_configs/optimal_iterative_20251207_020736",
+  "description": "Base configuration (non-week-specific parameters)",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 14,
+    "NFL_SEASON": 2025,
+    "NFL_SCORING_FORMAT": "ppr",
+    "NORMALIZATION_MAX_SCALE": 146,
+    "SAME_POS_BYE_WEIGHT": 0.28,
+    "DIFF_POS_BYE_WEIGHT": 0.05,
+    "INJURY_PENALTIES": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0
+    },
+    "DRAFT_ORDER_BONUSES": {
+      "PRIMARY": 75,
+      "SECONDARY": 96
+    },
+    "DRAFT_ORDER_FILE": 0,
+    "DRAFT_ORDER": [
+      {
+        "QB": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "QB": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ],
+    "MAX_POSITIONS": {
+      "QB": 2,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 1,
+      "TE": 2,
+      "K": 1,
+      "DST": 1
+    },
+    "FLEX_ELIGIBLE_POSITIONS": [
+      "RB",
+      "WR"
+    ],
+    "ADP_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 10
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 4.44
+    }
+  },
+  "performance_metrics": {
+    "optimized_parameter": "SAME_POS_BYE_WEIGHT",
+    "parameter_index": 2,
+    "overall_win_rate": 0.6196078431372549,
+    "total_wins": 158,
+    "total_losses": 97,
+    "config_id": "SAME_POS_BYE_WEIGHT_28",
+    "timestamp": "2025-12-08 10:50:30"
+  }
+}
