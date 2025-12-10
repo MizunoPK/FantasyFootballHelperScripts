@@ -202,7 +202,7 @@ Parameter optimization through league simulation:
 - `csv_utils.py` - CSV I/O helpers with validation
 - `FantasyPlayer.py` - Shared player model
 
-### Tests (`tests/`) - 1,811 Total Tests
+### Tests (`tests/`) - 2,200+ Total Tests
 Mirrors source structure with 100% unit test pass rate required:
 
 - `run_all_tests.py` - Master test runner (REQUIRED before commits)
@@ -455,8 +455,8 @@ class TestFeatureName:
 
 ### Comprehensive Testing Standards
 
-**Test Suite Overview** (1,811 total tests):
-- **Unit Tests**: 1,786 tests (100% pass rate required)
+**Test Suite Overview** (2,200+ total tests):
+- **Unit Tests**: 2,200+ tests (100% pass rate required)
 - **Integration Tests**: 25 tests (cross-module workflow validation)
 - **Test Coverage**: All major modules and functions
 

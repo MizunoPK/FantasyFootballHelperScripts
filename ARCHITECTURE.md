@@ -38,14 +38,14 @@ The Fantasy Football Helper Scripts is a comprehensive Python-based system desig
 1. **Modular Design** - Clear separation of concerns across manager classes
 2. **Data-Driven** - All decisions based on statistical projections and historical data
 3. **Configurable** - Extensive customization through JSON configuration
-4. **Testable** - Comprehensive test coverage (1,811 tests) with 100% unit test pass rate
+4. **Testable** - Comprehensive test coverage (2,255 tests) with 100% unit test pass rate
 5. **Extensible** - Well-defined extension points for new features
 6. **Error-Resilient** - Robust error handling with context managers and logging
 
 ### Key Statistics
 
 - **Lines of Code**: ~15,000+ (excluding tests)
-- **Test Coverage**: 1,811 tests (1,786 unit + 25 integration)
+- **Test Coverage**: 2,255 tests across 70 test files
 - **Modules**: 50+ Python modules
 - **Configuration Parameters**: 100+ tunable settings
 - **Supported Positions**: QB, RB, WR, TE, K, DST
@@ -1007,6 +1007,15 @@ LeagueHelperManager
     ├─── TeamDataManager
     │       └─── NFL team rankings
     │
+    ├─── SeasonScheduleManager
+    │       └─── NFL season schedule and bye weeks
+    │
+    ├─── GameDataManager
+    │       └─── Game data including weather
+    │
+    ├─── ProjectedPointsManager
+    │       └─── Player projected points data
+    │
     └─── Mode Managers:
             ├─── AddToRosterModeManager
             │       └─── DraftRecommendation
@@ -1601,7 +1610,7 @@ This architecture document provides a comprehensive overview of the Fantasy Foot
 1. **Modularity**: Each component has a single, well-defined responsibility
 2. **Configuration-Driven**: Behavior controlled through league_config.json
 3. **Data-Driven**: All decisions based on statistical projections
-4. **Well-Tested**: 1,811 tests ensure reliability
+4. **Well-Tested**: 2,255 tests ensure reliability
 5. **Extensible**: Clear extension points for new modes, data sources, and parameters
 
 For additional information:
