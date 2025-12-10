@@ -87,7 +87,7 @@ class ConfigGenerator:
     # - precision 2 = 0.01 steps
     PARAM_DEFINITIONS = {
         # Normalization: Controls point spread scaling (50-300 gives good range)
-        'NORMALIZATION_MAX_SCALE': (100, 175, 0),
+        'NORMALIZATION_MAX_SCALE': (100, 200, 0),
 
         # Bye Penalties: Exponential weights for roster bye conflicts
         # Higher = more penalty for overlapping byes
