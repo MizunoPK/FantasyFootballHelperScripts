@@ -1,0 +1,65 @@
+{
+    "name": "Elite QB Early",
+    "description": "Grab a top QB in round 1, build around with balanced RB/WR.",
+    "DRAFT_ORDER": [
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ]
+}

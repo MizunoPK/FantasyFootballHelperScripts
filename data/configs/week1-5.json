@@ -1,5 +1,5 @@
 {
-  "config_name": "Optimal week1-5.json (20251206_202501)",
+  "config_name": "Optimal week1-5.json (20251209_153905)",
   "description": "Optimized week-specific params for weeks 1-5",
   "parameters": {
     "PLAYER_RATING_SCORING": {
@@ -14,10 +14,10 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.8178513359087142
+      "WEIGHT": 2.45
     },
     "TEAM_QUALITY_SCORING": {
-      "MIN_WEEKS": 8,
+      "MIN_WEEKS": 3,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -29,14 +29,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.023802838347408817
+      "WEIGHT": 0.64
     },
     "PERFORMANCE_SCORING": {
-      "MIN_WEEKS": 8,
+      "MIN_WEEKS": 13,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.05356517065924816
+        "STEPS": 0.05
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -44,11 +44,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 4.547542867848623
+      "WEIGHT": 5.74
     },
     "MATCHUP_SCORING": {
-      "MIN_WEEKS": 5,
-      "IMPACT_SCALE": 127.18395086042469,
+      "MIN_WEEKS": 12,
+      "IMPACT_SCALE": 105,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
@@ -60,11 +60,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.9141034145521472
+      "WEIGHT": 1.4
     },
     "SCHEDULE_SCORING": {
-      "MIN_WEEKS": 5,
-      "IMPACT_SCALE": 127.18395086042469,
+      "MIN_WEEKS": 12,
+      "IMPACT_SCALE": 105,
       "THRESHOLDS": {
         "BASE_POSITION": 16,
         "DIRECTION": "BI_EXCELLENT_HI",
@@ -76,11 +76,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.9141034145521472
+      "WEIGHT": 1.4
     },
     "TEMPERATURE_SCORING": {
-      "IMPACT_SCALE": 41.57562579185367,
-      "WEIGHT": 0.7568534470922605,
+      "IMPACT_SCALE": 85,
+      "WEIGHT": 1.42,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -95,8 +95,8 @@
       }
     },
     "WIND_SCORING": {
-      "IMPACT_SCALE": 28.8414277201406,
-      "WEIGHT": 2.6355122411291108,
+      "IMPACT_SCALE": 36,
+      "WEIGHT": 2.63,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -110,15 +110,15 @@
       }
     },
     "LOCATION_MODIFIERS": {
-      "HOME": 6.648924087856207,
-      "AWAY": 0.07537642631849906,
-      "INTERNATIONAL": -19.043051871432322
+      "HOME": 2.0,
+      "AWAY": -1.8,
+      "INTERNATIONAL": -12.1
     }
   },
   "performance_metrics": {
     "week_range": "1-5",
-    "win_rate_for_range": 0.0,
-    "config_id": "LOCATION_INTERNATIONAL_0",
-    "timestamp": "20251206_202501"
+    "win_rate_for_range": 0.7466666666666667,
+    "config_id": "LOCATION_INTERNATIONAL_51",
+    "timestamp": "20251209_153905"
   }
 }

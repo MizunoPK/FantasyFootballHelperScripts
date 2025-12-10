@@ -1,0 +1,65 @@
+{
+    "name": "Contrarian",
+    "description": "Zig when others zag - QB and TE early, RB/WR in middle rounds.",
+    "DRAFT_ORDER": [
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "TE": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ]
+}

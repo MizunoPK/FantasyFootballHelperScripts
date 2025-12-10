@@ -1,0 +1,65 @@
+{
+    "name": "Late Round Surge",
+    "description": "Premium early, stack skill positions in rounds 8-12.",
+    "DRAFT_ORDER": [
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ]
+}

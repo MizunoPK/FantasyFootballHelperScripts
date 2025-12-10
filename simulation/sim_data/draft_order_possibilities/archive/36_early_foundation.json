@@ -1,0 +1,65 @@
+{
+    "name": "Early Foundation",
+    "description": "Complete starting lineup by round 6, depth in later rounds.",
+    "DRAFT_ORDER": [
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ]
+}

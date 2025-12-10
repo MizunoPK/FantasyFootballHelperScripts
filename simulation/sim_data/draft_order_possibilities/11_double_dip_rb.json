@@ -1,0 +1,65 @@
+{
+    "name": "Double Dip RB",
+    "description": "RB in rounds 1 and 3, WR in rounds 2 and 4, building depth.",
+    "DRAFT_ORDER": [
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ]
+}

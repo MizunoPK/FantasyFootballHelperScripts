@@ -1,0 +1,65 @@
+{
+    "name": "Triple RB Start",
+    "description": "Lock in three elite RBs in rounds 1-3, scramble for WRs later.",
+    "DRAFT_ORDER": [
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ]
+}

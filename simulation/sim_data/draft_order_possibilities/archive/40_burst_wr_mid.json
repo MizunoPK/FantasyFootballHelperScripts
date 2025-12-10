@@ -1,0 +1,65 @@
+{
+    "name": "Burst WR Mid",
+    "description": "RBs early, then burst of three consecutive WRs in rounds 5-7.",
+    "DRAFT_ORDER": [
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "TE": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ]
+}

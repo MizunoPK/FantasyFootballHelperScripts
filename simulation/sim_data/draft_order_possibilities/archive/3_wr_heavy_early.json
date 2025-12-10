@@ -1,0 +1,65 @@
+{
+    "name": "WR Heavy Early",
+    "description": "Load up on WRs in the first 4 rounds, then fill RBs and premium positions.",
+    "DRAFT_ORDER": [
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "TE": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "TE": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ]
+}

@@ -1,0 +1,31 @@
+- There will be one position given a 'P' value and one position given an 'S' value in every slot in the DRAFT_ORDER array (the one exception is the 15th spot in the array, with will only have a 'P' value. The position with the 'P' value is the position we are aiming to draft in the round corresponding to the index in the array, and the position with the 'S' value is the position that we would accept instead if there is an elite option available.
+
+- The total number of positions with the 'P' label must equal the following:
+    "QB": 2,
+    "RB": 4,
+    "WR": 4,
+    "FLEX": 1,
+    "TE": 2,
+    "K": 1,
+    "DST": 1
+
+- There must be at least one round in between two QB 'P' values
+- There must be at least one round in between two TE 'P' values
+
+- 'FLEX' is used to indicate that we will accept EITHER a RB or WR
+
+- The final three entries in the array must stay this:
+{
+    "K": "P",
+    "FLEX": "S"
+},
+{
+    "DST": "P",
+    "FLEX": "S"
+},
+{
+    "FLEX": "P"
+}
+
+
+- The files should be named {FILE_NUM}_{description}.json where the description is a brief few words about the strategy being employed in the file

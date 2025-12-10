@@ -1,63 +1,71 @@
 {
-  "config_name": "Optimal Base Config (20251206_202501)",
+  "config_name": "Optimal Base Config (20251209_153905)",
   "description": "Optimized base parameters for all weeks",
   "parameters": {
     "CURRENT_NFL_WEEK": 14,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "NORMALIZATION_MAX_SCALE": 178.29568893593336,
-    "SAME_POS_BYE_WEIGHT": 0.20491384100825816,
-    "DIFF_POS_BYE_WEIGHT": 0.22751787815140656,
+    "NORMALIZATION_MAX_SCALE": 166,
+    "SAME_POS_BYE_WEIGHT": 0.14,
+    "DIFF_POS_BYE_WEIGHT": 0.17,
     "INJURY_PENALTIES": {
       "LOW": 0,
       "MEDIUM": 0,
       "HIGH": 0
     },
     "DRAFT_ORDER_BONUSES": {
-      "PRIMARY": 75.06018739903439,
-      "SECONDARY": 96.06706070486874
+      "PRIMARY": 77,
+      "SECONDARY": 74
     },
-    "DRAFT_ORDER_FILE": 3,
+    "DRAFT_ORDER_FILE": 0,
     "DRAFT_ORDER": [
       {
-        "FLEX": "P",
-        "QB": "S"
+        "QB": "P",
+        "FLEX": "S"
       },
       {
         "TE": "P",
         "FLEX": "S"
       },
       {
-        "FLEX": "P",
-        "TE": "S"
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
       },
       {
         "QB": "P",
         "FLEX": "S"
-      },
-      {
-        "FLEX": "P"
-      },
-      {
-        "FLEX": "P",
-        "QB": "S"
       },
       {
         "TE": "P",
         "FLEX": "S"
       },
       {
-        "FLEX": "P"
+        "WR": "P",
+        "RB": "S"
       },
       {
-        "QB": "P",
-        "FLEX": "S"
+        "RB": "P",
+        "WR": "S"
       },
       {
-        "FLEX": "P"
+        "WR": "P",
+        "RB": "S"
       },
       {
-        "FLEX": "P"
+        "RB": "P",
+        "WR": "S"
       },
       {
         "K": "P",
@@ -66,9 +74,6 @@
       {
         "DST": "P",
         "FLEX": "S"
-      },
-      {
-        "FLEX": "P"
       },
       {
         "FLEX": "P"
@@ -92,7 +97,7 @@
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 9.964034869473341
+        "STEPS": 26
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -100,17 +105,17 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 4.442275396615367
+      "WEIGHT": 4.04
     }
   },
   "performance_metrics": {
-    "overall_win_rate": 0.0,
-    "total_wins": 0,
-    "total_losses": 0,
-    "config_id": "LOCATION_INTERNATIONAL_0",
-    "total_parameters_optimized": 24,
-    "total_configs_tested": 384,
-    "optimization_time_seconds": 67.4322624206543,
-    "timestamp": "20251206_202501"
+    "overall_win_rate": 0.7176470588235294,
+    "total_wins": 183,
+    "total_losses": 72,
+    "config_id": "LOCATION_INTERNATIONAL_96",
+    "total_parameters_optimized": 23,
+    "total_configs_tested": 2300,
+    "optimization_time_seconds": 61463.31953692436,
+    "timestamp": "20251209_153905"
   }
 }

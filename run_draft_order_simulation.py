@@ -651,10 +651,10 @@ Examples:
     logger.info(f"✓ Results saved to: {output_file}")
     logger.info("=" * 80)
 
-    # Display top 10 strategies
-    logger.info("Top 10 Draft Order Strategies:")
+    # Display top 20 strategies
+    logger.info("Top 20 Draft Order Strategies:")
     sorted_results = sorted(results.items(), key=lambda x: x[1], reverse=True)
-    for i, (file_num, win_pct) in enumerate(sorted_results[:10], start=1):
+    for i, (file_num, win_pct) in enumerate(sorted_results[:20], start=1):
         logger.info(f"  {i}. File #{file_num}: {win_pct}% win rate")
 
 
