@@ -1,5 +1,6 @@
 .claude
 league_helper/trade_simulator_mode/trade_outputs
+**/intermediate*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

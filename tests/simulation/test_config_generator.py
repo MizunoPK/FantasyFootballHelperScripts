@@ -18,6 +18,7 @@ import json
 import tempfile
 import shutil
 from pathlib import Path
+from unittest.mock import patch, Mock
 import sys
 
 # Add simulation directory to path
@@ -914,10 +915,14 @@ class TestDraftOrderFile:
         """Test generating configs for DRAFT_ORDER_FILE parameter"""
         config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=3)
-        configs = generator.generate_single_parameter_configs(
-            'DRAFT_ORDER_FILE',
-            generator.baseline_config
-        )
+
+        # Mock _load_draft_order_from_file to avoid file system dependency
+        mock_draft_order = [{"FLEX": "P", "QB": "S"}] * 15
+        with patch.object(generator, '_load_draft_order_from_file', return_value=mock_draft_order):
+            configs = generator.generate_single_parameter_configs(
+                'DRAFT_ORDER_FILE',
+                generator.baseline_config
+            )
 
         assert len(configs) == 4
 
