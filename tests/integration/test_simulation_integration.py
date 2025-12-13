@@ -123,7 +123,6 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         'config_name': 'test_baseline',
         'description': 'Test base config',
         'parameters': {
-            'NORMALIZATION_MAX_SCALE': 145.0,
             'SAME_POS_BYE_WEIGHT': 1.0,
             'DIFF_POS_BYE_WEIGHT': 1.0,
             'DRAFT_ORDER_BONUSES': {'PRIMARY': 50.0, 'SECONDARY': 40.0},
@@ -142,6 +141,7 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         json.dump(base_config, f, indent=2)
 
     week_params = {
+        'NORMALIZATION_MAX_SCALE': 145.0,
         'PLAYER_RATING_SCORING': {
             'WEIGHT': 1.0,
             'MULTIPLIERS': {'EXCELLENT': 1.25, 'GOOD': 1.15, 'POOR': 0.85, 'VERY_POOR': 0.75},

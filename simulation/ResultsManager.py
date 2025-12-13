@@ -239,7 +239,6 @@ class ResultsManager:
         'CURRENT_NFL_WEEK',
         'NFL_SEASON',
         'NFL_SCORING_FORMAT',
-        'NORMALIZATION_MAX_SCALE',
         'SAME_POS_BYE_WEIGHT',
         'DIFF_POS_BYE_WEIGHT',
         'INJURY_PENALTIES',
@@ -253,6 +252,7 @@ class ResultsManager:
 
     # Parameters that belong in week-specific configs
     WEEK_SPECIFIC_PARAMS = [
+        'NORMALIZATION_MAX_SCALE',
         'PLAYER_RATING_SCORING',
         'TEAM_QUALITY_SCORING',
         'PERFORMANCE_SCORING',

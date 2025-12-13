@@ -2,6 +2,7 @@
   "config_name": "Week 10-13 Config",
   "description": "Week-specific params for weeks 10-13",
   "parameters": {
+    "NORMALIZATION_MAX_SCALE": 143,
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,

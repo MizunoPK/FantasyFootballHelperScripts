@@ -266,9 +266,9 @@ class ConfigGenerator:
             bool: True if parameter belongs to base config, False otherwise
 
         Example:
-            >>> gen.is_base_param('NORMALIZATION_MAX_SCALE')
+            >>> gen.is_base_param('SAME_POS_BYE_WEIGHT')
             True
-            >>> gen.is_base_param('PLAYER_RATING_SCORING_WEIGHT')
+            >>> gen.is_base_param('NORMALIZATION_MAX_SCALE')
             False
         """
         if param_name not in self.PARAM_TO_SECTION_MAP:
@@ -289,9 +289,9 @@ class ConfigGenerator:
             bool: True if parameter is week-specific, False otherwise
 
         Example:
-            >>> gen.is_week_specific_param('PLAYER_RATING_SCORING_WEIGHT')
-            True
             >>> gen.is_week_specific_param('NORMALIZATION_MAX_SCALE')
+            True
+            >>> gen.is_week_specific_param('SAME_POS_BYE_WEIGHT')
             False
         """
         if param_name not in self.PARAM_TO_SECTION_MAP:
