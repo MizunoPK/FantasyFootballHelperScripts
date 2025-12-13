@@ -575,7 +575,7 @@ class SimulationManager:
                     return (False, 0, None)
 
                 # Check that folder contains required files
-                required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+                required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
                 missing_files = [f for f in required_files if not (folder_path / f).exists()]
 
                 if missing_files:
@@ -621,8 +621,8 @@ class SimulationManager:
 
         **Week-by-Week Optimization:**
             - BASE parameters are optimized for overall best performance
-            - WEEK-SPECIFIC parameters are optimized per week range (1-5, 6-11, 12-17)
-            - Output is a folder with 4 config files
+            - WEEK-SPECIFIC parameters are optimized per week range (1-5, 6-9, 10-13, 14-17)
+            - Output is a folder with 5 config files
 
         **Auto-Resume Feature:**
             If interrupted mid-optimization, automatically resumes from the last completed
@@ -875,7 +875,7 @@ class SimulationManager:
         with open(final_folder / 'league_config.json', 'w') as f:
             json.dump(base_config, f, indent=2)
 
-        week_file_mapping = {'1-5': 'week1-5.json', '6-11': 'week6-11.json', '12-17': 'week12-17.json'}
+        week_file_mapping = {'1-5': 'week1-5.json', '6-9': 'week6-9.json', '10-13': 'week10-13.json', '14-17': 'week14-17.json'}
         for week_range, filename in week_file_mapping.items():
             week_configs[week_range]['config_name'] = f"Optimal {filename} ({timestamp})"
             week_configs[week_range]['description'] = f'Optimized week-specific params for weeks {week_range}'
@@ -929,8 +929,9 @@ class SimulationManager:
         week_params = self.results_manager._extract_week_params(baseline)
         week_configs = {
             '1-5': copy.deepcopy(week_params),
-            '6-11': copy.deepcopy(week_params),
-            '12-17': copy.deepcopy(week_params)
+            '6-9': copy.deepcopy(week_params),
+            '10-13': copy.deepcopy(week_params),
+            '14-17': copy.deepcopy(week_params)
         }
 
         return base_config, week_configs

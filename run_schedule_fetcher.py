@@ -22,7 +22,7 @@ sys.path.append(str(Path(__file__).parent / "schedule-data-fetcher"))
 sys.path.append(str(Path(__file__).parent / "player-data-fetcher"))
 
 from ScheduleFetcher import ScheduleFetcher
-from config import NFL_SEASON
+NFL_SEASON = 2025
 
 
 async def main():

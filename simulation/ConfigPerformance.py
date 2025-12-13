@@ -6,7 +6,7 @@ league simulations. Aggregates wins, losses, and total points to calculate
 win rate and average performance.
 
 Now includes per-week-range tracking for week-by-week config optimization:
-- Week ranges: 1-5, 6-11, 12-17
+- Week ranges: 1-5, 6-9, 10-13, 14-17
 - Tracks wins/losses/points per range for optimal config selection
 
 Used by ResultsManager to compare different configurations and identify
@@ -20,7 +20,7 @@ import json
 
 
 # Week range definitions
-WEEK_RANGES = ["1-5", "6-11", "12-17"]
+WEEK_RANGES = ["1-5", "6-9", "10-13", "14-17"]
 
 
 def get_week_range(week: int) -> str:
@@ -31,17 +31,19 @@ def get_week_range(week: int) -> str:
         week (int): NFL week number (1-17)
 
     Returns:
-        str: Week range string ("1-5", "6-11", or "12-17")
+        str: Week range string ("1-5", "6-9", "10-13", or "14-17")
 
     Raises:
         ValueError: If week is outside valid range (1-17)
     """
     if 1 <= week <= 5:
         return "1-5"
-    elif 6 <= week <= 11:
-        return "6-11"
-    elif 12 <= week <= 17:
-        return "12-17"
+    elif 6 <= week <= 9:
+        return "6-9"
+    elif 10 <= week <= 13:
+        return "10-13"
+    elif 14 <= week <= 17:
+        return "14-17"
     else:
         raise ValueError(f"Invalid week number: {week}. Must be between 1 and 17.")
 
@@ -54,7 +56,7 @@ class ConfigPerformance:
     performance metrics including win rate and average points per league.
 
     Also tracks per-week-range performance for week-by-week optimization:
-    - Week ranges: 1-5, 6-11, 12-17
+    - Week ranges: 1-5, 6-9, 10-13, 14-17
     - Each range tracks wins, losses, and points separately
 
     Attributes:
@@ -168,7 +170,7 @@ class ConfigPerformance:
         Calculate win rate for a specific week range.
 
         Args:
-            week_range (str): Week range string ("1-5", "6-11", or "12-17")
+            week_range (str): Week range string ("1-5", "6-9", "10-13", or "14-17")
 
         Returns:
             float: Win rate for that range, or 0.0 if no games
@@ -281,8 +283,9 @@ class ConfigPerformance:
                 'avg_points_per_league': 1500.0,
                 'week_range_performance': {
                     '1-5': {'wins': 80, 'losses': 20, 'win_rate': 0.80},
-                    '6-11': {'wins': 90, 'losses': 60, 'win_rate': 0.60},
-                    '12-17': {'wins': 50, 'losses': 60, 'win_rate': 0.45}
+                    '6-9': {'wins': 60, 'losses': 40, 'win_rate': 0.60},
+                    '10-13': {'wins': 55, 'losses': 45, 'win_rate': 0.55},
+                    '14-17': {'wins': 50, 'losses': 50, 'win_rate': 0.50}
                 }
             }
         """

@@ -380,7 +380,7 @@ def find_config_folders(search_dir: Path, pattern: str) -> list:
     """
     folders = [p for p in search_dir.glob(pattern) if p.is_dir()]
     # Validate folders have required files
-    required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+    required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
     valid_folders = []
     for folder in folders:
         if all((folder / f).exists() for f in required_files):
@@ -396,7 +396,7 @@ def load_baseline_config(baseline_path: Optional[Path]) -> Tuple[dict, Path]:
 
     The system now uses folder-based configs with multiple files:
     - league_config.json (base parameters)
-    - week1-5.json, week6-11.json, week12-17.json (week-specific params)
+    - week1-5.json, week6-9.json, week10-13.json, week14-17.json (week-specific params)
 
     Args:
         baseline_path (Optional[Path]): Path to baseline config folder, or None to auto-detect
@@ -416,7 +416,7 @@ def load_baseline_config(baseline_path: Optional[Path]) -> Tuple[dict, Path]:
             sys.exit(1)
         if not baseline_path.is_dir():
             logger.error(f"Baseline must be a folder, not a file: {baseline_path}")
-            logger.error("Expected folder with: league_config.json, week1-5.json, week6-11.json, week12-17.json")
+            logger.error("Expected folder with: league_config.json, week1-5.json, week6-9.json, week10-13.json, week14-17.json")
             sys.exit(1)
     else:
         # Auto-detect: look for most recent optimal_*/ folder
@@ -431,7 +431,7 @@ def load_baseline_config(baseline_path: Optional[Path]) -> Tuple[dict, Path]:
 
         if not optimal_folders:
             logger.error(f"No optimal config folders found in {config_dir}")
-            logger.error("Expected folders with: league_config.json, week1-5.json, week6-11.json, week12-17.json")
+            logger.error("Expected folders with: league_config.json, week1-5.json, week6-9.json, week10-13.json, week14-17.json")
             logger.error("Please provide a baseline config folder using --baseline argument")
             sys.exit(1)
 

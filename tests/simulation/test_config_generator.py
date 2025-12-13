@@ -33,8 +33,9 @@ def create_test_config_folder(base_config: dict, tmp_path: Path) -> Path:
     Creates the folder structure required by ConfigGenerator:
     - league_config.json (base parameters)
     - week1-5.json (week-specific params)
-    - week6-11.json (week-specific params)
-    - week12-17.json (week-specific params)
+    - week6-9.json (week-specific params)
+    - week10-13.json (week-specific params)
+    - week14-17.json (week-specific params)
 
     Args:
         base_config: The base configuration dictionary
@@ -127,7 +128,7 @@ def create_test_config_folder(base_config: dict, tmp_path: Path) -> Path:
         json.dump(league_config, f, indent=2)
 
     # Write week-specific files (all with same params for testing)
-    for week_file in ['week1-5.json', 'week6-11.json', 'week12-17.json']:
+    for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = {
             'config_name': f'Test {week_file}',
             'description': f'Test week config for {week_file}',
@@ -698,7 +699,7 @@ class TestEdgeCases:
         # Write invalid JSON
         (config_folder / "league_config.json").write_text("{invalid json")
         # Write valid week files
-        for week_file in ['week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             with open(config_folder / week_file, 'w') as f:
                 json.dump({"config_name": week_file, "parameters": {}}, f)
 

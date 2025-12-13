@@ -1,6 +1,8 @@
 # ESPN API Response Examples
 
-This folder contains real ESPN API response examples collected on **2025-10-31** for documentation purposes.
+This folder contains real ESPN API response examples collected on **2025-12-13** for documentation purposes.
+
+> **Last Verified**: 2025-12-13 - All examples freshly collected from live API endpoints.
 
 ## ⚠️ Important Notes
 
@@ -35,8 +37,9 @@ This folder contains real ESPN API response examples collected on **2025-10-31**
 - `players[0].player.stats[]` - Multiple entries per week (actual vs projected)
 - `stats[].scoringPeriodId` - Week number (1-18)
 - `stats[].statSourceId` - 0=actual results, 1=projections
-- `stats[].appliedTotal` - Actual fantasy points scored
-- `stats[].projectedTotal` - Projected fantasy points
+- `stats[].appliedTotal` - Fantasy points (used for BOTH actual and projected)
+
+> **⚠️ NOTE**: `projectedTotal` is deprecated. ESPN now uses `appliedTotal` for both actual results (statSourceId=0) and projections (statSourceId=1).
 
 ### `team_stats_list_response.json`
 **Endpoint**: Team Stats List
@@ -97,9 +100,9 @@ Use these to:
 
 ## Collected With
 
-- **Date**: 2025-10-31
+- **Date**: 2025-12-13
 - **Season**: 2025
-- **Scoring Format**: PPR (ppr_id=3)
+- **Scoring Format**: PPR (format_id=3)
 - **HTTP Client**: httpx with User-Agent header
 - **Rate Limiting**: 0.2s delay between requests
 

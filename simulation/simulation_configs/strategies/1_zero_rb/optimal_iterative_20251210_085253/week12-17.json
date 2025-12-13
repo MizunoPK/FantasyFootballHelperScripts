@@ -1,0 +1,124 @@
+{
+  "config_name": "Optimal week12-17.json (20251210_085253)",
+  "description": "Optimized week-specific params for weeks 12-17",
+  "parameters": {
+    "PLAYER_RATING_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 20
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 2.84
+    },
+    "TEAM_QUALITY_SCORING": {
+      "MIN_WEEKS": 2,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 6
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 2.32
+    },
+    "PERFORMANCE_SCORING": {
+      "MIN_WEEKS": 13,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0.0,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 0.25
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 2.33
+    },
+    "MATCHUP_SCORING": {
+      "MIN_WEEKS": 6,
+      "IMPACT_SCALE": 197,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 6
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 1.93
+    },
+    "SCHEDULE_SCORING": {
+      "MIN_WEEKS": 5,
+      "IMPACT_SCALE": 127.18395086042469,
+      "THRESHOLDS": {
+        "BASE_POSITION": 16,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 2
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.9141034145521472
+    },
+    "TEMPERATURE_SCORING": {
+      "IMPACT_SCALE": 12,
+      "WEIGHT": 2.61,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 10
+      },
+      "IDEAL_TEMPERATURE": 60,
+      "MULTIPLIERS": {
+        "EXCELLENT": 1.05,
+        "GOOD": 1.025,
+        "POOR": 0.975,
+        "VERY_POOR": 0.95
+      }
+    },
+    "WIND_SCORING": {
+      "IMPACT_SCALE": 102,
+      "WEIGHT": 0.23,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 8
+      },
+      "MULTIPLIERS": {
+        "EXCELLENT": 1.05,
+        "GOOD": 1.025,
+        "POOR": 0.975,
+        "VERY_POOR": 0.95
+      }
+    },
+    "LOCATION_MODIFIERS": {
+      "HOME": 5.8,
+      "AWAY": -3.5,
+      "INTERNATIONAL": -2.1
+    }
+  },
+  "performance_metrics": {
+    "week_range": "12-17",
+    "win_rate_for_range": 0.7592592592592593,
+    "config_id": "LOCATION_INTERNATIONAL_9",
+    "timestamp": "20251210_085253"
+  }
+}

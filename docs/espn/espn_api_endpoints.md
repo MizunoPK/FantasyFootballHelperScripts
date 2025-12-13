@@ -1,6 +1,6 @@
 # ESPN Fantasy Football API - Endpoints Reference
 
-**Last Updated**: 2025-10-31
+**Last Updated**: 2025-12-13
 **API Status**: Unofficial
 **Target Audience**: Python Developers (Intermediate)
 
@@ -69,13 +69,16 @@ import httpx
 # Configuration
 ESPN_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 SEASON = 2025
-FORMAT_ID = 3  # 1=Standard, 2=Half-PPR, 3=PPR
+FORMAT_ID = 3  # 1=Standard, 3=PPR (Note: Format 2 returns 404)
 
 # Endpoint URL
 url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{SEASON}/segments/0/leaguedefaults/{FORMAT_ID}"
 
-# Headers (User-Agent required)
+# Headers (recommended for stability)
 headers = {"User-Agent": ESPN_USER_AGENT}
+
+# Use sortPercOwned filter to get more players (default returns only 50)
+headers["X-Fantasy-Filter"] = '{"players":{"sortPercOwned":{"sortPriority":4,"sortAsc":false}}}'
 
 # Query parameters
 params = {
@@ -100,12 +103,14 @@ for player_obj in players[:5]:
 
 **Output:**
 ```
-Fetched 2000 players
-  - Patrick Mahomes
-  - Josh Allen
-  - Jalen Hurts
+Fetched 1081 players
+  - Jahmyr Gibbs
+  - Ja'Marr Chase
+  - Amon-Ra St. Brown
   - ...
 ```
+
+> **⚠️ IMPORTANT**: Without the `sortPercOwned` filter, the API returns only **50 players** by default. Always use a filter to get the full player list.
 
 ---
 
@@ -119,16 +124,16 @@ ESPN Fantasy API **does not require authentication**:
 - ✅ No account registration necessary
 - ✅ Publicly accessible endpoints
 
-### Required Headers
+### Recommended Headers
 
-**User-Agent** (Required):
+**User-Agent** (Recommended):
 ```python
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 }
 ```
 
-ESPN's servers **require** a User-Agent header. Requests without it may be rejected.
+> **Note (Verified 2025-12)**: User-Agent is no longer strictly required. API requests work without it, but including a browser-like User-Agent is recommended for stability and to avoid potential future restrictions.
 
 ### Optional Headers
 
@@ -162,7 +167,7 @@ Fetches fantasy football projections for all players.
 | Parameter | Type | Description | Example |
 |-----------|------|-------------|---------|
 | `season` | integer | NFL season year | `2025` |
-| `format_id` | integer | Scoring format (1=Std, 2=Half-PPR, 3=PPR) | `3` |
+| `format_id` | integer | Scoring format (1=Standard, 3=PPR). Note: Format 2 returns 404 | `3` |
 
 #### Query Parameters
 
@@ -202,26 +207,35 @@ print(f"Fetched {players_count} players")
 {
   "players": [
     {
+      "draftAuctionValue": 0,
+      "id": 3139477,
+      "keeperValue": 0,
+      "onTeamId": 0,
+      "status": "FREEAGENT",
       "player": {
         "id": 3139477,
         "firstName": "Patrick",
         "lastName": "Mahomes",
+        "fullName": "Patrick Mahomes",
         "defaultPositionId": 1,
         "proTeamId": 12,
         "injuryStatus": "ACTIVE",
+        "active": true,
         "ownership": {
           "averageDraftPosition": 2.5,
-          "percentOwned": 99.8
+          "percentOwned": 99.8,
+          "percentStarted": 85.2
         },
         "draftRanksByRankType": {
-          "PPR": {"rank": 5}
+          "PPR": {"rank": 5, "rankSourceId": 1},
+          "STANDARD": {"rank": 3, "rankSourceId": 1}
         },
         "stats": [
           {
             "seasonId": 2025,
             "scoringPeriodId": 0,
             "statSourceId": 1,
-            "projectedTotal": 285.6
+            "appliedTotal": 285.6
           }
         ]
       }
@@ -229,6 +243,8 @@ print(f"Fetched {players_count} players")
   ]
 }
 ```
+
+> **⚠️ IMPORTANT**: ESPN now uses `appliedTotal` for BOTH actual results (statSourceId=0) AND projections (statSourceId=1). The `projectedTotal` field is deprecated and returns null.
 
 #### X-Fantasy-Filter JSON Syntax
 
@@ -337,19 +353,19 @@ Each player has multiple `stats` entries - one per week, often with both actual 
           "seasonId": 2025,
           "scoringPeriodId": 1,
           "statSourceId": 0,       // Actual results
-          "appliedTotal": 28.5
+          "appliedTotal": 28.5     // Both actual and projected use appliedTotal
         },
         {
           "seasonId": 2025,
           "scoringPeriodId": 1,
           "statSourceId": 1,       // Projection
-          "projectedTotal": 25.2
+          "appliedTotal": 25.2     // Note: projectedTotal is deprecated
         },
         {
           "seasonId": 2025,
           "scoringPeriodId": 2,
           "statSourceId": 1,
-          "projectedTotal": 26.8
+          "appliedTotal": 26.8
         }
         // ... weeks 3-18
       ]
@@ -370,10 +386,13 @@ def get_week_points(stats_array, week_num):
         if stat.get('scoringPeriodId') != week_num:
             continue
 
+        # Both actual (0) and projected (1) now use appliedTotal
+        points = stat.get('appliedTotal')
+
         if stat.get('statSourceId') == 0:
-            actual_points = stat.get('appliedTotal')
+            actual_points = points
         elif stat.get('statSourceId') == 1:
-            projected_points = stat.get('projectedTotal')
+            projected_points = points
 
     # Return actual if available, otherwise projected
     return actual_points if actual_points is not None else projected_points
@@ -437,21 +456,57 @@ for team_obj in teams[:5]:
 
 ```json
 {
-  "teams": [
+  "sports": [
     {
-      "team": {
-        "id": 12,
-        "abbreviation": "KC",
-        "displayName": "Kansas City Chiefs",
-        "location": "Kansas City",
-        "name": "Chiefs",
-        "logos": [
-          {"href": "https://..."}
-        ]
-      }
+      "leagues": [
+        {
+          "teams": [
+            {
+              "team": {
+                "id": 12,
+                "abbreviation": "KC",
+                "displayName": "Kansas City Chiefs",
+                "shortDisplayName": "Chiefs",
+                "location": "Kansas City",
+                "name": "Chiefs",
+                "nickname": "Chiefs",
+                "color": "e31837",
+                "alternateColor": "ffb81c",
+                "isActive": true,
+                "logos": [
+                  {"href": "https://...", "width": 500, "height": 500}
+                ],
+                "links": [...]
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
+```
+
+> **Note**: Teams are nested under `sports[0].leagues[0].teams[]`, not at the root level.
+
+#### Parsing Example
+
+```python
+import httpx
+
+url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams"
+headers = {"User-Agent": "Mozilla/5.0..."}
+
+response = httpx.get(url, headers=headers)
+data = response.json()
+
+# Navigate the nested structure
+teams = data['sports'][0]['leagues'][0]['teams']
+print(f"Fetched {len(teams)} teams")
+
+for team_obj in teams:
+    team = team_obj['team']
+    print(f"  {team['abbreviation']}: {team['displayName']}")
 ```
 
 #### Use Cases
@@ -509,29 +564,54 @@ for category in stats['categories']:
 
 ```json
 {
+  "status": "success",
+  "team": {
+    "id": 12,
+    "abbreviation": "KC",
+    "displayName": "Kansas City Chiefs",
+    "color": "e31837",
+    "logo": "https://...",
+    "recordSummary": "..."
+  },
+  "season": {
+    "year": 2025,
+    "type": 2,
+    "name": "Regular Season",
+    "displayName": "2025"
+  },
   "results": {
     "stats": {
+      "id": "...",
+      "name": "...",
+      "abbreviation": "...",
       "categories": [
         {
-          "name": "Passing",
+          "name": "passing",
+          "displayName": "Passing",
+          "shortDisplayName": "PASS",
+          "abbreviation": "PASS",
           "stats": [
             {
-              "name": "totalPointsPerGame",
-              "displayValue": "28.5",
-              "value": 28.5
-            },
-            {
-              "name": "totalYards",
-              "displayValue": "5,432",
-              "value": 5432
+              "name": "completions",
+              "displayName": "Completions",
+              "shortDisplayName": "COMP",
+              "description": "Total Completions",
+              "abbreviation": "C",
+              "value": 285.0,
+              "displayValue": "285",
+              "perGameValue": 20.4,
+              "perGameDisplayValue": "20.4"
             }
           ]
         }
       ]
-    }
+    },
+    "opponent": [...]  // Opponent stats categories
   }
 }
 ```
+
+> **Note**: The response includes 11 stat categories: passing, rushing, receiving, miscellaneous, defensive, defensiveInterceptions, general, returning, kicking, punting, scoring.
 
 #### Key Statistics
 
@@ -627,39 +707,81 @@ for event in events:
 
 ```json
 {
+  "leagues": [...],
+  "season": {"type": 2, "year": 2025},
+  "week": {"number": 15},
   "events": [
     {
       "id": "401547417",
+      "uid": "...",
       "date": "2025-09-07T00:00Z",
+      "name": "Denver Broncos at Kansas City Chiefs",
+      "shortName": "DEN @ KC",
+      "season": {...},
+      "week": {...},
       "competitions": [
         {
+          "id": "...",
+          "date": "2025-09-07T00:00Z",
+          "attendance": 76416,
+          "type": {...},
+          "neutralSite": false,
+          "venue": {
+            "id": "3622",
+            "fullName": "GEHA Field at Arrowhead Stadium",
+            "address": {"city": "Kansas City", "state": "MO"}
+          },
           "competitors": [
             {
               "id": "12",
+              "uid": "...",
               "homeAway": "home",
+              "winner": true,
               "team": {
                 "id": "12",
-                "abbreviation": "KC"
-              }
+                "abbreviation": "KC",
+                "displayName": "Kansas City Chiefs",
+                "logo": "https://..."
+              },
+              "score": "27",
+              "linescores": [...],
+              "statistics": [...],
+              "records": [...]
             },
             {
               "id": "7",
+              "uid": "...",
               "homeAway": "away",
+              "winner": false,
               "team": {
                 "id": "7",
-                "abbreviation": "DEN"
-              }
+                "abbreviation": "DEN",
+                "displayName": "Denver Broncos"
+              },
+              "score": "24"
             }
           ],
+          "notes": [...],
           "status": {
+            "clock": 0.0,
+            "displayClock": "0:00",
+            "period": 4,
             "type": {
-              "completed": false
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "completed": true
             }
-          }
+          },
+          "broadcasts": [...],
+          "leaders": [...],
+          "headlines": [...]
         }
-      ]
+      ],
+      "links": [...],
+      "status": {...}
     }
-  ]
+  ],
+  "provider": {...}
 }
 ```
 
@@ -782,14 +904,18 @@ async def fetch_with_retry(url, headers):
 
 ### Common Error Scenarios
 
-**Missing User-Agent:**
+**Empty Response (Default Limit):**
 ```python
-# ❌ Wrong - No User-Agent
-response = httpx.get(url)
-
-# ✅ Correct - Include User-Agent
-headers = {"User-Agent": "Mozilla/5.0..."}
+# ❌ Wrong - Returns only 50 players
 response = httpx.get(url, headers=headers)
+data = response.json()
+print(len(data['players']))  # 50
+
+# ✅ Correct - Use sortPercOwned filter for full list
+headers["X-Fantasy-Filter"] = '{"players":{"sortPercOwned":{"sortPriority":4,"sortAsc":false}}}'
+response = httpx.get(url, headers=headers)
+data = response.json()
+print(len(data['players']))  # 1081+
 ```
 
 **Invalid Scoring Format:**
@@ -1016,6 +1142,12 @@ For ESP issues:
 
 ## Changelog
 
+- **2025-12-13**: Verified and corrected documentation
+  - Corrected User-Agent requirement: Now recommended, not required
+  - Added warning about default 50-player limit
+  - Updated quick start example with sortPercOwned filter
+  - Verified all endpoints return 200 OK
+  - Confirmed format ID 2 returns 404 (Half-PPR unavailable)
 - **2025-10-31**: Initial version - All 5 endpoints documented with real examples
 
 ---

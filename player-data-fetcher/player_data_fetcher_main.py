@@ -150,27 +150,26 @@ class NFLProjectionsCollector:
         """
         Derive bye week schedule from season_schedule.csv.
 
-        A team's bye week is the only week in the NFL regular season (weeks 1-18)
-        where they don't have a scheduled game. This is derived by finding which
-        week is missing from each team's schedule.
+        Bye weeks are identified by looking for entries where the opponent field
+        is empty (bye week entries have format: week,team,).
 
         Args:
             schedule_path: Path to season_schedule.csv file
 
         Returns:
-            Dict mapping team abbreviation to bye week number (1-18)
+            Dict mapping team abbreviation to bye week number (1-17)
             Example: {'KC': 10, 'SF': 9, 'BUF': 7}
 
         File format (data/season_schedule.csv):
             week,team,opponent
             1,ARI,NO
             1,ATL,TB
+            10,KC,          # Bye week (empty opponent)
             ...
         """
         import pandas as pd
 
         bye_weeks = {}
-        all_weeks = set(range(1, 19))  # NFL regular season weeks 1-18
 
         try:
             # Load season schedule
@@ -182,24 +181,25 @@ class NFLProjectionsCollector:
             if len(teams) != 32:
                 self.logger.warning(f"Expected 32 NFL teams, found {len(teams)}")
 
-            # For each team, find their bye week (the week they don't play)
+            # For each team, find their bye week by looking for empty opponent
             for team in teams:
-                # Get all weeks this team has games scheduled
-                team_games = df[df['team'] == team]
-                weeks_playing = set(team_games['week'].unique())
+                team_entries = df[df['team'] == team]
 
-                # Bye week is the missing week from the regular season
-                bye_week_set = all_weeks - weeks_playing
+                # Bye week entries have empty/NaN opponent
+                bye_entries = team_entries[
+                    team_entries['opponent'].isna() |
+                    (team_entries['opponent'].astype(str).str.strip() == '')
+                ]
 
-                if len(bye_week_set) == 1:
-                    bye_weeks[team] = bye_week_set.pop()
-                elif len(bye_week_set) == 0:
-                    self.logger.warning(f"Team {team} has no bye week (plays all 18 weeks)")
+                if len(bye_entries) == 1:
+                    bye_weeks[team] = int(bye_entries['week'].iloc[0])
+                elif len(bye_entries) == 0:
+                    self.logger.warning(f"Team {team} has no bye week entry in schedule")
                 else:
-                    # Multiple missing weeks - data issue or schedule not complete
-                    self.logger.warning(f"Team {team} has multiple bye weeks: {bye_week_set}")
-                    # Use the first missing week
-                    bye_weeks[team] = min(bye_week_set)
+                    # Multiple bye week entries - data issue
+                    self.logger.warning(f"Team {team} has multiple bye week entries: weeks {list(bye_entries['week'])}")
+                    # Use the first bye week
+                    bye_weeks[team] = int(bye_entries['week'].iloc[0])
 
             self.logger.info(f"Derived bye weeks for {len(bye_weeks)} teams from schedule")
             self.logger.debug(f"Bye weeks data: {bye_weeks}")

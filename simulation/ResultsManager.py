@@ -124,7 +124,7 @@ class ResultsManager:
         Get the best performing configuration for a specific week range.
 
         Args:
-            week_range (str): Week range string ("1-5", "6-11", or "12-17")
+            week_range (str): Week range string ("1-5", "6-9", "10-13", or "14-17")
 
         Returns:
             Optional[ConfigPerformance]: Best config for that range, or None
@@ -369,8 +369,9 @@ class ResultsManager:
         Creates a folder containing:
         - league_config.json: Base config from best OVERALL config
         - week1-5.json: Week-specific params from best config for weeks 1-5
-        - week6-11.json: Week-specific params from best config for weeks 6-11
-        - week12-17.json: Week-specific params from best config for weeks 12-17
+        - week6-9.json: Week-specific params from best config for weeks 6-9
+        - week10-13.json: Week-specific params from best config for weeks 10-13
+        - week14-17.json: Week-specific params from best config for weeks 14-17
 
         Args:
             output_dir (Path): Parent directory to create folder in
@@ -423,8 +424,9 @@ class ResultsManager:
         # Save week-specific configs
         week_range_files = {
             '1-5': 'week1-5.json',
-            '6-11': 'week6-11.json',
-            '12-17': 'week12-17.json'
+            '6-9': 'week6-9.json',
+            '10-13': 'week10-13.json',
+            '14-17': 'week14-17.json'
         }
 
         for week_range, filename in week_range_files.items():
@@ -474,11 +476,11 @@ class ResultsManager:
             param_name (str): Name of parameter being optimized (for naming)
             base_config (dict): Current best base config
             week_configs (Dict[str, dict]): Current best week configs
-                Keys: "1-5", "6-11", "12-17"
+                Keys: "1-5", "6-9", "10-13", "14-17"
             overall_performance (Optional[Dict]): Overall performance metrics
                 Keys: 'win_rate', 'total_wins', 'total_losses', 'config_id'
             week_range_performance (Optional[Dict]): Per-range performance metrics
-                Keys: "1-5", "6-11", "12-17" each containing win_rate and config_id
+                Keys: "1-5", "6-9", "10-13", "14-17" each containing win_rate and config_id
 
         Returns:
             Path: Path to created folder
@@ -489,9 +491,9 @@ class ResultsManager:
             ...     5,
             ...     "PLAYER_RATING_SCORING_WEIGHT",
             ...     base_config,
-            ...     {"1-5": week1_5_config, "6-11": week6_11_config, "12-17": week12_17_config},
+            ...     {"1-5": week1_5_config, "6-9": week6_9_config, "10-13": week10_13_config, "14-17": week14_17_config},
             ...     overall_performance={'win_rate': 0.65, 'config_id': 'config_001'},
-            ...     week_range_performance={'1-5': {'win_rate': 0.70}, '6-11': {'win_rate': 0.62}}
+            ...     week_range_performance={'1-5': {'win_rate': 0.70}, '6-9': {'win_rate': 0.65}, '10-13': {'win_rate': 0.62}, '14-17': {'win_rate': 0.60}}
             ... )
         """
         # Create output directory if it doesn't exist
@@ -522,8 +524,9 @@ class ResultsManager:
         # Save week-specific configs
         week_range_files = {
             '1-5': 'week1-5.json',
-            '6-11': 'week6-11.json',
-            '12-17': 'week12-17.json'
+            '6-9': 'week6-9.json',
+            '10-13': 'week10-13.json',
+            '14-17': 'week14-17.json'
         }
 
         for week_range, filename in week_range_files.items():
@@ -556,7 +559,7 @@ class ResultsManager:
         Loads the folder structure created by save_intermediate_folder()
         or save_optimal_configs_folder():
         - league_config.json (base parameters)
-        - week1-5.json, week6-11.json, week12-17.json (week-specific params)
+        - week1-5.json, week6-9.json, week10-13.json, week14-17.json (week-specific params)
 
         Args:
             folder_path (Path): Path to folder containing config files
@@ -564,7 +567,7 @@ class ResultsManager:
         Returns:
             Tuple[dict, Dict[str, dict]]: (base_config, week_configs)
                 - base_config: The league_config.json contents
-                - week_configs: {"1-5": config, "6-11": config, "12-17": config}
+                - week_configs: {"1-5": config, "6-9": config, "10-13": config, "14-17": config}
 
         Raises:
             ValueError: If folder doesn't exist or required files are missing
@@ -586,7 +589,7 @@ class ResultsManager:
             raise ValueError(f"Path is not a directory: {folder_path}")
 
         # Required files
-        required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+        required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
         missing_files = []
 
         for filename in required_files:
@@ -607,8 +610,9 @@ class ResultsManager:
         week_configs = {}
         week_file_mapping = {
             'week1-5.json': '1-5',
-            'week6-11.json': '6-11',
-            'week12-17.json': '12-17'
+            'week6-9.json': '6-9',
+            'week10-13.json': '10-13',
+            'week14-17.json': '14-17'
         }
 
         for filename, week_range in week_file_mapping.items():
@@ -772,7 +776,7 @@ class ResultsManager:
         ]
 
         # Config files to process
-        CONFIG_FILES = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+        CONFIG_FILES = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
 
         # Ensure target folder exists
         target_folder.mkdir(parents=True, exist_ok=True)

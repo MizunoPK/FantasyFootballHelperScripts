@@ -43,10 +43,10 @@ LOGGING_FILE = './simulation/draft_order_loop_log.txt'
 LOGGING_FORMAT = 'standard'
 
 # Default values (matching run_simulation.py)
-DEFAULT_SIMS = 5
+DEFAULT_SIMS = 3
 DEFAULT_WORKERS = 8
 DEFAULT_DATA = 'simulation/sim_data'
-DEFAULT_TEST_VALUES = 99
+DEFAULT_TEST_VALUES = 24
 NUM_PARAMETERS_TO_TEST = 1
 
 
@@ -157,7 +157,7 @@ def find_latest_optimal_folder(config_dir: Path) -> Optional[Path]:
     Returns:
         Optional[Path]: Path to most recent optimal folder, or None if none found
     """
-    required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+    required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
 
     optimal_folders = []
     for folder in config_dir.glob("optimal_*"):
@@ -270,7 +270,7 @@ def seed_strategy_folder(strategy_folder: Path, root_baseline: Path, file_num: i
     seed_folder.mkdir(parents=True, exist_ok=True)
 
     # Copy 4 config files from root baseline
-    for filename in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+    for filename in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         shutil.copy(root_baseline / filename, seed_folder / filename)
 
     # Inject DRAFT_ORDER into league_config.json
@@ -300,7 +300,7 @@ def ensure_strategy_folder(strategy_folder: Path, root_baseline: Path, file_num:
         data_folder (Path): Base data folder
     """
     logger = get_logger()
-    required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+    required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
 
     # Check if we need to seed
     needs_seed = False
@@ -336,7 +336,7 @@ def get_strategy_baseline(strategy_folder: Path) -> Path:
     Raises:
         ValueError: If no valid baseline found
     """
-    required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+    required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
 
     # Prefer most recent optimal_iterative_* if exists (from previous optimization)
     optimal_folders = sorted(

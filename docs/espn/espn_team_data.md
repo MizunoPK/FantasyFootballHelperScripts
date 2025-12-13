@@ -1,6 +1,6 @@
 # ESPN Fantasy Football API - Team Data Reference
 
-**Last Updated**: 2025-10-31
+**Last Updated**: 2025-12-13
 **API Status**: Unofficial
 **Target Audience**: Python Developers (Intermediate)
 
@@ -44,6 +44,8 @@ GET https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams
 
 ### Response Structure
 
+> **Note**: Teams are nested under `sports[0].leagues[0].teams[]`, not at the root level.
+
 ```json
 {
   "sports": [{
@@ -53,20 +55,25 @@ GET https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams
           "team": {
             "id": 12,
             "guid": "...",
+            "uid": "s:20~l:28~t:12",
             "abbreviation": "KC",
             "displayName": "Kansas City Chiefs",
             "shortDisplayName": "Chiefs",
             "location": "Kansas City",
             "name": "Chiefs",
             "nickname": "Chiefs",
+            "slug": "kansas-city-chiefs",
             "color": "e31837",
             "alternateColor": "ffb81c",
             "isActive": true,
+            "isAllStar": false,
             "logos": [
               {
-                "href": "https://...",
+                "href": "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png",
                 "width": 500,
-                "height": 500
+                "height": 500,
+                "alt": "Kansas City Chiefs Logo",
+                "rel": ["full", "default"]
               }
             ],
             "links": [...]
@@ -76,6 +83,25 @@ GET https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams
     }]
   }]
 }
+```
+
+### Parsing the Nested Structure
+
+```python
+import httpx
+
+url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams"
+headers = {"User-Agent": "Mozilla/5.0..."}
+
+response = httpx.get(url, headers=headers)
+data = response.json()
+
+# Navigate nested structure (NOT data['teams'])
+teams = data['sports'][0]['leagues'][0]['teams']
+
+for team_obj in teams:
+    team = team_obj['team']
+    print(f"{team['abbreviation']}: {team['displayName']}")
 ```
 
 ---
@@ -135,6 +161,32 @@ GET https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams
 "name": "Chiefs"
 ```
 
+### team.slug
+
+**Type**: `string`
+**Description**: URL-friendly team identifier
+
+```json
+"slug": "kansas-city-chiefs"
+```
+
+**Notes**:
+- Used in ESPN URLs for team pages
+- Lowercase with hyphens
+
+### team.isAllStar
+
+**Type**: `boolean`
+**Description**: Whether this is an All-Star team entry
+
+```json
+"isAllStar": false
+```
+
+**Notes**:
+- Always `false` for NFL teams (no All-Star games)
+- Present in API response but not relevant for NFL
+
 ### team.color & alternateColor
 
 **Type**: `string` (hex color code without #)
@@ -188,60 +240,81 @@ GET https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{team_id}/s
 
 ```json
 {
+  "status": "success",
   "team": {
-    "id": 12,
+    "id": "12",
+    "abbreviation": "KC",
     "displayName": "Kansas City Chiefs",
-    ...
+    "recordSummary": "6-7",
+    "standingSummary": "3rd in AFC West"
+  },
+  "season": {
+    "year": 2025,
+    "type": 2,
+    "name": "Regular Season"
   },
   "results": {
-    "splits": [...],
     "stats": {
-      "labels": [...],
-      "names": [...],
-      "descriptions": [...],
+      "id": "0",
+      "name": "All Splits",
+      "abbreviation": "Any",
       "categories": [
         {
-          "name": "Passing",
+          "name": "passing",
           "displayName": "Passing",
-          "shortDisplayName": "PASS",
-          "abbreviation": "PASS",
+          "abbreviation": "pass",
           "stats": [
             {
               "name": "completions",
               "displayName": "Completions",
-              "shortDisplayName": "COMP",
-              "description": "Total Completions",
-              "abbreviation": "C",
+              "shortDisplayName": "CMP",
+              "description": "The times a player completes a pass...",
+              "abbreviation": "CMP",
               "value": 285.0,
-              "displayValue": "285"
-            },
-            ...
+              "displayValue": "285",
+              "perGameValue": 23.0,
+              "perGameDisplayValue": "23"
+            }
           ]
-        },
-        {
-          "name": "Rushing",
-          ...
-        },
-        ...
+        }
       ]
-    }
+    },
+    "opponent": [
+      {
+        "name": "passing",
+        "displayName": "Passing",
+        "stats": [...]
+      }
+    ]
   }
 }
 ```
+
+> **Note**: The response includes both `stats` (team's offensive statistics) and `opponent` (stats allowed by defense). The `opponent` array has the same category structure as `stats`.
 
 ---
 
 ## Statistical Categories
 
-Teams have statistics grouped into categories:
+Teams have statistics grouped into 11 categories:
 
-### Major Categories
+### All Categories (as returned by API)
 
-1. **Passing** - QB/passing offense stats
-2. **Rushing** - Running game stats
-3. **Receiving** - Pass-catching stats
-4. **Defensive** - Defensive performance
-5. **Special Teams** - Kicking, returns, etc.
+| Category Name | Display Name | Description | Stat Count |
+|---------------|--------------|-------------|------------|
+| `passing` | Passing | QB/passing offense stats | ~24 stats |
+| `rushing` | Rushing | Running game stats | ~16 stats |
+| `receiving` | Receiving | Pass-catching stats | ~17 stats |
+| `miscellaneous` | Miscellaneous | Turnovers, first downs, etc. | ~24 stats |
+| `defensive` | Defensive | Tackles, sacks, etc. | ~13 stats |
+| `defensiveInterceptions` | Def. Interceptions | Interceptions, returns | ~4 stats |
+| `general` | General | Points, yards totals | ~6 stats |
+| `returning` | Returning | Kick/punt returns | ~15 stats |
+| `kicking` | Kicking | FG, PAT stats | ~25 stats |
+| `punting` | Punting | Punt stats | ~14 stats |
+| `scoring` | Scoring | TDs, points breakdown | ~9 stats |
+
+> **Note**: Category names are lowercase in API responses (e.g., `"passing"`, not `"Passing"`).
 
 ### Key Statistics for Fantasy
 
@@ -639,6 +712,11 @@ print(f"  Defense: {team_analysis['defensive_takeaways']} takeaways ({team_analy
 
 ## Changelog
 
+- **2025-12-13**: Verified and expanded documentation
+  - Updated response structure with opponent stats array
+  - Added status, recordSummary, standingSummary fields
+  - Verified 11 stat categories against live API
+  - Updated category names to lowercase (API returns lowercase)
 - **2025-10-31**: Initial version - All team data fields documented with examples
 
 ---

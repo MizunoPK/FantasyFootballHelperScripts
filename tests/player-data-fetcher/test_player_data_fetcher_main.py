@@ -118,12 +118,17 @@ class TestDeriveBveWeeksFromSchedule:
         """Test deriving bye weeks from valid schedule data"""
         mock_exists.return_value = True  # season_schedule.csv exists
 
-        # Create mock schedule data - KC plays all weeks except week 10
+        # Create mock schedule data with bye week entries (empty opponent)
+        # New logic: bye weeks are identified by empty opponent field
         schedule_data = []
-        for week in range(1, 19):
-            if week != 10:  # KC has bye week 10
+        for week in range(1, 18):  # Weeks 1-17
+            if week == 10:  # KC has bye week 10
+                schedule_data.append({'week': week, 'team': 'KC', 'opponent': ''})
+            else:
                 schedule_data.append({'week': week, 'team': 'KC', 'opponent': 'OPP'})
-            if week != 9:  # SF has bye week 9
+            if week == 9:  # SF has bye week 9
+                schedule_data.append({'week': week, 'team': 'SF', 'opponent': ''})
+            else:
                 schedule_data.append({'week': week, 'team': 'SF', 'opponent': 'OPP'})
 
         mock_df = pd.DataFrame(schedule_data)
@@ -172,13 +177,16 @@ class TestDeriveBveWeeksFromSchedule:
     @patch('pathlib.Path.exists')
     @patch('pandas.read_csv')
     def test_derive_bye_weeks_handles_team_with_multiple_byes(self, mock_read_csv, mock_exists, mock_exporter):
-        """Test handling team with multiple missing weeks (uses minimum)"""
+        """Test handling team with multiple bye week entries (uses first one)"""
         mock_exists.return_value = True
 
-        # Create schedule where team is missing weeks 5 and 10
+        # Create schedule where team has multiple bye week entries (empty opponent)
         schedule_data = []
-        for week in range(1, 19):
-            if week not in [5, 10]:
+        for week in range(1, 18):
+            if week in [5, 10]:
+                # Multiple bye week entries with empty opponent
+                schedule_data.append({'week': week, 'team': 'KC', 'opponent': ''})
+            else:
                 schedule_data.append({'week': week, 'team': 'KC', 'opponent': 'OPP'})
         mock_df = pd.DataFrame(schedule_data)
         mock_read_csv.return_value = mock_df
@@ -186,7 +194,7 @@ class TestDeriveBveWeeksFromSchedule:
         settings = Settings()
         collector = NFLProjectionsCollector(settings)
 
-        # Should use minimum bye week (5)
+        # Should use first bye week (5)
         assert collector.bye_weeks['KC'] == 5
 
     @patch('player_data_exporter.DataExporter')
@@ -196,21 +204,27 @@ class TestDeriveBveWeeksFromSchedule:
         """Test that warning is logged when not 32 teams found"""
         mock_exists.return_value = True
 
-        # Create schedule with only 2 teams
+        # Create schedule with only 2 teams (with proper bye week entries)
         schedule_data = []
-        for week in range(1, 18):  # 17 games = bye week 18
-            schedule_data.append({'week': week, 'team': 'KC', 'opponent': 'SF'})
-            schedule_data.append({'week': week, 'team': 'SF', 'opponent': 'KC'})
+        for week in range(1, 18):  # Weeks 1-17
+            if week == 10:  # KC bye week
+                schedule_data.append({'week': week, 'team': 'KC', 'opponent': ''})
+            else:
+                schedule_data.append({'week': week, 'team': 'KC', 'opponent': 'SF'})
+            if week == 9:  # SF bye week
+                schedule_data.append({'week': week, 'team': 'SF', 'opponent': ''})
+            else:
+                schedule_data.append({'week': week, 'team': 'SF', 'opponent': 'KC'})
         mock_df = pd.DataFrame(schedule_data)
         mock_read_csv.return_value = mock_df
 
         settings = Settings()
-        # Should not crash, just log warning
+        # Should not crash, just log warning about non-32 teams
         collector = NFLProjectionsCollector(settings)
 
         assert len(collector.bye_weeks) == 2
-        assert collector.bye_weeks['KC'] == 18
-        assert collector.bye_weeks['SF'] == 18
+        assert collector.bye_weeks['KC'] == 10
+        assert collector.bye_weeks['SF'] == 9
 
 
 class TestGetApiClient:

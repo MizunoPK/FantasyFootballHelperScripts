@@ -1,6 +1,6 @@
 # ESPN Fantasy Football API Documentation
 
-**Last Updated**: 2025-10-31
+**Last Updated**: 2025-12-13
 **API Status**: Unofficial
 **Purpose**: Comprehensive reference for ESPN's Fantasy Football API
 
@@ -68,13 +68,17 @@ import httpx
 # Configuration
 ESPN_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
 SEASON = 2025
-FORMAT_ID = 3  # 1=Standard, 2=Half-PPR, 3=PPR
+FORMAT_ID = 3  # 1=Standard, 3=PPR (Note: Format 2 returns 404)
 
 # Build URL
 url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{SEASON}/segments/0/leaguedefaults/{FORMAT_ID}"
 
-# Headers (User-Agent required!)
+# Headers (recommended for stability)
+# Note: User-Agent is no longer strictly required as of 2025-12
 headers = {"User-Agent": ESPN_USER_AGENT}
+
+# IMPORTANT: Use sortPercOwned filter to get all players (default returns only 50)
+headers["X-Fantasy-Filter"] = '{"players":{"sortPercOwned":{"sortPriority":4,"sortAsc":false}}}'
 
 # Query parameters
 params = {
@@ -87,16 +91,18 @@ response = httpx.get(url, headers=headers, params=params, timeout=30.0)
 response.raise_for_status()
 data = response.json()
 
+print(f"Fetched {len(data['players'])} players")  # Should be ~1081
+
 # Parse and display
 for player_obj in data['players'][:5]:
     player = player_obj['player']
     name = f"{player['firstName']} {player['lastName']}"
 
-    # Get season projection
+    # Get season projection (use appliedTotal, not projectedTotal)
     points = 0.0
     for stat in player.get('stats', []):
         if stat.get('scoringPeriodId') == 0 and stat.get('statSourceId') == 1:
-            points = stat.get('projectedTotal', 0.0)
+            points = stat.get('appliedTotal', 0.0)  # appliedTotal for both actuals and projections
             break
 
     print(f"{name}: {points:.1f} projected points")
@@ -104,11 +110,14 @@ for player_obj in data['players'][:5]:
 
 **Output**:
 ```
-Patrick Mahomes: 285.6 projected points
-Josh Allen: 278.3 projected points
-Jalen Hurts: 312.5 projected points
+Fetched 1081 players
+Jahmyr Gibbs: 324.9 projected points
+Ja'Marr Chase: 285.5 projected points
+Amon-Ra St. Brown: 268.2 projected points
 ...
 ```
+
+> **Warning**: Without the `sortPercOwned` filter, the API returns only 50 players by default!
 
 ---
 
@@ -288,15 +297,19 @@ asyncio.run(main())
 
 ## Common Pitfalls
 
-### 1. Missing User-Agent Header
+### 1. Default 50-Player Limit
 
 ```python
-# ❌ Wrong - Will fail
-response = httpx.get(url)
-
-# ✅ Correct - Include User-Agent
-headers = {"User-Agent": "Mozilla/5.0..."}
+# ❌ Wrong - Returns only 50 players
 response = httpx.get(url, headers=headers)
+data = response.json()
+print(len(data['players']))  # 50
+
+# ✅ Correct - Use sortPercOwned filter
+headers["X-Fantasy-Filter"] = '{"players":{"sortPercOwned":{"sortPriority":4,"sortAsc":false}}}'
+response = httpx.get(url, headers=headers)
+data = response.json()
+print(len(data['players']))  # 1081+
 ```
 
 ### 2. No Rate Limiting
@@ -345,12 +358,14 @@ except httpx.RequestError as e:
 
 ### Scoring Format IDs (in URL path)
 - `1` = Standard
-- `2` = Half-PPR
+- `2` = ~~Half-PPR~~ (Returns 404 - not available)
 - `3` = PPR (Full)
 
 ### Stat Source IDs
 - `0` = Actual results (`appliedTotal` field)
-- `1` = Projections (`projectedTotal` field)
+- `1` = Projections (`appliedTotal` field - ⚠️ `projectedTotal` is deprecated)
+
+> **2025 API Change**: Both stat sources now use `appliedTotal`. The `projectedTotal` field is deprecated and returns `null`.
 
 **Full mappings**: See [espn_api_reference_tables.md](espn_api_reference_tables.md)
 
@@ -398,4 +413,4 @@ This documentation is part of the Fantasy Football Helper Scripts project.
 
 ---
 
-*Documentation generated 2025-10-31 as part of the ESPN API documentation project.*
+*Documentation generated 2025-10-31, verified and updated 2025-12-13 against live ESPN API.*

@@ -208,14 +208,14 @@ Examples:
     # 3. Most recent optimal_*/ folder in simulation/simulation_configs
     # 4. Error if none found
     #
-    # Note: The system now uses folder-based configs with 4 files:
-    #   league_config.json, week1-5.json, week6-11.json, week12-17.json
+    # Note: The system now uses folder-based configs with 5 files:
+    #   league_config.json, week1-5.json, week6-9.json, week10-13.json, week14-17.json
 
     def find_config_folders(search_dir: Path, pattern: str) -> list:
         """Find config folders matching pattern, sorted by modification time (newest first)."""
         folders = [p for p in search_dir.glob(pattern) if p.is_dir()]
         # Validate folders have required files
-        required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+        required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
         valid_folders = []
         for folder in folders:
             if all((folder / f).exists() for f in required_files):
@@ -275,8 +275,9 @@ Examples:
                         print(f"\nExpected folder structure with files:")
                         print(f"  optimal_*/league_config.json")
                         print(f"  optimal_*/week1-5.json")
-                        print(f"  optimal_*/week6-11.json")
-                        print(f"  optimal_*/week12-17.json")
+                        print(f"  optimal_*/week6-9.json")
+                        print(f"  optimal_*/week10-13.json")
+                        print(f"  optimal_*/week14-17.json")
                         print(f"\nPlease provide a baseline config folder using --baseline argument")
                         sys.exit(1)
                 else:

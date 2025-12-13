@@ -94,7 +94,7 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         'LOCATION_MODIFIERS': {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0},
     }
 
-    for week_file in ['week1-5.json', 'week6-11.json', 'week12-17.json']:
+    for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = {
             'config_name': f'Test {week_file}',
             'description': f'Test week config for {week_file}',
@@ -444,7 +444,7 @@ class TestIterativeOptimization:
             mock_results_class.return_value = mock_results_instance
             mock_results_class.load_configs_from_folder.return_value = (
                 {"config_name": "loaded", "parameters": {}},
-                {"1-5": {"parameters": {}}, "6-11": {"parameters": {}}, "12-17": {"parameters": {}}}
+                {"1-5": {"parameters": {}}, "6-9": {"parameters": {}}, "10-13": {"parameters": {}}, "14-17": {"parameters": {}}}
             )
 
             manager = SimulationManager(
@@ -494,7 +494,7 @@ class TestIterativeOptimization:
         assert 'optimal_iterative' in optimal_path.name
 
         # Verify folder contains required files
-        required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+        required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
         for filename in required_files:
             assert (optimal_path / filename).exists(), f"Missing {filename} in optimal folder"
 
@@ -521,8 +521,9 @@ class TestIterativeOptimization:
         # Verify all config files exist
         assert (optimal_path / 'league_config.json').exists()
         assert (optimal_path / 'week1-5.json').exists()
-        assert (optimal_path / 'week6-11.json').exists()
-        assert (optimal_path / 'week12-17.json').exists()
+        assert (optimal_path / 'week6-9.json').exists()
+        assert (optimal_path / 'week10-13.json').exists()
+        assert (optimal_path / 'week14-17.json').exists()
 
     def test_iterative_optimization_cleans_up_old_intermediate_folders(self, mock_manager_for_iterative, temp_output_dir):
         """Test that intermediate folders are cleaned up when starting fresh (not resuming)"""
@@ -559,7 +560,7 @@ def create_intermediate_folder(output_dir: Path, param_idx: int, param_name: str
 
     # Create week configs
     week_config = {"parameters": {"WEEK_PARAM": 50.0}}
-    for week_file in ["week1-5.json", "week6-11.json", "week12-17.json"]:
+    for week_file in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
         with open(folder / week_file, "w") as f:
             json.dump(week_config, f)
 

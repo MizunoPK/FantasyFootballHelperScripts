@@ -3,7 +3,7 @@ Tests for ConfigManager week-specific config loading.
 
 Tests the new config folder structure where:
 - Base config: data/configs/league_config.json
-- Week-specific: data/configs/week{N}-{M}.json (e.g., week1-5.json, week6-11.json, week12-17.json)
+- Week-specific: data/configs/week{N}-{M}.json (e.g., week1-5.json, week6-9.json, week10-13.json, week14-17.json)
 
 Author: Kai Mizuno
 """
@@ -115,7 +115,7 @@ def create_configs_folder(temp_path: Path, week: int = 6, week_weight: float = 2
     (configs_folder / 'league_config.json').write_text(json.dumps(base_config, indent=2))
 
     # Create all week-specific configs
-    for filename in ['week1-5.json', 'week6-11.json', 'week12-17.json']:
+    for filename in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = get_week_config_content(week_weight)
         (configs_folder / filename).write_text(json.dumps(week_config, indent=2))
 
@@ -160,17 +160,23 @@ class TestGetWeekConfigFilename:
         for week in range(1, 6):
             assert config._get_week_config_filename(week) == "week1-5.json"
 
-    def test_weeks_6_to_11_return_week6_11(self, configs_folder_week6):
-        """Weeks 6-11 should return week6-11.json."""
+    def test_weeks_6_to_9_return_week6_9(self, configs_folder_week6):
+        """Weeks 6-9 should return week6-9.json."""
         config = ConfigManager(configs_folder_week6)
-        for week in range(6, 12):
-            assert config._get_week_config_filename(week) == "week6-11.json"
+        for week in range(6, 10):
+            assert config._get_week_config_filename(week) == "week6-9.json"
 
-    def test_weeks_12_to_17_return_week12_17(self, configs_folder_week12):
-        """Weeks 12-17 should return week12-17.json."""
+    def test_weeks_10_to_13_return_week10_13(self, configs_folder_week6):
+        """Weeks 10-13 should return week10-13.json."""
+        config = ConfigManager(configs_folder_week6)
+        for week in range(10, 14):
+            assert config._get_week_config_filename(week) == "week10-13.json"
+
+    def test_weeks_14_to_17_return_week14_17(self, configs_folder_week12):
+        """Weeks 14-17 should return week14-17.json."""
         config = ConfigManager(configs_folder_week12)
-        for week in range(12, 18):
-            assert config._get_week_config_filename(week) == "week12-17.json"
+        for week in range(14, 18):
+            assert config._get_week_config_filename(week) == "week14-17.json"
 
     def test_week_0_raises_error(self, configs_folder_week6):
         """Week 0 should raise ValueError."""
@@ -253,13 +259,13 @@ class TestWeekConfigMerging:
         assert config.player_rating_scoring is not None
 
     def test_correct_week_file_loaded_for_week6(self, configs_folder_week6):
-        """Week 6 should load week6-11.json."""
+        """Week 6 should load week6-9.json."""
         config = ConfigManager(configs_folder_week6)
         assert config.current_nfl_week == 6
         assert config.player_rating_scoring is not None
 
     def test_correct_week_file_loaded_for_week12(self, configs_folder_week12):
-        """Week 12 should load week12-17.json."""
+        """Week 12 should load week10-13.json."""
         config = ConfigManager(configs_folder_week12)
         assert config.current_nfl_week == 12
         assert config.player_rating_scoring is not None
@@ -275,12 +281,14 @@ class TestWeekConfigMerging:
 
         # Create week configs with different WEIGHT values
         week1_5 = get_week_config_content(weight_value=1.5)
-        week6_11 = get_week_config_content(weight_value=2.5)
-        week12_17 = get_week_config_content(weight_value=3.5)
+        week6_9 = get_week_config_content(weight_value=2.5)
+        week10_13 = get_week_config_content(weight_value=3.0)
+        week14_17 = get_week_config_content(weight_value=3.5)
 
         (configs_folder / 'week1-5.json').write_text(json.dumps(week1_5, indent=2))
-        (configs_folder / 'week6-11.json').write_text(json.dumps(week6_11, indent=2))
-        (configs_folder / 'week12-17.json').write_text(json.dumps(week12_17, indent=2))
+        (configs_folder / 'week6-9.json').write_text(json.dumps(week6_9, indent=2))
+        (configs_folder / 'week10-13.json').write_text(json.dumps(week10_13, indent=2))
+        (configs_folder / 'week14-17.json').write_text(json.dumps(week14_17, indent=2))
 
         # Load with week 6 (should get weight 2.5)
         config = ConfigManager(temp_data_folder)
@@ -306,7 +314,7 @@ class TestWeekConfigErrorHandling:
         base['parameters'].update(week['parameters'])
         (configs_folder / 'league_config.json').write_text(json.dumps(base, indent=2))
 
-        # Only create week1-5.json, not week6-11.json
+        # Only create week1-5.json, not week6-9.json
         (configs_folder / 'week1-5.json').write_text(json.dumps(get_week_config_content(), indent=2))
 
         # Should still work (params in base config)
@@ -320,9 +328,10 @@ class TestWeekConfigErrorHandling:
 
         base = get_base_config_content(6)
         (configs_folder / 'league_config.json').write_text(json.dumps(base, indent=2))
-        (configs_folder / 'week6-11.json').write_text("{invalid json")
+        (configs_folder / 'week6-9.json').write_text("{invalid json")
         (configs_folder / 'week1-5.json').write_text(json.dumps(get_week_config_content(), indent=2))
-        (configs_folder / 'week12-17.json').write_text(json.dumps(get_week_config_content(), indent=2))
+        (configs_folder / 'week10-13.json').write_text(json.dumps(get_week_config_content(), indent=2))
+        (configs_folder / 'week14-17.json').write_text(json.dumps(get_week_config_content(), indent=2))
 
         with pytest.raises(json.JSONDecodeError):
             ConfigManager(temp_data_folder)
@@ -335,7 +344,7 @@ class TestWeekConfigErrorHandling:
         base = get_base_config_content(6)
         del base['parameters']['CURRENT_NFL_WEEK']
         (configs_folder / 'league_config.json').write_text(json.dumps(base, indent=2))
-        (configs_folder / 'week6-11.json').write_text(json.dumps(get_week_config_content(), indent=2))
+        (configs_folder / 'week6-9.json').write_text(json.dumps(get_week_config_content(), indent=2))
 
         with pytest.raises(ValueError, match="Base config missing required parameter: CURRENT_NFL_WEEK"):
             ConfigManager(temp_data_folder)
@@ -388,30 +397,44 @@ class TestWeekBoundaryCases:
         assert config.current_nfl_week == 5
         assert config._get_week_config_filename(5) == "week1-5.json"
 
-    def test_week_6_uses_week6_11_config(self, temp_data_folder):
-        """Week 6 (boundary) should use week6-11.json."""
+    def test_week_6_uses_week6_9_config(self, temp_data_folder):
+        """Week 6 (boundary) should use week6-9.json."""
         create_configs_folder(temp_data_folder, week=6)
         config = ConfigManager(temp_data_folder)
         assert config.current_nfl_week == 6
-        assert config._get_week_config_filename(6) == "week6-11.json"
+        assert config._get_week_config_filename(6) == "week6-9.json"
 
-    def test_week_11_uses_week6_11_config(self, temp_data_folder):
-        """Week 11 (boundary) should use week6-11.json."""
-        create_configs_folder(temp_data_folder, week=11)
+    def test_week_9_uses_week6_9_config(self, temp_data_folder):
+        """Week 9 (boundary) should use week6-9.json."""
+        create_configs_folder(temp_data_folder, week=9)
         config = ConfigManager(temp_data_folder)
-        assert config.current_nfl_week == 11
-        assert config._get_week_config_filename(11) == "week6-11.json"
+        assert config.current_nfl_week == 9
+        assert config._get_week_config_filename(9) == "week6-9.json"
 
-    def test_week_12_uses_week12_17_config(self, temp_data_folder):
-        """Week 12 (boundary) should use week12-17.json."""
-        create_configs_folder(temp_data_folder, week=12)
+    def test_week_10_uses_week10_13_config(self, temp_data_folder):
+        """Week 10 (boundary) should use week10-13.json."""
+        create_configs_folder(temp_data_folder, week=10)
         config = ConfigManager(temp_data_folder)
-        assert config.current_nfl_week == 12
-        assert config._get_week_config_filename(12) == "week12-17.json"
+        assert config.current_nfl_week == 10
+        assert config._get_week_config_filename(10) == "week10-13.json"
 
-    def test_week_17_uses_week12_17_config(self, temp_data_folder):
-        """Week 17 (max) should use week12-17.json."""
+    def test_week_13_uses_week10_13_config(self, temp_data_folder):
+        """Week 13 (boundary) should use week10-13.json."""
+        create_configs_folder(temp_data_folder, week=13)
+        config = ConfigManager(temp_data_folder)
+        assert config.current_nfl_week == 13
+        assert config._get_week_config_filename(13) == "week10-13.json"
+
+    def test_week_14_uses_week14_17_config(self, temp_data_folder):
+        """Week 14 (boundary) should use week14-17.json."""
+        create_configs_folder(temp_data_folder, week=14)
+        config = ConfigManager(temp_data_folder)
+        assert config.current_nfl_week == 14
+        assert config._get_week_config_filename(14) == "week14-17.json"
+
+    def test_week_17_uses_week14_17_config(self, temp_data_folder):
+        """Week 17 (max) should use week14-17.json."""
         create_configs_folder(temp_data_folder, week=17)
         config = ConfigManager(temp_data_folder)
         assert config.current_nfl_week == 17
-        assert config._get_week_config_filename(17) == "week12-17.json"
+        assert config._get_week_config_filename(17) == "week14-17.json"

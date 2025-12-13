@@ -1,0 +1,10 @@
+I want to update our system to use 4 different week-specific configs instead of 3
+The weeks will be:
+1-5
+6-9
+10-13
+14-17
+
+I want the files in data/configs to be updated accordingly
+I want the league helper to be updated (if needed) to accomidate the change
+I want the simulation to be updated (if needed) to accomidate the change

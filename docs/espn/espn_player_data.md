@@ -1,6 +1,6 @@
 # ESPN Fantasy Football API - Player Data Reference
 
-**Last Updated**: 2025-10-31
+**Last Updated**: 2025-12-13
 **API Status**: Unofficial
 **Target Audience**: Python Developers (Intermediate)
 
@@ -42,11 +42,46 @@ Player data is wrapped in a `players` array, where each element contains a `play
 
 ### Field Availability
 
-- **Always Present**: id, firstName, lastName, defaultPositionId
-- **Usually Present**: proTeamId, stats array
-- **Often Present**: ownership, draftRanksByRankType
-- **Sometimes Present**: injuryStatus, draftAuctionValue
+- **Always Present**: id, firstName, lastName, defaultPositionId, active
+- **Usually Present**: proTeamId, stats array, droppable, eligibleSlots
+- **Often Present**: ownership, draftRanksByRankType, jersey, injured, injuryStatus
+- **Sometimes Present**: outlooks, rankings, lastNewsDate
 - **Rarely Present**: Custom league-specific fields
+
+### Player Wrapper Object
+
+The player data is actually wrapped in an outer object with additional fields:
+
+```json
+{
+  "draftAuctionValue": 0,
+  "id": 4429795,
+  "keeperValue": 0,
+  "keeperValueFuture": 0,
+  "lineupLocked": false,
+  "onTeamId": 0,
+  "player": { /* Actual player data */ },
+  "ratings": { "0": { "positionalRanking": 4, "totalRanking": 13, "totalRating": 184.0 } },
+  "rosterLocked": false,
+  "status": "WAIVERS",
+  "tradeLocked": false,
+  "waiverProcessDate": 1762934400000
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `draftAuctionValue` | integer | Auction draft value |
+| `id` | integer | Player ID (same as player.id) |
+| `keeperValue` | integer | Keeper league value |
+| `keeperValueFuture` | integer | Future keeper value |
+| `lineupLocked` | boolean | Whether lineup is locked |
+| `onTeamId` | integer | Fantasy team ID (0 = free agent) |
+| `ratings` | object | Rankings by week (keys are week numbers, "0" for season) |
+| `rosterLocked` | boolean | Whether roster is locked |
+| `status` | string | Player status (e.g., "WAIVERS", "FREEAGENT") |
+| `tradeLocked` | boolean | Whether player is trade locked |
+| `waiverProcessDate` | integer | Timestamp for waiver processing (milliseconds) |
 
 ---
 
@@ -62,21 +97,31 @@ Player data is wrapped in a `players` array, where each element contains a `play
     "firstName": "Patrick",
     "lastName": "Mahomes",
     "fullName": "Patrick Mahomes",
+    "active": true,
+    "jersey": "15",
 
     // Team & Position
     "defaultPositionId": 1,
     "proTeamId": 12,
     "eligibleSlots": [0, 16],
+    "droppable": true,
 
     // Injury
+    "injured": false,
     "injuryStatus": "ACTIVE",
 
     // Ownership & Draft
     "ownership": { ... },
     "draftRanksByRankType": { ... },
+    "rankings": { ... },
 
     // Statistics
-    "stats": [ ... ]
+    "stats": [ ... ],
+
+    // News & Outlooks
+    "lastNewsDate": 1764531338000,
+    "outlooks": { ... },
+    "seasonOutlook": "Player outlook text for the entire season..."
   }
 }
 ```
@@ -142,6 +187,78 @@ player_id = str(player['id'])  # Convert to string for consistency
 **Usage**:
 ```python
 full_name = player.get('fullName') or f"{player['firstName']} {player['lastName']}"
+```
+
+### player.active
+
+**Type**: `boolean`
+**Required**: Yes
+**Description**: Whether the player is currently active on an NFL roster
+
+```json
+"active": true
+```
+
+**Notes**:
+- `true` for active roster players
+- `false` for retired, suspended, or practice squad players
+
+### player.jersey
+
+**Type**: `string`
+**Required**: Usually
+**Description**: Player's jersey number
+
+```json
+"jersey": "15"
+```
+
+**Notes**:
+- Returned as string, not integer
+- May be empty for recently signed players
+
+### player.droppable
+
+**Type**: `boolean`
+**Required**: Usually
+**Description**: Whether player can be dropped in fantasy leagues
+
+```json
+"droppable": true
+```
+
+**Notes**:
+- `false` for players on IR or with recent transactions
+- League settings may override this
+
+### player.injured
+
+**Type**: `boolean`
+**Required**: Usually
+**Description**: Quick flag indicating if player has any injury designation
+
+```json
+"injured": false
+```
+
+**Notes**:
+- Different from `injuryStatus` which provides specific status
+- `true` if injuryStatus is anything other than "ACTIVE"
+
+### player.lastNewsDate
+
+**Type**: `integer` (timestamp)
+**Required**: Sometimes
+**Description**: Unix timestamp (milliseconds) of the last news update for this player
+
+```json
+"lastNewsDate": 1764531338000
+```
+
+**Usage**:
+```python
+from datetime import datetime
+news_date = datetime.fromtimestamp(player['lastNewsDate'] / 1000)
 ```
 
 ---
@@ -262,10 +379,16 @@ See [Statistics Array](#statistics-array) section below for complete details.
 
 ```json
 "ownership": {
-  "percentOwned": 99.8,
-  "percentStarted": 95.2,
-  "averageDraftPosition": 2.5,
-  "auctionValueAverage": 65.0
+  "activityLevel": null,
+  "auctionValueAverage": 51.53,
+  "auctionValueAverageChange": -0.1,
+  "averageDraftPosition": 6.85,
+  "averageDraftPositionPercentChange": -0.07,
+  "date": 1761931821839,
+  "leagueType": 0,
+  "percentChange": 0.0,
+  "percentOwned": 99.94,
+  "percentStarted": 90.52
 }
 ```
 
@@ -327,6 +450,48 @@ elif adp <= 24:  # 2 rounds in 12-team league
 
 **Note**: Only relevant for auction leagues
 
+#### ownership.auctionValueAverageChange
+
+**Type**: `float`
+**Description**: Change in auction value from previous update
+
+```json
+"auctionValueAverageChange": -0.1
+```
+
+#### ownership.averageDraftPositionPercentChange
+
+**Type**: `float`
+**Description**: Percent change in ADP from previous update
+
+```json
+"averageDraftPositionPercentChange": -0.07
+```
+
+#### ownership.date
+
+**Type**: `integer` (timestamp)
+**Description**: Timestamp when ownership data was last updated
+
+```json
+"date": 1761931821839
+```
+
+#### ownership.leagueType
+
+**Type**: `integer`
+**Description**: League type identifier (0 for standard)
+
+#### ownership.percentChange
+
+**Type**: `float`
+**Description**: Change in percent owned from previous update
+
+#### ownership.activityLevel
+
+**Type**: `null` or `integer`
+**Description**: Player activity level (usually null)
+
 ### player.draftRanksByRankType
 
 **Type**: `object`
@@ -355,6 +520,84 @@ if ppr_rank and ppr_rank <= 12:
     print("Top-12 player in PPR")
 ```
 
+### player.rankings
+
+**Type**: `object`
+**Required**: Sometimes
+**Description**: Weekly expert rankings by different sources
+
+```json
+"rankings": {
+  "0": [
+    {
+      "auctionValue": 0,
+      "published": true,
+      "rank": 3,
+      "rankSourceId": 7,
+      "rankType": "PPR",
+      "slotId": 2
+    }
+  ]
+}
+```
+
+**Notes**:
+- Keys are week numbers (or "0" for season-long)
+- Each week can have multiple ranking entries from different sources
+- `rankSourceId` identifies the ranking source (ESPN, expert consensus, etc.)
+- `slotId` identifies the position slot for the ranking
+
+### player.outlooks
+
+**Type**: `object`
+**Required**: Sometimes
+**Description**: Weekly text outlooks/analysis for the player
+
+```json
+"outlooks": {
+  "outlooksByWeek": {
+    "1": "Player outlook text for Week 1...",
+    "2": "Player outlook text for Week 2...",
+    "3": "Player outlook text for Week 3..."
+  }
+}
+```
+
+**Notes**:
+- Contains ESPN's written analysis for each upcoming week
+- Keys are week numbers as strings
+- Useful for understanding ESPN's narrative on player value
+- May contain special characters/encoding issues
+
+**Usage**:
+```python
+outlooks = player.get('outlooks', {}).get('outlooksByWeek', {})
+week_15_outlook = outlooks.get('15', 'No outlook available')
+print(f"Week 15 Outlook: {week_15_outlook}")
+```
+
+### player.seasonOutlook
+
+**Type**: `string`
+**Required**: Sometimes
+**Description**: ESPN's written analysis for the player's entire season outlook
+
+```json
+"seasonOutlook": "The reigning No. 1 fantasy RB, Gibbs scored a position-high 20 TDs while dominating as both a rusher (fifth in yards) and receiver..."
+```
+
+**Notes**:
+- Contains ESPN's preseason or season-long narrative analysis
+- Longer and more detailed than weekly outlooks
+- Useful for understanding ESPN's overall valuation of the player
+- May not be present for all players
+
+**Usage**:
+```python
+season_outlook = player.get('seasonOutlook', 'No season outlook available')
+print(f"Season Outlook: {season_outlook[:200]}...")  # First 200 chars
+```
+
 ---
 
 ## Statistics Array
@@ -370,19 +613,27 @@ The `stats` array is the **most important part** of player data, containing all 
     "scoringPeriodId": 1,
     "statSourceId": 0,
     "appliedTotal": 28.5,
-    "appliedAverage": 28.5,
-    "appliedStats": { ... }
+    "externalId": "...",
+    "id": "...",
+    "proTeamId": 12,
+    "statSplitTypeId": 0,
+    "stats": { ... }
   },
   {
     "seasonId": 2025,
     "scoringPeriodId": 1,
     "statSourceId": 1,
-    "projectedTotal": 25.2,
-    "projectedAverage": 25.2,
-    "projectedStats": { ... }
+    "appliedTotal": 25.2,
+    "externalId": "...",
+    "id": "...",
+    "proTeamId": 12,
+    "statSplitTypeId": 0,
+    "stats": { ... }
   }
 ]
 ```
+
+> **⚠️ IMPORTANT**: As of 2025, ESPN uses `appliedTotal` for BOTH actual results (statSourceId=0) AND projections (statSourceId=1). The `projectedTotal` field is no longer used.
 
 ### stats[].seasonId
 
@@ -418,79 +669,133 @@ The `stats` array is the **most important part** of player data, containing all 
 ```
 
 **Values**:
-| ID | Type | Field with Points |
-|----|------|------------------|
-| 0  | Actual Results | `appliedTotal` |
-| 1  | Projections    | `projectedTotal` |
+| ID | Type | Description |
+|----|------|-------------|
+| 0  | Actual Results | Real game statistics (after game completion) |
+| 1  | Projections    | Estimated/predicted stats (available for future weeks) |
+
+> **Note**: Both stat source types now use `appliedTotal` for the fantasy points value.
 
 **See**: [espn_api_reference_tables.md](espn_api_reference_tables.md#stat-source-id-mappings)
 
 ### stats[].appliedTotal
 
 **Type**: `float`
-**Description**: Actual fantasy points scored (when statSourceId=0)
+**Description**: Fantasy points for this stat entry (actual or projected depending on statSourceId)
 
 ```json
 "appliedTotal": 28.5
 ```
 
 **Notes**:
-- Only present when statSourceId=0
-- Reflects real game results
-- Most reliable data source
+- Used for BOTH actual results (statSourceId=0) AND projections (statSourceId=1)
+- For statSourceId=0: Reflects real game results
+- For statSourceId=1: Reflects ESPN's projected points
 
-### stats[].projectedTotal
+### stats[].projectedTotal (REMOVED)
 
-**Type**: `float`
-**Description**: Projected/estimated fantasy points (when statSourceId=1)
+**Type**: N/A - field no longer exists
+**Description**: Previously used for projected fantasy points
+
+**Notes**:
+- **REMOVED**: As of 2025, this field no longer exists in API responses
+- ESPN now uses `appliedTotal` for both actual and projected values
+- The field is completely absent from the response (not null, just missing)
+- Legacy code should check `appliedTotal` instead
+
+### stats[].externalId
+
+**Type**: `string`
+**Description**: External identifier for this stat entry
+
+### stats[].proTeamId
+
+**Type**: `integer`
+**Description**: Team ID at the time these stats were recorded
+
+### stats[].statSplitTypeId
+
+**Type**: `integer`
+**Description**: Stat split type identifier
+
+**Values**:
+| ID | Split Type | Description |
+|----|------------|-------------|
+| 0  | Season Total | Aggregated stats for entire season |
+| 1  | Weekly Split | Individual week statistics |
+| 2  | Last N Games | Rolling average over recent games |
+
+**See**: [espn_api_reference_tables.md](espn_api_reference_tables.md#stat-split-type-id-mappings)
+
+### stats[].stats
+
+**Type**: `object`
+**Description**: Detailed stat breakdowns with ESPN stat IDs as keys
 
 ```json
-"projectedTotal": 25.2
+"stats": {
+  "3": 285.0,   // Passing yards (stat ID 3)
+  "4": 2.0,     // Passing TDs (stat ID 4)
+  "20": 15.0    // Rushing yards (stat ID 20)
+}
 ```
 
 **Notes**:
-- Present when statSourceId=1
-- ESPN's forecast
-- Less reliable than actual results
+- Keys are ESPN internal stat ID codes (as strings)
+- Values are the stat amounts
+- Useful for custom scoring calculations
+- Full stat ID mapping is not publicly documented
 
 ### Priority Logic
 
 When both actual and projected exist for same week, prefer actual:
 
 ```python
-def get_week_points(stats_array, week):
-    actual = None
-    projected = None
+def get_week_points(stats_array, week, prefer_actual=True):
+    """
+    Extract fantasy points for a specific week.
+
+    Args:
+        stats_array: Player's stats array from API
+        week: Week number (1-18)
+        prefer_actual: If True, prefer statSourceId=0 over statSourceId=1
+
+    Returns:
+        Fantasy points for the week, or None if not found
+    """
+    actual_points = None
+    projected_points = None
 
     for stat in stats_array:
         if stat.get('scoringPeriodId') != week:
             continue
 
-        if stat.get('statSourceId') == 0:
-            actual = stat.get('appliedTotal')
-        elif stat.get('statSourceId') == 1:
-            projected = stat.get('projectedTotal')
+        source = stat.get('statSourceId')
+        points = stat.get('appliedTotal')  # Both sources use appliedTotal now
 
-    return actual if actual is not None else projected
+        if source == 0:
+            actual_points = points
+        elif source == 1:
+            projected_points = points
+
+    # Return actual if available and preferred, otherwise projected
+    if prefer_actual and actual_points is not None:
+        return actual_points
+    return projected_points if projected_points is not None else actual_points
 ```
 
-### stats[].appliedStats & projectedStats
+### stats[].appliedAverage
 
-**Type**: `object`
-**Description**: Detailed stat breakdowns (passing yards, TDs, etc.)
+**Type**: `float`
+**Description**: Average fantasy points per game (only present in certain entries, like season totals)
 
 ```json
-"appliedStats": {
-  "3": 285.0,   // Passing yards
-  "4": 2.0,     // Passing TDs
-  "20": 15.0    // Rushing yards
-}
+"appliedAverage": 18.5
 ```
 
 **Notes**:
-- Stat IDs are ESPN-internal codes
-- Useful for custom scoring calculations
-- Not all stats documented (ESPN internal)
+- Only appears in some stat entries (typically scoringPeriodId=0 for season totals)
+- Not present in weekly stat entries
 
 ---
 
@@ -571,8 +876,8 @@ else:
 ```python
 import math
 
-points = stat.get('projectedTotal')
-if math.isnan(points):
+points = stat.get('appliedTotal')  # Both actual and projected use appliedTotal
+if points is not None and math.isnan(points):
     points = 0.0  # Or handle as missing data
 ```
 
@@ -631,7 +936,7 @@ def validate_player_data(player):
     "fullName": "Patrick Mahomes",
     "defaultPositionId": 1,
     "proTeamId": 12,
-    "eligibleSlots": [0, 16, 17],
+    "eligibleSlots": [0, 7, 20, 21],
     "injuryStatus": "ACTIVE",
     "ownership": {
       "percentOwned": 99.8,
@@ -640,15 +945,16 @@ def validate_player_data(player):
       "auctionValueAverage": 65.0
     },
     "draftRanksByRankType": {
-      "PPR": {"rank": 5},
-      "STANDARD": {"rank": 3}
+      "PPR": {"rank": 5, "rankSourceId": 1, "auctionValue": 0, "published": true},
+      "STANDARD": {"rank": 3, "rankSourceId": 1, "auctionValue": 0, "published": true}
     },
     "stats": [
       {
         "seasonId": 2025,
         "scoringPeriodId": 0,
         "statSourceId": 1,
-        "projectedTotal": 285.6
+        "appliedTotal": 285.6,
+        "appliedAverage": 15.87
       },
       {
         "seasonId": 2025,
@@ -660,7 +966,7 @@ def validate_player_data(player):
         "seasonId": 2025,
         "scoringPeriodId": 1,
         "statSourceId": 1,
-        "projectedTotal": 25.2
+        "appliedTotal": 25.2
       }
     ]
   }
@@ -690,11 +996,11 @@ def parse_player(player_obj):
     adp = ownership.get('averageDraftPosition')
     pct_owned = ownership.get('percentOwned', 0.0)
 
-    # Season projection
+    # Season projection (use appliedTotal - projectedTotal is deprecated)
     season_points = None
     for stat in player.get('stats', []):
         if stat.get('scoringPeriodId') == 0 and stat.get('statSourceId') == 1:
-            season_points = stat.get('projectedTotal')
+            season_points = stat.get('appliedTotal')  # Both actual and projected use appliedTotal
             break
 
     return {
@@ -752,6 +1058,11 @@ print(f"Average: {sum(weekly.values()) / len(weekly) if weekly else 0:.1f} pts")
 
 ## Changelog
 
+- **2025-12-13**: Verified and expanded documentation
+  - Verified all player fields against live API responses
+  - Added statSplitTypeId values table
+  - Confirmed appliedTotal/projectedTotal deprecation is accurate
+  - Updated wrapper object fields with verified values
 - **2025-10-31**: Initial version - All player fields documented with examples
 
 ---

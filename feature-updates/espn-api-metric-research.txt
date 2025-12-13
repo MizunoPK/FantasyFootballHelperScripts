@@ -1,0 +1,589 @@
+ESPN API Metric Research Initiative
+====================================
+
+PURPOSE
+-------
+Systematically research each metric identified in docs/research/scoring_gap_analysis.md
+to determine data availability and feasibility for our scoring system.
+
+GOAL: Produce a comprehensive research document for EACH potential metric.
+      - One document per metric
+      - Output location: docs/research/potential_metrics/
+      - File naming: {metric_number}_{metric_name}.md (e.g., 01_target_volume.md)
+
+RESEARCH DOCUMENT REQUIREMENTS
+------------------------------
+Each metric research document should answer (IN THIS ORDER):
+
+1. Can this metric be calculated from EXISTING data in the data/ folder?
+   - Check data/players.csv, data/players_projected.csv, data/game_data.csv
+   - Check data/team_data/{TEAM}.csv files (32 teams)
+   - Check data/season_schedule.csv, data/drafted_data.csv
+   - Check data/configs/*.json for any relevant fields
+   - If YES: Document which fields to use and the calculation approach
+   - If PARTIAL: Document what's available and what's missing
+
+2. Is this metric available via ESPN Fantasy Football API?
+   - If YES: Document the endpoint, fields, and any limitations
+   - If NO: Document what was checked and why it's not available
+   - Note if ESPN has data we're NOT currently pulling that could help
+
+3. If NOT available via ESPN, what FREE alternatives exist?
+   - Other free APIs (NFL Stats, etc.)
+   - Free data sources (websites with exportable data)
+   - Feasibility of web scraping (if legal/allowed)
+
+4. Data quality assessment
+   - How reliable/accurate is the available data?
+   - How frequently is it updated?
+
+5. Implementation complexity
+   - What work would be required to integrate this metric?
+   - Dependencies on other metrics or systems
+
+6. Recommendation
+   - Should we pursue this metric? Why or why not?
+   - Preferred data source (existing > ESPN API > free alternatives)
+
+REFERENCE DOCUMENTS
+-------------------
+- docs/research/scoring_gap_analysis.md (38 metrics identified)
+- docs/espn/espn_api_endpoints.md (API endpoint documentation)
+- docs/espn/espn_player_data.md (Player field reference)
+- docs/espn/espn_team_data.md (Team field reference)
+- docs/espn/espn_api_reference_tables.md (ID mappings)
+
+EXISTING DATA FILES TO CHECK FIRST
+----------------------------------
+Before researching external sources, check if data already exists in these files:
+
+Player Data (data/):
+- players.csv - Current player stats, projections, injury status
+- players_projected.csv - Player projection data
+- drafted_data.csv - Draft tracking data (ADP, draft position)
+- game_data.csv - Game-level data
+
+Team Data (data/team_data/):
+- {TEAM}.csv - Per-team data files (32 teams: ARI, ATL, BAL, etc.)
+  * Contains team offensive/defensive stats
+  * Check column headers for available metrics
+
+Schedule/Config (data/):
+- season_schedule.csv - Full season schedule with matchups
+- configs/league_config.json - League configuration and scoring settings
+- configs/week{N}-{M}.json - Week-specific configuration overrides
+
+Research Priority Order:
+1. EXISTING DATA - Can we calculate from what we already have?
+2. ESPN API - Is it available but we're not pulling it yet?
+3. FREE ALTERNATIVES - External free sources if ESPN doesn't have it
+
+ESPN API ENDPOINTS TO INVESTIGATE
+---------------------------------
+1. Player Projections: /apis/v3/games/ffl/seasons/{season}/segments/0/leaguedefaults/{format}
+   - Weekly/season projections
+   - Player info (name, team, position, injury)
+   - Ownership data (ADP, % owned)
+   - Draft rankings
+   - Stats array (actual + projected by week)
+
+2. Team Stats: /apis/site/v2/sports/football/nfl/teams/{team_id}/statistics
+   - Team offensive/defensive stats
+   - Points per game, yards, takeaways
+
+3. Scoreboard/Schedule: /apis/site/v2/sports/football/nfl/scoreboard
+   - Weekly matchups
+   - Home/away designation
+   - Game status
+
+ALTERNATIVE DATA SOURCES TO RESEARCH
+------------------------------------
+If ESPN API does not provide the needed data, research these FREE alternatives:
+- NFL Official Stats API
+- Pro Football Reference (check terms of use)
+- The Odds API (free tier for Vegas lines)
+- nfelo.com (EPA data)
+- Next Gen Stats (limited public access)
+- ESPN website advanced stats (scraping feasibility)
+
+================================================================================
+METRIC RESEARCH CHECKLIST
+================================================================================
+
+Each metric below needs a dedicated research document created in:
+    docs/research/potential_metrics/
+
+Status key:
+[ ] = Not started
+[R] = Research in progress
+[D] = Document complete
+
+SECTION 1: ORIGINAL GAP METRICS (1-11)
+--------------------------------------
+
+[ ] METRIC 1: Target Volume / Target Share
+    Research Questions:
+    - EXISTING DATA: Check players.csv/players_projected.csv for target fields
+    - Does ESPN API provide target counts in any endpoint?
+    - Check if "stats" array stat IDs include targets
+    - What free alternatives provide target data?
+    - Is NFL official API accessible for target data?
+    - Are there free box score APIs with target data?
+    Priority: HIGH
+    Output: docs/research/potential_metrics/01_target_volume.md
+
+[ ] METRIC 2: QB Context / QB Quality Score
+    Research Questions:
+    - EXISTING DATA: Check players.csv for QB projections to build tier list
+    - EXISTING DATA: Check team_data/*.csv for team passing stats
+    - What QB-related data does ESPN API provide?
+    - Can QB tier lists be built from ESPN projection data?
+    - How to map WR/TE players to their team's QB?
+    - What alternative sources exist for QB quality metrics?
+    Priority: HIGH
+    Output: docs/research/potential_metrics/02_qb_context.md
+
+[ ] METRIC 3: QB-Specific Weather Sensitivity
+    Research Questions:
+    - EXISTING DATA: Check game_data.csv for any weather fields
+    - EXISTING DATA: Check season_schedule.csv for game location info
+    - Does ESPN provide any weather-related data?
+    - What free weather APIs exist for game locations?
+    - Are historical game logs with weather data available?
+    - Would manual curation of weather-sensitive players be feasible?
+    Priority: HIGH
+    Output: docs/research/potential_metrics/03_weather_sensitivity.md
+
+[ ] METRIC 4: Vegas Lines / Game Environment Score
+    Research Questions:
+    - EXISTING DATA: Check game_data.csv for any odds/spread fields
+    - Does ESPN expose any betting/odds data via API?
+    - What free odds APIs exist (The Odds API, etc.)?
+    - Are there usage limits on free tiers?
+    - What other free sources provide Vegas lines?
+    Priority: HIGH
+    Output: docs/research/potential_metrics/04_vegas_lines.md
+
+[ ] METRIC 5: Teammate Injury Impact
+    Research Questions:
+    - EXISTING DATA: Check players.csv for injury status fields
+    - EXISTING DATA: Can team rosters be built from existing player data?
+    - What injury data does ESPN API provide beyond what we have?
+    - How to identify primary players by position from existing data?
+    - What alternative sources provide team injury reports?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/05_teammate_injury.md
+
+[ ] METRIC 6: Opponent Secondary Details
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for defensive stats
+    - EXISTING DATA: Check season_schedule.csv for opponent matchups
+    - What defensive player data does ESPN provide?
+    - Is depth chart data available via API?
+    - What free alternatives track defensive personnel?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/06_opponent_secondary.md
+
+[ ] METRIC 7: Red Zone Opportunity
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for red zone stats
+    - EXISTING DATA: Check players.csv for any red zone fields
+    - Does ESPN API include red zone stats in any endpoint?
+    - Are there stat IDs for red zone targets/carries?
+    - What free sources provide red zone data?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/07_red_zone_opportunity.md
+
+[ ] METRIC 8: Hot Streak / Cold Streak Momentum
+    Research Questions:
+    - EXISTING DATA: Check for historical weekly data files
+    - EXISTING DATA: Can week-over-week performance be derived?
+    - Does ESPN stats array contain week-by-week performance?
+    - How many weeks of historical data are available?
+    - How to define streak thresholds?
+    Priority: LOW
+    Output: docs/research/potential_metrics/08_streak_momentum.md
+
+[ ] METRIC 9: Snap Count / Usage Rate
+    Research Questions:
+    - EXISTING DATA: Check players.csv for any snap-related fields
+    - Does ESPN API provide snap count data anywhere?
+    - What free sources track snap counts?
+    - Is ESPN website snap data scrapable (legally)?
+    - What alternative APIs provide usage rate data?
+    Priority: LOW
+    Output: docs/research/potential_metrics/09_snap_count.md
+
+[ ] METRIC 10: Coverage Type Tendencies
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for defensive scheme info
+    - What coverage data exists in free sources?
+    - Is a simplified version using team defensive style feasible?
+    - What paid sources (PFF) would be required for full data?
+    - Are there free proxies for coverage tendencies?
+    Priority: LOW
+    Output: docs/research/potential_metrics/10_coverage_tendencies.md
+
+[ ] METRIC 11: Primetime Game Adjustment
+    Research Questions:
+    - EXISTING DATA: Check season_schedule.csv for game times
+    - EXISTING DATA: Check game_data.csv for time slot info
+    - Does ESPN scoreboard include game start times?
+    - How to detect SNF/MNF/TNF from data?
+    - Is historical primetime performance data available?
+    Priority: LOW
+    Output: docs/research/potential_metrics/11_primetime_adjustment.md
+
+--------------------------------------------------------------------------------
+
+SECTION 2: ADDITIONAL REVIEW METRICS (12-19)
+--------------------------------------------
+
+[ ] METRIC 12: Implied Team Total
+    Research Questions:
+    - EXISTING DATA: Check game_data.csv for spread/O-U fields
+    - What Vegas data would be needed for calculation?
+    - Are spread and O/U available from free sources?
+    - What is the calculation formula?
+    - Dependencies on other metrics (Metric 4)?
+    Priority: HIGH (but may depend on Metric 4)
+    Output: docs/research/potential_metrics/12_implied_team_total.md
+
+[ ] METRIC 13: Air Yards / aDOT
+    Research Questions:
+    - EXISTING DATA: Check players.csv for air yards fields
+    - Does ESPN API include air yards data?
+    - Is Next Gen Stats API publicly accessible?
+    - What free sources track advanced receiving metrics?
+    - What alternative calculations could proxy air yards?
+    Priority: LOW
+    Output: docs/research/potential_metrics/13_air_yards.md
+
+[ ] METRIC 14: Yards After Catch (YAC) Rate
+    Research Questions:
+    - EXISTING DATA: Check players.csv for YAC fields
+    - Does ESPN include YAC in any stat fields?
+    - Search ESPN stat IDs for YAC-related values
+    - What free alternatives provide YAC data?
+    - How would YAC rate be calculated?
+    Priority: LOW
+    Output: docs/research/potential_metrics/14_yac_rate.md
+
+[ ] METRIC 15: Team Pass Rate / Plays Per Game
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for pass/rush attempt counts
+    - What passing/rushing stats does ESPN team endpoint provide?
+    - Are attempt counts available for both pass and rush?
+    - How to calculate pass rate from available data?
+    - How frequently is team stats data updated?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/15_team_pass_rate.md
+
+[ ] METRIC 16: Pressure Rate / QB Protection
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for sack stats
+    - Does ESPN provide sack data for teams?
+    - Could sacks allowed serve as a proxy for pressure?
+    - What free sources provide pressure rate data?
+    - What alternative metrics could measure QB protection?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/16_pressure_rate.md
+
+[ ] METRIC 17: Route Participation Rate
+    Research Questions:
+    - EXISTING DATA: Check players.csv for route-related fields
+    - Is route run data available from any free source?
+    - Does Next Gen Stats provide this publicly?
+    - Is snap count data a reasonable proxy?
+    - What paid sources would be required for accurate data?
+    Priority: LOW
+    Output: docs/research/potential_metrics/17_route_participation.md
+
+[ ] METRIC 18: Divisional Game Adjustment
+    Research Questions:
+    - EXISTING DATA: Check season_schedule.csv for division info
+    - EXISTING DATA: Can divisions be inferred from team matchups?
+    - Can division info be determined from ESPN schedule data?
+    - How to build a division mapping from available data?
+    - Is historical divisional performance data available?
+    Priority: LOW
+    Output: docs/research/potential_metrics/18_divisional_games.md
+
+[ ] METRIC 19: Third Down / High-Leverage Role
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for third-down stats
+    - Does ESPN provide situational stats?
+    - Would play-by-play data be needed?
+    - What free sources track situational performance?
+    - What alternative metrics could capture "high leverage" roles?
+    Priority: LOW
+    Output: docs/research/potential_metrics/19_high_leverage_role.md
+
+--------------------------------------------------------------------------------
+
+SECTION 3: PROJECTION CALCULATION METRICS (20-38)
+-------------------------------------------------
+
+[ ] METRIC 20: WOPR (Weighted Opportunity Rating)
+    Research Questions:
+    - EXISTING DATA: Check players.csv for target share/air yards share fields
+    - What data components are needed for WOPR?
+    - Dependencies on other metrics (targets, air yards)?
+    - Are there simplified WOPR calculations possible?
+    - What free sources provide WOPR directly?
+    Priority: HIGH (may be blocked by dependencies)
+    Output: docs/research/potential_metrics/20_wopr.md
+
+[ ] METRIC 21: Opportunity Share (RB)
+    Research Questions:
+    - EXISTING DATA: Check players.csv for rushing attempts
+    - EXISTING DATA: Can team RB totals be calculated from existing player data?
+    - Does ESPN provide rushing attempts in stats array?
+    - How to identify all RBs on a team from ESPN data?
+    - What alternative sources track RB opportunity?
+    Priority: HIGH
+    Output: docs/research/potential_metrics/21_rb_opportunity_share.md
+
+[ ] METRIC 22: Expected Fantasy Points (xFP)
+    Research Questions:
+    - EXISTING DATA: Check players_projected.csv for any xFP-like fields
+    - Is xFP data available from any free source?
+    - Does Next Gen Stats provide xFP publicly?
+    - What would a simplified xFP model require?
+    - Could we build our own xFP proxy calculation?
+    Priority: HIGH
+    Output: docs/research/potential_metrics/22_expected_fantasy_points.md
+
+[ ] METRIC 23: Fantasy Points Under/Over Expectation (FPOE)
+    Research Questions:
+    - EXISTING DATA: Can FPOE be derived from existing projected vs actual?
+    - How is FPOE calculated?
+    - Dependencies on xFP (Metric 22)?
+    - Are there sources that provide FPOE directly?
+    - What alternative metrics measure over/under performance?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/23_fpoe.md
+
+[ ] METRIC 24: Routes Per Game
+    Research Questions:
+    - EXISTING DATA: Check players.csv for route-related fields
+    - Is route data available from free sources?
+    - What alternative metrics could proxy routes per game?
+    - Is there a relationship between snaps and routes?
+    - What paid sources provide route data?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/24_routes_per_game.md
+
+[ ] METRIC 25: Yards Per Route Run (YPRR)
+    Research Questions:
+    - EXISTING DATA: Check players.csv for receiving yards and route data
+    - Dependencies on route run data availability?
+    - What calculation formula is used for YPRR?
+    - Are there sources that provide YPRR directly?
+    - Could receiving yards / snaps be a proxy?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/25_yards_per_route_run.md
+
+[ ] METRIC 26: Expected Points Added (EPA)
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for any EPA fields
+    - Is EPA data available from nfelo.com?
+    - What format is the nfelo data in?
+    - Are there other free EPA data sources?
+    - Would team-level EPA be a useful proxy?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/26_epa.md
+
+[ ] METRIC 27: Rush Yards Over Expected (RYOE)
+    Research Questions:
+    - EXISTING DATA: Check players.csv for any rushing efficiency metrics
+    - Does Next Gen Stats provide RYOE publicly?
+    - What free sources track rushing efficiency?
+    - What model would be needed to calculate RYOE?
+    - Are there simpler proxy metrics available?
+    Priority: LOW
+    Output: docs/research/potential_metrics/27_ryoe.md
+
+[ ] METRIC 28: Yards Before/After Contact
+    Research Questions:
+    - EXISTING DATA: Check players.csv for contact-related fields
+    - Is contact data available from any free source?
+    - What tracking data would be required?
+    - Are there free proxies for this metric?
+    - Worth pursuing given likely data limitations?
+    Priority: LOW
+    Output: docs/research/potential_metrics/28_yards_contact.md
+
+[ ] METRIC 29: Success Rate
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for success rate fields
+    - How is success rate defined/calculated?
+    - Dependencies on EPA data (Metric 26)?
+    - Is nfelo.com a source for success rate?
+    - Are there simpler success rate definitions?
+    Priority: LOW
+    Output: docs/research/potential_metrics/29_success_rate.md
+
+[ ] METRIC 30: True Catch Rate
+    Research Questions:
+    - EXISTING DATA: Check players.csv for catch rate/drops fields
+    - Is catchable target data available anywhere free?
+    - What sources provide true catch rate?
+    - Could drops data serve as a partial proxy?
+    - What would be needed to calculate this?
+    Priority: LOW
+    Output: docs/research/potential_metrics/30_true_catch_rate.md
+
+[ ] METRIC 31: Separation
+    Research Questions:
+    - EXISTING DATA: Check players.csv for separation-related fields
+    - Does Next Gen Stats provide separation data publicly?
+    - What tracking data is required for separation?
+    - Are there free alternatives to NGS for this metric?
+    - Could a proxy metric be developed?
+    Priority: LOW
+    Output: docs/research/potential_metrics/31_separation.md
+
+[ ] METRIC 32: Completion Probability
+    Research Questions:
+    - EXISTING DATA: Check players.csv for QB accuracy metrics
+    - Is Next Gen Stats completion probability public?
+    - What model generates completion probability?
+    - Are there free alternatives for this metric?
+    - Could QB accuracy stats serve as a proxy?
+    Priority: LOW
+    Output: docs/research/potential_metrics/32_completion_probability.md
+
+[ ] METRIC 33: Expected YAC (xYAC)
+    Research Questions:
+    - EXISTING DATA: Check players.csv for YAC or xYAC fields
+    - Is xYAC data available from NGS or other sources?
+    - What calculation model is used for xYAC?
+    - Are there simpler proxy calculations?
+    - Worth pursuing given data complexity?
+    Priority: LOW
+    Output: docs/research/potential_metrics/33_expected_yac.md
+
+[ ] METRIC 34: Team Plays Per Game
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for play count fields
+    - EXISTING DATA: Can plays be calculated from pass + rush attempts?
+    - Does ESPN team stats include play counts?
+    - How to calculate plays from pass/rush attempts?
+    - How frequently is this data updated?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/34_team_plays_per_game.md
+
+[ ] METRIC 35: Neutral Script Pass Rate
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for pass rate in situations
+    - What is "neutral script" and how is it defined?
+    - Would play-by-play data with game situation be needed?
+    - What free sources provide situational play data?
+    - Could a team's overall pass rate proxy for this?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/35_neutral_script_pass_rate.md
+
+[ ] METRIC 36: Team Red Zone Efficiency
+    Research Questions:
+    - EXISTING DATA: Check team_data/*.csv for red zone stats
+    - Does ESPN team stats include red zone data?
+    - What fields would be needed (TDs, red zone trips)?
+    - What free alternatives provide red zone stats?
+    - What calculation formula is standard?
+    Priority: MEDIUM
+    Output: docs/research/potential_metrics/36_team_red_zone_efficiency.md
+
+[ ] METRIC 37: Snap Share Trend
+    Research Questions:
+    - EXISTING DATA: Check for historical weekly snap data files
+    - Dependencies on snap count data (Metric 9)?
+    - How would week-over-week trend be calculated?
+    - What format would snap history need to be in?
+    - What alternative metrics track usage trends?
+    Priority: LOW
+    Output: docs/research/potential_metrics/37_snap_share_trend.md
+
+[ ] METRIC 38: Dominator Rating
+    Research Questions:
+    - EXISTING DATA: N/A (college data not currently tracked)
+    - What college stats are needed for dominator rating?
+    - What free sources provide college production data?
+    - Are there APIs for college football stats?
+    - Would manual curation for rookies be feasible?
+    Priority: LOW
+    Output: docs/research/potential_metrics/38_dominator_rating.md
+
+================================================================================
+RESEARCH PRIORITY SUMMARY
+================================================================================
+
+PHASE 1: HIGHEST PRIORITY METRICS
+---------------------------------
+Research these metrics first:
+
+1. [ ] Metric 1: Target Volume - fundamental for WR/TE evaluation
+2. [ ] Metric 2: QB Context - impacts all pass catchers
+3. [ ] Metric 4: Vegas Lines - game environment is high-impact
+4. [ ] Metric 12: Implied Team Total - depends on Metric 4
+5. [ ] Metric 21: RB Opportunity Share - fundamental for RB evaluation
+6. [ ] Metric 22: Expected Fantasy Points - advanced projection metric
+
+PHASE 2: MEDIUM PRIORITY METRICS
+--------------------------------
+Research after Phase 1:
+
+- Metrics 5, 6, 7: Injury/matchup-related metrics
+- Metrics 15, 16: Team passing/protection metrics
+- Metrics 34, 35, 36: Team efficiency metrics
+
+PHASE 3: LOWER PRIORITY METRICS
+-------------------------------
+Research based on Phase 1 & 2 findings:
+
+- Metrics 8, 9, 10, 11: Lower-impact adjustments
+- Metrics 13, 14, 17-19: Advanced receiving metrics
+- Metrics 23-33: Advanced analytics (likely blocked by data availability)
+- Metrics 37, 38: Trend and historical metrics
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. [ ] Create directory: docs/research/potential_metrics/
+2. [ ] FIRST: Audit existing data files to document what's already available
+       - Run column headers on players.csv, players_projected.csv
+       - Run column headers on team_data/*.csv (sample a few teams)
+       - Run column headers on game_data.csv, season_schedule.csv
+       - Create summary of existing fields that could support metrics
+3. [ ] Begin research on Phase 1 HIGH PRIORITY metrics
+       - For each metric, CHECK EXISTING DATA FIRST before external research
+4. [ ] Document findings in individual markdown files
+5. [ ] For each metric where ESPN API lacks data:
+       - Research at least 2-3 free alternative sources
+       - Document API access requirements
+       - Assess implementation feasibility
+6. [ ] Update this checklist as research documents are completed
+7. [ ] Summarize findings and recommend which metrics to implement
+
+================================================================================
+NOTES
+================================================================================
+
+Key Principle: If ESPN API doesn't provide the data, ALWAYS research free alternatives.
+Do NOT assume a metric is impossible without checking multiple free sources.
+
+Sources to Research for Each Metric:
+- ESPN API (primary target)
+- NFL Official Stats API
+- Pro Football Reference (terms of use)
+- The Odds API (free tier)
+- nfelo.com
+- Next Gen Stats (public access)
+- Other free sports data APIs
+
+Document Format for Each Metric:
+- Use template in docs/research/potential_metrics/TEMPLATE.md (to be created)
+- Include all research findings, even negative results
+- Document data access methods and limitations
+- Provide clear recommendation with rationale

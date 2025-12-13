@@ -1,6 +1,6 @@
 # ESPN Fantasy Football API - Reference Tables
 
-**Last Updated**: 2025-10-31
+**Last Updated**: 2025-12-13
 **API Status**: Unofficial
 **Target Audience**: Python Developers (Intermediate)
 
@@ -13,8 +13,9 @@
 3. [Team ID Mappings](#team-id-mappings)
 4. [Stat Source ID Mappings](#stat-source-id-mappings)
 5. [Scoring Period ID Mappings](#scoring-period-id-mappings)
-6. [Scoring Format ID Mappings](#scoring-format-id-mappings)
-7. [Usage Examples](#usage-examples)
+6. [Stat Split Type ID Mappings](#stat-split-type-id-mappings)
+7. [Scoring Format ID Mappings](#scoring-format-id-mappings)
+8. [Usage Examples](#usage-examples)
 
 ---
 
@@ -42,6 +43,8 @@ ESPN API uses numeric IDs throughout its responses. Without these mappings, you'
 
 Maps `defaultPositionId` values to fantasy football positions.
 
+### Standard Fantasy Positions
+
 | Position ID | Position Name | Description | Roster Count (typical) |
 |------------|--------------|-------------|----------------------|
 | 1 | QB | Quarterback | 1-2 per team |
@@ -51,12 +54,26 @@ Maps `defaultPositionId` values to fantasy football positions.
 | 5 | K | Kicker | 1 per team |
 | 16 | DST | Defense/Special Teams | 1 per team |
 
+### IDP Positions (Individual Defensive Players)
+
+> **Note**: These positions appear in API responses but are only relevant for IDP leagues.
+
+| Position ID | Position Name | Description |
+|------------|--------------|-------------|
+| 9 | DT | Defensive Tackle |
+| 8 | DL | Defensive Line (generic) |
+| 10 | DE | Defensive End |
+| 11 | LB | Linebacker |
+| 12 | CB | Cornerback |
+| 13 | S | Safety |
+| 14 | DB | Defensive Back (generic) |
+| 15 | DP | IDP Flex |
+
 ### Notes
 
-- **No Position ID gaps**: Unlike team IDs, position IDs are sequential (except for DST at 16)
-- **DST is a team position**: Represents entire defensive unit, not individual player
+- **DST vs IDP**: Position 16 (DST) represents entire team defense. Positions 8-15 are individual defensive players for IDP leagues.
+- **DST not in default response**: DST entries require using the `sortPercOwned` filter (see examples below)
 - **Flex eligibility**: Most leagues allow RB (2), WR (3), and TE (4) in FLEX slots
-- **IDP leagues not covered**: These mappings are for standard fantasy leagues only
 
 ### Usage in API Responses
 
@@ -197,21 +214,34 @@ ESPN provides **two types** of data for each week:
 2. **Projections (statSourceId=1)**:
    - Estimated statistics (pre-game forecasts)
    - Available for all weeks (past, current, future)
-   - Contains `projectedTotal` field (estimated fantasy points)
+   - Contains `appliedTotal` field (estimated fantasy points)
    - Less reliable than actuals but available sooner
+
+> **⚠️ IMPORTANT (2025 API Change)**: Both stat sources now use `appliedTotal` for fantasy points. The `projectedTotal` field is **deprecated** and returns `null`.
 
 ### Priority Logic
 
 When both exist for the same week, prefer actual results:
 
 ```python
-# Correct priority order
-if statSourceId == 0 and 'appliedTotal' in stat:
-    # Use actual results (highest priority)
-    points = stat['appliedTotal']
-elif statSourceId == 1 and 'projectedTotal' in stat:
-    # Fall back to projections
-    points = stat['projectedTotal']
+def get_week_points(stats_array, week):
+    """Extract fantasy points for a specific week, preferring actuals."""
+    actual = None
+    projected = None
+
+    for stat in stats_array:
+        if stat.get('scoringPeriodId') != week:
+            continue
+
+        source = stat.get('statSourceId')
+        points = stat.get('appliedTotal')  # Both sources use appliedTotal now
+
+        if source == 0:
+            actual = points
+        elif source == 1:
+            projected = points
+
+    return actual if actual is not None else projected
 ```
 
 ### Usage in API Responses
@@ -230,7 +260,8 @@ elif statSourceId == 1 and 'projectedTotal' in stat:
         "seasonId": 2025,
         "scoringPeriodId": 1,
         "statSourceId": 1,      // ← Projection
-        "projectedTotal": 25.2  // ← Estimated points
+        "appliedTotal": 25.2    // ← Both use appliedTotal now
+        // Note: projectedTotal field no longer exists in response
       }
     ]
   }
@@ -304,15 +335,93 @@ def get_time_period_label(scoring_period_id):
 
 ---
 
+## Stat Split Type ID Mappings
+
+Maps `statSplitTypeId` values to data aggregation types in player stats arrays.
+
+| Stat Split Type ID | Split Type | Description |
+|-------------------|------------|-------------|
+| 0 | Season Total | Aggregated stats for entire season |
+| 1 | Weekly Split | Individual week statistics |
+| 2 | Last N Games | Stats over a period (e.g., last 4 weeks) |
+
+### Understanding Stat Splits
+
+The `statSplitTypeId` field indicates how the statistics are aggregated:
+
+1. **Season Total (statSplitTypeId=0)**:
+   - Aggregated statistics across the entire season
+   - Used with `scoringPeriodId=0` entries
+   - Contains `appliedAverage` field for per-game average
+   - Best for overall player evaluation
+
+2. **Weekly Split (statSplitTypeId=1)**:
+   - Individual week statistics
+   - Used with `scoringPeriodId=1-18` entries
+   - No `appliedAverage` field
+   - Best for week-by-week analysis
+
+3. **Last N Games (statSplitTypeId=2)**:
+   - Rolling average over recent games
+   - Used for hot/cold streak analysis
+   - Contains `appliedAverage` field
+
+### Usage in API Responses
+
+```json
+{
+  "player": {
+    "stats": [
+      {
+        "scoringPeriodId": 0,
+        "statSplitTypeId": 0,    // ← Season total
+        "appliedTotal": 324.92,
+        "appliedAverage": 19.11   // ← Present in season totals
+      },
+      {
+        "scoringPeriodId": 1,
+        "statSplitTypeId": 1,    // ← Weekly split
+        "appliedTotal": 26.02
+        // No appliedAverage for weekly splits
+      }
+    ]
+  }
+}
+```
+
+### Python Example
+
+```python
+def get_season_average(stats_array, stat_source_id=1):
+    """Get season average points from stats array."""
+    for stat in stats_array:
+        if (stat.get('scoringPeriodId') == 0 and
+            stat.get('statSplitTypeId') == 0 and
+            stat.get('statSourceId') == stat_source_id):
+            return stat.get('appliedAverage')
+    return None
+
+# Usage
+avg_projected = get_season_average(player['stats'], stat_source_id=1)
+avg_actual = get_season_average(player['stats'], stat_source_id=0)
+print(f"Projected PPG: {avg_projected:.1f}")
+print(f"Actual PPG: {avg_actual:.1f}")
+```
+
+---
+
 ## Scoring Format ID Mappings
 
 Maps scoring format IDs used in API URLs (specifically in the `leaguedefaults/{format_id}` path).
 
-| Format ID | Scoring Format | Points Per Reception | Description |
-|-----------|---------------|---------------------|-------------|
-| 1 | Standard | 0 | No points for receptions |
-| 2 | Half-PPR | 0.5 | Half point per reception |
-| 3 | PPR (Full) | 1.0 | Full point per reception |
+| Format ID | Scoring Format | Points Per Reception | Status |
+|-----------|---------------|---------------------|--------|
+| 1 | Standard | 0 | ✅ Works |
+| 2 | ~~Half-PPR~~ | ~~0.5~~ | ❌ Returns 404 |
+| 3 | PPR (Full) | 1.0 | ✅ Works |
+| 5 | PPR (alternate) | 1.0 | ✅ Works |
+
+> **⚠️ IMPORTANT (Verified 2025-12-13)**: Format ID 2 (previously documented as Half-PPR) returns HTTP 404. ESPN may have removed Half-PPR as a public format option. Only formats 1, 3, and 5 are confirmed working. Format 5 appears to return the same values as Format 3 (PPR).
 
 ### Usage in API URLs
 
@@ -424,8 +533,8 @@ def get_week_points(stats_array, week, prefer_actual=True):
 
         if stat_source == 0:  # Actual results
             actual_points = stat.get('appliedTotal')
-        elif stat_source == 1:  # Projections
-            projected_points = stat.get('projectedTotal')
+        elif stat_source == 1:  # Projections (also uses appliedTotal now)
+            projected_points = stat.get('appliedTotal')
 
     # Return actual if available and preferred, otherwise projected
     if prefer_actual and actual_points is not None:
@@ -482,6 +591,12 @@ for player in teams['KC']:
 
 ## Changelog
 
+- **2025-12-13**: Verified and expanded documentation
+  - Added IDP position IDs (8-15) for individual defensive players
+  - Added statSplitTypeId mappings section
+  - Fixed projectedTotal deprecation (now appliedTotal for both sources)
+  - Verified all 32 team IDs against live API
+  - Confirmed format ID 2 returns 404
 - **2025-10-31**: Initial version - all mappings documented
 - Mappings sourced from `player-data-fetcher/player_data_constants.py`
 - Verified against live ESPN API responses

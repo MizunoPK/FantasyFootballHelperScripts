@@ -905,26 +905,31 @@ class TestUpdateLeagueConfig:
 class TestPerWeekRangeMethods:
     """Tests for week-by-week config optimization methods."""
 
-    def create_sample_week_results(self, wins_early=3, wins_mid=4, wins_late=5):
+    def create_sample_week_results(self, wins_early=3, wins_mid_early=2, wins_mid_late=2, wins_late=3):
         """
         Create sample week results for testing.
 
         Returns a list of (week, won, points) tuples simulating a 16-week season.
         Allows customizing wins per range for testing different scenarios.
+        Week ranges: 1-5, 6-9, 10-13, 14-17
         """
         week_results = []
         # Weeks 1-5 (early season)
         for week in range(1, 6):
             won = (week <= wins_early)
             week_results.append((week, won, 100.0 + week))
-        # Weeks 6-11 (mid season)
-        for week in range(6, 12):
-            won = (week - 5 <= wins_mid)
+        # Weeks 6-9 (mid-early season)
+        for week in range(6, 10):
+            won = (week - 5 <= wins_mid_early)
             week_results.append((week, won, 110.0 + week))
-        # Weeks 12-16 (late season, only 5 weeks)
-        for week in range(12, 17):
-            won = (week - 11 <= wins_late)
+        # Weeks 10-13 (mid-late season)
+        for week in range(10, 14):
+            won = (week - 9 <= wins_mid_late)
             week_results.append((week, won, 120.0 + week))
+        # Weeks 14-17 (late season)
+        for week in range(14, 18):
+            won = (week - 13 <= wins_late)
+            week_results.append((week, won, 130.0 + week))
         return week_results
 
     def test_record_week_results_success(self):
@@ -933,13 +938,13 @@ class TestPerWeekRangeMethods:
         config_dict = {"config_name": "test", "parameters": {}}
         mgr.register_config("config_0001", config_dict)
 
-        week_results = self.create_sample_week_results(wins_early=3, wins_mid=4, wins_late=5)
+        week_results = self.create_sample_week_results(wins_early=3, wins_mid_early=2, wins_mid_late=2, wins_late=3)
         mgr.record_week_results("config_0001", week_results)
 
         config = mgr.results["config_0001"]
         assert config.num_simulations == 1
-        assert config.total_wins == 12  # 3 + 4 + 5
-        assert config.total_losses == 4  # (5-3) + (6-4) + (5-5) = 2 + 2 + 0 = 4
+        assert config.total_wins == 10  # 3 + 2 + 2 + 3
+        assert config.total_losses == 7  # (5-3) + (4-2) + (4-2) + (4-3) = 2 + 2 + 2 + 1 = 7
 
     def test_record_week_results_unregistered_config_raises_error(self):
         """record_week_results should raise KeyError for unregistered config."""
@@ -956,28 +961,28 @@ class TestPerWeekRangeMethods:
         mgr.register_config("config_0001", config_dict)
 
         # Run two simulations
-        week_results_1 = self.create_sample_week_results(wins_early=3, wins_mid=4, wins_late=5)
-        week_results_2 = self.create_sample_week_results(wins_early=2, wins_mid=3, wins_late=4)
+        week_results_1 = self.create_sample_week_results(wins_early=3, wins_mid_early=2, wins_mid_late=2, wins_late=3)
+        week_results_2 = self.create_sample_week_results(wins_early=2, wins_mid_early=1, wins_mid_late=1, wins_late=2)
 
         mgr.record_week_results("config_0001", week_results_1)
         mgr.record_week_results("config_0001", week_results_2)
 
         config = mgr.results["config_0001"]
         assert config.num_simulations == 2
-        assert config.total_wins == 12 + 9  # (3+4+5) + (2+3+4) = 21
-        assert config.total_losses == 4 + 7  # (2+2+0) + (3+3+1) = 11
+        assert config.total_wins == 10 + 6  # (3+2+2+3) + (2+1+1+2) = 16
+        assert config.total_losses == 7 + 11  # (2+2+2+1) + (3+3+3+2) = 18
 
     def test_get_best_config_for_range_returns_best_for_early_season(self):
         """get_best_config_for_range should return config with best win rate for range."""
         mgr = ResultsManager()
 
-        # Config A: Good early season (4/5 wins), bad late (2/5 wins)
+        # Config A: Good early season (4/5 wins), bad late (1/4 wins)
         mgr.register_config("config_A", {"config_name": "A", "parameters": {}})
-        mgr.record_week_results("config_A", self.create_sample_week_results(wins_early=4, wins_mid=3, wins_late=2))
+        mgr.record_week_results("config_A", self.create_sample_week_results(wins_early=4, wins_mid_early=2, wins_mid_late=2, wins_late=1))
 
-        # Config B: Bad early season (2/5 wins), good late (4/5 wins)
+        # Config B: Bad early season (2/5 wins), good late (4/4 wins)
         mgr.register_config("config_B", {"config_name": "B", "parameters": {}})
-        mgr.record_week_results("config_B", self.create_sample_week_results(wins_early=2, wins_mid=3, wins_late=4))
+        mgr.record_week_results("config_B", self.create_sample_week_results(wins_early=2, wins_mid_early=2, wins_mid_late=2, wins_late=4))
 
         best_early = mgr.get_best_config_for_range("1-5")
         assert best_early.config_id == "config_A"
@@ -986,15 +991,15 @@ class TestPerWeekRangeMethods:
         """get_best_config_for_range should correctly identify best late season config."""
         mgr = ResultsManager()
 
-        # Config A: Good early season (4/5 wins), bad late (2/5 wins)
+        # Config A: Good early season (4/5 wins), bad late (1/4 wins)
         mgr.register_config("config_A", {"config_name": "A", "parameters": {}})
-        mgr.record_week_results("config_A", self.create_sample_week_results(wins_early=4, wins_mid=3, wins_late=2))
+        mgr.record_week_results("config_A", self.create_sample_week_results(wins_early=4, wins_mid_early=2, wins_mid_late=2, wins_late=1))
 
-        # Config B: Bad early season (2/5 wins), good late (4/5 wins)
+        # Config B: Bad early season (2/5 wins), good late (4/4 wins)
         mgr.register_config("config_B", {"config_name": "B", "parameters": {}})
-        mgr.record_week_results("config_B", self.create_sample_week_results(wins_early=2, wins_mid=3, wins_late=4))
+        mgr.record_week_results("config_B", self.create_sample_week_results(wins_early=2, wins_mid_early=2, wins_mid_late=2, wins_late=4))
 
-        best_late = mgr.get_best_config_for_range("12-17")
+        best_late = mgr.get_best_config_for_range("14-17")
         assert best_late.config_id == "config_B"
 
     def test_get_best_config_for_range_no_results(self):
@@ -1013,28 +1018,33 @@ class TestPerWeekRangeMethods:
             mgr.get_best_config_for_range("1-6")  # Invalid range
 
     def test_get_best_configs_per_range_returns_all_ranges(self):
-        """get_best_configs_per_range should return dict with all three ranges."""
+        """get_best_configs_per_range should return dict with all four ranges."""
         mgr = ResultsManager()
 
         # Register configs with different strengths
         mgr.register_config("config_early", {"config_name": "early", "parameters": {}})
-        mgr.record_week_results("config_early", self.create_sample_week_results(wins_early=5, wins_mid=2, wins_late=2))
+        mgr.record_week_results("config_early", self.create_sample_week_results(wins_early=5, wins_mid_early=1, wins_mid_late=1, wins_late=1))
 
-        mgr.register_config("config_mid", {"config_name": "mid", "parameters": {}})
-        mgr.record_week_results("config_mid", self.create_sample_week_results(wins_early=2, wins_mid=6, wins_late=2))
+        mgr.register_config("config_mid_early", {"config_name": "mid_early", "parameters": {}})
+        mgr.record_week_results("config_mid_early", self.create_sample_week_results(wins_early=1, wins_mid_early=4, wins_mid_late=1, wins_late=1))
+
+        mgr.register_config("config_mid_late", {"config_name": "mid_late", "parameters": {}})
+        mgr.record_week_results("config_mid_late", self.create_sample_week_results(wins_early=1, wins_mid_early=1, wins_mid_late=4, wins_late=1))
 
         mgr.register_config("config_late", {"config_name": "late", "parameters": {}})
-        mgr.record_week_results("config_late", self.create_sample_week_results(wins_early=2, wins_mid=2, wins_late=5))
+        mgr.record_week_results("config_late", self.create_sample_week_results(wins_early=1, wins_mid_early=1, wins_mid_late=1, wins_late=4))
 
         best_per_range = mgr.get_best_configs_per_range()
 
         assert "1-5" in best_per_range
-        assert "6-11" in best_per_range
-        assert "12-17" in best_per_range
+        assert "6-9" in best_per_range
+        assert "10-13" in best_per_range
+        assert "14-17" in best_per_range
 
         assert best_per_range["1-5"].config_id == "config_early"
-        assert best_per_range["6-11"].config_id == "config_mid"
-        assert best_per_range["12-17"].config_id == "config_late"
+        assert best_per_range["6-9"].config_id == "config_mid_early"
+        assert best_per_range["10-13"].config_id == "config_mid_late"
+        assert best_per_range["14-17"].config_id == "config_late"
 
     @patch('simulation.ResultsManager.datetime')
     def test_save_optimal_configs_folder_creates_correct_structure(self, mock_datetime, tmp_path):
@@ -1064,11 +1074,12 @@ class TestPerWeekRangeMethods:
         assert folder_path.exists()
         assert folder_path.name == "optimal_2025-01-01_12-00-00"
 
-        # Verify all 4 files created
+        # Verify all 5 files created
         assert (folder_path / "league_config.json").exists()
         assert (folder_path / "week1-5.json").exists()
-        assert (folder_path / "week6-11.json").exists()
-        assert (folder_path / "week12-17.json").exists()
+        assert (folder_path / "week6-9.json").exists()
+        assert (folder_path / "week10-13.json").exists()
+        assert (folder_path / "week14-17.json").exists()
 
     @patch('simulation.ResultsManager.datetime')
     def test_save_optimal_configs_folder_base_config_has_base_params(self, mock_datetime, tmp_path):
@@ -1176,7 +1187,7 @@ class TestUpdateConfigsFolder:
             json.dump(league_config, f)
 
         # Week files with MATCHUP_SCORING and SCHEDULE_SCORING
-        for week_file in ["week1-5.json", "week6-11.json", "week12-17.json"]:
+        for week_file in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
             week_config = {
                 "config_name": f"optimal_test_{week_file}",
                 "parameters": {
@@ -1223,7 +1234,7 @@ class TestUpdateConfigsFolder:
             json.dump(league_config, f)
 
         # Week files
-        for week_file in ["week1-5.json", "week6-11.json", "week12-17.json"]:
+        for week_file in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
             week_config = {
                 "config_name": f"original_{week_file}",
                 "parameters": {
@@ -1279,7 +1290,7 @@ class TestUpdateConfigsFolder:
         mgr.update_configs_folder(optimal_folder, target_folder)
 
         # Check each week file
-        for week_file in ["week1-5.json", "week6-11.json", "week12-17.json"]:
+        for week_file in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
             with open(target_folder / week_file, 'r') as f:
                 updated = json.load(f)
 
@@ -1308,8 +1319,9 @@ class TestUpdateConfigsFolder:
         # Verify all files were created
         assert (target_folder / "league_config.json").exists()
         assert (target_folder / "week1-5.json").exists()
-        assert (target_folder / "week6-11.json").exists()
-        assert (target_folder / "week12-17.json").exists()
+        assert (target_folder / "week6-9.json").exists()
+        assert (target_folder / "week10-13.json").exists()
+        assert (target_folder / "week14-17.json").exists()
 
         # Verify league_config has optimal values (no preservation possible)
         with open(target_folder / "league_config.json", 'r') as f:

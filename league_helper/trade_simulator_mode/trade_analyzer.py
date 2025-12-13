@@ -158,6 +158,17 @@ class TradeAnalyzer:
         }
         sorted_roster = sorted(roster, key=lambda p: (position_priority.get(p.position, 99), p.name))
 
+        # DEBUG: Log roster composition being validated
+        from collections import Counter
+        pos_counts = Counter(p.position for p in roster)
+        flex_eligible_count = pos_counts.get('RB', 0) + pos_counts.get('WR', 0)
+        flex_slots = self.config.max_positions.get('FLEX', 0)
+        rb_slots = self.config.max_positions.get('RB', 0)
+        wr_slots = self.config.max_positions.get('WR', 0)
+        max_flex_eligible = rb_slots + wr_slots + flex_slots
+        self.logger.debug(f"VALIDATION: Roster has {len(roster)} players: {dict(pos_counts)}")
+        self.logger.debug(f"VALIDATION: FLEX-eligible: {flex_eligible_count} (RB={pos_counts.get('RB', 0)}, WR={pos_counts.get('WR', 0)}), max slots={max_flex_eligible} ({rb_slots} RB + {wr_slots} WR + {flex_slots} FLEX)")
+
         # Try to draft all players into a test team
         test_team = FantasyTeam(self.config, [])
         violations = 0
@@ -168,15 +179,25 @@ class TradeAnalyzer:
             p_copy = copy.deepcopy(p)
             p_copy.drafted = 0
             p_copy.locked = 0  # Unlock for testing - we're just counting violations, not enforcing lock status
+            # Set a valid bye week for testing - we only care about position limits here,
+            # not bye week validity. Invalid bye weeks (like 18 for post-season) would
+            # cause all players to fail drafting, breaking position validation.
+            if p_copy.bye_week is not None and p_copy.bye_week not in Constants.POSSIBLE_BYE_WEEKS:
+                p_copy.bye_week = 10  # Use a valid bye week for testing
 
             # Try to draft - if it fails, it's a violation
             drafted = test_team.draft_player(p_copy)
             if not drafted:
                 violations += 1
                 violation_players.append(f"{p.name} ({p.position})")
+                # DEBUG: Log why draft failed
+                slot_info = {pos: len(ids) for pos, ids in test_team.slot_assignments.items()}
+                self.logger.debug(f"VALIDATION: FAILED to draft {p.name} ({p.position}) - slots: {slot_info}")
 
         if violations > 0:
             self.logger.debug(f"Position violations: {violations} players cannot fit: {', '.join(violation_players)}")
+        else:
+            self.logger.debug(f"VALIDATION: All {len(roster)} players fit - no violations")
 
         return violations
 
@@ -248,19 +269,40 @@ class TradeAnalyzer:
         """
         # Always enforce MAX_PLAYERS limit
         if len(new_roster) > self.config.max_players:
+            self.logger.debug(f"VALIDATION REJECTED: Roster size {len(new_roster)} > max {self.config.max_players}")
             return False
 
+        # DEBUG: Log what's being compared
+        from collections import Counter
+        orig_pos = Counter(p.position for p in original_roster)
+        new_pos = Counter(p.position for p in new_roster)
+        self.logger.debug(f"LENIENT VALIDATION: Comparing rosters...")
+        self.logger.debug(f"  ORIGINAL ({len(original_roster)} players): {dict(orig_pos)}")
+        self.logger.debug(f"  NEW ({len(new_roster)} players): {dict(new_pos)}")
+
+        # Show what changed
+        dropped = [p for p in original_roster if p.id not in [x.id for x in new_roster]]
+        added = [p for p in new_roster if p.id not in [x.id for x in original_roster]]
+        if dropped or added:
+            self.logger.debug(f"  DROPPED: {[f'{p.name} ({p.position})' for p in dropped]}")
+            self.logger.debug(f"  ADDED: {[f'{p.name} ({p.position})' for p in added]}")
+
         # Count violations before and after trade
+        self.logger.debug("  Counting ORIGINAL roster violations...")
         violations_before = self.count_position_violations(original_roster)
+        self.logger.debug("  Counting NEW roster violations...")
         violations_after = self.count_position_violations(new_roster)
 
         # DEBUG: Log violation counts
-        self.logger.debug(f"Violations before: {violations_before}, after: {violations_after}")
+        self.logger.debug(f"VALIDATION RESULT: violations_before={violations_before}, violations_after={violations_after}")
 
         # Allow trade if violations don't increase
         # (violations_after <= violations_before)
         result = violations_after <= violations_before
-        self.logger.debug(f"Validation result: {result} (violations_after <= violations_before)")
+        if result:
+            self.logger.debug(f"  TRADE ALLOWED: {violations_after} <= {violations_before}")
+        else:
+            self.logger.debug(f"  TRADE REJECTED: {violations_after} > {violations_before}")
         return result
 
     def validate_min_positions_lenient(
@@ -789,6 +831,22 @@ class TradeAnalyzer:
 
         # Log player filtering results
         self.logger.debug(f"Filtered rosters: my_tradeable={len(my_roster)}, my_locked={len(my_locked)}, my_ir={len(my_ir)}, their_tradeable={len(their_roster)}, their_locked={len(their_locked)}, their_ir={len(their_ir)}")
+
+        # DEBUG: Log detailed roster composition for validation debugging
+        from collections import Counter
+        my_pos_counts = Counter(p.position for p in my_original_full_roster)
+        self.logger.debug(f"=== MY ORIGINAL ROSTER FOR VALIDATION ===")
+        self.logger.debug(f"  Total: {len(my_original_full_roster)} players")
+        self.logger.debug(f"  Positions: {dict(my_pos_counts)}")
+        self.logger.debug(f"  RB+WR (FLEX-eligible): {my_pos_counts.get('RB', 0) + my_pos_counts.get('WR', 0)}")
+        self.logger.debug(f"  Max slots: RB={self.config.max_positions.get('RB', 0)}, WR={self.config.max_positions.get('WR', 0)}, FLEX={self.config.max_positions.get('FLEX', 0)}")
+        self.logger.debug(f"  Locked players: {[f'{p.name} ({p.position})' for p in my_locked]}")
+
+        # Check initial violations
+        initial_violations = self.count_position_violations(my_original_full_roster)
+        self.logger.debug(f"  INITIAL VIOLATIONS: {initial_violations}")
+        if initial_violations > 0:
+            self.logger.warning(f"WARNING: Original roster already has {initial_violations} position violation(s)!")
 
         # Define lenient validation helper that allows trades if violations don't worsen
         def validate_trade_roster(original_full: List[FantasyPlayer], new_full: List[FantasyPlayer]) -> bool:

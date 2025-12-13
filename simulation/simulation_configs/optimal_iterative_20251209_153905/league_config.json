@@ -96,7 +96,7 @@
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 26
+        "STEPS": 25
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,

@@ -1,0 +1,2 @@
+I want to update the simulation such that the PARAMETER_ORDER variable from ConfigGenerator is passed from the runner script at the root of the project.
+E.g. I want run_draft_order_loop.py and run_simulation.py to define different PARAMETER_ORDER variables at the top of each file then pass those to the simulation

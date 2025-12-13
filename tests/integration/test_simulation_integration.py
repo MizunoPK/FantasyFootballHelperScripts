@@ -109,7 +109,7 @@ def create_test_config_folder(tmp_path: Path) -> Path:
     actual_configs = project_root / "data" / "configs"
     if actual_configs.exists():
         # Copy from real configs
-        for config_file in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for config_file in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             src = actual_configs / config_file
             if src.exists():
                 with open(src) as f:
@@ -180,7 +180,7 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         'LOCATION_MODIFIERS': {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0},
     }
 
-    for week_file in ['week1-5.json', 'week6-11.json', 'week12-17.json']:
+    for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = {
             'config_name': f'Test {week_file}',
             'description': f'Test week config for {week_file}',

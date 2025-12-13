@@ -177,8 +177,9 @@ def temp_data_folder(tmp_path):
 
         # Write week config files
         (dest_configs_folder / "week1-5.json").write_text(week_params_base)
-        (dest_configs_folder / "week6-11.json").write_text(week_params_base)
-        (dest_configs_folder / "week12-17.json").write_text(week_params_base)
+        (dest_configs_folder / "week6-9.json").write_text(week_params_base)
+        (dest_configs_folder / "week10-13.json").write_text(week_params_base)
+        (dest_configs_folder / "week14-17.json").write_text(week_params_base)
 
     return data_folder
 

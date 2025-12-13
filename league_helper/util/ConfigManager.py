@@ -234,8 +234,9 @@ class ConfigManager:
 
         Week ranges:
         - Weeks 1-5: week1-5.json
-        - Weeks 6-11: week6-11.json
-        - Weeks 12-17: week12-17.json
+        - Weeks 6-9: week6-9.json
+        - Weeks 10-13: week10-13.json
+        - Weeks 14-17: week14-17.json
 
         Args:
             week (int): NFL week number (1-17)
@@ -248,10 +249,12 @@ class ConfigManager:
         """
         if 1 <= week <= 5:
             return "week1-5.json"
-        elif 6 <= week <= 11:
-            return "week6-11.json"
-        elif 12 <= week <= 17:
-            return "week12-17.json"
+        elif 6 <= week <= 9:
+            return "week6-9.json"
+        elif 10 <= week <= 13:
+            return "week10-13.json"
+        elif 14 <= week <= 17:
+            return "week14-17.json"
         else:
             raise ValueError(f"Invalid week number: {week}. Must be between 1 and 17.")
 

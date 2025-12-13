@@ -464,14 +464,14 @@ class TestRunDraftOrderLoop:
         # Create two optimal folders
         folder1 = config_dir / "optimal_old"
         folder1.mkdir()
-        for f in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for f in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             (folder1 / f).write_text('{}')
 
         time.sleep(0.1)  # Ensure different modification times
 
         folder2 = config_dir / "optimal_new"
         folder2.mkdir()
-        for f in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for f in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             (folder2 / f).write_text('{}')
 
         result = find_latest_optimal_folder(config_dir)
@@ -598,7 +598,7 @@ class TestRunDraftOrderLoop:
         # Set up root baseline
         root_baseline = tmp_path / "optimal_baseline"
         root_baseline.mkdir()
-        for f in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for f in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             (root_baseline / f).write_text(json.dumps({"parameters": {}}))
 
         # Set up draft order file
@@ -633,7 +633,7 @@ class TestRunDraftOrderLoop:
         # Set up root baseline
         root_baseline = tmp_path / "optimal_baseline"
         root_baseline.mkdir()
-        for f in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for f in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             (root_baseline / f).write_text(json.dumps({"parameters": {}}))
 
         # Set up draft order file
@@ -660,7 +660,7 @@ class TestRunDraftOrderLoop:
         # Create seed folder
         seed = strategy_folder / "optimal_seed"
         seed.mkdir()
-        for f in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for f in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             (seed / f).write_text('{}')
 
         time.sleep(0.1)
@@ -668,7 +668,7 @@ class TestRunDraftOrderLoop:
         # Create iterative folder (more recent)
         iterative = strategy_folder / "optimal_iterative_20251209"
         iterative.mkdir()
-        for f in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for f in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             (iterative / f).write_text('{}')
 
         result = get_strategy_baseline(strategy_folder)
@@ -684,7 +684,7 @@ class TestRunDraftOrderLoop:
         # Create only seed folder
         seed = strategy_folder / "optimal_seed"
         seed.mkdir()
-        for f in ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for f in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             (seed / f).write_text('{}')
 
         result = get_strategy_baseline(strategy_folder)

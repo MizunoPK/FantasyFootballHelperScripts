@@ -200,7 +200,7 @@ class ConfigGenerator:
         'SECONDARY_BONUS',
         # ADP Scoring
         'ADP_SCORING_WEIGHT',
-        'ADP_SCORING_STEPS',
+        # 'ADP_SCORING_STEPS',
         # Player Rating Scoring
         'PLAYER_RATING_SCORING_WEIGHT',
         # Team Quality Scoring
@@ -309,8 +309,9 @@ class ConfigGenerator:
         Loads the folder structure created by save_optimal_configs_folder():
         - league_config.json (base parameters)
         - week1-5.json (early season week-specific params)
-        - week6-11.json (mid season week-specific params)
-        - week12-17.json (late season week-specific params)
+        - week6-9.json (mid-early season week-specific params)
+        - week10-13.json (mid-late season week-specific params)
+        - week14-17.json (late season week-specific params)
 
         Merges all files into a unified config dict for optimization.
         Week-specific params are taken from week1-5.json as the starting point
@@ -340,7 +341,7 @@ class ConfigGenerator:
             raise ValueError(f"Path is not a directory: {folder_path}")
 
         # Required files
-        required_files = ['league_config.json', 'week1-5.json', 'week6-11.json', 'week12-17.json']
+        required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
         missing_files = []
 
         for filename in required_files:
@@ -361,7 +362,7 @@ class ConfigGenerator:
 
         # Load week-specific configs
         week_configs = {}
-        for week_file in ['week1-5.json', 'week6-11.json', 'week12-17.json']:
+        for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             week_path = folder_path / week_file
             with open(week_path, 'r') as f:
                 week_configs[week_file] = json.load(f)
@@ -393,7 +394,7 @@ class ConfigGenerator:
 
         The baseline must be a folder containing the week-by-week config structure:
         - league_config.json (base parameters)
-        - week1-5.json, week6-11.json, week12-17.json (week-specific params)
+        - week1-5.json, week6-9.json, week10-13.json, week14-17.json (week-specific params)
 
         Args:
             baseline_config_path (Path): Path to config folder (NOT a single JSON file)
@@ -411,7 +412,7 @@ class ConfigGenerator:
         if baseline_config_path.is_file():
             raise ValueError(
                 f"ConfigGenerator requires a folder path, not a file: {baseline_config_path}\n"
-                f"Expected folder structure with: league_config.json, week1-5.json, week6-11.json, week12-17.json"
+                f"Expected folder structure with: league_config.json, week1-5.json, week6-9.json, week10-13.json, week14-17.json"
             )
 
         self.logger.info(f"Initializing ConfigGenerator with baseline folder: {baseline_config_path}")
