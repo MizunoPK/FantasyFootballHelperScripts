@@ -12,10 +12,18 @@ This guide covers the implementation workflow for features that have completed t
 
 1. **Check prerequisites** - Feature folder exists with approved `_specs.md` and all checklist items `[x]`
 2. **Create TODO file** - Use template from `templates.md`, populate from `_specs.md`
-3. **Complete 24 iterations** - 3 rounds (7 + 9 + 8), use iteration reference table below
+3. **Complete ALL 24 iterations** - 3 rounds (7 + 9 + 8) - **NO EXCEPTIONS, even for "simple" features**
 4. **Implement changes** - Execute TODO tasks with 100% test pass rate after each phase
-5. **Complete QC rounds** - 3 rounds minimum, then move folder to `done/`
+5. **Complete ALL 3 QC rounds** - **NO EXCEPTIONS** - then move folder to `done/`
 6. **Commit changes** - Create commit with descriptive message summarizing the feature
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  WARNING: Steps 3 and 5 are MANDATORY                           │
+│  Do NOT skip iterations or QC rounds for ANY reason             │
+│  "Simple" features still require full verification              │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 **CRITICAL:** Update the README.md "Agent Status" section after completing each major step. This ensures continuity if the session is interrupted.
 
@@ -28,15 +36,17 @@ This guide covers the implementation workflow for features that have completed t
 | Mistake | Why It's Bad | Prevention |
 |---------|--------------|------------|
 | Using `_notes.txt` instead of `_specs.md` | Notes are scratchwork; specs are the approved plan | **Always use `_specs.md`** as primary specification |
-| Skipping verification iterations | Bugs and missing requirements found during implementation | Complete all **24 iterations** across 3 rounds |
+| Skipping iterations for "simple" features | Even simple changes have hidden complexity; bugs slip through | **Complete ALL 24 iterations** - no exceptions |
+| Skipping QC rounds | Each round catches different bug types; subtle issues slip through | **Complete ALL 3 QC rounds** - no exceptions |
+| "Just implementing" without verification | Miss integration gaps, dependencies, edge cases | **Never write code before iteration 24** |
 | Creating orphan code | Methods exist but are never called; feature doesn't work | Use **Integration Gap Check** - every new method needs a caller |
 | Simplified algorithm logic | Spec says "if X then A, else B" but code uses only A | Use **Algorithm Traceability Matrix** - match spec exactly |
 | Tests pass but behavior wrong | Structure tests don't catch logic errors | Write **behavior tests** that would fail if algorithm is wrong |
-| Skipping QC rounds | Subtle bugs slip through | Complete all **3 QC review rounds** before marking done |
 | Heavy mocking hides real bugs | Mocked tests pass but real code has issues | Write **integration tests with real objects** (see Testing Anti-Patterns) |
 | Output existence ≠ correctness | Files exist but contain wrong data | Write **output content validation tests** that verify file contents |
 | Untested private methods | Critical logic in private methods never exercised | Test **private methods with critical logic** through their callers or directly |
 | Parameter dependencies missed | Updating param A requires updating param B | Use **Parameter Dependency Check** - document and test all dependencies |
+| Thinking "I know what to do" | Assumptions are often wrong; research validates | **Always research codebase** before assuming |
 
 ---
 
@@ -148,6 +158,49 @@ When adding parameters that reference other data, verify:
 - [x] Test: When `DRAFT_ORDER_FILE` changes from 1 to 3, `DRAFT_ORDER` array matches file 3
 - [x] Update method: `_update_base_config_param` copies both `DRAFT_ORDER_FILE` AND `DRAFT_ORDER`
 - [x] Output test: Saved config has `DRAFT_ORDER` matching `DRAFT_ORDER_FILE`
+
+---
+
+## Critical Warning: No Skipping Iterations
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ⚠️  NEVER SKIP ITERATIONS - NO EXCEPTIONS                       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**ALL 24 verification iterations and ALL 3 QC rounds are MANDATORY.** There are no exceptions, regardless of:
+
+- Feature complexity ("it's a simple change")
+- Time pressure ("we need this done quickly")
+- Confidence level ("I already know what needs to be done")
+- Feature size ("it's just a config change")
+
+### Why Simple Features Still Need All Iterations
+
+**Real-world example:** A "simple" feature to move a config parameter from base config to week configs seemed trivial:
+- Just remove from one file, add to four files
+- One line change in a Python file
+
+**What the iterations caught:**
+- QC Round 2 found outdated docstring examples that would confuse future developers
+- QC Round 3 found an inconsistent test fixture that could cause false positives
+
+**Without iterations, these bugs would have been committed.**
+
+### The False Economy of Skipping
+
+| Skipping | Consequence |
+|----------|-------------|
+| "Save time by skipping iterations" | Bugs found later cost 10x more to fix |
+| "Feature is too simple to need QC" | Subtle issues slip through, cause production bugs |
+| "I'll just implement and test" | Miss integration gaps, orphan code, inconsistencies |
+
+### Enforcement
+
+- **Pre-implementation:** Complete iterations 1-24 before writing any implementation code
+- **Post-implementation:** Complete QC rounds 1-3 before committing
+- **No shortcuts:** Even config-only changes require full verification
 
 ---
 
@@ -709,24 +762,38 @@ Add simulation optimizations: shared data dirs, runner reuse
 
 ## Enforcement Rules
 
-These rules are **mandatory and non-negotiable**:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  These rules are MANDATORY and NON-NEGOTIABLE                   │
+│  NO EXCEPTIONS for "simple" features or time pressure           │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-| Rule | Requirement |
-|------|-------------|
-| **24 Iterations** | Must complete all 3 verification rounds (7 + 9 + 8) |
-| **Data Flow** | Must execute iterations 5, 12 |
-| **Skeptical Review** | Must execute iterations 6, 13, 22 |
-| **Integration Check** | Must execute iterations 7, 14, 23 |
-| **Algorithm Traceability** | Must create matrix for all calculations |
-| **Questions File** | Must create after first verification round |
-| **100% Test Pass** | Cannot commit or proceed with failing tests |
-| **3 QC Rounds** | Must complete before marking done |
-| **Lessons Learned** | Must review and apply guide updates |
-| **No Orphan Code** | Every new method must have a caller |
-| **No Assumptions** | Research codebase to validate approach |
-| **No Testing Anti-Patterns** | Avoid heavy mocking, test output contents, test dependencies |
+| Rule | Requirement | Cannot Skip Because... |
+|------|-------------|------------------------|
+| **24 Iterations** | Must complete all 3 verification rounds (7 + 9 + 8) | "Simple" features still have hidden complexity |
+| **Data Flow** | Must execute iterations 5, 12 | Integration gaps are invisible without tracing |
+| **Skeptical Review** | Must execute iterations 6, 13, 22 | Assumptions cause bugs; verify everything |
+| **Integration Check** | Must execute iterations 7, 14, 23 | Orphan code passes tests but doesn't work |
+| **Algorithm Traceability** | Must create matrix for all calculations | Simplified logic causes subtle bugs |
+| **Questions File** | Must create after first verification round (or document "no questions") | Unstated assumptions cause rework |
+| **100% Test Pass** | Cannot commit or proceed with failing tests | Broken tests mean broken code |
+| **3 QC Rounds** | Must complete ALL 3 rounds before marking done | Each round catches different issue types |
+| **Lessons Learned** | Must review and apply guide updates | Prevents repeating mistakes |
+| **No Orphan Code** | Every new method must have a caller | Untested integration = broken feature |
+| **No Assumptions** | Research codebase to validate approach | Assumptions are often wrong |
+| **No Testing Anti-Patterns** | Test behavior, not just structure | Structure tests miss logic bugs |
 
-**If ANY rule is violated:** Stop, correct, and re-validate.
+### Violation Response
+
+**If ANY rule is violated:**
+1. **STOP** immediately
+2. **Go back** to the skipped step
+3. **Complete** the skipped work fully
+4. **Re-validate** all subsequent work
+5. **Document** in lessons learned why the skip was attempted
+
+**There is no "catch up later" - skipped work must be completed before proceeding.**
 
 ---
 

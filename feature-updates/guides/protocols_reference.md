@@ -496,6 +496,14 @@ For each algorithm/calculation in the spec, verify the implementation matches **
 
 **Execute:** After implementation appears complete, minimum 3 rounds required.
 
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ALL 3 QC ROUNDS ARE MANDATORY - NO EXCEPTIONS                  │
+│  Do NOT skip rounds for "simple" features or time pressure      │
+│  Each round catches different issue types                       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 **Round 1: Initial Quality Review**
 1. Re-read the specification file (`{feature_name}_specs.md`)
 2. Re-read the TODO file (`{feature_name}_todo.md`)
@@ -539,12 +547,19 @@ After each round, document in the code changes file:
 - Status: PASSED / ISSUES FOUND (fixed)
 ```
 
-### Why 3 Rounds?
+### Why 3 Rounds? (And Why You Cannot Skip Any)
 
 Experience shows that:
 - Round 1 catches obvious issues
 - Round 2 catches algorithm/logic issues missed in Round 1
 - Round 3 catches subtle issues that require "adversarial" thinking
+
+**Real-world example:** A "simple" config parameter move:
+- Round 1: Verified all requirements met
+- Round 2: Found outdated docstring examples that would confuse developers
+- Round 3: Found inconsistent test fixture that could cause false test passes
+
+**Each round catches issues the previous rounds missed. Skipping any round allows bugs to ship.**
 
 ---
 
