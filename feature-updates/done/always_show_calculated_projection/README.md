@@ -43,8 +43,8 @@
 - [x] QC Round 1 - Verified all changes
 - [x] QC Round 2 - Verified algorithm and edge cases
 - [x] QC Round 3 - Final skeptical review
-- [ ] Commit changes
-- [ ] Move folder to done/
+- [x] Commit changes
+- [x] Move folder to done/
 
 ---
 
