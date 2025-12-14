@@ -451,7 +451,19 @@ class PlayerScoringCalculator:
         )
 
         p.score = player_score
-        return ScoredPlayer(p, player_score, reasons)
+
+        # Calculate the "calculated projection" by reversing the normalization
+        # This shows what the adjusted fantasy points would be after all scoring steps
+        # Formula: calculated_pts = (final_score / normalization_scale) * max_projection
+        normalization_scale = self.config.normalization_max_scale
+        chosen_max = self.max_weekly_projection if use_weekly_projection else self.max_projection
+
+        if normalization_scale > 0 and chosen_max > 0:
+            calculated_projection = (player_score / normalization_scale) * chosen_max
+        else:
+            calculated_projection = 0.0
+
+        return ScoredPlayer(p, player_score, reasons, projected_points=calculated_projection)
 
     def _get_normalized_fantasy_points(self, p: FantasyPlayer, use_weekly_projection: bool) -> Tuple[float, str]:
         """Get normalized fantasy points (Step 1)."""

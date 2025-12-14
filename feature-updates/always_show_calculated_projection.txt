@@ -1,2 +1,0 @@
-Update scoring methods to always return the un-normalized projected point value like what is shown in the Starter Helper
-Update the to_strings and player print statements to always show what the calculated projected points for the player is
