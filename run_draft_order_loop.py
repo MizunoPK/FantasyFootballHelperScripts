@@ -49,6 +49,41 @@ DEFAULT_DATA = 'simulation/sim_data'
 DEFAULT_TEST_VALUES = 24
 NUM_PARAMETERS_TO_TEST = 1
 
+# Parameter ordering for iterative optimization
+# Defines which parameters to optimize and in what order
+PARAMETER_ORDER = [
+    # Normalization and Bye Penalties
+    'NORMALIZATION_MAX_SCALE',
+    'SAME_POS_BYE_WEIGHT',
+    'DIFF_POS_BYE_WEIGHT',
+    # Draft Order Bonuses
+    'PRIMARY_BONUS',
+    'SECONDARY_BONUS',
+    # ADP Scoring
+    'ADP_SCORING_WEIGHT',
+    # Player Rating Scoring
+    'PLAYER_RATING_SCORING_WEIGHT',
+    # Team Quality Scoring
+    'TEAM_QUALITY_SCORING_WEIGHT',
+    'TEAM_QUALITY_MIN_WEEKS',
+    # Performance Scoring
+    'PERFORMANCE_SCORING_WEIGHT',
+    'PERFORMANCE_SCORING_STEPS',
+    'PERFORMANCE_MIN_WEEKS',
+    # Matchup Scoring (additive)
+    'MATCHUP_IMPACT_SCALE',
+    'MATCHUP_SCORING_WEIGHT',
+    'MATCHUP_MIN_WEEKS',
+    # Game Condition Scoring
+    'TEMPERATURE_IMPACT_SCALE',
+    'TEMPERATURE_SCORING_WEIGHT',
+    'WIND_IMPACT_SCALE',
+    'WIND_SCORING_WEIGHT',
+    'LOCATION_HOME',
+    'LOCATION_AWAY',
+    'LOCATION_INTERNATIONAL',
+]
+
 
 def discover_draft_order_files(draft_order_dir: Path) -> List[int]:
     """
@@ -485,9 +520,10 @@ Examples:
                 baseline_config_path=baseline,
                 output_dir=strategy_folder,
                 num_simulations_per_config=args.sims,
-                num_test_values=args.test_values,
                 max_workers=args.workers,
                 data_folder=data_folder,
+                parameter_order=PARAMETER_ORDER,
+                num_test_values=args.test_values,
                 num_parameters_to_test=NUM_PARAMETERS_TO_TEST,
                 use_processes=args.use_processes,
                 auto_update_league_config=False  # Don't update root data/configs

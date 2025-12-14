@@ -25,6 +25,33 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "simulation"))
 from ConfigGenerator import ConfigGenerator
 
+# Standard parameter order for testing
+# This mirrors the production PARAMETER_ORDER from run_simulation.py
+TEST_PARAMETER_ORDER = [
+    'NORMALIZATION_MAX_SCALE',
+    'SAME_POS_BYE_WEIGHT',
+    'DIFF_POS_BYE_WEIGHT',
+    'PRIMARY_BONUS',
+    'SECONDARY_BONUS',
+    'ADP_SCORING_WEIGHT',
+    'PLAYER_RATING_SCORING_WEIGHT',
+    'TEAM_QUALITY_SCORING_WEIGHT',
+    'TEAM_QUALITY_MIN_WEEKS',
+    'PERFORMANCE_SCORING_WEIGHT',
+    'PERFORMANCE_SCORING_STEPS',
+    'PERFORMANCE_MIN_WEEKS',
+    'MATCHUP_IMPACT_SCALE',
+    'MATCHUP_SCORING_WEIGHT',
+    'MATCHUP_MIN_WEEKS',
+    'TEMPERATURE_IMPACT_SCALE',
+    'TEMPERATURE_SCORING_WEIGHT',
+    'WIND_IMPACT_SCALE',
+    'WIND_SCORING_WEIGHT',
+    'LOCATION_HOME',
+    'LOCATION_AWAY',
+    'LOCATION_INTERNATIONAL',
+]
+
 
 def create_test_config_folder(base_config: dict, tmp_path: Path) -> Path:
     """
@@ -253,7 +280,7 @@ class TestConfigGeneratorInitialization:
 
     def test_initialization_default_num_test_values(self, temp_baseline_config):
         """Test initialization with default num_test_values"""
-        gen = ConfigGenerator(temp_baseline_config)
+        gen = ConfigGenerator(temp_baseline_config, TEST_PARAMETER_ORDER)
 
         assert gen.num_test_values == 5
         assert gen.baseline_config is not None
@@ -261,14 +288,14 @@ class TestConfigGeneratorInitialization:
 
     def test_initialization_custom_num_test_values(self, temp_baseline_config):
         """Test initialization with custom num_test_values"""
-        gen = ConfigGenerator(temp_baseline_config, num_test_values=3)
+        gen = ConfigGenerator(temp_baseline_config, TEST_PARAMETER_ORDER, num_test_values=3)
 
         assert gen.num_test_values == 3
         assert gen.baseline_config is not None
 
     def test_load_baseline_config_success(self, temp_baseline_config):
         """Test successful loading of baseline configuration"""
-        gen = ConfigGenerator(temp_baseline_config)
+        gen = ConfigGenerator(temp_baseline_config, TEST_PARAMETER_ORDER)
 
         config = gen.baseline_config
         # Config name is now "Merged from ..." since it's loaded from folder
@@ -279,7 +306,7 @@ class TestConfigGeneratorInitialization:
 
     def test_param_definitions_exist(self, temp_baseline_config):
         """Test that param_definitions dict exists and is non-empty"""
-        gen = ConfigGenerator(temp_baseline_config)
+        gen = ConfigGenerator(temp_baseline_config, TEST_PARAMETER_ORDER)
 
         # param_definitions should exist and contain entries
         assert hasattr(gen, 'param_definitions')
@@ -295,12 +322,12 @@ class TestConfigGeneratorInitialization:
             assert precision >= 0, f"{param_name} precision should be >= 0"
 
     def test_parameter_order_exists(self, temp_baseline_config):
-        """Test that PARAMETER_ORDER list exists"""
-        gen = ConfigGenerator(temp_baseline_config)
+        """Test that parameter_order instance variable exists"""
+        gen = ConfigGenerator(temp_baseline_config, TEST_PARAMETER_ORDER)
 
-        assert hasattr(gen, 'PARAMETER_ORDER')
-        assert isinstance(gen.PARAMETER_ORDER, list)
-        # PARAMETER_ORDER can be empty or have any number of params - just verify it exists
+        assert hasattr(gen, 'parameter_order')
+        assert isinstance(gen.parameter_order, list)
+        assert gen.parameter_order == TEST_PARAMETER_ORDER
 
 
 class TestParameterValueGeneration:
@@ -311,7 +338,7 @@ class TestParameterValueGeneration:
         """Create a ConfigGenerator instance for testing"""
         config = {"config_name": "test_config", "parameters": {}}
         config_folder = create_test_config_folder(config, tmp_path)
-        return ConfigGenerator(config_folder, num_test_values=2)  # Use 2 for faster tests
+        return ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=2)  # Use 2 for faster tests
 
     def test_generate_parameter_values_correct_count(self, generator):
         """Test that correct number of values are generated"""
@@ -397,7 +424,7 @@ class TestParameterValueGeneration:
         with tempfile.TemporaryDirectory() as tmp:
             from pathlib import Path
             config_folder = create_test_config_folder(config, Path(tmp))
-            gen = ConfigGenerator(config_folder, num_test_values=10)  # > 6 possible values
+            gen = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=10)  # > 6 possible values
             values = gen.generate_parameter_values('TEST_PARAM', 0.3, 0.0, 0.5, 1)
 
         # Should return all 6 possible values
@@ -481,7 +508,7 @@ class TestCombinationGeneration:
         """Create a ConfigGenerator with minimal test values"""
         config = {"config_name": "test_config", "parameters": {}}
         config_folder = create_test_config_folder(config, tmp_path)
-        return ConfigGenerator(config_folder, num_test_values=1)  # Use 1 for minimal combinations
+        return ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=1)  # Use 1 for minimal combinations
 
     def test_generate_all_combinations_structure(self, generator):
         """Test that combinations have correct structure"""
@@ -524,7 +551,7 @@ class TestConfigDictCreation:
         """Create a generator and a sample combination"""
         config = {"config_name": "test_config", "parameters": {}}
         config_folder = create_test_config_folder(config, tmp_path)
-        gen = ConfigGenerator(config_folder)
+        gen = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER)
 
         combination = {
             'NORMALIZATION_MAX_SCALE': 110.0,
@@ -604,7 +631,7 @@ class TestIterativeOptimizationSupport:
         """Create a generator for iterative optimization tests"""
         config = {"config_name": "test_config", "parameters": {}}
         config_folder = create_test_config_folder(config, tmp_path)
-        return ConfigGenerator(config_folder, num_test_values=2)
+        return ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=2)
 
     def test_generate_single_parameter_configs_correct_count(self, generator):
         """Test that correct number of configs are generated"""
@@ -667,7 +694,7 @@ class TestEdgeCases:
     def test_missing_config_folder(self):
         """Test that missing config folder raises ValueError"""
         with pytest.raises(ValueError, match="does not exist"):
-            ConfigGenerator(Path('/nonexistent/config_folder'))
+            ConfigGenerator(Path('/nonexistent/config_folder'), TEST_PARAMETER_ORDER)
 
     def test_config_file_instead_of_folder(self, tmp_path):
         """Test that passing a file instead of folder raises ValueError"""
@@ -676,7 +703,7 @@ class TestEdgeCases:
         config_file.write_text('{"config_name": "test"}')
 
         with pytest.raises(ValueError, match="requires a folder path"):
-            ConfigGenerator(config_file)
+            ConfigGenerator(config_file, TEST_PARAMETER_ORDER)
 
     def test_missing_required_files_in_folder(self, tmp_path):
         """Test that folder missing required files raises ValueError"""
@@ -689,7 +716,7 @@ class TestEdgeCases:
             json.dump(league_config, f)
 
         with pytest.raises(ValueError, match="Missing required config files"):
-            ConfigGenerator(config_folder)
+            ConfigGenerator(config_folder, TEST_PARAMETER_ORDER)
 
     def test_invalid_json_in_folder(self, tmp_path):
         """Test that invalid JSON in folder raises JSONDecodeError"""
@@ -704,7 +731,42 @@ class TestEdgeCases:
                 json.dump({"config_name": week_file, "parameters": {}}, f)
 
         with pytest.raises(json.JSONDecodeError):
-            ConfigGenerator(config_folder)
+            ConfigGenerator(config_folder, TEST_PARAMETER_ORDER)
+
+    def test_unknown_parameter_in_parameter_order(self, tmp_path):
+        """Test that unknown parameters in parameter_order raise ValueError"""
+        # Create valid config folder
+        config_folder = tmp_path / "valid_config"
+        config_folder.mkdir()
+
+        league_config = {"config_name": "test", "parameters": {}}
+        with open(config_folder / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+        for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
+            with open(config_folder / week_file, 'w') as f:
+                json.dump({"config_name": week_file, "parameters": {}}, f)
+
+        # Try to create with unknown parameter
+        invalid_order = ['NORMALIZATION_MAX_SCALE', 'FAKE_PARAM_DOES_NOT_EXIST']
+        with pytest.raises(ValueError, match="Unknown parameters in parameter_order"):
+            ConfigGenerator(config_folder, invalid_order)
+
+    def test_empty_parameter_order(self, tmp_path):
+        """Test that empty parameter_order raises ValueError"""
+        # Create valid config folder
+        config_folder = tmp_path / "valid_config"
+        config_folder.mkdir()
+
+        league_config = {"config_name": "test", "parameters": {}}
+        with open(config_folder / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+        for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
+            with open(config_folder / week_file, 'w') as f:
+                json.dump({"config_name": week_file, "parameters": {}}, f)
+
+        # Try to create with empty parameter order
+        with pytest.raises(ValueError, match="parameter_order cannot be empty"):
+            ConfigGenerator(config_folder, [])
 
 
 class TestGenerateIterativeCombinations:
@@ -719,16 +781,16 @@ class TestGenerateIterativeCombinations:
     def test_config_generator(self, baseline_config_dict, tmp_path):
         """Create ConfigGenerator instance for testing"""
         config_folder = create_test_config_folder(baseline_config_dict, tmp_path)
-        return ConfigGenerator(config_folder, num_test_values=5, num_parameters_to_test=2)
+        return ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=5, num_parameters_to_test=2)
 
     def test_with_num_parameters_1_base_only(self, baseline_config_dict, tmp_path):
         """Test with NUM_PARAMETERS_TO_TEST=1 (base parameter only)"""
-        if not ConfigGenerator.PARAMETER_ORDER:
+        if not TEST_PARAMETER_ORDER:
             return
 
         config_folder = create_test_config_folder(baseline_config_dict, tmp_path)
-        generator = ConfigGenerator(config_folder, num_test_values=5, num_parameters_to_test=1)
-        first_param = ConfigGenerator.PARAMETER_ORDER[0]
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=5, num_parameters_to_test=1)
+        first_param = TEST_PARAMETER_ORDER[0]
         configs = generator.generate_iterative_combinations(first_param, generator.baseline_config)
 
         expected_count = generator.num_test_values + 1
@@ -740,12 +802,12 @@ class TestGenerateIterativeCombinations:
 
     def test_with_num_parameters_2_base_plus_one_random(self, baseline_config_dict, tmp_path):
         """Test with NUM_PARAMETERS_TO_TEST=2 (base + 1 random)"""
-        if len(ConfigGenerator.PARAMETER_ORDER) < 2:
+        if len(TEST_PARAMETER_ORDER) < 2:
             return
 
         config_folder = create_test_config_folder(baseline_config_dict, tmp_path)
-        generator = ConfigGenerator(config_folder, num_test_values=5, num_parameters_to_test=2)
-        first_param = ConfigGenerator.PARAMETER_ORDER[0]
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=5, num_parameters_to_test=2)
+        first_param = TEST_PARAMETER_ORDER[0]
         configs = generator.generate_iterative_combinations(first_param, generator.baseline_config)
 
         n = generator.num_test_values
@@ -757,12 +819,12 @@ class TestGenerateIterativeCombinations:
 
     def test_with_num_parameters_3_base_plus_two_random(self, baseline_config_dict, tmp_path):
         """Test with NUM_PARAMETERS_TO_TEST=3 (base + 2 random)"""
-        if len(ConfigGenerator.PARAMETER_ORDER) < 3:
+        if len(TEST_PARAMETER_ORDER) < 3:
             return
 
         config_folder = create_test_config_folder(baseline_config_dict, tmp_path)
-        generator = ConfigGenerator(config_folder, num_test_values=5, num_parameters_to_test=3)
-        first_param = ConfigGenerator.PARAMETER_ORDER[0]
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=5, num_parameters_to_test=3)
+        first_param = TEST_PARAMETER_ORDER[0]
         configs = generator.generate_iterative_combinations(first_param, generator.baseline_config)
 
         n = generator.num_test_values
@@ -775,21 +837,21 @@ class TestGenerateIterativeCombinations:
     def test_edge_case_num_parameters_exceeds_available(self, baseline_config_dict, tmp_path):
         """Test that num_parameters_to_test is capped at PARAMETER_ORDER length"""
         config_folder = create_test_config_folder(baseline_config_dict, tmp_path)
-        num_params = min(4, len(ConfigGenerator.PARAMETER_ORDER)) if ConfigGenerator.PARAMETER_ORDER else 1
-        generator = ConfigGenerator(config_folder, num_test_values=1, num_parameters_to_test=num_params)
+        num_params = min(4, len(TEST_PARAMETER_ORDER)) if TEST_PARAMETER_ORDER else 1
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=1, num_parameters_to_test=num_params)
 
-        if not ConfigGenerator.PARAMETER_ORDER:
+        if not TEST_PARAMETER_ORDER:
             return
 
-        first_param = ConfigGenerator.PARAMETER_ORDER[0]
+        first_param = TEST_PARAMETER_ORDER[0]
         configs = generator.generate_iterative_combinations(first_param, generator.baseline_config)
 
         assert len(configs) > 0
         assert all('parameters' in config for config in configs)
 
         # Create another generator with 100 params - should cap at PARAMETER_ORDER length
-        generator2 = ConfigGenerator(config_folder, num_test_values=1, num_parameters_to_test=100)
-        assert len(generator2.PARAMETER_ORDER) == len(ConfigGenerator.PARAMETER_ORDER)
+        generator2 = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=1, num_parameters_to_test=100)
+        assert len(generator2.parameter_order) == len(TEST_PARAMETER_ORDER)
 
     def test_edge_case_invalid_param_name(self, test_config_generator):
         """Test with invalid parameter name (should raise ValueError)"""
@@ -798,14 +860,14 @@ class TestGenerateIterativeCombinations:
 
     def test_randomness_varies_parameter_selection(self, baseline_config_dict, tmp_path):
         """Test that random parameter selection varies between runs"""
-        if not ConfigGenerator.PARAMETER_ORDER:
+        if not TEST_PARAMETER_ORDER:
             return
 
         config_folder = create_test_config_folder(baseline_config_dict, tmp_path)
-        num_params = min(2, len(ConfigGenerator.PARAMETER_ORDER))
-        generator = ConfigGenerator(config_folder, num_test_values=5, num_parameters_to_test=num_params)
+        num_params = min(2, len(TEST_PARAMETER_ORDER))
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=5, num_parameters_to_test=num_params)
 
-        first_param = ConfigGenerator.PARAMETER_ORDER[0]
+        first_param = TEST_PARAMETER_ORDER[0]
         configs1 = generator.generate_iterative_combinations(first_param, generator.baseline_config)
         configs2 = generator.generate_iterative_combinations(first_param, generator.baseline_config)
 
@@ -816,10 +878,10 @@ class TestGenerateIterativeCombinations:
 
     def test_config_structure_is_valid(self, test_config_generator):
         """Test that all returned configs have valid structure"""
-        if not ConfigGenerator.PARAMETER_ORDER:
+        if not TEST_PARAMETER_ORDER:
             return
 
-        first_param = ConfigGenerator.PARAMETER_ORDER[0]
+        first_param = TEST_PARAMETER_ORDER[0]
         configs = test_config_generator.generate_iterative_combinations(
             first_param,
             test_config_generator.baseline_config
@@ -832,12 +894,12 @@ class TestGenerateIterativeCombinations:
 
     def test_combination_configs_have_multiple_params_varied(self, baseline_config_dict, tmp_path):
         """Test that combination configs actually vary multiple parameters"""
-        if len(ConfigGenerator.PARAMETER_ORDER) < 2:
+        if len(TEST_PARAMETER_ORDER) < 2:
             return
 
         config_folder = create_test_config_folder(baseline_config_dict, tmp_path)
-        generator = ConfigGenerator(config_folder, num_test_values=2, num_parameters_to_test=2)
-        first_param = ConfigGenerator.PARAMETER_ORDER[0]
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=2, num_parameters_to_test=2)
+        first_param = TEST_PARAMETER_ORDER[0]
         configs = generator.generate_iterative_combinations(first_param, generator.baseline_config)
 
         assert len(configs) > 0
@@ -847,12 +909,12 @@ class TestGenerateIterativeCombinations:
 
     def test_edge_case_num_parameters_zero_defaults_to_one(self, baseline_config_dict, tmp_path):
         """Test that num_parameters_to_test=0 defaults to 1"""
-        if not ConfigGenerator.PARAMETER_ORDER:
+        if not TEST_PARAMETER_ORDER:
             return
 
         config_folder = create_test_config_folder(baseline_config_dict, tmp_path)
-        generator = ConfigGenerator(config_folder, num_test_values=5, num_parameters_to_test=0)
-        first_param = ConfigGenerator.PARAMETER_ORDER[0]
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=5, num_parameters_to_test=0)
+        first_param = TEST_PARAMETER_ORDER[0]
         configs = generator.generate_iterative_combinations(first_param, generator.baseline_config)
 
         expected_count = generator.num_test_values + 1
@@ -885,14 +947,14 @@ class TestDraftOrderFile:
         """Test DRAFT_ORDER_FILE is NOT in PARAMETER_ORDER (handled by separate script)"""
         # DRAFT_ORDER_FILE is intentionally excluded from PARAMETER_ORDER
         # because it's optimized by the dedicated run_draft_order_simulation.py script
-        assert 'DRAFT_ORDER_FILE' not in ConfigGenerator.PARAMETER_ORDER
+        assert 'DRAFT_ORDER_FILE' not in TEST_PARAMETER_ORDER
         # But it IS in PARAM_DEFINITIONS for use by the draft order simulation
         assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
 
     def test_generate_parameter_values_for_draft_order(self, baseline_config_with_draft_order, tmp_path):
         """Test discrete integer value generation for DRAFT_ORDER_FILE (precision=0)"""
         config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder, num_test_values=5)
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=5)
         # Use unified method with precision=0 for integers
         values = generator.generate_parameter_values('DRAFT_ORDER_FILE', 1, 1, 30, 0)
 
@@ -906,7 +968,7 @@ class TestDraftOrderFile:
     def test_extract_combination_includes_draft_order_file(self, baseline_config_with_draft_order, tmp_path):
         """Test _extract_combination_from_config includes DRAFT_ORDER_FILE"""
         config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder)
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER)
         combination = generator._extract_combination_from_config(generator.baseline_config)
 
         assert 'DRAFT_ORDER_FILE' in combination
@@ -915,7 +977,7 @@ class TestDraftOrderFile:
     def test_generate_single_parameter_configs_draft_order_file(self, baseline_config_with_draft_order, tmp_path):
         """Test generating configs for DRAFT_ORDER_FILE parameter"""
         config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder, num_test_values=3)
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER, num_test_values=3)
 
         # Mock _load_draft_order_from_file to avoid file system dependency
         mock_draft_order = [{"FLEX": "P", "QB": "S"}] * 15
@@ -935,7 +997,7 @@ class TestDraftOrderFile:
     def test_create_config_dict_loads_draft_order(self, baseline_config_with_draft_order, tmp_path):
         """Test create_config_dict loads DRAFT_ORDER from file"""
         config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder)
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER)
         combination = generator._extract_combination_from_config(generator.baseline_config)
 
         combination['DRAFT_ORDER_FILE'] = 1
@@ -948,6 +1010,6 @@ class TestDraftOrderFile:
     def test_load_draft_order_from_file_not_found(self, baseline_config_with_draft_order, tmp_path):
         """Test _load_draft_order_from_file raises error for invalid file number"""
         config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder)
+        generator = ConfigGenerator(config_folder, TEST_PARAMETER_ORDER)
         with pytest.raises(FileNotFoundError):
             generator._load_draft_order_from_file(999)

@@ -186,45 +186,7 @@ class ConfigGenerator:
         'WIND_SCORING',  # Game conditions (QB/WR/K only)
     ]
 
-    # Parameter ordering for iterative optimization
-    # Ordered to match league_config.json structure
-    PARAMETER_ORDER = [
-        # Draft Order File
-        # 'DRAFT_ORDER_FILE',
-        # Normalization and Bye Penalties
-        'NORMALIZATION_MAX_SCALE',
-        'SAME_POS_BYE_WEIGHT',
-        'DIFF_POS_BYE_WEIGHT',
-        # Draft Order Bonuses
-        'PRIMARY_BONUS',
-        'SECONDARY_BONUS',
-        # ADP Scoring
-        'ADP_SCORING_WEIGHT',
-        # 'ADP_SCORING_STEPS',
-        # Player Rating Scoring
-        'PLAYER_RATING_SCORING_WEIGHT',
-        # Team Quality Scoring
-        'TEAM_QUALITY_SCORING_WEIGHT',
-        'TEAM_QUALITY_MIN_WEEKS',
-        # Performance Scoring
-        'PERFORMANCE_SCORING_WEIGHT',
-        'PERFORMANCE_SCORING_STEPS',
-        'PERFORMANCE_MIN_WEEKS',
-        # Matchup Scoring (additive)
-        'MATCHUP_IMPACT_SCALE',
-        'MATCHUP_SCORING_WEIGHT',
-        'MATCHUP_MIN_WEEKS',
-        # Game Condition Scoring
-        'TEMPERATURE_IMPACT_SCALE',
-        'TEMPERATURE_SCORING_WEIGHT',
-        'WIND_IMPACT_SCALE',
-        'WIND_SCORING_WEIGHT',
-        'LOCATION_HOME',
-        'LOCATION_AWAY',
-        'LOCATION_INTERNATIONAL',
-    ]
-
-    # Maps PARAMETER_ORDER names to their parent config section names
+    # Maps parameter names to their parent config section names
     # Used to determine if a parameter is BASE or WEEK-SPECIFIC
     PARAM_TO_SECTION_MAP = {
         # Base config parameters
@@ -388,7 +350,8 @@ class ConfigGenerator:
         logger.info(f"Loaded baseline config from folder: {folder_path}")
         return unified_config
 
-    def __init__(self, baseline_config_path: Path, num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:
+    def __init__(self, baseline_config_path: Path, parameter_order: List[str],
+                 num_test_values: int = 5, num_parameters_to_test: int = 1) -> None:
         """
         Initialize ConfigGenerator with baseline configuration from a folder.
 
@@ -398,12 +361,15 @@ class ConfigGenerator:
 
         Args:
             baseline_config_path (Path): Path to config folder (NOT a single JSON file)
+            parameter_order (List[str]): List of parameter names defining optimization order.
+                Each name must exist in PARAM_DEFINITIONS.
             num_test_values (int): Number of random values to generate per parameter (default: 5)
                 This creates (num_test_values + 1) total values per parameter (optimal + random)
             num_parameters_to_test (int): Number of parameters to test simultaneously (default: 1)
 
         Raises:
-            ValueError: If path is a file instead of folder, or folder is missing required files
+            ValueError: If path is a file instead of folder, folder is missing required files,
+                        or parameter_order contains unknown parameter names
         """
         self.logger = get_logger()
         baseline_config_path = Path(baseline_config_path)
@@ -415,7 +381,18 @@ class ConfigGenerator:
                 f"Expected folder structure with: league_config.json, week1-5.json, week6-9.json, week10-13.json, week14-17.json"
             )
 
+        # Validate parameter_order: all names must exist in PARAM_DEFINITIONS
+        unknown_params = [p for p in parameter_order if p not in self.PARAM_DEFINITIONS]
+        if unknown_params:
+            raise ValueError(f"Unknown parameters in parameter_order: {unknown_params}")
+
+        if not parameter_order:
+            raise ValueError("parameter_order cannot be empty")
+
+        self.parameter_order = parameter_order
+
         self.logger.info(f"Initializing ConfigGenerator with baseline folder: {baseline_config_path}")
+        self.logger.info(f"Parameter order: {len(parameter_order)} parameters")
         self.logger.info(f"Test values per parameter: {num_test_values} (total values: {num_test_values + 1})")
 
         self.baseline_config = self.load_baseline_from_folder(baseline_config_path)
@@ -512,7 +489,7 @@ class ConfigGenerator:
             List[float]: Values with optimal first, then additional test values
 
         Example:
-            >>> gen = ConfigGenerator(baseline_path, num_test_values=5)
+            >>> gen = ConfigGenerator(baseline_path, parameter_order, num_test_values=5)
             >>> # Precision 1 (0.1 steps) with 6 possible values [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
             >>> values = gen.generate_parameter_values('SAME_POS_BYE_WEIGHT', 0.3, 0.0, 0.5, 1)
             >>> # Returns [0.3, 0.0, 0.1, 0.2, 0.4, 0.5] (all 6 values, optimal first)
@@ -594,7 +571,7 @@ class ConfigGenerator:
             Dict[str, List[float]]: {param_name: [N+1 values]} where N = num_test_values
 
         Example:
-            >>> gen = ConfigGenerator(baseline_path, num_test_values=5)
+            >>> gen = ConfigGenerator(baseline_path, parameter_order, num_test_values=5)
             >>> value_sets = gen.generate_all_parameter_value_sets()
             >>> value_sets['NORMALIZATION_MAX_SCALE']
             [100.0, 94.3, 118.7, 83.2, 105.9, 112.1]  # 6 values
@@ -797,7 +774,7 @@ class ConfigGenerator:
             ValueError: If param_name not in PARAMETER_ORDER
         """
         # Task 2.0: Input Validation and Error Handling
-        if param_name not in self.PARAMETER_ORDER:
+        if param_name not in self.parameter_order:
             raise ValueError(f"Unknown parameter: {param_name}")
 
         # Validate and cap num_parameters_to_test
@@ -806,7 +783,7 @@ class ConfigGenerator:
             self.logger.warning(f"num_parameters_to_test={num_params_to_test} is invalid, defaulting to 1")
             num_params_to_test = 1
 
-        max_params = len(self.PARAMETER_ORDER)
+        max_params = len(self.parameter_order)
         if num_params_to_test > max_params:
             self.logger.info(f"num_parameters_to_test={num_params_to_test} exceeds available parameters ({max_params}), capping at {max_params}")
             num_params_to_test = max_params
@@ -828,7 +805,7 @@ class ConfigGenerator:
 
         if num_random > 0:
             # Create pool excluding base parameter
-            available_params = [p for p in self.PARAMETER_ORDER if p != param_name]
+            available_params = [p for p in self.parameter_order if p != param_name]
             random_params = random.sample(available_params, num_random)
             self.logger.info(f"Selected {num_random} random parameters: {random_params}")
         else:

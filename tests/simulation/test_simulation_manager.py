@@ -25,6 +25,32 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "simulation"))
 from SimulationManager import SimulationManager
 
+# Standard parameter order for testing
+TEST_PARAMETER_ORDER = [
+    'NORMALIZATION_MAX_SCALE',
+    'SAME_POS_BYE_WEIGHT',
+    'DIFF_POS_BYE_WEIGHT',
+    'PRIMARY_BONUS',
+    'SECONDARY_BONUS',
+    'ADP_SCORING_WEIGHT',
+    'PLAYER_RATING_SCORING_WEIGHT',
+    'TEAM_QUALITY_SCORING_WEIGHT',
+    'TEAM_QUALITY_MIN_WEEKS',
+    'PERFORMANCE_SCORING_WEIGHT',
+    'PERFORMANCE_SCORING_STEPS',
+    'PERFORMANCE_MIN_WEEKS',
+    'MATCHUP_IMPACT_SCALE',
+    'MATCHUP_SCORING_WEIGHT',
+    'MATCHUP_MIN_WEEKS',
+    'TEMPERATURE_IMPACT_SCALE',
+    'TEMPERATURE_SCORING_WEIGHT',
+    'WIND_IMPACT_SCALE',
+    'WIND_SCORING_WEIGHT',
+    'LOCATION_HOME',
+    'LOCATION_AWAY',
+    'LOCATION_INTERNATIONAL',
+]
+
 
 def create_test_config_folder(tmp_path: Path) -> Path:
     """Create a test config folder with all required files for ConfigGenerator."""
@@ -176,6 +202,7 @@ class TestSimulationManagerInitialization:
             num_simulations_per_config=5,
             max_workers=4,
             data_folder=temp_data_folder,
+            parameter_order=TEST_PARAMETER_ORDER,
             num_test_values=2,
             auto_update_league_config=False  # Disable to avoid modifying real config
         )
@@ -197,6 +224,7 @@ class TestSimulationManagerInitialization:
                 num_simulations_per_config=5,
                 max_workers=4,
                 data_folder=temp_data_folder,
+                parameter_order=TEST_PARAMETER_ORDER,
                 auto_update_league_config=False  # Disable to avoid modifying real config
             )
 
@@ -214,6 +242,7 @@ class TestSimulationManagerInitialization:
             num_simulations_per_config=5,
             max_workers=4,
             data_folder=temp_data_folder,
+            parameter_order=TEST_PARAMETER_ORDER,
             auto_update_league_config=False  # Disable to avoid modifying real config
         )
 
@@ -262,6 +291,7 @@ class TestSingleConfigTest:
                 num_simulations_per_config=3,
                 max_workers=4,
                 data_folder=temp_data_folder,
+                parameter_order=TEST_PARAMETER_ORDER,
                 auto_update_league_config=False  # Disable to avoid modifying real config
             )
 
@@ -338,6 +368,7 @@ class TestFullOptimization:
                 num_simulations_per_config=1,
                 max_workers=2,
                 data_folder=temp_data_folder,
+                parameter_order=TEST_PARAMETER_ORDER,
                 num_test_values=1,  # Will create 2^6 = 64 configs (but we mock to 2)
                 auto_update_league_config=False  # Disable to avoid modifying real config
             )
@@ -396,7 +427,7 @@ class TestIterativeOptimization:
             # Setup mocks
             mock_config_gen = MockConfigGenerator.return_value
             mock_config_gen.baseline_config = {"config_name": "test", "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}}
-            mock_config_gen.PARAMETER_ORDER = ['NORMALIZATION_MAX_SCALE', 'BASE_BYE_PENALTY']  # Only 2 for testing
+            mock_config_gen.parameter_order = ['NORMALIZATION_MAX_SCALE', 'BASE_BYE_PENALTY']  # Only 2 for testing
 
             # Mock is_week_specific_param - first param is week-specific, second is base
             mock_config_gen.is_week_specific_param.side_effect = lambda p: p == 'NORMALIZATION_MAX_SCALE'
@@ -453,6 +484,7 @@ class TestIterativeOptimization:
                 num_simulations_per_config=1,
                 max_workers=2,
                 data_folder=temp_data_folder,
+                parameter_order=TEST_PARAMETER_ORDER,
                 num_test_values=1,
                 auto_update_league_config=False  # Disable to avoid modifying real config
             )
@@ -583,7 +615,7 @@ class TestResumeDetection:
                 "config_name": "test",
                 "parameters": {"NORMALIZATION_MAX_SCALE": 100.0}
             }
-            mock_config_gen.PARAMETER_ORDER = [
+            mock_config_gen.parameter_order = [
                 'NORMALIZATION_MAX_SCALE',
                 'SAME_POS_BYE_WEIGHT',
                 'DIFF_POS_BYE_WEIGHT',
@@ -596,6 +628,7 @@ class TestResumeDetection:
                 num_simulations_per_config=1,
                 max_workers=2,
                 data_folder=temp_data_folder,
+                parameter_order=TEST_PARAMETER_ORDER,
                 num_test_values=1,
                 auto_update_league_config=False  # Disable to avoid modifying real config
             )
@@ -626,7 +659,7 @@ class TestResumeDetection:
         """Test resume detection with all parameters complete"""
         # Create intermediate folders for all 4 parameters
         for i in range(1, 5):
-            param_name = manager.config_generator.PARAMETER_ORDER[i-1]
+            param_name = manager.config_generator.parameter_order[i-1]
             create_intermediate_folder(temp_output_dir, i, param_name)
 
         should_resume, start_idx, last_path = manager._detect_resume_state()
@@ -723,6 +756,7 @@ class TestTimeFormatting:
             num_simulations_per_config=1,
             max_workers=1,
             data_folder=temp_data_folder,
+            parameter_order=TEST_PARAMETER_ORDER,
             auto_update_league_config=False  # Disable to avoid modifying real config
         )
 

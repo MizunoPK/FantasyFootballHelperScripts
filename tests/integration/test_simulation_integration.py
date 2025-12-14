@@ -28,6 +28,32 @@ from ParallelLeagueRunner import ParallelLeagueRunner
 from ResultsManager import ResultsManager
 from ConfigPerformance import ConfigPerformance
 
+# Standard parameter order for testing
+TEST_PARAMETER_ORDER = [
+    'NORMALIZATION_MAX_SCALE',
+    'SAME_POS_BYE_WEIGHT',
+    'DIFF_POS_BYE_WEIGHT',
+    'PRIMARY_BONUS',
+    'SECONDARY_BONUS',
+    'ADP_SCORING_WEIGHT',
+    'PLAYER_RATING_SCORING_WEIGHT',
+    'TEAM_QUALITY_SCORING_WEIGHT',
+    'TEAM_QUALITY_MIN_WEEKS',
+    'PERFORMANCE_SCORING_WEIGHT',
+    'PERFORMANCE_SCORING_STEPS',
+    'PERFORMANCE_MIN_WEEKS',
+    'MATCHUP_IMPACT_SCALE',
+    'MATCHUP_SCORING_WEIGHT',
+    'MATCHUP_MIN_WEEKS',
+    'TEMPERATURE_IMPACT_SCALE',
+    'TEMPERATURE_SCORING_WEIGHT',
+    'WIND_IMPACT_SCALE',
+    'WIND_SCORING_WEIGHT',
+    'LOCATION_HOME',
+    'LOCATION_AWAY',
+    'LOCATION_INTERNATIONAL',
+]
+
 
 def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None:
     """Create a mock historical season folder structure for testing."""
@@ -203,14 +229,14 @@ class TestConfigGeneratorIntegration:
 
     def test_config_generator_loads_baseline(self, baseline_config):
         """Test config generator loads baseline config"""
-        generator = ConfigGenerator(baseline_config, num_test_values=3)
+        generator = ConfigGenerator(baseline_config, TEST_PARAMETER_ORDER, num_test_values=3)
 
         assert generator is not None
         assert generator.baseline_config is not None
 
     def test_config_generator_creates_combinations(self, baseline_config):
         """Test config generator creates parameter combinations"""
-        generator = ConfigGenerator(baseline_config, num_test_values=1)
+        generator = ConfigGenerator(baseline_config, TEST_PARAMETER_ORDER, num_test_values=1)
 
         # Use generate_all_parameter_value_sets instead of full cartesian product
         # Full cartesian product is impractical with 19+ parameters
@@ -223,7 +249,7 @@ class TestConfigGeneratorIntegration:
 
     def test_config_dict_has_required_fields(self, baseline_config):
         """Test generated config dicts have all required fields"""
-        generator = ConfigGenerator(baseline_config, num_test_values=1)
+        generator = ConfigGenerator(baseline_config, TEST_PARAMETER_ORDER, num_test_values=1)
 
         # Use single parameter configs instead of full cartesian product
         configs = generator.generate_single_parameter_configs('NORMALIZATION_MAX_SCALE', generator.baseline_config)
@@ -249,6 +275,7 @@ class TestSimulationManagerIntegration:
             num_simulations_per_config=2,
             max_workers=2,
             data_folder=temp_simulation_data,
+            parameter_order=TEST_PARAMETER_ORDER,
             num_test_values=2,
             auto_update_league_config=False  # Disable to avoid modifying real config
         )
@@ -266,6 +293,7 @@ class TestSimulationManagerIntegration:
             num_simulations_per_config=1,
             max_workers=1,
             data_folder=temp_simulation_data,
+            parameter_order=TEST_PARAMETER_ORDER,
             num_test_values=1,
             auto_update_league_config=False  # Disable to avoid modifying real config
         )
@@ -418,6 +446,7 @@ class TestEndToEndSimulationWorkflow:
             num_simulations_per_config=2,
             max_workers=1,
             data_folder=temp_simulation_data,
+            parameter_order=TEST_PARAMETER_ORDER,
             num_test_values=1,
             auto_update_league_config=False  # Disable to avoid modifying real config
         )
@@ -454,6 +483,7 @@ class TestErrorHandling:
                 num_simulations_per_config=1,
                 max_workers=1,
                 data_folder=nonexistent_path,
+                parameter_order=TEST_PARAMETER_ORDER,
                 auto_update_league_config=False  # Disable to avoid modifying real config
             )
 
@@ -464,7 +494,7 @@ class TestErrorHandling:
         invalid_config.write_text("{invalid json")
 
         with pytest.raises(Exception):
-            ConfigGenerator(invalid_config)
+            ConfigGenerator(invalid_config, TEST_PARAMETER_ORDER)
 
 
 if __name__ == "__main__":

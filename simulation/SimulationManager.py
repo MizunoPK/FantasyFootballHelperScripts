@@ -66,6 +66,7 @@ class SimulationManager:
         num_simulations_per_config : int,
         max_workers : int,
         data_folder: Path,
+        parameter_order: List[str],
         num_test_values: int = 5,
         num_parameters_to_test: int = 1,
         auto_update_league_config: bool = True,
@@ -80,6 +81,8 @@ class SimulationManager:
             num_simulations_per_config (int): Simulations per config (default: 100)
             max_workers (int): Number of parallel workers (default: 8)
             data_folder (Path): Data folder, defaults to simulation/sim_data
+            parameter_order (List[str]): List of parameter names defining optimization order.
+                Each name must exist in ConfigGenerator.PARAM_DEFINITIONS.
             num_test_values (int): Number of test values per parameter (default: 5)
                 Creates (num_test_values + 1)^6 total configurations
             use_processes (bool): If True, use ProcessPoolExecutor for true parallelism.
@@ -109,7 +112,12 @@ class SimulationManager:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize components
-        self.config_generator = ConfigGenerator(baseline_config_path, num_test_values=num_test_values, num_parameters_to_test=num_parameters_to_test)
+        self.config_generator = ConfigGenerator(
+            baseline_config_path,
+            parameter_order=parameter_order,
+            num_test_values=num_test_values,
+            num_parameters_to_test=num_parameters_to_test
+        )
         self.parallel_runner = ParallelLeagueRunner(
             max_workers=max_workers,
             data_folder=data_folder,
@@ -375,7 +383,7 @@ class SimulationManager:
             Path: Path to saved optimal configuration file
 
         Example:
-            >>> mgr = SimulationManager(baseline_path, num_simulations_per_config=100)
+            >>> mgr = SimulationManager(baseline_path, output_dir, num_sims, workers, data, param_order)
             >>> optimal_config_path = mgr.run_full_optimization()
             >>> print(f"Optimal config saved to: {optimal_config_path}")
         """
@@ -544,7 +552,7 @@ class SimulationManager:
 
         # Parse all folders and collect valid ones
         valid_folders = []
-        param_order = self.config_generator.PARAMETER_ORDER
+        param_order = self.config_generator.parameter_order
         pattern = r'intermediate_(\d+)_(.+)'
 
         for folder_path in intermediate_folders:
@@ -632,7 +640,7 @@ class SimulationManager:
             Path: Path to saved optimal configuration folder
 
         Example:
-            >>> mgr = SimulationManager(baseline_path, num_simulations_per_config=100)
+            >>> mgr = SimulationManager(baseline_path, output_dir, num_sims, workers, data, param_order)
             >>> optimal_config_folder = mgr.run_iterative_optimization()
         """
         self.logger.info("=" * 80)
@@ -646,7 +654,7 @@ class SimulationManager:
         start_time = time.time()
 
         # Get parameter order
-        param_order = self.config_generator.PARAMETER_ORDER
+        param_order = self.config_generator.parameter_order
         num_params = len(param_order)
         configs_per_param = self.num_test_values + 1
         total_configs = num_params * configs_per_param
@@ -1054,7 +1062,7 @@ class SimulationManager:
             config_id (str): Identifier for this test config (default: "test")
 
         Example:
-            >>> mgr = SimulationManager(baseline_path, num_simulations_per_config=5)
+            >>> mgr = SimulationManager(baseline_path, output_dir, num_sims, workers, data, param_order)
             >>> mgr.run_single_config_test(config_id="baseline_test")
             >>> # Runs 5 simulations with baseline config
         """
