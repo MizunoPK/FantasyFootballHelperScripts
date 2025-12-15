@@ -10,6 +10,7 @@ This file contains all file templates used during feature planning and developme
 |----------|-------------|---------|
 | README.md | Phase 1: Create structure | [Link](#feature-readme-template) |
 | {feature_name}_specs.md | Phase 1: Create structure | [Link](#specification-template) |
+| Dependency Map | Phase 2.6: Add to specs | [Link](#dependency-map-template) |
 | {feature_name}_checklist.md | Phase 1: Create structure | [Link](#checklist-template) |
 | {feature_name}_lessons_learned.md | Phase 1: Create structure | [Link](#lessons-learned-template) |
 | {feature_name}_questions.md | Step 3: Create questions | [Link](#questions-file-template) |
@@ -35,6 +36,23 @@ Create in: `feature-updates/{feature_name}/README.md`
 **Current Step:** [specific step name from checklist below]
 **Next Action:** [what to do next]
 
+### WHERE AM I RIGHT NOW? (Quick State Check)
+
+Update this section after EVERY step to ensure session continuity:
+
+```
+Current Phase:  [ ] PLANNING  [ ] DEVELOPMENT  [ ] POST-IMPL  [ ] COMPLETE
+Current Step:   _____________________________________________
+Blocked:        [ ] NO  [ ] YES → Reason: ___________________
+Next Action:    _____________________________________________
+Last Activity:  {YYYY-MM-DD HH:MM} - {what was done}
+```
+
+**Session Resume Instructions:**
+1. Read this section first
+2. Check the workflow checklist below for detailed progress
+3. Continue from "Next Action" - do NOT restart the workflow
+
 ### Full Workflow Checklist
 
 > **Instructions:** Update this checklist as you complete each step. This is your persistent state across sessions.
@@ -48,10 +66,15 @@ Create in: `feature-updates/{feature_name}/README.md`
   - [ ] Create {feature_name}_checklist.md
   - [ ] Create {feature_name}_lessons_learned.md
 - [ ] Phase 2: Deep Investigation
-  - [ ] Analyze notes thoroughly
-  - [ ] Research codebase patterns
-  - [ ] Populate checklist with questions
-  - [ ] Update specs with context
+  - [ ] 2.1: Analyze notes thoroughly
+  - [ ] 2.2: Research codebase patterns
+  - [ ] 2.3: Populate checklist with questions
+  - [ ] 2.3.1: THREE-ITERATION question generation (MANDATORY)
+  - [ ] 2.4: CODEBASE VERIFICATION rounds (MANDATORY)
+  - [ ] 2.5: Performance analysis for options
+  - [ ] 2.6: Create DEPENDENCY MAP
+  - [ ] 2.7: Update specs with context + dependency map
+  - [ ] 2.8: ASSUMPTIONS AUDIT (list all assumptions)
 - [ ] Phase 3: Report and Pause
   - [ ] Present findings to user
   - [ ] Wait for user direction
@@ -83,10 +106,11 @@ Create in: `feature-updates/{feature_name}/README.md`
   - [ ] Iterations 17-18: Fresh Eyes Review
   - [ ] Iteration 19: Algorithm Deep Dive
   - [ ] Iteration 20: Edge Case Verification
-  - [ ] Iteration 21: Test Coverage Planning
+  - [ ] Iteration 21: Test Coverage Planning + Mock Audit
   - [ ] Iteration 22: Skeptical Re-verification #3
   - [ ] Iteration 23: Integration Gap Check #3
   - [ ] Iteration 24: Implementation Readiness
+- [ ] Interface Verification (pre-implementation)
 - [ ] Implementation
   - [ ] Create code_changes.md
   - [ ] Execute TODO tasks
@@ -246,6 +270,63 @@ Create in: `feature-updates/{feature_name}/{feature_name}_specs.md`
 
 ---
 
+### Dependency Map Template
+
+Include in `_specs.md` during Phase 2.6 of planning:
+
+```markdown
+## Dependency Map
+
+### Module Dependencies
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ {entry_point_script.py} (entry point)                       │
+│     │                                                       │
+│     ▼                                                       │
+│ {MainManager}                                               │
+│     │                                                       │
+│     ├──► {DependencyClass1} ({location})                    │
+│     │         └──► {data_source_1}                          │
+│     │                                                       │
+│     ├──► {DependencyClass2} (NEW)                           │
+│     │         └──► {DependencyClass3}                       │
+│     │                   └──► {data_source_2}                │
+│     │                                                       │
+│     └──► {OutputManager}                                    │
+│               └──► {output_file} (output)                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+```
+Input: {input_source}
+   ▼
+{Step1Class}.{method}()
+   ▼
+{Step2Class}.{method}()
+   ▼
+{Step3Class}.{method}()  ← NEW (if applicable)
+   ▼
+Output: {output_destination}
+```
+
+### Key Integration Points
+
+| Component | Depends On | Used By | Notes |
+|-----------|------------|---------|-------|
+| {NewClass} | {DependencyClass} | {CallerClass} | {important notes} |
+```
+
+**Why this matters:** The dependency map helps identify:
+- Which interfaces need to be verified before implementation
+- Where integration points exist
+- Which existing code might be affected
+- Data flow from entry to output
+
+---
+
 ### Checklist Template
 
 Create in: `feature-updates/{feature_name}/{feature_name}_checklist.md`
@@ -383,11 +464,20 @@ Create in: `feature-updates/{feature_name}/{feature_name}_lessons_learned.md`
 
 **Date:** {Date}
 
-**What Happened:**
-{Describe the issue or problem that was discovered}
+**What Happened (Symptom):**
+{Describe the observable issue or problem that was discovered}
 
-**Root Cause:**
-{Why did this happen? What was missed in planning or development?}
+**Immediate Cause:**
+{Why did this specific issue occur?}
+
+**Root Cause Analysis:**
+{Use the "5 Whys" technique to find the systemic issue}
+
+1. Why did [symptom] happen? → {immediate cause}
+2. Why did [immediate cause] happen? → {deeper cause}
+3. Why did [deeper cause] happen? → {even deeper}
+4. Why did [even deeper] happen? → {approaching root}
+5. Why did [approaching root] happen? → **ROOT CAUSE: {systemic issue}**
 
 **Impact:**
 {How did this affect the feature or require rework?}
@@ -400,6 +490,9 @@ Create in: `feature-updates/{feature_name}/{feature_name}_lessons_learned.md`
 
 **Recommended Change:**
 {Specific text or checklist item to add, or process change to make}
+
+**Systemic Fix:**
+{What process change prevents this CATEGORY of error, not just this specific instance?}
 
 ---
 
@@ -500,6 +593,19 @@ Create in: `feature-updates/{feature_name}/{feature_name}_todo.md`
 
 ## Iteration Progress Tracker
 
+### Compact View (Quick Status)
+
+```
+R1: □□□□□□□ (0/7)   R2: □□□□□□□□□ (0/9)   R3: □□□□□□□□ (0/8)
+```
+Legend: ■ = complete, □ = pending, ▣ = in progress
+
+**Current:** Iteration ___ ({type} - Round {N})
+**Confidence:** HIGH / MEDIUM / LOW
+**Blockers:** None / {description}
+
+### Detailed View
+
 | Round | Iterations | Status |
 |-------|------------|--------|
 | First (7) | [ ]1 [ ]2 [ ]3 [ ]4 [ ]5 [ ]6 [ ]7 | 0/7 |
@@ -523,8 +629,9 @@ Track which protocols have been executed (protocols must be run at specified ite
 | Integration Gap Check | 7, 14, 23 | [ ]7 [ ]14 [ ]23 |
 | Fresh Eyes Review | 17, 18 | [ ]17 [ ]18 |
 | Edge Case Verification | 20 | [ ]20 |
-| Test Coverage Planning | 21 | [ ]21 |
+| Test Coverage Planning + Mock Audit | 21 | [ ]21 |
 | Implementation Readiness | 24 | [ ]24 |
+| Interface Verification | Pre-impl | [ ] |
 
 ---
 
@@ -552,11 +659,54 @@ Track which protocols have been executed (protocols must be run at specified ite
 ### Task 1.2: {Task Description}
 {Continue for each task}
 
+### QA CHECKPOINT 1: {Brief Description}
+- **Status:** [ ] Not started
+- **Expected outcome:** {What should happen}
+- **Test command:** `{python command to run}`
+- **Verify:**
+  - [ ] Unit tests pass
+  - [ ] E2E test produces meaningful output (non-zero values)
+  - [ ] No errors in output
+- **If checkpoint fails:** STOP, fix issue, document in lessons learned, then re-run
+
 ---
 
 ## Phase 2: {Phase Name}
 
 {Continue for each phase}
+
+### QA CHECKPOINT 2: {Brief Description}
+- **Status:** [ ] Not started
+- **Expected outcome:** {What should happen}
+- **Test command:** `{python command to run}`
+- **Verify:**
+  - [ ] Unit tests pass
+  - [ ] E2E test completes
+  - [ ] Output files written correctly
+- **If checkpoint fails:** STOP, fix issue, document in lessons learned, then re-run
+
+---
+
+## Interface Contracts (Verified Pre-Implementation)
+
+### {DependencyClass}
+- **Method:** `{method_name}(param1: Type, param2: Type) -> ReturnType`
+- **Source:** `{path/to/file.py}:{line}`
+- **Existing usage:** `{where_its_used.py}:{line}`
+- **Verified:** [ ]
+
+### {DataModel}
+- **Attribute:** `{attribute_name}` - {description}
+- **Type:** {type}
+- **Source:** `{path/to/model.py}:{line}`
+- **Note:** {any important semantics, e.g., "projected, not actual"}
+- **Verified:** [ ]
+
+### Quick E2E Validation Plan
+- **Minimal test command:** `{python command to validate interfaces}`
+- **Expected result:** {what should happen}
+- **Run before:** Full implementation begins
+- **Status:** [ ] Not run | [ ] Passed | [ ] Failed (fix before proceeding)
 
 ---
 
@@ -588,12 +738,24 @@ Entry: {run_script.py}
 
 ---
 
+## Verification Gaps
+
+Document any gaps found during iterations here:
+
+### Iteration {X} Gaps
+- [GAP-1] {Description} - Severity: {Critical/Non-critical} - Status: {Fixed/Pending}
+
+---
+
 ## Skeptical Re-verification Results
 
 ### Round 1 (Iteration 6)
 - **Verified correct:** {list}
 - **Corrections made:** {list}
 - **Confidence level:** {High/Medium/Low}
+  - High = All paths verified, no assumptions
+  - Medium = Most verified, minor assumptions
+  - Low = Multiple unverified items (DO NOT proceed)
 
 ### Round 2 (Iteration 13)
 {Repeat structure}
@@ -715,6 +877,55 @@ Create in: `feature-updates/{feature_name}/{feature_name}_code_changes.md`
 |-------------|------------|-----------|-------------|----------|
 | {req} | {method}() | {caller}() | {script.py} | YES/NO |
 ```
+
+---
+
+## Round Checkpoint Summary Template
+
+Use this template when completing a verification round (after iterations 7, 16, or 24) to summarize findings for the user:
+
+```markdown
+## Round {N} Checkpoint Summary
+
+**Iterations Completed:** {X-Y} ({count} iterations)
+**Date:** {YYYY-MM-DD}
+
+### Key Findings
+- {Finding 1: what was discovered or verified}
+- {Finding 2: any surprises or issues found}
+- {Finding 3: important decisions made}
+
+### Gaps Identified
+| Gap | Severity | Resolution |
+|-----|----------|------------|
+| {missing info} | High/Medium/Low | {how it was resolved OR "Needs user input"} |
+
+### TODO Updates This Round
+- **Added:** {N} new tasks
+- **Modified:** {N} tasks updated with details
+- **Removed:** {N} tasks found unnecessary
+
+### Scope Changes
+- **In scope (confirmed):** {list}
+- **Added to scope:** {list or "None"}
+- **Removed from scope:** {list or "None"}
+
+### Confidence Assessment
+**Confidence Level:** {High/Medium/Low}
+
+| Area | Confidence | Notes |
+|------|------------|-------|
+| Requirements understood | H/M/L | {brief note} |
+| Interfaces verified | H/M/L | {brief note} |
+| Integration path clear | H/M/L | {brief note} |
+| Edge cases identified | H/M/L | {brief note} |
+
+### Next Steps
+- {What happens next: Round 2 / Questions file / Implementation}
+- {Any blockers or dependencies}
+```
+
+**When to use:** Present this summary to the user at each round checkpoint to keep them informed and get approval before proceeding.
 
 ---
 

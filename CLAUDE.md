@@ -35,6 +35,7 @@ The feature development process has two phases:
    - `README.md` - Context for future agents
    - `{feature_name}_specs.md` - **Primary specification** (detailed, structured requirements)
    - `{feature_name}_checklist.md` - Tracks what's resolved vs pending
+   - `{feature_name}_lessons_learned.md` - Captures issues to improve the guides
 5. **Guide the conversation** - Help user think through edge cases, data sources, scope
 6. **Document as you go** - Update `_specs.md` as questions are answered
 7. **Complete planning before implementation** - All checklist items should be `[x]`

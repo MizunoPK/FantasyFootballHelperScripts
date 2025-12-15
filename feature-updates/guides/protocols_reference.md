@@ -8,6 +8,8 @@ This file contains detailed protocol definitions referenced by the Feature Devel
 
 | Protocol | When to Execute | Section |
 |----------|-----------------|---------|
+| **Cheat Sheet** | Quick reference during development | [Link](#protocol-quick-reference-cheat-sheet) |
+| **Verification Failure** | When any iteration finds issues | [Link](#verification-failure-protocol) |
 | Standard Verification | Iterations 1-3, 8-10, 15-16 | [Link](#standard-verification-protocol) |
 | Algorithm Traceability Matrix | Iterations 4, 11, 19 | [Link](#algorithm-traceability-matrix-protocol) |
 | End-to-End Data Flow | Iterations 5, 12 | [Link](#end-to-end-data-flow-protocol) |
@@ -15,13 +17,322 @@ This file contains detailed protocol definitions referenced by the Feature Devel
 | Integration Gap Check | Iterations 7, 14, 23 | [Link](#integration-gap-check-protocol) |
 | Fresh Eyes Review | Iterations 17, 18 | [Link](#fresh-eyes-review-protocol) |
 | Edge Case Verification | Iteration 20 | [Link](#edge-case-verification-protocol) |
-| Test Coverage Planning | Iteration 21 | [Link](#test-coverage-planning-protocol) |
+| Test Coverage Planning + Mock Audit | Iteration 21 | [Link](#test-coverage-planning-protocol) |
 | Implementation Readiness | Iteration 24 | [Link](#implementation-readiness-protocol) |
+| Interface Verification | Before implementation | [Link](#interface-verification-protocol) |
 | Requirement Verification | Before marking complete | [Link](#requirement-verification-protocol) |
 | Quality Control Review | After implementation | [Link](#quality-control-review-protocol) |
 | Lessons Learned | Ongoing + before completion | [Link](#lessons-learned-protocol) |
 | Guide Update | After QA complete | [Link](#guide-update-protocol) |
 | Pre-commit Validation | Before any commit | [Link](#pre-commit-validation-protocol) |
+
+---
+
+## Protocol Quick Reference (Cheat Sheet)
+
+Use this table for fast lookup during development:
+
+| Iteration | Protocol | Key Action | Output |
+|-----------|----------|------------|--------|
+| 1-3 | Standard | Read → Question → Research → Update | TODO updates |
+| 4 | Algorithm Traceability | Map spec algorithms to code locations | Traceability Matrix |
+| 5 | End-to-End Data Flow | Trace entry → output | Data Flow Traces |
+| 6 | Skeptical Re-verification | Challenge ALL assumptions | Verification Results |
+| 7 | Integration Gap Check | Every method needs a caller | Integration Matrix |
+| 8-10 | Standard | Re-verify with user answers | TODO updates |
+| 11 | Algorithm Traceability | Re-verify algorithms with answers | Matrix updates |
+| 12 | End-to-End Data Flow | Re-trace with answers | Trace updates |
+| 13 | Skeptical Re-verification | Challenge answer interpretations | Verification Results |
+| 14 | Integration Gap Check | Final caller verification | Matrix updates |
+| 15-16 | Standard | Final preparation | Integration checklist |
+| 17-18 | Fresh Eyes | Re-read spec as if first time | Gap identification |
+| 19 | Algorithm Deep Dive | Quote exact spec text | Algorithm verification |
+| 20 | Edge Case | Each edge case → task + test | Edge case matrix |
+| 21 | Test Coverage + Mock Audit | Plan behavior tests, audit mocks | Test plan |
+| 22 | Skeptical Re-verification | Final assumption challenge | Confidence assessment |
+| 23 | Integration Gap Check | Final orphan code check | Clean matrix |
+| 24 | Implementation Readiness | Final go/no-go checklist | READY or BLOCKED |
+
+---
+
+## Anti-Pattern Gallery
+
+Visual examples of what NOT to do. Learn from these common mistakes.
+
+### Anti-Pattern 1: The Orphan Method
+
+**What happened:**
+```python
+# Created this method...
+class ResultsManager:
+    def save_optimal_configs_folder(self):
+        """Save configs to folder structure."""
+        # Great implementation!
+        self._create_folder_structure()
+        self._write_config_files()
+        return folder_path
+
+# But forgot to update the caller...
+class SimulationManager:
+    def run_iterative(self):
+        # ... simulation logic ...
+
+        # Still calls the old method!
+        self.results_manager.save_optimal_config()  # ← OLD METHOD
+
+        # Should call:
+        # self.results_manager.save_optimal_configs_folder()  # ← NEW METHOD
+```
+
+**Result:** Feature "complete" but doesn't work for users. Tests pass because they test the new method in isolation.
+
+**How to catch:** Integration Gap Check (iterations 7, 14, 23) - verify every new method has a caller in the Integration Matrix.
+
+---
+
+### Anti-Pattern 2: The Interface Assumption
+
+**What happened:**
+```python
+# Assumed the interface was:
+class AccuracyCalculator:
+    def calculate_score(self, player, week):
+        return player.actual_points  # ← Assumed this attribute exists
+
+# But the actual FantasyPlayer class has:
+class FantasyPlayer:
+    # actual_points doesn't exist!
+    week_1_points: float
+    week_2_points: float
+    # ... week_3 through week_17 ...
+
+    # Must use: sum([getattr(self, f'week_{i}_points', 0) for i in range(1, 18)])
+```
+
+**Result:** `AttributeError: 'FantasyPlayer' object has no attribute 'actual_points'` at runtime.
+
+**How to catch:** Interface Verification Protocol - read actual class definitions with the Read tool before implementing. Don't trust similar class patterns.
+
+---
+
+### Anti-Pattern 3: The Mock Mask
+
+**What happened:**
+```python
+# Test with heavy mocking...
+@patch('module.ConfigGenerator')
+def test_simulation(mock_gen):
+    # Mock accepts ANY arguments!
+    mock_gen.return_value.generate.return_value = []
+
+    manager = SimulationManager()
+    result = manager.run()
+
+    # Test passes! But...
+
+# Real interface is different:
+class ConfigGenerator:
+    def generate_iterative_combinations(self, param_name: str, base_config: dict):
+        # Different method name! Different parameters!
+        pass
+```
+
+**Result:** Tests pass, production crashes with `AttributeError: 'ConfigGenerator' object has no attribute 'generate'`.
+
+**How to catch:** Mock Audit (iteration 21) - verify mocks match real interfaces. Use `spec=RealClass` in `@patch` decorators.
+
+---
+
+### Anti-Pattern 4: The Silent Default
+
+**What happened:**
+```python
+# Code silently handles missing attributes:
+def process_players(players):
+    results = []
+    for player in players:
+        actual = getattr(player, 'actual_points', None)  # ← Silent default
+        if actual is not None:
+            results.append(player)
+    return results
+
+# But 'actual_points' never exists on any player!
+# Result: Empty results list, no error, no warning
+```
+
+**Result:** Feature runs but produces empty/wrong output. No error messages to debug.
+
+**How to catch:**
+- Use explicit attribute access for required attributes (fails fast)
+- Add logging when default values are used
+- Verify attribute names exist in class definitions
+
+---
+
+### Anti-Pattern 5: The Existence Test
+
+**What happened:**
+```python
+# Test only checks file exists:
+def test_output_generation():
+    manager.run_simulation()
+
+    # BAD: Only checks existence
+    assert (output_path / 'config.json').exists()
+    assert (output_path / 'results.csv').exists()
+    # Tests pass!
+
+# But the files contain:
+# config.json: {}  ← Empty!
+# results.csv: "header\n"  ← No data!
+```
+
+**Result:** Tests pass but output is useless.
+
+**How to catch:** Write content validation tests:
+```python
+# GOOD: Validates content
+config = json.load(open(output_path / 'config.json'))
+assert 'DRAFT_ORDER' in config
+assert len(config['DRAFT_ORDER']) == 12
+
+results = pd.read_csv(output_path / 'results.csv')
+assert len(results) > 0
+assert results['score'].mean() > 0
+```
+
+---
+
+### Anti-Pattern Recognition Checklist
+
+Before marking any implementation complete, verify NONE of these patterns are present:
+
+```
+□ Every new method has a caller (not orphan)
+□ Every interface call verified against actual class definition
+□ Mocks use spec=RealClass or are verified against real interface
+□ No getattr with silent defaults on required attributes
+□ Output tests validate content, not just existence
+```
+
+---
+
+## Common Failure Patterns by Phase
+
+Use this reference to anticipate and prevent failures at each workflow stage:
+
+### Planning Phase Failures
+
+| Pattern | Symptoms | Prevention |
+|---------|----------|------------|
+| **Vague specs** | "Handle errors appropriately" with no details | Require specific error messages and behaviors |
+| **Missing edge cases** | Only happy path documented | Ask "what if X is empty/null/invalid?" |
+| **Unresolved alternatives** | "Option A OR Option B" in specs | Force choice before development |
+| **Assumed interfaces** | "Call the save method" without verification | Verify exact method signatures |
+| **Scope creep** | Requirements expand during planning | Document explicit in-scope/out-of-scope |
+
+### Verification Phase Failures
+
+| Pattern | Symptoms | Prevention |
+|---------|----------|------------|
+| **Rushing iterations** | "This is simple, skip to 24" | Complete ALL iterations - complexity hides |
+| **Interface assumptions** | "Similar class X has this method" | Read actual class definitions |
+| **Data model assumptions** | "Object probably has this attribute" | Verify attributes exist and semantics |
+| **Orphan code planning** | Tasks create methods but no callers | Integration Gap Check (7, 14, 23) |
+| **Mock-first thinking** | "I'll mock this and figure it out later" | Verify real interfaces during planning |
+
+### Implementation Phase Failures
+
+| Pattern | Symptoms | Prevention |
+|---------|----------|------------|
+| **Wrong dependency order** | Import errors, undefined classes | Verify dependency ordering before coding |
+| **Test-last approach** | "I'll add tests after it works" | Write tests alongside or before code |
+| **QA-at-end only** | All bugs discovered in final QC | Incremental QA checkpoints |
+| **Silent failures** | Code runs but produces wrong output | Output content validation tests |
+| **Breaking unrelated tests** | Changes cascade unexpectedly | Run full test suite after each phase |
+
+### QC Phase Failures
+
+| Pattern | Symptoms | Prevention |
+|---------|----------|------------|
+| **Existence testing only** | "File exists" but content wrong | Content validation in tests |
+| **Mock masking** | Heavy mocking hides real bugs | At least one integration test with real objects |
+| **Skipping E2E execution** | Unit tests pass, script fails | Always execute scripts end-to-end |
+| **Ignoring warnings** | Deprecation/type warnings dismissed | Address all warnings before completion |
+
+**How to use this table:** Before each phase transition, review the relevant failure patterns and verify none are present.
+
+---
+
+## Verification Failure Protocol
+
+**Purpose:** Handle issues discovered during any verification iteration.
+
+**When a verification iteration finds a gap or issue:**
+
+1. **STOP** - Do not continue to the next iteration
+2. **Document** the gap in the TODO file under a "Verification Gaps" section:
+   ```
+   ## Verification Gaps (Iteration X)
+   - [GAP-1] Missing task for {description}
+   - [GAP-2] Orphan method {name} has no caller
+   ```
+3. **Assess severity:**
+   - **Critical** (blocks implementation): Missing caller, wrong interface, algorithm mismatch
+   - **Non-critical** (can be fixed during implementation): Missing test, documentation gap
+4. **For Critical gaps:**
+   - Add task to TODO immediately
+   - Mark iteration as "INCOMPLETE - gaps found"
+   - Re-run iteration after fixing
+5. **For Non-critical gaps:**
+   - Add task to TODO
+   - Note in Progress Notes: "Non-critical gap found, task added"
+   - Continue to next iteration
+6. **Update confidence level** based on gaps found
+
+**Example:**
+```
+Iteration 7 (Integration Gap Check):
+- Found: save_optimal_config() method has no caller
+- Severity: CRITICAL
+- Action: Added Task 4.2 to modify SimulationManager
+- Status: Re-running iteration 7 after fix
+```
+
+---
+
+## Mandatory Stop Points
+
+These situations REQUIRE stopping and asking the user before proceeding. Do NOT proceed past these points without user input.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  STOP AND ASK - These situations require user input             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Situation | Why Stop | What to Ask |
+|-----------|----------|-------------|
+| **Confidence is LOW** at any iteration | Low confidence = high bug risk | "I have low confidence because {X}. Should I investigate more or proceed?" |
+| **Found unresolved alternative** in spec | Ambiguity causes wrong implementation | "The spec mentions both A and B. Which should I use?" |
+| **Test failure** you can't quickly fix | May indicate design problem | "Tests are failing because {X}. Options: (1) fix Y, (2) change approach. Which do you prefer?" |
+| **Scope seems to be expanding** | Scope creep is expensive | "This change would also require {X}. Is that in scope?" |
+| **Interface doesn't match expectation** | May need spec update | "Expected method {X}, but found {Y}. Should I update the plan?" |
+| **E2E script produces unexpected output** | May indicate misunderstanding | "Script runs but output is {X} instead of {Y}. Is this expected?" |
+| **Missing data source** for a requirement | Can't implement without data | "Requirement {X} needs data from {Y}, but I can't find it. Where should I look?" |
+| **Conflicting requirements** discovered | Both can't be satisfied | "Requirements A and B conflict because {X}. Which takes priority?" |
+| **New edge case** discovered during implementation | May need spec clarification | "Found edge case: {X}. How should this be handled?" |
+| **Architecture decision** with multiple valid approaches | User preference matters | "I can implement this with {A} or {B}. Here are trade-offs: ... Which do you prefer?" |
+
+**How to Stop:**
+1. Document the situation clearly in TODO or questions file
+2. Present the issue to the user with context
+3. Offer options when possible (don't just say "I'm stuck")
+4. Wait for user response before proceeding
+
+**Anti-pattern:** "I'll make a decision and tell them later"
+- This causes rework when your guess was wrong
+- Always ask BEFORE implementing when uncertain
 
 ---
 
@@ -65,6 +376,27 @@ This file contains detailed protocol definitions referenced by the Feature Devel
    - Add code references for patterns to follow
    - Mark iteration complete in tracker
 
+5. **Scope Creep Check (EVERY iteration)**
+   Before marking the iteration complete, ask yourself:
+   - "Am I adding tasks that weren't in the original spec?"
+   - "Am I expanding the feature beyond what was requested?"
+   - "Am I adding 'nice to have' items that weren't required?"
+
+   **If YES to any:**
+   - Document the potential addition
+   - Mark it as "SCOPE QUESTION" in TODO
+   - Ask user before including: "I found {X} could be improved. Should I include this in scope, or defer to a future feature?"
+
+   **Valid additions (don't need user approval):**
+   - Tasks required to implement spec items (discovered dependencies)
+   - Error handling for spec requirements
+   - Tests for spec requirements
+
+   **Invalid additions (need user approval):**
+   - "While I'm here, I could also..."
+   - "This would be better if we also..."
+   - "The codebase would benefit from..."
+
 **Output:** Updated TODO file with iteration marked complete.
 
 ---
@@ -72,6 +404,8 @@ This file contains detailed protocol definitions referenced by the Feature Devel
 ### Skeptical Re-verification Protocol
 
 **Purpose:** Challenge all assumptions and re-validate all claims with fresh codebase research.
+
+> *Rationale: Assumptions are the root cause of most bugs. "I assumed this method existed" and "I assumed this attribute was available" cause runtime crashes. This protocol forces you to verify, not assume.*
 
 **Execute during:** Iterations 6, 13, and 22
 
@@ -103,11 +437,67 @@ This file contains detailed protocol definitions referenced by the Feature Devel
    - List what was found to be incorrect and corrected
    - Document confidence level in current plan
 
+5. **Confidence Calibration:**
+   Use these criteria to set your confidence level:
+
+   | Level | Criteria |
+   |-------|----------|
+   | **High** | All file paths verified to exist, all method signatures confirmed, no assumptions remaining, similar patterns found in codebase |
+   | **Medium** | Most paths verified, some method signatures assumed based on patterns, 1-2 minor assumptions remaining |
+   | **Low** | Multiple paths unverified, method signatures based on documentation only, significant assumptions remaining |
+
+   **Detailed Confidence Criteria:**
+
+   | Area | High Confidence | Medium Confidence | Low Confidence |
+   |------|-----------------|-------------------|----------------|
+   | **File Paths** | All verified with Read/Glob | Most verified, 1-2 assumed | Multiple unverified |
+   | **Method Signatures** | All confirmed from source | Most confirmed, some from docs | Based on docs/patterns only |
+   | **Integration Points** | All callers identified and verified | Most callers known | Callers unclear |
+   | **Data Flow** | Complete trace from entry to output | Most steps traced | Significant gaps |
+   | **Similar Patterns** | Found and referenced in codebase | Found similar, not exact | No similar patterns |
+   | **Edge Cases** | All identified and documented | Most identified | Several unknown |
+
+   **Example Evidence for High Confidence:**
+   ```
+   Confidence: HIGH
+   - File path: simulation/shared/ConfigGenerator.py (verified with Read)
+   - Method: generate_iterative_combinations() at line 145 (read actual definition)
+   - Caller: SimulationManager.run_iterative_optimization() at line 261 (verified with Grep)
+   - Similar pattern: SimulationManager already calls generate_full_combinations() same way
+   ```
+
+   **Example Evidence for Medium Confidence:**
+   ```
+   Confidence: MEDIUM
+   - File path: simulation/shared/ConfigGenerator.py (verified)
+   - Method: generate_iterative_combinations() (signature inferred from docstring)
+   - Caller: SimulationManager (likely run_iterative_optimization, need to verify)
+   - Assumption: Return type matches existing generate_* methods
+   ```
+
+   **Example Evidence for Low Confidence:**
+   ```
+   Confidence: LOW - DO NOT PROCEED
+   - File path: Assumed to be in simulation/ folder
+   - Method: Described in architecture docs but not found in code
+   - Caller: Unknown - need to investigate where this fits
+   - Multiple assumptions about parameter types and return values
+   ```
+
+   **Confidence Level Actions:**
+   - **High:** Proceed to next iteration
+   - **Medium:** Note assumptions explicitly, proceed cautiously, plan to verify during implementation
+   - **Low:** **STOP** - Resolve uncertainties before proceeding. Low confidence at iteration 24 = DO NOT implement.
+
+   **If confidence is Low:** Do NOT proceed to implementation. Return to verification and resolve uncertainties first.
+
 ---
 
 ### Integration Gap Check Protocol
 
 **Purpose:** Ensure all new code will actually be called from entry points (no orphan code).
+
+> *Rationale: The #1 cause of "feature complete but doesn't work" is orphan code - methods that exist, have tests, but are never called from the actual entry point. This protocol catches that pattern.*
 
 **Execute during:** Iterations 7, 14, and 23
 
@@ -138,6 +528,48 @@ This file contains detailed protocol definitions referenced by the Feature Devel
    - List all `run_*.py` scripts that auto-detect files
    - Verify glob patterns match new output format
    - Add TODO tasks for any entry script updates needed
+
+6. **Cross-Feature Impact Check:**
+   Before marking integration complete, verify no unintended impacts on existing features:
+
+   a. **List all files modified** (from TODO's "Files to Modify" section)
+
+   b. **For each modified file, identify:**
+      - What OTHER features use this file?
+      - What callers besides your new code use modified methods?
+      - Use: `grep -r "modified_method\(" .` to find all callers
+
+   c. **For each affected feature:**
+      - Do existing tests still pass? (They should if run after each phase)
+      - Does behavior change for existing use cases?
+      - If behavior changes intentionally, document it
+      - If behavior changes unintentionally, fix it
+
+   d. **Create impact matrix if multiple features affected:**
+      ```
+      | Modified File | Other Features Using It | Impact | Mitigation |
+      |---------------|------------------------|--------|------------|
+      | PlayerManager.py | Trade Mode, Starter Mode | None - added new method | N/A |
+      | ConfigManager.py | All modes | Changed return type | Updated all callers |
+      ```
+
+   **Why this matters:** Features don't exist in isolation. Changes can have ripple effects that aren't caught by the feature's own tests.
+
+7. **Check for Unresolved Alternatives (CRITICAL):**
+   - Search TODO for "Alternative:" notes - these indicate unresolved decisions
+   - Search TODO for "May need to..." phrases - these indicate uncertainty
+   - For each unresolved item:
+     - Document the options with pros/cons
+     - Create a question in the questions file
+     - DO NOT proceed past verification until user decides
+
+   **Valid deferral reasons:**
+   - "Will be created when X runs" (file generation)
+   - "Low priority, not blocking" (documentation)
+
+   **Invalid deferral reasons (must resolve NOW):**
+   - "Requires user decision" → Should have been asked during planning
+   - "Multiple approaches possible" → Should have been decided during planning
 
 ---
 
@@ -280,7 +712,7 @@ This file contains detailed protocol definitions referenced by the Feature Devel
 
 ### Test Coverage Planning Protocol
 
-**Purpose:** Plan behavior tests that would fail if algorithm is wrong.
+**Purpose:** Plan behavior tests that would fail if algorithm is wrong, and audit mocks to ensure they match real interfaces.
 
 **Execute during:** Iteration 21
 
@@ -315,7 +747,158 @@ This file contains detailed protocol definitions referenced by the Feature Devel
    | Week scoring | test_week_2_cumulative | W2, 20pts | cumulative | single-week bug |
    ```
 
-**Output:** Test plan with behavior tests for all algorithms.
+5. **Mock Audit (CRITICAL):**
+   For each mocked dependency in the test plan:
+
+   a. **List all mocked classes/methods:**
+      ```
+      | Mock | Real Class | Real Method | Signature Verified? |
+      |------|------------|-------------|---------------------|
+      | mock_config_gen | ConfigGenerator | generate_iterative_combinations | [ ] |
+      | mock_progress | ProgressTracker | update | [ ] |
+      ```
+
+   b. **Verify each mock matches real interface:**
+      - Read the actual class definition
+      - Compare mock method calls to real method signatures
+      - Verify parameter names and types match
+      - Flag any mismatches for correction
+
+   c. **Check for over-mocking:**
+      - If mock accepts ANY arguments, it won't catch interface mismatches
+      - Consider using `spec=RealClass` in `@patch` decorators
+      - Example: `@patch('module.ClassName', spec=ClassName)`
+
+   d. **Plan at least one integration test:**
+      - Identify which test can use REAL objects instead of mocks
+      - This test should exercise the actual integration path
+      - Document: "Integration test X uses real ConfigGenerator and ProgressTracker"
+
+   **Mock Audit Checklist:**
+   ```
+   □ All mocked dependencies listed
+   □ Each mock's interface verified against real class
+   □ At least one integration test planned with real objects
+   □ Tests using spec= where appropriate
+   □ No tests that would pass with wrong interface
+   ```
+
+**Output:** Test plan with behavior tests for all algorithms AND verified mock interfaces.
+
+### Test Naming Convention
+
+Use descriptive test names that explain what is being tested, under what conditions, and what should happen.
+
+**Format:** `test_{unit}_{scenario}_{expected_behavior}`
+
+**Good Examples:**
+```python
+# Clear: explains what, when, and expected outcome
+def test_mae_calculation_with_bye_week_players_excludes_zero_actual():
+    """MAE should exclude players with 0 actual points (bye weeks)."""
+    pass
+
+def test_player_rating_week_one_uses_draft_rank():
+    """Week 1 player rating should use draft rank, not points."""
+    pass
+
+def test_config_save_with_empty_config_raises_validation_error():
+    """Saving empty config should raise ValidationError."""
+    pass
+
+def test_parallel_runner_with_single_thread_completes_successfully():
+    """Runner should work correctly even with thread_count=1."""
+    pass
+```
+
+**Bad Examples:**
+```python
+# Vague: doesn't explain scenario or expected behavior
+def test_mae():  # What about MAE? What scenario?
+    pass
+
+def test_player_rating():  # Which aspect? Which week?
+    pass
+
+def test_save():  # Save what? What should happen?
+    pass
+
+def test_1():  # Completely meaningless
+    pass
+```
+
+**Why good names matter:**
+- Test failures are immediately understandable: "test_mae_calculation_with_bye_week_players_excludes_zero_actual FAILED" tells you exactly what broke
+- Tests serve as documentation: reading test names explains feature behavior
+- Encourages thinking about edge cases: naming forces you to articulate the scenario
+
+**Naming Checklist:**
+```
+□ Test name includes the unit being tested (method/class)
+□ Test name includes the scenario/condition
+□ Test name includes expected behavior/outcome
+□ Test name is readable as a sentence when prefixed with "Verify that..."
+```
+
+---
+
+### Test-First Implementation Principle
+
+When possible, write tests BEFORE implementation:
+
+**The Test-First Workflow:**
+1. **Write failing test** that describes expected behavior
+2. **Run test** - confirm it fails (red)
+3. **Implement code** to make test pass
+4. **Run test** - confirm it passes (green)
+5. **Refactor** if needed, keeping tests green
+
+**Benefits:**
+- Forces you to think about behavior before code structure
+- Naturally creates behavior tests (not structure tests)
+- Catches "tests pass but behavior wrong" issues
+- Documents expected behavior before implementation
+
+**When to Use Test-First:**
+- New methods with calculcations or algorithms
+- New classes with business logic
+- Edge case handling
+- Any code where "what should happen" is clearer than "how to implement"
+
+**When Test-First May Not Apply:**
+- Simple data classes with no logic
+- Boilerplate code (imports, setup)
+- Integration code where the test requires the implementation to exist
+
+**Test-First Checklist:**
+```
+□ Expected behavior documented in test name
+□ Test runs and FAILS before implementation
+□ Implementation makes test pass
+□ Additional edge case tests added
+□ Refactoring doesn't break tests
+```
+
+**Example:**
+```python
+# STEP 1: Write failing test FIRST
+def test_mae_calculation_excludes_zero_actual_points():
+    """MAE should exclude players with 0 actual points (bye weeks)."""
+    players = [
+        Player(projected=10.0, actual=12.0),  # Include
+        Player(projected=15.0, actual=0.0),   # Exclude (bye week)
+        Player(projected=8.0, actual=10.0),   # Include
+    ]
+    calculator = AccuracyCalculator()
+    mae = calculator.calculate_mae(players)
+    # Expected: (|10-12| + |8-10|) / 2 = (2 + 2) / 2 = 2.0
+    assert mae == 2.0  # NOT (2 + 15 + 2) / 3 = 6.33
+
+# STEP 2: Run test - it fails (AccuracyCalculator doesn't exist yet)
+# STEP 3: Implement AccuracyCalculator.calculate_mae()
+# STEP 4: Run test - it passes
+# STEP 5: Add more edge case tests
+```
 
 ---
 
@@ -373,6 +956,100 @@ A common failure pattern:
 - "The tests pass but I haven't run the actual script"
 - "I built the infrastructure but the manager still uses the old approach"
 - "I changed the output format but entry scripts still look for the old format"
+
+---
+
+## Pre-Implementation Protocols
+
+### Interface Verification Protocol
+
+**Purpose:** Verify all dependency interfaces and data model attributes before writing implementation code.
+
+**Execute:** Before starting any implementation work, after iteration 24.
+
+**Steps:**
+
+**Step 1: List All External Dependencies**
+For each class the new code will use, document:
+```
+| Dependency | File | Methods to Call | Verified? |
+|------------|------|-----------------|-----------|
+| ConfigGenerator | shared/ConfigGenerator.py | generate_iterative_combinations() | [ ] |
+| ProgressTracker | shared/ProgressTracker.py | update(), complete() | [ ] |
+| PlayerManager | util/PlayerManager.py | load_players(), get_player() | [ ] |
+```
+
+**Step 2: Verify Interfaces Against Source**
+For each dependency:
+1. **Read the actual class definition** (not just mocks or docstrings)
+2. **Verify method signatures match expectations:**
+   ```
+   Expected: generate_configs_for_parameter(param_idx)
+   Actual:   generate_iterative_combinations(param_name, base_config)
+   MISMATCH! → Update expectations to match actual
+   ```
+3. **Check required vs optional parameters**
+4. **Look for existing usage patterns:** `grep -r "dependency_name\." .`
+
+**Step 3: Verify Data Model Attributes**
+For each data model (dataclass, domain object) you'll access:
+```
+| Model | File | Attributes Needed | Exists? | Semantics |
+|-------|------|-------------------|---------|-----------|
+| FantasyPlayer | util/FantasyPlayer.py | actual_points | [ ] | Total actual season points |
+| FantasyPlayer | util/FantasyPlayer.py | week_1_points | [x] | Week 1 actual points |
+```
+
+1. Read the actual class definition
+2. List all attributes you plan to use
+3. Verify each attribute exists in the definition
+4. Check attribute semantics (e.g., does `fantasy_points` mean projected or actual?)
+
+**Step 4: Document Interface Contracts**
+Create a summary of verified interfaces:
+```markdown
+## Interface Contracts (Verified)
+
+### ConfigGenerator
+- Method: `generate_iterative_combinations(param_name: str, base_config: dict) -> Iterator[dict]`
+- Source: simulation/shared/ConfigGenerator.py:145
+- Existing usage: SimulationManager.py:180
+
+### FantasyPlayer
+- Attribute: `week_N_points` (N=1-17) - actual points for week N
+- Attribute: `fantasy_points` - projected total points
+- Note: NO `actual_points` attribute - must sum week_N_points
+- Source: league_helper/util/FantasyPlayer.py:15
+```
+
+**Interface Verification Checklist:**
+```
+□ All external dependencies listed
+□ Each dependency's methods verified against source code
+□ Parameter names and types confirmed
+□ Return values documented
+□ Data model attributes verified to exist
+□ Attribute semantics understood (not assumed)
+□ Interface contracts documented in TODO file
+□ Quick E2E validation planned (minimal script run to verify interfaces)
+```
+
+**Step 5: Plan Quick E2E Validation**
+Before implementation, plan a minimal E2E test to validate interfaces:
+1. Identify the simplest possible E2E path through the new code
+2. Plan to run this BEFORE writing all implementation code
+3. This catches interface mismatches early, not after days of development
+
+**Example:**
+```
+Quick E2E Plan:
+1. Create minimal AccuracyCalculator with just calculate_mae()
+2. Run: python -c "from accuracy import AccuracyCalculator; ac = AccuracyCalculator(); print(ac.calculate_mae([]))"
+3. Expected: Should return 0.0 or raise clear error
+4. If import fails: Interface mismatch detected early
+```
+
+**Output:** Interface contract documentation in TODO file, all dependencies verified, quick E2E plan documented.
 
 ---
 
@@ -504,24 +1181,99 @@ For each algorithm/calculation in the spec, verify the implementation matches **
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Round 1: Initial Quality Review**
-1. Re-read the specification file (`{feature_name}_specs.md`)
-2. Re-read the TODO file (`{feature_name}_todo.md`)
-3. Re-read the code changes file (`{feature_name}_code_changes.md`)
-4. Cross-reference all three documents
-5. Identify any discrepancies, missing items, or incorrect implementations
-6. Document findings and fix any issues found
+**Round 1: Script Execution Test (MANDATORY)**
+
+If the feature includes a runner script (`run_*.py`), you MUST:
+
+1. **Execute the script with --help** to verify argument parsing works:
+   ```bash
+   python run_feature.py --help
+   # Should display help text without errors
+   ```
+
+2. **Execute the script in dry-run mode** (if available) or with minimal input:
+   ```bash
+   python run_feature.py --mode test --iterations 1
+   # Should complete without crashing
+   ```
+
+3. **Execute the script end-to-end** with real data:
+   - Not mocked dependencies
+   - Not simulated paths
+   - Actual file system interactions
+   ```bash
+   python run_feature.py --mode full
+   # Should produce expected output files
+   ```
+
+4. **Verify output:**
+   - Check output files exist
+   - Check output content is valid (non-zero values, correct format)
+   - Check no error messages in output
+
+**Scripts without execution tests must not pass QC Round 1.**
+
+**When E2E tests reveal errors:**
+1. Fix the immediate error
+2. Before continuing, perform root cause analysis:
+   - Why was this error created in the first place?
+   - Why wasn't it caught during unit testing?
+   - Why wasn't it caught during verification iterations?
+3. Document findings in the lessons learned file
+4. Only proceed after documenting the lesson
+
+Then proceed with document review:
+5. Re-read the specification file (`{feature_name}_specs.md`)
+6. Re-read the TODO file (`{feature_name}_todo.md`)
+7. Re-read the code changes file (`{feature_name}_code_changes.md`)
+8. Cross-reference all three documents
+9. Identify any discrepancies, missing items, or incorrect implementations
+10. Document findings and fix any issues found
 
 **Round 2: Deep Verification Review**
 1. With fresh perspective, repeat the same review process
 2. Focus on algorithm correctness and edge cases
 3. Verify conditional logic matches spec exactly
 4. Check that tests actually validate the behavior (not just structure)
-5. Document findings and fix any issues found
+5. Execute **Semantic Diff Check** (see below)
+6. Document findings and fix any issues found
+
+**Semantic Diff Check (Round 2):**
+
+Before completing Round 2, verify changes are minimal and intentional:
+
+1. **Run `git diff` and review each change:**
+   - Are there whitespace-only changes? → Remove them
+   - Are there reformatting changes unrelated to the feature? → Remove them
+   - Are there "while I'm here" improvements? → Should have been scoped earlier
+
+2. **For each changed file, verify:**
+   ```
+   □ File was listed in TODO's "Files to Modify" section
+   □ If NOT listed, document why it needed changes
+   □ Changes are minimal - only what's needed for the feature
+   ```
+
+3. **Check for scope creep in code:**
+   - Did you refactor code that didn't need refactoring?
+   - Did you add logging/comments beyond what was specified?
+   - Did you "improve" adjacent code that was working fine?
+
+4. **If unexpected changes exist:**
+   - Either remove them (revert to original)
+   - Or document why they were necessary and get user approval
+
+**Why this matters:** Minimal diffs are:
+- Easier to review (less noise)
+- Easier to rollback (fewer side effects)
+- Less likely to cause merge conflicts
+- Easier to understand in git history
 
 **Round 3: Final Skeptical Review**
 1. Assume previous reviews missed something
+   > *Rationale: Confirmation bias causes us to see what we expect. Round 3 exists specifically to counteract this - actively look for what's WRONG, not what's right.*
 2. Re-read spec with "adversarial" mindset - actively look for gaps
+   > *Rationale: If you look for problems, you'll find them. If you look for confirmation that everything works, you'll miss issues.*
 3. Verify every algorithm, calculation, and conditional
 4. Confirm all requirements have corresponding tests
 5. Document final verification status
@@ -745,6 +1497,69 @@ python run_simulation.py      # Simulation system
 - **If unit tests fail**: Fix failing tests, ensure 100% pass rate before proceeding
 - **No exceptions**: Cannot proceed to next phase without 100% test success
 - **Cannot commit**: Do NOT commit code with failing tests
+
+---
+
+## Rollback Protocol
+
+Use when implementation fails and changes need to be undone:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ROLLBACK PROTOCOL - WHEN IMPLEMENTATION FAILS                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**When to Use:**
+- Tests fail after implementation and cannot be fixed quickly
+- Implementation reveals fundamental spec issues
+- User requests abandoning current approach
+- Breaking changes to unrelated functionality discovered
+
+**Rollback Steps:**
+
+1. **Document the Failure**
+   - Add entry to `_lessons_learned.md` explaining:
+     - What was attempted
+     - What failed and why
+     - What was learned
+   - Capture specific error messages or test failures
+
+2. **Revert Changes**
+   ```bash
+   # View changes to decide what to revert
+   git diff
+
+   # Option A: Revert all uncommitted changes
+   git checkout -- .
+
+   # Option B: Revert specific files
+   git checkout -- path/to/file.py
+
+   # Option C: If already committed, revert to previous commit
+   git revert HEAD
+   ```
+
+3. **Verify Clean State**
+   - Run `python tests/run_all_tests.py` - must pass
+   - Verify no orphan changes remain with `git status`
+
+4. **Update Feature Status**
+   - Update README.md "Agent Status" to indicate rollback
+   - Move feature back to appropriate phase if needed
+   - Document what needs to be re-planned
+
+5. **Notify User**
+   - Explain what was rolled back
+   - Present options for next steps:
+     - Re-plan with different approach
+     - Abandon feature
+     - Address underlying issue first
+
+**Prevention:** Most rollbacks indicate insufficient verification. If rollback is needed, consider whether:
+- Pre-flight checklist was completed
+- All 24 verification iterations were thorough
+- Interface verification caught the issue
 
 ---
 

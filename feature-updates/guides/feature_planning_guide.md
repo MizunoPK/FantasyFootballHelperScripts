@@ -90,9 +90,65 @@ If you're picking up planning work started by a previous agent:
 
 ---
 
+## Pre-Phase: Investigation Spike (Optional)
+
+**When to use:** When initial notes are too vague to begin structured planning. Signs you need a spike:
+- "I want something like X but I'm not sure how"
+- "Can we even do Y with the current codebase?"
+- Multiple fundamental unknowns that block even basic planning
+- User is unsure what they want and needs exploration to clarify
+
+**Spike Process:**
+
+1. **Time-box:** Maximum 2-4 hours of investigation
+2. **Goal:** Answer ONE question: "Is this feasible and what's the general approach?"
+3. **Activities:**
+   - Explore the codebase for relevant patterns
+   - Research external APIs or data sources
+   - Prototype a minimal proof-of-concept (NO production code)
+   - Identify key unknowns that need resolution
+
+4. **Output:** Updated notes file with:
+   ```markdown
+   ## Spike Results
+
+   **Feasibility:** [Yes / No / Maybe with caveats]
+
+   **Rough Approach:**
+   - [High-level approach if feasible]
+
+   **Key Unknowns to Resolve During Planning:**
+   - [Unknown 1]
+   - [Unknown 2]
+
+   **Risks Identified:**
+   - [Risk 1]
+   ```
+
+**After spike:** Return to Phase 1 with a better foundation for structured planning.
+
+**Do NOT use spikes to:**
+- Delay planning indefinitely ("we need more spikes")
+- Write prototype code that becomes production code
+- Skip planning ("we already did a spike, let's just implement")
+- Avoid making decisions ("let's spike it first" as procrastination)
+
+**Spike vs Planning:**
+| Spike | Planning |
+|-------|----------|
+| Answers "can we?" | Answers "how will we?" |
+| Time-boxed (2-4 hours) | Takes as long as needed |
+| Output: feasibility + rough approach | Output: detailed specs |
+| Optional | Mandatory |
+
+---
+
 ## Workflow Overview
 
 ```
+(Optional) Pre-Phase: Investigation Spike
+    For high-uncertainty features only
+                            ↓
 Phase 1: Create Structure
     Agent creates folder, moves notes, creates initial specs/checklist/readme
                             ↓
@@ -130,10 +186,21 @@ Use this checklist to track progress through planning phases:
   □ ⚡ UPDATE README Agent Status: Phase=PLANNING, Step=Phase 1 complete
 
 □ PHASE 2: Investigation
-  □ Read and analyze _notes.txt thoroughly
-  □ Research codebase (patterns, files to modify, similar features)
-  □ Populate checklist with ALL open questions by category
-  □ Update _specs.md with discovered context
+  □ 2.1: Read and analyze _notes.txt thoroughly
+  □ 2.2: Research codebase (patterns, files to modify, similar features)
+  □ 2.3: Populate checklist with ALL open questions by category
+  □ 2.3.1: THREE-ITERATION question generation (MANDATORY)
+    □ Iteration 1: Edge cases, error conditions, configuration options
+    □ Iteration 2: Logging, performance, testing, integration workflows
+    □ Iteration 3: Relationships to similar features, cross-cutting concerns
+  □ 2.4: CODEBASE VERIFICATION rounds (MANDATORY)
+    □ Round 1: Search codebase for answers to each question
+    □ Round 2: Skeptically re-verify findings from Round 1
+    □ Categorize: [x] Resolved from code | [ ] Needs user decision | [ ] Unknown
+  □ 2.5: Performance analysis for implementation options
+  □ 2.6: Create DEPENDENCY MAP showing module + data flow
+  □ 2.7: Update _specs.md with discovered context + dependency map
+  □ 2.8: ASSUMPTIONS AUDIT - list all assumptions with basis/risk/mitigation
   □ Update README.md with key findings
   □ ⚡ UPDATE README Agent Status: Step=Phase 2 complete
 
@@ -266,7 +333,66 @@ Add ALL identified open questions to the checklist, organized by category:
 
 **For API-dependent features:** Consider running test scripts against the actual API during planning to verify assumptions about edge cases and data formats. This prevents surprises during implementation (e.g., verifying DST negative scores, bye week handling, missing data responses).
 
-### Step 2.3.1: Include Performance Analysis
+### Step 2.3.1: Three-Iteration Question Generation (MANDATORY)
+
+After initial checklist population, complete THREE separate iterations of question generation:
+
+**Iteration 1:** Review initial questions and categories. For each category, ask:
+- "What edge cases might apply here?"
+- "What error conditions could occur?"
+- "What configuration options might be needed?"
+
+**Iteration 2:** Consider operational aspects:
+- Logging and debugging needs
+- Performance and parallelization
+- Testing and validation approaches
+- Integration with existing workflows
+
+**Iteration 3:** Consider relationships and comparisons:
+- How does this feature relate to similar existing features?
+- What cross-cutting concerns exist (multi-season, multi-mode)?
+- What user workflow questions remain?
+
+Document new questions discovered in each iteration before proceeding.
+
+**Why this matters:** A single pass of question generation typically misses 20+ questions across 8+ categories. Multiple iterations surface:
+- Scoring mode configuration questions
+- Multi-season handling questions
+- Parallelization & performance questions
+- Logging & debugging questions
+- Relationship between feature modes
+- Additional edge cases (minimum thresholds)
+- Integration workflow questions
+
+### Step 2.4: Codebase Verification Rounds (MANDATORY)
+
+After populating the checklist with questions, perform TWO verification rounds to determine which questions can be answered from existing code:
+
+**Round 1: Initial Codebase Research**
+For each open checklist item:
+1. Search the codebase for relevant code, patterns, or existing implementations
+2. If a straightforward answer exists in the code → document it and mark resolved
+3. If multiple valid approaches exist → document options with code references for user decision
+4. If no answer found in codebase → leave as open question for user
+
+**Round 2: Skeptical Re-verification**
+Assume all findings from Round 1 are potentially incorrect:
+1. Re-search with different terms and approaches
+2. Verify claims made in Round 1 are accurate
+3. Check for edge cases or exceptions missed in Round 1
+4. Look for contradictions between code and documentation
+
+**Output:** Checklist should be categorized into:
+- `[x]` Resolved via codebase research (with code references)
+- `[ ]` Needs user decision (multiple valid approaches documented)
+- `[ ]` Truly unknown (no answer in codebase, requires user input)
+
+**Why this matters:** This prevents:
+- Asking the user questions that have obvious answers in the code
+- Planning phase taking longer than necessary
+- Wasting user's time on questions the agent could answer itself
+
+### Step 2.5: Include Performance Analysis
 
 When proposing implementation options, ALWAYS analyze efficiency implications:
 
@@ -292,11 +418,100 @@ When proposing implementation options, ALWAYS analyze efficiency implications:
 2. Memory efficiency (space efficiency)
 3. Code simplicity (acceptable to sacrifice for performance)
 
-### Step 2.4: Update specs and readme
+### Step 2.6: Create Dependency Map
+
+Create a visual dependency map showing how the feature connects to existing code:
+
+```
+## Dependency Map
+
+### Module Dependencies
+```
+┌─────────────────────────────────────────────────────────────┐
+│ run_accuracy_simulation.py (entry point)                    │
+│     │                                                       │
+│     ▼                                                       │
+│ AccuracySimulationManager                                   │
+│     │                                                       │
+│     ├──► ConfigGenerator (shared/)                          │
+│     │         └──► league_config.json                       │
+│     │                                                       │
+│     ├──► AccuracyCalculator (NEW)                           │
+│     │         └──► PlayerManager                            │
+│     │                   └──► players.csv                    │
+│     │                                                       │
+│     └──► AccuracyResultsManager (NEW)                       │
+│               └──► performance_metrics.json (output)        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+```
+Input: sim_data/YEAR/weeks/week_NN/players.csv
+   ▼
+PlayerManager.load_players()
+   ▼
+AccuracyCalculator.calculate_mae()
+   ▼
+AccuracyResultsManager.save_results()
+   ▼
+Output: simulation_configs/accuracy_optimal_*/performance_metrics.json
+```
+```
+
+**Why this matters:** The dependency map helps identify:
+- Which interfaces need to be verified before implementation
+- Where integration points exist
+- Which existing code might be affected
+- Data flow from entry to output
+
+### Step 2.7: Update specs and readme
 
 - Add discovered context to `_specs.md` (what you learned about the codebase)
+- Add dependency map to `_specs.md`
 - Update `README.md` with key findings and current status
 - Ensure checklist has ALL open items before proceeding
+
+### Step 2.8: Assumptions Audit (MANDATORY)
+
+Before Phase 3, explicitly list ALL assumptions being made. Many bugs come from unstated assumptions that seem "obvious" but turn out to be wrong.
+
+**Assumption Categories to Check:**
+
+| Category | Questions to Ask |
+|----------|------------------|
+| **Data assumptions** | "The API always returns X" - have you tested edge cases? |
+| **Timing assumptions** | "This will run after X" - what if order changes? |
+| **Environment assumptions** | "The file will exist" - what if it doesn't? |
+| **Scale assumptions** | "There won't be more than N items" - what if there are? |
+| **Format assumptions** | "The data will be in format X" - what if it varies? |
+| **State assumptions** | "The system will be in state X" - what if it's not? |
+
+**Create an Assumptions Table in `_specs.md`:**
+
+```markdown
+## Assumptions
+
+| Assumption | Basis | Risk if Wrong | Mitigation |
+|------------|-------|---------------|------------|
+| Players.csv has all columns | Tested locally | Script crashes | Add column validation |
+| API returns data within 5s | Documentation says so | Timeout errors | Add configurable timeout |
+| Week numbers are 1-17 | Current season structure | Off-by-one errors | Validate week range |
+```
+
+**For each assumption:**
+1. **Basis:** Why do you believe this? (Code evidence, documentation, testing)
+2. **Risk if Wrong:** What breaks if this assumption is false?
+3. **Mitigation:** How will the code handle the assumption being wrong?
+
+**Assumptions that need user confirmation:**
+- Move to checklist as questions if basis is weak
+- Don't assume - verify or ask
+
+**Why this matters:** Unstated assumptions become bugs. Making them explicit allows:
+- Challenging them during planning
+- Adding defensive code during implementation
+- Documenting limitations for future maintainers
 
 ---
 
@@ -637,6 +852,44 @@ A feature is ready for implementation when:
 3. **README** shows status "Ready for Implementation"
 4. **Lessons learned file** is created (will be populated during development)
 5. **User confirms** planning is complete
+
+### Planning Completion Checklist
+
+Before transitioning to development, verify ALL items in this checklist:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  PLANNING COMPLETION CHECKLIST - VERIFY BEFORE HANDOFF          │
+└─────────────────────────────────────────────────────────────────┘
+
+SPECIFICATIONS
+□ All checklist items are [x] (none pending)
+□ _specs.md has implementation details for EVERY checklist item
+□ No "Alternative:" or "OR" notes remain unresolved
+□ No "TBD" or "TODO" placeholders in specs
+
+DEPENDENCIES
+□ All files to modify are listed in specs
+□ All new files to create are listed in specs
+□ Required external modules/imports identified
+□ Data model dependencies documented
+
+INTEGRATION
+□ Entry point identified (which script/command triggers feature)
+□ Exit point identified (what output/state change occurs)
+□ Interaction with existing features documented
+
+EDGE CASES
+□ Error scenarios documented with expected behavior
+□ Empty/null input handling specified
+□ Boundary conditions identified
+
+STATUS
+□ README shows "Ready for Implementation"
+□ User explicitly confirmed planning is complete
+```
+
+**If ANY item is unchecked:** Resolve it before proceeding to development. Each gap will surface during verification iterations, costing more time than resolving it now.
 
 **Transition to Implementation:**
 

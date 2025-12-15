@@ -19,15 +19,70 @@ This guide covers the implementation workflow for features that have completed t
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  WARNING: Steps 3 and 5 are MANDATORY                           │
-│  Do NOT skip iterations or QC rounds for ANY reason             │
-│  "Simple" features still require full verification              │
+│  WHY THESE STEPS ARE MANDATORY                                  │
+│                                                                 │
+│  Bugs in "simple" features have historically caused the most    │
+│  rework. The iterations may feel excessive for small changes,   │
+│  but they consistently catch issues that would otherwise ship.  │
+│                                                                 │
+│  The process feels slow, but the result is clean code that      │
+│  doesn't need multiple rounds of post-merge fixes.              │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 **CRITICAL:** Update the README.md "Agent Status" section after completing each major step. This ensures continuity if the session is interrupted.
 
 **Need to resume?** → See "Resuming Work Mid-Development" section below.
+
+---
+
+## CRITICAL RULES - READ EVERY SESSION
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  RULES YOU MUST FOLLOW (Quick Reference)                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. ALL 24 iterations are MANDATORY - no skipping               │
+│  2. ALL 3 QC rounds are MANDATORY - no skipping                 │
+│  3. Run tests after EVERY phase (100% pass required)            │
+│  4. Update README "Agent Status" after EVERY step               │
+│  5. Every new method MUST have a caller (no orphan code)        │
+│  6. Verify interfaces BEFORE implementation (read actual code)  │
+│  7. When confidence is LOW - STOP and resolve first             │
+│  8. Execute actual scripts during QC (not just unit tests)      │
+│                                                                 │
+│  COMMON MISTAKES TO AVOID:                                      │
+│  ✗ "This is simple, I'll skip iterations" → Bugs ship           │
+│  ✗ "Tests pass so I'm done" → Script may not work E2E           │
+│  ✗ "I created the method" → But is anything calling it?         │
+│  ✗ "Interface probably works" → Read the actual class           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Pre-Flight Checklist
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ✓ VERIFY BEFORE STARTING ANY WORK                              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Complete this checklist BEFORE starting Step 1 (TODO creation):
+
+| Check | How to Verify | If Failed |
+|-------|---------------|-----------|
+| Feature folder exists | `feature-updates/{feature_name}/` is present | Run Planning Guide first |
+| `_specs.md` is approved | README shows "Ready for Implementation" | Complete planning phase |
+| All checklist items resolved | `_checklist.md` has all `[x]` checkboxes | Resolve pending items first |
+| No "Alternative:" notes | Search `_specs.md` for "Alternative:" or "OR" | Resolve alternatives with user |
+| Dependencies documented | `_specs.md` lists files to modify | Add dependency section |
+| Unit tests currently pass | `python tests/run_all_tests.py` exits 0 | Fix tests before adding changes |
+
+**Why this matters:** Starting development with incomplete planning leads to rework. Each failed check represents a gap that will surface during verification iterations, costing more time than resolving it upfront.
 
 ---
 
@@ -47,6 +102,11 @@ This guide covers the implementation workflow for features that have completed t
 | Untested private methods | Critical logic in private methods never exercised | Test **private methods with critical logic** through their callers or directly |
 | Parameter dependencies missed | Updating param A requires updating param B | Use **Parameter Dependency Check** - document and test all dependencies |
 | Thinking "I know what to do" | Assumptions are often wrong; research validates | **Always research codebase** before assuming |
+| Assuming interface matches similar class | Methods like `log_interval=10` may not exist on similar classes | **Verify interfaces against source** - read actual class definitions |
+| Using getattr with silent defaults | `getattr(obj, 'attr', None)` hides missing attributes | **Use explicit attribute access** for required attributes |
+| QA only at end | Bugs compound when built on broken foundation | **Incremental QA checkpoints** throughout implementation |
+| Leaving "Alternative:" notes unresolved | Deferred decisions cause rework during implementation | **Resolve all alternatives** during planning phase |
+| Skipping E2E script execution | Unit tests pass but script fails immediately | **Execute scripts E2E** during QC with real data |
 
 ---
 
@@ -77,6 +137,46 @@ A common failure pattern that causes features to appear complete but not work:
 1. A task to modify the caller
 2. An entry in the Integration Matrix
 3. Verification that it's in the execution path from entry point to output
+
+---
+
+## Critical Warning: Red Flag Self-Check
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  🚩 RED FLAG CHECKLIST - STOP IF ANY OF THESE ARE TRUE         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Before proceeding past any iteration or checkpoint, verify NONE of these are true:
+
+**Interface Assumptions (causes: method not found, wrong parameters):**
+- [ ] "I assumed this method exists" → STOP: Read the actual class definition
+- [ ] "I assumed these parameters are correct" → STOP: Verify against source
+- [ ] "This class is similar to X, so it probably has the same methods" → STOP: Verify
+
+**Data Model Assumptions (causes: AttributeError, silent failures):**
+- [ ] "I assumed this attribute exists" → STOP: Check the dataclass/model definition
+- [ ] "I used getattr with a default value" → WARNING: Verify attribute actually exists
+- [ ] "I didn't verify the attribute semantics" → STOP: Check if projected vs actual, etc.
+
+**Integration Assumptions (causes: orphan code, feature doesn't work):**
+- [ ] "I haven't traced from entry point to this code" → STOP: Do entry point trace
+- [ ] "I created code but haven't identified what calls it" → STOP: Add caller task
+- [ ] "Alternative:" or "May need to..." notes exist in TODO → STOP: Resolve first
+
+**Testing Assumptions (causes: tests pass but code broken):**
+- [ ] "My mock accepts any arguments" → WARNING: Use spec=RealClass
+- [ ] "I haven't run the actual script" → STOP: Run E2E test
+- [ ] "My test only checks structure, not behavior" → WARNING: Add behavior test
+
+**If ANY checkbox above is checked, STOP and fix before proceeding.**
+
+**When to Run This Checklist:**
+- Before marking ANY iteration complete (1-24)
+- Before each QA checkpoint during implementation
+- Before each QC round (1-3)
+- Before committing any code
 
 ---
 
@@ -142,6 +242,28 @@ assert config['DRAFT_ORDER'][0] == expected_draft_order[0]
 - Create tests that verify: "When X changes, Y is also updated correctly"
 - Use the **Parameter Dependency Checklist** below
 
+### Anti-Pattern 5: Assumed Interface Matches
+
+**Problem:** Developer assumes a class has the same interface as a similar class, without verifying.
+
+**Example:** `AccuracySimulationManager` called `MultiLevelProgressTracker(total, configs, log_interval=10)`, but `MultiLevelProgressTracker.__init__()` doesn't accept a `log_interval` parameter (unlike `ProgressTracker`).
+
+**Prevention:**
+- Read the actual class definition before using it
+- Use `spec=RealClass` in mocks: `@patch('...', spec=RealClass)` - this raises errors if you call methods that don't exist
+- Reference existing usage in codebase: `grep -r "ClassName(" .` to see how others use it
+
+### Anti-Pattern 6: Silent Attribute Failures
+
+**Problem:** Using `getattr(obj, 'attr', None)` for required attributes silently returns `None` instead of failing fast, causing downstream issues.
+
+**Example:** Code used `getattr(player, 'actual_points', None)` but `FantasyPlayer` has `week_N_points` attributes instead. All players were silently skipped as "invalid" with no error.
+
+**Prevention:**
+- Use explicit attribute access for required attributes (fails fast)
+- If using `getattr` with default, log a warning when default is used
+- Verify attribute names exist in the dataclass/model definition before writing code
+
 ### Parameter Dependency Checklist
 
 When adding parameters that reference other data, verify:
@@ -161,11 +283,21 @@ When adding parameters that reference other data, verify:
 
 ---
 
-## Critical Warning: No Skipping Iterations
+## Why Every Iteration Matters
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  ⚠️  NEVER SKIP ITERATIONS - NO EXCEPTIONS                       │
+│  THE REASONING BEHIND 24 ITERATIONS                             │
+│                                                                 │
+│  Each iteration type catches different bug categories:          │
+│  - Standard (1-3): File paths, patterns, error handling         │
+│  - Algorithm (4,11,19): Logic matches spec exactly              │
+│  - Data Flow (5,12): No orphan code, complete paths             │
+│  - Skeptical (6,13,22): Challenge assumptions                   │
+│  - Integration (7,14,23): Everything is actually connected      │
+│                                                                 │
+│  Skipping iterations doesn't save time - it moves bugs from     │
+│  "caught during verification" to "caught after shipping."       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -175,6 +307,26 @@ When adding parameters that reference other data, verify:
 - Time pressure ("we need this done quickly")
 - Confidence level ("I already know what needs to be done")
 - Feature size ("it's just a config change")
+
+### Iteration Purpose Map
+
+Each iteration type is designed to catch a specific category of bugs. If you skip an iteration type, you WILL miss bugs in that category.
+
+| Type | Iterations | Bug Category It Catches | Example Bug It Prevents |
+|------|------------|------------------------|-------------------------|
+| **Standard** | 1-3, 8-10, 15-16 | Requirements gaps, missing patterns | "Forgot to handle error case" |
+| **Algorithm** | 4, 11, 19 | Logic mismatches, wrong calculations | "Used + instead of * in formula" |
+| **Data Flow** | 5, 12 | Broken data pipelines, orphan code | "Data never reaches output file" |
+| **Skeptical** | 6, 13, 22 | Assumption failures, interface mismatches | "Method doesn't actually exist" |
+| **Integration** | 7, 14, 23 | Orphan methods, missing callers | "Built it but nothing uses it" |
+| **Fresh Eyes** | 17, 18 | Missed requirements from spec | "Completely forgot section 3" |
+| **Edge Case** | 20 | Boundary condition failures | "Crashes on empty input" |
+| **Test Coverage** | 21 | Tests that don't catch real bugs | "Test passes with wrong code" |
+| **Readiness** | 24 | Incomplete preparation | "Started coding too soon" |
+
+**Reading the table:** If you skip the "Skeptical" iterations (6, 13, 22), you will miss "Assumption failures, interface mismatches" bugs. The example "Method doesn't actually exist" is a real bug that occurred when this iteration type was skipped.
+
+---
 
 ### Why Simple Features Still Need All Iterations
 
@@ -195,6 +347,52 @@ When adding parameters that reference other data, verify:
 | "Save time by skipping iterations" | Bugs found later cost 10x more to fix |
 | "Feature is too simple to need QC" | Subtle issues slip through, cause production bugs |
 | "I'll just implement and test" | Miss integration gaps, orphan code, inconsistencies |
+
+### What Success Looks Like
+
+The process may feel slow, but the results speak for themselves.
+
+**Success Example: Accuracy Simulation Feature**
+```
+Planning Phase:
+- 2 sessions, 35+ checklist items identified
+- 3 API questions resolved with user
+- Dependency map revealed integration complexity early
+
+Development Phase:
+- 24 iterations completed across 3 rounds
+- Iteration 7 (Integration Gap Check) found 2 orphan methods
+- Iteration 21 (Test Coverage) identified mock interface mismatch
+- 0 questions needed after first round - spec was thorough
+
+Implementation:
+- 4 phases with QA checkpoints
+- All checkpoints passed first try
+- E2E test ran successfully on first attempt
+
+QC Rounds:
+- Round 1: Found 1 docstring inconsistency
+- Round 2: Found 1 semantic diff issue (whitespace change)
+- Round 3: Clean pass
+
+Result: Feature merged with zero post-merge bugs.
+```
+
+**Contrast: What Rushing Looks Like**
+```
+"Simple" config parameter move - skipped iterations:
+- Implemented quickly, tests passed
+- Post-merge: User reported feature not working
+- Root cause: Orphan method - never called from entry point
+- Fix required: 2 additional sessions to debug and fix
+- Total time: 3x longer than following the process would have taken
+```
+
+**The Math:**
+- Full process: ~4-6 hours for medium feature
+- Rushed process + debugging: ~8-12 hours
+- Full process catches bugs at $X cost
+- Rushed process catches bugs at $10X cost (debugging is expensive)
 
 ### Enforcement
 
@@ -234,6 +432,53 @@ Use this guide when a user says something like:
 
 ---
 
+## Quick Commands Reference
+
+Common commands you'll need during development:
+
+```bash
+# Run all tests (REQUIRED before any commit)
+python tests/run_all_tests.py
+
+# Check git status
+git status
+
+# View unstaged changes
+git diff
+
+# View staged changes
+git diff --staged
+
+# Search for method callers
+grep -r "method_name(" .
+
+# Search for class usage
+grep -r "ClassName" . --include="*.py"
+
+# View recent commits (for rollback targets)
+git log --oneline -10
+
+# Revert all uncommitted changes
+git checkout -- .
+
+# Run a specific test file
+python -m pytest tests/path/to/test_file.py -v
+
+# Run feature script with help
+python run_feature.py --help
+
+# Run feature script E2E (minimal mode)
+python run_feature.py --mode test --iterations 1
+```
+
+**File Operations (use tools, not bash):**
+- Read files: Use the `Read` tool
+- Search files by name: Use the `Glob` tool
+- Search file contents: Use the `Grep` tool
+- Edit files: Use the `Edit` tool
+
+---
+
 ## Communication Guidelines
 
 How often to update the user during development:
@@ -255,6 +500,33 @@ How often to update the user during development:
 - Summarize at natural checkpoints (end of rounds, end of phases)
 - Report blockers immediately
 - Confirm completion of major milestones
+
+### User Communication Protocol
+
+**MANDATORY communication points:**
+
+| Trigger | Action | Template |
+|---------|--------|----------|
+| After each verification round (7, 16, 24) | Present Round Summary | See prompts_reference.md |
+| When blocked on a decision | Ask for clarification | "I need your input on {X} before proceeding..." |
+| When scope seems to be changing | Ask for approval | "I found {X} could be added. Should I include it?" |
+| When E2E tests fail | Report with analysis | "E2E test failed: {error}. Root cause: {analysis}. Fix: {plan}" |
+| Before implementing anything new | Confirm approach | "I'm about to implement {X} using {approach}. Proceeding..." |
+| When interface verification finds issues | Report discrepancies | "Interface mismatch found: expected {X}, actual {Y}" |
+
+**Communication Checklist (run at each checkpoint):**
+```
+□ Did I complete a verification round? → Present Round Summary
+□ Am I blocked? → Report blocker immediately
+□ Did I add tasks not in original spec? → Ask about scope
+□ Did tests fail? → Report with root cause
+□ Is context running low? → Start Session Handoff
+```
+
+**Anti-patterns to avoid:**
+- "I'll just implement this and tell them later" → Always communicate BEFORE major decisions
+- "This is obvious, no need to mention" → When in doubt, communicate
+- "I'll batch up all my questions" → Ask blockers immediately, batch only non-blocking questions
 
 ---
 
@@ -281,12 +553,56 @@ When working on long features, context windows may fill up. Follow these practic
 - User mentions session may end soon
 - You're losing track of earlier decisions
 
-### Before Context Ends
+### When to Start Handoff
 
-1. **Update TODO file** with current iteration and status
-2. **Update Progress Notes** section with what's done vs remaining
-3. **Commit any changes** to preserve work
-4. **Inform user**: "I've updated the TODO file with current state. A future agent can resume from iteration X."
+**Start the handoff process when ANY of these triggers occur:**
+
+1. **Context indicators:**
+   - You've been working for 15+ iterations without a natural break
+   - User mentions "running out of time" or "session ending"
+   - You notice you're losing track of earlier decisions
+   - The conversation feels "heavy" (lots of back-and-forth)
+
+2. **Proactive triggers:**
+   - Before starting a complex implementation phase
+   - After completing a major milestone (all iterations done)
+   - Before E2E testing that might reveal multiple issues
+
+**Don't wait until context runs out - start early!**
+
+### Session Handoff Checklist (MANDATORY)
+
+When context is running low or session is ending, complete this checklist:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  SESSION HANDOFF CHECKLIST                                       │
+│  Complete ALL items before session ends                          │
+└─────────────────────────────────────────────────────────────────┘
+
+□ TODO file updated with current iteration number
+□ Progress Notes section updated with:
+  - Current status (what's done)
+  - Next steps (what remains)
+  - Any blockers or decisions needed
+□ README Agent Status section updated with:
+  - Current Phase
+  - Current Step
+  - Next Action
+□ Any uncommitted code changes committed
+□ Integration Matrix updated with any new entries discovered
+□ Summary message sent to user:
+  "Session ending. State preserved:
+   - Current: {iteration/phase}
+   - Next: {what to do next}
+   - TODO file updated at: {timestamp}
+   A future agent can resume by reading the README Agent Status."
+```
+
+**Why This Matters:** Without proper handoff, the next agent may:
+- Restart from the beginning (wasting previous work)
+- Miss context about decisions made
+- Make contradictory choices
 
 ### What to Preserve
 
@@ -296,6 +612,66 @@ When working on long features, context windows may fill up. Follow these practic
 | Protocol Execution Tracker | Mark completed protocols |
 | Integration Matrix | Add any new entries |
 | Progress Notes | Current status + next steps |
+| README Agent Status | Phase, Step, Next Action |
+
+### Context Window Emergency Protocol
+
+If context runs out DURING implementation (mid-task):
+
+1. **STOP** the current task immediately
+2. **Commit** any working code (even partial) with message: "WIP: {task description} - session handoff"
+3. **Update TODO** to mark task as "IN PROGRESS - partial completion"
+4. **Document** in Progress Notes exactly where you stopped:
+   ```
+   EMERGENCY HANDOFF:
+   - Task: 2.3 - Implement AccuracyCalculator
+   - Progress: Method signatures done, MAE calculation partial
+   - Next: Complete _calculate_error() method starting line 145
+   - File state: Compiles but tests will fail until complete
+   ```
+5. **Inform user** of the partial state
+
+---
+
+## Session Start Protocol (Run Every Time)
+
+When starting or resuming work on a feature, execute this checklist BEFORE doing anything else:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  SESSION START CHECKLIST - COMPLETE BEFORE ANY WORK             │
+│  Time to complete: ~2 minutes                                   │
+│  Cost of skipping: Duplicate work, lost context, missed issues  │
+└─────────────────────────────────────────────────────────────────┘
+
+□ 1. Read feature's README.md
+     → Check "Agent Status" and "WHERE AM I RIGHT NOW?" sections
+     → Note current phase and step
+
+□ 2. Read TODO file (if exists)
+     → Check Iteration Progress Tracker
+     → Check Progress Notes section for last activity
+
+□ 3. Read _lessons_learned.md
+     → Note any issues to avoid repeating
+
+□ 4. Run baseline test
+     → python tests/run_all_tests.py
+     → Must pass before making any changes
+
+□ 5. Update README status
+     → Add: "Session resumed at {time}, continuing from {step}"
+
+□ 6. Continue from documented step
+     → Do NOT restart the workflow
+     → Pick up exactly where previous work left off
+```
+
+**Why This Matters:**
+- Without this checklist, you may restart work that's already done
+- Previous decisions may be lost or contradicted
+- Issues that were already identified may be missed
+- Time is wasted re-discovering context that was already documented
 
 ---
 
@@ -376,7 +752,7 @@ PRE-IMPLEMENTATION (24 verification iterations total)
 │         17-18: Fresh Eyes Review                                │
 │         19: Algorithm Deep Dive                                 │
 │         20: Edge Case Verification                              │
-│         21: Test Coverage Planning                              │
+│         21: Test Coverage Planning + Mock Audit                 │
 │         22: Skeptical Re-verification #3                        │
 │         23: Integration Gap Check #3                            │
 │         24: Implementation Readiness Checklist                  │
@@ -510,8 +886,9 @@ Use this table to know exactly what to do at each iteration:
 | **Integration Gap Check** | 7, 14, 23 | Every new method has a caller | `protocols_reference.md` |
 | **Fresh Eyes Review** | 17, 18 | Re-read spec with fresh perspective | `protocols_reference.md` |
 | **Edge Case Verification** | 20 | Every edge case has task + test | `protocols_reference.md` |
-| **Test Coverage Planning** | 21 | Plan behavior tests; avoid anti-patterns | See "Testing Anti-Patterns" section above |
+| **Test Coverage Planning + Mock Audit** | 21 | Plan behavior tests; verify mocks match reality | `protocols_reference.md` |
 | **Implementation Readiness** | 24 | Final checklist before coding | `protocols_reference.md` |
+| **Verification Failure** | When needed | Force re-verification after implementation issues | `protocols_reference.md` |
 | **Requirement Verification** | Before complete | 100% spec coverage | `protocols_reference.md` |
 | **Quality Control Review** | After implementation | 3 rounds minimum | `protocols_reference.md` |
 
@@ -590,7 +967,67 @@ Each standard iteration follows this pattern:
 
 See `protocols_reference.md` for detailed protocol steps.
 
+**Integration Gap Check - Additional Requirements:**
+
+Before marking an integration gap check complete, verify:
+
+1. **No "Alternative:" notes remain unresolved** - If multiple valid approaches exist for any task:
+   - Document the options with pros/cons
+   - Create a question in the questions file
+   - DO NOT proceed past verification until user decides
+
+2. **No "May need to..." notes remain** - Phrases like "may need to refactor" indicate uncertainty that must be resolved:
+   - Investigate to determine if refactoring IS needed
+   - If yes, document the approach and get user approval
+   - If no, remove the note and document why not needed
+
+3. **All DEFERRED items have valid deferral reasons:**
+   - **Valid reasons:** "Will be created when X runs" (file generation), "Low priority, not blocking" (documentation)
+   - **Invalid reasons:** "Requires user decision" (should have been asked during planning), "Multiple approaches possible" (should have been decided during planning)
+
+**Why this matters:** Deferring architectural decisions to implementation causes rework. Decisions like "how should Add to Roster Mode get its config" affect behavior, not just code structure - these must be resolved during planning.
+
 **Output:** TODO file with 7 iterations complete, all protocols executed, ready for questions.
+
+### Round Checkpoint Summary (MANDATORY after iterations 7, 16, 24)
+
+After completing each verification round, create a checkpoint summary:
+
+```markdown
+## Round {N} Checkpoint Summary
+
+**Completed:** {date/time}
+**Iterations:** {X-Y} complete
+
+### Key Findings
+- {What was learned about the codebase}
+- {Important patterns discovered}
+- {Dependencies identified}
+
+### Gaps Identified
+- {What's still unclear}
+- {What needs user input}
+- {What needs more research}
+
+### Scope Assessment
+- Original scope items: {count}
+- Items added during this round: {list any additions}
+- Items removed/deferred: {list any removals}
+- **Scope creep detected?** {Yes/No} - {if yes, document and ask user}
+
+### Confidence Level
+- **Level:** {High/Medium/Low}
+- **Justification:** {why this confidence level}
+- **Risks:** {what could still go wrong}
+
+### Ready For
+- {Next phase: questions / round 2 / implementation}
+```
+
+**Why This Matters:** Without checkpoint summaries:
+- Agents don't reflect on what they learned
+- Scope creep goes undetected
+- Confidence isn't calibrated against reality
 
 ### STEP 3: Create Questions File (or Skip if None)
 
@@ -664,18 +1101,170 @@ Integrate user's answers into the TODO:
 
 ## Implementation Phase
 
+### Pre-Implementation: Rollback Point Planning
+
+Before starting implementation, identify natural rollback points. This makes it safer to advance because you know how to retreat.
+
+**Step 1: Identify Reversible Checkpoints**
+
+List the natural stopping points where you can safely roll back:
+```
+| Checkpoint | Description | Rollback Command |
+|------------|-------------|------------------|
+| Clean state | Before any changes | git checkout -- . |
+| Phase 1 complete | Core classes created | git checkout {phase1_commit} |
+| Phase 2 complete | Integration wired up | git checkout {phase2_commit} |
+```
+
+**Step 2: Identify "Point of No Return" Changes**
+
+Some changes are harder to reverse. Identify these early:
+- Database schema changes
+- API contract changes (if external consumers exist)
+- Config file format changes that affect other tools
+- File/folder structure changes that affect other scripts
+
+**Step 3: Plan Commit Strategy**
+
+- Commit after each phase completes successfully
+- Use descriptive commit messages that explain the checkpoint
+- Consider WIP commits for long phases: "WIP: Phase 2 - integration partial"
+
+**Rollback Commands Reference:**
+```bash
+# Revert all uncommitted changes
+git checkout -- .
+
+# Revert to specific commit (keeps history)
+git revert HEAD
+
+# View recent commits for rollback targets
+git log --oneline -10
+```
+
+**Why this matters:** Knowing how to retreat makes it safer to advance. If implementation fails, you can quickly return to a known-good state.
+
+---
+
+### Pre-Implementation: Interface and Data Model Verification (MANDATORY)
+
+Before writing any implementation code, complete these verification steps:
+
+**Step 1: List All External Dependencies**
+For each class the new code will use, document:
+- Class name
+- Methods to be called
+- Expected parameters (including types)
+- Return values
+
+**Step 2: Verify Interfaces Against Source**
+For each dependency:
+1. Read the actual class definition (not just mocks or docstrings)
+2. Verify method signatures match your expectations
+3. Check required vs optional parameters
+4. Look for existing usage patterns: `grep -r "ClassName(" .`
+
+**Step 3: Verify Data Model Attributes**
+For each data model (dataclass, domain object) you'll access:
+1. Read the actual class definition
+2. List all attributes you plan to use
+3. Verify each attribute exists in the definition
+4. Check attribute semantics (e.g., does `fantasy_points` mean projected or actual?)
+
+**Why this matters:** Three interface mismatches in one class indicates the class was written without verifying actual interfaces. This catches bugs BEFORE implementation rather than during E2E testing.
+
+**Interface Verification Checklist:**
+```
+□ All external dependencies listed
+□ Each dependency's methods verified against source code
+□ Parameter names and types confirmed
+□ Return values documented
+□ Data model attributes verified to exist
+□ Attribute semantics understood (not assumed)
+```
+
+### Reference Existing Usage (MANDATORY)
+
+Before implementing code that uses existing modules:
+
+1. **Find existing usage examples**: `grep -r "module_name\." .`
+2. **Read actual method signatures**: Check the real `def` lines, not just docstrings
+3. **Verify against existing tests**: See how the class is used in its own unit tests
+4. **Copy the pattern**: Don't invent new method names that might not exist
+
+**Example:**
+```bash
+# Before using ConfigGenerator in new code:
+grep -r "config_generator\." simulation/
+# Find: SimulationManager.py shows correct usage pattern
+# Use that pattern, don't assume different methods exist
+```
+
+### Standard Implementation Steps
+
 1. **Create code changes file**: `{feature_name}_code_changes.md`
    - Use template from `templates.md`
 
-2. **Execute TODO tasks phase by phase**
+2. **Verify dependency ordering**: Before implementing, ensure TODO tasks are correctly ordered:
+
+   **Dependency Ordering Checklist:**
+   ```
+   □ Data models/classes created before code that uses them
+   □ Utility functions created before callers
+   □ Tests created after implementations they test
+   □ Configuration changes before code that reads config
+   □ No circular dependencies between tasks
+   ```
+
+   **How to verify:**
+   - For each TODO task, ask: "What must exist before I can implement this?"
+   - If dependency exists as a later task, reorder
+   - If dependency doesn't exist in TODO, add it
+
+3. **Execute TODO tasks phase by phase**
    - Update code_changes.md after EACH change
    - Run tests after EACH phase
    - 100% pass rate required at all times
+   - **Consider Test-First for algorithms**: Write failing tests before implementing calculation logic (see `protocols_reference.md` → Test-First Implementation Principle)
 
-3. **Update lessons_learned.md when issues found**
+4. **Update lessons_learned.md when issues found**
    - Any edge case missed during planning
    - Any verification failure
    - Any user-reported issue
+
+### Incremental QA Checkpoints (MANDATORY)
+
+QA must happen THROUGHOUT development, not just at the end.
+
+**TODO File Structure with Checkpoints:**
+```
+Phase 1: Core Implementation
+- [ ] 1.1 Implement AccuracyCalculator
+- [ ] 1.2 Implement AccuracyResultsManager
+- [ ] 1.3 QA CHECKPOINT: Test calculators with real player data
+      Expected: MAE > 0, player_count > 0 for test data
+
+Phase 2: Integration
+- [ ] 2.1 Implement AccuracySimulationManager
+- [ ] 2.2 Wire up to runner script
+- [ ] 2.3 QA CHECKPOINT: Run script end-to-end
+      Expected: Script completes, outputs written to disk
+```
+
+**QA Checkpoint Requirements:**
+1. Run all existing unit tests
+2. Run E2E test with real data (whatever is testable so far)
+3. Verify output is meaningful (non-zero values, expected format)
+4. Document any issues found before proceeding
+
+**QA Checkpoint Failure Protocol:**
+1. **STOP development**
+2. **Fix the issue** before proceeding
+3. **Re-run checkpoint** to verify fix
+4. **Document** what went wrong in lessons learned
+5. **Only proceed** after checkpoint passes
+
+**Why this matters:** QA at the end can only verify that bugs still exist. QA during development catches bugs when they're introduced, before more code is built on broken foundations.
 
 ---
 
@@ -703,6 +1292,29 @@ See `protocols_reference.md` for detailed steps.
 
 See `protocols_reference.md` for detailed steps.
 
+**QC Round 1: Script Execution Test (MANDATORY)**
+
+If the feature includes a runner script (`run_*.py`), you MUST:
+
+1. **Execute the script with --help** to verify argument parsing works
+2. **Execute the script in dry-run mode** (if available) or with minimal input
+3. **Execute the script end-to-end** with real data:
+   - Not mocked dependencies
+   - Not simulated paths
+   - Actual file system interactions
+4. **Verify the script completes without errors** before proceeding
+
+**Scripts without execution tests must not pass QC.**
+
+**When E2E tests reveal errors:**
+1. Fix the immediate error
+2. Before continuing, perform root cause analysis:
+   - Why was this error created in the first place?
+   - Why wasn't it caught during unit testing?
+   - Why wasn't it caught during verification iterations?
+3. Document findings in the lessons learned file
+4. Only proceed after documenting the lesson
+
 **QC Round Checklist (verify during each round):**
 ```
 □ Tests use real objects where possible (not excessive mocking)
@@ -710,12 +1322,17 @@ See `protocols_reference.md` for detailed steps.
 □ Private methods with branching logic are tested through callers
 □ Parameter dependencies are tested (changing A also updates B)
 □ At least one integration test runs the actual feature end-to-end
+□ Runner scripts execute successfully with --help
+□ Runner scripts execute successfully end-to-end with real data
+□ Interfaces verified against actual class definitions (not assumed)
+□ Data model attributes verified to exist (not assumed)
 ```
 
 Document each round in code_changes.md:
 ```
 ## Quality Control Round [N]
 - Reviewed: [date/time]
+- Script Execution Tests: [--help passed, E2E passed with output X]
 - Testing Anti-Patterns Checked: [list which were verified]
 - Issues Found: [list or "None"]
 - Issues Fixed: [list or "N/A"]

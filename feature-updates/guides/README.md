@@ -6,8 +6,9 @@ This folder contains workflow guides for agents implementing new features in the
 
 | Situation | File to Use |
 |-----------|-------------|
-| User says "prepare for updates based on *.txt" | Start with **Planning Guide** |
+| User says "help me develop the {feature} feature" | Start with **Planning Guide** |
 | User provides a `.txt` file with feature requirements | Start with **Planning Guide** |
+| User says "prepare for updates based on {feature}" | Use **Development Guide** |
 | Planning is complete, specs approved, ready to code | Use **Development Guide** |
 | Need to execute a specific protocol | Use **Protocols Reference** |
 | Need to create a new feature file | Use **Templates** |
@@ -45,14 +46,14 @@ Use this table to quickly determine your current location when resuming work:
 
 ## Files in This Folder
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `feature_planning_guide.md` | ~600 | Planning phase workflow (Phases 1-4) |
-| `feature_development_guide.md` | ~470 | Development workflow (24 iterations + implementation) |
-| `protocols_reference.md` | ~700 | Detailed protocol definitions (14 protocols) |
-| `templates.md` | ~700 | File templates for all feature files |
-| `prompts_reference.md` | ~250 | Ready-to-use conversation prompts |
-| `README.md` | - | This overview (you are here) |
+| File | Purpose |
+|------|---------|
+| `feature_planning_guide.md` | Planning phase workflow (Phases 1-4) with question generation and codebase verification |
+| `feature_development_guide.md` | Development workflow (24 iterations + implementation) with interface verification and incremental QA |
+| `protocols_reference.md` | Detailed protocol definitions (15+ protocols) including Mock Audit, Test-First, and Rollback |
+| `templates.md` | File templates for all feature files with QA checkpoint structure and Round Checkpoint Summary |
+| `prompts_reference.md` | Ready-to-use conversation prompts |
+| `README.md` | This overview (you are here) |
 
 ---
 
@@ -63,18 +64,20 @@ Use this table to quickly determine your current location when resuming work:
 **Purpose:** Transform a raw feature request (`.txt` file) into a fully-specified, approved plan before any code is written.
 
 **When to use:**
-- User has placed a `.txt` file in `updates/` folder
-- User requests "prepare for updates" or similar
+- User has placed a `.txt` file in `feature-updates/` folder
+- User requests "help me develop" or "prepare for updates"
 - Starting any new feature from scratch
 
 **What it produces:**
 - Feature folder: `feature-updates/{feature_name}/`
-- 5 files: `README.md`, `_specs.md`, `_checklist.md`, `_lessons_learned.md`, `_notes.txt`
+- 5 files total:
+  - 4 created: `README.md`, `_specs.md`, `_checklist.md`, `_lessons_learned.md`
+  - 1 moved: `_notes.txt` (original scratchwork)
 - User-approved specification ready for implementation
 
 **Key phases:**
 1. Create folder structure
-2. Investigate codebase
+2. Investigate codebase (with 3-iteration question generation + codebase verification rounds)
 3. Report findings and STOP for user approval
 4. Iterate until fully specified
 
@@ -98,15 +101,17 @@ Use this table to quickly determine your current location when resuming work:
 - Completed `_lessons_learned.md`
 
 **Key phases:**
-1. Pre-implementation: 24 verification iterations (3 rounds: 7 + 9 + 8)
-2. Implementation: Code + test + document
-3. Post-implementation: Final verification + lessons learned
+1. Pre-implementation: 24 verification iterations (3 rounds: 7 + 9 + 8) with interface verification
+2. Implementation: Code + test + document with incremental QA checkpoints
+3. Post-implementation: E2E script execution + 3 QC rounds + lessons learned
 
 **Critical protocols** (defined in `protocols_reference.md`):
 - Skeptical Re-verification (iterations 6, 13, 22)
 - End-to-End Data Flow checks (iterations 5, 12)
-- Integration Gap Check (iterations 7, 14, 23)
+- Integration Gap Check (iterations 7, 14, 23) - with unresolved alternatives check
 - Algorithm Traceability Matrix (iterations 4, 11, 19)
+- Interface Verification (pre-implementation)
+- Mock Audit (iteration 21)
 
 ---
 
