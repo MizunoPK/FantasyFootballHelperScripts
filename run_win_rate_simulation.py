@@ -24,8 +24,8 @@ from pathlib import Path
 from utils.LoggingManager import setup_logger
 
 # Add simulation directory to path for imports
-# This allows us to import SimulationManager from simulation/SimulationManager.py
-sys.path.append(str(Path(__file__).parent / "simulation"))
+# SimulationManager is now in simulation/win_rate/
+sys.path.append(str(Path(__file__).parent / "simulation" / "win_rate"))
 from SimulationManager import SimulationManager
 
 
@@ -42,42 +42,24 @@ DEFAULT_BASELINE=''
 DEFAULT_OUTPUT='simulation/simulation_configs'
 DEFAULT_WORKERS=8
 DEFAULT_DATA='simulation/sim_data'
-DEFAULT_TEST_VALUES=99
+DEFAULT_TEST_VALUES=5
 NUM_PARAMETERS_TO_TEST=1
 
 # Parameter ordering for iterative optimization
-# Defines which parameters to optimize and in what order
+# Win-rate simulation optimizes STRATEGY parameters only (5 total)
+# These affect how players are selected during draft, not how their scores are calculated
+#
+# Prediction parameters (NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING_WEIGHT, etc.)
+# are optimized by accuracy simulation instead - see run_accuracy_simulation.py
 PARAMETER_ORDER = [
-    # Normalization and Bye Penalties
-    'NORMALIZATION_MAX_SCALE',
+    # Bye Week Penalties - affects roster construction decisions
     'SAME_POS_BYE_WEIGHT',
     'DIFF_POS_BYE_WEIGHT',
-    # Draft Order Bonuses
+    # Draft Order Bonuses - affects position priority during draft
     'PRIMARY_BONUS',
     'SECONDARY_BONUS',
-    # ADP Scoring
+    # ADP Scoring - affects how much market wisdom influences picks
     'ADP_SCORING_WEIGHT',
-    # Player Rating Scoring
-    'PLAYER_RATING_SCORING_WEIGHT',
-    # Team Quality Scoring
-    'TEAM_QUALITY_SCORING_WEIGHT',
-    'TEAM_QUALITY_MIN_WEEKS',
-    # Performance Scoring
-    'PERFORMANCE_SCORING_WEIGHT',
-    'PERFORMANCE_SCORING_STEPS',
-    'PERFORMANCE_MIN_WEEKS',
-    # Matchup Scoring (additive)
-    'MATCHUP_IMPACT_SCALE',
-    'MATCHUP_SCORING_WEIGHT',
-    'MATCHUP_MIN_WEEKS',
-    # Game Condition Scoring
-    'TEMPERATURE_IMPACT_SCALE',
-    'TEMPERATURE_SCORING_WEIGHT',
-    'WIND_IMPACT_SCALE',
-    'WIND_SCORING_WEIGHT',
-    'LOCATION_HOME',
-    'LOCATION_AWAY',
-    'LOCATION_INTERNATIONAL',
 ]
 
 

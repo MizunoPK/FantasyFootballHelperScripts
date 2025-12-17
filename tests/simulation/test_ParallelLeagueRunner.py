@@ -14,7 +14,7 @@ import threading
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from simulation.ParallelLeagueRunner import ParallelLeagueRunner
+from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 
 
 class TestParallelLeagueRunnerInitialization:
@@ -74,7 +74,7 @@ class TestParallelLeagueRunnerInitialization:
 class TestRunSingleSimulation:
     """Test run_single_simulation functionality"""
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_single_simulation_success(self, mock_league_class):
         """Test successful single simulation run"""
         # Setup mock league
@@ -97,7 +97,7 @@ class TestRunSingleSimulation:
         # Verify results
         assert result == (10, 7, 1234.56)
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_single_simulation_different_results(self, mock_league_class):
         """Test single simulation with different results"""
         mock_league = Mock()
@@ -111,7 +111,7 @@ class TestRunSingleSimulation:
 
         assert result == (12, 5, 1500.00)
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_single_simulation_exception_during_draft(self, mock_league_class):
         """Test exception handling during draft"""
         mock_league = Mock()
@@ -124,7 +124,7 @@ class TestRunSingleSimulation:
         with pytest.raises(Exception, match="Draft failed"):
             runner.run_single_simulation(config, simulation_id=2)
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_single_simulation_exception_during_season(self, mock_league_class):
         """Test exception handling during season"""
         mock_league = Mock()
@@ -137,7 +137,7 @@ class TestRunSingleSimulation:
         with pytest.raises(Exception, match="Season failed"):
             runner.run_single_simulation(config, simulation_id=3)
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_single_simulation_zero_points(self, mock_league_class):
         """Test simulation with zero points (edge case)"""
         mock_league = Mock()
@@ -155,7 +155,7 @@ class TestRunSingleSimulation:
 class TestRunSimulationsForConfig:
     """Test run_simulations_for_config functionality"""
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_simulations_single_sim(self, mock_league_class):
         """Test running single simulation for config"""
         mock_league = Mock()
@@ -170,7 +170,7 @@ class TestRunSimulationsForConfig:
         assert len(results) == 1
         assert results[0] == (10, 7, 1234.56)
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_simulations_multiple_sims(self, mock_league_class):
         """Test running multiple simulations for config"""
         # Return different results for each simulation
@@ -193,7 +193,7 @@ class TestRunSimulationsForConfig:
         assert (11, 6, 1345.67) in results
         assert (9, 8, 1123.45) in results
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_simulations_with_progress_callback(self, mock_league_class):
         """Test progress callback is called correctly"""
         mock_league = Mock()
@@ -221,7 +221,7 @@ class TestRunSimulationsForConfig:
             assert call_args[0][1] == 3  # total is always 3
             assert 1 <= call_args[0][0] <= 3  # completed is between 1 and 3
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_simulations_handles_one_failure(self, mock_league_class):
         """Test that one failed simulation doesn't stop others"""
         # Create a list to track which simulation we're on
@@ -255,7 +255,7 @@ class TestRunSimulationsForConfig:
         assert (10, 7, 1234.56) in results
         assert (11, 6, 1345.67) in results
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_simulations_zero_simulations(self, mock_league_class):
         """Test running zero simulations (edge case)"""
         runner = ParallelLeagueRunner()
@@ -271,7 +271,7 @@ class TestRunSimulationsForConfig:
 class TestRunMultipleConfigs:
     """Test run_multiple_configs functionality"""
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_multiple_configs_single_config(self, mock_league_class):
         """Test running simulations for single config"""
         mock_league = Mock()
@@ -287,7 +287,7 @@ class TestRunMultipleConfigs:
         assert 'test_config' in results
         assert len(results['test_config']) == 2
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_multiple_configs_multiple_configs(self, mock_league_class):
         """Test running simulations for multiple configs"""
         mock_league = Mock()
@@ -311,7 +311,7 @@ class TestRunMultipleConfigs:
         assert len(results['config2']) == 2
         assert len(results['config3']) == 2
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_multiple_configs_default_names(self, mock_league_class):
         """Test configs without explicit names get default names"""
         mock_league = Mock()
@@ -330,7 +330,7 @@ class TestRunMultipleConfigs:
         assert 'config_0001' in results
         assert 'config_0002' in results
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_multiple_configs_empty_list(self, mock_league_class):
         """Test running with empty config list"""
         runner = ParallelLeagueRunner()
@@ -341,7 +341,7 @@ class TestRunMultipleConfigs:
         assert len(results) == 0
         mock_league_class.assert_not_called()
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_multiple_configs_zero_simulations_per_config(self, mock_league_class):
         """Test running multiple configs with zero simulations each"""
         runner = ParallelLeagueRunner()
@@ -360,7 +360,7 @@ class TestRunMultipleConfigs:
 class TestTestSingleRun:
     """Test test_single_run functionality"""
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_test_single_run_success(self, mock_league_class):
         """Test single run for debugging/testing"""
         mock_league = Mock()
@@ -376,7 +376,7 @@ class TestTestSingleRun:
         assert result == (10, 7, 1234.56)
         mock_league_class.assert_called_once_with(config, runner.data_folder)
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_test_single_run_with_exception(self, mock_league_class):
         """Test single run with exception"""
         mock_league = Mock()
@@ -393,7 +393,7 @@ class TestTestSingleRun:
 class TestThreadSafety:
     """Test thread-safety of parallel operations"""
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_progress_callback_thread_safety(self, mock_league_class):
         """Test that progress callback is thread-safe"""
         mock_league = Mock()
@@ -434,7 +434,7 @@ class TestThreadSafety:
 class TestIntegrationScenarios:
     """Test integration scenarios combining multiple features"""
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_realistic_scenario_small_batch(self, mock_league_class):
         """Test realistic scenario with small batch of simulations"""
         mock_league = Mock()
@@ -469,7 +469,7 @@ class TestIntegrationScenarios:
         # Progress callback called 5 times
         assert callback.call_count == 5
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_realistic_scenario_multiple_configs(self, mock_league_class):
         """Test realistic scenario with multiple configs"""
         mock_league = Mock()
@@ -490,7 +490,7 @@ class TestIntegrationScenarios:
         for config_name in ['baseline', 'variant_a', 'variant_b']:
             assert len(results[config_name]) == 3
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_custom_data_folder_propagation(self, mock_league_class):
         """Test that custom data folder is propagated to SimulatedLeague"""
         mock_league = Mock()
@@ -513,7 +513,7 @@ class TestIntegrationScenarios:
 class TestEdgeCases:
     """Test edge cases and boundary conditions"""
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_very_high_worker_count(self, mock_league_class):
         """Test with very high worker count"""
         mock_league = Mock()
@@ -528,7 +528,7 @@ class TestEdgeCases:
 
         assert len(results) == 5
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_perfect_season_results(self, mock_league_class):
         """Test with perfect season (17-0)"""
         mock_league = Mock()
@@ -542,7 +542,7 @@ class TestEdgeCases:
 
         assert result == (17, 0, 2000.00)
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_winless_season_results(self, mock_league_class):
         """Test with winless season (0-17)"""
         mock_league = Mock()
@@ -560,7 +560,7 @@ class TestEdgeCases:
 class TestParallelLeagueRunnerCleanup:
     """Test cleanup behavior for memory management (OOM fix)"""
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_cleanup_called_on_success(self, mock_league_class):
         """Test that cleanup is called on successful simulation"""
         # Arrange: Mock SimulatedLeague with cleanup method
@@ -577,7 +577,7 @@ class TestParallelLeagueRunnerCleanup:
         mock_league.cleanup.assert_called_once()
         assert result == (10, 7, 1234.56)
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_cleanup_called_on_draft_exception(self, mock_league_class):
         """Test that cleanup is called even when draft raises exception"""
         # Arrange: Mock league that raises exception during draft
@@ -594,7 +594,7 @@ class TestParallelLeagueRunnerCleanup:
         # Assert: cleanup() was STILL called (finally block)
         mock_league.cleanup.assert_called_once()
 
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_cleanup_called_on_season_exception(self, mock_league_class):
         """Test that cleanup is called even when season raises exception"""
         # Arrange: Mock league that raises exception during season
@@ -611,8 +611,8 @@ class TestParallelLeagueRunnerCleanup:
         # Assert: cleanup() was STILL called (finally block)
         mock_league.cleanup.assert_called_once()
 
-    @patch('simulation.ParallelLeagueRunner.gc')
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.gc')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_gc_forced_every_10_simulations(self, mock_league_class, mock_gc):
         """Test that GC is forced every GC_FREQUENCY simulations"""
         # Arrange: Mock successful simulations
@@ -629,8 +629,8 @@ class TestParallelLeagueRunnerCleanup:
         assert mock_gc.collect.call_count == 5
         assert len(results) == 25
 
-    @patch('simulation.ParallelLeagueRunner.gc')
-    @patch('simulation.ParallelLeagueRunner.SimulatedLeague')
+    @patch('simulation.win_rate.ParallelLeagueRunner.gc')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_gc_not_called_for_less_than_gc_frequency(self, mock_league_class, mock_gc):
         """Test that GC is not called when simulations < GC_FREQUENCY"""
         # Arrange

@@ -16,9 +16,9 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 import sys
 
-# Add simulation directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "simulation"))
-from config_cleanup import cleanup_old_optimal_folders, MAX_OPTIMAL_FOLDERS
+# Add simulation/shared directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "simulation" / "shared"))
+from config_cleanup import cleanup_old_optimal_folders, cleanup_old_accuracy_optimal_folders, MAX_OPTIMAL_FOLDERS
 
 
 class TestCleanupOldOptimalFolders:

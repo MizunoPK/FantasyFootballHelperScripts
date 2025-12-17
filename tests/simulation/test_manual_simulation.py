@@ -18,7 +18,7 @@ import sys
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
-from simulation.manual_simulation import (
+from simulation.win_rate.manual_simulation import (
     load_config,
     print_draft_results,
     print_weekly_results,
@@ -460,12 +460,12 @@ class TestPrintFinalStandings:
 class TestMain:
     """Test main simulation orchestration"""
 
-    @patch('simulation.manual_simulation.SimulatedLeague')
-    @patch('simulation.manual_simulation.load_config')
-    @patch('simulation.manual_simulation.get_logger')
-    @patch('simulation.manual_simulation.print_draft_results')
-    @patch('simulation.manual_simulation.print_weekly_results')
-    @patch('simulation.manual_simulation.print_final_standings')
+    @patch('simulation.win_rate.manual_simulation.SimulatedLeague')
+    @patch('simulation.win_rate.manual_simulation.load_config')
+    @patch('simulation.win_rate.manual_simulation.get_logger')
+    @patch('simulation.win_rate.manual_simulation.print_draft_results')
+    @patch('simulation.win_rate.manual_simulation.print_weekly_results')
+    @patch('simulation.win_rate.manual_simulation.print_final_standings')
     def test_main_full_workflow(self, mock_print_standings, mock_print_weekly,
                                 mock_print_draft, mock_get_logger, mock_load_config,
                                 mock_league_class, sample_config_dict, capsys):
@@ -493,9 +493,9 @@ class TestMain:
         mock_print_weekly.assert_called_once_with(mock_league)
         mock_print_standings.assert_called_once_with(mock_league)
 
-    @patch('simulation.manual_simulation.SimulatedLeague')
-    @patch('simulation.manual_simulation.load_config')
-    @patch('simulation.manual_simulation.get_logger')
+    @patch('simulation.win_rate.manual_simulation.SimulatedLeague')
+    @patch('simulation.win_rate.manual_simulation.load_config')
+    @patch('simulation.win_rate.manual_simulation.get_logger')
     def test_main_creates_league_with_config(self, mock_get_logger, mock_load_config,
                                             mock_league_class, sample_config_dict):
         """Test that league is created with loaded config"""
@@ -515,9 +515,9 @@ class TestMain:
         args = mock_league_class.call_args[0]
         assert args[0] == sample_config_dict
 
-    @patch('simulation.manual_simulation.SimulatedLeague')
-    @patch('simulation.manual_simulation.load_config')
-    @patch('simulation.manual_simulation.get_logger')
+    @patch('simulation.win_rate.manual_simulation.SimulatedLeague')
+    @patch('simulation.win_rate.manual_simulation.load_config')
+    @patch('simulation.win_rate.manual_simulation.get_logger')
     def test_main_logs_progress(self, mock_get_logger, mock_load_config, mock_league_class):
         """Test that main logs progress messages"""
         mock_logger = Mock()
@@ -541,9 +541,9 @@ class TestMain:
         assert any("Draft complete" in msg for msg in log_messages)
         assert any("Season complete" in msg for msg in log_messages)
 
-    @patch('simulation.manual_simulation.SimulatedLeague')
-    @patch('simulation.manual_simulation.load_config')
-    @patch('simulation.manual_simulation.get_logger')
+    @patch('simulation.win_rate.manual_simulation.SimulatedLeague')
+    @patch('simulation.win_rate.manual_simulation.load_config')
+    @patch('simulation.win_rate.manual_simulation.get_logger')
     def test_main_prints_configuration_info(self, mock_get_logger, mock_load_config,
                                            mock_league_class, capsys):
         """Test that configuration info is printed"""
@@ -564,9 +564,9 @@ class TestMain:
         assert "Snake draft" in captured.out
         assert "16-week regular season" in captured.out
 
-    @patch('simulation.manual_simulation.SimulatedLeague')
-    @patch('simulation.manual_simulation.load_config')
-    @patch('simulation.manual_simulation.get_logger')
+    @patch('simulation.win_rate.manual_simulation.SimulatedLeague')
+    @patch('simulation.win_rate.manual_simulation.load_config')
+    @patch('simulation.win_rate.manual_simulation.get_logger')
     def test_main_cleanup_called(self, mock_get_logger, mock_load_config, mock_league_class):
         """Test that cleanup is called after simulation"""
         mock_load_config.return_value = {}
@@ -582,9 +582,9 @@ class TestMain:
 
         mock_league.cleanup.assert_called_once()
 
-    @patch('simulation.manual_simulation.SimulatedLeague')
-    @patch('simulation.manual_simulation.load_config')
-    @patch('simulation.manual_simulation.get_logger')
+    @patch('simulation.win_rate.manual_simulation.SimulatedLeague')
+    @patch('simulation.win_rate.manual_simulation.load_config')
+    @patch('simulation.win_rate.manual_simulation.get_logger')
     def test_main_prints_completion_message(self, mock_get_logger, mock_load_config,
                                            mock_league_class, capsys):
         """Test that completion message is printed"""

@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from simulation.SimulatedOpponent import SimulatedOpponent
+from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
 from utils.FantasyPlayer import FantasyPlayer
 
 
@@ -323,7 +323,7 @@ class TestGetDraftRecommendation:
         with pytest.raises(ValueError, match="No available players to draft"):
             opponent.get_draft_recommendation()
 
-    @patch('simulation.SimulatedOpponent.random.random')
+    @patch('simulation.win_rate.SimulatedOpponent.random.random')
     def test_adp_aggressive_strategy_picks_lowest_adp(self, mock_random):
         """Test ADP aggressive strategy picks player with lowest ADP"""
         # Mock random to always return 1.0 (no human error)
@@ -367,7 +367,7 @@ class TestGetDraftRecommendation:
         # Should pick player2 (ADP = 5.0, lowest)
         assert recommendation == player2
 
-    @patch('simulation.SimulatedOpponent.random.random')
+    @patch('simulation.win_rate.SimulatedOpponent.random.random')
     def test_projected_points_aggressive_picks_highest_points(self, mock_random):
         """Test projected points aggressive strategy picks highest points"""
         # Mock random to always return 1.0 (no human error)
@@ -408,8 +408,8 @@ class TestGetDraftRecommendation:
         # Should pick player2 (150 points, highest)
         assert recommendation == player2
 
-    @patch('simulation.SimulatedOpponent.random.random')
-    @patch('simulation.SimulatedOpponent.random.choice')
+    @patch('simulation.win_rate.SimulatedOpponent.random.random')
+    @patch('simulation.win_rate.SimulatedOpponent.random.choice')
     def test_human_error_picks_from_top_5(self, mock_choice, mock_random):
         """Test human error causes pick from top 5 instead of #1"""
         # Mock random to always return 0.1 (< 0.2, triggers human error)

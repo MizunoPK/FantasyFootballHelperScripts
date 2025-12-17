@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from simulation.DraftHelperTeam import DraftHelperTeam
+from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
 from utils.FantasyPlayer import FantasyPlayer
 
 
@@ -236,7 +236,7 @@ class TestDraftPlayer:
         assert mock_actual_pm.team.roster.count(actual_player) == 1
 
 
-@patch('simulation.DraftHelperTeam.AddToRosterModeManager')
+@patch('simulation.win_rate.DraftHelperTeam.AddToRosterModeManager')
 class TestGetDraftRecommendation:
     """Test get_draft_recommendation method"""
 
@@ -316,7 +316,7 @@ class TestGetDraftRecommendation:
         assert draft_helper_team.add_to_roster_mgr == mock_add_to_roster_mgr
 
 
-@patch('simulation.DraftHelperTeam.StarterHelperModeManager')
+@patch('simulation.win_rate.DraftHelperTeam.StarterHelperModeManager')
 class TestSetWeeklyLineup:
     """Test set_weekly_lineup method"""
 
@@ -688,8 +688,8 @@ class TestGetRosterPlayers:
 class TestDraftHelperTeamIntegration:
     """Test realistic integration scenarios"""
 
-    @patch('simulation.DraftHelperTeam.AddToRosterModeManager')
-    @patch('simulation.DraftHelperTeam.StarterHelperModeManager')
+    @patch('simulation.win_rate.DraftHelperTeam.AddToRosterModeManager')
+    @patch('simulation.win_rate.DraftHelperTeam.StarterHelperModeManager')
     def test_full_draft_and_week_cycle(self, mock_starter_helper_class, mock_add_to_roster_class, draft_helper_team, mock_player, mock_projected_pm, mock_actual_pm):
         """Test complete draft and weekly lineup cycle"""
         # Setup draft recommendation

@@ -18,7 +18,7 @@ import sys
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
-from simulation.SimulatedLeague import SimulatedLeague
+from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
 
 # ============================================================================
@@ -82,9 +82,9 @@ def mock_week_result():
 class TestSimulatedLeagueInitialization:
     """Test SimulatedLeague initialization"""
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_init_creates_temp_directory(self, mock_gen_schedule, mock_init_teams,
                                         mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that initialization creates temporary directory"""
@@ -96,9 +96,9 @@ class TestSimulatedLeagueInitialization:
         mock_mkdtemp.assert_called_once()
         assert str(tmp_path / "temp_league") in mock_mkdtemp.return_value
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_init_saves_config_to_file(self, mock_gen_schedule, mock_init_teams,
                                       mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that config is saved to JSON file"""
@@ -115,9 +115,9 @@ class TestSimulatedLeagueInitialization:
             saved_config = json.load(f)
         assert saved_config == sample_config_dict
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_init_calls_team_initialization(self, mock_gen_schedule, mock_init_teams,
                                            mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that _initialize_teams is called during init"""
@@ -129,9 +129,9 @@ class TestSimulatedLeagueInitialization:
 
         mock_init_teams.assert_called_once()
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_init_calls_schedule_generation(self, mock_gen_schedule, mock_init_teams,
                                            mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that _generate_schedule is called during init"""
@@ -143,9 +143,9 @@ class TestSimulatedLeagueInitialization:
 
         mock_gen_schedule.assert_called_once()
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_init_sets_attributes(self, mock_gen_schedule, mock_init_teams,
                                  mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that initialization sets all required attributes"""
@@ -169,9 +169,9 @@ class TestSimulatedLeagueInitialization:
 class TestTeamInitialization:
     """Test team initialization logic"""
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_team_strategy_distribution(self, mock_gen_schedule, mock_init_teams,
                                         mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that team strategy distribution is correct"""
@@ -191,9 +191,9 @@ class TestTeamInitialization:
         # Total should be 10 teams
         assert sum(SimulatedLeague.TEAM_STRATEGIES.values()) == 10
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_initialize_teams_called_during_init(self, mock_gen_schedule, mock_init_teams,
                                                  mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that _initialize_teams is called during initialization"""
@@ -206,9 +206,9 @@ class TestTeamInitialization:
         # Verify that _initialize_teams was called
         mock_init_teams.assert_called_once()
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_teams_list_initialized(self, mock_gen_schedule, mock_init_teams,
                                     mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that teams list is initialized"""
@@ -230,9 +230,9 @@ class TestTeamInitialization:
 class TestScheduleGeneration:
     """Test schedule generation"""
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.generate_schedule_for_nfl_season')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.generate_schedule_for_nfl_season')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
     def test_generate_schedule_calls_scheduler(self, mock_init_teams, mock_gen_schedule,
                                               mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that schedule generation calls scheduler utility"""
@@ -246,9 +246,9 @@ class TestScheduleGeneration:
 
         mock_gen_schedule.assert_called_once_with(league.teams, num_weeks=17)
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.generate_schedule_for_nfl_season')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.generate_schedule_for_nfl_season')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
     def test_generate_schedule_creates_17_weeks(self, mock_init_teams, mock_gen_schedule,
                                                mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that 17-week schedule is generated"""
@@ -272,10 +272,10 @@ class TestScheduleGeneration:
 class TestDraft:
     """Test draft simulation"""
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
-    @patch('simulation.SimulatedLeague.random.shuffle')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.random.shuffle')
     def test_run_draft_randomizes_order(self, mock_shuffle, mock_gen_schedule,
                                        mock_init_teams, mock_mkdtemp,
                                        sample_config_dict, tmp_path):
@@ -298,9 +298,9 @@ class TestDraft:
         # shuffle should be called once to randomize draft order
         assert mock_shuffle.call_count >= 1
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_run_draft_sets_week_to_1(self, mock_gen_schedule, mock_init_teams,
                                      mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that all teams are set to week 1 during draft"""
@@ -324,9 +324,9 @@ class TestDraft:
         for team in mock_teams:
             assert team.config.current_nfl_week == 1
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_run_draft_executes_15_rounds(self, mock_gen_schedule, mock_init_teams,
                                          mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that 15 rounds of draft are executed"""
@@ -359,9 +359,9 @@ class TestDraft:
         for team in mock_teams:
             assert team.draft_player.call_count == 15
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_run_draft_broadcasts_picks(self, mock_gen_schedule, mock_init_teams,
                                        mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that drafted players are broadcast to all teams"""
@@ -392,10 +392,10 @@ class TestDraft:
 class TestSeasonSimulation:
     """Test season simulation"""
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
-    @patch('simulation.SimulatedLeague.Week')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.Week')
     def test_run_season_simulates_17_weeks(self, mock_week_class, mock_gen_schedule,
                                           mock_init_teams, mock_mkdtemp,
                                           sample_config_dict, tmp_path):
@@ -415,11 +415,11 @@ class TestSeasonSimulation:
         # Week class should be instantiated 17 times
         assert mock_week_class.call_count == 17
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._update_team_rankings')
-    @patch('simulation.SimulatedLeague.Week')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._update_team_rankings')
+    @patch('simulation.win_rate.SimulatedLeague.Week')
     def test_run_season_updates_rankings_each_week(self, mock_week_class, mock_update_rankings,
                                                    mock_gen_schedule, mock_init_teams,
                                                    mock_mkdtemp, sample_config_dict, tmp_path):
@@ -439,10 +439,10 @@ class TestSeasonSimulation:
         # Rankings should be updated 17 times (once per week)
         assert mock_update_rankings.call_count == 17
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
-    @patch('simulation.SimulatedLeague.Week')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.Week')
     def test_run_season_stores_week_results(self, mock_week_class, mock_gen_schedule,
                                            mock_init_teams, mock_mkdtemp,
                                            sample_config_dict, tmp_path):
@@ -470,9 +470,9 @@ class TestSeasonSimulation:
 class TestUpdateTeamRankings:
     """Test team ranking updates"""
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_update_team_rankings_uses_correct_data_folder(self, mock_gen_schedule,
                                                            mock_init_teams, mock_mkdtemp,
                                                            sample_config_dict, mock_data_folder):
@@ -496,9 +496,9 @@ class TestUpdateTeamRankings:
         # Should not raise an exception
         league._update_team_rankings(5)
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_update_team_rankings_handles_missing_file(self, mock_gen_schedule,
                                                        mock_init_teams, mock_mkdtemp,
                                                        sample_config_dict, tmp_path):
@@ -530,9 +530,9 @@ class TestUpdateTeamRankings:
 class TestResults:
     """Test result retrieval"""
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_get_draft_helper_results_returns_tuple(self, mock_gen_schedule, mock_init_teams,
                                                     mock_mkdtemp, sample_config_dict,
                                                     tmp_path, mock_week_result):
@@ -559,9 +559,9 @@ class TestResults:
         assert isinstance(losses, int)
         assert isinstance(points, float)
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_get_draft_helper_results_raises_without_draft_helper(self, mock_gen_schedule,
                                                                   mock_init_teams, mock_mkdtemp,
                                                                   sample_config_dict, tmp_path):
@@ -578,9 +578,9 @@ class TestResults:
 
         assert "DraftHelperTeam not found" in str(exc_info.value)
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_get_all_team_results_returns_dict(self, mock_gen_schedule, mock_init_teams,
                                                mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that get_all_team_results returns dictionary"""
@@ -617,10 +617,10 @@ class TestResults:
 class TestCleanup:
     """Test cleanup functionality"""
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
-    @patch('simulation.SimulatedLeague.shutil.rmtree')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.shutil.rmtree')
     def test_cleanup_removes_temp_directory(self, mock_rmtree, mock_gen_schedule,
                                            mock_init_teams, mock_mkdtemp,
                                            sample_config_dict, tmp_path):
@@ -636,9 +636,9 @@ class TestCleanup:
         # Check that rmtree was called with the temp_dir
         mock_rmtree.assert_any_call(league.temp_dir)
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
     def test_cleanup_handles_missing_directory(self, mock_gen_schedule, mock_init_teams,
                                               mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that cleanup handles missing temp directory gracefully"""
@@ -655,10 +655,10 @@ class TestCleanup:
         # Should not raise exception
         league.cleanup()
 
-    @patch('simulation.SimulatedLeague.tempfile.mkdtemp')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._initialize_teams')
-    @patch('simulation.SimulatedLeague.SimulatedLeague._generate_schedule')
-    @patch('simulation.SimulatedLeague.shutil.rmtree')
+    @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
+    @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
+    @patch('simulation.win_rate.SimulatedLeague.shutil.rmtree')
     def test_destructor_calls_cleanup(self, mock_rmtree, mock_gen_schedule,
                                      mock_init_teams, mock_mkdtemp,
                                      sample_config_dict, tmp_path):

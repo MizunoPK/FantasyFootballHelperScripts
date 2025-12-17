@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from simulation.Week import Week, WeekResult
+from simulation.win_rate.Week import Week, WeekResult
 
 
 class TestWeekResult:

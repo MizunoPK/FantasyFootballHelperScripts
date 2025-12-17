@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from simulation.ProgressTracker import ProgressTracker, MultiLevelProgressTracker
+from simulation.shared.ProgressTracker import ProgressTracker, MultiLevelProgressTracker
 
 
 class TestProgressTrackerInitialization:

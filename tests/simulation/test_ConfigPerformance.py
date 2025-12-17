@@ -12,7 +12,7 @@ from pathlib import Path
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from simulation.ConfigPerformance import ConfigPerformance
+from simulation.shared.ConfigPerformance import ConfigPerformance
 
 
 class TestConfigPerformanceInitialization:
@@ -522,37 +522,37 @@ class TestGetWeekRange:
 
     def test_weeks_1_to_5_return_1_5(self):
         """Weeks 1-5 should return '1-5' range."""
-        from simulation.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         for week in range(1, 6):
             assert get_week_range(week) == "1-5"
 
     def test_weeks_6_to_9_return_6_9(self):
         """Weeks 6-9 should return '6-9' range."""
-        from simulation.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         for week in range(6, 10):
             assert get_week_range(week) == "6-9"
 
     def test_weeks_10_to_13_return_10_13(self):
         """Weeks 10-13 should return '10-13' range."""
-        from simulation.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         for week in range(10, 14):
             assert get_week_range(week) == "10-13"
 
     def test_weeks_14_to_17_return_14_17(self):
         """Weeks 14-17 should return '14-17' range."""
-        from simulation.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         for week in range(14, 18):
             assert get_week_range(week) == "14-17"
 
     def test_week_0_raises_error(self):
         """Week 0 should raise ValueError."""
-        from simulation.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         with pytest.raises(ValueError, match="Invalid week number: 0"):
             get_week_range(0)
 
     def test_week_18_raises_error(self):
         """Week 18 should raise ValueError."""
-        from simulation.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         with pytest.raises(ValueError, match="Invalid week number: 18"):
             get_week_range(18)
 
@@ -744,3 +744,114 @@ class TestWeekRangePerformanceIntegration:
         assert config_b.get_win_rate_for_range("1-5") == 0.0
         assert config_a.get_win_rate_for_range("14-17") == 0.0
         assert config_b.get_win_rate_for_range("14-17") == 1.0
+
+
+# ============================================================================
+# NEW: Horizon Constants Tests (6-File Structure Support)
+# ============================================================================
+
+class TestHorizonsConstant:
+    """Test HORIZONS constant for 6-file structure support"""
+
+    def test_horizons_constant_exists(self):
+        """HORIZONS constant should exist and be importable"""
+        from simulation.shared.ConfigPerformance import HORIZONS
+        assert HORIZONS is not None
+
+    def test_horizons_constant_is_list(self):
+        """HORIZONS should be a list"""
+        from simulation.shared.ConfigPerformance import HORIZONS
+        assert isinstance(HORIZONS, list)
+
+    def test_horizons_constant_has_five_elements(self):
+        """HORIZONS should contain exactly 5 horizons"""
+        from simulation.shared.ConfigPerformance import HORIZONS
+        assert len(HORIZONS) == 5
+
+    def test_horizons_constant_values(self):
+        """HORIZONS should contain correct horizon names"""
+        from simulation.shared.ConfigPerformance import HORIZONS
+        expected = ['ros', '1-5', '6-9', '10-13', '14-17']
+        assert HORIZONS == expected
+
+    def test_horizons_constant_order(self):
+        """HORIZONS should be in correct order (ROS first, then week ranges)"""
+        from simulation.shared.ConfigPerformance import HORIZONS
+        assert HORIZONS[0] == 'ros'
+        assert HORIZONS[1] == '1-5'
+        assert HORIZONS[2] == '6-9'
+        assert HORIZONS[3] == '10-13'
+        assert HORIZONS[4] == '14-17'
+
+
+class TestHorizonFilesConstant:
+    """Test HORIZON_FILES constant for 6-file structure support"""
+
+    def test_horizon_files_constant_exists(self):
+        """HORIZON_FILES constant should exist and be importable"""
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
+        assert HORIZON_FILES is not None
+
+    def test_horizon_files_constant_is_dict(self):
+        """HORIZON_FILES should be a dictionary"""
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
+        assert isinstance(HORIZON_FILES, dict)
+
+    def test_horizon_files_has_five_entries(self):
+        """HORIZON_FILES should map all 5 horizons"""
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
+        assert len(HORIZON_FILES) == 5
+
+    def test_horizon_files_keys(self):
+        """HORIZON_FILES should have correct horizon keys"""
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
+        expected_keys = {'ros', '1-5', '6-9', '10-13', '14-17'}
+        assert set(HORIZON_FILES.keys()) == expected_keys
+
+    def test_horizon_files_ros_mapping(self):
+        """HORIZON_FILES should map 'ros' to 'draft_config.json'"""
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
+        assert HORIZON_FILES['ros'] == 'draft_config.json'
+
+    def test_horizon_files_week_mappings(self):
+        """HORIZON_FILES should map week ranges to correct filenames"""
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
+        assert HORIZON_FILES['1-5'] == 'week1-5.json'
+        assert HORIZON_FILES['6-9'] == 'week6-9.json'
+        assert HORIZON_FILES['10-13'] == 'week10-13.json'
+        assert HORIZON_FILES['14-17'] == 'week14-17.json'
+
+    def test_horizon_files_all_values_unique(self):
+        """HORIZON_FILES should have unique filenames"""
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
+        filenames = list(HORIZON_FILES.values())
+        assert len(filenames) == len(set(filenames))
+
+    def test_horizon_files_all_values_are_json(self):
+        """HORIZON_FILES values should all be .json files"""
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
+        for filename in HORIZON_FILES.values():
+            assert filename.endswith('.json')
+
+
+class TestHorizonsAndFilesCompatibility:
+    """Test compatibility between HORIZONS and HORIZON_FILES"""
+
+    def test_horizons_and_horizon_files_same_keys(self):
+        """HORIZONS list items should match HORIZON_FILES keys"""
+        from simulation.shared.ConfigPerformance import HORIZONS, HORIZON_FILES
+        assert set(HORIZONS) == set(HORIZON_FILES.keys())
+
+    def test_can_iterate_horizons_to_get_files(self):
+        """Should be able to iterate HORIZONS and lookup files"""
+        from simulation.shared.ConfigPerformance import HORIZONS, HORIZON_FILES
+
+        files = []
+        for horizon in HORIZONS:
+            filename = HORIZON_FILES[horizon]
+            files.append(filename)
+
+        # Should have 5 unique files
+        assert len(files) == 5
+        assert 'draft_config.json' in files
+        assert 'week1-5.json' in files
