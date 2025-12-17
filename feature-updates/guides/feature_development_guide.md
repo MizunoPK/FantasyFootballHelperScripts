@@ -51,12 +51,14 @@ This guide covers the implementation workflow for features that have completed t
 │  6. Verify interfaces BEFORE implementation (read actual code)  │
 │  7. When confidence is LOW - STOP and resolve first             │
 │  8. Execute actual scripts during QC (not just unit tests)      │
+│  9. OUTPUT/INPUT ROUNDTRIP: Test output can be loaded as input  │
 │                                                                 │
 │  COMMON MISTAKES TO AVOID:                                      │
 │  ✗ "This is simple, I'll skip iterations" → Bugs ship           │
 │  ✗ "Tests pass so I'm done" → Script may not work E2E           │
 │  ✗ "I created the method" → But is anything calling it?         │
 │  ✗ "Interface probably works" → Read the actual class           │
+│  ✗ "Output file exists" → But can consumers actually load it?   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -107,6 +109,8 @@ Complete this checklist BEFORE starting Step 1 (TODO creation):
 | QA only at end | Bugs compound when built on broken foundation | **Incremental QA checkpoints** throughout implementation |
 | Leaving "Alternative:" notes unresolved | Deferred decisions cause rework during implementation | **Resolve all alternatives** during planning phase |
 | Skipping E2E script execution | Unit tests pass but script fails immediately | **Execute scripts E2E** during QC with real data |
+| "Mirror X" without reading X | Spec says "mirror run_simulation.py" but only method signatures copied, not file organization | **Existing Pattern Audit** - read entire file and document ALL patterns |
+| Output structure not validated against consumer | Files exist but can't be loaded by consumers | **OUTPUT/INPUT ROUNDTRIP** - write test that saves output then loads it back |
 
 ---
 
@@ -169,6 +173,16 @@ Before proceeding past any iteration or checkpoint, verify NONE of these are tru
 - [ ] "My mock accepts any arguments" → WARNING: Use spec=RealClass
 - [ ] "I haven't run the actual script" → STOP: Run E2E test
 - [ ] "My test only checks structure, not behavior" → WARNING: Add behavior test
+
+**Output Assumptions (causes: output exists but unusable):**
+- [ ] "I create output files but haven't checked what consumes them" → STOP: Identify consumers
+- [ ] "Output file exists so the feature works" → STOP: Verify consumer can load it
+- [ ] "Spec says 'same format as X' but I didn't read X's actual structure" → STOP: Read X
+
+**"Same As X" Reference Assumptions (causes: incomplete implementation):**
+- [ ] "Spec says 'same as X' and I know what that means" → STOP: Read actual X, list all files
+- [ ] "I'm creating 5 files because spec says 5" → STOP: Verify by reading actual reference
+- [ ] "Same structure means same file count" → STOP: It also means same internal structure and all required files
 
 **If ANY checkbox above is checked, STOP and fix before proceeding.**
 
@@ -253,7 +267,103 @@ assert config['DRAFT_ORDER'][0] == expected_draft_order[0]
 - Use `spec=RealClass` in mocks: `@patch('...', spec=RealClass)` - this raises errors if you call methods that don't exist
 - Reference existing usage in codebase: `grep -r "ClassName(" .` to see how others use it
 
-### Anti-Pattern 6: Silent Attribute Failures
+### Anti-Pattern 6: "Mirror X" Without Reading X
+
+**Problem:** Spec says "mirror run_simulation.py structure" but developer only copies obvious elements (CLI args, method names) while missing organizational patterns (constants at top, import order, file structure).
+
+**Example:**
+- Spec said: "Mirror run_simulation.py pattern"
+- Developer copied: CLI arguments, mode handling, logging setup
+- Developer missed: `DEFAULT_MODE`, `DEFAULT_SIMS`, `DEFAULT_WORKERS` constants at top; `PARAMETER_ORDER` defined in runner script not manager class
+
+**Prevention:**
+1. When spec says "mirror X", READ THE ENTIRE FILE X
+2. Document ALL structural patterns found:
+   - Constants defined at top (names, organization)
+   - Import ordering and style
+   - File-level docstring format
+   - Function/class organization
+   - Parameter passing patterns (where are things defined vs passed)
+3. Create a structural comparison checklist before implementing
+4. During Skeptical Re-verification: DIFF your implementation against the original
+
+**Existing Pattern Audit Checklist (use when spec says "mirror X"):**
+```
+□ Read entire file X from start to finish
+□ Document all constants at top of file
+□ Document where key variables are defined (runner vs manager)
+□ Document import organization pattern
+□ Document file-level structure (docstring, constants, functions, main)
+□ Create side-by-side comparison during implementation
+□ Verify ALL patterns match, not just method signatures
+```
+
+### Anti-Pattern 6a: "Same Structure As X" Without Reading X's Actual Contents
+
+**Problem:** Spec says "same structure as X" or "same format as existing" but developer interprets this abstractly instead of reading the actual file X to see exactly what it contains.
+
+**Example (from accuracy simulation):**
+- Spec said: "Same 5-JSON structure (draft_config.json + 4 week-range files)"
+- Developer interpreted: "Create 5 JSON files with prediction parameters"
+- What spec ACTUALLY meant: "Output folder should be usable as baseline folder"
+- What baseline folders ACTUALLY contain: 6 files (league_config.json + 5 others), each with nested `{config_name, description, parameters}` structure
+
+The developer never read an actual baseline folder to see what it contained.
+
+**Why this happens:**
+- "Same structure" seems self-explanatory, so developer doesn't verify
+- Focus on the explicit count (5 files) rather than the implicit purpose (usable as baseline)
+- No step in the workflow forced reading the actual reference
+
+**Prevention - "Same As X" Verification Rule:**
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  WHEN SPEC SAYS "SAME AS X" OR "SAME STRUCTURE AS X":          │
+│                                                                 │
+│  1. STOP - Do not interpret abstractly                         │
+│  2. READ the actual file/folder X                              │
+│  3. LIST every file it contains                                │
+│  4. READ each file's internal structure                        │
+│  5. CREATE TODO task for each file with exact structure        │
+│  6. If X is output that becomes input elsewhere:               │
+│     - Identify all consumers of X                              │
+│     - Verify consumer requirements match your TODO             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Verification Checklist:**
+```
+□ I have READ the actual reference file/folder X (not just the spec description)
+□ I can LIST every file/subfolder in X
+□ I can DESCRIBE the internal structure of each file in X
+□ My TODO includes a task to create EACH file with its EXACT structure
+□ If X serves as input elsewhere, I've identified and verified consumer requirements
+```
+
+**Example of what should have happened:**
+```markdown
+Spec says: "Same 5-JSON structure as win-rate output"
+
+Verification:
+1. Read actual win-rate output folder: simulation/simulation_configs/optimal_iterative_*/
+2. List files found:
+   - league_config.json ← MISSED THIS
+   - week1-5.json
+   - week6-9.json
+   - week10-13.json
+   - week14-17.json
+3. Read internal structure of week1-5.json:
+   {
+     "config_name": "...",
+     "description": "...",
+     "parameters": {...}
+   }
+4. TODO should include:
+   - Task: Copy league_config.json from baseline
+   - Task: Create week files with nested {config_name, description, parameters} structure
+```
+
+### Anti-Pattern 7: Silent Attribute Failures
 
 **Problem:** Using `getattr(obj, 'attr', None)` for required attributes silently returns `None` instead of failing fast, causing downstream issues.
 
@@ -263,6 +373,116 @@ assert config['DRAFT_ORDER'][0] == expected_draft_order[0]
 - Use explicit attribute access for required attributes (fails fast)
 - If using `getattr` with default, log a warning when default is used
 - Verify attribute names exist in the dataclass/model definition before writing code
+
+### Anti-Pattern 8: Parameter Optimization Without Flag Activation
+
+**Problem:** Optimizing configuration parameters that have no effect because their corresponding feature flags are disabled in method calls.
+
+**Example:** The accuracy simulation optimized 17 parameters including TEMPERATURE_WEIGHT, WIND_WEIGHT, MATCHUP_WEIGHT, etc. But the `score_player()` call used all defaults:
+```python
+scored = player_mgr.score_player(player)  # All defaults!
+```
+
+The defaults had `temperature=False`, `wind=False`, `matchup=False`, so 11 of 17 parameters had **no effect** - they were optimized but never used in the actual calculation!
+
+**Why this happens:**
+- Spec says "optimize these parameters" without specifying how they're activated
+- Developer assumes parameters are always applied, not realizing they require flags
+- No verification that method call signature enables the features being tested
+
+**Prevention Checklist:**
+```
+□ For each parameter being optimized:
+  □ Identify the method that uses this parameter
+  □ Check if that method has an enable flag for this parameter
+  □ Verify the enable flag is set to True in all call sites
+  □ Compare call signature to similar features (e.g., StarterHelper for weekly scoring)
+□ Create test that verifies parameter changes affect output
+  □ If changing parameter X doesn't change the result, the flag is likely disabled
+```
+
+**Verification during implementation:**
+When implementing parameter optimization, add a sanity check test:
+```python
+def test_parameter_actually_affects_output(self):
+    """Verify that optimized parameters actually change results."""
+    # Run with default parameter value
+    result_default = calculate_with_config(DEFAULT_VALUE)
+
+    # Run with different parameter value
+    result_changed = calculate_with_config(DIFFERENT_VALUE)
+
+    # If results are identical, the parameter isn't being used!
+    assert result_default != result_changed, \
+        f"Parameter change had no effect - check if feature flag is enabled"
+```
+
+### Anti-Pattern 9: Output Structure Without Consumer Validation
+
+**Problem:** Output files/folders are created but their structure doesn't match what consumers (input loaders, other scripts) expect. Files exist and tests pass, but the output is unusable.
+
+**Example:** Accuracy simulation created `accuracy_optimal_*/` folders with:
+- `draft_config.json` (raw parameters, wrong structure)
+- Missing `league_config.json` entirely
+
+But the spec said these folders should be usable as **baseline folders** for future runs. The baseline loader expected:
+- `league_config.json` (must exist)
+- `draft_config.json`, `week1-5.json`, etc. (with `config_name`, `description`, `parameters` nested structure)
+
+The output files existed and contained valid JSON, but they couldn't be used as baseline input because:
+1. Missing required file (`league_config.json`)
+2. Wrong internal structure (flat vs nested)
+
+**Why this happens:**
+- Output code written in isolation without checking how it will be consumed
+- Tests verify "file exists" but not "file is usable as input"
+- Spec says "output same structure as X" but developer doesn't verify against actual X
+
+**Prevention - OUTPUT/INPUT ROUNDTRIP RULE:**
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  MANDATORY FOR ANY FEATURE THAT PRODUCES OUTPUT FILES:          │
+│                                                                 │
+│  1. Identify ALL consumers of this output                       │
+│  2. Read the consumer's input validation code                   │
+│  3. Write a test that feeds output back as input                │
+│  4. Test must use REAL loader, not mocked                       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Verification Checklist:**
+```
+□ List all consumers of this output:
+  □ Consumer 1: _____ (e.g., "find_baseline_config() in run_accuracy_simulation.py")
+  □ Consumer 2: _____ (e.g., "ConfigGenerator.__init__() loads baseline folder")
+□ For each consumer, verify:
+  □ What files does it expect? (Read the actual code)
+  □ What structure within those files? (Read the actual loading code)
+  □ What validation does it perform? (Read error handling)
+□ Write roundtrip test:
+  □ Save output using new code
+  □ Load output using real consumer code (not mocked)
+  □ Verify loaded data matches what was saved
+```
+
+**Example roundtrip test:**
+```python
+def test_output_folder_usable_as_baseline(self, manager, tmp_path):
+    """Verify output folder can be used as baseline for next run."""
+    # Save optimal configs
+    optimal_path = manager.save_optimal_configs()
+
+    # Try to use as baseline (this is what find_baseline_config returns)
+    required_files = ['league_config.json', 'week1-5.json', 'week6-9.json',
+                      'week10-13.json', 'week14-17.json']
+    for f in required_files:
+        assert (optimal_path / f).exists(), f"Missing required file: {f}"
+
+    # Verify ConfigGenerator can load it (real loader, not mocked)
+    config_gen = ConfigGenerator(optimal_path, parameter_order=PARAM_ORDER)
+    assert config_gen.baseline_config is not None
+    assert 'parameters' in config_gen.baseline_config
+```
 
 ### Parameter Dependency Checklist
 
@@ -1268,6 +1488,87 @@ Phase 2: Integration
 
 ---
 
+## Post-Implementation Smoke Testing (MANDATORY)
+
+**CRITICAL:** Before declaring implementation complete or moving to QC, run smoke tests.
+
+### Why Smoke Tests Matter
+- Unit tests with mocks don't catch real import/runtime errors
+- Integration tests may not exercise all entry points
+- "All tests passing" ≠ "code actually works"
+- Test pass rate can be misleading if tests are mocked or skipped
+
+### Required Smoke Tests
+
+Run these tests for EVERY feature before declaring complete:
+
+#### 1. Import Test
+Verify all refactored/new modules can be imported:
+```bash
+python -c "from module.path import ClassName; print('Import OK')"
+```
+
+#### 2. Entry Point Test
+Verify main scripts/CLIs work:
+```bash
+python main_script.py --help
+# Should show help text without errors
+```
+
+#### 3. Basic Execution Test (if applicable)
+Run minimal working example to verify end-to-end flow:
+```bash
+python script.py <minimal-args> | head -20
+# Should start executing without import/runtime errors
+```
+
+### When to Run
+- ✅ After completing all implementation phases
+- ✅ Before declaring "feature complete"
+- ✅ Before moving to QC rounds
+- ✅ Before asking user to test
+- ❌ NEVER skip smoke tests even if unit tests pass at 100%
+
+### If Smoke Tests Fail
+1. DO NOT declare feature complete
+2. Fix the runtime issues immediately
+3. Re-run smoke tests until all pass
+4. Update code_changes.md with fixes
+5. Only then move to QC
+
+### Smoke Test Results Template
+
+Add to code_changes.md:
+
+```markdown
+## Smoke Test Results
+
+**Date:** YYYY-MM-DD
+
+### Import Tests
+- [ ] Module 1: `python -c "from ..."`
+- [ ] Module 2: `python -c "from ..."`
+
+### Entry Point Tests
+- [ ] Script 1: `python script1.py --help`
+- [ ] Script 2: `python script2.py --help`
+
+### Basic Execution Tests
+- [ ] Test 1: `python script.py minimal-args`
+- [ ] Test 2: `python script.py other-args`
+
+**All smoke tests passed:** [YES/NO]
+**Ready for QC:** [YES/NO]
+```
+
+**Anti-patterns to avoid:**
+- ❌ Declaring feature complete based solely on test pass rate
+- ❌ Assuming mocked unit tests verify runtime behavior
+- ❌ Skipping smoke tests "because integration tests pass"
+- ❌ Asking user to test before running smoke tests yourself
+
+---
+
 ## Post-Implementation Phase
 
 ### 1. Run All Unit Tests
@@ -1292,7 +1593,9 @@ See `protocols_reference.md` for detailed steps.
 
 See `protocols_reference.md` for detailed steps.
 
-**QC Round 1: Script Execution Test (MANDATORY)**
+**QC Round 1: Script Execution Test - Extended Coverage (MANDATORY)**
+
+**IMPORTANT:** Test ALL execution modes, not just --help and minimal runs.
 
 If the feature includes a runner script (`run_*.py`), you MUST:
 
@@ -1302,7 +1605,32 @@ If the feature includes a runner script (`run_*.py`), you MUST:
    - Not mocked dependencies
    - Not simulated paths
    - Actual file system interactions
-4. **Verify the script completes without errors** before proceeding
+4. **For scripts with multiple modes** (single, full, iterative, etc.):
+   - Test at least one iteration of EACH mode
+   - Don't assume unit tests cover all code paths
+   - Different modes execute different code paths
+
+**Example - Win-rate simulation:**
+```bash
+# Basic smoke tests (already required)
+python run_win_rate_simulation.py --help
+python run_win_rate_simulation.py single --sims 1
+
+# ADDITIONAL: Test other modes (run for 1-2 iterations minimum)
+timeout 60 python run_win_rate_simulation.py iterative --sims 1 --test-values 1
+# Should complete at least 1 parameter without errors
+```
+
+**Why this matters:**
+- Different modes execute different code paths
+- Bugs can hide in modes not covered by unit tests
+- Smoke tests must cover representative execution paths
+- 100% test pass rate doesn't guarantee all modes work
+
+**Anti-pattern:**
+- ✗ Only testing --help and single/dry-run mode
+- ✗ Assuming unit tests cover all code paths
+- ✗ Not running long enough to hit optimization update logic
 
 **Scripts without execution tests must not pass QC.**
 

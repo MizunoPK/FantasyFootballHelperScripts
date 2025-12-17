@@ -378,6 +378,46 @@ For each output file or major data structure, create a detailed section:
 
 ---
 
+## Output Consumer Validation (MANDATORY)
+
+**CRITICAL:** Every output file/folder must be validated against its consumers. If output cannot be loaded as input by consumers, it is broken.
+
+### Consumer Identification
+
+| Output | Consumer(s) | Consumer Location | What Consumer Expects |
+|--------|-------------|-------------------|----------------------|
+| {output_folder/file} | {What loads/uses this} | {file:function} | {Required structure} |
+
+### Roundtrip Test Requirements
+
+For each output that can be used as input elsewhere:
+
+```
+□ Output: {describe output}
+  □ Consumer 1: {name} ({location})
+    □ Required files: {list}
+    □ Required structure within files: {describe}
+    □ Roundtrip test planned: {describe test}
+  □ Consumer 2: ...
+```
+
+**If output has no consumers:** Document why and confirm with user that output is meant to be standalone.
+
+**Example (from accuracy simulation):**
+```
+□ Output: accuracy_optimal_TIMESTAMP/
+  □ Consumer 1: find_baseline_config() (run_accuracy_simulation.py)
+    □ Required files: league_config.json, draft_config.json, week1-5.json, week6-9.json, week10-13.json, week14-17.json
+    □ Required structure: Each file must have {config_name, description, parameters} nested structure
+    □ Roundtrip test: test_optimal_folder_usable_as_baseline()
+  □ Consumer 2: ConfigGenerator.__init__() (shared/ConfigGenerator.py)
+    □ Required files: Same as above
+    □ Required structure: parameters dict must be loadable as baseline_config
+    □ Roundtrip test: Same test - creates new ConfigGenerator with output folder
+```
+
+---
+
 ## Algorithm/Logic Questions
 
 - [ ] **{Question about calculation}:** {Context}

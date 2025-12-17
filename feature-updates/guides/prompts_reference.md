@@ -16,6 +16,8 @@ This file contains ready-to-use conversation prompts for guiding planning and de
 | Ready to move forward | [Progress Updates](#when-ready-to-move-forward) |
 | Presenting investigation results | [Investigation Results](#presenting-investigation-results) |
 | Asking for direction | [Direction Requests](#asking-for-direction) |
+| After verification round | [Presenting Round Summary](#presenting-round-summary) |
+| Before implementation | [Presenting Interface Contracts](#presenting-interface-contracts) |
 
 ---
 
@@ -223,6 +225,45 @@ Use after completing a QC round:
 > **Status:** {PASSED / ISSUES FOUND (fixed)}
 >
 > {Next action: proceeding to round N+1 / feature complete}"
+
+---
+
+### Presenting Interface Contracts
+
+Use when documenting verified interfaces before implementation:
+
+> "I've completed interface verification for all dependencies. Here are the verified contracts:
+>
+> **Dependencies Verified:**
+> | Class | Method | Signature | Source |
+> |-------|--------|-----------|--------|
+> | {ClassName} | {method_name} | `{params} -> {return}` | {file.py}:{line} |
+>
+> **Data Model Attributes Verified:**
+> | Model | Attribute | Type | Semantics |
+> |-------|-----------|------|-----------|
+> | {ModelName} | {attr} | {type} | {what it means} |
+>
+> **Key Findings:**
+> - {any surprises or important notes about interfaces}
+>
+> Ready to proceed with implementation."
+
+---
+
+### Presenting Round Summary
+
+Use after completing a verification round (7, 16, or 24):
+
+> "Completed verification round {N} ({X} iterations).
+>
+> **Round Summary:**
+> - Key findings: {what was learned}
+> - Gaps identified: {what's still missing or unclear}
+> - Scope changes: {any additions/removals from original scope}
+> - Confidence level: {High/Medium/Low} - {brief justification}
+>
+> **Ready for:** {next phase: questions file / second round / implementation}"
 
 ---
 

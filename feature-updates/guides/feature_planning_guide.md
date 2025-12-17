@@ -31,6 +31,8 @@ This guide helps agents assist users in developing thorough, well-structured fea
 | Not linking to existing code | Future agents re-research the same patterns | Include file paths and line numbers: `PlayerManager.py:150-200` |
 | Assuming answers | Guessing requirements leads to rework | Always confirm with user; document source of each decision |
 | Incomplete investigation | Missing edge cases discovered during implementation | Use ALL checklist categories: API, Algorithm, Architecture, Edge Cases |
+| Accepting vague specs | "Resume capability" without defining mechanism | **Vagueness Audit** - flag phrases like "similar to X", "handle appropriately" |
+| Missing feature pairs | "Save X" implemented but "Load X" forgotten | **Feature Pair Check** - if save exists, load must too (and be called!) |
 
 ---
 
@@ -200,7 +202,11 @@ Use this checklist to track progress through planning phases:
   □ 2.5: Performance analysis for implementation options
   □ 2.6: Create DEPENDENCY MAP showing module + data flow
   □ 2.7: Update _specs.md with discovered context + dependency map
-  □ 2.8: ASSUMPTIONS AUDIT - list all assumptions with basis/risk/mitigation
+  □ 2.8: VAGUENESS AUDIT - flag ambiguous phrases, add checklist items for each
+    □ Flag phrases like "similar to X", "resume capability", "handle appropriately"
+    □ Check feature pairs: if "save X" exists, verify "load X" is also specified
+    □ Add checklist items for each vague phrase requiring clarification
+  □ 2.9: ASSUMPTIONS AUDIT - list all assumptions with basis/risk/mitigation
   □ Update README.md with key findings
   □ ⚡ UPDATE README Agent Status: Step=Phase 2 complete
 
@@ -472,7 +478,130 @@ Output: simulation_configs/accuracy_optimal_*/performance_metrics.json
 - Update `README.md` with key findings and current status
 - Ensure checklist has ALL open items before proceeding
 
-### Step 2.8: Assumptions Audit (MANDATORY)
+### Step 2.8: Vagueness Audit (MANDATORY)
+
+Before Phase 3, review the specs for vague language that could be interpreted multiple ways. Vague specifications cause incomplete implementations.
+
+**Vague Phrases to Flag:**
+
+| Vague Phrase | Problem | Action |
+|--------------|---------|--------|
+| "Similar to X" / "Mirror X" | Which aspects? Structure? Methods? Constants? | Add checklist: "Document ALL patterns from X to mirror" |
+| "Resume capability" / "Support resuming" | What mechanism? Detect state? Load from where? | Add checklist: "Define resume mechanism: detection + loading" |
+| "Handle errors appropriately" | What errors? What handling? Log? Retry? Fail? | Add checklist: "List specific errors and their handling" |
+| "Save intermediate results" | Save only, or also load on restart? | Add checklist: "Verify save AND load/resume are both implemented" |
+| "Same pattern as Y" | Pattern could mean many things | Add checklist: "List specific elements of pattern Y to replicate" |
+| "Support multiple X" | How many? What variations? | Add checklist: "Define exact variations of X to support" |
+| "Configurable" / "Flexible" | What's configurable? Defaults? | Add checklist: "List specific configuration options" |
+
+**Feature Pair Completeness Check:**
+
+Many features come in pairs - if one exists, the other must too:
+
+| If Spec Says... | Must Also Have... | Example |
+|-----------------|-------------------|---------|
+| "Save X" | "Load X" (and use it!) | save_intermediate → load_intermediate + call it |
+| "Resume capability" | Detection + Loading + Restart logic | _detect_resume_state() + load config |
+| "Mirror X" | Full pattern audit of X | Constants, structure, method locations |
+| "Create config" | Load config + use it | draft_config.json → ConfigManager support |
+| "Track progress" | Display progress + resume from it | ProgressTracker + resume state |
+| "Optimize parameters" | Enable flags for those parameters | TEMPERATURE_WEIGHT → temperature=True |
+| "Output usable as baseline/input" | Consumer validation + roundtrip test | Output folder loadable by find_baseline_config() |
+| "Same format as X" | Read X's actual structure NOW | Read real file X, list all contents, document in specs |
+
+**"Same As X" Verification (CRITICAL - Do During Planning):**
+
+When a spec says "same as X", "same format as X", "same structure as X", or similar:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  DO NOT WAIT FOR DEVELOPMENT TO READ X!                         │
+│                                                                 │
+│  During PLANNING:                                               │
+│  1. READ the actual file/folder X right now                     │
+│  2. LIST every file it contains                                 │
+│  3. DOCUMENT the internal structure of each file                │
+│  4. ADD explicit entries to the specs for EACH file             │
+│  5. IDENTIFY consumers of X and their requirements              │
+│                                                                 │
+│  This prevents: "Same 5-JSON structure" being misinterpreted    │
+│  as "5 files with data" when it actually means "6 files         │
+│  (including league_config.json) with nested structure"          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Example (from accuracy simulation failure):**
+- Spec said: "Same 5-JSON structure (draft_config.json + 4 week-range files)"
+- What should have happened during planning:
+  1. Read an actual win-rate optimal folder
+  2. Found: league_config.json, week1-5.json, week6-9.json, week10-13.json, week14-17.json
+  3. Read week1-5.json structure: `{config_name, description, parameters}`
+  4. Updated specs to explicitly list all 6 files and their structure
+- What actually happened: Assumed "5 files" meant the spec was complete, never read actual reference
+
+**Add Checklist Item:**
+```markdown
+- [ ] "Same as X" VERIFICATION: For phrase "{spec phrase}", I have:
+  - [ ] Read actual file/folder X: {path}
+  - [ ] Listed all files found: {list}
+  - [ ] Documented internal structure of each file
+  - [ ] Added explicit spec entries for EACH file
+  - [ ] Identified consumers and their requirements
+```
+
+**Method Call Parameter Verification:**
+
+When a feature involves calling existing methods with configurable parameters, verify the call signature matches the feature's intent:
+
+| If Spec Says... | Must Verify... | Example |
+|-----------------|----------------|---------|
+| "Optimize parameter X" | The flag/enable for X is set to True | Optimizing MATCHUP_WEIGHT requires matchup=True |
+| "Use same scoring as Mode Y" | Call uses identical flags as Mode Y | Accuracy sim should match StarterHelper flags |
+| "Calculate X for players" | Method call enables all X-related options | score_player() with all relevant flags enabled |
+
+**Example of Parameter/Flag Mismatch (from accuracy simulation):**
+
+The spec said "Optimize these 17 parameters" including TEMPERATURE_WEIGHT, WIND_WEIGHT, MATCHUP_WEIGHT, etc. But the implementation called:
+```python
+scored = player_mgr.score_player(player)  # All defaults!
+```
+
+The defaults had `temperature=False`, `wind=False`, `matchup=False`, so optimizing these parameters had **no effect** - they were never used in the calculation!
+
+**Prevention:** When a spec says "optimize parameter X", add a checklist item:
+```markdown
+- [ ] PARAMETER ACTIVATION: For each parameter being optimized, verify:
+  - [ ] What flag/enable controls this parameter?
+  - [ ] Is that flag set to True in the method call?
+  - [ ] Does the call match the consuming mode's call signature?
+```
+
+**Create Vagueness Checklist Items:**
+
+For each vague phrase found, add a checklist item:
+```markdown
+## Vagueness Resolution
+
+- [ ] "Similar to SimulationManager.py" - Document specific patterns to mirror:
+  - [ ] What constants defined at top of file?
+  - [ ] What methods correspond to which?
+  - [ ] What is the resume mechanism?
+- [ ] "Resume capability via intermediate folders" - Define complete mechanism:
+  - [ ] How is resume state detected on startup?
+  - [ ] Where is state loaded from?
+  - [ ] What triggers resume vs fresh start?
+```
+
+**Why this matters:** The accuracy simulation spec said "Resume capability via intermediate folders" which was interpreted as:
+- ✅ Save intermediate folders (implemented)
+- ❌ Detect resume state on startup (NOT implemented)
+- ❌ Load from intermediate folders (method exists but never called)
+
+A Vagueness Audit would have caught this by asking: "What's the complete mechanism for resume capability?"
+
+---
+
+### Step 2.9: Assumptions Audit (MANDATORY)
 
 Before Phase 3, explicitly list ALL assumptions being made. Many bugs come from unstated assumptions that seem "obvious" but turn out to be wrong.
 
@@ -625,6 +754,19 @@ Report current status:
 > - {next item 2}
 >
 > Which item would you like to address next?"
+
+### After Each Resolution (CRITICAL - Do Immediately)
+
+**IMPORTANT:** Update the checklist file AFTER EACH ANSWER, not at end of session.
+
+1. Mark item [x] in checklist with resolution details
+2. Update "Progress: X/Y questions resolved" in Resolution Log
+3. Write file to disk (changes persist)
+4. Then move to next question
+
+**Why this matters:** Session interruptions (compacting, terminal crash) will lose all progress if checklist isn't updated incrementally. User will have to repeat all decisions with next agent.
+
+**Anti-pattern:** Waiting until end of session to batch-update checklist.
 
 ### Continue until all items resolved
 

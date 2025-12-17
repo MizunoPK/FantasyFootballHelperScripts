@@ -20,6 +20,7 @@ This file contains detailed protocol definitions referenced by the Feature Devel
 | Test Coverage Planning + Mock Audit | Iteration 21 | [Link](#test-coverage-planning-protocol) |
 | Implementation Readiness | Iteration 24 | [Link](#implementation-readiness-protocol) |
 | Interface Verification | Before implementation | [Link](#interface-verification-protocol) |
+| Smoke Testing | Before declaring complete | [Link](#smoke-testing-protocol) |
 | Requirement Verification | Before marking complete | [Link](#requirement-verification-protocol) |
 | Quality Control Review | After implementation | [Link](#quality-control-review-protocol) |
 | Lessons Learned | Ongoing + before completion | [Link](#lessons-learned-protocol) |
@@ -203,6 +204,41 @@ assert results['score'].mean() > 0
 
 ---
 
+### Anti-Pattern 6: The Partial Mirror
+
+**What happened:**
+```python
+# Spec said: "Mirror run_simulation.py structure"
+
+# Developer created run_accuracy_simulation.py with:
+# ✓ Same CLI arguments (--mode, --baseline, --output, etc.)
+# ✓ Same mode handling (ros, weekly, both)
+# ✓ Same logging setup
+# ✓ Same error handling
+
+# But MISSED these patterns from run_simulation.py:
+
+# 1. Constants at top of file:
+DEFAULT_MODE = 'both'
+DEFAULT_SIMS = 100
+DEFAULT_WORKERS = 4
+PARAMETER_ORDER = [...]  # ← Defined here, not in manager class!
+
+# 2. Where PARAMETER_ORDER is defined:
+# In run_simulation.py: PARAMETER_ORDER at line 56
+# In AccuracySimulationManager.py: ACCURACY_PARAMETER_ORDER at line 62  # ← WRONG LOCATION
+```
+
+**Result:** Inconsistent code organization. Required post-implementation refactoring to move constants to runner script.
+
+**How to catch:** Mirror Pattern Verification (added to Skeptical Re-verification Protocol):
+1. When spec says "mirror X", read ENTIRE file X
+2. Document ALL organizational patterns (constants, where vars defined, file structure)
+3. Compare your implementation against these patterns
+4. Don't just copy obvious elements (CLI args) - copy everything
+
+---
+
 ### Anti-Pattern Recognition Checklist
 
 Before marking any implementation complete, verify NONE of these patterns are present:
@@ -213,6 +249,7 @@ Before marking any implementation complete, verify NONE of these patterns are pr
 □ Mocks use spec=RealClass or are verified against real interface
 □ No getattr with silent defaults on required attributes
 □ Output tests validate content, not just existence
+□ If spec said "mirror X", ALL patterns from X are matched (not just obvious ones)
 ```
 
 ---
@@ -370,7 +407,17 @@ These situations REQUIRE stopping and asking the user before proceeding. Do NOT 
    - Find test patterns to follow
    - Verify file paths exist
 
-4. **Update TODO file**
+4. **"Same As X" Reference Verification (MANDATORY if spec references existing files/folders)**
+   When the spec says "same as X", "same structure as X", "mirror X", or "like existing Y":
+   - **READ the actual file/folder X** - do not interpret abstractly
+   - **LIST every file** contained in X
+   - **READ internal structure** of each file in X
+   - **CREATE explicit TODO tasks** for each file with exact structure
+   - **VERIFY consumer requirements** if X serves as input elsewhere
+
+   **Red flag:** If your TODO says "create same format as X" but you haven't actually read X, STOP and read it now.
+
+5. **Update TODO file**
    - Add missing requirements discovered
    - Add specific file paths with line numbers
    - Add code references for patterns to follow
@@ -431,13 +478,49 @@ These situations REQUIRE stopping and asking the user before proceeding. Do NOT 
    - Compare new list against TODO
    - Identify discrepancies or misinterpretations
 
-4. **Document Results:**
+4. **Mirror Pattern Verification** (if spec says "mirror X" or "similar to X"):
+   - Read ENTIRE file X from start to finish
+   - Document ALL organizational patterns:
+     - Constants at top of file (what constants, what order)
+     - Where key variables are defined (runner script vs manager class)
+     - Import organization
+     - File structure (docstring, constants, functions, main block)
+   - Compare your TODO against these patterns
+   - If patterns don't match, update TODO to match
+
+   **Why this matters:** "Mirror run_simulation.py" was interpreted as "copy the CLI args and mode handling" but missed:
+   - `DEFAULT_MODE`, `DEFAULT_SIMS`, `DEFAULT_WORKERS` constants at top
+   - `PARAMETER_ORDER` defined in runner script, not manager class
+
+   These omissions required post-implementation fixes.
+
+5. **Method Call Parameter Verification** (if feature optimizes or uses configurable parameters):
+   - For each parameter the feature optimizes/uses:
+     - Identify the method that applies this parameter
+     - Check if that method has an enable flag for the parameter
+     - Verify the method call has that flag set to True
+   - Compare method call signature to similar/consuming features:
+     - If feature "optimizes weekly scoring", compare to StarterHelperModeManager
+     - If feature "optimizes draft scoring", compare to AddToRosterModeManager
+   - Add test that parameter changes actually affect output
+
+   **Why this matters:** The accuracy simulation optimized 17 parameters but called `score_player(player)` with all default flags. Defaults had `temperature=False`, `wind=False`, `matchup=False`, so 11 of 17 parameters had **no effect** - they were optimized but never used!
+
+   **Verification test to add:**
+   ```python
+   def test_parameter_changes_affect_output(self):
+       result1 = calculate_with_config(param_value=10)
+       result2 = calculate_with_config(param_value=100)
+       assert result1 != result2, "Parameter change had no effect - check flags"
+   ```
+
+6. **Document Results:**
    - Add "Skeptical Re-Verification Results" section to TODO
    - List what was verified as correct
    - List what was found to be incorrect and corrected
    - Document confidence level in current plan
 
-5. **Confidence Calibration:**
+7. **Confidence Calibration:**
    Use these criteria to set your confidence level:
 
    | Level | Criteria |
@@ -657,17 +740,31 @@ These situations REQUIRE stopping and asking the user before proceeding. Do NOT 
    - Note anything that seems unclear or incomplete
    - Mark any requirements you don't remember seeing in TODO
 
-3. **List all requirements fresh**
+3. **"Same As X" Language Audit (CRITICAL)**
+   Search spec for these phrases and verify each one:
+   - "same as", "same structure as", "same format as"
+   - "like existing", "mirror", "follow pattern of"
+   - "similar to", "matches", "consistent with"
+
+   For EACH match found:
+   - Have you actually READ the referenced file/folder X?
+   - Can you list EVERY file in X?
+   - Is there a TODO task for EACH file with its EXACT structure?
+   - If X serves as input elsewhere, have you verified consumer requirements?
+
+   **If ANY answer is "no", this is a missed requirement - add to TODO immediately.**
+
+4. **List all requirements fresh**
    - Write requirements from scratch based on this reading
    - Don't reference your TODO while doing this
    - Number each requirement
 
-4. **Compare to TODO**
+5. **Compare to TODO**
    - Match fresh list against existing TODO tasks
    - Identify any requirements missing from TODO
    - Identify any TODO tasks not tied to requirements
 
-5. **Document findings**
+6. **Document findings**
    - Add missed requirements to TODO immediately
    - Remove or question orphan tasks
    - Note confidence level in completeness
@@ -783,7 +880,48 @@ These situations REQUIRE stopping and asking the user before proceeding. Do NOT 
    □ No tests that would pass with wrong interface
    ```
 
-**Output:** Test plan with behavior tests for all algorithms AND verified mock interfaces.
+6. **Output Consumer Validation (MANDATORY for features producing output files):**
+
+   a. **Identify all outputs and their consumers:**
+      ```
+      | Output | Consumer | Consumer Location | Roundtrip Test |
+      |--------|----------|-------------------|----------------|
+      | accuracy_optimal_*/ | find_baseline_config | run_accuracy_sim.py | test_output_as_baseline |
+      | accuracy_optimal_*/ | ConfigGenerator | shared/ConfigGenerator.py | test_output_as_baseline |
+      ```
+
+   b. **Plan roundtrip test for each output/consumer pair:**
+      - Test MUST save output using new code
+      - Test MUST load output using REAL consumer (not mocked)
+      - Test MUST verify loaded data is usable
+
+   c. **Example roundtrip test:**
+      ```python
+      def test_optimal_folder_usable_as_baseline(self, manager):
+          """Verify output folder can be loaded as baseline for next run."""
+          # Save output
+          output_path = manager.save_optimal_configs()
+
+          # Verify all required files exist
+          required = ['league_config.json', 'draft_config.json', 'week1-5.json', ...]
+          for f in required:
+              assert (output_path / f).exists()
+
+          # Load using REAL consumer (not mocked)
+          config_gen = ConfigGenerator(output_path, parameter_order=...)
+          assert config_gen.baseline_config is not None
+      ```
+
+   **Output Consumer Checklist:**
+   ```
+   □ All output files/folders identified
+   □ All consumers of each output identified
+   □ Roundtrip test planned for each output
+   □ Roundtrip test uses REAL consumers, not mocks
+   □ Test verifies output is actually usable, not just exists
+   ```
+
+**Output:** Test plan with behavior tests for all algorithms AND verified mock interfaces AND output consumer validation.
 
 ### Test Naming Convention
 
@@ -1164,6 +1302,23 @@ For each algorithm/calculation in the spec, verify the implementation matches **
 - Actual scripts run and produce expected behavior
 - Minimum 3 quality control review rounds completed
 - Lessons learned reviewed and guide updates applied
+
+---
+
+### Smoke Testing Protocol
+
+**When:** Before declaring any feature complete
+
+**Purpose:** Verify code actually runs, not just that tests pass
+
+**Required Tests:**
+1. Import test - All modules can be imported
+2. Entry point test - Scripts/CLIs start without errors
+3. Execution test - Basic functionality works end-to-end
+
+**Pass Criteria:** All 3 test types must pass before feature is "complete"
+
+**See:** feature_development_guide.md "Post-Implementation Smoke Testing" for details
 
 ---
 
