@@ -156,7 +156,7 @@ class ConfigManager:
     # INITIALIZATION
     # ============================================================================
 
-    def __init__(self, data_folder: Path) -> None:
+    def __init__(self, data_folder: Path, use_draft_config: bool = False) -> None:
         """
         Initialize the config manager and load configuration.
 
@@ -164,11 +164,17 @@ class ConfigManager:
         1. New structure: data/configs/league_config.json + week{N}-{M}.json files
         2. Legacy structure: data/league_config.json (for tests and backward compatibility)
 
+        For Add to Roster Mode (drafting), use_draft_config=True loads draft_config.json
+        instead of week-specific configs, as draft predictions need season-long parameters.
+
         Args:
             data_folder (Path): Path to the data directory containing config files
+            use_draft_config (bool): If True, load draft_config.json instead of week configs.
+                Use this for Add to Roster Mode (draft decisions). Default False.
 
         Raises:
-            FileNotFoundError: If league_config.json is not found
+            FileNotFoundError: If league_config.json is not found, or if use_draft_config=True
+                and draft_config.json is not found
             ValueError: If configuration structure is invalid or missing required fields
         """
         self.keys = ConfigKeys()
@@ -176,6 +182,9 @@ class ConfigManager:
         self.description: str = ""
         self.parameters: Dict[str, Any] = {}
         self.logger = get_logger()
+
+        # Store draft config flag for use in _load_config
+        self.use_draft_config = use_draft_config
 
         # Check for new folder structure: data/configs/
         configs_folder = data_folder / 'configs'
@@ -293,6 +302,50 @@ class ConfigManager:
 
         except json.JSONDecodeError as e:
             self.logger.error(f"Invalid JSON in week config {week_filename}: {e}")
+            raise
+
+    def _load_draft_config(self) -> Dict[str, Any]:
+        """
+        Load draft_config.json parameters for Add to Roster Mode.
+
+        Used instead of week-specific config when use_draft_config=True.
+        Draft config contains optimal parameters for predicting season-long
+        player performance, as determined by accuracy simulation.
+
+        Returns:
+            Dict[str, Any]: Draft config parameters to merge
+
+        Raises:
+            FileNotFoundError: If draft_config.json does not exist
+            json.JSONDecodeError: If the JSON is malformed
+        """
+        if self.configs_folder is None:
+            # Legacy mode - no draft config available
+            self.logger.warning("Legacy config mode, draft_config.json not available")
+            return {}
+
+        draft_config_path = self.configs_folder / "draft_config.json"
+
+        if not draft_config_path.exists():
+            error_msg = (
+                f"draft_config.json not found at {draft_config_path}. "
+                "This file is required for Add to Roster Mode. "
+                "Run 'python run_accuracy_simulation.py ros' to generate it, "
+                "or copy an existing week config as a starting point."
+            )
+            self.logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
+
+        try:
+            with open(draft_config_path, 'r') as f:
+                draft_data = json.load(f)
+            self.logger.info("Loaded draft_config.json for Add to Roster Mode")
+
+            # Return the parameters section for merging
+            return draft_data.get(self.keys.PARAMETERS, {})
+
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Invalid JSON in draft_config.json: {e}")
             raise
 
     # ============================================================================
@@ -890,7 +943,7 @@ class ConfigManager:
         self.logger.debug(f"Description: {self.description}")
         self.logger.debug(f"Parameters count: {len(self.parameters)}")
 
-        # For new folder structure: load and merge week-specific config
+        # For new folder structure: load and merge week-specific or draft config
         if self.configs_folder is not None:
             # Get CURRENT_NFL_WEEK from base config (required for week config selection)
             if self.keys.CURRENT_NFL_WEEK not in self.parameters:
@@ -899,16 +952,23 @@ class ConfigManager:
             current_week = self.parameters[self.keys.CURRENT_NFL_WEEK]
             self.logger.debug(f"Current NFL week: {current_week}")
 
-            # Load week-specific parameters
-            week_params = self._load_week_config(current_week)
+            # Load draft config OR week-specific config based on mode
+            if self.use_draft_config:
+                # Add to Roster Mode: load draft_config.json for season-long predictions
+                prediction_params = self._load_draft_config()
+                config_source = "draft_config.json"
+            else:
+                # Normal mode: load week-specific config
+                prediction_params = self._load_week_config(current_week)
+                config_source = self._get_week_config_filename(current_week)
 
-            if week_params:
-                # Merge week-specific params over base params
-                # Week-specific values override base values for the same keys
-                self.parameters.update(week_params)
+            if prediction_params:
+                # Merge prediction params over base params
+                # Prediction-specific values override base values for the same keys
+                self.parameters.update(prediction_params)
                 self.logger.info(
-                    f"Merged week config ({self._get_week_config_filename(current_week)}): "
-                    f"{len(week_params)} parameters"
+                    f"Merged prediction config ({config_source}): "
+                    f"{len(prediction_params)} parameters"
                 )
 
         # Extract and validate all parameters

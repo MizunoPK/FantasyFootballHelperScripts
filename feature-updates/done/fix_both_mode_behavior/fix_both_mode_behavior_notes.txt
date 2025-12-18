@@ -1,0 +1,195 @@
+# Fix 'both' Mode Behavior in Accuracy Simulation
+
+## Problem Statement
+
+The accuracy simulation's 'both' mode currently has incorrect behavior:
+
+**Current (Incorrect) Implementation:**
+1. Run ROS optimization completely (test all configs for ROS accuracy only)
+2. Then run weekly optimization completely (test all configs for weekly accuracy, one week range at a time)
+3. This is a SEQUENTIAL approach - optimize ROS, then optimize weekly
+
+**Desired (Correct) Behavior:**
+The 'both' mode should loop through the generated configs, and for each config:
+1. Calculate season-long (ROS) accuracy
+2. Calculate week1-5 accuracy
+3. Calculate week6-9 accuracy
+4. Calculate week10-13 accuracy
+5. Calculate week14-17 accuracy
+6. Record all 5 accuracy results for that config
+7. Move to the next config
+
+This is a PER-CONFIG approach - for each config tested, calculate all accuracies (ROS + all 4 weekly ranges) before moving to the next config.
+
+## Impact
+
+Currently, 'both' mode tests configs twice:
+- Once during ROS optimization (only ROS accuracy calculated)
+- Again during weekly optimization (only weekly accuracies calculated)
+
+This is inefficient and doesn't provide a holistic view of which parameters work best across ALL time horizons.
+
+The correct behavior would:
+- Test each config once
+- Calculate all 5 accuracies (ROS + 4 weekly) per config
+- Find the optimal parameters that work best across all time horizons simultaneously
+
+## Technical Details
+
+### Files Affected
+- `simulation/accuracy/AccuracySimulationManager.py`
+  - `run_both()` method (line 748-766)
+  - Need to create new `_evaluate_config_both()` method
+  - Need to modify the optimization loop
+
+### Current Methods
+- `_evaluate_config_ros()` - calculates ROS accuracy only
+- `_evaluate_config_weekly()` - calculates one week range accuracy
+- `run_ros_optimization()` - loops through configs, calls _evaluate_config_ros()
+- `run_weekly_optimization()` - loops through configs AND week ranges, calls _evaluate_config_weekly()
+- `run_both()` - currently just calls run_ros_optimization() then run_weekly_optimization()
+
+### Required Changes
+1. Create `_evaluate_config_both()` method that:
+   - Calls _evaluate_config_ros() for ROS accuracy
+   - Calls _evaluate_config_weekly() for each of the 4 week ranges
+   - Returns a dict with all 5 results: {
+       'ros': AccuracyResult,
+       'week1-5': AccuracyResult,
+       'week6-9': AccuracyResult,
+       'week10-13': AccuracyResult,
+       'week14-17': AccuracyResult
+     }
+
+2. Rewrite `run_both()` to:
+   - Loop through each parameter in parameter_order
+   - Generate configs for that parameter using the 5 best configs from previous parameter:
+     - For ROS testing: use draft_config.json from previous parameter as base
+     - For week1-5 testing: use week1-5.json from previous parameter as base
+     - For week6-9 testing: use week6-9.json from previous parameter as base
+     - For week10-13 testing: use week10-13.json from previous parameter as base
+     - For week14-17 testing: use week14-17.json from previous parameter as base
+   - For each config:
+     - Call _evaluate_config_both()
+     - Record all 5 results using results_manager.add_result()
+   - **AFTER all configs tested for a parameter**, create intermediate/optimal folder:
+     - draft_config.json uses the config with best ROS accuracy
+     - week1-5.json uses the config with best week1-5 accuracy
+     - week6-9.json uses the config with best week6-9 accuracy
+     - week10-13.json uses the config with best week10-13 accuracy
+     - week14-17.json uses the config with best week14-17 accuracy
+   - These 5 files become the base configs for the next parameter
+
+3. Update logging to show all 5 add_result() calls per config
+
+4. Ensure save_optimal_configs() and save_intermediate_results() work correctly with all 5 week ranges having results
+
+## Parallel Processing
+
+**Critical:** The accuracy simulation must use the same parallel processing pattern as win-rate simulation.
+
+### Current State
+- Accuracy simulation runs configs sequentially (no parallelization)
+- Win-rate simulation uses `ParallelLeagueRunner` with ThreadPoolExecutor/ProcessPoolExecutor
+
+### Required Changes
+1. Add `max_workers` parameter to AccuracySimulationManager.__init__()
+   - **Default: 8** (8 parallel workers)
+2. Add `use_processes` parameter to AccuracySimulationManager.__init__()
+   - **Default: True** (use ProcessPoolExecutor for true parallelism)
+   - ProcessPoolExecutor bypasses GIL, uses all CPU cores
+   - ThreadPoolExecutor (use_processes=False) is limited by GIL
+3. Create parallel execution for config evaluation:
+   - Use ProcessPoolExecutor to evaluate configs in parallel
+   - Each worker calls _evaluate_config_both() for one config
+   - Results collected and processed sequentially (add_result calls)
+
+### Win-Rate Pattern to Follow
+```python
+# In SimulationManager.__init__
+self.use_processes = use_processes  # Default: True for accuracy sim
+self.max_workers = max_workers      # Default: 8
+self.parallel_runner = ParallelLeagueRunner(
+    max_workers=max_workers,
+    use_processes=use_processes
+)
+
+# In run_optimization
+executor_class = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
+with executor_class(max_workers=self.max_workers) as executor:
+    futures = [executor.submit(evaluate_config, cfg) for cfg in configs]
+    for future in as_completed(futures):
+        result = future.result()
+        # Process result
+```
+
+### Runner Script Updates
+- `run_accuracy_simulation.py` should accept `--max-workers` and `--use-processes` flags
+- **Defaults: `--max-workers 8` and `--use-processes` (enabled by default)**
+- Allow users to disable: `--no-use-processes` for ThreadPoolExecutor
+- Allow users to change workers: `--max-workers 4` for fewer parallel configs
+
+## Verification Needed
+
+After implementing:
+1. Run simulation in 'both' mode
+2. Check logs show add_result() for all 5 week ranges per config
+3. Verify output files (draft_config.json and all week*.json) have real MAE values
+4. Confirm each config is only tested once (not twice as in current implementation)
+5. Validate that optimization finds parameters that work well across all time horizons
+6. **Verify parallel processing works:**
+   - With `--max-workers 8`: Should see 8 configs evaluated simultaneously
+   - With `--use-processes`: Should bypass GIL and use all CPU cores
+   - Monitor CPU usage - should be 100% across all cores (not just ~12% for single core)
+
+## Notes
+
+- This is a fundamental architectural issue with how 'both' mode works
+- The current implementation optimizes ROS and weekly separately, which may find different optimal parameters for each
+- The desired behavior finds parameters that work well across ALL time horizons simultaneously
+- This will be more computationally expensive per config (5 accuracy calculations instead of 1), but tests fewer total configs (N configs instead of N + N*4 configs)
+
+## Output File Behavior
+
+**Key insight:** Each output file (draft_config.json, week*.json) contains the config that performed BEST for that specific testing block, not necessarily the same config.
+
+Example after testing 3 configs:
+- Config A: ROS MAE=60.5, week1-5 MAE=65.2, week6-9 MAE=58.1
+- Config B: ROS MAE=61.2, week1-5 MAE=62.8, week6-9 MAE=57.3
+- Config C: ROS MAE=59.8, week1-5 MAE=64.5, week6-9 MAE=59.2
+
+Output files would contain:
+- `draft_config.json`: Config C (best ROS: 59.8)
+- `week1-5.json`: Config B (best week1-5: 62.8)
+- `week6-9.json`: Config B (best week6-9: 57.3)
+
+This means the simulation tracks 5 separate "best configs", one for each testing block. The results_manager.best_configs dict holds all 5 independently.
+
+## Iterative Base Config Behavior
+
+**Critical:** Each parameter optimization uses different base configs for each testing block based on what performed best in the previous parameter.
+
+### Example Flow:
+
+**Parameter 1 (NORMALIZATION_MAX_SCALE):**
+- Start with baseline config for all 5 blocks
+- Test all configs, record best for each block
+- Output intermediate folder with 5 files (each with different NORMALIZATION_MAX_SCALE values)
+
+**Parameter 2 (TEAM_QUALITY_SCORING_WEIGHT):**
+- For ROS tests: Start from draft_config.json (best ROS from param 1)
+- For week1-5 tests: Start from week1-5.json (best week1-5 from param 1)
+- For week6-9 tests: Start from week6-9.json (best week6-9 from param 1)
+- For week10-13 tests: Start from week10-13.json (best week10-13 from param 1)
+- For week14-17 tests: Start from week14-17.json (best week14-17 from param 1)
+- This means testing 5 different base configs (one for each block)
+- Each test evaluates all 5 accuracies, but compares against the appropriate baseline
+
+**Key Implication:**
+- For parameter 2, we're NOT testing 1 config across 5 blocks
+- We're testing 5 DIFFERENT configs (one per block), each evaluated across all 5 blocks
+- The ROS test uses draft_config.json + new param value, evaluated for ROS + all 4 weekly
+- The week1-5 test uses week1-5.json + new param value, evaluated for ROS + all 4 weekly
+- And so on...
+
+This creates a "tournament" where each block's best config competes to prove it's still best when the next parameter changes.

@@ -210,10 +210,10 @@ class TestRunPreCommitValidation:
 # ============================================================================
 
 class TestRunSimulation:
-    """Test run_simulation.py main function and argument parsing"""
+    """Test run_win_rate_simulation.py main function and argument parsing"""
 
-    @patch('run_simulation.SimulationManager')
-    @patch('run_simulation.Path')
+    @patch('run_win_rate_simulation.SimulationManager')
+    @patch('run_win_rate_simulation.Path')
     def test_single_mode_argument_parsing(self, mock_path_class, mock_sim_manager):
         """Test single mode argument parsing"""
         # Create a mock config folder that supports the / operator for file paths
@@ -252,8 +252,8 @@ class TestRunSimulation:
         mock_sim_manager.return_value = mock_manager
 
         # Test single mode
-        from run_simulation import main
-        with patch('sys.argv', ['run_simulation.py', 'single', '--sims', '10']):
+        from run_win_rate_simulation import main
+        with patch('sys.argv', ['run_win_rate_simulation.py', 'single', '--sims', '10']):
             try:
                 main()
             except SystemExit:
@@ -261,13 +261,13 @@ class TestRunSimulation:
 
     def test_simulation_modes_defined(self):
         """Test that all simulation modes are properly defined"""
-        from run_simulation import main
+        from run_win_rate_simulation import main
 
         # Verify the function exists and is callable
         assert callable(main)
 
-    @patch('run_simulation.SimulationManager')
-    @patch('run_simulation.Path')
+    @patch('run_win_rate_simulation.SimulationManager')
+    @patch('run_win_rate_simulation.Path')
     def test_full_mode_shows_total_configs(self, mock_path_class, mock_sim_manager):
         """Test that full mode calculates and displays total configs"""
         # Mock Path
@@ -278,11 +278,11 @@ class TestRunSimulation:
         mock_path_class.return_value = mock_path
 
         # This test verifies the structure is in place
-        from run_simulation import main
+        from run_win_rate_simulation import main
         assert callable(main)
 
-    @patch('run_simulation.SimulationManager')
-    @patch('run_simulation.Path')
+    @patch('run_win_rate_simulation.SimulationManager')
+    @patch('run_win_rate_simulation.Path')
     def test_iterative_mode_shows_parameter_count(self, mock_path_class, mock_sim_manager):
         """Test that iterative mode shows parameter optimization info"""
         # Mock Path
@@ -292,24 +292,24 @@ class TestRunSimulation:
         mock_path.exists.return_value = True
         mock_path_class.return_value = mock_path
 
-        from run_simulation import main
+        from run_win_rate_simulation import main
         assert callable(main)
 
     def test_logging_constants_defined(self):
         """Test that logging constants are properly defined"""
-        import run_simulation
+        import run_win_rate_simulation
 
-        assert hasattr(run_simulation, 'LOGGING_LEVEL')
-        assert hasattr(run_simulation, 'LOGGING_TO_FILE')
-        assert hasattr(run_simulation, 'LOG_NAME')
-        assert run_simulation.LOG_NAME == "simulation"
+        assert hasattr(run_win_rate_simulation, 'LOGGING_LEVEL')
+        assert hasattr(run_win_rate_simulation, 'LOGGING_TO_FILE')
+        assert hasattr(run_win_rate_simulation, 'LOG_NAME')
+        assert run_win_rate_simulation.LOG_NAME == "simulation"
 
     def test_default_arguments_defined(self):
         """Test that default argument values are reasonable"""
-        import run_simulation
+        import run_win_rate_simulation
 
         # Verify the module loads without error
-        assert run_simulation.LOGGING_LEVEL in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+        assert run_win_rate_simulation.LOGGING_LEVEL in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
 
 
 # ============================================================================
@@ -741,7 +741,8 @@ class TestRootScriptsIntegration:
             'run_player_fetcher.py',
             'run_scores_fetcher.py',
             'run_pre_commit_validation.py',
-            'run_simulation.py',
+            'run_win_rate_simulation.py',
+            'run_accuracy_simulation.py',
             'run_draft_order_loop.py'
         ]
 
@@ -762,7 +763,8 @@ class TestRootScriptsIntegration:
             'run_player_fetcher.py',
             'run_scores_fetcher.py',
             'run_pre_commit_validation.py',
-            'run_simulation.py',
+            'run_win_rate_simulation.py',
+            'run_accuracy_simulation.py',
             'run_draft_order_loop.py'
         ]
 
@@ -780,7 +782,8 @@ class TestRootScriptsIntegration:
             'run_player_fetcher.py',
             'run_scores_fetcher.py',
             'run_pre_commit_validation.py',
-            'run_simulation.py',
+            'run_win_rate_simulation.py',
+            'run_accuracy_simulation.py',
             'run_draft_order_loop.py'
         ]
 
@@ -797,7 +800,8 @@ class TestRootScriptsIntegration:
             'run_player_fetcher.py': ['subprocess', 'sys', 'Path', 'os'],
             'run_scores_fetcher.py': ['subprocess', 'sys', 'Path', 'os'],
             'run_pre_commit_validation.py': ['subprocess', 'sys', 'Path'],
-            'run_simulation.py': ['argparse', 'sys', 'Path'],
+            'run_win_rate_simulation.py': ['argparse', 'sys', 'Path'],
+            'run_accuracy_simulation.py': ['argparse', 'sys', 'Path'],
             'run_draft_order_loop.py': ['argparse', 'sys', 'Path', 'json']
         }
 

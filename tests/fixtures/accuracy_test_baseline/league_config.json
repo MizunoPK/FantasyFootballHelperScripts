@@ -1,0 +1,22 @@
+{
+  "config_name": "Test Baseline League Config",
+  "description": "Minimal league config for fast unit tests",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 15,
+    "NFL_SEASON": 2023,
+    "NFL_SCORING_FORMAT": "ppr",
+    "SAME_POS_BYE_WEIGHT": 0.05,
+    "DIFF_POS_BYE_WEIGHT": 0.01,
+    "INJURY_PENALTIES": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0
+    },
+    "DRAFT_ORDER_BONUSES": {
+      "PRIMARY": 50,
+      "SECONDARY": 50
+    },
+    "DRAFT_ORDER_FILE": 0,
+    "DRAFT_ORDER": []
+  }
+}

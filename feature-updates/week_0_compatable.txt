@@ -1,0 +1,4 @@
+I want to make sure the league helper and player data fetcher do not error out when we set the current NFL week to 0
+Having it set to 0 should imply we are in the pre-season gathering data for the draft
+In the league helper, it means that we should load in the draft_config.json file for all modes instead of the week1-5.json file. All modes should otherwise behave as if the current week is set to 1
+In the player data fetcher, a week 0 should produce the same results as a week 1

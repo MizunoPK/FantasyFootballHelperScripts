@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 from dataclasses import dataclass
 
-CURRENT_NFL_WEEK = 15     # Current NFL week (1-18, update weekly)
+CURRENT_NFL_WEEK = 16     # Current NFL week (1-18, update weekly)
 NFL_SEASON = 2025        # Current NFL season year
 
 # Data Preservation Settings (FREQUENTLY MODIFIED)

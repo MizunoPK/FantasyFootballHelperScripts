@@ -453,6 +453,64 @@ class TestScheduleSync:
         assert saved_data['parameters']['SCHEDULE_IMPACT_SCALE'] == 0.7
 
 
+    def test_is_better_than_rejects_zero_players(self):
+        """Test that is_better_than() rejects configs with player_count=0."""
+        # Valid config
+        config_a = AccuracyConfigPerformance(
+            config_dict={},
+            mae=2.5,
+            player_count=100,
+            total_error=250.0
+        )
+
+        # Invalid config (better MAE but no players)
+        config_b = AccuracyConfigPerformance(
+            config_dict={},
+            mae=2.0,
+            player_count=0,
+            total_error=0.0
+        )
+
+        # Valid config should not beat invalid config
+        assert config_a.is_better_than(config_b) == False
+
+        # Invalid config should not beat valid config
+        assert config_b.is_better_than(config_a) == False
+
+    def test_is_better_than_both_zero_players(self):
+        """Test that neither config is better when both have player_count=0."""
+        config_a = AccuracyConfigPerformance(
+            config_dict={},
+            mae=2.5,
+            player_count=0,
+            total_error=0.0
+        )
+
+        config_b = AccuracyConfigPerformance(
+            config_dict={},
+            mae=2.0,
+            player_count=0,
+            total_error=0.0
+        )
+
+        # Neither invalid config beats the other
+        assert config_a.is_better_than(config_b) == False
+        assert config_b.is_better_than(config_a) == False
+
+    def test_is_better_than_zero_vs_none(self):
+        """Test that invalid config (player_count=0) does not beat None (no previous best)."""
+        # Invalid config
+        config_invalid = AccuracyConfigPerformance(
+            config_dict={},
+            mae=1.0,
+            player_count=0,
+            total_error=0.0
+        )
+
+        # Invalid config should not become "best" even when no previous best exists
+        assert config_invalid.is_better_than(None) == False
+
+
 class TestWeekRanges:
     """Tests for week range constants."""
 

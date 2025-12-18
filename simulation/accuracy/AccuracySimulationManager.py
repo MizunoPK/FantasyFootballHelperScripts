@@ -616,13 +616,12 @@ class AccuracySimulationManager:
                     # Record result
                     is_new_best = self.results_manager.add_result('ros', config_dict, result)
 
-                    if is_new_best:
-                        # Save intermediate results
-                        self._current_optimal_config_path = self.results_manager.save_intermediate_results(
-                            param_idx, param_name
-                        )
-
                     progress.update()
+
+                # Save intermediate results after all test values evaluated (once per parameter)
+                self._current_optimal_config_path = self.results_manager.save_intermediate_results(
+                    param_idx, param_name
+                )
 
                 # Update ConfigGenerator baseline with best config for next parameter
                 best_perf = self.results_manager.get_best_config('ros')

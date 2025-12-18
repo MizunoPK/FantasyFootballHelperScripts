@@ -1,100 +1,116 @@
 # Fantasy Football Simulation System
 
-A comprehensive parameter optimization system for the DraftHelper fantasy football tool. Uses simulation-based testing to identify optimal configuration parameters by running thousands of league simulations.
+A comprehensive parameter optimization system for the DraftHelper fantasy football tool. Uses simulation-based testing to identify optimal configuration parameters.
 
 ## Overview
 
-This system tests parameter combinations to find the configuration that maximizes win rate and points scored. Each configuration is tested across multiple simulated leagues with different opponents using various draft strategies.
+This system provides **two complementary simulation modes**:
 
-**Default configuration**: ~13.1 billion combinations (13 parameters with 6 values each = 6^13)
+| Simulation | Purpose | Optimizes | Metric |
+|------------|---------|-----------|--------|
+| **Win Rate** | Find best draft *strategy* | `league_config.json` | Win Rate (higher = better) |
+| **Accuracy** | Find best player *prediction* | `draft_config.json` + weekly configs | MAE (lower = better) |
+
+**Key insight:** Win Rate = strategy optimization, Accuracy = prediction optimization
+
+### When to Use Each Mode
+
+- **Win Rate Simulation**: Before the season, optimize draft strategy parameters (bye week weights, draft order bonuses, ADP scoring)
+- **Accuracy Simulation**: Throughout the season, optimize prediction parameters (scoring weights, matchup impacts, weather factors)
 
 ### What Gets Optimized
 
-The system optimizes these 13 key parameters:
+**Win Rate Simulation** optimizes 5 strategy parameters:
+1. SAME_POS_BYE_WEIGHT - Same-position bye week conflicts
+2. DIFF_POS_BYE_WEIGHT - Different-position bye week conflicts
+3. PRIMARY_BONUS - Draft order primary bonus
+4. SECONDARY_BONUS - Draft order secondary bonus
+5. ADP_SCORING_WEIGHT - ADP scoring weight
 
-1. **NORMALIZATION_MAX_SCALE** (50-500): Score normalization ceiling
-2. **SAME_POS_BYE_WEIGHT** (0-3): Weight for same-position bye week conflicts
-3. **DIFF_POS_BYE_WEIGHT** (0-3): Weight for different-position bye week conflicts
-4. **DRAFT_ORDER_BONUSES.PRIMARY** (0-200): Bonus for primary draft position
-5. **DRAFT_ORDER_BONUSES.SECONDARY** (0-200): Bonus for secondary draft position
-6. **ADP_SCORING_WEIGHT** (0-5): Weight for ADP multiplier
-7. **ADP_SCORING_STEPS** (1-60): Threshold step size for ADP tiers
-8. **PLAYER_RATING_SCORING_WEIGHT** (0-5): Weight for player rating multiplier
-9. **TEAM_QUALITY_SCORING_WEIGHT** (0-5): Weight for team quality multiplier
-10. **PERFORMANCE_SCORING_WEIGHT** (0-5): Weight for performance multiplier
-11. **PERFORMANCE_SCORING_STEPS** (0.05-0.5): Threshold step size for performance tiers
-12. **MATCHUP_IMPACT_SCALE** (0-300): Scaling factor for matchup bonus/penalty
-13. **MATCHUP_SCORING_WEIGHT** (0-5): Weight for matchup bonus
+**Accuracy Simulation** optimizes 17 prediction parameters:
+1. NORMALIZATION_MAX_SCALE
+2. PLAYER_RATING_SCORING_WEIGHT
+3. TEAM_QUALITY_SCORING_WEIGHT, TEAM_QUALITY_MIN_WEEKS
+4. PERFORMANCE_SCORING_WEIGHT, PERFORMANCE_SCORING_STEPS, PERFORMANCE_MIN_WEEKS
+5. MATCHUP_IMPACT_SCALE, MATCHUP_SCORING_WEIGHT, MATCHUP_MIN_WEEKS
+6. TEMPERATURE_IMPACT_SCALE, TEMPERATURE_SCORING_WEIGHT
+7. WIND_IMPACT_SCALE, WIND_SCORING_WEIGHT
+8. LOCATION_HOME, LOCATION_AWAY, LOCATION_INTERNATIONAL
 
-Each parameter gets 6 test values by default: the baseline optimal value + 5 random variations within bounds.
-
-**Note**: Due to the extremely large number of combinations (13.1B+), iterative optimization is strongly recommended over full cartesian product testing.
+Each parameter gets test values based on the baseline optimal value + variations within bounds.
 
 ## Architecture
 
 ```
 simulation/
-├── run_simulation.py           # CLI entry point
-├── SimulationManager.py         # Orchestrates full optimization process
-├── ConfigGenerator.py           # Generates parameter combinations (13.1B possible)
-├── ParallelLeagueRunner.py      # Multi-threaded simulation executor
-├── ResultsManager.py            # Aggregates and compares results
-├── ConfigPerformance.py         # Tracks individual config performance
-├── ProgressTracker.py           # Real-time progress display
+├── shared/                      # Shared between both modes
+│   ├── ConfigGenerator.py       # Generates parameter combinations
+│   ├── ResultsManager.py        # Aggregates and compares results
+│   ├── ConfigPerformance.py     # Tracks individual config performance
+│   ├── ProgressTracker.py       # Real-time progress display
+│   └── config_cleanup.py        # Cleans up old optimal folders
 │
-├── SimulatedLeague.py           # 10-team league simulator
-├── DraftHelperTeam.py           # Team using DraftHelper (being tested)
-├── SimulatedOpponent.py         # Opponent teams with strategies
-├── Week.py                      # Weekly matchup simulator
+├── win_rate/                    # Win-rate simulation (strategy)
+│   ├── SimulationManager.py     # Orchestrates win-rate optimization
+│   ├── ParallelLeagueRunner.py  # Multi-threaded simulation executor
+│   ├── SimulatedLeague.py       # 10-team league simulator
+│   ├── DraftHelperTeam.py       # Team using DraftHelper (being tested)
+│   ├── SimulatedOpponent.py     # Opponent teams with strategies
+│   ├── Week.py                  # Weekly matchup simulator
+│   └── manual_simulation.py     # Manual test runs
 │
-├── utils/
-│   └── scheduler.py             # Round-robin schedule generator
+├── accuracy/                    # Accuracy simulation (prediction)
+│   ├── AccuracySimulationManager.py  # Orchestrates accuracy optimization
+│   ├── AccuracyResultsManager.py     # Tracks MAE results
+│   └── AccuracyCalculator.py         # MAE calculation logic
 │
-├── sim_data/                    # Required data files
-│   ├── players_projected.csv   # Projected player stats
-│   ├── players_actual.csv      # Actual player stats
-│   └── teams_week_N.csv        # Team rankings by week
+├── sim_data/                    # Historical data
+│   ├── 2021/, 2022/, 2024/      # Season folders with weeks/week_NN/ data
+│   ├── players_projected.csv   # Season-long projections
+│   ├── players_actual.csv      # Season-long actuals
+│   └── team_data/              # Team rankings
 │
-└── results/                     # Output directory
-    ├── optimal_YYYY-MM-DD_HH-MM-SS.json
-    └── all_results.json
+└── simulation_configs/          # Output directory
+    ├── optimal_iterative_*/     # Win-rate optimal configs
+    └── accuracy_optimal_*/      # Accuracy optimal configs
 ```
 
 ## Quick Start
 
 **Important**: Run all commands from the project root directory.
 
-### 1. Test Single Configuration (Fast - ~3 seconds)
+### Win Rate Simulation
 
 ```bash
-python run_simulation.py single --sims 5
+# Single config test (fast)
+python run_win_rate_simulation.py single --sims 5
+
+# Iterative optimization (recommended)
+python run_win_rate_simulation.py iterative --sims 100 --workers 8
 ```
 
-Runs 5 simulations with the baseline configuration. Good for:
-- Verifying the system works
-- Debugging changes
-- Quick sanity checks
-
-### 2. Test Subset (Moderate - ~1-2 minutes)
+### Accuracy Simulation
 
 ```bash
-python run_simulation.py subset --configs 10 --sims 10 --workers 4
+# ROS mode - optimizes draft_config.json
+python run_accuracy_simulation.py ros --test-values 5
+
+# Weekly mode - optimizes week1-5.json, week6-9.json, etc.
+python run_accuracy_simulation.py weekly --test-values 5
+
+# Both modes (default)
+python run_accuracy_simulation.py both --test-values 5
 ```
 
-Tests 10 configurations with 10 simulations each (100 total simulations). Good for:
-- Validating the full pipeline
-- Testing before running full optimization
-- Quick parameter exploration
-
-### 3. Full Optimization (Slow - hours/days)
+### Quick Tests
 
 ```bash
-python run_simulation.py full --sims 100 --workers 8
+# Win rate: single config test (~3 seconds)
+python run_win_rate_simulation.py single --sims 5
+
+# Accuracy: quick test with minimal values (~1 minute)
+python run_accuracy_simulation.py ros --test-values 2 --num-params 1
 ```
-
-Tests all generated configurations with 100 simulations each. This is the real optimization run.
-
-**Estimated time**: Due to the large number of configurations (10M+ with 9 parameters), full cartesian product optimization is impractical. Consider using iterative optimization or subset testing instead.
 
 ## Command-Line Options
 

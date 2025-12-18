@@ -76,10 +76,28 @@ class AccuracyConfigPerformance:
         """
         Check if this configuration is better than another.
 
-        Lower MAE is better. First config with lowest MAE wins ties.
+        Lower MAE is better. Rejects configs with player_count=0 as invalid.
+
+        Args:
+            other: Configuration to compare against
+
+        Returns:
+            bool: True if this config is better, False otherwise.
+                  Always returns False if either config has player_count=0.
         """
+        # Reject invalid configs FIRST (before checking if other is None)
+        # This prevents invalid configs from becoming "best" when no previous best exists
+        if self.player_count == 0:
+            return False
+
         if other is None:
             return True
+
+        # Don't replace valid config with invalid one
+        if other.player_count == 0:
+            return False
+
+        # Lower MAE is better
         return self.mae < other.mae
 
     def to_dict(self) -> dict:

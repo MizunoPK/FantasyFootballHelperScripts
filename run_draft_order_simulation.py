@@ -27,8 +27,9 @@ from typing import Dict, List, Tuple, Optional
 
 from utils.LoggingManager import setup_logger, get_logger
 
-# Add simulation directory to path
-sys.path.append(str(Path(__file__).parent / "simulation"))
+# Add simulation directories to path
+sys.path.append(str(Path(__file__).parent / "simulation" / "win_rate"))
+sys.path.append(str(Path(__file__).parent / "simulation" / "shared"))
 from ParallelLeagueRunner import ParallelLeagueRunner
 from ConfigGenerator import ConfigGenerator
 

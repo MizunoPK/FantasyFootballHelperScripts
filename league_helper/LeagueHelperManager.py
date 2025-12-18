@@ -69,10 +69,16 @@ class LeagueHelperManager:
         self.logger = get_logger()
         self.logger.debug("Initializing League Helper Manager")
 
-        # Create single config manager that handles all configuration
+        # Create config manager for week-specific predictions (used by most modes)
         self.logger.debug(f"Loading configuration from {data_folder}")
         self.config = ConfigManager(data_folder)
         self.logger.info(f"Configuration loaded: {self.config.config_name} (Week {self.config.current_nfl_week})")
+
+        # Create draft config manager for ROS predictions (used by Add to Roster Mode)
+        # Uses draft_config.json instead of week-specific config for prediction weights
+        self.logger.debug("Loading draft configuration for Add to Roster Mode")
+        self.draft_config = ConfigManager(data_folder, use_draft_config=True)
+        self.logger.info(f"Draft configuration loaded: {self.draft_config.config_name}")
 
         # Initialize Season Schedule Manager first (needed by TeamDataManager)
         self.logger.debug("Initializing Season Schedule Manager")
@@ -82,13 +88,21 @@ class LeagueHelperManager:
         self.logger.debug("Initializing Team Data Manager")
         self.team_data_manager = TeamDataManager(data_folder, self.config, self.season_schedule_manager, self.config.current_nfl_week)
 
+        # Initialize Player Manager for week-specific scoring (most modes)
         self.logger.debug("Initializing Player Manager")
         self.player_manager = PlayerManager(data_folder, self.config, self.team_data_manager, self.season_schedule_manager)
         self.logger.info(f"Player data loaded: {len(self.player_manager.players)} total players")
 
+        # Initialize Draft Player Manager for ROS scoring (Add to Roster Mode)
+        # Uses draft_config for prediction weights optimized for rest-of-season accuracy
+        self.logger.debug("Initializing Draft Player Manager for Add to Roster Mode")
+        self.draft_player_manager = PlayerManager(data_folder, self.draft_config, self.team_data_manager, self.season_schedule_manager)
+
         # Initialize all mode managers with necessary dependencies
         self.logger.debug("Initializing mode managers")
-        self.add_to_roster_mode_manager = AddToRosterModeManager(self.config, self.player_manager, self.team_data_manager)
+        # Add to Roster Mode uses draft config/player manager for ROS predictions
+        self.add_to_roster_mode_manager = AddToRosterModeManager(self.draft_config, self.draft_player_manager, self.team_data_manager)
+        # Other modes use week-specific config for in-season predictions
         self.starter_helper_mode_manager = StarterHelperModeManager(self.config, self.player_manager, self.team_data_manager)
         self.trade_simulator_mode_manager = TradeSimulatorModeManager(data_folder, self.player_manager, self.config)
         self.modify_player_data_mode_manager = ModifyPlayerDataModeManager(self.player_manager, data_folder)
@@ -148,10 +162,10 @@ class LeagueHelperManager:
         """
         Delegate to Add to Roster mode manager.
 
-        Passes current player_manager and team_data_manager instances to the mode
-        manager to ensure it has the latest data.
+        Passes draft_player_manager (ROS-optimized scoring) and team_data_manager
+        instances to the mode manager to ensure it has the latest data.
         """
-        self.add_to_roster_mode_manager.start_interactive_mode(self.player_manager, self.team_data_manager)
+        self.add_to_roster_mode_manager.start_interactive_mode(self.draft_player_manager, self.team_data_manager)
 
     def _run_starter_helper_mode(self):
         """

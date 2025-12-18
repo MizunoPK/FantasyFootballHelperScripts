@@ -1,0 +1,114 @@
+2025-12-17 11:46:36 - accuracy_simulation - INFO - main:227 - Using baseline config: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-17 11:46:36 - accuracy_simulation - INFO - __init__:94 - Initializing AccuracySimulationManager
+2025-12-17 11:46:36 - accuracy_simulation - INFO - __init__:398 - Initializing ConfigGenerator with baseline folder: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-17 11:46:36 - accuracy_simulation - INFO - __init__:399 - Test values per parameter: 1 (total values: 2)
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_baseline_from_folder:331 - Loaded base config from simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55/league_config.json
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded draft_config.json for horizon 'ros'
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded week1-5.json for horizon '1-5'
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded week6-9.json for horizon '6-9'
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded week10-13.json for horizon '10-13'
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded week14-17.json for horizon '14-17'
+2025-12-17 11:46:36 - accuracy_simulation - INFO - load_baseline_from_folder:364 - Loaded 5 horizon configs from folder: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-17 11:46:36 - accuracy_simulation - INFO - __init__:411 - ConfigGenerator initialized successfully with 5 horizon configs
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - __init__:68 - AccuracyCalculator initialized
+2025-12-17 11:46:36 - accuracy_simulation - INFO - __init__:160 - AccuracyResultsManager initialized: simulation/simulation_configs
+2025-12-17 11:46:36 - accuracy_simulation - INFO - __init__:123 - Discovered 3 historical seasons: ['2021', '2022', '2024']
+2025-12-17 11:46:36 - accuracy_simulation - INFO - __init__:129 - AccuracySimulationManager initialized: 64 configs/param
+2025-12-17 11:46:36 - accuracy_simulation - INFO - run_ros_optimization:543 - Starting ROS accuracy optimization
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - _detect_resume_state:276 - Found 3 valid intermediate folders, highest: TEAM_QUALITY_MIN_WEEKS (idx 2)
+2025-12-17 11:46:36 - accuracy_simulation - INFO - run_ros_optimization:554 - Resuming from parameter 4/16
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_intermediate_results:511 - Skipped week1-5.json - not accuracy format (missing mae field)
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_intermediate_results:511 - Skipped week6-9.json - not accuracy format (missing mae field)
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_intermediate_results:511 - Skipped week10-13.json - not accuracy format (missing mae field)
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - load_intermediate_results:511 - Skipped week14-17.json - not accuracy format (missing mae field)
+2025-12-17 11:46:36 - accuracy_simulation - INFO - load_intermediate_results:513 - Loaded 1 intermediate configs from simulation/simulation_configs/accuracy_intermediate_02_TEAM_QUALITY_MIN_WEEKS
+2025-12-17 11:46:36 - accuracy_simulation - INFO - run_ros_optimization:557 - Loaded intermediate results from accuracy_intermediate_02_TEAM_QUALITY_MIN_WEEKS
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - run_ros_optimization:591 - Skipping already-completed parameter 0: NORMALIZATION_MAX_SCALE
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - run_ros_optimization:591 - Skipping already-completed parameter 1: TEAM_QUALITY_SCORING_WEIGHT
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - run_ros_optimization:591 - Skipping already-completed parameter 2: TEAM_QUALITY_MIN_WEEKS
+2025-12-17 11:46:36 - accuracy_simulation - INFO - run_ros_optimization:594 - Optimizing parameter 4/16: PERFORMANCE_SCORING_WEIGHT
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - __init__:200 - Using legacy config structure: /tmp/accuracy_sim_7ldycq7p/league_config.json
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - _load_config:920 - Loading configuration from: /tmp/accuracy_sim_7ldycq7p/league_config.json
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - _load_config:929 - Successfully loaded JSON configuration
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - _validate_config_structure:1001 - Configuration structure validation passed
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - _load_config:942 - Loaded configuration: 'Accuracy Optimal draft_config (2025-12-16_12-05-55)'
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - _load_config:943 - Description: ROS (Rest of Season) prediction parameters
+2025-12-17 11:46:36 - accuracy_simulation - DEBUG - _load_config:944 - Parameters count: 17
+2025-12-17 11:46:36 - accuracy_simulation - ERROR - main:283 - Simulation failed: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/run_accuracy_simulation.py", line 265, in main
+    optimal_path = manager.run_ros_optimization()
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 614, in run_ros_optimization
+    result = self._evaluate_config_ros(config_dict)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 398, in _evaluate_config_ros
+    player_mgr = self._create_player_manager(config_dict, projected_path.parent, season_path)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 358, in _create_player_manager
+    config_mgr = ConfigManager(temp_dir)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 234, in __init__
+    self._load_config()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 975, in _load_config
+    self._extract_parameters()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 1027, in _extract_parameters
+    raise ValueError(
+        f"Config missing required parameters: {', '.join(missing_params)}"
+    )
+ValueError: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING
+2025-12-18 15:46:10 - accuracy_simulation - INFO - main:227 - Using baseline config: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-18 15:46:10 - accuracy_simulation - INFO - __init__:94 - Initializing AccuracySimulationManager
+2025-12-18 15:46:10 - accuracy_simulation - INFO - __init__:398 - Initializing ConfigGenerator with baseline folder: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-18 15:46:10 - accuracy_simulation - INFO - __init__:399 - Test values per parameter: 2 (total values: 3)
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_baseline_from_folder:331 - Loaded base config from simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55/league_config.json
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded draft_config.json for horizon 'ros'
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded week1-5.json for horizon '1-5'
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded week6-9.json for horizon '6-9'
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded week10-13.json for horizon '10-13'
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_baseline_from_folder:347 - Loaded week14-17.json for horizon '14-17'
+2025-12-18 15:46:10 - accuracy_simulation - INFO - load_baseline_from_folder:364 - Loaded 5 horizon configs from folder: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-18 15:46:10 - accuracy_simulation - INFO - __init__:411 - ConfigGenerator initialized successfully with 5 horizon configs
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - __init__:68 - AccuracyCalculator initialized
+2025-12-18 15:46:10 - accuracy_simulation - INFO - __init__:173 - AccuracyResultsManager initialized: simulation/simulation_configs
+2025-12-18 15:46:10 - accuracy_simulation - INFO - __init__:123 - Discovered 3 historical seasons: ['2021', '2022', '2024']
+2025-12-18 15:46:10 - accuracy_simulation - INFO - __init__:129 - AccuracySimulationManager initialized: 729 configs/param
+2025-12-18 15:46:10 - accuracy_simulation - INFO - run_ros_optimization:543 - Starting ROS accuracy optimization
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - _detect_resume_state:276 - Found 3 valid intermediate folders, highest: TEAM_QUALITY_MIN_WEEKS (idx 2)
+2025-12-18 15:46:10 - accuracy_simulation - INFO - run_ros_optimization:554 - Resuming from parameter 4/16
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_intermediate_results:524 - Skipped week1-5.json - not accuracy format (missing mae field)
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_intermediate_results:524 - Skipped week6-9.json - not accuracy format (missing mae field)
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_intermediate_results:524 - Skipped week10-13.json - not accuracy format (missing mae field)
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - load_intermediate_results:524 - Skipped week14-17.json - not accuracy format (missing mae field)
+2025-12-18 15:46:10 - accuracy_simulation - INFO - load_intermediate_results:526 - Loaded 1 intermediate configs from simulation/simulation_configs/accuracy_intermediate_02_TEAM_QUALITY_MIN_WEEKS
+2025-12-18 15:46:10 - accuracy_simulation - INFO - run_ros_optimization:557 - Loaded intermediate results from accuracy_intermediate_02_TEAM_QUALITY_MIN_WEEKS
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - run_ros_optimization:591 - Skipping already-completed parameter 0: NORMALIZATION_MAX_SCALE
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - run_ros_optimization:591 - Skipping already-completed parameter 1: TEAM_QUALITY_SCORING_WEIGHT
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - run_ros_optimization:591 - Skipping already-completed parameter 2: TEAM_QUALITY_MIN_WEEKS
+2025-12-18 15:46:10 - accuracy_simulation - INFO - run_ros_optimization:594 - Optimizing parameter 4/16: PERFORMANCE_SCORING_WEIGHT
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - __init__:200 - Using legacy config structure: /tmp/accuracy_sim_vk3c5qan/league_config.json
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - _load_config:920 - Loading configuration from: /tmp/accuracy_sim_vk3c5qan/league_config.json
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - _load_config:929 - Successfully loaded JSON configuration
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - _validate_config_structure:1001 - Configuration structure validation passed
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - _load_config:942 - Loaded configuration: 'Accuracy Optimal draft_config (2025-12-16_12-05-55)'
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - _load_config:943 - Description: ROS (Rest of Season) prediction parameters
+2025-12-18 15:46:10 - accuracy_simulation - DEBUG - _load_config:944 - Parameters count: 17
+2025-12-18 15:46:10 - accuracy_simulation - ERROR - main:283 - Simulation failed: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/run_accuracy_simulation.py", line 265, in main
+    optimal_path = manager.run_ros_optimization()
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 614, in run_ros_optimization
+    result = self._evaluate_config_ros(config_dict)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 398, in _evaluate_config_ros
+    player_mgr = self._create_player_manager(config_dict, projected_path.parent, season_path)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 358, in _create_player_manager
+    config_mgr = ConfigManager(temp_dir)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 234, in __init__
+    self._load_config()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 975, in _load_config
+    self._extract_parameters()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 1027, in _extract_parameters
+    raise ValueError(
+        f"Config missing required parameters: {', '.join(missing_params)}"
+    )
+ValueError: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING

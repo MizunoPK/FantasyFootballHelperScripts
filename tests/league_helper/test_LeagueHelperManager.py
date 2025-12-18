@@ -69,12 +69,16 @@ class TestLeagueHelperManagerInit:
                 'logger_instance': logger_instance
             }
 
-    def test_init_creates_config_manager(self, mock_data_folder, mock_managers):
-        """Test that initialization creates ConfigManager with correct path."""
+    def test_init_creates_config_managers(self, mock_data_folder, mock_managers):
+        """Test that initialization creates both ConfigManagers with correct paths."""
         manager = LeagueHelperManager(mock_data_folder)
 
-        mock_managers['config'].assert_called_once_with(mock_data_folder)
+        # Should create two ConfigManagers: one for week-specific, one for draft
+        assert mock_managers['config'].call_count == 2
+        mock_managers['config'].assert_any_call(mock_data_folder)
+        mock_managers['config'].assert_any_call(mock_data_folder, use_draft_config=True)
         assert manager.config == mock_managers['config_instance']
+        assert manager.draft_config == mock_managers['config_instance']
 
     def test_init_creates_team_data_manager(self, mock_data_folder, mock_managers):
         """Test that initialization creates TeamDataManager with correct dependencies."""
@@ -89,44 +93,49 @@ class TestLeagueHelperManagerInit:
         )
         assert manager.team_data_manager is not None
 
-    def test_init_creates_player_manager(self, mock_data_folder, mock_managers):
-        """Test that initialization creates PlayerManager with correct dependencies."""
+    def test_init_creates_player_managers(self, mock_data_folder, mock_managers):
+        """Test that initialization creates both PlayerManagers with correct dependencies."""
         manager = LeagueHelperManager(mock_data_folder)
 
-        mock_managers['player'].assert_called_once_with(
+        # Should create two PlayerManagers: one for week-specific, one for draft
+        assert mock_managers['player'].call_count == 2
+        # Both use same data folder, team data, and season schedule - only config differs
+        mock_managers['player'].assert_any_call(
             mock_data_folder,
             mock_managers['config_instance'],
             mock_managers['team_data'].return_value,
             mock_managers['season_schedule'].return_value
         )
         assert manager.player_manager == mock_managers['player_instance']
+        assert manager.draft_player_manager == mock_managers['player_instance']
 
     def test_init_creates_all_mode_managers(self, mock_data_folder, mock_managers):
         """Test that initialization creates all four mode managers."""
         manager = LeagueHelperManager(mock_data_folder)
 
-        # Verify Add to Roster mode manager
+        # Verify Add to Roster mode manager - uses draft config/player manager for ROS predictions
+        # Note: Both config and draft_config return same mock instance in tests
         mock_managers['add_roster'].assert_called_once_with(
-            mock_managers['config_instance'],
-            mock_managers['player_instance'],
+            mock_managers['config_instance'],  # draft_config (same mock instance)
+            mock_managers['player_instance'],  # draft_player_manager (same mock instance)
             mock_managers['team_data'].return_value
         )
 
-        # Verify Starter Helper mode manager
+        # Verify Starter Helper mode manager - uses week-specific config
         mock_managers['starter'].assert_called_once_with(
             mock_managers['config_instance'],
             mock_managers['player_instance'],
             mock_managers['team_data'].return_value
         )
 
-        # Verify Trade Simulator mode manager
+        # Verify Trade Simulator mode manager - uses week-specific config
         mock_managers['trade'].assert_called_once_with(
             mock_data_folder,
             mock_managers['player_instance'],
             mock_managers['config_instance']
         )
 
-        # Verify Modify Player Data mode manager
+        # Verify Modify Player Data mode manager - uses week-specific player manager
         mock_managers['modify'].assert_called_once_with(
             mock_managers['player_instance'],
             mock_data_folder
@@ -300,11 +309,11 @@ class TestModeDelegation:
             yield manager
 
     def test_run_add_to_roster_mode_delegates_correctly(self, mock_manager):
-        """Test that _run_add_to_roster_mode passes correct managers."""
+        """Test that _run_add_to_roster_mode passes draft player manager for ROS scoring."""
         mock_manager._run_add_to_roster_mode()
 
         mock_manager.add_to_roster_mode_manager.start_interactive_mode.assert_called_once_with(
-            mock_manager.player_manager,
+            mock_manager.draft_player_manager,  # Uses draft player manager for ROS predictions
             mock_manager.team_data_manager
         )
 

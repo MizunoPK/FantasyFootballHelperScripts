@@ -93,6 +93,13 @@ def temp_data_folder(tmp_path):
     if source_configs_folder.exists():
         # Copy the entire configs folder
         shutil.copytree(source_configs_folder, dest_configs_folder)
+        # Ensure draft_config.json exists (may not exist yet if accuracy simulation hasn't been run)
+        draft_config_path = dest_configs_folder / "draft_config.json"
+        if not draft_config_path.exists():
+            # Copy week1-5.json as draft_config.json for testing
+            week_config_path = dest_configs_folder / "week1-5.json"
+            if week_config_path.exists():
+                shutil.copy(week_config_path, draft_config_path)
     else:
         # Create minimal config folder structure if source doesn't exist
         dest_configs_folder.mkdir()
@@ -180,6 +187,10 @@ def temp_data_folder(tmp_path):
         (dest_configs_folder / "week6-9.json").write_text(week_params_base)
         (dest_configs_folder / "week10-13.json").write_text(week_params_base)
         (dest_configs_folder / "week14-17.json").write_text(week_params_base)
+
+        # Write draft_config.json for Add to Roster Mode (uses ROS predictions)
+        # Same as week configs for testing - in production this would be optimized separately
+        (dest_configs_folder / "draft_config.json").write_text(week_params_base)
 
     return data_folder
 

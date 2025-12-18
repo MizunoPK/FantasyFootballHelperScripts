@@ -1,0 +1,6 @@
+player_id,player_name,position,team,projected_points
+1,Test QB1,QB,KC,300.0
+2,Test RB1,RB,BUF,250.0
+3,Test WR1,WR,MIA,200.0
+4,Test TE1,TE,BAL,150.0
+5,Test K1,K,DAL,100.0
