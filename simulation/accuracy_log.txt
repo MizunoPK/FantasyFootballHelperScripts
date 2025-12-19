@@ -317,3 +317,265 @@ Traceback (most recent call last):
     ordered_results = [(cfg, config_to_result[str(cfg)][1]) for cfg in configs]
                              ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
 KeyError: 1
+2025-12-18 21:25:07 - accuracy_simulation - INFO - main:248 - Using baseline config: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-18 21:25:07 - accuracy_simulation - INFO - __init__:98 - Initializing AccuracySimulationManager
+2025-12-18 21:25:07 - accuracy_simulation - INFO - __init__:398 - Initializing ConfigGenerator with baseline folder: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-18 21:25:07 - accuracy_simulation - INFO - __init__:399 - Test values per parameter: 1 (total values: 2)
+2025-12-18 21:25:07 - accuracy_simulation - INFO - load_baseline_from_folder:364 - Loaded 5 horizon configs from folder: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-18 21:25:07 - accuracy_simulation - INFO - __init__:411 - ConfigGenerator initialized successfully with 5 horizon configs
+2025-12-18 21:25:07 - accuracy_simulation - INFO - __init__:188 - AccuracyResultsManager initialized: simulation/simulation_configs
+2025-12-18 21:25:07 - accuracy_simulation - INFO - __init__:133 - Discovered 3 historical seasons: ['2021', '2022', '2024']
+2025-12-18 21:25:07 - accuracy_simulation - INFO - __init__:139 - AccuracySimulationManager initialized: 64 configs/param
+2025-12-18 21:25:07 - accuracy_simulation - INFO - run_both:835 - Resuming from parameter 4
+2025-12-18 21:25:07 - accuracy_simulation - INFO - load_intermediate_results:576 - Loaded 1 intermediate configs from simulation/simulation_configs/accuracy_intermediate_02_TEAM_QUALITY_MIN_WEEKS
+2025-12-18 21:25:07 - accuracy_simulation - INFO - run_both:857 - Optimizing parameter 5/16: PERFORMANCE_SCORING_STEPS
+2025-12-18 21:25:07 - accuracy_simulation - INFO - run_both:858 -   Evaluating 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:25:07 - accuracy_simulation - INFO - evaluate_configs_parallel:313 - Starting parallel evaluation: 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:25:07 - accuracy_simulation - INFO - evaluate_configs_parallel:314 - Using ProcessPoolExecutor with 2 workers
+2025-12-18 21:25:07 - accuracy_simulation - ERROR - evaluate_configs_parallel:344 - Config evaluation failed: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 94, in _evaluate_config_ros_worker
+    player_mgr = _create_player_manager(config_dict, projected_path.parent, season_path)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 244, in _create_player_manager
+    config_mgr = ConfigManager(temp_dir)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 234, in __init__
+    self._load_config()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 975, in _load_config
+    self._extract_parameters()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 1027, in _extract_parameters
+    raise ValueError(
+        f"Config missing required parameters: {', '.join(missing_params)}"
+    )
+ValueError: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 335, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+ValueError: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING
+2025-12-18 21:25:09 - accuracy_simulation - ERROR - main:300 - Simulation failed: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 94, in _evaluate_config_ros_worker
+    player_mgr = _create_player_manager(config_dict, projected_path.parent, season_path)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 244, in _create_player_manager
+    config_mgr = ConfigManager(temp_dir)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 234, in __init__
+    self._load_config()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 975, in _load_config
+    self._extract_parameters()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 1027, in _extract_parameters
+    raise ValueError(
+        f"Config missing required parameters: {', '.join(missing_params)}"
+    )
+ValueError: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/run_accuracy_simulation.py", line 286, in main
+    optimal_path = manager.run_both()
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 894, in run_both
+    evaluation_results = self.parallel_runner.evaluate_configs_parallel(
+        configs_to_evaluate,
+        progress_callback=progress_update
+    )
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 335, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+ValueError: Config missing required parameters: NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, MATCHUP_SCORING
+2025-12-18 21:26:00 - accuracy_simulation - INFO - main:248 - Using baseline config: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-18 21:26:00 - accuracy_simulation - INFO - __init__:98 - Initializing AccuracySimulationManager
+2025-12-18 21:26:00 - accuracy_simulation - INFO - __init__:398 - Initializing ConfigGenerator with baseline folder: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-18 21:26:00 - accuracy_simulation - INFO - __init__:399 - Test values per parameter: 1 (total values: 2)
+2025-12-18 21:26:00 - accuracy_simulation - INFO - load_baseline_from_folder:364 - Loaded 5 horizon configs from folder: simulation/simulation_configs/accuracy_optimal_2025-12-16_12-05-55
+2025-12-18 21:26:00 - accuracy_simulation - INFO - __init__:411 - ConfigGenerator initialized successfully with 5 horizon configs
+2025-12-18 21:26:00 - accuracy_simulation - INFO - __init__:188 - AccuracyResultsManager initialized: simulation/simulation_configs
+2025-12-18 21:26:00 - accuracy_simulation - INFO - __init__:133 - Discovered 3 historical seasons: ['2021', '2022', '2024']
+2025-12-18 21:26:00 - accuracy_simulation - INFO - __init__:139 - AccuracySimulationManager initialized: 64 configs/param
+2025-12-18 21:26:00 - accuracy_simulation - INFO - run_both:857 - Optimizing parameter 1/16: NORMALIZATION_MAX_SCALE
+2025-12-18 21:26:00 - accuracy_simulation - INFO - run_both:858 -   Evaluating 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:26:00 - accuracy_simulation - INFO - evaluate_configs_parallel:313 - Starting parallel evaluation: 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:26:00 - accuracy_simulation - INFO - evaluate_configs_parallel:314 - Using ProcessPoolExecutor with 2 workers
+2025-12-18 21:26:01 - accuracy_simulation - ERROR - evaluate_configs_parallel:344 - Config evaluation failed: Config missing required parameters: PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, PERFORMANCE_SCORING, MATCHUP_SCORING
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 94, in _evaluate_config_ros_worker
+    player_mgr = _create_player_manager(config_dict, projected_path.parent, season_path)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 244, in _create_player_manager
+    config_mgr = ConfigManager(temp_dir)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 234, in __init__
+    self._load_config()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 975, in _load_config
+    self._extract_parameters()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 1027, in _extract_parameters
+    raise ValueError(
+        f"Config missing required parameters: {', '.join(missing_params)}"
+    )
+ValueError: Config missing required parameters: PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, PERFORMANCE_SCORING, MATCHUP_SCORING
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 335, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+ValueError: Config missing required parameters: PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, PERFORMANCE_SCORING, MATCHUP_SCORING
+2025-12-18 21:26:02 - accuracy_simulation - ERROR - main:300 - Simulation failed: Config missing required parameters: PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, PERFORMANCE_SCORING, MATCHUP_SCORING
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 94, in _evaluate_config_ros_worker
+    player_mgr = _create_player_manager(config_dict, projected_path.parent, season_path)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 244, in _create_player_manager
+    config_mgr = ConfigManager(temp_dir)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 234, in __init__
+    self._load_config()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 975, in _load_config
+    self._extract_parameters()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/league_helper/util/ConfigManager.py", line 1027, in _extract_parameters
+    raise ValueError(
+        f"Config missing required parameters: {', '.join(missing_params)}"
+    )
+ValueError: Config missing required parameters: PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, PERFORMANCE_SCORING, MATCHUP_SCORING
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/run_accuracy_simulation.py", line 286, in main
+    optimal_path = manager.run_both()
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 894, in run_both
+    evaluation_results = self.parallel_runner.evaluate_configs_parallel(
+        configs_to_evaluate,
+        progress_callback=progress_update
+    )
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 335, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+ValueError: Config missing required parameters: PLAYER_RATING_SCORING, TEAM_QUALITY_SCORING, PERFORMANCE_SCORING, MATCHUP_SCORING
+2025-12-18 21:27:04 - accuracy_simulation - INFO - main:248 - Using baseline config: simulation/simulation_configs/optimal_iterative_20251211_092353
+2025-12-18 21:27:04 - accuracy_simulation - INFO - __init__:98 - Initializing AccuracySimulationManager
+2025-12-18 21:27:04 - accuracy_simulation - INFO - __init__:398 - Initializing ConfigGenerator with baseline folder: simulation/simulation_configs/optimal_iterative_20251211_092353
+2025-12-18 21:27:04 - accuracy_simulation - INFO - __init__:399 - Test values per parameter: 1 (total values: 2)
+2025-12-18 21:27:04 - accuracy_simulation - INFO - load_baseline_from_folder:364 - Loaded 5 horizon configs from folder: simulation/simulation_configs/optimal_iterative_20251211_092353
+2025-12-18 21:27:04 - accuracy_simulation - INFO - __init__:411 - ConfigGenerator initialized successfully with 5 horizon configs
+2025-12-18 21:27:04 - accuracy_simulation - INFO - __init__:188 - AccuracyResultsManager initialized: simulation/simulation_configs
+2025-12-18 21:27:04 - accuracy_simulation - INFO - __init__:133 - Discovered 3 historical seasons: ['2021', '2022', '2024']
+2025-12-18 21:27:04 - accuracy_simulation - INFO - __init__:139 - AccuracySimulationManager initialized: 64 configs/param
+2025-12-18 21:27:04 - accuracy_simulation - INFO - run_both:857 - Optimizing parameter 1/16: NORMALIZATION_MAX_SCALE
+2025-12-18 21:27:04 - accuracy_simulation - INFO - run_both:858 -   Evaluating 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:27:04 - accuracy_simulation - INFO - evaluate_configs_parallel:313 - Starting parallel evaluation: 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:27:04 - accuracy_simulation - INFO - evaluate_configs_parallel:314 - Using ProcessPoolExecutor with 2 workers
+2025-12-18 21:27:05 - accuracy_simulation - ERROR - evaluate_configs_parallel:344 - Config evaluation failed: 'PlayerManager' object has no attribute 'get_all_players'
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 101, in _evaluate_config_ros_worker
+    for player in player_mgr.get_all_players():
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'PlayerManager' object has no attribute 'get_all_players'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 335, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+AttributeError: 'PlayerManager' object has no attribute 'get_all_players'
+2025-12-18 21:27:07 - accuracy_simulation - ERROR - main:300 - Simulation failed: 'PlayerManager' object has no attribute 'get_all_players'
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 101, in _evaluate_config_ros_worker
+    for player in player_mgr.get_all_players():
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'PlayerManager' object has no attribute 'get_all_players'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/run_accuracy_simulation.py", line 286, in main
+    optimal_path = manager.run_both()
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 894, in run_both
+    evaluation_results = self.parallel_runner.evaluate_configs_parallel(
+        configs_to_evaluate,
+        progress_callback=progress_update
+    )
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 335, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+AttributeError: 'PlayerManager' object has no attribute 'get_all_players'

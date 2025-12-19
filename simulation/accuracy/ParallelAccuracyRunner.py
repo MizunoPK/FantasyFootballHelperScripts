@@ -98,7 +98,7 @@ def _evaluate_config_ros_worker(
             projections = {}
             actuals = {}
 
-            for player in player_mgr.get_all_players():
+            for player in player_mgr.players:
                 # Week 1 projection
                 projected = player.total_score
                 if projected > 0:
@@ -157,7 +157,7 @@ def _evaluate_config_weekly_worker(
             week_projections = {}
             week_actuals = {}
 
-            for player in player_mgr.get_all_players():
+            for player in player_mgr.players:
                 # Use start week projection
                 projected = player.total_score
                 if projected > 0:
@@ -189,8 +189,13 @@ def _evaluate_config_weekly_worker(
 
 def _load_season_data(season_path: Path, week_num: int) -> Tuple[Path, Path]:
     """Load projected and actual data paths for a given week."""
-    projected_path = season_path / f"players_week{week_num}.csv"
-    actual_path = season_path / "players_actual.csv"
+    week_folder = season_path / "weeks" / f"week_{week_num:02d}"
+
+    if not week_folder.exists():
+        return None, None
+
+    projected_path = week_folder / "players_projected.csv"
+    actual_path = week_folder / "players.csv"
 
     if not projected_path.exists() or not actual_path.exists():
         return None, None
@@ -198,25 +203,34 @@ def _load_season_data(season_path: Path, week_num: int) -> Tuple[Path, Path]:
     return projected_path, actual_path
 
 
-def _create_player_manager(config_dict: dict, data_dir: Path, season_path: Path) -> PlayerManager:
-    """Create PlayerManager with temporary config file."""
+def _create_player_manager(config_dict: dict, week_data_path: Path, season_path: Path) -> PlayerManager:
+    """
+    Create PlayerManager with temporary config file.
+
+    Args:
+        config_dict: Configuration dictionary
+        week_data_path: Path to week folder containing players.csv, players_projected.csv
+        season_path: Path to season folder containing season_schedule.csv, team_data/
+    """
     # Create temp directory
     temp_dir = Path(tempfile.mkdtemp(prefix="accuracy_sim_"))
 
-    # Copy required files
-    players_csv = data_dir / "players_week1.csv"
-    if players_csv.exists():
-        shutil.copy(players_csv, temp_dir / "players.csv")
+    # Copy player data files from week folder
+    for file in week_data_path.iterdir():
+        if file.suffix == '.csv':
+            shutil.copy(file, temp_dir / file.name)
 
-    actual_csv = data_dir / "players_actual.csv"
-    if actual_csv.exists():
-        shutil.copy(actual_csv, temp_dir / "players_actual.csv")
+    # Copy season_schedule.csv from season folder
+    season_schedule = season_path / "season_schedule.csv"
+    if season_schedule.exists():
+        shutil.copy(season_schedule, temp_dir / "season_schedule.csv")
 
+    # Copy game_data.csv from season folder if exists
     game_data = season_path / "game_data.csv"
     if game_data.exists():
         shutil.copy(game_data, temp_dir / "game_data.csv")
 
-    # Copy team_data folder
+    # Copy team_data folder from season folder
     team_data_source = season_path / "team_data"
     if team_data_source.exists():
         shutil.copytree(team_data_source, temp_dir / "team_data")
