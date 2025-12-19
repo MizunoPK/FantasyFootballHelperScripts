@@ -38,7 +38,7 @@ from utils.LoggingManager import setup_logger, get_logger
 
 
 # Logging Configuration
-LOGGING_LEVEL = "DEBUG"
+DEFAULT_LOG_LEVEL = 'info'       # Default log level (overridable with --log-level flag)
 LOGGING_TO_FILE = True           # True = log to file, False = log to console
 LOG_NAME = "accuracy_simulation"
 LOGGING_FILE = "./simulation/accuracy_log.txt"  # Log file path (only used if LOGGING_TO_FILE=True)
@@ -200,10 +200,21 @@ def main() -> None:
         help='Use ThreadPoolExecutor instead of processes (slower, for debugging)'
     )
 
+    parser.add_argument(
+        '--log-level',
+        choices=['debug', 'info', 'warning', 'error'],
+        default=DEFAULT_LOG_LEVEL,
+        help=f'Logging level (default: {DEFAULT_LOG_LEVEL}). '
+             'debug: all evaluations + parameter updates + worker activity. '
+             'info: new bests + parameter completion + summaries. '
+             'warning: warnings only. '
+             'error: errors only.'
+    )
+
     args = parser.parse_args()
 
-    # Setup logging
-    setup_logger(LOG_NAME, LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE, LOGGING_FORMAT)
+    # Setup logging with dynamic log level from CLI
+    setup_logger(LOG_NAME, args.log_level.upper(), LOGGING_TO_FILE, LOGGING_FILE, LOGGING_FORMAT)
     logger = get_logger()
 
     # Convert string paths to Path objects
