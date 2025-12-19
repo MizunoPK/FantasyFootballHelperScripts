@@ -830,17 +830,15 @@ class AccuracySimulationManager:
 
         try:
             # Auto-resume detection
-            resume_param_idx = self._detect_resume_state()
-            if resume_param_idx is not None:
+            should_resume, resume_param_idx, last_config_path = self._detect_resume_state()
+            if should_resume:
                 self.logger.info(f"Resuming from parameter {resume_param_idx + 1}")
-                self.results_manager.load_intermediate_results(
-                    self.intermediate_folder / f"accuracy_intermediate_{resume_param_idx:02d}_{self.parameter_order[resume_param_idx]}"
-                )
+                self.results_manager.load_intermediate_results(last_config_path)
 
             # Main optimization loop
             for param_idx, param_name in enumerate(self.parameter_order):
                 # Skip if resuming and before resume point
-                if resume_param_idx is not None and param_idx <= resume_param_idx:
+                if should_resume and param_idx <= resume_param_idx:
                     continue
 
                 # Generate test values for all 5 horizons
