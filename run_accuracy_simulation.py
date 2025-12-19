@@ -51,6 +51,10 @@ DEFAULT_DATA = 'simulation/sim_data'
 DEFAULT_TEST_VALUES = 20          # Number of test values per parameter
 NUM_PARAMETERS_TO_TEST = 1       # Number of parameters to test simultaneously
 
+# Parallel processing defaults
+DEFAULT_MAX_WORKERS = 8
+DEFAULT_USE_PROCESSES = True
+
 
 # Parameters to optimize for accuracy (16 prediction params)
 # These affect how projected points are calculated, NOT draft strategy
@@ -174,6 +178,28 @@ def main() -> None:
         help=f"Number of parameters to test at once (default: {NUM_PARAMETERS_TO_TEST})"
     )
 
+    parser.add_argument(
+        '--max-workers',
+        type=int,
+        default=DEFAULT_MAX_WORKERS,
+        help=f'Number of parallel workers for config evaluation (default: {DEFAULT_MAX_WORKERS})'
+    )
+
+    parser.add_argument(
+        '--use-processes',
+        dest='use_processes',
+        action='store_true',
+        default=DEFAULT_USE_PROCESSES,
+        help='Use ProcessPoolExecutor for true parallelism (default, bypasses GIL)'
+    )
+
+    parser.add_argument(
+        '--no-use-processes',
+        dest='use_processes',
+        action='store_false',
+        help='Use ThreadPoolExecutor instead of processes (slower, for debugging)'
+    )
+
     args = parser.parse_args()
 
     # Setup logging
@@ -236,7 +262,9 @@ def main() -> None:
             data_folder=data_path,
             parameter_order=PARAMETER_ORDER,
             num_test_values=args.test_values,
-            num_parameters_to_test=args.num_params
+            num_parameters_to_test=args.num_params,
+            max_workers=args.max_workers,
+            use_processes=args.use_processes
         )
     except Exception as e:
         logger.error(f"Failed to initialize AccuracySimulationManager: {e}")

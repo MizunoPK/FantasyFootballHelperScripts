@@ -77,7 +77,9 @@ class AccuracySimulationManager:
         data_folder: Path,
         parameter_order: List[str],
         num_test_values: int = 5,
-        num_parameters_to_test: int = 1
+        num_parameters_to_test: int = 1,
+        max_workers: int = 8,
+        use_processes: bool = True
     ) -> None:
         """
         Initialize AccuracySimulationManager.
@@ -89,6 +91,8 @@ class AccuracySimulationManager:
             parameter_order (List[str]): List of parameter names defining optimization order
             num_test_values (int): Number of test values per parameter
             num_parameters_to_test (int): Number of parameters to test at once
+            max_workers (int): Number of parallel workers for config evaluation
+            use_processes (bool): Use ProcessPoolExecutor (True) or ThreadPoolExecutor (False)
         """
         self.logger = get_logger()
         self.logger.info("Initializing AccuracySimulationManager")
@@ -99,6 +103,12 @@ class AccuracySimulationManager:
         self.parameter_order = parameter_order
         self.num_test_values = num_test_values
         self.num_parameters_to_test = num_parameters_to_test
+
+        # Parallel processing
+        self.max_workers = max_workers
+        self.use_processes = use_processes
+        self.parallel_runner = None  # Lazy initialization
+        self.progress_tracker = None  # Created per parameter
 
         # Track current optimal config for graceful shutdown
         self._current_optimal_config_path: Optional[Path] = None
@@ -833,8 +843,6 @@ class AccuracySimulationManager:
                 if resume_param_idx is not None and param_idx <= resume_param_idx:
                     continue
 
-                self.logger.info(f"Optimizing parameter {param_idx + 1}/{len(self.parameter_order)}: {param_name}")
-
                 # Generate test values for all 5 horizons
                 test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
                 # Returns: {'ros': [...], '1-5': [...], '6-9': [...], '10-13': [...], '14-17': [...]}
@@ -844,34 +852,73 @@ class AccuracySimulationManager:
                     if len(test_values) == 0:
                         raise ValueError(f"No test values generated for parameter {param_name}, horizon {horizon}")
 
-                # Evaluate all configs across all horizons
+                # Calculate total configs and evaluations for progress tracking
+                total_configs = sum(len(vals) for vals in test_values_dict.values())
+                total_evaluations = total_configs * 5  # Each config × 5 horizons
+
+                self.logger.info(f"Optimizing parameter {param_idx + 1}/{len(self.parameter_order)}: {param_name}")
+                self.logger.info(f"  Evaluating {total_configs} configs × 5 horizons = {total_evaluations} total evaluations")
+
+                # Create progress tracker
+                from simulation.shared.ProgressTracker import MultiLevelProgressTracker
+                self.progress_tracker = MultiLevelProgressTracker(
+                    outer_total=total_configs,
+                    inner_total=5,
+                    outer_desc="Configs",
+                    inner_desc="Horizons"
+                )
+
+                # Collect all configs to evaluate
+                configs_to_evaluate = []
+                config_metadata = []  # Track (horizon, test_idx) for each config
+
                 for horizon, test_values in test_values_dict.items():
-                    self.logger.info(f"  Testing {len(test_values)} values for horizon {horizon}")
-
                     for test_idx, test_value in enumerate(test_values):
-                        # Get config for this horizon and test value
                         config_dict = self.config_generator.get_config_for_horizon(horizon, param_name, test_idx)
+                        configs_to_evaluate.append(config_dict)
+                        config_metadata.append((horizon, test_idx))
 
-                        # Evaluate across all 5 horizons
-                        all_results = self._evaluate_config_tournament(config_dict, horizon)
+                # Initialize parallel runner (lazy)
+                if self.parallel_runner is None:
+                    from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+                    self.parallel_runner = ParallelAccuracyRunner(
+                        self.data_folder,
+                        self.available_seasons,
+                        max_workers=self.max_workers,
+                        use_processes=self.use_processes
+                    )
 
-                        # Record results for each horizon
-                        for result_horizon, result in all_results.items():
-                            is_new_best = self.results_manager.add_result(
-                                result_horizon,
-                                config_dict,
-                                result,
-                                param_name=param_name,
-                                test_idx=test_idx,
-                                base_horizon=horizon
-                            )
+                # Progress callback
+                def progress_update(completed):
+                    self.progress_tracker.next_outer()  # Increment outer level
 
-                            # Log new bests (Q25 decision)
-                            if is_new_best:
-                                self.logger.info(f"    New best for {result_horizon}: MAE={result.mae:.4f} (test_{test_idx})")
+                # Evaluate all configs in parallel with progress tracking
+                evaluation_results = self.parallel_runner.evaluate_configs_parallel(
+                    configs_to_evaluate,
+                    progress_callback=progress_update
+                )
+
+                # Close progress tracker
+                self.progress_tracker.close()
+
+                # Record all results
+                for (config_dict, results_dict), (horizon, test_idx) in zip(evaluation_results, config_metadata):
+                    # Record results for each horizon
+                    for result_horizon, result in results_dict.items():
+                        is_new_best = self.results_manager.add_result(
+                            result_horizon,
+                            config_dict,
+                            result,
+                            param_name=param_name,
+                            test_idx=test_idx,
+                            base_horizon=horizon
+                        )
+
+                        # Log new bests
+                        if is_new_best:
+                            self.logger.info(f"    New best for {result_horizon}: MAE={result.mae:.4f} (test_{test_idx})")
 
                 # After all configs tested, save intermediate results
-                intermediate_folder = self.intermediate_folder / f"accuracy_intermediate_{param_idx:02d}_{param_name}"
                 self.results_manager.save_intermediate_results(
                     param_idx,
                     param_name
