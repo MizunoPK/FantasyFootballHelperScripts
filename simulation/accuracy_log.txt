@@ -579,3 +579,151 @@ Traceback (most recent call last):
   File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
     raise self._exception
 AttributeError: 'PlayerManager' object has no attribute 'get_all_players'
+2025-12-18 21:34:31 - accuracy_simulation - INFO - main:248 - Using baseline config: simulation/simulation_configs/accuracy_baseline_root_data
+2025-12-18 21:34:31 - accuracy_simulation - INFO - __init__:98 - Initializing AccuracySimulationManager
+2025-12-18 21:34:31 - accuracy_simulation - INFO - __init__:398 - Initializing ConfigGenerator with baseline folder: simulation/simulation_configs/accuracy_baseline_root_data
+2025-12-18 21:34:31 - accuracy_simulation - INFO - __init__:399 - Test values per parameter: 1 (total values: 2)
+2025-12-18 21:34:31 - accuracy_simulation - INFO - load_baseline_from_folder:364 - Loaded 5 horizon configs from folder: simulation/simulation_configs/accuracy_baseline_root_data
+2025-12-18 21:34:31 - accuracy_simulation - INFO - __init__:411 - ConfigGenerator initialized successfully with 5 horizon configs
+2025-12-18 21:34:31 - accuracy_simulation - INFO - __init__:188 - AccuracyResultsManager initialized: simulation/simulation_configs
+2025-12-18 21:34:31 - accuracy_simulation - INFO - __init__:133 - Discovered 3 historical seasons: ['2021', '2022', '2024']
+2025-12-18 21:34:31 - accuracy_simulation - INFO - __init__:139 - AccuracySimulationManager initialized: 64 configs/param
+2025-12-18 21:34:31 - accuracy_simulation - INFO - run_both:857 - Optimizing parameter 1/16: NORMALIZATION_MAX_SCALE
+2025-12-18 21:34:31 - accuracy_simulation - INFO - run_both:858 -   Evaluating 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:34:31 - accuracy_simulation - INFO - evaluate_configs_parallel:313 - Starting parallel evaluation: 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:34:31 - accuracy_simulation - INFO - evaluate_configs_parallel:314 - Using ProcessPoolExecutor with 2 workers
+2025-12-18 21:34:32 - accuracy_simulation - ERROR - evaluate_configs_parallel:344 - Config evaluation failed: 'FantasyPlayer' object has no attribute 'total_score'
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 103, in _evaluate_config_ros_worker
+    projected = player.total_score
+                ^^^^^^^^^^^^^^^^^^
+AttributeError: 'FantasyPlayer' object has no attribute 'total_score'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 335, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+AttributeError: 'FantasyPlayer' object has no attribute 'total_score'
+2025-12-18 21:34:33 - accuracy_simulation - ERROR - main:300 - Simulation failed: 'FantasyPlayer' object has no attribute 'total_score'
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 103, in _evaluate_config_ros_worker
+    projected = player.total_score
+                ^^^^^^^^^^^^^^^^^^
+AttributeError: 'FantasyPlayer' object has no attribute 'total_score'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/run_accuracy_simulation.py", line 286, in main
+    optimal_path = manager.run_both()
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 894, in run_both
+    evaluation_results = self.parallel_runner.evaluate_configs_parallel(
+        configs_to_evaluate,
+        progress_callback=progress_update
+    )
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 335, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+AttributeError: 'FantasyPlayer' object has no attribute 'total_score'
+2025-12-18 21:35:52 - accuracy_simulation - INFO - main:248 - Using baseline config: simulation/simulation_configs/accuracy_baseline_root_data
+2025-12-18 21:35:52 - accuracy_simulation - INFO - __init__:98 - Initializing AccuracySimulationManager
+2025-12-18 21:35:52 - accuracy_simulation - INFO - __init__:398 - Initializing ConfigGenerator with baseline folder: simulation/simulation_configs/accuracy_baseline_root_data
+2025-12-18 21:35:52 - accuracy_simulation - INFO - __init__:399 - Test values per parameter: 1 (total values: 2)
+2025-12-18 21:35:52 - accuracy_simulation - INFO - load_baseline_from_folder:364 - Loaded 5 horizon configs from folder: simulation/simulation_configs/accuracy_baseline_root_data
+2025-12-18 21:35:52 - accuracy_simulation - INFO - __init__:411 - ConfigGenerator initialized successfully with 5 horizon configs
+2025-12-18 21:35:52 - accuracy_simulation - INFO - __init__:188 - AccuracyResultsManager initialized: simulation/simulation_configs
+2025-12-18 21:35:52 - accuracy_simulation - INFO - __init__:133 - Discovered 3 historical seasons: ['2021', '2022', '2024']
+2025-12-18 21:35:52 - accuracy_simulation - INFO - __init__:139 - AccuracySimulationManager initialized: 64 configs/param
+2025-12-18 21:35:52 - accuracy_simulation - INFO - run_both:857 - Optimizing parameter 1/16: NORMALIZATION_MAX_SCALE
+2025-12-18 21:35:52 - accuracy_simulation - INFO - run_both:858 -   Evaluating 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:35:52 - accuracy_simulation - INFO - evaluate_configs_parallel:347 - Starting parallel evaluation: 10 configs × 5 horizons = 50 total evaluations
+2025-12-18 21:35:52 - accuracy_simulation - INFO - evaluate_configs_parallel:348 - Using ProcessPoolExecutor with 2 workers
+2025-12-18 21:35:53 - accuracy_simulation - ERROR - evaluate_configs_parallel:378 - Config evaluation failed: 'int' object has no attribute 'get'
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 138, in _evaluate_config_ros_worker
+    result = calculator.calculate_mae(projections, actuals)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracyCalculator.py", line 94, in calculate_mae
+    projected = player.get('projected', 0)
+                ^^^^^^^^^^
+AttributeError: 'int' object has no attribute 'get'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 369, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+AttributeError: 'int' object has no attribute 'get'
+2025-12-18 21:35:56 - accuracy_simulation - ERROR - main:300 - Simulation failed: 'int' object has no attribute 'get'
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/concurrent/futures/process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 65, in _evaluate_config_tournament_process
+    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 138, in _evaluate_config_ros_worker
+    result = calculator.calculate_mae(projections, actuals)
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracyCalculator.py", line 94, in calculate_mae
+    projected = player.get('projected', 0)
+                ^^^^^^^^^^
+AttributeError: 'int' object has no attribute 'get'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/run_accuracy_simulation.py", line 286, in main
+    optimal_path = manager.run_both()
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/AccuracySimulationManager.py", line 894, in run_both
+    evaluation_results = self.parallel_runner.evaluate_configs_parallel(
+        configs_to_evaluate,
+        progress_callback=progress_update
+    )
+  File "/home/kai/code/FantasyFootballHelperScriptsRefactored/simulation/accuracy/ParallelAccuracyRunner.py", line 369, in evaluate_configs_parallel
+    result = future.result()
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+AttributeError: 'int' object has no attribute 'get'

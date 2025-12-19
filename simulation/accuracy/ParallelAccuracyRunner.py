@@ -99,26 +99,43 @@ def _evaluate_config_ros_worker(
             actuals = {}
 
             for player in player_mgr.players:
-                # Week 1 projection
-                projected = player.total_score
-                if projected > 0:
-                    projections[player.id] = projected
+                # Get scored player with projected points
+                # Use same flags as StarterHelperModeManager but with
+                # use_weekly_projection=False for season-long projections
+                scored = player_mgr.score_player(
+                    player,
+                    use_weekly_projection=False,  # Season-long projection
+                    adp=False,
+                    player_rating=False,
+                    team_quality=True,
+                    performance=True,
+                    matchup=True,
+                    schedule=False,
+                    bye=False,
+                    injury=False,
+                    temperature=True,
+                    wind=True,
+                    location=True
+                )
+                if scored:
+                    projections[player.id] = scored.projected_points
 
-                # Calculate actual season total
+                # Get actual season total by summing week_N_points
                 actual_total = 0.0
                 has_any_week = False
-
                 for week_num in range(1, 18):
-                    week_actual = player.get_points_for_week(week_num)
-                    if week_actual is not None and week_actual > 0:
-                        actual_total += week_actual
-                        has_any_week = True
+                    week_attr = f'week_{week_num}_points'
+                    if hasattr(player, week_attr):
+                        week_val = getattr(player, week_attr)
+                        if week_val is not None:
+                            actual_total += week_val
+                            has_any_week = True
 
                 if has_any_week and actual_total > 0:
                     actuals[player.id] = actual_total
 
             # Calculate MAE for this season
-            result = calculator.calculate_mae(projections, actuals)
+            result = calculator.calculate_ros_mae(projections, actuals)
             season_results.append((season_path.name, result))
 
         finally:
@@ -140,48 +157,65 @@ def _evaluate_config_weekly_worker(
 
     Replicates AccuracySimulationManager._evaluate_config_weekly() logic for parallel execution.
     """
-    season_results = []
     start_week, end_week = week_range
+    season_results = []
 
     for season_path in available_seasons:
-        # Load data for start week
-        projected_path, actual_path = _load_season_data(season_path, start_week)
-        if not projected_path:
-            continue
+        week_projections = {}
+        week_actuals = {}
 
-        # Create player manager
-        player_mgr = _create_player_manager(config_dict, projected_path.parent, season_path)
+        for week_num in range(start_week, end_week + 1):
+            projected_path, actual_path = _load_season_data(season_path, week_num)
+            if not projected_path:
+                continue
 
-        try:
-            # Calculate week-range projections vs actuals
-            week_projections = {}
-            week_actuals = {}
+            # Create player manager with this config
+            player_mgr = _create_player_manager(config_dict, projected_path.parent, season_path)
 
-            for player in player_mgr.players:
-                # Use start week projection
-                projected = player.total_score
-                if projected > 0:
-                    week_projections[player.id] = projected
+            try:
+                projections = {}
+                actuals = {}
 
-                # Sum actuals across week range
-                actual_total = 0.0
-                has_any_week = False
+                for player in player_mgr.players:
+                    # Get scored player with projected points
+                    # Use same flags as StarterHelperModeManager with
+                    # use_weekly_projection=True for weekly projections
+                    scored = player_mgr.score_player(
+                        player,
+                        use_weekly_projection=True,  # Weekly projection
+                        adp=False,
+                        player_rating=False,
+                        team_quality=True,
+                        performance=True,
+                        matchup=True,
+                        schedule=False,
+                        bye=False,
+                        injury=False,
+                        temperature=True,
+                        wind=True,
+                        location=True
+                    )
+                    if scored:
+                        projections[player.id] = scored.projected_points
 
-                for week_num in range(start_week, end_week + 1):
-                    week_actual = player.get_points_for_week(week_num)
-                    if week_actual is not None and week_actual > 0:
-                        actual_total += week_actual
-                        has_any_week = True
+                    # Get actual points for this specific week
+                    week_points_attr = f'week_{week_num}_points'
+                    if hasattr(player, week_points_attr):
+                        actual = getattr(player, week_points_attr)
+                        if actual is not None and actual > 0:
+                            actuals[player.id] = actual
 
-                if has_any_week and actual_total > 0:
-                    week_actuals[player.id] = actual_total
+                week_projections[week_num] = projections
+                week_actuals[week_num] = actuals
 
-            # Calculate MAE for this season's week range
-            result = calculator.calculate_mae(week_projections, week_actuals)
-            season_results.append((season_path.name, result))
+            finally:
+                _cleanup_player_manager(player_mgr)
 
-        finally:
-            _cleanup_player_manager(player_mgr)
+        # Calculate MAE for this season's week range
+        result = calculator.calculate_weekly_mae(
+            week_projections, week_actuals, week_range
+        )
+        season_results.append((season_path.name, result))
 
     # Aggregate across seasons
     return calculator.aggregate_season_results(season_results)
