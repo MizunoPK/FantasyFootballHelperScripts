@@ -4,29 +4,22 @@ Run Accuracy Simulation
 CLI tool for running accuracy simulation to find optimal scoring algorithm
 parameters. Evaluates prediction accuracy using MAE (Mean Absolute Error).
 
-Modes:
-- ros: Rest of Season mode - optimizes draft_config.json
-- weekly: Weekly mode - optimizes week1-5.json, week6-9.json, etc.
-- both: Runs both ROS and weekly (default)
+Uses tournament optimization where each parameter is optimized across ALL 5
+horizons (draft_config, week1-5, week6-9, week10-13, week14-17) before moving
+to the next parameter.
 
 Usage:
-    python run_accuracy_simulation.py [mode] [options]
+    python run_accuracy_simulation.py [options]
 
 Examples:
-    # Run both modes (default)
+    # Run with default settings
     python run_accuracy_simulation.py
 
-    # Run ROS mode only
-    python run_accuracy_simulation.py ros
-
-    # Run weekly mode only
-    python run_accuracy_simulation.py weekly
-
     # Run with custom baseline config
-    python run_accuracy_simulation.py both --baseline path/to/config.json
+    python run_accuracy_simulation.py --baseline path/to/config
 
     # Run with more test values per parameter
-    python run_accuracy_simulation.py both --test-values 7
+    python run_accuracy_simulation.py --test-values 7
 
 Author: Kai Mizuno
 """
@@ -52,7 +45,6 @@ LOGGING_FILE = "./simulation/accuracy_log.txt"  # Log file path (only used if LO
 LOGGING_FORMAT = "detailed"      # detailed / standard / simple
 
 # Simulation Configuration Defaults
-DEFAULT_MODE = 'both'
 DEFAULT_BASELINE = ''            # Empty = auto-detect most recent optimal config
 DEFAULT_OUTPUT = 'simulation/simulation_configs'
 DEFAULT_DATA = 'simulation/sim_data'
@@ -144,15 +136,7 @@ def find_baseline_config() -> Path:
 def main() -> None:
     """Main entry point for accuracy simulation."""
     parser = argparse.ArgumentParser(
-        description="Run accuracy simulation to find optimal scoring parameters"
-    )
-
-    parser.add_argument(
-        'mode',
-        nargs='?',
-        default=DEFAULT_MODE,
-        choices=['ros', 'weekly', 'both'],
-        help=f"Simulation mode: ros (Rest of Season), weekly, or both (default: {DEFAULT_MODE})"
+        description="Run accuracy simulation to find optimal scoring parameters using tournament optimization"
     )
 
     parser.add_argument(
@@ -234,9 +218,8 @@ def main() -> None:
     # Show configuration
     total_configs = (args.test_values + 1) ** 6
     print("\n" + "=" * 60)
-    print("ACCURACY SIMULATION")
+    print("ACCURACY SIMULATION - TOURNAMENT OPTIMIZATION")
     print("=" * 60)
-    print(f"Mode: {args.mode}")
     print(f"Baseline config: {baseline_path}")
     print(f"Output directory: {output_path}")
     print(f"Data folder: {data_path}")
@@ -261,15 +244,10 @@ def main() -> None:
 
     # Run simulation
     try:
-        if args.mode == 'ros':
-            optimal_path = manager.run_ros_optimization()
-        elif args.mode == 'weekly':
-            optimal_path = manager.run_weekly_optimization()
-        else:  # both
-            optimal_path = manager.run_both()
+        optimal_path = manager.run_both()
 
         print("\n" + "=" * 60)
-        print("SIMULATION COMPLETE")
+        print("TOURNAMENT OPTIMIZATION COMPLETE")
         print("=" * 60)
         print(f"Results saved to: {optimal_path}")
         print(manager.results_manager.get_summary())

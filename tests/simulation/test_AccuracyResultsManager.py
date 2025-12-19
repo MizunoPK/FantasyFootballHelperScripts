@@ -280,9 +280,11 @@ class TestAccuracyResultsManager:
         assert (intermediate_path / "draft_config.json").exists()
         # Week files copied from baseline since no results for them
         assert (intermediate_path / "week1-5.json").exists()
-        # No extra tracking files - only the 6 standard config files
+        # Metadata file for tournament mode tracking (new in Phase 2)
+        assert (intermediate_path / "metadata.json").exists()
+        # Config files + metadata.json = 7 files
         all_files = list(intermediate_path.glob("*.json"))
-        assert len(all_files) == 6  # league_config + draft_config + 4 week files
+        assert len(all_files) == 7  # league_config + draft_config + 4 week files + metadata.json
 
     def test_load_intermediate_results(self, results_manager, temp_dir):
         """Test loading intermediate results from standard config files."""

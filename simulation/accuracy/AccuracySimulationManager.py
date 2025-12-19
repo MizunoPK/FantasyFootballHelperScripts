@@ -526,6 +526,37 @@ class AccuracySimulationManager:
         # Aggregate across seasons
         return self.accuracy_calculator.aggregate_season_results(season_results)
 
+    def _evaluate_config_tournament(
+        self,
+        config_dict: dict,
+        horizon: str
+    ) -> Dict[str, AccuracyResult]:
+        """
+        Evaluate single config across all 5 horizons for tournament optimization.
+
+        Args:
+            config_dict: Configuration to evaluate
+            horizon: Base horizon this config was generated from ('ros', '1-5', etc.)
+
+        Returns:
+            Dict mapping each horizon to its AccuracyResult (using week_key format for add_result()):
+            {'ros': result_ros, 'week_1_5': result_1_5, 'week_6_9': result_6_9, 'week_10_13': result_10_13, 'week_14_17': result_14_17}
+        """
+        results = {}
+
+        # Evaluate ROS horizon
+        results['ros'] = self._evaluate_config_ros(config_dict)
+
+        # Evaluate all 4 weekly horizons
+        # CRITICAL: _evaluate_config_weekly() takes Tuple[int, int] not string!
+        # CRITICAL: Use week_key format (with underscores) to match add_result() expectations
+        # NOTE: WEEK_RANGES already imported at module level (line 45)
+
+        for week_key, week_range in WEEK_RANGES.items():
+            results[week_key] = self._evaluate_config_weekly(config_dict, week_range)
+
+        return results
+
     def run_ros_optimization(self) -> Path:
         """
         Run ROS (Rest of Season) optimization with auto-resume support.
@@ -772,20 +803,109 @@ class AccuracySimulationManager:
 
     def run_both(self) -> Path:
         """
-        Run both ROS and weekly optimization.
+        Run tournament optimization: each parameter optimizes across ALL 5 horizons.
+
+        For each parameter:
+        - Generate test configs from 5 baseline configs (one per horizon)
+        - Evaluate each config across all 5 horizons
+        - Track best config for each horizon independently
+        - Save intermediate results (all 5 best configs)
+        - Update baselines for next parameter
 
         Returns:
             Path: Path to optimal configuration folder
         """
-        self.logger.info("Starting combined accuracy optimization (ROS + Weekly)")
+        # Setup signal handlers (existing pattern)
+        self._setup_signal_handlers()
 
-        # Run ROS first
-        self.run_ros_optimization()
+        try:
+            # Auto-resume detection
+            resume_param_idx = self._detect_resume_state()
+            if resume_param_idx is not None:
+                self.logger.info(f"Resuming from parameter {resume_param_idx + 1}")
+                self.results_manager.load_intermediate_results(
+                    self.intermediate_folder / f"accuracy_intermediate_{resume_param_idx:02d}_{self.parameter_order[resume_param_idx]}"
+                )
 
-        # Run weekly
-        optimal_path = self.run_weekly_optimization()
+            # Main optimization loop
+            for param_idx, param_name in enumerate(self.parameter_order):
+                # Skip if resuming and before resume point
+                if resume_param_idx is not None and param_idx <= resume_param_idx:
+                    continue
 
-        # Print summary
-        print(self.results_manager.get_summary())
+                self.logger.info(f"Optimizing parameter {param_idx + 1}/{len(self.parameter_order)}: {param_name}")
 
-        return optimal_path
+                # Generate test values for all 5 horizons
+                test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
+                # Returns: {'ros': [...], '1-5': [...], '6-9': [...], '10-13': [...], '14-17': [...]}
+
+                # Check for empty test values (fail fast)
+                for horizon, test_values in test_values_dict.items():
+                    if len(test_values) == 0:
+                        raise ValueError(f"No test values generated for parameter {param_name}, horizon {horizon}")
+
+                # Evaluate all configs across all horizons
+                for horizon, test_values in test_values_dict.items():
+                    self.logger.info(f"  Testing {len(test_values)} values for horizon {horizon}")
+
+                    for test_idx, test_value in enumerate(test_values):
+                        # Get config for this horizon and test value
+                        config_dict = self.config_generator.get_config_for_horizon(horizon, param_name, test_idx)
+
+                        # Evaluate across all 5 horizons
+                        all_results = self._evaluate_config_tournament(config_dict, horizon)
+
+                        # Record results for each horizon
+                        for result_horizon, result in all_results.items():
+                            is_new_best = self.results_manager.add_result(
+                                result_horizon,
+                                config_dict,
+                                result,
+                                param_name=param_name,
+                                test_idx=test_idx,
+                                base_horizon=horizon
+                            )
+
+                            # Log new bests (Q25 decision)
+                            if is_new_best:
+                                self.logger.info(f"    New best for {result_horizon}: MAE={result.mae:.4f} (test_{test_idx})")
+
+                # After all configs tested, save intermediate results
+                intermediate_folder = self.intermediate_folder / f"accuracy_intermediate_{param_idx:02d}_{param_name}"
+                self.results_manager.save_intermediate_results(
+                    param_idx,
+                    param_name
+                )
+
+                # Update baselines for all 5 horizons
+                for week_key in ['ros', 'week_1_5', 'week_6_9', 'week_10_13', 'week_14_17']:
+                    best_perf = self.results_manager.best_configs.get(week_key)
+                    if best_perf is not None:
+                        self.config_generator.update_baseline_for_horizon(week_key, best_perf.config_dict)
+                    else:
+                        self.logger.warning(f"No best config found for {week_key} after parameter {param_name}")
+
+                # Log parameter summary (Q25, Q44 decisions)
+                self._log_parameter_summary(param_name)
+
+            # Save optimal configs
+            optimal_path = self.results_manager.save_optimal_configs()
+            self.logger.info(f"Tournament optimization complete. Results saved to {optimal_path}")
+
+            return optimal_path
+
+        finally:
+            self._restore_signal_handlers()
+
+    def _log_parameter_summary(self, param_name: str) -> None:
+        """Log summary of best results for all horizons after parameter completes."""
+        self.logger.info(f"Parameter {param_name} complete:")
+
+        # Use underscore keys to match best_configs dict
+        for week_key in ['ros', 'week_1_5', 'week_6_9', 'week_10_13', 'week_14_17']:
+            best_perf = self.results_manager.best_configs.get(week_key)
+            if best_perf:
+                test_idx = best_perf.test_idx if best_perf.test_idx is not None else '?'
+                self.logger.info(f"  {week_key}: MAE={best_perf.mae:.4f} (test_{test_idx})")
+            else:
+                self.logger.info(f"  {week_key}: No results yet")

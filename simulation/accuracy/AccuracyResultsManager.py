@@ -48,6 +48,9 @@ class AccuracyConfigPerformance:
         total_error (float): Sum of all absolute errors
         config_id (str): Hash identifier for this config
         timestamp (str): When the test was run
+        param_name (Optional[str]): Parameter being optimized (tournament mode)
+        test_idx (Optional[int]): Test value index (tournament mode)
+        base_horizon (Optional[str]): Horizon this config originated from (tournament mode)
     """
 
     def __init__(
@@ -57,7 +60,10 @@ class AccuracyConfigPerformance:
         player_count: int,
         total_error: float,
         config_id: Optional[str] = None,
-        timestamp: Optional[str] = None
+        timestamp: Optional[str] = None,
+        param_name: Optional[str] = None,
+        test_idx: Optional[int] = None,
+        base_horizon: Optional[str] = None
     ) -> None:
         self.config_dict = config_dict
         self.mae = mae
@@ -65,6 +71,10 @@ class AccuracyConfigPerformance:
         self.total_error = total_error
         self.config_id = config_id or self._generate_id(config_dict)
         self.timestamp = timestamp or datetime.now().isoformat()
+        # Tournament mode metadata (optional)
+        self.param_name = param_name
+        self.test_idx = test_idx
+        self.base_horizon = base_horizon
 
     def _generate_id(self, config: dict) -> str:
         """Generate a hash-based ID for the configuration."""
@@ -181,7 +191,10 @@ class AccuracyResultsManager:
         self,
         week_range_key: str,
         config_dict: dict,
-        accuracy_result: AccuracyResult
+        accuracy_result: AccuracyResult,
+        param_name: Optional[str] = None,
+        test_idx: Optional[int] = None,
+        base_horizon: Optional[str] = None
     ) -> bool:
         """
         Add a configuration result and check if it's the new best.
@@ -190,6 +203,9 @@ class AccuracyResultsManager:
             week_range_key: 'ros', 'week_1_5', 'week_6_9', etc.
             config_dict: The configuration that was tested
             accuracy_result: AccuracyResult from AccuracyCalculator
+            param_name: Parameter being optimized (tournament mode)
+            test_idx: Test value index (tournament mode)
+            base_horizon: Horizon this config originated from (tournament mode)
 
         Returns:
             bool: True if this is the new best for the week range
@@ -198,7 +214,10 @@ class AccuracyResultsManager:
             config_dict=config_dict,
             mae=accuracy_result.mae,
             player_count=accuracy_result.player_count,
-            total_error=accuracy_result.total_error
+            total_error=accuracy_result.total_error,
+            param_name=param_name,
+            test_idx=test_idx,
+            base_horizon=base_horizon
         )
 
         self.all_results.append(perf)
@@ -470,6 +489,32 @@ class AccuracyResultsManager:
                     with open(config_path, 'w') as f:
                         json.dump(config_output, f, indent=2)
 
+        # Create metadata.json for tournament mode tracking
+        metadata = {
+            "param_idx": param_idx,
+            "param_name": param_name,
+            "horizons_evaluated": list(self.best_configs.keys()),
+            "best_mae_per_horizon": {},
+            "timestamp": datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+        }
+
+        for week_key, best_perf in self.best_configs.items():
+            if best_perf:
+                metadata["best_mae_per_horizon"][week_key] = {
+                    "mae": best_perf.mae,
+                    "test_idx": best_perf.test_idx if best_perf.test_idx is not None else -1
+                }
+            else:
+                metadata["best_mae_per_horizon"][week_key] = {
+                    "mae": None,
+                    "test_idx": -1
+                }
+
+        metadata_path = intermediate_folder / "metadata.json"
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+
+        self.logger.info(f"Saved metadata to {metadata_path.name}")
         self.logger.info(f"Saved intermediate results to: {intermediate_folder}")
         return intermediate_folder
 
