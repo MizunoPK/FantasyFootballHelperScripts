@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-12-20
 **Total Metrics:** 58
-**Completed:** 0/58 (0%)
+**Completed:** 1/58 (1.7%)
 
 **Source:** Based on `docs/research/scoring_gap_analysis.md` (Version 3.0, Last Updated: December 17, 2025)
 
@@ -12,7 +12,7 @@
 
 | Priority | Total | Completed | Pending | % Complete |
 |----------|-------|-----------|---------|------------|
-| HIGH     | 14    | 0         | 14      | 0%         |
+| HIGH     | 14    | 1         | 13      | 7%         |
 | MEDIUM   | 15    | 0         | 15      | 0%         |
 | LOW      | 29    | 0         | 29      | 0%         |
 
@@ -31,7 +31,7 @@
 
 | # | Metric Name | Position | Status | Data Source | Historical | Link |
 |---|-------------|----------|--------|-------------|------------|------|
-| 1 | Target Volume/Share | WR, TE, RB | ⏳ Pending | - | - | - |
+| 1 | Target Volume/Share | WR, TE, RB | ✅ Complete | PFR + Sleeper | Yes (actuals) | [View](01_target_volume.md) |
 | 2 | QB Context/Quality Score | WR, TE | ⏳ Pending | - | - | - |
 | 4 | Vegas Lines/Game Environment | ALL | ⏳ Pending | - | - | - |
 | 12 | Implied Team Total | ALL | ⏳ Pending | - | - | - |
@@ -132,7 +132,7 @@
 
 ## Completion Milestones
 
-- [ ] **Phase 1 Complete:** All 14 HIGH priority metrics researched (0/14 = 0%)
+- [ ] **Phase 1 Complete:** All 14 HIGH priority metrics researched (1/14 = 7%)
 - [ ] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (0/15 = 0%)
 - [ ] **Phase 3 Complete:** All 29 LOW priority metrics researched (0/29 = 0%)
 - [ ] **All Research Complete:** 58/58 metrics documented (0%)
