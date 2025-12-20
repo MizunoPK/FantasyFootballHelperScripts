@@ -207,6 +207,13 @@ Use this checklist to track progress through planning phases:
     □ Check feature pairs: if "save X" exists, verify "load X" is also specified
     □ Add checklist items for each vague phrase requiring clarification
   □ 2.9: ASSUMPTIONS AUDIT - list all assumptions with basis/risk/mitigation
+  □ 2.10: TESTING REQUIREMENTS ANALYSIS (MANDATORY)
+    □ Identify integration points (what modules/systems interact)
+    □ Define smoke test success criteria (output validation, not just "runs")
+    □ List expected vs actual comparisons (baseline values, log patterns)
+    □ Identify user-facing outputs (logs, files, progress displays)
+    □ Plan acceptance testing (how will user confirm it works correctly)
+    □ Add testing checklist items for user to review/confirm
   □ Update README.md with key findings
   □ ⚡ UPDATE README Agent Status: Step=Phase 2 complete
 
@@ -374,12 +381,22 @@ Document new questions discovered in each iteration before proceeding.
 
 After populating the checklist with questions, perform TWO verification rounds to determine which questions can be answered from existing code:
 
+**CRITICAL: DO NOT mark any checklist items as [x] during codebase verification.**
+
+Your role is to:
+- Research the codebase
+- Document findings in the checklist's Resolution Log
+- Provide recommendations
+- Leave ALL items as [ ] for user review
+
+Only the USER can mark items as [x] after reviewing your findings during Phase 4.
+
 **Round 1: Initial Codebase Research**
 For each open checklist item:
 1. Search the codebase for relevant code, patterns, or existing implementations
-2. If a straightforward answer exists in the code → document it and mark resolved
-3. If multiple valid approaches exist → document options with code references for user decision
-4. If no answer found in codebase → leave as open question for user
+2. If a straightforward answer exists in the code → document it in Resolution Log (leave as [ ])
+3. If multiple valid approaches exist → document options with code references for user decision (leave as [ ])
+4. If no answer found in codebase → leave as open question for user (leave as [ ])
 
 **Round 2: Skeptical Re-verification**
 Assume all findings from Round 1 are potentially incorrect:
@@ -388,10 +405,12 @@ Assume all findings from Round 1 are potentially incorrect:
 3. Check for edge cases or exceptions missed in Round 1
 4. Look for contradictions between code and documentation
 
-**Output:** Checklist should be categorized into:
-- `[x]` Resolved via codebase research (with code references)
-- `[ ]` Needs user decision (multiple valid approaches documented)
-- `[ ]` Truly unknown (no answer in codebase, requires user input)
+**Output:** Checklist Resolution Log should categorize each item:
+- "RESOLVED from codebase" - straightforward answer found (code references provided)
+- "NEEDS USER DECISION" - multiple valid approaches documented
+- "UNKNOWN" - no answer in codebase, requires user input
+
+All items remain `[ ]` until Phase 4 when user reviews and approves.
 
 **Why this matters:** This prevents:
 - Asking the user questions that have obvious answers in the code
@@ -470,6 +489,56 @@ Output: simulation_configs/accuracy_optimal_*/performance_metrics.json
 - Where integration points exist
 - Which existing code might be affected
 - Data flow from entry to output
+
+### Step 2.6.1: Compare to Working Reference (CRITICAL)
+
+**When implementing something similar to existing functionality**, explicitly compare your approach to the working reference implementation.
+
+**The `max_weekly_projection` Bug Prevention Example:**
+
+The accuracy simulation needed to score players with weekly projections. A working reference already existed: `StarterHelperModeManager`.
+
+**What should have happened during planning:**
+1. Question: "How do we score players with weekly projections?"
+2. Search: Find `StarterHelperModeManager` uses `score_player(use_weekly_projection=True)`
+3. **Examine initialization**: Read lines 452-453:
+   ```python
+   max_weekly = self.player_manager.calculate_max_weekly_projection(self.config.current_nfl_week)
+   self.player_manager.scoring_calculator.max_weekly_projection = max_weekly
+   ```
+4. Document: "Must call `calculate_max_weekly_projection()` and set `scoring_calculator.max_weekly_projection` before calling `score_player(use_weekly_projection=True)`"
+5. Add checklist item: "Verify weekly scoring initialization matches StarterHelperMode pattern"
+
+**What actually happened:**
+- Called `score_player(use_weekly_projection=True)` without setting `max_weekly_projection`
+- Result: Always 0, causing warnings and incorrect normalization
+- Bug slipped through because **we didn't check how the working reference does it**
+
+**Checklist Template:**
+
+For any feature similar to existing functionality, add these verification questions:
+
+```markdown
+## Working Reference Comparison
+
+- [ ] Identify working reference feature: `{feature_name}`
+- [ ] Read how reference initializes: `{file_path}:{line_range}`
+- [ ] Document initialization steps:
+  1. {step 1}
+  2. {step 2}
+  3. {step 3}
+- [ ] Verify our approach matches these steps
+- [ ] Check for any setup code that runs before main logic
+- [ ] Compare our parameters/flags to reference parameters/flags
+```
+
+**When to use this:**
+- "Similar to X" appears in requirements
+- Reusing existing classes/methods in new contexts
+- Implementing parallel version of sequential code
+- Any time there's a working example to learn from
+
+**Why this matters:** Working code is the best specification. If something already works correctly, understanding **how** it works prevents reimplementing it incorrectly.
 
 ### Step 2.7: Update specs and readme
 
@@ -598,6 +667,190 @@ For each vague phrase found, add a checklist item:
 - ❌ Load from intermediate folders (method exists but never called)
 
 A Vagueness Audit would have caught this by asking: "What's the complete mechanism for resume capability?"
+
+---
+
+### Step 2.10: Testing Requirements Analysis (MANDATORY)
+
+**Purpose:** Define how the feature will be validated during smoke testing and QA to catch integration bugs and UX issues.
+
+Unit tests validate individual functions, but **integration bugs** (components not connecting properly) and **UX bugs** (confusing output, poor error messages) need explicit testing requirements.
+
+**Real-world example:** The accuracy simulation had:
+- ✅ 2296 unit tests passing (100%)
+- ❌ `max_weekly_projection` never set (integration bug)
+- ❌ Confusing log output (UX bug)
+- ❌ Misleading progress display (UX bug)
+
+These weren't caught because we didn't define **what good output looks like** or **how to validate integration**.
+
+#### 2.10.1: Identify Integration Points
+
+List all modules/systems that must interact correctly:
+
+```markdown
+## Integration Points
+
+| Component A | Component B | Integration Mechanism | How to Verify |
+|-------------|-------------|----------------------|---------------|
+| AccuracyCalculator | PlayerManager | Calls score_player() with use_weekly_projection=True | Check max_weekly_projection is set before call |
+| ParallelRunner | AccuracyCalculator | Passes configs to worker processes | Verify config has all required fields |
+| Main script | Signal handler | Ctrl+C should exit cleanly | Test Ctrl+C during execution |
+```
+
+**For each integration point, add checklist item:**
+- [ ] How does Component A call Component B? (method signature, parameters)
+- [ ] What data flows between them? (structure, validation)
+- [ ] What happens if integration fails? (error handling, recovery)
+- [ ] How will we verify it works? (test with real data, check logs)
+
+#### 2.10.2: Define Smoke Test Success Criteria
+
+**Don't just check "it runs"** - define what correct output looks like:
+
+```markdown
+## Smoke Test Success Criteria
+
+### 1. Output Validation
+- [ ] MAE values in expected range (e.g., 3-10 for weekly, 50-70 for ROS)
+- [ ] Compare to baseline config (variance < 10%)
+- [ ] All 5 horizons produce results (not just some)
+- [ ] Player counts match expected (ROS=~1800, weekly=4000-6000)
+
+### 2. Log Quality
+- [ ] No WARNING or ERROR messages in output (grep for them)
+- [ ] Config identification is clear (can tell which param value being tested)
+- [ ] Progress updates are meaningful (not "0/5 horizons")
+- [ ] Summary shows all 5 horizon results for each config
+
+### 3. User Experience
+- [ ] Ctrl+C exits cleanly (no hanging processes)
+- [ ] ETA estimates are reasonable (not wildly off)
+- [ ] Progress bar updates smoothly (not stuck at 0%)
+- [ ] Intermediate files are created (check folder structure)
+
+### 4. Reference Comparison
+- [ ] Run existing working feature (e.g., StarterHelperMode) to compare behavior
+- [ ] Check that new feature follows same patterns (logging, initialization)
+- [ ] Verify any shared code is called correctly (e.g., calculate_max_weekly_projection)
+```
+
+**Add these as checklist items for user confirmation:**
+- [ ] User: What MAE values indicate success? (provide baseline for comparison)
+- [ ] User: How should progress display look? (show example output)
+- [ ] User: What log messages are most important? (highlight key information)
+
+#### 2.10.3: Expected vs Actual Comparisons
+
+Define specific values/patterns to check:
+
+```markdown
+## Expected vs Actual Validation
+
+| Metric | Expected Value/Pattern | How to Check |
+|--------|------------------------|--------------|
+| ROS MAE | 50-70 range | Compare to baseline config MAE |
+| Weekly MAE | 3-10 range | Compare to baseline config MAE |
+| Log format | "Config: X=Y [horizon] \| Eval: Z \| MAE=..." | Grep for pattern, verify readable |
+| Progress | Configs count up 1,2,3... | Watch output, verify increments |
+| Warnings | 0 warnings | `grep -i warning output.log` should be empty |
+```
+
+**For each metric, ask:**
+- What's the expected value/range?
+- How will we measure it during smoke test?
+- What's the tolerance for variance?
+
+#### 2.10.4: Identify User-Facing Outputs
+
+List everything the user will see/interact with:
+
+```markdown
+## User-Facing Outputs
+
+### Console Output
+- [ ] Progress display format: `Configs (each tests 5 horizons): [=>  ] 6.7% (1/15)`
+- [ ] Config completion summary: Shows all 5 horizon MAE values
+- [ ] Final output: Path to optimal config folder
+
+### Files Created
+- [ ] `simulation/simulation_configs/accuracy_optimal_TIMESTAMP/`
+  - [ ] `draft_config.json` (ROS horizon)
+  - [ ] `week1-5.json` (early season)
+  - [ ] `week6-9.json` (mid season)
+  - [ ] `week10-13.json` (late season)
+  - [ ] `week14-17.json` (playoffs)
+- [ ] `simulation/simulation_configs/accuracy_intermediate_XX_PARAM/` (per parameter)
+
+### Error Messages
+- [ ] Clear error when baseline config not found
+- [ ] Clear error when data files missing
+- [ ] Clear error when config invalid
+```
+
+**Add checklist items:**
+- [ ] User: Review proposed log format - is this helpful?
+- [ ] User: Review proposed file structure - is this what you expect?
+- [ ] User: Review error messages - are they actionable?
+
+#### 2.10.5: Plan Acceptance Testing
+
+Define how the user will confirm it works:
+
+```markdown
+## Acceptance Testing Plan
+
+### Manual Verification Steps
+1. User runs: `python run_accuracy_simulation.py --test-values 2 --num-params 1`
+2. User observes:
+   - [ ] Progress updates regularly (every 20-30 seconds)
+   - [ ] Config completion summaries show all 5 horizons
+   - [ ] No warnings/errors in output
+3. User tests Ctrl+C:
+   - [ ] Press Ctrl+C during execution
+   - [ ] Verify exits immediately (< 2 seconds)
+   - [ ] Check no zombie processes (`ps aux | grep python`)
+4. User checks output:
+   - [ ] Optimal config folder created
+   - [ ] All 5 horizon files present
+   - [ ] MAE values are reasonable
+
+### Comparison to Existing Feature
+Run existing feature that works correctly (e.g., `run_win_rate_simulation.py`) and compare:
+- [ ] Logging style similar?
+- [ ] Progress display similar?
+- [ ] File structure similar?
+- [ ] Error handling similar?
+```
+
+**Add these to checklist:**
+- [ ] User: What's your acceptance criteria? (how will you know it works?)
+- [ ] User: Should we run comparison against similar feature? (which one?)
+- [ ] User: How long should smoke test run? (30 seconds? 5 minutes? Full run?)
+
+#### 2.10.6: Add Testing Checklist Items
+
+Based on the above analysis, add specific items to `_checklist.md`:
+
+```markdown
+## Testing & Validation
+
+- [ ] Define baseline MAE values for comparison (ROS and weekly)
+- [ ] Confirm log format is readable and informative
+- [ ] Verify progress display updates correctly
+- [ ] Test Ctrl+C exits cleanly
+- [ ] Compare behavior to StarterHelperMode (uses weekly projections correctly)
+- [ ] Verify max_weekly_projection is set before scoring (check against working reference)
+- [ ] Test with small dataset first (--test-values 2 --num-params 1)
+- [ ] Run full smoke test and compare output to expected patterns
+```
+
+**Why this matters:** These bugs were caught **after** implementation:
+- `max_weekly_projection = 0` - Would have been caught by "Compare to StarterHelperMode" check
+- Confusing logs - Would have been caught by "Confirm log format is readable" review
+- Misleading progress - Would have been caught by "Verify progress display updates" test
+
+Defining testing requirements during planning ensures they're built correctly from the start.
 
 ---
 
@@ -740,9 +993,17 @@ Present two options:
 ### When user provides an answer
 
 1. **Acknowledge** the answer
-2. **Update `_specs.md`** with the resolved detail
-3. **Mark checklist item `[x]`** as done
-4. **Update `README.md`** if the answer affects scope or key context
+2. **IMMEDIATELY update both files:**
+   - **Update `_specs.md`** with the resolved detail in the appropriate section
+   - **Mark checklist item `[x]`** in `_checklist.md` with resolution summary
+3. **Update `README.md`** if the answer affects scope or key context
+
+**CRITICAL:** Update BOTH files after EACH answer, not at end of session.
+- Specs should never contain "Open Questions" that have been resolved
+- If a question in specs is answered, move it from "Open Questions" to "Resolved Implementation Decisions"
+- This ensures continuity if session is interrupted
+
+**Anti-pattern:** Updating only checklist during Phase 4, leaving specs outdated
 
 ### After each resolution
 

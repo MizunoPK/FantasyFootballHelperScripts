@@ -60,6 +60,8 @@ PARAMETER_ORDER = [
     'SECONDARY_BONUS',
     # ADP Scoring - affects how much market wisdom influences picks
     'ADP_SCORING_WEIGHT',
+    # Player Rating Scoring - affects expert consensus ranking influence
+    'PLAYER_RATING_SCORING_WEIGHT',
 ]
 
 

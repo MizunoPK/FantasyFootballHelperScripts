@@ -1107,12 +1107,10 @@ class TestPerWeekRangeMethods:
         with open(folder_path / "league_config.json", 'r') as f:
             base_config = json.load(f)
 
-        # Base config should have base params
+        # Base config should have base params (including PLAYER_RATING_SCORING which moved to base)
         assert "CURRENT_NFL_WEEK" in base_config["parameters"]
         assert "NFL_SEASON" in base_config["parameters"]
-
-        # Base config should NOT have week-specific params
-        assert "PLAYER_RATING_SCORING" not in base_config["parameters"]
+        assert "PLAYER_RATING_SCORING" in base_config["parameters"]
 
     @patch('simulation.shared.ResultsManager.datetime')
     def test_save_optimal_configs_folder_week_configs_have_week_params(self, mock_datetime, tmp_path):
@@ -1141,12 +1139,12 @@ class TestPerWeekRangeMethods:
             week_config = json.load(f)
 
         # Week config should have week-specific params
-        assert "PLAYER_RATING_SCORING" in week_config["parameters"]
         assert "MATCHUP_SCORING" in week_config["parameters"]
 
-        # Week config should NOT have base params
+        # Week config should NOT have base params (including PLAYER_RATING_SCORING which moved to base)
         assert "CURRENT_NFL_WEEK" not in week_config["parameters"]
         assert "NFL_SEASON" not in week_config["parameters"]
+        assert "PLAYER_RATING_SCORING" not in week_config["parameters"]
 
     def test_save_optimal_configs_folder_no_results_raises_error(self):
         """save_optimal_configs_folder should raise ValueError when no results."""
@@ -1552,7 +1550,8 @@ class TestSixFileStructureSupport:
             "config_name": "Test Config",
             "parameters": {
                 "ADP_SCORING": {"WEIGHT": 1.0},  # Base param
-                "PLAYER_RATING_SCORING": {"WEIGHT": 2.0}  # Week-specific param
+                "PLAYER_RATING_SCORING": {"WEIGHT": 2.0},  # Base param (moved from week-specific)
+                "TEAM_QUALITY_SCORING": {"WEIGHT": 1.5}  # Week-specific param
             }
         }
 
@@ -1565,10 +1564,11 @@ class TestSixFileStructureSupport:
         with open(folder_path / "draft_config.json", 'r') as f:
             draft_config = json.load(f)
 
-        # Should have week-specific params
-        assert "PLAYER_RATING_SCORING" in draft_config["parameters"]
+        # Should have week-specific params (not PLAYER_RATING_SCORING which moved to base)
+        assert "TEAM_QUALITY_SCORING" in draft_config["parameters"]
         # Should NOT have base params
         assert "ADP_SCORING" not in draft_config["parameters"]
+        assert "PLAYER_RATING_SCORING" not in draft_config["parameters"]
 
     @patch('simulation.shared.ResultsManager.datetime')
     def test_load_from_folder_requires_draft_config(self, mock_datetime, tmp_path):
@@ -1643,11 +1643,13 @@ class TestSixFileStructureSupport:
         # Load
         loaded_base, loaded_weeks = ResultsManager.load_configs_from_folder(folder_path)
 
-        # Verify base params preserved
+        # Verify base params preserved (including PLAYER_RATING_SCORING which moved to base)
         assert loaded_base["parameters"]["ADP_SCORING"]["WEIGHT"] == 1.0
+        assert "PLAYER_RATING_SCORING" in loaded_base["parameters"]
+        assert loaded_base["parameters"]["PLAYER_RATING_SCORING"]["WEIGHT"] == 2.0
 
         # Verify week params preserved in all horizons
         for horizon in ['ros', '1-5', '6-9', '10-13', '14-17']:
             assert horizon in loaded_weeks
-            assert "PLAYER_RATING_SCORING" in loaded_weeks[horizon]["parameters"]
-            assert loaded_weeks[horizon]["parameters"]["PLAYER_RATING_SCORING"]["WEIGHT"] == 2.0
+            assert "TEAM_QUALITY_SCORING" in loaded_weeks[horizon]["parameters"]
+            assert loaded_weeks[horizon]["parameters"]["TEAM_QUALITY_SCORING"]["WEIGHT"] == 1.5

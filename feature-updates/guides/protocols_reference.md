@@ -720,6 +720,14 @@ These situations REQUIRE stopping and asking the user before proceeding. Do NOT 
    - Confirm each has a caller identified
    - If any new code has no caller → add integration task
 
+5. **Weekly Mode Integration Check (for features with weekly projections):**
+   - If feature uses `use_weekly_projection=True`, verify:
+     - [ ] `calculate_max_weekly_projection(week_num)` is called BEFORE scoring
+     - [ ] Result is assigned to `scoring_calculator.max_weekly_projection`
+     - [ ] This initialization happens for EVERY week evaluated (not just once)
+   - Compare to working reference: `StarterHelperModeManager` lines 452-453
+   - Add TODO task: "Verify weekly projection initialization matches StarterHelperMode pattern"
+
 ---
 
 ### Fresh Eyes Review Protocol

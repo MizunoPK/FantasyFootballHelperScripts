@@ -1,0 +1,166 @@
+# Feature: Validate All Accuracy Simulation Parameters
+
+## Problem Statement
+
+After implementing the accuracy simulation feature, we discovered 3 parameter defects during post-implementation validation:
+
+1. **TEAM_QUALITY_MIN_WEEKS - Range Violation**
+   - Expected range: [2, 14] (from ConfigGenerator.PARAM_DEFINITIONS)
+   - Actual values: 1 in all weekly horizons (week1-5, week6-9, week10-13, week14-17)
+   - Value 1 is below the minimum of 2
+   - This means ConfigGenerator is generating/allowing values outside the defined range
+
+2. **PERFORMANCE_SCORING_STEPS - Not Being Optimized**
+   - All 5 horizons have identical value (0.1)
+   - No variance across horizons suggests parameter wasn't actually tested/optimized
+   - Could indicate config generation issue or optimization logic issue
+
+3. **LOCATION_INTERNATIONAL - Not Being Optimized**
+   - All 5 horizons have identical value (-3.7)
+   - Same concern as PERFORMANCE_SCORING_STEPS
+
+These issues indicate potential systemic problems with how parameters are:
+- Generated (range enforcement)
+- Tested (actually creating different configs)
+- Optimized (finding best values per horizon)
+- Used in scoring (actually affecting MAE calculations)
+
+## Scope
+
+We need to validate ALL 16 accuracy parameters to ensure they meet three requirements:
+
+### Requirement 1: Parameter Changes During Optimization Round
+- When parameter X is being optimized, configs with DIFFERENT values of X should be tested
+- Evidence: Log output should show "Generated N configs for PARAMETER_NAME"
+- Evidence: ConfigGenerator should create baseline + test values for that parameter
+- Validation: Check logs from each parameter's optimization round
+
+### Requirement 2: Different Values Across Horizons
+- After optimization, each horizon should have its own optimal value for the parameter
+- This is the core feature of tournament optimization
+- Most parameters should differ across horizons (unless truly optimal at same value)
+- Validation: Compare final optimal config files (draft_config.json, week1-5.json, etc.)
+
+### Requirement 3: Range and Precision Compliance
+- All parameter values must be within [min, max] from ConfigGenerator.PARAM_DEFINITIONS
+- All parameter values must match the precision (0 = integer, 1 = 0.1 steps, 2 = 0.01 steps)
+- Validation: Automated script comparing optimal configs to PARAM_DEFINITIONS
+
+## Parameters to Validate (16 total)
+
+All parameters from run_accuracy_simulation.py PARAMETER_ORDER:
+
+1. NORMALIZATION_MAX_SCALE
+2. TEAM_QUALITY_SCORING_WEIGHT ✓ (appears working from validation)
+3. TEAM_QUALITY_MIN_WEEKS ❌ (KNOWN ISSUE: range violation)
+4. PERFORMANCE_SCORING_WEIGHT ✓ (appears working)
+5. PERFORMANCE_SCORING_STEPS ❌ (KNOWN ISSUE: not optimized)
+6. PERFORMANCE_MIN_WEEKS ✓ (appears working)
+7. MATCHUP_IMPACT_SCALE ✓ (appears working)
+8. MATCHUP_SCORING_WEIGHT ✓ (appears working)
+9. MATCHUP_MIN_WEEKS ✓ (appears working)
+10. TEMPERATURE_IMPACT_SCALE ✓ (appears working)
+11. TEMPERATURE_SCORING_WEIGHT ✓ (appears working)
+12. WIND_IMPACT_SCALE ✓ (appears working)
+13. WIND_SCORING_WEIGHT ✓ (appears working)
+14. LOCATION_HOME ✓ (appears working - 4 unique values!)
+15. LOCATION_AWAY ✓ (appears working - 4 unique values!)
+16. LOCATION_INTERNATIONAL ❌ (KNOWN ISSUE: not optimized)
+
+## Validation Methodology
+
+### Phase 1: Code Review & Trace
+For each parameter, trace through:
+
+1. **ConfigGenerator.generate_horizon_test_values(param_name)**
+   - Does it generate test values for this parameter?
+   - Are values within the defined range?
+   - Do values match the precision?
+   - Are different values generated per horizon (for tournament mode)?
+
+2. **ConfigGenerator.get_config_for_horizon(horizon, param_name, test_idx)**
+   - Does it correctly insert the test value into the config structure?
+   - Does it handle nested structures correctly (e.g., TEAM_QUALITY_SCORING -> MIN_WEEKS)?
+
+3. **PlayerScoringCalculator usage**
+   - Is this parameter actually used during scoring?
+   - Does changing the value affect the calculated projection?
+   - Are there any conditions where the parameter is ignored?
+
+### Phase 2: Functional Testing
+For each parameter:
+
+1. **Generate configs manually**
+   - Use ConfigGenerator to generate 3 test configs with different values
+   - Verify values are in range and have correct precision
+   - Verify each config is different
+
+2. **Score the same player with different configs**
+   - Take a sample player
+   - Score with config A (parameter at min)
+   - Score with config B (parameter at mid)
+   - Score with config C (parameter at max)
+   - **Expected:** Scores should be DIFFERENT (proves parameter affects scoring)
+   - **If scores are identical:** Parameter is not being used in scoring
+
+3. **Run mini optimization**
+   - Run accuracy simulation for ONLY this parameter with --test-values 3
+   - Verify logs show "Generated N configs"
+   - Verify final optimal values differ across horizons (or understand why they don't)
+
+### Phase 3: Root Cause Analysis for Issues
+For the 3 known issues and any newly discovered issues:
+
+1. **Identify WHERE the bug is**
+   - ConfigGenerator (range enforcement, test value generation)
+   - AccuracySimulationManager (optimization logic)
+   - PlayerScoringCalculator (parameter not used)
+   - ParallelAccuracyRunner (config evaluation)
+
+2. **Understand WHY it happened**
+   - Missing validation?
+   - Off-by-one error?
+   - Parameter renamed but code not updated?
+   - Flag/condition causing parameter to be skipped?
+
+3. **Fix and verify**
+   - Implement fix
+   - Re-run validation
+   - Confirm issue resolved
+
+## Expected Deliverables
+
+1. **Validation Report** (`validation_report.md`)
+   - Table showing all 16 parameters and their validation status
+   - For each parameter: ✅ Pass or ❌ Fail with reason
+   - Root cause analysis for any failures
+
+2. **Automated Validation Script** (`validate_accuracy_params.py`)
+   - Runs all 3 validation checks automatically
+   - Can be run after any accuracy simulation
+   - Outputs clear pass/fail for each parameter
+
+3. **Bug Fixes** (as needed)
+   - Fix TEAM_QUALITY_MIN_WEEKS range violation
+   - Fix PERFORMANCE_SCORING_STEPS not being optimized
+   - Fix LOCATION_INTERNATIONAL not being optimized
+   - Fix any newly discovered issues
+
+4. **Test Coverage** (if gaps found)
+   - Unit tests for ConfigGenerator range enforcement
+   - Integration tests for parameter usage in scoring
+   - Regression tests to prevent future issues
+
+## Success Criteria
+
+- All 16 parameters pass all 3 validation requirements
+- Automated validation script exists and passes
+- Root causes of all failures documented
+- All bugs fixed and verified
+
+## Notes
+
+- This is a thorough validation exercise, not a quick check
+- We want 100% certainty that the accuracy simulation is working correctly
+- Better to find issues now than after running expensive multi-day optimizations
+- This validates both the simulation framework AND the parameter definitions

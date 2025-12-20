@@ -248,13 +248,13 @@ class ResultsManager:
         'DRAFT_ORDER',
         'MAX_POSITIONS',
         'FLEX_ELIGIBLE_POSITIONS',
-        'ADP_SCORING'
+        'ADP_SCORING',
+        'PLAYER_RATING_SCORING'
     ]
 
     # Parameters that belong in week-specific configs
     WEEK_SPECIFIC_PARAMS = [
         'NORMALIZATION_MAX_SCALE',
-        'PLAYER_RATING_SCORING',
         'TEAM_QUALITY_SCORING',
         'PERFORMANCE_SCORING',
         'MATCHUP_SCORING',

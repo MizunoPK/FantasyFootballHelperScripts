@@ -3,20 +3,6 @@
   "description": "Week-specific params for weeks 10-13",
   "parameters": {
     "NORMALIZATION_MAX_SCALE": 143,
-    "PLAYER_RATING_SCORING": {
-      "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "INCREASING",
-        "STEPS": 20
-      },
-      "MULTIPLIERS": {
-        "VERY_POOR": 0.95,
-        "POOR": 0.975,
-        "GOOD": 1.025,
-        "EXCELLENT": 1.05
-      },
-      "WEIGHT": 1.8
-    },
     "TEAM_QUALITY_SCORING": {
       "MIN_WEEKS": 3,
       "THRESHOLDS": {

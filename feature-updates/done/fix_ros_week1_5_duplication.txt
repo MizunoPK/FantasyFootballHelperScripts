@@ -1,0 +1,70 @@
+# Feature Request: Fix ROS/Week1-5 Config Duplication Bug
+
+## Problem Statement
+
+The accuracy simulation's tournament optimization is producing **identical configs** for the `ros` (draft) and `week1-5` horizons, despite:
+1. Generating different test values for each horizon
+2. Finding different optimal test indices during optimization
+3. Code logic treating them as separate horizons
+4. All other horizons (week 6-9, 10-13, 14-17) having unique values
+
+**Evidence:**
+- draft_config.json and week1-5.json are 100% identical (all 69 parameters match)
+- During NORMALIZATION_MAX_SCALE optimization:
+  - ros chose test_1 (MAE=68.4213)
+  - week1-5 chose test_4 (MAE=3.7939)
+- Final configs show both have value 163 (week1-5's optimal, not ros's optimal)
+
+This suggests that **ros horizon is not being optimized independently** - its config is being overwritten by week1-5's config at some point in the process.
+
+## Impact
+
+**High severity:**
+- The draft helper (Add to Roster Mode) is using the wrong scoring parameters
+- draft_config.json should be optimized for season-long (ROS) projections, not weeks 1-5
+- Tournament optimization's core feature (horizon-specific optimization) is broken for ros
+- Accuracy simulations are invalid for draft scenarios
+
+## Root Cause Hypothesis
+
+Potential bugs in one of these areas:
+1. **Baseline update logic** (`ConfigGenerator.update_baseline_for_horizon`) - may be incorrectly treating ros and week1-5 as the same
+2. **Config save logic** (`AccuracyResultsManager._save_optimal_configs`) - may be copying week1-5 to draft_config
+3. **Horizon mapping** - "ros" vs "week_1_5" string inconsistency causing misidentification
+4. **Config generator** - ros using week1-5's baseline instead of its own
+
+## Acceptance Criteria
+
+After fix:
+1. ✅ draft_config.json and week1-5.json have DIFFERENT parameter values
+2. ✅ ros horizon chooses optimal values independently from week1-5
+3. ✅ All 5 horizons (ros, 1-5, 6-9, 10-13, 14-17) have unique optimal configs
+4. ✅ Validation script confirms ros != week1-5 for at least some parameters
+5. ✅ Re-running accuracy simulation produces different draft_config vs week1-5
+
+## Testing Plan
+
+1. **Unit test**: Verify `update_baseline_for_horizon('ros', config)` doesn't affect week1-5
+2. **Unit test**: Verify horizon string mapping ("ros" vs "week_1_5" vs "draft_config")
+3. **Integration test**: Run mini accuracy sim (2 params, 2 test values) and verify ros != week1-5
+4. **Validation test**: Run full validation script after fix, confirm diversity
+
+## Success Metrics
+
+- draft_config.json has at least 3 parameters with different values than week1-5.json
+- MAE for ros horizon uses ros-specific optimal config, not week1-5's config
+- Validation script shows ros and week1-5 as separate horizons with unique values
+
+## Related Files
+
+- `simulation/accuracy/AccuracySimulationManager.py` - Main optimization loop
+- `simulation/shared/ConfigGenerator.py` - Test value generation and baseline updates
+- `simulation/accuracy/AccuracyResultsManager.py` - Result tracking and config saving
+- `simulation/shared/ResultsManager.py` - BASE_CONFIG_PARAMS vs WEEK_SPECIFIC_PARAMS definitions
+
+## Notes
+
+- This bug was discovered during comprehensive parameter validation
+- The initial validation document had 3 FALSE ALARMS, but this is a REAL BUG
+- All 16 parameters are affected (entire config is duplicated)
+- The bug likely exists in the baseline update or config save logic, not parameter generation

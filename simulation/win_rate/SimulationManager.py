@@ -38,7 +38,7 @@ from ConfigGenerator import ConfigGenerator
 from ResultsManager import ResultsManager
 from ProgressTracker import MultiLevelProgressTracker
 from ConfigPerformance import WEEK_RANGES
-from config_cleanup import cleanup_old_optimal_folders
+from config_cleanup import cleanup_old_optimal_folders, cleanup_intermediate_folders
 
 # Import from same folder (win_rate/)
 sys.path.append(str(Path(__file__).parent))
@@ -924,6 +924,11 @@ class SimulationManager:
                 json.dump(horizon_config, f, indent=2)
 
         self.logger.info(f"✓ Final optimal configs saved: {final_folder}")
+
+        # Clean up intermediate folders now that optimization is complete
+        deleted_count = cleanup_intermediate_folders(self.output_dir)
+        if deleted_count > 0:
+            self.logger.info(f"✓ Cleaned up {deleted_count} intermediate folders")
 
         # Update data/configs folder (per Q5: update folder)
         if self.auto_update_league_config:

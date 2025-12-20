@@ -1,8 +1,8 @@
 {
-  "config_name": "Accuracy Optimal week6-9 (2025-12-16_12-05-55)",
-  "description": "Weeks 6-9 prediction parameters",
+  "config_name": "Accuracy Optimal draft_config (2025-12-19_11-02-02)",
+  "description": "ROS (Rest of Season) prediction parameters",
   "parameters": {
-    "NORMALIZATION_MAX_SCALE": 153,
+    "NORMALIZATION_MAX_SCALE": 58,
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
@@ -15,10 +15,10 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.8
+      "WEIGHT": 2.11
     },
     "TEAM_QUALITY_SCORING": {
-      "MIN_WEEKS": 3,
+      "MIN_WEEKS": 10,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -30,14 +30,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.77
+      "WEIGHT": 3.84
     },
     "PERFORMANCE_SCORING": {
-      "MIN_WEEKS": 2,
+      "MIN_WEEKS": 7,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.18
+        "STEPS": 0.1
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -45,11 +45,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 3.55
+      "WEIGHT": 7.73
     },
     "MATCHUP_SCORING": {
-      "MIN_WEEKS": 3,
-      "IMPACT_SCALE": 156,
+      "MIN_WEEKS": 11,
+      "IMPACT_SCALE": 74,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
@@ -61,7 +61,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.62
+      "WEIGHT": 1.76
     },
     "SCHEDULE_SCORING": {
       "MIN_WEEKS": 5,
@@ -80,8 +80,8 @@
       "WEIGHT": 0.9141034145521472
     },
     "TEMPERATURE_SCORING": {
-      "IMPACT_SCALE": 23,
-      "WEIGHT": 0.81,
+      "IMPACT_SCALE": 4,
+      "WEIGHT": 0.02,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -96,8 +96,8 @@
       }
     },
     "WIND_SCORING": {
-      "IMPACT_SCALE": 71,
-      "WEIGHT": 1.23,
+      "IMPACT_SCALE": 17,
+      "WEIGHT": 0.22,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -111,17 +111,16 @@
       }
     },
     "LOCATION_MODIFIERS": {
-      "HOME": 3.8,
-      "AWAY": -1.8,
-      "INTERNATIONAL": -13.8
+      "HOME": 14.0,
+      "AWAY": 4.4,
+      "INTERNATIONAL": -3.7
     }
   },
   "performance_metrics": {
-    "mae": null,
-    "player_count": null,
-    "total_error": null,
-    "config_id": "baseline",
-    "timestamp": "2025-12-16_12-05-55",
-    "note": "No optimization performed - using baseline parameters"
+    "mae": 62.975925726344975,
+    "player_count": 1868,
+    "total_error": 117639.02925681241,
+    "config_id": "0cfcac70",
+    "timestamp": "2025-12-19T10:57:08.294571"
   }
 }

@@ -1,6 +1,6 @@
 .claude
 league_helper/trade_simulator_mode/trade_outputs
-**/intermediate*
+**/*intermediate*
 simulation/simulation_configs/archive
 
 # Byte-compiled / optimized / DLL files

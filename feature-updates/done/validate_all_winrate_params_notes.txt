@@ -1,0 +1,179 @@
+# Feature: Validate All Win-Rate Simulation Parameters
+
+## Problem Statement
+
+After implementing the win-rate simulation feature and discovering 3 parameter defects in the accuracy simulation during validation, we need to ensure the win-rate simulation has the same level of parameter integrity.
+
+The win-rate simulation optimizes 6 "base parameters" (not week-specific prediction parameters):
+1. SAME_POS_BYE_WEIGHT
+2. DIFF_POS_BYE_WEIGHT
+3. PRIMARY_BONUS
+4. SECONDARY_BONUS
+5. ADP_SCORING_WEIGHT
+6. PLAYER_RATING_SCORING_WEIGHT
+
+These parameters affect draft strategy and roster construction, not weekly predictions. Unlike accuracy simulation parameters, these should:
+- Only exist in `league_config.json` (NOT in weekly horizon files)
+- Be optimized using win-rate metrics (not MAE)
+- Follow the same optimization pattern (tournament mode across 5 horizons)
+
+## Scope
+
+We need to validate ALL 6 win-rate parameters to ensure they meet three requirements:
+
+### Requirement 1: Parameter Changes During Optimization Round
+- When parameter X is being optimized, configs with DIFFERENT values of X should be tested
+- Evidence: Log output should show "Generated N configs for PARAMETER_NAME"
+- Evidence: ConfigGenerator should create baseline + test values for that parameter
+- Validation: Check logs from each parameter's optimization round
+
+### Requirement 2: Different Values Across Horizons (League Config Only)
+- After optimization, the FINAL league_config.json should contain the best values
+- Unlike accuracy simulation, win-rate parameters don't have separate horizon files
+- Instead, the iterative optimization process should show these parameters changing between iterations
+- Validation: Compare league_config.json from different iterative runs (e.g., optimal_iterative_20251211_092353 vs seed configs)
+
+### Requirement 3: Range and Precision Compliance
+- All parameter values must be within [min, max] from ConfigGenerator.PARAM_DEFINITIONS
+- All parameter values must match the precision (0 = integer, 1 = 0.1 steps, 2 = 0.01 steps)
+- Validation: Automated script comparing optimal configs to PARAM_DEFINITIONS
+
+## Parameters to Validate (6 total)
+
+All parameters from run_win_rate_simulation.py PARAMETER_ORDER:
+
+1. SAME_POS_BYE_WEIGHT - Weight penalty for same-position bye week conflicts
+2. DIFF_POS_BYE_WEIGHT - Weight penalty for different-position bye week conflicts
+3. PRIMARY_BONUS - Bonus for drafting from primary position tier
+4. SECONDARY_BONUS - Bonus for drafting from secondary position tier
+5. ADP_SCORING_WEIGHT - Weight of ADP multiplier in scoring calculation
+6. PLAYER_RATING_SCORING_WEIGHT - Weight of expert consensus ranking multiplier in scoring calculation
+
+**Note**: These are BASE parameters, not WEEK_SPECIFIC_PARAMS. They should:
+- Appear in `league_config.json` in optimal config folders
+- NOT appear in `week1-5.json`, `week6-11.json`, etc.
+- Use win-rate metrics for optimization (not MAE)
+
+## Validation Methodology
+
+### Phase 1: Code Review & Trace
+For each parameter, trace through:
+
+1. **ConfigGenerator.generate_horizon_test_values(param_name)**
+   - Does it generate test values for this parameter?
+   - Are values within the defined range?
+   - Do values match the precision?
+   - Are different values generated per horizon (for tournament mode)?
+
+2. **ConfigGenerator.get_config_for_horizon(horizon, param_name, test_idx)**
+   - Does it correctly insert the test value into the config structure?
+   - Does it handle base parameters correctly (not nested like TEAM_QUALITY_SCORING -> WEIGHT)?
+
+3. **PlayerManager / DraftHelperTeam usage**
+   - Is this parameter actually used during scoring or draft simulation?
+   - Does changing the value affect the calculated score or draft order?
+   - Are there any conditions where the parameter is ignored?
+
+### Phase 2: Functional Testing
+For each parameter:
+
+1. **Generate configs manually**
+   - Use ConfigGenerator to generate 3 test configs with different values
+   - Verify values are in range and have correct precision
+   - Verify each config is different
+
+2. **Run simulations with different configs**
+   - Take a sample league setup
+   - Run with config A (parameter at min)
+   - Run with config B (parameter at mid)
+   - Run with config C (parameter at max)
+   - **Expected:** Win rates should be DIFFERENT (proves parameter affects simulation)
+   - **If win rates are identical:** Parameter is not being used in simulation
+
+3. **Run mini optimization**
+   - Run win-rate simulation for ONLY this parameter with --test-values 3
+   - Verify logs show "Generated N configs"
+   - Verify final optimal value makes sense (or understand why baseline was best)
+
+### Phase 3: Root Cause Analysis for Issues
+For any discovered issues:
+
+1. **Identify WHERE the bug is**
+   - ConfigGenerator (range enforcement, test value generation)
+   - SimulationManager (optimization logic)
+   - PlayerManager (parameter not used)
+   - ParallelLeagueRunner (config evaluation)
+
+2. **Understand WHY it happened**
+   - Missing validation?
+   - Off-by-one error?
+   - Parameter renamed but code not updated?
+   - Flag/condition causing parameter to be skipped?
+
+3. **Fix and verify**
+   - Implement fix
+   - Re-run validation
+   - Confirm issue resolved
+
+## Differences from Accuracy Simulation Validation
+
+1. **Metric**: Win-rate simulation uses win percentages (0.0-1.0), not MAE
+2. **Config Structure**: Win-rate parameters only exist in `league_config.json`, not horizon files
+3. **Iterative Mode**: Win-rate simulation runs in iterative mode, so we can compare league_config.json across iterations
+4. **Scope**: Only 6 parameters vs 16 for accuracy simulation
+5. **Usage**: Base parameters affect draft/roster logic, not weekly prediction scoring
+
+## Expected Deliverables
+
+1. **Validation Report** (`validation_report.md`)
+   - Table showing all 6 parameters and their validation status
+   - For each parameter: ✅ Pass or ❌ Fail with reason
+   - Root cause analysis for any failures
+
+2. **Automated Validation Script** (`validate_winrate_params.py`)
+   - Runs all 3 validation checks automatically
+   - Can be run after any win-rate simulation
+   - Outputs clear pass/fail for each parameter
+
+3. **Bug Fixes** (as needed)
+   - Fix any parameters not being optimized
+   - Fix any range/precision violations
+   - Fix any parameters not being used in simulation logic
+
+4. **Test Coverage** (if gaps found)
+   - Unit tests for ConfigGenerator range enforcement
+   - Integration tests for parameter usage in simulation
+   - Regression tests to prevent future issues
+
+## Success Criteria
+
+- All 6 parameters pass all 3 validation requirements
+- Automated validation script exists and passes
+- Root causes of all failures documented
+- All bugs fixed and verified
+
+## Notes
+
+- This validation should be faster than accuracy validation (6 params vs 16 params)
+- Win-rate simulation already exists and has been running successfully, so we expect fewer issues
+- However, we want 100% certainty that all parameters are working correctly
+- Better to find issues now than after running expensive multi-day optimizations
+- This validates both the simulation framework AND the parameter definitions
+- PLAYER_RATING_SCORING_WEIGHT was added as the 6th parameter after moving it from WEEK_SPECIFIC_PARAMS to BASE_CONFIG_PARAMS
+
+## Reference Files
+
+- `run_win_rate_simulation.py` - PARAMETER_ORDER list (6 parameters)
+- `simulation/shared/ConfigGenerator.py` - PARAM_DEFINITIONS (ranges and precision)
+- `simulation/win_rate/SimulationManager.py` - Win-rate simulation manager
+- `simulation/shared/ResultsManager.py` - Results tracking and config saving
+- `league_helper/util/PlayerManager.py` - Player scoring logic (uses ADP_SCORING_WEIGHT and PLAYER_RATING_SCORING_WEIGHT)
+- `simulation/win_rate/DraftHelperTeam.py` - Draft simulation (uses bye weights and bonuses)
+
+## Known Good Reference
+
+The most recent successful win-rate simulation:
+- `simulation/simulation_configs/optimal_iterative_20251211_092353/`
+- Contains: `league_config.json`, `week1-5.json`, `week6-11.json`, `week12-17.json`
+- Win-rate parameters should only be in `league_config.json`
+- Weekly files should only contain WEEK_SPECIFIC_PARAMS (prediction parameters)

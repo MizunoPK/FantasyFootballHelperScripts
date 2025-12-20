@@ -206,7 +206,9 @@ class AccuracyCalculator:
 
     def aggregate_season_results(
         self,
-        season_results: List[Tuple[str, AccuracyResult]]
+        season_results: List[Tuple[str, AccuracyResult]],
+        horizon: str = None,
+        config_label: str = None
     ) -> AccuracyResult:
         """
         Aggregate MAE results across multiple seasons.
@@ -215,6 +217,8 @@ class AccuracyCalculator:
 
         Args:
             season_results: List of (season_name, AccuracyResult) tuples
+            horizon: Optional horizon identifier (e.g., 'ros', 'week_1_5') for logging
+            config_label: Optional config identifier (e.g., 'NORMALIZATION_MAX_SCALE=54 [ros]') for logging
 
         Returns:
             AccuracyResult: Aggregated MAE across all seasons
@@ -236,10 +240,26 @@ class AccuracyCalculator:
 
         aggregated_mae = total_error / total_players
 
-        self.logger.info(
-            f"Aggregated MAE: {aggregated_mae:.4f} from {total_players} players "
-            f"across {len(season_results)} seasons"
-        )
+        # Build descriptive log message
+        if config_label and horizon:
+            # Full context: "Config: PARAM=value [config_horizon] | Evaluating: eval_horizon | MAE: ..."
+            # Use debug level for individual horizon evaluations (summary will be logged separately)
+            self.logger.debug(
+                f"Config: {config_label} | Eval: {horizon} | MAE={aggregated_mae:.4f} | "
+                f"Players={total_players} | Seasons={len(season_results)}"
+            )
+        elif horizon:
+            # Just horizon context
+            self.logger.info(
+                f"[{horizon}] Aggregated MAE: {aggregated_mae:.4f} from {total_players} players "
+                f"across {len(season_results)} seasons"
+            )
+        else:
+            # No context (backward compatibility)
+            self.logger.info(
+                f"Aggregated MAE: {aggregated_mae:.4f} from {total_players} players "
+                f"across {len(season_results)} seasons"
+            )
 
         return AccuracyResult(
             mae=aggregated_mae,

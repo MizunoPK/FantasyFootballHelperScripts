@@ -1119,8 +1119,8 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # PLAYER_RATING_SCORING_WEIGHT is week-specific
-        test_values = generator.generate_horizon_test_values('PLAYER_RATING_SCORING_WEIGHT')
+        # TEAM_QUALITY_SCORING_WEIGHT is week-specific
+        test_values = generator.generate_horizon_test_values('TEAM_QUALITY_SCORING_WEIGHT')
 
         # Should have all 5 horizon keys
         assert 'ros' in test_values
@@ -1133,8 +1133,8 @@ class TestHorizonBasedInterface:
         # Each horizon should have 6 values
         for horizon in ['ros', '1-5', '6-9', '10-13', '14-17']:
             assert len(test_values[horizon]) == 6
-            # First value should be baseline (2.0)
-            assert test_values[horizon][0] == 2.0
+            # First value should be baseline (1.5)
+            assert test_values[horizon][0] == 1.5
 
     def test_get_config_for_horizon_with_shared_param(self, tmp_path):
         """get_config_for_horizon should apply shared param to specified horizon"""
@@ -1158,13 +1158,13 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        test_values = generator.generate_horizon_test_values('PLAYER_RATING_SCORING_WEIGHT')
+        test_values = generator.generate_horizon_test_values('TEAM_QUALITY_SCORING_WEIGHT')
 
         # Get config for 'ros' horizon with test_index 2
-        config = generator.get_config_for_horizon('ros', 'PLAYER_RATING_SCORING_WEIGHT', 2)
+        config = generator.get_config_for_horizon('ros', 'TEAM_QUALITY_SCORING_WEIGHT', 2)
 
         # Should have the test value from 'ros' array
-        assert config['parameters']['PLAYER_RATING_SCORING']['WEIGHT'] == test_values['ros'][2]
+        assert config['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == test_values['ros'][2]
 
     def test_update_baseline_for_horizon_with_shared_param(self, tmp_path):
         """update_baseline should update shared param in all horizons"""
@@ -1189,17 +1189,17 @@ class TestHorizonBasedInterface:
 
         # Create new config with updated horizon param
         new_config = copy.deepcopy(generator.baseline_configs['ros'])
-        new_config['parameters']['PLAYER_RATING_SCORING']['WEIGHT'] = 5.0
+        new_config['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] = 5.0
 
         # Update only 'ros' horizon
         generator.update_baseline_for_horizon('ros', new_config)
 
         # Only 'ros' should be updated
-        assert generator.baseline_configs['ros']['parameters']['PLAYER_RATING_SCORING']['WEIGHT'] == 5.0
+        assert generator.baseline_configs['ros']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 5.0
 
-        # Other horizons should still have original value (2.0)
-        assert generator.baseline_configs['1-5']['parameters']['PLAYER_RATING_SCORING']['WEIGHT'] == 2.0
-        assert generator.baseline_configs['6-9']['parameters']['PLAYER_RATING_SCORING']['WEIGHT'] == 2.0
+        # Other horizons should still have original value (1.5)
+        assert generator.baseline_configs['1-5']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
+        assert generator.baseline_configs['6-9']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
 
     def test_deprecated_parameter_order_removed(self, tmp_path):
         """__init__ should not accept parameter_order parameter"""

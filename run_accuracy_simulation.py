@@ -25,6 +25,7 @@ Author: Kai Mizuno
 """
 
 import argparse
+import signal
 import sys
 from pathlib import Path
 
@@ -35,6 +36,17 @@ from AccuracySimulationManager import AccuracySimulationManager
 # Add utils to path
 sys.path.append(str(Path(__file__).parent))
 from utils.LoggingManager import setup_logger, get_logger
+
+
+# Signal handler for Ctrl+C
+def signal_handler(sig, frame):
+    """Handle Ctrl+C by immediately exiting."""
+    print("\n\nCtrl+C detected - exiting immediately...")
+    sys.exit(1)
+
+
+# Register signal handler
+signal.signal(signal.SIGINT, signal_handler)
 
 
 # Logging Configuration
@@ -48,7 +60,7 @@ LOGGING_FORMAT = "detailed"      # detailed / standard / simple
 DEFAULT_BASELINE = ''            # Empty = auto-detect most recent optimal config
 DEFAULT_OUTPUT = 'simulation/simulation_configs'
 DEFAULT_DATA = 'simulation/sim_data'
-DEFAULT_TEST_VALUES = 20          # Number of test values per parameter
+DEFAULT_TEST_VALUES = 5          # Number of test values per parameter
 NUM_PARAMETERS_TO_TEST = 1       # Number of parameters to test simultaneously
 
 # Parallel processing defaults
@@ -302,4 +314,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    while True:
+        main()

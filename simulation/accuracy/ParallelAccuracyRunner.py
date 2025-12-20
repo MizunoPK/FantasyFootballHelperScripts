@@ -61,12 +61,34 @@ def _evaluate_config_tournament_process(
 
     results = {}
 
+    # Extract metadata for logging (if available)
+    metadata = config_dict.get('_eval_metadata', {})
+    param_name = metadata.get('param_name', 'unknown')
+    param_value = metadata.get('param_value', 'unknown')
+    config_horizon = metadata.get('horizon', 'unknown')
+
     # Evaluate ROS horizon
-    results['ros'] = _evaluate_config_ros_worker(calculator, config_dict, data_folder, available_seasons)
+    results['ros'] = _evaluate_config_ros_worker(
+        calculator, config_dict, data_folder, available_seasons, 'ros',
+        param_name, param_value, config_horizon
+    )
 
     # Evaluate all 4 weekly horizons
     for week_key, week_range in WEEK_RANGES.items():
-        results[week_key] = _evaluate_config_weekly_worker(calculator, config_dict, data_folder, available_seasons, week_range)
+        results[week_key] = _evaluate_config_weekly_worker(
+            calculator, config_dict, data_folder, available_seasons, week_range, week_key,
+            param_name, param_value, config_horizon
+        )
+
+    # Log summary of all horizons for this config
+    logger = calculator.logger
+    config_label = f"{param_name}={param_value} [{config_horizon}]"
+    logger.info(f"━━━ Config Complete: {config_label} ━━━")
+    logger.info(f"  ros:        MAE={results['ros'].mae:.4f} (players={results['ros'].player_count})")
+    logger.info(f"  week_1_5:   MAE={results['week_1_5'].mae:.4f} (players={results['week_1_5'].player_count})")
+    logger.info(f"  week_6_9:   MAE={results['week_6_9'].mae:.4f} (players={results['week_6_9'].player_count})")
+    logger.info(f"  week_10_13: MAE={results['week_10_13'].mae:.4f} (players={results['week_10_13'].player_count})")
+    logger.info(f"  week_14_17: MAE={results['week_14_17'].mae:.4f} (players={results['week_14_17'].player_count})")
 
     return (config_dict, results)
 
@@ -75,7 +97,11 @@ def _evaluate_config_ros_worker(
     calculator: AccuracyCalculator,
     config_dict: dict,
     data_folder: Path,
-    available_seasons: List[Path]
+    available_seasons: List[Path],
+    horizon: str,
+    param_name: str,
+    param_value: Any,
+    config_horizon: str
 ) -> AccuracyResult:
     """
     Worker function to evaluate ROS configuration.
@@ -141,8 +167,9 @@ def _evaluate_config_ros_worker(
         finally:
             _cleanup_player_manager(player_mgr)
 
-    # Aggregate across seasons
-    return calculator.aggregate_season_results(season_results)
+    # Aggregate across seasons with config context
+    config_label = f"{param_name}={param_value} [{config_horizon}]"
+    return calculator.aggregate_season_results(season_results, horizon, config_label)
 
 
 def _evaluate_config_weekly_worker(
@@ -150,7 +177,11 @@ def _evaluate_config_weekly_worker(
     config_dict: dict,
     data_folder: Path,
     available_seasons: List[Path],
-    week_range: Tuple[int, int]
+    week_range: Tuple[int, int],
+    horizon: str,
+    param_name: str,
+    param_value: Any,
+    config_horizon: str
 ) -> AccuracyResult:
     """
     Worker function to evaluate weekly configuration.
@@ -175,6 +206,11 @@ def _evaluate_config_weekly_worker(
             try:
                 projections = {}
                 actuals = {}
+
+                # Calculate and set max weekly projection for this week's normalization
+                # This is required before scoring with use_weekly_projection=True
+                max_weekly = player_mgr.calculate_max_weekly_projection(week_num)
+                player_mgr.scoring_calculator.max_weekly_projection = max_weekly
 
                 for player in player_mgr.players:
                     # Get scored player with projected points
@@ -217,8 +253,9 @@ def _evaluate_config_weekly_worker(
         )
         season_results.append((season_path.name, result))
 
-    # Aggregate across seasons
-    return calculator.aggregate_season_results(season_results)
+    # Aggregate across seasons with config context
+    config_label = f"{param_name}={param_value} [{config_horizon}]"
+    return calculator.aggregate_season_results(season_results, horizon, config_label)
 
 
 def _load_season_data(season_path: Path, week_num: int) -> Tuple[Path, Path]:
@@ -363,20 +400,31 @@ class ParallelAccuracyRunner:
             }
 
             # Collect results as they complete
-            for future in as_completed(future_to_config):
-                config = future_to_config[future]
-                try:
-                    result = future.result()
-                    results.append(result)
-                    completed += 1
+            try:
+                for future in as_completed(future_to_config):
+                    config = future_to_config[future]
+                    try:
+                        result = future.result()
+                        results.append(result)
+                        completed += 1
 
-                    # Progress callback
-                    if progress_callback is not None:
-                        progress_callback(completed)
+                        # Progress callback
+                        if progress_callback is not None:
+                            progress_callback(completed)
 
-                except Exception as e:
-                    self.logger.error(f"Config evaluation failed: {e}", exc_info=True)
-                    raise  # Fail-fast
+                    except Exception as e:
+                        self.logger.error(f"Config evaluation failed: {e}", exc_info=True)
+                        raise  # Fail-fast
+
+            except KeyboardInterrupt:
+                self.logger.warning("\nKeyboardInterrupt received - cancelling all workers...")
+                # Cancel all pending futures
+                for future in future_to_config:
+                    future.cancel()
+                # Shutdown executor immediately
+                executor.shutdown(wait=False, cancel_futures=True)
+                self.logger.info("All workers cancelled")
+                raise
 
         # Sort results to match input order (futures complete in arbitrary order)
         # Use JSON serialization for proper dict keys

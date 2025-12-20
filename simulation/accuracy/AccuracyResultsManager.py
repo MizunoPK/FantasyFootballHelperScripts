@@ -13,6 +13,7 @@ Key differences from win-rate ResultsManager:
 Author: Kai Mizuno
 """
 
+import copy
 import json
 import shutil
 from datetime import datetime
@@ -65,7 +66,7 @@ class AccuracyConfigPerformance:
         test_idx: Optional[int] = None,
         base_horizon: Optional[str] = None
     ) -> None:
-        self.config_dict = config_dict
+        self.config_dict = copy.deepcopy(config_dict)
         self.mae = mae
         self.player_count = player_count
         self.total_error = total_error
@@ -210,8 +211,11 @@ class AccuracyResultsManager:
         Returns:
             bool: True if this is the new best for the week range
         """
+        # Deep copy to prevent shared object references (defense in depth)
+        config_copy = copy.deepcopy(config_dict)
+
         perf = AccuracyConfigPerformance(
-            config_dict=config_dict,
+            config_dict=config_copy,
             mae=accuracy_result.mae,
             player_count=accuracy_result.player_count,
             total_error=accuracy_result.total_error,
@@ -249,25 +253,33 @@ class AccuracyResultsManager:
         ensures consistent opponent evaluation.
 
         Params synced:
-        - SCHEDULE_IMPACT_SCALE = MATCHUP_IMPACT_SCALE
-        - SCHEDULE_SCORING_WEIGHT = MATCHUP_SCORING_WEIGHT
-        - SCHEDULE_MIN_WEEKS = MATCHUP_MIN_WEEKS
+        - SCHEDULE_SCORING.IMPACT_SCALE = MATCHUP_SCORING.IMPACT_SCALE
+        - SCHEDULE_SCORING.WEIGHT = MATCHUP_SCORING.WEIGHT
+        - SCHEDULE_SCORING.MIN_WEEKS = MATCHUP_SCORING.MIN_WEEKS
 
         Args:
-            config: Configuration dictionary to update
+            config: Configuration dictionary to update (nested structure)
 
         Returns:
             dict: Updated config with synced SCHEDULE params
         """
-        synced = config.copy()
+        import copy
+        synced = copy.deepcopy(config)
 
-        # Sync if MATCHUP params exist
-        if 'MATCHUP_IMPACT_SCALE' in config:
-            synced['SCHEDULE_IMPACT_SCALE'] = config['MATCHUP_IMPACT_SCALE']
-        if 'MATCHUP_SCORING_WEIGHT' in config:
-            synced['SCHEDULE_SCORING_WEIGHT'] = config['MATCHUP_SCORING_WEIGHT']
-        if 'MATCHUP_MIN_WEEKS' in config:
-            synced['SCHEDULE_MIN_WEEKS'] = config['MATCHUP_MIN_WEEKS']
+        # Handle nested structure: MATCHUP_SCORING -> SCHEDULE_SCORING
+        if 'MATCHUP_SCORING' in synced:
+            matchup = synced['MATCHUP_SCORING']
+            schedule = synced.get('SCHEDULE_SCORING', {})
+
+            # Copy relevant fields from MATCHUP to SCHEDULE
+            if 'IMPACT_SCALE' in matchup:
+                schedule['IMPACT_SCALE'] = matchup['IMPACT_SCALE']
+            if 'WEIGHT' in matchup:
+                schedule['WEIGHT'] = matchup['WEIGHT']
+            if 'MIN_WEEKS' in matchup:
+                schedule['MIN_WEEKS'] = matchup['MIN_WEEKS']
+
+            synced['SCHEDULE_SCORING'] = schedule
 
         return synced
 
@@ -326,13 +338,22 @@ class AccuracyResultsManager:
             if perf:
                 self.logger.info(f"  Has results: MAE={perf.mae:.4f}, using real performance data")
                 # Sync SCHEDULE params with MATCHUP before saving
-                synced_params = self._sync_schedule_params(perf.config_dict)
+                synced_config = self._sync_schedule_params(perf.config_dict)
+
+                # Extract only week-specific parameters (not base/strategy params)
+                # Use ResultsManager's helper to filter to WEEK_SPECIFIC_PARAMS
+                from simulation.shared.ResultsManager import ResultsManager
+                week_params_dict = {
+                    key: synced_config.get('parameters', synced_config).get(key)
+                    for key in ResultsManager.WEEK_SPECIFIC_PARAMS
+                    if key in synced_config.get('parameters', synced_config)
+                }
 
                 # Create config with proper nested structure (matches win-rate format)
                 config_output = {
                     'config_name': f"Accuracy Optimal {filename.replace('.json', '')} ({timestamp})",
                     'description': description,
-                    'parameters': synced_params,
+                    'parameters': week_params_dict,
                     'performance_metrics': {
                         'mae': perf.mae,
                         'player_count': perf.player_count,
@@ -442,13 +463,22 @@ class AccuracyResultsManager:
                 # Sync SCHEDULE params before saving
                 synced_config = self._sync_schedule_params(perf.config_dict)
 
+                # Extract only week-specific parameters (not base/strategy params)
+                # Use ResultsManager's helper to filter to WEEK_SPECIFIC_PARAMS
+                from simulation.shared.ResultsManager import ResultsManager
+                week_params_dict = {
+                    key: synced_config.get('parameters', synced_config).get(key)
+                    for key in ResultsManager.WEEK_SPECIFIC_PARAMS
+                    if key in synced_config.get('parameters', synced_config)
+                }
+
                 # Save standard config file (for use as baseline and resume)
                 standard_filename = file_mapping.get(week_key)
                 if standard_filename:
                     config_output = {
                         'config_name': f"Accuracy Intermediate {standard_filename.replace('.json', '')} ({timestamp})",
                         'description': f"Intermediate result after optimizing {param_name}",
-                        'parameters': synced_config,
+                        'parameters': week_params_dict,
                         'performance_metrics': {
                             'mae': perf.mae,
                             'player_count': perf.player_count,

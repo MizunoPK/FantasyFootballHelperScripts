@@ -37,7 +37,7 @@ from utils.LoggingManager import get_logger
 sys.path.append(str(Path(__file__).parent.parent / "shared"))
 from ConfigGenerator import ConfigGenerator
 from ProgressTracker import ProgressTracker
-from config_cleanup import cleanup_old_accuracy_optimal_folders
+from config_cleanup import cleanup_old_accuracy_optimal_folders, cleanup_accuracy_intermediate_folders
 
 # Import from same folder (accuracy/)
 sys.path.append(str(Path(__file__).parent))
@@ -492,6 +492,11 @@ class AccuracySimulationManager:
                     projections = {}
                     actuals = {}
 
+                    # Calculate and set max weekly projection for this week's normalization
+                    # This is required before scoring with use_weekly_projection=True
+                    max_weekly = player_mgr.calculate_max_weekly_projection(week_num)
+                    player_mgr.scoring_calculator.max_weekly_projection = max_weekly
+
                     for player in player_mgr.players:
                         # Get scored player with projected points
                         # Use same flags as StarterHelperModeManager with
@@ -805,6 +810,11 @@ class AccuracySimulationManager:
             optimal_path = self.results_manager.save_optimal_configs()
             self._current_optimal_config_path = optimal_path
 
+            # Clean up intermediate folders now that optimization is complete
+            deleted_count = cleanup_accuracy_intermediate_folders(self.output_dir)
+            if deleted_count > 0:
+                self.logger.info(f"Cleaned up {deleted_count} intermediate folders")
+
             self.logger.info(f"Weekly optimization complete. Results saved to: {optimal_path}")
             return optimal_path
 
@@ -858,12 +868,11 @@ class AccuracySimulationManager:
                 self.logger.info(f"  Evaluating {total_configs} configs × 5 horizons = {total_evaluations} total evaluations")
 
                 # Create progress tracker
-                from simulation.shared.ProgressTracker import MultiLevelProgressTracker
-                self.progress_tracker = MultiLevelProgressTracker(
-                    outer_total=total_configs,
-                    inner_total=5,
-                    outer_desc="Configs",
-                    inner_desc="Horizons"
+                # Note: Each config evaluates all 5 horizons in parallel, so we only track config completion
+                from simulation.shared.ProgressTracker import ProgressTracker
+                self.progress_tracker = ProgressTracker(
+                    total=total_configs,
+                    description="Configs (each tests 5 horizons)"
                 )
 
                 # Collect all configs to evaluate
@@ -873,6 +882,15 @@ class AccuracySimulationManager:
                 for horizon, test_values in test_values_dict.items():
                     for test_idx, test_value in enumerate(test_values):
                         config_dict = self.config_generator.get_config_for_horizon(horizon, param_name, test_idx)
+
+                        # Add metadata for logging (will be stripped before saving)
+                        config_dict['_eval_metadata'] = {
+                            'param_name': param_name,
+                            'param_value': test_value,
+                            'horizon': horizon,
+                            'test_idx': test_idx
+                        }
+
                         configs_to_evaluate.append(config_dict)
                         config_metadata.append((horizon, test_idx))
 
@@ -888,7 +906,7 @@ class AccuracySimulationManager:
 
                 # Progress callback
                 def progress_update(completed):
-                    self.progress_tracker.next_outer()  # Increment outer level
+                    self.progress_tracker.update()  # Increment progress
 
                 # Evaluate all configs in parallel with progress tracking
                 evaluation_results = self.parallel_runner.evaluate_configs_parallel(
@@ -896,8 +914,8 @@ class AccuracySimulationManager:
                     progress_callback=progress_update
                 )
 
-                # Close progress tracker
-                self.progress_tracker.close()
+                # Finish progress tracker
+                self.progress_tracker.finish()
 
                 # Record all results
                 for (config_dict, results_dict), (horizon, test_idx) in zip(evaluation_results, config_metadata):
@@ -923,10 +941,18 @@ class AccuracySimulationManager:
                 )
 
                 # Update baselines for all 5 horizons
-                for week_key in ['ros', 'week_1_5', 'week_6_9', 'week_10_13', 'week_14_17']:
+                # Map results manager keys (week_1_5) to config generator keys (1-5)
+                horizon_map = {
+                    'ros': 'ros',
+                    'week_1_5': '1-5',
+                    'week_6_9': '6-9',
+                    'week_10_13': '10-13',
+                    'week_14_17': '14-17'
+                }
+                for week_key, horizon_key in horizon_map.items():
                     best_perf = self.results_manager.best_configs.get(week_key)
                     if best_perf is not None:
-                        self.config_generator.update_baseline_for_horizon(week_key, best_perf.config_dict)
+                        self.config_generator.update_baseline_for_horizon(horizon_key, best_perf.config_dict)
                     else:
                         self.logger.warning(f"No best config found for {week_key} after parameter {param_name}")
 
@@ -935,6 +961,12 @@ class AccuracySimulationManager:
 
             # Save optimal configs
             optimal_path = self.results_manager.save_optimal_configs()
+
+            # Clean up intermediate folders now that optimization is complete
+            deleted_count = cleanup_accuracy_intermediate_folders(self.output_dir)
+            if deleted_count > 0:
+                self.logger.info(f"Cleaned up {deleted_count} intermediate folders")
+
             self.logger.info(f"Tournament optimization complete. Results saved to {optimal_path}")
 
             return optimal_path

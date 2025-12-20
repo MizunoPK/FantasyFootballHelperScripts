@@ -115,3 +115,85 @@ def cleanup_old_accuracy_optimal_folders(config_dir: Path, max_folders: int = MA
             # Continue anyway - don't block new folder creation
 
     return deleted_count
+
+
+def cleanup_intermediate_folders(config_dir: Path) -> int:
+    """
+    Delete all intermediate_* folders (win-rate simulation).
+
+    Called after successful optimization completion to remove
+    temporary intermediate state folders.
+
+    Args:
+        config_dir: Directory containing intermediate_* folders
+
+    Returns:
+        Number of folders deleted
+
+    Note:
+        Deletion failures are logged as warnings but don't raise exceptions.
+    """
+    logger = get_logger()
+
+    if not config_dir.exists():
+        return 0
+
+    # Find all intermediate_* folders (excluding accuracy_intermediate_*)
+    intermediate_folders: List[Path] = [
+        p for p in config_dir.iterdir()
+        if p.is_dir() and p.name.startswith("intermediate_") and not p.name.startswith("accuracy_intermediate_")
+    ]
+
+    deleted_count = 0
+
+    for folder in intermediate_folders:
+        try:
+            shutil.rmtree(folder)
+            logger.info(f"Deleted intermediate folder: {folder.name}")
+            deleted_count += 1
+        except Exception as e:
+            logger.warning(f"Failed to delete {folder.name}: {e}")
+            # Continue anyway
+
+    return deleted_count
+
+
+def cleanup_accuracy_intermediate_folders(config_dir: Path) -> int:
+    """
+    Delete all accuracy_intermediate_* folders (accuracy simulation).
+
+    Called after successful optimization completion to remove
+    temporary intermediate state folders.
+
+    Args:
+        config_dir: Directory containing accuracy_intermediate_* folders
+
+    Returns:
+        Number of folders deleted
+
+    Note:
+        Deletion failures are logged as warnings but don't raise exceptions.
+    """
+    logger = get_logger()
+
+    if not config_dir.exists():
+        return 0
+
+    # Find all accuracy_intermediate_* folders
+    intermediate_folders: List[Path] = [
+        p for p in config_dir.iterdir()
+        if p.is_dir() and p.name.startswith("accuracy_intermediate_")
+    ]
+
+    deleted_count = 0
+
+    for folder in intermediate_folders:
+        try:
+            shutil.rmtree(folder)
+            logger.info(f"Deleted accuracy intermediate folder: {folder.name}")
+            deleted_count += 1
+        except Exception as e:
+            logger.warning(f"Failed to delete {folder.name}: {e}")
+            # Continue anyway
+
+    return deleted_count

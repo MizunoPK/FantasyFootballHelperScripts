@@ -1133,6 +1133,80 @@ Complete this checklist at the end of **every** iteration before moving to the n
 
 ## Step-by-Step Workflow
 
+### STEP 0: Sub-Feature Analysis (MANDATORY for complex features)
+
+**BEFORE creating TODO files**, analyze whether the feature should be broken into sub-features.
+
+#### When to Break Into Sub-Features
+
+Break features into sub-features if ANY of these apply:
+- Feature has 10+ distinct implementation tasks
+- Feature spans multiple systems or components
+- Feature has clear phases (e.g., core logic → optimization → testing)
+- Feature has natural dependencies (Task A must complete before Task B)
+- Feature would take multiple days/weeks to implement
+- Feature scope is "comprehensive fix" or "complete rewrite"
+
+#### How to Identify Sub-Features
+
+Look for natural groupings:
+1. **By component**: Each major class/module is a sub-feature
+2. **By phase**: Setup → Implementation → Optimization → Testing
+3. **By dependency**: Core fixes → New features → Performance → Validation
+4. **By priority**: Critical path → Nice-to-have → Polish
+
+#### Sub-Feature Structure
+
+Each sub-feature gets its own TODO file:
+- `01_[name]_todo.md` - Phase 1 (highest priority/dependency)
+- `02_[name]_todo.md` - Phase 2 (depends on Phase 1)
+- `03_[name]_todo.md` - Phase 3 (depends on Phase 2)
+- etc.
+
+**Each TODO file follows the full 24-iteration structure** independently.
+
+#### Sub-Feature Workflow
+
+**CRITICAL: Each sub-feature follows the COMPLETE feature workflow:**
+
+1. **Pre-implementation:**
+   - Create TODO file with 24 verification iterations
+   - Complete all 3 verification rounds (7+9+8 iterations)
+   - Interface verification
+
+2. **Implementation:**
+   - Execute all tasks in TODO
+   - Update code_changes.md incrementally
+   - Run tests after each phase
+
+3. **Post-implementation:**
+   - Run all unit tests (100% pass required)
+   - Execute Requirement Verification Protocol
+   - Complete 3 QC rounds
+   - Review lessons learned
+   - **Commit changes** with descriptive message
+
+4. **What to skip:**
+   - Do NOT move folder to done/ (wait until all sub-features complete)
+   - All other steps are MANDATORY
+
+**Sub-feature commit message format:**
+```bash
+git commit -m "Phase N ({sub-feature-name}): {brief description}
+
+- Change 1
+- Change 2
+- Change 3"
+```
+
+This ensures:
+- Each sub-feature is fully validated before proceeding
+- Git history shows incremental progress
+- Bugs caught early (within sub-feature scope)
+- Safe rollback points between sub-features
+
+---
+
 ### STEP 1: Create Draft TODO File
 
 Create `feature-updates/{feature_name}/{feature_name}_todo.md` from the specification.
@@ -1488,84 +1562,102 @@ Phase 2: Integration
 
 ---
 
-## Post-Implementation Smoke Testing (MANDATORY)
+## Smoke Testing (MANDATORY - CRITICAL GATE)
 
-**CRITICAL:** Before declaring implementation complete or moving to QC, run smoke tests.
+**CRITICAL:** Smoke testing is the FINAL validation before feature completion. Unit tests alone are NOT sufficient.
 
-### Why Smoke Tests Matter
-- Unit tests with mocks don't catch real import/runtime errors
-- Integration tests may not exercise all entry points
-- "All tests passing" ≠ "code actually works"
-- Test pass rate can be misleading if tests are mocked or skipped
+### Why Smoke Testing Is Critical
 
-### Required Smoke Tests
+**Real-world evidence:** In the accuracy simulation feature, smoke testing discovered **10 critical bugs** that passed 2296 unit tests (100% pass rate):
+- Type mismatches between modules
+- Import path errors
+- Data structure assumptions
+- API interface mismatches
+- Method name errors
 
-Run these tests for EVERY feature before declaring complete:
+**All 10 bugs were found ONLY during smoke testing** - unit tests passed perfectly.
 
-#### 1. Import Test
-Verify all refactored/new modules can be imported:
-```bash
-python -c "from module.path import ClassName; print('Import OK')"
-```
+### Smoke Testing Requirements
 
-#### 2. Entry Point Test
-Verify main scripts/CLIs work:
-```bash
-python main_script.py --help
-# Should show help text without errors
-```
+**Minimum requirements (DO NOT SKIP):**
+1. **Run with real data** - no mocks, no fixtures
+2. **Run end-to-end** - from CLI to output files
+3. **Run for sufficient duration** - at least 30-60 seconds
+4. **Verify all outputs** - check file contents, not just existence
+5. **Check logs** - look for warnings or unexpected behavior
 
-#### 3. Basic Execution Test (if applicable)
-Run minimal working example to verify end-to-end flow:
-```bash
-python script.py <minimal-args> | head -20
-# Should start executing without import/runtime errors
-```
+**ENHANCED VALIDATION CHECKLIST** (lessons from accuracy simulation bugs):
 
-### When to Run
-- ✅ After completing all implementation phases
-- ✅ Before declaring "feature complete"
-- ✅ Before moving to QC rounds
-- ✅ Before asking user to test
-- ❌ NEVER skip smoke tests even if unit tests pass at 100%
+#### 1. Output Validation (Not Just "Does It Run")
+- [ ] Values are in expected range (compare to baseline/known results)
+- [ ] Results vary appropriately (not all zeros, not all identical)
+- [ ] All expected components produce output (e.g., all 5 horizons, not just 1)
+- [ ] Counts/metrics match expectations (player counts, iteration counts)
+- [ ] **Compare to baseline**: Run should produce similar results to previous optimal config
 
-### If Smoke Tests Fail
-1. DO NOT declare feature complete
-2. Fix the runtime issues immediately
-3. Re-run smoke tests until all pass
-4. Update code_changes.md with fixes
-5. Only then move to QC
+#### 2. Log Analysis (Active Checking)
+- [ ] `grep -i warning output.log` → Should be empty (or only expected warnings)
+- [ ] `grep -i error output.log` → Should be empty
+- [ ] Config/parameter identification is clear (can you tell what's being tested?)
+- [ ] Progress updates are meaningful (not stuck at 0% or showing nonsense)
+- [ ] Summary information is complete (all expected metrics reported)
 
-### Smoke Test Results Template
+#### 3. User Experience Validation
+- [ ] Ctrl+C exits cleanly (<2 seconds, no zombie processes)
+- [ ] Progress updates regularly (not stuck for minutes)
+- [ ] ETA estimates are reasonable (within 2x of actual time)
+- [ ] Output is readable and informative (user can understand what's happening)
+- [ ] Error messages are actionable (tell user what to fix)
 
-Add to code_changes.md:
+#### 4. Comparison to Working Reference
+- [ ] Run similar existing feature side-by-side (e.g., run_win_rate_simulation.py)
+- [ ] Compare logging patterns (do they follow same style?)
+- [ ] Compare initialization (does new feature set up state like reference?)
+- [ ] Compare progress display (similar format and updates?)
+- [ ] **Spot check**: Pick a specific integration point from planning and verify it works
 
-```markdown
-## Smoke Test Results
+**Expected results (all must be true):**
+- ✅ Script runs without crashes
+- ✅ All expected output files created with correct structure
+- ✅ Output contains valid, non-zero values in expected ranges
+- ✅ Logs show expected progression (parameter updates, new bests, etc.)
+- ✅ **No WARNING or ERROR messages** (grep for them!)
+- ✅ **Output matches test plan from planning phase** (check Testing & Validation section from specs)
 
-**Date:** YYYY-MM-DD
+**If smoke test finds bugs:**
+1. Fix the bug
+2. Re-run ALL unit tests (ensure 100% pass rate maintained)
+3. Re-run smoke test
+4. Repeat until clean pass
+5. **Root cause analysis:** Why didn't unit tests catch this?
+6. Document in lessons_learned.md
 
-### Import Tests
-- [ ] Module 1: `python -c "from ..."`
-- [ ] Module 2: `python -c "from ..."`
+### Common Bug Types Found During Smoke Testing
 
-### Entry Point Tests
-- [ ] Script 1: `python script1.py --help`
-- [ ] Script 2: `python script2.py --help`
+Based on real features, smoke testing catches:
+- Type mismatches between modules (unit tests mock these away)
+- Import path errors (unit tests import directly)
+- Data structure assumptions (unit tests use simplified fixtures)
+- API interface changes (unit tests use old mocks)
+- Environment-specific issues (paths, file structure)
+- Integration bugs (component A calls component B incorrectly)
 
-### Basic Execution Tests
-- [ ] Test 1: `python script.py minimal-args`
-- [ ] Test 2: `python script.py other-args`
+**These bugs are INVISIBLE to unit tests because:**
+- Unit tests mock external dependencies
+- Unit tests use simplified test data
+- Unit tests test components in isolation
+- Unit tests don't exercise full data flow
 
-**All smoke tests passed:** [YES/NO]
-**Ready for QC:** [YES/NO]
-```
+### Anti-Patterns to Avoid
 
-**Anti-patterns to avoid:**
-- ❌ Declaring feature complete based solely on test pass rate
-- ❌ Assuming mocked unit tests verify runtime behavior
-- ❌ Skipping smoke tests "because integration tests pass"
-- ❌ Asking user to test before running smoke tests yourself
+❌ "All tests pass, must be working" - WRONG
+✅ "All tests pass AND smoke test passes" - CORRECT
+
+❌ "Just run --help and call it done" - WRONG
+✅ "Run end-to-end with real data for 60 seconds" - CORRECT
+
+❌ "Smoke test failed, but I'll fix it later" - WRONG
+✅ "Smoke test failed, stop everything and fix it now" - CORRECT
 
 ---
 
@@ -1654,6 +1746,10 @@ timeout 60 python run_win_rate_simulation.py iterative --sims 1 --test-values 1
 □ Runner scripts execute successfully end-to-end with real data
 □ Interfaces verified against actual class definitions (not assumed)
 □ Data model attributes verified to exist (not assumed)
+□ **Baseline comparison:** If similar feature exists, compare outputs side-by-side
+□ **Output validation:** Results are in expected range (not all zeros, not nonsense)
+□ **No regressions:** New feature doesn't break or degrade existing features
+□ **Log quality:** No unexpected WARNING/ERROR messages in output
 ```
 
 Document each round in code_changes.md:

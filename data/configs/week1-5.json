@@ -3,20 +3,6 @@
   "description": "Optimized week-specific params for weeks 1-5",
   "parameters": {
     "NORMALIZATION_MAX_SCALE": 163,
-    "PLAYER_RATING_SCORING": {
-      "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "INCREASING",
-        "STEPS": 20
-      },
-      "MULTIPLIERS": {
-        "VERY_POOR": 0.95,
-        "POOR": 0.975,
-        "GOOD": 1.025,
-        "EXCELLENT": 1.05
-      },
-      "WEIGHT": 2.11
-    },
     "TEAM_QUALITY_SCORING": {
       "MIN_WEEKS": 5,
       "THRESHOLDS": {

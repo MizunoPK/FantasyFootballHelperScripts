@@ -235,8 +235,9 @@ class TestAccuracyResultsManager:
     def test_save_optimal_configs(self, results_manager):
         """Test saving optimal configs to folder."""
         # Add results for ROS and one week range
-        config_ros = {'type': 'ros'}
-        config_week = {'type': 'weekly'}
+        # Use real WEEK_SPECIFIC_PARAMS parameters with nested structure
+        config_ros = {'TEAM_QUALITY_SCORING': {'WEIGHT': 1.5}}
+        config_week = {'MATCHUP_SCORING': {'WEIGHT': 1.2}}
         result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
 
         results_manager.add_result('ros', config_ros, result)
@@ -261,7 +262,8 @@ class TestAccuracyResultsManager:
         assert 'config_name' in saved_config
         assert 'description' in saved_config
         assert 'parameters' in saved_config
-        assert saved_config['parameters'] == config_ros
+        assert 'TEAM_QUALITY_SCORING' in saved_config['parameters']
+        assert saved_config['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
         assert 'performance_metrics' in saved_config
         assert saved_config['performance_metrics']['mae'] == 5.0
 
@@ -332,6 +334,28 @@ class TestAccuracyResultsManager:
         assert "MAE=5.0000" in summary
         assert "100 players" in summary
 
+    def test_horizons_have_independent_configs(self, results_manager):
+        """Test that different horizons store independent config objects (regression test for bug)."""
+        config1 = {'parameters': {'NORMALIZATION_MAX_SCALE': 100}}
+        config2 = {'parameters': {'NORMALIZATION_MAX_SCALE': 150}}
+        result1 = AccuracyResult(mae=68.0, player_count=100, total_error=6800.0)
+        result2 = AccuracyResult(mae=3.8, player_count=100, total_error=380.0)
+
+        # Record different configs for ros and week_1_5
+        results_manager.add_result('ros', config1, result1)
+        results_manager.add_result('week_1_5', config2, result2)
+
+        # Verify they're stored independently
+        ros_config = results_manager.best_configs['ros'].config_dict
+        week_config = results_manager.best_configs['week_1_5'].config_dict
+
+        assert ros_config['parameters']['NORMALIZATION_MAX_SCALE'] == 100
+        assert week_config['parameters']['NORMALIZATION_MAX_SCALE'] == 150
+
+        # Modify ros config and verify week_1_5 is unaffected
+        ros_config['parameters']['NORMALIZATION_MAX_SCALE'] = 200
+        assert week_config['parameters']['NORMALIZATION_MAX_SCALE'] == 150  # Should still be 150
+
 
 class TestScheduleSync:
     """Tests for SCHEDULE parameter sync with MATCHUP."""
@@ -363,33 +387,39 @@ class TestScheduleSync:
         return AccuracyResultsManager(output_dir, mock_baseline)
 
     def test_sync_schedule_params_all_matchup_params(self, results_manager):
-        """Test syncing all MATCHUP params to SCHEDULE."""
+        """Test syncing all MATCHUP params to SCHEDULE (nested structure)."""
         config = {
-            'MATCHUP_IMPACT_SCALE': 0.8,
-            'MATCHUP_SCORING_WEIGHT': 0.15,
-            'MATCHUP_MIN_WEEKS': 3,
+            'MATCHUP_SCORING': {
+                'IMPACT_SCALE': 0.8,
+                'WEIGHT': 0.15,
+                'MIN_WEEKS': 3
+            },
             'OTHER_PARAM': 'value'
         }
 
         synced = results_manager._sync_schedule_params(config)
 
-        assert synced['SCHEDULE_IMPACT_SCALE'] == 0.8
-        assert synced['SCHEDULE_SCORING_WEIGHT'] == 0.15
-        assert synced['SCHEDULE_MIN_WEEKS'] == 3
+        assert 'SCHEDULE_SCORING' in synced
+        assert synced['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.8
+        assert synced['SCHEDULE_SCORING']['WEIGHT'] == 0.15
+        assert synced['SCHEDULE_SCORING']['MIN_WEEKS'] == 3
         assert synced['OTHER_PARAM'] == 'value'  # Other params preserved
 
     def test_sync_schedule_params_partial(self, results_manager):
-        """Test syncing when only some MATCHUP params exist."""
+        """Test syncing when only some MATCHUP params exist (nested structure)."""
         config = {
-            'MATCHUP_IMPACT_SCALE': 0.5,
+            'MATCHUP_SCORING': {
+                'IMPACT_SCALE': 0.5
+            },
             'OTHER_PARAM': 'value'
         }
 
         synced = results_manager._sync_schedule_params(config)
 
-        assert synced['SCHEDULE_IMPACT_SCALE'] == 0.5
-        assert 'SCHEDULE_SCORING_WEIGHT' not in synced
-        assert 'SCHEDULE_MIN_WEEKS' not in synced
+        assert 'SCHEDULE_SCORING' in synced
+        assert synced['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.5
+        assert 'WEIGHT' not in synced['SCHEDULE_SCORING']
+        assert 'MIN_WEEKS' not in synced['SCHEDULE_SCORING']
 
     def test_sync_schedule_params_no_matchup(self, results_manager):
         """Test syncing when no MATCHUP params exist."""
@@ -397,30 +427,36 @@ class TestScheduleSync:
 
         synced = results_manager._sync_schedule_params(config)
 
-        assert 'SCHEDULE_IMPACT_SCALE' not in synced
-        assert 'SCHEDULE_SCORING_WEIGHT' not in synced
+        assert 'SCHEDULE_SCORING' not in synced
         assert synced == config
 
     def test_sync_schedule_params_preserves_original(self, results_manager):
-        """Test that original config is not modified."""
+        """Test that original config is not modified (nested structure)."""
         config = {
-            'MATCHUP_IMPACT_SCALE': 0.8,
-            'SCHEDULE_IMPACT_SCALE': 0.5  # Different value
+            'MATCHUP_SCORING': {
+                'IMPACT_SCALE': 0.8
+            },
+            'SCHEDULE_SCORING': {
+                'IMPACT_SCALE': 0.5  # Different value
+            }
         }
 
         synced = results_manager._sync_schedule_params(config)
 
         # Original unchanged
-        assert config['SCHEDULE_IMPACT_SCALE'] == 0.5
+        assert config['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.5
         # Synced has MATCHUP value
-        assert synced['SCHEDULE_IMPACT_SCALE'] == 0.8
+        assert synced['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.8
 
     def test_save_optimal_configs_syncs_schedule(self, results_manager):
         """Test that save_optimal_configs applies SCHEDULE sync."""
+        # Use nested structure matching actual config format
         config = {
-            'MATCHUP_IMPACT_SCALE': 0.8,
-            'MATCHUP_SCORING_WEIGHT': 0.15,
-            'MATCHUP_MIN_WEEKS': 3
+            'MATCHUP_SCORING': {
+                'IMPACT_SCALE': 0.8,
+                'WEIGHT': 0.15,
+                'MIN_WEEKS': 3
+            }
         }
         result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
         results_manager.add_result('ros', config, result)
@@ -430,17 +466,20 @@ class TestScheduleSync:
         with open(optimal_path / "draft_config.json") as f:
             saved_config = json.load(f)
 
-        # SCHEDULE params should mirror MATCHUP in parameters section
+        # SCHEDULE params should mirror MATCHUP in parameters section (nested structure)
         params = saved_config['parameters']
-        assert params['SCHEDULE_IMPACT_SCALE'] == 0.8
-        assert params['SCHEDULE_SCORING_WEIGHT'] == 0.15
-        assert params['SCHEDULE_MIN_WEEKS'] == 3
+        assert 'SCHEDULE_SCORING' in params
+        assert params['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.8
+        assert params['SCHEDULE_SCORING']['WEIGHT'] == 0.15
+        assert params['SCHEDULE_SCORING']['MIN_WEEKS'] == 3
 
     def test_save_intermediate_results_syncs_schedule(self, results_manager):
         """Test that save_intermediate_results applies SCHEDULE sync."""
+        # Use nested structure matching actual config format
         config = {
-            'MATCHUP_IMPACT_SCALE': 0.7,
-            'OTHER_PARAM': 'test'
+            'MATCHUP_SCORING': {
+                'IMPACT_SCALE': 0.7
+            }
         }
         result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
         results_manager.add_result('ros', config, result)
@@ -451,8 +490,9 @@ class TestScheduleSync:
         with open(intermediate_path / "draft_config.json") as f:
             saved_data = json.load(f)
 
-        # SCHEDULE params should mirror MATCHUP in parameters section
-        assert saved_data['parameters']['SCHEDULE_IMPACT_SCALE'] == 0.7
+        # SCHEDULE params should mirror MATCHUP in parameters section (nested structure)
+        assert 'SCHEDULE_SCORING' in saved_data['parameters']
+        assert saved_data['parameters']['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.7
 
 
     def test_is_better_than_rejects_zero_players(self):

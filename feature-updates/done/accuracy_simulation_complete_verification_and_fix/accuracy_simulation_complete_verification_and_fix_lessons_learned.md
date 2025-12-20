@@ -318,6 +318,291 @@ This validates the existing 3 QC round requirement. Without QC Round 3, this bug
 
 ---
 
+## Issues Discovered During POST-IMPLEMENTATION
+
+### Issue 6: Smoke Testing Critical for Finding Real-World Bugs
+
+**What happened:**
+During POST-IMPLEMENTATION smoke testing, **10 critical bugs** were discovered that had passed all 2296 unit tests (100% pass rate). These bugs only surfaced when running the script end-to-end with real data.
+
+**Bugs Found:**
+1. Resume state type mismatch (tuple vs int)
+2. AccuracyCalculator init signature mismatch
+3. Import path error (utils vs league_helper.util)
+4. Data loading structure (nested weeks/ folder)
+5. Result ordering (str vs json.dumps)
+6. Data corruption in baseline config
+7. PlayerManager API (get_all_players vs players)
+8. Player scoring method (total_score vs score_player)
+9. AccuracyCalculator method calls (calculate_mae vs specific methods)
+10. Weekly evaluation logic (aggregation vs per-week)
+
+**Why unit tests didn't catch these:**
+- Unit tests use mocks and fixtures
+- Unit tests test individual components in isolation
+- Real data has edge cases not represented in test fixtures
+- Integration between components only exercised during E2E execution
+
+**Impact:**
+- Without smoke testing, all 10 bugs would have been committed
+- Bugs would have surfaced in production usage
+- Much more expensive to debug and fix post-commit
+
+**Root cause:**
+The feature_development_guide.md includes smoke testing in POST-IMPLEMENTATION but doesn't emphasize its CRITICAL importance strongly enough. The guide treats it as "one more step" rather than "the final gate before completion."
+
+**Proposed guide update:**
+Strengthen the smoke testing section in feature_development_guide.md (around line 1544):
+
+```markdown
+## Smoke Testing (MANDATORY - CRITICAL GATE)
+
+**CRITICAL:** Smoke testing is the FINAL validation before feature completion. Unit tests alone are NOT sufficient.
+
+### Why Smoke Testing Is Critical
+
+**Real-world evidence:** In the accuracy simulation feature, smoke testing discovered **10 critical bugs** that passed 2296 unit tests (100% pass rate):
+- Type mismatches between modules
+- Import path errors
+- Data structure assumptions
+- API interface mismatches
+- Method name errors
+
+**All 10 bugs were found ONLY during smoke testing** - unit tests passed perfectly.
+
+### Smoke Testing Requirements
+
+**Minimum requirements (DO NOT SKIP):**
+1. **Run with real data** - no mocks, no fixtures
+2. **Run end-to-end** - from CLI to output files
+3. **Run for sufficient duration** - at least 30-60 seconds
+4. **Verify all outputs** - check file contents, not just existence
+5. **Check logs** - look for warnings or unexpected behavior
+
+**Expected result:**
+- Script runs without crashes
+- All expected output files created
+- Output contains valid, non-zero values
+- Logs show expected progression (parameter updates, new bests, etc.)
+- No error messages or stack traces
+
+**If smoke test finds bugs:**
+1. Fix the bug
+2. Re-run ALL unit tests (ensure 100% pass rate maintained)
+3. Re-run smoke test
+4. Repeat until clean pass
+5. **Root cause analysis:** Why didn't unit tests catch this?
+6. Document in lessons_learned.md
+
+### Common Bug Types Found During Smoke Testing
+
+Based on real features, smoke testing catches:
+- Type mismatches between modules (unit tests mock these away)
+- Import path errors (unit tests import directly)
+- Data structure assumptions (unit tests use simplified fixtures)
+- API interface changes (unit tests use old mocks)
+- Environment-specific issues (paths, file structure)
+- Integration bugs (component A calls component B incorrectly)
+
+**These bugs are INVISIBLE to unit tests because:**
+- Unit tests mock external dependencies
+- Unit tests use simplified test data
+- Unit tests test components in isolation
+- Unit tests don't exercise full data flow
+
+### Anti-Patterns to Avoid
+
+❌ "All tests pass, must be working" - WRONG
+✅ "All tests pass AND smoke test passes" - CORRECT
+
+❌ "Just run --help and call it done" - WRONG
+✅ "Run end-to-end with real data for 60 seconds" - CORRECT
+
+❌ "Smoke test failed, but I'll fix it later" - WRONG
+✅ "Smoke test failed, stop everything and fix it now" - CORRECT
+```
+
+**Why this update is needed:**
+- Developers may rely too heavily on unit test pass rates
+- Unit tests create false confidence (100% pass rate but 10 bugs present)
+- Smoke testing needs stronger emphasis as critical final gate
+- Real-world evidence shows smoke testing finds bugs unit tests miss
+
+**Lesson learned:**
+**SMOKE TESTING IS MANDATORY AND CANNOT BE SKIPPED.** It is not "just another validation step" - it is the FINAL GATE before feature completion. Unit tests, no matter how comprehensive (2296 tests, 100% pass rate), do not catch all bugs. Only end-to-end execution with real data reveals integration bugs, type mismatches, and real-world edge cases.
+
+**Impact on guides:**
+Add prominent warning in feature_development_guide.md that smoke testing is THE critical final validation, not optional, and provide real-world evidence of why it matters.
+
+---
+
 ## Proposed Guide Updates
 
-*(To be populated based on lessons learned)*
+### Update 1: feature_planning_guide.md - Codebase Verification
+
+**Location:** Phase 2 (Deep Investigation) section
+
+**Add explicit instruction:**
+```markdown
+**CRITICAL: DO NOT mark any checklist items as [x] during codebase verification.**
+
+Your role is to:
+- Research the codebase
+- Document findings in the Resolution Log
+- Provide recommendations
+- Leave ALL items as [ ] for user review
+
+Only the USER can mark items as [x] after reviewing your findings.
+```
+
+**Rationale:** Prevents agents from prematurely marking items as resolved (Issue 1)
+
+---
+
+### Update 2: feature_planning_guide.md - Phase 4 Question Resolution
+
+**Location:** Phase 4 (Resolve Questions) section around line 740-757
+
+**Strengthen instruction:**
+```markdown
+### When user provides an answer
+
+1. **Acknowledge** the answer
+2. **IMMEDIATELY update both files:**
+   - **Update `_specs.md`** with the resolved detail in the appropriate section
+   - **Mark checklist item `[x]`** in `_checklist.md` with resolution summary
+3. **Update `README.md`** if the answer affects scope or key context
+
+**CRITICAL:** Update BOTH files after EACH answer, not at end of session.
+- Specs should never contain "Open Questions" that have been resolved
+- If a question in specs is answered, move it from "Open Questions" to "Resolved Implementation Decisions"
+- This ensures continuity if session is interrupted
+
+**Anti-pattern:** Updating only checklist during Phase 4, leaving specs outdated
+```
+
+**Rationale:** Ensures specs file stays synchronized with checklist (Issue 2)
+
+---
+
+### Update 3: feature_development_guide.md - Add Step 0: Sub-Feature Analysis
+
+**Location:** Before current "Step 1: Create TODO file"
+
+**Add new mandatory step:**
+```markdown
+## Step 0: Sub-Feature Analysis (MANDATORY for complex features)
+
+**BEFORE creating TODO files**, analyze whether the feature should be broken into sub-features.
+
+### When to Break Into Sub-Features
+
+Break features into sub-features if ANY of these apply:
+- Feature has 10+ distinct implementation tasks
+- Feature spans multiple systems or components
+- Feature has clear phases (e.g., core logic → optimization → testing)
+- Feature has natural dependencies (Task A must complete before Task B)
+- Feature would take multiple days/weeks to implement
+- Feature scope is "comprehensive fix" or "complete rewrite"
+
+### How to Identify Sub-Features
+
+Look for natural groupings:
+1. **By component**: Each major class/module is a sub-feature
+2. **By phase**: Setup → Implementation → Optimization → Testing
+3. **By dependency**: Core fixes → New features → Performance → Validation
+4. **By priority**: Critical path → Nice-to-have → Polish
+
+### Sub-Feature Structure
+
+Each sub-feature gets its own TODO file:
+- `01_[name]_todo.md` - Phase 1 (highest priority/dependency)
+- `02_[name]_todo.md` - Phase 2 (depends on Phase 1)
+- `03_[name]_todo.md` - Phase 3 (depends on Phase 2)
+- etc.
+
+**Each TODO file follows the full 24-iteration structure** independently.
+
+## Sub-Feature Workflow
+
+**CRITICAL: Each sub-feature follows the COMPLETE feature workflow:**
+
+1. **Pre-implementation:**
+   - Create TODO file with 24 verification iterations
+   - Complete all 3 verification rounds (7+9+8 iterations)
+   - Interface verification
+
+2. **Implementation:**
+   - Execute all tasks in TODO
+   - Update code_changes.md incrementally
+   - Run tests after each phase
+
+3. **Post-implementation:**
+   - Run all unit tests (100% pass required)
+   - Execute Requirement Verification Protocol
+   - Complete 3 QC rounds
+   - Review lessons learned
+   - **Commit changes** with descriptive message
+
+4. **What to skip:**
+   - Do NOT move folder to done/ (wait until all sub-features complete)
+   - All other steps are MANDATORY
+
+**Sub-feature commit message format:**
+```bash
+git commit -m "Phase N ({sub-feature-name}): {brief description}
+
+- Change 1
+- Change 2
+- Change 3"
+```
+
+This ensures:
+- Each sub-feature is fully validated before proceeding
+- Git history shows incremental progress
+- Bugs caught early (within sub-feature scope)
+- Safe rollback points between sub-features
+```
+
+**Rationale:** Makes sub-feature analysis mandatory, provides clear criteria and workflow (Issues 3 & 5)
+
+---
+
+### Update 4: feature_development_guide.md - Strengthen Smoke Testing Section
+
+**Location:** POST-IMPLEMENTATION Phase, Smoke Testing section (around line 1544)
+
+**Replace existing section with strengthened version:**
+```markdown
+## Smoke Testing (MANDATORY - CRITICAL GATE)
+
+**CRITICAL:** Smoke testing is the FINAL validation before feature completion. Unit tests alone are NOT sufficient.
+
+### Why Smoke Testing Is Critical
+
+**Real-world evidence:** In the accuracy simulation feature, smoke testing discovered **10 critical bugs** that passed 2296 unit tests (100% pass rate):
+- Type mismatches between modules
+- Import path errors
+- Data structure assumptions
+- API interface mismatches
+- Method name errors
+
+**All 10 bugs were found ONLY during smoke testing** - unit tests passed perfectly.
+
+[... rest of strengthened section from Issue 6 ...]
+```
+
+**Rationale:** Emphasizes critical importance of smoke testing with real-world evidence (Issue 6)
+
+---
+
+## Summary of Guide Updates Needed
+
+| Guide File | Section | Update Type | Priority |
+|------------|---------|-------------|----------|
+| feature_planning_guide.md | Phase 2 | Add explicit "DO NOT mark items" instruction | HIGH |
+| feature_planning_guide.md | Phase 4 | Strengthen "update BOTH files IMMEDIATELY" | HIGH |
+| feature_development_guide.md | Before Step 1 | Add Step 0: Sub-Feature Analysis | HIGH |
+| feature_development_guide.md | POST-IMPLEMENTATION | Strengthen smoke testing emphasis | CRITICAL |
+
+All updates should be reviewed and approved by user before applying to guide files.

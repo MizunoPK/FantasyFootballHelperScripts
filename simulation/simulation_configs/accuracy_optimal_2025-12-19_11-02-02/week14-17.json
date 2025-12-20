@@ -1,10 +1,24 @@
 {
-  "config_name": "Week 6-9 Config",
-  "description": "Week-specific params for weeks 6-9",
+  "config_name": "Accuracy Optimal week14-17 (2025-12-19_11-02-02)",
+  "description": "Weeks 14-17 prediction parameters",
   "parameters": {
-    "NORMALIZATION_MAX_SCALE": 153,
+    "NORMALIZATION_MAX_SCALE": 188,
+    "PLAYER_RATING_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 20
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 2.11
+    },
     "TEAM_QUALITY_SCORING": {
-      "MIN_WEEKS": 3,
+      "MIN_WEEKS": 1,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -16,14 +30,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.77
+      "WEIGHT": 0.0
     },
     "PERFORMANCE_SCORING": {
-      "MIN_WEEKS": 2,
+      "MIN_WEEKS": 14,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.18
+        "STEPS": 0.1
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -31,11 +45,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 3.55
+      "WEIGHT": 0.13
     },
     "MATCHUP_SCORING": {
-      "MIN_WEEKS": 3,
-      "IMPACT_SCALE": 156,
+      "MIN_WEEKS": 13,
+      "IMPACT_SCALE": 46,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
@@ -47,7 +61,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.62
+      "WEIGHT": 0.03
     },
     "SCHEDULE_SCORING": {
       "MIN_WEEKS": 5,
@@ -66,8 +80,8 @@
       "WEIGHT": 0.9141034145521472
     },
     "TEMPERATURE_SCORING": {
-      "IMPACT_SCALE": 23,
-      "WEIGHT": 0.81,
+      "IMPACT_SCALE": 20,
+      "WEIGHT": 0.17,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -82,8 +96,8 @@
       }
     },
     "WIND_SCORING": {
-      "IMPACT_SCALE": 71,
-      "WEIGHT": 1.23,
+      "IMPACT_SCALE": 2,
+      "WEIGHT": 0.12,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -97,9 +111,16 @@
       }
     },
     "LOCATION_MODIFIERS": {
-      "HOME": 3.8,
-      "AWAY": -1.8,
-      "INTERNATIONAL": -13.8
+      "HOME": 1.1,
+      "AWAY": -0.1,
+      "INTERNATIONAL": -3.7
     }
+  },
+  "performance_metrics": {
+    "mae": 2.058142562334397,
+    "player_count": 4766,
+    "total_error": 9809.107452085736,
+    "config_id": "25bb0504",
+    "timestamp": "2025-12-19T10:52:15.837005"
   }
 }

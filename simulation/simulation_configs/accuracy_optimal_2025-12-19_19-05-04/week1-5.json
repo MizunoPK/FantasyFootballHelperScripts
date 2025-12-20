@@ -1,10 +1,10 @@
 {
-  "config_name": "Week 6-9 Config",
-  "description": "Week-specific params for weeks 6-9",
+  "config_name": "Accuracy Optimal week1-5 (2025-12-19_19-05-04)",
+  "description": "Weeks 1-5 prediction parameters",
   "parameters": {
-    "NORMALIZATION_MAX_SCALE": 153,
+    "NORMALIZATION_MAX_SCALE": 179,
     "TEAM_QUALITY_SCORING": {
-      "MIN_WEEKS": 3,
+      "MIN_WEEKS": 1,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -16,14 +16,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.77
+      "WEIGHT": 0.0
     },
     "PERFORMANCE_SCORING": {
-      "MIN_WEEKS": 2,
+      "MIN_WEEKS": 14,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.18
+        "STEPS": 0.1
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -31,11 +31,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 3.55
+      "WEIGHT": 0.13
     },
     "MATCHUP_SCORING": {
-      "MIN_WEEKS": 3,
-      "IMPACT_SCALE": 156,
+      "MIN_WEEKS": 6,
+      "IMPACT_SCALE": 41,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
@@ -47,7 +47,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.62
+      "WEIGHT": 0.03
     },
     "SCHEDULE_SCORING": {
       "MIN_WEEKS": 5,
@@ -66,8 +66,8 @@
       "WEIGHT": 0.9141034145521472
     },
     "TEMPERATURE_SCORING": {
-      "IMPACT_SCALE": 23,
-      "WEIGHT": 0.81,
+      "IMPACT_SCALE": 14,
+      "WEIGHT": 0.17,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -82,8 +82,8 @@
       }
     },
     "WIND_SCORING": {
-      "IMPACT_SCALE": 71,
-      "WEIGHT": 1.23,
+      "IMPACT_SCALE": 2,
+      "WEIGHT": 0.16,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -97,9 +97,16 @@
       }
     },
     "LOCATION_MODIFIERS": {
-      "HOME": 3.8,
-      "AWAY": -1.8,
-      "INTERNATIONAL": -13.8
+      "HOME": 4.6,
+      "AWAY": 3.8,
+      "INTERNATIONAL": -3.7
     }
+  },
+  "performance_metrics": {
+    "mae": 3.332834319737755,
+    "player_count": 6304,
+    "total_error": 21010.18755162681,
+    "config_id": "373ca943",
+    "timestamp": "2025-12-19T18:50:23.643340"
   }
 }
