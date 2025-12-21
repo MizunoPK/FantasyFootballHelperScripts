@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-12-20
 **Total Metrics:** 58
-**Completed:** 2/58 (3.4%)
+**Completed:** 3/58 (5.2%)
 
 **Source:** Based on `docs/research/scoring_gap_analysis.md` (Version 3.0, Last Updated: December 17, 2025)
 
@@ -12,7 +12,7 @@
 
 | Priority | Total | Completed | Pending | % Complete |
 |----------|-------|-----------|---------|------------|
-| HIGH     | 14    | 2         | 12      | 14%        |
+| HIGH     | 14    | 3         | 11      | 21%        |
 | MEDIUM   | 15    | 0         | 15      | 0%         |
 | LOW      | 29    | 0         | 29      | 0%         |
 
@@ -33,7 +33,7 @@
 |---|-------------|----------|--------|-------------|------------|------|
 | 1 | Target Volume/Share | WR, TE, RB | ✅ Complete | PFR + Sleeper | Yes (actuals) | [View](01_target_volume.md) |
 | 2 | QB Context/Quality Score | WR, TE | ✅ Complete | Existing (QB stats) | Yes (perfect) | [View](02_qb_context.md) |
-| 4 | Vegas Lines/Game Environment | ALL | ⏳ Pending | - | - | - |
+| 4 | Vegas Lines/Game Environment | ALL | ✅ Complete | ESPN API + PFR | Yes (via scraping) | [View](04_vegas_lines.md) |
 | 12 | Implied Team Total | ALL | ⏳ Pending | - | - | - |
 | 21 | WOPR (Weighted Opportunity Rating) | WR, TE | ⏳ Pending | - | - | - |
 | 22 | Expected Fantasy Points (xFP) | ALL | ⏳ Pending | - | - | - |
@@ -132,7 +132,7 @@
 
 ## Completion Milestones
 
-- [ ] **Phase 1 Complete:** All 14 HIGH priority metrics researched (2/14 = 14%)
+- [ ] **Phase 1 Complete:** All 14 HIGH priority metrics researched (3/14 = 21%)
 - [ ] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (0/15 = 0%)
 - [ ] **Phase 3 Complete:** All 29 LOW priority metrics researched (0/29 = 0%)
 - [ ] **All Research Complete:** 58/58 metrics documented (0%)
