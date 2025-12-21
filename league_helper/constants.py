@@ -30,7 +30,7 @@ LOGGING_FORMAT = 'detailed'    # detailed / standard / simple
 # =============================================================================
 # GENERAL SETTINGS
 # =============================================================================
-RECOMMENDATION_COUNT = 10  # Number of player recommendations to display
+RECOMMENDATION_COUNT = 5  # Number of player recommendations to display
 
 # =============================================================================
 # WAIVER OPTIMIZER CONSTANTS

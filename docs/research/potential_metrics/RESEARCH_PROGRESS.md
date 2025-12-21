@@ -139,4 +139,56 @@
 
 ---
 
+## File Organization
+
+All 58 metric research documents have been organized into subfolders based on historical data availability:
+
+### `/perfect/` (17 metrics)
+Metrics with **perfect historical data availability** - existing data, static mappings, or simple calculations.
+- **Implementation Priority:** HIGHEST
+- **Effort:** 1-2 hours each
+- **Risk:** Zero (no scraping, no external dependencies)
+- See: `perfect/README.md` for details
+
+### `/good/` (34 metrics)
+Metrics with **good historical data availability** - reliable free scraping sources with archives.
+- **Implementation Priority:** HIGH-MEDIUM
+- **Effort:** 1-3 days each (batch scraping recommended)
+- **Risk:** Low (stable sources: PFR, PlayerProfiler, NGS, TeamRankings)
+- See: `good/README.md` for details
+
+**Batch Scraping Opportunities:**
+- Next Gen Stats: 13 metrics (3-5 days total)
+- Pro Football Reference: 9 metrics (2-3 days total)
+- PlayerProfiler: 7 metrics (2-3 days total)
+
+### `/limited/` (7 metrics)
+Metrics with **limited or no historical data** - premium paywalls, preseason only, or redundant.
+- **Implementation Priority:** DEFER
+- **Effort:** N/A (not recommended)
+- **Risk:** High (cost, unavailability, or redundancy)
+- See: `limited/README.md` for details
+
+---
+
+## Implementation Roadmap
+
+**Phase 1: Perfect Metrics (17 metrics, ~20-30 hours)**
+- Implement all metrics in `/perfect/` folder
+- Zero external dependencies, immediate value
+
+**Phase 2: Good Metrics - Batch Scraping (34 metrics, ~15-25 days)**
+- Batch 1: Next Gen Stats (13 metrics)
+- Batch 2: Pro Football Reference (9 metrics)
+- Batch 3: PlayerProfiler (7 metrics)
+- Batch 4: Other sources (5 metrics)
+
+**Phase 3: Defer Limited Metrics (7 metrics)**
+- Skip unless specific need emerges or premium data becomes available
+
+**Total Effort:** ~25-30 days for 51 recommended metrics
+
+---
+
 *This tracker is automatically maintained during the research phase. Last update: 2025-12-20*
+*File organization completed: 2025-12-20*

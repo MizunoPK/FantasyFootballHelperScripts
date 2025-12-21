@@ -1,0 +1,7 @@
+We have found that the only parameter in draft_config.json that has any meaningful impact on the Add to Roster draft is NORMALIZATION_MAX_SCALE. Thus, we're going to depreciate the use of draft_config since nearly everything in it is useless
+The simulations should no longer worry about updating the contents of draft_config and the accuracy sim should skip/remove the ROS accuracy assessment. The accuracy sim will now only be assessing the weekly projected point accuracy
+Add to Roster mode will go back to using league_config.json + whatever weekly config is associated with CURRENT_NFL_WEEK. No need to have the confusing 'use this file only in this specific mode' stuff. I think we had multiple ConfigManager objects in use due to draft_config's introduction but we can go back to just having the single one.
+We're going to add a DRAFT_NORMALIZATION_MAX_SCALE parameter in league_config.json to replace the one that was in draft_config.json
+ConfigManager should be updated to be able to read in the new parameter
+In the score_player method, if we are running a draft via the Add to Roster mode, then the scoring method should use the DRAFT_NORMALIZATION_MAX_SCALE instead of the NORMALIZATION_MAX_SCALE parameter
+The win-rate sim should be updated to test the DRAFT_NORMALIZATION_MAX_SCALE parameter

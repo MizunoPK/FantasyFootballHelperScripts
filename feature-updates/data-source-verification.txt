@@ -1,0 +1,1 @@
+I want a way to ensure that if the source data becomes inaccessible, corrupted, or changes then we are immidiately alerted to the potential issue

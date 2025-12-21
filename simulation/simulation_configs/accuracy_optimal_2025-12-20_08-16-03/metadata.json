@@ -1,0 +1,34 @@
+{
+  "param_idx": 13,
+  "param_name": "LOCATION_HOME",
+  "horizons_evaluated": [
+    "ros",
+    "week_1_5",
+    "week_6_9",
+    "week_10_13",
+    "week_14_17"
+  ],
+  "best_mae_per_horizon": {
+    "ros": {
+      "mae": 61.873768547180845,
+      "test_idx": 5
+    },
+    "week_1_5": {
+      "mae": 3.3276566769152884,
+      "test_idx": 0
+    },
+    "week_6_9": {
+      "mae": 3.0642584105648614,
+      "test_idx": 0
+    },
+    "week_10_13": {
+      "mae": 2.6475995152476104,
+      "test_idx": 5
+    },
+    "week_14_17": {
+      "mae": 2.045771733874234,
+      "test_idx": 5
+    }
+  },
+  "timestamp": "2025-12-20_09:16:21"
+}
