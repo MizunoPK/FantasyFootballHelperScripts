@@ -145,8 +145,8 @@ def create_test_config_folder(tmp_path: Path) -> Path:
     # Try to load from actual data/configs folder if it exists
     actual_configs = project_root / "data" / "configs"
     if actual_configs.exists():
-        # Copy from real configs (6 files including draft_config.json)
-        for config_file in ['league_config.json', 'draft_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
+        # Copy from real configs (5 files: 1 base + 4 weekly)
+        for config_file in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             src = actual_configs / config_file
             if src.exists():
                 with open(src) as f:
@@ -221,15 +221,6 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         'LOCATION_MODIFIERS': {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0},
     }
 
-    # Create draft_config.json (ros/pre-draft horizon)
-    draft_config = {
-        'config_name': 'Test draft_config.json',
-        'description': 'Test ROS/draft config',
-        'parameters': week_params
-    }
-    with open(config_folder / 'draft_config.json', 'w') as f:
-        json.dump(draft_config, f, indent=2)
-
     # Create week-specific configs
     for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = {
@@ -256,21 +247,6 @@ class TestAccuracyCalculatorIntegration:
         """Test AccuracyCalculator initializes successfully"""
         calculator = AccuracyCalculator()
         assert calculator is not None
-
-    def test_calculator_calculates_ros_mae(self):
-        """Test AccuracyCalculator calculates ROS MAE correctly"""
-        calculator = AccuracyCalculator()
-
-        projections = {1: 350.0, 2: 310.0, 3: 320.0}
-        actuals = {1: 340.0, 2: 315.0, 3: 300.0}
-
-        result = calculator.calculate_ros_mae(projections, actuals)
-
-        assert result.mae > 0
-        assert result.player_count == 3
-        # MAE = mean(|350-340|, |310-315|, |320-300|) = mean(10, 5, 20) = 11.67
-        expected_mae = (10 + 5 + 20) / 3
-        assert abs(result.mae - expected_mae) < 0.01
 
     def test_calculator_calculates_weekly_mae(self):
         """Test AccuracyCalculator calculates weekly MAE correctly"""
@@ -367,7 +343,10 @@ class TestAccuracyResultsManagerIntegration:
 
         assert optimal_path.exists()
         assert (optimal_path / 'league_config.json').exists()  # Copied from baseline
-        assert (optimal_path / 'draft_config.json').exists()
+        assert (optimal_path / 'week1-5.json').exists()
+        assert (optimal_path / 'week6-9.json').exists()
+        assert (optimal_path / 'week10-13.json').exists()
+        assert (optimal_path / 'week14-17.json').exists()
         # No separate performance_metrics.json - metrics are embedded in each config file
 
 
@@ -430,30 +409,6 @@ class TestWeekRanges:
 class TestOutputFileValidation:
     """Tests for output file structure validation"""
 
-    def test_draft_config_structure(self, tmp_path, baseline_config):
-        """Test draft_config.json has correct structure"""
-        output_dir = tmp_path / "output"
-        manager = AccuracyResultsManager(output_dir, baseline_config)
-
-        with open(baseline_config / 'league_config.json') as f:
-            config_dict = json.load(f)
-
-        result = AccuracyResult(mae=15.5, player_count=100, total_error=1550.0)
-        manager.add_result('ros', config_dict, result)
-
-        optimal_path = manager.save_optimal_configs()
-
-        with open(optimal_path / 'draft_config.json') as f:
-            draft_config = json.load(f)
-
-        # Verify structure - configs now have nested structure
-        assert 'config_name' in draft_config
-        assert 'description' in draft_config
-        assert 'parameters' in draft_config
-        assert isinstance(draft_config['parameters'], dict)
-        assert 'performance_metrics' in draft_config
-
-
 class TestErrorHandling:
     """Integration tests for error handling"""
 
@@ -475,7 +430,8 @@ class TestErrorHandling:
         """Test handles empty projections gracefully"""
         calculator = AccuracyCalculator()
 
-        result = calculator.calculate_ros_mae({}, {})
+        # Use calculate_weekly_mae with empty dicts
+        result = calculator.calculate_weekly_mae({}, {}, (1, 5))
 
         assert result.mae == 0.0
         assert result.player_count == 0

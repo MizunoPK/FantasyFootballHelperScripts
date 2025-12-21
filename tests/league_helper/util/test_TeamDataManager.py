@@ -49,6 +49,7 @@ def mock_data_folder(tmp_path):
         "NFL_SEASON": 2024,
         "NFL_SCORING_FORMAT": "ppr",
         "NORMALIZATION_MAX_SCALE": 125,
+        "DRAFT_NORMALIZATION_MAX_SCALE": 163,
         "SAME_POS_BYE_WEIGHT": 0.3,
         "DIFF_POS_BYE_WEIGHT": 0.1,
         "INJURY_PENALTIES": {"LOW": -2, "MEDIUM": -5, "HIGH": -10},

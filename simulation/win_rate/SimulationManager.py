@@ -892,7 +892,7 @@ class SimulationManager:
         with open(final_folder / 'league_config.json', 'w') as f:
             json.dump(base_config, f, indent=2)
 
-        # Save all 5 horizon files (6-file structure: draft_config.json + 4 week files)
+        # Save all 4 horizon files (5-file structure: 1 base + 4 week files)
         # Map horizons to filenames
         from simulation.shared.ConfigPerformance import HORIZON_FILES
 
@@ -950,13 +950,13 @@ class SimulationManager:
 
     def _initialize_configs_from_baseline(self) -> Tuple[dict, Dict[str, dict]]:
         """
-        Initialize base_config and week_configs from the baseline configs (6-file structure).
+        Initialize base_config and week_configs from the baseline configs (5-file structure).
 
         Returns:
             Tuple[dict, Dict[str, dict]]: (base_config, week_configs)
-                week_configs now includes 'ros' for draft_config.json
+                week_configs includes all 4 weekly horizons
         """
-        # Get all 5 horizon baselines from ConfigGenerator
+        # Get all 4 horizon baselines from ConfigGenerator
         # For now, use the '1-5' horizon as the "baseline" for extracting shared params
         baseline = copy.deepcopy(self.config_generator.baseline_configs['1-5'])
 

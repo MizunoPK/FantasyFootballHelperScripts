@@ -84,92 +84,12 @@ def _evaluate_config_tournament_process(
     logger = calculator.logger
     config_label = f"{param_name}={param_value} [{config_horizon}]"
     logger.info(f"━━━ Config Complete: {config_label} ━━━")
-    logger.info(f"  ros:        MAE={results['ros'].mae:.4f} (players={results['ros'].player_count})")
     logger.info(f"  week_1_5:   MAE={results['week_1_5'].mae:.4f} (players={results['week_1_5'].player_count})")
     logger.info(f"  week_6_9:   MAE={results['week_6_9'].mae:.4f} (players={results['week_6_9'].player_count})")
     logger.info(f"  week_10_13: MAE={results['week_10_13'].mae:.4f} (players={results['week_10_13'].player_count})")
     logger.info(f"  week_14_17: MAE={results['week_14_17'].mae:.4f} (players={results['week_14_17'].player_count})")
 
     return (config_dict, results)
-
-
-def _evaluate_config_ros_worker(
-    calculator: AccuracyCalculator,
-    config_dict: dict,
-    data_folder: Path,
-    available_seasons: List[Path],
-    horizon: str,
-    param_name: str,
-    param_value: Any,
-    config_horizon: str
-) -> AccuracyResult:
-    """
-    Worker function to evaluate ROS configuration.
-
-    Replicates AccuracySimulationManager._evaluate_config_ros() logic for parallel execution.
-    """
-    season_results = []
-
-    for season_path in available_seasons:
-        # Load week 1 data
-        projected_path, actual_path = _load_season_data(season_path, 1)
-        if not projected_path:
-            continue
-
-        # Create player manager with this config
-        player_mgr = _create_player_manager(config_dict, projected_path.parent, season_path)
-
-        try:
-            # Calculate projections for all players
-            projections = {}
-            actuals = {}
-
-            for player in player_mgr.players:
-                # Get scored player with projected points
-                # Use same flags as StarterHelperModeManager but with
-                # use_weekly_projection=False for season-long projections
-                scored = player_mgr.score_player(
-                    player,
-                    use_weekly_projection=False,  # Season-long projection
-                    adp=False,
-                    player_rating=False,
-                    team_quality=True,
-                    performance=True,
-                    matchup=True,
-                    schedule=False,
-                    bye=False,
-                    injury=False,
-                    temperature=True,
-                    wind=True,
-                    location=True
-                )
-                if scored:
-                    projections[player.id] = scored.projected_points
-
-                # Get actual season total by summing week_N_points
-                actual_total = 0.0
-                has_any_week = False
-                for week_num in range(1, 18):
-                    week_attr = f'week_{week_num}_points'
-                    if hasattr(player, week_attr):
-                        week_val = getattr(player, week_attr)
-                        if week_val is not None:
-                            actual_total += week_val
-                            has_any_week = True
-
-                if has_any_week and actual_total > 0:
-                    actuals[player.id] = actual_total
-
-            # Calculate MAE for this season
-            result = calculator.calculate_ros_mae(projections, actuals)
-            season_results.append((season_path.name, result))
-
-        finally:
-            _cleanup_player_manager(player_mgr)
-
-    # Aggregate across seasons with config context
-    config_label = f"{param_name}={param_value} [{config_horizon}]"
-    return calculator.aggregate_season_results(season_results, horizon, config_label)
 
 
 def _evaluate_config_weekly_worker(

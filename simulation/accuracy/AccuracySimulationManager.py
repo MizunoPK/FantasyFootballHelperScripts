@@ -5,11 +5,10 @@ Orchestrates accuracy simulation to find optimal scoring algorithm configuration
 Evaluates prediction accuracy by comparing calculated projected points to actual
 player performance using MAE (Mean Absolute Error).
 
-Two modes:
-1. ROS (Rest of Season): Evaluates season-long projection accuracy
-   - Optimizes draft_config.json for Add to Roster Mode
-2. Weekly: Evaluates per-week projection accuracy
-   - Optimizes week1-5.json, week6-9.json, etc. for Starter Helper/Trade Simulator
+Mode:
+- Weekly: Evaluates per-week projection accuracy
+  - Optimizes week1-5.json, week6-9.json, week10-13.json, week14-17.json
+  - Used for Starter Helper and Trade Simulator modes
 
 Unlike win-rate simulation:
 - No randomness (deterministic MAE calculation)
@@ -253,8 +252,8 @@ class AccuracySimulationManager:
                     continue
 
                 # Check that folder contains expected config files
-                # Standard config files: draft_config.json and/or week1-5.json, etc.
-                config_files = ['draft_config.json', 'week1-5.json', 'week6-9.json',
+                # Standard config files: week1-5.json, week6-9.json, etc.
+                config_files = ['week1-5.json', 'week6-9.json',
                                'week10-13.json', 'week14-17.json']
                 has_config = any((folder_path / f).exists() for f in config_files)
                 if not has_config:
@@ -381,83 +380,6 @@ class AccuracySimulationManager:
             import shutil
             shutil.rmtree(player_mgr._temp_dir)
 
-    def _evaluate_config_ros(
-        self,
-        config_dict: dict
-    ) -> AccuracyResult:
-        """
-        Evaluate a configuration for ROS (Rest of Season) mode.
-
-        Uses week 1 projections vs actual season totals.
-
-        Args:
-            config_dict: Configuration to evaluate
-
-        Returns:
-            AccuracyResult: MAE result across all seasons
-        """
-        season_results = []
-
-        for season_path in self.available_seasons:
-            # Load week 1 data (pre-season projections)
-            projected_path, actual_path = self._load_season_data(season_path, 1)
-            if not projected_path:
-                continue
-
-            # Create player manager with this config
-            player_mgr = self._create_player_manager(config_dict, projected_path.parent, season_path)
-
-            try:
-                # Calculate projections for all players
-                projections = {}
-                actuals = {}
-
-                for player in player_mgr.players:
-                    # Get scored player with projected points
-                    # Use same flags as StarterHelperModeManager but with
-                    # use_weekly_projection=False for season-long projections
-                    scored = player_mgr.score_player(
-                        player,
-                        use_weekly_projection=False,  # Season-long projection
-                        adp=False,
-                        player_rating=False,
-                        team_quality=True,
-                        performance=True,
-                        matchup=True,
-                        schedule=False,
-                        bye=False,
-                        injury=False,
-                        temperature=True,
-                        wind=True,
-                        location=True
-                    )
-                    if scored:
-                        projections[player.id] = scored.projected_points
-
-                    # Get actual season total by summing week_N_points
-                    actual_total = 0.0
-                    has_any_week = False
-                    for week_num in range(1, 18):
-                        week_attr = f'week_{week_num}_points'
-                        if hasattr(player, week_attr):
-                            week_val = getattr(player, week_attr)
-                            if week_val is not None:
-                                actual_total += week_val
-                                has_any_week = True
-
-                    if has_any_week and actual_total > 0:
-                        actuals[player.id] = actual_total
-
-                # Calculate MAE for this season
-                result = self.accuracy_calculator.calculate_ros_mae(projections, actuals)
-                season_results.append((season_path.name, result))
-
-            finally:
-                self._cleanup_player_manager(player_mgr)
-
-        # Aggregate across seasons
-        return self.accuracy_calculator.aggregate_season_results(season_results)
-
     def _evaluate_config_weekly(
         self,
         config_dict: dict,
@@ -547,20 +469,17 @@ class AccuracySimulationManager:
         horizon: str
     ) -> Dict[str, AccuracyResult]:
         """
-        Evaluate single config across all 5 horizons for tournament optimization.
+        Evaluate single config across all 4 weekly horizons for tournament optimization.
 
         Args:
             config_dict: Configuration to evaluate
-            horizon: Base horizon this config was generated from ('ros', '1-5', etc.)
+            horizon: Base horizon this config was generated from ('1-5', '6-9', etc.)
 
         Returns:
             Dict mapping each horizon to its AccuracyResult (using week_key format for add_result()):
-            {'ros': result_ros, 'week_1_5': result_1_5, 'week_6_9': result_6_9, 'week_10_13': result_10_13, 'week_14_17': result_14_17}
+            {'week_1_5': result_1_5, 'week_6_9': result_6_9, 'week_10_13': result_10_13, 'week_14_17': result_14_17}
         """
         results = {}
-
-        # Evaluate ROS horizon
-        results['ros'] = self._evaluate_config_ros(config_dict)
 
         # Evaluate all 4 weekly horizons
         # CRITICAL: _evaluate_config_weekly() takes Tuple[int, int] not string!
@@ -571,123 +490,6 @@ class AccuracySimulationManager:
             results[week_key] = self._evaluate_config_weekly(config_dict, week_range)
 
         return results
-
-    def run_ros_optimization(self) -> Path:
-        """
-        Run ROS (Rest of Season) optimization with auto-resume support.
-
-        Iteratively tests configurations to find optimal parameters
-        for predicting season-long player performance.
-
-        **Auto-Resume Feature:**
-            If interrupted mid-optimization, automatically resumes from the last completed
-            parameter based on existing accuracy_intermediate_*/ folders.
-
-        Returns:
-            Path: Path to optimal configuration folder
-        """
-        self.logger.info("Starting ROS accuracy optimization")
-        self._setup_signal_handlers()
-
-        try:
-            # Get total configs for progress tracking
-            total_params = len(self.parameter_order)
-
-            # Detect if we should resume from a previous run
-            should_resume, start_idx, last_config_path = self._detect_resume_state('ros')
-
-            if should_resume:
-                self.logger.info(f"Resuming from parameter {start_idx + 1}/{total_params}")
-                # Load intermediate results into results_manager
-                if last_config_path and self.results_manager.load_intermediate_results(last_config_path):
-                    self.logger.info(f"Loaded intermediate results from {last_config_path.name}")
-                    # Get current best config from loaded results
-                    best_perf = self.results_manager.get_best_config('ros')
-                    if best_perf:
-                        current_base_config = copy.deepcopy(best_perf.config_dict)
-                    else:
-                        # Use 'ros' horizon baseline
-                        current_base_config = copy.deepcopy(self.config_generator.baseline_configs['ros'])
-                else:
-                    self.logger.warning("Failed to load intermediate results, starting fresh")
-                    should_resume = False
-                    start_idx = 0
-                    # Use 'ros' horizon baseline
-                    current_base_config = copy.deepcopy(self.config_generator.baseline_configs['ros'])
-            else:
-                # Starting fresh - cleanup any existing intermediate folders
-                intermediate_folders = [p for p in self.output_dir.glob("accuracy_intermediate_*") if p.is_dir()]
-                if intermediate_folders:
-                    self.logger.info(f"Cleaning up {len(intermediate_folders)} intermediate folders")
-                    for folder in intermediate_folders:
-                        try:
-                            shutil.rmtree(folder)
-                            self.logger.debug(f"  Deleted: {folder.name}")
-                        except Exception as e:
-                            self.logger.warning(f"  Failed to delete {folder.name}: {e}")
-                    self.logger.info("Cleanup complete")
-
-                # Track current best config (starts from 'ros' baseline)
-                current_base_config = copy.deepcopy(self.config_generator.baseline_configs['ros'])
-
-            # Iterative optimization
-            for param_idx, param_name in enumerate(self.parameter_order):
-                # Skip already-completed parameters when resuming
-                if should_resume and param_idx < start_idx:
-                    self.logger.debug(f"Skipping already-completed parameter {param_idx}: {param_name}")
-                    continue
-
-                self.logger.info(f"Optimizing parameter {param_idx + 1}/{total_params}: {param_name}")
-
-                # Generate test values for this parameter (ROS uses 'ros' horizon only)
-                test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
-
-                # For accuracy sim, all params are WEEK_SPECIFIC_PARAMS, so we get per-horizon values
-                # For ROS mode, we only care about 'ros' horizon
-                if 'ros' in test_values_dict:
-                    test_values = test_values_dict['ros']
-                else:
-                    # Fallback for shared params (shouldn't happen in accuracy sim)
-                    test_values = test_values_dict['shared']
-
-                progress = ProgressTracker(len(test_values), f"Parameter {param_idx + 1}/{total_params}")
-
-                for test_idx, test_value in enumerate(test_values):
-                    # Get config for 'ros' horizon with this test value
-                    config_dict = self.config_generator.get_config_for_horizon('ros', param_name, test_idx)
-
-                    # Evaluate configuration
-                    result = self._evaluate_config_ros(config_dict)
-
-                    # Record result
-                    is_new_best = self.results_manager.add_result('ros', config_dict, result)
-
-                    progress.update()
-
-                # Save intermediate results after all test values evaluated (once per parameter)
-                self._current_optimal_config_path = self.results_manager.save_intermediate_results(
-                    param_idx, param_name
-                )
-
-                # Update ConfigGenerator baseline with best config for next parameter
-                best_perf = self.results_manager.get_best_config('ros')
-                if best_perf:
-                    # Update 'ros' horizon baseline
-                    self.config_generator.update_baseline_for_horizon('ros', best_perf.config_dict)
-                    current_base_config = copy.deepcopy(best_perf.config_dict)
-
-            # Clean up old optimal folders before creating new one (same pattern as win-rate simulation)
-            cleanup_old_accuracy_optimal_folders(self.output_dir)
-
-            # Save final optimal configs
-            optimal_path = self.results_manager.save_optimal_configs()
-            self._current_optimal_config_path = optimal_path
-
-            self.logger.info(f"ROS optimization complete. Results saved to: {optimal_path}")
-            return optimal_path
-
-        finally:
-            self._restore_signal_handlers()
 
     def run_weekly_optimization(self) -> Path:
         """
@@ -823,13 +625,13 @@ class AccuracySimulationManager:
 
     def run_both(self) -> Path:
         """
-        Run tournament optimization: each parameter optimizes across ALL 5 horizons.
+        Run tournament optimization: each parameter optimizes across ALL 4 weekly horizons.
 
         For each parameter:
-        - Generate test configs from 5 baseline configs (one per horizon)
-        - Evaluate each config across all 5 horizons
+        - Generate test configs from 4 baseline configs (one per horizon)
+        - Evaluate each config across all 4 horizons
         - Track best config for each horizon independently
-        - Save intermediate results (all 5 best configs)
+        - Save intermediate results (all 4 best configs)
         - Update baselines for next parameter
 
         Returns:
@@ -851,9 +653,9 @@ class AccuracySimulationManager:
                 if should_resume and param_idx <= resume_param_idx:
                     continue
 
-                # Generate test values for all 5 horizons
+                # Generate test values for all 4 weekly horizons
                 test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
-                # Returns: {'ros': [...], '1-5': [...], '6-9': [...], '10-13': [...], '14-17': [...]}
+                # Returns: {'1-5': [...], '6-9': [...], '10-13': [...], '14-17': [...]}
 
                 # Check for empty test values (fail fast)
                 for horizon, test_values in test_values_dict.items():
@@ -862,17 +664,17 @@ class AccuracySimulationManager:
 
                 # Calculate total configs and evaluations for progress tracking
                 total_configs = sum(len(vals) for vals in test_values_dict.values())
-                total_evaluations = total_configs * 5  # Each config × 5 horizons
+                total_evaluations = total_configs * 4  # Each config × 4 weekly horizons
 
                 self.logger.info(f"Optimizing parameter {param_idx + 1}/{len(self.parameter_order)}: {param_name}")
-                self.logger.info(f"  Evaluating {total_configs} configs × 5 horizons = {total_evaluations} total evaluations")
+                self.logger.info(f"  Evaluating {total_configs} configs × 4 horizons = {total_evaluations} total evaluations")
 
                 # Create progress tracker
-                # Note: Each config evaluates all 5 horizons in parallel, so we only track config completion
+                # Note: Each config evaluates all 4 horizons in parallel, so we only track config completion
                 from simulation.shared.ProgressTracker import ProgressTracker
                 self.progress_tracker = ProgressTracker(
                     total=total_configs,
-                    description="Configs (each tests 5 horizons)"
+                    description="Configs (each tests 4 horizons)"
                 )
 
                 # Collect all configs to evaluate
@@ -979,7 +781,7 @@ class AccuracySimulationManager:
         self.logger.info(f"Parameter {param_name} complete:")
 
         # Use underscore keys to match best_configs dict
-        for week_key in ['ros', 'week_1_5', 'week_6_9', 'week_10_13', 'week_14_17']:
+        for week_key in ['week_1_5', 'week_6_9', 'week_10_13', 'week_14_17']:
             best_perf = self.results_manager.best_configs.get(week_key)
             if best_perf:
                 test_idx = best_perf.test_idx if best_perf.test_idx is not None else '?'

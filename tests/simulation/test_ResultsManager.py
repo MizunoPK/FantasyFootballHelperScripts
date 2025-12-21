@@ -560,6 +560,7 @@ class TestUpdateLeagueConfig:
                 "MAX_POSITIONS": {"QB": 2, "RB": 4, "WR": 4},
                 "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR", "DST"],
                 "NORMALIZATION_MAX_SCALE": 100.0,
+                "DRAFT_NORMALIZATION_MAX_SCALE": 163,
                 "MATCHUP_SCORING": {
                     "MIN_WEEKS": 5,
                     "IMPACT_SCALE": 50.0,
@@ -586,6 +587,7 @@ class TestUpdateLeagueConfig:
                 "MAX_POSITIONS": {"QB": 3, "RB": 5, "WR": 5},
                 "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "NORMALIZATION_MAX_SCALE": 150.0,
+                "DRAFT_NORMALIZATION_MAX_SCALE": 163,
                 "MATCHUP_SCORING": {
                     "MIN_WEEKS": 3,
                     "IMPACT_SCALE": 107.0,
@@ -628,6 +630,7 @@ class TestUpdateLeagueConfig:
                 "MAX_POSITIONS": {"QB": 2},
                 "FLEX_ELIGIBLE_POSITIONS": ["RB", "WR"],
                 "NORMALIZATION_MAX_SCALE": 100.0,
+                "DRAFT_NORMALIZATION_MAX_SCALE": 163,
                 "MATCHUP_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 50.0, "WEIGHT": 1.0},
                 "SCHEDULE_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 75.0, "WEIGHT": 0.5}
             }
@@ -646,6 +649,7 @@ class TestUpdateLeagueConfig:
                 "MAX_POSITIONS": {"QB": 3},
                 "FLEX_ELIGIBLE_POSITIONS": ["RB"],
                 "NORMALIZATION_MAX_SCALE": 150.0,
+                "DRAFT_NORMALIZATION_MAX_SCALE": 163,
                 "MATCHUP_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 107.0, "WEIGHT": 0.4},
                 "SCHEDULE_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 108.0, "WEIGHT": 0.8}
             }
@@ -1074,9 +1078,8 @@ class TestPerWeekRangeMethods:
         assert folder_path.exists()
         assert folder_path.name == "optimal_2025-01-01_12-00-00"
 
-        # Verify all 6 files created
+        # Verify all 5 files created
         assert (folder_path / "league_config.json").exists()
-        assert (folder_path / "draft_config.json").exists()
         assert (folder_path / "week1-5.json").exists()
         assert (folder_path / "week6-9.json").exists()
         assert (folder_path / "week10-13.json").exists()
@@ -1513,8 +1516,8 @@ class TestSixFileStructureSupport:
         ]
 
     @patch('simulation.shared.ResultsManager.datetime')
-    def test_save_optimal_configs_includes_draft_config(self, mock_datetime, tmp_path):
-        """save_optimal_configs_folder should create 6 files including draft_config.json."""
+    def test_save_optimal_configs_creates_5_files(self, mock_datetime, tmp_path):
+        """save_optimal_configs_folder should create 5 files (1 base + 4 weekly)."""
         mock_datetime.now.return_value.strftime.return_value = "2025-01-01_12-00-00"
 
         mgr = ResultsManager()
@@ -1532,75 +1535,41 @@ class TestSixFileStructureSupport:
 
         folder_path = mgr.save_optimal_configs_folder(tmp_path)
 
-        # Verify all 6 files created
+        # Verify all 5 files created
         assert (folder_path / "league_config.json").exists()
-        assert (folder_path / "draft_config.json").exists()
         assert (folder_path / "week1-5.json").exists()
         assert (folder_path / "week6-9.json").exists()
         assert (folder_path / "week10-13.json").exists()
         assert (folder_path / "week14-17.json").exists()
 
     @patch('simulation.shared.ResultsManager.datetime')
-    def test_draft_config_contains_week_specific_params(self, mock_datetime, tmp_path):
-        """draft_config.json should contain week-specific parameters."""
-        mock_datetime.now.return_value.strftime.return_value = "2025-01-01_12-00-00"
-
-        mgr = ResultsManager()
-        config_dict = {
-            "config_name": "Test Config",
-            "parameters": {
-                "ADP_SCORING": {"WEIGHT": 1.0},  # Base param
-                "PLAYER_RATING_SCORING": {"WEIGHT": 2.0},  # Base param (moved from week-specific)
-                "TEAM_QUALITY_SCORING": {"WEIGHT": 1.5}  # Week-specific param
-            }
-        }
-
-        mgr.register_config("config_0001", config_dict)
-        mgr.record_week_results("config_0001", self.create_sample_week_results())
-
-        folder_path = mgr.save_optimal_configs_folder(tmp_path)
-
-        # Load draft_config.json
-        with open(folder_path / "draft_config.json", 'r') as f:
-            draft_config = json.load(f)
-
-        # Should have week-specific params (not PLAYER_RATING_SCORING which moved to base)
-        assert "TEAM_QUALITY_SCORING" in draft_config["parameters"]
-        # Should NOT have base params
-        assert "ADP_SCORING" not in draft_config["parameters"]
-        assert "PLAYER_RATING_SCORING" not in draft_config["parameters"]
-
-    @patch('simulation.shared.ResultsManager.datetime')
-    def test_load_from_folder_requires_draft_config(self, mock_datetime, tmp_path):
-        """load_from_folder should fail if draft_config.json is missing."""
-        # Create folder with only 5 files (missing draft_config.json)
+    def test_load_from_folder_requires_all_weekly_files(self, mock_datetime, tmp_path):
+        """load_from_folder should fail if a weekly config file is missing."""
+        # Create folder with only 4 files (missing week14-17.json)
         folder_path = tmp_path / "test_configs"
         folder_path.mkdir()
 
-        # Create only league_config and 4 week files
+        # Create only league_config and 3 week files
         (folder_path / "league_config.json").write_text('{"parameters": {}}')
         (folder_path / "week1-5.json").write_text('{"parameters": {}}')
         (folder_path / "week6-9.json").write_text('{"parameters": {}}')
         (folder_path / "week10-13.json").write_text('{"parameters": {}}')
-        (folder_path / "week14-17.json").write_text('{"parameters": {}}')
 
-        # Should raise ValueError for missing draft_config.json
-        with pytest.raises(ValueError, match="Missing required config files.*draft_config.json"):
+        # Should raise ValueError for missing week14-17.json
+        with pytest.raises(ValueError, match="Missing required config files.*week14-17.json"):
             ResultsManager.load_configs_from_folder(folder_path)
 
     @patch('simulation.shared.ResultsManager.datetime')
-    def test_load_from_folder_success_with_6_files(self, mock_datetime, tmp_path):
-        """load_from_folder should succeed when all 6 files present."""
+    def test_load_from_folder_success_with_5_files(self, mock_datetime, tmp_path):
+        """load_from_folder should succeed when all 5 files present."""
         folder_path = tmp_path / "test_configs"
         folder_path.mkdir()
 
-        # Create all 6 files
+        # Create all 5 files
         base_config = {"parameters": {"ADP_SCORING": {"WEIGHT": 1.0}}}
-        draft_config = {"parameters": {"PLAYER_RATING_SCORING": {"WEIGHT": 2.0}}}
         week_config = {"parameters": {"TEAM_QUALITY_SCORING": {"WEIGHT": 1.5}}}
 
         (folder_path / "league_config.json").write_text(json.dumps(base_config))
-        (folder_path / "draft_config.json").write_text(json.dumps(draft_config))
         (folder_path / "week1-5.json").write_text(json.dumps(week_config))
         (folder_path / "week6-9.json").write_text(json.dumps(week_config))
         (folder_path / "week10-13.json").write_text(json.dumps(week_config))
@@ -1612,16 +1581,15 @@ class TestSixFileStructureSupport:
         # Verify base config loaded
         assert "ADP_SCORING" in loaded_base["parameters"]
 
-        # Verify 5 week configs loaded (including 'ros' from draft_config.json)
-        assert "ros" in loaded_weeks
+        # Verify 4 week configs loaded
         assert "1-5" in loaded_weeks
         assert "6-9" in loaded_weeks
         assert "10-13" in loaded_weeks
         assert "14-17" in loaded_weeks
 
     @patch('simulation.shared.ResultsManager.datetime')
-    def test_save_and_load_round_trip_6_files(self, mock_datetime, tmp_path):
-        """Save and load should preserve all parameters across 6 files."""
+    def test_save_and_load_round_trip_5_files(self, mock_datetime, tmp_path):
+        """Save and load should preserve all parameters across 5 files."""
         mock_datetime.now.return_value.strftime.return_value = "2025-01-01_12-00-00"
 
         mgr = ResultsManager()
@@ -1629,7 +1597,7 @@ class TestSixFileStructureSupport:
             "config_name": "Test Config",
             "parameters": {
                 "ADP_SCORING": {"WEIGHT": 1.0},  # Base
-                "PLAYER_RATING_SCORING": {"WEIGHT": 2.0},  # Week-specific
+                "PLAYER_RATING_SCORING": {"WEIGHT": 2.0},  # Base (moved from week-specific)
                 "TEAM_QUALITY_SCORING": {"WEIGHT": 1.5}  # Week-specific
             }
         }
@@ -1648,8 +1616,8 @@ class TestSixFileStructureSupport:
         assert "PLAYER_RATING_SCORING" in loaded_base["parameters"]
         assert loaded_base["parameters"]["PLAYER_RATING_SCORING"]["WEIGHT"] == 2.0
 
-        # Verify week params preserved in all horizons
-        for horizon in ['ros', '1-5', '6-9', '10-13', '14-17']:
+        # Verify week params preserved in all 4 weekly horizons
+        for horizon in ['1-5', '6-9', '10-13', '14-17']:
             assert horizon in loaded_weeks
             assert "TEAM_QUALITY_SCORING" in loaded_weeks[horizon]["parameters"]
             assert loaded_weeks[horizon]["parameters"]["TEAM_QUALITY_SCORING"]["WEIGHT"] == 1.5

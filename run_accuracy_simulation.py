@@ -4,8 +4,8 @@ Run Accuracy Simulation
 CLI tool for running accuracy simulation to find optimal scoring algorithm
 parameters. Evaluates prediction accuracy using MAE (Mean Absolute Error).
 
-Uses tournament optimization where each parameter is optimized across ALL 5
-horizons (draft_config, week1-5, week6-9, week10-13, week14-17) before moving
+Uses tournament optimization where each parameter is optimized across ALL 4
+weekly horizons (week1-5, week6-9, week10-13, week14-17) before moving
 to the next parameter.
 
 Usage:

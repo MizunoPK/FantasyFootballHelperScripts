@@ -54,6 +54,7 @@ class ConfigKeys:
     NFL_SEASON = "NFL_SEASON"
     NFL_SCORING_FORMAT = "NFL_SCORING_FORMAT"
     NORMALIZATION_MAX_SCALE = "NORMALIZATION_MAX_SCALE"
+    DRAFT_NORMALIZATION_MAX_SCALE = "DRAFT_NORMALIZATION_MAX_SCALE"
     SAME_POS_BYE_WEIGHT = "SAME_POS_BYE_WEIGHT"
     DIFF_POS_BYE_WEIGHT = "DIFF_POS_BYE_WEIGHT"
     INJURY_PENALTIES = "INJURY_PENALTIES"
@@ -156,7 +157,7 @@ class ConfigManager:
     # INITIALIZATION
     # ============================================================================
 
-    def __init__(self, data_folder: Path, use_draft_config: bool = False) -> None:
+    def __init__(self, data_folder: Path) -> None:
         """
         Initialize the config manager and load configuration.
 
@@ -164,17 +165,11 @@ class ConfigManager:
         1. New structure: data/configs/league_config.json + week{N}-{M}.json files
         2. Legacy structure: data/league_config.json (for tests and backward compatibility)
 
-        For Add to Roster Mode (drafting), use_draft_config=True loads draft_config.json
-        instead of week-specific configs, as draft predictions need season-long parameters.
-
         Args:
             data_folder (Path): Path to the data directory containing config files
-            use_draft_config (bool): If True, load draft_config.json instead of week configs.
-                Use this for Add to Roster Mode (draft decisions). Default False.
 
         Raises:
-            FileNotFoundError: If league_config.json is not found, or if use_draft_config=True
-                and draft_config.json is not found
+            FileNotFoundError: If league_config.json is not found
             ValueError: If configuration structure is invalid or missing required fields
         """
         self.keys = ConfigKeys()
@@ -182,9 +177,6 @@ class ConfigManager:
         self.description: str = ""
         self.parameters: Dict[str, Any] = {}
         self.logger = get_logger()
-
-        # Store draft config flag for use in _load_config
-        self.use_draft_config = use_draft_config
 
         # Check for new folder structure: data/configs/
         configs_folder = data_folder / 'configs'
@@ -302,50 +294,6 @@ class ConfigManager:
 
         except json.JSONDecodeError as e:
             self.logger.error(f"Invalid JSON in week config {week_filename}: {e}")
-            raise
-
-    def _load_draft_config(self) -> Dict[str, Any]:
-        """
-        Load draft_config.json parameters for Add to Roster Mode.
-
-        Used instead of week-specific config when use_draft_config=True.
-        Draft config contains optimal parameters for predicting season-long
-        player performance, as determined by accuracy simulation.
-
-        Returns:
-            Dict[str, Any]: Draft config parameters to merge
-
-        Raises:
-            FileNotFoundError: If draft_config.json does not exist
-            json.JSONDecodeError: If the JSON is malformed
-        """
-        if self.configs_folder is None:
-            # Legacy mode - no draft config available
-            self.logger.warning("Legacy config mode, draft_config.json not available")
-            return {}
-
-        draft_config_path = self.configs_folder / "draft_config.json"
-
-        if not draft_config_path.exists():
-            error_msg = (
-                f"draft_config.json not found at {draft_config_path}. "
-                "This file is required for Add to Roster Mode. "
-                "Run 'python run_accuracy_simulation.py ros' to generate it, "
-                "or copy an existing week config as a starting point."
-            )
-            self.logger.error(error_msg)
-            raise FileNotFoundError(error_msg)
-
-        try:
-            with open(draft_config_path, 'r') as f:
-                draft_data = json.load(f)
-            self.logger.info("Loaded draft_config.json for Add to Roster Mode")
-
-            # Return the parameters section for merging
-            return draft_data.get(self.keys.PARAMETERS, {})
-
-        except json.JSONDecodeError as e:
-            self.logger.error(f"Invalid JSON in draft_config.json: {e}")
             raise
 
     # ============================================================================
@@ -952,15 +900,9 @@ class ConfigManager:
             current_week = self.parameters[self.keys.CURRENT_NFL_WEEK]
             self.logger.debug(f"Current NFL week: {current_week}")
 
-            # Load draft config OR week-specific config based on mode
-            if self.use_draft_config:
-                # Add to Roster Mode: load draft_config.json for season-long predictions
-                prediction_params = self._load_draft_config()
-                config_source = "draft_config.json"
-            else:
-                # Normal mode: load week-specific config
-                prediction_params = self._load_week_config(current_week)
-                config_source = self._get_week_config_filename(current_week)
+            # Load week-specific config
+            prediction_params = self._load_week_config(current_week)
+            config_source = self._get_week_config_filename(current_week)
 
             if prediction_params:
                 # Merge prediction params over base params
@@ -1008,6 +950,7 @@ class ConfigManager:
             self.keys.NFL_SEASON,
             self.keys.NFL_SCORING_FORMAT,
             self.keys.NORMALIZATION_MAX_SCALE,
+            self.keys.DRAFT_NORMALIZATION_MAX_SCALE,
             self.keys.SAME_POS_BYE_WEIGHT,
             self.keys.DIFF_POS_BYE_WEIGHT,
             self.keys.INJURY_PENALTIES,
@@ -1033,6 +976,8 @@ class ConfigManager:
         self.nfl_season = self.parameters[self.keys.NFL_SEASON]
         self.nfl_scoring_format = self.parameters[self.keys.NFL_SCORING_FORMAT]
         self.normalization_max_scale = self.parameters[self.keys.NORMALIZATION_MAX_SCALE]
+        self.draft_normalization_max_scale = self.parameters[self.keys.DRAFT_NORMALIZATION_MAX_SCALE]
+        self.logger.debug(f"Loaded DRAFT_NORMALIZATION_MAX_SCALE: {self.draft_normalization_max_scale}")
         self.same_pos_bye_weight = self.parameters[self.keys.SAME_POS_BYE_WEIGHT]
         self.diff_pos_bye_weight = self.parameters[self.keys.DIFF_POS_BYE_WEIGHT]
         self.injury_penalties = self.parameters[self.keys.INJURY_PENALTIES]

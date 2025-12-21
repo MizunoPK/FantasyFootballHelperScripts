@@ -24,6 +24,10 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
 
+# Import cleanup utilities
+sys.path.append(str(Path(__file__).parent.parent / "shared"))
+from config_cleanup import cleanup_old_accuracy_optimal_folders
+
 # Import from same folder
 sys.path.append(str(Path(__file__).parent))
 from AccuracyCalculator import AccuracyResult
@@ -174,9 +178,8 @@ class AccuracyResultsManager:
         self.baseline_config_path = baseline_config_path
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Track best config per week range (ROS + 4 weekly ranges)
+        # Track best config per week range (4 weekly ranges)
         self.best_configs: Dict[str, AccuracyConfigPerformance] = {
-            'ros': None,  # Rest of Season
             'week_1_5': None,
             'week_6_9': None,
             'week_10_13': None,
@@ -290,7 +293,6 @@ class AccuracyResultsManager:
         Creates folder structure that can be used as baseline for future runs:
             accuracy_optimal_TIMESTAMP/
             ├── league_config.json      # Copied from baseline (strategy params)
-            ├── draft_config.json       # ROS optimal (prediction params)
             ├── week1-5.json            # Weekly optimal (prediction params)
             ├── week6-9.json
             ├── week10-13.json
@@ -309,6 +311,9 @@ class AccuracyResultsManager:
             else:
                 self.logger.info(f"  {week_key}: None")
 
+        # Clean up old optimal folders if we're at the limit
+        cleanup_old_accuracy_optimal_folders(self.output_dir)
+
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         optimal_folder = self.output_dir / f"accuracy_optimal_{timestamp}"
         optimal_folder.mkdir(parents=True, exist_ok=True)
@@ -324,7 +329,6 @@ class AccuracyResultsManager:
 
         # Map week range keys to output filenames and descriptions
         file_mapping = {
-            'ros': ('draft_config.json', 'ROS (Rest of Season) prediction parameters'),
             'week_1_5': ('week1-5.json', 'Weeks 1-5 prediction parameters'),
             'week_6_9': ('week6-9.json', 'Weeks 6-9 prediction parameters'),
             'week_10_13': ('week10-13.json', 'Weeks 10-13 prediction parameters'),
@@ -420,7 +424,6 @@ class AccuracyResultsManager:
         Creates folder that can serve as baseline for future runs:
             accuracy_intermediate_{idx}_{prefix}_{param}/
             ├── league_config.json      # Copied from baseline
-            ├── draft_config.json       # ROS best (or from baseline if not optimized)
             ├── week1-5.json            # Weekly best (or from baseline)
             ├── week6-9.json
             ├── week10-13.json
@@ -450,7 +453,6 @@ class AccuracyResultsManager:
 
         # Map week range keys to standard config filenames
         file_mapping = {
-            'ros': 'draft_config.json',
             'week_1_5': 'week1-5.json',
             'week_6_9': 'week6-9.json',
             'week_10_13': 'week10-13.json',
@@ -552,7 +554,7 @@ class AccuracyResultsManager:
         """
         Load intermediate results to resume optimization.
 
-        Loads from standard config files (draft_config.json, week1-5.json, etc.)
+        Loads from standard config files (week1-5.json, week6-9.json, etc.)
         which contain performance_metrics for resume capability.
 
         Args:
@@ -567,7 +569,6 @@ class AccuracyResultsManager:
 
         # Map week keys to standard config filenames
         file_mapping = {
-            'ros': 'draft_config.json',
             'week_1_5': 'week1-5.json',
             'week_6_9': 'week6-9.json',
             'week_10_13': 'week10-13.json',

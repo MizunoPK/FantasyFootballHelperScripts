@@ -142,7 +142,7 @@ class TestAccuracyResultsManager:
         with open(baseline / "league_config.json", 'w') as f:
             json.dump(league_config, f)
         # Create week files
-        for filename in ['draft_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
+        for filename in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             week_config = {
                 'config_name': f'Test {filename}',
                 'description': 'Test config',
@@ -165,9 +165,9 @@ class TestAccuracyResultsManager:
 
         assert manager.output_dir == output_dir
         assert manager.baseline_config_path == mock_baseline
-        assert 'ros' in manager.best_configs
         assert 'week_1_5' in manager.best_configs
-        assert manager.best_configs['ros'] is None
+        assert 'week_6_9' in manager.best_configs
+        assert manager.best_configs['week_1_5'] is None
 
     def test_add_result_first_is_best(self, results_manager):
         """Test that first result is automatically best."""
@@ -234,14 +234,14 @@ class TestAccuracyResultsManager:
 
     def test_save_optimal_configs(self, results_manager):
         """Test saving optimal configs to folder."""
-        # Add results for ROS and one week range
+        # Add results for two week ranges
         # Use real WEEK_SPECIFIC_PARAMS parameters with nested structure
-        config_ros = {'TEAM_QUALITY_SCORING': {'WEIGHT': 1.5}}
-        config_week = {'MATCHUP_SCORING': {'WEIGHT': 1.2}}
+        config_week_1_5 = {'TEAM_QUALITY_SCORING': {'WEIGHT': 1.5}}
+        config_week_6_9 = {'MATCHUP_SCORING': {'WEIGHT': 1.2}}
         result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
 
-        results_manager.add_result('ros', config_ros, result)
-        results_manager.add_result('week_1_5', config_week, result)
+        results_manager.add_result('week_1_5', config_week_1_5, result)
+        results_manager.add_result('week_6_9', config_week_6_9, result)
 
         # Save
         optimal_path = results_manager.save_optimal_configs()
@@ -250,14 +250,16 @@ class TestAccuracyResultsManager:
         assert optimal_path.exists()
         assert optimal_path.name.startswith("accuracy_optimal_")
 
-        # Verify all files created (league_config.json + 5 prediction configs)
+        # Verify all files created (league_config.json + 4 weekly configs)
         # No separate performance_metrics.json - metrics are embedded in each config
         assert (optimal_path / "league_config.json").exists()  # Copied from baseline
-        assert (optimal_path / "draft_config.json").exists()
         assert (optimal_path / "week1-5.json").exists()
+        assert (optimal_path / "week6-9.json").exists()
+        assert (optimal_path / "week10-13.json").exists()
+        assert (optimal_path / "week14-17.json").exists()
 
-        # Verify draft_config.json has proper nested structure
-        with open(optimal_path / "draft_config.json") as f:
+        # Verify week1-5.json has proper nested structure
+        with open(optimal_path / "week1-5.json") as f:
             saved_config = json.load(f)
         assert 'config_name' in saved_config
         assert 'description' in saved_config
@@ -279,14 +281,16 @@ class TestAccuracyResultsManager:
         assert "accuracy_intermediate_00_NORMALIZATION" in intermediate_path.name
         # Standard config files (can be used as baseline and for resume)
         assert (intermediate_path / "league_config.json").exists()
-        assert (intermediate_path / "draft_config.json").exists()
         # Week files copied from baseline since no results for them
         assert (intermediate_path / "week1-5.json").exists()
+        assert (intermediate_path / "week6-9.json").exists()
+        assert (intermediate_path / "week10-13.json").exists()
+        assert (intermediate_path / "week14-17.json").exists()
         # Metadata file for tournament mode tracking (new in Phase 2)
         assert (intermediate_path / "metadata.json").exists()
-        # Config files + metadata.json = 7 files
+        # Config files + metadata.json = 6 files
         all_files = list(intermediate_path.glob("*.json"))
-        assert len(all_files) == 7  # league_config + draft_config + 4 week files + metadata.json
+        assert len(all_files) == 6  # league_config + 4 week files + metadata.json
 
     def test_load_intermediate_results(self, results_manager, temp_dir):
         """Test loading intermediate results from standard config files."""
@@ -305,15 +309,15 @@ class TestAccuracyResultsManager:
                 'config_id': 'test123'
             }
         }
-        with open(intermediate_path / "draft_config.json", 'w') as f:
+        with open(intermediate_path / "week1-5.json", 'w') as f:
             json.dump(config_data, f)
 
         # Load
         success = results_manager.load_intermediate_results(intermediate_path)
 
         assert success
-        assert results_manager.best_configs['ros'] is not None
-        assert results_manager.best_configs['ros'].mae == 5.0
+        assert results_manager.best_configs['week_1_5'] is not None
+        assert results_manager.best_configs['week_1_5'].mae == 5.0
 
     def test_load_intermediate_results_not_found(self, results_manager, temp_dir):
         """Test loading from non-existent folder."""
@@ -373,7 +377,7 @@ class TestScheduleSync:
         baseline = temp_dir / "baseline"
         baseline.mkdir()
         # Create required config files
-        for filename in ['league_config.json', 'draft_config.json', 'week1-5.json',
+        for filename in ['league_config.json', 'week1-5.json',
                         'week6-9.json', 'week10-13.json', 'week14-17.json']:
             config = {'config_name': f'Test {filename}', 'parameters': {}}
             with open(baseline / filename, 'w') as f:
@@ -459,11 +463,11 @@ class TestScheduleSync:
             }
         }
         result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
-        results_manager.add_result('ros', config, result)
+        results_manager.add_result('week_1_5', config, result)
 
         optimal_path = results_manager.save_optimal_configs()
 
-        with open(optimal_path / "draft_config.json") as f:
+        with open(optimal_path / "week1-5.json") as f:
             saved_config = json.load(f)
 
         # SCHEDULE params should mirror MATCHUP in parameters section (nested structure)
@@ -482,12 +486,12 @@ class TestScheduleSync:
             }
         }
         result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
-        results_manager.add_result('ros', config, result)
+        results_manager.add_result('week_1_5', config, result)
 
         intermediate_path = results_manager.save_intermediate_results(0, 'TEST')
 
-        # Check the standard config file (draft_config.json for 'ros')
-        with open(intermediate_path / "draft_config.json") as f:
+        # Check the standard config file (week1-5.json for 'week_1_5')
+        with open(intermediate_path / "week1-5.json") as f:
             saved_data = json.load(f)
 
         # SCHEDULE params should mirror MATCHUP in parameters section (nested structure)

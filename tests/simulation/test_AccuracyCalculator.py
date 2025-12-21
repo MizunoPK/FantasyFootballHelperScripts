@@ -147,45 +147,6 @@ class TestAccuracyCalculator:
         assert result.mae == 6.0
 
 
-class TestAccuracyCalculatorROS:
-    """Tests for ROS (Rest of Season) MAE calculation."""
-
-    @pytest.fixture
-    def calculator(self):
-        """Create AccuracyCalculator instance."""
-        return AccuracyCalculator()
-
-    def test_calculate_ros_mae(self, calculator):
-        """Test ROS MAE with matching players."""
-        projections = {1: 100.0, 2: 150.0, 3: 200.0}
-        actuals = {1: 110.0, 2: 145.0, 3: 190.0}
-
-        result = calculator.calculate_ros_mae(projections, actuals)
-
-        assert result.player_count == 3
-        # errors: 10, 5, 10 = 25 total, mae = 25/3 = 8.33...
-        assert abs(result.mae - 8.333) < 0.01
-
-    def test_calculate_ros_mae_partial_match(self, calculator):
-        """Test ROS MAE with partial player matching."""
-        projections = {1: 100.0, 2: 150.0, 3: 200.0}
-        actuals = {1: 110.0, 4: 300.0}  # player 4 not in projections
-
-        result = calculator.calculate_ros_mae(projections, actuals)
-
-        assert result.player_count == 1  # only player 1 matches
-
-    def test_calculate_ros_mae_no_matches(self, calculator):
-        """Test ROS MAE with no matching players."""
-        projections = {1: 100.0, 2: 150.0}
-        actuals = {3: 110.0, 4: 145.0}
-
-        result = calculator.calculate_ros_mae(projections, actuals)
-
-        assert result.player_count == 0
-        assert result.mae == 0.0
-
-
 class TestAccuracyCalculatorWeekly:
     """Tests for weekly MAE calculation."""
 

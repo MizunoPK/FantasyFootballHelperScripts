@@ -63,6 +63,7 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         'description': 'Test base config',
         'parameters': {
             'NORMALIZATION_MAX_SCALE': 100.0,
+            'DRAFT_NORMALIZATION_MAX_SCALE': 163,
             'SAME_POS_BYE_WEIGHT': 1.0,
             'DIFF_POS_BYE_WEIGHT': 1.0,
             'DRAFT_ORDER_BONUSES': {'PRIMARY': 50.0, 'SECONDARY': 40.0},
@@ -529,8 +530,8 @@ class TestIterativeOptimization:
         assert optimal_path.is_dir()
         assert 'optimal_iterative' in optimal_path.name
 
-        # Verify folder contains required files (6 files including draft_config.json)
-        required_files = ['league_config.json', 'draft_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
+        # Verify folder contains required files (5 files: 1 base + 4 weekly)
+        required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
         for filename in required_files:
             assert (optimal_path / filename).exists(), f"Missing {filename} in optimal folder"
 
@@ -554,9 +555,8 @@ class TestIterativeOptimization:
         assert optimal_path.is_dir()
         assert 'optimal_iterative' in optimal_path.name
 
-        # Verify all config files exist (6 files including draft_config.json)
+        # Verify all config files exist (5 files: 1 base + 4 weekly)
         assert (optimal_path / 'league_config.json').exists()
-        assert (optimal_path / 'draft_config.json').exists()
         assert (optimal_path / 'week1-5.json').exists()
         assert (optimal_path / 'week6-9.json').exists()
         assert (optimal_path / 'week10-13.json').exists()
@@ -594,11 +594,6 @@ def create_intermediate_folder(output_dir: Path, param_idx: int, param_name: str
     base_config = {"config_name": "test", "parameters": {"BASE_PARAM": 100.0}}
     with open(folder / "league_config.json", "w") as f:
         json.dump(base_config, f)
-
-    # Create draft config (ros/pre-draft horizon)
-    draft_config = {"parameters": {"WEEK_PARAM": 50.0}}
-    with open(folder / "draft_config.json", "w") as f:
-        json.dump(draft_config, f)
 
     # Create week configs
     week_config = {"parameters": {"WEEK_PARAM": 50.0}}

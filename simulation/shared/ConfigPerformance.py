@@ -22,15 +22,13 @@ import json
 # Week range definitions
 WEEK_RANGES = ["1-5", "6-9", "10-13", "14-17"]
 
-# Horizon definitions for 6-file configuration structure
-# 'ros' = Rest of Season (draft/season-long projections)
+# Horizon definitions for 4 weekly horizons
 # Week ranges align with WEEK_RANGES above
-HORIZONS = ['ros', '1-5', '6-9', '10-13', '14-17']
+HORIZONS = ['1-5', '6-9', '10-13', '14-17']
 
 # Maps horizon names to their corresponding configuration filenames
-# Used for loading and saving 6-file configuration structure
+# Used for loading and saving 5-file configuration structure (1 base + 4 weekly)
 HORIZON_FILES = {
-    'ros': 'draft_config.json',
     '1-5': 'week1-5.json',
     '6-9': 'week6-9.json',
     '10-13': 'week10-13.json',

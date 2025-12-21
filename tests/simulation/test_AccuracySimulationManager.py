@@ -97,6 +97,7 @@ class TestAccuracySimulationManagerInit:
             'description': 'Test config',
             'parameters': {
                 'NORMALIZATION_MAX_SCALE': 150,
+                'DRAFT_NORMALIZATION_MAX_SCALE': 163,
                 'PLAYER_RATING_SCORING': {'WEIGHT': 1.0},
             }
         }
@@ -448,8 +449,8 @@ class TestAccuracySimulationManagerResumeState:
         # Create ROS-style intermediate folder (no week prefix)
         intermediate = manager_with_output.output_dir / "accuracy_intermediate_03_TEAM_QUALITY_MIN_WEEKS"
         intermediate.mkdir()
-        # Use standard config file (draft_config.json for ROS mode)
-        (intermediate / "draft_config.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
+        # Use standard config file (week1-5.json for week_1_5 mode)
+        (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
         should_resume, start_idx, path = manager_with_output._detect_resume_state('ros')
 

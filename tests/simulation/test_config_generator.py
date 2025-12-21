@@ -156,15 +156,6 @@ def create_test_config_folder(base_config: dict, tmp_path: Path) -> Path:
     with open(config_folder / 'league_config.json', 'w') as f:
         json.dump(league_config, f, indent=2)
 
-    # Write draft_config.json (ROS horizon - same as week-specific for testing)
-    draft_config = {
-        'config_name': 'Test draft_config.json',
-        'description': 'Test ROS/draft config',
-        'parameters': week_params
-    }
-    with open(config_folder / 'draft_config.json', 'w') as f:
-        json.dump(draft_config, f, indent=2)
-
     # Write week-specific files (all with same params for testing)
     for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = {
@@ -188,6 +179,7 @@ class TestConfigGeneratorInitialization:
             "config_name": "test_baseline",
             "parameters": {
                 "NORMALIZATION_MAX_SCALE": 100.0,
+                "DRAFT_NORMALIZATION_MAX_SCALE": 163,
                 "SAME_POS_BYE_WEIGHT": 1.0,
                 "DIFF_POS_BYE_WEIGHT": 1.0,
                 "DRAFT_ORDER_BONUSES": {
@@ -737,9 +729,7 @@ class TestEdgeCases:
 
         # Write invalid JSON
         (config_folder / "league_config.json").write_text("{invalid json")
-        # Write valid draft_config and week files (6-file structure)
-        with open(config_folder / "draft_config.json", 'w') as f:
-            json.dump({"config_name": "draft_config", "parameters": {}}, f)
+        # Write valid week files (5-file structure)
         for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             with open(config_folder / week_file, 'w') as f:
                 json.dump({"config_name": week_file, "parameters": {}}, f)
@@ -1032,7 +1022,7 @@ class TestHorizonBasedInterface:
             }
         }
 
-        # Week-specific configs (draft_config.json + 4 week files)
+        # Week-specific configs (4 weekly files)
         week_config_template = {
             "config_name": "Test Week Config",
             "parameters": {
@@ -1041,9 +1031,8 @@ class TestHorizonBasedInterface:
             }
         }
 
-        # Save all 6 files
+        # Save all 5 files
         (config_folder / "league_config.json").write_text(json.dumps(base_config, indent=2))
-        (config_folder / "draft_config.json").write_text(json.dumps({**week_config_template, "config_name": "Draft Config"}, indent=2))
         (config_folder / "week1-5.json").write_text(json.dumps({**week_config_template, "config_name": "Week 1-5"}, indent=2))
         (config_folder / "week6-9.json").write_text(json.dumps({**week_config_template, "config_name": "Week 6-9"}, indent=2))
         (config_folder / "week10-13.json").write_text(json.dumps({**week_config_template, "config_name": "Week 10-13"}, indent=2))
@@ -1051,35 +1040,33 @@ class TestHorizonBasedInterface:
 
         return config_folder
 
-    def test_init_with_6_file_structure(self, tmp_path):
-        """__init__ should load 6-file structure successfully"""
+    def test_init_with_5_file_structure(self, tmp_path):
+        """__init__ should load 5-file structure successfully"""
         config_folder = self.create_6_file_config_folder(tmp_path)
 
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # Should have 5 baseline configs (one per horizon)
+        # Should have 4 baseline configs (one per weekly horizon)
         assert hasattr(generator, 'baseline_configs')
-        assert len(generator.baseline_configs) == 5
-        assert 'ros' in generator.baseline_configs
+        assert len(generator.baseline_configs) == 4
         assert '1-5' in generator.baseline_configs
         assert '6-9' in generator.baseline_configs
         assert '10-13' in generator.baseline_configs
         assert '14-17' in generator.baseline_configs
 
-    def test_init_requires_6_files(self, tmp_path):
-        """__init__ should fail if draft_config.json is missing"""
+    def test_init_requires_all_weekly_files(self, tmp_path):
+        """__init__ should fail if a weekly config file is missing"""
         config_folder = tmp_path / "test_configs"
         config_folder.mkdir()
 
-        # Create only 5 files (missing draft_config.json)
+        # Create only 4 files (missing week14-17.json)
         base_config = {"parameters": {}}
         (config_folder / "league_config.json").write_text(json.dumps(base_config))
         (config_folder / "week1-5.json").write_text(json.dumps(base_config))
         (config_folder / "week6-9.json").write_text(json.dumps(base_config))
         (config_folder / "week10-13.json").write_text(json.dumps(base_config))
-        (config_folder / "week14-17.json").write_text(json.dumps(base_config))
 
-        with pytest.raises(ValueError, match="draft_config.json"):
+        with pytest.raises(ValueError, match="week14-17.json"):
             ConfigGenerator(config_folder, num_test_values=5)
 
     def test_baseline_configs_separated_by_horizon(self, tmp_path):
@@ -1087,8 +1074,8 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # Each horizon config should have both base and week-specific params
-        for horizon in ['ros', '1-5', '6-9', '10-13', '14-17']:
+        # Each weekly horizon config should have both base and week-specific params
+        for horizon in ['1-5', '6-9', '10-13', '14-17']:
             config = generator.baseline_configs[horizon]
             assert 'parameters' in config
             # Base params from league_config.json
@@ -1115,23 +1102,22 @@ class TestHorizonBasedInterface:
         assert test_values['shared'][0] == 1.5
 
     def test_generate_horizon_test_values_for_horizon_param(self, tmp_path):
-        """Horizon params should return 5 separate arrays"""
+        """Horizon params should return 4 separate arrays"""
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
         # TEAM_QUALITY_SCORING_WEIGHT is week-specific
         test_values = generator.generate_horizon_test_values('TEAM_QUALITY_SCORING_WEIGHT')
 
-        # Should have all 5 horizon keys
-        assert 'ros' in test_values
+        # Should have all 4 weekly horizon keys
         assert '1-5' in test_values
         assert '6-9' in test_values
         assert '10-13' in test_values
         assert '14-17' in test_values
-        assert len(test_values) == 5
+        assert len(test_values) == 4
 
         # Each horizon should have 6 values
-        for horizon in ['ros', '1-5', '6-9', '10-13', '14-17']:
+        for horizon in ['1-5', '6-9', '10-13', '14-17']:
             assert len(test_values[horizon]) == 6
             # First value should be baseline (1.5)
             assert test_values[horizon][0] == 1.5
@@ -1160,11 +1146,11 @@ class TestHorizonBasedInterface:
 
         test_values = generator.generate_horizon_test_values('TEAM_QUALITY_SCORING_WEIGHT')
 
-        # Get config for 'ros' horizon with test_index 2
-        config = generator.get_config_for_horizon('ros', 'TEAM_QUALITY_SCORING_WEIGHT', 2)
+        # Get config for '1-5' horizon with test_index 2
+        config = generator.get_config_for_horizon('1-5', 'TEAM_QUALITY_SCORING_WEIGHT', 2)
 
-        # Should have the test value from 'ros' array
-        assert config['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == test_values['ros'][2]
+        # Should have the test value from '1-5' array
+        assert config['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == test_values['1-5'][2]
 
     def test_update_baseline_for_horizon_with_shared_param(self, tmp_path):
         """update_baseline should update shared param in all horizons"""
@@ -1178,8 +1164,8 @@ class TestHorizonBasedInterface:
         # Update baseline (horizon doesn't matter for shared params)
         generator.update_baseline_for_horizon('1-5', new_config)
 
-        # All horizons should have updated value
-        for horizon in ['ros', '1-5', '6-9', '10-13', '14-17']:
+        # All 4 weekly horizons should have updated value
+        for horizon in ['1-5', '6-9', '10-13', '14-17']:
             assert generator.baseline_configs[horizon]['parameters']['ADP_SCORING']['WEIGHT'] == 3.5
 
     def test_update_baseline_for_horizon_with_horizon_param(self, tmp_path):
@@ -1188,18 +1174,19 @@ class TestHorizonBasedInterface:
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
         # Create new config with updated horizon param
-        new_config = copy.deepcopy(generator.baseline_configs['ros'])
+        new_config = copy.deepcopy(generator.baseline_configs['1-5'])
         new_config['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] = 5.0
 
-        # Update only 'ros' horizon
-        generator.update_baseline_for_horizon('ros', new_config)
+        # Update only '1-5' horizon
+        generator.update_baseline_for_horizon('1-5', new_config)
 
-        # Only 'ros' should be updated
-        assert generator.baseline_configs['ros']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 5.0
+        # Only '1-5' should be updated
+        assert generator.baseline_configs['1-5']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 5.0
 
         # Other horizons should still have original value (1.5)
-        assert generator.baseline_configs['1-5']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
         assert generator.baseline_configs['6-9']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
+        assert generator.baseline_configs['10-13']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
+        assert generator.baseline_configs['14-17']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
 
     def test_deprecated_parameter_order_removed(self, tmp_path):
         """__init__ should not accept parameter_order parameter"""
@@ -1228,7 +1215,7 @@ class TestHorizonBasedInterface:
         test_values = generator.generate_horizon_test_values('TEAM_QUALITY_MIN_WEEKS')
 
         # Should extract nested value correctly (4 from baseline)
-        for horizon in ['ros', '1-5', '6-9', '10-13', '14-17']:
+        for horizon in ['1-5', '6-9', '10-13', '14-17']:
             assert test_values[horizon][0] == 4
 
     def test_test_values_deterministic_with_seed(self, tmp_path):

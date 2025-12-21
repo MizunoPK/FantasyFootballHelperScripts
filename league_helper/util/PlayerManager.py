@@ -562,7 +562,7 @@ class PlayerManager:
         """
         return self.scoring_calculator.get_weekly_projection(player, week)
 
-    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, is_draft_mode: bool = False) -> ScoredPlayer:
         """
         Calculate score for a player (13-step calculation).
 
@@ -599,6 +599,8 @@ class PlayerManager:
             temperature: Apply temperature bonus/penalty (game conditions)
             wind: Apply wind bonus/penalty (game conditions, QB/WR/K only)
             location: Apply location bonus/penalty (home/away/international)
+            is_draft_mode: Use draft normalization scale (163) instead of weekly scale.
+                Set to True for Add to Roster Mode (draft decisions). Default False.
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
@@ -608,7 +610,7 @@ class PlayerManager:
         return self.scoring_calculator.score_player(
             p, team_roster, use_weekly_projection, adp, player_rating,
             team_quality, performance, matchup, schedule, draft_round, bye, injury, roster,
-            temperature, wind, location
+            temperature, wind, location, is_draft_mode
         )
 
     def set_player_data(self, player_data: Dict[int, Dict[str, Any]]) -> None:

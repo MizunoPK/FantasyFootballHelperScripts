@@ -763,25 +763,24 @@ class TestHorizonsConstant:
         from simulation.shared.ConfigPerformance import HORIZONS
         assert isinstance(HORIZONS, list)
 
-    def test_horizons_constant_has_five_elements(self):
-        """HORIZONS should contain exactly 5 horizons"""
+    def test_horizons_constant_has_four_elements(self):
+        """HORIZONS should contain exactly 4 weekly horizons"""
         from simulation.shared.ConfigPerformance import HORIZONS
-        assert len(HORIZONS) == 5
+        assert len(HORIZONS) == 4
 
     def test_horizons_constant_values(self):
         """HORIZONS should contain correct horizon names"""
         from simulation.shared.ConfigPerformance import HORIZONS
-        expected = ['ros', '1-5', '6-9', '10-13', '14-17']
+        expected = ['1-5', '6-9', '10-13', '14-17']
         assert HORIZONS == expected
 
     def test_horizons_constant_order(self):
-        """HORIZONS should be in correct order (ROS first, then week ranges)"""
+        """HORIZONS should be in correct order (week ranges in chronological order)"""
         from simulation.shared.ConfigPerformance import HORIZONS
-        assert HORIZONS[0] == 'ros'
-        assert HORIZONS[1] == '1-5'
-        assert HORIZONS[2] == '6-9'
-        assert HORIZONS[3] == '10-13'
-        assert HORIZONS[4] == '14-17'
+        assert HORIZONS[0] == '1-5'
+        assert HORIZONS[1] == '6-9'
+        assert HORIZONS[2] == '10-13'
+        assert HORIZONS[3] == '14-17'
 
 
 class TestHorizonFilesConstant:
@@ -797,21 +796,16 @@ class TestHorizonFilesConstant:
         from simulation.shared.ConfigPerformance import HORIZON_FILES
         assert isinstance(HORIZON_FILES, dict)
 
-    def test_horizon_files_has_five_entries(self):
-        """HORIZON_FILES should map all 5 horizons"""
+    def test_horizon_files_has_four_entries(self):
+        """HORIZON_FILES should map all 4 weekly horizons"""
         from simulation.shared.ConfigPerformance import HORIZON_FILES
-        assert len(HORIZON_FILES) == 5
+        assert len(HORIZON_FILES) == 4
 
     def test_horizon_files_keys(self):
         """HORIZON_FILES should have correct horizon keys"""
         from simulation.shared.ConfigPerformance import HORIZON_FILES
-        expected_keys = {'ros', '1-5', '6-9', '10-13', '14-17'}
+        expected_keys = {'1-5', '6-9', '10-13', '14-17'}
         assert set(HORIZON_FILES.keys()) == expected_keys
-
-    def test_horizon_files_ros_mapping(self):
-        """HORIZON_FILES should map 'ros' to 'draft_config.json'"""
-        from simulation.shared.ConfigPerformance import HORIZON_FILES
-        assert HORIZON_FILES['ros'] == 'draft_config.json'
 
     def test_horizon_files_week_mappings(self):
         """HORIZON_FILES should map week ranges to correct filenames"""
@@ -851,7 +845,9 @@ class TestHorizonsAndFilesCompatibility:
             filename = HORIZON_FILES[horizon]
             files.append(filename)
 
-        # Should have 5 unique files
-        assert len(files) == 5
-        assert 'draft_config.json' in files
+        # Should have 4 unique files
+        assert len(files) == 4
         assert 'week1-5.json' in files
+        assert 'week6-9.json' in files
+        assert 'week10-13.json' in files
+        assert 'week14-17.json' in files

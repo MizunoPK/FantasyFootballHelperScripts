@@ -41,6 +41,7 @@ def base_config_dict():
             "NFL_SEASON": 2025,
             "NFL_SCORING_FORMAT": "ppr",
             "NORMALIZATION_MAX_SCALE": 100.0,
+            "DRAFT_NORMALIZATION_MAX_SCALE": 163,
             "SAME_POS_BYE_WEIGHT": 1.0,
             "DIFF_POS_BYE_WEIGHT": 1.0,
             "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": 10.0, "HIGH": 75.0},

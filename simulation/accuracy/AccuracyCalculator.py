@@ -123,41 +123,6 @@ class AccuracyCalculator:
             errors=errors if include_individual_errors else None
         )
 
-    def calculate_ros_mae(
-        self,
-        projections: Dict[int, float],
-        actuals: Dict[int, float]
-    ) -> AccuracyResult:
-        """
-        Calculate MAE for Rest of Season (ROS) mode.
-
-        Compares pre-season projections to actual season totals.
-
-        Args:
-            projections: Dict of player_id -> season projected points
-            actuals: Dict of player_id -> season actual points
-
-        Returns:
-            AccuracyResult: MAE calculation results
-        """
-        # Build player_data from matching players
-        player_data = []
-
-        for player_id, projected in projections.items():
-            if player_id in actuals:
-                player_data.append({
-                    'player_id': player_id,
-                    'projected': projected,
-                    'actual': actuals[player_id]
-                })
-
-        self.logger.debug(
-            f"ROS MAE: {len(player_data)} players matched from "
-            f"{len(projections)} projections and {len(actuals)} actuals"
-        )
-
-        return self.calculate_mae(player_data)
-
     def calculate_weekly_mae(
         self,
         week_projections: Dict[int, Dict[int, float]],
@@ -217,8 +182,8 @@ class AccuracyCalculator:
 
         Args:
             season_results: List of (season_name, AccuracyResult) tuples
-            horizon: Optional horizon identifier (e.g., 'ros', 'week_1_5') for logging
-            config_label: Optional config identifier (e.g., 'NORMALIZATION_MAX_SCALE=54 [ros]') for logging
+            horizon: Optional horizon identifier (e.g., 'week_1_5', 'week_6_9') for logging
+            config_label: Optional config identifier (e.g., 'NORMALIZATION_MAX_SCALE=54 [week_1_5]') for logging
 
         Returns:
             AccuracyResult: Aggregated MAE across all seasons

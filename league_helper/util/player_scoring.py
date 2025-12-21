@@ -55,6 +55,7 @@ class PlayerScoringCalculator:
         team_data_manager (TeamDataManager): Manager for team rankings and matchups
         season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
         current_nfl_week (int): Current NFL week number
+        is_draft_mode (bool): Draft mode flag for normalization scale selection
         logger: Logger instance
     """
 
@@ -89,6 +90,7 @@ class PlayerScoringCalculator:
         self.season_schedule_manager = season_schedule_manager
         self.current_nfl_week = current_nfl_week
         self.game_data_manager = game_data_manager
+        self.is_draft_mode: bool = False  # Draft mode flag (set by score_player)
         self.logger = get_logger()
 
     def get_weekly_projection(self, player: FantasyPlayer, week=0) -> Tuple[float, float]:
@@ -160,12 +162,14 @@ class PlayerScoringCalculator:
             return 0.0
 
         # Calculate normalized score
-        normalized_score = (pts / chosen_max) * self.config.normalization_max_scale
+        # Choose normalization scale based on draft mode
+        scale = self.config.draft_normalization_max_scale if self.is_draft_mode else self.config.normalization_max_scale
+        normalized_score = (pts / chosen_max) * scale
 
         # Debug logging
         self.logger.debug(
             f"Normalization: {pts:.2f} pts / {chosen_max:.2f} ({'weekly' if use_weekly_max else 'ROS'} max) "
-            f"* {self.config.normalization_max_scale} = {normalized_score:.2f}"
+            f"* {scale} = {normalized_score:.2f}"
         )
 
         return normalized_score
@@ -321,7 +325,7 @@ class PlayerScoringCalculator:
 
         return avg_rank
 
-    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, is_draft_mode: bool = False) -> ScoredPlayer:
         """
         Calculate score for a player (13-step calculation).
 
@@ -357,10 +361,15 @@ class PlayerScoringCalculator:
             temperature: Apply temperature bonus/penalty (game conditions)
             wind: Apply wind bonus/penalty (game conditions, QB/WR/K only)
             location: Apply location bonus/penalty (home/away/international)
+            is_draft_mode: Use draft normalization scale (163) instead of weekly scale.
+                Set to True for Add to Roster Mode. Default False.
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
         """
+        # Store draft mode flag for use in normalization
+        self.is_draft_mode = is_draft_mode
+
         reasons = []
         def add_to_reasons(r: str) -> None:
             if r is not None and r != "":
@@ -455,7 +464,8 @@ class PlayerScoringCalculator:
         # Calculate the "calculated projection" by reversing the normalization
         # This shows what the adjusted fantasy points would be after all scoring steps
         # Formula: calculated_pts = (final_score / normalization_scale) * max_projection
-        normalization_scale = self.config.normalization_max_scale
+        # Choose normalization scale based on draft mode
+        normalization_scale = self.config.draft_normalization_max_scale if self.is_draft_mode else self.config.normalization_max_scale
         chosen_max = self.max_weekly_projection if use_weekly_projection else self.max_projection
 
         if normalization_scale > 0 and chosen_max > 0:

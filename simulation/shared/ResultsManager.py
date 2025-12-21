@@ -240,6 +240,7 @@ class ResultsManager:
         'CURRENT_NFL_WEEK',
         'NFL_SEASON',
         'NFL_SCORING_FORMAT',
+        'DRAFT_NORMALIZATION_MAX_SCALE',
         'SAME_POS_BYE_WEIGHT',
         'DIFF_POS_BYE_WEIGHT',
         'INJURY_PENALTIES',
@@ -365,7 +366,7 @@ class ResultsManager:
 
     def save_optimal_configs_folder(self, output_dir: Path) -> Path:
         """
-        Save optimal configs as a folder with 4 config files.
+        Save optimal configs as a folder with 5 config files.
 
         Creates a folder containing:
         - league_config.json: Base config from best OVERALL config
@@ -422,9 +423,8 @@ class ResultsManager:
             json.dump(base_config, f, indent=2)
         self.logger.info(f"Saved base config from {best_overall.config_id}")
 
-        # Save week-specific configs (5 horizons)
+        # Save week-specific configs (4 weekly horizons)
         week_range_files = {
-            'ros': 'draft_config.json',
             '1-5': 'week1-5.json',
             '6-9': 'week6-9.json',
             '10-13': 'week10-13.json',
@@ -432,19 +432,15 @@ class ResultsManager:
         }
 
         for week_range, filename in week_range_files.items():
-            # For 'ros' horizon (draft_config.json), use best overall config
-            # For other horizons, use best config for that week range
-            if week_range == 'ros':
-                best_for_range = best_overall
-            else:
-                best_for_range = best_per_range.get(week_range)
+            # Use best config for each week range
+            best_for_range = best_per_range.get(week_range)
 
             if best_for_range:
                 week_config = self._extract_week_params(best_for_range.config_dict)
                 week_config['performance_metrics'] = {
                     'config_id': best_for_range.config_id,
                     'week_range': week_range,
-                    'win_rate_for_range': best_for_range.get_win_rate_for_range(week_range) if week_range != 'ros' else best_for_range.get_win_rate(),
+                    'win_rate_for_range': best_for_range.get_win_rate_for_range(week_range),
                     'overall_win_rate': best_for_range.get_win_rate(),
                     'timestamp': timestamp
                 }
@@ -452,16 +448,10 @@ class ResultsManager:
                 with open(folder_path / filename, 'w') as f:
                     json.dump(week_config, f, indent=2)
 
-                if week_range == 'ros':
-                    self.logger.info(
-                        f"Saved {filename} from {best_for_range.config_id} "
-                        f"(overall_win_rate={best_for_range.get_win_rate():.4f})"
-                    )
-                else:
-                    self.logger.info(
-                        f"Saved {filename} from {best_for_range.config_id} "
-                        f"(win_rate={best_for_range.get_win_rate_for_range(week_range):.4f})"
-                    )
+                self.logger.info(
+                    f"Saved {filename} from {best_for_range.config_id} "
+                    f"(win_rate={best_for_range.get_win_rate_for_range(week_range):.4f})"
+                )
 
         self.logger.info(f"Saved optimal configs folder to {folder_path}")
         return folder_path
@@ -534,9 +524,8 @@ class ResultsManager:
             json.dump(base_config, f, indent=2)
         self.logger.debug(f"Saved intermediate base config to {folder_path / 'league_config.json'}")
 
-        # Save week-specific configs (5 horizons)
+        # Save week-specific configs (4 weekly horizons)
         week_range_files = {
-            'ros': 'draft_config.json',
             '1-5': 'week1-5.json',
             '6-9': 'week6-9.json',
             '10-13': 'week10-13.json',
@@ -602,8 +591,8 @@ class ResultsManager:
         if not folder_path.is_dir():
             raise ValueError(f"Path is not a directory: {folder_path}")
 
-        # Required files (6-file structure)
-        required_files = ['league_config.json', 'draft_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
+        # Required files (5-file structure)
+        required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
         missing_files = []
 
         for filename in required_files:
@@ -620,10 +609,9 @@ class ResultsManager:
             base_config = json.load(f)
         logger.debug(f"Loaded base config from {folder_path / 'league_config.json'}")
 
-        # Load week-specific configs (5 horizons)
+        # Load week-specific configs (4 weekly horizons)
         week_configs = {}
         week_file_mapping = {
-            'draft_config.json': 'ros',
             'week1-5.json': '1-5',
             'week6-9.json': '6-9',
             'week10-13.json': '10-13',

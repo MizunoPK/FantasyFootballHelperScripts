@@ -90,6 +90,7 @@ class ConfigGenerator:
         # Normalization: Controls point spread scaling (50-200 gives good range)
         # Expanded lower bound from 100 to 50 - optimal found at boundary
         'NORMALIZATION_MAX_SCALE': (50, 200, 0),
+        'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),  # Draft mode normalization scale
 
         # Bye Penalties: Exponential weights for roster bye conflicts
         # Higher = more penalty for overlapping byes
@@ -202,6 +203,7 @@ class ConfigGenerator:
     PARAM_TO_SECTION_MAP = {
         # Base config parameters
         'NORMALIZATION_MAX_SCALE': 'NORMALIZATION_MAX_SCALE',  # Direct param
+        'DRAFT_NORMALIZATION_MAX_SCALE': 'DRAFT_NORMALIZATION_MAX_SCALE',  # Direct param
         'SAME_POS_BYE_WEIGHT': 'SAME_POS_BYE_WEIGHT',          # Direct param
         'DIFF_POS_BYE_WEIGHT': 'DIFF_POS_BYE_WEIGHT',          # Direct param
         'PRIMARY_BONUS': 'DRAFT_ORDER_BONUSES',                # Nested
@@ -277,11 +279,10 @@ class ConfigGenerator:
     @staticmethod
     def load_baseline_from_folder(folder_path: Path) -> Dict[str, dict]:
         """
-        Load baseline configurations from a folder with 6-file structure.
+        Load baseline configurations from a folder with 5-file structure.
 
-        Loads all config files and creates 5 separate horizon configs:
+        Loads all config files and creates 4 separate weekly horizon configs:
         - league_config.json (base parameters shared by all horizons)
-        - draft_config.json (week-specific params for 'ros' horizon)
         - week1-5.json, week6-9.json, week10-13.json, week14-17.json (week-specific params)
 
         Each horizon config = league_config.json + its horizon-specific file.
@@ -291,14 +292,14 @@ class ConfigGenerator:
             folder_path (Path): Path to folder containing config files
 
         Returns:
-            Dict[str, dict]: 5 horizon configs with keys: 'ros', '1-5', '6-9', '10-13', '14-17'
+            Dict[str, dict]: 4 horizon configs with keys: '1-5', '6-9', '10-13', '14-17'
 
         Raises:
             ValueError: If folder doesn't exist or required files are missing
 
         Example:
             >>> configs = ConfigGenerator.load_baseline_from_folder(Path("data/configs"))
-            >>> configs['ros']['parameters']['PLAYER_RATING_SCORING']
+            >>> configs['1-5']['parameters']['PLAYER_RATING_SCORING']
             {'WEIGHT': 2.0}
         """
         logger = get_logger()
@@ -310,8 +311,8 @@ class ConfigGenerator:
         if not folder_path.is_dir():
             raise ValueError(f"Path is not a directory: {folder_path}")
 
-        # Required files (6-file structure)
-        required_files = ['league_config.json', 'draft_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
+        # Required files (5-file structure)
+        required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
         missing_files = []
 
         for filename in required_files:
@@ -330,9 +331,8 @@ class ConfigGenerator:
 
         logger.debug(f"Loaded base config from {base_config_path}")
 
-        # Load 5 horizon-specific files
+        # Load 4 weekly horizon-specific files
         horizon_files = {
-            'ros': 'draft_config.json',
             '1-5': 'week1-5.json',
             '6-9': 'week6-9.json',
             '10-13': 'week10-13.json',
@@ -368,9 +368,8 @@ class ConfigGenerator:
         """
         Initialize ConfigGenerator with baseline configuration from a folder.
 
-        The baseline must be a folder containing the 6-file config structure:
+        The baseline must be a folder containing the 5-file config structure:
         - league_config.json (base parameters shared by all horizons)
-        - draft_config.json (week-specific params for ROS/draft horizon)
         - week1-5.json, week6-9.json, week10-13.json, week14-17.json (week-specific params)
 
         Args:
@@ -392,7 +391,7 @@ class ConfigGenerator:
         if baseline_config_path.is_file():
             raise ValueError(
                 f"ConfigGenerator requires a folder path, not a file: {baseline_config_path}\n"
-                f"Expected folder structure with: league_config.json, draft_config.json, week1-5.json, week6-9.json, week10-13.json, week14-17.json"
+                f"Expected folder structure with: league_config.json, week1-5.json, week6-9.json, week10-13.json, week14-17.json"
             )
 
         self.logger.info(f"Initializing ConfigGenerator with baseline folder: {baseline_config_path}")
@@ -1244,10 +1243,10 @@ class ConfigGenerator:
         (WEEK_SPECIFIC_PARAMS) and returns appropriate structure:
 
         - Shared params: {'shared': [baseline, test1, test2, ...]}
-          → Single array tested across all 5 horizons
+          → Single array tested across all 4 weekly horizons
 
-        - Horizon params: {'ros': [...], '1-5': [...], '6-9': [...], '10-13': [...], '14-17': [...]}
-          → 5 independent arrays for tournament optimization
+        - Horizon params: {'1-5': [...], '6-9': [...], '10-13': [...], '14-17': [...]}
+          → 4 independent arrays for tournament optimization
 
         Args:
             param_name (str): Parameter name from PARAM_DEFINITIONS
@@ -1260,7 +1259,7 @@ class ConfigGenerator:
             {'shared': [1.5, 2.3, 0.9, 3.1, ...]}  # Shared param
 
             >>> gen.generate_horizon_test_values('PLAYER_RATING_SCORING_WEIGHT')
-            {'ros': [2.0, 2.5, ...], '1-5': [2.0, 2.8, ...], ...}  # Horizon param
+            {'1-5': [2.0, 2.5, ...], '6-9': [2.0, 2.8, ...], ...}  # Horizon param
         """
         if param_name not in self.PARAM_DEFINITIONS:
             raise ValueError(f"Unknown parameter: {param_name}")
@@ -1285,9 +1284,9 @@ class ConfigGenerator:
             test_values = self._generate_test_values_array(baseline_value, min_val, max_val, precision)
             result = {'shared': test_values}
         else:
-            # Horizon param: 5 independent arrays
+            # Horizon param: 4 independent arrays
             result = {}
-            for horizon in ['ros', '1-5', '6-9', '10-13', '14-17']:
+            for horizon in ['1-5', '6-9', '10-13', '14-17']:
                 baseline_value = self._extract_param_value(self.baseline_configs[horizon], param_name)
                 test_values = self._generate_test_values_array(baseline_value, min_val, max_val, precision)
                 result[horizon] = test_values
@@ -1301,7 +1300,7 @@ class ConfigGenerator:
         Get complete config for a horizon with test value applied.
 
         Args:
-            horizon (str): Horizon name ('ros', '1-5', '6-9', '10-13', '14-17')
+            horizon (str): Horizon name ('1-5', '6-9', '10-13', '14-17')
             param_name (str): Parameter being tested
             test_index (int): Index into test values array
 
@@ -1309,7 +1308,7 @@ class ConfigGenerator:
             dict: Complete configuration dictionary with test value applied
 
         Example:
-            >>> config = gen.get_config_for_horizon('ros', 'ADP_SCORING_WEIGHT', 2)
+            >>> config = gen.get_config_for_horizon('1-5', 'ADP_SCORING_WEIGHT', 2)
             >>> config['parameters']['ADP_SCORING']['WEIGHT']
             2.35  # Test value at index 2
         """
@@ -1342,7 +1341,7 @@ class ConfigGenerator:
         Update baseline configuration after finding optimal value.
 
         Behavior depends on parameter type:
-        - Shared params: Updates league_config portion in ALL 5 horizons
+        - Shared params: Updates league_config portion in ALL 4 weekly horizons
         - Horizon params: Updates only the specified horizon
 
         Args:
@@ -1350,7 +1349,7 @@ class ConfigGenerator:
             new_config (dict): New configuration with optimal parameter value
 
         Example:
-            >>> gen.update_baseline_for_horizon('ros', optimal_config)
+            >>> gen.update_baseline_for_horizon('1-5', optimal_config)
         """
         if horizon not in self.baseline_configs:
             raise ValueError(f"Invalid horizon: {horizon}")
@@ -1373,7 +1372,7 @@ class ConfigGenerator:
 
         if shared_params_changed:
             # Shared param changed - update all horizons
-            for h in ['ros', '1-5', '6-9', '10-13', '14-17']:
+            for h in ['1-5', '6-9', '10-13', '14-17']:
                 for param, value in shared_params_changed.items():
                     self.baseline_configs[h]['parameters'][param] = copy.deepcopy(value)
             self.logger.debug(f"Updated shared params {list(shared_params_changed.keys())} in all horizons")

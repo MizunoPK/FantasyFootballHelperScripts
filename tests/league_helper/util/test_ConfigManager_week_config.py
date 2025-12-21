@@ -33,6 +33,7 @@ def get_base_config_content(week: int = 6) -> dict:
             "NFL_SEASON": 2025,
             "NFL_SCORING_FORMAT": "ppr",
             "NORMALIZATION_MAX_SCALE": 140.0,
+            "DRAFT_NORMALIZATION_MAX_SCALE": 163,
             "SAME_POS_BYE_WEIGHT": 0.2,
             "DIFF_POS_BYE_WEIGHT": 0.05,
             "INJURY_PENALTIES": {"LOW": 0, "MEDIUM": 5, "HIGH": 100},

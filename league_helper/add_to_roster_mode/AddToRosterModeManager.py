@@ -288,7 +288,8 @@ class AddToRosterModeManager:
                 matchup=False,               # Disable matchup multiplier
                 schedule=False,               # Disable schedule strength multiplier
                 bye=True,
-                injury=True
+                injury=True,
+                is_draft_mode=True          # Use draft normalization scale (163)
             )
             scored_players.append(scored_player)
 

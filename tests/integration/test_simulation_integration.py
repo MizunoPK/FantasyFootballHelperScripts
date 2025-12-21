@@ -135,8 +135,8 @@ def create_test_config_folder(tmp_path: Path) -> Path:
     # Try to load from actual data/configs folder if it exists
     actual_configs = project_root / "data" / "configs"
     if actual_configs.exists():
-        # Copy from real configs (6-file structure)
-        for config_file in ['league_config.json', 'draft_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
+        # Copy from real configs (5-file structure)
+        for config_file in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             src = actual_configs / config_file
             if src.exists():
                 with open(src) as f:
@@ -207,15 +207,6 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         'LOCATION_MODIFIERS': {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0},
     }
 
-    # Create draft_config.json (ROS horizon)
-    draft_config = {
-        'config_name': 'Test draft_config.json',
-        'description': 'Test ROS/draft config',
-        'parameters': week_params
-    }
-    with open(config_folder / 'draft_config.json', 'w') as f:
-        json.dump(draft_config, f, indent=2)
-
     # Create 4 week files
     for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = {
@@ -244,7 +235,7 @@ class TestConfigGeneratorIntegration:
 
         assert generator is not None
         assert hasattr(generator, 'baseline_configs')  # New API has baseline_configs (plural)
-        assert len(generator.baseline_configs) == 5  # 5 horizons
+        assert len(generator.baseline_configs) == 4  # 4 weekly horizons
 
     def test_config_generator_creates_combinations(self, baseline_config):
         """Test config generator creates horizon test values"""
@@ -258,9 +249,9 @@ class TestConfigGeneratorIntegration:
 
         # Test a WEEK_SPECIFIC_PARAM (per-horizon test values)
         test_values_horizon = generator.generate_horizon_test_values('NORMALIZATION_MAX_SCALE')
-        assert 'ros' in test_values_horizon
         assert '1-5' in test_values_horizon
-        assert len(test_values_horizon['ros']) >= 1
+        assert '6-9' in test_values_horizon
+        assert len(test_values_horizon['1-5']) >= 1
 
     def test_config_dict_has_required_fields(self, baseline_config):
         """Test generated config dicts have all required fields"""
