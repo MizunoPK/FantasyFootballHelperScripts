@@ -67,12 +67,6 @@ def _evaluate_config_tournament_process(
     param_value = metadata.get('param_value', 'unknown')
     config_horizon = metadata.get('horizon', 'unknown')
 
-    # Evaluate ROS horizon
-    results['ros'] = _evaluate_config_ros_worker(
-        calculator, config_dict, data_folder, available_seasons, 'ros',
-        param_name, param_value, config_horizon
-    )
-
     # Evaluate all 4 weekly horizons
     for week_key, week_range in WEEK_RANGES.items():
         results[week_key] = _evaluate_config_weekly_worker(
