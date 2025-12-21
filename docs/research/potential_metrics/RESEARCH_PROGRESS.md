@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-12-20
 **Total Metrics:** 58
-**Completed:** 20/58 (34.5%)
+**Completed:** 29/58 (50.0%)
 
 **Source:** Based on `docs/research/scoring_gap_analysis.md` (Version 3.0, Last Updated: December 17, 2025)
 
@@ -13,7 +13,7 @@
 | Priority | Total | Completed | Pending | % Complete |
 |----------|-------|-----------|---------|------------|
 | HIGH     | 14    | 14        | 0       | 100%       |
-| MEDIUM   | 15    | 6         | 9       | 40%        |
+| MEDIUM   | 15    | 15        | 0       | 100%       |
 | LOW      | 29    | 0         | 29      | 0%         |
 
 ---
@@ -58,15 +58,15 @@
 | 13 | Air Yards (aDOT) | WR, TE | ✅ Complete | Next Gen Stats / PP | Yes (via scraping) | [View](13_air_yards_adot.md) |
 | 14 | Yards After Catch (YAC) | WR, TE, RB | ✅ Complete | Next Gen Stats / PP | Yes (via scraping) | [View](14_yards_after_catch_yac.md) |
 | 15 | Snap Share Percentage | ALL | ✅ Complete | PlayerProfiler / PFR | Yes (via scraping) | [View](15_snap_share_percentage.md) |
-| 16 | Route Share | WR, TE | ⏳ Pending | - | - | - |
-| 17 | Target Share Trend | WR, TE, RB | ⏳ Pending | - | - | - |
-| 18 | Vacated Target Share | WR, TE | ⏳ Pending | - | - | - |
-| 19 | Carry Share | RB | ⏳ Pending | - | - | - |
-| 41 | Dome vs Outdoor (K Venue) | K | ⏳ Pending | - | - | - |
-| 43 | Red Zone Target Efficiency (TE) | TE | ⏳ Pending | - | - | - |
-| 47 | TD Equity (RB) | RB | ⏳ Pending | - | - | - |
-| 51 | Scramble Tendency (QB) | QB | ⏳ Pending | - | - | - |
-| 54 | Deep Ball Accuracy (WR) | WR | ⏳ Pending | - | - | - |
+| 16 | Route Share | WR, TE | ✅ Complete | PlayerProfiler | Yes (same as M42) | [View](16_route_share.md) |
+| 17 | Target Share Trend | WR, TE, RB | ✅ Complete | Derived (Metric 1) | Yes (perfect) | [View](17_target_share_trend.md) |
+| 18 | Vacated Target Share | WR, TE | ✅ Complete | Manual (preseason) | No (defer) | [View](18_vacated_target_share.md) |
+| 19 | Carry Share | RB | ✅ Complete | ESPN / existing | Yes (perfect) | [View](19_carry_share.md) |
+| 41 | Dome vs Outdoor (K Venue) | K | ✅ Complete | Static mapping | Yes (perfect) | [View](41_dome_vs_outdoor_k.md) |
+| 43 | Red Zone Target Efficiency (TE) | TE | ✅ Complete | PFR / PP (same as M7) | Yes (via scraping) | [View](43_red_zone_target_efficiency_te.md) |
+| 47 | TD Equity (RB) | RB | ✅ Complete | Derived (M22,46,7) | No (defer) | [View](47_td_equity_rb.md) |
+| 51 | Scramble Tendency (QB) | QB | ✅ Complete | Existing (rush stats) | Yes (perfect) | [View](51_scramble_tendency_qb.md) |
+| 54 | Deep Ball Accuracy (WR) | WR | ✅ Complete | Next Gen Stats | Yes (via scraping) | [View](54_deep_ball_accuracy_wr.md) |
 
 ---
 
@@ -133,7 +133,7 @@
 ## Completion Milestones
 
 - [x] **Phase 1 Complete:** All 14 HIGH priority metrics researched (14/14 = 100%)
-- [ ] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (6/15 = 40%)
+- [x] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (15/15 = 100%)
 - [ ] **Phase 3 Complete:** All 29 LOW priority metrics researched (0/29 = 0%)
 - [ ] **All Research Complete:** 58/58 metrics documented (0%)
 
