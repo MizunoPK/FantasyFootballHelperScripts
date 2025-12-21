@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-12-20
 **Total Metrics:** 58
-**Completed:** 15/58 (25.9%)
+**Completed:** 16/58 (27.6%)
 
 **Source:** Based on `docs/research/scoring_gap_analysis.md` (Version 3.0, Last Updated: December 17, 2025)
 
@@ -13,7 +13,7 @@
 | Priority | Total | Completed | Pending | % Complete |
 |----------|-------|-----------|---------|------------|
 | HIGH     | 14    | 14        | 0       | 100%       |
-| MEDIUM   | 15    | 1         | 14      | 7%         |
+| MEDIUM   | 15    | 2         | 13      | 13%        |
 | LOW      | 29    | 0         | 29      | 0%         |
 
 ---
@@ -53,7 +53,7 @@
 | # | Metric Name | Position | Status | Data Source | Historical | Link |
 |---|-------------|----------|--------|-------------|------------|------|
 | 5 | Teammate Injury Impact | ALL | ✅ Complete | ESPN Injury + Model | Partial (can build) | [View](05_teammate_injury_impact.md) |
-| 6 | Opponent Secondary Details | WR, TE | ⏳ Pending | - | - | - |
+| 6 | Opponent Secondary Details | WR, TE | ✅ Complete | PFR (team pass D proxy) | Yes (team stat) | [View](06_opponent_secondary_details.md) |
 | 7 | Red Zone Opportunity | ALL | ⏳ Pending | - | - | - |
 | 13 | Air Yards (aDOT) | WR, TE | ⏳ Pending | - | - | - |
 | 14 | Yards After Catch (YAC) | WR, TE, RB | ⏳ Pending | - | - | - |
@@ -133,7 +133,7 @@
 ## Completion Milestones
 
 - [x] **Phase 1 Complete:** All 14 HIGH priority metrics researched (14/14 = 100%)
-- [ ] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (1/15 = 7%)
+- [ ] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (2/15 = 13%)
 - [ ] **Phase 3 Complete:** All 29 LOW priority metrics researched (0/29 = 0%)
 - [ ] **All Research Complete:** 58/58 metrics documented (0%)
 
