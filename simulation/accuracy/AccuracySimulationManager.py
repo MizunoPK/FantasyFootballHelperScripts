@@ -643,9 +643,26 @@ class AccuracySimulationManager:
         try:
             # Auto-resume detection
             should_resume, resume_param_idx, last_config_path = self._detect_resume_state()
-            if should_resume:
+
+            # Determine which baseline to use: intermediate > optimal > original
+            baseline_to_use = None
+            if should_resume and last_config_path:
+                # Resuming from intermediate folder
+                baseline_to_use = last_config_path
                 self.logger.info(f"Resuming from parameter {resume_param_idx + 1}")
                 self.results_manager.load_intermediate_results(last_config_path)
+            else:
+                # Check for latest optimal folder
+                optimal_folders = sorted(self.output_dir.glob("accuracy_optimal_*"))
+                if optimal_folders:
+                    baseline_to_use = optimal_folders[-1]
+                    self.logger.info(f"Using latest optimal config as baseline: {baseline_to_use.name}")
+
+            # Reload ConfigGenerator baseline if we found a better baseline
+            if baseline_to_use:
+                self.logger.info(f"Reloading baseline configs from {baseline_to_use}")
+                self.config_generator.baseline_configs = ConfigGenerator.load_baseline_from_folder(baseline_to_use)
+                self.logger.info(f"Loaded {len(self.config_generator.baseline_configs)} horizon configs from {baseline_to_use.name}")
 
             # Main optimization loop
             for param_idx, param_name in enumerate(self.parameter_order):
