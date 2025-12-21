@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-12-20
 **Total Metrics:** 58
-**Completed:** 7/58 (12.1%)
+**Completed:** 8/58 (13.8%)
 
 **Source:** Based on `docs/research/scoring_gap_analysis.md` (Version 3.0, Last Updated: December 17, 2025)
 
@@ -12,7 +12,7 @@
 
 | Priority | Total | Completed | Pending | % Complete |
 |----------|-------|-----------|---------|------------|
-| HIGH     | 14    | 7         | 7       | 50%        |
+| HIGH     | 14    | 8         | 6       | 57%        |
 | MEDIUM   | 15    | 0         | 15      | 0%         |
 | LOW      | 29    | 0         | 29      | 0%         |
 
@@ -38,7 +38,7 @@
 | 21 | WOPR (Weighted Opportunity Rating) | WR, TE | ✅ Complete | NGS + PlayerProfiler | Yes (via scraping) | [View](21_wopr.md) |
 | 22 | Expected Fantasy Points (xFP) | ALL | ✅ Complete | PlayerProfiler | Yes (via scraping) | [View](22_expected_fantasy_points.md) |
 | 39 | Team Red Zone TD% (K-specific) | K | ✅ Complete | TeamRankings | Yes (team stat) | [View](39_team_red_zone_td_pct.md) |
-| 40 | Kicker Accuracy by Distance | K | ⏳ Pending | - | - | - |
+| 40 | Kicker Accuracy by Distance | K | ✅ Complete | Pro Football Ref | Yes (player stat) | [View](40_kicker_accuracy_by_distance.md) |
 | 42 | Route Participation Rate (TE) | TE | ⏳ Pending | - | - | - |
 | 46 | Goal-Line Role (RB) | RB | ⏳ Pending | - | - | - |
 | 49 | Role Designation (RB Workload) | RB | ⏳ Pending | - | - | - |
@@ -132,7 +132,7 @@
 
 ## Completion Milestones
 
-- [ ] **Phase 1 Complete:** All 14 HIGH priority metrics researched (7/14 = 50%)
+- [ ] **Phase 1 Complete:** All 14 HIGH priority metrics researched (8/14 = 57%)
 - [ ] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (0/15 = 0%)
 - [ ] **Phase 3 Complete:** All 29 LOW priority metrics researched (0/29 = 0%)
 - [ ] **All Research Complete:** 58/58 metrics documented (0%)
