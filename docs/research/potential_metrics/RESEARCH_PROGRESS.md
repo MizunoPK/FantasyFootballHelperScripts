@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-12-20
 **Total Metrics:** 58
-**Completed:** 18/58 (31.0%)
+**Completed:** 20/58 (34.5%)
 
 **Source:** Based on `docs/research/scoring_gap_analysis.md` (Version 3.0, Last Updated: December 17, 2025)
 
@@ -13,7 +13,7 @@
 | Priority | Total | Completed | Pending | % Complete |
 |----------|-------|-----------|---------|------------|
 | HIGH     | 14    | 14        | 0       | 100%       |
-| MEDIUM   | 15    | 4         | 11      | 27%        |
+| MEDIUM   | 15    | 6         | 9       | 40%        |
 | LOW      | 29    | 0         | 29      | 0%         |
 
 ---
@@ -56,8 +56,8 @@
 | 6 | Opponent Secondary Details | WR, TE | ✅ Complete | PFR (team pass D proxy) | Yes (team stat) | [View](06_opponent_secondary_details.md) |
 | 7 | Red Zone Opportunity | ALL | ✅ Complete | PlayerProfiler / PFR | Yes (via scraping) | [View](07_red_zone_opportunity.md) |
 | 13 | Air Yards (aDOT) | WR, TE | ✅ Complete | Next Gen Stats / PP | Yes (via scraping) | [View](13_air_yards_adot.md) |
-| 14 | Yards After Catch (YAC) | WR, TE, RB | ⏳ Pending | - | - | - |
-| 15 | Snap Share Percentage | ALL | ⏳ Pending | - | - | - |
+| 14 | Yards After Catch (YAC) | WR, TE, RB | ✅ Complete | Next Gen Stats / PP | Yes (via scraping) | [View](14_yards_after_catch_yac.md) |
+| 15 | Snap Share Percentage | ALL | ✅ Complete | PlayerProfiler / PFR | Yes (via scraping) | [View](15_snap_share_percentage.md) |
 | 16 | Route Share | WR, TE | ⏳ Pending | - | - | - |
 | 17 | Target Share Trend | WR, TE, RB | ⏳ Pending | - | - | - |
 | 18 | Vacated Target Share | WR, TE | ⏳ Pending | - | - | - |
@@ -133,7 +133,7 @@
 ## Completion Milestones
 
 - [x] **Phase 1 Complete:** All 14 HIGH priority metrics researched (14/14 = 100%)
-- [ ] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (4/15 = 27%)
+- [ ] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (6/15 = 40%)
 - [ ] **Phase 3 Complete:** All 29 LOW priority metrics researched (0/29 = 0%)
 - [ ] **All Research Complete:** 58/58 metrics documented (0%)
 
