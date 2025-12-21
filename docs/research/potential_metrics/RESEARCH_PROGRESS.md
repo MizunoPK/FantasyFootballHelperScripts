@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-12-20
 **Total Metrics:** 58
-**Completed:** 12/58 (20.7%)
+**Completed:** 13/58 (22.4%)
 
 **Source:** Based on `docs/research/scoring_gap_analysis.md` (Version 3.0, Last Updated: December 17, 2025)
 
@@ -12,7 +12,7 @@
 
 | Priority | Total | Completed | Pending | % Complete |
 |----------|-------|-----------|---------|------------|
-| HIGH     | 14    | 12        | 2       | 86%        |
+| HIGH     | 14    | 13        | 1       | 93%        |
 | MEDIUM   | 15    | 0         | 15      | 0%         |
 | LOW      | 29    | 0         | 29      | 0%         |
 
@@ -43,7 +43,7 @@
 | 46 | Goal-Line Role (RB) | RB | ✅ Complete | Pro Football Ref | Yes (situational) | [View](46_goal_line_role.md) |
 | 49 | Role Designation (RB Workload) | RB | ✅ Complete | PlayerProfiler | Yes (via scraping) | [View](49_role_designation_rb_workload.md) |
 | 50 | Receiving Share (RB) | RB | ✅ Complete | Existing (Metric 1) | Yes (perfect) | [View](50_receiving_share_rb.md) |
-| 52 | Pass Block Rate (QB Protection) | QB | ⏳ Pending | - | - | - |
+| 52 | Pass Block Rate (QB Protection) | QB | ✅ Complete | PFR (sack rate proxy) | Yes (team stat) | [View](52_pass_block_rate_qb.md) |
 | 53 | Pressure Rate (QB) | QB | ⏳ Pending | - | - | - |
 
 ---
@@ -132,7 +132,7 @@
 
 ## Completion Milestones
 
-- [ ] **Phase 1 Complete:** All 14 HIGH priority metrics researched (12/14 = 86%)
+- [ ] **Phase 1 Complete:** All 14 HIGH priority metrics researched (13/14 = 93%)
 - [ ] **Phase 2 Complete:** All 15 MEDIUM priority metrics researched (0/15 = 0%)
 - [ ] **Phase 3 Complete:** All 29 LOW priority metrics researched (0/29 = 0%)
 - [ ] **All Research Complete:** 58/58 metrics documented (0%)
