@@ -36,13 +36,16 @@ Team Quality captures recent team performance trends using a rolling window.
 ```python
 # Determine which rank to use based on position
 if player.position in ['DST']:
-    quality_rank = player.team_defensive_rank
+    # D/ST uses fantasy performance rank (NOT defensive rank)
+    quality_rank = player.team_defensive_rank  # Contains dst_fantasy_rank for D/ST
 else:
     quality_rank = player.team_offensive_rank
 
 final_multiplier = base_multiplier ^ WEIGHT
 adjusted_score = previous_score * final_multiplier
 ```
+
+**Note**: For D/ST positions, `team_defensive_rank` contains the D/ST fantasy performance rank (see D/ST-Specific Behavior below).
 
 ### Threshold System
 
@@ -193,6 +196,73 @@ class TeamDataManager:
 | Rating | EXCELLENT |
 | Final Multiplier | 1.05^1.777 = 1.091 |
 | Adjusted Score | 153.80 × 1.091 = 167.80 |
+
+**Reason String**: `"Team Quality: EXCELLENT (1.09x)"`
+
+## D/ST-Specific Behavior
+
+### Why D/ST Uses Different Metric
+
+D/ST positions use **D/ST fantasy points scored** instead of **points allowed to opponents** for team quality ranking.
+
+**Problem with using defensive rank (points allowed)**:
+- Measures opposing offense performance, NOT D/ST unit value
+- Penalizes elite D/ST units that face high-powered offenses
+- Creates backwards incentives (elite D/ST ranked poorly)
+
+**Example - Houston Texans D/ST**:
+
+| Metric | Points Allowed Rank | D/ST Fantasy Rank |
+|--------|---------------------|-------------------|
+| Season Avg | 116.6 fantasy points allowed | 9.34 fantasy points scored |
+| Rank | 24th (VERY_POOR) ❌ | 4th (EXCELLENT) ✅ |
+| Multiplier | 0.95x penalty | 1.05x boost |
+
+### How D/ST Ranking Works
+
+**Data Source**: `data/players.csv` - D/ST weekly fantasy scores (week_1_points...week_17_points)
+
+**Ranking Logic**: Sort by D/ST fantasy points scored (descending)
+- More sacks/INTs/TDs = higher fantasy points = better rank
+- Uses same rolling window (MIN_WEEKS) as offensive/defensive ranks
+- Skips bye weeks (None or 0 values)
+- Includes negative scores in calculation
+
+**Implementation**:
+```python
+# TeamDataManager calculates D/ST fantasy ranks
+def _rank_dst_fantasy(self, totals: Dict[str, tuple]) -> None:
+    """Rank teams by D/ST fantasy points scored (higher = better = rank 1)"""
+    averages = [(team, total/games) for team, (total, games) in totals.items()]
+    averages.sort(key=lambda x: x[1], reverse=True)  # Descending
+    for rank, (team, _) in enumerate(averages, 1):
+        self.dst_fantasy_ranks[team] = rank
+
+# PlayerManager assigns rank to D/ST players
+if player.position in Constants.DEFENSE_POSITIONS:
+    player.team_defensive_rank = team_data_manager.get_team_dst_fantasy_rank(player.team)
+else:
+    player.team_defensive_rank = team_data_manager.get_team_defensive_rank(player.team)
+```
+
+**Semantic Note**: The attribute `team_defensive_rank` means different things by position:
+- **For D/ST**: D/ST fantasy performance rank (points scored)
+- **For others**: Team defensive rank (points allowed to opponents)
+
+This reuse simplifies implementation without requiring data model changes.
+
+### D/ST Team Quality Example
+
+**Houston Texans D/ST** (Week 15):
+
+| Metric | Value |
+|--------|-------|
+| D/ST Fantasy Rank | 4 (EXCELLENT) |
+| Base Multiplier | 1.05 |
+| Weight | 1.777 |
+| Final Multiplier | 1.05^1.777 = 1.091 |
+| Previous Score | 100.0 |
+| Adjusted Score | 100.0 × 1.091 = 109.1 |
 
 **Reason String**: `"Team Quality: EXCELLENT (1.09x)"`
 

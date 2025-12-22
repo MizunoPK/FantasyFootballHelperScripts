@@ -1602,6 +1602,53 @@ python -m pytest tests/league_helper/util/test_PlayerManager.py::TestPlayerManag
 
 ---
 
+## Recent Updates
+
+### D/ST Team Quality Fix (2025-12-21)
+
+**Feature**: Fixed D/ST team quality multiplier to use fantasy performance ranking instead of defensive ranking.
+
+**Problem**: D/ST positions were using `team_defensive_rank` based on points allowed to opponents, which incorrectly penalized elite D/ST units. Example: Houston D/ST (#2 in fantasy scoring at 9.34 ppg) was ranked #24 defensively (VERY_POOR) because they faced high-powered offenses.
+
+**Solution**: Added D/ST-specific ranking system to TeamDataManager.
+
+**TeamDataManager Changes**:
+```python
+# New attributes
+self.dst_player_data: Dict[str, List[Optional[float]]] = {}  # D/ST weekly scores
+self.dst_fantasy_ranks: Dict[str, int] = {}  # D/ST fantasy performance ranks
+
+# New methods
+def _load_dst_player_data(self) -> None:
+    """Load D/ST weekly fantasy scores from players.csv"""
+
+def _rank_dst_fantasy(self, totals: Dict[str, tuple]) -> None:
+    """Rank teams by D/ST fantasy points scored (descending)"""
+
+def get_team_dst_fantasy_rank(self, team: str) -> Optional[int]:
+    """Get team D/ST fantasy performance ranking"""
+```
+
+**PlayerManager Changes**:
+```python
+# Conditional rank assignment in load_players()
+if player.position in Constants.DEFENSE_POSITIONS:
+    player.team_defensive_rank = team_data_manager.get_team_dst_fantasy_rank(player.team)
+else:
+    player.team_defensive_rank = team_data_manager.get_team_defensive_rank(player.team)
+```
+
+**Data Flow**: `players.csv` → `_load_dst_player_data()` → `_rank_dst_fantasy()` → `dst_fantasy_ranks` → PlayerManager conditional assignment
+
+**Impact**: D/ST units now correctly receive team quality boosts/penalties based on their fantasy performance. Houston D/ST now ranks #4 (EXCELLENT, 1.05x multiplier) instead of #24 (VERY_POOR, 0.95x penalty).
+
+**Files Modified**:
+- `league_helper/util/TeamDataManager.py` - Added D/ST ranking infrastructure (7 changes)
+- `league_helper/util/PlayerManager.py` - Added conditional rank assignment (1 change)
+- `docs/scoring/04_team_quality_multiplier.md` - Documented D/ST-specific behavior
+
+---
+
 ## Conclusion
 
 This architecture document provides a comprehensive overview of the Fantasy Football Helper Scripts system. The modular design, clear separation of concerns, and extensive test coverage make the system maintainable, extensible, and reliable.

@@ -197,9 +197,15 @@ class PlayerManager:
                         player.fantasy_points = player.get_rest_of_season_projection(self.config.current_nfl_week)
 
                         # Load team quality rankings for scoring calculations
-                        # Offensive rank used for offensive players, defensive rank used for DST
+                        # Offensive rank used for offensive players
                         player.team_offensive_rank = self.team_data_manager.get_team_offensive_rank(player.team)
-                        player.team_defensive_rank = self.team_data_manager.get_team_defensive_rank(player.team)
+
+                        # D/ST uses fantasy performance rank (points scored), others use defensive rank (points allowed)
+                        # This ensures D/ST team quality reflects D/ST unit performance, not opponent offense strength
+                        if player.position in Constants.DEFENSE_POSITIONS:
+                            player.team_defensive_rank = self.team_data_manager.get_team_dst_fantasy_rank(player.team)
+                        else:
+                            player.team_defensive_rank = self.team_data_manager.get_team_defensive_rank(player.team)
 
                         # Calculate matchup score (favorable/unfavorable matchup this week)
                         # Uses position-specific defense rankings for more accurate matchup analysis

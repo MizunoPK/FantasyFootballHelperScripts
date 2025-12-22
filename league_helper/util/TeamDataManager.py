@@ -17,6 +17,7 @@ Author: Kai Mizuno
 
 from pathlib import Path
 from typing import Dict, List, Optional, Any, TYPE_CHECKING
+import csv
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -77,6 +78,10 @@ class TeamDataManager:
         self.offensive_ranks: Dict[str, int] = {}
         self.defensive_ranks: Dict[str, int] = {}
         self.position_ranks: Dict[str, Dict[str, int]] = {}  # {team: {QB: rank, RB: rank, ...}}
+        self.dst_fantasy_ranks: Dict[str, int] = {}  # D/ST fantasy performance rankings
+
+        # D/ST player data: {team: [week_1_points, week_2_points, ..., week_17_points]}
+        self.dst_player_data: Dict[str, List[Optional[float]]] = {}
 
         # Legacy cache for compatibility (stores TeamData objects)
         self.team_data_cache: Dict[str, TeamData] = {}
@@ -85,6 +90,7 @@ class TeamDataManager:
         self.current_nfl_week = current_nfl_week
 
         self._load_team_data()
+        self._load_dst_player_data()
         self._calculate_rankings()
 
     def _load_team_data(self) -> None:
@@ -100,6 +106,63 @@ class TeamDataManager:
         except Exception as e:
             self.logger.warning(f"Error loading team data from {self.team_data_folder}: {e}. Team rankings will not be available.")
             self.team_weekly_data = {}
+
+    def _load_dst_player_data(self) -> None:
+        """
+        Load D/ST weekly fantasy scores from players.csv.
+
+        Extracts D/ST player entries (position == "DST") and stores their weekly
+        fantasy points for ranking calculation. This data is used to rank D/ST units
+        by their actual fantasy performance rather than points allowed to opponents.
+
+        Side Effects:
+            - Populates self.dst_player_data with {team: [week_1_points, ..., week_17_points]}
+            - Logs warning if players.csv is not found or has errors
+        """
+        try:
+            players_csv = self.data_folder / 'players.csv'
+
+            if not players_csv.exists():
+                self.logger.warning(f"Players CSV not found: {players_csv}. D/ST fantasy rankings will not be available.")
+                return
+
+            with open(players_csv, newline='', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+
+                # Verify required columns exist
+                required_cols = ['team', 'position'] + [f'week_{i}_points' for i in range(1, 18)]
+                if not all(col in reader.fieldnames for col in required_cols):
+                    missing = [col for col in required_cols if col not in reader.fieldnames]
+                    self.logger.warning(f"Missing columns in players.csv for D/ST loading: {missing}")
+                    return
+
+                dst_count = 0
+                for row in reader:
+                    # Filter for D/ST positions only
+                    if row.get('position') == 'DST':
+                        team = row.get('team', '').upper()
+
+                        # Extract weekly points (weeks 1-17)
+                        weekly_points = []
+                        for week in range(1, 18):
+                            points_str = row.get(f'week_{week}_points', '')
+                            # Handle empty, None, or non-numeric values
+                            if points_str in ('', 'None', None):
+                                weekly_points.append(None)
+                            else:
+                                try:
+                                    weekly_points.append(float(points_str))
+                                except ValueError:
+                                    weekly_points.append(None)
+
+                        self.dst_player_data[team] = weekly_points
+                        dst_count += 1
+
+                self.logger.debug(f"Loaded D/ST data for {dst_count} teams from {players_csv}")
+
+        except Exception as e:
+            self.logger.warning(f"Error loading D/ST player data from players.csv: {e}. D/ST fantasy rankings will not be available.")
+            self.dst_player_data = {}
 
     def _calculate_rankings(self) -> None:
         """
@@ -182,9 +245,29 @@ class TeamDataManager:
 
             position_totals[team] = pos_totals
 
+        # Calculate D/ST fantasy rankings using team_quality_min_weeks (same window as offensive/defensive)
+        dst_totals = {}
+        for team, weekly_points in self.dst_player_data.items():
+            dst_total = 0.0
+            games = 0
+
+            # Loop through weeks in rolling window
+            for week_num in range(tq_start_week, end_week + 1):
+                # week_num is 1-indexed, list is 0-indexed
+                week_index = week_num - 1
+                if week_index < len(weekly_points):
+                    points = weekly_points[week_index]
+                    # Skip bye weeks (None or 0)
+                    if points is not None and points != 0:
+                        dst_total += points
+                        games += 1
+
+            dst_totals[team] = (dst_total, games)
+
         # Calculate per-game averages and rank
         self._rank_offensive(offensive_totals)
         self._rank_defensive(defensive_totals)
+        self._rank_dst_fantasy(dst_totals)
         self._rank_positions(position_totals, positions)
 
         # Build team_data_cache for compatibility
@@ -197,6 +280,7 @@ class TeamDataManager:
         for team in NFL_TEAMS:
             self.offensive_ranks[team] = 16
             self.defensive_ranks[team] = 16
+            self.dst_fantasy_ranks[team] = 16
             self.position_ranks[team] = {
                 'QB': 16, 'RB': 16, 'WR': 16, 'TE': 16, 'K': 16
             }
@@ -229,6 +313,32 @@ class TeamDataManager:
 
         for rank, (team, _) in enumerate(averages, 1):
             self.defensive_ranks[team] = rank
+
+    def _rank_dst_fantasy(self, totals: Dict[str, tuple]) -> None:
+        """
+        Rank teams by D/ST fantasy points scored (higher points = better = rank 1).
+
+        This ranks D/ST units by their actual fantasy performance, NOT by points
+        allowed to opponents. Uses the same descending sort as offensive rankings
+        since more D/ST fantasy points = better performance.
+
+        Args:
+            totals: Dict mapping team abbreviation to (total_points, games_played)
+
+        Side Effects:
+            - Populates self.dst_fantasy_ranks with rankings (1-32)
+        """
+        # Calculate per-game averages
+        averages = []
+        for team, (total, games) in totals.items():
+            avg = total / games if games > 0 else 0
+            averages.append((team, avg))
+
+        # Sort by average descending (most points = rank 1, like offensive)
+        averages.sort(key=lambda x: x[1], reverse=True)
+
+        for rank, (team, _) in enumerate(averages, 1):
+            self.dst_fantasy_ranks[team] = rank
 
     def _rank_positions(self, totals: Dict[str, Dict], positions: List[str]) -> None:
         """Rank teams by position-specific defense (fewer points = better = rank 1)."""
@@ -297,6 +407,21 @@ class TeamDataManager:
             Team defensive rank (1-32) or None if not available
         """
         return self.defensive_ranks.get(team)
+
+    def get_team_dst_fantasy_rank(self, team: str) -> Optional[int]:
+        """
+        Get team D/ST fantasy performance ranking.
+
+        This rank is based on D/ST fantasy points scored (sacks, INTs, TDs, etc.),
+        NOT on points allowed to opponents. Higher fantasy points = better rank.
+
+        Args:
+            team: Team abbreviation (e.g., 'PHI', 'KC')
+
+        Returns:
+            D/ST fantasy rank (1-32) or None if not available
+        """
+        return self.dst_fantasy_ranks.get(team)
 
     def get_team_defense_vs_position_rank(self, team: str, position: str) -> Optional[int]:
         """
