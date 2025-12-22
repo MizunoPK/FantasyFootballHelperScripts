@@ -68,11 +68,11 @@ Last Activity:  2025-12-21 - Completed sub-feature 03 (integration)
   - [x] Implementation (Tasks 2.1-2.2)
   - [x] Tests passing (100% - 41/41 tests, 10 new)
   - [x] Commit: "Phase 2 (data-structure): Add RankingMetrics and extend AccuracyConfigPerformance"
-- [x] Sub-Feature 03: Integration (03_integration_todo.md) ✓ COMPLETE
+- [x] Sub-Feature 03: Integration (03_integration_todo.md) ✓ COMPLETE (commit: ada8e90)
   - Depends on: Sub-features 01, 02 ✓
   - [x] Implementation (Tasks 3.1-3.3)
   - [x] Tests passing (100% - 608/608 simulation tests)
-  - [ ] Commit: "Phase 3 (integration): Wire ranking metrics into AccuracySimulationManager"
+  - [x] Commit: "Phase 3 (integration): Wire ranking metrics into AccuracySimulationManager"
 - [ ] Sub-Feature 04: Output (04_output_todo.md)
   - Depends on: Sub-features 01, 02, 03
   - [ ] 24 verification iterations
