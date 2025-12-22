@@ -19,6 +19,7 @@ python-dotenv>=1.0.0                # Environment variable management
 # Data processing and export
 pandas>=2.1.0                       # Data manipulation and CSV/Excel processing
 openpyxl>=3.1.0                     # Excel file format support
+scipy>=1.9.0                        # Statistical functions (Spearman correlation)
 
 # Testing framework
 pytest>=8.0.0                       # Unit testing framework

@@ -19,6 +19,9 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Any
 
+import numpy as np
+from scipy.stats import spearmanr
+
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
@@ -231,3 +234,186 @@ class AccuracyCalculator:
             player_count=total_players,
             total_error=total_error
         )
+
+    def calculate_pairwise_accuracy(
+        self,
+        player_data: List[Dict[str, Any]],
+        position: str
+    ) -> float:
+        """
+        Calculate pairwise decision accuracy for a position.
+
+        For every pair of players at the same position, checks if the prediction
+        correctly identifies which player will score more fantasy points.
+
+        Args:
+            player_data: List of dicts with 'projected', 'actual', 'position' keys
+            position: Position to filter ('QB', 'RB', 'WR', 'TE')
+
+        Returns:
+            float: Percentage of correct pairwise comparisons (0.0-1.0)
+
+        Note:
+            - Filters to players with actual >= 3 points (meaningful performances)
+            - Skips tie comparisons (when actual points are equal)
+            - Returns 0.0 if insufficient data or all ties
+        """
+        # Filter to position and actual >= 3 (Q1, Q8 decisions)
+        players = []
+        for player in player_data:
+            if player.get('position') == position and player.get('actual', 0) >= 3.0:
+                players.append((player.get('projected', 0), player.get('actual', 0)))
+
+        if len(players) < 2:
+            self.logger.debug(f"Not enough {position} players for pairwise accuracy")
+            return 0.0
+
+        correct = 0
+        total = 0
+
+        # Compare all pairs
+        for i in range(len(players)):
+            for j in range(i + 1, len(players)):
+                proj_i, actual_i = players[i]
+                proj_j, actual_j = players[j]
+
+                # Skip ties (Q2 decision)
+                if actual_i == actual_j:
+                    continue
+
+                # Check if prediction matches actual
+                predicted_order = proj_i > proj_j
+                actual_order = actual_i > actual_j
+
+                if predicted_order == actual_order:
+                    correct += 1
+                total += 1
+
+        if total == 0:
+            self.logger.warning(f"No valid comparisons for {position} (all ties)")
+            return 0.0
+
+        accuracy = correct / total
+        self.logger.debug(
+            f"{position} pairwise accuracy: {accuracy:.1%} ({correct}/{total} correct)"
+        )
+        return accuracy
+
+    def calculate_top_n_accuracy(
+        self,
+        player_data: List[Dict[str, Any]],
+        n: int,
+        position: str
+    ) -> float:
+        """
+        Calculate top-N overlap accuracy for a position.
+
+        Measures how many of the predicted top-N players are actually in the
+        top-N scorers.
+
+        Args:
+            player_data: List of dicts with 'projected', 'actual', 'position', 'name' keys
+            n: Number of top players to compare (5, 10, or 20)
+            position: Position to filter
+
+        Returns:
+            float: Percentage of overlap in top-N (0.0-1.0)
+
+        Note:
+            - Filters to players with actual >= 3 points
+            - Returns 0.0 if fewer than N players available
+            - Uses set intersection formula: overlap / N
+        """
+        # Filter to position and actual >= 3 (Q1, Q8)
+        players = []
+        for player in player_data:
+            if player.get('position') == position and player.get('actual', 0) >= 3.0:
+                players.append((
+                    player.get('name', ''),
+                    player.get('projected', 0),
+                    player.get('actual', 0)
+                ))
+
+        if len(players) < n:
+            self.logger.debug(
+                f"Only {len(players)} {position} players, less than top-{n}"
+            )
+            return 0.0
+
+        # Sort by predicted score and get top-N names
+        predicted_top_n = set([
+            name for name, proj, _ in
+            sorted(players, key=lambda x: x[1], reverse=True)[:n]
+        ])
+
+        # Sort by actual points and get top-N names
+        actual_top_n = set([
+            name for name, _, actual in
+            sorted(players, key=lambda x: x[2], reverse=True)[:n]
+        ])
+
+        # Calculate overlap (Q6: set intersection)
+        overlap = len(predicted_top_n & actual_top_n)
+        accuracy = overlap / n
+
+        self.logger.debug(
+            f"{position} top-{n} accuracy: {accuracy:.1%} ({overlap}/{n} overlap)"
+        )
+        return accuracy
+
+    def calculate_spearman_correlation(
+        self,
+        player_data: List[Dict[str, Any]],
+        position: str
+    ) -> float:
+        """
+        Calculate Spearman rank correlation for a position.
+
+        Measures how well the predicted rankings correlate with actual rankings.
+
+        Args:
+            player_data: List of dicts with 'projected', 'actual', 'position' keys
+            position: Position to filter
+
+        Returns:
+            float: Spearman correlation coefficient (-1.0 to +1.0)
+
+        Note:
+            - Filters to players with actual >= 3 points
+            - Returns 0.0 if insufficient data or zero variance
+            - Handles NaN and division by zero gracefully
+        """
+        # Filter to position and actual >= 3 (Q1, Q8)
+        projected_scores = []
+        actual_scores = []
+
+        for player in player_data:
+            if player.get('position') == position and player.get('actual', 0) >= 3.0:
+                projected_scores.append(player.get('projected', 0))
+                actual_scores.append(player.get('actual', 0))
+
+        if len(projected_scores) < 2:
+            self.logger.debug(f"Not enough {position} players for correlation")
+            return 0.0
+
+        try:
+            corr, pvalue = spearmanr(projected_scores, actual_scores)
+
+            # Handle NaN (zero variance - Q22)
+            if np.isnan(corr):
+                self.logger.warning(
+                    f"Zero variance in {position} predictions or actuals"
+                )
+                return 0.0
+
+            self.logger.debug(
+                f"{position} Spearman correlation: {corr:.3f} (p={pvalue:.4f})"
+            )
+            return float(corr)
+
+        except (ZeroDivisionError, ValueError) as e:
+            # Zero variance edge case (Q22)
+            self.logger.warning(
+                f"Correlation calculation failed for {position}: {e}"
+            )
+            return 0.0

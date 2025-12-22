@@ -257,5 +257,189 @@ class TestAccuracyCalculatorAggregation:
         assert result.player_count == 100
 
 
+class TestPairwiseAccuracy:
+    """Tests for pairwise decision accuracy calculation."""
+
+    @pytest.fixture
+    def calculator(self):
+        """Create AccuracyCalculator instance."""
+        return AccuracyCalculator()
+
+    def test_pairwise_perfect_ranking(self, calculator):
+        """Test pairwise accuracy with perfect predictions."""
+        player_data = [
+            {'position': 'QB', 'projected': 30.0, 'actual': 28.0},
+            {'position': 'QB', 'projected': 25.0, 'actual': 22.0},
+            {'position': 'QB', 'projected': 20.0, 'actual': 18.0},
+        ]
+        accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
+        assert accuracy == 1.0  # All 3 pairs correct
+
+    def test_pairwise_inverse_ranking(self, calculator):
+        """Test pairwise accuracy with completely wrong predictions."""
+        player_data = [
+            {'position': 'QB', 'projected': 30.0, 'actual': 10.0},
+            {'position': 'QB', 'projected': 25.0, 'actual': 20.0},
+            {'position': 'QB', 'projected': 20.0, 'actual': 30.0},
+        ]
+        accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
+        assert accuracy == 0.0  # All 3 pairs wrong
+
+    def test_pairwise_filters_low_actual(self, calculator):
+        """Test that players with actual < 3 are excluded."""
+        player_data = [
+            {'position': 'QB', 'projected': 30.0, 'actual': 28.0},
+            {'position': 'QB', 'projected': 25.0, 'actual': 2.0},  # Excluded
+            {'position': 'QB', 'projected': 20.0, 'actual': 18.0},
+        ]
+        accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
+        # Only 1 pair (28 vs 18), which is correct
+        assert accuracy == 1.0
+
+    def test_pairwise_skips_ties(self, calculator):
+        """Test that ties in actual points are skipped."""
+        player_data = [
+            {'position': 'QB', 'projected': 30.0, 'actual': 20.0},
+            {'position': 'QB', 'projected': 25.0, 'actual': 20.0},  # Tie
+        ]
+        accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
+        assert accuracy == 0.0  # No valid comparisons (tie skipped)
+
+    def test_pairwise_insufficient_players(self, calculator):
+        """Test with fewer than 2 players."""
+        player_data = [
+            {'position': 'QB', 'projected': 30.0, 'actual': 28.0},
+        ]
+        accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
+        assert accuracy == 0.0
+
+    def test_pairwise_per_position(self, calculator):
+        """Test that positions are separated correctly."""
+        player_data = [
+            {'position': 'QB', 'projected': 30.0, 'actual': 28.0},
+            {'position': 'QB', 'projected': 20.0, 'actual': 18.0},
+            {'position': 'RB', 'projected': 25.0, 'actual': 22.0},  # Different position
+        ]
+        accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
+        assert accuracy == 1.0  # Only QBs compared
+
+
+class TestTopNAccuracy:
+    """Tests for top-N overlap accuracy calculation."""
+
+    @pytest.fixture
+    def calculator(self):
+        """Create AccuracyCalculator instance."""
+        return AccuracyCalculator()
+
+    def test_top_n_perfect_overlap(self, calculator):
+        """Test top-N accuracy with perfect overlap."""
+        player_data = [
+            {'position': 'WR', 'name': 'Player A', 'projected': 30.0, 'actual': 28.0},
+            {'position': 'WR', 'name': 'Player B', 'projected': 25.0, 'actual': 22.0},
+            {'position': 'WR', 'name': 'Player C', 'projected': 20.0, 'actual': 18.0},
+            {'position': 'WR', 'name': 'Player D', 'projected': 15.0, 'actual': 12.0},
+            {'position': 'WR', 'name': 'Player E', 'projected': 10.0, 'actual': 8.0},
+        ]
+        accuracy = calculator.calculate_top_n_accuracy(player_data, 5, 'WR')
+        assert accuracy == 1.0  # All 5 match
+
+    def test_top_n_no_overlap(self, calculator):
+        """Test top-N accuracy with no overlap."""
+        player_data = [
+            {'position': 'WR', 'name': 'Player A', 'projected': 30.0, 'actual': 8.0},
+            {'position': 'WR', 'name': 'Player B', 'projected': 25.0, 'actual': 10.0},
+            {'position': 'WR', 'name': 'Player C', 'projected': 20.0, 'actual': 12.0},
+            {'position': 'WR', 'name': 'Player D', 'projected': 15.0, 'actual': 18.0},
+            {'position': 'WR', 'name': 'Player E', 'projected': 10.0, 'actual': 22.0},
+            {'position': 'WR', 'name': 'Player F', 'projected': 5.0, 'actual': 28.0},
+        ]
+        accuracy = calculator.calculate_top_n_accuracy(player_data, 5, 'WR')
+        # Top 5 projected: A,B,C,D,E
+        # Top 5 actual: F,E,D,C,B
+        # Overlap: B,C,D,E (4/5)
+        assert accuracy == 0.8
+
+    def test_top_n_filters_low_actual(self, calculator):
+        """Test that players with actual < 3 are excluded."""
+        player_data = [
+            {'position': 'RB', 'name': 'Player A', 'projected': 30.0, 'actual': 28.0},
+            {'position': 'RB', 'name': 'Player B', 'projected': 25.0, 'actual': 2.0},  # Excluded
+            {'position': 'RB', 'name': 'Player C', 'projected': 20.0, 'actual': 18.0},
+        ]
+        accuracy = calculator.calculate_top_n_accuracy(player_data, 2, 'RB')
+        # After filtering, only A and C remain
+        assert accuracy == 1.0
+
+    def test_top_n_insufficient_players(self, calculator):
+        """Test with fewer players than N."""
+        player_data = [
+            {'position': 'TE', 'name': 'Player A', 'projected': 30.0, 'actual': 28.0},
+            {'position': 'TE', 'name': 'Player B', 'projected': 25.0, 'actual': 22.0},
+        ]
+        accuracy = calculator.calculate_top_n_accuracy(player_data, 5, 'TE')
+        assert accuracy == 0.0  # Not enough players
+
+
+class TestSpearmanCorrelation:
+    """Tests for Spearman rank correlation calculation."""
+
+    @pytest.fixture
+    def calculator(self):
+        """Create AccuracyCalculator instance."""
+        return AccuracyCalculator()
+
+    def test_spearman_perfect_correlation(self, calculator):
+        """Test Spearman with perfect positive correlation."""
+        player_data = [
+            {'position': 'QB', 'projected': 30.0, 'actual': 28.0},
+            {'position': 'QB', 'projected': 25.0, 'actual': 22.0},
+            {'position': 'QB', 'projected': 20.0, 'actual': 18.0},
+            {'position': 'QB', 'projected': 15.0, 'actual': 12.0},
+        ]
+        corr = calculator.calculate_spearman_correlation(player_data, 'QB')
+        assert abs(corr - 1.0) < 0.01  # Should be ~1.0
+
+    def test_spearman_inverse_correlation(self, calculator):
+        """Test Spearman with perfect negative correlation."""
+        player_data = [
+            {'position': 'QB', 'projected': 30.0, 'actual': 12.0},
+            {'position': 'QB', 'projected': 25.0, 'actual': 18.0},
+            {'position': 'QB', 'projected': 20.0, 'actual': 22.0},
+            {'position': 'QB', 'projected': 15.0, 'actual': 28.0},
+        ]
+        corr = calculator.calculate_spearman_correlation(player_data, 'QB')
+        assert abs(corr - (-1.0)) < 0.01  # Should be ~-1.0
+
+    def test_spearman_zero_variance(self, calculator):
+        """Test Spearman handles zero variance gracefully."""
+        player_data = [
+            {'position': 'QB', 'projected': 20.0, 'actual': 20.0},
+            {'position': 'QB', 'projected': 20.0, 'actual': 20.0},
+            {'position': 'QB', 'projected': 20.0, 'actual': 20.0},
+        ]
+        corr = calculator.calculate_spearman_correlation(player_data, 'QB')
+        assert corr == 0.0  # Should return 0 for zero variance
+
+    def test_spearman_filters_low_actual(self, calculator):
+        """Test that players with actual < 3 are excluded."""
+        player_data = [
+            {'position': 'WR', 'projected': 30.0, 'actual': 28.0},
+            {'position': 'WR', 'projected': 25.0, 'actual': 2.0},  # Excluded
+            {'position': 'WR', 'projected': 20.0, 'actual': 18.0},
+        ]
+        corr = calculator.calculate_spearman_correlation(player_data, 'WR')
+        # Only 2 players remain, should still calculate
+        assert abs(corr - 1.0) < 0.01
+
+    def test_spearman_insufficient_players(self, calculator):
+        """Test with fewer than 2 players."""
+        player_data = [
+            {'position': 'TE', 'projected': 30.0, 'actual': 28.0},
+        ]
+        corr = calculator.calculate_spearman_correlation(player_data, 'TE')
+        assert corr == 0.0
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
