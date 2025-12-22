@@ -950,6 +950,19 @@ class AccuracySimulationManager:
             best_perf = self.results_manager.best_configs.get(week_key)
             if best_perf:
                 test_idx = best_perf.test_idx if best_perf.test_idx is not None else '?'
-                self.logger.info(f"  {week_key}: MAE={best_perf.mae:.4f} (test_{test_idx})")
+
+                # Show ranking metrics if available
+                if best_perf.overall_metrics:
+                    self.logger.info(
+                        f"  {week_key}: "
+                        f"Pairwise={best_perf.overall_metrics.pairwise_accuracy:.1%} | "
+                        f"Top-10={best_perf.overall_metrics.top_10_accuracy:.1%} | "
+                        f"Spearman={best_perf.overall_metrics.spearman_correlation:.3f} | "
+                        f"MAE={best_perf.mae:.4f} (diag) "
+                        f"(test_{test_idx})"
+                    )
+                else:
+                    # Fallback for backward compatibility
+                    self.logger.info(f"  {week_key}: MAE={best_perf.mae:.4f} (test_{test_idx})")
             else:
                 self.logger.info(f"  {week_key}: No results yet")
