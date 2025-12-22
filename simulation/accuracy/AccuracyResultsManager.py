@@ -315,10 +315,23 @@ class AccuracyResultsManager:
         if perf.is_better_than(current_best):
             previous_mae = f"{current_best.mae:.4f}" if current_best else "N/A"
             self.best_configs[week_range_key] = perf
-            self.logger.info(
-                f"New best for {week_range_key}: MAE={perf.mae:.4f} "
-                f"(previous: {previous_mae})"
-            )
+
+            # Log with ranking metrics prominently (Q30)
+            if perf.overall_metrics:
+                self.logger.info(
+                    f"New best for {week_range_key}: "
+                    f"Pairwise={perf.overall_metrics.pairwise_accuracy:.1%} | "
+                    f"Top-10={perf.overall_metrics.top_10_accuracy:.1%} | "
+                    f"Spearman={perf.overall_metrics.spearman_correlation:.3f} | "
+                    f"MAE={perf.mae:.4f} (diag) | "
+                    f"(prev MAE: {previous_mae})"
+                )
+            else:
+                # Fallback for backward compatibility (no ranking metrics)
+                self.logger.info(
+                    f"New best for {week_range_key}: MAE={perf.mae:.4f} "
+                    f"(previous: {previous_mae})"
+                )
             return True
 
         return False
@@ -387,7 +400,18 @@ class AccuracyResultsManager:
         self.logger.info(f"Current best_configs state:")
         for week_key, perf in self.best_configs.items():
             if perf:
-                self.logger.info(f"  {week_key}: MAE={perf.mae:.4f}, players={perf.player_count}, id={perf.config_id}")
+                if perf.overall_metrics:
+                    self.logger.info(
+                        f"  {week_key}: "
+                        f"Pairwise={perf.overall_metrics.pairwise_accuracy:.1%} | "
+                        f"Top-10={perf.overall_metrics.top_10_accuracy:.1%} | "
+                        f"Spearman={perf.overall_metrics.spearman_correlation:.3f} | "
+                        f"MAE={perf.mae:.4f} (diag) | "
+                        f"players={perf.player_count} | id={perf.config_id}"
+                    )
+                else:
+                    # Fallback for backward compatibility
+                    self.logger.info(f"  {week_key}: MAE={perf.mae:.4f}, players={perf.player_count}, id={perf.config_id}")
             else:
                 self.logger.info(f"  {week_key}: None")
 
