@@ -73,11 +73,11 @@ Last Activity:  2025-12-21 - Completed sub-feature 04 (output formatting)
   - [x] Implementation (Tasks 3.1-3.3)
   - [x] Tests passing (100% - 608/608 simulation tests)
   - [x] Commit: "Phase 3 (integration): Wire ranking metrics into AccuracySimulationManager"
-- [x] Sub-Feature 04: Output (04_output_todo.md) ✓ COMPLETE
+- [x] Sub-Feature 04: Output (04_output_todo.md) ✓ COMPLETE (commit: e8a5fdb)
   - Depends on: Sub-features 01, 02, 03 ✓
   - [x] Implementation (Tasks 4.1-4.2)
   - [x] Tests passing (100% - 41/41 tests)
-  - [ ] Commit: "Phase 4 (output): Update results display for ranking metrics"
+  - [x] Commit: "Phase 4 (output): Update results display for ranking metrics"
 - [ ] Sub-Feature 05: Testing (05_testing_todo.md)
   - Depends on: All previous sub-features
   - [ ] 24 verification iterations

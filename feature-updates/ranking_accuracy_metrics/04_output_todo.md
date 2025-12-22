@@ -65,8 +65,8 @@ R1: □□□□□□□ (0/7)   R2: □□□□□□□□□ (0/9)   R3: �
 - [x] Sub-features 01, 02, 03 complete (commits: 64f3c56, fc830b1, ada8e90)
 - [x] Tasks complete (4.1 verified, 4.2 implemented)
 - [x] QA checkpoint passed (41/41 tests passing)
-- [ ] Changes committed with message: "Phase 4 (output): Update results display for ranking metrics"
+- [x] Changes committed with message: "Phase 4 (output): Update results display for ranking metrics"
 
-**Sub-feature 04 COMPLETE** - Ready to commit
+**Sub-feature 04 COMPLETE** - Commit: e8a5fdb
 
 **Note:** Skipped 24 verification iterations - output formatting is straightforward and tests validate correctness
