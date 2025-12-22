@@ -117,10 +117,10 @@ R1: □□□□□□□ (0/7)   R2: □□□□□□□□□ (0/9)   R3: �
 - [x] All previous sub-features complete (commits: 64f3c56, fc830b1, ada8e90, e8a5fdb)
 - [x] All test tasks complete (Tasks 5.1-5.5 verified)
 - [x] QA checkpoint passed (608/608 tests, 100% pass rate)
-- [ ] Update README with completion status
-- [ ] Changes committed with message: "Phase 5 (testing): Verify comprehensive test coverage for ranking metrics"
+- [x] Update README with completion status
+- [x] Changes committed with message: "Phase 5 (testing): Verify comprehensive test coverage for ranking metrics"
 
-**Sub-feature 05 COMPLETE** - Ready to commit
+**Sub-feature 05 COMPLETE** - Commit: 74855ad
 
 **Note:** No new tests needed - comprehensive coverage already exists from sub-features 01-04. This sub-feature verified and documented the existing test coverage.
 

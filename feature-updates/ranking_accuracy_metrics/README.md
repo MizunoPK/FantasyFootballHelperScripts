@@ -78,11 +78,11 @@ Last Activity:  2025-12-21 - Completed sub-feature 05 (testing verification)
   - [x] Implementation (Tasks 4.1-4.2)
   - [x] Tests passing (100% - 41/41 tests)
   - [x] Commit: "Phase 4 (output): Update results display for ranking metrics"
-- [x] Sub-Feature 05: Testing (05_testing_todo.md) ✓ COMPLETE
+- [x] Sub-Feature 05: Testing (05_testing_todo.md) ✓ COMPLETE (commit: 74855ad)
   - Depends on: All previous sub-features ✓
   - [x] Test verification complete (Tasks 5.1-5.5)
   - [x] Tests passing (100% - 608/608 simulation tests)
-  - [ ] Commit: "Phase 5 (testing): Verify comprehensive test coverage for ranking metrics"
+  - [x] Commit: "Phase 5 (testing): Verify comprehensive test coverage for ranking metrics"
 
 **POST-IMPLEMENTATION PHASE**
 - [ ] Requirement Verification Protocol
