@@ -37,6 +37,7 @@ class TestLeagueHelperManagerInit:
              patch('league_helper.LeagueHelperManager.StarterHelperModeManager') as mock_starter, \
              patch('league_helper.LeagueHelperManager.TradeSimulatorModeManager') as mock_trade, \
              patch('league_helper.LeagueHelperManager.ModifyPlayerDataModeManager') as mock_modify, \
+             patch('league_helper.LeagueHelperManager.SaveCalculatedPointsManager') as mock_save_points, \
              patch('league_helper.LeagueHelperManager.get_logger') as mock_logger:
 
             # Setup config mock
@@ -63,6 +64,7 @@ class TestLeagueHelperManagerInit:
                 'starter': mock_starter,
                 'trade': mock_trade,
                 'modify': mock_modify,
+                'save_points': mock_save_points,
                 'logger': mock_logger,
                 'config_instance': config_instance,
                 'player_instance': player_instance,
@@ -106,7 +108,7 @@ class TestLeagueHelperManagerInit:
         assert manager.player_manager == mock_managers['player_instance']
 
     def test_init_creates_all_mode_managers(self, mock_data_folder, mock_managers):
-        """Test that initialization creates all four mode managers."""
+        """Test that initialization creates all five mode managers."""
         manager = LeagueHelperManager(mock_data_folder)
 
         # Verify Add to Roster mode manager - uses regular config/player manager with is_draft_mode flag
@@ -136,6 +138,13 @@ class TestLeagueHelperManagerInit:
             mock_data_folder
         )
 
+        # Verify Save Calculated Points mode manager
+        mock_managers['save_points'].assert_called_once_with(
+            mock_managers['config_instance'],
+            mock_managers['player_instance'],
+            mock_data_folder
+        )
+
     def test_init_logs_initialization_steps(self, mock_data_folder, mock_managers):
         """Test that initialization logs all major steps."""
         manager = LeagueHelperManager(mock_data_folder)
@@ -160,6 +169,7 @@ class TestStartInteractiveMode:
              patch('league_helper.LeagueHelperManager.StarterHelperModeManager'), \
              patch('league_helper.LeagueHelperManager.TradeSimulatorModeManager'), \
              patch('league_helper.LeagueHelperManager.ModifyPlayerDataModeManager'), \
+             patch('league_helper.LeagueHelperManager.SaveCalculatedPointsManager'), \
              patch('league_helper.LeagueHelperManager.get_logger'):
 
             # Setup player manager mock with proper list for players
@@ -178,7 +188,7 @@ class TestStartInteractiveMode:
     def test_start_interactive_mode_displays_welcome(self, mock_print, mock_show_list, mock_manager):
         """Test that start_interactive_mode displays welcome message."""
         # Mock to exit immediately
-        mock_show_list.return_value = 5  # Quit option
+        mock_show_list.return_value = 6  # Quit option
 
         mock_manager.start_interactive_mode()
 
@@ -191,7 +201,7 @@ class TestStartInteractiveMode:
     def test_start_interactive_mode_displays_roster_status(self, mock_show_list, mock_manager):
         """Test that start_interactive_mode displays scored roster."""
         # Mock to exit immediately
-        mock_show_list.return_value = 5  # Quit option
+        mock_show_list.return_value = 6  # Quit option
 
         mock_manager.start_interactive_mode()
 
@@ -201,7 +211,7 @@ class TestStartInteractiveMode:
     def test_start_interactive_mode_reloads_data_before_menu(self, mock_show_list, mock_manager):
         """Test that player data is reloaded before each menu display."""
         # Mock to show menu twice then quit
-        mock_show_list.side_effect = [1, 5]  # Add to roster, then quit
+        mock_show_list.side_effect = [1, 6]  # Add to roster, then quit
 
         # Mock the mode method to do nothing
         mock_manager._run_add_to_roster_mode = Mock()
@@ -214,7 +224,7 @@ class TestStartInteractiveMode:
     @patch('league_helper.LeagueHelperManager.show_list_selection')
     def test_start_interactive_mode_routes_to_add_roster(self, mock_show_list, mock_manager):
         """Test that choice 1 routes to Add to Roster mode."""
-        mock_show_list.side_effect = [1, 5]  # Add to roster, then quit
+        mock_show_list.side_effect = [1, 6]  # Add to roster, then quit
         mock_manager._run_add_to_roster_mode = Mock()
 
         mock_manager.start_interactive_mode()
@@ -224,7 +234,7 @@ class TestStartInteractiveMode:
     @patch('league_helper.LeagueHelperManager.show_list_selection')
     def test_start_interactive_mode_routes_to_starter_helper(self, mock_show_list, mock_manager):
         """Test that choice 2 routes to Starter Helper mode."""
-        mock_show_list.side_effect = [2, 5]  # Starter helper, then quit
+        mock_show_list.side_effect = [2, 6]  # Starter helper, then quit
         mock_manager._run_starter_helper_mode = Mock()
 
         mock_manager.start_interactive_mode()
@@ -234,7 +244,7 @@ class TestStartInteractiveMode:
     @patch('league_helper.LeagueHelperManager.show_list_selection')
     def test_start_interactive_mode_routes_to_trade_simulator(self, mock_show_list, mock_manager):
         """Test that choice 3 routes to Trade Simulator mode."""
-        mock_show_list.side_effect = [3, 5]  # Trade simulator, then quit
+        mock_show_list.side_effect = [3, 6]  # Trade simulator, then quit
         mock_manager._run_trade_simulator_mode = Mock()
 
         mock_manager.start_interactive_mode()
@@ -244,7 +254,7 @@ class TestStartInteractiveMode:
     @patch('league_helper.LeagueHelperManager.show_list_selection')
     def test_start_interactive_mode_routes_to_modify_player_data(self, mock_show_list, mock_manager):
         """Test that choice 4 routes to Modify Player Data mode."""
-        mock_show_list.side_effect = [4, 5]  # Modify player data, then quit
+        mock_show_list.side_effect = [4, 6]  # Modify player data, then quit
         mock_manager.run_modify_player_data_mode = Mock()
 
         mock_manager.start_interactive_mode()
@@ -252,10 +262,21 @@ class TestStartInteractiveMode:
         mock_manager.run_modify_player_data_mode.assert_called_once()
 
     @patch('league_helper.LeagueHelperManager.show_list_selection')
+    def test_start_interactive_mode_routes_to_save_calculated_points(self, mock_show_list, mock_manager):
+        """Test that choice 5 routes to Save Calculated Points mode."""
+        mock_show_list.side_effect = [5, 6]  # Save calculated points, then quit
+        mock_manager.save_calculated_points_manager = Mock()
+        mock_manager.save_calculated_points_manager.execute = Mock()
+
+        mock_manager.start_interactive_mode()
+
+        mock_manager.save_calculated_points_manager.execute.assert_called_once()
+
+    @patch('league_helper.LeagueHelperManager.show_list_selection')
     @patch('builtins.print')
     def test_start_interactive_mode_exits_on_quit(self, mock_print, mock_show_list, mock_manager):
-        """Test that choice 5 exits the application."""
-        mock_show_list.return_value = 5  # Quit
+        """Test that choice 6 exits the application."""
+        mock_show_list.return_value = 6  # Quit
 
         mock_manager.start_interactive_mode()
 
@@ -268,7 +289,7 @@ class TestStartInteractiveMode:
     @patch('builtins.print')
     def test_start_interactive_mode_handles_invalid_choice(self, mock_print, mock_show_list, mock_manager):
         """Test that invalid menu choices are handled gracefully."""
-        mock_show_list.side_effect = [99, 5]  # Invalid choice, then quit
+        mock_show_list.side_effect = [99, 6]  # Invalid choice, then quit
 
         mock_manager.start_interactive_mode()
 
@@ -291,6 +312,7 @@ class TestModeDelegation:
              patch('league_helper.LeagueHelperManager.StarterHelperModeManager') as mock_starter, \
              patch('league_helper.LeagueHelperManager.TradeSimulatorModeManager') as mock_trade, \
              patch('league_helper.LeagueHelperManager.ModifyPlayerDataModeManager') as mock_modify, \
+             patch('league_helper.LeagueHelperManager.SaveCalculatedPointsManager') as mock_save_points, \
              patch('league_helper.LeagueHelperManager.get_logger'):
 
             manager = LeagueHelperManager(tmp_path / "data")
@@ -365,6 +387,7 @@ class TestEdgeCases:
              patch('league_helper.LeagueHelperManager.StarterHelperModeManager'), \
              patch('league_helper.LeagueHelperManager.TradeSimulatorModeManager'), \
              patch('league_helper.LeagueHelperManager.ModifyPlayerDataModeManager'), \
+             patch('league_helper.LeagueHelperManager.SaveCalculatedPointsManager'), \
              patch('league_helper.LeagueHelperManager.get_logger'):
 
             # Setup player manager mock with proper list for players
@@ -382,9 +405,11 @@ class TestEdgeCases:
             manager._run_starter_helper_mode = Mock()
             manager._run_trade_simulator_mode = Mock()
             manager.run_modify_player_data_mode = Mock()
+            manager.save_calculated_points_manager = Mock()
+            manager.save_calculated_points_manager.execute = Mock()
 
             # Run all modes in sequence, then quit
-            mock_show_list.side_effect = [1, 2, 3, 4, 5]
+            mock_show_list.side_effect = [1, 2, 3, 4, 5, 6]
 
             manager.start_interactive_mode()
 
@@ -393,6 +418,7 @@ class TestEdgeCases:
             manager._run_starter_helper_mode.assert_called_once()
             manager._run_trade_simulator_mode.assert_called_once()
             manager.run_modify_player_data_mode.assert_called_once()
+            manager.save_calculated_points_manager.execute.assert_called_once()
 
-            # Verify data was reloaded before each menu (5 times total)
-            assert player_instance.reload_player_data.call_count == 5
+            # Verify data was reloaded before each menu (6 times total)
+            assert player_instance.reload_player_data.call_count == 6

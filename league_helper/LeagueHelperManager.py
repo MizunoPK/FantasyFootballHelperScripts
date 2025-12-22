@@ -28,6 +28,7 @@ from add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
 from starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager
 from trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
 from modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager
+from save_calculated_points_mode.SaveCalculatedPointsManager import SaveCalculatedPointsManager
 sys.path.append(str(Path(__file__).parent.parent))
 from utils.LoggingManager import setup_logger, get_logger
 
@@ -95,6 +96,7 @@ class LeagueHelperManager:
         self.starter_helper_mode_manager = StarterHelperModeManager(self.config, self.player_manager, self.team_data_manager)
         self.trade_simulator_mode_manager = TradeSimulatorModeManager(data_folder, self.player_manager, self.config)
         self.modify_player_data_mode_manager = ModifyPlayerDataModeManager(self.player_manager, data_folder)
+        self.save_calculated_points_manager = SaveCalculatedPointsManager(self.config, self.player_manager, data_folder)
         self.logger.info("All mode managers initialized successfully")
 
 
@@ -122,7 +124,7 @@ class LeagueHelperManager:
             self.logger.debug("Reloading player data before menu display")
             self.player_manager.reload_player_data()
 
-            choice = show_list_selection("MAIN MENU", ["Add to Roster", "Starter Helper", "Trade Simulator", "Modify Player Data"], "Quit")
+            choice = show_list_selection("MAIN MENU", ["Add to Roster", "Starter Helper", "Trade Simulator", "Modify Player Data", "Save Calculated Projected Points"], "Quit")
             self.logger.debug(f"User selected menu option: {choice}")
 
             if choice == 1:
@@ -138,6 +140,9 @@ class LeagueHelperManager:
                 self.logger.info("Starting Modify Player Data mode")
                 self.run_modify_player_data_mode()
             elif choice == 5:
+                self.logger.info("Starting Save Calculated Points mode")
+                self.save_calculated_points_manager.execute()
+            elif choice == 6:
                 print("Goodbye!")
                 self.logger.info("User exited League Helper application")
                 break
