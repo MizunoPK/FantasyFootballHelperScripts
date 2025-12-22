@@ -28,6 +28,8 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
+import numpy as np
+
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
@@ -41,7 +43,7 @@ from config_cleanup import cleanup_old_accuracy_optimal_folders, cleanup_accurac
 # Import from same folder (accuracy/)
 sys.path.append(str(Path(__file__).parent))
 from AccuracyCalculator import AccuracyCalculator, AccuracyResult
-from AccuracyResultsManager import AccuracyResultsManager, WEEK_RANGES
+from AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
 
 # Import league helper components for scoring
 sys.path.append(str(Path(__file__).parent.parent.parent / "league_helper"))
@@ -380,6 +382,121 @@ class AccuracySimulationManager:
             import shutil
             shutil.rmtree(player_mgr._temp_dir)
 
+    def _calculate_ranking_metrics(
+        self,
+        player_data_by_week: Dict[int, List[Dict[str, Any]]]
+    ) -> Tuple[RankingMetrics, Dict[str, RankingMetrics]]:
+        """
+        Calculate ranking metrics across weeks and positions.
+
+        Aggregates using:
+        - Pairwise/Top-N: Simple average across weeks
+        - Spearman: Fisher z-transformation for proper averaging
+
+        Args:
+            player_data_by_week: Dict of week -> list of player dicts with keys:
+                - 'name': Player name
+                - 'position': Player position (QB, RB, WR, TE)
+                - 'projected': Projected points
+                - 'actual': Actual points
+
+        Returns:
+            Tuple of (overall_metrics, by_position_metrics)
+        """
+        positions = ['QB', 'RB', 'WR', 'TE']
+
+        # Accumulators for per-position metrics (average across weeks)
+        position_data = {pos: {
+            'pairwise_sum': 0.0,
+            'top_5_sum': 0.0,
+            'top_10_sum': 0.0,
+            'top_20_sum': 0.0,
+            'spearman_z_values': [],
+            'week_count': 0
+        } for pos in positions}
+
+        # Calculate per week per position
+        for week_num, player_list in player_data_by_week.items():
+            for pos in positions:
+                # Calculate pairwise accuracy for this week/position
+                pairwise = self.accuracy_calculator.calculate_pairwise_accuracy(
+                    player_list, pos
+                )
+                position_data[pos]['pairwise_sum'] += pairwise
+
+                # Calculate top-N accuracies
+                for n in [5, 10, 20]:
+                    top_n = self.accuracy_calculator.calculate_top_n_accuracy(
+                        player_list, n, pos
+                    )
+                    position_data[pos][f'top_{n}_sum'] += top_n
+
+                # Calculate Spearman correlation
+                corr = self.accuracy_calculator.calculate_spearman_correlation(
+                    player_list, pos
+                )
+                # Fisher z-transform for proper averaging (Q9)
+                if not np.isnan(corr) and corr != 0.0:
+                    z = np.arctanh(corr)
+                    position_data[pos]['spearman_z_values'].append(z)
+
+                position_data[pos]['week_count'] += 1
+
+        # Aggregate per-position metrics
+        by_position = {}
+        for pos in positions:
+            data = position_data[pos]
+            week_count = data['week_count']
+
+            if week_count == 0:
+                self.logger.debug(f"No data for {pos}, skipping ranking metrics")
+                continue
+
+            # Spearman: inverse Fisher z-transform (Q9)
+            if data['spearman_z_values']:
+                z_mean = np.mean(data['spearman_z_values'])
+                spearman = float(np.tanh(z_mean))
+            else:
+                spearman = 0.0
+
+            by_position[pos] = RankingMetrics(
+                pairwise_accuracy=data['pairwise_sum'] / week_count,
+                top_5_accuracy=data['top_5_sum'] / week_count,
+                top_10_accuracy=data['top_10_sum'] / week_count,
+                top_20_accuracy=data['top_20_sum'] / week_count,
+                spearman_correlation=spearman
+            )
+
+        # Calculate overall metrics (average across positions - Q17)
+        if by_position:
+            all_z_values = []
+            for data in position_data.values():
+                all_z_values.extend(data['spearman_z_values'])
+
+            overall_spearman = 0.0
+            if all_z_values:
+                z_mean = np.mean(all_z_values)
+                overall_spearman = float(np.tanh(z_mean))
+
+            overall_metrics = RankingMetrics(
+                pairwise_accuracy=float(np.mean([m.pairwise_accuracy for m in by_position.values()])),
+                top_5_accuracy=float(np.mean([m.top_5_accuracy for m in by_position.values()])),
+                top_10_accuracy=float(np.mean([m.top_10_accuracy for m in by_position.values()])),
+                top_20_accuracy=float(np.mean([m.top_20_accuracy for m in by_position.values()])),
+                spearman_correlation=overall_spearman
+            )
+        else:
+            # No data - return zeros
+            overall_metrics = RankingMetrics(
+                pairwise_accuracy=0.0,
+                top_5_accuracy=0.0,
+                top_10_accuracy=0.0,
+                top_20_accuracy=0.0,
+                spearman_correlation=0.0
+            )
+
+        return overall_metrics, by_position
+
     def _evaluate_config_weekly(
         self,
         config_dict: dict,
@@ -401,6 +518,7 @@ class AccuracySimulationManager:
         for season_path in self.available_seasons:
             week_projections = {}
             week_actuals = {}
+            player_data_by_week = {}  # For ranking metrics
 
             for week_num in range(start_week, end_week + 1):
                 projected_path, actual_path = self._load_season_data(season_path, week_num)
@@ -413,6 +531,7 @@ class AccuracySimulationManager:
                 try:
                     projections = {}
                     actuals = {}
+                    player_data = []  # Player metadata for ranking metrics
 
                     # Calculate and set max weekly projection for this week's normalization
                     # This is required before scoring with use_weekly_projection=True
@@ -448,8 +567,18 @@ class AccuracySimulationManager:
                             if actual is not None and actual > 0:
                                 actuals[player.id] = actual
 
+                                # Collect player metadata for ranking metrics
+                                if scored:
+                                    player_data.append({
+                                        'name': player.name,
+                                        'position': player.position,
+                                        'projected': scored.projected_points,
+                                        'actual': actual
+                                    })
+
                     week_projections[week_num] = projections
                     week_actuals[week_num] = actuals
+                    player_data_by_week[week_num] = player_data
 
                 finally:
                     self._cleanup_player_manager(player_mgr)
@@ -458,9 +587,28 @@ class AccuracySimulationManager:
             result = self.accuracy_calculator.calculate_weekly_mae(
                 week_projections, week_actuals, week_range
             )
+
+            # Calculate ranking metrics for this season
+            overall_metrics, by_position = self._calculate_ranking_metrics(player_data_by_week)
+            result.overall_metrics = overall_metrics
+            result.by_position = by_position
+
+            # Log threshold warnings (Q34, Q35)
+            if overall_metrics and overall_metrics.pairwise_accuracy < 0.65:
+                self.logger.warning(
+                    f"[{season_path.name}] Low pairwise accuracy: "
+                    f"{overall_metrics.pairwise_accuracy:.1%} (threshold: 65%)"
+                )
+
+            if overall_metrics and overall_metrics.top_10_accuracy < 0.70:
+                self.logger.warning(
+                    f"[{season_path.name}] Low top-10 accuracy: "
+                    f"{overall_metrics.top_10_accuracy:.1%} (threshold: 70%)"
+                )
+
             season_results.append((season_path.name, result))
 
-        # Aggregate across seasons
+        # Aggregate across seasons (including ranking metrics)
         return self.accuracy_calculator.aggregate_season_results(season_results)
 
     def _evaluate_config_tournament(

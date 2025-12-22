@@ -36,6 +36,8 @@ class AccuracyResult:
         player_count (int): Number of players evaluated
         total_error (float): Sum of all absolute errors
         errors (List[float]): Individual player errors (for debugging)
+        overall_metrics (Optional[RankingMetrics]): Overall ranking metrics across all positions
+        by_position (Optional[Dict[str, RankingMetrics]]): Ranking metrics per position
     """
 
     def __init__(
@@ -43,12 +45,16 @@ class AccuracyResult:
         mae: float,
         player_count: int,
         total_error: float,
-        errors: Optional[List[float]] = None
+        errors: Optional[List[float]] = None,
+        overall_metrics=None,  # RankingMetrics
+        by_position: Optional[dict] = None  # Dict[str, RankingMetrics]
     ) -> None:
         self.mae = mae
         self.player_count = player_count
         self.total_error = total_error
         self.errors = errors or []
+        self.overall_metrics = overall_metrics
+        self.by_position = by_position or {}
 
     def __repr__(self) -> str:
         return f"AccuracyResult(mae={self.mae:.4f}, players={self.player_count})"
@@ -229,10 +235,104 @@ class AccuracyCalculator:
                 f"across {len(season_results)} seasons"
             )
 
+        # Aggregate ranking metrics across seasons (Q18: simple average)
+        overall_metrics = None
+        by_position = {}
+
+        # Check if any season has ranking metrics
+        has_ranking_metrics = any(
+            result.overall_metrics is not None
+            for _, result in season_results
+        )
+
+        if has_ranking_metrics:
+            import numpy as np
+
+            # Collect metrics from all seasons
+            pairwise_values = []
+            top_5_values = []
+            top_10_values = []
+            top_20_values = []
+            spearman_z_values = []
+
+            position_data = {'QB': {}, 'RB': {}, 'WR': {}, 'TE': {}}
+            for pos in position_data:
+                position_data[pos] = {
+                    'pairwise': [],
+                    'top_5': [],
+                    'top_10': [],
+                    'top_20': [],
+                    'spearman_z': []
+                }
+
+            for season_name, result in season_results:
+                if result.overall_metrics:
+                    pairwise_values.append(result.overall_metrics.pairwise_accuracy)
+                    top_5_values.append(result.overall_metrics.top_5_accuracy)
+                    top_10_values.append(result.overall_metrics.top_10_accuracy)
+                    top_20_values.append(result.overall_metrics.top_20_accuracy)
+
+                    # Fisher z-transform for Spearman (Q9)
+                    if not np.isnan(result.overall_metrics.spearman_correlation):
+                        z = np.arctanh(result.overall_metrics.spearman_correlation)
+                        spearman_z_values.append(z)
+
+                # Aggregate per-position metrics
+                if result.by_position:
+                    for pos, metrics in result.by_position.items():
+                        if pos in position_data:
+                            position_data[pos]['pairwise'].append(metrics.pairwise_accuracy)
+                            position_data[pos]['top_5'].append(metrics.top_5_accuracy)
+                            position_data[pos]['top_10'].append(metrics.top_10_accuracy)
+                            position_data[pos]['top_20'].append(metrics.top_20_accuracy)
+
+                            if not np.isnan(metrics.spearman_correlation):
+                                z = np.arctanh(metrics.spearman_correlation)
+                                position_data[pos]['spearman_z'].append(z)
+
+            # Calculate overall metrics (simple average)
+            if pairwise_values:
+                # Import RankingMetrics from AccuracyResultsManager
+                # We need to do this dynamically to avoid circular import
+                from simulation.accuracy.AccuracyResultsManager import RankingMetrics
+
+                overall_spearman = 0.0
+                if spearman_z_values:
+                    z_mean = np.mean(spearman_z_values)
+                    overall_spearman = float(np.tanh(z_mean))
+
+                overall_metrics = RankingMetrics(
+                    pairwise_accuracy=float(np.mean(pairwise_values)),
+                    top_5_accuracy=float(np.mean(top_5_values)),
+                    top_10_accuracy=float(np.mean(top_10_values)),
+                    top_20_accuracy=float(np.mean(top_20_values)),
+                    spearman_correlation=overall_spearman
+                )
+
+            # Calculate per-position metrics
+            for pos, data in position_data.items():
+                if data['pairwise']:
+                    from simulation.accuracy.AccuracyResultsManager import RankingMetrics
+
+                    pos_spearman = 0.0
+                    if data['spearman_z']:
+                        z_mean = np.mean(data['spearman_z'])
+                        pos_spearman = float(np.tanh(z_mean))
+
+                    by_position[pos] = RankingMetrics(
+                        pairwise_accuracy=float(np.mean(data['pairwise'])),
+                        top_5_accuracy=float(np.mean(data['top_5'])),
+                        top_10_accuracy=float(np.mean(data['top_10'])),
+                        top_20_accuracy=float(np.mean(data['top_20'])),
+                        spearman_correlation=pos_spearman
+                    )
+
         return AccuracyResult(
             mae=aggregated_mae,
             player_count=total_players,
-            total_error=total_error
+            total_error=total_error,
+            overall_metrics=overall_metrics,
+            by_position=by_position
         )
 
     def calculate_pairwise_accuracy(

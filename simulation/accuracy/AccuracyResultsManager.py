@@ -302,7 +302,9 @@ class AccuracyResultsManager:
             total_error=accuracy_result.total_error,
             param_name=param_name,
             test_idx=test_idx,
-            base_horizon=base_horizon
+            base_horizon=base_horizon,
+            overall_metrics=accuracy_result.overall_metrics,
+            by_position=accuracy_result.by_position
         )
 
         self.all_results.append(perf)
