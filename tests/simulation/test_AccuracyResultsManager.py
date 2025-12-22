@@ -19,6 +19,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent / "simulation" / "accura
 from AccuracyResultsManager import (
     AccuracyResultsManager,
     AccuracyConfigPerformance,
+    RankingMetrics,
     WEEK_RANGES
 )
 from AccuracyCalculator import AccuracyResult
@@ -573,6 +574,254 @@ class TestWeekRanges:
         assert WEEK_RANGES['week_6_9'] == (6, 9)
         assert WEEK_RANGES['week_10_13'] == (10, 13)
         assert WEEK_RANGES['week_14_17'] == (14, 17)
+
+
+class TestRankingMetrics:
+    """Tests for RankingMetrics dataclass."""
+
+    def test_ranking_metrics_creation(self):
+        """Test creating RankingMetrics instance."""
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+
+        assert metrics.pairwise_accuracy == 0.68
+        assert metrics.top_5_accuracy == 0.80
+        assert metrics.top_10_accuracy == 0.75
+        assert metrics.top_20_accuracy == 0.70
+        assert metrics.spearman_correlation == 0.82
+
+
+class TestAccuracyConfigPerformanceRanking:
+    """Tests for ranking metrics in AccuracyConfigPerformance."""
+
+    def test_config_with_ranking_metrics(self):
+        """Test creating config with ranking metrics."""
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+
+        perf = AccuracyConfigPerformance(
+            config_dict={'test': 'config'},
+            mae=5.5,
+            player_count=100,
+            total_error=550.0,
+            overall_metrics=metrics
+        )
+
+        assert perf.overall_metrics == metrics
+        assert perf.overall_metrics.pairwise_accuracy == 0.68
+
+    def test_is_better_than_uses_pairwise_accuracy(self):
+        """Test that is_better_than() uses pairwise_accuracy when available."""
+        metrics1 = RankingMetrics(
+            pairwise_accuracy=0.70,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+
+        metrics2 = RankingMetrics(
+            pairwise_accuracy=0.65,
+            top_5_accuracy=0.85,  # Better top_5, but pairwise_accuracy is what matters
+            top_10_accuracy=0.80,
+            top_20_accuracy=0.75,
+            spearman_correlation=0.85
+        )
+
+        perf1 = AccuracyConfigPerformance(
+            config_dict={'test': 'config1'},
+            mae=10.0,  # Worse MAE, but better pairwise_accuracy
+            player_count=100,
+            total_error=1000.0,
+            overall_metrics=metrics1
+        )
+
+        perf2 = AccuracyConfigPerformance(
+            config_dict={'test': 'config2'},
+            mae=5.0,  # Better MAE, but worse pairwise_accuracy
+            player_count=100,
+            total_error=500.0,
+            overall_metrics=metrics2
+        )
+
+        # perf1 should be better because pairwise_accuracy (0.70) > (0.65)
+        assert perf1.is_better_than(perf2)
+        assert not perf2.is_better_than(perf1)
+
+    def test_is_better_than_falls_back_to_mae(self):
+        """Test that is_better_than() falls back to MAE when no ranking metrics."""
+        perf1 = AccuracyConfigPerformance(
+            config_dict={'test': 'config1'},
+            mae=5.0,
+            player_count=100,
+            total_error=500.0
+        )
+
+        perf2 = AccuracyConfigPerformance(
+            config_dict={'test': 'config2'},
+            mae=10.0,
+            player_count=100,
+            total_error=1000.0
+        )
+
+        # Without ranking metrics, should use MAE (lower is better)
+        assert perf1.is_better_than(perf2)
+        assert not perf2.is_better_than(perf1)
+
+    def test_to_dict_includes_ranking_metrics(self):
+        """Test that to_dict() includes ranking metrics."""
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+
+        perf = AccuracyConfigPerformance(
+            config_dict={'test': 'config'},
+            mae=5.5,
+            player_count=100,
+            total_error=550.0,
+            overall_metrics=metrics
+        )
+
+        result = perf.to_dict()
+
+        assert result['pairwise_accuracy'] == 0.68
+        assert result['top_5_accuracy'] == 0.80
+        assert result['top_10_accuracy'] == 0.75
+        assert result['top_20_accuracy'] == 0.70
+        assert result['spearman_correlation'] == 0.82
+
+    def test_to_dict_without_ranking_metrics(self):
+        """Test that to_dict() works without ranking metrics (backward compat)."""
+        perf = AccuracyConfigPerformance(
+            config_dict={'test': 'config'},
+            mae=5.5,
+            player_count=100,
+            total_error=550.0
+        )
+
+        result = perf.to_dict()
+
+        # Should not have ranking metrics keys
+        assert 'pairwise_accuracy' not in result
+        assert 'top_5_accuracy' not in result
+        assert result['mae'] == 5.5
+
+    def test_from_dict_with_ranking_metrics(self):
+        """Test that from_dict() loads ranking metrics."""
+        data = {
+            'config': {'test': 'config'},
+            'mae': 5.5,
+            'player_count': 100,
+            'total_error': 550.0,
+            'pairwise_accuracy': 0.68,
+            'top_5_accuracy': 0.80,
+            'top_10_accuracy': 0.75,
+            'top_20_accuracy': 0.70,
+            'spearman_correlation': 0.82
+        }
+
+        perf = AccuracyConfigPerformance.from_dict(data)
+
+        assert perf.overall_metrics is not None
+        assert perf.overall_metrics.pairwise_accuracy == 0.68
+        assert perf.overall_metrics.top_5_accuracy == 0.80
+        assert perf.overall_metrics.spearman_correlation == 0.82
+
+    def test_from_dict_without_ranking_metrics(self):
+        """Test that from_dict() handles old format (backward compat)."""
+        data = {
+            'config': {'test': 'config'},
+            'mae': 5.5,
+            'player_count': 100,
+            'total_error': 550.0
+        }
+
+        perf = AccuracyConfigPerformance.from_dict(data)
+
+        assert perf.overall_metrics is None
+        assert perf.mae == 5.5
+        assert perf.player_count == 100
+
+    def test_roundtrip_with_ranking_metrics(self):
+        """Test to_dict() and from_dict() roundtrip with ranking metrics."""
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+
+        perf1 = AccuracyConfigPerformance(
+            config_dict={'test': 'config'},
+            mae=5.5,
+            player_count=100,
+            total_error=550.0,
+            overall_metrics=metrics
+        )
+
+        data = perf1.to_dict()
+        perf2 = AccuracyConfigPerformance.from_dict(data)
+
+        assert perf2.overall_metrics.pairwise_accuracy == perf1.overall_metrics.pairwise_accuracy
+        assert perf2.overall_metrics.top_5_accuracy == perf1.overall_metrics.top_5_accuracy
+        assert perf2.overall_metrics.spearman_correlation == perf1.overall_metrics.spearman_correlation
+
+    def test_by_position_metrics(self):
+        """Test per-position ranking metrics."""
+        qb_metrics = RankingMetrics(
+            pairwise_accuracy=0.71,
+            top_5_accuracy=0.85,
+            top_10_accuracy=0.80,
+            top_20_accuracy=0.75,
+            spearman_correlation=0.88
+        )
+
+        rb_metrics = RankingMetrics(
+            pairwise_accuracy=0.66,
+            top_5_accuracy=0.75,
+            top_10_accuracy=0.70,
+            top_20_accuracy=0.65,
+            spearman_correlation=0.78
+        )
+
+        by_position = {'QB': qb_metrics, 'RB': rb_metrics}
+
+        perf = AccuracyConfigPerformance(
+            config_dict={'test': 'config'},
+            mae=5.5,
+            player_count=100,
+            total_error=550.0,
+            by_position=by_position
+        )
+
+        assert perf.by_position['QB'].pairwise_accuracy == 0.71
+        assert perf.by_position['RB'].pairwise_accuracy == 0.66
+
+        # Test to_dict includes by_position
+        result = perf.to_dict()
+        assert 'by_position' in result
+        assert result['by_position']['QB']['pairwise_accuracy'] == 0.71
+        assert result['by_position']['RB']['pairwise_accuracy'] == 0.66
+
+        # Test from_dict loads by_position
+        perf2 = AccuracyConfigPerformance.from_dict(result)
+        assert perf2.by_position['QB'].pairwise_accuracy == 0.71
+        assert perf2.by_position['RB'].pairwise_accuracy == 0.66
 
 
 if __name__ == "__main__":

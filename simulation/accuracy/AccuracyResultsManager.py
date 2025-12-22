@@ -16,6 +16,7 @@ Author: Kai Mizuno
 import copy
 import json
 import shutil
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
@@ -31,6 +32,25 @@ from config_cleanup import cleanup_old_accuracy_optimal_folders
 # Import from same folder
 sys.path.append(str(Path(__file__).parent))
 from AccuracyCalculator import AccuracyResult
+
+
+@dataclass
+class RankingMetrics:
+    """
+    Ranking-based accuracy metrics for a configuration.
+
+    Attributes:
+        pairwise_accuracy (float): % of pairwise comparisons correct (0.0-1.0)
+        top_5_accuracy (float): % overlap in top-5 predictions (0.0-1.0)
+        top_10_accuracy (float): % overlap in top-10 predictions (0.0-1.0)
+        top_20_accuracy (float): % overlap in top-20 predictions (0.0-1.0)
+        spearman_correlation (float): Rank correlation coefficient (-1.0 to +1.0)
+    """
+    pairwise_accuracy: float
+    top_5_accuracy: float
+    top_10_accuracy: float
+    top_20_accuracy: float
+    spearman_correlation: float
 
 
 # Week ranges matching win-rate simulation
@@ -68,7 +88,9 @@ class AccuracyConfigPerformance:
         timestamp: Optional[str] = None,
         param_name: Optional[str] = None,
         test_idx: Optional[int] = None,
-        base_horizon: Optional[str] = None
+        base_horizon: Optional[str] = None,
+        overall_metrics: Optional[RankingMetrics] = None,
+        by_position: Optional[Dict[str, RankingMetrics]] = None
     ) -> None:
         self.config_dict = copy.deepcopy(config_dict)
         self.mae = mae
@@ -80,6 +102,9 @@ class AccuracyConfigPerformance:
         self.param_name = param_name
         self.test_idx = test_idx
         self.base_horizon = base_horizon
+        # Ranking metrics (optional - for new ranking-based optimization)
+        self.overall_metrics = overall_metrics
+        self.by_position = by_position or {}
 
     def _generate_id(self, config: dict) -> str:
         """Generate a hash-based ID for the configuration."""
@@ -91,7 +116,8 @@ class AccuracyConfigPerformance:
         """
         Check if this configuration is better than another.
 
-        Lower MAE is better. Rejects configs with player_count=0 as invalid.
+        Uses pairwise_accuracy as primary metric when available.
+        Falls back to MAE for backward compatibility.
 
         Args:
             other: Configuration to compare against
@@ -112,12 +138,16 @@ class AccuracyConfigPerformance:
         if other.player_count == 0:
             return False
 
-        # Lower MAE is better
+        # Use ranking metrics if available (Q12: pairwise_accuracy is primary)
+        if self.overall_metrics and other.overall_metrics:
+            return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_accuracy
+
+        # Fallback to MAE for backward compatibility (Q25)
         return self.mae < other.mae
 
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
-        return {
+        result = {
             'config_id': self.config_id,
             'mae': self.mae,
             'player_count': self.player_count,
@@ -126,24 +156,72 @@ class AccuracyConfigPerformance:
             'config': self.config_dict
         }
 
+        # Add ranking metrics if available
+        if self.overall_metrics:
+            result['pairwise_accuracy'] = self.overall_metrics.pairwise_accuracy
+            result['top_5_accuracy'] = self.overall_metrics.top_5_accuracy
+            result['top_10_accuracy'] = self.overall_metrics.top_10_accuracy
+            result['top_20_accuracy'] = self.overall_metrics.top_20_accuracy
+            result['spearman_correlation'] = self.overall_metrics.spearman_correlation
+
+        if self.by_position:
+            result['by_position'] = {
+                pos: {
+                    'pairwise_accuracy': metrics.pairwise_accuracy,
+                    'top_5_accuracy': metrics.top_5_accuracy,
+                    'top_10_accuracy': metrics.top_10_accuracy,
+                    'top_20_accuracy': metrics.top_20_accuracy,
+                    'spearman_correlation': metrics.spearman_correlation
+                }
+                for pos, metrics in self.by_position.items()
+            }
+
+        return result
+
     @classmethod
     def from_dict(cls, data: dict) -> 'AccuracyConfigPerformance':
         """Create from dictionary.
 
-        Handles both full format (with total_error) and compact format (without).
-        When total_error is missing, it's calculated from mae * player_count.
+        Handles both old format (MAE only) and new format (with ranking metrics).
+        Provides backward compatibility (Q25) for loading old result files.
         """
         mae = data['mae']
         player_count = data['player_count']
         # Calculate total_error if not provided (when loading from standard config files)
         total_error = data.get('total_error', mae * player_count)
+
+        # Load ranking metrics if available (Q25: backward compatibility)
+        overall_metrics = None
+        if 'pairwise_accuracy' in data:
+            overall_metrics = RankingMetrics(
+                pairwise_accuracy=data['pairwise_accuracy'],
+                top_5_accuracy=data['top_5_accuracy'],
+                top_10_accuracy=data['top_10_accuracy'],
+                top_20_accuracy=data['top_20_accuracy'],
+                spearman_correlation=data['spearman_correlation']
+            )
+
+        # Load per-position metrics if available
+        by_position = {}
+        if 'by_position' in data:
+            for pos, metrics_dict in data['by_position'].items():
+                by_position[pos] = RankingMetrics(
+                    pairwise_accuracy=metrics_dict['pairwise_accuracy'],
+                    top_5_accuracy=metrics_dict['top_5_accuracy'],
+                    top_10_accuracy=metrics_dict['top_10_accuracy'],
+                    top_20_accuracy=metrics_dict['top_20_accuracy'],
+                    spearman_correlation=metrics_dict['spearman_correlation']
+                )
+
         return cls(
             config_dict=data['config'],
             mae=mae,
             player_count=player_count,
             total_error=total_error,
             config_id=data.get('config_id'),
-            timestamp=data.get('timestamp')
+            timestamp=data.get('timestamp'),
+            overall_metrics=overall_metrics,
+            by_position=by_position
         )
 
     def __repr__(self) -> str:
