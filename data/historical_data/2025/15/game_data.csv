@@ -207,19 +207,35 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 14,ARI,LAR,,,,17,45,True,False,USA,Glendale,AZ,2025-12-07T21:25Z
 14,KC,HOU,30,16,0.0,10,20,False,False,USA,Kansas City,MO,2025-12-08T01:20Z
 14,LAC,PHI,,,,22,19,True,False,USA,Inglewood,CA,2025-12-09T01:15Z
-15,TB,ATL,54,12,0.0,,,False,False,USA,Tampa,FL,2025-12-12T01:15Z
-15,CHI,CLE,25,8,0.0,,,False,False,USA,Chicago,IL,2025-12-14T18:00Z
-15,CIN,BAL,33,10,0.0,,,False,False,USA,Cincinnati,OH,2025-12-14T18:00Z
-15,KC,LAC,46,17,0.0,,,False,False,USA,Kansas City,MO,2025-12-14T18:00Z
-15,NE,BUF,33,34,0.0,,,False,False,USA,Foxborough,MA,2025-12-14T18:00Z
-15,NYG,WSH,36,32,0.0,,,False,False,USA,East Rutherford,NJ,2025-12-14T18:00Z
-15,PHI,LV,36,28,0.0,,,False,False,USA,Philadelphia,PA,2025-12-14T18:00Z
-15,JAX,NYJ,61,15,0.0,,,False,False,USA,Jacksonville,FL,2025-12-14T18:00Z
-15,HOU,ARI,,,,,,True,False,USA,Houston,TX,2025-12-14T18:00Z
-15,DEN,GB,67,27,0.0,,,False,False,USA,Denver,CO,2025-12-14T21:25Z
-15,LAR,DET,,,,,,True,False,USA,Inglewood,CA,2025-12-14T21:25Z
-15,NO,CAR,,,,,,True,False,USA,New Orleans,LA,2025-12-14T21:25Z
-15,SF,TEN,51,6,0.0,,,False,False,USA,Santa Clara,CA,2025-12-14T21:25Z
-15,SEA,IND,48,6,0.0,,,False,False,USA,Seattle,WA,2025-12-14T21:25Z
-15,DAL,MIN,,,,,,True,False,USA,Arlington,TX,2025-12-15T01:20Z
-15,PIT,MIA,29,16,0.0,,,False,False,USA,Pittsburgh,PA,2025-12-16T01:15Z
+15,TB,ATL,54,12,0.0,28,29,False,False,USA,Tampa,FL,2025-12-12T01:15Z
+15,CHI,CLE,25,8,0.0,31,3,False,False,USA,Chicago,IL,2025-12-14T18:00Z
+15,CIN,BAL,33,10,0.0,0,24,False,False,USA,Cincinnati,OH,2025-12-14T18:00Z
+15,KC,LAC,46,17,0.0,13,16,False,False,USA,Kansas City,MO,2025-12-14T18:00Z
+15,NE,BUF,33,34,0.0,31,35,False,False,USA,Foxborough,MA,2025-12-14T18:00Z
+15,NYG,WSH,36,32,0.0,21,29,False,False,USA,East Rutherford,NJ,2025-12-14T18:00Z
+15,PHI,LV,36,28,0.0,31,0,False,False,USA,Philadelphia,PA,2025-12-14T18:00Z
+15,JAX,NYJ,61,15,0.0,48,20,False,False,USA,Jacksonville,FL,2025-12-14T18:00Z
+15,HOU,ARI,,,,40,20,True,False,USA,Houston,TX,2025-12-14T18:00Z
+15,DEN,GB,67,27,0.0,34,26,False,False,USA,Denver,CO,2025-12-14T21:25Z
+15,LAR,DET,,,,41,34,True,False,USA,Inglewood,CA,2025-12-14T21:25Z
+15,NO,CAR,,,,20,17,True,False,USA,New Orleans,LA,2025-12-14T21:25Z
+15,SF,TEN,51,6,0.0,37,24,False,False,USA,Santa Clara,CA,2025-12-14T21:25Z
+15,SEA,IND,48,6,0.0,18,16,False,False,USA,Seattle,WA,2025-12-14T21:25Z
+15,DAL,MIN,,,,26,34,True,False,USA,Arlington,TX,2025-12-15T01:20Z
+15,PIT,MIA,29,16,0.0,28,15,False,False,USA,Pittsburgh,PA,2025-12-16T01:15Z
+16,SEA,LAR,50,36,0.0,,,False,False,USA,Seattle,WA,2025-12-19T01:15Z
+16,WSH,PHI,51,9,0.0,,,False,False,USA,Landover,MD,2025-12-20T22:00Z
+16,CHI,GB,33,29,0.0,,,False,False,USA,Chicago,IL,2025-12-21T01:20Z
+16,CLE,BUF,58,38,0.0,,,False,False,USA,Cleveland,OH,2025-12-21T18:00Z
+16,DAL,LAC,,,,,,True,False,USA,Arlington,TX,2025-12-21T18:00Z
+16,TEN,KC,56,34,0.05,,,False,False,USA,Nashville,TN,2025-12-21T18:00Z
+16,MIA,CIN,83,17,0.0,,,False,False,USA,Miami Gardens,FL,2025-12-21T18:00Z
+16,NO,NYJ,,,,,,True,False,USA,New Orleans,LA,2025-12-21T18:00Z
+16,NYG,MIN,49,22,0.0,,,False,False,USA,East Rutherford,NJ,2025-12-21T18:00Z
+16,CAR,TB,57,16,0.0,,,False,False,USA,Charlotte,NC,2025-12-21T18:00Z
+16,DEN,JAX,50,19,0.0,,,False,False,USA,Denver,CO,2025-12-21T21:05Z
+16,ARI,ATL,,,,,,True,False,USA,Glendale,AZ,2025-12-21T21:05Z
+16,DET,PIT,,,,,,True,False,USA,Detroit,MI,2025-12-21T21:25Z
+16,HOU,LV,,,,,,True,False,USA,Houston,TX,2025-12-21T21:25Z
+16,BAL,NE,43,6,0.0,,,False,False,USA,Baltimore,MD,2025-12-22T01:20Z
+16,IND,SF,,,,,,True,False,USA,Indianapolis,IN,2025-12-23T01:15Z

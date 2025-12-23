@@ -1,0 +1,832 @@
+Feature Request: Comprehensive ESPN API Documentation & Research
+
+**Created:** 2025-12-22
+**Priority:** HIGH (Blocking accurate feature implementation)
+**Type:** Research & Documentation
+**Estimated Effort:** 1-2 weeks (thorough research + documentation)
+
+## Executive Summary
+
+Recent testing revealed that existing ESPN API documentation is incomplete and contains inaccuracies. Critical stat IDs (targets, carries) were incorrectly documented as "unavailable" when they actually exist in the API response. This feature request involves conducting comprehensive research into ALL ESPN API endpoints, mapping undocumented stat IDs, and creating authoritative documentation to replace the deprecated docs.
+
+**Why This Matters:**
+- Prevents wasted effort on unnecessary workarounds (e.g., PFR scraping for data already in ESPN API)
+- Enables accurate feature implementation decisions
+- Provides reliable reference for future development
+- Documents undocumented stat IDs that ESPN doesn't publish
+
+**Scope:**
+1. Test ALL ESPN API endpoints used in player-data-fetcher
+2. Map ALL stat IDs in the stats{} object (40+ stat IDs exist)
+3. Document exact response structures with examples
+4. Create comprehensive reference documentation
+5. Mark old docs as deprecated
+6. Validate findings with cross-references to known NFL stats
+
+---
+
+## 1. Research Scope & Methodology
+
+### Endpoints to Document
+
+#### 1.1 Player Stats Endpoint (CRITICAL)
+
+**URL:**
+```
+GET https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{SEASON}/segments/0/leaguedefaults/{PPR_ID}
+```
+
+**Parameters to Test:**
+- `view=kona_player_info` (player data view)
+- `scoringPeriodId=0` (season totals)
+- `scoringPeriodId=1-18` (specific weeks)
+- `X-Fantasy-Filter` (player limits, sorting, filters)
+
+**What to Document:**
+- Complete stats{} object with ALL stat IDs mapped
+- statSourceId meanings (0=actuals, 1=projections)
+- seasonId, scoringPeriodId, appliedTotal fields
+- Rankings structure (rankings{}, draftRanksByRankType{})
+- Ownership data (averageDraftPosition, percentOwned)
+- Injury status values and meanings
+- Team ID mappings (proTeamId to abbreviations)
+- Position ID mappings (defaultPositionId to position names)
+
+**Stat IDs to Map (Confirmed + Unknown):**
+
+| Category | Known Stat IDs | Unknown Stat IDs (Need Research) |
+|----------|----------------|----------------------------------|
+| **Rushing** | 23 (carries), 24 (yards) | 25, 26, 27-31, 33-34 |
+| **Receiving** | 42 (yards), 53 (receptions), 58 (targets) | 43-51, 54-57, 59-61 |
+| **Passing** | 41 (completions?), 43 (TDs?) | 44-46 |
+| **Scoring** | 47-52 (TD types?) | All need confirmation |
+| **Defense/Special** | Unknown | 67-68, 71-73 |
+| **Fantasy Breakdown** | 60 (component?), 156, 158, 210, 213 | All need research |
+
+**Testing Method:**
+1. Query Week 15 actuals for top 100 players across all positions
+2. Cross-reference stat values with known NFL.com stats for same week
+3. Identify stat IDs by pattern matching (e.g., completions < attempts)
+4. Validate across multiple players to confirm consistency
+
+#### 1.2 Scoreboard Endpoint
+
+**URL:**
+```
+GET https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard
+```
+
+**Parameters to Test:**
+- `seasontype=2` (regular season)
+- `week=1-18` (week numbers)
+- `dates={SEASON}` (season year)
+
+**What to Document:**
+- Game structure (events[], competitions[])
+- Team data (competitors[], team{})
+- Venue data (venue{}, address{}, indoor flag)
+- Status data (status{}, completed flag)
+- Scores (score, linescores[])
+- Broadcasts (broadcasts[], geoBroadcasts[])
+- **CONFIRMED NOT AVAILABLE:** odds[], spread, over/under (document absence)
+
+**Testing Method:**
+1. Query Week 16 games (mix of completed/in-progress/scheduled)
+2. Document all available fields
+3. Recursively search for any betting-related keywords
+4. Confirm absence of odds data with multiple weeks
+
+#### 1.3 Team Stats Endpoint
+
+**URL:**
+```
+GET https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{TEAM_ID}/statistics
+```
+
+**What to Document:**
+- Team stat categories (passing, rushing, receiving, defense)
+- Individual stat names and values
+- Aggregation types (per game, season totals, per play)
+- Update frequency (live vs daily updates)
+- Team ID to abbreviation mappings (1-34)
+
+**Testing Method:**
+1. Query all 32 NFL teams
+2. Document complete stat structure
+3. Identify which stats are useful for fantasy projections
+4. Cross-reference with scoreboard data for consistency
+
+#### 1.4 Team Roster Endpoint (If Exists)
+
+**Research Question:** Does ESPN provide team roster data?
+
+**Potential URLs to Test:**
+```
+GET https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{TEAM_ID}/roster
+GET https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{SEASON}/teams/{TEAM_ID}
+```
+
+**What to Document (If Available):**
+- Active roster vs practice squad
+- Injury designations
+- Depth chart positions
+- Snap count percentages
+
+---
+
+## 2. Stat ID Mapping Methodology
+
+### 2.1 Cross-Reference with Known Stats
+
+**Approach:**
+For each unknown stat ID, cross-reference with NFL.com official stats for the same player/week.
+
+**Example Process:**
+```
+Player: Amon-Ra St. Brown, Week 15, 2024
+ESPN stat_58: 18.0
+ESPN stat_53: 14.0
+ESPN stat_42: 193.0
+
+NFL.com Week 15 Stats:
+- Targets: 18 ✅ Matches stat_58
+- Receptions: 14 ✅ Matches stat_53
+- Receiving Yards: 193 ✅ Matches stat_42
+```
+
+### 2.2 Pattern Recognition
+
+**Validation Rules:**
+
+| Stat Relationship | Validation |
+|-------------------|------------|
+| Targets >= Receptions | For WR/TE/RB receiving |
+| Pass Attempts >= Completions | For QB passing |
+| Carries > 0 → Yards > 0 | For RB rushing (usually) |
+| Receptions × ~10 ≈ Yards | For WR (rough estimate) |
+| TDs <= Scores | Total TDs can't exceed scoring plays |
+
+### 2.3 Position-Specific Stats
+
+**By Position:**
+
+| Position | Expected Stats | Stat IDs to Find |
+|----------|----------------|------------------|
+| **QB** | Pass attempts, completions, pass yards, pass TDs, INTs, rush attempts, rush yards, rush TDs, sacks | Need to identify all |
+| **RB** | Rush attempts (23 ✅), rush yards (24 ✅), rush TDs, targets (58 ✅), receptions (53 ✅), rec yards (42 ✅), rec TDs, fumbles | Need rush TDs, fumbles |
+| **WR/TE** | Targets (58 ✅), receptions (53 ✅), rec yards (42 ✅), rec TDs, fumbles | Need rec TDs, fumbles |
+| **K** | FG attempts, FG made, FG by distance (0-39, 40-49, 50+), XP attempts, XP made | Need all kicker stats |
+| **DST** | Sacks, INTs, fumble recoveries, TDs, points allowed, yards allowed | Need all defensive stats |
+
+### 2.4 Scoring Breakdown Stats
+
+**Hypothesis:** stat_47-52 might be TD scoring brackets
+
+**Test Method:**
+1. Find player with multiple TD types (e.g., RB with rushing TD + receiving TD)
+2. Check if stat_47-52 differentiate TD types
+3. Validate against ESPN fantasy scoring breakdown
+
+---
+
+## 3. Documentation Structure
+
+### 3.1 New Documentation Location
+
+**Directory Structure:**
+```
+docs/
+├── espn/
+│   ├── DEPRECATED_README.md          (Mark old docs as deprecated)
+│   ├── README.md                      (New authoritative reference)
+│   ├── endpoints/
+│   │   ├── player_stats.md           (Player stats endpoint)
+│   │   ├── scoreboard.md             (Scoreboard endpoint)
+│   │   ├── team_stats.md             (Team stats endpoint)
+│   │   └── team_roster.md            (If endpoint exists)
+│   ├── reference/
+│   │   ├── stat_ids.md               (Complete stat ID reference)
+│   │   ├── team_mappings.md          (Team ID → abbreviation)
+│   │   ├── position_mappings.md      (Position ID → position name)
+│   │   └── response_examples.md      (Full response examples)
+│   └── testing/
+│       ├── validation_scripts.md     (How to validate stat IDs)
+│       └── cross_reference.md        (Cross-referencing with NFL.com)
+```
+
+### 3.2 Stat ID Reference Format
+
+**Template:**
+```markdown
+## stat_58: Targets
+
+**Category:** Receiving
+**Positions:** WR, TE, RB
+**Data Type:** Integer
+**Typical Range:** 0-20 (per game)
+**Source:** statSourceId=0 (actuals), statSourceId=1 (projections)
+
+**Description:**
+Number of times the quarterback threw the ball to this player, regardless of whether it was caught.
+
+**Validation:**
+- Targets >= Receptions (always true)
+- RBs typically have fewer targets than WR/TE
+
+**Testing:**
+- Tested on: 10 WR, 5 TE, 8 RB (Week 15, 2024)
+- Validation rate: 100% (23/23 players)
+- Example: Amon-Ra St. Brown, Week 15: 18 targets, 14 receptions ✅
+
+**Cross-Reference:**
+- NFL.com: "Targets" column in receiving stats
+- Pro Football Reference: "Tgt" column in game logs
+
+**First Confirmed:** 2025-12-22
+**Last Validated:** 2025-12-22
+```
+
+### 3.3 Endpoint Reference Format
+
+**Template:**
+```markdown
+## Player Stats Endpoint
+
+**URL:** `GET https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{SEASON}/segments/0/leaguedefaults/{PPR_ID}`
+
+**Authentication:** None required
+**Rate Limit:** Unknown (appears to be ~10 requests/second)
+
+**Path Parameters:**
+- `{SEASON}`: NFL season year (e.g., 2024)
+- `{PPR_ID}`: Scoring format ID (1=Standard, 2=Half-PPR, 3=Full-PPR)
+
+**Query Parameters:**
+- `view` (required): `kona_player_info`
+- `scoringPeriodId`: 0 for season totals, 1-18 for specific week
+
+**Headers:**
+- `User-Agent`: Required (any valid browser UA)
+- `X-Fantasy-Filter`: Optional (JSON filter for player limits/sorting)
+
+**Response Structure:**
+[Full JSON example with annotations]
+
+**Stat IDs Available:**
+[Link to stat_ids.md reference]
+
+**Common Use Cases:**
+1. Get season projections: scoringPeriodId=0
+2. Get week actuals: scoringPeriodId={week}, filter by statSourceId=0
+3. Get week projections: scoringPeriodId={week}, filter by statSourceId=1
+
+**Example Request:**
+[cURL example]
+
+**Example Response:**
+[Annotated JSON response]
+```
+
+---
+
+## 4. Implementation Steps
+
+### Phase 1: Comprehensive Endpoint Testing (Week 1)
+
+**Tasks:**
+1. Create comprehensive test script for all endpoints
+2. Query multiple weeks of data (Weeks 1, 8, 15, 17 for variety)
+3. Capture complete responses for all endpoints
+4. Document all available fields and structures
+
+**Deliverables:**
+- `test_espn_api_comprehensive.py` - Master test script
+- `raw_responses/` - Directory with raw JSON responses saved
+- `endpoint_fields.csv` - Spreadsheet of all available fields
+
+**Validation:**
+- [ ] Player stats endpoint tested (4 weeks × 5 stat sources)
+- [ ] Scoreboard endpoint tested (4 weeks)
+- [ ] Team stats endpoint tested (all 32 teams)
+- [ ] All responses saved to raw_responses/
+
+### Phase 2: Stat ID Mapping (Week 1-2)
+
+**Tasks:**
+1. Cross-reference all stat IDs with NFL.com stats
+2. Test each stat ID across multiple players per position
+3. Validate stat ID consistency across weeks
+4. Document unknown stat IDs that can't be identified
+
+**Deliverables:**
+- `stat_id_mapping.csv` - Complete mapping with validation status
+- `stat_id_cross_reference.md` - Cross-reference methodology
+- `unknown_stat_ids.md` - List of unidentified stat IDs
+
+**Validation Targets:**
+- [ ] 100% of receiving stats identified (targets, receptions, yards, TDs)
+- [ ] 100% of rushing stats identified (carries, yards, TDs)
+- [ ] 100% of passing stats identified (attempts, completions, yards, TDs, INTs)
+- [ ] 80%+ of scoring breakdown stats identified
+- [ ] 60%+ of defensive stats identified
+- [ ] 50%+ of kicker stats identified
+
+### Phase 3: Documentation Creation (Week 2)
+
+**Tasks:**
+1. Write comprehensive endpoint documentation
+2. Create stat ID reference with examples
+3. Document team/position mappings
+4. Create response structure examples
+5. Write validation methodology guide
+
+**Deliverables:**
+- `docs/espn/README.md` - Main reference
+- `docs/espn/endpoints/*.md` - Endpoint documentation (4 files)
+- `docs/espn/reference/*.md` - Reference documentation (4 files)
+- `docs/espn/testing/*.md` - Testing/validation guides (2 files)
+
+**Quality Criteria:**
+- [ ] Every documented stat ID has validation example
+- [ ] Every endpoint has cURL example
+- [ ] Every endpoint has annotated response example
+- [ ] All mappings are complete (32 teams, 6 positions)
+- [ ] All cross-references include NFL.com URLs
+
+### Phase 4: Deprecation & Migration (Week 2)
+
+**Tasks:**
+1. Mark old documentation as deprecated
+2. Add deprecation notices to old files
+3. Update all references to point to new docs
+4. Create migration guide for developers
+
+**Files to Deprecate:**
+- `docs/espn/espn_player_data.md` → Deprecated, use `docs/espn/endpoints/player_stats.md`
+- `docs/espn/espn_team_data.md` → Deprecated, use `docs/espn/endpoints/team_stats.md`
+- `docs/espn/espn_api_endpoints.md` → Deprecated, use `docs/espn/README.md`
+
+**Deprecation Notice Template:**
+```markdown
+# ⚠️ DEPRECATED DOCUMENTATION ⚠️
+
+**Deprecation Date:** 2025-12-22
+**Replacement:** See `docs/espn/README.md` for current documentation
+
+**Reason for Deprecation:**
+This documentation was found to be incomplete and contained inaccuracies. Comprehensive
+testing revealed additional stat IDs and endpoint behaviors not documented here.
+
+**What Changed:**
+1. Stat IDs 58 (targets) and 23 (carries) were incorrectly documented as unavailable
+2. Complete stat ID mapping now available in `docs/espn/reference/stat_ids.md`
+3. Validated response structures with real examples
+4. Confirmed absence of odds/betting data in scoreboard endpoint
+
+**Migration Guide:**
+See `docs/espn/MIGRATION_GUIDE.md` for updating code to use new documentation.
+
+---
+
+[Original documentation preserved below for historical reference]
+```
+
+---
+
+## 5. Testing Scripts
+
+### 5.1 Comprehensive Endpoint Test
+
+**File:** `test_espn_api_comprehensive.py`
+
+**Purpose:**
+- Query all ESPN API endpoints
+- Save raw responses for analysis
+- Document all available fields
+- Identify unknown stat IDs
+
+**Script Structure:**
+```python
+#!/usr/bin/env python3
+"""
+Comprehensive ESPN API Testing & Documentation Script
+
+Queries all ESPN endpoints, saves responses, and generates field documentation.
+"""
+
+import httpx
+import json
+from pathlib import Path
+from typing import Dict, List, Any
+from datetime import datetime
+
+class ESPNAPIResearcher:
+    """Comprehensive ESPN API research and documentation"""
+
+    def __init__(self, output_dir: Path):
+        self.output_dir = output_dir
+        self.output_dir.mkdir(exist_ok=True)
+
+    def test_player_stats_endpoint(self, season: int, weeks: List[int]):
+        """Test player stats endpoint across multiple weeks"""
+        # Query each week with both actuals and projections
+        # Save raw responses
+        # Document all stat IDs found
+
+    def test_scoreboard_endpoint(self, season: int, weeks: List[int]):
+        """Test scoreboard endpoint across multiple weeks"""
+        # Query each week
+        # Save raw responses
+        # Document game structure
+
+    def test_team_stats_endpoint(self, season: int, team_ids: List[int]):
+        """Test team stats endpoint for all teams"""
+        # Query each team
+        # Save raw responses
+        # Document stat structure
+
+    def extract_all_stat_ids(self, responses: List[Dict]) -> Dict[str, set]:
+        """Extract all unique stat IDs from player responses"""
+        # Find all stat IDs across all players
+        # Group by position
+        # Return comprehensive list
+
+    def cross_reference_with_nfl(self, player_name: str, week: int, stat_ids: Dict):
+        """Cross-reference stat values with NFL.com"""
+        # Query NFL.com for same player/week
+        # Compare values to identify stat IDs
+
+    def generate_documentation(self):
+        """Generate markdown documentation from findings"""
+        # Create endpoint docs
+        # Create stat ID reference
+        # Create validation examples
+
+    def save_responses(self, responses: Dict[str, Any], filename: str):
+        """Save raw API responses for analysis"""
+        output_file = self.output_dir / filename
+        with open(output_file, 'w') as f:
+            json.dump(responses, f, indent=2)
+
+def main():
+    researcher = ESPNAPIResearcher(Path('raw_responses'))
+
+    # Test all endpoints
+    researcher.test_player_stats_endpoint(2024, [1, 8, 15, 17])
+    researcher.test_scoreboard_endpoint(2024, [1, 8, 15, 17])
+    researcher.test_team_stats_endpoint(2024, list(range(1, 35)))
+
+    # Extract and analyze
+    stat_ids = researcher.extract_all_stat_ids()
+    researcher.cross_reference_with_nfl()
+
+    # Generate documentation
+    researcher.generate_documentation()
+
+if __name__ == "__main__":
+    main()
+```
+
+### 5.2 Stat ID Validation Script
+
+**File:** `validate_stat_ids.py`
+
+**Purpose:**
+- Cross-reference ESPN stat IDs with NFL.com
+- Validate consistency across players
+- Generate validation reports
+
+**Validation Checks:**
+```python
+def validate_receiving_stats(player_data: Dict) -> bool:
+    """Validate receiving stat relationships"""
+    targets = player_data['stats'].get('58')
+    receptions = player_data['stats'].get('53')
+    yards = player_data['stats'].get('42')
+
+    # Targets >= Receptions
+    if targets < receptions:
+        return False
+
+    # Receptions > 0 → Yards > 0 (usually)
+    if receptions > 0 and yards == 0:
+        # Could be true (caught pass for 0 yards), but flag for review
+        pass
+
+    return True
+
+def validate_rushing_stats(player_data: Dict) -> bool:
+    """Validate rushing stat relationships"""
+    carries = player_data['stats'].get('23')
+    yards = player_data['stats'].get('24')
+
+    # Calculate YPC
+    if carries > 0:
+        ypc = yards / carries
+        # Reasonable YPC range: -5 to 20 (negative possible with sacks)
+        if not (-5 <= ypc <= 20):
+            return False
+
+    return True
+```
+
+---
+
+## 6. Success Criteria
+
+### 6.1 Research Completeness
+
+**Stat ID Mapping:**
+- [ ] 100% of receiving stats identified and validated
+- [ ] 100% of rushing stats identified and validated
+- [ ] 100% of passing stats identified and validated
+- [ ] 80%+ of scoring breakdown stats identified
+- [ ] 60%+ of defensive stats identified
+- [ ] 50%+ of kicker stats identified
+
+**Endpoint Documentation:**
+- [ ] Player stats endpoint fully documented
+- [ ] Scoreboard endpoint fully documented
+- [ ] Team stats endpoint fully documented
+- [ ] All response fields catalogued
+
+**Cross-Reference Validation:**
+- [ ] 20+ players cross-referenced with NFL.com stats
+- [ ] Multiple weeks tested (4+ weeks)
+- [ ] All positions tested (QB, RB, WR, TE, K, DST)
+
+### 6.2 Documentation Quality
+
+**Completeness:**
+- [ ] Every stat ID has description, data type, range
+- [ ] Every stat ID has validation example
+- [ ] Every endpoint has cURL example
+- [ ] Every endpoint has full response example
+
+**Accuracy:**
+- [ ] All stat IDs validated with real data
+- [ ] All examples use actual API responses
+- [ ] All cross-references verified
+
+**Usability:**
+- [ ] Clear navigation structure
+- [ ] Search-friendly formatting
+- [ ] Code examples are copy-pasteable
+- [ ] Links between related documentation
+
+### 6.3 Migration Success
+
+**Old Docs Deprecated:**
+- [ ] All old files marked with deprecation notice
+- [ ] Deprecation date documented
+- [ ] Replacement files linked
+
+**Code Updated:**
+- [ ] All references to old docs updated
+- [ ] Feature request files updated
+- [ ] Test scripts updated
+
+---
+
+## 7. Deliverables
+
+### 7.1 Documentation Files
+
+**New Documentation (10 files):**
+1. `docs/espn/README.md` - Main reference (replaces all old docs)
+2. `docs/espn/MIGRATION_GUIDE.md` - How to migrate from old docs
+3. `docs/espn/endpoints/player_stats.md` - Player stats endpoint
+4. `docs/espn/endpoints/scoreboard.md` - Scoreboard endpoint
+5. `docs/espn/endpoints/team_stats.md` - Team stats endpoint
+6. `docs/espn/reference/stat_ids.md` - Complete stat ID reference
+7. `docs/espn/reference/team_mappings.md` - Team ID mappings
+8. `docs/espn/reference/position_mappings.md` - Position ID mappings
+9. `docs/espn/testing/validation_scripts.md` - Validation methodology
+10. `docs/espn/testing/cross_reference.md` - Cross-referencing guide
+
+**Deprecated Files (3 files):**
+1. `docs/espn/DEPRECATED_espn_player_data.md` (renamed + notice added)
+2. `docs/espn/DEPRECATED_espn_team_data.md` (renamed + notice added)
+3. `docs/espn/DEPRECATED_espn_api_endpoints.md` (renamed + notice added)
+
+### 7.2 Testing Scripts (3 files)
+
+1. `test_espn_api_comprehensive.py` - Master testing script
+2. `validate_stat_ids.py` - Stat ID validation script
+3. `cross_reference_nfl.py` - NFL.com cross-reference script
+
+### 7.3 Data Files
+
+1. `raw_responses/` - Directory with raw JSON responses
+   - `player_stats_week{N}_actuals.json`
+   - `player_stats_week{N}_projections.json`
+   - `scoreboard_week{N}.json`
+   - `team_stats_{TEAM_ABBREV}.json`
+
+2. `stat_id_mapping.csv` - Complete stat ID mapping
+3. `endpoint_fields.csv` - All available fields per endpoint
+4. `validation_results.json` - Validation test results
+
+---
+
+## 8. Timeline
+
+### Week 1: Research & Testing (5 days)
+
+**Days 1-2: Endpoint Testing**
+- Set up comprehensive test scripts
+- Query all endpoints for multiple weeks
+- Save raw responses
+- Document initial findings
+
+**Days 3-4: Stat ID Mapping**
+- Cross-reference with NFL.com
+- Validate stat ID consistency
+- Test across positions
+- Create mapping spreadsheet
+
+**Day 5: Analysis & Validation**
+- Run validation scripts
+- Identify unknown stat IDs
+- Document limitations
+- Prepare documentation outline
+
+### Week 2: Documentation & Migration (5 days)
+
+**Days 1-2: Write Documentation**
+- Create endpoint documentation
+- Write stat ID reference
+- Document mappings
+- Create examples
+
+**Days 3-4: Testing Documentation**
+- Write validation guides
+- Create cross-reference guide
+- Document testing methodology
+- Add code examples
+
+**Day 5: Migration & Deprecation**
+- Mark old docs as deprecated
+- Update all references
+- Create migration guide
+- Final QC review
+
+**Total:** 10 working days (2 weeks)
+
+---
+
+## 9. Dependencies & Blockers
+
+### Dependencies
+
+**None** - This is foundational research that enables other features
+
+### Enables Future Features
+
+Once complete, this documentation will enable:
+- Metric 01 (Target Volume) - Uses stat_58
+- Metric 19 (Carry Share) - Uses stat_23
+- Metric 50 (RB Receiving Share) - Uses stat_58
+- Metric 51 (QB Scramble Tendency) - Uses stat_23, stat_24
+- Metric 17 (Target Share Trend) - Uses stat_58
+- All future ESPN API-based metrics
+
+### Blockers
+
+**None identified** - Research can begin immediately
+
+---
+
+## 10. Risks & Mitigations
+
+### Risk 1: Stat IDs Change Without Notice
+
+**Risk:** ESPN may change stat ID mappings in future seasons
+
+**Likelihood:** Low (stat IDs appear stable across seasons)
+
+**Mitigation:**
+- Document when stat IDs were validated (include date)
+- Include validation scripts in test suite
+- Run validation at start of each season
+- Monitor for breaking changes
+
+### Risk 2: Incomplete Stat ID Identification
+
+**Risk:** Some stat IDs may not be identifiable through cross-referencing
+
+**Likelihood:** Medium (some obscure stats may not appear on NFL.com)
+
+**Mitigation:**
+- Document unknown stat IDs clearly
+- Mark confidence level (confirmed, probable, unknown)
+- Continue research in future seasons as new data emerges
+- Accept that 100% coverage may not be achievable
+
+### Risk 3: ESPN API Changes
+
+**Risk:** ESPN may change API structure or endpoints
+
+**Likelihood:** Low (ESPN API has been stable for years)
+
+**Mitigation:**
+- Include API version/date in documentation
+- Monitor for breaking changes
+- Update documentation when changes occur
+- Keep old responses for comparison
+
+---
+
+## 11. Success Metrics
+
+### Quantitative Metrics
+
+- **Stat ID Coverage:** 80%+ of all stat IDs identified and validated
+- **Validation Rate:** 95%+ of identified stat IDs validate correctly
+- **Documentation Completeness:** 100% of endpoints documented
+- **Example Coverage:** 100% of documented features have examples
+- **Cross-Reference Count:** 20+ players cross-referenced with NFL.com
+
+### Qualitative Metrics
+
+- **Developer Confidence:** Developers can implement features without uncertainty about data availability
+- **Accuracy:** No incorrect assumptions about API capabilities
+- **Maintainability:** Documentation can be updated easily as API evolves
+- **Usability:** New developers can understand API structure quickly
+
+---
+
+## 12. Post-Implementation
+
+### Ongoing Maintenance
+
+**Quarterly:**
+- Validate stat IDs still match (run validation scripts)
+- Check for new stat IDs in recent responses
+- Update examples with current season data
+
+**Annually (Start of Season):**
+- Run comprehensive validation for new season
+- Update season-specific examples
+- Check for API changes
+- Update deprecation notices if needed
+
+### Future Research
+
+**Additional Endpoints to Explore:**
+- League-specific data (private leagues)
+- Historical seasons (2020 and earlier)
+- Player news/notes endpoint
+- Injury report endpoint
+- Practice participation data
+
+---
+
+## Appendix A: Current Known Stat IDs
+
+### Confirmed Stat IDs (Tested 2025-12-22)
+
+| Stat ID | Metric | Position | Validation |
+|---------|--------|----------|------------|
+| 23 | Rushing Attempts (Carries) | RB, QB | ✅ 100% (10/10 RBs) |
+| 24 | Rushing Yards | RB, QB | ✅ 100% (10/10 RBs) |
+| 42 | Receiving Yards | WR, TE, RB | ✅ 100% (23/23 players) |
+| 53 | Receptions | WR, TE, RB | ✅ 100% (23/23 players) |
+| 58 | Targets | WR, TE, RB | ✅ 100% (23/23 players) |
+
+### Suspected Stat IDs (Need Validation)
+
+| Stat ID | Suspected Metric | Position | Confidence |
+|---------|------------------|----------|------------|
+| 41 | Pass Completions | QB | Medium |
+| 43 | Passing TDs | QB | Medium |
+| 47-52 | TD Scoring Types | All | Low |
+| 60 | Fantasy Points Breakdown | All | Low |
+| 67-68 | Unknown | WR? | Very Low |
+| 71-73 | Unknown | WR? | Very Low |
+| 156, 158 | Unknown | All? | Very Low |
+| 210, 213 | Unknown | All? | Very Low |
+
+---
+
+## Appendix B: Deprecation Timeline
+
+**Immediate (Upon Completion):**
+1. Rename old docs to DEPRECATED_*
+2. Add deprecation notices
+3. Update all internal references
+
+**1 Month After Completion:**
+- Review if any projects still reference old docs
+- Update remaining references
+- Consider moving old docs to archive/
+
+**3 Months After Completion:**
+- Move old docs to `docs/espn/archive/`
+- Update links to point to archive
+- Consider removing from main documentation tree
+
+**6 Months After Completion:**
+- Evaluate if old docs can be deleted
+- If no longer needed, remove from repository
+- Keep in git history for reference

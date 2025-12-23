@@ -1,6 +1,6 @@
 # ESPN Fantasy Football API - Endpoints Reference
 
-**Last Updated**: 2025-12-13
+**Last Updated**: 2025-12-23
 **API Status**: Unofficial
 **Target Audience**: Python Developers (Intermediate)
 
@@ -1082,7 +1082,7 @@ print(len(players))  # Output: 0
 **Causes & Solutions**:
 1. **Missing X-Fantasy-Filter**: Add player limit filter
 2. **Invalid scoringPeriodId**: Use 0 for season data
-3. **Wrong format_id**: Use 1, 2, or 3 only
+3. **Wrong format_id**: Use 1 or 3 only (Format 2 returns 404 - not available)
 
 ### Issue: 429 Rate Limit Error
 

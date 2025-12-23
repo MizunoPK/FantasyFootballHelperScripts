@@ -517,3 +517,114 @@ class AccuracyCalculator:
                 f"Correlation calculation failed for {position}: {e}"
             )
             return 0.0
+
+    def calculate_ranking_metrics_for_season(
+        self,
+        player_data_by_week: Dict[int, List[Dict[str, Any]]]
+    ) -> Tuple['RankingMetrics', Dict[str, 'RankingMetrics']]:
+        """
+        Calculate ranking metrics across weeks and positions for a season.
+
+        Aggregates using:
+        - Pairwise/Top-N: Simple average across weeks
+        - Spearman: Fisher z-transformation for proper averaging
+
+        Args:
+            player_data_by_week: Dict of week -> list of player dicts with keys:
+                - 'name': Player name
+                - 'position': Player position (QB, RB, WR, TE)
+                - 'projected': Projected points
+                - 'actual': Actual points
+
+        Returns:
+            Tuple of (overall_metrics, by_position_metrics)
+        """
+        from simulation.accuracy.AccuracyResultsManager import RankingMetrics
+
+        positions = ['QB', 'RB', 'WR', 'TE']
+
+        # Accumulators for per-position metrics (average across weeks)
+        position_data = {pos: {
+            'pairwise_sum': 0.0,
+            'top_5_sum': 0.0,
+            'top_10_sum': 0.0,
+            'top_20_sum': 0.0,
+            'spearman_z_values': [],
+            'week_count': 0
+        } for pos in positions}
+
+        # Calculate per week per position
+        for week_num, player_list in player_data_by_week.items():
+            for pos in positions:
+                # Calculate pairwise accuracy for this week/position
+                pairwise = self.calculate_pairwise_accuracy(
+                    player_list, pos
+                )
+                position_data[pos]['pairwise_sum'] += pairwise
+
+                # Calculate top-N accuracies
+                for n in [5, 10, 20]:
+                    top_n = self.calculate_top_n_accuracy(
+                        player_list, n, pos
+                    )
+                    position_data[pos][f'top_{n}_sum'] += top_n
+
+                # Calculate Spearman correlation
+                corr = self.calculate_spearman_correlation(
+                    player_list, pos
+                )
+                # Fisher z-transform for proper averaging
+                if not np.isnan(corr) and corr != 0.0:
+                    z = np.arctanh(corr)
+                    position_data[pos]['spearman_z_values'].append(z)
+
+                position_data[pos]['week_count'] += 1
+
+        # Aggregate per-position metrics
+        by_position = {}
+        for pos in positions:
+            data = position_data[pos]
+            week_count = data['week_count']
+
+            if week_count == 0:
+                self.logger.debug(f"No data for {pos}, skipping ranking metrics")
+                continue
+
+            # Spearman: inverse Fisher z-transform
+            if data['spearman_z_values']:
+                z_mean = np.mean(data['spearman_z_values'])
+                spearman = float(np.tanh(z_mean))
+            else:
+                spearman = 0.0
+
+            by_position[pos] = RankingMetrics(
+                pairwise_accuracy=data['pairwise_sum'] / week_count,
+                top_5_accuracy=data['top_5_sum'] / week_count,
+                top_10_accuracy=data['top_10_sum'] / week_count,
+                top_20_accuracy=data['top_20_sum'] / week_count,
+                spearman_correlation=spearman
+            )
+
+        # Calculate overall metrics (average across positions)
+        if by_position:
+            all_z_values = []
+            for data in position_data.values():
+                all_z_values.extend(data['spearman_z_values'])
+
+            overall_spearman = 0.0
+            if all_z_values:
+                z_mean = np.mean(all_z_values)
+                overall_spearman = float(np.tanh(z_mean))
+
+            overall_metrics = RankingMetrics(
+                pairwise_accuracy=float(np.mean([m.pairwise_accuracy for m in by_position.values()])),
+                top_5_accuracy=float(np.mean([m.top_5_accuracy for m in by_position.values()])),
+                top_10_accuracy=float(np.mean([m.top_10_accuracy for m in by_position.values()])),
+                top_20_accuracy=float(np.mean([m.top_20_accuracy for m in by_position.values()])),
+                spearman_correlation=overall_spearman
+            )
+        else:
+            # No data for any position
+            overall_metrics = None
+
+        return overall_metrics, by_position

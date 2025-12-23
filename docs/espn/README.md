@@ -1,8 +1,29 @@
 # ESPN Fantasy Football API Documentation
 
-**Last Updated**: 2025-12-13
+**Last Updated**: 2025-12-23
 **API Status**: Unofficial
 **Purpose**: Comprehensive reference for ESPN's Fantasy Football API
+
+---
+
+## 🎯 NEW: Verified Stat IDs Reference (2025-12-22)
+
+**⭐ We now have empirically-tested stat ID documentation!**
+
+📖 **[Stat IDs Reference](./reference/stat_ids.md)** - **START HERE**
+- **30 stat IDs confirmed** through cross-reference with NFL.com
+- **All core offensive stats verified**: Passing, Rushing, Receiving, Scoring
+- **Complete usage examples** in Python and JavaScript
+- **Verification methodology** with real player data
+
+**Coverage**: 21% complete (30 of 146 stat IDs identified)
+- ✅ Passing: 8 stats confirmed
+- ✅ Rushing: 5 stats confirmed
+- ✅ Receiving: 7 stats confirmed
+- ✅ Kicking: 4 stats probable
+- ⚠️ 116 stat IDs remain unknown (advanced metrics)
+
+This is the **most comprehensive stat ID reference available** for ESPN's undocumented API.
 
 ---
 
@@ -31,6 +52,13 @@ ESPN Fantasy Football API is **unofficial**, **undocumented**, and **unsupported
 | **[espn_team_data.md](espn_team_data.md)** | Team data fields and structures | ~4 pages |
 | **[espn_api_reference_tables.md](espn_api_reference_tables.md)** | ID mapping tables (positions, teams, formats) | ~3 pages |
 
+### Reference Documentation
+
+| Resource | Description |
+|----------|-------------|
+| **[reference/stat_ids.md](reference/stat_ids.md)** | **⭐ Verified stat ID mappings** (30 confirmed IDs) |
+| **[reference/api_sources.md](reference/api_sources.md)** | **🆕 API sources and community resources** |
+
 ### Additional Resources
 
 | Resource | Description |
@@ -48,7 +76,7 @@ ESPN's Fantasy Football API provides:
 - **Player Statistics**: Actual game results and historical data
 - **Team Information**: NFL team IDs, names, and statistics
 - **Schedule Data**: Weekly matchups and game information
-- **Draft Rankings**: ESPN's rankings by scoring format (PPR, Standard, Half-PPR)
+- **Draft Rankings**: ESPN's rankings by scoring format (PPR, Standard)
 
 ---
 

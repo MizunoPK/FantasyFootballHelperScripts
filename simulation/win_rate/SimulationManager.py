@@ -720,12 +720,12 @@ class SimulationManager:
             # Generate test values for this parameter
             test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
 
-            # For BASE_CONFIG_PARAMS, win-rate sim tests each value across all 5 horizons
+            # For BASE_CONFIG_PARAMS, win-rate sim tests each value across all 4 horizons
             # For WEEK_SPECIFIC_PARAMS (not used by win-rate sim), would test per-horizon
             if 'shared' in test_values_dict:
-                # Shared parameter: test each value across all 5 horizons
+                # Shared parameter: test each value across all 4 horizons
                 test_values = test_values_dict['shared']
-                horizons = ['ros', '1-5', '6-9', '10-13', '14-17']
+                horizons = ['1-5', '6-9', '10-13', '14-17']
             else:
                 # Week-specific parameter: currently not used by win-rate sim
                 # If this path is taken, log warning and skip
@@ -902,10 +902,7 @@ class SimulationManager:
 
             # Add metadata
             horizon_config['config_name'] = f"Optimal {filename} ({timestamp})"
-            if horizon == 'ros':
-                horizon_config['description'] = 'Optimized parameters for draft/season-long (ROS) horizon'
-            else:
-                horizon_config['description'] = f'Optimized parameters for weeks {horizon} horizon'
+            horizon_config['description'] = f'Optimized parameters for weeks {horizon} horizon'
 
             # Add performance metrics if available
             # For now, use overall performance since we optimized shared params only
@@ -965,7 +962,7 @@ class SimulationManager:
 
         # Extract week params from each horizon
         week_configs = {}
-        for horizon in ['ros', '1-5', '6-9', '10-13', '14-17']:
+        for horizon in ['1-5', '6-9', '10-13', '14-17']:
             horizon_baseline = copy.deepcopy(self.config_generator.baseline_configs[horizon])
             week_params = self.results_manager._extract_week_params(horizon_baseline)
             week_configs[horizon] = week_params

@@ -118,9 +118,13 @@ Last Activity:  {YYYY-MM-DD HH:MM} - {what was done}
 
 **POST-IMPLEMENTATION PHASE**
 - [ ] Requirement Verification Protocol
-- [ ] QC Round 1
-- [ ] QC Round 2
-- [ ] QC Round 3
+- [ ] QC Round 1 (initial review)
+- [ ] QC Round 2 (semantic diff + deep verification)
+- [ ] QC Round 3 (final skeptical review)
+- [ ] **SMOKE TESTING PROTOCOL** ← MANDATORY - DO NOT SKIP
+  - [ ] Import Test (all modules import successfully)
+  - [ ] Entry Point Test (scripts start without errors)
+  - [ ] Execution Test (feature works end-to-end with real data)
 - [ ] Lessons Learned Review
 - [ ] Apply guide updates (if any)
 - [ ] Move folder to done/

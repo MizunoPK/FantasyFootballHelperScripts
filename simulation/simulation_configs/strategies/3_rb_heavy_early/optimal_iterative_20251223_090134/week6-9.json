@@ -1,0 +1,229 @@
+{
+  "config_name": "Optimal week6-9.json (20251223_090134)",
+  "description": "Optimized parameters for weeks 6-9 horizon",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 16,
+    "NFL_SEASON": 2025,
+    "NFL_SCORING_FORMAT": "ppr",
+    "SAME_POS_BYE_WEIGHT": 0.29,
+    "DIFF_POS_BYE_WEIGHT": 0.06,
+    "INJURY_PENALTIES": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0
+    },
+    "DRAFT_ORDER_BONUSES": {
+      "PRIMARY": 28,
+      "SECONDARY": 32
+    },
+    "DRAFT_ORDER_FILE": 3,
+    "DRAFT_ORDER": [
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "TE": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ],
+    "MAX_POSITIONS": {
+      "QB": 2,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 1,
+      "TE": 2,
+      "K": 1,
+      "DST": 1
+    },
+    "FLEX_ELIGIBLE_POSITIONS": [
+      "RB",
+      "WR"
+    ],
+    "ADP_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 25
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 4.55
+    },
+    "PLAYER_RATING_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 20
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 1.21
+    },
+    "DRAFT_NORMALIZATION_MAX_SCALE": 171,
+    "NORMALIZATION_MAX_SCALE": 183,
+    "TEAM_QUALITY_SCORING": {
+      "MIN_WEEKS": 1,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 6
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.0
+    },
+    "PERFORMANCE_SCORING": {
+      "MIN_WEEKS": 14,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0.0,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 0.1
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.01
+    },
+    "MATCHUP_SCORING": {
+      "MIN_WEEKS": 14,
+      "IMPACT_SCALE": 27,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 6
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.03
+    },
+    "SCHEDULE_SCORING": {
+      "MIN_WEEKS": 5,
+      "IMPACT_SCALE": 127.18395086042469,
+      "THRESHOLDS": {
+        "BASE_POSITION": 16,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 2
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.9141034145521472
+    },
+    "TEMPERATURE_SCORING": {
+      "IMPACT_SCALE": 127,
+      "WEIGHT": 0.39,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 10
+      },
+      "IDEAL_TEMPERATURE": 60,
+      "MULTIPLIERS": {
+        "EXCELLENT": 1.05,
+        "GOOD": 1.025,
+        "POOR": 0.975,
+        "VERY_POOR": 0.95
+      }
+    },
+    "WIND_SCORING": {
+      "IMPACT_SCALE": 7,
+      "WEIGHT": 1.3,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 8
+      },
+      "MULTIPLIERS": {
+        "EXCELLENT": 1.05,
+        "GOOD": 1.025,
+        "POOR": 0.975,
+        "VERY_POOR": 0.95
+      }
+    },
+    "LOCATION_MODIFIERS": {
+      "HOME": 4.1,
+      "AWAY": 3.9,
+      "INTERNATIONAL": -3.7
+    }
+  },
+  "performance_metrics": {
+    "horizon": "6-9",
+    "win_rate_for_horizon": 0.8333333333333334,
+    "config_id": "PLAYER_RATING_SCORING_WEIGHT_12_horizon_6-9",
+    "timestamp": "20251223_090134"
+  }
+}

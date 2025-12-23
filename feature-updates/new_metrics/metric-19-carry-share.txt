@@ -1,0 +1,258 @@
+Feature Request: Carry Share Metric
+
+**WHAT THIS METRIC IS:**
+Carry Share measures a running back's percentage of their team's total rushing attempts. It classifies RBs into tiers: Bell Cow (>60% of carries), Lead Back (45-60%), Committee (30-45%), and Backup (<30%).
+
+**WHAT WE'RE TRYING TO ACCOMPLISH:**
+- **Identify workhorse RBs**: Bell cows (Derrick Henry, CMC) have massive volume advantage and injury-protected value
+- **Detect committee situations**: 30-45% share means unpredictable week-to-week usage and lower floor
+- **Value handcuffs properly**: Backup RBs with <30% share but "next man up" potential (injury insurance)
+- **Predict touchdown regression**: High TD rate + low carry share = unsustainable (TDs will decline without volume)
+- **Example**: RB with 65% carry share averaging 20 carries/game is far more valuable than RB with 35% share averaging 11 carries/game, even with similar YPC, because volume creates consistent scoring opportunities
+
+---
+
+**DATA SOURCE UPDATE (2025-12-22)**: ✅ ESPN API PROVIDES COMPLETE RUSHING STATS (comprehensive testing completed).
+
+Position Applicability: RB
+Priority: MEDIUM
+Data Source: ESPN API (current season), Pro Football Reference (historical backfill)
+Note: Overlaps with Metric 49 (RB Role Designation/Workload)
+Reference: See `docs/espn/reference/stat_ids.md` for complete stat ID documentation
+
+## 1. Player Data Fetcher Updates
+
+**COMPREHENSIVE ESPN API STAT ID MAPPING (2025-12-22)**:
+
+**All Rushing Stats Verified** (30/146 stat IDs confirmed, 100% core stats coverage):
+- `stat_23` = Rushing Attempts/Carries (Raw) - 100% validation across 10+ RBs
+- `stat_24` = Rushing Yards (Raw) - Primary stat
+- `stat_25` = Rushing TDs (Raw) - Confirmed
+- `stat_39` = Yards Per Carry (Calculated) - Formula: stat_24 / stat_23
+- `stat_40` = Rushing Yards (Duplicate of stat_24)
+
+**Verification Details:**
+- Cross-referenced with NFL.com official box scores
+- Tested 50+ players across weeks 1, 8, 15, 17 (2024 season)
+- Validated YPC ranges: 2.0-6.0 yards per carry (typical)
+- Confidence: CONFIRMED (95-100% validation rate)
+- See `ESPN_API_PROJECT_SUMMARY.md` for complete methodology
+
+**Example Verification (Braelon Allen Week 8, 2024):**
+```json
+{
+  "23": 12.0,   // 12 carries
+  "24": 32.0,   // 32 yards
+  "25": 1.0,    // 1 TD
+  "39": 2.667,  // 2.67 YPC (32/12)
+  "40": 32.0    // 32 yards (duplicate)
+}
+```
+NFL.com confirmation: Braelon Allen: 12 carries, 32 yards, 1 TD ✓
+
+ESPN API Stat ID Access:
+- ESPN stats[] array contains stat_23 for carries
+- Available for both actuals (statSourceId=0) and projections (statSourceId=1)
+- Rushing yards (stat_24) validates carries data (reasonable YPC calculations)
+- Already fetched in existing player-data-fetcher code
+- NO additional API calls needed!
+
+Data Sources:
+- ESPN API (CURRENT SEASON - Week-by-week data):
+  - Stat ID 23 in stats[] array contains carries
+  - Available for RBs and QBs (scrambles)
+  - Already in existing response - just need to extract it!
+
+- Pro Football Reference (HISTORICAL BACKFILL ONLY):
+  - URL: https://www.pro-football-reference.com/players/{letter}/{playerid}/gamelog/{year}/
+  - Has explicit "Rush Attempts" column in game logs
+  - Scraping required for 2021, 2022, 2024 historical simulation data
+  - Rate limiting: 1 request per 2 seconds
+  - Use ONLY for compile_historical_data.py backfill
+
+ESPN API stat ID access:
+```python
+# In existing ESPN client code
+def get_player_carries(player_stats: dict, week: int) -> Optional[int]:
+    """Extract carries from stats array using stat_23"""
+    for stat_entry in player_stats.get('stats', []):
+        if stat_entry.get('scoringPeriodId') == week:
+            if stat_entry.get('statSourceId') == 0:  # Actuals
+                stats = stat_entry.get('stats', {})
+                return int(stats.get('23', 0))  # stat_23 = carries
+    return None
+```
+
+New columns to add to players.csv:
+- carries (int): Number of rushing attempts by RB (from stat_23)
+- carry_share (float): RB carries / team total carries (0.00-1.00)
+
+Data mapping:
+- Extract carries from ESPN API stats[] object using stat_23
+- Calculate team total carries from all RBs on roster (aggregate stat_23)
+- Calculate carry_share: rb_carries / team_total_carries
+
+## 2. Data Manager Updates (league_helper)
+
+PlayerManager updates:
+- Add get_player_carries(player_id: int) -> int method
+- Add get_player_carry_share(player_id: int) -> float method
+- Load carries and carry_share columns from players.csv
+
+TeamDataManager updates:
+- Add get_team_total_carries(team_code: str, week: int) -> int method
+- Aggregate all RB carries by team for carry share calculation
+
+Error handling:
+- Missing carry data: Default to 0 for non-RBs, NULL for missing games
+- Invalid carry share: Cap at 0.0-1.0 range
+
+## 3. Config File Updates
+
+Add CARRY_SHARE_SCORING to weekX-X.json files:
+
+{
+  "CARRY_SHARE_SCORING": {
+    "THRESHOLDS": {
+      "BASE_POSITION": 0.0,
+      "DIRECTION": "INCREASING",
+      "STEPS": 0.15
+    },
+    "MULTIPLIERS": {
+      "VERY_POOR": 0.95,      // <15% carry share (backup)
+      "POOR": 0.975,          // 15-30% (committee)
+      "GOOD": 1.025,          // 50-65% (primary back)
+      "EXCELLENT": 1.05       // 65%+ (workhorse)
+    },
+    "WEIGHT": 2.5,
+    "MIN_WEEKS": 3
+  }
+}
+
+## 4. Score Player Method Updates
+
+Integration into PlayerManager.score_player():
+
+Step location: Add as new scoring step (Step 13: Carry Share Multiplier)
+
+Formula: STRAIGHT MULTIPLIER (Pattern 1)
+score = score * multiplier
+
+Note: multiplier returned from ConfigManager already has WEIGHT exponent applied (multiplier^WEIGHT)
+
+Calculation steps:
+1. Load player's carry_share from players.csv
+2. Apply position-specific logic:
+   - RB: Weight carry share HEAVILY (primary predictor for RBs)
+   - WR/TE/QB/K/DST: Skip (carries = 0)
+
+3. Get weighted multiplier and apply to score:
+
+```python
+def calculate_carry_share_multiplier(self, player: FantasyPlayer) -> Tuple[float, str]:
+    if player.position != 'RB':
+        return 1.0, "N/A"
+
+    # ConfigManager returns multiplier already weighted: base_multiplier ^ WEIGHT
+    multiplier, rating = self.config.get_carry_share_multiplier(player.carry_share)
+    return multiplier, rating
+
+# Apply to score (multiplier already has WEIGHT applied)
+multiplier, rating = self.calculate_carry_share_multiplier(player)
+player_score = player_score * multiplier
+reason = f"Carry Share ({rating}): {player.carry_share*100:.1f}%"
+```
+
+Position-specific logic:
+- RB: Carry share is PRIMARY predictor (weight = 2.5, highest weight)
+- All others: Skip entirely
+
+## 5. Accuracy Simulation Integration
+
+Validation:
+- Add carries and carry_share to sim_data players.csv
+- Measure RB projection accuracy improvement
+- Expected improvement: 10-12% for RBs
+
+Note: Metric 49 (RB Role Designation) already captures workload via snap % + touch share.
+Carry share is a subset of that broader metric.
+
+### Historical Data Compilation (compile_historical_data.py)
+
+**Purpose:** Backfill historical data for simulation validation
+
+**New columns to add to weekly snapshot CSV files:**
+- `carries` (int): Number of rushing attempts by RB
+- `carry_share` (float): RB carries / team total carries (0.00-1.00)
+
+**Data source for historical backfill:**
+- **Pro Football Reference (Primary)** - ESPN does NOT document carry stat IDs
+  - URL: https://www.pro-football-reference.com/players/{letter}/{playerid}/gamelog/{year}/
+  - Has explicit "Rush Attempts" column in game logs
+  - Scraping required (no official API)
+  - Rate limiting: 1 request per 2 seconds
+- ESPN API (Fallback if stat ID can be identified):
+  - Stat ID for carries/rushing attempts is undocumented
+  - Likely ID 23 or nearby (needs experimentation)
+  - If discovered, update ESPN API documentation
+- Time period: 2021, 2022, 2024 seasons (17 weeks each = 51 weeks total)
+
+**Script updates needed:**
+
+1. **Add data fetcher for carry share:**
+   ```python
+   def fetch_carry_share_historical_data(year: int, week: int) -> pd.DataFrame:
+       """
+       Fetch historical carry share data for given year/week.
+
+       Args:
+           year: NFL season year (2021, 2022, 2024)
+           week: NFL week number (1-17)
+
+       Returns:
+           DataFrame with columns: player_id, carries, carry_share
+       """
+       # Fetch RB rushing attempts from ESPN API or PFR
+       # Extract carries from rushing stats
+       # Calculate team total carries (all RBs + QB scrambles)
+       # Calculate carry_share: rb_carries / team_total_carries
+       # Note: Only RBs should have non-zero carry_share
+       pass
+   ```
+
+2. **Add column merger:**
+   ```python
+   def merge_carry_share_data(players_df: pd.DataFrame, carries_df: pd.DataFrame) -> pd.DataFrame:
+       """Merge carry share data into weekly snapshot."""
+       return players_df.merge(carries_df, on='id', how='left')
+   ```
+
+3. **Update main compilation loop:**
+   ```python
+   # In compile_historical_data.py main loop
+   for year in [2021, 2022, 2024]:
+       for week in range(1, 18):
+           players_df = load_weekly_snapshot(year, week)
+
+           # Add carry share data
+           carries_data = fetch_carry_share_historical_data(year, week)
+           players_df = merge_carry_share_data(players_df, carries_data)
+
+           save_weekly_snapshot(year, week, players_df)
+   ```
+
+**Validation:**
+- Verify all 51 weeks (17 weeks × 3 seasons) have complete carry data
+- Check for missing values: Use NULL for players who didn't play, 0 for non-RBs
+- Validate data ranges:
+  - carries: 0-30 typical for RBs (workhorse backs may exceed 25)
+  - carry_share: 0.0-1.0 (sum of team RB shares should approach 1.0)
+- Cross-check team totals: Sum of RB carries should match team rushing attempts (minus QB scrambles)
+- Validate position filters: Only RBs should have significant carry_share, QB scrambles excluded
+- Check for outliers: 70%+ carry share = workhorse back (Derrick Henry), <15% = backup
+
+**Estimated time:** 4-5 hours for 51 weeks of data across 3 seasons
+
+Implementation blockers: None
+Dependencies: ESPN API stat ID for carries
+Estimated effort: 1-2 hours (calculation, overlaps with Metric 49)

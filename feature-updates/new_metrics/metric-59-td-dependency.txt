@@ -1,0 +1,686 @@
+# Feature Request: M59 - TD Dependency Score
+
+**Metric ID:** M59
+**Priority:** MEDIUM
+**Positions:** RB, WR, TE, QB
+**Effort Estimate:** 2-3 hours
+**Impact:** Identifies boom/bust players and TD regression candidates
+
+---
+
+**WHAT THIS METRIC IS:**
+TD Dependency Score measures what percentage of a player's total fantasy points come from touchdowns versus yardage. It classifies players by how reliant they are on scoring TDs for fantasy production (TD-Dependent, Balanced, Yardage-Based, Pure Yardage).
+
+**WHAT WE'RE TRYING TO ACCOMPLISH:**
+- **Identify boom/bust players**: High TD dependency (>40% of points from TDs) = volatile week-to-week scoring, regression risk
+- **Find consistent floor players**: Low TD dependency (<15% from TDs) = yardage-based scoring, safer weekly starts
+- **Predict regression candidates**: Players scoring unsustainably high % from TDs will likely regress (TDs are less predictable than yardage)
+- **Detect TD upside opportunities**: Players with low TD% but high yardage have room for positive TD regression
+- **Support lineup decisions**: Prefer yardage-based players for must-win weeks (higher floor), TD-dependent for boom potential
+- **Trade value assessment**: High TD% players often overvalued after hot streaks, low TD% players undervalued (hidden upside)
+- **Example**: Jerome Ford 2023 with 45% TD dependency (8 TDs, 813 yards) was unsustainable - TDs regressed in 2024. Christian McCaffrey with 28% dependency (balanced) maintained production.
+
+---
+
+## Why This Metric Matters
+
+### Fantasy Implications
+
+1. **TD Regression Identification**
+   - Players scoring >40% of points from TDs are at regression risk
+   - Players scoring <15% of points from TDs have TD upside opportunity
+   - Helps avoid buying high on TD-dependent players
+
+2. **Lineup Consistency**
+   - Yardage-based players (low TD%) provide safer floors
+   - TD-dependent players (high TD%) are boom/bust flex plays
+   - Critical for playoff lineup decisions
+
+3. **Trade Value Assessment**
+   - High TD% players often overvalued after hot streaks
+   - Low TD% players often undervalued (hidden upside)
+   - Quantifies "sell high" and "buy low" opportunities
+
+### Real-World Examples
+
+**2023 Season Examples:**
+
+**High TD Dependency (>35%):**
+- Jerome Ford: 45% of points from TDs (8 TDs, 813 yards)
+  - Classification: TD_DEPENDENT
+  - Risk: TDs regressed in 2024
+
+- Tyler Allgeier: 42% of points from TDs (6 TDs, 590 yards)
+  - Classification: TD_DEPENDENT
+  - Risk: Limited yardage upside
+
+**Balanced (25-35%):**
+- Christian McCaffrey: 28% of points from TDs (14 TDs, 2023 yards)
+  - Classification: BALANCED
+  - Strength: Consistent scoring mix
+
+**Yardage-Based (<25%):**
+- Amon-Ra St. Brown: 18% of points from TDs (6 TDs, 1515 yards)
+  - Classification: YARDAGE_BASED
+  - Strength: High floor, TD upside available
+
+---
+
+## Data Sources
+
+### ESPN API - 100% Coverage
+
+**Stat IDs Required:**
+
+| Stat ID | Stat Name | Type | Used For |
+|---------|-----------|------|----------|
+| **25** | Rushing TDs | Raw | RB/QB rushing scores |
+| **43** | Receiving TDs | Raw | WR/TE/RB receiving scores |
+
+**Verification Status:**
+- ✅ stat_25 (Rushing TDs) - CONFIRMED (already in docs/espn/reference/stat_ids.md)
+- ⚠️ stat_43 (Receiving TDs) - NEEDS VERIFICATION (listed in ESPN API but not yet tested)
+
+**Historical Data:**
+- ✅ Available 2016-present (9+ years)
+- ✅ Weekly granularity (all 18 weeks)
+- ✅ All offensive skill positions
+
+**Additional Data:**
+- Fantasy points (already calculated in system)
+- TD point value from scoring config (6.0 standard, 4.0 passing)
+
+---
+
+## Calculations
+
+### Formula
+
+```python
+def calculate_td_dependency(rushing_tds: int, receiving_tds: int,
+                           total_fantasy_points: float,
+                           position: str,
+                           scoring_config: dict) -> dict:
+    """
+    Calculate TD Dependency Score
+
+    Args:
+        rushing_tds: Rushing touchdowns (stat_25)
+        receiving_tds: Receiving touchdowns (stat_43)
+        total_fantasy_points: Total fantasy points for period
+        position: Player position (QB, RB, WR, TE)
+        scoring_config: Scoring configuration (TD point values)
+
+    Returns:
+        dict with td_dependency_pct, td_points, non_td_points, tier
+    """
+    # Get TD point values from config
+    rushing_td_value = scoring_config.get('rushing_td_points', 6.0)
+    receiving_td_value = scoring_config.get('receiving_td_points', 6.0)
+    passing_td_value = scoring_config.get('passing_td_points', 4.0)
+
+    # Calculate TD points based on position
+    if position == 'QB':
+        # QBs score from both passing and rushing TDs
+        # For this metric, we focus on rushing TDs only (passing TDs tracked separately)
+        td_points = rushing_tds * rushing_td_value
+    else:
+        # RB/WR/TE score from rushing + receiving TDs
+        td_points = (rushing_tds * rushing_td_value) + (receiving_tds * receiving_td_value)
+
+    # Calculate non-TD points
+    non_td_points = total_fantasy_points - td_points
+
+    # Calculate dependency percentage
+    if total_fantasy_points == 0:
+        td_dependency_pct = 0.0
+    else:
+        td_dependency_pct = td_points / total_fantasy_points
+
+    # Classify tier
+    tier = classify_td_dependency_tier(td_dependency_pct, position)
+
+    return {
+        'td_points': td_points,
+        'non_td_points': non_td_points,
+        'td_dependency_pct': round(td_dependency_pct, 3),
+        'tier': tier
+    }
+
+def classify_td_dependency_tier(td_dependency_pct: float, position: str) -> str:
+    """
+    Classify TD dependency tier
+
+    Thresholds based on position norms:
+    - RBs typically higher TD% (goal line work)
+    - WR/TE typically lower TD% (yardage-based)
+    """
+    if position == 'RB':
+        if td_dependency_pct >= 0.40:
+            return "TD_DEPENDENT"    # >40% from TDs (regression risk)
+        elif td_dependency_pct >= 0.25:
+            return "BALANCED"        # 25-40% from TDs (healthy mix)
+        elif td_dependency_pct >= 0.15:
+            return "YARDAGE_BASED"   # 15-25% from TDs (high floor)
+        else:
+            return "PURE_YARDAGE"    # <15% from TDs (TD upside available)
+
+    elif position in ['WR', 'TE']:
+        if td_dependency_pct >= 0.35:
+            return "TD_DEPENDENT"    # >35% from TDs (regression risk)
+        elif td_dependency_pct >= 0.20:
+            return "BALANCED"        # 20-35% from TDs (healthy mix)
+        elif td_dependency_pct >= 0.10:
+            return "YARDAGE_BASED"   # 10-20% from TDs (high floor)
+        else:
+            return "PURE_YARDAGE"    # <10% from TDs (TD upside available)
+
+    elif position == 'QB':
+        # QB rushing TDs only (passing TDs are separate metric)
+        if td_dependency_pct >= 0.15:
+            return "DUAL_THREAT"     # >15% from rushing TDs
+        elif td_dependency_pct >= 0.05:
+            return "MOBILE"          # 5-15% from rushing TDs
+        else:
+            return "POCKET"          # <5% from rushing TDs
+
+    else:
+        return "UNKNOWN"
+```
+
+### Edge Cases
+
+**1. Zero Fantasy Points**
+- Return 0.0 dependency, tier = "UNKNOWN"
+
+**2. Negative Fantasy Points (DST)**
+- Not applicable (metric is for offensive players only)
+
+**3. Early Season (Small Sample)**
+- Calculate normally but flag if <3 games played
+- Consider using prior season data for baseline
+
+---
+
+## Database Schema Updates
+
+### New Columns for players.csv
+
+```python
+# M59: TD Dependency (7 columns)
+columns = {
+    'rushing_tds': int,              # stat_25 (Rushing TDs)
+    'receiving_tds': int,            # stat_43 (Receiving TDs)
+    'total_tds': int,                # rushing_tds + receiving_tds
+    'td_points': float,              # Points from TDs
+    'non_td_points': float,          # Points from yardage/receptions
+    'td_dependency_pct': float,      # % of points from TDs (0.0-1.0)
+    'td_dependency_tier': str        # TD_DEPENDENT, BALANCED, YARDAGE_BASED, PURE_YARDAGE
+}
+```
+
+**Data Types:**
+- `rushing_tds` (int): Weekly rushing TDs
+- `receiving_tds` (int): Weekly receiving TDs
+- `total_tds` (int): Sum of rushing + receiving TDs
+- `td_points` (float): Fantasy points from TDs (e.g., 12.0 for 2 TDs)
+- `non_td_points` (float): Fantasy points from other sources
+- `td_dependency_pct` (float): Percentage 0.0-1.0 (e.g., 0.35 = 35%)
+- `td_dependency_tier` (string): Classification tier
+
+---
+
+## Config File Updates
+
+### league_config.json
+
+Add new scoring section:
+
+```json
+{
+  "TD_DEPENDENCY_SCORING": {
+    "ENABLED": true,
+    "POSITION_SPECIFIC": {
+      "RB": {
+        "THRESHOLDS": {
+          "TD_DEPENDENT": 0.40,
+          "BALANCED": 0.25,
+          "YARDAGE_BASED": 0.15
+        },
+        "MULTIPLIERS": {
+          "TD_DEPENDENT": 0.92,      // -8% (regression risk)
+          "BALANCED": 1.00,           // No adjustment
+          "YARDAGE_BASED": 1.03,      // +3% (consistent floor)
+          "PURE_YARDAGE": 1.05        // +5% (TD upside)
+        },
+        "WEIGHT": 1.5
+      },
+      "WR": {
+        "THRESHOLDS": {
+          "TD_DEPENDENT": 0.35,
+          "BALANCED": 0.20,
+          "YARDAGE_BASED": 0.10
+        },
+        "MULTIPLIERS": {
+          "TD_DEPENDENT": 0.90,       // -10% (higher regression risk)
+          "BALANCED": 1.00,
+          "YARDAGE_BASED": 1.04,
+          "PURE_YARDAGE": 1.06
+        },
+        "WEIGHT": 2.0
+      },
+      "TE": {
+        "THRESHOLDS": {
+          "TD_DEPENDENT": 0.35,
+          "BALANCED": 0.20,
+          "YARDAGE_BASED": 0.10
+        },
+        "MULTIPLIERS": {
+          "TD_DEPENDENT": 0.90,
+          "BALANCED": 1.00,
+          "YARDAGE_BASED": 1.04,
+          "PURE_YARDAGE": 1.06
+        },
+        "WEIGHT": 2.0
+      },
+      "QB": {
+        "THRESHOLDS": {
+          "DUAL_THREAT": 0.15,
+          "MOBILE": 0.05
+        },
+        "MULTIPLIERS": {
+          "DUAL_THREAT": 1.05,        // +5% (rushing upside)
+          "MOBILE": 1.02,
+          "POCKET": 1.00
+        },
+        "WEIGHT": 1.0
+      }
+    },
+    "MIN_FANTASY_POINTS": 3.0,  // Minimum points to calculate dependency
+    "MIN_WEEKS_PLAYED": 3        // Minimum weeks for reliable metric
+  }
+}
+```
+
+### Week-Specific Configs (week1-5.json, etc.)
+
+```json
+{
+  "TD_DEPENDENCY_SCORING": {
+    "ENABLED": true,
+    "WEIGHT": 1.5,
+    "POSITION_ADJUSTMENTS": {
+      "RB": 1.5,
+      "WR": 2.0,
+      "TE": 2.0,
+      "QB": 1.0
+    }
+  }
+}
+```
+
+---
+
+## Implementation Steps
+
+### Phase 1: Add Receiving TDs to Data Pipeline (1 hour)
+
+**1.1 Update ESPN API Stat IDs List**
+
+File: `docs/espn/reference/stat_ids.md`
+
+Add stat_43 to receiving statistics table:
+
+```markdown
+| **43** | Receiving TDs | Raw | `1` | Receiving touchdowns |
+```
+
+**1.2 Verify stat_43 Availability**
+
+Create test script to verify stat_43:
+
+```python
+# Test stat_43 (Receiving TDs) availability
+def test_receiving_tds():
+    """Verify stat_43 returns receiving TDs"""
+    # Fetch known WR with TDs (e.g., Tyreek Hill Week 5 2024)
+    player_stats = fetch_espn_stats(player_id=2977644, week=5)
+
+    receiving_tds = player_stats['stats'].get('43', 0)
+
+    # Cross-reference with NFL.com box score
+    assert receiving_tds > 0, "stat_43 should contain receiving TDs"
+
+    print(f"✅ stat_43 verified: {receiving_tds} receiving TDs")
+```
+
+**1.3 Update Data Fetcher**
+
+File: `player-data-fetcher/espn_client.py`
+
+Add stat_43 to fetched stats list.
+
+---
+
+### Phase 2: Implement Calculations (1 hour)
+
+**2.1 Create Calculation Module**
+
+File: `league_helper/util/TDDependencyCalculator.py`
+
+```python
+class TDDependencyCalculator:
+    """Calculate TD Dependency metrics for players"""
+
+    def __init__(self, config_manager):
+        self.config = config_manager
+        self.logger = get_logger()
+
+    def calculate_player_td_dependency(self, player: FantasyPlayer) -> dict:
+        """Calculate TD dependency for a player"""
+        # Implementation from formulas above
+        pass
+
+    def classify_tier(self, td_dependency_pct: float, position: str) -> str:
+        """Classify TD dependency tier"""
+        # Implementation from formulas above
+        pass
+```
+
+**2.2 Integrate with PlayerManager**
+
+File: `league_helper/util/PlayerManager.py`
+
+Add TD dependency calculation to player scoring:
+
+```python
+def apply_td_dependency_adjustment(self, player: FantasyPlayer) -> float:
+    """Apply TD dependency multiplier to player score"""
+
+    if not self.config.is_enabled('TD_DEPENDENCY_SCORING'):
+        return 1.0
+
+    td_dep = TDDependencyCalculator(self.config)
+    result = td_dep.calculate_player_td_dependency(player)
+
+    # Store metrics on player object
+    player.td_dependency_pct = result['td_dependency_pct']
+    player.td_dependency_tier = result['tier']
+
+    # Get multiplier from config
+    multiplier = self.config.get_td_dependency_multiplier(
+        tier=result['tier'],
+        position=player.position
+    )
+
+    return multiplier
+```
+
+---
+
+### Phase 3: Database Integration (30 min)
+
+**3.1 Update CSV Columns**
+
+Add columns to `data/players.csv`:
+- rushing_tds
+- receiving_tds
+- total_tds
+- td_points
+- non_td_points
+- td_dependency_pct
+- td_dependency_tier
+
+**3.2 Update CSV I/O**
+
+File: `utils/csv_utils.py`
+
+Add new columns to expected schema.
+
+---
+
+### Phase 4: Historical Backfill (1 hour)
+
+**4.1 Backfill Strategy**
+
+For each historical season (2021, 2022, 2024):
+
+```python
+for year in [2021, 2022, 2024]:
+    for week in range(1, 18):
+        # Fetch stat_25 (Rushing TDs) - already available
+        # Fetch stat_43 (Receiving TDs) - NEW
+
+        players = fetch_espn_players(year, week)
+
+        for player in players:
+            rushing_tds = player.stats.get('25', 0)
+            receiving_tds = player.stats.get('43', 0)
+
+            # Calculate TD dependency
+            td_dep = calculate_td_dependency(
+                rushing_tds=rushing_tds,
+                receiving_tds=receiving_tds,
+                total_fantasy_points=player.fantasy_points,
+                position=player.position
+            )
+
+            # Store in simulation/sim_data/{year}/weeks/week_{week}/players.csv
+            player.td_dependency_pct = td_dep['td_dependency_pct']
+            player.td_dependency_tier = td_dep['tier']
+```
+
+**4.2 Validation**
+
+Test cases for backfill:
+
+```python
+# 2023 Season validation
+test_cases = [
+    ("Christian McCaffrey", 2023, "td_dependency_pct", 0.28, "BALANCED"),
+    ("Jerome Ford", 2023, "td_dependency_pct", 0.45, "TD_DEPENDENT"),
+    ("Amon-Ra St. Brown", 2023, "td_dependency_pct", 0.18, "YARDAGE_BASED"),
+]
+```
+
+---
+
+### Phase 5: Testing (30 min)
+
+**5.1 Unit Tests**
+
+File: `tests/league_helper/util/test_TDDependencyCalculator.py`
+
+```python
+def test_td_dependency_calculation():
+    """Test TD dependency calculation"""
+    # Test RB with high TD dependency
+    result = calculate_td_dependency(
+        rushing_tds=8,
+        receiving_tds=2,
+        total_fantasy_points=150.0,  # 60 pts from TDs, 90 from other
+        position='RB'
+    )
+
+    assert result['td_dependency_pct'] == 0.40  # 60/150
+    assert result['tier'] == 'TD_DEPENDENT'
+
+def test_receiving_tds_stat_availability():
+    """Verify stat_43 is available from ESPN API"""
+    # Test with known player/week
+    pass
+```
+
+**5.2 Integration Tests**
+
+File: `tests/integration/test_td_dependency_integration.py`
+
+```python
+def test_td_dependency_end_to_end():
+    """Test full TD dependency workflow"""
+    # Fetch player data
+    # Calculate TD dependency
+    # Apply multiplier
+    # Verify score adjustment
+    pass
+```
+
+---
+
+## Expected Impact
+
+### Projection Accuracy Improvement
+
+**Estimated Impact:**
+- RB projections: +3-5% accuracy (identifies TD regression)
+- WR projections: +2-4% accuracy (identifies boom/bust)
+- TE projections: +2-3% accuracy (TD-dependent TEs identified)
+- QB projections: +1-2% accuracy (rushing TD value)
+
+**Why This Helps:**
+- Prevents overvaluing TD-dependent players after hot streaks
+- Identifies undervalued yardage-based players
+- Improves lineup consistency (prefer yardage-based for safe starts)
+- Supports trade decisions (sell high on TD-dependent players)
+
+---
+
+## Validation Examples
+
+```python
+# Known 2023 season TD dependency examples
+validation_cases = [
+    # TD-Dependent RBs (>40%)
+    {
+        'player': 'Jerome Ford',
+        'season': 2023,
+        'rushing_tds': 8,
+        'receiving_tds': 0,
+        'fantasy_points': 120.5,
+        'expected_dependency': 0.40,  # 48/120.5
+        'expected_tier': 'TD_DEPENDENT'
+    },
+
+    # Balanced RBs (25-40%)
+    {
+        'player': 'Christian McCaffrey',
+        'season': 2023,
+        'rushing_tds': 14,
+        'receiving_tds': 7,
+        'fantasy_points': 450.3,
+        'expected_dependency': 0.28,  # 126/450.3
+        'expected_tier': 'BALANCED'
+    },
+
+    # Yardage-Based WRs (<20%)
+    {
+        'player': 'Amon-Ra St. Brown',
+        'season': 2023,
+        'rushing_tds': 0,
+        'receiving_tds': 10,
+        'fantasy_points': 335.7,
+        'expected_dependency': 0.18,  # 60/335.7
+        'expected_tier': 'YARDAGE_BASED'
+    },
+]
+```
+
+---
+
+## Dependencies
+
+### Data Dependencies
+- stat_25 (Rushing TDs) - ✅ Already available
+- stat_43 (Receiving TDs) - ⚠️ Needs verification
+- Fantasy points calculation - ✅ Already available
+- Scoring config - ✅ Already available
+
+### Code Dependencies
+- `ConfigManager` - ✅ Exists
+- `PlayerManager` - ✅ Exists
+- `FantasyPlayer` model - ✅ Exists
+- CSV utils - ✅ Exists
+
+### New Dependencies
+- `TDDependencyCalculator` - 🆕 To be created
+
+---
+
+## Risks & Mitigations
+
+### Risk 1: stat_43 Not Available from ESPN API
+
+**Likelihood:** Low (stat_43 is listed in ESPN API docs)
+**Impact:** High (blocks entire feature)
+
+**Mitigation:**
+- Verify stat_43 availability in Phase 1 before continuing
+- If unavailable, calculate from game logs or use alternative source
+- Fallback: Track only rushing TDs for RBs initially
+
+### Risk 2: Small Sample Size Early Season
+
+**Likelihood:** High (weeks 1-3 have limited data)
+**Impact:** Medium (unreliable TD dependency scores)
+
+**Mitigation:**
+- Require minimum 3 weeks played before applying metric
+- Use prior season TD dependency as baseline for weeks 1-3
+- Flag metric as "INSUFFICIENT_DATA" if <3 games
+
+### Risk 3: TD Volatility
+
+**Likelihood:** High (TDs are inherently volatile)
+**Impact:** Medium (week-to-week score swings)
+
+**Mitigation:**
+- Use season-long TD dependency, not weekly
+- Calculate rolling 4-week average for mid-season stability
+- Weight metric lower (1.5-2.0) compared to usage metrics (3.0)
+
+---
+
+## Success Criteria
+
+✅ **Metric Calculated:**
+- TD dependency calculated for all RB/WR/TE/QB
+- Tier classification accurate (validated against 2023 examples)
+
+✅ **Data Available:**
+- stat_43 (Receiving TDs) successfully fetched from ESPN API
+- Historical data backfilled for 2021, 2022, 2024
+
+✅ **Accuracy Improved:**
+- RB projection accuracy +3-5%
+- WR projection accuracy +2-4%
+- Simulation win rate improves by 2-3%
+
+✅ **All Tests Pass:**
+- Unit tests: 100% pass rate
+- Integration tests: End-to-end workflow verified
+- Validation examples: All 2023 cases match expected values
+
+---
+
+## Future Enhancements
+
+### Phase 2 Additions (If Desired)
+
+1. **TD Regression Predictor**
+   - Compare current TD rate to league average by position
+   - Flag players >2 standard deviations from mean
+   - Predict TD count regression to mean
+
+2. **Historical TD Patterns**
+   - Track player's TD dependency over multiple seasons
+   - Identify career norms vs anomalies
+   - Flag career-year TD spikes
+
+3. **TD Equity Comparison**
+   - Compare TD Dependency (% of points) with TD Equity (TDs per touch)
+   - Identify players with high equity but low dependency (TD upside)
+   - Identify players with low equity but high dependency (unsustainable)
+
+---
+
+**END OF FEATURE REQUEST**

@@ -85,4 +85,4 @@ WIND_AFFECTED_POSITIONS = ["QB", "WR", "K"]
 # BYE WEEKS
 # =============================================================================
 # Weeks in which NFL teams have bye weeks (no game)
-POSSIBLE_BYE_WEEKS = [5, 6, 7, 8, 9, 10, 11, 12, 14]
+POSSIBLE_BYE_WEEKS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14]

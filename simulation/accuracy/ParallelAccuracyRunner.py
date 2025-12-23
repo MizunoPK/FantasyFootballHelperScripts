@@ -108,6 +108,7 @@ def _evaluate_config_weekly_worker(
     for season_path in available_seasons:
         week_projections = {}
         week_actuals = {}
+        player_data_by_week = {}  # For ranking metrics
 
         for week_num in range(start_week, end_week + 1):
             projected_path, actual_path = _load_season_data(season_path, week_num)
@@ -120,6 +121,7 @@ def _evaluate_config_weekly_worker(
             try:
                 projections = {}
                 actuals = {}
+                player_data = []  # Player metadata for ranking metrics
 
                 # Calculate and set max weekly projection for this week's normalization
                 # This is required before scoring with use_weekly_projection=True
@@ -155,8 +157,18 @@ def _evaluate_config_weekly_worker(
                         if actual is not None and actual > 0:
                             actuals[player.id] = actual
 
+                            # Collect player metadata for ranking metrics
+                            if scored:
+                                player_data.append({
+                                    'name': player.name,
+                                    'position': player.position,
+                                    'projected': scored.projected_points,
+                                    'actual': actual
+                                })
+
                 week_projections[week_num] = projections
                 week_actuals[week_num] = actuals
+                player_data_by_week[week_num] = player_data
 
             finally:
                 _cleanup_player_manager(player_mgr)
@@ -165,6 +177,14 @@ def _evaluate_config_weekly_worker(
         result = calculator.calculate_weekly_mae(
             week_projections, week_actuals, week_range
         )
+
+        # Calculate ranking metrics for this season
+        overall_metrics, by_position = calculator.calculate_ranking_metrics_for_season(
+            player_data_by_week
+        )
+        result.overall_metrics = overall_metrics
+        result.by_position = by_position
+
         season_results.append((season_path.name, result))
 
     # Aggregate across seasons with config context

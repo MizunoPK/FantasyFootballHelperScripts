@@ -52,6 +52,7 @@ NUM_PARAMETERS_TO_TEST=1
 # Prediction parameters (NORMALIZATION_MAX_SCALE, PLAYER_RATING_SCORING_WEIGHT, etc.)
 # are optimized by accuracy simulation instead - see run_accuracy_simulation.py
 PARAMETER_ORDER = [
+    'DRAFT_NORMALIZATION_MAX_SCALE',
     # Bye Week Penalties - affects roster construction decisions
     'SAME_POS_BYE_WEIGHT',
     'DIFF_POS_BYE_WEIGHT',

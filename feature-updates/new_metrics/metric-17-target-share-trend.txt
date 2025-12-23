@@ -1,0 +1,286 @@
+Feature Request: Target Share Trend Metric
+
+**WHAT THIS METRIC IS:**
+Target Share Trend tracks changes in a player's percentage of team targets over recent weeks. It compares the last 3 weeks to the previous 3 weeks to identify whether a player's role is expanding, stable, or shrinking within their offense.
+
+**WHAT WE'RE TRYING TO ACCOMPLISH:**
+- **Detect breakout players early**: Rising target share (15% → 25%) indicates expanding role before it shows in fantasy points
+- **Identify fading veterans**: Declining share (30% → 20%) signals reduced role, potential bench/sell candidate
+- **Quantify role changes**: Injury to teammate, scheme changes, or coaching decisions show up in share trends before box scores
+- **Improve draft strategy**: Target players with rising trends in late-season weeks (momentum into next year)
+- **Example**: A WR going from 18% share (WR3) to 28% share (WR1) over 3 weeks is a league-winner pickup, even if TD production hasn't caught up yet
+
+---
+
+**DATA SOURCE UPDATE (2025-12-22)**: ✅ ESPN API PROVIDES TARGETS via stat_58 (see Metric 01).
+
+Position Applicability: WR, TE, RB
+Priority: MEDIUM
+Data Source: Calculated from Metric 1 (Target Volume from ESPN API stat_58) - rolling average trend
+Dependency: Requires Metric 1 (Target Volume) implementation
+Reference: See `docs/espn/reference/stat_ids.md` for stat_58 documentation
+
+## 1. Player Data Fetcher Updates
+
+NO new data fetching required. This is a PURE CALCULATION metric.
+
+**Data Source**: Calculated from Metric 1 (Target Volume) historical data
+- Metric 1 provides weekly target_share from ESPN API (stat_58 = Targets)
+- **IMPORTANT**: ESPN API DOES provide target data via stat_58 (confirmed 2025-12-22)
+- Target Share Trend is rolling average calculation (recent 3 weeks vs earlier 3 weeks)
+- See `ESPN_API_PROJECT_SUMMARY.md` for complete stat ID verification details
+
+Formula:
+```python
+# Recent target share (last 3 weeks)
+recent_share = avg(target_share_week_N, target_share_week_N-1, target_share_week_N-2)
+
+# Earlier target share (weeks N-3 to N-5)
+earlier_share = avg(target_share_week_N-3, target_share_week_N-4, target_share_week_N-5)
+
+# Trend percentage change
+trend_pct_change = ((recent_share - earlier_share) / earlier_share) * 100
+
+# Positive trend: Player getting more involved
+# Negative trend: Player usage declining
+```
+
+No new columns needed (uses existing weekly target_share from Metric 1).
+
+## 2. Data Manager Updates (league_helper)
+
+PlayerManager updates:
+- Add calculate_target_share_trend(player: FantasyPlayer, current_week: int) -> float method
+  - Get target share for recent weeks (N, N-1, N-2)
+  - Get target share for earlier weeks (N-3, N-4, N-5)
+  - Calculate percentage change
+  - Return trend value (positive = rising, negative = declining)
+
+- Add get_target_trend_multiplier(trend_pct_change: float) -> float method
+  - Convert trend to multiplier based on thresholds
+
+Error handling:
+- Insufficient weeks: Need at least 6 weeks of data, default to neutral (0.0% trend)
+- Missing target data: Skip weeks with NULL targets, use available weeks
+- Division by zero: If earlier_share = 0, use absolute change instead of percentage
+
+## 3. Config File Updates
+
+Add TARGET_SHARE_TREND_SCORING to weekX-X.json files:
+
+{
+  "TARGET_SHARE_TREND_SCORING": {
+    "THRESHOLDS": {
+      "BASE_POSITION": 0,
+      "DIRECTION": "INCREASING",
+      "STEPS": 15
+    },
+    "MULTIPLIERS": {
+      "VERY_POOR": 0.95,      // -15%+ decrease (declining role)
+      "POOR": 0.975,          // 0-15% decrease
+      "GOOD": 1.025,          // 0-15% increase
+      "EXCELLENT": 1.05       // 15%+ increase (rising role)
+    },
+    "WEIGHT": 1.7,
+    "MIN_WEEKS": 6
+  }
+}
+
+## 4. Score Player Method Updates
+
+Integration into PlayerManager.score_player():
+
+Step location: Add as new scoring step (Step 18: Target Share Trend Multiplier)
+
+Formula: STRAIGHT MULTIPLIER (Pattern 1)
+score = score * multiplier
+
+Note: multiplier returned from ConfigManager already has WEIGHT exponent applied (multiplier^WEIGHT)
+
+Calculation steps:
+1. Calculate target_share_trend: (current_3wk_avg - previous_3wk_avg) / previous_3wk_avg
+2. Apply position-specific logic:
+   - WR/TE: Target share trend reveals emerging/declining role
+   - RB: Apply for pass-catching backs
+   - QB/K/DST: Skip
+
+3. Get weighted multiplier and apply to score:
+
+```python
+def calculate_target_share_trend_multiplier(self, player: FantasyPlayer, current_week: int) -> Tuple[float, str]:
+    if player.position not in ['WR', 'TE', 'RB']:
+        return 1.0, "N/A"
+
+    config = self.config.TARGET_SHARE_TREND_SCORING
+
+    # Need at least 6 weeks of data
+    if current_week < config.MIN_WEEKS:
+        return 1.0, "N/A"  # Neutral trend
+
+    trend_pct_change = self.calculate_target_share_trend(player, current_week)
+
+    # ConfigManager returns multiplier already weighted: base_multiplier ^ WEIGHT
+    multiplier, rating = self.config.get_target_share_trend_multiplier(trend_pct_change)
+    return multiplier, rating
+
+# Apply to score (multiplier already has WEIGHT applied)
+multiplier, rating = self.calculate_target_share_trend_multiplier(player, current_week)
+player_score = player_score * multiplier
+reason = f"Target Share Trend ({rating}): {trend_pct_change:+.1f}% change"
+```
+
+Position-specific logic:
+- WR/TE: Target share trend is critical (weight = 1.7)
+- RB: Apply for receiving backs
+- QB/K/DST: Skip
+
+## 5. Accuracy Simulation Integration
+
+Simulation validation:
+1. NO new columns needed (uses weekly target_share from Metric 1)
+2. Calculate trend dynamically from historical target share data
+
+Historical validation:
+```python
+# For week 7 simulation:
+# Recent: weeks 5, 6, 7 target shares
+# Earlier: weeks 2, 3, 4 target shares
+# Calculate trend and apply multiplier to week 7+ projections
+```
+
+Validation metrics:
+- Measure prediction accuracy before/after trend integration
+- Expected improvement: 5-8% (modest - trends are noisy)
+- Compare rising vs declining trend players (accuracy difference)
+- Validate trend persistence (does rising trend continue?)
+
+Special considerations:
+- Recency bias risk: Short-term trends may not persist
+- Injury impact: Injuries to teammates can inflate target share temporarily
+- Sample size: 3-week trends are noisy, prone to outliers
+- Mid-season role changes: Trend captures changing roles (positive)
+
+Example impact:
+```
+Puka Nacua (LAR, rising trend +25% target share):
+- Base projection: 14.0 points
+- Target trend: +25% (rising strong)
+- Trend multiplier: 1.05
+- Weight: 1.2
+- Adjusted: 14.0 * (1.05 ^ 1.2) = 14.8 points
+
+Terry McLaurin (WAS, declining trend -18% target share):
+- Base projection: 13.0 points
+- Target trend: -18% (declining moderate)
+- Trend multiplier: 0.975
+- Weight: 1.2
+- Adjusted: 13.0 * (0.975 ^ 1.2) = 12.6 points
+```
+
+### Historical Data Compilation (compile_historical_data.py)
+
+**Purpose:** Backfill historical data for simulation validation
+
+**Dependency:** This metric requires Metric 01 (Target Volume) to be compiled first
+
+**New columns to add to weekly snapshot CSV files:**
+- `target_share_trend` (float): Percentage change in target share (recent 3 weeks vs earlier 3 weeks, -100.0 to +100.0)
+
+**Data source for historical backfill:**
+- **Pure calculation** from Metric 01 (Target Volume) weekly target_share data
+- **No external data fetching required** - depends on Metric 01 PFR scraping
+- Metric 01 provides target_share from Pro Football Reference
+- Rolling average calculation: recent 3 weeks vs earlier 3 weeks
+- Time period: 2021, 2022, 2024 seasons (weeks 7-17 only, need 6 weeks of history)
+
+**Script updates needed:**
+
+1. **Add target share trend calculator:**
+   ```python
+   def calculate_target_share_trend(players_df: pd.DataFrame, current_week: int) -> pd.DataFrame:
+       """
+       Calculate target share trend from historical target_share data.
+
+       Args:
+           players_df: DataFrame with weekly target_share columns (from Metric 01)
+           current_week: Week number (7-17, need 6 weeks of history)
+
+       Returns:
+           DataFrame with added target_share_trend column
+       """
+       # Need at least 6 weeks of data (weeks 7+)
+       if current_week < 7:
+           players_df['target_share_trend'] = 0.0  # Neutral trend
+           return players_df
+
+       def calc_trend(row):
+           if row['position'] not in ['WR', 'TE', 'RB']:
+               return 0.0  # Skip non-pass-catchers
+
+           # Recent 3 weeks (N, N-1, N-2)
+           recent_weeks = [current_week, current_week-1, current_week-2]
+           recent_shares = [row.get(f'week_{w}_target_share', 0.0) for w in recent_weeks]
+           recent_avg = sum([s for s in recent_shares if pd.notna(s)]) / len([s for s in recent_shares if pd.notna(s)])
+
+           # Earlier 3 weeks (N-3, N-4, N-5)
+           earlier_weeks = [current_week-3, current_week-4, current_week-5]
+           earlier_shares = [row.get(f'week_{w}_target_share', 0.0) for w in earlier_weeks]
+           earlier_avg = sum([s for s in earlier_shares if pd.notna(s)]) / len([s for s in earlier_shares if pd.notna(s)])
+
+           # Calculate percentage change
+           if earlier_avg > 0:
+               trend_pct = ((recent_avg - earlier_avg) / earlier_avg) * 100
+           elif recent_avg > 0:
+               trend_pct = 100.0  # Went from 0 to something = +100%
+           else:
+               trend_pct = 0.0  # Both 0 = neutral
+
+           return trend_pct
+
+       players_df['target_share_trend'] = players_df.apply(calc_trend, axis=1)
+       return players_df
+   ```
+
+2. **Add column merger:**
+   ```python
+   def merge_target_share_trend_data(players_df: pd.DataFrame, current_week: int) -> pd.DataFrame:
+       """Calculate and add target share trend column."""
+       return calculate_target_share_trend(players_df, current_week)
+   ```
+
+3. **Update main compilation loop:**
+   ```python
+   # In compile_historical_data.py main loop
+   # NOTE: This MUST run AFTER Metric 01 (Target Volume) compilation
+   for year in [2021, 2022, 2024]:
+       for week in range(1, 18):
+           players_df = load_weekly_snapshot(year, week)
+
+           # Verify weekly target_share columns exist (from Metric 01)
+           # Need week_{1-17}_target_share columns
+           required_cols = [f'week_{w}_target_share' for w in range(1, week+1)]
+           if not all(col in players_df.columns for col in required_cols):
+               raise ValueError(f"Metric 01 must be compiled before Metric 17 for {year} week {week}")
+
+           # Calculate target share trend (weeks 7+ only)
+           players_df = merge_target_share_trend_data(players_df, week)
+
+           save_weekly_snapshot(year, week, players_df)
+   ```
+
+**Validation:**
+- Verify weeks 7-17 have target_share_trend data (weeks 1-6 should be 0.0)
+- Check for missing values: NULL only if player didn't play in required weeks
+- Validate data ranges:
+  - target_share_trend: -100.0 to +100.0 (typical -30% to +30%)
+  - Extreme outliers: Role change (backup → starter) may exceed ±50%
+- Cross-check calculation:
+  - Sample player: Recent avg = 0.20, Earlier avg = 0.15 → Trend = +33.3% ✓
+  - Validate trend direction: Positive = rising role, Negative = declining role
+- Validate position filters: Only WR/TE/RB should have non-zero trends
+
+**Estimated time:** 1 hour for calculation integration (simple rolling average, once Metric 01 is available)
+
+Implementation blockers: Requires Metric 1 (Target Volume) implementation first
+Dependencies: Metric 1 (Target Volume) with weekly target_share data
+Estimated effort: 1-2 hours (calculation only, once Metric 1 is available)

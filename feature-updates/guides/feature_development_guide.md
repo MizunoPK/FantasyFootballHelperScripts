@@ -1155,6 +1155,55 @@ Look for natural groupings:
 3. **By dependency**: Core fixes → New features → Performance → Validation
 4. **By priority**: Critical path → Nice-to-have → Polish
 
+#### Special Planning for Output/Logging Sub-Features
+
+**LESSON FROM: ranking_accuracy_metrics**
+
+When planning sub-features that modify output formatting or logging:
+
+**Before finalizing the TODO**, perform a comprehensive search for ALL output locations:
+
+1. **Grep for logging methods:**
+   ```bash
+   grep -r "self.logger.info" path/to/module.py
+   grep -r "print" path/to/module.py
+   ```
+   List ALL matches, not just obvious ones
+
+2. **Check for:**
+   - Direct logging (logger.info, logger.warning, logger.debug)
+   - Print statements (if any)
+   - Console output via write() or sys.stdout
+   - Progress bars or status updates
+   - Summary/report generation methods
+   - Parameter display methods
+
+3. **Common patterns to search:**
+   - "_log", "log_", "print_", "display_", "show_", "report_", "summary_"
+   - Methods that take "verbose" or "quiet" parameters
+   - Methods called at end of loops or processes
+   - Methods with "format" or "display" in their names
+
+4. **Verify completeness:**
+   - Run the script and observe ALL console output
+   - Compare against your list of logging locations
+   - If output appears that's not in your list → missing location
+   - Check both success and error code paths
+
+**Why:** Output formatting requires consistency. If one logging method shows new format but another doesn't, users get confused. Finding all locations upfront prevents QC issues.
+
+**Verification Checklist:**
+```
+□ Searched for all logger.info/warning/debug calls
+□ Searched for all print statements
+□ Searched for all display/show/report methods
+□ Ran script to observe actual output locations
+□ Listed ALL output locations in TODO
+□ Created task for EACH output location to update
+```
+
+**Example (what went wrong):** The ranking_accuracy_metrics feature updated two logging locations (add_result, save_optimal_configs) but missed a third (_log_parameter_summary), causing inconsistent console output during parameter optimization.
+
 #### Sub-Feature Structure
 
 Each sub-feature gets its own TODO file:
@@ -1663,6 +1712,45 @@ Based on real features, smoke testing catches:
 
 ## Post-Implementation Phase
 
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ⚠️ CRITICAL: SMOKE TESTING CANNOT BE SKIPPED                   │
+│                                                                 │
+│  LESSON FROM: ranking_accuracy_metrics                         │
+│                                                                 │
+│  Before declaring any feature complete, you MUST perform       │
+│  smoke testing (Section 5 below).                              │
+│                                                                 │
+│  COMMON MISTAKE: Starting a script in background during        │
+│  QC Round 1 is NOT smoke testing.                              │
+│                                                                 │
+│  Smoke testing requires:                                       │
+│  1. Dedicated execution test phase (not just background)       │
+│  2. Verification of actual results (not just "script started") │
+│  3. Checking output files contain expected data                │
+│  4. End-to-end workflow validation with real data              │
+│                                                                 │
+│  CONSEQUENCE OF SKIPPING: You will ship broken features.       │
+│  All QC can pass while feature is completely non-functional    │
+│  due to integration issues, configuration problems, missing    │
+│  wiring between components, or data flow breaks.               │
+│                                                                 │
+│  RULE: If you haven't explicitly run the 3-part smoke testing  │
+│  protocol (Import Test, Entry Point Test, Execution Test)      │
+│  and verified results, the feature is NOT complete.            │
+│  No exceptions.                                                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Post-Implementation Steps (in order):**
+1. Run All Unit Tests
+2. Execute Requirement Verification Protocol
+3. Complete 3 Quality Control Rounds
+4. **MANDATORY: Execute Smoke Testing Protocol** (see dedicated section above)
+5. Review Lessons Learned
+6. Move to Done
+7. Commit Changes
+
 ### 1. Run All Unit Tests
 
 ```bash
@@ -1685,7 +1773,12 @@ See `protocols_reference.md` for detailed steps.
 
 See `protocols_reference.md` for detailed steps.
 
-**QC Round 1: Script Execution Test - Extended Coverage (MANDATORY)**
+**QC Round 1: Initial Code Review + Script Monitoring (NOT Smoke Testing)**
+
+**CRITICAL DISTINCTION:** This is QC monitoring for obvious crashes, NOT smoke testing.
+- **QC Round 1 Purpose:** Check for obvious crashes or errors during initial execution
+- **Smoke Testing Purpose:** Verify feature actually works end-to-end (comes later in Section 5)
+- **DO NOT confuse the two** - both are mandatory but serve different purposes
 
 **IMPORTANT:** Test ALL execution modes, not just --help and minimal runs.
 
@@ -1763,18 +1856,24 @@ Document each round in code_changes.md:
 - Status: PASSED / ISSUES FOUND (fixed)
 ```
 
-### 4. Review Lessons Learned
+### 4. Execute Smoke Testing Protocol
+
+**Refer to the dedicated "Smoke Testing (MANDATORY - CRITICAL GATE)" section above** for complete smoke testing requirements.
+
+This is a MANDATORY step that cannot be skipped. See the prominent warning box at the start of this Post-Implementation Phase section.
+
+### 5. Review Lessons Learned
 
 1. Read `{feature_name}_lessons_learned.md`
 2. Identify guide updates needed
 3. Present summary to user
 4. Apply approved updates to guides
 
-### 5. Move to Done
+### 6. Move to Done
 
 Move entire folder: `feature-updates/{feature_name}/` → `feature-updates/done/{feature_name}/`
 
-### 6. Commit Changes
+### 7. Commit Changes
 
 Create a commit with a descriptive message summarizing the feature:
 

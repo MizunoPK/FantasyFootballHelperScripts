@@ -53,6 +53,7 @@ NUM_PARAMETERS_TO_TEST = 1
 # Parameter ordering for iterative optimization
 # Defines which parameters to optimize and in what order
 PARAMETER_ORDER = [
+    'DRAFT_NORMALIZATION_MAX_SCALE',
     # Bye Week Penalties - affects roster construction decisions
     'SAME_POS_BYE_WEIGHT',
     'DIFF_POS_BYE_WEIGHT',

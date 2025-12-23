@@ -458,17 +458,28 @@ class AccuracyResultsManager:
                 }
 
                 # Create config with proper nested structure (matches win-rate format)
+                perf_metrics = {
+                    'mae': perf.mae,
+                    'player_count': perf.player_count,
+                    'total_error': perf.total_error,
+                    'config_id': perf.config_id,
+                    'timestamp': perf.timestamp
+                }
+                # Include ranking metrics if available
+                if perf.overall_metrics:
+                    perf_metrics['ranking_metrics'] = {
+                        'pairwise_accuracy': perf.overall_metrics.pairwise_accuracy,
+                        'top_5_accuracy': perf.overall_metrics.top_5_accuracy,
+                        'top_10_accuracy': perf.overall_metrics.top_10_accuracy,
+                        'top_20_accuracy': perf.overall_metrics.top_20_accuracy,
+                        'spearman_correlation': perf.overall_metrics.spearman_correlation
+                    }
+
                 config_output = {
                     'config_name': f"Accuracy Optimal {filename.replace('.json', '')} ({timestamp})",
                     'description': description,
                     'parameters': week_params_dict,
-                    'performance_metrics': {
-                        'mae': perf.mae,
-                        'player_count': perf.player_count,
-                        'total_error': perf.total_error,
-                        'config_id': perf.config_id,
-                        'timestamp': perf.timestamp
-                    }
+                    'performance_metrics': perf_metrics
                 }
 
                 config_path = optimal_folder / filename
@@ -581,15 +592,26 @@ class AccuracyResultsManager:
                 # Save standard config file (for use as baseline and resume)
                 standard_filename = file_mapping.get(week_key)
                 if standard_filename:
+                    perf_metrics = {
+                        'mae': perf.mae,
+                        'player_count': perf.player_count,
+                        'config_id': perf.config_id
+                    }
+                    # Include ranking metrics if available
+                    if perf.overall_metrics:
+                        perf_metrics['ranking_metrics'] = {
+                            'pairwise_accuracy': perf.overall_metrics.pairwise_accuracy,
+                            'top_5_accuracy': perf.overall_metrics.top_5_accuracy,
+                            'top_10_accuracy': perf.overall_metrics.top_10_accuracy,
+                            'top_20_accuracy': perf.overall_metrics.top_20_accuracy,
+                            'spearman_correlation': perf.overall_metrics.spearman_correlation
+                        }
+
                     config_output = {
                         'config_name': f"Accuracy Intermediate {standard_filename.replace('.json', '')} ({timestamp})",
                         'description': f"Intermediate result after optimizing {param_name}",
                         'parameters': week_params_dict,
-                        'performance_metrics': {
-                            'mae': perf.mae,
-                            'player_count': perf.player_count,
-                            'config_id': perf.config_id
-                        }
+                        'performance_metrics': perf_metrics
                     }
                     with open(intermediate_folder / standard_filename, 'w') as f:
                         json.dump(config_output, f, indent=2)
@@ -636,10 +658,20 @@ class AccuracyResultsManager:
 
         for week_key, best_perf in self.best_configs.items():
             if best_perf:
-                metadata["best_mae_per_horizon"][week_key] = {
+                horizon_data = {
                     "mae": best_perf.mae,
                     "test_idx": best_perf.test_idx if best_perf.test_idx is not None else -1
                 }
+                # Include ranking metrics if available
+                if best_perf.overall_metrics:
+                    horizon_data["ranking_metrics"] = {
+                        "pairwise_accuracy": best_perf.overall_metrics.pairwise_accuracy,
+                        "top_5_accuracy": best_perf.overall_metrics.top_5_accuracy,
+                        "top_10_accuracy": best_perf.overall_metrics.top_10_accuracy,
+                        "top_20_accuracy": best_perf.overall_metrics.top_20_accuracy,
+                        "spearman_correlation": best_perf.overall_metrics.spearman_correlation
+                    }
+                metadata["best_mae_per_horizon"][week_key] = horizon_data
             else:
                 metadata["best_mae_per_horizon"][week_key] = {
                     "mae": None,

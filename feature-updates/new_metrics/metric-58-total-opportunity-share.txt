@@ -1,0 +1,566 @@
+Feature Request: Total Opportunity Share
+
+**WHAT THIS METRIC IS:**
+Total Opportunity Share combines a player's rushing attempts and receiving targets into a single comprehensive usage metric, measuring their percentage of the team's total offensive opportunities (carries + targets combined).
+
+**WHAT WE'RE TRYING TO ACCOMPLISH:**
+- **Comprehensive usage measurement**: Captures TOTAL offensive involvement, not just receiving or rushing in isolation
+- **Cross-position comparison**: Compare RB usage to WR usage on the same scale (both use team total opportunities as denominator)
+- **Identify dual-threat value**: Pass-catching RBs (Christian McCaffrey) get proper credit for total workload, not just rushing share
+- **Better than separate metrics**: Target share + carry share use different denominators and can't be combined (a RB with 30% target share + 40% carry share isn't "70%" - they're separate percentages)
+- **Detect offensive centerpieces**: Players with 30%+ opportunity share are the focal point of their offense (high floor, high ceiling)
+- **Example**: Christian McCaffrey with 39.7% opportunity share (dominant offensive role) vs James White historically with 23.3% (looks like backup by carry share alone, but significant total role when receiving work included)
+
+---
+
+**DATA SOURCE UPDATE (2025-12-22)**: ESPN API (all data verified) - HIGH IMPACT USAGE METRIC
+
+Position Applicability: RB, WR, TE (all offensive skill positions)
+Priority: HIGH
+Data Source: ESPN API (100% available)
+ESPN API Context: All components verified in comprehensive testing (stat_23, stat_58)
+
+## 1. Player Data Fetcher Updates
+
+**CRITICAL USAGE METRIC**: Total Opportunity Share combines rushing AND receiving opportunities into a single comprehensive usage metric.
+
+**Why This Matters:**
+- **Comprehensive usage measurement** - Captures TOTAL offensive involvement, not just receiving or rushing
+- **Cross-position comparison** - Can compare RB usage to WR usage on same scale
+- **Identifies dual-threat value** - Pass-catching RBs get proper credit for total workload
+- **Better than separate metrics** - Target share + carry share use different denominators (can't combine)
+- Examples:
+  - Christian McCaffrey (SF): 39.7% opportunity share (dominant offensive role)
+  - Tyreek Hill (MIA): 15.0% opportunity share (elite WR1 role)
+  - James White (historically): 23.3% opportunity share (looks like backup by carry share, but significant total role)
+
+**Opportunity Share Definition:**
+```
+Total Opportunity Share = (Player Opportunities / Team Total Opportunities) * 100
+
+Where:
+- Player Opportunities = Carries + Targets
+- Team Opportunities = Team Total Carries + Team Total Targets
+
+ELITE (RB): 35%+ opportunity share (workhorse backs)
+- Examples: CMC (39.7%), Bijan Robinson, Saquon Barkley
+- Value: Dominant offensive role, elite fantasy floor
+
+HIGH (RB): 25-35% (lead backs)
+- Examples: Most RB1s (Joe Mixon, Josh Jacobs)
+- Value: Strong weekly usage, good floor
+
+MODERATE (RB): 15-25% (committee backs)
+- Examples: RBBC situations (Dolphins RBs)
+- Value: Moderate floor, TD-dependent
+
+WR1 (Alpha): 18-25% opportunity share
+- Examples: Justin Jefferson, Ja'Marr Chase, Tyreek Hill
+- Value: Elite target volume, weekly WR1 ceiling
+
+WR1 (Co-Alpha): 12-18%
+- Examples: Teams with multiple WR1s
+- Value: Strong weekly floor, good ceiling
+
+TE1 (Elite): 15-20%
+- Examples: Travis Kelce, Mark Andrews
+- Value: Elite weekly usage, TE1 ceiling
+
+TE1 (Standard): 10-15%
+- Examples: Most starting TEs
+- Value: Solid weekly floor
+```
+
+**Why Opportunity Share > Separate Share Metrics:**
+```
+Example: Christian McCaffrey (SF, 2023)
+
+Carry Share only:
+- CMC carries: 17.2 per game
+- Team carries: 28.5 per game
+- Carry share: 60.4%
+- Problem: Misses 6.8 targets per game (receiving usage ignored)
+
+Target Share only:
+- CMC targets: 6.8 per game
+- Team targets: 32.0 per game
+- Target share: 21.3%
+- Problem: Misses 17.2 carries per game (rushing usage ignored)
+
+Opportunity Share (combined):
+- CMC opportunities: 17.2 + 6.8 = 24.0 per game
+- Team opportunities: 28.5 + 32.0 = 60.5 per game
+- Opportunity share: 39.7%
+- Shows CMC is involved in 39.7% of SF's total offensive plays
+```
+
+**ESPN API Status (from comprehensive stat ID research):**
+- `stat_23` = Rushing Attempts/Carries ✓ CONFIRMED
+- `stat_58` = Targets ✓ CONFIRMED
+
+**Both stats verified** through comprehensive testing across 50+ players, 20+ games
+
+**Metric Definition:**
+```python
+def calculate_opportunity_share(player_carries, player_targets,
+                                team_carries, team_targets):
+    """
+    Calculate total opportunity share.
+
+    Args:
+        player_carries (int): Player rushing attempts (stat_23)
+        player_targets (int): Player targets (stat_58)
+        team_carries (int): Team total rushing attempts
+        team_targets (int): Team total targets
+
+    Returns:
+        float: Opportunity share (0.0-1.0)
+    """
+    player_opportunities = player_carries + player_targets
+    team_opportunities = team_carries + team_targets
+
+    if team_opportunities == 0:
+        return 0.0
+
+    return player_opportunities / team_opportunities
+```
+
+**New columns to add to players.csv:**
+- opportunity_share (float): % of team opportunities (0.0-1.0)
+- opportunities_per_game (float): Average opportunities per game
+- opportunity_tier (string): ELITE, HIGH, MODERATE, LOW
+- carry_to_target_ratio (float): Carries / Targets (role classification)
+
+**Implementation approach:**
+1. Fetch player stats from ESPN API (stat_23, stat_58)
+2. Aggregate team totals for carries and targets
+3. Calculate opportunity share for each player
+4. Calculate opportunities per game
+5. Classify opportunity tier based on position and share %
+6. Store in players.csv
+7. Handle early season: Use prior season opportunity share as baseline
+
+## 2. Data Manager Updates (league_helper)
+
+PlayerManager updates:
+- Add get_opportunity_share(player: FantasyPlayer) -> float method
+  - Return player's opportunity share (0.0-1.0)
+- Add get_opportunity_tier(player: FantasyPlayer) -> str method
+  - Return tier: ELITE, HIGH, MODERATE, LOW
+- Add calculate_opportunities_per_game(player: FantasyPlayer, weeks: int) -> float method
+  - Calculate average opportunities per game
+
+TeamDataManager updates:
+- Add get_team_total_opportunities(team_code: str, week: int) -> int method
+  - Aggregate all carries + targets for team
+- Add get_team_opportunity_distribution(team_code: str, week: int) -> Dict method
+  - Return opportunity share breakdown for all players on team
+
+Error handling:
+- Missing opportunity data: Default to 0.0 if no carries/targets
+- Early season (weeks 1-2): Use prior season opportunity share
+- Team total zero: Return 0.0 (bye week or data issue)
+
+## 3. Config File Updates
+
+Add OPPORTUNITY_SHARE_SCORING to weekX-X.json files:
+
+{
+  "OPPORTUNITY_SHARE_SCORING": {
+    "POSITION_SPECIFIC": {
+      "RB": {
+        "THRESHOLDS": {
+          "BASE_POSITION": 0.25,
+          "DIRECTION": "INCREASING",
+          "STEPS": 0.05
+        },
+        "MULTIPLIERS": {
+          "VERY_POOR": 0.85,     // <15% (backup RB)
+          "POOR": 0.92,          // 15-25% (committee RB)
+          "GOOD": 1.05,          // 25-35% (lead back)
+          "EXCELLENT": 1.12      // >35% (workhorse)
+        },
+        "WEIGHT": 3.0
+      },
+      "WR": {
+        "THRESHOLDS": {
+          "BASE_POSITION": 0.12,
+          "DIRECTION": "INCREASING",
+          "STEPS": 0.03
+        },
+        "MULTIPLIERS": {
+          "VERY_POOR": 0.90,     // <8% (WR3/depth)
+          "POOR": 0.95,          // 8-12% (WR2)
+          "GOOD": 1.04,          // 12-18% (WR1 co-alpha)
+          "EXCELLENT": 1.08      // >18% (WR1 alpha)
+        },
+        "WEIGHT": 2.5
+      },
+      "TE": {
+        "THRESHOLDS": {
+          "BASE_POSITION": 0.10,
+          "DIRECTION": "INCREASING",
+          "STEPS": 0.025
+        },
+        "MULTIPLIERS": {
+          "VERY_POOR": 0.88,     // <7% (backup TE)
+          "POOR": 0.94,          // 7-10% (TE2)
+          "GOOD": 1.05,          // 10-15% (TE1 standard)
+          "EXCELLENT": 1.10      // >15% (elite TE)
+        },
+        "WEIGHT": 2.8
+      }
+    },
+    "MIN_WEEKS": 3
+  }
+}
+
+**Alternative Config (Simplified Tier-Based):**
+{
+  "OPPORTUNITY_SHARE_TIER_SCORING": {
+    "RB_TIERS": {
+      "ELITE": 1.12,         // 35%+ (workhorse)
+      "HIGH": 1.05,          // 25-35% (lead back)
+      "MODERATE": 0.92,      // 15-25% (committee)
+      "LOW": 0.85            // <15% (backup)
+    },
+    "WR_TIERS": {
+      "ELITE": 1.08,         // 18%+ (alpha WR1)
+      "HIGH": 1.04,          // 12-18% (co-alpha WR1)
+      "MODERATE": 0.95,      // 8-12% (WR2)
+      "LOW": 0.90            // <8% (WR3)
+    },
+    "TE_TIERS": {
+      "ELITE": 1.10,         // 15%+ (Kelce tier)
+      "HIGH": 1.05,          // 10-15% (TE1)
+      "MODERATE": 0.94,      // 7-10% (TE2)
+      "LOW": 0.88            // <7% (backup)
+    },
+    "WEIGHT_RB": 3.0,
+    "WEIGHT_WR": 2.5,
+    "WEIGHT_TE": 2.8,
+    "MIN_WEEKS": 3
+  }
+}
+
+## 4. Score Player Method Updates
+
+Integration into PlayerManager.score_player():
+
+Step location: Add as new scoring step (Step 28: Opportunity Share Multiplier - RB/WR/TE Only)
+
+Formula: STRAIGHT MULTIPLIER (Pattern 1)
+score = score * multiplier
+
+Note: multiplier returned from ConfigManager already has WEIGHT exponent applied (multiplier^WEIGHT)
+
+Calculation steps:
+1. Load player's opportunity share from players.csv
+2. Apply position-specific logic:
+   - RB: Weight opportunity share HEAVILY (workload security critical)
+   - WR: Weight opportunity share HIGH (target volume critical)
+   - TE: Weight opportunity share HIGH (usage critical)
+   - QB/K/DST: Skip (N/A)
+
+3. Get weighted multiplier and apply to score:
+
+```python
+def calculate_opportunity_share_multiplier(self, player: FantasyPlayer) -> Tuple[float, str]:
+    # Only apply to skill positions
+    if player.position not in ['RB', 'WR', 'TE']:
+        return 1.0, "N/A"
+
+    # Get player's opportunity share
+    opportunity_share = player.opportunity_share
+
+    # Position-specific tier classification
+    if player.position == 'RB':
+        if opportunity_share >= 0.35:
+            tier = "ELITE"
+            base_multiplier = 1.12
+        elif opportunity_share >= 0.25:
+            tier = "HIGH"
+            base_multiplier = 1.05
+        elif opportunity_share >= 0.15:
+            tier = "MODERATE"
+            base_multiplier = 0.92
+        else:
+            tier = "LOW"
+            base_multiplier = 0.85
+
+        weight = 3.0  # Highest weight for RBs (workload = value)
+
+    elif player.position == 'WR':
+        if opportunity_share >= 0.18:
+            tier = "ELITE"
+            base_multiplier = 1.08
+        elif opportunity_share >= 0.12:
+            tier = "HIGH"
+            base_multiplier = 1.04
+        elif opportunity_share >= 0.08:
+            tier = "MODERATE"
+            base_multiplier = 0.95
+        else:
+            tier = "LOW"
+            base_multiplier = 0.90
+
+        weight = 2.5
+
+    elif player.position == 'TE':
+        if opportunity_share >= 0.15:
+            tier = "ELITE"
+            base_multiplier = 1.10
+        elif opportunity_share >= 0.10:
+            tier = "HIGH"
+            base_multiplier = 1.05
+        elif opportunity_share >= 0.07:
+            tier = "MODERATE"
+            base_multiplier = 0.94
+        else:
+            tier = "LOW"
+            base_multiplier = 0.88
+
+        weight = 2.8
+
+    # Apply WEIGHT exponent
+    weighted_multiplier = base_multiplier ** weight
+
+    return weighted_multiplier, f"{tier} ({opportunity_share*100:.1f}%)"
+
+# Apply to score (multiplier already has WEIGHT applied)
+multiplier, rating = self.calculate_opportunity_share_multiplier(player)
+player_score = player_score * multiplier
+reason = f"Opportunity Share: {rating}"
+```
+
+Position-specific logic:
+- RB: Opportunity share CRITICAL (weight = 3.0, workload = fantasy value)
+- WR: Opportunity share HIGH (weight = 2.5, target volume critical)
+- TE: Opportunity share HIGH (weight = 2.8, usage critical)
+- QB/K/DST: Skip entirely
+
+## 5. Accuracy Simulation Integration
+
+Simulation validation:
+1. Add opportunity_share to simulation/sim_data/{YEAR}/weeks/week_{NN}/players.csv
+2. For week N simulation:
+   - Use actual opportunity share from weeks 1 to N-1 (rolling average)
+   - Project opportunity share for weeks N to 17 (assume stable unless injury)
+3. Schema: opportunity_share (float 0.0-1.0), opportunity_tier (string)
+
+Historical data acquisition:
+- Use ESPN API for all player stats (stat_23, stat_58)
+- Calculate opportunity share for each player each week
+- Timeline: 1-2 hours for all 3 seasons (calculation only, no scraping)
+
+Validation metrics:
+- Measure player prediction accuracy before/after opportunity share integration
+- Expected improvement: 10-15% for RB/WR/TE projections
+- Track correlation: Opportunity share vs fantasy points consistency
+- Validate elite workhorses (CMC, Bijan) have highest opportunity share
+
+Special considerations:
+- Injury to starter: Backup RB/WR opportunity share spikes (handcuff value)
+- Committee backfields: Multiple players with 15-25% opportunity share
+- Pass-heavy offenses: WRs have higher opportunity share than RBs
+- Run-heavy offenses: RBs dominate opportunity share
+
+Example impact (player scoring):
+```
+Christian McCaffrey (SF, RB, ELITE - 39.7% opportunity share):
+- Base projection: 20.0 points
+- Opportunity share multiplier: 1.12 (elite workload)
+- Weight: 3.0
+- Adjusted projection: 20.0 * (1.12 ^ 3.0) = 28.1 points (+41%)
+
+Tyreek Hill (MIA, WR, ELITE - 15.0% opportunity share):
+- Base projection: 16.0 points
+- Opportunity share multiplier: 1.04 (high usage, just below elite)
+- Weight: 2.5
+- Adjusted projection: 16.0 * (1.04 ^ 2.5) = 17.7 points (+11%)
+
+Committee RB (MODERATE - 18% opportunity share):
+- Base projection: 12.0 points
+- Opportunity share multiplier: 0.92 (committee role)
+- Weight: 3.0
+- Adjusted projection: 12.0 * (0.92 ^ 3.0) = 9.4 points (-22%)
+
+Travis Kelce (KC, TE, ELITE - 17% opportunity share):
+- Base projection: 14.0 points
+- Opportunity share multiplier: 1.10 (elite TE usage)
+- Weight: 2.8
+- Adjusted projection: 14.0 * (1.10 ^ 2.8) = 18.4 points (+31%)
+
+Backup WR (LOW - 5% opportunity share):
+- Base projection: 8.0 points
+- Opportunity share multiplier: 0.90 (depth piece)
+- Weight: 2.5
+- Adjusted projection: 8.0 * (0.90 ^ 2.5) = 6.6 points (-18%)
+```
+
+### Historical Data Compilation (compile_historical_data.py)
+
+**Purpose:** Backfill historical data for simulation validation
+
+**New columns to add to weekly snapshot CSV files:**
+- `opportunity_share` (float): % of team opportunities (0.0-1.0)
+- `opportunities_per_game` (float): Average opportunities per game
+- `opportunity_tier` (string): ELITE, HIGH, MODERATE, LOW
+- `carry_to_target_ratio` (float): Carries / Targets (role classification)
+
+**Data source for historical backfill:**
+- **ESPN API** (Primary and ONLY source needed)
+  - stat_23 (Rushing Attempts) ✓ CONFIRMED
+  - stat_58 (Targets) ✓ CONFIRMED
+  - Historical data: 2016-present (all weeks available)
+- **NO external sources required**
+- Time period: 2021, 2022, 2024 seasons (17 weeks each)
+
+**Script updates needed:**
+
+1. **Add opportunity share calculator:**
+   ```python
+   def calculate_player_opportunity_share(player_stats: Dict, team_stats: Dict) -> Dict:
+       """
+       Calculate opportunity share metrics for player.
+
+       Args:
+           player_stats: Dict with player stat_23, stat_58
+           team_stats: Dict with team totals for carries, targets
+
+       Returns:
+           Dict with opportunity_share, opportunities_per_game, etc.
+       """
+       player_carries = player_stats.get('23', 0)
+       player_targets = player_stats.get('58', 0)
+       player_opportunities = player_carries + player_targets
+
+       team_carries = team_stats['total_carries']
+       team_targets = team_stats['total_targets']
+       team_opportunities = team_carries + team_targets
+
+       if team_opportunities == 0:
+           return {
+               'opportunity_share': 0.0,
+               'opportunities_per_game': 0.0,
+               'carry_to_target_ratio': 0.0
+           }
+
+       opportunity_share = player_opportunities / team_opportunities
+
+       # Calculate opportunities per game
+       games_played = player_stats.get('games_played', 1)
+       opportunities_per_game = player_opportunities / games_played
+
+       # Calculate carry to target ratio
+       if player_targets == 0:
+           carry_to_target_ratio = float('inf') if player_carries > 0 else 0.0
+       else:
+           carry_to_target_ratio = player_carries / player_targets
+
+       return {
+           'opportunity_share': round(opportunity_share, 4),
+           'opportunities_per_game': round(opportunities_per_game, 2),
+           'carry_to_target_ratio': round(carry_to_target_ratio, 2)
+       }
+   ```
+
+2. **Add tier classifier:**
+   ```python
+   def classify_opportunity_tier(share: float, position: str) -> str:
+       """Classify opportunity tier based on share and position."""
+       if position == 'RB':
+           if share >= 0.35: return "ELITE"
+           elif share >= 0.25: return "HIGH"
+           elif share >= 0.15: return "MODERATE"
+           else: return "LOW"
+
+       elif position == 'WR':
+           if share >= 0.18: return "ELITE"
+           elif share >= 0.12: return "HIGH"
+           elif share >= 0.08: return "MODERATE"
+           else: return "LOW"
+
+       elif position == 'TE':
+           if share >= 0.15: return "ELITE"
+           elif share >= 0.10: return "HIGH"
+           elif share >= 0.07: return "MODERATE"
+           else: return "LOW"
+
+       else:
+           return "N/A"
+   ```
+
+3. **Add team aggregator:**
+   ```python
+   def aggregate_team_opportunities(players_df: pd.DataFrame, team_code: str) -> Dict:
+       """Aggregate total carries and targets for team."""
+       team_players = players_df[players_df['team'] == team_code]
+
+       total_carries = team_players['stat_23'].sum()
+       total_targets = team_players['stat_58'].sum()
+
+       return {
+           'total_carries': total_carries,
+           'total_targets': total_targets,
+           'total_opportunities': total_carries + total_targets
+       }
+   ```
+
+4. **Update main compilation loop:**
+   ```python
+   # In compile_historical_data.py main loop
+   for year in [2021, 2022, 2024]:
+       for week in range(1, 18):
+           players_df = load_weekly_snapshot(year, week)
+
+           # Calculate opportunity share for all players
+           for team_code in players_df['team'].unique():
+               # Aggregate team totals
+               team_stats = aggregate_team_opportunities(players_df, team_code)
+
+               # Calculate for each player on team
+               team_mask = players_df['team'] == team_code
+               for idx in players_df[team_mask].index:
+                   player_stats = {
+                       '23': players_df.at[idx, 'stat_23'],
+                       '58': players_df.at[idx, 'stat_58'],
+                       'games_played': 1  # Per-week snapshot
+                   }
+
+                   metrics = calculate_player_opportunity_share(player_stats, team_stats)
+                   position = players_df.at[idx, 'position']
+                   tier = classify_opportunity_tier(metrics['opportunity_share'], position)
+
+                   # Add to dataframe
+                   players_df.at[idx, 'opportunity_share'] = metrics['opportunity_share']
+                   players_df.at[idx, 'opportunities_per_game'] = metrics['opportunities_per_game']
+                   players_df.at[idx, 'opportunity_tier'] = tier
+                   players_df.at[idx, 'carry_to_target_ratio'] = metrics['carry_to_target_ratio']
+
+           save_weekly_snapshot(year, week, players_df)
+   ```
+
+**Validation:**
+- Verify all RB/WR/TE players have opportunity share for all weeks
+- Check for missing values: Default to 0.0 if no carries/targets
+- Validate data ranges:
+  - opportunity_share: 0.0-0.50 typical (elite RBs ~0.35-0.40, elite WRs ~0.18-0.25)
+  - opportunities_per_game: 5-30 typical (workhorses 20-25, depth 5-10)
+  - carry_to_target_ratio: 0.0-10.0+ typical (pure rushers >5, receivers <1)
+- Cross-check known players:
+  - Christian McCaffrey 2023: ~39.7% opportunity share (ELITE RB)
+  - Justin Jefferson 2023: ~16% opportunity share (ELITE WR)
+  - Travis Kelce 2023: ~17% opportunity share (ELITE TE)
+- Validate tier distribution:
+  - Most starters should be HIGH or ELITE
+  - Backups should be LOW or MODERATE
+  - Committee situations have multiple MODERATE players
+
+**Estimated time:** 1-2 hours for all players across 3 seasons
+
+Implementation blockers: NONE (all data in ESPN API)
+Dependencies: ESPN API only (no external sources)
+Estimated effort: 1-2 hours (calculation only, no scraping required)
+
+**NOTE:** This metric complements M17 (Target Share Trend) and M19 (Carry Share) by providing a comprehensive view of total offensive involvement. All three metrics serve different purposes and should coexist.

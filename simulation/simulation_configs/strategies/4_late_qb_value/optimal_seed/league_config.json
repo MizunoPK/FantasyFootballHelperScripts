@@ -1,0 +1,134 @@
+{
+  "config_name": "Optimal Base Config (20251210_024739)",
+  "description": "Optimized base parameters for all weeks",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 16,
+    "NFL_SEASON": 2025,
+    "NFL_SCORING_FORMAT": "ppr",
+    "SAME_POS_BYE_WEIGHT": 0.07,
+    "DIFF_POS_BYE_WEIGHT": 0.01,
+    "INJURY_PENALTIES": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0
+    },
+    "DRAFT_ORDER_BONUSES": {
+      "PRIMARY": 67,
+      "SECONDARY": 69
+    },
+    "DRAFT_ORDER_FILE": 4,
+    "DRAFT_ORDER": [
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ],
+    "MAX_POSITIONS": {
+      "QB": 2,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 1,
+      "TE": 2,
+      "K": 1,
+      "DST": 1
+    },
+    "FLEX_ELIGIBLE_POSITIONS": [
+      "RB",
+      "WR"
+    ],
+    "ADP_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 25
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 4.76
+    },
+    "PLAYER_RATING_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 20
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 3.52
+    },
+    "DRAFT_NORMALIZATION_MAX_SCALE": 150
+  },
+  "performance_metrics": {
+    "overall_win_rate": 0.7320261437908496,
+    "total_wins": 112,
+    "total_losses": 41,
+    "config_id": "LOCATION_INTERNATIONAL_17",
+    "total_parameters_optimized": 23,
+    "total_configs_tested": 575,
+    "optimization_time_seconds": 16373.80331492424,
+    "timestamp": "20251210_024739"
+  }
+}

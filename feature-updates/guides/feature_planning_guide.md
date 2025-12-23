@@ -417,6 +417,138 @@ All items remain `[ ]` until Phase 4 when user reviews and approves.
 - Planning phase taking longer than necessary
 - Wasting user's time on questions the agent could answer itself
 
+### Step 2.4.1: Execution Path Coverage Analysis (MANDATORY)
+
+**LESSON FROM: ranking_accuracy_metrics**
+
+Before finalizing specs, you MUST identify ALL code paths where the feature will execute. This is CRITICAL for features that modify existing functionality.
+
+**The Problem:** Asking "Is feature X compatible with system Y?" focuses on technical compatibility, but misses the coverage question: "Where are ALL the places I must add feature X?"
+
+Modern systems often have multiple execution paths:
+- Serial vs Parallel execution
+- Main thread vs Worker processes
+- Synchronous vs Asynchronous paths
+- Interactive vs Batch modes
+- Debug vs Production modes
+
+**A feature must be added to ALL relevant paths**, not just verified as "compatible" with those paths.
+
+**Required Question Template:**
+
+For each core operation the feature modifies, ask:
+> "What are ALL the execution paths that perform [core operation], and must they ALL include [new feature]?"
+
+**Common Execution Path Patterns to Check:**
+
+1. **Parallel vs Serial:**
+   - Main thread implementation (e.g., `Manager._method()`)
+   - Worker process implementation (e.g., `ParallelRunner._method_worker()`)
+   - Background task queues
+   - Async/await paths
+
+2. **Mode Variations:**
+   - Interactive mode vs batch mode
+   - Debug mode vs production mode
+   - Fast path vs comprehensive path
+   - Single-run vs iterative optimization
+
+3. **Entry Points:**
+   - CLI commands (different subcommands)
+   - API endpoints (different routes)
+   - Scheduled tasks
+   - Event handlers
+
+4. **Data Processing:**
+   - Main processing pipeline
+   - Fallback/retry paths
+   - Error handling paths
+   - Edge case handlers
+
+**Verification Steps:**
+
+```
+□ Use grep/search to find ALL functions that perform the core operation
+□ For EACH function found, ask: "Does this need the new feature?"
+□ If answer is "yes", add to implementation task list
+□ If answer is "maybe", investigate and document decision
+□ If answer is "no", document WHY it doesn't need the update
+```
+
+**Anti-Pattern to Avoid:**
+
+❌ **Bad Question:** "Is [new feature] compatible with [existing system]?" (focuses on compatibility)
+✅ **Good Question:** "Where are ALL the places I must add [new feature]?" (focuses on coverage)
+
+**Example - What Went Wrong in ranking_accuracy_metrics:**
+
+**Bad Question Q13:** "Do ranking metrics work in parallel processes?" (compatibility)
+- Answered: "Yes, data structures are picklable, functions are thread-safe"
+- Concluded: "Can use existing ParallelAccuracyRunner without modifications"
+- **MISSED:** The parallel worker path needs to actually CALL the new ranking metric functions
+
+**Good Question Q13 (should have been):** "What are ALL the code paths that evaluate configs?"
+- Answer would have identified:
+  1. `AccuracySimulationManager._evaluate_config_weekly()` ← Serial path - NEEDS UPDATE
+  2. `ParallelAccuracyRunner._evaluate_config_weekly_worker()` ← Parallel path - NEEDS UPDATE ← MISSED
+
+**Result:** Feature only implemented in serial path. Parallel execution (the default) had no ranking metrics at all. Feature was completely non-functional.
+
+**Documentation Requirement:**
+
+Create an "Execution Paths" section in `_specs.md`:
+
+```markdown
+## Execution Path Coverage
+
+### Core Operation: [What the feature modifies]
+
+**All execution paths identified:**
+
+1. **Serial Path:** `ClassName.method_name()` (file:line)
+   - **Needs update:** YES
+   - **Reason:** [why this path needs the feature]
+
+2. **Parallel Path:** `ParallelClassName.worker_method()` (file:line)
+   - **Needs update:** YES
+   - **Reason:** [why this path needs the feature]
+
+3. **Batch Mode Path:** `BatchManager.process()` (file:line)
+   - **Needs update:** NO
+   - **Reason:** Batch mode doesn't use this functionality
+
+### Verification Plan
+
+- [ ] Listed all files that contain the core operation
+- [ ] Checked each file for multiple execution paths (serial/parallel/async)
+- [ ] Documented which paths need updates and why
+- [ ] Added implementation tasks for EACH path that needs updates
+- [ ] Verified no paths were missed by running grep for the operation name
+```
+
+**Why This Matters:**
+
+Without execution path coverage analysis:
+- Features get implemented in one path but not others
+- Default/common execution paths may be completely missed
+- Bugs don't appear until smoke testing (or production)
+- Unit tests pass because they test individual components, not the full execution flow
+
+**Checklist Question to Add:**
+
+For features that modify existing functionality, add this to checklist:
+
+```markdown
+## Execution Path Coverage
+
+- [ ] What are ALL the execution paths that perform [core operation]?
+- [ ] Serial/synchronous path: [file:line] - Update needed? [YES/NO/WHY]
+- [ ] Parallel/worker path: [file:line] - Update needed? [YES/NO/WHY]
+- [ ] Async/background path: [file:line] - Update needed? [YES/NO/WHY]
+- [ ] Other modes: [list any other paths] - Update needed? [YES/NO/WHY]
+- [ ] Verification: Grepped codebase for all instances of [core operation name]
+```
+
 ### Step 2.5: Include Performance Analysis
 
 When proposing implementation options, ALWAYS analyze efficiency implications:

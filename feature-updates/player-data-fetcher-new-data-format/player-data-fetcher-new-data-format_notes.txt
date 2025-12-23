@@ -1,0 +1,15 @@
+We are going to be working on saving player data in a new way. This feature will be about updating the player-data-fetcher to save the files. A different feature will involve updating the league helper and simulations to use the new files.
+When the player-data-fetcher runs and fetches all the player data, it is going to make a new folder called player_data
+Within the new folder we're going to save 6 json files - one for each position QB/RB/WR/TE/K/DST
+There are examples of each of these new json files in the feature-updates folder. They will consist of an array of objects where each object is a player with most of the same data that was in the csv version
+Each file will contain only players of the position the file corresponds to.
+This folder will eventually replace players.csv, players_projected.csv, and drafted_data.csv (the drafted_data file will still be used by the player_data_fetcher but will no longer be needed for the league_helper)
+The new folder should be saved to the root /data folder.
+Key differences in data from the csv to the new json files:
+1) the drafted column is becoming the drafted_by field in the json. Instead of the value being 0/1/2, the drafted_by field will be set to the team name of the team that owns the player. This info will be taken from drafted_data.csv. The field will be set to an empty string if the player is a free agent.
+2) The locked column is changing from being 0/1 to be a boolean false/true respectively
+3) Instead of having columns for each individual week, we're going to start using arrays. There is an array for projected_points and for actual_points, where each index in the array corresponds to a week in the year. Index 0 is Week 1, Index 1 is Week 2, etc. For actual_points, the entry in the array will be set to null if the week has not been played yet.
+4) We are adding additional stats for passing, rushing, recieving, misc., kicking, and defense. Each have substats that will be arrays like with the actual_points earned, where each entry in the array will correspond to what the player did during a specific week and any unplayed weeks are set to null. All this data should be in the ESPN API, and you should look at our ESPN documentation for details on how to get the data. If there is any data that we do not have documentatiton on yet, then we will want to research the API to see if it is in a place we have not checked yet
+
+Existing functionality of the player-data-fetcher should remain unchanged for now. We are only adding more files to create currenty
+Add a toggle to the player-data-fetcher config to enable and disable the saving of the new files.

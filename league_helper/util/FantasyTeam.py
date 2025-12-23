@@ -147,36 +147,29 @@ class FantasyTeam:
         Returns:
             bool: True if player can be drafted, False otherwise
         """
-        self.logger.debug(f"FantasyTeam.can_draft called for player ID: {player.id}")
         # Check total roster space
         if len(self.roster) >= self.config.max_players:
-            self.logger.debug("Roster full, cannot draft.")
             return False
 
         # Check if player position is valid
         pos = player.position
         if pos not in self.config.max_positions:
-            self.logger.debug(f"Invalid position {pos}, cannot draft.")
             return False
 
         # Check if position limit is reached
         # Use slot occupancy for natural position, not pos_counts (which includes FLEX players)
         natural_slots_full = len(self.slot_assignments[pos]) >= self.config.max_positions[pos]
         if natural_slots_full and not self.flex_eligible(pos):
-            self.logger.debug(f"Cannot draft player {player.id}, position {pos} limit reached.")
             return False
 
         # Check if player is already drafted
         if not player.is_available():
-            self.logger.debug(f"Player {player.id} already drafted.")
             return False
 
         # Check player's bye week (allow None for players without assigned bye weeks)
         if player.bye_week is not None and player.bye_week not in Constants.POSSIBLE_BYE_WEEKS:
-            self.logger.debug(f"Player {player.id} has an invalid bye week: {player.bye_week}.")
             return False
 
-        self.logger.debug(f"Player {player.id} can be drafted.")
         return True
 
     # Method to draft a player onto the team

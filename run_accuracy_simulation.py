@@ -60,7 +60,7 @@ LOGGING_FORMAT = "detailed"      # detailed / standard / simple
 DEFAULT_BASELINE = ''            # Empty = auto-detect most recent optimal config
 DEFAULT_OUTPUT = 'simulation/simulation_configs'
 DEFAULT_DATA = 'simulation/sim_data'
-DEFAULT_TEST_VALUES = 10          # Number of test values per parameter
+DEFAULT_TEST_VALUES = 5          # Number of test values per parameter
 NUM_PARAMETERS_TO_TEST = 1       # Number of parameters to test simultaneously
 
 # Parallel processing defaults
