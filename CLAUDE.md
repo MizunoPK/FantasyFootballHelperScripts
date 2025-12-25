@@ -54,19 +54,37 @@ The feature development process has two phases:
 - `{feature_name}_checklist.md` - All items marked `[x]`
 - `README.md` - Status shows "Ready for Implementation"
 
-**Workflow:**
-1. **Follow `feature-updates/guides/feature_development_guide.md`** - Complete workflow for implementation
-2. **Read `{feature_name}_specs.md`** as the primary specification (NOT the `_notes.txt`)
-3. **Create in the feature folder:**
-   - `{name}_questions.md` - Questions discovered during verification
-   - `{name}_todo.md` - Implementation tracking
-   - `{name}_code_changes.md` - Documentation of all changes
-4. **Complete 24 verification iterations** (3 rounds) before implementing
-5. **Run unit tests** after each major step
-6. **Complete 3 QC review rounds** before marking complete
-7. **Move entire folder** to `feature-updates/done/{feature-name}/` when finished
+**Workflow (3 sequential guides - ALL MANDATORY):**
 
-**🚨 IMPORTANT:** Do NOT skip any steps in the development guide. No shortcuts allowed.
+**Phase 2a: TODO Creation (Verification)**
+1. **Follow `feature-updates/guides/todo_creation_guide.md`**
+2. **Complete ALL 24 verification iterations** (3 rounds: 7+9+8)
+   - Round 1: Iterations 1-7 (+ iteration 4a)
+   - Round 2: Iterations 8-16
+   - Round 3: Iterations 17-24 (+ iteration 23a)
+3. **Create `{name}_todo.md`** with complete implementation plan
+4. **Create `{name}_questions.md`** if needed (or document "no questions")
+5. **Verify interfaces** against actual source code
+6. **🛑 STOP:** Do not proceed to coding until Iteration 24 passes
+
+**Phase 2b: Implementation (Coding)**
+7. **Follow `feature-updates/guides/implementation_execution_guide.md`**
+8. **Create `{name}_implementation_checklist.md`** for continuous spec verification
+9. **Execute TODO tasks** with specs.md VISIBLE at all times
+10. **Run unit tests** after EVERY phase (100% pass required)
+11. **Mini-QC checkpoints** after each major component
+12. **Create `{name}_code_changes.md`** documenting all changes
+13. **🛑 STOP:** Do not proceed to QC until ALL TODO tasks complete
+
+**Phase 2c: Post-Implementation (QC & Validation)**
+14. **Follow `feature-updates/guides/post_implementation_guide.md`**
+15. **Execute smoke testing protocol** (MANDATORY - 3 parts)
+16. **Complete ALL 3 QC rounds** (no exceptions)
+17. **Review lessons learned** and identify guide updates
+18. **Move entire folder** to `feature-updates/done/{feature-name}/`
+19. **Commit changes** with descriptive message
+
+**🚨 CRITICAL:** Each phase has MANDATORY steps. Do NOT skip to the next phase until current phase is 100% complete. Shortcuts cause 40% QC failure rate.
 
 ---
 

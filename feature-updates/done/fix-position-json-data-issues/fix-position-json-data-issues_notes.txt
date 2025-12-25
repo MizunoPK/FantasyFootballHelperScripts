@@ -1,0 +1,1076 @@
+# Fix Position JSON Data Issues - COMPREHENSIVE ANALYSIS
+
+## Executive Summary
+
+The position JSON export feature passed all QC rounds and was marked "complete" (94.9% verification score), but comprehensive re-analysis reveals **FOUR critical data quality issues** that make the feature non-functional for its intended purpose.
+
+**Critical Finding:** Feature was **knowingly shipped with "acceptable partial" work** despite having all necessary research completed. This directly demonstrates the process gap that the recent guide updates were designed to prevent.
+
+---
+
+## Overview - Four Critical Issues
+
+1. **File naming**: Files have timestamps and "new_" prefix (should be simple names)
+2. **Projected points**: Contains actual points instead of pre-game projections
+3. **Stat arrays**: All filled with zeros instead of actual ESPN stats
+4. **ESPN stat research unused**: All 31 stat IDs researched and documented but not implemented
+
+---
+
+## Data Quality Test Results (VERIFIED ACROSS ALL POSITIONS)
+
+### Test Execution
+Analyzed actual output files from `/data/player_data/`:
+- `new_qb_data_20251224_133557.json`
+- `new_wr_data_20251224_133557.json`
+- `new_dst_data_20251224_133558.json`
+- (All 6 position files exhibit identical issues)
+
+### Test Results Summary
+
+| Position | Player Tested | projected=actual? | Stat Arrays | Weeks w/ Data |
+|----------|--------------|------------------|-------------|---------------|
+| QB | Josh Allen | ✅ IDENTICAL (bug) | All zeros | 0/16 |
+| WR | Ja'Marr Chase | ✅ IDENTICAL (bug) | All zeros | 0/16 |
+| DST | Broncos D/ST | ✅ IDENTICAL (bug) | All zeros | 0/16 |
+| RB | (same code path) | ✅ IDENTICAL (bug) | All zeros | 0/16 |
+| TE | (same code path) | ✅ IDENTICAL (bug) | All zeros | 0/16 |
+| K | (same code path) | ✅ IDENTICAL (bug) | All zeros | 0/16 |
+
+**Conclusion:** All positions fail data quality checks. Feature produces structurally valid but semantically useless output.
+
+---
+
+## Issue #1: File Naming with Timestamps and Prefix
+
+### Current Behavior (WRONG)
+Files created with timestamps AND "new_" prefix:
+```
+new_qb_data_20251224_133017.json
+new_rb_data_20251224_133017.json
+new_wr_data_20251224_133017.json
+new_te_data_20251224_133017.json
+new_k_data_20251224_133017.json
+new_dst_data_20251224_133017.json
+```
+
+**Evidence from filesystem:**
+```bash
+$ ls -la data/player_data/*.json
+-rw-r--r-- 1 kmgam 197609 126119 Dec 24 13:30 data/player_data/new_dst_data_20251224_133018.json
+-rw-r--r-- 1 kmgam 197609 126119 Dec 24 13:35 data/player_data/new_dst_data_20251224_133558.json
+-rw-r--r-- 1 kmgam 197609  83156 Dec 24 13:30 data/player_data/new_k_data_20251224_133017.json
+-rw-r--r-- 1 kmgam 197609  83156 Dec 24 13:35 data/player_data/new_k_data_20251224_133558.json
+...
+```
+Files accumulate (12 files from 2 runs instead of 6).
+
+### Expected Behavior (USER REQUIREMENT)
+Simple names that get overwritten each run:
+```
+qb_data.json
+rb_data.json
+wr_data.json
+te_data.json
+k_data.json
+dst_data.json
+```
+
+### What Spec Said vs What User Wants
+
+**Original Spec (player-data-fetcher-new-data-format_specs.md lines 13-18):**
+```markdown
+- **Files:** 6 JSON files (one per position)
+  - `new_qb_data.json`
+  - `new_rb_data.json`
+  - `new_wr_data.json`
+  - `new_te_data.json`
+  - `new_k_data.json`
+  - `new_dst_data.json`
+```
+
+**Spec said:** Files should have "new_" prefix (but no timestamps mentioned)
+
+**Implementation did:** Added timestamps via DataFileManager (spec line 280-281 suggested this)
+
+**User wants:** No "new_" prefix, no timestamps, simple names
+
+### Rationale
+- These files represent the current state of player data
+- No need for historical versions (that's what git is for)
+- Simpler for downstream consumers (always read same filename)
+- Matches pattern of `players.csv` (not `players_20241224.csv`)
+- Prevents file accumulation
+
+### Technical Details
+
+**Current Implementation:**
+- Location: `player-data-fetcher/player_data_exporter.py` line 454
+- Uses: `DataFileManager.save_json_data(output_data, prefix, create_latest=False)`
+- DataFileManager adds timestamps by default when `create_latest=False`
+- Prefix is "new_{position}_data" which creates the "new_" prefix
+
+**Root Cause:**
+1. Spec included "new_" prefix (user doesn't want this)
+2. Implementation used DataFileManager which adds timestamps (spec line 280 suggested this)
+3. No one questioned if timestamps were actually needed
+4. QC verified "files created" but didn't verify "exact filename pattern matches spec"
+
+**Fix Required:**
+1. Remove "new_" prefix from filenames
+2. Write files directly without DataFileManager timestamps, OR
+3. Use a fixed filename write pattern that overwrites previous files
+
+---
+
+## Issue #2: Projected Points Data Is Wrong
+
+### Current Behavior (WRONG)
+
+The `projected_points` array contains **IDENTICAL values** to `actual_points` for all completed weeks.
+
+**Evidence from Josh Allen (QB, 16 completed weeks):**
+```python
+# Verified from actual output file: new_qb_data_20251224_133557.json
+projected_points: [38.76, 11.82, 23.02, 24.86, 19.42, 15.4, 0.0, 23.22, 28.82, 19.34, 42.68, 8.12, 16.72, 37.84, 24.52, 6.9, 19.79]
+actual_points:    [38.76, 11.82, 23.02, 24.86, 19.42, 15.4, 0.0, 23.22, 28.82, 19.34, 42.68, 8.12, 16.72, 37.84, 24.52, 6.9, 0.0]
+
+# Test result: projected_points[:16] == actual_points[:16]
+>>> True  # IDENTICAL - THIS IS THE BUG
+```
+
+**Evidence from Ja'Marr Chase (WR, 16 completed weeks):**
+```python
+projected_points: [4.6, 36.5, 8.9, 7.3, 29.0, ...]
+actual_points:    [4.6, 36.5, 8.9, 7.3, 29.0, ...]
+
+# Test result: Arrays are identical
+>>> True  # IDENTICAL - THIS IS THE BUG
+```
+
+**Evidence from Broncos D/ST (16 completed weeks):**
+```python
+projected_points: [16.0, -5.0, 8.0, 10.0, 7.0, ...]
+actual_points:    [16.0, -5.0, 8.0, 10.0, 7.0, ...]
+
+# Test result: Arrays are identical
+>>> True  # IDENTICAL - THIS IS THE BUG
+```
+
+**Pattern: 100% of tested players show identical arrays for completed weeks.**
+
+### Expected Behavior (CORRECT)
+
+The `projected_points` array should contain what the player was EXPECTED to score BEFORE their game started that week (pre-game ESPN projections).
+
+Example (what it should be):
+```json
+{
+  "name": "Josh Allen",
+  "projected_points": [25.5, 24.8, 26.2, 0, 27.1, ...],  // Pre-game ESPN projections
+  "actual_points": [38.76, 11.82, 23.02, 0, 24.86, ...]  // What actually happened
+}
+```
+
+These should be DIFFERENT because:
+- Projected = what ESPN predicted before the game
+- Actual = what actually happened in the game
+- Players rarely score exactly what was projected
+
+### Data Source Issue
+
+**ESPN API provides TWO different data sources:**
+- `stats[week].appliedStats` (actual stats that occurred, statSourceId=0)
+- `stats[week].stats` (pre-game projections, statSourceId=1)
+
+**Current implementation uses WRONG source for projected_points:**
+
+**Code Evidence:**
+```python
+# player_data_exporter.py line 535-550
+def _get_projected_points_array(self, player: FantasyPlayer) -> List[float]:
+    projected_points = []
+    for week in range(1, 18):
+        points = getattr(player, f"week_{week}_points", None)  # ← Gets actual points!
+        projected_points.append(points if points is not None else 0.0)
+    return projected_points
+
+# player_data_exporter.py line 552-578
+def _get_actual_points_array(self, espn_data: Optional[ESPNPlayerData]) -> List[float]:
+    if espn_data is None:
+        return [0.0] * 17
+
+    actual_points = []
+    for week in range(1, 18):
+        if week <= CURRENT_NFL_WEEK:
+            # TODO: In full implementation, extract from statSourceId=0
+            points = getattr(espn_data, f"week_{week}_points", None)  # ← Same source!
+            actual_points.append(points if points is not None else 0.0)
+        else:
+            actual_points.append(0.0)
+    return actual_points
+```
+
+**Problem:** Both methods use `week_{week}_points` which contains actual results, not pre-game projections.
+
+**Line 572 has TODO:** `# TODO: In full implementation, extract from statSourceId=0`
+
+This indicates stat extraction was deferred, and both arrays ended up using the same data source.
+
+### Rationale for Fix
+- projected_points = pre-game expectations (from ESPN projections, statSourceId=1)
+- actual_points = what actually happened (from ESPN actuals, statSourceId=0)
+- These MUST be different values so we can compare accuracy
+- Critical for analyzing projection accuracy and player performance vs expectations
+- This is a PRIMARY USE CASE of the feature
+
+### Technical Details
+
+**Location:** `player-data-fetcher/player_data_exporter.py`
+- `_get_projected_points_array()` method lines 535-550
+- `_get_actual_points_array()` method lines 552-578
+- Both currently populate from same source (`week_{week}_points`)
+
+**Fix Required:**
+1. `_get_projected_points_array()` should extract from ESPN `stats[week].stats` (statSourceId=1)
+2. `_get_actual_points_array()` should extract from ESPN `stats[week].appliedStats` (statSourceId=0)
+3. Calculate fantasy points from stat values using scoring settings
+4. Verify projected_points != actual_points for completed weeks
+
+---
+
+## Issue #3: All Stat Arrays Are Zeros
+
+### Current Behavior (WRONG)
+
+ALL detailed statistical arrays are filled with zeros for ALL weeks (including 16 completed weeks).
+
+**Evidence from Josh Allen (QB, 16 completed weeks in 2025 season):**
+```json
+{
+  "name": "Josh Allen",
+  "actual_points": [38.76, 11.82, 23.02, 24.86, 19.42, ...],  // Has actual points
+  "passing": {
+    "completions": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "attempts": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "pass_yds": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "pass_tds": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "interceptions": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "sacks": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  },
+  "rushing": {
+    "attempts": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "rush_yds": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "rush_tds": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  },
+  "receiving": {
+    "targets": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "receiving_yds": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "receiving_tds": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "receptions": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  },
+  "misc": {
+    "fumbles": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "two_pt": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  }
+}
+```
+
+**Evidence from Ja'Marr Chase (WR, 16 completed weeks):**
+```python
+# Verified from actual output file
+receiving.targets:    [0.0, 0.0, 0.0, 0.0, 0.0, ...]  # Should have 10+, 8, 12, etc.
+receiving.receptions: [0.0, 0.0, 0.0, 0.0, 0.0, ...]  # Should have 6, 7, 10, etc.
+receiving.yards:      [0.0, 0.0, 0.0, 0.0, 0.0, ...]  # Should have 62, 118, 141, etc.
+receiving.tds:        [0.0, 0.0, 0.0, 0.0, 0.0, ...]  # Should have 0, 2, 1, 0, etc.
+```
+
+**Evidence from Broncos D/ST (16 completed weeks):**
+```python
+# Verified from actual output file
+defense.sacks:        [0.0, 0.0, 0.0, 0.0, 0.0, ...]  # Should have 2, 3, 1, etc.
+defense.interceptions:[0.0, 0.0, 0.0, 0.0, 0.0, ...]  # Should have 1, 0, 2, etc.
+defense.def_td:       [0.0, 0.0, 0.0, 0.0, 0.0, ...]  # Should have 0, 0, 1, etc.
+```
+
+**Pattern: 100% of tested players show all zeros in ALL stat arrays for ALL weeks.**
+
+### Expected Behavior (CORRECT)
+
+Stat arrays should contain actual weekly statistics from ESPN.
+
+Example (Josh Allen Week 1-7, with bye week 7):
+```json
+{
+  "name": "Josh Allen",
+  "passing": {
+    "completions": [23, 19, 18, 20, 22, 24, 0, ...],  // 0 at index 6 = bye week
+    "attempts": [34, 33, 30, 32, 34, 38, 0, ...],
+    "pass_yds": [232, 180, 258, 215, 280, 323, 0, ...],
+    "pass_tds": [2, 0, 2, 1, 3, 3, 0, ...],
+    "interceptions": [0, 1, 1, 1, 0, 0, 0, ...]
+  }
+}
+```
+
+Note:
+- Week 7 (index 6) should be 0 (bye week)
+- Week 17 (index 16) should be 0 (not yet played)
+- Weeks 1-6, 8-16 should have real stat values
+
+### Implementation Evidence - 7 TODO Comments
+
+Found **SEVEN explicit TODO comments** in the code indicating this work was deferred:
+
+```python
+# player_data_exporter.py line 572
+# TODO: In full implementation, extract from statSourceId=0
+
+# player_data_exporter.py line 582
+def _extract_passing_stats(self, espn_data: Optional[ESPNPlayerData]) -> Dict:
+    # TODO: Extract from ESPN API statSourceId=0
+    # Placeholder implementation with zeros
+
+# player_data_exporter.py line 595
+def _extract_rushing_stats(self, espn_data: Optional[ESPNPlayerData]) -> Dict:
+    # TODO: Extract from ESPN API statSourceId=0
+    # Placeholder implementation with zeros
+
+# player_data_exporter.py line 605
+def _extract_receiving_stats(self, espn_data: Optional[ESPNPlayerData]) -> Dict:
+    # TODO: Extract from ESPN API statSourceId=0
+    # Placeholder implementation with zeros
+
+# player_data_exporter.py line 625
+def _extract_misc_stats(self, espn_data: Optional[ESPNPlayerData], ...) -> Dict:
+    # TODO: Extract from ESPN API statSourceId=0
+    # Placeholder implementation with zeros
+
+# player_data_exporter.py line 641
+def _extract_kicking_stats(self, espn_data: Optional[ESPNPlayerData]) -> Dict:
+    # TODO: Extract from ESPN API statSourceId=0
+    # Placeholder implementation with zeros
+
+# player_data_exporter.py line 656
+def _extract_defense_stats(self, espn_data: Optional[ESPNPlayerData]) -> Dict:
+    # TODO: Extract from ESPN API statSourceId=0
+    # Placeholder implementation with zeros
+```
+
+**All 6 stat extraction methods return hardcoded zeros:**
+```python
+return {
+    "completions": [0.0] * 17,      # stat_1
+    "attempts": [0.0] * 17,         # stat_0
+    "pass_yds": [0.0] * 17,         # stat_3
+    "pass_tds": [0.0] * 17,         # stat_4
+    "interceptions": [0.0] * 17,    # stat_20
+    "sacks": [0.0] * 17             # stat_64
+}
+```
+
+### QC Documentation Shows This Was KNOWINGLY Shipped
+
+**From requirement_verification_report.md:**
+
+```markdown
+### REQ-5.4: Data Accuracy
+**Spec:** Manually verify players against internet sources
+**Status:** ⚠️ PARTIAL
+**Reason:** Stat arrays use placeholder zeros (not real ESPN data)
+**Note:** Structure is correct, but actual stat extraction not yet implemented
+**Impact:** Low - feature can be completed without real stats initially  ← THIS IS THE PROBLEM
+
+### Decision 8: Past Weeks Use Actual Stats (statSourceId=0)
+**Implementation:** player_data_exporter.py:565-569
+**Status:** ⚠️ PARTIAL - Logic implemented but uses placeholder data
+**Note:** TODO comment indicates stat extraction pending (line 567)
+**Verification:** ⚠️ PARTIAL (structure correct, data pending)
+
+### Verification Score: 37/39 = 94.9% ✅
+
+### Partial Items (2)
+```
+
+**Critical Problem:** QC marked this as "Impact: Low" and gave it a 94.9% verification score despite:
+1. Feature cannot achieve primary use case (view detailed stats)
+2. All stat arrays are useless (zeros)
+3. Work was explicitly marked as "pending" with TODO comments
+
+**This directly demonstrates accepting "acceptable partial" work.**
+
+### Rationale for Fix
+- This is the **ENTIRE PURPOSE** of the detailed stat arrays!
+- Users need week-by-week passing yards, rushing TDs, receptions, etc.
+- Critical for detailed player analysis and performance tracking
+- Without this data, JSON files are FAR LESS USEFUL than CSV
+- **Feature cannot achieve primary use case**
+
+### Data Source
+
+ESPN API provides detailed stats via:
+- `ESPNPlayerData.stats[week].appliedStats` dictionary
+- Keys are stat IDs (e.g., '3' = passing yards, '4' = passing TDs)
+- All 31 stat IDs were researched and documented
+
+---
+
+## Issue #4: ESPN Stat Research Was Completed But Not Implemented
+
+### Discovery
+
+**All 31 ESPN stat IDs were fully researched and documented** in planning phase:
+- File exists: `FINAL_STAT_RESEARCH_COMPLETE.md`
+- File exists: `STAT_IDS_RESEARCH_FINDINGS.md`
+- All stat ID mappings documented and verified
+
+**Example stat ID mappings:**
+- Stat ID 0 → passing attempts
+- Stat ID 1 → passing completions
+- Stat ID 3 → passing yards
+- Stat ID 4 → passing TDs
+- Stat ID 20 → interceptions
+- Stat ID 23 → rushing attempts
+- Stat ID 24 → rushing yards
+- Stat ID 25 → rushing TDs
+- ... (all 31 documented)
+
+### Code Shows Research Was Used for Comments
+
+**The implementation code includes stat ID comments showing the research WAS consulted:**
+
+```python
+# player_data_exporter.py lines 580-591
+def _extract_passing_stats(self, espn_data: Optional[ESPNPlayerData]) -> Dict:
+    # TODO: Extract from ESPN API statSourceId=0
+    # Placeholder implementation with zeros
+    return {
+        "completions": [0.0] * 17,      # stat_1  ← COMMENT KNOWS THE STAT ID!
+        "attempts": [0.0] * 17,         # stat_0  ← COMMENT KNOWS THE STAT ID!
+        "pass_yds": [0.0] * 17,         # stat_3  ← COMMENT KNOWS THE STAT ID!
+        "pass_tds": [0.0] * 17,         # stat_4  ← COMMENT KNOWS THE STAT ID!
+        "interceptions": [0.0] * 17,    # stat_20 ← COMMENT KNOWS THE STAT ID!
+        "sacks": [0.0] * 17             # stat_64 ← COMMENT KNOWS THE STAT ID!
+    }
+```
+
+**Same pattern in ALL 6 stat extraction methods** (passing, rushing, receiving, misc, kicking, defense).
+
+### The Critical Issue
+
+**Timeline of work:**
+1. ✅ Planning phase: All 31 ESPN stat IDs researched and documented
+2. ✅ Implementation: Code comments reference exact stat IDs
+3. ❌ Implementation: Code returns placeholder zeros with TODO comments
+4. ❌ QC: Accepted as "partial work" with "low impact"
+
+**The work was DONE (research complete), but the code was shipped without USING the research!**
+
+### Why This Matters
+
+This proves the stat extraction work was NOT skipped due to:
+- ❌ Lack of knowledge (research was done)
+- ❌ Technical blockers (stat IDs were identified)
+- ❌ Missing data sources (ESPN API has the data)
+
+Instead, it was **deliberately deferred as "future work"** and accepted as "partial" during QC.
+
+**This is the exact problem the guide updates were designed to prevent:**
+- Research was completed
+- Implementation knew what to do (comments prove it)
+- Code shipped with placeholder zeros and TODO comments
+- QC accepted it as "94.9% complete" with "low impact"
+
+---
+
+## What WAS Implemented Correctly ✅
+
+To provide balanced analysis, here's what the feature DID implement correctly:
+
+### Structure and Configuration ✅
+1. ✅ 6 position-based JSON files created (QB, RB, WR, TE, K, DST)
+2. ✅ Files saved to correct location: `/data/player_data/`
+3. ✅ JSON structure matches spec exactly (field names, nesting)
+4. ✅ Config toggle works: `CREATE_POSITION_JSON = True`
+5. ✅ Integration with main workflow successful
+
+### Field Naming and Transformations ✅
+6. ✅ Correct spelling: "receiving" (not "recieving")
+7. ✅ Correct naming: "two_pt" (not "2_pt")
+8. ✅ Return stats correctly ONLY in DST (not in QB/RB/WR/TE/K)
+9. ✅ Array lengths all exactly 17 elements
+10. ✅ Boolean transformation: `locked` (true/false from 0/1)
+
+### Draft Integration ✅
+11. ✅ `drafted_by` transformation works correctly:
+    - 0 → "" (free agent)
+    - 1 → team name from drafted_data.csv
+    - 2 → MY_TEAM_NAME from config
+12. ✅ DraftedRosterManager integration successful
+13. ✅ Fuzzy player matching works
+
+### Testing ✅
+14. ✅ All 2335 unit tests pass (100% pass rate)
+15. ✅ No regressions introduced
+16. ✅ Integration tests pass
+
+**Problem:** All of these validate STRUCTURE but none validate DATA SEMANTICS.
+
+---
+
+## Comprehensive Root Cause Analysis
+
+### Issue #1: File Naming
+
+**Why It Happened:**
+1. **Spec ambiguity:** Spec said `new_qb_data.json` but didn't explicitly state "no timestamps"
+2. **Implementation pattern:** Spec line 280 suggested using DataFileManager (which adds timestamps)
+3. **No validation:** QC checked "files exist" but not "exact filename pattern"
+4. **User requirement missed:** User wants simple names without "new_" prefix or timestamps
+
+**Where It Should Have Been Caught:**
+- **Planning:** Should have questioned if timestamps were needed (like players.csv)
+- **TODO creation:** Should have flagged filename pattern as requiring user confirmation
+- **Implementation:** Should have questioned DataFileManager timestamp behavior
+- **QC Round 1:** Should have verified exact filenames match spec
+- **Smoke testing:** Should have included "Verify exact filename pattern" step
+
+### Issue #2: Projected Points
+
+**Why It Happened:**
+1. **Spec ambiguity:** "projected_points array" not defined (season total? pre-game weekly?)
+2. **No semantic clarification:** Spec didn't explicitly state projected ≠ actual
+3. **Wrong assumption:** Implementation assumed `player.week_N_points` was projections
+4. **No data quality check:** QC didn't verify projected ≠ actual for completed weeks
+
+**Where It Should Have Been Caught:**
+- **Planning:** Should have asked "What EXACTLY does projected_points mean?"
+- **Planning:** Should have identified ESPN statSourceId=0 vs statSourceId=1 difference
+- **TODO creation:** Should have required data source specification for each field
+- **Implementation:** Should have questioned why both arrays use same source
+- **QC Round 1:** Should have spot-checked one player against ESPN website
+- **Smoke testing:** Should have included "Verify projected ≠ actual" validation
+
+### Issue #3: Stat Arrays (All Zeros)
+
+**Why It Happened:**
+1. **Explicit deferral:** ESPN stat extraction marked as "future work" with TODOs
+2. **Accepted as partial:** QC marked as "Impact: Low" and accepted with 94.9% score
+3. **No semantic validation:** QC checked array structure but not array contents
+4. **No external verification:** QC didn't spot-check against ESPN website
+
+**Where It Should Have Been Caught:**
+- **Planning:** Should NOT have accepted "structure now, data later" approach
+- **TODO creation:** Should have flagged stat extraction as REQUIRED (not "future work")
+- **Implementation:** Should NOT have shipped with 7 TODO comments
+- **QC Step 2:** Requirement verification should have FAILED (feature incomplete)
+- **QC Round 1:** Should have verified stat arrays contain real data
+- **Smoke testing:** Should have spot-checked Josh Allen Week 1 stats against ESPN
+
+**Critical QC Failure:**
+```markdown
+**Status:** ⚠️ PARTIAL
+**Impact:** Low - feature can be completed without real stats initially
+```
+
+**This assessment was WRONG:**
+- Impact is NOT low (feature can't achieve primary use case)
+- Feature is NOT "completable later" (it's incomplete NOW)
+- Should have FAILED QC, not passed with "partial" status
+
+### Issue #4: ESPN Research Not Implemented
+
+**Why It Happened:**
+1. **Separation of concerns gone wrong:** Research done in planning, implementation deferred
+2. **Accepted partial work:** QC allowed shipping with TODO comments
+3. **No completion verification:** QC didn't verify all research was implemented
+
+**Where It Should Have Been Caught:**
+- **Implementation:** Should have used the completed research
+- **Code review:** Should have flagged TODO comments in production code
+- **QC:** Should have verified all planning research was implemented
+
+---
+
+## Impact Assessment
+
+### Current State
+- ✅ Feature is technically complete (all tests pass, code runs)
+- ✅ File structure is correct (field names, types, nesting)
+- ❌ OUTPUT DATA is wrong/incomplete:
+  - File naming makes it hard to use (timestamps + prefix)
+  - Projected points data is useless (same as actual)
+  - Stat arrays are useless (all zeros)
+
+### User Impact
+- ❌ Cannot use position JSON files for meaningful analysis
+- ❌ Cannot compare projections vs actuals (key use case)
+- ❌ Cannot access detailed stats (primary value proposition)
+- ❌ Must fall back to CSV files (defeating the purpose)
+- ❌ Downstream consumers must handle timestamps (harder integration)
+
+### Feature Usability Assessment
+
+**Primary Use Cases:**
+1. ❌ View week-by-week player stats (FAIL - all zeros)
+2. ❌ Compare projections vs actual performance (FAIL - identical arrays)
+3. ⚠️ Get current player state (PARTIAL - works but wrong filenames)
+
+**Conclusion:** Feature cannot achieve its primary purpose. It's a data export shell with no actual data.
+
+---
+
+## Proposed Solutions
+
+### Fix #1: Remove Timestamps and Prefix from Filenames
+
+**Changes Required:**
+1. Change prefix from "new_{position}_data" to "{position}_data"
+2. Write files directly with fixed names (no DataFileManager timestamps)
+3. Each run overwrites previous files
+4. No file caps needed (only 6 files total, always same names)
+
+**Implementation:**
+- Location: `player-data-fetcher/player_data_exporter.py` line 454
+- Either:
+  - Option A: Write files directly without DataFileManager
+  - Option B: Use DataFileManager with custom fixed-name pattern
+
+**Testing:**
+```bash
+# Verify exact filenames
+ls data/player_data/
+# Expected output (no timestamps, no "new_" prefix):
+# qb_data.json
+# rb_data.json
+# wr_data.json
+# te_data.json
+# k_data.json
+# dst_data.json
+
+# Verify files overwrite (run twice, count should be 6 not 12)
+python run_player_fetcher.py
+ls data/player_data/*.json | wc -l  # Should be 6
+python run_player_fetcher.py
+ls data/player_data/*.json | wc -l  # Should still be 6 (overwritten)
+```
+
+### Fix #2: Populate Projected Points from ESPN Projections (statSourceId=1)
+
+**Changes Required:**
+1. Update `_get_projected_points_array()` to extract from ESPN `stats[week].stats` (statSourceId=1)
+2. Keep `_get_actual_points_array()` using ESPN `stats[week].appliedStats` (statSourceId=0)
+3. Calculate fantasy points from stat values using scoring settings
+4. Ensure proper handling of bye weeks and future weeks
+
+**Implementation:**
+- Location: `player-data-fetcher/player_data_exporter.py` lines 535-578
+- Update both methods to use correct ESPN data sources
+- Remove TODO comment on line 572
+
+**Data Source:**
+```python
+# Projected points (pre-game):
+espn_data.stats[week].stats  # statSourceId=1
+
+# Actual points (post-game):
+espn_data.stats[week].appliedStats  # statSourceId=0
+```
+
+**Testing:**
+```python
+# Spot-check Josh Allen Week 1
+data = json.load(open('data/player_data/qb_data.json'))
+josh_allen = [p for p in data['qb_data'] if p['name'] == 'Josh Allen'][0]
+
+# Verify arrays are DIFFERENT for completed weeks
+assert josh_allen['projected_points'][0] != josh_allen['actual_points'][0], \
+    "projected and actual should differ for Week 1"
+
+# Both should be non-zero for completed weeks
+assert josh_allen['projected_points'][0] > 0, "Should have pre-game projection"
+assert josh_allen['actual_points'][0] > 0, "Should have actual result"
+
+# Week 17 should have projection but no actual (not yet played)
+assert josh_allen['projected_points'][16] > 0, "Should have Week 17 projection"
+assert josh_allen['actual_points'][16] == 0, "Week 17 not yet played"
+```
+
+### Fix #3: Implement ESPN Stat Extraction Using Documented Stat IDs
+
+**Changes Required:**
+1. Remove all 7 TODO comments
+2. Implement stat extraction in all 6 methods:
+   - `_extract_passing_stats()`
+   - `_extract_rushing_stats()`
+   - `_extract_receiving_stats()`
+   - `_extract_misc_stats()`
+   - `_extract_kicking_stats()`
+   - `_extract_defense_stats()`
+3. Use stat ID mappings from `FINAL_STAT_RESEARCH_COMPLETE.md`
+4. For each week, extract stats from `ESPNPlayerData.stats[week].appliedStats`
+5. Handle missing stats (use 0 if stat not present)
+6. Handle bye weeks (all stats = 0)
+7. Handle future weeks (all stats = 0)
+
+**Implementation Pattern:**
+```python
+def _extract_passing_stats(self, espn_data: Optional[ESPNPlayerData]) -> Dict:
+    """Extract passing stats from ESPN API statSourceId=0."""
+    if espn_data is None:
+        return {
+            "completions": [0.0] * 17,
+            "attempts": [0.0] * 17,
+            "pass_yds": [0.0] * 17,
+            "pass_tds": [0.0] * 17,
+            "interceptions": [0.0] * 17,
+            "sacks": [0.0] * 17
+        }
+
+    # Initialize arrays
+    completions = []
+    attempts = []
+    pass_yds = []
+    pass_tds = []
+    interceptions = []
+    sacks = []
+
+    # Extract for each week
+    for week in range(1, 18):
+        if week <= CURRENT_NFL_WEEK:
+            # Get appliedStats for this week
+            week_stats = espn_data.stats.get(week, {}).get('appliedStats', {})
+
+            # Extract individual stats (use 0 if missing)
+            completions.append(float(week_stats.get('1', 0)))    # stat_1
+            attempts.append(float(week_stats.get('0', 0)))       # stat_0
+            pass_yds.append(float(week_stats.get('3', 0)))       # stat_3
+            pass_tds.append(float(week_stats.get('4', 0)))       # stat_4
+            interceptions.append(float(week_stats.get('20', 0))) # stat_20
+            sacks.append(float(week_stats.get('64', 0)))         # stat_64
+        else:
+            # Future week - all zeros
+            completions.append(0.0)
+            attempts.append(0.0)
+            pass_yds.append(0.0)
+            pass_tds.append(0.0)
+            interceptions.append(0.0)
+            sacks.append(0.0)
+
+    return {
+        "completions": completions,
+        "attempts": attempts,
+        "pass_yds": pass_yds,
+        "pass_tds": pass_tds,
+        "interceptions": interceptions,
+        "sacks": sacks
+    }
+```
+
+**Apply same pattern to all 6 stat extraction methods.**
+
+**Stat ID Reference:**
+Use documented mappings from `FINAL_STAT_RESEARCH_COMPLETE.md`:
+- Passing: stat_0 (attempts), stat_1 (completions), stat_3 (yards), stat_4 (TDs), stat_20 (INT), stat_64 (sacks)
+- Rushing: stat_23 (attempts), stat_24 (yards), stat_25 (TDs)
+- Receiving: stat_53 (receptions), stat_58 (targets), stat_42 (yards), stat_43 (TDs)
+- Kicking: stat_83 (FG made), stat_85 (FG missed), stat_86 (XP made), stat_88 (XP missed)
+- Defense: stat_95 (INT), stat_96 (fumbles recovered), stat_98 (safety), stat_99 (sacks), stat_94 (def TD), stat_120 (pts against), stat_127 (yds against), stat_114+115 (return yds), stat_101+102 (return TDs)
+- Misc: stat_68 (fumbles), stat_19+26+44+62 (2-pt conversions by position)
+
+**Testing:**
+```python
+# Spot-check Josh Allen Week 1 against ESPN website
+data = json.load(open('data/player_data/qb_data.json'))
+josh_allen = [p for p in data['qb_data'] if p['name'] == 'Josh Allen'][0]
+
+# Week 1 (index 0) - verify against ESPN.com
+assert josh_allen['passing']['pass_yds'][0] > 200, "Week 1 should have ~232 passing yards"
+assert josh_allen['passing']['pass_tds'][0] >= 2, "Week 1 should have 2 passing TDs"
+
+# Week 7 (index 6) - bye week, should be zeros
+assert josh_allen['passing']['pass_yds'][6] == 0, "Bye week should be 0"
+assert josh_allen['passing']['pass_tds'][6] == 0, "Bye week should be 0"
+
+# Week 17 (index 16) - not yet played, should be zeros
+assert josh_allen['passing']['pass_yds'][16] == 0, "Week 17 not played yet"
+assert josh_allen['actual_points'][16] == 0, "Week 17 not played yet"
+
+# Verify stat arrays are not all zeros for completed weeks
+non_zero_weeks = sum(1 for yards in josh_allen['passing']['pass_yds'][:16] if yards > 0)
+assert non_zero_weeks >= 14, "Should have stats for most non-bye weeks"
+```
+
+### Fix #4: Remove All TODO Comments
+
+**Changes Required:**
+- Remove all 7 TODO comments after implementing stat extraction
+- Remove "Placeholder implementation" comments
+- Ensure no deferred work remains in production code
+
+**Location:** `player-data-fetcher/player_data_exporter.py` lines 572, 582, 595, 605, 625, 641, 656
+
+---
+
+## Files to Modify
+
+### 1. player-data-fetcher/player_data_exporter.py (PRIMARY FILE)
+
+**Line 454:** Change file saving logic
+- Remove "new_" prefix
+- Remove timestamps
+- Write with fixed filenames
+
+**Lines 535-578:** Fix projected_points and actual_points
+- `_get_projected_points_array()`: Extract from ESPN stats (statSourceId=1)
+- `_get_actual_points_array()`: Extract from ESPN appliedStats (statSourceId=0)
+- Remove TODO comment on line 572
+
+**Lines 580-669:** Implement stat extraction (remove all 6 TODO placeholders)
+- `_extract_passing_stats()` (lines 580-591)
+- `_extract_rushing_stats()` (lines 593-601)
+- `_extract_receiving_stats()` (lines 603-612)
+- `_extract_misc_stats()` (lines 614-637)
+- `_extract_kicking_stats()` (lines 639-652)
+- `_extract_defense_stats()` (lines 654-669)
+
+### 2. player-data-fetcher/config.py (OPTIONAL)
+
+**May need to adjust:**
+- File cap settings (if they exist for position JSON)
+- With fixed filenames, caps are not needed
+
+---
+
+## Testing & Validation Requirements
+
+### 1. Filename Validation
+```bash
+# Run player data fetcher
+python run_player_fetcher.py
+
+# Verify exact filenames (no timestamps, no "new_" prefix)
+ls data/player_data/
+# Expected: qb_data.json rb_data.json wr_data.json te_data.json k_data.json dst_data.json
+
+# Verify files overwrite (run twice, count should remain 6)
+ls data/player_data/*.json | wc -l  # Should be 6
+python run_player_fetcher.py
+ls data/player_data/*.json | wc -l  # Should still be 6 (not 12)
+```
+
+### 2. Projected vs Actual Points Validation
+```python
+import json
+
+# Load QB data
+data = json.load(open('data/player_data/qb_data.json'))
+josh_allen = [p for p in data['qb_data'] if p['name'] == 'Josh Allen'][0]
+
+# Verify arrays are DIFFERENT for completed weeks (Weeks 1-16, excluding bye)
+for week in range(16):  # Weeks 1-16
+    if josh_allen['actual_points'][week] > 0:  # Skip bye week (will be 0)
+        assert josh_allen['projected_points'][week] != josh_allen['actual_points'][week], \
+            f"Week {week+1}: projected should differ from actual"
+
+# Verify both have values for completed non-bye weeks
+assert sum(1 for p in josh_allen['projected_points'][:16] if p > 0) >= 14, \
+    "Should have projections for most weeks"
+assert sum(1 for p in josh_allen['actual_points'][:16] if p > 0) >= 14, \
+    "Should have actuals for most weeks"
+
+print("✅ Projected vs actual validation PASSED")
+```
+
+### 3. Stat Arrays Validation
+```python
+import json
+
+# Load QB data
+data = json.load(open('data/player_data/qb_data.json'))
+josh_allen = [p for p in data['qb_data'] if p['name'] == 'Josh Allen'][0]
+
+# Verify stat arrays have real data (not all zeros)
+assert sum(josh_allen['passing']['pass_yds']) > 0, "Passing yards should not be all zeros"
+assert sum(josh_allen['passing']['pass_tds']) > 0, "Passing TDs should not be all zeros"
+assert max(josh_allen['passing']['pass_yds']) > 200, "Should have some high yardage weeks"
+
+# Verify bye week is zeros
+bye_week_index = 6  # Week 7 (0-indexed)
+assert josh_allen['passing']['pass_yds'][bye_week_index] == 0, "Bye week should be 0"
+assert josh_allen['actual_points'][bye_week_index] == 0, "Bye week points should be 0"
+
+# Verify future week is zeros
+future_week_index = 16  # Week 17 (not yet played)
+assert josh_allen['passing']['pass_yds'][future_week_index] == 0, "Future week should be 0"
+assert josh_allen['actual_points'][future_week_index] == 0, "Future week points should be 0"
+
+print("✅ Stat arrays validation PASSED")
+```
+
+### 4. External Source Spot-Check (MANDATORY)
+```python
+import json
+
+# Load QB data
+data = json.load(open('data/player_data/qb_data.json'))
+josh_allen = [p for p in data['qb_data'] if p['name'] == 'Josh Allen'][0]
+
+# Manually verify Week 1 stats against ESPN.com
+# Go to: https://www.espn.com/nfl/player/_/id/3918298/josh-allen
+# Check Week 1 game stats
+
+print("Week 1 passing yards:", josh_allen['passing']['pass_yds'][0])
+print("Week 1 passing TDs:", josh_allen['passing']['pass_tds'][0])
+print("Week 1 rushing yards:", josh_allen['rushing']['rush_yds'][0])
+print("Week 1 actual points:", josh_allen['actual_points'][0])
+
+# Expected values (approximate, verify against ESPN):
+# passing_yds: ~230
+# passing_tds: 2
+# rushing_yds: ~50
+# actual_points: ~38.76
+
+# Manually confirm these match ESPN website
+```
+
+### 5. All Positions Validation
+```bash
+# Test all 6 positions have real data
+python -c "
+import json
+
+positions = ['qb', 'rb', 'wr', 'te', 'k', 'dst']
+for pos in positions:
+    data = json.load(open(f'data/player_data/{pos}_data.json'))
+    key = f'{pos}_data'
+    if len(data[key]) > 0:
+        player = data[key][0]
+
+        # Check projected != actual
+        assert player['projected_points'] != player['actual_points'], \
+            f'{pos}: projected should differ from actual'
+
+        # Check stat arrays not all zeros
+        if pos == 'qb':
+            assert sum(player['passing']['pass_yds']) > 0, f'{pos}: stats should not be zeros'
+        elif pos == 'wr':
+            assert sum(player['receiving']['receiving_yds']) > 0, f'{pos}: stats should not be zeros'
+        elif pos == 'dst':
+            assert sum(player['defense']['sacks']) >= 0, f'{pos}: stats should have data'
+
+        print(f'✅ {pos.upper()} validation passed')
+"
+```
+
+### 6. Array Length Validation
+```python
+import json
+
+# Verify all arrays are exactly 17 elements
+positions = ['qb', 'rb', 'wr', 'te', 'k', 'dst']
+for pos in positions:
+    data = json.load(open(f'data/player_data/{pos}_data.json'))
+    key = f'{pos}_data'
+
+    for player in data[key]:
+        assert len(player['projected_points']) == 17, f"{pos}/{player['name']}: projected_points length"
+        assert len(player['actual_points']) == 17, f"{pos}/{player['name']}: actual_points length"
+
+        # Check stat arrays
+        if pos == 'qb':
+            assert len(player['passing']['pass_yds']) == 17, f"{pos}: passing.pass_yds length"
+        elif pos == 'wr':
+            assert len(player['receiving']['receiving_yds']) == 17, f"{pos}: receiving.receiving_yds length"
+
+    print(f"✅ {pos.upper()} array lengths validated")
+```
+
+### 7. Smoke Test Script
+```bash
+#!/bin/bash
+# smoke_test_position_json.sh
+
+echo "Running player data fetcher..."
+python run_player_fetcher.py
+
+echo ""
+echo "=== File Naming Check ==="
+ls data/player_data/*.json
+
+echo ""
+echo "Expected: qb_data.json rb_data.json wr_data.json te_data.json k_data.json dst_data.json"
+echo "File count: $(ls data/player_data/*.json | wc -l) (should be 6)"
+
+echo ""
+echo "=== Data Quality Checks ==="
+python -c "
+import json
+
+# Quick validation
+data = json.load(open('data/player_data/qb_data.json'))
+qb = data['qb_data'][0]
+
+print(f'Player: {qb[\"name\"]}')
+print(f'Projected[0]: {qb[\"projected_points\"][0]}')
+print(f'Actual[0]: {qb[\"actual_points\"][0]}')
+print(f'Are different: {qb[\"projected_points\"][0] != qb[\"actual_points\"][0]}')
+print(f'Passing yards[0]: {qb[\"passing\"][\"pass_yds\"][0]}')
+print(f'Has real stats: {sum(qb[\"passing\"][\"pass_yds\"]) > 0}')
+"
+
+echo ""
+echo "=== Validation Complete ==="
+```
+
+---
+
+## Priority
+
+**CRITICAL** - Feature is non-functional without these fixes
+
+### Why Critical Priority:
+
+1. **Feature cannot achieve primary use case:**
+   - ❌ Cannot view detailed player stats (all zeros)
+   - ❌ Cannot analyze projection accuracy (identical arrays)
+   - ⚠️ Filename timestamps make downstream integration harder
+
+2. **All research was already completed:**
+   - ESPN stat IDs documented
+   - Data sources identified
+   - No technical blockers exist
+
+3. **Demonstrates process failure:**
+   - Feature shipped with 7 TODO comments
+   - QC accepted "partial work" as "94.9% complete"
+   - Validates need for recent guide updates banning partial work
+
+4. **User cannot use the feature:**
+   - JSON files provide no value over existing CSV
+   - All detailed stats are missing
+   - Projections vs actuals comparison impossible
+
+---
+
+## Additional Context
+
+### Related Files
+- **Original feature folder:** `feature-updates/player-data-fetcher-new-data-format/`
+- **Stat research (complete):** `feature-updates/player-data-fetcher-new-data-format/FINAL_STAT_RESEARCH_COMPLETE.md`
+- **Current implementation:** `player-data-fetcher/player_data_exporter.py`
+- **QC reports:** `feature-updates/player-data-fetcher-new-data-format/qc_round_*.md`
+- **Requirement verification:** `feature-updates/player-data-fetcher-new-data-format/requirement_verification_report.md`
+
+### Key Evidence Files
+1. **requirement_verification_report.md** - Shows feature was marked "⚠️ PARTIAL" with "94.9%" score
+2. **FINAL_STAT_RESEARCH_COMPLETE.md** - Proves all 31 stat IDs were researched
+3. **player_data_exporter.py** - Has 7 TODO comments and stat ID comments showing research was consulted but not implemented
+
+### Notes
+- All 31 ESPN stat IDs are fully researched and documented
+- Stat extraction can directly use existing stat ID mappings
+- This completes the "placeholder zeros" that were deferred in original implementation
+- File naming change is breaking (but necessary for usability)
+- **This feature was the FIRST TEST of the new "no partial work" guides**
+- Feature demonstrates EXACTLY why those guides were needed

@@ -377,6 +377,140 @@ Document new questions discovered in each iteration before proceeding.
 - Additional edge cases (minimum thresholds)
 - Integration workflow questions
 
+### Step 2.3.2: Data Source and Semantic Clarification (MANDATORY)
+
+```
+╔═════════════════════════════════════════════════════════════════╗
+║  🛑 CRITICAL: CLARIFY AMBIGUOUS FIELD NAMES AND DATA SOURCES   ║
+╠═════════════════════════════════════════════════════════════════╣
+║                                                                 ║
+║  Ambiguous field names lead to wrong data semantics.           ║
+║  Every data field MUST have a clear, unambiguous definition.   ║
+║                                                                 ║
+║  REAL FAILURE EXAMPLE:                                         ║
+║  Field name: "projected_points"                                ║
+║  Ambiguous: Could mean season total OR week-by-week array      ║
+║  Implementation assumed: season total (wrong!)                 ║
+║  Actual requirement: week-by-week pre-game projections         ║
+║  Result: Used actual results instead of pre-game projections   ║
+║                                                                 ║
+║  Prevention: Ask "What EXACTLY does projected_points mean?"    ║
+║                                                                 ║
+╚═════════════════════════════════════════════════════════════════╝
+```
+
+**Purpose:** Prevent features that use wrong data sources due to ambiguous specifications.
+
+**Required for Every Data Field:**
+
+1. **Field Semantic Definition**
+   - What does this field represent?
+   - What is the EXACT meaning of the data?
+   - What time period does it cover? (historical, current, future, all)
+   - Is it pre-game or post-game data?
+
+2. **Explicit Data Source**
+   - Where does this data come from?
+   - What API endpoint/field/calculation?
+   - Which stat ID or data structure key?
+   - Is there more than one potential source? (identify which one!)
+
+3. **Ambiguity Check**
+   - Could this field name mean multiple things?
+   - Are there similar-sounding fields that could be confused?
+   - Does the name match what the data actually represents?
+
+**Common Ambiguous Terms that MUST be Clarified:**
+
+| Ambiguous Term | Clarification Needed | Example Question |
+|----------------|---------------------|------------------|
+| "projected_points" | Pre-game projection OR season total? | "Is this what ESPN predicted BEFORE the game, or cumulative season projection?" |
+| "actual_points" | Single week OR season total? | "Is this one game's results or all games combined?" |
+| "stats" | Which stat source? (0=actual, 1=projected) | "Do we use appliedStats (actuals) or stats (projections)?" |
+| "player_rating" | Expert consensus OR calculated score? | "Is this from external rankings or our own calculation?" |
+| "team_quality" | Offensive OR defensive strength? | "Are we measuring their offense or their defense?" |
+| "performance" | Historical OR projected future? | "Is this how they DID perform or how they WILL perform?" |
+| "schedule_difficulty" | Remaining games OR specific week? | "All future opponents or just next opponent?" |
+
+**Clarification Protocol:**
+
+For each data field in the specification:
+
+1. **Identify Potential Ambiguity**
+   ```markdown
+   # In checklist.md:
+   - [ ] CLARIFY: "projected_points" - does this mean pre-game weekly projections or season total?
+   - [ ] CLARIFY: "actual_points" - single week or cumulative?
+   - [ ] CLARIFY: "stats" - which statSourceId (0=actual, 1=projected)?
+   ```
+
+2. **Research Data Source Options**
+   ```markdown
+   # In checklist Resolution Log:
+   Found two potential sources for "projected_points":
+   - Option A: player.projected_points (season total, single value)
+   - Option B: stats[week].stats (pre-game projection, per-week, statSourceId=1)
+
+   NEEDS USER DECISION: Which source represents the intended data?
+   ```
+
+3. **Ask User for Clarification**
+   - Present both interpretations
+   - Show data source implications
+   - Get explicit decision
+   - Document decision in specs.md
+
+4. **Update Specs with Precise Definition**
+   ```markdown
+   # In specs.md:
+   ## Data Field: projected_points
+
+   **Definition:** Week-by-week pre-game projection of fantasy points for each week of the season.
+
+   **Semantics:** What ESPN predicted the player would score BEFORE their game started that week (not actual results, not season total).
+
+   **Data Source:** ESPN API `stats[week].stats` (statSourceId=1)
+
+   **Calculation:** Sum all stat values using scoring settings to get weekly projected points.
+
+   **Format:** Array of 17 floats (one per week, 0-indexed)
+
+   **Example:** [25.5, 24.8, 26.2, 0, ...] where index 3 = 0 (bye week)
+   ```
+
+**Red Flags (Require Clarification):**
+
+- [ ] Field name could mean multiple things
+- [ ] Multiple potential data sources exist
+- [ ] Field meaning not explicitly documented
+- [ ] "Projected" or "actual" used without time period
+- [ ] "Stats" used without specifying which stat collection
+- [ ] "Rating" or "score" without defining calculation
+- [ ] Generic terms like "data", "value", "metric"
+
+**Checklist Items to Add:**
+
+For each ambiguous field, add to checklist:
+```markdown
+**Data Source & Semantics:**
+- [ ] CLARIFY: "projected_points" - pre-game weekly OR season total?
+- [ ] CLARIFY: "stats" - appliedStats (actual, sourceId=0) OR stats (projected, sourceId=1)?
+- [ ] VERIFY: Data source mapping for every output field
+- [ ] VERIFY: Time period semantics (historical vs projected vs current)
+```
+
+**Why This Matters:**
+
+Real planning failure: Feature spec said "projected_points array" without clarifying WHAT projections. Implementation assumed it meant player.projected_points (season total, wrong!). Actual requirement was pre-game weekly projections from stats[week].stats. Result: projected_points contained same data as actual_points because both used post-game actuals. Feature was useless for comparing projections to reality.
+
+**Prevention:** During planning, every data field must have:
+1. Unambiguous semantic definition (WHAT does it represent?)
+2. Explicit data source (WHERE does it come from?)
+3. Example with real data (SHOW what it looks like)
+4. User confirmation if multiple interpretations possible
+
+**Output:** All data fields have clear, unambiguous definitions and explicit data sources documented in specs.md.
+
 ### Step 2.4: Codebase Verification Rounds (MANDATORY)
 
 After populating the checklist with questions, perform TWO verification rounds to determine which questions can be answered from existing code:
@@ -1026,6 +1160,117 @@ Before Phase 3, explicitly list ALL assumptions being made. Many bugs come from 
 - Challenging them during planning
 - Adding defensive code during implementation
 - Documenting limitations for future maintainers
+
+### Step 2.9: Create Example Files with REAL Data (MANDATORY)
+
+```
+╔═════════════════════════════════════════════════════════════════╗
+║  🛑 CRITICAL: EXAMPLE FILES MUST CONTAIN REAL DATA             ║
+╠═════════════════════════════════════════════════════════════════╣
+║                                                                 ║
+║  Example files showing only STRUCTURE (field names, types)     ║
+║  are INSUFFICIENT for planning.                                ║
+║                                                                 ║
+║  Example files MUST show:                                      ║
+║  - Real values from actual data sources                        ║
+║  - Annotated with data source for each field                   ║
+║  - Multiple examples showing variation/edge cases              ║
+║                                                                 ║
+║  REAL FAILURE EXAMPLE:                                         ║
+║  Planning provided example with structure but placeholder      ║
+║  zeros. Implementation copied the structure but didn't know    ║
+║  data sources. Result: Feature shipped with all zeros.         ║
+║                                                                 ║
+╚═════════════════════════════════════════════════════════════════╝
+```
+
+**Purpose:** Prevent features that have correct structure but wrong/missing data.
+
+**Requirements for Example Files:**
+
+1. **Use Real Data from Actual Sources**
+   - NOT made-up values
+   - NOT placeholder zeros
+   - NOT "example123" or "test data"
+   - Real player names, real stats, real values
+
+2. **Annotate Data Sources**
+   ```json
+   {
+     "name": "Josh Allen",  // From ESPN API: player.fullName
+     "actual_points": [38.76, 11.82, ...],  // From ESPN API: stats[week].appliedStats (statSourceId=0)
+     "projected_points": [25.5, 24.8, ...],  // From ESPN API: stats[week].stats (statSourceId=1)
+     "passing": {
+       "yards": [232, 180, ...],  // From ESPN API: appliedStats[3] (stat ID 3 = passing yards)
+       "tds": [2, 0, ...]  // From ESPN API: appliedStats[4] (stat ID 4 = passing TDs)
+     }
+   }
+   ```
+
+3. **Show Variation and Edge Cases**
+   - Include example for player with bye week (zeros at correct index)
+   - Include example for incomplete season (zeros for future weeks)
+   - Include example with negative values if applicable (D/ST)
+   - Include example with missing data (how is it represented?)
+
+4. **Verify Against External Source**
+   - Pick well-known entity (Josh Allen, Patrick Mahomes)
+   - Show one week's data in example
+   - Provide ESPN.com link where user can verify values
+   - Example: "Week 1 Josh Allen: 232 pass yards, 2 TDs (verify: https://espn.com/...)"
+
+**Bad Example (Structure Only - INSUFFICIENT):**
+```json
+{
+  "name": "Player Name",
+  "actual_points": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  "projected_points": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  "passing": {
+    "yards": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "tds": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  }
+}
+```
+❌ **Problem:** Implementation will copy this structure and produce all zeros
+
+**Good Example (Real Data with Annotations - REQUIRED):**
+```json
+{
+  "name": "Josh Allen",  // ESPN API: player.fullName
+  "position": "QB",  // ESPN API: player.defaultPositionId (1=QB)
+  "team": "BUF",  // ESPN API: player.proTeamId (mapped to abbreviation)
+  "actual_points": [38.76, 11.82, 23.02, 0, ...],  // ESPN API: calculate from appliedStats (statSourceId=0)
+  "projected_points": [25.5, 24.8, 26.2, 0, ...],  // ESPN API: calculate from stats (statSourceId=1)
+  "passing": {
+    "yards": [232, 180, 258, 0, 215, ...],  // ESPN API: appliedStats['3'] (stat ID 3)
+    "tds": [2, 0, 2, 0, 1, ...]  // ESPN API: appliedStats['4'] (stat ID 4)
+  }
+}
+// Note: Index 3 (week 4) is 0 because BUF has bye week 4
+// Verified against ESPN.com/nfl/player/_/id/3918298/josh-allen Week 1 stats
+```
+✅ **Correct:** Implementation knows where each value comes from
+
+**Example File Checklist:**
+- [ ] Created example file in feature folder (e.g., `example_qb_output.json`)
+- [ ] All fields contain REAL data from actual sources (no placeholder zeros)
+- [ ] Each field annotated with data source (API path, stat ID, calculation)
+- [ ] At least 2-3 examples showing variation (different players/scenarios)
+- [ ] Edge cases shown (bye weeks, missing data, negative values if applicable)
+- [ ] At least one example verified against external source (link provided)
+- [ ] Example shows complete expected output structure
+- [ ] Data sources are specific (not "from ESPN" but "from appliedStats['3']")
+
+**Why This Matters:**
+Real planning failure: Position JSON feature provided example files showing correct structure (field names, array lengths) but all zeros. Implementation copied the structure and produced working code that created files with all zeros. Feature passed all structural tests but was completely useless. Would have been prevented by example showing real ESPN stats with annotations like "appliedStats['3'] = passing yards".
+
+**When Example Data Isn't Available Yet:**
+- Document exactly how to obtain it: "Query ESPN API endpoint X with parameters Y"
+- Show raw API response for one real entity
+- Map API fields to output fields explicitly
+- If API requires authentication/setup, do it during planning and capture responses
+
+**Output:** Example files in feature folder showing REAL data with DATA SOURCE annotations for every field.
 
 ---
 

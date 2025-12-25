@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -74,6 +74,11 @@ class ESPNPlayerData(BaseModel):
     # Stored as dictionary: {week_number: projected_points}
     # Used for players_projected.csv which contains projection-only values
     projected_weeks: Dict[int, float] = Field(default_factory=dict)
+
+    # Raw stats array from ESPN API for position JSON export stat extraction
+    # Stores complete stats array from ESPN response to enable detailed stat extraction
+    # Each entry contains: {scoringPeriodId, statSourceId, appliedTotal, appliedStats}
+    raw_stats: Optional[List[Dict[str, Any]]] = Field(default_factory=list)
 
     def set_week_points(self, week: int, points: float):
         """Set points for a specific week (fantasy regular season weeks 1-17 only)"""

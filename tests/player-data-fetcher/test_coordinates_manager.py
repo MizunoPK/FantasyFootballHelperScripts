@@ -403,7 +403,7 @@ class TestEdgeCases:
                 "São Paulo,Brazil": {"lat": -23.5505, "lon": -46.6333, "tz": "America/Sao_Paulo", "name": "SP Stadium"}
             }
         }
-        coords_file.write_text(json.dumps(coords_data, ensure_ascii=False))
+        coords_file.write_text(json.dumps(coords_data, ensure_ascii=False), encoding='utf-8')
 
         manager = CoordinatesManager(coords_file)
 

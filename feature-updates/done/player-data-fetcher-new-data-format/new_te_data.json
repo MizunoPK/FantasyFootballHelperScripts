@@ -1,0 +1,44 @@
+{
+    "te_data": [
+        {
+    "id": 123,
+    "name": "Brock Bowers",
+    "team": "LV",
+    "position": "TE",
+    "injury_status": "ACTIVE",
+    "drafted_by": "Sea Sharp",
+    "locked": true,
+    "average_draft_position": 170,
+    "player_rating": 97,
+    "projected_points": [18.41926089,18.07282489,17.90393474,19.04724411,22.06789034,18.68644603,18.22083391,0.0,19.18648401,18.22949332,17.3913366,21.02343159,20.95032247,22.94412459,21.70755802,23.84841655,22.55579248],
+    "actual_points": [97.49367088607595,15.0,19.4,26.9,17.7,16.7,7.5,36.8,0.0,5.8,38.2,19.6,55.4,11.6,37.0,9.8,0,0],
+    
+    "passing": {
+        "completions": [],
+        "attempts": [],
+        "pass_yds": [],
+        "pass_tds": [],
+        "interceptions": [],
+        "sacks": []
+    },
+    "rushing": {
+        "attempts": [],
+        "rush_yds": [],
+        "rush_tds": []
+    },
+    "recieving": {
+        "targets": [],
+        "recieving_yds": [],
+        "recieving_tds": [],
+        "receptions": []
+    },
+    "misc": {
+        "fumbles": [],
+        "2_pt": [],
+        "ret_yds": [],
+        "ret_tds": []
+    }
+
+        }
+    ]
+}

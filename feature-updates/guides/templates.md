@@ -15,6 +15,7 @@ This file contains all file templates used during feature planning and developme
 | {feature_name}_lessons_learned.md | Phase 1: Create structure | [Link](#lessons-learned-template) |
 | {feature_name}_questions.md | Step 3: Create questions | [Link](#questions-file-template) |
 | {feature_name}_todo.md | Step 1: Create TODO | [Link](#todo-file-template) |
+| {feature_name}_implementation_checklist.md | Step 6a: Before implementation | [Link](#implementation-checklist-template) |
 | {feature_name}_code_changes.md | After TODO creation | [Link](#code-changes-template) |
 
 ---
@@ -818,6 +819,153 @@ Keep this section updated for session continuity:
 **Next Steps:** {what to do next}
 **Blockers:** {any blockers or issues}
 ```
+
+---
+
+### Implementation Checklist Template
+
+Create in: `feature-updates/{feature_name}/{feature_name}_implementation_checklist.md`
+
+**Purpose:** Track continuous verification of each requirement against specs during implementation (Step 6a).
+
+**When to create:** Before beginning implementation (after Iteration 24 passes).
+
+**How to use:** Check off EACH requirement as you implement it. Do NOT batch-check. Keep this file open alongside specs.md during implementation.
+
+```markdown
+# {Feature Name} - Implementation Checklist
+
+**Instructions**: Check off EACH requirement as you implement it. Do NOT batch-check.
+
+**Created:** {date}
+**Last Updated:** {date/time}
+
+---
+
+## From Traceability Matrix:
+
+### Phase 1: {Phase Name}
+
+- [ ] REQ-001: {Description from specs.md lines X-Y}
+      **Implementation details:**
+      - {Specific requirement details from specs}
+      - Expected output: {example from specs}
+      - NOT: {common mistake to avoid}
+
+      **Implemented in:** {file:line} (fill in after implementing)
+      **Verified against specs:** [ ] YES
+      **Verified date/time:** {date/time}
+      **Notes:** {any deviations or issues}
+
+- [ ] REQ-002: {Description from specs.md lines X-Y}
+      **Implementation details:**
+      - {Specific requirement details from specs}
+      - Expected output: {example from specs}
+      - NOT: {common mistake to avoid}
+
+      **Implemented in:** {file:line}
+      **Verified against specs:** [ ] YES
+      **Verified date/time:** {date/time}
+      **Notes:** {any deviations or issues}
+
+{Continue for all requirements in Phase 1}
+
+### Phase 2: {Phase Name}
+
+- [ ] REQ-003: {Description}
+      {Continue same structure}
+
+{Continue for all phases}
+
+---
+
+## Verification Log:
+
+This table provides at-a-glance verification status:
+
+| Requirement | Spec Location | Implementation | Verified? | Matches Spec? | Notes |
+|-------------|---------------|----------------|-----------|---------------|-------|
+| REQ-001 | specs.md:45-50 | file.py:120-135 | ✅ | ✅ | Exact match |
+| REQ-002 | specs.md:52-58 | file.py:140-160 | ✅ | ✅ | Exact match |
+| REQ-003 | specs.md:60-65 | file.py:165-180 | ✅ | ⚠️ | Minor deviation: {explain} |
+| REQ-004 | specs.md:70-75 | {pending} | ⏳ | ⏳ | In progress |
+| REQ-005 | specs.md:80-85 | {not started} | ❌ | ❌ | Not started |
+
+---
+
+## Mini-QC Checkpoints:
+
+### After Phase 1 Complete
+
+**Date/Time:** {when completed}
+
+- [ ] Read specs.md section for Phase 1
+- [ ] All Phase 1 requirements implemented?
+- [ ] All Phase 1 TODO acceptance criteria satisfied?
+- [ ] Any deviations documented and justified?
+- [ ] Tests passing for Phase 1?
+- [ ] Output matches spec examples?
+
+**Status:** ✅ PASS / ❌ FAIL (if fail, fix before continuing)
+**Issues Found:** {list or "None"}
+**Deviations:** {list or "None"}
+
+### After Phase 2 Complete
+
+{Repeat structure for each phase}
+
+---
+
+## Self-Audit Checkpoints:
+
+Track when you last consulted specs during implementation:
+
+| Time | Last Spec Consultation | Implementing | Notes |
+|------|----------------------|--------------|-------|
+| {time} | specs.md lines X-Y | REQ-001 | Starting implementation |
+| {time} | specs.md lines X-Y | REQ-001 | Verifying output structure |
+| {time} | specs.md lines A-B | REQ-002 | Checking field types |
+
+**Purpose:** Ensure you're consulting specs every 5-10 minutes during implementation.
+
+**Red flag:** If gaps between consultations >15 minutes, you may be working from memory.
+
+---
+
+## Deviation Log:
+
+Document ANY deviations from specs:
+
+| Requirement | Spec Says | Implementation Does | Reason | User Approved? |
+|-------------|-----------|---------------------|--------|----------------|
+| {REQ-ID} | {what spec requires} | {what was implemented instead} | {justification} | YES/NO/PENDING |
+
+**Rule:** If deviation is significant, get user approval before proceeding.
+
+---
+
+## Progress Summary:
+
+- **Total Requirements:** {count}
+- **Implemented:** {count}
+- **Verified:** {count}
+- **Deviations:** {count}
+- **Completion:** {percentage}%
+
+**Last Updated:** {date/time}
+**Ready for QC Round 1:** YES / NO
+```
+
+**Template Notes:**
+
+1. **Create this file BEFORE starting implementation** (Step 6a requirement)
+2. **Keep it open** alongside specs.md during implementation
+3. **Update in real-time** - check off requirements as you complete them
+4. **Self-audit frequently** - use the Self-Audit Checkpoints section to track spec consultations
+5. **Document deviations immediately** - don't wait until QC to discover mismatches
+6. **Mini-QC after each phase** - ensures continuous alignment with specs
+
+**Historical Context:** This template was added after a feature implementation passed all 24 verification iterations but failed QC Round 1 with 40% failure rate due to not consulting specs during implementation. Using this checklist enforces continuous verification.
 
 ---
 

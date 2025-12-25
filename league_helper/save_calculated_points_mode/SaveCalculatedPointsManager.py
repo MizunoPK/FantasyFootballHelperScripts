@@ -29,17 +29,17 @@ from league_helper.util.PlayerManager import PlayerManager
 
 class SaveCalculatedPointsManager:
     """
-    Mode manager for saving calculated projected points to historical data.
+    Mode manager for saving projected fantasy points to historical data.
 
     This manager:
-    - Scores all available players using StarterHelper scoring logic
-    - Saves scores to JSON format: {player_id: calculated_score}
+    - Collects projected fantasy points for all available players
+    - Saves projections to JSON format: {player_id: projected_points}
     - Copies relevant data files to historical_data folder for reproducibility
 
     Attributes:
         logger: Logger instance for tracking operations
         config (ConfigManager): Configuration manager with league settings
-        player_manager (PlayerManager): Player manager with scoring logic
+        player_manager (PlayerManager): Player manager with player data
         data_folder (Path): Path to data directory
     """
 
@@ -61,16 +61,15 @@ class SaveCalculatedPointsManager:
 
     def execute(self) -> None:
         """
-        Main entry point - score all players and save to historical data.
+        Main entry point - collect projected points for all players and save to historical data.
 
         Process:
         1. Determine week and output path
         2. Check if folder already exists (idempotent)
-        3. Setup max_weekly_projection for weekly scoring
-        4. Score all players
-        5. Create JSON output with 2 decimal precision
-        6. Copy data files to historical_data folder
-        7. Display summary message
+        3. Collect projected points for all players (weekly or season-long)
+        4. Create JSON output with 2 decimal precision
+        5. Copy data files to historical_data folder
+        6. Display summary message
 
         Returns:
             None
@@ -97,39 +96,26 @@ class SaveCalculatedPointsManager:
             print(f"\nHistorical data already exists for Season {season}, Week {week}. Skipping.")
             return
 
-        # Setup max_weekly_projection for weekly scoring
-        if week > 0:
-            max_weekly = self.player_manager.calculate_max_weekly_projection(week)
-            self.player_manager.scoring_calculator.max_weekly_projection = max_weekly
-            self.logger.debug(f"Set max_weekly_projection = {max_weekly:.2f} for week {week}")
-
-        # Score all available players
-        self.logger.debug(f"Scoring {len(self.player_manager.players)} players...")
-        scored_players = []
+        # Collect projected points for all players
+        self.logger.debug(f"Collecting projected points for {len(self.player_manager.players)} players...")
+        results_dict = {}
 
         for player in self.player_manager.players:
-            scored = self.player_manager.score_player(
-                player,
-                use_weekly_projection=(week > 0),  # False for week 0, True for 1-17
-                adp=False,
-                player_rating=False,
-                team_quality=True,
-                performance=True,
-                matchup=True,
-                schedule=False,
-                bye=False,
-                injury=False,
-                temperature=True,
-                wind=True,
-                location=True
-            )
-            scored_players.append((player, scored))
+            player_id = str(player.id)
 
-        # Create JSON dictionary with 2 decimal precision
-        results_dict = {}
-        for player, scored in scored_players:
-            player_id = f"{player.name}_{player.position}_{player.team}"
-            results_dict[player_id] = round(scored.score, 2)
+            # Get the appropriate projected points based on week
+            if week == 0:
+                # Season-long: use total fantasy_points
+                projected_points = player.fantasy_points if player.fantasy_points is not None else 0.0
+            else:
+                # Weekly: use specific week projection
+                projected_points = player.get_single_weekly_projection(week)
+                # Handle None values (player may not have projection for this week)
+                if projected_points is None:
+                    projected_points = 0.0
+
+            # Round to 2 decimal places
+            results_dict[player_id] = round(projected_points, 2)
 
         # Create output folder
         output_folder.mkdir(parents=True, exist_ok=True)

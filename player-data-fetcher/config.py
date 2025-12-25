@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 from dataclasses import dataclass
 
-CURRENT_NFL_WEEK = 16     # Current NFL week (1-18, update weekly)
+CURRENT_NFL_WEEK = 17     # Current NFL week (1-18, update weekly)
 NFL_SEASON = 2025        # Current NFL season year
 
 # Data Preservation Settings (FREQUENTLY MODIFIED)
@@ -28,7 +28,11 @@ CREATE_CSV = True
 CREATE_JSON = False
 CREATE_EXCEL = False
 CREATE_CONDENSED_EXCEL = False
-DEFAULT_FILE_CAPS = {'csv': 5, 'json': 5, 'xlsx': 5, 'txt': 5}
+CREATE_POSITION_JSON = True  # Generate position-based JSON files (QB, RB, WR, TE, K, DST)
+DEFAULT_FILE_CAPS = {'csv': 5, 'json': 18, 'xlsx': 5, 'txt': 5}  # json: 18 allows 3 full runs of 6 position files
+
+# Position JSON Output Settings
+POSITION_JSON_OUTPUT = "../data/player_data"  # Output folder for position-based JSON files
 
 # File Paths (FREQUENTLY MODIFIED)
 PLAYERS_CSV = '../data/players.csv'
@@ -37,7 +41,7 @@ GAME_DATA_CSV = '../data/game_data.csv'  # Output file for game-level data (venu
 COORDINATES_JSON = 'coordinates.json'  # Stadium coordinates for weather lookups
 
 # Historical Data Auto-Save Configuration (FREQUENTLY MODIFIED)
-ENABLE_HISTORICAL_DATA_SAVE = True  # Automatically save weekly data snapshots to historical folder
+ENABLE_HISTORICAL_DATA_SAVE = False  # Automatically save weekly data snapshots to historical folder
 
 # Game Data Fetcher Configuration (FREQUENTLY MODIFIED)
 ENABLE_GAME_DATA_FETCH = True  # Enable game data fetching during player data collection

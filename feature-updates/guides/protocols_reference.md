@@ -12,10 +12,12 @@ This file contains detailed protocol definitions referenced by the Feature Devel
 | **Verification Failure** | When any iteration finds issues | [Link](#verification-failure-protocol) |
 | Standard Verification | Iterations 1-3, 8-10, 15-16 | [Link](#standard-verification-protocol) |
 | Algorithm Traceability Matrix | Iterations 4, 11, 19 | [Link](#algorithm-traceability-matrix-protocol) |
+| TODO Specification Audit | Iteration 4a (NEW) | [Link](#todo-specification-audit-protocol) |
 | End-to-End Data Flow | Iterations 5, 12 | [Link](#end-to-end-data-flow-protocol) |
 | Skeptical Re-verification | Iterations 6, 13, 22 | [Link](#skeptical-re-verification-protocol) |
 | Integration Gap Check | Iterations 7, 14, 23 | [Link](#integration-gap-check-protocol) |
 | Fresh Eyes Review | Iterations 17, 18 | [Link](#fresh-eyes-review-protocol) |
+| Pre-Implementation Spec Audit | Iteration 23a (NEW) | [Link](#pre-implementation-spec-audit-protocol) |
 | Edge Case Verification | Iteration 20 | [Link](#edge-case-verification-protocol) |
 | Test Coverage Planning + Mock Audit | Iteration 21 | [Link](#test-coverage-planning-protocol) |
 | Implementation Readiness | Iteration 24 | [Link](#implementation-readiness-protocol) |
@@ -37,6 +39,7 @@ Use this table for fast lookup during development:
 |-----------|----------|------------|--------|
 | 1-3 | Standard | Read → Question → Research → Update | TODO updates |
 | 4 | Algorithm Traceability | Map spec algorithms to code locations | Traceability Matrix |
+| 4a | TODO Specification Audit | Add acceptance criteria to TODO items | TODO with criteria |
 | 5 | End-to-End Data Flow | Trace entry → output | Data Flow Traces |
 | 6 | Skeptical Re-verification | Challenge ALL assumptions | Verification Results |
 | 7 | Integration Gap Check | Every method needs a caller | Integration Matrix |
@@ -52,7 +55,8 @@ Use this table for fast lookup during development:
 | 21 | Test Coverage + Mock Audit | Plan behavior tests, audit mocks | Test plan |
 | 22 | Skeptical Re-verification | Final assumption challenge | Confidence assessment |
 | 23 | Integration Gap Check | Final orphan code check | Clean matrix |
-| 24 | Implementation Readiness | Final go/no-go checklist | READY or BLOCKED |
+| 23a | Pre-Implementation Spec Audit | 4-part fresh-eyes audit: Coverage, Clarity, Structure, Mapping | Audit report |
+| 24 | Implementation Readiness | Final go/no-go checklist (REQUIRES 23a PASS) | READY or BLOCKED |
 
 ---
 
@@ -684,6 +688,102 @@ These situations REQUIRE stopping and asking the user before proceeding. Do NOT 
 
 ---
 
+### TODO Specification Audit Protocol
+
+**Purpose:** Ensure every TODO item has enough detail to implement WITHOUT re-reading specs. This prevents implementation drift where code is written from memory instead of specifications.
+
+**Execute during:** Iteration 4a (immediately after Algorithm Traceability Matrix)
+
+**Historical Context:** Added after feature implementation passed all 24 iterations but failed QC Round 1 with 40% failure rate. Root cause: TODO items were too vague, causing agent to implement from memory instead of specs.
+
+**Steps:**
+
+1. **For EACH TODO item in implementation phases:**
+   - Read corresponding spec section(s) line-by-line
+   - Extract EXACT requirements (data structures, field lists, constraints, examples)
+   - Add "ACCEPTANCE CRITERIA" section to the TODO item with:
+     - ✓ Each specific requirement as checkable item
+     - Example of correct output from specs
+     - Anti-example of common mistake
+     - Spec line reference for verification
+
+2. **Self-audit each TODO item:**
+   - [ ] "Can I implement this without re-reading specs?" (YES required)
+   - [ ] "Do I know what the output should look like?" (YES required)
+   - [ ] "Do I know what NOT to do?" (YES required)
+   - If answer is NO to any → add more detail from specs
+
+3. **Red flags to watch for:**
+   - ⛔ "Transform to [vague description]" without showing structure
+   - ⛔ "Build [thing]" without listing required fields
+   - ⛔ "Add [feature]" without expected output example
+   - ⛔ "Handle [case]" without specifying correct behavior
+   - ⛔ Missing spec references
+   - ⛔ No examples of correct output
+
+4. **Quality template for TODO items:**
+   ```
+   - [ ] X.X: [Task name]
+
+     ACCEPTANCE CRITERIA (from specs.md):
+
+     ✓ REQUIREMENT 1: [Exact specification]
+       - Spec: specs.md lines X-Y
+       - Example: [correct output]
+       - NOT: [common mistake] ❌
+
+     ✓ REQUIREMENT 2: [Exact specification]
+       - Spec: specs.md lines A-B
+       - Example: [correct output]
+       - NOT: [common mistake] ❌
+
+     VERIFICATION:
+     - [ ] Passes check 1
+     - [ ] Passes check 2
+   ```
+
+5. **Completion criteria:**
+   - [ ] Every TODO item has Acceptance Criteria section
+   - [ ] Every criteria has spec reference
+   - [ ] Every criteria has example or anti-example
+   - [ ] Self-audit passes for all items
+
+**Example - GOOD TODO item:**
+```
+- [ ] Build JSON output
+
+  ACCEPTANCE CRITERIA (from specs.md):
+
+  ✓ Root structure must be {"qb_data": [...]} (spec line 24)
+    Example: {"qb_data": [player1, player2]}
+    NOT: {"position": "QB", "players": [...]} ❌
+
+  ✓ Each player must have 11 fields (spec lines 44-56):
+    id (number), name, team, position, injury_status,
+    drafted_by, locked, average_draft_position,
+    player_rating, projected_points, actual_points
+    NOT: Missing any fields ❌
+
+  ✓ Arrays must be 17 elements (spec line 58-65)
+    Example: [null, null, 23.4, 18.7, ...]
+    NOT: Variable length arrays ❌
+```
+
+**Example - BAD TODO item:**
+```
+- [ ] Build JSON output
+  - Create JSON structure
+  - Include all fields
+  - Handle arrays correctly
+```
+(Too vague - will lead to implementation from memory)
+
+**Key Insight:** The TODO must be SELF-CONTAINED with all details from specs embedded as acceptance criteria. If implementing requires re-reading specs to know what "correct" looks like, the TODO has failed its purpose.
+
+**Output:** TODO file with all items having detailed acceptance criteria extracted from specs.
+
+---
+
 ### End-to-End Data Flow Protocol
 
 **Purpose:** Trace complete path from user action to system output; identify integration points.
@@ -1048,6 +1148,232 @@ def test_mae_calculation_excludes_zero_actual_points():
 
 ---
 
+### Pre-Implementation Spec Audit Protocol
+
+**Purpose:** Comprehensive spec-to-TODO audit with fresh eyes to catch all mismatches, missing details, and vague instructions before implementation begins. This is the final quality gate before code is written.
+
+**Execute during:** Iteration 23a (immediately after Integration Gap Check, before Implementation Readiness)
+
+**Historical Context:** Added after feature implementation passed all 24 iterations but failed QC Round 1 with 40% failure rate. This audit would have caught ALL 8 issues found in QC (wrong structure, missing fields, incorrect mappings) BEFORE any code was written.
+
+**Critical Mindset:** Pretend you're a QA reviewer who's never seen this feature before. You have:
+- ✅ The specs.md file
+- ✅ The TODO.md file
+- ❌ NO OTHER CONTEXT
+
+Your job: Find every mismatch, missing detail, and vague instruction.
+
+**Four-Part Audit:**
+
+#### Part 1: Spec Coverage Audit (Completeness)
+
+For EACH section in specs.md:
+
+1. **Read spec section** (e.g., "Section 2: Common Player Fields")
+2. **Extract all requirements** from that section (list them individually)
+3. **Find corresponding TODO items** that implement those requirements
+4. **Verify each requirement has:**
+   - [ ] A TODO item that addresses it
+   - [ ] Acceptance criteria that matches the spec exactly
+   - [ ] Spec line reference
+   - [ ] Example of correct output
+
+**Red flags:**
+- ⛔ Spec requirement with no TODO item
+- ⛔ TODO item exists but no acceptance criteria
+- ⛔ Acceptance criteria doesn't match spec
+- ⛔ No example showing what "correct" looks like
+
+**Example audit finding:**
+```
+SPEC SECTION: Common Player Fields (specs.md lines 44-56)
+
+Requirements extracted:
+1. id (number) - converted from string
+2. name (string)
+3. team (string)
+4. position (string)
+5. injury_status (string)
+6. drafted_by (string)
+7. locked (boolean)
+8. average_draft_position (number or null)
+9. player_rating (number or null)
+10. projected_points (array[17])
+11. actual_points (array[17])
+
+TODO items found:
+- Phase 4.3: Build position JSON
+
+Acceptance criteria in TODO:
+- "Include all fields" ❌ VAGUE
+- No list of 11 fields ❌ INCOMPLETE
+- No types specified ❌ MISSING
+- No spec reference ❌ MISSING
+
+STATUS: ❌ FAIL - TODO incomplete
+ACTION REQUIRED: Add all 11 fields with types and spec reference
+```
+
+#### Part 2: TODO Clarity Audit (Actionability)
+
+For EACH TODO item:
+
+1. **Cover up the specs.md file** (pretend you can't see it)
+2. **Read ONLY the TODO item**
+3. **Ask: "Could I implement this correctly right now?"**
+4. **If NO, identify what's missing:**
+   - Missing data structure?
+   - Missing field list?
+   - Missing constraints (array length, type, etc.)?
+   - Missing examples?
+   - Ambiguous wording?
+
+**Red flags:**
+- ⛔ "Transform to..." without showing structure
+- ⛔ "Build..." without listing components
+- ⛔ "Include all..." without enumerating
+- ⛔ "Handle..." without specifying behavior
+- ⛔ No examples of correct output
+- ⛔ No anti-examples of common mistakes
+
+#### Part 3: Data Structure Audit (Exactness)
+
+For EACH data structure mentioned in specs:
+
+1. **Find the structure in specs** (e.g., JSON root structure)
+2. **Find corresponding TODO item**
+3. **Verify TODO shows EXACT structure:**
+   - Same field names
+   - Same nesting
+   - Same types
+   - Same array lengths
+   - Same null handling
+
+**Red flags:**
+- ⛔ Structure described in words, not shown
+- ⛔ Field names differ from spec
+- ⛔ Nesting level differs
+- ⛔ Missing required fields
+- ⛔ Wrong types
+
+#### Part 4: Mapping Audit (Correctness)
+
+For EACH mapping in specs (e.g., ESPN stat IDs to fields):
+
+1. **Find mapping table in specs**
+2. **Find corresponding TODO item**
+3. **Verify TODO includes complete mapping:**
+   - All source values listed
+   - All target values listed
+   - Transformation logic specified
+   - Edge cases handled
+
+**Red flags:**
+- ⛔ Mapping mentioned but not shown
+- ⛔ Incomplete mapping (some items missing)
+- ⛔ No transformation logic
+- ⛔ No edge case handling
+
+**Completion Criteria:**
+
+All four audits must pass:
+
+- [ ] **Part 1 (Coverage):** Every spec requirement has TODO item with acceptance criteria
+- [ ] **Part 2 (Clarity):** Every TODO item is implementable without reading specs
+- [ ] **Part 3 (Structure):** Every data structure in specs is shown exactly in TODO
+- [ ] **Part 4 (Mapping):** Every mapping in specs is documented in TODO
+
+**If ANY audit fails:**
+1. Document all findings in audit report
+2. Update TODO with missing details from specs
+3. Re-run audit until all parts pass
+4. **DO NOT proceed to Iteration 24** until audit passes
+
+**Audit Output Template:**
+
+```markdown
+## Iteration 23a: Pre-Implementation Spec Audit
+
+**Audit Date:** [Date]
+**Auditor Mindset:** Fresh eyes, never seen this feature before
+
+### Part 1: Spec Coverage Audit
+- [ ] Section 1 (File Structure): X requirements, Y TODO items ✅/❌
+- [ ] Section 2 (Common Fields): X requirements, Y TODO items ✅/❌
+- [ ] Section 3 (Position Stats): X requirements, Y TODO items ✅/❌
+...
+
+**Findings:**
+1. [Issue found]
+2. [Issue found]
+
+**Status:** ✅ PASS / ❌ FAIL (X issues found)
+
+### Part 2: TODO Clarity Audit
+- [ ] Phase 1: All items actionable without specs? ✅/❌
+- [ ] Phase 2: All items actionable without specs? ✅/❌
+...
+
+**Findings:**
+1. [Vague item]
+2. [Missing details]
+
+**Status:** ✅ PASS / ❌ FAIL (X items need clarification)
+
+### Part 3: Data Structure Audit
+- [ ] Root JSON structure matches specs exactly? ✅/❌
+- [ ] Player object structure matches specs exactly? ✅/❌
+- [ ] Stat structure matches specs exactly? ✅/❌
+...
+
+**Findings:**
+1. [Structure mismatch]
+2. [Missing fields]
+
+**Status:** ✅ PASS / ❌ FAIL (X mismatches found)
+
+### Part 4: Mapping Audit
+- [ ] ESPN stat ID mappings complete? ✅/❌
+- [ ] drafted (0/1/2) → drafted_by mapping complete? ✅/❌
+- [ ] locked (0/1) → boolean mapping complete? ✅/❌
+...
+
+**Findings:**
+1. [Missing mapping]
+2. [Incomplete mapping]
+
+**Status:** ✅ PASS / ❌ FAIL (X mappings incomplete)
+
+### OVERALL AUDIT RESULT: ✅ PASS / ❌ FAIL
+
+**Total Issues Found:** X
+
+**Actions Required Before Implementation:**
+1. [Fix 1]
+2. [Fix 2]
+...
+
+**Ready for Iteration 24 (Implementation Readiness)?** ✅ YES / ❌ NO
+```
+
+**Key Insight:** The audit must be done with "fresh eyes" - pretending you've never seen the feature before. This forces you to rely ONLY on the TODO, which reveals gaps that familiarity would hide.
+
+**What This Audit Would Have Caught:**
+
+Historical evidence from feature that failed QC Round 1:
+- ✅ Wrong root structure (Structure Audit Part 3)
+- ✅ Missing 3 common fields (Coverage Audit Part 1)
+- ✅ Wrong stat structure (Structure Audit Part 3)
+- ✅ Wrong stat mappings (Mapping Audit Part 4)
+- ✅ Missing field types (Clarity Audit Part 2)
+- ✅ Vague acceptance criteria (Clarity Audit Part 2)
+
+**Result:** Would have prevented all rework, saved 2+ hours of implementation time.
+
+**Output:** Audit report with pass/fail for all 4 parts, list of required fixes before implementation.
+
+---
+
 ### Implementation Readiness Protocol
 
 **Purpose:** Final checklist before starting to write code.
@@ -1126,16 +1452,64 @@ For each class the new code will use, document:
 ```
 
 **Step 2: Verify Interfaces Against Source**
-For each dependency:
-1. **Read the actual class definition** (not just mocks or docstrings)
-2. **Verify method signatures match expectations:**
+
+**CRITICAL: Copy-Paste Requirement**
+
+DO NOT verify interfaces from memory or documentation. ALWAYS:
+
+1. **Open Actual Source File**
+   - Navigate to the module containing the interface
+   - Find the exact class/function definition
+   - Scroll to the method you're calling
+
+2. **Copy Exact Signature**
+   ```python
+   # EXAMPLE: Verifying DataFileManager.save_json_data()
+   # From utils/data_file_manager.py line 365:
+   def save_json_data(self, data: Any, prefix: str,
+                      create_latest: bool = True, **json_kwargs) -> Tuple[Path, Optional[Path]]:
+   ```
+
+3. **Compare to Your Usage**
+   ```python
+   # YOUR CODE:
+   file_path, _ = manager.save_json_data(output_data, prefix, create_latest=False)
+   #                                      ^^^^^^^^^  ^^^^^^
+   #                                      1st param  2nd param
+
+   # SIGNATURE:
+   def save_json_data(self, data: Any, prefix: str, ...)
+   #                        ^^^^^^^^^  ^^^^^^^^^^^
+   #                        1st param  2nd param
+
+   # ✅ MATCH: output_data is data, prefix is prefix
+   ```
+
+4. **Check Return Type**
+   - Signature returns: `Tuple[Path, Optional[Path]]`
+   - Your code expects: tuple unpacking with 2 elements
+   - ✅ Compatible
+
+5. **Verify method signatures match expectations:**
    ```
    Expected: generate_configs_for_parameter(param_idx)
    Actual:   generate_iterative_combinations(param_name, base_config)
    MISMATCH! → Update expectations to match actual
    ```
-3. **Check required vs optional parameters**
-4. **Look for existing usage patterns:** `grep -r "dependency_name\." .`
+
+6. **Check required vs optional parameters**
+
+7. **Look for existing usage patterns:** `grep -r "dependency_name\." .`
+
+**Red Flags (DO NOT PROCEED if any are true):**
+- [ ] Parameter order doesn't match signature
+- [ ] Parameter types incompatible
+- [ ] Return type incompatible
+- [ ] Required parameters missing
+- [ ] Method doesn't exist in source
+
+**Why This Matters:**
+Bug example from real feature: Called `save_json_data(prefix, data)` instead of `save_json_data(data, prefix)` because parameter order was assumed from memory. Unit tests mocked the dependency, so incorrect call succeeded in tests but failed in production.
 
 **Step 3: Verify Data Model Attributes**
 For each data model (dataclass, domain object) you'll access:
@@ -1172,6 +1546,8 @@ Create a summary of verified interfaces:
 ```
 □ All external dependencies listed
 □ Each dependency's methods verified against source code
+□ Method signatures COPY-PASTED from source (not verified from memory)
+□ Parameter order verified by side-by-side comparison
 □ Parameter names and types confirmed
 □ Return values documented
 □ Data model attributes verified to exist
@@ -1299,17 +1675,51 @@ For each algorithm/calculation in the spec, verify the implementation matches **
 
 ### Acceptance Criteria
 
-- ALL requirements from original file implemented (100% coverage)
-- ALL question answers reflected in implementation
-- NO missing functionality or partial implementations
-- Evidence of implementation exists in codebase
-- All unit tests pass (100%)
-- Manual testing confirms functionality works
-- ALL new methods have identified callers (no orphan code)
-- Integration verified from entry point to output
-- Actual scripts run and produce expected behavior
-- Minimum 3 quality control review rounds completed
-- Lessons learned reviewed and guide updates applied
+```
+╔═════════════════════════════════════════════════════════════════╗
+║  🛑 CRITICAL: 100% COMPLETION REQUIRED - NO EXCEPTIONS         ║
+╠═════════════════════════════════════════════════════════════════╣
+║                                                                 ║
+║  There is NO "acceptable partial" category.                    ║
+║  There is NO "we'll finish it later" exception.                ║
+║  There is NO "structure is done, data is pending" loophole.    ║
+║                                                                 ║
+║  EVERY requirement MUST be FULLY implemented.                  ║
+║  EVERY data field MUST contain REAL data (not zeros/nulls).   ║
+║  EVERY feature MUST achieve its PRIMARY USE CASE.              ║
+║                                                                 ║
+║  IF ANY REQUIREMENT IS INCOMPLETE:                             ║
+║  → Requirement Verification FAILS                              ║
+║  → Return to implementation immediately                        ║
+║  → Complete ALL missing requirements                           ║
+║  → Re-run verification from Step 1                             ║
+║                                                                 ║
+╚═════════════════════════════════════════════════════════════════╝
+```
+
+**Required for PASS:**
+
+- ✅ ALL requirements from original file implemented (100% coverage)
+- ✅ ALL question answers reflected in implementation
+- ✅ NO missing functionality or partial implementations
+- ✅ NO placeholder data (zeros, nulls, empty arrays where real data required)
+- ✅ NO "TODO: implement later" comments in production code
+- ✅ Evidence of implementation exists in codebase
+- ✅ All unit tests pass (100%)
+- ✅ Manual testing confirms functionality works
+- ✅ Feature achieves its PRIMARY USE CASE completely
+- ✅ ALL new methods have identified callers (no orphan code)
+- ✅ Integration verified from entry point to output
+- ✅ Actual scripts run and produce expected behavior
+- ✅ Minimum 3 quality control review rounds completed
+- ✅ Lessons learned reviewed and guide updates applied
+
+**Automatic FAIL conditions:**
+
+- ❌ Any requirement marked "partial" or "incomplete"
+- ❌ Any data field with placeholder values (zeros, nulls) where real data expected
+- ❌ Feature cannot achieve primary use case with current implementation
+- ❌ Any "future work" or "pending" items that block core functionality
 
 ---
 

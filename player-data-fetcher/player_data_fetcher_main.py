@@ -367,6 +367,20 @@ class NFLProjectionsCollector:
                 # Log error but don't fail entire export - this is a supplementary feature
                 self.logger.error(f"Error exporting players_projected.csv: {e}")
 
+            # Export position-based JSON files (if enabled via config)
+            # Creates 6 files: new_qb_data.json, new_rb_data.json, new_wr_data.json,
+            # new_te_data.json, new_k_data.json, new_dst_data.json
+            # Spec: specs.md lines 10-19, USER_DECISIONS_SUMMARY.md Decision 1
+            try:
+                position_json_files = await self.exporter.export_position_json_files(data)
+                if position_json_files:
+                    output_files.extend(position_json_files)
+                    self.logger.info(f"Exported {len(position_json_files)} position-based JSON files")
+            except Exception as e:
+                # Error exporting position JSON
+                # Log error but don't fail entire export - this is a supplementary feature
+                self.logger.error(f"Error exporting position JSON files: {e}")
+
         return output_files
 
     def save_to_historical_data(self) -> bool:
@@ -607,7 +621,30 @@ async def main():
             print(f"   Converted {len(season_players)} players to FantasyPlayer objects")
             print(f"   Available for import: from fantasy_player import FantasyPlayer")
             print(f"   Load from CSV: FantasyPlayer.from_csv_file('data/nfl_projections/nfl_projections_latest_season.csv')")
-        
+
+            # Check if ESPN is returning placeholder ADP data (all players have same value)
+            adp_values = [p.average_draft_position for p in season_players if p.average_draft_position is not None]
+            if adp_values and len(set(adp_values)) == 1:
+                placeholder_value = adp_values[0]
+                print(f"\n{'='*80}")
+                print(f"{'='*80}")
+                print(f"  WARNING: ESPN ADP DATA IS PLACEHOLDER ({placeholder_value}) - NOT REAL VALUES")
+                print(f"{'='*80}")
+                print(f"  ESPN stopped providing real ADP data mid-season (around Week 15).")
+                print(f"  All {len(adp_values)} players have average_draft_position = {placeholder_value}")
+                print(f"")
+                print(f"  IMPACT:")
+                print(f"    - If your scoring uses ADP multipliers, they will not differentiate players")
+                print(f"    - Last known good ADP data: Week 14 (saved in historical_data/2025/14/)")
+                print(f"")
+                print(f"  ACTION NEEDED:")
+                print(f"    - This will be fixed closer to 2026 draft season (Aug 2026)")
+                print(f"    - For now, ADP-based scoring will use placeholder values")
+                print(f"    - Consider using player_rating (0-100 scale) instead if available")
+                print(f"{'='*80}")
+                print(f"{'='*80}\n")
+                logger.warning(f"ESPN returning placeholder ADP data ({placeholder_value}) for all players - mid-season behavior")
+
         logger.info("Data collection completed successfully")
         
     except Exception as e:

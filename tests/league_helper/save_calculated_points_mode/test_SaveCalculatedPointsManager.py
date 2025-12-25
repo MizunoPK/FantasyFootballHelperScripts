@@ -13,13 +13,12 @@ Tests the Save Calculated Points mode manager functionality including:
 import pytest
 import json
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 from league_helper.save_calculated_points_mode.SaveCalculatedPointsManager import SaveCalculatedPointsManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.PlayerManager import PlayerManager
-from league_helper.util.ScoredPlayer import ScoredPlayer
 from utils.FantasyPlayer import FantasyPlayer
 
 
@@ -39,10 +38,6 @@ class TestSaveCalculatedPointsManager:
         """Create mock PlayerManager"""
         pm = Mock(spec=PlayerManager)
         pm.players = []
-        pm.scoring_calculator = Mock()
-        pm.scoring_calculator.max_weekly_projection = 0.0
-        pm.calculate_max_weekly_projection = Mock(return_value=30.0)
-        pm.score_player = Mock()
         return pm
 
     @pytest.fixture
@@ -79,71 +74,70 @@ class TestSaveCalculatedPointsManager:
         assert manager.logger is not None
 
     def test_execute_weekly_scoring(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() uses weekly scoring for week > 0"""
+        """Test execute() collects weekly projections for week > 0"""
         # Setup
         mock_config.current_nfl_week = 5
         mock_config.nfl_season = 2024
 
-        test_player = FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB")
+        test_player = FantasyPlayer(
+            id=1, name="Patrick Mahomes", team="KC", position="QB",
+            week_5_points=25.3  # Set the weekly projection
+        )
         mock_player_manager.players = [test_player]
-
-        scored = ScoredPlayer(test_player, 342.57, [])
-        mock_player_manager.score_player.return_value = scored
 
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)
 
         # Execute
         manager.execute()
 
-        # Verify
-        mock_player_manager.calculate_max_weekly_projection.assert_called_once_with(5)
-        mock_player_manager.score_player.assert_called_once()
-        call_args = mock_player_manager.score_player.call_args
-        assert call_args[1]['use_weekly_projection'] == True
-
-        # Verify JSON output
+        # Verify JSON output contains weekly projection
         json_path = temp_data_folder / "historical_data" / "2024" / "05" / "calculated_projected_points.json"
         assert json_path.exists()
 
+        with open(json_path) as f:
+            data = json.load(f)
+
+        assert "1" in data
+        assert data["1"] == 25.3  # Weekly projection for week 5
+
     def test_execute_season_long_scoring(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() uses season-long scoring for week == 0"""
+        """Test execute() collects season-long projections for week == 0"""
         # Setup
         mock_config.current_nfl_week = 0
         mock_config.nfl_season = 2024
 
-        test_player = FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB")
+        test_player = FantasyPlayer(
+            id=1, name="Patrick Mahomes", team="KC", position="QB",
+            fantasy_points=342.57  # Set the season-long projection
+        )
         mock_player_manager.players = [test_player]
-
-        scored = ScoredPlayer(test_player, 342.57, [])
-        mock_player_manager.score_player.return_value = scored
 
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)
 
         # Execute
         manager.execute()
-
-        # Verify
-        mock_player_manager.calculate_max_weekly_projection.assert_not_called()
-        mock_player_manager.score_player.assert_called_once()
-        call_args = mock_player_manager.score_player.call_args
-        assert call_args[1]['use_weekly_projection'] == False
 
         # Verify JSON output path (no week subfolder)
         json_path = temp_data_folder / "historical_data" / "2024" / "calculated_season_long_projected_points.json"
         assert json_path.exists()
 
+        with open(json_path) as f:
+            data = json.load(f)
+
+        assert "1" in data
+        assert data["1"] == 342.57  # Season-long projection
+
     def test_execute_rounds_to_2_decimals(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() rounds scores to 2 decimal places"""
+        """Test execute() rounds projected points to 2 decimal places"""
         # Setup
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
 
-        test_player = FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB")
+        test_player = FantasyPlayer(
+            id=1, name="Patrick Mahomes", team="KC", position="QB",
+            week_1_points=26.56789  # Projection with more than 2 decimals
+        )
         mock_player_manager.players = [test_player]
-
-        # Score with more than 2 decimals
-        scored = ScoredPlayer(test_player, 342.56789, [])
-        mock_player_manager.score_player.return_value = scored
 
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)
 
@@ -155,9 +149,9 @@ class TestSaveCalculatedPointsManager:
         with open(json_path) as f:
             data = json.load(f)
 
-        player_id = "Patrick Mahomes_QB_KC"
+        player_id = "1"  # Player ID
         assert player_id in data
-        assert data[player_id] == 342.57  # Rounded to 2 decimals
+        assert data[player_id] == 26.57  # Rounded to 2 decimals
 
     def test_execute_skips_if_folder_exists(self, mock_config, mock_player_manager, temp_data_folder, capsys):
         """Test execute() skips operation if folder already exists (idempotent)"""
@@ -169,13 +163,18 @@ class TestSaveCalculatedPointsManager:
         output_folder = temp_data_folder / "historical_data" / "2024" / "05"
         output_folder.mkdir(parents=True)
 
+        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB", week_5_points=25.0)
+        mock_player_manager.players = [test_player]
+
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)
 
         # Execute
         manager.execute()
 
-        # Verify
-        mock_player_manager.score_player.assert_not_called()
+        # Verify skipped (no JSON file created)
+        json_path = temp_data_folder / "historical_data" / "2024" / "05" / "calculated_projected_points.json"
+        assert not json_path.exists()
+
         captured = capsys.readouterr()
         assert "already exists" in captured.out.lower()
 
@@ -185,10 +184,8 @@ class TestSaveCalculatedPointsManager:
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
 
-        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB")
+        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB", week_1_points=24.5)
         mock_player_manager.players = [test_player]
-        scored = ScoredPlayer(test_player, 100.0, [])
-        mock_player_manager.score_player.return_value = scored
 
         # Remove some files to test missing file handling
         (temp_data_folder / "game_data.csv").unlink()
@@ -213,10 +210,8 @@ class TestSaveCalculatedPointsManager:
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
 
-        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB")
+        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB", week_1_points=22.3)
         mock_player_manager.players = [test_player]
-        scored = ScoredPlayer(test_player, 100.0, [])
-        mock_player_manager.score_player.return_value = scored
 
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)
 
@@ -239,10 +234,8 @@ class TestSaveCalculatedPointsManager:
         mock_config.current_nfl_week = 12
         mock_config.nfl_season = 2024
 
-        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB")
+        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB", week_12_points=23.8)
         mock_player_manager.players = [test_player]
-        scored = ScoredPlayer(test_player, 100.0, [])
-        mock_player_manager.score_player.return_value = scored
 
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)
 

@@ -262,6 +262,39 @@ class DraftedRosterManager:
         self.logger.info(f"Applied drafted data: {matches_found}/{len(self.drafted_players)} CSV entries matched")
         return fantasy_players
 
+    def get_team_name_for_player(self, player: FantasyPlayer) -> str:
+        """
+        Get fantasy team name for a player.
+
+        This method looks up which fantasy team drafted the player by normalizing
+        the player's info and checking against the drafted_players dictionary.
+
+        Args:
+            player: FantasyPlayer object to look up
+
+        Returns:
+            Team name string if player is drafted, empty string otherwise
+
+        Example:
+            >>> manager = DraftedRosterManager("data/drafted_data.csv", "Sea Sharp")
+            >>> manager.load_drafted_data()
+            >>> team = manager.get_team_name_for_player(player)
+            >>> print(team)  # "Sea Sharp" or "Team Alpha" or ""
+        """
+        # Build normalized player key (same format as apply_drafted_state_to_players)
+        # Format: "{name} {position} - {team}"
+        player_info = f"{player.name} {player.position} - {player.team}"
+        player_key = self._normalize_player_info(player_info)
+
+        # Look up in drafted_players dict (O(1) lookup)
+        team_name = self.drafted_players.get(player_key, "")
+
+        # Special handling for DST: Try matching by team abbreviation if initial lookup fails
+        if not team_name and player.position.upper() in ['DST', 'DEF', 'D/ST']:
+            team_name = self._match_dst_by_team_abbr(player.team)
+
+        return team_name
+
     # ========================================
     # Internal Helper Methods
     # ========================================
@@ -397,6 +430,49 @@ class DraftedRosterManager:
             'WAS': 'WAS',
         }
         return team_mapping.get(team_abbr.upper(), team_abbr.upper())
+
+    def _match_dst_by_team_abbr(self, team_abbr: str) -> str:
+        """
+        Match a DST player by team abbreviation when normal lookup fails.
+
+        This handles the format mismatch between CSV ("Denver Broncos DEF")
+        and JSON ("Broncos D/ST DST - DEN") by matching on team abbreviation.
+
+        Args:
+            team_abbr: Team abbreviation from player (e.g., "DEN", "HOU")
+
+        Returns:
+            Fantasy team name if match found, empty string otherwise
+        """
+        # Build reverse mapping from full team names to abbreviations
+        full_name_to_abbr = {
+            'seattle seahawks': 'SEA', 'baltimore ravens': 'BAL', 'san francisco 49ers': 'SF',
+            'green bay packers': 'GB', 'pittsburgh steelers': 'PIT', 'dallas cowboys': 'DAL',
+            'new england patriots': 'NE', 'denver broncos': 'DEN', 'buffalo bills': 'BUF',
+            'miami dolphins': 'MIA', 'new york jets': 'NYJ', 'philadelphia eagles': 'PHI',
+            'kansas city chiefs': 'KC', 'los angeles chargers': 'LAC', 'las vegas raiders': 'LV',
+            'cincinnati bengals': 'CIN', 'cleveland browns': 'CLE', 'houston texans': 'HOU',
+            'indianapolis colts': 'IND', 'tennessee titans': 'TEN', 'jacksonville jaguars': 'JAX',
+            'new york giants': 'NYG', 'washington commanders': 'WAS', 'chicago bears': 'CHI',
+            'detroit lions': 'DET', 'minnesota vikings': 'MIN', 'atlanta falcons': 'ATL',
+            'carolina panthers': 'CAR', 'new orleans saints': 'NO', 'tampa bay buccaneers': 'TB',
+            'arizona cardinals': 'ARI', 'los angeles rams': 'LAR'
+        }
+
+        # Normalize the incoming team abbreviation
+        normalized_team = self._normalize_team_abbr(team_abbr)
+
+        # Search through all drafted_players entries for DST matches
+        for drafted_key, fantasy_team in self.drafted_players.items():
+            # Check if this is a DST entry (contains "def" or "dst")
+            if 'def' in drafted_key or 'dst' in drafted_key:
+                # Extract team name from key (format: "denver broncos def" or "broncos dst")
+                # Try to match against full team names
+                for full_name, abbr in full_name_to_abbr.items():
+                    if full_name in drafted_key and self._normalize_team_abbr(abbr) == normalized_team:
+                        return fantasy_team
+
+        return ""
 
     def _find_original_info_for_key(self, drafted_key: str) -> Optional[str]:
         """Find the original CSV data for a normalized key."""
