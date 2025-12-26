@@ -61,7 +61,7 @@ I'll now proceed with Round 1 (iterations 1-7)...
 
 **Prerequisites:** User has created `feature-updates/{feature-name}.txt` with initial scratchwork notes.
 
-**🚨 FIRST ACTION:** Use the "Starting Planning Phase" prompt from `prompts_reference.md` - READ the planning guide, ACKNOWLEDGE requirements, THEN proceed.
+**🚨 FIRST ACTION:** Use the "Starting Planning Phase" prompt from `feature-updates/guides/prompts_reference.md` - READ the planning guide, ACKNOWLEDGE requirements, THEN proceed.
 
 **Workflow:**
 1. **Follow `feature-updates/guides/feature_planning_guide.md`** - This guide structures the planning conversation
@@ -94,7 +94,7 @@ I'll now proceed with Round 1 (iterations 1-7)...
 
 **Phase 2a: TODO Creation (Verification)**
 
-**🚨 FIRST ACTION:** Use the "Starting TODO Creation" prompt from `prompts_reference.md` - READ the TODO guide, ACKNOWLEDGE the 24 iterations, THEN proceed.
+**🚨 FIRST ACTION:** Use the "Starting TODO Creation" prompt from `feature-updates/guides/prompts_reference.md` - READ the TODO guide, ACKNOWLEDGE the 24 iterations, THEN proceed.
 
 1. **Follow `feature-updates/guides/todo_creation_guide.md`**
 2. **Complete ALL 24 verification iterations** (3 rounds: 7+9+8)
@@ -108,7 +108,7 @@ I'll now proceed with Round 1 (iterations 1-7)...
 
 **Phase 2b: Implementation (Coding)**
 
-**🚨 FIRST ACTION:** Use the "Starting Implementation" prompt from `prompts_reference.md` - READ the implementation guide, ACKNOWLEDGE Interface Verification requirement, THEN proceed.
+**🚨 FIRST ACTION:** Use the "Starting Implementation" prompt from `feature-updates/guides/prompts_reference.md` - READ the implementation guide, ACKNOWLEDGE Interface Verification requirement, THEN proceed.
 
 7. **Follow `feature-updates/guides/implementation_execution_guide.md`**
 8. **Create `{name}_implementation_checklist.md`** for continuous spec verification
@@ -120,7 +120,7 @@ I'll now proceed with Round 1 (iterations 1-7)...
 
 **Phase 2c: Post-Implementation (QC & Validation)**
 
-**🚨 FIRST ACTION:** Use the "Starting Post-Implementation QC" prompt from `prompts_reference.md` - READ the post-implementation guide, ACKNOWLEDGE the 3 QC rounds and smoke testing, THEN proceed.
+**🚨 FIRST ACTION:** Use the "Starting Post-Implementation QC" prompt from `feature-updates/guides/prompts_reference.md` - READ the post-implementation guide, ACKNOWLEDGE the 3 QC rounds and smoke testing, THEN proceed.
 
 14. **Follow `feature-updates/guides/post_implementation_guide.md`**
 15. **Execute smoke testing protocol** (MANDATORY - 3 parts)
@@ -153,7 +153,7 @@ See the individual guides for complete protocols and templates.
 
 1. **Check for active feature folders:** Look in `feature-updates/` for any folders (excluding `done/` and `guides/`)
 
-2. **If found, use the "Resuming In-Progress Feature" prompt** from `prompts_reference.md` - Acknowledge the feature status before continuing
+2. **If found, use the "Resuming In-Progress Feature" prompt** from `feature-updates/guides/prompts_reference.md` - Acknowledge the feature status before continuing
 
 3. **READ THE README.md FIRST:** The README contains an "Agent Status" section at the top with:
    - Current phase and step
