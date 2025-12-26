@@ -18,6 +18,104 @@ This file contains ready-to-use conversation prompts for guiding planning and de
 | Asking for direction | [Direction Requests](#asking-for-direction) |
 | After verification round | [Presenting Round Summary](#presenting-round-summary) |
 | Before implementation | [Presenting Interface Contracts](#presenting-interface-contracts) |
+| Starting new phase | [Phase Transitions](#phase-transition-prompts) |
+
+---
+
+## Phase Transition Prompts
+
+**CRITICAL:** These prompts MUST be used when transitioning between phases. Agents must READ the guide FIRST, acknowledge key requirements, THEN proceed.
+
+### Starting Planning Phase
+
+Use when user says "Help me develop {feature-name}" or "Let's plan {feature-name}":
+
+> "I'm reading `feature_planning_guide.md` to ensure I follow the complete planning workflow...
+>
+> **The guide requires:**
+> - Creating feature folder: `feature-updates/{feature-name}/`
+> - Moving scratchwork notes into folder
+> - Creating planning files: README.md, specs.md, checklist.md, lessons_learned.md
+> - Following 7-phase structured conversation
+> - Completing ALL checklist items before implementation
+>
+> I'll now proceed following the planning guide step-by-step. Starting with Phase 1: Initial Context..."
+
+---
+
+### Starting TODO Creation (Phase 2a)
+
+Use when user says "Prepare for updates based on {feature-name}" or "Create the TODO file":
+
+> "I'm reading `todo_creation_guide.md` to ensure I follow all 24 verification iterations...
+>
+> **The guide requires:**
+> - **24 mandatory iterations** across 3 rounds (Rounds 1-3: iterations 1-7, 8-16, 17-24)
+> - Algorithm Traceability Matrix (iterations 4, 11, 19)
+> - TODO Specification Audit (iteration 4a) - acceptance criteria for every task
+> - Pre-Implementation Spec Audit (iteration 23a) - 4-part fresh-eyes audit
+> - Integration Gap Check (iterations 7, 14, 23) - verify all callers
+> - Implementation Readiness Protocol (iteration 24) - final go/no-go
+> - **NO SKIPPING ITERATIONS** - complexity hides, shortcuts cause 40% QC failure
+>
+> I'll now proceed with Round 1 (iterations 1-7). I'll create the questions file after iteration 7 if needed."
+
+---
+
+### Starting Implementation (Phase 2b)
+
+Use when user says "Start implementation" or "Begin coding":
+
+> "I'm reading `implementation_execution_guide.md` to ensure I follow the complete implementation workflow...
+>
+> **The guide requires:**
+> - Interface Verification Protocol FIRST (verify all method signatures from source)
+> - Create implementation checklist from specs.md
+> - Implement phase-by-phase with continuous validation
+> - Run unit tests after EVERY phase (100% pass required)
+> - Mini-QC checkpoints after each major component
+> - Keep specs.md VISIBLE during implementation
+> - Document all changes in code_changes.md incrementally
+>
+> I'll now execute Interface Verification Protocol before writing any code..."
+
+---
+
+### Starting Post-Implementation QC (Phase 2c)
+
+Use when user says "Run QC" or "Validate the implementation":
+
+> "I'm reading `post_implementation_guide.md` to ensure I follow all validation protocols...
+>
+> **The guide requires:**
+> - **Smoke Testing Protocol** (3 parts: import, entry point, E2E execution) - MANDATORY
+> - **3 QC Rounds** (no exceptions):
+>   - Round 1: Script execution test + document review
+>   - Round 2: Deep verification + semantic diff check
+>   - Round 3: Final skeptical review
+> - **Requirement Verification Protocol** - 100% completion required
+> - **Algorithm Verification** - implementation must match spec exactly
+> - Lessons learned capture for guide improvements
+>
+> I'll now begin with the Smoke Testing Protocol (Part 1: Import Test)..."
+
+---
+
+### Resuming In-Progress Feature
+
+Use when resuming work on an existing feature folder:
+
+> "I found an in-progress feature: `{feature-name}/`
+>
+> Reading `{feature-name}/README.md` to understand current status...
+>
+> **Agent Status from README:**
+> - Current Phase: {phase}
+> - Current Step: {step}
+> - Next Action: {action}
+> - Completion Status: {X/Y items complete}
+>
+> I'll continue from where the previous agent left off: {next action description}"
 
 ---
 

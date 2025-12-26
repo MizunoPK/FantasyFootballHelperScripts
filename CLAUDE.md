@@ -21,11 +21,47 @@ The feature development process has two phases:
 
 ---
 
+### 🚨 MANDATORY: Phase Transition Protocol
+
+**When transitioning between ANY phase, you MUST:**
+
+1. **READ the guide FIRST** - Open and read the complete guide for that phase
+2. **ACKNOWLEDGE what you read** - Use the phase transition prompt from `feature-updates/guides/prompts_reference.md`
+3. **THEN proceed** - Follow the guide step-by-step
+
+**Phase transition prompts are MANDATORY for:**
+- Starting Planning Phase → Use "Starting Planning Phase" prompt
+- Starting TODO Creation (Phase 2a) → Use "Starting TODO Creation" prompt
+- Starting Implementation (Phase 2b) → Use "Starting Implementation" prompt
+- Starting Post-Implementation QC (Phase 2c) → Use "Starting Post-Implementation QC" prompt
+- Resuming In-Progress Feature → Use "Resuming In-Progress Feature" prompt
+
+**See:** `feature-updates/guides/prompts_reference.md` → "Phase Transition Prompts" section
+
+**Why this matters:** Reading the guide first ensures you don't miss mandatory steps. The prompt acknowledgment confirms you understand the requirements before starting work.
+
+**Example - Starting TODO Creation:**
+```
+I'm reading `todo_creation_guide.md` to ensure I follow all 24 verification iterations...
+
+The guide requires:
+- 24 mandatory iterations across 3 rounds
+- Algorithm Traceability Matrix (iterations 4, 11, 19)
+- TODO Specification Audit (iteration 4a)
+- NO SKIPPING ITERATIONS - complexity hides, shortcuts cause 40% QC failure
+
+I'll now proceed with Round 1 (iterations 1-7)...
+```
+
+---
+
 ### Phase 1: When User Says "Help Me Develop {feature-name}"
 
 **Trigger phrases:** "Help me develop...", "I want to plan...", "Let's work on the specification for..."
 
 **Prerequisites:** User has created `feature-updates/{feature-name}.txt` with initial scratchwork notes.
+
+**🚨 FIRST ACTION:** Use the "Starting Planning Phase" prompt from `prompts_reference.md` - READ the planning guide, ACKNOWLEDGE requirements, THEN proceed.
 
 **Workflow:**
 1. **Follow `feature-updates/guides/feature_planning_guide.md`** - This guide structures the planning conversation
@@ -57,6 +93,9 @@ The feature development process has two phases:
 **Workflow (3 sequential guides - ALL MANDATORY):**
 
 **Phase 2a: TODO Creation (Verification)**
+
+**🚨 FIRST ACTION:** Use the "Starting TODO Creation" prompt from `prompts_reference.md` - READ the TODO guide, ACKNOWLEDGE the 24 iterations, THEN proceed.
+
 1. **Follow `feature-updates/guides/todo_creation_guide.md`**
 2. **Complete ALL 24 verification iterations** (3 rounds: 7+9+8)
    - Round 1: Iterations 1-7 (+ iteration 4a)
@@ -68,6 +107,9 @@ The feature development process has two phases:
 6. **🛑 STOP:** Do not proceed to coding until Iteration 24 passes
 
 **Phase 2b: Implementation (Coding)**
+
+**🚨 FIRST ACTION:** Use the "Starting Implementation" prompt from `prompts_reference.md` - READ the implementation guide, ACKNOWLEDGE Interface Verification requirement, THEN proceed.
+
 7. **Follow `feature-updates/guides/implementation_execution_guide.md`**
 8. **Create `{name}_implementation_checklist.md`** for continuous spec verification
 9. **Execute TODO tasks** with specs.md VISIBLE at all times
@@ -77,6 +119,9 @@ The feature development process has two phases:
 13. **🛑 STOP:** Do not proceed to QC until ALL TODO tasks complete
 
 **Phase 2c: Post-Implementation (QC & Validation)**
+
+**🚨 FIRST ACTION:** Use the "Starting Post-Implementation QC" prompt from `prompts_reference.md` - READ the post-implementation guide, ACKNOWLEDGE the 3 QC rounds and smoke testing, THEN proceed.
+
 14. **Follow `feature-updates/guides/post_implementation_guide.md`**
 15. **Execute smoke testing protocol** (MANDATORY - 3 parts)
 16. **Complete ALL 3 QC rounds** (no exceptions)
@@ -108,12 +153,14 @@ See the individual guides for complete protocols and templates.
 
 1. **Check for active feature folders:** Look in `feature-updates/` for any folders (excluding `done/` and `guides/`)
 
-2. **If found, READ THE README.md FIRST:** The README contains an "Agent Status" section at the top with:
+2. **If found, use the "Resuming In-Progress Feature" prompt** from `prompts_reference.md` - Acknowledge the feature status before continuing
+
+3. **READ THE README.md FIRST:** The README contains an "Agent Status" section at the top with:
    - Current phase and step
    - Next action to take
    - Full workflow checklist showing what's done vs remaining
 
-3. **Continue from where the previous agent left off** - Don't restart the workflow
+4. **Continue from where the previous agent left off** - Don't restart the workflow
 
 **Why this matters:** Session compaction can interrupt agents mid-workflow. The README.md serves as the persistent state file that survives context window limits.
 
