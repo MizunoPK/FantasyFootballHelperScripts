@@ -1,0 +1,4 @@
+The compile_historical_data.py script and historical_data_compiler folder is meant to help with compiling data from previous years to use for the simulations
+We need to update those scripts to output the new json formatted player data files along with all the new stats
+The historical_data_compiler should no longer produce players.csv or players_projected.csv, instead it will generate the 6 player json files for each week in the historical year
+Each of the 6 json files in each week folder will be a snapshot of that point in time, like what players.csv and players_projected.csv has been doing

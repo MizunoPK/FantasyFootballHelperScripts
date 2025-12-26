@@ -1,0 +1,3 @@
+We're going to give a slight bonus to games played on Sunday
+This will be placed in the weekly configs
+SUNDAY_BONUS = 5

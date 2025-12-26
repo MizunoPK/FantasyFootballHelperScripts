@@ -36,13 +36,22 @@ class WeeklySnapshotGenerator:
     For week N snapshot:
     - week_N/players.csv: Actual points for weeks 1 to N-1, projected for N to 17
     - week_N/players_projected.csv: All projected values (what was projected at that time)
+    - week_N/*.json: Position-specific JSON files (if GENERATE_JSON=True)
 
     This simulates what data would be available when running the system at week N.
     """
 
-    def __init__(self):
-        """Initialize WeeklySnapshotGenerator."""
+    def __init__(self, generate_csv: bool = True, generate_json: bool = True):
+        """
+        Initialize WeeklySnapshotGenerator.
+
+        Args:
+            generate_csv: Whether to generate CSV files (default True)
+            generate_json: Whether to generate JSON files (default True)
+        """
         self.logger = get_logger()
+        self.generate_csv = generate_csv
+        self.generate_json = generate_json
 
     def _calculate_player_ratings(
         self,
@@ -138,8 +147,9 @@ class WeeklySnapshotGenerator:
         Generate snapshot for a single week.
 
         For current_week N:
-        - players.csv: Uses actual points for weeks 1 to N-1, projected for N to 17
-        - players_projected.csv: Uses all projected values (simulates pre-season projections)
+        - players.csv: Uses actual points for weeks 1 to N-1, projected for N to 17 (if GENERATE_CSV=True)
+        - players_projected.csv: Uses all projected values (if GENERATE_CSV=True)
+        - *.json: Position-specific JSON files (if GENERATE_JSON=True)
 
         Args:
             players: List of PlayerData
@@ -149,13 +159,20 @@ class WeeklySnapshotGenerator:
         week_dir = weeks_dir / f"week_{current_week:02d}"
         week_dir.mkdir(parents=True, exist_ok=True)
 
-        # Generate players.csv (smart values based on current week)
-        players_path = week_dir / PLAYERS_FILE
-        self._write_players_snapshot(players, players_path, current_week)
+        # Generate CSV files (if enabled)
+        if self.generate_csv:
+            # Generate players.csv (smart values based on current week)
+            players_path = week_dir / PLAYERS_FILE
+            self._write_players_snapshot(players, players_path, current_week)
 
-        # Generate players_projected.csv (point-in-time projections)
-        projected_path = week_dir / PLAYERS_PROJECTED_FILE
-        self._write_projected_snapshot(players, projected_path, current_week)
+            # Generate players_projected.csv (point-in-time projections)
+            projected_path = week_dir / PLAYERS_PROJECTED_FILE
+            self._write_projected_snapshot(players, projected_path, current_week)
+
+        # Generate JSON files (if enabled)
+        if self.generate_json:
+            from .json_exporter import generate_json_snapshots
+            generate_json_snapshots(players, week_dir, current_week)
 
         self.logger.debug(f"Generated week {current_week} snapshot")
 
@@ -330,7 +347,9 @@ class WeeklySnapshotGenerator:
 
 def generate_weekly_snapshots(
     players: List[PlayerData],
-    output_dir: Path
+    output_dir: Path,
+    generate_csv: bool = True,
+    generate_json: bool = True
 ) -> None:
     """
     Convenience function to generate all weekly snapshots.
@@ -338,6 +357,8 @@ def generate_weekly_snapshots(
     Args:
         players: List of PlayerData with full season data
         output_dir: Output directory
+        generate_csv: Whether to generate CSV files (default True)
+        generate_json: Whether to generate JSON files (default True)
     """
-    generator = WeeklySnapshotGenerator()
+    generator = WeeklySnapshotGenerator(generate_csv=generate_csv, generate_json=generate_json)
     generator.generate_all_weeks(players, output_dir)

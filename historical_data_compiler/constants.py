@@ -116,6 +116,22 @@ GAME_DATA_FILE = "game_data.csv"
 PLAYERS_FILE = "players.csv"
 PLAYERS_PROJECTED_FILE = "players_projected.csv"
 
+# JSON file names
+QB_DATA_FILE = "qb_data.json"
+RB_DATA_FILE = "rb_data.json"
+WR_DATA_FILE = "wr_data.json"
+TE_DATA_FILE = "te_data.json"
+K_DATA_FILE = "k_data.json"
+DST_DATA_FILE = "dst_data.json"
+POSITION_JSON_FILES = {
+    'QB': QB_DATA_FILE,
+    'RB': RB_DATA_FILE,
+    'WR': WR_DATA_FILE,
+    'TE': TE_DATA_FILE,
+    'K': K_DATA_FILE,
+    'DST': DST_DATA_FILE
+}
+
 # Folder names
 TEAM_DATA_FOLDER = "team_data"
 WEEKS_FOLDER = "weeks"

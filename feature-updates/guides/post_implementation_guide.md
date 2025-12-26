@@ -557,6 +557,66 @@ See `protocols_reference.md` → Requirement Verification Protocol for detailed 
 
 **All 10 bugs were found ONLY during smoke testing** - unit tests passed perfectly.
 
+---
+
+### ⚠️ CRITICAL LESSON: 100% Passing Unit Tests DOES NOT Guarantee Correct Behavior
+
+**Real-world case study (Historical Data Fetcher feature, 2025-12-26):**
+
+**Situation:**
+- ✅ All 2,369 unit tests passed (100%)
+- ✅ All integration tests passed
+- ✅ All mini-QC checkpoints passed
+- ❌ **Smoke testing revealed CRITICAL bug: All output files missing 80% of required data**
+
+**The Problem:**
+- JSON files had perfect structure (all field names, correct array lengths, correct types)
+- JSON files were MISSING all position-specific statistics (passing, rushing, receiving, kicking, defense)
+- This was a complete **SPEC VIOLATION** that would cause silent data quality failure in production
+- Users would get files that LOOK correct but contain WRONG DATA
+
+**Root Cause: Mock Brittleness**
+
+Tests used mocks that returned the wrong structure:
+```python
+# Mock returned (what test expected):
+mock.return_value = {'passing': {'completions': [...], 'attempts': [...]}}
+
+# Real method returned (actual format):
+return {'completions': [...], 'attempts': [...]}  # Flat dict, not nested!
+
+# Test checked:
+if 'passing' in stats:  # PASSED with mock, FAILED with real data
+```
+
+**Why Unit Tests Passed:**
+- Mocks returned what the test EXPECTED
+- Test verified the mock matched expectations
+- Real integration never tested until smoke test
+
+**Key Insight: Mocks test YOUR expectations, not REALITY**
+
+### What Smoke Testing Catches That Unit Tests Miss
+
+1. **Mock assumption failures** - Mocks can have wrong structure/format
+2. **Data quality issues** - Wrong data (not just missing fields)
+3. **Integration problems** - Real method calls reveal incompatibilities
+4. **Silent failures** - Code runs without errors but produces incorrect output
+5. **Structural mismatches** - Bridge adapters, wrappers assume wrong formats
+
+### The Bottom Line
+
+**DO NOT SKIP SMOKE TESTING** - It is the ONLY way to verify real-world behavior with actual execution.
+
+**Required approach:**
+1. ✅ Write comprehensive unit tests (catch logic bugs)
+2. ✅ Write integration tests (catch module interaction bugs)
+3. ✅ **EXECUTE SMOKE TESTS WITH REAL DATA** (catch everything else)
+
+All three are mandatory. Unit tests alone will miss critical production failures.
+
+---
+
 ### The 3-Part Smoke Testing Protocol
 
 #### Part 1: Import Test

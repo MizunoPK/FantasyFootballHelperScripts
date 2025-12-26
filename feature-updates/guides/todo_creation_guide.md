@@ -51,6 +51,11 @@ This guide covers creating the TODO file through 24 verification iterations. Use
   □ 7: Integration Gap Check (verify no "Alternative:" notes remain)
   □ ⚡ UPDATE README Agent Status: Step=Step 2 complete (7/24 iterations)
 
+  🔄 CHECKPOINT: Re-read "READY FOR IMPLEMENTATION" checklist (lines 87-93)
+     ⚠️  Round 1 complete ≠ Ready for implementation
+     ⚠️  You MUST complete ALL 24 iterations before implementation
+     → Continue to STEP 3 (do NOT offer user choice to skip to implementation)
+
 □ STEP 3: Create questions file → WAIT for user answers
   □ Create questions.md if needed, OR
   □ Document "no questions - spec complete"
@@ -67,6 +72,11 @@ This guide covers creating the TODO file through 24 verification iterations. Use
   □ 14: Integration Gap Check #2
   □ 15-16: Final preparation
   □ ⚡ UPDATE README Agent Status: Step=Step 5 complete (16/24 iterations)
+
+  🔄 CHECKPOINT: Re-read "READY FOR IMPLEMENTATION" checklist (lines 87-93)
+     ⚠️  Round 2 complete (16/24) ≠ Ready for implementation
+     ⚠️  8 more iterations required (Round 3: iterations 17-24)
+     → Continue to STEP 6 (do NOT declare TODO complete yet)
 
 □ STEP 6: Third verification round (8 iterations + 23a)
   □ 17-18: Fresh Eyes Review
@@ -1430,12 +1440,61 @@ For each data model (dataclass, domain object) you'll access:
 
 **Why this matters:** Interface mismatches cause bugs DURING implementation. Catch them beforehand.
 
+### CRITICAL: Copy-Paste Requirement for Method Signatures
+
+**DO NOT** verify interfaces from memory or documentation. **ALWAYS:**
+
+**1. Open Actual Source File**
+   - Navigate to the module containing the interface
+   - Find the exact class/function definition
+   - Scroll to the method you're calling
+
+**2. Copy Exact Signature**
+   ```python
+   # EXAMPLE: Verifying DataFileManager.save_json_data()
+   # From utils/data_file_manager.py line 365:
+   def save_json_data(self, data: Any, prefix: str,
+                      create_latest: bool = True, **json_kwargs) -> Tuple[Path, Optional[Path]]:
+   ```
+
+**3. Compare to Your Usage**
+   ```python
+   # YOUR CODE:
+   file_path, _ = manager.save_json_data(output_data, prefix, create_latest=False)
+   #                                      ^^^^^^^^^  ^^^^^^
+   #                                      1st param  2nd param
+
+   # SIGNATURE:
+   def save_json_data(self, data: Any, prefix: str, ...)
+   #                        ^^^^^^^^^  ^^^^^^^^^^^
+   #                        1st param  2nd param
+
+   # ✅ MATCH: output_data is data, prefix is prefix
+   ```
+
+**4. Check Return Type**
+   - Signature returns: `Tuple[Path, Optional[Path]]`
+   - Your code expects: tuple unpacking with 2 elements
+   - ✅ Compatible
+
+**Red Flags (DO NOT PROCEED if any are true):**
+- [ ] Parameter order doesn't match signature
+- [ ] Parameter types incompatible
+- [ ] Return type incompatible
+- [ ] Required parameters missing
+- [ ] Method doesn't exist in source
+
+**Why This Matters:**
+In the player-data-fetcher-new-data-format feature, Bug #1 was caused by assuming parameter order without verification. The code called `save_json_data(prefix, data)` but the actual signature is `save_json_data(data, prefix)`. This made the entire feature non-functional despite 100% unit test pass rate (unit tests mocked the dependency, so incorrect call succeeded in tests but failed in production).
+
 **Interface Verification Checklist:**
 ```
 □ All external dependencies listed
 □ Each dependency's methods verified against source code
+□ EACH method signature COPY-PASTED from source (not assumed from memory)
+□ Parameter order verified by side-by-side comparison
 □ Parameter names and types confirmed
-□ Return values documented
+□ Return values documented and compatible with usage
 □ Data model attributes verified to exist
 □ Attribute semantics understood (not assumed)
 ```

@@ -18,6 +18,13 @@ from historical_data_compiler.constants import (
     FANTASY_POSITIONS,
     REGULAR_SEASON_WEEKS,
     MIN_SUPPORTED_YEAR,
+    POSITION_JSON_FILES,
+    QB_DATA_FILE,
+    RB_DATA_FILE,
+    WR_DATA_FILE,
+    TE_DATA_FILE,
+    K_DATA_FILE,
+    DST_DATA_FILE,
     normalize_team_abbrev,
 )
 
@@ -123,3 +130,48 @@ class TestNormalizeTeamAbbrev:
     def test_empty_string(self):
         """Empty string should remain empty"""
         assert normalize_team_abbrev('') == ''
+
+
+class TestJSONFileConstants:
+    """Tests for JSON file name constants"""
+
+    def test_individual_json_file_constants(self):
+        """Individual JSON file constants should have correct values"""
+        assert QB_DATA_FILE == 'qb_data.json'
+        assert RB_DATA_FILE == 'rb_data.json'
+        assert WR_DATA_FILE == 'wr_data.json'
+        assert TE_DATA_FILE == 'te_data.json'
+        assert K_DATA_FILE == 'k_data.json'
+        assert DST_DATA_FILE == 'dst_data.json'
+
+    def test_position_json_files_has_six_positions(self):
+        """POSITION_JSON_FILES should have all 6 fantasy positions"""
+        assert len(POSITION_JSON_FILES) == 6
+
+    def test_position_json_files_keys(self):
+        """POSITION_JSON_FILES should have correct position keys"""
+        expected_positions = {'QB', 'RB', 'WR', 'TE', 'K', 'DST'}
+        assert set(POSITION_JSON_FILES.keys()) == expected_positions
+
+    def test_position_json_files_values(self):
+        """POSITION_JSON_FILES should map to correct filenames"""
+        assert POSITION_JSON_FILES['QB'] == 'qb_data.json'
+        assert POSITION_JSON_FILES['RB'] == 'rb_data.json'
+        assert POSITION_JSON_FILES['WR'] == 'wr_data.json'
+        assert POSITION_JSON_FILES['TE'] == 'te_data.json'
+        assert POSITION_JSON_FILES['K'] == 'k_data.json'
+        assert POSITION_JSON_FILES['DST'] == 'dst_data.json'
+
+    def test_all_json_files_have_json_extension(self):
+        """All JSON file constants should end with .json"""
+        for filename in POSITION_JSON_FILES.values():
+            assert filename.endswith('.json')
+
+    def test_json_filenames_lowercase(self):
+        """JSON filenames should be lowercase"""
+        for filename in POSITION_JSON_FILES.values():
+            assert filename == filename.lower()
+
+    def test_position_json_files_matches_fantasy_positions(self):
+        """POSITION_JSON_FILES keys should match FANTASY_POSITIONS"""
+        assert set(POSITION_JSON_FILES.keys()) == set(FANTASY_POSITIONS)

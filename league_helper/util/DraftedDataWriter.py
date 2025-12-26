@@ -41,7 +41,7 @@ class DraftedDataWriter:
         # Check if CSV file exists before attempting to read it
         # This can happen if the user hasn't drafted any players yet
         if not self.csv_path.exists():
-            self.logger.warning(f"Drafted data file not found: {self.csv_path}")
+            self.logger.debug(f"Drafted data file not found: {self.csv_path}")
             return []
 
         # Use a set to automatically handle duplicates
@@ -109,7 +109,7 @@ class DraftedDataWriter:
             bool: True if successful, False otherwise
         """
         if not self.csv_path.exists():
-            self.logger.warning(f"Drafted data file not found: {self.csv_path}")
+            self.logger.debug(f"Drafted data file not found: {self.csv_path}")
             return False
 
         try:

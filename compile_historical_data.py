@@ -44,6 +44,15 @@ from historical_data_compiler.team_data_calculator import calculate_and_write_te
 from historical_data_compiler.weekly_snapshot_generator import generate_weekly_snapshots
 
 
+# =============================================================================
+# OUTPUT FORMAT TOGGLES
+# =============================================================================
+
+# Control which output formats are generated
+GENERATE_CSV = True   # Generate legacy CSV files (players.csv, players_projected.csv)
+GENERATE_JSON = True  # Generate new JSON files (qb_data.json, rb_data.json, etc.)
+
+
 def parse_args() -> argparse.Namespace:
     """
     Parse command line arguments.
@@ -197,7 +206,7 @@ async def compile_season_data(year: int, output_dir: Path) -> None:
 
         # Phase 5: Generate weekly snapshots
         logger.info("[5/5] Generating weekly snapshots...")
-        generate_weekly_snapshots(players, output_dir)
+        generate_weekly_snapshots(players, output_dir, GENERATE_CSV, GENERATE_JSON)
         logger.info(f"  - Generated {REGULAR_SEASON_WEEKS} weekly snapshots")
 
         logger.info(f"Compilation complete for {year} season")

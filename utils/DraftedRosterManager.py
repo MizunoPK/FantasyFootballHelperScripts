@@ -75,7 +75,7 @@ class DraftedRosterManager:
             bool: True if data loaded successfully, False otherwise
         """
         if not self.csv_path.exists():
-            self.logger.warning(f"Drafted data file not found: {self.csv_path}")
+            self.logger.debug(f"Drafted data file not found: {self.csv_path}")
             return False
 
         try:
@@ -173,7 +173,7 @@ class DraftedRosterManager:
             >>> print(teams["Sea Sharp"])  # List of FantasyPlayer objects on Sea Sharp
         """
         if not self.drafted_players:
-            self.logger.warning("No drafted data loaded, returning empty dict")
+            self.logger.debug("No drafted data loaded, returning empty dict")
             return {}
 
         # Initialize dict with all team names
@@ -224,7 +224,7 @@ class DraftedRosterManager:
             Updated list of FantasyPlayer objects (same references)
         """
         if not self.drafted_players:
-            self.logger.warning("No drafted data loaded, skipping state application")
+            self.logger.debug("No drafted data loaded, skipping state application")
             return fantasy_players
 
         # Create lookup for fast player access

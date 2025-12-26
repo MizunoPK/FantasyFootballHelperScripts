@@ -1,18 +1,18 @@
 # Potential Scoring Metrics - Research Documentation
 
-**Purpose:** Comprehensive research of 58 potential metrics for the fantasy football scoring algorithm
+**Purpose:** Comprehensive research of potential metrics for the fantasy football scoring algorithm
 
 **Source:** Based on `docs/research/scoring_gap_analysis.md` (Version 3.0, Last Updated: December 17, 2025)
 
 **Research Period:** December 2025
 
-**Status:** Research in progress - see `RESEARCH_PROGRESS.md` for current status
+**Status:** Not started
 
 ---
 
 ## Overview
 
-This directory contains individual research documents for 58 potential metrics identified in the scoring gap analysis. Each metric has been systematically researched to determine:
+This directory contains individual research documents for potential metrics identified in the scoring gap analysis. Each metric has been systematically researched to determine:
 
 1. **Data Availability** - Can we get this data from existing sources, ESPN API, or free alternatives?
 2. **Historical Data Availability** - Can we obtain weekly snapshots for simulation validation? (CRITICAL)
@@ -27,7 +27,7 @@ The research follows a standardized template (`TEMPLATE.md`) to ensure consisten
 
 ### For Decision Making
 
-1. **Start with HIGH priority metrics** (14 metrics) - These provide the most value
+1. **Start with HIGH priority metrics** - These provide the most value
 2. **Review the Recommendation section** - Clear pursue/defer/skip guidance
 3. **Check Historical Data Availability** - Critical for simulation validation
 4. **Assess Implementation Complexity** - Balance value vs. effort
@@ -48,38 +48,6 @@ Examples:
 - `01_target_volume.md` - Target Volume/Share (Metric 1)
 - `39_team_rz_td_percentage.md` - Team Red Zone TD% (Metric 39)
 - `52_pass_block_rate.md` - Pass Block Rate (Metric 52)
-
----
-
-## Metrics Summary
-
-### By Priority
-
-| Priority | Count | Purpose |
-|----------|-------|---------|
-| **HIGH** | 14 | Critical for accuracy, implement first |
-| **MEDIUM** | 15 | High value, implement after HIGH |
-| **LOW** | 29 | Nice-to-have, implement as needed |
-
-### By Category
-
-| Category | Metrics | Examples |
-|----------|---------|----------|
-| **Original Gap Metrics** | 1-11 | Target Volume, QB Context, Vegas Lines |
-| **Additional Review Metrics** | 12-19 | Implied Team Total, Air Yards, Snap Share |
-| **Projection Calculation Metrics** | 20-38 | WOPR, xFP, EPA, Success Rate |
-| **Position-Specific Metrics** | 39-58 | Kicker (39-41), TE (42-45), RB (46-51), QB (52-53), WR (54-58) |
-
-### By Position Applicability
-
-| Position | Applicable Metrics | Key Examples |
-|----------|-------------------|--------------|
-| **ALL** | ~30 metrics | Vegas Lines, Team Stats, Game Environment |
-| **QB** | 10 metrics | Pressure Rate, Pass Block Rate, Scramble Tendency |
-| **RB** | 12 metrics | Goal-Line Role, TD Equity, Yards Before Contact |
-| **WR** | 15 metrics | Target Volume, Air Yards, Deep Ball Accuracy |
-| **TE** | 10 metrics | Route Participation, RZ Target Efficiency, EPA/Target |
-| **K** | 3 metrics | Team RZ TD%, Accuracy by Distance, Dome vs Outdoor |
 
 ---
 
@@ -115,64 +83,6 @@ Effort required, dependencies, schema integration
 Should we pursue, defer, or skip? What's the preferred data source?
 
 ---
-
-## Quick Reference Tables
-
-### HIGH Priority Metrics (Pursue First)
-
-| # | Metric | Position | Why HIGH Priority |
-|---|--------|----------|-------------------|
-| 1 | Target Volume/Share | WR, TE, RB | Critical for weekly decisions |
-| 2 | QB Context | WR, TE | Affects all pass-catchers |
-| 4 | Vegas Lines | ALL | Game environment predictor |
-| 12 | Implied Team Total | ALL | More precise than O/U |
-| 21 | WOPR | WR, TE | Weighted opportunity metric |
-| 22 | xFP | ALL | Expected fantasy points baseline |
-| 39 | Team RZ TD% | K | K scoring differential |
-| 40 | Kicker Accuracy | K | 2025 record accuracy |
-| 42 | Route Participation | TE | TE usage indicator |
-| 46 | Goal-Line Role | RB | TD equity determinant |
-| 49 | Role Designation | RB | Workload security |
-| 50 | Receiving Share | RB | Pass-catching RB value |
-| 52 | Pass Block Rate | QB | QB protection quality |
-| 53 | Pressure Rate | QB | QB performance under pressure |
-
-### Position-Specific Metrics
-
-**Kicker (3 metrics):**
-- 39: Team Red Zone TD%
-- 40: Kicker Accuracy by Distance
-- 41: Dome vs Outdoor
-
-**Tight End (4 metrics):**
-- 42: Route Participation Rate
-- 43: Red Zone Target Efficiency
-- 44: EPA Per Target
-- 45: Role Security
-
-**Running Back (6 metrics):**
-- 46: Goal-Line Role
-- 47: TD Equity
-- 48: Yards Before Contact
-- 49: Role Designation
-- 50: Receiving Share
-- 51: Carries Inside 20-Yard Line
-
-**Quarterback (4 metrics):**
-- 52: Pass Block Rate (protection)
-- 53: Pressure Rate
-- 3: Weather Sensitivity
-- Various passing metrics (24-26, 32)
-
-**Wide Receiver (3 metrics):**
-- 54: Deep Ball Accuracy
-- 55: Target Depth Distribution
-- 56: Red Zone Involvement
-- 57: 3rd Down Conversion Rate
-- 58: Total Opportunity Share
-
----
-
 ## Integration with Existing System
 
 ### Current 13-Step Scoring Algorithm
@@ -194,7 +104,7 @@ The existing algorithm covers:
 
 ### Gaps Addressed by This Research
 
-These 58 metrics address gaps including:
+These metrics should address gaps including:
 - Target/opportunity volume (not in current system)
 - QB context for pass-catchers (partially covered by team quality)
 - Vegas lines/game environment (not in current system)
@@ -232,30 +142,12 @@ Lower priority or complex metrics
 
 ---
 
-## Tracking Progress
-
-**Primary Tracker:** `RESEARCH_PROGRESS.md`
-
-- Real-time status of all 58 metrics
-- Links to completed research documents
-- Progress by priority tier (HIGH/MEDIUM/LOW)
-
-**Update After Each Metric:**
-1. Mark status (⏳ → 🔍 → ✅)
-2. Add data source
-3. Note historical availability
-4. Link to research doc
-
----
-
 ## Related Documentation
 
 | Document | Purpose |
 |----------|---------|
 | `TEMPLATE.md` | Template for creating new metric research docs |
-| `RESEARCH_PROGRESS.md` | Real-time tracking of all 58 metrics |
 | `../scoring_gap_analysis.md` | Source document identifying all 58 metrics |
-| `../ESPN_NFL_Game_Data_Research_Report.md` | ESPN API research reference |
 | `../../espn/` | ESPN API documentation |
 
 ---
@@ -281,7 +173,7 @@ Lower priority or complex metrics
 
 ## Key Takeaways
 
-✅ **Standardized Research** - All 58 metrics use same template for consistency
+✅ **Standardized Research** - All metrics use same template for consistency
 
 ✅ **Historical Data Focus** - Simulation validation is a critical requirement
 

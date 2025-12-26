@@ -32,13 +32,26 @@ class TestRunner:
         self.project_root = self.tests_dir.parent
 
         # Detect platform and use appropriate venv path
+        # Try both 'venv' and '.venv' folder names
         if platform.system() == "Windows":
-            self.venv_python = self.project_root / ".venv" / "Scripts" / "python.exe"
+            venv_candidates = [
+                self.project_root / "venv" / "Scripts" / "python.exe",
+                self.project_root / ".venv" / "Scripts" / "python.exe",
+            ]
         else:
-            self.venv_python = self.project_root / ".venv" / "bin" / "python"
+            venv_candidates = [
+                self.project_root / "venv" / "bin" / "python",
+                self.project_root / ".venv" / "bin" / "python",
+            ]
 
-        # Use system python if venv doesn't exist
-        if not self.venv_python.exists():
+        # Use first venv that exists, or fall back to system python
+        self.venv_python = None
+        for candidate in venv_candidates:
+            if candidate.exists():
+                self.venv_python = candidate
+                break
+
+        if not self.venv_python:
             self.venv_python = sys.executable
 
     def discover_test_files(self) -> List[Path]:
@@ -189,12 +202,16 @@ class TestRunner:
         # Final verdict
         all_passed = all(success for _, success, _, _, _ in all_results)
 
-        if all_passed and total_passed == total_tests:
+        if all_passed and total_passed == total_tests and total_tests > 0:
             print(f"SUCCESS: ALL {total_tests} TESTS PASSED (100%)")
             print("=" * 80)
             return True
         else:
-            print(f"FAILURE: {total_passed}/{total_tests} TESTS PASSED ({total_passed/total_tests*100:.1f}%)")
+            if total_tests > 0:
+                pass_rate = total_passed/total_tests*100
+                print(f"FAILURE: {total_passed}/{total_tests} TESTS PASSED ({pass_rate:.1f}%)")
+            else:
+                print(f"FAILURE: NO TESTS DISCOVERED (0/0)")
             print()
             print("STRICT REQUIREMENT: 100% of tests must pass")
             print()

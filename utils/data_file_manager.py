@@ -59,7 +59,7 @@ class DataFileManager:
         self.data_folder.mkdir(parents=True, exist_ok=True)
 
         self.logger = get_logger()
-        self.logger.info(f"DataFileManager initialized for {self.data_folder} with caps: {self.file_caps}")
+        self.logger.debug(f"DataFileManager initialized for {self.data_folder} with caps: {self.file_caps}")
 
     def get_files_by_type(self, file_extension: str) -> List[Path]:
         """

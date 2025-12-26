@@ -67,6 +67,7 @@ class PlayerData:
         injury_status: Injury status string
         week_points: Dict of week -> actual/smart points
         projected_weeks: Dict of week -> projected points only
+        raw_stats: Raw ESPN API stats array for stat extraction
     """
     id: str
     name: str
@@ -81,6 +82,7 @@ class PlayerData:
     injury_status: str = "ACTIVE"
     week_points: Dict[int, float] = field(default_factory=dict)
     projected_weeks: Dict[int, float] = field(default_factory=dict)
+    raw_stats: List[Dict[str, Any]] = field(default_factory=list)
 
     def to_csv_row(self) -> Dict[str, Any]:
         """Convert to CSV row dict."""
@@ -389,7 +391,8 @@ class PlayerDataFetcher:
             player_rating=player_rating,
             injury_status=injury_status,
             week_points=week_points,
-            projected_weeks=projected_weeks
+            projected_weeks=projected_weeks,
+            raw_stats=player_info.get('stats', [])
         )
 
     async def _extract_weekly_points(

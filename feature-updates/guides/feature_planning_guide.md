@@ -195,10 +195,32 @@ Use this checklist to track progress through planning phases:
     □ Iteration 1: Edge cases, error conditions, configuration options
     □ Iteration 2: Logging, performance, testing, integration workflows
     □ Iteration 3: Relationships to similar features, cross-cutting concerns
-  □ 2.4: CODEBASE VERIFICATION rounds (MANDATORY)
+  □ 2.4: CHECKLIST INVESTIGATION & CODEBASE VERIFICATION (MANDATORY)
+    □ **GOAL:** Transform checklist from "list of questions" to "researched options with recommendations"
+    □ **For each checklist item, systematically investigate:**
+      □ Straightforward verification items (file names, API endpoints, existing algorithms):
+        → Search codebase to verify yes/no answers
+        → Mark as [x] resolved with verification notes in checklist
+        → DO NOT ask user - answer from code
+      □ Ambiguous/decision items (implementation approach, architecture choices):
+        → Research relevant source code and patterns
+        → Document findings in checklist
+        → List viable options with pros/cons
+        → Add YOUR recommendation based on research
+        → Keep as [ ] for user decision, but WITH context
+      □ Consumer identification (who uses this output?):
+        → Grep for output file usage
+        → Identify ALL consumers
+        → Verify expected format/structure
+        → Document in checklist
+      □ Integration points (what code interacts with this?):
+        → Find modules that will call this feature
+        → Check backward compatibility requirements
+        → Identify reusable components
     □ Round 1: Search codebase for answers to each question
     □ Round 2: Skeptically re-verify findings from Round 1
-    □ Categorize: [x] Resolved from code | [ ] Needs user decision | [ ] Unknown
+    □ **Result:** Checklist has [x] straightforward items resolved, [ ] decision items with researched options
+    □ **Impact:** Reduces user questions by 50-70% (example: 70 questions → 25 user decisions)
   □ 2.5: Performance analysis for implementation options
   □ 2.6: Create DEPENDENCY MAP showing module + data flow
   □ 2.7: Update _specs.md with discovered context + dependency map

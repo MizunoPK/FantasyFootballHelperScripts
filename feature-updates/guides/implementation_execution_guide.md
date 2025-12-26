@@ -813,6 +813,177 @@ grep -r "config_generator\." simulation/
 
 ---
 
+## Bridge Adapter Pattern Best Practices
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ⚠️  CRITICAL: VERIFY RETURN FORMATS WHEN WRAPPING METHODS      │
+│                                                                 │
+│  Real bug example: Bridge adapter wrapped stat extraction      │
+│  methods but assumed wrong return format:                      │
+│  - Assumed: {'passing': {'completions': [...]}}  (nested)     │
+│  - Reality: {'completions': [...], 'attempts': [...]} (flat)  │
+│  - Result: 100% test pass rate but missing all stats in prod  │
+│                                                                 │
+│  Root cause: Mocks returned expected format, not actual format │
+│  Prevention: Verify return format from source before wrapping  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+When creating bridge adapters, facades, or wrappers around external methods:
+
+### 1. ALWAYS Verify Return Format From Source
+
+Don't assume or remember - verify the actual return format:
+
+```python
+# ❌ WRONG: Assume format based on intuition
+def get_player_stats(self, player):
+    """Extract player stats"""
+    stats = self.exporter.extract_stats(player)
+    return stats  # What format does this return? Unknown!
+
+# ✅ RIGHT: Verify format and document explicitly
+def get_player_stats(self, player):
+    """
+    Extract player stats via bridge to DataExporter.
+
+    VERIFIED RETURN FORMAT (from DataExporter source):
+    - extract_passing_stats(): Dict[str, List[float]]
+      Returns FLAT dict: {'completions': [30.0, ...], 'attempts': [45.0, ...]}
+      NOT nested dict: {'passing': {...}}
+
+    Source: player_data_exporter.py:245-280 (verified 2025-12-26)
+    """
+    stats = self.exporter.extract_passing_stats(player)
+    # Returns flat dict, need to wrap in 'passing' key
+    return {'passing': stats}
+```
+
+**How to verify:**
+1. Read the actual source code of the method you're wrapping
+2. Look at what it actually `return`s (not what you think it returns)
+3. Check for existing usage: `grep -r "method_name(" .`
+4. Document the VERIFIED format with source location and date
+
+### 2. Add Explicit Tests With REAL Objects (Not Just Mocks)
+
+Mock-only tests can pass while real integration fails. Always include at least one test with real objects:
+
+```python
+# ❌ INSUFFICIENT: Mock-only test
+def test_bridge_adapter_with_mock(self):
+    """Test adapter with mocked exporter"""
+    mock_exporter = Mock()
+    # Mock returns what I EXPECT (may be wrong!)
+    mock_exporter.extract_stats.return_value = {'passing': {...}}
+
+    adapter = PlayerDataAdapter(player)
+    result = adapter.get_stats(mock_exporter)
+
+    # Passes even if real exporter returns different format
+    assert 'passing' in result
+
+# ✅ REQUIRED: At least one real-object test
+def test_bridge_adapter_with_real_exporter(self):
+    """Test adapter with ACTUAL exporter instance (no mocks)"""
+    # Use real class, not mock
+    real_exporter = DataExporter(data_folder=self.test_data)
+    test_player = PlayerData(id="1001", name="Test QB", position="QB", ...)
+
+    adapter = PlayerDataAdapter(test_player)
+
+    # Call real method (will fail if format assumption is wrong)
+    result = real_exporter.extract_passing_stats(adapter)
+
+    # Verify ACTUAL return format (not assumed format)
+    assert isinstance(result, dict)
+    assert 'completions' in result  # Flat dict, NOT nested 'passing' key!
+    assert isinstance(result['completions'], list)
+```
+
+**Why this matters:**
+- Mocks test your expectations
+- Real objects test reality
+- Expectations ≠ Reality leads to prod bugs
+
+### 3. Document Expected Formats In Adapter Class Docstring
+
+Make return format assumptions explicit for future maintainers:
+
+```python
+class PlayerDataAdapter:
+    """
+    Adapts PlayerData objects for use with DataExporter.
+
+    This adapter implements the interface expected by DataExporter methods.
+
+    VERIFIED RETURN FORMATS (from DataExporter source):
+
+    DataExporter._extract_passing_stats(adapter) returns:
+        Dict[str, List[float]] - FLAT dict structure
+        {
+            'completions': [30.0, 25.0, ...],  # 17 weeks
+            'attempts': [45.0, 38.0, ...],     # 17 weeks
+            'pass_yds': [320.0, 285.0, ...],   # 17 weeks
+            'pass_tds': [2.0, 1.0, ...]        # 17 weeks
+        }
+        NOTE: Returns FLAT dict (stat_name -> array)
+        NOT nested dict ({'passing': {...}})
+
+    DataExporter._extract_rushing_stats(adapter) returns:
+        Dict[str, List[float]] - FLAT dict structure
+        {
+            'rush_att': [5.0, 3.0, ...],
+            'rush_yds': [25.0, 18.0, ...],
+            'rush_tds': [0.0, 1.0, ...]
+        }
+
+    Source Verification:
+    - File: player_data_exporter.py
+    - Methods: _extract_passing_stats (lines 245-280)
+    - Verified: 2025-12-26
+    - Existing usage: historical_data_compiler/csv_exporter.py:156
+
+    Common Mistake:
+        Assuming methods return nested {'passing': {...}} because that's
+        what makes logical sense. Always verify actual return format.
+    """
+
+    def __init__(self, player_data: PlayerData):
+        self.player_data = player_data
+```
+
+**Why this matters:**
+- Documents assumptions for code reviews
+- Prevents future developers from making same wrong assumption
+- Provides verification trail (source location, date)
+
+### 4. Verification Checklist For Bridge Adapters
+
+Before implementing any bridge adapter or wrapper:
+
+```
+□ Read source code of ALL methods being wrapped
+□ Document actual return format (not assumed format)
+□ Include source file and line numbers
+□ Write at least ONE test with real objects (not mocks)
+□ Document return format in adapter class docstring
+□ Verify existing usage matches your understanding
+□ Test integration with real method calls before production
+```
+
+**Red Flags (Stop and verify):**
+- "I remember this method returns..."
+- "It should logically return..."
+- "The mock returns X, so the real method must too"
+- "I'll verify the format during QC"
+- All tests use mocks, none use real objects
+
+**Key Principle: Don't assume - verify and document.**
+
+---
+
 ## Standard Implementation Steps
 
 ### 1. Create Code Changes File

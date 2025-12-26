@@ -54,6 +54,26 @@ Last Activity:  {YYYY-MM-DD HH:MM} - {what was done}
 2. Check the workflow checklist below for detailed progress
 3. Continue from "Next Action" - do NOT restart the workflow
 
+---
+
+## 📖 Active Development Guide
+
+**Current Phase:** [PLANNING | TODO_CREATION | IMPLEMENTATION | POST_IMPLEMENTATION]
+**Active Guide:** `feature-updates/guides/[guide_file].md`
+**Critical Section:** [specific section agent should reference]
+
+⚠️ **AGENTS: Re-read the active guide section before major decisions!**
+
+**Guide by Phase:**
+- **PLANNING:** `feature_planning_guide.md`
+- **TODO_CREATION:** `todo_creation_guide.md`
+- **IMPLEMENTATION:** `implementation_execution_guide.md`
+- **POST_IMPLEMENTATION:** `post_implementation_guide.md`
+
+**Update this section when transitioning between phases.**
+
+---
+
 ### Full Workflow Checklist
 
 > **Instructions:** Update this checklist as you complete each step. This is your persistent state across sessions.
@@ -635,6 +655,28 @@ Create in: `feature-updates/{feature_name}/{feature_name}_todo.md`
 
 ```markdown
 # {Feature Name} - Implementation TODO
+
+---
+
+## 📖 Guide Reminder
+
+**This file is governed by:** `feature-updates/guides/todo_creation_guide.md`
+
+**Ready for implementation when:** ALL 24 iterations complete (see guide lines 87-93)
+
+**DO NOT proceed to implementation until:**
+- [ ] All 24 iterations executed individually
+- [ ] Iteration 4a passed (TODO Specification Audit)
+- [ ] Iteration 23a passed (Pre-Implementation Spec Audit - 4 parts)
+- [ ] Iteration 24 passed (Implementation Readiness Checklist)
+- [ ] Interface verification complete (copy-pasted signatures verified)
+- [ ] No "Alternative:" or "May need to..." notes remain in TODO
+
+⚠️ **If you think verification is complete, re-read guide lines 87-93 FIRST!**
+
+⚠️ **Do NOT offer user choice to "proceed to implementation OR continue verification" - you MUST complete all 24 iterations**
+
+---
 
 ## Iteration Progress Tracker
 
