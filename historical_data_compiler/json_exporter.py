@@ -340,7 +340,7 @@ class JSONSnapshotExporter:
             "team": player_data.team,
             "position": player_data.position,
             "injury_status": player_data.injury_status if player_data.injury_status else "ACTIVE",
-            "drafted_by": None,  # Historical data has no league context
+            "drafted_by": "",    # Historical data has no league context
             "locked": False,     # Historical data not locked
             "average_draft_position": player_data.average_draft_position,
             "player_rating": round(player_rating, 1),

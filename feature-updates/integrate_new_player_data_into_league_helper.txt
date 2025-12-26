@@ -1,0 +1,2 @@
+As part of previous features, we have set up a new way to store player data, as part of a /data/player_data folder where each position has a json file filled with a list of the corresponding position
+The objective of this new feature is to make the league_helper compatable with the new player_data files instead of players.csv and 
