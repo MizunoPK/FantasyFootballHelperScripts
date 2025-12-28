@@ -433,47 +433,134 @@ class PlayerManager:
 
     def update_players_file(self) -> str:
         """
-        Save current player data back to CSV file.
+        Update player JSON files with current drafted_by and locked status.
 
-        Sorts players by drafted status (available → opponents → us) and writes
-        all player data including weekly projections back to players.csv.
+        This method selectively updates ONLY the drafted_by and locked fields
+        in position-specific JSON files (qb_data.json, rb_data.json, etc.),
+        preserving all other player data (projections, stats, etc.) from
+        the player-data-fetcher.
+
+        Uses atomic write pattern (temp file + rename) and creates backup files
+        (.bak) before updating for manual recovery if needed.
 
         Returns:
             str: Success message
 
         Side Effects:
-            - Overwrites players.csv with current state
-            - Preserves all columns including weekly projections
-            - Sorts by drafted status for easier reading
+            - Updates 6 JSON files in player_data/ directory
+            - Creates .bak backup files
+            - Only modifies drafted_by and locked fields
+            - Preserves all other fields (projections, stats)
+
+        Raises:
+            FileNotFoundError: If position JSON file missing (run player-data-fetcher)
+            PermissionError: If cannot write to files
+            json.JSONDecodeError: If JSON file corrupted
+
+        Spec Reference: sub_feature_04_file_update_strategy_spec.md lines 154-178
         """
-        self.logger.debug("Updating players CSV file")
+        self.logger.debug("Updating player JSON files (selective update)")
 
-        # Sort players by drafted value (ascending: 0=available, 1=drafted by others, 2=drafted by us)
-        sorted_players = sorted(self.players, key=lambda p: p.drafted)
+        # Task 1.2: Group players by position (spec line 159)
+        # Dict[str, List[FantasyPlayer]]
+        players_by_position = {}
+        for player in self.players:
+            # Defensive check: skip players with None or invalid position
+            if player.position is None or player.position not in ['QB', 'RB', 'WR', 'TE', 'K', 'DST']:
+                self.logger.warning(f"Skipping player {player.id} with invalid position: {player.position}")
+                continue
 
-        # Use complete field list from player data fetcher to preserve all enhanced scoring columns
-        fieldnames = [
-            'id', 'name', 'team', 'position', 'bye_week', 'fantasy_points',
-            'injury_status', 'drafted', 'locked', 'average_draft_position',
-            'player_rating',
-            # Weekly projections (weeks 1-17 fantasy regular season only)
-            'week_1_points', 'week_2_points', 'week_3_points', 'week_4_points',
-            'week_5_points', 'week_6_points', 'week_7_points', 'week_8_points',
-            'week_9_points', 'week_10_points', 'week_11_points', 'week_12_points',
-            'week_13_points', 'week_14_points', 'week_15_points', 'week_16_points',
-            'week_17_points'
-        ]
+            position_key = player.position
+            if position_key not in players_by_position:
+                players_by_position[position_key] = []
+            players_by_position[position_key].append(player)
 
-        # Save sorted players to CSV
-        with open(self.file_str, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for p in sorted_players:
-                # Only include fields that are in fieldnames to avoid DictWriter errors
-                player_dict = p.to_dict()
-                filtered_dict = {key: player_dict.get(key, None) for key in fieldnames}
-                writer.writerow(filtered_dict)
-        self.logger.info(f"Available players saved with {len(self.players)} players (sorted by drafted status, all enhanced columns preserved)")
+        # Task 1.1 & 1.4-1.7: For each position, update JSON files (spec lines 160-165)
+        player_data_dir = self.data_folder / 'player_data'
+        positions = ['qb', 'rb', 'wr', 'te', 'k', 'dst']
+
+        for position in positions:
+            position_upper = position.upper()
+            json_path = player_data_dir / f'{position}_data.json'
+
+            # Task 3.1: Check if file exists (spec lines 82-87)
+            if not json_path.exists():
+                error_msg = (
+                    f"{position}_data.json not found in player_data/ directory. "
+                    f"Please run player-data-fetcher to create missing position files."
+                )
+                self.logger.error(error_msg)
+                raise FileNotFoundError(error_msg)
+
+            try:
+                # Task 1.1: Read existing JSON file (spec lines 157-161)
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    json_data = json.load(f)
+
+                # Extract position key (e.g., "qb_data")
+                position_key = f"{position}_data"
+                players_array = json_data.get(position_key, [])
+
+                # Task 1.3: Create ID → FantasyPlayer lookup for this position (spec lines 169-177)
+                position_players = players_by_position.get(position_upper, [])
+                player_updates = {p.id: p for p in position_players}
+
+                # Task 1.4: Selective update - ONLY drafted_by and locked (spec lines 169-177)
+                for player_dict in players_array:
+                    player_id = player_dict.get('id')
+
+                    if player_id in player_updates:
+                        updated_player = player_updates[player_id]
+
+                        # Task 2.1: Convert drafted → drafted_by (spec lines 60-67)
+                        # Critical: FantasyPlayer has NO drafted_by attribute!
+                        # Use drafted field (int) with conditional logic
+                        if updated_player.drafted == 0:
+                            player_dict['drafted_by'] = ""
+                        elif updated_player.drafted == 2:
+                            player_dict['drafted_by'] = Constants.FANTASY_TEAM_NAME
+                        # elif drafted == 1: DON'T update drafted_by
+                        # Preserve opponent team name from existing JSON
+
+                        # Task 2.2: locked field (spec lines 65-67)
+                        # Already boolean in FantasyPlayer (Sub-feature 3)
+                        player_dict['locked'] = updated_player.locked
+
+                        # Task 1.5: All other fields preserved (not modified)
+
+                # Task 1.7: Create backup file (spec lines 162-165)
+                backup_path = json_path.with_suffix('.bak')
+                if json_path.exists():
+                    import shutil
+                    shutil.copy2(json_path, backup_path)
+
+                # Task 1.6: Atomic write pattern (spec lines 162-165)
+                # Wrap array back in object with position key
+                json_data_to_write = {position_key: players_array}
+                tmp_path = json_path.with_suffix('.tmp')
+                with open(tmp_path, 'w', encoding='utf-8') as f:
+                    json.dump(json_data_to_write, f, indent=2)
+
+                # Atomic replace (overwrites existing .json file)
+                tmp_path.replace(json_path)
+
+                self.logger.debug(f"Updated {position}_data.json ({len(position_players)} players in memory)")
+
+            except json.JSONDecodeError as e:
+                # Task 3.3: Handle JSON parse errors (spec lines 48-56)
+                error_msg = f"Malformed JSON in {json_path}: {e}"
+                self.logger.error(error_msg)
+                raise
+            except PermissionError as e:
+                # Task 3.2: Handle permission errors (spec lines 48-56)
+                error_msg = f"Permission denied writing to {json_path}: {e}"
+                self.logger.error(error_msg)
+                raise
+
+        # Success message (spec requires str return)
+        success_msg = f"Player data updated successfully (6 JSON files updated)"
+        self.logger.info(success_msg)
+        return success_msg
     
 
     def reload_player_data(self) -> None:

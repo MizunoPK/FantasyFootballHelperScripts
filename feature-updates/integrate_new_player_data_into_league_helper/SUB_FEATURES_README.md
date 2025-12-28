@@ -238,26 +238,34 @@ Each sub-feature has its own specification file with:
 | 1. Core Data Loading | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
 | 2. Weekly Data Migration | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
 | 3. Locked Field Migration | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
-| 4. File Update Strategy | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
+| 4. File Update Strategy | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
 | 5. ProjectedPointsManager Consolidation | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
 | 6. TeamDataManager D/ST Migration | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
 | 7. DraftedRosterManager Consolidation | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
 | 8. CSV Deprecation & Cleanup | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
 
-**Progress:** 3/8 sub-features complete (37.5%)
+**Progress:** 4/8 sub-features complete (50%)
 
 **Last Updated:** 2025-12-28
 
-**Current Sub-Feature:** Sub-Feature 3: Locked Field Migration - **COMPLETE ✅**
-- ✅ All 22 implementation tasks complete (21 from spec + 1 comment update)
-- ✅ 2404/2404 tests passing (100%)
+**Current Sub-Feature:** Sub-Feature 4: File Update Strategy - **COMPLETE ✅**
+- ✅ All 22 implementation tasks complete across 5 phases
+- ✅ 2406/2406 tests passing (100%)
 - ✅ QC Rounds 1, 2, 3 all PASSED (0 issues)
-- ✅ Smoke testing complete (import, entry point, integration)
+- ✅ Smoke testing complete (import, method signature, E2E validation)
 - ✅ Algorithm Traceability Matrix verified (100% match)
-- ✅ Backward compatibility maintained via __post_init__()
-- ✅ Boolean semantics migration complete (int → bool)
+- ✅ Requirement verification: All 22 requirements met
+- ✅ Selective JSON updates working (only drafted_by and locked modified)
+- ✅ Atomic write pattern implemented (tmp + replace)
+- ✅ Backup files created (.bak)
+- ✅ Round-trip preservation verified (all stats preserved)
+- ✅ Bug fixes: JSON structure wrapper, Windows atomic replace, interface mismatch
+- ✅ Dependencies verified (Sub-features 1 & 3 integration confirmed)
 
-**Next Sub-Feature:** Sub-Feature 4: File Update Strategy
+**Next Sub-Feature:** Sub-Feature 5: ProjectedPointsManager Consolidation - **PENDING**
+- ⏸️ Planning complete (deep dive done)
+- ⏸️ Ready for TODO creation
+- ⏸️ Dependencies: Sub-feature 2 (Weekly Data Migration) ✅ COMPLETE
 
 ---
 
