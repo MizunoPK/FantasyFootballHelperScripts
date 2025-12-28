@@ -263,6 +263,7 @@ class TestJSONSnapshotExporter:
         assert result['name'] == "Test Player"
         assert result['team'] == "KC"
         assert result['position'] == "QB"
+        assert result['bye_week'] == 10
         assert result['injury_status'] == "ACTIVE"
         assert result['drafted_by'] == ""
         assert result['locked'] is False

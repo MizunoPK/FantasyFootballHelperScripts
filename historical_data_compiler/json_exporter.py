@@ -339,6 +339,7 @@ class JSONSnapshotExporter:
             "name": player_data.name,
             "team": player_data.team,
             "position": player_data.position,
+            "bye_week": player_data.bye_week,
             "injury_status": player_data.injury_status if player_data.injury_status else "ACTIVE",
             "drafted_by": "",    # Historical data has no league context
             "locked": False,     # Historical data not locked

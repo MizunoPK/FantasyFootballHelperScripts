@@ -1,0 +1,13 @@
+As part of previous features, we have set up a new way to store player data, as part of a /data/player_data folder where each position has a json file filled with a list of the corresponding position
+The objective of this new feature is to make the league_helper compatable with the new player_data files instead of players.csv. players_projected.csv, and drafted_data.csv
+The PlayerManager will need to be updated to read in the new json files *instead* of the old csv files.
+All the fields and stats should be read in to the player manager and in player data and verified to be accessible. Many of the new stats will not be used yet, but I want this feature to ensure that all the stats are able to be read in and eventually used by other features without needing to worry about the data layer
+The League Helper should functionality work exactly as it did before, but with some modifications to how data is stored and accessed
+Note that the drafted column from the csv has turned into a drafted_by column that has the team name. 
+What was once drafted=0 -> drafted_by=""
+drafted=1 -> drafted_by != "" and drafted_by != FANTASY_TEAM_NAME
+drafted=2 -> drafted_by == FANTASY_TEAM_NAME
+
+Note that the locked column has switched from being 0 or 1 to being a boolean value
+
+Instead of reading from drafted_data.csv, we'll just look at the value of the drafted_by string in each player

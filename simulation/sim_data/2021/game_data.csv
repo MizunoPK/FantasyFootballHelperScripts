@@ -2,7 +2,7 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 1,TB,DAL,76,11,0.13,31,29,False,False,USA,Tampa,FL,2021-09-10T00:20Z
 1,ATL,PHI,,,,6,32,True,False,USA,Atlanta,GA,2021-09-12T17:00Z
 1,BUF,PIT,73,34,0.0,16,23,False,False,USA,Orchard Park,NY,2021-09-12T17:00Z
-1,CIN,MIN,88,27,0.0,27,24,False,False,USA,Cincinnati,OH,2021-09-12T17:00Z
+1,CIN,MIN,87,27,0.0,27,24,False,False,USA,Cincinnati,OH,2021-09-12T17:00Z
 1,DET,SF,,,,33,41,True,False,USA,Detroit,MI,2021-09-12T17:00Z
 1,TEN,ARI,85,14,0.0,13,38,False,False,USA,Nashville,TN,2021-09-12T17:00Z
 1,IND,SEA,,,,16,28,True,False,USA,Indianapolis,IN,2021-09-12T17:00Z
@@ -22,14 +22,14 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 2,MIA,BUF,83,16,0.21,0,35,False,False,USA,Miami Gardens,FL,2021-09-19T17:00Z
 2,NYJ,NE,74,20,0.0,6,25,False,False,USA,East Rutherford,NJ,2021-09-19T17:00Z
 2,PHI,SF,78,19,0.0,11,17,False,False,USA,Philadelphia,PA,2021-09-19T17:00Z
-2,PIT,LV,80,12,0.0,17,26,False,False,USA,Pittsburgh,PA,2021-09-19T17:00Z
-2,CAR,NO,87,21,0.0,26,7,False,False,USA,Charlotte,NC,2021-09-19T17:00Z
+2,PIT,LV,78,12,0.0,17,26,False,False,USA,Pittsburgh,PA,2021-09-19T17:00Z
+2,CAR,NO,86,22,0.0,26,7,False,False,USA,Charlotte,NC,2021-09-19T17:00Z
 2,JAX,DEN,79,14,0.03,13,23,False,False,USA,Jacksonville,FL,2021-09-19T17:00Z
 2,ARI,MIN,,,,34,33,True,False,USA,Glendale,AZ,2021-09-19T20:05Z
 2,TB,ATL,79,11,0.18,48,25,False,False,USA,Tampa,FL,2021-09-19T20:05Z
 2,LAC,DAL,,,,17,20,True,False,USA,Inglewood,CA,2021-09-19T20:25Z
 2,SEA,TEN,63,31,0.0,30,33,False,False,USA,Seattle,WA,2021-09-19T20:25Z
-2,BAL,KC,70,19,0.0,36,35,False,False,USA,Baltimore,MD,2021-09-20T00:20Z
+2,BAL,KC,69,19,0.0,36,35,False,False,USA,Baltimore,MD,2021-09-20T00:20Z
 2,GB,DET,62,15,0.0,35,17,False,False,USA,Green Bay,WI,2021-09-21T00:15Z
 3,HOU,CAR,,,,9,24,True,False,USA,Houston,TX,2021-09-24T00:20Z
 3,BUF,WSH,64,39,0.0,43,21,False,False,USA,Orchard Park,NY,2021-09-26T17:00Z
@@ -38,47 +38,47 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 3,TEN,IND,74,8,0.0,25,16,False,False,USA,Nashville,TN,2021-09-26T17:00Z
 3,KC,LAC,85,35,0.0,24,30,False,False,USA,Kansas City,MO,2021-09-26T17:00Z
 3,NE,NO,71,28,0.0,13,28,False,False,USA,Foxborough,MA,2021-09-26T17:00Z
-3,NYG,ATL,71,28,0.0,14,17,False,False,USA,East Rutherford,NJ,2021-09-26T17:00Z
-3,PIT,CIN,71,25,0.0,10,24,False,False,USA,Pittsburgh,PA,2021-09-26T17:00Z
+3,NYG,ATL,70,28,0.0,14,17,False,False,USA,East Rutherford,NJ,2021-09-26T17:00Z
+3,PIT,CIN,70,25,0.0,10,24,False,False,USA,Pittsburgh,PA,2021-09-26T17:00Z
 3,JAX,ARI,82,13,0.0,19,31,False,False,USA,Jacksonville,FL,2021-09-26T17:00Z
 3,DEN,NYJ,88,18,0.0,26,0,False,False,USA,Denver,CO,2021-09-26T20:05Z
 3,LV,MIA,,,,31,28,True,False,USA,Las Vegas,NV,2021-09-26T20:05Z
 3,LAR,TB,,,,34,24,True,False,USA,Inglewood,CA,2021-09-26T20:25Z
 3,MIN,SEA,,,,30,17,True,False,USA,Minneapolis,MN,2021-09-26T20:25Z
-3,SF,GB,69,25,0.0,28,30,False,False,USA,Santa Clara,CA,2021-09-27T00:20Z
+3,SF,GB,70,25,0.0,28,30,False,False,USA,Santa Clara,CA,2021-09-27T00:20Z
 3,DAL,PHI,,,,41,21,True,False,USA,Arlington,TX,2021-09-28T00:15Z
-4,CIN,JAX,65,9,0.0,24,21,False,False,USA,Cincinnati,OH,2021-10-01T00:20Z
+4,CIN,JAX,64,9,0.0,24,21,False,False,USA,Cincinnati,OH,2021-10-01T00:20Z
 4,ATL,WSH,,,,30,34,True,False,USA,Atlanta,GA,2021-10-03T17:00Z
 4,BUF,HOU,68,23,0.0,40,0,False,False,USA,Orchard Park,NY,2021-10-03T17:00Z
-4,CHI,DET,73,11,0.0,24,14,False,False,USA,Chicago,IL,2021-10-03T17:00Z
+4,CHI,DET,74,11,0.0,24,14,False,False,USA,Chicago,IL,2021-10-03T17:00Z
 4,DAL,CAR,,,,36,28,True,False,USA,Arlington,TX,2021-10-03T17:00Z
 4,MIA,IND,82,20,0.0,17,27,False,False,USA,Miami Gardens,FL,2021-10-03T17:00Z
 4,MIN,CLE,,,,7,14,True,False,USA,Minneapolis,MN,2021-10-03T17:00Z
 4,NO,NYG,,,,21,27,True,False,USA,New Orleans,LA,2021-10-03T17:00Z
 4,NYJ,TEN,78,15,0.0,27,24,False,False,USA,East Rutherford,NJ,2021-10-03T17:00Z
-4,PHI,KC,82,15,0.0,30,42,False,False,USA,Philadelphia,PA,2021-10-03T17:00Z
+4,PHI,KC,81,15,0.0,30,42,False,False,USA,Philadelphia,PA,2021-10-03T17:00Z
 4,LAR,ARI,,,,20,37,True,False,USA,Inglewood,CA,2021-10-03T20:05Z
 4,SF,SEA,88,17,0.0,21,28,False,False,USA,Santa Clara,CA,2021-10-03T20:05Z
 4,DEN,BAL,76,15,0.0,7,23,False,False,USA,Denver,CO,2021-10-03T20:25Z
 4,GB,PIT,67,13,0.0,27,17,False,False,USA,Green Bay,WI,2021-10-03T20:25Z
-4,NE,TB,55,20,0.03,17,19,False,False,USA,Foxborough,MA,2021-10-04T00:20Z
+4,NE,TB,56,20,0.03,17,19,False,False,USA,Foxborough,MA,2021-10-04T00:20Z
 4,LAC,LV,,,,28,14,True,False,USA,Inglewood,CA,2021-10-05T00:50Z
 5,SEA,LAR,53,8,0.0,17,26,False,False,USA,Seattle,WA,2021-10-08T00:20Z
 5,ATL,NYJ,64,14,0.0,27,20,False,True,England,London,,2021-10-10T13:30Z
-5,CIN,GB,83,23,0.0,22,25,False,False,USA,Cincinnati,OH,2021-10-10T17:00Z
+5,CIN,GB,82,23,0.0,22,25,False,False,USA,Cincinnati,OH,2021-10-10T17:00Z
 5,MIN,DET,,,,19,17,True,False,USA,Minneapolis,MN,2021-10-10T17:00Z
-5,PIT,DEN,76,14,0.0,27,19,False,False,USA,Pittsburgh,PA,2021-10-10T17:00Z
+5,PIT,DEN,75,14,0.0,27,19,False,False,USA,Pittsburgh,PA,2021-10-10T17:00Z
 5,TB,MIA,82,13,0.0,45,17,False,False,USA,Tampa,FL,2021-10-10T17:00Z
 5,WSH,NO,70,27,0.0,22,33,False,False,USA,Landover,MD,2021-10-10T17:00Z
-5,CAR,PHI,78,21,0.0,18,21,False,False,USA,Charlotte,NC,2021-10-10T17:00Z
-5,JAX,TEN,80,18,0.0,19,37,False,False,USA,Jacksonville,FL,2021-10-10T17:00Z
+5,CAR,PHI,78,22,0.0,18,21,False,False,USA,Charlotte,NC,2021-10-10T17:00Z
+5,JAX,TEN,79,18,0.0,19,37,False,False,USA,Jacksonville,FL,2021-10-10T17:00Z
 5,HOU,NE,,,,22,25,True,False,USA,Houston,TX,2021-10-10T17:00Z
 5,LV,CHI,,,,9,20,True,False,USA,Las Vegas,NV,2021-10-10T20:05Z
 5,LAC,CLE,,,,47,42,True,False,USA,Inglewood,CA,2021-10-10T20:05Z
 5,DAL,NYG,,,,44,20,True,False,USA,Arlington,TX,2021-10-10T20:25Z
 5,ARI,SF,,,,17,10,True,False,USA,Glendale,AZ,2021-10-10T20:25Z
 5,KC,BUF,58,9,0.0,20,38,False,False,USA,Kansas City,MO,2021-10-11T00:20Z
-5,BAL,IND,68,7,0.0,31,25,False,False,USA,Baltimore,MD,2021-10-12T00:15Z
+5,BAL,IND,67,7,0.0,31,25,False,False,USA,Baltimore,MD,2021-10-12T00:15Z
 6,PHI,TB,70,12,0.0,22,28,False,False,USA,Philadelphia,PA,2021-10-15T00:20Z
 6,JAX,MIA,60,17,0.0,23,20,False,True,England,London,,2021-10-17T13:30Z
 6,CHI,GB,63,19,0.0,14,24,False,False,USA,Chicago,IL,2021-10-17T17:00Z
@@ -88,23 +88,23 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 6,WSH,KC,62,32,0.0,13,31,False,False,USA,Landover,MD,2021-10-17T17:00Z
 6,CAR,MIN,65,18,0.0,28,34,False,False,USA,Charlotte,NC,2021-10-17T17:00Z
 6,BAL,LAC,63,27,0.0,34,6,False,False,USA,Baltimore,MD,2021-10-17T17:00Z
-6,CLE,ARI,58,26,0.01,14,37,False,False,USA,Cleveland,OH,2021-10-17T20:05Z
+6,CLE,ARI,57,26,0.01,14,37,False,False,USA,Cleveland,OH,2021-10-17T20:05Z
 6,DEN,LV,72,14,0.0,24,34,False,False,USA,Denver,CO,2021-10-17T20:25Z
-6,NE,DAL,59,26,0.0,29,35,False,False,USA,Foxborough,MA,2021-10-17T20:25Z
-6,PIT,SEA,51,12,0.0,23,20,False,False,USA,Pittsburgh,PA,2021-10-18T00:20Z
-6,TEN,BUF,58,7,0.0,34,31,False,False,USA,Nashville,TN,2021-10-19T00:15Z
+6,NE,DAL,60,26,0.0,29,35,False,False,USA,Foxborough,MA,2021-10-17T20:25Z
+6,PIT,SEA,50,12,0.0,23,20,False,False,USA,Pittsburgh,PA,2021-10-18T00:20Z
+6,TEN,BUF,57,7,0.0,34,31,False,False,USA,Nashville,TN,2021-10-19T00:15Z
 7,CLE,DEN,48,14,0.0,17,14,False,False,USA,Cleveland,OH,2021-10-22T00:20Z
 7,GB,WSH,49,18,0.0,24,10,False,False,USA,Green Bay,WI,2021-10-24T17:00Z
 7,TEN,KC,77,20,0.0,27,3,False,False,USA,Nashville,TN,2021-10-24T17:00Z
 7,MIA,ATL,83,12,0.03,28,30,False,False,USA,Miami Gardens,FL,2021-10-24T17:00Z
 7,NE,NYJ,56,17,0.0,54,13,False,False,USA,Foxborough,MA,2021-10-24T17:00Z
-7,NYG,CAR,59,14,0.0,25,3,False,False,USA,East Rutherford,NJ,2021-10-24T17:00Z
+7,NYG,CAR,58,14,0.0,25,3,False,False,USA,East Rutherford,NJ,2021-10-24T17:00Z
 7,BAL,CIN,62,18,0.0,17,41,False,False,USA,Baltimore,MD,2021-10-24T17:00Z
 7,LV,PHI,,,,33,22,True,False,USA,Las Vegas,NV,2021-10-24T20:05Z
 7,LAR,DET,,,,28,19,True,False,USA,Inglewood,CA,2021-10-24T20:05Z
 7,ARI,HOU,,,,31,5,True,False,USA,Glendale,AZ,2021-10-24T20:25Z
 7,TB,CHI,81,10,0.01,38,3,False,False,USA,Tampa,FL,2021-10-24T20:25Z
-7,SF,IND,58,12,0.0,18,30,False,False,USA,Santa Clara,CA,2021-10-25T00:20Z
+7,SF,IND,59,12,0.0,18,30,False,False,USA,Santa Clara,CA,2021-10-25T00:20Z
 7,SEA,NO,52,30,0.0,10,13,False,False,USA,Seattle,WA,2021-10-26T00:15Z
 8,ARI,GB,,,,21,24,True,False,USA,Glendale,AZ,2021-10-29T00:20Z
 8,ATL,CAR,,,,13,19,True,False,USA,Atlanta,GA,2021-10-31T17:00Z
@@ -122,59 +122,59 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 8,MIN,DAL,,,,16,20,True,False,USA,Minneapolis,MN,2021-11-01T00:20Z
 8,KC,NYG,42,8,0.0,20,17,False,False,USA,Kansas City,MO,2021-11-02T00:15Z
 9,IND,NYJ,,,,45,30,True,False,USA,Indianapolis,IN,2021-11-05T00:20Z
-9,CIN,CLE,59,10,0.0,16,41,False,False,USA,Cincinnati,OH,2021-11-07T18:00Z
+9,CIN,CLE,58,10,0.0,16,41,False,False,USA,Cincinnati,OH,2021-11-07T18:00Z
 9,DAL,DEN,,,,16,30,True,False,USA,Arlington,TX,2021-11-07T18:00Z
 9,MIA,HOU,72,25,0.0,17,9,False,False,USA,Miami Gardens,FL,2021-11-07T18:00Z
 9,NO,ATL,,,,25,27,True,False,USA,New Orleans,LA,2021-11-07T18:00Z
 9,NYG,LV,54,9,0.0,23,16,False,False,USA,East Rutherford,NJ,2021-11-07T18:00Z
-9,CAR,NE,60,24,0.0,6,24,False,False,USA,Charlotte,NC,2021-11-07T18:00Z
+9,CAR,NE,60,26,0.0,6,24,False,False,USA,Charlotte,NC,2021-11-07T18:00Z
 9,JAX,BUF,65,27,0.0,9,6,False,False,USA,Jacksonville,FL,2021-11-07T18:00Z
 9,BAL,MIN,55,13,0.0,34,31,False,False,USA,Baltimore,MD,2021-11-07T18:00Z
 9,PHI,LAC,52,10,0.0,24,27,False,False,USA,Philadelphia,PA,2021-11-07T21:05Z
 9,KC,GB,66,26,0.0,13,7,False,False,USA,Kansas City,MO,2021-11-07T21:25Z
 9,SF,ARI,61,18,0.0,17,31,False,False,USA,Santa Clara,CA,2021-11-07T21:25Z
 9,LAR,TEN,,,,16,28,True,False,USA,Inglewood,CA,2021-11-08T01:20Z
-9,PIT,CHI,56,10,0.0,29,27,False,False,USA,Pittsburgh,PA,2021-11-09T01:15Z
+9,PIT,CHI,55,10,0.0,29,27,False,False,USA,Pittsburgh,PA,2021-11-09T01:15Z
 10,MIA,BAL,73,10,0.01,22,10,False,False,USA,Miami Gardens,FL,2021-11-12T01:20Z
 10,DAL,ATL,,,,43,3,True,False,USA,Arlington,TX,2021-11-14T18:00Z
 10,TEN,NO,55,22,0.0,23,21,False,False,USA,Nashville,TN,2021-11-14T18:00Z
 10,IND,JAX,,,,23,17,True,False,USA,Indianapolis,IN,2021-11-14T18:00Z
 10,NE,CLE,49,18,0.0,45,7,False,False,USA,Foxborough,MA,2021-11-14T18:00Z
-10,NYJ,BUF,48,16,0.0,17,45,False,False,USA,East Rutherford,NJ,2021-11-14T18:00Z
-10,PIT,DET,40,27,0.0,16,16,False,False,USA,Pittsburgh,PA,2021-11-14T18:00Z
+10,NYJ,BUF,47,16,0.0,17,45,False,False,USA,East Rutherford,NJ,2021-11-14T18:00Z
+10,PIT,DET,39,27,0.0,16,16,False,False,USA,Pittsburgh,PA,2021-11-14T18:00Z
 10,WSH,TB,47,18,0.0,29,19,False,False,USA,Landover,MD,2021-11-14T18:00Z
 10,ARI,CAR,,,,10,34,True,False,USA,Glendale,AZ,2021-11-14T21:05Z
 10,LAC,MIN,,,,20,27,True,False,USA,Inglewood,CA,2021-11-14T21:05Z
 10,DEN,PHI,69,11,0.0,13,30,False,False,USA,Denver,CO,2021-11-14T21:25Z
 10,GB,SEA,37,26,0.0,17,0,False,False,USA,Green Bay,WI,2021-11-14T21:25Z
 10,LV,KC,,,,14,41,True,False,USA,Las Vegas,NV,2021-11-15T01:20Z
-10,SF,LAR,58,10,0.0,31,10,False,False,USA,Santa Clara,CA,2021-11-16T01:15Z
+10,SF,LAR,59,10,0.0,31,10,False,False,USA,Santa Clara,CA,2021-11-16T01:15Z
 11,ATL,NE,,,,0,25,True,False,USA,Atlanta,GA,2021-11-19T01:20Z
 11,BUF,IND,49,23,0.0,15,41,False,False,USA,Orchard Park,NY,2021-11-21T18:00Z
 11,CHI,BAL,51,21,0.0,13,16,False,False,USA,Chicago,IL,2021-11-21T18:00Z
 11,CLE,DET,44,20,0.04,13,10,False,False,USA,Cleveland,OH,2021-11-21T18:00Z
 11,TEN,HOU,55,16,0.13,13,22,False,False,USA,Nashville,TN,2021-11-21T18:00Z
 11,MIN,GB,,,,34,31,True,False,USA,Minneapolis,MN,2021-11-21T18:00Z
-11,NYJ,MIA,53,16,0.0,17,24,False,False,USA,East Rutherford,NJ,2021-11-21T18:00Z
+11,NYJ,MIA,52,16,0.0,17,24,False,False,USA,East Rutherford,NJ,2021-11-21T18:00Z
 11,PHI,NO,56,15,0.0,40,29,False,False,USA,Philadelphia,PA,2021-11-21T18:00Z
-11,CAR,WSH,60,14,0.0,21,27,False,False,USA,Charlotte,NC,2021-11-21T18:00Z
+11,CAR,WSH,60,13,0.0,21,27,False,False,USA,Charlotte,NC,2021-11-21T18:00Z
 11,JAX,SF,72,21,0.0,10,30,False,False,USA,Jacksonville,FL,2021-11-21T18:00Z
 11,LV,CIN,,,,13,32,True,False,USA,Las Vegas,NV,2021-11-21T21:05Z
 11,KC,DAL,54,26,0.0,19,9,False,False,USA,Kansas City,MO,2021-11-21T21:25Z
-11,SEA,ARI,43,7,0.0,13,23,False,False,USA,Seattle,WA,2021-11-21T21:25Z
+11,SEA,ARI,44,7,0.0,13,23,False,False,USA,Seattle,WA,2021-11-21T21:25Z
 11,LAC,PIT,,,,41,37,True,False,USA,Inglewood,CA,2021-11-22T01:20Z
 11,TB,NYG,55,18,0.0,30,10,False,False,USA,Tampa,FL,2021-11-23T01:15Z
 12,DET,CHI,,,,14,16,True,False,USA,Detroit,MI,2021-11-25T17:30Z
 12,DAL,LV,,,,33,36,True,False,USA,Arlington,TX,2021-11-25T21:30Z
 12,NO,BUF,,,,6,31,True,False,USA,New Orleans,LA,2021-11-26T01:20Z
-12,CIN,PIT,44,23,0.0,41,10,False,False,USA,Cincinnati,OH,2021-11-28T18:00Z
+12,CIN,PIT,43,23,0.0,41,10,False,False,USA,Cincinnati,OH,2021-11-28T18:00Z
 12,IND,TB,,,,31,38,True,False,USA,Indianapolis,IN,2021-11-28T18:00Z
 12,MIA,CAR,75,10,0.0,33,10,False,False,USA,Miami Gardens,FL,2021-11-28T18:00Z
 12,NE,TEN,38,15,0.0,36,13,False,False,USA,Foxborough,MA,2021-11-28T18:00Z
 12,NYG,PHI,38,8,0.0,13,7,False,False,USA,East Rutherford,NJ,2021-11-28T18:00Z
 12,JAX,ATL,61,10,0.0,14,21,False,False,USA,Jacksonville,FL,2021-11-28T18:00Z
 12,HOU,NYJ,,,,14,21,True,False,USA,Houston,TX,2021-11-28T18:00Z
-12,DEN,LAC,66,9,0.0,28,13,False,False,USA,Denver,CO,2021-11-28T21:05Z
+12,DEN,LAC,67,9,0.0,28,13,False,False,USA,Denver,CO,2021-11-28T21:05Z
 12,GB,LAR,36,24,0.0,36,28,False,False,USA,Green Bay,WI,2021-11-28T21:25Z
 12,SF,MIN,66,9,0.0,34,26,False,False,USA,Santa Clara,CA,2021-11-28T21:25Z
 12,BAL,CLE,38,8,0.0,16,10,False,False,USA,Baltimore,MD,2021-11-29T01:20Z
@@ -184,7 +184,7 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 13,CHI,ARI,37,25,0.05,22,33,False,False,USA,Chicago,IL,2021-12-05T18:00Z
 13,CIN,LAC,54,18,0.0,22,41,False,False,USA,Cincinnati,OH,2021-12-05T18:00Z
 13,DET,MIN,,,,29,27,True,False,USA,Detroit,MI,2021-12-05T18:00Z
-13,MIA,NYG,82,14,0.0,20,9,False,False,USA,Miami Gardens,FL,2021-12-05T18:00Z
+13,MIA,NYG,81,14,0.0,20,9,False,False,USA,Miami Gardens,FL,2021-12-05T18:00Z
 13,NYJ,PHI,46,8,0.0,18,33,False,False,USA,East Rutherford,NJ,2021-12-05T18:00Z
 13,HOU,IND,,,,0,31,True,False,USA,Houston,TX,2021-12-05T18:00Z
 13,LV,WSH,,,,15,17,True,False,USA,Las Vegas,NV,2021-12-05T21:05Z
@@ -194,17 +194,17 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 13,KC,DEN,30,7,0.0,22,9,False,False,USA,Kansas City,MO,2021-12-06T01:20Z
 13,BUF,NE,28,16,0.02,10,14,False,False,USA,Orchard Park,NY,2021-12-07T01:15Z
 14,MIN,PIT,,,,36,28,True,False,USA,Minneapolis,MN,2021-12-10T01:20Z
-14,CLE,BAL,46,25,0.0,24,22,False,False,USA,Cleveland,OH,2021-12-12T18:00Z
-14,TEN,JAX,47,10,0.0,20,0,False,False,USA,Nashville,TN,2021-12-12T18:00Z
+14,CLE,BAL,45,25,0.0,24,22,False,False,USA,Cleveland,OH,2021-12-12T18:00Z
+14,TEN,JAX,46,10,0.0,20,0,False,False,USA,Nashville,TN,2021-12-12T18:00Z
 14,KC,LV,49,26,0.0,48,9,False,False,USA,Kansas City,MO,2021-12-12T18:00Z
 14,NYJ,NO,47,25,0.0,9,30,False,False,USA,East Rutherford,NJ,2021-12-12T18:00Z
 14,WSH,DAL,47,24,0.0,20,27,False,False,USA,Landover,MD,2021-12-12T18:00Z
-14,CAR,ATL,50,18,0.0,21,29,False,False,USA,Charlotte,NC,2021-12-12T18:00Z
+14,CAR,ATL,50,20,0.0,21,29,False,False,USA,Charlotte,NC,2021-12-12T18:00Z
 14,HOU,SEA,,,,13,33,True,False,USA,Houston,TX,2021-12-12T18:00Z
 14,DEN,DET,59,11,0.0,38,10,False,False,USA,Denver,CO,2021-12-12T21:05Z
 14,LAC,NYG,,,,37,21,True,False,USA,Inglewood,CA,2021-12-12T21:05Z
-14,CIN,SF,47,19,0.0,23,26,False,False,USA,Cincinnati,OH,2021-12-12T21:25Z
-14,TB,BUF,78,16,0.01,33,27,False,False,USA,Tampa,FL,2021-12-12T21:25Z
+14,CIN,SF,46,19,0.0,23,26,False,False,USA,Cincinnati,OH,2021-12-12T21:25Z
+14,TB,BUF,79,16,0.01,33,27,False,False,USA,Tampa,FL,2021-12-12T21:25Z
 14,GB,CHI,27,8,0.0,45,30,False,False,USA,Green Bay,WI,2021-12-13T01:20Z
 14,ARI,LAR,,,,23,30,True,False,USA,Glendale,AZ,2021-12-14T01:15Z
 15,LAC,KC,,,,28,34,True,False,USA,Inglewood,CA,2021-12-17T01:20Z
@@ -213,13 +213,13 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 15,DET,ARI,,,,30,12,True,False,USA,Detroit,MI,2021-12-19T18:00Z
 15,MIA,NYJ,81,20,0.08,31,24,False,False,USA,Miami Gardens,FL,2021-12-19T18:00Z
 15,NYG,DAL,40,29,0.0,6,21,False,False,USA,East Rutherford,NJ,2021-12-19T18:00Z
-15,PIT,TEN,36,20,0.0,19,13,False,False,USA,Pittsburgh,PA,2021-12-19T18:00Z
+15,PIT,TEN,35,20,0.0,19,13,False,False,USA,Pittsburgh,PA,2021-12-19T18:00Z
 15,JAX,HOU,78,25,0.01,16,30,False,False,USA,Jacksonville,FL,2021-12-19T18:00Z
 15,DEN,CIN,57,9,0.0,10,15,False,False,USA,Denver,CO,2021-12-19T21:05Z
 15,SF,ATL,55,15,0.0,31,13,False,False,USA,Santa Clara,CA,2021-12-19T21:05Z
 15,BAL,GB,42,24,0.0,30,31,False,False,USA,Baltimore,MD,2021-12-19T21:25Z
 15,TB,NO,65,21,0.0,0,9,False,False,USA,Tampa,FL,2021-12-20T01:20Z
-15,CLE,LV,39,15,0.0,14,16,False,False,USA,Cleveland,OH,2021-12-20T22:00Z
+15,CLE,LV,38,15,0.0,14,16,False,False,USA,Cleveland,OH,2021-12-20T22:00Z
 15,CHI,MIN,32,21,0.0,9,17,False,False,USA,Chicago,IL,2021-12-21T01:15Z
 15,LAR,SEA,,,,20,10,True,False,USA,Inglewood,CA,2021-12-22T00:00Z
 15,PHI,WSH,36,22,0.0,27,17,False,False,USA,Philadelphia,PA,2021-12-22T00:00Z
@@ -227,31 +227,31 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 16,GB,CLE,34,10,0.0,24,22,False,False,USA,Green Bay,WI,2021-12-25T21:30Z
 16,ARI,IND,,,,16,22,True,False,USA,Glendale,AZ,2021-12-26T01:15Z
 16,ATL,DET,,,,20,16,True,False,USA,Atlanta,GA,2021-12-26T18:00Z
-16,CIN,BAL,53,7,0.0,41,21,False,False,USA,Cincinnati,OH,2021-12-26T18:00Z
+16,CIN,BAL,52,7,0.0,41,21,False,False,USA,Cincinnati,OH,2021-12-26T18:00Z
 16,MIN,LAR,,,,23,30,True,False,USA,Minneapolis,MN,2021-12-26T18:00Z
 16,NE,BUF,39,29,0.0,21,33,False,False,USA,Foxborough,MA,2021-12-26T18:00Z
-16,NYJ,JAX,47,24,0.0,26,21,False,False,USA,East Rutherford,NJ,2021-12-26T18:00Z
+16,NYJ,JAX,46,24,0.0,26,21,False,False,USA,East Rutherford,NJ,2021-12-26T18:00Z
 16,PHI,NYG,53,18,0.0,34,10,False,False,USA,Philadelphia,PA,2021-12-26T18:00Z
-16,CAR,TB,72,12,0.0,6,32,False,False,USA,Charlotte,NC,2021-12-26T18:00Z
+16,CAR,TB,71,11,0.0,6,32,False,False,USA,Charlotte,NC,2021-12-26T18:00Z
 16,HOU,LAC,,,,41,29,True,False,USA,Houston,TX,2021-12-26T18:00Z
-16,SEA,CHI,25,32,0.02,24,25,False,False,USA,Seattle,WA,2021-12-26T21:05Z
+16,SEA,CHI,26,32,0.02,24,25,False,False,USA,Seattle,WA,2021-12-26T21:05Z
 16,KC,PIT,56,26,0.0,36,10,False,False,USA,Kansas City,MO,2021-12-26T21:25Z
 16,LV,DEN,,,,17,13,True,False,USA,Las Vegas,NV,2021-12-26T21:25Z
 16,DAL,WSH,,,,56,14,True,False,USA,Arlington,TX,2021-12-27T01:20Z
 16,NO,MIA,,,,3,20,True,False,USA,New Orleans,LA,2021-12-28T01:15Z
 17,BUF,ATL,26,20,0.0,29,15,False,False,USA,Orchard Park,NY,2022-01-02T18:00Z
 17,CHI,NYG,22,23,0.0,29,3,False,False,USA,Chicago,IL,2022-01-02T18:00Z
-17,CIN,KC,36,22,0.0,34,31,False,False,USA,Cincinnati,OH,2022-01-02T18:00Z
-17,TEN,MIA,43,17,0.0,34,3,False,False,USA,Nashville,TN,2022-01-02T18:00Z
+17,CIN,KC,35,22,0.0,34,31,False,False,USA,Cincinnati,OH,2022-01-02T18:00Z
+17,TEN,MIA,42,17,0.0,34,3,False,False,USA,Nashville,TN,2022-01-02T18:00Z
 17,IND,LV,,,,20,23,True,False,USA,Indianapolis,IN,2022-01-02T18:00Z
 17,NE,JAX,50,12,0.0,50,10,False,False,USA,Foxborough,MA,2022-01-02T18:00Z
 17,NYJ,TB,56,18,0.0,24,28,False,False,USA,East Rutherford,NJ,2022-01-02T18:00Z
 17,WSH,PHI,64,17,0.0,16,20,False,False,USA,Landover,MD,2022-01-02T18:00Z
-17,BAL,LAR,65,19,0.0,19,20,False,False,USA,Baltimore,MD,2022-01-02T18:00Z
+17,BAL,LAR,64,19,0.0,19,20,False,False,USA,Baltimore,MD,2022-01-02T18:00Z
 17,LAC,DEN,,,,34,13,True,False,USA,Inglewood,CA,2022-01-02T21:05Z
 17,SF,HOU,58,17,0.0,23,7,False,False,USA,Santa Clara,CA,2022-01-02T21:05Z
 17,DAL,ARI,,,,22,25,True,False,USA,Arlington,TX,2022-01-02T21:25Z
 17,NO,CAR,,,,18,10,True,False,USA,New Orleans,LA,2022-01-02T21:25Z
 17,SEA,DET,39,17,0.0,51,29,False,False,USA,Seattle,WA,2022-01-02T21:25Z
 17,GB,MIN,21,16,0.0,37,10,False,False,USA,Green Bay,WI,2022-01-03T01:20Z
-17,PIT,CLE,32,14,0.0,26,14,False,False,USA,Pittsburgh,PA,2022-01-04T01:15Z
+17,PIT,CLE,31,14,0.0,26,14,False,False,USA,Pittsburgh,PA,2022-01-04T01:15Z

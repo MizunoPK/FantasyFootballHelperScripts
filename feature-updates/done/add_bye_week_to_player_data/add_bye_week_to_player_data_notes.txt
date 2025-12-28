@@ -1,0 +1,12 @@
+We missed adding a bye_week field to the player data in the new player json files
+We need to update the player-data-fetcher and the compile_historical_data scripts to determine what bye week the player will have, then set that as a field in the json
+e.g.
+{
+      "id": "3918298",
+      "name": "Josh Allen",
+      "team": "BUF",
+      "position": "QB",
+      ...,
+      "bye_week": 6,
+      ...
+}

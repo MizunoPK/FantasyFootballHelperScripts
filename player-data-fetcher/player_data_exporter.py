@@ -496,6 +496,7 @@ class DataExporter:
             "name": player.name,
             "team": player.team,
             "position": player.position,
+            "bye_week": player.bye_week,
             "injury_status": player.injury_status,
             # drafted_by uses get_team_name_for_player() (Spec: Decision 10)
             "drafted_by": self._get_drafted_by(player),
