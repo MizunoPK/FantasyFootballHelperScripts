@@ -8,11 +8,12 @@ Designed to be used across multiple scripts for consistent player representation
 Author: Kai Mizuno
 """
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from typing import Optional, Dict, Any, List
 import pandas as pd
 from utils.csv_utils import read_csv_with_validation, write_csv_with_backup
 from utils.LoggingManager import get_logger
+from league_helper.constants import FANTASY_TEAM_NAME
 
 # Import will be done dynamically to avoid circular imports
 logger = get_logger()
@@ -93,29 +94,28 @@ class FantasyPlayer:
     # Fantasy relevant data
     bye_week: Optional[int] = None
     drafted: int = 0  # 0 = not drafted, 1 = drafted, 2 = on our team
-    locked: int = 0  # 0 = not locked, 1 = locked (cannot be drafted or traded)
+    locked: bool = False  # True = locked (cannot be drafted or traded)
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None  # ESPN's ADP data
     player_rating: Optional[float] = None  # 0-100 scale from ESPN position-specific consensus rankings
 
-    # Weekly projections (weeks 1-17 fantasy regular season only)
-    week_1_points: Optional[float] = None
-    week_2_points: Optional[float] = None
-    week_3_points: Optional[float] = None
-    week_4_points: Optional[float] = None
-    week_5_points: Optional[float] = None
-    week_6_points: Optional[float] = None
-    week_7_points: Optional[float] = None
-    week_8_points: Optional[float] = None
-    week_9_points: Optional[float] = None
-    week_10_points: Optional[float] = None
-    week_11_points: Optional[float] = None
-    week_12_points: Optional[float] = None
-    week_13_points: Optional[float] = None
-    week_14_points: Optional[float] = None
-    week_15_points: Optional[float] = None
-    week_16_points: Optional[float] = None
-    week_17_points: Optional[float] = None
+    # Weekly projection and actual points arrays (weeks 1-17)
+    # Spec: sub_feature_01_core_data_loading_spec.md lines 6, 32-37
+    projected_points: List[float] = field(default_factory=lambda: [0.0] * 17)
+    actual_points: List[float] = field(default_factory=lambda: [0.0] * 17)
+
+    # Position-specific stats (nested dictionaries with weekly arrays)
+    # Spec: sub_feature_01_core_data_loading_spec.md lines 39-49
+    passing: Optional[Dict[str, List[float]]] = None  # QB
+    rushing: Optional[Dict[str, List[float]]] = None  # QB/RB
+    receiving: Optional[Dict[str, List[float]]] = None  # RB/WR/TE
+    misc: Optional[Dict[str, List[float]]] = None  # QB/RB/WR/TE
+    extra_points: Optional[Dict[str, List[float]]] = None  # K only
+    field_goals: Optional[Dict[str, List[float]]] = None  # K only
+    defense: Optional[Dict[str, List[float]]] = None  # DST only
+
+    # Weekly projections now handled by projected_points and actual_points arrays
+    # (added in Sub-feature 1: Core Data Loading)
 
     # Injury information
     injury_status: str = "UNKNOWN"  # ACTIVE, QUESTIONABLE, OUT, etc.
@@ -134,8 +134,9 @@ class FantasyPlayer:
 
     def __post_init__(self):
         """Post-initialization setup."""
-        # No special initialization needed since adp is now a property
-        pass
+        # Convert locked to boolean if it comes in as an int (for backward compatibility with tests)
+        if isinstance(self.locked, int):
+            object.__setattr__(self, 'locked', bool(self.locked))
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'FantasyPlayer':
@@ -166,24 +167,7 @@ class FantasyPlayer:
             fantasy_points=safe_float_conversion(data.get('fantasy_points'), 0.0),
             average_draft_position=processed_adp,
             player_rating=safe_float_conversion(data.get('player_rating'), None) if data.get('player_rating') is not None else None,
-            # Weekly projections (weeks 1-17)
-            week_1_points=safe_float_conversion(data.get('week_1_points'), None),
-            week_2_points=safe_float_conversion(data.get('week_2_points'), None),
-            week_3_points=safe_float_conversion(data.get('week_3_points'), None),
-            week_4_points=safe_float_conversion(data.get('week_4_points'), None),
-            week_5_points=safe_float_conversion(data.get('week_5_points'), None),
-            week_6_points=safe_float_conversion(data.get('week_6_points'), None),
-            week_7_points=safe_float_conversion(data.get('week_7_points'), None),
-            week_8_points=safe_float_conversion(data.get('week_8_points'), None),
-            week_9_points=safe_float_conversion(data.get('week_9_points'), None),
-            week_10_points=safe_float_conversion(data.get('week_10_points'), None),
-            week_11_points=safe_float_conversion(data.get('week_11_points'), None),
-            week_12_points=safe_float_conversion(data.get('week_12_points'), None),
-            week_13_points=safe_float_conversion(data.get('week_13_points'), None),
-            week_14_points=safe_float_conversion(data.get('week_14_points'), None),
-            week_15_points=safe_float_conversion(data.get('week_15_points'), None),
-            week_16_points=safe_float_conversion(data.get('week_16_points'), None),
-            week_17_points=safe_float_conversion(data.get('week_17_points'), None),
+            # Weekly projections now loaded via projected_points/actual_points arrays (Sub-feature 1)
             injury_status=str(data.get('injury_status', 'UNKNOWN')),
             score=safe_float_conversion(data.get('score'), 0.0),
             weighted_projection=safe_float_conversion(data.get('weighted_projection'), 0.0),
@@ -192,7 +176,115 @@ class FantasyPlayer:
             team_offensive_rank=safe_int_conversion(data.get('team_offensive_rank'), None),
             team_defensive_rank=safe_int_conversion(data.get('team_defensive_rank'), None)
         )
-    
+
+    @classmethod
+    def from_json(cls, data: Dict[str, Any]) -> 'FantasyPlayer':
+        """
+        Create FantasyPlayer instance from JSON dictionary.
+
+        This method loads player data from JSON files in the player_data/ directory,
+        handling all required type conversions and data transformations.
+
+        Args:
+            data: Dictionary from JSON player data with keys matching JSON structure
+
+        Returns:
+            FantasyPlayer instance with all fields populated
+
+        Raises:
+            ValueError: If required field missing (id, name, or position)
+
+        Field Conversions:
+            - id: string → int (using safe_int_conversion)
+            - drafted_by: string → drafted int (0=undrafted, 1=other team, 2=our team)
+            - locked: boolean → loaded directly as is
+            - projected_points/actual_points: arrays padded/truncated to exactly 17 elements
+            - fantasy_points: calculated as sum of projected_points
+            - position-specific stats: loaded as-is (Optional[Dict[str, List[float]]])
+
+        Example:
+            >>> json_data = {
+            ...     "id": "12345",
+            ...     "name": "Patrick Mahomes",
+            ...     "team": "KC",
+            ...     "position": "QB",
+            ...     "drafted_by": "",
+            ...     "locked": false,
+            ...     "projected_points": [25.3, 28.1, ...],
+            ...     "actual_points": [0.0, 0.0, ...],
+            ...     "passing": {"completions": [22.5, ...], ...}
+            ... }
+            >>> player = FantasyPlayer.from_json(json_data)
+            >>> print(player.name)
+            'Patrick Mahomes'
+
+        Spec Reference: sub_feature_01_core_data_loading_spec.md lines 161-240
+        """
+        # Required fields validation (spec lines 178-180)
+        if 'id' not in data or 'name' not in data or 'position' not in data:
+            raise ValueError(f"Missing required field in player data: {data}")
+
+        # Convert id from string to int (spec line 183)
+        player_id = safe_int_conversion(data.get('id'), 0)
+
+        # Load arrays with defaults and validate length (spec lines 186-191)
+        projected_points = data.get('projected_points', [0.0] * 17)
+        actual_points = data.get('actual_points', [0.0] * 17)
+
+        # Pad/truncate to exactly 17 elements (spec lines 190-191)
+        projected_points = (projected_points + [0.0] * 17)[:17]
+        actual_points = (actual_points + [0.0] * 17)[:17]
+
+        # Convert drafted_by to drafted int (spec lines 193-200)
+        drafted_by = data.get('drafted_by', '')
+        if drafted_by == '':
+            drafted = 0
+        elif drafted_by == FANTASY_TEAM_NAME:  # "Sea Sharp"
+            drafted = 2
+        else:
+            drafted = 1
+
+        # Load locked as boolean (spec lines 202-204)
+        # Sub-feature 3 will update comparisons to use is_locked()
+        locked = data.get('locked', False)
+
+        # Calculate fantasy_points (NOT in JSON) (spec lines 205-206)
+        fantasy_points = sum(projected_points)
+
+        # Load position-specific nested stats (all Optional) (spec lines 208-216)
+        passing = data.get('passing')
+        rushing = data.get('rushing')
+        receiving = data.get('receiving')
+        misc = data.get('misc')
+        extra_points = data.get('extra_points')
+        field_goals = data.get('field_goals')
+        defense = data.get('defense')
+
+        # Return FantasyPlayer instance with all fields (spec lines 217-239)
+        return cls(
+            id=player_id,
+            name=data.get('name'),
+            team=data.get('team'),
+            position=data.get('position'),
+            bye_week=data.get('bye_week'),
+            fantasy_points=fantasy_points,
+            drafted=drafted,
+            locked=locked,
+            average_draft_position=data.get('average_draft_position'),
+            player_rating=data.get('player_rating'),
+            injury_status=data.get('injury_status', 'UNKNOWN'),
+            projected_points=projected_points,
+            actual_points=actual_points,
+            # Position-specific stats
+            passing=passing,
+            rushing=rushing,
+            receiving=receiving,
+            misc=misc,
+            extra_points=extra_points,
+            field_goals=field_goals,
+            defense=defense
+        )
+
     @classmethod
     def from_csv_file(cls, filepath: str) -> List['FantasyPlayer']:
         """
@@ -305,7 +397,7 @@ class FantasyPlayer:
         Returns:
             True if player is not drafted and not locked, False otherwise
         """
-        return self.drafted == 0 and self.locked == 0
+        return self.drafted == 0 and not self.locked
     
     def is_rostered(self) -> bool:
         return self.drafted == 2
@@ -317,7 +409,7 @@ class FantasyPlayer:
         Returns:
             True if player is locked, False otherwise
         """
-        return self.locked == 1
+        return self.locked
     
     def get_risk_level(self) -> str:
         """
@@ -342,36 +434,77 @@ class FantasyPlayer:
             # Catch-all for unrecognized statuses: assume moderate risk
             return "MEDIUM"
         
-    def get_weekly_projections(self) -> List[float]:
-        return [
-            self.week_1_points, self.week_2_points, self.week_3_points, self.week_4_points, 
-            self.week_5_points, self.week_6_points, self.week_7_points, self.week_8_points, 
-            self.week_9_points, self.week_10_points, self.week_11_points, self.week_12_points, 
-            self.week_13_points, self.week_14_points, self.week_15_points, self.week_16_points, 
-            self.week_17_points, ]
+    def get_weekly_projections(self, config) -> List[float]:
+        """
+        Return hybrid weekly points: actual results for past weeks,
+        projected points for current/future weeks.
+
+        This maintains backward compatibility with the old week_N_points
+        behavior where player-data-fetcher updated past weeks with actual
+        results after games were played.
+
+        Args:
+            config: ConfigManager instance (for current_nfl_week)
+
+        Returns:
+            List of 17 weekly points (actual for past, projected for future)
+
+        Note:
+            This replaces the old pattern:
+            [self.week_1_points, ..., self.week_17_points]
+        """
+        current_week = config.current_nfl_week
+        result = []
+
+        for i in range(17):
+            week_num = i + 1
+            if week_num < current_week:  # Past weeks - use actual
+                result.append(self.actual_points[i])
+            else:  # Current/future weeks - use projected
+                result.append(self.projected_points[i])
+
+        return result
     
-    def get_single_weekly_projection(self, week_num : int) -> float:
-        return self.get_weekly_projections()[week_num - 1]
+    def get_single_weekly_projection(self, week_num: int, config) -> float:
+        """
+        Get weekly points for a specific week.
+
+        Returns actual result for past weeks, projected points for future weeks.
+        Delegates to get_weekly_projections() for consistency.
+
+        Args:
+            week_num: Week number (1-17)
+            config: ConfigManager instance
+
+        Returns:
+            Weekly points (actual for past, projected for future)
+
+        Raises:
+            ValueError: If week_num is not in range 1-17
+        """
+        if not (1 <= week_num <= 17):
+            raise ValueError(f"week_num must be between 1 and 17, got {week_num}")
+        return self.get_weekly_projections(config)[week_num - 1]
     
-    def get_rest_of_season_projection(self, current_week) -> float:
+    def get_rest_of_season_projection(self, config) -> float:
         """
         Calculate total projected points from current week through week 17.
 
+        Uses hybrid weekly points from get_weekly_projections(), so if
+        current_week has already been played, it includes the actual result.
+
         Args:
-            current_week: The current week number (1-17)
+            config: ConfigManager instance
 
         Returns:
             Sum of projected points for remaining weeks
         """
-        weekly_projections = self.get_weekly_projections()
+        current_week = config.current_nfl_week
+        weekly_projections = self.get_weekly_projections(config)
+
         total = 0.0
-        # Sum projections from current_week through week 17 (end of fantasy regular season)
-        # Example: current_week=10 → sum weeks 10, 11, 12, ..., 17
-        # Range goes to 18 because range is exclusive of upper bound
         for i in range(current_week, 18):
-            # Adjust for 0-based indexing: week 1 is at index 0
-            week_projection = weekly_projections[i-1]
-            # Only add if projection exists (not None or NaN)
+            week_projection = weekly_projections[i - 1]
             if week_projection is not None:
                 total += week_projection
 
@@ -394,7 +527,7 @@ class FantasyPlayer:
             drafted = "AVAILABLE"
 
         # Show locked indicator for players that can't be drafted/traded
-        locked_indicator = " [LOCKED]" if self.locked == 1 else ""
+        locked_indicator = " [LOCKED]" if self.is_locked() else ""
 
         # Example output: "Patrick Mahomes (KC QB) - 15.3 pts (QUESTIONABLE) [Bye=7] [ROSTERED] [LOCKED]"
         return f"{self.name} ({self.team} {self.position}) - {self.score:.1f} pts {status} [Bye={self.bye_week}] [{drafted}]{locked_indicator}"

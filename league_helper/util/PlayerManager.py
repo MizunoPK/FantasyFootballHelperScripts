@@ -31,6 +31,7 @@ Author: Kai Mizuno
 """
 
 import csv
+import json
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import statistics
@@ -194,7 +195,7 @@ class PlayerManager:
 
                         # Calculate rest-of-season projection by summing weeks from current week onwards
                         # This adjusts for the current point in the season (early vs late season)
-                        player.fantasy_points = player.get_rest_of_season_projection(self.config.current_nfl_week)
+                        player.fantasy_points = player.get_rest_of_season_projection(self.config)
 
                         # Load team quality rankings for scoring calculations
                         # Offensive rank used for offensive players
@@ -283,6 +284,90 @@ class PlayerManager:
 
         self.players = players
 
+    def load_players_from_json(self) -> bool:
+        """
+        Load all players from position-specific JSON files.
+
+        Replaces load_players_from_csv() for JSON-based data loading.
+        Loads players from player_data/ directory with 6 position files:
+        qb_data.json, rb_data.json, wr_data.json, te_data.json, k_data.json, dst_data.json
+
+        Returns:
+            True if successful, False otherwise
+
+        Raises:
+            FileNotFoundError: If player_data directory doesn't exist
+            json.JSONDecodeError: If JSON file is malformed
+
+        Side Effects:
+            - Sets self.players to combined list from all position files
+            - Calculates self.max_projection from all players
+            - Calls self.load_team() to initialize team roster
+
+        Spec Reference: sub_feature_01_core_data_loading_spec.md lines 242-319
+        """
+        # Verify directory exists (fail fast - spec lines 258-265)
+        player_data_dir = self.data_folder / 'player_data'
+        if not player_data_dir.exists():
+            raise FileNotFoundError(
+                f"Player data directory not found: {player_data_dir}\n"
+                "Run player-data-fetcher to generate JSON files."
+            )
+
+        all_players = []
+        position_files = [
+            'qb_data.json', 'rb_data.json', 'wr_data.json',
+            'te_data.json', 'k_data.json', 'dst_data.json'
+        ]
+
+        # Iterate through position files (spec lines 268-280)
+        for position_file in position_files:
+            filepath = player_data_dir / position_file
+
+            # Skip missing files with warning (spec line 278)
+            if not filepath.exists():
+                self.logger.warning(f"Position file not found: {position_file}")
+                continue
+
+            try:
+                # Load and parse JSON (spec lines 283-285)
+                with open(filepath, 'r') as f:
+                    json_data = json.load(f)
+
+                # Extract position key (e.g., "qb_data") (spec lines 287-288)
+                position_key = position_file.replace('.json', '')
+                players_array = json_data.get(position_key, [])
+
+                # Convert each player (spec lines 291-299)
+                for player_data in players_array:
+                    try:
+                        player = FantasyPlayer.from_json(player_data)
+                        all_players.append(player)
+                    except ValueError as e:
+                        # Skip player with missing required fields (spec lines 295-298)
+                        self.logger.warning(f"Skipping invalid player: {e}")
+                        continue
+
+                self.logger.info(f"Loaded {len(players_array)} players from {position_file}")
+
+            except json.JSONDecodeError as e:
+                # Malformed JSON - fail fast (spec lines 302-305)
+                self.logger.error(f"Malformed JSON in {position_file}: {e}")
+                raise
+
+        # Store and return (spec lines 308-318)
+        self.players = all_players
+        self.logger.info(f"Total players loaded: {len(self.players)}")
+
+        # Calculate max_projection (spec lines 312-313)
+        if self.players:
+            self.max_projection = max(p.fantasy_points for p in self.players)
+
+        # Load team roster (drafted == 2) (spec line 316)
+        self.load_team()
+
+        return True
+
     def calculate_max_weekly_projection(self, week_num: int) -> float:
         """
         Calculate the maximum weekly projection for a given week across all players.
@@ -304,7 +389,7 @@ class PlayerManager:
         # Calculate max weekly projection by iterating through all players
         max_weekly = 0.0
         for player in self.players:
-            weekly_points = player.get_single_weekly_projection(week_num)
+            weekly_points = player.get_single_weekly_projection(week_num, self.config)
             if weekly_points is not None and weekly_points > max_weekly:
                 max_weekly = float(weekly_points)
 
@@ -549,7 +634,7 @@ class PlayerManager:
             Constants.DST: 9999,
         }
         for p in self.team.roster:
-            if p.score < lowest_scores[p.position] and p.locked == 0:
+            if p.score < lowest_scores[p.position] and not p.is_locked():
                 lowest_scores[p.position] = p.score
         return lowest_scores
 
@@ -630,7 +715,7 @@ class PlayerManager:
         Args:
             player_data (Dict[int, Dict[str, Any]]): Player data keyed by player ID.
                 Each dict should match the CSV format with keys like 'fantasy_points',
-                'week_1_points', etc.
+                'projected_points', 'actual_points', etc.
 
         Side Effects:
             - Updates self.players with new data

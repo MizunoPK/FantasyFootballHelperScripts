@@ -178,7 +178,7 @@ class TradeAnalyzer:
             # Deep copy to avoid modifying original
             p_copy = copy.deepcopy(p)
             p_copy.drafted = 0
-            p_copy.locked = 0  # Unlock for testing - we're just counting violations, not enforcing lock status
+            p_copy.locked = False  # Unlock for testing - we're just counting violations, not enforcing lock status
             # Set a valid bye week for testing - we only care about position limits here,
             # not bye week validity. Invalid bye weeks (like 18 for post-season) would
             # cause all players to fail drafting, breaking position validation.
@@ -635,12 +635,12 @@ class TradeAnalyzer:
         # IR players (HIGH risk) don't count toward limits and can't be traded
 
         # First, separate players normally (locked vs unlocked)
-        my_roster_unlocked = [p for p in my_team.team if p.locked != 1 and p.get_risk_level() != "HIGH"]
-        my_locked_original = [p for p in my_team.team if p.locked == 1 and p.get_risk_level() != "HIGH"]
+        my_roster_unlocked = [p for p in my_team.team if not p.is_locked() and p.get_risk_level() != "HIGH"]
+        my_locked_original = [p for p in my_team.team if p.is_locked() and p.get_risk_level() != "HIGH"]
         my_ir = [p for p in my_team.team if p.get_risk_level() == "HIGH"]
 
-        their_roster_unlocked = [p for p in their_team.team if p.locked != 1 and p.get_risk_level() != "HIGH"]
-        their_locked_original = [p for p in their_team.team if p.locked == 1 and p.get_risk_level() != "HIGH"]
+        their_roster_unlocked = [p for p in their_team.team if not p.is_locked() and p.get_risk_level() != "HIGH"]
+        their_locked_original = [p for p in their_team.team if p.is_locked() and p.get_risk_level() != "HIGH"]
         their_ir = [p for p in their_team.team if p.get_risk_level() == "HIGH"]
 
         # Move selected locked players to tradeable roster
@@ -805,7 +805,7 @@ class TradeAnalyzer:
         # Separate locked/IR players from tradeable players on both teams
         #
         # IMPORTANT: Locked vs IR players are handled differently:
-        # - LOCKED players (player.locked == 1): Cannot be traded BUT count toward position limits
+        # - LOCKED players (player.is_locked()): Cannot be traded BUT count toward position limits
         # - IR players (HIGH risk like INJURY_RESERVE): Cannot be traded AND don't count toward limits
         #
         # IR players occupy a separate IR slot and don't count toward MAX_PLAYERS or position limits.
@@ -816,12 +816,12 @@ class TradeAnalyzer:
         # - NOT check all 16 players against MAX_PLAYERS=15 ✗
 
         # Filter players by availability and injury status
-        my_roster = [p for p in my_team.team if p.locked != 1 and p.get_risk_level() != "HIGH"]  # Tradeable players only
-        my_locked = [p for p in my_team.team if p.locked == 1 and p.get_risk_level() != "HIGH"]  # Locked but not IR
+        my_roster = [p for p in my_team.team if not p.is_locked() and p.get_risk_level() != "HIGH"]  # Tradeable players only
+        my_locked = [p for p in my_team.team if p.is_locked() and p.get_risk_level() != "HIGH"]  # Locked but not IR
         my_ir = [p for p in my_team.team if p.get_risk_level() == "HIGH"]  # IR players (excluded from validation)
 
-        their_roster = [p for p in their_team.team if p.locked != 1 and p.get_risk_level() != "HIGH"]  # Tradeable players only
-        their_locked = [p for p in their_team.team if p.locked == 1 and p.get_risk_level() != "HIGH"]  # Locked but not IR
+        their_roster = [p for p in their_team.team if not p.is_locked() and p.get_risk_level() != "HIGH"]  # Tradeable players only
+        their_locked = [p for p in their_team.team if p.is_locked() and p.get_risk_level() != "HIGH"]  # Locked but not IR
         their_ir = [p for p in their_team.team if p.get_risk_level() == "HIGH"]  # IR players (excluded from validation)
 
         # Store original full rosters for lenient validation (includes locked players but NOT IR)

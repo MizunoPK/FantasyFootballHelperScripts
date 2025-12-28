@@ -335,7 +335,7 @@ class ModifyPlayerDataModeManager:
         self.logger.info("Starting Lock Player mode")
 
         # STEP 1: Display all currently locked players
-        locked_players = [p for p in self.player_manager.players if p.locked == 1]
+        locked_players = [p for p in self.player_manager.players if p.is_locked()]
 
         if locked_players:
             print("\n" + "=" * 80)
@@ -389,16 +389,16 @@ class ModifyPlayerDataModeManager:
             return
 
         # STEP 4: Determine current locked state for toggle operation
-        # locked=1: Player is locked (cannot be traded)
-        # locked=0: Player is unlocked (can be traded)
-        was_locked = selected_player.locked == 1
+        # locked=True: Player is locked (cannot be traded)
+        # locked=False: Player is unlocked (can be traded)
+        was_locked = selected_player.is_locked()
 
         # STEP 5: Toggle the locked status
-        # If locked (1) → unlock (0)
-        # If unlocked (0) → lock (1)
+        # If locked (True) → unlock (False)
+        # If unlocked (False) → lock (True)
         # Locked players are excluded from Trade Simulator combinations
         # but still count toward position limits in roster validation
-        selected_player.locked = 0 if was_locked else 1
+        selected_player.locked = False if was_locked else True
 
         # STEP 6: Persist changes to players.csv
         # This saves the updated locked status to disk
@@ -406,7 +406,7 @@ class ModifyPlayerDataModeManager:
 
         # STEP 7: Notify user with visual feedback
         # Use lock/unlock emojis to clearly indicate the new state
-        if selected_player.locked == 1:
+        if selected_player.is_locked():
             print(f"🔒 Locked {selected_player.name}!")
         else:
             print(f"🔓 Unlocked {selected_player.name}!")

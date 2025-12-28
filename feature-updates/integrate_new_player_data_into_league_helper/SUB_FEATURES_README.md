@@ -25,23 +25,29 @@ The original feature was becoming unwieldy with:
 
 **Total: 132 items**
 
-## Implementation Order (Recommended)
+## Implementation Order (SEQUENTIAL - NO PARALLELIZATION)
 
-### Phase 1: Foundation (Can run in parallel)
+**CRITICAL:** Sub-features MUST be implemented sequentially. Each sub-feature completes FULLY (TODO → Implementation → QC → Commit) before starting the next.
+
+**Phases below show logical groupings for understanding dependencies. NOT for parallel execution.**
+
+### Phase 1: Foundation
 1. **Core Data Loading** - Base functionality, no dependencies
-2. **Locked Field Migration** - Independent change
+2. **Locked Field Migration** - Independent change (but sequential after 1)
 
-### Phase 2: Core Features (Sequential)
+### Phase 2: Core Features
 3. **Weekly Data Migration** - Depends on Core Data Loading
 4. **File Update Strategy** - Depends on Core Data Loading + Locked Field
 
-### Phase 3: Manager Consolidations (Can run in parallel)
+### Phase 3: Manager Consolidations
 5. **ProjectedPointsManager Consolidation** - Depends on Weekly Data Migration
 6. **TeamDataManager D/ST Migration** - Depends on Weekly Data Migration
 7. **DraftedRosterManager Consolidation** - Depends on Core Data Loading
 
 ### Phase 4: Cleanup
 8. **CSV Deprecation & Cleanup** - Depends on all others
+
+**Execution:** 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 (one at a time)
 
 ## Sub-Feature Specifications
 
@@ -203,14 +209,101 @@ Each sub-feature has its own specification file with:
 
 ### Completion Tracking:
 
-- [ ] Sub-feature 1: Core Data Loading
-- [ ] Sub-feature 2: Weekly Data Migration
-- [ ] Sub-feature 3: Locked Field Migration
-- [ ] Sub-feature 4: File Update Strategy
-- [ ] Sub-feature 5: ProjectedPointsManager Consolidation
-- [ ] Sub-feature 6: TeamDataManager D/ST Migration
-- [ ] Sub-feature 7: DraftedRosterManager Consolidation
-- [ ] Sub-feature 8: CSV Deprecation & Cleanup
+**Planning Phase (Deep Dive - Phases 1-4):**
+- [x] Sub-feature 1: Core Data Loading - Deep Dive ✅ (2025-12-28)
+- [x] Sub-feature 2: Weekly Data Migration - Deep Dive ✅ (2025-12-28)
+- [x] Sub-feature 3: Locked Field Migration - Deep Dive ✅ (2025-12-28)
+- [x] Sub-feature 4: File Update Strategy - Deep Dive ✅ (2025-12-28)
+- [x] Sub-feature 5: ProjectedPointsManager Consolidation - Deep Dive ✅ (2025-12-28)
+- [x] Sub-feature 6: TeamDataManager D/ST Migration - Deep Dive ✅ (2025-12-28)
+- [x] Sub-feature 7: DraftedRosterManager Consolidation - Deep Dive ✅ (2025-12-28)
+- [x] Sub-feature 8: CSV Deprecation & Cleanup - Deep Dive ✅ (2025-12-28)
+
+**Implementation Phase (TODO Creation → QC):**
+- [ ] Sub-feature 1: Core Data Loading - Implementation
+- [ ] Sub-feature 2: Weekly Data Migration - Implementation
+- [ ] Sub-feature 3: Locked Field Migration - Implementation
+- [ ] Sub-feature 4: File Update Strategy - Implementation
+- [ ] Sub-feature 5: ProjectedPointsManager Consolidation - Implementation
+- [ ] Sub-feature 6: TeamDataManager D/ST Migration - Implementation
+- [ ] Sub-feature 7: DraftedRosterManager Consolidation - Implementation
+- [ ] Sub-feature 8: CSV Deprecation & Cleanup - Implementation
+
+---
+
+## Sub-Feature Completion Status
+
+| Sub-Feature | Planning | TODO | Implementation | QC | Status |
+|-------------|----------|------|----------------|----|---------|
+| 1. Core Data Loading | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
+| 2. Weekly Data Migration | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
+| 3. Locked Field Migration | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
+| 4. File Update Strategy | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
+| 5. ProjectedPointsManager Consolidation | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
+| 6. TeamDataManager D/ST Migration | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
+| 7. DraftedRosterManager Consolidation | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
+| 8. CSV Deprecation & Cleanup | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
+
+**Progress:** 3/8 sub-features complete (37.5%)
+
+**Last Updated:** 2025-12-28
+
+**Current Sub-Feature:** Sub-Feature 3: Locked Field Migration - **COMPLETE ✅**
+- ✅ All 22 implementation tasks complete (21 from spec + 1 comment update)
+- ✅ 2404/2404 tests passing (100%)
+- ✅ QC Rounds 1, 2, 3 all PASSED (0 issues)
+- ✅ Smoke testing complete (import, entry point, integration)
+- ✅ Algorithm Traceability Matrix verified (100% match)
+- ✅ Backward compatibility maintained via __post_init__()
+- ✅ Boolean semantics migration complete (int → bool)
+
+**Next Sub-Feature:** Sub-Feature 4: File Update Strategy
+
+---
+
+## Ready for Implementation
+
+**Status:** ✅ Planning complete (2025-12-28) - Sub-features 1-2 COMPLETE
+
+**Implementation Order:**
+1. **Sub-feature 1: Core Data Loading** (no dependencies) - ✅ **COMPLETE**
+2. **Sub-feature 2: Weekly Data Migration** (depends on 1) - ✅ **COMPLETE**
+3. **Sub-feature 3: Locked Field Migration** (depends on 1) - ⏸️ **NEXT**
+4. **Sub-feature 7: DraftedRosterManager Consolidation** (depends on 1)
+5. **Sub-feature 4: File Update Strategy** (depends on 1, 3)
+6. **Sub-feature 5: ProjectedPointsManager Consolidation** (depends on 2)
+7. **Sub-feature 6: TeamDataManager D/ST Migration** (depends on 2)
+8. **Sub-feature 8: CSV Deprecation & Cleanup** (depends on ALL 1-7)
+
+**Process:** For EACH sub-feature sequentially:
+1. Execute `todo_creation_guide.md` (FULL 24 iterations)
+   - Round 1: Iterations 1-7 (+ iteration 4a)
+   - Round 2: Iterations 8-16
+   - Round 3: Iterations 17-24 (+ iteration 23a)
+   - Creates `sub_feature_{N}_{name}_todo.md`
+   - Creates `sub_feature_{N}_{name}_questions.md` (if needed)
+2. Execute `implementation_execution_guide.md` (FULL process)
+   - Interface verification (MANDATORY)
+   - Continuous spec compliance checking
+   - Mini-QC checkpoints after each component
+   - Creates `sub_feature_{N}_{name}_implementation_checklist.md`
+   - Creates `sub_feature_{N}_{name}_code_changes.md`
+3. Execute `post_implementation_guide.md` (FULL QC + smoke testing)
+   - Smoke testing protocol (3 parts)
+   - 3 QC rounds (no exceptions)
+   - Update lessons learned
+4. Commit changes (one commit per sub-feature)
+5. Mark complete in this file
+6. Move to next sub-feature
+
+**NO SKIPPING:** All quality gates apply to each sub-feature.
+
+**Cross-Sub-Feature Alignment:** ✅ Verified (Phase 6 complete)
+- 1 conflict resolved (locked field timing)
+- All interface contracts aligned
+- Dependency chain validated (no circular dependencies)
+
+---
 
 ### Final Integration:
 
