@@ -5,8 +5,38 @@ This guide covers executing the TODO file and building the feature. Use this AFT
 **Related Files:**
 - `todo_creation_guide.md` - Previous guide (create TODO with 24 iterations)
 - `post_implementation_guide.md` - Next guide (QC and validation)
-- `protocols_reference.md` - Detailed protocol definitions
+- `protocols/README.md` - Detailed protocol definitions
 - `templates.md` - File templates
+
+---
+
+## ⚠️ IMPORTANT: Sub-Feature Workflow
+
+**If your feature uses sub-features:**
+- Execute this guide **ONCE PER SUB-FEATURE** (not once for entire feature)
+- You should have completed `todo_creation_guide.md` for THIS sub-feature first
+- Implement THIS sub-feature completely
+- Run tests including integration with previously completed sub-features
+- Proceed to `post_implementation_guide.md` for THIS sub-feature
+- **Do NOT start next sub-feature** until current one passes all QC rounds
+
+**Integration testing with sub-features:**
+- Test THIS sub-feature's functionality
+- Test integration with ALL previously completed sub-features
+- Verify no regressions in earlier sub-features
+
+**File naming for sub-features:**
+- `{feature_name}_sub_feature_{N}_{name}_implementation_checklist.md`
+- `{feature_name}_sub_feature_{N}_{name}_code_changes.md`
+
+**If your feature is a single feature (no sub-features):**
+- Execute this guide once
+- File naming: `{feature_name}_implementation_checklist.md`, `{feature_name}_code_changes.md`
+
+**How to tell which approach:**
+- Check for `SUB_FEATURES_README.md` in feature folder
+- If exists: Use sub-feature workflow
+- If not exists: Use single feature workflow
 
 ---
 
@@ -1117,7 +1147,7 @@ For calculation/algorithm tasks, consider Test-First Implementation:
 3. Verify against spec acceptance criteria
 4. Refactor if needed (tests still pass)
 
-See `protocols_reference.md` → Test-First Implementation Principle for details.
+See `protocols/README.md` → Test-First Implementation Principle for details.
 
 ### 5. Update Lessons Learned When Issues Found
 
@@ -1473,7 +1503,7 @@ grep -r "ClassName" . --include="*.py"
 | **TODO Creation Guide** | Previous guide - create TODO with 24 iterations | `todo_creation_guide.md` |
 | **Post-Implementation Guide** | Next guide - QC and validation | `post_implementation_guide.md` |
 | **Planning Guide** | If scope changes - return to planning | `feature_planning_guide.md` |
-| **Protocols Reference** | Detailed protocol definitions | `protocols_reference.md` |
+| **Protocols Reference** | Detailed protocol definitions | `protocols/README.md` |
 | **Templates** | File templates for features | `templates.md` |
 | **Prompts Reference** | Conversation prompts | `prompts_reference.md` |
 | **Guides README** | Overview of all guides | `README.md` |

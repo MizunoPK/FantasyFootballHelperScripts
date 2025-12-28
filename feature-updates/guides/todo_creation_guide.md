@@ -3,9 +3,33 @@
 This guide covers creating the TODO file through 24 verification iterations. Use this BEFORE writing any implementation code.
 
 **Related Files:**
-- `protocols_reference.md` - Detailed protocol definitions
+- `protocols/README.md` - Detailed protocol definitions
 - `templates.md` - File templates for TODO and other files
 - `implementation_execution_guide.md` - Next guide (after TODO creation complete)
+
+---
+
+## ⚠️ IMPORTANT: Sub-Feature Workflow
+
+**If your feature uses sub-features:**
+- Execute this guide **ONCE PER SUB-FEATURE** (not once for entire feature)
+- Complete TODO creation for Sub-feature 1, then Implementation, then Post-Implementation
+- Commit changes for Sub-feature 1
+- THEN move to Sub-feature 2 and repeat this guide
+- **Sequential execution only** - complete one sub-feature fully before starting next
+
+**File naming for sub-features:**
+- `{feature_name}_sub_feature_{N}_{name}_todo.md`
+- `{feature_name}_sub_feature_{N}_{name}_questions.md` (if needed)
+
+**If your feature is a single feature (no sub-features):**
+- Execute this guide once
+- File naming: `{feature_name}_todo.md`, `{feature_name}_questions.md`
+
+**How to tell which approach:**
+- Check for `SUB_FEATURES_README.md` in feature folder
+- If exists: Use sub-feature workflow
+- If not exists: Use single feature workflow
 
 ---
 
@@ -571,7 +595,7 @@ These patterns cause tests to pass while bugs remain undetected. **Plan to avoid
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**See `protocols_reference.md` for complete Testing Anti-Patterns documentation.**
+**See `protocols/README.md` for complete Testing Anti-Patterns documentation.**
 
 ---
 
@@ -931,7 +955,7 @@ Each standard iteration follows this pattern:
 | 6 | Skeptical Re-verification | Assume nothing is correct; re-verify all claims |
 | 7 | Integration Gap Check | Verify every new method has a caller task |
 
-See `protocols_reference.md` for detailed protocol steps.
+See `protocols/README.md` for detailed protocol steps.
 
 ---
 
@@ -1540,17 +1564,17 @@ Use this table to know exactly what to do at each iteration:
 
 | Protocol | Iterations | Purpose | Details |
 |----------|------------|---------|---------|
-| **Standard Verification** | 1-3, 8-10, 15-16 | Read → Question → Research → Update | See `protocols_reference.md` |
-| **Algorithm Traceability** | 4, 11, 19 | Ensure spec logic matches code exactly | `protocols_reference.md` |
+| **Standard Verification** | 1-3, 8-10, 15-16 | Read → Question → Research → Update | See `protocols/README.md` |
+| **Algorithm Traceability** | 4, 11, 19 | Ensure spec logic matches code exactly | `protocols/README.md` |
 | **TODO Specification Audit** | 4a | Ensure TODO items are self-contained | See Iteration 4a section above |
-| **End-to-End Data Flow** | 5, 12 | Trace entry point → output; no orphan code | `protocols_reference.md` |
-| **Skeptical Re-verification** | 6, 13, 22 | Assume nothing; re-verify all claims | `protocols_reference.md` |
-| **Integration Gap Check** | 7, 14, 23 | Every new method has a caller | `protocols_reference.md` |
-| **Fresh Eyes Review** | 17, 18 | Re-read spec with fresh perspective | `protocols_reference.md` |
-| **Edge Case Verification** | 20 | Every edge case has task + test | `protocols_reference.md` |
-| **Test Coverage Planning** | 21 | Plan behavior tests; verify mocks match reality | `protocols_reference.md` |
+| **End-to-End Data Flow** | 5, 12 | Trace entry point → output; no orphan code | `protocols/README.md` |
+| **Skeptical Re-verification** | 6, 13, 22 | Assume nothing; re-verify all claims | `protocols/README.md` |
+| **Integration Gap Check** | 7, 14, 23 | Every new method has a caller | `protocols/README.md` |
+| **Fresh Eyes Review** | 17, 18 | Re-read spec with fresh perspective | `protocols/README.md` |
+| **Edge Case Verification** | 20 | Every edge case has task + test | `protocols/README.md` |
+| **Test Coverage Planning** | 21 | Plan behavior tests; verify mocks match reality | `protocols/README.md` |
 | **Pre-Implementation Audit** | 23a | 4-part spec-to-TODO audit | See Iteration 23a section above |
-| **Implementation Readiness** | 24 | Final checklist before coding | `protocols_reference.md` |
+| **Implementation Readiness** | 24 | Final checklist before coding | `protocols/README.md` |
 
 ---
 
@@ -1849,7 +1873,7 @@ grep -r "ModuleName\." .
 | **Planning Guide** | Before this guide - for new features | `feature_planning_guide.md` |
 | **Implementation Guide** | After this guide - to execute the TODO | `implementation_execution_guide.md` |
 | **Post-Implementation Guide** | After implementation - QC and validation | `post_implementation_guide.md` |
-| **Protocols Reference** | Detailed protocol definitions | `protocols_reference.md` |
+| **Protocols Reference** | Detailed protocol definitions | `protocols/README.md` |
 | **Templates** | File templates for features | `templates.md` |
 | **Prompts Reference** | Conversation prompts for user discussions | `prompts_reference.md` |
 | **Guides README** | Overview of all guides | `README.md` |

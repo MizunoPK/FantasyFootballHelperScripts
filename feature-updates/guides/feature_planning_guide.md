@@ -1,4 +1,49 @@
-# Feature Planning Guide
+# Feature Planning Guide [LEGACY]
+
+**⚠️ DEPRECATED:** This guide has been superseded by the two-guide workflow.
+
+**Use these guides instead:**
+1. **`feature_creation_guide.md`** - Initial setup, broad reconnaissance, sub-feature breakdown decision
+2. **`feature_deep_dive_guide.md`** - Detailed planning per sub-feature
+
+**Why the change?** Lessons learned showed that early sub-feature breakdown prevents overwhelming complexity. See `{feature}/lessons_learned.md` from "Integrate New Player Data Into League Helper" feature for details.
+
+**When to use this legacy guide:** Only for understanding the old workflow or maintaining existing features that used the monolithic approach.
+
+---
+
+## New Workflow Overview
+
+```
+feature_creation_guide.md
+  → Phase 1-2: Initial setup + broad reconnaissance
+  → Phase 3: CRITICAL - Sub-feature breakdown decision
+  → Phase 4: Create file structure (single OR sub-features)
+  → Phase 5: Transition
+
+feature_deep_dive_guide.md (execute per sub-feature)
+  → Phase 1-2: Targeted research + spec updates
+  → Phase 3: Interactive question resolution (ONE at a time)
+  → Phase 4: Complete + dynamic scope check
+  → Phase 5-6: Next sub-feature OR alignment review
+  → Phase 7: Ready for implementation
+
+todo_creation_guide.md (execute per sub-feature)
+implementation_execution_guide.md (execute per sub-feature)
+post_implementation_guide.md (execute per sub-feature)
+```
+
+**Key differences from this legacy guide:**
+- Early sub-feature breakdown (after broad reconnaissance)
+- No global spec/checklist when using sub-features
+- Dynamic scope adjustment during deep dive
+- Cross-sub-feature alignment review (mandatory)
+- Sequential implementation (one sub-feature at a time)
+- One commit per sub-feature
+
+---
+
+# Legacy Guide Content (For Reference)
 
 This guide helps agents assist users in developing thorough, well-structured feature specifications. A well-planned feature enables future agents to implement it efficiently without re-researching decisions.
 

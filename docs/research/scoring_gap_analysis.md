@@ -36,23 +36,23 @@ The current 13-step scoring algorithm covers foundational metrics well but lacks
 
 ### Implemented Steps
 
-| Step | Metric | Type | Range | Mode Usage |
-|------|--------|------|-------|------------|
-| 1 | **Normalization** | Base | 0-135 scale | All modes |
-| 2 | **ADP Multiplier** | Multiplicative | 0.87-1.15x | Add To Roster |
-| 3 | **Player Rating** | Multiplicative | 0.96-1.04x | Add To Roster, Trade Sim |
-| 4 | **Team Quality** | Multiplicative | 0.91-1.09x | All modes |
-| 5 | **Performance** | Multiplicative | 0.87-1.14x | Starter Helper, Trade Sim |
-| 6 | **Matchup** | Additive | -4.6 to +4.6 pts | Starter Helper |
-| 7 | **Schedule** | Additive | -4.3 to +4.3 pts | Trade Sim |
-| 8 | **Draft Order** | Additive | 0 to +80 pts | Add To Roster |
-| 9 | **Bye Week** | Penalty | 0 to -50 pts | Add To Roster, Trade Sim (User) |
-| 10 | **Injury** | Penalty | 0 to -100 pts | Add To Roster |
-| 11 | **Temperature** | Additive | -2.5 to +2.5 pts | Starter Helper |
-| 12 | **Wind** | Additive | -3.0 to +3.0 pts | Starter Helper (QB/WR/K) |
-| 13 | **Location** | Additive | -5 to +2 pts | Starter Helper |
+| Step | Metric | Type | Range | Mode Usage | Status |
+|------|--------|------|-------|------------|--------|
+| 1 | **Normalization** | Base | 0-135 scale | All modes | ✅ Implemented & Documented |
+| 2 | **ADP Multiplier** | Multiplicative | 0.87-1.15x | Add To Roster | ✅ Implemented & Documented |
+| 3 | **Player Rating** | Multiplicative | 0.96-1.04x | Add To Roster, Trade Sim | ✅ Implemented & Documented |
+| 4 | **Team Quality** | Multiplicative | 0.91-1.09x | All modes | ✅ Implemented & Documented |
+| 5 | **Performance** | Multiplicative | 0.87-1.14x | Starter Helper, Trade Sim | ✅ Implemented & Documented |
+| 6 | **Matchup** | Additive | -4.6 to +4.6 pts | Starter Helper | ✅ Implemented & Documented |
+| 7 | **Schedule** | Additive | -4.3 to +4.3 pts | Trade Sim | ✅ Implemented & Documented |
+| 8 | **Draft Order** | Additive | 0 to +80 pts | Add To Roster | ✅ Implemented & Documented |
+| 9 | **Bye Week** | Penalty | 0 to -50 pts | Add To Roster, Trade Sim (User) | ✅ Implemented & Documented |
+| 10 | **Injury** | Penalty | 0 to -100 pts | Add To Roster | ✅ Implemented & Documented |
+| 11 | **Temperature** | Additive | -2.5 to +2.5 pts | Starter Helper | ✅ **FULLY IMPLEMENTED** (v2.1, Nov 2025) |
+| 12 | **Wind** | Additive | -3.0 to +3.0 pts | Starter Helper (QB/WR/K) | ✅ **FULLY IMPLEMENTED** (v2.1, Nov 2025) |
+| 13 | **Location** | Additive | -5 to +2 pts | Starter Helper | ✅ **FULLY IMPLEMENTED** (v2.1, Nov 2025) |
 
-*Note: Mode names match official terminology from `docs/scoring_v2/README.md`*
+*Note: Steps 11-13 (Game Conditions) were added in v2.1 (2025-11-26) and are fully operational with comprehensive test coverage (161 tests). See `docs/scoring/11_temperature_scoring.md`, `12_wind_scoring.md`, and `13_location_scoring.md` for complete documentation.*
 
 ---
 
@@ -60,17 +60,17 @@ The current 13-step scoring algorithm covers foundational metrics well but lacks
 
 ### Metrics ALREADY Covered by System
 
-| Research Metric | System Step | Coverage Quality | Notes |
-|-----------------|-------------|------------------|-------|
-| **Projections** | Step 1 (Normalization) | Excellent | ESPN weekly/ROS projections |
-| **Matchup Quality** | Step 6 (Matchup) | Good | Position-specific defense ranks |
-| **Recent Performance** | Step 5 (Performance) | Good | Actual vs projected deviation |
-| **Temperature** | Step 11 | Good | Ideal ~60°F, penalties at extremes |
-| **Wind** | Step 12 | Good | QB/WR/K affected |
-| **Location** | Step 13 | Good | Home/away/international |
-| **Injury Status** | Step 10 | Good | ACTIVE/QUESTIONABLE/OUT/IR |
-| **Schedule Strength** | Step 7 | Good | Future opponent avg defense rank |
-| **Team Quality** | Step 4 | Good | Offensive/defensive rankings |
+| Research Metric | System Step | Coverage Quality | Implementation Status | Notes |
+|-----------------|-------------|------------------|----------------------|-------|
+| **Projections** | Step 1 (Normalization) | Excellent | ✅ v1.0 (2024) | ESPN weekly/ROS projections |
+| **Matchup Quality** | Step 6 (Matchup) | Good | ✅ v1.0 (2024) | Position-specific defense ranks |
+| **Recent Performance** | Step 5 (Performance) | Good | ✅ v1.0 (2024) | Actual vs projected deviation |
+| **Temperature** | Step 11 | Good | ✅ **v2.1 (Nov 2025)** | Ideal ~60°F, all positions, ±2.5 pts |
+| **Wind** | Step 12 | Good | ✅ **v2.1 (Nov 2025)** | QB/WR/K only, ±3.0 pts |
+| **Location** | Step 13 | Good | ✅ **v2.1 (Nov 2025)** | Home/away/international, -5 to +2 pts |
+| **Injury Status** | Step 10 | Good | ✅ v1.0 (2024) | ACTIVE/QUESTIONABLE/OUT/IR |
+| **Schedule Strength** | Step 7 | Good | ✅ v1.0 (2024) | Future opponent avg defense rank |
+| **Team Quality** | Step 4 | Good | ✅ v1.0 (2024) | Offensive/defensive rankings |
 
 ### Metrics NOT Covered (Gaps Identified)
 
@@ -1579,6 +1579,7 @@ These enhancements would address the majority of the analytical gap identified i
 | 2025-12-12 | 1.1 | Added 8 additional metrics; fixed mode terminology; added Phase 4 |
 | 2025-12-13 | 2.0 | Added 19 projection calculation metrics; new section for building custom projections; added projection framework; expanded data sources |
 | 2025-12-17 | 3.0 | Added 20 position-specific metrics from streaming research guides; documented position-specific applications of existing metrics; reorganized for clarity |
+| **2025-12-27** | **3.1** | **Updated to reflect Steps 11-13 (Temperature, Wind, Location) are FULLY IMPLEMENTED in v2.1 (Nov 2025); added implementation status column; created complete documentation for game conditions scoring** |
 
 ## Sources
 

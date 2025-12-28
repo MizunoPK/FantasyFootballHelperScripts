@@ -6,10 +6,10 @@ This folder contains workflow guides for agents implementing new features in the
 
 | Situation | File to Use |
 |-----------|-------------|
-| User says "help me develop the {feature} feature" | Start with **Planning Guide** |
-| User provides a `.txt` file with feature requirements | Start with **Planning Guide** |
-| User says "prepare for updates based on {feature}" | Use **TODO Creation Guide** |
-| Planning is complete, specs approved, need to create TODO | Use **TODO Creation Guide** |
+| User says "help me develop the {feature} feature" | Start with **Feature Creation Guide** |
+| User provides a `.txt` file with feature requirements | Start with **Feature Creation Guide** |
+| After deciding on sub-features, need detailed planning | Use **Feature Deep Dive Guide** (per sub-feature) |
+| All sub-features planned, ready for implementation | Use **TODO Creation Guide** (per sub-feature) |
 | TODO creation complete (24 iterations), ready to code | Use **Implementation Execution Guide** |
 | Implementation complete, need QC and validation | Use **Post-Implementation Guide** |
 | Need to execute a specific protocol | Use **Protocols Reference** |
@@ -65,39 +65,87 @@ Use this table to quickly determine your current location when resuming work:
 
 ## Files in This Folder
 
-| File | Purpose |
-|------|---------|
-| `feature_planning_guide.md` | Planning phase workflow (Phases 1-4) with question generation and codebase verification |
-| `todo_creation_guide.md` | TODO creation through 24 verification iterations (BEFORE coding) |
-| `implementation_execution_guide.md` | Implementation workflow - executing the TODO file with continuous verification |
-| `post_implementation_guide.md` | QC, smoke testing, and validation (AFTER coding) |
-| `protocols_reference.md` | Detailed protocol definitions (15+ protocols) including Mock Audit, Test-First, and Rollback |
-| `templates.md` | File templates for all feature files with QA checkpoint structure and Round Checkpoint Summary |
-| `prompts_reference.md` | Ready-to-use conversation prompts |
-| `README.md` | This overview (you are here) |
+| File | Purpose | Status |
+|------|---------|--------|
+| `feature_creation_guide.md` | **NEW** - Initial setup, broad reconnaissance, sub-feature breakdown decision | **CURRENT** |
+| `feature_deep_dive_guide.md` | **NEW** - Detailed planning per sub-feature with interactive question resolution | **CURRENT** |
+| `feature_planning_guide.md` | Legacy monolithic planning guide | **DEPRECATED** |
+| `todo_creation_guide.md` | TODO creation through 24 verification iterations (execute per sub-feature) | **CURRENT** |
+| `implementation_execution_guide.md` | Implementation workflow (execute per sub-feature) | **CURRENT** |
+| `post_implementation_guide.md` | QC, smoke testing, validation (execute per sub-feature) | **CURRENT** |
+| `protocols/README.md` | Detailed protocol definitions (15+ protocols) | **CURRENT** |
+| `templates.md` | File templates for all feature files | **CURRENT** |
+| `prompts_reference.md` | Ready-to-use conversation prompts including new phase transitions | **CURRENT** |
+| `README.md` | This overview (you are here) | **CURRENT** |
 
 ---
 
 ## Guide Overview
 
-### 1. Feature Planning Guide
+### NEW WORKFLOW (Two-Guide Approach)
 
-**Purpose:** Transform a raw feature request (`.txt` file) into a fully-specified, approved plan before any code is written.
+**⚠️ Important Change:** Planning has been split into two guides based on lessons learned from large features.
+
+### 1. Feature Creation Guide (NEW)
+
+**Purpose:** Initial setup, broad reconnaissance, and sub-feature breakdown decision.
 
 **When to use:**
-- User has placed a `.txt` file in `feature-updates/` folder
-- User requests "help me develop" or "prepare for updates"
+- User says "help me develop {feature}" or provides `.txt` file
 - Starting any new feature from scratch
 
 **What it produces:**
 - Feature folder: `feature-updates/{feature_name}/`
-- 5 files total:
-  - 4 created: `README.md`, `_specs.md`, `_checklist.md`, `_lessons_learned.md`
-  - 1 moved: `_notes.txt` (original scratchwork)
-- User-approved specification ready for implementation
+- Either:
+  - **Single feature:** `_specs.md`, `_checklist.md`, `research/` folder
+  - **Sub-features:** `SUB_FEATURES_README.md`, multiple `sub_feature_{N}_spec.md` files, `research/` folder
+- **NO global spec/checklist if using sub-features**
 
 **Key phases:**
 1. Create folder structure
+2. Broad reconnaissance (identify major components, estimate scope)
+3. **CRITICAL: Sub-feature breakdown decision** (triggers: 3+ components, 30+ items)
+4. Create appropriate file structure
+5. Transition to deep dive
+
+---
+
+### 2. Feature Deep Dive Guide (NEW)
+
+**Purpose:** Detailed research and question resolution for ONE sub-feature at a time.
+
+**When to use:**
+- After feature creation guide completes
+- Execute ONCE per sub-feature (or once for single feature)
+
+**What it produces:**
+- Complete spec with implementation-level detail
+- Fully resolved checklist (all items `[x]`)
+- Research documents in `research/` folder
+- Cross-sub-feature alignment verification
+
+**Key phases:**
+1. Targeted research (only this sub-feature's scope)
+2. Update spec and checklist
+3. **Interactive question resolution (ONE at a time)**
+4. Sub-feature complete + dynamic scope adjustment check
+5. Next sub-feature or alignment review
+6. **Cross-sub-feature alignment review** (MANDATORY for multi-sub-feature)
+7. Ready for sequential implementation
+
+---
+
+### 3. Legacy Planning Guide (DEPRECATED)
+
+**Purpose:** Old monolithic planning approach.
+
+**When to use:** Only for reference or maintaining features that used the old approach.
+
+**Why deprecated:** Lessons learned showed that large features (30+ items) become unmanageable without early sub-feature breakdown. The new two-guide approach addresses this.
+
+---
+
+### 4. TODO Creation Guide
 2. Investigate codebase (with 3-iteration question generation + codebase verification rounds)
 3. Report findings and STOP for user approval
 4. Iterate until fully specified
@@ -132,7 +180,7 @@ Use this table to quickly determine your current location when resuming work:
 5. Complete Round 2 (iterations 8-16)
 6. Complete Round 3 (iterations 17-24 + 23a)
 
-**Critical protocols** (defined in `protocols_reference.md`):
+**Critical protocols** (defined in `protocols/README.md`):
 - Algorithm Traceability Matrix (iterations 4, 11, 19)
 - TODO Specification Audit (iteration 4a)
 - End-to-End Data Flow (iterations 5, 12)
@@ -327,7 +375,7 @@ Use this table to quickly determine your current location when resuming work:
 │                              → done/ folder                     │
 │                              → git commit                       │
 │                                                                 │
-│  All guides reference protocols_reference.md and templates.md  │
+│  All guides reference protocols/README.md and templates.md  │
 │  as needed throughout the process                              │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
@@ -345,7 +393,7 @@ Use this table to quickly determine your current location when resuming work:
 
 5. **100% test pass rate required.** Never commit code with failing tests.
 
-6. **Reference protocols as needed.** The development guide is streamlined; detailed protocol steps are in `protocols_reference.md`.
+6. **Reference protocols as needed.** The development guide is streamlined; detailed protocol steps are in `protocols/README.md`.
 
 ## File Locations
 
@@ -357,7 +405,7 @@ feature-updates/
 │   ├── todo_creation_guide.md           # 2. TODO creation (24 iterations)
 │   ├── implementation_execution_guide.md # 3. Implementation workflow
 │   ├── post_implementation_guide.md     # 4. QC and validation
-│   ├── protocols_reference.md           # Detailed protocol definitions
+│   ├── protocols/README.md           # Detailed protocol definitions
 │   ├── templates.md                     # File templates
 │   └── prompts_reference.md             # Conversation prompts
 ├── {feature_name}/                      # Feature folders created during planning

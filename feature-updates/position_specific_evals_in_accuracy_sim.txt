@@ -1,0 +1,9 @@
+I want to add another config to the Accuracy Sim that sets which positions to include in the accuracy evaluations per parameter
+It would look something like this:
+PARAMETER_POSITION_MAPPING = {
+    "TEAM_QUALITY": [QB, RB, WR, TE, K]
+    "PERFORMANCE": [QB, RB, WR, TE, DST]
+    "WIND": [QB, WR, K]
+    etc
+}
+Only positions included in the parameter's array should have their players pulled in to rank and evaluate accuracy for the varied configs of the given parameter

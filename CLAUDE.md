@@ -30,7 +30,8 @@ The feature development process has two phases:
 3. **THEN proceed** - Follow the guide step-by-step
 
 **Phase transition prompts are MANDATORY for:**
-- Starting Planning Phase → Use "Starting Planning Phase" prompt
+- Starting Feature Creation → Use "Starting Feature Creation" prompt
+- Starting Deep Dive (per sub-feature) → Use "Starting Deep Dive" prompt
 - Starting TODO Creation (Phase 2a) → Use "Starting TODO Creation" prompt
 - Starting Implementation (Phase 2b) → Use "Starting Implementation" prompt
 - Starting Post-Implementation QC (Phase 2c) → Use "Starting Post-Implementation QC" prompt
@@ -61,22 +62,41 @@ I'll now proceed with Round 1 (iterations 1-7)...
 
 **Prerequisites:** User has created `feature-updates/{feature-name}.txt` with initial scratchwork notes.
 
-**🚨 FIRST ACTION:** Use the "Starting Planning Phase" prompt from `feature-updates/guides/prompts_reference.md` - READ the planning guide, ACKNOWLEDGE requirements, THEN proceed.
+**🚨 FIRST ACTION:** Use the "Starting Feature Creation" prompt from `feature-updates/guides/prompts_reference.md` - READ the creation guide, ACKNOWLEDGE requirements, THEN proceed.
 
-**Workflow:**
-1. **Follow `feature-updates/guides/feature_planning_guide.md`** - This guide structures the planning conversation
+**Workflow (Two-Guide Approach):**
+
+**Step 1: Initial Planning & Sub-Feature Breakdown**
+1. **Follow `feature-updates/guides/feature_creation_guide.md`**
 2. **Create the feature folder** `feature-updates/{feature-name}/`
 3. **Move original notes** into folder as `{feature_name}_notes.txt`
-4. **Create planning files:**
-   - `README.md` - Context for future agents
-   - `{feature_name}_specs.md` - **Primary specification** (detailed, structured requirements)
-   - `{feature_name}_checklist.md` - Tracks what's resolved vs pending
-   - `{feature_name}_lessons_learned.md` - Captures issues to improve the guides
-5. **Guide the conversation** - Help user think through edge cases, data sources, scope
-6. **Document as you go** - Update `_specs.md` as questions are answered
-7. **Complete planning before implementation** - All checklist items should be `[x]`
+4. **Broad reconnaissance** - Understand scope, identify major components
+5. **Critical decision: Sub-feature breakdown**
+   - Evaluate if feature should be broken into sub-features
+   - **Triggers:** 3+ components, 30+ items, multiple subsystems, different risk levels
+   - If YES: Create `SUB_FEATURES_README.md` + per-sub-feature specs/checklists
+   - If NO: Create single `{feature_name}_specs.md` + `{feature_name}_checklist.md`
+6. **Create `research/` folder** - All research documents go here from the start
+7. **Create** `{feature_name}_lessons_learned.md` (shared across all sub-features)
+8. **Create** `README.md` - Context and status for future agents
 
-**🚨 IMPORTANT:** Do NOT skip any steps in the planning guide. Thorough planning prevents rework.
+**Step 2: Deep Dive Planning (Per Sub-Feature or Once for Single Feature)**
+9. **Follow `feature-updates/guides/feature_deep_dive_guide.md`**
+10. **Execute ONCE per sub-feature** (or once if single feature)
+11. **Targeted research** - Deep dive into THIS sub-feature's scope only
+12. **Interactive question resolution** - ONE question at a time, update after each
+13. **Dynamic scope adjustment** - Propose new sub-features if scope grows
+14. **Repeat for all sub-features**
+15. **Cross-sub-feature alignment review** (MANDATORY if using sub-features)
+16. **Complete planning** - All checklist items should be `[x]`
+
+**Key Differences from Old Workflow:**
+- Early sub-feature breakdown (Phase 3 of creation guide)
+- No global spec/checklist when using sub-features
+- All research in `research/` folder from start
+- Cross-sub-feature alignment review before implementation
+
+**🚨 IMPORTANT:** Do NOT skip any steps in the guides. Thorough planning prevents rework.
 
 ---
 

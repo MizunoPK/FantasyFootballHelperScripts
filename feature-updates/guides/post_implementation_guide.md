@@ -4,8 +4,43 @@ This guide covers quality control, validation, and completion. Use this AFTER im
 
 **Related Files:**
 - `implementation_execution_guide.md` - Previous guide (execute TODO)
-- `protocols_reference.md` - Detailed protocol definitions
+- `protocols/README.md` - Detailed protocol definitions
 - `templates.md` - File templates
+
+---
+
+## ⚠️ IMPORTANT: Sub-Feature Workflow
+
+**If your feature uses sub-features:**
+- Execute this guide **ONCE PER SUB-FEATURE** (not once for entire feature)
+- You should have completed `implementation_execution_guide.md` for THIS sub-feature first
+- Complete ALL 3 QC rounds for THIS sub-feature (no skipping)
+- Execute **FULL smoke testing protocol** (3 parts - MANDATORY)
+- Commit changes after QC Round 3 passes
+- Update `SUB_FEATURES_README.md` to mark THIS sub-feature complete
+- **Do NOT move to done/ folder** until ALL sub-features complete
+- **THEN** return to `todo_creation_guide.md` for next sub-feature
+
+**Final completion (after ALL sub-features done):**
+- Execute one final integration test across ALL sub-features
+- Execute final smoke testing protocol for entire feature
+- Review all lessons_learned from all sub-features
+- Move entire feature folder to `done/`
+- Create final commit for feature completion
+
+**File naming for sub-features:**
+- Code changes documented in `{feature_name}_sub_feature_{N}_{name}_code_changes.md`
+- Lessons shared in `{feature_name}_lessons_learned.md` (one file for all sub-features)
+
+**If your feature is a single feature (no sub-features):**
+- Execute this guide once
+- Move to `done/` folder after completion
+- File naming: `{feature_name}_code_changes.md`, `{feature_name}_lessons_learned.md`
+
+**How to tell which approach:**
+- Check for `SUB_FEATURES_README.md` in feature folder
+- If exists: Use sub-feature workflow
+- If not exists: Use single feature workflow
 
 ---
 
@@ -519,7 +554,7 @@ python tests/run_all_tests.py
 ╚═════════════════════════════════════════════════════════════════╝
 ```
 
-See `protocols_reference.md` → Requirement Verification Protocol for detailed steps.
+See `protocols/README.md` → Requirement Verification Protocol for detailed steps.
 
 **Quick Summary:**
 
@@ -1090,7 +1125,7 @@ Based on real features, smoke testing catches:
 
 ## Step 4: Quality Control Round 1 (Initial Review)
 
-See `protocols_reference.md` → Quality Control Review Protocol for detailed steps.
+See `protocols/README.md` → Quality Control Review Protocol for detailed steps.
 
 **QC Round 1 Focus:**
 - Initial code review
@@ -1805,7 +1840,7 @@ mv feature-updates/{name} feature-updates/done/{name}     # Linux/Mac
 | **Implementation Guide** | Previous guide - execute TODO | `implementation_execution_guide.md` |
 | **TODO Creation Guide** | If major issues - return to verification | `todo_creation_guide.md` |
 | **Planning Guide** | If scope changes significantly | `feature_planning_guide.md` |
-| **Protocols Reference** | Detailed protocol definitions | `protocols_reference.md` |
+| **Protocols Reference** | Detailed protocol definitions | `protocols/README.md` |
 | **Templates** | File templates | `templates.md` |
 | **Prompts Reference** | Conversation prompts | `prompts_reference.md` |
 | **Guides README** | Overview of all guides | `README.md` |

@@ -9,14 +9,19 @@ This file contains all file templates used during feature planning and developme
 | Template | When to Use | Section |
 |----------|-------------|---------|
 | README.md | Phase 1: Create structure | [Link](#feature-readme-template) |
-| {feature_name}_specs.md | Phase 1: Create structure | [Link](#specification-template) |
+| {feature_name}_specs.md | Phase 1: Create structure (single feature) | [Link](#specification-template) |
 | Dependency Map | Phase 2.6: Add to specs | [Link](#dependency-map-template) |
-| {feature_name}_checklist.md | Phase 1: Create structure | [Link](#checklist-template) |
+| {feature_name}_checklist.md | Phase 1: Create structure (single feature) | [Link](#checklist-template) |
 | {feature_name}_lessons_learned.md | Phase 1: Create structure | [Link](#lessons-learned-template) |
 | {feature_name}_questions.md | Step 3: Create questions | [Link](#questions-file-template) |
 | {feature_name}_todo.md | Step 1: Create TODO | [Link](#todo-file-template) |
 | {feature_name}_implementation_checklist.md | Step 6a: Before implementation | [Link](#implementation-checklist-template) |
 | {feature_name}_code_changes.md | After TODO creation | [Link](#code-changes-template) |
+| **SUB-FEATURE TEMPLATES** | | |
+| SUB_FEATURES_README.md | Phase 4: Create sub-feature structure | [Link](#sub-features-readme-template) |
+| sub_feature_{N}_{name}_spec.md | Phase 4: Per sub-feature | [Link](#sub-feature-spec-template) |
+| sub_feature_{N}_{name}_checklist.md | Phase 4: Per sub-feature | [Link](#sub-feature-checklist-template) |
+| research/README.md | Phase 4: Create research folder | [Link](#research-folder-readme-template) |
 
 ---
 
@@ -1196,11 +1201,365 @@ feature-updates/done/{feature_name}/
 
 ---
 
+## Sub-Feature Templates
+
+### SUB_FEATURES_README Template
+
+Create in: `feature-updates/{feature_name}/SUB_FEATURES_README.md`
+
+```markdown
+# Sub-Feature Breakdown: {Feature Name}
+
+## Overview
+
+{Brief description of overall feature and why it was broken into sub-features}
+
+## Sub-Features
+
+| Sub-Feature | Items | Dependencies | Risk | Priority |
+|-------------|-------|--------------|------|----------|
+| 1. {Name} | ~X | None | LOW/MED/HIGH | LOW/MED/HIGH |
+| 2. {Name} | ~Y | Sub-feature 1 | LOW/MED/HIGH | LOW/MED/HIGH |
+| 3. {Name} | ~Z | Sub-feature 1, 2 | LOW/MED/HIGH | LOW/MED/HIGH |
+
+## Implementation Order
+
+**Recommended sequence based on dependencies:**
+1. Sub-feature 1: {Name} (foundation - no dependencies)
+2. Sub-feature 2: {Name} (depends on 1)
+3. Sub-feature 3: {Name} (depends on 1, 2)
+...
+
+**Rationale for order:**
+- {Explain why this sequence makes sense}
+
+## Progress Tracking
+
+**Planning (Deep Dive):**
+- [ ] Sub-feature 1: {Name} - Deep Dive Complete
+- [ ] Sub-feature 2: {Name} - Deep Dive Complete
+- [ ] Sub-feature 3: {Name} - Deep Dive Complete
+- [ ] **Cross-Sub-Feature Alignment Review** (MANDATORY before implementation)
+
+**Implementation (Sequential - One at a Time):**
+- [ ] Sub-feature 1: {Name} - TODO Creation (24 iterations)
+- [ ] Sub-feature 1: {Name} - Implementation Complete
+- [ ] Sub-feature 1: {Name} - QC Rounds Complete (1-3)
+- [ ] Sub-feature 1: {Name} - Committed ✅
+- [ ] Sub-feature 2: {Name} - TODO Creation (24 iterations)
+- [ ] Sub-feature 2: {Name} - Implementation Complete
+- [ ] Sub-feature 2: {Name} - QC Rounds Complete (1-3)
+- [ ] Sub-feature 2: {Name} - Committed ✅
+...
+
+**Final Integration:**
+- [ ] All sub-features implemented
+- [ ] Final integration test across all sub-features
+- [ ] Final smoke testing protocol
+- [ ] Move to done/ folder
+
+## Dependencies
+
+### Dependency Graph
+
+```
+Sub-feature 1
+  ├─► Sub-feature 2 (depends on 1)
+  └─► Sub-feature 3 (depends on 1)
+
+Sub-feature 2
+  └─► Sub-feature 4 (depends on 2)
+
+Sub-feature 3 + Sub-feature 4
+  └─► Sub-feature 5 (depends on 3, 4)
+```
+
+### Detailed Dependencies
+
+**Sub-feature 1: {Name}**
+- Prerequisites: None
+- Provides: {What it provides to other sub-features}
+- Blocks: {Which sub-features depend on this}
+
+**Sub-feature 2: {Name}**
+- Prerequisites: Sub-feature 1 ({what it needs from sub-feature 1})
+- Provides: {What it provides}
+- Blocks: {Which sub-features depend on this}
+
+...
+
+## Cross-Sub-Feature Integration Points
+
+**Critical interfaces between sub-features:**
+
+| Interface | Provider | Consumer | Contract |
+|-----------|----------|----------|----------|
+| {Interface name} | Sub-feature 1 | Sub-feature 2 | {Description of contract} |
+| {Interface name} | Sub-feature 2 | Sub-feature 3 | {Description of contract} |
+
+## Notes
+
+**Why sub-features:**
+- {Reason for breakdown}
+
+**Key decisions:**
+- {Important decisions about structure}
+
+**Lessons learned during planning:**
+- {Anything discovered during planning that's important}
+```
+
+---
+
+### Sub-Feature Spec Template
+
+Create in: `feature-updates/{feature_name}/sub_feature_{N}_{descriptive_name}_spec.md`
+
+```markdown
+# Sub-Feature {N}: {Descriptive Name}
+
+## Objective
+
+{What this sub-feature accomplishes - 1-2 sentences}
+
+## Dependencies
+
+**Prerequisites:** {Which sub-features must complete first, or "None" if foundation}
+
+**Blocks:** {Which sub-features depend on this one completing}
+
+## Scope
+
+### Checklist Items ({X} total)
+
+**From {Category} ({Item Range}):**
+- {ITEM-ID}: {Description}
+- {ITEM-ID}: {Description}
+...
+
+**From {Category} ({Item Range}):**
+- {ITEM-ID}: {Description}
+...
+
+## Implementation Details
+
+### {Component 1}
+
+{Detailed description of what needs to be implemented}
+
+**Approach:**
+{How it will be implemented}
+
+**Files Affected:**
+- `path/to/file.py` (lines X-Y) - {Description of changes}
+
+### {Component 2}
+
+{Details...}
+
+## Data Flow
+
+{Diagram or description of how data moves through this sub-feature}
+
+```
+Input: {source}
+  ↓
+{Processing step 1}
+  ↓
+{Processing step 2}
+  ↓
+Output: {destination} → Used by {consumer}
+```
+
+## Key Algorithms
+
+{Pseudocode or description of core algorithms}
+
+## Integration Points
+
+### With Other Sub-Features
+
+**Depends on Sub-feature {N}:**
+- Uses: {interface/method/data}
+- Contract: {what we expect}
+
+**Provides to Sub-feature {N}:**
+- Exposes: {interface/method/data}
+- Contract: {what we guarantee}
+
+### With Existing Code
+
+**Calls:**
+- `ClassName.method_name()` - {purpose}
+
+**Called by:**
+- `OtherClass.method()` - {purpose}
+
+## Assumptions
+
+| Assumption | Basis | Risk if Wrong | Mitigation |
+|------------|-------|---------------|------------|
+| {Assumption} | {Why we believe this} | {Impact} | {How to handle if wrong} |
+
+## Testing Requirements
+
+### Unit Tests
+
+- Test {scenario 1}
+- Test {scenario 2}
+...
+
+### Integration Tests
+
+- Test integration with Sub-feature {N}
+- Test with existing code at {integration point}
+
+## Success Criteria
+
+✅ **Core Functionality:**
+- [ ] {Criterion 1}
+- [ ] {Criterion 2}
+
+✅ **Error Handling:**
+- [ ] {Criterion 1}
+
+✅ **Testing:**
+- [ ] All unit tests passing (100%)
+- [ ] Integration tests with completed sub-features passing
+
+✅ **Code Quality:**
+- [ ] {Quality criterion}
+
+## Notes
+
+**Temporary Conversions:**
+- {Any temporary workarounds}
+
+**Out of Scope:**
+- {What's explicitly not in this sub-feature}
+
+**Dependencies for Next Sub-Features:**
+- Sub-feature {N} depends on {what from this sub-feature}
+```
+
+---
+
+### Sub-Feature Checklist Template
+
+Create in: `feature-updates/{feature_name}/sub_feature_{N}_{descriptive_name}_checklist.md`
+
+```markdown
+# Sub-Feature {N}: {Descriptive Name} - Checklist
+
+## Purpose
+
+Track open questions and decisions for THIS sub-feature only.
+
+**Deep Dive Status:** {Phase X of feature_deep_dive_guide.md}
+
+---
+
+## Core Functionality ({X} items)
+
+- [ ] **{ID}:** {Question or decision needed}
+  - Context: {Why this matters}
+  - Options: {If multiple approaches}
+  - Recommendation: {If researched}
+
+- [x] **{ID}:** {Resolved decision} ✅ RESOLVED
+  - Decision: {What was chosen}
+  - Rationale: {Why}
+
+---
+
+## Error Handling ({Y} items)
+
+- [ ] **{ID}:** {Question}
+...
+
+---
+
+## Testing ({Z} items)
+
+- [ ] **{ID}:** {Question}
+...
+
+---
+
+## Integration ({W} items)
+
+- [ ] **{ID}:** Integration with Sub-feature {N}
+  - Question: {What needs clarification}
+...
+
+---
+
+## Status Summary
+
+**Total Items:** {X}
+**Resolved:** {Y} [x]
+**Pending:** {Z} [ ]
+
+**Ready for Implementation:** {YES / NO}
+```
+
+---
+
+### Research Folder README Template
+
+Create in: `feature-updates/{feature_name}/research/README.md`
+
+```markdown
+# Research and Analysis Documents
+
+This folder contains all research, analysis, and verification reports generated during planning.
+
+**Purpose:**
+- Keeps root folder clean (only specs, checklists, README)
+- Centralizes reference material
+- Clear separation: specs = implementation guidance, research = context
+
+**File Naming:**
+- `{TOPIC}_ANALYSIS.md` - Detailed analysis of specific topic
+- `VERIFICATION_REPORT_{DATE}.md` - Verification findings
+- `RESEARCH_FINDINGS_{DATE}.md` - General research results
+- `{ALGORITHM}_ALGORITHM_ANALYSIS.md` - Algorithm deep dives
+
+**All research documents go here from the start.**
+
+## Files in this folder
+
+| File | Purpose | Key Findings |
+|------|---------|-------------|
+| `{filename}.md` | {Purpose} | {Summary of findings} |
+| ... | ... | ... |
+
+## How to Use These Documents
+
+**During Deep Dive:**
+- Research documents support decision-making
+- Reference when answering checklist questions
+
+**During Implementation:**
+- Verify implementation matches research findings
+- Use as reference for complex algorithms
+
+**After Completion:**
+- Preserved in done/ folder for future reference
+- Helpful for similar features
+```
+
+---
+
 ## Related Files
 
 | File | Purpose |
 |------|---------|
-| `feature_planning_guide.md` | Planning phase workflow |
-| `feature_development_guide.md` | Development phase workflow |
-| `protocols_reference.md` | Detailed protocol definitions |
+| `feature_creation_guide.md` | Initial planning & sub-feature breakdown |
+| `feature_deep_dive_guide.md` | Per-sub-feature detailed planning |
+| `feature_planning_guide.md` | Legacy monolithic planning (DEPRECATED) |
+| `todo_creation_guide.md` | TODO creation (execute per sub-feature) |
+| `implementation_execution_guide.md` | Implementation (execute per sub-feature) |
+| `post_implementation_guide.md` | QC & validation (execute per sub-feature) |
+| `protocols/README.md` | Detailed protocol definitions |
 | `README.md` | Guide overview |

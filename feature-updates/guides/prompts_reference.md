@@ -26,20 +26,55 @@ This file contains ready-to-use conversation prompts for guiding planning and de
 
 **CRITICAL:** These prompts MUST be used when transitioning between phases. Agents must READ the guide FIRST, acknowledge key requirements, THEN proceed.
 
-### Starting Planning Phase
+### Starting Feature Creation
 
 Use when user says "Help me develop {feature-name}" or "Let's plan {feature-name}":
 
-> "I'm reading `feature_planning_guide.md` to ensure I follow the complete planning workflow...
+> "I'm reading `feature_creation_guide.md` to ensure I follow the initial planning workflow...
 >
 > **The guide requires:**
-> - Creating feature folder: `feature-updates/{feature-name}/`
-> - Moving scratchwork notes into folder
-> - Creating planning files: README.md, specs.md, checklist.md, lessons_learned.md
-> - Following 7-phase structured conversation
-> - Completing ALL checklist items before implementation
+> - Phase 1: Create feature folder and move notes
+> - Phase 2: Broad reconnaissance (identify major components, estimate scope)
+> - **Phase 3: CRITICAL CHECKPOINT - Sub-feature breakdown decision**
+>   - Evaluate if feature should be broken into sub-features
+>   - Triggers: 3+ components, 30+ items, multiple subsystems, mixed risk levels
+> - Phase 4: Create file structure (single OR sub-features)
+>   - If single: Create spec + checklist
+>   - If sub-features: Create SUB_FEATURES_README.md + per-sub-feature files
+>   - ALWAYS: Create research/ subfolder
+> - Phase 5: Transition to deep dive planning
 >
-> I'll now proceed following the planning guide step-by-step. Starting with Phase 1: Initial Context..."
+> **NO global checklist/spec if using sub-features** - only sub-feature specific files
+>
+> I'll now proceed with Phase 1: Initial Setup..."
+
+---
+
+### Starting Deep Dive (Per Sub-Feature)
+
+Use when starting detailed planning for a sub-feature (or single feature):
+
+> "I'm reading `feature_deep_dive_guide.md` to ensure I follow the complete deep dive workflow...
+>
+> **The guide requires:**
+> - Phase 1: Targeted research (ONLY for this sub-feature's scope)
+> - Phase 2: Update spec and checklist with findings
+> - **Phase 3: Interactive question resolution**
+>   - **ONE question at a time** (Lesson 1)
+>   - Update spec/checklist after EACH answer
+>   - Evaluate for new questions after each resolution
+> - Phase 4: Sub-feature complete + **dynamic scope adjustment check**
+>   - If scope grew significantly (>35 items), propose split into additional sub-features
+> - Phase 5: Next sub-feature or alignment review
+> - **Phase 6: Cross-sub-feature alignment review** (MANDATORY for multi-sub-feature)
+>   - Review all specs together for conflicts
+>   - Verify interface contracts align
+>   - Fix conflicting assumptions
+> - Phase 7: Ready for sequential implementation
+>
+> **All research documents go in research/ folder**
+>
+> I'll now proceed with Phase 1: Targeted Research for {sub-feature name}..."
 
 ---
 
@@ -441,5 +476,5 @@ Use when user's answer is ambiguous:
 |------|---------|
 | `feature_planning_guide.md` | Planning phase workflow |
 | `feature_development_guide.md` | Development phase workflow |
-| `protocols_reference.md` | Detailed protocol definitions |
+| `protocols/README.md` | Detailed protocol definitions |
 | `templates.md` | File templates |
