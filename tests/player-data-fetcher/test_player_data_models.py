@@ -76,7 +76,7 @@ class TestESPNPlayerDataInitialization:
             team="TB",
             position="QB",
             bye_week=7,
-            drafted=1,
+            drafted_by="Opponent Team",
             locked=0,
             fantasy_points=250.5,
             average_draft_position=3.2,
@@ -638,12 +638,12 @@ class TestIntegrationScenarios:
             name="Rookie Player",
             team="TB",
             position="RB",
-            drafted=0,
+            drafted_by="",
             fantasy_points=0.0
         )
 
         # Update as season progresses
-        player.drafted = 1
+        player.drafted_by = "Opponent Team"
         player.fantasy_points = 150.5
         player.set_week_points(1, 15.0)
         player.set_week_points(2, 20.0)

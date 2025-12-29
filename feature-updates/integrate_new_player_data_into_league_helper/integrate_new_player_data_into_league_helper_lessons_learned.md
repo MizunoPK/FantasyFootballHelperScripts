@@ -22,6 +22,216 @@
 
 ## Lessons Learned
 
+### Lesson 3: Critical Field Omission - drafted_by String Field Not Added to FantasyPlayer
+
+**Date:** 2025-12-29
+
+**What Happened (Symptom):**
+During Sub-feature 7 TODO creation (Iteration 1: Standard Verification), discovered that FantasyPlayer dataclass does NOT have a `drafted_by: str` field. The spec assumes `player.drafted_by` exists, but only `player.drafted` (int) exists. This causes data loss - opponent team names are discarded when converting `drafted_by="Team Alpha"` → `drafted=1`.
+
+**Impact:**
+- **CRITICAL BLOCKER:** Sub-feature 7 (DraftedRosterManager Consolidation) cannot be implemented as specified
+- **Data Loss:** Opponent team names lost during JSON loading (only int flag stored)
+- **TradeSimulatorModeManager broken:** Requires team names to create TradeSimTeam objects, not just int flags
+- **Feature incomplete:** Sub-feature 1 didn't fully implement the original notes requirement
+
+**Immediate Cause:**
+Sub-feature 1 spec (lines 193-200) shows `from_json()` converting `drafted_by` string → `drafted` int and discarding the team name. No NEW-X requirement existed to add `drafted_by: str` field to FantasyPlayer dataclass.
+
+**Root Cause Analysis:**
+
+1. **Why was drafted_by field not added?** → No NEW-X checklist item to add it
+2. **Why was there no NEW-X item?** → Planning phase mentioned "hybrid approach" only in spec notes, not as actionable requirement
+3. **Why wasn't it in checklist?** → Planning agent didn't create NEW-X item for every field mentioned in original notes
+4. **Why didn't TODO verification catch it?** → 24 iterations verified NEW-X items exist in TODO, but didn't verify original notes fields became NEW-X items
+5. **Why didn't QC catch it?** → QC verified implementation matched spec, but didn't verify spec matched original notes
+6. **ROOT CAUSE:** No verification step ensures "original notes fields → NEW-X requirements → dataclass fields" chain is complete
+
+**Evidence Trail:**
+
+**Original Notes (CORRECT):**
+```
+integrate_new_player_data_into_league_helper_notes.txt:6-13:
+"Note that the drafted column from the csv has turned into a drafted_by column that has the team name.
+What was once drafted=0 -> drafted_by=""
+drafted=1 -> drafted_by != "" and drafted_by != FANTASY_TEAM_NAME
+drafted=2 -> drafted_by == FANTASY_TEAM_NAME
+
+Instead of reading from drafted_data.csv, we'll just look at the value of the drafted_by string in each player"
+```
+
+**Spec (INCOMPLETE):**
+- Lines 32-47: NEW-6, NEW-7, NEW-31 through NEW-37 list field additions ✅
+- **❌ MISSING:** No "NEW-X: Add drafted_by: str field to FantasyPlayer"
+- Lines 155, 393: Mention "hybrid approach" in narrative/notes only
+- Lines 193-200: Show from_json() converting drafted_by → drafted (discarding string)
+
+**Checklist (NOT ACTIONABLE):**
+- Line 176: "drafted_by stored as string but drafted int maintained (hybrid approach per Decision 2)"
+- This is in "Notes" section, NOT a `[ ] NEW-X` checkbox item
+
+**TODO (FOLLOWED WRONG SPEC):**
+- Claimed "ALL 24 ITERATIONS COMPLETE ✅"
+- Task 1.1, 1.2 only add projected_points, actual_points, position stats
+- No task to add drafted_by because no NEW-X requirement existed
+
+**Implementation (CORRECT PER SPEC):**
+- FantasyPlayer.py:96 only has `drafted: int = 0`
+- from_json() correctly implemented spec lines 193-200 (conversion)
+- No bug in code - code correctly followed the (incomplete) spec
+
+**QC (MISSED THE GAP):**
+- 3 QC rounds all passed
+- Verified implementation matched spec ✅
+- **❌ Did NOT verify spec matched original notes**
+
+**Multiple Guide Failures:**
+
+**1. feature_deep_dive_guide.md (Planning Phase) - FAILED**
+- Missing step: "For every field/attribute mentioned in notes, create explicit NEW-X checklist item"
+- Agent mentioned "hybrid approach" in narrative but didn't create actionable requirement
+- No verification that notes requirements → NEW-X items
+
+**2. todo_creation_guide.md (24 Iterations) - FAILED**
+- Iterations 1-3, 6, 13, 22 verified dependencies/interfaces exist in code
+- **❌ Did NOT verify original notes requirements exist in NEW-X list**
+- Missing iteration: "Cross-check original notes against NEW-X items - every field mentioned must have NEW-X"
+
+**3. post_implementation_guide.md (QC Rounds) - FAILED**
+- QC verified implementation ↔ spec alignment
+- **❌ Did NOT verify spec ↔ original notes alignment**
+- Missing QC round: "Verify no data loss - all fields in notes exist in dataclass"
+
+**Recommended Guide Updates:**
+
+**Which Guide:** `feature_deep_dive_guide.md`
+**Section:** Phase 2: Update Spec and Checklist
+**Add New Mandatory Step:**
+
+```markdown
+### Step 2.X: Original Notes → NEW-X Requirements Verification (MANDATORY)
+
+**CRITICAL: Every field, attribute, or data element mentioned in original notes MUST become a NEW-X checklist item.**
+
+**Protocol:**
+1. **Re-read original notes line by line**
+2. **Extract ALL fields/attributes mentioned:**
+   - Dataclass fields (e.g., "drafted_by column that has the team name")
+   - Method parameters
+   - Return types
+   - Data structures
+3. **For EACH field, create NEW-X item:**
+   - Example: Notes say "drafted_by column that has the team name"
+   - **Required:** `[ ] NEW-X: Add drafted_by: str = "" field to FantasyPlayer`
+4. **Verification table:**
+   | Notes Mention | Line in Notes | NEW-X Item | Status |
+   |---------------|---------------|------------|--------|
+   | drafted_by field | notes.txt:6 | NEW-45 | [x] |
+   | locked boolean | notes.txt:11 | NEW-46 | [x] |
+
+**Red Flags:**
+- ❌ Field mentioned in notes but only in spec "notes" section
+- ❌ "Hybrid approach" or design mentioned but no NEW-X item
+- ❌ Narrative describes behavior but no corresponding requirement
+
+**Acceptance Criteria:**
+- [ ] Every field in notes has NEW-X item
+- [ ] Every attribute in notes has NEW-X item
+- [ ] Verification table complete with 100% coverage
+```
+
+**Which Guide:** `todo_creation_guide.md`
+**Section:** Iteration 1 (Standard Verification)
+**Add New Focus Question:**
+
+```markdown
+**Iteration 1 Additional Focus Questions:**
+- What fields are mentioned in **original notes** that aren't in NEW-X requirements?
+- For each field in notes, verify corresponding NEW-X item exists
+- Create verification table: notes field → NEW-X item → TODO task
+
+**Mandatory Check:**
+Read original notes file, extract all field names, verify each has NEW-X and TODO task.
+If any field missing, STOP and add to spec/checklist before continuing.
+```
+
+**Which Guide:** `post_implementation_guide.md`
+**Section:** QC Round 1 (Core Functionality)
+**Add New Verification:**
+
+```markdown
+### QC Round 1.X: Original Notes Completeness Check
+
+**Purpose:** Verify no requirements from original notes were lost during planning
+
+**Steps:**
+1. **Read original notes file completely**
+2. **Extract all fields, attributes, behaviors mentioned**
+3. **For each, verify:**
+   - [ ] Field exists in dataclass (if data field)
+   - [ ] Method exists (if behavior)
+   - [ ] No data loss during conversions
+4. **Test data round-trip:**
+   - Load from JSON → FantasyPlayer → to_json() → compare
+   - Verify no fields discarded (e.g., drafted_by → drafted conversion loses team name)
+5. **Document any gaps in lessons learned**
+
+**Red Flags:**
+- ❌ Notes mention field but dataclass doesn't have it
+- ❌ Conversion discards data (string → int loses information)
+- ❌ "We'll use the X field" in notes but X not accessible in code
+
+**If gaps found:** STOP, document in lessons learned, fix before continuing QC
+```
+
+**Systemic Fix:**
+
+Add **mandatory verification chain** across all three guides:
+
+```
+Original Notes → NEW-X Requirements → TODO Tasks → Implementation → QC
+
+Checkpoints:
+1. Planning: Notes fields → NEW-X items (100% coverage)
+2. TODO Creation (Iteration 1): NEW-X items → TODO tasks (100% coverage)
+3. Implementation: TODO tasks → Code (100% completion)
+4. QC Round 1: Code → Original Notes (verify no data loss, no missing fields)
+```
+
+**Pattern Recognition:**
+
+This is a **traceability failure** - requirements mentioned in notes but lost before becoming actionable items. The guides assume specs are complete, but don't verify specs capture all notes requirements.
+
+**Prevention Strategy:**
+- Add explicit "Notes → NEW-X verification table" to planning guide
+- Add "Original notes completeness check" to Iteration 1
+- Add "Notes vs implementation gap analysis" to QC Round 1
+- Never rely on narrative mentions - every requirement must be a checkbox item
+
+---
+
+### Sub-Feature 6 (TeamDataManager D/ST Migration) - No New Lessons
+
+**Date:** 2025-12-28
+
+**What Happened:**
+Sub-feature 6 implementation completed smoothly with no issues discovered during QC.
+
+**Why This Is Notable:**
+- TODO Creation phase (24 iterations) was thorough enough to prevent implementation issues
+- Interface Verification Protocol caught all dependencies before coding
+- Comprehensive edge case planning (9 tests) identified during TODO creation led to 100% test pass rate
+- All 3 QC rounds passed without findings
+
+**Guide Effectiveness:**
+✅ `todo_creation_guide.md` - 24 iterations prevented all issues
+✅ `implementation_execution_guide.md` - Interface Verification worked perfectly
+✅ `post_implementation_guide.md` - Nothing to catch (planning was thorough)
+
+**Pattern:** When TODO creation is thorough (not rushed), implementation proceeds without issues. This validates the workflow.
+
+---
+
 ### Lesson 1: Interactive Question Resolution Process
 
 **Date:** 2025-12-26
@@ -1389,4 +1599,235 @@ Add explicit checkboxes in each guide's completion criteria:
 
 **Validation:**
 Phase tracker instructions exist (lines 501-502) but weren't followed. Making this a checkbox in each guide's completion criteria will make it harder to miss.
+
+
+---
+
+### Process Lesson: Agent Read Prompt But Not Actual Guide
+
+**Date:** 2025-12-28
+
+**What Happened:**
+When starting Sub-feature 6 TODO Creation phase, agent read the "Starting TODO Creation" prompt from `prompts_reference.md` (lines 81-96) and recited the requirements, but did NOT actually read the `todo_creation_guide.md` itself before beginning work.
+
+**Impact:**
+- Agent started creating TODO list without understanding full guide context
+- Missed detailed instructions, templates, and iteration-specific requirements
+- Violated mandatory protocol: "Re-read the corresponding guide BEFORE marking any phase complete"
+- Started work based on prompt summary instead of comprehensive guide
+
+**Root Cause:**
+The prompts_reference.md contains acknowledgment prompts that REFERENCE the guides but are NOT a substitute for reading them. Agent treated the prompt as sufficient and skipped reading the actual guide.
+
+**Why This Is Critical:**
+- Prompts are ~15 lines, guides are 100-2000 lines with critical details
+- Guides contain templates, checklists, examples, and edge cases
+- Guides are updated with lessons learned - prompts may not reflect latest updates
+- Reading guide ensures agent understands WHY each step matters, not just WHAT to do
+
+**Recommended Guide Update:**
+
+**Guide:** All guides (feature_creation_guide.md, feature_deep_dive_guide.md, todo_creation_guide.md, implementation_execution_guide.md, post_implementation_guide.md)
+
+**Add to beginning of each guide (before any content):**
+```markdown
+## 🚨 MANDATORY: Read This Entire Guide First
+
+**CRITICAL PROTOCOL:**
+
+Before starting ANY work for this phase:
+1. **READ this ENTIRE guide** (not just the prompt from prompts_reference.md)
+2. The prompt is an acknowledgment, NOT a substitute for reading the guide
+3. Prompts are summaries (~15 lines), guides are comprehensive (100-2000 lines)
+4. Only after reading the full guide should you begin work
+
+**Why this matters:**
+- Guides contain templates, detailed steps, edge cases, and examples
+- Guides are updated with lessons learned continuously
+- Prompts may not reflect latest guide updates
+- Reading ensures you understand WHY, not just WHAT
+
+**DO NOT:**
+- ❌ Read only the prompt from prompts_reference.md
+- ❌ Start work after reciting the prompt
+- ❌ Skim the guide and assume you know the rest
+
+**DO:**
+- ✅ Read this entire guide file before any work
+- ✅ Use the prompt as acknowledgment that you READ the guide
+- ✅ Follow each step in the guide sequentially
+```
+
+**Prevention Strategy:**
+1. Add warning box to top of every guide
+2. Update prompts_reference.md to emphasize "READ THE FULL GUIDE FIRST"
+3. Make guide reading the FIRST checkbox in every phase checklist
+
+**Example of Correct Protocol:**
+```
+User: "proceed with sub-feature 6"
+
+Agent (CORRECT):
+"I'm reading todo_creation_guide.md to ensure I follow all 24 verification iterations..."
+[Actually opens and reads the file]
+[Reads lines 1-100, then 100-200, etc. until complete]
+"The guide requires:
+- 24 mandatory iterations across 3 rounds
+- Algorithm Traceability Matrix (iterations 4, 11, 19)
+- ..."
+[Then begins work following the guide]
+
+Agent (INCORRECT - what happened):
+"I'm reading todo_creation_guide.md..."
+[Reads prompts_reference.md instead]
+"The guide requires: [lists from prompt]"
+[Starts work without reading actual guide]
+```
+
+**Validation:**
+This is a CRITICAL process failure. The entire guide system is designed around agents reading complete guides. Skipping this step undermines all process improvements and lessons learned documentation.
+
+**Immediate Action Required:**
+1. Stop current work
+2. Actually read todo_creation_guide.md in full
+3. Restart TODO Creation with proper guide context
+4. Update all guides with mandatory reading warning
+
+**Severity:** HIGH - This invalidates the entire guide-based workflow system
+
+---
+
+### Lesson 6: Never Intentionally Leave Technical Debt
+
+**Date:** 2025-12-29
+
+**What Happened (Symptom):**
+During Sub-feature 9 implementation (drafted Field Deprecation), initially added tech debt comments to `find_players_by_drafted_status()` and `get_player_list()` methods in player_search.py and PlayerManager.py, planning to leave `p.drafted == drafted_status` comparisons as-is with "TODO: Refactor later" notes. User immediately challenged this: "Why was this marked as tech debt? We should not leave behind any tech debt."
+
+**Impact:**
+- **Quality Degradation:** Intentional tech debt undermines the goal of eliminating magic numbers
+- **Incomplete Implementation:** Leaves migration half-finished
+- **Future Work:** Creates unnecessary follow-up work that should be done now
+- **Pattern Setting:** Normalizes leaving incomplete work for "later"
+
+**What We Did (Correct Approach):**
+1. Immediately refactored `find_players_by_drafted_status()` to use helper methods internally
+2. Refactored `get_player_list()` to use helper methods via `matches_drafted_status()` function
+3. Refactored wrapper methods (`get_roster_players()`, `get_available_players()`, `get_drafted_players()`) to call helper methods directly
+4. Maintained full backward compatibility with int API
+5. Result: 0 instances of `.drafted` field usage in league_helper (100% migration)
+
+**Root Cause:**
+**Why did we mark it as tech debt?** → Assumed API refactoring would be complex and disruptive to callers
+
+**Why that assumption?** → Didn't investigate all callers before deciding
+
+**Why didn't we investigate?** → Fell into "good enough" mindset instead of "complete it properly" mindset
+
+**ROOT CAUSE:** Chose convenience over thoroughness, accepting incomplete work as "acceptable"
+
+**Why This Is Wrong:**
+1. **The work is already scoped** - We're touching these files NOW during migration
+2. **Callers are known** - Easy to verify backward compatibility is maintained
+3. **Tests exist** - Can verify refactoring doesn't break anything
+4. **Context is fresh** - We understand the code NOW, not 3 months from now
+5. **Principle violation** - The entire sub-feature is about eliminating tech debt, yet we were creating more
+
+**The Real Issue:**
+Tech debt comments like "TODO: Refactor to use helper methods" are admissions of incomplete work. If the spec says "migrate all occurrences," that means ALL occurrences - not "all except these 2 that seemed hard."
+
+**Guide Updates Needed:**
+
+**Update to `implementation_execution_guide.md`:**
+
+Add to "Step 4: Implementation Best Practices" section:
+
+```markdown
+### NO INTENTIONAL TECH DEBT POLICY
+
+**CRITICAL RULE:** Never intentionally leave technical debt with "TODO" or "FIXME" comments during implementation.
+
+**Why this matters:**
+- You have full context NOW - not in 3 months
+- Tests exist NOW to validate changes
+- The spec is fresh in your mind NOW
+- You're already touching these files NOW
+
+**When you're tempted to write "TODO: Refactor later":**
+
+1. **STOP** - This is a red flag
+2. **Ask:** Why am I not fixing this now?
+3. **Common excuses that are WRONG:**
+   - "It would take too long" → If it's in scope, it should be done
+   - "It might break things" → That's what tests are for
+   - "The API is complex" → Investigate first, don't assume
+   - "It's not critical" → If it's not critical, why is it in the spec?
+
+4. **Acceptable reasons to defer (RARE):**
+   - Blocked by external dependency not yet available
+   - Requires user decision that hasn't been made
+   - Out of scope per explicit spec statement
+   - Breaking change that requires separate feature
+
+5. **If truly must defer:**
+   - Create a NEW sub-feature/task immediately
+   - Add to project backlog with clear context
+   - Update current spec to document what's deferred and why
+   - Get user approval for deferral
+
+**Example - WRONG:**
+```python
+def find_players_by_drafted_status(self, drafted_status: int):
+    # TODO: Refactor to use helper methods instead of p.drafted
+    return [p for p in self.players if p.drafted == drafted_status]
+```
+
+**Example - RIGHT:**
+```python
+def find_players_by_drafted_status(self, drafted_status: int):
+    # Backward compatible int API, uses helper methods internally
+    if drafted_status == 0:
+        return [p for p in self.players if p.is_free_agent()]
+    elif drafted_status == 1:
+        return [p for p in self.players if p.is_drafted_by_opponent()]
+    elif drafted_status == 2:
+        return [p for p in self.players if p.is_rostered()]
+    else:
+        return []
+```
+
+**Quality Gate:**
+During QC Round 2 and Round 3, explicitly search for:
+- `grep -r "TODO" <modified_files>`
+- `grep -r "FIXME" <modified_files>`
+- `grep -r "tech debt" -i <modified_files>`
+
+Any instances should trigger investigation: Is this truly deferred work, or incomplete implementation?
+```
+
+**Update to `post_implementation_guide.md`:**
+
+Add to "QC Round 2: Deep Verification" checklist:
+
+```markdown
+- [ ] **No Intentional Tech Debt:**
+  - [ ] Search modified files for TODO/FIXME comments
+  - [ ] Search modified files for "tech debt" references
+  - [ ] If found: Verify it's truly deferred (not incomplete work)
+  - [ ] If incomplete work: Fix it NOW before marking complete
+```
+
+**Principle:**
+**"If it's in scope and you're touching the code, complete it properly NOW. Future-you will thank present-you."**
+
+**Validation:**
+After fixing the tech debt in Sub-feature 9:
+- ✅ 0 TODO comments in modified files
+- ✅ 0 FIXME comments in modified files
+- ✅ 0 "tech debt" comments in modified files
+- ✅ 100% migration complete (not 95% with "TODO later" notes)
+- ✅ Backward compatibility maintained
+- ✅ All tests passing
+
+**Severity:** HIGH - Accepting incomplete work normalizes technical debt and undermines code quality
 

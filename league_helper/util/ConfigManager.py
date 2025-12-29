@@ -595,7 +595,7 @@ class ConfigManager:
                 # Collect valid weekly points (skip None and zeros)
                 valid_weeks = [
                     points for week in range(1, 18)
-                    if (points := getattr(player, f'week_{week}_points')) is not None
+                    if (points := player.get_single_weekly_projection(week, self)) is not None
                     and points > 0
                 ]
 

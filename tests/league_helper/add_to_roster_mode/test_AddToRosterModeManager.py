@@ -152,56 +152,56 @@ def sample_players():
     players = [
         # QBs
         FantasyPlayer(id=1, name="QB1", team="KC", position="QB", bye_week=7,
-                     fantasy_points=250.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=250.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=5.0, player_rating=90.0),
         FantasyPlayer(id=2, name="QB2", team="BUF", position="QB", bye_week=10,
-                     fantasy_points=220.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=220.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=15.0, player_rating=85.0),
 
         # RBs
         FantasyPlayer(id=3, name="RB1", team="SF", position="RB", bye_week=7,
-                     fantasy_points=200.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=200.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=3.0, player_rating=92.0),
         FantasyPlayer(id=4, name="RB2", team="PHI", position="RB", bye_week=8,
-                     fantasy_points=180.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=180.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=10.0, player_rating=88.0),
         FantasyPlayer(id=5, name="RB3", team="DAL", position="RB", bye_week=9,
-                     fantasy_points=160.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=160.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=25.0, player_rating=80.0),
         FantasyPlayer(id=6, name="RB4", team="MIA", position="RB", bye_week=10,
-                     fantasy_points=140.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=140.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=40.0, player_rating=75.0),
 
         # WRs
         FantasyPlayer(id=7, name="WR1", team="MIN", position="WR", bye_week=6,
-                     fantasy_points=190.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=190.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=8.0, player_rating=89.0),
         FantasyPlayer(id=8, name="WR2", team="CIN", position="WR", bye_week=7,
-                     fantasy_points=175.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=175.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=18.0, player_rating=86.0),
         FantasyPlayer(id=9, name="WR3", team="DET", position="WR", bye_week=8,
-                     fantasy_points=165.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=165.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=30.0, player_rating=82.0),
         FantasyPlayer(id=10, name="WR4", team="LAC", position="WR", bye_week=9,
-                     fantasy_points=155.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=155.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=45.0, player_rating=78.0),
 
         # TEs
         FantasyPlayer(id=11, name="TE1", team="KC", position="TE", bye_week=7,
-                     fantasy_points=145.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=145.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=20.0, player_rating=87.0),
         FantasyPlayer(id=12, name="TE2", team="SF", position="TE", bye_week=8,
-                     fantasy_points=120.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=120.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=50.0, player_rating=74.0),
 
         # K
         FantasyPlayer(id=13, name="K1", team="BAL", position="K", bye_week=10,
-                     fantasy_points=100.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=100.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=100.0, player_rating=70.0),
 
         # DST
         FantasyPlayer(id=14, name="DST1", team="SF", position="DST", bye_week=7,
-                     fantasy_points=95.0, injury_status="ACTIVE", drafted=0, locked=0,
+                     fantasy_points=95.0, injury_status="ACTIVE", drafted_by="", locked=0,
                      average_draft_position=80.0, player_rating=72.0),
     ]
     return players
@@ -220,7 +220,7 @@ def mock_player_manager(config, sample_players):
     # Mock get_player_list to return available players
     def get_player_list_mock(drafted_vals=None, can_draft=False):
         if drafted_vals == [0]:
-            return [p for p in sample_players if p.drafted == 0]
+            return [p for p in sample_players if p.is_free_agent()]
         return sample_players
 
     manager.get_player_list = Mock(side_effect=get_player_list_mock)
@@ -383,7 +383,7 @@ class TestMatchPlayersToRounds:
         # Add 3 players that can match to various rounds
         players = [sample_players[2], sample_players[6], sample_players[0]]  # RB, WR, QB
         for p in players:
-            p.drafted = 2
+            p.drafted_by = "Sea Sharp"
         mock_player_manager.team.roster = players
 
         result = add_to_roster_manager._match_players_to_rounds()
@@ -397,7 +397,7 @@ class TestMatchPlayersToRounds:
         # Add 4 RBs to roster
         rbs = [sample_players[2], sample_players[3], sample_players[4], sample_players[5]]
         for rb in rbs:
-            rb.drafted = 2
+            rb.drafted_by = "Sea Sharp"
         mock_player_manager.team.roster = rbs
 
         result = add_to_roster_manager._match_players_to_rounds()
@@ -409,7 +409,7 @@ class TestMatchPlayersToRounds:
         """Test that matching uses optimal fit strategy (perfect position match first)"""
         # QB ideally goes to round 3 (QB primary)
         qb = sample_players[0]
-        qb.drafted = 2
+        qb.drafted_by = "Sea Sharp"
         mock_player_manager.team.roster = [qb]
 
         result = add_to_roster_manager._match_players_to_rounds()
@@ -447,17 +447,17 @@ class TestGetRecommendations:
                 assert recommendations[i].score >= recommendations[i+1].score
 
     def test_get_recommendations_only_available_players(self, add_to_roster_manager, mock_player_manager, sample_players):
-        """Test that only available players (drafted=0) are recommended"""
+        """Test that only available players (drafted_by="") are recommended"""
         # Mark some players as drafted
-        sample_players[0].drafted = 1  # Drafted by opponent
-        sample_players[1].drafted = 2  # On user's roster
+        sample_players[0].drafted_by = "Opponent Team"  # Drafted by opponent
+        sample_players[1].drafted_by = "Sea Sharp"  # On user's roster
 
         with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
             recommendations = add_to_roster_manager.get_recommendations()
 
             # None of the recommended players should be drafted
             for rec in recommendations:
-                assert rec.player.drafted == 0
+                assert rec.player.is_free_agent()
 
     def test_get_recommendations_only_draftable_players(self, add_to_roster_manager, mock_player_manager):
         """Test that only players that can be drafted are recommended"""
@@ -529,7 +529,7 @@ class TestDisplayRosterByDraftRounds:
         # Add 3 players to roster
         players = sample_players[:3]
         for p in players:
-            p.drafted = 2
+            p.drafted_by = "Sea Sharp"
         mock_player_manager.team.roster = players
         mock_player_manager.get_roster_len.return_value = 3
 
@@ -548,7 +548,7 @@ class TestDisplayRosterByDraftRounds:
         # Add at least one player so ideal positions are shown (empty roster returns early)
         players = [sample_players[0]]
         for p in players:
-            p.drafted = 2
+            p.drafted_by = "Sea Sharp"
         mock_player_manager.team.roster = players
         mock_player_manager.get_roster_len.return_value = 1
 
@@ -571,8 +571,8 @@ class TestDisplayRosterByDraftRounds:
             else:
                 p = FantasyPlayer(id=100+i, name=f"Extra{i}", team="KC", position="RB",
                                  bye_week=7, fantasy_points=100.0, injury_status="ACTIVE",
-                                 drafted=2, locked=0)
-            p.drafted = 2
+                                 drafted_by="Sea Sharp", locked=0)
+            p.drafted_by = "Sea Sharp"
             full_roster.append(p)
 
         mock_player_manager.team.roster = full_roster
@@ -785,7 +785,7 @@ class TestEdgeCases:
         for i in range(10):
             rb = FantasyPlayer(id=100+i, name=f"RB{i}", team="KC", position="RB",
                              bye_week=7, fantasy_points=100.0, injury_status="ACTIVE",
-                             drafted=2, locked=0)
+                             drafted_by="Sea Sharp", locked=0)
             rbs.append(rb)
 
         mock_player_manager.team.roster = rbs
@@ -850,7 +850,7 @@ class TestEdgeCases:
         """Test recommendations when only 1 player is available"""
         # Only one player available
         available_player = sample_players[0]
-        available_player.drafted = 0
+        available_player.drafted_by = ""
 
         # Mock get_player_list on the manager's player_manager to return single player
         with patch.object(add_to_roster_manager.player_manager, 'get_player_list', return_value=[available_player]):

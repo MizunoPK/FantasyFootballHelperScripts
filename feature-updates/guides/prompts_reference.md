@@ -142,6 +142,20 @@ Use when resuming work on an existing feature folder:
 
 > "I found an in-progress feature: `{feature-name}/`
 >
+> **Checking for sub-features:** {Looking for SUB_FEATURES_README.md}
+>
+> {IF MULTI-SUB-FEATURE PROJECT:}
+> **🚨 FIRST: Reading SUB_FEATURES_PHASE_TRACKER.md for exact progress...**
+>
+> **Phase Tracker Status:**
+> - Sub-features complete (Phase 4): {X} / {N}
+> - Current phase: {phase name}
+> - Current sub-feature: {name}
+> - Last updated: {date/time}
+> - Next action: {what to do next}
+> - Blockers: {any blockers}
+>
+> {IF SINGLE FEATURE PROJECT:}
 > Reading `{feature-name}/README.md` to understand current status...
 >
 > **Agent Status from README:**

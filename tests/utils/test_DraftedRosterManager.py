@@ -255,9 +255,9 @@ class TestApplyDraftedStateToPlayers:
     def sample_players(self):
         """Create sample FantasyPlayer objects."""
         return [
-            FantasyPlayer(id=1, name="Josh Allen", position="QB", team="BUF", drafted=0),
-            FantasyPlayer(id=2, name="Tyreek Hill", position="WR", team="MIA", drafted=0),
-            FantasyPlayer(id=3, name="Patrick Mahomes", position="QB", team="KC", drafted=0),
+            FantasyPlayer(id=1, name="Josh Allen", position="QB", team="BUF", drafted_by=""),
+            FantasyPlayer(id=2, name="Tyreek Hill", position="WR", team="MIA", drafted_by=""),
+            FantasyPlayer(id=3, name="Patrick Mahomes", position="QB", team="KC", drafted_by=""),
         ]
 
     @pytest.fixture
@@ -273,25 +273,25 @@ class TestApplyDraftedStateToPlayers:
         return mgr
 
     def test_apply_drafted_state_sets_user_team_to_2(self, manager, sample_players):
-        """Test sets drafted=2 for user's team players."""
+        """Test sets drafted_by to team name for user's team players."""
         manager.apply_drafted_state_to_players(sample_players)
 
         josh = next(p for p in sample_players if p.name == "Josh Allen")
-        assert josh.drafted == 2
+        assert josh.drafted_by == "My Team"
 
     def test_apply_drafted_state_sets_other_team_to_1(self, manager, sample_players):
-        """Test sets drafted=1 for other team players."""
+        """Test sets drafted_by to team name for other team players."""
         manager.apply_drafted_state_to_players(sample_players)
 
         tyreek = next(p for p in sample_players if p.name == "Tyreek Hill")
-        assert tyreek.drafted == 1
+        assert tyreek.drafted_by == "Other Team"
 
     def test_apply_drafted_state_leaves_undrafted_as_0(self, manager, sample_players):
-        """Test leaves undrafted players as 0."""
+        """Test leaves undrafted players as free agents."""
         manager.apply_drafted_state_to_players(sample_players)
 
         mahomes = next(p for p in sample_players if p.name == "Patrick Mahomes")
-        assert mahomes.drafted == 0
+        assert mahomes.drafted_by == ""
 
     def test_apply_drafted_state_returns_same_list(self, manager, sample_players):
         """Test returns the same player list (modifies in place)."""
@@ -306,9 +306,9 @@ class TestApplyDraftedStateToPlayers:
 
         manager.apply_drafted_state_to_players(sample_players)
 
-        # All players should remain drafted=0
+        # All players should remain as free agents
         for player in sample_players:
-            assert player.drafted == 0
+            assert player.drafted_by == ""
 
 
 class TestNormalizePlayerInfo:

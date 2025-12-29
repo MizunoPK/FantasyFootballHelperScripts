@@ -237,14 +237,15 @@ class TestPlayerManagerLoadFromJSON:
         # Act
         player_manager.load_players_from_json()
 
-        # Assert - Check drafted field conversions
+        # Assert - Check drafted_by field loading
         mahomes = next(p for p in player_manager.players if p.name == "Patrick Mahomes")
         allen = next(p for p in player_manager.players if p.name == "Josh Allen")
         mccaffrey = next(p for p in player_manager.players if p.name == "Christian McCaffrey")
 
-        assert mahomes.drafted == 0  # Empty drafted_by
-        assert allen.drafted == 2  # "Sea Sharp"
-        assert mccaffrey.drafted == 1  # "Opponent Team"
+        assert mahomes.drafted_by == ""  # Free agent
+        assert allen.drafted_by == "Sea Sharp"  # Our team
+        assert mccaffrey.drafted_by == "Opponent Team"  # Opponent
+        # Note: drafted property derivation will be tested in Phase 4 (REQ-016)
 
     def test_load_players_from_json_missing_directory_raises_file_not_found(self, tmp_path):
         """Test load_players_from_json() raises FileNotFoundError if player_data directory missing."""
@@ -396,7 +397,7 @@ class TestRoundTripPreservation:
 
         # Modify drafted/locked status
         original_passing = player.passing.copy()
-        player.drafted = 2
+        player.drafted_by = "Sea Sharp"
         player.locked = True
 
         # Convert back to dict (simulating save)
@@ -408,8 +409,7 @@ class TestRoundTripPreservation:
         assert player_dict["projected_points"][0] == 25.3
 
         # Reload from dict (simulating load after save)
-        # Note: to_dict() doesn't have drafted_by, so we need to add it for from_json
-        player_dict["drafted_by"] = "Sea Sharp" if player_dict["drafted"] == 2 else ""
+        # to_dict() includes drafted_by as a dataclass field
         reloaded_player = FantasyPlayer.from_json(player_dict)
 
         # Assert - All nested stats survived round trip
@@ -417,7 +417,7 @@ class TestRoundTripPreservation:
         assert reloaded_player.rushing == rushing_stats
         assert reloaded_player.misc["fumbles_lost"] == player_data["misc"]["fumbles_lost"]
         assert reloaded_player.projected_points == player_data["projected_points"]
-        assert reloaded_player.drafted == 2
+        assert reloaded_player.drafted_by == "Sea Sharp"
         assert reloaded_player.locked == True
 
 
@@ -498,8 +498,8 @@ class TestUpdatePlayersFileSelectiveUpdate:
         original_passing = player.passing.copy()
         original_rushing = player.rushing.copy()
 
-        # Act: Modify drafted and locked, then call update_players_file()
-        player.drafted = 2  # Draft to our team
+        # Act: Modify drafted_by and locked, then call update_players_file()
+        player.drafted_by = "Sea Sharp"  # Draft to our team
         player.locked = True  # Lock the player
 
         result = pm.update_players_file()
@@ -514,7 +514,7 @@ class TestUpdatePlayersFileSelectiveUpdate:
         reloaded_player = pm.players[0]
 
         # Verify drafted_by and locked were updated
-        assert reloaded_player.drafted == 2
+        assert reloaded_player.drafted_by == "Sea Sharp"
         assert reloaded_player.locked == True
 
         # CRITICAL: Verify ALL other fields preserved
@@ -533,7 +533,7 @@ class TestUpdatePlayersFileSelectiveUpdate:
         """
         Test Task 2.1: Verify drafted=1 (opponent) preserves team name.
 
-        When drafted=1, drafted_by should NOT be overwritten (preserve opponent name).
+        When drafted_by="Opponent Team", drafted_by should NOT be overwritten (preserve opponent name).
         """
         # Arrange: Create QB data with opponent team name
         player_data_dir = mock_data_folder / "player_data"
@@ -574,9 +574,9 @@ class TestUpdatePlayersFileSelectiveUpdate:
         pm.load_players_from_json()
 
         player = pm.players[0]
-        assert player.drafted == 1  # Loaded as opponent draft
+        assert player.drafted_by == "Opponent Team"  # Loaded as opponent draft
 
-        # Act: Update (modify locked, keep drafted=1)
+        # Act: Update (modify locked, keep drafted_by="Opponent Team")
         player.locked = True
         pm.update_players_file()
 
@@ -585,8 +585,7 @@ class TestUpdatePlayersFileSelectiveUpdate:
         player = pm.players[0]
 
         # Assert: Opponent team name preserved (not overwritten)
-        # drafted=1 means drafted_by should remain "Opponent Team" in JSON
-        assert player.drafted == 1
+        assert player.drafted_by == "Opponent Team"
         assert player.locked == True
 
         # Verify by reading JSON directly

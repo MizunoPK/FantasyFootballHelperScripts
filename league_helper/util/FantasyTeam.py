@@ -189,7 +189,7 @@ class FantasyTeam:
         self.logger.debug(f"FantasyTeam.draft_player called for player ID: {player.id}")
         can_draft = self.can_draft(player)
         if can_draft:
-            player.drafted = 2
+            player.drafted_by = Constants.FANTASY_TEAM_NAME
             self.roster.append(player)
 
             # Use explicit slot assignment
@@ -201,7 +201,7 @@ class FantasyTeam:
                 self.logger.error(f"DRAFT FAILED: Could not assign slot for {player.name}: {e}")
                 # Rollback the draft
                 self.roster.remove(player)
-                player.drafted = 0
+                player.drafted_by = ""
                 return False
 
             self.logger.debug(f"Player {player.id} drafted successfully. Roster size now {len(self.roster)}.")
@@ -244,7 +244,7 @@ class FantasyTeam:
 
         # Remove from roster and update counts
         self.roster.remove(player)
-        player.drafted = 0  # Mark as available again
+        player.drafted_by = ""  # Mark as free agent (available again)
 
         # Decrement position count for player's original position
         self.pos_counts[player.position] -= 1

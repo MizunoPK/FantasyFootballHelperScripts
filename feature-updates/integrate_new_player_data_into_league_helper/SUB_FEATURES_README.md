@@ -1,6 +1,6 @@
 # Sub-Feature Breakdown
 
-This feature has been split into 8 independent sub-features for easier implementation and testing.
+This feature has been split into 8 independent sub-features for easier implementation and testing, plus 1 bug fix sub-feature discovered during verification.
 
 ## Why Break Down the Feature?
 
@@ -22,8 +22,9 @@ The original feature was becoming unwieldy with:
 | [6. TeamDataManager D/ST Migration](#6-teamdatamanager-dst-migration) | 8 items | Sub-feature 2 | MEDIUM | HIGH |
 | [7. DraftedRosterManager Consolidation](#7-draftedroster manager-consolidation) | 12 items | Sub-feature 1 | LOW | MEDIUM |
 | [8. CSV Deprecation & Cleanup](#8-csv-deprecation--cleanup) | 6 items | All others | LOW | LOW |
+| **[9. drafted Field Deprecation (BUG FIX)](#9-drafted-field-deprecation-bug-fix)** | **TBD** | **Sub-feature 7** | **MEDIUM** | **HIGH** |
 
-**Total: 132 items**
+**Total: 132+ items** (Sub-feature 9 to be scoped during planning)
 
 ## Implementation Order (SEQUENTIAL - NO PARALLELIZATION)
 
@@ -44,10 +45,13 @@ The original feature was becoming unwieldy with:
 6. **TeamDataManager D/ST Migration** - Depends on Weekly Data Migration
 7. **DraftedRosterManager Consolidation** - Depends on Core Data Loading
 
-### Phase 4: Cleanup
+### Phase 4: Bug Fixes & Cleanup
+9. **drafted Field Deprecation (BUG FIX)** - Depends on DraftedRosterManager Consolidation
 8. **CSV Deprecation & Cleanup** - Depends on all others
 
-**Execution:** 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 (one at a time)
+**Execution:** 1 → 2 → 3 → 4 → 5 → 6 → 7 → **9 (BUG FIX)** → 8 (one at a time)
+
+**⚠️ IMPORTANT:** Sub-feature 9 must be completed AFTER sub-feature 7 (which adds drafted_by field) and BEFORE sub-feature 8 (CSV deprecation) to avoid updating deprecated code.
 
 ## Sub-Feature Specifications
 
@@ -179,6 +183,37 @@ Each sub-feature has its own specification file with:
 
 ---
 
+### 9. drafted Field Deprecation (BUG FIX)
+**File:** `drafted_field_deprecation_bugfix_notes.txt` (will create spec during planning)
+
+**Objective:** Phase out `drafted` int field in favor of `drafted_by` string field with helper methods
+
+**Background:**
+During Sub-feature 7 TODO verification, discovered that `drafted_by` field was missing from FantasyPlayer. Added as quick fix, but now we have TWO fields tracking the same information:
+- `drafted: int` (0=free agent, 1=opponent, 2=our team) - LEGACY
+- `drafted_by: str` (""=free agent, "Team Name"=opponent, "Sea Sharp"=our team) - CORRECT
+
+Original notes explicitly stated to use `drafted_by`, not maintain both fields.
+
+**Scope (TBD during planning):**
+- Add 3 helper methods: `is_free_agent()`, `is_drafted_by_opponent()`, `is_rostered()`
+- Replace all `player.drafted` comparisons with helper method calls
+- Replace all `player.drafted` assignments with `drafted_by` string assignments
+- Deprecate `drafted` field (keep for backward compatibility via property)
+- Update `from_json()` and `from_dict()` to derive `drafted` from `drafted_by`
+- Full test suite verification
+
+**Key Deliverables:**
+- Single source of truth (`drafted_by` string)
+- Readable API (helper methods instead of magic numbers)
+- No data loss (team names preserved)
+- Backward compatibility (drafted as derived property)
+- All tests passing (100% required)
+
+**Priority:** HIGH - Prevents accumulating technical debt before CSV deprecation
+
+---
+
 ### 8. CSV Deprecation & Cleanup
 **File:** `sub_feature_08_csv_deprecation_cleanup_spec.md`
 
@@ -218,6 +253,7 @@ Each sub-feature has its own specification file with:
 - [x] Sub-feature 6: TeamDataManager D/ST Migration - Deep Dive ✅ (2025-12-28)
 - [x] Sub-feature 7: DraftedRosterManager Consolidation - Deep Dive ✅ (2025-12-28)
 - [x] Sub-feature 8: CSV Deprecation & Cleanup - Deep Dive ✅ (2025-12-28)
+- [ ] **Sub-feature 9: drafted Field Deprecation (BUG FIX)** - Pending (after sub-features 5-8 complete)
 
 **Implementation Phase (TODO Creation → QC):**
 - [ ] Sub-feature 1: Core Data Loading - Implementation
@@ -227,6 +263,7 @@ Each sub-feature has its own specification file with:
 - [ ] Sub-feature 5: ProjectedPointsManager Consolidation - Implementation
 - [ ] Sub-feature 6: TeamDataManager D/ST Migration - Implementation
 - [ ] Sub-feature 7: DraftedRosterManager Consolidation - Implementation
+- [ ] **Sub-feature 9: drafted Field Deprecation (BUG FIX)** - Implementation
 - [ ] Sub-feature 8: CSV Deprecation & Cleanup - Implementation
 
 ---
@@ -239,33 +276,29 @@ Each sub-feature has its own specification file with:
 | 2. Weekly Data Migration | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
 | 3. Locked Field Migration | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
 | 4. File Update Strategy | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
-| 5. ProjectedPointsManager Consolidation | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
-| 6. TeamDataManager D/ST Migration | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
-| 7. DraftedRosterManager Consolidation | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
+| 5. ProjectedPointsManager Consolidation | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
+| 6. TeamDataManager D/ST Migration | ✅ | ✅ | ✅ | ✅ (3/3) | **COMPLETE** |
+| 7. DraftedRosterManager Consolidation | ✅ | ⏸️ (1/24) | ⏸️  | ⏸️  | **PAUSED (Iter 1)** |
+| **9. drafted Field Deprecation (BUG FIX)** | ⏸️  | ⏸️  | ⏸️  | ⏸️  | **NEXT (BUG FIX)** |
 | 8. CSV Deprecation & Cleanup | ✅ | ⏸️  | ⏸️  | ⏸️  | Pending |
 
-**Progress:** 4/8 sub-features complete (50%)
+**Progress:** 6/9 sub-features complete (67%)
 
-**Last Updated:** 2025-12-28
+**Last Updated:** 2025-12-29
 
-**Current Sub-Feature:** Sub-Feature 4: File Update Strategy - **COMPLETE ✅**
-- ✅ All 22 implementation tasks complete across 5 phases
-- ✅ 2406/2406 tests passing (100%)
-- ✅ QC Rounds 1, 2, 3 all PASSED (0 issues)
-- ✅ Smoke testing complete (import, method signature, E2E validation)
-- ✅ Algorithm Traceability Matrix verified (100% match)
-- ✅ Requirement verification: All 22 requirements met
-- ✅ Selective JSON updates working (only drafted_by and locked modified)
-- ✅ Atomic write pattern implemented (tmp + replace)
-- ✅ Backup files created (.bak)
-- ✅ Round-trip preservation verified (all stats preserved)
-- ✅ Bug fixes: JSON structure wrapper, Windows atomic replace, interface mismatch
-- ✅ Dependencies verified (Sub-features 1 & 3 integration confirmed)
+**Current Sub-Feature:** Sub-Feature 9: drafted Field Deprecation (BUG FIX) - **READY FOR IMPLEMENTATION**
+- ✅ Planning complete (Deep Dive phases 1-4 complete)
+- ✅ TODO creation complete (ALL 24 verification iterations PASSED)
+- ✅ Questions file: NO questions needed (all 3 decisions resolved during planning)
+- ✅ Test baseline: 2415/2415 (100%)
+- ✅ Confidence level: HIGH across all areas
+- ✅ Scope: 28 occurrences across 8 files (simulation out of scope)
+- 🎯 Next: Execute implementation_execution_guide.md
 
-**Next Sub-Feature:** Sub-Feature 5: ProjectedPointsManager Consolidation - **PENDING**
-- ⏸️ Planning complete (deep dive done)
-- ⏸️ Ready for TODO creation
-- ⏸️ Dependencies: Sub-feature 2 (Weekly Data Migration) ✅ COMPLETE
+**Remaining Sub-Features:**
+- Sub-feature 7: DraftedRosterManager Consolidation - **PAUSED** (resume after Sub-feature 9)
+- Sub-feature 9: drafted Field Deprecation (BUG FIX) - **NEXT**
+- Sub-feature 8: CSV Deprecation & Cleanup - **PENDING** (after Sub-feature 9)
 
 ---
 

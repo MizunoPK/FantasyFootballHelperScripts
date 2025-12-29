@@ -17,13 +17,15 @@ This folder contains workflow guides for agents implementing new features in the
 | Need conversation prompts for user discussions | Use **Prompts Reference** |
 | Resuming work on an existing feature | Check the feature's README.md for status |
 
----
+--- 
 
 ## Where Am I? Quick Reference
 
 Use this table to quickly determine your current location when resuming work:
 
 ### Planning Phase
+
+#### Single Feature Projects
 
 | README Status Shows | Current Phase | Next Action |
 |---------------------|---------------|-------------|
@@ -32,6 +34,18 @@ Use this table to quickly determine your current location when resuming work:
 | "Phase 3: Awaiting User Input" | Phase 3 STOP | Wait for user direction |
 | "Phase 4: Resolving Items" | Phase 4 | Check checklist for next `[ ]` item |
 | "Ready for Implementation" | Planning done | Switch to Development Guide |
+
+#### Multi-Sub-Feature Projects
+
+| Status Shows | What It Means | Next Action |
+|--------------|---------------|-------------|
+| **"Sub-feature 1 of 8 in Phase 2"** | Deep dive for sub-feature 1 | Continue Phase 2 for sub-feature 1 |
+| **Check SUB_FEATURES_PHASE_TRACKER.md** | Master progress tracker | Review tracker to see all sub-feature progress |
+| **"Phase 3: User Questions (Sub-feature 2)"** | Awaiting user decisions | Present next question ONE AT A TIME |
+| **"Phase 6: Alignment Review"** | All sub-features complete Phase 4 | Review all specs together for conflicts |
+| **"Ready for Implementation - Sub-feature 1"** | All sub-features aligned (Phase 7) | Start TODO creation for sub-feature 1 |
+| **"Sub-feature 3: Implementation"** | Coding sub-feature 3 | Execute TODO items, run tests |
+| **"Sub-feature 5: QC Round 2"** | QC for sub-feature 5 | Complete QC Round 2 then Round 3 |
 
 ### Development Phase
 
@@ -142,17 +156,6 @@ Use this table to quickly determine your current location when resuming work:
 **When to use:** Only for reference or maintaining features that used the old approach.
 
 **Why deprecated:** Lessons learned showed that large features (30+ items) become unmanageable without early sub-feature breakdown. The new two-guide approach addresses this.
-
----
-
-### 4. TODO Creation Guide
-2. Investigate codebase (with 3-iteration question generation + codebase verification rounds)
-3. Report findings and STOP for user approval
-4. Iterate until fully specified
-
-**Critical rule:** Phase 3 requires a FULL STOP. Do not proceed to TODO creation without explicit user approval.
-
-**Next guide:** → `todo_creation_guide.md`
 
 ---
 
@@ -342,41 +345,63 @@ Use this table to quickly determine your current location when resuming work:
 │                    FEATURE LIFECYCLE                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  updates/{feature}.txt  ──────►  1. PLANNING GUIDE              │
+│  updates/{feature}.txt  ──────►  1a. FEATURE CREATION GUIDE     │
 │                                       │                         │
 │                                       ▼                         │
-│                              feature-updates/                   │
-│                              {feature_name}/                    │
-│                              _specs.md (approved)               │
+│                              Broad reconnaissance               │
+│                              Sub-feature decision?              │
+│                                       │                         │
+│                    ┌──────────────────┴──────────────────┐      │
+│                    │                                     │      │
+│               Single Feature                   Multi-Sub-Feature│
+│                    │                                     │      │
+│                    ▼                                     ▼      │
+│            _specs.md                        SUB_FEATURES_       │
+│            _checklist.md                    README.md           │
+│            research/                        🚨 PHASE_TRACKER.md │
+│                    │                        sub_feature_*.md    │
+│                    │                        research/           │
+│                    └──────────────────┬──────────────────┘      │
+│                                       ▼                         │
+│                              1b. FEATURE DEEP DIVE GUIDE        │
+│                              (per sub-feature)                  │
+│                              - Targeted research                │
+│                              - Interactive questions            │
+│                              - Alignment review (Phase 6)       │
+│                                       │                         │
+│                                       ▼                         │
+│                              Specs complete & aligned           │
+│                              → Ready for Implementation         │
 │                                       │                         │
 │                                       ▼                         │
 │                              2. TODO CREATION GUIDE             │
 │                              (24 verification iterations)       │
+│                              (per sub-feature)                  │
 │                                       │                         │
 │                                       ▼                         │
-│                              {feature_name}_todo.md             │
-│                              (ready to implement)               │
+│                              {name}_todo.md (ready)             │
 │                                       │                         │
 │                                       ▼                         │
 │                              3. IMPLEMENTATION GUIDE            │
 │                              (execute TODO with                 │
 │                               continuous verification)          │
+│                              (per sub-feature)                  │
 │                                       │                         │
 │                                       ▼                         │
-│                              Working Code                       │
-│                              + Tests Passing                    │
+│                              Working Code + Tests Passing       │
 │                                       │                         │
 │                                       ▼                         │
 │                              4. POST-IMPLEMENTATION GUIDE       │
 │                              (smoke tests + 3 QC rounds)        │
+│                              (per sub-feature)                  │
 │                                       │                         │
 │                                       ▼                         │
 │                              Complete Feature                   │
 │                              → done/ folder                     │
 │                              → git commit                       │
 │                                                                 │
-│  All guides reference protocols/README.md and templates.md  │
-│  as needed throughout the process                              │
+│  All guides reference protocols/README.md and templates.md      │
+│  Multi-sub-feature: Check PHASE_TRACKER.md at every session   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -395,29 +420,45 @@ Use this table to quickly determine your current location when resuming work:
 
 6. **Reference protocols as needed.** The development guide is streamlined; detailed protocol steps are in `protocols/README.md`.
 
+7. **🚨 Use the phase tracker for multi-sub-feature projects.** Check `SUB_FEATURES_PHASE_TRACKER.md` at the START of EVERY session to see exact progress across all sub-features. Update it immediately after completing each phase. Re-read the corresponding guide BEFORE marking any phase complete.
+
 ## File Locations
 
 ```
 feature-updates/
 ├── guides/                              # This folder
 │   ├── README.md                        # You are here
-│   ├── feature_planning_guide.md        # 1. Planning workflow
+│   ├── feature_creation_guide.md        # 1a. Initial setup & sub-feature decision
+│   ├── feature_deep_dive_guide.md       # 1b. Detailed planning per sub-feature
+│   ├── feature_planning_guide.md        # LEGACY - deprecated (use creation + deep dive)
 │   ├── todo_creation_guide.md           # 2. TODO creation (24 iterations)
 │   ├── implementation_execution_guide.md # 3. Implementation workflow
 │   ├── post_implementation_guide.md     # 4. QC and validation
-│   ├── protocols/README.md           # Detailed protocol definitions
-│   ├── templates.md                     # File templates
+│   ├── protocols/README.md              # Detailed protocol definitions
+│   ├── templates.md                     # File templates (includes PHASE_TRACKER)
 │   └── prompts_reference.md             # Conversation prompts
-├── {feature_name}/                      # Feature folders created during planning
-│   ├── README.md                        # Created in planning
-│   ├── {feature_name}_specs.md          # Created in planning
-│   ├── {feature_name}_checklist.md      # Created in planning
-│   ├── {feature_name}_lessons_learned.md # Created in planning
-│   ├── {feature_name}_notes.txt         # Moved during planning
-│   ├── {feature_name}_questions.md      # Created during TODO creation
+├── {feature_name}/                      # Single feature folders
+│   ├── README.md                        # Created in creation phase
+│   ├── {feature_name}_specs.md          # Created in creation, populated in deep dive
+│   ├── {feature_name}_checklist.md      # Created in creation, populated in deep dive
+│   ├── {feature_name}_lessons_learned.md # Created in creation
+│   ├── {feature_name}_notes.txt         # Moved during creation phase
+│   ├── {feature_name}_questions.md      # Created during TODO creation (if needed)
 │   ├── {feature_name}_todo.md           # Created during TODO creation
 │   ├── {feature_name}_implementation_checklist.md # Created during implementation
-│   └── {feature_name}_code_changes.md   # Created during implementation
+│   ├── {feature_name}_code_changes.md   # Created during implementation
+│   └── research/                        # Research documents folder
+├── {feature_name}/                      # Multi-sub-feature folders
+│   ├── README.md                        # Created in creation phase
+│   ├── SUB_FEATURES_README.md           # Overview of all sub-features
+│   ├── 🚨 SUB_FEATURES_PHASE_TRACKER.md # MANDATORY master progress tracker
+│   ├── sub_feature_01_{name}_spec.md    # Per sub-feature specs
+│   ├── sub_feature_01_{name}_checklist.md # Per sub-feature checklists
+│   ├── sub_feature_02_{name}_spec.md    # (repeat for each sub-feature)
+│   ├── sub_feature_02_{name}_checklist.md
+│   ├── {feature_name}_lessons_learned.md # Shared across all sub-features
+│   ├── {feature_name}_notes.txt         # Original notes
+│   └── research/                        # Shared research folder
 ├── done/                                # Completed features
 └── *.txt                                # Raw feature requests (input)
 ```

@@ -187,7 +187,7 @@ def test_player():
         average_draft_position=15.0,
         player_rating=85.0,
         injury_status="ACTIVE",
-        drafted=0,
+        drafted_by="",
         locked=0,
         projected_points=projected,
         actual_points=actual

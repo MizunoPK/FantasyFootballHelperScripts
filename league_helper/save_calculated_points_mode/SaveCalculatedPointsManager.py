@@ -109,7 +109,7 @@ class SaveCalculatedPointsManager:
                 projected_points = player.fantasy_points if player.fantasy_points is not None else 0.0
             else:
                 # Weekly: use specific week projection
-                projected_points = player.get_single_weekly_projection(week)
+                projected_points = player.get_single_weekly_projection(week, self.config)
                 # Handle None values (player may not have projection for this week)
                 if projected_points is None:
                     projected_points = 0.0

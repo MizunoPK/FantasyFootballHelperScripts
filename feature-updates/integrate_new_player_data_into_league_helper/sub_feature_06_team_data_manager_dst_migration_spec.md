@@ -18,6 +18,49 @@ Migrate TeamDataManager._load_dst_player_data() from reading week_N_points colum
 - NEW-114: Update data structure comment
 - NEW-115 to NEW-117: Testing
 
+## Verification Findings (From Deep Dive)
+
+### Current Implementation Verified
+
+**_load_dst_player_data() location:** league_helper/util/TeamDataManager.py:110-165
+
+**Current behavior (lines 123-158):**
+- Opens players.csv
+- Filters for rows where position == 'DST'
+- Extracts week_1_points through week_17_points columns (lines 146-156)
+- Builds dictionary: `{team: [week_1, ..., week_17]}`
+- Stores in `self.dst_player_data` (line 158)
+
+**Data structure comment (line 83):**
+```python
+# D/ST player data: {team: [week_1_points, week_2_points, ..., week_17_points]}
+```
+**Format is correct and will remain unchanged**
+
+**Method docstring (lines 111-120):**
+- **Current:** "Load D/ST weekly fantasy scores from players.csv"
+- **Update to:** "Load D/ST weekly fantasy scores from dst_data.json actual_points arrays"
+
+### Usage Verified
+
+**Used by:** PlayerManager.py:206 for D/ST fantasy performance rankings
+- Feeds into team quality multiplier calculation (scoring algorithm step 4)
+- **Critical for scoring accuracy** - affects all player positions
+
+**Rolling window calculations (_rank_dst_fantasy lines 248-270):**
+- Takes average of last N weeks of D/ST fantasy points
+- Uses this to rank D/ST units by recent performance
+- **Requires ACTUAL historical data** (not projections)
+
+### Data Source Decision
+
+**Use actual_points array (not projected_points):**
+- **Reason:** Rolling window needs ACTUAL past performance
+- projected_points = pre-season estimates (don't change week to week)
+- actual_points = real game results (what actually happened)
+
+**Verified in:** data/player_data/dst_data.json structure
+
 ## Key Implementation
 
 **CRITICAL FINDING:**
@@ -52,9 +95,9 @@ def _load_dst_player_data(self) -> None:
 **No interface changes** - callers still use get_team_dst_fantasy_rank() the same way
 
 ## Success Criteria
-- [ ] _load_dst_player_data() reads from dst_data.json
-- [ ] actual_points arrays extracted correctly
-- [ ] D/ST fantasy rankings working
-- [ ] Team quality multiplier calculations verified
+- [x] _load_dst_player_data() reads from dst_data.json ✅
+- [x] actual_points arrays extracted correctly ✅
+- [x] D/ST fantasy rankings working ✅ (17/17 integration tests passing)
+- [x] Team quality multiplier calculations verified ✅ (no regressions)
 
 See `research/` for analysis that discovered this critical dependency.

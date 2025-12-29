@@ -119,7 +119,7 @@ class TestAddPlayer:
 
         player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         # Execute
@@ -148,7 +148,7 @@ class TestAddPlayer:
 
         player = FantasyPlayer(
             id=2, name="Travis Kelce", team="KC", position="TE",
-            bye_week=7, drafted=1, locked=0, score=80.0, fantasy_points=250.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=80.0, fantasy_points=250.0
         )
 
         # Execute
@@ -176,7 +176,7 @@ class TestAddPlayer:
 
         player = FantasyPlayer(
             id=3, name="Tyreek Hill", team="MIA", position="WR",
-            bye_week=8, drafted=1, locked=0, score=85.0, fantasy_points=280.0
+            bye_week=8, drafted_by="Opponent Team", locked=0, score=85.0, fantasy_points=280.0
         )
 
         # Execute
@@ -206,7 +206,7 @@ class TestRemovePlayer:
 
         player = FantasyPlayer(
             id=2, name="Travis Kelce", team="KC", position="TE",
-            bye_week=7, drafted=1, locked=0, score=80.0, fantasy_points=250.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=80.0, fantasy_points=250.0
         )
 
         # Execute
@@ -235,7 +235,7 @@ class TestRemovePlayer:
 
         player = FantasyPlayer(
             id=2, name="Travis Kelce", team="KC", position="TE",
-            bye_week=7, drafted=1, locked=0, score=80.0, fantasy_points=250.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=80.0, fantasy_points=250.0
         )
 
         # Execute
@@ -251,7 +251,7 @@ class TestRemovePlayer:
 
         player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         # Execute
@@ -271,7 +271,7 @@ class TestRemovePlayer:
 
         player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",  # No suffix
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         # Execute
@@ -301,7 +301,7 @@ class TestRemovePlayer:
 
         player = FantasyPlayer(
             id=2, name="Travis Kelce", team="KC", position="TE",
-            bye_week=7, drafted=1, locked=0, score=80.0, fantasy_points=250.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=80.0, fantasy_points=250.0
         )
 
         # Execute
@@ -329,7 +329,7 @@ class TestPlayerMatches:
 
         player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         csv_info = "Patrick Mahomes QB - KC"
@@ -343,7 +343,7 @@ class TestPlayerMatches:
 
         player = FantasyPlayer(
             id=1, name="patrick mahomes", team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         csv_info = "PATRICK MAHOMES QB - KC"
@@ -357,7 +357,7 @@ class TestPlayerMatches:
 
         player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         csv_info = "Patrick Mahomes II QB - KC"
@@ -371,7 +371,7 @@ class TestPlayerMatches:
 
         player = FantasyPlayer(
             id=1, name="Josh Allen", team="BUF", position="QB",
-            bye_week=10, drafted=1, locked=0, score=90.0, fantasy_points=330.0
+            bye_week=10, drafted_by="Opponent Team", locked=0, score=90.0, fantasy_points=330.0
         )
 
         # Same name, different position (there's also a Josh Allen LB)
@@ -386,7 +386,7 @@ class TestPlayerMatches:
 
         player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         # Has position but wrong name
@@ -464,7 +464,7 @@ class TestEdgeCases:
 
         player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         # Execute
@@ -489,7 +489,7 @@ class TestEdgeCases:
 
         player = FantasyPlayer(
             id=1, name="D'Andre Swift", team="PHI", position="RB",
-            bye_week=7, drafted=1, locked=0, score=85.0, fantasy_points=280.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=85.0, fantasy_points=280.0
         )
 
         # Execute
@@ -513,7 +513,7 @@ class TestEdgeCases:
 
         player = FantasyPlayer(
             id=1, name="Travis Kelce", team="KC", position="TE",
-            bye_week=7, drafted=1, locked=0, score=80.0, fantasy_points=250.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=80.0, fantasy_points=250.0
         )
 
         # Execute with empty team name
@@ -539,7 +539,7 @@ class TestEdgeCases:
 
         player = FantasyPlayer(
             id=1, name=long_name, team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         # Execute
@@ -564,7 +564,7 @@ class TestEdgeCases:
 
         player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         # Execute
@@ -631,7 +631,7 @@ class TestEdgeCases:
 
         player = FantasyPlayer(
             id=1, name="D.J. Moore", team="CHI", position="WR",
-            bye_week=7, drafted=1, locked=0, score=85.0, fantasy_points=280.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=85.0, fantasy_points=280.0
         )
 
         csv_info = "DJ Moore WR - CHI"
@@ -646,7 +646,7 @@ class TestEdgeCases:
 
         player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            bye_week=7, drafted=1, locked=0, score=95.0, fantasy_points=350.0
+            bye_week=7, drafted_by="Opponent Team", locked=0, score=95.0, fantasy_points=350.0
         )
 
         # Execute - add same player twice

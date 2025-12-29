@@ -333,17 +333,36 @@ Mirrors source structure with 100% unit test pass rate required:
 - `feature-updates/` - Root folder for feature development
   - `{feature-name}.txt` - Initial scratchwork from user (before planning)
   - `{feature-name}/` - Feature folder (created during planning phase)
-    - `{name}_notes.txt` - Original scratchwork (moved from root)
-    - `{name}_specs.md` - **Primary specification** (detailed requirements)
-    - `{name}_checklist.md` - Tracks resolved vs pending decisions
-    - `{name}_questions.md` - Questions for user (created during development)
-    - `{name}_todo.md` - Implementation tracking
-    - `{name}_code_changes.md` - Documentation of all changes
-    - `README.md` - Context for agents
+    - **Single Feature Structure:**
+      - `{name}_notes.txt` - Original scratchwork (moved from root)
+      - `{name}_specs.md` - **Primary specification** (detailed requirements)
+      - `{name}_checklist.md` - Tracks resolved vs pending decisions
+      - `{name}_questions.md` - Questions for user (created during TODO creation)
+      - `{name}_todo.md` - Implementation tracking
+      - `{name}_code_changes.md` - Documentation of all changes
+      - `{name}_lessons_learned.md` - Lessons and guide improvements
+      - `README.md` - Context and status for agents
+      - `research/` - All research documents
+    - **Multi-Sub-Feature Structure:**
+      - `{name}_notes.txt` - Original scratchwork (moved from root)
+      - `SUB_FEATURES_README.md` - Overview of all sub-features
+      - `🚨 SUB_FEATURES_PHASE_TRACKER.md` - **MANDATORY master progress tracker**
+      - `sub_feature_01_{name}_spec.md` - Per sub-feature specifications
+      - `sub_feature_01_{name}_checklist.md` - Per sub-feature checklists
+      - `sub_feature_02_{name}_spec.md` - (repeat for each sub-feature)
+      - `{name}_lessons_learned.md` - Shared lessons learned
+      - `README.md` - Context and status for agents
+      - `research/` - Shared research documents
 - `feature-updates/done/` - Completed feature folders (moved here after completion)
 - `feature-updates/guides/` - Workflow guides for feature development
-  - `feature_planning_guide.md` - Guide for Phase 1 (planning)
-  - `feature_development_guide.md` - Guide for Phase 2 (implementation)
+  - `feature_creation_guide.md` - Guide for Phase 1a (initial setup & sub-feature decision)
+  - `feature_deep_dive_guide.md` - Guide for Phase 1b (detailed planning per sub-feature)
+  - `feature_planning_guide.md` - LEGACY (deprecated - use creation + deep dive)
+  - `todo_creation_guide.md` - Guide for Phase 2a (TODO creation - 24 iterations)
+  - `implementation_execution_guide.md` - Guide for Phase 2b (implementation)
+  - `post_implementation_guide.md` - Guide for Phase 2c (QC & validation)
+  - `templates.md` - File templates (includes SUB_FEATURES_PHASE_TRACKER)
+  - `prompts_reference.md` - Phase transition prompts
   - `README.md` - Guide overview and quick reference
 - `CLAUDE.md` - This file (coding standards and workflow guidelines)
 - `README.md` - Project documentation, installation, and usage guide

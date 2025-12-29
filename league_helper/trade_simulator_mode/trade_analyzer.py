@@ -113,8 +113,8 @@ class TradeAnalyzer:
         for p in roster:
             # Deep copy to avoid modifying original player
             p_copy = copy.deepcopy(p)
-            # Mark as undrafted so FantasyTeam will accept it
-            p_copy.drafted = 0
+            # Mark as free agent so FantasyTeam will accept it
+            p_copy.drafted_by = ""
             # Try to draft the player - will fail if position limit exceeded
             drafted = test_team.draft_player(p_copy)
             if not drafted:
@@ -177,7 +177,7 @@ class TradeAnalyzer:
         for p in sorted_roster:
             # Deep copy to avoid modifying original
             p_copy = copy.deepcopy(p)
-            p_copy.drafted = 0
+            p_copy.drafted_by = ""
             p_copy.locked = False  # Unlock for testing - we're just counting violations, not enforcing lock status
             # Set a valid bye week for testing - we only care about position limits here,
             # not bye week validity. Invalid bye weeks (like 18 for post-season) would

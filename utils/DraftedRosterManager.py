@@ -250,12 +250,11 @@ class DraftedRosterManager:
             )
 
             if matched_player:
-                # Set drafted value: 2 for user's team, 1 for others
-                drafted_value = 2 if fantasy_team == self.my_team_name else 1
-                matched_player.drafted = drafted_value
+                # Set drafted_by to fantasy team name directly
+                matched_player.drafted_by = fantasy_team
                 matches_found += 1
 
-                self.logger.debug(f"Applied drafted={drafted_value} to {matched_player.name} (team: {fantasy_team})")
+                self.logger.debug(f"Applied drafted_by='{fantasy_team}' to {matched_player.name}")
             else:
                 self.logger.warning(f"Could not find player in data for CSV entry: {original_info}")
 

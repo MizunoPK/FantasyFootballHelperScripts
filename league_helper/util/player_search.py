@@ -48,13 +48,13 @@ class PlayerSearch:
         if drafted_filter is not None:
             if drafted_filter == 0:
                 # Available players only (not yet drafted)
-                candidate_players = [p for p in self.players if p.drafted == 0]
+                candidate_players = [p for p in self.players if p.is_free_agent()]
             elif drafted_filter == 1:
                 # Drafted by others only (not on user's roster)
-                candidate_players = [p for p in self.players if p.drafted == 1]
+                candidate_players = [p for p in self.players if p.is_drafted_by_opponent()]
             elif drafted_filter == 2:
                 # On user's roster only
-                candidate_players = [p for p in self.players if p.drafted == 2]
+                candidate_players = [p for p in self.players if p.is_rostered()]
             else:
                 # Invalid filter value - search all players
                 candidate_players = self.players
@@ -107,10 +107,10 @@ class PlayerSearch:
         if not search_term:
             return []
 
-        # Filter to only non-available players (drafted != 0)
-        # This includes both drafted=1 (drafted by others) and drafted=2 (on roster)
+        # Filter to only non-available players (not free agents)
+        # This includes both drafted by opponents and on our roster
         # Used primarily in Drop Player mode where we need to search across both groups
-        candidate_players = [p for p in self.players if p.drafted != 0]
+        candidate_players = [p for p in self.players if not p.is_free_agent()]
 
         matches = []
         # Convert search term to lowercase for case-insensitive matching
@@ -222,17 +222,27 @@ class PlayerSearch:
 
         Returns:
             List of players with the specified status
+
+        Note: This method maintains backward compatibility with the legacy int API.
+        Internally uses helper methods (is_free_agent(), is_drafted_by_opponent(), is_rostered()).
         """
-        return [p for p in self.players if p.drafted == drafted_status]
+        if drafted_status == 0:
+            return [p for p in self.players if p.is_free_agent()]
+        elif drafted_status == 1:
+            return [p for p in self.players if p.is_drafted_by_opponent()]
+        elif drafted_status == 2:
+            return [p for p in self.players if p.is_rostered()]
+        else:
+            return []
 
     def get_roster_players(self) -> List[FantasyPlayer]:
-        """Get all players on the user's roster (drafted=2)"""
-        return self.find_players_by_drafted_status(2)
+        """Get all players on the user's roster."""
+        return [p for p in self.players if p.is_rostered()]
 
     def get_available_players(self) -> List[FantasyPlayer]:
-        """Get all available players (drafted=0)"""
-        return self.find_players_by_drafted_status(0)
+        """Get all available players (free agents)."""
+        return [p for p in self.players if p.is_free_agent()]
 
     def get_drafted_players(self) -> List[FantasyPlayer]:
-        """Get all players drafted by others (drafted=1)"""
-        return self.find_players_by_drafted_status(1)
+        """Get all players drafted by opponent teams."""
+        return [p for p in self.players if p.is_drafted_by_opponent()]

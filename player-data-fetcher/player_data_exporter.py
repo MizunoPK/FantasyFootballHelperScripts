@@ -288,6 +288,19 @@ class DataExporter:
         if PRESERVE_LOCKED_VALUES and player_data.id in self.existing_locked_values:
             locked_value = self.existing_locked_values[player_data.id]
         
+        # Build projected_points and actual_points arrays from weekly data
+        # (UPDATED for Sub-feature 2: Weekly Data Migration)
+        projected_points = [
+            player_data.week_1_points, player_data.week_2_points, player_data.week_3_points,
+            player_data.week_4_points, player_data.week_5_points, player_data.week_6_points,
+            player_data.week_7_points, player_data.week_8_points, player_data.week_9_points,
+            player_data.week_10_points, player_data.week_11_points, player_data.week_12_points,
+            player_data.week_13_points, player_data.week_14_points, player_data.week_15_points,
+            player_data.week_16_points, player_data.week_17_points
+        ]
+        # Initially, actual_points matches projected (will be updated as season progresses)
+        actual_points = projected_points.copy()
+
         return FantasyPlayer(
             id=player_data.id,
             name=player_data.name,
@@ -301,24 +314,9 @@ class DataExporter:
             # Enhanced scoring fields (NEW)
             player_rating=player_data.player_rating,
             injury_status=player_data.injury_status,
-            # Weekly projections (weeks 1-17 fantasy regular season only)
-            week_1_points=player_data.week_1_points,
-            week_2_points=player_data.week_2_points,
-            week_3_points=player_data.week_3_points,
-            week_4_points=player_data.week_4_points,
-            week_5_points=player_data.week_5_points,
-            week_6_points=player_data.week_6_points,
-            week_7_points=player_data.week_7_points,
-            week_8_points=player_data.week_8_points,
-            week_9_points=player_data.week_9_points,
-            week_10_points=player_data.week_10_points,
-            week_11_points=player_data.week_11_points,
-            week_12_points=player_data.week_12_points,
-            week_13_points=player_data.week_13_points,
-            week_14_points=player_data.week_14_points,
-            week_15_points=player_data.week_15_points,
-            week_16_points=player_data.week_16_points,
-            week_17_points=player_data.week_17_points
+            # Weekly projections as arrays (Sub-feature 2)
+            projected_points=projected_points,
+            actual_points=actual_points
         )
     
     def get_fantasy_players(self, data: ProjectionData) -> List[FantasyPlayer]:

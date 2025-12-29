@@ -143,43 +143,43 @@ def sample_current_players():
         # Undrafted HIGH risk injured players (eligible candidates)
         FantasyPlayer(
             id=1, name="Injured RB", team="KC", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0,
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0,
             average_draft_position=25.0, player_rating=85.0
         ),
         FantasyPlayer(
             id=2, name="Injured WR", team="SF", position="WR", bye_week=9,
-            fantasy_points=160.0, injury_status="INJURY_RESERVE", drafted=0, locked=0,
+            fantasy_points=160.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0,
             average_draft_position=30.0, player_rating=80.0
         ),
         FantasyPlayer(
             id=3, name="Suspended QB", team="CIN", position="QB", bye_week=10,
-            fantasy_points=220.0, injury_status="SUSPENSION", drafted=0, locked=0,
+            fantasy_points=220.0, injury_status="SUSPENSION", drafted_by="", locked=0,
             average_draft_position=15.0, player_rating=88.0
         ),
 
         # Undrafted but NOT injured (not eligible)
         FantasyPlayer(
             id=4, name="Healthy RB", team="BUF", position="RB", bye_week=8,
-            fantasy_points=150.0, injury_status="ACTIVE", drafted=0, locked=0,
+            fantasy_points=150.0, injury_status="ACTIVE", drafted_by="", locked=0,
             average_draft_position=40.0, player_rating=75.0
         ),
 
         # Injured but DRAFTED (not eligible)
         FantasyPlayer(
             id=5, name="Drafted Injured WR", team="PHI", position="WR", bye_week=7,
-            fantasy_points=190.0, injury_status="INJURY_RESERVE", drafted=1, locked=0,
+            fantasy_points=190.0, injury_status="INJURY_RESERVE", drafted_by="Opponent Team", locked=0,
             average_draft_position=20.0, player_rating=87.0
         ),
 
         # K and DST (excluded positions)
         FantasyPlayer(
             id=6, name="Injured K", team="BAL", position="K", bye_week=10,
-            fantasy_points=100.0, injury_status="INJURY_RESERVE", drafted=0, locked=0,
+            fantasy_points=100.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0,
             average_draft_position=100.0, player_rating=70.0
         ),
         FantasyPlayer(
             id=7, name="Injured DST", team="DAL", position="DST", bye_week=7,
-            fantasy_points=95.0, injury_status="INJURY_RESERVE", drafted=0, locked=0,
+            fantasy_points=95.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0,
             average_draft_position=80.0, player_rating=72.0
         ),
     ]
@@ -193,46 +193,31 @@ def sample_historical_players():
         # Historical data for "Injured RB"
         FantasyPlayer(
             id=101, name="Injured RB", team="KC", position="RB", bye_week=7,
-            fantasy_points=245.0, injury_status="ACTIVE", drafted=0, locked=0,
+            fantasy_points=245.0, injury_status="ACTIVE", drafted_by="", locked=0,
             average_draft_position=18.0, player_rating=88.0,
-            week_1_points=15.5, week_2_points=18.2, week_3_points=14.8,
-            week_4_points=16.0, week_5_points=17.5, week_6_points=15.0,
-            week_7_points=0.0, week_8_points=19.2, week_9_points=16.8,
-            week_10_points=17.0, week_11_points=18.5, week_12_points=14.5,
-            week_13_points=16.2, week_14_points=17.8, week_15_points=15.5,
-            week_16_points=18.0, week_17_points=16.5
-        ),
+                projected_points=[15.5, 18.2, 14.8, 16.0, 17.5, 15.0, 0.0, 19.2, 16.8, 17.0, 18.5, 14.5, 16.2, 17.8, 15.5, 18.0, 16.5], actual_points=[15.5, 18.2, 14.8, 16.0, 17.5, 15.0, 0.0, 19.2, 16.8, 17.0, 18.5, 14.5, 16.2, 17.8, 15.5, 18.0, 16.5]
+            ),
 
         # Historical data for "Injured WR"
         FantasyPlayer(
             id=102, name="Injured WR", team="SF", position="WR", bye_week=9,
-            fantasy_points=198.0, injury_status="ACTIVE", drafted=0, locked=0,
+            fantasy_points=198.0, injury_status="ACTIVE", drafted_by="", locked=0,
             average_draft_position=28.0, player_rating=82.0,
-            week_1_points=12.5, week_2_points=14.0, week_3_points=11.8,
-            week_4_points=13.5, week_5_points=12.0, week_6_points=13.8,
-            week_7_points=15.2, week_8_points=14.5, week_9_points=0.0,
-            week_10_points=12.8, week_11_points=13.0, week_12_points=14.2,
-            week_13_points=12.5, week_14_points=13.8, week_15_points=14.0,
-            week_16_points=13.2, week_17_points=12.2
-        ),
+                projected_points=[12.5, 14.0, 11.8, 13.5, 12.0, 13.8, 15.2, 14.5, 0.0, 12.8, 13.0, 14.2, 12.5, 13.8, 14.0, 13.2, 12.2], actual_points=[12.5, 14.0, 11.8, 13.5, 12.0, 13.8, 15.2, 14.5, 0.0, 12.8, 13.0, 14.2, 12.5, 13.8, 14.0, 13.2, 12.2]
+            ),
 
         # Historical data for "Suspended QB"
         FantasyPlayer(
             id=103, name="Suspended QB", team="CIN", position="QB", bye_week=10,
-            fantasy_points=289.0, injury_status="ACTIVE", drafted=0, locked=0,
+            fantasy_points=289.0, injury_status="ACTIVE", drafted_by="", locked=0,
             average_draft_position=12.0, player_rating=90.0,
-            week_1_points=18.5, week_2_points=22.0, week_3_points=19.8,
-            week_4_points=20.5, week_5_points=21.0, week_6_points=19.5,
-            week_7_points=23.2, week_8_points=20.8, week_9_points=22.5,
-            week_10_points=0.0, week_11_points=21.8, week_12_points=19.2,
-            week_13_points=20.0, week_14_points=22.8, week_15_points=21.5,
-            week_16_points=20.2, week_17_points=19.8
-        ),
+                projected_points=[18.5, 22.0, 19.8, 20.5, 21.0, 19.5, 23.2, 20.8, 22.5, 0.0, 21.8, 19.2, 20.0, 22.8, 21.5, 20.2, 19.8], actual_points=[18.5, 22.0, 19.8, 20.5, 21.0, 19.5, 23.2, 20.8, 22.5, 0.0, 21.8, 19.2, 20.0, 22.8, 21.5, 20.2, 19.8]
+            ),
 
         # Historical player NOT in current season (rookie this year)
         FantasyPlayer(
             id=104, name="Retired Player", team="NE", position="TE", bye_week=11,
-            fantasy_points=156.0, injury_status="ACTIVE", drafted=0, locked=0,
+            fantasy_points=156.0, injury_status="ACTIVE", drafted_by="", locked=0,
             average_draft_position=45.0, player_rating=76.0
         ),
     ]
@@ -439,7 +424,7 @@ class TestPlayerFiltering:
 
     def test_filters_undrafted_only(self, manager, mock_player_manager, sample_current_players,
                                     sample_historical_players):
-        """Test that only undrafted (drafted=0) players are considered"""
+        """Test that only undrafted (drafted_by="") players are considered"""
         # Setup: Add historical data so players can be scored
         manager.historical_players_dict = {
             ("injured rb", "RB"): sample_historical_players[0],
@@ -450,11 +435,11 @@ class TestPlayerFiltering:
         # Call get_recommendations
         recommendations = manager.get_recommendations()
 
-        # Verify only undrafted players included (all sample_current_players have drafted=0)
+        # Verify only undrafted players included (all sample_current_players have drafted_by="")
         # Note: Code accesses player_manager.players directly, not get_player_list
         assert len(recommendations) > 0  # Should have recommendations
         for scored_player in recommendations:
-            assert scored_player.player.drafted == 0
+            assert scored_player.player.is_free_agent()
 
     def test_filters_high_risk_only(self, manager, mock_player_manager, sample_current_players,
                                     sample_historical_players):
@@ -502,11 +487,11 @@ class TestPlayerFiltering:
         # Create players with 0 and negative points
         zero_points_player = FantasyPlayer(
             id=99, name="Zero Points", team="KC", position="RB", bye_week=7,
-            fantasy_points=0.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=0.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
         negative_points_player = FantasyPlayer(
             id=98, name="Negative Points", team="SF", position="WR", bye_week=9,
-            fantasy_points=-5.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=-5.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
 
         mock_player_manager.get_player_list.return_value = [zero_points_player, negative_points_player]
@@ -531,7 +516,7 @@ class TestPlayerFiltering:
         manager.historical_players_dict = {
             ("injured rb", "RB"): FantasyPlayer(
                 id=101, name="Injured RB", team="KC", position="RB", bye_week=7,
-                fantasy_points=245.0, injury_status="ACTIVE", drafted=0, locked=0
+                fantasy_points=245.0, injury_status="ACTIVE", drafted_by="", locked=0
             ),
             # "Injured WR" and "Suspended QB" have NO historical data
         }
@@ -555,11 +540,11 @@ class TestScoringAlgorithm:
         """Test Factor 1: Base score = historical fantasy_points"""
         current_player = FantasyPlayer(
             id=1, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
         historical_player = FantasyPlayer(
             id=101, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=245.0, injury_status="ACTIVE", drafted=0, locked=0
+            fantasy_points=245.0, injury_status="ACTIVE", drafted_by="", locked=0
         )
 
         # Mock all manager methods to return None (no multipliers)
@@ -586,13 +571,13 @@ class TestScoringAlgorithm:
 
         current_player = FantasyPlayer(
             id=1, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
 
         # Historical player with EXCELLENT rating (>80)
         historical_player = FantasyPlayer(
             id=101, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=200.0, player_rating=85.0, injury_status="ACTIVE", drafted=0, locked=0
+            fantasy_points=200.0, player_rating=85.0, injury_status="ACTIVE", drafted_by="", locked=0
         )
 
         # Mock to avoid other multipliers (clear side_effect first)
@@ -620,12 +605,12 @@ class TestScoringAlgorithm:
         # Current player on EXCELLENT team (rank 3)
         current_player = FantasyPlayer(
             id=1, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
 
         historical_player = FantasyPlayer(
             id=101, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=200.0, player_rating=None, injury_status="ACTIVE", drafted=0, locked=0
+            fantasy_points=200.0, player_rating=None, injury_status="ACTIVE", drafted_by="", locked=0
         )
 
         # Mock schedule (clear side_effect first)
@@ -649,20 +634,20 @@ class TestScoringAlgorithm:
 
         current_player = FantasyPlayer(
             id=1, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
 
-        # Historical player with consistent weekly points (low CV)
+        # Historical player with consistent weekly points (low CV) - UPDATED for Sub-feature 2
+        projected_hist = [
+            15.0, 16.0, 15.5, 14.5, 15.2, 15.8, 0.0,  # Weeks 1-7 (week 7 is bye)
+            15.5, 16.2, 14.8, 15.3, 15.7, 15.0,      # Weeks 8-13
+            15.5, 15.9, 14.6, 15.4                   # Weeks 14-17
+        ]
+        actual_hist = projected_hist.copy()
         historical_player = FantasyPlayer(
             id=101, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=200.0, player_rating=None, injury_status="ACTIVE", drafted=0, locked=0,
-            week_1_points=15.0, week_2_points=16.0, week_3_points=15.5,
-            week_4_points=14.5, week_5_points=15.2, week_6_points=15.8,
-            week_7_points=0.0,  # Bye week
-            week_8_points=15.5, week_9_points=16.2, week_10_points=14.8,
-            week_11_points=15.3, week_12_points=15.7, week_13_points=15.0,
-            week_14_points=15.5, week_15_points=15.9, week_16_points=14.6,
-            week_17_points=15.4
+            fantasy_points=200.0, player_rating=None, injury_status="ACTIVE", drafted_by="", locked=0,
+            projected_points=projected_hist, actual_points=actual_hist
         )
 
         # Mock to avoid other multipliers (clear side_effect first)
@@ -689,12 +674,12 @@ class TestScoringAlgorithm:
         # Current player on KC (has 3 future opponents from mock)
         current_player = FantasyPlayer(
             id=1, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
 
         historical_player = FantasyPlayer(
             id=101, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=200.0, player_rating=None, injury_status="ACTIVE", drafted=0, locked=0
+            fantasy_points=200.0, player_rating=None, injury_status="ACTIVE", drafted_by="", locked=0
         )
 
         # Mock team rank
@@ -718,7 +703,7 @@ class TestScoringAlgorithm:
         # Use pre-built historical player with all data
         current_player = FantasyPlayer(
             id=1, name="Injured RB", team="KC", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
         historical_player = sample_historical_players[0]  # Has all weekly data
 
@@ -750,7 +735,7 @@ class TestScheduleCalculation:
 
         player = FantasyPlayer(
             id=1, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
 
         # Calculate schedule value
@@ -770,7 +755,7 @@ class TestScheduleCalculation:
         # Player on team with no future opponents
         player = FantasyPlayer(
             id=1, name="Test Player", team="UNKNOWN", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
 
         # Calculate schedule value
@@ -792,7 +777,7 @@ class TestScheduleCalculation:
 
         player = FantasyPlayer(
             id=1, name="Test Player", team="KC", position="RB", bye_week=7,
-            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted=0, locked=0
+            fantasy_points=180.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0
         )
 
         # Calculate schedule value
@@ -817,7 +802,7 @@ class TestRecommendations:
         for i in range(20):
             eligible_players.append(FantasyPlayer(
                 id=i, name=f"Player {i}", team="KC", position="RB", bye_week=7,
-                fantasy_points=100.0 + i, injury_status="INJURY_RESERVE", drafted=0, locked=0
+                fantasy_points=100.0 + i, injury_status="INJURY_RESERVE", drafted_by="", locked=0
             ))
 
         mock_player_manager.get_player_list.return_value = eligible_players
@@ -827,7 +812,7 @@ class TestRecommendations:
         manager.historical_players_dict = {
             (f"player {i}", "RB"): FantasyPlayer(
                 id=100+i, name=f"Player {i}", team="KC", position="RB", bye_week=7,
-                fantasy_points=200.0 + i*10, injury_status="ACTIVE", drafted=0, locked=0
+                fantasy_points=200.0 + i*10, injury_status="ACTIVE", drafted_by="", locked=0
             )
             for i in range(20)
         }
@@ -865,11 +850,11 @@ class TestRecommendations:
         # Create players with different historical points
         eligible_players = [
             FantasyPlayer(id=1, name="Low Scorer", team="KC", position="RB", bye_week=7,
-                         fantasy_points=100.0, injury_status="INJURY_RESERVE", drafted=0, locked=0),
+                         fantasy_points=100.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0),
             FantasyPlayer(id=2, name="High Scorer", team="KC", position="RB", bye_week=7,
-                         fantasy_points=100.0, injury_status="INJURY_RESERVE", drafted=0, locked=0),
+                         fantasy_points=100.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0),
             FantasyPlayer(id=3, name="Mid Scorer", team="KC", position="RB", bye_week=7,
-                         fantasy_points=100.0, injury_status="INJURY_RESERVE", drafted=0, locked=0),
+                         fantasy_points=100.0, injury_status="INJURY_RESERVE", drafted_by="", locked=0),
         ]
 
         mock_player_manager.get_player_list.return_value = eligible_players
@@ -879,15 +864,15 @@ class TestRecommendations:
         manager.historical_players_dict = {
             ("low scorer", "RB"): FantasyPlayer(
                 id=101, name="Low Scorer", team="KC", position="RB", bye_week=7,
-                fantasy_points=150.0, injury_status="ACTIVE", drafted=0, locked=0
+                fantasy_points=150.0, injury_status="ACTIVE", drafted_by="", locked=0
             ),
             ("high scorer", "RB"): FantasyPlayer(
                 id=102, name="High Scorer", team="KC", position="RB", bye_week=7,
-                fantasy_points=300.0, injury_status="ACTIVE", drafted=0, locked=0
+                fantasy_points=300.0, injury_status="ACTIVE", drafted_by="", locked=0
             ),
             ("mid scorer", "RB"): FantasyPlayer(
                 id=103, name="Mid Scorer", team="KC", position="RB", bye_week=7,
-                fantasy_points=225.0, injury_status="ACTIVE", drafted=0, locked=0
+                fantasy_points=225.0, injury_status="ACTIVE", drafted_by="", locked=0
             ),
         }
 

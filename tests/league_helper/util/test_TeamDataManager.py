@@ -555,5 +555,192 @@ BUF,2,3
         assert manager.get_team_opponent('BUF') == 'KC'
 
 
+# ============================================================================
+# D/ST JSON LOADING TESTS (Sub-Feature 6: TeamDataManager D/ST Migration)
+# ============================================================================
+
+class TestDSTJSONLoading:
+    """Test D/ST data loading from dst_data.json (JSON edge cases)"""
+
+    def test_dst_loading_with_valid_json(self, mock_data_folder, config_manager):
+        """Test D/ST loading with valid JSON structure"""
+        # Create player_data folder
+        player_data_folder = mock_data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # Create valid dst_data.json
+        dst_json_content = '''{
+          "dst_data": [
+            {"team": "KC", "actual_points": [10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0, 8.0, 9.0, 11.0, 10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0], "projected_points": []},
+            {"team": "BUF", "actual_points": [12.0, 10.0, 14.0, 11.0, 13.0, 9.0, 12.0, 10.0, 11.0, 13.0, 12.0, 10.0, 14.0, 11.0, 13.0, 9.0, 12.0], "projected_points": []}
+          ]
+        }'''
+        (player_data_folder / "dst_data.json").write_text(dst_json_content)
+
+        # Create team_data folder (required for TeamDataManager)
+        team_data_folder = mock_data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        # Initialize manager
+        manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
+
+        # Verify D/ST data loaded
+        assert "KC" in manager.dst_player_data
+        assert "BUF" in manager.dst_player_data
+        assert len(manager.dst_player_data["KC"]) == 17
+        assert len(manager.dst_player_data["BUF"]) == 17
+        assert manager.dst_player_data["KC"][0] == 10.0
+        assert manager.dst_player_data["BUF"][0] == 12.0
+
+    def test_dst_loading_with_missing_file(self, mock_data_folder, config_manager):
+        """Test D/ST loading when dst_data.json file doesn't exist"""
+        # Don't create player_data folder or dst_data.json file
+        team_data_folder = mock_data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        # Initialize manager (should not crash)
+        manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
+
+        # Verify dst_player_data is empty dict
+        assert manager.dst_player_data == {}
+
+    def test_dst_loading_with_malformed_json(self, mock_data_folder, config_manager):
+        """Test D/ST loading with invalid JSON syntax"""
+        player_data_folder = mock_data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # Create malformed JSON (missing closing brace)
+        (player_data_folder / "dst_data.json").write_text('{"dst_data": [')
+
+        team_data_folder = mock_data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        # Should not crash, should set dst_player_data to {}
+        manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
+
+        assert manager.dst_player_data == {}
+
+    def test_dst_loading_with_missing_dst_data_key(self, mock_data_folder, config_manager):
+        """Test D/ST loading with JSON missing 'dst_data' key"""
+        player_data_folder = mock_data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # JSON without dst_data key
+        (player_data_folder / "dst_data.json").write_text('{"other_key": []}')
+
+        team_data_folder = mock_data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
+
+        # Should handle gracefully (empty dict)
+        assert manager.dst_player_data == {}
+
+    def test_dst_loading_with_empty_dst_data_array(self, mock_data_folder, config_manager):
+        """Test D/ST loading with empty dst_data array"""
+        player_data_folder = mock_data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # JSON with empty dst_data array
+        (player_data_folder / "dst_data.json").write_text('{"dst_data": []}')
+
+        team_data_folder = mock_data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
+
+        # Should be empty (no teams loaded)
+        assert manager.dst_player_data == {}
+
+    def test_dst_loading_with_missing_team_field(self, mock_data_folder, config_manager):
+        """Test D/ST loading when team field is missing"""
+        player_data_folder = mock_data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # D/ST object without team field
+        dst_json_content = '''{
+          "dst_data": [
+            {"actual_points": [10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0, 8.0, 9.0, 11.0, 10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0]}
+          ]
+        }'''
+        (player_data_folder / "dst_data.json").write_text(dst_json_content)
+
+        team_data_folder = mock_data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
+
+        # Should store with empty string key (uses .get('team', ''))
+        assert '' in manager.dst_player_data
+        assert len(manager.dst_player_data['']) == 17
+
+    def test_dst_loading_with_missing_actual_points_field(self, mock_data_folder, config_manager):
+        """Test D/ST loading when actual_points field is missing"""
+        player_data_folder = mock_data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # D/ST object without actual_points field
+        dst_json_content = '''{
+          "dst_data": [
+            {"team": "DEN"}
+          ]
+        }'''
+        (player_data_folder / "dst_data.json").write_text(dst_json_content)
+
+        team_data_folder = mock_data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
+
+        # Should use default [0.0] * 17
+        assert "DEN" in manager.dst_player_data
+        assert manager.dst_player_data["DEN"] == [0.0] * 17
+
+    def test_dst_loading_with_partial_actual_points_array(self, mock_data_folder, config_manager):
+        """Test D/ST loading with actual_points array having < 17 elements"""
+        player_data_folder = mock_data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # D/ST object with only 5 weeks of actual_points
+        dst_json_content = '''{
+          "dst_data": [
+            {"team": "SEA", "actual_points": [10.0, 8.0, 12.0, 9.0, 11.0]}
+          ]
+        }'''
+        (player_data_folder / "dst_data.json").write_text(dst_json_content)
+
+        team_data_folder = mock_data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
+
+        # Should store partial array as-is (consumer handles variable lengths)
+        assert "SEA" in manager.dst_player_data
+        assert len(manager.dst_player_data["SEA"]) == 5
+        assert manager.dst_player_data["SEA"] == [10.0, 8.0, 12.0, 9.0, 11.0]
+
+    def test_dst_loading_with_empty_team_name(self, mock_data_folder, config_manager):
+        """Test D/ST loading with empty string team name"""
+        player_data_folder = mock_data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # D/ST object with empty team name
+        dst_json_content = '''{
+          "dst_data": [
+            {"team": "", "actual_points": [10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0, 8.0, 9.0, 11.0, 10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0]}
+          ]
+        }'''
+        (player_data_folder / "dst_data.json").write_text(dst_json_content)
+
+        team_data_folder = mock_data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
+
+        # Should store with empty string key (result of ''.upper())
+        assert '' in manager.dst_player_data
+        assert len(manager.dst_player_data['']) == 17
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

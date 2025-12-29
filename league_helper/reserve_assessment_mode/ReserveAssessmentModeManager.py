@@ -161,26 +161,26 @@ class ReserveAssessmentModeManager:
         """
         self.logger.debug("Getting reserve recommendations")
 
-        # Step 1: Get all undrafted players
+        # Step 1: Get all free agent players
         # NOTE: Access players directly instead of using get_player_list() to bypass
         # score filtering. Injured players have negative scores due to injury penalties,
         # but we want to include them for Reserve Assessment custom scoring.
-        undrafted_players = [
+        free_agent_players = [
             player for player in self.player_manager.players
-            if player.drafted == 0
+            if player.is_free_agent()
         ]
-        self.logger.debug(f"Found {len(undrafted_players)} undrafted players")
+        self.logger.debug(f"Found {len(free_agent_players)} free agent players")
 
         # Step 2: Filter for high-risk injured players (eligible positions only)
         high_risk_injured = [
-            player for player in undrafted_players
+            player for player in free_agent_players
             if player.get_risk_level() == "HIGH"  # INJURY_RESERVE, SUSPENSION, UNKNOWN
             and player.position not in ["K", "DST"]
             and player.fantasy_points > 0
         ]
         self.logger.debug(
             f"Found {len(high_risk_injured)} high-risk injured players "
-            f"(undrafted, IR, non-K/DST, >0 pts)"
+            f"(free agent, IR, non-K/DST, >0 pts)"
         )
 
         # Step 3: Match to historical data and score
@@ -347,13 +347,12 @@ class ReserveAssessmentModeManager:
             reasons.append(f"Team Quality: {rating} (rank {team_rank}, {multiplier:.2f}x)")
 
         # Factor 4: Performance/Consistency Multiplier (historical weekly data)
+        # UPDATED for Sub-feature 2: Use hybrid weekly data access
         weekly_points = []
         for week in range(1, 18):  # All 17 weeks
-            week_attr = f'week_{week}_points'
-            if hasattr(historical_player, week_attr):
-                points = getattr(historical_player, week_attr)
-                if points is not None and float(points) > 0:
-                    weekly_points.append(float(points))
+            points = historical_player.get_single_weekly_projection(week, self.config)
+            if points is not None and float(points) > 0:
+                weekly_points.append(float(points))
 
         if len(weekly_points) >= 3:  # Minimum weeks threshold
             mean_points = statistics.mean(weekly_points)

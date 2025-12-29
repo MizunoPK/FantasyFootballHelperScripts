@@ -93,7 +93,7 @@ class FantasyPlayer:
     
     # Fantasy relevant data
     bye_week: Optional[int] = None
-    drafted: int = 0  # 0 = not drafted, 1 = drafted, 2 = on our team
+    drafted_by: str = ""  # Team name (empty = not drafted, "Sea Sharp" = our team, other = opponent team)
     locked: bool = False  # True = locked (cannot be drafted or traded)
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None  # ESPN's ADP data
@@ -162,7 +162,8 @@ class FantasyPlayer:
             team=str(data.get('team', '')),
             position=str(data.get('position', '')),
             bye_week=safe_int_conversion(data.get('bye_week'), 0),
-            drafted=safe_int_conversion(data.get('drafted'), 0),
+            # drafted removed - now derived from drafted_by via @property (Phase 3)
+            drafted_by=str(data.get('drafted_by', '')),  # Team name string
             locked=safe_int_conversion(data.get('locked'), 0),
             fantasy_points=safe_float_conversion(data.get('fantasy_points'), 0.0),
             average_draft_position=processed_adp,
@@ -196,7 +197,7 @@ class FantasyPlayer:
 
         Field Conversions:
             - id: string → int (using safe_int_conversion)
-            - drafted_by: string → drafted int (0=undrafted, 1=other team, 2=our team)
+            - drafted_by: stored as string (team name) AND converted to drafted int (0/1/2) for backward compatibility
             - locked: boolean → loaded directly as is
             - projected_points/actual_points: arrays padded/truncated to exactly 17 elements
             - fantasy_points: calculated as sum of projected_points
@@ -235,14 +236,14 @@ class FantasyPlayer:
         projected_points = (projected_points + [0.0] * 17)[:17]
         actual_points = (actual_points + [0.0] * 17)[:17]
 
-        # Convert drafted_by to drafted int (spec lines 193-200)
+        # Extract drafted_by field (team name string)
         drafted_by = data.get('drafted_by', '')
-        if drafted_by == '':
-            drafted = 0
-        elif drafted_by == FANTASY_TEAM_NAME:  # "Sea Sharp"
-            drafted = 2
-        else:
-            drafted = 1
+
+        # NOTE: drafted field derivation removed - now handled by @property (Phase 3)
+        # Legacy derivation logic (for reference):
+        #   if drafted_by == '': drafted = 0 (free agent)
+        #   elif drafted_by == FANTASY_TEAM_NAME: drafted = 2 (our roster)
+        #   else: drafted = 1 (opponent team)
 
         # Load locked as boolean (spec lines 202-204)
         # Sub-feature 3 will update comparisons to use is_locked()
@@ -268,7 +269,8 @@ class FantasyPlayer:
             position=data.get('position'),
             bye_week=data.get('bye_week'),
             fantasy_points=fantasy_points,
-            drafted=drafted,
+            # drafted removed - now derived from drafted_by via @property (Phase 3)
+            drafted_by=drafted_by,  # Store team name string
             locked=locked,
             average_draft_position=data.get('average_draft_position'),
             player_rating=data.get('player_rating'),
@@ -384,24 +386,49 @@ class FantasyPlayer:
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert FantasyPlayer to dictionary.
-        
+
         Returns:
             Dictionary representation of the player
         """
-        return asdict(self)
+        result = asdict(self)
+        return result
     
     def is_available(self) -> bool:
         """
         Check if player is available for drafting.
-        
+
         Returns:
             True if player is not drafted and not locked, False otherwise
         """
-        return self.drafted == 0 and not self.locked
+        return self.is_free_agent() and not self.locked
     
     def is_rostered(self) -> bool:
-        return self.drafted == 2
-    
+        """
+        Check if player is on our team's roster.
+
+        Returns:
+            True if player is drafted by our team
+        """
+        return self.drafted_by == FANTASY_TEAM_NAME
+
+    def is_free_agent(self) -> bool:
+        """
+        Check if player is a free agent (not drafted by any team).
+
+        Returns:
+            True if player is not drafted (drafted_by is empty string)
+        """
+        return self.drafted_by == ""
+
+    def is_drafted_by_opponent(self) -> bool:
+        """
+        Check if player is drafted by an opponent team.
+
+        Returns:
+            True if player is drafted by a team other than ours
+        """
+        return self.drafted_by != "" and self.drafted_by != FANTASY_TEAM_NAME
+
     def is_locked(self) -> bool:
         """
         Check if player is locked from being drafted or traded.
@@ -515,13 +542,10 @@ class FantasyPlayer:
         # Show injury status only if not ACTIVE (reduce clutter)
         status = f" ({self.injury_status})" if self.injury_status != 'ACTIVE' else ""
 
-        # Drafted status:
-        # 0 = AVAILABLE (not drafted by anyone)
-        # 1 = DRAFTED (drafted by another team)
-        # 2 = ROSTERED (on our team)
-        if self.drafted == 1:
+        # Drafted status using helper methods
+        if self.is_drafted_by_opponent():
             drafted = "DRAFTED"
-        elif self.drafted == 2:
+        elif self.is_rostered():
             drafted = "ROSTERED"
         else:
             drafted = "AVAILABLE"
@@ -600,6 +624,7 @@ class FantasyPlayer:
     def adp(self, value):
         """Setter for adp alias."""
         self.average_draft_position = value
+
 
 def players_to_dataframe(players: List[FantasyPlayer]) -> pd.DataFrame:
     """Convert list of FantasyPlayer objects to pandas DataFrame."""

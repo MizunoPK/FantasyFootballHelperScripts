@@ -559,9 +559,9 @@ class TestWaiverOptimizer:
     @pytest.fixture
     def manager_with_waivers(self, temp_data_folder, mock_player_manager, mock_config, sample_players):
         """Create manager with waiver wire players"""
-        # Set some players as available (drafted=0)
+        # Set some players as available (drafted_by="")
         for i in range(5, 10):
-            sample_players[i].drafted = 0
+            sample_players[i].drafted_by = ""
 
         # Mock get_player_list to return waiver players
         mock_player_manager.get_player_list = Mock(return_value=sample_players[5:10])
@@ -890,9 +890,9 @@ class TestUnequalTrades:
         # Create waiver wire players
         waiver_players = [
             FantasyPlayer(id=20, name="Waiver QB", team="ATL", position="QB",
-                         fantasy_points=100.0, injury_status="ACTIVE", drafted=0),
+                         fantasy_points=100.0, injury_status="ACTIVE", drafted_by=""),
             FantasyPlayer(id=21, name="Waiver RB", team="ATL", position="RB",
-                         fantasy_points=95.0, injury_status="ACTIVE", drafted=0),
+                         fantasy_points=95.0, injury_status="ACTIVE", drafted_by=""),
         ]
 
         # Mock get_player_list to return waiver players
@@ -1025,7 +1025,7 @@ class TestIntegration:
         """Test complete waiver optimizer workflow"""
         # Setup
         for i in range(5, 10):
-            sample_players[i].drafted = 0
+            sample_players[i].drafted_by = ""
         mock_player_manager.get_player_list = Mock(return_value=sample_players[5:10])
 
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):

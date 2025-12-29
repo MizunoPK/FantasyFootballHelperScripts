@@ -223,19 +223,19 @@ class ModifyPlayerDataModeManager:
         selected_team = team_names[team_choice - 1]
 
         # STEP 8: Determine drafted status based on team ownership
-        # drafted=2: Player is on user's roster (FANTASY_TEAM_NAME from constants)
-        # drafted=1: Player is drafted by another team (not on user's roster)
+        # drafted_by=FANTASY_TEAM_NAME: Player is on user's roster
+        # drafted_by=other team: Player is drafted by another team (not on user's roster)
         # This distinction allows Trade Simulator to differentiate user's players from others
         if selected_team == Constants.FANTASY_TEAM_NAME:
-            # User's team - mark as rostered (drafted=2)
-            selected_player.drafted = 2
+            # User's team - mark as rostered
+            selected_player.drafted_by = Constants.FANTASY_TEAM_NAME
             print(f"✓ Added {selected_player.name} to your roster ({selected_team})!")
-            self.logger.info(f"Player {selected_player.name} marked as drafted=2 (user's team)")
+            self.logger.info(f"Player {selected_player.name} marked as drafted_by='{Constants.FANTASY_TEAM_NAME}' (user's team)")
         else:
-            # Another team - mark as drafted by opponent (drafted=1)
-            selected_player.drafted = 1
+            # Another team - mark as drafted by opponent
+            selected_player.drafted_by = selected_team
             print(f"✓ Marked {selected_player.name} as drafted by {selected_team}!")
-            self.logger.info(f"Player {selected_player.name} marked as drafted=1 (team: {selected_team})")
+            self.logger.info(f"Player {selected_player.name} marked as drafted_by='{selected_team}'")
 
         # STEP 9: Add player to drafted_data.csv
         # This CSV is used by Trade Simulator and other modes to track team rosters
@@ -284,10 +284,10 @@ class ModifyPlayerDataModeManager:
             return
 
         # STEP 3: Determine the player's current status for user feedback
-        # drafted=2: Player is on user's roster ("your roster")
-        # drafted=1: Player is drafted by another team ("drafted players")
+        # is_rostered(): Player is on user's roster ("your roster")
+        # is_drafted_by_opponent(): Player is drafted by another team ("drafted players")
         # This provides clear feedback about what the user is dropping
-        old_status = "your roster" if selected_player.drafted == 2 else "drafted players"
+        old_status = "your roster" if selected_player.is_rostered() else "drafted players"
 
         # STEP 4: Remove player from drafted_data.csv
         # This CSV tracks team rosters for Trade Simulator and other modes
@@ -297,10 +297,10 @@ class ModifyPlayerDataModeManager:
         else:
             print(f"Warning: Failed to remove {selected_player.name} from drafted_data.csv")
 
-        # STEP 5: Mark player as available (drafted=0)
+        # STEP 5: Mark player as available (free agent)
         # This makes the player available for drafting again
-        # Works for both drafted=1 (other teams) and drafted=2 (user's roster)
-        selected_player.drafted = 0
+        # Works for both opponent teams and user's roster
+        selected_player.drafted_by = ""
 
         # STEP 6: Persist changes to players.csv
         # This saves the updated drafted status to disk
@@ -354,9 +354,9 @@ class ModifyPlayerDataModeManager:
 
                 # Display player with team and drafted status
                 drafted_status = ""
-                if player.drafted == 2:
+                if player.is_rostered():
                     drafted_status = " [YOUR ROSTER]"
-                elif player.drafted == 1:
+                elif player.is_drafted_by_opponent():
                     drafted_status = " [DRAFTED]"
 
                 print(f"  • {player.name} ({player.team}){drafted_status}")

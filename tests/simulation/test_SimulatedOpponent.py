@@ -139,7 +139,7 @@ class TestDraftPlayer:
         """Test that drafting marks player as drafted=1 in projected PlayerManager"""
         projected_player = Mock(spec=FantasyPlayer)
         projected_player.id = 1
-        projected_player.drafted = 0
+        projected_player.drafted_by = ""
 
         projected_pm = Mock()
         projected_pm.players = [projected_player]
@@ -168,7 +168,7 @@ class TestDraftPlayer:
         """Test that drafting marks player as drafted=1 in actual PlayerManager"""
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = 1
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
 
         projected_pm = Mock()
         projected_pm.players = []
@@ -239,7 +239,7 @@ class TestMarkPlayerDrafted:
         """Test marking player as drafted by another team"""
         player = Mock(spec=FantasyPlayer)
         player.id = 5
-        player.drafted = 0
+        player.drafted_by = ""
 
         projected_pm = Mock()
         projected_pm.players = [player]
@@ -263,7 +263,7 @@ class TestMarkPlayerDrafted:
         """Test marking player as drafted in actual PM"""
         player = Mock(spec=FantasyPlayer)
         player.id = 10
-        player.drafted = 0
+        player.drafted_by = ""
 
         projected_pm = Mock()
         projected_pm.players = []
@@ -334,21 +334,21 @@ class TestGetDraftRecommendation:
         player1.name = "Player1"
         player1.average_draft_position = 10.0
         player1.fantasy_points = 100.0
-        player1.drafted = 0
+        player1.drafted_by = ""
 
         player2 = Mock(spec=FantasyPlayer)
         player2.id = 2
         player2.name = "Player2"
         player2.average_draft_position = 5.0
         player2.fantasy_points = 120.0
-        player2.drafted = 0
+        player2.drafted_by = ""
 
         player3 = Mock(spec=FantasyPlayer)
         player3.id = 3
         player3.name = "Player3"
         player3.average_draft_position = 15.0
         player3.fantasy_points = 80.0
-        player3.drafted = 0
+        player3.drafted_by = ""
 
         projected_pm = Mock()
         projected_pm.players = [player1, player2, player3]
@@ -377,19 +377,19 @@ class TestGetDraftRecommendation:
         player1.id = 1
         player1.name = "Player1"
         player1.fantasy_points = 100.0
-        player1.drafted = 0
+        player1.drafted_by = ""
 
         player2 = Mock(spec=FantasyPlayer)
         player2.id = 2
         player2.name = "Player2"
         player2.fantasy_points = 150.0
-        player2.drafted = 0
+        player2.drafted_by = ""
 
         player3 = Mock(spec=FantasyPlayer)
         player3.id = 3
         player3.name = "Player3"
         player3.fantasy_points = 80.0
-        player3.drafted = 0
+        player3.drafted_by = ""
 
         projected_pm = Mock()
         projected_pm.players = [player1, player2, player3]
@@ -422,7 +422,7 @@ class TestGetDraftRecommendation:
             player.name = f"Player{i}"
             player.average_draft_position = float(i + 1)
             player.fantasy_points = float(100 - i * 5)  # Valid fantasy points
-            player.drafted = 0
+            player.drafted_by = ""
             players.append(player)
 
         # Mock choice to return 3rd best player

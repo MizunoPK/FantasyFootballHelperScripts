@@ -22,7 +22,7 @@ class TestPlayerSearchBasic:
                 team="KC",
                 position="QB",
                 bye_week=7,
-                drafted=2,  # On roster
+                drafted_by="Sea Sharp",  # On roster
                 locked=0,
                 score=95.0,
                 fantasy_points=350.0
@@ -33,7 +33,7 @@ class TestPlayerSearchBasic:
                 team="MIA",
                 position="WR",
                 bye_week=8,
-                drafted=1,  # Drafted by others
+                drafted_by="Opponent Team",  # Drafted by others
                 locked=0,
                 score=85.0,
                 fantasy_points=280.0
@@ -44,7 +44,7 @@ class TestPlayerSearchBasic:
                 team="SF",
                 position="RB",
                 bye_week=9,
-                drafted=0,  # Available
+                drafted_by="",  # Available
                 locked=0,
                 score=92.0,
                 fantasy_points=320.0
@@ -55,7 +55,7 @@ class TestPlayerSearchBasic:
                 team="KC",
                 position="TE",
                 bye_week=7,
-                drafted=2,  # On roster
+                drafted_by="Sea Sharp",  # On roster
                 locked=1,  # Locked
                 score=80.0,
                 fantasy_points=250.0
@@ -66,7 +66,7 @@ class TestPlayerSearchBasic:
                 team="BUF",
                 position="QB",
                 bye_week=10,
-                drafted=0,  # Available
+                drafted_by="",  # Available
                 locked=0,
                 score=90.0,
                 fantasy_points=330.0
@@ -85,25 +85,25 @@ class TestPlayerSearchBasic:
         assert len(search.players) == 5
 
     def test_find_players_by_drafted_status_available(self, player_search):
-        """Test finding available players (drafted=0)."""
+        """Test finding available players (drafted_by="")."""
         available = player_search.find_players_by_drafted_status(0)
         assert len(available) == 2
-        assert all(p.drafted == 0 for p in available)
+        assert all(p.is_free_agent() for p in available)
         assert "Christian McCaffrey" in [p.name for p in available]
         assert "Josh Allen" in [p.name for p in available]
 
     def test_find_players_by_drafted_status_drafted(self, player_search):
-        """Test finding drafted players (drafted=1)."""
+        """Test finding drafted players (drafted_by="Opponent Team")."""
         drafted = player_search.find_players_by_drafted_status(1)
         assert len(drafted) == 1
-        assert all(p.drafted == 1 for p in drafted)
+        assert all(p.is_drafted_by_opponent() for p in drafted)
         assert drafted[0].name == "Tyreek Hill"
 
     def test_find_players_by_drafted_status_roster(self, player_search):
-        """Test finding roster players (drafted=2)."""
+        """Test finding roster players (drafted_by="Sea Sharp")."""
         roster = player_search.find_players_by_drafted_status(2)
         assert len(roster) == 2
-        assert all(p.drafted == 2 for p in roster)
+        assert all(p.is_rostered() for p in roster)
         assert "Patrick Mahomes" in [p.name for p in roster]
         assert "Travis Kelce" in [p.name for p in roster]
 
@@ -111,19 +111,19 @@ class TestPlayerSearchBasic:
         """Test get_roster_players() convenience method."""
         roster = player_search.get_roster_players()
         assert len(roster) == 2
-        assert all(p.drafted == 2 for p in roster)
+        assert all(p.is_rostered() for p in roster)
 
     def test_get_available_players(self, player_search):
         """Test get_available_players() convenience method."""
         available = player_search.get_available_players()
         assert len(available) == 2
-        assert all(p.drafted == 0 for p in available)
+        assert all(p.is_free_agent() for p in available)
 
     def test_get_drafted_players(self, player_search):
         """Test get_drafted_players() convenience method."""
         drafted = player_search.get_drafted_players()
         assert len(drafted) == 1
-        assert all(p.drafted == 1 for p in drafted)
+        assert all(p.is_drafted_by_opponent() for p in drafted)
 
 
 class TestSearchPlayersByName:
@@ -133,11 +133,11 @@ class TestSearchPlayersByName:
     def sample_players(self):
         """Create sample players for search testing."""
         return [
-            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=0, locked=0, score=95.0, fantasy_points=350.0),
-            FantasyPlayer(id=2, name="Patrick Peterson", team="PIT", position="CB", bye_week=8, drafted=1, locked=0, score=50.0, fantasy_points=100.0),
-            FantasyPlayer(id=3, name="Josh Allen", team="BUF", position="QB", bye_week=10, drafted=2, locked=0, score=90.0, fantasy_points=330.0),
-            FantasyPlayer(id=4, name="Keenan Allen", team="CHI", position="WR", bye_week=11, drafted=0, locked=0, score=75.0, fantasy_points=220.0),
-            FantasyPlayer(id=5, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted=2, locked=1, score=80.0, fantasy_points=250.0),
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="", locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="Patrick Peterson", team="PIT", position="CB", bye_week=8, drafted_by="Opponent Team", locked=0, score=50.0, fantasy_points=100.0),
+            FantasyPlayer(id=3, name="Josh Allen", team="BUF", position="QB", bye_week=10, drafted_by="Sea Sharp", locked=0, score=90.0, fantasy_points=330.0),
+            FantasyPlayer(id=4, name="Keenan Allen", team="CHI", position="WR", bye_week=11, drafted_by="", locked=0, score=75.0, fantasy_points=220.0),
+            FantasyPlayer(id=5, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted_by="Sea Sharp", locked=1, score=80.0, fantasy_points=250.0),
         ]
 
     @pytest.fixture
@@ -201,21 +201,21 @@ class TestSearchPlayersByName:
         matches = player_search.search_players_by_name("Allen", drafted_filter=0)
         assert len(matches) == 1
         assert matches[0].name == "Keenan Allen"
-        assert matches[0].drafted == 0
+        assert matches[0].is_free_agent()
 
     def test_search_with_drafted_filter_drafted(self, player_search):
         """Test search with drafted_filter=1 (drafted by others)."""
         matches = player_search.search_players_by_name("Patrick", drafted_filter=1)
         assert len(matches) == 1
         assert matches[0].name == "Patrick Peterson"
-        assert matches[0].drafted == 1
+        assert matches[0].is_drafted_by_opponent()
 
     def test_search_with_drafted_filter_roster(self, player_search):
         """Test search with drafted_filter=2 (on roster)."""
         matches = player_search.search_players_by_name("Allen", drafted_filter=2)
         assert len(matches) == 1
         assert matches[0].name == "Josh Allen"
-        assert matches[0].drafted == 2
+        assert matches[0].is_rostered()
 
     def test_search_with_drafted_filter_none_returns_all(self, player_search):
         """Test search with drafted_filter=None returns all matches."""
@@ -250,11 +250,11 @@ class TestSearchPlayersNotAvailable:
     def sample_players(self):
         """Create sample players for testing."""
         return [
-            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=2, locked=0, score=95.0, fantasy_points=350.0),
-            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted=1, locked=0, score=85.0, fantasy_points=280.0),
-            FantasyPlayer(id=3, name="Christian McCaffrey", team="SF", position="RB", bye_week=9, drafted=0, locked=0, score=92.0, fantasy_points=320.0),
-            FantasyPlayer(id=4, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted=2, locked=1, score=80.0, fantasy_points=250.0),
-            FantasyPlayer(id=5, name="Josh Allen", team="BUF", position="QB", bye_week=10, drafted=0, locked=0, score=90.0, fantasy_points=330.0),
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="Sea Sharp", locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted_by="Opponent Team", locked=0, score=85.0, fantasy_points=280.0),
+            FantasyPlayer(id=3, name="Christian McCaffrey", team="SF", position="RB", bye_week=9, drafted_by="", locked=0, score=92.0, fantasy_points=320.0),
+            FantasyPlayer(id=4, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted_by="Sea Sharp", locked=1, score=80.0, fantasy_points=250.0),
+            FantasyPlayer(id=5, name="Josh Allen", team="BUF", position="QB", bye_week=10, drafted_by="", locked=0, score=90.0, fantasy_points=330.0),
         ]
 
     @pytest.fixture
@@ -265,7 +265,7 @@ class TestSearchPlayersNotAvailable:
     def test_search_not_available_excludes_drafted_zero(self, player_search):
         """Test that search_players_by_name_not_available excludes drafted=0."""
         matches = player_search.search_players_by_name_not_available("Allen")
-        # Josh Allen is drafted=0, should not be included
+        # Josh Allen is drafted_by="", should not be included
         assert len(matches) == 0
 
     def test_search_not_available_includes_drafted_one(self, player_search):
@@ -273,27 +273,30 @@ class TestSearchPlayersNotAvailable:
         matches = player_search.search_players_by_name_not_available("Tyreek")
         assert len(matches) == 1
         assert matches[0].name == "Tyreek Hill"
-        assert matches[0].drafted == 1
+        assert matches[0].is_drafted_by_opponent()
 
     def test_search_not_available_includes_drafted_two(self, player_search):
         """Test that search includes drafted=2 players."""
         matches = player_search.search_players_by_name_not_available("Mahomes")
         assert len(matches) == 1
         assert matches[0].name == "Patrick Mahomes"
-        assert matches[0].drafted == 2
+        assert matches[0].is_rostered()
 
     def test_search_not_available_includes_both_drafted_statuses(self, player_search):
         """Test that search includes both drafted=1 and drafted=2."""
         # Add another player with same partial name
         player_search.players.append(
-            FantasyPlayer(id=6, name="Patrick Peterson", team="PIT", position="CB", bye_week=8, drafted=1, locked=0, score=50.0, fantasy_points=100.0)
+            FantasyPlayer(id=6, name="Patrick Peterson", team="PIT", position="CB", bye_week=8, drafted_by="Opponent Team", locked=0, score=50.0, fantasy_points=100.0)
         )
         matches = player_search.search_players_by_name_not_available("Patrick")
         assert len(matches) == 2
-        drafted_statuses = {p.drafted for p in matches}
-        assert 1 in drafted_statuses  # Patrick Peterson (drafted=1)
-        assert 2 in drafted_statuses  # Patrick Mahomes (drafted=2)
-        assert 0 not in drafted_statuses  # No drafted=0 players
+        # Verify we have one opponent player and one rostered player
+        has_opponent = any(p.is_drafted_by_opponent() for p in matches)
+        has_rostered = any(p.is_rostered() for p in matches)
+        has_free_agent = any(p.is_free_agent() for p in matches)
+        assert has_opponent  # Patrick Peterson (drafted_by="Opponent Team")
+        assert has_rostered  # Patrick Mahomes (drafted_by="Sea Sharp")
+        assert not has_free_agent  # No free agents should be included
 
     def test_search_not_available_empty_string(self, player_search):
         """Test that empty string returns empty list."""
@@ -340,9 +343,7 @@ class TestInteractiveSearchEdgeCases:
     def sample_players(self):
         """Create sample players for testing."""
         return [
-            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=0, locked=0, score=95.0, fantasy_points=350.0),
-            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted=1, locked=0, score=85.0, fantasy_points=280.0),
-            FantasyPlayer(id=3, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted=2, locked=1, score=80.0, fantasy_points=250.0),
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="", locked=0, score=95.0, fantasy_points=350.0),
         ]
 
     @pytest.fixture
@@ -376,10 +377,10 @@ class TestAdditionalEdgeCases:
     def sample_players(self):
         """Create sample players for edge case testing."""
         return [
-            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=0, locked=0, score=95.0, fantasy_points=350.0),
-            FantasyPlayer(id=2, name="D'Andre Swift", team="PHI", position="RB", bye_week=8, drafted=1, locked=0, score=85.0, fantasy_points=280.0),
-            FantasyPlayer(id=3, name="Amon-Ra St. Brown", team="DET", position="WR", bye_week=9, drafted=0, locked=0, score=92.0, fantasy_points=320.0),
-            FantasyPlayer(id=4, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted=2, locked=1, score=80.0, fantasy_points=250.0),
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="", locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="D'Andre Swift", team="PHI", position="RB", bye_week=8, drafted_by="Opponent Team", locked=0, score=85.0, fantasy_points=280.0),
+            FantasyPlayer(id=3, name="Amon-Ra St. Brown", team="DET", position="WR", bye_week=9, drafted_by="", locked=0, score=92.0, fantasy_points=320.0),
+            FantasyPlayer(id=4, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted_by="Sea Sharp", locked=1, score=80.0, fantasy_points=250.0),
         ]
 
     @pytest.fixture

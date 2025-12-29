@@ -133,6 +133,148 @@ def calculate_[metric_name](player: FantasyPlayer, week: int) -> float:
 
 ---
 
+## Scoring Category
+
+**IMPORTANT**: All metrics must fall into one of three scoring categories. Choose the appropriate category based on what the metric measures:
+
+### Category 1: Static Bonus/Penalty (Fixed Values)
+**When to use**: Environmental factors that affect all players equally in the same situation.
+
+**Characteristics**:
+- Fixed point values (e.g., +2.0 pts for home games, -5.0 pts for international games)
+- No player-specific variation beyond the situation
+- Simple additive bonus/penalty
+
+**Formula**:
+```python
+adjusted_score = previous_score + FIXED_MODIFIER
+```
+
+**Config Structure** (Example: Location Scoring):
+```json
+{
+  "LOCATION_SCORING": {
+    "ENABLED": true,
+    "MODIFIERS": {
+      "HOME": 2.0,
+      "AWAY": -2.0,
+      "INTERNATIONAL": -5.0
+    },
+    "DESCRIPTION": "Fixed bonus/penalty based on game location"
+  }
+}
+```
+
+**Examples**: Location scoring (home/away/international), time of day bonuses
+
+---
+
+### Category 2: Multiplier-Based (Intrinsic Value/Context)
+**When to use**: Stable player characteristics, skills, or team context that reflects inherent quality.
+
+**Characteristics**:
+- Reflects player skill, efficiency, role, or team quality
+- Stable over the season (not week-to-week variance)
+- Uses tiered multipliers (EXCELLENT, GOOD, AVERAGE, POOR)
+- Multiplicative effect scales with player value
+
+**Formula**:
+```python
+final_multiplier = base_multiplier ^ WEIGHT
+adjusted_score = previous_score * final_multiplier
+```
+
+**Config Structure** (Example: Team Quality):
+```json
+{
+  "TEAM_QUALITY_SCORING": {
+    "ENABLED": true,
+    "THRESHOLDS": {
+      "EXCELLENT": 6,
+      "GOOD": 12,
+      "AVERAGE": 17,
+      "POOR": 23
+    },
+    "MULTIPLIERS": {
+      "EXCELLENT": 1.05,
+      "GOOD": 1.025,
+      "AVERAGE": 1.0,
+      "POOR": 0.975,
+      "VERY_POOR": 0.95
+    },
+    "WEIGHT": 1.777,
+    "DESCRIPTION": "Team offensive/defensive quality multiplier"
+  }
+}
+```
+
+**Examples**: Team quality, ADP, player rating, performance, efficiency metrics (YPC, YPR, catch rate), QB rushing ability, kicker accuracy
+
+---
+
+### Category 3: Impact Scale Bonus/Penalty (Circumstantial Variance)
+**When to use**: Week-to-week situational factors that vary by matchup or schedule.
+
+**Characteristics**:
+- Changes weekly based on opponent or schedule
+- Not intrinsic to player but dependent on circumstances
+- Uses IMPACT_SCALE to calculate bonus/penalty from multiplier
+- Position-specific weights
+
+**Formula**:
+```python
+multiplier, rating = config.get_matchup_multiplier(matchup_score)
+bonus = (IMPACT_SCALE * multiplier) - IMPACT_SCALE
+adjusted_score = previous_score + bonus
+```
+
+**Config Structure** (Example: Matchup Scoring):
+```json
+{
+  "MATCHUP_SCORING": {
+    "ENABLED": true,
+    "IMPACT_SCALE": 115.44,
+    "WEIGHTS": {
+      "QB": 1.0,
+      "RB": 1.2,
+      "WR": 1.0,
+      "TE": 1.0,
+      "K": 0.5,
+      "DST": 1.5
+    },
+    "THRESHOLDS": {
+      "EXCELLENT": 24,
+      "GOOD": 18,
+      "AVERAGE": 13,
+      "POOR": 7
+    },
+    "MULTIPLIERS": {
+      "EXCELLENT": 1.05,
+      "GOOD": 1.025,
+      "AVERAGE": 1.0,
+      "POOR": 0.975,
+      "VERY_POOR": 0.95
+    },
+    "DESCRIPTION": "Weekly matchup difficulty bonus/penalty"
+  }
+}
+```
+
+**Examples**: Matchup scoring, schedule strength, weather conditions (temperature, wind)
+
+---
+
+### Choosing the Right Category
+
+**Decision Tree**:
+1. Does it affect all players equally in the same situation? → **Category 1 (Static)**
+2. Does it measure stable player skill/efficiency or team context? → **Category 2 (Multiplier)**
+3. Does it change week-to-week based on opponent/schedule? → **Category 3 (Impact Scale)**
+
+**For this metric**: [State which category and why]
+
+---
+
 ## Implementation Plan
 
 ### Phase 1: Data Pipeline (Estimated: X hours)
@@ -175,40 +317,89 @@ class [MetricName]Calculator:
 
 **2.1 Add to league_config.json**
 
+**Use the config structure for your scoring category:**
+
+**For Category 2 (Multiplier-Based)** - Most common for efficiency/skill metrics:
 ```json
 {
   "[METRIC_NAME]_SCORING": {
     "ENABLED": true,
-    "POSITION_SPECIFIC": {
-      "[POSITION]": {
-        "THRESHOLDS": {
-          "BASE_POSITION": [value],
-          "DIRECTION": "INCREASING/DECREASING",
-          "STEPS": [value]
-        },
-        "MULTIPLIERS": {
-          "VERY_POOR": 0.95,
-          "POOR": 0.975,
-          "GOOD": 1.025,
-          "EXCELLENT": 1.05
-        },
-        "WEIGHT": [value]
-      }
+    "THRESHOLDS": {
+      "EXCELLENT": [value],
+      "GOOD": [value],
+      "AVERAGE": [value]
     },
-    "MIN_WEEKS": 3,
-    "IMPACT_SCALE": [value if additive],
-    "DESCRIPTION": "[Brief description for documentation]"
+    "MULTIPLIERS": {
+      "EXCELLENT": 1.05,
+      "GOOD": 1.025,
+      "AVERAGE": 1.0,
+      "POOR": 0.975,
+      "VERY_POOR": 0.95
+    },
+    "WEIGHT": [1.0 - 3.0],
+    "MIN_GAMES": [3-6],
+    "DESCRIPTION": "[Brief description]"
+  }
+}
+```
+
+**For Category 1 (Static Bonus/Penalty)**:
+```json
+{
+  "[METRIC_NAME]_SCORING": {
+    "ENABLED": true,
+    "MODIFIERS": {
+      "CONDITION_A": [fixed_value],
+      "CONDITION_B": [fixed_value]
+    },
+    "DESCRIPTION": "[Brief description]"
+  }
+}
+```
+
+**For Category 3 (Impact Scale)**:
+```json
+{
+  "[METRIC_NAME]_SCORING": {
+    "ENABLED": true,
+    "IMPACT_SCALE": [20.0 - 120.0],
+    "WEIGHTS": {
+      "QB": 1.0,
+      "RB": 1.2,
+      "WR": 1.0,
+      "TE": 1.0,
+      "K": 0.5,
+      "DST": 1.5
+    },
+    "THRESHOLDS": {
+      "EXCELLENT": [value],
+      "GOOD": [value],
+      "AVERAGE": [value]
+    },
+    "MULTIPLIERS": {
+      "EXCELLENT": 1.05,
+      "GOOD": 1.025,
+      "AVERAGE": 1.0,
+      "POOR": 0.975,
+      "VERY_POOR": 0.95
+    },
+    "DESCRIPTION": "[Brief description]"
   }
 }
 ```
 
 **2.2 Configuration Parameters**
 
-| Parameter | Default | Description | Typical Range |
-|-----------|---------|-------------|---------------|
-| `WEIGHT` | 1.0 | Multiplier exponent | 0.5 - 3.0 |
-| `MIN_WEEKS` | 3 | Minimum weeks of data | 1 - 6 |
-| `IMPACT_SCALE` | [value] | Additive bonus scale | 20.0 - 100.0 |
+| Parameter | Applies To | Default | Description | Typical Range |
+|-----------|-----------|---------|-------------|---------------|
+| `ENABLED` | All | true | Enable/disable metric | true/false |
+| `WEIGHT` | Category 2 | 1.5 | Multiplier exponent | 0.5 - 3.0 |
+| `MIN_GAMES` | Category 2 | 3-6 | Minimum games/data | 1 - 10 |
+| `IMPACT_SCALE` | Category 3 | 50-120 | Bonus/penalty scale | 20.0 - 150.0 |
+| `WEIGHTS` | Category 3 | varies | Position-specific weights | 0.5 - 2.0 |
+| `THRESHOLDS` | Categories 2 & 3 | varies | Tier classification cutoffs | Metric-specific |
+| `MULTIPLIERS` | Categories 2 & 3 | 0.95-1.05 | Base multipliers per tier | 0.90 - 1.10 |
+| `MODIFIERS` | Category 1 | varies | Fixed bonus/penalty values | -10.0 to +10.0 |
 
 ---
 

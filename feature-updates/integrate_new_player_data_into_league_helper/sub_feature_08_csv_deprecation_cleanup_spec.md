@@ -72,3 +72,52 @@ mv data/drafted_data.csv data/drafted_data.csv.DEPRECATED
 - Verify all data loading from JSON
 - Complete lessons learned review
 - Move feature folder to `done/`
+
+---
+
+## Verification Findings (From Deep Dive)
+
+**Codebase Locations Verified:**
+
+1. **CSV Files to Deprecate:**
+   - data/players.csv (exists - rename to .DEPRECATED)
+   - data/players_projected.csv (exists - rename to .OLD per Sub-feature 5)
+   - data/drafted_data.csv (exists - rename to .DEPRECATED)
+
+2. **Methods to Deprecate:**
+   - PlayerManager.load_players_from_csv() exists at league_helper/util/PlayerManager.py:142
+   - PlayerManager.save_players() DOES NOT EXIST (no action needed)
+   - **Pattern:** Add `import warnings` and use warnings.warn() with DeprecationWarning
+
+3. **Integration Test Location:**
+   - tests/integration/test_league_helper_integration.py (exists)
+   - **Action:** Add test_all_modes_with_json_only() function
+   - **Verify:** All 4 modes work without CSV files
+
+**Implementation Approach:**
+
+1. **CSV File Deprecation (3 files):**
+   - Rename players.csv → players.csv.DEPRECATED
+   - Rename players_projected.csv → players_projected.csv.OLD (consistent with Sub-feature 5)
+   - Rename drafted_data.csv → drafted_data.csv.DEPRECATED
+   - Keep files temporarily for validation/comparison
+   - Delete entirely in future cleanup (out of scope)
+
+2. **Code Deprecation (1 method):**
+   - Add deprecation warning to load_players_from_csv() (line 142)
+   - Keep implementation for backward compatibility
+   - Use warnings.warn() with DeprecationWarning, stacklevel=2
+   - Update docstring to indicate deprecation date
+
+3. **Integration Testing:**
+   - Add comprehensive test to test_league_helper_integration.py
+   - Test all 4 League Helper modes with JSON only
+   - Verify 100% functionality with zero CSV access
+   - Run with CSV files renamed (should still work)
+
+**Complexity Assessment:**
+- **Risk:** LOW - Simple file renames and deprecation warnings
+- **Lines Changed:** Minimal (~5 lines for deprecation warning, 3 file renames)
+- **Testing:** 1 comprehensive integration test required
+
+**No User Decisions Required** - All items are straightforward cleanup tasks.

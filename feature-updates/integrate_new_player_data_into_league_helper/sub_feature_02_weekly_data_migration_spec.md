@@ -50,6 +50,81 @@ Replace the 17 individual `week_N_points` fields with two 17-element arrays (`pr
 **Backward Compatibility (NEW-19):**
 - NEW-19: RESOLVED - Immediate cutover, NO backward compatibility for week_N_points
 
+## Verification Findings (From Deep Dive)
+
+### Code Search Results
+
+**NEW-1: Direct field access search (`.week_\d+_points`)**
+- **Finding:** Only found in utils/FantasyPlayer.py (field definitions)
+- **Action:** Covered by NEW-22a (remove field definitions)
+- **Conclusion:** No direct field access in league_helper/ code - excellent encapsulation
+
+**NEW-2: Dynamic attribute access (`getattr(player, f"week_{week}_points")`)**
+- **CRITICAL FINDING:** league_helper/util/ConfigManager.py:598
+- **Location:** Inside `calculate_player_median()` helper function within `calculate_bye_week_penalty()`
+- **Code:** `if (points := getattr(player, f'week_{week}_points')) is not None`
+- **Action:** NEW-22m created - must update to use `player.get_weekly_projections()[week-1]`
+- **Impact:** This is the ONLY location using dynamic getattr - isolated fix
+
+**NEW-3: Dictionary access (`player_dict['week_X_points']`)**
+- **Finding:** None found
+- **Conclusion:** No dictionary-based access to weekly points
+
+**NEW-4: Modules accessing weekly data**
+- **Finding:** 4 files use `get_single_weekly_projection()`:
+  - SaveCalculatedPointsManager.py:112
+  - player_scoring.py:123
+  - PlayerManager.py:307
+  - StarterHelperModeManager.py:212
+- **Plus:** ConfigManager.py:598 uses dynamic getattr (see NEW-2)
+- **All use method calls** (not direct field access) - confirms good design
+
+### Verified Locations
+
+**FantasyPlayer.py field definitions (NEW-22a, NEW-22b):**
+- **Lines 102-118:** All 17 week_N_points field definitions
+- **Lines 170-186:** All 17 week_N_points loading lines in from_dict()
+- **Action:** Delete during implementation
+
+**FantasyPlayer.py method updates (NEW-22c, NEW-22d):**
+- **Lines 345-351:** get_weekly_projections() current implementation (returns list of week_N_points)
+- **Line 353-354:** get_single_weekly_projection() delegates to get_weekly_projections()
+- **Action:** Update get_weekly_projections() to implement HYBRID logic
+- **No changes needed:** get_single_weekly_projection() will automatically use new logic
+
+**Call sites verified (NEW-22e through NEW-22h):**
+- All 4 locations use method calls, not direct field access
+- **No changes needed** - methods will work automatically after implementation
+- This confirms excellent encapsulation in the codebase
+
+**PlayerManager.py updates (NEW-22i, NEW-22j):**
+- **Lines 375-379:** CSV fieldnames include all 17 week_N_points
+- **Line 633:** Docstring references week_N_points dict format
+- **NEW-22i deferred:** Sub-feature 4 handles save_players() migration
+- **NEW-22j:** Update docstring to reference arrays instead of individual fields
+
+**TeamDataManager.py comments (NEW-22k):**
+- **Lines 83, 119:** Comments mention week_N_points structure for D/ST data
+- **Deferred:** Sub-feature 6 handles TeamDataManager D/ST migration
+
+**ProjectedPointsManager.py comments (NEW-22l):**
+- **Lines 53, 108-109:** Comments about CSV week_N_points columns
+- **Deferred:** Sub-feature 5 consolidates ProjectedPointsManager
+
+**ConfigManager.py dynamic getattr (NEW-22m - NEW DISCOVERY):**
+- **Lines 595-600:** calculate_bye_week_penalty() uses dynamic getattr
+- **Code:** `getattr(player, f'week_{week}_points')`
+- **Update to:** `player.get_weekly_projections()[week-1]`
+- **Impact:** Must be updated in this sub-feature (can't defer)
+
+### Key Design Insight
+
+**Excellent news:** ALL user-facing code uses METHODS, not direct field access!
+- Only FantasyPlayer.py needs core changes
+- Method calls will work automatically after implementation
+- Only 1 dynamic getattr location to fix (ConfigManager.py)
+- This confirms the codebase has good encapsulation
+
 ## Implementation Details
 
 ### Key Finding from Research

@@ -19,6 +19,7 @@ This file contains all file templates used during feature planning and developme
 | {feature_name}_code_changes.md | After TODO creation | [Link](#code-changes-template) |
 | **SUB-FEATURE TEMPLATES** | | |
 | SUB_FEATURES_README.md | Phase 4: Create sub-feature structure | [Link](#sub-features-readme-template) |
+| **SUB_FEATURES_PHASE_TRACKER.md** | **Phase 4: MANDATORY for sub-features** | **[Link](#sub-features-phase-tracker-template)** |
 | sub_feature_{N}_{name}_spec.md | Phase 4: Per sub-feature | [Link](#sub-feature-spec-template) |
 | sub_feature_{N}_{name}_checklist.md | Phase 4: Per sub-feature | [Link](#sub-feature-checklist-template) |
 | research/README.md | Phase 4: Create research folder | [Link](#research-folder-readme-template) |
@@ -1308,6 +1309,262 @@ Sub-feature 3 + Sub-feature 4
 **Lessons learned during planning:**
 - {Anything discovered during planning that's important}
 ```
+
+---
+
+### SUB_FEATURES_PHASE_TRACKER Template
+
+**🚨 MANDATORY for all multi-sub-feature projects**
+
+Create in: `feature-updates/{feature_name}/SUB_FEATURES_PHASE_TRACKER.md`
+
+**Purpose:** Complete source of truth tracking each sub-feature through ALL phases from planning through commit.
+
+```markdown
+# Sub-Feature Phase Completion Tracker
+
+**Purpose:** Complete source of truth tracking each sub-feature's progress through ALL phases (planning, TODO creation, implementation, QC) to ensure systematic completion.
+
+**Instructions:**
+- Mark `[x]` when phase/sub-phase is 100% complete for that sub-feature
+- DO NOT skip phases or sub-phases
+- **MANDATORY: Re-read the corresponding guide BEFORE marking any phase complete** to verify all steps were followed
+- Update "Current Status" section after each phase completion
+
+---
+
+## Phase Completion Matrix
+
+### Sub-feature 1: {Name}
+
+**Planning Phases (feature_deep_dive_guide.md):**
+- [ ] Phase 1: Targeted Research
+  - [ ] Step 1.1: Identify files and components
+  - [ ] Step 1.2: THREE-ITERATION question generation (core, quality, cross-cutting)
+  - [ ] Step 1.3: CODEBASE VERIFICATION rounds (2 rounds minimum)
+  - [ ] Step 1.4: Create research documents (if needed)
+  - [ ] **Re-read guide before marking complete**
+- [ ] Phase 2: Update Spec and Checklist
+  - [ ] Step 2.1: Update spec with findings
+  - [ ] Step 2.2: Create dependency map
+  - [ ] Step 2.3: ASSUMPTIONS AUDIT
+  - [ ] Step 2.4: Populate checklist
+  - [ ] **Re-read guide before marking complete**
+- [ ] Phase 3: Interactive Question Resolution
+  - [ ] Step 3.1: Prioritize questions
+  - [ ] Step 3.2-3.5: ONE question at a time (all user decisions resolved)
+  - [ ] **Re-read guide before marking complete**
+- [ ] Phase 4: Sub-Feature Complete + Scope Check
+  - [ ] Step 4.1: Verify completion (all checklist items `[x]`)
+  - [ ] Step 4.2: Dynamic scope adjustment check
+  - [ ] Step 4.3: Mark sub-feature complete in SUB_FEATURES_README.md
+  - [ ] **Re-read guide before marking complete**
+
+**TODO Creation Phase (todo_creation_guide.md):**
+- [ ] Round 1: Iterations 1-7
+  - [ ] Iteration 1: Initial TODO list creation from spec
+  - [ ] Iteration 2: Dependency analysis
+  - [ ] Iteration 3: Interface verification
+  - [ ] Iteration 4: Algorithm traceability matrix
+  - [ ] Iteration 4a: TODO specification audit
+  - [ ] Iteration 5: Error path coverage
+  - [ ] Iteration 6: Test coverage planning
+  - [ ] Iteration 7: Round 1 completion checkpoint
+- [ ] Round 2: Iterations 8-16
+  - [ ] Iteration 8: Consumer identification
+  - [ ] Iteration 9: Data flow validation
+  - [ ] Iteration 10: Edge case enumeration
+  - [ ] Iteration 11: Algorithm traceability matrix (update)
+  - [ ] Iteration 12: Logging strategy
+  - [ ] Iteration 13: Performance considerations
+  - [ ] Iteration 14: Security review
+  - [ ] Iteration 15: Backwards compatibility check
+  - [ ] Iteration 16: Round 2 completion checkpoint
+- [ ] Round 3: Iterations 17-24
+  - [ ] Iteration 17: Integration points verification
+  - [ ] Iteration 18: Documentation requirements
+  - [ ] Iteration 19: Algorithm traceability matrix (final)
+  - [ ] Iteration 20: Success criteria validation
+  - [ ] Iteration 21: Rollback strategy
+  - [ ] Iteration 22: Migration path verification
+  - [ ] Iteration 23: Final TODO review
+  - [ ] Iteration 23a: Questions file creation (if needed)
+  - [ ] Iteration 24: FINAL CHECKPOINT - Ready for implementation
+  - [ ] **Re-read guide before marking complete**
+
+**Implementation Phase (implementation_execution_guide.md):**
+- [ ] Setup and Preparation
+  - [ ] Create implementation checklist
+  - [ ] Interface verification (actual source code)
+  - [ ] Environment setup
+  - [ ] **Re-read guide sections before starting**
+- [ ] Execution (by TODO group)
+  - [ ] Group 1: {Description} - All TODOs complete
+  - [ ] Group 2: {Description} - All TODOs complete
+  - [ ] Group 3: {Description} - All TODOs complete
+  - [ ] [Add groups as needed based on TODO file]
+- [ ] Continuous Verification
+  - [ ] Mini-QC checkpoint after each group
+  - [ ] Unit tests 100% pass after each major component
+  - [ ] Spec verification (implementation matches spec)
+- [ ] Documentation
+  - [ ] Code changes documented in {name}_code_changes.md
+  - [ ] All modifications tracked incrementally
+  - [ ] **Re-read guide before marking complete**
+
+**Post-Implementation QC (post_implementation_guide.md):**
+- [ ] Smoke Testing (MANDATORY - 3 parts)
+  - [ ] Part 1: Core functionality smoke test
+  - [ ] Part 2: Integration smoke test
+  - [ ] Part 3: Edge case smoke test
+- [ ] QC Round 1: Code Quality
+  - [ ] Code review checklist
+  - [ ] Style consistency
+  - [ ] Documentation completeness
+  - [ ] Round 1 issues resolved
+- [ ] QC Round 2: Functional Correctness
+  - [ ] Spec alignment verification
+  - [ ] All success criteria met
+  - [ ] Integration tests passing
+  - [ ] Round 2 issues resolved
+- [ ] QC Round 3: Production Readiness
+  - [ ] Error handling verified
+  - [ ] Performance acceptable
+  - [ ] Security reviewed
+  - [ ] Round 3 issues resolved
+- [ ] Final Steps
+  - [ ] ALL unit tests passing (100%)
+  - [ ] Lessons learned documented
+  - [ ] **Re-read guide before marking complete**
+
+**Completion:**
+- [ ] Changes committed (with descriptive message)
+- [ ] Feature folder moved to done/
+
+---
+
+### Sub-feature 2: {Name}
+
+**Planning Phases (feature_deep_dive_guide.md):**
+- [ ] Phase 1: Targeted Research (4 steps + re-read guide)
+- [ ] Phase 2: Update Spec and Checklist (4 steps + re-read guide)
+- [ ] Phase 3: Interactive Question Resolution (all user decisions + re-read guide)
+- [ ] Phase 4: Sub-Feature Complete + Scope Check (3 steps + re-read guide)
+
+**TODO Creation Phase (todo_creation_guide.md):**
+- [ ] Round 1: Iterations 1-7 (including 4a)
+- [ ] Round 2: Iterations 8-16
+- [ ] Round 3: Iterations 17-24 (including 23a + re-read guide)
+
+**Implementation Phase (implementation_execution_guide.md):**
+- [ ] Setup and Preparation (interface verification + re-read guide)
+- [ ] Execution (all TODO groups complete)
+- [ ] Continuous Verification (mini-QC + tests)
+- [ ] Documentation (code_changes.md + re-read guide)
+
+**Post-Implementation QC (post_implementation_guide.md):**
+- [ ] Smoke Testing (3 parts)
+- [ ] QC Round 1: Code Quality
+- [ ] QC Round 2: Functional Correctness
+- [ ] QC Round 3: Production Readiness
+- [ ] Final Steps (tests + lessons + re-read guide)
+
+**Completion:**
+- [ ] Committed and moved to done/
+
+---
+
+[Repeat for ALL sub-features with same detailed breakdown]
+
+---
+
+## Cross-Sub-Feature Phases
+
+**Execute ONLY after ALL sub-features complete their Phase 4:**
+
+- [ ] Phase 6: Cross-Sub-Feature Alignment Review (feature_deep_dive_guide.md Phase 6)
+  - [ ] Step 6.1: Review all specs together
+  - [ ] Step 6.2: Check for conflicts (interface, naming, duplication, dependencies)
+  - [ ] Step 6.3: Update conflicting specs
+  - [ ] Step 6.4: Verify dependency chain (no circular dependencies)
+  - [ ] Step 6.5: Get user confirmation
+  - [ ] **Re-read guide before marking complete**
+- [ ] Phase 7: Ready for Implementation (feature_deep_dive_guide.md Phase 7)
+  - [ ] Step 7.1: Final verification (all specs complete, conflicts resolved)
+  - [ ] Step 7.2: Update README status to "IMPLEMENTATION - Ready for TODO creation"
+  - [ ] Step 7.3: Document implementation order
+  - [ ] Step 7.4: Announce readiness
+  - [ ] **Re-read guide before marking complete**
+
+---
+
+## Quality Gates
+
+**Before Phase 6 Alignment Review:**
+- [ ] ALL sub-features marked complete in Phase 4 above (all checklist items `[x]`)
+- [ ] ALL user decisions from Phase 3 documented in specs
+- [ ] ALL verification findings from Phase 1-2 documented in specs
+- [ ] ALL research documents in research/ folder
+
+**Before Phase 7 Ready for Implementation:**
+- [ ] Phase 6 alignment review complete
+- [ ] All conflicts resolved and documented
+- [ ] Dependency order verified (no circular dependencies)
+- [ ] Implementation order documented in SUB_FEATURES_README.md
+
+**Before Starting TODO Creation for ANY Sub-Feature:**
+- [ ] Phase 7 complete (all sub-features aligned)
+- [ ] Sub-feature specs final and locked
+- [ ] All prerequisites for that sub-feature complete
+
+---
+
+## Current Status
+
+**Last updated:** {Date/Time}
+**Sub-features complete (Phase 4):** {X} / {N}
+**Current phase:** {Description}
+**Current sub-feature:** {Name or "N/A"}
+**Next action:** {What to do next}
+**Blockers:** {Any blockers preventing progress}
+
+---
+
+## Agent Instructions
+
+**At START of every session:**
+1. Read this tracker file FIRST (before doing any other work)
+2. Check "Current Status" to understand where previous agent left off
+3. Identify next unchecked item in the matrix
+4. Re-read corresponding guide section before starting work
+
+**Before marking ANY phase complete:**
+1. Re-read the ENTIRE corresponding guide (not just skimming)
+2. Verify ALL steps in that phase were completed
+3. Verify ALL sub-steps if phase has breakdown
+4. Update "Current Status" section with new status
+5. Mark `[x]` only if 100% confident phase is complete
+
+**After completing each phase:**
+1. Update "Current Status" immediately
+2. Identify next phase to work on
+3. Check quality gates if approaching Phase 6 or 7
+```
+
+**When to use this tracker:**
+- **START OF EVERY SESSION:** Agent checks this file BEFORE any other work
+- **BEFORE marking phase complete:** Agent re-reads corresponding guide to verify all steps followed
+- **AFTER completing phase:** Agent updates `[x]` and "Current Status" immediately
+- **BEFORE Phase 6/7:** Agent verifies quality gates are met
+- **AGENT RESUMPTION:** Next agent reads "Current Status" to know where to continue
+- **THROUGHOUT IMPLEMENTATION:** Track TODO creation, implementation, and QC progress
+
+**Why this is critical:**
+- Tracks 800+ checkpoints (8 sub-features × 100+ checkpoints each)
+- Prevents phase skipping (can't skip Phase 3 questions or TODO Round 2)
+- Enforces guide compliance (mandatory re-read requirement)
+- Supports agent resumption (exact checkpoint preserved)
+- Provides complete audit trail from planning through commit
 
 ---
 

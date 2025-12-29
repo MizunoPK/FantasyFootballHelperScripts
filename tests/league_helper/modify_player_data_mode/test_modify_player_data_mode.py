@@ -58,9 +58,9 @@ class TestMarkPlayerAsDrafted:
     def sample_players(self):
         """Create sample players for testing."""
         return [
-            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=0, locked=0, score=95.0, fantasy_points=350.0),
-            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted=1, locked=0, score=85.0, fantasy_points=280.0),
-            FantasyPlayer(id=3, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted=2, locked=0, score=80.0, fantasy_points=250.0),
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="", locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted_by="Opponent Team", locked=0, score=85.0, fantasy_points=280.0),
+            FantasyPlayer(id=3, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted_by="Sea Sharp", locked=0, score=80.0, fantasy_points=250.0),
         ]
 
     @pytest.fixture
@@ -102,7 +102,7 @@ class TestMarkPlayerAsDrafted:
         mode_manager._mark_player_as_drafted()
 
         # Verify
-        assert available_player.drafted == 1
+        assert available_player.drafted_by == "Annihilators"
         mock_writer.add_player.assert_called_once_with(available_player, "Annihilators")
         mock_player_manager.update_players_file.assert_called_once()
         mock_searcher.interactive_search.assert_called_once_with(
@@ -141,7 +141,7 @@ class TestMarkPlayerAsDrafted:
         mode_manager._mark_player_as_drafted()
 
         # Verify
-        assert available_player.drafted == 2
+        assert available_player.drafted_by == "Sea Sharp"
         mock_writer.add_player.assert_called_once_with(available_player, "Sea Sharp")
         mock_player_manager.update_players_file.assert_called_once()
 
@@ -191,7 +191,7 @@ class TestMarkPlayerAsDrafted:
         mode_manager._mark_player_as_drafted()
 
         # Verify - player not modified, no file update
-        assert available_player.drafted == 0  # Still available
+        assert available_player.is_free_agent()  # Still available
         mock_writer.add_player.assert_not_called()
         mock_player_manager.update_players_file.assert_not_called()
 
@@ -231,9 +231,9 @@ class TestDropPlayer:
     def sample_players(self):
         """Create sample players for testing."""
         return [
-            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=2, locked=0, score=95.0, fantasy_points=350.0),
-            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted=1, locked=0, score=85.0, fantasy_points=280.0),
-            FantasyPlayer(id=3, name="Josh Allen", team="BUF", position="QB", bye_week=10, drafted=0, locked=0, score=90.0, fantasy_points=330.0),
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="Sea Sharp", locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted_by="Opponent Team", locked=0, score=85.0, fantasy_points=280.0),
+            FantasyPlayer(id=3, name="Josh Allen", team="BUF", position="QB", bye_week=10, drafted_by="", locked=0, score=90.0, fantasy_points=330.0),
         ]
 
     @pytest.fixture
@@ -266,7 +266,7 @@ class TestDropPlayer:
         mode_manager._drop_player()
 
         # Verify
-        assert rostered_player.drafted == 0
+        assert rostered_player.drafted_by == ""
         mock_writer.remove_player.assert_called_once_with(rostered_player)
         mock_player_manager.update_players_file.assert_called_once()
         mock_searcher.interactive_search.assert_called_once_with(
@@ -297,7 +297,7 @@ class TestDropPlayer:
         mode_manager._drop_player()
 
         # Verify
-        assert drafted_player.drafted == 0
+        assert drafted_player.drafted_by == ""
         mock_writer.remove_player.assert_called_once_with(drafted_player)
         mock_player_manager.update_players_file.assert_called_once()
 
@@ -341,7 +341,7 @@ class TestDropPlayer:
         mode_manager._drop_player()
 
         # Verify - player still dropped even though CSV removal failed
-        assert drafted_player.drafted == 0
+        assert drafted_player.drafted_by == ""
         mock_player_manager.update_players_file.assert_called_once()
 
 
@@ -352,8 +352,8 @@ class TestLockPlayer:
     def sample_players(self):
         """Create sample players for testing."""
         return [
-            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=2, locked=0, score=95.0, fantasy_points=350.0),
-            FantasyPlayer(id=2, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted=2, locked=1, score=80.0, fantasy_points=250.0),
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="Sea Sharp", locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="Travis Kelce", team="KC", position="TE", bye_week=7, drafted_by="Sea Sharp", locked=1, score=80.0, fantasy_points=250.0),
         ]
 
     @pytest.fixture
@@ -441,8 +441,8 @@ class TestLockPlayer:
         """Test that _lock_player() displays 'no locked players' message when none are locked."""
         # Setup - create players with all locked=0
         unlocked_players = [
-            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=2, locked=0, score=95.0, fantasy_points=350.0),
-            FantasyPlayer(id=2, name="Josh Allen", team="BUF", position="QB", bye_week=10, drafted=1, locked=0, score=90.0, fantasy_points=330.0),
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="Sea Sharp", locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="Josh Allen", team="BUF", position="QB", bye_week=10, drafted_by="Opponent Team", locked=0, score=90.0, fantasy_points=330.0),
         ]
         mock_player_manager = Mock()
         mock_player_manager.players = unlocked_players
@@ -616,8 +616,8 @@ class TestEdgeCases:
     def sample_players(self):
         """Create sample players for testing."""
         return [
-            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted=0, locked=0, score=95.0, fantasy_points=350.0),
-            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted=1, locked=0, score=85.0, fantasy_points=280.0),
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="", locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted_by="Opponent Team", locked=0, score=85.0, fantasy_points=280.0),
         ]
 
     @pytest.fixture
@@ -659,7 +659,7 @@ class TestEdgeCases:
         mode_manager._mark_player_as_drafted()
 
         # Verify - player still marked as drafted despite CSV failure
-        assert available_player.drafted == 1
+        assert available_player.drafted_by == "Annihilators"
         mock_player_manager.update_players_file.assert_called_once()
 
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.DraftedDataWriter')
@@ -684,7 +684,7 @@ class TestEdgeCases:
         mode_manager._drop_player()
 
         # Verify - player still dropped despite CSV failure
-        assert drafted_player.drafted == 0
+        assert drafted_player.drafted_by == ""
         mock_player_manager.update_players_file.assert_called_once()
 
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.Constants')
@@ -717,8 +717,8 @@ class TestEdgeCases:
         # Execute
         mode_manager._mark_player_as_drafted()
 
-        # Verify - should be drafted=2 (user's team)
-        assert available_player.drafted == 2
+        # Verify - should be drafted_by="Sea Sharp" (user's team)
+        assert available_player.drafted_by == "Sea Sharp"
 
     @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.DraftedDataWriter')
@@ -727,8 +727,8 @@ class TestEdgeCases:
         """Test that locking a player doesn't change drafted status."""
         # Setup
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
-        player = sample_players[1]  # drafted=1, locked=0
-        original_drafted = player.drafted
+        player = sample_players[1]  # drafted_by="Opponent Team", locked=0
+        original_drafted_by = player.drafted_by
 
         # Mock interactive_search
         mock_searcher = Mock()
@@ -739,7 +739,7 @@ class TestEdgeCases:
         mode_manager._lock_player()
 
         # Verify - drafted status unchanged, only locked changed
-        assert player.drafted == original_drafted
+        assert player.drafted_by == original_drafted_by
         assert player.locked == 1
 
     @pytest.fixture
@@ -751,7 +751,7 @@ class TestEdgeCases:
             team="ABC",
             position="QB",
             bye_week=18,  # Beyond normal bye week range
-            drafted=0,
+            drafted_by="",
             locked=0,
             score=0.0,  # Minimum score
             fantasy_points=0.0
@@ -787,7 +787,7 @@ class TestEdgeCases:
         mode_manager._mark_player_as_drafted()
 
         # Verify
-        assert player_with_extreme_values.drafted == 1
+        assert player_with_extreme_values.drafted_by == "Team1"
         mock_writer.add_player.assert_called_once()
 
     @patch('builtins.print')

@@ -64,7 +64,7 @@ class TestDisplayNumberedRoster:
             bye_week=7,
             fantasy_points=150.0,
             injury_status="ACTIVE",
-            drafted=0
+            drafted_by=""
         )
 
         # Execute
@@ -82,9 +82,9 @@ class TestDisplayNumberedRoster:
 
         # Create mock players
         players = [
-            FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted=0),
-            FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted=0),
-            FantasyPlayer(id=3, name="Player Three", team="TST", position="QB", bye_week=9, fantasy_points=160.0, injury_status="ACTIVE", drafted=0),
+            FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by=""),
+            FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted_by=""),
+            FantasyPlayer(id=3, name="Player Three", team="TST", position="QB", bye_week=9, fantasy_points=160.0, injury_status="ACTIVE", drafted_by=""),
         ]
 
         # Execute
@@ -185,9 +185,9 @@ class TestGetPlayersByIndices:
 
         # Create test roster
         self.roster = [
-            FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted=0),
-            FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted=0),
-            FantasyPlayer(id=3, name="Player Three", team="TST", position="QB", bye_week=9, fantasy_points=160.0, injury_status="ACTIVE", drafted=0),
+            FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by=""),
+            FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted_by=""),
+            FantasyPlayer(id=3, name="Player Three", team="TST", position="QB", bye_week=9, fantasy_points=160.0, injury_status="ACTIVE", drafted_by=""),
         ]
 
     def test_extract_single_player(self):
@@ -230,8 +230,8 @@ class TestDisplayTradeResult:
         their_team.name = "Opponent Team"
         their_team.team_score = 1030.0
 
-        player1 = FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted=0)
-        player2 = FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted=0)
+        player1 = FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by="")
+        player2 = FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted_by="")
 
         scored_player1 = ScoredPlayer(player1, 150.0, [])
         scored_player2 = ScoredPlayer(player2, 140.0, [])
@@ -282,8 +282,8 @@ class TestSaveManualTradeToFile:
         their_team.name = "Opponent Team"
         their_team.team_score = 1030.0
 
-        player1 = FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted=0)
-        player2 = FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted=0)
+        player1 = FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by="")
+        player2 = FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted_by="")
 
         scored_player1 = ScoredPlayer(player1, 150.0, [])
         scored_player2 = ScoredPlayer(player2, 140.0, [])
@@ -318,7 +318,7 @@ class TestSaveManualTradeToFile:
         their_team.name = "Team With Spaces"
         their_team.team_score = 1030.0
 
-        player = FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted=0)
+        player = FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by="")
         scored_player = ScoredPlayer(player, 150.0, [])
 
         trade = TradeSnapshot(
@@ -347,11 +347,11 @@ class TestDisplayCombinedRoster:
         """Test that combined roster returns correct boundary index."""
         # Create test rosters
         my_roster = [
-            FantasyPlayer(id=1, name="My QB", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted=0),
-            FantasyPlayer(id=2, name="My RB", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted=0),
+            FantasyPlayer(id=1, name="My QB", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted_by=""),
+            FantasyPlayer(id=2, name="My RB", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by=""),
         ]
         their_roster = [
-            FantasyPlayer(id=3, name="Their QB", team="TST", position="QB", bye_week=8, fantasy_points=180.0, injury_status="ACTIVE", drafted=0),
+            FantasyPlayer(id=3, name="Their QB", team="TST", position="QB", bye_week=8, fantasy_points=180.0, injury_status="ACTIVE", drafted_by=""),
         ]
 
         # Execute
@@ -372,9 +372,9 @@ class TestDisplayCombinedRoster:
         """Test that combined roster organizes players by position."""
         # Create mixed position roster
         my_roster = [
-            FantasyPlayer(id=1, name="My RB", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted=0),
-            FantasyPlayer(id=2, name="My QB", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted=0),
-            FantasyPlayer(id=3, name="My WR", team="TST", position="WR", bye_week=7, fantasy_points=140.0, injury_status="ACTIVE", drafted=0),
+            FantasyPlayer(id=1, name="My RB", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by=""),
+            FantasyPlayer(id=2, name="My QB", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted_by=""),
+            FantasyPlayer(id=3, name="My WR", team="TST", position="WR", bye_week=7, fantasy_points=140.0, injury_status="ACTIVE", drafted_by=""),
         ]
         their_roster = []
 
@@ -392,7 +392,7 @@ class TestDisplayCombinedRoster:
         """Test that empty position groups show '(No players)'."""
         # Create roster with only QB
         my_roster = [
-            FantasyPlayer(id=1, name="My QB", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted=0),
+            FantasyPlayer(id=1, name="My QB", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted_by=""),
         ]
         their_roster = []
 
@@ -698,11 +698,11 @@ class TestWaiverTradeProcessing:
     def sample_players(self):
         """Create sample players for testing."""
         return {
-            'qb1': FantasyPlayer(id=1, name="QB1", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted=1),
-            'rb1': FantasyPlayer(id=2, name="RB1", team="TST", position="RB", bye_week=8, fantasy_points=150.0, injury_status="ACTIVE", drafted=1),
-            'wr1': FantasyPlayer(id=3, name="WR1", team="TST", position="WR", bye_week=9, fantasy_points=140.0, injury_status="ACTIVE", drafted=1),
-            'waiver_rb': FantasyPlayer(id=10, name="Waiver RB", team="FA", position="RB", bye_week=10, fantasy_points=100.0, injury_status="ACTIVE", drafted=0),
-            'waiver_wr': FantasyPlayer(id=11, name="Waiver WR", team="FA", position="WR", bye_week=11, fantasy_points=90.0, injury_status="ACTIVE", drafted=0),
+            'qb1': FantasyPlayer(id=1, name="QB1", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted_by="Opponent Team"),
+            'rb1': FantasyPlayer(id=2, name="RB1", team="TST", position="RB", bye_week=8, fantasy_points=150.0, injury_status="ACTIVE", drafted_by="Opponent Team"),
+            'wr1': FantasyPlayer(id=3, name="WR1", team="TST", position="WR", bye_week=9, fantasy_points=140.0, injury_status="ACTIVE", drafted_by="Opponent Team"),
+            'waiver_rb': FantasyPlayer(id=10, name="Waiver RB", team="FA", position="RB", bye_week=10, fantasy_points=100.0, injury_status="ACTIVE", drafted_by=""),
+            'waiver_wr': FantasyPlayer(id=11, name="Waiver WR", team="FA", position="WR", bye_week=11, fantasy_points=90.0, injury_status="ACTIVE", drafted_by=""),
         }
 
     @pytest.fixture

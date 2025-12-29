@@ -74,14 +74,18 @@ class TestSaveCalculatedPointsManager:
         assert manager.logger is not None
 
     def test_execute_weekly_scoring(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() collects weekly projections for week > 0"""
+        """Test execute() collects weekly projections for week > 0 (UPDATED for Sub-feature 2)"""
         # Setup
         mock_config.current_nfl_week = 5
         mock_config.nfl_season = 2024
 
+        # Set week 5 projection (index 4) - UPDATED for array-based format
+        projected = [0.0] * 17
+        projected[4] = 25.3  # Week 5
+        actual = projected.copy()
         test_player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            week_5_points=25.3  # Set the weekly projection
+            projected_points=projected, actual_points=actual
         )
         mock_player_manager.players = [test_player]
 
@@ -128,14 +132,18 @@ class TestSaveCalculatedPointsManager:
         assert data["1"] == 342.57  # Season-long projection
 
     def test_execute_rounds_to_2_decimals(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() rounds projected points to 2 decimal places"""
+        """Test execute() rounds projected points to 2 decimal places (UPDATED for Sub-feature 2)"""
         # Setup
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
 
+        # Set week 1 projection (index 0) with more than 2 decimals
+        projected = [0.0] * 17
+        projected[0] = 26.56789  # Week 1
+        actual = projected.copy()
         test_player = FantasyPlayer(
             id=1, name="Patrick Mahomes", team="KC", position="QB",
-            week_1_points=26.56789  # Projection with more than 2 decimals
+            projected_points=projected, actual_points=actual
         )
         mock_player_manager.players = [test_player]
 
@@ -154,7 +162,7 @@ class TestSaveCalculatedPointsManager:
         assert data[player_id] == 26.57  # Rounded to 2 decimals
 
     def test_execute_skips_if_folder_exists(self, mock_config, mock_player_manager, temp_data_folder, capsys):
-        """Test execute() skips operation if folder already exists (idempotent)"""
+        """Test execute() skips operation if folder already exists (idempotent) (UPDATED for Sub-feature 2)"""
         # Setup
         mock_config.current_nfl_week = 5
         mock_config.nfl_season = 2024
@@ -163,7 +171,14 @@ class TestSaveCalculatedPointsManager:
         output_folder = temp_data_folder / "historical_data" / "2024" / "05"
         output_folder.mkdir(parents=True)
 
-        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB", week_5_points=25.0)
+        # Set week 5 projection (index 4)
+        projected = [0.0] * 17
+        projected[4] = 25.0  # Week 5
+        actual = projected.copy()
+        test_player = FantasyPlayer(
+            id=1, name="Player", team="KC", position="QB",
+            projected_points=projected, actual_points=actual
+        )
         mock_player_manager.players = [test_player]
 
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)
@@ -179,12 +194,19 @@ class TestSaveCalculatedPointsManager:
         assert "already exists" in captured.out.lower()
 
     def test_execute_warns_on_missing_files(self, mock_config, mock_player_manager, temp_data_folder, capsys):
-        """Test execute() warns but continues when optional files are missing"""
+        """Test execute() warns but continues when optional files are missing (UPDATED for Sub-feature 2)"""
         # Setup
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
 
-        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB", week_1_points=24.5)
+        # Set week 1 projection (index 0)
+        projected = [0.0] * 17
+        projected[0] = 24.5  # Week 1
+        actual = projected.copy()
+        test_player = FantasyPlayer(
+            id=1, name="Player", team="KC", position="QB",
+            projected_points=projected, actual_points=actual
+        )
         mock_player_manager.players = [test_player]
 
         # Remove some files to test missing file handling
@@ -205,12 +227,19 @@ class TestSaveCalculatedPointsManager:
         assert (temp_data_folder / "historical_data" / "2024" / "01" / "players_projected.csv").exists()
 
     def test_execute_copies_all_6_file_types(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() copies all 6 file types to historical_data"""
+        """Test execute() copies all 6 file types to historical_data (UPDATED for Sub-feature 2)"""
         # Setup
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
 
-        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB", week_1_points=22.3)
+        # Set week 1 projection (index 0)
+        projected = [0.0] * 17
+        projected[0] = 22.3  # Week 1
+        actual = projected.copy()
+        test_player = FantasyPlayer(
+            id=1, name="Player", team="KC", position="QB",
+            projected_points=projected, actual_points=actual
+        )
         mock_player_manager.players = [test_player]
 
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)
@@ -229,12 +258,19 @@ class TestSaveCalculatedPointsManager:
         assert (output_folder / "team_data" / "KC.csv").exists()
 
     def test_execute_creates_correct_folder_structure(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() creates correct folder structure"""
+        """Test execute() creates correct folder structure (UPDATED for Sub-feature 2)"""
         # Setup
         mock_config.current_nfl_week = 12
         mock_config.nfl_season = 2024
 
-        test_player = FantasyPlayer(id=1, name="Player", team="KC", position="QB", week_12_points=23.8)
+        # Set week 12 projection (index 11)
+        projected = [0.0] * 17
+        projected[11] = 23.8  # Week 12
+        actual = projected.copy()
+        test_player = FantasyPlayer(
+            id=1, name="Player", team="KC", position="QB",
+            projected_points=projected, actual_points=actual
+        )
         mock_player_manager.players = [test_player]
 
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)

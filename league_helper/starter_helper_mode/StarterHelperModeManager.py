@@ -193,7 +193,7 @@ class OptimalLineup:
                 total += recommendation.score
         return total
 
-    def get_total_raw_projected_points(self, current_week: int) -> float:
+    def get_total_raw_projected_points(self, current_week: int, config) -> float:
         """
         Calculate total unweighted projected points for the starting lineup.
 
@@ -202,6 +202,7 @@ class OptimalLineup:
 
         Args:
             current_week (int): The current NFL week number (1-17)
+            config: ConfigManager instance for hybrid weekly data
 
         Returns:
             float: Sum of all starters' raw weekly projected points
@@ -209,7 +210,7 @@ class OptimalLineup:
         total = 0.0
         for recommendation in self.get_all_starters():
             if recommendation:
-                weekly_projection = recommendation.player.get_single_weekly_projection(current_week)
+                weekly_projection = recommendation.player.get_single_weekly_projection(current_week, config)
                 if weekly_projection is not None:
                     total += weekly_projection
         return total
@@ -344,7 +345,7 @@ class StarterHelperModeManager:
         self.print_player_list(starter_positions)
 
         # Display combined projected points for starters
-        total_raw_projected = lineup.get_total_raw_projected_points(self.config.current_nfl_week)
+        total_raw_projected = lineup.get_total_raw_projected_points(self.config.current_nfl_week, self.config)
         print(f"\n{'='*50}")
         print(f"COMBINED PROJECTED POINTS: {total_raw_projected:.1f} pts")
 

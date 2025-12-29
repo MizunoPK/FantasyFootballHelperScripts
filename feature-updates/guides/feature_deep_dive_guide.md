@@ -124,20 +124,59 @@ Add ALL questions to checklist.
 
 **Goal:** Transform checklist from "list of questions" to "researched options with recommendations"
 
-**For each checklist item:**
+**CRITICAL:** This is NOT "read some files to understand the area" - this is SYSTEMATIC VERIFICATION of EVERY unchecked checklist item.
+
+---
+
+#### Pre-Verification: Count and Categorize Items
+
+**BEFORE starting verification, count checklist items by type:**
+
+```markdown
+## Verification Progress Tracking
+
+**Total Items:** {X}
+**Item Breakdown:**
+- Policy decisions: {N} items (already [x] from planning - SKIP)
+- Implementation tasks: {N} items (NEED VERIFICATION)
+- Testing items: {N} items (defer to implementation - mark with note)
+
+**Verification Target:** {N} implementation items need patterns/recommendations
+**Current Progress:** {X} / {N} verified
+```
+
+**Item Type Distinction:**
+
+1. **Policy Decisions** (already `[x]` from initial planning):
+   - Example: "NEW-41: Confirm simulation module is OUT OF SCOPE ✅ RESOLVED"
+   - **Action:** SKIP - already resolved, no verification needed
+
+2. **Implementation Tasks** (need verification):
+   - Example: "NEW-14: Validate arrays have exactly 17 elements (pad if needed)"
+   - **Action:** VERIFY - search codebase for patterns, document recommendations
+
+3. **Testing Items** (defer):
+   - Example: "TEST-1: Test FantasyPlayer.from_json() with complete QB data"
+   - **Action:** Mark with "(Testing - defer to implementation)" and leave `[ ]`
+
+---
+
+#### Verification Process
+
+**For EACH implementation task item:**
 
 **Straightforward verification items:**
 - Search codebase to verify yes/no answers
 - Mark as `[x]` resolved with verification notes
 - **DO NOT ask user** - answer from code
-- Example: "Does file X exist?" → Search → `[x] Yes, found at path/to/X.py:100`
+- Include file:line references
 
 **Decision/ambiguous items:**
 - Research relevant source code and patterns
 - List viable options with pros/cons
 - **Add YOUR recommendation** based on research
 - Keep as `[ ]` for user decision, but WITH full context
-- Example: "How should we handle errors?" → Research → Options A, B, C documented with recommendation
+- Include pattern examples from codebase
 
 **Consumer identification:**
 - Grep for where outputs are used
@@ -145,10 +184,98 @@ Add ALL questions to checklist.
 - Verify expected format/structure
 - Document in checklist
 
-**Round 1:** Search codebase for answers to each question
-**Round 2:** Skeptically re-verify findings from Round 1 (verify your verification)
+---
 
-**Result:** Checklist has many `[x]` items resolved, `[ ]` decision items have researched options
+#### Verification Format Examples
+
+**BEFORE verification (unchecked, no details):**
+```markdown
+- [ ] **NEW-14:** Validate arrays have exactly 17 elements (pad if needed)
+```
+
+**AFTER verification (checked, with pattern and recommendation):**
+```markdown
+- [x] **NEW-14:** Validate arrays have exactly 17 elements (pad if needed) ✅ VERIFIED
+  - **Pattern from codebase:** Lenient approach - no strict validation found in existing code
+  - **Recommendation:** Pad if too short, truncate if too long, log warning for mismatches
+  - **Rationale:** Matches existing lenient pattern (skip bad data with warnings, don't fail)
+  - **Implementation:** `(array + [0.0] * 17)[:17]` - simple one-liner
+  - **Reference:** FantasyPlayer.from_dict() uses safe_*_conversion helpers (lines 159-194)
+```
+
+**BEFORE verification (decision item):**
+```markdown
+- [ ] **NEW-78:** Handle position file missing
+```
+
+**AFTER verification (with researched options):**
+```markdown
+- [ ] **NEW-78:** Handle position file missing **(USER DECISION REQUIRED - Phase 3)**
+  - What if qb_data.json doesn't exist?
+  - **Option A:** Create new file with players from self.players for that position
+  - **Option B:** Raise FileNotFoundError (consistent with loading policy in Sub-feature 1)
+  - **Recommendation:** Option B (fail fast - missing file is structural issue)
+  - **Pattern:** PlayerManager.py:236-250 shows fail-fast for structural issues
+  - **STATUS:** Awaiting user decision in Phase 3 (Interactive Question Resolution)
+```
+
+---
+
+#### Verification Rounds
+
+**Round 1: Initial Verification**
+- Search codebase for answers to each item
+- Document patterns found
+- Mark items `[x]` with verification notes
+- Update progress count after each item
+
+**Round 2: Skeptical Re-verification**
+- Re-verify findings from Round 1 (verify your verification)
+- Ensure file:line references are correct
+- Verify patterns actually exist in codebase
+- Check for missed consumers
+
+---
+
+#### MANDATORY Checkpoint Before Phase 2
+
+**After completing Round 2, verify:**
+
+```markdown
+## Verification Checkpoint (MANDATORY)
+
+- [ ] **Item count verified:**
+  - Total items: {X}
+  - Policy decisions (skipped): {N}
+  - Implementation tasks (verified): {N}
+  - Testing items (deferred): {N}
+  - VERIFIED: {N} implementation + {N} testing = {X} total ✓
+
+- [ ] **ALL implementation items have:**
+  - [x] Pattern from actual codebase identified (with file:line reference)
+  - [x] Specific recommendation given (not vague)
+  - [x] Rationale explaining why
+  - [x] Implementation approach suggested (code snippet if applicable)
+
+- [ ] **ALL decision items have:**
+  - [x] Multiple options documented (with pros/cons)
+  - [x] Recommendation based on research (not gut feeling)
+  - [x] Pattern references from codebase supporting recommendation
+  - [x] Marked for Phase 3 user decision
+
+- [ ] **No items left unchecked** (except testing deferred and user decisions)
+
+**IF ANY CHECKBOX ABOVE IS UNCHECKED:** Return to verification rounds and complete missing work.
+
+**ONLY proceed to Phase 2 when ALL checkboxes are `[x]`**
+```
+
+---
+
+**Result:** Checklist has:
+- Many `[x]` items with patterns and recommendations documented
+- `[ ]` decision items with researched options (awaiting Phase 3)
+- `[ ]` testing items with "(Testing - defer to implementation)" note
 
 ### Step 1.4: Create research documents (if needed)
 

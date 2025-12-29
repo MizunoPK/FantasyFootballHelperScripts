@@ -732,17 +732,31 @@ class TestGetterMethodEdgeCases:
 
         config = ConfigManager(minimal_hardcoded_config)
 
-        # Create mock players with weekly points
-        player1 = FantasyPlayer(id=1, name="RB1", team="KC", position="RB")
-        player1.week_1_points = 10.0
-        player1.week_2_points = 15.0
-        player1.week_3_points = 12.0
+        # Create mock players with weekly points (using projected_points arrays)
+        # Note: Set both projected and actual to same values since config.current_nfl_week=6
+        # means weeks 1-5 will use actual_points
+        projected1 = [0.0] * 17
+        projected1[0] = 10.0  # Week 1
+        projected1[1] = 15.0  # Week 2
+        projected1[2] = 12.0  # Week 3
+        actual1 = projected1.copy()  # Same values for testing median calculation
+        player1 = FantasyPlayer(
+            id=1, name="RB1", team="KC", position="RB",
+            projected_points=projected1,
+            actual_points=actual1
+        )
         # Median = 12.0
 
-        player2 = FantasyPlayer(id=2, name="RB2", team="DAL", position="RB")
-        player2.week_1_points = 20.0
-        player2.week_2_points = 18.0
-        player2.week_3_points = 22.0
+        projected2 = [0.0] * 17
+        projected2[0] = 20.0  # Week 1
+        projected2[1] = 18.0  # Week 2
+        projected2[2] = 22.0  # Week 3
+        actual2 = projected2.copy()  # Same values for testing median calculation
+        player2 = FantasyPlayer(
+            id=2, name="RB2", team="DAL", position="RB",
+            projected_points=projected2,
+            actual_points=actual2
+        )
         # Median = 20.0
 
         same_pos_players = [player1, player2]
@@ -759,23 +773,43 @@ class TestGetterMethodEdgeCases:
 
         config = ConfigManager(minimal_hardcoded_config)
 
-        # Create mock players
-        same_pos_player = FantasyPlayer(id=1, name="RB1", team="KC", position="RB")
-        same_pos_player.week_1_points = 10.0
-        same_pos_player.week_2_points = 15.0
-        same_pos_player.week_3_points = 12.0
+        # Create mock players (using projected_points arrays)
+        # Note: Set both projected and actual to same values since config.current_nfl_week=6
+        # means weeks 1-5 will use actual_points
+        projected_same = [0.0] * 17
+        projected_same[0] = 10.0  # Week 1
+        projected_same[1] = 15.0  # Week 2
+        projected_same[2] = 12.0  # Week 3
+        actual_same = projected_same.copy()
+        same_pos_player = FantasyPlayer(
+            id=1, name="RB1", team="KC", position="RB",
+            projected_points=projected_same,
+            actual_points=actual_same
+        )
         # Median = 12.0
 
-        diff_pos_player1 = FantasyPlayer(id=2, name="WR1", team="DAL", position="WR")
-        diff_pos_player1.week_1_points = 8.0
-        diff_pos_player1.week_2_points = 10.0
-        diff_pos_player1.week_3_points = 12.0
+        projected_diff1 = [0.0] * 17
+        projected_diff1[0] = 8.0   # Week 1
+        projected_diff1[1] = 10.0  # Week 2
+        projected_diff1[2] = 12.0  # Week 3
+        actual_diff1 = projected_diff1.copy()
+        diff_pos_player1 = FantasyPlayer(
+            id=2, name="WR1", team="DAL", position="WR",
+            projected_points=projected_diff1,
+            actual_points=actual_diff1
+        )
         # Median = 10.0
 
-        diff_pos_player2 = FantasyPlayer(id=3, name="TE1", team="SF", position="TE")
-        diff_pos_player2.week_1_points = 5.0
-        diff_pos_player2.week_2_points = 7.0
-        diff_pos_player2.week_3_points = 6.0
+        projected_diff2 = [0.0] * 17
+        projected_diff2[0] = 5.0  # Week 1
+        projected_diff2[1] = 7.0  # Week 2
+        projected_diff2[2] = 6.0  # Week 3
+        actual_diff2 = projected_diff2.copy()
+        diff_pos_player2 = FantasyPlayer(
+            id=3, name="TE1", team="SF", position="TE",
+            projected_points=projected_diff2,
+            actual_points=actual_diff2
+        )
         # Median = 6.0
 
         same_pos_players = [same_pos_player]

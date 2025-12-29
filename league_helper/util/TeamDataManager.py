@@ -18,6 +18,7 @@ Author: Kai Mizuno
 from pathlib import Path
 from typing import Dict, List, Optional, Any, TYPE_CHECKING
 import csv
+import json
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -109,59 +110,42 @@ class TeamDataManager:
 
     def _load_dst_player_data(self) -> None:
         """
-        Load D/ST weekly fantasy scores from players.csv.
+        Load D/ST weekly fantasy scores from dst_data.json actual_points arrays.
 
-        Extracts D/ST player entries (position == "DST") and stores their weekly
-        fantasy points for ranking calculation. This data is used to rank D/ST units
-        by their actual fantasy performance rather than points allowed to opponents.
+        Extracts D/ST player entries and stores their weekly fantasy points for
+        ranking calculation. This data is used to rank D/ST units by their actual
+        fantasy performance rather than points allowed to opponents.
 
         Side Effects:
             - Populates self.dst_player_data with {team: [week_1_points, ..., week_17_points]}
-            - Logs warning if players.csv is not found or has errors
+            - Logs error if dst_data.json is not found or has errors
         """
         try:
-            players_csv = self.data_folder / 'players.csv'
+            # Spec: sub_feature_06_team_data_manager_dst_migration_spec.md lines 77-92
+            dst_json_path = self.data_folder / 'player_data' / 'dst_data.json'
 
-            if not players_csv.exists():
-                self.logger.warning(f"Players CSV not found: {players_csv}. D/ST fantasy rankings will not be available.")
-                return
+            with open(dst_json_path, 'r') as f:
+                data = json.load(f)
 
-            with open(players_csv, newline='', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile)
+            dst_players = data.get('dst_data', [])
 
-                # Verify required columns exist
-                required_cols = ['team', 'position'] + [f'week_{i}_points' for i in range(1, 18)]
-                if not all(col in reader.fieldnames for col in required_cols):
-                    missing = [col for col in required_cols if col not in reader.fieldnames]
-                    self.logger.warning(f"Missing columns in players.csv for D/ST loading: {missing}")
-                    return
+            for dst_player in dst_players:
+                team = dst_player.get('team', '').upper()
+                actual_points = dst_player.get('actual_points', [0.0] * 17)
 
-                dst_count = 0
-                for row in reader:
-                    # Filter for D/ST positions only
-                    if row.get('position') == 'DST':
-                        team = row.get('team', '').upper()
+                # Store in same format: {team: [week_1, ..., week_17]}
+                self.dst_player_data[team] = actual_points
 
-                        # Extract weekly points (weeks 1-17)
-                        weekly_points = []
-                        for week in range(1, 18):
-                            points_str = row.get(f'week_{week}_points', '')
-                            # Handle empty, None, or non-numeric values
-                            if points_str in ('', 'None', None):
-                                weekly_points.append(None)
-                            else:
-                                try:
-                                    weekly_points.append(float(points_str))
-                                except ValueError:
-                                    weekly_points.append(None)
+            self.logger.debug(f"Loaded D/ST data for {len(self.dst_player_data)} teams from {dst_json_path}")
 
-                        self.dst_player_data[team] = weekly_points
-                        dst_count += 1
-
-                self.logger.debug(f"Loaded D/ST data for {dst_count} teams from {players_csv}")
-
-        except Exception as e:
-            self.logger.warning(f"Error loading D/ST player data from players.csv: {e}. D/ST fantasy rankings will not be available.")
+        except FileNotFoundError:
+            self.logger.error(f"D/ST data file not found: {dst_json_path}")
+            self.dst_player_data = {}
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Invalid JSON in D/ST data file: {e}")
+            self.dst_player_data = {}
+        except (PermissionError, OSError) as e:
+            self.logger.error(f"Error reading D/ST data file {dst_json_path}: {e}")
             self.dst_player_data = {}
 
     def _calculate_rankings(self) -> None:

@@ -403,15 +403,15 @@ class PlayerManager:
         """
         Load the current team roster from player data.
 
-        Filters players where drafted=2 (drafted by user) and initializes
-        the FantasyTeam with these rostered players. Players with drafted=1
-        are drafted by opponents, drafted=0 are available.
+        Filters players on our roster (is_rostered()) and initializes
+        the FantasyTeam with these rostered players. Players drafted by
+        opponents and free agents are not included.
 
         Side Effects:
             - Creates new FantasyTeam instance
             - Assigns players to roster slots based on position priority
         """
-        drafted_players = [p for p in self.players if p.drafted == 2]
+        drafted_players = [p for p in self.players if p.is_rostered()]
         self.logger.debug(f"Loading team roster with {len(drafted_players)} drafted players")
         self.team = FantasyTeam(self.config, drafted_players)
         # Go ahead and score the team
@@ -512,15 +512,19 @@ class PlayerManager:
                     if player_id in player_updates:
                         updated_player = player_updates[player_id]
 
-                        # Task 2.1: Convert drafted → drafted_by (spec lines 60-67)
-                        # Critical: FantasyPlayer has NO drafted_by attribute!
-                        # Use drafted field (int) with conditional logic
-                        if updated_player.drafted == 0:
-                            player_dict['drafted_by'] = ""
-                        elif updated_player.drafted == 2:
-                            player_dict['drafted_by'] = Constants.FANTASY_TEAM_NAME
-                        # elif drafted == 1: DON'T update drafted_by
-                        # Preserve opponent team name from existing JSON
+                        # Task 2.1: Update drafted_by field (spec lines 60-67)
+                        # Use drafted_by string if set, otherwise convert from drafted property for backward compatibility
+                        if updated_player.drafted_by:
+                            # drafted_by is set - use it directly
+                            player_dict['drafted_by'] = updated_player.drafted_by
+                        else:
+                            # drafted_by not set - convert from drafted property (backward compatibility)
+                            # Note: After Phase 3, drafted is a property derived from drafted_by
+                            if updated_player.is_free_agent():
+                                player_dict['drafted_by'] = ""
+                            elif updated_player.is_rostered():
+                                player_dict['drafted_by'] = Constants.FANTASY_TEAM_NAME
+                            # elif is_drafted_by_opponent(): preserve existing opponent team name from JSON
 
                         # Task 2.2: locked field (spec lines 65-67)
                         # Already boolean in FantasyPlayer (Sub-feature 3)
@@ -614,12 +618,28 @@ class PlayerManager:
 
         Returns:
             List[FantasyPlayer]: Filtered list of players meeting all criteria
+
+        Note: Maintains backward compatibility with int API.
+        Internally uses helper methods (is_free_agent(), is_drafted_by_opponent(), is_rostered()).
         """
         # Define helper function to check locked status
         def is_unlocked(val: int) -> bool:
             if unlocked_only:
                 return val == 0  # Only unlocked players (locked=0)
             return True  # All players if unlocked_only=False
+
+        # Define helper function to check drafted status using helper methods
+        def matches_drafted_status(player: FantasyPlayer, drafted_vals: List[int]) -> bool:
+            if not drafted_vals:
+                return True  # No filter if empty list
+            for val in drafted_vals:
+                if val == 0 and player.is_free_agent():
+                    return True
+                elif val == 1 and player.is_drafted_by_opponent():
+                    return True
+                elif val == 2 and player.is_rostered():
+                    return True
+            return False
 
         # Ensure all positions have a minimum score threshold (default to 0.0)
         for pos in Constants.ALL_POSITIONS:
@@ -629,7 +649,7 @@ class PlayerManager:
         # Filter players by drafted status, score threshold, and locked status
         player_list = [
             p for p in self.players
-            if p.drafted in drafted_vals and p.score >= min_scores[p.position] and is_unlocked(p.locked)
+            if matches_drafted_status(p, drafted_vals) and p.score >= min_scores[p.position] and is_unlocked(p.locked)
         ]
 
         # Apply additional roster/position limit filtering if can_draft is True

@@ -286,7 +286,31 @@ def player_manager(mock_data_folder, config_manager, team_data_manager, mock_fan
 
 @pytest.fixture
 def test_player():
-    """Create a test player with all attributes set"""
+    """Create a test player with all attributes set (UPDATED for Sub-feature 2)"""
+    # Set weekly points for consistency calculation and rest-of-season projection
+    # Current week is 6, so weeks 6-17 will be used for ROS projection
+    # Set weeks 6-17 to sum to exactly 200.0 (12 weeks)
+    projected = [0.0] * 17
+    projected[0] = 18.5  # Week 1
+    projected[1] = 22.0  # Week 2
+    projected[2] = 19.5  # Week 3
+    projected[3] = 21.0  # Week 4
+    projected[4] = 20.0  # Week 5
+    # Weeks 6-17: 11 weeks * 16.0 + 1 week * 24.0 = 176 + 24 = 200.0
+    projected[5] = 16.0   # Week 6
+    projected[6] = 16.0   # Week 7
+    projected[7] = 16.0   # Week 8
+    projected[8] = 16.0   # Week 9
+    projected[9] = 16.0   # Week 10
+    projected[10] = 16.0  # Week 11
+    projected[11] = 16.0  # Week 12
+    projected[12] = 16.0  # Week 13
+    projected[13] = 16.0  # Week 14
+    projected[14] = 16.0  # Week 15
+    projected[15] = 16.0  # Week 16
+    projected[16] = 24.0  # Week 17 - Extra to make sum exactly 200.0
+    actual = projected.copy()  # Same values since config.current_nfl_week=6 means weeks 1-5 use actual
+
     player = FantasyPlayer(
         id=12345,
         name="Test Player",
@@ -297,8 +321,10 @@ def test_player():
         average_draft_position=15.0,
         player_rating=85.0,
         injury_status="ACTIVE",
-        drafted=0,
-        locked=0
+        drafted_by="",
+        locked=0,
+        projected_points=projected,
+        actual_points=actual
     )
 
     # Set computed properties
@@ -307,28 +333,6 @@ def test_player():
     player.team_offensive_rank = 1  # Excellent team (KC)
     player.team_defensive_rank = 5
     player.matchup_score = 10  # Good matchup
-
-    # Set weekly points for consistency calculation and rest-of-season projection
-    # Current week is 6, so weeks 6-17 will be used for ROS projection
-    # Set weeks 6-17 to sum to exactly 200.0 (12 weeks)
-    player.week_1_points = 18.5
-    player.week_2_points = 22.0
-    player.week_3_points = 19.5
-    player.week_4_points = 21.0
-    player.week_5_points = 20.0
-    # Weeks 6-17: 11 weeks * 16.0 + 1 week * 24.0 = 176 + 24 = 200.0
-    player.week_6_points = 16.0
-    player.week_7_points = 16.0
-    player.week_8_points = 16.0
-    player.week_9_points = 16.0
-    player.week_10_points = 16.0
-    player.week_11_points = 16.0
-    player.week_12_points = 16.0
-    player.week_13_points = 16.0
-    player.week_14_points = 16.0
-    player.week_15_points = 16.0
-    player.week_16_points = 16.0
-    player.week_17_points = 24.0  # Extra to make sum exactly 200.0
 
     return player
 
@@ -368,7 +372,8 @@ class TestWeeklyProjections:
     def test_get_weekly_projection_valid_data(self, player_manager, test_player):
         """Test get_weekly_projection with valid weekly data"""
         # Set up player with week 6 data (current week in config)
-        test_player.week_6_points = 25.0
+        test_player.projected_points[5] = 25.0  # Week 6 (index 5)
+        test_player.actual_points[5] = 25.0  # Same for hybrid logic
         player_manager.max_projection = 300.0  # ROS max
         player_manager.scoring_calculator.max_projection = 300.0
         # Set weekly max (needed for weekly normalization)
@@ -385,7 +390,8 @@ class TestWeeklyProjections:
     def test_get_weekly_projection_uses_current_week_when_invalid(self, player_manager, test_player):
         """Test that invalid week parameter defaults to current week"""
         # Config has current_nfl_week = 6
-        test_player.week_6_points = 20.0
+        test_player.projected_points[5] = 20.0  # Week 6 (index 5)
+        test_player.actual_points[5] = 20.0  # Same for hybrid logic
         player_manager.max_projection = 300.0
         player_manager.scoring_calculator.max_projection = 300.0  # Update calculator too
 
@@ -397,8 +403,9 @@ class TestWeeklyProjections:
 
     def test_get_weekly_projection_missing_data_returns_zero(self, player_manager, test_player):
         """Test that missing weekly data returns (0.0, 0.0)"""
-        # Remove week_10_points from test_player to test missing data
-        del test_player.week_10_points
+        # Set week_10 to 0.0 to test "missing" data (arrays always have values)
+        test_player.projected_points[9] = 0.0  # Week 10 (index 9)
+        test_player.actual_points[9] = 0.0
         orig_pts, weighted_pts = player_manager.get_weekly_projection(test_player, week=10)
 
         assert orig_pts == 0.0
@@ -406,7 +413,8 @@ class TestWeeklyProjections:
 
     def test_get_weekly_projection_none_value_returns_zero(self, player_manager, test_player):
         """Test that None weekly points returns (0.0, 0.0)"""
-        test_player.week_7_points = None
+        test_player.projected_points[6] = None  # Week 7 (index 6)
+        test_player.actual_points[6] = None
 
         orig_pts, weighted_pts = player_manager.get_weekly_projection(test_player, week=7)
 
@@ -415,7 +423,8 @@ class TestWeeklyProjections:
 
     def test_get_weekly_projection_zero_value_returns_zero(self, player_manager, test_player):
         """Test that zero weekly points returns (0.0, 0.0)"""
-        test_player.week_8_points = 0.0
+        test_player.projected_points[7] = 0.0  # Week 8 (index 7)
+        test_player.actual_points[7] = 0.0
 
         orig_pts, weighted_pts = player_manager.get_weekly_projection(test_player, week=8)
 
@@ -424,7 +433,8 @@ class TestWeeklyProjections:
 
     def test_get_weekly_projection_with_zero_max_projection(self, player_manager, test_player):
         """Test weekly projection when max_projection is 0"""
-        test_player.week_6_points = 25.0
+        test_player.projected_points[5] = 25.0  # Week 6 (index 5)
+        test_player.actual_points[5] = 25.0
         player_manager.max_projection = 0  # Edge case
         player_manager.scoring_calculator.max_projection = 0  # Update calculator too
 
@@ -435,7 +445,8 @@ class TestWeeklyProjections:
 
     def test_normalization_with_weekly_projection_enabled(self, player_manager, test_player):
         """Test _get_normalized_fantasy_points with use_weekly_projection=True uses weekly max"""
-        test_player.week_6_points = 30.0
+        test_player.projected_points[5] = 30.0  # Week 6 (index 5)
+        test_player.actual_points[5] = 30.0
         player_manager.max_projection = 300.0  # ROS max
         player_manager.scoring_calculator.max_projection = 300.0
         # Set weekly max (cache and current value)
@@ -486,9 +497,20 @@ class TestWeeklyProjections:
         # Create players with various weekly projections
         from utils.FantasyPlayer import FantasyPlayer
 
-        player1 = FantasyPlayer(id=1, name="Player 1", team="KC", position="QB", week_6_points=25.0)
-        player2 = FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB", week_6_points=30.0)  # Max
-        player3 = FantasyPlayer(id=3, name="Player 3", team="SF", position="WR", week_6_points=20.0)
+        projected1 = [0.0] * 17
+        projected1[5] = 25.0  # Week 6
+        player1 = FantasyPlayer(id=1, name="Player 1", team="KC", position="QB",
+                               projected_points=projected1, actual_points=projected1.copy())
+
+        projected2 = [0.0] * 17
+        projected2[5] = 30.0  # Week 6 - Max
+        player2 = FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB",
+                               projected_points=projected2, actual_points=projected2.copy())
+
+        projected3 = [0.0] * 17
+        projected3[5] = 20.0  # Week 6
+        player3 = FantasyPlayer(id=3, name="Player 3", team="SF", position="WR",
+                               projected_points=projected3, actual_points=projected3.copy())
 
         player_manager.players = [player1, player2, player3]
 
@@ -534,7 +556,8 @@ class TestWeeklyProjections:
     def test_score_player_with_weekly_projection(self, player_manager, test_player, mock_fantasy_team):
         """Integration test: score_player with use_weekly_projection=True"""
         # Set up weekly data
-        test_player.week_6_points = 25.0
+        test_player.projected_points[5] = 25.0  # Week 6 (index 5)
+        test_player.actual_points[5] = 25.0
         player_manager.max_projection = 300.0
         player_manager.scoring_calculator.max_projection = 300.0
         # Set weekly max (needed for weekly normalization)
@@ -917,12 +940,13 @@ class TestByeWeekPenalty:
     def test_bye_penalty_one_same_position_match(self, player_manager, test_player, mock_fantasy_team):
         """One same-position bye match should apply median-based penalty"""
         # test_player is RB with bye_week=7
-        other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
-        # Add weekly points for median calculation
-        other_rb.week_1_points = 10.0
-        other_rb.week_2_points = 12.0
-        other_rb.week_3_points = 15.0
+        projected_rb = [0.0] * 17
+        projected_rb[0] = 10.0  # Week 1
+        projected_rb[1] = 12.0  # Week 2
+        projected_rb[2] = 15.0  # Week 3
         # Median = 12.0
+        other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0,
+                                projected_points=projected_rb, actual_points=projected_rb.copy())
 
         mock_fantasy_team.roster = [other_rb]
         base_score = 100.0
@@ -935,12 +959,13 @@ class TestByeWeekPenalty:
     def test_bye_penalty_one_different_position_match(self, player_manager, test_player, mock_fantasy_team):
         """One different-position bye match should apply median-based penalty"""
         # test_player is RB with bye_week=7
-        other_qb = FantasyPlayer(id=99, name="Other QB", team="BUF", position="QB", bye_week=7, fantasy_points=150.0)
-        # Add weekly points for median calculation
-        other_qb.week_1_points = 18.0
-        other_qb.week_2_points = 20.0
-        other_qb.week_3_points = 22.0
+        projected_qb = [0.0] * 17
+        projected_qb[0] = 18.0  # Week 1
+        projected_qb[1] = 20.0  # Week 2
+        projected_qb[2] = 22.0  # Week 3
         # Median = 20.0
+        other_qb = FantasyPlayer(id=99, name="Other QB", team="BUF", position="QB", bye_week=7, fantasy_points=150.0,
+                                projected_points=projected_qb, actual_points=projected_qb.copy())
 
         mock_fantasy_team.roster = [other_qb]
         base_score = 100.0
@@ -953,29 +978,25 @@ class TestByeWeekPenalty:
     def test_bye_penalty_mixed_overlaps(self, player_manager, test_player, mock_fantasy_team):
         """Multiple overlaps of both types should apply both median-based penalties"""
         # test_player is RB with bye_week=7
-        other_rb1 = FantasyPlayer(id=98, name="RB1", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
-        other_rb1.week_1_points = 10.0
-        other_rb1.week_2_points = 12.0
-        other_rb1.week_3_points = 14.0
-        # Median = 12.0
+        projected_rb1 = [0.0] * 17
+        projected_rb1[0], projected_rb1[1], projected_rb1[2] = 10.0, 12.0, 14.0  # Weeks 1-3, Median = 12.0
+        other_rb1 = FantasyPlayer(id=98, name="RB1", team="BUF", position="RB", bye_week=7, fantasy_points=150.0,
+                                 projected_points=projected_rb1, actual_points=projected_rb1.copy())
 
-        other_rb2 = FantasyPlayer(id=97, name="RB2", team="PHI", position="RB", bye_week=7, fantasy_points=140.0)
-        other_rb2.week_1_points = 8.0
-        other_rb2.week_2_points = 10.0
-        other_rb2.week_3_points = 9.0
-        # Median = 9.0
+        projected_rb2 = [0.0] * 17
+        projected_rb2[0], projected_rb2[1], projected_rb2[2] = 8.0, 10.0, 9.0  # Weeks 1-3, Median = 9.0
+        other_rb2 = FantasyPlayer(id=97, name="RB2", team="PHI", position="RB", bye_week=7, fantasy_points=140.0,
+                                 projected_points=projected_rb2, actual_points=projected_rb2.copy())
 
-        other_wr = FantasyPlayer(id=96, name="WR1", team="DAL", position="WR", bye_week=7, fantasy_points=130.0)
-        other_wr.week_1_points = 15.0
-        other_wr.week_2_points = 18.0
-        other_wr.week_3_points = 16.0
-        # Median = 16.0
+        projected_wr = [0.0] * 17
+        projected_wr[0], projected_wr[1], projected_wr[2] = 15.0, 18.0, 16.0  # Weeks 1-3, Median = 16.0
+        other_wr = FantasyPlayer(id=96, name="WR1", team="DAL", position="WR", bye_week=7, fantasy_points=130.0,
+                                projected_points=projected_wr, actual_points=projected_wr.copy())
 
-        other_qb = FantasyPlayer(id=95, name="QB1", team="JAX", position="QB", bye_week=7, fantasy_points=200.0)
-        other_qb.week_1_points = 20.0
-        other_qb.week_2_points = 22.0
-        other_qb.week_3_points = 24.0
-        # Median = 22.0
+        projected_qb = [0.0] * 17
+        projected_qb[0], projected_qb[1], projected_qb[2] = 20.0, 22.0, 24.0  # Weeks 1-3, Median = 22.0
+        other_qb = FantasyPlayer(id=95, name="QB1", team="JAX", position="QB", bye_week=7, fantasy_points=200.0,
+                                projected_points=projected_qb, actual_points=projected_qb.copy())
 
         mock_fantasy_team.roster = [other_rb1, other_rb2, other_wr, other_qb]
 
@@ -990,11 +1011,10 @@ class TestByeWeekPenalty:
         """Player being scored should be excluded from overlap counts"""
         # test_player is RB with bye_week=7, id=12345
         # Include test_player in roster (shouldn't count itself)
-        other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0)
-        other_rb.week_1_points = 10.0
-        other_rb.week_2_points = 12.0
-        other_rb.week_3_points = 14.0
-        # Median = 12.0
+        projected_rb = [0.0] * 17
+        projected_rb[0], projected_rb[1], projected_rb[2] = 10.0, 12.0, 14.0  # Weeks 1-3, Median = 12.0
+        other_rb = FantasyPlayer(id=99, name="Other RB", team="BUF", position="RB", bye_week=7, fantasy_points=150.0,
+                                projected_points=projected_rb, actual_points=projected_rb.copy())
 
         mock_fantasy_team.roster = [test_player, other_rb]
 
@@ -1133,8 +1153,9 @@ class TestFullScoringIntegration:
         """Test score_player with all multipliers/bonuses disabled"""
         # Need ROS projection to equal 250 pts to get weighted=100.0
         # Set weeks 6-17 (12 weeks) to sum to 250.0
-        for week_num in range(6, 18):
-            setattr(test_player, f"week_{week_num}_points", 250.0 / 12)  # 20.833... per week
+        for i in range(5, 17):  # indices 5-16 = weeks 6-17
+            test_player.projected_points[i] = 250.0 / 12  # 20.833... per week
+            test_player.actual_points[i] = 250.0 / 12
         mock_fantasy_team.roster = []  # No bye overlaps
 
         result = player_manager.score_player(
@@ -1164,11 +1185,12 @@ class TestFullScoringIntegration:
         # Create 5 same-position bye overlaps
         mock_fantasy_team.roster = []
         for i in range(5):
-            rb = FantasyPlayer(id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
-            # Add weekly points for median calculation (median = 20.0 each)
-            rb.week_1_points = 18.0
-            rb.week_2_points = 20.0
-            rb.week_3_points = 22.0
+            projected_rb = [0.0] * 17
+            projected_rb[0], projected_rb[1], projected_rb[2] = 18.0, 20.0, 22.0  # Median = 20.0
+            rb = FantasyPlayer(
+                id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0,
+                projected_points=projected_rb, actual_points=projected_rb.copy()
+            )
             mock_fantasy_team.roster.append(rb)
         # Median-based penalty: (5 × 20.0) ** 1.0 = 100.0
 
@@ -1191,8 +1213,9 @@ class TestFullScoringIntegration:
     def test_score_player_draft_round_minus_one_disabled(self, player_manager, test_player, mock_fantasy_team):
         """Verify draft_round=-1 disables the bonus - BUG FIX"""
         # Need ROS projection to equal 250 pts to get weighted=100.0
-        for week_num in range(6, 18):
-            setattr(test_player, f"week_{week_num}_points", 250.0 / 12)  # 20.833... per week
+        for i in range(5, 17):  # indices 5-16 = weeks 6-17
+            test_player.projected_points[i] = 250.0 / 12  # 20.833... per week
+            test_player.actual_points[i] = 250.0 / 12
         test_player.position = "RB"  # Would normally get bonus in round 0
         mock_fantasy_team.roster = []  # No bye overlaps
 
@@ -1272,8 +1295,11 @@ class TestEdgeCases:
         )
 
         # Set weekly projections to sum to 250 for ROS = 100.0 weighted
-        for week_num in range(6, 18):
-            setattr(player, f"week_{week_num}_points", 250.0 / 12)
+        projected = [0.0] * 17
+        for i in range(5, 17):  # indices 5-16 = weeks 6-17
+            projected[i] = 250.0 / 12
+        player.projected_points = projected
+        player.actual_points = projected.copy()
 
         mock_fantasy_team.roster = []  # No bye overlaps
 
@@ -1321,13 +1347,14 @@ class TestAdditionalEdgeCases:
 
     def test_scoring_with_all_weekly_points_none(self, player_manager, mock_fantasy_team):
         """Test scoring when all weekly points are None"""
+        # Set all weekly points to None
+        projected = [None] * 17
+        actual = [None] * 17
         player = FantasyPlayer(
             id=1, name="No Data", team="KC", position="RB",
-            fantasy_points=None, weighted_projection=0.0
+            fantasy_points=None, weighted_projection=0.0,
+            projected_points=projected, actual_points=actual
         )
-        # Set all weekly points to None
-        for week_num in range(1, 18):
-            setattr(player, f"week_{week_num}_points", None)
 
         mock_fantasy_team.roster = []
         result = player_manager.score_player(player, draft_round=-1)
@@ -1337,15 +1364,17 @@ class TestAdditionalEdgeCases:
 
     def test_scoring_with_missing_team_data(self, player_manager, mock_fantasy_team):
         """Test scoring when team data is completely missing"""
+        projected = [0.0] * 17
+        for i in range(5, 17):  # indices 5-16 = weeks 6-17
+            projected[i] = 250.0 / 12
+
         player = FantasyPlayer(
             id=1, name="No Team", team="UNKNOWN", position="RB",
             fantasy_points=100.0, weighted_projection=50.0,
             team_offensive_rank=None, team_defensive_rank=None,
-            matchup_score=None
+            matchup_score=None,
+            projected_points=projected, actual_points=projected.copy()
         )
-
-        for week_num in range(6, 18):
-            setattr(player, f"week_{week_num}_points", 250.0 / 12)
 
         mock_fantasy_team.roster = []
         result = player_manager.score_player(player, team_quality=True, matchup=True, draft_round=-1)
@@ -1355,15 +1384,18 @@ class TestAdditionalEdgeCases:
 
     def test_scoring_with_partial_weekly_data(self, player_manager, mock_fantasy_team):
         """Test scoring with some weeks having data and others None"""
+        # Weeks 6-10 have data, 11-17 are None
+        projected = [0.0] * 17
+        for i in range(5, 10):  # indices 5-9 = weeks 6-10
+            projected[i] = 20.0
+        for i in range(10, 17):  # indices 10-16 = weeks 11-17
+            projected[i] = None
+
         player = FantasyPlayer(
             id=1, name="Partial Data", team="KC", position="RB",
-            fantasy_points=150.0, weighted_projection=60.0
+            fantasy_points=150.0, weighted_projection=60.0,
+            projected_points=projected, actual_points=projected.copy()
         )
-        # Weeks 6-10 have data, 11-17 are None
-        for week_num in range(6, 11):
-            setattr(player, f"week_{week_num}_points", 20.0)
-        for week_num in range(11, 18):
-            setattr(player, f"week_{week_num}_points", None)
 
         mock_fantasy_team.roster = []
         result = player_manager.score_player(player, draft_round=-1)
@@ -1510,11 +1542,12 @@ class TestAdditionalEdgeCases:
         # Create 10 same-position players with same bye week
         roster_players = []
         for i in range(10):
-            player = FantasyPlayer(id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0)
-            # Add weekly points - each player has median of 10.0
-            player.week_1_points = 8.0
-            player.week_2_points = 10.0
-            player.week_3_points = 12.0
+            projected = [0.0] * 17
+            projected[0], projected[1], projected[2] = 8.0, 10.0, 12.0  # Weeks 1-3, Median = 10.0
+            player = FantasyPlayer(
+                id=90+i, name=f"RB{i}", team="BUF", position="RB", bye_week=7, fantasy_points=100.0,
+                projected_points=projected, actual_points=projected.copy()
+            )
             roster_players.append(player)
 
         mock_fantasy_team.roster = roster_players
@@ -1570,13 +1603,17 @@ class TestAdditionalEdgeCases:
 
     def test_player_with_missing_position(self, player_manager, mock_fantasy_team):
         """Test scoring player with missing/invalid position"""
+        projected = [0.0] * 17
+        # Set weeks 6-17 to 250.0/12 = 20.833...
+        for i in range(5, 17):  # indices 5-16 = weeks 6-17
+            projected[i] = 250.0 / 12
+
         player = FantasyPlayer(
             id=1, name="No Position", team="KC", position=None,
-            fantasy_points=100.0, weighted_projection=50.0
+            fantasy_points=100.0, weighted_projection=50.0,
+            projected_points=projected,
+            actual_points=projected.copy()
         )
-
-        for week_num in range(6, 18):
-            setattr(player, f"week_{week_num}_points", 250.0 / 12)
 
         mock_fantasy_team.roster = []
 
@@ -1586,14 +1623,18 @@ class TestAdditionalEdgeCases:
 
     def test_player_with_invalid_team_name(self, player_manager, mock_fantasy_team):
         """Test scoring player with team not in teams.csv"""
+        projected = [0.0] * 17
+        # Set weeks 6-17 to 250.0/12 = 20.833...
+        for i in range(5, 17):  # indices 5-16 = weeks 6-17
+            projected[i] = 250.0 / 12
+
         player = FantasyPlayer(
             id=1, name="Invalid Team", team="INVALID", position="RB",
             fantasy_points=100.0, weighted_projection=50.0,
-            team_offensive_rank=None  # Team not found
+            team_offensive_rank=None,  # Team not found
+            projected_points=projected,
+            actual_points=projected.copy()
         )
-
-        for week_num in range(6, 18):
-            setattr(player, f"week_{week_num}_points", 250.0 / 12)
 
         mock_fantasy_team.roster = []
         result = player_manager.score_player(player, team_quality=True, draft_round=-1)

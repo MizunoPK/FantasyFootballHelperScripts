@@ -4,42 +4,99 @@
 
 ## AGENT STATUS (Read This First)
 
-**Current Phase:** PLANNING
-**Current Step:** Phase 4 - Iterative Resolution (All major decisions complete)
-**Next Action:** Remaining minor decisions (~4 scope confirmations/verifications)
+**🚨 UPDATED 2025-12-29:** Sub-feature 9 PLANNING COMPLETE - Ready for TODO creation!
+
+**Current Phase:** PLANNING COMPLETE (Sub-feature 9: drafted Field Deprecation BUG FIX)
+
+**Current Step:** Deep Dive Phase 4 complete - All decisions resolved, scope finalized
+
+**Next Action:** Execute todo_creation_guide.md (24 iterations to create implementation TODO)
+
+**⚠️ CRITICAL FILES:**
+- **SUB_FEATURES_PHASE_TRACKER.md** - Complete source of truth (800+ checkpoints) - READ THIS FIRST
+- **GUIDE_COMPLIANCE_ASSESSMENT.md** - Gap analysis vs. updated guides
 
 ### WHERE AM I RIGHT NOW? (Quick State Check)
 
 ```
-Current Phase:  [x] PLANNING  [ ] DEVELOPMENT  [ ] POST-IMPL  [ ] COMPLETE
-Current Step:   Phase 4 - Iterative decision resolution (ALL 10 major decisions complete, ~1 minor remaining)
-Blocked:        [ ] NO  [ ] YES
-Next Action:    Remaining minor decision (NEW-46 - TeamDataManager D/ST verification)
-Last Activity:  2025-12-27 - Revised ProjectedPointsManager to CONSOLIDATE into PlayerManager (23→10 items, ~200 lines eliminated)
+Current Phase:  [✅] CREATION  [→] DEEP_DIVE  [ ] TODO_CREATION  [ ] IMPLEMENTATION  [ ] POST_QC  [ ] NEXT SUB-FEATURE
+                               │
+                               └─ Sub-feature 9 (BUG FIX) - Deep Dive Verification!
+
+Sub-feature 6:  ✅ 100% COMPLETE (2025-12-28)
+Sub-feature 7:  ⏸️  PAUSED after Iteration 1 (2025-12-29)
+                ✅ Iteration 1: Found drafted_by field missing - FIXED (utils/FantasyPlayer.py:97)
+                ✅ Bug Fix Created: Sub-feature 9 (drafted Field Deprecation)
+                ✅ All tests passing: 2415/2415 (100%)
+                ⏸️  Resume after Sub-feature 9 complete
+
+Sub-feature 9:  🔄 PLANNING (drafted Field Deprecation - BUG FIX)
+                ✅ CREATION complete (Phases 1-4)
+                  - Notes: drafted_field_deprecation_bugfix_notes.txt
+                  - Spec: sub_feature_09_drafted_field_deprecation_spec.md
+                  - Checklist: sub_feature_09_drafted_field_deprecation_checklist.md (20 items)
+                  - Scope: 18-22 items, 3 components, 39 occurrences across 10 files
+                📋 Lesson 3 added to lessons_learned.md (traceability failure)
+                🎯 Next: Execute feature_deep_dive_guide.md (4 phases)
+
+Current Step:   Sub-feature 9 (drafted Field Deprecation) - Deep Dive Phase
+Blocked:        [ ] NO - CREATION complete, ready for deep dive
+Next Action:    Execute feature_deep_dive_guide.md for Sub-feature 9
+                (Resolve 20 checklist items through targeted research)
+Last Activity:  2025-12-29 - Completed CREATION phase for Sub-feature 9
 ```
 
 **Session Resume Instructions:**
-1. Read this section first
-2. Check the workflow checklist below for detailed progress
-3. Continue from "Next Action" - do NOT restart the workflow
+1. **🚨 READ SUB_FEATURES_PHASE_TRACKER.md FIRST** - Check which sub-features are complete
+2. **Sub-feature 6: 100% COMPLETE** - All phases done (TODO → Implementation → QC)
+3. **Sub-features remaining:** 7, 9 (BUG FIX), and 8
+4. **Test status:** 2415/2415 passing (100%)
+5. **Next step:** Choose next sub-feature (7, 9, or 8) and execute todo_creation_guide.md
+   - Sub-feature 7: DraftedRosterManager Consolidation (12 items, MEDIUM priority)
+   - **Sub-feature 9: drafted Field Deprecation (BUG FIX)** (TBD items, HIGH priority - after 7, before 8)
+   - Sub-feature 8: CSV Deprecation & Cleanup (6 items, LOW priority)
+6. See SUB_FEATURES_README.md for implementation order and dependencies
+
+**⚠️ NEW:** Sub-feature 9 (drafted Field Deprecation) discovered during Sub-feature 7 verification. Must be completed after Sub-feature 7 and before Sub-feature 8.
 
 ---
 
 ## 📖 Active Development Guide
 
-**Current Phase:** PLANNING
-**Active Guide:** `feature-updates/guides/feature_planning_guide.md`
-**Critical Section:** Phase 2 - Investigation
+**Current Phase:** PLANNING (Sub-feature 9 - BUG FIX)
+**Active Guide:** `feature-updates/guides/feature_creation_guide.md` (for Sub-feature 9)
+**Sub-features Complete:** 1, 2, 3, 4, 5, 6 of 9 total
+**Sub-features Remaining:** 7 (PAUSED), 9 (NEXT - BUG FIX), 8 (CSV Deprecation)
 
-⚠️ **AGENTS: Re-read the active guide section before major decisions!**
+⚠️ **AGENTS: Sub-feature 7 paused after Iteration 1 - Start Sub-feature 9 planning!**
 
-**Guide by Phase:**
-- **PLANNING:** `feature_planning_guide.md` ← CURRENT
-- **TODO_CREATION:** `todo_creation_guide.md`
-- **IMPLEMENTATION:** `implementation_execution_guide.md`
-- **POST_IMPLEMENTATION:** `post_implementation_guide.md`
+**Sub-feature 7 Status (DraftedRosterManager Consolidation):**
+- **CREATION:** `feature_creation_guide.md` ✅ COMPLETE
+- **DEEP_DIVE:** `feature_deep_dive_guide.md` ✅ COMPLETE
+- **TODO_CREATION:** `todo_creation_guide.md` ⏸️ PAUSED (Iteration 1 complete, 2-24 pending)
+  - ✅ Iteration 1: Found CRITICAL drafted_by field issue → FIXED
+  - 🆕 Created Sub-feature 9 to properly phase out drafted field
+  - ⏸️ Resume after Sub-feature 9 complete
+- **IMPLEMENTATION:** ⏸️ PAUSED
+- **POST_IMPLEMENTATION:** ⏸️ PAUSED
 
-**Update this section when transitioning between phases.**
+**Sub-feature 9 Status (drafted Field Deprecation - BUG FIX):**
+- **CREATION:** `feature_creation_guide.md` ✅ COMPLETE
+  - ✅ Phase 1: Initial Setup (folder structure verified)
+  - ✅ Phase 2: Broad Reconnaissance (39 occurrences across 10 files)
+  - ✅ Phase 3: Sub-feature Breakdown Decision (SINGLE FEATURE - 20 items)
+  - ✅ Phase 4: Create Files (spec + checklist created)
+- **DEEP_DIVE:** `feature_deep_dive_guide.md` ✅ COMPLETE
+  - ✅ Phase 1: Targeted Research (17/17 implementation items verified)
+  - ✅ Phase 2: Update Spec (dependency maps, assumptions, file breakdowns added)
+  - ✅ Phase 3: Interactive Questions (3/3 decisions resolved - 1 user, 2 investigation)
+  - ✅ Phase 4: Sub-feature Complete (scope unchanged, no adjustment needed)
+  - **Final Scope:** 28 occurrences across 8 files (simulation out of scope)
+- **TODO_CREATION:** 🔄 NEXT
+- **IMPLEMENTATION:** ⏸️ PENDING
+- **POST_IMPLEMENTATION:** ⏸️ PENDING
+
+**Next Action:** Execute todo_creation_guide.md for Sub-feature 9 (24 iterations - create implementation TODO).
 
 ---
 
@@ -131,6 +188,8 @@ Migration of the League Helper system from CSV-based player data storage (player
 | File | Purpose |
 |------|---------|
 | `README.md` | This file - context and status for agents |
+| 🚨 **`SUB_FEATURES_PHASE_TRACKER.md`** | **MANDATORY - Complete source of truth** (800+ checkpoints) |
+| `GUIDE_COMPLIANCE_ASSESSMENT.md` | Gap analysis vs. updated guides, action plan |
 | `integrate_new_player_data_into_league_helper_notes.txt` | Original scratchwork notes from user |
 | `integrate_new_player_data_into_league_helper_specs.md` | **LEGACY** - Original monolithic spec (use sub-feature specs instead) |
 | `integrate_new_player_data_into_league_helper_checklist.md` | Complete checklist with all 132 implementation items |

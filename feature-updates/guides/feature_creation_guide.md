@@ -313,6 +313,49 @@ feature-updates/{feature_name}/
 [Explain dependency relationships between sub-features]
 ```
 
+---
+
+**🚨 CRITICAL: Create SUB_FEATURES_PHASE_TRACKER.md (MANDATORY)**
+
+**Purpose:** Complete source of truth tracking each sub-feature through ALL phases (planning, TODO creation, implementation, QC) to ensure systematic completion.
+
+**Location:** `feature-updates/{feature_name}/SUB_FEATURES_PHASE_TRACKER.md`
+
+**Template:** See detailed template in `templates.md` under "SUB_FEATURES_PHASE_TRACKER Template"
+
+**Key sections:**
+1. **Phase Completion Matrix** - One section per sub-feature tracking:
+   - 4 Planning Phases (with all sub-steps) from feature_deep_dive_guide.md
+   - 24 TODO Creation Iterations (3 rounds) from todo_creation_guide.md
+   - Implementation Phase (4 sections) from implementation_execution_guide.md
+   - Post-Implementation QC (smoke + 3 rounds) from post_implementation_guide.md
+   - Completion checkpoint
+
+2. **Cross-Sub-Feature Phases** (Phases 6-7) - Execute ONLY after ALL sub-features complete Phase 4
+
+3. **Quality Gates** - Verification checkpoints at major transitions
+
+4. **Current Status** - Timestamp, progress count, next action, blockers
+
+5. **Agent Instructions** - How to use the tracker
+
+**MANDATORY Requirements:**
+- Agent checks this file FIRST at start of every session
+- Agent MUST re-read corresponding guide BEFORE marking any phase complete
+- Agent updates `[x]` and "Current Status" immediately after completing phase
+- Agent verifies quality gates before proceeding to Phase 6 or 7
+
+**Why this is critical:**
+- Tracks 800+ checkpoints (8 sub-features × 100+ checkpoints each)
+- Prevents phase skipping (can't skip Phase 3 questions or TODO Round 2)
+- Supports agent resumption (next agent knows exact checkpoint)
+- Enforces guide compliance (mandatory re-read requirement)
+- Provides complete audit trail from planning through commit
+
+**Create this file immediately after SUB_FEATURES_README.md - it is NOT optional.**
+
+---
+
 **Create per-sub-feature files:**
 
 For each sub-feature, create:
@@ -408,6 +451,7 @@ This folder contains all research, analysis, and verification reports.
 **Sub-feature checklist:**
 - [x] README.md with Agent Status
 - [x] SUB_FEATURES_README.md (overview)
+- [x] 🚨 **SUB_FEATURES_PHASE_TRACKER.md** (MANDATORY - master progress tracker)
 - [x] sub_feature_{N}_{name}_spec.md for EACH sub-feature
 - [x] sub_feature_{N}_{name}_checklist.md for EACH sub-feature
 - [x] {feature_name}_lessons_learned.md (shared)

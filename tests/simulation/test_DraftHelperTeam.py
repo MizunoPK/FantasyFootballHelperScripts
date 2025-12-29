@@ -24,7 +24,7 @@ def mock_player():
     player.id = 1
     player.name = "Test Player"
     player.position = "RB"
-    player.drafted = 0
+    player.drafted_by = ""
     return player
 
 
@@ -35,7 +35,7 @@ def mock_player2():
     player.id = 2
     player.name = "Test Player 2"
     player.position = "WR"
-    player.drafted = 0
+    player.drafted_by = ""
     return player
 
 
@@ -124,12 +124,12 @@ class TestDraftPlayer:
         # Setup player in both managers
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id
-        proj_player.drafted = 0
+        proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
 
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = mock_player.id
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
         draft_helper_team.draft_player(mock_player)
@@ -141,12 +141,12 @@ class TestDraftPlayer:
         """Test drafting marks player as drafted=2 in projected_pm"""
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id
-        proj_player.drafted = 0
+        proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
 
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = mock_player.id
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
         draft_helper_team.draft_player(mock_player)
@@ -157,12 +157,12 @@ class TestDraftPlayer:
         """Test drafting marks player as drafted=2 in actual_pm"""
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id
-        proj_player.drafted = 0
+        proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
 
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = mock_player.id
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
         draft_helper_team.draft_player(mock_player)
@@ -173,12 +173,12 @@ class TestDraftPlayer:
         """Test drafting adds player to team.roster in both PlayerManagers"""
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id
-        proj_player.drafted = 0
+        proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
 
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = mock_player.id
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
         draft_helper_team.draft_player(mock_player)
@@ -191,20 +191,20 @@ class TestDraftPlayer:
         # Setup player 1
         proj_player1 = Mock(spec=FantasyPlayer)
         proj_player1.id = mock_player.id
-        proj_player1.drafted = 0
+        proj_player1.drafted_by = ""
 
         actual_player1 = Mock(spec=FantasyPlayer)
         actual_player1.id = mock_player.id
-        actual_player1.drafted = 0
+        actual_player1.drafted_by = ""
 
         # Setup player 2
         proj_player2 = Mock(spec=FantasyPlayer)
         proj_player2.id = mock_player2.id
-        proj_player2.drafted = 0
+        proj_player2.drafted_by = ""
 
         actual_player2 = Mock(spec=FantasyPlayer)
         actual_player2.id = mock_player2.id
-        actual_player2.drafted = 0
+        actual_player2.drafted_by = ""
 
         mock_projected_pm.players = [proj_player1, proj_player2]
         mock_actual_pm.players = [actual_player1, actual_player2]
@@ -220,12 +220,12 @@ class TestDraftPlayer:
         """Test drafting same player twice doesn't duplicate in team.roster"""
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id
-        proj_player.drafted = 0
+        proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
 
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = mock_player.id
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
         draft_helper_team.draft_player(mock_player)
@@ -499,12 +499,12 @@ class TestMarkPlayerDrafted:
         """Test marking player drafted sets drafted=1 in projected_pm"""
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = 100
-        proj_player.drafted = 0
+        proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
 
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = 100
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
         draft_helper_team.mark_player_drafted(100)
@@ -515,12 +515,12 @@ class TestMarkPlayerDrafted:
         """Test marking player drafted sets drafted=1 in actual_pm"""
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = 100
-        proj_player.drafted = 0
+        proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
 
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = 100
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
         draft_helper_team.mark_player_drafted(100)
@@ -531,21 +531,21 @@ class TestMarkPlayerDrafted:
         """Test marking player drafted only affects the specified player"""
         proj_player1 = Mock(spec=FantasyPlayer)
         proj_player1.id = 100
-        proj_player1.drafted = 0
+        proj_player1.drafted_by = ""
 
         proj_player2 = Mock(spec=FantasyPlayer)
         proj_player2.id = 200
-        proj_player2.drafted = 0
+        proj_player2.drafted_by = ""
 
         mock_projected_pm.players = [proj_player1, proj_player2]
 
         actual_player1 = Mock(spec=FantasyPlayer)
         actual_player1.id = 100
-        actual_player1.drafted = 0
+        actual_player1.drafted_by = ""
 
         actual_player2 = Mock(spec=FantasyPlayer)
         actual_player2.id = 200
-        actual_player2.drafted = 0
+        actual_player2.drafted_by = ""
 
         mock_actual_pm.players = [actual_player1, actual_player2]
 
@@ -577,21 +577,21 @@ class TestGetRosterSize:
         # Setup players
         proj_player1 = Mock(spec=FantasyPlayer)
         proj_player1.id = mock_player.id
-        proj_player1.drafted = 0
+        proj_player1.drafted_by = ""
 
         proj_player2 = Mock(spec=FantasyPlayer)
         proj_player2.id = mock_player2.id
-        proj_player2.drafted = 0
+        proj_player2.drafted_by = ""
 
         mock_projected_pm.players = [proj_player1, proj_player2]
 
         actual_player1 = Mock(spec=FantasyPlayer)
         actual_player1.id = mock_player.id
-        actual_player1.drafted = 0
+        actual_player1.drafted_by = ""
 
         actual_player2 = Mock(spec=FantasyPlayer)
         actual_player2.id = mock_player2.id
-        actual_player2.drafted = 0
+        actual_player2.drafted_by = ""
 
         mock_actual_pm.players = [actual_player1, actual_player2]
 
@@ -608,16 +608,16 @@ class TestGetRosterSize:
             player.id = i
             player.name = f"Player {i}"
             player.position = "RB"
-            player.drafted = 0
+            player.drafted_by = ""
 
             proj_player = Mock(spec=FantasyPlayer)
             proj_player.id = i
-            proj_player.drafted = 0
+            proj_player.drafted_by = ""
             mock_projected_pm.players.append(proj_player)
 
             actual_player = Mock(spec=FantasyPlayer)
             actual_player.id = i
-            actual_player.drafted = 0
+            actual_player.drafted_by = ""
             mock_actual_pm.players.append(actual_player)
 
             draft_helper_team.draft_player(player)
@@ -632,12 +632,12 @@ class TestGetRosterPlayers:
         """Test get_roster_players returns a copy, not reference"""
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id
-        proj_player.drafted = 0
+        proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
 
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = mock_player.id
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
         draft_helper_team.draft_player(mock_player)
@@ -657,21 +657,21 @@ class TestGetRosterPlayers:
         """Test get_roster_players contains all drafted players"""
         proj_player1 = Mock(spec=FantasyPlayer)
         proj_player1.id = mock_player.id
-        proj_player1.drafted = 0
+        proj_player1.drafted_by = ""
 
         proj_player2 = Mock(spec=FantasyPlayer)
         proj_player2.id = mock_player2.id
-        proj_player2.drafted = 0
+        proj_player2.drafted_by = ""
 
         mock_projected_pm.players = [proj_player1, proj_player2]
 
         actual_player1 = Mock(spec=FantasyPlayer)
         actual_player1.id = mock_player.id
-        actual_player1.drafted = 0
+        actual_player1.drafted_by = ""
 
         actual_player2 = Mock(spec=FantasyPlayer)
         actual_player2.id = mock_player2.id
-        actual_player2.drafted = 0
+        actual_player2.drafted_by = ""
 
         mock_actual_pm.players = [actual_player1, actual_player2]
 
@@ -704,12 +704,12 @@ class TestDraftHelperTeamIntegration:
         # Setup player in both managers
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id
-        proj_player.drafted = 0
+        proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
 
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = mock_player.id
-        actual_player.drafted = 0
+        actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
         # Draft player
@@ -748,20 +748,20 @@ class TestDraftHelperTeamIntegration:
         # Setup player 1 (will draft)
         proj_player1 = Mock(spec=FantasyPlayer)
         proj_player1.id = mock_player.id
-        proj_player1.drafted = 0
+        proj_player1.drafted_by = ""
 
         actual_player1 = Mock(spec=FantasyPlayer)
         actual_player1.id = mock_player.id
-        actual_player1.drafted = 0
+        actual_player1.drafted_by = ""
 
         # Setup player 2 (will mark as opponent's)
         proj_player2 = Mock(spec=FantasyPlayer)
         proj_player2.id = mock_player2.id
-        proj_player2.drafted = 0
+        proj_player2.drafted_by = ""
 
         actual_player2 = Mock(spec=FantasyPlayer)
         actual_player2.id = mock_player2.id
-        actual_player2.drafted = 0
+        actual_player2.drafted_by = ""
 
         mock_projected_pm.players = [proj_player1, proj_player2]
         mock_actual_pm.players = [actual_player1, actual_player2]
