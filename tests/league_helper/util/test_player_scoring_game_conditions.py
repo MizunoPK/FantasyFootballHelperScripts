@@ -148,9 +148,11 @@ def mock_game_data_manager():
 @pytest.fixture
 def scoring_calculator(mock_config, mock_game_data_manager):
     """Create PlayerScoringCalculator with mock dependencies."""
-    mock_ppm = Mock()
-    mock_ppm.get_projected_points.return_value = 300.0
-    mock_ppm.get_actual_points.return_value = 310.0
+    # Mock PlayerManager to provide get_projected_points() method
+    # Spec: sub_feature_05_projected_points_manager_consolidation_spec.md
+    mock_pm = Mock()
+    mock_pm.get_projected_points.return_value = 300.0
+    mock_pm.get_actual_points.return_value = 310.0
 
     mock_tdm = Mock()
     mock_tdm.get_team_ranking_for_position.return_value = 16.0  # Average
@@ -160,7 +162,7 @@ def scoring_calculator(mock_config, mock_game_data_manager):
 
     calc = PlayerScoringCalculator(
         config=mock_config,
-        projected_points_manager=mock_ppm,
+        player_manager=mock_pm,
         max_projection=400.0,
         team_data_manager=mock_tdm,
         season_schedule_manager=mock_ssm,
@@ -173,50 +175,53 @@ def scoring_calculator(mock_config, mock_game_data_manager):
 
 @pytest.fixture
 def qb_player():
-    """Create test QB player."""
+    """Create test QB player (UPDATED for Sub-feature 2)."""
+    projected = [25.0] * 17  # All weeks = 25.0
+    actual = projected.copy()
     player = FantasyPlayer(
         id=1, name="Patrick Mahomes", team="KC", position="QB",
-        fantasy_points=350.0, average_draft_position=5.0
+        fantasy_points=350.0, average_draft_position=5.0,
+        projected_points=projected, actual_points=actual
     )
-    # Set weekly projections
-    for week in range(1, 18):
-        setattr(player, f"week_{week}_points", 25.0)
     return player
 
 
 @pytest.fixture
 def rb_player():
-    """Create test RB player."""
+    """Create test RB player (UPDATED for Sub-feature 2)."""
+    projected = [18.0] * 17  # All weeks = 18.0
+    actual = projected.copy()
     player = FantasyPlayer(
         id=2, name="Travis Etienne", team="JAX", position="RB",
-        fantasy_points=280.0, average_draft_position=15.0
+        fantasy_points=280.0, average_draft_position=15.0,
+        projected_points=projected, actual_points=actual
     )
-    for week in range(1, 18):
-        setattr(player, f"week_{week}_points", 18.0)
     return player
 
 
 @pytest.fixture
 def wr_player():
-    """Create test WR player."""
+    """Create test WR player (UPDATED for Sub-feature 2)."""
+    projected = [20.0] * 17  # All weeks = 20.0
+    actual = projected.copy()
     player = FantasyPlayer(
         id=3, name="CeeDee Lamb", team="DAL", position="WR",
-        fantasy_points=320.0, average_draft_position=8.0
+        fantasy_points=320.0, average_draft_position=8.0,
+        projected_points=projected, actual_points=actual
     )
-    for week in range(1, 18):
-        setattr(player, f"week_{week}_points", 20.0)
     return player
 
 
 @pytest.fixture
 def k_player():
-    """Create test K player."""
+    """Create test K player (UPDATED for Sub-feature 2)."""
+    projected = [9.0] * 17  # All weeks = 9.0
+    actual = projected.copy()
     player = FantasyPlayer(
         id=4, name="Justin Tucker", team="BAL", position="K",
-        fantasy_points=150.0, average_draft_position=120.0
+        fantasy_points=150.0, average_draft_position=120.0,
+        projected_points=projected, actual_points=actual
     )
-    for week in range(1, 18):
-        setattr(player, f"week_{week}_points", 9.0)
     return player
 
 
@@ -564,9 +569,10 @@ class TestGameConditionsIntegration:
 
     def test_score_player_no_game_data_manager(self, mock_config, qb_player):
         """Test scoring works without GameDataManager."""
-        mock_ppm = Mock()
-        mock_ppm.get_projected_points.return_value = 300.0
-        mock_ppm.get_actual_points.return_value = 310.0
+        # Mock PlayerManager to provide get_projected_points() method
+        mock_pm = Mock()
+        mock_pm.get_projected_points.return_value = 300.0
+        mock_pm.get_actual_points.return_value = 310.0
 
         mock_tdm = Mock()
         mock_tdm.get_team_ranking_for_position.return_value = 16.0
@@ -577,7 +583,7 @@ class TestGameConditionsIntegration:
         # Create calculator WITHOUT game_data_manager
         calc = PlayerScoringCalculator(
             config=mock_config,
-            projected_points_manager=mock_ppm,
+            player_manager=mock_pm,
             max_projection=400.0,
             team_data_manager=mock_tdm,
             season_schedule_manager=mock_ssm,

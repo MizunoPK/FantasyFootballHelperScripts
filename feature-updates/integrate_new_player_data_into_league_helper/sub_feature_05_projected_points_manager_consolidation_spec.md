@@ -20,6 +20,40 @@ Consolidate ProjectedPointsManager functionality into PlayerManager (eliminates 
 - NEW-106 to NEW-108: Testing
 - NEW-109: Mark players_projected.csv as deprecated
 
+## Verification Findings (From Deep Dive)
+
+### Current Usage Locations
+
+**PlayerManager.__init__() (line 113):**
+```python
+self.projected_points_manager = ProjectedPointsManager(config, data_folder)
+```
+**Action:** Remove this instantiation and import (line 43)
+
+**player_scoring.py usage:**
+- **Line 53, 65, 77, 86:** Type hints and docstrings reference ProjectedPointsManager
+- **Line 235:** `projected_points = self.projected_points_manager.get_projected_points(player, week)`
+
+**Update required:**
+- Remove ProjectedPointsManager references from type hints/docstrings
+- Change line 235 to use `self.player_manager.get_projected_points(player, week)`
+
+### Rationale for Consolidation
+
+**PlayerManager already has the data:**
+- Sub-feature 1 loads projected_points arrays from JSON into FantasyPlayer objects
+- PlayerManager.players contains all players with projected_points
+- No need for separate class to reload same data
+
+**Complexity reduction:**
+- ProjectedPointsManager: ~200 lines with CSV loading logic
+- New approach: ~25 lines in PlayerManager (simple array access)
+- **Savings:** ~175 lines of obsolete code eliminated
+
+**Single caller:**
+- Only player_scoring.py uses ProjectedPointsManager
+- Simple update: change self.projected_points_manager → self.player_manager
+
 ## Key Implementation
 
 **Add to PlayerManager:**

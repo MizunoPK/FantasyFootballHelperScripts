@@ -41,7 +41,6 @@ import logging
 from util.TeamDataManager import TeamDataManager
 from util.SeasonScheduleManager import SeasonScheduleManager
 from util.FantasyTeam import FantasyTeam
-from util.ProjectedPointsManager import ProjectedPointsManager
 from util.GameDataManager import GameDataManager
 
 sys.path.append(str(Path(__file__).parent))
@@ -111,15 +110,16 @@ class PlayerManager:
         self.data_folder = data_folder
         self.team_data_manager = team_data_manager
         self.season_schedule_manager = season_schedule_manager
-        self.projected_points_manager = ProjectedPointsManager(config, data_folder)
 
         # Initialize GameDataManager for weather/location scoring (optional)
         self.game_data_manager = GameDataManager(data_folder, config.current_nfl_week)
 
         # Initialize scoring calculator (max_projection will be updated in load_players_from_csv)
+        # Pass self (PlayerManager) instead of ProjectedPointsManager for consolidated projection access
+        # Spec: sub_feature_05_projected_points_manager_consolidation_spec.md, NEW-103
         self.scoring_calculator = PlayerScoringCalculator(
             config,
-            self.projected_points_manager,
+            self,  # PlayerManager now provides projected points methods directly
             0.0,
             team_data_manager,
             season_schedule_manager,
@@ -739,6 +739,147 @@ class PlayerManager:
             Tuple[float, float]: (original_points, weighted_points)
         """
         return self.scoring_calculator.get_weekly_projection(player, week)
+
+    def get_projected_points(self, player: FantasyPlayer, week: int) -> Optional[float]:
+        """
+        Get original projected points for a specific player and week.
+
+        This method accesses the pre-season projected points that were loaded
+        from JSON player data files. These represent the original fantasy point
+        projections before any actual games were played.
+
+        Spec: sub_feature_05_projected_points_manager_consolidation_spec.md
+              NEW-100, lines 61-71
+
+        Args:
+            player (FantasyPlayer): Player to get projected points for
+            week (int): NFL week number (1-17)
+
+        Returns:
+            Optional[float]: Projected points for the week, or None if:
+                - Week is a bye week (projection is 0.0)
+                - Player's projected_points array is missing/empty
+                - Projected points data is not available
+
+        Raises:
+            ValueError: If week is outside valid range (< 1 or > 17)
+
+        Example:
+            >>> projected = pm.get_projected_points(player, 5)
+            >>> if projected is not None:
+            ...     print(f"Week 5 projection: {projected} points")
+        """
+        # Validate week number (spec lines 63-64, todo lines 26, 32)
+        # Improvement over original ProjectedPointsManager: raise ValueError instead of None
+        if week < 1 or week > 17:
+            raise ValueError(f"Week must be between 1-17, got {week}")
+
+        # Check if projected_points array exists and has data
+        # Graceful degradation for missing data (todo line 33)
+        if not player.projected_points or len(player.projected_points) < week:
+            return None
+
+        # Access projected points for the requested week
+        # Array is 0-indexed, weeks are 1-indexed (spec lines 65-66)
+        projected_value = player.projected_points[week - 1]
+
+        # Treat 0.0 as None (bye weeks) - spec lines 68-69, todo line 34
+        if projected_value == 0.0:
+            return None
+
+        # Return projected points as float (spec line 70)
+        return float(projected_value)
+
+    def get_projected_points_array(self, player: FantasyPlayer, start_week: int, end_week: int) -> List[Optional[float]]:
+        """
+        Get projected points for a range of weeks.
+
+        Returns a list of projected points for weeks in the specified range (inclusive).
+        Delegates to get_projected_points() for each week, so validation and error
+        handling follow the same rules.
+
+        Spec: sub_feature_05_projected_points_manager_consolidation_spec.md
+              NEW-101, lines 49-53
+
+        Args:
+            player (FantasyPlayer): Player to get projected points for
+            start_week (int): Starting week number (1-17, inclusive)
+            end_week (int): Ending week number (1-17, inclusive)
+
+        Returns:
+            List[Optional[float]]: List of projected points for each week in range.
+                Empty list if start_week > end_week or if range is invalid.
+                Each element follows get_projected_points() behavior:
+                - None for bye weeks (0.0 projections)
+                - None for missing data
+                - float value for valid projections
+
+        Raises:
+            ValueError: If any week in range is outside 1-17 (raised by get_projected_points())
+
+        Example:
+            >>> projections = pm.get_projected_points_array(player, 1, 4)
+            >>> # Returns [25.5, None, 27.0, 24.3] for weeks 1-4
+            >>> # (week 2 is bye week with 0.0 projection → None)
+        """
+        # Handle empty ranges gracefully (todo lines 45-47)
+        # If start > end, return empty list
+        if start_week > end_week:
+            return []
+
+        # Build array by delegating to get_projected_points() for each week
+        # Spec line 52, todo line 43: delegates validation and error handling
+        result = []
+        for week in range(start_week, end_week + 1):
+            # get_projected_points() will raise ValueError if week invalid
+            projected = self.get_projected_points(player, week)
+            result.append(projected)
+
+        return result
+
+    def get_historical_projected_points(self, player: FantasyPlayer) -> List[Optional[float]]:
+        """
+        Get historical projected points (weeks 1 to current week - 1).
+
+        Returns projected points for all weeks from the start of the season up to
+        (but not including) the current NFL week. Used for calculating performance
+        deviation based on historical data.
+
+        Spec: sub_feature_05_projected_points_manager_consolidation_spec.md
+              NEW-102, lines 54-60
+
+        Args:
+            player (FantasyPlayer): Player to get historical projections for
+
+        Returns:
+            List[Optional[float]]: List of projected points for weeks 1 to current_week-1.
+                Empty list if current_nfl_week <= 1 (no historical weeks yet).
+                Each element follows get_projected_points() behavior:
+                - None for bye weeks
+                - None for missing data
+                - float value for valid projections
+
+        Raises:
+            ValueError: If any week is invalid (raised by get_projected_points())
+
+        Example:
+            >>> # If current_nfl_week is 5
+            >>> historical = pm.get_historical_projected_points(player)
+            >>> # Returns projections for weeks 1, 2, 3, 4
+            >>> # (week 5 excluded since it's the current week)
+        """
+        # Use config.current_nfl_week to determine historical range
+        # Spec line 58, todo line 55
+        current_week = self.config.current_nfl_week
+
+        # If current week is 1, no historical data exists yet
+        # Return empty list (todo lines 58-59)
+        if current_week <= 1:
+            return []
+
+        # Delegate to get_projected_points_array for weeks 1 to current-1
+        # Spec line 59, todo line 56
+        return self.get_projected_points_array(player, 1, current_week - 1)
 
     def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, is_draft_mode: bool = False) -> ScoredPlayer:
         """

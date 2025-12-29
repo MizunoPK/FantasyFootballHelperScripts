@@ -1,6 +1,60 @@
 """
 Projected Points Manager
 
+⚠️  DEPRECATED - DO NOT USE IN NEW CODE ⚠️
+
+This module has been DEPRECATED as of Sub-Feature 5 (ProjectedPointsManager Consolidation).
+All functionality has been consolidated into PlayerManager for better integration
+and reduced code duplication (~200 lines eliminated).
+
+MIGRATION PATH:
+===============
+Old Code (DEPRECATED):
+    from util.ProjectedPointsManager import ProjectedPointsManager
+    ppm = ProjectedPointsManager(config, data_folder)
+    projected = ppm.get_projected_points(player, week)
+
+New Code (USE THIS):
+    # PlayerManager already has projected_points methods
+    projected = player_manager.get_projected_points(player, week)
+
+EQUIVALENT METHODS:
+===================
+OLD: ProjectedPointsManager.get_projected_points(player, week)
+NEW: PlayerManager.get_projected_points(player, week)
+     - Returns: Optional[float] (None for bye weeks)
+     - Raises: ValueError if week < 1 or week > 17
+     - Access: player.projected_points array loaded from JSON
+
+OLD: ProjectedPointsManager.get_projected_points_array(player, start_week, end_week)
+NEW: PlayerManager.get_projected_points_array(player, start_week, end_week)
+     - Returns: List[Optional[float]]
+
+OLD: ProjectedPointsManager.get_historical_projected_points(player)
+NEW: PlayerManager.get_historical_projected_points(player)
+     - Returns: List[Optional[float]] for weeks 1 to current_week-1
+
+WHY DEPRECATED:
+===============
+- PlayerManager already loads projected_points arrays from JSON (Sub-feature 1)
+- Eliminates duplicate CSV loading with pandas (~200 lines)
+- Better performance: O(1) array access vs CSV file parsing
+- Consolidates player data access in single manager
+- Removes external pandas dependency for this functionality
+
+REMOVAL TIMELINE:
+=================
+- Marked deprecated: 2025-12-28 (Sub-feature 5 complete)
+- Kept temporarily: For validation and out-of-scope dependencies
+- To be removed: After all code migrated to PlayerManager methods
+
+Spec: feature-updates/integrate_new_player_data_into_league_helper/
+      sub_feature_05_projected_points_manager_consolidation_spec.md
+
+---
+
+ORIGINAL DOCUMENTATION (for historical reference):
+===================================================
 Manages access to historical projected points data for fantasy football players.
 Loads and provides week-by-week projection values from players_projected.csv
 that were made at the start of each week for performance evaluation.

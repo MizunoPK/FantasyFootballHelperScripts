@@ -21,15 +21,20 @@ Author: Kai Mizuno
 """
 
 import statistics
-from typing import Tuple, Optional, List, Dict
+from typing import Tuple, Optional, List, Dict, TYPE_CHECKING
 from pathlib import Path
 
 import sys
 sys.path.append(str(Path(__file__).parent))
+
+# Conditional import to avoid circular dependency with PlayerManager
+# Spec: sub_feature_05_projected_points_manager_consolidation_spec.md, NEW-104
+if TYPE_CHECKING:
+    from util.PlayerManager import PlayerManager
+
 import constants as Constants
 from ConfigManager import ConfigManager
 from ScoredPlayer import ScoredPlayer
-from ProjectedPointsManager import ProjectedPointsManager
 from TeamDataManager import TeamDataManager
 from SeasonScheduleManager import SeasonScheduleManager
 from GameDataManager import GameDataManager
@@ -50,7 +55,7 @@ class PlayerScoringCalculator:
 
     Attributes:
         config (ConfigManager): Configuration manager for scoring parameters
-        projected_points_manager (ProjectedPointsManager): Manager for projected points
+        player_manager (PlayerManager): Manager for player data and projected points
         max_projection (float): Maximum fantasy points projection for normalization
         team_data_manager (TeamDataManager): Manager for team rankings and matchups
         season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
@@ -62,7 +67,7 @@ class PlayerScoringCalculator:
     def __init__(
         self,
         config: ConfigManager,
-        projected_points_manager: ProjectedPointsManager,
+        player_manager: 'PlayerManager',
         max_projection: float,
         team_data_manager: TeamDataManager,
         season_schedule_manager: SeasonScheduleManager,
@@ -74,7 +79,7 @@ class PlayerScoringCalculator:
 
         Args:
             config (ConfigManager): Configuration manager with scoring parameters
-            projected_points_manager (ProjectedPointsManager): Manager for projected points
+            player_manager (PlayerManager): Manager for player data and projected points
             max_projection (float): Maximum fantasy points projection for normalization
             team_data_manager (TeamDataManager): Manager for team rankings and matchups
             season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
@@ -83,7 +88,7 @@ class PlayerScoringCalculator:
                 (temperature, wind, location). If None, game condition scoring is disabled.
         """
         self.config = config
-        self.projected_points_manager = projected_points_manager
+        self.player_manager = player_manager
         self.max_projection = max_projection
         self.max_weekly_projection: float = 0.0  # Current weekly max for normalization
         self.team_data_manager = team_data_manager
@@ -120,7 +125,7 @@ class PlayerScoringCalculator:
         if week not in range(1, 18):
             week = self.config.current_nfl_week
 
-        weekly_points = player.get_single_weekly_projection(week)
+        weekly_points = player.get_single_weekly_projection(week, self.config)
         if weekly_points is not None and float(weekly_points) > 0:
             weekly_points = float(weekly_points)
             # Calculate normalized/weighted projection using weekly max for normalization
@@ -220,34 +225,34 @@ class PlayerScoringCalculator:
         week = self.config.current_nfl_week - 1
 
         while len(deviations) < min_weeks and week >= earliest_week:
-            # Get actual points from player object
-            week_attr = f'week_{week}_points'
-            if hasattr(player, week_attr):
-                actual_points = getattr(player, week_attr)
+            # Get actual points from player object via hybrid weekly data (Sub-feature 2)
+            # Since week < current_nfl_week, this returns actual_points for past weeks
+            actual_points = player.get_single_weekly_projection(week, self.config)
 
-                if actual_points is not None:
-                    actual_points = float(actual_points)
+            if actual_points is not None:
+                actual_points = float(actual_points)
 
-                    # Skip weeks where player didn't play (actual = 0)
-                    # This handles bye weeks and injury weeks automatically
-                    if actual_points > 0:
-                        # Get projected points from ProjectedPointsManager
-                        projected_points = self.projected_points_manager.get_projected_points(player, week)
+                # Skip weeks where player didn't play (actual = 0)
+                # This handles bye weeks and injury weeks automatically
+                if actual_points > 0:
+                    # Get projected points from PlayerManager
+                    # Spec: sub_feature_05_projected_points_manager_consolidation_spec.md, NEW-104
+                    projected_points = self.player_manager.get_projected_points(player, week)
 
-                        if projected_points is not None and projected_points > 0:
-                            # Calculate deviation: (actual - projected) / projected
-                            deviation = (actual_points - projected_points) / projected_points
-                            deviations.append(deviation)
+                    if projected_points is not None and projected_points > 0:
+                        # Calculate deviation: (actual - projected) / projected
+                        deviation = (actual_points - projected_points) / projected_points
+                        deviations.append(deviation)
 
-                            self.logger.debug(
-                                f"Week {week} performance for {player.name}: "
-                                f"actual={actual_points:.2f}, projected={projected_points:.2f}, "
-                                f"deviation={deviation:.3f} ({deviation*100:.1f}%)"
-                            )
-                        elif projected_points == 0.0:
-                            self.logger.debug(
-                                f"Skipping week {week} for {player.name}: projected=0.0"
-                            )
+                        self.logger.debug(
+                            f"Week {week} performance for {player.name}: "
+                            f"actual={actual_points:.2f}, projected={projected_points:.2f}, "
+                            f"deviation={deviation:.3f} ({deviation*100:.1f}%)"
+                        )
+                    elif projected_points == 0.0:
+                        self.logger.debug(
+                            f"Skipping week {week} for {player.name}: projected=0.0"
+                        )
 
             week -= 1
 
@@ -484,7 +489,7 @@ class PlayerScoringCalculator:
         else:
             # Use rest-of-season projection (for season-long evaluation)
             # This sums all remaining weeks from current week through week 17
-            orig_pts = p.get_rest_of_season_projection(self.config.current_nfl_week)
+            orig_pts = p.get_rest_of_season_projection(self.config)
             # Normalize to 0-N scale for comparability across all players
             # Check for zero max_projection to avoid division by zero
             if self.max_projection > 0:

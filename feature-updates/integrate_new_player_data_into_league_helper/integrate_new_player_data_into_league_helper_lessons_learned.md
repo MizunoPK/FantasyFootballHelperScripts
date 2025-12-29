@@ -1245,3 +1245,148 @@ After development and QA are complete, use this summary to update the guides:
 - Quality gates effective
 
 **Recommended Action:** No guide updates needed from Sub-Feature 4 implementation
+
+---
+
+## Sub-Feature 5: ProjectedPointsManager Consolidation
+
+**Date:** 2025-12-28
+
+**Overall Assessment:** Successful implementation with 1 documentation issue caught in QC Round 3
+
+**Issues Encountered:**
+
+### Issue 1: Class Docstring Not Updated (QC Round 3 Finding)
+
+**What Happened (Symptom):**
+During QC Round 3 (Final Skeptical Review), grep search for "ProjectedPointsManager" found a leftover reference in player_scoring.py line 58. The class-level docstring still said `projected_points_manager (ProjectedPointsManager)` when it should have been updated to `player_manager (PlayerManager)`.
+
+**Immediate Cause:**
+During implementation, the parameter was updated in the `__init__` method (line 70) and in the __init__ docstring (line 82), but the class-level Attributes section docstring (line 58) was missed.
+
+**Root Cause Analysis:**
+1. Why was the class docstring missed? → Implementation focused on method signature and method docstring
+2. Why didn't Rounds 1-2 catch this? → Round 1 checked method docstrings, Round 2 checked implementation docstrings, but class-level Attributes section was overlooked
+3. Why was Attributes section overlooked? → No explicit checklist item to verify class-level docstrings separately from method docstrings
+4. Why no separate checklist item? → QC Round 1 checklist says "All files have proper docstrings" but doesn't distinguish class vs method vs module docstrings
+5. **ROOT CAUSE:** QC Round 1 checklist item "All files have proper docstrings" is too broad - doesn't prompt systematic verification of each docstring type
+
+**Impact:**
+- Documentation inconsistency (code worked correctly, only docs were wrong)
+- Discovered in QC Round 3, not earlier rounds
+- Fixed immediately, all tests still passed
+- Minor issue, but demonstrates value of Round 3's skeptical review
+
+**Why QC Round 3 Found This:**
+- Round 3 explicitly re-reads spec which lists all locations to update (including line 58)
+- Round 3's skeptical mindset: "What did previous rounds miss?"
+- Used grep to search for old term, not just manual review
+
+**Recommended Guide Update:**
+
+**Guide:** post_implementation_guide.md → QC Round 1 Checklist
+
+**Current Item:**
+```markdown
+- [ ] All files have proper docstrings
+```
+
+**Proposed Update:**
+```markdown
+- [ ] All files have proper docstrings:
+  - [ ] Module-level docstrings updated
+  - [ ] Class-level docstrings updated (including Attributes section)
+  - [ ] Method/function docstrings updated (Args, Returns, Raises)
+  - [ ] Verify using grep for old terms (if consolidating/refactoring)
+```
+
+**Justification:**
+Breaking down "proper docstrings" into specific types (module, class, method) prompts systematic verification of each level. Adding grep step helps catch missed references.
+
+**Prevention Strategy:**
+For refactoring/consolidation tasks, add explicit step in QC Round 1:
+```bash
+# Search for old term references
+grep -rn "OldClassName" modified_files/
+# Expected: Only comments explaining the change, no docstring references
+```
+
+**Process Validation:**
+- **What worked:** QC Round 3's skeptical re-read of spec caught the issue
+- **What worked:** Grep search for old term found the exact location
+- **Improvement needed:** QC Round 1 should have caught this with more detailed docstring checklist
+- **Improvement needed:** Implementation phase should include explicit "update all docstrings" step with grep verification
+
+**Recommended Action:** Update post_implementation_guide.md QC Round 1 checklist to break down docstring verification into module/class/method levels, and add grep step for consolidation tasks
+
+---
+
+**Sub-Feature 5 Summary:**
+
+**Successes:**
+1. **Interface Verification Worked:** Verified player.projected_points exists before implementation
+2. **Testing Caught Edge Cases:** All 2406 tests passing (100%)
+3. **QC Process Effective:** QC Round 3 found the one missed documentation issue
+4. **Clean Implementation:** Only 1 minor issue found across all 3 QC rounds
+5. **Performance Improvement:** Eliminated ~200 lines of code, improved from CSV parsing to O(1) array access
+6. **No Regressions:** All integration tests passing (17/17)
+
+**Process Failures:**
+1. ❌ QC Round 1 missed class-level docstring (fixed in Round 3)
+
+**Root Causes:**
+- QC Round 1 checklist too broad ("proper docstrings" vs "module/class/method docstrings")
+
+**Guide Updates Recommended:**
+1. post_implementation_guide.md: Expand QC Round 1 docstring checklist to be more granular
+2. implementation_execution_guide.md: Add explicit "update all docstrings" step with grep verification for refactoring tasks
+
+**Overall Rating:** ✅ SUCCESS (1 minor documentation issue, caught and fixed in QC)
+
+
+---
+
+### Process Lesson: Phase Tracker Not Updated in Real-Time
+
+**Date:** 2025-12-28
+
+**What Happened:**
+User asked "has the sub phase tracker been staying up to date?" and discovered that SUB_FEATURES_PHASE_TRACKER.md had NOT been updated during Sub-feature 5 work. All TODO Creation, Implementation, and Post-Implementation QC phases were marked unchecked despite being 100% complete.
+
+**Impact:**
+- Phase tracker showed Sub-feature 5 as "not started" when it was actually "complete"
+- Loss of source-of-truth status for progress tracking
+- Makes it difficult for future agents to resume work (can't trust tracker state)
+- Violates principle: "Phase tracker is MANDATORY master progress tracker"
+
+**Root Cause:**
+Agent did not follow instruction from line 501-502 of SUB_FEATURES_PHASE_TRACKER.md:
+> **After completing each phase:**
+> 1. Update "Current Status" immediately
+
+**Recommended Guide Update:**
+
+**Guide:** post_implementation_guide.md (or all phase guides)
+
+**Add to each phase completion section:**
+```markdown
+**MANDATORY: Update Phase Tracker**
+
+Before marking this phase complete:
+1. Open SUB_FEATURES_PHASE_TRACKER.md
+2. Mark [x] for the phase you just completed
+3. Update "Current Status" section with new status
+4. Save the file
+
+This keeps the tracker as the source of truth for all agents.
+```
+
+**Prevention Strategy:**
+Add explicit checkboxes in each guide's completion criteria:
+- [ ] Phase work complete
+- [ ] **SUB_FEATURES_PHASE_TRACKER.md updated** ← NEW MANDATORY STEP
+- [ ] Ready to proceed to next phase
+
+**Validation:**
+Phase tracker instructions exist (lines 501-502) but weren't followed. Making this a checkbox in each guide's completion criteria will make it harder to miss.
+
