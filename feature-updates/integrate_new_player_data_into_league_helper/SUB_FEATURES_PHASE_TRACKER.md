@@ -330,8 +330,8 @@
   - [x] **Re-read guide before marking complete** ✅ VERIFIED
 
 **Completion:**
-- [ ] Changes committed (with descriptive message) ⏸️ READY
-- [ ] Feature folder moved to done/ ⏸️ N/A (sub-feature, stays in place)
+- [x] Changes committed (with descriptive message) ✅ COMPLETE (2025-12-28, commit 50cacff)
+- [x] Feature folder moved to done/ ✅ N/A (sub-feature, stays in place)
 
 ---
 
@@ -492,32 +492,35 @@
 
 ## Current Status
 
-**Last updated:** 2025-12-28 (Phase 7 COMPLETE - READY FOR TODO CREATION! 🎉)
+**Last updated:** 2025-12-28 (Sub-feature 5 COMPLETE ✅ - Moving to Sub-feature 6)
 
-**Planning Phase Status:** ✅ 100% COMPLETE
+**Planning Phase Status:** ✅ 100% COMPLETE (all 8 sub-features)
 
-**All Phases Complete:**
-- ✅ Phase 1-2: Targeted Research + Spec Updates (all 8 sub-features)
-- ✅ Phase 3: Interactive Question Resolution (3 user decisions resolved)
-- ✅ Phase 4: Sub-Feature Complete + Scope Check (all 8 sub-features verified)
-- ✅ Phase 6: Cross-Sub-Feature Alignment Review (1 conflict resolved)
-- ✅ Phase 7: Ready for Implementation (finalized and documented)
+**Implementation Progress:**
+- ✅ Sub-feature 1: Core Data Loading - COMPLETE & COMMITTED
+- ✅ Sub-feature 2: Weekly Data Migration - COMPLETE & COMMITTED
+- ✅ Sub-feature 3: Locked Field Migration - COMPLETE & COMMITTED
+- ✅ Sub-feature 4: File Update Strategy - COMPLETE & COMMITTED
+- ✅ Sub-feature 5: ProjectedPointsManager Consolidation - COMPLETE & COMMITTED (2025-12-28)
+- ⏸️ Sub-feature 6: TeamDataManager D/ST Migration - NEXT
+- ⏸️ Sub-feature 7: DraftedRosterManager Consolidation - PENDING
+- ⏸️ Sub-feature 8: CSV Deprecation & Cleanup - PENDING
 
-**Current phase:** TODO_CREATION (starting Sub-feature 1)
+**Current phase:** IMPLEMENTATION (Sub-feature 6)
 
-**Current sub-feature:** Sub-feature 1: Core Data Loading
+**Current sub-feature:** Sub-feature 6: TeamDataManager D/ST Migration
 
 **Next action:**
-1. Execute `todo_creation_guide.md` for Sub-feature 1
+1. Execute `todo_creation_guide.md` for Sub-feature 6
    - FULL 24 iterations (3 rounds: 7+9+8)
-   - Creates `sub_feature_01_core_data_loading_todo.md`
-   - Creates `sub_feature_01_core_data_loading_questions.md` (if needed)
-2. Execute `implementation_execution_guide.md` for Sub-feature 1
-3. Execute `post_implementation_guide.md` for Sub-feature 1
+   - Creates `sub_feature_06_team_data_manager_dst_migration_todo.md`
+   - Creates `sub_feature_06_team_data_manager_dst_migration_questions.md` (if needed)
+2. Execute `implementation_execution_guide.md` for Sub-feature 6
+3. Execute `post_implementation_guide.md` for Sub-feature 6
 4. Commit changes (one commit per sub-feature)
-5. Move to Sub-feature 2 and repeat
+5. Move to Sub-feature 7 and repeat
 
-**Blockers:** ✅ NONE - Ready to proceed with TODO creation!
+**Blockers:** ✅ NONE - Ready to proceed with Sub-feature 6!
 
 **Phase 6 Summary (Cross-Sub-Feature Alignment Review):**
 - ✅ All 8 specs reviewed side-by-side
