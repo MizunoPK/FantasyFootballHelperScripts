@@ -35,6 +35,7 @@ import json
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import statistics
+import warnings
 
 import sys
 import logging
@@ -135,18 +136,34 @@ class PlayerManager:
         self.max_projection : int = 0
         self.max_weekly_projections: Dict[int, float] = {}  # Cache for weekly max projections
 
-        self.load_players_from_csv()
+        self.load_players_from_json()
         self.load_team()
         self.logger.debug(f"Player Manager initialized with {len(self.players)} players, {len(self.team.roster)} on roster")
 
 
     def load_players_from_csv(self) -> None:
         """
-        Load players from CSV file using the new FantasyPlayer class.
+        DEPRECATED: Use load_players_from_json() instead.
 
-        This function now supports the new projection data format with fantasy_points
+        This method loads player data from the old players.csv format.
+        It is maintained for backward compatibility only.
+
+        Deprecated: 2025-12-30
+        Remove in: Next major version
+
+        Legacy documentation:
+        Load players from CSV file using the new FantasyPlayer class.
+        This function supports the projection data format with fantasy_points
         and can fall back to the legacy format if needed.
         """
+        warnings.warn(
+            "load_players_from_csv() is deprecated. "
+            "Use load_players_from_json() instead. "
+            "CSV support will be removed in future version.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+
         players: list[FantasyPlayer] = []
         self.max_projection = 0.0
         self.max_weekly_projections = {}  # Clear weekly projection cache on reload
@@ -569,17 +586,17 @@ class PlayerManager:
 
     def reload_player_data(self) -> None:
         """
-        Reload player data from CSV file and refresh team roster
+        Reload player data from JSON files and refresh team roster
         This is called before each main menu display to ensure data is up-to-date
         """
         try:
-            self.logger.info("Reloading player data from CSV file")
+            self.logger.info("Reloading player data from JSON files")
 
             # Store current roster size for comparison
             old_roster_size = len(self.team.roster)
 
-            # Reload players from CSV
-            self.load_players_from_csv()
+            # Reload players from JSON
+            self.load_players_from_json()
 
             # Reload team with updated data
             self.load_team()

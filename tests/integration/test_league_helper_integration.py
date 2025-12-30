@@ -86,6 +86,14 @@ def temp_data_folder(tmp_path):
 6,21.5,24.8,34.2,7.8,9.1,31,17
 """)
 
+    # Copy player_data folder with JSON files (JSON-based loading from Sub-feature 1)
+    source_player_data_folder = project_root / "data" / "player_data"
+    dest_player_data_folder = data_folder / "player_data"
+
+    if source_player_data_folder.exists():
+        # Copy the entire player_data folder with all position JSON files
+        shutil.copytree(source_player_data_folder, dest_player_data_folder)
+
     # Copy configs folder structure from actual data folder (new folder-based config system)
     source_configs_folder = project_root / "data" / "configs"
     dest_configs_folder = data_folder / "configs"
@@ -437,23 +445,11 @@ class TestDraftedRosterManagerConsolidation:
         player_data_folder = data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # Create minimal players.csv (required for reload_player_data())
-        players_csv = data_folder / "players.csv"
-        players_csv.write_text("""id,name,position,team,bye_week,fantasy_points,injury_status,average_draft_position,drafted_by
-1,Patrick Mahomes,QB,KC,7,350.5,ACTIVE,1.2,Sea Sharp
-2,Josh Allen,QB,BUF,12,340.2,ACTIVE,1.5,Team Alpha
-3,Justin Jefferson,WR,MIN,13,310.8,ACTIVE,2.1,Sea Sharp
-4,Tyreek Hill,WR,MIA,10,305.3,ACTIVE,2.3,
-5,Christian McCaffrey,RB,SF,9,320.1,QUESTIONABLE,1.1,Team Alpha
-""")
-
-        # Create players.json with drafted_by field (Sub-feature 1 format)
-        players_json = data_folder / "players.json"
-        players_json.write_text("""{
-    "season": 2025,
-    "scoring_format": "ppr",
-    "total_players": 5,
-    "players": [
+        # Create position-specific JSON files (Sub-feature 1 format)
+        # QBs
+        qb_json = player_data_folder / "qb_data.json"
+        qb_json.write_text("""{
+    "qb_data": [
         {
             "id": 1,
             "name": "Patrick Mahomes",
@@ -475,7 +471,32 @@ class TestDraftedRosterManagerConsolidation:
             "injury_status": "ACTIVE",
             "average_draft_position": 1.5,
             "drafted_by": "Team Alpha"
-        },
+        }
+    ]
+}""")
+
+        # RBs
+        rb_json = player_data_folder / "rb_data.json"
+        rb_json.write_text("""{
+    "rb_data": [
+        {
+            "id": 5,
+            "name": "Christian McCaffrey",
+            "position": "RB",
+            "team": "SF",
+            "bye_week": 9,
+            "fantasy_points": 320.1,
+            "injury_status": "QUESTIONABLE",
+            "average_draft_position": 1.1,
+            "drafted_by": "Team Alpha"
+        }
+    ]
+}""")
+
+        # WRs
+        wr_json = player_data_folder / "wr_data.json"
+        wr_json.write_text("""{
+    "wr_data": [
         {
             "id": 3,
             "name": "Justin Jefferson",
@@ -497,20 +518,14 @@ class TestDraftedRosterManagerConsolidation:
             "injury_status": "ACTIVE",
             "average_draft_position": 2.3,
             "drafted_by": ""
-        },
-        {
-            "id": 5,
-            "name": "Christian McCaffrey",
-            "position": "RB",
-            "team": "SF",
-            "bye_week": 9,
-            "fantasy_points": 320.1,
-            "injury_status": "QUESTIONABLE",
-            "average_draft_position": 1.1,
-            "drafted_by": "Team Alpha"
         }
     ]
 }""")
+
+        # Empty files for other positions to avoid warnings
+        for position in ["te", "k", "dst"]:
+            pos_json = player_data_folder / f"{position}_data.json"
+            pos_json.write_text(f'{{"{position}_data": []}}')
 
         # Create required config files
         import json
@@ -575,36 +590,47 @@ class TestDraftedRosterManagerConsolidation:
         player_data_folder = data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # Create minimal players.csv (required for reload_player_data())
-        players_csv = data_folder / "players.csv"
-        players_csv.write_text("""id,name,position,team,bye_week,fantasy_points,injury_status,average_draft_position,drafted_by
-1,QB1,QB,KC,7,350.5,ACTIVE,1.2,Sea Sharp
-2,QB2,QB,BUF,12,340.2,ACTIVE,1.5,Team Alpha
-3,RB1,RB,SF,9,320.1,ACTIVE,1.1,Sea Sharp
-4,RB2,RB,DAL,8,310.5,ACTIVE,2.5,Team Alpha
-5,WR1,WR,MIN,13,310.8,ACTIVE,2.1,Sea Sharp
-6,WR2,WR,MIA,10,305.3,ACTIVE,2.3,Team Alpha
-7,TE1,TE,KC,7,220.4,ACTIVE,4.5,Sea Sharp
-8,TE2,TE,BAL,13,210.3,ACTIVE,5.1,Team Alpha
-""")
-
-        # Create players.json with multiple teams
-        players_json = data_folder / "players.json"
-        players_json.write_text("""{
-    "season": 2025,
-    "scoring_format": "ppr",
-    "total_players": 8,
-    "players": [
+        # Create position-specific JSON files (Sub-feature 1 format)
+        # QBs
+        qb_json = player_data_folder / "qb_data.json"
+        qb_json.write_text("""{
+    "qb_data": [
         {"id": 1, "name": "QB1", "position": "QB", "team": "KC", "bye_week": 7, "fantasy_points": 350.5, "injury_status": "ACTIVE", "average_draft_position": 1.2, "drafted_by": "Sea Sharp"},
-        {"id": 2, "name": "QB2", "position": "QB", "team": "BUF", "bye_week": 12, "fantasy_points": 340.2, "injury_status": "ACTIVE", "average_draft_position": 1.5, "drafted_by": "Team Alpha"},
+        {"id": 2, "name": "QB2", "position": "QB", "team": "BUF", "bye_week": 12, "fantasy_points": 340.2, "injury_status": "ACTIVE", "average_draft_position": 1.5, "drafted_by": "Team Alpha"}
+    ]
+}""")
+
+        # RBs
+        rb_json = player_data_folder / "rb_data.json"
+        rb_json.write_text("""{
+    "rb_data": [
         {"id": 3, "name": "RB1", "position": "RB", "team": "SF", "bye_week": 9, "fantasy_points": 320.1, "injury_status": "ACTIVE", "average_draft_position": 1.1, "drafted_by": "Sea Sharp"},
-        {"id": 4, "name": "RB2", "position": "RB", "team": "DAL", "bye_week": 8, "fantasy_points": 310.5, "injury_status": "ACTIVE", "average_draft_position": 2.5, "drafted_by": "Team Alpha"},
+        {"id": 4, "name": "RB2", "position": "RB", "team": "DAL", "bye_week": 8, "fantasy_points": 310.5, "injury_status": "ACTIVE", "average_draft_position": 2.5, "drafted_by": "Team Alpha"}
+    ]
+}""")
+
+        # WRs
+        wr_json = player_data_folder / "wr_data.json"
+        wr_json.write_text("""{
+    "wr_data": [
         {"id": 5, "name": "WR1", "position": "WR", "team": "MIN", "bye_week": 13, "fantasy_points": 310.8, "injury_status": "ACTIVE", "average_draft_position": 2.1, "drafted_by": "Sea Sharp"},
-        {"id": 6, "name": "WR2", "position": "WR", "team": "MIA", "bye_week": 10, "fantasy_points": 305.3, "injury_status": "ACTIVE", "average_draft_position": 2.3, "drafted_by": "Team Alpha"},
+        {"id": 6, "name": "WR2", "position": "WR", "team": "MIA", "bye_week": 10, "fantasy_points": 305.3, "injury_status": "ACTIVE", "average_draft_position": 2.3, "drafted_by": "Team Alpha"}
+    ]
+}""")
+
+        # TEs
+        te_json = player_data_folder / "te_data.json"
+        te_json.write_text("""{
+    "te_data": [
         {"id": 7, "name": "TE1", "position": "TE", "team": "KC", "bye_week": 7, "fantasy_points": 220.4, "injury_status": "ACTIVE", "average_draft_position": 4.5, "drafted_by": "Sea Sharp"},
         {"id": 8, "name": "TE2", "position": "TE", "team": "BAL", "bye_week": 13, "fantasy_points": 210.3, "injury_status": "ACTIVE", "average_draft_position": 5.1, "drafted_by": "Team Alpha"}
     ]
 }""")
+
+        # Empty files for other positions to avoid warnings
+        for position in ["k", "dst"]:
+            pos_json = player_data_folder / f"{position}_data.json"
+            pos_json.write_text(f'{{"{position}_data": []}}')
 
         # Create required config and team data
         import json
@@ -647,6 +673,77 @@ class TestDraftedRosterManagerConsolidation:
         # Verify NO CSV file was accessed (new approach doesn't use CSV)
         drafted_csv = data_folder / "drafted_data.csv"
         assert not drafted_csv.exists()  # CSV should NOT exist
+
+
+class TestCSVDeprecation:
+    """Integration tests for Sub-feature 8: CSV Deprecation & Cleanup"""
+
+    def test_all_modes_with_json_only(self, temp_data_folder):
+        """
+        Test that all 4 League Helper modes work with JSON-only loading (no CSV files).
+
+        This test verifies the complete CSV → JSON migration:
+        - PlayerManager loads from player_data/*.json files
+        - No players.csv file present (deprecated)
+        - All 4 modes (Add to Roster, Starter Helper, Trade Simulator, Modify Player Data) work correctly
+
+        Spec: sub_feature_08_csv_deprecation_cleanup_spec.md lines 92-97
+        """
+        # Remove players.csv to simulate production environment after CSV deprecation
+        players_csv = temp_data_folder / "players.csv"
+        if players_csv.exists():
+            players_csv.unlink()  # Delete the CSV file
+
+        # Also remove players_projected.csv (deprecated in Sub-feature 5)
+        players_projected_csv = temp_data_folder / "players_projected.csv"
+        if players_projected_csv.exists():
+            players_projected_csv.unlink()
+
+        # Verify CSV files do NOT exist (using JSON only)
+        assert not players_csv.exists(), "Test should not have players.csv (using JSON only)"
+        assert not players_projected_csv.exists(), "Test should not have players_projected.csv (deprecated)"
+
+        # Verify player_data folder DOES exist
+        player_data_folder = temp_data_folder / "player_data"
+        assert player_data_folder.exists(), "Test must have player_data folder with JSON files"
+
+        # Initialize League Helper Manager (should load from JSON)
+        manager = LeagueHelperManager(temp_data_folder)
+
+        # Verify players were loaded successfully from JSON
+        assert manager.player_manager is not None
+        assert len(manager.player_manager.players) > 0, "Players should be loaded from JSON files"
+
+        # Verify all mode managers initialized successfully
+        assert manager.add_to_roster_mode_manager is not None
+        assert manager.starter_helper_mode_manager is not None
+        assert manager.trade_simulator_mode_manager is not None
+        assert manager.modify_player_data_mode_manager is not None
+
+        # Test Mode 1: Add to Roster Mode
+        with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None) as mock_add:
+            manager._run_add_to_roster_mode()
+            assert mock_add.called, "Add to Roster mode should be callable with JSON loading"
+
+        # Test Mode 2: Starter Helper Mode
+        with patch.object(manager.starter_helper_mode_manager, 'show_recommended_starters', return_value=None) as mock_starter:
+            manager._run_starter_helper_mode()
+            assert mock_starter.called, "Starter Helper mode should be callable with JSON loading"
+
+        # Test Mode 3: Trade Simulator Mode
+        with patch.object(manager.trade_simulator_mode_manager, 'run_interactive_mode', return_value=None) as mock_trade:
+            manager._run_trade_simulator_mode()
+            assert mock_trade.called, "Trade Simulator mode should be callable with JSON loading"
+
+        # Test Mode 4: Modify Player Data Mode
+        with patch.object(manager.modify_player_data_mode_manager, 'start_interactive_mode', return_value=None) as mock_modify:
+            manager.run_modify_player_data_mode()
+            assert mock_modify.called, "Modify Player Data mode should be callable with JSON loading"
+
+        # Verify NO CSV files were accessed during initialization or mode execution
+        assert not (temp_data_folder / "players.csv").exists()
+
+        # Success: All 4 modes work with JSON-only loading ✅
 
 
 if __name__ == "__main__":

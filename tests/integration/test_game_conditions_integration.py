@@ -160,6 +160,110 @@ class TestGameConditionsLeagueHelperIntegration:
             with open(team_data_folder / f"{team}.csv", "w") as f:
                 f.write(team_csv)
 
+        # Create player_data folder with minimal test JSON files (Sub-feature 1 format)
+        # These tests only need a few players to test game conditions scoring
+        player_data_folder = data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # Create minimal position-specific JSON files with test players (no drafted_by set)
+        # QBs
+        qb_json = player_data_folder / "qb_data.json"
+        qb_json.write_text("""{
+    "qb_data": [
+        {
+            "id": "1",
+            "name": "Patrick Mahomes",
+            "team": "KC",
+            "position": "QB",
+            "bye_week": 10,
+            "injury_status": "ACTIVE",
+            "drafted_by": "",
+            "locked": false,
+            "average_draft_position": 5.0,
+            "player_rating": 95.0,
+            "projected_points": [25.0, 22.0, 28.0, 20.0, 24.0, 26.0, 23.0, 25.0, 27.0, 24.0, 22.0, 26.0, 25.0, 24.0, 23.0, 25.0, 24.0]
+        },
+        {
+            "id": "2",
+            "name": "Josh Allen",
+            "team": "BUF",
+            "position": "QB",
+            "bye_week": 12,
+            "injury_status": "ACTIVE",
+            "drafted_by": "",
+            "locked": false,
+            "average_draft_position": 8.0,
+            "player_rating": 93.0,
+            "projected_points": [24.0, 26.0, 22.0, 25.0, 23.0, 27.0, 24.0, 22.0, 25.0, 26.0, 23.0, 24.0, 25.0, 23.0, 24.0, 22.0, 25.0]
+        }
+    ]
+}""")
+
+        # RBs
+        rb_json = player_data_folder / "rb_data.json"
+        rb_json.write_text("""{
+    "rb_data": [
+        {
+            "id": "3",
+            "name": "Jahmyr Gibbs",
+            "team": "DET",
+            "position": "RB",
+            "bye_week": 8,
+            "injury_status": "ACTIVE",
+            "drafted_by": "",
+            "locked": false,
+            "average_draft_position": 6.0,
+            "player_rating": 90.0,
+            "projected_points": [18.0, 20.0, 22.0, 16.0, 19.0, 21.0, 20.0, 18.0, 17.0, 22.0, 19.0, 20.0, 18.0, 19.0, 20.0, 21.0, 18.0]
+        }
+    ]
+}""")
+
+        # WRs
+        wr_json = player_data_folder / "wr_data.json"
+        wr_json.write_text("""{
+    "wr_data": [
+        {
+            "id": "4",
+            "name": "CeeDee Lamb",
+            "team": "DAL",
+            "position": "WR",
+            "bye_week": 7,
+            "injury_status": "ACTIVE",
+            "drafted_by": "",
+            "locked": false,
+            "average_draft_position": 10.0,
+            "player_rating": 92.0,
+            "projected_points": [20.0, 18.0, 22.0, 19.0, 21.0, 17.0, 20.0, 22.0, 19.0, 18.0, 21.0, 20.0, 19.0, 20.0, 21.0, 18.0, 20.0]
+        }
+    ]
+}""")
+
+        # Kickers
+        k_json = player_data_folder / "k_data.json"
+        k_json.write_text("""{
+    "k_data": [
+        {
+            "id": "5",
+            "name": "Justin Tucker",
+            "team": "BAL",
+            "position": "K",
+            "bye_week": 14,
+            "injury_status": "ACTIVE",
+            "drafted_by": "",
+            "locked": false,
+            "average_draft_position": 120.0,
+            "player_rating": 85.0,
+            "projected_points": [10.0, 8.0, 12.0, 9.0, 11.0, 10.0, 9.0, 11.0, 10.0, 8.0, 12.0, 9.0, 10.0, 11.0, 9.0, 10.0, 11.0]
+        }
+    ]
+}""")
+
+        # TEs, DSTs - empty arrays (not needed for game conditions tests)
+        for position in ["te", "dst"]:
+            pos_json = player_data_folder / f"{position}_data.json"
+            pos_json.write_text(f'{{"{position}_data": []}}')
+
         return data_folder
 
     def test_game_data_manager_loads_correctly(self, integration_data_folder):

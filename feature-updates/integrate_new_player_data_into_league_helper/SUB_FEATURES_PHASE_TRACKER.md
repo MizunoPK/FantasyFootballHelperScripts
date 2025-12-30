@@ -605,7 +605,7 @@ Discovered during Sub-feature 7 TODO Creation (Iteration 1). The `drafted_by` fi
 
 ## Current Status
 
-**Last updated:** 2025-12-29 (Sub-feature 7 COMPLETE & COMMITTED ✅)
+**Last updated:** 2025-12-30 (Sub-feature 8 COMPLETE - ready to commit ✅)
 
 **Planning Phase Status:** ✅ 100% COMPLETE (all 9 sub-features including bug fix)
 
@@ -621,12 +621,18 @@ Discovered during Sub-feature 7 TODO Creation (Iteration 1). The `drafted_by` fi
   - All 10 code changes implemented
   - QC Rounds 1-3 PASSED (0 issues found)
   - 65/65 tests passing (100%)
-- ✅ Sub-feature 9: drafted Field Deprecation (BUG FIX) - **COMPLETE (ready to commit)** (2025-12-29)
-- ⏸️ Sub-feature 8: CSV Deprecation & Cleanup - PENDING (after Sub-feature 9)
+- ✅ Sub-feature 9: drafted Field Deprecation (BUG FIX) - **COMPLETE & COMMITTED (commit 9ecbdae)** ✅ (2025-12-29)
+  - All 4 phases complete (Helper Methods, Migrations, Property, Testing)
+  - QC Rounds 1-3 PASSED (0 issues found)
+  - 99.5% tests passing (100% in-scope)
+- ✅ Sub-feature 8: CSV Deprecation & Cleanup - **COMPLETE (ready to commit)** ✅ (2025-12-30)
+  - All 3 phases complete (Phase 2 → Phase 1 → Phase 3)
+  - QC Rounds 1-3 PASSED (0 issues found)
+  - 100% in-scope tests passing (1078/1078)
 
-**Current phase:** Sub-feature 7 COMPLETE - Ready for next sub-feature (8 or 9)
+**Current phase:** Sub-feature 8 COMPLETE - All sub-features complete, ready to commit Sub-feature 8
 
-**Current sub-feature:** None (Sub-feature 7 complete)
+**Current sub-feature:** Sub-feature 8 (CSV Deprecation & Cleanup) - ready to commit
 
 **What was accomplished (Rounds 1 & 2):**
 

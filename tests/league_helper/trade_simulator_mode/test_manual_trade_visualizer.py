@@ -592,6 +592,14 @@ class TestStartManualTradeIntegration:
         team_data_folder = data_folder / "team_data"
         team_data_folder.mkdir()
 
+        # Create minimal player_data folder with empty JSON files (Sub-feature 1 format)
+        # PlayerManager now loads from JSON, not CSV
+        player_data_folder = data_folder / "player_data"
+        player_data_folder.mkdir()
+        for position in ["qb", "rb", "wr", "te", "k", "dst"]:
+            pos_json = player_data_folder / f"{position}_data.json"
+            pos_json.write_text(f'{{"{position}_data": []}}')
+
         return data_folder
 
     def test_no_opponent_teams(self, mock_data_folder):
@@ -691,6 +699,14 @@ class TestWaiverTradeProcessing:
         # Create empty team_data folder for TeamDataManager
         team_data_folder = data_folder / "team_data"
         team_data_folder.mkdir()
+
+        # Create minimal player_data folder with empty JSON files (Sub-feature 1 format)
+        # PlayerManager now loads from JSON, not CSV
+        player_data_folder = data_folder / "player_data"
+        player_data_folder.mkdir()
+        for position in ["qb", "rb", "wr", "te", "k", "dst"]:
+            pos_json = player_data_folder / f"{position}_data.json"
+            pos_json.write_text(f'{{"{position}_data": []}}')
 
         return data_folder
 
