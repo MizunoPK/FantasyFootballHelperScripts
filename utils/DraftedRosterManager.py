@@ -2,18 +2,36 @@
 """
 Drafted Roster Manager
 
-Shared class for managing drafted player data across fantasy teams.
-Handles loading drafted_data.csv, fuzzy matching, and organizing players by team.
+⚠️ DEPRECATION NOTICE ⚠️
 
-This module provides:
-- Loading and processing drafted player data from CSV
-- Fuzzy matching to identify players across different data sources
-- Team-based player organization
-- Helper functions for managing drafted state
+This module is DEPRECATED and should only be used for backward compatibility.
 
-Used by:
-- player-data-fetcher: Initial data loading and player state management
-- league_helper: Team roster management and draft analysis
+**Why deprecated:**
+- players.json now includes drafted_by field (team name)
+- Eliminates 680+ lines of fuzzy matching code
+- Direct field access is simpler and more reliable than CSV fuzzy matching
+
+**NEW approach (use this instead):**
+```python
+# OLD (deprecated):
+from utils.DraftedRosterManager import DraftedRosterManager
+roster_manager = DraftedRosterManager(csv_path, team_name)
+roster_manager.load_drafted_data()
+teams = roster_manager.get_players_by_team(all_players)
+
+# NEW (recommended):
+from league_helper.util.PlayerManager import PlayerManager
+teams = player_manager.get_players_by_team()
+```
+
+**Migration guide:**
+1. Ensure players.json has drafted_by field (Sub-feature 1)
+2. Use PlayerManager.get_players_by_team() instead of DraftedRosterManager
+3. Remove DraftedRosterManager imports
+
+**This module remains functional for:**
+- player-data-fetcher: Initial data loading and player state management (still uses CSV)
+- Backward compatibility with existing code
 
 Author: Kai Mizuno
 Created: October 2025
@@ -21,6 +39,7 @@ Created: October 2025
 
 import csv
 import re
+import warnings
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
@@ -56,6 +75,12 @@ class DraftedRosterManager:
             csv_path: Path to drafted_data.csv file
             my_team_name: Name of user's fantasy team (for drafted=2 identification)
         """
+        warnings.warn(
+            "DraftedRosterManager is deprecated. Use PlayerManager.get_players_by_team() instead. "
+            "See module docstring for migration guide.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         self.logger = get_logger()
         self.csv_path = Path(csv_path)
         self.my_team_name = my_team_name
@@ -74,6 +99,11 @@ class DraftedRosterManager:
         Returns:
             bool: True if data loaded successfully, False otherwise
         """
+        warnings.warn(
+            "load_drafted_data() is deprecated. Use PlayerManager.get_players_by_team() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         if not self.csv_path.exists():
             self.logger.debug(f"Drafted data file not found: {self.csv_path}")
             return False
@@ -172,6 +202,11 @@ class DraftedRosterManager:
             >>> teams = manager.get_players_by_team(players)
             >>> print(teams["Sea Sharp"])  # List of FantasyPlayer objects on Sea Sharp
         """
+        warnings.warn(
+            "get_players_by_team() is deprecated. Use PlayerManager.get_players_by_team() instead (no arguments needed).",
+            DeprecationWarning,
+            stacklevel=2
+        )
         if not self.drafted_players:
             self.logger.debug("No drafted data loaded, returning empty dict")
             return {}
@@ -223,6 +258,11 @@ class DraftedRosterManager:
         Returns:
             Updated list of FantasyPlayer objects (same references)
         """
+        warnings.warn(
+            "apply_drafted_state_to_players() is deprecated. Players now have drafted_by field from JSON.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         if not self.drafted_players:
             self.logger.debug("No drafted data loaded, skipping state application")
             return fantasy_players

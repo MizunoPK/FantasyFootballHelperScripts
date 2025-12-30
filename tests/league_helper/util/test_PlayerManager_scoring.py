@@ -1643,5 +1643,160 @@ class TestAdditionalEdgeCases:
         assert result.score > 0
 
 
+# ============================================================================
+# TEST CLASS: get_players_by_team() - Sub-feature 7
+# ============================================================================
+
+class TestGetPlayersByTeam:
+    """Test PlayerManager.get_players_by_team() method (Sub-feature 7)"""
+
+    def test_get_players_by_team_normal_case(self, player_manager):
+        """Test get_players_by_team with multiple teams"""
+        # Create players with different drafted_by values
+        player_manager.players = [
+            FantasyPlayer(id=1, name="Player 1", team="KC", position="QB", drafted_by="Sea Sharp"),
+            FantasyPlayer(id=2, name="Player 2", team="BUF", position="QB", drafted_by="Team Alpha"),
+            FantasyPlayer(id=3, name="Player 3", team="SF", position="RB", drafted_by="Sea Sharp"),
+            FantasyPlayer(id=4, name="Player 4", team="DAL", position="WR", drafted_by="Team Alpha"),
+            FantasyPlayer(id=5, name="Player 5", team="NYJ", position="TE", drafted_by=""),  # Free agent
+        ]
+
+        result = player_manager.get_players_by_team()
+
+        # Verify dict structure
+        assert isinstance(result, dict)
+        assert "Sea Sharp" in result
+        assert "Team Alpha" in result
+
+        # Verify team rosters
+        assert len(result["Sea Sharp"]) == 2
+        assert len(result["Team Alpha"]) == 2
+
+        # Verify correct players on each team
+        sea_sharp_names = [p.name for p in result["Sea Sharp"]]
+        assert "Player 1" in sea_sharp_names
+        assert "Player 3" in sea_sharp_names
+
+        team_alpha_names = [p.name for p in result["Team Alpha"]]
+        assert "Player 2" in team_alpha_names
+        assert "Player 4" in team_alpha_names
+
+        # Verify free agent excluded
+        all_players_in_teams = []
+        for roster in result.values():
+            all_players_in_teams.extend(roster)
+        assert len(all_players_in_teams) == 4  # Player 5 excluded
+
+    def test_get_players_by_team_single_team(self, player_manager):
+        """Test get_players_by_team with single team"""
+        player_manager.players = [
+            FantasyPlayer(id=1, name="Player 1", team="KC", position="QB", drafted_by="Sea Sharp"),
+            FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB", drafted_by="Sea Sharp"),
+        ]
+
+        result = player_manager.get_players_by_team()
+
+        assert len(result) == 1
+        assert "Sea Sharp" in result
+        assert len(result["Sea Sharp"]) == 2
+
+    def test_get_players_by_team_all_undrafted(self, player_manager):
+        """Test get_players_by_team with all players undrafted"""
+        player_manager.players = [
+            FantasyPlayer(id=1, name="Player 1", team="KC", position="QB", drafted_by=""),
+            FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB", drafted_by=""),
+        ]
+
+        result = player_manager.get_players_by_team()
+
+        # Should return empty dict (no drafted players)
+        assert result == {}
+
+    def test_get_players_by_team_empty_players_list(self, player_manager):
+        """Test get_players_by_team with empty players list"""
+        player_manager.players = []
+
+        result = player_manager.get_players_by_team()
+
+        # Should return empty dict and log warning
+        assert result == {}
+
+    def test_get_players_by_team_none_players(self, player_manager):
+        """Test get_players_by_team with None players"""
+        player_manager.players = None
+
+        result = player_manager.get_players_by_team()
+
+        # Should return empty dict and log warning
+        assert result == {}
+
+    def test_get_players_by_team_mixed_drafted_status(self, player_manager):
+        """Test get_players_by_team with mix of drafted and undrafted"""
+        player_manager.players = [
+            FantasyPlayer(id=1, name="Drafted 1", team="KC", position="QB", drafted_by="Sea Sharp"),
+            FantasyPlayer(id=2, name="Free Agent 1", team="BUF", position="QB", drafted_by=""),
+            FantasyPlayer(id=3, name="Drafted 2", team="SF", position="RB", drafted_by="Team Alpha"),
+            FantasyPlayer(id=4, name="Free Agent 2", team="DAL", position="WR", drafted_by=""),
+            FantasyPlayer(id=5, name="Drafted 3", team="MIN", position="TE", drafted_by="Sea Sharp"),
+        ]
+
+        result = player_manager.get_players_by_team()
+
+        # Verify only drafted players included
+        assert len(result) == 2  # Two teams
+        assert "Sea Sharp" in result
+        assert "Team Alpha" in result
+
+        # Verify Sea Sharp has 2 players
+        assert len(result["Sea Sharp"]) == 2
+        sea_sharp_names = [p.name for p in result["Sea Sharp"]]
+        assert "Drafted 1" in sea_sharp_names
+        assert "Drafted 3" in sea_sharp_names
+
+        # Verify Team Alpha has 1 player
+        assert len(result["Team Alpha"]) == 1
+        assert result["Team Alpha"][0].name == "Drafted 2"
+
+    def test_get_players_by_team_preserves_player_objects(self, player_manager):
+        """Test get_players_by_team returns same player object references"""
+        player1 = FantasyPlayer(id=1, name="Player 1", team="KC", position="QB", drafted_by="Sea Sharp")
+        player_manager.players = [player1]
+
+        result = player_manager.get_players_by_team()
+
+        # Verify same object reference (not a copy)
+        assert result["Sea Sharp"][0] is player1
+
+    def test_get_players_by_team_multiple_players_same_team(self, player_manager):
+        """Test get_players_by_team with many players on same team"""
+        players = [
+            FantasyPlayer(id=i, name=f"Player {i}", team="KC", position="QB", drafted_by="Sea Sharp")
+            for i in range(15)  # 15 players on one team
+        ]
+        player_manager.players = players
+
+        result = player_manager.get_players_by_team()
+
+        assert len(result) == 1
+        assert "Sea Sharp" in result
+        assert len(result["Sea Sharp"]) == 15
+
+    def test_get_players_by_team_case_sensitive_team_names(self, player_manager):
+        """Test get_players_by_team treats team names as case-sensitive"""
+        player_manager.players = [
+            FantasyPlayer(id=1, name="Player 1", team="KC", position="QB", drafted_by="Sea Sharp"),
+            FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB", drafted_by="sea sharp"),  # Different case
+        ]
+
+        result = player_manager.get_players_by_team()
+
+        # Should create two separate teams (case-sensitive)
+        assert len(result) == 2
+        assert "Sea Sharp" in result
+        assert "sea sharp" in result
+        assert len(result["Sea Sharp"]) == 1
+        assert len(result["sea sharp"]) == 1
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

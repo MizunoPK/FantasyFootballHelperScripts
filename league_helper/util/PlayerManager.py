@@ -1020,3 +1020,46 @@ class PlayerManager:
                     player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
 
         self.logger.debug(f"Player data updated, max_projection={self.max_projection:.2f}")
+
+    def get_players_by_team(self) -> Dict[str, List[FantasyPlayer]]:
+        """
+        Organize players by their fantasy team.
+
+        Returns dict of {team_name: [player1, player2, ...]} for all drafted players.
+        Players with empty drafted_by field are excluded (not drafted).
+
+        Returns:
+            Dict[str, List[FantasyPlayer]]: Dictionary mapping team names to player lists
+
+        Example:
+            >>> teams = player_manager.get_players_by_team()
+            >>> teams
+            {
+                "Sea Sharp": [<FantasyPlayer: Mahomes>, <FantasyPlayer: Kelce>],
+                "Team Alpha": [<FantasyPlayer: Allen>, <FantasyPlayer: Hill>]
+            }
+
+            >>> # Access specific team
+            >>> my_roster = teams.get("Sea Sharp", [])
+            >>>
+            >>> # Iterate all teams
+            >>> for team_name, roster in teams.items():
+            >>>     print(f"{team_name}: {len(roster)} players")
+        """
+        # Error handling: graceful degradation if no players loaded
+        # Spec: sub_feature_07_drafted_roster_manager_consolidation_spec.md
+        # Task 1.3: Handle edge cases without crashing
+        if not self.players:
+            self.logger.warning("No players loaded - cannot organize by team")
+            return {}
+
+        # Group players by fantasy team using drafted_by field
+        # Spec: sub_feature_07_drafted_roster_manager_consolidation_spec.md lines 29-38
+        # Task 1.1: Filter on drafted_by (non-empty = drafted), create dict
+        teams = {}
+        for player in self.players:
+            if player.drafted_by:  # Non-empty = drafted
+                if player.drafted_by not in teams:
+                    teams[player.drafted_by] = []
+                teams[player.drafted_by].append(player)
+        return teams

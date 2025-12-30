@@ -105,6 +105,14 @@ def mock_player_manager(sample_players):
     # Return empty list by default (tests can override this if needed)
     manager.get_player_list = Mock(return_value=[])
 
+    # Mock get_players_by_team (Sub-feature 7: DraftedRosterManager consolidation)
+    # Return dict mapping team names to player lists
+    # Tests can override this if needed
+    manager.get_players_by_team = Mock(return_value={
+        "Sea Sharp": sample_players[:3],  # First 3 players
+        "Team Alpha": sample_players[3:6],  # Next 3 players
+    })
+
     return manager
 
 

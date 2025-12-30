@@ -42,7 +42,6 @@ from util.ScoredPlayer import ScoredPlayer
 
 # Add parent directory to path for utils imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from utils.DraftedRosterManager import DraftedRosterManager
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 
@@ -74,8 +73,8 @@ class TradeSimulatorModeManager:
     3. Manual Trade Visualizer - Analyze specific trade proposals
 
     Attributes:
-        data_folder (Path): Path to data directory containing drafted_data.csv
-        player_manager (PlayerManager): PlayerManager instance with all player data
+        data_folder (Path): Path to data directory containing players.json
+        player_manager (PlayerManager): PlayerManager instance with all player data (including drafted_by field)
         config (ConfigManager): Configuration manager
         logger: Logger instance
         team_rosters (Dict[str, List[FantasyPlayer]]): Dictionary mapping team names to their player rosters
@@ -92,7 +91,7 @@ class TradeSimulatorModeManager:
         Initialize TradeSimulatorModeManager.
 
         Args:
-            data_folder (Path): Path to data directory containing drafted_data.csv
+            data_folder (Path): Path to data directory containing players.json
             player_manager (PlayerManager): PlayerManager instance with all player data
             config (ConfigManager): Configuration manager
         """
@@ -178,23 +177,22 @@ class TradeSimulatorModeManager:
         """
         Initialize team roster data by organizing players by fantasy team.
 
-        Uses the PlayerManager's player list and DraftedRosterManager to:
-        1. Reload player data from CSV (resets any state changes from previous simulations)
-        2. Load drafted_data.csv
-        3. Match players to their fantasy teams using fuzzy matching
-        4. Create team_rosters dict mapping team names to player lists
+        Uses the PlayerManager's player list to:
+        1. Reload player data from JSON (resets any state changes from previous simulations)
+        2. Organize players by drafted_by field (team name)
+        3. Create team_rosters dict mapping team names to player lists
 
         Side Effects:
-            - Reloads all player data from CSV (resets drafted, locked, score state)
+            - Reloads all player data from JSON (resets drafted, locked, score state)
             - Populates self.team_rosters with Dict[team_name, List[FantasyPlayer]]
         """
         self.logger.info("Initializing team data for Trade Simulator")
 
-        # CRITICAL: Reload player data from CSV to reset any state changes
+        # CRITICAL: Reload player data to reset any state changes
         # This ensures drafted status, locked status, and scores are fresh
         # Without this, simulations can become inconsistent (e.g., waiver recommendations
         # may differ between runs due to stale locked/drafted state)
-        self.logger.debug("Reloading player data from CSV to reset state")
+        self.logger.debug("Reloading player data from JSON to reset state")
         self.player_manager.reload_player_data()
 
         # Get all players from PlayerManager (includes projections, ADPs, and injury data)
@@ -202,25 +200,14 @@ class TradeSimulatorModeManager:
         self.logger.info(f"Using {len(all_players)} players from PlayerManager")
 
         # Load drafted data and organize by team
-        # drafted_data.csv contains: FantasyTeam, Name, Team, Position, ADP
-        drafted_data_csv = self.data_folder / 'drafted_data.csv'
+        # players.json contains drafted_by field (team name) for each player
+        # Spec: sub_feature_07_drafted_roster_manager_consolidation_spec.md lines 40-50
+        self.team_rosters = self.player_manager.get_players_by_team()
 
-        self.logger.debug(f"Loading drafted data from {drafted_data_csv}")
-        roster_manager = DraftedRosterManager(str(drafted_data_csv), Constants.FANTASY_TEAM_NAME)
-
-        if roster_manager.load_drafted_data():
-            # Get players organized by team
-            # Uses fuzzy matching to match CSV names to FantasyPlayer objects
-            self.team_rosters = roster_manager.get_players_by_team(all_players)
-
-            # Log team roster sizes for debugging
-            self.logger.info(f"Organized players into {len(self.team_rosters)} team rosters")
-            for team_name, roster in self.team_rosters.items():
-                self.logger.debug(f"Team '{team_name}': {len(roster)} players")
-        else:
-            # Failed to load CSV - likely file doesn't exist or malformed
-            self.logger.warning("Failed to load drafted data, team rosters will be empty")
-            self.team_rosters = {}
+        # Log team roster sizes for debugging
+        self.logger.info(f"Organized players into {len(self.team_rosters)} team rosters")
+        for team_name, roster in self.team_rosters.items():
+            self.logger.debug(f"Team '{team_name}': {len(roster)} players")
 
         # Create TradeSimTeam objects for scoring and analysis
         # My team uses PlayerManager's roster (already has full player data)

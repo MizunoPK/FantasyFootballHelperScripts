@@ -420,5 +420,234 @@ class TestEndToEndWorkflow:
         assert manager is not None
 
 
+class TestDraftedRosterManagerConsolidation:
+    """Integration tests for Sub-feature 7: DraftedRosterManager consolidation"""
+
+    def test_get_players_by_team_with_real_json(self, tmp_path):
+        """Test PlayerManager.get_players_by_team() with real JSON data"""
+        # Create data folder with JSON file containing drafted_by field
+        data_folder = tmp_path / "data"
+        data_folder.mkdir()
+
+        # Create team_data folder to avoid warnings
+        team_data_folder = data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        # Create player_data folder to avoid D/ST warnings
+        player_data_folder = data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # Create minimal players.csv (required for reload_player_data())
+        players_csv = data_folder / "players.csv"
+        players_csv.write_text("""id,name,position,team,bye_week,fantasy_points,injury_status,average_draft_position,drafted_by
+1,Patrick Mahomes,QB,KC,7,350.5,ACTIVE,1.2,Sea Sharp
+2,Josh Allen,QB,BUF,12,340.2,ACTIVE,1.5,Team Alpha
+3,Justin Jefferson,WR,MIN,13,310.8,ACTIVE,2.1,Sea Sharp
+4,Tyreek Hill,WR,MIA,10,305.3,ACTIVE,2.3,
+5,Christian McCaffrey,RB,SF,9,320.1,QUESTIONABLE,1.1,Team Alpha
+""")
+
+        # Create players.json with drafted_by field (Sub-feature 1 format)
+        players_json = data_folder / "players.json"
+        players_json.write_text("""{
+    "season": 2025,
+    "scoring_format": "ppr",
+    "total_players": 5,
+    "players": [
+        {
+            "id": 1,
+            "name": "Patrick Mahomes",
+            "position": "QB",
+            "team": "KC",
+            "bye_week": 7,
+            "fantasy_points": 350.5,
+            "injury_status": "ACTIVE",
+            "average_draft_position": 1.2,
+            "drafted_by": "Sea Sharp"
+        },
+        {
+            "id": 2,
+            "name": "Josh Allen",
+            "position": "QB",
+            "team": "BUF",
+            "bye_week": 12,
+            "fantasy_points": 340.2,
+            "injury_status": "ACTIVE",
+            "average_draft_position": 1.5,
+            "drafted_by": "Team Alpha"
+        },
+        {
+            "id": 3,
+            "name": "Justin Jefferson",
+            "position": "WR",
+            "team": "MIN",
+            "bye_week": 13,
+            "fantasy_points": 310.8,
+            "injury_status": "ACTIVE",
+            "average_draft_position": 2.1,
+            "drafted_by": "Sea Sharp"
+        },
+        {
+            "id": 4,
+            "name": "Tyreek Hill",
+            "position": "WR",
+            "team": "MIA",
+            "bye_week": 10,
+            "fantasy_points": 305.3,
+            "injury_status": "ACTIVE",
+            "average_draft_position": 2.3,
+            "drafted_by": ""
+        },
+        {
+            "id": 5,
+            "name": "Christian McCaffrey",
+            "position": "RB",
+            "team": "SF",
+            "bye_week": 9,
+            "fantasy_points": 320.1,
+            "injury_status": "QUESTIONABLE",
+            "average_draft_position": 1.1,
+            "drafted_by": "Team Alpha"
+        }
+    ]
+}""")
+
+        # Create required config files
+        import json
+        import shutil
+
+        # Copy configs folder from actual data
+        source_configs = Path(__file__).parent.parent.parent / "data" / "configs"
+        dest_configs = data_folder / "configs"
+
+        if source_configs.exists():
+            shutil.copytree(source_configs, dest_configs)
+
+        # Import after setting up files
+        from league_helper.util.PlayerManager import PlayerManager
+        from league_helper.util.ConfigManager import ConfigManager
+        from league_helper.util.TeamDataManager import TeamDataManager
+        from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+
+        # Initialize managers
+        config = ConfigManager(data_folder)
+        team_data = TeamDataManager(data_folder, config.current_nfl_week)
+        schedule = SeasonScheduleManager(data_folder)
+        player_manager = PlayerManager(data_folder, config, team_data, schedule)
+
+        # Test get_players_by_team() - this is the new method from Sub-feature 7
+        teams = player_manager.get_players_by_team()
+
+        # Verify results
+        assert isinstance(teams, dict)
+        assert "Sea Sharp" in teams
+        assert "Team Alpha" in teams
+
+        # Verify Sea Sharp roster (players 1 and 3)
+        assert len(teams["Sea Sharp"]) == 2
+        sea_sharp_names = [p.name for p in teams["Sea Sharp"]]
+        assert "Patrick Mahomes" in sea_sharp_names
+        assert "Justin Jefferson" in sea_sharp_names
+
+        # Verify Team Alpha roster (players 2 and 5)
+        assert len(teams["Team Alpha"]) == 2
+        team_alpha_names = [p.name for p in teams["Team Alpha"]]
+        assert "Josh Allen" in team_alpha_names
+        assert "Christian McCaffrey" in team_alpha_names
+
+        # Verify player 4 (Tyreek Hill) is NOT in any team (drafted_by="")
+        all_drafted_players = []
+        for roster in teams.values():
+            all_drafted_players.extend([p.name for p in roster])
+        assert "Tyreek Hill" not in all_drafted_players
+
+    def test_trade_simulator_uses_get_players_by_team(self, tmp_path):
+        """Test TradeSimulator integration with PlayerManager.get_players_by_team()"""
+        # Create data folder with JSON
+        data_folder = tmp_path / "data"
+        data_folder.mkdir()
+
+        # Create team_data folder to avoid warnings
+        team_data_folder = data_folder / "team_data"
+        team_data_folder.mkdir()
+
+        # Create player_data folder to avoid D/ST warnings
+        player_data_folder = data_folder / "player_data"
+        player_data_folder.mkdir()
+
+        # Create minimal players.csv (required for reload_player_data())
+        players_csv = data_folder / "players.csv"
+        players_csv.write_text("""id,name,position,team,bye_week,fantasy_points,injury_status,average_draft_position,drafted_by
+1,QB1,QB,KC,7,350.5,ACTIVE,1.2,Sea Sharp
+2,QB2,QB,BUF,12,340.2,ACTIVE,1.5,Team Alpha
+3,RB1,RB,SF,9,320.1,ACTIVE,1.1,Sea Sharp
+4,RB2,RB,DAL,8,310.5,ACTIVE,2.5,Team Alpha
+5,WR1,WR,MIN,13,310.8,ACTIVE,2.1,Sea Sharp
+6,WR2,WR,MIA,10,305.3,ACTIVE,2.3,Team Alpha
+7,TE1,TE,KC,7,220.4,ACTIVE,4.5,Sea Sharp
+8,TE2,TE,BAL,13,210.3,ACTIVE,5.1,Team Alpha
+""")
+
+        # Create players.json with multiple teams
+        players_json = data_folder / "players.json"
+        players_json.write_text("""{
+    "season": 2025,
+    "scoring_format": "ppr",
+    "total_players": 8,
+    "players": [
+        {"id": 1, "name": "QB1", "position": "QB", "team": "KC", "bye_week": 7, "fantasy_points": 350.5, "injury_status": "ACTIVE", "average_draft_position": 1.2, "drafted_by": "Sea Sharp"},
+        {"id": 2, "name": "QB2", "position": "QB", "team": "BUF", "bye_week": 12, "fantasy_points": 340.2, "injury_status": "ACTIVE", "average_draft_position": 1.5, "drafted_by": "Team Alpha"},
+        {"id": 3, "name": "RB1", "position": "RB", "team": "SF", "bye_week": 9, "fantasy_points": 320.1, "injury_status": "ACTIVE", "average_draft_position": 1.1, "drafted_by": "Sea Sharp"},
+        {"id": 4, "name": "RB2", "position": "RB", "team": "DAL", "bye_week": 8, "fantasy_points": 310.5, "injury_status": "ACTIVE", "average_draft_position": 2.5, "drafted_by": "Team Alpha"},
+        {"id": 5, "name": "WR1", "position": "WR", "team": "MIN", "bye_week": 13, "fantasy_points": 310.8, "injury_status": "ACTIVE", "average_draft_position": 2.1, "drafted_by": "Sea Sharp"},
+        {"id": 6, "name": "WR2", "position": "WR", "team": "MIA", "bye_week": 10, "fantasy_points": 305.3, "injury_status": "ACTIVE", "average_draft_position": 2.3, "drafted_by": "Team Alpha"},
+        {"id": 7, "name": "TE1", "position": "TE", "team": "KC", "bye_week": 7, "fantasy_points": 220.4, "injury_status": "ACTIVE", "average_draft_position": 4.5, "drafted_by": "Sea Sharp"},
+        {"id": 8, "name": "TE2", "position": "TE", "team": "BAL", "bye_week": 13, "fantasy_points": 210.3, "injury_status": "ACTIVE", "average_draft_position": 5.1, "drafted_by": "Team Alpha"}
+    ]
+}""")
+
+        # Create required config and team data
+        import json
+        import shutil
+
+        source_configs = Path(__file__).parent.parent.parent / "data" / "configs"
+        dest_configs = data_folder / "configs"
+        if source_configs.exists():
+            shutil.copytree(source_configs, dest_configs)
+
+        # Import managers
+        from league_helper.util.PlayerManager import PlayerManager
+        from league_helper.util.ConfigManager import ConfigManager
+        from league_helper.util.TeamDataManager import TeamDataManager
+        from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+        from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+
+        # Initialize managers
+        config = ConfigManager(data_folder)
+        team_data = TeamDataManager(data_folder, config.current_nfl_week)
+        schedule = SeasonScheduleManager(data_folder)
+        player_manager = PlayerManager(data_folder, config, team_data, schedule)
+
+        # Initialize TradeSimulator
+        trade_sim = TradeSimulatorModeManager(data_folder, player_manager, config)
+
+        # Initialize team data (this should use get_players_by_team() internally)
+        trade_sim.init_team_data()
+
+        # Verify team_rosters was populated correctly
+        assert hasattr(trade_sim, 'team_rosters')
+        assert isinstance(trade_sim.team_rosters, dict)
+        assert "Sea Sharp" in trade_sim.team_rosters
+        assert "Team Alpha" in trade_sim.team_rosters
+
+        # Verify each team has 4 players
+        assert len(trade_sim.team_rosters["Sea Sharp"]) == 4
+        assert len(trade_sim.team_rosters["Team Alpha"]) == 4
+
+        # Verify NO CSV file was accessed (new approach doesn't use CSV)
+        drafted_csv = data_folder / "drafted_data.csv"
+        assert not drafted_csv.exists()  # CSV should NOT exist
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

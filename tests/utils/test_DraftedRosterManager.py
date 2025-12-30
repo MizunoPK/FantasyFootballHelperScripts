@@ -2,8 +2,21 @@
 """
 Tests for DraftedRosterManager module.
 
-Comprehensive tests for managing drafted player rosters, including CSV loading,
-fuzzy player matching, and team organization.
+⚠️ DEPRECATION NOTICE ⚠️
+
+This file tests DEPRECATED code. DraftedRosterManager has been deprecated
+in favor of PlayerManager.get_players_by_team() (Sub-feature 7).
+
+WHY TESTS REMAIN:
+- Backward compatibility with player-data-fetcher module
+- DraftedRosterManager still functional, just not used in League Helper
+- Tests verify deprecated code doesn't break
+
+NEW CODE SHOULD USE:
+- PlayerManager.get_players_by_team() for roster organization
+- See tests/league_helper/util/test_PlayerManager_scoring.py for new approach
+
+Tests below verify DraftedRosterManager still works for legacy code.
 
 Author: Kai Mizuno
 """
