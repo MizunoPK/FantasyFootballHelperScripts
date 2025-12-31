@@ -14,317 +14,52 @@
 
 ### Epic-Driven Development Workflow (v2)
 
-The v2 workflow is a **7-stage epic-driven development process** for managing large projects:
+**Complete workflow instructions:** See `CLAUDE_EPICS.md` for all Epic-Driven Development Workflow instructions.
 
-**Workflow Overview:**
-```
-Stage 1: Epic Planning → Stage 2: Feature Deep Dives → Stage 3: Cross-Feature Sanity Check →
-Stage 4: Epic Testing Strategy → Stage 5: Feature Implementation (5a→5b→5c→5d→5e per feature) →
-Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
-```
+**Quick reference:**
+- Complete usage guide: `feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md`
+- Stage guides: `feature-updates/guides_v2/STAGE_*_guide.md`
+- Phase transition prompts: `feature-updates/guides_v2/prompts_reference_v2.md`
 
-**Terminology:**
-- **Epic** = Top-level work unit (collection of related features)
-- **Feature** = Individual component within an epic
-- User creates `{epic_name}.txt` → Agent creates `{epic_name}/` folder with multiple `feature_XX_{name}/` folders
+**For new epics:** User creates `{epic_name}.txt` → Agent starts Stage 1
 
----
+**For resuming work:** Check `feature-updates/` for in-progress epics → Read `EPIC_README.md` Agent Status
 
-### 🚨 MANDATORY: Phase Transition Protocol
-
-**When transitioning between ANY stage, you MUST:**
-
-1. **READ the guide FIRST** - Use Read tool to load the ENTIRE guide for that stage
-2. **ACKNOWLEDGE what you read** - Use the phase transition prompt from `feature-updates/guides_v2/prompts_reference_v2.md`
-3. **VERIFY prerequisites** - Check prerequisites checklist in guide
-4. **UPDATE Agent Status** - Update EPIC_README.md or feature README.md with current guide + timestamp
-5. **THEN proceed** - Follow the guide step-by-step
-
-**Phase transition prompts are MANDATORY for:**
-- Starting any of the 7 stages (1, 2, 3, 4, 5a, 5b, 5c, 5d, 5e, 6, 7)
-- Starting Stage 5a rounds (Round 1, 2, 3)
-- Starting Stage 5c phases (Smoke Testing, QC Rounds, Final Review)
-- Creating a bug fix
-- Resuming after session compaction
-
-**See:** `feature-updates/guides_v2/prompts_reference_v2.md` → Complete prompt library
-
-**Why this matters:** Reading the guide first ensures you don't miss mandatory steps. The prompt acknowledgment confirms you understand requirements. Historical evidence: 40% guide abandonment rate without mandatory prompts.
-
-**Example - Starting Stage 5a Round 1:**
-```
-I'm reading `STAGE_5aa_round1_guide.md` to ensure I follow all 8 iterations in Round 1...
-
-The guide requires:
-- Round 1: 8 MANDATORY iterations (iterations 1-7 + 4a)
-- Iteration 4a is a MANDATORY GATE (TODO Specification Audit)
-- Algorithm Traceability Matrix (iteration 4)
-- Integration Gap Check (iteration 7)
-- STOP if confidence < Medium at Round 1 checkpoint
-
-Prerequisites I'm verifying:
-✅ spec.md exists and is complete
-✅ checklist.md all items resolved
-✅ Stage 4 (Epic Testing Strategy) complete
-
-I'll now proceed with Round 1 (iterations 1-7 + 4a)...
-```
+**See CLAUDE_EPICS.md for:**
+- Complete 7-stage workflow
+- Mandatory phase transition protocol
+- Stage-by-stage instructions
+- Bug fix workflow
+- Key principles and critical rules
+- Folder structure
+- Pre-commit protocol
 
 ---
 
-### Stage 1: When User Says "Help Me Develop {epic-name}"
-
-**Trigger phrases:** "Help me develop...", "I want to plan...", "Let's work on..."
-
-**Prerequisites:** User has created `feature-updates/{epic_name}.txt` with initial scratchwork notes.
-
-**🚨 FIRST ACTION:** Use the "Starting Stage 1" prompt from `feature-updates/guides_v2/prompts_reference_v2.md`
-
-**Workflow:**
-1. **READ:** `feature-updates/guides_v2/STAGE_1_epic_planning_guide.md`
-2. **Analyze epic request** and perform codebase reconnaissance
-3. **Propose feature breakdown** (agent → user confirms/modifies)
-4. **Create epic folder:** `feature-updates/{epic_name}/`
-5. **Create feature folders:** `feature_01_{name}/`, `feature_02_{name}/`, etc.
-6. **Create epic-level files:**
-   - `EPIC_README.md` (with Quick Reference Card, Agent Status, Epic Progress Tracker)
-   - `epic_smoke_test_plan.md` (initial version, updated in Stages 4 and 5e)
-   - `epic_lessons_learned.md` (cross-feature insights)
-7. **Create feature-level files** for each feature:
-   - `README.md`, `spec.md`, `checklist.md`, `lessons_learned.md`
-
-**Next:** Stage 2 (Feature Deep Dives)
+**All detailed workflow instructions have been moved to `CLAUDE_EPICS.md` for better organization and portability.**
 
 ---
 
-### Stage 2-4: Planning & Testing Strategy
+### Commit Standards & Pre-Commit Protocol
 
-**Stage 2: Feature Deep Dives** (Loop through ALL features)
-- **READ:** `STAGE_2_feature_deep_dive_guide.md`
-- Flesh out `spec.md` for each feature with detailed requirements
-- Interactive question resolution (ONE question at a time)
-- Compare to already-completed features for alignment
-- Dynamic scope adjustment (if scope >35 items, propose split)
+**See `CLAUDE_EPICS.md` for complete pre-commit protocol.**
 
-**Stage 3: Cross-Feature Sanity Check** (After ALL features planned)
-- **READ:** `STAGE_3_cross_feature_sanity_check_guide.md`
-- Systematic pairwise comparison of all feature specs
-- Resolve conflicts and inconsistencies
-- Get user sign-off on complete plan
+**Quick reference:**
 
-**Stage 4: Epic Testing Strategy** (Update test plan)
-- **READ:** `STAGE_4_epic_testing_strategy_guide.md`
-- Update `epic_smoke_test_plan.md` based on deep dive findings
-- Identify integration points between features
-- Define epic success criteria
-
-**Next:** Stage 5 (Feature Implementation - first feature)
-
----
-
-### Stage 5: Feature Implementation (Loop per feature: 5a→5b→5c→5d→5e)
-
-**Stage 5a: TODO Creation** (24 verification iterations across 3 rounds)
-
-**🚨 FIRST ACTION:** Use the "Starting Stage 5a Round 1" prompt from `prompts_reference_v2.md`
-
-- **Round 1:** READ `STAGE_5aa_round1_guide.md` - Iterations 1-7 + 4a
-  - Iteration 4: Algorithm Traceability Matrix
-  - Iteration 4a: TODO Specification Audit (MANDATORY GATE)
-  - Iteration 7: Integration Gap Check
-- **Round 2:** READ `STAGE_5ab_round2_guide.md` - Iterations 8-16
-  - Iteration 11: Algorithm Traceability Matrix (re-verify)
-  - Iteration 14: Integration Gap Check (re-verify)
-  - Iteration 15: Test Coverage Depth Check (>90% required)
-- **Round 3:** READ `STAGE_5ac_round3_guide.md` - Iterations 17-24 + 23a
-  - Iteration 19: Algorithm Traceability Matrix (final verify)
-  - Iteration 21: Mock Audit & Integration Test Plan
-  - Iteration 23: Integration Gap Check (final verify)
-  - Iteration 23a: Pre-Implementation Spec Audit (4 MANDATORY PARTS - ALL must PASS)
-  - Iteration 24: Implementation Readiness Protocol (GO/NO-GO decision)
-- Create `todo.md` and `questions.md`
-
-**Stage 5b: Implementation Execution**
-
-**🚨 FIRST ACTION:** Use the "Starting Stage 5b" prompt from `prompts_reference_v2.md`
-
-- **READ:** `STAGE_5b_implementation_execution_guide.md`
-- Keep `spec.md` VISIBLE at all times (not just "consult when needed")
-- Continuous spec verification via `implementation_checklist.md`
-- Mini-QC checkpoints after each major component
-- Create `code_changes.md` documenting all changes
-- Run unit tests after EVERY phase (100% pass required)
-
-**Stage 5c: Post-Implementation** (3 phases - smoke testing, QC rounds, final review)
-
-**🚨 FIRST ACTION:** Use the "Starting Stage 5c Smoke Testing" prompt from `prompts_reference_v2.md`
-
-- **Phase 1 (Smoke Testing):** READ `STAGE_5ca_smoke_testing_guide.md`
-  - Part 1: Import Test (module loads without errors)
-  - Part 2: Entry Point Test (script starts correctly)
-  - Part 3: E2E Execution Test (verify OUTPUT DATA VALUES, not just file structure)
-  - MANDATORY GATE before QC rounds
-
-- **Phase 2 (QC Rounds):** READ `STAGE_5cb_qc_rounds_guide.md`
-  - QC Round 1: Basic validation (<3 critical issues, >80% requirements)
-  - QC Round 2: Deep verification (all Round 1 resolved + zero new critical)
-  - QC Round 3: Final skeptical review (ZERO tolerance)
-  - **QC Restart Protocol:** If ANY issues → COMPLETELY RESTART from smoke testing
-
-- **Phase 3 (Final Review):** READ `STAGE_5cc_final_review_guide.md`
-  - PR Review Checklist (11 categories - all mandatory)
-  - Lessons learned capture with IMMEDIATE guide updates
-  - Final verification (100% completion required)
-
-**Stage 5d: Cross-Feature Spec Alignment** (After feature completes)
-
-**🚨 FIRST ACTION:** Use the "Starting Stage 5d" prompt from `prompts_reference_v2.md`
-
-- **READ:** `STAGE_5d_post_feature_alignment_guide.md`
-- Review ALL remaining (unimplemented) feature specs
-- Compare specs to ACTUAL implementation (not just plan)
-- Update specs based on real insights from completed feature
-- Prevents spec drift as implementation reveals reality
-
-**Stage 5e: Epic Testing Plan Reassessment** (After Stage 5d)
-
-**🚨 FIRST ACTION:** Use the "Starting Stage 5e" prompt from `prompts_reference_v2.md`
-
-- **READ:** `STAGE_5e_post_feature_testing_update_guide.md`
-- Reassess `epic_smoke_test_plan.md` after EACH feature
-- Update test scenarios based on actual implementation
-- Add newly discovered integration points
-- Keep testing plan current throughout implementation
-
-**Repeat Stage 5 (5a→5b→5c→5d→5e) for EACH feature**
-
----
-
-### Stage 6-7: Epic Finalization
-
-**Stage 6: Epic-Level Final QC** (After ALL features complete)
-
-**🚨 FIRST ACTION:** Use the "Starting Stage 6" prompt from `prompts_reference_v2.md`
-
-- **READ:** `STAGE_6_epic_final_qc_guide.md`
-- Execute evolved `epic_smoke_test_plan.md` (reflects all Stage 5e updates)
-- Run epic-level smoke testing (tests ALL features integrated together)
-- Complete 3 epic-level QC rounds
-- Epic-level PR review (11 categories)
-- Validate against original epic request
-- Create bug fixes for any issues, RESTART Stage 6 after fixes
-
-**Stage 7: Epic Cleanup** (After Stage 6 passes)
-
-**🚨 FIRST ACTION:** Use the "Starting Stage 7" prompt from `prompts_reference_v2.md`
-
-- **READ:** `STAGE_7_epic_cleanup_guide.md`
-- Run unit tests (100% pass MANDATORY)
-- Capture guide improvements
-- **User testing (MANDATORY GATE):**
-  - Ask user to test complete system themselves
-  - If bugs found → Follow bug fix protocol
-  - After bug fixes → RESTART Stage 6 (Epic Final QC)
-  - Repeat until user testing passes with ZERO bugs
-- Commit changes (only after user testing passes)
-- Move entire epic folder to `feature-updates/done/{epic_name}/`
-
----
-
-### Bug Fix Workflow
-
-If bugs are discovered during ANY stage:
-
-**🚨 FIRST ACTION:** Use the "Creating a Bug Fix" prompt from `prompts_reference_v2.md`
-
-- **READ:** `STAGE_5_bug_fix_workflow_guide.md`
-- Create `bugfix_{priority}_{name}/` folder inside epic
-- Priority levels: high, medium, low
-- Bug fixes go through: Stage 2 → 5a → 5b → 5c (SKIP Stages 1, 3, 4, 5d, 5e, 6, 7)
-- After bug fix complete, return to paused work
-
----
-
-### Key Principles
-
-- **Epic-first thinking**: Top-level work unit is an epic (collection of features)
-- **Mandatory reading protocol**: ALWAYS read guide before starting stage
-- **Phase transition prompts**: MANDATORY acknowledgment (proves guide was read)
-- **Continuous alignment**: Stage 5d updates specs after each feature
-- **Iterative testing**: Test plan evolves (Stage 1 → 4 → 5e → 6)
-- **Epic vs feature distinction**: Feature testing (5c) vs epic testing (6) are different
-- **24 verification iterations**: All mandatory (across 3 rounds in Stage 5a)
-- **QC restart protocol**: If ANY issues → restart completely
-- **No skipping stages**: All stages have dependencies, must complete in order
-- **100% test pass**: Required before commits and stage transitions
-
-See `feature-updates/guides_v2/README.md` for complete workflow overview and guide index.
-
----
-
-### Resuming In-Progress Epic Work
-
-**BEFORE starting any epic-related work**, check for in-progress epics:
-
-1. **Check for active epic folders:** Look in `feature-updates/` for any folders (excluding `done/` and `guides_v2/`)
-
-2. **If found, use the "Resuming In-Progress Epic" prompt** from `feature-updates/guides_v2/prompts_reference_v2.md`
-
-3. **READ THE EPIC_README.md FIRST:** Check the "Agent Status" section at the top with:
-   - Current stage and guide
-   - Current step/iteration
-   - Next action to take
-   - Critical rules from current guide
-
-4. **READ THE CURRENT GUIDE:** Use Read tool to load the guide listed in Agent Status
-
-5. **Continue from where previous agent left off** - Don't restart the workflow
-
-**Why this matters:** Session compaction can interrupt agents mid-workflow. EPIC_README.md Agent Status survives context window limits and provides exact resumption point.
-
----
-
-### Commit Standards
+**Commit message standards:**
 - Brief, descriptive messages (50 chars or less)
 - No emojis or subjective prefixes
 - Do NOT include "Generated with Claude Code" and co-author tag
 - List major changes in body
 
-### Pre-Commit Protocol
-**MANDATORY BEFORE EVERY COMMIT**
+**Pre-commit checklist:**
+1. ✅ Run unit tests: `python tests/run_all_tests.py`
+2. ✅ Verify 100% pass rate (exit code 0)
+3. ✅ Review changes: `git status` and `git diff`
+4. ✅ Update documentation if functionality changed
+5. ✅ Commit with clear message
 
-When the user requests to commit changes (e.g., "commit changes", "verify and commit", "commit this"):
-
-**STEP 1: Run Unit Tests (REQUIRED)**
-```bash
-python tests/run_all_tests.py
-```
-
-**Test Requirements**:
-- All unit tests must pass (100% pass rate)
-- Tests located in `tests/` directory
-- Exit code 0 = safe to commit, 1 = DO NOT COMMIT
-
-**Only proceed to commit if all tests pass.**
-
-**STEP 2: If Tests Pass, Commit Changes**
-1. Analyze all changes with `git status` and `git diff`
-2. Update documentation (README.md, CLAUDE.md) if functionality changed
-3. Stage and commit with clear, concise message
-4. Follow commit standards (see above)
-
-**STEP 3: If Tests Fail**
-- **STOP** - Do NOT commit
-- Fix failing tests
-- Re-run `python tests/run_all_tests.py`
-- Only commit when all tests pass (exit code 0)
-
-**Test Structure**:
-- All tests in `tests/` directory (mirror source structure)
-- See `tests/README.md` for test standards and guidelines
-- Run with `--verbose` or `--detailed` flags for more output
-
-**Do NOT skip validation**: 100% test pass rate is mandatory
+**Critical rule:** Do NOT commit if any tests fail. Fix tests first, then retry.
 
 ## Current Project Structure
 
@@ -476,12 +211,14 @@ Mirrors source structure with 100% unit test pass rate required:
     - `STAGE_5_bug_fix_workflow_guide.md` - Bug Fix Workflow
     - `STAGE_6_epic_final_qc_guide.md` - Stage 6: Epic-Level Final QC
     - `STAGE_7_epic_cleanup_guide.md` - Stage 7: Epic Cleanup
-  - **Supporting Files (4 files):**
-    - `templates_v2.md` - File templates (epic, feature, bug fix)
+  - **Supporting Files (5 files):**
+    - `EPIC_WORKFLOW_USAGE.md` - Complete usage guide (setup, patterns, FAQs)
     - `prompts_reference_v2.md` - MANDATORY phase transition prompts
+    - `templates_v2.md` - File templates (epic, feature, bug fix)
     - `README.md` - Workflow overview and guide index
     - `PLAN.md` - Complete v2 workflow specification
 - `CLAUDE.md` - This file (coding standards and workflow guidelines)
+- `CLAUDE_EPICS.md` - Epic-Driven Development Workflow instructions (portable)
 - `README.md` - Project documentation, installation, and usage guide
 - `ARCHITECTURE.md` - Complete architectural and implementation guide
 
