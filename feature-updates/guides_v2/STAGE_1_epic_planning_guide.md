@@ -19,16 +19,17 @@
 
 ## Quick Start
 
-**5-Step Overview:**
-1. Create epic folder and move epic request file
-2. Analyze epic request and codebase
-3. Propose feature breakdown (user confirms)
-4. Create epic structure (EPIC_README, epic_smoke_test_plan, feature folders)
-5. Transition to Stage 2 (feature deep dives)
+**6-Step Overview:**
+1. Create git branch for epic (BEFORE any changes)
+2. Create epic folder and move epic request file
+3. Analyze epic request and codebase
+4. Propose feature breakdown (user confirms)
+5. Create epic structure (EPIC_README, epic_smoke_test_plan, feature folders)
+6. Transition to Stage 2 (feature deep dives)
 
 **Estimated Time:** 30-60 minutes
 **Prerequisites:** User has created `{epic_name}.txt` with epic request
-**Outputs:** Epic folder structure, initial test plan, ready for deep dives
+**Outputs:** Git branch created, epic folder structure, initial test plan, ready for deep dives
 
 ---
 
@@ -39,38 +40,44 @@
 │ CRITICAL RULES - These MUST be copied to README Agent Status │
 └─────────────────────────────────────────────────────────────┘
 
-1. ⚠️ USER MUST APPROVE feature breakdown before creating folders
+1. ⚠️ CREATE GIT BRANCH BEFORE ANY CHANGES (Step 1.0)
+   - Verify on main, pull latest
+   - Assign KAI number from EPIC_TRACKER.md
+   - Create branch: {work_type}/KAI-{number}
+   - Update EPIC_TRACKER.md and commit immediately
+
+2. ⚠️ USER MUST APPROVE feature breakdown before creating folders
    - Agent proposes breakdown
    - User confirms/modifies
    - Do NOT proceed without approval
 
-2. ⚠️ Create GUIDE_ANCHOR.md in epic folder (resumption instructions)
+3. ⚠️ Create GUIDE_ANCHOR.md in epic folder (resumption instructions)
 
-3. ⚠️ epic_smoke_test_plan.md is PLACEHOLDER (will update in Stages 4, 5e)
+4. ⚠️ epic_smoke_test_plan.md is PLACEHOLDER (will update in Stages 4, 5e)
    - Initial plan based on assumptions
    - Mark clearly as "INITIAL - WILL UPDATE"
 
-4. ⚠️ Update EPIC_README.md Agent Status after EACH major step
+5. ⚠️ Update EPIC_README.md Agent Status after EACH major step
 
-5. ⚠️ Feature numbering: feature_01_{name}, feature_02_{name}, etc.
+6. ⚠️ Feature numbering: feature_01_{name}, feature_02_{name}, etc.
    - Consistent zero-padded numbering
    - Descriptive names (not generic)
 
-6. ⚠️ Create research/ folder in epic root (shared across all features)
+7. ⚠️ Create research/ folder in epic root (shared across all features)
 
-7. ⚠️ Epic planning does NOT include deep dives
+8. ⚠️ Epic planning does NOT include deep dives
    - Stage 1: Create structure, propose features
    - Stage 2: Deep dive per feature (separate stage)
 
-8. ⚠️ If unsure about feature breakdown, propose FEWER features
+9. ⚠️ If unsure about feature breakdown, propose FEWER features
    - Can add features during Stage 2 (discovery)
    - Harder to merge features later
 
-9. ⚠️ Every feature MUST have clear purpose (1-2 sentences)
-   - Avoid "miscellaneous" or "utilities" features
-   - Each feature delivers distinct value
+10. ⚠️ Every feature MUST have clear purpose (1-2 sentences)
+    - Avoid "miscellaneous" or "utilities" features
+    - Each feature delivers distinct value
 
-10. ⚠️ Mark completion in EPIC_README.md before transitioning to Stage 2
+11. ⚠️ Mark completion in EPIC_README.md before transitioning to Stage 2
 ```
 
 ---
@@ -99,6 +106,11 @@
 └──────────────────────────────────────────────────────────────┘
 
 Phase 1: Initial Setup
+   ├─ Create git branch for epic (Step 1.0 - BEFORE any changes)
+   │  ├─ Verify on main, pull latest
+   │  ├─ Assign KAI number from EPIC_TRACKER.md
+   │  ├─ Create branch: {work_type}/KAI-{number}
+   │  └─ Update EPIC_TRACKER.md and commit
    ├─ Create epic folder
    ├─ Move {epic_name}.txt into epic folder
    └─ Create EPIC_README.md (with Agent Status)
@@ -131,6 +143,113 @@ Phase 5: Transition to Stage 2
 ---
 
 ## Phase 1: Initial Setup
+
+### Step 1.0: Create Git Branch for Epic
+
+**CRITICAL:** Create branch BEFORE making any changes to codebase.
+
+**Why branch first:**
+- Keeps main branch clean and stable
+- Allows parallel work on multiple epics
+- Enables easy rollback if needed
+- Follows standard git workflow practices
+
+**Actions:**
+
+**1.0a. Verify you're on main branch:**
+
+```bash
+git checkout main
+```
+
+**Expected output:**
+```
+Already on 'main'
+Your branch is up to date with 'origin/main'.
+```
+
+**1.0b. Pull latest changes from origin:**
+
+```bash
+git pull origin main
+```
+
+**Expected output:**
+```
+From github.com:user/repo
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+```
+
+**If there are conflicts:** Resolve them before proceeding.
+
+**1.0c. Assign KAI number:**
+
+Check `feature-updates/EPIC_TRACKER.md` for next available KAI number.
+
+**Example:** If EPIC_TRACKER.md shows "Next Available Number: KAI-1", use KAI-1.
+
+**1.0d. Determine work type:**
+
+- `epic` - Work includes multiple features (most common)
+- `feat` - Work is a single feature only
+- `fix` - Work is already classified as a bug fix
+
+**For most epics:** Use `epic`
+
+**1.0e. Create and checkout branch:**
+
+```bash
+git checkout -b {work_type}/KAI-{number}
+```
+
+**Examples:**
+- `git checkout -b epic/KAI-1` (multi-feature epic)
+- `git checkout -b feat/KAI-2` (single feature)
+- `git checkout -b fix/KAI-3` (bug fix)
+
+**Verify branch created:**
+
+```bash
+git branch
+```
+
+**Expected output:**
+```
+* epic/KAI-1
+  main
+```
+
+(The `*` indicates your current branch)
+
+**1.0f. Update EPIC_TRACKER.md:**
+
+Add epic to "Active Epics" table:
+
+```markdown
+| KAI # | Epic Name | Type | Branch | Status | Date Started |
+|-------|-----------|------|--------|--------|--------------|
+| 1 | {epic_name} | epic | epic/KAI-1 | In Progress | 2025-12-31 |
+```
+
+**Increment "Next Available Number":**
+```markdown
+### Next Available Number: KAI-2
+```
+
+**Commit EPIC_TRACKER.md update:**
+
+```bash
+git add feature-updates/EPIC_TRACKER.md
+git commit -m "feat/KAI-1: Initialize epic tracking for {epic_name}"
+```
+
+**Why commit EPIC_TRACKER.md immediately:**
+- Documents epic start in git history
+- Prevents number conflicts if multiple agents work simultaneously
+- Establishes branch with first commit
+
+---
 
 ### Step 1.1: Create Epic Folder
 
@@ -836,6 +955,9 @@ Following `STAGE_2_feature_deep_dive_guide.md` to flesh out detailed specificati
 
 **Stage 1 is complete when ALL of these are true:**
 
+□ Git branch created: `{work_type}/KAI-{number}`
+□ EPIC_TRACKER.md updated with active epic entry
+□ Initial commit made (EPIC_TRACKER.md update)
 □ Epic folder created: `feature-updates/{epic_name}/`
 □ Epic request moved and renamed: `{epic_name}_notes.txt`
 □ EPIC_README.md created with:

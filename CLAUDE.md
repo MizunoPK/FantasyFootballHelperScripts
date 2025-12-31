@@ -42,22 +42,33 @@
 
 ### Commit Standards & Pre-Commit Protocol
 
-**See `CLAUDE_EPICS.md` for complete pre-commit protocol.**
+**See `CLAUDE_EPICS.md` for complete pre-commit protocol and git branching workflow.**
 
 **Quick reference:**
 
+**Git branching workflow:**
+- All epic work done on feature branches (not main)
+- Branch naming: `{work_type}/KAI-{number}` (e.g., `epic/KAI-1`)
+- Work types: `epic` (multi-feature), `feat` (single feature), `fix` (bug fix)
+- KAI numbers tracked in `feature-updates/EPIC_TRACKER.md`
+- See `CLAUDE_EPICS.md` "Git Branching Workflow" section for complete instructions
+
 **Commit message standards:**
-- Brief, descriptive messages (50 chars or less)
+- Format: `{commit_type}/KAI-{number}: {message}`
+- commit_type: `feat` or `fix`
+- Brief, descriptive messages (100 chars or less for first line)
 - No emojis or subjective prefixes
 - Do NOT include "Generated with Claude Code" and co-author tag
 - List major changes in body
+- Example: `feat/KAI-1: Add ADP integration to PlayerManager`
 
 **Pre-commit checklist:**
-1. ✅ Run unit tests: `python tests/run_all_tests.py`
-2. ✅ Verify 100% pass rate (exit code 0)
-3. ✅ Review changes: `git status` and `git diff`
-4. ✅ Update documentation if functionality changed
-5. ✅ Commit with clear message
+1. ✅ Verify on correct branch: `git branch` (should show epic/KAI-X)
+2. ✅ Run unit tests: `python tests/run_all_tests.py`
+3. ✅ Verify 100% pass rate (exit code 0)
+4. ✅ Review changes: `git status` and `git diff`
+5. ✅ Update documentation if functionality changed
+6. ✅ Commit with new format: `{commit_type}/KAI-{number}: {message}`
 
 **Critical rule:** Do NOT commit if any tests fail. Fix tests first, then retry.
 

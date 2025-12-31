@@ -86,15 +86,16 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 **Workflow:**
 1. **READ:** `feature-updates/guides_v2/STAGE_1_epic_planning_guide.md`
-2. **Analyze epic request** and perform codebase reconnaissance
-3. **Propose feature breakdown** (agent → user confirms/modifies)
-4. **Create epic folder:** `feature-updates/{epic_name}/`
-5. **Create feature folders:** `feature_01_{name}/`, `feature_02_{name}/`, etc.
-6. **Create epic-level files:**
+2. **Create git branch for epic** (BEFORE making any changes - see "Git Branching Workflow" section below)
+3. **Analyze epic request** and perform codebase reconnaissance
+4. **Propose feature breakdown** (agent → user confirms/modifies)
+5. **Create epic folder:** `feature-updates/{epic_name}/`
+6. **Create feature folders:** `feature_01_{name}/`, `feature_02_{name}/`, etc.
+7. **Create epic-level files:**
    - `EPIC_README.md` (with Quick Reference Card, Agent Status, Epic Progress Tracker)
    - `epic_smoke_test_plan.md` (initial version, updated in Stages 4 and 5e)
    - `epic_lessons_learned.md` (cross-feature insights)
-7. **Create feature-level files** for each feature:
+8. **Create feature-level files** for each feature:
    - `README.md`, `spec.md`, `checklist.md`, `lessons_learned.md`
 
 **Next:** Stage 2 (Feature Deep Dives)
@@ -232,7 +233,9 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
   - After bug fixes → RESTART Stage 6 (Epic Final QC)
   - Repeat until user testing passes with ZERO bugs
 - Update guides based on lessons learned
-- Commit changes (only after user testing passes)
+- Commit changes (only after user testing passes) using new commit message format
+- **Merge branch to main** (see "Git Branching Workflow" section below)
+- Update EPIC_TRACKER.md with epic details
 - Move entire epic folder to `feature-updates/done/{epic_name}/`
 
 ---
@@ -362,6 +365,151 @@ feature-updates/{epic_name}/
 
 ---
 
+## Git Branching Workflow
+
+**All epic work must be done on feature branches** (not directly on main).
+
+### Branch Management
+
+**When starting an epic (Stage 1):**
+
+1. **Verify you're on main:**
+   ```bash
+   git checkout main
+   ```
+
+2. **Pull latest changes:**
+   ```bash
+   git pull origin main
+   ```
+
+3. **Assign KAI number:**
+   - Check `feature-updates/EPIC_TRACKER.md` for next available number
+   - Update EPIC_TRACKER.md with new epic in "Active Epics" table
+
+4. **Determine work type:**
+   - `epic` - Work with multiple features (most epics)
+   - `feat` - Work with single feature only
+   - `fix` - Bug fix work
+
+5. **Create and checkout branch:**
+   ```bash
+   git checkout -b {work_type}/KAI-{number}
+   ```
+   Examples:
+   - `git checkout -b epic/KAI-1`
+   - `git checkout -b feat/KAI-2`
+   - `git checkout -b fix/KAI-3`
+
+**During epic work (Stages 1-6):**
+- All work happens on the epic branch
+- Commits use format: `{commit_type}/KAI-{number}: {message}`
+  - `commit_type` is either `feat` or `fix` (NOT `epic`)
+  - `feat` - Feature-related commits
+  - `fix` - Bug fix commits
+- Commit at normal times (currently Stage 7 Step 6)
+
+**When completing an epic (Stage 7):**
+
+1. **Commit changes on branch** (after user testing passes)
+
+2. **Merge to main:**
+   ```bash
+   git checkout main
+   git pull origin main
+   git merge {work_type}/KAI-{number}
+   ```
+
+3. **Push to origin:**
+   ```bash
+   git push origin main
+   ```
+
+4. **Update EPIC_TRACKER.md:**
+   - Move epic from "Active" to "Completed" table
+   - Add epic detail section with commits
+   - Increment "Next Available Number"
+
+5. **Delete branch (optional):**
+   ```bash
+   git branch -d {work_type}/KAI-{number}
+   ```
+
+### Branch Naming Convention
+
+**Format:** `{work_type}/KAI-{epic_number}`
+
+**Work types:**
+- `epic` - Epic with multiple features
+- `feat` - Single feature (not a full epic)
+- `fix` - Bug fix
+
+**Epic number:**
+- Unique sequential number starting from 1
+- Tracked in `feature-updates/EPIC_TRACKER.md`
+- Incremented for each new epic
+
+**Examples:**
+- `epic/KAI-1` - First epic (multi-feature)
+- `feat/KAI-2` - Second work item (single feature)
+- `fix/KAI-3` - Third work item (bug fix)
+
+### Commit Message Convention
+
+**Format:** `{commit_type}/KAI-{number}: {message}`
+
+**Commit types:**
+- `feat` - Feature implementation commits
+- `fix` - Bug fix commits
+
+**Epic number:**
+- Same number as the branch
+- All commits in an epic use the same KAI number
+
+**Message:**
+- Brief, descriptive (100 chars or less)
+- No emojis or subjective prefixes
+- Describe what was done (imperative mood)
+
+**Examples:**
+- `feat/KAI-1: Add ADP integration to PlayerManager`
+- `feat/KAI-1: Create matchup difficulty calculation`
+- `feat/KAI-1: Integrate schedule strength analysis`
+- `fix/KAI-1: Correct bye week penalty calculation`
+- `fix/KAI-2: Fix draft mode crash when no players available`
+
+**Multi-feature epics:**
+- All features in the same epic use the same KAI number
+- No need to indicate feature number in commit message
+- Example: epic/KAI-1 with features 1, 2, 3 all use `feat/KAI-1: {message}`
+
+### EPIC_TRACKER.md Management
+
+**Location:** `feature-updates/EPIC_TRACKER.md`
+
+**Purpose:** Central log of all epics with KAI numbers, descriptions, and commit history
+
+**When to update:**
+1. **Starting epic (Stage 1):** Add to "Active Epics" table
+2. **Completing epic (Stage 7):** Move to "Completed Epics" table and add detail section
+3. **After each commit:** Track in EPIC_TRACKER for final documentation
+
+**Required information:**
+- KAI number
+- Epic name
+- Type (epic/feat/fix)
+- Branch name
+- Description
+- Features implemented
+- Key changes
+- Commit history
+- Testing results
+- Lessons learned
+
+See `feature-updates/EPIC_TRACKER.md` for template and examples.
+
+---
+
 ## Pre-Commit Protocol
 
 **MANDATORY BEFORE EVERY COMMIT**
@@ -386,8 +534,10 @@ python tests/run_all_tests.py
 2. Update documentation if functionality changed
 3. Stage and commit with clear, concise message
 4. Follow commit standards:
-   - Brief, descriptive messages (50 chars or less)
+   - Format: `{commit_type}/KAI-{number}: {message}`
+   - Brief, descriptive messages (100 chars or less)
    - No emojis or subjective prefixes
+   - commit_type is `feat` or `fix`
    - List major changes in body
 
 ### STEP 3: If Tests Fail

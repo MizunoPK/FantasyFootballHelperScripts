@@ -86,17 +86,29 @@ Epic cleanup typically takes 15-30 minutes.
 │    - Repeat until user testing passes with ZERO bugs            │
 │    - CANNOT commit without user approval                        │
 │                                                                  │
-│ 5. ⚠️ COMMIT MESSAGE MUST BE CLEAR AND DESCRIPTIVE              │
-│    - Format: "Complete {epic_name} epic"                        │
+│ 5. ⚠️ COMMIT MESSAGE MUST USE NEW FORMAT                        │
+│    - Format: "{commit_type}/KAI-{number}: {message}"           │
+│    - commit_type is "feat" or "fix"                             │
+│    - Message: 100 chars or less                                 │
 │    - Body: List major features and changes                      │
-│    - NO generic messages like "updates" or "changes"            │
 │                                                                  │
-│ 6. ⚠️ MOVE ENTIRE EPIC FOLDER (NOT INDIVIDUAL FEATURES)         │
+│ 6. ⚠️ MERGE BRANCH TO MAIN AFTER COMMIT                         │
+│    - Switch to main, pull latest                                │
+│    - Merge epic branch: git merge {work_type}/KAI-{number}     │
+│    - Push to origin: git push origin main                       │
+│                                                                  │
+│ 7. ⚠️ UPDATE EPIC_TRACKER.md AFTER MERGE                        │
+│    - Move epic from Active to Completed table                   │
+│    - Add epic detail section with commits                       │
+│    - Increment "Next Available Number"                          │
+│    - Commit and push EPIC_TRACKER.md update                     │
+│                                                                  │
+│ 8. ⚠️ MOVE ENTIRE EPIC FOLDER (NOT INDIVIDUAL FEATURES)         │
 │    - Move: feature-updates/{epic}/                              │
 │    - To: feature-updates/done/{epic}/                           │
 │    - Keep original epic request (.txt) in root for reference    │
 │                                                                  │
-│ 7. ⚠️ UPDATE CLAUDE.md IF GUIDES IMPROVED                        │
+│ 9. ⚠️ UPDATE CLAUDE.md IF GUIDES IMPROVED                        │
 │    - Check epic_lessons_learned.md for guide improvements       │
 │    - Update guides_v2/ files if needed                          │
 │    - Update CLAUDE.md if workflow changed                       │
@@ -1097,11 +1109,11 @@ Changes to be committed:
 
 **6c. Create Commit with Clear Message**
 
-Create commit with descriptive message:
+Create commit with descriptive message using new KAI numbering format.
 
 **Commit Message Format:**
 ```
-Complete {epic_name} epic
+{commit_type}/KAI-{number}: Complete {epic_name} epic
 
 Major features:
 - {Feature 1 brief description}
@@ -1118,11 +1130,17 @@ Testing:
 - Epic QC rounds passed (3/3)
 ```
 
-**Example Commit:**
+**Where:**
+- `{commit_type}` = `feat` (feature epic) or `fix` (bug fix epic)
+- `{number}` = KAI number from EPIC_TRACKER.md and branch name
+- Message limit: 100 chars or less for first line
+- No emojis or subjective prefixes
+
+**Example Commit (epic/KAI-1):**
 
 ```bash
 git commit -m "$(cat <<'EOF'
-Complete improve_draft_helper epic
+feat/KAI-1: Complete improve_draft_helper epic
 
 Major features:
 - ADP integration: Adds market wisdom via Average Draft Position data
@@ -1185,17 +1203,96 @@ Date:   Mon Dec 30 15:30:00 2025
 - ✅ All epic files included in commit
 - ✅ File change counts reasonable
 
-**6e. Push to Remote (If User Requests)**
+**6e. Merge Branch to Main**
 
-**IMPORTANT:** Only push if user explicitly requests it.
+**CRITICAL:** Merge the epic branch to main after commit is complete.
 
-If user says "push changes" or "push to remote":
+**Why merge now:**
+- Epic is complete and tested (Stage 6 passed)
+- All changes committed on epic branch
+- Ready to integrate into main codebase
+- Keeps main stable (only completed work)
+
+**Actions:**
+
+Switch to main branch:
+
+```bash
+git checkout main
+```
+
+**Expected:**
+```
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+```
+
+Pull latest changes from origin:
+
+```bash
+git pull origin main
+```
+
+**Expected:**
+```
+From github.com:user/repo
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+```
+
+**If there are new changes:**
+- Review what changed on main while you worked on epic
+- Ensure no conflicts with your epic
+- If conflicts exist, resolve them before merging
+
+Merge epic branch into main:
+
+```bash
+git merge {work_type}/KAI-{number}
+```
+
+**Example:**
+```bash
+git merge epic/KAI-1
+```
+
+**Expected output:**
+```
+Updating a1b2c3d..e5f6g7h
+Fast-forward
+ league_helper/util/PlayerManager.py                      | 45 +++++
+ league_helper/add_to_roster_mode/AddToRosterModeManager.py | 32 +++-
+ data/league_config.json                                    | 12 ++
+ feature-updates/improve_draft_helper/EPIC_README.md        | 250 ++++++++++++
+ ... (all epic files)
+ 42 files changed, 1250 insertions(+), 15 deletions(-)
+```
+
+**If merge conflicts occur:**
+- Review conflicts carefully
+- Resolve conflicts (keep both changes if appropriate)
+- Stage resolved files: `git add {file}`
+- Complete merge: `git commit` (git will use default merge message)
+
+**Verify merge successful:**
+
+```bash
+git log -1
+```
+
+**Should show your epic commit as the latest on main.**
+
+---
+
+**6f. Push to Remote**
+
+Push merged changes to origin main:
 
 ```bash
 git push origin main
 ```
 
-**Verify push successful:**
+**Expected output:**
 ```
 Enumerating objects: 45, done.
 Counting objects: 100% (45/45), done.
@@ -1210,9 +1307,159 @@ To github.com:user/repo.git
 **If push fails:**
 - Check network connection
 - Verify remote configured: `git remote -v`
-- Pull latest changes first: `git pull origin main`
-- Resolve conflicts if any
+- Pull latest changes: `git pull origin main`
+- Resolve any new conflicts
 - Retry push
+
+**Verify push successful:**
+
+```bash
+git status
+```
+
+**Expected:**
+```
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+```
+
+---
+
+**6g. Update EPIC_TRACKER.md**
+
+Update the epic tracker with completion information.
+
+**Actions:**
+
+Open `feature-updates/EPIC_TRACKER.md`
+
+**1. Move epic from Active to Completed table:**
+
+Remove from Active Epics:
+```markdown
+| KAI # | Epic Name | Type | Branch | Status | Date Started |
+|-------|-----------|------|--------|--------|--------------|
+| 1 | improve_draft_helper | epic | epic/KAI-1 | In Progress | 2025-12-31 |
+```
+
+Add to Completed Epics:
+```markdown
+| KAI # | Epic Name | Type | Branch | Date Completed | Location |
+|-------|-----------|------|--------|----------------|----------|
+| 1 | improve_draft_helper | epic | epic/KAI-1 | 2025-12-31 | feature-updates/done/improve_draft_helper/ |
+```
+
+**2. Increment Next Available Number:**
+```markdown
+### Next Available Number: KAI-2
+```
+
+**3. Add Epic Detail Section:**
+
+Use the template in EPIC_TRACKER.md to document:
+- Epic description
+- Features implemented
+- Key changes
+- Commit history (use `git log --oneline --grep="KAI-1"` to find all commits)
+- Testing results
+- Link to lessons learned
+
+**Example:**
+
+```markdown
+---
+
+### KAI-1: improve_draft_helper
+
+**Type:** epic
+**Branch:** epic/KAI-1
+**Date Started:** 2025-12-31
+**Date Completed:** 2025-12-31
+**Location:** feature-updates/done/improve_draft_helper/
+
+**Description:**
+Enhanced the draft helper system with three major data sources: ADP integration for market wisdom, matchup difficulty analysis for opponent strength, and performance tracking to measure projection accuracy.
+
+**Features Implemented:**
+1. feature_01_adp_integration - Loads and integrates average draft position data
+2. feature_02_matchup_system - Analyzes opponent strength for better projections
+3. feature_03_performance_tracker - Tracks actual vs projected player performance
+
+**Key Changes:**
+- league_helper/util/PlayerManager.py: Added calculate_adp_multiplier() method
+- league_helper/add_to_roster_mode/AddToRosterModeManager.py: Integrated matchup difficulty
+- data/league_config.json: Added adp_weights and matchup_weights configuration
+
+**Commit History:**
+- `a1b2c3d` - `feat/KAI-1: Complete improve_draft_helper epic`
+- `e5f6g7h` - `feat/KAI-1: Initialize epic tracking for improve_draft_helper`
+
+**Testing Results:**
+- Unit tests: 2200/2200 passing (100%)
+- Epic smoke testing: Passed (4/4 parts)
+- Epic QC rounds: Passed (3/3)
+
+**Lessons Learned:**
+See feature-updates/done/improve_draft_helper/epic_lessons_learned.md
+
+**Related Documentation:**
+- Epic README: feature-updates/done/improve_draft_helper/EPIC_README.md
+- Epic Test Plan: feature-updates/done/improve_draft_helper/epic_smoke_test_plan.md
+```
+
+**Commit EPIC_TRACKER.md update:**
+
+```bash
+git add feature-updates/EPIC_TRACKER.md
+git commit -m "feat/KAI-1: Update EPIC_TRACKER with completed epic details"
+git push origin main
+```
+
+---
+
+**6h. Delete Epic Branch (Optional)**
+
+**Optional step:** Delete the epic branch after successful merge.
+
+**Why delete:**
+- Branch served its purpose (epic complete)
+- Keeps git clean (no stale branches)
+- Follows standard git workflow
+
+**Why keep:**
+- Reference for future similar work
+- Helpful for learning from past epics
+- Can delete later after verification period
+
+**To delete branch:**
+
+```bash
+git branch -d {work_type}/KAI-{number}
+```
+
+**Example:**
+```bash
+git branch -d epic/KAI-1
+```
+
+**Expected:**
+```
+Deleted branch epic/KAI-1 (was e5f6g7h).
+```
+
+**Verify deletion:**
+```bash
+git branch
+```
+
+**Should NOT show epic/KAI-1 in list.**
+
+**Note:** Branch only deleted locally. To delete from remote:
+```bash
+git push origin --delete {work_type}/KAI-{number}
+```
 
 ---
 
