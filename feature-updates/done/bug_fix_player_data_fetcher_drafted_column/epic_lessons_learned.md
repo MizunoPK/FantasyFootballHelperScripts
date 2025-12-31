@@ -131,8 +131,102 @@
 
 ## Guide Improvements Identified
 
-{Track guide gaps/improvements discovered during this epic}
+### Improvement 1: Strengthen Zero Tech Debt Enforcement in PR Review
 
-| Guide File | Issue | Proposed Fix | Status |
-|------------|-------|--------------|--------|
-| {guide} | {what was missing/unclear} | {how to fix} | Pending/Done |
+**Guide File:** `STAGE_5cc_final_review_guide.md`
+
+**Issue:** Agent attempted to defer minor issue (missing type hint) despite guide having clear "ZERO TECH DEBT TOLERANCE" policy. Guide has policy stated but agent still deviated.
+
+**Root Cause:**
+- Policy is stated in guide opening but not reinforced in PR review checklist
+- No explicit "Did you defer any issues?" verification question
+- Agent can complete PR review without actively confirming zero deferrals
+
+**Proposed Fix:**
+
+Add explicit verification question to PR Review Category 3 (Comments and Documentation):
+
+```markdown
+Category 3: Comments and Documentation
+- [ ] Code quality issues fixed immediately (NOT deferred)?
+  - Check: No "TODO" comments for code quality
+  - Check: No "will fix later" notes in code
+  - Check: All type hints present (not deferred)
+  - If ANY issues found: Fix NOW before proceeding
+```
+
+Add to Final Verification Checklist:
+```markdown
+Final Verification Checklist:
+- [ ] ZERO tech debt: No deferred issues of ANY size (critical, minor, cosmetic)
+- [ ] ZERO "later" items: If you wrote it down to fix later, fix it NOW
+- [ ] Would you ship this to production RIGHT NOW with no changes? (Must answer YES)
+```
+
+**Status:** Pending (user to review and approve)
+
+---
+
+### Improvement 2: Add ADP Investigation Pattern to Stage 7
+
+**Guide File:** `STAGE_7_epic_cleanup_guide.md`
+
+**Issue:** During Stage 7, user requested investigation of ADP=170 placeholder values. Initial assumption (based on warning messages) was that it was ESPN's issue. User correctly insisted: "Do not assume based on existing warnings - I want to verify it."
+
+**What Happened:**
+- User noticed all players had ADP=170
+- Existing code had warning about "ESPN stopped providing real ADP mid-season"
+- User asked to verify if it was ESPN API issue or our code bug
+- Investigation revealed: ESPN API IS returning 170 for 2025 season, but returns real values for 2024 season
+- Root cause: ESPN only provides real ADP during draft season (Aug-Sep)
+
+**Lesson:** Don't assume existing warnings/comments are correct - verify root cause empirically
+
+**Proposed Fix:**
+
+Add to Stage 7 guide, after unit tests section:
+
+```markdown
+### Step 1b: Investigate User-Reported Anomalies
+
+If user notices unexpected behavior during testing:
+
+**DO NOT assume existing code comments/warnings explain it**
+
+Instead:
+1. Create test script to verify behavior directly
+2. Test against source of truth (API, database, external system)
+3. Compare expected vs actual behavior empirically
+4. Update documentation if root cause differs from assumptions
+
+Example: User reports "all players have same ADP value"
+- Don't assume: "ESPN returns placeholders mid-season" (even if code comment says so)
+- Do verify: Test ESPN API directly for current season AND previous season
+- Compare: Does API return varied values for previous season? If yes, current behavior is seasonal
+- Update docs: Clarify WHEN placeholders appear (month range, not week range)
+```
+
+**Status:** Pending (user to review and approve)
+
+---
+
+### Improvement 3: Document Pre-Existing Test Failure Pattern
+
+**Issue:** Epic completion revealed 31 pre-existing test failures (unrelated to epic changes). These failures were from a previous epic that removed `drafted` field but didn't fully update tests.
+
+**What Happened:**
+- Stage 7 requires 100% test pass before commit
+- Initial test run: 2,397/2,428 passing (98.7%)
+- 31 failures in 3 files (all related to `DraftedDataWriter` and `drafted` field)
+- These failures existed BEFORE our epic started
+- Fixed all 31 tests to achieve 100% pass rate
+
+**Lesson:** Running full test suite during Stage 7 catches pre-existing failures from other epics
+
+**Proposed Fix:**
+
+No guide change needed - this is expected behavior. Stage 7 correctly requires 100% test pass rate regardless of whether failures are from current epic or pre-existing.
+
+**Recommendation:** Document in lessons learned that fixing pre-existing tests is acceptable Stage 7 work if needed to achieve 100% pass rate.
+
+**Status:** No action needed (working as intended)
