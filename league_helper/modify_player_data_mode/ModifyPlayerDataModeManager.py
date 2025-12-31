@@ -19,7 +19,6 @@ sys.path.append(str(Path(__file__).parent.parent))
 from util.PlayerManager import PlayerManager
 from util.player_search import PlayerSearch
 from util.user_input import show_list_selection
-from util.DraftedDataWriter import DraftedDataWriter
 import constants as Constants
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -38,37 +37,31 @@ class ModifyPlayerDataModeManager:
 
     The manager integrates with:
     - PlayerManager: For player data access and persistence
-    - DraftedDataWriter: For tracking team rosters in drafted_data.csv
     - PlayerSearch: For interactive player selection
 
-    Player drafted status values:
-    - 0: Available (can be picked up from waivers)
-    - 1: Drafted by opponent (can be traded for)
-    - 2: On user's roster (can be traded away)
+    Player drafted_by field values:
+    - "": Available (free agent, can be picked up from waivers)
+    - "Team Name": Drafted by opponent team (can be traded for)
+    - FANTASY_TEAM_NAME: On user's roster (can be traded away)
 
     Player locked status values:
-    - 0: Unlocked (can be included in trades)
-    - 1: Locked (excluded from trades, but counts toward position limits)
+    - False: Unlocked (can be included in trades)
+    - True: Locked (excluded from trades, but counts toward position limits)
     """
 
     def __init__(self, player_manager: PlayerManager, data_folder: Path = None):
         """
         Initialize the Modify Player Data Mode Manager.
 
-        Sets up the manager with references to PlayerManager and DraftedDataWriter.
+        Sets up the manager with references to PlayerManager.
         Initializes logging and prepares the manager for interactive mode.
 
         Args:
             player_manager (PlayerManager): PlayerManager instance with all player data
-            data_folder (Path, optional): Path to data directory. Defaults to ../data relative to this file.
+            data_folder (Path, optional): Path to data directory (unused, kept for compatibility)
         """
         self.player_manager = player_manager
         self.logger = get_logger()
-
-        # Initialize drafted data writer
-        if data_folder is None:
-            data_folder = Path(__file__).parent.parent.parent / "data"
-        self.drafted_data_writer = DraftedDataWriter(data_folder / "drafted_data.csv")
 
         self.logger.info("Initializing Modify Player Data Mode Manager")
 
@@ -156,21 +149,18 @@ class ModifyPlayerDataModeManager:
 
     def _mark_player_as_drafted(self):
         """
-        Mark a player as drafted by a team (drafted=0 → drafted=1 or drafted=2).
+        Mark a free agent player as drafted by a team (drafted_by="" → drafted_by=team_name).
 
         Interactive workflow:
-        1. Search for an available player (drafted=0 only)
+        1. Search for an available player (free agents only)
         2. Select the team that drafted the player
-        3. Determine drafted status based on team ownership:
-           - User's team (FANTASY_TEAM_NAME) → drafted=2 (rostered)
-           - Another team → drafted=1 (drafted by opponent)
-        4. Add player to drafted_data.csv for Trade Simulator tracking
-        5. Save changes to players.csv
+        3. Set player's drafted_by field to team name
+        4. Save changes to player JSON files
 
-        The drafted status distinction is critical for Trade Simulator:
-        - drafted=0: Available for waiver wire pickups
-        - drafted=1: Drafted by opponent (can be traded for)
-        - drafted=2: On user's roster (can be traded away)
+        The drafted_by field is used by Trade Simulator:
+        - "": Available for waiver wire pickups
+        - "Team Name": Drafted by opponent (can be traded for)
+        - FANTASY_TEAM_NAME: On user's roster (can be traded away)
         """
         self.logger.info("Starting Mark Player as Drafted mode")
 
@@ -189,16 +179,23 @@ class ModifyPlayerDataModeManager:
             self.logger.info("User exited Mark Player as Drafted mode")
             return
 
-        # STEP 3: Load all team names from drafted_data.csv
-        # This CSV tracks which team has drafted which players
-        # Team names are used to determine drafted status (user's team = 2, other team = 1)
-        team_names = self.drafted_data_writer.get_all_team_names()
+        # STEP 3: Get all unique team names from drafted players
+        # Extract team names from drafted_by field of all players
+        # This includes user's team (FANTASY_TEAM_NAME) and all opponent teams
+        team_names = set()
+        for player in self.player_manager.players:
+            if player.drafted_by and player.drafted_by != "":
+                team_names.add(player.drafted_by)
 
-        # STEP 4: Validate that teams exist in the CSV
-        # If no teams found, the CSV may be corrupted or missing
+        # Always include user's team even if they have no players yet
+        team_names.add(Constants.FANTASY_TEAM_NAME)
+        team_names = sorted(list(team_names))
+
+        # STEP 4: Validate that teams exist
+        # If only user's team exists, that's still valid (new league scenario)
         if not team_names:
-            print("Error: No teams found in drafted_data.csv")
-            self.logger.error("No teams found in drafted_data.csv")
+            print("Error: No teams found")
+            self.logger.error("No teams found in player data")
             return
 
         # STEP 5: Display team selection menu
@@ -222,7 +219,7 @@ class ModifyPlayerDataModeManager:
         # Convert 1-based menu choice to 0-based list index
         selected_team = team_names[team_choice - 1]
 
-        # STEP 8: Determine drafted status based on team ownership
+        # STEP 8: Set player's drafted_by field based on selected team
         # drafted_by=FANTASY_TEAM_NAME: Player is on user's roster
         # drafted_by=other team: Player is drafted by another team (not on user's roster)
         # This distinction allows Trade Simulator to differentiate user's players from others
@@ -237,30 +234,19 @@ class ModifyPlayerDataModeManager:
             print(f"✓ Marked {selected_player.name} as drafted by {selected_team}!")
             self.logger.info(f"Player {selected_player.name} marked as drafted_by='{selected_team}'")
 
-        # STEP 9: Add player to drafted_data.csv
-        # This CSV is used by Trade Simulator and other modes to track team rosters
-        # Failure is non-critical (player is still marked as drafted in players.csv)
-        if self.drafted_data_writer.add_player(selected_player, selected_team):
-            self.logger.info(f"Added {selected_player.name} to drafted_data.csv for team {selected_team}")
-        else:
-            print(f"Warning: Failed to add {selected_player.name} to drafted_data.csv")
-
-        # STEP 10: Persist changes to players.csv
-        # This saves the updated drafted status to disk
+        # STEP 9: Persist changes to player JSON files
+        # This saves the updated drafted_by status to disk
         self.player_manager.update_players_file()
 
     def _drop_player(self):
         """
-        Drop a player from drafted or rostered status (drafted≠0 → drafted=0).
+        Drop a player from drafted or rostered status (drafted_by → "").
 
         Interactive workflow:
-        1. Search for a drafted/rostered player (drafted=1 or drafted=2 only)
-        2. Determine current status for user feedback:
-           - drafted=2 → "your roster"
-           - drafted=1 → "drafted players"
-        3. Remove player from drafted_data.csv
-        4. Mark player as available (drafted=0)
-        5. Save changes to players.csv
+        1. Search for a drafted/rostered player
+        2. Determine current status for user feedback
+        3. Clear player's drafted_by field (set to "")
+        4. Save changes to player JSON files
 
         This operation reverses the "Mark as Drafted" action, returning the player
         to the available pool for future drafting or waiver wire pickups.
@@ -289,27 +275,19 @@ class ModifyPlayerDataModeManager:
         # This provides clear feedback about what the user is dropping
         old_status = "your roster" if selected_player.is_rostered() else "drafted players"
 
-        # STEP 4: Remove player from drafted_data.csv
-        # This CSV tracks team rosters for Trade Simulator and other modes
-        # Failure is non-critical (player will still be dropped in players.csv)
-        if self.drafted_data_writer.remove_player(selected_player):
-            self.logger.info(f"Removed {selected_player.name} from drafted_data.csv")
-        else:
-            print(f"Warning: Failed to remove {selected_player.name} from drafted_data.csv")
-
-        # STEP 5: Mark player as available (free agent)
+        # STEP 4: Clear player's drafted_by field (mark as free agent)
         # This makes the player available for drafting again
         # Works for both opponent teams and user's roster
         selected_player.drafted_by = ""
 
-        # STEP 6: Persist changes to players.csv
-        # This saves the updated drafted status to disk
+        # STEP 5: Persist changes to player JSON files
+        # This saves the updated drafted_by status to disk
         self.player_manager.update_players_file()
 
-        # STEP 7: Notify user of successful drop
+        # STEP 6: Notify user of successful drop
         # Use the old_status to provide context (e.g., "from your roster")
         print(f"✓ Dropped {selected_player.name} from {old_status}!")
-        self.logger.info(f"Player {selected_player.name} dropped (set drafted=0)")
+        self.logger.info(f"Player {selected_player.name} dropped (set drafted_by='')")
 
     def _lock_player(self):
         """

@@ -29,7 +29,7 @@ from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
 from config import DEFAULT_FILE_CAPS, CREATE_POSITION_JSON, POSITION_JSON_OUTPUT, CURRENT_NFL_WEEK
-from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_DRAFTED_VALUES, PRESERVE_LOCKED_VALUES, PLAYERS_CSV, TEAM_DATA_FOLDER, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
+from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_LOCKED_VALUES, TEAM_DATA_FOLDER, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
 
 
 class DataExporter:
@@ -54,11 +54,8 @@ class DataExporter:
         self.position_defense_rankings = {}
         self.team_weekly_data = {}  # Per-team, per-week data for new format
 
-        # Load existing drafted and locked values if preservation is enabled
-        self.existing_drafted_values = {}
+        # Load existing locked values if preservation is enabled
         self.existing_locked_values = {}
-        if PRESERVE_DRAFTED_VALUES:
-            self._load_existing_drafted_values()
         if PRESERVE_LOCKED_VALUES:
             self._load_existing_locked_values()
 
@@ -225,45 +222,35 @@ class DataExporter:
     # DATA LOADING (Existing drafted/locked values)
     # ============================================================================
 
-    def _load_existing_drafted_values(self):
-        """Load existing drafted values from draft helper players file"""
-        # Resolve path relative to the player-data-fetcher directory (parent of output_dir)
-        draft_file_path = Path(__file__).parent / PLAYERS_CSV
-        
+    def _load_existing_locked_values(self) -> None:
+        """Load existing locked values from position JSON files"""
+        # Load locked values from all position JSON files
+        player_data_dir = Path(__file__).parent.parent / 'data' / 'player_data'
+        position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
+                         'te_data.json', 'k_data.json', 'dst_data.json']
+
         try:
-            with open(draft_file_path, 'r', newline='', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    player_id = row.get('id')
-                    drafted_value = int(row.get('drafted', 0))
+            for json_file in position_files:
+                json_path = player_data_dir / json_file
+                if not json_path.exists():
+                    continue
+
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+
+                # Handle both dict format {position_data: [...]} and list format [...]
+                players = data.get(json_file.replace('.json', ''), data) if isinstance(data, dict) else data
+
+                for player in players:
+                    player_id = str(player.get('id', ''))
+                    locked_value = player.get('locked', False)
+                    # Convert boolean to int (True -> 1, False -> 0) for backwards compatibility
+                    locked_int = 1 if locked_value else 0
                     if player_id:
-                        self.existing_drafted_values[player_id] = drafted_value
-            
-            self.logger.info(f"Loaded {len(self.existing_drafted_values)} existing drafted values from {draft_file_path}")
-            
-        except FileNotFoundError:
-            self.logger.warning(f"Draft helper file not found at {draft_file_path}. All drafted values will be set to 0.")
-        except Exception as e:
-            self.logger.error(f"Error loading existing drafted values: {e}. All drafted values will be set to 0.")
-    
-    def _load_existing_locked_values(self):
-        """Load existing locked values from draft helper players file"""
-        # Resolve path relative to the player-data-fetcher directory (parent of output_dir)
-        draft_file_path = Path(__file__).parent / PLAYERS_CSV
-        
-        try:
-            with open(draft_file_path, 'r', newline='', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    player_id = row.get('id')
-                    locked_value = int(row.get('locked', 0))
-                    if player_id:
-                        self.existing_locked_values[player_id] = locked_value
-            
-            self.logger.info(f"Loaded {len(self.existing_locked_values)} existing locked values from {draft_file_path}")
-            
-        except FileNotFoundError:
-            self.logger.warning(f"Draft helper file not found at {draft_file_path}. All locked values will be set to 0.")
+                        self.existing_locked_values[player_id] = locked_int
+
+            self.logger.info(f"Loaded {len(self.existing_locked_values)} existing locked values from position JSON files")
+
         except Exception as e:
             self.logger.error(f"Error loading existing locked values: {e}. All locked values will be set to 0.")
 
@@ -273,21 +260,15 @@ class DataExporter:
 
     def _espn_player_to_fantasy_player(self, player_data: ESPNPlayerData) -> FantasyPlayer:
         """Convert ESPNPlayerData to FantasyPlayer object"""
-        
-        # Determine drafted value based on configuration
-        drafted_value = player_data.drafted  # Default from ESPN (always 0)
 
-        if PRESERVE_DRAFTED_VALUES and player_data.id in self.existing_drafted_values:
-            # Use existing drafted values from previous runs
-            drafted_value = self.existing_drafted_values[player_data.id]
-        # Note: LOAD_DRAFTED_DATA_FROM_FILE now handled in post-processing step
-        # If neither option is enabled, all players get drafted=0 (default)
-        
+        # Get drafted_by value from ESPN data (initialized as empty string)
+        drafted_by_value = player_data.drafted_by  # DraftedRosterManager will populate team names in post-processing
+
         # Use existing locked value if preservation is enabled, otherwise use default (0)
         locked_value = 0  # Default
         if PRESERVE_LOCKED_VALUES and player_data.id in self.existing_locked_values:
             locked_value = self.existing_locked_values[player_data.id]
-        
+
         # Build projected_points and actual_points arrays from weekly data
         # (UPDATED for Sub-feature 2: Weekly Data Migration)
         projected_points = [
@@ -307,7 +288,7 @@ class DataExporter:
             team=player_data.team,
             position=player_data.position,
             bye_week=player_data.bye_week,
-            drafted=drafted_value,
+            drafted_by=drafted_by_value,
             locked=locked_value,
             fantasy_points=player_data.fantasy_points,
             average_draft_position=player_data.average_draft_position,
@@ -535,21 +516,18 @@ class DataExporter:
 
     def _get_drafted_by(self, player: FantasyPlayer) -> str:
         """
-        Get drafted_by field value (Spec: Decision 10).
+        Get drafted_by value from player (team name or empty string).
+
+        Player already has correct drafted_by value populated by DraftedRosterManager
+        in post-processing. This method maintains abstraction layer for future flexibility.
 
         Args:
-            player: FantasyPlayer with drafted field set
+            player: FantasyPlayer with drafted_by field populated
 
         Returns:
             Team name string or empty string for free agents
         """
-        if player.drafted == 0:
-            return ""  # Free agent
-        elif player.drafted == 2:
-            return MY_TEAM_NAME  # User's team
-        else:  # drafted == 1
-            # Look up team name from DraftedRosterManager
-            return self.drafted_roster_manager.get_team_name_for_player(player)
+        return player.drafted_by
 
     def _get_projected_points_array(self, espn_data: Optional[ESPNPlayerData]) -> List[float]:
         """
@@ -802,45 +780,6 @@ class DataExporter:
         }
 
     # ============================================================================
-    # SHARED FILE EXPORTS (Integration with draft helper and other modules)
-    # ============================================================================
-
-    async def export_to_data(self, data: ProjectionData) -> str:
-        """Export data to data/players.csv for use by draft helper"""
-        # Resolve path to data/players.csv
-        draft_file_path = Path(__file__).parent / PLAYERS_CSV
-
-        try:
-            # Ensure the directory exists
-            draft_file_path.parent.mkdir(parents=True, exist_ok=True)
-
-            # Prepare DataFrame with preserved drafted/locked values
-            df = self._prepare_export_dataframe(data)
-
-            # Export to CSV asynchronously
-            async with aiofiles.open(str(draft_file_path), mode='w', newline='', encoding='utf-8') as csvfile:
-                # Write header
-                await csvfile.write(','.join(EXPORT_COLUMNS) + '\n')
-
-                # Write data rows
-                for _, row in df.iterrows():
-                    row_data = [str(row[col]) for col in EXPORT_COLUMNS]
-                    await csvfile.write(','.join(row_data) + '\n')
-
-            self.logger.info(f"Exported {len(df)} players to shared files: {draft_file_path}")
-            return str(draft_file_path)
-
-        except PermissionError as e:
-            self.logger.error(f"Permission denied writing to {draft_file_path}: {e}")
-            raise
-        except OSError as e:
-            self.logger.error(f"OS error writing to {draft_file_path}: {e}")
-            raise
-        except Exception as e:
-            self.logger.error(f"Unexpected error exporting to shared files: {e}")
-            raise
-
-    # ============================================================================
     # TEAM DATA EXPORTS
     # ============================================================================
 
@@ -907,56 +846,6 @@ class DataExporter:
             self.logger.error(f"Error exporting team data to shared folder: {e}")
             raise
 
-    async def export_projected_points_data(self, data: ProjectionData) -> str:
-        """
-        Export players_projected.csv with projection-only data.
-
-        Creates file from scratch using statSourceId=1 projection values (from
-        the projected_weeks dictionary) for ALL weeks 1-17. Does NOT require
-        existing file - completely regenerates on each run.
-
-        This ensures players_projected.csv contains only ESPN projection data
-        (statSourceId=1), not actual game scores.
-
-        Args:
-            data: ProjectionData containing player projections with projected_weeks populated
-
-        Returns:
-            str: Path to the created players_projected.csv file
-
-        Raises:
-            Exception: For errors during file operations
-        """
-        try:
-            # Path to players_projected.csv
-            projected_file_path = Path(__file__).parent.parent / "data" / "players_projected.csv"
-
-            # Ensure directory exists
-            projected_file_path.parent.mkdir(parents=True, exist_ok=True)
-
-            # Build rows directly from ESPNPlayerData projected_weeks dictionary
-            rows = []
-            for player in data.players:
-                row = {'id': player.id, 'name': player.name}
-                for week in range(1, 18):
-                    # Use the projected_weeks dictionary (statSourceId=1 values)
-                    row[f'week_{week}_points'] = player.get_week_projected(week) or 0.0
-                rows.append(row)
-
-            df = pd.DataFrame(rows)
-
-            # Write to CSV (full recreation)
-            async with aiofiles.open(str(projected_file_path), mode='w', newline='', encoding='utf-8') as csvfile:
-                await csvfile.write(df.to_csv(index=False))
-
-            self.logger.info(f"Exported {len(df)} players to players_projected.csv (full recreation with projection-only data)")
-
-            return str(projected_file_path)
-
-        except Exception as e:
-            self.logger.error(f"Error exporting players_projected.csv: {e}")
-            raise
-
     async def export_all_formats_with_teams(self, data: ProjectionData,
                                            create_csv: bool = True,
                                            create_json: bool = True,
@@ -983,9 +872,6 @@ class DataExporter:
                 tasks.append(self.export_csv(data))
             if create_excel:
                 tasks.append(self.export_excel(data))
-
-            # Always export to shared files for integration
-            tasks.append(self.export_to_data(data))
 
             # Team data exports (new functionality)
             if create_csv:  # Only export teams CSV if CSV creation is enabled

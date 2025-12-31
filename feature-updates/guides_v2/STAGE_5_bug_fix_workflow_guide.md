@@ -1,0 +1,703 @@
+# STAGE 5: Bug Fix Workflow Guide (V2)
+
+**Purpose:** Handle bugs or missing scope discovered during epic implementation with a streamlined workflow that minimizes disruption to ongoing feature work.
+
+**When to Use:** Bug discovered during Stage 5 (feature implementation) or reported by user
+
+---
+
+## 🚨 MANDATORY READING PROTOCOL
+
+**BEFORE creating a bug fix, you MUST:**
+
+1. **Use the phase transition prompt** from `prompts_reference_v2.md`
+   - Find "Creating Bug Fix" prompt
+   - Speak it out loud (acknowledge requirements)
+
+2. **Update README Agent Status** with:
+   - Current Phase: BUG_FIX_CREATION
+   - Current Guide: STAGE_5_bug_fix_workflow_guide.md
+   - Guide Last Read: {YYYY-MM-DD HH:MM}
+   - Critical Rules: "Get user approval first", "Create notes.txt", "Update epic docs"
+   - Next Action: Create bugfix_{priority}_{name} folder
+
+3. **Get user approval** before creating bug fix folder
+
+4. **THEN AND ONLY THEN** proceed with bug fix creation
+
+---
+
+## Quick Start
+
+**3 Main Phases:**
+1. **Bug Fix Creation** - Create folder, notes.txt, get user verification
+2. **Bug Fix Implementation** - Follow simplified workflow (Stage 2 → 5a → 5b → 5c)
+3. **Resume Previous Work** - Return to interrupted feature
+
+**Bug fixes SKIP:** Stages 1, 3, 4, 5d, 5e, 6, 7 (epic-level stages not needed for single bug)
+
+---
+
+## 🛑 Critical Rules
+
+```
+1. ⚠️ GET USER APPROVAL FIRST
+   - Don't automatically create bug fix
+   - Present issue to user
+   - Ask: "Should I create bug fix or continue?"
+   - User decides priority level
+
+2. ⚠️ CREATE NOTES.TXT (User verifies)
+   - Agent writes initial notes.txt
+   - User reviews and updates if needed
+   - User approval required before proceeding
+
+3. ⚠️ UPDATE EPIC DOCS FOR RESUMABILITY
+   - Document current work state before switching
+   - Update epic README with bug fix status
+   - Add to Bug Fix Tracking table
+   - Future agent must know where to resume
+
+4. ⚠️ FOLLOW SIMPLIFIED WORKFLOW
+   - Bug fixes: Stage 2 → 5a → 5b → 5c
+   - SKIP: Stages 1, 3, 4, 5d, 5e, 6, 7
+   - Same rigor as features (24 iterations, QC rounds)
+   - No shortcuts
+
+5. ⚠️ PRIORITY DETERMINES INTERRUPTION
+   - high: Interrupt immediately
+   - medium: Finish current sub-stage first
+   - low: Finish current feature first
+
+6. ⚠️ BUG FIX STAYS IN EPIC FOLDER
+   - Don't move to done/ until epic completes
+   - Easier for epic-level QC
+   - All epic work stays together
+
+7. ⚠️ RETURN TO PREVIOUS WORK AFTER COMPLETION
+   - Bug fix folder stays in epic directory
+   - README Agent Status shows where to resume
+   - Continue epic from where it left off
+```
+
+---
+
+## PHASE 1: Bug Fix Creation
+
+### Step 1: Discover Issue
+
+**Trigger scenarios:**
+- QC round finds critical bug in just-completed feature
+- User reports issue with existing feature
+- Agent discovers missing scope during implementation
+- Integration testing reveals conflict between features
+
+---
+
+### Step 2: Present to User
+
+**Template:**
+```markdown
+I've discovered an issue that needs addressing:
+
+## Issue: {Brief description}
+
+**Discovered during:** {Stage and feature}
+
+**Problem:**
+{Clear description of what's wrong}
+
+**Impact:**
+{What doesn't work because of this}
+
+**Recommendation:**
+Create bug fix with priority: {high/medium/low}
+
+**Proposed priority reasoning:**
+- high: {Blocks current work / Critical functionality broken}
+- medium: {Non-blocking but important / Affects user experience}
+- low: {Minor issue / Can wait until after current feature}
+
+Should I:
+1. Create bug fix now (interrupts current work)
+2. Document issue and continue (address later)
+3. Other approach
+
+What would you like to do?
+```
+
+**Wait for user response**
+
+---
+
+### Step 3: Create Bug Fix Folder
+
+**If user approves:**
+
+1. **Determine folder name:**
+   ```
+   bugfix_{priority}_{short_name}/
+
+   Examples:
+   - bugfix_high_authentication_error/
+   - bugfix_medium_missing_adp_multiplier/
+   - bugfix_low_typo_in_logs/
+   ```
+
+2. **Create folder in epic directory:**
+   ```
+   feature-updates/{epic_name}/bugfix_{priority}_{name}/
+   ```
+
+3. **Create initial structure:**
+   ```
+   bugfix_{priority}_{name}/
+   ├── notes.txt        (create now - user verifies)
+   ├── spec.md          (create in Stage 2)
+   ├── checklist.md     (create in Stage 2)
+   ├── todo.md          (create in Stage 5a)
+   ├── implementation_checklist.md (create in Stage 5b)
+   ├── code_changes.md  (create in Stage 5b)
+   └── lessons_learned.md (create in Stage 5c)
+   ```
+
+---
+
+### Step 4: Create notes.txt
+
+**Template:**
+```
+BUG FIX: {name}
+Priority: {high/medium/low}
+Discovered: {date}
+Discovered During: {Stage X - feature_name}
+
+----
+
+ISSUE DESCRIPTION:
+
+{Clear description of the bug/issue}
+
+What's wrong:
+- {Symptom 1}
+- {Symptom 2}
+- {Symptom 3}
+
+How discovered:
+- {How the issue was found - e.g., "QC Round 2 revealed...", "User reported..."}
+
+Impact:
+- {What doesn't work because of this bug}
+- {Who is affected}
+- {How severe}
+
+----
+
+ROOT CAUSE (if known):
+
+{Analysis of why the bug exists}
+
+Example:
+- Missing null check in ConfigManager.get_adp_multiplier()
+- When player has no ADP data, method crashes instead of returning default
+
+----
+
+PROPOSED SOLUTION:
+
+{How to fix it}
+
+Example:
+- Add null check at top of method
+- Return (1.0, 50) for null/missing ADP (neutral multiplier)
+- Add unit test for null ADP case
+
+----
+
+VERIFICATION PLAN:
+
+How to verify fix works:
+1. {Test scenario 1}
+2. {Test scenario 2}
+3. {Expected result}
+
+----
+
+USER NOTES:
+
+{User can add notes, clarifications, or corrections here}
+```
+
+---
+
+### Step 5: User Verification
+
+**Actions:**
+1. Save notes.txt
+2. Ask user to review and update notes.txt
+3. Wait for user approval
+
+**Template:**
+```
+I've created bugfix_{priority}_{name}/notes.txt with the issue description.
+
+Please review and update if needed:
+- Is the problem description accurate?
+- Is the root cause correct?
+- Is the proposed solution appropriate?
+- Anything to add or clarify?
+
+Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
+```
+
+---
+
+### Step 6: Update Epic Documentation
+
+**Update EPIC_README.md:**
+
+**Add to Bug Fix Tracking table:**
+```markdown
+## Bug Fix Tracking
+
+| # | Bug Fix Name | Priority | Status | Notes |
+|---|--------------|----------|--------|-------|
+| 1 | bugfix_high_authentication_error | high | Stage 2 | Discovered during feature_01 QC |
+```
+
+**Add to Current Status section:**
+```markdown
+## Current Status
+
+**Last Updated:** 2025-12-30 18:00
+
+**Active Bug Fixes:**
+- bugfix_high_authentication_error (Stage 2 - Deep Dive)
+  - Discovered: During feature_01 QC Round 2
+  - Priority: high (blocks feature_02 implementation)
+  - Currently: Creating spec.md for bug fix
+
+**Paused Work:**
+- feature_01_adp_integration: Paused at Stage 5c (post-implementation)
+  - Resume point: After bug fix complete, verify fix doesn't affect feature_01
+  - Agent Status saved: README.md in feature_01/ folder
+```
+
+---
+
+### Step 7: Save Current Work State
+
+**Update current feature's README.md:**
+
+```markdown
+## Agent Status (PAUSED - Bug Fix in Progress)
+
+**Last Updated:** 2025-12-30 18:00
+**Status:** PAUSED for bugfix_high_authentication_error
+**Paused At:** Stage 5c - QC Round 2 (found bug, creating fix)
+
+**Resume Instructions:**
+When bug fix complete:
+1. Re-run Stage 5c QC Round 2 (verify bug fix didn't affect this feature)
+2. If passes: Continue to QC Round 3
+3. If fails: Investigate interaction with bug fix
+
+**Context at Pause:**
+- QC Round 1: PASSED
+- QC Round 2: In progress - found authentication bug that affects this feature
+- Bug discovered: ConfigManager.get_adp_multiplier() crashes on null ADP
+- This feature calls get_adp_multiplier() - need to verify fix works correctly
+```
+
+---
+
+## PHASE 2: Bug Fix Implementation
+
+**Bug fixes follow SIMPLIFIED workflow:**
+
+```
+Stage 2 (Deep Dive) →
+Stage 5a (TODO Creation) →
+Stage 5b (Implementation) →
+Stage 5c (Post-Implementation) →
+DONE (return to previous work)
+```
+
+**SKIP these stages:**
+- ❌ Stage 1 (Epic Planning) - epic already planned
+- ❌ Stage 3 (Cross-Feature Sanity Check) - not needed for single bug
+- ❌ Stage 4 (Epic Testing Strategy) - not needed for single bug
+- ❌ Stage 5d (Cross-Feature Alignment) - bug fix doesn't affect other specs
+- ❌ Stage 5e (Epic Testing Plan Update) - handled in Stage 5c
+- ❌ Stage 6 (Epic Final QC) - bug fix has own QC in Stage 5c
+- ❌ Stage 7 (Epic Cleanup) - bug stays with epic
+
+---
+
+### Stage 2: Deep Dive (Adapted for Bug Fixes)
+
+**Read:** STAGE_2_feature_deep_dive_guide.md
+
+**Adapt for bug fix:**
+1. **Create spec.md** (bug fix requirements)
+   - What needs to be fixed
+   - Root cause analysis
+   - Solution approach
+   - Verification plan
+
+2. **Create checklist.md** (decisions for bug fix)
+   - Usually shorter than feature checklists
+   - Focus on fix approach decisions
+
+3. **Create lessons_learned.md** (why bug happened, how to prevent)
+
+4. **Skip:** Cross-feature alignment (not needed for bug)
+
+**Keep spec.md focused:**
+```markdown
+# Bug Fix: Authentication Error
+
+## Root Cause
+
+ConfigManager.get_adp_multiplier() crashes when player has null ADP value.
+
+Location: league_helper/util/ConfigManager.py:234
+
+```python
+def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
+    # BUG: No null check
+    if adp_value < 10:  # Crashes if adp_value is None
+        return (1.50, 100)
+```
+
+## Solution
+
+Add null check at method start:
+
+```python
+def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
+    # FIX: Handle null/missing ADP
+    if adp_value is None:
+        self.logger.info("ADP value missing, using neutral multiplier")
+        return (1.0, 50)
+
+    if adp_value < 10:
+        return (1.50, 100)
+```
+
+## Testing
+
+Unit tests:
+- test_get_adp_multiplier_with_none()
+- test_get_adp_multiplier_with_zero()
+
+Integration test:
+- Verify PlayerManager handles None ADP gracefully
+```
+
+---
+
+### Stage 5a: TODO Creation
+
+**Read guides in order:**
+1. STAGE_5aa_round1_guide.md - Round 1 (iterations 1-7 + 4a)
+2. STAGE_5ab_round2_guide.md - Round 2 (iterations 8-16)
+3. STAGE_5ac_round3_guide.md - Round 3 (iterations 17-24 + 23a)
+
+**Same rigor as features:**
+- Complete ALL 24 verification iterations
+- Algorithm Traceability Matrix
+- Mock Audit
+- Pre-Implementation Spec Audit
+
+**Bug fix TODOs usually shorter:**
+```markdown
+# Bug Fix TODO: Authentication Error
+
+## Phase 1: Fix Implementation
+- [ ] Add null check to ConfigManager.get_adp_multiplier()
+- [ ] Add logging for missing ADP case
+- [ ] Update method docstring
+
+## Phase 2: Testing
+- [ ] Add unit test: test_get_adp_multiplier_with_none()
+- [ ] Add unit test: test_get_adp_multiplier_with_zero()
+- [ ] Run all ConfigManager tests (verify no regressions)
+
+## Phase 3: Integration Verification
+- [ ] Test PlayerManager with None ADP
+- [ ] Verify feature_01 still works after fix
+- [ ] Run full test suite (100% pass required)
+
+## Phase 4: Documentation
+- [ ] Update code_changes.md
+- [ ] Update implementation_checklist.md
+```
+
+---
+
+### Stage 5b: Implementation
+
+**Read:** STAGE_5b_implementation_execution_guide.md
+
+**Same process as features:**
+- Interface Verification Protocol
+- Keep spec.md visible
+- Phase-by-phase implementation
+- Run tests after each phase
+- Update implementation_checklist.md
+
+---
+
+### Stage 5c: Post-Implementation
+
+**Read guides in order:**
+1. STAGE_5ca_smoke_testing_guide.md - Smoke Testing (3 parts - MANDATORY GATE)
+2. STAGE_5cb_qc_rounds_guide.md - QC Round 1, 2, 3 (with restart protocol)
+3. STAGE_5cc_final_review_guide.md - PR Review (11 categories) + lessons learned
+
+**Same validation as features:**
+- Smoke Testing (3 parts)
+- QC Round 1, 2, 3
+- PR Review (11 categories)
+- QC Restart Protocol if issues found
+
+**Bug fix smoke testing:**
+```bash
+# Part 1: Import test
+python -c "from league_helper.util.ConfigManager import ConfigManager"
+
+# Part 2: Entry point test (if applicable)
+python run_league_helper.py --help
+
+# Part 3: E2E test
+# Run scenario that triggered bug
+# Verify bug no longer occurs
+python run_league_helper.py --mode draft
+# Check: Players with missing ADP work correctly
+```
+
+---
+
+## PHASE 3: Resume Previous Work
+
+### Step 1: Mark Bug Fix Complete
+
+**Update EPIC_README.md:**
+
+```markdown
+## Bug Fix Tracking
+
+| # | Bug Fix Name | Priority | Status | Notes |
+|---|--------------|----------|--------|-------|
+| 1 | bugfix_high_authentication_error | high | COMPLETE | Fixed null ADP handling |
+
+## Current Status
+
+**Completed Bug Fixes:**
+- bugfix_high_authentication_error:
+  - Completed: 2025-12-30 19:00
+  - Solution: Added null check to ConfigManager.get_adp_multiplier()
+  - Verification: All tests pass, feature_01 retested successfully
+
+**Resuming Work:**
+- feature_01_adp_integration: Resuming Stage 5c (post-implementation)
+  - Resume from: QC Round 2 (re-run after bug fix)
+  - Next action: Complete QC Round 2, then Round 3
+```
+
+---
+
+### Step 2: Verify Bug Fix Doesn't Affect Paused Work
+
+**Check:**
+- Does bug fix change interfaces paused feature uses?
+- Does bug fix affect data structures paused feature depends on?
+- Does bug fix require retesting paused feature?
+
+**Example:**
+```
+Bug fix: Added null check to ConfigManager.get_adp_multiplier()
+
+Paused feature: feature_01_adp_integration
+
+Impact check:
+- feature_01 calls get_adp_multiplier() → AFFECTED
+- Need to re-run feature_01's QC to verify fix didn't break it
+
+Action: Re-run feature_01 Stage 5c QC Round 2 before continuing
+```
+
+---
+
+### Step 3: Resume from Saved State
+
+**Read paused feature's README.md:**
+```markdown
+## Agent Status (PAUSED - Bug Fix in Progress)
+
+**Resume Instructions:**
+When bug fix complete:
+1. Re-run Stage 5c QC Round 2 (verify bug fix didn't affect this feature)
+2. If passes: Continue to QC Round 3
+3. If fails: Investigate interaction with bug fix
+```
+
+**Follow resume instructions explicitly**
+
+---
+
+### Step 4: Update README Agent Status
+
+```markdown
+**Current Phase:** POST_IMPLEMENTATION_QC_ROUNDS (Resumed)
+**Current Guide:** STAGE_5cb_qc_rounds_guide.md
+**Guide Last Read:** 2025-12-30 19:15
+**Resumed After:** bugfix_high_authentication_error completion
+**Next Action:** Re-run QC Round 2 to verify bug fix compatibility
+```
+
+---
+
+## Priority Handling
+
+### High Priority
+
+**When:** Bug blocks current work or breaks critical functionality
+
+**Action:** Interrupt immediately
+
+**Example:**
+```
+Currently: feature_01 Stage 5b (implementation)
+Bug discovered: ConfigManager crashes (blocks feature_01)
+Priority: high
+
+Action:
+1. Save feature_01 state (update README)
+2. Create bug fix immediately
+3. Complete bug fix (Stage 2 → 5c)
+4. Resume feature_01 Stage 5b
+```
+
+---
+
+### Medium Priority
+
+**When:** Bug doesn't block but affects user experience
+
+**Action:** Finish current sub-stage, then switch
+
+**Example:**
+```
+Currently: feature_02 Stage 5b Phase 2 (of 4 phases)
+Bug discovered: Log messages unclear
+Priority: medium
+
+Action:
+1. Complete Phase 2
+2. Save feature_02 state (at end of Phase 2)
+3. Create and fix bug
+4. Resume feature_02 Phase 3
+```
+
+---
+
+### Low Priority
+
+**When:** Minor issue that can wait
+
+**Action:** Finish current feature, then switch
+
+**Example:**
+```
+Currently: feature_03 Stage 5c (QC Round 2)
+Bug discovered: Typo in output message
+Priority: low
+
+Action:
+1. Complete feature_03 through Stage 5e
+2. Then create and fix bug
+3. Continue to next feature
+```
+
+---
+
+## Completion Criteria
+
+**Bug fix is complete when:**
+
+- [x] notes.txt created and user-verified
+- [x] spec.md created (root cause, solution)
+- [x] checklist.md created
+- [x] Stage 5a complete (24 iterations, todo.md)
+- [x] Stage 5b complete (implementation, tests pass)
+- [x] Stage 5c complete (smoke tests, QC rounds, PR review)
+- [x] lessons_learned.md updated
+- [x] Epic README updated (bug fix marked complete)
+- [x] Previous work verified compatible with fix
+- [x] Ready to resume previous work
+
+---
+
+## Common Mistakes
+
+### Anti-Pattern 1: Skipping User Approval
+
+**Mistake:** Agent discovers bug and immediately creates bug fix folder
+
+**Why wrong:** User should decide priority and whether to fix now
+
+**Correct:** Present issue, get approval, then create folder
+
+---
+
+### Anti-Pattern 2: Shortcuts in Bug Fix QC
+
+**Mistake:** "It's just a small bug, I'll skip QC rounds"
+
+**Why wrong:** Small bugs can have big impacts. Same rigor required.
+
+**Correct:** Full Stage 5c validation (smoke tests + 3 QC rounds + PR review)
+
+---
+
+### Anti-Pattern 3: Not Updating Epic Docs
+
+**Mistake:** Create bug fix but don't update EPIC_README or feature README
+
+**Why wrong:** Future agent won't know bug fix exists or where to resume
+
+**Correct:** Update both epic README and paused feature's README
+
+---
+
+### Anti-Pattern 4: Forgetting to Resume
+
+**Mistake:** Complete bug fix, then start new work without resuming paused feature
+
+**Why wrong:** Paused feature left incomplete
+
+**Correct:** Resume paused work, verify compatibility, complete paused feature
+
+---
+
+## Summary
+
+**Bug fix workflow ensures bugs are fixed properly without disrupting epic progress:**
+
+1. **Get approval** - User decides priority and timing
+2. **Document thoroughly** - notes.txt user-verified
+3. **Follow simplified workflow** - Stage 2 → 5a → 5b → 5c
+4. **Same rigor** - 24 iterations, QC rounds, no shortcuts
+5. **Resume cleanly** - Return to paused work, verify compatibility
+
+**Critical:**
+- Bug fixes stay in epic folder (don't move to done/)
+- Same validation rigor as features
+- Priority determines interruption timing
+- Epic docs updated for resumability
+
+---
+
+*End of STAGE_5_bug_fix_workflow_guide.md*

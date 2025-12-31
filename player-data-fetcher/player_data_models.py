@@ -38,7 +38,7 @@ class ESPNPlayerData(BaseModel):
 
     # Fantasy data
     bye_week: Optional[int] = None
-    drafted: int = 0  # 0 = not drafted, 1 = drafted, 2 = roster player
+    drafted_by: str = ""  # Team name (empty = free agent)
     locked: int = 0   # 0 = not locked, 1 = locked
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None  # ESPN's ADP data

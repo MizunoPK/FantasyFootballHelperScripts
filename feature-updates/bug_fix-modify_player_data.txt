@@ -1,0 +1,1 @@
+the modify player data mode is fundamentally broken after the modification to league helper to no longer use players.csv and drafted_data.csv

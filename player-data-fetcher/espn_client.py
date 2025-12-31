@@ -1830,7 +1830,7 @@ class ESPNClient(BaseAPIClient):
                     team=team,
                     position=position,
                     bye_week=bye_week,
-                    drafted=0,  # Initialize all players as not drafted
+                    drafted_by="",  # Initialize all players as free agents
                     fantasy_points=fantasy_points,
                     average_draft_position=average_draft_position,
                     player_rating=player_rating,

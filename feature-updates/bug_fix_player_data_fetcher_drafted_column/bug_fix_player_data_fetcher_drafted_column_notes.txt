@@ -1,0 +1,5 @@
+The player data fetcher has been broken now that we removed the drafted column from the FantasyPlayer objects
+I want to get player data fetcher working again, where it can run end-to-end seemlessly
+At minimum I believe this will require:
+1. removing references to the drafted column in leu of the drafted_by field
+2. disabling the creation of players.csv and players_projected.csv

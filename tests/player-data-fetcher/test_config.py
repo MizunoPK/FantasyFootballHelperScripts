@@ -36,10 +36,6 @@ class TestNFLConfiguration:
 class TestDataPreservationSettings:
     """Test data preservation configuration"""
 
-    def test_preserve_drafted_values_is_boolean(self):
-        """Test PRESERVE_DRAFTED_VALUES is boolean"""
-        assert isinstance(config.PRESERVE_DRAFTED_VALUES, bool)
-
     def test_preserve_locked_values_is_boolean(self):
         """Test PRESERVE_LOCKED_VALUES is boolean"""
         assert isinstance(config.PRESERVE_LOCKED_VALUES, bool)

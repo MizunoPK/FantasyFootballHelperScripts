@@ -14,7 +14,6 @@ CURRENT_NFL_WEEK = 17     # Current NFL week (1-18, update weekly)
 NFL_SEASON = 2025        # Current NFL season year
 
 # Data Preservation Settings (FREQUENTLY MODIFIED)
-PRESERVE_DRAFTED_VALUES = False   # Keep draft status between data updates
 PRESERVE_LOCKED_VALUES = False    # Keep locked players between data updates
 
 # Drafted Data Loading Settings (FREQUENTLY MODIFIED)
@@ -35,7 +34,6 @@ DEFAULT_FILE_CAPS = {'csv': 5, 'json': 18, 'xlsx': 5, 'txt': 5}  # json: 18 allo
 POSITION_JSON_OUTPUT = "../data/player_data"  # Output folder for position-based JSON files
 
 # File Paths (FREQUENTLY MODIFIED)
-PLAYERS_CSV = '../data/players.csv'
 TEAM_DATA_FOLDER = '../data/team_data'  # Output folder for per-team historical data files
 GAME_DATA_CSV = '../data/game_data.csv'  # Output file for game-level data (venue, weather, scores)
 COORDINATES_JSON = 'coordinates.json'  # Stadium coordinates for weather lookups
@@ -81,7 +79,7 @@ RATE_LIMIT_DELAY = 0.2
 EXCEL_POSITION_SHEETS = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 EXPORT_COLUMNS = [
     'id', 'name', 'team', 'position', 'bye_week', 'fantasy_points',
-    'injury_status', 'drafted', 'locked', 'average_draft_position',
+    'injury_status', 'drafted_by', 'locked', 'average_draft_position',
     'player_rating',
     # Weekly projections (weeks 1-17 fantasy regular season only)
     'week_1_points', 'week_2_points', 'week_3_points', 'week_4_points',

@@ -8,7 +8,7 @@ Starter Helper mode.
 
 This mode creates a snapshot of:
 - Calculated player scores (JSON)
-- Input data files (players.csv, configs/, team_data/, etc.)
+- Input data files (configs/, team_data/, game_data.csv, drafted_data.csv, etc.)
 
 Output Structure:
 - Weekly: data/historical_data/{SEASON}/{WEEK}/calculated_projected_points.json
@@ -128,8 +128,6 @@ class SaveCalculatedPointsManager:
 
         # Copy data files to historical_data folder
         files_to_copy = [
-            "players.csv",
-            "players_projected.csv",
             "game_data.csv",
             "drafted_data.csv"
         ]

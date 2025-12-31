@@ -222,12 +222,12 @@ class TestSaveCalculatedPointsManager:
         json_path = temp_data_folder / "historical_data" / "2024" / "01" / "calculated_projected_points.json"
         assert json_path.exists()
 
-        # Verify players.csv and players_projected.csv were still copied
-        assert (temp_data_folder / "historical_data" / "2024" / "01" / "players.csv").exists()
-        assert (temp_data_folder / "historical_data" / "2024" / "01" / "players_projected.csv").exists()
+        # Verify deprecated CSV files are NOT copied (feature_02: CSV deprecation)
+        assert not (temp_data_folder / "historical_data" / "2024" / "01" / "players.csv").exists()
+        assert not (temp_data_folder / "historical_data" / "2024" / "01" / "players_projected.csv").exists()
 
-    def test_execute_copies_all_6_file_types(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() copies all 6 file types to historical_data (UPDATED for Sub-feature 2)"""
+    def test_execute_copies_all_4_file_types(self, mock_config, mock_player_manager, temp_data_folder):
+        """Test execute() copies all 4 file types to historical_data (UPDATED for feature_02: CSV deprecation)"""
         # Setup
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
@@ -247,15 +247,18 @@ class TestSaveCalculatedPointsManager:
         # Execute
         manager.execute()
 
-        # Verify all files copied
+        # Verify files copied (deprecated CSV files should NOT be copied)
         output_folder = temp_data_folder / "historical_data" / "2024" / "01"
 
-        assert (output_folder / "players.csv").exists()
-        assert (output_folder / "players_projected.csv").exists()
+        # Files that SHOULD be copied
         assert (output_folder / "game_data.csv").exists()
         assert (output_folder / "drafted_data.csv").exists()
         assert (output_folder / "configs" / "league_config.json").exists()
         assert (output_folder / "team_data" / "KC.csv").exists()
+
+        # Deprecated CSV files should NOT be copied (feature_02)
+        assert not (output_folder / "players.csv").exists()
+        assert not (output_folder / "players_projected.csv").exists()
 
     def test_execute_creates_correct_folder_structure(self, mock_config, mock_player_manager, temp_data_folder):
         """Test execute() creates correct folder structure (UPDATED for Sub-feature 2)"""

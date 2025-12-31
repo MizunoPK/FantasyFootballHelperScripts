@@ -85,7 +85,7 @@ class TestESPNPlayerDataInitialization:
         )
 
         assert player.bye_week == 7
-        assert player.drafted == 1
+        assert player.drafted_by == "Opponent Team"
         assert player.fantasy_points == 250.5
         assert player.average_draft_position == 3.2
         assert player.injury_status == "QUESTIONABLE"
@@ -100,7 +100,7 @@ class TestESPNPlayerDataInitialization:
         )
 
         assert player.bye_week is None
-        assert player.drafted == 0
+        assert player.drafted_by == ""
         assert player.locked == 0
         assert player.fantasy_points == 0.0
         assert player.average_draft_position is None
@@ -292,17 +292,18 @@ class TestESPNPlayerDataWeeklyPoints:
 class TestESPNPlayerDataValidation:
     """Test Pydantic validation"""
 
-    def test_validates_drafted_is_integer(self):
-        """Test that drafted field accepts integers"""
+    def test_validates_drafted_by_is_string(self):
+        """Test that drafted_by field accepts strings"""
         player = ESPNPlayerData(
             id="12345",
             name="Test Player",
             team="TB",
             position="QB",
-            drafted=2
+            drafted_by="My Team"
         )
 
-        assert player.drafted == 2
+        assert player.drafted_by == "My Team"
+        assert isinstance(player.drafted_by, str)
 
     def test_validates_fantasy_points_is_float(self):
         """Test that fantasy_points field accepts floats"""
@@ -315,19 +316,6 @@ class TestESPNPlayerDataValidation:
         )
 
         assert player.fantasy_points == 125.75
-
-    def test_converts_string_to_int_for_drafted(self):
-        """Test Pydantic converts compatible strings to int"""
-        player = ESPNPlayerData(
-            id="12345",
-            name="Test Player",
-            team="TB",
-            position="WR",
-            drafted="1"  # String that can be converted
-        )
-
-        assert player.drafted == 1
-        assert isinstance(player.drafted, int)
 
     def test_converts_int_to_float_for_fantasy_points(self):
         """Test Pydantic converts int to float"""
@@ -648,7 +636,7 @@ class TestIntegrationScenarios:
         player.set_week_points(1, 15.0)
         player.set_week_points(2, 20.0)
 
-        assert player.drafted == 1
+        assert player.drafted_by == "Opponent Team"
         assert player.fantasy_points == 150.5
         assert player.get_week_points(1) == 15.0
         assert player.get_week_points(2) == 20.0

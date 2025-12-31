@@ -349,24 +349,6 @@ class NFLProjectionsCollector:
             output_files.extend(files)
             self.logger.info(f"Exported {data_type} projections to configured formats")
 
-            # Export to shared data/players.csv for draft helper integration
-            # This file is read by the draft helper to get current player projections
-            # Format: Full player data with all fields (id, name, team, position, fantasy_points, etc.)
-            shared_file = await self.exporter.export_to_data(data)
-            output_files.append(shared_file)
-
-            # Export players_projected.csv with projection-only data
-            # Creates file from scratch with statSourceId=1 (ESPN projections) for ALL weeks
-            # Used by league helper for performance tracking against projections
-            try:
-                projected_file = await self.exporter.export_projected_points_data(data)
-                output_files.append(projected_file)
-                self.logger.info("Exported players_projected.csv with projection-only data")
-            except Exception as e:
-                # Error exporting projected points
-                # Log error but don't fail entire export - this is a supplementary feature
-                self.logger.error(f"Error exporting players_projected.csv: {e}")
-
             # Export position-based JSON files (if enabled via config)
             # Creates 6 files: new_qb_data.json, new_rb_data.json, new_wr_data.json,
             # new_te_data.json, new_k_data.json, new_dst_data.json

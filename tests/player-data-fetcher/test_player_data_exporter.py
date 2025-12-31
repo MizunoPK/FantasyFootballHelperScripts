@@ -337,3 +337,87 @@ class TestExportAllFormats:
 
         # Should only have CSV files
         assert all(f.endswith('.csv') for f in files)
+
+
+class TestDeprecatedCSVFilesNotCreated:
+    """Test that deprecated CSV files (players.csv, players_projected.csv) are NOT created"""
+
+    @pytest.mark.asyncio
+    async def test_players_csv_not_created(self, tmp_path):
+        """Test that data/players.csv is NOT created after export"""
+        # Setup exporter with data folder
+        data_folder = tmp_path / "data"
+        data_folder.mkdir()
+        output_dir = tmp_path / "player-data-fetcher" / "data"
+
+        exporter = DataExporter(output_dir=str(output_dir))
+
+        projection_data = ProjectionData(
+            season=2024,
+            scoring_format='PPR',
+            total_players=1,
+            players=[
+                PlayerProjection(id="1", name="Test Player", position="QB", team="KC", fantasy_points=300.0)
+            ]
+        )
+
+        # Run export_all_formats
+        await exporter.export_all_formats(projection_data)
+
+        # Verify deprecated players.csv NOT created in data folder
+        deprecated_csv_path = data_folder / "players.csv"
+        assert not deprecated_csv_path.exists(), "Deprecated players.csv should NOT be created"
+
+    @pytest.mark.asyncio
+    async def test_players_projected_csv_not_created(self, tmp_path):
+        """Test that data/players_projected.csv is NOT created after export"""
+        # Setup exporter with data folder
+        data_folder = tmp_path / "data"
+        data_folder.mkdir()
+        output_dir = tmp_path / "player-data-fetcher" / "data"
+
+        exporter = DataExporter(output_dir=str(output_dir))
+
+        projection_data = ProjectionData(
+            season=2024,
+            scoring_format='PPR',
+            total_players=1,
+            players=[
+                PlayerProjection(id="1", name="Test Player", position="QB", team="KC", fantasy_points=300.0)
+            ]
+        )
+
+        # Run export_all_formats
+        await exporter.export_all_formats(projection_data)
+
+        # Verify deprecated players_projected.csv NOT created in data folder
+        deprecated_projected_csv_path = data_folder / "players_projected.csv"
+        assert not deprecated_projected_csv_path.exists(), "Deprecated players_projected.csv should NOT be created"
+
+    @pytest.mark.asyncio
+    async def test_position_json_files_still_created(self, tmp_path):
+        """Test that position JSON files are STILL created (regression test)"""
+        output_dir = tmp_path / "player-data-fetcher" / "data"
+
+        exporter = DataExporter(output_dir=str(output_dir))
+
+        projection_data = ProjectionData(
+            season=2024,
+            scoring_format='PPR',
+            total_players=2,
+            players=[
+                PlayerProjection(id="1", name="QB Player", position="QB", team="KC", fantasy_points=300.0),
+                PlayerProjection(id="2", name="RB Player", position="RB", team="SF", fantasy_points=250.0)
+            ]
+        )
+
+        # Mock team rankings to enable position JSON creation
+        exporter.set_team_rankings({'KC': {'offense': 1, 'defense': 5}, 'SF': {'offense': 2, 'defense': 3}})
+
+        # Run export_all_formats with JSON enabled
+        with patch('player_data_exporter.CREATE_POSITION_JSON', True):
+            files = await exporter.export_all_formats(projection_data, create_json=True)
+
+        # Verify JSON files were created
+        json_files = [f for f in files if f.endswith('.json')]
+        assert len(json_files) > 0, "Position JSON files should still be created"
