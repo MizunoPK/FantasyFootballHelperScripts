@@ -1,0 +1,4 @@
+the modify player data mode is fundamentally broken after the modification to league helper to no longer use players.csv and drafted_data.csv
+
+None of the modes are updating the corresponding data in the player_data folder, and it is creating .bak files when we do not want to have excess files
+After selecting a player to be modified, the system should update the corresponding player_data/*.json file and update its internal data. Right now it is creating extra files when it shouldn't, and doesn't appear to actually update the main files

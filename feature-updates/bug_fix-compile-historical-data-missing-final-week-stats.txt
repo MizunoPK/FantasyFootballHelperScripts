@@ -1,7 +1,0 @@
-when using compile historical data script, we end up missing out on the final week's scores for every player
-this is because week 17 files are a snapshot of what we knew before the week's games began
-this means the simulation won't evaluate week 17 correctly because it doesn't know what actually occurred week 17
-
-I want to:
-1) update the compile historical data script to include a week_18 folder, which will include all the data about what ended up occurring in week 17
-2) I want to validate to ensure that the simulation is correctly using stats from the week_N folder when scoring players for week_N, then correctly using the week_N+1 folder to get the actual scores of the players from week_N

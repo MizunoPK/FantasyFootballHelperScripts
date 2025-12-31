@@ -80,10 +80,10 @@
       }
     ],
     "MAX_POSITIONS": {
-      "QB": 1,
+      "QB": 2,
       "RB": 4,
       "WR": 4,
-      "FLEX": 2,
+      "FLEX": 1,
       "TE": 2,
       "K": 1,
       "DST": 1
