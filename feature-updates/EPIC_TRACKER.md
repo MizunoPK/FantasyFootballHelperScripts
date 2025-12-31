@@ -17,13 +17,13 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| - | - | - | - | - | - |
+| 1 | bug_fix-draft_mode | fix | fix/KAI-1 | In Progress | 2025-12-31 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-1
+### Next Available Number: KAI-2
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
