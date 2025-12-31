@@ -1686,8 +1686,8 @@ class ESPNClient(BaseAPIClient):
                     injury_status = injury_info.upper()
                 
                 # Extract ADP data
-                # NOTE: ESPN provides real ADP data during draft season (Aug-Sep)
-                # Mid-season (Oct-Jan), ESPN may return placeholder values (e.g., 170 for everyone)
+                # NOTE: ESPN only provides real ADP data during draft season (Aug-Sep)
+                # Outside draft season (Oct-Dec), ESPN returns placeholder value of 170.0 for all players
                 # This is detected and warned about in player_data_fetcher_main.py
                 average_draft_position = None
                 ownership_data = player_info.get('ownership', {})

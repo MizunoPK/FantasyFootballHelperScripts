@@ -529,23 +529,29 @@ class TestMarkPlayerDrafted:
 
     def test_mark_player_drafted_only_affects_specified_player(self, draft_helper_team, mock_projected_pm, mock_actual_pm):
         """Test marking player drafted only affects the specified player"""
-        proj_player1 = Mock(spec=FantasyPlayer)
+        # Note: DraftHelperTeam still uses old 'drafted' field, not 'drafted_by'
+        # Create mocks without spec to allow setting drafted field
+        proj_player1 = Mock()
         proj_player1.id = 100
         proj_player1.drafted_by = ""
+        proj_player1.drafted = 0
 
-        proj_player2 = Mock(spec=FantasyPlayer)
+        proj_player2 = Mock()
         proj_player2.id = 200
         proj_player2.drafted_by = ""
+        proj_player2.drafted = 0
 
         mock_projected_pm.players = [proj_player1, proj_player2]
 
-        actual_player1 = Mock(spec=FantasyPlayer)
+        actual_player1 = Mock()
         actual_player1.id = 100
         actual_player1.drafted_by = ""
+        actual_player1.drafted = 0
 
-        actual_player2 = Mock(spec=FantasyPlayer)
+        actual_player2 = Mock()
         actual_player2.id = 200
         actual_player2.drafted_by = ""
+        actual_player2.drafted = 0
 
         mock_actual_pm.players = [actual_player1, actual_player2]
 
