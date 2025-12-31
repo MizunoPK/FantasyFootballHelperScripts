@@ -33,6 +33,7 @@ from utils.LoggingManager import setup_logger, get_logger
 from historical_data_compiler.constants import (
     MIN_SUPPORTED_YEAR,
     REGULAR_SEASON_WEEKS,
+    VALIDATION_WEEKS,
     TEAM_DATA_FOLDER,
     WEEKS_FOLDER,
 )
@@ -139,11 +140,11 @@ def create_output_directories(output_dir: Path) -> None:
     weeks_dir = output_dir / WEEKS_FOLDER
     weeks_dir.mkdir(exist_ok=True)
 
-    for week in range(1, REGULAR_SEASON_WEEKS + 1):
+    for week in range(1, VALIDATION_WEEKS + 1):
         week_dir = weeks_dir / f"week_{week:02d}"
         week_dir.mkdir(exist_ok=True)
 
-    logger.info(f"Created {REGULAR_SEASON_WEEKS} week folders")
+    logger.info(f"Created {VALIDATION_WEEKS} week folders")
 
 
 def cleanup_on_error(output_dir: Path) -> None:

@@ -1,0 +1,100 @@
+BUG FIX: Compile Historical Data Missing Final Week Stats
+Priority: medium
+Discovered: 2025-12-30
+Discovered During: User-reported (standalone bug fix)
+
+----
+
+ISSUE DESCRIPTION:
+
+When using the compile historical data script, we miss the final week's actual scores for every player.
+
+What's wrong:
+- Week 17 files contain only pre-game projections (snapshot before games began)
+- No week_18 folder exists to capture what actually occurred in week 17
+- Simulation system can't evaluate week 17 performance (missing actual results)
+- Historical data analysis incomplete for final week of season
+
+How discovered:
+- User identified issue with compile historical data script behavior
+- Week 17 evaluation uses projections instead of actuals
+
+Impact:
+- Simulation evaluates week 17 incorrectly (uses projections, not actuals)
+- Cannot validate simulation accuracy for final week
+- Historical performance analysis incomplete
+- Affects credibility of simulation validation overall
+
+----
+
+ROOT CAUSE:
+
+The compile historical data script creates folders week_1 through week_17, where each week_N folder contains:
+- Player projections/stats BEFORE week N games are played
+- This works for weeks 1-16 because week_N+1 folder contains the actual results from week N
+- But for week 17 (final week), there is no week_18 folder to contain the actual results
+- Therefore, week 17 actual performance data is never captured
+
+Expected data flow:
+- week_N folder: Projections/stats for simulating week N
+- week_N+1 folder: Actual results from week N (for validation)
+- Problem: week_18 folder doesn't exist, breaking the pattern for week 17
+
+----
+
+PROPOSED SOLUTION:
+
+1. Update compile historical data script to create week_18 folder
+   - This folder will contain the actual results from week 17
+   - Maintains the pattern: week_N+1 has actuals for week_N
+
+2. Validate simulation data flow is correct:
+   - Verify simulation uses week_N data when scoring players for week_N
+   - Verify simulation uses week_N+1 data to get actual scores from week_N
+   - Ensure this works correctly for all weeks 1-17
+
+Changes needed:
+- File: (Need to locate compile historical data script - TBD in Stage 2)
+- Logic: Add week_18 folder creation with week 17 actual results
+- Testing: Verify week_18 contains correct actual data from week 17
+- Validation: Confirm simulation correctly uses week_N vs week_N+1 data
+
+----
+
+VERIFICATION PLAN:
+
+How to verify fix works:
+
+1. Run compile historical data script
+   - Expected: week_18 folder created
+   - Expected: week_18 contains actual player stats from week 17
+
+2. Verify week_18 data contents
+   - Check: Player stats in week_18 reflect actual week 17 performance
+   - Check: Data format consistent with other week folders
+
+3. Test simulation data usage
+   - Verify: Simulation uses week_17 data for week 17 projections
+   - Verify: Simulation uses week_18 data for week 17 actuals
+   - Verify: Week 17 evaluation now accurate
+
+4. Validate pattern for all weeks
+   - Verify: Weeks 1-16 still work correctly (week_N+1 for actuals)
+   - Verify: Week 17 now works same way (week_18 for actuals)
+
+Expected result after fix:
+- week_18 folder exists with week 17 actual results
+- Simulation correctly evaluates week 17 performance
+- Historical data complete for all 17 weeks
+- Data flow pattern consistent across all weeks
+
+----
+
+USER VERIFICATION:
+
+User comments:
+(User: Please review the above and add any clarifications, corrections, or additional context)
+
+User approval: (YES / NO / NEEDS CHANGES)
+Approved by:
+Approved date:

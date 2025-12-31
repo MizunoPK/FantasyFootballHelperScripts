@@ -87,6 +87,9 @@ MIN_SUPPORTED_YEAR = 2021
 # Regular season weeks
 REGULAR_SEASON_WEEKS = 17
 
+# Weeks to generate for validation (includes week 18 for week 17 actuals)
+VALIDATION_WEEKS = 18
+
 # =============================================================================
 # HTTP CLIENT CONFIGURATION
 # =============================================================================

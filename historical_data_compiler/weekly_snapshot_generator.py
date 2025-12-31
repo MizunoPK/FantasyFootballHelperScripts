@@ -18,6 +18,7 @@ from typing import Dict, List, Any
 
 from .constants import (
     REGULAR_SEASON_WEEKS,
+    VALIDATION_WEEKS,
     WEEKS_FOLDER,
     PLAYERS_FILE,
     PLAYERS_PROJECTED_FILE,
@@ -122,20 +123,20 @@ class WeeklySnapshotGenerator:
         output_dir: Path
     ) -> None:
         """
-        Generate snapshots for all 17 weeks.
+        Generate snapshots for all 18 weeks (1-17 regular season + week 18 for validation).
 
         Args:
             players: List of PlayerData with full season data
             output_dir: Base output directory
         """
-        self.logger.info("Generating weekly snapshots for weeks 1-17")
+        self.logger.info("Generating weekly snapshots for weeks 1-18")
 
         weeks_dir = output_dir / WEEKS_FOLDER
 
-        for week in range(1, REGULAR_SEASON_WEEKS + 1):
+        for week in range(1, VALIDATION_WEEKS + 1):
             self._generate_week_snapshot(players, weeks_dir, week)
 
-        self.logger.info(f"Generated {REGULAR_SEASON_WEEKS} weekly snapshots")
+        self.logger.info(f"Generated {VALIDATION_WEEKS} weekly snapshots")
 
     def _generate_week_snapshot(
         self,
@@ -271,6 +272,7 @@ class WeeklySnapshotGenerator:
         Per spec:
         - Week < current_week: Use historical week-specific projection
         - Week >= current_week: Use current week's projection for ALL future weeks
+        - Week 18 (VALIDATION_WEEKS): Same as players.csv (all actuals)
 
         Player rating is calculated per spec:
         - Week 1: Use draft-based rating
@@ -282,8 +284,13 @@ class WeeklySnapshotGenerator:
         Args:
             players: List of PlayerData
             output_path: Output file path
-            current_week: Current week (1-17)
+            current_week: Current week (1-18)
         """
+        # Special case: Week 18 = all actuals (same as players.csv)
+        if current_week == VALIDATION_WEEKS:
+            self._write_players_snapshot(players, output_path, current_week)
+            return
+
         # Calculate player ratings for this week's snapshot
         player_ratings = self._calculate_player_ratings(players, current_week)
 
