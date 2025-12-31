@@ -3,6 +3,7 @@ league_helper/trade_simulator_mode/trade_outputs
 **/*intermediate*
 simulation/simulation_configs/archive
 venv
+*.bak
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -457,15 +457,13 @@ class PlayerManager:
         preserving all other player data (projections, stats, etc.) from
         the player-data-fetcher.
 
-        Uses atomic write pattern (temp file + rename) and creates backup files
-        (.bak) before updating for manual recovery if needed.
+        Uses atomic write pattern (temp file + rename).
 
         Returns:
             str: Success message
 
         Side Effects:
             - Updates 6 JSON files in player_data/ directory
-            - Creates .bak backup files
             - Only modifies drafted_by and locked fields
             - Preserves all other fields (projections, stats)
 
@@ -526,6 +524,10 @@ class PlayerManager:
                 for player_dict in players_array:
                     player_id = player_dict.get('id')
 
+                    # Convert ID to int for lookup (JSON stores as string, FantasyPlayer.id is int)
+                    if isinstance(player_id, str):
+                        player_id = int(player_id)
+
                     if player_id in player_updates:
                         updated_player = player_updates[player_id]
 
@@ -548,12 +550,6 @@ class PlayerManager:
                         player_dict['locked'] = updated_player.locked
 
                         # Task 1.5: All other fields preserved (not modified)
-
-                # Task 1.7: Create backup file (spec lines 162-165)
-                backup_path = json_path.with_suffix('.bak')
-                if json_path.exists():
-                    import shutil
-                    shutil.copy2(json_path, backup_path)
 
                 # Task 1.6: Atomic write pattern (spec lines 162-165)
                 # Wrap array back in object with position key
