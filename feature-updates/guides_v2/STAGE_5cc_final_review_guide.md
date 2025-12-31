@@ -268,6 +268,13 @@ def sort_by_value(players, descending=True):
 - [ ] Complex logic has explanatory comments?
 - [ ] No stale or misleading comments?
 - [ ] Type hints present (per CLAUDE.md standards)?
+- [ ] **Code quality issues fixed immediately (NOT deferred)?**
+  - Check: No "TODO" comments for code quality issues
+  - Check: No "will fix later" notes in code or documentation
+  - Check: All type hints present and complete (not deferred)
+  - Check: All docstrings complete (not marked as "add later")
+  - **If ANY issues found: Fix NOW before proceeding**
+  - **Remember: "Later" often never comes - zero tech debt tolerance**
 
 **Example:**
 ```python
@@ -652,6 +659,11 @@ Files updated:
 - [ ] lessons_learned.md updated with this feature's lessons
 - [ ] Guides updated if gaps found (applied immediately, not just documented)
 - [ ] Epic Checklist updated: `- [x] Feature_XX QC complete`
+
+**Zero Tech Debt Verification:**
+- [ ] **ZERO tech debt**: No deferred issues of ANY size (critical, minor, cosmetic)
+- [ ] **ZERO "later" items**: If you wrote it down to fix later, fix it NOW
+- [ ] **Production ready**: Would you ship this to production RIGHT NOW with no changes? (Must answer YES)
 
 **README Agent Status:**
 - [ ] Updated with completion of Stage 5cc

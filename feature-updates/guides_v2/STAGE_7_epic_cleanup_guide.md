@@ -349,9 +349,16 @@ echo %ERRORLEVEL%  # On Windows
 **If exit code is NOT 0:**
 - **STOP** - Do NOT commit
 - Review test output for failures
-- Fix failing tests
+- Fix failing tests (including pre-existing failures from other epics)
 - Re-run: `python tests/run_all_tests.py`
 - Only proceed when exit code = 0
+
+**Note on Pre-Existing Test Failures:**
+- Stage 7 may reveal test failures that existed BEFORE this epic started
+- Example: Previous epic removed a field/class but didn't update all tests
+- **It is ACCEPTABLE** to fix pre-existing tests during Stage 7
+- Goal: Achieve 100% test pass rate regardless of failure source
+- Document fixed pre-existing tests in epic_lessons_learned.md
 
 **2c. Verify Test Coverage**
 
@@ -373,6 +380,116 @@ Ensure epic-related code is tested:
 - Validates new features work correctly
 - Prevents regressions
 - Maintains code quality standards
+
+---
+
+### STEP 2b: Investigate User-Reported Anomalies (If User Notices Unexpected Behavior)
+
+**Objective:** Verify root cause of unexpected behavior empirically, don't assume based on existing code comments.
+
+**When to use this step:**
+- User notices unexpected behavior during testing (e.g., "all players have same value")
+- Existing code has warnings/comments that might explain it
+- Before assuming the comment is correct, verify empirically
+
+**Actions:**
+
+**⚠️ CRITICAL RULE:** Do NOT assume existing code comments/warnings explain the behavior - verify empirically.
+
+**Investigation Protocol:**
+
+**1. Create Test Script to Verify Behavior Directly**
+
+Don't rely on existing warnings or comments. Create a focused test script that:
+- Tests against source of truth (API, database, external system)
+- Compares expected vs actual behavior
+- Runs multiple test cases to identify patterns
+
+**Example: User reports "all players have same ADP value"**
+
+Even if code has warning "ESPN returns placeholders mid-season", verify:
+
+```python
+# test_api_behavior.py
+import httpx
+
+# Test CURRENT season (where user saw issue)
+response_2025 = httpx.get("https://api.espn.com/.../seasons/2025/...")
+players_2025 = response_2025.json()["players"]
+
+# Test PREVIOUS season (as control)
+response_2024 = httpx.get("https://api.espn.com/.../seasons/2024/...")
+players_2024 = response_2024.json()["players"]
+
+# Compare: Does API return varied values for previous season?
+adp_2025 = [p["averageDraftPosition"] for p in players_2025[:10]]
+adp_2024 = [p["averageDraftPosition"] for p in players_2024[:10]]
+
+print(f"2025 ADP values: {adp_2025}")  # All 170.0?
+print(f"2024 ADP values: {adp_2024}")  # Varied values?
+```
+
+**2. Compare Expected vs Actual Behavior**
+
+**Questions to answer:**
+- Does the source system return the unexpected values?
+- Is it seasonal behavior (current year vs previous year)?
+- Is our code extracting correctly from the source?
+- Do existing warnings/comments accurately describe the behavior?
+
+**3. Update Documentation if Root Cause Differs from Assumptions**
+
+If investigation reveals:
+- Existing comment is **accurate**: Keep comment, note verification in investigation
+- Existing comment is **inaccurate**: Update comment with correct explanation
+- Existing comment is **incomplete**: Add clarifying details (e.g., month range instead of week range)
+
+**Example Update:**
+
+Original comment:
+```python
+# NOTE: ESPN stopped providing real ADP mid-season (around Week 15)
+```
+
+Updated comment (after investigation):
+```python
+# NOTE: ESPN only provides real ADP data during draft season (Aug-Sep)
+# Outside draft season (Oct-Dec), ESPN returns placeholder value of 170.0 for all players
+# This is detected and warned about in player_data_fetcher_main.py
+```
+
+**4. Document Investigation in Epic Lessons Learned**
+
+Add investigation to epic_lessons_learned.md:
+
+```markdown
+### Lesson: Empirical Verification Over Assumptions
+
+**What Happened:**
+- User noticed [unexpected behavior]
+- Existing code had warning: [warning text]
+- Investigation revealed: [actual root cause]
+
+**Investigation Method:**
+- Created test script to verify [source system] directly
+- Tested [current scenario] vs [control scenario]
+- Confirmed root cause: [findings]
+
+**Outcome:**
+- Updated documentation to clarify [what was clarified]
+- Verified our code extracts data correctly
+```
+
+**Why This Matters:**
+- Code comments can become outdated
+- Assumptions may be incorrect or incomplete
+- Empirical verification builds confidence
+- Accurate documentation helps future debugging
+
+**When NOT to use this step:**
+- User doesn't report any anomalies
+- Behavior is clearly expected and well-documented
+- No questions about data correctness
 
 ---
 
