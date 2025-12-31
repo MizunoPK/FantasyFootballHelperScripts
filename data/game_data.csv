@@ -239,19 +239,35 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 16,HOU,LV,,,,23,21,True,False,USA,Houston,TX,2025-12-21T21:25Z
 16,BAL,NE,43,6,0.0,24,28,False,False,USA,Baltimore,MD,2025-12-22T01:20Z
 16,IND,SF,,,,27,48,True,False,USA,Indianapolis,IN,2025-12-23T01:15Z
-17,WSH,DAL,42,9,0.0,,,False,False,USA,Landover,MD,2025-12-25T18:00Z
-17,MIN,DET,,,,,,True,False,USA,Minneapolis,MN,2025-12-25T21:30Z
-17,KC,DEN,52,8,0.0,,,False,False,USA,Kansas City,MO,2025-12-26T01:15Z
-17,LAC,HOU,,,,,,True,False,USA,Inglewood,CA,2025-12-27T21:30Z
-17,GB,BAL,32,13,0.0,,,False,False,USA,Green Bay,WI,2025-12-28T01:00Z
-17,CIN,ARI,60,20,0.0,,,False,False,USA,Cincinnati,OH,2025-12-28T18:00Z
-17,CLE,PIT,47,20,0.0,,,False,False,USA,Cleveland,OH,2025-12-28T18:00Z
-17,TEN,NO,67,20,0.0,,,False,False,USA,Nashville,TN,2025-12-28T18:00Z
-17,IND,JAX,,,,,,True,False,USA,Indianapolis,IN,2025-12-28T18:00Z
-17,MIA,TB,78,20,0.0,,,False,False,USA,Miami Gardens,FL,2025-12-28T18:00Z
-17,NYJ,NE,36,9,0.01,,,False,False,USA,East Rutherford,NJ,2025-12-28T18:00Z
-17,CAR,SEA,63,28,0.0,,,False,False,USA,Charlotte,NC,2025-12-28T18:00Z
-17,LV,NYG,,,,,,True,False,USA,Las Vegas,NV,2025-12-28T21:05Z
-17,BUF,PHI,39,38,0.0,,,False,False,USA,Orchard Park,NY,2025-12-28T21:25Z
-17,SF,CHI,60,26,0.02,,,False,False,USA,Santa Clara,CA,2025-12-29T01:20Z
-17,ATL,LAR,,,,,,True,False,USA,Atlanta,GA,2025-12-30T01:15Z
+17,WSH,DAL,42,9,0.0,23,30,False,False,USA,Landover,MD,2025-12-25T18:00Z
+17,MIN,DET,,,,23,10,True,False,USA,Minneapolis,MN,2025-12-25T21:30Z
+17,KC,DEN,52,8,0.0,13,20,False,False,USA,Kansas City,MO,2025-12-26T01:15Z
+17,LAC,HOU,,,,16,20,True,False,USA,Inglewood,CA,2025-12-27T21:30Z
+17,GB,BAL,32,13,0.0,24,41,False,False,USA,Green Bay,WI,2025-12-28T01:00Z
+17,CIN,ARI,60,20,0.0,37,14,False,False,USA,Cincinnati,OH,2025-12-28T18:00Z
+17,CLE,PIT,47,20,0.0,13,6,False,False,USA,Cleveland,OH,2025-12-28T18:00Z
+17,TEN,NO,67,20,0.0,26,34,False,False,USA,Nashville,TN,2025-12-28T18:00Z
+17,IND,JAX,,,,17,23,True,False,USA,Indianapolis,IN,2025-12-28T18:00Z
+17,MIA,TB,78,20,0.0,20,17,False,False,USA,Miami Gardens,FL,2025-12-28T18:00Z
+17,NYJ,NE,36,9,0.01,10,42,False,False,USA,East Rutherford,NJ,2025-12-28T18:00Z
+17,CAR,SEA,63,28,0.0,10,27,False,False,USA,Charlotte,NC,2025-12-28T18:00Z
+17,LV,NYG,,,,10,34,True,False,USA,Las Vegas,NV,2025-12-28T21:05Z
+17,BUF,PHI,39,38,0.0,12,13,False,False,USA,Orchard Park,NY,2025-12-28T21:25Z
+17,SF,CHI,60,26,0.02,42,38,False,False,USA,Santa Clara,CA,2025-12-29T01:20Z
+17,ATL,LAR,,,,27,24,True,False,USA,Atlanta,GA,2025-12-30T01:15Z
+18,TB,CAR,56,13,0.0,,,False,False,USA,Tampa,FL,2026-01-03T21:30Z
+18,SF,SEA,54,2,0.07,,,False,False,USA,Santa Clara,CA,2026-01-04T01:00Z
+18,ATL,NO,,,,,,True,False,USA,Atlanta,GA,2026-01-04T18:00Z
+18,CIN,CLE,36,19,0.0,,,False,False,USA,Cincinnati,OH,2026-01-04T18:00Z
+18,MIN,GB,,,,,,True,False,USA,Minneapolis,MN,2026-01-04T18:00Z
+18,NYG,DAL,32,18,0.0,,,False,False,USA,East Rutherford,NJ,2026-01-04T18:00Z
+18,JAX,TEN,50,11,0.0,,,False,False,USA,Jacksonville,FL,2026-01-04T18:00Z
+18,HOU,IND,,,,,,True,False,USA,Houston,TX,2026-01-04T18:00Z
+18,BUF,NYJ,24,29,0.0,,,False,False,USA,Orchard Park,NY,2026-01-04T21:25Z
+18,CHI,DET,34,31,0.0,,,False,False,USA,Chicago,IL,2026-01-04T21:25Z
+18,DEN,LAC,63,6,0.0,,,False,False,USA,Denver,CO,2026-01-04T21:25Z
+18,LV,KC,,,,,,True,False,USA,Las Vegas,NV,2026-01-04T21:25Z
+18,LAR,ARI,,,,,,True,False,USA,Inglewood,CA,2026-01-04T21:25Z
+18,NE,MIA,29,15,0.0,,,False,False,USA,Foxborough,MA,2026-01-04T21:25Z
+18,PHI,WSH,34,22,0.0,,,False,False,USA,Philadelphia,PA,2026-01-04T21:25Z
+18,PIT,BAL,30,34,0.02,,,False,False,USA,Pittsburgh,PA,2026-01-05T01:20Z

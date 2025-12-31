@@ -10,7 +10,7 @@
       "drafted_by": "The Eskimo Brothers",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 100.0,
+      "player_rating": 98.71428571428571,
       "projected_points": [
         7.87467855,
         8.16930889,
@@ -140,7 +140,7 @@
       "drafted_by": "Chase-ing points",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 92.83552631578948,
+      "player_rating": 91.64285714285714,
       "projected_points": [
         8.37046476,
         8.27985013,
@@ -270,7 +270,7 @@
       "drafted_by": "The Injury Report",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 77.85526315789474,
+      "player_rating": 100.0,
       "projected_points": [
         8.23541221,
         8.2344436,
@@ -400,7 +400,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 58.96710526315789,
+      "player_rating": 65.28571428571429,
       "projected_points": [
         7.61523562,
         7.76220374,
@@ -530,7 +530,7 @@
       "drafted_by": "Fishoutawater",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 83.71710526315789,
+      "player_rating": 84.57142857142857,
       "projected_points": [
         7.85750446,
         7.57491835,
@@ -660,7 +660,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 51.80263157894737,
+      "player_rating": 60.78571428571429,
       "projected_points": [
         8.12224675,
         7.7525687,
@@ -790,7 +790,7 @@
       "drafted_by": "Pidgin",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 32.263157894736835,
+      "player_rating": 33.785714285714285,
       "projected_points": [
         8.22132987,
         8.75110056,
@@ -920,7 +920,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 32.263157894736835,
+      "player_rating": 31.857142857142858,
       "projected_points": [
         8.40415585,
         8.60591175,
@@ -1050,7 +1050,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 27.703947368421055,
+      "player_rating": 41.5,
       "projected_points": [
         8.42535491,
         8.52676084,
@@ -1180,7 +1180,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 71.99342105263158,
+      "player_rating": 74.28571428571429,
       "projected_points": [
         8.18043776,
         7.84353268,
@@ -1310,7 +1310,7 @@
       "drafted_by": "Striking Shibas",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 49.19736842105263,
+      "player_rating": 81.35714285714286,
       "projected_points": [
         8.34190563,
         8.21720675,
@@ -1440,7 +1440,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 90.23026315789474,
+      "player_rating": 91.64285714285714,
       "projected_points": [
         0.0,
         0.0,
@@ -1458,7 +1458,7 @@
         8.53168698,
         9.05560218,
         8.15947362,
-        8.99517773
+        8.99471873
       ],
       "actual_points": [
         0.0,
@@ -1570,7 +1570,7 @@
       "drafted_by": "Sea Sharp",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 89.57894736842105,
+      "player_rating": 89.71428571428571,
       "projected_points": [
         7.18142947,
         7.27225861,
@@ -1700,7 +1700,7 @@
       "drafted_by": "Saint Nix",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 93.48684210526316,
+      "player_rating": 94.85714285714286,
       "projected_points": [
         7.84703926,
         7.90885016,
@@ -1826,11 +1826,11 @@
       "team": "BUF",
       "position": "K",
       "bye_week": 7,
-      "injury_status": "OUT",
+      "injury_status": "QUESTIONABLE",
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 8.815789473684209,
+      "player_rating": 1.0,
       "projected_points": [
         7.59866986,
         7.82863607,
@@ -1960,7 +1960,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 98.69736842105263,
+      "player_rating": 98.71428571428571,
       "projected_points": [
         7.55014573,
         7.70272925,
@@ -2090,7 +2090,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 73.29605263157895,
+      "player_rating": 76.85714285714286,
       "projected_points": [
         8.35343646,
         7.85357658,
@@ -2220,7 +2220,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 30.960526315789473,
+      "player_rating": 30.57142857142857,
       "projected_points": [
         6.93507433,
         6.87362329,
@@ -2350,7 +2350,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 70.03947368421052,
+      "player_rating": 69.14285714285714,
       "projected_points": [
         8.03979135,
         7.4953206,
@@ -2480,7 +2480,7 @@
       "drafted_by": "Annihilators",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 64.17763157894737,
+      "player_rating": 63.35714285714286,
       "projected_points": [
         7.54765424,
         7.18236759,
@@ -2610,7 +2610,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 45.94078947368421,
+      "player_rating": 8.071428571428571,
       "projected_points": [
         0.0,
         0.0,
@@ -2719,136 +2719,6 @@
           0.0,
           0.0,
           1.0,
-          1.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "id": "3123052",
-      "name": "Michael Badgley",
-      "team": "BUF",
-      "position": "K",
-      "bye_week": 7,
-      "injury_status": "ACTIVE",
-      "drafted_by": "",
-      "locked": false,
-      "average_draft_position": 170.0,
-      "player_rating": 30.960526315789473,
-      "projected_points": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "actual_points": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        8.0,
-        6.0,
-        9.0,
-        12.0,
-        7.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "extra_points": {
-        "made": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          4.0,
-          3.0,
-          5.0,
-          2.0,
-          1.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "missed": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          1.0,
-          0.0,
-          0.0,
-          1.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      },
-      "field_goals": {
-        "made": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          1.0,
-          1.0,
-          1.0,
-          2.0,
-          2.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "missed": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
           1.0,
           0.0,
           0.0,
@@ -3000,7 +2870,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 3.6052631578947367,
+      "player_rating": 13.857142857142856,
       "projected_points": [
         7.76040251,
         7.63035468,
@@ -3130,7 +3000,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 2.953947368421052,
+      "player_rating": 4.857142857142858,
       "projected_points": [
         7.68768518,
         8.19155298,
@@ -3260,7 +3130,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 32.263157894736835,
+      "player_rating": 47.92857142857143,
       "projected_points": [
         0.0,
         0.0,
@@ -3390,7 +3260,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 9.467105263157896,
+      "player_rating": 13.214285714285714,
       "projected_points": [
         7.45472049,
         7.66386459,
@@ -3520,7 +3390,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 1.651315789473684,
+      "player_rating": 4.2142857142857135,
       "projected_points": [
         0.0,
         0.0,
@@ -3650,7 +3520,7 @@
       "drafted_by": "Fishoutawater",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 86.97368421052632,
+      "player_rating": 85.85714285714285,
       "projected_points": [
         7.72181448,
         0.0,
@@ -3780,7 +3650,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 3.6052631578947367,
+      "player_rating": 19.642857142857142,
       "projected_points": [
         7.7363062,
         7.27624379,
@@ -3910,7 +3780,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 30.960526315789473,
+      "player_rating": 45.357142857142854,
       "projected_points": [
         0.0,
         0.0,
@@ -4040,7 +3910,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 6.8618421052631575,
+      "player_rating": 24.785714285714285,
       "projected_points": [
         7.09816756,
         7.21996523,
@@ -4170,7 +4040,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 8.815789473684209,
+      "player_rating": 8.714285714285715,
       "projected_points": [
         7.91125748,
         8.10641317,
@@ -4300,7 +4170,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 10.769736842105264,
+      "player_rating": 4.2142857142857135,
       "projected_points": [
         7.4531479,
         7.06045514,
@@ -4426,11 +4296,11 @@
       "team": "NO",
       "position": "K",
       "bye_week": 11,
-      "injury_status": "QUESTIONABLE",
+      "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 24.44736842105263,
+      "player_rating": 43.42857142857142,
       "projected_points": [
         0.0,
         0.0,
@@ -4560,7 +4430,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 27.052631578947366,
+      "player_rating": 26.71428571428571,
       "projected_points": [
         0.0,
         0.0,
@@ -4690,7 +4560,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 4.907894736842104,
+      "player_rating": 2.2857142857142856,
       "projected_points": [
         7.32414369,
         7.10372323,
@@ -4820,7 +4690,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 23.144736842105264,
+      "player_rating": 22.857142857142858,
       "projected_points": [
         7.27980103,
         7.38893124,
@@ -4950,7 +4820,7 @@
       "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
-      "player_rating": 16.631578947368418,
+      "player_rating": 37.642857142857146,
       "projected_points": [
         0.0,
         0.0,
@@ -4968,7 +4838,7 @@
         0.0,
         0.0,
         7.67025764,
-        7.74893358
+        8.08537103
       ],
       "actual_points": [
         0.0,
