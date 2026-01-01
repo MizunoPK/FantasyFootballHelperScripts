@@ -17,7 +17,7 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 1 | bug_fix-draft_mode | fix | fix/KAI-1 | In Progress | 2025-12-31 |
+| - | - | - | - | - | - |
 
 ---
 
@@ -27,13 +27,52 @@
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
-| - | - | - | - | - | - |
+| 1 | bug_fix-draft_mode | fix | fix/KAI-1 | 2025-12-31 | feature-updates/done/bug_fix-draft_mode/ |
 
 ---
 
 ## Epic Details
 
 <!-- Each epic gets a detailed section below once completed -->
+
+---
+
+### KAI-1: bug_fix-draft_mode
+
+**Type:** fix
+**Branch:** fix/KAI-1
+**Date Started:** 2025-12-31
+**Date Completed:** 2025-12-31
+**Location:** feature-updates/done/bug_fix-draft_mode/
+
+**Description:**
+Fixed critical bug in Add to Roster mode where RB/WR players could only match FLEX-ideal draft rounds, not their native position rounds (RB-ideal, WR-ideal). This caused 8 out of 15 roster slots to incorrectly display as [EMPTY SLOT] even with a full roster. The fix allows FLEX-eligible positions (RB/WR) to match both their native position rounds AND FLEX rounds, while maintaining exact-match-only behavior for non-FLEX positions (QB/TE/K/DST).
+
+**Features Implemented:**
+1. feature_01_fix_player_round_assignment - Created `_position_matches_ideal()` helper method to correctly handle FLEX position matching logic
+
+**Key Changes:**
+- league_helper/add_to_roster_mode/AddToRosterModeManager.py: Added `_position_matches_ideal()` helper method (30 lines) to replace buggy inline logic
+- league_helper/add_to_roster_mode/AddToRosterModeManager.py: Updated `_match_players_to_rounds()` to use new helper method instead of `get_position_with_flex()`
+- tests/league_helper/add_to_roster_mode/test_AddToRosterModeManager.py: Added 7 comprehensive tests validating bug fix and preventing regressions
+
+**Commit History:**
+- `cf20b90` - `feat/KAI-1: Initialize epic tracking for bug_fix-draft_mode`
+- `13b4fe4` - `fix/KAI-1: Fix Add to Roster mode player-to-round assignment logic`
+
+**Testing Results:**
+- Unit tests: 2,423/2,423 passing (100%)
+- Epic smoke testing: Passed (3/3 applicable parts)
+- Epic QC rounds: Passed (3/3 rounds, 0 issues)
+- User testing: Passed (zero bugs found)
+
+**Lessons Learned:**
+See feature-updates/done/bug_fix-draft_mode/epic_lessons_learned.md - Key success factors: rigorous Stage 5a planning (24 iterations with Algorithm Traceability Matrix), comprehensive testing (7 unit tests + integration test with actual user data), data values verification (real player names, not placeholders), progressive quality validation (6 QC rounds total), and zero tech debt tolerance.
+
+**Related Documentation:**
+- Epic README: feature-updates/done/bug_fix-draft_mode/EPIC_README.md
+- Epic Test Plan: feature-updates/done/bug_fix-draft_mode/epic_smoke_test_plan.md
+- Epic Lessons Learned: feature-updates/done/bug_fix-draft_mode/epic_lessons_learned.md
 
 ---
 
