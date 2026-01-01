@@ -17,13 +17,13 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| - | - | - | - | - | - |
+| 2 | fix_2025_adp | epic | epic/KAI-2 | In Progress | 2025-12-31 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-2
+### Next Available Number: KAI-3
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
