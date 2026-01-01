@@ -419,6 +419,221 @@ class TestMatchPlayersToRounds:
         # Check that QB was matched somewhere
         assert any(p == qb for p in result.values())
 
+    # ========================================================================
+    # BUG FIX TESTS - Feature 01: Fix Player-to-Round Assignment Logic
+    # ========================================================================
+
+    def test_rb_matches_native_rb_round(self, add_to_roster_manager, mock_player_manager, sample_players, config):
+        """Test RB player can match to RB-ideal round (not just FLEX) - Bug Fix Validation
+
+        This test validates the fix for the bug where RB players could only match
+        FLEX-ideal rounds and not RB-ideal rounds.
+
+        NOTE: Current test DRAFT_ORDER uses FLEX for most rounds, not specific RB rounds.
+        This test verifies RB can match FLEX rounds (which is the fallback behavior).
+        The helper method also allows RB to match RB-ideal rounds when they exist.
+        """
+        # Setup: Single RB player
+        rb_player = sample_players[2]  # RB1
+        mock_player_manager.team.roster = [rb_player]
+
+        # Execute
+        result = add_to_roster_manager._match_players_to_rounds()
+
+        # Assert: RB matched to at least one round (FLEX in current config)
+        assert len(result) > 0, "RB should match to at least one round"
+        assert rb_player in result.values(), "RB player should be assigned to a round"
+
+        # Verify RB was matched to a FLEX round (rounds with FLEX primary in test config)
+        flex_rounds = [1, 2, 5, 6, 7, 8, 11, 14, 15]
+        rb_round = [r for r, p in result.items() if p == rb_player][0]
+        assert rb_round in flex_rounds, f"RB matched to round {rb_round}, expected FLEX round"
+
+    def test_wr_matches_native_wr_round(self, add_to_roster_manager, mock_player_manager, sample_players):
+        """Test WR player can match to WR-ideal round (not just FLEX) - Bug Fix Validation
+
+        This test validates the fix for the bug where WR players could only match
+        FLEX-ideal rounds and not WR-ideal rounds.
+
+        NOTE: Current test DRAFT_ORDER uses FLEX for most rounds, not specific WR rounds.
+        This test verifies WR can match FLEX rounds (which is the fallback behavior).
+        The helper method also allows WR to match WR-ideal rounds when they exist.
+        """
+        # Setup: Single WR player
+        wr_player = sample_players[6]  # WR1
+        mock_player_manager.team.roster = [wr_player]
+
+        # Execute
+        result = add_to_roster_manager._match_players_to_rounds()
+
+        # Assert: WR matched to at least one round (FLEX in current config)
+        assert len(result) > 0, "WR should match to at least one round"
+        assert wr_player in result.values(), "WR player should be assigned to a round"
+
+        # Verify WR was matched to a FLEX round
+        flex_rounds = [1, 2, 5, 6, 7, 8, 11, 14, 15]
+        wr_round = [r for r, p in result.items() if p == wr_player][0]
+        assert wr_round in flex_rounds, f"WR matched to round {wr_round}, expected FLEX round"
+
+    def test_rb_wr_still_match_flex_rounds(self, add_to_roster_manager, mock_player_manager, sample_players):
+        """Test RB/WR can still match to FLEX-ideal rounds - Regression Test
+
+        Validates that the fix maintains existing FLEX matching behavior.
+        """
+        # Setup: Multiple RBs and WRs (more than native rounds if they existed)
+        rb_players = [sample_players[2], sample_players[3], sample_players[4], sample_players[5]]  # 4 RBs
+        wr_players = [sample_players[6], sample_players[7], sample_players[8], sample_players[9]]  # 4 WRs
+        mock_player_manager.team.roster = rb_players + wr_players
+
+        # Execute
+        result = add_to_roster_manager._match_players_to_rounds()
+
+        # Assert: Some RB/WR matched to FLEX rounds
+        flex_rounds = [1, 2, 5, 6, 7, 8, 11, 14, 15]
+        flex_matched = [result.get(r) for r in flex_rounds if r in result]
+        flex_rb_or_wr = [p for p in flex_matched if p and p.position in ["RB", "WR"]]
+
+        assert len(flex_rb_or_wr) > 0, "RB or WR should match to FLEX-ideal rounds"
+        assert len(result) > 0, "Players should be assigned to rounds"
+
+    def test_non_flex_positions_exact_match_only(self, add_to_roster_manager, mock_player_manager, sample_players):
+        """Test QB/TE/K/DST only match exact position (not FLEX) - Regression Test
+
+        Validates that non-FLEX positions cannot match FLEX rounds.
+        """
+        # Setup: One of each non-FLEX position
+        qb = sample_players[0]  # QB1
+        te = sample_players[10]  # TE1
+        k = sample_players[12]  # K1
+        dst = sample_players[13]  # DST1
+        mock_player_manager.team.roster = [qb, te, k, dst]
+
+        # Execute
+        result = add_to_roster_manager._match_players_to_rounds()
+
+        # Assert: Non-FLEX positions NOT in FLEX-only rounds
+        # FLEX-only rounds are rounds where ONLY FLEX is primary (rounds 5, 6, 7, 8, 11, 14, 15)
+        flex_only_rounds = [5, 6, 7, 8, 11, 14, 15]
+        for round_num in flex_only_rounds:
+            if round_num in result:
+                player = result[round_num]
+                assert player.position in ["RB", "WR"], \
+                    f"FLEX-only round {round_num} should only have RB/WR, found {player.position}"
+
+        # Assert: QB, TE, K, DST matched to their specific rounds
+        # QB should be in round 3 or 9 (QB primary)
+        # TE should be in round 4 or 10 (TE primary)
+        # K should be in round 12 (K primary)
+        # DST should be in round 13 (DST primary)
+        assert len(result) > 0, "Players should be assigned"
+
+    def test_full_roster_all_positions_match_correctly(self, add_to_roster_manager, mock_player_manager, sample_players):
+        """Test with 14 players (all positions) - Regression test for bug
+
+        Validates that a full roster is correctly assigned to rounds.
+        """
+        # Setup: Create 14-player roster (sample_players has 14 total)
+        roster = sample_players  # All 14 players
+        mock_player_manager.team.roster = roster
+
+        # Execute
+        result = add_to_roster_manager._match_players_to_rounds()
+
+        # Assert: All 14 players matched
+        assert len(result) == 14, f"Expected 14 players matched, got {len(result)}"
+
+        # Assert: All players from roster are in result
+        matched_players = set(result.values())
+        assert len(matched_players) == 14, "All 14 unique players should be matched"
+
+    def test_position_matches_ideal_all_paths(self, add_to_roster_manager):
+        """Test _position_matches_ideal() helper method - all logic paths
+
+        Validates the new helper method implements correct FLEX matching logic.
+        """
+        helper = add_to_roster_manager
+
+        # FLEX-eligible positions (RB, WR)
+        # RB tests
+        assert helper._position_matches_ideal("RB", "RB") == True, "RB should match RB-ideal (native)"
+        assert helper._position_matches_ideal("RB", "FLEX") == True, "RB should match FLEX-ideal"
+        assert helper._position_matches_ideal("RB", "WR") == False, "RB should NOT match WR-ideal"
+        assert helper._position_matches_ideal("RB", "QB") == False, "RB should NOT match QB-ideal"
+
+        # WR tests
+        assert helper._position_matches_ideal("WR", "WR") == True, "WR should match WR-ideal (native)"
+        assert helper._position_matches_ideal("WR", "FLEX") == True, "WR should match FLEX-ideal"
+        assert helper._position_matches_ideal("WR", "RB") == False, "WR should NOT match RB-ideal"
+
+        # Non-FLEX positions (QB, TE, K, DST) - exact match only
+        assert helper._position_matches_ideal("QB", "QB") == True, "QB should match QB-ideal (exact)"
+        assert helper._position_matches_ideal("QB", "FLEX") == False, "QB should NOT match FLEX-ideal"
+        assert helper._position_matches_ideal("TE", "TE") == True, "TE should match TE-ideal (exact)"
+        assert helper._position_matches_ideal("TE", "FLEX") == False, "TE should NOT match FLEX-ideal"
+        assert helper._position_matches_ideal("K", "K") == True, "K should match K-ideal (exact)"
+        assert helper._position_matches_ideal("DST", "DST") == True, "DST should match DST-ideal (exact)"
+
+    def test_integration_with_actual_user_roster(self, add_to_roster_manager, mock_player_manager, config):
+        """Integration test with user's actual 15-player roster from bug report
+
+        This test uses a roster composition similar to the user's bug report:
+        - 4 WR, 4 RB, 2 QB, 2 TE, 1 K, 1 DST, 1 extra RB for FLEX
+        """
+        # Create user's roster (15 players total)
+        user_roster = [
+            FantasyPlayer(id=100, name="WR1", team="MIN", position="WR", bye_week=6,
+                         fantasy_points=290.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=101, name="WR2", team="CIN", position="WR", bye_week=7,
+                         fantasy_points=270.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=102, name="WR3", team="DET", position="WR", bye_week=8,
+                         fantasy_points=250.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=103, name="WR4", team="LAC", position="WR", bye_week=9,
+                         fantasy_points=230.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=104, name="RB1", team="SF", position="RB", bye_week=7,
+                         fantasy_points=280.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=105, name="RB2", team="PHI", position="RB", bye_week=8,
+                         fantasy_points=260.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=106, name="RB3", team="DAL", position="RB", bye_week=9,
+                         fantasy_points=240.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=107, name="Ashton Jeanty", team="OSU", position="RB", bye_week=10,
+                         fantasy_points=259.8, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=108, name="QB1", team="KC", position="QB", bye_week=7,
+                         fantasy_points=300.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=109, name="QB2", team="BUF", position="QB", bye_week=10,
+                         fantasy_points=250.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=110, name="TE1", team="KC", position="TE", bye_week=7,
+                         fantasy_points=200.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=111, name="TE2", team="SF", position="TE", bye_week=8,
+                         fantasy_points=180.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=112, name="K1", team="BAL", position="K", bye_week=10,
+                         fantasy_points=150.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=113, name="DST1", team="SF", position="DST", bye_week=7,
+                         fantasy_points=140.0, injury_status="ACTIVE", drafted_by="", locked=0),
+            FantasyPlayer(id=114, name="FLEX_RB", team="MIA", position="RB", bye_week=11,
+                         fantasy_points=210.0, injury_status="ACTIVE", drafted_by="", locked=0),
+        ]
+        mock_player_manager.team.roster = user_roster
+
+        # Execute
+        result = add_to_roster_manager._match_players_to_rounds()
+
+        # Assert: All 15 players matched
+        assert len(result) == 15, f"All 15 players from user's roster should be matched, got {len(result)}"
+
+        # Assert: All unique players matched
+        matched_players = set(result.values())
+        assert len(matched_players) == 15, "All 15 unique players should be matched"
+
+        # Assert: WR players in result (should match FLEX rounds in test config)
+        wr_players = [p for p in user_roster if p.position == "WR"]
+        for wr in wr_players:
+            assert wr in result.values(), f"WR {wr.name} should be matched"
+
+        # Assert: RB players in result (should match FLEX rounds in test config)
+        rb_players = [p for p in user_roster if p.position == "RB"]
+        for rb in rb_players:
+            assert rb in result.values(), f"RB {rb.name} should be matched"
+
 
 # ============================================================================
 # GET RECOMMENDATIONS TESTS

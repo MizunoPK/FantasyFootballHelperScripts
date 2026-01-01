@@ -1,0 +1,31 @@
+Add to Roster mode in the league helper is fundamentally broken
+When it loads, it should assign each player currently rostered to the user's team to a 'Round'. There are 15 rounds, each corresponding to an entry in the DRAFT_ORDER array.
+It should iterate through the rostered players, and then for each player it should find the first entry in the DRAFT_ORDER array whose 'P' value corresponds to the player's position, then it will assign the player to that 'round'
+After assigning all players to rounds, then it should determine which rounds from 1-15 still don't have a player that can be assigned to it. The earliest round that does not have a player will be what is considered the current 'round'
+The Add to Roster mode should then look for the best available players while setting the previously determined round as the current round
+
+This is what is shown in the Add to Roster mode based on the current player data: 
+==================================================
+ADD TO ROSTER MODE
+==================================================
+
+Current Roster by Draft Round:
+--------------------------------------------------
+Round  1 (Ideal: WR  ): [EMPTY SLOT]
+Round  2 (Ideal: WR  ): [EMPTY SLOT]
+Round  3 (Ideal: TE  ): Dalton Schultz (TE) - 133.7 pts
+Round  4 (Ideal: WR  ): [EMPTY SLOT]
+Round  5 (Ideal: QB  ): Trevor Lawrence (QB) - 154.3 pts
+Round  6 (Ideal: TE  ): Brenton Strange (TE) - 77.7 pts
+Round  7 (Ideal: RB  ): [EMPTY SLOT]
+Round  8 (Ideal: QB  ): C.J. Stroud (QB) - 266.9 pts
+Round  9 (Ideal: RB  ): [EMPTY SLOT]
+Round 10 (Ideal: RB  ): [EMPTY SLOT]
+Round 11 (Ideal: WR  ): [EMPTY SLOT]
+Round 12 (Ideal: RB  ): [EMPTY SLOT]
+Round 13 (Ideal: K   ): Cam Little (K) - 119.3 pts
+Round 14 (Ideal: DST ): Texans D/ST (DST) - 101.8 pts
+Round 15 (Ideal: FLEX): Ashton Jeanty (RB) - 259.8 pts
+
+
+This is not correct. It should be assigning all 15 rostered players to rounds, but there are a ton of empty spots for WR and RB. I believe the issue lies somewhere in the way we assess FLEX

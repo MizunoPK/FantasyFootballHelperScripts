@@ -420,10 +420,10 @@ class AddToRosterModeManager:
             # Try to find a player whose position matches this round's ideal
             # We iterate through all available (not yet assigned) players
             for player in available_players:
-                # Convert player's actual position to FLEX if eligible (RB/WR only)
-                # For example, "RB" becomes "FLEX", "QB" stays "QB"
-                # This allows RB/WR to match FLEX-ideal rounds
-                if self.config.get_position_with_flex(player.position) == ideal_position:
+                # Check if player's position can fill this round
+                # FLEX-eligible positions (RB/WR) can match both native AND FLEX rounds
+                # Non-FLEX positions (QB/TE/K/DST) must match exactly
+                if self._position_matches_ideal(player.position, ideal_position):
                     # Found a perfect match! Assign player to this round
                     round_assignments[round_num] = player
 
@@ -438,7 +438,38 @@ class AddToRosterModeManager:
         # Or if player positions don't perfectly match all ideal positions
         self.logger.debug(f"Matched {len(round_assignments)} players to draft rounds using optimal fit algorithm")
         return round_assignments
-    
+
+    def _position_matches_ideal(self, player_position: str, ideal_position: str) -> bool:
+        """
+        Check if a player's position can fill a round with the given ideal position.
+
+        For FLEX-eligible positions (defined in config.flex_eligible_positions,
+        typically RB and WR), players can match both their native position rounds
+        AND FLEX-ideal rounds.
+
+        For non-FLEX positions (QB, TE, K, DST), players must match exactly.
+
+        Args:
+            player_position: Player's actual position ("RB", "WR", "QB", etc.)
+            ideal_position: Ideal position for the round from DRAFT_ORDER
+
+        Returns:
+            True if player can fill this round, False otherwise
+
+        Examples:
+            >>> self._position_matches_ideal("RB", "RB")     # True (native match)
+            >>> self._position_matches_ideal("RB", "FLEX")   # True (FLEX-eligible)
+            >>> self._position_matches_ideal("RB", "WR")     # False (different position)
+            >>> self._position_matches_ideal("QB", "QB")     # True (exact match)
+            >>> self._position_matches_ideal("QB", "FLEX")   # False (QB not FLEX-eligible)
+        """
+        if player_position in self.config.flex_eligible_positions:
+            # FLEX-eligible: match native position OR FLEX
+            return player_position == ideal_position or ideal_position == "FLEX"
+        else:
+            # Non-FLEX: exact match only
+            return player_position == ideal_position
+
     def _get_current_round(self) -> int:
         """
         Calculate which draft round we're currently in based on roster composition.
