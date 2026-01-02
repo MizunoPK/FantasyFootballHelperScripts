@@ -17,7 +17,7 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 2 | fix_2025_adp | epic | epic/KAI-2 | In Progress | 2025-12-31 |
+| _No active epics_ | | | | | |
 
 ---
 
@@ -27,6 +27,7 @@
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
+| 2 | fix_2025_adp | epic | epic/KAI-2 | 2026-01-01 | feature-updates/done/fix_2025_adp/ |
 | 1 | bug_fix-draft_mode | fix | fix/KAI-1 | 2025-12-31 | feature-updates/done/bug_fix-draft_mode/ |
 
 ---
@@ -73,6 +74,55 @@ See feature-updates/done/bug_fix-draft_mode/epic_lessons_learned.md - Key succes
 - Epic README: feature-updates/done/bug_fix-draft_mode/EPIC_README.md
 - Epic Test Plan: feature-updates/done/bug_fix-draft_mode/epic_smoke_test_plan.md
 - Epic Lessons Learned: feature-updates/done/bug_fix-draft_mode/epic_lessons_learned.md
+
+---
+
+### KAI-2: fix_2025_adp
+
+**Type:** epic
+**Branch:** epic/KAI-2
+**Date Started:** 2025-12-31
+**Date Completed:** 2026-01-01
+**Location:** feature-updates/done/fix_2025_adp/
+
+**Description:**
+Integrated 2025 ADP (Average Draft Position) data across all simulation weeks to replace placeholder values with real market data. ESPN API returns placeholder ADP value of 170.0 for all players in 2025 data, which degrades simulation accuracy since ADP multiplier is a key scoring component. This epic implemented a complete ADP data integration system that loads FantasyPros consensus ADP rankings, matches players using fuzzy matching logic, and updates 108 simulation files (18 weeks × 6 positions) with real ADP data. A critical bug was discovered during Stage 7 testing where the epic targeted the wrong data folder entirely (data/player_data/ instead of simulation/sim_data/2025/weeks/), requiring a comprehensive bug fix that updated the multi-week iteration logic, implemented direct JSON array handling, and added DST-specific matching logic to handle name format differences between CSV ("Baltimore Ravens") and JSON ("Ravens D/ST").
+
+**Features Implemented:**
+1. feature_01_csv_data_loading - Load and validate ADP data from FantasyPros CSV file with position suffix stripping and data integrity validation
+2. feature_02_player_matching_update - Match CSV players to existing player data using fuzzy matching and update ADP values in JSON files with comprehensive reporting
+
+**Bug Fix:**
+- bugfix_high_wrong_data_folder - Fixed epic to target simulation/sim_data/2025/weeks/ (108 files across 18 weeks) instead of data/player_data/ (6 files), implemented multi-week iteration with direct JSON array handling, and added DST team name extraction for accurate matching
+
+**Key Changes:**
+- utils/adp_csv_loader.py: Created ADP CSV loader (112 lines) with validation, position suffix stripping, and data integrity checks
+- utils/adp_updater.py: Created ADP updater (428 lines) with fuzzy matching (confidence threshold 0.75), DST-specific team name extraction, atomic write pattern, and comprehensive match reporting
+- utils/adp_updater.py: Added DST special handling with extract_dst_team_name() to handle format differences ("Baltimore Ravens" → "ravens", "Ravens D/ST" → "ravens")
+- simulation/sim_data/2025/weeks/week_*/: Updated 108 JSON files (18 weeks × 6 positions) with real 2025 ADP data using atomic writes
+- tests/utils/test_adp_csv_loader.py: Added 13 unit tests for CSV loading validation
+- tests/utils/test_adp_updater.py: Added 27 unit tests including 7 DST-specific tests
+- update_adp_values.py: Created standalone script for easy ADP updates across all weeks
+- feature-updates/guides_v2/: Updated 5 workflow guides with 6 enhancements for data validation, category-specific testing, and per-category verification
+
+**Commit History:**
+- `9be4461` - `feat/KAI-2: Initialize epic tracking for fix_2025_adp`
+- `e66fb58` - `feat/KAI-2: Integrate 2025 ADP data across simulation weeks`
+
+**Testing Results:**
+- Unit tests: 2,463/2,463 passing (100%)
+- Epic smoke testing: 12/12 passed
+- Epic QC rounds: Passed (3/3 rounds, 0 issues)
+- User testing: Passed (zero bugs found)
+
+**Lessons Learned:**
+See feature-updates/done/fix_2025_adp/epic_lessons_learned.md and bugfix_high_wrong_data_folder/lessons_learned.md - Key success factors: QC Round 3 proved critical by catching DST matching bug that Rounds 1-2 missed (only 90/108 files updated instead of 108), emphasizing importance of per-category data verification instead of just checking totals. Six guide enhancements added to prevent similar issues: data format validation (Iteration 6), category-specific test coverage (Iteration 15), position-specific test verification (Iteration 23a Part 2), per-category data validation (Smoke Testing Part 3), per-category file verification (QC Round 1 Section 3), and list item verification (QC Round 3 Section 1).
+
+**Related Documentation:**
+- Epic README: feature-updates/done/fix_2025_adp/EPIC_README.md
+- Epic Test Plan: feature-updates/done/fix_2025_adp/epic_smoke_test_plan.md
+- Epic Lessons Learned: feature-updates/done/fix_2025_adp/epic_lessons_learned.md
+- Bug Fix Lessons: feature-updates/done/fix_2025_adp/bugfix_high_wrong_data_folder/lessons_learned.md
 
 ---
 
