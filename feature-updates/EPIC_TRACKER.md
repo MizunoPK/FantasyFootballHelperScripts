@@ -17,13 +17,13 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| _No active epics_ | | | | | |
+| 3 | integrate_new_player_data_into_simulation | epic | epic/KAI-3 | In Progress | 2026-01-01 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-3
+### Next Available Number: KAI-4
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
