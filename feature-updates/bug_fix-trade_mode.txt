@@ -1,1 +1,0 @@
-Fix the way the trade mode gets access to other teams
