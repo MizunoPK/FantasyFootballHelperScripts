@@ -902,6 +902,76 @@ Next Action: Wait for user responses, then update TODO based on answers
 
 ---
 
+## Round 2 Verification (MANDATORY - EVIDENCE REQUIRED)
+
+**⚠️ CRITICAL:** Before marking Round 2 complete, verify you ACTUALLY completed each iteration (not just checked boxes).
+
+**MANDATORY VERIFICATION:** For each iteration, provide EVIDENCE of completion:
+
+```markdown
+## Round 2 Verification Checklist
+
+**Iteration 8: Test Strategy Development**
+□ Evidence: Created test strategy with {N} test types
+□ Evidence: Documented unit, integration, edge, regression tests
+□ Evidence: Specified test framework and approach
+
+**Iteration 9: Edge Case Enumeration**
+□ Evidence: Listed {N} edge cases from spec.md
+□ Evidence: Added edge case handling to TODO tasks
+□ Evidence: Documented expected behavior for each edge case
+
+**Iteration 10: Configuration Validation**
+□ Evidence: Listed {N} config parameters
+□ Evidence: Verified each parameter's usage
+□ Evidence: Documented validation rules
+
+**Iteration 11: Algorithm Re-Verification**
+□ Evidence: Re-checked Algorithm Traceability Matrix
+□ Evidence: Verified all {N} algorithms still mapped
+□ Evidence: Identified {M} changes from Round 1 (or "none")
+
+**Iteration 12: E2E Data Flow Re-Verification**
+□ Evidence: Re-traced data flow end-to-end
+□ Evidence: Verified all transformations still documented
+□ Evidence: Identified {M} changes from Round 1 (or "none")
+
+**Iteration 13: Performance Considerations**
+□ Evidence: Identified {N} performance-critical operations
+□ Evidence: Documented optimization approach
+□ Evidence: Added performance tests to test strategy
+
+**Iteration 14: Integration Gap Re-Check**
+□ Evidence: Re-verified {N} integration points
+□ Evidence: Identified {M} new gaps (or "none")
+□ Evidence: Updated integration handling in TODO
+
+**Iteration 15: Test Coverage Depth Check**
+□ Evidence: Calculated test coverage for each component
+□ Evidence: Coverage is >{X}% (must be >90%)
+□ Evidence: Identified gaps and added tests
+
+**Iteration 16: Documentation Plan**
+□ Evidence: Listed {N} doc updates needed
+□ Evidence: Specified docstring format
+□ Evidence: Added doc tasks to TODO
+```
+
+**VERIFICATION RULE:**
+
+If you CANNOT provide evidence for an iteration:
+❌ That iteration was NOT completed
+❌ Go back and ACTUALLY do the iteration
+❌ Do NOT proceed to Round 3 without completing ALL iterations
+
+**Why This Matters:**
+- Round 2 adds deep verification (test coverage, edge cases)
+- Skipping iterations = missing test gaps, edge case bugs
+- >90% test coverage requirement catches this
+- Trust the process: Each iteration has specific purpose
+
+---
+
 ## Completion Criteria
 
 **Round 2 is complete when ALL of these are true:**

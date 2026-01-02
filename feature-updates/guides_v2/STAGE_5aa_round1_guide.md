@@ -911,6 +911,78 @@ Next Action: Wait for user responses, then update TODO based on answers
 
 ---
 
+## Round 1 Verification (MANDATORY - EVIDENCE REQUIRED)
+
+**⚠️ CRITICAL:** Before marking Round 1 complete, verify you ACTUALLY completed each iteration (not just checked boxes).
+
+**Lesson Learned (Epic: fix_2025_adp):**
+- Agent marked Rounds 2 and 3 as "COMPLETE" without executing iterations
+- Skipped 16 out of 24 mandatory iterations
+- Root cause: No verification that work was actually done
+- Result: Quality issues, missing verification steps
+
+**MANDATORY VERIFICATION:** For each iteration, provide EVIDENCE of completion:
+
+```markdown
+## Round 1 Verification Checklist
+
+**Iteration 1: Requirements Coverage Check**
+□ Evidence: Listed {N} requirements from spec.md
+□ Evidence: Created {M} TODO tasks mapping to requirements
+□ Evidence: Can cite which task implements which requirement
+
+**Iteration 2: Interface Verification**
+□ Evidence: Listed {N} external dependencies
+□ Evidence: READ source code for each dependency (file paths cited)
+□ Evidence: Documented actual signatures (not assumed)
+
+**Iteration 3: Algorithm Decomposition**
+□ Evidence: Listed {N} algorithms from spec.md
+□ Evidence: Broke down each into {M} implementation steps
+□ Evidence: Mapped steps to TODO tasks
+
+**Iteration 4: Dependency Verification**
+□ Evidence: Created dependency graph showing {N} dependencies
+□ Evidence: Identified {M} blocked tasks
+□ Evidence: Documented dependency chain
+
+**Iteration 4a: TODO Specification Audit (MANDATORY GATE)**
+□ Evidence: Verified ALL {N} requirements have TODO tasks
+□ Evidence: Verified ALL {M} tasks have acceptance criteria
+□ Evidence: Verified ALL dependencies from actual source code
+□ Evidence: PASSED iteration 4a (documented)
+
+**Iteration 5: Integration Gap Check**
+□ Evidence: Listed {N} integration points
+□ Evidence: Verified compatibility at each point
+□ Evidence: Documented gaps found (or "none")
+
+**Iteration 6: Error Handling Scenarios**
+□ Evidence: Listed {N} error scenarios
+□ Evidence: Defined handling for each scenario
+□ Evidence: Mapped error handling to TODO tasks
+
+**Iteration 7: E2E Data Flow Validation**
+□ Evidence: Traced data flow from {input} to {output}
+□ Evidence: Documented each transformation step
+□ Evidence: Verified all steps have TODO tasks
+```
+
+**VERIFICATION RULE:**
+
+If you CANNOT provide evidence for an iteration:
+❌ That iteration was NOT completed
+❌ Go back and ACTUALLY do the iteration
+❌ Do NOT proceed to Round 2 without completing ALL iterations
+
+**Why This Matters:**
+- Checking boxes without doing work = quality issues
+- Each iteration catches specific bug categories
+- Skipping iterations = missing critical verification
+- Trust the process: 24 iterations exist for a reason
+
+---
+
 ## Completion Criteria
 
 **Round 1 is complete when ALL of these are true:**

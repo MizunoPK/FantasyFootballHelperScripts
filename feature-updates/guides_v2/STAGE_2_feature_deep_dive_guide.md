@@ -19,16 +19,17 @@
 
 ## Quick Start
 
-**5-Phase Overview:**
+**6-Phase Overview:**
 1. **Targeted Research** - Investigate THIS feature's scope only
 2. **Update Spec & Checklist** - Document findings and open questions
 3. **Interactive Question Resolution** - ONE question at a time, update after each answer
 4. **Dynamic Scope Adjustment** - Evaluate if feature grew too large (split?)
 5. **Cross-Feature Alignment** - Compare to other feature specs, resolve conflicts
+6. **Acceptance Criteria & User Approval** - Create explicit acceptance criteria, get user sign-off (MANDATORY)
 
 **Estimated Time:** 1-2 hours per feature
 **Prerequisites:** Stage 1 complete, feature folder exists with initial spec.md
-**Outputs:** Complete spec.md, all checklist items resolved, cross-feature alignment verified
+**Outputs:** Complete spec.md, all checklist items resolved, cross-feature alignment verified, user-approved acceptance criteria
 
 ---
 
@@ -89,6 +90,12 @@
     - Stage 3 (sanity check) and Stage 4 (testing strategy) come next
 
 11. ⚠️ Update feature README.md Agent Status after EACH phase
+
+12. ⚠️ Phase 6 (Acceptance Criteria & User Approval) is MANDATORY
+    - MUST create explicit acceptance criteria in spec.md
+    - MUST get user approval before proceeding to Stage 3
+    - Prevents implementing wrong scope (saves massive rework)
+    - User confirms WHAT before agent builds HOW
 ```
 
 ---
@@ -902,10 +909,203 @@ Create `epic/research/ALIGNMENT_CHECK_{DATE}.md`:
 - Mark feature complete in epic EPIC_README.md
 - Update Feature Tracking table
 
-**Progress:** 5/5 phases complete (Ready to mark feature complete)
+**Progress:** 5/6 phases complete (Ready for acceptance criteria approval)
+**Next Action:** Phase 6 - Create Acceptance Criteria & Get User Approval
+**Blockers:** None
+```
+
+---
+
+## Phase 6: Acceptance Criteria & Deliverables Approval (MANDATORY)
+
+**Goal:** Create explicit acceptance criteria and get user approval BEFORE implementation
+
+**⚠️ CRITICAL:** This phase prevents entire epics from being implemented incorrectly. User must approve WHAT will be built before you build it.
+
+---
+
+### Why This Phase Exists
+
+**Real-World Example (Epic: fix_2025_adp):**
+- Epic implemented 102+ hours of work
+- All unit tests passed (2,463/2,463)
+- Stage 6 Epic QC passed
+- **Stage 7 user testing revealed:** ENTIRE EPIC TARGETED WRONG FOLDER
+- Root cause: No explicit acceptance criteria approved by user
+- Result: Massive rework required (wrong 6 files instead of correct 108 files)
+
+**Lesson:** Explicit acceptance criteria with user approval prevents wrong implementations.
+
+---
+
+### Step 6.1: Create Acceptance Criteria Section in spec.md
+
+Add this MANDATORY section to spec.md:
+
+```markdown
+---
+
+## Acceptance Criteria (⚠️ USER MUST APPROVE)
+
+**Files Modified:**
+- [ ] {List EXACT file paths that will be modified}
+- [ ] {Include counts: e.g., "108 files total: 18 weeks × 6 positions"}
+- [ ] {Be specific: "simulation/sim_data/2025/weeks/week_01/qb_data.json" not "some JSON files"}
+
+**Example:**
+- [ ] simulation/sim_data/2025/weeks/week_01/qb_data.json
+- [ ] simulation/sim_data/2025/weeks/week_01/rb_data.json
+- [ ] simulation/sim_data/2025/weeks/week_01/wr_data.json
+- [ ] ... (105 more files across weeks 01-18)
+- [ ] Total: 108 files (18 weeks × 6 positions)
+
+**Data Structures:**
+- [ ] {Expected format: direct arrays, wrapped dicts, CSV columns, etc.}
+- [ ] {Include examples of BEFORE and AFTER states}
+
+**Example:**
+- [ ] Files use direct JSON arrays: `[{player1}, {player2}, ...]`
+- [ ] NOT wrapped dicts: `{"qb_data": [...]}`
+- [ ] Each player object has: name, id, average_draft_position
+
+**Behavior Changes:**
+- [ ] {EXACTLY what will change and how}
+- [ ] {Include expected values/ranges}
+- [ ] {What stays the same}
+
+**Example:**
+- [ ] Players with ADP 170.0 (placeholder) → actual FantasyPros ADP values (range: 1.0-500.0)
+- [ ] Unmatched players keep 170.0 default
+- [ ] Match rate expected: >85% (650+ out of 739 players)
+- [ ] All other player fields remain unchanged
+
+**Deliverables:**
+- [ ] {List what will be created: files, modules, tests}
+- [ ] {Include line counts or complexity estimates}
+
+**Example:**
+- [ ] utils/adp_csv_loader.py (new module, ~100 lines)
+- [ ] utils/adp_updater.py (new module, ~300 lines)
+- [ ] tests/utils/test_adp_csv_loader.py (~15 tests)
+- [ ] tests/utils/test_adp_updater.py (~25 tests)
+- [ ] Match report (JSON file with matched/unmatched players)
+
+**Success Criteria:**
+- [ ] {How to verify feature works}
+- [ ] {Measurable outcomes}
+
+**Example:**
+- [ ] All 108 files updated (verified by file modification timestamps)
+- [ ] ADP values changed from 170.0 to actual values (verified by spot-checking 10 random players)
+- [ ] Match rate >85% (verified in match report)
+- [ ] All unit tests pass (100% pass rate)
+
+---
+
+⚠️ **USER APPROVAL REQUIRED:**
+
+**User, please review the above acceptance criteria and confirm:**
+
+[ ] YES - These acceptance criteria are correct, proceed with implementation
+[ ] NO - Acceptance criteria need changes (specify what's wrong)
+
+**Agent: DO NOT proceed to Stage 3 without explicit user approval above.**
+```
+
+---
+
+### Step 6.2: Present Acceptance Criteria to User
+
+**Use AskUserQuestion tool with this format:**
+
+```markdown
+I've created detailed acceptance criteria for this feature in spec.md.
+
+Please review the "Acceptance Criteria (USER MUST APPROVE)" section and confirm:
+
+**Files Modified:** {brief summary - e.g., "108 simulation files across 18 weeks"}
+**Data Structures:** {brief summary - e.g., "Direct JSON arrays, not wrapped dicts"}
+**Behavior Changes:** {brief summary - e.g., "ADP values: 170.0 → actual FantasyPros values"}
+**Deliverables:** {brief summary - e.g., "2 new modules, 40 tests, match report"}
+
+Are these acceptance criteria correct?
+```
+
+**Options:**
+1. "Yes, proceed with implementation" (Recommended if criteria match user's intent)
+2. "No, needs changes" (Select if criteria don't match what you want)
+
+---
+
+### Step 6.3: Handle User Response
+
+**If user approves ("Yes"):**
+1. Update spec.md: Change `[ ]` to `[x]` for "USER APPROVAL REQUIRED"
+2. Document approval timestamp in spec.md
+3. Proceed to "Mark Feature Complete" section below
+
+**If user rejects ("No") or requests changes:**
+1. Ask user: "What specifically needs to change in the acceptance criteria?"
+2. Update spec.md based on user feedback
+3. Return to Step 6.2 (re-present for approval)
+4. Repeat until user approves
+
+**Example user feedback:**
+```
+User: "No, you're targeting the wrong folder. Should be simulation/sim_data/2025/weeks/, not data/player_data/"
+
+Agent response:
+1. Update spec.md acceptance criteria with correct folder paths
+2. Update file counts (108 files instead of 6)
+3. Re-present acceptance criteria for approval
+```
+
+---
+
+### Step 6.4: Document Approval in spec.md
+
+Once approved, update spec.md:
+
+```markdown
+⚠️ **USER APPROVAL REQUIRED:**
+
+[x] YES - These acceptance criteria are correct, proceed with implementation
+
+**Approved by:** User
+**Approved on:** {YYYY-MM-DD HH:MM}
+**Agent:** Confirmed acceptance criteria reviewed and approved before Stage 3
+```
+
+---
+
+### Step 6.5: Update Agent Status
+
+```markdown
+## Agent Status
+
+**Last Updated:** {YYYY-MM-DD HH:MM}
+**Current Phase:** DEEP_DIVE
+**Current Step:** Phase 6 - Acceptance Criteria Approved
+**Current Guide:** STAGE_2_feature_deep_dive_guide.md
+**Guide Last Read:** {YYYY-MM-DD HH:MM}
+**Critical Rules from Guide:**
+- Acceptance criteria approved by user
+- Mark feature complete in epic EPIC_README.md
+
+**Progress:** 6/6 phases complete (Ready to mark feature complete)
 **Next Action:** Mark feature as "Stage 2 Complete" in epic EPIC_README.md
 **Blockers:** None
 ```
+
+---
+
+**Why This Matters:**
+
+1. **Prevents wrong implementations** - User confirms WHAT before agent builds HOW
+2. **Explicit, not assumed** - Agent can't assume user intent, must get approval
+3. **Concrete, not vague** - Exact file paths, counts, structures (not "some files")
+4. **Early detection** - Wrong scope caught in Stage 2, not Stage 7
+5. **Documentation** - Approval recorded for future reference
 
 ---
 
@@ -1310,6 +1510,11 @@ total_score = base_score * adp_multiplier * injury_multiplier * [other multiplie
   - Complete spec.md
   - All checklist items resolved
   - Cross-feature alignment performed
+  - **Acceptance criteria created and USER-APPROVED**
+□ Every feature spec.md contains:
+  - "Acceptance Criteria (USER MUST APPROVE)" section
+  - User approval checkbox marked [x]
+  - Approval timestamp documented
 □ Epic EPIC_README.md shows all features with "[x]" in "Stage 2 Complete" column
 □ No features have open questions or blockers
 

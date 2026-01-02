@@ -709,16 +709,52 @@ Feature 3 (Schedule) ─┘
 
 ## Step 5: User Sign-Off
 
-### Step 5.1: Present Plan to User
+### Step 5.1: Verify Acceptance Criteria (PRE-CHECK - MANDATORY)
+
+**CRITICAL:** Before presenting plan, verify ALL features have user-approved acceptance criteria:
+
+```markdown
+**Acceptance Criteria Pre-Check:**
+
+For EACH feature, verify:
+□ Feature spec.md contains "Acceptance Criteria (USER MUST APPROVE)" section
+□ Files Modified section lists EXACT paths and counts
+□ Data Structures section shows expected formats
+□ Behavior Changes section shows expected values
+□ Deliverables section lists what will be created
+□ User approval checkbox is marked [x]
+□ Approval timestamp is documented
+
+If ANY feature missing acceptance criteria or user approval:
+❌ STOP - Return to Stage 2 Phase 6 for that feature
+❌ Do NOT present plan without ALL acceptance criteria approved
+```
+
+**Why This Matters:** Prevents presenting implementation plan with wrong scope. User must approve WHAT will be built (acceptance criteria) before approving HOW to build it (implementation plan).
+
+**Real-World Example (Epic: fix_2025_adp):**
+- Stage 3 user sign-off obtained WITHOUT acceptance criteria review
+- Epic implemented 102+ hours targeting WRONG FOLDER
+- User testing (Stage 7) caught it: 6 files instead of 108 files
+- Lesson: Acceptance criteria approval prevents wrong implementations
+
+---
+
+### Step 5.2: Present Plan to User
 
 ```markdown
 ✅ **Stage 3 (Cross-Feature Sanity Check) Complete**
 
 I've completed a systematic comparison of all {N} features and created a comprehensive implementation plan.
 
+**Acceptance Criteria Verification:**
+- ✅ All {N} features have user-approved acceptance criteria
+- ✅ Total scope: {X} files to be modified across {Y} folders
+- ✅ All data structures and deliverables approved
+
 **Sanity Check Results:**
 - Compared all features across 6 categories
-- Found and resolved 2 conflicts
+- Found and resolved {M} conflicts
 - All features now aligned and conflict-free
 
 **Implementation Plan:**
@@ -730,6 +766,7 @@ I've completed a systematic comparison of all {N} features and created a compreh
 **Full plan available in:**
 - epic EPIC_README.md (updated with plan summary)
 - epic/research/SANITY_CHECK_{DATE}.md (detailed analysis)
+- Each feature spec.md (user-approved acceptance criteria)
 
 **Please review the plan and let me know:**
 1. Do you approve this feature breakdown and implementation order?
@@ -739,7 +776,7 @@ I've completed a systematic comparison of all {N} features and created a compreh
 ⚠️ **Waiting for your approval before proceeding to Stage 4.**
 ```
 
-### Step 5.2: WAIT for User Response
+### Step 5.3: WAIT for User Response
 
 **Update Agent Status:**
 
