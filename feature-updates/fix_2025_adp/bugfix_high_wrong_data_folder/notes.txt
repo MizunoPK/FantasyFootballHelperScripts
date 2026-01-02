@@ -1,0 +1,152 @@
+Bug Fix: Wrong Data Folder (HIGH Priority)
+
+DISCOVERED: 2025-12-31 during Stage 7 user testing
+REPORTED BY: User
+STATUS: Created, awaiting implementation
+
+================================================================================
+PROBLEM DESCRIPTION
+================================================================================
+
+The epic currently updates the wrong data folder entirely.
+
+CURRENT BEHAVIOR (WRONG):
+- Targets: data/player_data/*.json (6 files)
+- These are the main league helper data files
+- Only updates 6 files once
+
+EXPECTED BEHAVIOR (CORRECT):
+- Targets: simulation/sim_data/2025/weeks/week_XX/*.json
+- Need to update ALL weeks in 2025 season (week_01 through week_17)
+- Each week has 6 position files: qb_data.json, rb_data.json, wr_data.json, te_data.json, k_data.json, dst_data.json
+- Total files to update: 17 weeks × 6 files = 102 files
+
+CONFIRMED FROM ANALYSIS:
+- simulation/sim_data/2025/weeks/ has 17 week folders (week_01 to week_17)
+- Each week folder contains 6 JSON files
+- File structure: Direct JSON array (NOT wrapped in {"position_data": [...]})
+- Sample from week_01/qb_data.json shows Josh Allen with ADP 170.0 (placeholder)
+
+ROOT CAUSE:
+- Epic scope misunderstood during planning stages
+- Feature 2 (utils/adp_updater.py) hardcoded to data/player_data/
+- All unit tests validate against wrong folder
+- Stage 6 epic QC passed but validated wrong behavior
+
+================================================================================
+IMPACT ASSESSMENT
+================================================================================
+
+SEVERITY: CRITICAL
+- Entire epic functionality targets wrong files
+- Zero value delivered to user (simulation data not updated)
+- Would have caused complete epic failure if not caught during user testing
+
+AFFECTED COMPONENTS:
+1. Feature 2: utils/adp_updater.py
+   - update_player_adp_values() function hardcoded to wrong path
+   - Needs to iterate through all 17 week folders
+   - Needs to handle direct JSON array structure (not wrapped)
+
+2. Unit Tests: tests/utils/test_adp_updater.py
+   - 18 tests validate against wrong folder structure
+   - Need to test multi-week updates
+   - Need to test direct array structure
+
+3. Epic E2E Test: feature-updates/fix_2025_adp/epic_e2e_test.py
+   - Validates wrong folder
+   - Needs to check all 17 weeks updated
+
+4. User Test Script: feature-updates/fix_2025_adp/test_full_csv.py
+   - Verifies wrong files
+   - Needs to verify all weeks
+
+STAGE 6 VALIDATION:
+- All Stage 6 tests passed but validated wrong behavior
+- Must RESTART Stage 6 after fix complete
+
+================================================================================
+REQUIRED CHANGES
+================================================================================
+
+SCOPE CHANGE:
+- FROM: Update 6 files once (data/player_data/*.json)
+- TO: Update 102 files (simulation/sim_data/2025/weeks/week_XX/*.json)
+
+TECHNICAL CHANGES:
+
+1. Feature 2 (utils/adp_updater.py):
+   - Change data_folder parameter to point to simulation/sim_data/2025/weeks/
+   - Iterate through all week folders (week_01 to week_17)
+   - Update JSON files in each week folder
+   - Handle direct array structure (not {"position_data": [...]})
+   - Maintain atomic write pattern for each file
+   - Log progress per week
+
+2. Unit Tests (tests/utils/test_adp_updater.py):
+   - Update test fixtures to use week folder structure
+   - Add test for multi-week updates
+   - Verify all 17 weeks get updated
+   - Test direct array JSON structure
+
+3. Epic Tests:
+   - Update epic_e2e_test.py to verify simulation/sim_data/
+   - Check random sampling across weeks to verify consistency
+   - Update test_full_csv.py verification logic
+
+FILE STRUCTURE DIFFERENCES:
+
+data/player_data/qb_data.json (OLD - WRONG):
+{
+  "qb_data": [
+    {"name": "Josh Allen", ...}
+  ]
+}
+
+simulation/sim_data/2025/weeks/week_01/qb_data.json (NEW - CORRECT):
+[
+  {"name": "Josh Allen", ...}
+]
+
+Note: Simulation files are direct arrays, NOT wrapped in position key!
+
+================================================================================
+ACCEPTANCE CRITERIA
+================================================================================
+
+1. ✅ All 17 week folders updated (week_01 through week_17)
+2. ✅ All 6 position files updated per week (102 total files)
+3. ✅ ADP values match FantasyPros CSV data
+4. ✅ Unmatched players retain default ADP 170.0
+5. ✅ File structure preserved (direct JSON arrays)
+6. ✅ Atomic writes used for all files
+7. ✅ Unit tests pass (100%)
+8. ✅ Epic E2E test validates all weeks
+9. ✅ User test script verifies correct folders
+10. ✅ Stage 6 Epic QC passes after fix
+
+================================================================================
+WORKFLOW AFTER FIX
+================================================================================
+
+After bug fix complete:
+1. Mark bug fix complete in EPIC_README.md
+2. RESTART Stage 6 (Epic Final QC)
+3. Re-run all epic smoke tests
+4. Re-run all 3 epic QC rounds
+5. Re-run epic PR review
+6. THEN return to Stage 7 user testing
+7. User re-tests with test_full_csv.py
+8. If passes: Proceed to commit
+9. If fails: Create another bug fix and repeat
+
+================================================================================
+NOTES
+================================================================================
+
+- This bug demonstrates the value of mandatory user testing in Stage 7
+- Caught before commit, preventing complete epic failure
+- Highlights importance of verifying actual vs expected behavior
+- User knowledge of codebase caught what all automated tests missed
+
+User: Please review this notes.txt and update if needed. Reply when ready to proceed.

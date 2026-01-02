@@ -1,0 +1,4 @@
+The ESPN API has been returning a placeholder 170 for ADP, which is not ideal for our simulation
+I have placed a file FantasyPros_2025_Overall_ADP_Rankings.csv in the feature-updates folder which contains CSV data about the ADP values
+I want to take the ADP values from the CSV and update the simulation's 2025 data with the values
+This will likely require a fuzzy search of some sort based on the player names - in which case we should re-use the fuzzy search logic already used by the player data fetcher

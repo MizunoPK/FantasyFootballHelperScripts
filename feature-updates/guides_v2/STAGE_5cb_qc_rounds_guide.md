@@ -259,6 +259,11 @@ Behavior verified: ✅ Matches spec (multiplier = 1.0 + (500-rank)/500 * 0.5)
 - [ ] **Output files contain CORRECT DATA** (not just structure)
   - ❌ "File has 1000 rows" - not sufficient
   - ✅ "File has 1000 rows, avg value 245.3, no zeros" - good
+- [ ] **Per-category verification** (not just totals)
+  - If feature processes multiple categories (positions, file types, etc.)
+  - Verify EACH category has correct data
+  - Example: "QB files: 18 updated, RB files: 18 updated, ..., DST files: 18 updated"
+  - Don't just check "108 files updated" - verify per-category counts
 - [ ] File formats match spec (CSV columns, JSON structure, etc.)
 - [ ] No empty files where data expected
 
@@ -713,6 +718,10 @@ Work through each section with fresh perspective. Be ruthlessly skeptical.
 - [ ] For each requirement, verify implementation actually achieves it:
   - Not just "code exists for this"
   - But "code correctly implements this"
+- [ ] **Verify EACH item in lists** (e.g., if spec says "all 6 positions", verify ALL 6)
+  - Don't assume "code processes list" means "code processes ALL items in list"
+  - Example: Spec says "update 6 positions (QB, RB, WR, TE, K, DST)"
+  - Verify: QB ✓, RB ✓, WR ✓, TE ✓, K ✓, DST ✓ (not just "positions updated")
 - [ ] Check for subtle misinterpretations
 
 **Real-World Example:**

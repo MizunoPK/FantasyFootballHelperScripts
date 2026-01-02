@@ -816,7 +816,12 @@ Next Action: Iteration 23a - Pre-Implementation Spec Audit (MANDATORY - 4 PARTS)
    - Specific acceptance criteria (not vague)
    - Implementation location (file, method, line)
    - Test coverage (test names)
-3. Count:
+   - **Category-specific tests** (if code processes multiple types/positions)
+3. **Verify position-specific/category-specific tests:**
+   - If code processes multiple categories (e.g., positions, file types, data sources)
+   - Ensure tests explicitly cover EACH category
+   - Example: If updating 6 positions, verify tests for QB, RB, WR, TE, K, DST
+4. Count:
    - Total tasks: {N}
    - Tasks with acceptance criteria: {M}
    - ✅ PASS if M == N

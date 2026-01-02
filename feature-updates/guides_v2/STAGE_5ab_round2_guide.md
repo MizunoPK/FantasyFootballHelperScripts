@@ -600,7 +600,14 @@ Next Action: Iteration 15 - Test Coverage Depth Check
 
 1. **Review test strategy from Iteration 8**
 
-2. **For EACH method/function, verify test coverage:**
+2. **Verify tests cover ALL categories/types:**
+   - If code processes multiple categories (e.g., positions: QB, RB, WR, TE, K, DST)
+   - Ensure tests explicitly cover EACH category
+   - Edge case categories (DST, K, etc.) often need dedicated tests
+   - Don't assume code paths work the same for all categories
+   - Example: If updating 6 positions, verify tests for all 6 positions
+
+3. **For EACH method/function, verify test coverage:**
 
 ```markdown
 ## Test Coverage Analysis

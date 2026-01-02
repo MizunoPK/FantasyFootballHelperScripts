@@ -424,6 +424,33 @@ python run_league_helper.py --mode rating_helper --dry-run
    assert top_player['player_name'] != "", "Player name is empty"
    ```
 
+5. **CRITICAL: Verify data values for EACH category/type**
+
+   **If feature processes multiple categories (positions, file types, etc.):**
+   - Don't just check totals - verify PER-CATEGORY
+   - Sample one item from each category and check actual data values
+   - Example: If updating 6 positions (QB, RB, WR, TE, K, DST), verify data for ALL 6
+
+   **Example:**
+   ```python
+   # Feature updates 6 position files
+   positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
+
+   for pos in positions:
+       pos_file = Path(f"data/{pos.lower()}_data.json")
+       assert pos_file.exists(), f"{pos} file missing"
+
+       # Verify data VALUES (not just file exists)
+       with open(pos_file) as f:
+           data = json.load(f)
+       assert len(data) > 0, f"{pos} file is empty"
+
+       # Check first player has updated data
+       first_player = data[0]
+       assert first_player['adp'] != 170.0, f"{pos} ADP not updated (still placeholder)"
+       assert first_player['adp'] > 0, f"{pos} ADP is invalid"
+   ```
+
 ---
 
 ### What This Catches

@@ -618,9 +618,16 @@ Next Action: Iteration 6 - Error Handling Scenarios
    - Invalid data format
    - Missing data
    - Null/None values
+   - **Data format differences** (e.g., name formats between sources)
    - etc.
 
-2. **For EACH error scenario, define handling:**
+2. **Verify name formats between data sources match or have handling:**
+   - If matching data from multiple sources (CSV vs JSON, API vs file, etc.)
+   - Document any format differences in spec.md
+   - Ensure matching logic handles format variations
+   - Example: CSV "Baltimore Ravens" vs JSON "Ravens D/ST"
+
+3. **For EACH error scenario, define handling:**
 
 ```markdown
 ## Error Scenario 1: ADP File Not Found
