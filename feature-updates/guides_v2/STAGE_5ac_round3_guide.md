@@ -1168,6 +1168,89 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 
 ---
 
+## Round 3 Verification (MANDATORY - EVIDENCE REQUIRED)
+
+**⚠️ CRITICAL:** Before marking Round 3 complete, verify you ACTUALLY completed each iteration (not just checked boxes).
+
+**Lesson Learned (Epic: fix_2025_adp):**
+- Agent marked Rounds 2 and 3 as "COMPLETE" without executing iterations
+- Skipped Iterations 8-24 (16 iterations total)
+- Result: Missing critical verification steps, potential quality issues
+
+**MANDATORY VERIFICATION:** For each iteration, provide EVIDENCE of completion:
+
+```markdown
+## Round 3 Verification Checklist
+
+**Iteration 17: Implementation Phasing**
+□ Evidence: Defined {N} implementation phases
+□ Evidence: Documented dependencies between phases
+□ Evidence: Specified completion criteria for each phase
+
+**Iteration 18: Rollback Strategy**
+□ Evidence: Created rollback plan for each risky change
+□ Evidence: Documented rollback steps
+□ Evidence: Identified rollback testing approach
+
+**Iteration 19: Performance Optimization**
+□ Evidence: Listed {N} optimization opportunities
+□ Evidence: Prioritized optimizations (critical/nice-to-have)
+□ Evidence: Added optimization tasks to TODO
+
+**Iteration 20: Mock/Test Double Audit**
+□ Evidence: Listed {N} external dependencies
+□ Evidence: Specified mock strategy for each
+□ Evidence: Documented mock complexity (simple/complex)
+
+**Iteration 21: Final Algorithm Traceability Matrix**
+□ Evidence: Matrix has {N} mappings (should be 40+)
+□ Evidence: Every algorithm from spec mapped to code location
+□ Evidence: No unmapped algorithms remain
+
+**Iteration 22: Final Integration Gap Check**
+□ Evidence: Re-verified {N} integration points
+□ Evidence: All methods have identified callers
+□ Evidence: No orphaned methods or dead code
+
+**Iteration 23: Consumer/Caller Validation**
+□ Evidence: Listed {N} consumers of new code
+□ Evidence: Verified each consumer's usage pattern
+□ Evidence: Documented breaking changes (or "none")
+
+**Iteration 23a: Pre-Implementation Spec Audit (MANDATORY GATE - 4 PARTS)**
+□ Evidence: PART 1 PASSED - All {N} requirements have TODO tasks
+□ Evidence: PART 2 PASSED - All {M} tasks have acceptance criteria
+□ Evidence: PART 3 PASSED - All {K} dependencies verified from source
+□ Evidence: PART 4 PASSED - Spec completeness >= 95%
+□ Evidence: Can cite specific numbers for each part
+
+**Iteration 24: GO/NO-GO Decision**
+□ Evidence: Evaluated readiness across {N} criteria
+□ Evidence: Documented decision rationale
+□ Evidence: Decision is: ✅ GO / ❌ NO-GO (must be GO to proceed)
+```
+
+**VERIFICATION RULE:**
+
+If you CANNOT provide evidence for an iteration:
+❌ That iteration was NOT completed
+❌ Go back and ACTUALLY do the iteration
+❌ Do NOT proceed to Stage 5b without completing ALL 24 iterations
+
+**Critical Gates:**
+- **Iteration 4a (Round 1):** Must PASS before Round 2
+- **Iteration 23a (Round 3):** Must PASS ALL 4 PARTS before Iteration 24
+- **Iteration 24 (Round 3):** Must be ✅ GO before Stage 5b
+
+**Why This Matters:**
+- Round 3 is final verification before implementation
+- Iteration 23a is the most comprehensive audit (4 parts)
+- Skipping iterations = implementing incomplete/incorrect spec
+- 24 iterations exist because each catches specific issues
+- Trust the process: Complete all 24, no shortcuts
+
+---
+
 ## Completion Criteria
 
 **Round 3 (and Stage 5a) is complete when ALL of these are true:**

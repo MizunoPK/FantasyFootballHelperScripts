@@ -690,72 +690,172 @@ For EACH feature folder, read README.md:
 
 ### STEP 4: Update Guides (If Needed)
 
-**Objective:** Apply lessons learned to improve guides for future epics.
+**Objective:** Apply ALL lessons learned from ALL sources to improve guides for future epics.
+
+**⚠️ CRITICAL:** Do NOT only check epic_lessons_learned.md. You MUST check ALL lesson sources.
+
+**Lesson Learned (Epic: fix_2025_adp):**
+- Agent only checked bugfix lessons, missed epic lessons
+- Result: 2 critical lessons not integrated (acceptance criteria, no shortcuts)
+- Root cause: No systematic check of all lesson sources
 
 **Actions:**
 
-**4a. Review Guide Improvement Notes**
+**4a. Find ALL Lessons Learned Files (SYSTEMATIC SEARCH)**
 
-From epic_lessons_learned.md, compile all "Guide Improvements Needed":
+Use bash to find ALL lessons learned files in the epic:
 
-**Example:**
-```markdown
-Guide Improvements Identified:
-
-1. STAGE_5aa_round1_guide.md:
-   - Add example for Algorithm Traceability Matrix with nested algorithms (iteration 4)
-
-2. STAGE_5ab_round2_guide.md:
-   - Clarify edge case enumeration with complex scenarios (iteration 9)
-
-3. STAGE_5d_post_feature_alignment_guide.md:
-   - Add example showing when to mark feature for "Return to Stage 5a"
-
-4. STAGE_6_epic_final_qc_guide.md:
-   - No improvements needed
+```bash
+find feature-updates/done/{epic_name} -name "lessons_learned.md" -type f
 ```
 
-**4b. Update Guides (If Improvements Identified)**
+**Expected Results:**
+```
+feature-updates/done/{epic_name}/epic_lessons_learned.md
+feature-updates/done/{epic_name}/feature_01_{name}/lessons_learned.md
+feature-updates/done/{epic_name}/feature_02_{name}/lessons_learned.md
+feature-updates/done/{epic_name}/bugfix_{priority}_{name}/lessons_learned.md
+...
+```
 
-For EACH guide needing updates:
+**⚠️ MANDATORY:** You MUST check ALL files found, not just some.
+
+---
+
+**4b. Read and Extract Lessons from EACH File**
+
+For EACH lessons_learned.md file found:
+
+**4b.1. Read epic_lessons_learned.md (EPIC-LEVEL PATTERNS)**
+
+```markdown
+Reading: feature-updates/done/{epic_name}/epic_lessons_learned.md
+
+Lessons Found:
+1. {Lesson title} - Guide: {guide_name}, Section: {section}
+2. {Lesson title} - Guide: {guide_name}, Section: {section}
+...
+```
+
+**4b.2. Read feature lessons_learned.md files (FEATURE-SPECIFIC PATTERNS)**
+
+For EACH feature:
+```markdown
+Reading: feature-updates/done/{epic_name}/feature_01_{name}/lessons_learned.md
+
+Lessons Found:
+1. {Lesson title} - Guide: {guide_name}, Section: {section}
+OR: "No guide updates needed from this feature"
+```
+
+**4b.3. Read bugfix lessons_learned.md files (BUG FIX PATTERNS)**
+
+For EACH bug fix:
+```markdown
+Reading: feature-updates/done/{epic_name}/bugfix_{priority}_{name}/lessons_learned.md
+
+Lessons Found:
+1. {Lesson title} - Guide: {guide_name}, Section: {section}
+...
+```
+
+---
+
+**4c. Create Master Checklist of ALL Proposed Guide Updates**
+
+Combine ALL lessons from ALL files:
+
+```markdown
+## Master Checklist: Guide Updates from Epic {epic_name}
+
+**Source: epic_lessons_learned.md**
+□ Lesson 1: {Title}
+  - Guide: STAGE_X_guide.md
+  - Section: {section_name}
+  - Update: {what to add/change}
+
+□ Lesson 2: {Title}
+  - Guide: STAGE_Y_guide.md
+  - Section: {section_name}
+  - Update: {what to add/change}
+
+**Source: feature_01/lessons_learned.md**
+□ Lesson 3: {Title}
+  - Guide: STAGE_Z_guide.md
+  - Section: {section_name}
+  - Update: {what to add/change}
+
+**Source: bugfix_high/lessons_learned.md**
+□ Lesson 4: {Title}
+  - Guide: STAGE_W_guide.md
+  - Section: {section_name}
+  - Update: {what to add/change}
+
+...
+
+**TOTAL LESSONS:** {N}
+**TOTAL GUIDES TO UPDATE:** {M}
+```
+
+**VERIFICATION:** If you found 0 lessons, re-read the files. Epic lessons are almost never zero.
+
+---
+
+**4d. Apply EACH Lesson to Guides**
+
+For EACH lesson in master checklist:
 
 **Update Process:**
-1. Read current guide using Read tool
-2. Identify section needing improvement
-3. Add example or clarification
+1. Read current guide using Read tool (e.g., STAGE_2_feature_deep_dive_guide.md)
+2. Locate section needing improvement
+3. Add example, clarification, or new step
 4. Use Edit tool to update guide
-5. Document change in guide's changelog
+5. Mark lesson as [x] APPLIED in master checklist
 
-**Example Update:**
+**Example Application:**
 
-Original guide section:
+From epic_lessons_learned.md:
+```
+Lesson: "Acceptance Criteria & User Approval prevents wrong implementations"
+Guide: STAGE_2_feature_deep_dive_guide.md
+Update: Add Phase 6 - Create acceptance criteria, get user approval
+```
+
+Applied to guide:
+- Added "Phase 6: Acceptance Criteria & Deliverables Approval (MANDATORY)"
+- Updated Quick Start: 5 phases → 6 phases
+- Added Critical Rule 12: Phase 6 is MANDATORY
+- Updated completion criteria to require user approval
+
+---
+
+**4e. Verify ALL Lessons Applied**
+
+**Before proceeding, verify:**
+
 ```markdown
-### Iteration 12: Mock Audit
+## Verification: All Lessons Applied
 
-Verify all mocks match real interfaces.
+□ Read ALL lessons_learned.md files (epic + features + bugfixes)
+□ Created master checklist with {N} total lessons
+□ Applied ALL {N} lessons to guides (none skipped)
+□ Each lesson marked [x] APPLIED in checklist
+□ Can cite which guide section was updated for each lesson
+
+**Master Checklist Status:**
+- Total lessons identified: {N}
+- Lessons applied: {N}
+- Lessons skipped: 0 ✅
+- Application rate: 100% ✅
 ```
 
-Updated guide section:
-```markdown
-### Iteration 12: Mock Audit
+**If application rate < 100%:**
+- ❌ STOP - Apply remaining lessons
+- ❌ Do NOT proceed until ALL lessons integrated
 
-Verify all mocks match real interfaces.
+---
 
-**Example (Complex Nested Mocks):**
-```python
-# Real interface (nested return):
-def get_player_stats() -> Dict[str, Dict[str, float]]:
-    return {"QB": {"avg_points": 18.5, "std_dev": 3.2}}
-
-# Mock MUST match nested structure:
-mock_stats = Mock()
-mock_stats.get_player_stats.return_value = {
-    "QB": {"avg_points": 18.5, "std_dev": 3.2}
-}
-```
-```
-
-**4c. Update CLAUDE.md (If Workflow Changed)**
+**4f. Update CLAUDE.md (If Workflow Changed)**
 
 If epic revealed workflow improvements:
 
@@ -771,39 +871,65 @@ If epic revealed workflow improvements:
 - Update phase transition prompts
 - Document changes
 
-**4d. Document Guide Updates**
+**4g. Document Guide Updates**
 
-Create summary of guide updates:
+Create summary of ALL guide updates from ALL sources:
 
 ```markdown
 ## Guide Updates from Epic: {epic_name}
 
-**Date:** 2025-12-30
+**Date:** {YYYY-MM-DD}
+
+**Lessons Learned Sources Checked:**
+- epic_lessons_learned.md: {N} lessons found
+- feature_01/lessons_learned.md: {M} lessons found
+- bugfix_high/lessons_learned.md: {K} lessons found
+- TOTAL: {N+M+K} lessons identified
 
 **Guides Updated:**
 
-1. STAGE_5aa_round1_guide.md (v2.1)
-   - Added example for Algorithm Traceability Matrix with nested algorithms (iteration 4)
-   - Reason: Epic feature_02 had complex nested algorithms that weren't well-documented
+1. STAGE_2_feature_deep_dive_guide.md
+   - Added Phase 6: Acceptance Criteria & Deliverables Approval (MANDATORY)
+   - Source: epic_lessons_learned.md Lesson 1
+   - Reason: Prevents entire epics from targeting wrong scope
 
-2. STAGE_5ac_round3_guide.md (v2.1)
-   - Added example for Mock Audit with complex nested mocks (iteration 21)
-   - Reason: Epic feature_02 had complex mock scenarios that needed clarification
+2. STAGE_3_cross_feature_sanity_check_guide.md
+   - Added Step 5.1: Verify Acceptance Criteria (PRE-CHECK)
+   - Source: epic_lessons_learned.md Lesson 1
+   - Reason: Strengthens user sign-off with acceptance criteria verification
 
-3. STAGE_5d_post_feature_alignment_guide.md (v2.1)
-   - Added example showing "Return to Stage 5a" scenario
-   - Reason: Epic feature_03 required return to 5a, good teaching example
+3. STAGE_5aa_round1_guide.md
+   - Added Round 1 Verification section (evidence required)
+   - Source: epic_lessons_learned.md Lesson 2
+   - Reason: Prevents marking work complete without doing it
+
+... (list all guide updates)
 
 **CLAUDE.md Updates:**
 - None needed (workflow unchanged)
+OR:
+- Updated workflow overview with new Phase 6 in Stage 2
+
+**Verification:**
+- ✅ All {N+M+K} lessons applied to guides
+- ✅ Application rate: 100%
+- ✅ No lessons skipped
 
 **Commit Message for Guide Updates:**
-"Update guides based on {epic_name} lessons learned"
+"Integrate lessons from epic {epic_name} into workflow guides
+
+Applied {N+M+K} lessons from {X} sources:
+- {N} epic-level lessons
+- {M} feature lessons
+- {K} bugfix lessons
+
+{Brief summary of key improvements}"
 ```
 
 **If NO guide updates needed:**
-- Document: "No guide updates required from this epic"
+- Document: "No guide updates required from this epic (0 lessons identified from all sources)"
 - Proceed to Step 5
+- **Note:** This is rare - verify you checked ALL lesson sources
 
 ---
 
