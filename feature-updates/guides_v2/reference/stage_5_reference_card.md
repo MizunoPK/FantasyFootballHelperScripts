@@ -11,14 +11,14 @@
 ```
 STAGE 5a: TODO Creation (2.5-3 hours, 24 iterations across 3 rounds)
     │
-    ├─ Round 1: Initial Analysis (STAGE_5aa_round1_guide.md)
+    ├─ Round 1: Initial Analysis (stages/stage_5/round1_todo_creation.md)
     │   Iterations 1-7 + 4a (9 iterations)
     │   ├─ Requirements analysis
     │   ├─ Dependency verification
     │   ├─ Algorithm traceability matrix
     │   └─ Iteration 4a: TODO Specification Audit ← MANDATORY GATE
     │
-    ├─ Round 2: Deep Verification (STAGE_5ab_round2_guide.md)
+    ├─ Round 2: Deep Verification (stages/stage_5/round2_todo_creation.md)
     │   Iterations 8-16 (9 iterations)
     │   ├─ Test strategy (>90% coverage required)
     │   ├─ Edge case enumeration
@@ -27,7 +27,7 @@ STAGE 5a: TODO Creation (2.5-3 hours, 24 iterations across 3 rounds)
     │
     └─ Round 3: Final Readiness (Split into 2 parts, 10 iterations)
         │
-        ├─ Part 1: Preparation (STAGE_5ac_part1_preparation_guide.md)
+        ├─ Part 1: Preparation (stages/stage_5/round3_part1_preparation.md)
         │   Iterations 17-22 (6 iterations)
         │   ├─ Implementation phasing
         │   ├─ Rollback strategy
@@ -36,14 +36,14 @@ STAGE 5a: TODO Creation (2.5-3 hours, 24 iterations across 3 rounds)
         │   ├─ Mock audit (verify against REAL interfaces)
         │   └─ Output consumer validation
         │
-        └─ Part 2: Final Gates (STAGE_5ac_part2_final_gates_guide.md)
+        └─ Part 2: Final Gates (stages/stage_5/round3_part2_final_gates.md)
             Iterations 23, 23a, 25, 24 (4 iterations with 3 MANDATORY GATES)
             ├─ Iteration 23: Integration gap check
             ├─ Iteration 23a: Pre-Implementation Spec Audit (4 PARTS) ← MANDATORY GATE
             ├─ Iteration 25: Spec Validation Against Validated Docs ← CRITICAL GATE
             └─ Iteration 24: Implementation Readiness (GO/NO-GO) ← FINAL GATE
         ↓
-STAGE 5b: Implementation Execution (STAGE_5b_implementation_execution_guide.md)
+STAGE 5b: Implementation Execution (stages/stage_5/implementation_execution.md)
     1-4 hours (varies by complexity)
     ├─ Execute TODO.md task-by-task
     ├─ Keep spec.md visible (continuous verification)
@@ -52,26 +52,26 @@ STAGE 5b: Implementation Execution (STAGE_5b_implementation_execution_guide.md)
         ↓
 STAGE 5c: Post-Implementation (1.5-2.5 hours, 3 phases)
     │
-    ├─ Phase 1: Smoke Testing (STAGE_5ca_smoke_testing_guide.md)
+    ├─ Phase 1: Smoke Testing (stages/stage_5/smoke_testing.md)
     │   ├─ Part 1: Import Test
     │   ├─ Part 2: Entry Point Test
     │   └─ Part 3: E2E Test (verify DATA VALUES) ← MANDATORY GATE
     │
-    ├─ Phase 2: QC Rounds (STAGE_5cb_qc_rounds_guide.md)
+    ├─ Phase 2: QC Rounds (stages/stage_5/qc_rounds.md)
     │   ├─ QC Round 1: Basic validation
     │   ├─ QC Round 2: Deep verification
     │   └─ QC Round 3: Final review (ZERO tolerance) ← MANDATORY
     │
-    └─ Phase 3: Final Review (STAGE_5cc_final_review_guide.md)
+    └─ Phase 3: Final Review (stages/stage_5/final_review.md)
         ├─ PR review (11 categories)
         ├─ Lessons learned documentation
         └─ Zero tech debt tolerance
         ↓
-STAGE 5d: Cross-Feature Spec Alignment (STAGE_5d_post_feature_alignment_guide.md)
+STAGE 5d: Cross-Feature Spec Alignment (stages/stage_5/post_feature_alignment.md)
     15-30 minutes
     └─ Update remaining feature specs based on actual implementation
         ↓
-STAGE 5e: Testing Plan Update (STAGE_5e_post_feature_testing_update_guide.md)
+STAGE 5e: Testing Plan Update (stages/stage_5/post_feature_testing_update.md)
     15-30 minutes
     └─ Reassess epic_smoke_test_plan.md
         ↓
@@ -84,16 +84,16 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 | Sub-Stage | Guide | Time | Key Activities | Mandatory Gates |
 |-----------|-------|------|----------------|-----------------|
-| 5a Round 1 | STAGE_5aa_round1_guide.md | 60-75 min | Requirements, dependencies, algorithms | Iteration 4a |
-| 5a Round 2 | STAGE_5ab_round2_guide.md | 45-60 min | Test strategy, edge cases, re-verification | Test coverage >90% |
-| 5a Round 3 Part 1 | STAGE_5ac_part1_preparation_guide.md | 60-90 min | Phasing, rollback, performance, mocks | None |
-| 5a Round 3 Part 2 | STAGE_5ac_part2_final_gates_guide.md | 1.5-2.5 hrs | Integration, spec audit, validation | Iterations 23a, 25, 24 |
-| 5b | STAGE_5b_implementation_execution_guide.md | 1-4 hrs | Execute TODO tasks, mini-QC checkpoints | 100% test pass |
-| 5ca | STAGE_5ca_smoke_testing_guide.md | 30-45 min | Import, entry point, E2E tests | Part 3 data values |
-| 5cb | STAGE_5cb_qc_rounds_guide.md | 45-75 min | 3 QC rounds, deep verification | QC Round 3 ZERO issues |
-| 5cc | STAGE_5cc_final_review_guide.md | 30-45 min | PR review, lessons learned | Zero tech debt |
-| 5d | STAGE_5d_post_feature_alignment_guide.md | 15-30 min | Update remaining specs | None |
-| 5e | STAGE_5e_post_feature_testing_update_guide.md | 15-30 min | Update epic test plan | None |
+| 5a Round 1 | stages/stage_5/round1_todo_creation.md | 60-75 min | Requirements, dependencies, algorithms | Iteration 4a |
+| 5a Round 2 | stages/stage_5/round2_todo_creation.md | 45-60 min | Test strategy, edge cases, re-verification | Test coverage >90% |
+| 5a Round 3 Part 1 | stages/stage_5/round3_part1_preparation.md | 60-90 min | Phasing, rollback, performance, mocks | None |
+| 5a Round 3 Part 2 | stages/stage_5/round3_part2_final_gates.md | 1.5-2.5 hrs | Integration, spec audit, validation | Iterations 23a, 25, 24 |
+| 5b | stages/stage_5/implementation_execution.md | 1-4 hrs | Execute TODO tasks, mini-QC checkpoints | 100% test pass |
+| 5ca | stages/stage_5/smoke_testing.md | 30-45 min | Import, entry point, E2E tests | Part 3 data values |
+| 5cb | stages/stage_5/qc_rounds.md | 45-75 min | 3 QC rounds, deep verification | QC Round 3 ZERO issues |
+| 5cc | stages/stage_5/final_review.md | 30-45 min | PR review, lessons learned | Zero tech debt |
+| 5d | stages/stage_5/post_feature_alignment.md | 15-30 min | Update remaining specs | None |
+| 5e | stages/stage_5/post_feature_testing_update.md | 15-30 min | Update epic test plan | None |
 
 ---
 
@@ -102,13 +102,13 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 ### Stage 5a: TODO Creation (4 gates)
 
 **Gate 1: Iteration 4a - TODO Specification Audit**
-- **Location:** STAGE_5aa_round1_guide.md
+- **Location:** stages/stage_5/round1_todo_creation.md
 - **Criteria:** ALL TODO tasks have acceptance criteria
 - **Evidence:** Task count, criteria count, 100% coverage
 - **If FAIL:** Add missing acceptance criteria, re-run Iteration 4a
 
 **Gate 2: Iteration 23a - Pre-Implementation Spec Audit (4 PARTS)**
-- **Location:** STAGE_5ac_part2_final_gates_guide.md
+- **Location:** stages/stage_5/round3_part2_final_gates.md
 - **Criteria:** ALL 4 PARTS must PASS with 100% metrics
   - Part 1: Completeness Audit (all requirements have TODO tasks)
   - Part 2: Specificity Audit (all tasks have criteria, location, tests)
@@ -118,7 +118,7 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 - **If FAIL:** Fix failing part, re-run Iteration 23a
 
 **Gate 3: Iteration 25 - Spec Validation Against Validated Documents**
-- **Location:** STAGE_5ac_part2_final_gates_guide.md
+- **Location:** stages/stage_5/round3_part2_final_gates.md
 - **Criteria:** Spec.md matches ALL three validated sources (epic notes + epic ticket + spec summary)
 - **Process:** Close spec.md first, re-read validated docs independently, three-way comparison
 - **If ANY DISCREPANCIES:** STOP, report to user with 3 options
@@ -126,7 +126,7 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 - **If FAIL:** User decides next action (fix spec + restart, fix spec + continue, discuss)
 
 **Gate 4: Iteration 24 - Implementation Readiness Protocol (GO/NO-GO)**
-- **Location:** STAGE_5ac_part2_final_gates_guide.md
+- **Location:** stages/stage_5/round3_part2_final_gates.md
 - **Criteria:** GO decision required (confidence >= MEDIUM, all gates PASSED, all checklists complete)
 - **If NO-GO:** Address concerns, cannot proceed to Stage 5b
 - **If GO:** Proceed to Stage 5b implementation
@@ -134,12 +134,12 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 ### Stage 5c: Post-Implementation (2 gates)
 
 **Gate 5: Stage 5ca Part 3 - E2E Smoke Test (Data Values)**
-- **Location:** STAGE_5ca_smoke_testing_guide.md
+- **Location:** stages/stage_5/smoke_testing.md
 - **Criteria:** E2E test with REAL data, verify DATA VALUES (not just file existence)
 - **If FAIL:** Restart from Stage 5ca Part 1
 
 **Gate 6: Stage 5cb QC Round 3 - ZERO Issues Required**
-- **Location:** STAGE_5cb_qc_rounds_guide.md
+- **Location:** stages/stage_5/qc_rounds.md
 - **Criteria:** ZERO issues found (critical, major, or minor)
 - **If ANY ISSUES:** Restart from Stage 5ca Part 1 (smoke testing)
 
@@ -262,16 +262,16 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 | Current Activity | Guide to Read |
 |------------------|---------------|
-| Starting TODO creation | STAGE_5aa_round1_guide.md |
-| Round 1 complete, confidence >= MEDIUM | STAGE_5ab_round2_guide.md |
-| Round 2 complete, test coverage >90% | STAGE_5ac_part1_preparation_guide.md |
-| Preparation iterations 17-22 complete | STAGE_5ac_part2_final_gates_guide.md |
-| GO decision from Iteration 24 | STAGE_5b_implementation_execution_guide.md |
-| Implementation complete | STAGE_5ca_smoke_testing_guide.md |
-| Smoke testing passed | STAGE_5cb_qc_rounds_guide.md |
-| QC Round 3 passed | STAGE_5cc_final_review_guide.md |
-| PR review passed | STAGE_5d_post_feature_alignment_guide.md |
-| Alignment updated | STAGE_5e_post_feature_testing_update_guide.md |
+| Starting TODO creation | stages/stage_5/round1_todo_creation.md |
+| Round 1 complete, confidence >= MEDIUM | stages/stage_5/round2_todo_creation.md |
+| Round 2 complete, test coverage >90% | stages/stage_5/round3_part1_preparation.md |
+| Preparation iterations 17-22 complete | stages/stage_5/round3_part2_final_gates.md |
+| GO decision from Iteration 24 | stages/stage_5/implementation_execution.md |
+| Implementation complete | stages/stage_5/smoke_testing.md |
+| Smoke testing passed | stages/stage_5/qc_rounds.md |
+| QC Round 3 passed | stages/stage_5/final_review.md |
+| PR review passed | stages/stage_5/post_feature_alignment.md |
+| Alignment updated | stages/stage_5/post_feature_testing_update.md |
 
 ---
 

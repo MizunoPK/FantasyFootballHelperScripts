@@ -217,7 +217,7 @@
       "injury_status": "QUESTIONABLE",
       "drafted_by": "Annihilators",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 1.2,
       "player_rating": 100.0,
       "projected_points": [
         0.0,
@@ -425,7 +425,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "Saint Nix",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 6.1,
       "player_rating": 96.03007518796993,
       "projected_points": [
         18.55979046,
@@ -633,7 +633,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "Saquon Deez",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 11.8,
       "player_rating": 91.3157894736842,
       "projected_points": [
         17.31108091,
@@ -841,7 +841,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "Saint Nix",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 10.4,
       "player_rating": 91.06766917293233,
       "projected_points": [
         16.75361728,
@@ -2921,7 +2921,7 @@
       "injury_status": "QUESTIONABLE",
       "drafted_by": "The Injury Report",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 8.5,
       "player_rating": 70.47368421052632,
       "projected_points": [
         17.93634047,
@@ -11865,7 +11865,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 6.1,
       "player_rating": 29.037593984962406,
       "projected_points": [
         11.69094891,

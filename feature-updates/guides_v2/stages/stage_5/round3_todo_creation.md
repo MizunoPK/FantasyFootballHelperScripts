@@ -17,17 +17,17 @@
 
 | Current Iteration | Guide to Read | Time Estimate |
 |-------------------|---------------|---------------|
-| Starting Round 3 | STAGE_5ac_part1_preparation_guide.md | 60-90 min |
-| Iteration 17: Implementation Phasing | STAGE_5ac_part1_preparation_guide.md | 10-15 min |
-| Iteration 18: Rollback Strategy | STAGE_5ac_part1_preparation_guide.md | 10-15 min |
-| Iteration 19: Algorithm Traceability (Final) | STAGE_5ac_part1_preparation_guide.md | 15-20 min |
-| Iteration 20: Performance Considerations | STAGE_5ac_part1_preparation_guide.md | 10-15 min |
-| Iteration 21: Mock Audit & Integration Test Plan | STAGE_5ac_part1_preparation_guide.md | 15-20 min |
-| Iteration 22: Output Consumer Validation | STAGE_5ac_part1_preparation_guide.md | 10-15 min |
-| Iteration 23: Integration Gap Check (Final) | STAGE_5ac_part2_final_gates_guide.md | 15-20 min |
-| Iteration 23a: Pre-Implementation Spec Audit | STAGE_5ac_part2_final_gates_guide.md | 30-45 min |
-| Iteration 25: Spec Validation Against Validated Docs | STAGE_5ac_part2_final_gates_guide.md | 30-60 min |
-| Iteration 24: Implementation Readiness Protocol | STAGE_5ac_part2_final_gates_guide.md | 20-30 min |
+| Starting Round 3 | stages/stage_5/round3_part1_preparation.md | 60-90 min |
+| Iteration 17: Implementation Phasing | stages/stage_5/round3_part1_preparation.md | 10-15 min |
+| Iteration 18: Rollback Strategy | stages/stage_5/round3_part1_preparation.md | 10-15 min |
+| Iteration 19: Algorithm Traceability (Final) | stages/stage_5/round3_part1_preparation.md | 15-20 min |
+| Iteration 20: Performance Considerations | stages/stage_5/round3_part1_preparation.md | 10-15 min |
+| Iteration 21: Mock Audit & Integration Test Plan | stages/stage_5/round3_part1_preparation.md | 15-20 min |
+| Iteration 22: Output Consumer Validation | stages/stage_5/round3_part1_preparation.md | 10-15 min |
+| Iteration 23: Integration Gap Check (Final) | stages/stage_5/round3_part2_final_gates.md | 15-20 min |
+| Iteration 23a: Pre-Implementation Spec Audit | stages/stage_5/round3_part2_final_gates.md | 30-45 min |
+| Iteration 25: Spec Validation Against Validated Docs | stages/stage_5/round3_part2_final_gates.md | 30-60 min |
+| Iteration 24: Implementation Readiness Protocol | stages/stage_5/round3_part2_final_gates.md | 20-30 min |
 
 ---
 
@@ -46,7 +46,7 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 
 ### STAGE_5ac Part 1: Preparation (Iterations 17-22)
 
-**Read:** `STAGE_5ac_part1_preparation_guide.md`
+**Read:** `stages/stage_5/round3_part1_preparation.md`
 
 **What it covers:**
 - **Iteration 17:** Implementation Phasing (break implementation into incremental phases)
@@ -80,7 +80,7 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 
 ### STAGE_5ac Part 2: Final Gates (Iterations 23, 23a, 25, 24)
 
-**Read:** `STAGE_5ac_part2_final_gates_guide.md`
+**Read:** `stages/stage_5/round3_part2_final_gates.md`
 
 **What it covers:**
 - **Iteration 23:** Integration Gap Check (Final) (verify all new methods have callers)
@@ -223,11 +223,11 @@ STAGE_5ac Part 2: Final Gates
 
 **⚠️ ORIGINAL GUIDE DEPRECATED**
 
-The original comprehensive STAGE_5ac_round3_guide.md has been renamed to `STAGE_5ac_round3_guide_ORIGINAL_BACKUP.md` and should NOT be used for new work.
+The original comprehensive stages/stage_5/round3_todo_creation.md has been renamed to `STAGE_5ac_round3_guide_ORIGINAL_BACKUP.md` and should NOT be used for new work.
 
 **Use the new split guides instead:**
-- STAGE_5ac_part1_preparation_guide.md
-- STAGE_5ac_part2_final_gates_guide.md
+- stages/stage_5/round3_part1_preparation.md
+- stages/stage_5/round3_part2_final_gates.md
 
 The split guides provide the same comprehensive coverage with better navigation, token efficiency, and clearer phase focus.
 
@@ -239,7 +239,7 @@ The split guides provide the same comprehensive coverage with better navigation,
 
 **Stage 5b: Implementation Execution**
 
-**Read:** `STAGE_5b_implementation_execution_guide.md`
+**Read:** `stages/stage_5/implementation_execution.md`
 
 **What happens in Stage 5b:**
 - Execute TODO.md task-by-task

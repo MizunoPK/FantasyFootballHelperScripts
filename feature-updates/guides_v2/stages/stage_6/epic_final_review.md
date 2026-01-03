@@ -4,7 +4,7 @@
 **Stage:** 6 - Epic-Level Final QC
 **Sub-Stage:** 6c - Epic Final Review (Steps 6-8)
 **Prerequisites:** STAGE_6b complete (all 3 QC rounds passed)
-**Next Stage:** STAGE_7_epic_cleanup_guide.md
+**Next Stage:** stages/stage_7/epic_cleanup.md
 
 ---
 
@@ -1098,7 +1098,7 @@ Should I proceed with creating these bug fixes?
 
 ### Step 7.4: Create Bug Fixes Using Bug Fix Workflow
 
-**For EACH issue, create a bug fix using STAGE_5_bug_fix_workflow_guide.md:**
+**For EACH issue, create a bug fix using stages/stage_5/bugfix_workflow.md:**
 
 **Step-by-step process:**
 
@@ -1230,8 +1230,8 @@ Should I proceed with creating these bug fixes?
 - Issues found: 2 (both fixed via bug fixes)
 - Stage 6 restarts: 1 (after bug fixes)
 
-**Next Stage:** STAGE_7_epic_cleanup_guide.md
-**Next Action:** Read STAGE_7_epic_cleanup_guide.md to begin epic cleanup
+**Next Stage:** stages/stage_7/epic_cleanup.md
+**Next Action:** Read stages/stage_7/epic_cleanup.md to begin epic cleanup
 ```
 
 ---
@@ -1408,8 +1408,8 @@ python tests/run_all_tests.py
 - All tests passing: ✅ (2247/2247 tests)
 - Result: Epic ready for cleanup and move to done/
 
-**Next Stage:** STAGE_7_epic_cleanup_guide.md
-**Next Action:** Read STAGE_7_epic_cleanup_guide.md to begin final epic cleanup
+**Next Stage:** stages/stage_7/epic_cleanup.md
+**Next Action:** Read stages/stage_7/epic_cleanup.md to begin final epic cleanup
 ```
 
 ### Step 8.5: Completion Indicator
@@ -1434,7 +1434,7 @@ python tests/run_all_tests.py
 **When ALL items complete:**
 - Stage 6 is COMPLETE
 - Proceed to Stage 7 (Epic Cleanup)
-- Read STAGE_7_epic_cleanup_guide.md
+- Read stages/stage_7/epic_cleanup.md
 
 ---
 
@@ -2002,7 +2002,7 @@ bugfix_high_architecture_inconsistency/
 - Stage 6 restarts: 1
 - All tests passing: ✅ (2247/2247)
 
-**Next Stage:** STAGE_7_epic_cleanup_guide.md
+**Next Stage:** stages/stage_7/epic_cleanup.md
 ```
 
 ---
@@ -2037,8 +2037,8 @@ bugfix_high_architecture_inconsistency/
 
 **Only proceed to Stage 7 when ALL items are checked.**
 
-**Next stage:** STAGE_7_epic_cleanup_guide.md
-**Next action:** Read STAGE_7_epic_cleanup_guide.md to begin epic cleanup
+**Next stage:** stages/stage_7/epic_cleanup.md
+**Next action:** Read stages/stage_7/epic_cleanup.md to begin epic cleanup
 
 ---
 
@@ -2083,7 +2083,7 @@ bugfix_high_architecture_inconsistency/
 - Not documenting PR review results
 - Proceeding to Stage 7 with pending issues
 
-**Next Stage:** STAGE_7_epic_cleanup_guide.md - Final commits, merge to main, move epic to done/
+**Next Stage:** stages/stage_7/epic_cleanup.md - Final commits, merge to main, move epic to done/
 
 **Remember:** Stage 6c is the LAST CHANCE to catch epic-level issues before shipping. Thoroughness here prevents post-completion rework and ensures epic delivers on user's vision.
 

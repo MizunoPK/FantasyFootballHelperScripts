@@ -9,7 +9,7 @@
       "injury_status": "QUESTIONABLE",
       "drafted_by": "The Injury Report",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 18.2,
       "player_rating": 93.46700507614213,
       "projected_points": [
         23.63393238,
@@ -333,7 +333,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "Pidgin",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 20.1,
       "player_rating": 91.95939086294416,
       "projected_points": [
         21.2032095,
@@ -1629,7 +1629,7 @@
       "injury_status": "QUESTIONABLE",
       "drafted_by": "Saquon Deez",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 22.5,
       "player_rating": 61.80710659898477,
       "projected_points": [
         20.23119736,
@@ -1953,7 +1953,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "Chase-ing points",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 35.8,
       "player_rating": 86.93401015228427,
       "projected_points": [
         19.22092312,
@@ -2923,7 +2923,7 @@
       "position": "QB",
       "bye_week": 9,
       "injury_status": "QUESTIONABLE",
-      "drafted_by": "",
+      "drafted_by": "Sea Sharp",
       "locked": false,
       "average_draft_position": 170.0,
       "player_rating": 55.2741116751269,
@@ -5193,7 +5193,7 @@
       "injury_status": "INJURY_RESERVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 15.5,
       "player_rating": 63.31472081218274,
       "projected_points": [
         19.46651701,
@@ -6163,7 +6163,7 @@
       "position": "QB",
       "bye_week": 6,
       "injury_status": "ACTIVE",
-      "drafted_by": "Sea Sharp",
+      "drafted_by": "",
       "locked": false,
       "average_draft_position": 170.0,
       "player_rating": 2.00507614213198,

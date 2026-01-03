@@ -2,7 +2,7 @@
 
 **Purpose:** Examples and guidance for reading and applying lessons learned
 **When to use:** Step 4 of Stage 7 (Update Guides)
-**Main Guide:** `STAGE_7_epic_cleanup_guide.md`
+**Main Guide:** `stages/stage_7/epic_cleanup.md`
 
 ---
 
@@ -40,7 +40,7 @@ Stage 7 Step 4 requires finding ALL lessons learned files and applying them to g
 - Should have identified ADP data source earlier
 
 **Guide Improvements Needed:**
-- STAGE_1_epic_planning_guide.md: Add reminder to verify data sources during planning
+- stages/stage_1/epic_planning.md: Add reminder to verify data sources during planning
 - Section: "Step 3: Create Epic Folder Structure"
 - Update: Add step "Verify all external data sources are accessible"
 
@@ -59,7 +59,7 @@ Stage 7 Step 4 requires finding ALL lessons learned files and applying them to g
 - Could have created more edge case tests (only identified 8, needed 12)
 
 **Guide Improvements Needed:**
-- STAGE_2_feature_deep_dive_guide.md: Add example of CSV format verification
+- stages/stage_2/feature_deep_dive.md: Add example of CSV format verification
 - Section: "Phase 1: Targeted Research"
 - Update: Add step "Verify file format matches expectations (headers, encoding, delimiters)"
 
@@ -88,7 +88,7 @@ Stage 7 Step 4 requires finding ALL lessons learned files and applying them to g
 - Round 2 test coverage iterations could include integration test examples
 
 **Guide Improvements Needed:**
-- STAGE_5aa_round1_guide.md: Add example for nested algorithm traceability
+- stages/stage_5/round1_todo_creation.md: Add example for nested algorithm traceability
 - Section: "Iteration 4: Algorithm Traceability Matrix"
 - Update: Add example showing how to trace nested algorithms (algorithm calling other algorithms)
 
@@ -148,7 +148,7 @@ Stage 7 Step 4 requires finding ALL lessons learned files and applying them to g
 - Could have documented CSV format earlier
 
 **Guide Improvements Needed:**
-- STAGE_2_feature_deep_dive_guide.md: Add CSV format documentation step
+- stages/stage_2/feature_deep_dive.md: Add CSV format documentation step
 - Section: "Phase 1: Targeted Research"
 - Update: "When feature uses CSV data, document expected format (headers, types, encoding) in spec.md"
 
@@ -178,7 +178,7 @@ Stage 7 Step 4 requires finding ALL lessons learned files and applying them to g
 - Should have added integration test during implementation
 
 **Guide Improvements Needed:**
-- STAGE_5b_implementation_execution_guide.md: Add checkpoint for integration tests
+- stages/stage_5/implementation_execution.md: Add checkpoint for integration tests
 - Section: "Phase 3: Implementation Verification"
 - Update: "After unit tests pass, create at least 1 integration test for cross-module workflows"
 
@@ -230,7 +230,7 @@ Stage 7 Step 4 requires finding ALL lessons learned files and applying them to g
 - None - bug investigation was efficient
 
 **Guide Improvements Needed:**
-- STAGE_5_bug_fix_workflow_guide.md: Add example of integer division bugs
+- stages/stage_5/bugfix_workflow.md: Add example of integer division bugs
 - Section: "Stage 2: Root Cause Analysis"
 - Update: "Common bug patterns: integer division (use float division if fractional results needed)"
 
@@ -306,17 +306,17 @@ For EACH file found, read it completely and extract "Guide Improvements Needed" 
 
 **Lessons Found:**
 1. Stage 1 Lesson: Verify data sources during planning
-   - Guide: STAGE_1_epic_planning_guide.md
+   - Guide: stages/stage_1/epic_planning.md
    - Section: Step 3: Create Epic Folder Structure
    - Update: Add step to verify external data sources accessible
 
 2. Stage 2 Lesson: Add CSV format verification example
-   - Guide: STAGE_2_feature_deep_dive_guide.md
+   - Guide: stages/stage_2/feature_deep_dive.md
    - Section: Phase 1: Targeted Research
    - Update: Add step for CSV format verification
 
 3. Stage 5a Lesson: Add nested algorithm traceability example
-   - Guide: STAGE_5aa_round1_guide.md
+   - Guide: stages/stage_5/round1_todo_creation.md
    - Section: Iteration 4: Algorithm Traceability Matrix
    - Update: Show example of tracing nested algorithms
 
@@ -337,34 +337,34 @@ Combine ALL lessons from ALL files:
 
 **Source: epic_lessons_learned.md (3 lessons)**
 □ Lesson 1: Verify data sources in Stage 1
-  - Guide: STAGE_1_epic_planning_guide.md
+  - Guide: stages/stage_1/epic_planning.md
   - Section: Step 3
   - Update: Add data source verification step
 
 □ Lesson 2: CSV format verification in Stage 2
-  - Guide: STAGE_2_feature_deep_dive_guide.md
+  - Guide: stages/stage_2/feature_deep_dive.md
   - Section: Phase 1
   - Update: Add CSV format check step
 
 □ Lesson 3: Nested algorithm example in Stage 5a
-  - Guide: STAGE_5aa_round1_guide.md
+  - Guide: stages/stage_5/round1_todo_creation.md
   - Section: Iteration 4
   - Update: Add nested algorithm traceability example
 
 **Source: feature_01_adp_integration/lessons_learned.md (2 lessons)**
 □ Lesson 4: Document CSV format early
-  - Guide: STAGE_2_feature_deep_dive_guide.md
+  - Guide: stages/stage_2/feature_deep_dive.md
   - Section: Phase 1
   - Update: Add CSV documentation requirement
 
 □ Lesson 5: Integration test checkpoint
-  - Guide: STAGE_5b_implementation_execution_guide.md
+  - Guide: stages/stage_5/implementation_execution.md
   - Section: Phase 3
   - Update: Add integration test checkpoint
 
 **Source: bugfix_high_point_calculation/lessons_learned.md (1 lesson)**
 □ Lesson 6: Integer division bug pattern
-  - Guide: STAGE_5_bug_fix_workflow_guide.md
+  - Guide: stages/stage_5/bugfix_workflow.md
   - Section: Stage 2
   - Update: Add common bug pattern example
 ```
@@ -379,7 +379,7 @@ For each lesson in master checklist:
 
 1. **Read current guide:**
    ```bash
-   Read feature-updates/guides_v2/STAGE_5aa_round1_guide.md
+   Read feature-updates/guides_v2/stages/stage_5/round1_todo_creation.md
    ```
 
 2. **Locate section:**

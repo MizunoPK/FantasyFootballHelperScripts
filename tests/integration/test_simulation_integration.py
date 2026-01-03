@@ -75,7 +75,26 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
     for week_num in range(1, 18):
         week_folder = weeks_folder / f"week_{week_num:02d}"
         week_folder.mkdir(exist_ok=True)
-        (week_folder / "players.csv").write_text("id,name,team,position\n1,Test Player,KC,QB\n")
+
+        # Create 6 position JSON files (new JSON-based format)
+        # Each file contains a list of players with 17-element arrays for points
+        position_files = {
+            'qb_data.json': [{"id": 1, "name": "Test QB", "position": "QB", "team": "KC", "drafted_by": "", "locked": False,
+                              "projected_points": [20.0]*17, "actual_points": [18.0]*17}],
+            'rb_data.json': [{"id": 2, "name": "Test RB", "position": "RB", "team": "KC", "drafted_by": "", "locked": False,
+                              "projected_points": [15.0]*17, "actual_points": [14.0]*17}],
+            'wr_data.json': [{"id": 3, "name": "Test WR", "position": "WR", "team": "KC", "drafted_by": "", "locked": False,
+                              "projected_points": [12.0]*17, "actual_points": [11.0]*17}],
+            'te_data.json': [{"id": 4, "name": "Test TE", "position": "TE", "team": "KC", "drafted_by": "", "locked": False,
+                              "projected_points": [10.0]*17, "actual_points": [9.0]*17}],
+            'k_data.json': [{"id": 5, "name": "Test K", "position": "K", "team": "KC", "drafted_by": "", "locked": False,
+                             "projected_points": [8.0]*17, "actual_points": [7.0]*17}],
+            'dst_data.json': [{"id": 6, "name": "Test DST", "position": "DST", "team": "KC", "drafted_by": "", "locked": False,
+                               "projected_points": [10.0]*17, "actual_points": [9.0]*17}]
+        }
+
+        for filename, data in position_files.items():
+            (week_folder / filename).write_text(json.dumps(data, indent=2))
 
 
 @pytest.fixture

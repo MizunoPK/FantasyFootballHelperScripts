@@ -88,41 +88,162 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
     weeks_folder = season_folder / "weeks"
     weeks_folder.mkdir(exist_ok=True)
 
+    # Create player_data folder for JSON files
+    player_data_folder = season_folder / "player_data"
+    player_data_folder.mkdir(exist_ok=True)
+
+    # Helper to build 17-element arrays for projected/actual points
+    def build_points_array(base_points: float, current_week: int, is_projected: bool = False) -> list:
+        """Build 17-element array of points (actual or projected)"""
+        points = []
+        for w in range(1, 18):
+            if w <= current_week:
+                # Vary points slightly per week
+                week_points = base_points + (w * 0.5) - 5
+                if is_projected:
+                    week_points -= 1.0  # Projected slightly lower than actual
+                points.append(round(week_points, 1))
+            else:
+                points.append(None)
+        return points
+
+    # Create position-specific JSON files with test players
+    qb_data = [
+        {
+            "id": "1",
+            "name": "Patrick Mahomes",
+            "position": "QB",
+            "team": "KC",
+            "bye_week": 7,
+            "fantasy_points": 350.5,
+            "injury_status": "ACTIVE",
+            "average_draft_position": 1.2,
+            "player_rating": 95,
+            "locked": False,
+            "drafted_by": None,
+            "projected_points": build_points_array(25.0, 17, is_projected=True),
+            "actual_points": build_points_array(25.0, 17, is_projected=False)
+        }
+    ]
+
+    rb_data = [
+        {
+            "id": "3",
+            "name": "Christian McCaffrey",
+            "position": "RB",
+            "team": "SF",
+            "bye_week": 9,
+            "fantasy_points": 320.1,
+            "injury_status": "ACTIVE",
+            "average_draft_position": 1.1,
+            "player_rating": 94,
+            "locked": False,
+            "drafted_by": None,
+            "projected_points": build_points_array(22.0, 17, is_projected=True),
+            "actual_points": build_points_array(22.0, 17, is_projected=False)
+        }
+    ]
+
+    wr_data = [
+        {
+            "id": "2",
+            "name": "Justin Jefferson",
+            "position": "WR",
+            "team": "MIN",
+            "bye_week": 13,
+            "fantasy_points": 310.8,
+            "injury_status": "ACTIVE",
+            "average_draft_position": 2.1,
+            "player_rating": 92,
+            "locked": False,
+            "drafted_by": None,
+            "projected_points": build_points_array(18.0, 17, is_projected=True),
+            "actual_points": build_points_array(18.0, 17, is_projected=False)
+        }
+    ]
+
+    te_data = [
+        {
+            "id": "4",
+            "name": "Travis Kelce",
+            "position": "TE",
+            "team": "KC",
+            "bye_week": 7,
+            "fantasy_points": 220.4,
+            "injury_status": "ACTIVE",
+            "average_draft_position": 4.5,
+            "player_rating": 88,
+            "locked": False,
+            "drafted_by": None,
+            "projected_points": build_points_array(12.0, 17, is_projected=True),
+            "actual_points": build_points_array(12.0, 17, is_projected=False)
+        }
+    ]
+
+    k_data = []
+    dst_data = []
+
+    # Write position JSON files
+    with open(player_data_folder / "qb_data.json", 'w') as f:
+        json.dump(qb_data, f, indent=2)
+    with open(player_data_folder / "rb_data.json", 'w') as f:
+        json.dump(rb_data, f, indent=2)
+    with open(player_data_folder / "wr_data.json", 'w') as f:
+        json.dump(wr_data, f, indent=2)
+    with open(player_data_folder / "te_data.json", 'w') as f:
+        json.dump(te_data, f, indent=2)
+    with open(player_data_folder / "k_data.json", 'w') as f:
+        json.dump(k_data, f, indent=2)
+    with open(player_data_folder / "dst_data.json", 'w') as f:
+        json.dump(dst_data, f, indent=2)
+
     for week_num in range(1, 18):
         week_folder = weeks_folder / f"week_{week_num:02d}"
         week_folder.mkdir(exist_ok=True)
 
-        # Create players.csv with actual points (week_N_points columns)
-        week_points_columns = ",".join([f"week_{w}_points" for w in range(1, 18)])
-
-        # Build week points values - actual points for past weeks, None for future
-        def build_week_points(player_base_points: float) -> str:
-            values = []
+        # Helper to build week-specific points arrays
+        def build_week_points(base_points: float, is_projected: bool = False) -> list:
+            points = []
             for w in range(1, 18):
                 if w <= week_num:
-                    # Vary points slightly per week
-                    points = player_base_points + (w * 0.5) - 5
-                    values.append(str(round(points, 1)))
+                    week_points = base_points + (w * 0.5) - 5
+                    if is_projected:
+                        week_points -= 1.0
+                    points.append(round(week_points, 1))
                 else:
-                    values.append("")
-            return ",".join(values)
+                    points.append(None)
+            return points
 
-        players_content = f"id,name,position,team,bye_week,fantasy_points,injury_status,average_draft_position,player_rating,{week_points_columns}\n"
-        players_content += f"1,Patrick Mahomes,QB,KC,7,350.5,ACTIVE,1.2,95,{build_week_points(25.0)}\n"
-        players_content += f"2,Justin Jefferson,WR,MIN,13,310.8,ACTIVE,2.1,92,{build_week_points(18.0)}\n"
-        players_content += f"3,Christian McCaffrey,RB,SF,9,320.1,ACTIVE,1.1,94,{build_week_points(22.0)}\n"
-        players_content += f"4,Travis Kelce,TE,KC,7,220.4,ACTIVE,4.5,88,{build_week_points(12.0)}\n"
+        # Create week-specific JSON files (6 position files per week)
+        qb_week = [{"id": "1", "name": "Patrick Mahomes", "position": "QB", "team": "KC", "bye_week": 7,
+                     "fantasy_points": 350.5, "injury_status": "ACTIVE", "average_draft_position": 1.2,
+                     "player_rating": 95, "locked": False, "drafted_by": None,
+                     "projected_points": build_week_points(25.0, True), "actual_points": build_week_points(25.0, False)}]
+        rb_week = [{"id": "3", "name": "Christian McCaffrey", "position": "RB", "team": "SF", "bye_week": 9,
+                     "fantasy_points": 320.1, "injury_status": "ACTIVE", "average_draft_position": 1.1,
+                     "player_rating": 94, "locked": False, "drafted_by": None,
+                     "projected_points": build_week_points(22.0, True), "actual_points": build_week_points(22.0, False)}]
+        wr_week = [{"id": "2", "name": "Justin Jefferson", "position": "WR", "team": "MIN", "bye_week": 13,
+                     "fantasy_points": 310.8, "injury_status": "ACTIVE", "average_draft_position": 2.1,
+                     "player_rating": 92, "locked": False, "drafted_by": None,
+                     "projected_points": build_week_points(18.0, True), "actual_points": build_week_points(18.0, False)}]
+        te_week = [{"id": "4", "name": "Travis Kelce", "position": "TE", "team": "KC", "bye_week": 7,
+                     "fantasy_points": 220.4, "injury_status": "ACTIVE", "average_draft_position": 4.5,
+                     "player_rating": 88, "locked": False, "drafted_by": None,
+                     "projected_points": build_week_points(12.0, True), "actual_points": build_week_points(12.0, False)}]
 
-        (week_folder / "players.csv").write_text(players_content)
-
-        # Create players_projected.csv with projections
-        projected_content = f"id,name,position,team,bye_week,fantasy_points,injury_status,average_draft_position,player_rating,{week_points_columns}\n"
-        projected_content += f"1,Patrick Mahomes,QB,KC,7,350.5,ACTIVE,1.2,95,{build_week_points(24.0)}\n"
-        projected_content += f"2,Justin Jefferson,WR,MIN,13,310.8,ACTIVE,2.1,92,{build_week_points(17.0)}\n"
-        projected_content += f"3,Christian McCaffrey,RB,SF,9,320.1,ACTIVE,1.1,94,{build_week_points(21.0)}\n"
-        projected_content += f"4,Travis Kelce,TE,KC,7,220.4,ACTIVE,4.5,88,{build_week_points(11.0)}\n"
-
-        (week_folder / "players_projected.csv").write_text(projected_content)
+        with open(week_folder / "qb_data.json", 'w') as f:
+            json.dump(qb_week, f, indent=2)
+        with open(week_folder / "rb_data.json", 'w') as f:
+            json.dump(rb_week, f, indent=2)
+        with open(week_folder / "wr_data.json", 'w') as f:
+            json.dump(wr_week, f, indent=2)
+        with open(week_folder / "te_data.json", 'w') as f:
+            json.dump(te_week, f, indent=2)
+        with open(week_folder / "k_data.json", 'w') as f:
+            json.dump([], f, indent=2)
+        with open(week_folder / "dst_data.json", 'w') as f:
+            json.dump([], f, indent=2)
 
 
 @pytest.fixture

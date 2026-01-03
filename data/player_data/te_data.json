@@ -307,7 +307,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "The Injury Report",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 25.3,
       "player_rating": 76.6180904522613,
       "projected_points": [
         14.14390978,
@@ -1499,7 +1499,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "Pidgin",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 35.6,
       "player_rating": 40.301507537688444,
       "projected_points": [
         13.12757402,
@@ -1648,7 +1648,7 @@
       "injury_status": "QUESTIONABLE",
       "drafted_by": "Saquon Deez",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 48.7,
       "player_rating": 34.33165829145729,
       "projected_points": [
         11.54405929,
@@ -1797,7 +1797,7 @@
       "injury_status": "QUESTIONABLE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 42.1,
       "player_rating": 40.798994974874375,
       "projected_points": [
         0.0,
@@ -2840,7 +2840,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 55.2,
       "player_rating": 14.432160804020102,
       "projected_points": [
         12.00744528,
@@ -15952,7 +15952,7 @@
       "injury_status": "INJURY_RESERVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 25.3,
       "player_rating": 15.0,
       "projected_points": [
         0.0,

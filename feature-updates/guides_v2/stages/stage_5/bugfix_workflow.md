@@ -16,7 +16,7 @@
 
 2. **Update README Agent Status** with:
    - Current Phase: BUG_FIX_CREATION
-   - Current Guide: STAGE_5_bug_fix_workflow_guide.md
+   - Current Guide: stages/stage_5/bugfix_workflow.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "Get user approval first", "Create notes.txt", "Update epic docs"
    - Next Action: Create bugfix_{priority}_{name} folder
@@ -350,7 +350,7 @@ DONE (return to previous work)
 
 ### Stage 2: Deep Dive (Adapted for Bug Fixes)
 
-**Read:** STAGE_2_feature_deep_dive_guide.md
+**Read:** stages/stage_2/feature_deep_dive.md
 
 **Adapt for bug fix:**
 1. **Create spec.md** (bug fix requirements)
@@ -414,10 +414,10 @@ Integration test:
 ### Stage 5a: TODO Creation
 
 **Read guides in order:**
-1. STAGE_5aa_round1_guide.md - Round 1 (iterations 1-7 + 4a)
-2. STAGE_5ab_round2_guide.md - Round 2 (iterations 8-16)
-3. STAGE_5ac_part1_preparation_guide.md - Round 3 Part 1 (iterations 17-22)
-4. STAGE_5ac_part2_final_gates_guide.md - Round 3 Part 2 (iterations 23, 23a, 25, 24)
+1. stages/stage_5/round1_todo_creation.md - Round 1 (iterations 1-7 + 4a)
+2. stages/stage_5/round2_todo_creation.md - Round 2 (iterations 8-16)
+3. stages/stage_5/round3_part1_preparation.md - Round 3 Part 1 (iterations 17-22)
+4. stages/stage_5/round3_part2_final_gates.md - Round 3 Part 2 (iterations 23, 23a, 25, 24)
 
 **Same rigor as features:**
 - Complete ALL 24 verification iterations
@@ -453,7 +453,7 @@ Integration test:
 
 ### Stage 5b: Implementation
 
-**Read:** STAGE_5b_implementation_execution_guide.md
+**Read:** stages/stage_5/implementation_execution.md
 
 **Same process as features:**
 - Interface Verification Protocol
@@ -467,9 +467,9 @@ Integration test:
 ### Stage 5c: Post-Implementation
 
 **Read guides in order:**
-1. STAGE_5ca_smoke_testing_guide.md - Smoke Testing (3 parts - MANDATORY GATE)
-2. STAGE_5cb_qc_rounds_guide.md - QC Round 1, 2, 3 (with restart protocol)
-3. STAGE_5cc_final_review_guide.md - PR Review (11 categories) + lessons learned
+1. stages/stage_5/smoke_testing.md - Smoke Testing (3 parts - MANDATORY GATE)
+2. stages/stage_5/qc_rounds.md - QC Round 1, 2, 3 (with restart protocol)
+3. stages/stage_5/final_review.md - PR Review (11 categories) + lessons learned
 
 **Same validation as features:**
 - Smoke Testing (3 parts)
@@ -566,7 +566,7 @@ When bug fix complete:
 
 ```markdown
 **Current Phase:** POST_IMPLEMENTATION_QC_ROUNDS (Resumed)
-**Current Guide:** STAGE_5cb_qc_rounds_guide.md
+**Current Guide:** stages/stage_5/qc_rounds.md
 **Guide Last Read:** 2025-12-30 19:15
 **Resumed After:** bugfix_high_authentication_error completion
 **Next Action:** Re-run QC Round 2 to verify bug fix compatibility
@@ -715,4 +715,4 @@ Action:
 
 ---
 
-*End of STAGE_5_bug_fix_workflow_guide.md*
+*End of stages/stage_5/bugfix_workflow.md*

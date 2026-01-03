@@ -22,7 +22,7 @@ Stage 5ca (Smoke Testing) →
 
 2. **Update README Agent Status** with:
    - Current Phase: POST_IMPLEMENTATION (QC Rounds)
-   - Current Guide: STAGE_5cb_qc_rounds_guide.md
+   - Current Guide: stages/stage_5/qc_rounds.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "3 rounds MANDATORY", "QC restart if ANY issues", "Round 3 = zero issues or restart"
    - Next Action: QC Round 1 - Basic Validation
@@ -1553,7 +1553,7 @@ Continue to next round (don't re-test)
 
 **After completing QC Rounds:**
 
-📖 **READ:** `STAGE_5cc_final_review_guide.md`
+📖 **READ:** `stages/stage_5/final_review.md`
 🎯 **GOAL:** Production readiness through PR review, lessons learned, final verification
 ⏱️ **ESTIMATE:** 45-60 minutes
 
@@ -1567,4 +1567,4 @@ Continue to next round (don't re-test)
 
 ---
 
-*End of STAGE_5cb_qc_rounds_guide.md*
+*End of stages/stage_5/qc_rounds.md*

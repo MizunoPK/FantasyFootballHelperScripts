@@ -934,13 +934,13 @@ python run_league_helper.py --mode draft
 
 **After completing Stage 5b:**
 
-📖 **READ:** `STAGE_5ca_smoke_testing_guide.md`
+📖 **READ:** `stages/stage_5/smoke_testing.md`
 🎯 **GOAL:** Validate implementation through smoke testing (3 parts - MANDATORY GATE)
 ⏱️ **ESTIMATE:** 30-45 minutes
 
 **Then continue with:**
-- `STAGE_5cb_qc_rounds_guide.md` - 3 QC rounds with restart protocol
-- `STAGE_5cc_final_review_guide.md` - PR review and lessons learned
+- `stages/stage_5/qc_rounds.md` - 3 QC rounds with restart protocol
+- `stages/stage_5/final_review.md` - PR review and lessons learned
 
 **Stage 5c will:**
 - Execute 3-part smoke testing protocol (MANDATORY)
@@ -953,4 +953,4 @@ python run_league_helper.py --mode draft
 
 ---
 
-*End of STAGE_5b_implementation_execution_guide.md*
+*End of stages/stage_5/implementation_execution.md*

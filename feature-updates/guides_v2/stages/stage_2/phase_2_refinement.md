@@ -122,7 +122,7 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
   - Research completeness audit passed (Phase 1.5)
 
 □ **Agent Status updated:**
-  - Last guide: STAGE_2b_specification_phase_guide.md
+  - Last guide: stages/stage_2/phase_1_specification.md
   - Current phase: Ready to start Phase 3 (Interactive Question Resolution)
 
 **If any prerequisite fails:**
@@ -247,7 +247,7 @@ C. **Name normalization then exact match**
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** DEEP_DIVE
 **Current Step:** Phase 3 - Waiting for answer to Question {N}
-**Current Guide:** STAGE_2c_refinement_phase_guide.md
+**Current Guide:** stages/stage_2/phase_2_refinement.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - ONE question at a time
@@ -1491,7 +1491,7 @@ Find Feature Tracking table and mark Stage 2 complete:
 **If ALL features complete Stage 2:**
 - Transition to Stage 3 (Cross-Feature Sanity Check)
 
-📖 **READ:** `STAGE_3_cross_feature_sanity_check_guide.md`
+📖 **READ:** `stages/stage_3/cross_feature_sanity_check.md`
 🎯 **GOAL:** Systematic comparison of all feature specs, final epic-level validation
 ⏱️ **ESTIMATE:** 30-60 minutes (for entire epic)
 
@@ -1506,4 +1506,4 @@ Find Feature Tracking table and mark Stage 2 complete:
 
 ---
 
-*End of STAGE_2c_refinement_phase_guide.md*
+*End of stages/stage_2/phase_2_refinement.md*

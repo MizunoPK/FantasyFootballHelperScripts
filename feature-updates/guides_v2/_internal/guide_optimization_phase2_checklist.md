@@ -28,13 +28,13 @@
 
 ### Priority 1.1: Create STAGE_2a - Research Phase (90 minutes)
 
-**New File:** `STAGE_2a_research_phase_guide.md`
+**New File:** `stages/stage_2/phase_0_research.md`
 **Content:** Phases 0, 1, and 1.5 (Epic Intent → Research → Audit)
 **Estimated Length:** ~800 lines
 **Time Estimate:** 45-60 minutes to complete phase
 
 - [ ] **Step 1.1:** Read STAGE_2 lines 1-1200 to understand Research Phase content
-- [ ] **Step 1.2:** Create new file `STAGE_2a_research_phase_guide.md`
+- [ ] **Step 1.2:** Create new file `stages/stage_2/phase_0_research.md`
 - [ ] **Step 1.3:** Add standard guide header (Mandatory Reading Protocol, Quick Start)
 - [ ] **Step 1.4:** Extract and adapt Phase 0 (Epic Intent Extraction)
   - Include all Step 0.1 through 0.5 content
@@ -72,13 +72,13 @@
 
 ### Priority 1.2: Create STAGE_2b - Specification Phase (90 minutes)
 
-**New File:** `STAGE_2b_specification_phase_guide.md`
+**New File:** `stages/stage_2/phase_1_specification.md`
 **Content:** Phases 2 and 2.5 (Update Spec → Alignment Check)
 **Estimated Length:** ~700 lines
 **Time Estimate:** 30-45 minutes to complete phase
 
 - [ ] **Step 2.1:** Read STAGE_2 lines 1200-1900 to understand Specification Phase
-- [ ] **Step 2.2:** Create new file `STAGE_2b_specification_phase_guide.md`
+- [ ] **Step 2.2:** Create new file `stages/stage_2/phase_1_specification.md`
 - [ ] **Step 2.3:** Add standard guide header
 - [ ] **Step 2.4:** Add Prerequisites section
   - STAGE_2a complete (Phase 1.5 audit PASSED)
@@ -119,13 +119,13 @@
 
 ### Priority 1.3: Create STAGE_2c - Refinement Phase (90 minutes)
 
-**New File:** `STAGE_2c_refinement_phase_guide.md`
+**New File:** `stages/stage_2/phase_2_refinement.md`
 **Content:** Phases 3, 4, 5, and 6 (Questions → Scope → Alignment → Approval)
 **Estimated Length:** ~800 lines
 **Time Estimate:** 45-60 minutes to complete phase
 
 - [ ] **Step 3.1:** Read STAGE_2 lines 1900-2348 to understand Refinement Phase
-- [ ] **Step 3.2:** Create new file `STAGE_2c_refinement_phase_guide.md`
+- [ ] **Step 3.2:** Create new file `stages/stage_2/phase_2_refinement.md`
 - [ ] **Step 3.3:** Add standard guide header
 - [ ] **Step 3.4:** Add Prerequisites section
   - STAGE_2b complete (Phase 2.5 alignment check PASSED)
@@ -169,12 +169,12 @@
 
 ### Priority 1.4: Update STAGE_2 as Router/Deprecated (30 minutes)
 
-**File:** `STAGE_2_feature_deep_dive_guide.md`
+**File:** `stages/stage_2/feature_deep_dive.md`
 **Action:** Convert to router guide pointing to 2a/2b/2c
 
 - [ ] **Step 4.1:** Read current STAGE_2 guide
 - [ ] **Step 4.2:** Rename current file to `STAGE_2_feature_deep_dive_guide_ORIGINAL_BACKUP.md`
-- [ ] **Step 4.3:** Create new slim `STAGE_2_feature_deep_dive_guide.md` as router
+- [ ] **Step 4.3:** Create new slim `stages/stage_2/feature_deep_dive.md` as router
 - [ ] **Step 4.4:** Add deprecation notice at top
 - [ ] **Step 4.5:** Add overview of 3-phase split
 - [ ] **Step 4.6:** Add navigation table to sub-stages
@@ -215,13 +215,13 @@
 - Phase 1: Targeted Research
 - Phase 1.5: Research Completeness Audit (MANDATORY GATE)
 - **Exit:** Audit PASSED → Proceed to STAGE_2b
-- **Guide:** STAGE_2a_research_phase_guide.md
+- **Guide:** stages/stage_2/phase_0_research.md
 
 **STAGE_2b: Specification Phase (30-45 minutes)**
 - Phase 2: Update Spec & Checklist
 - Phase 2.5: Spec-to-Epic Alignment Check (MANDATORY GATE)
 - **Exit:** Alignment check PASSED → Proceed to STAGE_2c
-- **Guide:** STAGE_2b_specification_phase_guide.md
+- **Guide:** stages/stage_2/phase_1_specification.md
 
 **STAGE_2c: Refinement Phase (45-60 minutes)**
 - Phase 3: Interactive Question Resolution
@@ -229,7 +229,7 @@
 - Phase 5: Cross-Feature Alignment
 - Phase 6: Acceptance Criteria & User Approval (MANDATORY)
 - **Exit:** User approval obtained → Proceed to next feature or STAGE_3
-- **Guide:** STAGE_2c_refinement_phase_guide.md
+- **Guide:** stages/stage_2/phase_2_refinement.md
 
 **Total Time:** 2-3 hours per feature (unchanged from original)
 
@@ -238,7 +238,7 @@
 ## How to Navigate
 
 **Starting Stage 2:**
-→ Use STAGE_2a_research_phase_guide.md
+→ Use stages/stage_2/phase_0_research.md
 
 **Resuming mid-Stage 2:**
 - If on Phases 0-1.5 → Use STAGE_2a
@@ -269,8 +269,8 @@
 ### Priority 1.5: Update References to STAGE_2 in Other Guides (30 minutes)
 
 **Files to Update:**
-- `STAGE_1_epic_planning_guide.md`
-- `STAGE_3_cross_feature_sanity_check_guide.md`
+- `stages/stage_1/epic_planning.md`
+- `stages/stage_3/cross_feature_sanity_check.md`
 - `prompts_reference_v2.md`
 - `README.md`
 - `EPIC_WORKFLOW_USAGE.md`
@@ -306,13 +306,13 @@
 
 ### Priority 2.1: Create STAGE_6a - Epic Smoke Testing (60 minutes)
 
-**New File:** `STAGE_6a_epic_smoke_testing_guide.md`
+**New File:** `stages/stage_6/epic_smoke_testing.md`
 **Content:** Epic-level smoke testing using evolved epic_smoke_test_plan.md
 **Estimated Length:** ~500 lines
 **Time Estimate:** 20-30 minutes to complete
 
 - [ ] **Step 1.1:** Read STAGE_6 Steps 1-2 to understand Epic Smoke Testing
-- [ ] **Step 1.2:** Create new file `STAGE_6a_epic_smoke_testing_guide.md`
+- [ ] **Step 1.2:** Create new file `stages/stage_6/epic_smoke_testing.md`
 - [ ] **Step 1.3:** Add standard guide header
 - [ ] **Step 1.4:** Extract Step 1: Pre-QC Verification
 - [ ] **Step 1.5:** Extract Step 2: Epic Smoke Testing
@@ -342,13 +342,13 @@
 
 ### Priority 2.2: Create STAGE_6b - Epic QC Rounds (90 minutes)
 
-**New File:** `STAGE_6b_epic_qc_rounds_guide.md`
+**New File:** `stages/stage_6/epic_qc_rounds.md`
 **Content:** 3 QC rounds for epic-wide validation
 **Estimated Length:** ~700 lines
 **Time Estimate:** 30-60 minutes to complete
 
 - [ ] **Step 2.1:** Read STAGE_6 Steps 3-5 to understand Epic QC Rounds
-- [ ] **Step 2.2:** Create new file `STAGE_6b_epic_qc_rounds_guide.md`
+- [ ] **Step 2.2:** Create new file `stages/stage_6/epic_qc_rounds.md`
 - [ ] **Step 2.3:** Add standard guide header
 - [ ] **Step 2.4:** Add Prerequisites section (STAGE_6a complete)
 - [ ] **Step 2.5:** Extract Step 3: QC Round 1 - Cross-Feature Integration
@@ -376,13 +376,13 @@
 
 ### Priority 2.3: Create STAGE_6c - Epic Final Review (60 minutes)
 
-**New File:** `STAGE_6c_epic_final_review_guide.md`
+**New File:** `stages/stage_6/epic_final_review.md`
 **Content:** Epic PR review, validation against original request, lessons learned
 **Estimated Length:** ~400 lines
 **Time Estimate:** 20-30 minutes to complete
 
 - [ ] **Step 3.1:** Read STAGE_6 Steps 6-7 to understand Epic Final Review
-- [ ] **Step 3.2:** Create new file `STAGE_6c_epic_final_review_guide.md`
+- [ ] **Step 3.2:** Create new file `stages/stage_6/epic_final_review.md`
 - [ ] **Step 3.3:** Add standard guide header
 - [ ] **Step 3.4:** Add Prerequisites section (STAGE_6b complete)
 - [ ] **Step 3.5:** Extract Step 6: Epic PR Review (11 categories)
@@ -408,11 +408,11 @@
 
 ### Priority 2.4: Update STAGE_6 as Router/Deprecated (30 minutes)
 
-**File:** `STAGE_6_epic_final_qc_guide.md`
+**File:** `stages/stage_6/epic_final_qc.md`
 **Action:** Convert to router guide pointing to 6a/6b/6c
 
 - [ ] **Step 4.1:** Rename current file to `STAGE_6_epic_final_qc_guide_ORIGINAL_BACKUP.md`
-- [ ] **Step 4.2:** Create new slim `STAGE_6_epic_final_qc_guide.md` as router
+- [ ] **Step 4.2:** Create new slim `stages/stage_6/epic_final_qc.md` as router
 - [ ] **Step 4.3:** Add deprecation notice
 - [ ] **Step 4.4:** Add overview of 3-phase split (mirrors Stage 5c)
 - [ ] **Step 4.5:** Add navigation table to sub-stages
@@ -430,8 +430,8 @@
 ### Priority 2.5: Update References to STAGE_6 (30 minutes)
 
 **Files to Update:**
-- `STAGE_5e_post_feature_testing_update_guide.md`
-- `STAGE_7_epic_cleanup_guide.md`
+- `stages/stage_5/post_feature_testing_update.md`
+- `stages/stage_7/epic_cleanup.md`
 - `prompts_reference_v2.md`
 - `README.md`
 
@@ -460,12 +460,12 @@
 
 ### Priority 3.1: Create STAGE_5ac_part1 - Pre-Implementation Preparation (60 minutes)
 
-**New File:** `STAGE_5ac_part1_preparation_guide.md`
+**New File:** `stages/stage_5/round3_part1_preparation.md`
 **Content:** Iterations 17-22 (preparation iterations)
 **Estimated Length:** ~900 lines
 
 - [ ] **Step 1.1:** Read STAGE_5ac iterations 17-22
-- [ ] **Step 1.2:** Create new file `STAGE_5ac_part1_preparation_guide.md`
+- [ ] **Step 1.2:** Create new file `stages/stage_5/round3_part1_preparation.md`
 - [ ] **Step 1.3:** Add standard guide header
 - [ ] **Step 1.4:** Extract Iterations 17-22
   - Iteration 17: Implementation Phasing
@@ -489,12 +489,12 @@
 
 ### Priority 3.2: Create STAGE_5ac_part2 - Final Gates & GO/NO-GO (60 minutes)
 
-**New File:** `STAGE_5ac_part2_final_gates_guide.md`
+**New File:** `stages/stage_5/round3_part2_final_gates.md`
 **Content:** Iterations 23, 23a, 25, 24 (final validation and decision)
 **Estimated Length:** ~1,000 lines
 
 - [ ] **Step 2.1:** Read STAGE_5ac iterations 23-25 + 23a + 24
-- [ ] **Step 2.2:** Create new file `STAGE_5ac_part2_final_gates_guide.md`
+- [ ] **Step 2.2:** Create new file `stages/stage_5/round3_part2_final_gates.md`
 - [ ] **Step 2.3:** Add standard guide header
 - [ ] **Step 2.4:** Add Prerequisites section (Part 1 complete)
 - [ ] **Step 2.5:** Extract critical iterations
@@ -518,11 +518,11 @@
 
 ### Priority 3.3: Update STAGE_5ac as Router (30 minutes)
 
-**File:** `STAGE_5ac_round3_guide.md`
+**File:** `stages/stage_5/round3_todo_creation.md`
 **Action:** Convert to router pointing to part1/part2
 
 - [ ] **Step 3.1:** Rename current file to `STAGE_5ac_round3_guide_ORIGINAL_BACKUP.md`
-- [ ] **Step 3.2:** Create new slim `STAGE_5ac_round3_guide.md` as router
+- [ ] **Step 3.2:** Create new slim `stages/stage_5/round3_todo_creation.md` as router
 - [ ] **Step 3.3:** Add deprecation notice
 - [ ] **Step 3.4:** Add navigation to both parts
 - [ ] **Step 3.5:** Update references in other guides
@@ -686,19 +686,19 @@ No mandatory gates (user confirmation recommended)
 
 ## Stage 2: Feature Deep Dive
 **Gate 1: Phase 1.5 - Research Completeness Audit**
-- Location: STAGE_2a_research_phase_guide.md
+- Location: stages/stage_2/phase_0_research.md
 - Criteria: All 4 categories PASSED (Component, Pattern, Data, Epic)
 - Evidence: File paths, line numbers, code snippets
 - If FAIL: Return to Phase 1, research gaps, re-run audit
 
 **Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check**
-- Location: STAGE_2b_specification_phase_guide.md
+- Location: stages/stage_2/phase_1_specification.md
 - Criteria: Zero scope creep, zero missing requirements
 - Evidence: All requirements trace to epic
 - If FAIL: Remove scope creep or add missing requirements, re-run check
 
 **Gate 3: Phase 6 - User Approval**
-- Location: STAGE_2c_refinement_phase_guide.md
+- Location: stages/stage_2/phase_2_refinement.md
 - Criteria: User explicitly approves acceptance criteria
 - Evidence: User confirmation documented
 - If FAIL: Revise acceptance criteria, get approval
@@ -710,44 +710,44 @@ No mandatory gates (user confirmation recommended)
 
 ## Stage 5a: TODO Creation
 **Gate 1: Iteration 4a - TODO Specification Audit**
-- Location: STAGE_5aa_round1_guide.md
+- Location: stages/stage_5/round1_todo_creation.md
 - Criteria: All TODO tasks have acceptance criteria
 - If FAIL: Fix tasks, re-run Iteration 4a
 
 **Gate 2: Iteration 23a - Pre-Implementation Spec Audit (4 PARTS)**
-- Location: STAGE_5ac_part2_final_gates_guide.md
+- Location: stages/stage_5/round3_part2_final_gates.md
 - Criteria: ALL 4 PARTS must PASS
 - If FAIL: Fix failing part, re-run Iteration 23a
 
 **Gate 3: Iteration 25 - Spec Validation Against Validated Documents**
-- Location: STAGE_5ac_part2_final_gates_guide.md
+- Location: stages/stage_5/round3_part2_final_gates.md
 - Criteria: Spec matches epic + ticket + spec summary
 - If FAIL: Report to user, user decides next action
 
 **Gate 4: Iteration 24 - Implementation Readiness (GO/NO-GO)**
-- Location: STAGE_5ac_part2_final_gates_guide.md
+- Location: stages/stage_5/round3_part2_final_gates.md
 - Criteria: GO decision required
 - If NO-GO: Address concerns, re-evaluate
 
 ## Stage 5c: Post-Implementation
 **Gate 1: Smoke Testing Part 3 - Data Validation**
-- Location: STAGE_5ca_smoke_testing_guide.md
+- Location: stages/stage_5/smoke_testing.md
 - Criteria: ALL 3 parts pass, data values verified
 - If FAIL: Fix issues, restart from Part 1
 
 **Gate 2: QC Round 3 - Zero Issues**
-- Location: STAGE_5cb_qc_rounds_guide.md
+- Location: stages/stage_5/qc_rounds.md
 - Criteria: ZERO issues found in Round 3
 - If FAIL: Fix issues, restart from smoke testing
 
 ## Stage 7: Epic Cleanup
 **Gate 1: Unit Tests (100% pass)**
-- Location: STAGE_7_epic_cleanup_guide.md
+- Location: stages/stage_7/epic_cleanup.md
 - Criteria: python tests/run_all_tests.py exits with 0
 - If FAIL: Fix tests, re-run
 
 **Gate 2: User Testing (ZERO bugs)**
-- Location: STAGE_7_epic_cleanup_guide.md
+- Location: stages/stage_7/epic_cleanup.md
 - Criteria: User finds zero bugs
 - If FAIL: Create bug fix, restart Stage 6
 
@@ -1047,24 +1047,24 @@ Create bugfix_{priority}_{name}/
 ## "I need to..."
 
 **"I need to start a new epic"**
-→ Use: STAGE_1_epic_planning_guide.md
+→ Use: stages/stage_1/epic_planning.md
 - Create git branch
 - Create epic ticket
 - Set up folder structure
 
 **"I need to understand a feature's requirements"**
-→ Use: STAGE_2a_research_phase_guide.md
+→ Use: stages/stage_2/phase_0_research.md
 - Extract epic intent
 - Research codebase
 - Pass research audit
 
 **"I need to create a spec for a feature"**
-→ Use: STAGE_2b_specification_phase_guide.md
+→ Use: stages/stage_2/phase_1_specification.md
 - Document requirements with traceability
 - Verify alignment with epic
 
 **"I need to resolve user questions"**
-→ Use: STAGE_2c_refinement_phase_guide.md
+→ Use: stages/stage_2/phase_2_refinement.md
 - ONE question at a time
 - Update spec after each answer
 
@@ -1075,7 +1075,7 @@ Create bugfix_{priority}_{name}/
 - Round 3: Final gates
 
 **"I need to implement a feature"**
-→ Use: STAGE_5b_implementation_execution_guide.md
+→ Use: stages/stage_5/implementation_execution.md
 - Keep spec.md visible
 - Run tests after every phase
 
@@ -1086,11 +1086,11 @@ Create bugfix_{priority}_{name}/
 - 5cc: Final review
 
 **"I need to update remaining feature specs"**
-→ Use: STAGE_5d_post_feature_alignment_guide.md
+→ Use: stages/stage_5/post_feature_alignment.md
 - Align specs with actual implementation
 
 **"I need to update the test plan"**
-→ Use: STAGE_5e_post_feature_testing_update_guide.md
+→ Use: stages/stage_5/post_feature_testing_update.md
 - Add discovered integration points
 
 **"I need to validate the entire epic"**
@@ -1100,7 +1100,7 @@ Create bugfix_{priority}_{name}/
 - 6c: Epic final review
 
 **"I need to commit and finish the epic"**
-→ Use: STAGE_7_epic_cleanup_guide.md
+→ Use: stages/stage_7/epic_cleanup.md
 - Run tests (100% pass)
 - User testing (ZERO bugs)
 - Commit and move to done/
@@ -1110,7 +1110,7 @@ Create bugfix_{priority}_{name}/
 ## "I found a bug..."
 
 **"I found a bug during implementation (Stage 5b)"**
-→ Use: STAGE_5_bug_fix_workflow_guide.md
+→ Use: stages/stage_5/bugfix_workflow.md
 - Get user approval first
 - Create bugfix_{priority}_{name}/ folder
 - Follow Stage 2 → 5a → 5b → 5c
@@ -1128,7 +1128,7 @@ Create bugfix_{priority}_{name}/
 - Then re-run all 3 QC rounds
 
 **"I found a bug during user testing (Stage 7)"**
-→ Use: STAGE_5_bug_fix_workflow_guide.md
+→ Use: stages/stage_5/bugfix_workflow.md
 - Create bug fix
 - After bug fix complete, restart STAGE_6a
 
@@ -1138,9 +1138,9 @@ Create bugfix_{priority}_{name}/
 
 **"I'm confused about which guide to use for Stage 2"**
 → Check your current phase:
-- Phases 0-1.5 → STAGE_2a_research_phase_guide.md
-- Phases 2-2.5 → STAGE_2b_specification_phase_guide.md
-- Phases 3-6 → STAGE_2c_refinement_phase_guide.md
+- Phases 0-1.5 → stages/stage_2/phase_0_research.md
+- Phases 2-2.5 → stages/stage_2/phase_1_specification.md
+- Phases 3-6 → stages/stage_2/phase_2_refinement.md
 
 **"I'm confused about which Stage 5 guide to use"**
 → Check your current step:
@@ -1162,13 +1162,13 @@ Create bugfix_{priority}_{name}/
 ## "Error type: ..."
 
 **"Error: Spec doesn't match epic intent"**
-→ Use: STAGE_2.5_spec_validation_guide.md (optional)
+→ Use: reference/spec_validation.md (optional)
 - Assume spec is wrong
 - Re-read epic with fresh eyes
 - Validate against actual code and data
 
 **"Error: Data assumptions are wrong"**
-→ Use: STAGE_5a.5_hands_on_data_inspection_guide.md
+→ Use: reference/hands_on_data_inspection.md
 - Open Python REPL
 - Inspect actual data files
 - Verify assumptions against reality
@@ -1247,17 +1247,17 @@ Create bugfix_{priority}_{name}/
 - [ ] **Step 1.6:** Document any broken links found and fix
 
 **Files to Test:**
-- [ ] STAGE_2a_research_phase_guide.md
-- [ ] STAGE_2b_specification_phase_guide.md
-- [ ] STAGE_2c_refinement_phase_guide.md
-- [ ] STAGE_2_feature_deep_dive_guide.md (router)
-- [ ] STAGE_6a_epic_smoke_testing_guide.md
-- [ ] STAGE_6b_epic_qc_rounds_guide.md
-- [ ] STAGE_6c_epic_final_review_guide.md
-- [ ] STAGE_6_epic_final_qc_guide.md (router)
-- [ ] STAGE_5ac_part1_preparation_guide.md
-- [ ] STAGE_5ac_part2_final_gates_guide.md
-- [ ] STAGE_5ac_round3_guide.md (router)
+- [ ] stages/stage_2/phase_0_research.md
+- [ ] stages/stage_2/phase_1_specification.md
+- [ ] stages/stage_2/phase_2_refinement.md
+- [ ] stages/stage_2/feature_deep_dive.md (router)
+- [ ] stages/stage_6/epic_smoke_testing.md
+- [ ] stages/stage_6/epic_qc_rounds.md
+- [ ] stages/stage_6/epic_final_review.md
+- [ ] stages/stage_6/epic_final_qc.md (router)
+- [ ] stages/stage_5/round3_part1_preparation.md
+- [ ] stages/stage_5/round3_part2_final_gates.md
+- [ ] stages/stage_5/round3_todo_creation.md (router)
 - [ ] All reference cards
 - [ ] All diagrams
 - [ ] Index files

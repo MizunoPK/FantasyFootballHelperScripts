@@ -112,7 +112,7 @@ Round 1 is complete when all 9 iterations pass (including Iteration 4a mandatory
 **At End of Round 1: Confidence Checkpoint**
 **Question:** Is confidence level >= MEDIUM?
 - **If < MEDIUM:** Create questions.md, wait for user answers, DO NOT proceed to Round 2
-- **If >= MEDIUM:** Proceed to Round 2 (STAGE_5ab_round2_guide.md)
+- **If >= MEDIUM:** Proceed to Round 2 (stages/stage_5/round2_todo_creation.md)
 - **Impact:** Low confidence means unclear requirements - implementing without clarity causes major rework
 
 **Note:** Iteration 4a is the ONLY mandatory gate in Round 1, but all 9 iterations are required.
@@ -1189,7 +1189,7 @@ Next Action: Round 1 checkpoint - evaluate confidence
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** TODO_CREATION
 **Current Step:** Round 1 complete (8/8 iterations), evaluating confidence
-**Current Guide:** STAGE_5aa_round1_guide.md
+**Current Guide:** stages/stage_5/round1_todo_creation.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - 8 iterations mandatory (Round 1)
@@ -1267,7 +1267,7 @@ Next Action: Wait for user responses, then update TODO based on answers
 
 **Proceeding to Round 2 (Iterations 8-16).**
 
-**Next Guide:** STAGE_5ab_round2_guide.md
+**Next Guide:** stages/stage_5/round2_todo_creation.md
 ```
 
 ---
@@ -1425,7 +1425,7 @@ If you CANNOT provide evidence for an iteration:
 
 **After completing Round 1:**
 
-📖 **READ:** `STAGE_5ab_round2_guide.md`
+📖 **READ:** `stages/stage_5/round2_todo_creation.md`
 🎯 **GOAL:** Deep verification - test strategy, edge cases, re-verification
 ⏱️ **ESTIMATE:** 45-60 minutes
 
@@ -1440,4 +1440,4 @@ If you CANNOT provide evidence for an iteration:
 
 ---
 
-*End of STAGE_5aa_round1_guide.md*
+*End of stages/stage_5/round1_todo_creation.md*

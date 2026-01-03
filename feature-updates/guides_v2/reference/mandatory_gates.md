@@ -44,7 +44,7 @@
 
 ### Gate 1: Phase 1.5 - Research Completeness Audit
 
-**Location:** STAGE_2a_research_phase_guide.md
+**Location:** stages/stage_2/phase_0_research.md
 **When:** After completing targeted research (Phase 1)
 
 **What it checks:**
@@ -75,7 +75,7 @@
 
 ### Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check
 
-**Location:** STAGE_2b_specification_phase_guide.md
+**Location:** stages/stage_2/phase_1_specification.md
 **When:** After updating spec.md and checklist.md (Phase 2)
 
 **What it checks:**
@@ -103,7 +103,7 @@
 
 ### Gate 3: Phase 6 - User Approval (Acceptance Criteria)
 
-**Location:** STAGE_2c_refinement_phase_guide.md
+**Location:** stages/stage_2/phase_2_refinement.md
 **When:** After creating acceptance criteria (Phase 6)
 
 **What it checks:**
@@ -126,7 +126,7 @@
 
 ### Gate 1: User Sign-Off on Complete Epic Plan
 
-**Location:** STAGE_3_cross_feature_sanity_check_guide.md
+**Location:** stages/stage_3/cross_feature_sanity_check.md
 **When:** After all features planned and conflicts resolved
 
 **What it checks:**
@@ -160,7 +160,7 @@
 
 ### Gate 1: Iteration 4a - TODO Specification Audit
 
-**Location:** STAGE_5aa_round1_guide.md (Round 1)
+**Location:** stages/stage_5/round1_todo_creation.md (Round 1)
 **When:** After creating initial TODO.md (Iteration 4)
 
 **What it checks:**
@@ -189,7 +189,7 @@
 
 ### Gate 2: Iteration 23a - Pre-Implementation Spec Audit (4 PARTS)
 
-**Location:** STAGE_5ac_part2_final_gates_guide.md (Round 3 Part 2)
+**Location:** stages/stage_5/round3_part2_final_gates.md (Round 3 Part 2)
 **When:** After preparation iterations (Iterations 17-22)
 
 **ALL 4 PARTS must PASS:**
@@ -236,7 +236,7 @@
 
 ### Gate 3: Iteration 25 - Spec Validation Against Validated Documents (CRITICAL)
 
-**Location:** STAGE_5ac_part2_final_gates_guide.md (Round 3 Part 2)
+**Location:** stages/stage_5/round3_part2_final_gates.md (Round 3 Part 2)
 **When:** After Iteration 23a passes
 
 **What it checks:**
@@ -285,7 +285,7 @@
 
 ### Gate 4: Iteration 24 - Implementation Readiness Protocol (GO/NO-GO)
 
-**Location:** STAGE_5ac_part2_final_gates_guide.md (Round 3 Part 2)
+**Location:** stages/stage_5/round3_part2_final_gates.md (Round 3 Part 2)
 **When:** After Iteration 25 passes
 
 **What it checks (comprehensive checklist):**
@@ -328,7 +328,7 @@
 
 ### Gate 5: Stage 5ca Part 3 - E2E Smoke Test (Data Validation)
 
-**Location:** STAGE_5ca_smoke_testing_guide.md
+**Location:** stages/stage_5/smoke_testing.md
 **When:** After Part 1 (Import) and Part 2 (Entry Point) tests pass
 
 **What it checks:**
@@ -356,7 +356,7 @@
 
 ### Gate 6: Stage 5cb QC Round 3 - ZERO Issues Required
 
-**Location:** STAGE_5cb_qc_rounds_guide.md
+**Location:** stages/stage_5/qc_rounds.md
 **When:** After QC Rounds 1 and 2 pass
 
 **What it checks:**
@@ -407,7 +407,7 @@
 
 ### Gate 7.1: Unit Tests (100% Pass)
 
-**Location:** STAGE_7_epic_cleanup_guide.md
+**Location:** stages/stage_7/epic_cleanup.md
 **When:** Before user testing
 
 **What it checks:**
@@ -429,7 +429,7 @@
 
 ### Gate 7.2: User Testing (ZERO Bugs)
 
-**Location:** STAGE_7_epic_cleanup_guide.md
+**Location:** stages/stage_7/epic_cleanup.md
 **When:** After unit tests pass (final gate before commit)
 
 **What it checks:**
@@ -441,7 +441,7 @@
 - User approves epic for commit
 
 **If FAIL (user finds ANY bugs):**
-- Create bug fix following STAGE_5_bug_fix_workflow_guide.md
+- Create bug fix following stages/stage_5/bugfix_workflow.md
 - Bug fix goes through: Stage 2 → 5a → 5b → 5c
 - After bug fix complete: **Restart Stage 6** (Epic-Level Final QC)
 - Re-run Stage 6 → Stage 7 → User testing

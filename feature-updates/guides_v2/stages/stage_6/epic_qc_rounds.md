@@ -131,7 +131,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 
 □ **Agent Status updated:**
   - EPIC_README.md shows STAGE_6a complete
-  - Current guide: STAGE_6b_epic_qc_rounds_guide.md
+  - Current guide: stages/stage_6/epic_qc_rounds.md
 
 □ **Original epic request available:**
   - Have access to {epic_name}.txt
@@ -1466,7 +1466,7 @@ python -m memory_profiler run_league_helper.py --mode draft
 
 **After completing STAGE_6b:**
 
-📖 **READ:** `STAGE_6c_epic_final_review_guide.md`
+📖 **READ:** `stages/stage_6/epic_final_review.md`
 🎯 **GOAL:** Epic PR review, validation against original request, final verification
 ⏱️ **ESTIMATE:** 20-30 minutes
 
@@ -1481,4 +1481,4 @@ python -m memory_profiler run_league_helper.py --mode draft
 
 ---
 
-*End of STAGE_6b_epic_qc_rounds_guide.md*
+*End of stages/stage_6/epic_qc_rounds.md*

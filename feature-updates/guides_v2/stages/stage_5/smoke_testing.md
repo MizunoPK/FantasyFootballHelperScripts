@@ -23,7 +23,7 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) →
 
 2. **Update README Agent Status** with:
    - Current Phase: POST_IMPLEMENTATION (Smoke Testing)
-   - Current Guide: STAGE_5ca_smoke_testing_guide.md
+   - Current Guide: stages/stage_5/smoke_testing.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "3 parts MANDATORY", "Part 3 verify DATA VALUES", "Re-run ALL 3 if ANY fails"
    - Next Action: Smoke Test Part 1 - Import test
@@ -1165,7 +1165,7 @@ Retest: Part 3b PASSED (0.1% zeros, reasonable variance)
    ```markdown
    Guide Last Re-Read: {timestamp}
    Checkpoint: Smoke testing complete, ready for QC Round 1
-   Next Guide: STAGE_5cb_qc_rounds_guide.md
+   Next Guide: stages/stage_5/qc_rounds.md
    ```
 
 ---
@@ -1272,7 +1272,7 @@ Re-ran only Part 3
 ✅ Stage 5ca COMPLETE
 → Proceed to Stage 5cb (QC Rounds)
 
-**Next Guide:** `STAGE_5cb_qc_rounds_guide.md`
+**Next Guide:** `stages/stage_5/qc_rounds.md`
 
 ---
 
@@ -1311,7 +1311,7 @@ Re-ran only Part 3
 
 **After completing smoke testing:**
 
-📖 **READ:** `STAGE_5cb_qc_rounds_guide.md`
+📖 **READ:** `stages/stage_5/qc_rounds.md`
 🎯 **GOAL:** Comprehensive quality control through 3 validation rounds
 ⏱️ **ESTIMATE:** 1-2 hours
 
@@ -1324,4 +1324,4 @@ Re-ran only Part 3
 
 ---
 
-*End of STAGE_5ca_smoke_testing_guide.md*
+*End of stages/stage_5/smoke_testing.md*

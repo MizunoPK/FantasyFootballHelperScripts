@@ -1,37 +1,37 @@
 # STAGE_5ac Split - Reference Updates Checklist
 
 ## Completed
-✅ STAGE_5ac_part1_preparation_guide.md created (Iterations 17-22)
-✅ STAGE_5ac_part2_final_gates_guide.md created (Iterations 23, 23a, 25, 24)
-✅ STAGE_5ac_round3_guide.md converted to router
+✅ stages/stage_5/round3_part1_preparation.md created (Iterations 17-22)
+✅ stages/stage_5/round3_part2_final_gates.md created (Iterations 23, 23a, 25, 24)
+✅ stages/stage_5/round3_todo_creation.md converted to router
 ✅ STAGE_5ac_round3_guide_ORIGINAL_BACKUP.md (renamed original)
 
 ## Remaining Updates Needed
 
-### 1. STAGE_5ab_round2_guide.md
+### 1. stages/stage_5/round2_todo_creation.md
 
 **Location 1 - Line 105:** Critical Decisions Summary
 ```markdown
 # CURRENT:
-  - ✅ Proceed to Round 3 (STAGE_5ac_round3_guide.md)
+  - ✅ Proceed to Round 3 (stages/stage_5/round3_todo_creation.md)
 
 # UPDATE TO:
-  - ✅ Proceed to Round 3 Part 1 (STAGE_5ac_part1_preparation_guide.md)
+  - ✅ Proceed to Round 3 Part 1 (stages/stage_5/round3_part1_preparation.md)
 ```
 
 **Location 2 - Line 944:** Round 2 checkpoint example
 ```markdown
 # CURRENT:
-**Next Guide:** STAGE_5ac_round3_guide.md
+**Next Guide:** stages/stage_5/round3_todo_creation.md
 
 # UPDATE TO:
-**Next Guide:** STAGE_5ac_part1_preparation_guide.md
+**Next Guide:** stages/stage_5/round3_part1_preparation.md
 ```
 
 **Location 3 - Lines 1100-1113:** Next Round section
 ```markdown
 # CURRENT:
-📖 **READ:** `STAGE_5ac_round3_guide.md`
+📖 **READ:** `stages/stage_5/round3_todo_creation.md`
 🎯 **GOAL:** Final verification & readiness - implementation phasing, mock audit, final gates
 ⏱️ **ESTIMATE:** 60-75 minutes
 
@@ -45,7 +45,7 @@
 - Implementation Readiness Protocol (Iteration 24 - FINAL GATE)
 
 # UPDATE TO:
-📖 **READ:** `STAGE_5ac_part1_preparation_guide.md` (Round 3 Part 1)
+📖 **READ:** `stages/stage_5/round3_part1_preparation.md` (Round 3 Part 1)
 🎯 **GOAL:** Preparation iterations - implementation phasing, rollback strategy, algorithm traceability (final), performance, mock audit
 ⏱️ **ESTIMATE:** 60-90 minutes for Part 1, then 1.5-2.5 hours for Part 2
 
@@ -73,15 +73,15 @@
 **Location 1 - Line 243:** Stage 5a round list
 ```markdown
 # CURRENT:
-- **STAGE_5aa_round1_guide.md** - Round 1: Iterations 1-7 + 4a (START HERE)
-- **STAGE_5ab_round2_guide.md** - Round 2: Iterations 8-16
-- **STAGE_5ac_round3_guide.md** - Round 3: Iterations 17-24 + 23a
+- **stages/stage_5/round1_todo_creation.md** - Round 1: Iterations 1-7 + 4a (START HERE)
+- **stages/stage_5/round2_todo_creation.md** - Round 2: Iterations 8-16
+- **stages/stage_5/round3_todo_creation.md** - Round 3: Iterations 17-24 + 23a
 
 # UPDATE TO:
-- **STAGE_5aa_round1_guide.md** - Round 1: Iterations 1-7 + 4a (START HERE)
-- **STAGE_5ab_round2_guide.md** - Round 2: Iterations 8-16
-- **STAGE_5ac_part1_preparation_guide.md** - Round 3 Part 1: Iterations 17-22
-- **STAGE_5ac_part2_final_gates_guide.md** - Round 3 Part 2: Iterations 23, 23a, 25, 24
+- **stages/stage_5/round1_todo_creation.md** - Round 1: Iterations 1-7 + 4a (START HERE)
+- **stages/stage_5/round2_todo_creation.md** - Round 2: Iterations 8-16
+- **stages/stage_5/round3_part1_preparation.md** - Round 3 Part 1: Iterations 17-22
+- **stages/stage_5/round3_part2_final_gates.md** - Round 3 Part 2: Iterations 23, 23a, 25, 24
 ```
 
 **Location 2 - Lines 356-409:** Replace "Starting Stage 5a: TODO Creation (Round 3)" with TWO prompts:
@@ -95,13 +95,13 @@
 **Prerequisite:** Round 2 complete (STAGE_5ab), confidence >= MEDIUM, test coverage >90%
 
 **Note:** Round 3 is split into 2 parts for better navigation:
-- **STAGE_5ac_part1_preparation_guide.md** - Iterations 17-22 (START HERE)
-- **STAGE_5ac_part2_final_gates_guide.md** - Iterations 23, 23a, 25, 24
+- **stages/stage_5/round3_part1_preparation.md** - Iterations 17-22 (START HERE)
+- **stages/stage_5/round3_part2_final_gates.md** - Iterations 23, 23a, 25, 24
 
 **Agent MUST respond:**
 
 \`\`\`
-I'm reading `STAGE_5ac_part1_preparation_guide.md` to ensure I follow all 6 preparation iterations in Round 3 Part 1...
+I'm reading `stages/stage_5/round3_part1_preparation.md` to ensure I follow all 6 preparation iterations in Round 3 Part 1...
 
 **The guide requires:**
 - **Part 1: 6 preparation iterations** (NO SKIPPING):
@@ -138,7 +138,7 @@ I'm reading `STAGE_5ac_part1_preparation_guide.md` to ensure I follow all 6 prep
 
 **Updating feature README Agent Status:**
 - Current Phase: TODO_CREATION
-- Current Guide: STAGE_5ac_part1_preparation_guide.md
+- Current Guide: stages/stage_5/round3_part1_preparation.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "6 preparation iterations mandatory", "Iteration 21: Verify mocks against ACTUAL source code", "Integration tests must use REAL objects"
 - Progress: 16/24 total iterations complete (starting Round 3 Part 1)
@@ -159,7 +159,7 @@ Starting iteration 17...
 **Agent MUST respond:**
 
 \`\`\`
-I'm reading `STAGE_5ac_part2_final_gates_guide.md` to ensure I follow all 4 final gate iterations in Round 3 Part 2...
+I'm reading `stages/stage_5/round3_part2_final_gates.md` to ensure I follow all 4 final gate iterations in Round 3 Part 2...
 
 **The guide requires:**
 - **Part 2: 4 final gate iterations containing ALL 3 MANDATORY GATES**:
@@ -202,7 +202,7 @@ I'm reading `STAGE_5ac_part2_final_gates_guide.md` to ensure I follow all 4 fina
 
 **Updating feature README Agent Status:**
 - Current Phase: TODO_CREATION
-- Current Guide: STAGE_5ac_part2_final_gates_guide.md
+- Current Guide: stages/stage_5/round3_part2_final_gates.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 MANDATORY GATES (23a, 25, 24) - CANNOT skip", "Evidence-based verification (cite numbers)", "Close spec.md before Iteration 25", "User decision required if discrepancies"
 - Progress: 22/24 total iterations complete (starting Round 3 Part 2)
@@ -219,36 +219,36 @@ Starting iteration 23...
 **Location 1 - Line 103:** Quick reference table
 ```markdown
 # CURRENT:
-| Round 2 complete | `STAGE_5ac_round3_guide.md` | Iterations 17-24 + 23a: Phasing, final gates, readiness |
+| Round 2 complete | `stages/stage_5/round3_todo_creation.md` | Iterations 17-24 + 23a: Phasing, final gates, readiness |
 
 # UPDATE TO (3 rows):
-| Round 2 complete | `STAGE_5ac_round3_guide.md` | Router: Links to Part 1/Part 2 sub-stages |
-| Round 3 preparation phase | `STAGE_5ac_part1_preparation_guide.md` | Iterations 17-22: Phasing, rollback, algorithm (final), performance, mock audit |
-| Round 3 final gates phase | `STAGE_5ac_part2_final_gates_guide.md` | Iterations 23, 23a, 25, 24: 3 mandatory gates, GO/NO-GO |
+| Round 2 complete | `stages/stage_5/round3_todo_creation.md` | Router: Links to Part 1/Part 2 sub-stages |
+| Round 3 preparation phase | `stages/stage_5/round3_part1_preparation.md` | Iterations 17-22: Phasing, rollback, algorithm (final), performance, mock audit |
+| Round 3 final gates phase | `stages/stage_5/round3_part2_final_gates.md` | Iterations 23, 23a, 25, 24: 3 mandatory gates, GO/NO-GO |
 ```
 
 **Location 2 - Line 201:** File structure tree
 ```markdown
 # CURRENT:
-    ├── STAGE_5ac_round3_guide.md                 ← TODO creation Round 3
+    ├── stages/stage_5/round3_todo_creation.md                 ← TODO creation Round 3
 
 # UPDATE TO:
-    ├── STAGE_5ac_round3_guide.md                 ← TODO creation Round 3 (router)
-    ├── STAGE_5ac_part1_preparation_guide.md      ← Round 3 Part 1: Preparation
-    ├── STAGE_5ac_part2_final_gates_guide.md      ← Round 3 Part 2: Final Gates
+    ├── stages/stage_5/round3_todo_creation.md                 ← TODO creation Round 3 (router)
+    ├── stages/stage_5/round3_part1_preparation.md      ← Round 3 Part 1: Preparation
+    ├── stages/stage_5/round3_part2_final_gates.md      ← Round 3 Part 2: Final Gates
 ```
 
 ---
 
 ### 4. EPIC_WORKFLOW_USAGE.md
 
-**Search for:** References to STAGE_5ac_round3_guide.md
-**Update:** Change to STAGE_5ac_part1_preparation_guide.md (for starting Round 3)
+**Search for:** References to stages/stage_5/round3_todo_creation.md
+**Update:** Change to stages/stage_5/round3_part1_preparation.md (for starting Round 3)
 **Add:** Mention of Part 2 guide for final gates
 
 ---
 
-### 5. STAGE_5_bug_fix_workflow_guide.md
+### 5. stages/stage_5/bugfix_workflow.md
 
 **Search for:** References to Round 3 or STAGE_5ac
 **Update:** Clarify that bug fixes follow same TODO creation process but use split guides
@@ -257,7 +257,7 @@ Starting iteration 23...
 
 ## Notes
 
-- The router guide (STAGE_5ac_round3_guide.md) now serves as navigation hub
+- The router guide (stages/stage_5/round3_todo_creation.md) now serves as navigation hub
 - Original guide backed up as STAGE_5ac_round3_guide_ORIGINAL_BACKUP.md
 - All references should point to Part 1 for starting Round 3
 - Part 2 references only appear when transitioning from Part 1 to Part 2

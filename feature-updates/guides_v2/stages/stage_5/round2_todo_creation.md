@@ -102,7 +102,7 @@ Round 2 is complete when all 9 iterations pass, test coverage exceeds 90%, confi
   - Wait for user answers
   - DO NOT proceed to Round 3
 - **If >= MEDIUM:**
-  - ✅ Proceed to Round 3 Part 1 (STAGE_5ac_part1_preparation_guide.md)
+  - ✅ Proceed to Round 3 Part 1 (stages/stage_5/round3_part1_preparation.md)
   - Final verification and implementation readiness
 - **Impact:** Low confidence after deep verification indicates fundamental gaps in understanding
 
@@ -881,7 +881,7 @@ Next Action: Round 2 checkpoint - evaluate confidence
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** TODO_CREATION
 **Current Step:** Round 2 complete (9/9 iterations), evaluating confidence
-**Current Guide:** STAGE_5ab_round2_guide.md
+**Current Guide:** stages/stage_5/round2_todo_creation.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - 9 iterations mandatory (Round 2)
@@ -941,7 +941,7 @@ Next Action: Wait for user responses, then update TODO based on answers
 
 **Proceeding to Round 3 (Iterations 17-24 + 23a).**
 
-**Next Guide:** STAGE_5ac_part1_preparation_guide.md
+**Next Guide:** stages/stage_5/round3_part1_preparation.md
 ```
 
 ---
@@ -1097,7 +1097,7 @@ If you CANNOT provide evidence for an iteration:
 
 **After completing Round 2:**
 
-📖 **READ:** `STAGE_5ac_round3_guide.md`
+📖 **READ:** `stages/stage_5/round3_todo_creation.md`
 🎯 **GOAL:** Preparation iterations - implementation phasing, rollback strategy, algorithm traceability (final), performance, mock audit
 ⏱️ **ESTIMATE:** 60-90 minutes for Part 1, then 1.5-2.5 hours for Part 2
 
@@ -1121,4 +1121,4 @@ If you CANNOT provide evidence for an iteration:
 
 ---
 
-*End of STAGE_5ab_round2_guide.md*
+*End of stages/stage_5/round2_todo_creation.md*

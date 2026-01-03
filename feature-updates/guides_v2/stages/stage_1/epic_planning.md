@@ -333,7 +333,7 @@ Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** EPIC_PLANNING
 **Current Step:** Phase 1 - Initial Setup Complete
-**Current Guide:** STAGE_1_epic_planning_guide.md
+**Current Guide:** stages/stage_1/epic_planning.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - User must approve feature breakdown before creating folders
@@ -1053,7 +1053,7 @@ Add **Epic Completion Checklist:**
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** EPIC_PLANNING
 **Current Step:** Phase 4 - Epic Structure Creation Complete
-**Current Guide:** STAGE_1_epic_planning_guide.md
+**Current Guide:** stages/stage_1/epic_planning.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - User must approve feature breakdown before creating folders
@@ -1096,12 +1096,12 @@ Update EPIC_README.md Epic Completion Checklist:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** DEEP_DIVE
 **Current Step:** Ready to begin Stage 2a (Research Phase) for Feature 1
-**Current Guide:** STAGE_2a_research_phase_guide.md
+**Current Guide:** stages/stage_2/phase_0_research.md
 **Guide Last Read:** NOT YET (will read when starting Stage 2a)
 **Critical Rules from Guide:** (Will populate after reading Stage 2a guide)
 
 **Progress:** Stage 1 complete, ready for Stage 2a
-**Next Action:** Read STAGE_2a_research_phase_guide.md and begin research phase for feature_01_{name}
+**Next Action:** Read stages/stage_2/phase_0_research.md and begin research phase for feature_01_{name}
 **Blockers:** None
 ```
 
@@ -1130,7 +1130,7 @@ I've created the epic structure with {N} features:
 
 I'll now transition to Stage 2a (Research Phase) and begin deep dive planning for Feature 1.
 
-Starting with `STAGE_2a_research_phase_guide.md` to extract epic intent, conduct targeted research, and complete research audit (Phases 0-1.5).
+Starting with `stages/stage_2/phase_0_research.md` to extract epic intent, conduct targeted research, and complete research audit (Phases 0-1.5).
 ```
 
 ---
@@ -1342,7 +1342,7 @@ Not: feature-updates/json_export_epic/feature_01_serialization/
    - Sees: "Current Step: Phase 3 - Waiting for user approval"
    - Sees: "Blockers: Waiting for user confirmation of feature breakdown"
 
-2. Read STAGE_1_epic_planning_guide.md (this guide)
+2. Read stages/stage_1/epic_planning.md (this guide)
    - Re-read Phase 3 section
    - See requirement: WAIT for approval
 
@@ -1377,7 +1377,7 @@ Not: feature-updates/json_export_epic/feature_01_serialization/
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** {EPIC_PLANNING or next stage}
 **Current Step:** {Exact phase and step}
-**Current Guide:** STAGE_1_epic_planning_guide.md (or next guide)
+**Current Guide:** stages/stage_1/epic_planning.md (or next guide)
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - {Rule 1 from Critical Rules section}
@@ -1426,7 +1426,7 @@ If you cannot answer these questions without re-reading the guide, you haven't r
 □ Stage 1 completion criteria ALL met (see "Completion Criteria" section)
 □ EPIC_README.md Agent Status updated:
   - Current Phase: DEEP_DIVE
-  - Current Guide: STAGE_2a_research_phase_guide.md
+  - Current Guide: stages/stage_2/phase_0_research.md
   - Next Action: Read Stage 2a guide and begin research phase for Feature 1
 □ Epic Completion Checklist: Stage 1 items all checked
 □ Feature Tracking table: All features listed with "Not started" status
@@ -1443,7 +1443,7 @@ If you cannot answer these questions without re-reading the guide, you haven't r
 
 **After completing Stage 1:**
 
-📖 **READ:** `STAGE_2a_research_phase_guide.md` (Research Phase - first of three sub-stages)
+📖 **READ:** `stages/stage_2/phase_0_research.md` (Research Phase - first of three sub-stages)
 🎯 **GOAL:** Extract epic intent, conduct targeted research, pass research audit (Phases 0-1.5)
 ⏱️ **ESTIMATE:** 45-60 minutes (then continue with STAGE_2b and STAGE_2c)
 
@@ -1452,10 +1452,10 @@ If you cannot answer these questions without re-reading the guide, you haven't r
 - **STAGE_2b (Specification Phase):** Spec with traceability, alignment check (Phases 2-2.5)
 - **STAGE_2c (Refinement Phase):** Questions, scope, cross-feature alignment, user approval (Phases 3-6)
 
-**Note:** `STAGE_2_feature_deep_dive_guide.md` is now a router that links to the 3 sub-stage guides.
+**Note:** `stages/stage_2/feature_deep_dive.md` is now a router that links to the 3 sub-stage guides.
 
 **Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting Stage 2a.
 
 ---
 
-*End of STAGE_1_epic_planning_guide.md*
+*End of stages/stage_1/epic_planning.md*

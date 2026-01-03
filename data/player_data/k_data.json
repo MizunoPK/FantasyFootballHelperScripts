@@ -919,7 +919,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 150.2,
       "player_rating": 31.857142857142858,
       "projected_points": [
         8.40415585,
@@ -2349,7 +2349,7 @@
       "injury_status": "INJURY_RESERVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 160.5,
       "player_rating": 69.14285714285714,
       "projected_points": [
         8.03979135,

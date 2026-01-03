@@ -202,13 +202,18 @@ class SimulationManager:
         if not weeks_folder.exists():
             raise FileNotFoundError(f"Season {year} missing weeks/")
 
-        # Check all 17 weeks exist with required files
+        # Check all 17 weeks exist with required JSON files
         for week_num in range(1, 18):
             week_folder = weeks_folder / f"week_{week_num:02d}"
             if not week_folder.exists():
                 raise FileNotFoundError(f"Season {year} missing week_{week_num:02d}/")
-            if not (week_folder / "players.csv").exists():
-                raise FileNotFoundError(f"Season {year} week_{week_num:02d}/ missing players.csv")
+
+            # Check for 6 position JSON files
+            position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
+                             'te_data.json', 'k_data.json', 'dst_data.json']
+            for position_file in position_files:
+                if not (week_folder / position_file).exists():
+                    raise FileNotFoundError(f"Season {year} week_{week_num:02d}/ missing {position_file}")
 
     def _validate_season_data(self, season_folder: Path) -> bool:
         """
@@ -225,38 +230,43 @@ class SimulationManager:
         """
         MIN_VALID_PLAYERS = 150  # 10 teams × 15 picks
 
-        # Check week 1 players_projected.csv for valid player count
-        players_file = season_folder / "weeks" / "week_01" / "players_projected.csv"
-        if not players_file.exists():
-            players_file = season_folder / "weeks" / "week_01" / "players.csv"
-
-        if not players_file.exists():
-            self.logger.warning(f"Season {season_folder.name}: No player CSV found")
-            return False
+        # Check week 1 JSON files for valid player count
+        week_01_folder = season_folder / "weeks" / "week_01"
+        position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
+                         'te_data.json', 'k_data.json', 'dst_data.json']
 
         try:
-            with open(players_file, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                valid_count = 0
-                for row in reader:
-                    drafted = row.get('drafted', '0')
-                    fp = row.get('fantasy_points', '')
-                    try:
-                        fp_val = float(fp) if fp else 0
-                    except (ValueError, TypeError):
-                        fp_val = 0
-                    if drafted == '0' and fp_val > 0:
-                        valid_count += 1
+            valid_count = 0
+            for position_file in position_files:
+                json_file = week_01_folder / position_file
+                if not json_file.exists():
+                    self.logger.warning(f"Season {season_folder.name}: Missing {position_file} in week_01")
+                    continue
 
-                if valid_count < MIN_VALID_PLAYERS:
-                    self.logger.warning(
-                        f"Season {season_folder.name}: Only {valid_count} valid players "
-                        f"(need {MIN_VALID_PLAYERS}+ for draft)"
-                    )
-                    return False
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    for player_dict in data:
+                        drafted_by = player_dict.get('drafted_by', '')
+                        # Get week 1 projected points (index 0)
+                        projected_points = player_dict.get('projected_points', [])
+                        if len(projected_points) > 0:
+                            fp_val = projected_points[0]
+                        else:
+                            fp_val = 0
 
-                self.logger.debug(f"Season {season_folder.name}: {valid_count} valid players - OK")
-                return True
+                        # Count players not drafted with positive points
+                        if drafted_by == '' and fp_val > 0:
+                            valid_count += 1
+
+            if valid_count < MIN_VALID_PLAYERS:
+                self.logger.warning(
+                    f"Season {season_folder.name}: Only {valid_count} valid players "
+                    f"(need {MIN_VALID_PLAYERS}+ for draft)"
+                )
+                return False
+
+            self.logger.debug(f"Season {season_folder.name}: {valid_count} valid players - OK")
+            return True
 
         except Exception as e:
             self.logger.warning(f"Season {season_folder.name}: Error reading player data: {e}")

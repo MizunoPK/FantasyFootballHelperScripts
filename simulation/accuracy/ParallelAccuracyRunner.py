@@ -112,11 +112,15 @@ def _evaluate_config_weekly_worker(
 
         for week_num in range(start_week, end_week + 1):
             projected_path, actual_path = _load_season_data(season_path, week_num)
-            if not projected_path:
+            if not projected_path or not actual_path:
+                # Skip if either folder missing
                 continue
 
-            # Create player manager with this config
-            player_mgr = _create_player_manager(config_dict, projected_path.parent, season_path)
+            # Create TWO player managers:
+            # 1. projected_mgr (from week_N folder) for projections
+            # 2. actual_mgr (from week_N+1 folder) for actuals
+            projected_mgr = _create_player_manager(config_dict, projected_path, season_path)
+            actual_mgr = _create_player_manager(config_dict, actual_path, season_path)
 
             try:
                 projections = {}
@@ -125,14 +129,15 @@ def _evaluate_config_weekly_worker(
 
                 # Calculate and set max weekly projection for this week's normalization
                 # This is required before scoring with use_weekly_projection=True
-                max_weekly = player_mgr.calculate_max_weekly_projection(week_num)
-                player_mgr.scoring_calculator.max_weekly_projection = max_weekly
+                max_weekly = projected_mgr.calculate_max_weekly_projection(week_num)
+                projected_mgr.scoring_calculator.max_weekly_projection = max_weekly
 
-                for player in player_mgr.players:
+                # Get projections from week_N folder (projected_mgr)
+                for player in projected_mgr.players:
                     # Get scored player with projected points
                     # Use same flags as StarterHelperModeManager with
                     # use_weekly_projection=True for weekly projections
-                    scored = player_mgr.score_player(
+                    scored = projected_mgr.score_player(
                         player,
                         use_weekly_projection=True,  # Weekly projection
                         adp=False,
@@ -150,19 +155,22 @@ def _evaluate_config_weekly_worker(
                     if scored:
                         projections[player.id] = scored.projected_points
 
-                    # Get actual points for this specific week
-                    week_points_attr = f'week_{week_num}_points'
-                    if hasattr(player, week_points_attr):
-                        actual = getattr(player, week_points_attr)
+                # Get actuals from week_N+1 folder (actual_mgr)
+                # week_N+1 has actual_points[N-1] populated (week N complete)
+                for player in actual_mgr.players:
+                    # Get actual points for this specific week (from actual_points array)
+                    # Array index: week 1 = index 0, week N = index N-1
+                    if 1 <= week_num <= 17 and len(player.actual_points) >= week_num:
+                        actual = player.actual_points[week_num - 1]
                         if actual is not None and actual > 0:
                             actuals[player.id] = actual
 
-                            # Collect player metadata for ranking metrics
-                            if scored:
+                            # Match with projection by player ID
+                            if player.id in projections:
                                 player_data.append({
                                     'name': player.name,
                                     'position': player.position,
-                                    'projected': scored.projected_points,
+                                    'projected': projections[player.id],
                                     'actual': actual
                                 })
 
@@ -171,7 +179,8 @@ def _evaluate_config_weekly_worker(
                 player_data_by_week[week_num] = player_data
 
             finally:
-                _cleanup_player_manager(player_mgr)
+                _cleanup_player_manager(projected_mgr)
+                _cleanup_player_manager(actual_mgr)
 
         # Calculate MAE for this season's week range
         result = calculator.calculate_weekly_mae(
@@ -193,19 +202,47 @@ def _evaluate_config_weekly_worker(
 
 
 def _load_season_data(season_path: Path, week_num: int) -> Tuple[Path, Path]:
-    """Load projected and actual data paths for a given week."""
-    week_folder = season_path / "weeks" / f"week_{week_num:02d}"
+    """Load data paths for a specific week in a season.
 
-    if not week_folder.exists():
+    For accuracy calculations, we need TWO week folders:
+    - week_N folder: Contains projected_points for week N
+    - week_N+1 folder: Contains actual_points for week N
+
+    This is because week_N folder represents data "as of" week N's start,
+    so week N's actual results aren't known until week N+1.
+
+    Args:
+        season_path: Path to season folder (e.g., sim_data/2024/)
+        week_num: Week number (1-17)
+
+    Returns:
+        Tuple of (projected_folder, actual_folder) or (None, None) if folders not found
+        - projected_folder: week_N folder (for projected_points)
+        - actual_folder: week_N+1 folder (for actual_points)
+    """
+    logger = get_logger()
+
+    # Week N folder for projections
+    projected_folder = season_path / "weeks" / f"week_{week_num:02d}"
+
+    # Week N+1 folder for actuals
+    # For week 1: use week_02, for week 17: use week_18
+    actual_week_num = week_num + 1
+    actual_folder = season_path / "weeks" / f"week_{actual_week_num:02d}"
+
+    # Both folders must exist
+    if not projected_folder.exists():
+        logger.warning(f"Projected folder not found: {projected_folder}")
         return None, None
 
-    projected_path = week_folder / "players_projected.csv"
-    actual_path = week_folder / "players.csv"
-
-    if not projected_path.exists() or not actual_path.exists():
+    if not actual_folder.exists():
+        logger.warning(
+            f"Actual folder not found: {actual_folder} "
+            f"(needed for week {week_num} actuals)"
+        )
         return None, None
 
-    return projected_path, actual_path
+    return projected_folder, actual_folder
 
 
 def _create_player_manager(config_dict: dict, week_data_path: Path, season_path: Path) -> PlayerManager:
@@ -214,16 +251,27 @@ def _create_player_manager(config_dict: dict, week_data_path: Path, season_path:
 
     Args:
         config_dict: Configuration dictionary
-        week_data_path: Path to week folder containing players.csv, players_projected.csv
+        week_data_path: Path to week folder containing position JSON files
         season_path: Path to season folder containing season_schedule.csv, team_data/
     """
+    logger = get_logger()
+
     # Create temp directory
     temp_dir = Path(tempfile.mkdtemp(prefix="accuracy_sim_"))
 
-    # Copy player data files from week folder
-    for file in week_data_path.iterdir():
-        if file.suffix == '.csv':
-            shutil.copy(file, temp_dir / file.name)
+    # Create player_data subfolder for JSON files
+    player_data_dir = temp_dir / "player_data"
+    player_data_dir.mkdir(exist_ok=True)
+
+    # Copy 6 position JSON files from week folder to player_data/
+    position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
+                      'te_data.json', 'k_data.json', 'dst_data.json']
+    for filename in position_files:
+        source_file = week_data_path / filename
+        if source_file.exists():
+            shutil.copy(source_file, player_data_dir / filename)
+        else:
+            logger.warning(f"Missing position file: {filename} in {week_data_path}")
 
     # Copy season_schedule.csv from season folder
     season_schedule = season_path / "season_schedule.csv"

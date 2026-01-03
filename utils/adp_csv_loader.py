@@ -15,6 +15,7 @@ import pandas as pd
 
 from utils.csv_utils import read_csv_with_validation
 from utils.LoggingManager import get_logger
+from utils.error_handler import DataProcessingError
 
 # Initialize logger
 logger = get_logger()
@@ -39,7 +40,7 @@ def load_adp_from_csv(csv_path: Union[str, Path]) -> pd.DataFrame:
 
     Raises:
         FileNotFoundError: If CSV file doesn't exist at specified path
-        ValueError: If required columns missing or data validation fails
+        DataProcessingError: If required columns missing or data validation fails
 
     Example:
         >>> from pathlib import Path
@@ -66,13 +67,13 @@ def load_adp_from_csv(csv_path: Union[str, Path]) -> pd.DataFrame:
         logger.info(f"CSV loaded: {csv_path} ({len(df)} rows)")
     except Exception as e:
         logger.error(f"Error reading CSV: {e}")
-        raise ValueError(f"Error reading CSV: {e}")
+        raise DataProcessingError(f"Error reading CSV: {e}")
 
     # Validate required columns exist
     missing_cols = [col for col in required_columns if col not in df.columns]
     if missing_cols:
         logger.error(f"Missing required columns: {missing_cols}")
-        raise ValueError(f"Missing required columns: {missing_cols}")
+        raise DataProcessingError(f"Missing required columns: {missing_cols}")
     logger.info(f"CSV validation passed: {csv_path}")
 
     # Task 5: Extract only needed columns
@@ -104,7 +105,7 @@ def load_adp_from_csv(csv_path: Union[str, Path]) -> pd.DataFrame:
     if not (df['adp'] > 0).all():
         invalid_adps = df[df['adp'] <= 0]
         logger.error(f"Invalid ADP values found: {invalid_adps['adp'].tolist()}")
-        raise ValueError(f"Invalid ADP values found: ADP must be > 0")
+        raise DataProcessingError(f"Invalid ADP values found: ADP must be > 0")
     logger.info(f"Validated {len(df)} ADP values (all > 0)")
 
     # Task 11: Return DataFrame

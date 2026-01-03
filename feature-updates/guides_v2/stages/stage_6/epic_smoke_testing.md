@@ -313,7 +313,7 @@ User can make better draft decisions by seeing:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Stage:** EPIC_FINAL_QC
 **Current Step:** Step 1 complete, starting Step 2 (Epic Smoke Testing)
-**Current Guide:** STAGE_6a_epic_smoke_testing_guide.md
+**Current Guide:** stages/stage_6/epic_smoke_testing.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - ALL features at Stage 5e (verified)
@@ -721,7 +721,7 @@ assert abs(player['final_score'] - expected_score) < 0.01
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Stage:** EPIC_FINAL_QC
 **Current Step:** Step 2 complete (Epic Smoke Testing PASSED)
-**Current Guide:** STAGE_6a_epic_smoke_testing_guide.md
+**Current Guide:** stages/stage_6/epic_smoke_testing.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Progress:** STAGE_6a complete (Epic Smoke Testing)
@@ -811,7 +811,7 @@ assert abs(player['final_score'] - expected_score) < 0.01
 
 **After completing STAGE_6a:**
 
-📖 **READ:** `STAGE_6b_epic_qc_rounds_guide.md`
+📖 **READ:** `stages/stage_6/epic_qc_rounds.md`
 🎯 **GOAL:** Execute 3 QC rounds validating epic cohesion and integration
 ⏱️ **ESTIMATE:** 30-60 minutes (3 rounds)
 
@@ -826,4 +826,4 @@ assert abs(player['final_score'] - expected_score) < 0.01
 
 ---
 
-*End of STAGE_6a_epic_smoke_testing_guide.md*
+*End of stages/stage_6/epic_smoke_testing.md*

@@ -63,7 +63,7 @@ Document guide read, critical rules, next action
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_1_epic_planning_guide.md` to ensure I follow the complete epic planning workflow...
+I'm reading `stages/stage_1/epic_planning.md` to ensure I follow the complete epic planning workflow...
 
 **The guide requires:**
 - Phase 1: Analyze epic request and codebase reconnaissance
@@ -85,7 +85,7 @@ I'm reading `STAGE_1_epic_planning_guide.md` to ensure I follow the complete epi
 
 **Creating initial EPIC_README.md status:**
 - Current Stage: Stage 1 - Epic Planning
-- Current Guide: STAGE_1_epic_planning_guide.md
+- Current Guide: stages/stage_1/epic_planning.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "User must approve feature breakdown", "Create placeholder test plan", "No skipping reconnaissance"
 - Next Action: Read epic request file and perform codebase reconnaissance
@@ -104,7 +104,7 @@ Starting Phase 1...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_2_feature_deep_dive_guide.md` to ensure I follow the complete deep dive workflow...
+I'm reading `stages/stage_2/feature_deep_dive.md` to ensure I follow the complete deep dive workflow...
 
 **The guide requires:**
 - **🚨 CRITICAL: NEVER MAKE ASSUMPTIONS**
@@ -137,7 +137,7 @@ I'm reading `STAGE_2_feature_deep_dive_guide.md` to ensure I follow the complete
 
 **Updating feature README Agent Status:**
 - Current Phase: PLANNING
-- Current Guide: STAGE_2_feature_deep_dive_guide.md
+- Current Guide: stages/stage_2/feature_deep_dive.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "NEVER assume - confirm with user first", "Targeted research only", "ONE question at a time", "Only confirmed info in spec.md", "Checklist all [x] required"
 - Next Action: Begin targeted research for {feature_name}
@@ -156,7 +156,7 @@ Starting Phase 1...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_3_cross_feature_sanity_check_guide.md` to ensure I perform systematic cross-feature validation...
+I'm reading `stages/stage_3/cross_feature_sanity_check.md` to ensure I perform systematic cross-feature validation...
 
 **The guide requires:**
 - Systematic pairwise comparison of ALL feature specs
@@ -179,7 +179,7 @@ I'm reading `STAGE_3_cross_feature_sanity_check_guide.md` to ensure I perform sy
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 3 - Cross-Feature Sanity Check
-- Current Guide: STAGE_3_cross_feature_sanity_check_guide.md
+- Current Guide: stages/stage_3/cross_feature_sanity_check.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Pairwise comparison mandatory", "User sign-off required", "No skipping comparisons"
 - Next Action: Create Feature Comparison Matrix and begin pairwise validation
@@ -198,7 +198,7 @@ Starting cross-feature analysis...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_4_epic_testing_strategy_guide.md` to ensure I create a comprehensive epic testing strategy...
+I'm reading `stages/stage_4/epic_testing_strategy.md` to ensure I create a comprehensive epic testing strategy...
 
 **The guide requires:**
 - Review initial epic_smoke_test_plan.md (created in Stage 1)
@@ -223,7 +223,7 @@ I'm reading `STAGE_4_epic_testing_strategy_guide.md` to ensure I create a compre
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 4 - Epic Testing Strategy
-- Current Guide: STAGE_4_epic_testing_strategy_guide.md
+- Current Guide: stages/stage_4/epic_testing_strategy.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Update test plan (don't recreate)", "Hybrid test scenarios", "Measurable success criteria", "Plan will evolve in Stage 5e"
 - Next Action: Review current epic_smoke_test_plan.md and identify updates needed
@@ -240,14 +240,15 @@ Starting test plan update...
 **Prerequisite:** Stage 4 complete (epic_smoke_test_plan.md updated) AND feature spec.md complete AND checklist.md resolved
 
 **Note:** Stage 5a is split into 3 separate round guides for better digestibility:
-- **STAGE_5aa_round1_guide.md** - Round 1: Iterations 1-7 + 4a (START HERE)
-- **STAGE_5ab_round2_guide.md** - Round 2: Iterations 8-16
-- **STAGE_5ac_round3_guide.md** - Round 3: Iterations 17-24 + 23a
+- **stages/stage_5/round1_todo_creation.md** - Round 1: Iterations 1-7 + 4a (START HERE)
+- **stages/stage_5/round2_todo_creation.md** - Round 2: Iterations 8-16
+- **stages/stage_5/round3_part1_preparation.md** - Round 3 Part 1: Iterations 17-22
+- **stages/stage_5/round3_part2_final_gates.md** - Round 3 Part 2: Iterations 23, 23a, 25, 24
 
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_5aa_round1_guide.md` to ensure I follow all 8 iterations in Round 1...
+I'm reading `stages/stage_5/round1_todo_creation.md` to ensure I follow all 8 iterations in Round 1...
 
 **The guide requires:**
 - **🚨 CRITICAL: TODO TASKS MUST TRACE TO SPEC REQUIREMENTS**:
@@ -290,7 +291,7 @@ I'm reading `STAGE_5aa_round1_guide.md` to ensure I follow all 8 iterations in R
 
 **Updating feature README Agent Status:**
 - Current Phase: TODO_CREATION
-- Current Guide: STAGE_5aa_round1_guide.md
+- Current Guide: stages/stage_5/round1_todo_creation.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "TODO tasks MUST trace to spec requirements (no assumptions)", "8 iterations mandatory (Round 1)", "Iteration 4a is MANDATORY GATE", "STOP if confidence < Medium", "Interface verification: READ actual code"
 - Progress: 0/8 iterations complete (Round 1)
@@ -310,7 +311,7 @@ Starting iteration 1...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_5ab_round2_guide.md` to ensure I follow all 9 iterations in Round 2...
+I'm reading `stages/stage_5/round2_todo_creation.md` to ensure I follow all 9 iterations in Round 2...
 
 **The guide requires:**
 - **Round 2: 9 MANDATORY iterations** (NO SKIPPING):
@@ -342,7 +343,7 @@ I'm reading `STAGE_5ab_round2_guide.md` to ensure I follow all 9 iterations in R
 
 **Updating feature README Agent Status:**
 - Current Phase: TODO_CREATION
-- Current Guide: STAGE_5ab_round2_guide.md
+- Current Guide: stages/stage_5/round2_todo_creation.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "9 iterations mandatory (Round 2)", "Re-verification iterations are CRITICAL", "Test coverage >90% required"
 - Progress: 8/24 total iterations complete (starting Round 2)
@@ -353,40 +354,44 @@ Starting iteration 8...
 
 ---
 
-### Starting Stage 5a: TODO Creation (Round 3)
+### Starting Stage 5ac Part 1: TODO Creation (Round 3 - Preparation)
 
 **User says:** Agent detects Round 2 complete (16/24 iterations done, confidence >= MEDIUM, test coverage >90%)
 
 **Prerequisite:** Round 2 complete (STAGE_5ab), confidence >= MEDIUM, test coverage >90%
 
+**Note:** Round 3 is split into 2 parts for better navigation:
+- **stages/stage_5/round3_part1_preparation.md** - Iterations 17-22 (START HERE)
+- **stages/stage_5/round3_part2_final_gates.md** - Iterations 23, 23a, 25, 24
+
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_5ac_round3_guide.md` to ensure I follow all 9 iterations in Round 3...
+I'm reading `stages/stage_5/round3_part1_preparation.md` to ensure I follow all 6 preparation iterations in Round 3 Part 1...
 
 **The guide requires:**
-- **Round 3: 9 MANDATORY iterations** (NO SKIPPING):
-  - Iterations 17-24 + iteration 23a (Final Verification & Readiness)
-- **Iteration 23a (Pre-Implementation Spec Audit) has 4 MANDATORY PARTS**:
-  - Part 1: Completeness Audit
-  - Part 2: Specificity Audit
-  - Part 3: Interface Contracts Audit
-  - Part 4: Integration Evidence Audit
-  - ALL 4 PARTS must PASS
-- **Iteration 24 (Implementation Readiness Protocol) is FINAL GATE**:
-  - Go/no-go decision required
-  - CANNOT proceed to Stage 5b without "GO" decision
+- **Part 1: 6 preparation iterations** (NO SKIPPING):
+  - Iteration 17: Implementation Phasing
+  - Iteration 18: Rollback Strategy
+  - Iteration 19: Algorithm Traceability Matrix (Final)
+  - Iteration 20: Performance Considerations
+  - Iteration 21: Mock Audit & Integration Test Plan (CRITICAL)
+  - Iteration 22: Output Consumer Validation
 - **Implementation Phasing** (Iteration 17):
-  - Break implementation into phases with checkpoints
+  - Break implementation into 5-6 phases with checkpoints
   - Prevents "big bang" integration failures
-- **Mock Audit** (Iteration 21):
-  - Verify EACH mock matches real interface
-  - Plan at least one integration test with REAL objects
+- **Mock Audit** (Iteration 21 - CRITICAL):
+  - Verify EACH mock matches real interface (READ actual source code)
+  - Plan at least 3 integration tests with REAL objects (NO MOCKS)
+  - Prevents unit tests passing with wrong mocks
+- **Performance Optimization** (Iteration 20):
+  - Identify O(n²) algorithms, optimize to O(n)
+  - Document performance requirements
 
-**Why Round 3 matters:**
-- Final verification before implementation
-- Two mandatory gates (23a and 24)
-- Implementation phasing prevents big bang failures
+**Why Round 3 Part 1 matters:**
+- Preparation iterations ensure implementation is well-planned
+- Final algorithm traceability prevents missing requirements
+- Mock audit prevents interface mismatch bugs
 
 **Prerequisites I'm verifying:**
 ✅ Round 2 complete (16/24 iterations)
@@ -395,17 +400,80 @@ I'm reading `STAGE_5ac_round3_guide.md` to ensure I follow all 9 iterations in R
 ✅ Algorithm Traceability Matrix updated (Round 2)
 ✅ Integration Gap Check updated (Round 2)
 
-**I'll now proceed with Round 3 (iterations 17-24 + 23a).**
+**I'll now proceed with Round 3 Part 1 (iterations 17-22).**
 
 **Updating feature README Agent Status:**
 - Current Phase: TODO_CREATION
-- Current Guide: STAGE_5ac_round3_guide.md
+- Current Guide: stages/stage_5/round3_part1_preparation.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "9 iterations mandatory (Round 3)", "Iteration 23a: ALL 4 PARTS must PASS", "Iteration 24: GO decision required"
-- Progress: 16/24 total iterations complete (starting Round 3)
+- Critical Rules: "6 preparation iterations mandatory", "Iteration 21: Verify mocks against ACTUAL source code", "Integration tests must use REAL objects"
+- Progress: 16/24 total iterations complete (starting Round 3 Part 1)
 - Next Action: Begin iteration 17 - Implementation Phasing
 
 Starting iteration 17...
+```
+
+---
+
+### Starting Stage 5ac Part 2: TODO Creation (Round 3 - Final Gates)
+
+**User says:** Agent detects Round 3 Part 1 complete (22/24 iterations done)
+
+**Prerequisite:** Round 3 Part 1 complete (STAGE_5ac_part1), Iterations 17-22 done
+
+**Agent MUST respond:**
+
+```
+I'm reading `stages/stage_5/round3_part2_final_gates.md` to ensure I follow all 4 final gate iterations in Round 3 Part 2...
+
+**The guide requires:**
+- **Part 2: 4 final gate iterations containing ALL 3 MANDATORY GATES**:
+  - Iteration 23: Integration Gap Check (Final)
+  - Iteration 23a: Pre-Implementation Spec Audit (MANDATORY GATE - 4 PARTS)
+  - Iteration 25: Spec Validation Against Validated Documents (CRITICAL GATE)
+  - Iteration 24: Implementation Readiness Protocol (FINAL GATE - GO/NO-GO)
+- **Iteration 23a (Pre-Implementation Spec Audit) has 4 MANDATORY PARTS**:
+  - Part 1: Completeness Audit (Coverage = 100%)
+  - Part 2: Specificity Audit (Specificity = 100%)
+  - Part 3: Interface Contracts Audit (Verification = 100%)
+  - Part 4: Integration Evidence Audit (Integration = 100%)
+  - ALL 4 PARTS must show 100% metrics with evidence (cite specific numbers)
+- **Iteration 25 (Spec Validation) - CRITICAL GATE**:
+  - Close spec.md first (avoid confirmation bias)
+  - Re-read validated documents independently: epic notes + epic ticket + spec summary
+  - Three-way comparison: spec.md vs all three validated sources
+  - IF ANY DISCREPANCIES → STOP and report to user with 3 options
+  - Prevents catastrophic bugs (Feature 02 bug: spec misinterpreted epic notes)
+- **Iteration 24 (Implementation Readiness) - FINAL GATE**:
+  - GO/NO-GO decision required
+  - CANNOT proceed to Stage 5b without "GO" decision
+  - GO requires: confidence >= MEDIUM, all gates PASSED, all checklists complete
+
+**Why Round 3 Part 2 matters:**
+- Contains ALL 3 mandatory gates that CANNOT be skipped
+- Evidence-based verification (must cite specific numbers, provide proof)
+- Three-way validation prevents implementing wrong solution
+- GO/NO-GO framework prevents implementing with incomplete planning
+
+**Prerequisites I'm verifying:**
+✅ Round 3 Part 1 complete (22/24 iterations)
+✅ Implementation phasing defined
+✅ Rollback strategy documented
+✅ Algorithm traceability matrix complete (final)
+✅ Mock audit complete (all mocks verified against real interfaces)
+✅ Integration test plan created (at least 3 tests with REAL objects)
+
+**I'll now proceed with Round 3 Part 2 (iterations 23, 23a, 25, 24).**
+
+**Updating feature README Agent Status:**
+- Current Phase: TODO_CREATION
+- Current Guide: stages/stage_5/round3_part2_final_gates.md
+- Guide Last Read: {YYYY-MM-DD HH:MM}
+- Critical Rules: "3 MANDATORY GATES (23a, 25, 24) - CANNOT skip", "Evidence-based verification (cite numbers)", "Close spec.md before Iteration 25", "User decision required if discrepancies"
+- Progress: 22/24 total iterations complete (starting Round 3 Part 2)
+- Next Action: Begin iteration 23 - Integration Gap Check (Final)
+
+Starting iteration 23...
 ```
 
 ---
@@ -419,7 +487,7 @@ Starting iteration 17...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_5b_implementation_execution_guide.md` to ensure I follow the implementation workflow...
+I'm reading `stages/stage_5/implementation_execution.md` to ensure I follow the implementation workflow...
 
 **The guide requires:**
 - **Create implementation_checklist.md** from spec.md sections
@@ -447,7 +515,7 @@ I'm reading `STAGE_5b_implementation_execution_guide.md` to ensure I follow the 
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION
-- Current Guide: STAGE_5b_implementation_execution_guide.md
+- Current Guide: stages/stage_5/implementation_execution.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "spec.md visible at all times", "Unit tests after every phase (100% pass)", "Mini-QC checkpoints", "Update code_changes.md incrementally"
 - Progress: 0/{N} TODO tasks complete
@@ -467,7 +535,7 @@ Starting implementation...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_5ca_smoke_testing_guide.md` to ensure I follow the 3-part smoke testing protocol...
+I'm reading `stages/stage_5/smoke_testing.md` to ensure I follow the 3-part smoke testing protocol...
 
 **The guide requires:**
 - **Part 1: Import Test** (verify module loads without errors)
@@ -499,7 +567,7 @@ I'm reading `STAGE_5ca_smoke_testing_guide.md` to ensure I follow the 3-part smo
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_SMOKE_TESTING
-- Current Guide: STAGE_5ca_smoke_testing_guide.md
+- Current Guide: stages/stage_5/smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 parts MANDATORY", "Verify DATA VALUES not structure", "GATE before QC rounds"
 - Progress: 0/3 parts complete
@@ -519,7 +587,7 @@ Running import test for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_5cb_qc_rounds_guide.md` to ensure I follow the 3-round QC protocol...
+I'm reading `stages/stage_5/qc_rounds.md` to ensure I follow the 3-round QC protocol...
 
 **The guide requires:**
 - **QC Round 1: Basic Validation**
@@ -549,7 +617,7 @@ I'm reading `STAGE_5cb_qc_rounds_guide.md` to ensure I follow the 3-round QC pro
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_QC_ROUNDS
-- Current Guide: STAGE_5cb_qc_rounds_guide.md
+- Current Guide: stages/stage_5/qc_rounds.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 rounds (no exceptions)", "QC RESTART if critical issues", "Round 3 zero tolerance"
 - Progress: 0/3 rounds complete
@@ -569,7 +637,7 @@ Starting QC Round 1 for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_5cc_final_review_guide.md` to ensure I follow the final review protocol...
+I'm reading `stages/stage_5/final_review.md` to ensure I follow the final review protocol...
 
 **The guide requires:**
 - **PR Review Checklist** (11 categories - ALL MANDATORY):
@@ -607,7 +675,7 @@ I'm reading `STAGE_5cc_final_review_guide.md` to ensure I follow the final revie
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_FINAL_REVIEW
-- Current Guide: STAGE_5cc_final_review_guide.md
+- Current Guide: stages/stage_5/final_review.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "11 categories ALL mandatory", "Update guides immediately", "100% completion required"
 - Progress: PR Review starting
@@ -627,7 +695,7 @@ Starting PR Review for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_5d_post_feature_alignment_guide.md` to ensure I review all remaining feature specs...
+I'm reading `stages/stage_5/post_feature_alignment.md` to ensure I review all remaining feature specs...
 
 **The guide requires:**
 - Review ALL remaining features (not yet at Stage 5c)
@@ -662,7 +730,7 @@ I'm reading `STAGE_5d_post_feature_alignment_guide.md` to ensure I review all re
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 5d - Cross-Feature Alignment
-- Current Guide: STAGE_5d_post_feature_alignment_guide.md
+- Current Guide: stages/stage_5/post_feature_alignment.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Review ALL remaining features", "Compare to ACTUAL implementation", "Update specs proactively", "Mark features needing significant rework"
 - Next Action: Identify remaining features from Epic Progress Tracker
@@ -681,7 +749,7 @@ Starting cross-feature alignment review...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_5e_post_feature_testing_update_guide.md` to ensure I update the epic test plan based on actual implementation...
+I'm reading `stages/stage_5/post_feature_testing_update.md` to ensure I update the epic test plan based on actual implementation...
 
 **The guide requires:**
 - Review ACTUAL implementation of just-completed feature:
@@ -722,7 +790,7 @@ I'm reading `STAGE_5e_post_feature_testing_update_guide.md` to ensure I update t
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 5e - Epic Testing Plan Update
-- Current Guide: STAGE_5e_post_feature_testing_update_guide.md
+- Current Guide: stages/stage_5/post_feature_testing_update.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Review ACTUAL implementation", "Add integration scenarios", "Update History table", "Test plan evolves incrementally"
 - Next Action: Read just-completed feature's actual code to identify test plan updates
@@ -741,7 +809,7 @@ Starting test plan update...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_6_epic_final_qc_guide.md` to ensure I validate the entire epic end-to-end...
+I'm reading `stages/stage_6/epic_smoke_testing.md` to ensure I validate the entire epic end-to-end...
 
 **The guide requires:**
 - **Epic Smoke Testing** (distinct from feature-level testing):
@@ -784,11 +852,11 @@ I'm reading `STAGE_6_epic_final_qc_guide.md` to ensure I validate the entire epi
 **I'll now execute the evolved epic_smoke_test_plan.md...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Stage 6 - Epic Final QC
-- Current Guide: STAGE_6_epic_final_qc_guide.md
+- Current Stage: Stage 6a - Epic Smoke Testing
+- Current Guide: stages/stage_6/epic_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Use EVOLVED test plan", "Verify OUTPUT DATA VALUES", "3 epic QC rounds", "Validate vs original request", "RESTART if ANY issues"
-- Next Action: Execute epic smoke testing (Part 1: Epic-level import tests)
+- Critical Rules: "Use EVOLVED test plan", "Verify OUTPUT DATA VALUES", "4-part smoke testing", "Cross-feature integration", "RESTART if ANY part fails"
+- Next Action: Execute Step 1 - Pre-QC Verification
 
 Starting epic smoke testing...
 ```
@@ -804,7 +872,7 @@ Starting epic smoke testing...
 **Agent MUST respond:**
 
 ```
-I'm reading `STAGE_7_epic_cleanup_guide.md` to ensure I properly finalize and archive the epic...
+I'm reading `stages/stage_7/epic_cleanup.md` to ensure I properly finalize and archive the epic...
 
 **The guide requires:**
 - **Run Unit Tests** (100% pass required):
@@ -853,7 +921,7 @@ I'm reading `STAGE_7_epic_cleanup_guide.md` to ensure I properly finalize and ar
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 7 - Epic Cleanup
-- Current Guide: STAGE_7_epic_cleanup_guide.md
+- Current Guide: stages/stage_7/epic_cleanup.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Unit tests 100% pass before commit", "User testing MANDATORY before commit", "If bugs found → RESTART Stage 6", "Move ENTIRE epic folder", "Leave .txt in root"
 - Next Action: Run python tests/run_all_tests.py
@@ -903,7 +971,7 @@ Waiting for your approval...
 **After user approves:**
 
 ```
-I'm reading `STAGE_5_bug_fix_workflow_guide.md` to ensure I follow the bug fix workflow...
+I'm reading `stages/stage_5/bugfix_workflow.md` to ensure I follow the bug fix workflow...
 
 **The guide requires:**
 - PHASE 1: Bug Fix Creation
@@ -1170,7 +1238,7 @@ Waiting for your clarification...
 
 **✅ CORRECT:**
 ```
-I'm reading `STAGE_5aa_round1_guide.md` to ensure I follow all 8 iterations in Round 1...
+I'm reading `stages/stage_5/round1_todo_creation.md` to ensure I follow all 8 iterations in Round 1...
 {List critical requirements for Round 1}
 ```
 
@@ -1187,7 +1255,7 @@ I'm reading `STAGE_5aa_round1_guide.md` to ensure I follow all 8 iterations in R
 
 **✅ CORRECT:**
 ```
-I'm reading `STAGE_5ca_smoke_testing_guide.md`...
+I'm reading `stages/stage_5/smoke_testing.md`...
 **The guide requires:**
 - Part 1: Import test
 - Part 2: Entry point test

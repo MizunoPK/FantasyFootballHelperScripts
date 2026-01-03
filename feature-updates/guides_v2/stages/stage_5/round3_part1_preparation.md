@@ -4,7 +4,7 @@
 **Stage:** 5ac - TODO Creation Round 3
 **Sub-Stage:** Part 1 - Pre-Implementation Preparation
 **Prerequisites:** STAGE_5ab complete (Round 2), confidence >= MEDIUM, test coverage >90%
-**Next Stage:** STAGE_5ac_part2_final_gates_guide.md
+**Next Stage:** stages/stage_5/round3_part2_final_gates.md
 
 ---
 
@@ -143,7 +143,7 @@ Prerequisites Met?
          │
          ▼
     Transition to Part 2
-    (Read STAGE_5ac_part2_final_gates_guide.md)
+    (Read stages/stage_5/round3_part2_final_gates.md)
 ```
 
 ---
@@ -1099,7 +1099,7 @@ Next Action: Iteration 22 - Output Consumer Validation
 Progress: Iteration 22/24 (Round 3 Part 1) complete
 Consumer Validation: 3 consumers identified, roundtrip tests planned
 Part 1 COMPLETE - Ready for Part 2
-Next Action: Read STAGE_5ac_part2_final_gates_guide.md
+Next Action: Read stages/stage_5/round3_part2_final_gates.md
 ```
 
 ---
@@ -1127,12 +1127,12 @@ Next Action: Read STAGE_5ac_part2_final_gates_guide.md
 ### Agent Status Updated
 - [ ] feature README.md Agent Status shows: "Part 1 complete, ready for Part 2"
 - [ ] Progress documented: "Iteration 22/24 (Round 3 Part 1) complete"
-- [ ] Next action set: "Read STAGE_5ac_part2_final_gates_guide.md"
+- [ ] Next action set: "Read stages/stage_5/round3_part2_final_gates.md"
 
 **If ALL items checked:**
 - Part 1 is COMPLETE
 - Proceed to Part 2 (Final Gates)
-- Read STAGE_5ac_part2_final_gates_guide.md
+- Read stages/stage_5/round3_part2_final_gates.md
 
 **If ANY item unchecked:**
 - STOP - Do not proceed to Part 2
@@ -1215,7 +1215,7 @@ O(n) dict lookup → 0.01s (acceptable)
 
 ## Prerequisites for Next Stage
 
-**Before proceeding to Part 2 (STAGE_5ac_part2_final_gates_guide.md), verify:**
+**Before proceeding to Part 2 (stages/stage_5/round3_part2_final_gates.md), verify:**
 
 ### Part 1 Completion
 - [ ] ALL 6 iterations complete (17-22)
@@ -1238,7 +1238,7 @@ O(n) dict lookup → 0.01s (acceptable)
 
 **Only proceed to Part 2 when ALL items checked.**
 
-**Next stage:** STAGE_5ac_part2_final_gates_guide.md
+**Next stage:** stages/stage_5/round3_part2_final_gates.md
 
 ---
 
@@ -1268,7 +1268,7 @@ O(n) dict lookup → 0.01s (acceptable)
 - Integration tests planned
 - Ready for mandatory gates (Part 2)
 
-**Next Stage:** STAGE_5ac_part2_final_gates_guide.md - Final validation and GO/NO-GO decision
+**Next Stage:** stages/stage_5/round3_part2_final_gates.md - Final validation and GO/NO-GO decision
 
 **Remember:** Part 1 preparation prevents implementation failures. Thoroughness here saves massive rework later.
 

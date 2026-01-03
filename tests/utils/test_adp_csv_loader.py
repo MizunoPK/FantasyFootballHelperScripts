@@ -86,7 +86,7 @@ class TestLoadAdpFromCsv:
         csv_path.write_text(csv_content, encoding='utf-8')
 
         # Act & Assert
-        with pytest.raises(ValueError, match="ADP must be > 0"):
+        with pytest.raises(DataProcessingError, match="ADP must be > 0"):
             load_adp_from_csv(csv_path)
 
     def test_validates_required_columns(self, tmp_path):
@@ -184,7 +184,7 @@ class TestLoadAdpFromCsv:
         csv_path.write_text(csv_content, encoding='utf-8')
 
         # Act & Assert
-        with pytest.raises(ValueError, match="ADP must be > 0"):
+        with pytest.raises(DataProcessingError, match="ADP must be > 0"):
             load_adp_from_csv(csv_path)
 
     def test_returns_correct_row_count(self, test_csv_file):

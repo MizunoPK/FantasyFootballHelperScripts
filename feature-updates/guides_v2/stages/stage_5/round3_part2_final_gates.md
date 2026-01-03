@@ -4,7 +4,7 @@
 **Stage:** 5ac - TODO Creation Round 3
 **Sub-Stage:** Part 2 - Final Gates & GO/NO-GO Decision
 **Prerequisites:** STAGE_5ac_part1 complete (Iterations 17-22)
-**Next Stage:** STAGE_5b_implementation_execution_guide.md
+**Next Stage:** stages/stage_5/implementation_execution.md
 
 ---
 
@@ -1224,7 +1224,7 @@ I completed Iteration 25 (Spec Validation Against Validated Documents) and found
 5. Re-run all iterations (1-25) with corrected spec
 6. Mark Iteration 25 status: "SPEC FIXED - Restarting TODO creation"
 
-**Next Action:** Read STAGE_5aa_round1_guide.md to restart TODO creation
+**Next Action:** Read stages/stage_5/round1_todo_creation.md to restart TODO creation
 
 ---
 ```
@@ -1522,7 +1522,7 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 
 **Next Stage:** Stage 5b (Implementation Execution)
 
-**Proceed using:** STAGE_5b_implementation_execution_guide.md
+**Proceed using:** stages/stage_5/implementation_execution.md
 
 **Reminder:** Keep spec.md VISIBLE during implementation, use Algorithm Traceability Matrix as guide, run tests after EVERY phase.
 
@@ -1579,7 +1579,7 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** IMPLEMENTATION (ready to start)
 **Current Step:** Round 3 complete (25/25 total iterations)
-**Current Guide:** STAGE_5ac_part2_final_gates_guide.md (COMPLETE)
+**Current Guide:** stages/stage_5/round3_part2_final_gates.md (COMPLETE)
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Progress:** All 25 iterations complete ✅
@@ -1592,7 +1592,7 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 
 **Confidence Level:** {HIGH / MEDIUM}
 **Next Stage:** Stage 5b (Implementation Execution)
-**Next Action:** Read STAGE_5b_implementation_execution_guide.md
+**Next Action:** Read stages/stage_5/implementation_execution.md
 **Blockers:** None
 ```
 
@@ -1603,7 +1603,7 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** TODO_CREATION
 **Current Step:** Round 3 - Iteration 24 (NO-GO)
-**Current Guide:** STAGE_5ac_part2_final_gates_guide.md
+**Current Guide:** stages/stage_5/round3_part2_final_gates.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Progress:** Iteration 24 returned NO-GO decision
@@ -1655,7 +1655,7 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 - Round 3 is COMPLETE
 - Stage 5a is COMPLETE
 - Ready to proceed to Stage 5b (Implementation)
-- Read STAGE_5b_implementation_execution_guide.md
+- Read stages/stage_5/implementation_execution.md
 
 **If ANY item unchecked:**
 - STOP - Do not proceed to Stage 5b
@@ -1768,7 +1768,7 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 
 **Only proceed to Stage 5b when ALL items checked.**
 
-**Next stage:** STAGE_5b_implementation_execution_guide.md
+**Next stage:** stages/stage_5/implementation_execution.md
 
 ---
 
@@ -1799,7 +1799,7 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 - Confidence >= MEDIUM
 - Ready for implementation
 
-**Next Stage:** STAGE_5b_implementation_execution_guide.md - Implement TODO tasks with continuous verification
+**Next Stage:** stages/stage_5/implementation_execution.md - Implement TODO tasks with continuous verification
 
 **Remember:** Part 2 contains the FINAL quality gates before implementation. Thoroughness here prevents catastrophic implementation failures. Trust the process - complete ALL iterations, pass ALL gates.
 

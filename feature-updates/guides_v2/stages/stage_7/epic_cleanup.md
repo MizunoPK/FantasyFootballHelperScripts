@@ -560,7 +560,7 @@ If user reports ANY bugs:
 4. User verifies notes.txt (ask user to confirm bug description is accurate)
 
 **Phase 2: Fix ALL Bugs**
-1. Read bug fix workflow guide: `STAGE_5_bug_fix_workflow_guide.md`
+1. Read bug fix workflow guide: `stages/stage_5/bugfix_workflow.md`
 2. Follow bug fix stages: Stage 2 → 5a → 5b → 5c
 3. Mark bug fix complete in EPIC_README.md
 4. Repeat for all bugs until ALL bug fixes reach Stage 5c

@@ -18,16 +18,16 @@
 
 | Current Phase | Guide to Read | Time Estimate |
 |---------------|---------------|---------------|
-| Starting Stage 2 | STAGE_2a_research_phase_guide.md | 45-60 min |
-| Phase 0: Epic Intent Extraction | STAGE_2a_research_phase_guide.md | 15 min |
-| Phase 1: Targeted Research | STAGE_2a_research_phase_guide.md | 30-45 min |
-| Phase 1.5: Research Completeness Audit | STAGE_2a_research_phase_guide.md | 15 min |
-| Phase 2: Update Spec & Checklist | STAGE_2b_specification_phase_guide.md | 30-45 min |
-| Phase 2.5: Spec-to-Epic Alignment Check | STAGE_2b_specification_phase_guide.md | 15 min |
-| Phase 3: Interactive Question Resolution | STAGE_2c_refinement_phase_guide.md | 30-90 min |
-| Phase 4: Dynamic Scope Adjustment | STAGE_2c_refinement_phase_guide.md | 15 min |
-| Phase 5: Cross-Feature Alignment | STAGE_2c_refinement_phase_guide.md | 15-30 min |
-| Phase 6: Acceptance Criteria & User Approval | STAGE_2c_refinement_phase_guide.md | 15-30 min |
+| Starting Stage 2 | stages/stage_2/phase_0_research.md | 45-60 min |
+| Phase 0: Epic Intent Extraction | stages/stage_2/phase_0_research.md | 15 min |
+| Phase 1: Targeted Research | stages/stage_2/phase_0_research.md | 30-45 min |
+| Phase 1.5: Research Completeness Audit | stages/stage_2/phase_0_research.md | 15 min |
+| Phase 2: Update Spec & Checklist | stages/stage_2/phase_1_specification.md | 30-45 min |
+| Phase 2.5: Spec-to-Epic Alignment Check | stages/stage_2/phase_1_specification.md | 15 min |
+| Phase 3: Interactive Question Resolution | stages/stage_2/phase_2_refinement.md | 30-90 min |
+| Phase 4: Dynamic Scope Adjustment | stages/stage_2/phase_2_refinement.md | 15 min |
+| Phase 5: Cross-Feature Alignment | stages/stage_2/phase_2_refinement.md | 15-30 min |
+| Phase 6: Acceptance Criteria & User Approval | stages/stage_2/phase_2_refinement.md | 15-30 min |
 
 ---
 
@@ -46,7 +46,7 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 
 ### STAGE_2a: Research Phase (Phases 0, 1, 1.5)
 
-**Read:** `STAGE_2a_research_phase_guide.md`
+**Read:** `stages/stage_2/phase_0_research.md`
 
 **What it covers:**
 - **Phase 0:** Epic Intent Extraction (re-read epic, extract user's exact words)
@@ -72,7 +72,7 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 
 ### STAGE_2b: Specification Phase (Phases 2, 2.5)
 
-**Read:** `STAGE_2b_specification_phase_guide.md`
+**Read:** `stages/stage_2/phase_1_specification.md`
 
 **What it covers:**
 - **Phase 2:** Update Spec & Checklist (document requirements with traceability)
@@ -96,7 +96,7 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 
 ### STAGE_2c: Refinement Phase (Phases 3, 4, 5, 6)
 
-**Read:** `STAGE_2c_refinement_phase_guide.md`
+**Read:** `stages/stage_2/phase_2_refinement.md`
 
 **What it covers:**
 - **Phase 3:** Interactive Question Resolution (ONE question at a time)
@@ -293,7 +293,7 @@ STAGE_2a
 
 ### If you're starting Stage 2:
 
-**READ:** `STAGE_2a_research_phase_guide.md`
+**READ:** `stages/stage_2/phase_0_research.md`
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`:
 ```markdown
@@ -333,12 +333,12 @@ Ready to begin Phase 0: Epic Intent Extraction.
 
 **After completing STAGE_2a:**
 - Update feature README.md Agent Status: "Phase 1.5 complete, starting Phase 2"
-- **READ:** `STAGE_2b_specification_phase_guide.md` (full guide)
+- **READ:** `stages/stage_2/phase_1_specification.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_2b:**
 - Update feature README.md Agent Status: "Phase 2.5 complete, starting Phase 3"
-- **READ:** `STAGE_2c_refinement_phase_guide.md` (full guide)
+- **READ:** `stages/stage_2/phase_2_refinement.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_2c:**
@@ -389,7 +389,7 @@ Ready to begin Phase 0: Epic Intent Extraction.
 **If ALL features complete Stage 2:**
 - Transition to Stage 3 (Cross-Feature Sanity Check)
 
-📖 **READ:** `STAGE_3_cross_feature_sanity_check_guide.md`
+📖 **READ:** `stages/stage_3/cross_feature_sanity_check.md`
 
 ---
 
@@ -462,16 +462,16 @@ The original guide has been preserved for reference but is deprecated. All Stage
 
 **Stage 2 is now split into three focused guides:**
 
-1. **STAGE_2a_research_phase_guide.md** - Research & Audit (Phases 0, 1, 1.5)
-2. **STAGE_2b_specification_phase_guide.md** - Specification & Alignment (Phases 2, 2.5)
-3. **STAGE_2c_refinement_phase_guide.md** - Refinement & Approval (Phases 3, 4, 5, 6)
+1. **stages/stage_2/phase_0_research.md** - Research & Audit (Phases 0, 1, 1.5)
+2. **stages/stage_2/phase_1_specification.md** - Specification & Alignment (Phases 2, 2.5)
+3. **stages/stage_2/phase_2_refinement.md** - Refinement & Approval (Phases 3, 4, 5, 6)
 
 **Workflow remains the same:** 9 phases, 3 mandatory gates, same completion criteria
 
 **Improvement:** 60-70% reduction in guide size per phase, clearer navigation, better phase focus
 
-**Start here:** `STAGE_2a_research_phase_guide.md` (unless resuming mid-stage)
+**Start here:** `stages/stage_2/phase_0_research.md` (unless resuming mid-stage)
 
 ---
 
-*End of STAGE_2_feature_deep_dive_guide.md (ROUTER)*
+*End of stages/stage_2/feature_deep_dive.md (ROUTER)*

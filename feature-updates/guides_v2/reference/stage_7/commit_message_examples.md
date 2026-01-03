@@ -2,7 +2,7 @@
 
 **Purpose:** Reference examples for epic completion commits
 **When to use:** Step 6 of Stage 7 (Creating Commit Message)
-**Main Guide:** `STAGE_7_epic_cleanup_guide.md`
+**Main Guide:** `stages/stage_7/epic_cleanup.md`
 
 ---
 

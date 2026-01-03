@@ -348,6 +348,215 @@ class TestAccuracySimulationManagerDataLoading:
         assert projected is None
         assert actual is None
 
+    def test_load_season_data_returns_two_folders(self, tmp_path):
+        """Test that _load_season_data returns two different folders (week_N and week_N+1)."""
+        # Create config
+        config = {'config_name': 'test'}
+        config_path = tmp_path / "baseline.json"
+        with open(config_path, 'w') as f:
+            json.dump(config, f)
+
+        # Create data folder with week_01, week_02, week_17, week_18
+        data_folder = tmp_path / "sim_data"
+        data_folder.mkdir()
+        season = data_folder / "2024"
+        season.mkdir()
+        weeks = season / "weeks"
+        weeks.mkdir()
+
+        for week_num in [1, 2, 17, 18]:
+            week_folder = weeks / f"week_{week_num:02d}"
+            week_folder.mkdir()
+
+        output_dir = tmp_path / "output"
+
+        with patch('AccuracySimulationManager.ConfigGenerator'), \
+             patch('AccuracySimulationManager.AccuracyCalculator'), \
+             patch('AccuracySimulationManager.AccuracyResultsManager'):
+            manager = AccuracySimulationManager(
+                baseline_config_path=config_path,
+                output_dir=output_dir,
+                data_folder=data_folder,
+                parameter_order=TEST_PARAMETER_ORDER
+            )
+
+        season_path = manager.available_seasons[0]
+
+        # Test week 1: should return (week_01, week_02)
+        projected, actual = manager._load_season_data(season_path, 1)
+        assert projected is not None
+        assert actual is not None
+        assert projected.name == "week_01"
+        assert actual.name == "week_02"
+        assert projected != actual  # Different folders
+
+        # Test week 17: should return (week_17, week_18)
+        projected, actual = manager._load_season_data(season_path, 17)
+        assert projected is not None
+        assert actual is not None
+        assert projected.name == "week_17"
+        assert actual.name == "week_18"
+        assert projected != actual  # Different folders
+
+    def test_load_season_data_handles_missing_actual_folder(self, tmp_path):
+        """Test that _load_season_data handles missing week_N+1 folder gracefully."""
+        # Create config
+        config = {'config_name': 'test'}
+        config_path = tmp_path / "baseline.json"
+        with open(config_path, 'w') as f:
+            json.dump(config, f)
+
+        # Create data folder with week_18 but NO week_19
+        data_folder = tmp_path / "sim_data"
+        data_folder.mkdir()
+        season = data_folder / "2024"
+        season.mkdir()
+        weeks = season / "weeks"
+        weeks.mkdir()
+
+        week_18 = weeks / "week_18"
+        week_18.mkdir()
+        # week_19 intentionally NOT created
+
+        output_dir = tmp_path / "output"
+
+        with patch('AccuracySimulationManager.ConfigGenerator'), \
+             patch('AccuracySimulationManager.AccuracyCalculator'), \
+             patch('AccuracySimulationManager.AccuracyResultsManager'):
+            manager = AccuracySimulationManager(
+                baseline_config_path=config_path,
+                output_dir=output_dir,
+                data_folder=data_folder,
+                parameter_order=TEST_PARAMETER_ORDER
+            )
+
+        season_path = manager.available_seasons[0]
+
+        # Test missing actual folder (week_19) - should return (None, None) gracefully
+        projected, actual = manager._load_season_data(season_path, 18)
+
+        # Should return (None, None)
+        assert projected is None
+        assert actual is None
+
+        # No exception should be raised (test passes if we get here)
+        # Note: Warning IS logged (visible in test output), but logger not captured by caplog
+
+    def test_load_season_data_handles_missing_projected_folder(self, tmp_path):
+        """Test that _load_season_data handles missing week_N folder gracefully."""
+        # Create config
+        config = {'config_name': 'test'}
+        config_path = tmp_path / "baseline.json"
+        with open(config_path, 'w') as f:
+            json.dump(config, f)
+
+        # Create data folder with NO week_01
+        data_folder = tmp_path / "sim_data"
+        data_folder.mkdir()
+        season = data_folder / "2024"
+        season.mkdir()
+        weeks = season / "weeks"
+        weeks.mkdir()
+        # week_01 intentionally NOT created
+
+        output_dir = tmp_path / "output"
+
+        with patch('AccuracySimulationManager.ConfigGenerator'), \
+             patch('AccuracySimulationManager.AccuracyCalculator'), \
+             patch('AccuracySimulationManager.AccuracyResultsManager'):
+            manager = AccuracySimulationManager(
+                baseline_config_path=config_path,
+                output_dir=output_dir,
+                data_folder=data_folder,
+                parameter_order=TEST_PARAMETER_ORDER
+            )
+
+        season_path = manager.available_seasons[0]
+
+        # Test missing projected folder (week_01) - should return (None, None) gracefully
+        projected, actual = manager._load_season_data(season_path, 1)
+
+        # Should return (None, None)
+        assert projected is None
+        assert actual is None
+
+        # No exception should be raised (test passes if we get here)
+        # Note: Warning IS logged (visible in test output), but logger not captured by caplog
+
+
+    def test_evaluate_config_weekly_uses_two_player_managers(self, tmp_path):
+        """Test that _evaluate_config_weekly creates TWO PlayerManager instances (projected and actual)."""
+        # Create config
+        config = {'config_name': 'test', 'parameters': {}}
+        config_path = tmp_path / "baseline.json"
+        with open(config_path, 'w') as f:
+            json.dump(config, f)
+
+        # Create data folder with week_01 and week_02
+        data_folder = tmp_path / "sim_data"
+        data_folder.mkdir()
+        season = data_folder / "2024"
+        season.mkdir()
+        weeks = season / "weeks"
+        weeks.mkdir()
+
+        for week_num in [1, 2]:
+            week_folder = weeks / f"week_{week_num:02d}"
+            week_folder.mkdir()
+
+        output_dir = tmp_path / "output"
+
+        # Mock the accuracy calculator methods
+        mock_calc = MagicMock()
+        mock_calc.calculate_weekly_mae.return_value = MagicMock(mae=5.0)
+        mock_calc.calculate_ranking_metrics_for_season.return_value = ({}, {})
+
+        with patch('AccuracySimulationManager.ConfigGenerator'), \
+             patch('AccuracySimulationManager.AccuracyCalculator', return_value=mock_calc), \
+             patch('AccuracySimulationManager.AccuracyResultsManager'):
+            manager = AccuracySimulationManager(
+                baseline_config_path=config_path,
+                output_dir=output_dir,
+                data_folder=data_folder,
+                parameter_order=TEST_PARAMETER_ORDER
+            )
+
+        season_path = manager.available_seasons[0]
+
+        # Mock _create_player_manager to track calls
+        mock_projected_mgr = MagicMock()
+        mock_actual_mgr = MagicMock()
+        mock_projected_mgr.players = []
+        mock_actual_mgr.players = []
+        mock_projected_mgr.calculate_max_weekly_projection.return_value = 100.0
+
+        call_count = [0]
+        def create_manager_side_effect(config_dict, week_folder, season_path):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                return mock_projected_mgr
+            else:
+                return mock_actual_mgr
+
+        with patch.object(manager, '_create_player_manager', side_effect=create_manager_side_effect) as mock_create:
+            with patch.object(manager, '_cleanup_player_manager') as mock_cleanup:
+                # Call _evaluate_config_weekly for week 1
+                result = manager._evaluate_config_weekly(config, (1, 1))
+
+        # Verify _create_player_manager called TWICE (once for projected, once for actual)
+        assert mock_create.call_count == 2, f"Expected 2 calls to _create_player_manager, got {mock_create.call_count}"
+
+        # Verify first call used week_01 (projected_path)
+        first_call_folder = mock_create.call_args_list[0][0][1]
+        assert first_call_folder.name == "week_01", f"First call should use week_01, got {first_call_folder.name}"
+
+        # Verify second call used week_02 (actual_path)
+        second_call_folder = mock_create.call_args_list[1][0][1]
+        assert second_call_folder.name == "week_02", f"Second call should use week_02, got {second_call_folder.name}"
+
+        # Verify both managers cleaned up
+        assert mock_cleanup.call_count == 2, f"Expected 2 cleanup calls, got {mock_cleanup.call_count}"
+
 
 class TestAccuracySimulationManagerResumeState:
     """Tests for resume state detection."""

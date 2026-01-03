@@ -50,8 +50,10 @@ from historical_data_compiler.weekly_snapshot_generator import generate_weekly_s
 # =============================================================================
 
 # Control which output formats are generated
-GENERATE_CSV = True   # Generate legacy CSV files (players.csv, players_projected.csv)
+GENERATE_CSV = False   # Generate legacy CSV files (players.csv, players_projected.csv)
 GENERATE_JSON = True  # Generate new JSON files (qb_data.json, rb_data.json, etc.)
+
+YEARS = [2021, 2022, 2023, 2024, 2025]
 
 
 def parse_args() -> argparse.Namespace:
@@ -76,7 +78,7 @@ Output will be written to:
     parser.add_argument(
         "--year",
         type=int,
-        required=True,
+        required=False,
         help=f"NFL season year to compile (>= {MIN_SUPPORTED_YEAR})"
     )
     parser.add_argument(
@@ -259,43 +261,50 @@ def main() -> int:
     logger = get_logger()
 
     try:
-        # Validate year
         validate_year(args.year)
+        year_array = [int(args.year)]
+    except Exception:
+        year_array = YEARS
 
-        # Determine output directory
-        if args.output_dir:
-            output_dir = args.output_dir
-        else:
-            output_dir = Path(__file__).parent / "simulation" / "sim_data" / str(args.year)
+    for current_year in year_array:
+        try:
+            # Validate year
+            validate_year(current_year)
 
-        # Check if output already exists
-        if output_dir.exists():
-            logger.warning(f"Output directory already exists: {output_dir}")
-            logger.warning("Existing data will be overwritten")
-            shutil.rmtree(output_dir)
+            # Determine output directory
+            if args.output_dir:
+                output_dir = args.output_dir
+            else:
+                output_dir = Path(__file__).parent / "simulation" / "sim_data" / str(current_year)
 
-        # Create directory structure
-        create_output_directories(output_dir)
+            # Check if output already exists
+            if output_dir.exists():
+                logger.warning(f"Output directory already exists: {output_dir}")
+                logger.warning("Existing data will be overwritten")
+                shutil.rmtree(output_dir)
 
-        # Run compilation
-        asyncio.run(compile_season_data(args.year, output_dir))
+            # Create directory structure
+            create_output_directories(output_dir)
 
-        logger.info("Historical data compilation completed successfully!")
-        return 0
+            # Run compilation
+            asyncio.run(compile_season_data(current_year, output_dir))
 
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        return 1
-    except KeyboardInterrupt:
-        logger.warning("Compilation interrupted by user")
-        if 'output_dir' in locals():
-            cleanup_on_error(output_dir)
-        return 1
-    except Exception as e:
-        logger.error(f"Compilation failed: {e}", exc_info=True)
-        if 'output_dir' in locals():
-            cleanup_on_error(output_dir)
-        return 1
+            logger.info("Historical data compilation completed successfully!")
+            return 0
+
+        except ValueError as e:
+            logger.error(f"Validation error: {e}")
+            return 1
+        except KeyboardInterrupt:
+            logger.warning("Compilation interrupted by user")
+            if 'output_dir' in locals():
+                cleanup_on_error(output_dir)
+            return 1
+        except Exception as e:
+            logger.error(f"Compilation failed: {e}", exc_info=True)
+            if 'output_dir' in locals():
+                cleanup_on_error(output_dir)
+            return 1
 
 
 if __name__ == "__main__":

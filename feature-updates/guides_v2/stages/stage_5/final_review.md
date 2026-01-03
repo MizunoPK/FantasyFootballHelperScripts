@@ -22,7 +22,7 @@ Stage 5ca (Smoke Testing) → Stage 5cb (QC Rounds) →
 
 2. **Update README Agent Status** with:
    - Current Phase: POST_IMPLEMENTATION (Final Review)
-   - Current Guide: STAGE_5cc_final_review_guide.md
+   - Current Guide: stages/stage_5/final_review.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "11 PR categories MANDATORY", "Update guides immediately", "100% completion required"
    - Next Action: PR Review Category 1 - Correctness and Logic
@@ -579,7 +579,7 @@ This is NOT optional. If you found guide gaps, fix them NOW.
 
 Issue: QC Round 2 found all output data was zeros
 Root cause: Smoke test Part 3 only checked "file exists", didn't verify data VALUES
-Guide gap: STAGE_5ca_smoke_testing_guide.md didn't emphasize DATA VALUES enough
+Guide gap: stages/stage_5/smoke_testing.md didn't emphasize DATA VALUES enough
 
 Action taken: Updated STAGE_5ca guide
 - Added "CRITICAL - Verify OUTPUT DATA" to Part 3 heading
@@ -588,7 +588,7 @@ Action taken: Updated STAGE_5ca guide
 - Added code example showing good vs bad Part 3 validation
 
 Files updated:
-- feature-updates/guides_v2/STAGE_5ca_smoke_testing_guide.md
+- feature-updates/guides_v2/stages/stage_5/smoke_testing.md
 ```
 
 **5. Update lessons_learned.md:**
@@ -612,15 +612,15 @@ Files updated:
 - Excessive mocking in tests hid real integration issues
 
 ### Guide Updates Applied
-1. Updated STAGE_5ca_smoke_testing_guide.md:
+1. Updated stages/stage_5/smoke_testing.md:
    - Enhanced smoke test Part 3 with DATA VALUES emphasis
    - Added real-world example of zero data issue
 
-2. Updated STAGE_5b_implementation_execution_guide.md:
+2. Updated stages/stage_5/implementation_execution.md:
    - Made Interface Verification Protocol STEP 1 (not optional)
    - Added "NO coding from memory" critical rule
 
-3. Updated STAGE_5aa_round1_guide.md:
+3. Updated stages/stage_5/round1_todo_creation.md:
    - Enhanced Mock Audit (iteration 21) with "excessive mocking" anti-pattern
 
 ### Recommendations for Future Features
@@ -702,7 +702,7 @@ Files updated:
    Guide Last Re-Read: {timestamp}
    Checkpoint: Stage 5cc complete, ready for Stage 5d
    Current Phase: Cross-Feature Alignment (Stage 5d)
-   Next Action: Read STAGE_5d_post_feature_alignment_guide.md
+   Next Action: Read stages/stage_5/post_feature_alignment.md
    ```
 
 ---
@@ -906,7 +906,7 @@ Decision: Remove out-of-scope code or get user approval
 
 ### README Agent Status
 - [ ] Updated to reflect Stage 5cc completion
-- [ ] Next action set to "Read STAGE_5d_post_feature_alignment_guide.md"
+- [ ] Next action set to "Read stages/stage_5/post_feature_alignment.md"
 
 ### Final Check
 - [ ] Feature is COMPLETE (not just functional)
@@ -921,7 +921,7 @@ Decision: Remove out-of-scope code or get user approval
 - Update specs if implementation revealed changes/insights
 - Ensure remaining features align with reality
 
-**Next step:** Read STAGE_5d_post_feature_alignment_guide.md and use phase transition prompt
+**Next step:** Read stages/stage_5/post_feature_alignment.md and use phase transition prompt
 
 ---
 
@@ -948,4 +948,4 @@ Decision: Remove out-of-scope code or get user approval
 
 ---
 
-*End of STAGE_5cc_final_review_guide.md*
+*End of stages/stage_5/final_review.md*

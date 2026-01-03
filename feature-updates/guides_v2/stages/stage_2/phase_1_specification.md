@@ -3,7 +3,7 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-02
 **Prerequisites:** STAGE_2a complete (Research Phase PASSED)
-**Next Stage:** STAGE_2c_refinement_phase_guide.md
+**Next Stage:** stages/stage_2/phase_2_refinement.md
 
 ---
 
@@ -531,7 +531,7 @@ total_score = base_score * adp_multiplier * [other existing multipliers...]
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** SPECIFICATION_PHASE
 **Current Step:** Phase 2 - Spec & Checklist Updated (with traceability)
-**Current Guide:** STAGE_2b_specification_phase_guide.md
+**Current Guide:** stages/stage_2/phase_1_specification.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Every requirement must have source (Epic/User Answer/Derived)
@@ -763,7 +763,7 @@ User's explicit requests:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** SPECIFICATION_PHASE
 **Current Step:** Phase 2.5 - Spec-to-Epic Alignment Check PASSED
-**Current Guide:** STAGE_2b_specification_phase_guide.md
+**Current Guide:** stages/stage_2/phase_1_specification.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Phase 2.5 alignment check is MANDATORY GATE
@@ -821,7 +821,7 @@ User's explicit requests:
 
 **After completing Specification Phase:**
 
-→ **Proceed to:** STAGE_2c_refinement_phase_guide.md
+→ **Proceed to:** stages/stage_2/phase_2_refinement.md
 
 **What happens in STAGE_2c:**
 - Phase 3: Interactive Question Resolution (ONE question at a time)

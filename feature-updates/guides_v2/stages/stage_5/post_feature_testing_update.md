@@ -23,7 +23,7 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implem
 
 2. **Update README Agent Status** with:
    - Current Phase: TESTING_PLAN_UPDATE
-   - Current Guide: STAGE_5e_post_feature_testing_update_guide.md
+   - Current Guide: stages/stage_5/post_feature_testing_update.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "Update based on ACTUAL implementation", "Add discovered integration points", "Keep plan current"
    - Next Action: Review epic_smoke_test_plan.md and just-completed feature code
@@ -815,7 +815,7 @@ Ensures Stage 6 epic QC tests actual implementation, not assumptions.
 - [x] Updated with Stage 5e completion
 - [x] Next action set appropriately:
   - More features remain → "Read STAGE_5a guide for feature_02"
-  - All features done → "Read STAGE_6a_epic_smoke_testing_guide.md"
+  - All features done → "Read stages/stage_6/epic_smoke_testing.md"
 
 **If ALL criteria met:**
 - If more features remain → Proceed to next feature's Stage 5a
@@ -1243,7 +1243,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 ### At Start of Stage 5e
 ```markdown
 **Current Phase:** TESTING_PLAN_UPDATE
-**Current Guide:** STAGE_5e_post_feature_testing_update_guide.md
+**Current Guide:** stages/stage_5/post_feature_testing_update.md
 **Guide Last Read:** 2025-12-30 17:00
 **Critical Rules:** "Update based on ACTUAL implementation", "Add discovered integration points", "Keep scenarios executable"
 **Next Action:** Review feature_01 code and epic_smoke_test_plan.md
@@ -1253,12 +1253,12 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 ### At Completion of Stage 5e
 ```markdown
 **Current Phase:** {Next phase based on remaining features}
-**Previous Guide:** STAGE_5e_post_feature_testing_update_guide.md (COMPLETE)
+**Previous Guide:** stages/stage_5/post_feature_testing_update.md (COMPLETE)
 **Current Guide:** {Next guide based on status below}
 **Guide Last Read:** {Not read yet for next guide}
 **Next Action:**
-- If more features remain: "Read STAGE_5aa_round1_guide.md for feature_02 (Round 1)"
-- If all features done: "Read STAGE_6a_epic_smoke_testing_guide.md"
+- If more features remain: "Read stages/stage_5/round1_todo_creation.md for feature_02 (Round 1)"
+- If all features done: "Read stages/stage_6/epic_smoke_testing.md"
 **Stage 5e Summary:**
 - Reviewed feature_01_adp_integration implementation
 - Added 6 new test scenarios to epic_smoke_test_plan.md
@@ -1289,13 +1289,13 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 ### If More Features Remain
 - [ ] Next feature identified (e.g., feature_02_player_rating)
 - [ ] Next feature has spec.md and checklist.md ready
-- [ ] Ready to read STAGE_5aa_round1_guide.md (Round 1 for next feature)
+- [ ] Ready to read stages/stage_5/round1_todo_creation.md (Round 1 for next feature)
 
 ### If All Features Done
 - [ ] Verified ALL features completed Stage 5e
 - [ ] Epic README shows all features complete
 - [ ] No pending bug fixes
-- [ ] Ready to read STAGE_6a_epic_smoke_testing_guide.md
+- [ ] Ready to read stages/stage_6/epic_smoke_testing.md
 
 **If ALL verified:** Ready for next stage
 
@@ -1328,4 +1328,4 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 
 ---
 
-*End of STAGE_5e_post_feature_testing_update_guide.md*
+*End of stages/stage_5/post_feature_testing_update.md*

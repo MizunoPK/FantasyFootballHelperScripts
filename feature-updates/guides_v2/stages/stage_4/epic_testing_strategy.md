@@ -709,7 +709,7 @@ Keep categories but add specific guidance:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** IMPLEMENTATION
 **Current Step:** Ready to begin Stage 5 (Feature Implementation)
-**Current Guide:** STAGE_5aa_round1_guide.md
+**Current Guide:** stages/stage_5/round1_todo_creation.md
 **Guide Last Read:** NOT YET (will read when starting Stage 5a - Round 1)
 
 **Progress:** Stage 4 complete, testing strategy updated
@@ -744,7 +744,7 @@ Keep categories but add specific guidance:
 
 I'll now transition to Stage 5a to begin TODO creation for the first feature.
 
-Following `STAGE_5aa_round1_guide.md` (Round 1) to create comprehensive TODO with 24 verification iterations across 3 rounds.
+Following `stages/stage_5/round1_todo_creation.md` (Round 1) to create comprehensive TODO with 24 verification iterations across 3 rounds.
 ```
 
 ---
@@ -903,7 +903,7 @@ Test 6: Baseline comparison
 
 **After completing Stage 4:**
 
-📖 **READ:** `STAGE_5aa_round1_guide.md` (start with Round 1)
+📖 **READ:** `stages/stage_5/round1_todo_creation.md` (start with Round 1)
 🎯 **GOAL:** Create comprehensive TODO for first feature (24 verification iterations across 3 rounds)
 ⏱️ **ESTIMATE:** 2-3 hours per feature (split across 3 rounds)
 
@@ -917,4 +917,4 @@ Test 6: Baseline comparison
 
 ---
 
-*End of STAGE_4_epic_testing_strategy_guide.md*
+*End of stages/stage_4/epic_testing_strategy.md*

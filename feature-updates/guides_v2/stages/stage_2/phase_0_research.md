@@ -3,7 +3,7 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-02
 **Prerequisites:** Stage 1 complete, feature folder exists
-**Next Stage:** STAGE_2b_specification_phase_guide.md
+**Next Stage:** stages/stage_2/phase_1_specification.md
 
 ---
 
@@ -337,7 +337,7 @@ Add this as the **FIRST section** (before any technical details):
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** RESEARCH_PHASE
 **Current Step:** Phase 0 - Epic Intent Extraction Complete
-**Current Guide:** STAGE_2a_research_phase_guide.md
+**Current Guide:** stages/stage_2/phase_0_research.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Always start with Phase 0 (Epic Intent Extraction)
@@ -660,7 +660,7 @@ def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** RESEARCH_PHASE
 **Current Step:** Phase 1 - Targeted Research Complete
-**Current Guide:** STAGE_2a_research_phase_guide.md
+**Current Guide:** stages/stage_2/phase_0_research.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Research grounded in epic intent
@@ -960,7 +960,7 @@ def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** RESEARCH_PHASE
 **Current Step:** Phase 1.5 - Research Completeness Audit PASSED
-**Current Guide:** STAGE_2a_research_phase_guide.md
+**Current Guide:** stages/stage_2/phase_0_research.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Phase 1.5 audit is MANDATORY GATE
@@ -1019,7 +1019,7 @@ def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
 
 **After completing Research Phase:**
 
-→ **Proceed to:** STAGE_2b_specification_phase_guide.md
+→ **Proceed to:** stages/stage_2/phase_1_specification.md
 
 **What happens in STAGE_2b:**
 - Phase 2: Update Spec & Checklist (with requirement traceability)

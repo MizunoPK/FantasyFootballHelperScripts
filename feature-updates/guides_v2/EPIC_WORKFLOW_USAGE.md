@@ -93,7 +93,7 @@ Stage 7: Epic Cleanup (commit, archive, apply lessons)
 3. **If no in-progress epic:**
    - Verify user created `feature-updates/{epic_name}.txt` with initial notes
    - Use "Starting Stage 1" prompt from `prompts_reference_v2.md`
-   - Read `STAGE_1_epic_planning_guide.md`
+   - Read `stages/stage_1/epic_planning.md`
    - Begin Stage 1 workflow
 
 ### For Resuming Work
@@ -113,7 +113,7 @@ Stage 7: Epic Cleanup (commit, archive, apply lessons)
    **Last Updated:** 2025-12-30 14:30
    **Current Stage:** Stage 5b - Implementation Execution
    **Current Step:** Implementing Feature 2, component 3 of 5
-   **Current Guide:** STAGE_5b_implementation_execution_guide.md
+   **Current Guide:** stages/stage_5/implementation_execution.md
    **Next Action:** Complete PlayerManager.calculate_score() method
    ```
 
@@ -138,13 +138,13 @@ project-root/
 │   └── guides_v2/                # Workflow guides (this folder)
 │       ├── EPIC_WORKFLOW_USAGE.md      # This file
 │       ├── prompts_reference_v2.md     # Mandatory phase transition prompts
-│       ├── templates_v2.md             # File templates
+│       ├── templates/ (templates index & individual files)             # File templates
 │       ├── README.md                   # Guide index
 │       ├── PLAN.md                     # Complete workflow spec
-│       ├── STAGE_1_epic_planning_guide.md
-│       ├── STAGE_2_feature_deep_dive_guide.md
+│       ├── stages/stage_1/epic_planning.md
+│       ├── stages/stage_2/feature_deep_dive.md
 │       ├── ... (16 stage guides total)
-│       └── STAGE_7_epic_cleanup_guide.md
+│       └── stages/stage_7/epic_cleanup.md
 └── [your project files]
 ```
 
@@ -248,7 +248,7 @@ feature-updates/{epic_name}/
 - Feature folders (empty except README, spec, checklist, lessons_learned)
 - Initial `epic_smoke_test_plan.md`
 
-**Guide:** `STAGE_1_epic_planning_guide.md`
+**Guide:** `stages/stage_1/epic_planning.md`
 
 **Key Activities:**
 - Analyze epic request
@@ -271,7 +271,7 @@ feature-updates/{epic_name}/
 - Resolved `checklist.md` items
 - Updated feature README.md
 
-**Guide:** `STAGE_2_feature_deep_dive_guide.md`
+**Guide:** `stages/stage_2/feature_deep_dive.md`
 
 **Key Activities:**
 - Deep dive into each feature (one at a time)
@@ -296,7 +296,7 @@ feature-updates/{epic_name}/
 - Verified specs with no conflicts
 - User sign-off on complete plan
 
-**Guide:** `STAGE_3_cross_feature_sanity_check_guide.md`
+**Guide:** `stages/stage_3/cross_feature_sanity_check.md`
 
 **Key Activities:**
 - Systematic pairwise comparison of all features
@@ -321,7 +321,7 @@ feature-updates/{epic_name}/
 - Integration points identified
 - Epic success criteria defined
 
-**Guide:** `STAGE_4_epic_testing_strategy_guide.md`
+**Guide:** `stages/stage_4/epic_testing_strategy.md`
 
 **Key Activities:**
 - Update test plan based on deep dive findings
@@ -349,9 +349,10 @@ feature-updates/{epic_name}/
 #### Stage 5a: TODO Creation (24 verification iterations across 3 rounds)
 
 **Guide:** 3 guides (Round 1, 2, 3)
-- `STAGE_5aa_round1_guide.md` (iterations 1-7 + 4a)
-- `STAGE_5ab_round2_guide.md` (iterations 8-16)
-- `STAGE_5ac_round3_guide.md` (iterations 17-24 + 23a)
+- `stages/stage_5/round1_todo_creation.md` (iterations 1-7 + 4a)
+- `stages/stage_5/round2_todo_creation.md` (iterations 8-16)
+- `stages/stage_5/round3_part1_preparation.md` (Round 3 Part 1: iterations 17-22)
+- `stages/stage_5/round3_part2_final_gates.md` (Round 3 Part 2: iterations 23, 23a, 25, 24)
 
 **Key Activities:**
 - Round 1: Initial analysis (7 iterations + mandatory 4a gate)
@@ -362,7 +363,7 @@ feature-updates/{epic_name}/
   - Iteration 11: Algorithm Traceability Matrix (re-verify)
   - Iteration 14: Integration Gap Check (re-verify)
   - Iteration 15: Test Coverage Depth Check (>90%)
-- Round 3: Final readiness (8 iterations + mandatory 23a gate)
+- Round 3: Final readiness (10 iterations split into 2 parts + 3 mandatory gates)
   - Iteration 19: Algorithm Traceability Matrix (final)
   - Iteration 21: Mock Audit & Integration Test Plan
   - Iteration 23: Integration Gap Check (final)
@@ -375,7 +376,7 @@ feature-updates/{epic_name}/
 
 #### Stage 5b: Implementation Execution
 
-**Guide:** `STAGE_5b_implementation_execution_guide.md`
+**Guide:** `stages/stage_5/implementation_execution.md`
 
 **Key Activities:**
 - Keep spec.md VISIBLE at all times
@@ -391,9 +392,9 @@ feature-updates/{epic_name}/
 #### Stage 5c: Post-Implementation (3 phases)
 
 **Guides:** 3 guides (Smoke Testing, QC Rounds, Final Review)
-- `STAGE_5ca_smoke_testing_guide.md`
-- `STAGE_5cb_qc_rounds_guide.md`
-- `STAGE_5cc_final_review_guide.md`
+- `stages/stage_5/smoke_testing.md`
+- `stages/stage_5/qc_rounds.md`
+- `stages/stage_5/final_review.md`
 
 **Phase 1 - Smoke Testing:**
 - Part 1: Import Test (module loads)
@@ -416,7 +417,7 @@ feature-updates/{epic_name}/
 
 #### Stage 5d: Cross-Feature Spec Alignment
 
-**Guide:** `STAGE_5d_post_feature_alignment_guide.md`
+**Guide:** `stages/stage_5/post_feature_alignment.md`
 
 **Key Activities:**
 - Review ALL remaining (unimplemented) feature specs
@@ -428,7 +429,7 @@ feature-updates/{epic_name}/
 
 #### Stage 5e: Epic Testing Plan Reassessment
 
-**Guide:** `STAGE_5e_post_feature_testing_update_guide.md`
+**Guide:** `stages/stage_5/post_feature_testing_update.md`
 
 **Key Activities:**
 - Reassess `epic_smoke_test_plan.md`
@@ -453,7 +454,7 @@ feature-updates/{epic_name}/
 - Epic-level lessons learned
 - Epic completion verification
 
-**Guide:** `STAGE_6_epic_final_qc_guide.md`
+**Guide:** `stages/stage_6/epic_smoke_testing.md` (start here, then 6b, 6c)
 
 **Key Activities:**
 - Execute evolved `epic_smoke_test_plan.md` (4 parts)
@@ -479,7 +480,7 @@ feature-updates/{epic_name}/
 - Epic moved to `feature-updates/done/`
 - Guides updated based on lessons learned
 
-**Guide:** `STAGE_7_epic_cleanup_guide.md`
+**Guide:** `stages/stage_7/epic_cleanup.md`
 
 **Key Activities:**
 1. Run unit tests (100% pass MANDATORY)
@@ -502,7 +503,7 @@ feature-updates/{epic_name}/
 
 **When:** Bugs discovered during ANY stage
 
-**Guide:** `STAGE_5_bug_fix_workflow_guide.md`
+**Guide:** `stages/stage_5/bugfix_workflow.md`
 
 **Workflow:** Stage 2 → 5a → 5b → 5c (SKIP Stages 1, 3, 4, 5d, 5e, 6, 7)
 
@@ -540,7 +541,7 @@ feature-updates/{epic_name}/bugfix_{priority}_{name}/
 
 **Example:**
 ```
-I'm reading STAGE_5aa_round1_guide.md to ensure I follow all 8 iterations in Round 1...
+I'm reading stages/stage_5/round1_todo_creation.md to ensure I follow all 8 iterations in Round 1...
 
 The guide requires:
 - Round 1: 8 MANDATORY iterations (iterations 1-7 + 4a)
@@ -572,7 +573,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 ```markdown
 ## Starting Stage 1: Epic Planning
 
-I'm reading `STAGE_1_epic_planning_guide.md` to ensure I follow the complete epic planning process...
+I'm reading `stages/stage_1/epic_planning.md` to ensure I follow the complete epic planning process...
 
 The guide requires:
 - [List 3-5 critical requirements from guide]
@@ -605,7 +606,7 @@ I'll now proceed with Stage 1...
 **Last Updated:** 2025-12-31 10:00
 **Current Stage:** Stage 5b - Implementation Execution
 **Current Step:** Implementing PlayerManager.calculate_score() method
-**Current Guide:** STAGE_5b_implementation_execution_guide.md
+**Current Guide:** stages/stage_5/implementation_execution.md
 **Status:** IN PROGRESS
 **Progress:** Component 3 of 5 complete
 
@@ -718,14 +719,14 @@ Phase transition prompts are **mandatory acknowledgments** that prove you read t
 
 **Scenario:** Starting Stage 5a Round 1
 
-**Step 1:** Read `STAGE_5aa_round1_guide.md`
+**Step 1:** Read `stages/stage_5/round1_todo_creation.md`
 
 **Step 2:** Find "Starting Stage 5a Round 1" prompt in `prompts_reference_v2.md`
 
 **Step 3:** Use the prompt:
 
 ```
-I'm reading STAGE_5aa_round1_guide.md to ensure I follow all 8 iterations in Round 1...
+I'm reading stages/stage_5/round1_todo_creation.md to ensure I follow all 8 iterations in Round 1...
 
 The guide requires:
 - Round 1: 8 MANDATORY iterations (iterations 1-7 + 4a)
@@ -765,31 +766,36 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 **16 total guides in `guides_v2/`:**
 
 **Planning Guides (4):**
-- STAGE_1_epic_planning_guide.md
-- STAGE_2_feature_deep_dive_guide.md
-- STAGE_3_cross_feature_sanity_check_guide.md
-- STAGE_4_epic_testing_strategy_guide.md
+- stages/stage_1/epic_planning.md
+- stages/stage_2/feature_deep_dive.md
+- stages/stage_3/cross_feature_sanity_check.md
+- stages/stage_4/epic_testing_strategy.md
 
 **Implementation Guides (10):**
-- STAGE_5aa_round1_guide.md (Round 1)
-- STAGE_5ab_round2_guide.md (Round 2)
-- STAGE_5ac_round3_guide.md (Round 3)
-- STAGE_5b_implementation_execution_guide.md
-- STAGE_5ca_smoke_testing_guide.md (Phase 1)
-- STAGE_5cb_qc_rounds_guide.md (Phase 2)
-- STAGE_5cc_final_review_guide.md (Phase 3)
-- STAGE_5d_post_feature_alignment_guide.md
-- STAGE_5e_post_feature_testing_update_guide.md
-- STAGE_5_bug_fix_workflow_guide.md
+- stages/stage_5/round1_todo_creation.md (Round 1)
+- stages/stage_5/round2_todo_creation.md (Round 2)
+- stages/stage_5/round3_todo_creation.md (Round 3 router)
+- stages/stage_5/round3_part1_preparation.md (Round 3 Part 1)
+- stages/stage_5/round3_part2_final_gates.md (Round 3 Part 2)
+- stages/stage_5/implementation_execution.md
+- stages/stage_5/smoke_testing.md (Phase 1)
+- stages/stage_5/qc_rounds.md (Phase 2)
+- stages/stage_5/final_review.md (Phase 3)
+- stages/stage_5/post_feature_alignment.md
+- stages/stage_5/post_feature_testing_update.md
+- stages/stage_5/bugfix_workflow.md
 
-**Finalization Guides (2):**
-- STAGE_6_epic_final_qc_guide.md
-- STAGE_7_epic_cleanup_guide.md
+**Finalization Guides (5):**
+- stages/stage_6/epic_final_qc.md (router)
+- stages/stage_6/epic_smoke_testing.md (Steps 1-2)
+- stages/stage_6/epic_qc_rounds.md (Steps 3-5)
+- stages/stage_6/epic_final_review.md (Steps 6-8)
+- stages/stage_7/epic_cleanup.md
 
 **Supporting Files (4):**
 - EPIC_WORKFLOW_USAGE.md (this file)
 - prompts_reference_v2.md (phase transition prompts)
-- templates_v2.md (file templates)
+- templates/ (templates index & individual files) (file templates)
 - README.md (guide index and quick reference)
 
 ### Guide Structure
@@ -835,21 +841,21 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 | Situation | Guide to Use |
 |-----------|-------------|
-| User wants new epic | STAGE_1_epic_planning_guide.md |
-| Writing feature spec | STAGE_2_feature_deep_dive_guide.md |
-| Checking feature conflicts | STAGE_3_cross_feature_sanity_check_guide.md |
-| Planning epic tests | STAGE_4_epic_testing_strategy_guide.md |
+| User wants new epic | stages/stage_1/epic_planning.md |
+| Writing feature spec | stages/stage_2/feature_deep_dive.md |
+| Checking feature conflicts | stages/stage_3/cross_feature_sanity_check.md |
+| Planning epic tests | stages/stage_4/epic_testing_strategy.md |
 | Creating TODO list | STAGE_5aa/5ab/5ac (rounds 1-3) |
-| Writing code | STAGE_5b_implementation_execution_guide.md |
+| Writing code | stages/stage_5/implementation_execution.md |
 | Testing feature | STAGE_5ca/5cb/5cc (smoke/QC/review) |
-| Updating other specs | STAGE_5d_post_feature_alignment_guide.md |
-| Updating test plan | STAGE_5e_post_feature_testing_update_guide.md |
-| Testing epic | STAGE_6_epic_final_qc_guide.md |
-| Committing/archiving | STAGE_7_epic_cleanup_guide.md |
-| Fixing a bug | STAGE_5_bug_fix_workflow_guide.md |
+| Updating other specs | stages/stage_5/post_feature_alignment.md |
+| Updating test plan | stages/stage_5/post_feature_testing_update.md |
+| Testing epic | stages/stage_6/epic_smoke_testing.md (start here) |
+| Committing/archiving | stages/stage_7/epic_cleanup.md |
+| Fixing a bug | stages/stage_5/bugfix_workflow.md |
 | Resuming work | EPIC_README.md Agent Status + current guide |
 | Finding prompts | prompts_reference_v2.md |
-| Creating files | templates_v2.md |
+| Creating files | templates/ (templates index & individual files) |
 
 ---
 
@@ -1030,7 +1036,7 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 **For starting new epic:**
 1. Verify user created `feature-updates/{epic_name}.txt`
 2. Use "Starting Stage 1" prompt from `prompts_reference_v2.md`
-3. Read `STAGE_1_epic_planning_guide.md`
+3. Read `stages/stage_1/epic_planning.md`
 4. Begin Stage 1 workflow
 
 **See:** `feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md` for complete instructions
@@ -1041,15 +1047,15 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 **Update these sections in guides if needed:**
 
 1. **Test command** (if not `python tests/run_all_tests.py`):
-   - Update in STAGE_5b_implementation_execution_guide.md
-   - Update in STAGE_7_epic_cleanup_guide.md
+   - Update in stages/stage_5/implementation_execution.md
+   - Update in stages/stage_7/epic_cleanup.md
 
 2. **File paths** (if different structure):
    - Update examples in guides to match your project structure
-   - Update templates_v2.md with your paths
+   - Update templates/ (templates index & individual files) with your paths
 
 3. **Commit protocol** (if different from project standards):
-   - Update STAGE_7_epic_cleanup_guide.md commit message format
+   - Update stages/stage_7/epic_cleanup.md commit message format
    - Update any project-specific commit requirements
 
 4. **Project-specific terminology:**
@@ -1067,7 +1073,7 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 
 2. **Run through Stage 1:**
    - Use "Starting Stage 1" prompt
-   - Read STAGE_1_epic_planning_guide.md
+   - Read stages/stage_1/epic_planning.md
    - Create epic folder structure
    - Verify all files created correctly
 
@@ -1149,9 +1155,9 @@ No in-progress epics found. Let me verify you have a request file...
 I see you have feature-updates/{epic_name}.txt. Let me start Stage 1.
 
 [Use "Starting Stage 1" prompt from prompts_reference_v2.md]
-[Read STAGE_1_epic_planning_guide.md]
+[Read stages/stage_1/epic_planning.md]
 
-I'm reading STAGE_1_epic_planning_guide.md to ensure I follow the complete epic planning process...
+I'm reading stages/stage_1/epic_planning.md to ensure I follow the complete epic planning process...
 
 The guide requires:
 - Analyze epic request and perform codebase reconnaissance
@@ -1191,7 +1197,7 @@ I see the epic is currently at:
 
 I'm resuming the in-progress epic {epic_name}. Let me read the current guide to restore context...
 
-[Read STAGE_5b_implementation_execution_guide.md]
+[Read stages/stage_5/implementation_execution.md]
 
 The guide requires:
 - Keep spec.md VISIBLE at all times
@@ -1231,7 +1237,7 @@ All criteria met. Ready to proceed to Stage 3.
 
 [Use "Starting Stage 3" prompt from prompts_reference_v2.md]
 
-I'm reading STAGE_3_cross_feature_sanity_check_guide.md to ensure I perform thorough cross-feature validation...
+I'm reading stages/stage_3/cross_feature_sanity_check.md to ensure I perform thorough cross-feature validation...
 
 The guide requires:
 - Systematic pairwise comparison of all feature specs
@@ -1265,7 +1271,7 @@ MINOR:
 
 These issues require fixes before proceeding.
 
-Following QC Restart Protocol from STAGE_5cb_qc_rounds_guide.md:
+Following QC Restart Protocol from stages/stage_5/qc_rounds.md:
 - Fix ALL issues immediately (no deferrals)
 - RESTART from smoke testing (Part 1)
 - Re-run all 3 QC rounds
@@ -1278,7 +1284,7 @@ Fixing issues now...
 
 All issues fixed. Restarting QC process from smoke testing...
 
-[Execute STAGE_5ca_smoke_testing_guide.md Part 1]
+[Execute stages/stage_5/smoke_testing.md Part 1]
 [Execute Part 2]
 [Execute Part 3]
 
@@ -1302,7 +1308,7 @@ You reported the following bugs during testing:
 1. Draft recommendations show incorrect player rankings
 2. Export file has wrong column headers
 
-Following Stage 7 bug fix protocol from STAGE_7_epic_cleanup_guide.md:
+Following Stage 7 bug fix protocol from stages/stage_7/epic_cleanup.md:
 
 Phase 1: Document Bugs
 
@@ -1318,7 +1324,7 @@ Please verify these notes.txt files accurately describe the bugs...
 
 Phase 2: Fix ALL Bugs
 
-[For each bug fix, follow STAGE_5_bug_fix_workflow_guide.md]
+[For each bug fix, follow stages/stage_5/bugfix_workflow.md]
 [Stage 2: Create spec.md]
 [Stage 5a: Create todo.md]
 [Stage 5b: Implement fix]
@@ -1330,10 +1336,12 @@ Phase 3: RESTART Stage 6 (Epic Final QC)
 
 Following guide requirement: After bug fixes, must restart ENTIRE Stage 6.
 
-[Read STAGE_6_epic_final_qc_guide.md]
+[Read stages/stage_6/epic_smoke_testing.md]
 [Execute epic smoke testing - 4 parts]
+[Read stages/stage_6/epic_qc_rounds.md]
 [Execute epic QC rounds - 3 rounds]
-[Execute epic PR review]
+[Read stages/stage_6/epic_final_review.md]
+[Execute epic PR review and final verification]
 
 Stage 6 complete with zero issues.
 
@@ -1366,7 +1374,7 @@ The epic is currently at:
 - Stage: Stage 5a - TODO Creation
 - Round: Round 2
 - Iteration: 11 of 16
-- Guide: STAGE_5ab_round2_guide.md
+- Guide: stages/stage_5/round2_todo_creation.md
 - Next Action: Complete Algorithm Traceability Matrix (iteration 11)
 
 Session compaction occurred. Following resumption protocol...
@@ -1375,7 +1383,7 @@ Session compaction occurred. Following resumption protocol...
 
 I'm resuming work on {epic_name} after session compaction. Let me restore context...
 
-[Read STAGE_5ab_round2_guide.md]
+[Read stages/stage_5/round2_todo_creation.md]
 [Read feature spec.md]
 [Read current todo.md]
 
@@ -1502,7 +1510,7 @@ I'll now continue with iteration 11...
 **For more information:**
 - Complete guide index: `README.md`
 - Phase transition prompts: `prompts_reference_v2.md`
-- File templates: `templates_v2.md`
+- File templates: `templates/ (templates index & individual files)`
 - Detailed workflow spec: `PLAN.md`
 
 **Questions or feedback?** Update `epic_lessons_learned.md` with guide improvement suggestions.

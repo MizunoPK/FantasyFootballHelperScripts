@@ -22,7 +22,7 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implem
 
 2. **Update README Agent Status** with:
    - Current Phase: CROSS_FEATURE_ALIGNMENT
-   - Current Guide: STAGE_5d_post_feature_alignment_guide.md
+   - Current Guide: stages/stage_5/post_feature_alignment.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "Compare to ACTUAL implementation", "Update specs proactively", "Mark features needing rework"
    - Next Action: Review feature_01 spec (first remaining feature)
@@ -852,7 +852,7 @@ What would you like to do?
    Guide Last Re-Read: {timestamp}
    Checkpoint: Stage 5d complete, all remaining specs aligned
    Current Phase: TESTING_PLAN_UPDATE (Stage 5e)
-   Next Action: Read STAGE_5e_post_feature_testing_update_guide.md
+   Next Action: Read stages/stage_5/post_feature_testing_update.md
    ```
 
 ---
@@ -1055,7 +1055,7 @@ Decision: CONTINUE (Minor Updates)
 
 ### README Agent Status
 - [x] Updated to reflect Stage 5d completion
-- [x] Next action set to "Read STAGE_5e_post_feature_testing_update_guide.md"
+- [x] Next action set to "Read stages/stage_5/post_feature_testing_update.md"
 
 **If ALL criteria met:** Proceed to Stage 5e (Testing Plan Update)
 
@@ -1467,7 +1467,7 @@ git commit -m "Update feature_05 spec to follow feature_01 patterns
 ### At Start of Stage 5d
 ```markdown
 **Current Phase:** CROSS_FEATURE_ALIGNMENT
-**Current Guide:** STAGE_5d_post_feature_alignment_guide.md
+**Current Guide:** stages/stage_5/post_feature_alignment.md
 **Guide Last Read:** 2025-12-30 16:00
 **Critical Rules:** "Compare to ACTUAL implementation", "Update specs proactively", "Review ALL remaining features"
 **Next Action:** Identify remaining features and create review checklist
@@ -1477,7 +1477,7 @@ git commit -m "Update feature_05 spec to follow feature_01 patterns
 ### During Review (after each feature)
 ```markdown
 **Current Phase:** CROSS_FEATURE_ALIGNMENT
-**Current Guide:** STAGE_5d_post_feature_alignment_guide.md
+**Current Guide:** stages/stage_5/post_feature_alignment.md
 **Guide Last Read:** 2025-12-30 16:00
 **Progress:** Reviewed 2/4 remaining features
 **Completed Reviews:**
@@ -1489,11 +1489,11 @@ git commit -m "Update feature_05 spec to follow feature_01 patterns
 ### At Completion of Stage 5d
 ```markdown
 **Current Phase:** TESTING_PLAN_UPDATE (Stage 5e)
-**Previous Guide:** STAGE_5d_post_feature_alignment_guide.md (COMPLETE)
-**Current Guide:** STAGE_5e_post_feature_testing_update_guide.md (NOT YET READ)
+**Previous Guide:** stages/stage_5/post_feature_alignment.md (COMPLETE)
+**Current Guide:** stages/stage_5/post_feature_testing_update.md (NOT YET READ)
 **Guide Last Read:** {Not read yet}
 **Critical Rules:** {To be determined after reading Stage 5e guide}
-**Next Action:** Read STAGE_5e_post_feature_testing_update_guide.md and use phase transition prompt
+**Next Action:** Read stages/stage_5/post_feature_testing_update.md and use phase transition prompt
 **Stage 5d Summary:**
 - Reviewed 4 remaining features
 - Applied minor updates to features 2, 4, 5
@@ -1528,7 +1528,7 @@ git commit -m "Update feature_05 spec to follow feature_01 patterns
 
 ### README Agent Status
 - [ ] Updated to reflect Stage 5d completion
-- [ ] Next action set to "Read STAGE_5e_post_feature_testing_update_guide.md"
+- [ ] Next action set to "Read stages/stage_5/post_feature_testing_update.md"
 
 **If ALL verified:** Ready for Stage 5e
 
@@ -1538,7 +1538,7 @@ git commit -m "Update feature_05 spec to follow feature_01 patterns
 - Add integration points discovered during implementation
 - Keep testing plan current as epic evolves
 
-**Next step:** Read STAGE_5e_post_feature_testing_update_guide.md and use phase transition prompt
+**Next step:** Read stages/stage_5/post_feature_testing_update.md and use phase transition prompt
 
 ---
 
@@ -1570,4 +1570,4 @@ git commit -m "Update feature_05 spec to follow feature_01 patterns
 
 ---
 
-*End of STAGE_5d_post_feature_alignment_guide.md*
+*End of stages/stage_5/post_feature_alignment.md*

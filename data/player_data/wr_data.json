@@ -9,7 +9,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "Chase-ing points",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 4.8,
       "player_rating": 96.89979123173278,
       "projected_points": [
         16.65673975,
@@ -425,7 +425,7 @@
       "injury_status": "QUESTIONABLE",
       "drafted_by": "Fishoutawater",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 7.3,
       "player_rating": 100.0,
       "projected_points": [
         19.40932086,
@@ -633,7 +633,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "The Injury Report",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 5.2,
       "player_rating": 94.62630480167014,
       "projected_points": [
         20.29536225,
@@ -1257,7 +1257,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "Striking Shibas",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 9.2,
       "player_rating": 77.67849686847599,
       "projected_points": [
         18.13402825,
@@ -13113,7 +13113,7 @@
       "injury_status": "INJURY_RESERVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 3.5,
       "player_rating": 80.15866388308977,
       "projected_points": [
         19.68660759,
@@ -25385,7 +25385,7 @@
       "injury_status": "OUT",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 170.0,
+      "average_draft_position": 9.2,
       "player_rating": 26.835073068893532,
       "projected_points": [
         4.93711919,

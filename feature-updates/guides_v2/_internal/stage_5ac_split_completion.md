@@ -2,21 +2,21 @@
 
 ## Overview
 
-Successfully split STAGE_5ac_round3_guide.md (1,957 lines) into two focused sub-stages, following the same pattern as STAGE_2 and STAGE_6 splits.
+Successfully split stages/stage_5/round3_todo_creation.md (1,957 lines) into two focused sub-stages, following the same pattern as STAGE_2 and STAGE_6 splits.
 
 ## Files Created
 
-1. ✅ **STAGE_5ac_part1_preparation_guide.md** (1,277 lines)
+1. ✅ **stages/stage_5/round3_part1_preparation.md** (1,277 lines)
    - Iterations 17-22: Preparation phase
    - Implementation phasing, rollback strategy, algorithm traceability (final)
    - Performance optimization, mock audit, output consumer validation
 
-2. ✅ **STAGE_5ac_part2_final_gates_guide.md** (comprehensive)
+2. ✅ **stages/stage_5/round3_part2_final_gates.md** (comprehensive)
    - Iterations 23, 23a, 25, 24: Final gates phase
    - Contains ALL 3 mandatory gates that cannot be skipped
    - Evidence-based verification, three-way validation, GO/NO-GO decision
 
-3. ✅ **STAGE_5ac_round3_guide.md** (new router, ~400 lines)
+3. ✅ **stages/stage_5/round3_todo_creation.md** (new router, ~400 lines)
    - Quick navigation table
    - Sub-stage breakdown
    - Workflow progression diagram
@@ -31,15 +31,15 @@ Successfully split STAGE_5ac_round3_guide.md (1,957 lines) into two focused sub-
 
 ## Reference Updates Applied
 
-### 1. STAGE_5ab_round2_guide.md ✅
+### 1. stages/stage_5/round2_todo_creation.md ✅
 **Updates:**
-- Line 105: Changed "Proceed to Round 3 (STAGE_5ac_round3_guide.md)" to "Proceed to Round 3 Part 1 (STAGE_5ac_part1_preparation_guide.md)"
-- Line 944: Changed "Next Guide: STAGE_5ac_round3_guide.md" to "Next Guide: STAGE_5ac_part1_preparation_guide.md"
+- Line 105: Changed "Proceed to Round 3 (stages/stage_5/round3_todo_creation.md)" to "Proceed to Round 3 Part 1 (stages/stage_5/round3_part1_preparation.md)"
+- Line 944: Changed "Next Guide: stages/stage_5/round3_todo_creation.md" to "Next Guide: stages/stage_5/round3_part1_preparation.md"
 - Lines 1100-1113: Expanded Round 3 description to show split into Part 1 and Part 2 with iteration breakdown
 
 **Verification:**
 ```bash
-grep -A3 "Round 2 complete" STAGE_5ab_round2_guide.md
+grep -A3 "Round 2 complete" stages/stage_5/round2_todo_creation.md
 # Shows updated references to Part 1
 ```
 
@@ -82,19 +82,19 @@ grep "STAGE_5ac" EPIC_WORKFLOW_USAGE.md | wc -l
 # Shows 3 references (router, part1, part2)
 ```
 
-### 5. STAGE_5_bug_fix_workflow_guide.md ✅
+### 5. stages/stage_5/bugfix_workflow.md ✅
 **Updates:**
 - Lines 416-419: Updated "Read guides in order" section to include both Part 1 and Part 2 as separate steps
 
 **Verification:**
 ```bash
-grep -A4 "Read guides in order" STAGE_5_bug_fix_workflow_guide.md
+grep -A4 "Read guides in order" stages/stage_5/bugfix_workflow.md
 # Shows 4 guides (Round 1, Round 2, Round 3 Part 1, Round 3 Part 2)
 ```
 
 ### 6. templates/feature_lessons_learned_template.md ✅
 **Updates:**
-- Line 161: Split STAGE_5ac_round3_guide.md reference into Part 1 and Part 2 references
+- Line 161: Split stages/stage_5/round3_todo_creation.md reference into Part 1 and Part 2 references
 
 ## Benefits Achieved
 
@@ -119,19 +119,19 @@ grep -A4 "Read guides in order" STAGE_5_bug_fix_workflow_guide.md
 ## Git Status
 
 **New files:**
-- STAGE_5ac_part1_preparation_guide.md
-- STAGE_5ac_part2_final_gates_guide.md
+- stages/stage_5/round3_part1_preparation.md
+- stages/stage_5/round3_part2_final_gates.md
 - STAGE_5ac_round3_guide_ORIGINAL_BACKUP.md
 - STAGE_5ac_SPLIT_REFERENCE_UPDATES.md (checklist)
 - STAGE_5ac_SPLIT_COMPLETION_SUMMARY.md (this file)
 
 **Modified files:**
-- STAGE_5ab_round2_guide.md
+- stages/stage_5/round2_todo_creation.md
 - prompts_reference_v2.md
 - README.md
 - EPIC_WORKFLOW_USAGE.md
-- STAGE_5_bug_fix_workflow_guide.md
-- STAGE_5ac_round3_guide.md (converted to router)
+- stages/stage_5/bugfix_workflow.md
+- stages/stage_5/round3_todo_creation.md (converted to router)
 - templates/feature_lessons_learned_template.md
 
 ## Verification Commands

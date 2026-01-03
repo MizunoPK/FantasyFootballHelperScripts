@@ -156,44 +156,37 @@ class SimulatedLeague:
         # Shuffle to randomize which teams get which strategies
         random.shuffle(strategies)
 
-        # Determine player data source paths
-        # For historical data structure, use week 1 data for initial setup
-        weeks_folder = self.data_folder / "weeks" / "week_01"
-        if weeks_folder.exists():
-            # Historical structure: use week 1 data
-            players_projected_path = weeks_folder / "players_projected.csv"
-            players_actual_path = weeks_folder / "players.csv"
-            self.logger.debug("Using historical week 1 data for initial team setup")
-        else:
-            # Legacy flat structure
-            players_projected_path = self.data_folder / "players_projected.csv"
-            players_actual_path = self.data_folder / "players_actual.csv"
+        # Determine player data source path (JSON files in week folders)
+        # For historical data structure, use week 1 JSON files for initial setup
+        week_folder = self.data_folder / "weeks" / "week_01"
+        if not week_folder.exists():
+            raise FileNotFoundError(f"Week folder not found: {week_folder}")
 
-        # OPTIMIZATION: Create shared directories ONCE instead of per-team
-        shared_projected_dir = self._create_shared_data_dir(
-            "shared_projected", players_projected_path, players_projected_path
-        )
-        shared_actual_dir = self._create_shared_data_dir(
-            "shared_actual", players_actual_path, players_projected_path
-        )
+        self.logger.debug(f"Using week 1 JSON files for initial team setup: {week_folder}")
+
+        # OPTIMIZATION: Create shared directory ONCE instead of per-team
+        # With JSON, we only need one shared directory (not separate projected/actual)
+        shared_dir = self._create_shared_data_dir("shared_data", week_folder)
 
         # Create shared ConfigManager (all teams use same config)
-        shared_config = ConfigManager(shared_projected_dir)
+        shared_config = ConfigManager(shared_dir)
 
         # Create shared SeasonScheduleManager
-        shared_schedule_mgr = SeasonScheduleManager(shared_projected_dir)
+        shared_schedule_mgr = SeasonScheduleManager(shared_dir)
 
         # Create shared TeamDataManager
         shared_team_data_mgr = TeamDataManager(
-            shared_projected_dir, shared_config, shared_schedule_mgr, shared_config.current_nfl_week
+            shared_dir, shared_config, shared_schedule_mgr, shared_config.current_nfl_week
         )
 
-        # Create each team using shared directories
+        # Create each team using shared directory
         for idx, strategy in enumerate(strategies):
             # Each team gets independent PlayerManager instances
-            # PlayerManager loads data into memory, so each team has its own in-memory state
-            projected_pm = PlayerManager(shared_projected_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
-            actual_pm = PlayerManager(shared_actual_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
+            # PlayerManager loads JSON data into memory, so each team has its own in-memory state
+            # With JSON format, we use the same shared directory for both projected and actual
+            # (arrays contain both projected_points and actual_points)
+            projected_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
+            actual_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
 
             # Create team based on strategy
             if strategy == 'draft_helper':
@@ -206,20 +199,19 @@ class SimulatedLeague:
 
             self.teams.append(team)
 
-        self.logger.debug(f"Initialized {len(self.teams)} teams (using shared data directories)")
+        self.logger.debug(f"Initialized {len(self.teams)} teams (using shared data directory)")
 
-    def _create_shared_data_dir(self, dir_name: str, players_csv_path: Path, players_projected_path: Path) -> Path:
+    def _create_shared_data_dir(self, dir_name: str, week_folder: Path) -> Path:
         """
-        Create a shared data directory with all required files.
+        Create a shared data directory with all required files (JSON format).
 
-        This is called ONCE per simulation to create shared directories that all teams
+        This is called ONCE per simulation to create a shared directory that all teams
         can read from. This optimization reduces file I/O from ~60 copies per simulation
-        to just 2 directories.
+        to just 1 directory.
 
         Args:
-            dir_name (str): Name for the shared directory (e.g., "shared_projected")
-            players_csv_path (Path): Source path for players.csv
-            players_projected_path (Path): Source path for players_projected.csv
+            dir_name (str): Name for the shared directory (e.g., "shared_data")
+            week_folder (Path): Path to week folder containing 6 JSON files
 
         Returns:
             Path: Path to the created shared directory
@@ -227,9 +219,20 @@ class SimulatedLeague:
         shared_dir = self.temp_dir / dir_name
         shared_dir.mkdir()
 
-        # Copy player data files
-        shutil.copy(players_csv_path, shared_dir / "players.csv")
-        shutil.copy(players_projected_path, shared_dir / "players_projected.csv")
+        # Create player_data/ subfolder (REQUIRED by PlayerManager)
+        player_data_dir = shared_dir / 'player_data'
+        player_data_dir.mkdir()
+
+        # Copy 6 JSON files from week folder to player_data/
+        position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
+                         'te_data.json', 'k_data.json', 'dst_data.json']
+        for position_file in position_files:
+            src = week_folder / position_file
+            dst = player_data_dir / position_file
+            if src.exists():
+                shutil.copy(src, dst)
+            else:
+                self.logger.warning(f"Missing {position_file} in {week_folder}")
 
         # Copy config
         shutil.copy(self.config_path, shared_dir / "league_config.json")
@@ -249,7 +252,7 @@ class SimulatedLeague:
         else:
             self.logger.warning(f"team_data folder not found: {team_data_source}")
 
-        self.logger.debug(f"Created shared data directory: {shared_dir}")
+        self.logger.debug(f"Created shared data directory with JSON files: {shared_dir}")
         return shared_dir
 
     def _generate_schedule(self) -> None:
@@ -267,8 +270,17 @@ class SimulatedLeague:
         """
         Pre-load all 17 weeks of player data into memory cache.
 
+        For Win Rate simulation accuracy, we need TWO datasets per week:
+        - week_N folder: Contains projected_points for week N
+        - week_N+1 folder: Contains actual_points for week N
+
+        This is because week_N folder represents data "as of" week N's start,
+        so week N's actual results aren't known until week_N+1.
+
         This optimization reduces disk I/O from 340 reads (17 weeks × 10 teams × 2 files)
-        to just 17 reads per simulation. Data is parsed once and shared across all teams.
+        to just 34 reads per simulation (2 per week except week 17).
+
+        Cache structure: {week_num: {'projected': {players}, 'actual': {players}}}
 
         Only loads data if historical structure (weeks/week_XX/) exists.
         Falls back gracefully if using legacy flat structure.
@@ -279,23 +291,56 @@ class SimulatedLeague:
             self.logger.debug("No weeks/ folder found - using legacy flat structure")
             return
 
-        self.logger.debug("Pre-loading all 17 weeks of player data")
+        self.logger.debug("Pre-loading all 17 weeks of player data (projected + actual)")
 
         for week_num in range(1, 18):
-            week_folder = weeks_folder / f"week_{week_num:02d}"
-            players_file = week_folder / "players.csv"
+            # Week N folder for projections
+            projected_folder = weeks_folder / f"week_{week_num:02d}"
 
-            if players_file.exists():
-                self.week_data_cache[week_num] = self._parse_players_csv(players_file)
-                self.logger.debug(f"Cached week {week_num}: {len(self.week_data_cache[week_num])} players")
+            # Week N+1 folder for actuals
+            actual_week_num = week_num + 1
+            actual_folder = weeks_folder / f"week_{actual_week_num:02d}"
+
+            if not projected_folder.exists():
+                self.logger.warning(f"Week {week_num} projected folder not found at {projected_folder}")
+                continue
+
+            # Parse projected data from week_N
+            projected_data = self._parse_players_json(projected_folder, week_num)
+
+            # Parse actual data from week_N+1 (if exists)
+            if actual_folder.exists():
+                # For actual data, we want actual_points[week_num - 1] from week_N+1 folder
+                actual_data = self._parse_players_json(actual_folder, week_num, week_num_for_actual=actual_week_num)
             else:
-                self.logger.warning(f"Week {week_num} players.csv not found at {players_file}")
+                # Week 17 limitation: no week_18 exists for actual data
+                # Use projected data for actuals as fallback (will have 0.0 actuals)
+                self.logger.warning(
+                    f"Week {actual_week_num} actual folder not found (needed for week {week_num} actuals). "
+                    f"Using projected data as fallback."
+                )
+                actual_data = projected_data  # Fallback to same data
+
+            # Cache both datasets
+            self.week_data_cache[week_num] = {
+                'projected': projected_data,
+                'actual': actual_data
+            }
+
+            self.logger.debug(
+                f"Cached week {week_num}: "
+                f"{len(projected_data)} projected players, "
+                f"{len(actual_data)} actual players"
+            )
 
         self.logger.debug(f"Pre-loaded {len(self.week_data_cache)} weeks of player data")
 
     def _parse_players_csv(self, filepath: Path) -> Dict[int, Dict[str, Any]]:
         """
         Parse players.csv into dictionary format keyed by player ID.
+
+        DEPRECATED: This method is kept for backward compatibility but is no longer
+        used with the JSON-based player data structure.
 
         Args:
             filepath (Path): Path to players.csv file
@@ -315,11 +360,97 @@ class SimulatedLeague:
                     continue
         return players
 
+    def _parse_players_json(
+        self,
+        week_folder: Path,
+        week_num: int,
+        week_num_for_actual: Optional[int] = None
+    ) -> Dict[int, Dict[str, Any]]:
+        """
+        Parse 6 JSON files and extract week-specific values from arrays.
+
+        Reads all position JSON files, extracts the week-specific projected_points
+        and actual_points from arrays. Projected points always use (week_num - 1) index.
+        Actual points use (week_num_for_actual - 1) if provided, otherwise (week_num - 1).
+
+        This dual-index support enables the week_N+1 bug fix: when parsing week_N+1 folder
+        to get week N actuals, we want projected_points[N-1] and actual_points[N-1] from
+        the week_N+1 arrays.
+
+        Args:
+            week_folder (Path): Path to week_NN folder containing 6 JSON files
+            week_num (int): Week number for projected_points indexing (1-17)
+            week_num_for_actual (Optional[int]): Week number for actual_points indexing.
+                                                  If None, uses week_num (backward compatible)
+
+        Returns:
+            Dict[int, Dict[str, Any]]: Player data keyed by player ID with
+                                       single-value fields (matching CSV format)
+        """
+        # Default to week_num if week_num_for_actual not provided (backward compatible)
+        actual_week = week_num_for_actual if week_num_for_actual is not None else week_num
+
+        players = {}
+        position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
+                         'te_data.json', 'k_data.json', 'dst_data.json']
+
+        for position_file in position_files:
+            json_file = week_folder / position_file
+            if not json_file.exists():
+                self.logger.warning(f"Missing {position_file} in {week_folder}")
+                continue
+
+            with open(json_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                for player_dict in data:
+                    try:
+                        player_id = int(player_dict['id'])
+
+                        # Extract week-specific values from arrays
+                        projected_array = player_dict.get('projected_points', [])
+                        actual_array = player_dict.get('actual_points', [])
+
+                        # Projected points: always use week_num index
+                        if len(projected_array) > week_num - 1:
+                            projected = projected_array[week_num - 1]
+                        else:
+                            projected = 0.0
+
+                        # Actual points: use actual_week index (for week_N+1 fix)
+                        if len(actual_array) > actual_week - 1:
+                            actual = actual_array[actual_week - 1]
+                        else:
+                            actual = 0.0
+
+                        # Build player dict with single values (matching CSV format)
+                        players[player_id] = {
+                            'id': str(player_id),
+                            'name': player_dict.get('name', ''),
+                            'position': player_dict.get('position', ''),
+                            'drafted_by': player_dict.get('drafted_by', ''),  # string
+                            'locked': str(int(player_dict.get('locked', False))),  # Convert bool to "0"/"1" for compatibility
+                            'projected_points': str(projected),  # Single value for this week
+                            'actual_points': str(actual)  # Single value for this week
+                        }
+                    except (ValueError, KeyError, TypeError) as e:
+                        self.logger.warning(f"Error parsing player in {position_file}: {e}")
+                        continue
+
+        self.logger.debug(f"Parsed {len(players)} players from week {week_num} JSON files")
+        return players
+
     def _load_week_data(self, week_num: int) -> None:
         """
         Load week-specific player data from pre-loaded cache.
 
-        Updates all teams' PlayerManagers with the week's data.
+        Updates all teams' PlayerManagers with the week's data. For accuracy,
+        we load DIFFERENT data for projected_pm vs actual_pm:
+        - projected_pm: Gets data from week_N folder (projections for week N)
+        - actual_pm: Gets data from week_N+1 folder (actuals for week N)
+
+        This is because week_N folder has actual_points[N-1] = 0.0 (week not complete),
+        but week_N+1 folder has actual_points[N-1] = real value (week now complete).
+
         This is called at the start of each week during run_season().
 
         Args:
@@ -332,14 +463,25 @@ class SimulatedLeague:
             # Legacy mode - no week-specific data available
             return
 
-        week_player_data = self.week_data_cache[week_num]
+        week_data = self.week_data_cache[week_num]
+
+        # Extract projected and actual datasets
+        # Structure: {week_num: {'projected': {players}, 'actual': {players}}}
+        if isinstance(week_data, dict) and 'projected' in week_data and 'actual' in week_data:
+            # New format with separate projected/actual data
+            projected_data = week_data['projected']
+            actual_data = week_data['actual']
+        else:
+            # Legacy format or fallback - use same data for both
+            projected_data = week_data
+            actual_data = week_data
 
         # Update each team's PlayerManagers with week-specific data
         for team in self.teams:
             if hasattr(team, 'projected_pm') and hasattr(team.projected_pm, 'set_player_data'):
-                team.projected_pm.set_player_data(week_player_data)
+                team.projected_pm.set_player_data(projected_data)  # Week N data for projections
             if hasattr(team, 'actual_pm') and hasattr(team.actual_pm, 'set_player_data'):
-                team.actual_pm.set_player_data(week_player_data)
+                team.actual_pm.set_player_data(actual_data)  # Week N+1 data for actuals
 
         self.logger.debug(f"Loaded week {week_num} data for all teams")
 

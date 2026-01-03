@@ -18,15 +18,15 @@
 
 | Current Step | Guide to Read | Time Estimate |
 |--------------|---------------|---------------|
-| Starting Stage 6 | STAGE_6a_epic_smoke_testing_guide.md | 60-90 min |
-| Step 1: Pre-QC Verification | STAGE_6a_epic_smoke_testing_guide.md | 15 min |
-| Step 2: Epic Smoke Testing | STAGE_6a_epic_smoke_testing_guide.md | 45-75 min |
-| Step 3: QC Round 1 (Cross-Feature Integration) | STAGE_6b_epic_qc_rounds_guide.md | 45-60 min |
-| Step 4: QC Round 2 (Epic Cohesion & Consistency) | STAGE_6b_epic_qc_rounds_guide.md | 45-60 min |
-| Step 5: QC Round 3 (End-to-End Success Criteria) | STAGE_6b_epic_qc_rounds_guide.md | 30-45 min |
-| Step 6: Epic PR Review (11 Categories) | STAGE_6c_epic_final_review_guide.md | 45-60 min |
-| Step 7: Handle Issues (If Any) | STAGE_6c_epic_final_review_guide.md | Variable |
-| Step 8: Final Verification & README Update | STAGE_6c_epic_final_review_guide.md | 15-30 min |
+| Starting Stage 6 | stages/stage_6/epic_smoke_testing.md | 60-90 min |
+| Step 1: Pre-QC Verification | stages/stage_6/epic_smoke_testing.md | 15 min |
+| Step 2: Epic Smoke Testing | stages/stage_6/epic_smoke_testing.md | 45-75 min |
+| Step 3: QC Round 1 (Cross-Feature Integration) | stages/stage_6/epic_qc_rounds.md | 45-60 min |
+| Step 4: QC Round 2 (Epic Cohesion & Consistency) | stages/stage_6/epic_qc_rounds.md | 45-60 min |
+| Step 5: QC Round 3 (End-to-End Success Criteria) | stages/stage_6/epic_qc_rounds.md | 30-45 min |
+| Step 6: Epic PR Review (11 Categories) | stages/stage_6/epic_final_review.md | 45-60 min |
+| Step 7: Handle Issues (If Any) | stages/stage_6/epic_final_review.md | Variable |
+| Step 8: Final Verification & README Update | stages/stage_6/epic_final_review.md | 15-30 min |
 
 ---
 
@@ -45,7 +45,7 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ### STAGE_6a: Epic Smoke Testing (Steps 1-2)
 
-**Read:** `STAGE_6a_epic_smoke_testing_guide.md`
+**Read:** `stages/stage_6/epic_smoke_testing.md`
 
 **What it covers:**
 - **Step 1:** Pre-QC Verification (verify all features at Stage 5e, no pending bug fixes)
@@ -70,7 +70,7 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ### STAGE_6b: Epic QC Rounds (Steps 3-5)
 
-**Read:** `STAGE_6b_epic_qc_rounds_guide.md`
+**Read:** `stages/stage_6/epic_qc_rounds.md`
 
 **What it covers:**
 - **Step 3:** QC Round 1 - Cross-Feature Integration (integration points, data flow, interfaces, error propagation)
@@ -97,7 +97,7 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ### STAGE_6c: Epic Final Review (Steps 6-8)
 
-**Read:** `STAGE_6c_epic_final_review_guide.md`
+**Read:** `stages/stage_6/epic_final_review.md`
 
 **What it covers:**
 - **Step 6:** Epic PR Review (11 Categories - Epic Scope)
@@ -248,7 +248,7 @@ Start Epic Final QC
 
 ### If you're starting Stage 6:
 
-**READ:** `STAGE_6a_epic_smoke_testing_guide.md`
+**READ:** `stages/stage_6/epic_smoke_testing.md`
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`:
 ```markdown
@@ -276,9 +276,9 @@ Ready to begin Step 1: Pre-QC Verification.
 ```
 
 **Then read the appropriate guide:**
-- **Step 1 or 2:** Read STAGE_6a_epic_smoke_testing_guide.md
-- **Step 3, 4, or 5:** Read STAGE_6b_epic_qc_rounds_guide.md
-- **Step 6, 7, or 8:** Read STAGE_6c_epic_final_review_guide.md
+- **Step 1 or 2:** Read stages/stage_6/epic_smoke_testing.md
+- **Step 3, 4, or 5:** Read stages/stage_6/epic_qc_rounds.md
+- **Step 6, 7, or 8:** Read stages/stage_6/epic_final_review.md
 
 **Continue from "Next Action" in Agent Status.**
 
@@ -288,12 +288,12 @@ Ready to begin Step 1: Pre-QC Verification.
 
 **After completing STAGE_6a:**
 - Update EPIC_README.md Agent Status: "STAGE_6a complete, starting STAGE_6b"
-- **READ:** `STAGE_6b_epic_qc_rounds_guide.md` (full guide)
+- **READ:** `stages/stage_6/epic_qc_rounds.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_6b:**
 - Update EPIC_README.md Agent Status: "STAGE_6b complete, starting STAGE_6c"
-- **READ:** `STAGE_6c_epic_final_review_guide.md` (full guide)
+- **READ:** `stages/stage_6/epic_final_review.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_6c:**
@@ -358,7 +358,7 @@ Ready to begin Step 1: Pre-QC Verification.
 **When Stage 6 complete:**
 - Transition to Stage 7 (Epic Cleanup)
 
-📖 **READ:** `STAGE_7_epic_cleanup_guide.md`
+📖 **READ:** `stages/stage_7/epic_cleanup.md`
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`
 
@@ -439,15 +439,15 @@ The original guide has been preserved for reference but is deprecated. All Stage
 
 **Stage 6 is now split into three focused guides:**
 
-1. **STAGE_6a_epic_smoke_testing_guide.md** - Epic Smoke Testing (Steps 1-2)
-2. **STAGE_6b_epic_qc_rounds_guide.md** - Epic QC Rounds (Steps 3-5)
-3. **STAGE_6c_epic_final_review_guide.md** - Epic Final Review (Steps 6-8)
+1. **stages/stage_6/epic_smoke_testing.md** - Epic Smoke Testing (Steps 1-2)
+2. **stages/stage_6/epic_qc_rounds.md** - Epic QC Rounds (Steps 3-5)
+3. **stages/stage_6/epic_final_review.md** - Epic Final Review (Steps 6-8)
 
 **Workflow remains the same:** 8 steps, 1 mandatory restart protocol, same completion criteria
 
 **Improvement:** 50-70% reduction in guide size per step, clearer navigation, better step focus
 
-**Start here:** `STAGE_6a_epic_smoke_testing_guide.md` (unless resuming mid-stage)
+**Start here:** `stages/stage_6/epic_smoke_testing.md` (unless resuming mid-stage)
 
 **Critical distinction:** Epic-level validation focuses on integration, cohesion, and cross-feature quality (NOT feature-level testing)
 
@@ -455,4 +455,4 @@ The original guide has been preserved for reference but is deprecated. All Stage
 
 ---
 
-*End of STAGE_6_epic_final_qc_guide.md (ROUTER)*
+*End of stages/stage_6/epic_final_qc.md (ROUTER)*

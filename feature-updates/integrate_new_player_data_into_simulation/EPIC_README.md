@@ -42,17 +42,33 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 
 ## Agent Status
 
-**Last Updated:** 2026-01-02 (Stage 5e complete for feature_01)
-**Current Stage:** Feature 01 - ALL STAGE 5 SUBSTAGES COMPLETE ✅ → Ready for feature_02 or Stage 6
-**Current Phase:** FEATURE_01_COMPLETE → Next: Feature_02 Stage 5a or Epic Stage 6
-**Current Step:** feature_01 complete, awaiting user decision
-**Current Guide:** `STAGE_5e_post_feature_testing_update_guide.md` (COMPLETE)
+**Last Updated:** 2026-01-02 (Bug fix Stage 2 complete, ready for Stage 5a)
+**Current Stage:** BUG FIX IN PROGRESS - bugfix_high_week_offset_logic
+**Current Phase:** Stage 2 COMPLETE ✅ → Stage 5a (TODO Creation) next
+**Current Step:** Stage 2 complete, ready to read STAGE_5aa_round1_guide.md
+**Current Guide:** `STAGE_2_feature_deep_dive_guide.md` (COMPLETE)
 **Guide Last Read:** 2026-01-02
 
-**Critical Decision Point:**
-- Option 1: Proceed to feature_02 Stage 5a (implement second feature)
-- Option 2: Proceed to Stage 6 Epic QC (if user wants to test feature_01 before implementing feature_02)
-- Recommended: Proceed to feature_02 Stage 5a (complete all features before epic testing)
+**Active Bug Fix:**
+- **Name:** bugfix_high_week_offset_logic
+- **Priority:** HIGH (feature completely non-functional)
+- **Discovered:** 2026-01-02 during feature_02 Stage 5cc (Final Review)
+- **Discovered By:** User questioning data loading logic
+- **Impact:** Feature_02 uses wrong week folders, all actual points = 0.0, MAE calculations meaningless
+- **Status:** Stage 2 COMPLETE ✅ → Stage 5a next
+- **Stage 2 Summary:**
+  - ✅ spec.md created (comprehensive, evidence-based with Assumption Validation Table)
+  - ✅ checklist.md created (31 items, 29 verified)
+  - ✅ lessons_learned.md created (all 6 prevention strategies documented)
+  - ✅ Manual data inspection completed (week_01 vs week_02 verified)
+  - ✅ Epic notes re-read with fresh eyes (Stage 2.5 principles applied)
+  - ✅ Cross-epic verification plan documented
+
+**Paused Work:**
+- **Feature:** feature_02_accuracy_sim_json_integration
+- **Paused At:** Stage 5cc (Final Review) - discovered critical bug
+- **Resume After:** Bug fix complete and verified
+- **Resume Action:** RESTART from Stage 5ca (per QC Restart Protocol)
 
 **Progress:** Feature 01 ALL STAGES COMPLETE ✅
 - Stage 5a (TODO Creation): COMPLETE ✅
@@ -85,6 +101,31 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 - 6 Python files affected across both features
 - Shared patterns identified (player_data/ subfolder, array indexing)
 - Intentional differences documented (caching vs on-demand)
+
+---
+
+## Bug Fix Tracking
+
+| # | Bug Fix Name | Priority | Status | Discovered During | Notes |
+|---|--------------|----------|--------|-------------------|-------|
+| 1 | bugfix_high_week_offset_logic | HIGH | Stage 2 COMPLETE ✅ → Stage 5a next | Feature 02 - Stage 5cc (Final Review) | Feature loads wrong week folders, all actuals=0.0, completely non-functional. Epic notes explicitly stated requirement but all 7 stages missed it. Stage 2: Evidence-based spec with manual data inspection complete. |
+
+**Bug Fix Details:**
+
+### Bug #1: bugfix_high_week_offset_logic
+- **Priority:** HIGH (feature completely non-functional)
+- **Discovered:** 2026-01-02 during feature_02 Stage 5cc
+- **Discovered By:** User asking: "does it correctly use projected points from Week X's file, and actual points from Week X+1's file?"
+- **Root Cause:** Misinterpreted epic notes as "week 17 special case" instead of "ALL weeks use week_N + week_N+1"
+- **Impact:** Feature calculates MAE with all 0.0 actual points (garbage output)
+- **Systemic Failures:** ALL 7 stages failed to catch (Stage 2, 5a, 5b, 5ca, 5cb R1-3, caught in 5cc)
+- **Status:** Creating notes.txt → Next: Stage 2 (Deep Dive with enhanced validation)
+- **Special Requirements:**
+  - MUST follow ALL 6 prevention strategies from lessons_learned.md
+  - MUST implement Stage 2.5 principles (assume spec wrong, validate independently)
+  - MUST implement Stage 5a.5 principles (hands-on data inspection)
+  - MUST use enhanced smoke testing (statistical sanity checks)
+  - MUST verify ALL epic changes against original notes/code
 
 ---
 
