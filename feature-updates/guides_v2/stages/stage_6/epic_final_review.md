@@ -1149,7 +1149,7 @@ Should I proceed with creating these bug fixes?
    - bugfix_high_architecture_inconsistency (Stage 5a - TODO Creation)
    - bugfix_high_performance_regression (queued)
 
-   **Next Action:** Complete bug fixes, then RESTART Stage 6 from STAGE_6a
+   **Next Action:** Complete bug fixes, then RESTART Stage 6 from Epic Smoke Testing (stages/stage_6/epic_smoke_testing.md)
    ```
 
 5. **Run bug fix through workflow:**

@@ -1420,7 +1420,7 @@ python -m memory_profiler run_league_helper.py --mode draft
 
 ### Agent Status Updated
 - [ ] EPIC_README.md Agent Status shows STAGE_6b complete
-- [ ] Next action: Transition to STAGE_6c
+- [ ] Next action: Transition to Epic Final Review (stages/stage_6/epic_final_review.md)
 - [ ] No blockers
 
 **If ANY item unchecked → STAGE_6b NOT complete**

@@ -1413,7 +1413,7 @@ If you CANNOT provide evidence for an iteration:
   - Round 1 complete (8/8)
   - Iteration 4a: PASSED
   - Confidence: HIGH or MEDIUM
-  - Next Action: Read STAGE_5ab guide
+  - Next Action: Read Round 2 guide (stages/stage_5/round2_todo_creation.md)
 
 **If any prerequisite fails:**
 - ❌ Do NOT transition to Round 2

@@ -771,7 +771,8 @@ User's explicit requests:
 - All requirements must trace to epic intent
 
 **Progress:** 2/2 phases complete (Specification Phase COMPLETE)
-**Next Action:** STAGE_2c - Refinement Phase (Interactive Question Resolution)
+**Next Action:** Refinement Phase (Interactive Question Resolution)
+**Next Guide:** stages/stage_2/phase_2_refinement.md
 **Blockers:** None
 
 **Alignment Result:** ✅ PASSED

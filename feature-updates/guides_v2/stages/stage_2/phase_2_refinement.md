@@ -1475,7 +1475,7 @@ Find Feature Tracking table and mark Stage 2 complete:
    - Approval checkbox marked [x]
    - Approval timestamp documented
 
-**Next Stage:** Either next feature's STAGE_2a OR STAGE_3 (if all features complete)
+**Next Stage:** Either next feature's Research Phase (stages/stage_2/phase_0_research.md) OR Cross-Feature Sanity Check (stages/stage_3/cross_feature_sanity_check.md) if all features complete
 
 ---
 

@@ -968,7 +968,8 @@ def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
 - Evidence required for all answers
 
 **Progress:** 3/3 phases complete (Research Phase COMPLETE)
-**Next Action:** STAGE_2b - Specification Phase (Update Spec & Checklist with traceability)
+**Next Action:** Specification Phase (Update Spec & Checklist with traceability)
+**Next Guide:** stages/stage_2/phase_1_specification.md
 **Blockers:** None
 
 **Audit Result:** ✅ PASSED (all 4 categories)

@@ -725,7 +725,8 @@ assert abs(player['final_score'] - expected_score) < 0.01
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Progress:** STAGE_6a complete (Epic Smoke Testing)
-**Next Action:** Transition to STAGE_6b (Epic QC Rounds)
+**Next Action:** Transition to Epic QC Rounds
+**Next Guide:** stages/stage_6/epic_qc_rounds.md
 **Blockers:** None
 
 **Smoke Testing Results:**
@@ -762,7 +763,7 @@ assert abs(player['final_score'] - expected_score) < 0.01
 
 ### Agent Status Updated
 - [ ] EPIC_README.md Agent Status shows STAGE_6a complete
-- [ ] Next action: Transition to STAGE_6b
+- [ ] Next action: Transition to Epic QC Rounds (stages/stage_6/epic_qc_rounds.md)
 - [ ] No blockers
 
 **If ANY item unchecked → STAGE_6a NOT complete**

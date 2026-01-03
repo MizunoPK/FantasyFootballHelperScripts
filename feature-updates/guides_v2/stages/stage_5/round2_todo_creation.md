@@ -1085,7 +1085,7 @@ If you CANNOT provide evidence for an iteration:
   - Round 2 complete (16/24 total)
   - Test coverage documented
   - Confidence: HIGH or MEDIUM
-  - Next Action: Read STAGE_5ac guide
+  - Next Action: Read Round 3 guide (stages/stage_5/round3_todo_creation.md)
 
 **If any prerequisite fails:**
 - ❌ Do NOT transition to Round 3

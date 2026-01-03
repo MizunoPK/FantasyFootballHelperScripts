@@ -117,7 +117,7 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 
 ## Why Was Round 3 Split?
 
-**Problem:** Original STAGE_5ac guide was 1,957 lines, making it difficult for agents to navigate efficiently.
+**Problem:** Original Round 3 guide was 1,957 lines, making it difficult for agents to navigate efficiently.
 
 **Solution:** Split into two focused sub-stages:
 - **Part 1:** Preparation iterations (17-22) - 1,277 lines
