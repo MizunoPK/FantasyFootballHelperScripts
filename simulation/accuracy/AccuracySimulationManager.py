@@ -330,9 +330,10 @@ class AccuracySimulationManager:
         if not actual_folder.exists():
             self.logger.warning(
                 f"Actual folder not found: {actual_folder} "
-                f"(needed for week {week_num} actuals)"
+                f"(needed for week {week_num} actuals). Using projected data as fallback."
             )
-            return None, None
+            # Fallback to projected data (align with Win Rate Sim behavior)
+            return projected_folder, projected_folder
 
         return projected_folder, actual_folder
 
@@ -482,9 +483,10 @@ class AccuracySimulationManager:
                     for player in actual_mgr.players:
                         # Get actual points for this specific week (from actual_points array)
                         # Array index: week 1 = index 0, week N = index N-1
-                        if 1 <= week_num <= 17 and len(player.actual_points) >= week_num:
-                            actual = player.actual_points[week_num - 1]
-                            if actual is not None and actual > 0:
+                        # Default to 0.0 if array too short (align with Win Rate Sim behavior)
+                        if 1 <= week_num <= 17:
+                            actual = player.actual_points[week_num - 1] if len(player.actual_points) > week_num - 1 else 0.0
+                            if actual is not None:
                                 actuals[player.id] = actual
 
                                 # Match with projection by player ID

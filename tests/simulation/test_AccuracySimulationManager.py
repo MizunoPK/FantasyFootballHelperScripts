@@ -432,12 +432,15 @@ class TestAccuracySimulationManagerDataLoading:
 
         season_path = manager.available_seasons[0]
 
-        # Test missing actual folder (week_19) - should return (None, None) gracefully
+        # Test missing actual folder (week_19) - should fallback to projected folder
         projected, actual = manager._load_season_data(season_path, 18)
 
-        # Should return (None, None)
-        assert projected is None
-        assert actual is None
+        # Should return (week_18, week_18) as fallback (Task 11 alignment with Win Rate Sim)
+        assert projected is not None
+        assert actual is not None
+        assert projected.name == "week_18"
+        assert actual.name == "week_18"
+        assert projected == actual  # Same folder used for both (fallback)
 
         # No exception should be raised (test passes if we get here)
         # Note: Warning IS logged (visible in test output), but logger not captured by caplog

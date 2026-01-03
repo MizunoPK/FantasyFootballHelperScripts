@@ -127,7 +127,8 @@ class TeamDataManager:
             with open(dst_json_path, 'r') as f:
                 data = json.load(f)
 
-            dst_players = data.get('dst_data', [])
+            # JSON file contains array directly, not wrapped in object
+            dst_players = data if isinstance(data, list) else data.get('dst_data', [])
 
             for dst_player in dst_players:
                 team = dst_player.get('team', '').upper()
