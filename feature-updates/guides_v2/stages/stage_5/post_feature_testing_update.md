@@ -38,21 +38,26 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implem
 
 ## Quick Start
 
-**Goal:** Update epic_smoke_test_plan.md to reflect what was actually built (not what was planned).
+**What is this stage?**
+Post-Feature Testing Update is where you update epic_smoke_test_plan.md based on ACTUAL implementation discoveries (not specs), adding integration points found during development and ensuring test scenarios reflect real behavior.
 
-**4 Main Steps:**
-1. **Review Actual Implementation** - Read code from just-completed feature
-2. **Identify Testing Gaps** - Compare implementation to current test plan
-3. **Add/Update Test Scenarios** - Update plan with actual behavior
-4. **Document Update Rationale** - Record why changes were made
+**When do you use this guide?**
+- Stage 5d complete (Cross-Feature Alignment updated)
+- Feature implementation is complete and validated
+- Ready to update epic testing strategy
 
-**Why critical:** Test plans based on specs miss integration points discovered during implementation. Stage 5e keeps the test plan accurate and complete.
+**Key Outputs:**
+- ✅ epic_smoke_test_plan.md updated with actual implementation insights
+- ✅ Integration points discovered during development added
+- ✅ Test scenarios reflect actual behavior (not assumed from specs)
+- ✅ Update history documents changes and rationale
+- ✅ Ready for next feature's Stage 5a (or Stage 6 if all features done)
 
-**Output artifacts:**
-- ✅ epic_smoke_test_plan.md updated with implementation insights
-- ✅ New integration points added to test plan
-- ✅ Test scenarios reflect actual behavior (not assumed)
-- ✅ Update history documents changes and reasons
+**Time Estimate:**
+15-30 minutes per completed feature
+
+**Exit Condition:**
+Testing Plan Update is complete when epic_smoke_test_plan.md reflects actual implementation (not specs), new integration points are added, test scenarios are updated, and changes are documented in update history
 
 ---
 
@@ -121,6 +126,68 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implem
 
 ---
 
+## Critical Decisions Summary
+
+**Stage 5e has 1 major decision point:**
+
+### Decision Point 1: Testing Plan Update Scope (ADD/UPDATE/NO CHANGE)
+**Question:** After reviewing actual implementation, what level of test plan changes are needed?
+
+**Classification criteria:**
+
+**Option A: NO CHANGE**
+- Feature implementation matched test plan expectations
+- No new integration points discovered
+- No edge cases found that weren't predicted
+- Test plan scenarios still accurate
+- **Action:** Update epic_smoke_test_plan.md Update History table only
+- Note: "{feature_name} reviewed - no test plan changes needed"
+- ✅ Proceed to next feature or Stage 6
+
+**Option B: MINOR ADDITIONS (add specific scenarios)**
+- Implementation revealed new integration points
+- Edge cases discovered that should be tested
+- Cross-feature interactions found during development
+- Examples:
+  - "ADP multiplier applies to scoring calculation"
+  - "Missing ADP data defaults to neutral multiplier (1.0)"
+  - "Integration with ConfigManager for threshold values"
+- **Action:**
+  - Add specific test scenarios to epic_smoke_test_plan.md
+  - Update based on ACTUAL code (reference file:line)
+  - Include WHAT/HOW/EXPECTED for each scenario
+  - Update Update History table with additions
+- ✅ Proceed to next feature or Stage 6
+
+**Option C: MAJOR UPDATES (rewrite test scenarios)**
+- Implementation significantly different from assumptions
+- Multiple existing scenarios now inaccurate
+- Need to restructure test plan sections
+- Examples:
+  - Feature uses different data flow than assumed
+  - Integration pattern changed during implementation
+  - Epic success criteria need adjustment
+- **Action:**
+  - Rewrite affected test scenarios
+  - Remove obsolete scenarios
+  - Add new scenarios for actual behavior
+  - Update Update History table with major changes
+  - Consider if epic success criteria still accurate
+- ✅ Proceed to next feature or Stage 6
+
+**Impact:** Outdated test plans lead to Stage 6 failures. Updating test plan NOW (based on actual implementation) ensures Stage 6 tests the right things.
+
+---
+
+**Summary of Testing Plan Update:**
+- Review ACTUAL implementation code (not specs/TODOs)
+- Identify new integration points discovered during development
+- Add/update test scenarios to reflect reality
+- Document update rationale in Update History table
+- Keep test plan executable and specific
+
+---
+
 ## Prerequisites Checklist
 
 **Verify these BEFORE starting Testing Plan Update:**
@@ -180,6 +247,37 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implem
 │   - Commit changes to git                                  │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Quick Navigation
+
+**Stage 5e has 4 main steps. Jump to any step:**
+
+| Step | Focus Area | Go To |
+|------|-----------|-------|
+| **Step 1** | Review Actual Implementation | [Step 1](#step-1-review-actual-implementation) |
+| **Step 2** | Identify Testing Gaps | [Step 2](#step-2-identify-testing-gaps) |
+| **Step 3** | Add/Update Test Scenarios | [Step 3](#step-3-addupdate-test-scenarios) |
+| **Step 4** | Document & Commit | [Step 4](#step-4-document-update-rationale-and-commit) |
+
+**Key Decision Points:**
+
+| Decision | Description | Go To |
+|----------|-------------|-------|
+| **Update Scope** | NO CHANGE / MINOR / MAJOR | [Critical Decisions](#critical-decisions-summary) |
+| **Integration Points** | New cross-feature interactions | [Integration Points Examples](#integration-points-found-in-feature_01_adp_integration) |
+| **Edge Cases** | Discovered during implementation | [Edge Cases Examples](#edge-cases-discovered-in-implementation) |
+
+**Reference Sections:**
+
+| Section | Description | Go To |
+|---------|-------------|-------|
+| Critical Rules | Must-follow testing update rules | [Critical Rules](#critical-rules) |
+| Prerequisites | What must be done first | [Prerequisites Checklist](#prerequisites-checklist) |
+| Update History | How to document changes | [Update History](#update-history) |
+
+**Tip:** This stage is quick (15-30 minutes). Focus on significant insights from actual implementation, not minor details.
 
 ---
 
@@ -717,7 +815,7 @@ Ensures Stage 6 epic QC tests actual implementation, not assumptions.
 - [x] Updated with Stage 5e completion
 - [x] Next action set appropriately:
   - More features remain → "Read STAGE_5a guide for feature_02"
-  - All features done → "Read STAGE_6_epic_final_qc_guide.md"
+  - All features done → "Read STAGE_6a_epic_smoke_testing_guide.md"
 
 **If ALL criteria met:**
 - If more features remain → Proceed to next feature's Stage 5a
@@ -1160,7 +1258,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 **Guide Last Read:** {Not read yet for next guide}
 **Next Action:**
 - If more features remain: "Read STAGE_5aa_round1_guide.md for feature_02 (Round 1)"
-- If all features done: "Read STAGE_6_epic_final_qc_guide.md"
+- If all features done: "Read STAGE_6a_epic_smoke_testing_guide.md"
 **Stage 5e Summary:**
 - Reviewed feature_01_adp_integration implementation
 - Added 6 new test scenarios to epic_smoke_test_plan.md
@@ -1197,7 +1295,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 - [ ] Verified ALL features completed Stage 5e
 - [ ] Epic README shows all features complete
 - [ ] No pending bug fixes
-- [ ] Ready to read STAGE_6_epic_final_qc_guide.md
+- [ ] Ready to read STAGE_6a_epic_smoke_testing_guide.md
 
 **If ALL verified:** Ready for next stage
 

@@ -29,12 +29,26 @@
 
 ## Quick Start
 
-**3 Main Phases:**
-1. **Bug Fix Creation** - Create folder, notes.txt, get user verification
-2. **Bug Fix Implementation** - Follow simplified workflow (Stage 2 → 5a → 5b → 5c)
-3. **Resume Previous Work** - Return to interrupted feature
+**What is this stage?**
+Bug Fix Workflow is a streamlined process for handling bugs discovered during epic implementation, using a simplified workflow (Stage 2 → 5a → 5b → 5c) that skips epic-level stages while maintaining full rigor for quality.
 
-**Bug fixes SKIP:** Stages 1, 3, 4, 5d, 5e, 6, 7 (epic-level stages not needed for single bug)
+**When do you use this guide?**
+- Bug discovered during Stage 5 (feature implementation) or reported by user
+- Need to fix bug without disrupting epic progress
+- Ready to create focused bug fix
+
+**Key Outputs:**
+- ✅ bugfix_{priority}_{name} folder created inside epic folder
+- ✅ notes.txt created and user-verified
+- ✅ Bug fix implemented through simplified workflow (Stage 2 → 5a → 5b → 5c)
+- ✅ Epic documentation updated for resumability
+- ✅ Ready to resume previous work
+
+**Time Estimate:**
+Varies by bug complexity (30 minutes to 2 hours typical)
+
+**Exit Condition:**
+Bug Fix is complete when the bug is fixed through the full workflow (including all 24 iterations and QC rounds), bug fix folder remains in epic directory, and epic README documents where to resume previous work
 
 ---
 
@@ -402,7 +416,8 @@ Integration test:
 **Read guides in order:**
 1. STAGE_5aa_round1_guide.md - Round 1 (iterations 1-7 + 4a)
 2. STAGE_5ab_round2_guide.md - Round 2 (iterations 8-16)
-3. STAGE_5ac_round3_guide.md - Round 3 (iterations 17-24 + 23a)
+3. STAGE_5ac_part1_preparation_guide.md - Round 3 Part 1 (iterations 17-22)
+4. STAGE_5ac_part2_final_gates_guide.md - Round 3 Part 2 (iterations 23, 23a, 25, 24)
 
 **Same rigor as features:**
 - Complete ALL 24 verification iterations

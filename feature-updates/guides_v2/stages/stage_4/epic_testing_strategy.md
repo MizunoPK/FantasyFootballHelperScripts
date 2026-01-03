@@ -19,14 +19,26 @@
 
 ## Quick Start
 
-**3-Step Overview:**
-1. **Review Initial Plan** - Read epic_smoke_test_plan.md from Stage 1
-2. **Update Based on Specs** - Add specific tests, integration points, success criteria
-3. **Document Test Strategy** - Update plan with concrete test scenarios
+**What is this stage?**
+Epic Testing Strategy is where you update the epic_smoke_test_plan.md with concrete test scenarios based on the actual feature specs, replacing the Stage 1 placeholder assumptions with specific integration points and measurable success criteria.
 
-**Estimated Time:** 30-45 minutes
-**Prerequisites:** Stage 3 complete (user approved plan)
-**Outputs:** Updated epic_smoke_test_plan.md with concrete testing strategy
+**When do you use this guide?**
+- Stage 3 complete (user has approved complete plan)
+- All feature specs are finalized
+- Ready to define epic-wide testing strategy
+
+**Key Outputs:**
+- ✅ epic_smoke_test_plan.md updated from placeholder to concrete scenarios
+- ✅ Integration points between features identified
+- ✅ Measurable success criteria defined
+- ✅ Test plan marked as "Stage 4 version - will update in Stage 5e"
+- ✅ Ready for Stage 5 (Feature Implementation)
+
+**Time Estimate:**
+30-45 minutes
+
+**Exit Condition:**
+Stage 4 is complete when epic_smoke_test_plan.md contains specific test scenarios (not vague categories), integration points are documented, and the update is logged with rationale for changes from Stage 1
 
 ---
 

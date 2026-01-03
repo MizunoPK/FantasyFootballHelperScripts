@@ -38,21 +38,26 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) →
 
 ## Quick Start
 
-**Goal:** Verify the feature actually works with REAL data (not just "tests pass").
+**What is this stage?**
+Smoke Testing is the first post-implementation validation where you verify the feature works end-to-end with REAL data through 3 mandatory parts: import test, entry point test, and E2E execution test with data value inspection.
 
-**3 Mandatory Parts:**
-1. **Part 1: Import Test** - Modules load without errors
-2. **Part 2: Entry Point Test** - Script starts correctly
-3. **Part 3: E2E Execution Test** - Feature runs end-to-end, OUTPUT DATA VALUES correct
+**When do you use this guide?**
+- Stage 5b complete (Implementation Execution finished)
+- Feature code is written
+- Ready to validate with real data
 
-**Critical:** Part 3 must verify ACTUAL DATA VALUES, not just "file exists"
+**Key Outputs:**
+- ✅ Part 1 PASSED: Import Test (all modules load without errors)
+- ✅ Part 2 PASSED: Entry Point Test (script starts correctly)
+- ✅ Part 3 PASSED: E2E Execution Test (feature runs end-to-end, data values verified)
+- ✅ Data values inspected (not zeros, nulls, or placeholders)
+- ✅ Ready for Stage 5cb (QC Rounds)
 
-**If ANY part fails:** Fix issues → Re-run ALL 3 parts → Then proceed to Stage 5cb
+**Time Estimate:**
+15-30 minutes
 
-**Output artifacts:**
-- ✅ Part 1 passed (all imports successful)
-- ✅ Part 2 passed (entry point works)
-- ✅ Part 3 passed (E2E execution with correct data values)
+**Exit Condition:**
+Smoke Testing is complete when ALL 3 parts pass (including data value verification in Part 3), output files are inspected and confirmed correct, and you're ready to proceed to QC Rounds
 
 ---
 
@@ -93,6 +98,40 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) →
    - Smoke testing revealed output files missing 80% of required data
    - Mocks test expectations, not reality
 ```
+
+---
+
+## Critical Decisions Summary
+
+**Stage 5ca has 1 MANDATORY GATE (Part 3 - E2E Execution):**
+
+### Decision Point 1: Part 3 - E2E Execution Test (PASS/FAIL)
+**Question:** Does Part 3 pass with CORRECT DATA VALUES (not just "file exists")?
+
+**Part 3 has 2 sub-parts (BOTH must pass):**
+- **Part 3a:** Run E2E test with REAL data, verify output file structure/format
+- **Part 3b:** Data Sanity Validation - Verify ACTUAL DATA VALUES are correct (statistical checks)
+
+**If Part 3 FAILS (either 3a or 3b):**
+- ❌ STOP smoke testing
+- Fix the issue(s)
+- Re-run ALL 3 PARTS (not just Part 3)
+- Do NOT proceed to Stage 5cb (QC Rounds) until ALL 3 parts pass
+
+**If Part 3 PASSES (both 3a and 3b with correct data values):**
+- ✅ Smoke testing complete
+- Proceed to Stage 5cb (QC Rounds)
+
+**Impact:** Skipping Part 3b data validation allows "successful" features that produce wrong data (real-world case: 80% of required data missing despite 100% test pass rate)
+
+---
+
+**Secondary Decision: If ANY Part Fails During Smoke Testing**
+**Question:** After fixing issues, re-run from Part 1 or just re-run failed part?
+- **ALWAYS re-run ALL 3 PARTS from beginning**
+- Fixes can introduce new import/integration issues
+- All 3 parts must pass on SAME run
+- **Impact:** Partial re-runs miss cascading failures from fixes
 
 ---
 
@@ -659,18 +698,427 @@ def test_feature_smoke():
    - Top player (Patrick Mahomes): rank 2, multiplier 1.42 ✅
    - Manual spot-check: Top 10 players have expected ADP ranks ✅
 
-   All smoke tests PASSED. Ready for Stage 5cb (QC Rounds).
+   All smoke tests PASSED. Ready for Part 3b (Data Sanity Validation).
    ```
+
+---
+
+## Part 3b: Data Sanity Validation - Statistical Checks (CRITICAL)
+
+**Goal:** Verify output data is statistically realistic (not all zeros, has variance, in expected range)
+
+**Historical Context:** Feature 02 catastrophic bug - smoke testing showed "(0 have non-zero actual points)" but was marked PASS anyway. All actual_points were 0.0, making MAE calculations meaningless. This section would have caught that bug immediately.
+
+**⚠️ THIS IS A MANDATORY ADDITION TO PART 3**
+
+---
+
+### Why This Matters
+
+**Part 3 verified:** Data exists, structure correct, values > 0
+
+**Part 3b verifies:** Data is REALISTIC for the domain (NFL scoring, player stats, etc.)
+
+**Example of bug Part 3 missed but Part 3b catches:**
+```python
+# Part 3 checks:
+assert df['actual_points'].sum() > 0  # ✅ PASSED (sum = 0.1)
+
+# But data looks like:
+# actual_points: [0.0, 0.0, 0.0, ..., 0.1, 0.0, 0.0]  # Only 1 non-zero!
+
+# Part 3b catches this:
+zero_pct = (df['actual_points'] == 0.0).sum() / len(df) * 100
+assert zero_pct < 90%, f"Zero percentage too high: {zero_pct}%"  # ❌ FAILED (99.5% zeros)
+```
+
+---
+
+### Statistical Validation Process
+
+**Run these checks ON THE SAME OUTPUT DATA from Part 3:**
+
+---
+
+#### Check 1: Zero Percentage
+
+**Purpose:** Detect if data is mostly zeros (common bug pattern)
+
+**Method:**
+```python
+# Calculate zero percentage for each numeric column
+for col in ['actual_points', 'projected_points', 'adp_multiplier']:
+    if col in df.columns:
+        zero_count = (df[col] == 0.0).sum()
+        total_count = len(df)
+        zero_pct = (zero_count / total_count) * 100
+
+        print(f"{col}: {zero_pct:.1f}% zeros ({zero_count}/{total_count})")
+
+        # CRITICAL: Fail if >90% zeros
+        assert zero_pct < 90.0, f"{col} has {zero_pct:.1f}% zeros (too high - data loading issue?)"
+```
+
+**Pass criteria:** < 90% zeros
+**Typical good value:** 20-40% zeros (some players didn't play, some weeks incomplete)
+
+**AUTOMATIC FAIL if:**
+- "0 have non-zero values" (100% zeros)
+- >90% zeros (almost all zeros)
+
+---
+
+#### Check 2: Variance Check
+
+**Purpose:** Detect if all values are the same (no variance)
+
+**Method:**
+```python
+import statistics
+
+for col in ['actual_points', 'projected_points', 'adp_multiplier']:
+    if col in df.columns:
+        values = df[col].tolist()
+
+        # Calculate standard deviation
+        if len(values) > 1:
+            std_dev = statistics.stdev(values)
+            mean = statistics.mean(values)
+
+            print(f"{col}: mean={mean:.2f}, std_dev={std_dev:.2f}")
+
+            # CRITICAL: Fail if stddev = 0 (all same value)
+            assert std_dev > 0, f"{col} has zero variance (all values are {mean})"
+        else:
+            print(f"⚠️  {col}: Only 1 value, cannot calculate variance")
+```
+
+**Pass criteria:** std_dev > 0
+**Typical good value:** std_dev > 5.0 for scoring data
+
+**AUTOMATIC FAIL if:**
+- std_dev = 0 (all values identical)
+- std_dev < 0.1 (suspiciously low variance)
+
+---
+
+#### Check 3: Realistic Range Check
+
+**Purpose:** Verify values are in domain-realistic ranges (NFL scoring, not random numbers)
+
+**Method:**
+```python
+# Define realistic ranges for your domain
+realistic_ranges = {
+    'actual_points': (0, 50),      # NFL: 0-50 points per game typical
+    'projected_points': (0, 400),  # NFL season: 0-400 points typical
+    'adp_multiplier': (0.5, 2.0),  # Multipliers: 0.5x to 2.0x typical
+    'adp_rank': (1, 500),          # ADP: 1-500 valid range
+}
+
+for col, (min_expected, max_expected) in realistic_ranges.items():
+    if col in df.columns:
+        actual_min = df[col].min()
+        actual_max = df[col].max()
+
+        print(f"{col}: range [{actual_min:.2f}, {actual_max:.2f}] (expected [{min_expected}, {max_expected}])")
+
+        # Warn if outside expected range (not automatic fail, but suspicious)
+        if actual_min < min_expected or actual_max > max_expected:
+            print(f"⚠️  {col} outside expected range - verify this is correct")
+
+        # CRITICAL: Fail if values are absurdly wrong
+        assert actual_min >= -100, f"{col} min value ({actual_min}) is absurdly negative"
+        assert actual_max <= 10000, f"{col} max value ({actual_max}) is absurdly high"
+```
+
+**Pass criteria:** Values in reasonable range for domain
+**Typical good value:** Within expected min/max, no absurd outliers
+
+---
+
+#### Check 4: Non-Zero Count
+
+**Purpose:** Verify enough players have non-zero values (not just 1-2 players)
+
+**Method:**
+```python
+for col in ['actual_points', 'projected_points']:
+    if col in df.columns:
+        non_zero_count = (df[col] > 0).sum()
+        total_count = len(df)
+        non_zero_pct = (non_zero_count / total_count) * 100
+
+        print(f"{col}: {non_zero_count}/{total_count} have non-zero values ({non_zero_pct:.1f}%)")
+
+        # CRITICAL: Fail if 0 non-zero values (Feature 02 bug pattern)
+        assert non_zero_count > 0, f"{col}: CRITICAL BUG - 0 have non-zero values"
+
+        # CRITICAL: Fail if <10% non-zero (suspiciously low)
+        assert non_zero_pct > 10.0, f"{col}: Only {non_zero_pct:.1f}% non-zero (data loading issue?)"
+```
+
+**Pass criteria:** > 10% non-zero values
+**Typical good value:** 50-80% non-zero (most players have values)
+
+**AUTOMATIC FAIL if:**
+- "(0 have non-zero values)" - CRITICAL BUG
+- < 10% non-zero - suspiciously low
+
+---
+
+#### Check 5: Distribution Sanity
+
+**Purpose:** Verify data distribution makes sense (not all min, all max, or bimodal when shouldn't be)
+
+**Method:**
+```python
+for col in ['actual_points', 'projected_points']:
+    if col in df.columns:
+        values = df[col].tolist()
+
+        # Calculate quartiles
+        q1 = df[col].quantile(0.25)
+        median = df[col].quantile(0.50)
+        q3 = df[col].quantile(0.75)
+
+        print(f"{col}: Q1={q1:.2f}, Median={median:.2f}, Q3={q3:.2f}")
+
+        # Check for suspicious distributions
+        if q1 == median == q3:
+            print(f"⚠️  {col}: All quartiles equal - suspicious distribution")
+
+        # Verify reasonable spread
+        iqr = q3 - q1  # Interquartile range
+        print(f"{col}: IQR={iqr:.2f}")
+
+        assert iqr > 0, f"{col}: Zero IQR (no spread in data)"
+```
+
+**Pass criteria:** Reasonable distribution (quartiles differ, IQR > 0)
+
+---
+
+### Complete Example - Data Sanity Validation
+
+```python
+def validate_data_sanity(df, col_name, domain_min, domain_max):
+    """
+    Comprehensive sanity check for a data column.
+
+    Args:
+        df: DataFrame with output data
+        col_name: Column to validate
+        domain_min: Minimum realistic value for this domain
+        domain_max: Maximum realistic value for this domain
+
+    Returns:
+        dict with validation results
+    """
+    import statistics
+
+    print(f"\n=== Data Sanity Validation: {col_name} ===")
+
+    if col_name not in df.columns:
+        print(f"⚠️  Column '{col_name}' not found in data")
+        return {'status': 'SKIPPED', 'reason': 'Column not found'}
+
+    values = df[col_name].tolist()
+    total_count = len(values)
+
+    # Check 1: Zero percentage
+    zero_count = (df[col_name] == 0.0).sum()
+    zero_pct = (zero_count / total_count) * 100
+    print(f"✓ Zero percentage: {zero_pct:.1f}% ({zero_count}/{total_count})")
+
+    # Check 2: Non-zero count
+    non_zero_count = total_count - zero_count
+    non_zero_pct = (non_zero_count / total_count) * 100
+    print(f"✓ Non-zero count: {non_zero_count}/{total_count} ({non_zero_pct:.1f}%)")
+
+    # Check 3: Variance
+    if non_zero_count > 1:
+        std_dev = statistics.stdev(values)
+        mean = statistics.mean(values)
+        print(f"✓ Mean: {mean:.2f}, Std Dev: {std_dev:.2f}")
+    else:
+        std_dev = 0
+        mean = values[0] if values else 0
+        print(f"⚠️  Insufficient data for variance (only {non_zero_count} non-zero values)")
+
+    # Check 4: Range
+    actual_min = df[col_name].min()
+    actual_max = df[col_name].max()
+    print(f"✓ Range: [{actual_min:.2f}, {actual_max:.2f}]")
+    print(f"  Expected range: [{domain_min}, {domain_max}]")
+
+    # Check 5: Distribution
+    if non_zero_count >= 4:
+        q1 = df[col_name].quantile(0.25)
+        median = df[col_name].quantile(0.50)
+        q3 = df[col_name].quantile(0.75)
+        iqr = q3 - q1
+        print(f"✓ Distribution: Q1={q1:.2f}, Median={median:.2f}, Q3={q3:.2f}, IQR={iqr:.2f}")
+    else:
+        print(f"⚠️  Insufficient data for distribution analysis")
+        iqr = 0
+
+    # CRITICAL VALIDATIONS (automatic fail)
+    failures = []
+
+    if non_zero_count == 0:
+        failures.append(f"🔴 CRITICAL: 0 have non-zero values (100% zeros)")
+
+    if zero_pct > 90.0:
+        failures.append(f"🔴 CRITICAL: {zero_pct:.1f}% zeros (>90% threshold)")
+
+    if std_dev == 0 and non_zero_count > 1:
+        failures.append(f"🔴 CRITICAL: Zero variance (all values are {mean})")
+
+    if actual_min < domain_min * 10 or actual_max > domain_max * 10:
+        failures.append(f"🔴 CRITICAL: Values outside realistic range by 10x")
+
+    if non_zero_pct < 10.0 and zero_count > 0:
+        failures.append(f"🔴 CRITICAL: Only {non_zero_pct:.1f}% non-zero values (<10% threshold)")
+
+    # Report results
+    if failures:
+        print("\n❌ SANITY CHECK FAILED:")
+        for failure in failures:
+            print(f"  {failure}")
+        return {'status': 'FAILED', 'failures': failures}
+    else:
+        print("\n✅ SANITY CHECK PASSED")
+        return {'status': 'PASSED'}
+
+# Usage in smoke test:
+df = pd.read_csv("output.csv")
+
+# Validate each numeric column
+validate_data_sanity(df, 'actual_points', domain_min=0, domain_max=50)
+validate_data_sanity(df, 'projected_points', domain_min=0, domain_max=400)
+validate_data_sanity(df, 'adp_multiplier', domain_min=0.5, domain_max=2.0)
+```
+
+---
+
+### Critical Question Checklist
+
+**Before marking Part 3b PASSED, answer these questions:**
+
+```markdown
+## Part 3b Critical Questions
+
+**Data Reality Checks:**
+- [ ] If I saw these values in production, would I be suspicious?
+- [ ] Are zero percentages realistic for this domain?
+- [ ] Is the variance what I'd expect for real data?
+- [ ] Are the min/max values possible in the real world?
+
+**Feature 02 Prevention:**
+- [ ] Did I see "(0 have non-zero values)" anywhere?
+  - If YES → AUTOMATIC FAIL (Feature 02 bug pattern)
+- [ ] Is >90% of data zeros?
+  - If YES → AUTOMATIC FAIL (data loading issue)
+- [ ] Is standard deviation = 0?
+  - If YES → AUTOMATIC FAIL (all same value)
+
+**Domain Knowledge:**
+- [ ] Do these values make sense for NFL scoring?
+- [ ] Are player stats in realistic ranges?
+- [ ] Would a domain expert agree these values look right?
+```
+
+**All questions must be answered YES (or NO for fail conditions) to pass Part 3b.**
+
+---
+
+### AUTOMATIC FAIL Conditions
+
+**Part 3b automatically FAILS if ANY of these are true:**
+
+```
+❌ "(0 have non-zero values)" - CRITICAL BUG (Feature 02 pattern)
+❌ >90% zeros - Data loading issue
+❌ Standard deviation = 0 - All values identical
+❌ <10% non-zero values - Suspiciously low
+❌ Min/max outside realistic range by 10x - Absurd values
+❌ Answer "I would be suspicious" to production question
+```
+
+**If ANY automatic fail condition is true:**
+1. Mark Part 3b as FAILED
+2. Document which condition failed
+3. Fix the underlying issue (usually data loading or calculation bug)
+4. Re-run ALL smoke test parts (1, 2, 3, 3b)
+
+---
+
+### Feature 02 Example - How Part 3b Would Have Caught The Bug
+
+**What actually happened (WITHOUT Part 3b):**
+```
+Part 3 E2E Execution Test: ✅ PASSED
+- Feature executed without crash
+- Output files created
+- Data structure correct
+- Sum of actual_points > 0  # Sum was 0.1 (barely > 0)
+
+Smoke testing marked PASSED
+Bug survived to user final review
+```
+
+**What would have happened (WITH Part 3b):**
+```
+Part 3b Data Sanity Validation: ❌ FAILED
+
+actual_points validation:
+- Zero percentage: 99.8% (2499/2500) 🔴 CRITICAL: >90% threshold
+- Non-zero count: 1/2500 (0.04%) 🔴 CRITICAL: <10% threshold
+- Std Dev: 0.02
+- Range: [0.0, 0.1]
+
+🔴 AUTOMATIC FAIL: "(0 have non-zero values)" pattern detected
+🔴 AUTOMATIC FAIL: 99.8% zeros (>90% threshold)
+
+Root cause: Loading week_N folder instead of week_N+1 for actuals
+Result: All actual_points[N] are 0.0 (week N not complete yet)
+
+Fix: Load week_N+1 folder for actuals
+Retest: Part 3b PASSED (0.1% zeros, reasonable variance)
+```
+
+**Part 3b would have caught the bug immediately and prevented it from reaching implementation.**
+
+---
+
+### Pass Criteria for Part 3b
+
+✅ **PASS if:**
+- Zero percentage < 90% for all numeric columns
+- At least 10% of values are non-zero
+- Standard deviation > 0 (data has variance)
+- Values in realistic range for domain
+- No automatic fail conditions triggered
+- Answer "NO" to "would I be suspicious in production?"
+
+❌ **FAIL if:**
+- ANY automatic fail condition triggered
+- Zero percentage >= 90%
+- Non-zero percentage < 10%
+- Standard deviation = 0
+- Values absurdly outside realistic range
+- Answer "YES" to "would I be suspicious in production?"
 
 ---
 
 ## Smoke Testing Completion
 
-**After ALL 3 parts pass:**
+**After ALL 4 parts pass (1, 2, 3, 3b):**
 
 1. **Document smoke test results in README Agent Status**
    ```markdown
-   **Progress:** Smoke testing complete (all 3 parts passed)
+   **Progress:** Smoke testing complete (all 4 parts passed: Import, Entry Point, E2E Execution, Data Sanity)
    **Part 1:** Import Test - PASSED
    **Part 2:** Entry Point Test - PASSED
    **Part 3:** E2E Execution Test - PASSED (data values verified)
@@ -783,6 +1231,48 @@ Re-ran only Part 3
 **Why wrong:** Test fixtures hide integration issues with real data
 
 **✅ Correct:** Use production or production-like data for Part 3
+
+---
+
+## Stage 5ca Complete Checklist (Smoke Testing)
+
+**Smoke Testing is COMPLETE when ALL of these are true:**
+
+### All 3 Parts Passed
+- [ ] Part 1: Import Test PASSED (all modules load without errors)
+- [ ] Part 2: Entry Point Test PASSED (script starts correctly)
+- [ ] Part 3: E2E Execution Test PASSED (feature runs end-to-end)
+  - [ ] Part 3a: Output file structure/format correct
+  - [ ] Part 3b: DATA VALUES verified (not just file exists)
+
+### Data Validation Complete
+- [ ] Actually opened output files and inspected data
+- [ ] Verified data values are correct (not zeros, nulls, placeholders)
+- [ ] Verified data ranges make sense (statistical checks passed)
+- [ ] Primary use case from spec is achievable with actual data
+
+### All 3 Parts on SAME Run
+- [ ] If ANY part failed during testing, re-ran ALL 3 parts from beginning
+- [ ] All 3 parts passed on SAME test run (no mix of old/new results)
+- [ ] No issues introduced by fixes
+
+### Documentation Complete
+- [ ] Smoke test results documented in feature README Agent Status
+- [ ] If failures occurred, documented: what failed, fix applied, retest results
+- [ ] Epic EPIC_README.md updated: Feature smoke testing marked complete
+
+**If ANY item unchecked → Smoke Testing NOT complete**
+
+**Critical Verification:**
+- Part 3b data validation is MANDATORY (not optional)
+- Used REAL data (not test fixtures)
+- Confident feature works with production-like data
+
+**When ALL items checked:**
+✅ Stage 5ca COMPLETE
+→ Proceed to Stage 5cb (QC Rounds)
+
+**Next Guide:** `STAGE_5cb_qc_rounds_guide.md`
 
 ---
 

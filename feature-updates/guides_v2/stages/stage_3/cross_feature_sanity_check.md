@@ -19,14 +19,26 @@
 
 ## Quick Start
 
-**3-Step Overview:**
-1. **Systematic Comparison** - Compare all feature specs side-by-side
-2. **Conflict Resolution** - Identify and resolve conflicts
-3. **User Sign-Off** - Get approval on complete plan
+**What is this stage?**
+Cross-Feature Sanity Check is where you systematically compare all feature specs to identify conflicts, resolve inconsistencies, and get user sign-off on the complete epic plan before proceeding to implementation.
 
-**Estimated Time:** 30-60 minutes (for entire epic)
-**Prerequisites:** ALL features complete Stage 2 (deep dives)
-**Outputs:** Conflict-free specs, user approval, ready for Stage 4
+**When do you use this guide?**
+- ALL features have completed Stage 2 (Feature Deep Dives)
+- All feature specs are documented
+- Ready to validate epic-wide consistency
+
+**Key Outputs:**
+- ✅ Feature comparison matrix created (systematic pairwise comparison)
+- ✅ All conflicts identified and resolved
+- ✅ Specs updated to resolve conflicts
+- ✅ User sign-off obtained on complete epic plan
+- ✅ Ready for Stage 4 (Epic Testing Strategy)
+
+**Time Estimate:**
+30-60 minutes for entire epic (scales with number of features)
+
+**Exit Condition:**
+Stage 3 is complete when all feature specs are conflict-free, user has explicitly approved the complete plan, and approval is documented in EPIC_README.md
 
 ---
 
@@ -1028,6 +1040,51 @@ Following `STAGE_4_epic_testing_strategy_guide.md` to update epic_smoke_test_pla
 **If any prerequisite fails:**
 - ❌ Do NOT transition to Stage 4
 - Complete missing prerequisites
+
+---
+
+## Stage 3 Complete Checklist
+
+**Stage 3 is COMPLETE when ALL of these are true:**
+
+### Prerequisites Verified
+- [ ] ALL features completed Stage 2 (verified in EPIC_README.md)
+- [ ] ALL features have user-approved acceptance criteria (mandatory pre-check)
+
+### Comparison Work
+- [ ] Feature pair comparison matrix created
+- [ ] Systematic pairwise comparison complete (ALL pairs compared)
+- [ ] All conflicts identified and documented in sanity check report
+
+### Conflict Resolution
+- [ ] All conflicts resolved (or documented as intentional differences)
+- [ ] Conflicting features updated with resolutions
+- [ ] Epic EPIC_README.md updated with resolution details
+- [ ] Sanity check report shows 0 unresolved conflicts
+
+### User Approval
+- [ ] Complete plan presented to user for sign-off
+- [ ] User sign-off obtained on entire epic plan
+- [ ] Sign-off timestamp documented in EPIC_README.md
+
+### Epic-Level Updates
+- [ ] EPIC_README.md Agent Status updated: "Stage 3 Complete"
+- [ ] EPIC_README.md Epic Completion Checklist: Stage 3 marked [x]
+- [ ] All feature specs are aligned and conflict-free
+- [ ] No blockers or waiting states
+
+**If ANY item unchecked → Stage 3 NOT complete**
+
+**Critical Verification:**
+- Zero unresolved conflicts (if intentional differences exist, documented)
+- User approved complete plan (not just individual features)
+- ALL features compared (not just some)
+
+**When ALL items checked:**
+✅ Stage 3 COMPLETE
+→ Proceed to Stage 4 (Epic Testing Strategy)
+
+**Next Guide:** `STAGE_4_epic_testing_strategy_guide.md`
 
 ---
 

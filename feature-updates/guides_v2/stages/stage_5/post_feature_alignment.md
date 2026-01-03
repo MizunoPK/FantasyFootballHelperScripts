@@ -37,20 +37,26 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implem
 
 ## Quick Start
 
-**Goal:** Ensure all remaining feature specs align with the reality of what was just implemented (not outdated plans).
+**What is this stage?**
+Post-Feature Alignment is where you update remaining feature specs based on the just-completed feature's actual implementation, ensuring pending features align with real code patterns and integration points discovered during development.
 
-**3 Main Steps:**
-1. **Review Each Remaining Feature Spec** - Sequentially go through ALL not-yet-implemented features
-2. **Compare to Actual Implementation** - Check if spec assumptions still valid based on what was ACTUALLY built
-3. **Update Specs Proactively** - Update specs now (before implementation) to reflect reality
+**When do you use this guide?**
+- Stage 5c complete (feature fully validated and production-ready)
+- There are remaining features to implement
+- Ready to align pending specs with completed work
 
-**Why critical:** Plans change during implementation. Code reveals insights specs couldn't predict. This stage keeps remaining features aligned with reality, preventing rework.
+**Key Outputs:**
+- ✅ Completed feature reviewed (actual implementation understood)
+- ✅ Alignment impacts identified (which specs need updates)
+- ✅ Remaining feature specs updated with implementation insights
+- ✅ Integration points documented
+- ✅ Ready for Stage 5e (Testing Plan Update)
 
-**Output artifacts:**
-- ✅ All remaining feature specs reviewed
-- ✅ Specs updated based on actual implementation insights
-- ✅ Features marked for rework if significant changes needed
-- ✅ Epic README updated with alignment status
+**Time Estimate:**
+15-30 minutes per completed feature
+
+**Exit Condition:**
+Post-Feature Alignment is complete when all remaining feature specs are updated to reflect actual implementation patterns, integration points are documented, and updates are logged in each affected spec
 
 ---
 
@@ -120,6 +126,59 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implem
 
 ---
 
+## Critical Decisions Summary
+
+**Stage 5d has 1 major decision point per remaining feature:**
+
+### Decision Point (Per Feature): Spec Update Classification (UPDATE/REWORK/NO CHANGE)
+**Question:** After comparing spec to actual implementation, what level of change is needed?
+
+**Classification criteria:**
+
+**Option A: NO CHANGE**
+- Spec assumptions were correct
+- Actual implementation matches spec expectations
+- No cascading effects from completed feature
+- ✅ Mark feature as "Reviewed - No changes needed"
+- Proceed to next remaining feature
+
+**Option B: MINOR UPDATE (update spec now, continue normally)**
+- Spec assumptions slightly off but fixable with spec edits
+- Changes are clarifications, not fundamental shifts
+- Examples: Interface signature slightly different, data structure naming changed
+- **Action:** Update spec.md and checklist.md NOW with actual implementation details
+- ✅ Mark feature as "Spec updated based on {completed_feature}"
+- Proceed to next remaining feature
+
+**Option C: SIGNIFICANT REWORK REQUIRED (return to earlier stage)**
+- Spec assumptions fundamentally wrong
+- Completed feature revealed major gaps or conflicts
+- **Criteria for REWORK:**
+  - >3 new TODO tasks needed
+  - Core algorithm approach no longer valid
+  - Data dependencies changed fundamentally
+  - Feature should be split or removed
+- **Action based on severity:**
+  - Return to Stage 5a (TODO creation) if >3 new tasks
+  - Return to Stage 2 (Deep Dive) if spec fundamentally wrong
+  - Return to Stage 1 (Epic Planning) if feature should be split/removed
+- ❌ Mark feature as "REQUIRES REWORK - {reason}"
+- Document WHY rework needed
+- Get user approval before proceeding
+
+**Impact:** Deferring spec updates to "during implementation" causes rework. Updating specs NOW based on actual implementation prevents cascading failures.
+
+---
+
+**Summary of Alignment Review:**
+- Review ALL remaining features (not just "related" ones)
+- Compare to ACTUAL implementation (not the plan)
+- Classify EACH feature: NO CHANGE / MINOR UPDATE / REWORK
+- Update specs proactively (don't defer to implementation)
+- Get user approval for any REWORK classifications
+
+---
+
 ## Prerequisites Checklist
 
 **Verify these BEFORE starting Cross-Feature Alignment:**
@@ -185,6 +244,37 @@ Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implem
 │   - Ready for Stage 5e                                     │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Quick Navigation
+
+**Stage 5d has 4 main steps. Jump to any step:**
+
+| Step | Focus Area | Go To |
+|------|-----------|-------|
+| **Step 1** | Identify Remaining Features | [Step 1](#step-1-identify-remaining-features) |
+| **Step 2** | Review Each Feature Spec | [Step 2](#step-2-review-each-feature-spec-against-actual-implementation) |
+| **Step 3** | Classify & Update Specs | [Step 3](#step-3-classify-and-update-specs) |
+| **Step 4** | Document & Complete | [Step 4](#step-4-document-alignment-and-mark-complete) |
+
+**Key Decision Points:**
+
+| Decision | Description | Go To |
+|----------|-------------|-------|
+| **Update Classification** | NO CHANGE / UPDATE / REWORK | [Critical Decisions](#critical-decisions-summary) |
+| **Rework Criteria** | When to return to earlier stages | [Significant Rework Criteria](#significant-rework-criteria-detailed) |
+| **Completion Check** | Verify all features reviewed | [Completion Criteria](#completion-criteria) |
+
+**Reference Sections:**
+
+| Section | Description | Go To |
+|---------|-------------|-------|
+| Critical Rules | Must-follow alignment rules | [Critical Rules](#critical-rules) |
+| Common Mistakes | What to avoid | [Common Mistakes](#common-mistakes-to-avoid) |
+| Prerequisites | What must be done first | [Prerequisites Checklist](#prerequisites-checklist) |
+
+**Tip:** For each remaining feature, follow Steps 2-3, then move to next feature. Complete Step 4 after all features reviewed.
 
 ---
 

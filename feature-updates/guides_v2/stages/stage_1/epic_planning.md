@@ -19,17 +19,26 @@
 
 ## Quick Start
 
-**6-Step Overview:**
-1. Create git branch for epic (BEFORE any changes)
-2. Create epic folder and move epic request file
-3. Analyze epic request and codebase
-4. Propose feature breakdown (user confirms)
-5. Create epic structure (EPIC_README, epic_smoke_test_plan, feature folders)
-6. Transition to Stage 2 (feature deep dives)
+**What is this stage?**
+Epic Planning is the first stage where you create the git branch, analyze the user's epic request, break it down into features, validate your understanding through an epic ticket, and create the folder structure for the entire epic.
 
-**Estimated Time:** 30-60 minutes
-**Prerequisites:** User has created `{epic_name}.txt` with epic request
-**Outputs:** Git branch created, epic folder structure, initial test plan, ready for deep dives
+**When do you use this guide?**
+- User has created `{epic_name}.txt` with their epic request
+- Starting a new epic from scratch
+- Need to plan multi-feature work
+
+**Key Outputs:**
+- ✅ Git branch created for epic work
+- ✅ Epic ticket created and user-validated (confirms understanding)
+- ✅ Epic folder structure created (EPIC_README, epic_smoke_test_plan, feature folders)
+- ✅ Initial test plan documented
+- ✅ Ready to start Stage 2 (feature deep dives)
+
+**Time Estimate:**
+45-75 minutes (includes epic ticket validation)
+
+**Exit Condition:**
+Stage 1 is complete when you have a validated epic ticket, complete folder structure, and user has confirmed the feature breakdown
 
 ---
 
@@ -46,39 +55,77 @@
    - Create branch: {work_type}/KAI-{number}
    - Update EPIC_TRACKER.md and commit immediately
 
-2. ⚠️ USER MUST APPROVE feature breakdown before creating folders
+2. ⚠️ USER MUST APPROVE feature breakdown before creating epic ticket
    - Agent proposes breakdown
    - User confirms/modifies
    - Do NOT proceed without approval
 
-3. ⚠️ Create GUIDE_ANCHOR.md in epic folder (resumption instructions)
+3. ⚠️ CREATE EPIC TICKET and get user validation (Steps 3.6-3.7)
+   - Epic ticket validates agent understanding of outcomes
+   - User must approve epic ticket before folder creation
+   - Epic ticket becomes immutable reference (like epic notes)
 
-4. ⚠️ epic_smoke_test_plan.md is PLACEHOLDER (will update in Stages 4, 5e)
+4. ⚠️ Create GUIDE_ANCHOR.md in epic folder (resumption instructions)
+
+5. ⚠️ epic_smoke_test_plan.md is PLACEHOLDER (will update in Stages 4, 5e)
    - Initial plan based on assumptions
    - Mark clearly as "INITIAL - WILL UPDATE"
 
-5. ⚠️ Update EPIC_README.md Agent Status after EACH major step
+6. ⚠️ Update EPIC_README.md Agent Status after EACH major step
 
-6. ⚠️ Feature numbering: feature_01_{name}, feature_02_{name}, etc.
+7. ⚠️ Feature numbering: feature_01_{name}, feature_02_{name}, etc.
    - Consistent zero-padded numbering
    - Descriptive names (not generic)
 
-7. ⚠️ Create research/ folder in epic root (shared across all features)
+8. ⚠️ Create research/ folder in epic root (shared across all features)
 
-8. ⚠️ Epic planning does NOT include deep dives
+9. ⚠️ Epic planning does NOT include deep dives
    - Stage 1: Create structure, propose features
    - Stage 2: Deep dive per feature (separate stage)
 
-9. ⚠️ If unsure about feature breakdown, propose FEWER features
-   - Can add features during Stage 2 (discovery)
-   - Harder to merge features later
+10. ⚠️ If unsure about feature breakdown, propose FEWER features
+    - Can add features during Stage 2 (discovery)
+    - Harder to merge features later
 
-10. ⚠️ Every feature MUST have clear purpose (1-2 sentences)
+11. ⚠️ Every feature MUST have clear purpose (1-2 sentences)
     - Avoid "miscellaneous" or "utilities" features
     - Each feature delivers distinct value
 
-11. ⚠️ Mark completion in EPIC_README.md before transitioning to Stage 2
+12. ⚠️ Mark completion in EPIC_README.md before transitioning to Stage 2
 ```
+
+---
+
+## Critical Decisions Summary
+
+**Stage 1 has 4 major decision points. Know these before starting:**
+
+### Decision Point 1: Determine Work Type (Step 1.0d)
+**Question:** Is this an epic, feat, or fix?
+- **epic:** Work with multiple features (most epics)
+- **feat:** Work with single feature only
+- **fix:** Bug fix work
+- **Impact:** Determines branch name format and EPIC_TRACKER classification
+
+### Decision Point 2: Feature Breakdown Approval (Phase 3)
+**Question:** Does the user approve the proposed feature list?
+- **If NO:** User provides feedback, agent revises breakdown
+- **If YES:** Proceed to create epic ticket (Step 3.6)
+- **Impact:** Defines entire epic structure - cannot easily change after folders created
+
+### Decision Point 3: Epic Ticket Validation (Steps 3.6-3.7)
+**Question:** Does the epic ticket accurately reflect user's desired outcomes?
+- **If NO:** User corrects misunderstandings, agent updates epic ticket
+- **If YES:** Proceed to folder creation (Phase 4)
+- **Impact:** Epic ticket becomes immutable reference - validates agent understanding
+
+### Decision Point 4: Feature Folder Creation (Step 4.2)
+**Question:** Create correct number of feature folders matching approved breakdown?
+- **Verify:** Feature count matches approved list
+- **Verify:** Feature names are descriptive (not generic)
+- **Impact:** Epic structure is set - adding features later requires returning to Stage 1
+
+**Note:** Each decision point has clear criteria. Read the detailed section before making decision.
 
 ---
 
@@ -124,7 +171,9 @@ Phase 3: Feature Breakdown Proposal
    ├─ Identify major components/subsystems
    ├─ Propose feature list with justification
    ├─ Present to user for approval
-   └─ WAIT for user confirmation/modifications
+   ├─ WAIT for user confirmation/modifications
+   ├─ Create epic ticket (outcome validation)
+   └─ WAIT for user validation of epic ticket
 
 Phase 4: Epic Structure Creation
    ├─ Create feature folders (per approved breakdown)
@@ -275,7 +324,7 @@ mv feature-updates/{epic_name}.txt feature-updates/{epic_name}/{epic_name}_notes
 
 ### Step 1.3: Create EPIC_README.md
 
-Use template from `templates_v2.md` → "Epic README Template"
+Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "Epic README Template"
 
 **Initial Agent Status:**
 ```markdown
@@ -523,13 +572,171 @@ I've analyzed the epic request and propose breaking this into {N} features:
 
 **If user approves:**
 1. Document approval in EPIC_README.md
-2. Proceed to Phase 4
+2. Proceed to Step 3.6 (Epic Ticket Creation)
+
+---
+
+### Step 3.6: Create Epic Ticket (Outcome Validation)
+
+**Purpose:** Validate agent understands epic outcomes and acceptance criteria BEFORE creating folder structure
+
+**Why this matters:** Catches epic-level misinterpretation early, preventing 40+ hours of work in wrong direction
+
+---
+
+**Template:**
+
+```markdown
+# Epic Ticket: [Epic Name]
+
+## Description
+[2-3 sentences describing what this epic achieves and why it matters]
+
+## Acceptance Criteria (Epic-level)
+- [ ] [Testable outcome 1 - applies to ENTIRE epic]
+- [ ] [Testable outcome 2]
+- [ ] [Testable outcome 3]
+- [ ] [Testable outcome 4]
+
+## Success Indicators
+- [Measurable metric 1]
+- [Measurable metric 2]
+- [Measurable metric 3]
+
+## Failure Patterns (How we'd know epic failed)
+❌ [Symptom of failure 1]
+❌ [Symptom of failure 2]
+❌ [Symptom of failure 3]
+```
+
+---
+
+**Guidelines for writing epic ticket:**
+
+**Description:**
+- Focus on WHAT is being achieved, not HOW
+- Explain why this epic provides value
+- Keep to 2-3 sentences maximum
+
+**Acceptance Criteria:**
+- Must be testable/verifiable outcomes
+- Apply to entire epic (not individual features)
+- Use "All X" language when patterns apply broadly (e.g., "All 18 weeks", "All 6 positions")
+- Avoid implementation details ("Create class X", "Use method Y")
+- Focus on capabilities ("System can...", "Users can...", "Data shows...")
+
+**Success Indicators:**
+- Must be measurable/quantifiable
+- Examples: "Zero percentage <1%", "All tests pass", "MAE calculation completes"
+- Include both positive indicators (what should happen) and thresholds
+
+**Failure Patterns:**
+- Describe specific symptoms that would indicate epic failed
+- Use patterns from similar past bugs if applicable
+- Be explicit about edge cases (e.g., ">90% zeros", "Only week 17-18 work")
+- Think: "What would I see in the output if this epic was broken?"
+
+---
+
+**Example - Feature 02 Epic Ticket:**
+
+```markdown
+# Epic Ticket: Integrate JSON Player Data into Simulations
+
+## Description
+Replace CSV-based player data loading with JSON format for both win rate and accuracy simulations. The new JSON files contain weekly arrays instead of individual columns, enabling more efficient data organization and week-based queries across all 18 NFL regular season weeks.
+
+## Acceptance Criteria
+- [ ] Both simulation types (win rate & accuracy) load player data from JSON files
+- [ ] All 18 weeks of data are accessible and used correctly for both simulations
+- [ ] Actual points for all players across all 18 weeks contain realistic non-zero values
+- [ ] Projected points for all players across all 18 weeks contain realistic non-zero values
+- [ ] Simulations produce equivalent or better results compared to CSV version
+- [ ] No regression in existing simulation functionality
+- [ ] All 2,200+ unit tests continue to pass
+
+## Success Indicators
+- Actual points have <1% zero values across all weeks/players
+- Projected points have <1% zero values across all weeks/players
+- Mean absolute error (MAE) calculations complete successfully for all 18 weeks
+- Win rate simulations complete 10,000 iterations without errors
+- Standard deviation > 0 for both actual and projected points (values have variance)
+
+## Failure Patterns
+❌ >90% of actual_points are 0.0 (data loading issue)
+❌ Only week 17-18 work while other weeks have zeros (week offset bug)
+❌ Calculations return NaN or skip all players (consumption code not updated)
+❌ "attribute not found" errors during execution (old API still used)
+❌ Mean or standard deviation = 0 (all same value - calculation error)
+❌ Only 1-2 players have non-zero values out of 2500 total
+```
+
+**Why this would have caught Feature 02 bug:**
+- "All 18 weeks" makes clear it's not just week 17-18
+- Failure pattern explicitly describes the ">90% zeros" bug that happened
+- Success indicators would have failed (99.8% zeros >> 1% threshold)
+
+---
+
+**Process:**
+
+1. **Draft epic ticket** using template above
+2. **Save to:** `feature-updates/{epic_name}/EPIC_TICKET.md`
+3. **Present to user** for validation
+4. **Proceed to Step 3.7** for user sign-off
+
+---
+
+### Step 3.7: User Validation of Epic Ticket
+
+⚠️ **STOP HERE - Do NOT proceed without user validation**
+
+**Present epic ticket to user:**
+
+```markdown
+## Epic Ticket Validation Checkpoint
+
+I've created an epic ticket to validate my understanding of the epic's goals and acceptance criteria.
+
+**Location:** `feature-updates/{epic_name}/EPIC_TICKET.md`
+
+**Please review:**
+1. **Description** - Does this accurately describe what we're trying to achieve?
+2. **Acceptance Criteria** - Are these the right outcomes to measure success?
+3. **Success Indicators** - Are these measurable and realistic?
+4. **Failure Patterns** - Do these describe what "broken" would look like?
+
+**Questions:**
+- Does the epic ticket match your understanding of the epic request?
+- Are there any missing acceptance criteria I should add?
+- Are there any failure patterns I should include?
+- Should I adjust any success indicator thresholds?
+
+**Once you approve the epic ticket, I'll proceed to create the folder structure.**
+```
+
+**If user requests changes:**
+1. Update EPIC_TICKET.md based on feedback
+2. Present updated version
+3. Wait for approval again
+
+**If user approves:**
+1. Document validation in EPIC_README.md:
+   ```markdown
+   - [x] Epic ticket created and user-validated (Step 3.7)
+   ```
+2. Epic ticket is now **immutable reference** (like epic notes)
+3. Proceed to Phase 4
+
+**Critical:** Epic ticket becomes source of truth for outcomes. During Iteration 25 (Stage 5ac), spec.md will be validated against both epic notes AND epic ticket.
 
 ---
 
 ## Phase 4: Epic Structure Creation
 
-**Prerequisite:** User has approved feature breakdown
+**Prerequisites:**
+- User has approved feature breakdown
+- User has validated epic ticket
 
 ### Step 4.1: Create Feature Folders
 
@@ -558,7 +765,7 @@ touch lessons_learned.md
 
 **Populate Feature README.md:**
 
-Use template from `templates_v2.md` → "Feature README Template"
+Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "Feature README Template"
 
 **Key sections:**
 - Feature Context (part of epic, feature number, purpose)
@@ -638,7 +845,7 @@ Use template from `templates_v2.md` → "Feature README Template"
 
 ### Step 4.2: Create epic_smoke_test_plan.md
 
-Use template from `templates_v2.md` → "Epic Smoke Test Plan Template"
+Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "Epic Smoke Test Plan Template"
 
 **IMPORTANT:** Mark this as INITIAL VERSION
 
@@ -768,7 +975,7 @@ This folder contains all research, analysis, and verification reports for the ep
 
 ### Step 4.5: Create GUIDE_ANCHOR.md
 
-Use template from `templates_v2.md` → "GUIDE_ANCHOR Template"
+Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "GUIDE_ANCHOR Template"
 
 **Critical sections:**
 - Instructions for resuming after session compaction
@@ -888,13 +1095,13 @@ Update EPIC_README.md Epic Completion Checklist:
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** DEEP_DIVE
-**Current Step:** Ready to begin Stage 2 for Feature 1
-**Current Guide:** STAGE_2_feature_deep_dive_guide.md
-**Guide Last Read:** NOT YET (will read when starting Stage 2)
-**Critical Rules from Guide:** (Will populate after reading Stage 2 guide)
+**Current Step:** Ready to begin Stage 2a (Research Phase) for Feature 1
+**Current Guide:** STAGE_2a_research_phase_guide.md
+**Guide Last Read:** NOT YET (will read when starting Stage 2a)
+**Critical Rules from Guide:** (Will populate after reading Stage 2a guide)
 
-**Progress:** Stage 1 complete, ready for Stage 2
-**Next Action:** Read STAGE_2_feature_deep_dive_guide.md and begin deep dive for feature_01_{name}
+**Progress:** Stage 1 complete, ready for Stage 2a
+**Next Action:** Read STAGE_2a_research_phase_guide.md and begin research phase for feature_01_{name}
 **Blockers:** None
 ```
 
@@ -921,9 +1128,9 @@ I've created the epic structure with {N} features:
 
 **Next: Stage 2 (Feature Deep Dives)**
 
-I'll now transition to Stage 2 and begin deep dive planning for Feature 1.
+I'll now transition to Stage 2a (Research Phase) and begin deep dive planning for Feature 1.
 
-Following `STAGE_2_feature_deep_dive_guide.md` to flesh out detailed specifications for each feature.
+Starting with `STAGE_2a_research_phase_guide.md` to extract epic intent, conduct targeted research, and complete research audit (Phases 0-1.5).
 ```
 
 ---
@@ -1006,7 +1213,7 @@ Following `STAGE_2_feature_deep_dive_guide.md` to flesh out detailed specificati
    ✅ STOP - Stage 1 test plan is placeholder, detailed plan comes in Stage 4
 
 ❌ "I remember the template structure, don't need to check"
-   ✅ STOP - Always use actual template from templates_v2.md
+   ✅ STOP - Always use actual template from templates/ folder
 
 ❌ "I'll update Agent Status after I finish all phases"
    ✅ STOP - Must update after EACH phase (not batched)
@@ -1219,14 +1426,14 @@ If you cannot answer these questions without re-reading the guide, you haven't r
 □ Stage 1 completion criteria ALL met (see "Completion Criteria" section)
 □ EPIC_README.md Agent Status updated:
   - Current Phase: DEEP_DIVE
-  - Current Guide: STAGE_2_feature_deep_dive_guide.md
-  - Next Action: Read Stage 2 guide and begin deep dive for Feature 1
+  - Current Guide: STAGE_2a_research_phase_guide.md
+  - Next Action: Read Stage 2a guide and begin research phase for Feature 1
 □ Epic Completion Checklist: Stage 1 items all checked
 □ Feature Tracking table: All features listed with "Not started" status
 □ No blockers (user approval received)
 
 **If any prerequisite fails:**
-- ❌ Do NOT transition to Stage 2
+- ❌ Do NOT transition to Stage 2a
 - Complete missing prerequisites
 - Update Agent Status when prerequisites met
 
@@ -1236,18 +1443,18 @@ If you cannot answer these questions without re-reading the guide, you haven't r
 
 **After completing Stage 1:**
 
-📖 **READ:** `STAGE_2_feature_deep_dive_guide.md`
-🎯 **GOAL:** Flesh out detailed spec.md for each feature
-⏱️ **ESTIMATE:** 1-2 hours per feature
+📖 **READ:** `STAGE_2a_research_phase_guide.md` (Research Phase - first of three sub-stages)
+🎯 **GOAL:** Extract epic intent, conduct targeted research, pass research audit (Phases 0-1.5)
+⏱️ **ESTIMATE:** 45-60 minutes (then continue with STAGE_2b and STAGE_2c)
 
-**Stage 2 will:**
-- Conduct targeted research for each feature
-- Create detailed specifications
-- Resolve all open questions via checklist
-- Compare feature specs for alignment
-- Discover new features if scope expands significantly
+**Stage 2 workflow (split into 3 focused guides):**
+- **STAGE_2a (Research Phase):** Epic intent extraction, targeted research, research audit (Phases 0-1.5)
+- **STAGE_2b (Specification Phase):** Spec with traceability, alignment check (Phases 2-2.5)
+- **STAGE_2c (Refinement Phase):** Questions, scope, cross-feature alignment, user approval (Phases 3-6)
 
-**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting Stage 2.
+**Note:** `STAGE_2_feature_deep_dive_guide.md` is now a router that links to the 3 sub-stage guides.
+
+**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting Stage 2a.
 
 ---
 

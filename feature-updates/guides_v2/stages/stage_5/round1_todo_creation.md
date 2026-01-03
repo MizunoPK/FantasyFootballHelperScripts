@@ -1,4 +1,4 @@
-# STAGE 5aa: TODO Creation - Round 1 (Iterations 1-7 + 4a)
+# STAGE 5aa: TODO Creation - Round 1 (Iterations 1-7 + 4a + 5a)
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -19,14 +19,27 @@
 
 ## Quick Start
 
-**Overview:**
-- **Round 1 of 3** in the 24-iteration TODO creation process
-- **Iterations 1-7 + 4a** (Initial Analysis & Planning)
-- **Focus:** Requirements coverage, dependency mapping, algorithm tracing
+**What is this stage?**
+Round 1 of TODO Creation is the initial analysis phase where you verify requirements coverage, map dependencies, trace algorithms to code locations, and analyze downstream consumption through 9 mandatory iterations (1-7 + 4a + 5a).
 
-**Estimated Time:** 45-60 minutes
-**Prerequisites:** Stage 4 complete, feature spec.md complete
-**Outputs:** Initial TODO file with tasks, dependencies verified, algorithms traced
+**When do you use this guide?**
+- Stage 4 complete (Epic Testing Strategy updated)
+- Feature spec.md is finalized
+- Ready to create implementation TODO list
+
+**Key Outputs:**
+- ✅ TODO.md created with initial tasks
+- ✅ Interface Verification complete (exact method signatures verified)
+- ✅ Dependencies mapped and verified
+- ✅ Algorithm Traceability Matrix created (40+ mappings typical)
+- ✅ Iteration 4a PASSED (TODO Specification Audit - MANDATORY GATE)
+- ✅ Downstream consumption updates identified
+
+**Time Estimate:**
+45-60 minutes (9 iterations)
+
+**Exit Condition:**
+Round 1 is complete when all 9 iterations pass (including Iteration 4a mandatory gate), confidence level is at least MEDIUM, and you're ready to proceed to Round 2
 
 ---
 
@@ -37,9 +50,10 @@
 │ CRITICAL RULES - These MUST be copied to README Agent Status │
 └─────────────────────────────────────────────────────────────┘
 
-1. ⚠️ ALL 8 iterations in Round 1 are MANDATORY (no skipping)
-   - Iterations 1-7 + Iteration 4a
+1. ⚠️ ALL 9 iterations in Round 1 are MANDATORY (no skipping)
+   - Iterations 1-7 + Iteration 4a + Iteration 5a
    - Each iteration catches specific bug categories
+   - Iteration 5a prevents "data loads but calculation fails" bugs
 
 2. ⚠️ Execute iterations IN ORDER (not parallel, not random)
    - Later iterations depend on earlier findings
@@ -76,6 +90,32 @@
    - Document confidence level
    - Document next action
 ```
+
+---
+
+## Critical Decisions Summary
+
+**Round 1 has 1 major decision point (MANDATORY GATE):**
+
+### Decision Point 1: Iteration 4a - TODO Specification Audit (GO/NO-GO)
+**Question:** Do ALL TODO tasks have clear acceptance criteria and traceability to spec?
+- **If NO (any task fails audit):**
+  - STOP immediately
+  - Fix TODO tasks with missing/unclear acceptance criteria
+  - Re-run Iteration 4a audit
+  - Do NOT proceed until ALL tasks pass
+- **If YES (all tasks pass audit):**
+  - ✅ Proceed to Iteration 5 (End-to-End Data Flow)
+  - Continue with remaining Round 1 iterations
+- **Impact:** Poor TODO specifications lead to implementation confusion, missing edge cases, and rework
+
+**At End of Round 1: Confidence Checkpoint**
+**Question:** Is confidence level >= MEDIUM?
+- **If < MEDIUM:** Create questions.md, wait for user answers, DO NOT proceed to Round 2
+- **If >= MEDIUM:** Proceed to Round 2 (STAGE_5ab_round2_guide.md)
+- **Impact:** Low confidence means unclear requirements - implementing without clarity causes major rework
+
+**Note:** Iteration 4a is the ONLY mandatory gate in Round 1, but all 9 iterations are required.
 
 ---
 
@@ -602,8 +642,329 @@ Updated player score used in draft recommendations
 **Update Agent Status:**
 ```
 Progress: Iteration 5/8 (Round 1) complete
-Next Action: Iteration 6 - Error Handling Scenarios
+Next Action: Iteration 5a - Downstream Consumption Tracing
 ```
+
+---
+
+### Iteration 5a: Downstream Data Consumption Tracing (CRITICAL)
+
+**Purpose:** Verify how loaded data is CONSUMED after loading completes
+
+**Historical Context:** Feature 02 catastrophic bug - changed how data was LOADED (CSV → JSON) but missed how data was CONSUMED (week_N_points attributes → actual_points[N] arrays). This resulted in a fully non-functional feature that survived 7 stages because all verification checked data loading, not data consumption.
+
+**This iteration prevents the "data loads successfully but calculation fails" bug.**
+
+---
+
+**Process:**
+
+1. **Identify all downstream consumption locations:**
+
+Use Grep to find WHERE loaded data is accessed:
+
+```bash
+# Find attribute access patterns
+grep -r "player\.week_\|player\.points\|player\.score" --include="*.py"
+
+# Find getattr/hasattr usage (dynamic attribute access)
+grep -r "getattr.*player\|hasattr.*player" --include="*.py"
+
+# Find array/list access patterns
+grep -r "player\.\w+\[" --include="*.py"
+
+# Find method calls on loaded objects
+grep -r "player\.\w+(" simulation/ --include="*.py"
+```
+
+**Document findings:**
+```markdown
+## Downstream Consumption Locations
+
+**Location 1:** AccuracySimulationManager.py lines 452-456
+- Method: _evaluate_config_weekly()
+- Access pattern: `getattr(player, f'week_{week_num}_points', None)`
+- Purpose: Get actual points for accuracy calculation
+
+**Location 2:** ParallelAccuracyRunner.py lines 180-185
+- Function: worker()
+- Access pattern: `player.week_17_points`
+- Purpose: Get week 17 actual points for parallel MAE calculation
+
+[Document ALL consumption locations]
+```
+
+---
+
+2. **List OLD access patterns (before this feature):**
+
+```markdown
+## OLD Data Access Patterns (CSV-based)
+
+**Pattern 1: Week-specific attributes**
+- Code: `player.week_1_points`, `player.week_2_points`, ..., `player.week_17_points`
+- Type: Scalar float attributes
+- Access: Direct attribute access
+
+**Pattern 2: Dynamic attribute lookup**
+- Code: `getattr(player, f'week_{N}_points', None)`
+- Type: Scalar float (or None if missing)
+- Access: Dynamic attribute name
+
+**Pattern 3: Projected points**
+- Code: `player.projected_points`
+- Type: Scalar float
+- Access: Direct attribute access
+```
+
+---
+
+3. **List NEW access patterns (after this feature):**
+
+```markdown
+## NEW Data Access Patterns (JSON-based)
+
+**Pattern 1: Array-based week data**
+- Code: `player.actual_points[week_num - 1]`
+- Type: Array element (float)
+- Access: Array indexing (0-based, so week 1 = index 0)
+
+**Pattern 2: Projected points array**
+- Code: `player.projected_points[week_num - 1]`
+- Type: Array element (float)
+- Access: Array indexing
+
+**Pattern 3: Array bounds checking**
+- Code: `if len(player.actual_points) > week_num - 1: actual = player.actual_points[week_num - 1]`
+- Type: Safe array access
+- Access: Bounds check before indexing
+```
+
+---
+
+4. **Compare OLD vs NEW - Identify breaking changes:**
+
+```markdown
+## API Breaking Changes Analysis
+
+### Change 1: week_N_points attributes → actual_points[] array
+
+**OLD API:**
+- `player.week_1_points` (attribute)
+- `player.week_2_points` (attribute)
+- ...
+- `player.week_17_points` (attribute)
+
+**NEW API:**
+- `player.actual_points[0]` (array element for week 1)
+- `player.actual_points[1]` (array element for week 2)
+- ...
+- `player.actual_points[16]` (array element for week 17)
+
+**Breaking Change?** ✅ YES - Attributes no longer exist
+**Impact:** Code using `getattr(player, 'week_17_points')` will return None (attribute missing)
+**Consequence:** Calculation skips ALL players → MAE = NaN/empty
+
+---
+
+### Change 2: projected_points scalar → projected_points[] array
+
+**OLD API:**
+- `player.projected_points` (single float value)
+
+**NEW API:**
+- `player.projected_points[week_num - 1]` (array of 17 floats)
+
+**Breaking Change?** ✅ YES - Type changed from scalar to array
+**Impact:** Code expecting float will get array
+**Consequence:** Type error or incorrect calculation
+
+---
+
+### Change 3: Index offset (1-based weeks → 0-based arrays)
+
+**OLD API:**
+- Week 1 = `player.week_1_points`
+- Week 17 = `player.week_17_points`
+
+**NEW API:**
+- Week 1 = `player.actual_points[0]`
+- Week 17 = `player.actual_points[16]`
+
+**Breaking Change?** ⚠️ LOGIC CHANGE - Off-by-one errors possible
+**Impact:** Using `actual_points[week_num]` instead of `actual_points[week_num - 1]`
+**Consequence:** Wrong week data, array index out of bounds
+```
+
+---
+
+5. **Determine if consumption code needs updates:**
+
+**Decision criteria:**
+
+- [ ] Are there API breaking changes? (YES from Step 4)
+- [ ] Are there downstream consumption locations? (YES from Step 1)
+- [ ] Does spec.md include consumption updates? (Check spec)
+
+**If ALL YES:**
+- ✅ Consumption code updates ARE REQUIRED
+- Add tasks to TODO.md
+
+**If ANY NO:**
+- ❌ Missing scope - STOP and report to user
+- Epic may need scope clarification
+
+---
+
+6. **Add consumption update tasks to TODO.md:**
+
+**If consumption changes needed, add tasks:**
+
+```markdown
+## Task X: Update Consumption Code - AccuracySimulationManager
+
+**Requirement:** Update _evaluate_config_weekly() to use array-based access
+
+**Current Code (OLD):**
+```python
+actual = getattr(player, f'week_{week_num}_points', None)
+```
+
+**Updated Code (NEW):**
+```python
+if len(player.actual_points) > week_num - 1:
+    actual = player.actual_points[week_num - 1]
+else:
+    actual = None
+```
+
+**Changes:**
+- Replace getattr() with array indexing
+- Add bounds checking (array might have <17 elements)
+- Use week_num - 1 (0-based indexing)
+
+**Files Modified:**
+- simulation/accuracy/AccuracySimulationManager.py lines 452-456
+
+**Tests Required:**
+- Unit test: Test array access with various week numbers
+- Edge case test: Test with short arrays (< 17 elements)
+- Integration test: Verify MAE calculation uses correct week data
+
+**Acceptance Criteria:**
+- [ ] Code updated to use array indexing
+- [ ] Bounds checking added
+- [ ] All tests pass
+- [ ] MAE calculation produces non-zero results (not all None)
+```
+
+---
+
+**Output:**
+- List of consumption locations
+- OLD vs NEW API comparison table
+- Breaking changes analysis
+- NEW TODO tasks for consumption updates (if needed)
+
+---
+
+**Critical Questions Checklist:**
+
+Before marking Iteration 5a complete, answer these questions:
+
+**Consumption Location Discovery:**
+- [ ] Did I grep for ALL attribute access patterns (not just one)?
+- [ ] Did I search for getattr/hasattr (dynamic attribute access)?
+- [ ] Did I search for array/list indexing patterns?
+- [ ] Did I search for method calls on loaded objects?
+- [ ] Did I document EVERY consumption location found?
+
+**API Change Analysis:**
+- [ ] Did I list OLD access patterns (before this feature)?
+- [ ] Did I list NEW access patterns (after this feature)?
+- [ ] Did I compare OLD vs NEW for EVERY data field?
+- [ ] Did I identify ALL breaking changes (not just some)?
+- [ ] Did I assess impact of EACH breaking change?
+
+**Breaking Change Detection:**
+- [ ] Attribute removal (OLD has attributes, NEW uses arrays)?
+- [ ] Type change (OLD scalar, NEW array)?
+- [ ] Index offset change (1-based weeks → 0-based arrays)?
+- [ ] Bounds checking needed (arrays may have variable length)?
+- [ ] Method signature changes (parameters or return types)?
+
+**Feature 02 Prevention:**
+- [ ] If loading changes from CSV → JSON, did I check consumption code?
+- [ ] If OLD uses `week_N_points` attributes, does NEW break this?
+- [ ] If NEW uses arrays, does consumption code still use getattr()?
+- [ ] Would consumption code get None when accessing new API?
+- [ ] Would calculation fail silently (skip all players)?
+
+**Spec Scope Verification:**
+- [ ] Does spec.md mention consumption code updates?
+- [ ] If API breaks, does spec include consumption tasks?
+- [ ] If spec says "no consumption changes", did I verify with grep?
+- [ ] If consumption changes needed but not in spec → STOP and report to user?
+
+**TODO Task Creation:**
+- [ ] Did I add tasks for EVERY consumption location that needs updates?
+- [ ] Does each task specify OLD code vs NEW code?
+- [ ] Does each task include bounds checking (if arrays)?
+- [ ] Does each task include tests for consumption code?
+- [ ] Did I add integration tests (not just unit tests)?
+
+**Decision Confidence:**
+- [ ] Can I confidently say ALL consumption locations are identified?
+- [ ] Can I confidently say ALL breaking changes are documented?
+- [ ] If I skip consumption updates, would feature be non-functional?
+- [ ] Would I bet feature success on this consumption analysis?
+
+---
+
+**Automatic Stop Conditions (Must Report to User):**
+
+If you encounter ANY of these, IMMEDIATELY stop and report to user:
+
+❌ **API has breaking changes BUT spec doesn't mention consumption updates** - Spec scope incomplete
+❌ **Found consumption locations using OLD API BUT no tasks in TODO** - Missing implementation tasks
+❌ **Feature changes data structure BUT spec says "no consumption changes"** - Spec likely wrong
+❌ **Cannot confidently answer "All consumption locations identified?"** - Need more grepping
+❌ **Consumption code uses getattr() for attributes that will be removed** - Breaking change
+
+---
+
+**Decision Framework:**
+
+```
+Are there API breaking changes? (from Step 4)
+└─ YES → Are there downstream consumption locations? (from Step 1)
+    └─ YES → Does spec.md include consumption updates?
+        ├─ YES → ✅ Add consumption tasks to TODO, proceed to Iteration 6
+        └─ NO → ❌ STOP - Report to user (scope clarification needed)
+    └─ NO → ✅ No consumption code to update, proceed to Iteration 6
+└─ NO → ✅ No breaking changes, proceed to Iteration 6
+```
+
+---
+
+**Update Agent Status:**
+```
+Progress: Iteration 5a/8 (Round 1) complete - Downstream consumption traced
+Next Action: Iteration 6 - Error Handling Scenarios
+Critical Finding: [X consumption locations found, Y breaking changes, Z tasks added]
+```
+
+---
+
+**Why This Iteration Matters:**
+
+**Feature 02 Example:**
+- Iteration 5 verified data flow (loading works) ✅
+- **Iteration 5a WOULD HAVE caught:** Consumption code still uses OLD API ❌
+- Without 5a: Bug survived to user final review
+- With 5a: Bug caught during TODO creation (before implementation)
+
+**30 seconds of grepping saves days of debugging wrong implementation.**
 
 ---
 

@@ -19,14 +19,27 @@
 
 ## Quick Start
 
-**Overview:**
-- **Round 2 of 3** in the 24-iteration TODO creation process
-- **Iterations 8-16** (Deep Verification)
-- **Focus:** Test strategy, edge cases, re-verification of critical matrices
+**What is this stage?**
+Round 2 of TODO Creation is the deep verification phase where you create comprehensive test strategy, identify edge cases, and re-verify critical matrices through 9 mandatory iterations (8-16) to catch bugs introduced during Round 1.
 
-**Estimated Time:** 45-60 minutes
-**Prerequisites:** Round 1 complete (STAGE_5aa), confidence >= MEDIUM
-**Outputs:** Comprehensive test strategy, edge case handling, updated matrices
+**When do you use this guide?**
+- Round 1 complete (STAGE_5aa passed)
+- Confidence level is MEDIUM or higher
+- Ready for deep verification of TODO plan
+
+**Key Outputs:**
+- ✅ Comprehensive test strategy (>90% coverage required)
+- ✅ Edge case handling identified
+- ✅ Algorithm Traceability Matrix re-verified (Iteration 11)
+- ✅ E2E Data Flow re-verified (Iteration 12)
+- ✅ Integration Gap Check re-verified (Iteration 14)
+- ✅ Test Coverage Depth Check passed (Iteration 15)
+
+**Time Estimate:**
+45-60 minutes (9 iterations)
+
+**Exit Condition:**
+Round 2 is complete when all 9 iterations pass, test coverage exceeds 90%, confidence level is at least MEDIUM, and you're ready to proceed to Round 3
 
 ---
 
@@ -63,6 +76,37 @@
    - Document confidence level
    - Document next action
 ```
+
+---
+
+## Critical Decisions Summary
+
+**Round 2 has 1 major decision point:**
+
+### Decision Point 1: Test Coverage Threshold (Iteration 15)
+**Question:** Does test coverage meet the >90% requirement?
+- **If NO (coverage < 90%):**
+  - Identify uncovered edge cases
+  - Add tests to cover gaps
+  - Re-run Iteration 15 to verify >90% coverage
+  - Do NOT proceed to Iteration 16 until threshold met
+- **If YES (coverage >= 90%):**
+  - ✅ Proceed to Iteration 16 (Confidence Checkpoint)
+  - Complete Round 2
+- **Impact:** Insufficient test coverage means bugs will escape to production
+
+**At End of Round 2: Confidence Checkpoint (Iteration 16)**
+**Question:** Is confidence level >= MEDIUM after deep verification?
+- **If < MEDIUM:**
+  - Update questions.md with remaining uncertainties
+  - Wait for user answers
+  - DO NOT proceed to Round 3
+- **If >= MEDIUM:**
+  - ✅ Proceed to Round 3 Part 1 (STAGE_5ac_part1_preparation_guide.md)
+  - Final verification and implementation readiness
+- **Impact:** Low confidence after deep verification indicates fundamental gaps in understanding
+
+**Note:** Round 2 has no MANDATORY GATES (like Iteration 4a in Round 1), but all 9 iterations are required and >90% test coverage is strongly recommended.
 
 ---
 
@@ -897,7 +941,7 @@ Next Action: Wait for user responses, then update TODO based on answers
 
 **Proceeding to Round 3 (Iterations 17-24 + 23a).**
 
-**Next Guide:** STAGE_5ac_round3_guide.md
+**Next Guide:** STAGE_5ac_part1_preparation_guide.md
 ```
 
 ---
@@ -1054,17 +1098,24 @@ If you CANNOT provide evidence for an iteration:
 **After completing Round 2:**
 
 📖 **READ:** `STAGE_5ac_round3_guide.md`
-🎯 **GOAL:** Final verification & readiness - implementation phasing, mock audit, final gates
-⏱️ **ESTIMATE:** 60-75 minutes
+🎯 **GOAL:** Preparation iterations - implementation phasing, rollback strategy, algorithm traceability (final), performance, mock audit
+⏱️ **ESTIMATE:** 60-90 minutes for Part 1, then 1.5-2.5 hours for Part 2
 
-**Round 3 will:**
+**Round 3 is split into 2 parts:**
+
+**Part 1 - Preparation (Iterations 17-22):**
 - Plan implementation phasing (Iteration 17)
 - Define rollback strategy (Iteration 18)
-- Final algorithm/data flow/integration verification (Iterations 19, 23)
+- Final algorithm traceability matrix (Iteration 19)
 - Performance considerations (Iteration 20)
 - Mock audit & integration test plan (Iteration 21)
+- Output consumer validation (Iteration 22)
+
+**Part 2 - Final Gates (Iterations 23, 23a, 25, 24):**
+- Integration gap check (Iteration 23)
 - Pre-Implementation Spec Audit - ALL 4 PARTS (Iteration 23a - MANDATORY)
-- Implementation Readiness Protocol (Iteration 24 - FINAL GATE)
+- Spec Validation Against Validated Documents (Iteration 25 - CRITICAL GATE)
+- Implementation Readiness Protocol (Iteration 24 - FINAL GO/NO-GO)
 
 **Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting Round 3.
 

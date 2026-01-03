@@ -37,21 +37,26 @@ Stage 5ca (Smoke Testing) → Stage 5cb (QC Rounds) →
 
 ## Quick Start
 
-**Goal:** Ensure feature is production-ready through final validation and knowledge capture.
+**What is this stage?**
+Final Review is the production readiness validation where you perform 11-category PR review, immediately apply lessons learned to guides, verify 100% completion, and document feature completion.
 
-**4 Main Steps:**
-1. **PR Review Checklist** - 11-category code review
-2. **Lessons Learned Capture** - Update guides immediately (don't just document)
-3. **Final Verification** - Confirm 100% readiness for Stage 5d
-4. **Completion Documentation** - Update all status and move to next stage
+**When do you use this guide?**
+- Stage 5cb complete (all 3 QC rounds passed)
+- Ready for final production readiness validation
+- Before cross-feature alignment
 
-**Critical:** If PR review finds critical issues → QC Restart Protocol
-
-**Output artifacts:**
-- ✅ PR review complete (zero critical issues)
-- ✅ lessons_learned.md updated AND guides updated
-- ✅ Final verification passed (100% completion)
+**Key Outputs:**
+- ✅ PR review complete (11 categories checked, zero critical issues)
+- ✅ lessons_learned.md updated
+- ✅ Workflow guides updated immediately (lessons applied, not just documented)
+- ✅ Final verification passed (100% completion confirmed)
 - ✅ Ready for Stage 5d (Cross-Feature Alignment)
+
+**Time Estimate:**
+30-45 minutes
+
+**Exit Condition:**
+Final Review is complete when PR review finds zero critical issues, lessons learned are applied to guides (not just documented), 100% completion is verified, and you're ready to proceed to Cross-Feature Alignment
 
 ---
 
