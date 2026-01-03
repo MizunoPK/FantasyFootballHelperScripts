@@ -2,17 +2,17 @@
 
 **Purpose:** Define how to validate the complete epic end-to-end
 
-**⚠️ VERSION: STAGE 4 (Updated after deep dives)**
+**⚠️ VERSION: STAGE 5e (Updated after Feature 01 implementation)**
 - Created: 2026-01-02 (Stage 1)
-- Last Updated: 2026-01-03 (Stage 4 - MAJOR UPDATE)
-- Based on: Feature specs from Stages 2-3, approved implementation plan
-- Quality: CONCRETE - Specific tests based on actual feature designs
-- Next Update: Stage 5e (after each feature implementation - will add more tests)
+- Last Updated: 2026-01-03 (Stage 5e - After feature_01_win_rate_sim_verification)
+- Based on: Feature 01 actual implementation, Stages 2-4 plans
+- Quality: CONCRETE - Specific tests based on actual implementation
+- Next Update: Stage 5e (after feature_02 and feature_03 implementation)
 
 **Update History:**
 - Stage 1: Initial placeholder (assumptions only)
 - Stage 4: **MAJOR UPDATE** - Added specific tests, integration points, measurable criteria
-- Stage 5e: (Pending) Will update after each feature implementation
+- Stage 5e (Feature 01): **IMPLEMENTATION-BASED UPDATE** - Added edge case scenarios, statistical validation, integration details
 
 ---
 
@@ -92,6 +92,28 @@ grep -r "_parse_players_csv" simulation/
 # Should return 0 results
 ```
 
+**[UPDATED Stage 5e - feature_01]:** Feature 01 completed this criterion - _parse_players_csv() deleted (SimulatedLeague.py lines 338-361 removed)
+
+---
+
+### Criterion 6: Graceful Error Handling
+✅ **MEASURABLE (ADDED Stage 5e - feature_01):** System handles missing or invalid data gracefully
+- Missing JSON files: Log warning, continue with other files
+- Missing week_N+1 folder: Fallback to projected data, log warning
+- Array index out of bounds: Default to 0.0 (no crashes)
+- Malformed JSON: Log error, skip file (no crashes)
+
+**Verification:**
+```bash
+# Run simulation with test scenarios
+# Test 1: Remove one JSON file, verify continues
+# Test 2: Remove week_18 folder, verify fallback to projected
+# Test 3: Use short arrays (< 17 elements), verify defaults to 0.0
+# Test 4: Use malformed JSON, verify graceful skip
+```
+
+**Why added:** Feature 01 implementation revealed graceful error handling patterns critical for production use. Original epic didn't specify data quality scenarios.
+
 ---
 
 ## Integration Points Identified
@@ -155,6 +177,21 @@ grep -r "_parse_players_csv" simulation/
 
 ---
 
+### Integration Point 6: Player ID Data Type
+**Features Involved:** Features 01 and 02
+**Type:** Data structure compatibility
+**Description (ADDED Stage 5e - feature_01):**
+- Feature 01 implementation revealed: Player IDs are integers (not strings)
+- SimulatedLeague.py line 407: `player_id = int(player_dict['id'])`
+- JSON files have string IDs ("3918298") but converted to int immediately
+- All dictionaries use int keys: `players[player_id]` where player_id is int
+
+**Test Need:** Verify Feature 02 (Accuracy Sim) also uses int player IDs for consistency
+
+**Why added:** Feature 01 tests discovered type mismatch (test initially used string keys, failed with KeyError). Important for Feature 02 to match this pattern.
+
+---
+
 ## Specific Test Scenarios
 
 **These tests MUST be run for epic-level validation:**
@@ -170,17 +207,28 @@ grep -r "_parse_players_csv" simulation/
    ```
 2. Check logs for JSON file loading
 3. Verify no FileNotFoundError for CSV files
+4. **[ADDED Stage 5e - feature_01]:** Perform statistical validation of loaded data
 
 **Expected Results:**
 ✅ Simulation completes without errors
 ✅ No CSV file not found errors
 ✅ JSON files loaded from week_1, week_10, week_17 folders
 ✅ Week 17 uses week_18 for actual points
+✅ **[ADDED Stage 5e - feature_01]:** Non-zero actual_points percentages within expected ranges:
+   - QB: 30-40% non-zero (Feature 01 observed 35.0%)
+   - RB: 45-55% non-zero (Feature 01 observed 49.4%)
+   - WR: 40-50% non-zero (Feature 01 observed 46.9%)
+   - TE: 35-45% non-zero (Feature 01 observed 40.8%)
+   - K: 75-85% non-zero (Feature 01 observed 81.6%)
+   - DST: 75-85% non-zero (Feature 01 observed 81.2%)
 
 **Failure Indicators:**
 ❌ FileNotFoundError for players.csv → Still trying to load CSV
 ❌ Simulation crashes → JSON parsing broken
 ❌ Week 17 uses week_17 for actuals → week_N+1 logic broken
+❌ **[ADDED Stage 5e - feature_01]:** >99% zeros → week_N+1 pattern broken (catastrophic bug pattern from historical Feature 02 attempt)
+
+**Why updated:** Feature 01 QC Round 2 performed statistical validation to confirm week_N+1 pattern working correctly. This prevents catastrophic "99.8% zeros" bug pattern. Statistical validation is critical for detecting data loading issues.
 
 ---
 
@@ -322,7 +370,50 @@ grep -r "_parse_players_csv" simulation/
 
 ---
 
-### Test Scenario 8: CSV Baseline Comparison (Feature 03 - Optional)
+### Test Scenario 8: Feature 01 Edge Case Handling (ADDED Stage 5e)
+
+**Purpose:** Verify Win Rate Sim handles data quality edge cases gracefully (Feature 01 implementation)
+
+**Added:** Stage 5e (feature_01_win_rate_sim_verification)
+
+**Steps:**
+1. Test missing JSON file handling:
+   - Remove one position file (e.g., te_data.json) from week_05
+   - Run simulation
+   - Verify: Log warning "Missing te_data.json", simulation continues, TE players absent from week 5
+
+2. Test missing week_18 folder (week 17 fallback):
+   - Temporarily rename week_18 folder
+   - Run simulation for week 17
+   - Verify: Log warning "Week 18 actual folder not found...Using projected data as fallback", simulation uses projected for actuals
+
+3. Test array index out of bounds:
+   - Edit one player's projected_points array to have only 5 elements (< 17)
+   - Run simulation for week 10
+   - Verify: Player gets 0.0 projected_points for week 10, no IndexError
+
+4. Test malformed JSON:
+   - Edit one JSON file to have invalid syntax (missing bracket)
+   - Run simulation
+   - Verify: Log error, skip file, simulation continues
+
+**Expected Results:**
+✅ Missing file: Warning logged, other files still loaded, no crash
+✅ Missing week_18: Warning logged, fallback to projected, no crash
+✅ Array too short: Default to 0.0, no IndexError
+✅ Malformed JSON: Error logged, file skipped, no crash
+
+**Failure Indicators:**
+❌ Crashes on missing file → Edge case handling broken
+❌ No fallback for missing week_18 → week_N+1 pattern incomplete
+❌ IndexError on short array → Bounds checking missing
+❌ Crashes on malformed JSON → Error handling missing
+
+**Why added:** Feature 01 enumerated 25 edge cases and implemented graceful handling for all. These 4 tests cover the most critical edge cases that could cause production failures if not handled correctly.
+
+---
+
+### Test Scenario 9: CSV Baseline Comparison (Feature 03 - Optional)
 
 **Purpose:** Compare JSON results to CSV baseline if available
 
@@ -398,6 +489,7 @@ grep -r "_parse_players_csv" simulation/
 |------|-------|--------------|-----|
 | 2026-01-02 | Stage 1 | Initial plan created | Epic planning - assumptions only |
 | 2026-01-03 | Stage 4 | **MAJOR UPDATE** | Based on feature specs (Stages 2-3) |
+| 2026-01-03 | Stage 5e (Feature 01) | **IMPLEMENTATION-BASED UPDATE** | Added tests based on feature_01_win_rate_sim_verification actual implementation |
 
 **Stage 4 changes:**
 - Added 8 specific test scenarios (was 4 TBD placeholders)
@@ -407,12 +499,29 @@ grep -r "_parse_players_csv" simulation/
 - Documented failure indicators for each test scenario
 - Converted high-level categories to concrete guidance
 
+**Stage 5e (Feature 01) changes:**
+- **ADDED** Criterion 6: Graceful Error Handling (missing data, malformed JSON, array bounds)
+- **ADDED** Integration Point 6: Player ID Data Type (int vs string, discovered via tests)
+- **UPDATED** Test Scenario 1: Added statistical validation (non-zero percentages by position)
+- **UPDATED** Test Scenario 1: Added catastrophic bug detection (>99% zeros pattern)
+- **ADDED** Test Scenario 8: Feature 01 Edge Case Handling (4 critical edge case tests)
+- **UPDATED** Criterion 5: Noted Feature 01 completed deprecated code removal
+
+**Rationale for Stage 5e updates:**
+- Feature 01 implementation revealed graceful error handling critical for production
+- Statistical validation prevents catastrophic "99.8% zeros" bug pattern (historical issue)
+- Player ID type mismatch discovered via tests (int keys, not string)
+- 25 edge cases enumerated - added 4 most critical to epic test plan
+- All updates based on ACTUAL implementation (not specs or assumptions)
+
 **Current version is informed by:**
 - Stage 1: Initial assumptions from epic request
-- **Stage 4: Feature specs and approved implementation plan** ← YOU ARE HERE
-- Stage 5e: (Pending) Will update after each feature implementation
+- Stage 4: Feature specs and approved implementation plan
+- **Stage 5e (Feature 01): Actual implementation of feature_01_win_rate_sim_verification** ← YOU ARE HERE
+- Stage 5e (Feature 02): (Pending) Will update after feature_02 implementation
+- Stage 5e (Feature 03): (Pending) Will update after feature_03 implementation
 
-**Next update:** Stage 5e after each feature completes (will add implementation-specific tests)
+**Next update:** Stage 5e after feature_02 and feature_03 complete
 
 ---
 
