@@ -366,3 +366,202 @@ All requirements traced to sources.
 - [ ] Week 17 logic verified in both simulations
 - [ ] Results match or exceed CSV baseline (if available)
 - [ ] Documentation accurately reflects JSON structure
+
+---
+
+## Cross-Feature Alignment Notes
+
+**Updated based on Feature 01 implementation (2026-01-03 - Stage 5d):**
+
+### Requirement 5: Docstring Updates - Ownership Clarification
+
+**Original spec listed 6 docstring locations. Actual ownership:**
+
+1. ✅ **SimulationManager.py line 180** - ALREADY UPDATED by Feature 01 (Task 5)
+2. ✅ **SimulatedLeague.py lines 91-92** - ALREADY UPDATED by Feature 01 (Task 5)
+3. ✅ **SimulatedOpponent.py line 77** - ALREADY UPDATED by Feature 01 (Task 5)
+4. ✅ **DraftHelperTeam.py line 72** - ALREADY UPDATED by Feature 01 (Task 5)
+5. ⏸️ **AccuracySimulationManager.py line 139** - Should be updated by Feature 02 (Accuracy Sim verification), NOT Feature 03
+6. ⚠️ **ParallelLeagueRunner.py line 48** - ONLY location remaining for Feature 03
+
+**Impact on Feature 03:**
+- Requirement 5 scope reduced from 6 locations to 1 location
+- Feature 03 should only update ParallelLeagueRunner.py docstring
+- Requirement 5 is now a MINIMAL task (single docstring update)
+
+### Requirement 6: CSV Reference Verification - Already Partially Complete
+
+**Original spec expects to find and remove CSV references. Feature 01 findings:**
+
+- ✅ Feature 01 already removed deprecated `_parse_players_csv()` method (SimulatedLeague.py lines 338-361)
+- ✅ Feature 01 already updated 4 docstrings (removed CSV references)
+- ⏸️ Feature 02 will update AccuracySimulationManager.py docstrings
+- ⚠️ Feature 03 should verify FINAL state (grep search) after Features 01-02 complete
+
+**Impact on Feature 03:**
+- Most CSV cleanup already done by Feature 01
+- Feature 02 will handle Accuracy Sim docstrings
+- Feature 03's grep verification should confirm zero references remain (final check)
+
+### Requirements 1-2: Week 17 Logic - Already Verified for Win Rate Sim
+
+**Feature 01 comprehensive verification:**
+
+- ✅ Week 17 logic verified correct (uses week_17 + week_18 folders)
+- ✅ Array indexing verified correct (`[week_num - 1]`)
+- ✅ Week_N+1 pattern verified correct
+- ✅ 25 edge cases enumerated and tested
+- ✅ Statistical validation confirmed data correctness (35-81% non-zero values)
+
+**Impact on Feature 03:**
+- Win Rate Sim (Requirement 1) already has comprehensive test coverage from Feature 01
+- Accuracy Sim (Requirement 2) will be verified by Feature 02
+- Feature 03 should focus on END-TO-END integration testing (both sims together)
+- No need to re-verify individual sim logic (already proven in Features 01-02)
+
+### Requirement 4: simulation/README.md - Check for Overlap with Feature 01
+
+**Feature 03 spec says "3 CSV references to remove" but Feature 01 may have already updated some content.**
+
+**Action for Stage 5a:** Verify which README.md updates (if any) were already done by Feature 01
+
+### Summary of Alignment Changes
+
+**Scope Reductions:**
+- Requirement 5: 6 docstrings → 1 docstring (5 handled by Features 01-02)
+- Requirement 6: Full CSV cleanup → Final verification only (most cleanup done by Feature 01)
+
+**Scope Clarifications:**
+- Requirements 1-2: Focus on E2E testing, not re-verification of individual sim logic
+- Requirement 4: Check for README.md overlap with Feature 01
+
+**No Significant Rework Needed:** All changes are minor scope adjustments. Feature 03 can proceed as planned with these clarifications integrated into Stage 5a TODO creation.
+
+---
+
+**Updated based on Feature 02 implementation (2026-01-03 - Stage 5d):**
+
+### Requirement 2: Accuracy Sim E2E Testing - Already Comprehensively Verified
+
+**Original spec assumption:**
+- Feature 02 will verify Accuracy Sim works with JSON
+- Feature 03 should run E2E test to confirm
+
+**Actual Feature 02 implementation (code_changes.md):**
+- ✅ Smoke Testing: Part 3 (E2E Execution Test) PASSED
+- ✅ Smoke Testing: Part 3b (Data Sanity Validation) PASSED
+- ✅ QC Round 1: PASSED (0 critical issues, 100% requirements met)
+- ✅ QC Round 2: PASSED (0 new critical issues)
+- ✅ QC Round 3: PASSED (ZERO issues found)
+- ✅ PR Review: 11 categories PASSED (zero issues)
+- ✅ 18 new integration tests added
+- ✅ All 2481 tests passing (100% pass rate)
+- ✅ Verified Week 17 logic (dedicated tests in Task 9)
+- ✅ Verified edge case alignment with Win Rate Sim (Task 11)
+
+**Impact on Feature 03:**
+- Accuracy Sim has been **THOROUGHLY verified** by Feature 02
+- Feature 03 Requirement 2 can be lightweight (run quick smoke test to confirm, not exhaustive testing)
+- Focus should be on cross-simulation integration, not re-verification
+- Both sims have been individually verified - Feature 03 validates they work together
+
+### Requirement 5: Docstring Updates - AccuracySimulationManager Never Had CSV References
+
+**Original spec assumption (line 384):**
+"AccuracySimulationManager.py line 139 - Should be updated by Feature 02 (Accuracy Sim verification)"
+
+**Actual Finding (grep search):**
+```bash
+grep -r "players\.csv\|players_projected\.csv" simulation/accuracy/
+# Result: No matches found
+```
+
+**Explanation:**
+- Accuracy Sim always used PlayerManager delegation pattern (never direct CSV loading)
+- Win Rate Sim had CSV loading (`_parse_players_csv` method) that was deprecated by Feature 01
+- Accuracy Sim had NO CSV loading code to remove
+- Feature 02 focused on verification, not CSV migration (already using JSON)
+
+**Impact on Feature 03:**
+- Requirement 5: AccuracySimulationManager does NOT need docstring updates (no CSV references existed)
+- Only ParallelLeagueRunner.py line 48 remains for Feature 03 (as originally identified)
+- Feature 03 scope for Requirement 5: **Single docstring update only**
+
+### Requirement 6: CSV Reference Verification - Most Cleanup Already Done
+
+**Actual grep results (2026-01-03):**
+```bash
+grep -r "players\.csv\|players_projected\.csv" simulation/
+# Results found in simulation/README.md only (3 references):
+# - Line 69: File tree diagram
+# - Line 348: Troubleshooting section
+# - Line 353: File listing example
+```
+
+**Findings:**
+- ✅ All code files clean (no CSV references in .py files)
+- ✅ All docstrings clean (Features 01-02 removed all CSV references)
+- ✅ Only README.md has remaining CSV references (Feature 03's Requirement 4 scope)
+- ✅ simulation/accuracy/ directory: ZERO CSV references (confirmed by Feature 02)
+
+**Impact on Feature 03:**
+- Requirement 6 is essentially complete (only README.md cleanup remains)
+- grep verification will confirm Feature 03's README.md updates removed final references
+- This is a **final verification step**, not a cleanup effort
+
+### Edge Case Handling - Both Sims Now Aligned
+
+**Feature 02 edge case alignment (code_changes.md lines 23-82):**
+
+**Change 1:** Missing week_N+1 folder fallback
+- Before: Return (None, None)
+- After: Fallback to projected data
+- Reason: Align with Win Rate Sim behavior
+
+**Change 2:** Array bounds handling
+- Before: No bounds checking, could cause IndexError
+- After: Default to 0.0 if array too short
+- Reason: Align with Win Rate Sim behavior
+
+**Impact on Feature 03:**
+- ✅ Both Win Rate Sim and Accuracy Sim now have **consistent** edge case handling
+- ✅ Both use same fallback patterns (projected data when actual missing)
+- ✅ Both use same bounds checking (default to 0.0 for short arrays)
+- Feature 03 can confidently test both sims expecting consistent behavior
+
+### JSON Array Handling - Bugs Fixed During Feature 02 Smoke Testing
+
+**Bugs discovered during Feature 02 Stage 5ca (smoke testing):**
+
+**Bug 1:** PlayerManager.load_players_from_json() (line 357)
+- Issue: Expected `json_data.get(position_key, [])` but files contain arrays directly
+- Fix: Added `isinstance(json_data, list)` check
+- Impact: Affects ALL JSON loading (Win Rate Sim uses PlayerManager too)
+
+**Bug 2:** TeamDataManager._load_dst_player_data() (line 131)
+- Issue: Expected `data.get('dst_data', [])` but files contain arrays directly
+- Fix: Added `isinstance(data, list)` check
+- Impact: DST player loading fixed for both simulations
+
+**These bugs were NOT in AccuracySimulationManager** - they were in upstream dependencies (league_helper module) that BOTH simulations use.
+
+**Impact on Feature 03:**
+- ✅ JSON loading bugs already fixed (committed during Feature 02)
+- Feature 03 should see clean execution (no JSON format errors)
+- Both simulations benefit from these fixes
+
+### Summary of Feature 02 Alignment Impact
+
+**Scope Confirmations:**
+- ✅ Requirement 2 already comprehensively verified (Accuracy Sim works perfectly)
+- ✅ Requirement 5: Only 1 docstring to update (not AccuracySimulationManager)
+- ✅ Requirement 6: Only README.md cleanup remains (code is clean)
+
+**New Insights:**
+- ✅ Both sims have aligned edge case handling (consistent behavior)
+- ✅ JSON array handling bugs fixed (affects both sims, already committed)
+- ✅ Comprehensive test coverage exists (2481/2481 tests passing)
+
+**No Significant Rework Needed:** Feature 03 can proceed as planned. All updates are confirmations of completed work, not new requirements.
+
+---
