@@ -2,17 +2,18 @@
 
 **Purpose:** Define how to validate the complete epic end-to-end
 
-**⚠️ VERSION: STAGE 5e (Updated after Feature 01 implementation)**
+**⚠️ VERSION: STAGE 5e (Updated after Features 01 & 02 implementation)**
 - Created: 2026-01-02 (Stage 1)
-- Last Updated: 2026-01-03 (Stage 5e - After feature_01_win_rate_sim_verification)
-- Based on: Feature 01 actual implementation, Stages 2-4 plans
+- Last Updated: 2026-01-03 (Stage 5e - After feature_02_accuracy_sim_verification)
+- Based on: Features 01 & 02 actual implementation, Stages 2-4 plans
 - Quality: CONCRETE - Specific tests based on actual implementation
-- Next Update: Stage 5e (after feature_02 and feature_03 implementation)
+- Next Update: Stage 5e (after feature_03 implementation)
 
 **Update History:**
 - Stage 1: Initial placeholder (assumptions only)
 - Stage 4: **MAJOR UPDATE** - Added specific tests, integration points, measurable criteria
 - Stage 5e (Feature 01): **IMPLEMENTATION-BASED UPDATE** - Added edge case scenarios, statistical validation, integration details
+- Stage 5e (Feature 02): **IMPLEMENTATION-BASED UPDATE** - Added Accuracy Sim statistical validation, JSON array bug fix documentation, edge case alignment confirmation
 
 ---
 
@@ -134,11 +135,18 @@ grep -r "_parse_players_csv" simulation/
 **Features Involved:** Features 01 and 02
 **Type:** Behavioral consistency
 **Description:**
-- Feature 02 Requirement 7 aligns edge case handling with Feature 01
-- Missing week_N+1 folder: Both fallback to projected data
-- Array index out of bounds: Both default to 0.0
+- **[UPDATED Stage 5e - feature_02]:** Edge case alignment COMPLETE
+- Missing week_N+1 folder: Both fallback to projected data ✅
+  - Win Rate Sim: SimulatedLeague.py lines 312-318
+  - Accuracy Sim: AccuracySimulationManager.py lines 330-336
+- Array index out of bounds: Both default to 0.0 ✅
+  - Win Rate Sim: SimulatedLeague.py line 417, 423
+  - Accuracy Sim: AccuracySimulationManager.py line 488
+- Consistent logging and error messages ✅
 
-**Test Need:** Verify both simulations handle edge cases consistently
+**Test Need:** Verify both simulations handle edge cases consistently (Test Scenario 3)
+
+**Why updated:** Feature 02 Task 11 completed edge case alignment. Both sims now use identical fallback patterns and bounds checking.
 
 ---
 
@@ -189,6 +197,30 @@ grep -r "_parse_players_csv" simulation/
 **Test Need:** Verify Feature 02 (Accuracy Sim) also uses int player IDs for consistency
 
 **Why added:** Feature 01 tests discovered type mismatch (test initially used string keys, failed with KeyError). Important for Feature 02 to match this pattern.
+
+---
+
+### Integration Point 7: JSON Array Handling Fix
+**Features Involved:** Features 01 and 02 (BOTH affected)
+**Type:** Upstream dependency bug fix
+**Description (ADDED Stage 5e - feature_02):**
+- **Bug discovered during Feature 02 smoke testing:**
+  - Real JSON files contain arrays directly: `[{...}, {...}]`
+  - Code expected wrapped format: `{"position_data": [{...}]}`
+  - Bug in PlayerManager.load_players_from_json() (line 357)
+  - Bug in TeamDataManager._load_dst_player_data() (line 131)
+- **Fix applied:** Added `isinstance(data, list)` check to handle both formats
+- **Impact:** Affects BOTH simulations (shared league_helper dependencies)
+  - Win Rate Sim uses PlayerManager for draft mode (indirect dependency)
+  - Accuracy Sim uses PlayerManager directly (critical path)
+
+**Files Fixed:**
+- league_helper/util/PlayerManager.py line 357
+- league_helper/util/TeamDataManager.py line 131
+
+**Test Need:** Verify both simulations load JSON correctly after bug fix (no AttributeError: 'list' object has no attribute 'get')
+
+**Why added:** Bug was found in upstream dependencies that BOTH simulations use. Fix benefits entire codebase, not just Accuracy Sim. Critical for production stability.
 
 ---
 
@@ -243,17 +275,26 @@ grep -r "_parse_players_csv" simulation/
    ```
 2. Check logs for PlayerManager JSON loading
 3. Verify MAE scores calculated
+4. **[ADDED Stage 5e - feature_02]:** Perform statistical validation of loaded data
 
 **Expected Results:**
 ✅ Simulation completes without errors
 ✅ PlayerManager loads JSON from player_data/ temp directories
 ✅ MAE scores output generated
 ✅ Week 17 uses week_18 for actual points
+✅ **[ADDED Stage 5e - feature_02]:** Non-zero actual_points percentages within expected ranges:
+   - QB: 30-40% non-zero (Feature 02 observed 34.0%)
+   - RB: 55-65% non-zero (Feature 02 observed 60.0%)
+   - WR: 70-80% non-zero (Feature 02 observed 73.0%)
+   - Statistical validation confirms week_N+1 pattern working correctly
 
 **Failure Indicators:**
 ❌ FileNotFoundError → PlayerManager can't find JSON files
 ❌ Empty player list → JSON files not copied to temp directory
 ❌ MAE calculation fails → Array extraction broken
+❌ **[ADDED Stage 5e - feature_02]:** >99% zeros → week_N+1 pattern broken (same catastrophic bug pattern as Feature 01 historical issue)
+
+**Why updated:** Feature 02 smoke testing Part 3b performed statistical validation and confirmed data quality. This validation prevents bugs where JSON loads but uses wrong week data (projected instead of actual).
 
 ---
 
@@ -490,6 +531,7 @@ grep -r "_parse_players_csv" simulation/
 | 2026-01-02 | Stage 1 | Initial plan created | Epic planning - assumptions only |
 | 2026-01-03 | Stage 4 | **MAJOR UPDATE** | Based on feature specs (Stages 2-3) |
 | 2026-01-03 | Stage 5e (Feature 01) | **IMPLEMENTATION-BASED UPDATE** | Added tests based on feature_01_win_rate_sim_verification actual implementation |
+| 2026-01-03 | Stage 5e (Feature 02) | **IMPLEMENTATION-BASED UPDATE** | Added statistical validation to Scenario 2, documented JSON array handling bug fix, confirmed edge case alignment complete |
 
 **Stage 4 changes:**
 - Added 8 specific test scenarios (was 4 TBD placeholders)
@@ -507,21 +549,35 @@ grep -r "_parse_players_csv" simulation/
 - **ADDED** Test Scenario 8: Feature 01 Edge Case Handling (4 critical edge case tests)
 - **UPDATED** Criterion 5: Noted Feature 01 completed deprecated code removal
 
-**Rationale for Stage 5e updates:**
+**Rationale for Stage 5e (Feature 01) updates:**
 - Feature 01 implementation revealed graceful error handling critical for production
 - Statistical validation prevents catastrophic "99.8% zeros" bug pattern (historical issue)
 - Player ID type mismatch discovered via tests (int keys, not string)
 - 25 edge cases enumerated - added 4 most critical to epic test plan
 - All updates based on ACTUAL implementation (not specs or assumptions)
 
+**Stage 5e (Feature 02) changes:**
+- **ADDED** Integration Point 7: JSON Array Handling Fix (upstream bug affecting both sims)
+- **UPDATED** Test Scenario 2: Added statistical validation (QB: 34%, RB: 60%, WR: 73% non-zero)
+- **UPDATED** Test Scenario 2: Added catastrophic bug detection (>99% zeros pattern)
+- **UPDATED** Integration Point 2: Confirmed edge case alignment COMPLETE (code locations documented)
+- Documented bug fixes in PlayerManager and TeamDataManager
+
+**Rationale for Stage 5e (Feature 02) updates:**
+- Feature 02 smoke testing discovered JSON array handling bugs in upstream dependencies (PlayerManager, TeamDataManager)
+- Bugs affect BOTH simulations (not just Accuracy Sim) - critical for entire codebase
+- Statistical validation confirmed week_N+1 pattern working correctly in Accuracy Sim
+- Edge case alignment completed per Task 11 - both sims now consistent
+- All updates based on ACTUAL implementation and bugs found during testing (not specs)
+
 **Current version is informed by:**
 - Stage 1: Initial assumptions from epic request
 - Stage 4: Feature specs and approved implementation plan
-- **Stage 5e (Feature 01): Actual implementation of feature_01_win_rate_sim_verification** ← YOU ARE HERE
-- Stage 5e (Feature 02): (Pending) Will update after feature_02 implementation
+- **Stage 5e (Feature 01): Actual implementation of feature_01_win_rate_sim_verification** ✅
+- **Stage 5e (Feature 02): Actual implementation of feature_02_accuracy_sim_verification** ✅ ← YOU ARE HERE
 - Stage 5e (Feature 03): (Pending) Will update after feature_03 implementation
 
-**Next update:** Stage 5e after feature_02 and feature_03 complete
+**Next update:** Stage 5e after feature_03 complete
 
 ---
 
