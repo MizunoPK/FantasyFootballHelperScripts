@@ -1,11 +1,12 @@
 {
-  "config_name": "Optimal Base Config (20251210_024739)",
+  "config_name": "Optimal Base Config (20260104_080756)",
   "description": "Optimized base parameters for all weeks",
   "parameters": {
     "CURRENT_NFL_WEEK": 16,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
-    "SAME_POS_BYE_WEIGHT": 0.07,
+    "DRAFT_NORMALIZATION_MAX_SCALE": 174,
+    "SAME_POS_BYE_WEIGHT": 0.13,
     "DIFF_POS_BYE_WEIGHT": 0.01,
     "INJURY_PENALTIES": {
       "LOW": 0,
@@ -14,7 +15,7 @@
     },
     "DRAFT_ORDER_BONUSES": {
       "PRIMARY": 67,
-      "SECONDARY": 69
+      "SECONDARY": 94
     },
     "DRAFT_ORDER_FILE": 1,
     "DRAFT_ORDER": [
@@ -103,7 +104,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 4.76
+      "WEIGHT": 6.2
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {
@@ -118,17 +119,16 @@
         "EXCELLENT": 1.05
       },
       "WEIGHT": 3.52
-    },
-    "DRAFT_NORMALIZATION_MAX_SCALE": 150
+    }
   },
   "performance_metrics": {
-    "overall_win_rate": 0.7320261437908496,
-    "total_wins": 112,
-    "total_losses": 41,
-    "config_id": "LOCATION_INTERNATIONAL_17",
-    "total_parameters_optimized": 23,
-    "total_configs_tested": 575,
-    "optimization_time_seconds": 16373.80331492424,
-    "timestamp": "20251210_024739"
+    "overall_win_rate": 0.0029411764705882353,
+    "total_wins": 1,
+    "total_losses": 339,
+    "config_id": "PLAYER_RATING_SCORING_WEIGHT_0_horizon_6-9",
+    "total_parameters_optimized": 7,
+    "total_configs_tested": 42,
+    "optimization_time_seconds": 2147.198275089264,
+    "timestamp": "20260104_080756"
   }
 }

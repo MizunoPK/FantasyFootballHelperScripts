@@ -366,7 +366,7 @@ class PlayerManager:
                         self.logger.warning(f"Skipping invalid player: {e}")
                         continue
 
-                self.logger.info(f"Loaded {len(players_array)} players from {position_file}")
+                self.logger.debug(f"Loaded {len(players_array)} players from {position_file}")
 
             except json.JSONDecodeError as e:
                 # Malformed JSON - fail fast (spec lines 302-305)
@@ -375,11 +375,18 @@ class PlayerManager:
 
         # Store and return (spec lines 308-318)
         self.players = all_players
-        self.logger.info(f"Total players loaded: {len(self.players)}")
+        self.logger.debug(f"Total players loaded: {len(self.players)}")
 
         # Calculate max_projection (spec lines 312-313)
         if self.players:
             self.max_projection = max(p.fantasy_points for p in self.players)
+
+            # BUG FIX (Issue #7): Update scoring_calculator's max_projection
+            # PlayerScoringCalculator is initialized with 0.0 before players are loaded
+            # We must update it after calculating the actual max_projection
+            # Note: Defensive check for tests that use __new__() without __init__()
+            if hasattr(self, 'scoring_calculator'):
+                self.scoring_calculator.max_projection = self.max_projection
 
         # Load team roster (drafted == 2) (spec line 316)
         self.load_team()

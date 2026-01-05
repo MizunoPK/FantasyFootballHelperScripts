@@ -1,0 +1,298 @@
+2026-01-04 20:21:10 - simulation - INFO - Initializing SimulationManager
+2026-01-04 20:21:10 - simulation - INFO - Initializing ConfigGenerator with baseline folder: simulation\simulation_configs\optimal_iterative_20260104_080756
+2026-01-04 20:21:10 - simulation - INFO - Test values per parameter: 5 (total values: 6)
+2026-01-04 20:21:10 - simulation - INFO - Loaded 5 horizon configs from folder: simulation\simulation_configs\optimal_iterative_20260104_080756
+2026-01-04 20:21:10 - simulation - INFO - ConfigGenerator initialized successfully with 5 horizon configs
+2026-01-04 20:21:10 - simulation - INFO - ParallelLeagueRunner initialized with 8 workers (ProcessPoolExecutor)
+2026-01-04 20:21:10 - simulation - INFO - ResultsManager initialized
+2026-01-04 20:21:10 - simulation - INFO - SimulationManager initialized: 46,656 configs, 5 sims/config, 8 workers (ProcessPoolExecutor)
+2026-01-04 20:21:10 - simulation - INFO - Discovered 4 historical seasons: ['2021', '2022', '2024', '2025']
+2026-01-04 20:21:10 - simulation - INFO - ================================================================================
+2026-01-04 20:21:10 - simulation - INFO - STARTING ITERATIVE PARAMETER OPTIMIZATION (WEEK-BY-WEEK)
+2026-01-04 20:21:10 - simulation - INFO - ================================================================================
+2026-01-04 20:21:10 - simulation - INFO - Parameters to optimize: 7
+2026-01-04 20:21:10 - simulation - INFO - Configs per parameter: 6
+2026-01-04 20:21:10 - simulation - INFO - Total configs: 42
+2026-01-04 20:21:10 - simulation - INFO - Total simulations: 210
+2026-01-04 20:21:10 - simulation - INFO - ================================================================================
+2026-01-04 20:21:10 - simulation - INFO - Starting optimization from beginning (no intermediate folders)
+2026-01-04 20:21:10 - simulation - INFO - ================================================================================
+2026-01-04 20:21:10 - simulation - INFO - ================================================================================
+2026-01-04 20:21:10 - simulation - INFO - OPTIMIZING PARAMETER 1/7: DRAFT_NORMALIZATION_MAX_SCALE
+2026-01-04 20:21:10 - simulation - INFO -   Type: BASE
+2026-01-04 20:21:10 - simulation - INFO - ================================================================================
+2026-01-04 20:21:10 - simulation - INFO - Testing 6 values across 4 horizons...
+2026-01-04 20:21:10 - simulation - INFO - ResultsManager initialized
+2026-01-04 20:21:10 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:21:10 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:13 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:13 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:16 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:16 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:20 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:20 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:23 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:23 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:21:23 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:21:23 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:26 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:26 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:30 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:30 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:33 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:33 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:36 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:36 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:21:36 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:21:36 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:39 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:40 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:43 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:43 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:46 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:46 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:49 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:49 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:21:49 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:21:49 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:53 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:53 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:56 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:56 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:21:59 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:21:59 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:02 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:02 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:22:02 - simulation - INFO -   Completed test value 1/6
+2026-01-04 20:22:02 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:22:02 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:06 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:06 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:09 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:09 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:12 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:12 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:15 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:15 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:22:15 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:22:15 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:19 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:19 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:22 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:22 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:25 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:25 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:29 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:29 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:22:29 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:22:29 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:32 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:32 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:35 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:35 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:38 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:39 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:42 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:42 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:22:42 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:22:42 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:45 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:45 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:48 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:48 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:52 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:52 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:55 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:55 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:22:55 - simulation - INFO -   Completed test value 2/6
+2026-01-04 20:22:55 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:22:55 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:22:58 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:22:58 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:01 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:02 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:05 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:05 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:08 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:08 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:23:08 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:23:08 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:11 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:11 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:14 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:14 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:18 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:18 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:21 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:21 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:23:21 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:23:21 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:24 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:24 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:27 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:27 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:31 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:31 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:34 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:34 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:23:34 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:23:34 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:37 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:37 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:40 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:40 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:44 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:44 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:47 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:47 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:23:47 - simulation - INFO -   Completed test value 3/6
+2026-01-04 20:23:47 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:23:47 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:50 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:50 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:53 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:53 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:23:56 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:23:56 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:00 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:00 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:24:00 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:24:00 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:03 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:03 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:06 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:06 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:09 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:09 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:12 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:12 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:24:12 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:24:13 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:16 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:16 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:19 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:19 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:22 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:22 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:25 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:25 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:24:25 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:24:25 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:29 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:29 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:32 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:32 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:35 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:35 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:38 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:38 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:24:38 - simulation - INFO -   Completed test value 4/6
+2026-01-04 20:24:38 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:24:38 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:42 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:42 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:45 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:45 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:48 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:48 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:51 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:51 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:24:51 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:24:51 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:55 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:55 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:24:58 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:24:58 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:01 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:01 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:04 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:04 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:25:04 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:25:04 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:08 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:08 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:11 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:11 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:14 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:14 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:18 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:18 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:25:18 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:25:18 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:21 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:21 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:25 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:25 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:28 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:28 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:31 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:31 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:25:31 - simulation - INFO -   Completed test value 5/6
+2026-01-04 20:25:31 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:25:31 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:35 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:35 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:38 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:38 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:42 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:42 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:45 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:45 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:25:45 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:25:45 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:48 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:48 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:52 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:52 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:55 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:55 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:25:58 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:25:58 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:25:58 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:25:58 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:02 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:26:02 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:05 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:26:05 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:08 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:26:08 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:11 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:26:11 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:26:11 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:26:12 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:15 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:26:15 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:19 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:26:19 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:22 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:26:22 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:25 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:26:25 - simulation - INFO - Multi-season simulations complete: 20 total (5 x 4 seasons)
+2026-01-04 20:26:25 - simulation - INFO -   Completed test value 6/6
+2026-01-04 20:26:25 - simulation - INFO - Best config: DRAFT_NORMALIZATION_MAX_SCALE_1_horizon_14-17 (win_rate=0.8324, avg_pts=2066.45)
+2026-01-04 20:26:25 - simulation - INFO - ================================================================================
+2026-01-04 20:26:25 - simulation - INFO - BEST VALUE FOR DRAFT_NORMALIZATION_MAX_SCALE:
+2026-01-04 20:26:25 - simulation - INFO -   Win Rate: 83.24%
+2026-01-04 20:26:25 - simulation - INFO -   Avg Points: 2066.45
+2026-01-04 20:26:25 - simulation - INFO -   Best Config ID: DRAFT_NORMALIZATION_MAX_SCALE_1_horizon_14-17
+2026-01-04 20:26:25 - simulation - INFO -   Updated all horizon baselines with test value at index 1
+2026-01-04 20:26:25 - simulation - INFO - Best config: DRAFT_NORMALIZATION_MAX_SCALE_1_horizon_14-17 (win_rate=0.8324, avg_pts=2066.45)
+2026-01-04 20:26:25 - simulation - INFO - Best config for 1-5: DRAFT_NORMALIZATION_MAX_SCALE_1_horizon_1-5 (win_rate=0.8300)
+2026-01-04 20:26:25 - simulation - INFO - Best config for 6-9: DRAFT_NORMALIZATION_MAX_SCALE_0_horizon_10-13 (win_rate=0.9250)
+2026-01-04 20:26:25 - simulation - INFO - Best config for 10-13: DRAFT_NORMALIZATION_MAX_SCALE_3_horizon_14-17 (win_rate=0.9125)
+2026-01-04 20:26:25 - simulation - INFO - Best config for 14-17: DRAFT_NORMALIZATION_MAX_SCALE_0_horizon_10-13 (win_rate=0.8750)
+2026-01-04 20:26:25 - simulation - INFO - Saved intermediate configs to simulation\simulation_configs\intermediate_01_DRAFT_NORMALIZATION_MAX_SCALE
+2026-01-04 20:26:25 - simulation - INFO -   Saved intermediate folder: intermediate_01_DRAFT_NORMALIZATION_MAX_SCALE/
+2026-01-04 20:26:25 - simulation - INFO - ================================================================================
+2026-01-04 20:26:25 - simulation - INFO - OPTIMIZING PARAMETER 2/7: SAME_POS_BYE_WEIGHT
+2026-01-04 20:26:25 - simulation - INFO -   Type: BASE
+2026-01-04 20:26:25 - simulation - INFO - ================================================================================
+2026-01-04 20:26:25 - simulation - INFO - Testing 6 values across 4 horizons...
+2026-01-04 20:26:25 - simulation - INFO - ResultsManager initialized
+2026-01-04 20:26:25 - simulation - INFO - Running simulations across 4 historical seasons
+2026-01-04 20:26:25 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:29 - simulation - INFO - Completed 5/5 simulations successfully (with weeks)
+2026-01-04 20:26:29 - simulation - INFO - Running 5 simulations with week tracking (8 processes)
+2026-01-04 20:26:30 - simulation - INFO - 
+Received SIGINT - performing graceful shutdown...
+2026-01-04 20:26:30 - simulation - INFO - Shutdown complete. Exiting...

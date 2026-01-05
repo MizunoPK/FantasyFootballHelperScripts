@@ -341,7 +341,8 @@ class AccuracySimulationManager:
         self,
         config_dict: dict,
         week_data_path: Path,
-        season_path: Path
+        season_path: Path,
+        week_num: int
     ) -> PlayerManager:
         """
         Create a PlayerManager with the given configuration.
@@ -350,6 +351,7 @@ class AccuracySimulationManager:
             config_dict: Configuration dictionary
             week_data_path: Path to week folder containing position JSON files
             season_path: Path to season folder containing season_schedule.csv, team_data/
+            week_num: NFL week number being simulated (1-17)
 
         Returns:
             PlayerManager: Configured player manager
@@ -388,10 +390,16 @@ class AccuracySimulationManager:
         if team_data_source.exists():
             shutil.copytree(team_data_source, temp_dir / "team_data")
 
+        # FIX: Update CURRENT_NFL_WEEK to match the week being simulated
+        # This ensures get_weekly_projections() returns projected_points (not actual_points)
+        # for the week we're analyzing
+        config_dict_copy = copy.deepcopy(config_dict)
+        config_dict_copy['parameters']['CURRENT_NFL_WEEK'] = week_num
+
         # Write config
         config_path = temp_dir / "league_config.json"
         with open(config_path, 'w') as f:
-            json.dump(config_dict, f, indent=2)
+            json.dump(config_dict_copy, f, indent=2)
 
         # Create managers
         config_mgr = ConfigManager(temp_dir)
@@ -442,8 +450,8 @@ class AccuracySimulationManager:
                 # Create TWO player managers:
                 # 1. projected_mgr (from week_N folder) for projections
                 # 2. actual_mgr (from week_N+1 folder) for actuals
-                projected_mgr = self._create_player_manager(config_dict, projected_path, season_path)
-                actual_mgr = self._create_player_manager(config_dict, actual_path, season_path)
+                projected_mgr = self._create_player_manager(config_dict, projected_path, season_path, week_num)
+                actual_mgr = self._create_player_manager(config_dict, actual_path, season_path, week_num)
 
                 try:
                     projections = {}

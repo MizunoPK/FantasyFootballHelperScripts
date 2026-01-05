@@ -101,7 +101,7 @@ User wants simulations to work correctly with JSON data, maintaining equivalent 
      - DELETE `_parse_players_csv()` method (lines 338-361) - Remove deprecated code
      - UPDATE docstring (lines 91-92) - Remove CSV references, document JSON structure
      - VERIFY `_parse_players_json()` correctness (lines 363-440)
-     - VERIFY `_preload_week_data()` week_N+1 logic (lines 296-336)
+     - VERIFY `_preload_all_weeks()` week_N+1 logic (lines 269-336)
 
 2. **SimulationManager.py** (`simulation/win_rate/SimulationManager.py`)
    - **Source:** Epic Request - Documentation references CSV (research finding)
@@ -198,7 +198,7 @@ User wants simulations to work correctly with JSON data, maintaining equivalent 
 **Traceability:** Direct user request
 
 **Implementation:**
-- VERIFY `_preload_week_data()` week_N+1 logic (lines 296-336):
+- VERIFY `_preload_all_weeks()` week_N+1 logic (lines 269-336):
   - For week 17: loads week_17 folder for projected data
   - For week 17: loads week_18 folder for actual data
   - Uses `week_num_for_actual` parameter to support this pattern

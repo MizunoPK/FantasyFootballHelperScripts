@@ -74,8 +74,8 @@ class SimulatedOpponent:
         Initialize SimulatedOpponent.
 
         Args:
-            projected_pm (PlayerManager): PlayerManager using players_projected.csv
-            actual_pm (PlayerManager): PlayerManager using players_actual.csv
+            projected_pm (PlayerManager): PlayerManager with projected player data from JSON files
+            actual_pm (PlayerManager): PlayerManager with actual player data from JSON files
             config (ConfigManager): Configuration with scoring parameters
             team_data_mgr (TeamDataManager): Team data for matchup calculations
             strategy (str): Draft strategy to use
@@ -114,19 +114,19 @@ class SimulatedOpponent:
 
         Side Effects:
             - Adds player to self.roster
-            - Sets player.drafted = 1 in both projected_pm and actual_pm
+            - Sets player.drafted_by = 'OPPONENT' in both projected_pm and actual_pm
         """
         self.roster.append(player)
 
-        # Mark as drafted by opponent (drafted=1) in both PlayerManagers
+        # Mark as drafted by opponent in both PlayerManagers
         for p in self.projected_pm.players:
             if p.id == player.id:
-                p.drafted = 1
+                p.drafted_by = "OPPONENT"
                 break
 
         for p in self.actual_pm.players:
             if p.id == player.id:
-                p.drafted = 1
+                p.drafted_by = "OPPONENT"
                 break
 
         self.logger.debug(f"SimulatedOpponent ({self.strategy}) drafted: {player.name} ({player.position})")
@@ -144,11 +144,11 @@ class SimulatedOpponent:
         Raises:
             ValueError: If no players are available
         """
-        # Get available players (drafted = 0 AND has valid fantasy_points projection)
+        # Get available players (free agents AND has valid fantasy_points projection)
         # Filter out players with 0/null fantasy_points (retired, injured, inactive players)
         available_players = [
             p for p in self.projected_pm.players
-            if p.drafted == 0 and p.fantasy_points and p.fantasy_points > 0
+            if p.is_free_agent() and p.fantasy_points and p.fantasy_points > 0
         ]
 
         if not available_players:
@@ -329,8 +329,12 @@ class SimulatedOpponent:
         # Calculate actual points scored
         total_actual_points = 0.0
         for starter in starters:
-            actual_weekly_points, _ = self.actual_pm.get_weekly_projection(starter, week)
-            total_actual_points += actual_weekly_points if actual_weekly_points else 0.0
+            # Get actual weekly points directly from actual_points array
+            # Array index: week 1 = index 0, week N = index N-1
+            if 1 <= week <= 17 and len(starter.actual_points) >= week:
+                actual_points = starter.actual_points[week - 1]
+                if actual_points is not None:
+                    total_actual_points += actual_points
 
         self.logger.debug(f"SimulatedOpponent ({self.strategy}) Week {week} lineup scored {total_actual_points:.2f} actual points")
 
@@ -340,7 +344,7 @@ class SimulatedOpponent:
         """
         Mark a player as drafted by another team.
 
-        Sets player.drafted = 1 in both PlayerManager instances.
+        Sets player.drafted_by = 'OPPONENT' in both PlayerManager instances.
 
         Args:
             player_id (int): ID of the player drafted by another team
@@ -348,13 +352,13 @@ class SimulatedOpponent:
         # Mark in projected PlayerManager
         for p in self.projected_pm.players:
             if p.id == player_id:
-                p.drafted = 1
+                p.drafted_by = "OPPONENT"
                 break
 
         # Mark in actual PlayerManager
         for p in self.actual_pm.players:
             if p.id == player_id:
-                p.drafted = 1
+                p.drafted_by = "OPPONENT"
                 break
 
         self.logger.debug(f"Marked player {player_id} as drafted by another team")

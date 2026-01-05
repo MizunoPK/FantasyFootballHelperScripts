@@ -177,7 +177,7 @@ class SimulationManager:
         - game_data.csv
         - team_data/ folder
         - weeks/ folder with all 17 week subfolders
-        - players.csv in each week folder
+        - 6 position JSON files (QB, RB, WR, TE, K, DST) in each week folder
 
         Args:
             folder (Path): Season folder to validate
@@ -344,7 +344,7 @@ class SimulationManager:
         all_results = []
         total_seasons = len(self.available_seasons)
 
-        self.logger.info(f"Running simulations across {total_seasons} historical seasons")
+        # Don't log here - will be logged by caller with horizon context
 
         for season_idx, season_folder in enumerate(self.available_seasons):
             # Validate season has sufficient player data
@@ -371,11 +371,7 @@ class SimulationManager:
                 f"  Season {season_name}: {len(season_results)} simulations complete"
             )
 
-        total_simulations = len(all_results)
-        self.logger.info(
-            f"Multi-season simulations complete: {total_simulations} total "
-            f"({num_simulations_per_season} x {total_seasons} seasons)"
-        )
+        # Don't log completion here - will be logged by caller with horizon context
 
         return all_results
 
@@ -749,8 +745,14 @@ class SimulationManager:
 
             # Test each value across all horizons
             for test_idx, test_value in enumerate(test_values):
+                total_sims_for_value = len(horizons) * len(self.available_seasons) * self.num_simulations_per_config
+                self.logger.info(f"  Test value {test_idx + 1}/{len(test_values)}: {test_value} - Running {total_sims_for_value} simulations across {len(horizons)} horizons")
+
                 # For each horizon, get config with this test value
-                for horizon in horizons:
+                for horizon_idx, horizon in enumerate(horizons):
+                    sims_for_horizon = len(self.available_seasons) * self.num_simulations_per_config
+                    self.logger.info(f"    Horizon {horizon_idx + 1}/{len(horizons)} (Week {horizon}): Running {sims_for_horizon} simulations...")
+
                     config = self.config_generator.get_config_for_horizon(horizon, param_name, test_idx)
                     config_id = f"{param_name}_{test_idx}_horizon_{horizon}"
 
@@ -767,7 +769,9 @@ class SimulationManager:
                     for week_results in week_results_list:
                         self.results_manager.record_week_results(config_id, week_results)
 
-                self.logger.info(f"  Completed test value {test_idx + 1}/{len(test_values)}")
+                    self.logger.info(f"    Horizon {horizon_idx + 1}/{len(horizons)} (Week {horizon}): Completed {sims_for_horizon} simulations")
+
+                self.logger.info(f"  Test value {test_idx + 1}/{len(test_values)}: Completed {total_sims_for_value} simulations")
 
             # Update configs based on results and collect performance metrics
             overall_performance = None
@@ -811,6 +815,13 @@ class SimulationManager:
                 # Also update legacy base_config and week_configs for intermediate folder saving
                 # These are maintained for backward compatibility with save logic
                 self._update_base_config_param(base_config, param_name, best_result.config_dict)
+
+                # IMPORTANT: Update week_configs from the updated baselines
+                # Since we just updated all horizons with the best config, extract fresh week params
+                for horizon in WEEK_RANGES:
+                    horizon_baseline = copy.deepcopy(self.config_generator.baseline_configs[horizon])
+                    week_params = self.results_manager._extract_week_params(horizon_baseline)
+                    week_configs[horizon] = week_params
 
             # Also collect current best overall performance for reference in all configs
             current_best = self.results_manager.get_best_config()
@@ -1085,7 +1096,7 @@ class SimulationManager:
                 key = param_name.replace('LOCATION_', '')
                 week_config['parameters'][section][key] = best_params[section].get(key)
 
-    def run_single_config_test(self, config_id: str = "test") -> None:
+    def run_single_config_test(self, config_id: str = "test", season: str = "2025") -> None:
         """
         Run simulations for a single configuration (for debugging).
 
@@ -1095,11 +1106,12 @@ class SimulationManager:
 
         Args:
             config_id (str): Identifier for this test config (default: "test")
+            season (str): Season year to use for testing (default: "2025")
 
         Example:
             >>> mgr = SimulationManager(baseline_path, output_dir, num_sims, workers, data, param_order)
-            >>> mgr.run_single_config_test(config_id="baseline_test")
-            >>> # Runs 5 simulations with baseline config
+            >>> mgr.run_single_config_test(config_id="baseline_test", season="2025")
+            >>> # Runs 5 simulations with baseline config using 2025 season data
         """
         warnings.warn(
             "run_single_config_test() uses single-season data only. "
@@ -1111,12 +1123,24 @@ class SimulationManager:
         self.logger.info("=" * 80)
         self.logger.info("RUNNING SINGLE CONFIG TEST")
         self.logger.info("=" * 80)
+        self.logger.info(f"Using {season} season data for testing")
 
         # Use baseline config directly
         config_dict = self.config_generator.baseline_config
 
         # Register config
         self.results_manager.register_config(config_id, config_dict)
+
+        # For single mode, update data folder to specific season
+        season_data_folder = self.data_folder / season
+        if not season_data_folder.exists():
+            self.logger.error(f"Season folder not found: {season_data_folder}")
+            self.logger.error(f"Available seasons: {[s.name for s in self.available_seasons]}")
+            return
+
+        # Temporarily update parallel_runner's data folder for this test
+        original_data_folder = self.parallel_runner.data_folder
+        self.parallel_runner.data_folder = season_data_folder
 
         # Run simulations
         self.logger.info(f"Running {self.num_simulations_per_config} simulations...")
@@ -1125,6 +1149,9 @@ class SimulationManager:
             config_dict,
             self.num_simulations_per_config
         )
+
+        # Restore original data folder
+        self.parallel_runner.data_folder = original_data_folder
 
         # Record results
         for wins, losses, points in results:

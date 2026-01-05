@@ -66,14 +66,125 @@ simulation/
 │
 ├── sim_data/                    # Historical data
 │   ├── 2021/, 2022/, 2024/      # Season folders with weeks/week_NN/ data
-│   ├── players_projected.csv   # Season-long projections
-│   ├── players_actual.csv      # Season-long actuals
+│   │   ├── weeks/               # Weekly player data (JSON format)
+│   │   │   ├── week_01/         # Week 1 data
+│   │   │   │   ├── qb_data.json, rb_data.json, wr_data.json
+│   │   │   │   ├── te_data.json, k_data.json, dst_data.json
+│   │   │   ├── week_02/ ... week_18/  # Weeks 2-18
+│   │   └── team_data/           # Team rankings
+│   ├── players_projected.csv   # (Legacy - deprecated)
+│   ├── players_actual.csv      # (Legacy - deprecated)
 │   └── team_data/              # Team rankings
 │
 └── simulation_configs/          # Output directory
     ├── optimal_iterative_*/     # Win-rate optimal configs
     └── accuracy_optimal_*/      # Accuracy optimal configs
 ```
+
+## Data Structure
+
+### JSON Player Data Format
+
+**Since:** 2025-12-30 (migrated from CSV to JSON)
+
+Player data is stored in **per-position JSON files** organized by week. Each season has 18 weeks of data (weeks 1-18), with week 18 used for week 17 actuals.
+
+#### File Organization
+
+```
+simulation/sim_data/2025/weeks/
+├── week_01/
+│   ├── qb_data.json     # Quarterbacks
+│   ├── rb_data.json     # Running Backs
+│   ├── wr_data.json     # Wide Receivers
+│   ├── te_data.json     # Tight Ends
+│   ├── k_data.json      # Kickers
+│   └── dst_data.json    # Defenses
+├── week_02/ ... week_18/  # Same structure for weeks 2-18
+```
+
+#### JSON File Structure
+
+Each position file contains an **array of player objects** with 17-element arrays for weekly data:
+
+```json
+[
+  {
+    "id": "3918298",
+    "name": "Josh Allen",
+    "position": "QB",
+    "drafted_by": "",
+    "locked": false,
+    "projected_points": [20.8, 21.2, 19.5, ..., 20.8],  // 17 elements (weeks 1-17)
+    "actual_points": [0.0, 0.0, 0.0, ..., 23.2]         // 17 elements (weeks 1-17)
+  },
+  ...
+]
+```
+
+**Field Descriptions:**
+- `id`: Unique player identifier (string)
+- `name`: Player name (string)
+- `position`: Position code - QB, RB, WR, TE, K, DST (string)
+- `drafted_by`: Team name if drafted, empty string if undrafted (string)
+- `locked`: Player lock status (boolean)
+- `projected_points`: Array of 17 projected point values (float array)
+- `actual_points`: Array of 17 actual point values (float array)
+
+**Important:** Arrays have 17 elements indexed 0-16 (week 1 = index 0, week 17 = index 16).
+
+#### Week N+1 Pattern for Actuals
+
+**Critical:** For any week N (1-17), simulations use a **two-folder pattern**:
+- **Projected data:** Load from `week_N/` folder → `projected_points[N-1]`
+- **Actual data:** Load from `week_N+1/` folder → `actual_points[N-1]`
+
+**Example for Week 10:**
+- Projected: `weeks/week_10/qb_data.json` → `projected_points[9]` (index 9 = week 10)
+- Actual: `weeks/week_11/qb_data.json` → `actual_points[9]` (index 9 = week 10)
+
+**Week 17 Special Case:**
+- Projected: `weeks/week_17/qb_data.json` → `projected_points[16]`
+- Actual: `weeks/week_18/qb_data.json` → `actual_points[16]`
+
+This pattern ensures actual scores are available from the following week's data.
+
+#### Data Loading Process
+
+Both simulations (Win Rate and Accuracy) follow this process:
+
+1. **Identify week folders:** For week N, locate `week_N/` (projected) and `week_N+1/` (actual)
+2. **Load JSON files:** Read all 6 position files from both folders
+3. **Extract week-specific values:** Use array index `[N-1]` to get week N data
+4. **Handle missing data:** If `week_N+1/` missing, fall back to projected data
+
+### CSV to JSON Migration (Historical Context)
+
+**Migration Date:** 2025-12-30
+
+The simulation system transitioned from CSV to JSON format for improved data organization:
+
+**Previous Structure (CSV - deprecated):**
+```
+simulation/sim_data/
+├── players_projected.csv  # Single file, all positions, season-long
+├── players_actual.csv     # Single file, all positions, season-long
+```
+
+**Current Structure (JSON):**
+```
+simulation/sim_data/2025/weeks/
+├── week_01/ through week_18/  # 18 week folders
+│   └── 6 position files per week (qb_data.json, rb_data.json, ...)
+```
+
+**Key Differences:**
+1. **File Organization:** Single CSV files → Per-position JSON files per week
+2. **Data Structure:** Single columns → 17-element arrays (one per week)
+3. **Granularity:** Season-long file → Weekly folders for better organization
+4. **Format:** CSV text → JSON with typed fields (strings, booleans, floats)
+
+**Note:** CSV files remain in `sim_data/` marked as "(Legacy - deprecated)" for historical reference only. All simulations now use JSON data exclusively.
 
 ## Quick Start
 
@@ -345,12 +456,12 @@ If the simulation process is killed with just "Killed" message and no Python tra
 
 ---
 
-### "No such file or directory: players_projected.csv"
+### "No such file or directory: week_01/qb_data.json"
 
-Ensure data files exist in `simulation/sim_data/`:
+Ensure JSON data files exist in week folders:
 ```bash
-ls simulation/sim_data/
-# Should show: players_projected.csv, players_actual.csv, teams_week_*.csv
+ls simulation/sim_data/2025/weeks/week_01/
+# Should show: qb_data.json, rb_data.json, wr_data.json, te_data.json, k_data.json, dst_data.json
 ```
 
 ### "Baseline config not found"

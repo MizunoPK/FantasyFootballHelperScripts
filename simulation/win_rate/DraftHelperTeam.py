@@ -69,8 +69,8 @@ class DraftHelperTeam:
         Initialize DraftHelperTeam.
 
         Args:
-            projected_pm (PlayerManager): PlayerManager using players_projected.csv
-            actual_pm (PlayerManager): PlayerManager using players_actual.csv
+            projected_pm (PlayerManager): PlayerManager with projected player data from JSON files
+            actual_pm (PlayerManager): PlayerManager with actual player data from JSON files
             config (ConfigManager): Configuration with scoring parameters
             team_data_mgr (TeamDataManager): Team data for matchup calculations
         """
@@ -92,33 +92,48 @@ class DraftHelperTeam:
         """
         Add a player to the roster and mark as drafted in both PlayerManagers.
 
+        Uses the proper PlayerManager.draft_player() method to ensure:
+        - Slot assignment system is used (assigns players to PRIMARY position rounds)
+        - MAX_POSITIONS limits are enforced (can_draft() checks)
+        - Position diversity is maintained across the roster
+
         Args:
             player (FantasyPlayer): Player to add to roster
 
         Side Effects:
-            - Adds player to self.roster
             - Adds player to both PlayerManager.team.roster lists
-            - Sets player.drafted = 2 in both projected_pm and actual_pm
-            - Updates both PlayerManager CSV files
+            - Updates slot_assignments in both PlayerManagers
+            - Sets player.drafted_by = "Sea Sharp" in both projected_pm and actual_pm
+            - Adds player to self.roster for local tracking
         """
-        self.roster.append(player)
+        # Use proper draft_player() method which enforces slot assignment system
+        # This ensures MAX_POSITIONS is respected and positional diversity is maintained
 
-        # Mark as drafted by this team (drafted=2) and add to team roster in both PlayerManagers
+        # Find the player instance in projected_pm and draft it
         for p in self.projected_pm.players:
             if p.id == player.id:
-                p.drafted = 2
-                # Add to team roster for StarterHelperModeManager
-                if p not in self.projected_pm.team.roster:
-                    self.projected_pm.team.roster.append(p)
+                success = self.projected_pm.draft_player(p)
+                if not success:
+                    self.logger.error(f"Failed to draft {p.name} in projected_pm (position limit reached?)")
+                    return
                 break
 
+        # Find the player instance in actual_pm and draft it
         for p in self.actual_pm.players:
             if p.id == player.id:
-                p.drafted = 2
-                # Add to team roster for scoring
-                if p not in self.actual_pm.team.roster:
-                    self.actual_pm.team.roster.append(p)
+                success = self.actual_pm.draft_player(p)
+                if not success:
+                    self.logger.error(f"Failed to draft {p.name} in actual_pm (position limit reached?)")
+                    # Rollback projected_pm draft
+                    for proj_p in self.projected_pm.players:
+                        if proj_p.id == player.id:
+                            self.projected_pm.team.remove_player(proj_p)
+                            break
+                    return
                 break
+
+        # Add to local roster for tracking
+        self.roster.append(player)
 
         self.logger.debug(f"DraftHelperTeam drafted: {player.name} ({player.position})")
 
@@ -171,7 +186,7 @@ class DraftHelperTeam:
         Process:
             1. Update config to current week
             2. Use StarterHelperModeManager to get optimal lineup
-            3. Calculate actual points from players_actual.csv
+            3. Calculate actual points from JSON player data (actual_pm)
             4. Return total points scored
         """
         # Update config to current week
@@ -208,13 +223,19 @@ class DraftHelperTeam:
         ]
 
         # Sum actual points for each starter
+        starters_count = 0
         for starter in starters:
             if starter and starter.player:
-                # Get actual weekly points from actual_pm
-                actual_weekly_points, _ = self.actual_pm.get_weekly_projection(starter.player, week)
-                total_actual_points += actual_weekly_points
+                starters_count += 1
+                # Get actual weekly points directly from actual_points array
+                # Array index: week 1 = index 0, week N = index N-1
+                if 1 <= week <= 17 and len(starter.player.actual_points) >= week:
+                    actual_points = starter.player.actual_points[week - 1]
+                    if actual_points is not None:
+                        total_actual_points += actual_points
+                        self.logger.debug(f"  {starter.player.name} ({starter.player.position}): {actual_points:.2f} pts")
 
-        self.logger.debug(f"DraftHelperTeam Week {week} lineup scored {total_actual_points:.2f} actual points")
+        self.logger.debug(f"DraftHelperTeam Week {week} lineup: {starters_count} starters, {total_actual_points:.2f} total points")
 
         return total_actual_points
 
@@ -222,25 +243,25 @@ class DraftHelperTeam:
         """
         Mark a player as drafted by another team.
 
-        Sets player.drafted = 1 in both PlayerManager instances to indicate
+        Sets player.drafted_by = "OPPONENT" in both PlayerManager instances to indicate
         the player is no longer available.
 
         Args:
             player_id (int): ID of the player drafted by another team
 
         Side Effects:
-            - Sets player.drafted = 1 in both projected_pm and actual_pm
+            - Sets player.drafted_by = "OPPONENT" in both projected_pm and actual_pm
         """
         # Mark in projected PlayerManager
         for p in self.projected_pm.players:
             if p.id == player_id:
-                p.drafted = 1
+                p.drafted_by = "OPPONENT"
                 break
 
         # Mark in actual PlayerManager
         for p in self.actual_pm.players:
             if p.id == player_id:
-                p.drafted = 1
+                p.drafted_by = "OPPONENT"
                 break
 
         self.logger.debug(f"Marked player {player_id} as drafted by opponent")

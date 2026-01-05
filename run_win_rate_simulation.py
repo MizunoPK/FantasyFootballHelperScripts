@@ -269,7 +269,7 @@ Examples:
             if intermediate_folders:
                 # Found intermediate folders - use most recent to resume interrupted run
                 baseline_path = intermediate_folders[0]
-                print(f"✓ Found intermediate folders - resuming from: {baseline_path.name}")
+                print(f"[OK] Found intermediate folders - resuming from: {baseline_path.name}")
 
         # If no intermediate folders (or not iterative mode), look for optimal config folders
         if baseline_path is None:
@@ -279,7 +279,7 @@ Examples:
             if optimal_folders:
                 # Found config folders in output dir - use the most recent one
                 baseline_path = optimal_folders[0]
-                print(f"✓ Using most recent config folder from output directory: {baseline_path.name}")
+                print(f"[OK] Using most recent config folder from output directory: {baseline_path.name}")
             else:
                 # No config folders in output dir - fall back to default simulation_configs directory
                 config_dir = Path("simulation/simulation_configs")
@@ -288,7 +288,7 @@ Examples:
                     if optimal_folders:
                         # Found config folders in fallback directory - use most recent
                         baseline_path = optimal_folders[0]
-                        print(f"✓ Using baseline config folder from simulation_configs: {baseline_path.name}")
+                        print(f"[OK] Using baseline config folder from simulation_configs: {baseline_path.name}")
                     else:
                         # No config folders found anywhere - error out
                         print(f"Error: No optimal config folders found in {output_dir} or {config_dir}")
@@ -334,6 +334,7 @@ Examples:
     if args.mode == 'single':
         # SINGLE MODE: Run baseline config only for quick testing
         print(f"Simulations: {args.sims}")
+        print(f"Note: Single mode uses 2025 season data for quick testing")
         print("=" * 80)
 
         # Initialize SimulationManager with baseline config
@@ -350,7 +351,8 @@ Examples:
         )
 
         # Run N simulations with baseline config and display results
-        manager.run_single_config_test()
+        # Pass season='2025' to use most recent season for quick testing
+        manager.run_single_config_test(season='2025')
 
     elif args.mode == 'full':
         # FULL MODE: Grid search across all parameter combinations

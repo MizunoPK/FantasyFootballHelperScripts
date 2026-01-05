@@ -534,7 +534,7 @@ class TestAccuracySimulationManagerDataLoading:
         mock_projected_mgr.calculate_max_weekly_projection.return_value = 100.0
 
         call_count = [0]
-        def create_manager_side_effect(config_dict, week_folder, season_path):
+        def create_manager_side_effect(config_dict, week_folder, season_path, week_num):
             call_count[0] += 1
             if call_count[0] == 1:
                 return mock_projected_mgr

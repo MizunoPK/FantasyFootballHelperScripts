@@ -162,7 +162,7 @@ class TestDraftPlayer:
 
         opponent.draft_player(player)
 
-        assert projected_player.drafted == 1
+        assert projected_player.drafted_by == "OPPONENT"
 
     def test_draft_player_marks_drafted_in_actual_pm(self):
         """Test that drafting marks player as drafted=1 in actual PlayerManager"""
@@ -191,7 +191,7 @@ class TestDraftPlayer:
 
         opponent.draft_player(player)
 
-        assert actual_player.drafted == 1
+        assert actual_player.drafted_by == "OPPONENT"
 
     def test_draft_multiple_players(self):
         """Test drafting multiple players"""
@@ -257,7 +257,7 @@ class TestMarkPlayerDrafted:
 
         opponent.mark_player_drafted(5)
 
-        assert player.drafted == 1
+        assert player.drafted_by == "OPPONENT"
 
     def test_mark_player_drafted_in_actual_pm(self):
         """Test marking player as drafted in actual PM"""
@@ -281,7 +281,7 @@ class TestMarkPlayerDrafted:
 
         opponent.mark_player_drafted(10)
 
-        assert player.drafted == 1
+        assert player.drafted_by == "OPPONENT"
 
     def test_mark_player_drafted_nonexistent_player(self):
         """Test marking nonexistent player does nothing"""

@@ -291,6 +291,13 @@ actual_data = player.actual_points[17 - 1]    # Extract from index 16
 - Verify tests cover edge cases (add if missing - per Question 4 answer)
 - Ensure 100% test pass rate
 
+**Updated based on Feature 01 implementation (2026-01-03):**
+- ✅ Array indexing pattern verified: `actual_points[week_num - 1]` is correct (matches Feature 01)
+- ✅ Week 17 logic verified: Implementation correctly uses week_num (not actual_week_num) for indexing
+- ✅ Malformed JSON handling: PlayerManager handles this internally (no changes needed to Accuracy Sim)
+- ⚠️ Edge cases: Reference Feature 01's 25 edge cases for similar patterns applicable to PlayerManager integration
+- ⚠️ Test coverage: If user answers "A" to test questions (like Feature 01), expect similar comprehensive test additions
+
 **Success Criteria:**
 - Code review confirms logic correctness
 - Manual testing shows correct data loaded

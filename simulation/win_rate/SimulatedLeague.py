@@ -88,8 +88,8 @@ class SimulatedLeague:
 
         Args:
             config_dict (dict): Configuration dictionary (will be saved as temp JSON)
-            data_folder (Path): Path to folder containing players_projected.csv,
-                               players_actual.csv, and teams_week_N.csv files
+            data_folder (Path): Path to folder containing weeks/ subfolder with
+                               week-specific JSON player data and teams_week_N.csv files
 
         Raises:
             FileNotFoundError: If data files are missing
@@ -157,12 +157,15 @@ class SimulatedLeague:
         random.shuffle(strategies)
 
         # Determine player data source path (JSON files in week folders)
-        # For historical data structure, use week 1 JSON files for initial setup
-        week_folder = self.data_folder / "weeks" / "week_01"
-        if not week_folder.exists():
-            raise FileNotFoundError(f"Week folder not found: {week_folder}")
+        # Use the LAST week folder to get complete actual_points data for entire season
+        # Find the latest week folder available
+        weeks_folder = self.data_folder / "weeks"
+        available_weeks = sorted([f for f in weeks_folder.iterdir() if f.is_dir() and f.name.startswith("week_")])
+        if not available_weeks:
+            raise FileNotFoundError(f"No week folders found in: {weeks_folder}")
 
-        self.logger.debug(f"Using week 1 JSON files for initial team setup: {week_folder}")
+        week_folder = available_weeks[-1]  # Use last week (has all actual results)
+        self.logger.debug(f"Using {week_folder.name} JSON files for team setup (has complete actual_points data)")
 
         # OPTIMIZATION: Create shared directory ONCE instead of per-team
         # With JSON, we only need one shared directory (not separate projected/actual)
@@ -311,7 +314,9 @@ class SimulatedLeague:
             # Parse actual data from week_N+1 (if exists)
             if actual_folder.exists():
                 # For actual data, we want actual_points[week_num - 1] from week_N+1 folder
-                actual_data = self._parse_players_json(actual_folder, week_num, week_num_for_actual=actual_week_num)
+                # Pass week_num (not actual_week_num) so it extracts index [week_num - 1]
+                # E.g., for week 17: extract actual_points[16] from week_18 data
+                actual_data = self._parse_players_json(actual_folder, week_num, week_num_for_actual=week_num)
             else:
                 # Week 17 limitation: no week_18 exists for actual data
                 # Use projected data for actuals as fallback (will have 0.0 actuals)
@@ -334,31 +339,6 @@ class SimulatedLeague:
             )
 
         self.logger.debug(f"Pre-loaded {len(self.week_data_cache)} weeks of player data")
-
-    def _parse_players_csv(self, filepath: Path) -> Dict[int, Dict[str, Any]]:
-        """
-        Parse players.csv into dictionary format keyed by player ID.
-
-        DEPRECATED: This method is kept for backward compatibility but is no longer
-        used with the JSON-based player data structure.
-
-        Args:
-            filepath (Path): Path to players.csv file
-
-        Returns:
-            Dict[int, Dict[str, Any]]: Player data keyed by player ID
-        """
-        players = {}
-        with open(filepath, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                try:
-                    player_id = int(row.get('id', 0))
-                    if player_id > 0:
-                        players[player_id] = dict(row)
-                except (ValueError, KeyError):
-                    continue
-        return players
 
     def _parse_players_json(
         self,
@@ -400,41 +380,46 @@ class SimulatedLeague:
                 self.logger.warning(f"Missing {position_file} in {week_folder}")
                 continue
 
-            with open(json_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                for player_dict in data:
-                    try:
-                        player_id = int(player_dict['id'])
+            try:
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except (json.JSONDecodeError, ValueError) as e:
+                self.logger.error(f"Malformed JSON in {position_file}: {e}")
+                continue
 
-                        # Extract week-specific values from arrays
-                        projected_array = player_dict.get('projected_points', [])
-                        actual_array = player_dict.get('actual_points', [])
+            for player_dict in data:
+                try:
+                    player_id = int(player_dict['id'])
 
-                        # Projected points: always use week_num index
-                        if len(projected_array) > week_num - 1:
-                            projected = projected_array[week_num - 1]
-                        else:
-                            projected = 0.0
+                    # Extract week-specific values from arrays
+                    projected_array = player_dict.get('projected_points', [])
+                    actual_array = player_dict.get('actual_points', [])
 
-                        # Actual points: use actual_week index (for week_N+1 fix)
-                        if len(actual_array) > actual_week - 1:
-                            actual = actual_array[actual_week - 1]
-                        else:
-                            actual = 0.0
+                    # Projected points: always use week_num index
+                    if len(projected_array) > week_num - 1:
+                        projected = projected_array[week_num - 1]
+                    else:
+                        projected = 0.0
 
-                        # Build player dict with single values (matching CSV format)
-                        players[player_id] = {
-                            'id': str(player_id),
-                            'name': player_dict.get('name', ''),
-                            'position': player_dict.get('position', ''),
-                            'drafted_by': player_dict.get('drafted_by', ''),  # string
-                            'locked': str(int(player_dict.get('locked', False))),  # Convert bool to "0"/"1" for compatibility
-                            'projected_points': str(projected),  # Single value for this week
-                            'actual_points': str(actual)  # Single value for this week
-                        }
-                    except (ValueError, KeyError, TypeError) as e:
-                        self.logger.warning(f"Error parsing player in {position_file}: {e}")
-                        continue
+                    # Actual points: use actual_week index (for week_N+1 fix)
+                    if len(actual_array) > actual_week - 1:
+                        actual = actual_array[actual_week - 1]
+                    else:
+                        actual = 0.0
+
+                    # Build player dict with single values (matching CSV format)
+                    players[player_id] = {
+                        'id': str(player_id),
+                        'name': player_dict.get('name', ''),
+                        'position': player_dict.get('position', ''),
+                        'drafted_by': player_dict.get('drafted_by', ''),  # string
+                        'locked': str(int(player_dict.get('locked', False))),  # Convert bool to "0"/"1" for compatibility
+                        'projected_points': str(projected),  # Single value for this week
+                        'actual_points': str(actual)  # Single value for this week
+                    }
+                except (ValueError, KeyError, TypeError) as e:
+                    self.logger.warning(f"Error parsing player in {position_file}: {e}")
+                    continue
 
         self.logger.debug(f"Parsed {len(players)} players from week {week_num} JSON files")
         return players

@@ -355,7 +355,7 @@ class ParallelLeagueRunner:
                     self.logger.error(f"Simulation {sim_id} failed: {e}")
                     # Continue with other simulations even if one fails
 
-        self.logger.info(
+        self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully"
         )
 
@@ -388,7 +388,7 @@ class ParallelLeagueRunner:
             >>> # [[(1, True, 125.5), (2, False, 98.3), ...], ...]
         """
         executor_type = "processes" if self.use_processes else "threads"
-        self.logger.info(
+        self.logger.debug(
             f"Running {num_simulations} simulations with week tracking ({self.max_workers} {executor_type})"
         )
 
@@ -438,7 +438,7 @@ class ParallelLeagueRunner:
                 except Exception as e:
                     self.logger.error(f"Simulation {sim_id} failed: {e}")
 
-        self.logger.info(
+        self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully (with weeks)"
         )
 

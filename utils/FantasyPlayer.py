@@ -511,6 +511,7 @@ class FantasyPlayer:
         """
         if not (1 <= week_num <= 17):
             raise ValueError(f"week_num must be between 1 and 17, got {week_num}")
+
         return self.get_weekly_projections(config)[week_num - 1]
     
     def get_rest_of_season_projection(self, config) -> float:
