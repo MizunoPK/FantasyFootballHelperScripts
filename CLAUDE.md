@@ -50,7 +50,7 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 - Starting any of the 7 stages (1, 2, 3, 4, 5a, 5b, 5c, 5d, 5e, 6, 7)
 - Starting Stage 5a rounds (Round 1, 2, 3)
 - Starting Stage 5c phases (Smoke Testing, QC Rounds, Final Review)
-- Creating a bug fix
+- Creating missed requirements or entering debugging protocol
 - Resuming after session compaction
 
 **See:** `feature-updates/guides_v2/prompts_reference_v2.md` → Complete prompt library
@@ -129,7 +129,9 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 **🚨 FIRST ACTION:** Use the "Starting Stage 5c Smoke Testing" prompt from `prompts_reference_v2.md`
 
 - **Phase 1:** READ `stages/stage_5/smoke_testing.md` - Import/Entry Point/E2E tests (MANDATORY GATE)
-- **Phase 2:** READ `stages/stage_5/qc_rounds.md` - 3 QC rounds (if ANY issues → restart from smoke testing)
+  - If issues found → Enter debugging protocol → LOOP BACK to Stage 5ca Part 1
+- **Phase 2:** READ `stages/stage_5/qc_rounds.md` - 3 QC rounds
+  - If ANY issues → Enter debugging protocol → LOOP BACK to Stage 5ca Part 1 (NOT mid-QC)
 - **Phase 3:** READ `stages/stage_5/final_review.md` - PR review, lessons learned, zero tech debt tolerance
 
 **Stage 5d: Cross-Feature Spec Alignment** (After feature completes)
@@ -158,7 +160,7 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 
 - READ: `stages/stage_6/epic_final_qc.md`
 - Execute epic_smoke_test_plan.md, 3 QC rounds, validate against epic request
-- If bugs found → bug fix → RESTART Stage 6
+- If issues found → Enter debugging protocol → LOOP BACK to Stage 6a (Epic Smoke Testing)
 
 **Stage 7: Epic Cleanup** (After Stage 6 passes)
 
@@ -166,22 +168,67 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 
 - READ: `stages/stage_7/epic_cleanup.md`
 - Run unit tests (100% pass), user testing (MANDATORY GATE - ZERO bugs required)
-- If user finds bugs → bug fix → RESTART Stage 6
+- If user finds bugs → Add to epic debugging/ISSUES_CHECKLIST.md → Enter debugging protocol → LOOP BACK to Stage 6a
 - Commit, merge to main, update EPIC_TRACKER.md, move to done/
 
 ---
 
-## Bug Fix Workflow
+## Missed Requirement Protocol
 
-If bugs are discovered during ANY stage:
+If missing scope/requirements discovered at ANY point after first Stage 5 starts (and you KNOW the solution):
 
-**🚨 FIRST ACTION:** Use the "Creating a Bug Fix" prompt from `prompts_reference_v2.md`
+**🚨 FIRST ACTION:** Use the "Creating Missed Requirement" prompt from `prompts_reference_v2.md`
 
-- **READ:** `stages/stage_5/bugfix_workflow.md`
-- Create `bugfix_{priority}_{name}/` folder inside epic
-- Priority levels: high, medium, low
-- Bug fixes go through: Stage 2 → 5a → 5b → 5c (SKIP Stages 1, 3, 4, 5d, 5e, 6, 7)
-- After bug fix complete, return to paused work
+- **READ:** `missed_requirement/missed_requirement_protocol.md`
+- **When to use:** Missing scope discovered at ANY time (implementation, QA, debugging, epic testing, user testing), solution is KNOWN
+- **Before Stage 5:** Just update specs directly during Stage 2/3/4
+- **Two options:** Create new `feature_{XX}_{name}/` folder OR update unstarted feature
+- **User decides:** Which approach + priority (high/medium/low)
+- **Pause current work** → Return to planning stages
+- **Stage 2** (Deep Dive): Flesh out new/updated feature spec
+- **Stage 3** (Sanity Check): Re-align ALL features (not just new one)
+- **Stage 4** (Test Strategy): Update epic_smoke_test_plan.md
+- **Resume paused work** → Implement new/updated feature when its turn comes in sequence
+- **Full Stage 5** (5a → 5b → 5c → 5d → 5e) when feature gets implemented
+- **Priority determines sequence:** high = before current, medium = after current, low = at end
+- **Special case:** If discovered during Stage 6/7 → Complete all features → **RESTART epic testing from Stage 6a**
+
+---
+
+## Debugging Protocol
+
+**INTEGRATED WITH QC/SMOKE TESTING** - When issues discovered with UNKNOWN root cause:
+
+**🚨 FIRST ACTION:** Use the "Starting Debugging Protocol" prompt from `prompts_reference_v2.md`
+
+- **READ:** `debugging/debugging_protocol.md`
+- **When to use:** Issues discovered during QC/Smoke testing with unknown root cause requiring investigation
+
+**File Structure:**
+- Feature-level issues: `feature_XX_{name}/debugging/` folder
+- Epic-level issues: `{epic_name}/debugging/` folder
+- Contains: ISSUES_CHECKLIST.md, issue_XX_{name}.md files, investigation_rounds.md, code_changes.md, process_failure_analysis.md (NEW), guide_update_recommendations.md (NEW), lessons_learned.md
+
+**Workflow Integration:**
+1. **Issue Discovery** - During Smoke Testing (Stage 5ca/6a) or QC Rounds (Stage 5cb/6b), add issues to ISSUES_CHECKLIST.md
+2. **Enter Debugging Protocol** - Work through checklist systematically
+3. **Systematic Root Cause Analysis (NEW)** - After ALL issues resolved, analyze why bugs got through process and generate guide updates
+4. **Loop Back to Testing** - RESTART testing from beginning (not mid-testing)
+5. **Zero Issues Required** - Cannot proceed to next stage with any open issues
+
+**5-Phase Process:**
+- Phase 1: Issue Discovery & Checklist Update
+- Phase 2: Investigation (Round 1 → Code Tracing, Round 2 → Hypothesis, Round 3 → Testing)
+- Phase 3: Solution Design & Implementation
+- Phase 4: User Verification (MANDATORY - user must confirm each fix)
+- Phase 5: Loop Back to Testing (includes systematic root cause analysis)
+
+**Key Requirements:**
+- **Issue-centric tracking:** Each issue has dedicated file with investigation history
+- **Max 5 investigation rounds** per issue before user escalation
+- **Feature vs Epic separation:** Feature bugs vs epic integration bugs tracked separately
+- **User testing integration:** Stage 7 user-reported bugs → epic checklist → loop back to Stage 6 (NOT Stage 7)
+- **Resumability:** investigation_rounds.md preserves state across session compaction
 
 ---
 

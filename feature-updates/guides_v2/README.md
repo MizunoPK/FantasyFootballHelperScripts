@@ -78,7 +78,7 @@ STAGE 7: Epic Cleanup
    ↓
    Run unit tests (100% pass)
    User testing (MANDATORY)
-   If bugs found → Fix & RESTART Stage 6
+   If bugs found → Add to epic debugging/ISSUES_CHECKLIST.md → LOOP BACK to Stage 6a
    Commit changes
    Move epic to done/ folder
 ```
@@ -114,8 +114,9 @@ STAGE 7: Epic Cleanup
 | Epic smoke passed (QC) | `stages/stage_6/epic_qc_rounds.md` | 3 rounds of epic-level QC |
 | Epic QC passed (Final Review) | `stages/stage_6/epic_final_review.md` | Final epic validation before cleanup |
 | Epic review passed | `stages/stage_7/epic_cleanup.md` | User testing, finalize, commit, archive |
-| Bug discovered | `stages/stage_5/bugfix_workflow.md` | Handle bugs during epic development |
-| Need templates | `templates/TEMPLATES_INDEX.md` | File templates for epics, features, bug fixes |
+| Missed requirement (known solution) | `missed_requirement/missed_requirement_protocol.md` | Handle missing features during epic development |
+| Issues during QC/Smoke testing | `debugging/debugging_protocol.md` | Integrated debugging protocol with loop-back to testing |
+| Need templates | `templates/TEMPLATES_INDEX.md` | File templates for epics, features, missed requirements, debug sessions |
 | Starting a stage | `prompts_reference_v2.md` | MANDATORY prompts for phase transitions |
 
 ---
@@ -146,9 +147,9 @@ STAGE 7: Epic Cleanup
 - **v1:** Same QC process for features and entire project
 - **v2:** Clear distinction between feature-level (Stage 5c) and epic-level (Stage 6) testing
 
-### 7. Bug Fix Integration
+### 7. Debugging Protocol Integration
 - **v1:** Unclear how to handle bugs discovered mid-epic
-- **v2:** Dedicated bug fix workflow (Stage 2→5a→5b→5c) with priority handling
+- **v2:** Integrated debugging protocol with QC/Smoke testing, loop-back mechanism, feature vs epic separation
 
 ### 8. 24 Verification Iterations
 - **v1:** Generic TODO creation
@@ -176,26 +177,57 @@ feature-updates/
 │   │   ├── implementation_checklist.md ← Continuous verification (Stage 5b)
 │   │   ├── code_changes.md           ← Documentation of changes (Stage 5b)
 │   │   ├── lessons_learned.md        ← Feature-specific insights
-│   │   └── research/                 ← Research documents (if needed)
+│   │   ├── research/                 ← Research documents (if needed)
+│   │   └── debugging/                ← Created when issues found in QC/Smoke testing
+│   │       ├── ISSUES_CHECKLIST.md   ← Master checklist of all issues
+│   │       ├── issue_01_{name}.md    ← Investigation history per issue
+│   │       ├── issue_02_{name}.md
+│   │       ├── investigation_rounds.md ← Meta-tracker for rounds
+│   │       ├── code_changes.md       ← All fixes for this feature
+│   │       └── diagnostic_logs/      ← Log files from investigation
 │   │
 │   ├── feature_02_{name}/            ← Feature 2 (same structure)
 │   │
-│   └── bugfix_{priority}_{name}/     ← Bug fix (if discovered)
-│       ├── notes.txt                 ← User-verified issue description
-│       ├── spec.md                   ← Fix requirements
-│       ├── checklist.md
-│       ├── todo.md
-│       ├── implementation_checklist.md
-│       ├── code_changes.md
-│       └── lessons_learned.md
+│   ├── debugging/                    ← Epic-level debugging (for Stage 6/7 issues)
+│   │   ├── ISSUES_CHECKLIST.md       ← Epic-level issue tracking
+│   │   ├── issue_01_{name}.md
+│   │   ├── investigation_rounds.md
+│   │   ├── code_changes.md
+│   │   └── diagnostic_logs/
+│   │
 │
 ├── done/                              ← Completed epics moved here
 │   └── {epic_name}/                  ← Complete epic folder (Stage 7)
 │
 └── guides_v2/                        ← THIS folder (guides for workflow)
     ├── README.md                     ← This file (workflow overview)
-    ├── prompts_reference_v2.md       ← Phase transition prompts (MANDATORY)
+    ├── prompts_reference_v2.md       ← Prompts router (MANDATORY)
     ├── EPIC_WORKFLOW_USAGE.md        ← Comprehensive usage guide
+    │
+    ├── prompts/                      ← Phase transition prompts (split by stage)
+    │   ├── stage_1_prompts.md
+    │   ├── stage_2_prompts.md
+    │   ├── stage_3_prompts.md
+    │   ├── stage_4_prompts.md
+    │   ├── stage_5_prompts.md
+    │   ├── stage_6_prompts.md
+    │   ├── stage_7_prompts.md
+    │   ├── special_workflows_prompts.md
+    │   └── problem_situations_prompts.md
+    │
+    ├── debugging/                    ← Debugging protocol (cross-stage)
+    │   ├── debugging_protocol.md     ← Router (phases 1-5)
+    │   ├── discovery.md              ← Phase 1: Issue discovery & checklist
+    │   ├── investigation.md          ← Phase 2: Investigation rounds
+    │   ├── resolution.md             ← Phase 3 & 4: Solution & user verification
+    │   └── loop_back.md              ← Phase 5: Loop back to testing
+    │
+    ├── missed_requirement/           ← Missed requirement protocol (cross-stage)
+    │   ├── missed_requirement_protocol.md  ← Router (overview & decision tree)
+    │   ├── discovery.md              ← Phase 1: Discovery & user decision
+    │   ├── planning.md               ← Phase 2: Stage 2 deep dive
+    │   ├── realignment.md            ← Phase 3 & 4: Stage 3/4 alignment
+    │   └── stage_6_7_special.md      ← Special case: Discovery during epic testing
     │
     ├── stages/                       ← Core workflow guides
     │   ├── stage_1/
@@ -210,7 +242,6 @@ feature-updates/
     │   ├── stage_4/
     │   │   └── epic_testing_strategy.md
     │   ├── stage_5/
-    │   │   ├── bugfix_workflow.md
     │   │   ├── round1_todo_creation.md       ← TODO creation Round 1
     │   │   ├── round2_todo_creation.md       ← TODO creation Round 2
     │   │   ├── round3_todo_creation.md       ← Router (links to part1/part2)
@@ -509,18 +540,66 @@ Stage 6 (Execution):
 
 ---
 
-### Workflow 3: Handling a Bug
+### Workflow 3a: Handling a Missed Requirement (Known Solution - Can Happen Anytime)
 
-1. Agent discovers bug during Stage 5c (QC)
-2. Agent presents bug to user for approval
-3. User approves bug fix creation
-4. Agent reads `stages/stage_5/bugfix_workflow.md`
-5. Agent creates `bugfix_{priority}_{name}/` folder
-6. Agent creates `notes.txt` → User verifies
-7. Agent updates EPIC_README.md (pauses current work)
-8. Agent runs bug fix through: Stage 2 → 5a → 5b → 5c
-9. Bug fix complete
-10. Agent returns to paused work (resumes Stage 5c where it left off)
+**Can be discovered during:** Implementation (5a/5b/5c), QA, Debugging, Epic Testing (6a/6b/6c), User Testing (7)
+
+1. Agent discovers missing scope at ANY point after first Stage 5 starts
+2. Agent presents TWO options to user:
+   - Option 1: Create new feature_{XX}_{name}/
+   - Option 2: Update unstarted feature to include requirement
+3. User decides which approach + priority (high/medium/low) + sequence position (if new)
+4. Agent reads `stages/stage_5/missed_requirement_workflow.md`
+5. Agent pauses current work, updates EPIC_README with paused status
+6. Agent returns to planning stages:
+   - **Stage 2:** Flesh out new/updated feature spec (full deep dive)
+   - **Stage 3:** Re-align ALL features (cross-feature sanity check)
+   - **Stage 4:** Update epic_smoke_test_plan.md
+7. Planning complete → Agent resumes paused work
+8. New/updated feature waits its turn in implementation sequence
+9. When its turn comes: Implement through full Stage 5 (5a → 5b → 5c → 5d → 5e)
+10. **SPECIAL CASE - If discovered during Stage 6/7:**
+    - Complete ALL remaining features first
+    - Implement new/updated feature
+    - **RESTART epic testing from Stage 6a Step 1** (loop-back mechanism)
+
+---
+
+### Workflow 3b: Debugging Issues During QC/Smoke Testing (Integrated Loop-Back)
+
+**During Feature-Level Testing (Stage 5ca/5cb):**
+
+1. Agent runs Smoke Testing Part 3 (E2E) → Issues found
+2. Agent creates `feature_XX_{name}/debugging/` folder
+3. Agent creates ISSUES_CHECKLIST.md, adds all discovered issues
+4. Agent updates feature README.md Agent Status (entering debugging)
+5. Agent reads `debugging/debugging_protocol.md`
+6. **Phase 1:** Issue Discovery - Update checklist with issue details
+7. **Phase 2:** Investigation (PER ISSUE) - Run investigation rounds:
+   - Round 1: Code Tracing (identify 2-3 suspicious areas)
+   - Round 2: Hypothesis Formation (max 3 testable hypotheses)
+   - Round 3: Diagnostic Testing (confirm root cause with evidence)
+   - Repeat rounds if needed (max 5 rounds per issue)
+8. **Phase 3:** Solution Design & Implementation (per issue, with tests)
+9. **Phase 4:** User Verification (MANDATORY - user confirms each issue fixed)
+10. After ALL issues resolved → **Phase 5: Loop Back to Smoke Testing Part 1**
+11. Agent re-runs ALL smoke tests (Part 1, 2, 3) from beginning
+12. If NEW issues found → Back to Phase 1 (add to checklist)
+13. If ZERO issues → Proceed to Stage 5cb (QC Rounds)
+
+**During Epic-Level Testing (Stage 6a/6b):**
+
+1. Agent runs Epic Smoke Testing → Issues found
+2. Agent creates `{epic_name}/debugging/` folder (EPIC-LEVEL, not feature)
+3. Follow same 5-phase process as above
+4. After ALL issues resolved → **Loop back to Stage 6a Step 1 (Epic Smoke Testing)**
+5. If user finds bugs during Stage 7 testing → Add to epic debugging/ISSUES_CHECKLIST.md → Loop back to Stage 6a
+
+**Key Differences from v1:**
+- Debugging folder WITHIN features/epics (not separate)
+- ALWAYS loop back to START of testing (not mid-testing)
+- Feature vs epic separation for issue tracking
+- User testing bugs loop to Stage 6a (NOT Stage 7)
 
 ---
 
@@ -614,22 +693,23 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 
 ---
 
-### Q: When should I create a bug fix vs just fixing it?
+### Q: When should I enter debugging protocol vs just fixing it?
 
-**Create a bug fix when:**
-- Bug discovered during QC (Stage 5c or 6)
-- Issue affects multiple files
-- Root cause requires investigation
-- User reports an issue
-- Fix requires >30 minutes
+**Enter debugging protocol when:**
+- Issues discovered during Smoke Testing (Stage 5ca/6a) or QC Rounds (Stage 5cb/6b)
+- Root cause is UNKNOWN (requires investigation)
+- Issue affects multiple files or components
+- Multiple related issues discovered
+- User reports bugs during Stage 7 testing
 
 **Just fix it directly when:**
-- Typo or obvious mistake
-- Single-line fix
+- Typo or obvious mistake during implementation (Stage 5b)
+- Single-line fix with known cause
 - No investigation needed
 - <10 minutes to fix
+- Issue found during code review (before testing stages)
 
-**When in doubt, create a bug fix.** Better to follow the process.
+**Debugging protocol = INTEGRATED with testing stages, not separate workflow**
 
 ---
 

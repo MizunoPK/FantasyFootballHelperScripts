@@ -2,10 +2,11 @@
 
 🚨 **IMPORTANT: This guide has been split into focused sub-stages**
 
-**This is a routing guide.** The complete Round 3 workflow is now split across two focused guides:
+**This is a routing guide.** The complete Round 3 workflow is now split across four focused guides:
 
 - **STAGE_5ac Part 1**: Preparation (Iterations 17-22)
-- **STAGE_5ac Part 2**: Final Gates (Iterations 23, 23a, 25, 24)
+- **STAGE_5ac Part 2a**: Gates 1-2 (Iterations 23, 23a)
+- **STAGE_5ac Part 2b**: Gate 3 (Iterations 25, 24)
 
 **📖 Read the appropriate sub-stage guide based on your current iteration.**
 
@@ -24,10 +25,10 @@
 | Iteration 20: Performance Considerations | stages/stage_5/round3_part1_preparation.md | 10-15 min |
 | Iteration 21: Mock Audit & Integration Test Plan | stages/stage_5/round3_part1_preparation.md | 15-20 min |
 | Iteration 22: Output Consumer Validation | stages/stage_5/round3_part1_preparation.md | 10-15 min |
-| Iteration 23: Integration Gap Check (Final) | stages/stage_5/round3_part2_final_gates.md | 15-20 min |
-| Iteration 23a: Pre-Implementation Spec Audit | stages/stage_5/round3_part2_final_gates.md | 30-45 min |
-| Iteration 25: Spec Validation Against Validated Docs | stages/stage_5/round3_part2_final_gates.md | 30-60 min |
-| Iteration 24: Implementation Readiness Protocol | stages/stage_5/round3_part2_final_gates.md | 20-30 min |
+| Iteration 23: Integration Gap Check (Final) | stages/stage_5/round3_part2a_gates_1_2.md | 10 min |
+| Iteration 23a: Pre-Implementation Spec Audit | stages/stage_5/round3_part2a_gates_1_2.md | 20-30 min |
+| Iteration 25: Spec Validation Against Validated Docs | stages/stage_5/round3_part2b_gate_3.md | 20-30 min |
+| Iteration 24: Implementation Readiness Protocol | stages/stage_5/round3_part2b_gate_3.md | 10 min |
 
 ---
 
@@ -78,15 +79,13 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 
 ---
 
-### STAGE_5ac Part 2: Final Gates (Iterations 23, 23a, 25, 24)
+### STAGE_5ac Part 2a: Gates 1-2 (Iterations 23, 23a)
 
-**Read:** `stages/stage_5/round3_part2_final_gates.md`
+**Read:** `stages/stage_5/round3_part2a_gates_1_2.md`
 
 **What it covers:**
 - **Iteration 23:** Integration Gap Check (Final) (verify all new methods have callers)
 - **Iteration 23a:** Pre-Implementation Spec Audit (MANDATORY GATE - 4 PARTS: Completeness, Specificity, Interface Contracts, Integration Evidence)
-- **Iteration 25:** Spec Validation Against Validated Documents (CRITICAL GATE - prevent Feature 02 catastrophic bug)
-- **Iteration 24:** Implementation Readiness Protocol (FINAL GATE - GO/NO-GO decision)
 
 **Key Outputs:**
 - Integration gap check results (ALL methods have callers, no orphan code)
@@ -95,20 +94,40 @@ Round 3 is the final TODO verification round focused on preparation iterations (
   - Specificity Audit: Specificity = 100% (all tasks have acceptance criteria, implementation location, test coverage)
   - Interface Contracts Audit: Verification = 100% (all dependencies verified against actual source code)
   - Integration Evidence Audit: Integration = 100% (all methods have identified callers)
+
+**Time Estimate:** 30-40 minutes
+
+**When complete:** Transition to STAGE_5ac Part 2b
+
+**Why this sub-stage exists:**
+- **Contains 2 MANDATORY GATES** (Integration Gap Check, Pre-Implementation Spec Audit)
+- **Iteration 23a**: Evidence-based verification (cite specific numbers, provide proof)
+- **ALL 4 PARTS** of Iteration 23a must PASS before proceeding to Part 2b
+
+---
+
+### STAGE_5ac Part 2b: Gate 3 (Iterations 25, 24)
+
+**Read:** `stages/stage_5/round3_part2b_gate_3.md`
+
+**What it covers:**
+- **Iteration 25:** Spec Validation Against Validated Documents (CRITICAL GATE - prevent Feature 02 catastrophic bug)
+- **Iteration 24:** Implementation Readiness Protocol (FINAL GATE - GO/NO-GO decision)
+
+**Key Outputs:**
 - Spec validation results (spec.md matches ALL three validated sources):
   - Epic notes (user's original request)
   - Epic ticket (user-validated outcomes from Stage 1)
   - Spec summary (user-validated feature outcomes from Stage 2)
 - Implementation readiness decision: ✅ GO or ❌ NO-GO
 
-**Time Estimate:** 1.5-2.5 hours
+**Time Estimate:** 30-50 minutes
 
 **When complete:** If GO decision → Transition to Stage 5b (Implementation Execution)
 
 **Why this sub-stage exists:**
-- **Contains ALL 3 mandatory gates** that cannot be skipped
-- **Iteration 23a**: Evidence-based verification (cite specific numbers, provide proof)
-- **Iteration 25**: Three-way validation prevents catastrophic bugs (Feature 02 bug: spec.md misinterpreted epic notes)
+- **Contains THE CRITICAL GATE** (Iteration 25) that prevents catastrophic bugs
+- **Iteration 25**: Three-way validation prevents Feature 02 bug (spec.md misinterpreted epic notes)
 - **Iteration 24**: GO/NO-GO framework prevents implementing with incomplete planning
 - **User decision required** if any discrepancies found in Iteration 25
 - **Cannot proceed to Stage 5b** without GO decision
@@ -119,15 +138,16 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 
 **Problem:** Original Round 3 guide was 1,957 lines, making it difficult for agents to navigate efficiently.
 
-**Solution:** Split into two focused sub-stages:
-- **Part 1:** Preparation iterations (17-22) - 1,277 lines
-- **Part 2:** Final gates (23, 23a, 25, 24) - comprehensive coverage of all mandatory gates
+**Solution:** Split into THREE focused sub-stages:
+- **Part 1:** Preparation iterations (17-22) - ~900 lines
+- **Part 2a:** Gates 1-2 (23, 23a) - ~900 lines
+- **Part 2b:** Gate 3 (25, 24) - ~600 lines
 
 **Benefits:**
-- **~50% token reduction per guide** - enables better agent navigation
-- **Clear phase focus** - preparation vs validation/decision
+- **~50-70% token reduction per guide** - enables better agent navigation
+- **Clear phase focus** - preparation → integration validation → spec validation & decision
 - **Easier resumption** - after session compaction, agent can resume at correct part
-- **Mandatory gates grouped** - all 3 gates in Part 2 for clear emphasis
+- **Mandatory gates separated** - Part 2a focuses on integration, Part 2b on spec validation
 - **Better context management** - agents only load relevant content
 
 ---
@@ -137,7 +157,7 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 Round 3 contains **3 MANDATORY GATES** that CANNOT be skipped:
 
 ### Gate 1: Iteration 23a - Pre-Implementation Spec Audit (4 PARTS)
-**Location:** STAGE_5ac Part 2
+**Location:** STAGE_5ac Part 2a (round3_part2a_gates_1_2.md)
 **Purpose:** Evidence-based verification of TODO quality before implementation
 **Requirements:**
 - PART 1: Completeness Audit (Coverage = 100%)
@@ -147,7 +167,7 @@ Round 3 contains **3 MANDATORY GATES** that CANNOT be skipped:
 **Pass Criteria:** ALL 4 PARTS must show 100% metrics with evidence (cite specific numbers)
 
 ### Gate 2: Iteration 25 - Spec Validation Against Validated Documents
-**Location:** STAGE_5ac Part 2
+**Location:** STAGE_5ac Part 2b (round3_part2b_gate_3.md)
 **Purpose:** Prevent catastrophic bugs by validating spec.md against ALL user-validated sources
 **Requirements:**
 - Close spec.md first (avoid confirmation bias)
@@ -159,7 +179,7 @@ Round 3 contains **3 MANDATORY GATES** that CANNOT be skipped:
 **Pass Criteria:** Zero discrepancies with ALL three validated sources
 
 ### Gate 3: Iteration 24 - Implementation Readiness Protocol (GO/NO-GO)
-**Location:** STAGE_5ac Part 2
+**Location:** STAGE_5ac Part 2b (round3_part2b_gate_3.md)
 **Purpose:** Final decision on whether to proceed to Stage 5b implementation
 **Requirements:**
 - ALL checklist items checked (spec verification, TODO verification, iterations complete, gates passed)
@@ -181,11 +201,17 @@ STAGE_5ac Part 1: Preparation
     Iterations 17-22
     (60-90 minutes)
          ↓
-STAGE_5ac Part 2: Final Gates
-    Iterations 23, 23a, 25, 24
-    (1.5-2.5 hours)
+STAGE_5ac Part 2a: Gates 1-2
+    Iterations 23, 23a
+    (30-40 minutes)
          ↓
-    3 Mandatory Gates
+    Gates 1-2 (Integration & Spec Audit)
+         ↓
+STAGE_5ac Part 2b: Gate 3
+    Iterations 25, 24
+    (30-50 minutes)
+         ↓
+    Gate 3 (Spec Validation & GO/NO-GO)
          ↓
   GO/NO-GO Decision
          ↓

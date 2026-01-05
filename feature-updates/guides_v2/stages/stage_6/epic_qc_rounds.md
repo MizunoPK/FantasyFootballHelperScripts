@@ -1,26 +1,49 @@
 # STAGE 6b: Epic QC Rounds Guide
 
-🚨 **MANDATORY READING PROTOCOL**
+**Purpose:** Validate the epic as a cohesive whole through 3 systematic quality checks focusing on cross-feature integration and epic-wide consistency.
 
-**Before starting this stage:**
-1. Use Read tool to load THIS ENTIRE GUIDE
-2. Acknowledge critical requirements (see "Critical Rules" section below)
-3. Verify prerequisites (see "Prerequisites Checklist" section below)
-4. Update epic EPIC_README.md Agent Status with guide name + timestamp
+**Stage Flow Context:**
+```
+Stage 6a (Epic Smoke Testing) →
+→ [YOU ARE HERE: Stage 6b - Epic QC Rounds] →
+→ Stage 6c (Epic PR Review) → Stage 7
+```
 
-**DO NOT proceed without reading this guide.**
+---
 
-**After session compaction:**
-- Check EPIC_README.md Agent Status for current step
-- READ THIS GUIDE again (full guide, not summary)
-- Continue from "Next Action" in Agent Status
+## 🚨 MANDATORY READING PROTOCOL
+
+**BEFORE starting Epic QC Rounds, you MUST:**
+
+1. **Read the QC rounds pattern:** `reference/qc_rounds_pattern.md`
+   - Understand universal 3-round QC workflow
+   - Review critical rules that apply to ALL QC rounds
+   - Study restart protocol and common mistakes
+
+2. **Use the phase transition prompt** from `prompts/stage_6_prompts.md`
+   - Find "Starting Stage 6: Epic Final QC" prompt (covers both 6a and 6b)
+   - Acknowledge requirements
+   - List critical requirements from this guide
+
+3. **Update EPIC_README.md Agent Status** with:
+   - Current Stage: Stage 6b - Epic QC Rounds
+   - Current Guide: stages/stage_6/epic_qc_rounds.md
+   - Guide Last Read: {YYYY-MM-DD HH:MM}
+   - Critical Rules: "3 rounds MANDATORY", "If critical issues → RESTART Stage 6a", "Minor issues can be fixed inline"
+   - Next Action: QC Round 1 - Cross-Feature Integration
+
+4. **Verify all prerequisites** (see checklist below)
+
+5. **THEN AND ONLY THEN** begin epic QC rounds
+
+**This is NOT optional.** Reading both the pattern and this guide ensures epic-wide validation.
 
 ---
 
 ## Quick Start
 
 **What is this stage?**
-Epic QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (Stage 5c), these rounds focus on epic-wide patterns, architectural consistency, and validation against the original epic request.
+Epic-level QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (Stage 5cb), these rounds focus on epic-wide patterns and architectural consistency. See `reference/qc_rounds_pattern.md` for universal workflow.
 
 **When do you use this guide?**
 - After STAGE_6a complete (Epic Smoke Testing passed)
@@ -42,75 +65,46 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 
 ---
 
-## Critical Rules
+## 🛑 Critical Rules (Epic-Specific)
+
+**📖 See `reference/qc_rounds_pattern.md` for universal critical rules.**
+
+**Epic-specific rules for Stage 6b:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ CRITICAL RULES - These MUST be copied to README Agent Status │
+│ EPIC-SPECIFIC RULES - Add to EPIC_README Agent Status       │
 └─────────────────────────────────────────────────────────────┘
 
-1. ⚠️ ALL 3 QC rounds are MANDATORY (cannot skip any)
-   - Round 1: Cross-Feature Integration
-   - Round 2: Epic Cohesion & Consistency
-   - Round 3: End-to-End Success Criteria
-   - Must complete rounds in order (1 → 2 → 3)
+1. ⚠️ Epic Issue Handling (Different from feature-level)
+   - Critical issues → Follow epic debugging protocol → RESTART Stage 6a
+   - Minor issues → Fix immediately, document, continue (no restart)
+   - Epic issues go to: epic_name/debugging/ISSUES_CHECKLIST.md
 
-2. ⚠️ If ANY round finds critical issues → Create bug fixes, RESTART Stage 6
-   - Critical issue: Integration point fails, success criterion not met
-   - After bug fix → RESTART from STAGE_6a (smoke testing)
-   - Re-run: Smoke testing → QC 1 → QC 2 → QC 3
+2. ⚠️ QC RESTART PROTOCOL (Epic-specific)
+   - If Round 1: Critical integration issues → RESTART from Stage 6a
+   - If Round 2: Critical consistency issues → RESTART from Stage 6a
+   - If Round 3: Critical success criteria failures → RESTART from Stage 6a
+   - Minor issues: Fix inline, document, continue
+   - Restart destination: Stage 6a (Epic Smoke Testing)
 
-3. ⚠️ Minor issues can be fixed immediately without restart
-   - Minor issue: Naming inconsistency, comment improvement
-   - Fix immediately, re-run affected tests
-   - Document fix in epic_lessons_learned.md
-   - Continue to next round (no full restart)
+3. ⚠️ Focus on EPIC-LEVEL validation (not feature-level)
+   - Feature-level QC done in Stage 5cb
+   - Epic-level focuses on: Integration, consistency, cohesion
+   - Compare ACROSS ALL features (not individual features)
 
-4. ⚠️ ALL success criteria must be met 100%
-   - If criterion was in original epic request or spec → REQUIRED
-   - No "nice to have" or "optional" requirements
-   - If cannot meet → Get user approval to remove from scope
-   - Do NOT leave requirements unimplemented
-
-5. ⚠️ Document findings for EACH round
+4. ⚠️ Document findings for EACH round
    - Update epic_lessons_learned.md after each round
    - Include: Issues found, fixes applied, status
    - Serves as evidence of thorough QC
-
-6. ⚠️ Focus on EPIC-LEVEL validation (not feature-level)
-   - Feature-level QC done in Stage 5c
-   - Epic-level focuses on: Integration, consistency, cohesion
-   - Compare across ALL features (not individual features)
 ```
 
----
-
-## Critical Decisions Summary
-
-**This stage has ONE critical decision point per round:**
-
-### Decision Point 1: QC Round 1 Result (PASS/FAIL)
-
-**Question:** Did QC Round 1 find critical issues?
-- **If ZERO critical issues:** Continue to Round 2
-- **If critical issues found:** Create bug fixes, RESTART Stage 6 from 6a
-- **Impact:** Critical integration issues require full restart
-
-### Decision Point 2: QC Round 2 Result (PASS/MINOR/FAIL)
-
-**Question:** Did QC Round 2 find issues?
-- **If ZERO issues:** Continue to Round 3
-- **If MINOR issues:** Fix immediately, continue to Round 3 (no restart)
-- **If CRITICAL issues:** Create bug fixes, RESTART Stage 6 from 6a
-- **Impact:** Minor consistency issues can be fixed inline, critical require restart
-
-### Decision Point 3: QC Round 3 Result (PASS/FAIL)
-
-**Question:** Did ALL success criteria pass?
-- **If ALL criteria met:** Proceed to STAGE_6c
-- **If ANY criteria not met:** Determine acceptability, fix or get user approval
-- **If critical failures:** Create bug fixes, RESTART Stage 6 from 6a
-- **Impact:** Unmet success criteria may invalidate epic implementation
+**Universal rules (from pattern file):**
+- All 3 rounds mandatory
+- Each round has unique focus
+- Verify DATA VALUES (not just structure)
+- Re-reading checkpoints mandatory
+- See `reference/qc_rounds_pattern.md` for complete list
 
 ---
 
@@ -118,24 +112,24 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 
 **Before starting Epic QC Rounds (STAGE_6b), verify:**
 
-□ **STAGE_6a complete:**
-  - Epic smoke testing PASSED (all 4 parts)
-  - Epic smoke test results documented
-  - No smoke testing failures
+**STAGE_6a complete:**
+- [ ] Epic smoke testing PASSED (all 4 parts)
+- [ ] Epic smoke test results documented
+- [ ] No smoke testing failures
 
-□ **Epic smoke test plan executed:**
-  - All import tests passed
-  - All entry point tests passed
-  - All E2E execution tests passed with DATA VALUES verified
-  - All cross-feature integration tests passed
+**Epic smoke test plan executed:**
+- [ ] All import tests passed
+- [ ] All entry point tests passed
+- [ ] All E2E execution tests passed with DATA VALUES verified
+- [ ] All cross-feature integration tests passed
 
-□ **Agent Status updated:**
-  - EPIC_README.md shows STAGE_6a complete
-  - Current guide: stages/stage_6/epic_qc_rounds.md
+**Agent Status updated:**
+- [ ] EPIC_README.md shows STAGE_6a complete
+- [ ] Current guide: stages/stage_6/epic_qc_rounds.md
 
-□ **Original epic request available:**
-  - Have access to {epic_name}.txt
-  - Can reference original goals for Round 3
+**Original epic request available:**
+- [ ] Have access to {epic_name}.txt
+- [ ] Can reference original goals for Round 3
 
 **If any prerequisite fails:**
 - ❌ Do NOT start Epic QC Rounds
@@ -146,1339 +140,545 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 
 ## Workflow Overview
 
+**📖 See `reference/qc_rounds_pattern.md` for universal workflow details.**
+
+**Epic-specific workflow for Stage 6b:**
+
 ```
-STAGE 6b: Epic QC Rounds
-│
-├─> QC ROUND 1: Cross-Feature Integration
-│   ├─ Integration point validation
-│   ├─ Data flow across features
-│   ├─ Interface compatibility
-│   ├─ Error propagation handling
-│   └─ Document findings
-│
-├─> QC ROUND 2: Epic Cohesion & Consistency
-│   ├─ Code style consistency
-│   ├─ Naming convention consistency
-│   ├─ Error handling consistency
-│   ├─ Architectural pattern consistency
-│   └─ Document findings
-│
-├─> QC ROUND 3: End-to-End Success Criteria
-│   ├─ Validate against original epic request
-│   ├─ Verify epic success criteria (from Stage 4)
-│   ├─ User experience flow validation
-│   ├─ Performance characteristics
-│   └─ Document findings
-│
-└─> Decision: QC Rounds Result
-    ├─ ALL PASSED → Proceed to STAGE_6c
-    ├─ MINOR ISSUES → Fix, document, proceed to 6c
-    └─ CRITICAL ISSUES → Create bug fixes, RESTART Stage 6
+┌─────────────────────────────────────────────────────────────┐
+│           EPIC-LEVEL QC ROUNDS (3 Rounds)                   │
+└─────────────────────────────────────────────────────────────┘
+
+Round 1: Cross-Feature Integration (10-20 min)
+   ↓ Integration points, data flow, interface compatibility
+   ↓ Pass: Zero critical integration issues
+   ↓
+   If PASS → Round 2
+   If CRITICAL ISSUES → Fix, RESTART from Stage 6a
+
+Round 2: Epic Cohesion & Consistency (10-20 min)
+   ↓ Code style, naming, error handling, architectural patterns
+   ↓ Pass: Zero critical consistency issues
+   ↓
+   If PASS → Round 3
+   If CRITICAL ISSUES → Fix, RESTART from Stage 6a
+   If MINOR ISSUES → Fix inline, continue
+
+Round 3: End-to-End Success Criteria (10-20 min)
+   ↓ Validate against original epic request
+   ↓ Verify epic success criteria met
+   ↓ Pass: All criteria met
+   ↓
+   If PASS → Epic QC complete, proceed to Stage 6c
+   If CRITICAL FAILURES → Fix, RESTART from Stage 6a
 ```
 
 ---
 
 ## QC Round 1: Cross-Feature Integration
 
+**📖 See `reference/qc_rounds_pattern.md` for universal Round 1 patterns.**
+
 **Objective:** Validate integration points between features work correctly.
 
 **Time Estimate:** 10-20 minutes
 
+**Pass Criteria:** Zero critical integration issues
+
 ---
 
-### Step 1.1: Integration Point Validation
+### Validation 1.1: Integration Point Validation
 
 **Review integration points identified in Stage 4 epic_smoke_test_plan.md:**
 
 **Find integration points section:**
 ```markdown
-## Cross-Feature Integration Points
+## Integration Points (example from test plan)
+1. Feature 01 (PlayerDataManager) → Feature 02 (RatingSystem)
+   - Data flow: Player objects with ADP → Rating system
+   - Interface: get_all_players() returns List[Player]
 
-1. **Feature 01 → Feature 02:**
-   - Feature 01 provides: `adp_multiplier` (float)
-   - Feature 02 consumes: Used in matchup score calculation
-   - Interface: `get_adp_multiplier(player_name: str) -> float`
-
-2. **Feature 02 → Feature 03:**
-   - Feature 02 provides: `matchup_difficulty` (str: 'easy'/'medium'/'hard')
-   - Feature 03 consumes: Logged in performance tracking
-   - Interface: `get_matchup_difficulty(player_name: str, week: int) -> str`
-
-3. **Feature 03 → Feature 01:**
-   - Feature 03 provides: `accuracy_score` (float 0-100)
-   - Feature 01 consumes: Adjusts ADP confidence
-   - Interface: `get_accuracy_score(player_name: str) -> float`
+2. Feature 02 (RatingSystem) → Feature 03 (RecommendationEngine)
+   - Data flow: Rated players → Recommendation generation
+   - Interface: get_rated_players() returns List[RatedPlayer]
 ```
 
-**Validation Questions for EACH integration point:**
+**For EACH integration point, verify:**
 
-1. **Do integration points use correct interfaces?**
-   - ✅ Verify method signatures match between provider and consumer
-   - ✅ Check parameter types are compatible
-   - ✅ Verify return types match expectations
-
-2. **Is data passed in expected format?**
-   - ✅ Test with real data (not just types)
-   - ✅ Verify data ranges are acceptable
-   - ✅ Check for data corruption or transformation errors
-
-3. **Are edge cases handled?**
-   - ✅ What if provider returns None?
-   - ✅ What if provider raises exception?
-   - ✅ What if data is missing or invalid?
-
-4. **Do features gracefully degrade if dependency unavailable?**
-   - ✅ Test with Feature 01 disabled → Does Feature 02 crash or degrade?
-   - ✅ Verify error messages are helpful
-   - ✅ Check that epic continues with reduced functionality
-
-**Document validation:**
-```markdown
-### Integration Point 1: Feature 01 → Feature 02
-
-**Interface:** `get_adp_multiplier(player_name: str) -> float`
-
-**Validation Results:**
-- Interface match: ✅ PASS (signatures compatible)
-- Data format: ✅ PASS (float in expected range 0.5-1.5)
-- Edge case (None): ✅ PASS (returns 1.0 as default)
-- Edge case (exception): ✅ PASS (logs error, returns default)
-- Graceful degradation: ✅ PASS (Feature 02 works without ADP data)
-
-**Status:** ✅ VALIDATED
-```
-
----
-
-### Step 1.2: Data Flow Across Features
-
-**Trace data flow through a complete epic workflow:**
-
-**Example Trace (Draft Workflow):**
-```
-User Input: python run_league_helper.py --mode draft --week 5
-  ↓
-Feature 01 (ADP Integration):
-  - Fetch ADP data from CSV
-  - Calculate adp_multiplier for each player
-  - Output: player_data['adp_multiplier'] = 1.15
-  ↓
-Feature 02 (Matchup System):
-  - Fetch matchup data from API
-  - Calculate matchup_difficulty
-  - Consume ADP multiplier from Feature 01
-  - Combine: final_score = base * adp_mult * matchup_mult
-  - Output: player_data['final_score'] = base * 1.15 * 0.85
-  ↓
-Feature 03 (Performance Tracker):
-  - Log player selection with all data
-  - Record: ADP rank, matchup difficulty, final score
-  - Update historical accuracy
-  - Output: performance_log.csv updated
-  ↓
-Final Output: Ranked draft recommendations with all features integrated
-```
-
-**Validation Steps:**
-
-1. **Execute complete workflow with real data:**
-   ```bash
-   python run_league_helper.py --mode draft --week 5 --debug
-   ```
-
-2. **Verify data at each step:**
-   ```python
-   # After Feature 01
-   assert 'adp_multiplier' in player_data
-   assert 0.5 <= player_data['adp_multiplier'] <= 1.5
-
-   # After Feature 02
-   assert 'matchup_multiplier' in player_data
-   assert player_data['final_score'] == (
-       player_data['base_score'] *
-       player_data['adp_multiplier'] *
-       player_data['matchup_multiplier']
-   )
-
-   # After Feature 03
-   assert performance_log_updated()
-   assert 'adp_rank' in log_entry
-   assert 'matchup_difficulty' in log_entry
-   ```
-
-3. **Check for data loss or corruption:**
-   - ✅ No data dropped between features
-   - ✅ No precision loss in calculations
-   - ✅ All required fields present in final output
-
-**Document findings:**
-```markdown
-### Data Flow Validation
-
-**Workflow Tested:** Draft mode, Week 5
-
-**Data Flow Trace:**
-- User Input → Feature 01: ✅ Data received correctly
-- Feature 01 → Feature 02: ✅ ADP multiplier passed correctly
-- Feature 02 → Feature 03: ✅ Matchup data passed correctly
-- Feature 03 → Output: ✅ All data present in final output
-
-**Data Integrity:**
-- No data loss: ✅ VERIFIED
-- No corruption: ✅ VERIFIED
-- Precision maintained: ✅ VERIFIED
-
-**Status:** ✅ PASSED
-```
-
----
-
-### Step 1.3: Interface Compatibility
-
-**Review interfaces between features in detail:**
-
-**For EACH interface, verify:**
-
-**Example Interface Review:**
 ```python
-# Feature 01 provides:
-def get_adp_multiplier(player_name: str, position: str) -> Tuple[float, int]:
-    """
-    Get ADP-based multiplier for a player.
+# Integration Test: Feature 01 → Feature 02
+from feature_01.PlayerDataManager import PlayerDataManager
+from feature_02.RatingSystem import RatingSystem
 
-    Args:
-        player_name: Full player name (e.g., "Patrick Mahomes")
-        position: Player position (QB, RB, WR, TE, K)
+# Get data from Feature 01
+player_mgr = PlayerDataManager()
+players = player_mgr.get_all_players()
 
-    Returns:
-        Tuple[float, int]: (multiplier, adp_rank)
-        - multiplier: 0.5-1.5 range, 1.0 = average
-        - adp_rank: 1-500, lower is better
+# Verify data format
+assert len(players) > 0, "Feature 01 returned no data"
+assert hasattr(players[0], 'adp'), "Players missing ADP field"
 
-    Raises:
-        DataProcessingError: If player not found in ADP data
-    """
-    pass
+# Pass to Feature 02
+rating_sys = RatingSystem()
+rated_players = rating_sys.apply_ratings(players)
 
-# Feature 02 consumes:
-def calculate_matchup_score(
-    player: FantasyPlayer,
-    adp_data: Tuple[float, int]
-) -> float:
-    """
-    Calculate matchup score with ADP adjustment.
+# Verify integration works
+assert len(rated_players) == len(players), "Data lost in integration"
+assert all(hasattr(p, 'rating') for p in rated_players), "Ratings not applied"
 
-    Args:
-        player: FantasyPlayer object
-        adp_data: Tuple from get_adp_multiplier (multiplier, rank)
-
-    Returns:
-        float: Matchup-adjusted score
-    """
-    multiplier, rank = adp_data  # Expects tuple
-    pass
+print("✅ Feature 01 → Feature 02 integration validated")
 ```
 
-**Validation Checklist:**
-- [ ] Type signatures match between provider and consumer
-- [ ] Parameter names are clear and consistent
-- [ ] Return values documented and understood by consumers
-- [ ] Error handling for invalid inputs
-- [ ] Docstrings explain interface contract
-- [ ] Examples provided for complex interfaces
+**Check ALL integration points** (not just one example)
 
-**Common Interface Issues to Check:**
+---
 
-1. **Type Mismatch:**
-   ```python
-   # Feature 01 returns:
-   return 1.15  # float
+### Validation 1.2: Data Flow Across Features
 
-   # Feature 02 expects:
-   multiplier, rank = adp_data  # Expects tuple - MISMATCH!
-   ```
+**Verify data flows correctly through feature chain:**
 
-2. **Parameter Order:**
-   ```python
-   # Feature 01 signature:
-   get_data(player_name, position)
+```python
+# Complete data flow: Feature 01 → 02 → 03
+from feature_01.PlayerDataManager import PlayerDataManager
+from feature_02.RatingSystem import RatingSystem
+from feature_03.RecommendationEngine import RecommendationEngine
 
-   # Feature 02 calls:
-   get_data(position, player_name)  # WRONG ORDER!
-   ```
+# Step 1: Get raw data
+players = PlayerDataManager().get_all_players()
 
-3. **Missing Error Handling:**
-   ```python
-   # Feature 01 may raise DataProcessingError
-   # Feature 02 doesn't catch it - ERROR PROPAGATES!
-   ```
+# Step 2: Apply ratings
+rated_players = RatingSystem().apply_ratings(players)
 
-**Document findings:**
-```markdown
-### Interface Compatibility Review
+# Step 3: Generate recommendations
+recommendations = RecommendationEngine().generate(rated_players)
 
-**Interfaces Reviewed:** 5
+# Verify complete flow
+assert len(recommendations) > 0, "No recommendations generated"
+assert recommendations[0]['player_name'] in [p.name for p in players], "Lost player data"
+assert 'rating' in recommendations[0], "Lost rating data"
+assert 'draft_position' in recommendations[0], "Missing final output"
 
-**Compatibility Issues Found:** 0
-
-**Interface Status:**
-- Feature 01 → Feature 02: ✅ COMPATIBLE
-- Feature 02 → Feature 03: ✅ COMPATIBLE
-- Feature 03 → Feature 01: ✅ COMPATIBLE
-- Shared utilities: ✅ COMPATIBLE
-- Error interfaces: ✅ COMPATIBLE
-
-**Status:** ✅ PASSED
+print("✅ Complete data flow validated")
 ```
 
 ---
 
-### Step 1.4: Error Propagation Handling
+### Validation 1.3: Interface Compatibility
 
-**Test error propagation across features:**
+**Verify features use compatible interfaces:**
 
-**Error Scenarios to Test:**
-
-**Scenario 1: Feature 01 Fails to Fetch ADP Data**
 ```python
-# Simulate ADP data unavailable
-# What happens?
-# Expected: Feature 02 should NOT crash, should use default multiplier
+# Check Feature 02 accepts Feature 01's output format
+from feature_01.PlayerDataManager import Player
+from feature_02.RatingSystem import RatingSystem
 
-# Test:
-python run_league_helper.py --mode draft --week 5 --simulate-adp-failure
+# Create sample player (Feature 01 format)
+sample_player = Player(name="Test", position="QB", adp=50.0)
 
-# Verify:
-# - Feature 02 continues execution
-# - Default multiplier (1.0) used
-# - Error logged (not silent failure)
-# - User sees warning: "ADP data unavailable, using default values"
-```
+# Verify Feature 02 can process it
+rating_sys = RatingSystem()
+result = rating_sys.rate_player(sample_player)
 
-**Scenario 2: Feature 02 Raises Invalid Matchup Data Exception**
-```python
-# Simulate invalid matchup data
-# What happens?
-# Expected: Epic should log error, continue with degraded functionality
+assert result is not None, "Feature 02 rejected Feature 01 format"
+assert hasattr(result, 'rating'), "Feature 02 didn't add rating"
 
-# Test:
-python run_league_helper.py --mode draft --week 5 --simulate-matchup-error
-
-# Verify:
-# - Epic doesn't crash
-# - Feature 03 still records data (even without matchup info)
-# - Error message identifies which feature failed
-# - Epic output includes note about degraded data
-```
-
-**Scenario 3: Feature 03 Cannot Write to Performance Log**
-```python
-# Simulate permission error on log file
-# What happens?
-# Expected: Draft recommendations still generated, error logged
-
-# Test:
-python run_league_helper.py --mode draft --week 5 --readonly-log
-
-# Verify:
-# - Draft recommendations complete
-# - Error logged: "Performance tracking failed: Permission denied"
-# - Epic continues with reduced functionality
-```
-
-**Validation Checklist:**
-- [ ] Errors don't cascade (one feature failure ≠ epic failure)
-- [ ] Error messages identify which feature failed
-- [ ] Epic continues with degraded functionality (if possible)
-- [ ] User-facing errors are helpful (not technical stack traces)
-- [ ] Errors logged for debugging
-- [ ] Retry logic appropriate (for transient failures)
-
-**Document findings:**
-```markdown
-### Error Propagation Testing
-
-**Scenarios Tested:** 3
-
-**Results:**
-- ADP data failure: ✅ HANDLED GRACEFULLY (default values used)
-- Matchup error: ✅ HANDLED GRACEFULLY (epic continues with warning)
-- Performance log failure: ✅ HANDLED GRACEFULLY (draft still works)
-
-**Error Handling Quality:**
-- No cascade failures: ✅ VERIFIED
-- Clear error messages: ✅ VERIFIED
-- Graceful degradation: ✅ VERIFIED
-- User-friendly errors: ✅ VERIFIED
-
-**Status:** ✅ PASSED
+print("✅ Interface compatibility verified")
 ```
 
 ---
 
-### Step 1.5: Document QC Round 1 Findings
+### Validation 1.4: Error Propagation Handling
 
-**Update epic_lessons_learned.md:**
+**Test error handling at integration boundaries:**
 
-```markdown
----
+```python
+# Test error propagates correctly
+from feature_02.RatingSystem import RatingSystem
 
-## Stage 6b - QC Round 1 Findings (Cross-Feature Integration)
-
-**Date:** {YYYY-MM-DD}
-**Round:** 1 of 3
-**Focus:** Cross-feature integration validation
-
-**Integration Points Reviewed:** 5
-**Issues Found:** {0 or list}
-**Status:** {✅ PASSED / ⚠️ MINOR ISSUES / ❌ CRITICAL ISSUES}
-
-### Integration Point Summary
-
-**Feature 01 → Feature 02 (ADP to Matchup):**
-- Interface: ✅ Compatible
-- Data flow: ✅ Correct
-- Error handling: ✅ Graceful degradation
-
-**Feature 02 → Feature 03 (Matchup to Performance):**
-- Interface: ✅ Compatible
-- Data flow: ✅ Correct
-- Error handling: ✅ Graceful degradation
-
-**Feature 03 → Feature 01 (Performance to ADP):**
-- Interface: ✅ Compatible
-- Data flow: ✅ Correct
-- Error handling: ✅ Graceful degradation
-
-### Data Flow Validation
-
-**Workflow:** Draft mode, Week 5
-- User Input → Features: ✅ Data received correctly
-- Feature chaining: ✅ All data passed correctly
-- Final output: ✅ All features integrated
-
-### Error Propagation Testing
-
-**Scenarios Tested:** 3
-- ADP failure: ✅ Handled gracefully
-- Matchup error: ✅ Handled gracefully
-- Log failure: ✅ Handled gracefully
-
-### Issues Found
-
-{If ZERO issues:}
-**No issues found.** All integration points validated successfully.
-
-{If issues found:}
-**Issue 1:** {Description}
-- Severity: {CRITICAL / MINOR}
-- Fix: {What was done OR bug fix created}
-
-### Next Steps
-
-{If PASSED:}
-**Action:** Proceed to QC Round 2 (Epic Cohesion & Consistency)
-
-{If CRITICAL ISSUES:}
-**Action:** Create bug fixes, RESTART Stage 6 from STAGE_6a
-**Bug Fixes:** {list}
+try:
+    invalid_data = None
+    RatingSystem().apply_ratings(invalid_data)
+    assert False, "Should have raised error for invalid data"
+except ValueError as e:
+    assert "Invalid player data" in str(e), "Error message unclear"
+    print("✅ Error propagation works")
 ```
 
-**If CRITICAL issues found:**
-- STOP - Do not proceed to Round 2
-- Create bug fixes for integration issues
-- After bug fixes complete → RESTART Stage 6 from STAGE_6a
-- Re-run: Smoke testing → QC 1 → QC 2 → QC 3
+---
 
-**If MINOR issues found:**
-- Fix immediately (if simple, like comment update)
-- Document fix in findings
+### Round 1 Checkpoint
+
+**Count critical integration issues:**
+
+**Critical integration issues:**
+- Integration point fails (data doesn't flow)
+- Interface incompatibilities (type mismatches)
+- Data loss during integration
+- Error propagation failures
+
+**Minor issues (can fix inline):**
+- Suboptimal error messages
+- Missing validation at boundaries
+- Documentation gaps
+
+**If Round 1 has CRITICAL issues:**
+1. Document ALL critical issues
+2. Follow epic debugging protocol
+3. **RESTART from Stage 6a (epic smoke testing)**
+
+**If Round 1 has only MINOR issues:**
+- Fix immediately
+- Document in epic_lessons_learned.md
 - Continue to Round 2
 
-**If NO issues found:**
-- Document "No issues found"
+**If Round 1 has ZERO issues:**
+- Document clean pass in epic_lessons_learned.md
 - Proceed to Round 2
 
 ---
 
 ## QC Round 2: Epic Cohesion & Consistency
 
-**Objective:** Validate epic maintains consistency across all features.
+**📖 See `reference/qc_rounds_pattern.md` for universal Round 2 patterns.**
+
+**Objective:** Validate epic cohesion and consistency across all features.
 
 **Time Estimate:** 10-20 minutes
 
+**Pass Criteria:** Zero critical consistency issues
+
 ---
 
-### Step 2.1: Code Style Consistency
+### Validation 2.1: Code Style Consistency
 
-**Review code style across ALL feature implementations:**
+**Check code style is consistent across ALL features:**
 
-**Consistency Checks:**
+**Sample files from each feature:**
+```python
+# Feature 01 sample
+from feature_01.PlayerDataManager import PlayerDataManager
 
-1. **Naming Conventions:**
-   ```python
-   # Check: Do all features use same naming pattern?
+# Feature 02 sample
+from feature_02.RatingSystem import RatingSystem
 
-   # Feature 01:
-   def get_adp_multiplier(...)  # Uses "get_" prefix
+# Feature 03 sample
+from feature_03.RecommendationEngine import RecommendationEngine
+```
 
-   # Feature 02:
-   def get_matchup_difficulty(...)  # ✅ Also uses "get_" prefix
+**Check consistency:**
+- ✅ Import style consistent (absolute vs relative)
+- ✅ Naming conventions consistent (snake_case, PascalCase)
+- ✅ Docstring style consistent (Google style)
+- ✅ Error handling style consistent (custom exceptions vs standard)
 
-   # Feature 03:
-   def fetch_performance_data(...)  # ❌ Uses "fetch_" prefix - INCONSISTENT!
-   ```
+**If inconsistencies found:**
+- **Critical:** Core architectural inconsistencies → RESTART
+- **Minor:** Naming/style variations → Fix inline, document
 
-2. **File Organization:**
-   ```
-   # Check: Do all features follow same structure?
+---
 
-   feature_01_adp_integration/
-     ├── adp_manager.py           # Manager pattern
-     ├── adp_data_loader.py       # Data loader
-     └── tests/test_adp_manager.py
+### Validation 2.2: Naming Convention Consistency
 
-   feature_02_matchup_system/
-     ├── matchup_manager.py       # ✅ Manager pattern
-     ├── matchup_data_loader.py   # ✅ Data loader
-     └── tests/test_matchup_manager.py
+**Check naming is consistent across features:**
 
-   feature_03_performance_tracker/
-     ├── tracker.py               # ❌ NOT using Manager pattern - INCONSISTENT!
-     ├── data_loader.py
-     └── tests/test_tracker.py
-   ```
+```python
+# Check method naming patterns
+# All features should use similar naming for similar operations
 
-3. **Import Style:**
-   ```python
-   # Check: Do all features use same import format?
+# Feature 01: get_all_players()
+# Feature 02: get_rated_players()  ✅ Consistent "get_XXX_players()" pattern
+# Feature 03: get_recommendations()  ❌ Different pattern
 
-   # Feature 01:
-   from typing import Dict, List, Tuple
-   from pathlib import Path
-
-   # Feature 02:
-   from typing import Dict, List, Tuple
-   from pathlib import Path
-   # ✅ Same style
-
-   # Feature 03:
-   import typing
-   import os  # ❌ Uses os instead of Path - INCONSISTENT!
-   ```
-
-4. **Docstring Style:**
-   ```python
-   # Check: Do all features use same docstring format?
-
-   # Feature 01:
-   def get_data(player_name: str) -> float:
-       """
-       Get data for player.
-
-       Args:
-           player_name: Player name
-
-       Returns:
-           float: Data value
-       """
-   # Uses Google-style docstrings
-
-   # Feature 02:
-   def get_matchup(player: str) -> str:
-       """Get matchup difficulty for player"""
-   # ❌ One-line docstring, no Args/Returns - INCONSISTENT!
-   ```
-
-**Document findings:**
-```markdown
-### Code Style Consistency
-
-**Areas Reviewed:** 4
-
-**Findings:**
-- Naming conventions: ⚠️ INCONSISTENT ("get_" vs "fetch_" prefix)
-  - Fix: Renamed fetch_performance_data → get_performance_data
-- File organization: ⚠️ INCONSISTENT (tracker.py vs manager pattern)
-  - Fix: Renamed tracker.py → performance_manager.py
-- Import style: ⚠️ INCONSISTENT (os vs Path)
-  - Fix: Updated to use Path consistently
-- Docstring style: ⚠️ INCONSISTENT (Google-style vs one-line)
-  - Fix: Updated all docstrings to Google-style
-
-**Status:** ⚠️ MINOR ISSUES (fixed inline)
+# If different, decide:
+# - Critical (confusing, breaks expectations) → RESTART
+# - Minor (just different, still clear) → Document, accept
 ```
 
 ---
 
-### Step 2.2: Naming Convention Consistency
+### Validation 2.3: Error Handling Consistency
 
-**Review naming across features:**
+**Check error handling is consistent:**
 
-**Consistency Checks:**
+```python
+# Do all features use same error handling approach?
 
-1. **Variable Names:**
-   ```python
-   # Check: Similar concepts use similar names
+# Feature 01
+try:
+    data = load_data()
+except FileNotFoundError:
+    raise DataProcessingError("Player data file not found")
 
-   # Feature 01:
-   player_name = "Patrick Mahomes"
+# Feature 02
+try:
+    config = load_config()
+except FileNotFoundError:
+    raise DataProcessingError("Rating config not found")  # ✅ Consistent
 
-   # Feature 02:
-   player_name = "Patrick Mahomes"  # ✅ Consistent
-
-   # Feature 03:
-   player_id = "Patrick Mahomes"  # ❌ INCONSISTENT (id vs name)
-   ```
-
-2. **Abbreviations:**
-   ```python
-   # Check: Abbreviations are consistent
-
-   # Feature 01:
-   adp_rank = 5  # Uses lowercase "adp"
-
-   # Feature 02:
-   ADP_MULTIPLIER = 1.15  # ❌ Uses uppercase "ADP" - INCONSISTENT!
-
-   # Should be: adp_multiplier = 1.15
-   ```
-
-3. **File Naming:**
-   ```
-   # Check: File naming follows same pattern
-
-   feature_01_adp_integration/
-     ├── adp_manager.py           # Uses underscore, lowercase
-
-   feature_02_matchup_system/
-     ├── matchup_manager.py       # ✅ Consistent
-
-   feature_03_performance_tracker/
-     ├── PerformanceManager.py    # ❌ PascalCase - INCONSISTENT!
-   ```
-
-**Document findings:**
-```markdown
-### Naming Convention Consistency
-
-**Areas Reviewed:** 3
-
-**Findings:**
-- Variable names: ⚠️ INCONSISTENT (player_name vs player_id)
-  - Fix: Standardized on player_name across all features
-- Abbreviations: ⚠️ INCONSISTENT (adp vs ADP)
-  - Fix: Standardized on lowercase (adp, csv, api)
-- File naming: ⚠️ INCONSISTENT (snake_case vs PascalCase)
-  - Fix: Renamed PerformanceManager.py → performance_manager.py
-
-**Status:** ⚠️ MINOR ISSUES (fixed inline)
+# Feature 03
+try:
+    settings = load_settings()
+except FileNotFoundError:
+    return None  # ❌ Different (returns None vs raises error)
 ```
+
+**Verify:**
+- ✅ All features use same error hierarchy
+- ✅ Error messages follow same format
+- ✅ Error handling at boundaries is consistent
 
 ---
 
-### Step 2.3: Error Handling Consistency
+### Validation 2.4: Architectural Pattern Consistency
 
-**Review error handling patterns:**
+**Check architectural patterns are consistent:**
 
-**Consistency Checks:**
+**Design patterns used:**
+- Feature 01: Manager pattern (PlayerDataManager)
+- Feature 02: System pattern (RatingSystem)
+- Feature 03: Engine pattern (RecommendationEngine)
 
-1. **Error Classes:**
-   ```python
-   # Check: All features use same error classes
-
-   # Feature 01:
-   raise DataProcessingError(f"ADP data not found for {player_name}")
-
-   # Feature 02:
-   raise DataProcessingError(f"Matchup data not found for {player_name}")
-   # ✅ Same error class
-
-   # Feature 03:
-   raise ValueError(f"Performance data not found")
-   # ❌ Uses ValueError instead of DataProcessingError - INCONSISTENT!
-   ```
-
-2. **Error Messages:**
-   ```python
-   # Check: Error messages follow same format
-
-   # Feature 01:
-   f"ADP data not found for {player_name}"  # Format: "{What} not found for {who}"
-
-   # Feature 02:
-   f"Matchup data not found for {player_name}"  # ✅ Same format
-
-   # Feature 03:
-   f"No performance data: {player_name}"  # ❌ Different format - INCONSISTENT!
-   ```
-
-3. **Logging Levels:**
-   ```python
-   # Check: Similar errors use same logging level
-
-   # Feature 01:
-   logger.error(f"Failed to fetch ADP data: {error}")
-
-   # Feature 02:
-   logger.warning(f"Failed to fetch matchup data: {error}")
-   # ❌ Uses WARNING for same severity - INCONSISTENT!
-
-   # Should use ERROR for data fetch failures consistently
-   ```
-
-**Document findings:**
-```markdown
-### Error Handling Consistency
-
-**Areas Reviewed:** 3
-
-**Findings:**
-- Error classes: ⚠️ INCONSISTENT (DataProcessingError vs ValueError)
-  - Fix: Updated Feature 03 to use DataProcessingError
-- Error messages: ⚠️ INCONSISTENT (message format varies)
-  - Fix: Standardized format: "{What} not found for {player_name}"
-- Logging levels: ⚠️ INCONSISTENT (ERROR vs WARNING)
-  - Fix: Standardized data fetch failures → ERROR level
-
-**Status:** ⚠️ MINOR ISSUES (fixed inline)
-```
+**Verify:**
+- ✅ Patterns are compatible
+- ✅ No conflicting architectural approaches
+- ✅ Feature boundaries clear and consistent
 
 ---
 
-### Step 2.4: Architectural Pattern Consistency
+### Round 2 Checkpoint
 
-**Review architectural patterns:**
+**Count consistency issues:**
 
-**Consistency Checks:**
+**Critical consistency issues:**
+- Conflicting architectural patterns
+- Incompatible error handling
+- Major naming inconsistencies that confuse
 
-1. **Design Patterns:**
-   ```python
-   # Check: All features use same patterns
+**Minor issues:**
+- Style variations
+- Minor naming differences
+- Documentation format variations
 
-   # Feature 01: Manager pattern
-   class AdpManager:
-       def __init__(self, config):
-           self.config = config
-       def get_data(self):
-           pass
+**If Round 2 has CRITICAL issues:**
+1. Document ALL critical issues
+2. Follow epic debugging protocol
+3. **RESTART from Stage 6a**
 
-   # Feature 02: Manager pattern
-   class MatchupManager:
-       def __init__(self, config):
-           self.config = config
-       def get_data(self):
-           pass
-   # ✅ Same pattern
+**If Round 2 has MINOR issues:**
+- Fix immediately
+- Document in epic_lessons_learned.md
+- Continue to Round 3
 
-   # Feature 03: No manager pattern
-   def get_performance_data(config):  # ❌ Functional, not OO - INCONSISTENT!
-       pass
-   ```
-
-2. **Data Access:**
-   ```python
-   # Check: Data access patterns consistent
-
-   # Feature 01: Uses csv_utils
-   from utils.csv_utils import read_csv_with_validation
-   df = read_csv_with_validation('data/adp.csv', required_columns=['name', 'rank'])
-
-   # Feature 02: Uses csv_utils
-   from utils.csv_utils import read_csv_with_validation
-   df = read_csv_with_validation('data/matchup.csv', required_columns=['name', 'difficulty'])
-   # ✅ Same pattern
-
-   # Feature 03: Direct pandas
-   df = pd.read_csv('data/performance.csv')  # ❌ Direct access - INCONSISTENT!
-   ```
-
-3. **Configuration Access:**
-   ```python
-   # Check: Configuration access consistent
-
-   # Feature 01: Uses ConfigManager
-   config = ConfigManager(data_folder)
-   multiplier = config.get_adp_multiplier(adp)
-
-   # Feature 02: Uses ConfigManager
-   config = ConfigManager(data_folder)
-   difficulty = config.get_matchup_difficulty(matchup)
-   # ✅ Same pattern
-
-   # Feature 03: Direct JSON read
-   with open('config.json') as f:
-       config = json.load(f)  # ❌ Direct access - INCONSISTENT!
-   ```
-
-**Document findings:**
-```markdown
-### Architectural Pattern Consistency
-
-**Areas Reviewed:** 3
-
-**Findings:**
-- Design patterns: ⚠️ INCONSISTENT (Manager pattern vs functional)
-  - Fix: Refactored Feature 03 to use PerformanceManager class
-- Data access: ⚠️ INCONSISTENT (csv_utils vs direct pandas)
-  - Fix: Updated Feature 03 to use csv_utils
-- Configuration: ⚠️ INCONSISTENT (ConfigManager vs direct JSON)
-  - Fix: Updated Feature 03 to use ConfigManager
-
-**Status:** ⚠️ MINOR ISSUES (fixed inline)
-```
-
----
-
-### Step 2.5: Document QC Round 2 Findings
-
-**Update epic_lessons_learned.md:**
-
-```markdown
----
-
-## Stage 6b - QC Round 2 Findings (Epic Cohesion & Consistency)
-
-**Date:** {YYYY-MM-DD}
-**Round:** 2 of 3
-**Focus:** Epic cohesion and consistency validation
-
-**Consistency Areas Reviewed:** 4
-**Issues Found:** {count}
-**Status:** {✅ PASSED / ⚠️ MINOR ISSUES / ❌ CRITICAL ISSUES}
-
-### Code Style Consistency
-
-- Naming conventions: {✅ CONSISTENT / ⚠️ FIXED}
-- File organization: {✅ CONSISTENT / ⚠️ FIXED}
-- Import style: {✅ CONSISTENT / ⚠️ FIXED}
-- Docstring style: {✅ CONSISTENT / ⚠️ FIXED}
-
-### Naming Convention Consistency
-
-- Variable names: {✅ CONSISTENT / ⚠️ FIXED}
-- Abbreviations: {✅ CONSISTENT / ⚠️ FIXED}
-- File naming: {✅ CONSISTENT / ⚠️ FIXED}
-
-### Error Handling Consistency
-
-- Error classes: {✅ CONSISTENT / ⚠️ FIXED}
-- Error messages: {✅ CONSISTENT / ⚠️ FIXED}
-- Logging levels: {✅ CONSISTENT / ⚠️ FIXED}
-
-### Architectural Pattern Consistency
-
-- Design patterns: {✅ CONSISTENT / ⚠️ FIXED}
-- Data access: {✅ CONSISTENT / ⚠️ FIXED}
-- Configuration: {✅ CONSISTENT / ⚠️ FIXED}
-
-### Issues Found and Fixed
-
-{List all issues with fixes applied}
-
-**Issue 1:** Inconsistent function naming (get_ vs fetch_)
-- Severity: MINOR
-- Fix: Renamed all to use get_ prefix
-- Tests re-run: ✅ 100% pass
-
-**Issue 2:** Feature 03 not using Manager pattern
-- Severity: MINOR
-- Fix: Refactored to PerformanceManager class
-- Tests re-run: ✅ 100% pass
-
-[... more issues ...]
-
-### Tests Re-Run After Fixes
-
-**Command:** `python tests/run_all_tests.py`
-**Result:** ✅ {N}/{N} tests passed (100%)
-
-### Next Steps
-
-{If all fixed:}
-**Action:** Proceed to QC Round 3 (End-to-End Success Criteria)
-
-{If critical issues:}
-**Action:** Create bug fixes, RESTART Stage 6 from STAGE_6a
-```
-
-**If issues fixed inline:**
-- Run unit tests to verify fixes: `python tests/run_all_tests.py`
-- Verify 100% test pass rate
-- Document fixes in findings
+**If Round 2 has ZERO issues:**
+- Document clean pass
 - Proceed to Round 3
-
-**If critical issues found:**
-- Create bug fixes for critical inconsistencies
-- RESTART Stage 6 from STAGE_6a after fixes
 
 ---
 
 ## QC Round 3: End-to-End Success Criteria
 
-**Objective:** Validate epic achieves original goals and meets all success criteria.
+**📖 See `reference/qc_rounds_pattern.md` for universal Round 3 patterns.**
+
+**Objective:** Validate epic meets all success criteria and original goals.
 
 **Time Estimate:** 10-20 minutes
 
----
-
-### Step 3.1: Validate Against Original Epic Request
-
-**Re-read original {epic_name}.txt request:**
-
-**Use Read tool to load the user's original epic request:**
-
-**Example Request:**
-```
-Epic Request: Improve Draft Helper System
-
-Goals:
-1. Integrate ADP data for market wisdom
-2. Add matchup-based projections
-3. Track player performance vs projections
-
-Expected Outcome:
-User can make better draft decisions by seeing:
-- Market consensus (ADP)
-- Matchup difficulty
-- Historical accuracy of projections
-
-Success Criteria:
-- ADP data visible in draft recommendations
-- Matchup difficulty affects player scores
-- Performance tracking persists across sessions
-```
-
-**Create validation table:**
-
-| Original Goal | Achieved? | Evidence | Notes |
-|---------------|-----------|----------|-------|
-| Integrate ADP data | {✅ YES / ❌ NO} | Feature 01 implemented, ADP multipliers in output | {Any notes} |
-| Add matchup projections | {✅ YES / ❌ NO} | Feature 02 implemented, difficulty shown in UI | {Any notes} |
-| Track performance | {✅ YES / ❌ NO} | Feature 03 implemented, CSV persisted | {Any notes} |
-
-**For EACH goal:**
-1. **Read the goal from original request** (exact words)
-2. **Verify implementation achieves goal** (test with real data)
-3. **Check expected outcomes are delivered** (user can see results)
-4. **Compare user's vision to actual implementation** (matches intent?)
-
-**Document validation:**
-```markdown
-### Original Epic Request Validation
-
-**Epic:** {epic_name}
-**Original Request File:** {epic_name}.txt
-
-**Goals Validation:**
-
-**Goal 1: Integrate ADP data for market wisdom**
-- Status: ✅ ACHIEVED
-- Evidence:
-  - Feature 01 (ADP Integration) fully implemented
-  - ADP data loaded from FantasyPros CSV
-  - Multipliers calculated and applied to player scores
-  - ADP rank visible in draft recommendations UI
-- User can see: Market consensus via ADP rank (1-500)
-
-**Goal 2: Add matchup-based projections**
-- Status: ✅ ACHIEVED
-- Evidence:
-  - Feature 02 (Matchup System) fully implemented
-  - Matchup difficulty calculated for each player
-  - Difficulty affects final scores (easy=1.1x, hard=0.8x)
-  - Matchup info shown in recommendations
-- User can see: Matchup difficulty (Easy/Medium/Hard)
-
-**Goal 3: Track player performance vs projections**
-- Status: ✅ ACHIEVED
-- Evidence:
-  - Feature 03 (Performance Tracker) fully implemented
-  - Historical accuracy calculated and displayed
-  - Performance data persisted to CSV
-  - Accuracy trends visible in analysis mode
-- User can see: Historical accuracy percentage
-
-**Overall:** ✅ ALL GOALS ACHIEVED (3/3)
-```
+**Pass Criteria:** All success criteria met, original goals achieved
 
 ---
 
-### Step 3.2: Verify Epic Success Criteria (from Stage 4)
+### Validation 3.1: Validate Against Original Epic Request
 
-**Re-read epic_smoke_test_plan.md "Epic Success Criteria" section:**
+**Re-read ORIGINAL {epic_name}.txt:**
 
-**Find success criteria:**
+Close any current views → Open {epic_name}.txt → Read fresh
+
+**For EACH goal in original request, verify:**
+
 ```markdown
-## Epic Success Criteria
+## Original Epic Request (example)
 
-**Must Have (ALL REQUIRED):**
-1. Draft recommendations include ADP multipliers
-2. Matchup difficulty reflected in final scores
-3. Performance tracking data persisted to CSV
-4. Cross-feature integration: All 3 features work together
-5. User can see all 3 data sources in output
-6. Performance comparison shows accuracy trends
+User Goal 1: "Integrate ADP data into draft recommendations"
+✅ Verified: Feature 01 fetches ADP, Feature 02 applies ratings, Feature 03 uses in recs
+
+User Goal 2: "Allow users to adjust rating multipliers"
+✅ Verified: Feature 02 includes multiplier config, Feature 03 respects adjustments
+
+User Goal 3: "Generate top 200 ranked players"
+✅ Verified: Feature 03 outputs exactly 200 ranked players
 ```
 
-**⚠️ CRITICAL:** ALL success criteria are REQUIRED (100%). No "nice to have" or "optional" requirements.
-
-**For EACH criterion:**
-
-**Criterion 1: Draft recommendations include ADP multipliers**
-- Test: Run draft mode, inspect output
-- Expected: `adp_multiplier` field present with value 0.5-1.5
-- Result: {✅ MET / ❌ NOT MET}
-- Evidence: {Screenshot or data sample}
-
-**Criterion 2: Matchup difficulty reflected in final scores**
-- Test: Compare scores with/without matchup feature enabled
-- Expected: Final score = base * adp_mult * matchup_mult
-- Result: {✅ MET / ❌ NOT MET}
-- Evidence: {Calculation verification}
-
-**Criterion 3: Performance tracking data persisted to CSV**
-- Test: Run draft, check for performance_log.csv
-- Expected: CSV updated with latest selections
-- Result: {✅ MET / ❌ NOT MET}
-- Evidence: {CSV file exists and updated}
-
-**Create validation table:**
-
-| Criterion | Required? | Met? | Evidence |
-|-----------|-----------|------|----------|
-| 1. ADP in recommendations | ✅ YES | {✅/❌} | {Evidence} |
-| 2. Matchup in scores | ✅ YES | {✅/❌} | {Evidence} |
-| 3. Performance tracking CSV | ✅ YES | {✅/❌} | {Evidence} |
-| 4. Cross-feature integration | ✅ YES | {✅/❌} | {Evidence} |
-| 5. All data visible | ✅ YES | {✅/❌} | {Evidence} |
-| 6. Accuracy trends | ✅ YES | {✅/❌} | {Evidence} |
-
-**Document validation:**
-```markdown
-### Epic Success Criteria Validation
-
-**Source:** epic_smoke_test_plan.md (Epic Success Criteria section)
-
-**Criteria Met:** {M}/{N} ({percentage}%)
-
-{For each criterion:}
-**Criterion 1: Draft recommendations include ADP multipliers**
-- Required: ✅ YES (from original epic request)
-- Met: {✅ YES / ❌ NO}
-- Evidence: Inspected output/draft_recommendations.csv, adp_multiplier field present
-- Value range: 0.8-1.3 (expected: 0.5-1.5) ✅
-
-**Overall:** {✅ ALL CRITERIA MET / ❌ FAILURES}
-
-{If any criterion NOT met:}
-**Unmet Criterion:** {Name}
-- Why not met: {Explanation}
-- Action: {Fix implementation / Get user approval to remove}
-```
-
-**If ANY criterion not met:**
-- ❌ STOP - Success criteria are REQUIRED
-- Determine if this can be fixed or if user approval needed to remove from scope
-- If fixable → Create bug fix, RESTART Stage 6
-- If user approval to remove → Document approval, update spec, continue
+**If ANY goal not met:**
+- Critical → Create bug fix, RESTART Stage 6a
+- Can't be met → Get user approval to remove from scope
 
 ---
 
-### Step 3.3: User Experience Flow Validation
+### Validation 3.2: Verify Epic Success Criteria
 
-**Execute COMPLETE user workflows:**
+**From Stage 4 epic_smoke_test_plan.md, check success criteria:**
 
-**Example User Workflow (Draft a QB for Week 5):**
+```markdown
+## Epic Success Criteria (example from Stage 4)
+
+1. All 6 positions have rating multipliers (QB, RB, WR, TE, K, DST)
+   ✅ Verified: All 6 position files have multipliers
+
+2. Recommendations include player name, position, ADP, rating, draft position
+   ✅ Verified: All fields present in output
+
+3. Top player in each position has rating > 0.8
+   ✅ Verified: QB top=0.92, RB top=0.88, WR top=0.90, TE top=0.85, K top=0.82, DST top=0.87
+```
+
+**All criteria must be met 100%**
+
+---
+
+### Validation 3.3: User Experience Flow Validation
+
+**Execute complete user workflow end-to-end:**
+
 ```bash
-# User Story: Draft a quarterback for Week 5
+# Simulated user workflow
+python run_script.py --fetch-player-data  # Feature 01
+python run_script.py --apply-ratings      # Feature 02
+python run_script.py --generate-recs      # Feature 03
 
-# Step 1: User runs command
-python run_league_helper.py --mode draft --position QB --week 5
-
-# Step 2: System displays rankings
-# Expected output:
-# Rank | Player          | ADP | Matchup  | Accuracy | Score
-# 1    | Patrick Mahomes | 5   | Medium   | 85%      | 24.5
-# 2    | Josh Allen      | 8   | Easy     | 82%      | 23.8
-# 3    | Lamar Jackson   | 12  | Hard     | 80%      | 22.1
-
-# Step 3: User selects player
-# System provides recommendation with all data sources visible
-
-# Step 4: Selection recorded in performance tracking
-```
-
-**Validation Questions:**
-
-1. **Is workflow SMOOTH?**
-   - ✅ No confusing steps
-   - ✅ Clear instructions
-   - ✅ Intuitive command structure
-
-2. **Is output CLEAR?**
-   - ✅ User understands all data
-   - ✅ ADP rank clear ("5" means top 5)
-   - ✅ Matchup difficulty clear (Easy/Medium/Hard)
-   - ✅ Accuracy percentage clear (85% = reliable)
-
-3. **Are errors HELPFUL?**
-   - Test error scenario: Invalid week number
-   - Expected: "Invalid week: 99. Please use 1-18."
-   - ✅ Error explains what's wrong and how to fix
-
-**Document validation:**
-```markdown
-### User Experience Flow Validation
-
-**Workflow Tested:** Draft QB for Week 5
-
-**User Steps:**
-1. Run command: ✅ SMOOTH (clear syntax)
-2. View rankings: ✅ CLEAR (all data visible and understandable)
-3. Select player: ✅ INTUITIVE (numbered selection)
-4. See results: ✅ COMPREHENSIVE (all features integrated)
-
-**Output Clarity:**
-- ADP data: ✅ CLEAR (rank + multiplier explained)
-- Matchup data: ✅ CLEAR (difficulty + impact shown)
-- Performance data: ✅ CLEAR (accuracy % + trend)
-
-**Error Handling:**
-- Invalid input: ✅ HELPFUL error messages
-- Missing data: ✅ Clear degradation messages
-- System errors: ✅ User-friendly (not stack traces)
-
-**Overall UX:** ✅ SMOOTH AND CLEAR
+# Verify smooth experience
+# - No confusing errors
+# - Clear progress indicators
+# - Expected output files created
+# - Help text accurate
 ```
 
 ---
 
-### Step 3.4: Performance Characteristics
+### Validation 3.4: Performance Characteristics
 
-**Test performance with realistic data:**
+**Check epic meets performance expectations:**
 
-**Performance Tests:**
+```python
+import time
 
-**Test 1: Full Draft Recommendation (All Players, All Weeks)**
-```bash
-time python run_league_helper.py --mode draft --week 5
+# Time complete workflow
+start = time.time()
 
-# Expected: < 5 seconds for full draft recommendation
-# Actual: {time} seconds
-# Status: {✅ ACCEPTABLE / ⚠️ SLOW / ❌ TOO SLOW}
-```
+# Run epic workflow
+run_complete_workflow()
 
-**Test 2: Memory Usage**
-```bash
-# Monitor memory during full dataset processing
-python -m memory_profiler run_league_helper.py --mode draft
+elapsed = time.time() - start
 
-# Expected: < 500MB for full dataset
-# Actual: {memory} MB
-# Status: {✅ ACCEPTABLE / ⚠️ HIGH / ❌ TOO HIGH}
-```
+# Verify acceptable performance
+assert elapsed < 60.0, f"Epic workflow too slow: {elapsed}s (expected <60s)"
 
-**Test 3: Performance vs Baseline (Before Epic)**
-```bash
-# Compare performance before/after epic
-
-# Before epic (baseline):
-# Draft mode: 2.1 seconds
-# Analysis mode: 1.5 seconds
-
-# After epic:
-# Draft mode: 3.2 seconds (1.1s slower) ← Acceptable? (52% increase)
-# Analysis mode: 2.8 seconds (1.3s slower) ← Acceptable? (87% increase)
-
-# Status: {✅ ACCEPTABLE / ⚠️ REGRESSION}
-```
-
-**Document validation:**
-```markdown
-### Performance Characteristics
-
-**Tests Run:** 3
-
-**Test 1: Full Draft Recommendation**
-- Time: 3.2 seconds
-- Expected: < 5 seconds
-- Status: ✅ ACCEPTABLE
-
-**Test 2: Memory Usage**
-- Memory: 285 MB
-- Expected: < 500 MB
-- Status: ✅ ACCEPTABLE
-
-**Test 3: Performance vs Baseline**
-- Draft mode: 2.1s → 3.2s (+1.1s, +52%)
-- Analysis mode: 1.5s → 2.8s (+1.3s, +87%)
-- Status: ⚠️ REGRESSION (but still < 5s, acceptable)
-
-**Overall Performance:** ✅ ACCEPTABLE
-**Regressions:** ⚠️ NOTED (within acceptable limits)
+print(f"✅ Epic workflow completed in {elapsed:.2f}s")
 ```
 
 ---
 
-### Step 3.5: Document QC Round 3 Findings
+### Round 3 Checkpoint
 
-**Update epic_lessons_learned.md:**
+**Verify ALL success criteria:**
+
+**If ANY success criteria not met:**
+- Document which criteria failed
+- Determine if critical (can't achieve epic goals)
+- If critical → Create bug fixes, RESTART Stage 6a
+- If acceptable → Get user approval, document
+
+**If ALL criteria met:**
+- ✅ Epic QC Rounds COMPLETE
+- ✅ Document completion in EPIC_README.md
+- ✅ Update epic_lessons_learned.md
+- ✅ Update Agent Status: "Epic QC Rounds COMPLETE"
+- ✅ Proceed to **Step 6: User Testing & Bug Fix Protocol**
+
+---
+
+## Epic Issue Handling Protocol
+
+**If critical issues found during QC rounds:**
+
+### Step 1: Create Epic Debugging Folder
 
 ```markdown
----
+epic_name/debugging/ISSUES_CHECKLIST.md
 
-## Stage 6b - QC Round 3 Findings (End-to-End Success Criteria)
+## Issues Found in Stage 6b QC
 
-**Date:** {YYYY-MM-DD}
-**Round:** 3 of 3
-**Focus:** End-to-end success criteria validation
-
-**Original Goals Validated:** {M}/{N}
-**Success Criteria Met:** {K}/{L}
-**Status:** {✅ PASSED / ❌ FAILURES}
-
-### Original Epic Request Validation
-
-**Epic:** {epic_name}
-
-**Goals:**
-- Goal 1 (Integrate ADP data): ✅ ACHIEVED
-- Goal 2 (Add matchup projections): ✅ ACHIEVED
-- Goal 3 (Track performance): ✅ ACHIEVED
-
-**Overall:** ✅ ALL GOALS ACHIEVED ({N}/{N})
-
-### Epic Success Criteria Validation
-
-**Criteria:**
-- Criterion 1 (ADP in recommendations): ✅ MET
-- Criterion 2 (Matchup in scores): ✅ MET
-- Criterion 3 (Performance tracking CSV): ✅ MET
-- Criterion 4 (Cross-feature integration): ✅ MET
-- Criterion 5 (All data visible): ✅ MET
-- Criterion 6 (Accuracy trends): ✅ MET
-
-**Overall:** ✅ ALL CRITERIA MET ({L}/{L})
-
-**CRITICAL RULE VERIFIED:** All success criteria met 100% (no unimplemented requirements)
-
-### User Experience Validation
-
-- Workflow: ✅ SMOOTH
-- Output: ✅ CLEAR
-- Errors: ✅ HELPFUL
-
-### Performance Validation
-
-- Full draft: 3.2s (✅ < 5s target)
-- Memory: 285 MB (✅ < 500 MB target)
-- Regression: +52% slower (⚠️ noted, still acceptable)
-
-### Next Steps
-
-{If ALL PASSED:}
-**Action:** Proceed to STAGE_6c (Epic Final Review)
-
-{If ANY FAILURES:}
-**Action:** {Fix issues / Get user approval / Create bug fixes}
+- [ ] Issue 1: Feature 02 → Feature 03 integration fails with large datasets
+- [ ] Issue 2: Inconsistent error handling in Feature 01 vs Feature 03
 ```
 
----
+### Step 2: Enter Debugging Protocol
 
-## Completion Criteria
+See `debugging/debugging_protocol.md` for complete protocol
 
-**STAGE_6b (Epic QC Rounds) is complete when ALL of these are true:**
+### Step 3: After ALL Issues Resolved
 
-### QC Round 1 Complete
-- [ ] All integration points validated
-- [ ] Data flow traced and verified
-- [ ] Interface compatibility confirmed
-- [ ] Error propagation tested
-- [ ] Round 1 findings documented
+**RESTART Stage 6a (Epic Smoke Testing) from Step 1:**
+- Re-run ALL 4 smoke test parts
+- Verify fixes didn't break anything
+- Return to Stage 6b after smoke testing passes
 
-### QC Round 2 Complete
-- [ ] Code style consistency verified
-- [ ] Naming conventions consistent
-- [ ] Error handling consistent
-- [ ] Architectural patterns consistent
-- [ ] Round 2 findings documented
-- [ ] Any minor issues fixed inline
-
-### QC Round 3 Complete
-- [ ] Original epic goals validated (ALL achieved)
-- [ ] Success criteria validated (ALL met 100%)
-- [ ] User experience flows validated
-- [ ] Performance characteristics acceptable
-- [ ] Round 3 findings documented
-
-### All Findings Documented
-- [ ] epic_lessons_learned.md updated with all 3 rounds
-- [ ] Issues documented with severity and fixes
-- [ ] Test results documented
-- [ ] Next steps identified
-
-### Agent Status Updated
-- [ ] EPIC_README.md Agent Status shows STAGE_6b complete
-- [ ] Next action: Transition to Epic Final Review (stages/stage_6/epic_final_review.md)
-- [ ] No blockers
-
-**If ANY item unchecked → STAGE_6b NOT complete**
-
-**When ALL items checked:**
-✅ STAGE_6b COMPLETE
-→ Proceed to STAGE_6c (Epic Final Review)
+**Critical:** Loop back to Epic Smoke (NOT back to QC round), ensures clean validation
 
 ---
 
-## Common Mistakes to Avoid
+## Re-Reading Checkpoint
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ "If You're Thinking This, STOP" - Anti-Pattern Detection   │
-└─────────────────────────────────────────────────────────────┘
+**After Round 3:**
 
-❌ "Integration tests passed in smoke testing, I'll skip QC Round 1"
-   ✅ STOP - QC Round 1 validates DEEPER than smoke tests
-
-❌ "Code style is subjective, consistency doesn't matter"
-   ✅ STOP - Consistency reduces cognitive load, REQUIRED
-
-❌ "Minor naming inconsistency, I'll leave it"
-   ✅ STOP - Fix ALL inconsistencies (minor issues don't require restart)
-
-❌ "Success criterion is 95% met, close enough"
-   ✅ STOP - ALL criteria must be 100% met (no partial credit)
-
-❌ "Performance is 2x slower but still works, I'll proceed"
-   ✅ STOP - Document regression, determine if acceptable
-
-❌ "QC found issues but I'll proceed to Stage 6c anyway"
-   ✅ STOP - Fix critical issues, RESTART Stage 6; fix minor issues inline
-
-❌ "Original epic request is outdated, I'll skip that validation"
-   ✅ STOP - MUST validate against original (proves epic delivers on promise)
-```
+1. **Re-read Critical Rules** (pattern file + this guide)
+2. **Re-read Original Epic Request** ({epic_name}.txt)
+3. **Verify ALL success criteria met**
+4. **Update EPIC_README.md Agent Status**
+5. **Update epic_lessons_learned.md**
 
 ---
 
-## Next Stage
+## Next Steps
 
-**After completing STAGE_6b:**
+**If ALL 3 rounds PASSED:**
+- ✅ Document epic QC results in EPIC_README.md
+- ✅ Update Agent Status: "Epic QC Rounds COMPLETE (3/3 rounds passed)"
+- ✅ Update epic_lessons_learned.md with QC findings
+- ✅ Proceed to **Step 6: User Testing & Bug Fix Protocol**
 
-📖 **READ:** `stages/stage_6/epic_final_review.md`
-🎯 **GOAL:** Epic PR review, validation against original request, final verification
-⏱️ **ESTIMATE:** 20-30 minutes
-
-**Stage 6c will:**
-- Epic PR review (11 categories applied to epic-wide changes)
-- Final validation against original epic request
-- Epic lessons learned capture
-- Stage 6 completion verification
-- Transition to Stage 7 (Epic Cleanup)
-
-**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting STAGE_6c.
+**If ANY round had CRITICAL issues:**
+- ❌ Fix ALL critical issues
+- ❌ Follow epic debugging protocol
+- ❌ **RESTART from Stage 6a (epic smoke testing)**
+- ❌ Re-run smoke testing → QC Round 1 → QC Round 2 → QC Round 3
+- ❌ Do NOT proceed to PR Review until clean pass
 
 ---
 
-*End of stages/stage_6/epic_qc_rounds.md*
+## Summary
+
+**Epic-Level QC Rounds validate:**
+- Round 1: Cross-feature integration (do features work together?)
+- Round 2: Epic cohesion & consistency (is epic architecturally sound?)
+- Round 3: End-to-end success criteria (does epic achieve goals?)
+
+**Key Differences from Feature-Level:**
+- Focus on epic-wide patterns (not individual features)
+- Minor issues can be fixed inline (epic-level more flexible)
+- Critical issues require epic debugging protocol
+- Restart destination: Stage 6a (epic smoke testing)
+- Validation against original epic request (Round 3)
+
+**Critical Success Factors:**
+- All 3 rounds mandatory
+- Focus on integration and consistency (not individual features)
+- Minor vs critical issue classification
+- Epic debugging protocol for critical issues
+- Validation against original user goals
+
+**📖 For universal patterns and detailed validation techniques, see:**
+`reference/qc_rounds_pattern.md`
+
+---
+
+**END OF STAGE 6b GUIDE**

@@ -155,6 +155,14 @@ This document captures:
 - QC rounds: {Any issues found and resolved}
 - PR review: {Insights}
 
+**Debugging (If Occurred):**
+- Issues discovered: {Count and brief summary}
+- Testing stage where found: {Stage 5ca / 5cb / other}
+- Total debugging time: {Hours}
+- Key insights: {Brief insights from debugging/lessons_learned.md}
+- Process improvements identified: {Brief summary of process gaps from debugging/process_failure_analysis.md}
+- Guide updates proposed: {Count of critical/high/medium priority updates from debugging/guide_update_recommendations.md}
+
 **Stage 5d (Cross-Feature Alignment):**
 - Features affected: {List features whose specs were updated}
 - Key updates: {Summary of spec updates}
@@ -186,17 +194,53 @@ This document captures:
 
 ---
 
+### Debugging Insights Across Features
+
+{Aggregate insights from ALL feature-level debugging/ folders}
+
+**Total Debugging Sessions:** {N} features required debugging
+
+**Common Bug Patterns:**
+- {Pattern 1 from multiple features' debugging/process_failure_analysis.md}
+- {Pattern 2}
+
+**Common Process Gaps:**
+- {Gap 1 identified across multiple debugging sessions}
+- {Gap 2}
+
+**Most Impactful Guide Updates:**
+{List the top 3-5 guide updates that were proposed by multiple features' debugging}
+
+1. {guide_name}.md - {section}: {why this is critical}
+2. {guide_name}.md - {section}: {why this is critical}
+
+**Testing Insights:**
+- {What types of bugs were caught by smoke testing vs QC rounds}
+- {What types of bugs should have been caught earlier}
+
+---
+
 ### Guide Improvements Needed from Stage 5
 
 **From Feature 01:**
 - `stages/stage_5/round1_todo_creation.md`: {Specific improvement}
 - `stages/stage_5/smoke_testing.md`: {Specific improvement}
 
+**From Feature 01 Debugging (if occurred):**
+- {List guide updates from feature_01_{name}/debugging/guide_update_recommendations.md}
+- Priority: {Critical/High/Medium}
+
 **From Feature 02:**
 - {Guide improvements}
 
+**From Feature 02 Debugging (if occurred):**
+- {List guide updates}
+
 **From Feature 03:**
 - {Guide improvements}
+
+**From Feature 03 Debugging (if occurred):**
+- {List guide updates}
 
 ---
 
@@ -212,6 +256,14 @@ This document captures:
 - {Issue 1 and resolution}
 - {Or: "No epic-level issues found"}
 
+**Debugging (If Occurred at Epic Level):**
+- Issues discovered: {Count and brief summary}
+- Testing stage where found: {Stage 6a / 6b / other}
+- Total debugging time: {Hours}
+- Key insights: {Brief insights from {epic_name}/debugging/lessons_learned.md}
+- Process improvements identified: {Brief summary from {epic_name}/debugging/process_failure_analysis.md}
+- Guide updates proposed: {Count from {epic_name}/debugging/guide_update_recommendations.md}
+
 **epic_smoke_test_plan.md Effectiveness:**
 - Scenarios that caught issues: {List}
 - Scenarios that should be added: {List or "None"}
@@ -219,6 +271,10 @@ This document captures:
 
 **Guide Improvements Needed:**
 - {Guide improvements or "None"}
+
+**From Epic-Level Debugging (if occurred):**
+- {List guide updates from {epic_name}/debugging/guide_update_recommendations.md}
+- Priority: {Critical/High/Medium}
 
 ---
 

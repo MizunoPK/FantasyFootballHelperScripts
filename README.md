@@ -209,6 +209,45 @@ python run_simulation.py full --sims 100 --workers 8
 5. Repeats N times per configuration
 6. Identifies configuration with best win rate
 
+**Positional Slot Assignment Draft Logic:**
+
+The draft system uses a **positional slot assignment** algorithm to ensure roster diversity and compliance with MAX_POSITIONS limits:
+
+1. **Draft Order Configuration**: Defines which positions are PRIMARY (highest priority) or SECONDARY (alternative) for each of the 15 draft rounds
+   - Example Round 1: `{"QB": "P", "FLEX": "S"}` - QB is primary, FLEX positions (RB/WR) are secondary
+   - Example Round 3: `{"RB": "P", "WR": "S"}` - RB is primary, WR is secondary
+
+2. **Dynamic Round Assignment**: When a player is drafted, they are assigned to a round slot where their position matches the PRIMARY position
+   - If you draft an RB in Round 1 (where QB is PRIMARY), the RB gets assigned to Round 3 (first round with RB as PRIMARY)
+   - Round 1 remains "unfilled" and becomes the next draft target
+   - This continues until Round 1 gets a QB (its PRIMARY position)
+
+3. **Position Limit Enforcement** (`MAX_POSITIONS`): Once a position reaches its limit (e.g., 4 RBs), that position is filtered out of recommendations
+   - `can_draft()` checks `slot_assignments[position]` against `MAX_POSITIONS[position]`
+   - Players of that position will never appear in recommendations again
+   - Forces diversification across all positions (QB, RB, WR, TE, K, DST)
+
+4. **Current Round Calculation** (`_get_current_round()`): Determines next pick by finding first unfilled round slot
+   - Uses `_match_players_to_rounds()` to assign existing roster players to their optimal rounds
+   - Returns the first round number (1-15) without a player assigned
+   - This round determines which PRIMARY/SECONDARY bonuses apply to scoring
+
+5. **FLEX Eligibility**: RB and WR positions can match both their native position rounds AND FLEX rounds
+   - RB can fill: RB-PRIMARY rounds, RB-SECONDARY rounds, or FLEX rounds
+   - WR can fill: WR-PRIMARY rounds, WR-SECONDARY rounds, or FLEX rounds
+   - QB, TE, K, DST must exactly match their position rounds
+
+**Example Draft Sequence:**
+```
+Round 1 (QB=P, FLEX=S): Draft RB → RB assigned to Round 3 (RB=P), Round 1 still empty
+Round 1 (retry): Draft QB → QB assigned to Round 1 (QB=P), Round 1 now filled
+Round 2 (TE=P, FLEX=S): Draft TE → TE assigned to Round 2 (TE=P), Round 2 now filled
+Round 3: Already filled by RB from earlier, move to Round 4
+...continues until 15 rounds filled with diverse positions
+```
+
+This ensures teams always draft a balanced roster that can fill all 9 starting lineup positions (QB, RB1, RB2, WR1, WR2, TE, FLEX, K, DST).
+
 ### Draft Order Strategy Analyzer (`run_draft_order_simulation.py`)
 
 Tests all 75 draft order strategies to identify which strategies perform best in league simulations. Produces a JSON report mapping each strategy to its win percentage.

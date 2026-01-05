@@ -431,23 +431,40 @@ For EACH feature folder, read README.md and verify:
 
 **Objective:** Apply ALL lessons learned from ALL sources to improve guides for future epics.
 
-**⚠️ CRITICAL:** Do NOT only check epic_lessons_learned.md. You MUST check ALL lesson sources.
+**⚠️ CRITICAL:** Do NOT only check epic_lessons_learned.md. You MUST check ALL lesson sources including debugging lessons.
 
 **Actions:**
 
 **4a. Find ALL Lessons Learned Files (SYSTEMATIC SEARCH)**
 
-Use bash to find ALL lessons learned files in the epic:
+Use bash to find ALL lessons learned and debugging analysis files in the epic:
+
 ```bash
+# Find all lessons learned files
 find feature-updates/done/{epic_name} -name "lessons_learned.md" -type f
+
+# Find all debugging process analysis files
+find feature-updates/done/{epic_name} -path "*/debugging/process_failure_analysis.md" -type f
+
+# Find all debugging guide update recommendations
+find feature-updates/done/{epic_name} -path "*/debugging/guide_update_recommendations.md" -type f
 ```
 
 **Expected Results:**
 ```
+# Standard lessons learned
 feature-updates/done/{epic_name}/epic_lessons_learned.md
 feature-updates/done/{epic_name}/feature_01_{name}/lessons_learned.md
 feature-updates/done/{epic_name}/feature_02_{name}/lessons_learned.md
 feature-updates/done/{epic_name}/bugfix_{priority}_{name}/lessons_learned.md
+
+# Debugging lessons (if debugging occurred)
+feature-updates/done/{epic_name}/feature_01_{name}/debugging/lessons_learned.md
+feature-updates/done/{epic_name}/feature_01_{name}/debugging/process_failure_analysis.md
+feature-updates/done/{epic_name}/feature_01_{name}/debugging/guide_update_recommendations.md
+feature-updates/done/{epic_name}/debugging/lessons_learned.md (epic-level)
+feature-updates/done/{epic_name}/debugging/process_failure_analysis.md (epic-level)
+feature-updates/done/{epic_name}/debugging/guide_update_recommendations.md (epic-level)
 ...
 ```
 
@@ -455,13 +472,120 @@ feature-updates/done/{epic_name}/bugfix_{priority}_{name}/lessons_learned.md
 
 **4b. Read and Extract Lessons from EACH File**
 
-For EACH lessons_learned.md file found, read it completely and extract "Guide Improvements Needed" sections.
+For EACH file found, read it completely and extract guide improvement proposals:
+
+**From lessons_learned.md files:**
+- Extract "Guide Improvements Needed" sections
+- Look for specific guide file names and proposed changes
+- Note any workflow improvements suggested
+
+**From debugging/process_failure_analysis.md files:**
+- Extract "Guide Updates Required" section from each bug analysis
+- Extract "High-Priority Guide Updates" from cross-bug pattern analysis
+- Focus on process gap analysis (why bugs got through)
+
+**From debugging/guide_update_recommendations.md files:**
+- Extract ALL recommendations (Critical/Moderate/Low priority)
+- Extract "New Sections Needed" proposals
+- Extract "Template/Checklist Updates" proposals
+- These files have the most detailed, actionable guide updates
 
 **Reference:** See `STAGE_7_reference/lessons_learned_examples.md` for examples of lesson structures and extraction methods.
+
+**⚠️ PRIORITY ORDER:**
+1. **HIGHEST:** debugging/guide_update_recommendations.md (concrete, actionable updates)
+2. **HIGH:** debugging/process_failure_analysis.md (systematic process gaps)
+3. **MEDIUM:** lessons_learned.md "Guide Improvements Needed" sections
 
 **4c. Create Master Checklist of ALL Proposed Guide Updates**
 
 Combine ALL lessons from ALL files into one comprehensive checklist.
+
+**Template:**
+```markdown
+## Master Guide Update Checklist - {epic_name}
+
+**Sources Checked:**
+- [ ] epic_lessons_learned.md
+- [ ] feature_01_{name}/lessons_learned.md
+- [ ] feature_02_{name}/lessons_learned.md
+- [ ] feature_01_{name}/debugging/lessons_learned.md (if exists)
+- [ ] feature_01_{name}/debugging/process_failure_analysis.md (if exists)
+- [ ] feature_01_{name}/debugging/guide_update_recommendations.md (if exists)
+- [ ] {epic_name}/debugging/lessons_learned.md (if exists)
+- [ ] {epic_name}/debugging/process_failure_analysis.md (if exists)
+- [ ] {epic_name}/debugging/guide_update_recommendations.md (if exists)
+
+**Total Files Checked:** {N}
+
+---
+
+### Critical Priority Updates (from debugging/guide_update_recommendations.md)
+
+#### Update #1: {guide_name}.md - {section_name}
+- **Source:** {file path}
+- **Current Text:** {quote current text}
+- **Proposed Text:** {quote proposed text}
+- **Rationale:** {why this prevents bugs}
+- **Status:** [ ] APPLIED
+
+#### Update #2: {guide_name}.md - {section_name}
+{Details...}
+
+---
+
+### High Priority Updates (from debugging/process_failure_analysis.md)
+
+#### Update #1: {guide_name}.md - {section_name}
+- **Source:** {file path}
+- **Bug(s) That Would Be Prevented:** Issue #{N}, Issue #{M}
+- **Process Gap:** {what gap this fills}
+- **Proposed Change:** {specific change}
+- **Status:** [ ] APPLIED
+
+---
+
+### Medium Priority Updates (from lessons_learned.md)
+
+#### Update #1: {guide_name}.md
+- **Source:** {file path}
+- **Proposed Improvement:** {improvement}
+- **Status:** [ ] APPLIED
+
+---
+
+### New Sections Needed
+
+#### New Section #1: {guide_name}.md - {new_section_name}
+- **Source:** {file path}
+- **Location:** {where in guide}
+- **Purpose:** {what gap this fills}
+- **Proposed Content:** {content}
+- **Status:** [ ] APPLIED
+
+---
+
+### Template Updates Needed
+
+#### Template #1: {template_name}
+- **Source:** {file path}
+- **Missing Items:** {list items}
+- **Proposed Additions:** {additions}
+- **Status:** [ ] APPLIED
+
+---
+
+**Summary:**
+- Total Updates: {N}
+  - Critical: {N}
+  - High: {N}
+  - Medium: {N}
+  - New Sections: {N}
+  - Templates: {N}
+- Applied: {N}
+- Remaining: {N}
+- Application Rate: {percentage}%
+```
 
 **4d. Apply EACH Lesson to Guides**
 
@@ -479,19 +603,36 @@ For EACH lesson in master checklist:
 ## Verification: All Lessons Applied
 
 □ Read ALL lessons_learned.md files (epic + features + bugfixes)
-□ Created master checklist with {N} total lessons
+□ Read ALL debugging/lessons_learned.md files (if debugging occurred)
+□ Read ALL debugging/process_failure_analysis.md files (if debugging occurred)
+□ Read ALL debugging/guide_update_recommendations.md files (if debugging occurred)
+□ Created master checklist with {N} total lessons from ALL sources
 □ Applied ALL {N} lessons to guides (none skipped)
 □ Each lesson marked [x] APPLIED in checklist
 □ Can cite which guide section was updated for each lesson
 
 **Master Checklist Status:**
+- Total sources checked: {N}
+  - lessons_learned.md files: {N}
+  - debugging/lessons_learned.md files: {N}
+  - debugging/process_failure_analysis.md files: {N}
+  - debugging/guide_update_recommendations.md files: {N}
 - Total lessons identified: {N}
+  - Critical priority (debugging): {N}
+  - High priority (debugging): {N}
+  - Medium priority (feature lessons): {N}
 - Lessons applied: {N}
 - Lessons skipped: 0 ✅
 - Application rate: 100% ✅
 ```
 
 **If application rate < 100%:** ❌ STOP - Apply remaining lessons.
+
+**Why debugging lessons are critical:**
+- Debugging lessons identify PROVEN process gaps (bugs got through)
+- guide_update_recommendations.md has concrete, actionable fixes
+- Applying these updates prevents same bugs in future epics
+- Ignoring debugging lessons means repeating same mistakes
 
 **4f. Update CLAUDE.md (If Workflow Changed)**
 

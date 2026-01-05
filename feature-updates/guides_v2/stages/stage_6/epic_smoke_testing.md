@@ -1,26 +1,49 @@
 # STAGE 6a: Epic Smoke Testing Guide
 
-🚨 **MANDATORY READING PROTOCOL**
+**Purpose:** Validate the complete epic end-to-end with ALL features working together through mandatory 4-part smoke testing.
 
-**Before starting this stage:**
-1. Use Read tool to load THIS ENTIRE GUIDE
-2. Acknowledge critical requirements (see "Critical Rules" section below)
-3. Verify prerequisites (see "Prerequisites Checklist" section below)
-4. Update epic EPIC_README.md Agent Status with guide name + timestamp
+**Stage Flow Context:**
+```
+Stage 5 (ALL features complete) →
+→ [YOU ARE HERE: Stage 6a - Epic Smoke Testing] →
+→ Stage 6b (Epic QC Rounds) → Stage 6c (Epic PR Review) → Stage 7
+```
 
-**DO NOT proceed without reading this guide.**
+---
 
-**After session compaction:**
-- Check EPIC_README.md Agent Status for current step
-- READ THIS GUIDE again (full guide, not summary)
-- Continue from "Next Action" in Agent Status
+## 🚨 MANDATORY READING PROTOCOL
+
+**BEFORE starting Epic Smoke Testing, you MUST:**
+
+1. **Read the smoke testing pattern:** `reference/smoke_testing_pattern.md`
+   - Understand universal smoke testing workflow
+   - Review critical rules that apply to ALL smoke testing
+   - Study common mistakes to avoid
+
+2. **Use the phase transition prompt** from `prompts/stage_6_prompts.md`
+   - Find "Starting Stage 6: Epic Final QC" prompt
+   - Acknowledge critical requirements
+   - List requirements from this guide
+
+3. **Update EPIC_README.md Agent Status** with:
+   - Current Stage: Stage 6a - Epic Smoke Testing
+   - Current Guide: stages/stage_6/epic_smoke_testing.md
+   - Guide Last Read: {YYYY-MM-DD HH:MM}
+   - Critical Rules: "4 parts MANDATORY", "Use EVOLVED test plan", "Verify DATA VALUES", "Restart if ANY fails"
+   - Next Action: Execute Step 1 - Pre-QC Verification
+
+4. **Verify all prerequisites** (see checklist below)
+
+5. **THEN AND ONLY THEN** begin epic smoke testing
+
+**This is NOT optional.** Reading both the pattern and this guide ensures you validate the epic correctly.
 
 ---
 
 ## Quick Start
 
 **What is this stage?**
-Epic Smoke Testing is the first validation step for the complete epic after ALL features are implemented. Unlike feature-level smoke testing (Stage 5c), this stage tests ALL features working together as a cohesive system, executing the evolved epic_smoke_test_plan.md and validating cross-feature integration.
+Epic-level smoke testing validates that ALL features work together as a cohesive system. Unlike feature-level testing (Stage 5c), this tests cross-feature integration and epic-wide workflows. See `reference/smoke_testing_pattern.md` for universal patterns.
 
 **When do you use this guide?**
 - After ALL features have completed Stage 5e
@@ -29,30 +52,33 @@ Epic Smoke Testing is the first validation step for the complete epic after ALL 
 - Ready to validate epic as a whole
 
 **Key Outputs:**
-- ✅ All features verified complete (Stage 5e)
-- ✅ Epic smoke test plan executed (all parts passed)
-- ✅ Cross-feature integration verified (features work together)
-- ✅ Epic-level workflows tested end-to-end
-- ✅ Data values validated (not just structure)
+- ✅ Part 1 PASSED: Epic-level import tests
+- ✅ Part 2 PASSED: Epic-level entry point tests
+- ✅ Part 3 PASSED: Epic E2E execution tests (data values verified)
+- ✅ Part 4 PASSED: Cross-feature integration tests
+- ✅ Ready for Stage 6b (Epic QC Rounds)
 
 **Time Estimate:**
 20-30 minutes for 3-feature epics, 30-60 minutes for 5+ feature epics
 
 **Exit Condition:**
-Epic Smoke Testing is complete when ALL parts of epic_smoke_test_plan.md pass, all cross-feature integration scenarios work correctly, and data values are verified (not just structure)
+Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass, all cross-feature integration scenarios work correctly, and data values are verified
 
 ---
 
-## Critical Rules
+## 🛑 Critical Rules (Epic-Specific)
+
+**📖 See `reference/smoke_testing_pattern.md` for universal critical rules.**
+
+**Epic-specific rules for Stage 6a:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ CRITICAL RULES - These MUST be copied to README Agent Status │
+│ EPIC-SPECIFIC RULES - Add to EPIC_README Agent Status       │
 └─────────────────────────────────────────────────────────────┘
 
 1. ⚠️ ALL features MUST complete Stage 5e before starting
    - Verify EVERY feature shows "Stage 5e complete" in EPIC_README.md
-   - Verify no pending features or bug fixes
    - Do NOT start if any feature is incomplete
 
 2. ⚠️ Use EVOLVED epic_smoke_test_plan.md (NOT original)
@@ -65,38 +91,24 @@ Epic Smoke Testing is complete when ALL parts of epic_smoke_test_plan.md pass, a
    - Epic testing (6a): Tests ALL features working together
    - Focus: Cross-feature workflows, integration points
 
-4. ⚠️ Validate DATA VALUES (not just structure)
-   - ❌ BAD: "File exists, looks good"
-   - ✅ GOOD: `assert df['adp_multiplier'].between(0.5, 1.5).all()`
-   - Verify actual data values match expected ranges
-
-5. ⚠️ If smoke testing fails → Fix issues, RESTART Step 2
+4. ⚠️ If smoke testing fails → Fix issues, RESTART Step 2
    - Do NOT proceed to QC rounds with failing smoke tests
-   - Fix ALL issues found
-   - Re-run entire smoke testing process
+   - After fixing → Re-run entire smoke testing process
    - Do NOT skip any parts
 
-6. ⚠️ Execute ALL parts of epic_smoke_test_plan.md
+5. ⚠️ Execute ALL 4 parts of epic_smoke_test_plan.md
    - Part 1: Epic-level import tests
    - Part 2: Epic-level entry point tests
    - Part 3: Epic end-to-end execution tests
-   - Part 4: Cross-feature integration tests
+   - Part 4: Cross-feature integration tests (EPIC-SPECIFIC)
 ```
 
----
-
-## Critical Decisions Summary
-
-**This stage has ONE critical decision point:**
-
-### Decision Point: Smoke Testing Result (PASS/FAIL)
-
-**Question:** Did ALL parts of smoke testing pass?
-- **If ALL PASSED:** Proceed to STAGE_6b (Epic QC Rounds)
-- **If ANY FAILED:** Fix issues, RESTART Step 2 (re-run all parts)
-- **Impact:** Cannot proceed to QC rounds with failing smoke tests
-
-**Why this matters:** Smoke testing validates basic epic functionality. If it fails, deeper QC will also fail. Fix foundational issues first.
+**Universal rules (from pattern file):**
+- All parts mandatory
+- Verify DATA VALUES (not just structure)
+- Use REAL data (not test fixtures)
+- Re-run ALL parts if any fail
+- See `reference/smoke_testing_pattern.md` for complete list
 
 ---
 
@@ -104,27 +116,27 @@ Epic Smoke Testing is complete when ALL parts of epic_smoke_test_plan.md pass, a
 
 **Before starting Epic Smoke Testing (STAGE_6a), verify:**
 
-□ **ALL features complete:**
-  - EVERY feature shows "Stage 5e complete" in EPIC_README.md Epic Progress Tracker
-  - All features show ✅ in Stage 5e column
-  - No features with "In progress" or "Not started" status
+**ALL features complete:**
+- [ ] EVERY feature shows "Stage 5e complete" in EPIC_README.md Epic Progress Tracker
+- [ ] All features show ✅ in Stage 5e column
+- [ ] No features with "In progress" or "Not started" status
 
-□ **No pending bug fixes:**
-  - No `bugfix_{priority}_{name}/` folders with incomplete status
-  - If bug fix folders exist, they're at Stage 5c (complete)
+**No pending bug fixes:**
+- [ ] No `bugfix_{priority}_{name}/` folders with incomplete status
+- [ ] If bug fix folders exist, they're at Stage 5c (complete)
 
-□ **Epic smoke test plan evolved:**
-  - epic_smoke_test_plan.md shows "Last Updated" from RECENT Stage 5e
-  - Update History table shows ALL features contributed updates
-  - Test scenarios reflect ACTUAL implementation
+**Epic smoke test plan evolved:**
+- [ ] epic_smoke_test_plan.md shows "Last Updated" from RECENT Stage 5e
+- [ ] Update History table shows ALL features contributed updates
+- [ ] Test scenarios reflect ACTUAL implementation
 
-□ **Original epic request available:**
-  - `{epic_name}.txt` file exists in feature-updates/ folder
-  - Contains user's original epic request
+**Original epic request available:**
+- [ ] `{epic_name}.txt` file exists in feature-updates/ folder
+- [ ] Contains user's original epic request
 
-□ **EPIC_README.md ready:**
-  - Epic Progress Tracker shows all features at 5e
-  - Agent Status section exists
+**EPIC_README.md ready:**
+- [ ] Epic Progress Tracker shows all features at 5e
+- [ ] Agent Status section exists
 
 **If any prerequisite fails:**
 - ❌ Do NOT start Epic Smoke Testing
@@ -135,25 +147,52 @@ Epic Smoke Testing is complete when ALL parts of epic_smoke_test_plan.md pass, a
 
 ## Workflow Overview
 
+**📖 See `reference/smoke_testing_pattern.md` for universal workflow details.**
+
+**Epic-specific workflow for Stage 6a:**
+
 ```
-STAGE 6a: Epic Smoke Testing
-│
-├─> STEP 1: Pre-QC Verification
-│   ├─ Verify all features at Stage 5e
-│   ├─ Verify no pending bug fixes
-│   ├─ Read evolved epic_smoke_test_plan.md
-│   └─ Read original epic request
-│
-├─> STEP 2: Epic Smoke Testing
-│   ├─ Part 1: Epic-level import tests
-│   ├─ Part 2: Epic-level entry point tests
-│   ├─ Part 3: Epic end-to-end execution tests
-│   ├─ Part 4: Cross-feature integration tests
-│   └─ Verify ALL output DATA values
-│
-└─> Decision: Smoke Testing Result
-    ├─ PASS → Proceed to STAGE_6b
-    └─ FAIL → Fix issues, RESTART Step 2
+┌─────────────────────────────────────────────────────────────┐
+│          EPIC-LEVEL SMOKE TESTING (4 Parts)                 │
+└─────────────────────────────────────────────────────────────┘
+
+STEP 1: Pre-QC Verification
+   ↓ Verify all features at Stage 5e
+   ↓ Read evolved epic_smoke_test_plan.md
+   ↓ Read original epic request
+   ↓
+   Proceed to STEP 2
+
+STEP 2: Epic Smoke Testing (4 Parts)
+
+Part 1: Epic Import Test
+   ↓ Import all modules from ALL features
+   ↓ Verify epic-wide imports work
+   ↓
+   If PASS → Part 2
+   If FAIL → Fix, re-run Part 1
+
+Part 2: Epic Entry Point Test
+   ↓ Test epic-level workflows start correctly
+   ↓ Verify all feature modes accessible
+   ↓
+   If PASS → Part 3
+   If FAIL → Fix, re-run Parts 1 & 2
+
+Part 3: Epic E2E Execution Test (CRITICAL)
+   ↓ Execute epic workflows with REAL data
+   ↓ Verify epic-level output DATA VALUES correct
+   ↓
+   If PASS → Part 4
+   If FAIL → Fix, RE-RUN ALL PARTS
+
+Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
+   ↓ Execute integration scenarios from test plan
+   ↓ Verify features work together correctly
+   ↓ Verify data flows between features
+   ↓
+   If PASS → Document, proceed to Stage 6b
+   If FAIL → Fix, RE-RUN ALL 4 PARTS
 ```
 
 ---
@@ -161,8 +200,6 @@ STAGE 6a: Epic Smoke Testing
 ## STEP 1: Pre-QC Verification
 
 **Objective:** Verify epic is ready for Stage 6 validation.
-
----
 
 ### Step 1.1: Verify All Features Complete
 
@@ -172,659 +209,346 @@ STAGE 6a: Epic Smoke Testing
 ## Epic Progress Tracker
 | Feature | Stage 1 | Stage 2 | Stage 3 | Stage 4 | Stage 5a | Stage 5b | Stage 5c | Stage 5d | Stage 5e |
 |---------|---------|---------|---------|---------|----------|----------|----------|----------|----------|
-| feature_01_adp_integration | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| feature_02_matchup_system | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| feature_03_performance_tracker | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| feature_01 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| feature_02 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| feature_03 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 ```
 
 **Verify:** EVERY feature shows ✅ in Stage 5e column.
 
-**If ANY feature is incomplete:**
-- STOP Stage 6a
-- Complete the incomplete feature first
-- Return to Stage 6a when ALL features at 5e
-
-**Document verification:**
-```markdown
-**Pre-QC Verification:**
-- Total features: {N}
-- Features at Stage 5e: {M}
-- Verification: {✅ ALL COMPLETE / ❌ {X} INCOMPLETE}
-```
-
----
+**If ANY feature incomplete:** STOP Stage 6a, complete the incomplete feature first.
 
 ### Step 1.2: Verify No Pending Bug Fixes
 
-**Check epic folder for any `bugfix_{priority}_{name}/` folders:**
-
-```bash
-ls feature-updates/{epic_name}/
-```
-
-**Look for:** Any folders starting with `bugfix_`
-
-**If bug fix folders exist:**
-- Read their README.md for completion status
-- If incomplete → Complete bug fix first
-- If complete → Verify they're at Stage 5c (bug fixes don't do 5d/5e)
-
-**Document verification:**
-```markdown
-**Bug Fix Check:**
-- Bug fix folders found: {N}
-- All complete: {✅ YES / ❌ NO}
-- Status: {READY / BLOCKED}
-```
-
----
+Check epic folder for any `bugfix_{priority}_{name}/` folders. If found, verify they're complete (Stage 5c done).
 
 ### Step 1.3: Read Evolved Epic Smoke Test Plan
 
-**Use Read tool to load `epic_smoke_test_plan.md`:**
-
-**Example structure:**
-```markdown
-# Epic Smoke Test Plan: {epic_name}
-
-**Last Updated:** Stage 5e (feature_03_performance_tracker) - 2025-12-30
-
-## Update History
-| Stage | Feature | Date | Changes Made |
-|-------|---------|------|--------------|
-| 1 | (initial) | 2025-12-15 | Created placeholder test plan |
-| 4 | (all features) | 2025-12-20 | Updated based on deep dive findings |
-| 5e | feature_01 | 2025-12-25 | Added ADP integration scenarios |
-| 5e | feature_02 | 2025-12-28 | Added matchup system cross-checks |
-| 5e | feature_03 | 2025-12-30 | Added performance tracking E2E tests |
-
-## Test Scenarios
-
-### Scenario 1: Complete Draft Workflow
-**Added:** Stage 4
-**Updated:** Stage 5e (feature_01, feature_02, feature_03)
-
-**What to test:** Draft mode with all features enabled
-**How to test:** `python run_league_helper.py --mode draft --week 1`
-**Expected result:**
-- ADP multipliers applied to all players
-- Matchup difficulty reflected in scores
-- Performance tracking initialized
-
-[... more scenarios ...]
-```
-
-**Verify:**
-- Plan shows "Last Updated" from RECENT Stage 5e (not Stage 1 or 4)
-- Update History table shows ALL features contributed updates
-- Test scenarios reflect ACTUAL implementation (not original assumptions)
-
-**Document verification:**
-```markdown
-**Epic Smoke Test Plan Review:**
-- Last updated: {Stage and date}
-- Features contributed: {N}/{M}
-- Integration scenarios: {count}
-- Status: {✅ READY / ❌ OUTDATED}
-```
-
----
+**Read `epic_smoke_test_plan.md`:**
+- Check "Last Updated" timestamp (should be recent from Stage 5e)
+- Review "Update History" table (all features should have entries)
+- Identify all test scenarios to execute
+- Note integration points between features
 
 ### Step 1.4: Read Original Epic Request
 
-**Use Read tool to load `{epic_name}.txt` (the user's original request):**
-
-**Example:**
-```
-Epic Request: Improve Draft Helper System
-
-Goals:
-- Integrate ADP data for market wisdom
-- Add matchup-based projections
-- Track player performance vs projections
-
-Expected Outcome:
-User can make better draft decisions by seeing:
-1. Market consensus (ADP)
-2. Matchup difficulty
-3. Historical accuracy of projections
-```
-
-**Why this matters:** Stage 6 validates against THIS original vision, not intermediate specs that may have evolved.
-
-**Document review:**
-```markdown
-**Original Epic Request Review:**
-- Epic name: {name}
-- Primary goals: {N}
-- Expected outcomes: {list}
-- Status: {✅ REVIEWED}
-```
+**Read `{epic_name}.txt`:**
+- Review user's original goals
+- Understand epic success criteria
+- Keep in mind for Part 3 validation
 
 ---
 
-### Step 1.5: Update Agent Status
+## Part 1: Epic Import Test
 
-**Update EPIC_README.md Agent Status:**
+**📖 See `reference/smoke_testing_pattern.md` for universal import test pattern.**
 
-```markdown
-## Agent Status
+**Epic-specific implementation:**
 
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Stage:** EPIC_FINAL_QC
-**Current Step:** Step 1 complete, starting Step 2 (Epic Smoke Testing)
-**Current Guide:** stages/stage_6/epic_smoke_testing.md
-**Guide Last Read:** {YYYY-MM-DD HH:MM}
-**Critical Rules from Guide:**
-- ALL features at Stage 5e (verified)
-- Use EVOLVED epic_smoke_test_plan.md (not original)
-- Test cross-feature integration (not just individual features)
-- Validate DATA VALUES (not just structure)
+Test that ALL feature modules can be imported together (no conflicts):
 
-**Progress:** Step 1 complete (Pre-QC Verification)
-**Next Action:** Step 2 - Execute epic_smoke_test_plan.md
-**Blockers:** None
-```
-
----
-
-## STEP 2: Epic Smoke Testing
-
-**Objective:** Execute evolved epic_smoke_test_plan.md to verify epic works end-to-end.
-
-**Critical Distinction:**
-- **Feature smoke testing (Stage 5c):** Tests individual feature in isolation
-- **Epic smoke testing (Stage 6a):** Tests ALL features working together as a cohesive system
-
----
-
-### Step 2.1: Part 1 - Epic-Level Import Tests
-
-**Objective:** Verify all new modules can be imported together without conflicts.
-
-**Execute EACH import test from epic_smoke_test_plan.md:**
-
-**Example tests:**
-```python
-# Test 1: Import all feature modules
-python -c "from feature_01 import AdpIntegration; from feature_02 import MatchupSystem; from feature_03 import PerformanceTracker"
-
-# Test 2: Import main entry points
-python -c "from league_helper import DraftMode, AnalysisMode"
-
-# Test 3: Import utilities used by multiple features
-python -c "from utils import player_matching, data_loader"
-```
-
-**Expected:** No import errors, no circular dependencies, no missing modules.
-
-**If imports fail:**
-- Document exact error with full traceback
-- Identify which feature's module is causing the issue
-- Fix import issues (may require code changes)
-- Re-run Part 1
-
-**Document results:**
-```markdown
-### Part 1: Epic-Level Import Tests
-
-**Status:** {✅ PASSED / ❌ FAILED}
-
-**Tests Executed:** {N}
-**Tests Passed:** {M}
-
-**Failed Tests:**
-{If any, list with error messages}
-
-**Issues Found:**
-{Any import conflicts, circular dependencies, missing modules}
-```
-
-**If Part 1 fails:**
-- STOP - Do not proceed to Part 2
-- Fix all import issues
-- Re-run Part 1 until all tests pass
-
----
-
-### Step 2.2: Part 2 - Epic-Level Entry Point Tests
-
-**Objective:** Verify epic-level entry points start correctly and display proper help/options.
-
-**Execute EACH entry point test from epic_smoke_test_plan.md:**
-
-**Example tests:**
 ```bash
-# Test 1: Draft mode entry point
-python run_league_helper.py --mode draft --help
+# Import key modules from each feature
+python -c "from feature_01.MainClass import MainClass"
+python -c "from feature_02.HelperClass import HelperClass"
+python -c "from feature_03.ManagerClass import ManagerClass"
 
-# Test 2: Analysis mode entry point
-python run_league_helper.py --mode analysis --help
-
-# Test 3: Performance tracking mode
-python run_league_helper.py --mode performance --help
-
-# Test 4: Verify new options from features are available
-python run_league_helper.py --mode draft --help | grep "adp"
-python run_league_helper.py --mode draft --help | grep "matchup"
+# Verify no import conflicts or circular dependencies
 ```
 
-**Expected:**
-- Help text displays correctly
-- No crashes or errors
-- Correct options shown (including new feature options)
-- Option descriptions are accurate
-
-**If entry points fail:**
-- Document exact error
-- Identify which feature's entry point is causing the issue
-- Fix entry point issues
-- Re-run Part 2
-
-**Document results:**
-```markdown
-### Part 2: Epic-Level Entry Point Tests
-
-**Status:** {✅ PASSED / ❌ FAILED}
-
-**Entry Points Tested:** {N}
-**Entry Points Passed:** {M}
-
-**Failed Tests:**
-{If any, list with error messages}
-
-**Issues Found:**
-{Any crashes, missing options, incorrect descriptions}
-```
-
-**If Part 2 fails:**
-- STOP - Do not proceed to Part 3
-- Fix all entry point issues
-- Re-run Part 2 until all tests pass
+**Pass:** All epic modules import successfully
+**Fail:** Any import errors → Fix, re-run Part 1
 
 ---
 
-### Step 2.3: Part 3 - Epic End-to-End Execution Tests
+## Part 2: Epic Entry Point Test
 
-**Objective:** Execute epic-level workflows with REAL data and verify correct DATA VALUES.
+**📖 See `reference/smoke_testing_pattern.md` for universal entry point test pattern.**
 
-**⚠️ CRITICAL:** Verify DATA VALUES, not just structure:
-- ✅ GOOD: `assert df['adp_multiplier'].between(0.5, 1.5).all()`
-- ❌ BAD: "File exists, looks good"
+**Epic-specific implementation:**
 
-**Execute EACH scenario from epic_smoke_test_plan.md:**
+Test that epic-level workflows can be initiated:
 
-**Example Scenario 1: Complete Draft Workflow**
 ```bash
-python run_league_helper.py --mode draft --week 1 --iterations 10
+# Test help includes all feature modes
+python run_script.py --help
+# (verify all features' modes/options appear)
+
+# Test each feature's mode is accessible
+python run_script.py --mode feature_01_mode --help
+python run_script.py --mode feature_02_mode --help
+python run_script.py --mode feature_03_mode --help
 ```
 
-**Expected result with DATA VALUE verification:**
-```python
-# Load output file
-df = pd.read_csv('output/draft_recommendations.csv')
+**Pass:** All feature modes accessible, help complete
+**Fail:** Missing modes, crashes → Fix, re-run Parts 1 & 2
 
-# Verify ADP multipliers applied (Feature 01)
-assert 'adp_multiplier' in df.columns
-assert df['adp_multiplier'].between(0.5, 1.5).all()
-assert df['adp_multiplier'].notna().all()
+---
 
-# Verify matchup difficulty reflected (Feature 02)
-assert 'matchup_difficulty' in df.columns
-assert df['matchup_difficulty'].isin(['easy', 'medium', 'hard']).all()
+## Part 3: Epic E2E Execution Test (CRITICAL)
 
-# Verify performance tracking initialized (Feature 03)
-assert 'performance_score' in df.columns
-assert df['performance_score'].between(0, 100).all()
+**📖 See `reference/smoke_testing_pattern.md` for universal E2E test pattern and data validation examples.**
 
-# Verify final scores show combined effects
-assert 'final_score' in df.columns
-assert df['final_score'] != df['base_score']  # Multipliers applied
+**Epic-specific implementation:**
+
+Execute epic-level workflows from `epic_smoke_test_plan.md`:
+
+### Step 1: Execute Each Test Scenario
+
+From epic_smoke_test_plan.md, execute each scenario:
+
+**Example scenario:**
+```markdown
+### Scenario 1: Complete Draft Workflow
+1. Fetch player data (Feature 01)
+2. Apply ratings (Feature 02)
+3. Generate recommendations (Feature 03)
 ```
 
-**Example Scenario 2: Analysis Workflow**
+**Execute:**
 ```bash
-python run_league_helper.py --mode analysis --player "Patrick Mahomes"
+# Step-by-step or combined workflow
+python run_script.py --complete-draft-workflow --data-folder ./data
 ```
 
-**Expected result:**
+### Step 2: CRITICAL - Verify Epic Output DATA VALUES
+
+**📖 See pattern file for data validation examples.**
+
+**Epic-specific validation:**
+
 ```python
-# Load output
-with open('output/player_analysis.json', 'r') as f:
+# Verify epic-level outputs have correct data
+from pathlib import Path
+import json
+
+# Check final epic output (combines all features)
+epic_output = Path("data/draft_recommendations_final.json")
+assert epic_output.exists(), "Epic output file missing"
+
+with open(epic_output) as f:
     data = json.load(f)
 
-# Verify all features contributed data
-assert 'adp_data' in data  # Feature 01
-assert 'matchup_projections' in data  # Feature 02
-assert 'historical_performance' in data  # Feature 03
+# Verify data from ALL features integrated correctly
+assert len(data) > 0, "Epic output is empty"
 
-# Verify data values are reasonable
-assert 0 < data['adp_data']['rank'] <= 500
-assert 0.5 <= data['adp_data']['multiplier'] <= 1.5
-assert data['matchup_projections']['difficulty'] in ['easy', 'medium', 'hard']
-assert 0 <= data['historical_performance']['accuracy'] <= 100
+# Verify Feature 01 data present (player info)
+assert all('player_name' in p for p in data), "Missing player names (Feature 01)"
+
+# Verify Feature 02 data present (ratings)
+assert all('rating' in p for p in data), "Missing ratings (Feature 02)"
+
+# Verify Feature 03 data present (recommendations)
+assert all('draft_position' in p for p in data), "Missing positions (Feature 03)"
+
+# Verify values are CORRECT (not placeholders)
+assert data[0]['rating'] != 0.0, "Ratings are placeholder values"
+assert data[0]['draft_position'] > 0, "Positions are invalid"
+
+print("✅ Epic output integrates all features correctly")
 ```
 
-**Execute ALL scenarios** from epic_smoke_test_plan.md.
-
-**Document results:**
-```markdown
-### Part 3: Epic End-to-End Execution Tests
-
-**Status:** {✅ PASSED / ❌ FAILED}
-
-**Scenarios Tested:** {N}
-**Scenarios Passed:** {M}
-
-**Scenario Results:**
-- Scenario 1 (Draft Workflow): {✅ PASSED / ❌ FAILED}
-  - ADP multipliers verified: {✅}
-  - Matchup difficulty verified: {✅}
-  - Performance tracking verified: {✅}
-
-- Scenario 2 (Analysis Workflow): {✅ PASSED / ❌ FAILED}
-  - ADP data verified: {✅}
-  - Matchup projections verified: {✅}
-  - Historical performance verified: {✅}
-
-[... more scenarios ...]
-
-**Issues Found:**
-{Any incorrect data values, missing fields, wrong ranges}
-```
-
-**If Part 3 fails:**
-- STOP - Do not proceed to Part 4
-- Fix all execution issues
-- Re-run Part 3 until all scenarios pass with correct DATA VALUES
+**If validation fails:** Document issue, fix, RE-RUN ALL 4 PARTS
 
 ---
 
-### Step 2.4: Part 4 - Cross-Feature Integration Tests
+## Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
 
-**Objective:** Execute integration scenarios that test feature INTERACTIONS (not individual features).
+**This part is UNIQUE to epic-level smoke testing.**
 
-**Why this matters:** Integration scenarios test how features work TOGETHER:
-- Do Feature 01 outputs correctly feed into Feature 02?
-- Do features conflict or interfere with each other?
-- Do combined multipliers produce expected results?
+**Objective:** Verify features work together correctly.
 
-**Execute EACH integration scenario from epic_smoke_test_plan.md:**
+### Step 1: Identify Integration Points
 
-**Example Integration Scenario 1: ADP + Matchup Integration**
+From `epic_smoke_test_plan.md`, identify cross-feature integration scenarios:
+
+**Example integration points:**
 ```markdown
-**Scenario:** ADP + Matchup Integration
-**Added:** Stage 5e (feature_02_matchup_system)
-
-**What to test:** Verify ADP multipliers don't override matchup difficulty
-
-**How to test:**
-1. Run draft mode with both features enabled
-2. Find player with high ADP (top 10) facing tough matchup
-3. Verify final score shows BOTH effects
-
-**Expected result:**
-- Player with ADP=5 (mult≈1.2) + tough matchup (mult≈0.8)
-- Final score = base * 1.2 * 0.8 ≈ base * 0.96
+- Feature 01 → Feature 02: Player data passed to rating system
+- Feature 02 → Feature 03: Ratings used in recommendations
+- Feature 03 → Feature 01: Recommendations update player rankings
 ```
 
-**Verification code:**
+### Step 2: Execute Integration Scenarios
+
+For EACH integration point, verify data flows correctly:
+
 ```python
-# Find player matching criteria
-player = df[(df['adp_rank'] <= 10) & (df['matchup_difficulty'] == 'hard')].iloc[0]
+# Integration Test: Feature 01 → Feature 02
+from feature_01.PlayerDataManager import PlayerDataManager
+from feature_02.RatingSystem import RatingSystem
 
-# Verify both multipliers applied
-assert 1.1 <= player['adp_multiplier'] <= 1.3  # High ADP bonus
-assert 0.7 <= player['matchup_multiplier'] <= 0.9  # Tough matchup penalty
+# Get data from Feature 01
+player_mgr = PlayerDataManager()
+players = player_mgr.get_all_players()
 
-# Verify final score shows BOTH effects
-expected_score = player['base_score'] * player['adp_multiplier'] * player['matchup_multiplier']
-assert abs(player['final_score'] - expected_score) < 0.01
+# Pass to Feature 02
+rating_sys = RatingSystem()
+rated_players = rating_sys.apply_ratings(players)
+
+# Verify integration works
+assert len(rated_players) == len(players), "Data lost in integration"
+assert all(hasattr(p, 'rating') for p in rated_players), "Ratings not applied"
+assert rated_players[0].rating > 0, "Rating values invalid"
+
+print("✅ Feature 01 → Feature 02 integration works")
 ```
 
-**Example Integration Scenario 2: Performance Tracking Feedback Loop**
-```markdown
-**Scenario:** Performance Tracking Affects ADP Confidence
-**Added:** Stage 5e (feature_03_performance_tracker)
+### Step 3: Verify Error Propagation
 
-**What to test:** Verify performance history adjusts ADP confidence
+Test that errors propagate correctly across feature boundaries:
 
-**How to test:**
-1. Run analysis for player with poor historical accuracy
-2. Verify ADP multiplier is dampened by low confidence
-
-**Expected result:**
-- Player with ADP=10 normally gets mult≈1.15
-- But with 30% accuracy, confidence dampens to mult≈1.05
+```python
+# Test error handling at integration point
+try:
+    invalid_data = None
+    rating_sys.apply_ratings(invalid_data)
+    assert False, "Should have raised error for invalid data"
+except ValueError as e:
+    assert "Invalid player data" in str(e), "Error message unclear"
+    print("✅ Error propagation works correctly")
 ```
 
-**Execute ALL integration scenarios** from epic_smoke_test_plan.md.
+### Step 4: Verify Interface Compatibility
 
-**Document results:**
-```markdown
-### Part 4: Cross-Feature Integration Tests
+Ensure features use compatible interfaces:
 
-**Status:** {✅ PASSED / ❌ FAILED}
+```python
+# Verify Feature 02 accepts Feature 01's output format
+from feature_01.PlayerDataManager import Player
+from feature_02.RatingSystem import RatingSystem
 
-**Integration Scenarios Tested:** {N}
-**Integration Scenarios Passed:** {M}
+sample_player = Player(name="Test", position="QB")
+rating_sys = RatingSystem()
 
-**Scenario Results:**
-- ADP + Matchup Integration: {✅ PASSED / ❌ FAILED}
-  - Both multipliers verified: {✅}
-  - Combined effect correct: {✅}
+# This should work without errors
+result = rating_sys.rate_player(sample_player)
+assert result is not None, "Interface mismatch between features"
 
-- Performance Tracking Feedback: {✅ PASSED / ❌ FAILED}
-  - Confidence dampening verified: {✅}
-  - ADP adjustment correct: {✅}
-
-[... more scenarios ...]
-
-**Issues Found:**
-{Any feature conflicts, incorrect interactions, missing feedback loops}
+print("✅ Interface compatibility verified")
 ```
 
-**If Part 4 fails:**
-- STOP - Document ALL failures
-- Fix all integration issues
-- Re-run Part 4 until all scenarios pass
+**Pass Criteria:**
+- All integration scenarios execute successfully
+- Data flows correctly between features
+- Error propagation works
+- Interfaces are compatible
+
+**Fail Criteria:**
+- Integration point fails
+- Data format mismatches
+- Errors not propagated
+- Interface incompatibilities
+
+**If Part 4 fails:** Fix integration issues, RE-RUN ALL 4 PARTS from Part 1
 
 ---
 
-### Step 2.5: Document Epic Smoke Testing Results
+## Pass/Fail Criteria
 
-**Create summary in epic_smoke_test_plan.md:**
+**📖 See `reference/smoke_testing_pattern.md` for universal pass criteria.**
 
-```markdown
----
+**Epic-specific criteria:**
 
-## Epic Smoke Testing Results (Stage 6a)
+**✅ PASS if:**
+- Part 1: All epic modules import successfully
+- Part 2: All feature modes accessible
+- Part 3: Epic workflows execute AND output data values verified correct
+- Part 4: Cross-feature integration works correctly
 
-**Date:** {YYYY-MM-DD}
-**Status:** {✅ PASSED / ❌ FAILED}
+**❌ FAIL if:**
+- Part 1: Any import errors or conflicts
+- Part 2: Missing modes, crashes
+- Part 3: Workflow crashes OR output missing OR **data values incorrect**
+- Part 4: Integration points fail OR data format mismatches
 
-**Part 1 (Import Tests):** {✅ PASSED / ❌ FAILED}
-- Tests executed: {N}
-- Tests passed: {M}
-- Issues found: {list or "None"}
-
-**Part 2 (Entry Points):** {✅ PASSED / ❌ FAILED}
-- Entry points tested: {N}
-- Entry points passed: {M}
-- Issues found: {list or "None"}
-
-**Part 3 (E2E Tests):** {✅ PASSED / ❌ FAILED}
-- Scenarios tested: {N}
-- Scenarios passed: {M}
-- DATA VALUES verified: {✅ YES / ❌ NO}
-- Issues found: {list or "None"}
-
-**Part 4 (Integration Tests):** {✅ PASSED / ❌ FAILED}
-- Integration scenarios tested: {N}
-- Integration scenarios passed: {M}
-- Issues found: {list or "None"}
-
-**Overall Status:** {✅ ALL PASSED / ❌ FAILURES FOUND}
-
-**Issues to Fix:**
-{If any failures, list all issues with details}
-
-**Next Steps:**
-{If PASSED: "Proceed to STAGE_6b (Epic QC Rounds)"}
-{If FAILED: "Fix issues listed above, RESTART Step 2"}
-```
+**If FAIL:**
+1. Document failure in EPIC_README.md
+2. Identify root cause (integration issue, interface mismatch, data flow problem)
+3. Fix ALL issues found
+4. RE-RUN ALL 4 PARTS from Part 1
+5. Do NOT proceed to Stage 6b until all parts pass
 
 ---
 
-### Step 2.6: Handle Smoke Testing Failures (If Any)
+## Epic Issue Handling Protocol
 
-**If ANY part of smoke testing failed:**
+**If issues found during smoke testing:**
 
-**DO NOT:**
-- ❌ Proceed to Stage 6b with failing tests
-- ❌ Mark issues as "minor" or "acceptable"
-- ❌ Skip failed scenarios
+### Minor Issues (Fix Immediately)
+- Naming inconsistencies
+- Comment improvements
+- Documentation gaps
 
-**DO:**
-1. **Document ALL failures** in epic_smoke_test_plan.md results section
-2. **Create bug fixes** for integration issues (if needed)
-   - Use bug fix workflow: Stage 2 → 5a → 5b → 5c
-   - Bug fixes for epic-level issues go in epic folder
-3. **Fix issues** directly in feature code (if simple fixes)
-4. **RESTART Step 2** - Re-run ALL parts:
-   - Part 1: Import tests
-   - Part 2: Entry point tests
-   - Part 3: E2E execution tests
-   - Part 4: Integration tests
-5. **Update epic_smoke_test_plan.md** if tests revealed missing scenarios
+**Fix immediately, re-run affected tests, continue**
 
-**Example bug fix creation:**
-```markdown
-**Issue:** ADP + Matchup integration produces incorrect combined score
+### Critical Issues (Restart Required)
+- Integration point failures
+- Data corruption across features
+- Interface incompatibilities
+- Epic workflow crashes
 
-**Root Cause:** Multipliers applied in wrong order
+**Follow epic debugging protocol:**
+1. Create `epic_name/debugging/ISSUES_CHECKLIST.md`
+2. Enter debugging protocol (see `debugging/debugging_protocol.md`)
+3. After ALL issues resolved → **RESTART Stage 6a from Step 1**
+4. Re-run entire smoke testing process
 
-**Fix Required:** Update PlayerManager.calculate_final_score() to apply multipliers correctly
-
-**Action:** Create bugfix_high_multiplier_order/
-```
+**Critical:** Loop back to Epic Smoke Testing (NOT back to this test), ensures clean validation
 
 ---
 
-### Step 2.7: Update Agent Status (After Smoke Testing Passes)
+## Re-Reading Checkpoint
 
-**Update EPIC_README.md Agent Status:**
+**After completing all 4 parts:**
 
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Stage:** EPIC_FINAL_QC
-**Current Step:** Step 2 complete (Epic Smoke Testing PASSED)
-**Current Guide:** stages/stage_6/epic_smoke_testing.md
-**Guide Last Read:** {YYYY-MM-DD HH:MM}
-
-**Progress:** STAGE_6a complete (Epic Smoke Testing)
-**Next Action:** Transition to Epic QC Rounds
-**Next Guide:** stages/stage_6/epic_qc_rounds.md
-**Blockers:** None
-
-**Smoke Testing Results:**
-- Import tests: ✅ {N}/{N} passed
-- Entry point tests: ✅ {M}/{M} passed
-- E2E execution tests: ✅ {K}/{K} passed
-- Integration tests: ✅ {L}/{L} passed
-- Overall: ✅ ALL PASSED
-```
+1. **Re-read Critical Rules** (top of this guide)
+2. **Re-read Pattern File** (`reference/smoke_testing_pattern.md` - Common Mistakes section)
+3. **Verify data VALUES inspected** for epic-level outputs
+4. **Verify cross-feature integration tested** (Part 4)
+5. **Update EPIC_README.md Agent Status**
 
 ---
 
-## Completion Criteria
+## Next Steps
 
-**STAGE_6a (Epic Smoke Testing) is complete when ALL of these are true:**
+**If ALL 4 parts PASSED:**
+- ✅ Document epic smoke test results in EPIC_README.md
+- ✅ Update Agent Status: "Epic Smoke Testing COMPLETE"
+- ✅ Proceed to **Stage 6b: Epic QC Rounds**
 
-### Pre-QC Verification Complete
-- [ ] All features verified at Stage 5e (checked EPIC_README.md)
-- [ ] No pending bug fixes (checked epic folder)
-- [ ] epic_smoke_test_plan.md reviewed (evolved from Stages 1, 4, 5e)
-- [ ] Original epic request reviewed ({epic_name}.txt)
-
-### Epic Smoke Testing Complete
-- [ ] Part 1: ALL import tests passed
-- [ ] Part 2: ALL entry point tests passed
-- [ ] Part 3: ALL E2E execution tests passed with DATA VALUES verified
-- [ ] Part 4: ALL cross-feature integration tests passed
-
-### Results Documented
-- [ ] Epic smoke testing results section created in epic_smoke_test_plan.md
-- [ ] All test results documented (pass/fail for each part)
-- [ ] DATA VALUE verification documented (not just structure)
-- [ ] Any issues documented with details
-
-### Agent Status Updated
-- [ ] EPIC_README.md Agent Status shows STAGE_6a complete
-- [ ] Next action: Transition to Epic QC Rounds (stages/stage_6/epic_qc_rounds.md)
-- [ ] No blockers
-
-**If ANY item unchecked → STAGE_6a NOT complete**
-
-**When ALL items checked:**
-✅ STAGE_6a COMPLETE
-→ Proceed to STAGE_6b (Epic QC Rounds)
+**If ANY part FAILED:**
+- ❌ Fix ALL issues identified
+- ❌ If critical issues → Follow epic debugging protocol
+- ❌ RE-RUN ALL 4 PARTS from Part 1
+- ❌ Do NOT proceed to QC Rounds until clean pass
 
 ---
 
-## Common Mistakes to Avoid
+## Summary
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ "If You're Thinking This, STOP" - Anti-Pattern Detection   │
-└─────────────────────────────────────────────────────────────┘
+**Epic-Level Smoke Testing validates:**
+- All feature modules work together (Part 1)
+- Epic workflows are accessible (Part 2)
+- Epic executes end-to-end with REAL data producing CORRECT values (Part 3)
+- Features integrate correctly (Part 4)
 
-❌ "One feature is at 5d, close enough to 5e, I'll proceed"
-   ✅ STOP - ALL features must be at 5e, no exceptions
+**Key Differences from Feature-Level:**
+- Tests ALL features TOGETHER (not in isolation)
+- 4 parts (adds Part 4: Cross-Feature Integration)
+- Uses EVOLVED test plan (updated through Stages 1, 4, 5e)
+- Next stage: Epic QC Rounds (Stage 6b)
 
-❌ "Epic smoke test plan was updated in Stage 4, that's recent enough"
-   ✅ STOP - Must be updated in Stage 5e (reflects actual implementation)
+**Critical Success Factors:**
+- Verify ALL features complete Stage 5e first
+- Use evolved test plan (reflects actual implementation)
+- Verify DATA VALUES (not just structure)
+- Test cross-feature integration (Part 4)
+- Re-run ALL parts if any fail
 
-❌ "Imports work, that's enough for Part 1"
-   ✅ STOP - Also check for circular dependencies, no warnings
-
-❌ "File exists and has data, Part 3 passes"
-   ✅ STOP - Must verify ACTUAL DATA VALUES (ranges, formats, correctness)
-
-❌ "Features work individually, integration will be fine"
-   ✅ STOP - Must test cross-feature integration explicitly (Part 4)
-
-❌ "One integration test failed but others passed, I'll proceed"
-   ✅ STOP - ALL tests must pass, fix failures and RESTART
-
-❌ "I'll skip smoke testing and go straight to QC rounds"
-   ✅ STOP - Smoke testing is MANDATORY before QC rounds
-
-❌ "Epic smoke testing is the same as feature smoke testing"
-   ✅ STOP - Epic tests ALL features together, feature tests isolation
-```
+**📖 For universal patterns and detailed examples, see:**
+`reference/smoke_testing_pattern.md`
 
 ---
 
-## Next Stage
-
-**After completing STAGE_6a:**
-
-📖 **READ:** `stages/stage_6/epic_qc_rounds.md`
-🎯 **GOAL:** Execute 3 QC rounds validating epic cohesion and integration
-⏱️ **ESTIMATE:** 30-60 minutes (3 rounds)
-
-**Stage 6b will:**
-- QC Round 1: Cross-feature integration validation
-- QC Round 2: Epic cohesion and consistency
-- QC Round 3: End-to-end success criteria
-- Document findings for each round
-- Restart protocol if any issues found
-
-**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting STAGE_6b.
-
----
-
-*End of stages/stage_6/epic_smoke_testing.md*
+**END OF STAGE 6a GUIDE**
