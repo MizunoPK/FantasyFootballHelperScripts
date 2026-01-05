@@ -1,3 +1,0 @@
-I'd like to take a careful analysis of the iterative simulation and find any opprotunities to increase the space and time efficiency of the program
-Take whatever chances we can to effectively use parallel threads, but also work under the assumption that we may sometimes run the simulation on a system where we are forced to use only a single thread.
-We are okay with increasing the code complexity and some maintainability if it means the overall efficiency has increased

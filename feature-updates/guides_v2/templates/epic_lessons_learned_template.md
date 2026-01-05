@@ -1,7 +1,7 @@
 # Epic Lessons Learned Template
 
 **Filename:** `epic_lessons_learned.md`
-**Location:** `feature-updates/{epic_name}/epic_lessons_learned.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/epic_lessons_learned.md`
 **Created:** Stage 1 (Epic Planning)
 **Updated:** Throughout all stages (after each feature completion)
 

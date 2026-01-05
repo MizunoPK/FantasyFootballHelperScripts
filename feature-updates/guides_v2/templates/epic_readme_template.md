@@ -1,7 +1,7 @@
 # Epic Readme Template
 
 **Filename:** `EPIC_README.md`
-**Location:** `feature-updates/{epic_name}/EPIC_README.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/EPIC_README.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** Throughout all stages
 

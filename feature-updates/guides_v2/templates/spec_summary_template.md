@@ -1,7 +1,7 @@
 # Spec Summary Template
 
 **Filename:** `SPEC_SUMMARY.md`
-**Location:** `feature-updates/{epic_name}/feature_XX_{name}/SPEC_SUMMARY.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/SPEC_SUMMARY.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** Never (immutable after user validation)
 

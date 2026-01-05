@@ -1,7 +1,7 @@
 # Feature Todo Template
 
 **Filename:** `todo.md`
-**Location:** `feature-updates/{epic_name}/feature_XX_{name}/todo.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/todo.md`
 **Created:** {YYYY-MM-DD} (Stage 5a)
 
 **Purpose:** Implementation task list with complete traceability, created during Stage 5a (TODO Creation).

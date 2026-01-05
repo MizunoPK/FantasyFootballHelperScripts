@@ -1,3 +1,0 @@
-Currently, the simulation's iterative mode will clear all the itermediate_*.json files upon starting up or looping back to the beginning.
-I want this updated such that if a previous iterative simulation was halted part-way through then it resumes where the last one left off.
-This will be indiciated by what itermediate_*.json files are currently existing. If there exists a file for the last parameter in the parameter order, then all the files will be cleared and we will start from the beginning as normal. If the last json to be made is from partway through the parameter order, then it will pick up from the next parameter in the order. If there are no itermediate_*.json files, then it will start from the beginning as normal.

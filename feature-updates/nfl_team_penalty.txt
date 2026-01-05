@@ -1,0 +1,14 @@
+Have a penalty during Add to Roster mode for specific NFL teams
+
+We'll put the following configs in league_config.json
+
+NFL_TEAM_PENALTY = ["LV", "NYJ", "NYG", "KC"]
+NFL_TEAM_PENALTY_WEIGHT = 0.75
+
+The above settings would mean that for any player on the Raiders, Jets, Giants, or Chiefs... their final score would be multiplied by 0.75
+
+This is a user-specific setting that will not be simulated in the simulations. The settings will only be used to reflect the user's team preferences and perferred strategy. 
+
+Simulation configs should look like this:
+NFL_TEAM_PENALTY = []
+NFL_TEAM_PENALTY_WEIGHT = 1.0

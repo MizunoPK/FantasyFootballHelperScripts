@@ -160,7 +160,7 @@ What would you like to do?
 
 2. **Create folder in epic directory:**
    ```
-   feature-updates/{epic_name}/bugfix_{priority}_{name}/
+   feature-updates/KAI-{N}-{epic_name}/bugfix_{priority}_{name}/
    ```
 
 3. **Create initial structure:**

@@ -39,7 +39,7 @@ I'm reading `stages/stage_2/feature_deep_dive.md` to ensure I follow the complet
 - Checklist.md ALL items must be resolved (marked [x]) before Stage 2 complete
 
 **Prerequisites I'm verifying:**
-✅ Epic folder exists: `feature-updates/{epic_name}/`
+✅ Epic folder exists: `feature-updates/KAI-{N}-{epic_name}/`
 ✅ Feature folder exists: `feature_{NN}_{name}/`
 ✅ Stage 1 complete (EPIC_README.md shows Stage 1 complete)
 

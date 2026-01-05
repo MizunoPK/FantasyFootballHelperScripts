@@ -1,7 +1,7 @@
 # Epic Ticket Template
 
 **Filename:** `EPIC_TICKET.md`
-**Location:** `feature-updates/{epic_name}/EPIC_TICKET.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/EPIC_TICKET.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** Never (immutable after user validation)
 

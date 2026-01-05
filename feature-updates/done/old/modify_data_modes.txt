@@ -1,8 +1,0 @@
-Implement the Modify Player Data modes
-Upon entering the section from the main menu, the user should be given 4 options: Mark Player as Drafted, Mark Player as Rostered, Drop Player, and Lock Player
-Each mode is going to allow the user to search a name. Look in the old_structure directory at the old version of any of these modes to see how it Implements a fuzzy search and pull it into a util file for all of these modes to use.
-Mark Player as Drafted mode will allow the user to search from a list of drafted=0 players, and anyone selected will have their drafted status set to 1.
-Mark Player as Drafted mode will allow the user to search from a list of drafted=0 players, and anyone selected will have their drafted status set to 2.
-Drop Player mode will allow the user to search from a list of any player that is drafted != 0, and anyone selected will have their drafted state set to 0.
-Lock Player mode will allow the user to search from a list of ANY player from the entire player list, and anyone selected will have their locked state inverted. If it was 0, set to 1, and vis versa. If a player is locked=1 already then make sure a "[LOCKED]" note appears next to their name when searched
-After a player is selected, then call the functions in PlayerManager to update the players.csv file with the new info, and go back to the Modify Player Data menu display

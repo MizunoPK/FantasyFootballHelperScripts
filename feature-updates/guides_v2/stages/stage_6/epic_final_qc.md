@@ -6,7 +6,8 @@
 
 - **STAGE_6a**: Epic Smoke Testing (Steps 1-2)
 - **STAGE_6b**: Epic QC Rounds (Steps 3-5)
-- **STAGE_6c**: Epic Final Review (Steps 6-8)
+- **STAGE_6c**: User Testing (Step 6)
+- **STAGE_6d**: Epic Final Review (Steps 7-9)
 
 **📖 Read the appropriate sub-stage guide based on your current step.**
 
@@ -24,9 +25,10 @@
 | Step 3: QC Round 1 (Cross-Feature Integration) | stages/stage_6/epic_qc_rounds.md | 45-60 min |
 | Step 4: QC Round 2 (Epic Cohesion & Consistency) | stages/stage_6/epic_qc_rounds.md | 45-60 min |
 | Step 5: QC Round 3 (End-to-End Success Criteria) | stages/stage_6/epic_qc_rounds.md | 30-45 min |
-| Step 6: Epic PR Review (11 Categories) | stages/stage_6/epic_final_review.md | 45-60 min |
-| Step 7: Handle Issues (If Any) | stages/stage_6/epic_final_review.md | Variable |
-| Step 8: Final Verification & README Update | stages/stage_6/epic_final_review.md | 15-30 min |
+| Step 6: User Testing & Bug Fix Protocol | stages/stage_6/user_testing.md | Variable |
+| Step 7: Epic PR Review (11 Categories) | stages/stage_6/epic_final_review.md | 45-60 min |
+| Step 8: Validate Against Epic Request | stages/stage_6/epic_final_review.md | 30-45 min |
+| Step 9: Final Verification & README Update | stages/stage_6/epic_final_review.md | 15-30 min |
 
 ---
 
@@ -35,9 +37,9 @@
 **What is Stage 6?**
 Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole after ALL features are implemented. This includes epic smoke testing, 3 QC rounds, and epic-level PR review.
 
-**Total Time Estimate:** 4-6 hours (8 steps across 3 guides, 1 mandatory restart protocol)
+**Total Time Estimate:** 4-7 hours (9 steps across 4 guides, 1 mandatory restart protocol)
 
-**Exit Condition:** Stage 6 is complete when epic smoke testing passed, all 3 QC rounds passed, epic PR review passed (all 11 categories), and all issues resolved (no pending bug fixes)
+**Exit Condition:** Stage 6 is complete when epic smoke testing passed, all 3 QC rounds passed, user testing passed (no bugs found), epic PR review passed (all 11 categories), and all issues resolved (no pending bug fixes)
 
 ---
 
@@ -85,7 +87,7 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 **Time Estimate:** 2-3 hours (45-60 min per round)
 
-**When complete:** Transition to STAGE_6c
+**When complete:** Transition to STAGE_6c (User Testing)
 
 **Why this sub-stage exists:**
 - Deep validation of epic quality (not just functionality)
@@ -95,14 +97,40 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ---
 
-### STAGE_6c: Epic Final Review (Steps 6-8)
+### STAGE_6c: User Testing (Step 6)
+
+**Read:** `stages/stage_6/user_testing.md`
+
+**What it covers:**
+- **Step 6:** User Testing & Bug Fix Protocol (user tests epic with real data and workflows)
+
+**Key Outputs:**
+- User testing request presented
+- User testing results received
+- All user-reported bugs fixed (if any)
+- Epic validated by actual user
+- EPIC_README.md updated with user testing results
+
+**Time Estimate:** Variable (depends on user availability and bug count)
+
+**When complete:** Transition to STAGE_6d (Epic Final Review)
+
+**Why this sub-stage exists:**
+- User testing catches issues automated testing misses
+- Real-world validation with actual user workflows
+- User perspective identifies usability problems
+- Mandatory quality gate before final review
+
+---
+
+### STAGE_6d: Epic Final Review (Steps 7-9)
 
 **Read:** `stages/stage_6/epic_final_review.md`
 
 **What it covers:**
-- **Step 6:** Epic PR Review (11 Categories - Epic Scope)
-- **Step 7:** Handle Issues (If Any Discovered) - bug fix creation and Stage 6 restart protocol
-- **Step 8:** Final Verification & README Update
+- **Step 7:** Epic PR Review (11 Categories - Epic Scope)
+- **Step 8:** Validate Against Epic Request (original user goals)
+- **Step 9:** Final Verification & README Update
 
 **Key Outputs:**
 - Epic PR review results (all 11 categories PASSED)
@@ -119,7 +147,7 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 **Why this sub-stage exists:**
 - Final validation before epic completion
 - 11-category PR review ensures comprehensive coverage
-- Bug fix workflow integrated (create, fix, restart Stage 6)
+- Validation against original epic request
 - Clear completion criteria
 
 ---
@@ -152,25 +180,40 @@ Start Epic Final QC
           │
           ▼
     ┌─────────────┐
-    │  STAGE_6c   │  Epic Final Review
-    │  (60-90min) │  • Step 6: Epic PR Review (11 Categories)
-    └─────────────┘  • Step 7: Handle Issues (if any)
-          │          • Step 8: Final Verification
+    │  STAGE_6c   │  User Testing
+    │  (Variable) │  • Step 6: User Testing & Bug Fix Protocol
+    └─────────────┘
           │
-    [Issues Found?]
+    [User Reports Bugs?]
      │           │
     YES         NO
      │           │
      ▼           ▼
-  Bug Fix    Final
-  Workflow   Verification
+  Bug Fix   Proceed to
+  Workflow   STAGE_6d
      │           │
-     ▼           ▼
-  RESTART   Stage 6
-  STAGE_6   COMPLETE
+     ▼           │
+  RESTART       │
+  STAGE_6       │
   (6a→6b→6c)   │
-     │           ▼
-     └───────→ Stage 7
+     │           │
+     └───────────┘
+          │
+          ▼
+    ┌─────────────┐
+    │  STAGE_6d   │  Epic Final Review
+    │  (60-90min) │  • Step 7: Epic PR Review (11 Categories)
+    └─────────────┘  • Step 8: Validate Against Epic Request
+          │          • Step 9: Final Verification
+          │
+    [All Complete?]
+          │
+          ▼
+      Stage 6
+      COMPLETE
+          │
+          ▼
+      Stage 7
 ```
 
 ---
@@ -278,7 +321,8 @@ Ready to begin Step 1: Pre-QC Verification.
 **Then read the appropriate guide:**
 - **Step 1 or 2:** Read stages/stage_6/epic_smoke_testing.md
 - **Step 3, 4, or 5:** Read stages/stage_6/epic_qc_rounds.md
-- **Step 6, 7, or 8:** Read stages/stage_6/epic_final_review.md
+- **Step 6:** Read stages/stage_6/user_testing.md
+- **Step 7, 8, or 9:** Read stages/stage_6/epic_final_review.md
 
 **Continue from "Next Action" in Agent Status.**
 
@@ -292,11 +336,16 @@ Ready to begin Step 1: Pre-QC Verification.
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_6b:**
-- Update EPIC_README.md Agent Status: "STAGE_6b complete, starting STAGE_6c"
-- **READ:** `stages/stage_6/epic_final_review.md` (full guide)
+- Update EPIC_README.md Agent Status: "STAGE_6b complete, starting STAGE_6c (User Testing)"
+- **READ:** `stages/stage_6/user_testing.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_6c:**
+- Update EPIC_README.md Agent Status: "STAGE_6c complete (User Testing PASSED), starting STAGE_6d"
+- **READ:** `stages/stage_6/epic_final_review.md` (full guide)
+- Use phase transition prompt from `prompts_reference_v2.md`
+
+**After completing STAGE_6d:**
 - Stage 6 is COMPLETE
 - Update EPIC_README.md Epic Progress Tracker
 - Proceed to Stage 7 (Epic Cleanup)
@@ -307,15 +356,16 @@ Ready to begin Step 1: Pre-QC Verification.
 
 **Stage 6 is complete when ALL of these are true:**
 
-□ **All 8 steps complete:**
+□ **All 9 steps complete:**
   - Step 1: Pre-QC Verification complete
   - Step 2: Epic Smoke Testing PASSED (all 4 parts)
   - Step 3: QC Round 1 PASSED (Cross-Feature Integration)
   - Step 4: QC Round 2 PASSED (Epic Cohesion & Consistency)
   - Step 5: QC Round 3 PASSED (End-to-End Success Criteria)
-  - Step 6: Epic PR Review PASSED (all 11 categories)
-  - Step 7: Handle Issues complete OR skipped (no issues)
-  - Step 8: Final Verification complete
+  - Step 6: User Testing PASSED (user reports "No bugs found")
+  - Step 7: Epic PR Review PASSED (all 11 categories)
+  - Step 8: Validate Against Epic Request PASSED
+  - Step 9: Final Verification complete
 
 □ **Epic Smoke Testing:**
   - Part 1 (Import Tests): ✅ PASSED
@@ -437,13 +487,14 @@ The original guide has been preserved for reference but is deprecated. All Stage
 
 ## Summary
 
-**Stage 6 is now split into three focused guides:**
+**Stage 6 is now split into four focused guides:**
 
 1. **stages/stage_6/epic_smoke_testing.md** - Epic Smoke Testing (Steps 1-2)
 2. **stages/stage_6/epic_qc_rounds.md** - Epic QC Rounds (Steps 3-5)
-3. **stages/stage_6/epic_final_review.md** - Epic Final Review (Steps 6-8)
+3. **stages/stage_6/user_testing.md** - User Testing (Step 6)
+4. **stages/stage_6/epic_final_review.md** - Epic Final Review (Steps 7-9)
 
-**Workflow remains the same:** 8 steps, 1 mandatory restart protocol, same completion criteria
+**Workflow updated:** 9 steps (added User Testing), 1 mandatory restart protocol, enhanced completion criteria
 
 **Improvement:** 50-70% reduction in guide size per step, clearer navigation, better step focus
 

@@ -79,12 +79,11 @@ Epic cleanup typically takes 15-30 minutes.
 │    - All feature README.md files complete                       │
 │    - epic_smoke_test_plan.md reflects final implementation      │
 │                                                                  │
-│ 4. ⚠️ USER TESTING IS MANDATORY (BEFORE COMMIT)                 │
-│    - Ask user to test complete system themselves                │
-│    - If bugs found → Follow bug fix protocol                    │
-│    - After bug fixes → RESTART Stage 6 (Epic Final QC)          │
-│    - Repeat until user testing passes with ZERO bugs            │
-│    - CANNOT commit without user approval                        │
+│ 4. ⚠️ USER TESTING COMPLETED IN STAGE 6                         │
+│    - Stage 6 includes mandatory user testing (Step 6)           │
+│    - User must report "No bugs found" before Stage 7            │
+│    - If bugs found in Stage 6 → Bug fixes → Restart Stage 6a    │
+│    - Stage 7 only begins after user testing passed              │
 │                                                                  │
 │ 5. ⚠️ COMMIT MESSAGE MUST USE NEW FORMAT                        │
 │    - Format: "{commit_type}/KAI-{number}: {message}"           │
@@ -108,16 +107,22 @@ Epic cleanup typically takes 15-30 minutes.
 │    - To: feature-updates/done/{epic}/                           │
 │    - Keep original epic request (.txt) in root for reference    │
 │                                                                  │
-│ 9. ⚠️ UPDATE CLAUDE.md IF GUIDES IMPROVED                        │
+│ 9. ⚠️ MAINTAIN MAX 10 EPICS IN done/ FOLDER                     │
+│    - Count epics in done/ before moving current epic            │
+│    - If count >= 10: Delete oldest epic(s) to make room         │
+│    - After move: done/ should have 10 or fewer epics            │
+│    - Keeps repository size manageable                           │
+│                                                                  │
+│ 10. ⚠️ UPDATE CLAUDE.md IF GUIDES IMPROVED                       │
 │    - Check epic_lessons_learned.md for guide improvements       │
 │    - Update guides_v2/ files if needed                          │
 │    - Update CLAUDE.md if workflow changed                       │
 │                                                                  │
-│ 10. ⚠️ VERIFY EPIC IS TRULY COMPLETE                            │
+│ 11. ⚠️ VERIFY EPIC IS TRULY COMPLETE                            │
 │     - All features implemented                                  │
 │     - All tests passing                                         │
 │     - All QC passed                                             │
-│     - User testing passed                                       │
+│     - User testing passed (completed in Stage 6 Step 6)         │
 │     - No pending work                                           │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
@@ -133,6 +138,7 @@ Epic cleanup typically takes 15-30 minutes.
 - [ ] EPIC_README.md shows "Stage 6 - Epic Final QC: ✅ COMPLETE"
 - [ ] Epic smoke testing passed (all parts)
 - [ ] Epic QC rounds passed (all 3 rounds)
+- [ ] User testing passed (Step 6 - ZERO bugs reported by user)
 - [ ] Epic PR review passed (all 11 categories)
 - [ ] No pending issues from Stage 6
 
@@ -187,14 +193,7 @@ STAGE 7: Epic Cleanup
 │   ├─ Update CLAUDE.md if workflow changed
 │   └─ Verify ALL lessons applied
 │
-├─> STEP 5: User Testing & Bug Fix Protocol (MANDATORY GATE)
-│   ├─ Ask user to test the complete system themselves
-│   ├─ User reports any bugs discovered during testing
-│   ├─ If bugs found → Follow bug fix protocol (Stage 2→5a→5b→5c)
-│   ├─ After ALL bug fixes complete → RESTART Stage 6 (Epic Final QC)
-│   └─ Return to Stage 7 only when user testing passes with ZERO bugs
-│
-├─> STEP 6: Final Commit
+├─> STEP 5: Final Commit
 │   ├─ Review all changes with git status and git diff
 │   ├─ Stage all epic-related changes
 │   ├─ Create commit with clear message
@@ -203,13 +202,15 @@ STAGE 7: Epic Cleanup
 │   ├─ Push to origin
 │   └─ Update EPIC_TRACKER.md
 │
-├─> STEP 7: Move Epic to done/ Folder
+├─> STEP 6: Move Epic to done/ Folder
 │   ├─ Create done/ folder if doesn't exist
+│   ├─ Clean up done/ folder (max 10 epics, delete oldest if needed)
 │   ├─ Move entire epic folder to done/
 │   ├─ Verify move successful (folder structure intact)
+│   ├─ Verify done/ has 10 or fewer epics
 │   └─ Leave original epic request (.txt) in root for reference
 │
-└─> STEP 8: Final Verification & Completion
+└─> STEP 7: Final Verification & Completion
     ├─ Verify epic in done/ folder
     ├─ Verify original request still in root
     ├─ Verify git shows clean state
@@ -220,14 +221,13 @@ STAGE 7: Epic Cleanup
 **Critical Decision Points:**
 - **After Step 2:** If tests fail → Fix issues, RESTART Step 2
 - **After Step 3:** If documentation incomplete → Update docs, re-verify
-- **After Step 5:** If user finds bugs → Create bug fixes, RESTART Stage 6, return to Step 5
-- **After Step 6:** If commit fails → Fix issues, retry commit
+- **After Step 5:** If commit fails → Fix issues, retry commit
 
 ---
 
 ## Quick Navigation
 
-**Stage 7 has 8 main steps. Jump to any step:**
+**Stage 7 has 7 main steps. Jump to any step:**
 
 | Step | Focus Area | Mandatory Gate? | Go To |
 |------|-----------|-----------------|-------|
@@ -236,10 +236,9 @@ STAGE 7: Epic Cleanup
 | **Step 2b** | Investigate Anomalies | Optional | [Step 2b](#step-2b-investigate-user-reported-anomalies-if-applicable) |
 | **Step 3** | Documentation Verification | No | [Step 3](#step-3-documentation-verification) |
 | **Step 4** | Update Guides (Apply Lessons) | No | [Step 4](#step-4-update-guides-if-needed) |
-| **Step 5** | User Testing & Bug Fix Protocol | ✅ YES (ZERO bugs) | [Step 5](#step-5-user-testing--bug-fix-protocol) |
-| **Step 6** | Final Commit | No | [Step 6](#step-6-final-commit) |
-| **Step 7** | Move Epic to done/ | No | [Step 7](#step-7-move-epic-to-done-folder) |
-| **Step 8** | Final Verification & Completion | No | [Step 8](#step-8-final-verification--completion) |
+| **Step 5** | Final Commit | No | [Step 5](#step-5-final-commit) |
+| **Step 6** | Move Epic to done/ | No | [Step 6](#step-6-move-epic-to-done-folder) |
+| **Step 7** | Final Verification & Completion | No | [Step 7](#step-7-final-verification--completion) |
 
 **Reference Files (Extracted for Quick Access):**
 
@@ -259,8 +258,8 @@ STAGE 7: Epic Cleanup
 
 **Important:**
 - Step 2: 100% test pass required (MANDATORY)
-- Step 4: Apply ALL lessons from ALL sources (epic + features + bugfixes)
-- Step 5: User testing with ZERO bugs required (MANDATORY)
+- Step 4: Apply ALL lessons from ALL sources (epic + features + bugfixes + debugging)
+- User testing completed in Stage 6 Step 6 (prerequisite for Stage 7)
 
 ---
 
@@ -441,30 +440,32 @@ Use bash to find ALL lessons learned and debugging analysis files in the epic:
 
 ```bash
 # Find all lessons learned files
-find feature-updates/done/{epic_name} -name "lessons_learned.md" -type f
+find feature-updates/done/KAI-{N}-{epic_name} -name "lessons_learned.md" -type f
 
 # Find all debugging process analysis files
-find feature-updates/done/{epic_name} -path "*/debugging/process_failure_analysis.md" -type f
+find feature-updates/done/KAI-{N}-{epic_name} -path "*/debugging/process_failure_analysis.md" -type f
 
 # Find all debugging guide update recommendations
-find feature-updates/done/{epic_name} -path "*/debugging/guide_update_recommendations.md" -type f
+find feature-updates/done/KAI-{N}-{epic_name} -path "*/debugging/guide_update_recommendations.md" -type f
 ```
+
+**Example:** `find feature-updates/done/KAI-1-improve_draft_helper -name "lessons_learned.md" -type f`
 
 **Expected Results:**
 ```
 # Standard lessons learned
-feature-updates/done/{epic_name}/epic_lessons_learned.md
-feature-updates/done/{epic_name}/feature_01_{name}/lessons_learned.md
-feature-updates/done/{epic_name}/feature_02_{name}/lessons_learned.md
-feature-updates/done/{epic_name}/bugfix_{priority}_{name}/lessons_learned.md
+feature-updates/done/KAI-{N}-{epic_name}/epic_lessons_learned.md
+feature-updates/done/KAI-{N}-{epic_name}/feature_01_{name}/lessons_learned.md
+feature-updates/done/KAI-{N}-{epic_name}/feature_02_{name}/lessons_learned.md
+feature-updates/done/KAI-{N}-{epic_name}/bugfix_{priority}_{name}/lessons_learned.md
 
 # Debugging lessons (if debugging occurred)
-feature-updates/done/{epic_name}/feature_01_{name}/debugging/lessons_learned.md
-feature-updates/done/{epic_name}/feature_01_{name}/debugging/process_failure_analysis.md
-feature-updates/done/{epic_name}/feature_01_{name}/debugging/guide_update_recommendations.md
-feature-updates/done/{epic_name}/debugging/lessons_learned.md (epic-level)
-feature-updates/done/{epic_name}/debugging/process_failure_analysis.md (epic-level)
-feature-updates/done/{epic_name}/debugging/guide_update_recommendations.md (epic-level)
+feature-updates/done/KAI-{N}-{epic_name}/feature_01_{name}/debugging/lessons_learned.md
+feature-updates/done/KAI-{N}-{epic_name}/feature_01_{name}/debugging/process_failure_analysis.md
+feature-updates/done/KAI-{N}-{epic_name}/feature_01_{name}/debugging/guide_update_recommendations.md
+feature-updates/done/KAI-{N}-{epic_name}/debugging/lessons_learned.md (epic-level)
+feature-updates/done/KAI-{N}-{epic_name}/debugging/process_failure_analysis.md (epic-level)
+feature-updates/done/KAI-{N}-{epic_name}/debugging/guide_update_recommendations.md (epic-level)
 ...
 ```
 
@@ -642,110 +643,13 @@ If epic revealed workflow improvements (new stages, stage dependencies changed, 
 
 ---
 
-### STEP 5: User Testing & Bug Fix Protocol
-
-**Objective:** Have the user test the complete system and address any bugs they discover before final commit.
-
-**⚠️ MANDATORY GATE:** This step is REQUIRED. You CANNOT skip user testing.
-
-**Actions:**
-
-**5a. Ask User to Test the System**
-
-Present the following request to the user:
-
-```
-I've completed Stages 1-6 for the {epic_name} epic. Before finalizing and committing:
-
-**REQUEST: Please test the complete system yourself**
-
-**What to test:**
-1. Run the main application(s) affected by this epic
-2. Exercise all features implemented in this epic:
-   - Feature 01: {feature_name} - {brief description of what to test}
-   - Feature 02: {feature_name} - {brief description of what to test}
-   - Feature 03: {feature_name} - {brief description of what to test}
-3. Try realistic workflows that combine multiple features
-4. Test edge cases and boundary conditions
-5. Verify data outputs are correct (not just structure)
-
-**How to test:**
-- Use REAL data (not test fixtures)
-- Follow the epic_smoke_test_plan.md scenarios
-- Try workflows you would actually use
-- Look for unexpected behavior or errors
-
-**Please test the system and report:**
-- "No bugs found" - if everything works correctly
-- OR: List of bugs/issues discovered (one per line with description)
-
-I'll wait for your testing results before proceeding with the final commit.
-```
-
-**5b. Wait for User Testing Results**
-
-**DO NOT PROCEED** until user responds with testing results.
-
-**Possible outcomes:**
-- **Outcome 1:** User reports "No bugs found" → ✅ Proceed to Step 6 (Final Commit)
-- **Outcome 2:** User reports bugs/issues → ⚠️ STOP Stage 7, follow bug fix protocol (see Step 5c)
-
-**5c. Bug Fix Protocol (If User Found Bugs)**
-
-If user reports ANY bugs:
-
-**Phase 1: Document Bugs**
-1. Create bug fix folder: `feature-updates/{epic_name}/bugfix_{priority}_{name}/`
-2. Determine priority (high/medium/low)
-3. Create notes.txt in bug fix folder
-4. User verifies notes.txt (ask user to confirm bug description is accurate)
-
-**Phase 2: Fix ALL Bugs**
-1. Read bug fix workflow guide: `stages/stage_5/bugfix_workflow.md`
-2. Follow bug fix stages: Stage 2 → 5a → 5b → 5c
-3. Mark bug fix complete in EPIC_README.md
-4. Repeat for all bugs until ALL bug fixes reach Stage 5c
-
-**Phase 3: RESTART Stage 6 (Epic Final QC)**
-
-⚠️ **CRITICAL:** After ALL bugs are fixed, you MUST restart the entire Stage 6 process:
-1. Read Stage 6 guide again
-2. Execute epic smoke testing (4 parts)
-3. Execute epic QC rounds (3 rounds)
-4. Execute epic PR review (11 categories)
-5. Validate against original epic request
-
-**If Stage 6 finds MORE bugs:** Create new bug fixes, RESTART Stage 6 AGAIN, repeat until Stage 6 passes with ZERO issues.
-
-**Phase 4: Return to Step 5 (User Testing Again)**
-1. Return to Step 5a (User Testing)
-2. Ask user to test again to verify bugs are fixed
-3. If user finds MORE bugs: Repeat Phase 1-4
-4. If user reports "No bugs found": Proceed to Step 6 (Final Commit)
-
-**5d. Document User Testing Completion**
-
-Once user testing passes with ZERO bugs, update EPIC_README.md with user testing results.
-
-**Why User Testing is Critical:**
-- Agent testing has blind spots - agents focus on technical correctness, may miss usability issues
-- User perspective is unique - users test realistic workflows agents might not consider
-- Real-world validation - user testing with real data catches issues automated tests miss
-- Final quality gate - ensures epic truly works before committing to codebase
-
-**User Testing is MANDATORY** - do NOT skip this step.
-
-**Reference:** See `STAGE_7_ORIGINAL_BACKUP.md` lines 936-1153 for detailed bug fix protocol and user testing documentation.
-
----
-
-### STEP 6: Final Commit
+### STEP 5: Final Commit
 
 **Objective:** Commit all epic changes to git with clear, descriptive message.
 
 **Actions:**
 
-**6a. Review All Changes**
+**5a. Review All Changes**
 
 Check git status and diff:
 ```bash
@@ -760,7 +664,7 @@ Verify:
 - ✅ No commented-out code
 - ✅ No sensitive data (API keys, passwords, etc.)
 
-**6b. Stage All Epic Changes**
+**5b. Stage All Epic Changes**
 
 Add all epic-related changes:
 ```bash
@@ -771,7 +675,7 @@ git add {file1} {file2} {file3}
 git add feature-updates/{epic_name}/
 ```
 
-**6c. Create Commit with Clear Message**
+**5c. Create Commit with Clear Message**
 
 **Commit Message Format:**
 ```
@@ -822,7 +726,7 @@ EOF
 )"
 ```
 
-**6d. Verify Commit Successful**
+**5d. Verify Commit Successful**
 
 Check git log:
 ```bash
@@ -831,7 +735,7 @@ git log -1 --stat
 
 Verify commit message clear, all epic files included, file change counts reasonable.
 
-**6e. Merge Branch to Main**
+**5e. Merge Branch to Main**
 
 **CRITICAL:** Merge the epic branch to main after commit is complete.
 
@@ -862,7 +766,7 @@ Verify merge successful:
 git log -1
 ```
 
-**6f. Push to Remote**
+**5f. Push to Remote**
 
 Push merged changes to origin main:
 ```bash
@@ -876,7 +780,7 @@ git status
 
 **Expected:** "Your branch is up to date with 'origin/main'", "nothing to commit, working tree clean"
 
-**6g. Update EPIC_TRACKER.md**
+**5g. Update EPIC_TRACKER.md**
 
 1. **Move epic from Active to Completed table**
 2. **Increment "Next Available Number"**
@@ -895,7 +799,7 @@ git commit -m "feat/KAI-1: Update EPIC_TRACKER with completed epic details"
 git push origin main
 ```
 
-**6h. Delete Epic Branch (Optional)**
+**5h. Delete Epic Branch (Optional)**
 
 ```bash
 git branch -d {work_type}/KAI-{number}
@@ -908,13 +812,13 @@ git branch -d epic/KAI-1
 
 ---
 
-### STEP 7: Move Epic to done/ Folder
+### STEP 6: Move Epic to done/ Folder
 
 **Objective:** Move completed epic folder to done/ for archival.
 
 **Actions:**
 
-**7a. Create done/ Folder (If Doesn't Exist)**
+**6a. Create done/ Folder (If Doesn't Exist)**
 
 Check if done/ folder exists:
 ```bash
@@ -926,28 +830,90 @@ If done/ doesn't exist:
 mkdir feature-updates/done
 ```
 
-**7b. Move Entire Epic Folder to done/**
+**6b. Clean Up done/ Folder (Max 10 Epics)**
 
-Move the complete epic folder:
+**Purpose:** Maintain a maximum of 10 archived epics in done/ folder by deleting oldest epics when needed.
+
+**Check current epic count:**
+```bash
+# Count directories in done/ (excluding guides_v2)
+ls -d feature-updates/done/*/ | wc -l
+```
+
+**If count is 10 or more:**
+
+1. **List epics by date (oldest first):**
+   ```bash
+   # Windows (PowerShell)
+   Get-ChildItem feature-updates\done -Directory | Sort-Object LastWriteTime | Select-Object Name, LastWriteTime
+
+   # Linux/Mac
+   ls -lt feature-updates/done/ | tail -n +2
+   ```
+
+2. **Calculate how many to delete:**
+   - Current count: {N}
+   - Will add: 1 (current epic)
+   - Total: {N+1}
+   - Need to delete: {N+1-10} oldest epics
+
+3. **Delete oldest epic(s):**
+   ```bash
+   # Windows
+   rmdir /s /q feature-updates\done\{oldest_epic_name}
+
+   # Linux/Mac
+   rm -rf feature-updates/done/{oldest_epic_name}
+   ```
+
+4. **Repeat for each epic that needs deletion**
+
+5. **Verify count after deletion:**
+   ```bash
+   ls -d feature-updates/done/*/ | wc -l
+   ```
+
+   **Expected:** 9 or fewer (leaving room for current epic)
+
+**If count is less than 10:**
+- No deletion needed
+- Proceed to next step
+
+**⚠️ IMPORTANT:**
+- Always keep the 10 MOST RECENT epics
+- Delete the OLDEST epics first
+- After deletion, done/ should have 9 or fewer epics (before adding current)
+- This keeps the repository size manageable
+- Older epics are preserved in git history if needed
+
+**6c. Move Entire Epic Folder to done/**
+
+Move the complete epic folder (with KAI number):
 
 **Windows:**
 ```bash
-move feature-updates\{epic_name} feature-updates\done\{epic_name}
+move feature-updates\KAI-{N}-{epic_name} feature-updates\done\KAI-{N}-{epic_name}
 ```
+
+**Example:** `move feature-updates\KAI-1-improve_draft_helper feature-updates\done\KAI-1-improve_draft_helper`
 
 **Linux/Mac:**
 ```bash
-mv feature-updates/{epic_name} feature-updates/done/{epic_name}
+mv feature-updates/KAI-{N}-{epic_name} feature-updates/done/KAI-{N}-{epic_name}
 ```
+
+**Example:** `mv feature-updates/KAI-1-improve_draft_helper feature-updates/done/KAI-1-improve_draft_helper`
 
 **CRITICAL:** Move the ENTIRE folder, not individual features.
 
-**7c. Verify Move Successful**
+**6d. Verify Move Successful**
 
 Check folder structure:
 ```bash
-ls feature-updates/done/{epic_name}/
+ls feature-updates/done/KAI-{N}-{epic_name}/
 ```
+
+**Example:** `ls feature-updates/done/KAI-1-improve_draft_helper/`
 
 **Expected:**
 ```
@@ -966,7 +932,21 @@ Verify:
 - ✅ All bug fix folders present (if any)
 - ✅ No files left behind in original location
 
-**7d. Leave Original Epic Request in Root**
+**6e. Verify done/ Folder Count**
+
+Check total epics in done/:
+```bash
+ls -d feature-updates/done/*/ | wc -l
+```
+
+**Expected:** 10 or fewer
+
+**If count exceeds 10:**
+- Review what was deleted in Step 6b
+- Verify correct epics were removed
+- Ensure only most recent 10 epics remain
+
+**6f. Leave Original Epic Request in Root**
 
 **IMPORTANT:** Do NOT move the original {epic_name}.txt file.
 
@@ -981,27 +961,27 @@ ls feature-updates/{epic_name}.txt
 
 ---
 
-### STEP 8: Final Verification & Completion
+### STEP 7: Final Verification & Completion
 
 **Objective:** Verify epic cleanup complete and celebrate completion!
 
 **Actions:**
 
-**8a. Verify Epic in done/ Folder**
+**7a. Verify Epic in done/ Folder**
 
 Confirm epic moved successfully:
 ```bash
 ls feature-updates/done/
 ```
 
-**8b. Verify Original Request Still in Root**
+**7b. Verify Original Request Still in Root**
 
 Confirm original request accessible:
 ```bash
 ls feature-updates/{epic_name}.txt
 ```
 
-**8c. Verify Git Shows Clean State**
+**7c. Verify Git Shows Clean State**
 
 Check git status:
 ```bash
@@ -1010,7 +990,7 @@ git status
 
 **Expected:** "Your branch is up to date with 'origin/main'", "nothing to commit, working tree clean" (or folder rename not staged - this is optional)
 
-**8d. Update EPIC_README.md One Final Time**
+**7d. Update EPIC_README.md One Final Time**
 
 Update the EPIC_README.md in done/ folder with epic completion summary.
 
@@ -1032,13 +1012,13 @@ Update the EPIC_README.md in done/ folder with epic completion summary.
 - Bug Fixes Created: {N}
 - Final Test Pass Rate: 100% ({total_tests}/{total_tests} tests)
 
-**Epic Moved To:** feature-updates/done/{epic_name}/
+**Epic Moved To:** feature-updates/done/KAI-{N}-{epic_name}/
 **Original Request:** feature-updates/{epic_name}.txt
 
 **Next Steps:** None - epic complete! 🎉
 ```
 
-**8e. Celebrate Epic Completion! 🎉**
+**7e. Celebrate Epic Completion! 🎉**
 
 The epic is now complete!
 
@@ -1089,15 +1069,16 @@ The epic is now complete!
 
 ### Guide Updates
 - [ ] Found ALL lessons_learned.md files (systematic search)
-- [ ] Read ALL files (epic + features + bugfixes)
+- [ ] Read ALL files (epic + features + bugfixes + debugging)
 - [ ] Created master checklist of ALL lessons
 - [ ] Applied ALL lessons to guides (100% application rate)
 - [ ] Updated CLAUDE.md if workflow changed
 
-### User Testing
-- [ ] User tested complete system
+### Stage 6 Completion (Including User Testing)
+- [ ] User tested complete system (Stage 6 Step 6)
 - [ ] User testing result: ZERO bugs found
-- [ ] If bugs found: All fixed, Stage 6 re-run, user re-tested
+- [ ] If bugs found: All fixed, Stage 6 re-run from 6a, user re-tested
+- [ ] Epic PR review passed (all categories)
 
 ### Git Commit
 - [ ] All changes reviewed with git status and git diff
@@ -1132,28 +1113,29 @@ The epic is now complete!
 1. Run unit tests (100% pass required)
 2. Verify all documentation complete
 3. Apply ALL lessons learned to guides (systematic search, 100% application)
-4. User testing (MANDATORY - cannot skip)
-5. Commit all changes to git with clear message
-6. Merge branch to main, update EPIC_TRACKER.md
-7. Move entire epic folder to done/
-8. Leave original epic request in root for reference
-9. Celebrate epic completion! 🎉
+4. Commit all changes to git with clear message
+5. Merge branch to main, update EPIC_TRACKER.md
+6. Move entire epic folder to done/ (max 10 epics, delete oldest if needed)
+7. Leave original epic request in root for reference
+8. Celebrate epic completion! 🎉
 
 **Critical Success Factors:**
 - 100% test pass rate before committing
 - Complete documentation (README, lessons learned, test plan)
-- ALL lessons applied (not just epic lessons - features + bugfixes too)
-- User testing passed with ZERO bugs
+- ALL lessons applied (epic + features + bugfixes + debugging)
+- User testing already passed in Stage 6 Step 6 (prerequisite)
 - Clear, descriptive commit message
 - Entire epic folder moved (not individual features)
+- Max 10 epics in done/ folder maintained
 
 **Common Pitfalls:**
 - Committing without running tests
 - Generic commit messages
-- Only checking epic_lessons_learned.md (missing feature/bugfix lessons)
-- Skipping user testing
+- Only checking epic_lessons_learned.md (missing feature/bugfix/debugging lessons)
+- Forgetting debugging lessons (highest priority guide updates)
 - Moving features individually instead of entire epic
 - Moving original request file (should stay in root)
+- Exceeding 10 epics in done/ folder
 
 **Reference Files:**
 - `STAGE_7_reference/commit_message_examples.md` - Commit message format and examples

@@ -1,7 +1,7 @@
 # Feature Lessons Learned Template
 
 **Filename:** `lessons_learned.md`
-**Location:** `feature-updates/{epic_name}/feature_XX_{name}/lessons_learned.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/lessons_learned.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** After Stages 5a, 5b, 5c
 

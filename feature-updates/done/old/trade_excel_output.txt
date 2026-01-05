@@ -1,5 +1,0 @@
-For the Manual Trade Visualizer, if the user confirms to save the file then I want to create an excel file in addition to a txt file 
-The excel file should show:
-- Both teams involved in the trade and all their initial rosters, along with how the players and teams' initial scores were calculated
-- Both teams involved in the trade and all their FINAL rosters, along with how the players and teams' final scores were calculated
-- Detailed calculations for each player, showing their starting projected points, each multiplier and associated threshold that got applied, and the final number

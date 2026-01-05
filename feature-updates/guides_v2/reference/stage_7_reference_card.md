@@ -192,7 +192,7 @@ git diff         # See all changes
 
 ### 6.2: Stage Changes
 ```bash
-git add feature-updates/{epic_name}/
+git add feature-updates/KAI-{N}-{epic_name}/
 git add <any other changed files>
 ```
 
@@ -345,7 +345,7 @@ git push origin main
 - Git history shows epic completion
 
 **Step 7:**
-- `feature-updates/done/{epic_name}/` (entire epic folder moved)
+- `feature-updates/done/KAI-{N}-{epic_name}/` (entire epic folder moved)
 - `feature-updates/{epic_name}.txt` (original request, stays in root)
 
 **Step 8:**

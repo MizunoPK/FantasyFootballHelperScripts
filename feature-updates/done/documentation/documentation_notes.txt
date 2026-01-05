@@ -1,4 +1,0 @@
-I want to work to ensure documentation is up to date to make it easy to pick up the project.
-I want to work to ensure the README is up to date with all pertinant information
-I want to work to ensure the ARCHITECTURE.md file contains a correct and comprehensive overview of the project's architecture
-I want to create a QUICK_START_GUIDE.md file that gives a brief overview of how to use the various scripts in the folder over the course of a fantasy football league

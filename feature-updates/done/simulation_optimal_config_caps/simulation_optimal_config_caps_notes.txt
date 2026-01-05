@@ -1,2 +1,0 @@
-I want to add a max value of the number of optimal configurations that are saved in the iterative simulation
-If there are 5 optimal_* folders in the simulation_configs folder when we are about to create a new one, then delete the oldest one

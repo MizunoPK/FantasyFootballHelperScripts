@@ -1,6 +1,0 @@
-First, all of the player's roster should be listed out. Then the user will input a list of numbers corresponding to the players they want to trade. For example, if the players are numbered 1-15, and the user entered "2,12", then players 2 and 12 would be selected for the trade. 
-Next, the console should list out all teams that the user could trade with and let the user select one.
-Next, all of the other team's players should be listed out and the user should select the players to trade for in the same way as when they were selecting their own players.
-Finally, the system will determine how we improve and how they improve in the same way as the trade suggestor and output the results.
-Ask the user y/n if they would like to save the results to a file.
-After they answer, save the results if they selected yes and go back to the Trade Simulator menu selection

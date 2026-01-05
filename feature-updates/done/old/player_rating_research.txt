@@ -1,6 +1,0 @@
-Carefully analze the reports in docs/espn
-I want a comprehensive analysis on if there are methods we could pursue to improve the accuracy of all the individual
-I want a report to be made on the data that we could pull on the players from the espn api and how we can use that to determine player ratings
-Compare methodologies you find to the existing player rating system and determine if it is a worthwhile improvement to make
-Consider things like: How current is the player ratings currently put in the players.csv file? Would it be more worthwhile to consider player ratings based on position (e.g. there would be a #1 rated QB, #1 rated RB, etc.)?
-Place this report in a new folder at docs/team_rankings

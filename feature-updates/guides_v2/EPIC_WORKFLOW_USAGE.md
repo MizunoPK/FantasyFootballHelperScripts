@@ -151,7 +151,7 @@ project-root/
 ### Epic Folder Structure
 
 ```
-feature-updates/{epic_name}/
+feature-updates/KAI-{N}-{epic_name}/
 ├── EPIC_README.md                    # Master tracking (Quick Reference, Agent Status, Progress)
 ├── epic_smoke_test_plan.md           # How to test complete epic (evolves)
 ├── epic_lessons_learned.md           # Cross-feature insights and guide improvements
@@ -509,7 +509,7 @@ feature-updates/{epic_name}/
 
 **Folder Structure:**
 ```
-feature-updates/{epic_name}/bugfix_{priority}_{name}/
+feature-updates/KAI-{N}-{epic_name}/bugfix_{priority}_{name}/
 ```
 
 **Priority Levels:**
@@ -1186,7 +1186,7 @@ I notice there's an in-progress epic: {epic_name}
 
 Let me check its current status...
 
-[Read feature-updates/{epic_name}/EPIC_README.md Agent Status section]
+[Read feature-updates/KAI-{N}-{epic_name}/EPIC_README.md Agent Status section]
 
 I see the epic is currently at:
 - Current Stage: Stage 5b - Implementation Execution
@@ -1368,7 +1368,7 @@ I notice there's an in-progress epic but I don't have the conversation history.
 
 Let me check the epic status to understand where we are...
 
-[Read feature-updates/{epic_name}/EPIC_README.md Agent Status]
+[Read feature-updates/KAI-{N}-{epic_name}/EPIC_README.md Agent Status]
 
 The epic is currently at:
 - Stage: Stage 5a - TODO Creation

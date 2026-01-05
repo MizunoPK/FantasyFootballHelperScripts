@@ -1,3 +1,0 @@
-I want to update the score_player and PlayerManager function such that when we are scoring based off of single week projected scores, then the single week value is scaled to the same normalization bounds as the full season projected points.
-When weighting single-week projected scores, then the highest possible single-week projected score for the given week is set to the NORMALIZATION_MAX_SCALE value then anything below that max value is scaled to be between 0 and NORMALIZATION_MAX_SCALE
-This should only effect modes like the Starter Helper, which looks at single-week projected points. Any modes that use ROS projected points should remain unchanged in behavior

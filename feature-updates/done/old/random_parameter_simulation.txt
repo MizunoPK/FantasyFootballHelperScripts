@@ -1,6 +1,0 @@
-We are going to be making an update to the iterative simulation based on some new variables that have been scaffolded, the NUM_PARAMETERS_TO_TEST and generate_iterative_combinations function in ConfigGenerator
-Get all configs for the base config like normal
-Get NUM_PARAMETERS_TO_TEST - 1 random other parameters and generate configs for them as if they were the sole one being tested
-Merge all the config lists together, and add on configs that contain combinations of the values fetched for each parameter
-For example if config lists were generated such that the first one is testing values for parameter 1 equaling [1,2] and the second set of configs are testing values for parameter 2 equaling [3,4], then a final set of configs would be generated where the values being tested look like: [[1], [2], [3], [4], [1,3], [2,4]]
-Changes for this should only be made in the generate_iterative_combinations function.

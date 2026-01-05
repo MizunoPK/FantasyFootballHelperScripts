@@ -32,7 +32,8 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 **Terminology:**
 - **Epic** = Top-level work unit (collection of related features)
 - **Feature** = Individual component within an epic
-- User creates `{epic_name}.txt` → Agent creates `{epic_name}/` folder with multiple `feature_XX_{name}/` folders
+- **KAI Number** = Unique epic identifier (tracked in EPIC_TRACKER.md)
+- User creates `{epic_name}.txt` → Agent creates `KAI-{N}-{epic_name}/` folder with multiple `feature_XX_{name}/` folders
 
 ---
 
@@ -71,11 +72,12 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 
 **Workflow:**
 1. READ: `stages/stage_1/epic_planning.md`
-2. Create git branch (see Git Branching Workflow below)
-3. Analyze epic, propose feature breakdown (user confirms)
-4. Create epic folder structure: `{epic_name}/` with `feature_XX_{name}/` folders
-5. Create epic files: `EPIC_README.md`, `epic_smoke_test_plan.md`, `epic_lessons_learned.md`
-6. Create feature files: `README.md`, `spec.md`, `checklist.md`, `lessons_learned.md`
+2. Assign KAI number from EPIC_TRACKER.md
+3. Create git branch (see Git Branching Workflow below)
+4. Analyze epic, propose feature breakdown (user confirms)
+5. Create epic folder structure: `KAI-{N}-{epic_name}/` with `feature_XX_{name}/` folders
+6. Create epic files: `EPIC_README.md`, `epic_smoke_test_plan.md`, `epic_lessons_learned.md`
+7. Create feature files: `README.md`, `spec.md`, `checklist.md`, `lessons_learned.md`
 
 **Next:** Stage 2 (Feature Deep Dives)
 
@@ -206,7 +208,7 @@ If missing scope/requirements discovered at ANY point after first Stage 5 starts
 
 **File Structure:**
 - Feature-level issues: `feature_XX_{name}/debugging/` folder
-- Epic-level issues: `{epic_name}/debugging/` folder
+- Epic-level issues: `KAI-{N}-{epic_name}/debugging/` folder
 - Contains: ISSUES_CHECKLIST.md, issue_XX_{name}.md files, investigation_rounds.md, code_changes.md, process_failure_analysis.md (NEW), guide_update_recommendations.md (NEW), lessons_learned.md
 
 **Workflow Integration:**
@@ -359,6 +361,16 @@ See `feature-updates/guides_v2/README.md` for complete workflow overview and gui
 
 **Format:** `{work_type}/KAI-{number}` (epic/feat/fix tracked in EPIC_TRACKER.md)
 **Examples:** `epic/KAI-1`, `feat/KAI-2`, `fix/KAI-3`
+
+### Epic Folder Naming Convention
+
+**Format:** `feature-updates/KAI-{N}-{epic_name}/`
+**Examples:**
+- `feature-updates/KAI-1-improve_draft_helper/`
+- `feature-updates/KAI-3-integrate_new_player_data_into_simulation/`
+
+**Original Request File:** `feature-updates/{epic_name}.txt` (no KAI number)
+**Why include KAI number:** Ensures unique folder names, matches branch naming, enables quick identification
 
 ### Commit Message Convention
 

@@ -1159,7 +1159,7 @@ I've completed the deep dive for Feature {N}. Here's a summary:
 **Full Details:**
 
 Please review the "Acceptance Criteria" section in spec.md:
-`feature-updates/{epic_name}/feature_{N}_{name}/spec.md`
+`feature-updates/KAI-{N}-{epic_name}/feature_{N}_{name}/spec.md`
 
 **Acceptance Criteria Section includes:**
 - Exact behavior changes

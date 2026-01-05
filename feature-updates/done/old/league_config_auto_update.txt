@@ -1,5 +1,0 @@
-After a new optimal_*.json file is created by the iterative simulation, I want to update the league_config.json in the root data folder with the new info.
-We don't want to just replace the file in the data folder. We need to follow the following requirements:
-- CURRENT_NFL_WEEK, NFL_SEASON, MAX_POSITIONS, and FLEX_ELIGIBLE_POSITIONS must remain the same as whatever they are set to in the original league_config.json file that is being updated.
-- SCHEDULE_SCORING'S MIN_WEEKS, IMPACT_SCALE, and WEIGHT should be set to the same values as what is set in the MATCHUP_SCORING section in the new optimal json
-- All other parameter values should be set to whatever they are in the new optimal_*.json file 

@@ -6,4 +6,4 @@ PARAMETER_POSITION_MAPPING = {
     "WIND": [QB, WR, K]
     etc
 }
-Only positions included in the parameter's array should have their players pulled in to rank and evaluate accuracy for the varied configs of the given parameter
+Only positions included in the parameter's array should have their players pulled in to rank and evaluate pairwise accuracy for the varied configs of the given parameter

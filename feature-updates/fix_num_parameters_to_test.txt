@@ -1,0 +1,1 @@
+The NUM_PARAMETERS_TO_TEST settings in both win rate and accuracy simulations had previously been depreciated during updates, but I now want to get them working again

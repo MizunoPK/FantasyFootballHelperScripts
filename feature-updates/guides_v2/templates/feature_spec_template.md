@@ -1,7 +1,7 @@
 # Feature Spec Template
 
 **Filename:** `spec.md`
-**Location:** `feature-updates/{epic_name}/feature_XX_{name}/spec.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/spec.md`
 **Created:** {YYYY-MM-DD}
 
 **Purpose:** PRIMARY specification for implementation. Detailed technical requirements, algorithms, interfaces, and testing strategy.

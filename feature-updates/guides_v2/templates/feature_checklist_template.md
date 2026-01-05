@@ -1,7 +1,7 @@
 # Feature Checklist Template
 
 **Filename:** `checklist.md`
-**Location:** `feature-updates/{epic_name}/feature_XX_{name}/checklist.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/checklist.md`
 **Created:** Stage 2 (Feature Deep Dive)
 
 **Purpose:** Track resolved vs pending decisions during Stage 2 (Feature Deep Dive).

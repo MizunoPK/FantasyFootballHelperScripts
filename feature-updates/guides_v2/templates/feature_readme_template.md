@@ -1,7 +1,7 @@
 # Feature Readme Template
 
 **Filename:** `README.md`
-**Location:** `feature-updates/{epic_name}/feature_XX_{name}/README.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/README.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** Throughout feature implementation (Stages 2-5e)
 

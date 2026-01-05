@@ -119,8 +119,8 @@ Research Phase is complete when Phase 1.5 audit passes (all 4 categories with ev
   - lessons_learned.md (template)
 □ Epic EPIC_README.md Feature Tracking table lists this feature
 □ No other feature currently in deep dive phase (work on ONE feature at a time)
-□ Epic notes file exists: `feature-updates/{epic_name}/{epic_name}_notes.txt`
-□ Epic research folder exists: `feature-updates/{epic_name}/research/`
+□ Epic notes file exists: `feature-updates/KAI-{N}-{epic_name}/{epic_name}_notes.txt`
+□ Epic research folder exists: `feature-updates/KAI-{N}-{epic_name}/research/`
 
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed with research
@@ -139,7 +139,7 @@ Research Phase is complete when Phase 1.5 audit passes (all 4 categories with ev
 
 ### Step 0.1: Re-Read Epic Request
 
-**Read:** `feature-updates/{epic_name}/{epic_name}_notes.txt`
+**Read:** `feature-updates/KAI-{N}-{epic_name}/{epic_name}_notes.txt`
 
 **Why this matters:**
 - Even if you "remember" the epic from Stage 1, read it AGAIN

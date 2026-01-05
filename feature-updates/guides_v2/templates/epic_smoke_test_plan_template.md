@@ -1,7 +1,7 @@
 # Epic Smoke Test Plan Template
 
 **Filename:** `epic_smoke_test_plan.md`
-**Location:** `feature-updates/{epic_name}/epic_smoke_test_plan.md`
+**Location:** `feature-updates/KAI-{N}-{epic_name}/epic_smoke_test_plan.md`
 **Created:** {YYYY-MM-DD} (Stage 1)
 **Updated:** Stage 4 (Epic Testing Strategy), Stage 5e (after each feature)
 

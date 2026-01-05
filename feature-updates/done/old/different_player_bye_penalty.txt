@@ -1,7 +1,0 @@
-We are going to be adding another bye week penalty alongside the existing BASE_BYE_PENALTY parameter in the league_config.
-This new parameter will be called DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY
-This parameter will be applied during the bye week penalty calculation of the PlayerManager scoring system
-The BASE_BYE_PENALTY will be applied based on the number of players whose bye week overlaps with the player being scored and who have the SAME position
-The DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY will be applied based on the number of players on the team's roster whose bye week overlaps with the player being scored and who have a DIFFERENT position
-Inplement this in the exact same way as BASE_BYE_PENALTY
-Update the Simulation to allow for testing of different parameters for this new penalty

@@ -177,7 +177,7 @@ PHASE 5: Transition to Stage 2 (5 min)
 **Phase 1 → Phase 2:**
 - [ ] Git branch created: {work_type}/KAI-{number}
 - [ ] EPIC_TRACKER.md updated and committed
-- [ ] Epic folder created: `feature-updates/{epic_name}/`
+- [ ] Epic folder created: `feature-updates/KAI-{N}-{epic_name}/`
 - [ ] {epic_name}.txt moved into epic folder
 - [ ] EPIC_README.md created with Agent Status
 
@@ -213,19 +213,19 @@ PHASE 5: Transition to Stage 2 (5 min)
 **Phase 1:**
 - Git branch: `{work_type}/KAI-{number}`
 - EPIC_TRACKER.md (updated and committed)
-- `feature-updates/{epic_name}/` folder
-- `{epic_name}/{epic_name}.txt` (moved from root)
-- `{epic_name}/EPIC_README.md`
+- `feature-updates/KAI-{N}-{epic_name}/` folder
+- `KAI-{N}-{epic_name}/{epic_name}_notes.txt` (moved from root)
+- `KAI-{N}-{epic_name}/EPIC_README.md`
 
 **Phase 3:**
 - Epic ticket in conversation (user-validated)
 
 **Phase 4:**
-- `{epic_name}/feature_01_{name}/` (and feature_02, feature_03, etc.)
-- `{epic_name}/epic_smoke_test_plan.md` (PLACEHOLDER)
-- `{epic_name}/epic_lessons_learned.md`
-- `{epic_name}/research/`
-- `{epic_name}/GUIDE_ANCHOR.md`
+- `KAI-{N}-{epic_name}/feature_01_{name}/` (and feature_02, feature_03, etc.)
+- `KAI-{N}-{epic_name}/epic_smoke_test_plan.md` (PLACEHOLDER)
+- `KAI-{N}-{epic_name}/epic_lessons_learned.md`
+- `KAI-{N}-{epic_name}/research/`
+- `KAI-{N}-{epic_name}/GUIDE_ANCHOR.md`
 - EPIC_README.md updated with Epic Progress Tracker
 
 ---

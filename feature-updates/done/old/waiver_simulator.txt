@@ -1,3 +1,0 @@
-Add an option to the Trade Visualizer that allows you to visualize a specific trade between one or more of the user's players and one or more of the waiver players 
-This option should appear in the list of other teams that the user can choose to trade from
-Any trades that are simulated should not bother considering any position limits or team constraints on the waivers "team". It should only assess how the user's team will change

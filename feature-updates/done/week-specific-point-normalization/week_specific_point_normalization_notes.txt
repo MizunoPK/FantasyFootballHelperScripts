@@ -1,5 +1,0 @@
-I want to update our config systems' NORMALIZATION_MAX_SCALE value out of the league_config.json and into the week-specific json configs. Each week range will have different values for NORMALIZATION_MAX_SCALE
-
-I want the files in data/configs to be updated accordingly
-I want the league helper to be updated (if needed) to accomidate the change
-I want the simulation to be updated (if needed) to accomidate the change

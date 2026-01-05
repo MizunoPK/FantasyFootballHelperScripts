@@ -1,2 +1,0 @@
-As part of the player data fetcher, save the players and teams files to the season historical data automatically if they have not been saved yet for that week.
-After the player data fetcher finishes updating players.csv, players_projected.csv, and teams.csv files in the data folder, it should check to see if it should copy the files into the data/historical_data folder. It should see if there is a folder yet at data/historical_data/{Season}/{Current Week}. If not, then it should create the folder and copy the 3 files into the new folder. If it does exist, then do nothing.

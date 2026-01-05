@@ -1,2 +1,0 @@
-PLAYER_RATING_SCORING is only used in the Draft Add to Roster Mode, meaning it should be contained in the league_config.json instead of the horizon json files
-The win rate simulation should be the one optimizing the player rating weight

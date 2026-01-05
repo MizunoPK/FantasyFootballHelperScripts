@@ -303,24 +303,37 @@ git commit -m "feat/KAI-1: Initialize epic tracking for {epic_name}"
 ### Step 1.1: Create Epic Folder
 
 ```bash
-mkdir -p feature-updates/{epic_name}/
+mkdir -p feature-updates/KAI-{N}-{epic_name}/
 ```
 
+**Example:** `mkdir -p feature-updates/KAI-1-improve_draft_helper/`
+
 **Folder Naming Rules:**
-- Use snake_case (not spaces or hyphens)
+- Format: `KAI-{N}-{epic_name}/` (includes KAI number assigned in step 1.0c)
+- Use snake_case for epic_name (not spaces or hyphens)
 - Descriptive name matching epic request file
-- Example: `improve_draft_helper`, not `improve-draft-helper` or `ImproveD raftHelper`
+- Example: `KAI-1-improve_draft_helper`, not `improve-draft-helper` or `KAI-1-ImproveD raftHelper`
+
+**Why include KAI number in folder name:**
+- Ensures unique folder names (prevents conflicts)
+- Matches branch naming convention (`epic/KAI-{N}`)
+- Enables quick identification of epic by number
+- Maintains consistency across git branches and file system
 
 ### Step 1.2: Move Epic Request File
 
 ```bash
-mv feature-updates/{epic_name}.txt feature-updates/{epic_name}/{epic_name}_notes.txt
+mv feature-updates/{epic_name}.txt feature-updates/KAI-{N}-{epic_name}/{epic_name}_notes.txt
 ```
+
+**Example:** `mv feature-updates/improve_draft_helper.txt feature-updates/KAI-1-improve_draft_helper/improve_draft_helper_notes.txt`
 
 **Why rename to `_notes.txt`:**
 - Distinguishes from feature spec files
 - Signals this is original scratchwork (reference only)
 - Consistent naming across all epics
+
+**Note:** Original request file (`{epic_name}.txt`) does NOT include KAI number, but the epic folder DOES
 
 ### Step 1.3: Create EPIC_README.md
 
@@ -743,8 +756,10 @@ I've created an epic ticket to validate my understanding of the epic's goals and
 For EACH feature in approved breakdown:
 
 ```bash
-mkdir -p feature-updates/{epic_name}/feature_{N}_{descriptive_name}/
+mkdir -p feature-updates/KAI-{N}-{epic_name}/feature_{N}_{descriptive_name}/
 ```
+
+**Example:** `mkdir -p feature-updates/KAI-1-improve_draft_helper/feature_01_adp_integration/`
 
 **Naming Convention:**
 - `feature_01_adp_integration/` (zero-padded numbers)
@@ -754,7 +769,7 @@ mkdir -p feature-updates/{epic_name}/feature_{N}_{descriptive_name}/
 **For each feature folder, create:**
 
 ```bash
-cd feature-updates/{epic_name}/feature_{N}_{name}/
+cd feature-updates/KAI-{N}-{epic_name}/feature_{N}_{name}/
 
 # Create initial files
 touch README.md
@@ -762,6 +777,8 @@ touch spec.md
 touch checklist.md
 touch lessons_learned.md
 ```
+
+**Example:** `cd feature-updates/KAI-1-improve_draft_helper/feature_01_adp_integration/`
 
 **Populate Feature README.md:**
 
@@ -949,8 +966,10 @@ Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "
 ### Step 4.4: Create research/ Folder
 
 ```bash
-mkdir -p feature-updates/{epic_name}/research/
+mkdir -p feature-updates/KAI-{N}-{epic_name}/research/
 ```
+
+**Example:** `mkdir -p feature-updates/KAI-1-improve_draft_helper/research/`
 
 **Create research/README.md:**
 
