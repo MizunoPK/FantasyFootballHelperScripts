@@ -17,16 +17,17 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 3 | integrate_new_player_data_into_simulation | epic | epic/KAI-3 | In Progress | 2026-01-01 |
+| (none) | - | - | - | - | - |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-4
+### Next Available Number: KAI-5
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
+| 3 | integrate_new_player_data_into_simulation | epic | epic/KAI-3 | 2026-01-04 | feature-updates/done/integrate_new_player_data_into_simulation/ |
 | 2 | fix_2025_adp | epic | epic/KAI-2 | 2026-01-01 | feature-updates/done/fix_2025_adp/ |
 | 1 | bug_fix-draft_mode | fix | fix/KAI-1 | 2025-12-31 | feature-updates/done/bug_fix-draft_mode/ |
 
@@ -123,6 +124,68 @@ See feature-updates/done/fix_2025_adp/epic_lessons_learned.md and bugfix_high_wr
 - Epic Test Plan: feature-updates/done/fix_2025_adp/epic_smoke_test_plan.md
 - Epic Lessons Learned: feature-updates/done/fix_2025_adp/epic_lessons_learned.md
 - Bug Fix Lessons: feature-updates/done/fix_2025_adp/bugfix_high_wrong_data_folder/lessons_learned.md
+
+---
+
+### KAI-3: integrate_new_player_data_into_simulation
+
+**Type:** epic
+**Branch:** epic/KAI-3
+**Date Started:** 2026-01-02
+**Date Completed:** 2026-01-04
+**Location:** feature-updates/done/integrate_new_player_data_into_simulation/
+
+**Description:**
+Verified and cleaned up simulation modules after JSON data migration, ensuring both Win Rate Sim and Accuracy Sim work correctly with new JSON player data format. The epic was triggered by the recent JSON migration (2025-12-30) which broke both simulations. Through comprehensive verification testing, discovered and fixed 8 critical bugs including PlayerScoringCalculator max_projection sync issues, draft position diversity enforcement bugs, and deprecated API usage. Deleted 2.2M+ lines of deprecated CSV data and old config folders, improved simulation logging (70% reduction in spam), and validated both simulations work correctly with JSON through parameter optimization runs. Feature 03 (cross-simulation testing) was absorbed into epic-level testing (Stage 6a) since its verification scope was completed through Features 01, 02, and epic smoke testing.
+
+**Features Implemented:**
+1. feature_01_win_rate_sim_verification - Removed CSV loading, verified Win Rate Sim JSON data flow, validated simulation completeness
+2. feature_02_accuracy_sim_verification - Verified Accuracy Sim JSON loading via PlayerManager, aligned edge cases with Win Rate Sim
+3. feature_03_cross_simulation_testing - Epic-level validation absorbed into Stage 6a (end-to-end testing, documentation updates, final verification)
+
+**Bug Fixes During Epic:**
+- Issue #1: Accuracy Sim CURRENT_NFL_WEEK config shallow copy issue
+- Issue #2: Win Rate Sim hardcoded week_01 loading
+- Issue #3: Using hybrid projection instead of actual points
+- Issue #4: Unicode encoding on Windows (replaced checkmark with [OK])
+- Issue #5: Deprecated .drafted API usage (changed to .drafted_by)
+- Issue #6: DraftHelperTeam using deprecated API
+- Issue #7: PlayerScoringCalculator.max_projection sync (CRITICAL) - max_projection initialized to 0.0 before players loaded, causing identical scoring for all players
+- Issue #8: Draft not respecting MAX_POSITIONS config (CRITICAL) - draft_order_primary/secondary selection ignored max_positions enforcement
+
+**Key Changes:**
+- league_helper/util/PlayerManager.py: Added defensive check for scoring_calculator (Issue #7 fix), defensive hasattr check for test compatibility
+- simulation/win_rate/SimulatedLeague.py: Removed CSV loading, verified JSON works
+- simulation/win_rate/DraftHelperTeam.py: Fixed draft position diversity (Issue #8 - respects MAX_POSITIONS during selection)
+- simulation/accuracy/AccuracySimulationManager.py: Verified JSON loading via PlayerManager
+- simulation/win_rate/SimulationManager.py: Improved logging (70% reduction, better progress tracking)
+- simulation/win_rate/ParallelLeagueRunner.py: Changed verbose logs to debug level
+- tests/: Updated 16 tests to match new API behavior (100% pass rate)
+- Deleted 2.2M+ lines: 2023/2025 CSV files, old config folders (accuracy_optimal, old strategies)
+
+**Commit History:**
+- `3d4fba5` - `feat/KAI-3: Add guide improvements from epic workflow`
+- `7858f24` - `feat/KAI-3: Complete integrate_new_player_data_into_simulation epic`
+- `4c6b2df` - `feat/KAI-3: Update epic smoke test plan after feature_02_accuracy_sim_verification`
+- `6ad8d0a` - `feat/KAI-3: Update Feature 03 spec based on Feature 02 implementation`
+- `9d48805` - `fix/KAI-3: Fix JSON array handling in PlayerManager and TeamDataManager`
+- `ee3a978` - `feat/KAI-3: Update epic smoke test plan after feature_01_win_rate_sim_verification`
+
+**Testing Results:**
+- Unit tests: 2,481/2,481 passing (100%)
+- Epic smoke testing: Passed (5 test scenarios)
+- User testing: Passed (zero bugs found)
+- Both simulations validated with JSON data:
+  - Win Rate Sim: Generated intermediate_01, optimized DRAFT_NORMALIZATION_MAX_SCALE to 140
+  - Accuracy Sim: Generated 6 intermediate folders, MAE calculated for all horizons (4.51-4.61)
+
+**Lessons Learned:**
+See feature-updates/done/integrate_new_player_data_into_simulation/epic_lessons_learned.md - Key success factors: All features concluded guides worked correctly when followed (zero guide updates needed), verification features require minimal code changes with comprehensive test plans, QC rounds effectively caught spec deviations and bugs, and debugging protocol successfully resolved all 8 issues systematically. The epic validated the v2 workflow operates correctly without requiring modifications.
+
+**Related Documentation:**
+- Epic README: feature-updates/done/integrate_new_player_data_into_simulation/EPIC_README.md
+- Epic Test Plan: feature-updates/done/integrate_new_player_data_into_simulation/epic_smoke_test_plan.md
+- Epic Lessons Learned: feature-updates/done/integrate_new_player_data_into_simulation/epic_lessons_learned.md
 
 ---
 
