@@ -17,13 +17,13 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| (none) | - | - | - | - | - |
+| 5 | add_k_dst_ranking_metrics_support | epic | epic/KAI-5 | In Progress | 2026-01-08 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-5
+### Next Available Number: KAI-6
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
