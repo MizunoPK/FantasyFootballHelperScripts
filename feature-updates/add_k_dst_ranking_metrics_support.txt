@@ -1,0 +1,437 @@
+# Feature Request: Add K and DST Support to Accuracy Simulation Ranking Metrics
+
+**Status**: Proposed
+**Priority**: Medium
+**Effort**: Low-Medium (3-5 hours including research)
+**Created**: 2026-01-08
+**Updated**: 2026-01-08 (corrected line count, added research task)
+**Category**: Accuracy Simulation Enhancement
+
+---
+
+## Summary
+
+Add Kicker (K) and Defense/Special Teams (DST) positions to ranking-based accuracy metrics (pairwise accuracy, top-N accuracy, Spearman correlation) in the accuracy simulation. Currently, these positions are only evaluated using MAE (fallback metric), while QB/RB/WR/TE use pairwise accuracy (primary metric).
+
+**⚠️ IMPORTANT NOTE**: This is **NOT** a simple 1-line change! Initial investigation identified 2 required changes, but thorough research (see Research Tasks section) is required before implementation to identify all affected code locations and tests. Estimated effort: 3-5 hours including research, implementation, testing, and documentation.
+
+---
+
+## Current State
+
+### What Works
+- **Data Loading**: All 6 positions loaded (QB, RB, WR, TE, K, DST) ✅
+  - Source: `AccuracySimulationManager.py:369-371`, `ParallelAccuracyRunner.py:268-269`
+- **MAE Calculation**: All positions included in MAE calculations ✅
+  - K and DST projections contribute to overall MAE metric
+
+### What's Missing
+- **Ranking Metrics**: Only 4 positions evaluated (QB, RB, WR, TE) ❌
+  - Source: `AccuracyCalculator.py:544`
+  - Hardcoded: `positions = ['QB', 'RB', 'WR', 'TE']`
+  - K and DST excluded from:
+    - Pairwise accuracy calculations
+    - Top-N accuracy calculations (top-5, top-10, top-20)
+    - Spearman correlation calculations
+    - Per-position metric tracking
+
+### Impact
+- **Primary metric (pairwise accuracy)** doesn't include K/DST performance
+- **Configuration comparison** doesn't optimize for K/DST ranking quality
+- **Parameter tuning** for weather/location (which heavily affects K/DST) uses only MAE as feedback signal
+- **Incomplete view** of overall prediction accuracy across all roster positions
+
+---
+
+## Motivation
+
+### Why This Matters
+
+1. **Weather/Location Parameters**: K and DST are most affected by:
+   - `TEMPERATURE_IMPACT_SCALE` / `TEMPERATURE_SCORING_WEIGHT`
+   - `WIND_IMPACT_SCALE` / `WIND_SCORING_WEIGHT`
+   - `LOCATION_HOME` / `LOCATION_AWAY` / `LOCATION_INTERNATIONAL`
+
+   These 7 of 16 parameters (44%!) are currently optimized using MAE-only feedback for the positions they impact most.
+
+2. **Draft Strategy**: While K/DST are drafted late, getting the relative ranking right still matters:
+   - Streaming DST strategy requires accurate weekly matchup projections
+   - K streaming based on weather/dome conditions requires accurate projections
+   - Pairwise accuracy directly measures "Did we correctly predict DST A > DST B?"
+
+3. **Completeness**: The simulation claims to optimize "prediction accuracy" but only measures ranking quality for 4 of 6 positions.
+
+4. **Consistency**: MAE penalizes magnitude errors equally regardless of rank order. A projection that's off by 2 points but gets the ranking right should be valued differently than one that's off by 2 points but gets the ranking wrong.
+
+---
+
+## Proposed Solution
+
+### Implementation Changes
+
+**⚠️ IMPORTANT**: Before making changes, complete thorough research (see Research Tasks section below)
+
+**File**: `simulation/accuracy/AccuracyCalculator.py`
+
+**Minimum Required Changes (2 lines identified so far)**:
+
+**Line 544** - Per-season position calculation:
+```python
+# BEFORE
+positions = ['QB', 'RB', 'WR', 'TE']
+
+# AFTER
+positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
+```
+
+**Line 258** - Cross-season aggregation position dict:
+```python
+# BEFORE
+position_data = {'QB': {}, 'RB': {}, 'WR': {}, 'TE': {}}
+
+# AFTER
+position_data = {'QB': {}, 'RB': {}, 'WR': {}, 'TE': {}, 'K': {}, 'DST': {}}
+```
+
+**Why both are needed**:
+- Line 544 controls which positions are calculated per-season in `calculate_ranking_metrics_for_season()`
+- Line 258 controls which positions are aggregated across-seasons in `aggregate_season_results()`
+- If you only change line 544, K/DST metrics would be calculated but then **silently dropped** during aggregation (due to `if pos in position_data:` check at line 283)
+
+**Additional changes may be required** - see Research Tasks below.
+
+### Adaptive Top-N Metrics (Optional Enhancement)
+
+**Problem**: K and DST have ~32 players each vs. ~150+ RBs
+- Top-20 accuracy = 62.5% of all kickers (not meaningful)
+- Top-10 accuracy = 31% of all kickers (borderline)
+- Top-5 accuracy = 15.6% of all kickers (reasonable)
+
+**Solution**: Adjust top-N thresholds per position:
+
+```python
+# Position-specific top-N configurations
+TOP_N_CONFIG = {
+    'QB': [5, 10, 20],   # ~50-80 starting QBs
+    'RB': [5, 10, 20],   # ~150+ RBs rostered
+    'WR': [5, 10, 20],   # ~200+ WRs rostered
+    'TE': [5, 10, 20],   # ~50-80 TEs rostered
+    'K': [3, 5, 10],     # ~32 kickers (top-20 = 62.5% of all!)
+    'DST': [3, 5, 10]    # 32 teams
+}
+```
+
+This would require more extensive changes to:
+- `AccuracyCalculator.calculate_top_n_accuracy()` - accept position-specific N values
+- `AccuracyCalculator.calculate_ranking_metrics_for_season()` - loop over position-specific configs
+- `RankingMetrics` dataclass - potentially expand to store different top-N values per position
+
+**Recommendation**: Start with simple fix (just add K/DST to positions list), then evaluate if adaptive top-N is needed based on results.
+
+---
+
+## Technical Considerations
+
+### Small Sample Size
+
+**Concern**: With only ~32 kickers and ~32 defenses per week:
+- Pairwise comparisons: 32 choose 2 = 496 pairs (vs. 150 choose 2 = 11,175 for RBs)
+- Statistical power may be lower
+- Variance in pairwise accuracy may be higher
+
+**Mitigation**:
+- Multi-season aggregation (3+ seasons) provides 1,488+ pairs per horizon
+- Fisher z-transformation already handles variance in Spearman correlation
+- Current filtering (actual >= 3.0 points) still applies - reduces noise from irrelevant performances
+
+### Scoring Pattern Differences
+
+**Concern**: K and DST have different scoring distributions than skill positions:
+- DST can score negative points
+- K scoring is more discrete (3, 6, 9 points for FG/XP)
+- Both have higher week-to-week variance
+
+**Impact Analysis**:
+- Pairwise accuracy is **ordinal** (rank-based), not affected by score distribution
+- Top-N accuracy is **set-based**, not affected by score distribution
+- Spearman correlation is **rank-based**, robust to score distribution differences
+- **Conclusion**: Ranking metrics are actually MORE appropriate for K/DST than MAE (which penalizes magnitude)
+
+### Current Filtering (actual >= 3.0)
+
+**Source**: `AccuracyCalculator.py:364, 428, 491`
+
+**Current behavior**: Only includes players with `actual >= 3.0` points
+
+**K/DST implications**:
+- K: Excludes kickers who scored 0 (missed all kicks) - reasonable
+- DST: Excludes defenses who scored < 3 points (poor performances) - reasonable
+- DST negative scores: Filtered out, but this is actually correct (we don't want to optimize for predicting terrible performances)
+
+**Conclusion**: Current filtering is acceptable for K/DST
+
+---
+
+## Research Tasks
+
+**CRITICAL**: Before implementing this feature, complete the following research to identify all code locations that need changes.
+
+### 1. Search for Position Hardcoding
+
+**Objective**: Find ALL places where position lists are hardcoded to 4 positions
+
+**Commands**:
+```bash
+# Search for QB/RB/WR/TE patterns (excluding data files)
+grep -rn "QB.*RB.*WR.*TE" simulation/accuracy/ --include="*.py"
+
+# Search for position list literals
+grep -rn "\['QB'.*'RB'.*'WR'.*'TE'\]" simulation/accuracy/ --include="*.py"
+grep -rn '{"QB".*"RB".*"WR".*"TE"}' simulation/accuracy/ --include="*.py"
+
+# Search for position data structures
+grep -rn "position_data\s*=" simulation/accuracy/ --include="*.py"
+grep -rn "positions\s*=" simulation/accuracy/ --include="*.py"
+```
+
+**Expected findings**: Already identified lines 258 and 544 in AccuracyCalculator.py - verify there are no others
+
+### 2. Search for Position String Comparisons
+
+**Objective**: Find any code that explicitly checks position values
+
+**Commands**:
+```bash
+# Find position equality checks
+grep -rn "position\s*==\s*['\"]" simulation/accuracy/ --include="*.py"
+
+# Find position in list checks
+grep -rn "position\s*in\s*\[" simulation/accuracy/ --include="*.py"
+```
+
+**Review**: Check if any logic treats K/DST differently (e.g., special filtering, exclusions)
+
+### 3. Verify Data File Position Strings
+
+**Objective**: Confirm K and DST position strings in historical data match expected values
+
+**Commands**:
+```bash
+# Check position field in K data
+cat simulation/sim_data/2024/weeks/week_01/k_data.json | grep -o '"position":\s*"[^"]*"' | sort -u
+
+# Check position field in DST data
+cat simulation/sim_data/2024/weeks/week_01/dst_data.json | grep -o '"position":\s*"[^"]*"' | sort -u
+```
+
+**Expected**: Position strings should be exactly "K" and "DST" (already verified above)
+
+### 4. Review Unit Tests
+
+**Objective**: Identify which test files need new test cases for K/DST
+
+**Commands**:
+```bash
+# Find accuracy-related test files
+find tests/ -name "*accuracy*.py" -type f
+
+# Check if tests hardcode 4 positions
+grep -rn "QB.*RB.*WR.*TE" tests/ --include="*accuracy*.py"
+
+# Find test fixtures that may need K/DST data
+grep -rn "def.*fixture" tests/ --include="*accuracy*.py" -A 5
+```
+
+**Action Required**:
+- Identify which test files cover ranking metrics
+- Add K/DST test cases to those files
+- Verify no tests explicitly assert on 4-position behavior
+
+### 5. Check AccuracyResultsManager
+
+**Objective**: Verify results storage/loading doesn't assume 4 positions
+
+**Commands**:
+```bash
+# Check for position hardcoding in results manager
+grep -rn "QB.*RB.*WR.*TE" simulation/accuracy/AccuracyResultsManager.py
+
+# Check by_position handling
+grep -rn "by_position" simulation/accuracy/AccuracyResultsManager.py -A 3 -B 3
+```
+
+**Review**: Ensure `by_position` dict is dynamic and can handle any position keys
+
+### 6. Check Logging and Output
+
+**Objective**: Verify logging doesn't hardcode position lists
+
+**Commands**:
+```bash
+# Find logging statements mentioning positions
+grep -rn "logger.*QB\|logger.*positions" simulation/accuracy/ --include="*.py"
+
+# Find print statements
+grep -rn "print.*QB\|print.*positions" simulation/accuracy/ --include="*.py"
+```
+
+**Review**: Ensure logs/prints will correctly show 6 positions instead of 4
+
+### 7. Review Config Files
+
+**Objective**: Check if optimal config files have position-specific sections
+
+**Commands**:
+```bash
+# Check recent optimal config structure
+find simulation/simulation_configs/accuracy_optimal_* -name "*.json" -type f | head -1 | xargs cat | grep -A 5 "by_position"
+```
+
+**Review**: Verify config save/load logic handles arbitrary position keys
+
+### Research Deliverable
+
+Create a checklist document: `feature-updates/k_dst_research_findings.txt` with:
+1. **All identified code locations** requiring changes (with line numbers)
+2. **All test files** requiring new test cases
+3. **Any unexpected complications** discovered during research
+4. **Updated effort estimate** based on findings
+
+**Only proceed with implementation after research is complete.**
+
+---
+
+## Testing Plan
+
+### Validation Steps
+
+1. **Unit Tests**: Add test cases for K/DST ranking metrics
+   - Test pairwise accuracy with K data (3 FG vs. 4 FG)
+   - Test pairwise accuracy with DST data (including negative scores)
+   - Test top-N accuracy with small sample (N=5, pool=32)
+   - Test Spearman correlation with discrete scoring (K: 0, 3, 6, 9...)
+
+2. **Integration Test**: Run accuracy simulation on single parameter
+   - Use existing historical data (2021/2022/2024)
+   - Verify K and DST metrics appear in logs
+   - Verify no crashes/errors
+   - Check that by_position dict includes 'K' and 'DST' keys
+
+3. **Smoke Test**: Run full accuracy simulation (16 params, 1 iteration)
+   - Monitor for performance degradation (should be minimal - only 64 more players per week)
+   - Verify optimal config files include K/DST metrics in by_position
+   - Compare pairwise accuracy before/after (should show K/DST contribution)
+
+4. **Validation**: Check if weather/location parameters improve
+   - Hypothesis: Weather parameters (TEMPERATURE, WIND) should show better optimization
+   - Reason: Pairwise accuracy provides better feedback signal than MAE for K/DST
+   - Compare optimal parameter values before/after this change
+
+---
+
+## Acceptance Criteria
+
+### Must Have - Research Phase
+- [ ] All 7 research tasks completed (see Research Tasks section)
+- [ ] Research findings documented in `feature-updates/k_dst_research_findings.txt`
+- [ ] All code locations requiring changes identified (minimum 2 known)
+- [ ] All test files requiring updates identified
+- [ ] No unexpected complications that would block implementation
+
+### Must Have - Implementation
+- [ ] K and DST included in `positions` list (`AccuracyCalculator.py:544`)
+- [ ] K and DST included in `position_data` dict (`AccuracyCalculator.py:258`)
+- [ ] Any additional changes discovered during research applied
+- [ ] Pairwise accuracy calculated for K and DST positions
+- [ ] Top-N accuracy calculated for K and DST positions (using existing N=5,10,20)
+- [ ] Spearman correlation calculated for K and DST positions
+- [ ] `AccuracyResult.by_position` includes 'K' and 'DST' keys
+- [ ] Logs show K/DST ranking metrics during optimization
+- [ ] Saved config files include K/DST metrics in by_position section
+- [ ] No crashes or errors during full 16-parameter optimization
+- [ ] Unit tests pass for K/DST ranking calculations
+
+### Should Have
+- [ ] Documentation updated in `ACCURACY_SIMULATION_FLOW_VERIFIED.md`
+  - Update "Per-Position Metrics" section to note all 6 positions
+  - Remove caveat about K/DST being MAE-only
+  - Add note about small sample size considerations
+
+### Nice to Have
+- [ ] Position-specific top-N thresholds (K/DST use top-3, top-5, top-10 instead of top-5, top-10, top-20)
+- [ ] Separate logging for K/DST vs. skill position metrics
+- [ ] Performance comparison report (pairwise accuracy before/after for weather parameters)
+
+---
+
+## Implementation Estimate
+
+**Phase 1: Research** (REQUIRED FIRST): 1-2 hours
+- Execute all 7 research tasks systematically (1 hour)
+- Document findings in k_dst_research_findings.txt (30 min)
+- Identify additional code locations needing changes (if any)
+- Update effort estimate based on findings (15 min)
+
+**Phase 2: Minimum Implementation** (after research): 30 min - 1 hour
+- Change 2+ lines of code (identified: lines 258, 544 in AccuracyCalculator.py)
+- Apply any additional changes discovered during research
+- Run quick smoke test
+
+**Phase 3: Testing**: 2-3 hours
+- Write unit tests for K/DST ranking metrics (1 hour)
+  - Pairwise accuracy with K data
+  - Top-N accuracy with small samples
+  - Spearman correlation with discrete scoring
+  - DST negative score handling
+- Update existing tests that may assert on 4 positions (30 min)
+- Run full integration test + validation (1 hour)
+- Debug any issues discovered (30 min buffer)
+
+**Phase 4: Documentation**: 30 min
+- Update ACCURACY_SIMULATION_FLOW_VERIFIED.md
+- Update feature request with actual changes made
+- Document any gotchas discovered
+
+**Total Estimate**: 3-5 hours (research + implementation + testing + documentation)
+
+**With adaptive top-N** (optional enhancement): +2-3 hours
+- Design position-specific TOP_N_CONFIG (30 min)
+- Modify calculate_top_n_accuracy() signature (30 min)
+- Update all call sites (1 hour)
+- Additional testing (1 hour)
+
+---
+
+## Risks & Mitigation
+
+### Risk 1: Performance Degradation
+**Likelihood**: Low
+**Impact**: Low
+**Mitigation**: K/DST add only ~64 players per week vs. ~400 skill position players (16% increase). Pairwise comparisons scale O(N²) but 64² = 4,096 vs 400² = 160,000, so impact is <3% of total comparisons.
+
+### Risk 2: Statistical Noise from Small Sample
+**Likelihood**: Medium
+**Impact**: Low
+**Mitigation**: Multi-season aggregation (3+ seasons) and Fisher z-transformation for Spearman already handles variance. Monitor standard deviation of K/DST pairwise accuracy across seasons.
+
+### Risk 3: Threshold Warnings Triggered
+**Likelihood**: Medium
+**Impact**: Low (cosmetic)
+**Context**: Current thresholds are pairwise < 65%, top-10 < 70%
+**Mitigation**: K/DST may trigger warnings if accuracy is lower due to higher randomness. This is informational only and doesn't affect optimization. Could add position-specific thresholds if needed.
+
+
+---
+
+## References
+
+**Code Locations**:
+- `simulation/accuracy/AccuracyCalculator.py:544` - Positions list
+- `simulation/accuracy/AccuracyCalculator.py:338-520` - Ranking metric implementations
+- `simulation/accuracy/AccuracySimulationManager.py:369-371` - Position file loading
+- `docs/simulation/ACCURACY_SIMULATION_FLOW_VERIFIED.md` - Documentation to update
+
+**Related Parameters**:
+- TEMPERATURE_IMPACT_SCALE, TEMPERATURE_SCORING_WEIGHT
+- WIND_IMPACT_SCALE, WIND_SCORING_WEIGHT
+- LOCATION_HOME, LOCATION_AWAY, LOCATION_INTERNATIONAL

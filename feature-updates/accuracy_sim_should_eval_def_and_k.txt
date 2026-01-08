@@ -1,1 +1,0 @@
-I am not sure if the accuracy simulation currently evaulates the accuracy of defense projections and kicker projections. I want to add this capability if it does not exist yet

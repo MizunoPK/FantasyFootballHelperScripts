@@ -242,43 +242,148 @@ python run_league_helper.py --mode rating_helper --dry-run
 
 **📖 See `reference/smoke_testing_pattern.md` for universal E2E test pattern and data validation examples.**
 
-**Feature-specific implementation:**
+**🚨 REQUIRED TEST ARTIFACTS (Middle Ground Approach):**
 
-### Step 1: Identify Feature Workflow
+Before executing E2E testing, create standardized test artifacts in epic folder:
 
-From `spec.md`, identify the primary use case:
+1. **Test Scenario Documentation:** `KAI-{N}-{epic_name}/test_scenario.md`
+   - Document standard test scenario for this feature
+   - Include input data sources (which files, what values)
+   - Document expected behavior and outputs
+   - Describe validation criteria
 
-**Example spec excerpt:**
-```markdown
-## Primary Use Case
-User runs rating helper mode to apply ADP-based player rating multipliers
-to draft recommendations, updating 6 position-specific JSON files with
-multiplier values between 0.5 and 1.5 based on ADP ranges.
+2. **Expected Results Documentation:** `KAI-{N}-{epic_name}/expected_results.md`
+   - Document expected output structure
+   - Include expected value ranges (from spec)
+   - List edge cases to verify
+   - Define pass/fail criteria
+
+**Benefits:**
+- ✅ Maintains flexible feature-specific testing approach
+- ✅ Adds documentation consistency across features
+- ✅ Enables easier review and verification
+- ✅ Provides reference for future modifications
+
+**Standardized 6-Step E2E Testing Process:**
+
+### Step 1: Prepare Environment
+
+**Ensure clean state and dependencies:**
+```bash
+# Verify virtual environment activated
+which python  # Should show venv path
+
+# Ensure clean state (optional)
+python -m pip install -e .  # If using editable install
 ```
 
-### Step 2: Prepare Real Input Data
+**Verify:**
+- [ ] Python environment is correct
+- [ ] Dependencies are installed
+- [ ] No stale processes running
+
+---
+
+### Step 2: Prepare Standardized Test Data
+
+**📖 Reference:** `KAI-{N}-{epic_name}/test_scenario.md` (created during Part 3 setup)
 
 **Use PRODUCTION or PRODUCTION-LIKE data:**
 - ✅ Real player CSV files from `data/`
 - ✅ Real league config from `data/league_config.json`
-- ❌ NOT test fixtures
+- ❌ NOT test fixtures (unless specifically testing edge cases)
 - ❌ NOT mocked data
+
+**Document test scenario:**
+- Input data sources (which files, what values)
+- Expected behavior from spec.md
+- Feature-specific validation criteria
+
+**Example from test_scenario.md:**
+```markdown
+## Test Scenario: Rating Multiplier Feature
+
+**Input Data:**
+- data/players_2024.csv (300+ players)
+- data/league_config.json (standard scoring)
+
+**Expected Behavior:**
+- Apply ADP-based multipliers (0.5 to 1.5 range)
+- Update 6 position-specific JSON files
+- Multipliers calculated per ADP ranges from spec
+
+**Validation Criteria:**
+- All 6 position files updated
+- Multipliers in correct range (0.5-1.5)
+- No placeholder values (all 1.0)
+```
+
+---
 
 ### Step 3: Execute Feature End-to-End
 
+**Run feature with production data:**
 ```bash
-# Run feature with real data
+python run_league_helper.py --mode {feature_mode} --data-folder ./data
+```
+
+**Example:**
+```bash
 python run_league_helper.py --mode rating_helper --data-folder ./data
 ```
 
 **Monitor for:**
-- Script completes without crashes
-- No unexpected errors/warnings in logs
-- Output files created
+- [ ] Script completes without crashes
+- [ ] No unexpected errors/warnings in logs
+- [ ] Output files created
+- [ ] Execution time reasonable (not hanging)
 
-### Step 4: CRITICAL - Verify Output DATA VALUES
+---
+
+### Step 4: Validate Output Structure
+
+**📖 Reference:** `KAI-{N}-{epic_name}/expected_results.md`
+
+**Check output file structure:**
+```python
+from pathlib import Path
+import json
+
+# Verify expected output files exist
+expected_files = ['qb_ratings.json', 'rb_ratings.json', 'wr_ratings.json',
+                  'te_ratings.json', 'k_ratings.json', 'dst_ratings.json']
+
+for filename in expected_files:
+    filepath = Path(f"data/{filename}")
+    assert filepath.exists(), f"Missing output file: {filename}"
+
+    # Verify file has data (not empty)
+    with open(filepath) as f:
+        data = json.load(f)
+    assert len(data) > 0, f"{filename} is empty"
+
+    # Verify expected fields present
+    first_item = data[0]
+    assert 'adp_multiplier' in first_item, f"{filename} missing adp_multiplier field"
+
+print("✅ Output structure validated")
+```
+
+**Verify:**
+- [ ] All expected output files exist
+- [ ] Files contain data (not empty)
+- [ ] Required fields present (from spec)
+- [ ] No null/empty/placeholder values in structure
+
+---
+
+### Step 5: Validate Output Data Values (CRITICAL)
 
 **📖 See pattern file for data validation examples.**
+
+**📖 Refer to `KAI-{N}-{epic_name}/expected_results.md` for validation criteria**
+
+**⚠️ CRITICAL: Don't just check structure - verify actual data correctness**
 
 **Feature-specific validation (example for rating multiplier feature):**
 
@@ -322,17 +427,77 @@ print("✅ All 6 positions have valid multiplier data")
 ```
 
 **Key validation points:**
-1. ✅ Files exist (structure)
-2. ✅ Files have data (not empty)
-3. ✅ Fields exist (schema)
-4. ✅ Values are correct type (float not string)
-5. ✅ Values in expected range (0.5-1.5 from spec)
-6. ✅ Values are NOT placeholders (not all 1.0)
-7. ✅ Sample actual data looks reasonable
+1. ✅ Values are correct type (float not string)
+2. ✅ Values in expected range (0.5-1.5 from spec)
+3. ✅ Values are NOT placeholders (not all 1.0)
+4. ✅ Calculations produce varied results (not uniform)
+5. ✅ Edge cases handled correctly (high ADP, low ADP, missing ADP)
+
+**Pass Criteria:**
+- All values in expected range from spec
+- Non-uniform distribution (feature actually ran)
+- Edge cases produce valid values
+- No errors or exceptions in calculations
+
+---
+
+## 🚨 MANDATORY LOGGING REQUIREMENTS
+
+**All features MUST include appropriate logging for observability:**
+
+### Required Log Messages:
+1. **Feature Entry** - Log when feature is activated
+2. **Key Data Processing** - Log important data transformations
+3. **Feature Results** - Log feature outputs/calculations
+4. **Error Handling** - Log feature-specific errors
+
+### Log Level Guidelines:
+- **logger.info()**: Feature activation, important results
+- **logger.debug()**: Detailed processing steps
+- **logger.warning()**: Non-critical issues, fallbacks
+- **logger.error()**: Feature failures, critical issues
+
+### Example Logging (Python):
+```python
+logger = get_logger()
+logger.info(f"Draft helper mode activated for league: {league_name}")
+logger.debug(f"Processing {len(players)} players for recommendations")
+logger.info(f"Generated {len(recommendations)} recommendations")
+logger.error(f"Failed to load player data: {e}", exc_info=True)
+```
+
+### Validation in Smoke Testing:
+- Part 3 Step 6: Check logs for feature-specific messages
+- Missing logs = smoke test failure
+- Logs must show feature activation and key operations
+
+---
+
+### Step 6: Check Application Logs
+
+**Check for feature-specific log messages:**
+```bash
+# Check application logs for feature activity
+grep "feature_name\|important_keyword" logs/application.log
+# Or check recent logs
+tail -100 logs/application.log | grep -i "feature"
+```
+
+**Required validations:**
+- [ ] Feature activation logged (from logging requirements above)
+- [ ] Key data processing logged
+- [ ] Feature results logged
+- [ ] No unexpected errors or warnings
+- [ ] Log messages clearly show feature behavior
+
+**If logs missing or insufficient:**
+- Add required logging (see Mandatory Logging Requirements above)
+- Re-run E2E test after adding logs
+- Verify logs show observable feature behavior
 
 **If validation reveals issues:**
 - Document what failed and why
-- Identify root cause (algorithm bug, config issue, mock mismatch)
+- Identify root cause (algorithm bug, config issue, data mismatch)
 - Fix ALL issues
 - RE-RUN ALL 3 PARTS from Part 1
 
@@ -347,12 +512,23 @@ print("✅ All 6 positions have valid multiplier data")
 **✅ PASS if:**
 - Part 1: All feature modules import successfully
 - Part 2: Feature mode/options work correctly
-- Part 3: Feature executes end-to-end AND output data values verified correct
+- Part 3: All 6 steps passed:
+  - Step 1: Environment prepared
+  - Step 2: Test data identified and documented
+  - Step 3: Feature executes end-to-end without crashes
+  - Step 4: Output structure validated
+  - Step 5: Output data values verified correct (CRITICAL)
+  - Step 6: Application logs show feature behavior
 
 **❌ FAIL if:**
 - Part 1: Any import errors
 - Part 2: Help missing, crashes on startup
-- Part 3: Execution crashes OR output missing OR **data values incorrect/missing/placeholder**
+- Part 3: ANY step fails:
+  - Environment not clean
+  - Execution crashes
+  - Output structure wrong
+  - **Data values incorrect/missing/placeholder** (most common failure)
+  - Logs missing or show errors
 
 **If FAIL:**
 1. Document failure in feature README

@@ -40,6 +40,9 @@
 **[Stage 2: Feature Deep Dive](prompts/stage_2_prompts.md)**
 - Starting Stage 2: Feature Deep Dive
 
+**[Stage 2b.5: Specification Validation](prompts/stage_2b5_prompts.md)**
+- Starting Stage 2b.5: Specification Validation
+
 **[Stage 3: Cross-Feature Sanity Check](prompts/stage_3_prompts.md)**
 - Starting Stage 3: Cross-Feature Sanity Check
 

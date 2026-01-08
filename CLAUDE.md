@@ -1,5 +1,21 @@
 # Fantasy Football Helper Scripts - Claude Code Guidelines
 
+## 🚨 CRITICAL: TRUST FILE STATE OVER CONVERSATION SUMMARIES
+
+**ALWAYS prioritize actual file contents over conversation summaries when determining project state:**
+
+1. **Check README.md files FIRST** - These contain the authoritative current status
+2. **Verify with actual source code** - Check what's actually implemented
+3. **Read Agent Status sections** - These are updated to reflect true current state
+4. **Conversation summaries can be outdated** - Files are the source of truth
+
+**Example workflow:**
+- User says "proceed" → Read current README.md Agent Status → Determine actual next step
+- Don't assume conversation summary reflects current file state
+- Always verify implementation status by checking actual code files
+
+---
+
 ## Quick Start for New Agents
 
 **FIRST**: Read `ARCHITECTURE.md` for complete architectural overview, system design, and implementation details.
@@ -92,6 +108,13 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 - Compare to already-completed features for alignment
 - Dynamic scope adjustment (if scope >35 items, propose split)
 
+**Stage 2b.5: Specification Validation** (After each feature spec)
+- **READ:** `stages/stage_2/phase_2b5_specification_validation.md`
+- Assume everything in spec is wrong, validate with deep research
+- Self-resolve checklist questions through additional codebase investigation
+- Only leave genuine unknowns or multi-approach decisions for user
+- Expected impact: 50-70% reduction in user questions
+
 **Stage 3: Cross-Feature Sanity Check** (After ALL features planned)
 - **READ:** `stages/stage_3/cross_feature_sanity_check.md`
 - Systematic pairwise comparison of all feature specs
@@ -126,7 +149,7 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 - READ: `stages/stage_5/implementation_execution.md`
 - Keep spec.md visible, continuous verification, mini-QC checkpoints, 100% test pass required
 
-**Stage 5c: Post-Implementation** (3 phases - smoke testing, QC rounds, final review)
+**Stage 5c: Post-Implementation** (4 phases - smoke testing, QC rounds, final review, commit)
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 5c Smoke Testing" prompt from `prompts_reference_v2.md`
 
@@ -135,6 +158,7 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 - **Phase 2:** READ `stages/stage_5/qc_rounds.md` - 3 QC rounds
   - If ANY issues → Enter debugging protocol → LOOP BACK to Stage 5ca Part 1 (NOT mid-QC)
 - **Phase 3:** READ `stages/stage_5/final_review.md` - PR review, lessons learned, zero tech debt tolerance
+- **Phase 4:** **COMMIT FEATURE** - Commit source code changes for this feature only (feature-level commits)
 
 **Stage 5d: Cross-Feature Spec Alignment** (After feature completes)
 
@@ -403,19 +427,35 @@ python tests/run_all_tests.py
 - Exit code 0 = safe to commit, 1 = DO NOT COMMIT
 - **Only proceed to commit if all tests pass**
 
-### STEP 2: If Tests Pass, Commit Changes
+### STEP 2: If Tests Pass, Review ALL Changes
+
+**⚠️ CRITICAL: Include ALL modified source code files**
+```bash
+git status  # Check ALL modified files
+git diff    # Review changes
+```
+
+**Common mistake:** Missing test files that were updated to use new interfaces
+
+**Verify all source files are included:**
+- [ ] Main source files (*.py in league_helper/, simulation/, etc.)
+- [ ] ALL test files that were modified (tests/**/*.py)
+- [ ] Configuration files if modified (data/*.json, data/*.csv)
+
+### STEP 3: Stage and Commit Changes
 
 1. Analyze all changes with `git status` and `git diff`
-2. Update documentation if functionality changed
-3. Stage and commit with clear, concise message
-4. Follow commit standards:
+2. **Verify ALL modified source files are included** (main code AND test files)
+3. Update documentation if functionality changed
+4. Stage and commit with clear, concise message
+5. Follow commit standards:
    - Format: `{commit_type}/KAI-{number}: {message}`
    - Brief, descriptive messages (100 chars or less)
    - No emojis or subjective prefixes
    - commit_type is `feat` or `fix`
    - List major changes in body
 
-### STEP 3: If Tests Fail
+### STEP 4: If Tests Fail
 
 - **STOP** - Do NOT commit
 - Fix failing tests (including pre-existing failures from other epics)

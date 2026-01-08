@@ -275,7 +275,7 @@ def sort_by_value(players, descending=True):
 - [ ] Type hints present (per CLAUDE.md standards)?
 - [ ] **Code quality issues fixed immediately (NOT deferred)?**
   - Check: No "TODO" comments for code quality issues
-  - Check: No "will fix later" notes in code or documentation
+  - Check: No "will fix later" notes
   - Check: All type hints present and complete (not deferred)
   - Check: All docstrings complete (not marked as "add later")
   - **If ANY issues found: Fix NOW before proceeding**
