@@ -663,8 +663,12 @@ class AccuracySimulationManager:
                         # Evaluate configuration for this week range
                         result = self._evaluate_config_weekly(config_dict, week_range)
 
-                        # Record result
-                        is_new_best = self.results_manager.add_result(week_key, config_dict, result)
+                        # Record result (pass param_name and test_idx for config_value extraction)
+                        is_new_best = self.results_manager.add_result(
+                            week_key, config_dict, result,
+                            param_name=param_name,
+                            test_idx=test_idx
+                        )
 
                         if is_new_best:
                             self._current_optimal_config_path = self.results_manager.save_intermediate_results(
@@ -838,10 +842,9 @@ class AccuracySimulationManager:
                     param_name
                 )
 
-                # Update baselines for all 5 horizons
+                # Update baselines for all 4 weekly horizons
                 # Map results manager keys (week_1_5) to config generator keys (1-5)
                 horizon_map = {
-                    'ros': 'ros',
                     'week_1_5': '1-5',
                     'week_6_9': '6-9',
                     'week_10_13': '10-13',

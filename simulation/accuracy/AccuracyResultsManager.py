@@ -71,7 +71,7 @@ class AccuracyConfigPerformance:
         mae (float): Mean Absolute Error (lower is better)
         player_count (int): Number of players evaluated
         total_error (float): Sum of all absolute errors
-        config_id (str): Hash identifier for this config
+        config_value (Optional[Any]): Value of the parameter that was tested (tournament mode)
         timestamp (str): When the test was run
         param_name (Optional[str]): Parameter being optimized (tournament mode)
         test_idx (Optional[int]): Test value index (tournament mode)
@@ -84,7 +84,7 @@ class AccuracyConfigPerformance:
         mae: float,
         player_count: int,
         total_error: float,
-        config_id: Optional[str] = None,
+        config_value: Optional[Any] = None,
         timestamp: Optional[str] = None,
         param_name: Optional[str] = None,
         test_idx: Optional[int] = None,
@@ -96,7 +96,7 @@ class AccuracyConfigPerformance:
         self.mae = mae
         self.player_count = player_count
         self.total_error = total_error
-        self.config_id = config_id or self._generate_id(config_dict)
+        self.config_value = config_value if config_value is not None else self._extract_param_value(config_dict, param_name)
         self.timestamp = timestamp or datetime.now().isoformat()
         # Tournament mode metadata (optional)
         self.param_name = param_name
@@ -106,31 +106,67 @@ class AccuracyConfigPerformance:
         self.overall_metrics = overall_metrics
         self.by_position = by_position or {}
 
-    def _generate_id(self, config: dict) -> str:
-        """Generate a hash-based ID for the configuration."""
-        import hashlib
-        config_str = json.dumps(config, sort_keys=True)
-        return hashlib.md5(config_str.encode()).hexdigest()[:8]
+    def _extract_param_value(self, config: dict, param_name: Optional[str]) -> Optional[Any]:
+        """
+        Extract the parameter value from config_dict based on param_name.
+
+        Args:
+            config: Configuration dictionary (may have 'parameters' wrapper or be raw)
+            param_name: Parameter being optimized (e.g., "WIND_SCORING_WEIGHT")
+
+        Returns:
+            The value of the parameter, or None if not found
+        """
+        if not param_name:
+            return None
+
+        # Handle configs with 'parameters' wrapper (from get_config_for_horizon)
+        params = config.get('parameters', config)
+
+        # Handle LOCATION_* parameters (e.g., LOCATION_HOME, LOCATION_AWAY)
+        if param_name.startswith('LOCATION_'):
+            location_type = param_name[len('LOCATION_'):]  # e.g., "HOME", "AWAY"
+            return params.get('LOCATION_MODIFIERS', {}).get(location_type)
+
+        # Handle top-level parameters (e.g., NORMALIZATION_MAX_SCALE)
+        if param_name in params:
+            return params[param_name]
+
+        # Handle nested parameters (e.g., WIND_SCORING_WEIGHT, MATCHUP_IMPACT_SCALE)
+        # Pattern: <SCORING_COMPONENT>_<PARAMETER>
+        for suffix in ['_WEIGHT', '_IMPACT_SCALE', '_MIN_WEEKS', '_STEPS']:
+            if param_name.endswith(suffix):
+                component = param_name[:-len(suffix)]  # e.g., "WIND_SCORING"
+                param = suffix[1:]  # e.g., "WEIGHT", "IMPACT_SCALE"
+                return params.get(component, {}).get(param)
+
+        return None
 
     def is_better_than(self, other: 'AccuracyConfigPerformance') -> bool:
         """
         Check if this configuration is better than another.
 
-        Uses pairwise_accuracy as primary metric when available.
-        Falls back to MAE for backward compatibility.
+        ALWAYS uses pairwise_accuracy as the primary metric (no MAE fallback).
+        MAE is for diagnostics/user visibility only.
 
         Args:
             other: Configuration to compare against
 
         Returns:
             bool: True if this config is better, False otherwise.
-                  Always returns False if either config has player_count=0.
+                  Returns False if this config has player_count=0 or missing overall_metrics.
+                  Returns True if other is None or has missing overall_metrics.
         """
         # Reject invalid configs FIRST (before checking if other is None)
         # This prevents invalid configs from becoming "best" when no previous best exists
         if self.player_count == 0:
             return False
 
+        # Check if this config has ranking metrics (required for all configs)
+        if not self.overall_metrics:
+            return False  # This config is invalid/incomplete, cannot be "best"
+
+        # Now safe to check if other is None (we know self is valid)
         if other is None:
             return True
 
@@ -138,17 +174,17 @@ class AccuracyConfigPerformance:
         if other.player_count == 0:
             return False
 
-        # Use ranking metrics if available (Q12: pairwise_accuracy is primary)
-        if self.overall_metrics and other.overall_metrics:
-            return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_accuracy
+        # If other config missing ranking_metrics, replace it with this valid one
+        if not other.overall_metrics:
+            return True   # Other config is invalid, replace it with this one
 
-        # Fallback to MAE for backward compatibility (Q25)
-        return self.mae < other.mae
+        # Both have ranking metrics - compare pairwise accuracy
+        return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_accuracy
 
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
         result = {
-            'config_id': self.config_id,
+            'config_value': self.config_value,
             'mae': self.mae,
             'player_count': self.player_count,
             'total_error': self.total_error,
@@ -218,7 +254,7 @@ class AccuracyConfigPerformance:
             mae=mae,
             player_count=player_count,
             total_error=total_error,
-            config_id=data.get('config_id'),
+            config_value=data.get('config_value'),
             timestamp=data.get('timestamp'),
             overall_metrics=overall_metrics,
             by_position=by_position
@@ -407,11 +443,11 @@ class AccuracyResultsManager:
                         f"Top-10={perf.overall_metrics.top_10_accuracy:.1%} | "
                         f"Spearman={perf.overall_metrics.spearman_correlation:.3f} | "
                         f"MAE={perf.mae:.4f} (diag) | "
-                        f"players={perf.player_count} | id={perf.config_id}"
+                        f"players={perf.player_count} | value={perf.config_value}"
                     )
                 else:
                     # Fallback for backward compatibility
-                    self.logger.info(f"  {week_key}: MAE={perf.mae:.4f}, players={perf.player_count}, id={perf.config_id}")
+                    self.logger.info(f"  {week_key}: MAE={perf.mae:.4f}, players={perf.player_count}, value={perf.config_value}")
             else:
                 self.logger.info(f"  {week_key}: None")
 
@@ -462,7 +498,7 @@ class AccuracyResultsManager:
                     'mae': perf.mae,
                     'player_count': perf.player_count,
                     'total_error': perf.total_error,
-                    'config_id': perf.config_id,
+                    'config_value': perf.config_value,
                     'timestamp': perf.timestamp
                 }
                 # Include ranking metrics if available
@@ -509,7 +545,7 @@ class AccuracyResultsManager:
                             'mae': None,
                             'player_count': None,
                             'total_error': None,
-                            'config_id': 'baseline',
+                            'config_value': None,
                             'timestamp': timestamp,
                             'note': 'No optimization performed - using baseline parameters'
                         }
@@ -595,7 +631,7 @@ class AccuracyResultsManager:
                     perf_metrics = {
                         'mae': perf.mae,
                         'player_count': perf.player_count,
-                        'config_id': perf.config_id
+                        'config_value': perf.config_value
                     }
                     # Include ranking metrics if available
                     if perf.overall_metrics:
@@ -606,6 +642,18 @@ class AccuracyResultsManager:
                             'top_20_accuracy': perf.overall_metrics.top_20_accuracy,
                             'spearman_correlation': perf.overall_metrics.spearman_correlation
                         }
+                        # Include per-position breakdown if available
+                        if perf.by_position:
+                            perf_metrics['ranking_metrics']['by_position'] = {
+                                pos: {
+                                    'pairwise_accuracy': metrics.pairwise_accuracy,
+                                    'top_5_accuracy': metrics.top_5_accuracy,
+                                    'top_10_accuracy': metrics.top_10_accuracy,
+                                    'top_20_accuracy': metrics.top_20_accuracy,
+                                    'spearman_correlation': metrics.spearman_correlation
+                                }
+                                for pos, metrics in perf.by_position.items()
+                            }
 
                     config_output = {
                         'config_name': f"Accuracy Intermediate {standard_filename.replace('.json', '')} ({timestamp})",
@@ -637,7 +685,7 @@ class AccuracyResultsManager:
                             'mae': None,
                             'player_count': None,
                             'total_error': None,
-                            'config_id': 'baseline',
+                            'config_value': None,
                             'timestamp': timestamp,
                             'note': 'No optimization performed - using baseline parameters'
                         }
@@ -729,14 +777,15 @@ class AccuracyResultsManager:
                     # Only load if this is an accuracy config (has 'mae' field)
                     # Skip win-rate configs which have 'win_rate' instead
                     if 'mae' in metrics and metrics['mae'] is not None:
-                        perf_data = {
-                            'mae': metrics['mae'],
-                            'player_count': metrics['player_count'],
-                            'config_id': metrics.get('config_id', ''),
-                            'config': data['parameters']
-                        }
-                        self.best_configs[week_key] = AccuracyConfigPerformance.from_dict(perf_data)
+                        # NOTE: We load intermediate files for resume detection only
+                        # Do NOT populate best_configs with old metrics
+                        # Metrics are for user visibility, not for comparison
+                        # Each run evaluates configs fresh with current ranking metrics
                         loaded_count += 1
+                        self.logger.debug(
+                            f"Found intermediate config {standard_filename} for {week_key} "
+                            f"(parameters only, not loading metrics)"
+                        )
                     else:
                         self.logger.debug(f"Skipped {standard_filename} - not accuracy format (missing mae field)")
 

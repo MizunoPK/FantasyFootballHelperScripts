@@ -1171,7 +1171,93 @@ Count:
 
 **Update Agent Status:**
 ```
-Progress: Round 1 complete (7/8 iterations + iteration 4a)
+Progress: Round 1 complete (7/8 iterations + iterations 4a, 7a)
+Next Action: Round 1 checkpoint - evaluate confidence
+```
+
+---
+
+### Iteration 7a: Backward Compatibility Analysis (NEW - MANDATORY)
+
+**Objective:** Identify how this feature interacts with existing data, files, and configurations created by older versions of the code.
+
+**Why This Matters:** New features often modify data structures or file formats. If the system can resume/load old data, the new code must handle old formats gracefully. This iteration prevents bugs caused by old data polluting new calculations.
+
+**Research Questions:**
+
+1. **Data Persistence:**
+   - Does this feature modify any data structures that are saved to files?
+   - Can the system resume/load from files created before this epic?
+   - What file formats are involved? (JSON, CSV, pickled objects, etc.)
+
+2. **Old Data Handling:**
+   - What happens if new code loads old files missing new fields?
+   - Will old data be used in comparisons/calculations with new data?
+   - Are there fallback mechanisms that might hide incompatibilities?
+
+3. **Migration Strategy:**
+   - Do old files need to be migrated to new format?
+   - Should old files be ignored/invalidated?
+   - Is there a version marker in saved files?
+
+4. **Resume Scenarios:**
+   - Can users resume operations from intermediate states?
+   - What happens if intermediate files are from older code version?
+   - Will the system detect and handle version mismatches?
+
+**Action Items:**
+
+1. **Search for file I/O operations:**
+   - Look for save/load methods in affected modules
+   - Check JSON serialization/deserialization
+   - Identify resume/checkpoint logic
+
+2. **Analyze data structures:**
+   - List all fields added/removed/modified
+   - Check if structures have version markers
+   - Verify default values for missing fields
+
+3. **Document findings in questions.md:**
+   ```markdown
+   ## Backward Compatibility Analysis (Iteration 7a)
+
+   **Files that persist data:**
+   - [List files and formats]
+
+   **New fields added:**
+   - [List new fields with types]
+
+   **Resume/load scenarios:**
+   - [Describe scenarios where old data might be loaded]
+
+   **Compatibility strategy:**
+   - [ ] Option 1: Migrate old files on load
+   - [ ] Option 2: Invalidate old files (require fresh run)
+   - [ ] Option 3: Handle missing fields with defaults
+   - [ ] Option 4: No old files exist / not applicable
+
+   **Rationale:** [Explain chosen strategy]
+   ```
+
+4. **Add test scenarios to todo.md:**
+   - If resume/load possible: Add test "Resume from file created before this epic"
+   - If migration needed: Add test "Migrate old file format to new format"
+   - If validation needed: Add test "Reject incompatible old files with clear error"
+
+**Success Criteria:**
+
+- ✅ All file I/O operations identified and analyzed
+- ✅ Compatibility strategy documented and justified
+- ✅ Resume/load scenarios covered in test plan
+- ✅ Migration or validation logic added to todo.md (if needed)
+
+**Time Estimate:** 10-15 minutes (prevents hours of debugging)
+
+**Historical Evidence:** Issue #001 (KAI-5) discovered in user testing could have been prevented by this iteration. Resume logic loaded old files without ranking_metrics, polluting best_configs with invalid data.
+
+**Update Agent Status:**
+```
+Progress: Round 1 Iteration 7a complete (backward compatibility analyzed)
 Next Action: Round 1 checkpoint - evaluate confidence
 ```
 
@@ -1188,15 +1274,15 @@ Next Action: Round 1 checkpoint - evaluate confidence
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** TODO_CREATION
-**Current Step:** Round 1 complete (8/8 iterations), evaluating confidence
+**Current Step:** Round 1 complete (8/8 iterations + gates 4a, 7a), evaluating confidence
 **Current Guide:** stages/stage_5/round1_todo_creation.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
-- 8 iterations mandatory (Round 1)
+- 8 iterations mandatory (Round 1) + 2 gates (4a, 7a)
 - STOP if confidence < Medium
 - Iteration 4a PASSED (mandatory gate)
 
-**Progress:** Round 1 complete (8/8 iterations)
+**Progress:** Round 1 complete (8/8 iterations + gates 4a, 7a)
 **Confidence Level:** {HIGH / MEDIUM / LOW}
 **Next Action:** {Create questions file / Proceed to Round 2}
 **Blockers:** {List any uncertainties or "None"}
@@ -1398,6 +1484,12 @@ If you CANNOT provide evidence for an iteration:
 
 ❌ "Let me skip to Round 2 now"
    ✅ STOP - Evaluate confidence at checkpoint first
+
+❌ "I'll complete all 6 iterations efficiently to make progress"
+   ✅ STOP - NEVER say "efficiently", "quickly", or "batch" iterations
+   ✅ Execute ONE iteration at a time, follow EVERY step
+   ✅ Saying "efficiently" is a RED FLAG that indicates cutting corners
+   ✅ The guides exist to prevent mistakes - skipping ANY step WILL lead to bugs
 ```
 
 ---

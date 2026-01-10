@@ -255,7 +255,7 @@ class AccuracyCalculator:
             top_20_values = []
             spearman_z_values = []
 
-            position_data = {'QB': {}, 'RB': {}, 'WR': {}, 'TE': {}}
+            position_data = {'QB': {}, 'RB': {}, 'WR': {}, 'TE': {}, 'K': {}, 'DST': {}}
             for pos in position_data:
                 position_data[pos] = {
                     'pairwise': [],
@@ -348,7 +348,7 @@ class AccuracyCalculator:
 
         Args:
             player_data: List of dicts with 'projected', 'actual', 'position' keys
-            position: Position to filter ('QB', 'RB', 'WR', 'TE')
+            position: Position to filter ('QB', 'RB', 'WR', 'TE', 'K', 'DST')
 
         Returns:
             float: Percentage of correct pairwise comparisons (0.0-1.0)
@@ -532,7 +532,7 @@ class AccuracyCalculator:
         Args:
             player_data_by_week: Dict of week -> list of player dicts with keys:
                 - 'name': Player name
-                - 'position': Player position (QB, RB, WR, TE)
+                - 'position': Player position (QB, RB, WR, TE, K, DST)
                 - 'projected': Projected points
                 - 'actual': Actual points
 
@@ -541,7 +541,7 @@ class AccuracyCalculator:
         """
         from simulation.accuracy.AccuracyResultsManager import RankingMetrics
 
-        positions = ['QB', 'RB', 'WR', 'TE']
+        positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 
         # Accumulators for per-position metrics (average across weeks)
         position_data = {pos: {

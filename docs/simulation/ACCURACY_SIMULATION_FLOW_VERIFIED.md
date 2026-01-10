@@ -59,7 +59,7 @@ The Accuracy Simulation optimizes **prediction accuracy parameters** by calculat
 **Fallback Metric** (used only when ranking metrics unavailable):
 - **MAE (Mean Absolute Error)**: Lower is better
 
-**Per-Position Metrics**: All metrics calculated separately for QB, RB, WR, TE
+**Per-Position Metrics**: All metrics calculated separately for QB, RB, WR, TE, K, DST
 **Multi-Season Validation**: Aggregated across all historical seasons (2021, 2022, 2024+)
 
 ### Metric Hierarchy

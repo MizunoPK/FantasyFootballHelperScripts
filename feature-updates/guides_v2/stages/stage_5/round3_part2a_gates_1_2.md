@@ -15,7 +15,7 @@
 **Why this matters:**
 - Part 2a contains 2 MANDATORY GATES that cannot be skipped
 - Missing gates causes catastrophic implementation failures
-- Iteration 23a has 4 PARTS (ALL must PASS)
+- Iteration 23a has 5 PARTS (ALL must PASS)
 
 **Reading Checkpoint:**
 Before proceeding, you must have:
@@ -99,7 +99,7 @@ Prerequisites Met?
 │ PART 4: Integration Evidence                   │
 └─────────────────────────────────────────────────┘
          │
-    [ALL 4 PARTS PASSED?]
+    [ALL 5 PARTS PASSED?]
          │
          ▼
     Part 2a COMPLETE → Proceed to Part 2b
@@ -120,7 +120,7 @@ Prerequisites Met?
    - Skipping gates causes catastrophic failures
 
 2. ⚠️ Iteration 23a has 4 MANDATORY PARTS (ALL must PASS)
-   - CANNOT proceed to Part 2b without "ALL 4 PARTS PASSED"
+   - CANNOT proceed to Part 2b without "ALL 5 PARTS PASSED"
    - If ANY part fails → Fix and re-run Iteration 23a
 
 3. ⚠️ Update feature README.md Agent Status after Iteration 23a
@@ -239,11 +239,11 @@ Next Action: Iteration 23a - Pre-Implementation Spec Audit (MANDATORY - 4 PARTS)
 
 ---
 
-### Iteration 23a: Pre-Implementation Spec Audit (MANDATORY GATE - 4 PARTS)
+### Iteration 23a: Pre-Implementation Spec Audit (MANDATORY GATE - 5 PARTS)
 
 **Purpose:** Final comprehensive audit before implementation
 
-**⚠️ MANDATORY:** ALL 4 PARTS must PASS before proceeding to Part 2b
+**⚠️ MANDATORY:** ALL 5 PARTS must PASS before proceeding to Part 2b
 
 **Why this matters:**
 - PART 1 ensures all requirements have tasks
@@ -664,14 +664,84 @@ class FantasyPlayer:
 
 ---
 
+## PART 5: Design Decision Scrutiny
+
+**Objective:** Challenge all "for backward compatibility" or "fallback" design decisions
+
+**Checklist:**
+
+- [ ] **Identify all fallback mechanisms:**
+  - Search spec.md for: "fallback", "backward compatibility", "default to", "if not available"
+  - List all conditional logic that handles missing/incomplete data
+
+- [ ] **For each fallback, ask:**
+  - **Why is fallback needed?** (Old data? Partial data? Error recovery?)
+  - **What happens when fallback is used?** (Degraded accuracy? Silent failure?)
+  - **Can old and new data be compared?** (If yes, what's the comparison logic?)
+  - **Could fallback hide bugs?** (Old data appearing valid when it's not)
+
+- [ ] **Challenge the design:**
+  - **Is fallback actually safer than failing fast?**
+  - **Should incompatible data be rejected instead?**
+  - **Does fallback create mixed-mode comparison problems?**
+
+- [ ] **Document in spec.md:**
+  ```markdown
+  ## Design Decision: [Fallback Name]
+
+  **Rationale:** [Why fallback is needed]
+  **Behavior:** [What happens when triggered]
+  **Risks:** [Potential issues with this design]
+  **Mitigation:** [How risks are addressed]
+  **Alternative Considered:** [Why we didn't fail fast / reject old data]
+  ```
+
+**Red Flags (require extra scrutiny):**
+
+- ❌ Fallback allows comparing data WITH new metrics vs WITHOUT new metrics
+- ❌ "Backward compatibility" mentioned but no version detection logic
+- ❌ Missing fields handled silently (no logging/warning)
+- ❌ Resume logic populates production data structures with old data
+
+**Example:**
+
+**Bad Design (can cause bugs):**
+```python
+# Fallback to MAE for backward compatibility
+if self.overall_metrics and other.overall_metrics:
+    return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_accuracy
+return self.mae < other.mae  # Problem: Allows invalid comparisons
+```
+
+**Better Design:**
+```python
+# Reject configs without metrics as invalid
+if not self.overall_metrics:
+    return False  # Cannot be "best"
+if not other.overall_metrics:
+    return True   # Replace invalid with valid
+return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_accuracy
+```
+
+**Success Criteria:**
+
+- ✅ All fallback mechanisms identified and documented
+- ✅ Each fallback has documented rationale, risks, and mitigation
+- ✅ No fallback allows mixed-mode comparisons (old vs new data)
+- ✅ Incompatible data is either migrated, rejected, or isolated (not mixed)
+
+**PART 5: ✅ PASS** (if all criteria met)
+
+---
+
 #### Iteration 23a: Final Results
 
-**If ALL 4 PARTS PASSED:**
+**If ALL 5 PARTS PASSED:**
 
 ```markdown
 ---
 
-## ✅ Iteration 23a: Pre-Implementation Spec Audit - ALL 4 PARTS PASSED
+## ✅ Iteration 23a: Pre-Implementation Spec Audit - ALL 5 PARTS PASSED
 
 **Audit Date:** {YYYY-MM-DD}
 
@@ -697,7 +767,7 @@ class FantasyPlayer:
 - Methods with identified callers: 12
 - Integration: 100%
 
-**OVERALL RESULT: ✅ ALL 4 PARTS PASSED**
+**OVERALL RESULT: ✅ ALL 5 PARTS PASSED**
 
 **Ready to proceed to Part 2b (Iteration 25 - Spec Validation).**
 
@@ -727,7 +797,7 @@ class FantasyPlayer:
 **Actions Required:**
 1. Fix issues in failing parts
 2. Re-run Iteration 23a
-3. ALL 4 PARTS must PASS before proceeding
+3. ALL 5 PARTS must PASS before proceeding
 
 **❌ STOP - Do NOT proceed to Part 2b until ALL 4 PARTS PASS**
 
@@ -736,7 +806,7 @@ class FantasyPlayer:
 
 **Update Agent Status:**
 
-**If ALL 4 PARTS PASSED:**
+**If ALL 5 PARTS PASSED:**
 ```markdown
 Progress: Iteration 23a PASSED (ALL 4 PARTS - MANDATORY GATE)
 Gate Status: ✅ PASSED
@@ -759,15 +829,15 @@ Next Action: Fix failing parts, re-run Iteration 23a
 
 ### Both Iterations Complete
 - [ ] Iteration 23: Integration Gap Check (Final) complete
-- [ ] Iteration 23a: Pre-Implementation Spec Audit - ALL 4 PARTS PASSED
+- [ ] Iteration 23a: Pre-Implementation Spec Audit - ALL 5 PARTS PASSED
 
 ### Mandatory Gate Passed
-- [ ] Gate 2 (Iteration 23a): ALL 4 PARTS PASSED
+- [ ] Gate 2 (Iteration 23a): ALL 5 PARTS PASSED
 
 ### Documentation Updated
 - [ ] todo.md contains all Part 2a outputs
 - [ ] feature README.md Agent Status shows:
-  - Iteration 23a: ALL 4 PARTS PASSED
+  - Iteration 23a: ALL 5 PARTS PASSED
   - Next Action: Read Part 2b guide
 
 ### Quality Verified
@@ -791,14 +861,14 @@ Next Action: Fix failing parts, re-run Iteration 23a
 ### ❌ MISTAKE 1: "Iteration 23a Part 1 passed, I'll skip Parts 2-4"
 
 **Why this is wrong:**
-- ALL 4 PARTS must PASS (not just some)
+- ALL 5 PARTS must PASS (not just some)
 - Each part catches different issues
 - Skipping parts = incomplete validation
 
 **What to do instead:**
 - ✅ Execute ALL 4 PARTS of Iteration 23a
 - ✅ Document results for each part
-- ✅ Only proceed when ALL 4 PARTS PASSED
+- ✅ Only proceed when ALL 5 PARTS PASSED
 
 ---
 
@@ -824,7 +894,7 @@ Next Action: Fix failing parts, re-run Iteration 23a
 ### Part 2a Completion
 - [ ] BOTH iterations complete (23, 23a)
 - [ ] Integration gap check: No orphan code
-- [ ] Iteration 23a: ALL 4 PARTS PASSED
+- [ ] Iteration 23a: ALL 5 PARTS PASSED
 
 ### Documentation
 - [ ] feature README.md shows Part 2a complete
@@ -846,10 +916,10 @@ Next Action: Fix failing parts, re-run Iteration 23a
 
 **Critical Outputs:**
 - Integration verification (all methods integrated)
-- Spec audit results (ALL 4 PARTS must PASS)
+- Spec audit results (ALL 5 PARTS must PASS)
 
 **Mandatory Gate:**
-- Gate 2 (Iteration 23a): ALL 4 PARTS PASSED
+- Gate 2 (Iteration 23a): ALL 5 PARTS PASSED
 
 **Success Criteria:**
 - Both iterations complete

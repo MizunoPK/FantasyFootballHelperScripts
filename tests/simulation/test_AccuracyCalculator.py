@@ -323,6 +323,30 @@ class TestPairwiseAccuracy:
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
         assert accuracy == 1.0  # Only QBs compared
 
+    def test_pairwise_accuracy_k_position(self, calculator):
+        """Test pairwise accuracy with K position (discrete scoring: 0, 3, 6, 9)."""
+        player_data = [
+            {'position': 'K', 'projected': 9.0, 'actual': 9.0},
+            {'position': 'K', 'projected': 6.0, 'actual': 6.0},
+            {'position': 'K', 'projected': 3.0, 'actual': 3.0},
+        ]
+        accuracy = calculator.calculate_pairwise_accuracy(player_data, 'K')
+        assert accuracy == 1.0  # Perfect ranking
+        assert accuracy is not None
+        assert not (accuracy != accuracy)  # Not NaN
+
+    def test_pairwise_accuracy_dst_position_with_negatives(self, calculator):
+        """Test pairwise accuracy with DST position including negative scores."""
+        player_data = [
+            {'position': 'DST', 'projected': 12.0, 'actual': 15.0},
+            {'position': 'DST', 'projected': 8.0, 'actual': 5.0},
+            {'position': 'DST', 'projected': 5.0, 'actual': 3.0},  # Above filter threshold
+        ]
+        accuracy = calculator.calculate_pairwise_accuracy(player_data, 'DST')
+        assert accuracy == 1.0  # Perfect ranking
+        assert accuracy is not None
+        assert not (accuracy != accuracy)  # Not NaN
+
 
 class TestTopNAccuracy:
     """Tests for top-N overlap accuracy calculation."""
@@ -379,6 +403,28 @@ class TestTopNAccuracy:
         ]
         accuracy = calculator.calculate_top_n_accuracy(player_data, 5, 'TE')
         assert accuracy == 0.0  # Not enough players
+
+    def test_top_n_accuracy_k_dst_small_sample(self, calculator):
+        """Test top-N accuracy with K/DST small sample sizes."""
+        # Test with 10 K players (realistic small sample)
+        k_player_data = [
+            {'position': 'K', 'name': f'K{i}', 'projected': 10.0 - i, 'actual': 10.0 - i}
+            for i in range(10)
+        ]
+        # Top-5 accuracy with perfect predictions
+        accuracy_top5 = calculator.calculate_top_n_accuracy(k_player_data, 5, 'K')
+        assert accuracy_top5 == 1.0
+        assert accuracy_top5 is not None
+        assert not (accuracy_top5 != accuracy_top5)  # Not NaN
+
+        # Test with 10 DST players
+        dst_player_data = [
+            {'position': 'DST', 'name': f'DST{i}', 'projected': 15.0 - i, 'actual': 15.0 - i}
+            for i in range(10)
+        ]
+        accuracy_dst = calculator.calculate_top_n_accuracy(dst_player_data, 5, 'DST')
+        assert accuracy_dst == 1.0
+        assert accuracy_dst is not None
 
 
 class TestSpearmanCorrelation:
@@ -439,6 +485,31 @@ class TestSpearmanCorrelation:
         ]
         corr = calculator.calculate_spearman_correlation(player_data, 'TE')
         assert corr == 0.0
+
+    def test_spearman_correlation_k_dst(self, calculator):
+        """Test Spearman correlation with K and DST positions."""
+        # Test K position with discrete scoring pattern
+        k_player_data = [
+            {'position': 'K', 'projected': 9.0, 'actual': 12.0},
+            {'position': 'K', 'projected': 8.0, 'actual': 6.0},
+            {'position': 'K', 'projected': 7.0, 'actual': 9.0},
+            {'position': 'K', 'projected': 6.0, 'actual': 3.0},
+        ]
+        corr_k = calculator.calculate_spearman_correlation(k_player_data, 'K')
+        assert -1.0 <= corr_k <= 1.0  # Valid correlation range
+        assert corr_k is not None
+        assert not (corr_k != corr_k)  # Not NaN
+
+        # Test DST position
+        dst_player_data = [
+            {'position': 'DST', 'projected': 10.0, 'actual': 15.0},
+            {'position': 'DST', 'projected': 8.0, 'actual': 5.0},
+            {'position': 'DST', 'projected': 6.0, 'actual': 10.0},
+            {'position': 'DST', 'projected': 4.0, 'actual': 3.0},
+        ]
+        corr_dst = calculator.calculate_spearman_correlation(dst_player_data, 'DST')
+        assert -1.0 <= corr_dst <= 1.0  # Valid correlation range
+        assert corr_dst is not None
 
 
 if __name__ == "__main__":

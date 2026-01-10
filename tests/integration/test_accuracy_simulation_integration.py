@@ -27,7 +27,7 @@ sys.path.append(str(project_root / "simulation" / "shared"))
 sys.path.append(str(project_root / "simulation" / "accuracy"))
 from ConfigGenerator import ConfigGenerator
 from AccuracySimulationManager import AccuracySimulationManager
-from AccuracyResultsManager import AccuracyResultsManager, WEEK_RANGES
+from AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
 from AccuracyCalculator import AccuracyCalculator, AccuracyResult
 
 
@@ -422,7 +422,17 @@ class TestAccuracyResultsManagerIntegration:
         with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
-        result = AccuracyResult(mae=15.5, player_count=100, total_error=1550.0)
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result = AccuracyResult(
+            mae=15.5, player_count=100, total_error=1550.0,
+            overall_metrics=metrics
+        )
         is_new_best = manager.add_result('ros', config_dict, result)
 
         assert is_new_best is True  # First result is always best
@@ -435,12 +445,32 @@ class TestAccuracyResultsManagerIntegration:
         with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
-        # Add worse result first
-        result1 = AccuracyResult(mae=20.0, player_count=100, total_error=2000.0)
+        # Add worse result first (lower pairwise accuracy)
+        metrics1 = RankingMetrics(
+            pairwise_accuracy=0.65,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result1 = AccuracyResult(
+            mae=20.0, player_count=100, total_error=2000.0,
+            overall_metrics=metrics1
+        )
         manager.add_result('ros', config_dict, result1)
 
-        # Add better result (lower MAE)
-        result2 = AccuracyResult(mae=15.0, player_count=100, total_error=1500.0)
+        # Add better result (higher pairwise accuracy)
+        metrics2 = RankingMetrics(
+            pairwise_accuracy=0.72,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result2 = AccuracyResult(
+            mae=15.0, player_count=100, total_error=1500.0,
+            overall_metrics=metrics2
+        )
         is_new_best = manager.add_result('ros', config_dict, result2)
 
         assert is_new_best is True

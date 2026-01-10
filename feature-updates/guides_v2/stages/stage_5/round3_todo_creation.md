@@ -85,11 +85,11 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 
 **What it covers:**
 - **Iteration 23:** Integration Gap Check (Final) (verify all new methods have callers)
-- **Iteration 23a:** Pre-Implementation Spec Audit (MANDATORY GATE - 4 PARTS: Completeness, Specificity, Interface Contracts, Integration Evidence)
+- **Iteration 23a:** Pre-Implementation Spec Audit (MANDATORY GATE - 5 PARTS: Completeness, Specificity, Interface Contracts, Integration Evidence, Design Decision Scrutiny)
 
 **Key Outputs:**
 - Integration gap check results (ALL methods have callers, no orphan code)
-- Pre-Implementation Spec Audit results (ALL 4 PARTS PASSED):
+- Pre-Implementation Spec Audit results (ALL 5 PARTS PASSED):
   - Completeness Audit: Coverage = 100% (all requirements have TODO tasks)
   - Specificity Audit: Specificity = 100% (all tasks have acceptance criteria, implementation location, test coverage)
   - Interface Contracts Audit: Verification = 100% (all dependencies verified against actual source code)
@@ -102,7 +102,7 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 **Why this sub-stage exists:**
 - **Contains 2 MANDATORY GATES** (Integration Gap Check, Pre-Implementation Spec Audit)
 - **Iteration 23a**: Evidence-based verification (cite specific numbers, provide proof)
-- **ALL 4 PARTS** of Iteration 23a must PASS before proceeding to Part 2b
+- **ALL 5 PARTS** of Iteration 23a must PASS before proceeding to Part 2b
 
 ---
 
@@ -156,7 +156,7 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 
 Round 3 contains **3 MANDATORY GATES** that CANNOT be skipped:
 
-### Gate 1: Iteration 23a - Pre-Implementation Spec Audit (4 PARTS)
+### Gate 1: Iteration 23a - Pre-Implementation Spec Audit (5 PARTS)
 **Location:** STAGE_5ac Part 2a (round3_part2a_gates_1_2.md)
 **Purpose:** Evidence-based verification of TODO quality before implementation
 **Requirements:**
@@ -164,7 +164,7 @@ Round 3 contains **3 MANDATORY GATES** that CANNOT be skipped:
 - PART 2: Specificity Audit (Specificity = 100%)
 - PART 3: Interface Contracts Audit (Verification = 100%)
 - PART 4: Integration Evidence Audit (Integration = 100%)
-**Pass Criteria:** ALL 4 PARTS must show 100% metrics with evidence (cite specific numbers)
+**Pass Criteria:** ALL 5 PARTS must show 100% metrics with evidence (cite specific numbers)
 
 ### Gate 2: Iteration 25 - Spec Validation Against Validated Documents
 **Location:** STAGE_5ac Part 2b (round3_part2b_gate_3.md)

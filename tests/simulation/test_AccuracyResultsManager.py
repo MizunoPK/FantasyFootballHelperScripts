@@ -42,28 +42,99 @@ class TestAccuracyConfigPerformance:
         assert perf.mae == 5.5
         assert perf.player_count == 100
         assert perf.total_error == 550.0
-        assert perf.config_id is not None
+        assert perf.config_value is None  # No param_name provided
         assert perf.timestamp is not None
 
-    def test_config_performance_with_id(self):
-        """Test creating with explicit config_id."""
+    def test_config_performance_with_value(self):
+        """Test creating with explicit config_value."""
         perf = AccuracyConfigPerformance(
             config_dict={},
             mae=5.0,
             player_count=100,
             total_error=500.0,
-            config_id="test123"
+            config_value=2.5
         )
 
-        assert perf.config_id == "test123"
+        assert perf.config_value == 2.5
 
-    def test_is_better_than_lower_mae(self):
-        """Test that lower MAE is better."""
+    def test_config_value_extraction_nested_params(self):
+        """Test that config_value is extracted from nested parameters."""
+        # Test WIND_SCORING_WEIGHT extraction
+        config = {
+            'parameters': {
+                'WIND_SCORING': {
+                    'WEIGHT': 0.25,
+                    'IMPACT_SCALE': 100
+                }
+            }
+        }
+        perf = AccuracyConfigPerformance(
+            config_dict=config,
+            mae=5.0,
+            player_count=100,
+            total_error=500.0,
+            param_name='WIND_SCORING_WEIGHT'
+        )
+        assert perf.config_value == 0.25
+
+        # Test LOCATION_AWAY extraction
+        config2 = {
+            'parameters': {
+                'LOCATION_MODIFIERS': {
+                    'HOME': 4.3,
+                    'AWAY': 3.9,
+                    'INTERNATIONAL': -2.0
+                }
+            }
+        }
+        perf2 = AccuracyConfigPerformance(
+            config_dict=config2,
+            mae=5.0,
+            player_count=100,
+            total_error=500.0,
+            param_name='LOCATION_AWAY'
+        )
+        assert perf2.config_value == 3.9
+
+        # Test top-level param extraction
+        config3 = {
+            'parameters': {
+                'NORMALIZATION_MAX_SCALE': 150
+            }
+        }
+        perf3 = AccuracyConfigPerformance(
+            config_dict=config3,
+            mae=5.0,
+            player_count=100,
+            total_error=500.0,
+            param_name='NORMALIZATION_MAX_SCALE'
+        )
+        assert perf3.config_value == 150
+
+    def test_is_better_than_higher_pairwise_accuracy(self):
+        """Test that higher pairwise accuracy is better."""
+        metrics1 = RankingMetrics(
+            pairwise_accuracy=0.70,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        metrics2 = RankingMetrics(
+            pairwise_accuracy=0.65,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+
         perf1 = AccuracyConfigPerformance(
-            config_dict={}, mae=4.0, player_count=100, total_error=400.0
+            config_dict={}, mae=4.0, player_count=100, total_error=400.0,
+            overall_metrics=metrics1
         )
         perf2 = AccuracyConfigPerformance(
-            config_dict={}, mae=5.0, player_count=100, total_error=500.0
+            config_dict={}, mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics2
         )
 
         assert perf1.is_better_than(perf2)
@@ -71,8 +142,17 @@ class TestAccuracyConfigPerformance:
 
     def test_is_better_than_none(self):
         """Test comparison with None."""
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+
         perf = AccuracyConfigPerformance(
-            config_dict={}, mae=5.0, player_count=100, total_error=500.0
+            config_dict={}, mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics
         )
 
         assert perf.is_better_than(None)
@@ -97,7 +177,7 @@ class TestAccuracyConfigPerformance:
             mae=5.5,
             player_count=100,
             total_error=550.0,
-            config_id="abc123"
+            config_value=1.25
         )
 
         data = original.to_dict()
@@ -106,7 +186,7 @@ class TestAccuracyConfigPerformance:
         assert restored.config_dict == original.config_dict
         assert restored.mae == original.mae
         assert restored.player_count == original.player_count
-        assert restored.config_id == original.config_id
+        assert restored.config_value == original.config_value
 
     def test_repr(self):
         """Test string representation."""
@@ -173,7 +253,17 @@ class TestAccuracyResultsManager:
     def test_add_result_first_is_best(self, results_manager):
         """Test that first result is automatically best."""
         config = {'test': 'config'}
-        accuracy_result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        accuracy_result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics
+        )
 
         is_best = results_manager.add_result('ros', config, accuracy_result)
 
@@ -185,22 +275,65 @@ class TestAccuracyResultsManager:
         """Test that better result replaces current best."""
         config1 = {'version': 1}
         config2 = {'version': 2}
-        result1 = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
-        result2 = AccuracyResult(mae=3.0, player_count=100, total_error=300.0)
+
+        # Create ranking metrics for both results
+        metrics1 = RankingMetrics(
+            pairwise_accuracy=0.65,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        metrics2 = RankingMetrics(
+            pairwise_accuracy=0.70,  # Better pairwise accuracy
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+
+        result1 = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics1
+        )
+        result2 = AccuracyResult(
+            mae=3.0, player_count=100, total_error=300.0,
+            overall_metrics=metrics2
+        )
 
         results_manager.add_result('ros', config1, result1)
         is_best = results_manager.add_result('ros', config2, result2)
 
         assert is_best
-        assert results_manager.best_configs['ros'].mae == 3.0
+        assert results_manager.best_configs['ros'].overall_metrics.pairwise_accuracy == 0.70
         assert results_manager.best_configs['ros'].config_dict == config2
 
     def test_add_result_worse_does_not_replace(self, results_manager):
         """Test that worse result does not replace best."""
         config1 = {'version': 1}
         config2 = {'version': 2}
-        result1 = AccuracyResult(mae=3.0, player_count=100, total_error=300.0)
-        result2 = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
+        metrics1 = RankingMetrics(
+            pairwise_accuracy=0.70,  # Better
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        metrics2 = RankingMetrics(
+            pairwise_accuracy=0.65,  # Worse
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result1 = AccuracyResult(
+            mae=3.0, player_count=100, total_error=300.0,
+            overall_metrics=metrics1
+        )
+        result2 = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics2
+        )
 
         results_manager.add_result('ros', config1, result1)
         is_best = results_manager.add_result('ros', config2, result2)
@@ -220,7 +353,17 @@ class TestAccuracyResultsManager:
     def test_get_best_config(self, results_manager):
         """Test getting best config for a week range."""
         config = {'test': 'config'}
-        result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics
+        )
         results_manager.add_result('week_1_5', config, result)
 
         best = results_manager.get_best_config('week_1_5')
@@ -239,7 +382,17 @@ class TestAccuracyResultsManager:
         # Use real WEEK_SPECIFIC_PARAMS parameters with nested structure
         config_week_1_5 = {'TEAM_QUALITY_SCORING': {'WEIGHT': 1.5}}
         config_week_6_9 = {'MATCHUP_SCORING': {'WEIGHT': 1.2}}
-        result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics
+        )
 
         results_manager.add_result('week_1_5', config_week_1_5, result)
         results_manager.add_result('week_6_9', config_week_6_9, result)
@@ -273,7 +426,17 @@ class TestAccuracyResultsManager:
     def test_save_intermediate_results(self, results_manager):
         """Test saving intermediate results."""
         config = {'test': 'config'}
-        result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics
+        )
         results_manager.add_result('ros', config, result)
 
         intermediate_path = results_manager.save_intermediate_results(0, 'NORMALIZATION')
@@ -307,7 +470,7 @@ class TestAccuracyResultsManager:
             'performance_metrics': {
                 'mae': 5.0,
                 'player_count': 100,
-                'config_id': 'test123'
+                'config_value': 2.5
             }
         }
         with open(intermediate_path / "week1-5.json", 'w') as f:
@@ -316,9 +479,11 @@ class TestAccuracyResultsManager:
         # Load
         success = results_manager.load_intermediate_results(intermediate_path)
 
+        # Should return True indicating files were found
         assert success
-        assert results_manager.best_configs['week_1_5'] is not None
-        assert results_manager.best_configs['week_1_5'].mae == 5.0
+        # best_configs should NOT be populated (metrics are for user visibility only)
+        # Each run evaluates configs fresh with current ranking metrics
+        assert results_manager.best_configs['week_1_5'] is None
 
     def test_load_intermediate_results_not_found(self, results_manager, temp_dir):
         """Test loading from non-existent folder."""
@@ -328,7 +493,17 @@ class TestAccuracyResultsManager:
     def test_get_summary(self, results_manager):
         """Test getting results summary."""
         config = {'test': 'config'}
-        result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics
+        )
         results_manager.add_result('ros', config, result)
         results_manager.add_result('week_1_5', config, result)
 
@@ -343,8 +518,28 @@ class TestAccuracyResultsManager:
         """Test that different horizons store independent config objects (regression test for bug)."""
         config1 = {'parameters': {'NORMALIZATION_MAX_SCALE': 100}}
         config2 = {'parameters': {'NORMALIZATION_MAX_SCALE': 150}}
-        result1 = AccuracyResult(mae=68.0, player_count=100, total_error=6800.0)
-        result2 = AccuracyResult(mae=3.8, player_count=100, total_error=380.0)
+        metrics1 = RankingMetrics(
+            pairwise_accuracy=0.65,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        metrics2 = RankingMetrics(
+            pairwise_accuracy=0.72,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result1 = AccuracyResult(
+            mae=68.0, player_count=100, total_error=6800.0,
+            overall_metrics=metrics1
+        )
+        result2 = AccuracyResult(
+            mae=3.8, player_count=100, total_error=380.0,
+            overall_metrics=metrics2
+        )
 
         # Record different configs for ros and week_1_5
         results_manager.add_result('ros', config1, result1)
@@ -463,7 +658,17 @@ class TestScheduleSync:
                 'MIN_WEEKS': 3
             }
         }
-        result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics
+        )
         results_manager.add_result('week_1_5', config, result)
 
         optimal_path = results_manager.save_optimal_configs()
@@ -486,7 +691,17 @@ class TestScheduleSync:
                 'IMPACT_SCALE': 0.7
             }
         }
-        result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0)
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=metrics
+        )
         results_manager.add_result('week_1_5', config, result)
 
         intermediate_path = results_manager.save_intermediate_results(0, 'TEST')
@@ -658,13 +873,14 @@ class TestAccuracyConfigPerformanceRanking:
         assert perf1.is_better_than(perf2)
         assert not perf2.is_better_than(perf1)
 
-    def test_is_better_than_falls_back_to_mae(self):
-        """Test that is_better_than() falls back to MAE when no ranking metrics."""
+    def test_is_better_than_rejects_configs_without_metrics(self):
+        """Test that configs without ranking metrics are rejected (invalid)."""
         perf1 = AccuracyConfigPerformance(
             config_dict={'test': 'config1'},
             mae=5.0,
             player_count=100,
             total_error=500.0
+            # No overall_metrics - invalid config
         )
 
         perf2 = AccuracyConfigPerformance(
@@ -672,11 +888,15 @@ class TestAccuracyConfigPerformanceRanking:
             mae=10.0,
             player_count=100,
             total_error=1000.0
+            # No overall_metrics - invalid config
         )
 
-        # Without ranking metrics, should use MAE (lower is better)
-        assert perf1.is_better_than(perf2)
+        # Both configs invalid, neither should be "better"
+        assert not perf1.is_better_than(perf2)
         assert not perf2.is_better_than(perf1)
+
+        # Invalid config should not beat None (cannot become "best")
+        assert not perf1.is_better_than(None)
 
     def test_to_dict_includes_ranking_metrics(self):
         """Test that to_dict() includes ranking metrics."""

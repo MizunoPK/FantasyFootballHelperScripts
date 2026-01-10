@@ -51,7 +51,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # Logging Configuration
 DEFAULT_LOG_LEVEL = 'info'       # Default log level (overridable with --log-level flag)
-LOGGING_TO_FILE = False           # True = log to file, False = log to console
+LOGGING_TO_FILE = True           # True = log to file, False = log to console
 LOG_NAME = "accuracy_simulation"
 LOGGING_FILE = "./simulation/accuracy_log.txt"  # Log file path (only used if LOGGING_TO_FILE=True)
 LOGGING_FORMAT = "detailed"      # detailed / standard / simple
@@ -60,7 +60,7 @@ LOGGING_FORMAT = "detailed"      # detailed / standard / simple
 DEFAULT_BASELINE = ''            # Empty = auto-detect most recent optimal config
 DEFAULT_OUTPUT = 'simulation/simulation_configs'
 DEFAULT_DATA = 'simulation/sim_data'
-DEFAULT_TEST_VALUES = 5          # Number of test values per parameter
+DEFAULT_TEST_VALUES = 3          # Number of test values per parameter
 NUM_PARAMETERS_TO_TEST = 1       # Number of parameters to test simultaneously
 
 # Parallel processing defaults

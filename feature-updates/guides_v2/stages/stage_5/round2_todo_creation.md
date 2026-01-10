@@ -708,7 +708,43 @@ Next Action: Iteration 15 - Test Coverage Depth Check
 **Overall: ✅ PASS (>90% coverage)**
 ```
 
-4. **Add missing test tasks to TODO:**
+4. **Resume/Persistence Testing (if applicable):**
+
+**Trigger:** Feature modifies persisted data OR system supports resume/checkpoint
+
+**Required Test Scenarios:**
+
+1. **Resume from old data:**
+   - Create intermediate files with OLD data format (missing new fields)
+   - Run new code that loads these files
+   - Verify: Old data doesn't pollute new calculations
+   - Verify: System handles missing fields gracefully (migrate, ignore, or error)
+
+2. **Resume from partial state:**
+   - Interrupt operation mid-execution
+   - Verify: Can resume without data corruption
+   - Verify: Resume produces same result as fresh run
+
+3. **Version mismatch detection:**
+   - If files have version markers, test version mismatch handling
+   - Verify: Clear error message when incompatible version detected
+
+**Add to todo.md:**
+```markdown
+## Backward Compatibility Tests
+
+**Scenario:** Resume from intermediate files created before this epic
+- [ ] Create old-format test files (manually or with old code version)
+- [ ] Load with new code
+- [ ] Verify old data doesn't corrupt new results
+- [ ] Verify appropriate handling (migrate/ignore/error)
+```
+
+**Coverage Target:** If resume possible → 100% of load paths tested with old data
+
+**Why This Matters:** Resume bugs are hard to catch with fresh-run tests. Old data can silently corrupt new calculations if not explicitly tested.
+
+5. **Add missing test tasks to TODO:**
 
 ```markdown
 ## Task 21: Unit Test - Case Sensitivity
@@ -1069,6 +1105,11 @@ If you CANNOT provide evidence for an iteration:
 
 ❌ "Let me skip to Round 3 now"
    ✅ STOP - Evaluate confidence at checkpoint first
+
+❌ "I'll batch these 9 iterations efficiently"
+   ✅ STOP - NEVER say "efficiently", "quickly", or "batch" iterations
+   ✅ Execute ONE iteration at a time, follow EVERY step
+   ✅ Batching iterations leads to skipped verification steps and bugs
 ```
 
 ---
