@@ -1,0 +1,3 @@
+I want to make it easier to do test runs of each script
+There should be a way to automate a test that for example runs a single simulation and creates log files
+Make it easier to quickly smoke test and allow an agent to test by themselves

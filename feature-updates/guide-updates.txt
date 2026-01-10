@@ -1,0 +1,13 @@
+Examine if it is worth combining the spec and todo files
+Require ALL checklist items to be confirmed by the user. Stop resolving anything on their own, including things the agent thinks is straightfoward
+Require the user to be shown an overview of the expected code changes, and let them approve the plan
+Improve the PR process. Currently pretty much nothing is being caught or improved
+Improve the planning for new unit tests and catching failing unit tests during the TODO implementation. Really hammer in the test-driven development
+After changes have been completed, provide an overview of the changes and how they differ from the initial plan. Have the user approve them
+I want a way to more easily let the user do their own PR
+Turn spec/todo creation into a loop, where it keeps skeptically reviewing the docs until it has no questions
+Turn PR into a loop, where it keeps examining with fresh eyes until there is nothing left to comment on
+Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself. 
+When applying lessons learned to guides, have the user approve the guide changes first and let them give their input on how to go about doing them
+Make sure ALL lessons learned docs are assessed for guide updates. We often only end up looking at the epic-level one
+For each checklist item in the debugging protocol, as its resolved it MUST consider WHY the bug existed in the first place. We want to refine the guides to prevent the bug from ever appearing in similar circumstances in the future. It should then confirm the potential 'lessons learned' with the user, and if the user agrees then add the info to lessons learned docs.
