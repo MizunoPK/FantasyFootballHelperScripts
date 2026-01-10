@@ -17,7 +17,7 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 5 | add_k_dst_ranking_metrics_support | epic | epic/KAI-5 | In Progress | 2026-01-08 |
+| (none) | - | - | - | - | - |
 
 ---
 
@@ -27,6 +27,7 @@
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
+| 5 | add_k_dst_ranking_metrics_support | epic | epic/KAI-5 | 2026-01-09 | feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/ |
 | 3 | integrate_new_player_data_into_simulation | epic | epic/KAI-3 | 2026-01-04 | feature-updates/done/integrate_new_player_data_into_simulation/ |
 | 2 | fix_2025_adp | epic | epic/KAI-2 | 2026-01-01 | feature-updates/done/fix_2025_adp/ |
 | 1 | bug_fix-draft_mode | fix | fix/KAI-1 | 2025-12-31 | feature-updates/done/bug_fix-draft_mode/ |
@@ -186,6 +187,55 @@ See feature-updates/done/integrate_new_player_data_into_simulation/epic_lessons_
 - Epic README: feature-updates/done/integrate_new_player_data_into_simulation/EPIC_README.md
 - Epic Test Plan: feature-updates/done/integrate_new_player_data_into_simulation/epic_smoke_test_plan.md
 - Epic Lessons Learned: feature-updates/done/integrate_new_player_data_into_simulation/epic_lessons_learned.md
+
+---
+
+### KAI-5: add_k_dst_ranking_metrics_support
+
+**Type:** epic
+**Branch:** epic/KAI-5
+**Date Started:** 2026-01-08
+**Date Completed:** 2026-01-09
+**Location:** feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/
+
+**Description:**
+Added Kicker (K) and Defense/Special Teams (DST) positions to ranking-based accuracy metrics (pairwise accuracy, top-N accuracy, Spearman correlation) in the accuracy simulation. Previously, K and DST were only evaluated using MAE (fallback metric), while QB/RB/WR/TE used pairwise accuracy (primary metric). This epic extended ranking metrics to all 6 positions, enabling consistent evaluation across all position groups. During user testing, discovered and resolved 3 critical bugs related to backward compatibility with old intermediate files, which led to significant guide improvements based on systematic root cause analysis.
+
+**Features Implemented:**
+1. feature_01_add_k_dst_ranking_metrics_support - Added K and DST to position lists in AccuracyCalculator (lines 258, 544), enabling all ranking metrics for these positions
+
+**Bug Fixes During Epic:**
+- Issue #001: Incomplete Simulation Results - Resume logic loaded old intermediate files without ranking_metrics, polluting best_configs; comparison logic fell back to MAE allowing invalid comparisons; invalid 'ros' key caused warnings
+- Issue #002: config_value Showing null - param_name not passed to add_result() causing parameter value extraction to fail
+- Issue #003: Missing Position-Specific Metrics - by_position dict not serialized to JSON output files
+
+**Key Changes:**
+- simulation/accuracy/AccuracyCalculator.py: Added K and DST to position_data dict (line 258) and positions list (line 544)
+- simulation/accuracy/AccuracyResultsManager.py: Fixed resume logic (don't populate best_configs with old data), removed MAE fallback from is_better_than() (reject invalid configs), added by_position serialization to ranking_metrics output
+- simulation/accuracy/AccuracySimulationManager.py: Pass param_name and test_idx to add_result() for config_value extraction, removed invalid 'ros' key from horizon_map
+- feature-updates/guides_v2/stages/stage_5/round1_todo_creation.md: Added Iteration 7a (Backward Compatibility Analysis)
+- feature-updates/guides_v2/stages/stage_5/round2_todo_creation.md: Added resume/persistence testing requirements
+- feature-updates/guides_v2/stages/stage_5/round3_part2a_gates_1_2.md: Added Part 5 (Design Decision Scrutiny) to Iteration 23a
+- tests/: Updated 13 test files with ranking_metrics fixtures, added 7 new K/DST test cases (100% pass rate)
+
+**Commit History:**
+- `09c69ea` - `feat/KAI-5: Complete add_k_dst_ranking_metrics_support epic`
+
+**Testing Results:**
+- Unit tests: 2,486/2,486 passing (100%)
+- Epic smoke testing: Passed (7 scenarios, 5 success criteria, zero issues)
+- Epic QC rounds: Passed (3/3 rounds, zero issues)
+- User testing: Passed (3 issues found and resolved)
+
+**Lessons Learned:**
+See feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/epic_lessons_learned.md - Key success factors: Position-agnostic architecture enabled minimal code changes (2 lines), thorough Stage 5a research (24 iterations) prevented implementation surprises, QC process caught zero bugs (production-ready on first attempt), pure data modifications are lowest risk changes. Critical process lesson: NEVER skip guide steps for "efficiency" - batching iterations leads to skipped verification and bugs. Debugging lessons: Backward compatibility must be explicit in research (new Iteration 7a), test real-world scenarios not just happy path, validate data before use and fail fast on invalid, version all serialized structures, question all "for backward compatibility" design decisions. Generated 5 concrete guide updates to prevent similar bugs in future epics.
+
+**Related Documentation:**
+- Epic README: feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/EPIC_README.md
+- Epic Test Plan: feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/epic_smoke_test_plan.md
+- Epic Lessons Learned: feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/epic_lessons_learned.md
+- Debugging Analysis: feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/debugging/process_failure_analysis.md
+- Guide Updates: feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/debugging/guide_update_recommendations.md
 
 ---
 
