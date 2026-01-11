@@ -41,13 +41,14 @@ STEP 5: User Testing & Bug Fix Protocol (Variable) ← MANDATORY GATE
     ├─ After bug fixes → RESTART Stage 6 (Epic Final QC)
     └─ Return to Stage 7 only when user testing passes with ZERO bugs
     ↓
-STEP 6: Final Commit (5-10 min)
+STEP 6: Final Commit & Pull Request (5-10 min)
     ├─ Review changes (git status, git diff)
     ├─ Stage all epic-related changes
     ├─ Create commit: "{commit_type}/KAI-{number}: {message}"
-    ├─ Merge branch to main (git merge)
-    ├─ Push to origin (git push)
-    └─ Update EPIC_TRACKER.md
+    ├─ Push branch to remote (git push origin {work_type}/KAI-{number})
+    ├─ Create Pull Request using gh CLI
+    ├─ Wait for user to review and merge PR
+    └─ Update EPIC_TRACKER.md after user merges
     ↓
 STEP 7: Move Epic to done/ Folder (2 min)
     ├─ Create done/ folder if doesn't exist
@@ -201,19 +202,25 @@ git add <any other changed files>
 git commit -m "{commit_type}/KAI-{number}: {message}"
 ```
 
-### 6.4: Merge to Main
+### 6.4: Push Branch to Remote
 ```bash
-git checkout main
-git pull origin main
-git merge {work_type}/KAI-{number}
+git push origin {work_type}/KAI-{number}
 ```
 
-### 6.5: Push to Origin
+### 6.5: Create Pull Request
 ```bash
-git push origin main
+gh pr create --base main --head {work_type}/KAI-{number} \
+  --title "{commit_type}/KAI-{number}: Complete {epic_name} epic" \
+  --body "{Epic summary, features, tests, review instructions}"
 ```
 
-### 6.6: Update EPIC_TRACKER.md
+See USER_PR_REVIEW_GUIDE.md for user review options.
+
+### 6.6: Wait for User to Merge PR
+Agent waits for user to review and merge the Pull Request in GitHub.
+
+### 6.7: Update EPIC_TRACKER.md (After User Merges)
+- Pull latest: git checkout main && git pull origin main
 - Move epic from Active to Completed table
 - Add epic detail section
 - Increment "Next Available Number"
@@ -228,8 +235,9 @@ git push origin main
 - ✅ Verify ALL documentation complete
 - ✅ User testing is MANDATORY (BEFORE commit)
 - ✅ Commit message must use new format ({commit_type}/KAI-{number})
-- ✅ Merge branch to main AFTER commit
-- ✅ Update EPIC_TRACKER.md AFTER merge
+- ✅ Push branch and create PR for user review
+- ✅ Wait for user to review and merge PR
+- ✅ Update EPIC_TRACKER.md AFTER user merges
 - ✅ Move ENTIRE epic folder (not individual features)
 - ✅ Update CLAUDE.md if guides improved
 - ✅ Verify epic is TRULY complete
@@ -316,8 +324,9 @@ git push origin main
 
 **Step 6 → Step 7:**
 - [ ] All changes committed
-- [ ] Branch merged to main
-- [ ] Pushed to origin
+- [ ] Branch pushed to remote
+- [ ] Pull Request created for user review
+- [ ] User has merged PR to main
 - [ ] EPIC_TRACKER.md updated
 
 **Step 7 → Step 8:**

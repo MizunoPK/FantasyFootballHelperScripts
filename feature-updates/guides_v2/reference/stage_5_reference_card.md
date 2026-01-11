@@ -45,7 +45,8 @@ STAGE 5a: TODO Creation (2.5-3 hours, 24 iterations across 3 rounds)
         ↓
 STAGE 5b: Implementation Execution (stages/stage_5/implementation_execution.md)
     1-4 hours (varies by complexity)
-    ├─ Execute TODO.md task-by-task
+    ├─ Create implementation_checklist.md from implementation_plan.md tasks
+    ├─ Execute implementation_plan.md tasks (PRIMARY reference)
     ├─ Keep spec.md visible (continuous verification)
     ├─ Mini-QC checkpoints every 5-7 tasks
     └─ 100% test pass required before completing

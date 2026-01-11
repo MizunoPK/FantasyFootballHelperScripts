@@ -268,9 +268,9 @@ The split guides provide the same comprehensive coverage with better navigation,
 **Read:** `stages/stage_5/implementation_execution.md`
 
 **What happens in Stage 5b:**
-- Execute TODO.md task-by-task
+- Execute implementation_plan.md tasks
 - Keep spec.md visible, continuous verification
-- Mini-QC checkpoints every 5-7 TODO items
+- Mini-QC checkpoints every 5-7 tasks
 - 100% test pass required before completing
 
 **Prerequisites for Stage 5b:**
@@ -290,7 +290,7 @@ The split guides provide the same comprehensive coverage with better navigation,
   - "Starting Stage 5ac Part 2" (when beginning final gates)
 
 **Templates:**
-- See `templates_v2.md` for TODO.md structure
+- See `templates/implementation_plan_template.md` for structure
 
 **Workflow Overview:**
 - See `EPIC_WORKFLOW_USAGE.md` for complete Stage 5 context

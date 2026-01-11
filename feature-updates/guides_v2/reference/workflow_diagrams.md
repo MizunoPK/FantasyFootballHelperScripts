@@ -92,12 +92,19 @@ User creates {epic_name}.txt
 │ - Run unit tests (100% pass required)       │
 │ - User testing (MANDATORY GATE)             │
 │ - Commit changes                            │
+│ - Push branch and create Pull Request      │
+│ - User reviews and merges PR                │
+│ - Update EPIC_TRACKER.md                    │
 │ - Move to done/ folder                      │
-│ Time: 30-60 minutes                         │
+│ Time: 30-60 minutes (+ user review time)    │
 └─────────────────────────────────────────────┘
          ↓
     [User testing passed?]
     ├─ NO → Debugging → RESTART Stage 6
+    └─ YES → Proceed to PR creation
+         ↓
+    [User approved and merged PR?]
+    ├─ NO → Address feedback → Push updates
     └─ YES → Epic Complete! ✅
 ```
 
@@ -543,7 +550,7 @@ QC/Smoke finds missing requirement (solution known)
 │   - Document what needs to be added         │
 │   - Estimate complexity (trivial/minor/major)│
 │                                             │
-│ Impact on TODO.md:                          │
+│ Impact on implementation_plan.md:           │
 │   - Count tasks that need adding            │
 │   - Estimate effort                         │
 │                                             │
@@ -560,7 +567,7 @@ QC/Smoke finds missing requirement (solution known)
 │ STEP 3a: Simple Addition (≤3 tasks)         │
 │                                             │
 │ - Update spec.md with requirement           │
-│ - Add tasks to TODO.md                      │
+│ - Add tasks to implementation_plan.md       │
 │ - Update implementation_checklist.md        │
 │ - Implement immediately                     │
 │ - Update code_changes.md                    │

@@ -187,7 +187,7 @@ I'm reading `stages/stage_5/smoke_testing.md`...
 **Prerequisites I'm verifying:**
 ✅ Stage 5a complete (24 iterations done)
 ✅ Iteration 24: Implementation Readiness = PASSED
-✅ todo.md exists with complete task list
+✅ implementation_plan.md v3.0 exists and user-approved
 {Verify ALL prerequisites}
 ```
 

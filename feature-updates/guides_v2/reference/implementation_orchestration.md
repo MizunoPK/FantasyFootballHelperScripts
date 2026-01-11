@@ -64,23 +64,23 @@ Stage 5a: TODO Creation COMPLETE
 ## Stage 5b: Implementation Execution
 
 ### Purpose
-Write the feature code following the TODO plan created in Stage 5a.
+Write the feature code following the implementation plan created in Stage 5a.
 
 ### Entry Conditions
 - [ ] Stage 5a Round 3 complete (Iteration 24 = GO)
-- [ ] TODO.md plan ready
+- [ ] implementation_plan.md ready and user-approved
 - [ ] All mandatory gates passed (4a, 23a, 25, 24)
 
 ### Key Activities
 1. **Interface Verification First** - Verify ALL external interfaces from source code before writing ANY code
-2. **Implement Phase by Phase** - Follow TODO phasing plan (5-6 phases typical)
+2. **Implement Phase by Phase** - Follow implementation_plan.md phasing (5-6 phases typical)
 3. **Keep Spec Visible** - Literally open spec.md at all times
 4. **Run Tests After Each Phase** - 100% pass required before next phase
 5. **Mini-QC Checkpoints** - Lightweight validation after major components
 6. **Update implementation_checklist.md in Real-Time** - Check off as you implement
 
 ### Exit Conditions
-- [ ] All TODO tasks implemented
+- [ ] All implementation_plan.md tasks implemented
 - [ ] 100% of tests passing
 - [ ] Spec requirements verified complete (dual verification)
 - [ ] code_changes.md fully documented

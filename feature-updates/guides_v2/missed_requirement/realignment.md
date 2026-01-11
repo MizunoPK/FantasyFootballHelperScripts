@@ -288,14 +288,14 @@ During Stage 3 alignment, feature_02's spec was updated:
 - Updated projection calculation to account for injury impact
 
 Before resuming implementation, should I:
-1. Update feature_02's todo.md to reflect spec changes
-2. Continue with current todo.md (spec changes are minor/will handle during implementation)
+1. Update feature_02's implementation_plan.md to reflect spec changes
+2. Continue with current implementation_plan.md (spec changes are minor/will handle during implementation)
 
 What would you like to do?
 ```
 
-**If user says update todo.md:**
-- Re-run relevant parts of Stage 5a for affected TODO items
+**If user says update implementation_plan.md:**
+- Re-run relevant parts of Stage 5a for affected tasks
 - Update implementation plan
 - Document changes
 - Then resume
@@ -423,7 +423,7 @@ After feature_05: Resume and complete feature_02
 **Resume:**
 - [x] EPIC_README.md updated (planning complete)
 - [x] Paused feature spec verified (changed or unchanged)
-- [x] If changed: User decision on todo.md update
+- [x] If changed: User decision on implementation_plan.md update
 - [x] Paused feature README updated (resumed status)
 - [x] Work resumed at correct point
 
@@ -466,7 +466,7 @@ After feature_05: Resume and complete feature_02
 5. User approves resolutions
 6. Update epic test plan (Stage 4)
 7. Resume paused work (spec WAS changed)
-8. User decides: Update todo.md or handle during implementation
+8. User decides: Update implementation_plan.md or handle during implementation
 9. New feature implemented later
 
 ---

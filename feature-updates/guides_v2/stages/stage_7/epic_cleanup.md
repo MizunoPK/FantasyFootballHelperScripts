@@ -91,12 +91,12 @@ Epic cleanup typically takes 15-30 minutes.
 │    - Message: 100 chars or less                                 │
 │    - Body: List major features and changes                      │
 │                                                                  │
-│ 6. ⚠️ MERGE BRANCH TO MAIN AFTER COMMIT                         │
-│    - Switch to main, pull latest                                │
-│    - Merge epic branch: git merge {work_type}/KAI-{number}     │
-│    - Push to origin: git push origin main                       │
+│ 6. ⚠️ CREATE PULL REQUEST FOR USER REVIEW                       │
+│    - Push branch to remote: git push origin {work_type}/KAI-{N}│
+│    - Create PR using gh CLI with epic summary                   │
+│    - User reviews PR and merges when satisfied                  │
 │                                                                  │
-│ 7. ⚠️ UPDATE EPIC_TRACKER.md AFTER MERGE                        │
+│ 7. ⚠️ UPDATE EPIC_TRACKER.md AFTER USER MERGES PR              │
 │    - Move epic from Active to Completed table                   │
 │    - Add epic detail section with commits                       │
 │    - Increment "Next Available Number"                          │
@@ -193,14 +193,15 @@ STAGE 7: Epic Cleanup
 │   ├─ Update CLAUDE.md if workflow changed
 │   └─ Verify ALL lessons applied
 │
-├─> STEP 5: Final Commit
+├─> STEP 5: Final Commit and PR Creation
 │   ├─ Review all changes with git status and git diff
 │   ├─ Stage all epic-related changes
 │   ├─ Create commit with clear message
 │   ├─ Verify commit successful
-│   ├─ Merge branch to main
-│   ├─ Push to origin
-│   └─ Update EPIC_TRACKER.md
+│   ├─ Push branch to remote
+│   ├─ Create Pull Request for user review
+│   ├─ Wait for user to merge PR
+│   └─ Update EPIC_TRACKER.md (after user merges)
 │
 ├─> STEP 6: Move Epic to done/ Folder
 │   ├─ Create done/ folder if doesn't exist
@@ -735,42 +736,18 @@ git log -1 --stat
 
 Verify commit message clear, all epic files included, file change counts reasonable.
 
-**5e. Merge Branch to Main**
+**5e. Push Branch to Remote**
 
-**CRITICAL:** Merge the epic branch to main after commit is complete.
+**CRITICAL:** Push the epic branch to remote for user review via Pull Request.
 
-Switch to main branch:
+Push epic branch to remote:
 ```bash
-git checkout main
-```
-
-Pull latest changes from origin:
-```bash
-git pull origin main
-```
-
-Merge epic branch into main:
-```bash
-git merge {work_type}/KAI-{number}
+git push origin {work_type}/KAI-{number}
 ```
 
 **Example:**
 ```bash
-git merge epic/KAI-1
-```
-
-**If merge conflicts occur:** Review conflicts carefully, resolve conflicts, stage resolved files, complete merge.
-
-Verify merge successful:
-```bash
-git log -1
-```
-
-**5f. Push to Remote**
-
-Push merged changes to origin main:
-```bash
-git push origin main
+git push origin epic/KAI-1
 ```
 
 Verify push successful:
@@ -778,9 +755,175 @@ Verify push successful:
 git status
 ```
 
-**Expected:** "Your branch is up to date with 'origin/main'", "nothing to commit, working tree clean"
+**Expected:** "Your branch is up to date with 'origin/{work_type}/KAI-{number}'"
 
-**5g. Update EPIC_TRACKER.md**
+**5f. Create Pull Request**
+
+**CRITICAL:** Create a Pull Request for user review instead of merging directly to main.
+
+**Why Pull Requests?**
+- ✅ User reviews all changes before merge
+- ✅ GitHub UI provides best-in-class code review experience
+- ✅ Can request changes if issues found
+- ✅ GitHub Actions can run automated checks
+- ✅ Clean git history with PR merge commits
+
+**Create PR using GitHub CLI:**
+```bash
+gh pr create --base main --head {work_type}/KAI-{number} \
+  --title "{commit_type}/KAI-{number}: Complete {epic_name} epic" \
+  --body "$(cat <<'EOF'
+## Epic Summary
+{High-level description of epic from EPIC_README.md}
+
+## Features Completed
+- Feature 01: {feature_01_name}
+- Feature 02: {feature_02_name}
+- Feature 03: {feature_03_name}
+{Continue for all features}
+
+## Test Status
+- Unit tests: {total}/{total} passing (100%)
+- Epic smoke testing: PASSED (4/4 parts)
+- Epic QC rounds: PASSED (3/3)
+- User testing: PASSED (no bugs found)
+
+## Files Changed
+- {N} files changed
+- {additions} insertions, {deletions} deletions
+
+## Review Instructions
+Please review this Pull Request using one of the following methods:
+
+**Option 1: GitHub Web UI (Easiest)**
+- Click "Files changed" tab to see all diffs
+- Leave inline comments on specific lines if needed
+- Click "Review changes" → "Approve" when satisfied
+- Click "Merge pull request" to merge to main
+
+**Option 2: VS Code Extension**
+- Install "GitHub Pull Requests & Issues" extension
+- Open PR in VS Code sidebar
+- Review diffs in editor
+- Approve and merge from VS Code
+
+**Option 3: GitHub CLI**
+- View diff: gh pr diff {number}
+- Review: gh pr review {number} --approve
+- Merge: gh pr merge {number}
+
+**See:** feature-updates/USER_PR_REVIEW_GUIDE.md for detailed instructions
+
+## Checklist Before Merging
+- [ ] Review epic_smoke_test_plan.md results
+- [ ] Review epic_lessons_learned.md
+- [ ] Review code changes in GitHub PR diff view
+- [ ] Verify all requirements from original {epic_name}.txt met
+- [ ] All tests passing (100%)
+
+🤖 Generated with Claude Code
+
+Epic folder: feature-updates/KAI-{number}-{epic_name}/
+EOF
+)"
+```
+
+**Example:**
+```bash
+gh pr create --base main --head epic/KAI-1 \
+  --title "feat/KAI-1: Complete improve_draft_helper epic" \
+  --body "$(cat <<'EOF'
+## Epic Summary
+Improve draft helper with ADP integration, matchup system, and performance tracking.
+
+## Features Completed
+- Feature 01: ADP integration (market wisdom via Average Draft Position)
+- Feature 02: Matchup system (opponent strength in projections)
+- Feature 03: Performance tracking (accuracy vs projections)
+
+## Test Status
+- Unit tests: 2200/2200 passing (100%)
+- Epic smoke testing: PASSED (4/4 parts)
+- Epic QC rounds: PASSED (3/3)
+- User testing: PASSED (no bugs found)
+
+## Files Changed
+- 15 files changed
+- 847 insertions, 123 deletions
+
+## Review Instructions
+{... same as above ...}
+
+## Checklist Before Merging
+- [ ] Review epic_smoke_test_plan.md results
+- [ ] Review epic_lessons_learned.md
+- [ ] Review code changes in GitHub PR diff view
+- [ ] Verify all requirements met
+- [ ] All tests passing (100%)
+
+🤖 Generated with Claude Code
+
+Epic folder: feature-updates/KAI-1-improve_draft_helper/
+EOF
+)"
+```
+
+**PR Creation Output:**
+
+The gh CLI will output the PR URL. Agent should:
+1. Copy the PR URL
+2. Present it to user with clear instructions
+
+**Agent Output to User:**
+```
+✅ Pull Request created successfully!
+
+PR URL: https://github.com/{owner}/{repo}/pull/{number}
+
+Please review the Pull Request using your preferred method:
+
+1. **GitHub Web UI** (Recommended for first-time)
+   - Open PR URL in browser
+   - Click "Files changed" tab
+   - Review all diffs
+   - Click "Approve" and "Merge" when satisfied
+
+2. **VS Code Extension**
+   - See USER_PR_REVIEW_GUIDE.md for setup instructions
+
+3. **GitHub CLI**
+   - gh pr view {number}
+   - gh pr diff {number}
+   - gh pr review {number} --approve
+   - gh pr merge {number}
+
+After you merge the PR, I'll update EPIC_TRACKER.md and move the epic to done/.
+```
+
+**Important Notes:**
+- **Do NOT merge the PR yourself** - User must review and merge
+- **Wait for user to merge** before proceeding to Step 5g
+- **If user requests changes** - Make changes, push to same branch, PR auto-updates
+
+**5g. Wait for User to Merge PR**
+
+**CRITICAL:** Agent must wait for user to merge the PR before proceeding.
+
+**After user merges PR:**
+- User will say "I merged the PR" or similar
+- Agent can then proceed to update EPIC_TRACKER.md (see 5h below)
+
+**If user requests changes:**
+1. User will leave comments on PR
+2. Agent addresses comments
+3. Agent commits fixes to same branch: `git push origin {work_type}/KAI-{number}`
+4. PR automatically updates with new commits
+5. User reviews again
+6. Repeat until user approves and merges
+
+**5h. Update EPIC_TRACKER.md (After User Merges PR)**
+
+**IMPORTANT:** This step only happens AFTER user has merged the PR.
 
 1. **Move epic from Active to Completed table**
 2. **Increment "Next Available Number"**
@@ -792,14 +935,20 @@ git status
    - Testing results
    - Link to lessons learned
 
+**Pull latest changes from main** (includes user's PR merge):
+```bash
+git checkout main
+git pull origin main
+```
+
 **Commit EPIC_TRACKER.md update:**
 ```bash
 git add feature-updates/EPIC_TRACKER.md
-git commit -m "feat/KAI-1: Update EPIC_TRACKER with completed epic details"
+git commit -m "feat/KAI-{number}: Update EPIC_TRACKER with completed epic details"
 git push origin main
 ```
 
-**5h. Delete Epic Branch (Optional)**
+**5i. Delete Epic Branch (Optional)**
 
 ```bash
 git branch -d {work_type}/KAI-{number}
@@ -1080,14 +1229,15 @@ The epic is now complete!
 - [ ] If bugs found: All fixed, Stage 6 re-run from 6a, user re-tested
 - [ ] Epic PR review passed (all categories)
 
-### Git Commit
+### Git Commit and Pull Request
 - [ ] All changes reviewed with git status and git diff
 - [ ] All epic changes staged
 - [ ] Commit created with clear, descriptive message
 - [ ] Commit successful (verified with git log)
-- [ ] Branch merged to main
-- [ ] Pushed to remote
-- [ ] EPIC_TRACKER.md updated
+- [ ] Branch pushed to remote
+- [ ] Pull Request created with epic summary
+- [ ] User reviewed and merged PR
+- [ ] EPIC_TRACKER.md updated (after PR merge)
 
 ### Epic Move
 - [ ] done/ folder exists
@@ -1114,10 +1264,12 @@ The epic is now complete!
 2. Verify all documentation complete
 3. Apply ALL lessons learned to guides (systematic search, 100% application)
 4. Commit all changes to git with clear message
-5. Merge branch to main, update EPIC_TRACKER.md
-6. Move entire epic folder to done/ (max 10 epics, delete oldest if needed)
-7. Leave original epic request in root for reference
-8. Celebrate epic completion! 🎉
+5. Push branch to remote and create Pull Request
+6. Wait for user to review and merge PR
+7. Update EPIC_TRACKER.md after PR merge
+8. Move entire epic folder to done/ (max 10 epics, delete oldest if needed)
+9. Leave original epic request in root for reference
+10. Celebrate epic completion! 🎉
 
 **Critical Success Factors:**
 - 100% test pass rate before committing

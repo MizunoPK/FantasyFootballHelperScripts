@@ -8,22 +8,22 @@
 Hands-On Data Inspection is a critical verification step where you manually inspect actual data files to verify assumptions about data structure, values, and location BEFORE implementing code to prevent catastrophic bugs.
 
 **When do you use this guide?**
-- After Stage 5a Round 3 (TODO creation complete)
+- After Stage 5a Round 3 (Implementation planning complete)
 - Before Stage 5b (Implementation execution)
 - When implementation will load or process data files
 
 **Key Outputs:**
-- ✅ All data dependencies identified from TODO.md
+- ✅ All data dependencies identified from implementation_plan.md
 - ✅ Data files opened and values inspected in Python REPL
 - ✅ Data model assumptions verified against actual data
-- ✅ Wrong assumptions corrected in spec.md and TODO.md
+- ✅ Wrong assumptions corrected in spec.md and implementation_plan.md
 - ✅ Ready for Stage 5b (Implementation Execution)
 
 **Time Estimate:**
 15-30 minutes (can prevent hours of debugging)
 
 **Exit Condition:**
-Hands-On Data Inspection is complete when you have opened actual data files, printed real values, verified assumptions match reality, and corrected any wrong assumptions in spec and TODO
+Hands-On Data Inspection is complete when you have opened actual data files, printed real values, verified assumptions match reality, and corrected any wrong assumptions in spec and implementation plan
 
 ---
 
@@ -72,7 +72,7 @@ print(week_01[0]['actual_points'][0])  # 0.0 → Assumption is WRONG
 
 Before starting Stage 5a.5:
 
-- [x] Stage 5a Round 3 completed (TODO.md and questions.md exist)
+- [x] Stage 5a Round 3 completed (implementation_plan.md and questions.md exist)
 - [x] Spec.md identifies data files that will be loaded
 - [x] Data files exist in the codebase
 - [x] Python environment is available
@@ -100,7 +100,7 @@ Open the files. Print the values. Verify your assumptions.
 
 **Action:** List ALL data files that your implementation will read
 
-**From your TODO.md, identify:**
+**From your implementation_plan.md, identify:**
 - Which data files will be loaded?
 - Which fields/keys will be accessed?
 - Which array indices will be used?
@@ -471,21 +471,21 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 
 ---
 
-### Step 9: Compare Findings with Spec and TODO
+### Step 9: Compare Findings with Spec and Implementation Plan
 
-**Action:** Check if your hands-on findings contradict spec.md or TODO.md
+**Action:** Check if your hands-on findings contradict spec.md or implementation_plan.md
 
 **For EACH finding, ask:**
 - Does this contradict anything in spec.md?
-- Does this contradict any TODO item?
+- Does this contradict any implementation plan task?
 - Does this reveal a wrong assumption?
-- Does this require code changes not in TODO?
+- Does this require code changes not in implementation plan?
 
 **If ANY contradictions found:**
 
 **🛑 STOP IMMEDIATELY**
 
-Do NOT proceed to Stage 5b (Implementation). Your TODO is based on wrong assumptions.
+Do NOT proceed to Stage 5b (Implementation). Your implementation plan is based on wrong assumptions.
 
 **Report to User:**
 
@@ -495,7 +495,7 @@ Use this template:
 ## ⚠️ DATA INSPECTION FAILED - User Input Required
 
 I completed Stage 5a.5 (Hands-On Data Inspection) and found discrepancies
-between the actual data and our spec.md/TODO.md.
+between the actual data and our spec.md/implementation_plan.md.
 
 ### Findings Summary
 
@@ -516,27 +516,27 @@ between the actual data and our spec.md/TODO.md.
 
 **Impact:**
 - [What this means for implementation]
-- [Which TODO items are affected]
+- [Which implementation plan tasks are affected]
 - [What needs to change]
 
 ### Recommended Actions
 
-**Option A (Recommended):** Fix spec and TODO, restart Stage 5a
+**Option A (Recommended):** Fix spec and implementation plan, restart Stage 5a
 1. Update spec.md based on actual data findings
-2. Restart Stage 5a Round 1 to regenerate TODO.md
+2. Restart Stage 5a Round 1 to regenerate implementation_plan.md
 3. Re-run Stage 5a.5 to verify new assumptions
 4. Proceed to Stage 5b only after zero discrepancies
 
-**Option B:** Fix spec and TODO, continue to Stage 5b
+**Option B:** Fix spec and implementation plan, continue to Stage 5b
 1. Update spec.md based on findings
-2. Manually update TODO.md items
+2. Manually update implementation_plan.md tasks
 3. Continue to Stage 5b
-4. Risk: TODO may still have subtle errors
+4. Risk: Implementation plan may still have subtle errors
 
 **Option C:** Discuss findings first
 1. Review each discrepancy together
 2. Clarify data model
-3. Then update spec/TODO
+3. Then update spec/implementation plan
 4. Re-run Stage 5a.5 to verify
 
 **My Recommendation:** Option A
@@ -597,7 +597,7 @@ Stage 5a.5 is complete when:
 - [ ] Verified value ranges are realistic
 - [ ] Checked schema consistency across files
 - [ ] Documented findings with actual commands and output
-- [ ] Compared findings with spec.md and TODO.md
+- [ ] Compared findings with spec.md and implementation_plan.md
 - [ ] Zero contradictions found
 - [ ] Created evidence summary
 - [ ] **Proceed to Stage 5b**
@@ -688,7 +688,7 @@ week_1_actual_in_week_02 = week_02[0]['actual_points'][0]  # 33.6
 # Find discrepancy
 print(week_01[0]['actual_points'][0])  # 0.0 (expected > 0)
 # Conclusion: "Spec is wrong, I'll fix it and continue"
-# [Updates spec.md and TODO.md silently]
+# [Updates spec.md and implementation_plan.md silently]
 # [Proceeds to Stage 5b]
 ```
 
@@ -738,9 +738,9 @@ Before marking Stage 5a.5 complete, answer ALL questions:
 - [ ] Did I document evidence for each test?
 - [ ] Did I identify any contradictions?
 
-### Comparison with Spec/TODO
+### Comparison with Spec/Implementation Plan
 - [ ] Did I compare findings with spec.md claims?
-- [ ] Did I compare with TODO.md implementation plan?
+- [ ] Did I compare with implementation_plan.md tasks?
 - [ ] Did I report ALL discrepancies to user?
 - [ ] If discrepancies found, did I STOP and wait for user?
 
@@ -774,12 +774,12 @@ After Stage 5a.5:
    - Assumptions tested with evidence
    - Value range analysis
    - Schema consistency check
-   - Comparison with spec.md/TODO.md
+   - Comparison with spec.md/implementation_plan.md
    - Discrepancies (if any)
 
 2. **Updated spec.md** (if discrepancies found and user approved)
 
-3. **Updated TODO.md** (if major discrepancies found)
+3. **Updated implementation_plan.md** (if major discrepancies found)
 
 ---
 
@@ -832,8 +832,8 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 
 ## Integration with Other Stages
 
-**Stage 5a Round 3 (TODO Creation):**
-- Creates TODO.md based on spec.md assumptions
+**Stage 5a Round 3 (Implementation Planning):**
+- Creates implementation_plan.md based on spec.md assumptions
 - Does NOT verify assumptions with actual data
 
 **Stage 5a.5 (Hands-On Data Inspection) - THIS STAGE:**
@@ -843,8 +843,8 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 - May trigger restart of Stage 5a if spec is wrong
 
 **Stage 5b (Implementation Execution):**
-- Implements based on TODO.md
-- Assumes TODO is correct (validated by 5a.5)
+- Implements based on implementation_plan.md
+- Assumes implementation plan is correct (validated by 5a.5)
 - If 5a.5 skipped, may implement wrong solution
 
 ---
@@ -860,7 +860,7 @@ print(week_01[0]['actual_points'][0])  # 0.0 → "Wait, this should be > 0!"
 
 **Time to fix bug caught in Stage 5a.5:** 30 minutes
 - Update spec.md with correct data model
-- Restart Stage 5a to regenerate TODO
+- Restart Stage 5a to regenerate implementation_plan.md
 - Proceed to 5b with correct plan
 
 **Time to fix bug caught in Stage 6 (Epic QC):** 4+ hours
@@ -907,7 +907,7 @@ Open the files. Print the values. Verify every assumption.
 **Stage 5a.5 is complete when ALL of these are true:**
 
 □ **Data Dependencies Identified:**
-  - All data files listed from TODO.md and spec.md
+  - All data files listed from implementation_plan.md and spec.md
   - File paths verified (files exist)
   - Data format identified (JSON, CSV, etc.)
 
@@ -929,7 +929,7 @@ Open the files. Print the values. Verify every assumption.
 
 □ **Specs Updated (if needed):**
   - spec.md updated with correct data model
-  - TODO.md updated with correct data loading logic
+  - implementation_plan.md updated with correct data loading logic
   - questions.md updated if clarification needed
 
 □ **Confidence Verified:**
@@ -938,7 +938,7 @@ Open the files. Print the values. Verify every assumption.
   - Confident about data values
   - Ready to implement with correct assumptions
 
-**Exit Condition:** Stage 5a.5 is complete when you have opened actual data files in Python REPL, printed real values, verified all data assumptions against reality, corrected any wrong assumptions in spec/TODO, and are confident the implementation will load correct data.
+**Exit Condition:** Stage 5a.5 is complete when you have opened actual data files in Python REPL, printed real values, verified all data assumptions against reality, corrected any wrong assumptions in spec/implementation plan, and are confident the implementation will load correct data.
 
 ---
 

@@ -148,12 +148,10 @@ STAGE 7: Epic Cleanup
 - **v2:** Clear distinction between feature-level (Stage 5c) and epic-level (Stage 6) testing
 
 ### 7. Debugging Protocol Integration
-- **v1:** Unclear how to handle bugs discovered mid-epic
-- **v2:** Integrated debugging protocol with QC/Smoke testing, loop-back mechanism, feature vs epic separation
+Integrated debugging protocol with QC/Smoke testing, loop-back mechanism, feature vs epic separation
 
 ### 8. 24 Verification Iterations
-- **v1:** Generic todo.md creation (single file, 3,896 lines)
-- **v2:** Systematic 24-iteration planning process creating implementation_plan.md (~400 lines) + implementation_checklist.md (~50 lines), catching 40% more issues
+Systematic 24-iteration planning process creating implementation_plan.md (~400 lines) + implementation_checklist.md (~50 lines)
 
 ---
 

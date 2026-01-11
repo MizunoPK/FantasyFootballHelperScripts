@@ -2159,7 +2159,7 @@ bugfix_high_architecture_inconsistency/
 - Not documenting PR review results
 - Proceeding to Stage 7 with pending issues
 
-**Next Stage:** stages/stage_7/epic_cleanup.md - Final commits, merge to main, move epic to done/
+**Next Stage:** stages/stage_7/epic_cleanup.md - Final commits, PR creation, user review, move epic to done/
 
 **Remember:** Stage 6c is the LAST CHANCE to catch epic-level issues before shipping. Thoroughness here prevents post-completion rework and ensures epic delivers on user's vision.
 

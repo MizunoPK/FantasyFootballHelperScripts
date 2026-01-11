@@ -913,7 +913,7 @@ grep -r "player\.\w+(" simulation/ --include="*.py"
 
 **If ALL YES:**
 - ✅ Consumption code updates ARE REQUIRED
-- Add tasks to TODO.md
+- Add tasks to implementation_plan.md
 
 **If ANY NO:**
 - ❌ Missing scope - STOP and report to user
@@ -921,7 +921,7 @@ grep -r "player\.\w+(" simulation/ --include="*.py"
 
 ---
 
-6. **Add consumption update tasks to TODO.md:**
+6. **Add consumption update tasks to implementation_plan.md:**
 
 **If consumption changes needed, add tasks:**
 

@@ -137,7 +137,7 @@ A: Address immediately:
 
 **Q: How detailed should spec.md be?**
 
-A: Specific enough to create TODO.md in Stage 5a:
+A: Specific enough to create implementation_plan.md in Stage 5a:
 - Every user-facing outcome described
 - Input/output formats specified
 - Edge cases documented
@@ -421,7 +421,7 @@ Issues found during testing
     [Use Missed Requirement Workflow]
          - debugging/missed_requirement_workflow.md
          - Update spec.md
-         - Add to TODO.md (if ≤3 tasks) OR return to Stage 5a (if >3 tasks)
+         - Add to implementation_plan.md (if ≤3 tasks) OR return to Stage 5a (if >3 tasks)
 ```
 
 ### Decision Tree 2: "Choosing Between Workflows"
@@ -804,7 +804,7 @@ Would you like to:
 
 **Do NOT:**
 - Skip stages silently
-- Implement without TODO.md (Stage 5a output)
+- Implement without implementation_plan.md (Stage 5a output)
 - Bypass mandatory gates
 
 ---
@@ -814,7 +814,7 @@ Would you like to:
 **Solution:**
 1. **Check feature README.md Agent Status:**
    - Should list current iteration (e.g., "Iteration 17: Implementation Phasing")
-2. **Check TODO.md file:**
+2. **Check implementation_plan.md file:**
    - Look for "Iteration X" markers in document
    - Last completed iteration marked with ✅
 3. **Review Round 3 sub-stage guides:**
@@ -822,7 +822,7 @@ Would you like to:
    - Part 2a = Iterations 23, 23a
    - Part 2b = Iterations 25, 24
 4. **If still unclear:**
-   - Read last 50 lines of TODO.md
+   - Read last 50 lines of implementation_plan.md
    - Identify which iteration's output was last documented
    - Continue with next iteration
 
@@ -852,7 +852,7 @@ Would you like to:
 
 ### Error: "Gate 23a failed - Completeness = 95% (require 100%)"
 
-**Meaning:** TODO.md doesn't cover all spec requirements
+**Meaning:** implementation_plan.md doesn't cover all spec requirements
 
 **Fix:**
 1. Re-read spec.md completely

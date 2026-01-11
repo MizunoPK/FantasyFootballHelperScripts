@@ -1,7 +1,7 @@
 # Implementation Plan Template
 
 **Instructions for Agents:**
-This template is used during Stage 5a (Implementation Planning) to accumulate findings from the 24 verification iterations. The plan grows incrementally as you progress through 3 rounds. This file replaces the old todo.md approach.
+This template is used during Stage 5a (Implementation Planning) to accumulate findings from the 24 verification iterations. The plan grows incrementally as you progress through 3 rounds.
 
 **Key Principles:**
 - Add sections as iterations complete (not all at once)

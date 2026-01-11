@@ -39,12 +39,15 @@ I'm reading `stages/stage_7/epic_cleanup.md` to ensure I properly finalize and a
   - Return to user testing after Stage 6 passes
   - Repeat until user testing passes with ZERO bugs
   - CANNOT commit without user approval
-- **Final Commit**:
+- **Final Commit and Pull Request**:
   - Review all changes (git status, git diff)
   - Stage all epic-related changes
   - Create commit with clear, descriptive message
-  - Format: "Complete {epic_name} epic" with features listed in body
-  - Push to remote (if user requests)
+  - Format: "{commit_type}/KAI-{number}: Complete {epic_name} epic"
+  - Push branch to remote
+  - Create Pull Request for user review using gh CLI
+  - Wait for user to review and merge PR
+  - Update EPIC_TRACKER.md after user merges
 - **Move Epic to done/**:
   - Move ENTIRE epic folder: feature-updates/{epic}/ → feature-updates/done/{epic}/
   - Leave original epic request (.txt) in root for reference

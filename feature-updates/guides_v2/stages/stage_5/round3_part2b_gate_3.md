@@ -535,18 +535,18 @@ I completed Iteration 25 (Spec Validation Against Validated Documents) and found
 
 ---
 
-**Option B: Fix spec and TODO manually, continue to implementation**
+**Option B: Fix spec and implementation plan manually, continue to implementation**
 
 **Steps:**
 1. Update spec.md to match epic requirements
-2. Manually update TODO.md tasks to reflect correct spec
+2. Manually update implementation_plan.md tasks to reflect correct spec
 3. Continue to Iteration 24 (Implementation Readiness)
 
 **Rationale:** Faster than Option A, but riskier (may miss subtle dependencies from wrong spec)
 
-**Time:** ~1-2 hours to fix spec and TODO
+**Time:** ~1-2 hours to fix spec and implementation plan
 
-**Risk:** TODO may still have subtle errors from being based on wrong spec initially
+**Risk:** Implementation plan may still have subtle errors from being based on wrong spec initially
 
 ---
 
@@ -564,9 +564,9 @@ I completed Iteration 25 (Spec Validation Against Validated Documents) and found
 
 ---
 
-**My Recommendation:** Option A (restart TODO iterations)
+**My Recommendation:** Option A (restart planning iterations)
 
-**Reason:** [X] discrepancies found, including [Y] CRITICAL severity. Current TODO is based on fundamentally wrong understanding of epic requirements. Restarting with correct spec prevents implementing wrong solution that would require massive rework after user testing.
+**Reason:** [X] discrepancies found, including [Y] CRITICAL severity. Current implementation plan is based on fundamentally wrong understanding of epic requirements. Restarting with correct spec prevents implementing wrong solution that would require massive rework after user testing.
 
 **Cost:** 4-6 hours to re-run Stage 5a
 **Benefit:** Prevents implementing completely wrong feature → Saves days/weeks of rework
@@ -586,20 +586,20 @@ I completed Iteration 25 (Spec Validation Against Validated Documents) and found
 
 **STEP 7: Execute user's choice**
 
-**If user chooses Option A (restart TODO iterations):**
+**If user chooses Option A (restart planning iterations):**
 
 ```markdown
-## User Decision: Restart TODO Iterations
+## User Decision: Restart Planning Iterations
 
 **Actions:**
 1. Update spec.md based on epic re-validation findings
 2. Document spec changes in spec.md changelog section
-3. Archive current TODO.md as TODO_ARCHIVE_{date}.md
+3. Archive current implementation_plan.md as implementation_plan_ARCHIVE_{date}.md
 4. Return to Stage 5aa Iteration 1
 5. Re-run all iterations (1-25) with corrected spec
-6. Mark Iteration 25 status: "SPEC FIXED - Restarting TODO creation"
+6. Mark Iteration 25 status: "SPEC FIXED - Restarting implementation planning"
 
-**Next Action:** Read stages/stage_5/round1_todo_creation.md to restart TODO creation
+**Next Action:** Read stages/stage_5/round1_todo_creation.md to restart planning
 
 ---
 ```
@@ -607,15 +607,15 @@ I completed Iteration 25 (Spec Validation Against Validated Documents) and found
 **If user chooses Option B (fix and continue):**
 
 ```markdown
-## User Decision: Fix Spec and TODO, Continue
+## User Decision: Fix Spec and Implementation Plan, Continue
 
 **Actions:**
 1. Update spec.md based on epic re-validation findings
-2. Manually update TODO.md to fix affected tasks
-3. Review TODO for any missed implications of spec changes
-4. Document risk in TODO.md: "RISK: Spec corrected in Iteration 25, TODO updated manually (not regenerated)"
+2. Manually update implementation_plan.md to fix affected tasks
+3. Review implementation plan for any missed implications of spec changes
+4. Document risk in implementation_plan.md: "RISK: Spec corrected in Iteration 25, implementation plan updated manually (not regenerated)"
 5. Proceed to Iteration 24 (Implementation Readiness)
-6. Mark Iteration 25 status: "SPEC FIXED - TODO patched manually, continuing"
+6. Mark Iteration 25 status: "SPEC FIXED - Implementation plan patched manually, continuing"
 
 **Next Action:** Continue to Iteration 24 (with caution)
 

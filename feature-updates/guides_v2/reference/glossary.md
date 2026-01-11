@@ -59,14 +59,14 @@ Section in EPIC_README.md and feature README.md tracking current workflow positi
 ---
 
 ### Algorithm Traceability Matrix
-Table mapping algorithm requirements from spec.md to TODO.md tasks.
+Table mapping algorithm requirements from spec.md to implementation_plan.md tasks.
 
 **Created in:** Iteration 2 (Stage 5a Round 1)
 **Finalized in:** Iteration 19 (Stage 5a Round 3)
 
 **Purpose:** Ensures 100% coverage of algorithms in implementation plan
 
-**See:** TODO.md, Iteration
+**See:** implementation_plan.md, Iteration
 
 **Guide:** round1_todo_creation.md, round3_part1_preparation.md
 
@@ -108,12 +108,12 @@ Code correction following the bug fix workflow (Stage 2 → 5a → 5b → 5c onl
 Implementation checklist in each feature folder mapping spec requirements to TODO tasks.
 
 **Created:** Stage 2 (Feature Deep Dives)
-**Updated:** Throughout Stage 5a (TODO Creation)
+**Updated:** Throughout Stage 5a (Implementation Planning)
 **Verified:** Stage 5b (Implementation Execution)
 
-**Purpose:** Dual verification that spec and TODO are aligned
+**Purpose:** Dual verification that spec and implementation plan are aligned
 
-**See:** Spec.md, TODO.md
+**See:** Spec.md, implementation_plan.md
 
 ---
 
@@ -350,8 +350,9 @@ Individual component within an epic.
 **Structure:**
 - README.md (feature status)
 - spec.md (requirements)
-- todo.md (implementation plan)
-- checklist.md (spec-TODO mapping)
+- implementation_plan.md (implementation plan ~400 lines)
+- implementation_checklist.md (progress tracking ~50 lines)
+- checklist.md (question-only format - user answers)
 - code_changes.md (implementation log)
 - lessons_learned.md (insights)
 
@@ -453,18 +454,19 @@ Process of reading actual source code to verify interfaces (not relying on memor
 ## I
 
 ### Implementation Execution
-Stage 5b process of writing feature code following TODO.md plan.
+Stage 5b process of writing feature code following implementation_plan.md.
 
 **Key requirements:**
 - Interface verification FIRST (before writing any code)
 - Keep spec.md VISIBLE at all times
 - Run tests after EACH phase (100% pass required)
-- Mini-QC checkpoints every 5-7 TODO items
+- Mini-QC checkpoints every 5-7 tasks
 - Update code_changes.md in real-time
+- Update implementation_checklist.md in real-time
 
 **Typical time:** 1-4 hours per feature
 
-**See:** Stage 5b, TODO.md
+**See:** Stage 5b, implementation_plan.md
 
 **Guide:** implementation_execution.md
 
@@ -1071,21 +1073,23 @@ Stage 5 (Feature Implementation) has 5 sub-stages per feature:
 
 ## T
 
-### TODO.md
-Implementation plan in each feature folder containing all tasks.
+### implementation_plan.md
+Implementation plan (~400 lines) in each feature folder containing comprehensive build guide.
 
-**Created:** Stage 5a (TODO Creation - 24 iterations)
-**Used:** Stage 5b (Implementation Execution)
+**Created:** Stage 5a (Implementation Planning - 24 iterations across 3 rounds)
+**User-Approved:** After Stage 5a (MANDATORY Gate 5)
+**Used:** Stage 5b (Implementation Execution - PRIMARY reference)
 
 **Structure:**
 - Phased implementation (5-6 phases)
-- Tasks numbered for tracking
+- Implementation tasks with acceptance criteria
 - Dependencies documented
-- Test coverage plan
+- Test strategy (>90% coverage required)
 - Integration points
+- Performance considerations
 - Rollback strategy
 
-**See:** Stage 5a, Implementation Execution
+**See:** Stage 5a, Implementation Execution, implementation_checklist.md
 
 **Guide:** round1_todo_creation.md, round2_todo_creation.md, round3 guides
 
@@ -1217,7 +1221,7 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 - Epic Testing, Integration Point
 
 **For Stage 5a:**
-- Round, Iteration, TODO.md, Gates, GO Decision, NO-GO Decision
+- Round, Iteration, implementation_plan.md, Gates, GO Decision, NO-GO Decision
 - Algorithm Traceability Matrix, Spec Validation
 
 **For Stage 5b:**

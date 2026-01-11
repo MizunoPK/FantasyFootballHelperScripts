@@ -459,24 +459,31 @@ feature_XX_{name}/
 
 1. **Commit changes on branch** (after user testing passes)
 
-2. **Merge to main:**
+2. **Push branch to remote:**
    ```bash
-   git checkout main
-   git pull origin main
-   git merge {work_type}/KAI-{number}
+   git push origin {work_type}/KAI-{number}
    ```
 
-3. **Push to origin:**
+3. **Create Pull Request for user review:**
    ```bash
-   git push origin main
+   gh pr create --base main --head {work_type}/KAI-{number} \
+     --title "{commit_type}/KAI-{number}: Complete {epic_name} epic" \
+     --body "{Epic summary with features, tests, review instructions}"
    ```
 
-4. **Update EPIC_TRACKER.md:**
+4. **User reviews and merges PR:**
+   - User reviews PR in GitHub UI, VS Code extension, or CLI
+   - User approves and merges when satisfied
+   - See `feature-updates/USER_PR_REVIEW_GUIDE.md` for review options
+
+5. **Update EPIC_TRACKER.md** (after user merges PR):
+   - Pull latest from main: `git checkout main && git pull origin main`
    - Move epic from "Active" to "Completed" table
    - Add epic detail section with commits
    - Increment "Next Available Number"
+   - Commit and push EPIC_TRACKER.md update
 
-5. **Delete branch (optional):**
+6. **Delete branch (optional):**
    ```bash
    git branch -d {work_type}/KAI-{number}
    ```
