@@ -4,6 +4,11 @@
 **Created:** 2026-01-02
 **Prerequisites:** Stage 1 complete, feature folder exists
 **Next Stage:** stages/stage_2/phase_1_specification.md
+**Detailed Examples:** reference/stage_2/research_examples.md
+
+---
+
+**📚 Companion Reference:** This guide focuses on workflow steps. For detailed examples, templates, and anti-patterns, see `reference/stage_2/research_examples.md`
 
 ---
 
@@ -152,66 +157,18 @@ Research Phase is complete when Phase 1.5 audit passes (all 4 categories with ev
 
 ### Step 0.2: Extract User Intent for THIS Feature
 
-**Answer these questions using EXACT QUOTES from epic notes:**
+**Answer these 6 questions using EXACT QUOTES from epic notes:**
 
-```markdown
-## Epic Intent Analysis (Internal - for agent)
+1. What problem is THIS feature solving?
+2. What did the user EXPLICITLY request for this feature?
+3. What constraints did the user mention?
+4. What is OUT of scope? (user said "not now" or "future")
+5. What is the user trying to ACCOMPLISH? (end goal)
+6. What technical components did the user mention?
 
-**1. What problem is THIS feature solving?**
-
-Quote from epic notes: "{paste exact text from epic, cite line number}"
-
-My interpretation: "{paraphrase in your own words}"
-
----
-
-**2. What did the user EXPLICITLY request for this feature?**
-
-Explicit request 1: "{quote from epic, cite line}"
-Explicit request 2: "{quote from epic, cite line}"
-Explicit request 3: "{quote from epic, cite line}"
-
-(List ALL explicit requests related to this feature)
-
----
-
-**3. What constraints did the user mention?**
-
-Constraint 1: "{quote from epic, cite line}"
-Constraint 2: "{quote from epic, cite line}"
-
-(Examples: "must use existing CSV format", "don't change PlayerManager interface", "keep it simple")
-
----
-
-**4. What is OUT of scope? (user said "not now" or "future")**
-
-Out of scope 1: "{quote from epic, cite line}"
-Out of scope 2: "{quote from epic, cite line}"
-
-(Examples: "not including historical data", "automatic updates can come later")
-
----
-
-**5. What is the user trying to ACCOMPLISH? (end goal)**
-
-User's goal: "{quote from epic describing what user wants to achieve}"
-
-(Example: "make better draft decisions", "reduce manual data entry", "improve recommendation accuracy")
-
----
-
-**6. What technical components did the user mention?**
-
-Component 1: "{term from epic}" - Line {N}
-Component 2: "{term from epic}" - Line {N}
-Data source: "{term from epic}" - Line {N}
-
-(Examples: "PlayerManager", "CSV file", "scoring algorithm", "ADP data")
-```
+**Template and detailed examples:** See `reference/stage_2/research_examples.md` → Phase 0 Examples
 
 **CRITICAL RULE:**
-
 - Use EXACT QUOTES (copy-paste from epic notes)
 - Cite line numbers for every quote
 - If user didn't mention something → it's an ASSUMPTION (add to checklist later)
@@ -222,81 +179,18 @@ Data source: "{term from epic}" - Line {N}
 
 **Update `feature_{N}_{name}/spec.md`:**
 
-Add this as the **FIRST section** (before any technical details):
+Add Epic Intent section as the **FIRST section** (before any technical details).
 
-```markdown
-# Feature {N}: {Descriptive Name}
+**Required subsections:**
+- Problem This Feature Solves (with quote and line citation)
+- User's Explicit Requests (list with quotes and line citations)
+- User's Constraints (list with quotes and line citations)
+- Out of Scope (what user explicitly excluded)
+- User's End Goal (quote and line citation)
+- Technical Components Mentioned by User (list with line citations)
+- Agent Verification checklist (re-read timestamp, extraction verification)
 
----
-
-## Epic Intent (User's Original Request)
-
-**⚠️ CRITICAL:** All requirements below MUST trace back to this section.
-
-**Problem This Feature Solves:**
-
-"{Quote from epic notes describing the problem}"
-(Source: Epic notes line {N})
-
----
-
-**User's Explicit Requests:**
-
-1. "{Quote 1 from epic notes}"
-   (Source: Epic notes line {N})
-
-2. "{Quote 2 from epic notes}"
-   (Source: Epic notes line {N})
-
-3. "{Quote 3 from epic notes}"
-   (Source: Epic notes line {N})
-
----
-
-**User's Constraints:**
-
-- "{Quote from epic notes}"
-  (Source: Epic notes line {N})
-
-- "{Quote from epic notes}"
-  (Source: Epic notes line {N})
-
----
-
-**Out of Scope (User Explicitly Excluded):**
-
-- "{What user said is NOT included}"
-  (Source: Epic notes line {N})
-
----
-
-**User's End Goal:**
-
-"{Quote from epic notes describing what user wants to achieve}"
-(Source: Epic notes line {N})
-
----
-
-**Technical Components Mentioned by User:**
-
-- **{Component 1}** (Epic notes line {N})
-- **{Component 2}** (Epic notes line {N})
-- **{Data source}** (Epic notes line {N})
-
----
-
-**Agent Verification:**
-
-□ Re-read epic notes file: {date/time}
-□ Extracted exact quotes (not paraphrases)
-□ Cited line numbers for all quotes
-□ Identified out-of-scope items
-□ Understand user's goal (not just technical implementation)
-
----
-
-{Rest of spec.md sections will be added in STAGE_2b}
-```
+**Complete template with example:** See `reference/stage_2/research_examples.md` → Phase 0 Examples → Example 2
 
 ---
 
@@ -386,41 +280,13 @@ Read `feature_{N}_{name}/spec.md` created in Stage 1.
 
 **For EACH component/term mentioned in epic, create targeted research:**
 
-```markdown
-## Research Checklist for Feature {N}
+Research only components user mentioned:
+- Component classes (e.g., PlayerManager)
+- Patterns to follow (e.g., injury penalty system)
+- Data sources (e.g., CSV files)
+- Related features (e.g., existing multipliers)
 
-Based on Epic Intent section, I must research:
-
-□ **{Component 1 from epic}** (e.g., "PlayerManager")
-  - Action: Find class definition
-  - Action: Read relevant methods mentioned in epic
-  - Action: Document actual signatures (not assumed)
-  - Evidence required: File path, line numbers, code snippets
-
-□ **{Component 2 from epic}** (e.g., "scoring algorithm")
-  - Action: Find implementation
-  - Action: Understand current algorithm
-  - Action: Document how it works today
-  - Evidence required: Pseudocode or actual code
-
-□ **{Data source from epic}** (e.g., "ADP data")
-  - Action: Search for existing ADP references in codebase
-  - Action: Check if ADP already used anywhere
-  - Action: Verify what ADP means in this codebase
-  - Evidence required: Grep results, file examples
-
-□ **{Similar feature from epic}** (e.g., "injury penalty system")
-  - Action: Find existing implementation
-  - Action: READ the actual code (not guess at pattern)
-  - Action: Document pattern used
-  - Evidence required: File path, code structure
-
-□ **{Data format from epic}** (e.g., "CSV format")
-  - Action: Find example CSV files
-  - Action: READ actual file contents
-  - Action: Document exact format (columns, types, examples)
-  - Evidence required: File path, first 5 lines of actual file
-```
+**Template with detailed checklist:** See `reference/stage_2/research_examples.md` → Phase 1 Examples → Example 1
 
 **Anti-Pattern Detection:**
 
@@ -441,44 +307,13 @@ Based on Epic Intent section, I must research:
 
 **For EACH item in research checklist, execute searches:**
 
-**Example: Component mentioned is "PlayerManager"**
+**Basic search pattern:**
+1. Use Grep/Glob to find components
+2. Use Read tool to view actual code (NOT just search)
+3. Document file paths, line numbers, actual signatures
+4. Collect evidence for Phase 1.5 audit
 
-```bash
-# Find class definition
-grep -r "class PlayerManager" --include="*.py"
-
-# Find it, now READ the file
-# Use Read tool to read league_helper/util/PlayerManager.py
-
-# Find method mentioned in epic (e.g., "scoring")
-grep -r "def.*score" league_helper/util/PlayerManager.py
-
-# READ that method
-# Use Read tool to read specific line range
-```
-
-**Example: Data source mentioned is "ADP data"**
-
-```bash
-# Search for existing ADP references
-grep -r "adp" --include="*.py" -i
-
-# Search for ADP in data files
-find data/ -name "*adp*" -o -name "*draft*"
-
-# If found, READ actual file
-# Use Read tool to see actual format
-```
-
-**Example: User mentioned "similar to injury penalty system"**
-
-```bash
-# Find injury-related code
-grep -r "injury" --include="*.py" -i
-
-# READ the implementation
-# Use Read tool to understand the pattern
-```
+**Detailed search command examples:** See `reference/stage_2/research_examples.md` → Phase 1 Examples (shows grep, find, Read tool sequences)
 
 **CRITICAL RULE: READ, don't guess**
 
@@ -493,162 +328,20 @@ grep -r "injury" --include="*.py" -i
 
 Create `epic/research/{FEATURE_NAME}_DISCOVERY.md`:
 
-```markdown
-# Feature {N}: {Name} - Discovery Findings
+**Required sections:**
+- Epic Intent Summary (brief summary from Epic Intent section)
+- Components Identified (for each component user mentioned)
+  - User's quote mentioning component
+  - Found in codebase (file paths, line numbers)
+  - Actual code signatures and snippets
+  - How it works today
+  - Relevance to this feature
+- Existing Test Patterns (test structure to follow)
+- Interface Dependencies (classes/methods this feature will call)
+- Edge Cases Identified (from reading existing code)
+- Research Completeness (checklist of what was researched)
 
-**Research Date:** {YYYY-MM-DD}
-**Researcher:** Agent
-**Grounded In:** Epic Intent (user's explicit requests)
-
----
-
-## Epic Intent Summary
-
-**User requested:** "{brief summary from Epic Intent section}"
-
-**Components user mentioned:**
-- {Component 1}
-- {Component 2}
-- {Data source}
-
-**This research focused on user-mentioned components ONLY.**
-
----
-
-## Components Identified
-
-### Component 1: {Name from Epic}
-
-**User mentioned:** "{quote from epic}"
-
-**Found in codebase:**
-- File: `league_helper/util/PlayerManager.py`
-- Class definition: Line 45
-- Relevant method: `calculate_total_score()` at line 125
-
-**Method signature (actual from source):**
-```python
-def calculate_total_score(self, player: FantasyPlayer, config: ConfigManager) -> float:
-    """Calculate total score including all multipliers."""
-    # ... (copied from actual source)
-```
-
-**How it works today:**
-- Loads base score from player.projected_points
-- Applies multipliers: injury, matchup, team_quality
-- Returns final score
-
-**Relevance to this feature:**
-- User wants to add new data source to this scoring
-- Will need to add new multiplier to this method
-
----
-
-### Data Source: {Name from Epic}
-
-**User mentioned:** "{quote from epic}"
-
-**Found in codebase:**
-- Searched for: `grep -r "adp" --include="*.py" -i`
-- Result: NO existing ADP references found
-- This is NEW data source (not currently in codebase)
-
-**Data format research:**
-- User mentioned: "CSV file"
-- Need to determine exact format (add to checklist as question)
-
----
-
-### Similar Feature: {Name from Epic}
-
-**User mentioned:** "{quote from epic - e.g., 'similar to injury penalty'}"
-
-**Found implementation:**
-- File: `league_helper/util/PlayerManager.py`
-- Lines: 450-480
-- Pattern used: Multiplier-based penalty
-
-**Code structure (actual):**
-```python
-def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
-    if player.injury_status == "Healthy":
-        return 1.0
-    elif player.injury_status == "Questionable":
-        return 0.95
-    elif player.injury_status == "Doubtful":
-        return 0.85
-    # ...
-```
-
-**Pattern to reuse:**
-- Method returns float multiplier
-- Range: 0.0-1.0 (penalty) or 1.0+ (bonus)
-- Applied in calculate_total_score()
-
-**Can follow this pattern for new feature.**
-
----
-
-## Existing Test Patterns
-
-**Found test pattern in:** `tests/league_helper/util/test_PlayerManager_scoring.py`
-
-**Pattern observed:**
-- Uses pytest fixtures for sample players
-- Mocks ConfigManager
-- Tests each multiplier in isolation
-- Integration test with all multipliers
-
-**Can follow this pattern for feature tests.**
-
----
-
-## Interface Dependencies
-
-**Classes This Feature Will Call:**
-
-1. **ConfigManager.get_multiplier()** (example - actual dependency TBD)
-   - Source: `league_helper/util/ConfigManager.py:234`
-   - Signature (actual): `def get_adp_multiplier(self, adp: int) -> Tuple[float, int]`
-   - Verified: Method exists (checked source code)
-
-**Data Files This Feature Will Read:**
-
-- TBD - Need to ask user about data format (add to checklist)
-
----
-
-## Edge Cases Identified
-
-**From reading existing code:**
-
-1. Player not in data source → How to handle? (add to checklist)
-2. Invalid values in data → Validation needed? (add to checklist)
-3. Data file missing → Graceful degradation? (add to checklist)
-
----
-
-## Research Completeness
-
-**Components researched:**
-- ✅ PlayerManager class (READ source code)
-- ✅ Existing multiplier pattern (READ injury penalty code)
-- ✅ Test patterns (READ existing tests)
-- ✅ Data source search (grep for existing references)
-
-**Evidence collected:**
-- File paths: {list}
-- Line numbers: {list}
-- Actual code snippets: {copied above}
-
-**Ready for Phase 1.5 audit.**
-
----
-
-**Next Steps:**
-- Phase 1.5: Verify research completeness
-- STAGE_2b Phase 2: Update spec.md with findings
-```
+**Complete template with detailed examples:** See `reference/stage_2/research_examples.md` → Phase 1 Examples → Example 2
 
 ---
 
@@ -690,265 +383,55 @@ def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
 
 ---
 
-### Step 1.5.1: Component Knowledge Verification
-
-**BEFORE creating spec/checklist, answer these verification questions:**
-
-```markdown
-## Research Completeness Audit
-
-### Category 1: Component Knowledge
-
-**Question 1.1:** Can I list the EXACT classes/files that will be modified?
-
-❌ BAD: "Probably PlayerManager and maybe ConfigManager"
-✅ GOOD: "PlayerManager (league_helper/util/PlayerManager.py:125-180) and ConfigManager (league_helper/util/ConfigManager.py:234)"
-
-**My answer:** {be specific}
-
-**Evidence:** {cite file paths and line numbers}
-
----
-
-**Question 1.2:** Have I READ the source code for each component?
-
-❌ BAD: "I searched for it but didn't read the actual code"
-✅ GOOD: "Yes, used Read tool to view PlayerManager.py lines 1-300, focused on calculate_total_score() method"
-
-**My answer:** {yes/no}
-
-**Evidence:** {cite Read tool calls made, line ranges viewed}
-
----
-
-**Question 1.3:** Can I cite actual method signatures from source?
-
-❌ BAD: "The method probably takes a player and returns a score"
-✅ GOOD: "def calculate_total_score(self, player: FantasyPlayer, config: ConfigManager) -> float (PlayerManager.py:125)"
-
-**My answer:** {list actual signatures}
-
-**Evidence:** {copied from source code}
-
----
-
-**Verification Result for Category 1:**
-
-□ All questions answered with ✅ GOOD level of detail
-□ Evidence provided for each answer
-
-**If any answer is ❌ BAD:**
-- STOP - Go back to Phase 1 and research that component
-- READ the actual source code
-- Collect evidence (file paths, line numbers, code snippets)
-```
-
----
-
-### Step 1.5.2: Pattern Knowledge Verification
-
-```markdown
-### Category 2: Pattern Knowledge
-
-**Question 2.1:** Have I searched for similar existing features?
-
-❌ BAD: "I assume there are similar features but didn't search"
-✅ GOOD: "Searched for 'injury penalty', found implementation in PlayerManager.py:450-480"
-
-**My answer:** {what did you search for? what did you find?}
-
-**Evidence:** {grep commands used, files found}
-
----
-
-**Question 2.2:** Have I READ at least one similar feature's implementation?
-
-❌ BAD: "Found it but didn't read the code"
-✅ GOOD: "Read PlayerManager.py lines 450-480, documented pattern in research file"
-
-**My answer:** {yes/no}
-
-**Evidence:** {cite Read tool calls, summarize pattern found}
-
----
-
-**Question 2.3:** Can I describe the existing pattern in detail?
-
-❌ BAD: "It probably uses some kind of multiplier"
-✅ GOOD: "Returns float multiplier (0.0-1.0 range), applied in calculate_total_score(), follows method naming pattern _calculate_{type}_multiplier()"
-
-**My answer:** {describe pattern}
-
-**Evidence:** {code snippets showing pattern}
-
----
-
-**Verification Result for Category 2:**
-
-□ All questions answered with ✅ GOOD level of detail
-□ Evidence provided for each answer
-
-**If any answer is ❌ BAD:**
-- STOP - Go back to Phase 1 and research similar features
-- READ actual implementations
-- Document patterns found
-```
-
----
-
-### Step 1.5.3: Data Structure Knowledge Verification
-
-```markdown
-### Category 3: Data Structure Knowledge
-
-**Question 3.1:** Have I READ the actual data files (CSV/JSON examples)?
-
-❌ BAD: "I assume CSV has Name, Position columns"
-✅ GOOD: "Read data/players.csv, actual columns: Name,Position,Team,Points,ADP (line 1)"
-
-**My answer:** {yes/no - which files did you read?}
-
-**Evidence:** {file paths, actual content from first 5 lines}
-
----
-
-**Question 3.2:** Can I describe the current format from actual examples?
-
-❌ BAD: "CSV format with player data"
-✅ GOOD: "CSV with header row, 5 columns (Name,Position,Team,Points,ADP), example: 'Patrick Mahomes,QB,KC,450.5,5'"
-
-**My answer:** {describe actual format}
-
-**Evidence:** {paste actual file header and sample row}
-
----
-
-**Question 3.3:** Have I verified field names from source code?
-
-❌ BAD: "I assume player has 'name' field"
-✅ GOOD: "FantasyPlayer class (league_helper/util/FantasyPlayer.py:15) has fields: name: str, position: str, team: str, projected_points: float"
-
-**My answer:** {list actual fields from source}
-
-**Evidence:** {cite file and line numbers}
-
----
-
-**Verification Result for Category 3:**
-
-□ All questions answered with ✅ GOOD level of detail
-□ Evidence provided for each answer
-
-**If any answer is ❌ BAD:**
-- STOP - Go back to Phase 1 and research data structures
-- READ actual files and class definitions
-- Document exact formats and field names
-```
-
----
-
-### Step 1.5.4: Epic Request Knowledge Verification
-
-```markdown
-### Category 4: Epic Request Knowledge
-
-**Question 4.1:** Have I re-read the epic notes file in THIS phase?
-
-❌ BAD: "I read it in Phase 0, don't need to read again"
-✅ GOOD: "Re-read in Phase 0 at {timestamp}, extracted user requests"
-
-**My answer:** {yes/no - when did you read it?}
-
-**Evidence:** {cite Phase 0 completion timestamp}
-
----
-
-**Question 4.2:** Can I list what the user EXPLICITLY requested?
-
-❌ BAD: "User wants better draft recommendations"
-✅ GOOD: "User requested: 1) 'integrate ADP data' (line 15), 2) 'factor ADP into scoring' (line 18), 3) 'use FantasyPros CSV' (line 22)"
-
-**My answer:** {list explicit requests with line citations}
-
-**Evidence:** {quotes from epic notes}
-
----
-
-**Question 4.3:** Can I identify what's NOT mentioned (assumptions)?
-
-❌ BAD: "Everything seems covered"
-✅ GOOD: "User did NOT mention: fuzzy matching, automatic CSV updates, caching. These are agent assumptions (need to add to checklist as questions)"
-
-**My answer:** {list things you're tempted to add but user didn't mention}
-
-**Evidence:** {review epic notes - if not mentioned, it's an assumption}
-
----
-
-**Verification Result for Category 4:**
-
-□ All questions answered with ✅ GOOD level of detail
-□ Evidence provided for each answer
-
-**If any answer is ❌ BAD:**
-- STOP - Go back to Phase 0 and re-read epic notes
-- Extract explicit requests
-- Identify assumptions (things not mentioned)
-```
+### Step 1.5.1-4: Answer Audit Questions for 4 Categories
+
+**Category 1: Component Knowledge**
+- Question 1.1: Can I list EXACT classes/files to modify?
+- Question 1.2: Have I READ source code for each component?
+- Question 1.3: Can I cite actual method signatures?
+
+**Category 2: Pattern Knowledge**
+- Question 2.1: Have I searched for similar existing features?
+- Question 2.2: Have I READ at least one similar feature's implementation?
+- Question 2.3: Can I describe the existing pattern in detail?
+
+**Category 3: Data Structure Knowledge**
+- Question 3.1: Have I READ actual data files (CSV/JSON examples)?
+- Question 3.2: Can I describe current format from actual examples?
+- Question 3.3: Have I verified field names from source code?
+
+**Category 4: Epic Request Knowledge**
+- Question 4.1: Have I re-read epic notes file in THIS phase?
+- Question 4.2: Can I list what user EXPLICITLY requested?
+- Question 4.3: Can I identify what's NOT mentioned (assumptions)?
+
+**For EACH question, provide:**
+- Your answer (be specific, cite evidence)
+- Evidence (file paths, line numbers, code snippets, timestamps)
+
+**Complete audit template with examples:** See `reference/stage_2/research_examples.md` → Phase 1.5 Examples → Example 1 (PASSING) and Example 2 (FAILED)
 
 ---
 
 ### Step 1.5.5: Overall Audit Result
 
-```markdown
-## Phase 1.5 Audit Summary
+**Summarize audit results for all 4 categories:**
 
-**Category 1 (Component Knowledge):**
-□ PASSED - All questions answered with evidence
-
-**Category 2 (Pattern Knowledge):**
-□ PASSED - All questions answered with evidence
-
-**Category 3 (Data Structure Knowledge):**
-□ PASSED - All questions answered with evidence
-
-**Category 4 (Epic Request Knowledge):**
-□ PASSED - All questions answered with evidence
-
----
+□ Category 1 (Component Knowledge): PASSED / FAILED
+□ Category 2 (Pattern Knowledge): PASSED / FAILED
+□ Category 3 (Data Structure Knowledge): PASSED / FAILED
+□ Category 4 (Epic Request Knowledge): PASSED / FAILED
 
 **OVERALL RESULT:**
-
-□ ✅ PASSED - All 4 categories passed, ready for STAGE_2b
-□ ❌ FAILED - At least one category failed, must return to Phase 1
-
----
-
-**If PASSED:**
-- Proceed to STAGE_2b (Specification Phase)
-- Document audit completion in Agent Status
-
-**If FAILED:**
-- Return to Phase 1
-- Research the specific areas that failed
-- Re-run this audit
-- Do NOT proceed to STAGE_2b until PASSED
-
----
+- ✅ PASSED - All 4 categories passed → Proceed to STAGE_2b
+- ❌ FAILED - At least one category failed → Return to Phase 1
 
 **Evidence Summary:**
+- Files Read: {count and list}
+- Code Snippets Collected: {count and purposes}
+- Epic Notes Citations: {count and line numbers}
 
-**Files Read:** {count}
-- {list file paths}
-
-**Code Snippets Collected:** {count}
-- {list purposes: method signatures, data examples, pattern examples}
-
-**Epic Notes Citations:** {count}
-- {list line numbers cited}
-
-**Ready for STAGE_2b:** {YES/NO}
-```
+**Complete audit summary template:** See `reference/stage_2/research_examples.md` → Phase 1.5 Examples → Example 1
 
 ---
 

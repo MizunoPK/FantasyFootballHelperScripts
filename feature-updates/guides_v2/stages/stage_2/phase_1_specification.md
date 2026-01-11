@@ -154,239 +154,56 @@ Specification Phase is complete when spec.md has complete requirements with trac
 
 #### Components Affected
 
-```markdown
-## Components Affected
+Document all classes/files to modify or create, with sources for each:
+- List existing classes to modify (file path, line numbers, specific methods)
+- List new files to create (purpose, exports, pattern to follow)
+- Include traceability: Epic Request (cite line) or Derived (explain why necessary)
+- Mark assumptions with ⚠️ and move to checklist
 
-**Classes to Modify:**
-
-1. **PlayerManager** (`league_helper/util/PlayerManager.py`)
-   - **Source:** Epic notes line 15: "integrate into PlayerManager scoring"
-   - **Traceability:** Direct user request
-   - **Changes:**
-     - `calculate_total_score()` method (line 125) - Add new multiplier calculation
-     - `load_players()` method (line 89) - Load new data source
-     - New method: `_calculate_adp_multiplier()` - Encapsulate logic
-
-2. **ConfigManager** (`league_helper/util/ConfigManager.py`)
-   - **Source:** Derived from user request (need configuration for multiplier ranges)
-   - **Traceability:** User requested ADP integration (epic line 15), config is necessary implementation detail
-   - **Changes:**
-     - Use existing `get_multiplier()` pattern (line 234)
-     - May need new config keys (add to checklist as question)
-
-3. **FantasyPlayer** (`league_helper/util/FantasyPlayer.py`)
-   - **Source:** Derived from user request (need to store ADP data per player)
-   - **Traceability:** User requested ADP integration, storing ADP value is logically required
-   - **Changes:**
-     - Add field: `adp_value: Optional[int]` - Store ranking
-     - Add field: `adp_multiplier: float` - Store calculated multiplier
-
-**New Files to Create:**
-
-- `data/adp_rankings.csv`
-  - **Source:** ⚠️ ASSUMPTION - User mentioned "ADP data" but not format
-  - **Traceability:** Need to ask user (add to checklist as Question)
-  - **Action:** Move to checklist.md, ask user about data format
-
-- `tests/league_helper/util/test_PlayerManager_adp.py`
-  - **Source:** Derived requirement (tests are required for all new features)
-  - **Traceability:** Standard practice, not user-requested but necessary
-```
+**See:** `reference/stage_2/specification_examples.md` → Example 1 for complete template
 
 #### Requirements (WITH SOURCES)
 
-```markdown
-## Requirements
+Document each requirement with:
+- Description (what this requirement does)
+- Source (Epic Request line X / User Answer Q{N} / Derived)
+- Traceability (why this requirement exists)
+- Implementation details (how to fulfill requirement)
+- Edge cases (TBD items → add to checklist)
 
-### Requirement 1: Load ADP data
+**Key principle:** If you can't cite a source, it's an assumption → move to checklist
 
-**Description:** Load ADP (Average Draft Position) data from external source
-
-**Source:** Epic notes line 15: "integrate ADP data from FantasyPros"
-**Traceability:** Direct user request
-
-**Implementation:**
-- Load data during player initialization
-- Match players by name+position (TBD - add to checklist)
-
----
-
-### Requirement 2: Calculate ADP multiplier
-
-**Description:** Convert ADP value to multiplier for scoring
-
-**Source:** Epic notes line 18: "factor ADP into draft recommendations"
-**Traceability:** Direct user request
-
-**Implementation:**
-- Use ConfigManager for multiplier ranges
-- Apply multiplier in calculate_total_score()
-
----
-
-### Requirement 3: Handle missing player data
-
-**Description:** Handle case where player not in ADP data
-
-**Source:** Derived requirement
-**Traceability:** Not all players may have ADP data (edge case), need to handle gracefully
-
-**Implementation:**
-- Use neutral multiplier (1.0) if player not found (TBD - add to checklist as question)
-- Log warning for missing players
-
----
-
-**Requirements Summary:**
-
-- ✅ Requirement 1: Direct user request (epic line 15)
-- ✅ Requirement 2: Direct user request (epic line 18)
-- ✅ Requirement 3: Derived (logically necessary for edge cases)
-
-**Total Requirements:** 3 (all traced to sources)
-```
+**See:** `reference/stage_2/specification_examples.md` → Example 2 for complete template
 
 #### Data Structures
 
-```markdown
-## Data Structures
+Document input/output/internal data formats with sources:
+- Input data format (CSV/JSON/API structure - may be assumption, ask user)
+- Internal representation (new fields on existing classes)
+- Output format (how data flows through system)
+- Mark TBD items and add to checklist
 
-### Input Data Format
-
-**Format:** CSV file with ADP rankings
-
-**Source:** ⚠️ ASSUMPTION - User mentioned "ADP data" but not specific format
-**Action:** Add to checklist as Question 1: "What format is the ADP data in? CSV, JSON, or API?"
-
-**Assumed structure (pending user confirmation):**
-```csv
-Name,Position,ADP
-Patrick Mahomes,QB,5
-Christian McCaffrey,RB,1
-```
-
-**Field definitions:**
-- Name: Player full name (str)
-- Position: Player position (str)
-- ADP: Average Draft Position ranking (int, 1-500)
-
----
-
-### Internal Representation
-
-**FantasyPlayer class additions:**
-
-```python
-class FantasyPlayer:
-    # Existing fields...
-
-    # New fields for this feature:
-    adp_value: Optional[int]  # 1-500, None if not in ADP data
-    adp_multiplier: float     # 0.8-1.2 based on ADP (range TBD - add to checklist)
-```
-
-**Source:** Derived requirement (need to store ADP data per player)
-**Traceability:** User requested ADP integration, storing values is implementation detail
-
----
-
-### Output
-
-**Updated scoring in PlayerManager:**
-
-```python
-total_score = base_score * adp_multiplier * [other existing multipliers...]
-```
-
-**Source:** Epic notes line 18: "factor ADP into draft recommendations"
-**Traceability:** Direct user request
-```
+**See:** `reference/stage_2/specification_examples.md` → Example 3 for data structure patterns
 
 #### Algorithms
 
-```markdown
-## Algorithms
+Document implementation approach with TBD items:
+- Pseudocode for main logic
+- Edge case handling (what happens when X fails)
+- TBD items that require user input → add to checklist
+- Derived requirements (necessary for robustness)
 
-### ADP Multiplier Calculation
-
-**Source:** Epic notes line 18: "factor ADP into draft recommendations"
-**Traceability:** Direct user request (algorithm is implementation detail)
-
-**Pseudocode:**
-```
-1. Load ADP data from source (format TBD - checklist Q1)
-2. For each player:
-   a. Match player name+position to ADP data (matching method TBD - checklist Q2)
-   b. If match found:
-      - Get ADP value (1-500)
-      - Calculate multiplier (formula TBD - checklist Q3)
-      - Store multiplier in player.adp_multiplier
-   c. If NO match found:
-      - Use default multiplier (value TBD - checklist Q4)
-3. In calculate_total_score():
-   total_score = base_score * adp_multiplier * [other multipliers...]
-```
-
-**TBD items (need user answers):**
-- Data source format (Question 1)
-- Player matching method (Question 2)
-- Multiplier calculation formula (Question 3)
-- Default multiplier for missing players (Question 4)
-
----
-
-### Edge Case Handling
-
-**Source:** Derived requirements (edge cases not mentioned in epic, but necessary)
-
-1. **Player not in ADP data**
-   - Action: Use default multiplier (value TBD - add to checklist)
-   - Source: Derived (edge case handling)
-
-2. **Invalid ADP value (<1 or >500)**
-   - Action: Log warning, use default multiplier
-   - Source: Derived (data validation)
-
-3. **Multiple players with same name**
-   - Action: Match on Name+Position (method TBD - add to checklist)
-   - Source: Derived (disambiguation logic)
-
-4. **ADP data file missing or corrupt**
-   - Action: Graceful degradation - all multipliers = 1.0 (TBD - add to checklist)
-   - Source: Derived (error handling)
-```
+**See:** `reference/stage_2/specification_examples.md` → Example 4 for algorithm patterns
 
 #### Dependencies
 
-```markdown
-## Dependencies
+Document feature dependencies and integration points:
+- What this feature depends on (existing code, other features)
+- What depends on this feature (what gets blocked)
+- What's independent (parallel features)
+- Include status (exists/need to create) and sources
 
-**This feature depends on:**
-
-- **ConfigManager.get_adp_multiplier() method**
-  - Source: Derived (need config for multiplier ranges)
-  - Status: Need to verify if method exists (Phase 1 research found similar get_multiplier())
-  - May need to create new method (add to implementation items)
-
-- **CSV utilities (utils/csv_utils.py)**
-  - Source: Derived (need to read CSV data)
-  - Status: Exists in codebase (verified in Phase 1)
-
-- **FantasyPlayer class structure**
-  - Source: Derived (need to add new fields)
-  - Status: Can add fields (verified in Phase 1, class is extensible)
-
-**This feature blocks:**
-
-- Feature 4: Recommendation Engine Updates
-  - Source: Epic structure (Feature 4 depends on Features 1-3)
-  - Will use ADP multipliers from this feature
-
-**This feature is independent of:**
-
-- Feature 2: Injury Risk Assessment (parallel)
-- Feature 3: Schedule Strength Analysis (parallel)
-```
+**See:** `reference/stage_2/specification_examples.md` → Example 5 for dependency patterns
 
 ---
 
@@ -396,130 +213,30 @@ total_score = base_score * adp_multiplier * [other existing multipliers...]
 
 **CRITICAL:** Only add questions for actual unknowns (not things you should have researched).
 
-```markdown
-# Feature {N}: {Name} - Planning Checklist
+**Good questions ask about:**
+- ✅ User preferences (fuzzy vs strict matching, option A vs B)
+- ✅ Business logic not specified in epic (multiplier formula, impact level)
+- ✅ Edge case handling not mentioned (missing player behavior, error handling)
+- ✅ External data formats (CSV column names, API structure)
 
-**Purpose:** Track open questions and decisions for this feature
+**Bad questions (should have researched in STAGE_2a):**
+- ❌ "Which class should we modify?" → Research in Phase 1
+- ❌ "What's the current scoring algorithm?" → Read code in Phase 1
+- ❌ "Does PlayerManager have method X?" → Verify in Phase 1.5 audit
+- ❌ "How do we load CSV files?" → Research existing utilities
 
-**Instructions:**
-- [ ] = Open question (needs user answer)
-- [x] = Resolved (answer documented below)
+**Checklist Template:**
 
----
+Each question should include:
+- [ ] Checkbox (open question)
+- Context (why this is uncertain)
+- Options (2-3 approaches with pros/cons)
+- Epic reference (what user said or didn't say)
+- Recommendation (your suggested approach)
+- Why this is a question (genuine unknown, not research gap)
+- Impact on spec.md (what will change based on answer)
 
-## Open Questions
-
-### Question 1: ADP Data Source Format
-
-- [ ] What format is the ADP data in?
-  - Option A: CSV file (user provides manually)
-  - Option B: JSON API (fetch automatically)
-  - Option C: Web scraping (FantasyPros website)
-
-**Context:** User mentioned "ADP data" but didn't specify format. Need to know format to implement loader.
-
-**Epic reference:** Line 15: "integrate ADP data from FantasyPros" (no format specified)
-
-**Recommendation:** Option A (CSV) - Simplest, user controls data, no API dependencies
-
-**Why this is a question:** User didn't specify format in epic notes, this is a genuine unknown (not something we could have researched)
-
----
-
-### Question 2: Player Name Matching Method
-
-- [ ] How should we match players between CSV and existing data?
-  - Option A: Exact match on Name+Position (strict)
-  - Option B: Fuzzy matching (handle typos, "P. Mahomes" vs "Patrick Mahomes")
-  - Option C: Match on unique ID (requires ID in both datasets)
-
-**Context:** Player names may differ slightly between data sources.
-
-**Epic reference:** Not mentioned in epic
-
-**Recommendation:** Option A (strict matching) unless user needs fuzzy matching
-
-**Why this is a question:** User didn't specify matching logic, could go either way
-
----
-
-### Question 3: ADP Multiplier Calculation Formula
-
-- [ ] How should ADP value translate to multiplier?
-  - Option A: Linear (ADP 1-100 = 1.2x, 101-200 = 1.1x, 201+ = 1.0x)
-  - Option B: Exponential (higher impact for top picks)
-  - Option C: Config-based ranges (user defines in config file)
-
-**Context:** Need to convert ADP ranking (1-500) to multiplier (0.8-1.2 range estimate).
-
-**Epic reference:** Line 18: "factor ADP into draft recommendations" (no formula specified)
-
-**Recommendation:** Option C (config-based) - Most flexible
-
-**Why this is a question:** User said "factor ADP" but didn't specify how much impact
-
----
-
-### Question 4: Default Multiplier for Missing Players
-
-- [ ] What happens if player NOT in ADP data?
-  - Option A: Use multiplier = 1.0 (neutral, no bonus/penalty)
-  - Option B: Use multiplier = 0.9 (slight penalty for unknown)
-  - Option C: Exclude from draft recommendations entirely
-
-**Context:** Rookies or obscure players might not have ADP data.
-
-**Epic reference:** Not mentioned in epic
-
-**Recommendation:** Option A (neutral 1.0) - Don't penalize players for missing data
-
-**Why this is a question:** Edge case not covered in epic, need user preference
-
----
-
-### Question 5: CSV Column Names
-
-- [ ] What are the exact column names in the FantasyPros CSV?
-  - Need to know: Player name column, position column, ADP column
-  - Ask user to provide column names or sample CSV
-
-**Context:** Need exact column names to parse CSV correctly.
-
-**Epic reference:** Line 15 mentions "FantasyPros" but not CSV structure
-
-**Recommendation:** Ask user for sample CSV or column names
-
-**Why this is a question:** Can't assume CSV structure without seeing actual file
-
----
-
-## Resolved Questions
-
-{Will populate as questions are answered}
-
----
-
-## Additional Scope Discovered
-
-{Will document if deep dive reveals new work not in original scope}
-```
-
-**Anti-Pattern Detection:**
-
-❌ "Question: Which class should we modify?"
-   ✅ STOP - You should have researched this in STAGE_2a (not a checklist question)
-
-❌ "Question: What's the current scoring algorithm?"
-   ✅ STOP - You should have READ the code in STAGE_2a (not a checklist question)
-
-❌ "Question: Does PlayerManager have a calculate_score method?"
-   ✅ STOP - You should have verified this in Phase 1.5 audit (not a checklist question)
-
-**Good questions:**
-- ✅ User preferences (fuzzy vs strict matching)
-- ✅ Business logic not specified in epic (multiplier formula)
-- ✅ Edge case handling not mentioned (missing player behavior)
-- ✅ External data formats (CSV column names)
+**See:** `reference/stage_2/specification_examples.md` → Example 3 for complete checklist template with valid/invalid question examples
 
 ---
 
@@ -579,179 +296,72 @@ total_score = base_score * adp_multiplier * [other existing multipliers...]
 
 **Review "Requirements" section of spec.md:**
 
-```markdown
-## Requirement Source Verification
+For EACH requirement, verify:
+- Source type (Epic Request / User Answer / Derived)
+- Citation exists (epic line number if Epic Request)
+- Derivation explanation (if Derived)
+- No assumptions (if ⚠️ ASSUMPTION → remove and add to checklist)
 
-For EACH requirement, verify source type:
+**Valid source types:**
+- **Epic Request:** Citation exists, quote accurate, matches user's words
+- **User Answer:** N/A at this stage (haven't asked questions yet)
+- **Derived:** Explanation exists, logically necessary (not "nice to have")
+- **⚠️ ASSUMPTION:** INVALID → remove from spec, add to checklist
 
-**Requirement 1: {Name}**
-- Source: {Epic Request / User Answer / Derived}
-- Valid? ✅ / ❌
-
-**Requirement 2: {Name}**
-- Source: {Epic Request / User Answer / Derived}
-- Valid? ✅ / ❌
-
-...
-
-**If source is "Epic Request":**
-□ Citation exists (epic notes line number)
-□ Quote is accurate
-□ Requirement matches user's words
-
-**If source is "User Answer":**
-□ Wait - we haven't asked questions yet (STAGE_2c comes later)
-□ Source cannot be "User Answer" at this stage
-□ Change to "⚠️ ASSUMPTION - add to checklist"
-
-**If source is "Derived":**
-□ Derivation explanation exists
-□ Logically necessary to fulfill user request
-□ Not "nice to have" or "best practice"
-
-**If source is "⚠️ ASSUMPTION":**
-□ ❌ INVALID - Remove from spec
-□ Add to checklist.md as question
-□ Get user answer in STAGE_2c
-```
+**See:** `reference/stage_2/specification_examples.md` → Phase 2.5 Example 1 for complete verification template
 
 ---
 
 ### Step 2.5.3: Check for Scope Creep
 
-**Scope creep detection:**
+**For EACH requirement, ask:**
 
-```markdown
-## Scope Creep Check
-
-**Review spec.md and ask for EACH requirement:**
-
-1. **Did the user ask for this?**
-   - Check Epic Intent section
-   - If not mentioned → SCOPE CREEP candidate
-
-2. **Is this "nice to have" or NECESSARY?**
-   - Necessary: Logically required to fulfill user request
-   - Nice to have: "Best practice" but user didn't ask for it
-
-3. **Am I solving a different problem than user described?**
-   - User's problem: "{quote from Epic Intent}"
-   - This requirement solves: "{what problem?}"
-   - Match? ✅ / ❌
-
-**Scope Creep Candidates Found:**
-
-□ Requirement {N}: {Name}
-  - Why flagged: User didn't mention this
-  - Action: Remove from spec, add to checklist as "Should we also...?"
-  - User approval needed: YES
-
-□ Requirement {N}: {Name}
-  - Why flagged: "Best practice" but not user-requested
-  - Action: Remove from spec or move to "nice to have" checklist section
-  - User approval needed: YES
+1. **Did the user ask for this?** → Check Epic Intent section
+2. **Is this necessary or "nice to have"?** → Necessary = logically required, Nice to have = best practice
+3. **Am I solving the user's problem or a different one?** → Compare requirement to Epic Intent quotes
 
 **If scope creep found:**
 - ❌ Remove from spec.md immediately
 - ❌ Add to checklist.md: "User requested X, should we also do Y?"
-- ❌ Get user approval in STAGE_2c before adding back
+- ❌ Get user approval before adding back
 
-**If no scope creep:**
-- ✅ All requirements trace to user requests or logical derivations
-```
+**See:** `reference/stage_2/specification_examples.md` → Phase 2.5 Example 2 for scope creep detection template and example
 
 ---
 
 ### Step 2.5.4: Check for Missing Requirements
 
-**Missing requirements detection:**
-
-```markdown
-## Missing Requirements Check
-
 **Re-read Epic Intent section:**
 
-User's explicit requests:
-1. "{Quote 1 from epic}"
-2. "{Quote 2 from epic}"
-3. "{Quote 3 from epic}"
-
-**For EACH explicit request, verify it's in spec:**
-
-□ Request 1: "{quote}"
-  - Found in spec? ✅ / ❌
-  - If ❌: Add to spec as Requirement {N}
-
-□ Request 2: "{quote}"
-  - Found in spec? ✅ / ❌
-  - If ❌: Add to spec as Requirement {N}
-
-□ Request 3: "{quote}"
-  - Found in spec? ✅ / ❌
-  - If ❌: Add to spec as Requirement {N}
-
-**Missing Requirements Found:**
-
-□ Epic line {N}: "{quote}"
-  - Why missed: {reason}
-  - Action: Add to spec.md as Requirement {N}
-  - Source: Epic notes line {N}
+List all explicit user requests, then verify EACH is in spec:
 
 **If missing requirements found:**
-- ❌ Add to spec.md immediately
-- ❌ Document source (epic notes line number)
+- ❌ Add to spec.md immediately with source (epic notes line number)
 - ❌ Verify no other user requests were missed
-```
+- ❌ Cannot proceed until all user requests are addressed
+
+**See:** `reference/stage_2/specification_examples.md` → Phase 2.5 Example 3 for missing requirements detection template
 
 ---
 
 ### Step 2.5.5: Overall Alignment Result
 
-```markdown
-## Phase 2.5 Alignment Summary
+**Document alignment check results:**
 
-**Requirement Source Verification:**
-□ All requirements have valid sources (Epic/Derived)
-□ No requirements with "User Answer" source (STAGE_2c not started yet)
-□ No requirements with "⚠️ ASSUMPTION" source
+**Checklist:**
+- [ ] All requirements have valid sources (Epic/Derived)
+- [ ] No requirements with "User Answer" source (not asked yet)
+- [ ] No requirements with "⚠️ ASSUMPTION" source
+- [ ] No scope creep detected (or removed to checklist)
+- [ ] No missing requirements (or added to spec)
 
-**Scope Creep Check:**
-□ No scope creep detected
-□ OR: Scope creep found and removed (moved to checklist)
+**Result:**
+- ✅ PASSED → Proceed to Phase 2.6 (Gate 2)
+- ❌ FAILED → Resolve issues, re-run alignment check
 
-**Missing Requirements Check:**
-□ No missing requirements detected
-□ OR: Missing requirements found and added to spec
+**If FAILED:** Cannot proceed until PASSED (remove scope creep, add missing requirements, fix invalid sources)
 
----
-
-**OVERALL RESULT:**
-
-□ ✅ PASSED - Spec aligns with epic intent, ready for STAGE_2c
-□ ❌ FAILED - Issues found, must resolve before STAGE_2c
-
----
-
-**If PASSED:**
-- Proceed to STAGE_2c (Refinement Phase)
-- Document alignment check completion in Agent Status
-
-**If FAILED:**
-- Resolve issues (remove scope creep, add missing requirements)
-- Re-run this alignment check
-- Do NOT proceed to STAGE_2c until PASSED
-
----
-
-**Alignment Evidence:**
-
-**Requirements aligned with epic:** {N / M} ({N} out of {M} total requirements)
-**Scope creep removed:** {K} requirements
-**Missing requirements added:** {L} requirements
-**Final requirement count:** {N} (all traced to sources)
-
-**Ready for STAGE_2c:** {YES/NO}
-```
+**See:** `reference/stage_2/specification_examples.md` → Phase 2.5 Example 4 for complete alignment summary template
 
 ---
 
@@ -843,114 +453,44 @@ User's explicit requests:
 
 **1. Verify checklist.md is complete:**
 
-Before presenting to user, verify:
-- [ ] All sections populated (Functional, Technical, Integration, Error Handling, Testing, Open Questions, Dependencies)
-- [ ] Each question has Context, User Answer (blank), and Impact on spec.md
+Before presenting, verify:
+- [ ] All sections populated (questions organized by category)
+- [ ] Each question has: Context, Options, Recommendation, Impact
 - [ ] NO items marked `[x]` (agents cannot self-resolve)
-- [ ] Questions are valid (user preferences, edge cases, unknowns - NOT things you should have researched)
+- [ ] Questions are valid (not things you should have researched)
 
-**2. Present checklist to user using the "User Checklist Approval" prompt** from `prompts_reference_v2.md`:
+**2. Present checklist to user:**
 
-```
-Stage 2 (Specification Phase) is complete. I've created checklist.md with {N} questions that need your input:
+Use the "User Checklist Approval" prompt from `prompts_reference_v2.md`:
+- List file location
+- Summarize question count by category
+- Explain user can answer all at once, one at a time, or request clarification
 
-**Checklist Sections:**
-- Functional Questions: {count}
-- Technical Questions: {count}
-- Integration Questions: {count}
-- Error Handling Questions: {count}
-- Testing Questions: {count}
-- Dependencies & Blockers: {count}
-
-**File Location:** `feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/checklist.md`
-
-**Please review checklist.md and answer each question. For each question:**
-1. Read the Context (why this is uncertain)
-2. Choose your preferred approach or provide guidance
-3. I'll update spec.md based on your answers
-
-**You can answer:**
-- All at once (provide answers for all {N} questions)
-- One at a time (we'll go through interactively)
-- Request clarification on any question
-
-**What format works best for you?**
-```
+**See:** `reference/stage_2/specification_examples.md` → Gate 2 Example 1 for complete presentation template
 
 **3. Wait for user response:**
 
-**If user provides answers:**
-- ✅ Update spec.md based on EACH answer
-- ✅ Mark items `[x]` in checklist.md (with user answer documented)
-- ✅ Update "Resolved Questions" section in checklist.md
-- ✅ Continue until ALL questions answered
-- ✅ Document approval in checklist.md
-- ✅ Proceed to "Final Checklist Approval" below
+- **If user provides answers:** Update spec.md + checklist.md, mark resolved
+- **If user requests clarification:** Provide context, explain trade-offs, wait for decision
+- **If user identifies invalid questions:** Remove, add to retrospective
 
-**If user requests clarification:**
-- 🔄 Provide more context for the question
-- 🔄 Explain trade-offs of each option
-- 🔄 Wait for user decision
-- 🔄 Update spec.md based on clarified answer
+**See:** `reference/stage_2/specification_examples.md` → Gate 2 Examples 2-4 for user response patterns
 
-**If user identifies invalid questions:**
-- ❌ Remove questions that should have been researched in STAGE_2a
-- ❌ Add them to retrospective (what should we have researched earlier?)
-- ❌ Continue with remaining valid questions
+**4. Document approval:**
 
-**4. Document approval in checklist.md:**
-
-After user answers ALL questions, add to checklist.md:
-
-```markdown
----
-
-## User Approval Section
-
-**User Reviewed:** {YYYY-MM-DD HH:MM}
-**User Approval:** ✅ APPROVED
-**Total Questions:** {N}
-**User Answered:** {N}
-**Pending:** 0
-
-**User Comments:**
-{Any additional guidance or context from user}
-
-**Gate 2 Status:** ✅ PASSED - All questions answered, spec.md updated accordingly
-
----
-
-**STATUS:** ✅ APPROVED - Ready for Stage 5a (Implementation Planning)
-```
+After ALL questions answered, add User Approval section to checklist.md with:
+- Timestamp, approval status, question counts, user comments, Gate 2 status
 
 **5. Update spec.md with all answers:**
 
-For EACH question answered, update the relevant spec.md section:
-
-**Example:**
-```markdown
-### Data Loading Strategy
-
-**Source:** User Answer to Checklist Q1
-
-User confirmed ADP data will be provided as CSV file with columns: Name, Position, ADP.
-
-**Approach:**
-- Read CSV using csv_utils.read_csv_with_validation
-- Required columns: ['Name', 'Position', 'ADP']
-- ...
-```
+For EACH question, update relevant spec.md section with:
+- Source: User Answer to Checklist Q{N}
+- User's answer (quote or paraphrase)
+- Implementation impact
 
 **6. Update Agent Status:**
 
-```markdown
-### Gate 2 (User Checklist Approval)
-- ✅ checklist.md presented to user
-- ✅ User answered all {N} questions
-- ✅ spec.md updated with user answers
-- ✅ User approval received: {YYYY-MM-DD HH:MM}
-- ✅ Gate 2: PASSED
-```
+Document Gate 2 completion with timestamp and PASSED status
 
 ---
 
@@ -958,28 +498,11 @@ User confirmed ADP data will be provided as CSV file with columns: Name, Positio
 
 **After user answers ALL questions:**
 
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** SPECIFICATION_PHASE (user-approved)
-**Current Step:** STAGE_2b COMPLETE + Gate 2 PASSED
-**Current Guide:** stages/stage_2/phase_1_specification.md (COMPLETE)
-**Guide Last Read:** {YYYY-MM-DD HH:MM}
-
-**Phase 2.5:** ✅ Spec-to-Epic Alignment Check PASSED
-**Gate 2:** ✅ User Checklist Approval PASSED ({YYYY-MM-DD HH:MM})
-
-**Checklist Status:**
-- Total Questions: {N}
-- User Answered: {N}
-- Pending: 0
-- Status: ✅ APPROVED
-
-**spec.md Status:** Updated with all user answers
-**Next Stage:** STAGE_2c (Refinement Phase) - Optional depending on workflow
-**Next Action:** Proceed to Stage 5a (Implementation Planning) OR handle any NEW questions in STAGE_2c if needed
-```
+Update Agent Status in feature README.md:
+- Mark STAGE_2b COMPLETE + Gate 2 PASSED
+- Document checklist status (all answered, pending 0)
+- Note spec.md updated with user answers
+- Identify next action (usually Stage 5a if no NEW questions)
 
 ---
 
@@ -987,16 +510,12 @@ User confirmed ADP data will be provided as CSV file with columns: Name, Positio
 
 **❌ MISTAKE: "I'll research this question and resolve it myself"**
 
-**Why this is wrong:**
-- Gate 2 exists to PREVENT autonomous agent resolution
-- User MUST answer every question
-- This is exactly the problem we're fixing (guide-updates.txt #2)
-- Agents were "resolving" checklist items without user input
+**Why wrong:** Gate 2 prevents autonomous resolution. User MUST answer every question.
 
-**What to do instead:**
+**Correct approach:**
 - ✅ Present checklist to user
 - ✅ WAIT for user answers
-- ✅ Do NOT attempt to research and answer yourself
+- ✅ Do NOT research and answer yourself
 - ✅ Only update spec.md AFTER user provides answer
 
 ---

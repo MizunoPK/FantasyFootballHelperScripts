@@ -41,6 +41,8 @@ Refinement Phase is where you resolve all open questions through interactive dia
 **Exit Condition:**
 Refinement Phase is complete when all checklist questions are resolved, scope is validated, cross-feature alignment is done, and user has approved acceptance criteria
 
+**Examples:** For detailed examples and templates, see `reference/stage_2/refinement_examples.md`
+
 ---
 
 ## Critical Rules
@@ -147,16 +149,12 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 2. **High-impact questions** - Affect algorithm or data structure design
 3. **Low-impact questions** - Implementation details
 
-**Example blocking question:** "What format is the ADP data in?" (affects all other decisions)
-
-**Example high-impact question:** "Should we use fuzzy matching or exact matching for player names?"
-
-**Example low-impact question:** "What should the log message say when ADP data loads?"
-
 **How to identify priority:**
 - Read all open questions in checklist.md
 - Identify dependencies (some questions depend on others)
 - Start with questions that unlock other questions
+
+**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 3 Examples for question prioritization examples
 
 ---
 
@@ -197,33 +195,7 @@ C. **{Option C}**
 - Allow user to suggest alternative
 - Keep context brief but informative
 
-**Example:**
-
-```markdown
-I have a question about Feature 01 (ADP Integration):
-
-## Question 3: Player Name Matching Strategy
-
-**Context:** When matching players from ADP data to our player list, we need to handle name variations (e.g., "A.J. Brown" vs "AJ Brown").
-
-**Options:**
-
-A. **Exact match only (strict)**
-   - Pros: Simple, fast, no false positives
-   - Cons: Will miss players with name variations
-
-B. **Fuzzy matching (Levenshtein distance)**
-   - Pros: Handles variations, fewer missing players
-   - Cons: Potential false positives, slower
-
-C. **Name normalization then exact match**
-   - Pros: Balanced approach, handles common variations
-   - Cons: Need to maintain normalization rules
-
-**My recommendation:** Option C because it handles most real-world cases (initials, spacing) while avoiding false positives from fuzzy matching.
-
-**What do you prefer?**
-```
+**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 3 Examples for complete question-answer cycles
 
 ---
 
@@ -300,47 +272,7 @@ Add requirement with new source:
 - {Dependencies or prerequisites}
 ```
 
-**Example:**
-
-In checklist.md:
-```markdown
-### Question 3: Player Name Matching Strategy
-- [x] **RESOLVED:** Option C - Name normalization then exact match
-
-**User's Answer:**
-"Let's go with option C. Normalize initials (remove periods and spaces) and convert to lowercase before matching."
-
-**Implementation Impact:**
-- Add name normalization function to PlayerManager
-- Apply normalization to both ADP data and player list
-- Match after normalization
-- Need to handle edge cases: multiple middle initials, Jr./Sr. suffixes
-```
-
-In spec.md:
-```markdown
-### Requirement 5: Player Name Matching with Normalization
-
-**Description:** Match players from ADP data to player list using name normalization followed by exact string matching
-
-**Source:** User Answer to Question 3 (checklist.md)
-**Traceability:** User confirmed Option C on 2025-01-02
-
-**Implementation:**
-- Create name normalization function:
-  - Remove periods from initials
-  - Remove all whitespace
-  - Convert to lowercase
-  - Handle suffixes (Jr., Sr., III, etc.)
-- Apply normalization to both data sources before matching
-- Perform exact string match after normalization
-- Log unmatched players for manual review
-
-**Technical Details:**
-- Function signature: normalize_player_name(name: str) -> str
-- Location: utils/player_matching.py (new file)
-- Called from: PlayerManager.load_adp_data()
-```
+**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 3 Examples for complete update examples
 
 ---
 
@@ -351,33 +283,12 @@ In spec.md:
 - Did this answer resolve OTHER questions?
 - Do we need clarification on any part of the answer?
 
-**Examples:**
+**Update checklist.md if needed:**
+- Add new questions that arose from answer
+- Mark other questions resolved if answer made them N/A
+- Document dependencies between questions
 
-**New questions created:**
-- User chose fuzzy matching → NEW QUESTION: "What threshold should we use?" (add to checklist)
-- User chose CSV format → NEW QUESTION: "Where should CSV file be located?" (add to checklist)
-
-**Other questions resolved:**
-- User chose Option A → Questions 5 and 7 are now N/A (mark as resolved with note)
-- User provided implementation details → Question 4 is implicitly answered (mark as resolved)
-
-**Update checklist.md if new questions arose:**
-```markdown
-### Question {N+1}: {New Question} (NEW - from Q{N} answer)
-- [ ] **OPEN**
-
-**Context:** User answered Q{N} with {answer}, which creates need to clarify {new_topic}
-
-**Depends on:** Question {N} (resolved)
-```
-
-**Mark other questions resolved if applicable:**
-```markdown
-### Question 5: {Title}
-- [x] **RESOLVED:** N/A (user's answer to Q3 made this unnecessary)
-
-**Reason:** User chose Option C in Q3, which includes handling for this scenario
-```
+**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 3 Examples for question evaluation examples
 
 ---
 
@@ -423,14 +334,7 @@ Continue asking questions ONE AT A TIME until checklist shows:
 
 ### Step 4.1: Count Checklist Items
 
-**Count all resolved and open items in checklist.md:**
-
-```bash
-# Count checklist items
-# Open items: lines with "- [ ]"
-# Resolved items: lines with "- [x]"
-# Total items: sum of both
-```
+**Count all resolved and open items in checklist.md**
 
 **Document the count:**
 ```markdown
@@ -470,48 +374,9 @@ Continue asking questions ONE AT A TIME until checklist shows:
 
 ### Step 4.3: Propose Feature Split (If >35 Items)
 
-**If checklist >35 items, present split proposal to user:**
+**If checklist >35 items, present split proposal to user**
 
-```markdown
-## Feature Scope Analysis: {Feature Name}
-
-**Current Status:**
-- Checklist items: {total} items
-- Threshold: 35 items (maximum for maintainability)
-- **Assessment:** ⚠️ Feature is too large
-
-**Why This Matters:**
-- Features with >35 items are difficult to implement systematically
-- Testing becomes complex (too many edge cases)
-- Higher risk of bugs and missed requirements
-
-**Proposed Split:**
-
-I recommend splitting this into {N} separate features:
-
-**Feature {N}a: {Name}**
-- Scope: {What this covers}
-- Checklist items: ~{count} items
-- Rationale: {Why this is a logical grouping}
-
-**Feature {N}b: {Name}**
-- Scope: {What this covers}
-- Checklist items: ~{count} items
-- Rationale: {Why this is a logical grouping}
-
-**Dependencies:**
-- Feature {N}a should be implemented first
-- Feature {N}b depends on {N}a completing
-- No circular dependencies
-
-**Next Steps If Approved:**
-1. Return to Stage 1 to create new feature folders
-2. Split spec.md and checklist.md into separate features
-3. Update epic EPIC_README.md with new features
-4. Continue Stage 2 for each new feature
-
-**Do you approve this split?** (or suggest alternative grouping)
-```
+**Use format from:** `reference/stage_2/refinement_examples.md` → Phase 4 Examples → Feature Too Large
 
 **If user approves split:**
 - Document approval in current feature README.md
@@ -531,25 +396,18 @@ I recommend splitting this into {N} separate features:
 
 ### Step 4.4: Check for New Work Discovered
 
-**During question resolution, you may have discovered new work not in original epic:**
-
-**Ask yourself:**
-- Did user answers reveal additional subsystems not mentioned in epic?
-- Did we uncover integration points requiring new features?
-- Did we discover data sources or algorithms beyond original scope?
+**During question resolution, you may have discovered new work not in original epic**
 
 **Decision tree for new work:**
 
 **Option A: New work is independent subsystem**
 - Example: "We need a new CSV parser module"
-- Example: "We need a player name matching library"
 - **Action:** Propose as NEW FEATURE (separate from current feature)
 - **Rationale:** Independent subsystems should be their own features
 - **Next:** Present to user, if approved return to Stage 1
 
 **Option B: New work extends current feature**
 - Example: "We need to add logging to ADP loader"
-- Example: "We need error handling for missing data"
 - **Action:** Add to current feature's spec (expanded scope)
 - **Rationale:** These are implementation details, not separate features
 - **Next:** Update spec.md and checklist.md, continue with current feature
@@ -558,72 +416,7 @@ I recommend splitting this into {N} separate features:
 - **Action:** Document "No scope creep identified"
 - **Next:** Proceed to Phase 5
 
-**If Option A (New Feature), present to user:**
-
-```markdown
-## New Work Discovered: {Name}
-
-**What We Found:**
-During question resolution, we discovered: {description of new work}
-
-**Current Feature:**
-Feature {N}: {Name}
-- Original scope: {brief description}
-
-**New Work:**
-{New work description}
-
-**Assessment:**
-This new work is an independent subsystem that should be its own feature because:
-- {Reason 1: e.g., "Can be developed and tested independently"}
-- {Reason 2: e.g., "Will be reused by multiple features"}
-- {Reason 3: e.g., "Has its own data sources and interfaces"}
-
-**Recommendation:**
-Create new Feature {M}: {New Feature Name}
-- Scope: {What it covers}
-- Dependencies: {What it depends on / what depends on it}
-
-**Impact on Current Feature:**
-- Current feature will DEPEND on new feature
-- Should implement new feature first
-- Current feature's checklist will be reduced by ~{count} items
-
-**Do you want to create this as a separate feature?** (or keep in current feature)
-```
-
-**If user approves new feature:**
-- Return to Stage 1 to create new feature folder
-- Update epic EPIC_README.md
-- Note dependency in current feature spec.md
-- Continue Stage 2 for both features
-
-**If user wants to keep in current feature:**
-- Document decision in current feature README.md
-- Update spec.md and checklist.md with expanded scope
-- Continue with current feature
-
-**If Option B (Expanded Scope), document in spec.md:**
-
-Add new requirements to spec.md:
-```markdown
-### Requirement {N}: {New Requirement}
-
-**Description:** {What this requirement does}
-
-**Source:** Derived Requirement (discovered during question resolution)
-**Traceability:** Emerged from answering Question {M} - user specified {context}
-
-**Implementation:** {Details}
-```
-
-Update checklist.md if new questions arose:
-```markdown
-### Question {N}: {New Question} (NEW - from expanded scope)
-- [ ] **OPEN**
-
-**Context:** Expanded scope requires clarification on {topic}
-```
+**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 4 Examples for new work discovery examples
 
 **Update Agent Status:**
 ```markdown
@@ -648,28 +441,15 @@ Update checklist.md if new questions arose:
 
 **Check epic EPIC_README.md Feature Tracking table:**
 
-Look for features with "Stage 2 Complete" marked [x]:
-
-```markdown
-| Feature | Name | Stage 2 Complete | Stage 5 Complete |
-|---------|------|------------------|------------------|
-| 01      | ADP Integration | [x] | [ ] |
-| 02      | Matchup Ratings | [ ] | [ ] |  ← Current feature
-| 03      | Trade Analyzer  | [ ] | [ ] |
-```
-
-**In this example:**
-- Feature 01 has Stage 2 Complete = [x]
-- Feature 02 (current) is finishing Stage 2
-- Must compare Feature 02 to Feature 01
+Look for features with "Stage 2 Complete" marked [x]
 
 **Document:**
 ```markdown
 **Features to Compare:**
-- Feature 01: ADP Integration (completed Stage 2)
+- Feature {M}: {Name} (completed Stage 2)
 
 **Current Feature:**
-- Feature 02: Matchup Ratings
+- Feature {N}: {Name}
 ```
 
 **If this is the first feature:**
@@ -692,141 +472,16 @@ Look for features with "Stage 2 Complete" marked [x]:
 
 **Create comparison document:**
 
-`epic/research/ALIGNMENT_{current_feature}_vs_{other_feature}.md`:
+`epic/research/ALIGNMENT_{current_feature}_vs_{other_feature}.md`
 
-```markdown
-# Alignment Check: Feature {N} vs Feature {M}
+**Use template from:** `reference/stage_2/refinement_examples.md` → Phase 5 Examples → Complete Feature Comparison
 
-**Date:** {YYYY-MM-DD}
-**Current Feature:** Feature {N}: {Name}
-**Comparison Target:** Feature {M}: {Name} (Stage 2 Complete)
-
----
-
-## Comparison Categories
-
-### 1. Components Affected
-
-**Feature {N} modifies:**
-- {Component 1}
-- {Component 2}
-- {Component 3}
-
-**Feature {M} modifies:**
-- {Component A}
-- {Component B}
-- {Component C}
-
-**Overlap Analysis:**
-- ✅ No overlap (different components)
-- ⚠️ Both modify {Component X} (potential conflict)
-  - Feature {N} assumption: {what current feature assumes}
-  - Feature {M} assumption: {what other feature assumes}
-  - **Conflict?** {YES/NO}
-  - **Resolution:** {How to resolve}
-
----
-
-### 2. Data Structures
-
-**Feature {N} introduces/modifies:**
-- {Data structure 1}
-- {Data structure 2}
-
-**Feature {M} introduces/modifies:**
-- {Data structure A}
-- {Data structure B}
-
-**Overlap Analysis:**
-- ✅ No overlap (different data structures)
-- ⚠️ Both use {Data X}
-  - Feature {N} expects format: {format description}
-  - Feature {M} expects format: {format description}
-  - **Conflict?** {YES/NO}
-  - **Resolution:** {How to resolve}
-
----
-
-### 3. Requirements
-
-**Feature {N} requirements:**
-- {Requirement 1}
-- {Requirement 2}
-
-**Feature {M} requirements:**
-- {Requirement A}
-- {Requirement B}
-
-**Overlap Analysis:**
-- ✅ No duplicate requirements
-- ⚠️ Similar requirement: {description}
-  - Feature {N}: {how it's implemented}
-  - Feature {M}: {how it's implemented}
-  - **Duplicate work?** {YES/NO}
-  - **Resolution:** {Combine into shared utility / keep separate}
-
----
-
-### 4. Assumptions
-
-**Feature {N} assumptions:**
-- {Assumption 1}
-- {Assumption 2}
-
-**Feature {M} assumptions:**
-- {Assumption A}
-- {Assumption B}
-
-**Compatibility Check:**
-- ✅ Compatible assumptions
-- ⚠️ Incompatible assumptions:
-  - Feature {N} assumes: {assumption}
-  - Feature {M} assumes: {conflicting assumption}
-  - **Impact:** {What breaks if both are true}
-  - **Resolution:** {How to resolve}
-
----
-
-### 5. Integration Points
-
-**Does Feature {N} depend on Feature {M}?**
-- {YES/NO}
-- If YES: {What dependency, how to handle}
-
-**Does Feature {M} depend on Feature {N}?**
-- {YES/NO}
-- If YES: {What dependency, implementation order}
-
-**Circular dependency?**
-- {YES/NO}
-- If YES: **CRITICAL** - Must resolve before implementation
-
----
-
-## Summary
-
-**Total Conflicts Found:** {count}
-
-**Critical Conflicts (must resolve):**
-1. {Conflict 1}
-   - Resolution: {How to fix}
-2. {Conflict 2}
-   - Resolution: {How to fix}
-
-**Minor Conflicts (nice to resolve):**
-1. {Conflict 3}
-   - Resolution: {How to fix}
-
-**No Conflicts:**
-- {Category} - No overlap
-
-**Action Items:**
-- [ ] Update Feature {N} spec.md: {what to change}
-- [ ] Update Feature {M} spec.md: {what to change} (requires revisiting completed feature)
-- [ ] Document resolution in both features
-
-**Alignment Status:** {PASS / CONFLICTS FOUND}
-```
+**Comparison categories:**
+1. Components Affected (overlapping files/modules)
+2. Data Structures (overlapping data formats)
+3. Requirements (duplicate work)
+4. Assumptions (incompatible assumptions)
+5. Integration Points (dependencies)
 
 ---
 
@@ -851,80 +506,21 @@ Look for features with "Stage 2 Complete" marked [x]:
 - Both features depend on Feature X
 - Return to Stage 1 to create new feature
 
-**Document resolution:**
+**Document resolution in both specs**
 
-Update current feature's spec.md:
-```markdown
-### Cross-Feature Alignment Notes
-
-**Feature {M} Alignment ({Date}):**
-- Conflict: {Description}
-- Resolution: {What we changed}
-- Impact: {How this affects implementation}
-```
-
-Update alignment document:
-```markdown
-**Conflict 1: RESOLVED**
-- Original conflict: {description}
-- Resolution chosen: {Option A/B/C}
-- Changes made:
-  - Feature {N}: {what changed}
-  - Feature {M}: {what changed}
-- Verified by: Agent
-- Date: {YYYY-MM-DD}
-```
+**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 5 Examples → Alignment with Conflicts Found
 
 ---
 
 ### Step 5.4: Get User Confirmation on Conflicts (If Any)
 
-**If CRITICAL conflicts found, present to user:**
-
-```markdown
-## Cross-Feature Alignment: Conflicts Found
-
-I compared Feature {N} ({Current}) to Feature {M} ({Completed}) and found {count} conflicts:
-
-### Conflict 1: {Name}
-
-**Issue:**
-- Feature {N} assumes: {assumption 1}
-- Feature {M} assumes: {assumption 2}
-- These are incompatible because: {reason}
-
-**Impact:**
-- {What breaks if not resolved}
-
-**Proposed Resolution:**
-{Recommended fix}
-
-**Alternatives:**
-{Other options}
-
----
-
-### Conflict 2: {Name}
-
-{Same format}
-
----
-
-**My Recommendation:**
-{Overall recommendation for resolving conflicts}
-
-**Do you approve this resolution?** (or suggest alternative)
-```
+**If CRITICAL conflicts found, present to user using format from:**
+`reference/stage_2/refinement_examples.md` → Phase 5 Examples
 
 **If user approves resolution:**
 - Update spec.md and checklist.md
 - Document approval in alignment report
 - Update completed feature if needed
-- Continue to Step 5.5
-
-**If user suggests alternative:**
-- Update spec.md with user's approach
-- Document user decision
 - Continue to Step 5.5
 
 **If NO conflicts found:**
@@ -982,154 +578,18 @@ I compared Feature {N} ({Current}) to Feature {M} ({Completed}) and found {count
 
 **Add to spec.md (near the end, before any appendices):**
 
-```markdown
----
+**Use template from:** `reference/stage_2/refinement_examples.md` → Phase 6 Examples → Complete Acceptance Criteria
 
-## Acceptance Criteria (USER MUST APPROVE)
-
-**Feature {N}: {Name}**
-
-When this feature is complete, the following will be true:
-
-### Behavior Changes
-
-**New Functionality:**
-1. {Exact new behavior 1}
-   - Example: "User can run `python run_simulation.py --use-adp` and simulation will incorporate ADP data"
-2. {Exact new behavior 2}
-   - Example: "PlayerManager will load ADP data from data/adp/fantasy_pros_adp.csv on initialization"
-
-**Modified Functionality:**
-1. {What changes in existing behavior}
-   - Before: {How it works now}
-   - After: {How it will work}
-
-**No Changes:**
-- {What explicitly does NOT change}
-- Example: "Draft mode UI will not change"
-
----
-
-### Files Modified
-
-**New Files Created:**
-1. `{path/to/new_file.py}`
-   - Purpose: {What this file does}
-   - Exports: {Classes/functions it provides}
-
-2. `{path/to/another_file.py}`
-   - Purpose: {What this file does}
-
-**Existing Files Modified:**
-1. `{path/to/existing_file.py}`
-   - Lines modified: Approximately {range}
-   - Changes: {Summary of changes}
-   - Methods added: {List new methods}
-   - Methods modified: {List modified methods}
-
-**Data Files:**
-1. `{path/to/data_file.csv}` (NEW)
-   - Format: {Column structure}
-   - Source: {Where data comes from}
-
----
-
-### Data Structures
-
-**New Data Structures:**
-1. `{ClassName}` class
-   - Location: {file path}
-   - Fields: {List fields}
-   - Purpose: {What it represents}
-
-**Modified Data Structures:**
-1. `{ExistingClass}` class
-   - New fields: {List new fields}
-   - Modified fields: {List modified fields}
-
----
-
-### API/Interface Changes
-
-**New Public Methods:**
-1. `{ClassName}.{method_name}({params}) -> {return_type}`
-   - Purpose: {What it does}
-   - Parameters: {Describe each param}
-   - Returns: {Describe return value}
-
-**Modified Public Methods:**
-1. `{ClassName}.{method_name}({params})`
-   - Change: {What's different}
-   - Backward compatible: {YES/NO}
-
-**No API Changes:**
-- {What methods/classes do NOT change}
-
----
-
-### Testing
-
-**New Tests:**
-- Unit tests: ~{count} tests for new functionality
-- Integration tests: {count} tests for feature interactions
-- Test files: `tests/{path}/test_{feature}.py`
-
-**Test Coverage:**
-- Target: 100% coverage for new code
-- Edge cases covered: {List key edge cases}
-
----
-
-### Dependencies
-
-**This Feature Depends On:**
-- {Feature X} (must be implemented first)
-- {Library Y} (must be installed)
-
-**Features That Depend On This:**
-- {Feature Z} (blocks until this completes)
-
-**External Dependencies:**
-- {Data source / API / file format}
-
----
-
-### Edge Cases & Error Handling
-
-**Edge Cases Handled:**
-1. {Edge case 1}
-   - Behavior: {How it's handled}
-2. {Edge case 2}
-   - Behavior: {How it's handled}
-
-**Error Conditions:**
-1. {Error condition 1}
-   - User sees: {Error message}
-   - System does: {Fallback behavior}
-
----
-
-### Documentation
-
-**User-Facing Documentation:**
-- README.md updated with: {What sections}
-- Examples added: {What examples}
-
-**Developer Documentation:**
-- Docstrings added to: {Which files}
-- Architecture docs updated: {Which docs}
-
----
-
-## User Approval
-
-- [ ] **I approve these acceptance criteria**
-
-**Approval Timestamp:** {YYYY-MM-DD HH:MM} (to be filled after approval)
-
-**Approval Notes:**
-{Any clarifications or modifications requested by user}
-```
+**Required sections:**
+1. **Behavior Changes** (new functionality, modified functionality, no changes)
+2. **Files Modified** (new files, existing files modified, data files)
+3. **Data Structures** (new structures, modified structures)
+4. **API/Interface Changes** (new methods, modified methods, no changes)
+5. **Testing** (test counts, coverage targets, edge cases)
+6. **Dependencies** (depends on, blocks, external dependencies)
+7. **Edge Cases & Error Handling** (edge cases handled, error conditions)
+8. **Documentation** (user-facing, developer documentation)
+9. **User Approval** (checkbox, timestamp placeholder, notes)
 
 ---
 
@@ -1183,6 +643,8 @@ If you want changes:
 **Do you approve these acceptance criteria?**
 ```
 
+**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 6 Examples → User Approval Process
+
 ---
 
 ### Step 6.3: WAIT for User Approval
@@ -1232,64 +694,26 @@ Continue to Step 6.5 (Mark Feature Complete)
 
 **If user REQUESTS CHANGES:**
 
-1. **Document requested changes:**
-   ```markdown
-   **User Feedback ({Date}):**
-   - {Change request 1}
-   - {Change request 2}
-   ```
+1. Document requested changes
+2. Update spec.md based on feedback
+3. Update checklist.md if new questions arose
+4. Re-present updated acceptance criteria
+5. Wait for approval again (return to Step 6.3)
 
-2. **Update spec.md based on feedback:**
-   - Modify requirements
-   - Update acceptance criteria
-   - Adjust file modifications if needed
-
-3. **Update checklist.md if new questions arose:**
-   - Add new questions to checklist
-   - Return to Phase 3 if major changes
-   - Stay in Phase 6 if minor tweaks
-
-4. **Re-present updated acceptance criteria:**
-   ```markdown
-   I've updated the acceptance criteria based on your feedback:
-
-   **Changes Made:**
-   - {Change 1}
-   - {Change 2}
-
-   **Updated Acceptance Criteria:**
-   {Summary of updated criteria}
-
-   **Do you approve the updated acceptance criteria?**
-   ```
-
-5. **Wait for approval again (return to Step 6.3)**
+**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 6 Examples for change handling
 
 ---
 
 **If user REJECTS (major changes needed):**
 
-1. **Document rejection:**
-   ```markdown
-   **User Rejection ({Date}):**
-   Reason: {Why rejected}
-   Required changes: {What needs to change fundamentally}
-   ```
-
-2. **Determine what phase to return to:**
-   - **Fundamental misunderstanding:** Return to Phase 0 (Epic Intent)
-   - **Research gap:** Return to Phase 1 (Targeted Research)
-   - **Wrong requirements:** Return to Phase 2 (Spec & Checklist)
-   - **Wrong answers to questions:** Return to Phase 3 (Question Resolution)
-
-3. **Update Agent Status:**
-   ```markdown
-   **Progress:** Returning to Phase {N} due to user feedback
-   **Next Action:** {Specific action needed}
-   **Blockers:** None
-   ```
-
-4. **Return to appropriate phase and restart from there**
+1. Document rejection
+2. Determine what phase to return to:
+   - Fundamental misunderstanding → Return to Phase 0 (Epic Intent)
+   - Research gap → Return to Phase 1 (Targeted Research)
+   - Wrong requirements → Return to Phase 2 (Spec & Checklist)
+   - Wrong answers to questions → Return to Phase 3 (Question Resolution)
+3. Update Agent Status
+4. Return to appropriate phase and restart from there
 
 ---
 
