@@ -1,16 +1,17 @@
-# Lessons Learned Examples - Stage 7
+# Lessons Learned Examples - Stage 7.5
 
 **Purpose:** Examples and guidance for reading and applying lessons learned
-**When to use:** Step 4 of Stage 7 (Update Guides)
-**Main Guide:** `stages/stage_7/epic_cleanup.md`
+**When to use:** Stage 7.5 (Guide Update from Lessons Learned)
+**Main Guide:** `stages/stage_7/guide_update_workflow.md`
 
 ---
 
 ## Overview
 
-Stage 7 Step 4 requires finding ALL lessons learned files and applying them to guides. This reference provides:
+Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learned files and creating user-approved guide update proposals. This reference provides:
 - Examples of what lessons learned files look like
 - How to extract guide improvements from lessons
+- How lessons map to priority levels (P0-P3)
 - How to apply lessons systematically
 
 ---

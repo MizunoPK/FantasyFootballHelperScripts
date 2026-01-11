@@ -2,7 +2,7 @@
 
 **Purpose:** Comprehensive list of ALL mandatory gates from Stage 1-7
 **Use Case:** Quick lookup for gate requirements, criteria, and failure consequences
-**Total Gates:** 15 across 7 stages (NEW: Gate added in Stage 2b for checklist approval)
+**Total Gates:** 16 across 7 stages (NEW: Gate 4.5 added for early test plan approval)
 
 ---
 
@@ -16,7 +16,7 @@
 | **2b** | **Phase 2.6 Checklist Approval (NEW)** | **STAGE_2b** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
 | 2c | Phase 6 User Approval | STAGE_2c | User explicitly approves | Yes (Phase 6) |
 | 3 | User Sign-Off | STAGE_3 | User approves complete plan | Yes (Stage 3) |
-| 4 | None | - | Update test plan | No |
+| **4** | **Epic Test Plan Approval (NEW)** | **After Stage 4** | **User approves epic_smoke_test_plan.md** | **Yes (Revise test plan)** |
 | 5aa | Iteration 4a | Round 1 | All tasks have acceptance criteria | Yes (Iteration 4) |
 | 5ac | Iteration 23a | Part 2 | ALL 4 PARTS pass with 100% | Yes (Iteration 23a) |
 | 5ac | Iteration 25 | Part 2 | Spec matches validated docs | Yes (User decides) |
@@ -190,13 +190,56 @@
 
 ---
 
-## Stage 4: Epic Testing Strategy
+## Stage 4: Epic Testing Strategy (1 gate per epic - NEW)
 
-### No Mandatory Gates
+### Gate 4.5: Epic Test Plan Approval (🚨 NEW MANDATORY GATE)
 
-**Output:** Updated epic_smoke_test_plan.md
+**Location:** stages/stage_4/epic_testing_strategy.md
+**When:** After updating epic_smoke_test_plan.md (before Stage 5a begins)
 
-**User approval recommended** but not mandatory
+**What it checks:**
+- User reviews updated epic_smoke_test_plan.md
+- User approves epic testing strategy BEFORE implementation planning begins
+- Agent knows testing requirements before creating implementation plans
+
+**Pass Criteria:**
+- Agent presents epic_smoke_test_plan.md with:
+  - Measurable success criteria (5-10 criteria)
+  - Specific test scenarios (4-8 scenarios)
+  - Integration points between features
+  - Data quality checks (verify VALUES not just structure)
+  - Concrete commands and expected outputs
+- User explicitly approves test plan
+- User says "approved" or "looks good" or equivalent
+
+**Evidence Required:**
+- epic_smoke_test_plan.md shows N measurable success criteria
+- epic_smoke_test_plan.md shows N test scenarios
+- All integration points from Stage 3 incorporated
+- User Approval section completed with timestamp
+- Gate 4.5 Status: ✅ PASSED documented in EPIC_README.md
+
+**If FAIL (user requests changes):**
+- Revise epic_smoke_test_plan.md based on user feedback
+- Re-present test plan for user approval
+- Cannot proceed to Stage 5a without user approval
+
+**Why it matters:**
+- Addresses guide-updates.txt #10: "Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself."
+- Agent knows EXACTLY how to test work BEFORE creating implementation plans
+- User can adjust test strategy early (Stage 4 vs Stage 5a Round 3)
+- Prevents creating implementation plans without knowing testing requirements
+- Separates test WHAT (Stage 4) from implement HOW (Stage 5a)
+- Earlier feedback loop (Stage 4 approval vs Stage 5a Round 3 approval)
+
+**Benefits:**
+- Agent creates better implementation plans knowing exact testing requirements
+- User sees test strategy early (cheap to change)
+- Prevents discovering test strategy misalignment late (expensive to fix)
+- Test strategy guides implementation planning (not vice versa)
+- Clear separation: test plan approval (Gate 4.5) vs implementation plan approval (Gate 5)
+
+**From Enhancement:** This gate ensures agents know HOW to test work BEFORE planning implementation, creating earlier user visibility and control.
 
 ---
 
@@ -535,11 +578,11 @@
 
 ## Summary Statistics
 
-**Total Mandatory Gates:** 14
+**Total Mandatory Gates:** 16
 - Stage 1: 0
 - Stage 2: 3 (per feature, so 3×N for N features)
 - Stage 3: 1
-- Stage 4: 0
+- Stage 4: 1 (Gate 4.5 - Epic Test Plan Approval - NEW)
 - Stage 5a: 5 (per feature, including user approval)
 - Stage 5c: 2 (per feature)
 - Stage 6: 0 (but restart protocol similar)
@@ -561,11 +604,13 @@
 - Smoke Part 3 → Smoke Part 1
 - QC Round 3 → Smoke Part 1
 
-**Gates Requiring User Input:** 4
+**Gates Requiring User Input:** 6
+- Phase 2.6: User approval (checklist questions)
 - Phase 6: User approval (acceptance criteria)
 - Stage 3: User sign-off (epic plan)
+- Gate 4.5: User approval (epic test plan - NEW)
 - Iteration 25: User decision (if discrepancies)
-- Gate 5a.5: User approval (implementation plan)
+- Gate 5: User approval (implementation plan)
 - Gate 7.2: User testing approval
 
 ---

@@ -62,6 +62,10 @@ User creates {epic_name}.txt
 │ Time: 30-45 minutes                         │
 └─────────────────────────────────────────────┘
          ↓
+    [🚨 GATE 4.5: User approves test plan?]
+    ├─ NO → Revise test plan → Re-present
+    └─ YES → Proceed
+         ↓
 ┌─────────────────────────────────────────────┐
 │ STAGE 5: Feature Implementation             │
 │ - Loop PER FEATURE (5a→5b→5c→5d→5e)        │
@@ -116,7 +120,7 @@ User creates {epic_name}.txt
 Single Feature Journey (5a → 5b → 5c → 5d → 5e)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Prerequisites: Stage 4 complete, feature spec ready
+Prerequisites: Stage 4 complete (Gate 4.5 passed), feature spec ready
          ↓
 ┌─────────────────────────────────────────────┐
 │ Stage 5a: TODO Creation                     │
@@ -191,7 +195,7 @@ Prerequisites: Stage 4 complete, feature spec ready
 TODO Creation - 24 Verification Iterations Across 3 Rounds
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Entry: Stage 4 complete, feature spec.md ready
+Entry: Stage 4 complete (Gate 4.5 passed), feature spec.md ready
          ↓
 ┌─────────────────────────────────────────────┐
 │ ROUND 1: Initial TODO Creation              │

@@ -2,7 +2,7 @@
 
 **Purpose:** One-page summary for updating epic test plan with concrete scenarios
 **Use Case:** Quick lookup when transforming placeholder test plan into actionable tests
-**Total Time:** 30-45 minutes
+**Total Time:** 30-45 minutes (agent work) + user approval time
 
 ---
 
@@ -38,8 +38,10 @@ STEP 5: Update epic_smoke_test_plan.md (5-10 min)
     ├─ Mark as "Stage 4 version - will update in Stage 5e"
     └─ Update Update Log (what changed from Stage 1)
     ↓
-STEP 6: Mark Complete (2 min)
+STEP 6: Mark Complete (2 min + user approval time)
     ├─ Update epic EPIC_README.md (Stage 4 complete)
+    ├─ 🚨 Gate 4.5: Present test plan to user (MANDATORY)
+    ├─ Wait for user approval
     └─ Transition to Stage 5
 ```
 
@@ -54,7 +56,7 @@ STEP 6: Mark Complete (2 min)
 | 3 | 5-10 min | Define measurable success criteria | Epic success criteria | No |
 | 4 | 10-15 min | Create concrete test scenarios | Test scenarios | No |
 | 5 | 5-10 min | Update epic_smoke_test_plan.md | Updated test plan | No |
-| 6 | 2 min | Mark complete | EPIC_README updated | No |
+| 6 | 2 min + user time | Mark complete + user approval | EPIC_README updated | **YES - Gate 4.5** |
 
 ---
 
@@ -165,6 +167,7 @@ python run_league_helper.py --mode draft
 - ✅ Include both feature-level AND epic-level tests
 - ✅ Mark update in Update Log (what changed, why)
 - ✅ Update epic EPIC_README.md Epic Completion Checklist
+- ✅ 🚨 **Gate 4.5: User MUST approve test plan before Stage 5a (MANDATORY)**
 
 ---
 
@@ -241,6 +244,9 @@ python run_league_helper.py --mode draft
 
 **Step 6 → Stage 5:**
 - [ ] epic EPIC_README.md updated (Stage 4 complete)
+- [ ] 🚨 Gate 4.5: epic_smoke_test_plan.md presented to user (MANDATORY)
+- [ ] User approved test plan
+- [ ] Gate 4.5 marked ✅ PASSED in EPIC_README.md
 - [ ] Agent Status updated (next: Stage 5)
 
 ---
@@ -321,10 +327,12 @@ python run_league_helper.py --mode draft
 - [ ] Marked as "Stage 4 version - will update in Stage 5e"
 - [ ] Update Log documents changes from Stage 1
 - [ ] epic EPIC_README.md shows Stage 4 complete
+- [ ] 🚨 **Gate 4.5: User approved epic_smoke_test_plan.md (MANDATORY)**
+- [ ] Gate 4.5 marked ✅ PASSED in EPIC_README.md
 - [ ] Ready to start Stage 5 (Feature Implementation)
 
 **Next Stage:** Stage 5 (Feature Implementation) - start with first feature
 
 ---
 
-**Last Updated:** 2026-01-04
+**Last Updated:** 2026-01-10

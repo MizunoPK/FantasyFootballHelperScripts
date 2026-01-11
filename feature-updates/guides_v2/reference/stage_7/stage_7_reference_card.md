@@ -1,8 +1,9 @@
 # STAGE 7: Epic Cleanup - Quick Reference Card
 
 **Purpose:** One-page summary for final epic completion and archival
-**Use Case:** Quick lookup when committing changes, testing with user, and archiving epic
-**Total Time:** 15-30 minutes (+ user testing time)
+**Use Case:** Quick lookup when committing changes and archiving epic
+**Total Time:** 40-80 minutes (includes Stage 7.5 guide updates)
+**Note:** User testing completed in Stage 6 (Step 6) before Stage 7 begins
 
 ---
 
@@ -27,21 +28,17 @@ STEP 3: Documentation Verification (5-10 min)
     ├─ Verify all feature README.md files complete
     └─ Update any incomplete documentation
     ↓
-STEP 4: Update Guides (10-20 min)
-    ├─ Find ALL lessons_learned.md files (epic + features + bugfixes)
-    ├─ Extract lessons from EACH file
-    ├─ Create master checklist of ALL proposed guide updates
-    ├─ Apply EACH lesson to guides (100% application required)
-    └─ Update CLAUDE.md if workflow changed
+STEP 4: Guide Update from Lessons Learned (20-45 min) ← Stage 7.5 MANDATORY
+    ├─ Read guide_update_workflow.md (complete 9-step process)
+    ├─ Analyze ALL lessons_learned.md files (epic + features)
+    ├─ Create GUIDE_UPDATE_PROPOSAL.md (prioritized P0-P3)
+    ├─ Present EACH proposal to user (individual approval)
+    ├─ User decides: Approve / Modify / Reject / Discuss
+    ├─ Apply only approved changes to guides
+    ├─ Create separate commit for guide updates
+    └─ Update guide_update_tracking.md
     ↓
-STEP 5: User Testing & Bug Fix Protocol (Variable) ← MANDATORY GATE
-    ├─ Ask user to test complete system themselves
-    ├─ User reports any bugs discovered
-    ├─ If bugs found → Follow bug fix protocol (Stage 2→5a→5b→5c)
-    ├─ After bug fixes → RESTART Stage 6 (Epic Final QC)
-    └─ Return to Stage 7 only when user testing passes with ZERO bugs
-    ↓
-STEP 6: Final Commit & Pull Request (5-10 min)
+STEP 5: Final Commit & Pull Request (5-10 min)
     ├─ Review changes (git status, git diff)
     ├─ Stage all epic-related changes
     ├─ Create commit: "{commit_type}/KAI-{number}: {message}"
@@ -50,13 +47,13 @@ STEP 6: Final Commit & Pull Request (5-10 min)
     ├─ Wait for user to review and merge PR
     └─ Update EPIC_TRACKER.md after user merges
     ↓
-STEP 7: Move Epic to done/ Folder (2 min)
+STEP 6: Move Epic to done/ Folder (2 min)
     ├─ Create done/ folder if doesn't exist
     ├─ Move entire epic folder: mv {epic}/ done/{epic}/
     ├─ Verify move successful
     └─ Leave original epic request (.txt) in root
     ↓
-STEP 8: Final Verification & Completion (2 min)
+STEP 7: Final Verification & Completion (2 min)
     ├─ Verify epic in done/ folder
     ├─ Verify git clean state
     ├─ Update EPIC_README.md with completion summary
@@ -72,15 +69,16 @@ STEP 8: Final Verification & Completion (2 min)
 | 1 | 5 min | Pre-cleanup verification | No |
 | 2 | 5-10 min | Run unit tests (100% pass) | ✅ YES |
 | 3 | 5-10 min | Documentation verification | No |
-| 4 | 10-20 min | Update guides (apply lessons) | No |
-| 5 | Variable | User testing (ZERO bugs) | ✅ YES |
-| 6 | 5-10 min | Final commit, merge, push | No |
-| 7 | 2 min | Move epic to done/ | No |
-| 8 | 2 min | Final verification | No |
+| 4 | 20-45 min | Guide updates (Stage 7.5, user approval) | No |
+| 5 | 5-10 min | Final commit, create PR, merge | No |
+| 6 | 2 min | Move epic to done/ | No |
+| 7 | 2 min | Final verification | No |
+
+**Note:** User testing was moved to Stage 6 (Step 6) - Stage 7 only begins after user testing passes with zero bugs.
 
 ---
 
-## Mandatory Gates (2 Required)
+## Mandatory Gates (1 Required in Stage 7)
 
 ### Gate 1: Unit Tests - 100% Pass (Step 2)
 **Location:** stages/stage_7/epic_cleanup.md Step 2
@@ -100,45 +98,27 @@ python tests/run_all_tests.py
 
 **Why mandatory:** Cannot commit code with failing tests
 
-### Gate 2: User Testing - ZERO Bugs (Step 5)
-**Location:** stages/stage_7/epic_cleanup.md Step 5
-**What it checks:**
-- User tests complete system themselves
-- User reports any bugs found
-- All bugs fixed before commit
-
-**Pass Criteria:** User testing passes with ZERO bugs
-**If FAIL:** Create bug fixes → RESTART Stage 6 → Return to Step 5 → Repeat until ZERO bugs
-
-**Why mandatory:** User must validate epic works as expected before archival
+**Note:** User Testing (formerly Gate 2) has been moved to Stage 6 (Step 6). Stage 7 only begins after user testing passes with ZERO bugs.
 
 ---
 
-## Bug Fix Protocol During User Testing
+## Prerequisites from Stage 6
 
-### If User Finds Bugs:
+### User Testing Already Complete
+**Location:** stages/stage_6/epic_final_review.md Step 6
+**What was checked:**
+- User tested complete system themselves
+- User reported ZERO bugs
+- All previous bugs fixed and Stage 6 re-run
 
-**1. DO NOT commit with bugs**
-   - User testing is MANDATORY before commit
-   - Cannot proceed with known bugs
+**Verified before Stage 7:** User testing passed with ZERO bugs
 
-**2. Create bug fixes:**
-   - Use bug fix workflow (Stage 2 → 5a → 5b → 5c)
-   - High priority bug fixes (blocks epic completion)
-
-**3. RESTART Stage 6:**
-   - After ALL bug fixes complete
-   - COMPLETE restart from Stage 6a (Epic Smoke Testing)
-   - Re-run all steps (6a → 6b → 6c)
-
-**4. Return to Step 5:**
-   - Ask user to test again
-   - Repeat until ZERO bugs
-
-**5. ONLY THEN proceed to Step 6:**
-   - User approval obtained
-   - ZERO bugs remaining
-   - Ready to commit
+**If bugs found in Stage 6:**
+- Create bug fixes (Stage 2 → 5a → 5b → 5c)
+- RESTART Stage 6 from 6a (Epic Smoke Testing)
+- Re-run all Stage 6 steps (6a → 6b → 6c)
+- User re-tests in Stage 6 Step 6
+- Only proceed to Stage 7 after user approval (ZERO bugs)
 
 ---
 
@@ -376,7 +356,7 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 ## Exit Conditions
 
 **Stage 7 is complete when:**
-- [ ] All 8 steps complete (1-8)
+- [ ] All 7 steps complete (1-7)
 - [ ] Pre-cleanup verification passed
 - [ ] Unit tests passed (100%)
 - [ ] Documentation verified complete
