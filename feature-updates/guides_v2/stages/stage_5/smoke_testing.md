@@ -4,7 +4,7 @@
 
 **Stage Flow Context:**
 ```
-Stage 5a (TODO Creation) → Stage 5b (Implementation) →
+Stage 5a (Implementation Planning) → Stage 5b (Implementation) →
 → [YOU ARE HERE: Stage 5ca - Smoke Testing] →
 → Stage 5cb (QC Rounds) → Stage 5cc (Final Review) →
 → Stage 5d (Cross-Feature Alignment)
@@ -106,7 +106,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 **Verify these BEFORE starting Smoke Testing:**
 
 **From Stage 5b (Implementation):**
-- [ ] All TODO tasks marked done in `todo.md`
+- [ ] All implementation tasks marked done in `implementation_checklist.md`
 - [ ] All unit tests passing (100% pass rate)
 - [ ] `code_changes.md` fully updated with all changes
 - [ ] `implementation_checklist.md` all requirements verified
@@ -115,7 +115,8 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 **Files that must exist:**
 - [ ] `feature_XX_{name}/spec.md` (primary specification)
 - [ ] `feature_XX_{name}/checklist.md` (planning decisions)
-- [ ] `feature_XX_{name}/todo.md` (implementation tasks)
+- [ ] `feature_XX_{name}/implementation_plan.md` (implementation guidance)
+- [ ] `feature_XX_{name}/implementation_checklist.md` (progress tracking)
 - [ ] `feature_XX_{name}/code_changes.md` (change documentation)
 - [ ] `feature_XX_{name}/implementation_checklist.md` (requirement verification)
 

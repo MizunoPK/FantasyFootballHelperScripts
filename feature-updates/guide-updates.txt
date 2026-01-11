@@ -1,13 +1,106 @@
-Examine if it is worth combining the spec and todo files
-Require ALL checklist items to be confirmed by the user. Stop resolving anything on their own, including things the agent thinks is straightfoward
-Require the user to be shown an overview of the expected code changes, and let them approve the plan
-Improve the PR process. Currently pretty much nothing is being caught or improved
-Improve the planning for new unit tests and catching failing unit tests during the TODO implementation. Really hammer in the test-driven development
-After changes have been completed, provide an overview of the changes and how they differ from the initial plan. Have the user approve them
-I want a way to more easily let the user do their own PR
-Turn spec/todo creation into a loop, where it keeps skeptically reviewing the docs until it has no questions
-Turn PR into a loop, where it keeps examining with fresh eyes until there is nothing left to comment on
-Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself. 
-When applying lessons learned to guides, have the user approve the guide changes first and let them give their input on how to go about doing them
-Make sure ALL lessons learned docs are assessed for guide updates. We often only end up looking at the epic-level one
-For each checklist item in the debugging protocol, as its resolved it MUST consider WHY the bug existed in the first place. We want to refine the guides to prevent the bug from ever appearing in similar circumstances in the future. It should then confirm the potential 'lessons learned' with the user, and if the user agrees then add the info to lessons learned docs.
+✅ #1: Examine if it is worth combining the spec and todo files
+   - ADDRESSED: Replaced todo.md (3,896 lines) with implementation_plan.md (~400 lines) + implementation_checklist.md (~50 lines)
+   - Separation of concerns: spec.md (requirements) ≠ implementation_plan.md (implementation) ≠ implementation_checklist.md (progress)
+   - 0% duplication (previously 80% duplication between spec.md and todo.md)
+   - Implementation: PROPOSAL_implementation_plan_approach.md (2026-01-10)
+
+✅ #2: Require ALL checklist items to be confirmed by the user. Stop resolving anything on their own, including things the agent thinks is straightfoward
+   - FULLY ADDRESSED: Two-gate approach ensures zero autonomous resolution
+   - **Gate 2 (User Checklist Approval - NEW):** User answers ALL checklist questions after Stage 2 spec creation
+     - Agents create QUESTIONS only (no autonomous resolution)
+     - User must answer every question before Stage 5a
+     - checklist.md changed to question-only format
+     - Implementation: phase_1_specification.md Phase 2.6, mandatory_gates.md Gate 3, stage_2_prompts.md
+   - **Gate 5 (User Implementation Plan Approval):** User approves implementation_plan.md before coding starts
+     - User sees ALL implementation tasks with acceptance criteria before Stage 5b
+     - Cannot proceed to implementation without explicit user approval
+     - Implementation: round3_part2b_gate_3.md Step 3, mandatory_gates.md Gate 5
+
+✅ #3: Require the user to be shown an overview of the expected code changes, and let them approve the plan
+   - ADDRESSED: implementation_plan.md presented to user after Stage 5a (Gate 5 - MANDATORY checkpoint)
+   - Contains: implementation tasks, component dependencies, test strategy, phasing plan, exact code locations
+   - User must explicitly approve before Stage 5b begins
+   - If user requests changes → revise plan → re-submit for approval
+   - Implementation: round3_part2b_gate_3.md Step 3, stage_5_prompts.md "User Approval of Implementation Plan"
+
+✅ #4 (COMPLETE): Improve questions.md productivity - Modified Option A fully implemented
+   - FULLY ADDRESSED: questions.md now has comprehensive enforcement mechanism ensuring questions get answered
+   - **Iteration-level checkpoints (ALL 29 iterations):** After EVERY iteration across all rounds, agent checks:
+     - Round 1 (iterations 1, 2, 3, 4, 4a, 5, 5a, 6, 7, 7a): 10 checkpoints ✅
+     - Round 2 (iterations 8-16): 9 checkpoints ✅
+     - Round 3 Part 1 (iterations 17-22): 6 checkpoints ✅
+     - Round 3 Part 2a (iterations 23, 23a): 2 checkpoints ✅
+     - Round 3 Part 2b (iterations 25, 24): 2 checkpoints ✅
+   - **Checkpoint process:** If discovered NEW uncertainties → add to questions.md; If found ANSWERS → update questions.md
+   - **Gate 5 integration:** questions.md presented to user alongside implementation_plan.md
+     - If open questions exist → user answers all questions
+     - Agent updates implementation_plan.md based on answers
+     - Agent asks: "Would you like me to restart iteration process with this new information?"
+     - If yes → loop back to Round 1 with updated knowledge
+     - If no → proceed with current plan
+   - **Continuous workflow:** Questions tracked throughout all 29 iteration checkpoints, resolved at Gate 5
+   - Implementation: All round guides updated (round1, round2, round3_part1, round3_part2a, round3_part2b), Gate 5 updated
+   - **Status:** FULLY IMPLEMENTED - 100% coverage of all Stage 5a iterations
+
+✅ #4 (ORIGINAL): Improve the PR process. Currently pretty much nothing is being caught or improved
+   - FULLY ADDRESSED: PR Review Protocol (Hybrid Multi-Round Approach with Fresh Eyes)
+   - **Hybrid Approach (Option C):** Round 1 has 4 specialized reviews, Rounds 2-5 have comprehensive reviews
+   - **Fresh agent context:** Each review round spawns new agent via Task tool (eliminates context bias)
+   - **Round 1 - Specialized Reviews (4 fresh agents):**
+     - Round 1a: Code Quality Review
+     - Round 1b: Test Coverage Review
+     - Round 1c: Security Review
+     - Round 1d: Documentation Review
+   - **Rounds 2-5 - Iterative Comprehensive Reviews (1 fresh agent per round):**
+     - Full 11-category checklist applied
+     - Continue until 2 consecutive clean rounds
+     - Maximum 5 rounds total
+   - **User escalation:** Multi-approach issues brought to user immediately
+   - **Restart protocol:** If issues found → Fix all → Restart from appropriate round
+   - **Completion criteria:** 2 consecutive clean rounds = PASSED
+   - **Applied to both:** Feature-level PRs (Stage 5c) AND epic-level PRs (Stage 6)
+   - **Issue tracking:** pr_review_issues.md tracks all findings, rounds, user escalations
+   - **Implementation:** Created pr_review_protocol.md, updated final_review.md (Stage 5c), updated epic_final_review.md (Stage 6)
+   - **Template:** pr_review_issues_template.md provides standardized tracking format
+   - **Status:** FULLY IMPLEMENTED - Both feature and epic PR reviews now use multi-round fresh-eyes approach
+
+✅ #5: Improve the planning for new unit tests and catching failing unit tests during the TODO implementation. Really hammer in the test-driven development
+   - ADDRESSED: Test Strategy section in implementation_plan.md (added during iterations 8-10)
+   - Requires >90% test coverage before GO decision (Iteration 24)
+   - Test specifications include: unit tests, integration tests, coverage matrix
+   - Mini-QC checkpoints after every phase require 100% test pass
+   - Implementation: round2_todo_creation.md iterations 8-10, implementation_execution.md
+
+✅ #6: After changes have been completed, provide an overview of the changes and how they differ from the initial plan. Have the user approve them
+   - ADDRESSED: implementation_plan.md is single source of truth (primary reference during Stage 5b)
+   - code_changes.md documents actual changes incrementally
+   - Easy comparison: implementation_plan.md (approved plan) vs code_changes.md (actual changes)
+   - No conflicting sources (previously spec.md + todo.md created confusion)
+   - Implementation: implementation_execution.md, code_changes.md tracking
+
+❌ #7: I want a way to more easily let the user do their own PR
+   - NOT ADDRESSED: Out of scope for implementation_plan proposal
+   - Separate initiative needed
+
+✅ #8: Turn spec/todo creation into a loop, where it keeps skeptically reviewing the docs until it has no questions
+   - ADDRESSED: 24 verification iterations (Rounds 1-3) with systematic verification
+   - Iterations include: algorithm traceability (4, 11, 19), integration gaps (7, 23), interface verification, edge cases (9)
+   - Mandatory gates ensure quality: Iteration 4a, 23a (4 parts), 25, 24
+   - Output (implementation_plan.md) now visible to user (previously hidden in todo.md)
+   - Confidence checkpoints: must be >= MEDIUM to proceed
+   - Implementation: round1_todo_creation.md, round2_todo_creation.md, round3_*.md
+
+⚠️ 9: Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself.
+   - PARTIALLY ADDRESSED: Test Strategy section included in implementation_plan.md (user-approved after Stage 5a)
+   - User sees and approves test strategy as part of Gate 5 (User Approval)
+   - Not a separate "early confirmation" - bundled with full implementation plan approval
+   - Epic testing plan: Updated in Stage 4 (epic_smoke_test_plan.md) - user sees at epic level
+   - Could be enhanced: Separate test plan approval earlier in workflow
+
+❌ #10: When applying lessons learned to guides, have the user approve the guide changes first and let them give their input on how to go about doing them
+   - NOT ADDRESSED: Out of scope for implementation_plan proposal
+   - Separate initiative needed
+
+❌ #11: For each checklist item in the debugging protocol, as its resolved it MUST consider WHY the bug existed in the first place. We want to refine the guides to prevent the bug from ever appearing in similar circumstances in the future. It should then confirm the potential 'lessons learned' with the user, and if the user agrees then add the info to lessons learned docs.
+   - NOT ADDRESSED: Debugging protocol enhancement, out of scope for implementation_plan proposal
+   - Separate initiative needed

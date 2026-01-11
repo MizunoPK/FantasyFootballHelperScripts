@@ -20,11 +20,11 @@
 ## Quick Start
 
 **What is this stage?**
-Implementation Execution is where you write the feature code following the TODO plan, keeping spec.md visible at all times, verifying interfaces before coding, and running tests after every phase with mini-QC checkpoints.
+Implementation Execution is where you write the feature code following the implementation_plan.md, keeping spec.md visible at all times, verifying interfaces before coding, and running tests after every phase with mini-QC checkpoints.
 
 **When do you use this guide?**
 - Stage 5a complete (Round 3 Iteration 24 returned "GO")
-- TODO.md plan is ready
+- implementation_plan.md v3.0 is ready
 - Ready to write feature code
 
 **Key Outputs:**
@@ -39,7 +39,33 @@ Implementation Execution is where you write the feature code following the TODO 
 Varies by feature complexity (1-4 hours typical)
 
 **Exit Condition:**
-Stage 5b is complete when all TODO tasks are implemented, 100% of tests pass, spec requirements are verified complete via dual verification, and code_changes.md is fully documented
+Stage 5b is complete when all implementation tasks from implementation_plan.md are implemented, 100% of tests pass, spec requirements are verified complete via dual verification, and code_changes.md is fully documented
+
+---
+
+## File Roles in Stage 5b
+
+**Understanding which file serves which purpose:**
+
+**implementation_plan.md = PRIMARY REFERENCE** (~400 lines)
+- **What:** Detailed implementation build guide created and user-approved in Stage 5a
+- **Contains:** Implementation tasks, acceptance criteria, test strategy, phasing plan, dependencies
+- **Use during Stage 5b:** Follow this file task-by-task for WHAT to implement and HOW to implement it
+- **Authority:** User-approved plan - this is your implementation roadmap
+
+**spec.md = CONTEXT REFERENCE** (requirements specification)
+- **What:** Feature requirements specification created and user-approved in Stage 2
+- **Contains:** Objectives, scope, algorithms, edge cases, acceptance criteria
+- **Use during Stage 5b:** Keep visible for context, verify code matches requirements, understand WHY
+- **Authority:** User-approved requirements - verify against this but implement from implementation_plan.md
+
+**implementation_checklist.md = PROGRESS TRACKER** (~50 lines)
+- **What:** Lightweight checklist extracted from implementation_plan.md tasks
+- **Contains:** Checkbox list linking spec requirements → implementation tasks
+- **Use during Stage 5b:** Check off items in real-time as you complete them
+- **Authority:** Your progress tracker - update continuously
+
+**Key Principle:** implementation_plan.md tells you HOW to build (primary reference), spec.md tells you WHAT to build (verification), implementation_checklist.md tracks progress.
 
 ---
 
@@ -98,10 +124,11 @@ Stage 5b is complete when all TODO tasks are implemented, 100% of tests pass, sp
 
 □ Stage 5a complete:
   - Iteration 24 shows: ✅ GO decision
-  - feature_{N}_{name}_todo.md exists and complete
+  - implementation_plan.md v3.0 exists and complete
   - Iteration 23a: ALL 4 PARTS PASSED
-□ All unit test files created (from TODO test tasks)
+□ All unit test files created (from implementation_plan.md test tasks)
 □ spec.md is accessible and will be kept open
+□ implementation_checklist.md created from implementation_plan.md
 □ No blockers in feature README.md Agent Status
 
 **If any prerequisite fails:**
@@ -125,12 +152,12 @@ Step 1: Interface Verification Protocol
    └─ Create interface contract table
 
 Step 2: Create Implementation Checklist
-   ├─ Extract all requirements from spec.md
+   ├─ Extract all tasks from implementation_plan.md
    ├─ Create checklist in implementation_checklist.md
-   └─ Link each requirement to TODO task
+   └─ Link each requirement to implementation task
 
 Step 3: Phase-by-Phase Implementation
-   ├─ For EACH phase (from TODO):
+   ├─ For EACH phase (from implementation_plan.md "Implementation Phasing"):
    │  ├─ Read spec requirements for this phase
    │  ├─ Keep spec VISIBLE while coding
    │  ├─ Implement tasks for this phase
@@ -143,7 +170,7 @@ Step 3: Phase-by-Phase Implementation
    └─ Repeat for all phases
 
 Step 4: Final Verification
-   ├─ All TODO tasks complete
+   ├─ All implementation tasks complete
    ├─ All unit tests passing (100%)
    ├─ All requirements checked off
    ├─ code_changes.md complete
@@ -163,9 +190,9 @@ Mark Stage 5b Complete
 
 ### Process:
 
-1. **List all external dependencies from TODO:**
+1. **List all external dependencies from implementation_plan.md:**
 
-From Stage 5a TODO, extract all external methods/classes you'll call:
+From implementation_plan.md, extract all external methods/classes you'll call:
 
 ```markdown
 External Dependencies to Verify:
@@ -245,7 +272,7 @@ def get_adp_multiplier(self, adp: int) -> Tuple[float, int]
 multiplier, rating = self.config.get_adp_multiplier(player_adp)
 ```
 
-**Verified:** ✅ Interface matches TODO assumptions
+**Verified:** ✅ Interface matches implementation_plan.md assumptions
 
 ---
 
@@ -256,13 +283,13 @@ multiplier, rating = self.config.get_adp_multiplier(player_adp)
 
 5. **Verify assumptions match reality:**
 
-Check TODO tasks:
-- TODO assumed: `get_adp_multiplier(adp: int) -> Tuple[float, int]`
+Check implementation tasks:
+- implementation_plan.md assumed: `get_adp_multiplier(adp: int) -> Tuple[float, int]`
 - Actual interface: `get_adp_multiplier(self, adp: int) -> Tuple[float, int]`
 - ✅ MATCH
 
 **If mismatch found:**
-- Update TODO tasks to match reality
+- Update implementation_plan.md tasks to match reality
 - Update spec.md if needed
 - Document mismatch in interface contracts file
 
@@ -305,12 +332,12 @@ Read spec.md sections:
 ### Objective Requirements
 
 - [ ] **REQ-1:** Load ADP data from data/rankings/adp.csv
-  - TODO Task: Task 1
+  - Implementation Task: Task 1
   - Implementation: PlayerManager.load_adp_data()
   - Verified: {Check after implementing Task 1}
 
 - [ ] **REQ-2:** Match players to ADP rankings
-  - TODO Task: Task 2
+  - Implementation Task: Task 2
   - Implementation: PlayerManager._match_player_to_adp()
   - Verified: {Check after implementing Task 2}
 
@@ -320,13 +347,13 @@ Read spec.md sections:
 
 - [ ] **ALG-1:** Use default multiplier 1.0 if player not in ADP data
   - Spec: Algorithms section, step 2c
-  - TODO Task: Task 2
+  - Implementation Task: Task 2
   - Implementation: PlayerManager._match_player_to_adp() returns None
   - Verified: {Check after implementing}
 
 - [ ] **ALG-2:** Call ConfigManager.get_adp_multiplier for matched players
   - Spec: Algorithms section, step 3
-  - TODO Task: Task 3
+  - Implementation Task: Task 3
   - Implementation: PlayerManager._calculate_adp_multiplier()
   - Verified: {Check after implementing}
 
@@ -336,13 +363,13 @@ Read spec.md sections:
 
 - [ ] **EDGE-1:** Handle ADP file not found gracefully
   - Spec: Edge Cases section, case 3
-  - TODO Task: Task 11
+  - Implementation Task: Task 11
   - Implementation: PlayerManager.load_adp_data() try/except
   - Verified: {Check after implementing}
 
 - [ ] **EDGE-2:** Handle invalid ADP value (<1 or >500)
   - Spec: Edge Cases section, case 2
-  - TODO Task: Task 3
+  - Implementation Task: Task 3
   - Implementation: PlayerManager._calculate_adp_multiplier() validation
   - Verified: {Check after implementing}
 
@@ -367,7 +394,7 @@ Read spec.md sections:
 
 ## Step 3: Phase-by-Phase Implementation
 
-**Purpose:** Implement TODO tasks incrementally with continuous validation
+**Purpose:** Implement tasks from implementation_plan.md incrementally with continuous validation
 
 ### General Process (Repeat for EACH phase):
 
@@ -377,7 +404,7 @@ Read spec.md sections:
 
 1. **Open spec.md** (keep it VISIBLE throughout phase)
 2. **Read requirements for this phase:**
-   - From TODO phasing plan
+   - From implementation_plan.md "Implementation Phasing" section
    - Example: Phase 1 = Core Data Loading (Tasks 1, 2)
 
 3. **Read spec sections relevant to these tasks:**
@@ -393,7 +420,7 @@ Read spec.md sections:
 
 **BEFORE writing code:**
 - Read spec requirement (exact text)
-- Read TODO task acceptance criteria
+- Read implementation task acceptance criteria from implementation_plan.md
 - Check interface contracts (verified signatures)
 
 **WHILE writing code:**
@@ -411,7 +438,7 @@ Read spec.md sections:
 **Read spec (Algorithms section):**
 > "Load ADP data from data/rankings/adp.csv"
 
-**Read TODO Task 1 acceptance criteria:**
+**Read implementation_plan.md Task 1 acceptance criteria:**
 ```
 - [ ] Function load_adp_data() created in PlayerManager
 - [ ] Reads file from path: data/rankings/adp.csv
@@ -472,10 +499,10 @@ def load_adp_data(self) -> List[Tuple[str, str, int]]:
 
 **Verify against spec:**
 - ✅ Loads from data/rankings/adp.csv (spec requirement)
-- ✅ Returns List[Tuple[str, str, int]] (TODO acceptance criteria)
+- ✅ Returns List[Tuple[str, str, int]] (implementation_plan.md acceptance criteria)
 - ✅ Handles FileNotFoundError (spec Edge Cases, case 3)
-- ✅ Validates columns (TODO acceptance criteria)
-- ✅ Logs row count (TODO acceptance criteria)
+- ✅ Validates columns (implementation_plan.md acceptance criteria)
+- ✅ Logs row count (implementation_plan.md acceptance criteria)
 
 **Check off in implementation_checklist.md:**
 
@@ -708,7 +735,7 @@ grep -r "\.load_players()" --include="*.py"
 
 1. **Re-read spec.md** (don't trust memory)
 2. **Re-check interface contracts** (verify signatures)
-3. **Re-read TODO task** (check acceptance criteria)
+3. **Re-read implementation task** (check acceptance criteria)
 
 **Why:** Memory degrades in minutes. Historical evidence shows memory-based coding leads to spec violations.
 
@@ -718,9 +745,9 @@ grep -r "\.load_players()" --include="*.py"
 
 **After ALL phases complete:**
 
-### 4.1: Verify All TODO Tasks Complete
+### 4.1: Verify All Implementation Tasks Complete
 
-Check TODO file:
+Check implementation_plan.md:
 
 ```markdown
 ## Implementation Status
@@ -793,7 +820,7 @@ python run_league_helper.py --mode draft
 □ Interface Verification Protocol complete (Step 1)
 □ implementation_checklist.md created (Step 2)
 □ All phases implemented (Step 3):
-  - All TODO tasks complete
+  - All implementation tasks complete
   - All spec requirements checked off in implementation_checklist.md
   - code_changes.md updated for all changes
 □ All unit tests passing (100% pass rate)
@@ -915,7 +942,7 @@ python run_league_helper.py --mode draft
 **Before transitioning to Stage 5c, verify:**
 
 □ Stage 5b completion criteria ALL met
-□ All TODO tasks marked complete
+□ All implementation tasks marked complete
 □ All tests passing (100%)
 □ implementation_checklist.md shows all requirements checked
 □ code_changes.md complete with all changes documented
@@ -945,7 +972,7 @@ python run_league_helper.py --mode draft
 **Stage 5c will:**
 - Execute 3-part smoke testing protocol (MANDATORY)
 - Complete 3 QC rounds (no exceptions)
-- Execute PR review checklist (11 categories)
+- Follow PR review protocol (multi-round with fresh eyes)
 - Verify 100% requirement completion
 - If ANY issues found → COMPLETELY RESTART Stage 5c
 

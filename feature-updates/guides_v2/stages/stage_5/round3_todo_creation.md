@@ -1,4 +1,4 @@
-# STAGE 5ac: TODO Creation - Round 3 Guide (ROUTER)
+# STAGE 5ac: Implementation Planning - Round 3 Guide (ROUTER)
 
 🚨 **IMPORTANT: This guide has been split into focused sub-stages**
 
@@ -52,7 +52,7 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 **What it covers:**
 - **Iteration 17:** Implementation Phasing (break implementation into incremental phases)
 - **Iteration 18:** Rollback Strategy (plan for reverting if implementation fails)
-- **Iteration 19:** Algorithm Traceability Matrix (Final) (verify ALL algorithms mapped to TODO tasks)
+- **Iteration 19:** Algorithm Traceability Matrix (Final) (verify ALL algorithms mapped to implementation tasks)
 - **Iteration 20:** Performance Considerations (identify O(n²) algorithms, optimize to O(n))
 - **Iteration 21:** Mock Audit & Integration Test Plan (verify mocks match real interfaces, plan integration tests)
 - **Iteration 22:** Output Consumer Validation (verify outputs match what consumers expect)
@@ -90,7 +90,7 @@ Round 3 is the final TODO verification round focused on preparation iterations (
 **Key Outputs:**
 - Integration gap check results (ALL methods have callers, no orphan code)
 - Pre-Implementation Spec Audit results (ALL 5 PARTS PASSED):
-  - Completeness Audit: Coverage = 100% (all requirements have TODO tasks)
+  - Completeness Audit: Coverage = 100% (all requirements have implementation tasks)
   - Specificity Audit: Specificity = 100% (all tasks have acceptance criteria, implementation location, test coverage)
   - Interface Contracts Audit: Verification = 100% (all dependencies verified against actual source code)
   - Integration Evidence Audit: Integration = 100% (all methods have identified callers)
@@ -277,7 +277,7 @@ The split guides provide the same comprehensive coverage with better navigation,
 - Round 3 complete (ALL 10 iterations done)
 - ALL 3 mandatory gates PASSED (23a all 4 parts, 25, 24)
 - GO decision made (Iteration 24)
-- todo.md finalized with all 25 iterations incorporated
+- implementation_plan.md finalized with all 25 iterations incorporated
 
 ---
 

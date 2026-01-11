@@ -1,13 +1,13 @@
 # Stage 5 Prompts: Feature Implementation
 
 **Stage:** 5 (All sub-stages: 5a, 5b, 5c, 5d, 5e)
-**Purpose:** Feature implementation workflow from TODO creation through epic test plan update
+**Purpose:** Feature implementation workflow from implementation planning through epic test plan update
 
 ---
 
-## Starting Stage 5a: TODO Creation (Round 1)
+## Starting Stage 5a: Implementation Planning (Round 1)
 
-**User says:** "Prepare for updates based on {feature_name}" or "Start implementation of feature_01" or "Create TODO list"
+**User says:** "Prepare for updates based on {feature_name}" or "Start implementation of feature_01" or "Create implementation plan"
 
 **Prerequisite:** Stage 4 complete (epic_smoke_test_plan.md updated) AND feature spec.md complete AND checklist.md resolved
 
@@ -23,16 +23,16 @@
 I'm reading `stages/stage_5/round1_todo_creation.md` to ensure I follow all 8 iterations in Round 1...
 
 **The guide requires:**
-- **🚨 CRITICAL: TODO TASKS MUST TRACE TO SPEC REQUIREMENTS**:
-  - Every TODO task must map to explicit spec.md requirement
+- **🚨 CRITICAL: IMPLEMENTATION TASKS MUST TRACE TO SPEC REQUIREMENTS**:
+  - Every implementation task must map to explicit spec.md requirement
   - Do NOT add tasks based on "best practices" or assumptions
   - Do NOT add tasks the user didn't ask for
   - If uncertain about a task → create question in questions.md
-  - Only create TODO tasks for confirmed, documented requirements
+  - Only create implementation tasks for confirmed, documented requirements
 - **Round 1: 8 MANDATORY iterations** (NO SKIPPING):
-  - Iterations 1-7 + iteration 4a (TODO Specification Audit)
+  - Iterations 1-7 + iteration 4a (Implementation Plan Specification Audit)
 - **Iteration 4a is a MANDATORY GATE**:
-  - Every TODO task MUST have acceptance criteria
+  - Every implementation task MUST have acceptance criteria
   - Cannot proceed to Round 2 without PASSING iteration 4a
 - **Algorithm Traceability Matrix** (iteration 4):
   - Map EVERY algorithm in spec.md to exact code location
@@ -62,10 +62,10 @@ I'm reading `stages/stage_5/round1_todo_creation.md` to ensure I follow all 8 it
 **I'll now proceed with Round 1 (iterations 1-7 + 4a). I'll create questions.md after Round 1 checkpoint if needed.**
 
 **Updating feature README Agent Status:**
-- Current Phase: TODO_CREATION
+- Current Phase: IMPLEMENTATION_PLANNING
 - Current Guide: stages/stage_5/round1_todo_creation.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "TODO tasks MUST trace to spec requirements (no assumptions)", "8 iterations mandatory (Round 1)", "Iteration 4a is MANDATORY GATE", "STOP if confidence < Medium", "Interface verification: READ actual code"
+- Critical Rules: "Implementation tasks MUST trace to spec requirements (no assumptions)", "8 iterations mandatory (Round 1)", "Iteration 4a is MANDATORY GATE", "STOP if confidence < Medium", "Interface verification: READ actual code"
 - Progress: 0/8 iterations complete (Round 1)
 - Next Action: Begin iteration 1 - Requirements Coverage Check
 
@@ -74,7 +74,7 @@ Starting iteration 1...
 
 ---
 
-## Starting Stage 5a: TODO Creation (Round 2)
+## Starting Stage 5a: Implementation Planning (Round 2)
 
 **User says:** Agent detects Round 1 complete (8/8 iterations done, confidence >= MEDIUM)
 
@@ -109,12 +109,12 @@ I'm reading `stages/stage_5/round2_todo_creation.md` to ensure I follow all 9 it
 ✅ Round 1 complete (8/8 iterations)
 ✅ Iteration 4a PASSED
 ✅ Confidence: >= MEDIUM (from Round 1 checkpoint)
-✅ TODO file created with acceptance criteria for all tasks
+✅ implementation_plan.md created with acceptance criteria for all tasks
 
 **I'll now proceed with Round 2 (iterations 8-16).**
 
 **Updating feature README Agent Status:**
-- Current Phase: TODO_CREATION
+- Current Phase: IMPLEMENTATION_PLANNING
 - Current Guide: stages/stage_5/round2_todo_creation.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "9 iterations mandatory (Round 2)", "Re-verification iterations are CRITICAL", "Test coverage >90% required"
@@ -126,7 +126,7 @@ Starting iteration 8...
 
 ---
 
-## Starting Stage 5ac Part 1: TODO Creation (Round 3 - Preparation)
+## Starting Stage 5ac Part 1: Implementation Planning (Round 3 - Preparation)
 
 **User says:** Agent detects Round 2 complete (16/24 iterations done, confidence >= MEDIUM, test coverage >90%)
 
@@ -175,7 +175,7 @@ I'm reading `stages/stage_5/round3_part1_preparation.md` to ensure I follow all 
 **I'll now proceed with Round 3 Part 1 (iterations 17-22).**
 
 **Updating feature README Agent Status:**
-- Current Phase: TODO_CREATION
+- Current Phase: IMPLEMENTATION_PLANNING
 - Current Guide: stages/stage_5/round3_part1_preparation.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "6 preparation iterations mandatory", "Iteration 21: Verify mocks against ACTUAL source code", "Integration tests must use REAL objects"
@@ -187,7 +187,7 @@ Starting iteration 17...
 
 ---
 
-## Starting Stage 5ac Part 2: TODO Creation (Round 3 - Final Gates)
+## Starting Stage 5ac Part 2: Implementation Planning (Round 3 - Final Gates)
 
 **User says:** Agent detects Round 3 Part 1 complete (22/24 iterations done)
 
@@ -238,7 +238,7 @@ I'm reading `stages/stage_5/round3_part2_final_gates.md` to ensure I follow all 
 **I'll now proceed with Round 3 Part 2 (iterations 23, 23a, 25, 24).**
 
 **Updating feature README Agent Status:**
-- Current Phase: TODO_CREATION
+- Current Phase: IMPLEMENTATION_PLANNING
 - Current Guide: stages/stage_5/round3_part2_final_gates.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 MANDATORY GATES (23a, 25, 24) - CANNOT skip", "Evidence-based verification (cite numbers)", "Close spec.md before Iteration 25", "User decision required if discrepancies"
@@ -250,11 +250,50 @@ Starting iteration 23...
 
 ---
 
+## User Approval of Implementation Plan
+
+**User says:** "Review implementation plan" or Agent detects Stage 5a complete (24 iterations done, Iteration 24: Implementation Readiness = PASSED)
+
+**Prerequisite:** Stage 5a complete (24 iterations passed, implementation_plan.md v3.0 created)
+
+**🚨 MANDATORY CHECKPOINT - USER MUST APPROVE implementation_plan.md BEFORE Stage 5b**
+
+**Agent MUST respond:**
+
+```
+Stage 5a (Implementation Planning) is complete. I've created implementation_plan.md v3.0 (~400 lines) with:
+
+**Key Sections:**
+- Implementation Tasks (mapped to spec.md requirements)
+- Component Dependencies Matrix
+- Algorithm Traceability Matrix
+- Test Strategy (>90% coverage)
+- Edge Cases and Error Handling
+- Implementation Phasing (5-6 checkpoints)
+- Performance Considerations
+- Mock Audit Results
+- Integration Test Plan
+
+**File Location:** `feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/implementation_plan.md`
+
+**Please review implementation_plan.md and confirm:**
+1. Implementation approach makes sense
+2. Phasing is reasonable (5-6 checkpoints)
+3. Test coverage is adequate (>90%)
+4. No missing requirements
+
+**Say "approved" to proceed to Stage 5b (Implementation), or request changes.**
+
+**Note:** This is your opportunity to adjust the implementation approach before code is written. Once approved, I'll create implementation_checklist.md and begin coding.
+```
+
+---
+
 ## Starting Stage 5b: Implementation
 
-**User says:** "Implement the feature" or "Start coding" or Agent detects Stage 5a complete (24 iterations done)
+**User says:** "Approved" or "Implement the feature" or "Start coding"
 
-**Prerequisite:** Stage 5a complete (24 iterations passed, Iteration 24: Implementation Readiness = PASSED)
+**Prerequisite:** User approved implementation_plan.md from Stage 5a
 
 **Agent MUST respond:**
 
@@ -262,9 +301,10 @@ Starting iteration 23...
 I'm reading `stages/stage_5/implementation_execution.md` to ensure I follow the implementation workflow...
 
 **The guide requires:**
-- **Create implementation_checklist.md** from spec.md sections
+- **Create implementation_checklist.md** from implementation_plan.md tasks
 - **Keep spec.md VISIBLE** at all times (continuous verification)
-- Execute TODO tasks in order
+- **Use implementation_plan.md as PRIMARY reference** (spec.md provides context)
+- Execute implementation tasks in order (following Implementation Phasing)
 - **Mini-QC checkpoints** after each major component:
   - Run unit tests
   - Verify against spec
@@ -280,18 +320,18 @@ I'm reading `stages/stage_5/implementation_execution.md` to ensure I follow the 
 **Prerequisites I'm verifying:**
 ✅ Stage 5a complete (EPIC_README.md shows 24 iterations done)
 ✅ Iteration 24: Implementation Readiness = PASSED
-✅ todo.md exists with complete task list
+✅ implementation_plan.md v3.0 exists and user-approved
 ✅ questions.md resolved (or documented "no questions")
 
-**I'll now create implementation_checklist.md from spec.md and begin implementation...**
+**I'll now create implementation_checklist.md from implementation_plan.md tasks and begin implementation...**
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION
 - Current Guide: stages/stage_5/implementation_execution.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "spec.md visible at all times", "Unit tests after every phase (100% pass)", "Mini-QC checkpoints", "Update code_changes.md incrementally"
-- Progress: 0/{N} TODO tasks complete
-- Next Action: Create implementation_checklist.md from spec.md sections
+- Critical Rules: "spec.md visible at all times", "implementation_plan.md is PRIMARY reference", "Unit tests after every phase (100% pass)", "Mini-QC checkpoints", "Update code_changes.md incrementally"
+- Progress: 0/{N} implementation tasks complete
+- Next Action: Create implementation_checklist.md from implementation_plan.md tasks
 
 Starting implementation...
 ```
@@ -302,7 +342,7 @@ Starting implementation...
 
 **User says:** "Validate the implementation" or Agent detects Stage 5b complete
 
-**Prerequisite:** Stage 5b complete (all TODO tasks done, all unit tests passing)
+**Prerequisite:** Stage 5b complete (all implementation tasks done, all unit tests passing)
 
 **Agent MUST respond:**
 
@@ -330,10 +370,10 @@ I'm reading `stages/stage_5/smoke_testing.md` to ensure I follow the 3-part smok
   - If ANY part fails → fix issue and restart smoke testing from Part 1
 
 **Prerequisites I'm verifying:**
-✅ Stage 5b complete (all TODO tasks done)
+✅ Stage 5b complete (all implementation tasks done)
 ✅ ALL unit tests passing (100% pass rate)
 ✅ code_changes.md updated with all changes
-✅ implementation_checklist.md all items verified
+✅ implementation_checklist.md all items verified (all checked off)
 
 **I'll now begin with Part 1: Import Test...**
 
@@ -412,18 +452,13 @@ Starting QC Round 1 for {feature_name}...
 I'm reading `stages/stage_5/final_review.md` to ensure I follow the final review protocol...
 
 **The guide requires:**
-- **PR Review Checklist** (11 categories - ALL MANDATORY):
-  1. Correctness and Logic
-  2. Code Quality and Readability
-  3. Comments and Documentation
-  4. Refactoring Concerns
-  5. Testing
-  6. Security
-  7. Performance
-  8. Error Handling
-  9. Architecture and Design
-  10. Compatibility and Integration
-  11. Scope and Focus
+- **PR Review Protocol** (Multi-round with fresh eyes - MANDATORY):
+  - READ: `stages/stage_5/pr_review_protocol.md` (complete protocol)
+  - Hybrid approach: Round 1 (4 specialized reviews) + Rounds 2-5 (comprehensive reviews)
+  - Fresh agent spawned for EACH review round (eliminates context bias)
+  - Continue until 2 consecutive clean rounds
+  - Maximum 5 rounds total
+  - User escalation for multi-approach issues
 - **Lessons Learned Capture**:
   - Document what worked well
   - Document what didn't work
@@ -434,7 +469,7 @@ I'm reading `stages/stage_5/final_review.md` to ensure I follow the final review
   - All code_changes.md items implemented
   - All lessons_learned.md captured
 - **Completion Criteria**:
-  - PR review: ZERO issues found
+  - PR review: PASSED (2 consecutive clean rounds achieved)
   - Lessons learned: Updated (including guide updates if needed)
   - Final verification: 100% complete
 
@@ -443,17 +478,17 @@ I'm reading `stages/stage_5/final_review.md` to ensure I follow the final review
 ✅ All smoke testing and QC documentation complete
 ✅ Feature fully functional with real data
 
-**I'll now begin PR Review (11 categories)...**
+**I'll now begin PR Review Protocol (multi-round fresh-eyes approach)...**
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_FINAL_REVIEW
 - Current Guide: stages/stage_5/final_review.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "11 categories ALL mandatory", "Update guides immediately", "100% completion required"
-- Progress: PR Review starting
-- Next Action: PR Review Category 1 - Correctness and Logic
+- Critical Rules: "PR review protocol MANDATORY", "Fresh agents for each round", "Update guides immediately", "100% completion required"
+- Progress: PR Review Protocol starting
+- Next Action: READ pr_review_protocol.md and begin Round 1 specialized reviews
 
-Starting PR Review for {feature_name}...
+Starting PR Review Protocol for {feature_name}...
 ```
 
 ---
@@ -482,8 +517,8 @@ I'm reading `stages/stage_5/post_feature_alignment.md` to ensure I review all re
 - **Significant Rework Criteria:**
   - Return to Stage 1: Feature should be split, or no longer needed
   - Return to Stage 2: Spec assumptions fundamentally wrong
-  - Return to Stage 5a: >3 new TODO tasks needed, algorithm changes significantly
-  - Minor Updates (continue): ≤3 TODO adjustments, no algorithm changes
+  - Return to Stage 5a: >3 new implementation tasks needed, algorithm changes significantly
+  - Minor Updates (continue): ≤3 implementation task adjustments, no algorithm changes
 - **Compare to ACTUAL implementation** (not the plan from Stage 5a)
 - Document insights in just-completed feature's spec.md
 - Final verification: No remaining features need significant rework

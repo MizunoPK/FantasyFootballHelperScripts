@@ -32,11 +32,17 @@
 | [Feature Checklist](#feature-checklist) | `feature_checklist_template.md` | Tracking feature decisions |
 | [Feature Lessons Learned](#feature-lessons-learned) | `feature_lessons_learned_template.md` | Creating feature-level lessons document |
 
-### Stage 5a: TODO Creation
+### Stage 5a: TODO Creation (Implementation Planning)
 
 | Template | Filename | Use When |
 |----------|----------|----------|
-| [Feature TODO](#feature-todo) | `feature_todo_template.md` | Creating implementation task list |
+| [Implementation Plan](#implementation-plan) | `implementation_plan_template.md` | Creating user-approved build guide through 24 iterations |
+
+### Stage 5b: Implementation Execution
+
+| Template | Filename | Use When |
+|----------|----------|----------|
+| [Implementation Checklist](#implementation-checklist) | `implementation_checklist_template.md` | Tracking progress during implementation |
 
 ### Bug Fix Workflow
 
@@ -115,12 +121,19 @@
 - **Size:** ~95 lines
 - **When to use:** Stage 2 deep dive decision tracking
 
-#### Feature TODO
-- **File:** `feature_todo_template.md`
-- **Created:** Stage 5a
-- **Purpose:** Implementation task list with traceability
-- **Size:** ~205 lines
-- **When to use:** After 24 verification iterations in Stage 5a
+#### Implementation Plan
+- **File:** `implementation_plan_template.md`
+- **Created:** Stage 5a (accumulated through 24 iterations)
+- **Purpose:** User-approved build guide with tasks, tests, edge cases, matrices
+- **Size:** ~400 lines (grows from 150→300→400)
+- **When to use:** Throughout Stage 5a, user approves after iteration 24
+
+#### Implementation Checklist
+- **File:** `implementation_checklist_template.md`
+- **Created:** Stage 5b (start of implementation)
+- **Purpose:** Live progress tracking with simple checkboxes
+- **Size:** ~50 lines
+- **When to use:** Create at Stage 5b start, update as tasks complete
 
 #### Feature Lessons Learned
 - **File:** `feature_lessons_learned_template.md`
@@ -183,11 +196,12 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 | Spec Summary | ~140 | Yes (after validation) | Yes (Stage 2) |
 | Feature Spec | ~270 | No | No |
 | Feature Checklist | ~95 | No | No |
-| Feature TODO | ~205 | No | No |
+| Implementation Plan | ~400 | Yes (after validation) | Yes (Stage 5a) |
+| Implementation Checklist | ~50 | No | No |
 | Feature Lessons Learned | ~180 | No | No |
 | Bug Fix Notes | ~85 | Yes (after validation) | Yes |
 
-**Immutable templates:** Epic Ticket, Spec Summary, Bug Fix Notes (after user validation)
+**Immutable templates:** Epic Ticket, Spec Summary, Implementation Plan, Bug Fix Notes (after user validation)
 
 ---
 
@@ -211,6 +225,13 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 4. ✅ Use **Spec Summary** template (get user validation)
 5. ✅ Use **Feature Checklist** template
 6. ✅ Use **Feature Lessons Learned** template
+
+### Implementing a Feature (Stage 5a-5b)
+
+1. ✅ Create **Implementation Plan** (Stage 5a - grows through 24 iterations)
+2. ✅ Show Implementation Plan to user for approval
+3. ✅ Create **Implementation Checklist** from plan (Stage 5b start)
+4. ✅ Update checklist as tasks complete
 
 ### Creating Bug Fix Documentation
 

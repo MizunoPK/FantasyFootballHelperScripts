@@ -4,7 +4,7 @@
 
 **Stage Flow Context:**
 ```
-Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implementation) →
+Stage 5a (Implementation Planning) → Stage 5b (Implementation) → Stage 5c (Post-Implementation) →
 → Stage 5d (Cross-Feature Alignment) →
 → [YOU ARE HERE: Stage 5e - Testing Plan Update] →
 → Next Feature's Stage 5a (or Stage 6 if all features done)
@@ -1283,7 +1283,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 ### Next Stage Determination
 - [ ] Checked epic README for remaining features
 - [ ] Determined next action:
-  - **More features remain** → Next feature's Stage 5a (TODO Creation)
+  - **More features remain** → Next feature's Stage 5a (Implementation Planning)
   - **All features done** → Stage 6 (Epic Final QC)
 
 ### If More Features Remain

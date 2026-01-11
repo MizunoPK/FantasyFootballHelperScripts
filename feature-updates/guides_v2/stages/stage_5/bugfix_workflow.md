@@ -169,7 +169,7 @@ What would you like to do?
    ├── notes.txt        (create now - user verifies)
    ├── spec.md          (create in Stage 2)
    ├── checklist.md     (create in Stage 2)
-   ├── todo.md          (create in Stage 5a)
+   ├── implementation_plan.md (create in Stage 5a)
    ├── implementation_checklist.md (create in Stage 5b)
    ├── code_changes.md  (create in Stage 5b)
    └── lessons_learned.md (create in Stage 5c)
@@ -331,7 +331,7 @@ When bug fix complete:
 
 ```
 Stage 2 (Deep Dive) →
-Stage 5a (TODO Creation) →
+Stage 5a (Implementation Planning) →
 Stage 5b (Implementation) →
 Stage 5c (Post-Implementation) →
 DONE (return to previous work)
@@ -411,7 +411,7 @@ Integration test:
 
 ---
 
-### Stage 5a: TODO Creation
+### Stage 5a: Implementation Planning
 
 **Read guides in order:**
 1. stages/stage_5/round1_todo_creation.md - Round 1 (iterations 1-7 + 4a)
@@ -645,7 +645,7 @@ Action:
 - [x] notes.txt created and user-verified
 - [x] spec.md created (root cause, solution)
 - [x] checklist.md created
-- [x] Stage 5a complete (24 iterations, todo.md)
+- [x] Stage 5a complete (24 iterations, implementation_plan.md)
 - [x] Stage 5b complete (implementation, tests pass)
 - [x] Stage 5c complete (smoke tests, QC rounds, PR review)
 - [x] lessons_learned.md updated

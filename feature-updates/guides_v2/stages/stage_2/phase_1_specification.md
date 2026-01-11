@@ -814,28 +814,236 @@ User's explicit requests:
   - Open questions identified (not assumptions)
   - Ready to ask user questions in STAGE_2c
 
-**Exit Condition:** Specification Phase is complete when spec.md has complete requirements with traceability, Phase 2.5 alignment check passes (no scope creep, no missing requirements), and you're ready to proceed to STAGE_2c for question resolution and user approval.
+**Exit Condition:** Specification Phase is complete when spec.md has complete requirements with traceability, Phase 2.5 alignment check passes, checklist.md has questions, and Gate 2 (User Checklist Approval) is obtained.
+
+---
+
+## Phase 2.6: Present Checklist to User for Approval (🚨 MANDATORY GATE 2)
+
+**After Phase 2.5 passes, you MUST present checklist.md to user for approval before proceeding to STAGE_2c.**
+
+**This is Gate 2 - User Checklist Approval (from mandatory_gates.md)**
+
+### Why This Step Exists
+
+**From guide-updates.txt #2:**
+> "Require ALL checklist items to be confirmed by the user. Stop resolving anything on their own, including things the agent thinks is straightforward"
+
+**Purpose:**
+- User sees ALL questions/uncertainties before implementation planning
+- User provides answers to ALL questions
+- Zero autonomous agent resolution
+- Prevents agents from making assumptions and "resolving" checklist items themselves
+
+**This is NOT optional** - it's a MANDATORY checkpoint per mandatory_gates.md.
+
+---
+
+### Process
+
+**1. Verify checklist.md is complete:**
+
+Before presenting to user, verify:
+- [ ] All sections populated (Functional, Technical, Integration, Error Handling, Testing, Open Questions, Dependencies)
+- [ ] Each question has Context, User Answer (blank), and Impact on spec.md
+- [ ] NO items marked `[x]` (agents cannot self-resolve)
+- [ ] Questions are valid (user preferences, edge cases, unknowns - NOT things you should have researched)
+
+**2. Present checklist to user using the "User Checklist Approval" prompt** from `prompts_reference_v2.md`:
+
+```
+Stage 2 (Specification Phase) is complete. I've created checklist.md with {N} questions that need your input:
+
+**Checklist Sections:**
+- Functional Questions: {count}
+- Technical Questions: {count}
+- Integration Questions: {count}
+- Error Handling Questions: {count}
+- Testing Questions: {count}
+- Dependencies & Blockers: {count}
+
+**File Location:** `feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/checklist.md`
+
+**Please review checklist.md and answer each question. For each question:**
+1. Read the Context (why this is uncertain)
+2. Choose your preferred approach or provide guidance
+3. I'll update spec.md based on your answers
+
+**You can answer:**
+- All at once (provide answers for all {N} questions)
+- One at a time (we'll go through interactively)
+- Request clarification on any question
+
+**What format works best for you?**
+```
+
+**3. Wait for user response:**
+
+**If user provides answers:**
+- ✅ Update spec.md based on EACH answer
+- ✅ Mark items `[x]` in checklist.md (with user answer documented)
+- ✅ Update "Resolved Questions" section in checklist.md
+- ✅ Continue until ALL questions answered
+- ✅ Document approval in checklist.md
+- ✅ Proceed to "Final Checklist Approval" below
+
+**If user requests clarification:**
+- 🔄 Provide more context for the question
+- 🔄 Explain trade-offs of each option
+- 🔄 Wait for user decision
+- 🔄 Update spec.md based on clarified answer
+
+**If user identifies invalid questions:**
+- ❌ Remove questions that should have been researched in STAGE_2a
+- ❌ Add them to retrospective (what should we have researched earlier?)
+- ❌ Continue with remaining valid questions
+
+**4. Document approval in checklist.md:**
+
+After user answers ALL questions, add to checklist.md:
+
+```markdown
+---
+
+## User Approval Section
+
+**User Reviewed:** {YYYY-MM-DD HH:MM}
+**User Approval:** ✅ APPROVED
+**Total Questions:** {N}
+**User Answered:** {N}
+**Pending:** 0
+
+**User Comments:**
+{Any additional guidance or context from user}
+
+**Gate 2 Status:** ✅ PASSED - All questions answered, spec.md updated accordingly
+
+---
+
+**STATUS:** ✅ APPROVED - Ready for Stage 5a (Implementation Planning)
+```
+
+**5. Update spec.md with all answers:**
+
+For EACH question answered, update the relevant spec.md section:
+
+**Example:**
+```markdown
+### Data Loading Strategy
+
+**Source:** User Answer to Checklist Q1
+
+User confirmed ADP data will be provided as CSV file with columns: Name, Position, ADP.
+
+**Approach:**
+- Read CSV using csv_utils.read_csv_with_validation
+- Required columns: ['Name', 'Position', 'ADP']
+- ...
+```
+
+**6. Update Agent Status:**
+
+```markdown
+### Gate 2 (User Checklist Approval)
+- ✅ checklist.md presented to user
+- ✅ User answered all {N} questions
+- ✅ spec.md updated with user answers
+- ✅ User approval received: {YYYY-MM-DD HH:MM}
+- ✅ Gate 2: PASSED
+```
+
+---
+
+### Final Checklist Approval
+
+**After user answers ALL questions:**
+
+```markdown
+## Agent Status
+
+**Last Updated:** {YYYY-MM-DD HH:MM}
+**Current Phase:** SPECIFICATION_PHASE (user-approved)
+**Current Step:** STAGE_2b COMPLETE + Gate 2 PASSED
+**Current Guide:** stages/stage_2/phase_1_specification.md (COMPLETE)
+**Guide Last Read:** {YYYY-MM-DD HH:MM}
+
+**Phase 2.5:** ✅ Spec-to-Epic Alignment Check PASSED
+**Gate 2:** ✅ User Checklist Approval PASSED ({YYYY-MM-DD HH:MM})
+
+**Checklist Status:**
+- Total Questions: {N}
+- User Answered: {N}
+- Pending: 0
+- Status: ✅ APPROVED
+
+**spec.md Status:** Updated with all user answers
+**Next Stage:** STAGE_2c (Refinement Phase) - Optional depending on workflow
+**Next Action:** Proceed to Stage 5a (Implementation Planning) OR handle any NEW questions in STAGE_2c if needed
+```
+
+---
+
+### Common Mistake to Avoid
+
+**❌ MISTAKE: "I'll research this question and resolve it myself"**
+
+**Why this is wrong:**
+- Gate 2 exists to PREVENT autonomous agent resolution
+- User MUST answer every question
+- This is exactly the problem we're fixing (guide-updates.txt #2)
+- Agents were "resolving" checklist items without user input
+
+**What to do instead:**
+- ✅ Present checklist to user
+- ✅ WAIT for user answers
+- ✅ Do NOT attempt to research and answer yourself
+- ✅ Only update spec.md AFTER user provides answer
+
+---
+
+**After Gate 2 passes (all questions answered and approved), you have two options:**
+
+1. **If checklist complete with zero NEW questions:**
+   - Skip STAGE_2c (Refinement Phase) entirely
+   - Proceed directly to Stage 5a (Implementation Planning)
+   - Note: Phase 6 (Acceptance Criteria) still required before Stage 5a
+
+2. **If NEW questions arise:**
+   - Proceed to STAGE_2c (Refinement Phase)
+   - Handle any additional questions in Phase 3
+   - Complete Phase 4-6 as normal
+
+**Most common path:** Gate 2 completes checklist → Skip to Stage 5a
 
 ---
 
 ## Next Stage
 
-**After completing Specification Phase:**
+**After completing Specification Phase + Gate 2:**
 
-→ **Proceed to:** stages/stage_2/phase_2_refinement.md
+**Option A: No new questions (most common):**
+→ **Proceed to:** Stage 5a (Implementation Planning)
+→ **Skip:** STAGE_2c if checklist is complete
 
-**What happens in STAGE_2c:**
-- Phase 3: Interactive Question Resolution (ONE question at a time)
+**Option B: New questions discovered:**
+→ **Proceed to:** stages/stage_2/phase_2_refinement.md (STAGE_2c)
+
+**What happens in STAGE_2c (if needed):**
+- Phase 3: Handle any NEW questions (iterative)
 - Phase 4: Dynamic Scope Adjustment (split if >35 items)
 - Phase 5: Cross-Feature Alignment (compare to completed features)
-- Phase 6: Acceptance Criteria & User Approval (MANDATORY)
+- Phase 6: Acceptance Criteria Creation (MANDATORY before Stage 5a)
 
-**Prerequisites for STAGE_2c:**
-- Phase 2.5 alignment check PASSED (from this guide)
-- spec.md has requirements with traceability
-- checklist.md has open questions
+**Prerequisites for Stage 5a:**
+- ✅ Phase 2.5 alignment check PASSED
+- ✅ Gate 2 (User Checklist Approval) PASSED
+- ✅ spec.md has requirements with traceability
+- ✅ spec.md updated with all user answers
+- ✅ Acceptance criteria defined (Phase 6 or earlier)
 
-**Time Estimate for STAGE_2c:** 45-60 minutes
+**Time Estimate:**
+- If skipping STAGE_2c: Proceed immediately to Stage 5a
+- If continuing to STAGE_2c: 45-60 minutes
 
 ---
 

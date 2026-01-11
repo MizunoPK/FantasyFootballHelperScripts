@@ -4,7 +4,7 @@
 
 **Stage Flow Context:**
 ```
-Stage 5a (TODO Creation) → Stage 5b (Implementation) → Stage 5c (Post-Implementation) →
+Stage 5a (Implementation Planning) → Stage 5b (Implementation) → Stage 5c (Post-Implementation) →
 → [YOU ARE HERE: Stage 5d - Cross-Feature Alignment] →
 → Stage 5e (Testing Plan Update) → Next Feature's Stage 5a (or Stage 6 if all features done)
 ```
@@ -84,7 +84,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 
 4. ⚠️ MARK FEATURES NEEDING SIGNIFICANT REWORK
    - Use clear criteria (see "Significant Rework Criteria" section)
-   - If feature needs >3 new TODO tasks → return to Stage 5a
+   - If feature needs >3 new implementation tasks → return to Stage 5a
    - If spec assumptions fundamentally wrong → return to Stage 2
    - If feature should be split/removed → return to Stage 1
    - Document WHY rework needed
@@ -154,7 +154,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 - Spec assumptions fundamentally wrong
 - Completed feature revealed major gaps or conflicts
 - **Criteria for REWORK:**
-  - >3 new TODO tasks needed
+  - >3 new implementation tasks needed
   - Core algorithm approach no longer valid
   - Data dependencies changed fundamentally
   - Feature should be split or removed
@@ -479,7 +479,7 @@ Reasoning: Features 2-4 likely affected by ADP integration patterns
 - **Spec assumption:** `ConfigManager.get_rating(player_id) -> float`
 - **Actual implementation:** `ConfigManager.get_rating_multiplier(player_id) -> Tuple[float, int]`
 - **Impact:** MODERATE - feature_02 spec needs method signature update
-- **Significance:** 1-2 TODO task changes (update calls, handle tuple return)
+- **Significance:** 1-2 implementation task changes (update calls, handle tuple return)
 - **Action:** Update spec.md section "Configuration Integration"
 
 ### Mismatch #2: Data file location
@@ -706,23 +706,23 @@ After completing steps 2a-2f for ONE feature:
 
 ---
 
-**Return to Stage 5a (TODO Creation):**
-- [ ] Spec changes require >3 new TODO tasks
+**Return to Stage 5a (Implementation Planning):**
+- [ ] Spec changes require >3 new implementation tasks
 - [ ] Algorithm changes significantly (but core approach still valid)
 - [ ] Interface changes affect multiple integration points
-- [ ] Data structure changes require reworking TODO list
+- [ ] Data structure changes require reworking implementation plan
 
-**Example:** "ConfigManager interface changed from returning float to Tuple, need to add 5 TODO tasks to handle tuple unpacking across all callsites"
+**Example:** "ConfigManager interface changed from returning float to Tuple, need to add 5 implementation tasks to handle tuple unpacking across all callsites"
 
 ---
 
 **Minor Updates (Continue normally):**
-- [ ] Spec clarifications requiring ≤3 TODO task adjustments
+- [ ] Spec clarifications requiring ≤3 implementation task adjustments
 - [ ] No algorithm changes
 - [ ] Interface updates are small (parameter rename, etc.)
 - [ ] Just following established patterns from completed feature
 
-**Example:** "Update data file path to match established pattern, add 2 TODO tasks for path changes"
+**Example:** "Update data file path to match established pattern, add 2 implementation tasks for path changes"
 
 ---
 
@@ -874,8 +874,8 @@ What would you like to do?
 | Spec assumptions invalid | **Stage 2** | Research needed | "Assumed CSV format, but API returns JSON only" |
 | External dependency missing | **Stage 2** | Alternative needed | "Required library no longer maintained" |
 | Algorithm needs major change | **Stage 2** | Approach redesign | "Linear scaling won't work, need ML model" |
-| >3 new TODO tasks needed | **Stage 5a** | TODO list rework | "Interface change affects 7 callsites" |
-| Algorithm change (same approach) | **Stage 5a** | TODO updates | "Add caching layer, 4 new TODO tasks" |
+| >3 new implementation tasks needed | **Stage 5a** | TODO list rework | "Interface change affects 7 callsites" |
+| Algorithm change (same approach) | **Stage 5a** | TODO updates | "Add caching layer, 4 new implementation tasks" |
 | Interface signature changes | **Stage 5a** | Integration updates | "Method now returns Tuple not float, update callers" |
 | ≤3 TODO adjustments | **Continue** | Minor updates | "Update file path, add 2 tasks" |
 | Pattern following | **Continue** | Consistency | "Follow established ConfigManager pattern" |
@@ -907,13 +907,13 @@ Did implementation reveal changes needed?
          ├─ Does algorithm need complete redesign?
          │   └─ YES → Return to Stage 2 (rethink approach)
          │
-         ├─ Will spec changes require >3 new TODO tasks?
-         │   └─ YES → Return to Stage 5a (TODO Creation)
+         ├─ Will spec changes require >3 new implementation tasks?
+         │   └─ YES → Return to Stage 5a (Implementation Planning)
          │
          ├─ Did algorithm change significantly (but approach valid)?
-         │   └─ YES → Return to Stage 5a (update TODO list)
+         │   └─ YES → Return to Stage 5a (update implementation plan)
          │
-         └─ Minor updates (≤3 TODO tasks, no algorithm change)?
+         └─ Minor updates (≤3 implementation tasks, no algorithm change)?
              └─ YES → Continue (update spec, proceed normally)
 ```
 
@@ -978,7 +978,7 @@ Impact analysis:
 - Need to add injury_score display in UI (new)
 - Need to add injury_score to CSV output (new)
 - Need to add injury_score to tests (new)
-Total: 6 new TODO tasks
+Total: 6 new implementation tasks
 
 Decision: RETURN TO STAGE 5a
 - Update spec with correct interface

@@ -1,7 +1,7 @@
-# STAGE 5ac Part 1: TODO Creation - Round 3 Preparation (Iterations 17-22)
+# STAGE 5ac Part 1: Implementation Planning - Round 3 Preparation (Iterations 17-22)
 
 **Part of:** Epic-Driven Development Workflow v2
-**Stage:** 5ac - TODO Creation Round 3
+**Stage:** 5ac - Implementation Planning Round 3
 **Sub-Stage:** Part 1 - Pre-Implementation Preparation
 **Prerequisites:** STAGE_5ab complete (Round 2), confidence >= MEDIUM, test coverage >90%
 **Next Stage:** stages/stage_5/round3_part2_final_gates.md
@@ -23,7 +23,7 @@ Before proceeding, you must have:
 - [ ] Verified STAGE_5ab complete (Round 2)
 - [ ] Verified confidence level >= MEDIUM
 - [ ] Verified test coverage >90%
-- [ ] Located todo.md file
+- [ ] Located implementation_plan.md v2.0
 
 **If resuming after session compaction:**
 1. Check feature README.md "Agent Status" section for current iteration
@@ -65,7 +65,7 @@ Before proceeding, you must have:
    - Config toggle or git revert documented
 
 3. **Final Algorithm Traceability Matrix** (Iteration 19)
-   - ALL spec algorithms mapped to TODO tasks
+   - ALL spec algorithms mapped to implementation_plan.md tasks
    - 40+ mappings typical
 
 4. **Performance Assessment** (Iteration 20)
@@ -167,7 +167,7 @@ Prerequisites Met?
 3. ⚠️ Algorithm Traceability (Iteration 19) is FINAL verification
    - Last chance to catch missing algorithm mappings
    - Typical: 40+ mappings (spec + error handling + edge cases)
-   - ALL spec algorithms must be traced to TODO tasks
+   - ALL spec algorithms must be traced to implementation_plan.md tasks
 
 4. ⚠️ Mock Audit (Iteration 21) prevents interface mismatch bugs
    - MUST verify EACH mock matches real interface
@@ -210,7 +210,7 @@ Prerequisites Met?
 - [ ] No unresolved questions in questions.md
 
 ### File Access
-- [ ] todo.md exists and accessible
+- [ ] implementation_plan.md v2.0 exists and accessible
 - [ ] spec.md complete and validated (Round 2)
 - [ ] tests/ folder accessible
 
@@ -231,7 +231,7 @@ Prerequisites Met?
 
 **Process:**
 
-1. **Group TODO tasks into logical phases:**
+1. **Group implementation tasks from implementation_plan.md into logical phases:**
 
 **Example Phasing:**
 
@@ -294,9 +294,9 @@ Each phase ends with:
 - **Mini-QC:** Quick review of phase code
 - **Agent Status Update:** Document phase completion
 
-3. **Document phasing in todo.md:**
+3. **Add "Implementation Phasing" section to implementation_plan.md:**
 
-Add phasing section to todo.md:
+Add phasing section to implementation_plan.md:
 
 ```markdown
 ---
@@ -308,7 +308,24 @@ Add phasing section to todo.md:
 ---
 ```
 
-**Output:** Implementation phasing plan with 4-6 phases, clear checkpoints
+**Output:** Implementation phasing plan with 4-6 phases added to implementation_plan.md
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```markdown
@@ -411,6 +428,23 @@ Next Action: Iteration 18 - Rollback Strategy
 
 **Output:** Rollback strategy documented, rollback test task added
 
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
+
 **Update Agent Status:**
 ```markdown
 Progress: Iteration 18/24 (Round 3 Part 1) complete
@@ -421,7 +455,7 @@ Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
 
 ### Iteration 19: Algorithm Traceability Matrix (Final)
 
-**Purpose:** Final verification that ALL algorithms from spec are mapped to TODO tasks
+**Purpose:** Final verification that ALL algorithms from spec are mapped to implementation tasks
 
 **⚠️ CRITICAL:** This is the LAST chance to catch missing algorithm mappings before implementation
 
@@ -434,11 +468,11 @@ Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
    - Iteration 11 (Round 2): Updated with test details
 
 2. **Final verification checklist:**
-   - [ ] All main algorithms from spec traced to TODO tasks?
+   - [ ] All main algorithms from spec traced to implementation tasks?
    - [ ] All error handling algorithms traced?
    - [ ] All edge case algorithms traced?
    - [ ] All helper algorithms identified and traced?
-   - [ ] No TODO tasks without spec algorithm reference?
+   - [ ] No implementation tasks without spec algorithm reference?
 
 3. **Count and verify coverage:**
 
@@ -458,7 +492,7 @@ Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
 
 **Final Matrix:**
 
-| Algorithm (from spec.md) | Spec Section | Implementation Location | TODO Task | Status |
+| Algorithm (from spec.md) | Spec Section | Implementation Location | Implementation Task | Status |
 |--------------------------|--------------|------------------------|-----------|--------|
 | Load ADP data from CSV | Algorithms, step 1 | PlayerManager.load_adp_data() | Task 1 | ✅ Traced |
 | Match player to ADP ranking | Algorithms, step 2 | PlayerManager._match_player_to_adp() | Task 4 | ✅ Traced |
@@ -474,7 +508,7 @@ Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
 | Update config with ADP settings | Configuration, implicit | league_config.json update | Task 16 | ✅ Traced |
 
 **Helper Algorithms Identified:**
-| Helper Algorithm | Implementation Location | TODO Task | Status |
+| Helper Algorithm | Implementation Location | Implementation Task | Status |
 |------------------|------------------------|-----------|--------|
 | Parse ADP CSV columns | PlayerManager._parse_adp_csv() | Task 2 | ✅ Traced |
 | Normalize player names | PlayerManager._normalize_name() | Task 3 | ✅ Traced |
@@ -486,7 +520,7 @@ Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
 | Format ADP for output | FantasyPlayer._format_adp_data() | Task 14 | ✅ Traced |
 
 **Error Handling Algorithms:**
-| Error Scenario | Algorithm | TODO Task | Status |
+| Error Scenario | Algorithm | Implementation Task | Status |
 |----------------|-----------|-----------|--------|
 | ADP file not found | Raise DataProcessingError with clear message | Task 11 | ✅ Traced |
 | ADP file empty | Raise DataProcessingError | Task 11 | ✅ Traced |
@@ -503,12 +537,29 @@ Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
 **✅ FINAL VERIFICATION: ALL ALGORITHMS TRACED (47/47 = 100%)**
 ```
 
-4. **If any algorithms missing from TODO:**
-   - Add tasks for missing algorithms
-   - Update spec if algorithm was discovered during TODO creation
+4. **If any algorithms missing from implementation_plan.md:**
+   - Add tasks for missing algorithms to "Implementation Tasks" section
+   - Update spec if algorithm was discovered during implementation planning
    - Document in Agent Status: "Added tasks for X missing algorithms"
 
 **Output:** Final Algorithm Traceability Matrix with 40+ mappings (typical)
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```markdown
@@ -623,11 +674,28 @@ for player in players:  # 500 iterations
 ---
 ```
 
-4. **Add optimization tasks to todo.md if needed:**
+4. **Add optimization tasks to implementation_plan.md "Implementation Tasks" section if needed:**
    - If regression >20% → Add optimization tasks
    - If regression <20% → Document but no tasks needed
 
 **Output:** Performance analysis, optimization tasks (if regression >20%)
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```markdown
@@ -873,7 +941,7 @@ Step 3: Compare mock to real
 ---
 ```
 
-4. **Add integration test tasks to todo.md:**
+4. **Add integration test tasks to implementation_plan.md "Implementation Tasks" section:**
 
 ```markdown
 ## Task 35: Integration Test - Real ConfigManager
@@ -923,6 +991,23 @@ Step 3: Compare mock to real
 - Mock audit report (all mocks verified)
 - Integration test plan (at least 3 real-object tests)
 - Tasks added for integration tests
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```markdown
@@ -1043,7 +1128,7 @@ Next Action: Iteration 22 - Output Consumer Validation
 ---
 ```
 
-3. **Add consumer validation tasks:**
+3. **Add consumer validation tasks to implementation_plan.md "Implementation Tasks" section:**
 
 ```markdown
 ## Task 40: Consumer Validation - Draft Mode
@@ -1094,6 +1179,23 @@ Next Action: Iteration 22 - Output Consumer Validation
 
 **Output:** Output consumer validation plan with roundtrip tests
 
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
+
 **Update Agent Status:**
 ```markdown
 Progress: Iteration 22/24 (Round 3 Part 1) complete
@@ -1117,12 +1219,13 @@ Next Action: Read stages/stage_5/round3_part2_final_gates.md
 - [ ] Iteration 22: Output consumer validation planned
 
 ### Documentation Updated
-- [ ] todo.md contains implementation phasing
-- [ ] todo.md contains rollback strategy
-- [ ] todo.md contains final algorithm traceability matrix
-- [ ] todo.md contains performance optimization tasks (if needed)
-- [ ] todo.md contains integration test tasks (at least 3)
-- [ ] todo.md contains consumer validation tasks
+- [ ] implementation_plan.md contains "Implementation Phasing" section
+- [ ] implementation_plan.md contains "Rollback Strategy" section (or separate section)
+- [ ] implementation_plan.md "Algorithm Traceability Matrix" section updated (final)
+- [ ] implementation_plan.md contains "Performance Considerations" section
+- [ ] implementation_plan.md contains "Mock Audit" section
+- [ ] implementation_plan.md "Implementation Tasks" includes integration tests (at least 3)
+- [ ] implementation_plan.md "Implementation Tasks" includes consumer validation tasks
 
 ### Agent Status Updated
 - [ ] feature README.md Agent Status shows: "Part 1 complete, ready for Part 2"
@@ -1153,7 +1256,7 @@ Next Action: Read stages/stage_5/round3_part2_final_gates.md
 **What to do instead:**
 - ✅ Define 4-6 logical phases
 - ✅ Add checkpoint validation after each phase
-- ✅ Document phasing in todo.md
+- ✅ Document phasing in implementation_plan.md
 
 ---
 
@@ -1203,7 +1306,7 @@ GOOD: Read utils/csv_utils.py:45, verify signature matches mock
 - ✅ Estimate performance impact
 - ✅ Identify O(n²) algorithms
 - ✅ Plan optimizations if regression >20%
-- ✅ Add optimization tasks to todo.md
+- ✅ Add optimization tasks to implementation_plan.md
 
 **Example:**
 ```
@@ -1228,7 +1331,7 @@ O(n) dict lookup → 0.01s (acceptable)
 - [ ] Output consumers validated
 
 ### Documentation
-- [ ] todo.md updated with all Part 1 outputs
+- [ ] implementation_plan.md updated with all Part 1 outputs
 - [ ] feature README.md Agent Status shows Part 1 complete
 
 ### Readiness

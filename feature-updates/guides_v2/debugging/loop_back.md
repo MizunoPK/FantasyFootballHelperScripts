@@ -771,7 +771,7 @@ This document captures technical lessons from debugging. For process improvement
 
 **Feature/Epic Documentation:**
 - `spec.md` - Feature specification
-- `todo.md` - Implementation task list
+- `implementation_plan.md` - Implementation build guide
 - `lessons_learned.md` (main) - Overall feature lessons
 - `epic_lessons_learned.md` - Epic-level lessons
 

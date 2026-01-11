@@ -209,7 +209,7 @@ feature_01_player_integration/
 ├── README.md
 ├── spec.md
 ├── checklist.md
-├── todo.md
+├── implementation_plan.md
 ├── debugging/                          ← Created when first issue found
 │   ├── ISSUES_CHECKLIST.md            (Master checklist - ALWAYS CURRENT)
 │   ├── investigation_rounds.md         (Meta-tracker)

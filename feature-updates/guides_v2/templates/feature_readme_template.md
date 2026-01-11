@@ -40,7 +40,7 @@
 ## Agent Status
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** {PLANNING / TODO_CREATION / IMPLEMENTATION / POST_IMPLEMENTATION / COMPLETE}
+**Current Phase:** {PLANNING / IMPLEMENTATION_PLANNING / IMPLEMENTATION / POST_IMPLEMENTATION / COMPLETE}
 **Current Step:** {Specific step - e.g., "Iteration 12/24", "QC Round 2"}
 **Current Guide:** `{guide_name}.md`
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
@@ -65,12 +65,12 @@
 - [ ] Iteration 4a: TODO Specification Audit PASSED
 - [ ] Iteration 23a: Pre-Implementation Spec Audit (ALL 4 PARTS PASSED)
 - [ ] Iteration 24: Implementation Readiness PASSED
-- [ ] `todo.md` created
+- [ ] `implementation_plan.md` created and user-approved
 - [ ] `questions.md` created (or documented "no questions")
 - [ ] Stage 5a complete: {✅/◻️}
 
 **Stage 5b - Implementation:**
-- [ ] All TODO tasks complete
+- [ ] All implementation tasks complete
 - [ ] All unit tests passing (100%)
 - [ ] `implementation_checklist.md` created and all verified
 - [ ] `code_changes.md` created and updated
@@ -110,7 +110,7 @@
 - `lessons_learned.md` - Feature-specific insights
 
 **Planning Files (Stage 5a):**
-- `todo.md` - Implementation task list (created in Stage 5a)
+- `implementation_plan.md` - Implementation build guide (created in Stage 5a, user-approved)
 - `questions.md` - Questions for user (created in Stage 5a, or documented "no questions")
 
 **Implementation Files (Stage 5b):**

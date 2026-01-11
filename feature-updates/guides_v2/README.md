@@ -62,7 +62,7 @@ STAGE 4: Epic Testing Strategy
    Define epic success criteria
 
 STAGE 5: Feature Implementation (Loop per feature)
-   ├─ 5a: TODO Creation (24 verification iterations)
+   ├─ 5a: Implementation Planning (24 verification iterations)
    ├─ 5b: Implementation (coding with continuous verification)
    ├─ 5c: Post-Implementation (smoke testing + 3 QC rounds + PR review)
    ├─ 5d: Cross-Feature Alignment (update remaining feature specs)
@@ -103,7 +103,7 @@ STAGE 7: Epic Cleanup
 | Round 2 complete | `stages/stage_5/round3_todo_creation.md` | Router: Links to Part 1/Part 2 sub-stages |
 | Round 3 preparation phase | `stages/stage_5/round3_part1_preparation.md` | Iterations 17-22: Phasing, rollback, algorithm (final), performance, mock audit |
 | Round 3 final gates phase | `stages/stage_5/round3_part2_final_gates.md` | Iterations 23, 23a, 25, 24: 3 mandatory gates, GO/NO-GO |
-| TODOs complete (24 iterations) | `stages/stage_5/implementation_execution.md` | Implement feature with continuous verification |
+| Implementation planning complete (24 iterations) | `stages/stage_5/implementation_execution.md` | Implement feature with continuous verification |
 | Implementation done (Smoke Testing) | `stages/stage_5/smoke_testing.md` | Part 1: Import, Part 2: Entry Point, Part 3: E2E (verify DATA VALUES) |
 | Smoke testing passed (QC Rounds) | `stages/stage_5/qc_rounds.md` | Round 1: Basic validation, Round 2: Deep verification, Round 3: Final review |
 | QC rounds passed (Final Review) | `stages/stage_5/final_review.md` | PR review (11 categories), lessons learned, final verification |
@@ -152,8 +152,8 @@ STAGE 7: Epic Cleanup
 - **v2:** Integrated debugging protocol with QC/Smoke testing, loop-back mechanism, feature vs epic separation
 
 ### 8. 24 Verification Iterations
-- **v1:** Generic TODO creation
-- **v2:** Systematic 24-iteration verification catching 40% more issues
+- **v1:** Generic todo.md creation (single file, 3,896 lines)
+- **v2:** Systematic 24-iteration planning process creating implementation_plan.md (~400 lines) + implementation_checklist.md (~50 lines), catching 40% more issues
 
 ---
 
@@ -172,9 +172,9 @@ feature-updates/
 │   │   ├── README.md                 ← Feature status, Agent Status
 │   │   ├── spec.md                   ← PRIMARY specification
 │   │   ├── checklist.md              ← Tracks resolved vs pending decisions
-│   │   ├── todo.md                   ← Implementation task list (Stage 5a)
+│   │   ├── implementation_plan.md    ← Implementation build guide (~400 lines, Stage 5a, user-approved)
 │   │   ├── questions.md              ← Questions for user (Stage 5a)
-│   │   ├── implementation_checklist.md ← Continuous verification (Stage 5b)
+│   │   ├── implementation_checklist.md ← Progress tracking (~50 lines, Stage 5b)
 │   │   ├── code_changes.md           ← Documentation of changes (Stage 5b)
 │   │   ├── lessons_learned.md        ← Feature-specific insights
 │   │   ├── research/                 ← Research documents (if needed)
@@ -242,8 +242,8 @@ feature-updates/
     │   ├── stage_4/
     │   │   └── epic_testing_strategy.md
     │   ├── stage_5/
-    │   │   ├── round1_todo_creation.md       ← TODO creation Round 1
-    │   │   ├── round2_todo_creation.md       ← TODO creation Round 2
+    │   │   ├── round1_todo_creation.md       ← Implementation planning Round 1
+    │   │   ├── round2_todo_creation.md       ← Implementation planning Round 2
     │   │   ├── round3_todo_creation.md       ← Router (links to part1/part2)
     │   │   ├── round3_part1_preparation.md   ← Round 3 Part 1
     │   │   ├── round3_part2_final_gates.md   ← Round 3 Part 2
@@ -377,7 +377,7 @@ Agent continues through all 7 stages for the complete epic lifecycle.
 ## Agent Status
 
 **Last Updated:** 2025-12-30 15:23
-**Current Phase:** TODO_CREATION
+**Current Phase:** IMPLEMENTATION_PLANNING
 **Current Step:** Iteration 12/24
 **Current Guide:** stages/stage_5/round1_todo_creation.md
 **Guide Last Read:** 2025-12-30 15:20
@@ -405,7 +405,7 @@ Agent continues through all 7 stages for the complete epic lifecycle.
 ```markdown
 ## 🎯 Quick Reference Card (Always Visible)
 
-**Current Stage:** Stage 5a - TODO Creation
+**Current Stage:** Stage 5a - Implementation Planning
 **Active Guide:** `guides_v2/stages/stage_5/round1_todo_creation.md`
 **Last Guide Read:** 2025-12-30 15:20
 
@@ -518,25 +518,27 @@ Stage 6 (Execution):
 1. Agent completes Stages 1-4 (epic planning, feature deep dives, sanity check, testing strategy)
 2. User says: "Implement feature_01"
 3. Agent reads `stages/stage_5/round1_todo_creation.md`
-4. Agent executes 24 verification iterations
-5. Agent creates `todo.md` and `questions.md`
-6. **Stage 5a complete**
-7. Agent reads `stages/stage_5/implementation_execution.md`
-8. Agent implements feature with continuous verification
-9. **Stage 5b complete**
-10. Agent reads `stages/stage_5/smoke_testing.md`
-11. Agent runs smoke testing (3 parts - MANDATORY GATE)
-12. Agent reads `stages/stage_5/qc_rounds.md`
-13. Agent runs 3 QC rounds (restart protocol if issues found)
-14. Agent reads `stages/stage_5/final_review.md`
-15. Agent runs PR review (11 categories) and captures lessons learned
-16. **Stage 5c complete**
-17. Agent reads `stages/stage_5/post_feature_alignment.md`
-18. Agent updates remaining feature specs
-19. **Stage 5d complete**
-20. Agent reads `stages/stage_5/post_feature_testing_update.md`
-21. Agent updates epic_smoke_test_plan.md
-22. **Stage 5e complete** → Feature done!
+4. Agent executes 24 verification iterations across 3 rounds
+5. Agent creates `implementation_plan.md` (~400 lines) and `questions.md`
+6. **User approves implementation_plan.md** (MANDATORY CHECKPOINT)
+7. **Stage 5a complete**
+8. Agent reads `stages/stage_5/implementation_execution.md`
+9. Agent creates `implementation_checklist.md` (~50 lines) from implementation_plan.md tasks
+10. Agent implements feature using implementation_plan.md as PRIMARY reference (spec.md provides context)
+11. **Stage 5b complete**
+12. Agent reads `stages/stage_5/smoke_testing.md`
+13. Agent runs smoke testing (3 parts - MANDATORY GATE)
+14. Agent reads `stages/stage_5/qc_rounds.md`
+15. Agent runs 3 QC rounds (restart protocol if issues found)
+16. Agent reads `stages/stage_5/final_review.md`
+17. Agent runs PR review (11 categories) and captures lessons learned
+18. **Stage 5c complete**
+19. Agent reads `stages/stage_5/post_feature_alignment.md`
+20. Agent updates remaining feature specs
+21. **Stage 5d complete**
+22. Agent reads `stages/stage_5/post_feature_testing_update.md`
+23. Agent updates epic_smoke_test_plan.md
+24. **Stage 5e complete** → Feature done!
 
 ---
 
@@ -658,7 +660,7 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 
 ---
 
-### Q: Do I really need 24 iterations for TODO creation?
+### Q: Do I really need 24 iterations for implementation planning?
 
 **A: YES.** All 24 iterations are MANDATORY.
 

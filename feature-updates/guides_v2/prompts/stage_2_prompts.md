@@ -57,4 +57,85 @@ Starting Phase 1...
 
 ---
 
+## User Checklist Approval (Gate 2 - 🚨 MANDATORY)
+
+**User says:** Agent detects Phase 2.5 complete (Spec-to-Epic Alignment Check PASSED) OR user asks "what's in the checklist?"
+
+**Prerequisite:** Phase 2.5 (Spec-to-Epic Alignment Check) PASSED, checklist.md created with questions
+
+**🚨 MANDATORY CHECKPOINT - USER MUST ANSWER ALL CHECKLIST QUESTIONS BEFORE PROCEEDING**
+
+**Agent MUST respond:**
+
+```
+Phase 2.5 (Spec-to-Epic Alignment Check) has passed. I've created checklist.md with {N} questions that need your input before we can proceed to implementation planning.
+
+**This is Gate 2 (User Checklist Approval) - a mandatory checkpoint to ensure you see all uncertainties before implementation.**
+
+**Checklist Summary:**
+- Functional Questions: {count}
+- Technical Questions: {count}
+- Integration Questions: {count}
+- Error Handling Questions: {count}
+- Testing Questions: {count}
+- Dependencies & Blockers: {count}
+
+**Total Questions:** {N}
+
+**File Location:** `feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/checklist.md`
+
+**How this works:**
+1. You review each question in checklist.md
+2. Each question has:
+   - **Context:** Why this is uncertain
+   - **User Answer:** (blank - you fill this in)
+   - **Impact on spec.md:** What will be updated based on your answer
+3. You provide answers (all at once or one at a time - your choice)
+4. I update spec.md based on your answers
+5. Once all {N} questions are answered, we proceed to implementation planning
+
+**Why this matters:**
+- You see ALL uncertainties before implementation planning starts
+- You make ALL decisions (I don't make assumptions)
+- Early approval is cheap to change; implementation changes are expensive
+- This ensures we're aligned before writing a detailed implementation plan
+
+**What format works best for you?**
+- Option A: Review checklist.md and provide all {N} answers at once
+- Option B: Go through questions one at a time interactively
+- Option C: Ask me to clarify any questions first, then provide answers
+
+Please let me know how you'd like to proceed.
+```
+
+**After user provides answers:**
+
+```
+Thank you for answering {Q#}. I'm updating spec.md to incorporate your answer...
+
+[Agent updates spec.md with user's answer, marks item [x] in checklist.md]
+
+Updated spec.md section: {section_name}
+Updated checklist.md: Question {Q#} marked [x] with your answer documented
+
+{If more questions remain:}
+{N-1} questions remaining. {Ask for next answer or wait based on user's chosen format}
+
+{If all questions answered:}
+All {N} questions answered! ✅
+
+Gate 2 (User Checklist Approval) status: ✅ PASSED
+
+I'm documenting your approval in checklist.md...
+
+**Next Steps:**
+- spec.md has been updated with all your answers
+- checklist.md shows all questions resolved (0 pending)
+- Ready to proceed to Stage 5a (Implementation Planning)
+
+Would you like me to proceed to Stage 5a, or would you like to review the updated spec.md first?
+```
+
+---
+
 *For prompts for other stages, see the [prompts index](../prompts_reference_v2.md)*

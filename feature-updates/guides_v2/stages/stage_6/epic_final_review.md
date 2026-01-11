@@ -226,18 +226,73 @@ Prerequisites Met?
 
 ---
 
-## STEP 6: Epic PR Review (11 Categories - Epic Scope)
+## STEP 6: Epic PR Review (Multi-Round with Fresh Eyes)
+
+**🚨 MANDATORY: READ PR REVIEW PROTOCOL**
+
+**Before proceeding, you MUST:**
+1. **READ:** `stages/stage_5/pr_review_protocol.md`
+2. **Follow the complete hybrid approach:**
+   - Round 1: 4 specialized reviews (fresh agent for each)
+   - Rounds 2-5: Iterative comprehensive reviews (fresh agent for each)
+   - 2 consecutive clean rounds required to pass
+   - Maximum 5 rounds total
+
+**Purpose:** Systematic epic-level PR review using fresh agent context to catch issues before final commit.
+
+**Why fresh agents?** New agents avoid context bias and provide "fresh eyes" on epic-wide changes.
+
+---
 
 ### Overview
 
-**Objective:** Apply PR review checklist to epic-wide changes with focus on architectural consistency.
+**Objective:** Apply PR review protocol to epic-wide changes with focus on architectural consistency.
 
-**Critical Note:** This is the SAME 11-category checklist from Stage 5c, but applied to:
-- Epic-wide changes (not individual features)
-- Architectural consistency across features
-- Cross-feature impacts
+**Critical Note:** This uses the SAME protocol from Stage 5c, but applied to:
+- **Epic-wide changes** (not individual features)
+- **Architectural consistency** across features
+- **Cross-feature impacts** and integration points
+- **ALL features in the epic** (not just one)
 
 **NOT a repeat of feature-level review** - Focus on what's different when features work together.
+
+---
+
+### Epic-Specific Review Instructions
+
+**When spawning fresh agents for epic PR review, provide this additional context:**
+
+**Epic Scope:**
+- Review changes across ALL {N} features in epic
+- Focus on cross-feature consistency, not individual feature correctness
+- Individual features already passed feature-level PR review (Stage 5c)
+
+**Fresh Agent Task Prompt (add to protocol prompts):**
+```
+This is an EPIC-LEVEL PR review covering {N} features:
+{List feature names}
+
+**Your focus:**
+- Architectural consistency across features
+- Cross-feature integration points
+- Code quality consistency between features
+- No duplication across features
+- Epic-wide patterns and abstractions
+
+**NOT your focus:**
+- Individual feature correctness (already validated in Stage 5c)
+- Feature-specific implementation details (unless they affect other features)
+
+**Code to review:**
+{Provide git diff showing ALL epic changes across all features}
+{Provide paths to all feature folders}
+```
+
+---
+
+### Quick Reference: Epic-Level Considerations (for Rounds 2-5)
+
+**These considerations supplement the standard 11-category checklist when reviewing epic-wide changes:**
 
 ### Step 6.1: Correctness (Epic Level)
 
@@ -413,7 +468,7 @@ feature_01_win_rate_sim_json_integration/
   ├── README.md
   ├── spec.md
   ├── checklist.md
-  ├── todo.md
+  ├── implementation_plan.md
   ├── code_changes.md
   └── lessons_learned.md
 
@@ -421,7 +476,7 @@ feature_02_accuracy_sim_json_integration/
   ├── README.md
   ├── spec.md
   ├── checklist.md
-  ├── todo.md
+  ├── implementation_plan.md
   ├── code_changes.md
   └── lessons_learned.md
 
@@ -927,55 +982,76 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 
 ---
 
-### Step 6.12: Document PR Review Results
+### Epic PR Review Execution
 
-**After reviewing all 11 categories, document results in epic_lessons_learned.md:**
+**🚨 CRITICAL: Do NOT execute PR review manually from this guide**
+
+**Instead:**
+
+1. **READ:** `stages/stage_5/pr_review_protocol.md` (complete protocol)
+
+2. **Follow hybrid approach with epic-specific context:**
+   - Spawn fresh agents via Task tool for each review round
+   - Use epic-specific prompts (see "Epic-Specific Review Instructions" above)
+   - Track all findings in `pr_review_issues.md` (in epic folder, not feature folder)
+   - Continue until 2 consecutive clean rounds
+
+3. **After PR review PASSED:**
+   - Verify `KAI-{N}-{epic_name}/pr_review_issues.md` shows final status: PASSED
+   - Verify 2 consecutive clean rounds achieved
+   - Document results in epic_lessons_learned.md (see below)
+   - Proceed to Step 7 (only if issues found) or Step 8 (if no issues)
+
+**The epic-level considerations above are REFERENCE ONLY** - they supplement the standard 11-category checklist automatically used by fresh agents during Rounds 2-5. You do NOT manually execute them from this guide.
+
+---
+
+### Document PR Review Results in epic_lessons_learned.md
+
+**After PR review PASSED, add this section to epic_lessons_learned.md:**
 
 ```markdown
-## Stage 6c - Epic PR Review (11 Categories)
+## Stage 6c - Epic PR Review Results
 
-**Date:** 2025-01-02
-**Reviewer:** Claude Agent
-**Epic:** integrate_new_player_data_into_simulation
+**Date:** {YYYY-MM-DD}
+**Epic:** {epic_name}
+**Review Rounds:** {N} rounds total
+**Final Status:** PASSED (2 consecutive clean rounds achieved)
 
-**Review Results:**
+**Review Summary:**
+- Round 1 (Specialized): {brief summary of findings}
+- Round 2+ (Comprehensive): {brief summary of iterations}
+- Total issues found and fixed: {count}
+- Epic-level concerns addressed: {list any architectural/integration fixes}
 
-| Category | Status | Notes |
-|----------|--------|-------|
-| 1. Correctness | ✅ PASS | All cross-feature workflows correct, integration points verified |
-| 2. Code Quality | ✅ PASS | Consistent quality across features, shared utilities extracted |
-| 3. Comments & Docs | ✅ PASS | Epic-level docs complete, integration points documented |
-| 4. Organization | ✅ PASS | Consistent structure, utilities extracted, no circular deps |
-| 5. Testing | ✅ PASS | Epic integration tests exist, 100% test pass rate (2247 tests) |
-| 6. Security | ✅ PASS | No vulnerabilities, consistent input validation |
-| 7. Performance | ✅ PASS | 3.2s for full workflow (acceptable), no N+1 queries |
-| 8. Error Handling | ✅ PASS | Consistent error handling, graceful degradation |
-| 9. Architecture | ✅ PASS | Coherent architecture, Manager pattern consistent, clean interfaces |
-| 10. Compatibility | ✅ PASS | No breaking changes, existing features work |
-| 11. Scope | ✅ PASS | Scope matches original request, no scope creep |
+**pr_review_issues.md file:** `KAI-{N}-{epic_name}/pr_review_issues.md`
 
-**Overall Status:** ✅ APPROVED
-
-**Issues Found:** 0
-
-**Recommendations:** None - Epic ready for Stage 7 (Epic Cleanup)
+**Epic is ready for Step 8 (Final Verification)**
 ```
 
-**If ANY category fails:**
+**Example completed review:**
 ```markdown
-**Overall Status:** ❌ REJECTED
+## Stage 6c - Epic PR Review Results
 
-**Issues Found:** 2
+**Date:** 2025-01-02
+**Epic:** integrate_new_player_data_into_simulation
+**Review Rounds:** 3 rounds total
+**Final Status:** PASSED (Rounds 2-3 both clean)
 
-**Issue 1:** Architectural inconsistency (Category 9: Architecture)
-- Feature 01 uses Manager pattern, Feature 02 uses standalone functions
-- Requires refactoring Feature 02 to match pattern
+**Review Summary:**
+- Round 1a (Code Quality): Found 2 issues (duplication between features) - Fixed
+- Round 1b (Test Coverage): Found 1 issue (missing epic integration test) - Fixed
+- Round 1c (Security): No issues
+- Round 1d (Documentation): No issues
+- Round 2 (Comprehensive): 0 issues found ✅
+- Round 3 (Comprehensive): 0 issues found ✅
 
-**Issue 2:** Performance regression (Category 7: Performance)
-- Epic execution time 12.5s (baseline 2.5s, +400%)
-- Root cause: N+1 queries in Feature 02
+**Total issues found and fixed:** 3
+**Epic-level concerns addressed:** Extracted shared CSV loading logic to utils/csv_utils.py, added epic integration test
 
-**Next Action:** Create bug fixes for both issues, then RESTART Stage 6
+**pr_review_issues.md file:** `KAI-3-integrate_new_player_data_into_simulation/pr_review_issues.md`
+
+**Epic is ready for Step 8 (Final Verification)**
 ```
 
 ---
@@ -1109,7 +1185,7 @@ Should I proceed with creating these bug fixes?
    ├── README.md
    ├── spec.md
    ├── checklist.md
-   ├── todo.md
+   ├── implementation_plan.md
    ├── code_changes.md
    └── lessons_learned.md
    ```
@@ -1899,7 +1975,7 @@ Should I proceed?
 bugfix_high_architecture_inconsistency/
 ├── notes.txt ("Refactor Feature 02 to Manager pattern")
 ├── spec.md (bug fix specification)
-├── todo.md (refactoring tasks)
+├── implementation_plan.md (refactoring tasks)
 ├── code_changes.md (actual code changes)
 └── lessons_learned.md (what we learned)
 ```

@@ -101,12 +101,25 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 
 ## Stage 2-4: Planning & Testing Strategy
 
-**Stage 2: Feature Deep Dives** (Loop through ALL features)
-- **READ:** `stages/stage_2/feature_deep_dive.md`
-- Flesh out `spec.md` for each feature with detailed requirements
-- Interactive question resolution (ONE question at a time)
-- Compare to already-completed features for alignment
-- Dynamic scope adjustment (if scope >35 items, propose split)
+**Stage 2: Feature Deep Dives** (Loop through ALL features - 4 mandatory gates per feature)
+
+**🚨 CRITICAL CHANGE:** checklist.md is now QUESTION-ONLY format. Agents create QUESTIONS, user provides answers (Gate 2).
+
+- **READ:** `stages/stage_2/feature_deep_dive.md` (router to sub-phases)
+- **Sub-phases:**
+  - STAGE_2a: Research Phase (Phases 0, 1, 1.5) - Gate 1: Research Completeness Audit
+  - STAGE_2b: Specification Phase (Phases 2, 2.5, 2.6) - Gate 2: Spec-to-Epic Alignment + **Gate 3: User Checklist Approval (NEW)**
+  - STAGE_2c: Refinement Phase (Phases 3-6) - Gate 4: User Approval of Acceptance Criteria
+
+**Key Outputs:**
+- `spec.md` with requirement traceability (every requirement has source: Epic/User Answer/Derived)
+- `checklist.md` with QUESTIONS ONLY (agents cannot mark items resolved autonomously)
+- **🚨 Gate 3 (User Checklist Approval - MANDATORY):** User answers ALL questions before Stage 5a
+  - Agents present checklist.md to user using prompt from `prompts/stage_2_prompts.md`
+  - User provides answers to ALL questions
+  - Agent updates spec.md based on user answers
+  - Cannot proceed to Stage 5a without user approval
+  - See `mandatory_gates.md` Gate 3 for details
 
 **Stage 2b.5: Specification Validation** (After each feature spec)
 - **READ:** `stages/stage_2/phase_2b5_specification_validation.md`
@@ -133,21 +146,42 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 
 ## Stage 5: Feature Implementation (Loop per feature: 5a→5b→5c→5d→5e)
 
-**Stage 5a: TODO Creation** (24 verification iterations across 3 rounds)
+**🚨 CRITICAL CHANGE:** Replaced todo.md (3,896 lines) with implementation_plan.md (~400 lines) + implementation_checklist.md (~50 lines) approach.
+
+**Stage 5a: Implementation Planning** (24 verification iterations across 3 rounds, 5 mandatory gates)
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 5a Round 1" prompt from `prompts_reference_v2.md`
 
-- **Round 1:** READ `stages/stage_5/round1_todo_creation.md` (Iterations 1-7 + 4a MANDATORY GATE)
+- **Round 1:** READ `stages/stage_5/round1_todo_creation.md` (Iterations 1-7 + **Gate 1: Iteration 4a**)
 - **Round 2:** READ `stages/stage_5/round2_todo_creation.md` (Iterations 8-16, >90% test coverage required)
-- **Round 3:** READ `stages/stage_5/round3_todo_creation.md` (Router to Part 1/Part 2, Iterations 17-24 + 23a MANDATORY GATE, GO/NO-GO decision)
-- Create `todo.md` and `questions.md`
+- **Round 3:** READ `stages/stage_5/round3_todo_creation.md` (Router to Part 1/Part 2)
+  - Part 1: Iterations 17-22 (Preparation)
+  - Part 2a: Iterations 23, 23a (**Gates 2-3: Integration + Spec Audit**)
+  - Part 2b: Iterations 25, 24 (**Gates 4-5: Spec Validation + GO/NO-GO**)
+- Create `implementation_plan.md` (grows from ~150→300→400 lines through 3 rounds)
+- **🚨 Gate 5 (User Approval - MANDATORY):** Present implementation_plan.md to user for approval
+  - User reviews complete implementation plan (~400 lines)
+  - User must explicitly approve before Stage 5b begins
+  - Agent uses prompt from `prompts/stage_5_prompts.md`
+  - Cannot proceed to Stage 5b without user approval
+  - See `mandatory_gates.md` Gate 5 for details
+
+**Key Files:**
+- `implementation_plan.md` = PRIMARY reference (~400 lines) - user-approved build guide
+- `spec.md` = Context reference (requirements specification)
+- `questions.md` = Created only if NEW questions arise during iterations
 
 **Stage 5b: Implementation Execution**
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 5b" prompt from `prompts_reference_v2.md`
 
 - READ: `stages/stage_5/implementation_execution.md`
-- Keep spec.md visible, continuous verification, mini-QC checkpoints, 100% test pass required
+- Create `implementation_checklist.md` from implementation_plan.md tasks
+- **Implement from implementation_plan.md (PRIMARY reference)**, spec.md (context/verification)
+- Update implementation_checklist.md in real-time as tasks complete
+- Mini-QC checkpoints every 5-7 tasks, 100% test pass required after each phase
+
+**Key Principle:** implementation_plan.md tells you HOW to build (primary reference), spec.md tells you WHAT to build (verification)
 
 **Stage 5c: Post-Implementation** (4 phases - smoke testing, QC rounds, final review, commit)
 
@@ -263,6 +297,8 @@ If missing scope/requirements discovered at ANY point after first Stage 5 starts
 - **Epic-first thinking**: Top-level work unit is an epic (collection of features)
 - **Mandatory reading protocol**: ALWAYS read guide before starting stage
 - **Phase transition prompts**: MANDATORY acknowledgment (proves guide was read)
+- **User approval gates**: Two mandatory gates (Gate 3: checklist approval after Stage 2, Gate 5: implementation plan approval after Stage 5a)
+- **Zero autonomous resolution**: Agents create QUESTIONS, user provides ANSWERS (no assumptions)
 - **Continuous alignment**: Stage 5d updates specs after each feature
 - **Iterative testing**: Test plan evolves (Stage 1 → 4 → 5e → 6)
 - **Epic vs feature distinction**: Feature testing (5c) vs epic testing (6) are different
@@ -273,6 +309,70 @@ If missing scope/requirements discovered at ANY point after first Stage 5 starts
 - **Zero tech debt tolerance**: Fix ALL issues immediately (no deferrals)
 
 See `feature-updates/guides_v2/README.md` for complete workflow overview and guide index.
+
+---
+
+## Feature File Structure (Critical for Resuming Work)
+
+**Standard feature folder structure:**
+
+```
+feature_XX_{name}/
+├── README.md                      (Agent Status - current phase, guide, next action)
+├── spec.md                        (Requirements specification - user-approved Stage 2)
+├── checklist.md                   (QUESTIONS ONLY - user answers ALL before Stage 5a)
+├── implementation_plan.md         (Implementation build guide ~400 lines - user-approved Stage 5a)
+├── implementation_checklist.md    (Progress tracker ~50 lines - created Stage 5b)
+├── code_changes.md                (Actual changes - updated Stage 5b)
+├── lessons_learned.md             (Retrospective - created Stage 5c)
+└── debugging/                     (Created if issues found during testing)
+    ├── ISSUES_CHECKLIST.md
+    ├── issue_XX_{name}.md
+    └── ...
+```
+
+**🚨 CRITICAL FILE CHANGES (as of 2026-01-10):**
+
+**Replaced:**
+- ❌ `todo.md` (3,896 lines) - DELETED, no longer used
+
+**New Files:**
+- ✅ `implementation_plan.md` (~400 lines) - PRIMARY reference during Stage 5b
+  - Created: Stage 5a (grows through 24 iterations)
+  - Purpose: User-approved implementation build guide
+  - Contains: Implementation tasks, dependencies, test strategy, phasing, performance
+  - User approval: MANDATORY before Stage 5b (Gate 5)
+
+- ✅ `implementation_checklist.md` (~50 lines) - Progress tracker
+  - Created: Stage 5b (extracted from implementation_plan.md)
+  - Purpose: Real-time progress tracking during implementation
+  - Format: Simple checkboxes linking spec requirements → implementation tasks
+
+- ✅ `questions.md` (optional) - Only if NEW questions arise during Stage 5a iterations
+  - Created: Stage 5a (if needed)
+  - Purpose: NEW questions discovered during 24 verification iterations
+  - Note: Most questions should be in checklist.md (answered during Stage 2)
+
+**Changed Files:**
+- ✅ `checklist.md` - NOW QUESTION-ONLY FORMAT
+  - Created: Stage 1
+  - Updated: Stage 2 (agents add QUESTIONS, not decisions)
+  - **🚨 CRITICAL:** Agents CANNOT mark items `[x]` autonomously
+  - User approval: MANDATORY before Stage 5a (Gate 3)
+  - Format: Each question has Context + User Answer (blank) + Impact on spec.md
+  - After user answers: Agent updates spec.md, marks items `[x]`
+
+**File Roles Summary:**
+- `spec.md` = WHAT to build (requirements) - user-approved Stage 2
+- `checklist.md` = QUESTIONS to answer (user input) - user-approved Stage 2 (Gate 3)
+- `implementation_plan.md` = HOW to build (implementation guide) - user-approved Stage 5a (Gate 6)
+- `implementation_checklist.md` = PROGRESS tracker (real-time updates) - created Stage 5b
+- `code_changes.md` = ACTUAL changes (what was done) - updated Stage 5b
+
+**Why This Matters for Resuming:**
+- If you see `todo.md` in a feature folder → OLD feature (before 2026-01-10)
+- If you see `implementation_plan.md` → NEW feature (use as PRIMARY reference)
+- Always check README.md Agent Status for current phase and which files exist
 
 ---
 

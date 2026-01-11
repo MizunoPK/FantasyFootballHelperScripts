@@ -159,9 +159,9 @@ feature-updates/KAI-{N}-{epic_name}/
 │   ├── README.md                     # Feature context and Agent Status
 │   ├── spec.md                       # PRIMARY SPECIFICATION (detailed requirements)
 │   ├── checklist.md                  # Resolved vs pending decisions
-│   ├── todo.md                       # Implementation tracking (created Stage 5a)
+│   ├── implementation_plan.md        # Implementation build guide (~400 lines, Stage 5a, user-approved)
 │   ├── questions.md                  # Questions for user (created Stage 5a if needed)
-│   ├── implementation_checklist.md   # Continuous spec verification (Stage 5b)
+│   ├── implementation_checklist.md   # Progress tracking (~50 lines, Stage 5b)
 │   ├── code_changes.md               # Documentation of changes (Stage 5b)
 │   ├── lessons_learned.md            # Feature-specific insights
 │   └── research/                     # Research documents (if needed)
@@ -171,8 +171,8 @@ feature-updates/KAI-{N}-{epic_name}/
     ├── notes.txt                     # Issue description (user-verified)
     ├── spec.md                       # Fix requirements
     ├── checklist.md                  # Same as features
-    ├── todo.md                       # Same as features
-    ├── implementation_checklist.md   # Same as features
+    ├── implementation_plan.md        # Same as features (~400 lines, user-approved)
+    ├── implementation_checklist.md   # Same as features (~50 lines, progress tracking)
     ├── code_changes.md               # Same as features
     └── lessons_learned.md            # Same as features
 ```
@@ -215,13 +215,20 @@ feature-updates/KAI-{N}-{epic_name}/
   - Open questions (need user input)
   - Resolved questions (decisions made)
 
-- **todo.md**: Implementation tracking (created in Stage 5a)
-  - All implementation tasks
-  - Current status (pending/in_progress/completed)
+- **implementation_plan.md**: Implementation build guide (created in Stage 5a, ~400 lines)
+  - All implementation tasks with acceptance criteria
+  - Component dependencies matrix
+  - Algorithm traceability matrix
+  - Test strategy and edge cases
+  - Implementation phasing (5-6 checkpoints)
+  - Performance considerations
+  - Mock audit results
+  - User-approved before Stage 5b begins
 
-- **implementation_checklist.md**: Spec verification (created in Stage 5b)
-  - Continuous verification against spec.md
-  - Ensures nothing forgotten
+- **implementation_checklist.md**: Progress tracking (created in Stage 5b, ~50 lines)
+  - Simple checkbox format for tracking progress
+  - References implementation_plan.md for details
+  - Lightweight continuous verification
 
 - **code_changes.md**: Change documentation (created in Stage 5b)
   - Files modified
@@ -341,12 +348,12 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Outputs:**
 - Implemented and tested feature
-- All Stage 5 artifacts (todo, code_changes, implementation_checklist)
+- All Stage 5 artifacts (implementation_plan, implementation_checklist, code_changes)
 - Verified integration with existing features
 
 **Stages:** 5a → 5b → 5c → 5d → 5e (for EACH feature)
 
-#### Stage 5a: TODO Creation (24 verification iterations across 3 rounds)
+#### Stage 5a: Implementation Planning (24 verification iterations across 3 rounds)
 
 **Guide:** 3 guides (Round 1, 2, 3)
 - `stages/stage_5/round1_todo_creation.md` (iterations 1-7 + 4a)
@@ -357,7 +364,7 @@ feature-updates/KAI-{N}-{epic_name}/
 **Key Activities:**
 - Round 1: Initial analysis (7 iterations + mandatory 4a gate)
   - Iteration 4: Algorithm Traceability Matrix
-  - Iteration 4a: TODO Specification Audit (MANDATORY GATE)
+  - Iteration 4a: Implementation Plan Specification Audit (MANDATORY GATE)
   - Iteration 7: Integration Gap Check
 - Round 2: Deep verification (9 iterations)
   - Iteration 11: Algorithm Traceability Matrix (re-verify)
@@ -370,7 +377,9 @@ feature-updates/KAI-{N}-{epic_name}/
   - Iteration 23a: Pre-Implementation Spec Audit (4 MANDATORY PARTS)
   - Iteration 24: GO/NO-GO decision
 
-**Outputs:** `todo.md`, `questions.md` (if needed)
+**Outputs:** `implementation_plan.md` (~400 lines), `questions.md` (if needed)
+
+**User Approval:** **MANDATORY CHECKPOINT** - User must approve implementation_plan.md before Stage 5b
 
 **Critical Rule:** ALL 24 iterations are mandatory, cannot skip
 
@@ -379,13 +388,16 @@ feature-updates/KAI-{N}-{epic_name}/
 **Guide:** `stages/stage_5/implementation_execution.md`
 
 **Key Activities:**
+- Create `implementation_checklist.md` (~50 lines) from implementation_plan.md tasks
 - Keep spec.md VISIBLE at all times
-- Continuous spec verification via `implementation_checklist.md`
+- Use implementation_plan.md as PRIMARY reference (spec.md provides context)
+- Follow implementation phasing from implementation_plan.md (5-6 checkpoints)
+- Continuous progress tracking via `implementation_checklist.md`
 - Mini-QC checkpoints after each major component
 - Document changes in `code_changes.md`
 - Run unit tests after EVERY phase (100% pass required)
 
-**Outputs:** Implemented code, `code_changes.md`, `implementation_checklist.md`
+**Outputs:** Implemented code, `implementation_checklist.md`, `code_changes.md`
 
 **Critical Rule:** 100% unit test pass rate at all times
 
@@ -545,7 +557,7 @@ I'm reading stages/stage_5/round1_todo_creation.md to ensure I follow all 8 iter
 
 The guide requires:
 - Round 1: 8 MANDATORY iterations (iterations 1-7 + 4a)
-- Iteration 4a is a MANDATORY GATE (TODO Specification Audit)
+- Iteration 4a is a MANDATORY GATE (Implementation Plan Specification Audit)
 - Algorithm Traceability Matrix (iteration 4)
 - Integration Gap Check (iteration 7)
 - STOP if confidence < Medium at Round 1 checkpoint
@@ -730,7 +742,7 @@ I'm reading stages/stage_5/round1_todo_creation.md to ensure I follow all 8 iter
 
 The guide requires:
 - Round 1: 8 MANDATORY iterations (iterations 1-7 + 4a)
-- Iteration 4a is a MANDATORY GATE (TODO Specification Audit)
+- Iteration 4a is a MANDATORY GATE (Implementation Plan Specification Audit)
 - Algorithm Traceability Matrix (iteration 4)
 - Integration Gap Check (iteration 7)
 - STOP if confidence < Medium at Round 1 checkpoint
@@ -845,7 +857,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 | Writing feature spec | stages/stage_2/feature_deep_dive.md |
 | Checking feature conflicts | stages/stage_3/cross_feature_sanity_check.md |
 | Planning epic tests | stages/stage_4/epic_testing_strategy.md |
-| Creating TODO list | STAGE_5aa/5ab/5ac (rounds 1-3) |
+| Creating implementation plan | STAGE_5aa/5ab/5ac (rounds 1-3) |
 | Writing code | stages/stage_5/implementation_execution.md |
 | Testing feature | STAGE_5ca/5cb/5cc (smoke/QC/review) |
 | Updating other specs | stages/stage_5/post_feature_alignment.md |
@@ -880,8 +892,8 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 **Three-phase cycle for everything:**
 
-1. **Plan:** Write spec, create TODO list, think through edge cases
-2. **Implement:** Write code, following spec and TODO exactly
+1. **Plan:** Write spec, create implementation plan, think through edge cases
+2. **Implement:** Write code, following spec and implementation plan exactly
 3. **Verify:** Test, review, validate against spec and requirements
 
 **Never skip to implementation without planning**
@@ -1326,7 +1338,7 @@ Phase 2: Fix ALL Bugs
 
 [For each bug fix, follow stages/stage_5/bugfix_workflow.md]
 [Stage 2: Create spec.md]
-[Stage 5a: Create todo.md]
+[Stage 5a: Create implementation_plan.md, get user approval]
 [Stage 5b: Implement fix]
 [Stage 5c: Smoke testing + QC rounds]
 
@@ -1371,7 +1383,7 @@ Let me check the epic status to understand where we are...
 [Read feature-updates/KAI-{N}-{epic_name}/EPIC_README.md Agent Status]
 
 The epic is currently at:
-- Stage: Stage 5a - TODO Creation
+- Stage: Stage 5a - Implementation Planning
 - Round: Round 2
 - Iteration: 11 of 16
 - Guide: stages/stage_5/round2_todo_creation.md
@@ -1385,7 +1397,7 @@ I'm resuming work on {epic_name} after session compaction. Let me restore contex
 
 [Read stages/stage_5/round2_todo_creation.md]
 [Read feature spec.md]
-[Read current todo.md]
+[Read current implementation_plan.md]
 
 Context restored. Current task: Iteration 11 (Algorithm Traceability Matrix)
 

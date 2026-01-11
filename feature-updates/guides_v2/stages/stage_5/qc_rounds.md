@@ -203,7 +203,7 @@ python tests/run_all_tests.py
 ## Feature Files (example)
 - [ ] spec.md (complete specification)
 - [ ] checklist.md (all items resolved)
-- [ ] todo.md (all tasks done)
+- [ ] implementation_plan.md (all tasks documented)
 - [ ] code_changes.md (all changes documented)
 - [ ] implementation_checklist.md (all requirements verified)
 - [ ] README.md (Agent Status updated)

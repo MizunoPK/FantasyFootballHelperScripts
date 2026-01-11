@@ -2,7 +2,7 @@
 
 **Purpose:** Comprehensive list of ALL mandatory gates from Stage 1-7
 **Use Case:** Quick lookup for gate requirements, criteria, and failure consequences
-**Total Gates:** 13 across 7 stages
+**Total Gates:** 15 across 7 stages (NEW: Gate added in Stage 2b for checklist approval)
 
 ---
 
@@ -13,6 +13,7 @@
 | 1 | None | - | User confirmation recommended | No |
 | 2a | Phase 1.5 Audit | STAGE_2a | All 4 categories with evidence | Yes (Phase 1) |
 | 2b | Phase 2.5 Alignment | STAGE_2b | Zero scope creep + zero missing | Yes (Phase 2) |
+| **2b** | **Phase 2.6 Checklist Approval (NEW)** | **STAGE_2b** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
 | 2c | Phase 6 User Approval | STAGE_2c | User explicitly approves | Yes (Phase 6) |
 | 3 | User Sign-Off | STAGE_3 | User approves complete plan | Yes (Stage 3) |
 | 4 | None | - | Update test plan | No |
@@ -20,6 +21,7 @@
 | 5ac | Iteration 23a | Part 2 | ALL 4 PARTS pass with 100% | Yes (Iteration 23a) |
 | 5ac | Iteration 25 | Part 2 | Spec matches validated docs | Yes (User decides) |
 | 5ac | Iteration 24 | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
+| 5a-5b | User Approval | After 5a | User approves implementation_plan.md | Yes (Revise plan) |
 | 5ca | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
 | 5cb | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
 | 7 | Unit Tests | Cleanup | 100% test pass (exit code 0) | Yes (Fix tests) |
@@ -40,7 +42,7 @@
 
 ---
 
-## Stage 2: Feature Deep Dive (3 gates per feature)
+## Stage 2: Feature Deep Dive (4 gates per feature - NEW: Checklist Approval added)
 
 ### Gate 1: Phase 1.5 - Research Completeness Audit
 
@@ -101,7 +103,49 @@
 
 ---
 
-### Gate 3: Phase 6 - User Approval (Acceptance Criteria)
+### Gate 3: Phase 2.6 - User Checklist Approval (🚨 NEW MANDATORY GATE)
+
+**Location:** stages/stage_2/phase_1_specification.md (STAGE_2b)
+**When:** After Phase 2.5 (Spec-to-Epic Alignment Check) passes
+
+**What it checks:**
+- User reviews ALL questions in checklist.md
+- User provides answers to ALL questions
+- Zero autonomous agent resolution
+
+**Pass Criteria:**
+- Agent presents checklist.md with N questions to user
+- User answers all N questions
+- Agent updates spec.md based on user answers
+- Agent marks items `[x]` only after user provides answer
+- User explicitly confirms all questions answered
+- Total questions = Total answered (100%)
+
+**Evidence Required:**
+- checklist.md shows {N} total questions
+- checklist.md shows {N} user answered
+- Pending = 0
+- User Approval section completed with timestamp
+- Gate 2 Status: ✅ PASSED documented in checklist.md
+
+**If FAIL (user requests changes or clarification):**
+- Provide clarification on questions
+- Revise questions based on user feedback
+- Re-present checklist for user approval
+- Cannot proceed to Stage 5a without user approval of ALL questions
+
+**Why it matters:**
+- Addresses guide-updates.txt #2: "Require ALL checklist items to be confirmed by the user"
+- Prevents autonomous agent resolution of uncertainties
+- Ensures user visibility into ALL questions before implementation planning
+- Stops agents from "researching and deciding" without user input
+- Creates clear approval gate early in workflow
+
+**From Proposal:** This gate ensures agents create QUESTIONS (not decisions) and user confirms ALL answers before proceeding.
+
+---
+
+### Gate 4: Phase 6 - User Approval (Acceptance Criteria)
 
 **Location:** stages/stage_2/phase_2_refinement.md
 **When:** After creating acceptance criteria (Phase 6)
@@ -156,20 +200,20 @@
 
 ---
 
-## Stage 5a: TODO Creation (4 gates per feature)
+## Stage 5a: Implementation Planning (5 gates per feature)
 
-### Gate 1: Iteration 4a - TODO Specification Audit
+### Gate 1: Iteration 4a - Implementation Plan Specification Audit
 
 **Location:** stages/stage_5/round1_todo_creation.md (Round 1)
-**When:** After creating initial TODO.md (Iteration 4)
+**When:** After creating initial implementation_plan.md (Iteration 4)
 
 **What it checks:**
-1. All TODO tasks have acceptance criteria
+1. All implementation tasks have acceptance criteria
 2. All tasks have implementation location specified
 3. All tasks have test coverage noted
 
 **Pass Criteria:**
-- Count TODO tasks: N
+- Count implementation tasks: N
 - Count tasks with acceptance criteria: M
 - Coverage = M/N × 100%
 - ✅ PASS if coverage = 100%
@@ -196,12 +240,12 @@
 
 **PART 1: Completeness Audit**
 - Requirements in spec.md: N
-- Requirements with TODO tasks: M
+- Requirements with implementation tasks: M
 - Coverage: M/N × 100%
 - ✅ PASS if coverage = 100%
 
 **PART 2: Specificity Audit**
-- Total TODO tasks: N
+- Total implementation tasks: N
 - Tasks with acceptance criteria: M1
 - Tasks with implementation location: M2
 - Tasks with test coverage: M3
@@ -230,7 +274,7 @@
 - Re-run Iteration 23a (all 4 parts)
 - Must PASS before proceeding to Iteration 25
 
-**Why it matters:** Final verification that TODO.md is complete and correct before validating against user-approved documents
+**Why it matters:** Final verification that implementation_plan.md is complete and correct before validating against user-approved documents
 
 ---
 
@@ -246,7 +290,7 @@
   3. Spec summary (user-validated feature outcomes from Stage 2)
 
 **Process (8 steps):**
-1. **Close spec.md and TODO.md** (avoid confirmation bias)
+1. **Close spec.md and implementation_plan.md** (avoid confirmation bias)
 2. **Re-read validated documents** from scratch
 3. **Ask critical questions:**
    - Is this EXAMPLE or SPECIAL CASE?
@@ -258,8 +302,8 @@
    - Spec summary vs spec.md
 5. **Document ALL discrepancies**
 6. **IF ANY DISCREPANCIES → STOP and report to user with 3 options:**
-   - Option A: Fix spec, restart TODO iterations (recommended)
-   - Option B: Fix spec and TODO, continue (faster but riskier)
+   - Option A: Fix spec, restart implementation planning iterations (recommended)
+   - Option B: Fix spec and implementation plan, continue (faster but riskier)
    - Option C: Discuss discrepancies first
 7. **Wait for user decision** (no autonomous decisions)
 8. **IF ZERO DISCREPANCIES → Document validation:**
@@ -290,7 +334,7 @@
 
 **What it checks (comprehensive checklist):**
 - Spec Verification: Complete, validated
-- TODO Verification: All requirements have tasks, specificity 100%
+- Implementation Plan Verification: All requirements have tasks, specificity 100%
 - Iteration Completion: All 25 iterations complete
 - Mandatory Gates: Iterations 4a, 23a (ALL 4 PARTS), 25 all PASSED
 - Confidence Assessment: >= MEDIUM
@@ -311,6 +355,44 @@
 - Cannot proceed to Stage 5b without GO decision
 
 **Why it matters:** Final checkpoint before writing code (prevents implementing with incomplete/incorrect planning)
+
+---
+
+### Gate 5: User Approval of Implementation Plan (MANDATORY CHECKPOINT)
+
+**Location:** Between Stage 5a and Stage 5b
+**When:** After Iteration 24 returns GO decision
+
+**What it checks:**
+- User reviews implementation_plan.md (~400 lines)
+- User approves implementation approach before coding begins
+
+**Pass Criteria:**
+- User reviews implementation_plan.md containing:
+  - Implementation tasks with acceptance criteria
+  - Component dependencies matrix
+  - Algorithm traceability matrix
+  - Test strategy (>90% coverage)
+  - Edge cases and error handling
+  - Implementation phasing (5-6 checkpoints)
+  - Performance considerations
+  - Mock audit results
+- User explicitly approves proceeding to Stage 5b
+- User says "approved" or "looks good" or equivalent
+
+**If FAIL (user requests changes):**
+- Revise implementation_plan.md based on user feedback
+- Re-run affected iterations from Stage 5a if needed
+- Get user approval before proceeding
+- Cannot proceed to Stage 5b without user approval
+
+**Why it matters:** Gives user visibility and control over implementation approach before code is written. User can request changes to phasing, test strategy, or approach without wasting implementation effort.
+
+**Benefits:**
+- User sees full implementation plan before coding
+- User can adjust approach early (cheap to change)
+- Prevents implementing wrong approach (expensive to fix later)
+- Creates shared understanding of implementation strategy
 
 ---
 
@@ -453,12 +535,12 @@
 
 ## Summary Statistics
 
-**Total Mandatory Gates:** 13
+**Total Mandatory Gates:** 14
 - Stage 1: 0
 - Stage 2: 3 (per feature, so 3×N for N features)
 - Stage 3: 1
 - Stage 4: 0
-- Stage 5a: 4 (per feature)
+- Stage 5a: 5 (per feature, including user approval)
 - Stage 5c: 2 (per feature)
 - Stage 6: 0 (but restart protocol similar)
 - Stage 7: 2
@@ -479,10 +561,11 @@
 - Smoke Part 3 → Smoke Part 1
 - QC Round 3 → Smoke Part 1
 
-**Gates Requiring User Input:** 3
-- Phase 6: User approval
-- Stage 3: User sign-off
+**Gates Requiring User Input:** 4
+- Phase 6: User approval (acceptance criteria)
+- Stage 3: User sign-off (epic plan)
 - Iteration 25: User decision (if discrepancies)
+- Gate 5a.5: User approval (implementation plan)
 - Gate 7.2: User testing approval
 
 ---
@@ -507,4 +590,4 @@
 
 ---
 
-**Last Updated:** 2026-01-02
+**Last Updated:** 2026-01-10

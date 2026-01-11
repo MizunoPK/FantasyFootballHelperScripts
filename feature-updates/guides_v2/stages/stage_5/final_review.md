@@ -24,8 +24,8 @@ Stage 5ca (Smoke Testing) → Stage 5cb (QC Rounds) →
    - Current Phase: POST_IMPLEMENTATION (Final Review)
    - Current Guide: stages/stage_5/final_review.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
-   - Critical Rules: "11 PR categories MANDATORY", "Update guides immediately", "100% completion required"
-   - Next Action: PR Review Category 1 - Correctness and Logic
+   - Critical Rules: "PR review protocol MANDATORY", "Fresh agents for each round", "Update guides immediately", "100% completion required"
+   - Next Action: READ pr_review_protocol.md and begin Round 1 specialized reviews
 
 3. **Verify all prerequisites** (see checklist below)
 
@@ -179,15 +179,54 @@ Re-Reading Checkpoint
 
 ---
 
-## Step 1: PR Review Checklist (11 Categories)
+## Step 1: PR Review (Multi-Round with Fresh Eyes)
 
-**Purpose:** Comprehensive code review covering correctness, quality, security, performance, etc.
+**🚨 MANDATORY: READ PR REVIEW PROTOCOL**
 
-**This is the final validation before declaring feature complete.**
+**Before proceeding, you MUST:**
+1. **READ:** `stages/stage_5/pr_review_protocol.md`
+2. **Follow the complete hybrid approach:**
+   - Round 1: 4 specialized reviews (fresh agent for each)
+   - Rounds 2-5: Iterative comprehensive reviews (fresh agent for each)
+   - 2 consecutive clean rounds required to pass
+   - Maximum 5 rounds total
 
-Work through each category systematically. Document findings for each.
+**Purpose:** Systematic PR review using fresh agent context to catch issues before committing.
+
+**Why fresh agents?** New agents avoid context bias and provide "fresh eyes" on code changes.
 
 ---
+
+### PR Review Protocol Summary
+
+**You MUST follow pr_review_protocol.md completely. Key points:**
+
+**Round 1: Specialized Reviews** (spawn 4 fresh agents via Task tool)
+- Round 1a: Code Quality Review
+- Round 1b: Test Coverage Review
+- Round 1c: Security Review
+- Round 1d: Documentation Review
+
+**Consolidate Round 1 results:**
+- If issues found → Fix all → Restart from Round 1a
+- If multi-approach issues → Escalate to user
+- If NO issues → Proceed to Round 2
+
+**Rounds 2-5: Iterative Comprehensive Reviews** (spawn 1 fresh agent per round)
+- Full checklist: Code Quality, Testing, Security, Documentation, Spec Alignment, Implementation Plan Alignment, Tech Debt, Performance
+- Continue until 2 consecutive clean rounds
+- If issues found → Fix all → Restart next round
+- If 5 rounds without 2 consecutive clean → Escalate to user
+
+**Completion:**
+- 2 consecutive clean rounds = PASSED ✅
+- Create `pr_review_issues.md` tracking all findings
+
+---
+
+### Quick Reference: 11-Category Checklist (used in Rounds 2-5)
+
+**For detailed examples and guidance, see pr_review_protocol.md**
 
 ### Category 1: Correctness and Logic
 
@@ -486,59 +525,25 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 ### PR Review Execution
 
-1. **Work through all 11 categories**
+**🚨 CRITICAL: Do NOT execute PR review manually from this guide**
 
-2. **Document findings:**
-   ```markdown
-   ## PR Review Checklist Results
+**Instead:**
 
-   ### Category 1: Correctness and Logic
-   ✅ No issues found
+1. **READ:** `stages/stage_5/pr_review_protocol.md` (complete protocol)
 
-   ### Category 2: Code Quality and Readability
-   ✅ No issues found
+2. **Follow hybrid approach:**
+   - Spawn fresh agents via Task tool for each review round
+   - Track all findings in `pr_review_issues.md`
+   - Continue until 2 consecutive clean rounds
 
-   ### Category 3: Comments and Documentation
-   ⚠️ Minor: 2 functions missing docstrings (not critical)
+3. **After PR review PASSED:**
+   - Verify pr_review_issues.md shows final status: PASSED
+   - Verify 2 consecutive clean rounds achieved
+   - Proceed to Step 2 (Lessons Learned)
 
-   ### Category 4: Refactoring Concerns
-   ✅ No duplication, follows existing patterns
+**The 11 categories above are REFERENCE ONLY** - they are automatically used by fresh agents during Rounds 2-5. You do NOT manually execute them from this guide.
 
-   ### Category 5: Testing
-   ✅ 47 new tests, covers edge cases
-
-   ### Category 6: Security
-   ✅ Input validation present
-
-   ### Category 7: Performance
-   ✅ Efficient algorithms used
-
-   ### Category 8: Error Handling
-   ✅ Appropriate error handling
-
-   ### Category 9: Architecture and Design
-   ✅ Fits existing architecture
-
-   ### Category 10: Compatibility and Integration
-   ✅ Backwards compatible
-
-   ### Category 11: Scope and Focus
-   ✅ Matches spec requirements
-
-   ### Summary
-   - Critical issues: 0
-   - Minor issues: 1 (missing docstrings)
-   - Recommendation: APPROVE (document minor issue, doesn't block)
-   ```
-
-3. **Evaluate:**
-   - **Critical issues** (correctness, security, breaking changes): {count}
-   - **Minor issues** (style, documentation): {count}
-
-4. **Decision:**
-   - If critical issues: Follow QC Restart Protocol (Stage 5cb)
-   - If only minor issues: Document them, can proceed
-   - If zero issues: Excellent, proceed to lessons learned
+**See pr_review_protocol.md for complete execution instructions.**
 
 ---
 

@@ -1,4 +1,4 @@
-# STAGE 5aa: TODO Creation - Round 1 (Iterations 1-7 + 4a + 5a)
+# STAGE 5aa: Implementation Planning - Round 1 (Iterations 1-7 + 4a + 5a)
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -20,20 +20,21 @@
 ## Quick Start
 
 **What is this stage?**
-Round 1 of TODO Creation is the initial analysis phase where you verify requirements coverage, map dependencies, trace algorithms to code locations, and analyze downstream consumption through 9 mandatory iterations (1-7 + 4a + 5a).
+Round 1 of Implementation Planning is the initial analysis phase where you verify requirements coverage, map dependencies, trace algorithms to code locations, and analyze downstream consumption through 9 mandatory iterations (1-7 + 4a + 5a).
 
 **When do you use this guide?**
 - Stage 4 complete (Epic Testing Strategy updated)
 - Feature spec.md is finalized
-- Ready to create implementation TODO list
+- Ready to create implementation plan
 
 **Key Outputs:**
-- ✅ TODO.md created with initial tasks
+- ✅ implementation_plan.md v1.0 created with initial sections
+- ✅ Implementation Tasks section added (with file/line/code details)
 - ✅ Interface Verification complete (exact method signatures verified)
 - ✅ Dependencies mapped and verified
-- ✅ Algorithm Traceability Matrix created (40+ mappings typical)
-- ✅ Iteration 4a PASSED (TODO Specification Audit - MANDATORY GATE)
-- ✅ Downstream consumption updates identified
+- ✅ Algorithm Traceability Matrix section added (40+ mappings typical)
+- ✅ Iteration 4a PASSED (Implementation Plan Specification Audit - MANDATORY GATE)
+- ✅ Component Dependencies section added
 
 **Time Estimate:**
 45-60 minutes (9 iterations)
@@ -60,14 +61,15 @@ Round 1 is complete when all 9 iterations pass (including Iteration 4a mandatory
 
 3. ⚠️ Iteration 4a (TODO Specification Audit) is a MANDATORY GATE
    - CANNOT proceed to Round 2 without PASSING iteration 4a
-   - Every TODO task MUST have acceptance criteria
+   - Every implementation task MUST have acceptance criteria
 
-4. ⚠️ NEVER ASSUME - TODO TASKS MUST TRACE TO SPEC REQUIREMENTS
-   - Every TODO task must map to explicit spec.md requirement
+4. ⚠️ NEVER ASSUME - IMPLEMENTATION TASKS MUST TRACE TO SPEC REQUIREMENTS
+   - Every implementation task must map to explicit spec.md requirement
    - Do NOT add tasks based on "best practices" or assumptions
    - Do NOT add tasks the user didn't ask for
    - If uncertain about a task → create question in questions.md
-   - Only create TODO tasks for confirmed, documented requirements
+   - Only create implementation tasks for confirmed, documented requirements
+   - Tasks go in implementation_plan.md "Implementation Tasks" section
 
 5. ⚠️ Interface Verification Protocol: READ actual source code
    - Never assume interface - always verify (Iteration 2)
@@ -98,10 +100,10 @@ Round 1 is complete when all 9 iterations pass (including Iteration 4a mandatory
 **Round 1 has 1 major decision point (MANDATORY GATE):**
 
 ### Decision Point 1: Iteration 4a - TODO Specification Audit (GO/NO-GO)
-**Question:** Do ALL TODO tasks have clear acceptance criteria and traceability to spec?
+**Question:** Do ALL implementation tasks have clear acceptance criteria and traceability to spec?
 - **If NO (any task fails audit):**
   - STOP immediately
-  - Fix TODO tasks with missing/unclear acceptance criteria
+  - Fix implementation tasks with missing/unclear acceptance criteria
   - Re-run Iteration 4a audit
   - Do NOT proceed until ALL tasks pass
 - **If YES (all tasks pass audit):**
@@ -175,9 +177,9 @@ If confidence < MEDIUM: Create questions file, wait for user
 
 ### Iteration 1: Requirements Coverage Check
 
-**Purpose:** Verify every requirement in spec.md has corresponding TODO task(s)
+**Purpose:** Verify every requirement in spec.md has corresponding implementation task(s) and create implementation_plan.md
 
-**🚨 CRITICAL: TODO TASKS MUST TRACE TO SPEC REQUIREMENTS**
+**🚨 CRITICAL: IMPLEMENTATION TASKS MUST TRACE TO SPEC REQUIREMENTS**
 
 **DO NOT:**
 - ❌ Add tasks based on "what makes sense"
@@ -193,23 +195,24 @@ If confidence < MEDIUM: Create questions file, wait for user
 
 **Process:**
 
-1. **Read spec.md completely**
-2. **Extract all requirements:**
+1. **Create implementation_plan.md** using template from `templates/implementation_plan_template.md`
+2. **Read spec.md completely**
+3. **Extract all requirements:**
    - From "Objective" section
    - From "Scope" section
    - From "Components Affected" section
    - From "Algorithms" section
    - From "Edge Cases" section
 
-3. **Create initial TODO list:**
+4. **Add "Implementation Tasks" section to implementation_plan.md:**
 
-For EACH requirement, create TODO task(s) - and ONLY for confirmed requirements.
+For EACH requirement, create implementation task - and ONLY for confirmed requirements.
 
 **Example:**
 
 **Requirement from spec:** "Load ADP data from data/rankings/adp.csv"
 
-**TODO tasks:**
+**implementation tasks:**
 ```markdown
 ## Task 1: Implement ADP Data Loading
 
@@ -241,10 +244,27 @@ For EACH requirement, create TODO task(s) - and ONLY for confirmed requirements.
 4. **Continue for ALL requirements**
 
 5. **Verify coverage:**
-   - Check: Every requirement has at least one TODO task
-   - Check: No orphan TODO tasks (not tied to requirement)
+   - Check: Every requirement has at least one implementation task
+   - Check: No orphan implementation tasks (not tied to requirement)
 
-**Output:** Initial TODO file with tasks for all requirements
+**Output:** Initial implementation_plan.md with tasks for all requirements
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -256,7 +276,7 @@ Next Action: Iteration 2 - Component Dependency Mapping
 
 ### Iteration 2: Component Dependency Mapping
 
-**Purpose:** Map all components this feature depends on and verify interfaces
+**Purpose:** Map all components this feature depends on, verify interfaces, and add "Component Dependencies" section to implementation_plan.md
 
 **Process:**
 
@@ -307,15 +327,32 @@ def get_adp_multiplier(self, adp: int) -> Tuple[float, int]:
 - Exceptions: None documented
 - Example usage found in: PlayerManager.calculate_injury_penalty (line 456)
 
-**TODO tasks using this:**
+**implementation tasks using this:**
 - Task 3: Calculate ADP multiplier (calls this method)
 ```
 
 4. **Repeat for ALL dependencies**
 
-5. **Update TODO tasks with verified interfaces**
+5. **Update implementation tasks with verified interfaces**
 
-**Output:** Dependency map with verified interfaces, TODO tasks updated
+**Output:** Dependency map with verified interfaces, implementation tasks updated
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -375,13 +412,30 @@ class FantasyPlayer:
 - ✅ No naming conflicts found
 - ✅ Types consistent with existing patterns
 
-**TODO tasks affected:**
+**implementation tasks affected:**
 - Task 2: Add ADP fields to FantasyPlayer __init__
 ```
 
 5. **Repeat for all data structures**
 
 **Output:** Data structure verification report, confidence in design
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -393,7 +447,7 @@ Next Action: Iteration 4 - Algorithm Traceability Matrix
 
 ### Iteration 4: Algorithm Traceability Matrix (CRITICAL)
 
-**Purpose:** Map EVERY algorithm in spec.md to exact implementation location
+**Purpose:** Map EVERY algorithm in spec.md to exact implementation location, add "Algorithm Traceability Matrix" section to implementation_plan.md
 
 **⚠️ CRITICAL:** This iteration prevents "implemented wrong algorithm" bugs
 
@@ -406,7 +460,7 @@ Next Action: Iteration 4 - Algorithm Traceability Matrix
 
 2. **Create traceability matrix:**
 
-| Algorithm (from spec.md) | Spec Section | Implementation Location | TODO Task | Verified |
+| Algorithm (from spec.md) | Spec Section | Implementation Location | Implementation Task | Verified |
 |--------------------------|--------------|------------------------|-----------|----------|
 | Load ADP data from CSV | Algorithms, step 1 | PlayerManager.load_adp_data() | Task 1 | ✅ |
 | Match player to ADP ranking | Algorithms, step 2 | PlayerManager._match_player_to_adp() | Task 2 | ✅ |
@@ -417,8 +471,8 @@ Next Action: Iteration 4 - Algorithm Traceability Matrix
 | Handle ADP file missing | Edge Cases, case 3 | PlayerManager.load_adp_data() | Task 1 | ✅ |
 
 3. **For EACH algorithm, verify:**
-   - Algorithm from spec has TODO task
-   - TODO task specifies WHERE to implement
+   - Algorithm from spec has implementation task
+   - implementation task specifies WHERE to implement
    - Implementation location is specific (file, method, approximate line)
 
 4. **Quote exact spec text in TODO:**
@@ -458,6 +512,23 @@ Next Action: Iteration 4 - Algorithm Traceability Matrix
 
 **Output:** Algorithm Traceability Matrix (40+ mappings typical)
 
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
+
 **Update Agent Status:**
 ```
 Progress: Iteration 4/8 (Round 1) complete
@@ -468,13 +539,13 @@ Next Action: Iteration 4a - TODO Specification Audit (MANDATORY)
 
 ### Iteration 4a: TODO Specification Audit (MANDATORY GATE)
 
-**Purpose:** Verify EVERY TODO task has acceptance criteria (no vague tasks)
+**Purpose:** Verify EVERY implementation task has acceptance criteria (no vague tasks)
 
 **⚠️ MANDATORY:** Cannot proceed to Round 2 without passing this audit
 
 **Process:**
 
-1. **Review EVERY TODO task**
+1. **Review EVERY implementation task**
 
 2. **For EACH task, verify it has:**
 
@@ -486,14 +557,14 @@ Next Action: Iteration 4a - TODO Specification Audit (MANDATORY)
 
 3. **Examples:**
 
-**❌ BAD TODO task (vague):**
+**❌ BAD implementation task (vague):**
 ```markdown
 ## Task 5: Implement ADP feature
 
 Do the ADP stuff.
 ```
 
-**✅ GOOD TODO task (specific):**
+**✅ GOOD implementation task (specific):**
 ```markdown
 ## Task 5: Integrate ADP multiplier into scoring
 
@@ -554,6 +625,23 @@ Count tasks:
 ```
 
 **Output:** Verified TODO file with acceptance criteria for EVERY task
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -638,6 +726,23 @@ Updated player score used in draft recommendations
 ```
 
 **Output:** Data flow diagram, E2E test task added to TODO
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -864,7 +969,7 @@ else:
 - List of consumption locations
 - OLD vs NEW API comparison table
 - Breaking changes analysis
-- NEW TODO tasks for consumption updates (if needed)
+- NEW implementation tasks for consumption updates (if needed)
 
 ---
 
@@ -906,7 +1011,7 @@ Before marking Iteration 5a complete, answer these questions:
 - [ ] If spec says "no consumption changes", did I verify with grep?
 - [ ] If consumption changes needed but not in spec → STOP and report to user?
 
-**TODO Task Creation:**
+**Implementation Task Creation:**
 - [ ] Did I add tasks for EVERY consumption location that needs updates?
 - [ ] Does each task specify OLD code vs NEW code?
 - [ ] Does each task include bounds checking (if arrays)?
@@ -946,6 +1051,23 @@ Are there API breaking changes? (from Step 4)
 ```
 
 ---
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -1069,6 +1191,23 @@ Critical Finding: [X consumption locations found, Y breaking changes, Z tasks ad
 
 **Output:** Error handling catalog, error handling tasks added to TODO
 
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
+
 **Update Agent Status:**
 ```
 Progress: Iteration 6/8 (Round 1) complete
@@ -1086,7 +1225,7 @@ Next Action: Iteration 7 - Integration Gap Check
 **Process:**
 
 1. **List all NEW methods/functions this feature creates:**
-   - From TODO tasks
+   - From implementation tasks
    - Example: load_adp_data(), _match_player_to_adp(), _calculate_adp_multiplier()
 
 2. **For EACH new method, identify caller:**
@@ -1169,6 +1308,23 @@ Count:
 
 **Output:** Integration matrix, no orphan code
 
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
+
 **Update Agent Status:**
 ```
 Progress: Round 1 complete (7/8 iterations + iterations 4a, 7a)
@@ -1239,7 +1395,7 @@ Next Action: Round 1 checkpoint - evaluate confidence
    **Rationale:** [Explain chosen strategy]
    ```
 
-4. **Add test scenarios to todo.md:**
+4. **Add test scenarios to implementation_plan.md:**
    - If resume/load possible: Add test "Resume from file created before this epic"
    - If migration needed: Add test "Migrate old file format to new format"
    - If validation needed: Add test "Reject incompatible old files with clear error"
@@ -1249,11 +1405,28 @@ Next Action: Round 1 checkpoint - evaluate confidence
 - ✅ All file I/O operations identified and analyzed
 - ✅ Compatibility strategy documented and justified
 - ✅ Resume/load scenarios covered in test plan
-- ✅ Migration or validation logic added to todo.md (if needed)
+- ✅ Migration or validation logic added to implementation_plan.md (if needed)
 
 **Time Estimate:** 10-15 minutes (prevents hours of debugging)
 
 **Historical Evidence:** Issue #001 (KAI-5) discovered in user testing could have been prevented by this iteration. Resume logic loaded old files without ranking_metrics, polluting best_configs with invalid data.
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -1267,13 +1440,15 @@ Next Action: Round 1 checkpoint - evaluate confidence
 
 **After completing Iteration 7:**
 
-1. **Update Agent Status:**
+1. **Update implementation_plan.md version to v1.0** in Version History section
+
+2. **Update Agent Status:**
 
 ```markdown
 ## Agent Status
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** TODO_CREATION
+**Current Phase:** IMPLEMENTATION_PLANNING
 **Current Step:** Round 1 complete (8/8 iterations + gates 4a, 7a), evaluating confidence
 **Current Guide:** stages/stage_5/round1_todo_creation.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
@@ -1336,7 +1511,7 @@ C. {Option C}
 **Update Agent Status:**
 ```
 Blockers: Waiting for user answers to questions file
-Next Action: Wait for user responses, then update TODO based on answers
+Next Action: Wait for user responses, then update implementation_plan.md based on answers
 ```
 
 **WAIT for user answers. Do NOT proceed to Round 2.**
@@ -1375,7 +1550,7 @@ Next Action: Wait for user responses, then update TODO based on answers
 
 **Iteration 1: Requirements Coverage Check**
 □ Evidence: Listed {N} requirements from spec.md
-□ Evidence: Created {M} TODO tasks mapping to requirements
+□ Evidence: Created {M} implementation tasks mapping to requirements
 □ Evidence: Can cite which task implements which requirement
 
 **Iteration 2: Interface Verification**
@@ -1386,7 +1561,7 @@ Next Action: Wait for user responses, then update TODO based on answers
 **Iteration 3: Algorithm Decomposition**
 □ Evidence: Listed {N} algorithms from spec.md
 □ Evidence: Broke down each into {M} implementation steps
-□ Evidence: Mapped steps to TODO tasks
+□ Evidence: Mapped steps to implementation tasks
 
 **Iteration 4: Dependency Verification**
 □ Evidence: Created dependency graph showing {N} dependencies
@@ -1394,7 +1569,7 @@ Next Action: Wait for user responses, then update TODO based on answers
 □ Evidence: Documented dependency chain
 
 **Iteration 4a: TODO Specification Audit (MANDATORY GATE)**
-□ Evidence: Verified ALL {N} requirements have TODO tasks
+□ Evidence: Verified ALL {N} requirements have implementation tasks
 □ Evidence: Verified ALL {M} tasks have acceptance criteria
 □ Evidence: Verified ALL dependencies from actual source code
 □ Evidence: PASSED iteration 4a (documented)
@@ -1407,12 +1582,12 @@ Next Action: Wait for user responses, then update TODO based on answers
 **Iteration 6: Error Handling Scenarios**
 □ Evidence: Listed {N} error scenarios
 □ Evidence: Defined handling for each scenario
-□ Evidence: Mapped error handling to TODO tasks
+□ Evidence: Mapped error handling to implementation tasks
 
 **Iteration 7: E2E Data Flow Validation**
 □ Evidence: Traced data flow from {input} to {output}
 □ Evidence: Documented each transformation step
-□ Evidence: Verified all steps have TODO tasks
+□ Evidence: Verified all steps have implementation tasks
 ```
 
 **VERIFICATION RULE:**
@@ -1470,7 +1645,7 @@ If you CANNOT provide evidence for an iteration:
 ❌ "My confidence is low but I'll proceed to Round 2"
    ✅ STOP - Create questions file, wait for answers
 
-❌ "TODO tasks can be vague, I'll figure it out later"
+❌ "implementation tasks can be vague, I'll figure it out later"
    ✅ STOP - Iteration 4a requires acceptance criteria for EVERY task
 
 ❌ "I mapped most algorithms, that's good enough"

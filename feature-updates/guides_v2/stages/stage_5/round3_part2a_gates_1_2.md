@@ -1,7 +1,7 @@
-# STAGE 5ac Part 2a: TODO Creation - Round 3 Gates 1-2 (Iterations 23, 23a)
+# STAGE 5ac Part 2a: Implementation Planning - Round 3 Gates 1-2 (Iterations 23, 23a)
 
 **Part of:** Epic-Driven Development Workflow v2
-**Stage:** 5ac - TODO Creation Round 3
+**Stage:** 5ac - Implementation Planning Round 3
 **Sub-Stage:** Part 2a - Gates 1-2 (Integration Gap Check, Pre-Implementation Spec Audit)
 **Prerequisites:** STAGE_5ac_part1 complete (Iterations 17-22)
 **Next Stage:** stages/stage_5/round3_part2b_gate_3.md
@@ -21,7 +21,7 @@
 Before proceeding, you must have:
 - [ ] Read this ENTIRE guide (use Read tool, not memory)
 - [ ] Verified STAGE_5ac_part1 complete (Iterations 17-22)
-- [ ] Verified all Part 1 outputs documented in todo.md
+- [ ] Verified all Part 1 outputs documented in implementation_plan.md
 - [ ] Located spec.md file
 
 **If resuming after session compaction:**
@@ -150,7 +150,7 @@ Prerequisites Met?
 - [ ] Output consumer validation planned
 
 ### File Access
-- [ ] todo.md exists and contains all Part 1 outputs
+- [ ] implementation_plan.md exists and contains all Part 1 outputs
 - [ ] spec.md exists and complete
 
 ### Quality State
@@ -226,9 +226,26 @@ Count verification:
 4. **If any methods without callers:**
    - Identify orphan methods
    - Determine if needed (add caller) or unnecessary (remove)
-   - Update TODO accordingly
+   - Update implementation_plan.md accordingly
 
 **Output:** Final integration verification (all methods have callers)
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```markdown
@@ -257,7 +274,7 @@ Next Action: Iteration 23a - Pre-Implementation Spec Audit (MANDATORY - 4 PARTS)
 
 #### PART 1: Completeness Audit
 
-**Question:** Does every requirement from spec.md have corresponding TODO tasks?
+**Question:** Does every requirement from spec.md have corresponding implementation tasks?
 
 **Process:**
 
@@ -268,11 +285,11 @@ Next Action: Iteration 23a - Pre-Implementation Spec Audit (MANDATORY - 4 PARTS)
    - Performance requirements
    - Documentation requirements
 
-2. For each requirement, find corresponding TODO task(s)
+2. For each requirement, find corresponding task(s) in implementation_plan.md "Implementation Tasks" section
 
 3. Count coverage:
    - Requirements in spec.md: {N}
-   - Requirements with TODO tasks: {M}
+   - Requirements with implementation tasks: {M}
    - Coverage: M/N × 100%
    - ✅ PASS if coverage = 100%
    - ❌ FAIL if coverage < 100%
@@ -313,7 +330,7 @@ Next Action: Iteration 23a - Pre-Implementation Spec Audit (MANDATORY - 4 PARTS)
 
 **Verification:**
 - Total requirements in spec.md: 15
-- Requirements with TODO tasks: 15
+- Requirements with implementation tasks: 15
 - Coverage: 100% ✅
 
 **PART 1: ✅ PASS**
@@ -323,18 +340,18 @@ Next Action: Iteration 23a - Pre-Implementation Spec Audit (MANDATORY - 4 PARTS)
 
 **If PART 1 FAILS:**
 - List missing requirements
-- Add TODO tasks for missing requirements
+- Add tasks for missing requirements to implementation_plan.md "Implementation Tasks" section
 - Re-run PART 1 until coverage = 100%
 
 ---
 
 #### PART 2: Specificity Audit
 
-**Question:** Does every TODO task have concrete, implementable acceptance criteria?
+**Question:** Does every implementation task have concrete, implementable acceptance criteria?
 
 **Process:**
 
-1. Review EVERY TODO task
+1. Review EVERY task in implementation_plan.md "Implementation Tasks" section
 
 2. For each task, verify it has:
    - Specific acceptance criteria (not vague like "make it work")
@@ -343,7 +360,7 @@ Next Action: Iteration 23a - Pre-Implementation Spec Audit (MANDATORY - 4 PARTS)
    - **Category-specific tests if applicable** (e.g., if code processes QB, RB, WR → verify tests for EACH position)
 
 3. Count specificity:
-   - Total TODO tasks: {N}
+   - Total implementation tasks: {N}
    - Tasks with acceptance criteria: {M1}
    - Tasks with implementation location: {M2}
    - Tasks with test coverage: {M3}
@@ -356,7 +373,7 @@ Next Action: Iteration 23a - Pre-Implementation Spec Audit (MANDATORY - 4 PARTS)
 ```markdown
 ## PART 2: Specificity Audit
 
-**Reviewing all TODO tasks:**
+**Reviewing all implementation tasks:**
 
 ### Task 1: Load ADP data from CSV
 - ✅ Has acceptance criteria (6 specific items):
@@ -389,7 +406,7 @@ Next Action: Iteration 23a - Pre-Implementation Spec Audit (MANDATORY - 4 PARTS)
 [Continue for all 43 tasks...]
 
 **Verification Summary:**
-- Total TODO tasks: 43
+- Total implementation tasks: 43
 - Tasks with acceptance criteria: 43
 - Tasks with implementation location: 43
 - Tasks with test coverage: 43
@@ -421,7 +438,7 @@ If code processes multiple categories (positions, file types, data sources), ver
 
 **If PART 2 FAILS:**
 - List tasks with missing criteria/location/tests
-- Update tasks with specific acceptance criteria
+- Update tasks in implementation_plan.md with specific acceptance criteria
 - Re-run PART 2 until specificity = 100%
 
 ---
@@ -481,7 +498,7 @@ def get_adp_multiplier(self, adp: int) -> Tuple[float, int]:
 - ✅ Parameters: adp (int)
 - ✅ Return type: Tuple[float, int]
 - ✅ Used in: Task 6 (PlayerManager._calculate_adp_multiplier)
-- ✅ TODO matches actual interface
+- ✅ implementation_plan.md matches actual interface
 
 ---
 
@@ -506,7 +523,7 @@ def read_csv_with_validation(
 - ✅ Parameters: filepath, required_columns, encoding (optional)
 - ✅ Return type: pd.DataFrame
 - ✅ Used in: Task 1 (PlayerManager.load_adp_data)
-- ✅ TODO calls with (filepath, required_columns) - valid
+- ✅ implementation_plan.md calls with (filepath, required_columns) - valid
 
 ---
 
@@ -531,7 +548,7 @@ class FantasyPlayer:
 - ✅ Can add fields: adp_value, adp_rank, adp_multiplier (no conflicts)
 - ✅ Has method: calculate_total_score() (line 85)
 - ✅ Used in: Tasks 2, 3, 9
-- ✅ TODO field additions are valid
+- ✅ implementation_plan.md field additions are valid
 
 ---
 
@@ -560,7 +577,7 @@ class FantasyPlayer:
 **If PART 3 FAILS:**
 - List unverified dependencies
 - Read actual source code for each
-- Verify interfaces match TODO assumptions
+- Verify interfaces match implementation_plan.md assumptions
 - Fix mismatches
 - Re-run PART 3 until verification = 100%
 
@@ -659,7 +676,7 @@ class FantasyPlayer:
 
 **If PART 4 FAILS:**
 - List methods without callers (orphans)
-- Determine if needed (add caller) or unnecessary (remove from TODO)
+- Determine if needed (add caller) or unnecessary (remove from implementation_plan.md)
 - Re-run PART 4 until integration = 100%
 
 ---
@@ -747,11 +764,11 @@ return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_a
 
 **PART 1 - Completeness:** ✅ PASS
 - Requirements in spec.md: 15
-- Requirements with TODO tasks: 15
+- Requirements with implementation tasks: 15
 - Coverage: 100%
 
 **PART 2 - Specificity:** ✅ PASS
-- Total TODO tasks: 43
+- Total implementation tasks: 43
 - Tasks with acceptance criteria: 43
 - Tasks with implementation location: 43
 - Tasks with test coverage: 43
@@ -804,6 +821,23 @@ return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_a
 ---
 ```
 
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
+
 **Update Agent Status:**
 
 **If ALL 5 PARTS PASSED:**
@@ -835,7 +869,7 @@ Next Action: Fix failing parts, re-run Iteration 23a
 - [ ] Gate 2 (Iteration 23a): ALL 5 PARTS PASSED
 
 ### Documentation Updated
-- [ ] todo.md contains all Part 2a outputs
+- [ ] implementation_plan.md contains all Part 2a outputs
 - [ ] feature README.md Agent Status shows:
   - Iteration 23a: ALL 5 PARTS PASSED
   - Next Action: Read Part 2b guide

@@ -1,4 +1,4 @@
-# STAGE 5ab: TODO Creation - Round 2 (Iterations 8-16)
+# STAGE 5ab: Implementation Planning - Round 2 (Iterations 8-16)
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -20,20 +20,21 @@
 ## Quick Start
 
 **What is this stage?**
-Round 2 of TODO Creation is the deep verification phase where you create comprehensive test strategy, identify edge cases, and re-verify critical matrices through 9 mandatory iterations (8-16) to catch bugs introduced during Round 1.
+Round 2 of Implementation Planning is the deep verification phase where you create comprehensive test strategy, identify edge cases, and re-verify critical matrices through 9 mandatory iterations (8-16) to catch bugs introduced during Round 1.
 
 **When do you use this guide?**
 - Round 1 complete (STAGE_5aa passed)
 - Confidence level is MEDIUM or higher
-- Ready for deep verification of TODO plan
+- Ready for deep verification of implementation plan
 
 **Key Outputs:**
-- ✅ Comprehensive test strategy (>90% coverage required)
-- ✅ Edge case handling identified
+- ✅ implementation_plan.md "Test Strategy" section added (>90% coverage required)
+- ✅ implementation_plan.md "Edge Cases" section added
 - ✅ Algorithm Traceability Matrix re-verified (Iteration 11)
 - ✅ E2E Data Flow re-verified (Iteration 12)
 - ✅ Integration Gap Check re-verified (Iteration 14)
 - ✅ Test Coverage Depth Check passed (Iteration 15)
+- ✅ implementation_plan.md updated to v2.0
 
 **Time Estimate:**
 45-60 minutes (9 iterations)
@@ -117,11 +118,11 @@ Round 2 is complete when all 9 iterations pass, test coverage exceeds 90%, confi
 □ Round 1 (STAGE_5aa) complete
 □ All 8 Round 1 iterations executed (1-7 + 4a)
 □ Iteration 4a PASSED (TODO Specification Audit)
-□ TODO file created with:
-  - All requirements covered
+□ implementation_plan.md v1.0 created with:
+  - Implementation Tasks section (all requirements covered)
   - All tasks have acceptance criteria
-  - Dependencies verified
-  - Algorithm Traceability Matrix created
+  - Component Dependencies section
+  - Algorithm Traceability Matrix section
   - Integration Gap Check complete
 □ Confidence level: >= MEDIUM (from Round 1 checkpoint)
 □ No blockers in feature README.md Agent Status
@@ -181,7 +182,7 @@ If confidence < MEDIUM: Update questions file, wait for user
    - Edge case tests (test error scenarios)
    - Regression tests (ensure no breakage)
 
-2. **Create test plan:**
+2. **Add "Test Strategy" section to implementation_plan.md:**
 
 ```markdown
 ## Test Strategy
@@ -260,7 +261,7 @@ If confidence < MEDIUM: Update questions file, wait for user
    - Ensure old code still runs
 ```
 
-3. **Add test tasks to TODO:**
+3. **Add test tasks to implementation_plan.md "Implementation Tasks" section:**
 
 ```markdown
 ## Task 15: Unit Tests - ADP Data Loading
@@ -277,7 +278,24 @@ If confidence < MEDIUM: Update questions file, wait for user
 - [ ] Tests use fixtures for test data
 ```
 
-**Output:** Comprehensive test strategy, test tasks added to TODO
+**Output:** "Test Strategy" section added to implementation_plan.md, test tasks added to "Implementation Tasks" section
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -289,7 +307,7 @@ Next Action: Iteration 9 - Edge Case Enumeration
 
 ### Iteration 9: Edge Case Enumeration
 
-**Purpose:** List ALL edge cases and verify they're handled in TODO
+**Purpose:** List ALL edge cases and add "Edge Cases" section to implementation_plan.md
 
 **Process:**
 
@@ -317,10 +335,10 @@ Next Action: Iteration 9 - Edge Case Enumeration
 
 2. **For EACH edge case:**
    - Check if spec.md mentions it
-   - Check if TODO has task for it
+   - Check if implementation_plan.md has task for it
    - Check if test strategy covers it
 
-3. **Add missing edge case handling to TODO**
+3. **Add "Edge Cases" section to implementation_plan.md:**
 
 **Example:**
 
@@ -344,7 +362,24 @@ Next Action: Iteration 9 - Edge Case Enumeration
 **Test:** test_load_adp_data_duplicates()
 ```
 
-**Output:** Complete edge case catalog, all cases handled
+**Output:** "Edge Cases" section added to implementation_plan.md with complete edge case catalog
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -400,7 +435,7 @@ DEFAULT_ADP_MULTIPLIER_RANGES = {
 - Fallback: Use defaults if invalid
 ```
 
-3. **Add config migration tasks to TODO if needed**
+3. **Add config migration tasks to implementation_plan.md "Implementation Tasks" section if needed:**
 
 ```markdown
 ## Task 20: Config Validation - ADP Multiplier Ranges
@@ -420,6 +455,23 @@ DEFAULT_ADP_MULTIPLIER_RANGES = {
 ```
 
 **Output:** Config impact assessment, migration tasks if needed
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -448,7 +500,7 @@ Next Action: Iteration 11 - Algorithm Traceability Matrix (Re-verify)
 
 **Example of new algorithm discovered:**
 
-| Algorithm (from spec.md) | Spec Section | Implementation Location | TODO Task | Verified |
+| Algorithm (from spec.md) | Spec Section | Implementation Location | Implementation Task | Verified |
 |--------------------------|--------------|------------------------|-----------|----------|
 | Validate duplicate players | Edge Cases, implicit | PlayerManager.load_adp_data() | Task 18 | ✅ |
 | Validate config ADP ranges | Edge Cases, implicit | ConfigManager._validate_adp_config() | Task 20 | ✅ |
@@ -459,6 +511,23 @@ Next Action: Iteration 11 - Algorithm Traceability Matrix (Re-verify)
    - ✅ All algorithms traced
 
 **Output:** Updated Algorithm Traceability Matrix (should be larger than Round 1 version)
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -523,6 +592,23 @@ Updated player score used in draft recommendations
 
 **Output:** Updated data flow diagram
 
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
+
 **Update Agent Status:**
 ```
 Progress: Iteration 12/16 (Round 2) complete
@@ -569,6 +655,23 @@ Next Action: Iteration 13 - Dependency Version Check
    - New dependencies needed: None ✅
 
 **Output:** Dependency compatibility report
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -627,6 +730,23 @@ Count:
 | _validate_adp_config() | ConfigManager.__init__() | ConfigManager.py:85 | ✅ |
 
 **Output:** Updated integration matrix
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -708,7 +828,26 @@ Next Action: Iteration 15 - Test Coverage Depth Check
 **Overall: ✅ PASS (>90% coverage)**
 ```
 
-4. **Resume/Persistence Testing (if applicable):**
+4. **Add missing test tasks to implementation_plan.md "Implementation Tasks" section:**
+
+```markdown
+## Task 21: Unit Test - Case Sensitivity
+
+**Test:** test_match_player_case_sensitivity()
+
+**Purpose:** Verify player matching handles case differences
+
+**Test Cases:**
+- "Patrick Mahomes" vs "patrick mahomes" → Should match
+- "PATRICK MAHOMES" vs "Patrick Mahomes" → Should match
+
+**Acceptance Criteria:**
+- [ ] Test written
+- [ ] Test passes
+- [ ] Case-insensitive matching verified
+```
+
+5. **Resume/Persistence Testing (if applicable):**
 
 **Trigger:** Feature modifies persisted data OR system supports resume/checkpoint
 
@@ -729,7 +868,7 @@ Next Action: Iteration 15 - Test Coverage Depth Check
    - If files have version markers, test version mismatch handling
    - Verify: Clear error message when incompatible version detected
 
-**Add to todo.md:**
+**Add to implementation_plan.md "Test Strategy" section:**
 ```markdown
 ## Backward Compatibility Tests
 
@@ -744,26 +883,24 @@ Next Action: Iteration 15 - Test Coverage Depth Check
 
 **Why This Matters:** Resume bugs are hard to catch with fresh-run tests. Old data can silently corrupt new calculations if not explicitly tested.
 
-5. **Add missing test tasks to TODO:**
-
-```markdown
-## Task 21: Unit Test - Case Sensitivity
-
-**Test:** test_match_player_case_sensitivity()
-
-**Purpose:** Verify player matching handles case differences
-
-**Test Cases:**
-- "Patrick Mahomes" vs "patrick mahomes" → Should match
-- "PATRICK MAHOMES" vs "Patrick Mahomes" → Should match
-
-**Acceptance Criteria:**
-- [ ] Test written
-- [ ] Test passes
-- [ ] Case-insensitive matching verified
-```
-
 **Output:** Test coverage report (>90% required)
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -841,7 +978,7 @@ Next Action: Iteration 16 - Documentation Requirements
 - ❌ No updates needed (no workflow changes)
 ```
 
-4. **Add documentation tasks to TODO:**
+4. **Add documentation tasks to implementation_plan.md "Implementation Tasks" section:**
 
 ```markdown
 ## Task 25: Documentation - Method Docstrings
@@ -895,7 +1032,24 @@ Next Action: Iteration 16 - Documentation Requirements
 - [ ] Consistent with other scoring docs
 ```
 
-**Output:** Documentation plan, documentation tasks added
+**Output:** Documentation plan, documentation tasks added to implementation_plan.md
+
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
 ```
@@ -909,13 +1063,26 @@ Next Action: Round 2 checkpoint - evaluate confidence
 
 **After completing Iteration 16:**
 
-1. **Update Agent Status:**
+1. **Update implementation_plan.md version to v2.0** in "Version History" section:
+
+```markdown
+**v2.0 ({YYYY-MM-DD HH:MM}) - Round 2 Complete:**
+- Added Test Strategy section with comprehensive unit/integration/edge/regression tests
+- Added Edge Cases section with complete edge case catalog
+- Re-verified Algorithm Traceability Matrix (Iteration 11)
+- Re-verified E2E Data Flow (Iteration 12)
+- Re-verified Integration Gap Check (Iteration 14)
+- Test coverage: {X}% (>90% required)
+- Added documentation tasks
+```
+
+2. **Update Agent Status:**
 
 ```markdown
 ## Agent Status
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** TODO_CREATION
+**Current Phase:** IMPLEMENTATION_PLANNING
 **Current Step:** Round 2 complete (9/9 iterations), evaluating confidence
 **Current Guide:** stages/stage_5/round2_todo_creation.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
@@ -959,7 +1126,7 @@ Update existing `feature_{N}_{name}_questions.md` or create if doesn't exist:
 **Update Agent Status:**
 ```
 Blockers: Waiting for user answers to questions file
-Next Action: Wait for user responses, then update TODO based on answers
+Next Action: Wait for user responses, then update implementation_plan.md based on answers
 ```
 
 **WAIT for user answers. Do NOT proceed to Round 3.**
@@ -998,7 +1165,7 @@ Next Action: Wait for user responses, then update TODO based on answers
 
 **Iteration 9: Edge Case Enumeration**
 □ Evidence: Listed {N} edge cases from spec.md
-□ Evidence: Added edge case handling to TODO tasks
+□ Evidence: Added "Edge Cases" section to implementation_plan.md
 □ Evidence: Documented expected behavior for each edge case
 
 **Iteration 10: Configuration Validation**
@@ -1024,7 +1191,7 @@ Next Action: Wait for user responses, then update TODO based on answers
 **Iteration 14: Integration Gap Re-Check**
 □ Evidence: Re-verified {N} integration points
 □ Evidence: Identified {M} new gaps (or "none")
-□ Evidence: Updated integration handling in TODO
+□ Evidence: Updated integration handling in implementation_plan.md
 
 **Iteration 15: Test Coverage Depth Check**
 □ Evidence: Calculated test coverage for each component
@@ -1034,7 +1201,7 @@ Next Action: Wait for user responses, then update TODO based on answers
 **Iteration 16: Documentation Plan**
 □ Evidence: Listed {N} doc updates needed
 □ Evidence: Specified docstring format
-□ Evidence: Added doc tasks to TODO
+□ Evidence: Added doc tasks to implementation_plan.md
 ```
 
 **VERIFICATION RULE:**
@@ -1057,13 +1224,14 @@ If you CANNOT provide evidence for an iteration:
 **Round 2 is complete when ALL of these are true:**
 
 □ All 9 iterations executed (8-16) in order
-□ Test strategy comprehensive (unit, integration, edge, regression)
-□ Edge cases enumerated and handled
-□ Algorithm Traceability Matrix updated (re-verified)
-□ E2E Data Flow updated (re-verified)
-□ Integration Gap Check updated (re-verified)
-□ Test coverage >90%
-□ Documentation plan created
+□ implementation_plan.md updated to v2.0 with:
+  - Test Strategy section (unit, integration, edge, regression)
+  - Edge Cases section (all cases enumerated and handled)
+  - Algorithm Traceability Matrix updated (re-verified)
+  - E2E Data Flow updated (re-verified)
+  - Integration Gap Check updated (re-verified)
+  - Test coverage >90%
+  - Documentation tasks added
 □ Feature README.md updated:
   - Agent Status: "Round 2 complete"
   - Confidence level documented
@@ -1120,10 +1288,12 @@ If you CANNOT provide evidence for an iteration:
 
 □ Round 2 completion criteria ALL met
 □ All 9 iterations executed (8-16)
+□ implementation_plan.md updated to v2.0 with Test Strategy and Edge Cases sections
 □ Test coverage: >90%
 □ Confidence level: >= MEDIUM
 □ Feature README.md shows:
   - Round 2 complete (16/24 total)
+  - implementation_plan.md v2.0 created
   - Test coverage documented
   - Confidence: HIGH or MEDIUM
   - Next Action: Read Round 3 guide (stages/stage_5/round3_todo_creation.md)

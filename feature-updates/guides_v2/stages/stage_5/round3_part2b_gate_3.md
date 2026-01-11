@@ -1,7 +1,7 @@
-# STAGE 5ac Part 2b: TODO Creation - Round 3 Gate 3 (Iterations 25, 24)
+# STAGE 5ac Part 2b: Implementation Planning - Round 3 Gate 3 (Iterations 25, 24)
 
 **Part of:** Epic-Driven Development Workflow v2
-**Stage:** 5ac - TODO Creation Round 3
+**Stage:** 5ac - Implementation Planning Round 3
 **Sub-Stage:** Part 2b - Gate 3 (Spec Validation, GO/NO-GO Decision)
 **Prerequisites:** STAGE_5ac_part2a complete (Iterations 23, 23a)
 **Next Stage:** stages/stage_5/implementation_execution.md
@@ -171,7 +171,7 @@ Prerequisites Met?
   - PART 4: Integration Evidence (100%)
 
 ### File Access
-- [ ] todo.md exists and contains all Part 1 and Part 2a outputs
+- [ ] implementation_plan.md exists and contains all Part 1 and Part 2a outputs
 - [ ] spec.md exists and complete
 - [ ] Epic notes file: feature-updates/{epic}/{epic}_notes.txt
 - [ ] Epic ticket: feature-updates/{epic}/EPIC_TICKET.md
@@ -220,15 +220,15 @@ Prerequisites Met?
 
 #### Process:
 
-**STEP 1: Close spec.md and TODO.md (avoid confirmation bias)**
+**STEP 1: Close spec.md and implementation_plan.md (avoid confirmation bias)**
 
-**⚠️ CRITICAL:** Do NOT look at spec.md or TODO.md during Steps 1-3.
+**⚠️ CRITICAL:** Do NOT look at spec.md or implementation_plan.md during Steps 1-3.
 
 Why: Confirmation bias → You'll interpret epic notes to match what you already wrote in spec.
 
 **Close these files:**
 - spec.md
-- todo.md
+- implementation_plan.md
 
 **Keep these files open:**
 - Epic notes: feature-updates/{epic}/{epic}_notes.txt
@@ -509,7 +509,7 @@ I completed Iteration 25 (Spec Validation Against Validated Documents) and found
 
 **Impact if we implement current TODO:**
 - [What would happen - be specific]
-- [Which TODO tasks are affected]
+- [Which implementation tasks are affected]
 
 **Severity:** 🔴 CRITICAL / 🟡 MODERATE / 🟢 MINOR
 
@@ -736,6 +736,23 @@ Before marking Iteration 25 complete, answer these:
 
 ---
 
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
+
 **Update Agent Status:**
 
 **If discrepancies found:**
@@ -792,9 +809,9 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 - [x] All dependencies identified
 - [x] Spec validated against epic notes/ticket/summary (Iteration 25 PASSED)
 
-**TODO Verification:**
-- [x] TODO file created: todo.md
-- [x] All requirements have tasks
+**Implementation Plan Verification:**
+- [x] implementation_plan.md created with all sections
+- [x] All requirements have implementation tasks
 - [x] All tasks have acceptance criteria
 - [x] Implementation locations specified
 - [x] Test coverage defined
@@ -945,6 +962,23 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 
 ---
 
+**🔄 After Iteration Checkpoint - questions.md Review:**
+
+After completing this iteration, check if you have questions or found answers:
+
+1. **If you discovered NEW uncertainties during this iteration:**
+   - Add them to `questions.md` with context
+   - Format: Question, context, impact on implementation
+
+2. **If you found ANSWERS to existing questions in questions.md:**
+   - Update questions.md to mark question as answered
+   - Document the answer and source
+
+3. **If no new questions and no answers found:**
+   - No action needed, proceed to next iteration
+
+**Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
+
 **Update Agent Status:**
 
 **If GO:**
@@ -976,7 +1010,7 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 ## Agent Status
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** TODO_CREATION
+**Current Phase:** IMPLEMENTATION_PLANNING
 **Current Step:** Round 3 - Iteration 24 (NO-GO)
 **Current Guide:** stages/stage_5/round3_part2b_gate_3.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
@@ -1009,7 +1043,7 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 - [ ] Gate 3 (Part B - Iteration 24): GO decision
 
 ### Documentation Updated
-- [ ] todo.md contains all Part 2b outputs
+- [ ] implementation_plan.md v3.0 contains all Part 2b outputs
 - [ ] feature README.md Agent Status shows:
   - Iteration 25: PASSED (zero discrepancies)
   - Iteration 24: GO
@@ -1032,6 +1066,223 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 - STOP - Do not proceed to Stage 5b
 - Complete missing items
 - Re-verify completion criteria
+
+---
+
+## Step 3: Present Implementation Plan to User for Approval (🚨 MANDATORY STEP)
+
+**After Iteration 24 returns GO decision, you MUST present implementation_plan.md to user for approval before proceeding to Stage 5b.**
+
+**This is Gate 5 - User Approval of Implementation Plan (from mandatory_gates.md)**
+
+### Why This Step Exists
+
+**From Proposal Goals:**
+- User sees full implementation plan before coding starts
+- User can request changes early (cheap to fix in planning, expensive to fix in code)
+- Creates shared understanding of implementation strategy
+- Addresses guide-updates.txt #3: "Show expected changes, get approval"
+
+**This is NOT optional** - it's a MANDATORY checkpoint per mandatory_gates.md.
+
+---
+
+### Process
+
+**1. Use the "User Approval of Implementation Plan" prompt** from `prompts/stage_5_prompts.md`
+
+**2. Check questions.md status and present plan with any remaining questions:**
+
+**First, check if questions.md exists and has open questions:**
+
+**If questions.md has open questions:**
+
+```
+Stage 5a (Implementation Planning) is complete. I've created implementation_plan.md v3.0 (~400 lines) with comprehensive implementation details.
+
+**However, I have {N} open questions in questions.md that need your input before finalizing the plan.**
+
+**Open Questions Summary:**
+- {Count by category: algorithm questions, integration questions, edge case questions, etc.}
+
+**File Locations:**
+- Implementation plan: `feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/implementation_plan.md`
+- Open questions: `feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/questions.md`
+
+**Please review questions.md and answer the {N} open questions.**
+
+**After you answer the questions:**
+- I will update implementation_plan.md based on your answers
+- I'll ask if you want me to restart the iteration process (Rounds 1-3) with this new information
+- If you don't want to restart, I'll present the implementation_plan.md for final approval
+
+**How to provide answers:**
+- You can answer all {N} questions at once
+- Or go through them one at a time interactively
+- Just let me know which you prefer
+```
+
+**After user answers questions:**
+
+1. Update implementation_plan.md based on user answers
+2. Mark questions as answered in questions.md
+3. Ask restart confirmation:
+
+```
+Thank you for answering the {N} questions. I've updated implementation_plan.md to incorporate your answers.
+
+**Would you like me to restart the iteration process (Rounds 1-3) with this new information?**
+
+**If you say "yes" (restart iterations):**
+- I'll loop back to Round 1 (Iteration 1) with the updated knowledge
+- Re-run all 24 iterations incorporating your answers
+- This ensures the plan is fully refined with your input
+- Time estimate: ~3-4 hours to re-run all iterations
+
+**If you say "no" (proceed with current plan):**
+- I'll present implementation_plan.md v3.0 for your final approval
+- We proceed to Stage 5b (Implementation) after you approve
+- Faster path, but plan may not reflect full implications of your answers
+
+**What would you prefer?**
+```
+
+**If user says "yes" (restart):**
+- Return to Stage 5aa Round 1 Iteration 1
+- READ: stages/stage_5/round1_todo_creation.md
+- Re-run all 24 iterations with updated knowledge
+- Present plan again at Gate 5
+
+**If user says "no" (proceed):**
+- Continue to present plan below (skip to "If no open questions" section)
+
+---
+
+**If no open questions in questions.md OR user chose "no" after answering:**
+
+```
+Stage 5a (Implementation Planning) is complete. I've created implementation_plan.md v3.0 (~400 lines) with:
+
+**Key Sections:**
+- Implementation Tasks (mapped to spec.md requirements)
+- Component Dependencies Matrix
+- Algorithm Traceability Matrix
+- Test Strategy (>90% coverage)
+- Edge Cases and Error Handling
+- Implementation Phasing (5-6 checkpoints)
+- Performance Considerations
+- Mock Audit Results
+- Integration Test Plan
+
+**File Location:** `feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/implementation_plan.md`
+
+**Please review implementation_plan.md and confirm:**
+1. Implementation approach makes sense
+2. Phasing is reasonable (5-6 checkpoints)
+3. Test coverage is adequate (>90%)
+4. No missing requirements
+
+**Say "approved" to proceed to Stage 5b (Implementation), or request changes.**
+
+**Note:** This is your opportunity to adjust the implementation approach before code is written. Once approved, I'll create implementation_checklist.md and begin coding.
+```
+
+**3. Wait for user response:**
+
+**If user says "approved" or equivalent:**
+- ✅ Document approval in Agent Status
+- ✅ Update Part 2b completion with approval timestamp
+- ✅ Proceed to "Prerequisites for Next Stage" section below
+- ✅ Move to Stage 5b (Implementation Execution)
+
+**If user requests changes:**
+- ❌ DO NOT proceed to Stage 5b
+- 📝 Revise implementation_plan.md based on user feedback
+- 🔄 Re-run affected iterations from Stage 5a if structural changes needed
+- 🔄 Re-run Iteration 24 (Implementation Readiness) after revisions
+- 🔄 Re-submit plan for user approval
+- ⏸️ Cannot proceed without explicit user approval
+
+**4. Document approval in implementation_plan.md:**
+
+Add to end of implementation_plan.md:
+
+```markdown
+---
+
+## User Approval
+
+**Approval Status:** ✅ APPROVED
+**Approved By:** User
+**Approval Date:** {YYYY-MM-DD HH:MM}
+**Approved Version:** v3.0
+
+**User Comments:** {Any comments or conditions from user, or "None - approved as-is"}
+
+---
+
+**STATUS:** ✅ APPROVED - Ready for Stage 5b (Implementation Execution)
+```
+
+**5. Update Agent Status:**
+
+```markdown
+### User Approval (Gate 5)
+- ✅ implementation_plan.md v3.0 presented to user
+- ✅ User approval received: {YYYY-MM-DD HH:MM}
+- ✅ Gate 5: PASSED
+```
+
+---
+
+### Agent Status Update (After Approval)
+
+```markdown
+## Agent Status
+
+**Last Updated:** {YYYY-MM-DD HH:MM}
+**Current Phase:** IMPLEMENTATION (ready to start)
+**Current Step:** Stage 5a COMPLETE (user-approved)
+**Current Guide:** stages/stage_5/round3_part2b_gate_3.md (COMPLETE)
+**Guide Last Read:** {YYYY-MM-DD HH:MM}
+
+**Progress:** All 25 iterations complete ✅
+
+**Mandatory Gates:**
+- Iteration 4a: ✅ PASSED
+- Iteration 23a: ✅ ALL 4 PARTS PASSED
+- Iteration 25: ✅ PASSED (zero discrepancies)
+- Iteration 24 Decision: ✅ GO
+- **Gate 5 (User Approval): ✅ PASSED** ({YYYY-MM-DD HH:MM})
+
+**implementation_plan.md:** v3.0 user-approved
+**Confidence Level:** {HIGH / MEDIUM}
+**Next Stage:** Stage 5b (Implementation Execution)
+**Next Action:** Read stages/stage_5/implementation_execution.md
+**Blockers:** None
+```
+
+---
+
+### Common Mistake to Avoid
+
+**❌ MISTAKE: "I'll skip user approval, plan looks good"**
+
+**Why this is wrong:**
+- User approval is Gate 5 - MANDATORY per mandatory_gates.md
+- User needs to see implementation approach before coding starts
+- This is #3 priority item from guide-updates.txt
+- Skipping approval violates core workflow principle
+
+**What to do instead:**
+- ✅ ALWAYS present implementation_plan.md to user
+- ✅ WAIT for explicit user approval
+- ✅ Document approval in plan and Agent Status
+- ✅ Only proceed to Stage 5b after approval
+
+---
+
+**After user approval is documented, proceed to "Prerequisites for Next Stage" section below.**
 
 ---
 
@@ -1113,12 +1364,16 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
   - Iteration 23a: ALL 4 PARTS PASSED
   - Iteration 25: PASSED
   - Iteration 24: GO
-- [ ] todo.md complete with all outputs from all rounds
+  - **Gate 5 (User Approval): PASSED**
+- [ ] implementation_plan.md v3.0 complete with all outputs from all rounds
+- [ ] **implementation_plan.md v3.0 presented to user and APPROVED**
+- [ ] User approval documented in implementation_plan.md and Agent Status
 - [ ] Confidence >= MEDIUM
 - [ ] No blockers
 
 ### Documentation
 - [ ] feature README.md shows Stage 5a complete
+- [ ] Agent Status shows Gate 5 (User Approval): PASSED with timestamp
 - [ ] Agent Status shows next action: "Read Stage 5b guide"
 
 **Only proceed to Stage 5b when ALL items checked.**
@@ -1134,23 +1389,28 @@ Next Action: Iteration 24 - Implementation Readiness Protocol (FINAL GATE)
 **Key Activities:**
 1. **Spec Validation (Iteration 25 - CRITICAL):** Validate spec against ALL user-approved sources (prevents Feature 02 bug)
 2. **Implementation Readiness (Iteration 24 - GO/NO-GO):** Final decision to proceed or fix blockers
+3. **User Approval (Gate 5 - MANDATORY):** Present implementation_plan.md to user for approval before coding
 
 **Critical Outputs:**
 - Spec validation (zero discrepancies with validated sources)
 - GO/NO-GO decision (must be GO to proceed)
+- User approval of implementation_plan.md (Gate 5)
 
-**Mandatory Gate:**
-- Gate 3 (Iteration 25 + 24): Zero discrepancies + GO decision
+**Mandatory Gates:**
+- Gate 3 Part A (Iteration 25): Zero discrepancies with validated sources
+- Gate 3 Part B (Iteration 24): GO decision
+- **Gate 5 (User Approval): User explicitly approves implementation_plan.md**
 
 **Success Criteria:**
 - Both iterations complete
-- Gate PASSED
+- All gates PASSED (Iteration 25, Iteration 24, Gate 5 User Approval)
+- User explicitly approved implementation_plan.md
 - Confidence >= MEDIUM
 - Ready for implementation
 
-**Next Stage:** stages/stage_5/implementation_execution.md - Implement TODO tasks with continuous verification
+**Next Stage:** stages/stage_5/implementation_execution.md - Implement tasks from implementation_plan.md with continuous verification
 
-**Remember:** Part 2b contains THE FINAL quality gate before implementation. Iteration 25 prevents catastrophic bugs by catching spec misinterpretations. Trust the process - complete ALL iterations, pass ALL gates.
+**Remember:** Part 2b contains THE FINAL quality gates before implementation. Iteration 25 prevents catastrophic bugs by catching spec misinterpretations. Gate 5 (User Approval) ensures user sees and approves the implementation approach before code is written. Trust the process - complete ALL iterations, pass ALL gates, get user approval.
 
 ---
 
