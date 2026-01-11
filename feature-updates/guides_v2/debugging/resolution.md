@@ -457,7 +457,22 @@ If PARTIALLY or NO, please describe:
 **Status:** COMPLETE ✅
 ```
 
-**3. Check for more issues:**
+**3. Move to Phase 4b (Root Cause Analysis) - MANDATORY:**
+
+**CRITICAL:** Before moving to next issue, you MUST perform root cause analysis.
+
+```
+Proceed to Phase 4b: Root Cause Analysis
+└─ Read debugging/root_cause_analysis.md
+   Analyze WHY bug existed (5-why analysis)
+   Draft guide improvement proposal
+   Get user confirmation of root cause
+   Document in guide_update_recommendations.md
+```
+
+**See:** `debugging/root_cause_analysis.md` for complete Phase 4b workflow
+
+**After Phase 4b complete:**
 
 ```
 Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?

@@ -28,13 +28,20 @@ These documents are systematically collected and applied at multiple points in t
 
 **Workflow:**
 1. Issues discovered during testing
-2. Enter debugging protocol
-3. Resolve all issues
-4. **Step 3 (MANDATORY):** Systematic root cause analysis
-   - Create `process_failure_analysis.md` (analyze why bugs got through)
-   - Create `guide_update_recommendations.md` (propose concrete fixes)
+2. Enter debugging protocol (Phase 1-3: Investigation and fix)
+3. User verification (Phase 4: Confirm each fix)
+4. **Phase 4b (MANDATORY - NEW):** Per-issue root cause analysis
+   - Immediately after each fix confirmed (while context fresh)
+   - 5-why analysis to reach process/guide gap
+   - Draft guide improvement proposal
+   - User confirms root cause
+   - Append to `guide_update_recommendations.md` incrementally
+5. **Phase 5:** Loop back to testing with cross-pattern analysis
+   - After ALL issues resolved
+   - Identify patterns across multiple bugs
+   - Create `process_failure_analysis.md` (cross-bug patterns)
+   - Append cross-pattern recommendations to `guide_update_recommendations.md`
    - Create/update `lessons_learned.md` (technical insights)
-5. Loop back to testing
 
 **Files Created:**
 ```
@@ -44,11 +51,18 @@ feature_XX_{name}/debugging/
 ├── issue_01_{name}.md
 ├── issue_02_{name}.md
 ├── code_changes.md
-├── process_failure_analysis.md         ← Process gap analysis
-├── guide_update_recommendations.md     ← Actionable guide updates
-├── lessons_learned.md                  ← Technical insights
+├── process_failure_analysis.md         ← Process gap analysis (Phase 5)
+├── guide_update_recommendations.md     ← Actionable guide updates (Phase 4b + Phase 5)
+├── lessons_learned.md                  ← Technical insights (Phase 5)
 └── diagnostic_logs/
 ```
+
+**File Creation Timing:**
+- **guide_update_recommendations.md** - Created incrementally:
+  - **Phase 4b:** Per-issue recommendations added immediately after each fix confirmed
+  - **Phase 5:** Cross-pattern recommendations appended after all issues resolved
+- **process_failure_analysis.md** - Created in Phase 5 (cross-bug pattern analysis)
+- **lessons_learned.md** - Created in Phase 5 (technical insights summary)
 
 ---
 
@@ -67,11 +81,13 @@ feature_XX_{name}/debugging/
 ├── investigation_rounds.md
 ├── issue_01_{name}.md
 ├── code_changes.md
-├── process_failure_analysis.md         ← Epic-level process gaps
-├── guide_update_recommendations.md     ← Epic-level guide updates
-├── lessons_learned.md                  ← Epic-level technical insights
+├── process_failure_analysis.md         ← Epic-level process gaps (Phase 5)
+├── guide_update_recommendations.md     ← Epic-level guide updates (Phase 4b + Phase 5)
+├── lessons_learned.md                  ← Epic-level technical insights (Phase 5)
 └── diagnostic_logs/
 ```
+
+**File Creation Timing:** Same as feature-level (Phase 4b per-issue + Phase 5 cross-pattern)
 
 ---
 
@@ -163,85 +179,49 @@ feature_XX_{name}/debugging/
 
 ## Where Debugging Lessons Are Applied to Guides
 
-### Stage 7 Step 4: Update Guides (MANDATORY)
+### Stage 7.5: Guide Update from Lessons Learned (MANDATORY)
 
 **This is where ALL debugging lessons are systematically applied to guides**
 
-**Process:**
+**Note:** Previously Stage 7 Step 4, now a dedicated Stage 7.5 workflow with user approval for each proposal.
 
-**Step 4a: Find ALL Lesson Files**
-```bash
-# Standard lessons
-find feature-updates/done/{epic_name} -name "lessons_learned.md" -type f
+**Complete Workflow Guide:** `stages/stage_7/guide_update_workflow.md`
 
-# Debugging process analysis
-find feature-updates/done/{epic_name} -path "*/debugging/process_failure_analysis.md" -type f
+**Process Summary:**
 
-# Debugging guide recommendations (HIGHEST PRIORITY)
-find feature-updates/done/{epic_name} -path "*/debugging/guide_update_recommendations.md" -type f
-```
+1. **Analyze ALL lessons_learned.md files** (epic + features + debugging)
+   - Standard lessons from epic_lessons_learned.md and feature lessons_learned.md
+   - Debugging lessons from debugging/lessons_learned.md
+   - Process failure analysis from debugging/process_failure_analysis.md
+   - Guide recommendations from debugging/guide_update_recommendations.md (HIGHEST PRIORITY)
 
-**Step 4b: Extract Lessons from EACH File**
+2. **Identify guide gaps** - For each lesson, determine which guide(s) could have prevented the issue
 
-**From lessons_learned.md files:**
-- "Guide Improvements Needed" sections
+3. **Create GUIDE_UPDATE_PROPOSAL.md** with prioritized proposals:
+   - **P0 (Critical):** Prevents catastrophic bugs, mandatory gate gaps
+   - **P1 (High):** Significantly improves quality, reduces major rework
+   - **P2 (Medium):** Moderate improvements, clarifies ambiguity
+   - **P3 (Low):** Minor improvements, cosmetic fixes
+   - **Note:** Debugging lessons from guide_update_recommendations.md typically map to P0/P1
 
-**From debugging/process_failure_analysis.md files:**
-- "Guide Updates Required" from each bug analysis
-- "High-Priority Guide Updates" from cross-bug patterns
+4. **Present each proposal to user** with before/after comparison
 
-**From debugging/guide_update_recommendations.md files:**
-- ALL recommendations (Critical/Moderate/Low)
-- "New Sections Needed"
-- "Template/Checklist Updates"
-- **THESE ARE THE MOST ACTIONABLE**
+5. **User decides** for each proposal: Approve / Modify / Reject / Discuss
 
-**Step 4c: Create Master Checklist**
+6. **Apply only approved changes** (or user modifications)
 
-**Priority Order:**
-1. **HIGHEST:** debugging/guide_update_recommendations.md (concrete, actionable)
-2. **HIGH:** debugging/process_failure_analysis.md (systematic process gaps)
-3. **MEDIUM:** lessons_learned.md "Guide Improvements Needed"
+7. **Create separate commit** for guide updates (before epic commit)
 
-**Template:**
-```markdown
-## Master Guide Update Checklist - {epic_name}
+8. **Update guide_update_tracking.md** with applied/pending/rejected lessons
 
-**Sources Checked:**
-- [ ] epic_lessons_learned.md
-- [ ] feature_01_{name}/lessons_learned.md
-- [ ] feature_01_{name}/debugging/lessons_learned.md
-- [ ] feature_01_{name}/debugging/process_failure_analysis.md
-- [ ] feature_01_{name}/debugging/guide_update_recommendations.md
-- [ ] {epic_name}/debugging/lessons_learned.md
-- [ ] {epic_name}/debugging/process_failure_analysis.md
-- [ ] {epic_name}/debugging/guide_update_recommendations.md
+**Debugging-Specific Priority Mapping:**
+- debugging/guide_update_recommendations.md → P0 (Critical) or P1 (High)
+- debugging/process_failure_analysis.md → P1 (High) or P2 (Medium)
+- lessons_learned.md "Guide Improvements Needed" → P2 (Medium) or P3 (Low)
 
-### Critical Priority Updates (from guide_update_recommendations.md)
-{List with source, current text, proposed text, rationale}
+**Why this matters:** Debugging lessons are the MOST ACTIONABLE because they come from actual bugs that reached testing. Stage 7.5 ensures these lessons get prioritized (P0/P1) and user-approved before being applied to guides.
 
-### High Priority Updates (from process_failure_analysis.md)
-{List with bugs prevented, process gap, proposed change}
-
-### Medium Priority Updates (from lessons_learned.md)
-{List standard lessons}
-```
-
-**Step 4d: Apply EACH Lesson**
-- Read current guide
-- Make Edit
-- Mark [x] APPLIED in checklist
-
-**Step 4e: Verify 100% Application**
-```markdown
-□ Read ALL debugging/guide_update_recommendations.md files
-□ Read ALL debugging/process_failure_analysis.md files
-□ Read ALL lessons_learned.md files
-□ Created master checklist
-□ Applied ALL lessons (100% application rate)
-```
-
-**⚠️ CRITICAL:** Application rate MUST be 100%. Cannot skip debugging lessons.
+**See:** `stages/stage_7/guide_update_workflow.md` for complete 9-step workflow
 
 ---
 
@@ -271,9 +251,10 @@ find feature-updates/done/{epic_name} -path "*/debugging/guide_update_recommenda
 - **Output:** Specific process gaps identified
 
 **2. guide_update_recommendations.md**
-- **Audience:** Guide maintainers (Stage 7 agents)
+- **Audience:** Guide maintainers (Stage 7.5 agents)
 - **Purpose:** ACTIONABLE guide improvements
-- **Content:** Exact text proposals with priority
+- **Content:** Exact text proposals with priority (per-issue from Phase 4b + patterns from Phase 5)
+- **Created:** Incrementally (Phase 4b adds per-issue, Phase 5 appends patterns)
 - **Output:** Ready-to-apply guide updates
 
 **3. lessons_learned.md**
@@ -286,9 +267,9 @@ find feature-updates/done/{epic_name} -path "*/debugging/guide_update_recommenda
 
 ## Verification That Lessons Are Applied
 
-### At Stage 7 Step 4e
+### During Stage 7.5 (Guide Update Workflow)
 
-Agents MUST verify:
+Agents MUST verify (as part of guide_update_tracking.md):
 ```markdown
 □ Total sources checked: {N}
   - lessons_learned.md files: {N}
@@ -315,14 +296,21 @@ Agents MUST verify:
 - Enter debugging protocol
 
 **Debugging Protocol:**
-- Phase 1-4: Investigate and fix bugs
-- **Phase 5:** Systematic root cause analysis
+- Phase 1-3: Investigate and fix bugs (2 issues identified and fixed)
+- **Phase 4:** User verifies each fix
+- **Phase 4b (NEW - MANDATORY):** Per-issue root cause analysis
+  - Issue #1: 5-why analysis → guide gap identified → user confirms → append to guide_update_recommendations.md
+  - Issue #2: 5-why analysis → guide gap identified → user confirms → append to guide_update_recommendations.md
+  - Time: 10-20 minutes per issue (captures lessons while context fresh)
+- **Phase 5:** Loop back to testing with cross-pattern analysis
   - Analyze why bugs got through Stage 5a (TODO creation)
   - Analyze why bugs got through Stage 5b (Implementation)
   - Analyze why bugs got through Stage 5ca (Smoke testing)
-  - Create process_failure_analysis.md with specific gaps
-  - Create guide_update_recommendations.md with 5 critical updates
+  - Identify patterns across Issue #1 and Issue #2
+  - Create process_failure_analysis.md with cross-bug patterns
+  - Append 3 pattern-based recommendations to guide_update_recommendations.md
   - Create lessons_learned.md with technical insights
+  - **Total guide recommendations:** 5 (2 per-issue from Phase 4b + 3 pattern-based from Phase 5)
 
 **Stage 5cc (Final Review):**
 - Update feature_02_{name}/lessons_learned.md
@@ -333,12 +321,14 @@ Agents MUST verify:
 - Aggregate Feature 02 debugging insights
 - Include in cross-feature patterns
 
-**Stage 7 Step 4 (Update Guides):**
+**Stage 7.5 (Guide Update from Lessons Learned):**
 - Find debugging/guide_update_recommendations.md
-- Extract 5 critical updates
-- Create master checklist (with high priority)
-- Apply ALL 5 updates to guides
-- Verify 100% application
+- Extract 5 critical updates (map to P0/P1 priority)
+- Create GUIDE_UPDATE_PROPOSAL.md with proposals
+- Present each proposal to user for approval
+- User approves all 5 critical updates
+- Apply approved updates to guides
+- Update guide_update_tracking.md with applied lessons
 - Future epics now have improved guides
 
 ---
@@ -354,13 +344,14 @@ Agents MUST verify:
 - Stage 6c (epic_lessons_learned.md)
 
 **Debugging lessons are applied at:**
-- **Stage 7 Step 4 (Update Guides)** ← ONLY place where guides are updated
+- **Stage 7.5 (Guide Update from Lessons Learned)** ← ONLY place where guides are updated
 
 **Critical Requirements:**
 1. Must find ALL debugging files (3 types × N features + epic)
-2. Must create master checklist with priority
-3. Must apply 100% of lessons (no skipping)
-4. Debugging lessons have HIGHER priority than general lessons
+2. Must create GUIDE_UPDATE_PROPOSAL.md with P0-P3 prioritization
+3. Must present each proposal to user for individual approval
+4. Must apply only approved changes (user has full control)
+5. Debugging lessons have HIGHER priority (P0/P1) than general lessons (P2/P3)
 
 **Result:** Every debugging session improves the workflow, preventing same bugs in future epics.
 

@@ -108,319 +108,222 @@ python tests/run_all_tests.py
 
 ---
 
-## Step 3: Systematic Root Cause Analysis (MANDATORY)
+## Step 3: Cross-Bug Pattern Analysis (MANDATORY)
 
-**Purpose:** Analyze why bugs got through research/implementation and how to prevent them
+**Purpose:** Identify PATTERNS across bugs and aggregate guide improvements
 
-**When:** After all bugs resolved, BEFORE updating lessons learned
+**When:** After all bugs resolved AND Phase 4b complete for all issues
 
-**Time Required:** 30-60 minutes (essential for process improvement)
+**Time Required:** 20-40 minutes (focuses on patterns, not individual bugs)
+
+**Note:** Individual bug root cause analysis already done in Phase 4b per issue. This step focuses on PATTERNS across multiple bugs.
 
 ---
 
-### 3.1: Per-Bug Process Failure Analysis
+### 3.1: Review Per-Bug Analyses from Phase 4b
 
-**For EACH bug in ISSUES_CHECKLIST.md, systematically analyze:**
+**FIRST: Check if Phase 4b was completed for ALL issues:**
 
-Create a file: `debugging/process_failure_analysis.md`
+```bash
+# Check ISSUES_CHECKLIST.md "Root Cause?" column
+# Should show ✅ YES or ⏭️ SKIP for every 🟢 FIXED issue
+```
+
+**If any issue missing root cause analysis:**
+- STOP - Cannot proceed
+- Go back and complete Phase 4b for that issue
+- Return here when all issues have root cause analysis
+
+**Read existing analyses:**
+- `debugging/guide_update_recommendations.md` (created incrementally in Phase 4b)
+- Each `issue_XX_{name}.md` file's "Root Cause Analysis" section
+
+---
+
+### 3.2: Cross-Bug Pattern Analysis
+
+**Goal:** Identify PATTERNS across multiple bugs (not just individual bugs)
+
+**Create or update file:** `debugging/process_failure_analysis.md`
 
 ```markdown
 # Process Failure Analysis - {Feature/Epic Name}
 
-**Purpose:** Systematic analysis of why bugs got through our process and how to prevent them
+**Purpose:** Identify PATTERNS across multiple bugs and aggregate guide improvements
 
 **Date:** {YYYY-MM-DD}
 
+**Note:** Individual bug root cause analyses completed in Phase 4b (see guide_update_recommendations.md)
+
 ---
 
-## Issue #1: {name}
+## Summary of All Issues
 
-### Bug Summary
-- **What was the bug:** {brief description}
-- **Root Cause:** {technical root cause from investigation}
-- **Severity:** {High/Medium/Low}
-- **Discovery Stage:** {Smoke Testing / QC Round X / Epic Testing / User Testing}
+**Total Issues Debugged:** {count}
+**Issues with Root Cause Analysis:** {count with ✅ YES}
+**Issues Skipped (Not Process Issues):** {count with ⏭️ SKIP}
 
-### Why Did This Bug Get Through?
+**Issues by Discovery Stage:**
+- Smoke Testing (Part 3): {count}
+- QC Round 1: {count}
+- QC Round 2: {count}
+- QC Round 3: {count}
+- Epic Testing: {count}
+- User Testing: {count}
 
-**Research Phase Analysis (Stage 5a - TODO Creation):**
-- [ ] Was this scenario considered during Iterations 1-7 (Round 1)?
-  - If NO: Why not? {explanation}
-  - If YES: Why wasn't it captured in TODO items? {explanation}
+---
 
-- [ ] Was this covered during Iterations 8-16 (Round 2 - Test Coverage)?
-  - If NO: What edge case/scenario was missed? {explanation}
-  - If YES: Why didn't the test catch it? {explanation}
+## Cross-Bug Patterns (NEW FOCUS)
 
-- [ ] Was this caught during Iteration 23a (Pre-Implementation Spec Audit)?
-  - If NO: What audit question should have caught this? {explanation}
-  - If YES: How did it still get through? {explanation}
+**Purpose:** Identify PATTERNS that appear across multiple bugs (not just individual bugs)
 
-**Implementation Phase Analysis (Stage 5b):**
-- [ ] Did the implementation follow the spec correctly?
-  - If NO: Why did implementation deviate? {explanation}
-  - If YES: Was the spec incomplete/incorrect? {explanation}
+**For each pattern, analyze:**
 
-- [ ] Were there mini-QC checkpoints that should have caught this?
-  - If NO: Should there have been? {explanation}
-  - If YES: Why didn't they catch it? {explanation}
+### Pattern #1: {Pattern Name - e.g., "Missing Entity Status Checks"}
 
-- [ ] Did unit tests exist for this code path?
-  - If NO: Why was test coverage inadequate? {explanation}
-  - If YES: Why didn't tests catch the bug? {explanation}
+**Affected Issues:** Issue #{X}, Issue #{Y}, Issue #{Z}
 
-**Testing Phase Analysis (Stage 5c):**
-- [ ] Should smoke testing (Part 3 E2E) have caught this?
-  - If NO: Is this a QC-level issue only? {explanation}
-  - If YES: Why didn't Part 3 catch it? {explanation}
+**Common Root Cause:**
+{What's the common process/guide gap across these bugs?}
+Example: "All three bugs involved missing checks for entity status fields (injured, active, etc.) because round2_todo_creation.md Iteration 9 (Edge Case Analysis) doesn't explicitly mention status field edge cases"
 
-- [ ] Which QC round should have caught this?
-  - Round 1 (Basic Validation): {yes/no and why}
-  - Round 2 (Deep Verification): {yes/no and why}
-  - Round 3 (Skeptical Review): {yes/no and why}
+**Common Prevention Point:**
+{Which stage/iteration should have caught all these bugs?}
+Example: "Stage 5a Round 2, Iteration 9 (Edge Case Analysis)"
 
-### Process Gaps Identified
+**Pattern-Based Guide Improvement:**
+{What ONE guide change prevents ALL these bugs?}
+Example: "Add to round2_todo_creation.md Iteration 9 checklist: '[ ] Entity status fields (active, injured, suspended, bye week, etc.)'"
 
-**Research/Planning Gaps:**
-1. {specific gap in Stage 5a process}
-2. {specific gap in specification process}
+**Impact:**
+- Bugs prevented: {count} similar bugs in future epics
+- Estimated time saved: {X} hours per epic
 
-**Implementation Gaps:**
-1. {specific gap in Stage 5b process}
-2. {specific gap in testing approach}
+**Priority:** {P0/P1/P2/P3 based on severity and frequency}
 
-**Testing Gaps:**
-1. {specific gap in smoke testing}
-2. {specific gap in QC rounds}
+---
 
-### Prevention Strategies
+{Repeat for each pattern found}
 
-**How to prevent this specific bug type in future:**
+---
 
-1. **Research Phase Improvements:**
-   - Update Round 1/2/3 iterations to include: {specific addition}
-   - Add new audit question to Iteration 23a: "{question}"
-   - Add to common edge cases checklist: {scenario}
+## High-Priority Guide Updates (Cross-Pattern)
 
-2. **Implementation Phase Improvements:**
-   - Add mini-QC checkpoint: {specific checkpoint}
-   - Update test coverage requirements: {specific requirement}
-   - Add to implementation checklist: {specific item}
+**Purpose:** Aggregate all guide updates from patterns into prioritized list
 
-3. **Testing Phase Improvements:**
-   - Update smoke test Part 3 to include: {specific test}
-   - Add QC Round {N} verification: {specific verification}
-   - Update test data to cover: {specific scenario}
+**These are IN ADDITION to individual guide updates from Phase 4b (which are in guide_update_recommendations.md)**
 
-### Guide Updates Required
+1. **{guide_name}.md - {section}:**
+   - Current state: {quote or "Section doesn't exist"}
+   - Proposed change: {new text addressing pattern}
+   - Prevents: Pattern #{X} (affects {count} bug types)
+   - Priority: {P0/P1/P2/P3}
 
-**Specific guide sections that need updating:**
+2. **{guide_name}.md - {section}:**
+   - {repeat for each cross-pattern improvement}
 
-1. **{guide_name}.md - Section {X}:**
-   - Current text: "{quote current text}"
-   - Proposed addition/change: "{new text}"
-   - Rationale: {why this change prevents bug}
+---
+
+## Systemic Process Gaps
+
+**Purpose:** Identify gaps that affect the ENTIRE workflow, not just specific stages
+
+**Gap #1: {Gap Name}**
+- **What's missing:** {description}
+- **Impact:** {which stages/iterations affected}
+- **Evidence:** {which bugs exposed this gap}
+- **Proposed Solution:** {new workflow step, new gate, new template, etc.}
+- **Priority:** {P0/P1/P2/P3}
 
 2. **{guide_name}.md - Section {Y}:**
    - Current text: "{quote current text}"
    - Proposed addition/change: "{new text}"
-   - Rationale: {why this change prevents bug}
-
----
-
-## Issue #2: {name}
-
-{Repeat same analysis structure for each bug}
+   - Priority: {P0/P1/P2/P3}
 
 ---
 ```
 
 **Critical Requirements:**
 
-- [ ] Analyze EVERY bug (no exceptions)
-- [ ] Be brutally honest about process failures
-- [ ] Identify specific guide sections that failed us
-- [ ] Propose concrete, actionable guide updates
-- [ ] Focus on "why didn't our process catch this?" not "why did bug occur?"
+- [ ] Review ALL Phase 4b root cause analyses
+- [ ] Identify PATTERNS that appear across multiple bugs
+- [ ] Focus on "what pattern exists?" not "why did individual bug occur?"
+- [ ] Propose PATTERN-BASED guide updates (not just individual fixes)
+- [ ] Cross-pattern improvements are IN ADDITION to Phase 4b individual improvements
 
 **Anti-Patterns to Avoid:**
 
-❌ "This was just a coding error" - dig deeper into why process didn't prevent it
-❌ "We should be more careful" - not actionable, need specific process changes
-❌ "Tests should have caught this" - WHY didn't they? What's missing from test strategy?
-❌ Generic advice - need SPECIFIC guide sections and SPECIFIC changes
+❌ Repeating individual bug analysis (that's Phase 4b's job)
+❌ Generic patterns like "we should test more" (not actionable)
+❌ Patterns with only 1 bug (that's already in Phase 4b analysis)
+❌ Ignoring existing Phase 4b work (build on it, don't replace it)
 
 ---
 
-### 3.2: Cross-Bug Pattern Analysis
+### 3.3: Update guide_update_recommendations.md with Patterns
 
-**After analyzing individual bugs, identify patterns:**
+**Note:** guide_update_recommendations.md already exists (created incrementally in Phase 4b with individual bug improvements)
 
-Add to `debugging/process_failure_analysis.md`:
+**Action:** ADD cross-pattern recommendations to existing file
+
+**Append to existing file** (created in Phase 4b, now add cross-pattern recommendations):
 
 ```markdown
 ---
 
-## Cross-Bug Pattern Analysis
+## CROSS-PATTERN RECOMMENDATIONS (Added from Phase 5 Step 3)
 
-### Pattern #1: {Pattern Name}
+**Purpose:** Pattern-based guide improvements (IN ADDITION to per-issue recommendations above)
 
-**Bugs affected:** Issue #{N}, Issue #{M}
-
-**Common process failure:**
-{What specific part of the process failed repeatedly}
-
-**Why this pattern exists:**
-{Root cause of why our process has this gap}
-
-**Systemic fix required:**
-1. {Guide update that prevents this pattern}
-2. {Process change that prevents this pattern}
-3. {Checklist addition that prevents this pattern}
-
-### Pattern #2: {Pattern Name}
-
-{Repeat for each pattern}
+**Patterns Analyzed:** {count}
+**Date Added:** {YYYY-MM-DD}
 
 ---
 
-## High-Priority Guide Updates
+## Pattern-Based Recommendation #{next_number}: {Pattern Name}
 
-**These guide updates would have prevented multiple bugs:**
+**Source Pattern:** Cross-bug pattern affecting Issue #{X}, #{Y}, #{Z}
+**Affected Guide:** `{guide_path}`
+**Section:** {section}
+**Priority:** {P0/P1/P2/P3}
 
-### 1. {Guide Name} - {Section}
+### Pattern Description
 
-**Current State:**
-- {What the guide currently says or doesn't say}
+{Description of pattern found across multiple bugs}
 
-**Proposed Update:**
-```
-{Exact text to add/change in guide}
-```
+### Root Cause (Pattern-Level)
 
-**Bugs This Would Prevent:**
-- Issue #{N}: {how it would prevent}
-- Issue #{M}: {how it would prevent}
+{What process/guide gap allows this pattern to recur}
 
-**Priority:** {High/Medium/Low}
-
-### 2. {Guide Name} - {Section}
-
-{Repeat for each high-priority update}
-
----
-```
-
----
-
-### 3.3: Guide Update Recommendations
-
-**After completing process failure analysis, create:**
-
-File: `debugging/guide_update_recommendations.md`
+### Current State (BEFORE)
 
 ```markdown
-# Guide Update Recommendations
-
-**Feature/Epic:** {name}
-**Date:** {YYYY-MM-DD}
-**Bugs Analyzed:** {count}
-**Patterns Identified:** {count}
-
----
-
-## Critical Updates (Implement Immediately)
-
-### Update #1: {guide_name}.md
-
-**Section to Update:** {section name or "New section"}
-
-**Current Text:**
-```
-{exact current text, or "Section doesn't exist"}
+{Current text from guide, OR "Section doesn't exist"}
 ```
 
-**Proposed New Text:**
-```
-{exact proposed text with markdown formatting}
-```
+### Proposed Change (AFTER)
 
-**Rationale:**
-- Prevents bugs: Issue #{N}, Issue #{M}
-- Addresses pattern: {pattern name}
-- Process gap filled: {specific gap}
-
-**Implementation Steps:**
-1. Update {guide_name}.md lines {X-Y}
-2. Add to {checklist/template} if needed
-3. Update prompts_reference_v2.md if affects phase transitions
-
----
-
-### Update #2: {guide_name}.md
-
-{Repeat for each critical update}
-
----
-
-## Moderate Priority Updates (Implement Soon)
-
-{Same structure as critical updates}
-
----
-
-## Low Priority Updates (Consider for Future)
-
-{Same structure as critical updates}
-
----
-
-## New Sections Needed
-
-### New Section: {section_name}
-
-**Guide:** {guide_name}.md
-**Location:** {where in guide it should go}
-**Purpose:** {what gap this fills}
-
-**Proposed Content:**
 ```markdown
-{full proposed section content}
+{Proposed new text with **BOLD** for additions/changes}
 ```
 
-**Rationale:** {why this section is needed based on bugs discovered}
+### Rationale
+
+{Why this prevents the PATTERN (affects multiple bug types)}
+
+### Impact Assessment
+
+**Bugs this pattern affected:**
+- Issue #{X}: {brief description}
+- Issue #{Y}: {brief description}
+- Issue #{Z}: {brief description}
+
+**Estimated bugs prevented per epic:** {count} similar bugs
+**Estimated debugging time saved:** {X} hours per epic
 
 ---
 
-## Template/Checklist Updates
-
-### {template_name}
-
-**Current template missing:**
-- {item that should be in template}
-- {item that should be in template}
-
-**Proposed additions:**
-```markdown
-{exact text to add to template}
-```
-
----
-
-## Summary for Guide Maintainers
-
-**Total recommended updates:** {count}
-- Critical: {count}
-- Moderate: {count}
-- Low: {count}
-- New sections: {count}
-
-**Most impactful update:**
-{Which single update would prevent most bugs in future}
-
-**Estimated time to implement all critical updates:** {hours}
-
----
+{Repeat for each pattern-based recommendation}
 ```
 
 ---

@@ -49,4 +49,69 @@ Starting test plan update...
 
 ---
 
+## Gate 4.5: Epic Test Plan Approval (MANDATORY)
+
+**Trigger:** Agent completes Step 6.1 of epic_testing_strategy.md (test plan updated)
+
+**Agent MUST present to user:**
+
+```
+🚨 **Gate 4.5: Epic Test Plan Approval Required**
+
+I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the feature specs from Stages 2-3.
+
+**Summary of epic_smoke_test_plan.md:**
+- **Success Criteria:** {N} measurable criteria defined
+- **Test Scenarios:** {N} specific test scenarios identified
+- **Integration Points:** {N} cross-feature integration points documented
+- **Data Quality Checks:** Verify VALUES (not just structure)
+- **Concrete Commands:** Specific commands and expected outputs documented
+
+**Key test scenarios include:**
+1. {Scenario 1 summary - one sentence}
+2. {Scenario 2 summary - one sentence}
+3. {Scenario 3 summary - one sentence}
+...
+
+**Why approval is needed now:**
+- I need to know EXACTLY how to test this work BEFORE creating implementation plans (Stage 5a)
+- Test requirements will guide how I structure implementation tasks and test strategy
+- Changes to test plan are cheap now, expensive after 24 verification iterations
+
+**Please review `epic_smoke_test_plan.md` and:**
+- ✅ Approve if test strategy looks correct
+- ❌ Request changes if test strategy needs adjustment
+
+**Questions to consider:**
+- Do the success criteria measure what matters to you?
+- Are the test scenarios comprehensive enough?
+- Are there additional integration points I should test?
+- Do the data quality checks verify the right values?
+
+**I cannot proceed to Stage 5a (Implementation Planning) without your approval.**
+```
+
+**After user approves:**
+
+```
+✅ **Gate 4.5 PASSED - Epic Test Plan Approved**
+
+**Updating EPIC_README.md:**
+- Marking Gate 4.5 as ✅ PASSED
+- Adding user approval timestamp to epic_smoke_test_plan.md
+
+**What this means:**
+- I now know EXACTLY how to test this work
+- Implementation plans (Stage 5a) will be designed with these test requirements in mind
+- Test strategy will guide implementation approach
+
+**Next: Stage 5 (Feature Implementation)**
+
+Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to Stage 5a to begin implementation planning for the first feature.
+
+Following `stages/stage_5/round1_todo_creation.md` (Round 1) to create comprehensive implementation plan with 24 verification iterations across 3 rounds.
+```
+
+---
+
 *For prompts for other stages, see the [prompts index](../prompts_reference_v2.md)*

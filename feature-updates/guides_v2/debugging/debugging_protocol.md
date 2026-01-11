@@ -44,6 +44,28 @@ Debugging Protocol is an investigation-centric process integrated into QC/Smoke 
 - Missing requirement where solution is known (use missed_requirement_workflow.md)
 - Example: "We forgot to add validation" ← This is a missed requirement, not a bug
 
+---
+
+## 🔀 When to Use This Protocol vs Missed Requirement Protocol
+
+**Use DEBUGGING PROTOCOL when:**
+- ✅ Issue discovered during testing (Smoke/QC/Epic Testing)
+- ✅ Root cause is UNKNOWN (requires investigation)
+- ✅ System behaving unexpectedly
+
+**Use MISSED REQUIREMENT PROTOCOL when:**
+- ✅ Gap discovered during planning or implementation
+- ✅ Solution is KNOWN (you know what needs to be added)
+- ✅ It's a NEW requirement (user didn't ask for it)
+
+**Quick Test:**
+- If you need to ask "Why is this happening?" → Debugging Protocol
+- If you need to ask "Should we add this feature?" → Missed Requirement Protocol
+
+**See:** CLAUDE.md → "Decision Tree: Which Protocol to Use?" for detailed decision tree with examples
+
+---
+
 **Key Outputs:**
 - ✅ debugging/ISSUES_CHECKLIST.md tracking all discovered issues
 - ✅ debugging/issue_{number}_{name}.md per issue with investigation history
@@ -179,6 +201,52 @@ The debugging protocol consists of 5 phases:
 
 ---
 
+### PHASE 4b: Root Cause Analysis (Per Issue) - MANDATORY
+**See:** `debugging/root_cause_analysis.md`
+
+**Purpose:** Analyze WHY bug existed and HOW to prevent it through guide improvements
+
+**Key Activities:**
+- Perform 5-why analysis (reach process/guide gap)
+- Identify prevention point (which stage should have caught it)
+- Draft guide improvement proposal
+- Present to user for confirmation
+- Document in guide_update_recommendations.md
+
+**Output:** User-confirmed root cause + guide improvement (added to recommendations)
+
+**Time:** 10-20 minutes per issue (captures lessons while context fresh)
+
+**Why Mandatory:** Immediate analysis produces 3x higher quality guide improvements vs. delayed analysis
+
+---
+
+### 🚨 CRITICAL: Phase 4b Timing and Importance
+
+**MANDATORY RULE:** Phase 4b MUST be completed IMMEDIATELY after user confirms each issue is fixed.
+
+**DO NOT:**
+- ❌ Batch Phase 4b until all issues are fixed
+- ❌ Skip Phase 4b "to save time"
+- ❌ Delay Phase 4b until Phase 5
+- ❌ Write generic "we should be more careful" lessons
+
+**DO:**
+- ✅ Complete Phase 4b for Issue 1 → Then start investigating Issue 2
+- ✅ Capture specific prevention points (which stage should have caught it)
+- ✅ Write actionable guide improvements
+- ✅ Get user confirmation of root cause
+
+**WHY THIS MATTERS:**
+- Investigation context is fresh (3x better quality analysis)
+- Specific details are remembered
+- Guide improvements are precise
+- Prevents "we'll analyze later" which often becomes "never"
+
+**DATA:** Immediate Phase 4b analysis produces 3x higher quality guide improvements compared to batched analysis (based on historical comparison).
+
+---
+
 ### PHASE 5: Loop Back to Testing
 **See:** `debugging/loop_back.md`
 
@@ -186,12 +254,14 @@ The debugging protocol consists of 5 phases:
 
 **Key Activities:**
 - Verify all issues in checklist are 🟢 FIXED
+- Verify Phase 4b root cause analysis completed for ALL issues
 - Final code review (remove debug artifacts)
 - Run full test suite
-- **Systematic root cause analysis (MANDATORY)**
-  - Analyze why each bug got through research/implementation
-  - Identify cross-bug patterns
-  - Generate guide update recommendations
+- **Cross-bug pattern analysis (MANDATORY)**
+  - Review per-issue root causes from Phase 4b
+  - Identify patterns across multiple bugs
+  - Generate pattern-based guide update recommendations
+  - Create process_failure_analysis.md
 - Update lessons learned (technical focus)
 - Loop back to START of testing stage
 - Re-run testing from beginning
@@ -216,8 +286,8 @@ feature_01_player_integration/
 │   ├── issue_01_scoring_returns_null.md
 │   ├── issue_02_projection_calculation_wrong.md
 │   ├── code_changes.md                 (All fixes for this feature)
-│   ├── process_failure_analysis.md     (Why bugs got through process - NEW)
-│   ├── guide_update_recommendations.md (Concrete guide updates - NEW)
+│   ├── process_failure_analysis.md     (Why bugs got through - Phase 5 cross-pattern)
+│   ├── guide_update_recommendations.md (Guide improvements - Phase 4b per-issue + Phase 5 patterns)
 │   ├── lessons_learned.md              (Technical retrospective)
 │   └── diagnostic_logs/
 │       ├── issue_01_round1.log
@@ -241,8 +311,8 @@ epic_name/
     ├── issue_01_integration_conflict.md
     ├── issue_02_data_mismatch.md
     ├── code_changes.md
-    ├── process_failure_analysis.md     (Why bugs got through process - NEW)
-    ├── guide_update_recommendations.md (Concrete guide updates - NEW)
+    ├── process_failure_analysis.md     (Why bugs got through - Phase 5 cross-pattern)
+    ├── guide_update_recommendations.md (Guide improvements - Phase 4b per-issue + Phase 5 patterns)
     ├── lessons_learned.md
     └── diagnostic_logs/
 ```
@@ -264,11 +334,16 @@ Have issues in checklist, need to investigate?
 
 Found root cause, need to implement fix?
 └─ Read debugging/resolution.md (PHASE 3 & 4)
-   └─ Design solution → Implement → Get user verification
+   └─ Design solution → Implement → Get user verification → Phase 4b
 
-All issues fixed, ready to loop back?
+User confirmed fix?
+└─ Read debugging/root_cause_analysis.md (PHASE 4b - MANDATORY)
+   └─ 5-why analysis → Guide improvement → User confirms root cause
+   └─ Repeat for each issue in checklist
+
+All issues fixed and root causes analyzed?
 └─ Read debugging/loop_back.md (PHASE 5)
-   └─ Final review → Loop back to testing
+   └─ Cross-bug pattern analysis → Final review → Loop back to testing
 ```
 
 ---

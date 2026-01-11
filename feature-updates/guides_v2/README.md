@@ -79,9 +79,14 @@ STAGE 7: Epic Cleanup
    Run unit tests (100% pass)
    User testing (MANDATORY)
    If bugs found → Add to epic debugging/ISSUES_CHECKLIST.md → LOOP BACK to Stage 6a
-   Commit changes
+   🆕 Stage 7.5: Guide updates from lessons (MANDATORY)
+      - Analyze lessons → Create proposals (P0-P3)
+      - User approves individually → Apply changes
+   Commit changes (separate commits for guides + epic)
    Move epic to done/ folder
 ```
+
+**Visual Diagrams:** See `diagrams/workflow_diagrams.md` for ASCII art diagrams of complete workflow, Stage 5 detail, and debugging protocol integration.
 
 ---
 
@@ -92,17 +97,18 @@ STAGE 7: Epic Cleanup
 | When to Use | Guide File | Purpose |
 |-------------|------------|---------|
 | Starting a new epic | `stages/stage_1/epic_planning.md` | Analyze request, propose features, create structure |
-| Planning a feature (start) | `stages/stage_2/feature_deep_dive.md` | Router: Links to phase_0/phase_1/phase_2 sub-stages |
-| Feature research phase | `stages/stage_2/phase_0_research.md` | Phase 0-1.5: Epic intent, research, audit |
-| Feature specification phase | `stages/stage_2/phase_1_specification.md` | Phase 2-2.5: Spec with traceability, alignment check |
-| Feature refinement phase | `stages/stage_2/phase_2_refinement.md` | Phase 3-6: Questions, scope, alignment, user approval |
+| Planning a feature (start) | `stages/stage_2/feature_deep_dive.md` | Router: Links to Phase 0-1, Phase 2, Phase 3-6 guides |
+| Stage 2 Phase 0-1 (Research) | `stages/stage_2/phase_0_research.md` | Epic intent extraction, targeted research, audit |
+| Stage 2 Phase 2 (Specification) | `stages/stage_2/phase_1_specification.md` | Spec with traceability, alignment check |
+| Stage 2 Phase 3-6 (Refinement) | `stages/stage_2/phase_2_refinement.md` | Questions, scope, alignment, user approval |
 | All features planned | `stages/stage_3/cross_feature_sanity_check.md` | Validate alignment, resolve conflicts, get user sign-off |
 | Features aligned | `stages/stage_4/epic_testing_strategy.md` | Update test plan based on specs |
 | Ready to implement (Round 1) | `stages/stage_5/round1_todo_creation.md` | Iterations 1-7 + 4a: Requirements, dependencies, algorithms |
 | Round 1 complete | `stages/stage_5/round2_todo_creation.md` | Iterations 8-16: Test strategy, edge cases, re-verification |
-| Round 2 complete | `stages/stage_5/round3_todo_creation.md` | Router: Links to Part 1/Part 2 sub-stages |
+| Round 2 complete | `stages/stage_5/round3_todo_creation.md` | Router: Links to Part 1/Part 2a/Part 2b sub-stages |
 | Round 3 preparation phase | `stages/stage_5/round3_part1_preparation.md` | Iterations 17-22: Phasing, rollback, algorithm (final), performance, mock audit |
-| Round 3 final gates phase | `stages/stage_5/round3_part2_final_gates.md` | Iterations 23, 23a, 25, 24: 3 mandatory gates, GO/NO-GO |
+| Round 3 gates phase (Part 2a) | `stages/stage_5/round3_part2a_gates_1_2.md` | Iterations 23, 23a: Integration Gap + Pre-Impl Spec Audit |
+| Round 3 gates phase (Part 2b) | `stages/stage_5/round3_part2b_gate_3.md` | Iterations 25, 24: Spec Validation + GO/NO-GO |
 | Implementation planning complete (24 iterations) | `stages/stage_5/implementation_execution.md` | Implement feature with continuous verification |
 | Implementation done (Smoke Testing) | `stages/stage_5/smoke_testing.md` | Part 1: Import, Part 2: Entry Point, Part 3: E2E (verify DATA VALUES) |
 | Smoke testing passed (QC Rounds) | `stages/stage_5/qc_rounds.md` | Round 1: Basic validation, Round 2: Deep verification, Round 3: Final review |
@@ -114,10 +120,14 @@ STAGE 7: Epic Cleanup
 | Epic smoke passed (QC) | `stages/stage_6/epic_qc_rounds.md` | 3 rounds of epic-level QC |
 | Epic QC passed (Final Review) | `stages/stage_6/epic_final_review.md` | Final epic validation before cleanup |
 | Epic review passed | `stages/stage_7/epic_cleanup.md` | User testing, finalize, commit, archive |
+| Documentation verified (Stage 7 STEP 3) | `stages/stage_7/guide_update_workflow.md` | Apply lessons learned to guides (P0-P3 prioritization) |
+| Guide updates applied | `templates/guide_update_proposal_template.md` | Template for presenting guide changes to user |
 | Missed requirement (known solution) | `missed_requirement/missed_requirement_protocol.md` | Handle missing features during epic development |
 | Issues during QC/Smoke testing | `debugging/debugging_protocol.md` | Integrated debugging protocol with loop-back to testing |
 | Need templates | `templates/TEMPLATES_INDEX.md` | File templates for epics, features, missed requirements, debug sessions |
 | Starting a stage | `prompts_reference_v2.md` | MANDATORY prompts for phase transitions |
+| Need term definition | `reference/glossary.md` | Complete glossary of workflow terms (alphabetical index) |
+| Avoiding mistakes | `reference/common_mistakes.md` | Summary of anti-patterns across all stages |
 
 ---
 
@@ -157,12 +167,35 @@ Systematic 24-iteration planning process creating implementation_plan.md (~400 l
 
 ## File Structure
 
+### 🔢 KAI Numbering System
+
+**CRITICAL:** All epic folders MUST include KAI number for unique identification.
+
+**Format:** `feature-updates/KAI-{N}-{epic_name}/`
+
+**Examples:**
+- `feature-updates/KAI-1-improve_draft_helper/`
+- `feature-updates/KAI-2-add_player_validation/`
+- `feature-updates/KAI-3-integrate_new_data_source/`
+
+**Why KAI numbers:**
+- Ensures unique folder names (prevents conflicts)
+- Matches git branch naming (`epic/KAI-1`)
+- Enables quick epic identification
+- Tracked in `feature-updates/EPIC_TRACKER.md`
+
+**When assigned:** Stage 1 Step 1.0c (before creating epic folder)
+
+**Original Request File:** `feature-updates/{epic_name}.txt` (no KAI number - stays in root for reference)
+
+---
+
 ### Epic Folder Structure
 ```
 feature-updates/
-├── {epic_name}.txt                    ← Original user request (stays in root)
-├── {epic_name}/                       ← Epic folder (all work here)
-│   ├── EPIC_README.md                ← Master tracking, Quick Reference Card, Agent Status
+├── {epic_name}.txt                        ← Original user request (stays in root)
+├── KAI-{N}-{epic_name}/                   ← Epic folder (all work here, includes KAI number)
+│   ├── EPIC_README.md                     ← Master tracking, Quick Reference Card, Agent Status
 │   ├── epic_smoke_test_plan.md       ← How to test complete epic (evolves through stages)
 │   ├── epic_lessons_learned.md       ← Cross-feature insights
 │   │
@@ -195,7 +228,7 @@ feature-updates/
 │   │
 │
 ├── done/                              ← Completed epics moved here
-│   └── {epic_name}/                  ← Complete epic folder (Stage 7)
+│   └── KAI-{N}-{epic_name}/          ← Complete epic folder (Stage 7, includes KAI number)
 │
 └── guides_v2/                        ← THIS folder (guides for workflow)
     ├── README.md                     ← This file (workflow overview)

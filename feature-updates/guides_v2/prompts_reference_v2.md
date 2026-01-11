@@ -66,6 +66,7 @@
 
 **[Stage 7: Epic Cleanup](prompts/stage_7_prompts.md)**
 - Starting Stage 7: Epic Cleanup
+- Starting Stage 7.5: Guide Update from Lessons Learned (see prompts/guide_update_prompts.md)
 
 ### Special Workflow Prompts
 

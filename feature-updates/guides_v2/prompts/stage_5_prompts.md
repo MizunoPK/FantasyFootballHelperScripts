@@ -9,13 +9,15 @@
 
 **User says:** "Prepare for updates based on {feature_name}" or "Start implementation of feature_01" or "Create implementation plan"
 
-**Prerequisite:** Stage 4 complete (epic_smoke_test_plan.md updated) AND feature spec.md complete AND checklist.md resolved
+**Prerequisite:** Stage 4 complete (Gate 4.5 passed - user approved test plan) AND feature spec.md complete AND checklist.md resolved
 
-**Note:** Stage 5a is split into 3 separate round guides for better digestibility:
+**Note:** Stage 5a is split into 5 separate guides for better digestibility:
 - **stages/stage_5/round1_todo_creation.md** - Round 1: Iterations 1-7 + 4a (START HERE)
 - **stages/stage_5/round2_todo_creation.md** - Round 2: Iterations 8-16
+- **stages/stage_5/round3_todo_creation.md** - Round 3 router (links to Part 1/2a/2b)
 - **stages/stage_5/round3_part1_preparation.md** - Round 3 Part 1: Iterations 17-22
-- **stages/stage_5/round3_part2_final_gates.md** - Round 3 Part 2: Iterations 23, 23a, 25, 24
+- **stages/stage_5/round3_part2a_gates_1_2.md** - Round 3 Part 2a: Iterations 23, 23a
+- **stages/stage_5/round3_part2b_gate_3.md** - Round 3 Part 2b: Iterations 25, 24
 
 **Agent MUST respond:**
 
@@ -56,7 +58,7 @@ I'm reading `stages/stage_5/round1_todo_creation.md` to ensure I follow all 8 it
 **Prerequisites I'm verifying:**
 ✅ spec.md exists and is complete
 ✅ checklist.md all items resolved (all [x])
-✅ Stage 4 complete (epic_smoke_test_plan.md updated)
+✅ Stage 4 complete (Gate 4.5 passed - user approved test plan)
 ✅ No pending questions from Stage 2
 
 **I'll now proceed with Round 1 (iterations 1-7 + 4a). I'll create questions.md after Round 1 checkpoint if needed.**
@@ -132,9 +134,10 @@ Starting iteration 8...
 
 **Prerequisite:** Round 2 complete (STAGE_5ab), confidence >= MEDIUM, test coverage >90%
 
-**Note:** Round 3 is split into 2 parts for better navigation:
+**Note:** Round 3 is split into 3 parts for better navigation:
 - **stages/stage_5/round3_part1_preparation.md** - Iterations 17-22 (START HERE)
-- **stages/stage_5/round3_part2_final_gates.md** - Iterations 23, 23a, 25, 24
+- **stages/stage_5/round3_part2a_gates_1_2.md** - Iterations 23, 23a (Gates 1-2)
+- **stages/stage_5/round3_part2b_gate_3.md** - Iterations 25, 24 (Gate 3 + GO/NO-GO)
 
 **Agent MUST respond:**
 
@@ -196,7 +199,7 @@ Starting iteration 17...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/round3_part2_final_gates.md` to ensure I follow all 4 final gate iterations in Round 3 Part 2...
+I'm reading `stages/stage_5/round3_part2a_gates_1_2.md` (Part 2a) and `stages/stage_5/round3_part2b_gate_3.md` (Part 2b) to ensure I follow all 4 final gate iterations in Round 3 Part 2...
 
 **The guide requires:**
 - **Part 2: 4 final gate iterations containing ALL 3 MANDATORY GATES**:
@@ -239,7 +242,7 @@ I'm reading `stages/stage_5/round3_part2_final_gates.md` to ensure I follow all 
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/stage_5/round3_part2_final_gates.md
+- Current Guide: stages/stage_5/round3_part2a_gates_1_2.md (Part 2a, then Part 2b)
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 MANDATORY GATES (23a, 25, 24) - CANNOT skip", "Evidence-based verification (cite numbers)", "Close spec.md before Iteration 25", "User decision required if discrepancies"
 - Progress: 22/24 total iterations complete (starting Round 3 Part 2)

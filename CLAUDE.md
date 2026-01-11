@@ -42,7 +42,7 @@ The v2 workflow is a **7-stage epic-driven development process** for managing la
 ```
 Stage 1: Epic Planning → Stage 2: Feature Deep Dives → Stage 3: Cross-Feature Sanity Check →
 Stage 4: Epic Testing Strategy → Stage 5: Feature Implementation (5a→5b→5c→5d→5e per feature) →
-Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
+Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup (includes Stage 7.5: Guide Updates)
 ```
 
 **Terminology:**
@@ -50,6 +50,8 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 - **Feature** = Individual component within an epic
 - **KAI Number** = Unique epic identifier (tracked in EPIC_TRACKER.md)
 - User creates `{epic_name}.txt` → Agent creates `KAI-{N}-{epic_name}/` folder with multiple `feature_XX_{name}/` folders
+
+**See:** `feature-updates/guides_v2/reference/glossary.md` for complete term definitions and alphabetical index
 
 ---
 
@@ -75,6 +77,17 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 **Why this matters:** Reading the guide first ensures you don't miss mandatory steps. The prompt acknowledgment confirms you understand requirements. Historical evidence: 40% guide abandonment rate without mandatory prompts.
 
 **Example prompts:** See `prompts_reference_v2.md` for phase transition examples
+
+---
+
+## Example Epic Conventions
+
+Examples in this documentation use consistent epic names for clarity:
+- **improve_draft_helper (KAI-1)** - Primary example (3 features, medium complexity)
+- **add_player_validation (KAI-2)** - Secondary example (2 features, simple)
+- **integrate_matchup_data (KAI-3)** - Tertiary example (4 features, complex)
+
+**See:** `feature-updates/guides_v2/reference/example_epics.md` for complete example specifications
 
 ---
 
@@ -107,9 +120,9 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 
 - **READ:** `stages/stage_2/feature_deep_dive.md` (router to sub-phases)
 - **Sub-phases:**
-  - STAGE_2a: Research Phase (Phases 0, 1, 1.5) - Gate 1: Research Completeness Audit
-  - STAGE_2b: Specification Phase (Phases 2, 2.5, 2.6) - Gate 2: Spec-to-Epic Alignment + **Gate 3: User Checklist Approval (NEW)**
-  - STAGE_2c: Refinement Phase (Phases 3-6) - Gate 4: User Approval of Acceptance Criteria
+  - Stage 2 Phase 0-1 (Research): Epic intent extraction, targeted research, research audit - Gate 1: Research Completeness Audit
+  - Stage 2 Phase 2 (Specification): Spec with traceability, alignment check - Gate 2: Spec-to-Epic Alignment + **Gate 3: User Checklist Approval (NEW)**
+  - Stage 2 Phase 3-6 (Refinement): Questions, scope, cross-feature alignment, user approval - Gate 4: User Approval of Acceptance Criteria
 
 **Key Outputs:**
 - `spec.md` with requirement traceability (every requirement has source: Epic/User Answer/Derived)
@@ -134,11 +147,12 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 - Resolve conflicts and inconsistencies
 - Get user sign-off on complete plan
 
-**Stage 4: Epic Testing Strategy** (Update test plan)
+**Stage 4: Epic Testing Strategy** (Update test plan + Gate 4.5: User approval)
 - **READ:** `stages/stage_4/epic_testing_strategy.md`
 - Update `epic_smoke_test_plan.md` based on deep dive findings
 - Identify integration points between features
 - Define epic success criteria
+- **🚨 Gate 4.5 (MANDATORY):** User approves epic_smoke_test_plan.md before Stage 5a
 
 **Next:** Stage 5 (Feature Implementation - first feature)
 
@@ -148,16 +162,24 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 
 **🚨 CRITICAL CHANGE:** Replaced todo.md (3,896 lines) with implementation_plan.md (~400 lines) + implementation_checklist.md (~50 lines) approach.
 
-**Stage 5a: Implementation Planning** (24 verification iterations across 3 rounds, 5 mandatory gates)
+**Stage 5a: Implementation Planning** (28 total iterations across 3 rounds)
+
+**Iteration Breakdown:**
+- **Round 1:** 9 iterations (1-7 + 4a + 7a) - Initial analysis, requirements, dependencies, algorithms
+- **Round 2:** 9 iterations (8-16) - Test strategy, edge cases, re-verification
+- **Round 3:** 10 iterations (17-25) - Preparation (17-22), Gates 1-2 (23, 23a), Gate 3 + GO/NO-GO (25, 24)
+- **Total:** 28 iterations with 5 mandatory gates (4a, 7a, 23a, 24, 25)
+
+**Note:** Gates (4a, 7a, 23a) are verification checkpoints that occur as part of the iteration flow. The term "24 iterations" in some docs refers to base iterations excluding gate checkpoints, but guides count all steps as iterations for completeness.
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 5a Round 1" prompt from `prompts_reference_v2.md`
 
-- **Round 1:** READ `stages/stage_5/round1_todo_creation.md` (Iterations 1-7 + **Gate 1: Iteration 4a**)
+- **Round 1:** READ `stages/stage_5/round1_todo_creation.md` (Iterations 1-7 + **Gate 4a + Gate 7a**)
 - **Round 2:** READ `stages/stage_5/round2_todo_creation.md` (Iterations 8-16, >90% test coverage required)
-- **Round 3:** READ `stages/stage_5/round3_todo_creation.md` (Router to Part 1/Part 2)
+- **Round 3:** READ `stages/stage_5/round3_todo_creation.md` (Router to Part 1/Part 2a/Part 2b)
   - Part 1: Iterations 17-22 (Preparation)
-  - Part 2a: Iterations 23, 23a (**Gates 2-3: Integration + Spec Audit**)
-  - Part 2b: Iterations 25, 24 (**Gates 4-5: Spec Validation + GO/NO-GO**)
+  - Part 2a: Iterations 23, 23a (**Gate 23a: Integration + Spec Audit**)
+  - Part 2b: Iterations 25, 24 (**Gate 25: Spec Validation** + **Gate 24: GO/NO-GO**)
 - Create `implementation_plan.md` (grows from ~150→300→400 lines through 3 rounds)
 - **🚨 Gate 5 (User Approval - MANDATORY):** Present implementation_plan.md to user for approval
   - User reviews complete implementation plan (~400 lines)
@@ -214,22 +236,41 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup
 
 ## Stage 6-7: Epic Finalization
 
-**Stage 6: Epic-Level Final QC** (After ALL features complete)
+**Stage 6: Epic-Level Final QC** (After ALL features complete - includes user testing)
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 6" prompt from `prompts_reference_v2.md`
 
 - READ: `stages/stage_6/epic_final_qc.md`
 - Execute epic_smoke_test_plan.md, 3 QC rounds, validate against epic request
+- **🔴 USER TESTING (MANDATORY - Step 6):**
+  - User tests complete system with real workflows
+  - User reports findings: bugs or "no bugs found"
+  - If bugs → Fix → Loop back to Stage 6a → Re-test
+  - Proceed to Stage 7 only when user reports ZERO bugs
 - If issues found → Enter debugging protocol → LOOP BACK to Stage 6a (Epic Smoke Testing)
 
-**Stage 7: Epic Cleanup** (After Stage 6 passes)
+**Stage 7: Epic Cleanup** (User testing ALREADY PASSED in Stage 6)
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 7" prompt from `prompts_reference_v2.md`
 
+**Prerequisites:** Stage 6 complete (including user testing with ZERO bugs reported)
+
 - READ: `stages/stage_7/epic_cleanup.md`
-- Run unit tests (100% pass), user testing (MANDATORY GATE - ZERO bugs required)
-- If user finds bugs → Add to epic debugging/ISSUES_CHECKLIST.md → Enter debugging protocol → LOOP BACK to Stage 6a
-- Commit, merge to main, update EPIC_TRACKER.md, move to done/
+- Run unit tests (100% pass)
+- **Stage 7.5 (MANDATORY):** Guide update from lessons learned
+  - READ: `stages/stage_7/guide_update_workflow.md` for complete 9-step workflow
+  - Analyze ALL lesson sources:
+    - Epic and feature lessons_learned.md files
+    - Debugging lessons from guide_update_recommendations.md (Phase 4b per-issue + Phase 5 patterns)
+    - Debugging lessons from process_failure_analysis.md
+  - Create GUIDE_UPDATE_PROPOSAL.md with prioritized proposals (P0-P3)
+  - Debugging lessons automatically map to P0/P1 (higher priority than general lessons)
+  - Present each proposal to user for individual approval
+  - Apply only approved changes, create separate commit for guide updates
+- Commit epic changes, create PR for user review, user merges
+- Update EPIC_TRACKER.md after user merges, move epic to done/
+
+**Note:** User testing completed in Stage 6 (Step 6) before Stage 7 begins
 
 ---
 
@@ -255,6 +296,104 @@ If missing scope/requirements discovered at ANY point after first Stage 5 starts
 
 ---
 
+## 🔀 Decision Tree: Which Protocol to Use?
+
+**When you discover an issue or gap, follow this decision tree:**
+
+```
+Issue/Gap Discovered
+│
+├─ Question 1: Do you know the SOLUTION?
+│  │
+│  ├─ YES → Is it a NEW requirement the user didn't ask for?
+│  │  │
+│  │  ├─ YES → MISSED REQUIREMENT PROTOCOL
+│  │  │  Example: "We need to add email validation"
+│  │  │  → Create feature_{XX}_{name}/ folder
+│  │  │  → User decides priority
+│  │  │  → Return to Stage 2 for planning
+│  │  │
+│  │  └─ NO → Just implement it (regular work)
+│  │     Example: "Refactor this method"
+│  │     → Not a missing requirement, just implementation detail
+│  │
+│  └─ NO → Requires investigation?
+│     │
+│     ├─ YES → DEBUGGING PROTOCOL
+│     │  Example: "Player scores are incorrect but we don't know why"
+│     │  → Create debugging/ISSUES_CHECKLIST.md
+│     │  → Investigation rounds (Phase 2)
+│     │  → Root cause analysis (Phase 4b)
+│     │
+│     └─ NO → Ask user for clarification
+│        Example: "Should we handle this edge case?"
+│        → Add to questions.md
+│        → Wait for user answer
+```
+
+### Protocol Selection Examples
+
+**Scenario 1: Empty Player Name Bug**
+
+**Discovery:** During QC testing, system crashes when player name is empty
+
+**Analysis:**
+- Do we know the solution? → NO (need to investigate why it crashes)
+- Requires investigation? → YES
+
+**Decision:** ✅ DEBUGGING PROTOCOL
+- Root cause unknown (could be validation missing, could be null pointer, could be data structure issue)
+- Need investigation rounds to find root cause
+- Phase 4b will identify which stage should have caught this
+
+---
+
+**Scenario 2: Forgot Email Validation**
+
+**Discovery:** During implementation, realize spec didn't include email validation
+
+**Analysis:**
+- Do we know the solution? → YES (add email regex validation)
+- Is it a NEW requirement? → YES (not in original spec)
+
+**Decision:** ✅ MISSED REQUIREMENT PROTOCOL
+- Solution is known (email validation)
+- User didn't ask for it originally
+- Need user to confirm this requirement
+- Return to Stage 2 to plan properly
+
+---
+
+**Scenario 3: Refactor Long Method**
+
+**Discovery:** During implementation, notice method is 200 lines long
+
+**Analysis:**
+- Do we know the solution? → YES (break into smaller methods)
+- Is it a NEW requirement? → NO (implementation detail)
+
+**Decision:** ✅ Just implement it (regular work)
+- Not a missing requirement (just code quality)
+- Not a bug requiring investigation
+- Part of normal implementation process
+
+---
+
+**Scenario 4: Unclear Edge Case**
+
+**Discovery:** During planning, unsure if we should handle negative ADP values
+
+**Analysis:**
+- Do we know the solution? → NO (need user input)
+- Requires investigation? → NO (need clarification)
+
+**Decision:** ✅ Add to questions.md, ask user
+- Not a bug (hasn't been implemented yet)
+- Not a missing requirement (unclear if it should exist)
+- Need user decision before proceeding
+
+---
+
 ## Debugging Protocol
 
 **INTEGRATED WITH QC/SMOKE TESTING** - When issues discovered with UNKNOWN root cause:
@@ -267,21 +406,30 @@ If missing scope/requirements discovered at ANY point after first Stage 5 starts
 **File Structure:**
 - Feature-level issues: `feature_XX_{name}/debugging/` folder
 - Epic-level issues: `KAI-{N}-{epic_name}/debugging/` folder
-- Contains: ISSUES_CHECKLIST.md, issue_XX_{name}.md files, investigation_rounds.md, code_changes.md, process_failure_analysis.md (NEW), guide_update_recommendations.md (NEW), lessons_learned.md
+- Contains: ISSUES_CHECKLIST.md, issue_XX_{name}.md files, investigation_rounds.md, code_changes.md, process_failure_analysis.md (Phase 5 cross-pattern), guide_update_recommendations.md (Phase 4b per-issue + Phase 5 patterns), lessons_learned.md (Phase 5)
 
 **Workflow Integration:**
 1. **Issue Discovery** - During Smoke Testing (Stage 5ca/6a) or QC Rounds (Stage 5cb/6b), add issues to ISSUES_CHECKLIST.md
-2. **Enter Debugging Protocol** - Work through checklist systematically
-3. **Systematic Root Cause Analysis (NEW)** - After ALL issues resolved, analyze why bugs got through process and generate guide updates
-4. **Loop Back to Testing** - RESTART testing from beginning (not mid-testing)
-5. **Zero Issues Required** - Cannot proceed to next stage with any open issues
+2. **Enter Debugging Protocol** - Work through checklist systematically (Phase 1-3: investigate and fix)
+3. **User Verification** - User confirms each fix (Phase 4)
+4. **🚨 CRITICAL: Per-Issue Root Cause Analysis (Phase 4b - MANDATORY)**
+   - **TIMING:** IMMEDIATELY after each issue's user verification (NOT batched)
+   - **WHY:** Captures lessons while investigation context is fresh (3x higher quality than delayed analysis)
+   - **WHAT:** 5-why analysis → identify prevention point → draft guide improvement
+   - **OUTPUT:** guide_update_recommendations.md per-issue entry
+   - **DURATION:** 10-20 minutes per issue
+   - **DO NOT proceed to next issue without completing Phase 4b for current issue**
+5. **Cross-Pattern Analysis (Phase 5)** - After ALL issues resolved, identify patterns across bugs and generate systemic guide updates
+6. **Loop Back to Testing** - RESTART testing from beginning (not mid-testing)
+7. **Zero Issues Required** - Cannot proceed to next stage with any open issues
 
-**5-Phase Process:**
+**6-Phase Process:**
 - Phase 1: Issue Discovery & Checklist Update
 - Phase 2: Investigation (Round 1 → Code Tracing, Round 2 → Hypothesis, Round 3 → Testing)
 - Phase 3: Solution Design & Implementation
 - Phase 4: User Verification (MANDATORY - user must confirm each fix)
-- Phase 5: Loop Back to Testing (includes systematic root cause analysis)
+- Phase 4b: Root Cause Analysis (MANDATORY - per-issue, 5-why analysis, guide improvements while context fresh)
+- Phase 5: Loop Back to Testing (includes cross-bug pattern analysis and lessons learned)
 
 **Key Requirements:**
 - **Issue-centric tracking:** Each issue has dedicated file with investigation history
@@ -297,7 +445,7 @@ If missing scope/requirements discovered at ANY point after first Stage 5 starts
 - **Epic-first thinking**: Top-level work unit is an epic (collection of features)
 - **Mandatory reading protocol**: ALWAYS read guide before starting stage
 - **Phase transition prompts**: MANDATORY acknowledgment (proves guide was read)
-- **User approval gates**: Two mandatory gates (Gate 3: checklist approval after Stage 2, Gate 5: implementation plan approval after Stage 5a)
+- **User approval gates**: Three early approval gates (Gate 3: checklist after Stage 2, Gate 4.5: epic test plan after Stage 4, Gate 5: implementation plan after Stage 5a)
 - **Zero autonomous resolution**: Agents create QUESTIONS, user provides ANSWERS (no assumptions)
 - **Continuous alignment**: Stage 5d updates specs after each feature
 - **Iterative testing**: Test plan evolves (Stage 1 → 4 → 5e → 6)
@@ -312,26 +460,95 @@ See `feature-updates/guides_v2/README.md` for complete workflow overview and gui
 
 ---
 
+## Gate Numbering System
+
+### Understanding Gate Numbers
+
+The workflow uses two types of gates:
+
+**Type 1: Stage-Level Gates (whole numbers or decimals)**
+- Named after the stage they occur in or between
+- Most require user approval
+- Examples: Gate 3 (Stage 2), Gate 4.5 (between Stage 4-5), Gate 5 (Stage 5a)
+- **Naming logic:** "Gate 5" = "Stage 5 approval gate", "Gate 4.5" = "Between Stage 4 and 5"
+
+**Type 2: Iteration-Level Gates (iteration numbers)**
+- Named after the iteration they occur in
+- Agent self-validates (using checklists)
+- Examples: Gate 4a (Iteration 4a), Gate 23a (Iteration 23a), Gate 24 (Iteration 24)
+- **Naming logic:** Uses actual iteration number from Stage 5a
+
+### Complete Gate List
+
+| Gate | Type | Stage | Purpose | Approver |
+|------|------|-------|---------|----------|
+| Gate 3 | Stage | Stage 2 | User Checklist Approval | User |
+| Gate 4.5 | Stage | Stage 4 | Epic Test Plan Approval | User |
+| Gate 5 | Stage | Stage 5a | Implementation Plan Approval | User |
+| Gate 4a | Iteration | Stage 5a R1 | TODO Specification Audit | Agent (checklist) |
+| Gate 7a | Iteration | Stage 5a R1 | Backward Compatibility Check | Agent (checklist) |
+| Gate 23a | Iteration | Stage 5a R3 | Pre-Implementation Spec Audit (4 parts) | Agent (checklist) |
+| Gate 24 | Iteration | Stage 5a R3 | GO/NO-GO Decision | Agent (confidence check) |
+| Gate 25 | Iteration | Stage 5a R3 | Spec Validation Check | Agent (checklist) |
+
+### Why This Numbering?
+
+**Stage gates use whole/decimal numbers:**
+- Easier to remember major checkpoints
+- "Gate 5" = "Stage 5 approval gate"
+- Decimal (4.5) when gate falls between stages
+
+**Iteration gates use iteration numbers:**
+- "Gate 4a" = "Gate at Iteration 4a"
+- "Gate 23a" = "Gate at Iteration 23a"
+- Matches actual iteration naming in guides
+
+**Benefits:**
+- Clear distinction between user gates (3, 4.5, 5) and agent gates (4a, 7a, 23a, 24, 25)
+- Iteration gates are self-explanatory (matches iteration number)
+- Stage gates align with workflow stages
+
+**See:** `reference/mandatory_gates.md` for complete gate reference card with timing, checklists, and guide locations.
+
+---
+
 ## Feature File Structure (Critical for Resuming Work)
 
-**Standard feature folder structure:**
+**🚨 BEFORE READING THIS SECTION:**
+
+If you're working with an epic that was started **before 2026-01-10**, be aware of critical file changes that affect resumption:
+
+### 🚨 Critical File Changes (2026-01-10)
+
+**⚠️ IMPORTANT FOR RESUMING OLD EPICS:**
 
 ```
-feature_XX_{name}/
-├── README.md                      (Agent Status - current phase, guide, next action)
-├── spec.md                        (Requirements specification - user-approved Stage 2)
-├── checklist.md                   (QUESTIONS ONLY - user answers ALL before Stage 5a)
-├── implementation_plan.md         (Implementation build guide ~400 lines - user-approved Stage 5a)
-├── implementation_checklist.md    (Progress tracker ~50 lines - created Stage 5b)
-├── code_changes.md                (Actual changes - updated Stage 5b)
-├── lessons_learned.md             (Retrospective - created Stage 5c)
-└── debugging/                     (Created if issues found during testing)
-    ├── ISSUES_CHECKLIST.md
-    ├── issue_XX_{name}.md
-    └── ...
+┌─────────────────────────────────────────────────────────────────┐
+│ 🚨 CRITICAL: RESUMING OLD EPICS (Before 2026-01-10)            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│ If you see `todo.md` in a feature folder:                       │
+│                                                                  │
+│ 1. Epic was started BEFORE file structure change               │
+│ 2. Use todo.md as reference (don't update it)                  │
+│ 3. Don't expect new files (implementation_plan.md, etc.)       │
+│ 4. Follow old workflow patterns from README.md Agent Status    │
+│                                                                  │
+│ If you see `implementation_plan.md`:                            │
+│                                                                  │
+│ 1. Epic uses NEW workflow (after 2026-01-10)                   │
+│ 2. Use implementation_plan.md as PRIMARY reference             │
+│ 3. Follow new workflow as documented in current guides         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-**🚨 CRITICAL FILE CHANGES (as of 2026-01-10):**
+**How to quickly identify epic age:**
+```bash
+ls feature-updates/{epic_name}/feature_01_*/
+# If you see: todo.md → Old epic (before 2026-01-10)
+# If you see: implementation_plan.md → New epic (after 2026-01-10)
+```
 
 **Replaced:**
 - ❌ `todo.md` (3,896 lines) - DELETED, no longer used
@@ -365,18 +582,46 @@ feature_XX_{name}/
 **File Roles Summary:**
 - `spec.md` = WHAT to build (requirements) - user-approved Stage 2
 - `checklist.md` = QUESTIONS to answer (user input) - user-approved Stage 2 (Gate 3)
-- `implementation_plan.md` = HOW to build (implementation guide) - user-approved Stage 5a (Gate 6)
+- `implementation_plan.md` = HOW to build (implementation guide) - user-approved Stage 5a (Gate 5)
 - `implementation_checklist.md` = PROGRESS tracker (real-time updates) - created Stage 5b
 - `code_changes.md` = ACTUAL changes (what was done) - updated Stage 5b
 
 **Why This Matters for Resuming:**
-- If you see `todo.md` in a feature folder → OLD feature (before 2026-01-10)
-- If you see `implementation_plan.md` → NEW feature (use as PRIMARY reference)
-- Always check README.md Agent Status for current phase and which files exist
+- Old epics: Use todo.md as reference, don't expect new files
+- New epics: Use implementation_plan.md as PRIMARY reference
+- File structure tells you which workflow version was used
+
+---
+
+### Standard Feature Folder Structure (NEW EPICS, 2026-01-10 onwards)
+
+```
+feature_XX_{name}/
+├── README.md                      (Agent Status - current phase, guide, next action)
+├── spec.md                        (Requirements specification - user-approved Stage 2)
+├── checklist.md                   (QUESTIONS ONLY - user answers ALL before Stage 5a)
+├── implementation_plan.md         (Implementation build guide ~400 lines - user-approved Stage 5a)
+├── implementation_checklist.md    (Progress tracker ~50 lines - created Stage 5b)
+├── code_changes.md                (Actual changes - updated Stage 5b)
+├── lessons_learned.md             (Retrospective - created Stage 5c)
+└── debugging/                     (Created if issues found during testing)
+    ├── ISSUES_CHECKLIST.md
+    ├── issue_XX_{name}.md
+    └── ...
+```
 
 ---
 
 ## Resuming In-Progress Epic Work
+
+**🚨 FIRST: Check epic age** - See "Feature File Structure → Critical File Changes" section above to understand if this is an old epic (before 2026-01-10) or new epic.
+
+**Quick check:**
+```bash
+ls feature-updates/{epic_name}/feature_01_*/
+# If you see: todo.md → Old epic
+# If you see: implementation_plan.md → New epic
+```
 
 **BEFORE starting any epic-related work**, check for in-progress epics:
 
@@ -585,7 +830,7 @@ git diff    # Review changes
 ✅ **Update Agent Status** in README files at checkpoints
 ✅ **100% unit test pass rate** before commits and stage transitions
 ✅ **Fix ALL issues immediately** (zero tech debt tolerance)
-✅ **User testing approval** before final commit (Stage 7)
+✅ **User testing approval** before Stage 7 begins (completed in Stage 6)
 
 ### Never Allowed
 
@@ -603,6 +848,8 @@ git diff    # Review changes
 - Iteration 23a: Pre-Implementation Spec Audit (Stage 5a Round 3)
 - Smoke Testing: Part 3 must pass before QC rounds (Stage 5c)
 - User Testing: Must pass before commit (Stage 7)
+
+**See:** `feature-updates/guides_v2/reference/common_mistakes.md` for comprehensive anti-pattern reference across all stages
 
 ---
 

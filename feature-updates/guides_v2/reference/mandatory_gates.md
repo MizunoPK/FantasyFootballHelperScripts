@@ -6,16 +6,52 @@
 
 ---
 
+## 🔢 Understanding Gate Numbering
+
+**The workflow uses two gate numbering systems:**
+
+### Type 1: Stage-Level Gates (whole/decimal numbers)
+- **Examples:** Gate 3, Gate 4.5, Gate 5
+- **Naming:** Based on stage number or position between stages
+- **Approver:** Usually requires user approval
+- **Purpose:** Major workflow checkpoints
+
+**Logic:**
+- Gate 3 = Stage 2 gate (named after target stage)
+- Gate 4.5 = Between Stage 4 and 5 (decimal indicates "between")
+- Gate 5 = Stage 5a gate
+
+### Type 2: Iteration-Level Gates (iteration numbers)
+- **Examples:** Gate 4a, Gate 7a, Gate 23a, Gate 24, Gate 25
+- **Naming:** Uses actual iteration number from Stage 5a
+- **Approver:** Agent self-validates using checklists
+- **Purpose:** Verification checkpoints during planning
+
+**Logic:**
+- Gate 4a = Occurs at Iteration 4a in Stage 5a Round 1
+- Gate 23a = Occurs at Iteration 23a in Stage 5a Round 3
+- Gate 24 = Occurs at Iteration 24 in Stage 5a Round 3
+
+### Quick Identification
+
+**How to tell which type:**
+- **User gates:** 3, 4.5, 5, Phase X.X gates → User approval required
+- **Agent gates:** 4a, 7a, 23a, 24, 25 → Agent validates using checklist
+- **Stage gates:** Named after stages (3, 4.5, 5)
+- **Iteration gates:** Named after iterations (4a, 7a, 23a, 24, 25)
+
+---
+
 ## Quick Summary Table
 
 | Stage | Gate | Location | Pass Criteria | Restart if Fail? |
 |-------|------|----------|---------------|------------------|
 | 1 | None | - | User confirmation recommended | No |
-| 2a | Phase 1.5 Audit | STAGE_2a | All 4 categories with evidence | Yes (Phase 1) |
-| 2b | Phase 2.5 Alignment | STAGE_2b | Zero scope creep + zero missing | Yes (Phase 2) |
-| **2b** | **Phase 2.6 Checklist Approval (NEW)** | **STAGE_2b** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
-| 2c | Phase 6 User Approval | STAGE_2c | User explicitly approves | Yes (Phase 6) |
-| 3 | User Sign-Off | STAGE_3 | User approves complete plan | Yes (Stage 3) |
+| 2a | Phase 1.5 Audit | Stage 2 Phase 0-1 | All 4 categories with evidence | Yes (Phase 1) |
+| 2b | Phase 2.5 Alignment | Stage 2 Phase 2 | Zero scope creep + zero missing | Yes (Phase 2) |
+| **2b** | **Phase 2.6 Checklist Approval (NEW)** | **Stage 2 Phase 2** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
+| 2c | Phase 6 User Approval | Stage 2 Phase 3-6 | User explicitly approves | Yes (Phase 6) |
+| 3 | User Sign-Off | Stage 3 | User approves complete plan | Yes (Stage 3) |
 | **4** | **Epic Test Plan Approval (NEW)** | **After Stage 4** | **User approves epic_smoke_test_plan.md** | **Yes (Revise test plan)** |
 | 5aa | Iteration 4a | Round 1 | All tasks have acceptance criteria | Yes (Iteration 4) |
 | 5ac | Iteration 23a | Part 2 | ALL 4 PARTS pass with 100% | Yes (Iteration 23a) |
@@ -105,7 +141,7 @@
 
 ### Gate 3: Phase 2.6 - User Checklist Approval (🚨 NEW MANDATORY GATE)
 
-**Location:** stages/stage_2/phase_1_specification.md (STAGE_2b)
+**Location:** stages/stage_2/phase_1_specification.md (Stage 2 Phase 2)
 **When:** After Phase 2.5 (Spec-to-Epic Alignment Check) passes
 
 **What it checks:**
@@ -276,7 +312,7 @@
 
 ### Gate 2: Iteration 23a - Pre-Implementation Spec Audit (4 PARTS)
 
-**Location:** stages/stage_5/round3_part2_final_gates.md (Round 3 Part 2)
+**Location:** stages/stage_5/round3_part2a_gates_1_2.md (Round 3 Part 2a)
 **When:** After preparation iterations (Iterations 17-22)
 
 **ALL 4 PARTS must PASS:**
@@ -323,7 +359,7 @@
 
 ### Gate 3: Iteration 25 - Spec Validation Against Validated Documents (CRITICAL)
 
-**Location:** stages/stage_5/round3_part2_final_gates.md (Round 3 Part 2)
+**Location:** stages/stage_5/round3_part2b_gate_3.md (Round 3 Part 2b)
 **When:** After Iteration 23a passes
 
 **What it checks:**
@@ -372,7 +408,7 @@
 
 ### Gate 4: Iteration 24 - Implementation Readiness Protocol (GO/NO-GO)
 
-**Location:** stages/stage_5/round3_part2_final_gates.md (Round 3 Part 2)
+**Location:** stages/stage_5/round3_part2b_gate_3.md (Round 3 Part 2b)
 **When:** After Iteration 25 passes
 
 **What it checks (comprehensive checklist):**

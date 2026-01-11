@@ -21,6 +21,25 @@
 
 ---
 
+## ⚡ Quick Jump Navigation
+
+**Jump directly to specific sections:**
+
+| Section | Purpose | Jump |
+|---------|---------|------|
+| Overview | What is the workflow | [Go](#overview) |
+| Quick Start | Starting a new epic | [Go](#quick-start) |
+| File Structure | Epic and feature folders | [Go](#file-structure) |
+| Workflow Stages | All 7 stages explained | [Go](#workflow-stages) |
+| Critical Protocols | Mandatory protocols | [Go](#critical-protocols) |
+| Phase Transition | How to transition stages | [Go](#phase-transition-protocol) |
+| Using the Guides | How to read guides | [Go](#using-the-guides) |
+| Key Principles | Core workflow principles | [Go](#key-principles) |
+| Setting Up | New project setup | [Go](#setting-up-in-a-new-project) |
+| Common Patterns | Workflow patterns | [Go](#common-patterns) |
+
+---
+
 ## Overview
 
 ### What is the Epic-Driven Development Workflow?
@@ -355,11 +374,13 @@ feature-updates/KAI-{N}-{epic_name}/
 
 #### Stage 5a: Implementation Planning (24 verification iterations across 3 rounds)
 
-**Guide:** 3 guides (Round 1, 2, 3)
+**Guide:** 5 guides (Round 1, 2, 3 split into 3 parts)
 - `stages/stage_5/round1_todo_creation.md` (iterations 1-7 + 4a)
 - `stages/stage_5/round2_todo_creation.md` (iterations 8-16)
+- `stages/stage_5/round3_todo_creation.md` (Round 3 router)
 - `stages/stage_5/round3_part1_preparation.md` (Round 3 Part 1: iterations 17-22)
-- `stages/stage_5/round3_part2_final_gates.md` (Round 3 Part 2: iterations 23, 23a, 25, 24)
+- `stages/stage_5/round3_part2a_gates_1_2.md` (Round 3 Part 2a: iterations 23, 23a)
+- `stages/stage_5/round3_part2b_gate_3.md` (Round 3 Part 2b: iterations 25, 24)
 
 **Key Activities:**
 - Round 1: Initial analysis (7 iterations + mandatory 4a gate)
@@ -783,12 +804,13 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 - stages/stage_3/cross_feature_sanity_check.md
 - stages/stage_4/epic_testing_strategy.md
 
-**Implementation Guides (10):**
+**Implementation Guides (11):**
 - stages/stage_5/round1_todo_creation.md (Round 1)
 - stages/stage_5/round2_todo_creation.md (Round 2)
 - stages/stage_5/round3_todo_creation.md (Round 3 router)
 - stages/stage_5/round3_part1_preparation.md (Round 3 Part 1)
-- stages/stage_5/round3_part2_final_gates.md (Round 3 Part 2)
+- stages/stage_5/round3_part2a_gates_1_2.md (Round 3 Part 2a)
+- stages/stage_5/round3_part2b_gate_3.md (Round 3 Part 2b)
 - stages/stage_5/implementation_execution.md
 - stages/stage_5/smoke_testing.md (Phase 1)
 - stages/stage_5/qc_rounds.md (Phase 2)
@@ -1483,6 +1505,40 @@ I'll now continue with iteration 11...
 3. If major refactor: May need new epic
 4. If fixable: Create bug fixes, restart Stage 6
 5. No shortcuts - quality is non-negotiable
+
+### Q: How does the guide improvement workflow work?
+
+**A:** Every epic includes mandatory guide updates (Stage 7.5):
+
+**When:** After Stage 7 user testing passes, before final commit
+
+**What gets updated:**
+- All files in `feature-updates/guides_v2/` (16 guides + supporting files)
+- `CLAUDE.md` (root project instructions)
+- Any files that support future agents
+
+**Process:**
+1. **Analyze lessons learned:** Agent reads ALL `lessons_learned.md` files (epic + features)
+2. **Identify guide gaps:** For each lesson, determine which guide(s) could have prevented the issue
+3. **Create proposals:** Agent creates `GUIDE_UPDATE_PROPOSAL.md` with prioritized improvements:
+   - **P0 (Critical):** Prevents catastrophic bugs, mandatory gate gaps
+   - **P1 (High):** Significantly improves quality, reduces major rework
+   - **P2 (Medium):** Moderate improvements, clarifies ambiguity
+   - **P3 (Low):** Minor improvements, cosmetic fixes
+4. **User approval:** Agent presents EACH proposal individually with before/after comparison
+5. **User decides:** For each proposal: Approve / Modify / Reject / Discuss
+6. **Apply changes:** Agent applies ONLY approved changes (or user modifications)
+7. **Separate commit:** Guide updates committed separately from epic code
+
+**Why mandatory:**
+- Continuous guide improvement based on real implementation experience
+- Future agents benefit from lessons learned in this epic
+- Systematic feedback loop: implementation → lessons → guide updates
+- User has full control over guide evolution
+
+**Time estimate:** 20-45 minutes per epic (depending on lessons count)
+
+**See:** `stages/stage_7/guide_update_workflow.md` for complete workflow
 
 ---
 

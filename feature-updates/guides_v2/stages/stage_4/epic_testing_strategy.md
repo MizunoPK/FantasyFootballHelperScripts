@@ -699,9 +699,122 @@ Keep categories but add specific guidance:
 - [x] epic_smoke_test_plan.md updated
 - [x] Integration points identified (6 integration points)
 - [x] Epic success criteria defined (5 measurable criteria)
+- [ ] 🚨 Gate 4.5: User approval of test plan (MANDATORY - must complete before Stage 5a)
 ```
 
 **Agent Status:**
+
+```markdown
+## Agent Status
+
+**Last Updated:** {YYYY-MM-DD HH:MM}
+**Current Phase:** USER_APPROVAL
+**Current Step:** Waiting for Gate 4.5 (Epic Test Plan Approval)
+**Current Guide:** stages/stage_4/epic_testing_strategy.md
+**Guide Last Read:** {YYYY-MM-DD HH:MM}
+
+**Progress:** Stage 4 updates complete, awaiting user approval of test plan
+**Next Action:** Present epic_smoke_test_plan.md to user for approval (Gate 4.5)
+**Blockers:** None
+
+**Testing Strategy:** epic_smoke_test_plan.md updated with 6 test scenarios, 5 success criteria
+```
+
+### Step 6.2: Present Test Plan to User (🚨 GATE 4.5 - MANDATORY)
+
+**🚨 CRITICAL:** You MUST get user approval of epic_smoke_test_plan.md before proceeding to Stage 5a.
+
+**Why this gate exists:**
+- Agent needs to know EXACTLY how to test work BEFORE creating implementation plans
+- User can adjust test strategy early (cheap to change at Stage 4 vs expensive at Stage 5a Round 3)
+- Test strategy should guide implementation planning (not vice versa)
+- Addresses guide-updates.txt #10: "Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself."
+
+**Present to user:**
+
+```markdown
+🚨 **Gate 4.5: Epic Test Plan Approval Required**
+
+I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the feature specs from Stages 2-3.
+
+**Summary of epic_smoke_test_plan.md:**
+- **Success Criteria:** {N} measurable criteria defined
+- **Test Scenarios:** {N} specific test scenarios identified
+- **Integration Points:** {N} cross-feature integration points documented
+- **Data Quality Checks:** Verify VALUES (not just structure)
+- **Concrete Commands:** Specific commands and expected outputs documented
+
+**Key test scenarios include:**
+1. {Scenario 1 summary}
+2. {Scenario 2 summary}
+3. {Scenario 3 summary}
+...
+
+**Why approval is needed now:**
+- I need to know EXACTLY how to test this work BEFORE creating implementation plans (Stage 5a)
+- Test requirements will guide how I structure implementation tasks and test strategy
+- Changes to test plan are cheap now, expensive after 24 verification iterations
+
+**Please review `epic_smoke_test_plan.md` and:**
+- ✅ Approve if test strategy looks correct
+- ❌ Request changes if test strategy needs adjustment
+
+**Questions to consider:**
+- Do the success criteria measure what matters to you?
+- Are the test scenarios comprehensive enough?
+- Are there additional integration points I should test?
+- Do the data quality checks verify the right values?
+
+**I cannot proceed to Stage 5a (Implementation Planning) without your approval.**
+```
+
+**Wait for user response.**
+
+**If user approves:**
+- Mark Gate 4.5 as ✅ PASSED in EPIC_README.md
+- Add timestamp to User Approval section in epic_smoke_test_plan.md
+- Proceed to Step 6.3
+
+**If user requests changes:**
+- Revise epic_smoke_test_plan.md based on feedback
+- Re-present for approval
+- Repeat until user approves
+
+**Evidence of passing Gate 4.5:**
+- User says "approved" or "looks good" or equivalent
+- Gate 4.5 checkbox marked ✅ in EPIC_README.md
+- User Approval section in epic_smoke_test_plan.md completed with timestamp
+
+### Step 6.3: Announce Transition (After Gate 4.5 Passes)
+
+```markdown
+✅ **Stage 4 (Epic Testing Strategy) Complete**
+
+**epic_smoke_test_plan.md updated and approved:**
+- Added 5 measurable success criteria
+- Created 6 specific test scenarios
+- Identified 6 integration points
+- Documented concrete commands and expected outputs
+- ✅ User approved test plan (Gate 4.5 PASSED)
+
+**Changes from Stage 1:**
+- Replaced placeholder "TBD" with actual test commands
+- Converted vague criteria to measurable criteria
+- Added integration tests between features
+
+**Test plan evolution:**
+- Stage 1: Assumptions (no implementation knowledge)
+- Stage 4: Concrete (based on feature specs) ← CURRENT (USER APPROVED)
+- Stage 5e: Will update after EACH feature implementation
+
+**Next: Stage 5 (Feature Implementation)**
+
+Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to Stage 5a to begin implementation planning for the first feature.
+
+Following `stages/stage_5/round1_todo_creation.md` (Round 1) to create comprehensive implementation plan with 24 verification iterations across 3 rounds.
+```
+
+**Update EPIC_README.md Agent Status:**
 
 ```markdown
 ## Agent Status
@@ -712,39 +825,11 @@ Keep categories but add specific guidance:
 **Current Guide:** stages/stage_5/round1_todo_creation.md
 **Guide Last Read:** NOT YET (will read when starting Stage 5a - Round 1)
 
-**Progress:** Stage 4 complete, testing strategy updated
-**Next Action:** Begin Stage 5a (TODO Creation) for first feature
+**Progress:** Stage 4 complete, testing strategy approved by user (Gate 4.5 ✅)
+**Next Action:** Begin Stage 5a (Implementation Planning) for first feature
 **Blockers:** None
 
-**Testing Strategy:** epic_smoke_test_plan.md updated with 6 test scenarios, 5 success criteria
-```
-
-### Step 6.2: Announce Transition
-
-```markdown
-✅ **Stage 4 (Epic Testing Strategy) Complete**
-
-**epic_smoke_test_plan.md updated:**
-- Added 5 measurable success criteria
-- Created 6 specific test scenarios
-- Identified 6 integration points
-- Documented concrete commands and expected outputs
-
-**Changes from Stage 1:**
-- Replaced placeholder "TBD" with actual test commands
-- Converted vague criteria to measurable criteria
-- Added integration tests between features
-
-**Test plan evolution:**
-- Stage 1: Assumptions (no implementation knowledge)
-- Stage 4: Concrete (based on feature specs) ← CURRENT
-- Stage 5e: Will update after EACH feature implementation
-
-**Next: Stage 5 (Feature Implementation)**
-
-I'll now transition to Stage 5a to begin TODO creation for the first feature.
-
-Following `stages/stage_5/round1_todo_creation.md` (Round 1) to create comprehensive TODO with 24 verification iterations across 3 rounds.
+**Testing Strategy:** epic_smoke_test_plan.md approved with 6 test scenarios, 5 success criteria
 ```
 
 ---

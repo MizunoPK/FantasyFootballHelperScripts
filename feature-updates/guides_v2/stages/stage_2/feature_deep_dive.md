@@ -4,11 +4,22 @@
 
 **This is a routing guide.** The complete Stage 2 workflow is now split across three focused guides:
 
-- **STAGE_2a**: Research Phase (Phases 0, 1, 1.5)
-- **STAGE_2b**: Specification Phase (Phases 2, 2.5)
-- **STAGE_2c**: Refinement Phase (Phases 3, 4, 5, 6)
+- **Stage 2 Phase 0-1 (Research):** Epic intent extraction, targeted research, research audit
+- **Stage 2 Phase 2 (Specification):** Spec with traceability, alignment check
+- **Stage 2 Phase 3-6 (Refinement):** Questions, scope, cross-feature alignment, user approval
 
 **📖 Read the appropriate sub-stage guide based on your current phase.**
+
+---
+
+## 📖 Terminology Note
+
+**Stage 2 is split into phases:**
+- **Phase 0-1:** Research (guide: `phase_0_research.md`)
+- **Phase 2:** Specification (guide: `phase_1_specification.md`)
+- **Phase 3-6:** Refinement (guide: `phase_2_refinement.md`)
+
+**Naming:** "Stage 2 Phase X" (not "STAGE_2a/b/c")
 
 ---
 

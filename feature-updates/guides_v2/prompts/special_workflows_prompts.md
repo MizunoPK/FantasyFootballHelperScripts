@@ -172,7 +172,14 @@ I'm reading `debugging/debugging_protocol.md` to ensure I follow the complete de
   - User MUST confirm EACH issue is resolved
   - Present before/after state clearly
   - No agent self-declared victories
-- Phase 5: Loop Back to Testing
+- **Phase 4b: Root Cause Analysis (PER ISSUE) - MANDATORY (NEW #12)**
+  - Perform 5-why analysis (reach process/guide gap)
+  - Identify prevention point (which stage should have caught it)
+  - Draft guide improvement proposal
+  - Present to user for confirmation
+  - Document in guide_update_recommendations.md
+  - Time: 10-20 minutes per issue (captures lessons while context fresh)
+- Phase 5: Loop Back to Testing (After ALL issues resolved)
   - After ALL issues resolved → Loop back to testing START
   - Re-run testing from beginning
   - If new issues → Repeat debugging

@@ -10,6 +10,26 @@
 
 ---
 
+## 🔀 When to Use This Protocol vs Debugging Protocol
+
+**Use MISSED REQUIREMENT PROTOCOL when:**
+- ✅ Solution is KNOWN (you know what needs to be added)
+- ✅ It's a NEW requirement (user didn't ask for it originally)
+- ✅ User needs to confirm and prioritize
+
+**Use DEBUGGING PROTOCOL when:**
+- ✅ Solution is UNKNOWN (requires investigation)
+- ✅ Root cause needs to be found
+- ✅ Issue discovered during testing
+
+**Quick Test:**
+- If you can write a complete spec.md for the solution → Missed Requirement
+- If you need to investigate why something isn't working → Debugging Protocol
+
+**See:** CLAUDE.md → "Decision Tree: Which Protocol to Use?" for detailed decision tree with examples
+
+---
+
 ## 🚨 MANDATORY READING PROTOCOL
 
 **BEFORE handling a missed requirement, you MUST:**

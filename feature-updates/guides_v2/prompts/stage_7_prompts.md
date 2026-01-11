@@ -76,4 +76,67 @@ Running unit tests...
 
 ---
 
+## Stage 7.5: Guide Update from Lessons Learned (MANDATORY)
+
+**Trigger:** After Stage 7 STEP 3 complete (documentation verified), before final commit
+
+**Prerequisite:** All lessons_learned.md files complete
+
+**Agent MUST transition to Stage 7.5:**
+
+```
+I'm reading `stages/stage_7/guide_update_workflow.md` to apply lessons learned to guides...
+
+**The guide requires:**
+- **Analyze ALL lessons_learned.md files** from this epic:
+  - epic_lessons_learned.md (epic-level lessons)
+  - feature_XX_{name}/lessons_learned.md (all feature-level lessons)
+- **Identify guide gaps:** For each lesson, determine which guide(s) could have prevented the issue
+- **Create prioritized proposals** in GUIDE_UPDATE_PROPOSAL.md:
+  - P0 (Critical): Prevents catastrophic bugs, mandatory gate gaps
+  - P1 (High): Significantly improves quality, reduces major rework
+  - P2 (Medium): Moderate improvements, clarifies ambiguity
+  - P3 (Low): Minor improvements, cosmetic fixes
+- **Get user approval INDIVIDUALLY:** Each proposal gets Approve/Modify/Reject/Discuss
+- **Apply only approved changes** to guides
+- **Create separate commit** for guide updates (before epic commit)
+
+**Scope of guide updates:**
+- All files in feature-updates/guides_v2/
+- CLAUDE.md (root project instructions)
+- Any files supporting future agents
+
+**User approval process:**
+- Each proposal presented individually with before/after
+- User can: Approve (apply as-is) / Modify (provide alternative) / Reject (skip) / Discuss (ask questions)
+- Agent applies only approved changes or user modifications
+
+**Why this matters:**
+- Continuous guide improvement based on real implementation experience
+- Future agents benefit from lessons learned in this epic
+- Systematic feedback loop: implementation → lessons → guide updates
+- User has full control over guide evolution
+
+**Prerequisites I'm verifying:**
+✅ Stage 7 STEP 3 complete (documentation verified)
+✅ All lessons_learned.md files complete
+✅ Ready to analyze lessons and create proposal
+
+**I'll now analyze the lessons learned from this epic and create GUIDE_UPDATE_PROPOSAL.md...**
+
+**Updating EPIC_README.md Agent Status:**
+- Current Stage: Stage 7.5 - Guide Update from Lessons Learned
+- Current Phase: GUIDE_ANALYSIS
+- Current Guide: stages/stage_7/guide_update_workflow.md
+- Guide Last Read: {YYYY-MM-DD HH:MM}
+- Critical Rules: "Analyze ALL lessons", "Prioritize P0-P3", "Individual approval", "Apply only approved", "Separate commit"
+- Next Action: Read all lessons_learned.md files and identify guide gaps
+
+Analyzing lessons learned...
+```
+
+**Full workflow:** See `prompts/guide_update_prompts.md` for complete prompts (presentation, approval, modifications, etc.)
+
+---
+
 *For prompts for other stages, see the [prompts index](../prompts_reference_v2.md)*

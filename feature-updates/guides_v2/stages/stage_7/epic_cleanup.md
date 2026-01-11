@@ -230,16 +230,18 @@ STAGE 7: Epic Cleanup
 
 **Stage 7 has 7 main steps. Jump to any step:**
 
-| Step | Focus Area | Mandatory Gate? | Go To |
-|------|-----------|-----------------|-------|
-| **Step 1** | Pre-Cleanup Verification | No | [Step 1](#step-1-pre-cleanup-verification) |
-| **Step 2** | Run Unit Tests | ✅ YES (100% pass) | [Step 2](#step-2-run-unit-tests) |
-| **Step 2b** | Investigate Anomalies | Optional | [Step 2b](#step-2b-investigate-user-reported-anomalies-if-applicable) |
-| **Step 3** | Documentation Verification | No | [Step 3](#step-3-documentation-verification) |
-| **Step 4** | Update Guides (Apply Lessons) | No | [Step 4](#step-4-update-guides-if-needed) |
-| **Step 5** | Final Commit | No | [Step 5](#step-5-final-commit) |
-| **Step 6** | Move Epic to done/ | No | [Step 6](#step-6-move-epic-to-done-folder) |
-| **Step 7** | Final Verification & Completion | No | [Step 7](#step-7-final-verification--completion) |
+| Step | Focus Area | Time | Mandatory Gate? | Go To |
+|------|-----------|------|-----------------|-------|
+| **Step 1** | Pre-Cleanup Verification | 5 min | No | [Jump](#step-1-pre-cleanup-verification) |
+| **Step 2** | Run Unit Tests | 5 min | ✅ YES (100% pass) | [Jump](#step-2-run-unit-tests) |
+| **Step 2b** | Investigate Anomalies | 10-30 min | Optional | [Jump](#step-2b-investigate-user-reported-anomalies-if-applicable) |
+| **Step 3** | Documentation Verification | 10 min | No | [Jump](#step-3-documentation-verification) |
+| **Step 4** | Update Guides (Apply Lessons) | 20-45 min | No | [Jump](#step-4-update-guides-if-needed) |
+| **Step 5** | Final Commit | 10 min | No | [Jump](#step-5-final-commit) |
+| **Step 6** | Move Epic to done/ | 5 min | No | [Jump](#step-6-move-epic-to-done-folder) |
+| **Step 7** | Final Verification & Completion | 5 min | No | [Jump](#step-7-final-verification--completion) |
+
+**Total Time:** 70-115 minutes (including Stage 7.5 guide updates)
 
 **Reference Files (Extracted for Quick Access):**
 
@@ -427,220 +429,76 @@ For EACH feature folder, read README.md and verify:
 
 ---
 
-### STEP 4: Update Guides (If Needed)
+### STEP 4: Guide Update from Lessons Learned (🚨 MANDATORY - Stage 7.5)
 
-**Objective:** Apply ALL lessons learned from ALL sources to improve guides for future epics.
+**Objective:** Apply lessons learned from epic to improve guides for future agents using systematic user-approved workflow.
 
-**⚠️ CRITICAL:** Do NOT only check epic_lessons_learned.md. You MUST check ALL lesson sources including debugging lessons.
+**🆕 NEW WORKFLOW:** Stage 7.5 is now a dedicated, mandatory workflow with user approval for each proposed guide change.
 
-**Actions:**
+**⚠️ CRITICAL:** This is NOT optional. Every epic must run Stage 7.5 to continuously improve guides.
 
-**4a. Find ALL Lessons Learned Files (SYSTEMATIC SEARCH)**
-
-Use bash to find ALL lessons learned and debugging analysis files in the epic:
-
-```bash
-# Find all lessons learned files
-find feature-updates/done/KAI-{N}-{epic_name} -name "lessons_learned.md" -type f
-
-# Find all debugging process analysis files
-find feature-updates/done/KAI-{N}-{epic_name} -path "*/debugging/process_failure_analysis.md" -type f
-
-# Find all debugging guide update recommendations
-find feature-updates/done/KAI-{N}-{epic_name} -path "*/debugging/guide_update_recommendations.md" -type f
+**READ THE FULL GUIDE:**
+```
+stages/stage_7/guide_update_workflow.md
 ```
 
-**Example:** `find feature-updates/done/KAI-1-improve_draft_helper -name "lessons_learned.md" -type f`
+**Quick Overview of Stage 7.5:**
 
-**Expected Results:**
+1. **Analyze ALL lessons_learned.md files** (epic + all features)
+2. **Identify guide gaps** for each lesson
+3. **Create GUIDE_UPDATE_PROPOSAL.md** with prioritized proposals (P0-P3)
+4. **Present each proposal to user** for individual approval
+5. **Apply only approved changes** to guides
+6. **Create separate commit** for guide updates
+7. **Update guide_update_tracking.md** with applied lessons
+
+**Priority System:**
+- **P0 (Critical):** Prevents catastrophic bugs, mandatory gate gaps
+- **P1 (High):** Significantly improves quality, reduces major rework
+- **P2 (Medium):** Moderate improvements, clarifies ambiguity
+- **P3 (Low):** Minor improvements, cosmetic fixes
+
+**User Approval:**
+- User reviews EACH proposal individually
+- User can: Approve / Modify / Reject / Discuss
+- Agent applies ONLY approved changes (or user modifications)
+- No batch approvals or autonomous decisions
+
+**Scope:**
+- All files in `feature-updates/guides_v2/`
+- `CLAUDE.md` (root project instructions)
+- Anything supporting future agents
+
+**Time Estimate:** 20-45 minutes (depends on number of lessons/proposals)
+
+**Why this matters:**
+- Continuous guide improvement based on real implementation experience
+- Future agents benefit from lessons learned in THIS epic
+- Systematic feedback loop: implementation → lessons → guide updates
+- User has full control over guide evolution
+
+**Transition to Stage 7.5:**
+
+Use the prompt from `prompts/guide_update_prompts.md`:
+
 ```
-# Standard lessons learned
-feature-updates/done/KAI-{N}-{epic_name}/epic_lessons_learned.md
-feature-updates/done/KAI-{N}-{epic_name}/feature_01_{name}/lessons_learned.md
-feature-updates/done/KAI-{N}-{epic_name}/feature_02_{name}/lessons_learned.md
-feature-updates/done/KAI-{N}-{epic_name}/bugfix_{priority}_{name}/lessons_learned.md
+I'm reading `stages/stage_7/guide_update_workflow.md` to apply lessons learned to guides...
 
-# Debugging lessons (if debugging occurred)
-feature-updates/done/KAI-{N}-{epic_name}/feature_01_{name}/debugging/lessons_learned.md
-feature-updates/done/KAI-{N}-{epic_name}/feature_01_{name}/debugging/process_failure_analysis.md
-feature-updates/done/KAI-{N}-{epic_name}/feature_01_{name}/debugging/guide_update_recommendations.md
-feature-updates/done/KAI-{N}-{epic_name}/debugging/lessons_learned.md (epic-level)
-feature-updates/done/KAI-{N}-{epic_name}/debugging/process_failure_analysis.md (epic-level)
-feature-updates/done/KAI-{N}-{epic_name}/debugging/guide_update_recommendations.md (epic-level)
-...
-```
-
-**⚠️ MANDATORY:** You MUST check ALL files found, not just some.
-
-**4b. Read and Extract Lessons from EACH File**
-
-For EACH file found, read it completely and extract guide improvement proposals:
-
-**From lessons_learned.md files:**
-- Extract "Guide Improvements Needed" sections
-- Look for specific guide file names and proposed changes
-- Note any workflow improvements suggested
-
-**From debugging/process_failure_analysis.md files:**
-- Extract "Guide Updates Required" section from each bug analysis
-- Extract "High-Priority Guide Updates" from cross-bug pattern analysis
-- Focus on process gap analysis (why bugs got through)
-
-**From debugging/guide_update_recommendations.md files:**
-- Extract ALL recommendations (Critical/Moderate/Low priority)
-- Extract "New Sections Needed" proposals
-- Extract "Template/Checklist Updates" proposals
-- These files have the most detailed, actionable guide updates
-
-**Reference:** See `STAGE_7_reference/lessons_learned_examples.md` for examples of lesson structures and extraction methods.
-
-**⚠️ PRIORITY ORDER:**
-1. **HIGHEST:** debugging/guide_update_recommendations.md (concrete, actionable updates)
-2. **HIGH:** debugging/process_failure_analysis.md (systematic process gaps)
-3. **MEDIUM:** lessons_learned.md "Guide Improvements Needed" sections
-
-**4c. Create Master Checklist of ALL Proposed Guide Updates**
-
-Combine ALL lessons from ALL files into one comprehensive checklist.
-
-**Template:**
-```markdown
-## Master Guide Update Checklist - {epic_name}
-
-**Sources Checked:**
-- [ ] epic_lessons_learned.md
-- [ ] feature_01_{name}/lessons_learned.md
-- [ ] feature_02_{name}/lessons_learned.md
-- [ ] feature_01_{name}/debugging/lessons_learned.md (if exists)
-- [ ] feature_01_{name}/debugging/process_failure_analysis.md (if exists)
-- [ ] feature_01_{name}/debugging/guide_update_recommendations.md (if exists)
-- [ ] {epic_name}/debugging/lessons_learned.md (if exists)
-- [ ] {epic_name}/debugging/process_failure_analysis.md (if exists)
-- [ ] {epic_name}/debugging/guide_update_recommendations.md (if exists)
-
-**Total Files Checked:** {N}
-
----
-
-### Critical Priority Updates (from debugging/guide_update_recommendations.md)
-
-#### Update #1: {guide_name}.md - {section_name}
-- **Source:** {file path}
-- **Current Text:** {quote current text}
-- **Proposed Text:** {quote proposed text}
-- **Rationale:** {why this prevents bugs}
-- **Status:** [ ] APPLIED
-
-#### Update #2: {guide_name}.md - {section_name}
-{Details...}
-
----
-
-### High Priority Updates (from debugging/process_failure_analysis.md)
-
-#### Update #1: {guide_name}.md - {section_name}
-- **Source:** {file path}
-- **Bug(s) That Would Be Prevented:** Issue #{N}, Issue #{M}
-- **Process Gap:** {what gap this fills}
-- **Proposed Change:** {specific change}
-- **Status:** [ ] APPLIED
-
----
-
-### Medium Priority Updates (from lessons_learned.md)
-
-#### Update #1: {guide_name}.md
-- **Source:** {file path}
-- **Proposed Improvement:** {improvement}
-- **Status:** [ ] APPLIED
-
----
-
-### New Sections Needed
-
-#### New Section #1: {guide_name}.md - {new_section_name}
-- **Source:** {file path}
-- **Location:** {where in guide}
-- **Purpose:** {what gap this fills}
-- **Proposed Content:** {content}
-- **Status:** [ ] APPLIED
-
----
-
-### Template Updates Needed
-
-#### Template #1: {template_name}
-- **Source:** {file path}
-- **Missing Items:** {list items}
-- **Proposed Additions:** {additions}
-- **Status:** [ ] APPLIED
-
----
-
-**Summary:**
-- Total Updates: {N}
-  - Critical: {N}
-  - High: {N}
-  - Medium: {N}
-  - New Sections: {N}
-  - Templates: {N}
-- Applied: {N}
-- Remaining: {N}
-- Application Rate: {percentage}%
+[Full prompt from guide_update_prompts.md - "Starting Stage 7.5"]
 ```
 
-**4d. Apply EACH Lesson to Guides**
+**Exit Conditions:**
+- [ ] Read stages/stage_7/guide_update_workflow.md (full guide)
+- [ ] All lessons_learned.md files analyzed
+- [ ] GUIDE_UPDATE_PROPOSAL.md created
+- [ ] User reviewed all proposals individually
+- [ ] Approved changes applied to guides
+- [ ] Separate commit created for guide updates
+- [ ] reference/guide_update_tracking.md updated
+- [ ] guide-updates.txt updated (if applicable)
+- [ ] Ready to proceed to STEP 5 (Final Commit)
 
-For EACH lesson in master checklist:
-1. Read current guide using Read tool
-2. Locate section needing improvement
-3. Add example, clarification, or new step
-4. Use Edit tool to update guide
-5. Mark lesson as [x] APPLIED in master checklist
-
-**4e. Verify ALL Lessons Applied**
-
-**Before proceeding, verify:**
-```markdown
-## Verification: All Lessons Applied
-
-□ Read ALL lessons_learned.md files (epic + features + bugfixes)
-□ Read ALL debugging/lessons_learned.md files (if debugging occurred)
-□ Read ALL debugging/process_failure_analysis.md files (if debugging occurred)
-□ Read ALL debugging/guide_update_recommendations.md files (if debugging occurred)
-□ Created master checklist with {N} total lessons from ALL sources
-□ Applied ALL {N} lessons to guides (none skipped)
-□ Each lesson marked [x] APPLIED in checklist
-□ Can cite which guide section was updated for each lesson
-
-**Master Checklist Status:**
-- Total sources checked: {N}
-  - lessons_learned.md files: {N}
-  - debugging/lessons_learned.md files: {N}
-  - debugging/process_failure_analysis.md files: {N}
-  - debugging/guide_update_recommendations.md files: {N}
-- Total lessons identified: {N}
-  - Critical priority (debugging): {N}
-  - High priority (debugging): {N}
-  - Medium priority (feature lessons): {N}
-- Lessons applied: {N}
-- Lessons skipped: 0 ✅
-- Application rate: 100% ✅
-```
-
-**If application rate < 100%:** ❌ STOP - Apply remaining lessons.
-
-**Why debugging lessons are critical:**
-- Debugging lessons identify PROVEN process gaps (bugs got through)
-- guide_update_recommendations.md has concrete, actionable fixes
-- Applying these updates prevents same bugs in future epics
-- Ignoring debugging lessons means repeating same mistakes
-
-**4f. Update CLAUDE.md (If Workflow Changed)**
-
-If epic revealed workflow improvements (new stages, stage dependencies changed, critical rules updated), update CLAUDE.md accordingly.
-
-**Reference:** See `STAGE_7_ORIGINAL_BACKUP.md` lines 858-933 for detailed guide update documentation template.
+**NEXT:** After Stage 7.5 complete, proceed to STEP 5 (Final Commit) for epic code
 
 ---
 
@@ -1285,6 +1143,10 @@ The epic is now complete!
 - Generic commit messages
 - Only checking epic_lessons_learned.md (missing feature/bugfix/debugging lessons)
 - Forgetting debugging lessons (highest priority guide updates)
+  - **Why critical:** Debugging lessons from Phase 4b have highest P0/P1 priority
+  - **Where to find:** {epic}/debugging/guide_update_recommendations.md
+  - **What to look for:** Per-issue root causes (Phase 4b) + cross-pattern analysis (Phase 5)
+  - **Application:** Debugging lessons should be applied FIRST (before general lessons)
 - Moving features individually instead of entire epic
 - Moving original request file (should stay in root)
 - Exceeding 10 epics in done/ folder
