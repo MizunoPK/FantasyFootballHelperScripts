@@ -197,173 +197,38 @@ Phase 5: Transition to Stage 2
 
 **CRITICAL:** Create branch BEFORE making any changes to codebase.
 
-**Why branch first:**
-- Keeps main branch clean and stable
-- Allows parallel work on multiple epics
-- Enables easy rollback if needed
-- Follows standard git workflow practices
+**Steps:**
+1. Verify you're on main branch (`git checkout main`)
+2. Pull latest changes (`git pull origin main`)
+3. Assign KAI number from EPIC_TRACKER.md
+4. Determine work type (epic/feat/fix)
+5. Create and checkout branch (`git checkout -b {work_type}/KAI-{number}`)
+6. Update EPIC_TRACKER.md (add to Active table, increment next number)
+7. Commit EPIC_TRACKER.md update immediately
 
-**Actions:**
-
-**1.0a. Verify you're on main branch:**
-
-```bash
-git checkout main
-```
-
-**Expected output:**
-```
-Already on 'main'
-Your branch is up to date with 'origin/main'.
-```
-
-**1.0b. Pull latest changes from origin:**
-
-```bash
-git pull origin main
-```
-
-**Expected output:**
-```
-From github.com:user/repo
- * branch            main       -> FETCH_HEAD
-Already up to date.
-```
-
-**If there are conflicts:** Resolve them before proceeding.
-
-**1.0c. Assign KAI number:**
-
-Check `feature-updates/EPIC_TRACKER.md` for next available KAI number.
-
-**Example:** If EPIC_TRACKER.md shows "Next Available Number: KAI-1", use KAI-1.
-
-**1.0d. Determine work type:**
-
-- `epic` - Work includes multiple features (most common)
-- `feat` - Work is a single feature only
-- `fix` - Work is already classified as a bug fix
-
-**For most epics:** Use `epic`
-
-**1.0e. Create and checkout branch:**
-
-```bash
-git checkout -b {work_type}/KAI-{number}
-```
-
-**Examples:**
-- `git checkout -b epic/KAI-1` (multi-feature epic)
-- `git checkout -b feat/KAI-2` (single feature)
-- `git checkout -b fix/KAI-3` (bug fix)
-
-**Verify branch created:**
-
-```bash
-git branch
-```
-
-**Expected output:**
-```
-* epic/KAI-1
-  main
-```
-
-(The `*` indicates your current branch)
-
-**1.0f. Update EPIC_TRACKER.md:**
-
-Add epic to "Active Epics" table:
-
-```markdown
-| KAI # | Epic Name | Type | Branch | Status | Date Started |
-|-------|-----------|------|--------|--------|--------------|
-| 1 | {epic_name} | epic | epic/KAI-1 | In Progress | 2025-12-31 |
-```
-
-**Increment "Next Available Number":**
-```markdown
-### Next Available Number: KAI-2
-```
-
-**Commit EPIC_TRACKER.md update:**
-
-```bash
-git add feature-updates/EPIC_TRACKER.md
-git commit -m "feat/KAI-1: Initialize epic tracking for {epic_name}"
-```
-
-**Why commit EPIC_TRACKER.md immediately:**
-- Documents epic start in git history
-- Prevents number conflicts if multiple agents work simultaneously
-- Establishes branch with first commit
+**Why branch first:** Keeps main clean, allows parallel work, enables rollback
 
 ---
 
 ### Step 1.1: Create Epic Folder
 
-```bash
-mkdir -p feature-updates/KAI-{N}-{epic_name}/
-```
+Create epic folder: `feature-updates/KAI-{N}-{epic_name}/`
 
-**Example:** `mkdir -p feature-updates/KAI-1-improve_draft_helper/`
-
-**Folder Naming Rules:**
-- Format: `KAI-{N}-{epic_name}/` (includes KAI number assigned in step 1.0c)
-- Use snake_case for epic_name (not spaces or hyphens)
-- Descriptive name matching epic request file
-- Example: `KAI-1-improve_draft_helper`, not `improve-draft-helper` or `KAI-1-ImproveD raftHelper`
-
-**Why include KAI number in folder name:**
-- Ensures unique folder names (prevents conflicts)
-- Matches branch naming convention (`epic/KAI-{N}`)
-- Enables quick identification of epic by number
-- Maintains consistency across git branches and file system
+**Naming:** Use KAI number + snake_case epic name (e.g., `KAI-1-improve_draft_helper`)
 
 ### Step 1.2: Move Epic Request File
 
-```bash
-mv feature-updates/{epic_name}.txt feature-updates/KAI-{N}-{epic_name}/{epic_name}_notes.txt
-```
-
-**Example:** `mv feature-updates/improve_draft_helper.txt feature-updates/KAI-1-improve_draft_helper/improve_draft_helper_notes.txt`
-
-**Why rename to `_notes.txt`:**
-- Distinguishes from feature spec files
-- Signals this is original scratchwork (reference only)
-- Consistent naming across all epics
-
-**Note:** Original request file (`{epic_name}.txt`) does NOT include KAI number, but the epic folder DOES
+Move and rename: `{epic_name}.txt` → `KAI-{N}-{epic_name}/{epic_name}_notes.txt`
 
 ### Step 1.3: Create EPIC_README.md
 
 Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "Epic README Template"
 
-**Initial Agent Status:**
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** EPIC_PLANNING
-**Current Step:** Phase 1 - Initial Setup Complete
-**Current Guide:** stages/stage_1/epic_planning.md
-**Guide Last Read:** {YYYY-MM-DD HH:MM}
-**Critical Rules from Guide:**
-- User must approve feature breakdown before creating folders
-- epic_smoke_test_plan.md is placeholder (will update in Stages 4, 5e)
-- Update Agent Status after each major step
-
-**Progress:** 1/5 phases complete (Initial Setup)
-**Next Action:** Phase 2 - Epic Analysis
-**Blockers:** None
-```
+Include Agent Status section with: Current Phase (EPIC_PLANNING), Current Step (Phase 1 complete), Current Guide, Critical Rules, Progress (1/5), Next Action (Phase 2).
 
 ### Step 1.4: Update Agent Status
 
-After completing Phase 1:
-- Update "Last Updated" timestamp
-- Update "Progress" to "1/5 phases complete"
-- Update "Next Action" to "Phase 2 - Epic Analysis"
+Update Agent Status after Phase 1 completion.
 
 ---
 
@@ -384,68 +249,19 @@ After completing Phase 1:
 
 ### Step 2.1: Read Epic Request Thoroughly
 
-Read `{epic_name}_notes.txt` and answer:
-
-1. **What problem is this epic solving?**
-   - User pain point or missing capability
-   - Example: "Users can't track player performance trends"
-
-2. **What are the explicit goals?**
-   - List measurable outcomes
-   - Example: "Generate weekly performance reports for all players"
-
-3. **What constraints are mentioned?**
-   - Technical, time, resource limitations
-   - Example: "Must use existing CSV data format"
-
-4. **What's explicitly OUT of scope?**
-   - Features user said "not now" or "future work"
-   - Example: "Not including historical data beyond current season"
+Read `{epic_name}_notes.txt` and identify:
+1. What problem is being solved?
+2. What are the explicit goals?
+3. What constraints are mentioned?
+4. What's explicitly OUT of scope?
 
 ### Step 2.2: Identify Major Components Affected
 
-**Quick searches to find:**
-
-```bash
-# Example searches (adjust based on epic)
-grep -r "PlayerManager" --include="*.py"
-grep -r "FantasyTeam" --include="*.py"
-grep -r "class.*Manager" --include="*.py"
-```
-
-**Ask yourself:**
-- Which managers/classes will change?
-- Which modules/subsystems are involved?
-- Are there similar existing features to reference?
-
-**Document findings:**
-```markdown
-**Components Likely Affected:**
-- PlayerManager (league_helper/util/PlayerManager.py)
-- DraftHelper (league_helper/add_to_roster_mode/)
-- ConfigManager (league_helper/util/ConfigManager.py)
-
-**Similar Existing Features:**
-- Trade simulator mode (similar workflow pattern)
-- Starter helper mode (similar data requirements)
-```
+Conduct quick searches to find which managers/classes/modules will be affected. Document components likely affected and similar existing features to reference.
 
 ### Step 2.3: Estimate Rough Scope
 
-**Tag the epic:**
-- **SMALL:** 1-2 features, straightforward implementation
-- **MEDIUM:** 3-5 features, some complexity, cross-module changes
-- **LARGE:** 6+ features, high complexity, multiple subsystems
-
-**Add to EPIC_README.md:**
-```markdown
-## Initial Scope Assessment
-
-**Size:** MEDIUM (estimated 4 features)
-**Complexity:** MODERATE
-**Risk Level:** MEDIUM
-**Estimated Components:** 5-7 classes/modules affected
-```
+Tag epic as SMALL (1-2 features), MEDIUM (3-5 features), or LARGE (6+ features). Add Initial Scope Assessment to EPIC_README.md with size, complexity, risk level, estimated components.
 
 ### Step 2.4: Update Agent Status
 
@@ -472,25 +288,11 @@ Use these criteria to propose features:
 4. **Be reasonably sized** (20-50 implementation items estimate)
 5. **Have defined dependencies** (knows what it needs from other features)
 
-**Examples:**
-
-**GOOD Breakdown:**
-```
-Epic: Improve Draft Helper
-├─ Feature 1: ADP Integration (load ADP data, normalize values)
-├─ Feature 2: Injury Risk Assessment (evaluate injury history, calculate penalty)
-├─ Feature 3: Schedule Strength Analysis (future opponent analysis)
-└─ Feature 4: Recommendation Engine Updates (integrate new data sources)
-```
-
-**BAD Breakdown:**
-```
-Epic: Improve Draft Helper
-├─ Feature 1: Data stuff (too vague)
-├─ Feature 2: Calculations (too vague)
-├─ Feature 3: UI changes (mixing unrelated concerns)
-└─ Feature 4: Miscellaneous improvements (no clear purpose)
-```
+**📖 See:** `reference/stage_1/feature_breakdown_patterns.md` for:
+- Common breakdown patterns (data pipeline, algorithm, multi-source, etc.)
+- Decision trees for determining number of features
+- Split vs combine decision framework
+- Implementation order strategies
 
 ### Step 3.2: Draft Feature Breakdown
 
@@ -521,45 +323,15 @@ For each proposed feature, document:
 
 ### Step 3.3: Present Breakdown to User
 
-**Presentation Format:**
+Present your proposed feature breakdown to the user for approval.
 
-```markdown
-I've analyzed the epic request and propose breaking this into {N} features:
+**Include in presentation:**
+- Feature list with purpose, scope, dependencies, estimates
+- Rationale for breakdown (why this number of features?)
+- Recommended implementation order
+- Request for user feedback/approval
 
-## Proposed Feature Breakdown
-
-### Feature 1: {Name}
-**Purpose:** {description}
-**Scope:** {bullet list}
-**Dependencies:** {what it needs}
-**Estimate:** ~{X} items, {RISK} risk
-
-### Feature 2: {Name}
-...
-
-## Rationale
-
-**Why {N} features?**
-- {Reason 1 - e.g., "Each addresses distinct subsystem"}
-- {Reason 2 - e.g., "Allows parallel testing"}
-- {Reason 3 - e.g., "Clear dependency chain"}
-
-**Alternative considered:** {Fewer/more features}
-- Rejected because: {reason}
-
-## Recommended Implementation Order
-
-1. Feature {N} (foundation - no dependencies)
-2. Feature {N} (depends on Feature 1)
-3. Feature {N} (depends on Features 1, 2)
-...
-
-**Please review and let me know:**
-- Are these the right feature boundaries?
-- Should any features be combined or split?
-- Are the dependencies correct?
-- Should we add or remove any features?
-```
+**📖 See:** `reference/stage_1/epic_planning_examples.md` → "Example 8: Feature Breakdown Presentation" for complete presentation template
 
 ### Step 3.4: WAIT for User Approval
 
@@ -595,108 +367,17 @@ I've analyzed the epic request and propose breaking this into {N} features:
 
 **Why this matters:** Catches epic-level misinterpretation early, preventing 40+ hours of work in wrong direction
 
----
-
-**Template:**
-
-```markdown
-# Epic Ticket: [Epic Name]
-
-## Description
-[2-3 sentences describing what this epic achieves and why it matters]
-
-## Acceptance Criteria (Epic-level)
-- [ ] [Testable outcome 1 - applies to ENTIRE epic]
-- [ ] [Testable outcome 2]
-- [ ] [Testable outcome 3]
-- [ ] [Testable outcome 4]
-
-## Success Indicators
-- [Measurable metric 1]
-- [Measurable metric 2]
-- [Measurable metric 3]
-
-## Failure Patterns (How we'd know epic failed)
-❌ [Symptom of failure 1]
-❌ [Symptom of failure 2]
-❌ [Symptom of failure 3]
-```
-
----
-
-**Guidelines for writing epic ticket:**
-
-**Description:**
-- Focus on WHAT is being achieved, not HOW
-- Explain why this epic provides value
-- Keep to 2-3 sentences maximum
-
-**Acceptance Criteria:**
-- Must be testable/verifiable outcomes
-- Apply to entire epic (not individual features)
-- Use "All X" language when patterns apply broadly (e.g., "All 18 weeks", "All 6 positions")
-- Avoid implementation details ("Create class X", "Use method Y")
-- Focus on capabilities ("System can...", "Users can...", "Data shows...")
-
-**Success Indicators:**
-- Must be measurable/quantifiable
-- Examples: "Zero percentage <1%", "All tests pass", "MAE calculation completes"
-- Include both positive indicators (what should happen) and thresholds
-
-**Failure Patterns:**
-- Describe specific symptoms that would indicate epic failed
-- Use patterns from similar past bugs if applicable
-- Be explicit about edge cases (e.g., ">90% zeros", "Only week 17-18 work")
-- Think: "What would I see in the output if this epic was broken?"
-
----
-
-**Example - Feature 02 Epic Ticket:**
-
-```markdown
-# Epic Ticket: Integrate JSON Player Data into Simulations
-
-## Description
-Replace CSV-based player data loading with JSON format for both win rate and accuracy simulations. The new JSON files contain weekly arrays instead of individual columns, enabling more efficient data organization and week-based queries across all 18 NFL regular season weeks.
-
-## Acceptance Criteria
-- [ ] Both simulation types (win rate & accuracy) load player data from JSON files
-- [ ] All 18 weeks of data are accessible and used correctly for both simulations
-- [ ] Actual points for all players across all 18 weeks contain realistic non-zero values
-- [ ] Projected points for all players across all 18 weeks contain realistic non-zero values
-- [ ] Simulations produce equivalent or better results compared to CSV version
-- [ ] No regression in existing simulation functionality
-- [ ] All 2,200+ unit tests continue to pass
-
-## Success Indicators
-- Actual points have <1% zero values across all weeks/players
-- Projected points have <1% zero values across all weeks/players
-- Mean absolute error (MAE) calculations complete successfully for all 18 weeks
-- Win rate simulations complete 10,000 iterations without errors
-- Standard deviation > 0 for both actual and projected points (values have variance)
-
-## Failure Patterns
-❌ >90% of actual_points are 0.0 (data loading issue)
-❌ Only week 17-18 work while other weeks have zeros (week offset bug)
-❌ Calculations return NaN or skip all players (consumption code not updated)
-❌ "attribute not found" errors during execution (old API still used)
-❌ Mean or standard deviation = 0 (all same value - calculation error)
-❌ Only 1-2 players have non-zero values out of 2500 total
-```
-
-**Why this would have caught Feature 02 bug:**
-- "All 18 weeks" makes clear it's not just week 17-18
-- Failure pattern explicitly describes the ">90% zeros" bug that happened
-- Success indicators would have failed (99.8% zeros >> 1% threshold)
-
----
-
 **Process:**
 
-1. **Draft epic ticket** using template above
+1. **Draft epic ticket** using template from reference guide
 2. **Save to:** `feature-updates/{epic_name}/EPIC_TICKET.md`
 3. **Present to user** for validation
 4. **Proceed to Step 3.7** for user sign-off
+
+**📖 See:** `reference/stage_1/epic_planning_examples.md` → "Example 7: Epic Ticket Template" for:
+- Complete epic ticket template
+- Guidelines for description, acceptance criteria, success indicators, failure patterns
+- Real-world example (Feature 02 epic ticket)
 
 ---
 
@@ -753,244 +434,35 @@ I've created an epic ticket to validate my understanding of the epic's goals and
 
 ### Step 4.1: Create Feature Folders
 
-For EACH feature in approved breakdown:
+For EACH approved feature, create folder: `feature-updates/KAI-{N}-{epic_name}/feature_{NN}_{name}/`
 
-```bash
-mkdir -p feature-updates/KAI-{N}-{epic_name}/feature_{N}_{descriptive_name}/
-```
+**Naming:** Zero-padded numbers + descriptive snake_case name (e.g., `feature_01_adp_integration`)
 
-**Example:** `mkdir -p feature-updates/KAI-1-improve_draft_helper/feature_01_adp_integration/`
-
-**Naming Convention:**
-- `feature_01_adp_integration/` (zero-padded numbers)
-- `feature_02_injury_assessment/`
-- `feature_03_schedule_analysis/`
-
-**For each feature folder, create:**
-
-```bash
-cd feature-updates/KAI-{N}-{epic_name}/feature_{N}_{name}/
-
-# Create initial files
-touch README.md
-touch spec.md
-touch checklist.md
-touch lessons_learned.md
-```
-
-**Example:** `cd feature-updates/KAI-1-improve_draft_helper/feature_01_adp_integration/`
-
-**Populate Feature README.md:**
-
-Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "Feature README Template"
-
-**Key sections:**
-- Feature Context (part of epic, feature number, purpose)
-- Agent Status (PLANNING phase, not started yet)
-- Files in This Feature (list of files)
-- Feature Completion Checklist (all stages unchecked)
-
-**Populate Initial spec.md:**
-
-```markdown
-# Feature {N}: {Descriptive Name}
-
-## Objective
-
-{What this feature accomplishes - copy from Phase 3 proposal}
-
-## Scope
-
-{What's included in THIS feature - copy from Phase 3 proposal}
-
-## Dependencies
-
-**Prerequisites:** {Features that must complete first, or "None"}
-**Blocks:** {Features that depend on this one, or "Unknown yet"}
-
-## Initial Estimates
-
-- Implementation items: ~{X}
-- Risk level: LOW/MEDIUM/HIGH
-- Priority: LOW/MEDIUM/HIGH
-
-## Files Likely Affected
-
-{Based on Phase 2 analysis - rough list, will refine in Stage 2}
-
----
-
-**Status:** Initial spec created during Stage 1 (Epic Planning)
-**Next:** Stage 2 (Feature Deep Dive) will flesh out this spec
-```
-
-**Create empty checklist.md:**
-
-```markdown
-# Feature {N}: {Name} - Planning Checklist
-
-**Status:** Not started (will populate during Stage 2 deep dive)
-
-**Purpose:** Track open questions and decisions needed for this feature
-
----
-
-{Will be populated during Stage 2}
-```
-
-**Create initial lessons_learned.md:**
-
-```markdown
-# Feature {N}: {Name} - Lessons Learned
-
-**Purpose:** Document issues encountered and solutions for this feature
-
----
-
-## Planning Phase Lessons
-
-{Will be populated during Stage 2 deep dive}
-
-## Implementation Phase Lessons
-
-{Will be populated during Stage 5b implementation}
-
-## Post-Implementation Lessons
-
-{Will be populated during Stage 5c QC}
-```
+**For each feature folder, create 4 files:**
+1. **README.md** - Use Feature README Template (Agent Status: PLANNING phase)
+2. **spec.md** - Copy purpose/scope/dependencies from Phase 3 proposal (mark as initial)
+3. **checklist.md** - Empty (will populate in Stage 2)
+4. **lessons_learned.md** - Template with empty sections
 
 ### Step 4.2: Create epic_smoke_test_plan.md
 
 Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "Epic Smoke Test Plan Template"
 
-**IMPORTANT:** Mark this as INITIAL VERSION
+**IMPORTANT:** Mark this as INITIAL VERSION (placeholder that will be updated in Stages 4 and 5e)
 
-```markdown
-# Epic Smoke Test Plan: {epic_name}
-
-**Purpose:** Define how to validate the complete epic end-to-end
-
-**⚠️ VERSION: INITIAL (Stage 1)**
-- Created: {date}
-- Based on: Assumptions from epic request (NO implementation knowledge yet)
-- Quality: PLACEHOLDER - Will be updated in Stage 4 (after deep dives) and Stage 5e (after each feature)
-
-**Next Updates:**
-- Stage 4: Major update based on feature specs and alignment findings
-- Stage 5e: Incremental updates after each feature implementation
-
----
-
-## Epic Success Criteria (INITIAL - WILL REFINE)
-
-**The epic is successful if:**
-
-1. {High-level criterion 1 based on epic request}
-2. {High-level criterion 2}
-3. {High-level criterion 3}
-
-{Note: These are assumptions. Stage 4 will define specific, measurable criteria.}
-
----
-
-## Specific Commands/Scenarios (PLACEHOLDER)
-
-**⚠️ These are ROUGH guesses based on epic request. Stage 4 will define actual commands.**
-
-### Test 1: {Test Name}
-```bash
-# Command TBD after Stage 2 deep dives
-```
-**Expected result:** TBD
-**Failure indicates:** TBD
-
----
-
-## High-Level Test Categories (INITIAL)
-
-**These categories will be fleshed out in Stage 4 with specific scenarios:**
-
-### Category 1: Cross-Feature Integration
-**What to test:** {General idea of integration points}
-**Specific scenarios:** TBD in Stage 4
-
-### Category 2: Error Handling
-**What to test:** {General error paths}
-**Specific scenarios:** TBD in Stage 4
-
----
-
-## Update Log
-
-| Date | Stage | What Changed | Why |
-|------|-------|--------------|-----|
-| {date} | Stage 1 | Initial plan created | Epic planning - assumptions only |
-
-**Current version is informed by:**
-- Stage 1: Initial assumptions from epic request (THIS VERSION)
-- Stage 4: TBD (will update after deep dives)
-- Stage 5e updates: TBD (will update after each feature)
-```
+**Key characteristics of initial version:**
+- Based on assumptions from epic request (no implementation knowledge yet)
+- Rough guesses for test commands/scenarios
+- High-level success criteria (will be refined)
+- Marked clearly as "INITIAL - WILL UPDATE"
 
 ### Step 4.3: Create epic_lessons_learned.md
 
-```markdown
-# Epic: {epic_name} - Lessons Learned
-
-**Purpose:** Document cross-feature patterns and systemic insights from this epic
-
----
-
-## Planning Phase Lessons (Stages 1-4)
-
-{Will be populated during Stages 1-4}
-
-## Implementation Phase Lessons (Stage 5)
-
-{Will be populated during Stage 5 as features are implemented}
-
-## QC Phase Lessons (Stage 6)
-
-{Will be populated during Stage 6 epic final QC}
-
-## Guide Improvements Identified
-
-{Track guide gaps/improvements discovered during this epic}
-
-| Guide File | Issue | Proposed Fix | Status |
-|------------|-------|--------------|--------|
-| {guide} | {what was missing/unclear} | {how to fix} | Pending/Done |
-```
+Create template file with sections for Planning Phase Lessons, Implementation Phase Lessons, QC Phase Lessons, and Guide Improvements Identified (all empty - will populate during workflow).
 
 ### Step 4.4: Create research/ Folder
 
-```bash
-mkdir -p feature-updates/KAI-{N}-{epic_name}/research/
-```
-
-**Example:** `mkdir -p feature-updates/KAI-1-improve_draft_helper/research/`
-
-**Create research/README.md:**
-
-```markdown
-# Research and Analysis Documents
-
-This folder contains all research, analysis, and verification reports for the epic.
-
-**Purpose:**
-- Keeps epic root folder clean (only EPIC_README, test plan, lessons learned)
-- Centralizes reference material shared across features
-- Clear separation: feature specs = implementation guidance, research = context
-
-**File Naming:**
-- `{TOPIC}_ANALYSIS.md` - Detailed analysis of specific topic
-- `VERIFICATION_REPORT_{DATE}.md` - Verification findings
-- `RESEARCH_FINDINGS_{DATE}.md` - General research results
-- `{FEATURE_NAME}_DISCOVERY.md` - Discoveries from feature deep dive
-
-**All research documents go here from the start.**
-```
+Create `research/` folder in epic root with README.md explaining purpose (centralizes research/analysis documents, keeps epic root clean).
 
 ### Step 4.5: Create GUIDE_ANCHOR.md
 
@@ -1006,88 +478,13 @@ Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "
 
 ### Step 4.6: Update EPIC_README.md
 
-Add **Feature Tracking** table:
+Add **Feature Tracking** table listing all features with Stage 2 Complete and Stage 5e Complete checkboxes (all unchecked initially).
 
-```markdown
-## Feature Tracking
-
-| # | Feature Name | Stage 2 Complete | Stage 5e Complete | Notes |
-|---|--------------|------------------|-------------------|-------|
-| 1 | feature_01_{name} | [ ] | [ ] | Not started |
-| 2 | feature_02_{name} | [ ] | [ ] | Not started |
-| 3 | feature_03_{name} | [ ] | [ ] | Not started |
-
-**Stage 2 Complete:** Spec fleshed out from deep dive
-**Stage 5e Complete:** Feature implementation fully complete
-```
-
-Add **Epic Completion Checklist:**
-
-```markdown
-## Epic Completion Checklist
-
-**Stage 1 - Epic Planning:**
-- [x] Epic folder created
-- [x] All feature folders created
-- [x] Initial epic_smoke_test_plan.md created
-- [x] EPIC_README.md created
-- [x] GUIDE_ANCHOR.md created
-- [x] research/ folder created
-
-**Stage 2 - Feature Deep Dives:**
-- [ ] ALL features have spec.md complete
-- [ ] ALL features have checklist.md resolved
-
-**Stage 3 - Cross-Feature Sanity Check:**
-- [ ] All specs compared systematically
-- [ ] Conflicts resolved
-- [ ] User sign-off obtained
-
-**Stage 4 - Epic Testing Strategy:**
-- [ ] epic_smoke_test_plan.md updated
-- [ ] Integration points identified
-- [ ] Epic success criteria defined
-
-**Stage 5 - Feature Implementation:**
-- [ ] Feature 1: 5a→5b→5c→5d→5e complete
-- [ ] Feature 2: 5a→5b→5c→5d→5e complete
-- [ ] ... (all features)
-
-**Stage 6 - Epic Final QC:**
-- [ ] Epic smoke testing passed
-- [ ] Epic QC rounds passed
-- [ ] Epic PR review passed
-- [ ] End-to-end validation passed
-
-**Stage 7 - Epic Cleanup:**
-- [ ] Final commits made
-- [ ] Epic moved to done/ folder
-```
+Add **Epic Completion Checklist** with all 7 stages (Stage 1 items checked, all others unchecked).
 
 ### Step 4.7: Update Agent Status
 
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** EPIC_PLANNING
-**Current Step:** Phase 4 - Epic Structure Creation Complete
-**Current Guide:** stages/stage_1/epic_planning.md
-**Guide Last Read:** {YYYY-MM-DD HH:MM}
-**Critical Rules from Guide:**
-- User must approve feature breakdown before creating folders
-- epic_smoke_test_plan.md is placeholder (will update in Stages 4, 5e)
-- Update Agent Status after each major step
-
-**Progress:** 4/5 phases complete (Epic Structure Created)
-**Next Action:** Phase 5 - Transition to Stage 2
-**Blockers:** None
-
-**Features Created:**
-- feature_01_{name}
-- feature_02_{name}
-- feature_03_{name}
-```
+Update Agent Status: Progress 4/5, Next Action "Phase 5 - Transition to Stage 2", list features created.
 
 ---
 
@@ -1095,62 +492,18 @@ Add **Epic Completion Checklist:**
 
 ### Step 5.1: Mark Stage 1 Complete
 
-Update EPIC_README.md Epic Completion Checklist:
-
-```markdown
-**Stage 1 - Epic Planning:**
-- [x] Epic folder created
-- [x] All feature folders created
-- [x] Initial epic_smoke_test_plan.md created
-- [x] EPIC_README.md created
-- [x] GUIDE_ANCHOR.md created
-- [x] research/ folder created
-```
+Check all Stage 1 items in EPIC_README.md Epic Completion Checklist.
 
 ### Step 5.2: Update Agent Status for Stage 2
 
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** DEEP_DIVE
-**Current Step:** Ready to begin Stage 2a (Research Phase) for Feature 1
-**Current Guide:** stages/stage_2/phase_0_research.md
-**Guide Last Read:** NOT YET (will read when starting Stage 2a)
-**Critical Rules from Guide:** (Will populate after reading Stage 2a guide)
-
-**Progress:** Stage 1 complete, ready for Stage 2a
-**Next Action:** Read stages/stage_2/phase_0_research.md and begin research phase for feature_01_{name}
-**Blockers:** None
-```
+Update Agent Status: Current Phase "DEEP_DIVE", Current Guide "stages/stage_2/phase_0_research.md", Next Action "Read Stage 2a guide and begin research for feature_01_{name}".
 
 ### Step 5.3: Announce Transition to User
 
-```markdown
-✅ **Stage 1 (Epic Planning) Complete**
-
-I've created the epic structure with {N} features:
-
-**Epic Folder:** `feature-updates/{epic_name}/`
-
-**Features Created:**
-1. feature_01_{name} - {brief purpose}
-2. feature_02_{name} - {brief purpose}
-3. feature_03_{name} - {brief purpose}
-
-**Epic-Level Files:**
-- EPIC_README.md (tracking and status)
-- epic_smoke_test_plan.md (initial version - will update in Stages 4, 5e)
-- epic_lessons_learned.md (will populate as we progress)
-- research/ (shared research folder)
-- GUIDE_ANCHOR.md (resumption instructions)
-
-**Next: Stage 2 (Feature Deep Dives)**
-
-I'll now transition to Stage 2a (Research Phase) and begin deep dive planning for Feature 1.
-
-Starting with `stages/stage_2/phase_0_research.md` to extract epic intent, conduct targeted research, and complete research audit (Phases 0-1.5).
-```
+Announce Stage 1 completion to user:
+- List features created
+- List epic-level files created
+- Announce transition to Stage 2a (Research Phase) for Feature 1
 
 ---
 
@@ -1181,34 +534,13 @@ Starting with `stages/stage_2/phase_0_research.md` to extract epic intent, condu
 
 **Stage 1 is complete when ALL of these are true:**
 
-□ Git branch created: `{work_type}/KAI-{number}`
-□ EPIC_TRACKER.md updated with active epic entry
-□ Initial commit made (EPIC_TRACKER.md update)
-□ Epic folder created: `feature-updates/{epic_name}/`
-□ Epic request moved and renamed: `{epic_name}_notes.txt`
-□ EPIC_README.md created with:
-  - Quick Reference Card at top
-  - Agent Status section
-  - Epic Overview
-  - Feature Tracking table (all features listed)
-  - Epic Completion Checklist (Stage 1 items checked)
-□ epic_smoke_test_plan.md created and marked "INITIAL - WILL UPDATE"
-□ epic_lessons_learned.md created
-□ research/ folder created with README.md
-□ GUIDE_ANCHOR.md created
-□ Feature folders created for ALL approved features
-□ Each feature folder contains:
-  - README.md (with Agent Status, Completion Checklist)
-  - spec.md (initial scope from Phase 3 proposal)
-  - checklist.md (empty, will populate in Stage 2)
-  - lessons_learned.md (template)
-□ User approved feature breakdown (documented in EPIC_README.md or conversation)
-□ Agent Status updated: Current Phase = DEEP_DIVE, Next Action = Read Stage 2 guide
+□ Git branch created and EPIC_TRACKER.md updated
+□ Epic folder structure complete (EPIC_README, test plan, lessons learned, research/, GUIDE_ANCHOR)
+□ Feature folders created with 4 files each (README, spec, checklist, lessons learned)
+□ User approved feature breakdown and epic ticket
+□ Agent Status updated for Stage 2 transition
 
-**If any item unchecked:**
-- ❌ Stage 1 is NOT complete
-- ❌ Do NOT transition to Stage 2
-- Complete missing items first
+**If any item unchecked:** Do NOT transition to Stage 2
 
 ---
 
@@ -1250,129 +582,11 @@ Starting with `stages/stage_2/phase_0_research.md` to extract epic intent, condu
    ✅ STOP - Must use zero-padding: 01, 02, 03 (consistent sorting)
 ```
 
----
-
-## Real-World Examples
-
-### Example 1: Good Feature Breakdown
-
-**Epic Request:** "Improve draft helper with more data sources"
-
-**GOOD Breakdown:**
-```
-Feature 1: ADP Integration
-- Purpose: Load average draft position data from external API
-- Scope: API client, data normalization, storage
-- Dependencies: None (foundation)
-- Estimate: ~25 items, MEDIUM risk
-
-Feature 2: Expert Rankings Integration
-- Purpose: Integrate consensus expert rankings
-- Scope: Load rankings, calculate consensus, apply multiplier
-- Dependencies: None (parallel to Feature 1)
-- Estimate: ~20 items, LOW risk
-
-Feature 3: Injury Risk Assessment
-- Purpose: Evaluate injury history and calculate penalty
-- Scope: Parse injury data, calculate risk score, apply penalty
-- Dependencies: None (parallel to Features 1, 2)
-- Estimate: ~15 items, LOW risk
-
-Feature 4: Recommendation Engine Updates
-- Purpose: Integrate new data sources into scoring algorithm
-- Scope: Update PlayerManager, add new multipliers, integration tests
-- Dependencies: Features 1, 2, 3 (consumes their outputs)
-- Estimate: ~30 items, HIGH risk (integration complexity)
-```
-
-**Why GOOD:**
-- Each feature delivers independent value
-- Clear boundaries (data loading vs integration)
-- Logical dependency chain (parallel data loading, then integration)
-- Risk levels identified
-- Foundation features (1, 2, 3) can be tested independently
-
-### Example 2: Bad Feature Breakdown
-
-**Epic Request:** "Improve draft helper with more data sources"
-
-**BAD Breakdown:**
-```
-Feature 1: Data Stuff
-- Purpose: Get data
-- Scope: All data things
-- Dependencies: None
-- Estimate: Unknown
-
-Feature 2: Calculations
-- Purpose: Do the calculations
-- Scope: Math and stuff
-- Dependencies: Feature 1
-- Estimate: Unknown
-
-Feature 3: Miscellaneous
-- Purpose: Other improvements
-- Scope: Whatever's left
-- Dependencies: Features 1, 2
-- Estimate: Unknown
-```
-
-**Why BAD:**
-- Vague purposes ("data stuff", "calculations")
-- No clear boundaries (what's in Feature 1 vs 2?)
-- No testability (how do you verify "math and stuff"?)
-- Unknown estimates (no analysis)
-- Generic "miscellaneous" feature (dumping ground)
-
-### Example 3: Feature vs Epic Confusion
-
-**Request:** "Add JSON export for player data"
-
-**WRONG (treating as multi-feature epic):**
-```
-Feature 1: JSON Serialization
-Feature 2: File Writing
-Feature 3: Export Command
-```
-
-**RIGHT (single feature, not epic):**
-```
-This is a single feature, not an epic requiring multiple features.
-
-Create: feature-updates/json_export_feature/
-Not: feature-updates/json_export_epic/feature_01_serialization/
-```
-
-**Why:** JSON export is small, tightly coupled, <20 items. Breaking into multiple features adds unnecessary overhead.
-
-### Example 4: Session Compaction Recovery
-
-**Scenario:** Agent started Stage 1, then session compacted mid-Phase 3.
-
-**WRONG Approach:**
-```
-"I'll just continue creating features"
-(Skips re-reading guide, doesn't check Agent Status)
-```
-
-**RIGHT Approach:**
-```
-1. Read EPIC_README.md Agent Status
-   - Sees: "Current Step: Phase 3 - Waiting for user approval"
-   - Sees: "Blockers: Waiting for user confirmation of feature breakdown"
-
-2. Read stages/stage_1/epic_planning.md (this guide)
-   - Re-read Phase 3 section
-   - See requirement: WAIT for approval
-
-3. Check conversation history
-   - Find: Feature breakdown was proposed
-   - Find: User has NOT yet responded
-
-4. Correct action: Continue waiting
-   - Update Agent Status: "Guide Last Read: {new timestamp} (RE-READ after compaction)"
-   - Do NOT proceed without approval
-```
+**📖 See:** `reference/stage_1/epic_planning_examples.md` for:
+- Example 1-4: Real-world feature breakdown examples (good vs bad)
+- Example 5: Epic ticket example
+- Example 6: Multi-feature epic analysis walkthrough
+- Example 7-10: Additional patterns and scenarios
 
 ---
 
@@ -1388,28 +602,7 @@ Not: feature-updates/json_export_epic/feature_01_serialization/
 6. ⚡ After Phase 5 complete (Stage 1 done, ready for Stage 2)
 7. ⚡ After session compaction (update "Guide Last Read" with re-read timestamp)
 
-**Agent Status Template:**
-
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** {EPIC_PLANNING or next stage}
-**Current Step:** {Exact phase and step}
-**Current Guide:** stages/stage_1/epic_planning.md (or next guide)
-**Guide Last Read:** {YYYY-MM-DD HH:MM}
-**Critical Rules from Guide:**
-- {Rule 1 from Critical Rules section}
-- {Rule 2 from Critical Rules section}
-- {Rule 3 from Critical Rules section}
-
-**Progress:** {X/5 phases complete in Stage 1}
-**Next Action:** {Exact next task to perform}
-**Blockers:** {Issues preventing progress, or "None"}
-
-**Notes:**
-- {Relevant context for next agent}
-```
+**Agent Status Template:** Include Last Updated, Current Phase, Current Step, Current Guide, Guide Last Read, Critical Rules (3 key rules), Progress, Next Action, Blockers, and Notes.
 
 ---
 
@@ -1440,21 +633,9 @@ If you cannot answer these questions without re-reading the guide, you haven't r
 
 ## Prerequisites for Stage 2
 
-**Before transitioning to Stage 2, verify:**
+**Before transitioning:** Verify all Stage 1 completion criteria met, EPIC_README.md updated for Stage 2, no blockers.
 
-□ Stage 1 completion criteria ALL met (see "Completion Criteria" section)
-□ EPIC_README.md Agent Status updated:
-  - Current Phase: DEEP_DIVE
-  - Current Guide: stages/stage_2/phase_0_research.md
-  - Next Action: Read Stage 2a guide and begin research phase for Feature 1
-□ Epic Completion Checklist: Stage 1 items all checked
-□ Feature Tracking table: All features listed with "Not started" status
-□ No blockers (user approval received)
-
-**If any prerequisite fails:**
-- ❌ Do NOT transition to Stage 2a
-- Complete missing prerequisites
-- Update Agent Status when prerequisites met
+**If prerequisite fails:** Complete missing items before proceeding.
 
 ---
 
