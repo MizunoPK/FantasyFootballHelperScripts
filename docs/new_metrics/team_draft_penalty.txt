@@ -1,6 +1,0 @@
-I want to add a feature where there is an array in league_config that defines certain NFL teams. If a team is in that array, then they will only recieve a portion of the primary or secondary draft order bonus
-
-PENALIZED_TEAMS = ['KC', 'LV', '']
-PENALIZED_TEAM_DRAFT_ORDER_PENALITY = 0.5
-
-The above settings would mean any players on KC or LV would recieve half of the primary or secondary draft order bonus (e.g. 0.5 * DRAFT_ORDER_BONUSES.PRIMARY)

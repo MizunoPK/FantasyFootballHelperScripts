@@ -32,7 +32,7 @@
 - Stage 1 creates the structure needed for Stage 2
 - Stage 2 specs are validated in Stage 3
 - Stage 3 alignment feeds into Stage 4 test plan
-- Stage 4 test plan evolves through Stage 5 → Stage 6
+- Stage 4 test plan evolves through Stage 5 → Stage 9
 - Skipping stages leads to incomplete planning and rework
 
 ### Q: What's the difference between a "round", "iteration", and "phase"?
@@ -57,8 +57,8 @@ Update feature README.md during Stage 5 sub-stages (5a, 5b, 5c, 5d, 5e).
 **A:** Depends on WHEN you find it:
 - **During Stage 5b (Implementation):** Fix immediately, run tests, continue
 - **During Stage 5c (Smoke/QC):** Enter Debugging Protocol, restart from smoke testing
-- **During Stage 6 (Epic QC):** Enter Debugging Protocol, restart entire Stage 6
-- **During Stage 7 (User Testing):** Document in ISSUES_CHECKLIST.md, fix ALL bugs, restart Stage 6
+- **During Stage 9 (Epic QC):** Enter Debugging Protocol, restart entire Stage 9
+- **During Stage 10 (User Testing):** Document in ISSUES_CHECKLIST.md, fix ALL bugs, restart Stage 9
 
 ### Q: How many features should an epic have?
 
@@ -191,7 +191,7 @@ A: NO - Always do complete pairwise comparison:
 
 A: Key differences:
 - **Feature smoke testing (Stage 5c):** Tests single feature in isolation
-- **Epic smoke testing (Stage 6):** Tests ALL features working together
+- **Epic smoke testing (Stage 9):** Tests ALL features working together
 - **Epic plan includes:** Cross-feature integration scenarios, epic-level workflows
 
 **Q: What if I don't know integration points yet (haven't implemented)?**
@@ -304,7 +304,7 @@ A: Fix immediately - no deferrals:
 A: NO - Zero tech debt tolerance:
 - Fix ALL PR review issues before completing Stage 5c
 - This is the LAST checkpoint before Stage 5d/5e
-- Deferring issues = they'll appear in Stage 6
+- Deferring issues = they'll appear in Stage 9
 
 ---
 
@@ -314,8 +314,8 @@ A: NO - Zero tech debt tolerance:
 
 A: Skip ONLY if this was the LAST feature:
 - No more features to implement = no specs to update (5d)
-- Epic test plan will be validated in Stage 6 anyway (5e)
-- Proceed directly to Stage 6
+- Epic test plan will be validated in Stage 9 anyway (5e)
+- Proceed directly to Stage 9
 
 **Q: What if I already updated other feature specs during Stage 5b?**
 
@@ -334,21 +334,21 @@ A: Review ALL remaining features, but focus on:
 
 ---
 
-### Stage 6: Epic-Level Final QC
+### Stage 9: Epic-Level Final QC
 
-**Q: What's the difference between Stage 5c and Stage 6?**
+**Q: What's the difference between Stage 5c and Stage 9?**
 
 A:
 - **Stage 5c:** Tests single feature in isolation
-- **Stage 6:** Tests ALL features working together as cohesive epic
-- **Stage 6 includes Part 4:** Cross-Feature Integration (Stage 5c only has 3 parts)
+- **Stage 9:** Tests ALL features working together as cohesive epic
+- **Stage 9 includes Part 4:** Cross-Feature Integration (Stage 5c only has 3 parts)
 
-**Q: Issues found in Stage 6 - do I go back to Stage 5c for that feature?**
+**Q: Issues found in Stage 9 - do I go back to Stage 5c for that feature?**
 
 A: NO - Enter Debugging Protocol at epic level:
 1. Document in epic-level debugging/ISSUES_CHECKLIST.md
 2. Fix ALL issues
-3. RESTART entire Stage 6 from S6.P1 Part 1
+3. RESTART entire Stage 9 from S9.P1 Part 1
 4. Re-run epic smoke testing → epic QC rounds → epic final review
 
 **Q: Can I skip epic QC if all features passed their Stage 5c QC?**
@@ -360,27 +360,27 @@ A: NO - Epic QC is mandatory:
 
 ---
 
-### Stage 7: Epic Cleanup
+### Stage 10: Epic Cleanup
 
 **Q: User found bugs during testing - what do I do?**
 
-A: Follow Stage 7 bug fix protocol:
+A: Follow Stage 10 bug fix protocol:
 1. Document ALL bugs in epic debugging/ISSUES_CHECKLIST.md
 2. Create bugfix folders for each bug
 3. Fix ALL bugs (each follows Stage 2 → 5a → 5b → 5c)
-4. After ALL bugs fixed → RESTART Stage 6 (not Stage 7)
-5. Complete Stage 6 validation again
-6. Return to Stage 7 user testing
+4. After ALL bugs fixed → RESTART Stage 9 (not Stage 10)
+5. Complete Stage 9 validation again
+6. Return to Stage 10 user testing
 7. ZERO bugs required to commit
 
 **Q: Can I commit if "only minor bugs" remain?**
 
 A: NO - Zero bugs required:
 - User testing is the final gate
-- ANY bugs = restart Stage 6 after fixing
+- ANY bugs = restart Stage 9 after fixing
 - Committing with known bugs violates workflow
 
-**Q: Tests were passing in Stage 5b/5c/6 but fail in Stage 7 - how?**
+**Q: Tests were passing in Stage 5b/5c/6 but fail in Stage 10 - how?**
 
 A: Possible causes:
 - Environment differences
@@ -442,17 +442,17 @@ Need to fix something
     │    → Fix issues
     │    → RESTART from Smoke Testing Part 1
     │
-    ├─ Stage 6 (Epic QC)
+    ├─ Stage 9 (Epic QC)
     │    ↓
     │  [Use Debugging Protocol at epic level]
     │    → Fix issues
-    │    → RESTART from S6.P1 Part 1
+    │    → RESTART from S9.P1 Part 1
     │
-    └─ Stage 7 (User Testing)
+    └─ Stage 10 (User Testing)
          ↓
-    [Use Stage 7 Bug Fix Protocol]
+    [Use Stage 10 Bug Fix Protocol]
          → Fix ALL bugs
-         → RESTART Stage 6
+         → RESTART Stage 9
 ```
 
 ### Decision Tree 3: "GO vs NO-GO Decision (Iteration 24)"
@@ -535,8 +535,8 @@ Context window limit reached → Session compacted
 **Use for:**
 - Issues found during Smoke Testing (Stage 5c Part 3)
 - Issues found during QC Rounds (Stage 5c Phase 2)
-- Issues found during Epic Testing (Stage 6)
-- Issues found during User Testing (Stage 7)
+- Issues found during Epic Testing (Stage 9)
+- Issues found during User Testing (Stage 10)
 - Root cause is UNKNOWN (requires investigation)
 
 **DO NOT use for:**
@@ -581,17 +581,17 @@ Context window limit reached → Session compacted
 ### When to Use: Bug Fix Workflow
 
 **Use for:**
-- Bugs found during Stage 7 (User Testing)
+- Bugs found during Stage 10 (User Testing)
 - Each bug gets its own bugfix folder
 - Bugs go through: Stage 2 → 5a → 5b → 5c (no Stage 1, 3, 4, 6, 7)
 
 **DO NOT use for:**
-- Bugs found earlier than Stage 7 (use Debugging)
+- Bugs found earlier than Stage 10 (use Debugging)
 - Quick fixes during implementation
 
 **Indicators:**
 - User says "I found a bug during testing"
-- Stage 7 user testing revealed issues
+- Stage 10 user testing revealed issues
 - Need systematic bug tracking and fixes
 
 **Entry point:** `stages/s5/s5_bugfix_workflow.md`
@@ -612,7 +612,7 @@ Context window limit reached → Session compacted
 **Common pattern:**
 - If Stage 5c just completed → Check if more features remaining
   - YES → Stage 5d
-  - NO → Stage 6
+  - NO → Stage 9
 
 ### Stuck 2: "Tests are failing and I don't know why"
 
@@ -863,7 +863,7 @@ Would you like to:
 
 ---
 
-### Error: "Tests failing - cannot proceed with Stage 7 commit"
+### Error: "Tests failing - cannot proceed with Stage 10 commit"
 
 **Meaning:** Unit tests must have 100% pass rate before commit
 
@@ -874,15 +874,15 @@ Would you like to:
 4. Run tests again (100% pass required)
 5. Only commit when all tests pass
 
-Note: It's acceptable to fix pre-existing test failures from other epics during Stage 7.
+Note: It's acceptable to fix pre-existing test failures from other epics during Stage 10.
 
 ---
 
-### Error: "User found bugs during Stage 7 testing"
+### Error: "User found bugs during Stage 10 testing"
 
-**Meaning:** Must restart Stage 6 after fixing bugs
+**Meaning:** Must restart Stage 9 after fixing bugs
 
-**Fix:** See Stage 7 FAQ above - follow bug fix protocol, restart Stage 6
+**Fix:** See Stage 10 FAQ above - follow bug fix protocol, restart Stage 9
 
 ---
 

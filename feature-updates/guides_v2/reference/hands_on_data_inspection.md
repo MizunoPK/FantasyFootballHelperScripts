@@ -863,7 +863,7 @@ print(week_01[0]['actual_points'][0])  # 0.0 → "Wait, this should be > 0!"
 - Restart Stage 5a to regenerate implementation_plan.md
 - Proceed to 5b with correct plan
 
-**Time to fix bug caught in Stage 6 (Epic QC):** 4+ hours
+**Time to fix bug caught in Stage 9 (Epic QC):** 4+ hours
 - Debug why MAE is wrong
 - Trace through implementation
 - Realize data loading is wrong

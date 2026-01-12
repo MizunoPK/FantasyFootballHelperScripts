@@ -1,8 +1,8 @@
 # Epic PR Review Checklist - 11 Categories
 
-**Purpose:** Complete checklist for epic-level PR review (S6.P3 Step 6)
-**When to Use:** After S6.P2 QC rounds complete, before final verification
-**Main Guide:** `stages/s6/s6_p4_epic_final_review.md`
+**Purpose:** Complete checklist for epic-level PR review (S9.P3 Step 6)
+**When to Use:** After S9.P2 QC rounds complete, before final verification
+**Main Guide:** `stages/s9/s6_p4_epic_final_review.md`
 
 ---
 
@@ -807,21 +807,21 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 2. **If ANY category FAILS:**
    - Document all issues in pr_review_issues.md
    - Proceed to Step 7 (Handle Issues)
-   - After fixes complete → RESTART Stage 6 from 6a
+   - After fixes complete → RESTART Stage 9 from 6a
 
 ---
 
 ## See Also
 
 **Main Guide:**
-- `stages/s6/s6_p4_epic_final_review.md` - Complete Step 6 workflow
+- `stages/s9/s6_p4_epic_final_review.md` - Complete Step 6 workflow
 
 **PR Review Protocol:**
 - `stages/s5/s5_pr_review_protocol.md` - Complete hybrid multi-round approach
 
 **Related Guides:**
-- `stages/s6/s6_p2_epic_qc_rounds.md` - Previous stage
-- `stages/s7/s7_epic_cleanup.md` - Next stage (if review passes)
+- `stages/s9/s6_p2_epic_qc_rounds.md` - Previous stage
+- `stages/s10/s7_epic_cleanup.md` - Next stage (if review passes)
 
 **Templates:**
 - `reference/stage_6/epic_final_review_templates.md` - Documentation templates

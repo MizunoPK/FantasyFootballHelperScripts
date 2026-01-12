@@ -9,7 +9,7 @@
 ## Workflow Overview
 
 ```
-S6.P1: Epic Smoke Testing (60-90 min)
+S9.P1: Epic Smoke Testing (60-90 min)
     ├─ Step 1: Pre-QC Verification (15 min)
     │   ├─ Verify all features at Stage 5e
     │   ├─ No pending bug fixes
@@ -21,7 +21,7 @@ S6.P1: Epic Smoke Testing (60-90 min)
     │   └─ Part 4: Cross-Feature Integration Test ← MANDATORY GATE
     │       └─ If FAIL → Fix and restart from Part 1
     ↓
-S6.P2: Epic QC Rounds (2-3 hours)
+S9.P2: Epic QC Rounds (2-3 hours)
     ├─ Step 3: QC Round 1 - Cross-Feature Integration (45-60 min)
     │   ├─ Integration points tested
     │   ├─ Data flow verification
@@ -37,19 +37,19 @@ S6.P2: Epic QC Rounds (2-3 hours)
     │   ├─ All success criteria met (100%)
     │   ├─ UX flow validated
     │   └─ Performance benchmarks met
-    │       └─ If ANY ISSUES → Create bug fix → RESTART S6.P1
+    │       └─ If ANY ISSUES → Create bug fix → RESTART S9.P1
     ↓
-S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
+S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
     ├─ Step 6: Epic PR Review - 11 Categories (45-60 min)
     │   ├─ Architecture (MOST IMPORTANT - epic-wide patterns)
     │   ├─ Code Quality, Security, Error Handling, etc.
     │   └─ All 11 categories PASSED
     ├─ Step 7: Handle Issues (If Any) (Variable)
     │   ├─ Create bug fixes (Stage 2 → 5a → 5b → 5c)
-    │   └─ RESTART Stage 6 from S6.P1 (COMPLETE restart)
+    │   └─ RESTART Stage 9 from S9.P1 (COMPLETE restart)
     └─ Step 8: Final Verification & README Update (15-30 min)
         ├─ Verify all steps complete
-        ├─ Update EPIC_README.md (Stage 6 complete)
+        ├─ Update EPIC_README.md (Stage 9 complete)
         └─ Update epic_lessons_learned.md
 ```
 
@@ -59,23 +59,23 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 | Sub-Stage | Steps | Time | Key Activities | Mandatory Gates |
 |-----------|-------|------|----------------|-----------------|
-| S6.P1 | 1-2 | 60-90 min | Pre-QC verification, Epic smoke testing (4 parts) | Part 4 data values |
-| S6.P2 | 3-5 | 2-3 hrs | 3 QC rounds (integration, consistency, success criteria) | All 3 rounds PASS |
-| S6.P3 | 6-8 | 1-2 hrs | Epic PR review (11 categories), bug fixes, final verification | All 11 categories PASS |
+| S9.P1 | 1-2 | 60-90 min | Pre-QC verification, Epic smoke testing (4 parts) | Part 4 data values |
+| S9.P2 | 3-5 | 2-3 hrs | 3 QC rounds (integration, consistency, success criteria) | All 3 rounds PASS |
+| S9.P3 | 6-8 | 1-2 hrs | Epic PR review (11 categories), bug fixes, final verification | All 11 categories PASS |
 
 ---
 
 ## Mandatory Restart Protocol 🔄
 
-**CRITICAL:** If ANY issues found during Stage 6:
+**CRITICAL:** If ANY issues found during Stage 9:
 
 ### Restart Steps:
 1. **Create bug fix** using bug fix workflow (Stage 2 → 5a → 5b → 5c)
-2. **RESTART Stage 6 from S6.P1** (cannot partially continue)
+2. **RESTART Stage 9 from S9.P1** (cannot partially continue)
 3. **Re-run ALL 8 steps:**
-   - S6.P1: Epic Smoke Testing (all 4 parts)
-   - S6.P2: QC Rounds 1, 2, 3
-   - S6.P3: Epic PR Review (all 11 categories)
+   - S9.P1: Epic Smoke Testing (all 4 parts)
+   - S9.P2: QC Rounds 1, 2, 3
+   - S9.P3: Epic PR Review (all 11 categories)
 4. **Document restart** in epic_lessons_learned.md
 
 ### Why COMPLETE Restart?
@@ -83,7 +83,7 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 - Cannot assume previous QC results still valid
 - Ensures epic-level quality maintained
 
-**Cannot proceed to Stage 7 without passing Stage 6 restart.**
+**Cannot proceed to Stage 10 without passing Stage 9 restart.**
 
 ---
 
@@ -98,7 +98,7 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 **Scope:** One feature at a time
 
-### Epic-Level Testing (Stage 6)
+### Epic-Level Testing (Stage 9)
 **Focus:** All features working TOGETHER as system
 **Tests:**
 - Smoke testing: Part 1-4 (adds Cross-Feature Integration)
@@ -109,16 +109,16 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 ---
 
-## Stage 6 Critical Rules
+## Stage 9 Critical Rules
 
 - ✅ ALWAYS use EVOLVED epic_smoke_test_plan.md (not original from Stage 1)
 - ✅ Verify DATA VALUES, not just file existence
 - ✅ Epic-level validation focuses on INTEGRATION (not individual features)
 - ✅ ALL 3 QC rounds are MANDATORY (cannot skip)
-- ✅ If ANY issues found → create bug fix → RESTART Stage 6 from S6.P1
+- ✅ If ANY issues found → create bug fix → RESTART Stage 9 from S9.P1
 - ✅ Epic PR review has 11 categories (all mandatory, Architecture MOST IMPORTANT)
 - ✅ Validate against ORIGINAL epic request (re-read {epic_name}.txt)
-- ✅ 100% test pass rate required throughout Stage 6
+- ✅ 100% test pass rate required throughout Stage 9
 - ✅ Zero tolerance for epic-level quality issues
 
 ---
@@ -178,7 +178,7 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 **Pass Criteria:** 100% of success criteria met, user goals achieved
 
-**If ANY ISSUES in any round:** Create bug fix → RESTART S6.P1
+**If ANY ISSUES in any round:** Create bug fix → RESTART S9.P1
 
 ---
 
@@ -198,7 +198,7 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 11. User Experience (epic-wide UX flow)
 
 **Pass Criteria:** ALL 11 categories PASSED
-**If FAIL:** Create bug fix → RESTART S6.P1
+**If FAIL:** Create bug fix → RESTART S9.P1
 
 ---
 
@@ -211,7 +211,7 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 ### ❌ Pitfall 2: Only Checking File Existence
 **Problem:** "File exists, so test passed"
-**Impact:** File has incorrect data, bugs escape to Stage 7
+**Impact:** File has incorrect data, bugs escape to Stage 10
 **Solution:** Verify DATA VALUES (not just file existence)
 
 ### ❌ Pitfall 3: Skipping QC Rounds
@@ -222,12 +222,12 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 ### ❌ Pitfall 4: Inline Bug Fixes
 **Problem:** "Small bug, I'll fix it inline without bug fix workflow"
 **Impact:** No documentation, fix not properly tested, may break other areas
-**Solution:** Create bug fix using bug fix workflow, RESTART S6.P1
+**Solution:** Create bug fix using bug fix workflow, RESTART S9.P1
 
 ### ❌ Pitfall 5: Partial Restart After Bug Fix
 **Problem:** "I'll just re-run the QC round that failed"
 **Impact:** Bug fix may have affected other areas, incomplete validation
-**Solution:** COMPLETE restart from S6.P1 (all 8 steps)
+**Solution:** COMPLETE restart from S9.P1 (all 8 steps)
 
 ### ❌ Pitfall 6: Feature-Level Focus
 **Problem:** Testing features individually instead of together
@@ -243,46 +243,46 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 ## Quick Checklist: "Am I Ready for Next Step?"
 
-**Before S6.P1:**
+**Before S9.P1:**
 - [ ] ALL features completed Stage 5e
 - [ ] No pending bug fixes
 - [ ] All unit tests passing (100%)
 - [ ] EVOLVED epic_smoke_test_plan.md exists
 
-**S6.P1 → S6.P2:**
+**S9.P1 → S9.P2:**
 - [ ] Pre-QC verification complete
 - [ ] Epic smoke testing PASSED (all 4 parts)
 - [ ] DATA VALUES verified (not just file existence)
 - [ ] Cross-feature integration tested
 
-**S6.P2 → S6.P3:**
+**S9.P2 → S9.P3:**
 - [ ] QC Round 1 PASSED (Cross-Feature Integration)
 - [ ] QC Round 2 PASSED (Epic Cohesion & Consistency)
 - [ ] QC Round 3 PASSED (End-to-End Success Criteria, 100%)
 - [ ] All QC findings resolved
 
-**S6.P3 → Stage 7:**
+**S9.P3 → Stage 10:**
 - [ ] Epic PR review PASSED (all 11 categories)
 - [ ] Architecture validation complete
-- [ ] No issues requiring bug fixes OR bug fixes complete and Stage 6 restarted
+- [ ] No issues requiring bug fixes OR bug fixes complete and Stage 9 restarted
 - [ ] Final verification complete
-- [ ] EPIC_README.md updated (Stage 6 complete)
+- [ ] EPIC_README.md updated (Stage 9 complete)
 - [ ] epic_lessons_learned.md updated
 
 ---
 
 ## File Outputs
 
-**S6.P1:**
+**S9.P1:**
 - Epic smoke testing results (documented in epic_lessons_learned.md)
 
-**S6.P2:**
+**S9.P2:**
 - QC Round 1, 2, 3 findings (documented in epic_lessons_learned.md)
 
-**S6.P3:**
+**S9.P3:**
 - Epic PR review results (documented in epic_lessons_learned.md)
 - Bug fixes (if issues found) - in bugfix_{priority}_{name}/ folders
-- Updated EPIC_README.md (Stage 6 complete)
+- Updated EPIC_README.md (Stage 9 complete)
 - Updated epic_lessons_learned.md (final insights)
 
 ---
@@ -291,29 +291,29 @@ S6.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 | Current Step | Guide to Read | Time Estimate |
 |--------------|---------------|---------------|
-| Starting Stage 6 | stages/s6/s6_p1_epic_smoke_testing.md | 60-90 min |
-| Step 1-2 | stages/s6/s6_p1_epic_smoke_testing.md | 60-90 min |
-| Step 3-5 | stages/s6/s6_p2_epic_qc_rounds.md | 2-3 hours |
-| Step 6-8 | stages/s6/s6_p4_epic_final_review.md | 1-2 hours |
-| Overview/navigation | stages/s6/s6_epic_final_qc.md (router) | 5 min |
+| Starting Stage 9 | stages/s9/s6_p1_epic_smoke_testing.md | 60-90 min |
+| Step 1-2 | stages/s9/s6_p1_epic_smoke_testing.md | 60-90 min |
+| Step 3-5 | stages/s9/s6_p2_epic_qc_rounds.md | 2-3 hours |
+| Step 6-8 | stages/s9/s6_p4_epic_final_review.md | 1-2 hours |
+| Overview/navigation | stages/s9/s6_epic_final_qc.md (router) | 5 min |
 
 ---
 
 ## Exit Conditions
 
-**Stage 6 is complete when:**
+**Stage 9 is complete when:**
 - [ ] All 8 steps complete (1-8)
 - [ ] Epic smoke testing PASSED (all 4 parts with data values)
 - [ ] All 3 QC rounds PASSED (integration, consistency, success criteria)
 - [ ] Epic PR review PASSED (all 11 categories)
-- [ ] All bug fixes complete (if any) + Stage 6 restarted
+- [ ] All bug fixes complete (if any) + Stage 9 restarted
 - [ ] epic_lessons_learned.md updated
-- [ ] EPIC_README.md shows Stage 6 complete
+- [ ] EPIC_README.md shows Stage 9 complete
 - [ ] All unit tests passing (100%)
 - [ ] Original epic goals validated and achieved
-- [ ] Ready to proceed to Stage 7 (Epic Cleanup)
+- [ ] Ready to proceed to Stage 10 (Epic Cleanup)
 
-**Next Stage:** Stage 7 (Epic Cleanup) - user testing, commit, archive
+**Next Stage:** Stage 10 (Epic Cleanup) - user testing, commit, archive
 
 ---
 

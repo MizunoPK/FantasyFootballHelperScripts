@@ -107,11 +107,11 @@
 - ❌ Not adding newly discovered integration points
 - ❌ Keeping outdated test scenarios
 
-### Stage 6: Epic Final QC
+### Stage 9: Epic Final QC
 - ❌ Skipping user testing (MANDATORY in Step 6)
 - ❌ Not looping back to 6a after bug fixes
 
-### Stage 7: Epic Cleanup
+### Stage 10: Epic Cleanup
 - ❌ Not running tests before committing
 - ❌ Only checking epic lessons_learned.md (must check ALL sources)
 - ❌ Moving features individually (move ENTIRE epic folder)

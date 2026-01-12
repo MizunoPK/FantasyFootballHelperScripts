@@ -1,11 +1,11 @@
-# Stage 6 Prompts: Epic Final QC
+# Stage 9 Prompts: Epic Final QC
 
 **Stage:** 6
 **Purpose:** Epic-level testing and validation
 
 ---
 
-## Starting Stage 6: Epic Final QC
+## Starting Stage 9: Epic Final QC
 
 **User says:** "Run epic QC" or "Validate the entire epic" or Agent detects ALL features complete Stage 5e
 
@@ -14,7 +14,7 @@
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s6/s6_p1_epic_smoke_testing.md` to ensure I validate the entire epic end-to-end...
+I'm reading `stages/s9/s6_p1_epic_smoke_testing.md` to ensure I validate the entire epic end-to-end...
 
 **The guide requires:**
 - **Epic Smoke Testing** (distinct from feature-level testing):
@@ -39,11 +39,11 @@ I'm reading `stages/s6/s6_p1_epic_smoke_testing.md` to ensure I validate the ent
   - Reflects ACTUAL implementation (not assumptions)
 - **QC RESTART if ANY issues**:
   - Create bug fixes for issues
-  - COMPLETELY RESTART Stage 6 after bug fixes
+  - COMPLETELY RESTART Stage 9 after bug fixes
 
 **Critical Distinction:**
 - Feature testing (Stage 5c): Tests feature in ISOLATION
-- Epic testing (Stage 6): Tests ALL features TOGETHER
+- Epic testing (Stage 9): Tests ALL features TOGETHER
 
 **Prerequisites I'm verifying:**
 ✅ ALL features show "Stage 5e complete" in EPIC_README.md
@@ -57,8 +57,8 @@ I'm reading `stages/s6/s6_p1_epic_smoke_testing.md` to ensure I validate the ent
 **I'll now execute the evolved epic_smoke_test_plan.md...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: S6.P1 - Epic Smoke Testing
-- Current Guide: stages/s6/s6_p1_epic_smoke_testing.md
+- Current Stage: S9.P1 - Epic Smoke Testing
+- Current Guide: stages/s9/s6_p1_epic_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Use EVOLVED test plan", "Verify OUTPUT DATA VALUES", "4-part smoke testing", "Cross-feature integration", "RESTART if ANY part fails"
 - Next Action: Execute Step 1 - Pre-QC Verification

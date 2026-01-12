@@ -1,15 +1,15 @@
-# S6: Epic-Level Final QC
-## S6.P2: Epic QC Rounds
+# S9: Epic-Level Final QC
+## S9.P2: Epic QC Rounds
 
 **Purpose:** Validate the epic as a cohesive whole through 3 systematic quality checks focusing on cross-feature integration and epic-wide consistency.
 
-**File:** `s6_p2_epic_qc_rounds.md`
+**File:** `s9_p2_epic_qc_rounds.md`
 
 **Stage Flow Context:**
 ```
-S6.P1 (Epic Smoke Testing) →
-→ [YOU ARE HERE: S6.P2 - Epic QC Rounds] →
-→ S6.P3 (User Testing) → S6.P4 (Epic Final Review) → S7
+S9.P1 (Epic Smoke Testing) →
+→ [YOU ARE HERE: S9.P2 - Epic QC Rounds] →
+→ S9.P3 (User Testing) → S9.P4 (Epic Final Review) → S10
 ```
 
 ---
@@ -24,13 +24,13 @@ S6.P1 (Epic Smoke Testing) →
    - Study restart protocol and common mistakes
 
 2. **Use the phase transition prompt** from `prompts/stage_6_prompts.md`
-   - Find "Starting S6: Epic Final QC" prompt (covers both 6a and 6b)
+   - Find "Starting S9: Epic Final QC" prompt (covers both 6a and 6b)
    - Acknowledge requirements
    - List critical requirements from this guide
 
 3. **Update EPIC_README.md Agent Status** with:
-   - Current Phase: S6.P2 - Epic QC Rounds
-   - Current Guide: `stages/s6/s6_p2_epic_qc_rounds.md`
+   - Current Phase: S9.P2 - Epic QC Rounds
+   - Current Guide: `stages/s9/s9_p2_epic_qc_rounds.md`
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "3 rounds MANDATORY", "If critical issues → RESTART S6a", "Minor issues can be fixed inline"
    - Next Action: QC Round 1 - Cross-Feature Integration
@@ -46,7 +46,7 @@ S6.P1 (Epic Smoke Testing) →
 ## Quick Start
 
 **What is this guide?**
-Epic-level QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (S5.P6), these rounds focus on epic-wide patterns and architectural consistency. See `reference/qc_rounds_pattern.md` for universal workflow.
+Epic-level QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (S10.P2), these rounds focus on epic-wide patterns and architectural consistency. See `reference/qc_rounds_pattern.md` for universal workflow.
 
 **When do you use this guide?**
 - After STAGE_6a complete (Epic Smoke Testing passed)
@@ -92,7 +92,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
    - Restart destination: S6a (Epic Smoke Testing)
 
 3. ⚠️ Focus on EPIC-LEVEL validation (not feature-level)
-   - Feature-level QC done in S5.P6
+   - Feature-level QC done in S10.P2
    - Epic-level focuses on: Integration, consistency, cohesion
    - Compare ACROSS ALL features (not individual features)
 
@@ -128,7 +128,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 
 **Agent Status updated:**
 - [ ] EPIC_README.md shows STAGE_6a complete
-- [ ] Current guide: stages/s6/epic_qc_rounds.md
+- [ ] Current guide: stages/s9/epic_qc_rounds.md
 
 **Original epic request available:**
 - [ ] Have access to {epic_name}.txt

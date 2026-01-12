@@ -37,8 +37,8 @@ Spec Validation is complete when the spec is re-validated against epic from scra
 - Stage 2 (spec creation)
 - Stage 5a (28 verification iterations)
 - Stage 5b (implementation)
-- S5.P5-S5.P6 (smoke testing and QC rounds)
-- **User caught it in S5.P7**
+- S10.P1-S10.P2 (smoke testing and QC rounds)
+- **User caught it in S10.P3**
 
 **The Problem:** Once spec.md is written, all subsequent stages trust it as gospel truth and never question it against the original epic.
 

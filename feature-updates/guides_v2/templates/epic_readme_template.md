@@ -28,7 +28,7 @@
 
 **Stage Workflow:**
 ```
-Stage 1 → Stage 2 → Stage 3 → Stage 4 → Stage 5 → Stage 6 → Stage 7
+Stage 1 → Stage 2 → Stage 3 → Stage 4 → Stage 5 → Stage 9 → Stage 10
   ↓         ↓         ↓         ↓         ↓         ↓         ↓
 Epic    Features  Sanity   Testing   Impl     Epic      Done
 Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
@@ -104,14 +104,14 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 - ✅ = Complete
 - ◻️ = Not started or in progress
 
-**Stage 6 - Epic Final QC:** {✅ COMPLETE / ◻️ NOT STARTED / 🔄 IN PROGRESS}
+**Stage 9 - Epic Final QC:** {✅ COMPLETE / ◻️ NOT STARTED / 🔄 IN PROGRESS}
 - Epic smoke testing passed: {✅/◻️}
 - Epic QC rounds passed: {✅/◻️}
 - Epic PR review passed: {✅/◻️}
 - End-to-end validation passed: {✅/◻️}
 - Date completed: {YYYY-MM-DD or "Not complete"}
 
-**Stage 7 - Epic Cleanup:** {✅ COMPLETE / ◻️ NOT STARTED / 🔄 IN PROGRESS}
+**Stage 10 - Epic Cleanup:** {✅ COMPLETE / ◻️ NOT STARTED / 🔄 IN PROGRESS}
 - Final commits made: {✅/◻️}
 - Epic moved to done/ folder: {✅/◻️}
 - Date completed: {YYYY-MM-DD or "Not complete"}
@@ -208,13 +208,13 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 - [ ] Feature 3: 5a→5b→5c→5d→5e complete
 - [ ] {List all features}
 
-**Stage 6 - Epic Final QC:**
+**Stage 9 - Epic Final QC:**
 - [ ] Epic smoke testing passed (all 4 parts)
 - [ ] Epic QC rounds passed (all 3 rounds)
 - [ ] Epic PR review passed (all 11 categories)
 - [ ] End-to-end validation vs original request passed
 
-**Stage 7 - Epic Cleanup:**
+**Stage 10 - Epic Cleanup:**
 - [ ] All unit tests passing (100%)
 - [ ] Documentation verified complete
 - [ ] Guides updated based on lessons learned (if needed)
@@ -239,7 +239,7 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 
 ## Epic Completion Summary
 
-{This section filled out in Stage 7}
+{This section filled out in Stage 10}
 
 **Completion Date:** {YYYY-MM-DD}
 **Start Date:** {YYYY-MM-DD}

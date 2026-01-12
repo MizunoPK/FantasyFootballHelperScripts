@@ -1,15 +1,15 @@
-# S6: Epic-Level Final QC
-## S6.P1: Epic Smoke Testing
+# S9: Epic-Level Final QC
+## S9.P1: Epic Smoke Testing
 
 **Purpose:** Validate the complete epic end-to-end with ALL features working together through mandatory 4-part smoke testing.
 
-**File:** `s6_p1_epic_smoke_testing.md`
+**File:** `s9_p1_epic_smoke_testing.md`
 
 **Stage Flow Context:**
 ```
 S5 (ALL features complete) →
-→ [YOU ARE HERE: S6.P1 - Epic Smoke Testing] →
-→ S6.P2 (Epic QC Rounds) → S6.P3 (User Testing) → S6.P4 (Epic Final Review) → S7
+→ [YOU ARE HERE: S9.P1 - Epic Smoke Testing] →
+→ S9.P2 (Epic QC Rounds) → S9.P3 (User Testing) → S9.P4 (Epic Final Review) → S10
 ```
 
 ---
@@ -24,13 +24,13 @@ S5 (ALL features complete) →
    - Study common mistakes to avoid
 
 2. **Use the phase transition prompt** from `prompts/stage_6_prompts.md`
-   - Find "Starting S6: Epic Final QC" prompt
+   - Find "Starting S9: Epic Final QC" prompt
    - Acknowledge critical requirements
    - List requirements from this guide
 
 3. **Update EPIC_README.md Agent Status** with:
-   - Current Phase: S6.P1 - Epic Smoke Testing
-   - Current Guide: `stages/s6/s6_p1_epic_smoke_testing.md`
+   - Current Phase: S9.P1 - Epic Smoke Testing
+   - Current Guide: `stages/s9/s9_p1_epic_smoke_testing.md`
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "4 parts MANDATORY", "Use EVOLVED test plan", "Verify DATA VALUES", "Restart if ANY fails"
    - Next Action: Execute Step 1 - Pre-QC Verification
@@ -46,10 +46,10 @@ S5 (ALL features complete) →
 ## Quick Start
 
 **What is this guide?**
-Epic-level smoke testing validates that ALL features work together as a cohesive system. Unlike feature-level testing (S5c), this tests cross-feature integration and epic-wide workflows. See `reference/smoke_testing_pattern.md` for universal patterns.
+Epic-level smoke testing validates that ALL features work together as a cohesive system. Unlike feature-level testing (S7 (Testing & Review)), this tests cross-feature integration and epic-wide workflows. See `reference/smoke_testing_pattern.md` for universal patterns.
 
 **When do you use this guide?**
-- After ALL features have completed S5e
+- After ALL features have completed S8.P2 (Epic Testing Update)
 - No pending bug fixes
 - epic_smoke_test_plan.md has been evolved through Stages 1, 4, and 5e
 - Ready to validate epic as a whole
@@ -80,14 +80,14 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 │ EPIC-SPECIFIC RULES - Add to EPIC_README Agent Status       │
 └─────────────────────────────────────────────────────────────┘
 
-1. ⚠️ ALL features MUST complete S5e before starting
-   - Verify EVERY feature shows "S5e complete" in EPIC_README.md
+1. ⚠️ ALL features MUST complete S8.P2 (Epic Testing Update) before starting
+   - Verify EVERY feature shows "S8.P2 (Epic Testing Update) complete" in EPIC_README.md
    - Do NOT start if any feature is incomplete
 
 2. ⚠️ Use EVOLVED epic_smoke_test_plan.md (NOT original)
    - Plan evolved through Stages 1 → 4 → 5e updates
    - Reflects ACTUAL implementation (not initial assumptions)
-   - Contains integration scenarios added during S5e
+   - Contains integration scenarios added during S8.P2 (Epic Testing Update)
 
 3. ⚠️ Epic testing ≠ Feature testing
    - Feature testing (5c): Tests feature in isolation
@@ -120,16 +120,16 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 **Before starting Epic Smoke Testing (STAGE_6a), verify:**
 
 **ALL features complete:**
-- [ ] EVERY feature shows "S5e complete" in EPIC_README.md Epic Progress Tracker
-- [ ] All features show ✅ in S5e column
+- [ ] EVERY feature shows "S8.P2 (Epic Testing Update) complete" in EPIC_README.md Epic Progress Tracker
+- [ ] All features show ✅ in S8.P2 (Epic Testing Update) column
 - [ ] No features with "In progress" or "Not started" status
 
 **No pending bug fixes:**
 - [ ] No `bugfix_{priority}_{name}/` folders with incomplete status
-- [ ] If bug fix folders exist, they're at S5c (complete)
+- [ ] If bug fix folders exist, they're at S7 (Testing & Review) (complete)
 
 **Epic smoke test plan evolved:**
-- [ ] epic_smoke_test_plan.md shows "Last Updated" from RECENT S5e
+- [ ] epic_smoke_test_plan.md shows "Last Updated" from RECENT S8.P2 (Epic Testing Update)
 - [ ] Update History table shows ALL features contributed updates
 - [ ] Test scenarios reflect ACTUAL implementation
 
@@ -160,7 +160,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 └─────────────────────────────────────────────────────────────┘
 
 STEP 1: Pre-QC Verification
-   ↓ Verify all features at S5e
+   ↓ Verify all features at S8.P2 (Epic Testing Update)
    ↓ Read evolved epic_smoke_test_plan.md
    ↓ Read original epic request
    ↓
@@ -202,7 +202,7 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
 
 ## STEP 1: Pre-QC Verification
 
-**Objective:** Verify epic is ready for S6 validation.
+**Objective:** Verify epic is ready for S9 validation.
 
 ### Step 1.1: Verify All Features Complete
 
@@ -210,25 +210,25 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
 
 ```markdown
 ## Epic Progress Tracker
-| Feature | S1 | S2 | S3 | S4 | S5a | S5b | S5c | S5d | S5e |
+| Feature | S1 | S2 | S3 | S4 | S5a | S6 | S7 (Testing & Review) | S8.P1 (Cross-Feature Alignment) | S8.P2 (Epic Testing Update) |
 |---------|---------|---------|---------|---------|----------|----------|----------|----------|----------|
 | feature_01 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | feature_02 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | feature_03 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 ```
 
-**Verify:** EVERY feature shows ✅ in S5e column.
+**Verify:** EVERY feature shows ✅ in S8.P2 (Epic Testing Update) column.
 
 **If ANY feature incomplete:** STOP S6a, complete the incomplete feature first.
 
 ### Step 1.2: Verify No Pending Bug Fixes
 
-Check epic folder for any `bugfix_{priority}_{name}/` folders. If found, verify they're complete (S5c done).
+Check epic folder for any `bugfix_{priority}_{name}/` folders. If found, verify they're complete (S7 (Testing & Review) done).
 
 ### Step 1.3: Read Evolved Epic Smoke Test Plan
 
 **Read `epic_smoke_test_plan.md`:**
-- Check "Last Updated" timestamp (should be recent from S5e)
+- Check "Last Updated" timestamp (should be recent from S8.P2 (Epic Testing Update))
 - Review "Update History" table (all features should have entries)
 - Identify all test scenarios to execute
 - Note integration points between features
@@ -543,7 +543,7 @@ print("✅ Interface compatibility verified")
 - Next stage: Epic QC Rounds (S6b)
 
 **Critical Success Factors:**
-- Verify ALL features complete S5e first
+- Verify ALL features complete S8.P2 (Epic Testing Update) first
 - Use evolved test plan (reflects actual implementation)
 - Verify DATA VALUES (not just structure)
 - Test cross-feature integration (Part 4)

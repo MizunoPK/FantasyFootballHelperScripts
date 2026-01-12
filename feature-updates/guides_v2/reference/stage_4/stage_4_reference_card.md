@@ -175,7 +175,7 @@ python run_league_helper.py --mode draft
 
 ### ❌ Pitfall 1: Copying Stage 1 Placeholders
 **Problem:** "Stage 1 test plan looks good, I'll keep it"
-**Impact:** Tests are vague, can't verify epic success in Stage 6
+**Impact:** Tests are vague, can't verify epic success in Stage 9
 **Solution:** REPLACE placeholders with concrete scenarios from specs
 
 ### ❌ Pitfall 2: Vague Success Criteria
@@ -185,7 +185,7 @@ python run_league_helper.py --mode draft
 
 ### ❌ Pitfall 3: Missing Integration Points
 **Problem:** "I'll just test each feature individually"
-**Impact:** Integration bugs slip through, fail in Stage 6
+**Impact:** Integration bugs slip through, fail in Stage 9
 **Solution:** Identify ALL integration points, create integration tests
 
 ### ❌ Pitfall 4: Not Marking as "Stage 4 Version"

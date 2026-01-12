@@ -165,12 +165,12 @@ S5: Feature Implementation
     → S5.P3.I1: Preparation (iterations 17-22)
     → S5.P3.I2: Gates Part 1 (iterations 23, 23a)
     → S5.P3.I3: Gates Part 2 (iterations 24, 25)
-  S5.P4: Execution
-  S5.P5: Smoke Testing
-  S5.P6: QC Rounds
-  S5.P7: Final Review
-  S5.P8: Cross-Feature Alignment
-  S5.P9: Epic Testing Update
+  S9: Execution
+  S10.P1: Smoke Testing
+  S10.P2: QC Rounds
+  S10.P3: Final Review
+  S8.P1: Cross-Feature Alignment
+  S8.P2: Epic Testing Update
 ```
 
 **Key Changes:**
@@ -178,9 +178,9 @@ S5: Feature Implementation
    - Part 5.1.1 → S5.P1
    - Part 5.1.2 → S5.P2
    - Part 5.1.3 → S5.P3
-   - Part 5.3.1 → S5.P5
-   - Part 5.3.2 → S5.P6
-   - Part 5.3.3 → S5.P7
+   - Part 5.3.1 → S10.P1
+   - Part 5.3.2 → S10.P2
+   - Part 5.3.3 → S10.P3
 
 2. **Eliminate 4th level (Steps become I# files):**
    - Step 5.1.3.1 (Preparation) → S5.P3.I1 file
@@ -257,11 +257,11 @@ stages/s5/
 
 ---
 
-### Stage 6: Epic Final QC
+### Stage 9: Epic Final QC
 
 **Current:**
 ```
-Stage 6: Epic Final QC
+Stage 9: Epic Final QC
   Phase 6.1: Epic Smoke Testing
   Phase 6.2: Epic QC Rounds
   Phase 6.3: User Testing
@@ -270,16 +270,16 @@ Stage 6: Epic Final QC
 
 **New:**
 ```
-S6: Epic Final QC
-  S6.P1: Epic Smoke Testing
-  S6.P2: Epic QC Rounds
-  S6.P3: User Testing
-  S6.P4: Epic Final Review
+S9: Epic Final QC
+  S9.P1: Epic Smoke Testing
+  S9.P2: Epic QC Rounds
+  S9.P3: User Testing
+  S9.P4: Epic Final Review
 ```
 
 **Files:**
 ```
-stages/s6/
+stages/s9/
   s6_epic_final_qc.md (router/overview)
   s6_p1_epic_smoke_testing.md
   s6_p2_epic_qc_rounds.md
@@ -295,23 +295,23 @@ stages/s6/
 
 ---
 
-### Stage 7: Epic Cleanup
+### Stage 10: Epic Cleanup
 
 **Current:**
 ```
-Stage 7: Epic Cleanup
+Stage 10: Epic Cleanup
   Phase 7.1: Guide Update Workflow
 ```
 
 **New:**
 ```
-S7: Epic Cleanup
-  S7.P1: Guide Update Workflow
+S10: Epic Cleanup
+  S10.P1: Guide Update Workflow
 ```
 
 **Files:**
 ```
-stages/s7/
+stages/s10/
   s7_epic_cleanup.md (main file)
   s7_p1_guide_update_workflow.md
 ```
@@ -398,8 +398,8 @@ feature-updates/guides_v2/
 - `stages/stage_3/` → `stages/s3/`
 - `stages/stage_4/` → `stages/s4/`
 - `stages/stage_5/` → `stages/s5/`
-- `stages/stage_6/` → `stages/s6/`
-- `stages/stage_7/` → `stages/s7/`
+- `stages/stage_6/` → `stages/s9/`
+- `stages/stage_7/` → `stages/s10/`
 
 ---
 
@@ -509,7 +509,7 @@ Complete Part 5.3.1 before moving to Part 5.3.2.
 ```markdown
 After completing S5.P1, proceed to S5.P2.
 See `stages/s5/s5_p3_i1_preparation.md` for iterations 17-22.
-Complete S5.P5 (Smoke Testing) before moving to S5.P6 (QC Rounds).
+Complete S7.P1 before moving to S7.P2.
 Start with S5.P1.I1 (Requirements Analysis) for iterations 1-3.
 ```
 

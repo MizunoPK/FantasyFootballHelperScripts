@@ -24,7 +24,7 @@ These documents are systematically collected and applied at multiple points in t
 
 **Location:** `feature_XX_{name}/debugging/`
 
-**Created During:** S5.P5 (Smoke Testing) or S5.P6 (QC Rounds) when bugs are discovered
+**Created During:** S7.P1 or S7.P2 when bugs are discovered
 
 **Workflow:**
 1. Issues discovered during testing
@@ -70,7 +70,7 @@ feature_XX_{name}/debugging/
 
 **Location:** `{epic_name}/debugging/`
 
-**Created During:** S6.P1 (Epic Smoke Testing) or S6.P2 (Epic QC Rounds) or Stage 7 (User Testing)
+**Created During:** S9.P1 (Epic Smoke Testing) or S9.P2 (Epic QC Rounds) or Stage 10 (User Testing)
 
 **Workflow:** Same as feature-level but for epic integration issues
 
@@ -93,7 +93,7 @@ feature_XX_{name}/debugging/
 
 ## Where Debugging Lessons Are Aggregated
 
-### S5.P7: Final Review (Per Feature)
+### S10.P3: Final Review (Per Feature)
 
 **File Updated:** `feature_XX_{name}/lessons_learned.md`
 
@@ -108,7 +108,7 @@ feature_XX_{name}/debugging/
 
 ### Debugging (If Occurred):
 - Issues discovered: {count}
-- Testing stage: {S5.P5 / S5.P6}
+- Testing stage: {S10.P1 / S10.P2}
 - Total time: {hours}
 - Key insights: See debugging/lessons_learned.md
 - Process gaps: See debugging/process_failure_analysis.md
@@ -125,7 +125,7 @@ feature_XX_{name}/debugging/
 
 ---
 
-### S6.P3: Epic Final Review (Epic Level)
+### S9.P3: Epic Final Review (Epic Level)
 
 **File Updated:** `epic_lessons_learned.md`
 
@@ -139,7 +139,7 @@ feature_XX_{name}/debugging/
 
 **Debugging (If Occurred):**
 - Issues discovered: {count}
-- Testing stage: S5.P5 / S5.P6
+- Testing stage: S10.P1 / S10.P2
 - Total time: {hours}
 - Key insights: {from debugging/lessons_learned.md}
 - Process gaps: {from debugging/process_failure_analysis.md}
@@ -164,11 +164,11 @@ feature_XX_{name}/debugging/
 
 **Epic-Level Debugging Section:**
 ```markdown
-## Stage 6 Lessons Learned (Epic Final QC)
+## Stage 9 Lessons Learned (Epic Final QC)
 
 **Debugging (If Occurred at Epic Level):**
 - Issues discovered: {count}
-- Testing stage: S6.P1 / 6b
+- Testing stage: S9.P1 / 6b
 - Total time: {hours}
 - Key insights: {from {epic_name}/debugging/lessons_learned.md}
 - Process gaps: {from {epic_name}/debugging/process_failure_analysis.md}
@@ -179,13 +179,13 @@ feature_XX_{name}/debugging/
 
 ## Where Debugging Lessons Are Applied to Guides
 
-### S7.P1: Guide Update from Lessons Learned (MANDATORY)
+### S10.P1: Guide Update from Lessons Learned (MANDATORY)
 
 **This is where ALL debugging lessons are systematically applied to guides**
 
-**Note:** Previously Stage 7 Step 4, now a dedicated S7.P1 workflow with user approval for each proposal.
+**Note:** Previously Stage 10 Step 4, now a dedicated S10.P1 workflow with user approval for each proposal.
 
-**Complete Workflow Guide:** `stages/s7/s7_p1_guide_update_workflow.md`
+**Complete Workflow Guide:** `stages/s10/s7_p1_guide_update_workflow.md`
 
 **Process Summary:**
 
@@ -219,9 +219,9 @@ feature_XX_{name}/debugging/
 - debugging/process_failure_analysis.md → P1 (High) or P2 (Medium)
 - lessons_learned.md "Guide Improvements Needed" → P2 (Medium) or P3 (Low)
 
-**Why this matters:** Debugging lessons are the MOST ACTIONABLE because they come from actual bugs that reached testing. S7.P1 ensures these lessons get prioritized (P0/P1) and user-approved before being applied to guides.
+**Why this matters:** Debugging lessons are the MOST ACTIONABLE because they come from actual bugs that reached testing. S10.P1 ensures these lessons get prioritized (P0/P1) and user-approved before being applied to guides.
 
-**See:** `stages/s7/s7_p1_guide_update_workflow.md` for complete 9-step workflow
+**See:** `stages/s10/s7_p1_guide_update_workflow.md` for complete 9-step workflow
 
 ---
 
@@ -251,7 +251,7 @@ feature_XX_{name}/debugging/
 - **Output:** Specific process gaps identified
 
 **2. guide_update_recommendations.md**
-- **Audience:** Guide maintainers (S7.P1 agents)
+- **Audience:** Guide maintainers (S10.P1 agents)
 - **Purpose:** ACTIONABLE guide improvements
 - **Content:** Exact text proposals with priority (per-issue from Phase 4b + patterns from Phase 5)
 - **Created:** Incrementally (Phase 4b adds per-issue, Phase 5 appends patterns)
@@ -267,7 +267,7 @@ feature_XX_{name}/debugging/
 
 ## Verification That Lessons Are Applied
 
-### During S7.P1 (Guide Update Workflow)
+### During S10.P1 (Guide Update Workflow)
 
 Agents MUST verify (as part of guide_update_tracking.md):
 ```markdown
@@ -291,7 +291,7 @@ Agents MUST verify (as part of guide_update_tracking.md):
 
 ### Scenario: Feature 02 has 2 bugs during smoke testing
 
-**S5.P5 Part 3:**
+**S10.P1 Part 3:**
 - Bugs discovered → Add to ISSUES_CHECKLIST.md
 - Enter debugging protocol
 
@@ -305,23 +305,23 @@ Agents MUST verify (as part of guide_update_tracking.md):
 - **Step 5:** Loop back to testing with cross-pattern analysis
   - Analyze why bugs got through Stage 5a (TODO creation)
   - Analyze why bugs got through Stage 5b (Implementation)
-  - Analyze why bugs got through S5.P5 (Smoke testing)
+  - Analyze why bugs got through S10.P1 (Smoke testing)
   - Identify patterns across Issue #1 and Issue #2
   - Create process_failure_analysis.md with cross-bug patterns
   - Append 3 pattern-based recommendations to guide_update_recommendations.md
   - Create lessons_learned.md with technical insights
   - **Total guide recommendations:** 5 (2 per-issue from Phase 4b + 3 pattern-based from Phase 5)
 
-**S5.P7 (Final Review):**
+**S7.P3:**
 - Update feature_02_{name}/lessons_learned.md
 - Add brief debugging summary
 
-**S6.P3 (Epic Final Review):**
+**S9.P3 (Epic Final Review):**
 - Update epic_lessons_learned.md
 - Aggregate Feature 02 debugging insights
 - Include in cross-feature patterns
 
-**S7.P1 (Guide Update from Lessons Learned):**
+**S10.P1 (Guide Update from Lessons Learned):**
 - Find debugging/guide_update_recommendations.md
 - Extract 5 critical updates (map to P0/P1 priority)
 - Create GUIDE_UPDATE_PROPOSAL.md with proposals
@@ -337,14 +337,14 @@ Agents MUST verify (as part of guide_update_tracking.md):
 
 **Debugging lessons are collected at:**
 - Stage 5c (feature debugging)
-- Stage 6 (epic debugging)
+- Stage 9 (epic debugging)
 
 **Debugging lessons are aggregated at:**
-- S5.P7 (feature lessons_learned.md)
-- S6.P3 (epic_lessons_learned.md)
+- S10.P3 (feature lessons_learned.md)
+- S9.P3 (epic_lessons_learned.md)
 
 **Debugging lessons are applied at:**
-- **S7.P1 (Guide Update from Lessons Learned)** ← ONLY place where guides are updated
+- **S10.P1 (Guide Update from Lessons Learned)** ← ONLY place where guides are updated
 
 **Critical Requirements:**
 1. Must find ALL debugging files (3 types × N features + epic)

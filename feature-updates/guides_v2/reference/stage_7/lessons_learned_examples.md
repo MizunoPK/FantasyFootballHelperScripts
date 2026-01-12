@@ -1,14 +1,14 @@
-# Lessons Learned Examples - S7.P1
+# Lessons Learned Examples - S10.P1
 
 **Purpose:** Examples and guidance for reading and applying lessons learned
-**When to use:** S7.P1 (Guide Update from Lessons Learned)
-**Main Guide:** `stages/s7/s7_p1_guide_update_workflow.md`
+**When to use:** S10.P1 (Guide Update from Lessons Learned)
+**Main Guide:** `stages/s10/s7_p1_guide_update_workflow.md`
 
 ---
 
 ## Overview
 
-S7.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned files and creating user-approved guide update proposals. This reference provides:
+S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned files and creating user-approved guide update proposals. This reference provides:
 - Examples of what lessons learned files look like
 - How to extract guide improvements from lessons
 - How lessons map to priority levels (P0-P3)
@@ -179,7 +179,7 @@ S7.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned f
 - Should have added integration test during implementation
 
 **Guide Improvements Needed:**
-- stages/s5/s5_p4_execution.md: Add checkpoint for integration tests
+- stages/s9/s6_execution.md: Add checkpoint for integration tests
 - Section: "Phase 3: Implementation Verification"
 - Update: "After unit tests pass, create at least 1 integration test for cross-module workflows"
 
@@ -359,7 +359,7 @@ Combine ALL lessons from ALL files:
   - Update: Add CSV documentation requirement
 
 □ Lesson 5: Integration test checkpoint
-  - Guide: stages/s5/s5_p4_execution.md
+  - Guide: stages/s9/s6_execution.md
   - Section: Phase 3
   - Update: Add integration test checkpoint
 

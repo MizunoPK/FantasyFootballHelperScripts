@@ -62,8 +62,8 @@ Missed Requirement Protocol treats missing scope as real features - either creat
   - During Stage 5b (Implementation)
   - During Stage 5c (QA - smoke testing, QC rounds)
   - During debugging protocol (while investigating issues)
-  - During Stage 6 (Epic-level testing)
-  - During Stage 7 (User testing)
+  - During Stage 9 (Epic-level testing)
+  - During Stage 10 (User testing)
 - You KNOW what needs to be built (solution is clear, just wasn't in original spec)
 - Need to add missing functionality as a proper feature
 - Example: "We forgot to add player injury status tracking"
@@ -206,7 +206,7 @@ The missed requirement protocol consists of 4 phases (plus special case):
 
 ---
 
-### SPECIAL CASE: Discovery During Epic Testing (Stage 6/7)
+### SPECIAL CASE: Discovery During Epic Testing (Stage 9/7)
 **See:** `missed_requirement/stage_6_7_special.md`
 
 **Purpose:** Handle missed requirements discovered during epic testing with special restart protocol
@@ -215,7 +215,7 @@ The missed requirement protocol consists of 4 phases (plus special case):
 - Complete planning (Stage 2/3/4) as usual
 - Complete ALL remaining features (entire Stage 5 sequence)
 - Implement new/updated feature (full Stage 5)
-- **RESTART epic-level testing from S6.P1 Step 1**
+- **RESTART epic-level testing from S9.P1 Step 1**
 
 **Output:** Epic testing restarted with new feature included
 
@@ -264,7 +264,7 @@ Planning complete, need to align features?
 └─ Read missed_requirement/realignment.md (PHASE 3 & 4)
    └─ Stage 3 sanity check + Stage 4 test plan update → Resume work
 
-Discovered during Stage 6 or 7?
+Discovered during Stage 9 or 7?
 └─ Read missed_requirement/stage_6_7_special.md (SPECIAL CASE)
    └─ Complete all features → Restart epic testing
 ```
@@ -284,7 +284,7 @@ Discovered during Stage 6 or 7?
 
 ---
 
-### Scenario 2: Discovered During QC Rounds (S5.P6)
+### Scenario 2: Discovered During QC Rounds (S10.P2)
 
 **Actions:**
 1. Use discovery.md to present options to user
@@ -296,7 +296,7 @@ Discovered during Stage 6 or 7?
 
 ---
 
-### Scenario 3: Discovered During Epic Testing (S6.P2)
+### Scenario 3: Discovered During Epic Testing (S9.P2)
 
 **Actions:**
 1. Use discovery.md to present options to user
@@ -305,7 +305,7 @@ Discovered during Stage 6 or 7?
 4. **Use stage_6_7_special.md for special restart protocol**
 5. Complete all remaining features
 6. Implement new/updated feature
-7. **RESTART epic testing from S6.P1 Step 1**
+7. **RESTART epic testing from S9.P1 Step 1**
 
 ---
 
@@ -320,7 +320,7 @@ Discovered during Stage 6 or 7?
 5. **Implementation:** Feature implemented later in sequence
 
 **Special Case:**
-- If discovered during Stage 6/7: Complete all features → Restart epic testing from S6.P1
+- If discovered during Stage 9/7: Complete all features → Restart epic testing from S9.P1
 
 **Key Principle:** Missed requirements are REAL features - treated with same rigor, proper planning, epic alignment
 

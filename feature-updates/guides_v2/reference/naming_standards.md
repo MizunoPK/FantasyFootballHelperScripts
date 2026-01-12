@@ -82,7 +82,7 @@ Content names vary by what the item actually is, not by its hierarchical level.
 - **Phase** - Major functional subdivision (often Level 2)
 - **Round** - Repeated cycles (Stage 5.1 uses for Level 3)
 - **Part** - Smaller divisions within phases or rounds
-- **Task** - Specific work items (Stage 6 uses for Level 3)
+- **Task** - Specific work items (Stage 9 uses for Level 3)
 - **Step** - Sequential actions (can be various levels)
 - **Iteration** - Verification cycles (NOT part of hierarchy - see below)
 - **Gate** - Quality checkpoints (NOT part of hierarchy - see below)
@@ -120,8 +120,8 @@ Content names at deeper levels are **contextual** - chosen based on what makes s
 
 **Key Insight:** The same Level 3 position might be called:
 - "Part 5.1.1" (in Stage 5.1)
-- "S5.P5" (in Stage 5.3)
-- "Task 6.1.1" (in Stage 6)
+- "S10.P1" (in Stage 5.3)
+- "Task 6.1.1" (in Stage 9)
 
 All are **Level 3 items**, just named differently based on context.
 
@@ -231,11 +231,11 @@ All are **Level 3 items**, just named differently based on context.
   5.2 (L2) - S5.P2: Implementation Execution
 
   5.3 (L2) - S5.P3: Post-Implementation
-    5.3.1 (L3) - S5.P5: Smoke Testing
-    5.3.2 (L3) - S5.P6: QC Rounds
-    5.3.3 (L3) - S5.P7: Final Review
+    5.3.1 (L3) - S10.P1: Smoke Testing
+    5.3.2 (L3) - S10.P2: QC Rounds
+    5.3.3 (L3) - S10.P3: Final Review
 
-  5.4 (L2) - S5.P4: Post-Feature Alignment
+  5.4 (L2) - S9: Post-Feature Alignment
 
   5.5 (L2) - Phase 5.5: Post-Feature Testing Update
 ```
@@ -243,23 +243,23 @@ All are **Level 3 items**, just named differently based on context.
 
 ---
 
-### Stage 6: Epic-Level Final QC
+### Stage 9: Epic-Level Final QC
 ```
 6 (L1) - Epic-Level Final QC
 
-  6.1 (L2) - S6.P1: Epic Smoke Testing
+  6.1 (L2) - S9.P1: Epic Smoke Testing
     6.1.1 (L3) - Pre-QC Verification
     6.1.2 (L3) - Epic Smoke Testing Execution
 
-  6.2 (L2) - S6.P2: Epic QC Rounds
+  6.2 (L2) - S9.P2: Epic QC Rounds
     6.2.1 (L3) - QC Round 1
     6.2.2 (L3) - QC Round 2
     6.2.3 (L3) - QC Round 3
 
-  6.3 (L2) - S6.P3: User Testing
+  6.3 (L2) - S9.P3: User Testing
     6.3.1 (L3) - User Testing & Bug Fixes
 
-  6.4 (L2) - S6.P4: Epic Final Review
+  6.4 (L2) - S9.P4: Epic Final Review
     6.4.1 (L3) - Epic PR Review
     6.4.2 (L3) - Validate Against Epic Request
     6.4.3 (L3) - Final Verification
@@ -270,10 +270,10 @@ All are **Level 3 items**, just named differently based on context.
 
 ---
 
-### Stage 7: Epic Cleanup
+### Stage 10: Epic Cleanup
 ```
 7 (L1) - Epic Cleanup
-  7.1 (L2) - S7.P1: Guide Update Workflow
+  7.1 (L2) - S10.P1: Guide Update Workflow
 ```
 **Levels used:** 2
 
@@ -306,16 +306,16 @@ Format: `{stage_name}.md` (no notation needed, implied by directory)
 **Level 2 (Phases):**
 ```
 stages/s2/s2_p1_research.md
-stages/s5/s5_p4_execution.md
-stages/s7/s7_p1_guide_update_workflow.md
+stages/s9/s6_execution.md
+stages/s10/s7_p1_guide_update_workflow.md
 ```
 Format: `phase_{X.Y}_{name}.md`
 
 **Level 3 (Parts/Tasks):**
 ```
 stages/s5/s5_p1_planning_round1.md
-stages/s5/s5_p5_smoke_testing.md
-stages/s6/s6_p1_epic_smoke_testing.md
+stages/s10/s7_p1_smoke_testing.md
+stages/s9/s6_p1_epic_smoke_testing.md
 ```
 Format: `part_{X.Y.Z}_{name}.md` or `phase_{X.Y}_{name}.md` (depending on context)
 
@@ -333,7 +333,7 @@ Format: `part_{X.Y.Z.W}_{name}.md`
 ```
 stages/s2/s2_feature_deep_dive.md (routes to phase_2.1, phase_2.2, phase_2.3)
 stages/s5/phase_5.1_implementation_planning.md (routes to parts 5.1.1-5.1.3)
-stages/s6/s6_epic_final_qc.md (routes to phases 6.1-6.4)
+stages/s9/s6_epic_final_qc.md (routes to phases 6.1-6.4)
 ```
 
 Format: Use the parent item's name (without subdivisions listed)
@@ -381,8 +381,8 @@ Use hierarchy levels to structure headers within guide files:
 ```
 
 ```markdown
-# Stage 6: Epic-Level Final QC
-## S6.P2: Epic QC Rounds
+# Stage 9: Epic-Level Final QC
+## S9.P2: Epic QC Rounds
 ### 6.2.1: QC Round 1 (Cross-Feature Integration)
 ```
 
@@ -414,7 +414,7 @@ Use hierarchy levels to structure headers within guide files:
 **Current Iteration:** Iteration 12 (within Part 5.1.2)
 **Next Action:** Complete Iteration 12, proceed to Iteration 13
 
-**Current Position:** S5.P5 (Smoke Testing)
+**Current Position:** S7.P1
 **Current Test:** Part 3 - E2E Execution
 **Next Action:** Fix identified issues, restart from Part 1
 ```
@@ -495,7 +495,7 @@ Within a level, items typically execute in numerical order:
 ```
 S2.P1 → S2.P2 → S2.P3
 Part 5.1.1 → Part 5.1.2 → Part 5.1.3
-Task 6.1.1 → Task 6.1.2 (then move to S6.P2)
+Task 6.1.1 → Task 6.1.2 (then move to S9.P2)
 ```
 
 ---
@@ -557,17 +557,17 @@ Stage 2: Level 2 (2.3) [plus special 2.2.5]
 Stage 3: Level 1 (3)
 Stage 4: Level 1 (4)
 Stage 5: Level 4 (5.1.3.3)
-Stage 6: Level 3 (6.4.3)
-Stage 7: Level 2 (7.1)
+Stage 9: Level 3 (6.4.3)
+Stage 10: Level 2 (7.1)
 ```
 
 ### Content Terms (Contextual)
 ```
 Stage - Always Level 1
-Phase - Usually Level 2 (sometimes Level 3 in Stage 6)
+Phase - Usually Level 2 (sometimes Level 3 in Stage 9)
 Part - Usually Level 3 or Level 4
 Round - Level 3 in Stage 5.1
-Task/Checkpoint - Level 3 in Stage 6
+Task/Checkpoint - Level 3 in Stage 9
 Iteration - NOT hierarchical (content within Parts)
 Gate - NOT hierarchical (checkpoints within items)
 ```
@@ -601,7 +601,7 @@ post_feature_alignment.md → s5_p8_cross_feature_alignment.md
 post_feature_testing_update.md → s5_p9_epic_testing_update.md
 ```
 
-**Stage 6:**
+**Stage 9:**
 ```
 epic_smoke_testing.md → s6_p1_epic_smoke_testing.md
 epic_qc_rounds.md → s6_p2_epic_qc_rounds.md
@@ -609,7 +609,7 @@ user_testing.md → s6_p3_user_testing.md
 epic_final_review.md → s6_p4_epic_final_review.md
 ```
 
-**Stage 7:**
+**Stage 10:**
 ```
 guide_update_workflow.md → s7_p1_guide_update_workflow.md
 ```

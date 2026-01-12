@@ -1,7 +1,6 @@
-# S5: Feature Implementation
-## S5.P.2: Implementation Execution
+# S6: Implementation Execution
 
-**File:** `phase_5.2_implementation_execution.md`
+**File:** `s6_execution.md`
 
 ---
 
@@ -38,36 +37,36 @@ Implementation Execution is where you write the feature code following the imple
 - ✅ implementation_checklist.md updated in real-time
 - ✅ code_changes.md documentation complete
 - ✅ Mini-QC checkpoints passed after major components
-- ✅ Ready for S5c (Post-Implementation)
+- ✅ Ready for S7 (Testing & Review) (Post-Implementation)
 
 **Time Estimate:**
 Varies by feature complexity (1-4 hours typical)
 
 **Exit Condition:**
-S5b is complete when all implementation tasks from implementation_plan.md are implemented, 100% of tests pass, spec requirements are verified complete via dual verification, and code_changes.md is fully documented
+S6 is complete when all implementation tasks from implementation_plan.md are implemented, 100% of tests pass, spec requirements are verified complete via dual verification, and code_changes.md is fully documented
 
 ---
 
-## File Roles in S5b
+## File Roles in S6
 
 **Understanding which file serves which purpose:**
 
 **implementation_plan.md = PRIMARY REFERENCE** (~400 lines)
 - **What:** Detailed implementation build guide created and user-approved in S5a
 - **Contains:** Implementation tasks, acceptance criteria, test strategy, phasing plan, dependencies
-- **Use during S5b:** Follow this file task-by-task for WHAT to implement and HOW to implement it
+- **Use during S6:** Follow this file task-by-task for WHAT to implement and HOW to implement it
 - **Authority:** User-approved plan - this is your implementation roadmap
 
 **spec.md = CONTEXT REFERENCE** (requirements specification)
 - **What:** Feature requirements specification created and user-approved in S2
 - **Contains:** Objectives, scope, algorithms, edge cases, acceptance criteria
-- **Use during S5b:** Keep visible for context, verify code matches requirements, understand WHY
+- **Use during S6:** Keep visible for context, verify code matches requirements, understand WHY
 - **Authority:** User-approved requirements - verify against this but implement from implementation_plan.md
 
 **implementation_checklist.md = PROGRESS TRACKER** (~50 lines)
 - **What:** Lightweight checklist extracted from implementation_plan.md tasks
 - **Contains:** Checkbox list linking spec requirements → implementation tasks
-- **Use during S5b:** Check off items in real-time as you complete them
+- **Use during S6:** Check off items in real-time as you complete them
 - **Authority:** Your progress tracker - update continuously
 
 **Key Principle:** implementation_plan.md tells you HOW to build (primary reference), spec.md tells you WHAT to build (verification), implementation_checklist.md tracks progress.
@@ -125,7 +124,7 @@ S5b is complete when all implementation tasks from implementation_plan.md are im
 
 ## Prerequisites Checklist
 
-**Verify BEFORE starting S5b:**
+**Verify BEFORE starting S6:**
 
 □ S5a complete:
   - Iteration 24 shows: ✅ GO decision
@@ -137,7 +136,7 @@ S5b is complete when all implementation tasks from implementation_plan.md are im
 □ No blockers in feature README.md Agent Status
 
 **If any prerequisite fails:**
-- ❌ STOP - Do NOT proceed with S5b
+- ❌ STOP - Do NOT proceed with S6
 - Return to S5a to complete missing items
 - Document blocker in Agent Status
 
@@ -179,9 +178,9 @@ Step 4: Final Verification
    ├─ All unit tests passing (100%)
    ├─ All requirements checked off
    ├─ code_changes.md complete
-   └─ Ready for S5c
+   └─ Ready for S7 (Testing & Review)
 
-Mark S5b Complete
+Mark S6 Complete
    └─ Update feature README.md
 ```
 
@@ -820,7 +819,7 @@ python run_league_helper.py --mode draft
 
 ## Completion Criteria
 
-**S5b is complete when ALL of these are true:**
+**S6 is complete when ALL of these are true:**
 
 □ Interface Verification Protocol complete (Step 1)
 □ implementation_checklist.md created (Step 2)
@@ -836,12 +835,12 @@ python run_league_helper.py --mode draft
   - End-to-end smoke test passed
 □ Feature README.md updated:
   - Agent Status: Phase = POST_IMPLEMENTATION
-  - Next Action = Read S5c guide
+  - Next Action = Read S7 (Testing & Review) guide
   - All phase test results documented
 
 **If any item unchecked:**
-- ❌ S5b is NOT complete
-- ❌ Do NOT proceed to S5c
+- ❌ S6 is NOT complete
+- ❌ Do NOT proceed to S7 (Testing & Review)
 - Complete missing items first
 
 ---
@@ -880,7 +879,7 @@ python run_league_helper.py --mode draft
 ❌ "One test is failing but the others pass, good enough"
    ✅ STOP - 100% pass rate REQUIRED (not 90%, not 99%)
 
-❌ "I'll verify code matches spec during S5c"
+❌ "I'll verify code matches spec during S7 (Testing & Review)"
    ✅ STOP - Verify NOW as you implement (dual verification)
 ```
 
@@ -924,7 +923,7 @@ python run_league_helper.py --mode draft
 - All 45 requirements checked off ✅
 - All 25 tests passing ✅
 - End-to-end smoke test passed ✅
-- Ready for S5c ✅
+- Ready for S7 (Testing & Review) ✅
 
 ---
 
@@ -937,16 +936,16 @@ python run_league_helper.py --mode draft
 3. ⚡ After completing EACH phase (Phase 1, 2, 3, etc.)
 4. ⚡ After EACH mini-QC checkpoint
 5. ⚡ After final verification complete (Step 4)
-6. ⚡ When marking S5b complete
+6. ⚡ When marking S6 complete
 7. ⚡ After session compaction (re-read timestamp)
 
 ---
 
-## Prerequisites for S5c
+## Prerequisites for S7 (Testing & Review)
 
-**Before transitioning to S5c, verify:**
+**Before transitioning to S7 (Testing & Review), verify:**
 
-□ S5b completion criteria ALL met
+□ S6 completion criteria ALL met
 □ All implementation tasks marked complete
 □ All tests passing (100%)
 □ implementation_checklist.md shows all requirements checked
@@ -954,17 +953,17 @@ python run_league_helper.py --mode draft
 □ Feature README.md shows:
   - Agent Status: Phase = POST_IMPLEMENTATION
   - All phase test results documented
-  - Next Action = Read S5c guide
+  - Next Action = Read S7 (Testing & Review) guide
 
 **If any prerequisite fails:**
-- ❌ Do NOT transition to S5c
-- Complete S5b missing items
+- ❌ Do NOT transition to S7 (Testing & Review)
+- Complete S6 missing items
 
 ---
 
 ## Next Stage
 
-**After completing S5b:**
+**After completing S6:**
 
 📖 **READ:** `stages/s5/smoke_testing.md`
 🎯 **GOAL:** Validate implementation through smoke testing (3 parts - MANDATORY GATE)
@@ -974,14 +973,14 @@ python run_league_helper.py --mode draft
 - `stages/s5/qc_rounds.md` - 3 QC rounds with restart protocol
 - `stages/s5/final_review.md` - PR review and lessons learned
 
-**S5c will:**
+**S7 (Testing & Review) will:**
 - Execute 3-part smoke testing protocol (MANDATORY)
 - Complete 3 QC rounds (no exceptions)
 - Follow PR review protocol (multi-round with fresh eyes)
 - Verify 100% requirement completion
-- If ANY issues found → COMPLETELY RESTART S5c
+- If ANY issues found → COMPLETELY RESTART S7 (Testing & Review)
 
-**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S5c.
+**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S7 (Testing & Review).
 
 ---
 

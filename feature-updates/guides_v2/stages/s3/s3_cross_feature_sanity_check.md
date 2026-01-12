@@ -711,8 +711,8 @@ Feature 3 (Schedule) ─┘
 
 1. **S4:** Update epic testing strategy based on this plan
 2. **S5:** Implement features sequentially (1, 2, 3, then 4)
-3. **S6:** Epic-level final QC
-4. **S7:** Epic cleanup and completion
+3. **S9:** Epic-level final QC
+4. **S10:** Epic cleanup and completion
 
 **Estimated total timeline:** {X} features × {Y} hours = {Z} hours
 ```
@@ -747,7 +747,7 @@ If ANY feature missing acceptance criteria or user approval:
 **Real-World Example (Epic: fix_2025_adp):**
 - S3 user sign-off obtained WITHOUT acceptance criteria review
 - Epic implemented 102+ hours targeting WRONG FOLDER
-- User testing (S7) caught it: 6 files instead of 108 files
+- User testing (S10) caught it: 6 files instead of 108 files
 - Lesson: Acceptance criteria approval prevents wrong implementations
 
 ---

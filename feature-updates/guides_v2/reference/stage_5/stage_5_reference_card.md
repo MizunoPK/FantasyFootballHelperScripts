@@ -43,7 +43,7 @@ STAGE 5a: TODO Creation (2.5-3 hours, 28 iterations across 3 rounds)
             ├─ Iteration 25: Spec Validation Against Validated Docs ← CRITICAL GATE
             └─ Iteration 24: Implementation Readiness (GO/NO-GO) ← FINAL GATE
         ↓
-STAGE 5b: Implementation Execution (stages/s5/s5_p4_execution.md)
+STAGE 5b: Implementation Execution (stages/s9/s6_execution.md)
     1-4 hours (varies by complexity)
     ├─ Create implementation_checklist.md from implementation_plan.md tasks
     ├─ Execute implementation_plan.md tasks (PRIMARY reference)
@@ -53,26 +53,26 @@ STAGE 5b: Implementation Execution (stages/s5/s5_p4_execution.md)
         ↓
 STAGE 5c: Post-Implementation (1.5-2.5 hours, 3 phases)
     │
-    ├─ Phase 1: Smoke Testing (stages/s5/s5_p5_smoke_testing.md)
+    ├─ Phase 1: Smoke Testing (stages/s10/s7_p1_smoke_testing.md)
     │   ├─ Part 1: Import Test
     │   ├─ Part 2: Entry Point Test
     │   └─ Part 3: E2E Test (verify DATA VALUES) ← MANDATORY GATE
     │
-    ├─ Phase 2: QC Rounds (stages/s5/s5_p6_qc_rounds.md)
+    ├─ Phase 2: QC Rounds (stages/s10/s7_p2_qc_rounds.md)
     │   ├─ QC Round 1: Basic validation
     │   ├─ QC Round 2: Deep verification
     │   └─ QC Round 3: Final review (ZERO tolerance) ← MANDATORY
     │
-    └─ Phase 3: Final Review (stages/s5/s5_p7_final_review.md)
+    └─ Phase 3: Final Review (stages/s10/s7_p3_final_review.md)
         ├─ PR review (11 categories)
         ├─ Lessons learned documentation
         └─ Zero tech debt tolerance
         ↓
-STAGE 5d: Cross-Feature Spec Alignment (stages/s5/s5_p8_cross_feature_alignment.md)
+STAGE 5d: Cross-Feature Spec Alignment (stages/s8/s8_p1_cross_feature_alignment.md)
     15-30 minutes
     └─ Update remaining feature specs based on actual implementation
         ↓
-STAGE 5e: Testing Plan Update (stages/s5/s5_p9_epic_testing_update.md)
+STAGE 5e: Testing Plan Update (stages/s8/s8_p2_epic_testing_update.md)
     15-30 minutes
     └─ Reassess epic_smoke_test_plan.md
         ↓
@@ -89,12 +89,12 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 | 5a Round 2 | stages/s5/s5_p2_planning_round2.md | 45-60 min | Test strategy, edge cases, re-verification | Test coverage >90% |
 | 5a Round 3 Part 1 | stages/s5/s5_p3_planning_round3.md | 60-90 min | Phasing, rollback, performance, mocks | None |
 | 5a Round 3 Part 2 | stages/s5/round3_part2_final_gates.md | 1.5-2.5 hrs | Integration, spec audit, validation | Iterations 23a, 25, 24 |
-| 5b | stages/s5/s5_p4_execution.md | 1-4 hrs | Execute TODO tasks, mini-QC checkpoints | 100% test pass |
-| S5.P5 | stages/s5/s5_p5_smoke_testing.md | 30-45 min | Import, entry point, E2E tests | Part 3 data values |
-| S5.P6 | stages/s5/s5_p6_qc_rounds.md | 45-75 min | 3 QC rounds, deep verification | QC Round 3 ZERO issues |
-| S5.P7 | stages/s5/s5_p7_final_review.md | 30-45 min | PR review, lessons learned | Zero tech debt |
-| 5d | stages/s5/s5_p8_cross_feature_alignment.md | 15-30 min | Update remaining specs | None |
-| 5e | stages/s5/s5_p9_epic_testing_update.md | 15-30 min | Update epic test plan | None |
+| 5b | stages/s9/s6_execution.md | 1-4 hrs | Execute TODO tasks, mini-QC checkpoints | 100% test pass |
+| S10.P1 | stages/s10/s7_p1_smoke_testing.md | 30-45 min | Import, entry point, E2E tests | Part 3 data values |
+| S10.P2 | stages/s10/s7_p2_qc_rounds.md | 45-75 min | 3 QC rounds, deep verification | QC Round 3 ZERO issues |
+| S10.P3 | stages/s10/s7_p3_final_review.md | 30-45 min | PR review, lessons learned | Zero tech debt |
+| 5d | stages/s8/s8_p1_cross_feature_alignment.md | 15-30 min | Update remaining specs | None |
+| 5e | stages/s8/s8_p2_epic_testing_update.md | 15-30 min | Update epic test plan | None |
 
 ---
 
@@ -134,34 +134,34 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 ### Stage 5c: Post-Implementation (2 gates)
 
-**Gate 5: S5.P5 Part 3 - E2E Smoke Test (Data Values)**
-- **Location:** stages/s5/s5_p5_smoke_testing.md
+**Gate 5: S10.P1 Part 3 - E2E Smoke Test (Data Values)**
+- **Location:** stages/s10/s7_p1_smoke_testing.md
 - **Criteria:** E2E test with REAL data, verify DATA VALUES (not just file existence)
-- **If FAIL:** Restart from S5.P5 Step 1
+- **If FAIL:** Restart from S10.P1 Step 1
 
-**Gate 6: S5.P6 QC Round 3 - ZERO Issues Required**
-- **Location:** stages/s5/s5_p6_qc_rounds.md
+**Gate 6: S10.P2 QC Round 3 - ZERO Issues Required**
+- **Location:** stages/s10/s7_p2_qc_rounds.md
 - **Criteria:** ZERO issues found (critical, major, or minor)
-- **If ANY ISSUES:** Restart from S5.P5 Step 1 (smoke testing)
+- **If ANY ISSUES:** Restart from S10.P1 Step 1 (smoke testing)
 
 ---
 
 ## Restart Points (QC Restart Protocol)
 
-**If smoke testing fails (S5.P5):**
-→ Fix issues, restart from S5.P5 Step 1 (Import Test)
+**If smoke testing fails (S10.P1):**
+→ Fix issues, restart from S10.P1 Step 1 (Import Test)
 
-**If QC Round 1 finds issues (S5.P6):**
-→ Fix issues, restart from S5.P5 Step 1 (smoke testing)
+**If QC Round 1 finds issues (S10.P2):**
+→ Fix issues, restart from S10.P1 Step 1 (smoke testing)
 
-**If QC Round 2 finds issues (S5.P6):**
-→ Fix issues, restart from S5.P5 Step 1 (smoke testing)
+**If QC Round 2 finds issues (S10.P2):**
+→ Fix issues, restart from S10.P1 Step 1 (smoke testing)
 
-**If QC Round 3 finds issues (S5.P6):**
-→ Fix issues, restart from S5.P5 Step 1 (smoke testing)
+**If QC Round 3 finds issues (S10.P2):**
+→ Fix issues, restart from S10.P1 Step 1 (smoke testing)
 
-**If PR review finds critical issues (S5.P7):**
-→ Fix issues, restart from S5.P5 Step 1 (smoke testing)
+**If PR review finds critical issues (S10.P3):**
+→ Fix issues, restart from S10.P1 Step 1 (smoke testing)
 
 **Why restart from smoke testing?**
 - Any code change invalidates QC rounds
@@ -244,11 +244,11 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 ### ❌ Pitfall 4: Skipping Smoke Testing After Bug Fix
 **Problem:** "I only changed one line, smoke testing not needed"
-**Impact:** Small change breaks integration, bugs escape to Stage 6
+**Impact:** Small change breaks integration, bugs escape to Stage 9
 **Solution:** ALWAYS restart from smoke testing after ANY code change
 
 ### ❌ Pitfall 5: Deferring QC Issues to "Later"
-**Problem:** "This is minor, I'll fix it after Stage 6"
+**Problem:** "This is minor, I'll fix it after Stage 9"
 **Impact:** Tech debt accumulates, bugs compound, rework in production
 **Solution:** Zero tech debt tolerance - fix ALL issues immediately
 
@@ -267,12 +267,12 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 | Round 1 complete, confidence >= MEDIUM | stages/s5/s5_p2_planning_round2.md |
 | Round 2 complete, test coverage >90% | stages/s5/s5_p3_planning_round3.md |
 | Preparation iterations 17-22 complete | stages/s5/round3_part2_final_gates.md |
-| GO decision from Iteration 24 | stages/s5/s5_p4_execution.md |
-| Implementation complete | stages/s5/s5_p5_smoke_testing.md |
-| Smoke testing passed | stages/s5/s5_p6_qc_rounds.md |
-| QC Round 3 passed | stages/s5/s5_p7_final_review.md |
-| PR review passed | stages/s5/s5_p8_cross_feature_alignment.md |
-| Alignment updated | stages/s5/s5_p9_epic_testing_update.md |
+| GO decision from Iteration 24 | stages/s9/s6_execution.md |
+| Implementation complete | stages/s10/s7_p1_smoke_testing.md |
+| Smoke testing passed | stages/s10/s7_p2_qc_rounds.md |
+| QC Round 3 passed | stages/s10/s7_p3_final_review.md |
+| PR review passed | stages/s8/s8_p1_cross_feature_alignment.md |
+| Alignment updated | stages/s8/s8_p2_epic_testing_update.md |
 
 ---
 
@@ -290,7 +290,7 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 **Next Action:**
 - If more features to implement → Loop to Stage 5a for next feature
-- If all features complete → Proceed to Stage 6 (Epic-Level Final QC)
+- If all features complete → Proceed to Stage 9 (Epic-Level Final QC)
 
 ---
 

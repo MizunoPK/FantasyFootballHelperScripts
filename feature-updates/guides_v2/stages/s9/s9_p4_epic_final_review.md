@@ -1,26 +1,26 @@
-# S6: Epic-Level Final QC
-## S6.P4: Epic Final Review
+# S9: Epic-Level Final QC
+## S9.P4: Epic Final Review
 
 **Part of:** Epic-Driven Development Workflow v2
-**Prerequisites:** S6.P3 complete (User Testing passed with ZERO bugs)
+**Prerequisites:** S9.P3 complete (User Testing passed with ZERO bugs)
 **Next Stage:** `stages/s_7/epic_cleanup.md`
-**File:** `s6_p4_epic_final_review.md`
+**File:** `s9_p4_epic_final_review.md`
 
 ---
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**CRITICAL:** You MUST read this ENTIRE guide before starting S6.P4 work.
+**CRITICAL:** You MUST read this ENTIRE guide before starting S9.P4 work.
 
 **Why this matters:**
-- S6.P4 is the FINAL VALIDATION before epic completion
+- S9.P4 is the FINAL VALIDATION before epic completion
 - Missing steps here means shipping incomplete or incorrect epic
 - Thoroughness prevents post-completion issues
 
 **Reading Checkpoint:**
 Before proceeding, you must have:
 - [ ] Read this ENTIRE guide (use Read tool, not memory)
-- [ ] Verified S6.P3 complete (User Testing passed with ZERO bugs)
+- [ ] Verified S9.P3 complete (User Testing passed with ZERO bugs)
 - [ ] Verified no pending issues or bug fixes
 - [ ] Located epic_lessons_learned.md file
 
@@ -35,9 +35,9 @@ Before proceeding, you must have:
 
 ### What is this sub-stage?
 
-**STAGE_6c - Epic Final Review** is the final validation phase of S6, where you apply an epic-level PR review checklist, handle any discovered issues through bug fixes, and perform final verification before declaring the epic complete.
+**STAGE_6c - Epic Final Review** is the final validation phase of S9, where you apply an epic-level PR review checklist, handle any discovered issues through bug fixes, and perform final verification before declaring the epic complete.
 
-**This is NOT feature-level review** - S5c already reviewed individual features. This focuses on:
+**This is NOT feature-level review** - S7 (Testing & Review) already reviewed individual features. This focuses on:
 - Epic-wide architectural consistency
 - Cross-feature code quality
 - Epic scope and completeness
@@ -49,12 +49,12 @@ Before proceeding, you must have:
 - STAGE_6b is complete (all 3 QC rounds passed)
 - Epic smoke testing passed (STAGE_6a)
 - Ready for final epic-level PR review and validation
-- All features completed S5e
+- All features completed S8.P2 (Epic Testing Update)
 
 **Do NOT use this guide if:**
 - STAGE_6a smoke testing not complete
 - STAGE_6b QC rounds not complete
-- Any features still in S5b implementation
+- Any features still in S6 implementation
 - Pending bug fixes not yet completed
 
 ### What are the key outputs?
@@ -65,15 +65,15 @@ Before proceeding, you must have:
 
 2. **Bug Fixes (if issues found)**
    - Bug fix folders created for any issues
-   - S6 RESTARTED after bug fixes
+   - S9 RESTARTED after bug fixes
 
 3. **Final Verification**
-   - All S6 steps confirmed complete
+   - All S9 steps confirmed complete
    - epic_lessons_learned.md updated
    - EPIC_README.md marked complete
 
-4. **S6 Completion**
-   - Ready to proceed to S7 (Epic Cleanup)
+4. **S9 Completion**
+   - Ready to proceed to S10 (Epic Cleanup)
 
 ### Time estimate
 
@@ -82,7 +82,7 @@ Before proceeding, you must have:
 - Final Verification: 15-30 minutes
 - Documentation updates: 15 minutes
 
-**+2-4 hours per bug fix** (if issues found, includes S6 restart)
+**+2-4 hours per bug fix** (if issues found, includes S9 restart)
 
 ### Workflow overview
 
@@ -119,20 +119,20 @@ Prerequisites Met?
     │         │
     │         ├─ Document all issues
     │         ├─ Create bug fixes
-    │         └─ RESTART S6
+    │         └─ RESTART S9
     │
     └─ NO → STEP 8 (Final Verification)
               │
               ├─ Verify all issues resolved
               ├─ Update EPIC_README.md
               ├─ Update epic_lessons_learned.md
-              └─ Mark S6 complete
+              └─ Mark S9 complete
               │
               ▼
-        S6 COMPLETE
+        S9 COMPLETE
               │
               ▼
-        Ready for S7
+        Ready for S10
 ```
 
 ---
@@ -145,7 +145,7 @@ Prerequisites Met?
 └─────────────────────────────────────────────────────────────┘
 
 1. ⚠️ Epic-level PR review focuses on CROSS-FEATURE concerns
-   - Feature-level review already done in S5c
+   - Feature-level review already done in S7 (Testing & Review)
    - Focus: Architectural consistency, cross-feature impacts
    - Don't repeat feature-level checks
 
@@ -154,10 +154,10 @@ Prerequisites Met?
    - All categories must PASS (no exceptions)
    - If ANY category fails → create bug fix
 
-3. ⚠️ If issues found, you MUST RESTART S6
+3. ⚠️ If issues found, you MUST RESTART S9
    - After bug fixes complete
    - RESTART from STAGE_6a (smoke testing)
-   - Cannot partially continue S6
+   - Cannot partially continue S9
 
 4. ⚠️ Validate against ORIGINAL epic request
    - Not against evolved specs
@@ -177,13 +177,13 @@ Prerequisites Met?
 7. ⚠️ Document EVERYTHING in epic_lessons_learned.md
    - PR review results
    - Issues found (if any)
-   - S6 insights
+   - S9 insights
    - Improvements for future epics
 
-8. ⚠️ Cannot proceed to S7 without completion
-   - All 8 steps of S6 must be complete
+8. ⚠️ Cannot proceed to S10 without completion
+   - All 8 steps of S9 must be complete
    - No pending issues or bug fixes
-   - EPIC_README.md must show S6 complete
+   - EPIC_README.md must show S9 complete
 ```
 
 ---
@@ -205,14 +205,14 @@ Prerequisites Met?
 - [ ] Epic smoke testing Part 4 (Cross-Feature Integration Tests): ✅ PASSED
 
 ### Feature Completion
-- [ ] All features completed S5e (Post-Feature Testing Update)
-- [ ] No features currently in S5b (Implementation)
+- [ ] All features completed S8.P2 (Epic Testing Update) (Post-Feature Testing Update)
+- [ ] No features currently in S6 (Implementation)
 - [ ] No pending feature work
 
 ### Quality Gates
 - [ ] All unit tests passing (100% pass rate)
 - [ ] No known bugs or issues
-- [ ] All previous bug fixes (if any) completed S5c
+- [ ] All previous bug fixes (if any) completed S7 (Testing & Review)
 
 ### Documentation
 - [ ] epic_lessons_learned.md exists and accessible
@@ -249,7 +249,7 @@ Prerequisites Met?
 **Objective:** Apply PR review protocol to epic-wide changes with focus on architectural consistency.
 
 **This is NOT feature-level review:**
-- S5c already reviewed individual feature correctness
+- S7 (Testing & Review) already reviewed individual feature correctness
 - S6c reviews EPIC-WIDE concerns:
   - Architectural consistency ACROSS features
   - Code duplication BETWEEN features
@@ -353,7 +353,7 @@ Prerequisites Met?
 
 **Objective:** Create bug fixes for any epic-level integration issues discovered during Step 6.
 
-**Critical Rule:** After bug fixes, you MUST COMPLETELY RESTART S6 from STAGE_6a.
+**Critical Rule:** After bug fixes, you MUST COMPLETELY RESTART S9 from STAGE_6a.
 
 **Why RESTART?** Bug fixes may have affected areas already checked. Cannot assume previous QC results still valid.
 
@@ -400,14 +400,14 @@ For EACH issue:
 3. Run through bug fix workflow: S2 → 5a → 5b → 5c
 4. Bug fix stays in epic folder (doesn't move to done/)
 
-**Step 7.5: RESTART S6 After Bug Fixes**
+**Step 7.5: RESTART S9 After Bug Fixes**
 
-**See:** Template 6 (S6 Restart Documentation)
+**See:** Template 6 (S9 Restart Documentation)
 
-**CRITICAL:** You MUST COMPLETELY RESTART S6 after ALL bug fixes complete.
+**CRITICAL:** You MUST COMPLETELY RESTART S9 after ALL bug fixes complete.
 
 **Restart Protocol:**
-1. Mark all S6 steps as "incomplete" in EPIC_README.md
+1. Mark all S9 steps as "incomplete" in EPIC_README.md
 2. Re-run STAGE_6a (Epic Smoke Testing - all 4 parts)
 3. Re-run STAGE_6b (Epic QC Rounds 1, 2, 3)
 4. Re-run STAGE_6c (Epic PR Review - all 11 categories)
@@ -456,11 +456,11 @@ python tests/run_all_tests.py
 
 **See:** Template 8 (Epic Progress Tracker Update)
 
-Mark S6 complete, including:
+Mark S9 complete, including:
 - STAGE_6a, 6b, 6c completion status
 - Issues found and resolved
 - Bug fixes completed
-- S6 restarts (if any)
+- S9 restarts (if any)
 - Date completed
 
 **Step 8.3: Update epic_lessons_learned.md**
@@ -480,10 +480,10 @@ Add S6c insights:
 
 **See:** Template 10 (Agent Status Update)
 
-Mark S6c complete and prepare for S7:
+Mark S6c complete and prepare for S10:
 - Current stage: S6c
 - Status: COMPLETE
-- S6 summary (all parts, results)
+- S9 summary (all parts, results)
 - Next stage: stages/s_7/epic_cleanup.md
 - Next action: Read epic cleanup guide
 
@@ -498,7 +498,7 @@ Mark S6c complete and prepare for S7:
 - ✅ epic_lessons_learned.md updated with S6c insights
 - ✅ EPIC_README.md Agent Status shows S6c complete
 - ✅ All tests passing (100% pass rate)
-- ✅ Ready to proceed to S7
+- ✅ Ready to proceed to S10
 
 **If ANY item not complete:** STOP - Complete missing items, re-verify
 
@@ -517,7 +517,7 @@ Mark S6c complete and prepare for S7:
 ### 2. After Creating Bug Fixes
 - Bug fixes created during Step 7
 - Re-read "STEP 7: Handle Issues" section
-- Remember: MUST RESTART S6 after bug fixes (from STAGE_6a)
+- Remember: MUST RESTART S9 after bug fixes (from STAGE_6a)
 - Re-read STAGE_6a and STAGE_6b guides for restart
 
 ### 3. After Extended Break (>24 hours)
@@ -566,25 +566,25 @@ Mark S6c complete and prepare for S7:
 ### Handle Issues (Step 7 - if applicable)
 - [ ] All issues documented (if any found)
 - [ ] Bug fixes created for all high/medium priority issues (if any)
-- [ ] Bug fixes completed S5c (if any created)
-- [ ] S6 RESTARTED after bug fixes (if any created)
+- [ ] Bug fixes completed S7 (Testing & Review) (if any created)
+- [ ] S9 RESTARTED after bug fixes (if any created)
 - [ ] All steps re-run and passed after restart
 
 ### Final Verification (Step 8)
 - [ ] All issues resolved (no pending issues or bug fixes)
 - [ ] All unit tests passing (100% pass rate)
-- [ ] EPIC_README.md Epic Progress Tracker updated (S6 marked complete)
+- [ ] EPIC_README.md Epic Progress Tracker updated (S9 marked complete)
 - [ ] epic_lessons_learned.md updated with S6c insights
 - [ ] EPIC_README.md Agent Status shows S6c complete
 
-### Overall S6 Completion
+### Overall S9 Completion
 - [ ] STAGE_6a complete (Epic Smoke Testing passed)
 - [ ] STAGE_6b complete (QC Rounds 1, 2, 3 passed)
 - [ ] STAGE_6c complete (Epic PR Review passed, issues resolved)
 - [ ] Original epic goals validated and achieved (from STAGE_6b QC Round 3)
-- [ ] Ready to proceed to S7
+- [ ] Ready to proceed to S10
 
-**DO NOT proceed to S7 until ALL completion criteria are met.**
+**DO NOT proceed to S10 until ALL completion criteria are met.**
 
 ---
 
@@ -612,23 +612,23 @@ Mark S6c complete and prepare for S7:
 
 ## Prerequisites for Next Stage
 
-**Before proceeding to S7 (Epic Cleanup), verify:**
+**Before proceeding to S10 (Epic Cleanup), verify:**
 
 ### S6c Completion
 - [ ] STEP 6 (Epic PR Review) complete: All 11 categories PASSED
 - [ ] STEP 7 (Handle Issues) complete OR skipped (no issues)
 - [ ] STEP 8 (Final Verification) complete: All verification items checked
 
-### Overall S6 Completion
+### Overall S9 Completion
 - [ ] STAGE_6a complete (Epic Smoke Testing passed)
 - [ ] STAGE_6b complete (QC Rounds 1, 2, 3 passed)
 - [ ] STAGE_6c complete (Epic PR Review passed, issues resolved)
 - [ ] No pending issues or bug fixes
-- [ ] All bug fix folders (if any) show S5c complete
+- [ ] All bug fix folders (if any) show S7 (Testing & Review) complete
 
 ### Documentation Complete
 - [ ] epic_lessons_learned.md updated with S6c insights
-- [ ] EPIC_README.md Epic Progress Tracker shows S6 complete
+- [ ] EPIC_README.md Epic Progress Tracker shows S9 complete
 - [ ] EPIC_README.md Agent Status shows S6c complete
 - [ ] PR review results documented
 
@@ -638,7 +638,7 @@ Mark S6c complete and prepare for S7:
 - [ ] Epic success criteria met
 - [ ] End-to-end workflows validated
 
-**Only proceed to S7 when ALL items are checked.**
+**Only proceed to S10 when ALL items are checked.**
 
 **Next stage:** stages/s_7/epic_cleanup.md
 **Next action:** Read stages/s_7/epic_cleanup.md to begin epic cleanup
@@ -658,15 +658,15 @@ Mark S6c complete and prepare for S7:
 2. **Handle Issues (Step 7):** Create bug fixes for any discovered issues
    - Document all issues comprehensively
    - Create bug fixes using bug fix workflow
-   - RESTART S6 from STAGE_6a after fixes
+   - RESTART S9 from STAGE_6a after fixes
 
-3. **Final Verification (Step 8):** Confirm S6 complete
+3. **Final Verification (Step 8):** Confirm S9 complete
    - Verify all issues resolved
    - Update EPIC_README.md (Epic Progress Tracker, Agent Status)
    - Update epic_lessons_learned.md with insights
 
 **Critical Distinctions:**
-- **Feature-level PR review (S5c):** Reviews individual features in isolation
+- **Feature-level PR review (S7 (Testing & Review)):** Reviews individual features in isolation
 - **Epic-level PR review (S6c):** Reviews cross-feature consistency, architectural cohesion, epic scope
 
 **Success Criteria:**
@@ -675,7 +675,7 @@ Mark S6c complete and prepare for S7:
 - No pending issues or bug fixes
 - All tests passing (100%)
 - Original epic goals achieved
-- Ready to proceed to S7
+- Ready to proceed to S10
 
 **Common Pitfalls:**
 - Repeating feature-level review instead of epic-level
@@ -684,7 +684,7 @@ Mark S6c complete and prepare for S7:
 - Comparing to specs instead of original epic request
 - Accepting issues instead of creating bug fixes
 - Not documenting PR review results
-- Proceeding to S7 with pending issues
+- Proceeding to S10 with pending issues
 
 **See:** `reference/stage_6/epic_final_review_examples.md` for detailed examples of each mistake and best practices
 

@@ -79,7 +79,7 @@
          ┌──────────────────────────────────────┐
          │  STAGE 7: Epic Cleanup               │
          │  - Run unit tests (100% pass)        │
-         │  - S7.P1: Guide updates          │
+         │  - S10.P1: Guide updates          │
          │  - Commit changes                    │
          │  - Create Pull Request               │
          │  - User reviews and merges           │
@@ -128,7 +128,7 @@
   │ Stage 5c│ Post-Implementation Testing                │
   │         │ Step 1: Smoke Testing (3 parts)           │
   │         │ Step 2: QC Rounds (3 rounds)              │
-  │         │   If issues → debugging → loop back S5.P5    │
+  │         │   If issues → debugging → loop back S10.P1    │
   │         │ Step 3: Final Review                      │
   │         │ Step 4: Commit feature code               │
   └────┬────┘                    │                       │

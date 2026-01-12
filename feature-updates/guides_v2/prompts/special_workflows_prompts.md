@@ -23,7 +23,7 @@ I've identified an issue that requires a bug fix. Let me present it to you for a
   - high: Breaks epic functionality → Interrupt current work immediately
   - medium: Affects quality but not functionality → Finish current step first
   - low: Minor issues → Fix after current step completes
-  - ALL bugs found during epic development MUST be fixed before Stage 7 (no deferred tech debt)
+  - ALL bugs found during epic development MUST be fixed before Stage 10 (no deferred tech debt)
 
 **Root Cause (if known):**
 {Analysis of why the bug exists, or "Root cause not yet determined - will investigate in bug fix Stage 2"}
@@ -32,7 +32,7 @@ I've identified an issue that requires a bug fix. Let me present it to you for a
 {How to fix it, or "Solution TBD - will design in bug fix Stage 2"}
 
 **Should I create a bug fix for this issue?**
-- If yes: I'll create bugfix_{priority}_{name}/ folder and notes.txt and fix it before Stage 7
+- If yes: I'll create bugfix_{priority}_{name}/ folder and notes.txt and fix it before Stage 10
 - If no: Please confirm this is NOT a bug and the behavior is correct as-is
 - NOTE: All bugs found during epic development MUST be fixed - no deferring to "later" or leaving tech debt
 
@@ -109,7 +109,7 @@ I'm reading `missed_requirement/missed_requirement_protocol.md` to ensure I foll
 - ALWAYS return to Stage 2/3/4 for planning
 - Full Stage 5 (5a → 5b → 5c → 5d → 5e) when feature gets implemented
 - Priority determines sequence: high = before current, medium = after current, low = at end
-- SPECIAL CASE: If discovered during Stage 6/7 → Complete all features → Restart epic testing from S6.P1
+- SPECIAL CASE: If discovered during Stage 9/7 → Complete all features → Restart epic testing from S9.P1
 - Can be discovered during: Implementation (5a/5b/5c), Debugging, Epic Testing (6a/6b/6c), User Testing (7)
 
 **Prerequisites I'm verifying:**
@@ -201,7 +201,7 @@ I'm reading `debugging/debugging_protocol.md` to ensure I follow the complete de
 - Current Phase: DEBUGGING_PROTOCOL
 - Current Guide: debugging/debugging_protocol.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Testing Stage Paused: {S5.P5 Smoke Part 3 / S5.P6 QC Round 1 / etc}
+- Testing Stage Paused: {S10.P1 Smoke Part 3 / S10.P2 QC Round 1 / etc}
 - Issues Found: {count}
 - Loop Back To: {Testing stage to return to}
 - Critical Rules: "Issue checklist workflow", "Loop back to testing after resolution", "User verification required"

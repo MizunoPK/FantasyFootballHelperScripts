@@ -31,7 +31,7 @@ Epic Testing Strategy is where you update the epic_smoke_test_plan.md with concr
 - ✅ epic_smoke_test_plan.md updated from placeholder to concrete scenarios
 - ✅ Integration points between features identified
 - ✅ Measurable success criteria defined
-- ✅ Test plan marked as "S4 version - will update in S5e"
+- ✅ Test plan marked as "S4 version - will update in S8.P2 (Epic Testing Update)"
 - ✅ Ready for S5 (Feature Implementation)
 
 **Time Estimate:**
@@ -66,10 +66,10 @@ S4 is complete when epic_smoke_test_plan.md contains specific test scenarios (no
    - Not "feature works" (too vague)
    - Yes "all 4 features create expected output files" (specific)
 
-5. ⚠️ Test plan will update AGAIN in S5e
+5. ⚠️ Test plan will update AGAIN in S8.P2 (Epic Testing Update)
    - S4: Based on SPECS (planned implementation)
-   - S5e: Based on ACTUAL CODE (real implementation)
-   - Mark clearly as "S4 version - will update in S5e"
+   - S8.P2 (Epic Testing Update): Based on ACTUAL CODE (real implementation)
+   - Mark clearly as "S4 version - will update in S8.P2 (Epic Testing Update)"
 
 6. ⚠️ Include both feature-level AND epic-level tests
    - Feature tests: Individual feature works
@@ -581,12 +581,12 @@ Based on integration points from Step 2:
 - Last Updated: {S4 date}
 - Based on: Feature specs from Stages 2-3, approved plan
 - Quality: CONCRETE - Specific tests based on actual feature designs
-- Next Update: S5e (after each feature implementation - will add more tests)
+- Next Update: S8.P2 (Epic Testing Update) (after each feature implementation - will add more tests)
 
 **Update History:**
 - S1: Initial placeholder (assumptions only)
 - S4: **MAJOR UPDATE** - Added specific tests, integration points, measurable criteria
-- S5e: (Pending) Will update after each feature implementation
+- S8.P2 (Epic Testing Update): (Pending) Will update after each feature implementation
 ```
 
 ### Step 5.2: Replace Epic Success Criteria
@@ -628,7 +628,7 @@ Keep categories but add specific guidance:
 ```markdown
 ## High-Level Test Categories
 
-**Agent will create additional scenarios for these categories during S5e:**
+**Agent will create additional scenarios for these categories during S8.P2 (Epic Testing Update):**
 
 ### Category 1: Cross-Feature Integration
 **What to test:** Features working together correctly
@@ -637,7 +637,7 @@ Keep categories but add specific guidance:
 - Scoring algorithm (all features contribute)
 - Data file dependencies (Feature 4 needs 1, 2, 3)
 
-**S5e will add:** Specific tests after seeing actual implementation
+**S8.P2 (Epic Testing Update) will add:** Specific tests after seeing actual implementation
 
 ---
 
@@ -648,7 +648,7 @@ Keep categories but add specific guidance:
 - Invalid data formats
 - Player not found in data source
 
-**S5e will add:** Specific error scenarios discovered during implementation
+**S8.P2 (Epic Testing Update) will add:** Specific error scenarios discovered during implementation
 
 ---
 
@@ -658,7 +658,7 @@ Keep categories but add specific guidance:
 - Loading 3 new data files
 - Applying 3 additional multipliers
 
-**S5e will add:** Performance benchmarks after implementation
+**S8.P2 (Epic Testing Update) will add:** Performance benchmarks after implementation
 ```
 
 ### Step 5.5: Update Update Log
@@ -681,9 +681,9 @@ Keep categories but add specific guidance:
 **Current version is informed by:**
 - S1: Initial assumptions from epic request
 - **S4: Feature specs and approved implementation plan** ← YOU ARE HERE
-- S5e: (Pending) Will update after each feature implementation
+- S8.P2 (Epic Testing Update): (Pending) Will update after each feature implementation
 
-**Next update:** S5e after each feature completes (will add implementation-specific tests)
+**Next update:** S8.P2 (Epic Testing Update) after each feature completes (will add implementation-specific tests)
 ```
 
 ---
@@ -805,7 +805,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 **Test plan evolution:**
 - S1: Assumptions (no implementation knowledge)
 - S4: Concrete (based on feature specs) ← CURRENT (USER APPROVED)
-- S5e: Will update after EACH feature implementation
+- S8.P2 (Epic Testing Update): Will update after EACH feature implementation
 
 **Next: S5 (Feature Implementation)**
 
@@ -842,7 +842,7 @@ Following `stages/s_5/round1_todo_creation.md` (Round 1) to create comprehensive
   - Version marked "STAGE 4" (not "INITIAL")
   - Epic Success Criteria section: 3-5 MEASURABLE criteria
   - Specific Test Scenarios section: 4-6 concrete tests with commands
-  - High-Level Test Categories: Guidance for S5e updates
+  - High-Level Test Categories: Guidance for S8.P2 (Epic Testing Update) updates
   - Update Log: S4 entry documenting changes
 □ Integration points identified and documented:
   - Where features interact
@@ -897,7 +897,7 @@ Following `stages/s_5/round1_todo_creation.md` (Round 1) to create comprehensive
    ✅ STOP - S5a (TODO creation) comes BEFORE implementation
 
 ❌ "This test plan is final, won't change"
-   ✅ STOP - Plan will update in S5e after each feature
+   ✅ STOP - Plan will update in S8.P2 (Epic Testing Update) after each feature
 ```
 
 ---

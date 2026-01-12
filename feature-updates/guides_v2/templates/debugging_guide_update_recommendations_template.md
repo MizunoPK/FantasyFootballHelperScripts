@@ -4,7 +4,7 @@
 
 **Source:** Per-issue root cause analysis (Phase 4b of debugging protocol)
 
-**Usage:** These recommendations will be presented to user in S7.P1 for approval
+**Usage:** These recommendations will be presented to user in S10.P1 for approval
 
 **Priority Levels:**
 - **P0 (Critical):** Prevents catastrophic bugs, user testing failures, epic restarts
@@ -44,7 +44,7 @@
 ### Prevention Point
 
 **Should have been caught at:**
-- **Stage:** {Stage 5a / 5b / S5.P5 / S5.P6 / 2 / etc.}
+- **Stage:** {Stage 5a / 5b / S10.P1 / S10.P2 / 2 / etc.}
 - **Step:** {Iteration X / QC Round X / etc.}
 - **Guide:** `{guide name}`
 - **Why missed:** {specific gap}
@@ -171,7 +171,7 @@
 3. Add pattern-based recommendations to "CROSS-PATTERN RECOMMENDATIONS" section
 4. These are IN ADDITION to per-issue recommendations
 
-**S7.P1 (Guide Update from Lessons Learned):**
+**S10.P1 (Guide Update from Lessons Learned):**
 1. Agent reads this file (ALL recommendations)
 2. Creates GUIDE_UPDATE_PROPOSAL.md with each recommendation as separate proposal
 3. Presents each proposal to user for individual approval

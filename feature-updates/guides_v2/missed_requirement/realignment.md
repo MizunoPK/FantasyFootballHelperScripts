@@ -158,7 +158,7 @@ Proceed to Stage 4 (Epic Testing Strategy update)? {User confirms}
 **Questions to answer:**
 - How does it integrate with other features?
 - What epic-level workflows involve it?
-- What should be tested in Stage 6?
+- What should be tested in Stage 9?
 - What are the integration points?
 
 **Add test scenarios:**
@@ -341,7 +341,7 @@ When planning complete:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 
 **Current Phase:** IMPLEMENTATION_EXECUTION (Resumed)
-**Current Guide:** stages/s5/s5_p4_execution.md
+**Current Guide:** stages/s9/s6_execution.md
 
 **Resumed After:** Missed requirement planning complete
 - feature_05_injury_tracking spec created and aligned
@@ -540,7 +540,7 @@ After feature_05: Resume and complete feature_02
 - Later: When new/updated feature's turn comes, implement through full Stage 5
 
 **Special Case:**
-- If discovered during Stage 6/7: See `missed_requirement/stage_6_7_special.md`
+- If discovered during Stage 9/7: See `missed_requirement/stage_6_7_special.md`
 
 ---
 

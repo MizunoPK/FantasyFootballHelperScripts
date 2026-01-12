@@ -85,9 +85,9 @@ mv stage_2/phase_2.2.5_spec_validation.md s2/s2_p2_5_spec_validation.md
 
 ---
 
-### Part 1D: Stage 6 - Simple Phase Renames (45 min)
+### Part 1D: Stage 9 - Simple Phase Renames (45 min)
 
-**Stage 6 has 5 files (router + 4 phases):**
+**Stage 9 has 5 files (router + 4 phases):**
 ```bash
 mv stage_6/epic_final_qc.md s6/s6_epic_final_qc.md
 mv stage_6/phase_6.1_epic_smoke_testing.md s6/s6_p1_epic_smoke_testing.md
@@ -98,22 +98,22 @@ mv stage_6/phase_6.4_epic_final_review.md s6/s6_p4_epic_final_review.md
 
 **For each file:**
 1. Rename file
-2. Update headers to S6.P# notation
+2. Update headers to S9.P# notation
 3. Update cross-references
 
-**Checkpoint:** Stage 6 complete
+**Checkpoint:** Stage 9 complete
 
 ---
 
-### Part 1E: Stage 7 - Simple Phase Renames (30 min)
+### Part 1E: Stage 10 - Simple Phase Renames (30 min)
 
-**Stage 7 has 2 files:**
+**Stage 10 has 2 files:**
 ```bash
 mv stage_7/epic_cleanup.md s7/s7_epic_cleanup.md
 mv stage_7/phase_7.1_guide_update_workflow.md s7/s7_p1_guide_update_workflow.md
 ```
 
-**Checkpoint:** Stage 7 complete
+**Checkpoint:** Stage 10 complete
 
 ---
 
@@ -430,8 +430,8 @@ Context: NOT in stage guide headers (those are S#.P#)
 - [ ] Part 1A: Stage directories created
 - [ ] Part 1B: Stages 1, 3, 4 renamed
 - [ ] Part 1C: Stage 2 renamed
-- [ ] Part 1D: Stage 6 renamed
-- [ ] Part 1E: Stage 7 renamed
+- [ ] Part 1D: Stage 9 renamed
+- [ ] Part 1E: Stage 10 renamed
 - [ ] Part 1F: Stage 5 restructured (22 files)
 - [ ] Part 1G: Supporting files updated
 - [ ] Part 1H: Old files deleted

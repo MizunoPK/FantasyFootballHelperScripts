@@ -61,12 +61,12 @@
 - Starting Stage 5d: Cross-Feature Alignment
 - Starting Stage 5e: Epic Testing Plan Update
 
-**[Stage 6: Epic Final QC](prompts/stage_6_prompts.md)**
-- Starting Stage 6: Epic Final QC
+**[Stage 9: Epic Final QC](prompts/stage_6_prompts.md)**
+- Starting Stage 9: Epic Final QC
 
-**[Stage 7: Epic Cleanup](prompts/stage_7_prompts.md)**
-- Starting Stage 7: Epic Cleanup
-- Starting S7.P1: Guide Update from Lessons Learned (see prompts/guide_update_prompts.md)
+**[Stage 10: Epic Cleanup](prompts/stage_7_prompts.md)**
+- Starting Stage 10: Epic Cleanup
+- Starting S10.P1: Guide Update from Lessons Learned (see prompts/guide_update_prompts.md)
 
 ### Special Workflow Prompts
 
@@ -162,7 +162,7 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterat
 
 **✅ CORRECT:**
 ```
-I'm reading `stages/s5/s5_p5_smoke_testing.md`...
+I'm reading `stages/s10/s7_p1_smoke_testing.md`...
 **The guide requires:**
 - Part 1: Import test
 - Part 2: Entry point test
@@ -254,8 +254,8 @@ This router file has been optimized from 1,474 lines to ~200 lines by splitting 
 - **prompts/stage_3_prompts.md** - Stage 3 prompts (~40 lines)
 - **prompts/stage_4_prompts.md** - Stage 4 prompts (~40 lines)
 - **prompts/stage_5_prompts.md** - All Stage 5 sub-stage prompts (~650 lines)
-- **prompts/stage_6_prompts.md** - Stage 6 prompts (~65 lines)
-- **prompts/stage_7_prompts.md** - Stage 7 prompts (~70 lines)
+- **prompts/stage_6_prompts.md** - Stage 9 prompts (~65 lines)
+- **prompts/stage_7_prompts.md** - Stage 10 prompts (~70 lines)
 - **prompts/special_workflows_prompts.md** - Bug fix, missed requirement, debugging, resuming (~200 lines)
 - **prompts/problem_situations_prompts.md** - Test failures, blockers, user interactions (~120 lines)
 

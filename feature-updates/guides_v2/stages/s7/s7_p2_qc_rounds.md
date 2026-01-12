@@ -1,16 +1,15 @@
-# S5: Feature Implementation
-## S5.P.3: Post-Implementation
-### S5.P6: QC Rounds
+# S7: Implementation Testing & Review
+## S7.P2: QC Rounds
 
-**File:** `part_5.3.2_qc_rounds.md`
+**File:** `s7_p2_qc_rounds.md`
 
 **Purpose:** Comprehensive quality control through 3 validation rounds to ensure feature correctness, data quality, and completeness.
 
 **Stage Flow Context:**
 ```
-S5.P5 (Smoke Testing) →
-→ [YOU ARE HERE: S5.P6 - QC Rounds] →
-→ S5.P7 (Final Review) → S5.P4 (Cross-Feature Alignment)
+S7.P1 (Smoke Testing) →
+→ [YOU ARE HERE: S7.P2 - QC Rounds] →
+→ S7.P3 (Final Review) → S8 (Post-Feature Alignment)
 ```
 
 ---
@@ -25,7 +24,7 @@ S5.P5 (Smoke Testing) →
    - Study restart protocol and common mistakes
 
 2. **Use the phase transition prompt** from `prompts/stage_5_prompts.md`
-   - Find "Starting S5c (Phase 2): QC Rounds" prompt
+   - Find "Starting S7 (Testing & Review) (Phase 2): QC Rounds" prompt
    - Acknowledge requirements
    - List critical requirements from this guide
 
@@ -50,7 +49,7 @@ S5.P5 (Smoke Testing) →
 Feature-level QC Rounds perform 3 progressively deeper quality checks (Basic Validation, Deep Verification, Final Skeptical Review) with zero tech debt tolerance. See `reference/qc_rounds_pattern.md` for universal workflow.
 
 **When do you use this guide?**
-- S5.P5 complete (Smoke Testing passed all 3 parts)
+- S10.P1 complete (Smoke Testing passed all 3 parts)
 - Ready for comprehensive quality validation
 - Before final review
 
@@ -59,7 +58,7 @@ Feature-level QC Rounds perform 3 progressively deeper quality checks (Basic Val
 - ✅ Round 2 PASSED: Deep Verification (all Round 1 issues resolved, zero new critical)
 - ✅ Round 3 PASSED: Final Skeptical Review (ZERO issues found)
 - ✅ All issues fixed with zero tech debt
-- ✅ Ready for S5.P7 (Final Review)
+- ✅ Ready for S7.P3
 
 **Time Estimate:**
 30-60 minutes (all 3 rounds, assuming no major issues)
@@ -73,7 +72,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 
 **📖 See `reference/qc_rounds_pattern.md` for universal critical rules.**
 
-**Feature-specific rules for S5.P6:**
+**Feature-specific rules for S10.P2:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -90,7 +89,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
    - If Round 1: ≥3 critical OR <100% requirements → RESTART from smoke testing
    - If Round 2: Any Round 1 issues unresolved OR new critical → RESTART
    - If Round 3: ANY issues (critical OR minor) → RESTART
-   - Restart destination: S5.P5 (Feature Smoke Testing)
+   - Restart destination: S10.P1 (Feature Smoke Testing)
 
 3. ⚠️ Algorithm verification MANDATORY
    - Re-check Algorithm Traceability Matrix from S5a
@@ -116,7 +115,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 
 **Verify these BEFORE starting QC Rounds:**
 
-**From S5.P5 (Smoke Testing):**
+**From S7.P1:**
 - [ ] All 3 smoke test parts passed
 - [ ] Part 3 verified OUTPUT DATA VALUES (not just "file exists")
 - [ ] Feature executes end-to-end without crashes
@@ -131,7 +130,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 - [ ] `implementation_checklist.md` all requirements verified
 - [ ] Smoke test results documented in README Agent Status
 
-**If ANY prerequisite not met:** Return to S5.P5 and complete it first.
+**If ANY prerequisite not met:** Return to S10.P1 and complete it first.
 
 ---
 
@@ -139,7 +138,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 
 **📖 See `reference/qc_rounds_pattern.md` for universal workflow details.**
 
-**Feature-specific workflow for S5.P6:**
+**Feature-specific workflow for S10.P2:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -151,7 +150,7 @@ Round 1: Basic Validation (10-20 min)
    ↓ Pass: <3 critical issues, 100% requirements met
    ↓
    If PASS → Round 2
-   If FAIL → Fix, RESTART from smoke testing (S5.P5)
+   If FAIL → Fix, RESTART from smoke testing (S10.P1)
 
 Round 2: Deep Verification (10-20 min)
    ↓ Baseline comparison, data validation, regression, edge cases
@@ -164,7 +163,7 @@ Round 3: Final Skeptical Review (10-20 min)
    ↓ Re-read spec with fresh eyes, re-check matrices
    ↓ Pass: ZERO issues (critical, medium, OR minor)
    ↓
-   If PASS → QC complete, proceed to S5.P7
+   If PASS → QC complete, proceed to S10.P3
    If FAIL → Fix, RESTART from smoke testing
 ```
 
@@ -301,7 +300,7 @@ print("✅ PlayerManager interface verified")
 **If Round 1 FAILS:**
 1. Document ALL issues found
 2. Fix ALL issues
-3. **RESTART from S5.P5 (smoke testing)**
+3. **RESTART from S10.P1 (smoke testing)**
 4. Re-run smoke testing → QC Round 1
 
 **If Round 1 PASSES:**
@@ -484,7 +483,7 @@ print("✅ Edge cases handled correctly")
 **If Round 2 FAILS:**
 1. Document ALL issues (unresolved Round 1 + new critical)
 2. Fix ALL issues
-3. **RESTART from S5.P5 (smoke testing)**
+3. **RESTART from S10.P1 (smoke testing)**
 4. Re-run smoke testing → Round 1 → Round 2
 
 **If Round 2 PASSES:**
@@ -603,14 +602,14 @@ This prevents confirmation bias (seeing what you expect, not what's actually the
 **If ANY issues found (critical, medium, OR minor):**
 1. Document ALL issues
 2. Fix ALL issues
-3. **RESTART from S5.P5 (smoke testing)**
+3. **RESTART from S10.P1 (smoke testing)**
 4. Re-run smoke testing → Round 1 → Round 2 → Round 3
 
 **If ZERO issues found:**
 - ✅ QC Rounds COMPLETE
 - ✅ Document completion in README
 - ✅ Update Agent Status: "QC Rounds COMPLETE"
-- ✅ Proceed to **S5.P7: Final Review**
+- ✅ Proceed to **S10.P3: Final Review**
 
 ---
 
@@ -677,11 +676,11 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 **If ALL 3 rounds PASSED:**
 - ✅ Document QC results in feature README
 - ✅ Update Agent Status: "QC Rounds COMPLETE (3/3 rounds passed, zero issues)"
-- ✅ Proceed to **S5.P7: Final Review**
+- ✅ Proceed to **S10.P3: Final Review**
 
 **If ANY round FAILED:**
 - ❌ Fix ALL issues identified
-- ❌ **RESTART from S5.P5 (smoke testing)**
+- ❌ **RESTART from S10.P1 (smoke testing)**
 - ❌ Re-run entire validation: Smoke → Round 1 → Round 2 → Round 3
 - ❌ Do NOT proceed to Final Review until clean pass
 
@@ -699,7 +698,7 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 - Baseline comparison (if updating existing feature)
 - Algorithm traceability matrix re-verification
 - Integration gap check re-verification
-- Restart destination: S5.P5 (feature smoke testing)
+- Restart destination: S10.P1 (feature smoke testing)
 
 **Critical Success Factors:**
 - Zero tech debt tolerance (100% or INCOMPLETE)
@@ -713,4 +712,4 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 
 ---
 
-**END OF STAGE S5.P6 GUIDE**
+**END OF STAGE S10.P2 GUIDE**

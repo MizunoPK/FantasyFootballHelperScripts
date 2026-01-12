@@ -1,12 +1,12 @@
-# SPECIAL CASE: Discovery During Epic Testing (Stage 6/7)
+# SPECIAL CASE: Discovery During Epic Testing (Stage 9/7)
 
 **Purpose:** Handle missed requirements discovered during epic testing with special restart protocol
 
-**When to Use:** Missed requirement discovered during Stage 6 (Epic Testing) or Stage 7 (User Testing)
+**When to Use:** Missed requirement discovered during Stage 9 (Epic Testing) or Stage 10 (User Testing)
 
 **Previous Phase:** PHASE 3 & 4 (Realignment) - See `missed_requirement/realignment.md`
 
-**Next Phase:** Restart epic testing from S6.P1 Step 1
+**Next Phase:** Restart epic testing from S9.P1 Step 1
 
 ---
 
@@ -18,12 +18,12 @@
 - Implement features in sequence
 - Continue to next stage when turn comes
 
-**Special case (discovered during Stage 6/7):**
+**Special case (discovered during Stage 9/7):**
 - Plan new/updated feature (Stages 2/3/4) ← SAME
 - Resume any paused work
 - **Complete ALL remaining features first** ← DIFFERENT
 - **Implement new/updated feature (full Stage 5)** ← DIFFERENT
-- **RESTART epic testing from S6.P1 Step 1** ← DIFFERENT
+- **RESTART epic testing from S9.P1 Step 1** ← DIFFERENT
 
 ---
 
@@ -55,7 +55,7 @@
 ## Workflow Overview
 
 ```
-Discovery (S6.P2: Epic QC Round 1)
+Discovery (S9.P2: Epic QC Round 1)
     ↓
 PHASE 1: Discovery & User Decision (normal)
     ↓
@@ -67,9 +67,9 @@ SPECIAL: Complete ALL Remaining Features
     ↓
 SPECIAL: Implement New/Updated Feature (full Stage 5)
     ↓
-SPECIAL: RESTART Epic Testing from S6.P1 Step 1
+SPECIAL: RESTART Epic Testing from S9.P1 Step 1
     ↓
-S6.P1 → 6b → 6c → Stage 7 (entire epic flow)
+S9.P1 → 6b → 6c → Stage 10 (entire epic flow)
 ```
 
 ---
@@ -109,7 +109,7 @@ S6.P1 → 6b → 6c → Stage 7 (entire epic flow)
 Current state:
 - feature_01 ✅ COMPLETE
 - feature_02 ✅ COMPLETE
-- feature_03 🔄 PAUSED (was implementing when entered Stage 6)
+- feature_03 🔄 PAUSED (was implementing when entered Stage 9)
 - feature_04 ◻️ NOT STARTED
 - feature_05 ◻️ NOT STARTED (NEW - from missed requirement)
 
@@ -148,7 +148,7 @@ Actions needed:
 
 ---
 
-### Step 6: RESTART Epic Testing from S6.P1 Step 1
+### Step 6: RESTART Epic Testing from S9.P1 Step 1
 
 **Critical: Don't resume epic testing mid-stream**
 
@@ -173,36 +173,36 @@ Actions needed:
 
 **Restarting Epic Testing:**
 - Reason: feature_05 added during previous epic testing
-- Previous epic test progress: S6.P2 Round 1 (discarded)
-- Restarting from: S6.P1 Step 1 (Epic Smoke Testing)
+- Previous epic test progress: S9.P2 Round 1 (discarded)
+- Restarting from: S9.P1 Step 1 (Epic Smoke Testing)
 
 **Next Action:** Execute epic smoke test plan with ALL 5 features
 ```
 
-**Follow Stage 6 from beginning:**
+**Follow Stage 9 from beginning:**
 
-**🚨 FIRST ACTION:** Use "Starting Stage 6" prompt from `prompts/stage_6_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting Stage 9" prompt from `prompts/stage_6_prompts.md`
 
-**READ:** `stages/s6/s6_epic_final_qc.md`
+**READ:** `stages/s9/s6_epic_final_qc.md`
 
 **Execute:**
-1. **S6.P1:** Epic Smoke Testing (Part 1-4)
+1. **S9.P1:** Epic Smoke Testing (Part 1-4)
    - Part 1: Import Test (all features)
    - Part 2: Entry Point Test
    - Part 3: E2E Execution Test
    - Part 4: Cross-Feature Integration Test ← **Includes new feature**
 
-2. **S6.P2:** Epic QC Rounds (Round 1-3)
+2. **S9.P2:** Epic QC Rounds (Round 1-3)
    - Round 1: Cross-Feature Integration
    - Round 2: Epic Cohesion & Consistency
    - Round 3: End-to-End Success Criteria
 
-3. **S6.P3:** Epic Final Review
+3. **S9.P3:** Epic Final Review
    - Code review
    - Documentation review
    - Epic readiness check
 
-4. **Stage 7:** Epic Cleanup
+4. **Stage 10:** Epic Cleanup
    - User testing ← **User tests with new feature**
    - Commit and merge
    - Archive
@@ -211,7 +211,7 @@ Actions needed:
 
 ## Examples
 
-### Example 1: Discovery During S6.P2 (Epic QC Round 1)
+### Example 1: Discovery During S9.P2 (Epic QC Round 1)
 
 ```markdown
 **Context:**
@@ -238,18 +238,18 @@ Actions needed:
    - Implement feature_05 (Stage 5a → 5e)
 
 4. **Restart epic testing:**
-   - S6.P1 Part 1 (Import Test) - all 5 features
-   - S6.P1 Part 2 (Entry Point Test)
-   - S6.P1 Part 3 (E2E Test)
-   - S6.P1 Part 4 (Cross-Feature Integration) - includes caching layer
-   - S6.P2 (QC Rounds)
-   - S6.P3 (Final Review)
-   - Stage 7 (Cleanup & User Testing)
+   - S9.P1 Part 1 (Import Test) - all 5 features
+   - S9.P1 Part 2 (Entry Point Test)
+   - S9.P1 Part 3 (E2E Test)
+   - S9.P1 Part 4 (Cross-Feature Integration) - includes caching layer
+   - S9.P2 (QC Rounds)
+   - S9.P3 (Final Review)
+   - Stage 10 (Cleanup & User Testing)
 ```
 
 ---
 
-### Example 2: Discovery During Stage 7 (User Testing)
+### Example 2: Discovery During Stage 10 (User Testing)
 
 ```markdown
 **Context:**
@@ -275,25 +275,25 @@ Actions needed:
    - Re-implement feature_03 with new scope (Stage 5a → 5e)
 
 4. **Restart epic testing:**
-   - S6.P1 (Epic Smoke Testing) - feature_03 now includes PDF export
-   - S6.P2 (Epic QC Rounds)
-   - S6.P3 (Epic Final Review)
-   - Stage 7 (User Testing) - user tests again with PDF export
+   - S9.P1 (Epic Smoke Testing) - feature_03 now includes PDF export
+   - S9.P2 (Epic QC Rounds)
+   - S9.P3 (Epic Final Review)
+   - Stage 10 (User Testing) - user tests again with PDF export
 
-**Note:** Even though discovered in Stage 7, loop back to S6.P1 (not Stage 7)
+**Note:** Even though discovered in Stage 10, loop back to S9.P1 (not Stage 10)
 ```
 
 ---
 
 ## Comparison: Normal vs Special Case
 
-| Aspect | Normal (Stage 5) | Special (Stage 6/7) |
+| Aspect | Normal (Stage 5) | Special (Stage 9/7) |
 |--------|-----------------|---------------------|
 | **Planning** | Stages 2/3/4 ✓ | Stages 2/3/4 ✓ |
 | **Resume paused work** | Resume feature implementation | Not applicable (features done) |
 | **Complete remaining features** | Not required | **REQUIRED - ALL features** |
 | **Implement new/updated feature** | When its turn comes in sequence | **After all remaining features** |
-| **Return to** | Resume where left off | **Restart S6.P1 Step 1** |
+| **Return to** | Resume where left off | **Restart S9.P1 Step 1** |
 | **Epic testing** | Not affected (happens later) | **Completely restarted** |
 
 ---
@@ -302,11 +302,11 @@ Actions needed:
 
 ### ❌ Anti-Pattern 1: Resuming Epic Testing Mid-Stream
 
-**Mistake:** After implementing new feature, resume S6.P2 Round 1 (where left off)
+**Mistake:** After implementing new feature, resume S9.P2 Round 1 (where left off)
 
 **Why wrong:** Previous epic test results invalid with new feature
 
-**Correct:** Restart from S6.P1 Step 1
+**Correct:** Restart from S9.P1 Step 1
 
 ---
 
@@ -326,17 +326,17 @@ Actions needed:
 
 **Why wrong:** Missing epic-level validation, potential issues elsewhere
 
-**Correct:** Run complete Stage 6 (6a → 6b → 6c) from beginning
+**Correct:** Run complete Stage 9 (6a → 6b → 6c) from beginning
 
 ---
 
-### ❌ Anti-Pattern 4: Returning to Stage 7 After Fixes
+### ❌ Anti-Pattern 4: Returning to Stage 10 After Fixes
 
-**Mistake:** User finds bug in Stage 7 → Fix → Resume Stage 7
+**Mistake:** User finds bug in Stage 10 → Fix → Resume Stage 10
 
 **Why wrong:** Fixes might affect epic integration, need epic-level validation
 
-**Correct:** User finds bug → Fix → Restart S6.P1 → Stage 7
+**Correct:** User finds bug → Fix → Restart S9.P1 → Stage 10
 
 ---
 
@@ -357,28 +357,28 @@ Actions needed:
 - [x] Epic Progress Tracker shows all features complete
 
 **Epic Testing Restart:**
-- [x] S6.P1 complete (Epic Smoke Testing with new feature)
-- [x] S6.P2 complete (Epic QC Rounds)
-- [x] S6.P3 complete (Epic Final Review)
-- [x] Ready for Stage 7 (User Testing with new feature)
+- [x] S9.P1 complete (Epic Smoke Testing with new feature)
+- [x] S9.P2 complete (Epic QC Rounds)
+- [x] S9.P3 complete (Epic Final Review)
+- [x] Ready for Stage 10 (User Testing with new feature)
 
 ---
 
 ## Summary
 
-**Special case for Stage 6/7 discovery:**
+**Special case for Stage 9/7 discovery:**
 
 1. Follow normal PHASE 1-4 (discovery, planning, realignment)
 2. **Different:** Complete ALL remaining features first
 3. **Different:** Implement new/updated feature (full Stage 5)
-4. **Different:** RESTART epic testing from S6.P1 Step 1
+4. **Different:** RESTART epic testing from S9.P1 Step 1
 5. Run complete epic testing flow (6a → 6b → 6c → 7)
 
 **Key principle:** New feature changes epic integration → Must re-test entire epic
 
 **Loop-back mechanism:**
 - Similar to debugging: Fix → Loop back to testing
-- Missed requirement in Stage 6/7: Add feature → Loop back to S6.P1
+- Missed requirement in Stage 9/7: Add feature → Loop back to S9.P1
 
 ---
 

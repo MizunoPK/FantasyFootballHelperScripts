@@ -12,7 +12,7 @@
 2. [Stage 5: Feature Implementation Lifecycle](#stage-5-feature-implementation-lifecycle)
 3. [Stage 5a: TODO Creation (3 Rounds)](#stage-5a-todo-creation-3-rounds)
 4. [Stage 5c: Post-Implementation (3 Phases)](#stage-5c-post-implementation-3-phases)
-5. [Stage 6: Epic-Level Final QC](#stage-6-epic-level-final-qc)
+5. [Stage 9: Epic-Level Final QC](#stage-6-epic-level-final-qc)
 6. [Debugging Loop-Back Flow](#debugging-loop-back-flow)
 7. [Missed Requirement Workflow](#missed-requirement-workflow)
 8. [Decision Point: Skip 5d/5e?](#decision-point-skip-5d5e)
@@ -87,8 +87,8 @@ User creates {epic_name}.txt
 │ Time: 1-2 hours                             │
 └─────────────────────────────────────────────┘
          ↓
-    [Stage 6 passed?]
-    ├─ NO → Debugging → RESTART Stage 6
+    [Stage 9 passed?]
+    ├─ NO → Debugging → RESTART Stage 9
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
@@ -104,7 +104,7 @@ User creates {epic_name}.txt
 └─────────────────────────────────────────────┘
          ↓
     [User testing passed?]
-    ├─ NO → Debugging → RESTART Stage 6
+    ├─ NO → Debugging → RESTART Stage 9
     └─ YES → Proceed to PR creation
          ↓
     [User approved and merged PR?]
@@ -163,7 +163,7 @@ Prerequisites: Stage 4 complete (Gate 4.5 passed), feature spec ready
     └─ YES → Feature complete!
          ↓
     [More features remaining?]
-    ├─ NO → SKIP to Stage 6
+    ├─ NO → SKIP to Stage 9
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
@@ -184,7 +184,7 @@ Prerequisites: Stage 4 complete (Gate 4.5 passed), feature spec ready
          ↓
     [More features remaining?]
     ├─ YES → Next feature's Stage 5a
-    └─ NO → Stage 6 (Epic Final QC)
+    └─ NO → Stage 9 (Epic Final QC)
 ```
 
 ---
@@ -370,12 +370,12 @@ Entry: Stage 5b complete, all tests passing
          ↓
     [More features remaining?]
     ├─ YES → Stage 5d (Alignment)
-    └─ NO → Stage 6 (Epic QC)
+    └─ NO → Stage 9 (Epic QC)
 ```
 
 ---
 
-## Stage 6: Epic-Level Final QC
+## Stage 9: Epic-Level Final QC
 
 ```
 Epic-Level Final QC - Testing Entire Epic
@@ -384,7 +384,7 @@ Epic-Level Final QC - Testing Entire Epic
 Entry: ALL features complete (Stage 5c passed for all)
          ↓
 ┌─────────────────────────────────────────────┐
-│ S6.P1: Epic Smoke Testing                │
+│ S9.P1: Epic Smoke Testing                │
 │                                             │
 │ Part 1: Import Test (all features)          │
 │ Part 2: Entry Point Test (cross-feature)    │
@@ -397,11 +397,11 @@ Entry: ALL features complete (Stage 5c passed for all)
 └─────────────────────────────────────────────┘
          ↓
     [Epic smoke testing PASSED?]
-    ├─ NO → Debugging → RESTART S6.P1
+    ├─ NO → Debugging → RESTART S9.P1
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
-│ S6.P2: Epic QC Rounds                    │
+│ S9.P2: Epic QC Rounds                    │
 │                                             │
 │ Round 1: Epic Algorithm Verification        │
 │   - Epic requirements vs implementation     │
@@ -419,11 +419,11 @@ Entry: ALL features complete (Stage 5c passed for all)
 └─────────────────────────────────────────────┘
          ↓
     [All 3 epic QC rounds PASSED?]
-    ├─ NO → Debugging → RESTART S6.P1
+    ├─ NO → Debugging → RESTART S9.P1
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
-│ S6.P3: Epic Final Review                 │
+│ S9.P3: Epic Final Review                 │
 │                                             │
 │ Epic PR Review:                             │
 │   - Review all feature changes together     │
@@ -441,8 +441,8 @@ Entry: ALL features complete (Stage 5c passed for all)
 └─────────────────────────────────────────────┘
          ↓
     [Epic final review PASSED?]
-    ├─ NO → Debugging → RESTART S6.P1
-    └─ YES → Stage 7 (Epic Cleanup)
+    ├─ NO → Debugging → RESTART S9.P1
+    └─ YES → Stage 10 (Epic Cleanup)
 ```
 
 ---
@@ -513,8 +513,8 @@ Issues discovered during Testing (Stage 5c or 6)
     └─ YES → LOOP BACK to testing stage
          ↓
     [Feature debugging?]
-    ├─ YES → RESTART S5.P5 (Smoke Testing)
-    └─ NO → RESTART S6.P1 (Epic Smoke Testing)
+    ├─ YES → RESTART S7.P1
+    └─ NO → RESTART S9.P1 (Epic Smoke Testing)
          ↓
     [Testing passes with ZERO new issues?]
     ├─ NO → New issues found → PHASE 1 (restart debugging)
@@ -577,8 +577,8 @@ QC/Smoke finds missing requirement (solution known)
 │ - Update code_changes.md                    │
 └─────────────────────────────────────────────┘
          ↓
-         │ RESTART S5.P5 (Smoke Testing)
-         │ or RESTART S6.P1 (Epic Smoke Testing)
+         │ RESTART S7.P1
+         │ or RESTART S9.P1 (Epic Smoke Testing)
          ↓
 ┌─────────────────────────────────────────────┐
 │ STEP 3b: Major Addition (>3 tasks)          │
@@ -595,7 +595,7 @@ QC/Smoke finds missing requirement (solution known)
          ↓
     [Feature level?]
     ├─ YES → Continue with Stage 5d/5e if needed
-    └─ NO → Stage 6 (Epic testing)
+    └─ NO → Stage 9 (Epic testing)
 ```
 
 ---
@@ -639,11 +639,11 @@ Stage 5c complete (feature validated)
     │   Why skip?                       │
     │   - No remaining specs to update  │
     │   - Test plan will be validated   │
-    │     in Stage 6 anyway             │
+    │     in Stage 9 anyway             │
     │   - No point in intermediate      │
     │     updates                       │
     │         ↓                         │
-    │   Proceed directly to Stage 6     │
+    │   Proceed directly to Stage 9     │
     │   (Epic-Level Final QC)           │
     │                                   │
     └───────────────────────────────────┘
@@ -668,7 +668,7 @@ When to Restart - Complete Decision Matrix
 │ Action:                                                │
 │   1. Enter Debugging Protocol                          │
 │   2. Resolve ALL issues in checklist                   │
-│   3. RESTART from S5.P5 Step 1 (Import Test)       │
+│   3. RESTART from S10.P1 Step 1 (Import Test)       │
 │   4. Re-run ALL 3 parts of smoke testing               │
 │   5. Only proceed to QC rounds if smoke passes         │
 └────────────────────────────────────────────────────────┘
@@ -684,13 +684,13 @@ When to Restart - Complete Decision Matrix
 │ Action:                                                │
 │   1. Enter Debugging Protocol                          │
 │   2. Resolve ALL issues                                │
-│   3. RESTART from S5.P5 Step 1 (NOT from QC Round 1)│
+│   3. RESTART from S10.P1 Step 1 (NOT from QC Round 1)│
 │   4. Complete smoke testing → QC rounds again          │
 │   5. Zero tolerance for deferring issues               │
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
-│ SCENARIO 3: Issues During Epic Testing (Stage 6)      │
+│ SCENARIO 3: Issues During Epic Testing (Stage 9)      │
 ├────────────────────────────────────────────────────────┤
 │ Issue found in:                                        │
 │   - Epic smoke testing (6a)                            │
@@ -701,12 +701,12 @@ When to Restart - Complete Decision Matrix
 │   1. Add to epic-level debugging/ISSUES_CHECKLIST.md   │
 │   2. Enter Debugging Protocol                          │
 │   3. Resolve ALL issues                                │
-│   4. RESTART from S6.P1 Part 1 (Epic Import Test)   │
-│   5. Re-run entire Stage 6 (6a → 6b → 6c)              │
+│   4. RESTART from S9.P1 Part 1 (Epic Import Test)   │
+│   5. Re-run entire Stage 9 (6a → 6b → 6c)              │
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
-│ SCENARIO 4: User Testing Failures (Stage 7)           │
+│ SCENARIO 4: User Testing Failures (Stage 10)           │
 ├────────────────────────────────────────────────────────┤
 │ User finds bugs during testing                         │
 │                                                        │
@@ -714,9 +714,9 @@ When to Restart - Complete Decision Matrix
 │   1. Document bugs in epic-level ISSUES_CHECKLIST.md   │
 │   2. Enter Debugging Protocol                          │
 │   3. Resolve ALL issues with user confirmation         │
-│   4. RESTART from S6.P1 (not Stage 7)               │
-│   5. Complete full Stage 6 validation again            │
-│   6. Return to Stage 7 user testing                    │
+│   4. RESTART from S9.P1 (not Stage 10)               │
+│   5. Complete full Stage 9 validation again            │
+│   6. Return to Stage 10 user testing                    │
 │   7. ZERO bugs required to proceed                     │
 └────────────────────────────────────────────────────────┘
 
@@ -775,14 +775,14 @@ When to Restart - Complete Decision Matrix
 - Iteration 23a: Pre-Implementation Spec Audit - 4 PARTS (Stage 5a Round 3)
 - Iteration 25: Spec Validation Against Validated Documents (Stage 5a Round 3)
 - Iteration 24: Implementation Readiness Protocol - GO/NO-GO (Stage 5a Round 3)
-- Smoke Testing Part 3: E2E Execution Test (Stage 5c, S6.P1)
-- User Testing: Zero bugs required (Stage 7)
+- Smoke Testing Part 3: E2E Execution Test (Stage 5c, S9.P1)
+- User Testing: Zero bugs required (Stage 10)
 
 **Key Principles:**
 - **Loop-back on issues:** Never proceed with unresolved issues
 - **Zero tech debt tolerance:** Fix all issues immediately
 - **100% test pass required:** Before stage transitions
-- **User approval required:** For specs (Stage 3), testing (Stage 7)
+- **User approval required:** For specs (Stage 3), testing (Stage 10)
 - **Restart from beginning:** When issues found in QC/smoke testing
 
 ---

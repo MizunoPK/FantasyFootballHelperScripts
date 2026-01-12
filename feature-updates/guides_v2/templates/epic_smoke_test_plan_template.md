@@ -67,7 +67,7 @@
 **Instructions for Agent:**
 - Execute EACH scenario listed below
 - Verify ACTUAL DATA VALUES (not just "file exists")
-- Document results in Stage 6
+- Document results in Stage 9
 
 ---
 
@@ -242,7 +242,7 @@ python run_{epic_main}.py --mode {mode} --{edge_case_flag}
 
 ---
 
-## Execution Checklist (For Stage 6)
+## Execution Checklist (For Stage 9)
 
 **Part 1: Import Tests**
 - [ ] Scenario 1: Import All Epic Modules - {✅ PASSED / ❌ FAILED}

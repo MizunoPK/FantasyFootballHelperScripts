@@ -15,7 +15,7 @@
 ## 🚨 CRITICAL: Why This Phase Is Mandatory
 
 **Historical Problem:**
-- Bugs were fixed but lessons learned only at S7.P1 (weeks later)
+- Bugs were fixed but lessons learned only at S10.P1 (weeks later)
 - Root cause analysis happened in aggregate (Phase 5), losing individual context
 - Guide improvements were generic, not tied to specific bugs
 
@@ -23,7 +23,7 @@
 - **IMMEDIATE** root cause analysis while context is fresh
 - **USER CONFIRMS** root cause before documenting
 - **INCREMENTAL** guide improvements captured per bug
-- **PRIORITIZED** lessons (debugging bugs → P0/P1 priority in S7.P1)
+- **PRIORITIZED** lessons (debugging bugs → P0/P1 priority in S10.P1)
 
 **Result:** Higher quality guide improvements that prevent same bugs in future epics
 
@@ -117,12 +117,12 @@ WHY #5: Why didn't Iteration 9 catch it?
 - Mini-QC checkpoints: Should QC have caught this?
 - Unit tests: Should test have existed for this?
 
-**S5.P5 (Smoke Testing):**
+**S7.P1:**
 - Part 1 (Import Test): Should import have failed?
 - Part 2 (Entry Point Test): Should entry point have caught this?
 - Part 3 (E2E Test): Should E2E test have caught this? (This is where it WAS caught)
 
-**S5.P6 (QC Rounds):**
+**S7.P2:**
 - Round 1-3: Which round should have caught this?
 
 **Stage 2 (Specification):**
@@ -137,7 +137,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 ## Prevention Point
 
 **This bug SHOULD have been caught at:**
-- Stage: {Stage 5a / 5b / S5.P5 / S5.P6 / 2 / etc.}
+- Stage: {Stage 5a / 5b / S10.P1 / S10.P2 / 2 / etc.}
 - Specific Step: {Iteration 9 / QC Round 1 / etc.}
 - Guide: {s5_p2_planning_round2.md / qc_rounds.md / etc.}
 - Specific Section: {Iteration 9: Edge Case Analysis}
@@ -372,7 +372,7 @@ If you choose MODIFY or DISAGREE, please explain:
 
 ## Step 5: Document in guide_update_recommendations.md
 
-**Goal:** Add user-confirmed guide improvement to recommendations file for S7.P1
+**Goal:** Add user-confirmed guide improvement to recommendations file for S10.P1
 
 ### 5.1: Create or Update File
 
@@ -393,7 +393,7 @@ If you choose MODIFY or DISAGREE, please explain:
 
 **Source:** Per-issue root cause analysis (Phase 4b of debugging protocol)
 
-**Usage:** These recommendations will be presented to user in S7.P1 for approval
+**Usage:** These recommendations will be presented to user in S10.P1 for approval
 
 **Priority Levels:**
 - **P0 (Critical):** Prevents catastrophic bugs, user testing failures
@@ -509,7 +509,7 @@ If you choose MODIFY or DISAGREE, please explain:
 
 **Added to:** `debugging/guide_update_recommendations.md` - Recommendation #{number}
 **Priority:** {P0/P1/P2/P3}
-**Will be presented to user in S7.P1 for final approval**
+**Will be presented to user in S10.P1 for final approval**
 
 ### User Feedback
 
@@ -616,7 +616,7 @@ Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 ## Why This Matters
 
 **Before Phase 4b:**
-- Root cause analysis happened weeks later (Phase 5, S7.P1)
+- Root cause analysis happened weeks later (Phase 5, S10.P1)
 - Context was lost ("Why did we make that decision?")
 - Guide improvements were generic and vague
 - User wasn't involved in root cause validation
@@ -625,7 +625,7 @@ Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 - Root cause analyzed IMMEDIATELY (while context is fresh)
 - User confirms REAL reason (not agent assumptions)
 - Guide improvements are SPECIFIC and ACTIONABLE
-- S7.P1 presents high-quality, pre-validated proposals
+- S10.P1 presents high-quality, pre-validated proposals
 - Future epics benefit from concrete, tested improvements
 
 **Historical evidence:** Bugs analyzed immediately have 3x higher quality guide improvements vs. bugs analyzed weeks later.

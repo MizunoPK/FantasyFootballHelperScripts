@@ -301,7 +301,7 @@ Stage 5a (Implementation Planning) is complete. I've created implementation_plan
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s5/s5_p4_execution.md` to ensure I follow the implementation workflow...
+I'm reading `stages/s9/s6_execution.md` to ensure I follow the implementation workflow...
 
 **The guide requires:**
 - **Create implementation_checklist.md** from implementation_plan.md tasks
@@ -330,7 +330,7 @@ I'm reading `stages/s5/s5_p4_execution.md` to ensure I follow the implementation
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION
-- Current Guide: stages/s5/s5_p4_execution.md
+- Current Guide: stages/s9/s6_execution.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "spec.md visible at all times", "implementation_plan.md is PRIMARY reference", "Unit tests after each step (100% pass)", "Mini-QC checkpoints", "Update code_changes.md incrementally"
 - Progress: 0/{N} implementation tasks complete
@@ -350,7 +350,7 @@ Starting implementation...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s5/s5_p5_smoke_testing.md` to ensure I follow the 3-part smoke testing protocol...
+I'm reading `stages/s10/s7_p1_smoke_testing.md` to ensure I follow the 3-part smoke testing protocol...
 
 **The guide requires:**
 - **Part 1: Import Test** (verify module loads without errors)
@@ -382,7 +382,7 @@ I'm reading `stages/s5/s5_p5_smoke_testing.md` to ensure I follow the 3-part smo
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_SMOKE_TESTING
-- Current Guide: stages/s5/s5_p5_smoke_testing.md
+- Current Guide: stages/s10/s7_p1_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 parts MANDATORY", "Verify DATA VALUES not structure", "GATE before QC rounds"
 - Progress: 0/3 parts complete
@@ -402,7 +402,7 @@ Running import test for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s5/s5_p6_qc_rounds.md` to ensure I follow the 3-round QC protocol...
+I'm reading `stages/s10/s7_p2_qc_rounds.md` to ensure I follow the 3-round QC protocol...
 
 **The guide requires:**
 - **QC Round 1: Basic Validation**
@@ -432,7 +432,7 @@ I'm reading `stages/s5/s5_p6_qc_rounds.md` to ensure I follow the 3-round QC pro
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_QC_ROUNDS
-- Current Guide: stages/s5/s5_p6_qc_rounds.md
+- Current Guide: stages/s10/s7_p2_qc_rounds.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 rounds (no exceptions)", "QC RESTART if critical issues", "Round 3 zero tolerance"
 - Progress: 0/3 rounds complete
@@ -452,7 +452,7 @@ Starting QC Round 1 for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s5/s5_p7_final_review.md` to ensure I follow the final review protocol...
+I'm reading `stages/s10/s7_p3_final_review.md` to ensure I follow the final review protocol...
 
 **The guide requires:**
 - **PR Review Protocol** (Multi-round with fresh eyes - MANDATORY):
@@ -466,7 +466,7 @@ I'm reading `stages/s5/s5_p7_final_review.md` to ensure I follow the final revie
   - Document what worked well
   - Document what didn't work
   - **IMMEDIATELY UPDATE GUIDES** (not just document issues)
-  - Example: If QC found zero data issue → update S5.P5 guide NOW
+  - Example: If QC found zero data issue → update S10.P1 guide NOW
 - **Final Verification**:
   - 100% requirement completion (from spec)
   - All code_changes.md items implemented
@@ -485,7 +485,7 @@ I'm reading `stages/s5/s5_p7_final_review.md` to ensure I follow the final revie
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_FINAL_REVIEW
-- Current Guide: stages/s5/s5_p7_final_review.md
+- Current Guide: stages/s10/s7_p3_final_review.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "PR review protocol MANDATORY", "Fresh agents for each round", "Update guides immediately", "100% completion required"
 - Progress: PR Review Protocol starting
@@ -505,7 +505,7 @@ Starting PR Review Protocol for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s5/s5_p8_cross_feature_alignment.md` to ensure I review all remaining feature specs...
+I'm reading `stages/s8/s8_p1_cross_feature_alignment.md` to ensure I review all remaining feature specs...
 
 **The guide requires:**
 - Review ALL remaining features (not yet at Stage 5c)
@@ -540,7 +540,7 @@ I'm reading `stages/s5/s5_p8_cross_feature_alignment.md` to ensure I review all 
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 5d - Cross-Feature Alignment
-- Current Guide: stages/s5/s5_p8_cross_feature_alignment.md
+- Current Guide: stages/s8/s8_p1_cross_feature_alignment.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Review ALL remaining features", "Compare to ACTUAL implementation", "Update specs proactively", "Mark features needing significant rework"
 - Next Action: Identify remaining features from Epic Progress Tracker
@@ -559,7 +559,7 @@ Starting cross-feature alignment review...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s5/s5_p9_epic_testing_update.md` to ensure I update the epic test plan based on actual implementation...
+I'm reading `stages/s8/s8_p2_epic_testing_update.md` to ensure I update the epic test plan based on actual implementation...
 
 **The guide requires:**
 - Review ACTUAL implementation of just-completed feature:
@@ -584,12 +584,12 @@ I'm reading `stages/s5/s5_p9_epic_testing_update.md` to ensure I update the epic
   - Stage 1: Placeholder
   - Stage 4: Based on specs
   - Stage 5e: Based on actual implementation (THIS stage)
-  - Stage 6: Execute evolved plan
+  - Stage 9: Execute evolved plan
 
 **Why this matters:**
 - Implementation often differs from specs
 - New integration points discovered during coding
-- Test plan must reflect REALITY for Stage 6 to be effective
+- Test plan must reflect REALITY for Stage 9 to be effective
 
 **Prerequisites I'm verifying:**
 ✅ Stage 5d complete (all remaining features reviewed)
@@ -600,7 +600,7 @@ I'm reading `stages/s5/s5_p9_epic_testing_update.md` to ensure I update the epic
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 5e - Epic Testing Plan Update
-- Current Guide: stages/s5/s5_p9_epic_testing_update.md
+- Current Guide: stages/s8/s8_p2_epic_testing_update.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Review ACTUAL implementation", "Add integration scenarios", "Update History table", "Test plan evolves incrementally"
 - Next Action: Read just-completed feature's actual code to identify test plan updates

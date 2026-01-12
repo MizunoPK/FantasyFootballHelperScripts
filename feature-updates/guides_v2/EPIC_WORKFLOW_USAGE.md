@@ -74,9 +74,9 @@ Stage 4: Epic Testing Strategy (define how to test)
     ↓
 Stage 5: Feature Implementation (implement each feature: 5a→5b→5c→5d→5e)
     ↓
-Stage 6: Epic-Level Final QC (validate epic as whole)
+Stage 9: Epic-Level Final QC (validate epic as whole)
     ↓
-Stage 7: Epic Cleanup (commit, archive, apply lessons)
+Stage 10: Epic Cleanup (commit, archive, apply lessons)
 ```
 
 ### Terminology
@@ -132,7 +132,7 @@ Stage 7: Epic Cleanup (commit, archive, apply lessons)
    **Last Updated:** 2025-12-30 14:30
    **Current Stage:** Stage 5b - Implementation Execution
    **Current Step:** Implementing Feature 2, component 3 of 5
-   **Current Guide:** stages/s5/s5_p4_execution.md
+   **Current Guide:** stages/s9/s6_execution.md
    **Next Action:** Complete PlayerManager.calculate_score() method
    ```
 
@@ -163,7 +163,7 @@ project-root/
 │       ├── stages/s1/s1_epic_planning.md
 │       ├── stages/s2/s2_feature_deep_dive.md
 │       ├── ... (16 stage guides total)
-│       └── stages/s7/s7_epic_cleanup.md
+│       └── stages/s10/s7_epic_cleanup.md
 └── [your project files]
 ```
 
@@ -211,7 +211,7 @@ feature-updates/KAI-{N}-{epic_name}/
   - Created in Stage 1 (initial version)
   - Updated in Stage 4 (after deep dives)
   - Updated in Stage 5e (after each feature implementation)
-  - Used in Stage 6 (final epic validation)
+  - Used in Stage 9 (final epic validation)
 
 - **epic_lessons_learned.md**: Cross-feature patterns
   - Insights from each stage
@@ -406,7 +406,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 #### Stage 5b: Implementation Execution
 
-**Guide:** `stages/s5/s5_p4_execution.md`
+**Guide:** `stages/s9/s6_execution.md`
 
 **Key Activities:**
 - Create `implementation_checklist.md` (~50 lines) from implementation_plan.md tasks
@@ -425,9 +425,9 @@ feature-updates/KAI-{N}-{epic_name}/
 #### Stage 5c: Post-Implementation (3 phases)
 
 **Guides:** 3 guides (Smoke Testing, QC Rounds, Final Review)
-- `stages/s5/s5_p5_smoke_testing.md`
-- `stages/s5/s5_p6_qc_rounds.md`
-- `stages/s5/s5_p7_final_review.md`
+- `stages/s10/s7_p1_smoke_testing.md`
+- `stages/s10/s7_p2_qc_rounds.md`
+- `stages/s10/s7_p3_final_review.md`
 
 **Step 1 - Smoke Testing:**
 - Part 1: Import Test (module loads)
@@ -450,7 +450,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 #### Stage 5d: Cross-Feature Spec Alignment
 
-**Guide:** `stages/s5/s5_p8_cross_feature_alignment.md`
+**Guide:** `stages/s8/s8_p1_cross_feature_alignment.md`
 
 **Key Activities:**
 - Review ALL remaining (unimplemented) feature specs
@@ -462,7 +462,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 #### Stage 5e: Epic Testing Plan Reassessment
 
-**Guide:** `stages/s5/s5_p9_epic_testing_update.md`
+**Guide:** `stages/s8/s8_p2_epic_testing_update.md`
 
 **Key Activities:**
 - Reassess `epic_smoke_test_plan.md`
@@ -476,7 +476,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 ---
 
-### Stage 6: Epic-Level Final QC
+### Stage 9: Epic-Level Final QC
 
 **Purpose:** Validate epic as a whole (all features integrated)
 
@@ -487,7 +487,7 @@ feature-updates/KAI-{N}-{epic_name}/
 - Epic-level lessons learned
 - Epic completion verification
 
-**Guide:** `stages/s6/s6_p1_epic_smoke_testing.md` (start here, then 6b, 6c)
+**Guide:** `stages/s9/s6_p1_epic_smoke_testing.md` (start here, then 6b, 6c)
 
 **Key Activities:**
 - Execute evolved `epic_smoke_test_plan.md` (4 parts)
@@ -496,31 +496,31 @@ feature-updates/KAI-{N}-{epic_name}/
 - Epic-level PR review (11 categories)
 - Validate against original epic request
 
-**Critical Rule:** If bugs found → Create bug fixes, RESTART Stage 6 after fixes
+**Critical Rule:** If bugs found → Create bug fixes, RESTART Stage 9 after fixes
 
-**Next:** Stage 7
+**Next:** Stage 10
 
 ---
 
-### Stage 7: Epic Cleanup
+### Stage 10: Epic Cleanup
 
 **Purpose:** Commit changes, archive epic, apply lessons learned
 
-**Inputs:** Stage 6 complete, epic validated
+**Inputs:** Stage 9 complete, epic validated
 
 **Outputs:**
 - All changes committed to git
 - Epic moved to `feature-updates/done/`
 - Guides updated based on lessons learned
 
-**Guide:** `stages/s7/s7_epic_cleanup.md`
+**Guide:** `stages/s10/s7_epic_cleanup.md`
 
 **Key Activities:**
 1. Run unit tests (100% pass MANDATORY)
 2. Verify documentation complete
 3. **User testing (MANDATORY GATE):**
    - Ask user to test complete system
-   - If bugs found → Fix bugs, RESTART Stage 6
+   - If bugs found → Fix bugs, RESTART Stage 9
    - Repeat until user testing passes with ZERO bugs
 4. Update guides based on lessons learned
 5. Commit changes with clear message
@@ -639,7 +639,7 @@ I'll now proceed with Stage 1...
 **Last Updated:** 2025-12-31 10:00
 **Current Stage:** Stage 5b - Implementation Execution
 **Current Step:** Implementing PlayerManager.calculate_score() method
-**Current Guide:** stages/s5/s5_p4_execution.md
+**Current Guide:** stages/s9/s6_execution.md
 **Status:** IN PROGRESS
 **Progress:** Component 3 of 5 complete
 
@@ -655,7 +655,7 @@ I'll now proceed with Stage 1...
 
 ### 4. QC Restart Protocol
 
-**Applies to:** Stage 5c QC Rounds, Stage 6 Epic QC
+**Applies to:** Stage 5c QC Rounds, Stage 9 Epic QC
 
 **Rule:** If ANY issues found during QC → COMPLETELY RESTART from beginning
 
@@ -665,10 +665,10 @@ I'll now proceed with Stage 1...
 - RESTART from smoke testing (Part 1)
 - Re-run all 3 QC rounds
 
-**Stage 6 (Epic QC):**
+**Stage 9 (Epic QC):**
 - Issues found during epic validation?
 - Create bug fixes (follow bug fix protocol)
-- After ALL bug fixes complete → RESTART Stage 6 from beginning
+- After ALL bug fixes complete → RESTART Stage 9 from beginning
 - Re-run all epic smoke testing and QC rounds
 
 **Why:** Ensures validation covers ALL changes, including fixes
@@ -697,7 +697,7 @@ I'll now proceed with Stage 1...
 **When to run tests:**
 - After EVERY component in Stage 5b
 - Before starting QC (Stage 5c)
-- Before committing (Stage 7)
+- Before committing (Stage 10)
 
 **What to do if tests fail:**
 - STOP implementation
@@ -705,7 +705,7 @@ I'll now proceed with Stage 1...
 - Re-run until 100% pass
 - THEN proceed
 
-**Acceptable to fix:** Pre-existing test failures from other epics during Stage 7
+**Acceptable to fix:** Pre-existing test failures from other epics during Stage 10
 
 ---
 
@@ -811,20 +811,20 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 - stages/s5/s5_p3_planning_round3.md (Round 3 Part 1)
 - stages/s5/5.1.3.2_round3_part2a.md (Round 3 Part 2a)
 - stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
-- stages/s5/s5_p4_execution.md
-- stages/s5/s5_p5_smoke_testing.md (Phase 1)
-- stages/s5/s5_p6_qc_rounds.md (Phase 2)
-- stages/s5/s5_p7_final_review.md (Phase 3)
-- stages/s5/s5_p8_cross_feature_alignment.md
-- stages/s5/s5_p9_epic_testing_update.md
+- stages/s9/s6_execution.md
+- stages/s10/s7_p1_smoke_testing.md (Phase 1)
+- stages/s10/s7_p2_qc_rounds.md (Phase 2)
+- stages/s10/s7_p3_final_review.md (Phase 3)
+- stages/s8/s8_p1_cross_feature_alignment.md
+- stages/s8/s8_p2_epic_testing_update.md
 - stages/s5/s5_bugfix_workflow.md
 
 **Finalization Guides (5):**
-- stages/s6/s6_epic_final_qc.md (router)
-- stages/s6/s6_p1_epic_smoke_testing.md (Steps 1-2)
-- stages/s6/s6_p2_epic_qc_rounds.md (Steps 3-5)
-- stages/s6/s6_p4_epic_final_review.md (Steps 6-8)
-- stages/s7/s7_epic_cleanup.md
+- stages/s9/s6_epic_final_qc.md (router)
+- stages/s9/s6_p1_epic_smoke_testing.md (Steps 1-2)
+- stages/s9/s6_p2_epic_qc_rounds.md (Steps 3-5)
+- stages/s9/s6_p4_epic_final_review.md (Steps 6-8)
+- stages/s10/s7_epic_cleanup.md
 
 **Supporting Files (4):**
 - EPIC_WORKFLOW_USAGE.md (this file)
@@ -880,12 +880,12 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 | Checking feature conflicts | stages/s3/s3_cross_feature_sanity_check.md |
 | Planning epic tests | stages/s4/s4_epic_testing_strategy.md |
 | Creating implementation plan | Part 5.1.1/5ab/5ac (rounds 1-3) |
-| Writing code | stages/s5/s5_p4_execution.md |
-| Testing feature | S5.P5/S5.P6/S5.P7 (smoke/QC/review) |
-| Updating other specs | stages/s5/s5_p8_cross_feature_alignment.md |
-| Updating test plan | stages/s5/s5_p9_epic_testing_update.md |
-| Testing epic | stages/s6/s6_p1_epic_smoke_testing.md (start here) |
-| Committing/archiving | stages/s7/s7_epic_cleanup.md |
+| Writing code | stages/s9/s6_execution.md |
+| Testing feature | S10.P1/S10.P2/S10.P3 (smoke/QC/review) |
+| Updating other specs | stages/s8/s8_p1_cross_feature_alignment.md |
+| Updating test plan | stages/s8/s8_p2_epic_testing_update.md |
+| Testing epic | stages/s9/s6_p1_epic_smoke_testing.md (start here) |
+| Committing/archiving | stages/s10/s7_epic_cleanup.md |
 | Fixing a bug | stages/s5/s5_bugfix_workflow.md |
 | Resuming work | EPIC_README.md Agent Status + current guide |
 | Finding prompts | prompts_reference_v2.md |
@@ -928,7 +928,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 - During Stage 5a: 28 verification iterations
 - During Stage 5b: Mini-QC after each component
 - During Stage 5c: 3-phase validation (smoke, QC, review)
-- During Stage 6: Epic-level validation
+- During Stage 9: Epic-level validation
 
 **Why:** Catch issues early when cheap to fix, not late when expensive
 
@@ -948,7 +948,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 **Keep these separate:**
 - Stage 5c validates individual features
-- Stage 6 validates epic integration
+- Stage 9 validates epic integration
 - Don't mix feature and epic concerns
 
 ### 5. Continuous Refinement
@@ -957,7 +957,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 - `epic_smoke_test_plan.md` evolves (Stage 1 → 4 → 5e → 6)
 - Feature specs update based on reality (Stage 5d)
-- Guides improve based on lessons learned (Stage 7)
+- Guides improve based on lessons learned (Stage 10)
 
 **Plan for evolution:**
 - Original assumptions may be wrong
@@ -1081,15 +1081,15 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 **Update these sections in guides if needed:**
 
 1. **Test command** (if not `python tests/run_all_tests.py`):
-   - Update in stages/s5/s5_p4_execution.md
-   - Update in stages/s7/s7_epic_cleanup.md
+   - Update in stages/s9/s6_execution.md
+   - Update in stages/s10/s7_epic_cleanup.md
 
 2. **File paths** (if different structure):
    - Update examples in guides to match your project structure
    - Update templates/ (templates index & individual files) with your paths
 
 3. **Commit protocol** (if different from project standards):
-   - Update stages/s7/s7_epic_cleanup.md commit message format
+   - Update stages/s10/s7_epic_cleanup.md commit message format
    - Update any project-specific commit requirements
 
 4. **Project-specific terminology:**
@@ -1231,7 +1231,7 @@ I see the epic is currently at:
 
 I'm resuming the in-progress epic {epic_name}. Let me read the current guide to restore context...
 
-[Read stages/s5/s5_p4_execution.md]
+[Read stages/s9/s6_execution.md]
 
 The guide requires:
 - Keep spec.md VISIBLE at all times
@@ -1305,7 +1305,7 @@ MINOR:
 
 These issues require fixes before proceeding.
 
-Following QC Restart Protocol from stages/s5/s5_p6_qc_rounds.md:
+Following QC Restart Protocol from stages/s10/s7_p2_qc_rounds.md:
 - Fix ALL issues immediately (no deferrals)
 - RESTART from smoke testing (Part 1)
 - Re-run all 3 QC rounds
@@ -1318,7 +1318,7 @@ Fixing issues now...
 
 All issues fixed. Restarting QC process from smoke testing...
 
-[Execute stages/s5/s5_p5_smoke_testing.md Part 1]
+[Execute stages/s10/s7_p1_smoke_testing.md Part 1]
 [Execute Part 2]
 [Execute Part 3]
 
@@ -1331,7 +1331,7 @@ Smoke testing passed. Moving to QC rounds...
 All QC rounds passed. Proceeding to Final Review...
 ```
 
-### Pattern 5: User Testing Finds Bugs (Stage 7)
+### Pattern 5: User Testing Finds Bugs (Stage 10)
 
 **User reports bugs during mandatory testing**
 
@@ -1342,7 +1342,7 @@ You reported the following bugs during testing:
 1. Draft recommendations show incorrect player rankings
 2. Export file has wrong column headers
 
-Following Stage 7 bug fix protocol from stages/s7/s7_epic_cleanup.md:
+Following Stage 10 bug fix protocol from stages/s10/s7_epic_cleanup.md:
 
 Step 1: Document Bugs
 
@@ -1366,22 +1366,22 @@ Step 2: Fix ALL Bugs
 
 Both bug fixes complete.
 
-Step 3: RESTART Stage 6 (Epic Final QC)
+Step 3: RESTART Stage 9 (Epic Final QC)
 
-Following guide requirement: After bug fixes, must restart ENTIRE Stage 6.
+Following guide requirement: After bug fixes, must restart ENTIRE Stage 9.
 
-[Read stages/s6/s6_p1_epic_smoke_testing.md]
+[Read stages/s9/s6_p1_epic_smoke_testing.md]
 [Execute epic smoke testing - 4 parts]
-[Read stages/s6/s6_p2_epic_qc_rounds.md]
+[Read stages/s9/s6_p2_epic_qc_rounds.md]
 [Execute epic QC rounds - 3 rounds]
-[Read stages/s6/s6_p4_epic_final_review.md]
+[Read stages/s9/s6_p4_epic_final_review.md]
 [Execute epic PR review and final verification]
 
-Stage 6 complete with zero issues.
+Stage 9 complete with zero issues.
 
 Step 4: Return to User Testing
 
-I've fixed both bugs and re-validated the epic (Stage 6 passed).
+I've fixed both bugs and re-validated the epic (Stage 9 passed).
 
 Bugs fixed:
 - Bug 1: Draft recommendations now show correct rankings (sorted by score DESC)
@@ -1484,7 +1484,7 @@ I'll now continue with iteration 11...
 ### Q: What if tests are failing from unrelated changes?
 
 **A:** Fix them.
-- Stage 7 requires 100% test pass rate
+- Stage 10 requires 100% test pass rate
 - It's acceptable to fix pre-existing failures
 - Document in epic_lessons_learned.md
 - Goal: Clean test suite for everyone
@@ -1495,22 +1495,22 @@ I'll now continue with iteration 11...
 - Stage 1: Identify dependencies
 - Stage 4: Plan integration testing
 - Stage 5: Implement features sequentially (dependency first)
-- Stage 6: Validate integration
+- Stage 9: Validate integration
 
-### Q: What if Stage 6 finds major architectural issues?
+### Q: What if Stage 9 finds major architectural issues?
 
 **A:** Create bug fixes, potentially refactor:
 1. Document issues as high-priority bug fixes
 2. Determine if architectural change needed
 3. If major refactor: May need new epic
-4. If fixable: Create bug fixes, restart Stage 6
+4. If fixable: Create bug fixes, restart Stage 9
 5. No shortcuts - quality is non-negotiable
 
 ### Q: How does the guide improvement workflow work?
 
-**A:** Every epic includes mandatory guide updates (S7.P1):
+**A:** Every epic includes mandatory guide updates (S10.P1):
 
-**When:** After Stage 7 user testing passes, before final commit
+**When:** After Stage 10 user testing passes, before final commit
 
 **What gets updated:**
 - All files in `feature-updates/guides_v2/` (16 guides + supporting files)
@@ -1538,7 +1538,7 @@ I'll now continue with iteration 11...
 
 **Time estimate:** 20-45 minutes per epic (depending on lessons count)
 
-**See:** `stages/s7/s7_p1_guide_update_workflow.md` for complete workflow
+**See:** `stages/s10/s7_p1_guide_update_workflow.md` for complete workflow
 
 ---
 

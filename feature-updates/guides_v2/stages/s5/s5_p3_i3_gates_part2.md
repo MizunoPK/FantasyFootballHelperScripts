@@ -43,7 +43,7 @@ Part 2b of Round 3 is the final validation phase where you verify integration (I
 60-90 minutes (4 iterations + user approval)
 
 **Exit Condition:**
-Part 2b is complete when all 4 iterations pass (including Gates 23a and 25), user approves implementation_plan.md (Gate 5), confidence level is at least MEDIUM, and you're ready to proceed to S5b
+Part 2b is complete when all 4 iterations pass (including Gates 23a and 25), user approves implementation_plan.md (Gate 5), confidence level is at least MEDIUM, and you're ready to proceed to S6
 
 ---
 
@@ -71,7 +71,7 @@ Iteration 24: Implementation Readiness (GO/NO-GO)
    ↓
 Gate 5: User Approval of implementation_plan.md (MANDATORY)
    ↓
-If ALL gates pass + user approval: Proceed to S5b
+If ALL gates pass + user approval: Proceed to S6
 If ANY gate fails: Fix issues, re-run
 ```
 
@@ -103,11 +103,11 @@ If ANY gate fails: Fix issues, re-run
    - CANNOT proceed to Iteration 24 without passing Iteration 25
 
 5. ⚠️ Iteration 24 requires "GO" decision to proceed
-   - Cannot proceed to S5b without GO
+   - Cannot proceed to S6 without GO
    - If NO-GO → Fix blockers, re-run Iteration 24
    - GO requires: confidence >= MEDIUM, all gates passed
 
-6. ⚠️ Gate 5 (User Approval) is MANDATORY before S5b
+6. ⚠️ Gate 5 (User Approval) is MANDATORY before S6
    - MUST present implementation_plan.md to user
    - WAIT for explicit user approval
    - Cannot proceed without approval
@@ -197,7 +197,7 @@ If ANY gate fails: Fix issues, re-run
   - If discrepancies found → Report to user, await decision
 - **Iteration 24:** Implementation Readiness Protocol (FINAL GATE)
   - Final GO/NO-GO decision
-  - Must achieve GO to proceed to S5b
+  - Must achieve GO to proceed to S6
   - Readiness checklist + confidence assessment
 
 **Key Outputs:**
@@ -256,7 +256,7 @@ If ANY gate fails: Fix issues, re-run
   - All gates PASSED
   - Gate 5: User approval timestamp
   - Phase: IMPLEMENTATION
-  - Next Action: Read S5b guide
+  - Next Action: Read S6 guide
 
 ### Quality Verified
 - [ ] Confidence level >= MEDIUM
@@ -267,11 +267,11 @@ If ANY gate fails: Fix issues, re-run
 - Part 2b is COMPLETE
 - Round 3 is COMPLETE
 - S5a is COMPLETE
-- Ready to proceed to S5b (Implementation)
+- Ready to proceed to S6 (Implementation)
 - Read `stages/s5/implementation_execution.md`
 
 **If ANY item unchecked:**
-- STOP - Do not proceed to S5b
+- STOP - Do not proceed to S6
 - Complete missing items
 - Re-verify completion criteria
 
@@ -296,7 +296,7 @@ If ANY gate fails: Fix issues, re-run
 ❌ "Confidence is LOW but I'll mark GO anyway"
    ✅ STOP - GO requires confidence >= MEDIUM
 
-❌ "I'll proceed to S5b without user approval"
+❌ "I'll proceed to S6 without user approval"
    ✅ STOP - Gate 5 is MANDATORY, must wait for approval
 
 ❌ "Gate 23a failed but I'll proceed anyway"
@@ -312,9 +312,9 @@ If ANY gate fails: Fix issues, re-run
 
 ---
 
-## Prerequisites for S5b (Implementation Execution)
+## Prerequisites for S6 (Implementation Execution)
 
-**Before transitioning to S5b, verify:**
+**Before transitioning to S6, verify:**
 
 □ Part 2b completion criteria ALL met
 □ All 4 iterations complete (23, 23a, 25, 24)
@@ -327,10 +327,10 @@ If ANY gate fails: Fix issues, re-run
   - Part 2b complete (4/4 iterations)
   - All gates: PASSED
   - User approval: PASSED
-  - Next Action: Read S5b guide
+  - Next Action: Read S6 guide
 
 **If any prerequisite fails:**
-- ❌ Do NOT transition to S5b
+- ❌ Do NOT transition to S6
 - Complete Part 2b missing items
 
 ---
@@ -343,14 +343,14 @@ If ANY gate fails: Fix issues, re-run
 🎯 **GOAL:** Implement tasks from implementation_plan.md with continuous verification
 ⏱️ **ESTIMATE:** Varies by feature complexity
 
-**S5b will:**
+**S6 will:**
 - Create implementation_checklist.md from implementation_plan.md tasks
 - Implement from implementation_plan.md (PRIMARY reference), spec.md (context/verification)
 - Update checklist in real-time as tasks complete
 - Run mini-QC checkpoints every 5-7 tasks
 - Require 100% test pass after each step
 
-**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S5b.
+**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S6.
 
 ---
 

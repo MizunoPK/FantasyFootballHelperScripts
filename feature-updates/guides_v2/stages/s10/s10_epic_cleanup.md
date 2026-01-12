@@ -1,24 +1,24 @@
-# S7: Epic Cleanup Guide
+# S10: Epic Cleanup Guide
 
 **Guide Version:** 2.1
 **Last Updated:** 2026-01-02
-**Prerequisites:** S6 complete (Epic Final QC passed)
+**Prerequisites:** S9 complete (Epic Final QC passed)
 **Next Stage:** None (Epic complete - moved to done/)
 
 ---
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE starting S7, you MUST:**
+**BEFORE starting S10, you MUST:**
 
 1. **Read this ENTIRE guide** using the Read tool
 2. **Use the phase transition prompt** from `prompts_reference_v2.md` ("Starting Epic Cleanup")
 3. **Acknowledge critical requirements** by listing them explicitly
 4. **Verify ALL prerequisites** using the checklist below
-5. **Update EPIC_README.md Agent Status** to reflect S7 start
+5. **Update EPIC_README.md Agent Status** to reflect S10 start
 6. **THEN AND ONLY THEN** begin epic cleanup
 
-**Rationale:** S7 is the FINAL stage before epic completion. This stage ensures:
+**Rationale:** S10 is the FINAL stage before epic completion. This stage ensures:
 - All work is committed to git
 - Documentation is complete and accurate
 - Epic folder is ready for archival
@@ -30,11 +30,11 @@ Rushing this process results in incomplete documentation, missing commits, or di
 
 ## Quick Start
 
-**What is S7?**
+**What is S10?**
 Epic Cleanup is the final stage where you commit all changes, verify documentation, and move the completed epic to the done/ folder for archival.
 
 **When do you use this guide?**
-- After S6 (Epic Final QC) is complete
+- After S9 (Epic Final QC) is complete
 - All features implemented and validated
 - Epic ready for completion
 
@@ -66,7 +66,7 @@ Epic cleanup typically takes 15-30 minutes.
 │ 1. ⚠️ STAGE 6 MUST BE COMPLETE                                  │
 │    - Verify Epic Final QC passed                                │
 │    - Verify no pending bug fixes or features                    │
-│    - Verify EPIC_README.md shows S6 complete               │
+│    - Verify EPIC_README.md shows S9 complete               │
 │                                                                  │
 │ 2. ⚠️ RUN UNIT TESTS BEFORE COMMITTING (100% PASS REQUIRED)     │
 │    - Execute: python tests/run_all_tests.py                     │
@@ -80,10 +80,10 @@ Epic cleanup typically takes 15-30 minutes.
 │    - epic_smoke_test_plan.md reflects final implementation      │
 │                                                                  │
 │ 4. ⚠️ USER TESTING COMPLETED IN STAGE 6                         │
-│    - S6 includes mandatory user testing (Step 6)           │
-│    - User must report "No bugs found" before S7            │
-│    - If bugs found in S6 → Bug fixes → Restart S6a    │
-│    - S7 only begins after user testing passed              │
+│    - S9 includes mandatory user testing (Step 6)           │
+│    - User must report "No bugs found" before S10            │
+│    - If bugs found in S9 → Bug fixes → Restart S6a    │
+│    - S10 only begins after user testing passed              │
 │                                                                  │
 │ 5. ⚠️ COMMIT MESSAGE MUST USE NEW FORMAT                        │
 │    - Format: "{commit_type}/KAI-{number}: {message}"           │
@@ -122,7 +122,7 @@ Epic cleanup typically takes 15-30 minutes.
 │     - All features implemented                                  │
 │     - All tests passing                                         │
 │     - All QC passed                                             │
-│     - User testing passed (completed in S6 Step 6)         │
+│     - User testing passed (completed in S9 Step 6)         │
 │     - No pending work                                           │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
@@ -132,20 +132,20 @@ Epic cleanup typically takes 15-30 minutes.
 
 ## Prerequisites Checklist
 
-**Before starting S7, verify:**
+**Before starting S10, verify:**
 
-### S6 Completion
-- [ ] EPIC_README.md shows "S6 - Epic Final QC: ✅ COMPLETE"
+### S9 Completion
+- [ ] EPIC_README.md shows "S9 - Epic Final QC: ✅ COMPLETE"
 - [ ] Epic smoke testing passed (all parts)
 - [ ] Epic QC rounds passed (all 3 rounds)
 - [ ] User testing passed (Step 6 - ZERO bugs reported by user)
 - [ ] Epic PR review passed (all 11 categories)
-- [ ] No pending issues from S6
+- [ ] No pending issues from S9
 
 ### Feature Completion Status
-- [ ] ALL features show "S5e complete" in EPIC_README.md
+- [ ] ALL features show "S8.P2 (Epic Testing Update) complete" in EPIC_README.md
 - [ ] No features in progress
-- [ ] No pending bug fixes (or all bug fixes at S5c)
+- [ ] No pending bug fixes (or all bug fixes at S7 (Testing & Review))
 
 ### Test Status
 - [ ] All unit tests passing (verified recently)
@@ -158,7 +158,7 @@ Epic cleanup typically takes 15-30 minutes.
 - [ ] epic_smoke_test_plan.md reflects final implementation
 - [ ] All feature README.md files complete
 
-**If ANY checklist item is unchecked, STOP. Do NOT proceed to S7 until all prerequisites are met.**
+**If ANY checklist item is unchecked, STOP. Do NOT proceed to S10 until all prerequisites are met.**
 
 ---
 
@@ -168,7 +168,7 @@ Epic cleanup typically takes 15-30 minutes.
 STAGE 7: Epic Cleanup
 │
 ├─> STEP 1: Pre-Cleanup Verification (Verify epic truly complete)
-│   ├─ Verify S6 complete
+│   ├─ Verify S9 complete
 │   ├─ Verify all features complete
 │   ├─ Verify no pending work
 │   └─ Read epic_lessons_learned.md for guide improvements
@@ -228,7 +228,7 @@ STAGE 7: Epic Cleanup
 
 ## Quick Navigation
 
-**S7 has 7 main steps. Jump to any step:**
+**S10 has 7 main steps. Jump to any step:**
 
 | Step | Focus Area | Time | Mandatory Gate? | Go To |
 |------|-----------|------|-----------------|-------|
@@ -241,7 +241,7 @@ STAGE 7: Epic Cleanup
 | **Step 6** | Move Epic to done/ | 5 min | No | [Jump](#step-6-move-epic-to-done-folder) |
 | **Step 7** | Final Verification & Completion | 5 min | No | [Jump](#step-7-final-verification--completion) |
 
-**Total Time:** 70-115 minutes (including S7.5 guide updates)
+**Total Time:** 70-115 minutes (including S10.5 guide updates)
 
 **Reference Files (Extracted for Quick Access):**
 
@@ -262,7 +262,7 @@ STAGE 7: Epic Cleanup
 **Important:**
 - Step 2: 100% test pass required (MANDATORY)
 - Step 4: Apply ALL lessons from ALL sources (epic + features + bugfixes + debugging)
-- User testing completed in S6 Step 6 (prerequisite for S7)
+- User testing completed in S9 Step 6 (prerequisite for S10)
 
 ---
 
@@ -274,15 +274,15 @@ STAGE 7: Epic Cleanup
 
 **Actions:**
 
-**1a. Verify S6 Complete**
+**1a. Verify S9 Complete**
 
-Read EPIC_README.md "Epic Progress Tracker" section and verify S6 shows ✅ COMPLETE with all sub-items checked.
+Read EPIC_README.md "Epic Progress Tracker" section and verify S9 shows ✅ COMPLETE with all sub-items checked.
 
-**If S6 NOT complete:** STOP S7, return to S6, complete S6 fully.
+**If S9 NOT complete:** STOP S10, return to S9, complete S9 fully.
 
 **1b. Verify All Features Complete**
 
-Check EPIC_README.md "Epic Progress Tracker" to verify ALL features show ✅ through S5e.
+Check EPIC_README.md "Epic Progress Tracker" to verify ALL features show ✅ through S8.P2 (Epic Testing Update).
 
 **1c. Verify No Pending Work**
 
@@ -292,12 +292,12 @@ ls feature-updates/{epic_name}/
 ```
 
 Look for:
-- ❌ Any feature folders without "S5e complete" in README.md
-- ❌ Any bugfix folders without "S5c complete" in README.md
+- ❌ Any feature folders without "S8.P2 (Epic Testing Update) complete" in README.md
+- ❌ Any bugfix folders without "S7 (Testing & Review) complete" in README.md
 - ❌ Any folders with "IN PROGRESS" status
 - ❌ Any temporary files (*.tmp, *.bak, etc.)
 
-**If pending work found:** STOP S7, complete pending work, return when all work complete.
+**If pending work found:** STOP S10, complete pending work, return when all work complete.
 
 **1d. Read epic_lessons_learned.md**
 
@@ -345,7 +345,7 @@ echo %ERRORLEVEL%  # On Windows
 - Re-run: `python tests/run_all_tests.py`
 - Only proceed when exit code = 0
 
-**Note:** It is ACCEPTABLE to fix pre-existing test failures during S7 to achieve 100% pass rate.
+**Note:** It is ACCEPTABLE to fix pre-existing test failures during S10 to achieve 100% pass rate.
 
 ---
 
@@ -408,10 +408,10 @@ Read epic_lessons_learned.md and verify:
 **3c. Verify epic_smoke_test_plan.md Accurate**
 
 Read epic_smoke_test_plan.md and verify:
-- ✅ "Last Updated" shows recent S5e update
+- ✅ "Last Updated" shows recent S8.P2 (Epic Testing Update) update
 - ✅ Update History table shows all features contributed
 - ✅ Test scenarios reflect ACTUAL implementation
-- ✅ Integration tests included (added during S5e)
+- ✅ Integration tests included (added during S8.P2 (Epic Testing Update))
 - ✅ Epic success criteria still accurate
 
 **If outdated:** Update test plan to reflect final implementation.
@@ -421,7 +421,7 @@ Read epic_smoke_test_plan.md and verify:
 For EACH feature folder, read README.md and verify:
 - ✅ README.md exists
 - ✅ All sections present
-- ✅ Status shows "S5e complete"
+- ✅ Status shows "S8.P2 (Epic Testing Update) complete"
 - ✅ No placeholders or TODOs
 - ✅ Workflow checklist all checked
 
@@ -429,20 +429,20 @@ For EACH feature folder, read README.md and verify:
 
 ---
 
-### STEP 4: Guide Update from Lessons Learned (🚨 MANDATORY - S7.5)
+### STEP 4: Guide Update from Lessons Learned (🚨 MANDATORY - S10.5)
 
 **Objective:** Apply lessons learned from epic to improve guides for future agents using systematic user-approved workflow.
 
-**🆕 NEW WORKFLOW:** S7.5 is now a dedicated, mandatory workflow with user approval for each proposed guide change.
+**🆕 NEW WORKFLOW:** S10.5 is now a dedicated, mandatory workflow with user approval for each proposed guide change.
 
-**⚠️ CRITICAL:** This is NOT optional. Every epic must run S7.5 to continuously improve guides.
+**⚠️ CRITICAL:** This is NOT optional. Every epic must run S10.5 to continuously improve guides.
 
 **READ THE FULL GUIDE:**
 ```
-stages/s7/s7_p1_guide_update_workflow.md
+stages/s10/s10_p1_guide_update_workflow.md
 ```
 
-**Quick Overview of S7.5:**
+**Quick Overview of S10.5:**
 
 1. **Analyze ALL lessons_learned.md files** (epic + all features)
 2. **Identify guide gaps** for each lesson
@@ -477,18 +477,18 @@ stages/s7/s7_p1_guide_update_workflow.md
 - Systematic feedback loop: implementation → lessons → guide updates
 - User has full control over guide evolution
 
-**Transition to S7.5:**
+**Transition to S10.5:**
 
 Use the prompt from `prompts/guide_update_prompts.md`:
 
 ```
-I'm reading `stages/s7/s7_p1_guide_update_workflow.md` to apply lessons learned to guides...
+I'm reading `stages/s10/s10_p1_guide_update_workflow.md` to apply lessons learned to guides...
 
-[Full prompt from guide_update_prompts.md - "Starting S7.5"]
+[Full prompt from guide_update_prompts.md - "Starting S10.5"]
 ```
 
 **Exit Conditions:**
-- [ ] Read stages/s7/s7_p1_guide_update_workflow.md (full guide)
+- [ ] Read stages/s10/s10_p1_guide_update_workflow.md (full guide)
 - [ ] All lessons_learned.md files analyzed
 - [ ] GUIDE_UPDATE_PROPOSAL.md created
 - [ ] User reviewed all proposals individually
@@ -498,7 +498,7 @@ I'm reading `stages/s7/s7_p1_guide_update_workflow.md` to apply lessons learned 
 - [ ] guide-updates.txt updated (if applicable)
 - [ ] Ready to proceed to STEP 5 (Final Commit)
 
-**NEXT:** After S7.5 complete, proceed to STEP 5 (Final Commit) for epic code
+**NEXT:** After S10.5 complete, proceed to STEP 5 (Final Commit) for epic code
 
 ---
 
@@ -1008,7 +1008,7 @@ Update the EPIC_README.md in done/ folder with epic completion summary.
 ## Agent Status
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Stage:** S7 - Epic Cleanup
+**Current Stage:** S10 - Epic Cleanup
 **Status:** ✅ COMPLETE
 
 **Epic Completion Summary:**
@@ -1061,7 +1061,7 @@ The epic is now complete!
 
 ## Completion Criteria
 
-**S7 is COMPLETE when ALL of the following are true:**
+**S10 is COMPLETE when ALL of the following are true:**
 
 ### Unit Tests
 - [ ] All unit tests executed: `python tests/run_all_tests.py`
@@ -1081,10 +1081,10 @@ The epic is now complete!
 - [ ] Applied ALL lessons to guides (100% application rate)
 - [ ] Updated CLAUDE.md if workflow changed
 
-### S6 Completion (Including User Testing)
-- [ ] User tested complete system (S6 Step 6)
+### S9 Completion (Including User Testing)
+- [ ] User tested complete system (S9 Step 6)
 - [ ] User testing result: ZERO bugs found
-- [ ] If bugs found: All fixed, S6 re-run from 6a, user re-tested
+- [ ] If bugs found: All fixed, S9 re-run from 6a, user re-tested
 - [ ] Epic PR review passed (all categories)
 
 ### Git Commit and Pull Request
@@ -1115,7 +1115,7 @@ The epic is now complete!
 
 ## Summary
 
-**S7 - Epic Cleanup finalizes the epic and archives it for future reference:**
+**S10 - Epic Cleanup finalizes the epic and archives it for future reference:**
 
 **Key Activities:**
 1. Run unit tests (100% pass required)
@@ -1133,7 +1133,7 @@ The epic is now complete!
 - 100% test pass rate before committing
 - Complete documentation (README, lessons learned, test plan)
 - ALL lessons applied (epic + features + bugfixes + debugging)
-- User testing already passed in S6 Step 6 (prerequisite)
+- User testing already passed in S9 Step 6 (prerequisite)
 - Clear, descriptive commit message
 - Entire epic folder moved (not individual features)
 - Max 10 epics in done/ folder maintained
@@ -1165,6 +1165,6 @@ The epic is now complete!
 
 **🎉 CONGRATULATIONS! 🎉**
 
-If you've completed S7, you've successfully finished an entire epic from start to finish. The epic is now production-ready, fully tested (100% pass rate), thoroughly documented, and properly archived.
+If you've completed S10, you've successfully finished an entire epic from start to finish. The epic is now production-ready, fully tested (100% pass rate), thoroughly documented, and properly archived.
 
 **Well done!**

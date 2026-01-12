@@ -295,7 +295,7 @@ Replace: "Repeated Comprehensive Reviews"
 ```markdown
 Stage 1: Epic Planning
 Stage 5: Feature Implementation
-S1, S2, S3, S4, S5, S6, S7
+S1, S2, S3, S4, S5, S9, S10
 ```
 
 ### ✅ Keep "Phase" when referring to S#.P# hierarchy
@@ -383,13 +383,13 @@ Phase 5.3: Post-Implementation
 
 **Should be:**
 ```markdown
-S5.P5, S5.P6, S5.P7: Post-Implementation
-  Part 1: Smoke Testing (S5.P5)
-  Part 2: QC Rounds (S5.P6)
-  Part 3: Final Review (S5.P7)
+S10.P1, S10.P2, S10.P3: Post-Implementation
+  Part 1: Smoke Testing (S10.P1)
+  Part 2: QC Rounds (S10.P2)
+  Part 3: Final Review (S10.P3)
 ```
 
-**Reasoning:** These ARE phases (S5.P5, S5.P6, S5.P7), not generic "phases"
+**Reasoning:** These ARE phases (S10.P1, S10.P2, S10.P3), not generic "phases"
 
 ---
 

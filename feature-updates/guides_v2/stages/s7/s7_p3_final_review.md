@@ -1,16 +1,15 @@
-# S5: Feature Implementation
-## S5.P.3: Post-Implementation
-### S5.P7: Final Review
+# S7: Implementation Testing & Review
+## S7.P3: Final Review
 
-**File:** `part_5.3.3_final_review.md`
+**File:** `s7_p3_final_review.md`
 
 **Purpose:** Production readiness validation through comprehensive code review, lessons learned capture, and final verification.
 
 **Stage Flow Context:**
 ```
-S5.P5 (Smoke Testing) → S5.P6 (QC Rounds) →
-→ [YOU ARE HERE: S5.P7 - Final Review] →
-→ S5.P4 (Cross-Feature Alignment)
+S7.P1 (Smoke Testing) → S7.P2 (QC Rounds) →
+→ [YOU ARE HERE: S7.P3 - Final Review] →
+→ S8 (Post-Feature Alignment)
 ```
 
 ---
@@ -20,7 +19,7 @@ S5.P5 (Smoke Testing) → S5.P6 (QC Rounds) →
 **BEFORE starting Final Review, you MUST:**
 
 1. **Use the phase transition prompt** from `prompts_reference_v2.md`
-   - Find "Starting S5.P7 (Final Review)" prompt
+   - Find "Starting S7.P3" prompt
    - Speak it out loud (acknowledge requirements)
    - List critical requirements from this guide
 
@@ -45,7 +44,7 @@ S5.P5 (Smoke Testing) → S5.P6 (QC Rounds) →
 Final Review is the production readiness validation where you perform 11-category PR review, immediately apply lessons learned to guides, verify 100% completion, and document feature completion.
 
 **When do you use this guide?**
-- S5.P6 complete (all 3 QC rounds passed)
+- S10.P2 complete (all 3 QC rounds passed)
 - Ready for final production readiness validation
 - Before cross-feature alignment
 
@@ -54,7 +53,7 @@ Final Review is the production readiness validation where you perform 11-categor
 - ✅ lessons_learned.md updated
 - ✅ Workflow guides updated immediately (lessons applied, not just documented)
 - ✅ Final verification passed (100% completion confirmed)
-- ✅ Ready for S5d (Cross-Feature Alignment)
+- ✅ Ready for S8.P1
 
 **Time Estimate:**
 30-45 minutes
@@ -78,13 +77,13 @@ Final Review is complete when PR review finds zero critical issues, lessons lear
 
 2. ⚠️ IF PR REVIEW FINDS CRITICAL ISSUES → QC RESTART
    - Critical = correctness, security, breaking changes
-   - Must follow QC Restart Protocol from S5.P6
+   - Must follow QC Restart Protocol from S10.P2
    - Minor issues can be documented and don't block
 
 3. ⚠️ LESSONS LEARNED MUST UPDATE GUIDES
    - If you discover guide gaps → update guides IMMEDIATELY
    - Don't just document the lesson → apply it to guides
-   - Update relevant guide files before completing S5.P7
+   - Update relevant guide files before completing S10.P3
    - This is NOT optional
 
 4. ⚠️ 100% REQUIREMENT COMPLETION - ZERO TECH DEBT TOLERANCE
@@ -114,13 +113,13 @@ Final Review is complete when PR review finds zero critical issues, lessons lear
 
 **Verify these BEFORE starting Final Review:**
 
-**From S5.P6 (QC Rounds):**
+**From S7.P2:**
 - [ ] QC Round 1: PASSED (<3 critical, >80% requirements)
 - [ ] QC Round 2: PASSED (all Round 1 issues resolved, zero new critical)
 - [ ] QC Round 3: PASSED (ZERO issues found)
 - [ ] All re-reading checkpoints completed
 
-**From S5.P5 (Smoke Testing):**
+**From S7.P1:**
 - [ ] All 3 smoke test parts passed
 - [ ] Part 3 verified OUTPUT DATA VALUES
 
@@ -172,13 +171,13 @@ Final Verification
    ├─ Feature is ACTUALLY complete?
    ├─ Would ship to production?
    ↓
-   If YES: Update README, proceed to S5d
+   If YES: Update README, proceed to S8.P1 (Cross-Feature Alignment)
    If NO: Investigate and resolve
 
 Re-Reading Checkpoint
    ↓ Re-read Completion Criteria
    ↓ Update README Agent Status
-   ↓ Ready for S5d
+   ↓ Ready for S8.P1 (Cross-Feature Alignment)
 ```
 
 ---
@@ -555,7 +554,7 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 **Purpose:** Document what went well, what didn't, and UPDATE GUIDES IMMEDIATELY
 
-**CRITICAL:** Don't just document lessons - APPLY them to guides before completing S5.P7
+**CRITICAL:** Don't just document lessons - APPLY them to guides before completing S10.P3
 
 ---
 
@@ -590,7 +589,7 @@ Issue: QC Round 2 found all output data was zeros
 Root cause: Smoke test Part 3 only checked "file exists", didn't verify data VALUES
 Guide gap: stages/s5/smoke_testing.md didn't emphasize DATA VALUES enough
 
-Action taken: Updated S5.P5 guide
+Action taken: Updated S10.P1 guide
 - Added "CRITICAL - Verify OUTPUT DATA" to Part 3 heading
 - Added real-world example of zero data issue
 - Added explicit "Don't just check file exists" warning
@@ -617,7 +616,7 @@ Files updated:
 
 ### Root Causes
 - Guide didn't emphasize DATA VALUES enough in smoke testing
-- Skipped Interface Verification Protocol in S5b (assumed interface)
+- Skipped Interface Verification Protocol in S6 (assumed interface)
 - Excessive mocking in tests hid real integration issues
 
 ### Guide Updates Applied
@@ -648,7 +647,7 @@ Files updated:
 
 ## Step 3: Final Verification
 
-**Purpose:** Confirm all completion criteria met before transitioning to S5d
+**Purpose:** Confirm all completion criteria met before transitioning to S8.P1 (Cross-Feature Alignment)
 
 ---
 
@@ -680,8 +679,8 @@ Files updated:
 - [ ] **Production ready**: Would you ship this to production RIGHT NOW with no changes? (Must answer YES)
 
 **README Agent Status:**
-- [ ] Updated with completion of S5.P7
-- [ ] Next action set to "S5d: Cross-Feature Alignment"
+- [ ] Updated with completion of S10.P3
+- [ ] Next action set to "S8.P1 (Cross-Feature Alignment): Cross-Feature Alignment"
 
 **Git:**
 - [ ] All implementation changes committed
@@ -694,14 +693,14 @@ Files updated:
   - Not "code works"
   - But "feature is DONE and CORRECT"
 
-**If ALL boxes checked:** Proceed to S5d
+**If ALL boxes checked:** Proceed to S8.P1 (Cross-Feature Alignment)
 **If ANY box unchecked:** Do NOT proceed - complete the missing item first
 
 ---
 
 ## 🔄 Re-Reading Checkpoint
 
-**STOP - Before declaring S5.P7 complete:**
+**STOP - Before declaring S10.P3 complete:**
 
 1. **Re-read "Completion Criteria" section below**
 2. **Verify ALL criteria met (not just most)**
@@ -709,8 +708,8 @@ Files updated:
 4. **Update README Agent Status:**
    ```markdown
    Guide Last Re-Read: {timestamp}
-   Checkpoint: S5.P7 complete, ready for S5d
-   Current Phase: Cross-Feature Alignment (S5d)
+   Checkpoint: S10.P3 complete, ready for S8.P1 (Cross-Feature Alignment)
+   Current Phase: Cross-Feature Alignment (S8.P1 (Cross-Feature Alignment))
    Next Action: Read stages/s5/post_feature_alignment.md
    ```
 
@@ -718,20 +717,20 @@ Files updated:
 
 ## Completion Criteria
 
-**S5.P7 (and entire S5c) is complete when ALL of the following are true:**
+**S10.P3 (and entire S7 (Testing & Review)) is complete when ALL of the following are true:**
 
-### Smoke Testing (S5.P5)
+### Smoke Testing (S10.P1)
 - [x] All 3 smoke test parts passed
 - [x] Part 3 verified OUTPUT DATA VALUES (not just "file exists")
 - [x] Feature executes end-to-end without crashes
 - [x] Output data is correct and reasonable
 
-### QC Rounds (S5.P6)
+### QC Rounds (S10.P2)
 - [x] QC Round 1 passed (<3 critical issues, >80% requirements met)
 - [x] QC Round 2 passed (all Round 1 issues resolved, zero new critical issues)
 - [x] QC Round 3 passed (ZERO issues found in skeptical review)
 
-### PR Review (S5.P7)
+### PR Review (S10.P3)
 - [x] All 11 categories reviewed
 - [x] Zero critical issues found
 - [x] Minor issues documented (if any exist)
@@ -752,8 +751,8 @@ Files updated:
 - [x] Commit messages descriptive
 
 ### README Agent Status
-- [x] Updated to reflect S5.P7 completion
-- [x] Next action set to "S5d: Cross-Feature Alignment"
+- [x] Updated to reflect S10.P3 completion
+- [x] Next action set to "S8.P1 (Cross-Feature Alignment): Cross-Feature Alignment"
 - [x] Guide Last Read timestamp current
 
 ### Final Verification
@@ -762,7 +761,7 @@ Files updated:
 - [x] Data values verified (not just structure)
 - [x] All spec requirements met (100%, no partial work)
 
-**If ALL criteria met:** Proceed to S5d (Cross-Feature Alignment)
+**If ALL criteria met:** Proceed to S8.P1
 
 **If ANY criteria not met:** Do NOT proceed until all are met
 
@@ -775,7 +774,7 @@ Files updated:
 **❌ Mistake:**
 ```markdown
 ## Lessons Learned
-- S5.P5 guide should emphasize data values more
+- S10.P1 guide should emphasize data values more
 
 {End of feature work - guide never updated}
 ```
@@ -844,7 +843,7 @@ Should use INFO level, not WARNING (this is expected behavior)
 **Developer's actions:**
 1. Fixed log level (WARNING → INFO)
 2. Added documentation about 17-week schedule
-3. **Updated S5.P6 guide:**
+3. **Updated S10.P2 guide:**
    - Added "Log Quality Verification" example
    - Added "Expected vs Unexpected warnings" distinction
    - Added this real-world example to guide
@@ -893,10 +892,10 @@ Decision: Remove out-of-scope code or get user approval
 
 ## Prerequisites for Next Stage
 
-**Before transitioning to S5d (Cross-Feature Alignment), verify:**
+**Before transitioning to S8.P1, verify:**
 
 ### Completion Verification
-- [ ] All S5.P7 completion criteria met (see Completion Criteria section)
+- [ ] All S10.P3 completion criteria met (see Completion Criteria section)
 - [ ] All smoke tests passed (3 parts)
 - [ ] All QC rounds passed (3 rounds)
 - [ ] PR review complete (11 categories)
@@ -914,7 +913,7 @@ Decision: Remove out-of-scope code or get user approval
 - [ ] Descriptive commit messages
 
 ### README Agent Status
-- [ ] Updated to reflect S5.P7 completion
+- [ ] Updated to reflect S10.P3 completion
 - [ ] Next action set to "Read stages/s5/post_feature_alignment.md"
 
 ### Final Check
@@ -922,9 +921,9 @@ Decision: Remove out-of-scope code or get user approval
 - [ ] Would ship to production with confidence
 - [ ] 100% requirement completion (no partial work)
 
-**If ALL verified:** Ready for S5d
+**If ALL verified:** Ready for S8.P1 (Cross-Feature Alignment)
 
-**S5d Preview:**
+**S8.P1 (Cross-Feature Alignment) Preview:**
 - Review all REMAINING (not-yet-implemented) feature specs
 - Compare to ACTUAL implementation (not plan) of just-completed feature
 - Update specs if implementation revealed changes/insights
@@ -936,7 +935,7 @@ Decision: Remove out-of-scope code or get user approval
 
 ## Summary
 
-**S5.P7 validates production readiness through:**
+**S10.P3 validates production readiness through:**
 1. **PR Review** - 11 categories ensure code quality, security, correctness
 2. **Lessons Learned** - Capture insights and apply improvements to guides
 3. **Final Verification** - Confirm 100% completion and readiness
@@ -953,7 +952,7 @@ Decision: Remove out-of-scope code or get user approval
 - Final verification passed (all boxes checked)
 - Feature is COMPLETE and production-ready
 
-**After S5.P7:** Proceed to S5d (Cross-Feature Alignment) to ensure remaining feature specs align with actual implementation.
+**After S10.P3:** Proceed to S8.P1 to ensure remaining feature specs align with actual implementation.
 
 ---
 

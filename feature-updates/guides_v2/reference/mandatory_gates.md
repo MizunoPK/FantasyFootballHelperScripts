@@ -68,10 +68,10 @@
 | 5ac | Iteration 25 | Part 2 | Spec matches validated docs | Yes (User decides) |
 | 5ac | Iteration 24 | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
 | 5a-5b | User Approval | After 5a | User approves implementation_plan.md | Yes (Revise plan) |
-| S5.P5 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
-| S5.P6 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
+| S10.P1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
+| S10.P2 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
 | 7 | Unit Tests | Cleanup | 100% test pass (exit code 0) | Yes (Fix tests) |
-| 7 | User Testing | Cleanup | ZERO bugs found by user | Yes (Stage 6) |
+| 7 | User Testing | Cleanup | ZERO bugs found by user | Yes (Stage 9) |
 
 ---
 
@@ -505,9 +505,9 @@
 
 ## Stage 5c: Post-Implementation (2 gates per feature)
 
-### Gate 5: S5.P5 Part 3 - E2E Smoke Test (Data Validation)
+### Gate 5: S10.P1 Part 3 - E2E Smoke Test (Data Validation)
 
-**Location:** stages/s5/s5_p5_smoke_testing.md
+**Location:** stages/s10/s7_p1_smoke_testing.md
 **When:** After Part 1 (Import) and Part 2 (Entry Point) tests pass
 
 **What it checks:**
@@ -526,16 +526,16 @@
 
 **If FAIL:**
 - Fix issues
-- **Restart from S5.P5 Step 1** (Import Test)
+- **Restart from S10.P1 Step 1** (Import Test)
 - Must re-run all 3 parts
 
 **Why it matters:** Ensures feature actually works end-to-end with real data before QC rounds
 
 ---
 
-### Gate 6: S5.P6 QC Round 3 - ZERO Issues Required
+### Gate 6: S10.P2 QC Round 3 - ZERO Issues Required
 
-**Location:** stages/s5/s5_p6_qc_rounds.md
+**Location:** stages/s10/s7_p2_qc_rounds.md
 **When:** After QC Rounds 1 and 2 pass
 
 **What it checks:**
@@ -549,7 +549,7 @@
 
 **If FAIL (ANY issues found in Round 3):**
 - Fix ALL issues
-- **Restart from S5.P5 Step 1** (smoke testing)
+- **Restart from S10.P1 Step 1** (smoke testing)
 - Re-run smoke testing → QC Round 1 → QC Round 2 → QC Round 3
 - ZERO tolerance for issues
 
@@ -571,22 +571,22 @@
 
 ---
 
-## Stage 6: Epic-Level Final QC
+## Stage 9: Epic-Level Final QC
 
 ### No Mandatory Gates (but similar to Stage 5c protocol)
 
 **Requirements:**
 - Epic smoke testing passes
 - QC Round 3 passes with zero issues
-- If ANY issues → restart Stage 6
+- If ANY issues → restart Stage 9
 
 ---
 
-## Stage 7: Epic Cleanup (2 gates per epic)
+## Stage 10: Epic Cleanup (2 gates per epic)
 
 ### Gate 7.1: Unit Tests (100% Pass)
 
-**Location:** stages/s7/s7_epic_cleanup.md
+**Location:** stages/s10/s7_epic_cleanup.md
 **When:** Before user testing
 
 **What it checks:**
@@ -608,7 +608,7 @@
 
 ### Gate 7.2: User Testing (ZERO Bugs)
 
-**Location:** stages/s7/s7_epic_cleanup.md
+**Location:** stages/s10/s7_epic_cleanup.md
 **When:** After unit tests pass (final gate before commit)
 
 **What it checks:**
@@ -622,8 +622,8 @@
 **If FAIL (user finds ANY bugs):**
 - Create bug fix following stages/s5/s5_bugfix_workflow.md
 - Bug fix goes through: Stage 2 → 5a → 5b → 5c
-- After bug fix complete: **Restart Stage 6** (Epic-Level Final QC)
-- Re-run Stage 6 → Stage 7 → User testing
+- After bug fix complete: **Restart Stage 9** (Epic-Level Final QC)
+- Re-run Stage 9 → Stage 10 → User testing
 - Cannot commit without user approval
 
 **Why it matters:** Final validation that epic meets user requirements before merging to main
@@ -639,8 +639,8 @@
 - Stage 4: 1 (Gate 4.5 - Epic Test Plan Approval - NEW)
 - Stage 5a: 5 (per feature, including user approval)
 - Stage 5c: 2 (per feature)
-- Stage 6: 0 (but restart protocol similar)
-- Stage 7: 2
+- Stage 9: 0 (but restart protocol similar)
+- Stage 10: 2
 
 **Gates with Evidence Requirements:** 7
 - Phase 1.5: File paths, line numbers

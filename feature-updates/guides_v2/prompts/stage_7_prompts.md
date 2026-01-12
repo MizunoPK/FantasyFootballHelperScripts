@@ -1,20 +1,20 @@
-# Stage 7 Prompts: Epic Cleanup
+# Stage 10 Prompts: Epic Cleanup
 
 **Stage:** 7
 **Purpose:** Final verification, user testing, commit, and archival
 
 ---
 
-## Starting Stage 7: Epic Cleanup
+## Starting Stage 10: Epic Cleanup
 
-**User says:** "Finalize epic" or "Commit and archive" or Agent detects Stage 6 complete
+**User says:** "Finalize epic" or "Commit and archive" or Agent detects Stage 9 complete
 
-**Prerequisite:** Stage 6 complete (epic smoke testing, QC rounds, PR review all passed)
+**Prerequisite:** Stage 9 complete (epic smoke testing, QC rounds, PR review all passed)
 
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s7/s7_epic_cleanup.md` to ensure I properly finalize and archive the epic...
+I'm reading `stages/s10/s7_epic_cleanup.md` to ensure I properly finalize and archive the epic...
 
 **The guide requires:**
 - **Run Unit Tests** (100% pass required):
@@ -35,8 +35,8 @@ I'm reading `stages/s7/s7_epic_cleanup.md` to ensure I properly finalize and arc
   - Ask user to test complete system themselves
   - User reports any bugs discovered during testing
   - If bugs found → Follow bug fix protocol (Stage 2→5a→5b→5c)
-  - After ALL bug fixes → RESTART Stage 6 (Epic Final QC)
-  - Return to user testing after Stage 6 passes
+  - After ALL bug fixes → RESTART Stage 9 (Epic Final QC)
+  - Return to user testing after Stage 9 passes
   - Repeat until user testing passes with ZERO bugs
   - CANNOT commit without user approval
 - **Final Commit and Pull Request**:
@@ -58,17 +58,17 @@ I'm reading `stages/s7/s7_epic_cleanup.md` to ensure I properly finalize and arc
   - Git shows clean state
 
 **Prerequisites I'm verifying:**
-✅ Stage 6 complete (EPIC_README.md shows epic QC passed)
+✅ Stage 9 complete (EPIC_README.md shows epic QC passed)
 ✅ No pending features or bug fixes
 ✅ All tests passing (verified recently)
 
 **I'll now run unit tests to verify 100% pass rate...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Stage 7 - Epic Cleanup
-- Current Guide: stages/s7/s7_epic_cleanup.md
+- Current Stage: Stage 10 - Epic Cleanup
+- Current Guide: stages/s10/s7_epic_cleanup.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Unit tests 100% pass before commit", "User testing MANDATORY before commit", "If bugs found → RESTART Stage 6", "Move ENTIRE epic folder", "Leave .txt in root"
+- Critical Rules: "Unit tests 100% pass before commit", "User testing MANDATORY before commit", "If bugs found → RESTART Stage 9", "Move ENTIRE epic folder", "Leave .txt in root"
 - Next Action: Run python tests/run_all_tests.py
 
 Running unit tests...
@@ -76,16 +76,16 @@ Running unit tests...
 
 ---
 
-## S7.P1: Guide Update from Lessons Learned (MANDATORY)
+## S10.P1: Guide Update from Lessons Learned (MANDATORY)
 
-**Trigger:** After Stage 7 STEP 3 complete (documentation verified), before final commit
+**Trigger:** After Stage 10 STEP 3 complete (documentation verified), before final commit
 
 **Prerequisite:** All lessons_learned.md files complete
 
-**Agent MUST transition to S7.P1:**
+**Agent MUST transition to S10.P1:**
 
 ```
-I'm reading `stages/s7/s7_p1_guide_update_workflow.md` to apply lessons learned to guides...
+I'm reading `stages/s10/s7_p1_guide_update_workflow.md` to apply lessons learned to guides...
 
 **The guide requires:**
 - **Analyze ALL lessons_learned.md files** from this epic:
@@ -118,16 +118,16 @@ I'm reading `stages/s7/s7_p1_guide_update_workflow.md` to apply lessons learned 
 - User has full control over guide evolution
 
 **Prerequisites I'm verifying:**
-✅ Stage 7 STEP 3 complete (documentation verified)
+✅ Stage 10 STEP 3 complete (documentation verified)
 ✅ All lessons_learned.md files complete
 ✅ Ready to analyze lessons and create proposal
 
 **I'll now analyze the lessons learned from this epic and create GUIDE_UPDATE_PROPOSAL.md...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: S7.P1 - Guide Update from Lessons Learned
+- Current Stage: S10.P1 - Guide Update from Lessons Learned
 - Current Phase: GUIDE_ANALYSIS
-- Current Guide: stages/s7/s7_p1_guide_update_workflow.md
+- Current Guide: stages/s10/s7_p1_guide_update_workflow.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Analyze ALL lessons", "Prioritize P0-P3", "Individual approval", "Apply only approved", "Separate commit"
 - Next Action: Read all lessons_learned.md files and identify guide gaps

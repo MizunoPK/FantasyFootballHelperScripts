@@ -157,7 +157,7 @@ This document captures:
 
 **Debugging (If Occurred):**
 - Issues discovered: {Count and brief summary}
-- Testing stage where found: {S5.P5 / S5.P6 / other}
+- Testing stage where found: {S10.P1 / S10.P2 / other}
 - Total debugging time: {Hours}
 - Key insights: {Brief insights from debugging/lessons_learned.md}
 - Process improvements identified: {Brief summary of process gaps from debugging/process_failure_analysis.md}
@@ -224,7 +224,7 @@ This document captures:
 
 **From Feature 01:**
 - `stages/s5/s5_p1_planning_round1.md`: {Specific improvement}
-- `stages/s5/s5_p5_smoke_testing.md`: {Specific improvement}
+- `stages/s10/s7_p1_smoke_testing.md`: {Specific improvement}
 
 **From Feature 01 Debugging (if occurred):**
 - {List guide updates from feature_01_{name}/debugging/guide_update_recommendations.md}
@@ -244,7 +244,7 @@ This document captures:
 
 ---
 
-## Stage 6 Lessons Learned (Epic Final QC)
+## Stage 9 Lessons Learned (Epic Final QC)
 
 **What Went Well:**
 - {Positive observation}
@@ -258,7 +258,7 @@ This document captures:
 
 **Debugging (If Occurred at Epic Level):**
 - Issues discovered: {Count and brief summary}
-- Testing stage where found: {S6.P1 / 6b / other}
+- Testing stage where found: {S9.P1 / 6b / other}
 - Total debugging time: {Hours}
 - Key insights: {Brief insights from {epic_name}/debugging/lessons_learned.md}
 - Process improvements identified: {Brief summary from {epic_name}/debugging/process_failure_analysis.md}
@@ -278,7 +278,7 @@ This document captures:
 
 ---
 
-## Stage 7 Lessons Learned (Epic Cleanup)
+## Stage 10 Lessons Learned (Epic Cleanup)
 
 **What Went Well:**
 - {Positive observation}
@@ -361,12 +361,12 @@ This document captures:
 - Stage 3: {N} days
 - Stage 4: {N} days
 - Stage 5: {N} days (all features)
-- Stage 6: {N} days
-- Stage 7: {N} days
+- Stage 9: {N} days
+- Stage 10: {N} days
 
 **QC Restart Count:**
 - Stage 5c restarts: {N} (across all features)
-- Stage 6 restarts: {N}
+- Stage 9 restarts: {N}
 
 **Test Pass Rates:**
 - Final pass rate: {percentage}% ({X}/{Y} tests)

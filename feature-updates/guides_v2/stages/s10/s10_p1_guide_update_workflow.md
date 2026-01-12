@@ -1,7 +1,7 @@
-# S7: Epic Cleanup
-## S7.P1: Guide Update from Lessons Learned
+# S10: Epic Cleanup
+## S10.P1: Guide Update from Lessons Learned
 
-**File:** `s7_p1_guide_update_workflow.md`
+**File:** `s10_p1_guide_update_workflow.md`
 
 ---
 
@@ -25,10 +25,10 @@
 ## Quick Start
 
 **What is this phase?**
-S7.P1 is the mandatory guide improvement workflow where you analyze lessons learned from the epic and propose specific guide updates to help future agents, with user approval for each change individually.
+S10.P1 is the mandatory guide improvement workflow where you analyze lessons learned from the epic and propose specific guide updates to help future agents, with user approval for each change individually.
 
 **When do you use this guide?**
-- S7 user testing passed (Gate 7.2 - zero bugs found)
+- S10 user testing passed (Gate 7.2 - zero bugs found)
 - All lessons_learned.md files are complete
 - Before creating final epic commit
 
@@ -43,7 +43,7 @@ S7.P1 is the mandatory guide improvement workflow where you analyze lessons lear
 20-45 minutes (depends on number of lessons and proposals)
 
 **Exit Condition:**
-S7.5 is complete when all proposals have been reviewed by user, approved changes applied to guides, separate commit created, and tracking updated
+S10.5 is complete when all proposals have been reviewed by user, approved changes applied to guides, separate commit created, and tracking updated
 
 ---
 
@@ -96,16 +96,16 @@ S7.5 is complete when all proposals have been reviewed by user, approved changes
 
 ## Prerequisites Checklist
 
-**Verify BEFORE starting S7.5:**
+**Verify BEFORE starting S10.5:**
 
-□ S7 user testing passed (Gate 7.2)
+□ S10 user testing passed (Gate 7.2)
 □ Zero bugs found by user
 □ epic_lessons_learned.md exists and is complete
 □ All feature lessons_learned.md files exist and are complete
 □ Ready to analyze lessons and create proposals
 
 **If any prerequisite fails:**
-- ❌ STOP - Do NOT proceed with S7.5
+- ❌ STOP - Do NOT proceed with S10.5
 - Return to previous step to complete prerequisites
 
 ---
@@ -545,7 +545,7 @@ git commit -m "docs(guide-updates): Update status for items addressed in KAI-{N}
 
 ---
 
-### Step 9: Mark S7.5 Complete
+### Step 9: Mark S10.5 Complete
 
 **Purpose:** Update EPIC_README.md and announce completion
 
@@ -559,14 +559,14 @@ git commit -m "docs(guide-updates): Update status for items addressed in KAI-{N}
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** EPIC_FINALIZATION
 **Current Step:** Ready for final commit and PR
-**Current Guide:** stages/s7/epic_cleanup.md
+**Current Guide:** stages/s10/epic_cleanup.md
 **Guide Last Read:** NOT YET (will read when starting Step 7)
 
-**Progress:** S7.5 complete (guide updates applied)
-**Next Action:** Proceed to S7 Step 7 (Final Commit & Pull Request)
+**Progress:** S10.5 complete (guide updates applied)
+**Next Action:** Proceed to S10 Step 7 (Final Commit & Pull Request)
 **Blockers:** None
 
-**S7.5 Summary:**
+**S10.5 Summary:**
 - Proposals: {N} ({approved} approved, {modified} modified, {rejected} rejected)
 - Guides updated: {N} files
 - Commits: {N} (guide updates + tracking)
@@ -578,15 +578,15 @@ Use prompt from prompts/guide_update_prompts.md "After Applying Changes" section
 
 **Checkpoint:**
 - [ ] EPIC_README.md updated
-- [ ] Agent Status shows S7.5 complete
-- [ ] Next action is S7 Step 7
+- [ ] Agent Status shows S10.5 complete
+- [ ] Next action is S10 Step 7
 - [ ] Completion announced to user
 
 ---
 
 ## Completion Criteria
 
-**S7.5 is complete when:**
+**S10.5 is complete when:**
 - [ ] All lessons_learned.md files analyzed
 - [ ] GUIDE_UPDATE_PROPOSAL.md created with all proposals
 - [ ] User reviewed all proposals individually
@@ -594,10 +594,10 @@ Use prompt from prompts/guide_update_prompts.md "After Applying Changes" section
 - [ ] Separate commit created for guide updates
 - [ ] reference/guide_update_tracking.md updated
 - [ ] guide-updates.txt updated (if applicable)
-- [ ] EPIC_README.md shows S7.5 complete
-- [ ] Ready to proceed to S7 Step 7
+- [ ] EPIC_README.md shows S10.5 complete
+- [ ] Ready to proceed to S10 Step 7
 
-**Next Stage:** S7 Step 7 (Final Commit & Pull Request)
+**Next Stage:** S10 Step 7 (Final Commit & Pull Request)
 
 ---
 

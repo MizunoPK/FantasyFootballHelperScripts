@@ -170,9 +170,9 @@ What would you like to do?
    ├── spec.md          (create in S2)
    ├── checklist.md     (create in S2)
    ├── implementation_plan.md (create in S5a)
-   ├── implementation_checklist.md (create in S5b)
-   ├── code_changes.md  (create in S5b)
-   └── lessons_learned.md (create in S5c)
+   ├── implementation_checklist.md (create in S6)
+   ├── code_changes.md  (create in S6)
+   └── lessons_learned.md (create in S7 (Testing & Review))
    ```
 
 ---
@@ -292,7 +292,7 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
   - Currently: Creating spec.md for bug fix
 
 **Paused Work:**
-- feature_01_adp_integration: Paused at S5c (post-implementation)
+- feature_01_adp_integration: Paused at S7 (Testing & Review) (post-implementation)
   - Resume point: After bug fix complete, verify fix doesn't affect feature_01
   - Agent Status saved: README.md in feature_01/ folder
 ```
@@ -308,11 +308,11 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 
 **Last Updated:** 2025-12-30 18:00
 **Status:** PAUSED for bugfix_high_authentication_error
-**Paused At:** S5c - QC Round 2 (found bug, creating fix)
+**Paused At:** S7 (Testing & Review) - QC Round 2 (found bug, creating fix)
 
 **Resume Instructions:**
 When bug fix complete:
-1. Re-run S5c QC Round 2 (verify bug fix didn't affect this feature)
+1. Re-run S7 (Testing & Review) QC Round 2 (verify bug fix didn't affect this feature)
 2. If passes: Continue to QC Round 3
 3. If fails: Investigate interaction with bug fix
 
@@ -332,8 +332,8 @@ When bug fix complete:
 ```
 S2 (Deep Dive) →
 S5a (Implementation Planning) →
-S5b (Implementation) →
-S5c (Post-Implementation) →
+S6 (Implementation) →
+S7 (Testing & Review) (Post-Implementation) →
 DONE (return to previous work)
 ```
 
@@ -341,10 +341,10 @@ DONE (return to previous work)
 - ❌ S1 (Epic Planning) - epic already planned
 - ❌ S3 (Cross-Feature Sanity Check) - not needed for single bug
 - ❌ S4 (Epic Testing Strategy) - not needed for single bug
-- ❌ S5d (Cross-Feature Alignment) - bug fix doesn't affect other specs
-- ❌ S5e (Epic Testing Plan Update) - handled in S5c
-- ❌ S6 (Epic Final QC) - bug fix has own QC in S5c
-- ❌ S7 (Epic Cleanup) - bug stays with epic
+- ❌ S8.P1 - bug fix doesn't affect other specs
+- ❌ S8.P2 (Epic Testing Update) (Epic Testing Plan Update) - handled in S7 (Testing & Review)
+- ❌ S9 (Epic Final QC) - bug fix has own QC in S7 (Testing & Review)
+- ❌ S10 (Epic Cleanup) - bug stays with epic
 
 ---
 
@@ -451,7 +451,7 @@ Integration test:
 
 ---
 
-### S5b: Implementation
+### S6: Implementation
 
 **Read:** stages/s5/implementation_execution.md
 
@@ -464,7 +464,7 @@ Integration test:
 
 ---
 
-### S5c: Post-Implementation
+### S7 (Testing & Review): Post-Implementation
 
 **Read guides in order:**
 1. stages/s5/smoke_testing.md - Smoke Testing (3 parts - MANDATORY GATE)
@@ -516,7 +516,7 @@ python run_league_helper.py --mode draft
   - Verification: All tests pass, feature_01 retested successfully
 
 **Resuming Work:**
-- feature_01_adp_integration: Resuming S5c (post-implementation)
+- feature_01_adp_integration: Resuming S7 (Testing & Review) (post-implementation)
   - Resume from: QC Round 2 (re-run after bug fix)
   - Next action: Complete QC Round 2, then Round 3
 ```
@@ -540,7 +540,7 @@ Impact check:
 - feature_01 calls get_adp_multiplier() → AFFECTED
 - Need to re-run feature_01's QC to verify fix didn't break it
 
-Action: Re-run feature_01 S5c QC Round 2 before continuing
+Action: Re-run feature_01 S7 (Testing & Review) QC Round 2 before continuing
 ```
 
 ---
@@ -553,7 +553,7 @@ Action: Re-run feature_01 S5c QC Round 2 before continuing
 
 **Resume Instructions:**
 When bug fix complete:
-1. Re-run S5c QC Round 2 (verify bug fix didn't affect this feature)
+1. Re-run S7 (Testing & Review) QC Round 2 (verify bug fix didn't affect this feature)
 2. If passes: Continue to QC Round 3
 3. If fails: Investigate interaction with bug fix
 ```
@@ -584,7 +584,7 @@ When bug fix complete:
 
 **Example:**
 ```
-Currently: feature_01 S5b (implementation)
+Currently: feature_01 S6 (implementation)
 Bug discovered: ConfigManager crashes (blocks feature_01)
 Priority: high
 
@@ -592,7 +592,7 @@ Action:
 1. Save feature_01 state (update README)
 2. Create bug fix immediately
 3. Complete bug fix (S2 → 5c)
-4. Resume feature_01 S5b
+4. Resume feature_01 S6
 ```
 
 ---
@@ -605,7 +605,7 @@ Action:
 
 **Example:**
 ```
-Currently: feature_02 S5b Phase 2 (of 4 phases)
+Currently: feature_02 S6 Phase 2 (of 4 phases)
 Bug discovered: Log messages unclear
 Priority: medium
 
@@ -626,12 +626,12 @@ Action:
 
 **Example:**
 ```
-Currently: feature_03 S5c (QC Round 2)
+Currently: feature_03 S7 (Testing & Review) (QC Round 2)
 Bug discovered: Typo in output message
 Priority: low
 
 Action:
-1. Complete feature_03 through S5e
+1. Complete feature_03 through S8.P2 (Epic Testing Update)
 2. Then create and fix bug
 3. Continue to next feature
 ```
@@ -646,8 +646,8 @@ Action:
 - [x] spec.md created (root cause, solution)
 - [x] checklist.md created
 - [x] S5a complete (28 iterations, implementation_plan.md)
-- [x] S5b complete (implementation, tests pass)
-- [x] S5c complete (smoke tests, QC rounds, PR review)
+- [x] S6 complete (implementation, tests pass)
+- [x] S7 (Testing & Review) complete (smoke tests, QC rounds, PR review)
 - [x] lessons_learned.md updated
 - [x] Epic README updated (bug fix marked complete)
 - [x] Previous work verified compatible with fix
@@ -673,7 +673,7 @@ Action:
 
 **Why wrong:** Small bugs can have big impacts. Same rigor required.
 
-**Correct:** Full S5c validation (smoke tests + 3 QC rounds + PR review)
+**Correct:** Full S7 (Testing & Review) validation (smoke tests + 3 QC rounds + PR review)
 
 ---
 

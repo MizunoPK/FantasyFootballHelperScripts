@@ -40,7 +40,7 @@ Stage 5a: TODO Creation COMPLETE
          ↓
     [More features remaining?]
     ├─ YES → Stages 5d + 5e
-    └─ NO → Skip to Stage 6
+    └─ NO → Skip to Stage 9
          ↓
 ┌─────────────────────────────────────────┐
 │ Stage 5d: Post-Feature Alignment        │
@@ -56,7 +56,7 @@ Stage 5a: TODO Creation COMPLETE
          ↓
     [More features remaining?]
     ├─ YES → Next Feature's Stage 5a
-    └─ NO → Stage 6 (Epic Final QC)
+    └─ NO → Stage 9 (Epic Final QC)
 ```
 
 ---
@@ -94,7 +94,7 @@ Write the feature code following the implementation plan created in Stage 5a.
 ```markdown
 Current Stage: Stage 5c - Post-Implementation
 Current Phase: SMOKE_TESTING
-Next Action: Read stages/s5/s5_p5_smoke_testing.md
+Next Action: Read stages/s10/s7_p1_smoke_testing.md
 ```
 
 ### Time Estimate
@@ -153,11 +153,11 @@ Validate the implemented feature through smoke testing, QC rounds, and PR review
 ```markdown
 # If more features remaining:
 Current Stage: Stage 5d - Post-Feature Alignment
-Next Action: Read stages/s5/s5_p8_cross_feature_alignment.md
+Next Action: Read stages/s8/s8_p1_cross_feature_alignment.md
 
 # If NO more features:
-Current Stage: Stage 6 - Epic Final QC
-Next Action: Read stages/s6/s6_epic_final_qc.md
+Current Stage: Stage 9 - Epic Final QC
+Next Action: Read stages/s9/s6_epic_final_qc.md
 ```
 
 ### Decision Point: Skip 5d/5e?
@@ -171,7 +171,7 @@ Next Action: Read stages/s6/s6_epic_final_qc.md
 
 **If NO (this was last feature):**
 - SKIP Stages 5d and 5e
-- Proceed directly to Stage 6 (Epic Final QC)
+- Proceed directly to Stage 9 (Epic Final QC)
 - Reason: No remaining specs to update, no point updating test plan before final epic testing
 
 ### Time Estimate
@@ -179,7 +179,7 @@ Next Action: Read stages/s6/s6_epic_final_qc.md
 
 ### Next Stage
 - Stage 5d (if features remaining)
-- Stage 6 (if this was last feature)
+- Stage 9 (if this was last feature)
 
 ---
 
@@ -221,7 +221,7 @@ Update remaining (not-yet-implemented) feature specs based on ACTUAL implementat
 ```markdown
 Current Stage: Stage 5e - Testing Plan Update
 Current Phase: TESTING_PLAN_UPDATE
-Next Action: Read stages/s5/s5_p9_epic_testing_update.md
+Next Action: Read stages/s8/s8_p2_epic_testing_update.md
 ```
 
 ### Time Estimate
@@ -275,11 +275,11 @@ Next Feature: feature_0X_{name}
 Next Action: Read stages/s5/s5_p1_planning_round1.md for next feature
 
 # If NO more features:
-Current Stage: Stage 6 - Epic Final QC
-Next Action: Read stages/s6/s6_epic_final_qc.md
+Current Stage: Stage 9 - Epic Final QC
+Next Action: Read stages/s9/s6_epic_final_qc.md
 ```
 
-### Decision Point: Next Feature or Stage 6?
+### Decision Point: Next Feature or Stage 9?
 **Question:** Are there more features to implement?
 
 **If YES (features remaining):**
@@ -288,7 +288,7 @@ Next Action: Read stages/s6/s6_epic_final_qc.md
 - Each feature gets full Stage 5 treatment
 
 **If NO (all features complete):**
-- Proceed to Stage 6 (Epic Final QC)
+- Proceed to Stage 9 (Epic Final QC)
 - Test entire epic as cohesive system
 - Epic-level smoke testing and QC rounds
 
@@ -297,7 +297,7 @@ Next Action: Read stages/s6/s6_epic_final_qc.md
 
 ### Next Stage
 - Next feature's Stage 5a (if features remaining)
-- Stage 6 (if all features complete)
+- Stage 9 (if all features complete)
 
 ---
 
@@ -346,7 +346,7 @@ Mark next column as 🔄 (in progress)
 
 **Answer:**
 - **YES** if features remaining to implement → Go to 5d
-- **NO** if this was last feature → Skip to Stage 6
+- **NO** if this was last feature → Skip to Stage 9
 
 **Why:** No point updating specs (5d) or test plan (5e) if no more features to implement
 
@@ -360,7 +360,7 @@ Mark next column as 🔄 (in progress)
 
 **Answer:**
 - **Next feature's Stage 5a** if features remaining
-- **Stage 6 (Epic QC)** if all features complete
+- **Stage 9 (Epic QC)** if all features complete
 
 **How to check:** Look at Epic Progress Tracker - are all features showing ✅ through Stage 5e?
 
@@ -389,11 +389,11 @@ Mark next column as 🔄 (in progress)
 - [x] Stage 5b (code written, tests pass) → **Next:** Stage 5c (Post-Implementation)
 - [x] Stage 5c (all QC passed) → **Check:** Features remaining?
   - YES → **Next:** Stage 5d (Alignment)
-  - NO → **Next:** Stage 6 (Epic QC)
+  - NO → **Next:** Stage 9 (Epic QC)
 - [x] Stage 5d (specs updated) → **Next:** Stage 5e (Test Plan Update)
 - [x] Stage 5e (test plan updated) → **Check:** Features remaining?
   - YES → **Next:** Next feature's Stage 5a
-  - NO → **Next:** Stage 6 (Epic QC)
+  - NO → **Next:** Stage 9 (Epic QC)
 
 **If ANY QC round failed:**
 - Create bug fix
@@ -414,7 +414,7 @@ Mark next column as 🔄 (in progress)
 
 **Key Decision Points:**
 - After 5c: Skip 5d/5e if last feature
-- After 5e: Next feature's 5a OR Stage 6 if all done
+- After 5e: Next feature's 5a OR Stage 9 if all done
 - During any stage: Issues found → Bug fix → Restart stage
 
 **EPIC_README Updates:**
@@ -422,7 +422,7 @@ Mark next column as 🔄 (in progress)
 - Update Agent Status with next action
 - Keep Quick Reference Card current
 
-**Remember:** Stages 5d and 5e are ONLY for aligning future features. If you just completed the LAST feature, skip directly to Stage 6 for epic-level testing.
+**Remember:** Stages 5d and 5e are ONLY for aligning future features. If you just completed the LAST feature, skip directly to Stage 9 for epic-level testing.
 
 ---
 

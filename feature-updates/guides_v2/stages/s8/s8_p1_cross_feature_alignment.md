@@ -1,15 +1,15 @@
-# S5: Feature Implementation
-## S5.P.4: Post-Feature Alignment
+# S8: Post-Feature Alignment
+## S8.P1: Cross-Feature Spec Alignment
 
-**File:** `phase_5.4_post_feature_alignment.md`
+**File:** `s8_p1_cross_feature_alignment.md`
 
 **Purpose:** After completing a feature, review ALL remaining (not-yet-implemented) feature specs to ensure they align with the ACTUAL implementation (not just the plan). Update specs based on real insights from implementation to prevent spec drift and catch cascading changes early.
 
 **Stage Flow Context:**
 ```
-S5.P1 (Implementation Planning) → S5.P2 (Implementation) → S5.P3 (Post-Implementation) →
-→ [YOU ARE HERE: S5.P4 - Cross-Feature Alignment] →
-→ S5.P5 (Testing Plan Update) → Next Feature's S5.P1 (or S6 if all features done)
+S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing & Review) →
+→ [YOU ARE HERE: S8.P1 - Cross-Feature Alignment] →
+→ S8.P2 (Testing Plan Update) → Next Feature's S5 (or S9 if all features done)
 ```
 
 ---
@@ -19,7 +19,7 @@ S5.P1 (Implementation Planning) → S5.P2 (Implementation) → S5.P3 (Post-Imple
 **BEFORE starting Cross-Feature Alignment, you MUST:**
 
 1. **Use the phase transition prompt** from `prompts_reference_v2.md`
-   - Find "Starting S5d (Cross-Feature Alignment)" prompt
+   - Find "Starting S8.P1" prompt
    - Speak it out loud (acknowledge requirements)
    - List critical requirements from this guide
 
@@ -44,7 +44,7 @@ S5.P1 (Implementation Planning) → S5.P2 (Implementation) → S5.P3 (Post-Imple
 Post-Feature Alignment is where you update remaining feature specs based on the just-completed feature's actual implementation, ensuring pending features align with real code patterns and integration points discovered during development.
 
 **When do you use this guide?**
-- S5c complete (feature fully validated and production-ready)
+- S7 (Testing & Review) complete (feature fully validated and production-ready)
 - There are remaining features to implement
 - Ready to align pending specs with completed work
 
@@ -53,7 +53,7 @@ Post-Feature Alignment is where you update remaining feature specs based on the 
 - ✅ Alignment impacts identified (which specs need updates)
 - ✅ Remaining feature specs updated with implementation insights
 - ✅ Integration points documented
-- ✅ Ready for S5e (Testing Plan Update)
+- ✅ Ready for S8.P2
 
 **Time Estimate:**
 15-30 minutes per completed feature
@@ -69,7 +69,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 1. ⚠️ REVIEW ALL REMAINING FEATURES (Not just "related" ones)
    - Don't assume which features are affected
    - Implementation insights can affect unexpected features
-   - Review EVERY feature that hasn't completed S5c yet
+   - Review EVERY feature that hasn't completed S7 (Testing & Review) yet
    - Sequentially go through all remaining features
 
 2. ⚠️ COMPARE TO ACTUAL IMPLEMENTATION (Not the plan)
@@ -131,7 +131,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 
 ## Critical Decisions Summary
 
-**S5d has 1 major decision point per remaining feature:**
+**S8.P1 (Cross-Feature Alignment) has 1 major decision point per remaining feature:**
 
 ### Decision Point (Per Feature): Spec Update Classification (UPDATE/REWORK/NO CHANGE)
 **Question:** After comparing spec to actual implementation, what level of change is needed?
@@ -186,8 +186,8 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 
 **Verify these BEFORE starting Cross-Feature Alignment:**
 
-**From S5c (Post-Implementation):**
-- [ ] S5c completed for current feature
+**From S7 (Testing & Review) (Post-Implementation):**
+- [ ] S7 (Testing & Review) completed for current feature
 - [ ] All smoke tests passed
 - [ ] All QC rounds passed (3 rounds)
 - [ ] PR review complete
@@ -197,16 +197,16 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 **Epic Structure:**
 - [ ] Epic EPIC_README.md exists and is current
 - [ ] At least one remaining feature exists (not yet implemented)
-  - If NO remaining features → skip S5d, proceed to S5e then S6
+  - If NO remaining features → skip S8.P1 (Cross-Feature Alignment), proceed to S8.P2 (Epic Testing Update) then S9
 - [ ] All remaining features have spec.md and checklist.md files
 
 **Agent Status:**
-- [ ] README Agent Status shows S5c complete
+- [ ] README Agent Status shows S7 (Testing & Review) complete
 - [ ] No blockers noted
 - [ ] Ready to begin alignment review
 
 **If ANY prerequisite fails:**
-- ❌ STOP - Do NOT proceed with S5d
+- ❌ STOP - Do NOT proceed with S8.P1 (Cross-Feature Alignment)
 - Fix prerequisite issue first
 - Update README Agent Status with blocker
 
@@ -221,7 +221,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 └──────────────────────────────────────────────────────────────┘
 
 STEP 1: Identify Remaining Features
-   ├─ List all remaining features (not yet S5c complete)
+   ├─ List all remaining features (not yet S7 (Testing & Review) complete)
    ├─ Determine review order (dependency-based)
    └─ Create review checklist
 
@@ -240,7 +240,7 @@ STEP 3: Handle Features Needing Rework
    └─ Update epic documentation
 
 STEP 4: Final Verification
-   └─ Confirm all alignment work complete before S5e
+   └─ Confirm all alignment work complete before S8.P2 (Epic Testing Update)
 ```
 
 **See detailed workflow steps:** `stages/s5/alignment/alignment_workflow_steps.md`
@@ -279,7 +279,7 @@ STEP 4: Final Verification
 
 ## Completion Criteria
 
-**S5d is complete when ALL of the following are true:**
+**S8.P1 (Cross-Feature Alignment) is complete when ALL of the following are true:**
 
 **All Remaining Features Reviewed:**
 - [ ] Every remaining feature reviewed against actual implementation
@@ -312,20 +312,20 @@ STEP 4: Final Verification
 - [ ] Working directory clean
 
 **README Agent Status Updated:**
-- [ ] Shows S5d completion
+- [ ] Shows S8.P1 (Cross-Feature Alignment) completion
 - [ ] Documents features reviewed (count)
 - [ ] Notes features needing rework (if any)
-- [ ] Next action set to "S5e: Testing Plan Update"
+- [ ] Next action set to "S8.P2 (Epic Testing Update): Testing Plan Update"
 
 **🔄 Re-Reading Checkpoint:**
-Before declaring S5d complete:
+Before declaring S8.P1 (Cross-Feature Alignment) complete:
 1. Re-read "Critical Rules" section at top of this guide
 2. Verify you compared to ACTUAL implementation (not plan)
 3. Verify you updated specs PROACTIVELY (not just noted issues)
 4. Verify ALL remaining features were reviewed (not just "related" ones)
 5. Update README Agent Status with completion timestamp
 
-**If ALL boxes checked:** Ready to proceed to S5e
+**If ALL boxes checked:** Ready to proceed to S8.P2 (Epic Testing Update)
 
 **If ANY box unchecked:** Complete missing items before proceeding
 
@@ -333,10 +333,10 @@ Before declaring S5d complete:
 
 ## Prerequisites for Next Stage
 
-**Before transitioning to S5e (Testing Plan Update), verify:**
+**Before transitioning to S8.P2, verify:**
 
 ### Completion Verification
-- [ ] All S5d completion criteria met (see Completion Criteria section)
+- [ ] All S8.P1 (Cross-Feature Alignment) completion criteria met (see Completion Criteria section)
 - [ ] All remaining features reviewed
 - [ ] All needed spec updates applied
 - [ ] Features needing rework properly marked
@@ -354,12 +354,12 @@ Before declaring S5d complete:
 - [ ] Update notes include reasons and references
 
 ### README Agent Status
-- [ ] Updated to reflect S5d completion
+- [ ] Updated to reflect S8.P1 (Cross-Feature Alignment) completion
 - [ ] Next action set to "Read stages/s5/post_feature_testing_update.md"
 
-**If ALL verified:** Ready for S5e
+**If ALL verified:** Ready for S8.P2 (Epic Testing Update)
 
-**S5e Preview:**
+**S8.P2 (Epic Testing Update) Preview:**
 - Review epic_smoke_test_plan.md
 - Update test scenarios based on ACTUAL implementation of just-completed feature
 - Add integration points discovered during implementation
@@ -371,7 +371,7 @@ Before declaring S5d complete:
 
 ## Summary
 
-**S5d ensures remaining feature specs align with implementation reality through:**
+**S8.P1 (Cross-Feature Alignment) ensures remaining feature specs align with implementation reality through:**
 
 1. **Comprehensive Review** - ALL remaining features reviewed (not just "related" ones)
 2. **Actual Implementation Comparison** - Compare specs to ACTUAL code (not plans)
@@ -391,9 +391,9 @@ Before declaring S5d complete:
 - All needed spec updates applied
 - Features needing rework properly marked and routed
 - Epic documentation current
-- Ready for S5e (Testing Plan Update)
+- Ready for S8.P2
 
-**Why this matters:** Plans change during implementation. Code reveals insights specs couldn't predict. S5d keeps remaining features aligned with reality, preventing costly rework during implementation.
+**Why this matters:** Plans change during implementation. Code reveals insights specs couldn't predict. S8.P1 (Cross-Feature Alignment) keeps remaining features aligned with reality, preventing costly rework during implementation.
 
 ---
 

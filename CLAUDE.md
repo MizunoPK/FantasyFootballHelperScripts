@@ -36,13 +36,15 @@
 
 ## Epic-Driven Development Workflow (v2)
 
-The v2 workflow is a **7-stage epic-driven development process** for managing large projects:
+The v2 workflow is a **10-stage epic-driven development process** for managing large projects:
 
 **Workflow Overview:**
 ```
 S1: Epic Planning → S2: Feature Deep Dives → S3: Cross-Feature Sanity Check →
-S4: Epic Testing Strategy → S5: Feature Implementation (S5a→S5b→S5c→S5d→S5e per feature) →
-S6: Epic-Level Final QC → S7: Epic Cleanup (includes S7.P1: Guide Updates)
+S4: Epic Testing Strategy → S5-S8: Feature Loop (per feature) → S9: Epic-Level Final QC →
+S10: Epic Cleanup (includes S10.P1: Guide Updates)
+
+Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alignment) → Repeat or S9
 ```
 
 **Notation System:**
@@ -72,9 +74,9 @@ S6: Epic-Level Final QC → S7: Epic Cleanup (includes S7.P1: Guide Updates)
 5. **THEN proceed** - Follow the guide step-by-step
 
 **Phase transition prompts are MANDATORY for:**
-- Starting any of the 7 stages (1, 2, 3, 4, 5a, 5b, 5c, 5d, 5e, 6, 7)
-- Starting Stage 5a rounds (Round 1, 2, 3)
-- Starting Stage 5c phases (Smoke Testing, QC Rounds, Final Review)
+- Starting any of the 10 stages (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10)
+- Starting S5 rounds (Round 1, 2, 3)
+- Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
 - Creating missed requirements or entering debugging protocol
 - Resuming after session compaction
 
@@ -141,10 +143,10 @@ S6: Epic-Level Final QC → S7: Epic Cleanup (includes S7.P1: Guide Updates)
 - **Gate 4.5:** User approves test plan (MANDATORY)
 - **Next:** S5 (first feature)
 
-**S5: Feature Implementation** (Loop per feature: S5a→S5b→S5c→S5d→S5e)
+**S5-S8: Feature Loop** (Repeat for each feature)
 
-**S5.P1: Implementation Planning** (28 iterations, 3 rounds)
-- **First Action:** Use "Starting S5.P1 Round 1/2/3" prompt
+**S5: Implementation Planning** (28 iterations, 3 rounds)
+- **First Action:** Use "Starting S5 Round 1/2/3" prompt
 - **🚨 CRITICAL:** Execute iterations ONE at a time, IN ORDER (no batching, no skipping)
 - **Guides:**
   - Round 1: `stages/s5/s5_p1_planning_round1.md` (router to I1-I3)
@@ -161,55 +163,51 @@ S6: Epic-Level Final QC → S7: Epic Cleanup (includes S7.P1: Guide Updates)
     - S5.P3.I3: `stages/s5/s5_p3_i3_gates_part2.md` (Iterations 24-25 - Gate 25 + Gate 24: GO/NO-GO)
 - **Output:** implementation_plan.md (~400 lines) - PRIMARY reference
 - **Gate 5:** User approves implementation plan (MANDATORY)
-- **Next:** S5.P4
+- **Next:** S6
 
-**S5.P4: Implementation Execution**
-- **First Action:** Use "Starting S5.P4" prompt
-- **Guide:** `stages/s5/s5_p4_execution.md`
+**S6: Implementation Execution**
+- **First Action:** Use "Starting S6" prompt
+- **Guide:** `stages/s6/s6_execution.md`
 - **Actions:** Create implementation_checklist.md, implement from implementation_plan.md
 - **Key Principle:** implementation_plan.md = HOW to build (primary), spec.md = WHAT to build (verify)
-- **Next:** S5.P5
+- **Next:** S7
 
-**S5.P5-P7: Post-Implementation** (3 phases + commit)
-- **First Action:** Use "Starting S5.P5 Smoke Testing" prompt
-- **🚨 RESTART PROTOCOL:** If ANY issues found → Restart from S5.P5 (NOT mid-QC)
+**S7: Implementation Testing & Review** (3 phases + commit)
+- **First Action:** Use "Starting S7.P1 Smoke Testing" prompt
+- **🚨 RESTART PROTOCOL:** If ANY issues found → Restart from S7.P1 (NOT mid-QC)
 - **Guides:**
-  - S5.P5: `stages/s5/s5_p5_smoke_testing.md` (MANDATORY GATE - if issues → enter debugging, fix, restart S5.P5)
-  - S5.P6: `stages/s5/s5_p6_qc_rounds.md` (3 QC rounds - if issues → enter debugging, fix, restart S5.P5)
-  - S5.P7: `stages/s5/s5_p7_final_review.md` (PR review, lessons learned)
-- **After S5.P7:** COMMIT FEATURE (feature-level commit)
-- **Next:** S5.P8
+  - S7.P1: `stages/s7/s7_p1_smoke_testing.md` (MANDATORY GATE - if issues → enter debugging, fix, restart S7.P1)
+  - S7.P2: `stages/s7/s7_p2_qc_rounds.md` (3 QC rounds - if issues → enter debugging, fix, restart S7.P1)
+  - S7.P3: `stages/s7/s7_p3_final_review.md` (PR review, lessons learned)
+- **After S7.P3:** COMMIT FEATURE (feature-level commit)
+- **Next:** S8
 
-**S5.P8: Cross-Feature Spec Alignment**
-- **First Action:** Use "Starting S5.P8" prompt
-- **Guide:** `stages/s5/s5_p8_cross_feature_alignment.md`
-- **Actions:** Update remaining feature specs based on completed feature
-- **Next:** S5.P9
+**S8: Post-Feature Alignment** (2 phases)
+- **First Action:** Use "Starting S8.P1" prompt
+- **Guides:**
+  - S8.P1: `stages/s8/s8_p1_cross_feature_alignment.md` (Update remaining feature specs)
+  - S8.P2: `stages/s8/s8_p2_epic_testing_update.md` (Reassess epic_smoke_test_plan.md)
+- **Actions:** Update remaining feature specs and epic testing plan based on completed feature
+- **Next:** Repeat S5 for next feature OR S9 (if all features done)
 
-**S5.P9: Epic Testing Plan Reassessment**
-- **First Action:** Use "Starting S5.P9" prompt
-- **Guide:** `stages/s5/s5_p9_epic_testing_update.md`
-- **Actions:** Reassess epic_smoke_test_plan.md after feature completion
-- **Next:** Repeat S5 for next feature OR S6 (if all features done)
-
-**S6: Epic-Level Final QC**
-- **First Action:** Use "Starting S6" prompt
-- **🚨 RESTART PROTOCOL:** If ANY issues found → Restart from S6.P1 (NOT mid-QC)
-- **Guide:** `stages/s6/s6_epic_final_qc.md` (router to phases)
+**S9: Epic-Level Final QC**
+- **First Action:** Use "Starting S9" prompt
+- **🚨 RESTART PROTOCOL:** If ANY issues found → Restart from S9.P1 (NOT mid-QC)
+- **Guide:** `stages/s9/s9_epic_final_qc.md` (router to phases)
 - **Phases:**
-  - S6.P1: `stages/s6/s6_p1_epic_smoke_testing.md` (Epic smoke testing)
-  - S6.P2: `stages/s6/s6_p2_epic_qc_rounds.md` (3 QC rounds)
-  - S6.P3: `stages/s6/s6_p3_user_testing.md` (User tests, reports bugs or "no bugs found")
-  - S6.P4: `stages/s6/s6_p4_epic_final_review.md` (Final review)
-- **If issues:** Enter debugging protocol → Fix all issues → Restart from S6.P1
-- **Next:** S7 (only when user reports ZERO bugs)
+  - S9.P1: `stages/s9/s9_p1_epic_smoke_testing.md` (Epic smoke testing)
+  - S9.P2: `stages/s9/s9_p2_epic_qc_rounds.md` (3 QC rounds)
+  - S9.P3: `stages/s9/s9_p3_user_testing.md` (User tests, reports bugs or "no bugs found")
+  - S9.P4: `stages/s9/s9_p4_epic_final_review.md` (Final review)
+- **If issues:** Enter debugging protocol → Fix all issues → Restart from S9.P1
+- **Next:** S10 (only when user reports ZERO bugs)
 
-**S7: Epic Cleanup**
-- **First Action:** Use "Starting S7" prompt
-- **Prerequisites:** S6 complete (user testing PASSED with ZERO bugs)
-- **Guide:** `stages/s7/s7_epic_cleanup.md`
-- **Actions:** Run unit tests (100% pass), S7.P1 guide updates, commit, create PR
-- **S7.P1 (MANDATORY):** `stages/s7/s7_p1_guide_update_workflow.md` - Analyze lessons, create GUIDE_UPDATE_PROPOSAL.md, user approval, apply
+**S10: Epic Cleanup**
+- **First Action:** Use "Starting S10" prompt
+- **Prerequisites:** S9 complete (user testing PASSED with ZERO bugs)
+- **Guide:** `stages/s10/s10_epic_cleanup.md`
+- **Actions:** Run unit tests (100% pass), S10.P1 guide updates, commit, create PR
+- **S10.P1 (MANDATORY):** `stages/s10/s10_p1_guide_update_workflow.md` - Analyze lessons, create GUIDE_UPDATE_PROPOSAL.md, user approval, apply
 - **After PR merged:** Update EPIC_TRACKER.md, move epic to done/
 
 **See:** `feature-updates/guides_v2/README.md` for complete workflow overview and guide index.
@@ -280,9 +278,9 @@ S6: Epic-Level Final QC → S7: Epic Cleanup (includes S7.P1: Guide Updates)
 - **Phase transition prompts**: MANDATORY acknowledgment (proves guide was read)
 - **User approval gates**: Gates 3, 4.5, 5 (early approval prevents rework)
 - **Zero autonomous resolution**: Agents create QUESTIONS, user provides ANSWERS
-- **Continuous alignment**: S5.P8 updates specs after each feature
-- **Continuous testing**: Test plan evolves (S1 → S4 → S5.P9 → S6)
-- **28 verification iterations**: All mandatory (S5.P1 Rounds 1-3)
+- **Continuous alignment**: S8.P1 updates specs after each feature
+- **Continuous testing**: Test plan evolves (S1 → S4 → S8.P2 → S9)
+- **28 verification iterations**: All mandatory (S5 Rounds 1-3)
 - **QC restart protocol**: If ANY issues → restart completely
 - **100% test pass**: Required before commits and transitions
 - **Zero tech debt tolerance**: Fix ALL issues immediately

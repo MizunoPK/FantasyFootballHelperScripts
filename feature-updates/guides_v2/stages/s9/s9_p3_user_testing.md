@@ -1,15 +1,15 @@
-# S6: Epic-Level Final QC
-## S6.P3: User Testing & Bug Fix Protocol
+# S9: Epic-Level Final QC
+## S9.P3: User Testing & Bug Fix Protocol
 
 **Purpose:** Have the user test the complete epic after QC rounds pass to catch real-world issues before final review and commit.
 
-**File:** `s6_p3_user_testing.md`
+**File:** `s9_p3_user_testing.md`
 
 **Stage Flow Context:**
 ```
-S6.P1 (Epic Smoke) → S6.P2 (QC Rounds) →
-→ [YOU ARE HERE: S6.P3 - User Testing] →
-→ S6.P4 (Epic Final Review) → S7
+S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
+→ [YOU ARE HERE: S9.P3 - User Testing] →
+→ S9.P4 (Epic Final Review) → S10
 ```
 
 ---
@@ -227,7 +227,7 @@ In each bugfix folder, create `notes.txt`:
 # Bug Fix: {short_name}
 
 **Priority:** {high/medium/low}
-**Reported By:** User (during S6 user testing)
+**Reported By:** User (during S9 user testing)
 **Discovered During:** Epic-level user testing
 **Date Reported:** {YYYY-MM-DD}
 
@@ -286,8 +286,8 @@ Read and follow: `stages/s_5/bugfix_workflow.md`
 **Stages:**
 1. **S2** (Feature Deep Dive) - Understand bug scope
 2. **S5a** (TODO Creation) - Plan fix
-3. **S5b** (Implementation) - Implement fix
-4. **S5c** (Post-Implementation) - Test fix
+3. **S6** (Implementation) - Implement fix
+4. **S7 (Testing & Review)** (Post-Implementation) - Test fix
 
 **2b. Mark Bug Fix Complete**
 
@@ -298,7 +298,7 @@ Update EPIC_README.md:
 
 ### Bug Fix 1: {name}
 - **Priority:** high
-- **Status:** S5c COMPLETE ✅
+- **Status:** S7 (Testing & Review) COMPLETE ✅
 - **Date Completed:** {YYYY-MM-DD}
 - **Related Features:** Feature 01, Feature 03
 - **Files Modified:** {list}
@@ -308,24 +308,24 @@ Update EPIC_README.md:
 {Details...}
 ```
 
-**Repeat for ALL bugs until every bug fix reaches S5c.**
+**Repeat for ALL bugs until every bug fix reaches S7 (Testing & Review).**
 
 ---
 
-### Step 3: RESTART S6 (Epic Final QC)
+### Step 3: RESTART S9 (Epic Final QC)
 
-⚠️ **CRITICAL:** After ALL bugs are fixed, you MUST restart the entire S6 process.
+⚠️ **CRITICAL:** After ALL bugs are fixed, you MUST restart the entire S9 process.
 
-**Why restart S6?**
+**Why restart S9?**
 - Bug fixes may have introduced new issues
 - Need to re-validate epic integration
 - QC rounds ensure fixes don't break anything
 - Comprehensive validation required
 
-**Steps to restart S6:**
+**Steps to restart S9:**
 
 **3a. Return to S6a (Epic Smoke Testing)**
-1. Read `stages/s6/epic_smoke_testing.md` again
+1. Read `stages/s9/epic_smoke_testing.md` again
 2. Execute all 4 smoke test parts:
    - Part 1: Import Test
    - Part 2: Entry Point Test
@@ -334,18 +334,18 @@ Update EPIC_README.md:
 3. Verify all parts PASS
 
 **3b. Proceed to S6b (Epic QC Rounds)**
-1. Read `stages/s6/epic_qc_rounds.md` again
+1. Read `stages/s9/epic_qc_rounds.md` again
 2. Execute all 3 QC rounds:
    - Round 1: Cross-Feature Integration
    - Round 2: Epic Cohesion & Consistency
    - Round 3: End-to-End Success Criteria
 3. Verify all rounds PASS
 
-**3c. If S6 finds MORE bugs:**
+**3c. If S9 finds MORE bugs:**
 - Create new bug fix folders
 - Follow bug fix protocol again
-- RESTART S6 AGAIN after fixes
-- Repeat until S6 passes with ZERO issues
+- RESTART S9 AGAIN after fixes
+- Repeat until S9 passes with ZERO issues
 
 **3d. Proceed to Step 6 (User Testing Again)**
 - Return to this guide (Step 6)
@@ -384,7 +384,7 @@ Update EPIC_README.md:
 ```markdown
 ## Epic Progress Tracker
 
-### S6: Epic-Level Final QC
+### S9: Epic-Level Final QC
 
 **S6a - Epic Smoke Testing:** ✅ COMPLETE
 - Date completed: {YYYY-MM-DD}
@@ -411,7 +411,7 @@ Update EPIC_README.md:
 **Document in epic_lessons_learned.md:**
 
 ```markdown
-## S6 Lessons Learned (Epic Final QC)
+## S9 Lessons Learned (Epic Final QC)
 
 ### User Testing Results
 
@@ -517,14 +517,14 @@ User-reported bugs follow the epic debugging protocol:
 
 1. ✅ Ask user to test the system (Step 6a)
 2. ✅ Wait for user testing results (Step 6b)
-3. ✅ If bugs found → Fix all bugs → RESTART S6 → Return to Step 6 (Step 6c)
+3. ✅ If bugs found → Fix all bugs → RESTART S9 → Return to Step 6 (Step 6c)
 4. ✅ If no bugs → Document completion → Proceed to Step 7 (Step 6d)
 
 **Critical Requirements:**
 - User testing is MANDATORY (cannot skip)
 - Must wait for user response (cannot proceed without)
 - ALL bugs must be fixed (cannot defer)
-- Must RESTART S6 after bug fixes (cannot skip validation)
+- Must RESTART S9 after bug fixes (cannot skip validation)
 - Repeat until user reports "No bugs found" (no shortcuts)
 
 **Why this matters:**

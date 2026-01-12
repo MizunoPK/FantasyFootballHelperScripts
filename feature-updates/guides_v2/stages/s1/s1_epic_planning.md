@@ -478,7 +478,7 @@ Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "
 
 ### Step 4.6: Update EPIC_README.md
 
-Add **Feature Tracking** table listing all features with S2 Complete and S5.P9 Complete checkboxes (all unchecked initially).
+Add **Feature Tracking** table listing all features with S2 Complete and S8.P2 Complete checkboxes (all unchecked initially).
 
 Add **Epic Completion Checklist** with all 7 stages (S1 items checked, all others unchecked).
 

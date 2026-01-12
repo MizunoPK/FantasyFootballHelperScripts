@@ -4,7 +4,7 @@
 
 **Applies to:**
 - Feature-level PRs (Stage 5c Phase 3)
-- Epic-level PRs (Stage 6 Phase 3)
+- Epic-level PRs (Stage 9 Phase 3)
 
 **Key Principle:** Spawn fresh agents for each review round to avoid context bias and ensure "fresh eyes" on the code.
 
@@ -286,7 +286,7 @@ Perform a comprehensive PR review of the following code changes:
 - Create `pr_review_issues.md` in feature folder
 - Cannot proceed to Step 2 until PR review PASSED
 
-### Epic-Level (Stage 6 Phase 3)
+### Epic-Level (Stage 9 Phase 3)
 
 **In epic_final_qc.md Step 1 "Epic PR Review":**
 - READ: `stages/stage_5/pr_review_protocol.md`
