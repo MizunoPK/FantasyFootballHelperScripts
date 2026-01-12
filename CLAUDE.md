@@ -355,7 +355,7 @@ feature_XX_{name}/
 **Stage 1:** Create branch: `git checkout -b {work_type}/KAI-{number}`
 **Stage 7:** Create PR for user review, user merges, update EPIC_TRACKER.md
 
-**See:** `GIT_WORKFLOW.md` for complete branching workflow including:
+**See:** `feature-updates/guides_v2/reference/GIT_WORKFLOW.md` for complete branching workflow including:
 - Detailed branch management steps
 - Commit message conventions and examples
 - PR creation and review process
@@ -408,7 +408,7 @@ git diff    # Review changes
 - Re-run tests
 - Only commit when all tests pass (exit code 0)
 
-**See:** `GIT_WORKFLOW.md` for detailed commit guidelines and examples
+**See:** `feature-updates/guides_v2/reference/GIT_WORKFLOW.md` for detailed commit guidelines and examples
 
 ---
 
@@ -457,8 +457,8 @@ git diff    # Review changes
 
 **Extracted references:**
 - **CODING_STANDARDS.md**: Import organization, error handling, logging, docstrings, type hints, testing standards, naming conventions
-- **GIT_WORKFLOW.md**: Branch management, commit conventions, PR creation, EPIC_TRACKER.md updates
-- **PROTOCOL_DECISION_TREE.md**: Issue/gap discovery flowchart, 4 scenario examples, protocol selection
+- **feature-updates/guides_v2/reference/GIT_WORKFLOW.md**: Branch management, commit conventions, PR creation, EPIC_TRACKER.md updates
+- **feature-updates/guides_v2/reference/PROTOCOL_DECISION_TREE.md**: Issue/gap discovery flowchart, 4 scenario examples, protocol selection
 
 ---
 
