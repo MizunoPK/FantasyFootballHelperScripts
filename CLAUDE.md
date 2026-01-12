@@ -78,6 +78,30 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup (includes Stage 7.5: Guid
 
 ---
 
+## 🚨 CRITICAL: Stage Workflows Are Quick Reference ONLY
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ ⚠️ DO NOT use Stage Workflows below as substitute for guides   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│ Stage Workflows section provides NAVIGATION ONLY                │
+│ - Shows which guide to read                                     │
+│ - Shows first action (prompt) to use                            │
+│ - Shows next stage                                              │
+│                                                                  │
+│ You MUST read the FULL guide for each stage                     │
+│ - Use Read tool to load ENTIRE guide                            │
+│ - Follow ALL steps in guide                                     │
+│ - Do NOT work from this quick reference alone                   │
+│                                                                  │
+│ Skipping guide reading = 40% abandonment rate (historical data) │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Stage Workflows Quick Reference
 
 **Stage 1: Epic Planning**
@@ -93,8 +117,9 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup (includes Stage 7.5: Guid
 - **Phases:**
   - Phase 2.1: Research (Gate 1: Research Audit)
   - Phase 2.2: Specification (Gate 2: Spec Alignment + **Gate 3: User Checklist Approval**)
+    - Phase 2.2.5: Specification Validation (self-validate spec, resolve questions, reduce user burden)
   - Phase 2.3: Refinement (Gate 4: User Approval of Acceptance Criteria)
-- **Key Outputs:** spec.md, checklist.md (QUESTIONS ONLY - user answers ALL)
+- **Key Outputs:** spec.md, checklist.md (QUESTIONS ONLY - agents CANNOT mark [x] autonomously)
 - **Next:** Stage 3 (after ALL features)
 
 **Stage 3: Cross-Feature Sanity Check**
@@ -114,6 +139,7 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup (includes Stage 7.5: Guid
 
 **Stage 5a: Implementation Planning** (28 iterations, 3 rounds)
 - **First Action:** Use "Starting Stage 5a Round 1/2/3" prompt
+- **🚨 CRITICAL:** Execute iterations ONE at a time, IN ORDER (no batching, no skipping)
 - **Guides:**
   - Round 1: `stages/stage_5/part_5.1.1_round1.md` (Iterations 1-7 + Gates 4a, 7a)
   - Round 2: `stages/stage_5/part_5.1.2_round2.md` (Iterations 8-16, >90% test coverage)
@@ -134,9 +160,10 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup (includes Stage 7.5: Guid
 
 **Stage 5c: Post-Implementation** (3 parts + commit)
 - **First Action:** Use "Starting Stage 5c Smoke Testing" prompt
+- **🚨 RESTART PROTOCOL:** If ANY issues found → Restart from Part 5.3.1 (NOT mid-QC)
 - **Guides:**
-  - Part 5.3.1: `part_5.3.1_smoke_testing.md` (MANDATORY GATE - if issues → loop back)
-  - Part 5.3.2: `part_5.3.2_qc_rounds.md` (3 QC rounds - if issues → loop back to 5.3.1)
+  - Part 5.3.1: `part_5.3.1_smoke_testing.md` (MANDATORY GATE - if issues → enter debugging, fix, restart 5.3.1)
+  - Part 5.3.2: `part_5.3.2_qc_rounds.md` (3 QC rounds - if issues → enter debugging, fix, restart 5.3.1)
   - Part 5.3.3: `part_5.3.3_final_review.md` (PR review, lessons learned)
 - **After Part 5.3.3:** COMMIT FEATURE (feature-level commit)
 - **Next:** Stage 5d
@@ -155,10 +182,11 @@ Stage 6: Epic-Level Final QC → Stage 7: Epic Cleanup (includes Stage 7.5: Guid
 
 **Stage 6: Epic-Level Final QC**
 - **First Action:** Use "Starting Stage 6" prompt
+- **🚨 RESTART PROTOCOL:** If ANY issues found → Restart from Phase 6.1 (NOT mid-QC)
 - **Guide:** `stages/stage_6/epic_final_qc.md`
 - **Actions:** Execute epic_smoke_test_plan.md, 3 QC rounds
 - **USER TESTING (MANDATORY - Step 6):** User tests, reports bugs or "no bugs found"
-- **If issues:** Enter debugging protocol → Loop back to Phase 6.1
+- **If issues:** Enter debugging protocol → Fix all issues → Restart from Phase 6.1
 - **Next:** Stage 7 (only when user reports ZERO bugs)
 
 **Stage 7: Epic Cleanup**
@@ -264,14 +292,16 @@ The workflow uses two types of gates:
 
 | Gate | Type | Stage | Purpose | Approver |
 |------|------|-------|---------|----------|
+| Gate 1 | Stage | Stage 2 | Research Completeness Audit | Agent (checklist) |
+| Gate 2 | Stage | Stage 2 | Spec-to-Epic Alignment | Agent (checklist) |
 | Gate 3 | Stage | Stage 2 | User Checklist Approval | User |
 | Gate 4.5 | Stage | Stage 4 | Epic Test Plan Approval | User |
 | Gate 5 | Stage | Stage 5a | Implementation Plan Approval | User |
-| Gate 4a | Iteration | Stage 5a R1 | TODO Specification Audit | Agent |
-| Gate 7a | Iteration | Stage 5a R1 | Backward Compatibility Check | Agent |
-| Gate 23a | Iteration | Stage 5a R3 | Pre-Implementation Spec Audit (5 parts) | Agent |
-| Gate 24 | Iteration | Stage 5a R3 | GO/NO-GO Decision | Agent |
-| Gate 25 | Iteration | Stage 5a R3 | Spec Validation Check | Agent |
+| Gate 4a | Iteration | Stage 5a R1 | TODO Specification Audit | Agent (checklist) |
+| Gate 7a | Iteration | Stage 5a R1 | Backward Compatibility Check | Agent (checklist) |
+| Gate 23a | Iteration | Stage 5a R3 | Pre-Implementation Spec Audit (5 parts) | Agent (checklist) |
+| Gate 24 | Iteration | Stage 5a R3 | GO/NO-GO Decision | Agent (confidence) |
+| Gate 25 | Iteration | Stage 5a R3 | Spec Validation Check | Agent (checklist) |
 
 **See:** `reference/mandatory_gates.md` for complete gate reference with timing, checklists, and guide locations.
 
@@ -428,8 +458,9 @@ git diff    # Review changes
 
 ❌ **Skip stages** (all stages have dependencies)
 ❌ **Skip iterations** in Stage 5a (all 28 mandatory)
+❌ **Batch iterations** (execute ONE at a time, sequentially)
 ❌ **Defer issues for "later"** (fix immediately)
-❌ **Skip QC restart** when issues found
+❌ **Skip QC restart** when issues found (restart from beginning)
 ❌ **Commit without running tests**
 ❌ **Commit without user testing approval** (Stage 7)
 
