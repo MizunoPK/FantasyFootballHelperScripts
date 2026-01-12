@@ -105,7 +105,7 @@ python tests/run_all_tests.py
 ## Prerequisites from Stage 6
 
 ### User Testing Already Complete
-**Location:** stages/stage_6/epic_final_review.md Step 6
+**Location:** stages/stage_6/phase_6.4_epic_final_review.md Step 6
 **What was checked:**
 - User tested complete system themselves
 - User reported ZERO bugs

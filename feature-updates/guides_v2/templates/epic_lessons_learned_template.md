@@ -144,7 +144,7 @@ This document captures:
 **Stage 5a (TODO Creation):**
 - What went well: {Observation}
 - What could improve: {Improvement}
-- 24 iterations experience: {Any issues with specific iterations}
+- 28 iterations experience: {Any issues with specific iterations}
 
 **Stage 5b (Implementation):**
 - What went well: {Observation}
@@ -157,7 +157,7 @@ This document captures:
 
 **Debugging (If Occurred):**
 - Issues discovered: {Count and brief summary}
-- Testing stage where found: {Stage 5ca / 5cb / other}
+- Testing stage where found: {Part 5.3.1 / Part 5.3.2 / other}
 - Total debugging time: {Hours}
 - Key insights: {Brief insights from debugging/lessons_learned.md}
 - Process improvements identified: {Brief summary of process gaps from debugging/process_failure_analysis.md}
@@ -223,8 +223,8 @@ This document captures:
 ### Guide Improvements Needed from Stage 5
 
 **From Feature 01:**
-- `stages/stage_5/round1_todo_creation.md`: {Specific improvement}
-- `stages/stage_5/smoke_testing.md`: {Specific improvement}
+- `stages/stage_5/part_5.1.1_round1.md`: {Specific improvement}
+- `stages/stage_5/part_5.3.1_smoke_testing.md`: {Specific improvement}
 
 **From Feature 01 Debugging (if occurred):**
 - {List guide updates from feature_01_{name}/debugging/guide_update_recommendations.md}
@@ -258,7 +258,7 @@ This document captures:
 
 **Debugging (If Occurred at Epic Level):**
 - Issues discovered: {Count and brief summary}
-- Testing stage where found: {Stage 6a / 6b / other}
+- Testing stage where found: {Phase 6.1 / 6b / other}
 - Total debugging time: {Hours}
 - Key insights: {Brief insights from {epic_name}/debugging/lessons_learned.md}
 - Process improvements identified: {Brief summary from {epic_name}/debugging/process_failure_analysis.md}

@@ -6,7 +6,7 @@
 
 **Previous Phase:** PHASE 4 (User Verification) - See `debugging/resolution.md`
 
-**Next Phase:** Return to testing stage (Stage 5ca, 5cb, or 6a)
+**Next Phase:** Return to testing stage (Part 5.3.1, Part 5.3.2, or 6a)
 
 ---
 
@@ -185,7 +185,7 @@ python tests/run_all_tests.py
 
 **Common Root Cause:**
 {What's the common process/guide gap across these bugs?}
-Example: "All three bugs involved missing checks for entity status fields (injured, active, etc.) because round2_todo_creation.md Iteration 9 (Edge Case Analysis) doesn't explicitly mention status field edge cases"
+Example: "All three bugs involved missing checks for entity status fields (injured, active, etc.) because part_5.1.2_round2.md Iteration 9 (Edge Case Analysis) doesn't explicitly mention status field edge cases"
 
 **Common Prevention Point:**
 {Which stage/iteration should have caught all these bugs?}
@@ -193,7 +193,7 @@ Example: "Stage 5a Round 2, Iteration 9 (Edge Case Analysis)"
 
 **Pattern-Based Guide Improvement:**
 {What ONE guide change prevents ALL these bugs?}
-Example: "Add to round2_todo_creation.md Iteration 9 checklist: '[ ] Entity status fields (active, injured, suspended, bye week, etc.)'"
+Example: "Add to part_5.1.2_round2.md Iteration 9 checklist: '[ ] Entity status fields (active, injured, suspended, bye week, etc.)'"
 
 **Impact:**
 - Bugs prevented: {count} similar bugs in future epics
@@ -344,7 +344,7 @@ Example: "Add to round2_todo_creation.md Iteration 9 checklist: '[ ] Entity stat
 # Debugging Lessons Learned - {Feature/Epic Name}
 
 **Feature/Epic:** {name}
-**Testing Stage:** {Stage 5ca Smoke Testing / Stage 5cb QC / Stage 6 Epic Testing / Stage 7 User Testing}
+**Testing Stage:** {Part 5.3.1 Smoke Testing / Part 5.3.2 QC / Stage 6 Epic Testing / Stage 7 User Testing}
 **Date Range:** {start date} - {end date}
 **Total Issues:** {count}
 **Total Investigation Time:** {hours}
@@ -716,9 +716,9 @@ This document captures technical lessons from debugging. For process improvement
 
 ### Feature-Level Loop-Back
 
-**If issues discovered during Stage 5ca (Smoke Testing):**
+**If issues discovered during Part 5.3.1 (Smoke Testing):**
 
-Loop back to: **Stage 5ca Part 1** (Import Test)
+Loop back to: **Part 5.3.1 Part 1** (Import Test)
 
 **Why start at Part 1, not Part 3 where issues were found?**
 - Fixes might affect earlier parts (imports, entry points)
@@ -730,7 +730,7 @@ Loop back to: **Stage 5ca Part 1** (Import Test)
 2. Return to smoke testing guide
 3. Run ALL 3 parts of smoke testing
 4. If new issues found → back to debugging
-5. If zero issues → proceed to Stage 5cb (QC Rounds)
+5. If zero issues → proceed to Part 5.3.2 (QC Rounds)
 
 **README Agent Status update:**
 
@@ -739,7 +739,7 @@ Loop back to: **Stage 5ca Part 1** (Import Test)
 
 All issues in debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with user confirmation.
 
-**Next Action:** Loop back to Stage 5ca (Smoke Testing) Part 1
+**Next Action:** Loop back to Part 5.3.1 (Smoke Testing) Part 1
 
 **Reason:** Must re-run complete smoke testing after fixes to ensure:
 1. Original issues are resolved
@@ -748,7 +748,7 @@ All issues in debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with user confirm
 
 **Update README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_SMOKE_TESTING
-- Current Guide: stages/stage_5/smoke_testing.md
+- Current Guide: stages/stage_5/part_5.3.1_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Returning From: Debugging Protocol
 - Issues Resolved: {count}
@@ -759,9 +759,9 @@ Looping back to smoke testing...
 
 ---
 
-**If issues discovered during Stage 5cb (QC Rounds):**
+**If issues discovered during Part 5.3.2 (QC Rounds):**
 
-Loop back to: **Stage 5ca Part 1** (NOT back to QC Round directly)
+Loop back to: **Part 5.3.1 Part 1** (NOT back to QC Round directly)
 
 **Why loop back to smoke testing instead of QC?**
 - QC restart protocol: Always restart from smoke testing after fixes
@@ -774,22 +774,22 @@ Loop back to: **Stage 5ca Part 1** (NOT back to QC Round directly)
 3. Run all 3 parts of smoke testing
 4. Then run all QC rounds (1, 2, 3) again
 5. If issues found → back to debugging
-6. If zero issues → proceed to Stage 5cc (Final Review)
+6. If zero issues → proceed to Part 5.3.3 (Final Review)
 
 ---
 
 ### Epic-Level Loop-Back
 
-**If issues discovered during Stage 6a (Epic Smoke Testing):**
+**If issues discovered during Phase 6.1 (Epic Smoke Testing):**
 
-Loop back to: **Stage 6a Step 1** (Epic Smoke Testing start)
+Loop back to: **Phase 6.1 Step 1** (Epic Smoke Testing start)
 
 **Actions:**
 1. Update EPIC_README Agent Status
 2. Return to epic smoke testing guide
 3. Run all epic smoke test steps
 4. If new issues found → back to epic debugging
-5. If zero issues → proceed to Stage 6b (Epic QC Rounds)
+5. If zero issues → proceed to Phase 6.2 (Epic QC Rounds)
 
 **EPIC_README Agent Status update:**
 
@@ -798,7 +798,7 @@ Loop back to: **Stage 6a Step 1** (Epic Smoke Testing start)
 
 All issues in epic_name/debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with user confirmation.
 
-**Next Action:** Loop back to Stage 6a (Epic Smoke Testing) Step 1
+**Next Action:** Loop back to Phase 6.1 (Epic Smoke Testing) Step 1
 
 **Reason:** Must re-run complete epic testing after fixes to ensure:
 1. Original issues are resolved
@@ -807,7 +807,7 @@ All issues in epic_name/debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with us
 
 **Update EPIC_README Agent Status:**
 - Current Phase: EPIC_FINAL_QC_SMOKE_TESTING
-- Current Guide: stages/stage_6/epic_smoke_testing.md
+- Current Guide: stages/stage_6/phase_6.1_epic_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Returning From: Debugging Protocol
 - Issues Resolved: {count}
@@ -818,9 +818,9 @@ Looping back to epic smoke testing...
 
 ---
 
-**If issues discovered during Stage 6b (Epic QC Rounds):**
+**If issues discovered during Phase 6.2 (Epic QC Rounds):**
 
-Loop back to: **Stage 6a Step 1** (Epic Smoke Testing)
+Loop back to: **Phase 6.1 Step 1** (Epic Smoke Testing)
 
 **Why?** Same reason as feature-level: restart from smoke testing, not QC.
 
@@ -828,9 +828,9 @@ Loop back to: **Stage 6a Step 1** (Epic Smoke Testing)
 
 **If issues discovered during Stage 7 (User Testing):**
 
-Loop back to: **Stage 6a Step 1** (Epic Smoke Testing)
+Loop back to: **Phase 6.1 Step 1** (Epic Smoke Testing)
 
-**Why Stage 6a, not Stage 7?**
+**Why Phase 6.1, not Stage 7?**
 - User-reported bugs might affect epic-level integration
 - Must re-validate entire epic before returning to user
 - Stage 7 is user-driven, can't "loop back" to it
@@ -839,7 +839,7 @@ Loop back to: **Stage 6a Step 1** (Epic Smoke Testing)
 **Actions:**
 1. Update EPIC_README Agent Status
 2. Inform user: "Fixing bugs, will return to Stage 6 for re-validation"
-3. Return to Stage 6a (Epic Smoke Testing)
+3. Return to Phase 6.1 (Epic Smoke Testing)
 4. Run epic smoke testing and QC rounds
 5. If passes: Inform user fixes are ready, request new user testing session
 6. If fails: Back to debugging
@@ -850,7 +850,7 @@ Loop back to: **Stage 6a Step 1** (Epic Smoke Testing)
 I've resolved all {count} bug(s) you reported during user testing.
 
 **Next Steps:**
-1. I'm returning to Stage 6a (Epic Smoke Testing) to re-validate the epic
+1. I'm returning to Phase 6.1 (Epic Smoke Testing) to re-validate the epic
 2. This ensures the bug fixes don't introduce integration issues
 3. After epic testing passes, I'll let you know it's ready for another user testing session
 
@@ -866,7 +866,7 @@ Re-running epic testing now...
 
 ### Feature-Level Re-Testing
 
-**Stage 5ca: Smoke Testing**
+**Part 5.3.1: Smoke Testing**
 
 1. **Run all 3 parts:**
    - Part 1: Import Test
@@ -877,7 +877,7 @@ Re-running epic testing now...
 
    **✅ All parts pass, zero issues:**
    - Smoke testing complete
-   - Proceed to Stage 5cb (QC Rounds)
+   - Proceed to Part 5.3.2 (QC Rounds)
 
    **❌ New issues found:**
    - Add to debugging/ISSUES_CHECKLIST.md
@@ -886,7 +886,7 @@ Re-running epic testing now...
    - Loop back to Part 1 again
    - Repeat until zero issues
 
-**Stage 5cb: QC Rounds**
+**Part 5.3.2: QC Rounds**
 
 1. **Run all 3 rounds:**
    - Round 1: Basic Validation
@@ -897,20 +897,20 @@ Re-running epic testing now...
 
    **✅ All rounds pass, zero issues:**
    - QC complete
-   - Proceed to Stage 5cc (Final Review)
+   - Proceed to Part 5.3.3 (Final Review)
 
    **❌ Issues found:**
    - Add to debugging/ISSUES_CHECKLIST.md
    - Enter debugging protocol
    - Resolve all issues
-   - Loop back to Stage 5ca Part 1 (smoke testing)
+   - Loop back to Part 5.3.1 Part 1 (smoke testing)
    - Repeat until zero issues
 
 ---
 
 ### Epic-Level Re-Testing
 
-**Stage 6a: Epic Smoke Testing**
+**Phase 6.1: Epic Smoke Testing**
 
 1. **Run all steps**
 
@@ -918,16 +918,16 @@ Re-running epic testing now...
 
    **✅ All steps pass, zero issues:**
    - Epic smoke testing complete
-   - Proceed to Stage 6b (Epic QC Rounds)
+   - Proceed to Phase 6.2 (Epic QC Rounds)
 
    **❌ New issues found:**
    - Add to epic_name/debugging/ISSUES_CHECKLIST.md
    - Enter debugging protocol
    - Resolve all issues
-   - Loop back to Stage 6a Step 1 again
+   - Loop back to Phase 6.1 Step 1 again
    - Repeat until zero issues
 
-**Stage 6b: Epic QC Rounds**
+**Phase 6.2: Epic QC Rounds**
 
 1. **Run all 3 rounds**
 
@@ -935,20 +935,20 @@ Re-running epic testing now...
 
    **✅ All rounds pass, zero issues:**
    - Epic QC complete
-   - Proceed to Stage 6c (Epic Final Review)
+   - Proceed to Phase 6.3 (Epic Final Review)
 
    **❌ Issues found:**
    - Add to epic_name/debugging/ISSUES_CHECKLIST.md
    - Enter debugging protocol
    - Resolve all issues
-   - Loop back to Stage 6a Step 1 (epic smoke testing)
+   - Loop back to Phase 6.1 Step 1 (epic smoke testing)
    - Repeat until zero issues
 
 ---
 
 ## Integration with Testing Stages
 
-### Stage 5ca: Smoke Testing Integration
+### Part 5.3.1: Smoke Testing Integration
 
 **Add to smoke_testing.md at end of Part 3:**
 
@@ -956,7 +956,7 @@ Re-running epic testing now...
 ### Part 3 Result Handling
 
 **If Part 3 PASSES:**
-- Proceed to Stage 5cb (QC Rounds)
+- Proceed to Part 5.3.2 (QC Rounds)
 
 **If Part 3 FAILS (issues found):**
 
@@ -980,7 +980,7 @@ Re-running epic testing now...
 **Update README Agent Status:**
 ```markdown
 **Current Phase:** DEBUGGING_PROTOCOL
-**Testing Stage Paused:** Stage 5ca Smoke Part 3
+**Testing Stage Paused:** Part 5.3.1 Smoke Part 3
 **Issues Found:** {count}
 **Next Action:** Begin debugging protocol (read debugging/discovery.md)
 ```
@@ -988,7 +988,7 @@ Re-running epic testing now...
 
 ---
 
-### Stage 5cb: QC Rounds Integration
+### Part 5.3.2: QC Rounds Integration
 
 **Add to qc_rounds.md after each round:**
 
@@ -1035,7 +1035,7 @@ Re-running epic testing now...
    - User reports bugs during Stage 7 testing
    - Add to epic_name/debugging/ISSUES_CHECKLIST.md
    - Enter debugging protocol
-   - Loop back to Stage 6a (epic smoke testing)
+   - Loop back to Phase 6.1 (epic smoke testing)
 
 4. **Loop Back:**
    - After all epic issues resolved
@@ -1073,8 +1073,8 @@ Re-running epic testing now...
 - In Progress: 0
 - Not Started: 0
 
-**Testing Stage Paused:** {Stage 5ca / Stage 5cb / Stage 6a / Stage 6b}
-**Loop Back To:** {Stage 5ca Part 1 / Stage 6a Step 1}
+**Testing Stage Paused:** {Part 5.3.1 / Part 5.3.2 / Phase 6.1 / Phase 6.2}
+**Loop Back To:** {Part 5.3.1 Part 1 / Phase 6.1 Step 1}
 
 **Next Action:** Loop back to testing (Phase 5 complete)
 
@@ -1097,7 +1097,7 @@ Re-running epic testing now...
    - Cross-bug pattern analysis
    - Guide update recommendations
 4. ✅ Update lessons learned (technical focus)
-5. ✅ Determine loop-back destination (Stage 5ca Part 1 / Stage 6a Step 1)
+5. ✅ Determine loop-back destination (Part 5.3.1 Part 1 / Phase 6.1 Step 1)
 6. ✅ Update README/EPIC_README Agent Status
 7. ✅ Return to testing guide
 8. ✅ Re-run testing from beginning
@@ -1105,11 +1105,11 @@ Re-running epic testing now...
 10. ✅ If zero issues → proceed to next stage
 
 **Loop-Back Destinations:**
-- **Feature Smoke Testing (Stage 5ca)** → Loop back to Part 1
-- **Feature QC Rounds (Stage 5cb)** → Loop back to Stage 5ca Part 1
-- **Epic Smoke Testing (Stage 6a)** → Loop back to Step 1
-- **Epic QC Rounds (Stage 6b)** → Loop back to Stage 6a Step 1
-- **User Testing (Stage 7)** → Loop back to Stage 6a Step 1
+- **Feature Smoke Testing (Part 5.3.1)** → Loop back to Part 1
+- **Feature QC Rounds (Part 5.3.2)** → Loop back to Part 5.3.1 Part 1
+- **Epic Smoke Testing (Phase 6.1)** → Loop back to Step 1
+- **Epic QC Rounds (Phase 6.2)** → Loop back to Phase 6.1 Step 1
+- **User Testing (Stage 7)** → Loop back to Phase 6.1 Step 1
 
 **Key Principle:** Always loop back to START of testing stage (not to where issues were found)
 

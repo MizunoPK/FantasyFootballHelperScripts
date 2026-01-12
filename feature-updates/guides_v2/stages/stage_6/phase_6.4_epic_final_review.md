@@ -1,26 +1,26 @@
-# STAGE 6c: Epic Final Review Guide
+# Stage 6: Epic-Level Final QC
+## Phase 6.4: Epic Final Review
 
 **Part of:** Epic-Driven Development Workflow v2
-**Stage:** 6 - Epic-Level Final QC
-**Sub-Stage:** 6c - Epic Final Review (Steps 6-8)
-**Prerequisites:** STAGE_6b complete (all 3 QC rounds passed)
-**Next Stage:** stages/stage_7/epic_cleanup.md
+**Prerequisites:** Phase 6.3 complete (User Testing passed with ZERO bugs)
+**Next Stage:** `stages/stage_7/epic_cleanup.md`
+**File:** `phase_6.4_epic_final_review.md`
 
 ---
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**CRITICAL:** You MUST read this ENTIRE guide before starting Stage 6c work.
+**CRITICAL:** You MUST read this ENTIRE guide before starting Phase 6.4 work.
 
 **Why this matters:**
-- Stage 6c is the FINAL VALIDATION before epic completion
+- Phase 6.4 is the FINAL VALIDATION before epic completion
 - Missing steps here means shipping incomplete or incorrect epic
 - Thoroughness prevents post-completion issues
 
 **Reading Checkpoint:**
 Before proceeding, you must have:
 - [ ] Read this ENTIRE guide (use Read tool, not memory)
-- [ ] Verified STAGE_6b complete (all 3 QC rounds passed)
+- [ ] Verified Phase 6.3 complete (User Testing passed with ZERO bugs)
 - [ ] Verified no pending issues or bug fixes
 - [ ] Located epic_lessons_learned.md file
 

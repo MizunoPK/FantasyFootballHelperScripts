@@ -48,7 +48,7 @@ Bug Fix Workflow is a streamlined process for handling bugs discovered during ep
 Varies by bug complexity (30 minutes to 2 hours typical)
 
 **Exit Condition:**
-Bug Fix is complete when the bug is fixed through the full workflow (including all 24 iterations and QC rounds), bug fix folder remains in epic directory, and epic README documents where to resume previous work
+Bug Fix is complete when the bug is fixed through the full workflow (including all 28 iterations and QC rounds), bug fix folder remains in epic directory, and epic README documents where to resume previous work
 
 ---
 
@@ -75,7 +75,7 @@ Bug Fix is complete when the bug is fixed through the full workflow (including a
 4. ⚠️ FOLLOW SIMPLIFIED WORKFLOW
    - Bug fixes: Stage 2 → 5a → 5b → 5c
    - SKIP: Stages 1, 3, 4, 5d, 5e, 6, 7
-   - Same rigor as features (24 iterations, QC rounds)
+   - Same rigor as features (28 iterations, QC rounds)
    - No shortcuts
 
 5. ⚠️ PRIORITY DETERMINES INTERRUPTION
@@ -645,7 +645,7 @@ Action:
 - [x] notes.txt created and user-verified
 - [x] spec.md created (root cause, solution)
 - [x] checklist.md created
-- [x] Stage 5a complete (24 iterations, implementation_plan.md)
+- [x] Stage 5a complete (28 iterations, implementation_plan.md)
 - [x] Stage 5b complete (implementation, tests pass)
 - [x] Stage 5c complete (smoke tests, QC rounds, PR review)
 - [x] lessons_learned.md updated
@@ -704,7 +704,7 @@ Action:
 1. **Get approval** - User decides priority and timing
 2. **Document thoroughly** - notes.txt user-verified
 3. **Follow simplified workflow** - Stage 2 → 5a → 5b → 5c
-4. **Same rigor** - 24 iterations, QC rounds, no shortcuts
+4. **Same rigor** - 28 iterations, QC rounds, no shortcuts
 5. **Resume cleanly** - Return to paused work, verify compatibility
 
 **Critical:**

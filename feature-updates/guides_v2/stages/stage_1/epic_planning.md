@@ -422,7 +422,7 @@ I've created an epic ticket to validate my understanding of the epic's goals and
 2. Epic ticket is now **immutable reference** (like epic notes)
 3. Proceed to Phase 4
 
-**Critical:** Epic ticket becomes source of truth for outcomes. During Iteration 25 (Stage 5ac), spec.md will be validated against both epic notes AND epic ticket.
+**Critical:** Epic ticket becomes source of truth for outcomes. During Iteration 25 (Stage 5a Round 3 Part 2b), spec.md will be validated against both epic notes AND epic ticket.
 
 ---
 
@@ -496,7 +496,7 @@ Check all Stage 1 items in EPIC_README.md Epic Completion Checklist.
 
 ### Step 5.2: Update Agent Status for Stage 2
 
-Update Agent Status: Current Phase "DEEP_DIVE", Current Guide "stages/stage_2/phase_0_research.md", Next Action "Read Stage 2a guide and begin research for feature_01_{name}".
+Update Agent Status: Current Phase "DEEP_DIVE", Current Guide "stages/stage_2/phase_2.1_research.md", Next Action "Read Stage 2a guide and begin research for feature_01_{name}".
 
 ### Step 5.3: Announce Transition to User
 
@@ -643,14 +643,14 @@ If you cannot answer these questions without re-reading the guide, you haven't r
 
 **After completing Stage 1:**
 
-📖 **READ:** `stages/stage_2/phase_0_research.md` (Research Phase - first of three sub-stages)
+📖 **READ:** `stages/stage_2/phase_2.1_research.md` (Research Phase - first of three sub-stages)
 🎯 **GOAL:** Extract epic intent, conduct targeted research, pass research audit (Phases 0-1.5)
-⏱️ **ESTIMATE:** 45-60 minutes (then continue with STAGE_2b and STAGE_2c)
+⏱️ **ESTIMATE:** 45-60 minutes (then continue with Phase 2.2 and Phase 2.3)
 
 **Stage 2 workflow (split into 3 focused guides):**
-- **STAGE_2a (Research Phase):** Epic intent extraction, targeted research, research audit (Phases 0-1.5)
-- **STAGE_2b (Specification Phase):** Spec with traceability, alignment check (Phases 2-2.5)
-- **STAGE_2c (Refinement Phase):** Questions, scope, cross-feature alignment, user approval (Phases 3-6)
+- **Phase 2.1 (Research Phase):** Epic intent extraction, targeted research, research audit (Phases 0-1.5)
+- **Phase 2.2 (Specification Phase):** Spec with traceability, alignment check (Phases 2-2.5)
+- **Phase 2.3 (Refinement Phase):** Questions, scope, cross-feature alignment, user approval (Phases 3-6)
 
 **Note:** `stages/stage_2/feature_deep_dive.md` is now a router that links to the 3 sub-stage guides.
 

@@ -7,14 +7,14 @@
 
 ## Starting Stage 2b.5: Specification Validation
 
-**User says:** "proceed" after STAGE_2b completion, or agent transitions automatically
+**User says:** "proceed" after Phase 2.2 completion, or agent transitions automatically
 
-**Prerequisite:** STAGE_2b complete (Phase 2.5 Spec-to-Epic Alignment Check PASSED)
+**Prerequisite:** Phase 2.2 complete (Phase 2.5 Spec-to-Epic Alignment Check PASSED)
 
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_2/phase_2b5_specification_validation.md` to ensure I follow the complete validation workflow...
+I'm reading `stages/stage_2/phase_2.2.5_spec_validation.md` to ensure I follow the complete validation workflow...
 
 **The guide requires:**
 - **🚨 CRITICAL: ASSUME EVERYTHING IS WRONG**
@@ -29,7 +29,7 @@ I'm reading `stages/stage_2/phase_2b5_specification_validation.md` to ensure I f
 - Update spec immediately with validation findings
 
 **Prerequisites I'm verifying:**
-✅ STAGE_2b complete: Phase 2.5 Spec-to-Epic Alignment Check PASSED
+✅ Phase 2.2 complete: Phase 2.5 Spec-to-Epic Alignment Check PASSED
 ✅ spec.md exists with requirements and traceability
 ✅ checklist.md exists with open questions
 ✅ Research foundation exists from Phase 1
@@ -38,7 +38,7 @@ I'm reading `stages/stage_2/phase_2b5_specification_validation.md` to ensure I f
 
 **Updating feature README Agent Status:**
 - Current Phase: VALIDATION_PHASE
-- Current Guide: stages/stage_2/phase_2b5_specification_validation.md
+- Current Guide: stages/stage_2/phase_2.2.5_spec_validation.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Assume everything is wrong until validated", "Self-resolve checklist questions through research", "Deep investigation for new questions", "Flag multi-approach questions for user decision"
 - Next Action: Begin validation of all spec claims

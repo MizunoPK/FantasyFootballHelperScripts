@@ -53,7 +53,7 @@ I'm reading `stages/stage_5/bugfix_workflow.md` to ensure I follow the bug fix w
   - Save current work state in README
 - PHASE 2: Bug Fix Implementation
   - Stage 2: Deep Dive (adapted for bug fix)
-  - Stage 5a: TODO Creation (24 iterations)
+  - Stage 5a: TODO Creation (28 iterations)
   - Stage 5b: Implementation
   - Stage 5c: Post-Implementation
   - SKIP: Stages 1, 3, 4, 5d, 5e, 6, 7 (epic-level stages)
@@ -109,7 +109,7 @@ I'm reading `missed_requirement/missed_requirement_protocol.md` to ensure I foll
 - ALWAYS return to Stage 2/3/4 for planning
 - Full Stage 5 (5a → 5b → 5c → 5d → 5e) when feature gets implemented
 - Priority determines sequence: high = before current, medium = after current, low = at end
-- SPECIAL CASE: If discovered during Stage 6/7 → Complete all features → Restart epic testing from Stage 6a
+- SPECIAL CASE: If discovered during Stage 6/7 → Complete all features → Restart epic testing from Phase 6.1
 - Can be discovered during: Implementation (5a/5b/5c), Debugging, Epic Testing (6a/6b/6c), User Testing (7)
 
 **Prerequisites I'm verifying:**
@@ -201,7 +201,7 @@ I'm reading `debugging/debugging_protocol.md` to ensure I follow the complete de
 - Current Phase: DEBUGGING_PROTOCOL
 - Current Guide: debugging/debugging_protocol.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Testing Stage Paused: {Stage 5ca Smoke Part 3 / Stage 5cb QC Round 1 / etc}
+- Testing Stage Paused: {Part 5.3.1 Smoke Part 3 / Part 5.3.2 QC Round 1 / etc}
 - Issues Found: {count}
 - Loop Back To: {Testing stage to return to}
 - Critical Rules: "Issue checklist workflow", "Loop back to testing after resolution", "User verification required"

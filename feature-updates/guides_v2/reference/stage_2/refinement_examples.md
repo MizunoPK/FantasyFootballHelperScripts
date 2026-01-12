@@ -3,14 +3,14 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-10
 **Purpose:** Detailed examples and templates for Refinement Phase execution
-**Prerequisites:** Read stages/stage_2/phase_2_refinement.md first
-**Main Guide:** stages/stage_2/phase_2_refinement.md
+**Prerequisites:** Read stages/stage_2/phase_2.3_refinement.md first
+**Main Guide:** stages/stage_2/phase_2.3_refinement.md
 
 ---
 
 ## Purpose
 
-This reference provides detailed examples for executing Refinement Phase (STAGE_2c). Use this alongside the main guide for:
+This reference provides detailed examples for executing Refinement Phase (Phase 2.3). Use this alongside the main guide for:
 - Example interactive question resolution
 - Sample feature scope adjustments
 - Cross-feature alignment comparisons
@@ -1359,7 +1359,7 @@ Would you like me to start Feature 02, or do you want to review anything else ab
 
 ## Success Criteria Summary
 
-**Refinement Phase (STAGE_2c) passes when:**
+**Refinement Phase (Phase 2.3) passes when:**
 
 ✅ **Phase 3 (Interactive Question Resolution):**
 - All checklist questions resolved (zero open items)

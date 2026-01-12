@@ -439,7 +439,7 @@ For EACH feature folder, read README.md and verify:
 
 **READ THE FULL GUIDE:**
 ```
-stages/stage_7/guide_update_workflow.md
+stages/stage_7/phase_7.1_guide_update_workflow.md
 ```
 
 **Quick Overview of Stage 7.5:**
@@ -482,13 +482,13 @@ stages/stage_7/guide_update_workflow.md
 Use the prompt from `prompts/guide_update_prompts.md`:
 
 ```
-I'm reading `stages/stage_7/guide_update_workflow.md` to apply lessons learned to guides...
+I'm reading `stages/stage_7/phase_7.1_guide_update_workflow.md` to apply lessons learned to guides...
 
 [Full prompt from guide_update_prompts.md - "Starting Stage 7.5"]
 ```
 
 **Exit Conditions:**
-- [ ] Read stages/stage_7/guide_update_workflow.md (full guide)
+- [ ] Read stages/stage_7/phase_7.1_guide_update_workflow.md (full guide)
 - [ ] All lessons_learned.md files analyzed
 - [ ] GUIDE_UPDATE_PROPOSAL.md created
 - [ ] User reviewed all proposals individually

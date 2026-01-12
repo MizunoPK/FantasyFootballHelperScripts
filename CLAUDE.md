@@ -118,11 +118,11 @@ Examples in this documentation use consistent epic names for clarity:
 
 **🚨 CRITICAL CHANGE:** checklist.md is now QUESTION-ONLY format. Agents create QUESTIONS, user provides answers (Gate 2).
 
-- **READ:** `stages/stage_2/feature_deep_dive.md` (router to sub-phases)
-- **Sub-phases:**
-  - Stage 2 Phase 0-1 (Research): Epic intent extraction, targeted research, research audit - Gate 1: Research Completeness Audit
-  - Stage 2 Phase 2 (Specification): Spec with traceability, alignment check - Gate 2: Spec-to-Epic Alignment + **Gate 3: User Checklist Approval (NEW)**
-  - Stage 2 Phase 3-6 (Refinement): Questions, scope, cross-feature alignment, user approval - Gate 4: User Approval of Acceptance Criteria
+- **READ:** `stages/stage_2/feature_deep_dive.md` (router to phases)
+- **Phases:**
+  - Phase 2.1 (Research): Epic intent extraction, targeted research, research audit - Gate 1: Research Completeness Audit
+  - Phase 2.2 (Specification): Spec with traceability, alignment check - Gate 2: Spec-to-Epic Alignment + **Gate 3: User Checklist Approval (NEW)**
+  - Phase 2.3 (Refinement): Questions, scope, cross-feature alignment, user approval - Gate 4: User Approval of Acceptance Criteria
 
 **Key Outputs:**
 - `spec.md` with requirement traceability (every requirement has source: Epic/User Answer/Derived)
@@ -135,7 +135,7 @@ Examples in this documentation use consistent epic names for clarity:
   - See `mandatory_gates.md` Gate 3 for details
 
 **Stage 2b.5: Specification Validation** (After each feature spec)
-- **READ:** `stages/stage_2/phase_2b5_specification_validation.md`
+- **READ:** `stages/stage_2/phase_2.2.5_spec_validation.md`
 - Assume everything in spec is wrong, validate with deep research
 - Self-resolve checklist questions through additional codebase investigation
 - Only leave genuine unknowns or multi-approach decisions for user
@@ -165,18 +165,18 @@ Examples in this documentation use consistent epic names for clarity:
 **Stage 5a: Implementation Planning** (28 total iterations across 3 rounds)
 
 **Iteration Breakdown:**
-- **Round 1:** 9 iterations (1-7 + 4a + 7a) - Initial analysis, requirements, dependencies, algorithms
+- **Round 1:** 9 iterations (1, 2, 3, 4, 5, 5a, 6, 7 + Gates 4a, 7a) - Initial analysis, requirements, dependencies, algorithms
 - **Round 2:** 9 iterations (8-16) - Test strategy, edge cases, re-verification
-- **Round 3:** 10 iterations (17-25) - Preparation (17-22), Gates 1-2 (23, 23a), Gate 3 + GO/NO-GO (25, 24)
+- **Round 3:** 10 iterations (17-25, including 23a) - Preparation (17-22), Gates 1-2 (23, 23a), Gate 3 + GO/NO-GO (25, 24)
 - **Total:** 28 iterations with 5 mandatory gates (4a, 7a, 23a, 24, 25)
 
-**Note:** Gates (4a, 7a, 23a) are verification checkpoints that occur as part of the iteration flow. The term "24 iterations" in some docs refers to base iterations excluding gate checkpoints, but guides count all steps as iterations for completeness.
+**Note:** Some iterations have letter suffixes (4a, 5a, 7a, 23a) - these ARE part of the iteration sequence. Gates 4a, 7a are included within their base iterations (4, 7), not as separate steps.
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 5a Round 1" prompt from `prompts_reference_v2.md`
 
-- **Round 1:** READ `stages/stage_5/round1_todo_creation.md` (Iterations 1-7 + **Gate 4a + Gate 7a**)
-- **Round 2:** READ `stages/stage_5/round2_todo_creation.md` (Iterations 8-16, >90% test coverage required)
-- **Round 3:** READ `stages/stage_5/round3_todo_creation.md` (Router to Part 1/Part 2a/Part 2b)
+- **Round 1:** READ `stages/stage_5/part_5.1.1_round1.md` (Iterations 1-7 + **Gate 4a + Gate 7a**)
+- **Round 2:** READ `stages/stage_5/part_5.1.2_round2.md` (Iterations 8-16, >90% test coverage required)
+- **Round 3:** READ `stages/stage_5/part_5.1.3_round3.md` (Router to Part 1/Part 2a/Part 2b)
   - Part 1: Iterations 17-22 (Preparation)
   - Part 2a: Iterations 23, 23a (**Gate 23a: Integration + Spec Audit**)
   - Part 2b: Iterations 25, 24 (**Gate 25: Spec Validation** + **Gate 24: GO/NO-GO**)
@@ -197,7 +197,7 @@ Examples in this documentation use consistent epic names for clarity:
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 5b" prompt from `prompts_reference_v2.md`
 
-- READ: `stages/stage_5/implementation_execution.md`
+- READ: `stages/stage_5/phase_5.2_implementation_execution.md`
 - Create `implementation_checklist.md` from implementation_plan.md tasks
 - **Implement from implementation_plan.md (PRIMARY reference)**, spec.md (context/verification)
 - Update implementation_checklist.md in real-time as tasks complete
@@ -205,29 +205,29 @@ Examples in this documentation use consistent epic names for clarity:
 
 **Key Principle:** implementation_plan.md tells you HOW to build (primary reference), spec.md tells you WHAT to build (verification)
 
-**Stage 5c: Post-Implementation** (4 phases - smoke testing, QC rounds, final review, commit)
+**Stage 5c: Post-Implementation** (3 phases + commit)
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 5c Smoke Testing" prompt from `prompts_reference_v2.md`
 
-- **Phase 1:** READ `stages/stage_5/smoke_testing.md` - Import/Entry Point/E2E tests (MANDATORY GATE)
-  - If issues found → Enter debugging protocol → LOOP BACK to Stage 5ca Part 1
-- **Phase 2:** READ `stages/stage_5/qc_rounds.md` - 3 QC rounds
-  - If ANY issues → Enter debugging protocol → LOOP BACK to Stage 5ca Part 1 (NOT mid-QC)
-- **Phase 3:** READ `stages/stage_5/final_review.md` - PR review, lessons learned, zero tech debt tolerance
-- **Phase 4:** **COMMIT FEATURE** - Commit source code changes for this feature only (feature-level commits)
+- **Part 5.3.1 (Smoke Testing):** READ `stages/stage_5/part_5.3.1_smoke_testing.md` - Import/Entry Point/E2E tests (MANDATORY GATE)
+  - If issues found → Enter debugging protocol → LOOP BACK to Part 5.3.1
+- **Part 5.3.2 (QC Rounds):** READ `stages/stage_5/part_5.3.2_qc_rounds.md` - 3 QC rounds
+  - If ANY issues → Enter debugging protocol → LOOP BACK to Part 5.3.1 (NOT mid-QC)
+- **Part 5.3.3 (Final Review):** READ `stages/stage_5/part_5.3.3_final_review.md` - PR review, lessons learned, zero tech debt tolerance
+- **After Part 5.3.3:** **COMMIT FEATURE** - Commit source code changes for this feature only (feature-level commits)
 
 **Stage 5d: Cross-Feature Spec Alignment** (After feature completes)
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 5d" prompt from `prompts_reference_v2.md`
 
-- READ: `stages/stage_5/post_feature_alignment.md`
+- READ: `stages/stage_5/phase_5.4_post_feature_alignment.md`
 - Update remaining feature specs based on completed feature implementation
 
 **Stage 5e: Epic Testing Plan Reassessment** (After Stage 5d)
 
 **🚨 FIRST ACTION:** Use the "Starting Stage 5e" prompt from `prompts_reference_v2.md`
 
-- READ: `stages/stage_5/post_feature_testing_update.md`
+- READ: `stages/stage_5/phase_5.5_post_feature_testing_update.md`
 - Reassess epic_smoke_test_plan.md after each feature completion
 
 **Repeat Stage 5 (5a→5b→5c→5d→5e) for EACH feature**
@@ -245,9 +245,9 @@ Examples in this documentation use consistent epic names for clarity:
 - **🔴 USER TESTING (MANDATORY - Step 6):**
   - User tests complete system with real workflows
   - User reports findings: bugs or "no bugs found"
-  - If bugs → Fix → Loop back to Stage 6a → Re-test
+  - If bugs → Fix → Loop back to Phase 6.1 → Re-test
   - Proceed to Stage 7 only when user reports ZERO bugs
-- If issues found → Enter debugging protocol → LOOP BACK to Stage 6a (Epic Smoke Testing)
+- If issues found → Enter debugging protocol → LOOP BACK to Phase 6.1 (Epic Smoke Testing)
 
 **Stage 7: Epic Cleanup** (User testing ALREADY PASSED in Stage 6)
 
@@ -258,7 +258,7 @@ Examples in this documentation use consistent epic names for clarity:
 - READ: `stages/stage_7/epic_cleanup.md`
 - Run unit tests (100% pass)
 - **Stage 7.5 (MANDATORY):** Guide update from lessons learned
-  - READ: `stages/stage_7/guide_update_workflow.md` for complete 9-step workflow
+  - READ: `stages/stage_7/phase_7.1_guide_update_workflow.md` for complete 9-step workflow
   - Analyze ALL lesson sources:
     - Epic and feature lessons_learned.md files
     - Debugging lessons from guide_update_recommendations.md (Phase 4b per-issue + Phase 5 patterns)
@@ -292,7 +292,7 @@ If missing scope/requirements discovered at ANY point after first Stage 5 starts
 - **Resume paused work** → Implement new/updated feature when its turn comes in sequence
 - **Full Stage 5** (5a → 5b → 5c → 5d → 5e) when feature gets implemented
 - **Priority determines sequence:** high = before current, medium = after current, low = at end
-- **Special case:** If discovered during Stage 6/7 → Complete all features → **RESTART epic testing from Stage 6a**
+- **Special case:** If discovered during Stage 6/7 → Complete all features → **RESTART epic testing from Phase 6.1**
 
 ---
 
@@ -409,7 +409,7 @@ Issue/Gap Discovered
 - Contains: ISSUES_CHECKLIST.md, issue_XX_{name}.md files, investigation_rounds.md, code_changes.md, process_failure_analysis.md (Phase 5 cross-pattern), guide_update_recommendations.md (Phase 4b per-issue + Phase 5 patterns), lessons_learned.md (Phase 5)
 
 **Workflow Integration:**
-1. **Issue Discovery** - During Smoke Testing (Stage 5ca/6a) or QC Rounds (Stage 5cb/6b), add issues to ISSUES_CHECKLIST.md
+1. **Issue Discovery** - During Smoke Testing (Part 5.3.1/Phase 6.1) or QC Rounds (Part 5.3.2/Phase 6.2), add issues to ISSUES_CHECKLIST.md
 2. **Enter Debugging Protocol** - Work through checklist systematically (Phase 1-3: investigate and fix)
 3. **User Verification** - User confirms each fix (Phase 4)
 4. **🚨 CRITICAL: Per-Issue Root Cause Analysis (Phase 4b - MANDATORY)**
@@ -487,9 +487,11 @@ The workflow uses two types of gates:
 | Gate 5 | Stage | Stage 5a | Implementation Plan Approval | User |
 | Gate 4a | Iteration | Stage 5a R1 | TODO Specification Audit | Agent (checklist) |
 | Gate 7a | Iteration | Stage 5a R1 | Backward Compatibility Check | Agent (checklist) |
-| Gate 23a | Iteration | Stage 5a R3 | Pre-Implementation Spec Audit (4 parts) | Agent (checklist) |
+| Gate 23a | Iteration | Stage 5a R3 | Pre-Implementation Spec Audit (5 parts) | Agent (checklist) |
 | Gate 24 | Iteration | Stage 5a R3 | GO/NO-GO Decision | Agent (confidence check) |
 | Gate 25 | Iteration | Stage 5a R3 | Spec Validation Check | Agent (checklist) |
+
+**Note:** Gates 4a, 7a, 23a, 24, 25 are iteration-level gates that ARE part of the iteration sequence (not additional steps).
 
 ### Why This Numbering?
 
@@ -657,6 +659,7 @@ ls feature-updates/{epic_name}/feature_01_*/
 - README.md - Workflow overview and guide index
 - prompts_reference_v2.md - MANDATORY phase transition prompts
 - EPIC_WORKFLOW_USAGE.md - Comprehensive usage guide
+- reference/naming_conventions.md - Hierarchical notation rules for creating/updating guides
 
 ---
 

@@ -1,10 +1,10 @@
 # QC Rounds Pattern (Reference)
 
-**Purpose:** Generic QC rounds workflow applicable to both feature-level (Stage 5cb) and epic-level (Stage 6b) quality control.
+**Purpose:** Generic QC rounds workflow applicable to both feature-level (Part 5.3.2) and epic-level (Phase 6.2) quality control.
 
 **This is a REFERENCE PATTERN.** Actual guides:
-- **Feature-level:** `stages/stage_5/qc_rounds.md`
-- **Epic-level:** `stages/stage_6/epic_qc_rounds.md`
+- **Feature-level:** `stages/stage_5/part_5.3.2_qc_rounds.md`
+- **Epic-level:** `stages/stage_6/phase_6.2_epic_qc_rounds.md`
 
 ---
 
@@ -19,8 +19,8 @@
 - Progressive validation (each round catches different issues)
 
 **Scope-Specific Implementation:**
-- **Feature-level (Stage 5cb):** Validates individual feature correctness and completeness
-- **Epic-level (Stage 6b):** Validates cross-feature integration and epic cohesion
+- **Feature-level (Part 5.3.2):** Validates individual feature correctness and completeness
+- **Epic-level (Phase 6.2):** Validates cross-feature integration and epic cohesion
 
 ---
 
@@ -69,7 +69,7 @@ Round 3: [Scope-Specific Focus]
 ```
 RESTART PROTOCOL:
 1. Fix ALL issues found in failed round
-2. Return to smoke testing (Stage 5ca OR Stage 6a)
+2. Return to smoke testing (Part 5.3.1 OR Phase 6.1)
 3. Re-run ALL smoke test parts
 4. Re-run ALL 3 QC rounds from Round 1
 
@@ -370,7 +370,7 @@ Did QC round find issues?
 
 ## Scope-Specific Differences
 
-### Feature-Level QC Rounds (Stage 5cb)
+### Feature-Level QC Rounds (Part 5.3.2)
 
 **Round 1 Focus:** Basic Validation
 - Unit tests passing
@@ -392,11 +392,11 @@ Did QC round find issues?
 - Re-check Integration Gap Check
 - Zero issues tolerance
 
-**Restart Destination:** Stage 5ca (Feature Smoke Testing)
+**Restart Destination:** Part 5.3.1 (Feature Smoke Testing)
 
 ---
 
-### Epic-Level QC Rounds (Stage 6b)
+### Epic-Level QC Rounds (Phase 6.2)
 
 **Round 1 Focus:** Cross-Feature Integration
 - Integration points work correctly
@@ -416,7 +416,7 @@ Did QC round find issues?
 - User experience flows validated
 - Performance characteristics acceptable
 
-**Restart Destination:** Stage 6a (Epic Smoke Testing)
+**Restart Destination:** Phase 6.1 (Epic Smoke Testing)
 
 ---
 
@@ -442,5 +442,5 @@ Did QC round find issues?
 ---
 
 *For actual implementation guides, see:*
-- Feature-level: `stages/stage_5/qc_rounds.md`
-- Epic-level: `stages/stage_6/epic_qc_rounds.md`
+- Feature-level: `stages/stage_5/part_5.3.2_qc_rounds.md`
+- Epic-level: `stages/stage_6/phase_6.2_epic_qc_rounds.md`

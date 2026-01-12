@@ -1,4 +1,9 @@
-# STAGE 2c: Refinement Phase Guide
+# Stage 2: Feature Deep Dives
+## Phase 2.3: Refinement Phase
+
+**File:** `phase_2.3_refinement.md`
+
+---
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -23,7 +28,7 @@
 Refinement Phase is where you resolve all open questions through interactive dialogue (ONE at a time), adjust scope if needed, align with completed features, and get user approval on acceptance criteria. This phase ensures the spec is complete, validated, and ready for implementation.
 
 **When do you use this guide?**
-- STAGE_2b (Specification Phase) complete
+- Phase 2.2 (Specification Phase) complete
 - spec.md has Epic Intent section and requirement traceability
 - checklist.md has open questions
 - Phase 2.5 (Spec-to-Epic Alignment Check) passed

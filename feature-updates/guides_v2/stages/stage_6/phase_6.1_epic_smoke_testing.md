@@ -1,12 +1,15 @@
-# STAGE 6a: Epic Smoke Testing Guide
+# Stage 6: Epic-Level Final QC
+## Phase 6.1: Epic Smoke Testing
 
 **Purpose:** Validate the complete epic end-to-end with ALL features working together through mandatory 4-part smoke testing.
+
+**File:** `phase_6.1_epic_smoke_testing.md`
 
 **Stage Flow Context:**
 ```
 Stage 5 (ALL features complete) →
-→ [YOU ARE HERE: Stage 6a - Epic Smoke Testing] →
-→ Stage 6b (Epic QC Rounds) → Stage 6c (Epic PR Review) → Stage 7
+→ [YOU ARE HERE: Phase 6.1 - Epic Smoke Testing] →
+→ Phase 6.2 (Epic QC Rounds) → Phase 6.3 (User Testing) → Phase 6.4 (Epic Final Review) → Stage 7
 ```
 
 ---
@@ -26,8 +29,8 @@ Stage 5 (ALL features complete) →
    - List requirements from this guide
 
 3. **Update EPIC_README.md Agent Status** with:
-   - Current Stage: Stage 6a - Epic Smoke Testing
-   - Current Guide: stages/stage_6/epic_smoke_testing.md
+   - Current Phase: Phase 6.1 - Epic Smoke Testing
+   - Current Guide: `stages/stage_6/phase_6.1_epic_smoke_testing.md`
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "4 parts MANDATORY", "Use EVOLVED test plan", "Verify DATA VALUES", "Restart if ANY fails"
    - Next Action: Execute Step 1 - Pre-QC Verification

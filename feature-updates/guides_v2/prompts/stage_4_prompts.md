@@ -76,7 +76,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 **Why approval is needed now:**
 - I need to know EXACTLY how to test this work BEFORE creating implementation plans (Stage 5a)
 - Test requirements will guide how I structure implementation tasks and test strategy
-- Changes to test plan are cheap now, expensive after 24 verification iterations
+- Changes to test plan are cheap now, expensive after 28 verification iterations
 
 **Please review `epic_smoke_test_plan.md` and:**
 - ✅ Approve if test strategy looks correct
@@ -109,7 +109,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 
 Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to Stage 5a to begin implementation planning for the first feature.
 
-Following `stages/stage_5/round1_todo_creation.md` (Round 1) to create comprehensive implementation plan with 24 verification iterations across 3 rounds.
+Following `stages/stage_5/part_5.1.1_round1.md` (Round 1) to create comprehensive implementation plan with 28 verification iterations across 3 rounds.
 ```
 
 ---

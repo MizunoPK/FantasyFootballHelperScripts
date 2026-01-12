@@ -12,10 +12,10 @@
 
 ## Triggered When
 
-- Smoke Testing (Stage 5ca) Part 3 discovers issues
-- QC Rounds (Stage 5cb) any round discovers issues
-- Epic Smoke Testing (Stage 6a) discovers issues
-- Epic QC Rounds (Stage 6b) discovers issues
+- Smoke Testing (Part 5.3.1) Part 3 discovers issues
+- QC Rounds (Part 5.3.2) any round discovers issues
+- Epic Smoke Testing (Phase 6.1) discovers issues
+- Epic QC Rounds (Phase 6.2) discovers issues
 - User Testing (Stage 7) discovers bugs
 
 ---
@@ -33,7 +33,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 ```
 
 **Decision: Feature vs Epic?**
-- **Feature-level:** Issues discovered during Stage 5ca (Smoke Testing) or Stage 5cb (QC Rounds) for a specific feature
+- **Feature-level:** Issues discovered during Part 5.3.1 (Smoke Testing) or Part 5.3.2 (QC Rounds) for a specific feature
 - **Epic-level:** Issues discovered during Stage 6 (Epic Testing) or Stage 7 (User Testing)
 
 ---
@@ -85,7 +85,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 **Current Guide:** debugging/discovery.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
-**Testing Stage Paused:** {Stage 5ca Smoke Part 3 / Stage 5cb QC Round 1 / etc}
+**Testing Stage Paused:** {Part 5.3.1 Smoke Part 3 / Part 5.3.2 QC Round 1 / etc}
 
 **Debugging Status:**
 - Issues in Checklist: {count}
@@ -112,7 +112,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 **Current Guide:** debugging/discovery.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
-**Testing Stage Paused:** {Stage 6a Epic Smoke Step 2 / Stage 6b Epic QC Round 1 / Stage 7 User Testing}
+**Testing Stage Paused:** {Phase 6.1 Epic Smoke Step 2 / Phase 6.2 Epic QC Round 1 / Stage 7 User Testing}
 
 **Debugging Status:**
 - Issues in Checklist: {count}
@@ -124,7 +124,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 
 **Critical Rules from Guide:**
 - Epic-level debugging folder (epic_name/debugging/)
-- Loop back to Stage 6a after all issues resolved
+- Loop back to Phase 6.1 after all issues resolved
 - User verification required for each issue
 ```
 
@@ -136,7 +136,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 # Issues Checklist - {Feature/Epic Name}
 
 **Source:** {Feature/Epic}
-**Testing Stage:** {Stage 5ca Smoke Testing / Stage 5cb QC Rounds / Stage 6 Epic Testing / Stage 7 User Testing}
+**Testing Stage:** {Part 5.3.1 Smoke Testing / Part 5.3.2 QC Rounds / Stage 6 Epic Testing / Stage 7 User Testing}
 **Created:** {YYYY-MM-DD HH:MM}
 **Status:** In Progress
 
@@ -172,7 +172,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 
 ## Loop-Back Status
 
-**Testing Stage to Loop Back To:** {Stage 5ca Part 1 / Stage 6a Step 1}
+**Testing Stage to Loop Back To:** {Part 5.3.1 Part 1 / Phase 6.1 Step 1}
 **Reason:** Must re-run {smoke/QC} tests from beginning after fixes
 
 ---
@@ -258,8 +258,8 @@ What would you like me to do?
 **Location:** `feature_XX_name/debugging/`
 
 **When to use:**
-- Issues discovered during Stage 5ca (Smoke Testing) for THIS feature
-- Issues discovered during Stage 5cb (QC Rounds) for THIS feature
+- Issues discovered during Part 5.3.1 (Smoke Testing) for THIS feature
+- Issues discovered during Part 5.3.2 (QC Rounds) for THIS feature
 - Issues specific to one feature's implementation
 
 **Folder structure:**
@@ -277,7 +277,7 @@ feature_01_player_integration/
         └── issue_02_round1.log
 ```
 
-**Loop-back destination:** Stage 5ca Part 1 (Smoke Testing)
+**Loop-back destination:** Part 5.3.1 Part 1 (Smoke Testing)
 
 ---
 
@@ -286,8 +286,8 @@ feature_01_player_integration/
 **Location:** `epic_name/debugging/`
 
 **When to use:**
-- Issues discovered during Stage 6a (Epic Smoke Testing)
-- Issues discovered during Stage 6b (Epic QC Rounds)
+- Issues discovered during Phase 6.1 (Epic Smoke Testing)
+- Issues discovered during Phase 6.2 (Epic QC Rounds)
 - Issues discovered during Stage 7 (User Testing)
 - Cross-feature integration issues
 - Epic-level coordination issues
@@ -307,7 +307,7 @@ epic_name/
         └── issue_02_round1.log
 ```
 
-**Loop-back destination:** Stage 6a Step 1 (Epic Smoke Testing)
+**Loop-back destination:** Phase 6.1 Step 1 (Epic Smoke Testing)
 
 ---
 
@@ -357,7 +357,7 @@ epic_name/
 4. Set "Discovered During" to "User Testing (Stage 7)"
 5. Update EPIC_README Agent Status
 6. Inform user you're entering debugging protocol
-7. After all bugs fixed: Loop back to Stage 6a (NOT Stage 7)
+7. After all bugs fixed: Loop back to Phase 6.1 (NOT Stage 7)
    - **Why?** Fixes might affect epic-level integration
    - Must re-validate epic smoke and QC before user tests again
 

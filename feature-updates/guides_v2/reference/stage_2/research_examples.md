@@ -3,14 +3,14 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-10
 **Purpose:** Detailed examples and templates for Research Phase execution
-**Prerequisites:** Read stages/stage_2/phase_0_research.md first
-**Main Guide:** stages/stage_2/phase_0_research.md
+**Prerequisites:** Read stages/stage_2/phase_2.1_research.md first
+**Main Guide:** stages/stage_2/phase_2.1_research.md
 
 ---
 
 ## Purpose
 
-This reference provides detailed examples for executing Research Phase (STAGE_2a). Use this alongside the main guide for:
+This reference provides detailed examples for executing Research Phase (Phase 2.1). Use this alongside the main guide for:
 - Example epic intent extraction
 - Sample research findings documents
 - Detailed audit verification examples
@@ -159,7 +159,7 @@ Data source: "FantasyPros CSV" - Line 22
 
 ---
 
-{Rest of spec.md sections will be added in STAGE_2b}
+{Rest of spec.md sections will be added in Phase 2.2}
 ```
 
 ---
@@ -442,7 +442,7 @@ Christian McCaffrey,RB,CAR,380.2
 
 **Next Steps:**
 - Phase 1.5: Verify research completeness
-- STAGE_2b Phase 2: Update spec.md with findings
+- Phase 2.2 Phase 2: Update spec.md with findings
 ```
 
 ---
@@ -748,7 +748,7 @@ All of these are agent assumptions → Added to checklist as questions
 
 ---
 
-**OVERALL RESULT:** ✅ PASSED - All 4 categories passed, ready for STAGE_2b
+**OVERALL RESULT:** ✅ PASSED - All 4 categories passed, ready for Phase 2.2
 
 ---
 
@@ -774,7 +774,7 @@ All of these are agent assumptions → Added to checklist as questions
 **Epic Notes Citations:** 8 line numbers
 - Lines 8-10, 12-14, 15, 18-19, 22, 35, 37-38, 42, 45
 
-**Ready for STAGE_2b:** YES
+**Ready for Phase 2.2:** YES
 
 ---
 
@@ -826,7 +826,7 @@ All of these are agent assumptions → Added to checklist as questions
 3. Document actual signatures with evidence
 4. Re-run audit after research complete
 
-**DO NOT PROCEED TO STAGE_2b**
+**DO NOT PROCEED TO Phase 2.2**
 ```
 
 ---
@@ -915,7 +915,7 @@ Even though I worked on Stage 1, I'm re-reading epic notes now to ensure I under
 
 ## Success Criteria Summary
 
-**Research Phase (STAGE_2a) passes when:**
+**Research Phase (Phase 2.1) passes when:**
 
 ✅ **Phase 0 (Epic Intent):**
 - Epic notes file re-read (not relied on memory)
@@ -938,7 +938,7 @@ Even though I worked on Stage 1, I'm re-reading epic notes now to ensure I under
 - Can identify assumptions vs. user requests
 - Overall result: PASSED
 
-**Ready for STAGE_2b when all 3 phases complete with evidence.**
+**Ready for Phase 2.2 when all 3 phases complete with evidence.**
 
 ---
 

@@ -1,8 +1,8 @@
 # Epic PR Review Checklist - 11 Categories
 
-**Purpose:** Complete checklist for epic-level PR review (Stage 6c Step 6)
-**When to Use:** After Stage 6b QC rounds complete, before final verification
-**Main Guide:** `stages/stage_6/epic_final_review.md`
+**Purpose:** Complete checklist for epic-level PR review (Phase 6.3 Step 6)
+**When to Use:** After Phase 6.2 QC rounds complete, before final verification
+**Main Guide:** `stages/stage_6/phase_6.4_epic_final_review.md`
 
 ---
 
@@ -814,13 +814,13 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 ## See Also
 
 **Main Guide:**
-- `stages/stage_6/epic_final_review.md` - Complete Step 6 workflow
+- `stages/stage_6/phase_6.4_epic_final_review.md` - Complete Step 6 workflow
 
 **PR Review Protocol:**
 - `stages/stage_5/pr_review_protocol.md` - Complete hybrid multi-round approach
 
 **Related Guides:**
-- `stages/stage_6/epic_qc_rounds.md` - Previous stage
+- `stages/stage_6/phase_6.2_epic_qc_rounds.md` - Previous stage
 - `stages/stage_7/epic_cleanup.md` - Next stage (if review passes)
 
 **Templates:**

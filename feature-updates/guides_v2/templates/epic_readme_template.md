@@ -61,7 +61,7 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Critical Rules from Guide:**
-- {Rule 1 - e.g., "24 iterations mandatory, no skipping"}
+- {Rule 1 - e.g., "28 iterations mandatory, no skipping"}
 - {Rule 2 - e.g., "Update Agent Status after each round"}
 - {Rule 3 - e.g., "STOP if confidence < Medium"}
 - {Rule 4 - e.g., "RESTART Post-Implementation if ANY issues found"}

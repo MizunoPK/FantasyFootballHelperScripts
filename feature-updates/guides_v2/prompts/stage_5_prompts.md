@@ -12,17 +12,17 @@
 **Prerequisite:** Stage 4 complete (Gate 4.5 passed - user approved test plan) AND feature spec.md complete AND checklist.md resolved
 
 **Note:** Stage 5a is split into 5 separate guides for better digestibility:
-- **stages/stage_5/round1_todo_creation.md** - Round 1: Iterations 1-7 + 4a (START HERE)
-- **stages/stage_5/round2_todo_creation.md** - Round 2: Iterations 8-16
+- **stages/stage_5/part_5.1.1_round1.md** - Round 1: Iterations 1-7 + 4a (START HERE)
+- **stages/stage_5/part_5.1.2_round2.md** - Round 2: Iterations 8-16
 - **stages/stage_5/round3_todo_creation.md** - Round 3 router (links to Part 1/2a/2b)
-- **stages/stage_5/round3_part1_preparation.md** - Round 3 Part 1: Iterations 17-22
-- **stages/stage_5/round3_part2a_gates_1_2.md** - Round 3 Part 2a: Iterations 23, 23a
-- **stages/stage_5/round3_part2b_gate_3.md** - Round 3 Part 2b: Iterations 25, 24
+- **stages/stage_5/part_5.1.3_round3.md** - Round 3 Part 1: Iterations 17-22
+- **stages/stage_5/5.1.3.2_round3_part2a.md** - Round 3 Part 2a: Iterations 23, 23a
+- **stages/stage_5/5.1.3.3_round3_part2b.md** - Round 3 Part 2b: Iterations 25, 24
 
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/round1_todo_creation.md` to ensure I follow all 8 iterations in Round 1...
+I'm reading `stages/stage_5/part_5.1.1_round1.md` to ensure I follow all 8 iterations in Round 1...
 
 **The guide requires:**
 - **🚨 CRITICAL: IMPLEMENTATION TASKS MUST TRACE TO SPEC REQUIREMENTS**:
@@ -65,7 +65,7 @@ I'm reading `stages/stage_5/round1_todo_creation.md` to ensure I follow all 8 it
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/stage_5/round1_todo_creation.md
+- Current Guide: stages/stage_5/part_5.1.1_round1.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Implementation tasks MUST trace to spec requirements (no assumptions)", "8 iterations mandatory (Round 1)", "Iteration 4a is MANDATORY GATE", "STOP if confidence < Medium", "Interface verification: READ actual code"
 - Progress: 0/8 iterations complete (Round 1)
@@ -80,12 +80,12 @@ Starting iteration 1...
 
 **User says:** Agent detects Round 1 complete (8/8 iterations done, confidence >= MEDIUM)
 
-**Prerequisite:** Round 1 complete (STAGE_5aa), Iteration 4a PASSED, confidence >= MEDIUM
+**Prerequisite:** Round 1 complete (Part 5.1.1), Iteration 4a PASSED, confidence >= MEDIUM
 
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/round2_todo_creation.md` to ensure I follow all 9 iterations in Round 2...
+I'm reading `stages/stage_5/part_5.1.2_round2.md` to ensure I follow all 9 iterations in Round 2...
 
 **The guide requires:**
 - **Round 2: 9 MANDATORY iterations** (NO SKIPPING):
@@ -117,7 +117,7 @@ I'm reading `stages/stage_5/round2_todo_creation.md` to ensure I follow all 9 it
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/stage_5/round2_todo_creation.md
+- Current Guide: stages/stage_5/part_5.1.2_round2.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "9 iterations mandatory (Round 2)", "Re-verification iterations are CRITICAL", "Test coverage >90% required"
 - Progress: 8/24 total iterations complete (starting Round 2)
@@ -128,21 +128,21 @@ Starting iteration 8...
 
 ---
 
-## Starting Stage 5ac Part 1: Implementation Planning (Round 3 - Preparation)
+## Starting Stage 5a Round 3 Part 1: Implementation Planning (Preparation)
 
-**User says:** Agent detects Round 2 complete (16/24 iterations done, confidence >= MEDIUM, test coverage >90%)
+**User says:** Agent detects Round 2 complete (16/28 iterations done, confidence >= MEDIUM, test coverage >90%)
 
-**Prerequisite:** Round 2 complete (STAGE_5ab), confidence >= MEDIUM, test coverage >90%
+**Prerequisite:** Round 2 complete (Part 5.1.2), confidence >= MEDIUM, test coverage >90%
 
 **Note:** Round 3 is split into 3 parts for better navigation:
-- **stages/stage_5/round3_part1_preparation.md** - Iterations 17-22 (START HERE)
-- **stages/stage_5/round3_part2a_gates_1_2.md** - Iterations 23, 23a (Gates 1-2)
-- **stages/stage_5/round3_part2b_gate_3.md** - Iterations 25, 24 (Gate 3 + GO/NO-GO)
+- **stages/stage_5/part_5.1.3_round3.md** - Iterations 17-22 (START HERE)
+- **stages/stage_5/5.1.3.2_round3_part2a.md** - Iterations 23, 23a (Gates 1-2)
+- **stages/stage_5/5.1.3.3_round3_part2b.md** - Iterations 25, 24 (Gate 3 + GO/NO-GO)
 
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/round3_part1_preparation.md` to ensure I follow all 6 preparation iterations in Round 3 Part 1...
+I'm reading `stages/stage_5/part_5.1.3_round3.md` to ensure I follow all 6 preparation iterations in Round 3 Part 1...
 
 **The guide requires:**
 - **Part 1: 6 preparation iterations** (NO SKIPPING):
@@ -169,7 +169,7 @@ I'm reading `stages/stage_5/round3_part1_preparation.md` to ensure I follow all 
 - Mock audit prevents interface mismatch bugs
 
 **Prerequisites I'm verifying:**
-✅ Round 2 complete (16/24 iterations)
+✅ Round 2 complete (16/28 iterations)
 ✅ Test coverage: >90%
 ✅ Confidence: >= MEDIUM (from Round 2 checkpoint)
 ✅ Algorithm Traceability Matrix updated (Round 2)
@@ -179,7 +179,7 @@ I'm reading `stages/stage_5/round3_part1_preparation.md` to ensure I follow all 
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/stage_5/round3_part1_preparation.md
+- Current Guide: stages/stage_5/part_5.1.3_round3.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "6 preparation iterations mandatory", "Iteration 21: Verify mocks against ACTUAL source code", "Integration tests must use REAL objects"
 - Progress: 16/24 total iterations complete (starting Round 3 Part 1)
@@ -190,16 +190,16 @@ Starting iteration 17...
 
 ---
 
-## Starting Stage 5ac Part 2: Implementation Planning (Round 3 - Final Gates)
+## Starting Stage 5a Round 3 Part 2: Implementation Planning (Final Gates)
 
-**User says:** Agent detects Round 3 Part 1 complete (22/24 iterations done)
+**User says:** Agent detects Round 3 Part 1 complete (22/28 iterations done)
 
-**Prerequisite:** Round 3 Part 1 complete (STAGE_5ac_part1), Iterations 17-22 done
+**Prerequisite:** Round 3 Part 1 complete (Part 5.1.3.1), Iterations 17-22 done
 
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/round3_part2a_gates_1_2.md` (Part 2a) and `stages/stage_5/round3_part2b_gate_3.md` (Part 2b) to ensure I follow all 4 final gate iterations in Round 3 Part 2...
+I'm reading `stages/stage_5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/stage_5/5.1.3.3_round3_part2b.md` (Part 2b) to ensure I follow all 4 final gate iterations in Round 3 Part 2...
 
 **The guide requires:**
 - **Part 2: 4 final gate iterations containing ALL 3 MANDATORY GATES**:
@@ -231,7 +231,7 @@ I'm reading `stages/stage_5/round3_part2a_gates_1_2.md` (Part 2a) and `stages/st
 - GO/NO-GO framework prevents implementing with incomplete planning
 
 **Prerequisites I'm verifying:**
-✅ Round 3 Part 1 complete (22/24 iterations)
+✅ Round 3 Part 1 complete (22/28 iterations)
 ✅ Implementation phasing defined
 ✅ Rollback strategy documented
 ✅ Algorithm traceability matrix complete (final)
@@ -242,7 +242,7 @@ I'm reading `stages/stage_5/round3_part2a_gates_1_2.md` (Part 2a) and `stages/st
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/stage_5/round3_part2a_gates_1_2.md (Part 2a, then Part 2b)
+- Current Guide: stages/stage_5/5.1.3.2_round3_part2a.md (Part 2a, then Part 2b)
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 MANDATORY GATES (23a, 25, 24) - CANNOT skip", "Evidence-based verification (cite numbers)", "Close spec.md before Iteration 25", "User decision required if discrepancies"
 - Progress: 22/24 total iterations complete (starting Round 3 Part 2)
@@ -255,9 +255,9 @@ Starting iteration 23...
 
 ## User Approval of Implementation Plan
 
-**User says:** "Review implementation plan" or Agent detects Stage 5a complete (24 iterations done, Iteration 24: Implementation Readiness = PASSED)
+**User says:** "Review implementation plan" or Agent detects Stage 5a complete (28 iterations done, Iteration 24: Implementation Readiness = PASSED)
 
-**Prerequisite:** Stage 5a complete (24 iterations passed, implementation_plan.md v3.0 created)
+**Prerequisite:** Stage 5a complete (28 iterations passed, implementation_plan.md v3.0 created)
 
 **🚨 MANDATORY CHECKPOINT - USER MUST APPROVE implementation_plan.md BEFORE Stage 5b**
 
@@ -301,7 +301,7 @@ Stage 5a (Implementation Planning) is complete. I've created implementation_plan
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/implementation_execution.md` to ensure I follow the implementation workflow...
+I'm reading `stages/stage_5/phase_5.2_implementation_execution.md` to ensure I follow the implementation workflow...
 
 **The guide requires:**
 - **Create implementation_checklist.md** from implementation_plan.md tasks
@@ -321,7 +321,7 @@ I'm reading `stages/stage_5/implementation_execution.md` to ensure I follow the 
 - STOP if stuck or blocked - ask user
 
 **Prerequisites I'm verifying:**
-✅ Stage 5a complete (EPIC_README.md shows 24 iterations done)
+✅ Stage 5a complete (EPIC_README.md shows 28 iterations done)
 ✅ Iteration 24: Implementation Readiness = PASSED
 ✅ implementation_plan.md v3.0 exists and user-approved
 ✅ questions.md resolved (or documented "no questions")
@@ -330,7 +330,7 @@ I'm reading `stages/stage_5/implementation_execution.md` to ensure I follow the 
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION
-- Current Guide: stages/stage_5/implementation_execution.md
+- Current Guide: stages/stage_5/phase_5.2_implementation_execution.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "spec.md visible at all times", "implementation_plan.md is PRIMARY reference", "Unit tests after every phase (100% pass)", "Mini-QC checkpoints", "Update code_changes.md incrementally"
 - Progress: 0/{N} implementation tasks complete
@@ -350,7 +350,7 @@ Starting implementation...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/smoke_testing.md` to ensure I follow the 3-part smoke testing protocol...
+I'm reading `stages/stage_5/part_5.3.1_smoke_testing.md` to ensure I follow the 3-part smoke testing protocol...
 
 **The guide requires:**
 - **Part 1: Import Test** (verify module loads without errors)
@@ -382,7 +382,7 @@ I'm reading `stages/stage_5/smoke_testing.md` to ensure I follow the 3-part smok
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_SMOKE_TESTING
-- Current Guide: stages/stage_5/smoke_testing.md
+- Current Guide: stages/stage_5/part_5.3.1_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 parts MANDATORY", "Verify DATA VALUES not structure", "GATE before QC rounds"
 - Progress: 0/3 parts complete
@@ -402,7 +402,7 @@ Running import test for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/qc_rounds.md` to ensure I follow the 3-round QC protocol...
+I'm reading `stages/stage_5/part_5.3.2_qc_rounds.md` to ensure I follow the 3-round QC protocol...
 
 **The guide requires:**
 - **QC Round 1: Basic Validation**
@@ -432,7 +432,7 @@ I'm reading `stages/stage_5/qc_rounds.md` to ensure I follow the 3-round QC prot
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_QC_ROUNDS
-- Current Guide: stages/stage_5/qc_rounds.md
+- Current Guide: stages/stage_5/part_5.3.2_qc_rounds.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 rounds (no exceptions)", "QC RESTART if critical issues", "Round 3 zero tolerance"
 - Progress: 0/3 rounds complete
@@ -452,7 +452,7 @@ Starting QC Round 1 for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/final_review.md` to ensure I follow the final review protocol...
+I'm reading `stages/stage_5/part_5.3.3_final_review.md` to ensure I follow the final review protocol...
 
 **The guide requires:**
 - **PR Review Protocol** (Multi-round with fresh eyes - MANDATORY):
@@ -466,7 +466,7 @@ I'm reading `stages/stage_5/final_review.md` to ensure I follow the final review
   - Document what worked well
   - Document what didn't work
   - **IMMEDIATELY UPDATE GUIDES** (not just document issues)
-  - Example: If QC found zero data issue → update STAGE_5ca guide NOW
+  - Example: If QC found zero data issue → update Part 5.3.1 guide NOW
 - **Final Verification**:
   - 100% requirement completion (from spec)
   - All code_changes.md items implemented
@@ -485,7 +485,7 @@ I'm reading `stages/stage_5/final_review.md` to ensure I follow the final review
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_FINAL_REVIEW
-- Current Guide: stages/stage_5/final_review.md
+- Current Guide: stages/stage_5/part_5.3.3_final_review.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "PR review protocol MANDATORY", "Fresh agents for each round", "Update guides immediately", "100% completion required"
 - Progress: PR Review Protocol starting
@@ -505,7 +505,7 @@ Starting PR Review Protocol for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/post_feature_alignment.md` to ensure I review all remaining feature specs...
+I'm reading `stages/stage_5/phase_5.4_post_feature_alignment.md` to ensure I review all remaining feature specs...
 
 **The guide requires:**
 - Review ALL remaining features (not yet at Stage 5c)
@@ -540,7 +540,7 @@ I'm reading `stages/stage_5/post_feature_alignment.md` to ensure I review all re
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 5d - Cross-Feature Alignment
-- Current Guide: stages/stage_5/post_feature_alignment.md
+- Current Guide: stages/stage_5/phase_5.4_post_feature_alignment.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Review ALL remaining features", "Compare to ACTUAL implementation", "Update specs proactively", "Mark features needing significant rework"
 - Next Action: Identify remaining features from Epic Progress Tracker
@@ -559,7 +559,7 @@ Starting cross-feature alignment review...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_5/post_feature_testing_update.md` to ensure I update the epic test plan based on actual implementation...
+I'm reading `stages/stage_5/phase_5.5_post_feature_testing_update.md` to ensure I update the epic test plan based on actual implementation...
 
 **The guide requires:**
 - Review ACTUAL implementation of just-completed feature:
@@ -600,7 +600,7 @@ I'm reading `stages/stage_5/post_feature_testing_update.md` to ensure I update t
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 5e - Epic Testing Plan Update
-- Current Guide: stages/stage_5/post_feature_testing_update.md
+- Current Guide: stages/stage_5/phase_5.5_post_feature_testing_update.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Review ACTUAL implementation", "Add integration scenarios", "Update History table", "Test plan evolves incrementally"
 - Next Action: Read just-completed feature's actual code to identify test plan updates

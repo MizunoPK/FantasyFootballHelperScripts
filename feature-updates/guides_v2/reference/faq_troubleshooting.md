@@ -207,7 +207,7 @@ A: Make best predictions in Stage 4:
 
 **Q: Can I skip iterations if they don't seem relevant?**
 
-A: NO - All 24 iterations are mandatory:
+A: NO - All 28 iterations are mandatory:
 - Designed based on historical bugs and missed requirements
 - Each iteration catches specific issue types
 - Skipping iterations = high risk of bugs in Stage 5c
@@ -348,7 +348,7 @@ A:
 A: NO - Enter Debugging Protocol at epic level:
 1. Document in epic-level debugging/ISSUES_CHECKLIST.md
 2. Fix ALL issues
-3. RESTART entire Stage 6 from Stage 6a Part 1
+3. RESTART entire Stage 6 from Phase 6.1 Part 1
 4. Re-run epic smoke testing → epic QC rounds → epic final review
 
 **Q: Can I skip epic QC if all features passed their Stage 5c QC?**
@@ -446,7 +446,7 @@ Need to fix something
     │    ↓
     │  [Use Debugging Protocol at epic level]
     │    → Fix issues
-    │    → RESTART from Stage 6a Part 1
+    │    → RESTART from Phase 6.1 Part 1
     │
     └─ Stage 7 (User Testing)
          ↓

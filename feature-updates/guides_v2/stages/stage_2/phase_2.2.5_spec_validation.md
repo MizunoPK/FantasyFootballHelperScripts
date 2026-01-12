@@ -1,9 +1,11 @@
-# STAGE 2b.5: Specification Validation Phase Guide
+# Stage 2: Feature Deep Dives
+## Phase 2.2.5: Specification Validation
 
 **Guide Version:** 1.0
 **Created:** 2026-01-06
-**Prerequisites:** STAGE_2b complete (Specification Phase PASSED)
-**Next Stage:** stages/stage_2/phase_2_refinement.md
+**Prerequisites:** Phase 2.2 complete (Specification Phase PASSED)
+**Next Phase:** `stages/stage_2/phase_2.3_refinement.md`
+**File:** `phase_2.2.5_spec_validation.md`
 
 ---
 
@@ -30,7 +32,7 @@
 Specification Validation Phase is a critical quality gate where you assume everything in the spec and checklist is wrong, inaccurate, or incomplete, then conduct deep research to validate every claim and self-resolve as many checklist questions as possible before user interaction.
 
 **When do you use this guide?**
-- STAGE_2b complete (Phase 2.5 Spec-to-Epic Alignment Check PASSED)
+- Phase 2.2 complete (Phase 2.5 Spec-to-Epic Alignment Check PASSED)
 - spec.md has requirements with traceability
 - checklist.md has open questions
 - Ready to validate and improve specification quality

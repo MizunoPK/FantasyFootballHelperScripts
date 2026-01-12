@@ -61,7 +61,7 @@ WHY #4: Why wasn't that edge case identified?
 → {Process answer - e.g., "Iteration 9 (Edge Case Analysis) didn't consider injury status"}
 
 WHY #5: Why didn't Iteration 9 catch it?
-→ {Guide gap - e.g., "round2_todo_creation.md doesn't mention checking player status fields"}
+→ {Guide gap - e.g., "part_5.1.2_round2.md doesn't mention checking player status fields"}
 ```
 
 **Continue until you reach a PROCESS or GUIDE gap (not just technical cause).**
@@ -74,7 +74,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 **A. Missing Guide Section**
 - Guide exists but doesn't cover this scenario
-- Example: "round2_todo_creation.md Iteration 9 doesn't mention checking entity status fields"
+- Example: "part_5.1.2_round2.md Iteration 9 doesn't mention checking entity status fields"
 
 **B. Unclear Guide Instruction**
 - Guide mentions it but not clearly enough
@@ -117,12 +117,12 @@ WHY #5: Why didn't Iteration 9 catch it?
 - Mini-QC checkpoints: Should QC have caught this?
 - Unit tests: Should test have existed for this?
 
-**Stage 5ca (Smoke Testing):**
+**Part 5.3.1 (Smoke Testing):**
 - Part 1 (Import Test): Should import have failed?
 - Part 2 (Entry Point Test): Should entry point have caught this?
 - Part 3 (E2E Test): Should E2E test have caught this? (This is where it WAS caught)
 
-**Stage 5cb (QC Rounds):**
+**Part 5.3.2 (QC Rounds):**
 - Round 1-3: Which round should have caught this?
 
 **Stage 2 (Specification):**
@@ -137,9 +137,9 @@ WHY #5: Why didn't Iteration 9 catch it?
 ## Prevention Point
 
 **This bug SHOULD have been caught at:**
-- Stage: {Stage 5a / 5b / 5ca / 5cb / 2 / etc.}
+- Stage: {Stage 5a / 5b / Part 5.3.1 / Part 5.3.2 / 2 / etc.}
 - Specific Step: {Iteration 9 / QC Round 1 / etc.}
-- Guide: {round2_todo_creation.md / qc_rounds.md / etc.}
+- Guide: {part_5.1.2_round2.md / qc_rounds.md / etc.}
 - Specific Section: {Iteration 9: Edge Case Analysis}
 
 **Why it wasn't caught:**
@@ -325,7 +325,7 @@ If you choose MODIFY or DISAGREE, please explain:
 1. Revise the root cause analysis based on user feedback
 2. Update:
    - Prevention point (Iteration 4 instead of 9)
-   - Guide improvement (update round1_todo_creation.md instead)
+   - Guide improvement (update part_5.1.1_round1.md instead)
    - Priority if needed
 3. Present revised analysis to user
 4. Repeat until user AGREES
@@ -594,7 +594,7 @@ Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 
 ❌ **Stopping at technical cause**
 - BAD: "Root cause: Missing null check"
-- GOOD: "Root cause: round2_todo_creation.md Iteration 9 doesn't mention verifying entity status fields"
+- GOOD: "Root cause: part_5.1.2_round2.md Iteration 9 doesn't mention verifying entity status fields"
 
 ❌ **Skipping user confirmation**
 - BAD: Agent decides root cause and adds to recommendations

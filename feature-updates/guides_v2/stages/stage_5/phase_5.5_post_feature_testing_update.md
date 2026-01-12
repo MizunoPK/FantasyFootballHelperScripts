@@ -1,13 +1,16 @@
-# STAGE 5e: Post-Feature Testing Plan Update Guide (V2)
+# Stage 5: Feature Implementation
+## Phase 5.5: Post-Feature Testing Update
+
+**File:** `phase_5.5_post_feature_testing_update.md`
 
 **Purpose:** After completing a feature, update the epic_smoke_test_plan.md to reflect ACTUAL implementation discoveries, add integration points found during development, and keep the testing strategy current as the epic evolves.
 
 **Stage Flow Context:**
 ```
-Stage 5a (Implementation Planning) → Stage 5b (Implementation) → Stage 5c (Post-Implementation) →
-→ Stage 5d (Cross-Feature Alignment) →
-→ [YOU ARE HERE: Stage 5e - Testing Plan Update] →
-→ Next Feature's Stage 5a (or Stage 6 if all features done)
+Phase 5.1 (Implementation Planning) → Phase 5.2 (Implementation) → Phase 5.3 (Post-Implementation) →
+→ Phase 5.4 (Cross-Feature Alignment) →
+→ [YOU ARE HERE: Phase 5.5 - Testing Plan Update] →
+→ Next Feature's Phase 5.1 (or Stage 6 if all features done)
 ```
 
 ---

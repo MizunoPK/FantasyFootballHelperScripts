@@ -1,10 +1,10 @@
 # Smoke Testing Pattern (Reference)
 
-**Purpose:** Generic smoke testing workflow applicable to both feature-level (Stage 5ca) and epic-level (Stage 6a) testing.
+**Purpose:** Generic smoke testing workflow applicable to both feature-level (Part 5.3.1) and epic-level (Phase 6.1) testing.
 
 **This is a REFERENCE PATTERN.** Actual guides:
-- **Feature-level:** `stages/stage_5/smoke_testing.md`
-- **Epic-level:** `stages/stage_6/epic_smoke_testing.md`
+- **Feature-level:** `stages/stage_5/part_5.3.1_smoke_testing.md`
+- **Epic-level:** `stages/stage_6/phase_6.1_epic_smoke_testing.md`
 
 ---
 
@@ -18,8 +18,8 @@
 - Use REAL data (not test fixtures) to expose mock assumption failures
 
 **Scope-Specific Implementation:**
-- **Feature-level (Stage 5ca):** Tests individual feature in isolation
-- **Epic-level (Stage 6a):** Tests ALL features working together as cohesive system
+- **Feature-level (Part 5.3.1):** Tests individual feature in isolation
+- **Epic-level (Phase 6.1):** Tests ALL features working together as cohesive system
 
 ---
 
@@ -232,7 +232,7 @@ for pos in positions:
 
 **Goal:** Verify features work together correctly
 
-**Only applicable to epic-level smoke testing (Stage 6a)**
+**Only applicable to epic-level smoke testing (Phase 6.1)**
 
 **Process:**
 1. Identify cross-feature workflows (from epic_smoke_test_plan.md)
@@ -323,19 +323,19 @@ assert df['adp'].min() > 0  # Not placeholder values
 
 ## Scope-Specific Differences
 
-### Feature-Level Smoke Testing (Stage 5ca)
+### Feature-Level Smoke Testing (Part 5.3.1)
 - **Scope:** Individual feature in isolation
 - **Parts:** 3 parts (Import, Entry Point, E2E)
 - **Data:** Feature-specific input/output
-- **Next Stage:** Stage 5cb (QC Rounds) if passed
+- **Next Stage:** Part 5.3.2 (QC Rounds) if passed
 - **Restart Destination:** Part 1 of this feature's smoke testing
 
-### Epic-Level Smoke Testing (Stage 6a)
+### Epic-Level Smoke Testing (Phase 6.1)
 - **Scope:** ALL features working together
 - **Parts:** 4 parts (Import, Entry Point, E2E, Cross-Feature Integration)
 - **Data:** Epic-level workflows with multiple features
-- **Next Stage:** Stage 6b (Epic QC Rounds) if passed
-- **Restart Destination:** Stage 6a Step 1 (complete epic smoke testing)
+- **Next Stage:** Phase 6.2 (Epic QC Rounds) if passed
+- **Restart Destination:** Phase 6.1 Step 1 (complete epic smoke testing)
 
 ---
 
@@ -359,5 +359,5 @@ assert df['adp'].min() > 0  # Not placeholder values
 ---
 
 *For actual implementation guides, see:*
-- Feature-level: `stages/stage_5/smoke_testing.md`
-- Epic-level: `stages/stage_6/epic_smoke_testing.md`
+- Feature-level: `stages/stage_5/part_5.3.1_smoke_testing.md`
+- Epic-level: `stages/stage_6/phase_6.1_epic_smoke_testing.md`

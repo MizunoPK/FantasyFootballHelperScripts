@@ -50,10 +50,10 @@
 - Starting Stage 4: Epic Testing Strategy
 
 **[Stage 5: Feature Implementation](prompts/stage_5_prompts.md)**
-- Starting Stage 5a: TODO Creation (Round 1)
-- Starting Stage 5a: TODO Creation (Round 2)
-- Starting Stage 5ac Part 1: TODO Creation (Round 3 - Preparation)
-- Starting Stage 5ac Part 2: TODO Creation (Round 3 - Final Gates)
+- Starting Stage 5a: Implementation Planning (Round 1)
+- Starting Stage 5a: Implementation Planning (Round 2)
+- Starting Stage 5a Round 3 Part 1: Implementation Planning (Preparation)
+- Starting Stage 5a Round 3 Part 2: Implementation Planning (Final Gates)
 - Starting Stage 5b: Implementation
 - Starting Stage 5c (Phase 1): Smoke Testing
 - Starting Stage 5c (Phase 2): QC Rounds
@@ -145,7 +145,7 @@ Document guide read, critical rules, next action
 
 **✅ CORRECT:**
 ```
-I'm reading `stages/stage_5/round1_todo_creation.md` to ensure I follow all 8 iterations in Round 1...
+I'm reading `stages/stage_5/part_5.1.1_round1.md` to ensure I follow all 8 iterations in Round 1...
 {List critical requirements for Round 1}
 ```
 
@@ -162,7 +162,7 @@ I'm reading `stages/stage_5/round1_todo_creation.md` to ensure I follow all 8 it
 
 **✅ CORRECT:**
 ```
-I'm reading `stages/stage_5/smoke_testing.md`...
+I'm reading `stages/stage_5/part_5.3.1_smoke_testing.md`...
 **The guide requires:**
 - Part 1: Import test
 - Part 2: Entry point test
@@ -186,7 +186,7 @@ I'm reading `stages/stage_5/smoke_testing.md`...
 **✅ CORRECT:**
 ```
 **Prerequisites I'm verifying:**
-✅ Stage 5a complete (24 iterations done)
+✅ Stage 5a complete (28 iterations done)
 ✅ Iteration 24: Implementation Readiness = PASSED
 ✅ implementation_plan.md v3.0 exists and user-approved
 {Verify ALL prerequisites}

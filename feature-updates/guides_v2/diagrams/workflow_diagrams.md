@@ -28,9 +28,9 @@
          ┌──────────────────────────────────────┐
          │  STAGE 2: Feature Deep Dives         │
          │  (Loop through ALL features)         │
-         │  - Phase 0-1: Research               │
+         │  - Phase 2.1: Research               │
          │  - Phase 2: Specification            │
-         │  - Phase 3-6: Refinement             │
+         │  - Phase 2.3: Refinement             │
          │  - Gate 3: User checklist approval   │
          └──────────────────┬───────────────────┘
                             │
@@ -128,7 +128,7 @@
   │ Stage 5c│ Post-Implementation Testing                │
   │         │ Phase 1: Smoke Testing (3 parts)           │
   │         │ Phase 2: QC Rounds (3 rounds)              │
-  │         │   If issues → debugging → loop back 5ca    │
+  │         │   If issues → debugging → loop back Part 5.3.1    │
   │         │ Phase 3: Final Review                      │
   │         │ Phase 4: Commit feature code               │
   └────┬────┘                    │                       │

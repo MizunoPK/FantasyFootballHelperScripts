@@ -4,9 +4,9 @@
 
 **This is a routing guide.** The complete Stage 2 workflow is now split across three focused guides:
 
-- **Stage 2 Phase 0-1 (Research):** Epic intent extraction, targeted research, research audit
-- **Stage 2 Phase 2 (Specification):** Spec with traceability, alignment check
-- **Stage 2 Phase 3-6 (Refinement):** Questions, scope, cross-feature alignment, user approval
+- **Phase 2.1 (Research):** Epic intent extraction, targeted research, research audit
+- **Phase 2.2 (Specification):** Spec with traceability, alignment check
+- **Phase 2.3 (Refinement):** Questions, scope, cross-feature alignment, user approval
 
 **📖 Read the appropriate sub-stage guide based on your current phase.**
 
@@ -15,11 +15,11 @@
 ## 📖 Terminology Note
 
 **Stage 2 is split into phases:**
-- **Phase 0-1:** Research (guide: `phase_0_research.md`)
-- **Phase 2:** Specification (guide: `phase_1_specification.md`)
-- **Phase 3-6:** Refinement (guide: `phase_2_refinement.md`)
+- **Phase 2.1:** Research (guide: `phase_2.1_research.md`)
+- **Phase 2.2:** Specification (guide: `phase_2.2_specification.md`)
+- **Phase 2.3:** Refinement (guide: `phase_2.3_refinement.md`)
 
-**Naming:** "Stage 2 Phase X" (not "STAGE_2a/b/c")
+**Naming:** Uses hierarchical notation (Phase 2.1, 2.2, 2.3)
 
 ---
 
@@ -29,16 +29,16 @@
 
 | Current Phase | Guide to Read | Time Estimate |
 |---------------|---------------|---------------|
-| Starting Stage 2 | stages/stage_2/phase_0_research.md | 45-60 min |
-| Phase 0: Epic Intent Extraction | stages/stage_2/phase_0_research.md | 15 min |
-| Phase 1: Targeted Research | stages/stage_2/phase_0_research.md | 30-45 min |
-| Phase 1.5: Research Completeness Audit | stages/stage_2/phase_0_research.md | 15 min |
-| Phase 2: Update Spec & Checklist | stages/stage_2/phase_1_specification.md | 30-45 min |
-| Phase 2.5: Spec-to-Epic Alignment Check | stages/stage_2/phase_1_specification.md | 15 min |
-| Phase 3: Interactive Question Resolution | stages/stage_2/phase_2_refinement.md | 30-90 min |
-| Phase 4: Dynamic Scope Adjustment | stages/stage_2/phase_2_refinement.md | 15 min |
-| Phase 5: Cross-Feature Alignment | stages/stage_2/phase_2_refinement.md | 15-30 min |
-| Phase 6: Acceptance Criteria & User Approval | stages/stage_2/phase_2_refinement.md | 15-30 min |
+| Starting Stage 2 | `stages/stage_2/phase_2.1_research.md` | 45-60 min |
+| Phase 0: Epic Intent Extraction | `stages/stage_2/phase_2.1_research.md` | 15 min |
+| Phase 1: Targeted Research | `stages/stage_2/phase_2.1_research.md` | 30-45 min |
+| Phase 1.5: Research Completeness Audit | `stages/stage_2/phase_2.1_research.md` | 15 min |
+| Phase 2: Update Spec & Checklist | `stages/stage_2/phase_2.2_specification.md` | 30-45 min |
+| Phase 2.5: Spec-to-Epic Alignment Check | `stages/stage_2/phase_2.2_specification.md` | 15 min |
+| Phase 3: Interactive Question Resolution | `stages/stage_2/phase_2.3_refinement.md` | 30-90 min |
+| Phase 4: Dynamic Scope Adjustment | `stages/stage_2/phase_2.3_refinement.md` | 15 min |
+| Phase 5: Cross-Feature Alignment | `stages/stage_2/phase_2.3_refinement.md` | 15-30 min |
+| Phase 6: Acceptance Criteria & User Approval | `stages/stage_2/phase_2.3_refinement.md` | 15-30 min |
 
 ---
 
@@ -55,9 +55,9 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 
 ## Sub-Stage Breakdown
 
-### STAGE_2a: Research Phase (Phases 0, 1, 1.5)
+### Phase 2.1: Research Phase (Phases 0, 1, 1.5)
 
-**Read:** `stages/stage_2/phase_0_research.md`
+**Read:** `stages/stage_2/phase_2.1_research.md`
 
 **What it covers:**
 - **Phase 0:** Epic Intent Extraction (re-read epic, extract user's exact words)
@@ -72,7 +72,7 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 
 **Time Estimate:** 45-60 minutes
 
-**When complete:** Transition to STAGE_2b
+**When complete:** Transition to Phase 2.2
 
 **Why this sub-stage exists:**
 - Reduces token usage by 60% (1,037 lines vs 2,348 lines)
@@ -81,9 +81,9 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 
 ---
 
-### STAGE_2b: Specification Phase (Phases 2, 2.5)
+### Phase 2.2: Specification Phase (Phases 2, 2.5)
 
-**Read:** `stages/stage_2/phase_1_specification.md`
+**Read:** `stages/stage_2/phase_2.2_specification.md`
 
 **What it covers:**
 - **Phase 2:** Update Spec & Checklist (document requirements with traceability)
@@ -96,7 +96,7 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 
 **Time Estimate:** 30-45 minutes
 
-**When complete:** Transition to STAGE_2c
+**When complete:** Transition to Phase 2.3
 
 **Why this sub-stage exists:**
 - Focuses on specification quality and traceability
@@ -105,9 +105,9 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 
 ---
 
-### STAGE_2c: Refinement Phase (Phases 3, 4, 5, 6)
+### Phase 2.3: Refinement Phase (Phases 3, 4, 5, 6)
 
-**Read:** `stages/stage_2/phase_2_refinement.md`
+**Read:** `stages/stage_2/phase_2.3_refinement.md`
 
 **What it covers:**
 - **Phase 3:** Interactive Question Resolution (ONE question at a time)

@@ -1,10 +1,11 @@
-# STAGE 5c: Post-Implementation Guide (Router)
+# Stage 5: Feature Implementation
+## Phase 5.3: Post-Implementation
+
+**File:** `phase_5.3_post_implementation.md`
 
 **Part of:** Epic-Driven Development Workflow v2
-**Stage:** 5 - Feature Implementation
-**Sub-Stage:** 5c - Post-Implementation (Validation & Review)
-**Prerequisites:** STAGE_5b complete (implementation execution finished)
-**Next Stage:** stages/stage_5/post_feature_alignment.md (Stage 5d)
+**Prerequisites:** Phase 5.2 complete (implementation execution finished)
+**Next Phase:** `stages/stage_5/phase_5.4_post_feature_alignment.md`
 
 ---
 
@@ -39,9 +40,9 @@ Before proceeding, you must have:
 **STAGE_5c - Post-Implementation** is the comprehensive validation phase after implementation, consisting of 3 sequential phases that ensure feature quality, correctness, and production readiness.
 
 **This is feature-level validation** (not epic-level). Each feature goes through Stage 5c independently:
-- Phase 1 (Stage 5ca): Smoke Testing - Verify feature actually runs
-- Phase 2 (Stage 5cb): QC Rounds - Deep quality validation (3 rounds)
-- Phase 3 (Stage 5cc): Final Review - PR review, lessons learned, completion
+- Phase 1 (Part 5.3.1): Smoke Testing - Verify feature actually runs
+- Phase 2 (Part 5.3.2): QC Rounds - Deep quality validation (3 rounds)
+- Phase 3 (Part 5.3.3): Final Review - PR review, lessons learned, completion
 
 **All 3 phases are MANDATORY** - you cannot skip any phase.
 
@@ -99,7 +100,7 @@ Before proceeding, you must have:
 ### Exit Condition
 
 Stage 5c is complete when **ALL** of the following are true:
-- All 3 phases completed (5ca → 5cb → 5cc)
+- All 3 phases completed (Part 5.3.1 → Part 5.3.2 → Part 5.3.3)
 - Smoke testing passed (all 3 parts)
 - QC rounds passed (all 3 rounds with zero issues in Round 3)
 - PR review passed (11 categories, zero critical issues)
@@ -110,6 +111,20 @@ Stage 5c is complete when **ALL** of the following are true:
 
 ---
 
+## Quick Navigation
+
+**Use this table to find the right guide:**
+
+| Current Part | Guide to Read | Time Estimate |
+|--------------|---------------|---------------|
+| Starting Phase 5.3 | `stages/stage_5/part_5.3.1_smoke_testing.md` | 15-30 min |
+| Part 5.3.1: Smoke Testing | `stages/stage_5/part_5.3.1_smoke_testing.md` | 15-30 min |
+| Part 5.3.2: QC Rounds | `stages/stage_5/part_5.3.2_qc_rounds.md` | 30-60 min |
+| Part 5.3.3: Final Review | `stages/stage_5/part_5.3.3_final_review.md` | 30-45 min |
+
+**Total Time:** 1.5-2.5 hours (all 3 parts, assuming no issues)
+
+
 ## Workflow Overview
 
 ```
@@ -118,7 +133,7 @@ Stage 5c is complete when **ALL** of the following are true:
 │                    (3 Sequential Phases)                     │
 └──────────────────────────────────────────────────────────────┘
 
-PHASE 1: Smoke Testing (Stage 5ca)
+PHASE 1: Smoke Testing (Part 5.3.1)
     │
     ├─ Part 1: Import Test (all modules load)
     ├─ Part 2: Entry Point Test (script starts correctly)
@@ -129,7 +144,7 @@ PHASE 1: Smoke Testing (Stage 5ca)
     ↓ If PASS → Phase 2
     ↓ If FAIL → Fix issues, RE-RUN ALL 3 PARTS
 
-PHASE 2: QC Rounds (Stage 5cb)
+PHASE 2: QC Rounds (Part 5.3.2)
     │
     ├─ Round 1: Basic Validation (<3 critical issues, 100% requirements)
     ├─ Round 2: Deep Verification (all Round 1 resolved, zero new critical)
@@ -140,7 +155,7 @@ PHASE 2: QC Rounds (Stage 5cb)
     ↓ If PASS → Phase 3
     ↓ If FAIL → Fix issues, RESTART from Phase 1 (smoke testing)
 
-PHASE 3: Final Review (Stage 5cc)
+PHASE 3: Final Review (Part 5.3.3)
     │
     ├─ PR Review (11 categories, multi-round with fresh agents)
     ├─ Lessons Learned Capture (update guides immediately)
@@ -211,7 +226,7 @@ KEY PRINCIPLES:
 
 ## Phase Navigation
 
-### 📖 Phase 1: Smoke Testing (Stage 5ca)
+### 📖 Phase 1: Smoke Testing (Part 5.3.1)
 
 **Guide:** `stages/stage_5/smoke_testing.md`
 
@@ -237,7 +252,7 @@ KEY PRINCIPLES:
 
 ---
 
-### 📖 Phase 2: QC Rounds (Stage 5cb)
+### 📖 Phase 2: QC Rounds (Part 5.3.2)
 
 **Guide:** `stages/stage_5/qc_rounds.md`
 
@@ -264,7 +279,7 @@ KEY PRINCIPLES:
 
 ---
 
-### 📖 Phase 3: Final Review (Stage 5cc)
+### 📖 Phase 3: Final Review (Part 5.3.3)
 
 **Guide:** `stages/stage_5/final_review.md`
 
@@ -330,7 +345,7 @@ KEY PRINCIPLES:
 **Before transitioning to Stage 5d (Cross-Feature Alignment), verify:**
 
 ### Completion Verification
-- [ ] All 3 phases complete (5ca → 5cb → 5cc)
+- [ ] All 3 phases complete (Part 5.3.1 → Part 5.3.2 → Part 5.3.3)
 - [ ] All completion criteria met (see section above)
 - [ ] Feature is production-ready
 
@@ -369,9 +384,9 @@ KEY PRINCIPLES:
 
 **Stage 5c validates feature quality through 3 sequential phases:**
 
-1. **Smoke Testing (5ca)** - Feature actually runs with correct data
-2. **QC Rounds (5cb)** - Deep quality validation (3 rounds)
-3. **Final Review (5cc)** - PR review, lessons learned, completion verification
+1. **Smoke Testing (Part 5.3.1)** - Feature actually runs with correct data
+2. **QC Rounds (Part 5.3.2)** - Deep quality validation (3 rounds)
+3. **Final Review (Part 5.3.3)** - PR review, lessons learned, completion verification
 
 **Critical protocols:**
 - All 3 phases mandatory (no skipping)

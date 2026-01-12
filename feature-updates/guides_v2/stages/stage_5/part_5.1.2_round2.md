@@ -1,4 +1,8 @@
-# STAGE 5ab: Implementation Planning - Round 2 (Router)
+# Stage 5: Feature Implementation
+## Phase 5.1: Implementation Planning
+### Part 5.1.2: Round 2 (Iterations 8-16)
+
+**File:** `part_5.1.2_round2.md`
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -186,7 +190,7 @@ Iterations 13-16: Final Verification & Documentation
    ↓
 ROUND 2 CHECKPOINT
    ↓
-If confidence >= MEDIUM: Proceed to Round 3 (STAGE_5ac)
+If confidence >= MEDIUM: Proceed to Round 3 (Part 5.1.3)
 If confidence < MEDIUM: Update questions file, wait for user
 ```
 

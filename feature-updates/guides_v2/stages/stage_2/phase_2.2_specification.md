@@ -1,9 +1,11 @@
-# STAGE 2b: Specification Phase Guide
+# Stage 2: Feature Deep Dives
+## Phase 2.2: Specification Phase
 
 **Guide Version:** 1.0
 **Created:** 2026-01-02
-**Prerequisites:** STAGE_2a complete (Research Phase PASSED)
-**Next Stage:** stages/stage_2/phase_2_refinement.md
+**Prerequisites:** Phase 2.1 complete (Research Phase PASSED)
+**Next Phase:** `stages/stage_2/phase_2.3_refinement.md`
+**File:** `phase_2.2_specification.md`
 
 ---
 
@@ -30,7 +32,7 @@
 Specification Phase is where you create detailed technical specifications with requirement traceability (every requirement must have a source), identify open questions for the user, and verify spec alignment with epic intent through a mandatory gate.
 
 **When do you use this guide?**
-- STAGE_2a complete (Phase 1.5 Research Audit PASSED)
+- Phase 2.1 complete (Phase 1.5 Research Audit PASSED)
 - Epic Intent section exists in spec.md
 - Research findings documented
 - Ready to create detailed specifications
@@ -41,7 +43,7 @@ Specification Phase is where you create detailed technical specifications with r
 - ✅ checklist.md created with valid open questions (user preferences, edge cases)
 - ✅ Phase 2.5 Spec-to-Epic Alignment Check PASSED (MANDATORY GATE)
 - ✅ Zero scope creep, zero missing requirements
-- ✅ Ready for STAGE_2c (Refinement Phase)
+- ✅ Ready for Phase 2.3 (Refinement Phase)
 
 **Time Estimate:**
 30-45 minutes (2 phases)

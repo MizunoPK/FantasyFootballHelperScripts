@@ -4,7 +4,7 @@
 
 **When to Use:** Issues discovered during Smoke Testing or QC Rounds with unknown root cause
 
-**Integration Point:** Called from Stage 5ca (Smoke Testing) or Stage 5cb (QC Rounds) when issues are found
+**Integration Point:** Called from Part 5.3.1 (Smoke Testing) or Part 5.3.2 (QC Rounds) when issues are found
 
 ---
 
@@ -35,8 +35,8 @@
 Debugging Protocol is an investigation-centric process integrated into QC/Smoke Testing that uses an issue checklist, structured investigation rounds, and loop-back mechanism to ensure all bugs are resolved before proceeding.
 
 **When do you use this protocol?**
-- During Smoke Testing (Stage 5ca): Issues discovered in Part 3 E2E test
-- During QC Rounds (Stage 5cb): Issues discovered in any round
+- During Smoke Testing (Part 5.3.1): Issues discovered in Part 3 E2E test
+- During QC Rounds (Part 5.3.2): Issues discovered in any round
 - During Epic Testing (Stage 6): Issues discovered during epic smoke/QC
 - Issues have UNKNOWN root cause requiring investigation
 
@@ -377,8 +377,8 @@ All issues fixed and root causes analyzed?
 - `debugging/loop_back.md` - Loop-back to testing, lessons learned
 
 **Integration Points:**
-- Stage 5ca (Smoke Testing) → debugging → loop back
-- Stage 5cb (QC Rounds) → debugging → loop back
+- Part 5.3.1 (Smoke Testing) → debugging → loop back
+- Part 5.3.2 (QC Rounds) → debugging → loop back
 - Stage 6 (Epic Testing) → debugging → loop back
 - Stage 7 (User Testing) → add bugs to epic debugging → loop back to Stage 6
 

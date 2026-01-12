@@ -1,12 +1,16 @@
-# STAGE 5cb: QC Rounds Guide (Post-Implementation - Part 2)
+# Stage 5: Feature Implementation
+## Phase 5.3: Post-Implementation
+### Part 5.3.2: QC Rounds
+
+**File:** `part_5.3.2_qc_rounds.md`
 
 **Purpose:** Comprehensive quality control through 3 validation rounds to ensure feature correctness, data quality, and completeness.
 
 **Stage Flow Context:**
 ```
-Stage 5ca (Smoke Testing) →
-→ [YOU ARE HERE: Stage 5cb - QC Rounds] →
-→ Stage 5cc (Final Review) → Stage 5d (Cross-Feature Alignment)
+Part 5.3.1 (Smoke Testing) →
+→ [YOU ARE HERE: Part 5.3.2 - QC Rounds] →
+→ Part 5.3.3 (Final Review) → Phase 5.4 (Cross-Feature Alignment)
 ```
 
 ---
@@ -46,7 +50,7 @@ Stage 5ca (Smoke Testing) →
 Feature-level QC Rounds perform 3 progressively deeper quality checks (Basic Validation, Deep Verification, Final Skeptical Review) with zero tech debt tolerance. See `reference/qc_rounds_pattern.md` for universal workflow.
 
 **When do you use this guide?**
-- Stage 5ca complete (Smoke Testing passed all 3 parts)
+- Part 5.3.1 complete (Smoke Testing passed all 3 parts)
 - Ready for comprehensive quality validation
 - Before final review
 
@@ -55,7 +59,7 @@ Feature-level QC Rounds perform 3 progressively deeper quality checks (Basic Val
 - ✅ Round 2 PASSED: Deep Verification (all Round 1 issues resolved, zero new critical)
 - ✅ Round 3 PASSED: Final Skeptical Review (ZERO issues found)
 - ✅ All issues fixed with zero tech debt
-- ✅ Ready for Stage 5cc (Final Review)
+- ✅ Ready for Part 5.3.3 (Final Review)
 
 **Time Estimate:**
 30-60 minutes (all 3 rounds, assuming no major issues)
@@ -69,7 +73,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 
 **📖 See `reference/qc_rounds_pattern.md` for universal critical rules.**
 
-**Feature-specific rules for Stage 5cb:**
+**Feature-specific rules for Part 5.3.2:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -86,7 +90,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
    - If Round 1: ≥3 critical OR <100% requirements → RESTART from smoke testing
    - If Round 2: Any Round 1 issues unresolved OR new critical → RESTART
    - If Round 3: ANY issues (critical OR minor) → RESTART
-   - Restart destination: Stage 5ca (Feature Smoke Testing)
+   - Restart destination: Part 5.3.1 (Feature Smoke Testing)
 
 3. ⚠️ Algorithm verification MANDATORY
    - Re-check Algorithm Traceability Matrix from Stage 5a
@@ -112,7 +116,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 
 **Verify these BEFORE starting QC Rounds:**
 
-**From Stage 5ca (Smoke Testing):**
+**From Part 5.3.1 (Smoke Testing):**
 - [ ] All 3 smoke test parts passed
 - [ ] Part 3 verified OUTPUT DATA VALUES (not just "file exists")
 - [ ] Feature executes end-to-end without crashes
@@ -127,7 +131,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 - [ ] `implementation_checklist.md` all requirements verified
 - [ ] Smoke test results documented in README Agent Status
 
-**If ANY prerequisite not met:** Return to Stage 5ca and complete it first.
+**If ANY prerequisite not met:** Return to Part 5.3.1 and complete it first.
 
 ---
 
@@ -135,7 +139,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 
 **📖 See `reference/qc_rounds_pattern.md` for universal workflow details.**
 
-**Feature-specific workflow for Stage 5cb:**
+**Feature-specific workflow for Part 5.3.2:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -147,7 +151,7 @@ Round 1: Basic Validation (10-20 min)
    ↓ Pass: <3 critical issues, 100% requirements met
    ↓
    If PASS → Round 2
-   If FAIL → Fix, RESTART from smoke testing (Stage 5ca)
+   If FAIL → Fix, RESTART from smoke testing (Part 5.3.1)
 
 Round 2: Deep Verification (10-20 min)
    ↓ Baseline comparison, data validation, regression, edge cases
@@ -160,7 +164,7 @@ Round 3: Final Skeptical Review (10-20 min)
    ↓ Re-read spec with fresh eyes, re-check matrices
    ↓ Pass: ZERO issues (critical, medium, OR minor)
    ↓
-   If PASS → QC complete, proceed to Stage 5cc
+   If PASS → QC complete, proceed to Part 5.3.3
    If FAIL → Fix, RESTART from smoke testing
 ```
 
@@ -297,7 +301,7 @@ print("✅ PlayerManager interface verified")
 **If Round 1 FAILS:**
 1. Document ALL issues found
 2. Fix ALL issues
-3. **RESTART from Stage 5ca (smoke testing)**
+3. **RESTART from Part 5.3.1 (smoke testing)**
 4. Re-run smoke testing → QC Round 1
 
 **If Round 1 PASSES:**
@@ -480,7 +484,7 @@ print("✅ Edge cases handled correctly")
 **If Round 2 FAILS:**
 1. Document ALL issues (unresolved Round 1 + new critical)
 2. Fix ALL issues
-3. **RESTART from Stage 5ca (smoke testing)**
+3. **RESTART from Part 5.3.1 (smoke testing)**
 4. Re-run smoke testing → Round 1 → Round 2
 
 **If Round 2 PASSES:**
@@ -599,14 +603,14 @@ This prevents confirmation bias (seeing what you expect, not what's actually the
 **If ANY issues found (critical, medium, OR minor):**
 1. Document ALL issues
 2. Fix ALL issues
-3. **RESTART from Stage 5ca (smoke testing)**
+3. **RESTART from Part 5.3.1 (smoke testing)**
 4. Re-run smoke testing → Round 1 → Round 2 → Round 3
 
 **If ZERO issues found:**
 - ✅ QC Rounds COMPLETE
 - ✅ Document completion in README
 - ✅ Update Agent Status: "QC Rounds COMPLETE"
-- ✅ Proceed to **Stage 5cc: Final Review**
+- ✅ Proceed to **Part 5.3.3: Final Review**
 
 ---
 
@@ -673,11 +677,11 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 **If ALL 3 rounds PASSED:**
 - ✅ Document QC results in feature README
 - ✅ Update Agent Status: "QC Rounds COMPLETE (3/3 rounds passed, zero issues)"
-- ✅ Proceed to **Stage 5cc: Final Review**
+- ✅ Proceed to **Part 5.3.3: Final Review**
 
 **If ANY round FAILED:**
 - ❌ Fix ALL issues identified
-- ❌ **RESTART from Stage 5ca (smoke testing)**
+- ❌ **RESTART from Part 5.3.1 (smoke testing)**
 - ❌ Re-run entire validation: Smoke → Round 1 → Round 2 → Round 3
 - ❌ Do NOT proceed to Final Review until clean pass
 
@@ -695,7 +699,7 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 - Baseline comparison (if updating existing feature)
 - Algorithm traceability matrix re-verification
 - Integration gap check re-verification
-- Restart destination: Stage 5ca (feature smoke testing)
+- Restart destination: Part 5.3.1 (feature smoke testing)
 
 **Critical Success Factors:**
 - Zero tech debt tolerance (100% or INCOMPLETE)
@@ -709,4 +713,4 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 
 ---
 
-**END OF STAGE 5cb GUIDE**
+**END OF STAGE Part 5.3.2 GUIDE**

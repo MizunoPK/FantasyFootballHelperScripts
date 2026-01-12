@@ -1,14 +1,14 @@
-# Epic Final Review Examples - Stage 6c
+# Epic Final Review Examples - Phase 6.3
 
-**Purpose:** Common mistakes, real-world examples, and best practices for Stage 6c
+**Purpose:** Common mistakes, real-world examples, and best practices for Phase 6.3
 **When to Use:** Reference while completing epic_final_review.md workflow
-**Main Guide:** `stages/stage_6/epic_final_review.md`
+**Main Guide:** `stages/stage_6/phase_6.4_epic_final_review.md`
 
 ---
 
 ## Overview
 
-This reference provides practical examples for Stage 6c (Epic Final Review):
+This reference provides practical examples for Phase 6.3 (Epic Final Review):
 
 **Common Mistakes (7 anti-patterns to avoid)**
 **Real-World Example (complete epic final review walkthrough)**
@@ -24,7 +24,7 @@ Use these examples to avoid common pitfalls and ensure thorough epic-level valid
 
 **Why this is wrong:**
 - Stage 5c already did feature-level PR review for each feature
-- Stage 6c focuses on EPIC-WIDE concerns (cross-feature impacts)
+- Phase 6.3 focuses on EPIC-WIDE concerns (cross-feature impacts)
 - Repeating feature-level checks wastes time
 
 **What to do instead:**
@@ -54,7 +54,7 @@ GOOD: Checking if epic-level integration tests exist (cross-feature scenarios)
 **What to do instead:**
 - ✅ Document ALL issues in epic_lessons_learned.md
 - ✅ Create bug fixes using bug fix workflow (Stage 2 → 5a → 5b → 5c)
-- ✅ COMPLETELY RESTART Stage 6 after fixes (from STAGE_6a)
+- ✅ COMPLETELY RESTART Stage 6 after fixes (from Phase 6.1)
 - ✅ Re-run ALL steps (smoke testing, QC 1-3, PR review)
 
 **Example:**
@@ -69,8 +69,8 @@ GOOD:
 - Document in epic_lessons_learned.md
 - Create bugfix_high_architecture_inconsistency/
 - Run bug fix through Stage 2 → 5a → 5b → 5c
-- RESTART Stage 6 from STAGE_6a (smoke testing)
-- Re-run STAGE_6a, 6b, 6c (all steps)
+- RESTART Stage 6 from Phase 6.1 (smoke testing)
+- Re-run Phase 6.1, 6b, 6c (all steps)
 - Only then proceed to Stage 7
 ```
 
@@ -192,7 +192,7 @@ BAD:
 GOOD:
 - Complete PR review (all 11 categories)
 - Document results in epic_lessons_learned.md:
-  ## Stage 6c - Epic PR Review (11 Categories)
+  ## Phase 6.3 - Epic PR Review (11 Categories)
   **Date:** 2025-01-02
   **Overall Status:** ✅ APPROVED
   **Issues Found:** 0
@@ -234,7 +234,7 @@ Step 8.1: Verification Checklist
 - ⚠️ 1 pending bug fix (bugfix_high_performance - Stage 5b)
 → STOP - Cannot proceed
 → Complete bug fix (finish Stage 5c)
-→ RESTART Stage 6 from STAGE_6a
+→ RESTART Stage 6 from Phase 6.1
 → Re-run all steps
 → Re-verify checklist (all items ✅)
 → Then proceed to Stage 7
@@ -249,9 +249,9 @@ Step 8.1: Verification Checklist
 **Context:**
 - Epic: Improve Draft Helper
 - Features: 3 (ADP Integration, Matchup System, Performance Tracking)
-- STAGE_6a complete: Epic smoke testing passed
-- STAGE_6b complete: QC Rounds 1, 2, 3 passed
-- Now starting STAGE_6c: Epic Final Review
+- Phase 6.1 complete: Epic smoke testing passed
+- Phase 6.2 complete: QC Rounds 1, 2, 3 passed
+- Now starting Phase 6.3: Epic Final Review
 
 ---
 
@@ -310,7 +310,7 @@ class PerformanceTracker:  # ✅ Manager pattern
 **Step 6.12: Document PR Review Results**
 
 ```markdown
-## Stage 6c - Epic PR Review (11 Categories)
+## Phase 6.3 - Epic PR Review (11 Categories)
 
 **Date:** 2025-01-02
 **Reviewer:** Claude Agent
@@ -351,7 +351,7 @@ class PerformanceTracker:  # ✅ Manager pattern
 **Step 7.1: Document Issues**
 
 ```markdown
-## Stage 6c Issues Found
+## Phase 6.3 Issues Found
 
 **Date:** 2025-01-02
 
@@ -376,7 +376,7 @@ class PerformanceTracker:  # ✅ Manager pattern
 **Step 7.3: Present to User**
 
 ```markdown
-I found 1 issue during Stage 6c Epic PR Review that requires a bug fix:
+I found 1 issue during Phase 6.3 Epic PR Review that requires a bug fix:
 
 **ISSUE 1: Architectural Inconsistency (HIGH priority)**
 - **Problem:** Feature 02 uses standalone functions instead of Manager pattern
@@ -384,7 +384,7 @@ I found 1 issue during Stage 6c Epic PR Review that requires a bug fix:
 - **Fix:** Refactor Feature 02 to MatchupManager class
 - **Estimated time:** 2-3 hours (Stage 2 → 5a → 5b → 5c)
 
-After fixing, I'll RESTART Stage 6 from STAGE_6a.
+After fixing, I'll RESTART Stage 6 from Phase 6.1.
 
 Should I proceed?
 ```
@@ -413,11 +413,11 @@ bugfix_high_architecture_inconsistency/
 **Bug Fix:** Refactored Feature 02 to MatchupManager class
 
 **Restart Actions:**
-- ✅ Re-ran STAGE_6a: Epic Smoke Testing (all 4 parts) - PASSED
-- ✅ Re-ran STAGE_6b: QC Round 1 - PASSED
-- ✅ Re-ran STAGE_6b: QC Round 2 - PASSED
-- ✅ Re-ran STAGE_6b: QC Round 3 - PASSED
-- ✅ Re-ran STAGE_6c: Epic PR Review (all 11 categories) - PASSED
+- ✅ Re-ran Phase 6.1: Epic Smoke Testing (all 4 parts) - PASSED
+- ✅ Re-ran Phase 6.2: QC Round 1 - PASSED
+- ✅ Re-ran Phase 6.2: QC Round 2 - PASSED
+- ✅ Re-ran Phase 6.2: QC Round 3 - PASSED
+- ✅ Re-ran Phase 6.3: Epic PR Review (all 11 categories) - PASSED
   - Architecture category now PASSED (all features use Manager pattern)
 
 **Result:** Stage 6 complete after restart (no new issues)
@@ -430,7 +430,7 @@ bugfix_high_architecture_inconsistency/
 **Step 8.1: Verify All Issues Resolved**
 
 ```markdown
-## Stage 6c Final Verification
+## Phase 6.3 Final Verification
 
 **Date:** 2025-01-02 16:00
 
@@ -464,7 +464,7 @@ bugfix_high_architecture_inconsistency/
 **Step 8.3: Update epic_lessons_learned.md**
 
 ```markdown
-## Stage 6c Lessons Learned (Epic Final Review)
+## Phase 6.3 Lessons Learned (Epic Final Review)
 
 **What Went Well:**
 - Architectural consistency check caught Manager pattern inconsistency
@@ -487,7 +487,7 @@ bugfix_high_architecture_inconsistency/
 ```markdown
 ## Agent Status
 
-**Current Stage:** Stage 6c - Epic Final Review
+**Current Stage:** Phase 6.3 - Epic Final Review
 **Status:** ✅ COMPLETE
 **Completed:** 2025-01-02 16:15
 
@@ -546,7 +546,7 @@ bugfix_high_architecture_inconsistency/
 
 ---
 
-## Quick Reference: Stage 6c Steps
+## Quick Reference: Phase 6.3 Steps
 
 **STEP 6: Epic PR Review**
 - Apply 11-category checklist to epic-wide changes
@@ -557,7 +557,7 @@ bugfix_high_architecture_inconsistency/
 - Document all issues
 - Prioritize (HIGH/MEDIUM create bug fixes, LOW document only)
 - Create bug fixes using full workflow
-- RESTART Stage 6 from STAGE_6a after fixes
+- RESTART Stage 6 from Phase 6.1 after fixes
 
 **STEP 8: Final Verification**
 - Verify all issues resolved
@@ -568,7 +568,7 @@ bugfix_high_architecture_inconsistency/
 ---
 
 **See Also:**
-- Main Guide: `stages/stage_6/epic_final_review.md`
+- Main Guide: `stages/stage_6/phase_6.4_epic_final_review.md`
 - PR Review Checklist: `reference/stage_6/epic_pr_review_checklist.md`
 - Templates: `reference/stage_6/epic_final_review_templates.md`
 

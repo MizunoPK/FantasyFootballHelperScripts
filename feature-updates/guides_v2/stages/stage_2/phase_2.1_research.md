@@ -1,10 +1,12 @@
-# STAGE 2a: Research Phase Guide
+# Stage 2: Feature Deep Dives
+## Phase 2.1: Research Phase
 
 **Guide Version:** 1.0
 **Created:** 2026-01-02
 **Prerequisites:** Stage 1 complete, feature folder exists
-**Next Stage:** stages/stage_2/phase_1_specification.md
-**Detailed Examples:** reference/stage_2/research_examples.md
+**Next Phase:** `stages/stage_2/phase_2.2_specification.md`
+**Detailed Examples:** `reference/stage_2/research_examples.md`
+**File:** `phase_2.1_research.md`
 
 ---
 
@@ -46,7 +48,7 @@ Research Phase is the first part of Feature Deep Dive where you extract epic int
 - ✅ Research findings documented in epic/research/{FEATURE_NAME}_DISCOVERY.md
 - ✅ Phase 1.5 Research Completeness Audit PASSED (MANDATORY GATE)
 - ✅ Evidence collected (file paths, line numbers, code snippets)
-- ✅ Ready for STAGE_2b (Specification Phase)
+- ✅ Ready for Phase 2.2 (Specification Phase)
 
 **Time Estimate:**
 45-60 minutes (3 phases)

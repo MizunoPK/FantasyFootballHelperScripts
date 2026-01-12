@@ -24,7 +24,7 @@ These documents are systematically collected and applied at multiple points in t
 
 **Location:** `feature_XX_{name}/debugging/`
 
-**Created During:** Stage 5ca (Smoke Testing) or Stage 5cb (QC Rounds) when bugs are discovered
+**Created During:** Part 5.3.1 (Smoke Testing) or Part 5.3.2 (QC Rounds) when bugs are discovered
 
 **Workflow:**
 1. Issues discovered during testing
@@ -70,7 +70,7 @@ feature_XX_{name}/debugging/
 
 **Location:** `{epic_name}/debugging/`
 
-**Created During:** Stage 6a (Epic Smoke Testing) or Stage 6b (Epic QC Rounds) or Stage 7 (User Testing)
+**Created During:** Phase 6.1 (Epic Smoke Testing) or Phase 6.2 (Epic QC Rounds) or Stage 7 (User Testing)
 
 **Workflow:** Same as feature-level but for epic integration issues
 
@@ -93,7 +93,7 @@ feature_XX_{name}/debugging/
 
 ## Where Debugging Lessons Are Aggregated
 
-### Stage 5cc: Final Review (Per Feature)
+### Part 5.3.3: Final Review (Per Feature)
 
 **File Updated:** `feature_XX_{name}/lessons_learned.md`
 
@@ -108,7 +108,7 @@ feature_XX_{name}/debugging/
 
 ### Debugging (If Occurred):
 - Issues discovered: {count}
-- Testing stage: {Stage 5ca / 5cb}
+- Testing stage: {Part 5.3.1 / Part 5.3.2}
 - Total time: {hours}
 - Key insights: See debugging/lessons_learned.md
 - Process gaps: See debugging/process_failure_analysis.md
@@ -125,7 +125,7 @@ feature_XX_{name}/debugging/
 
 ---
 
-### Stage 6c: Epic Final Review (Epic Level)
+### Phase 6.3: Epic Final Review (Epic Level)
 
 **File Updated:** `epic_lessons_learned.md`
 
@@ -139,7 +139,7 @@ feature_XX_{name}/debugging/
 
 **Debugging (If Occurred):**
 - Issues discovered: {count}
-- Testing stage: Stage 5ca / 5cb
+- Testing stage: Part 5.3.1 / Part 5.3.2
 - Total time: {hours}
 - Key insights: {from debugging/lessons_learned.md}
 - Process gaps: {from debugging/process_failure_analysis.md}
@@ -168,7 +168,7 @@ feature_XX_{name}/debugging/
 
 **Debugging (If Occurred at Epic Level):**
 - Issues discovered: {count}
-- Testing stage: Stage 6a / 6b
+- Testing stage: Phase 6.1 / 6b
 - Total time: {hours}
 - Key insights: {from {epic_name}/debugging/lessons_learned.md}
 - Process gaps: {from {epic_name}/debugging/process_failure_analysis.md}
@@ -185,7 +185,7 @@ feature_XX_{name}/debugging/
 
 **Note:** Previously Stage 7 Step 4, now a dedicated Stage 7.5 workflow with user approval for each proposal.
 
-**Complete Workflow Guide:** `stages/stage_7/guide_update_workflow.md`
+**Complete Workflow Guide:** `stages/stage_7/phase_7.1_guide_update_workflow.md`
 
 **Process Summary:**
 
@@ -221,7 +221,7 @@ feature_XX_{name}/debugging/
 
 **Why this matters:** Debugging lessons are the MOST ACTIONABLE because they come from actual bugs that reached testing. Stage 7.5 ensures these lessons get prioritized (P0/P1) and user-approved before being applied to guides.
 
-**See:** `stages/stage_7/guide_update_workflow.md` for complete 9-step workflow
+**See:** `stages/stage_7/phase_7.1_guide_update_workflow.md` for complete 9-step workflow
 
 ---
 
@@ -291,7 +291,7 @@ Agents MUST verify (as part of guide_update_tracking.md):
 
 ### Scenario: Feature 02 has 2 bugs during smoke testing
 
-**Stage 5ca Part 3:**
+**Part 5.3.1 Part 3:**
 - Bugs discovered → Add to ISSUES_CHECKLIST.md
 - Enter debugging protocol
 
@@ -305,18 +305,18 @@ Agents MUST verify (as part of guide_update_tracking.md):
 - **Phase 5:** Loop back to testing with cross-pattern analysis
   - Analyze why bugs got through Stage 5a (TODO creation)
   - Analyze why bugs got through Stage 5b (Implementation)
-  - Analyze why bugs got through Stage 5ca (Smoke testing)
+  - Analyze why bugs got through Part 5.3.1 (Smoke testing)
   - Identify patterns across Issue #1 and Issue #2
   - Create process_failure_analysis.md with cross-bug patterns
   - Append 3 pattern-based recommendations to guide_update_recommendations.md
   - Create lessons_learned.md with technical insights
   - **Total guide recommendations:** 5 (2 per-issue from Phase 4b + 3 pattern-based from Phase 5)
 
-**Stage 5cc (Final Review):**
+**Part 5.3.3 (Final Review):**
 - Update feature_02_{name}/lessons_learned.md
 - Add brief debugging summary
 
-**Stage 6c (Epic Final Review):**
+**Phase 6.3 (Epic Final Review):**
 - Update epic_lessons_learned.md
 - Aggregate Feature 02 debugging insights
 - Include in cross-feature patterns
@@ -340,8 +340,8 @@ Agents MUST verify (as part of guide_update_tracking.md):
 - Stage 6 (epic debugging)
 
 **Debugging lessons are aggregated at:**
-- Stage 5cc (feature lessons_learned.md)
-- Stage 6c (epic_lessons_learned.md)
+- Part 5.3.3 (feature lessons_learned.md)
+- Phase 6.3 (epic_lessons_learned.md)
 
 **Debugging lessons are applied at:**
 - **Stage 7.5 (Guide Update from Lessons Learned)** ← ONLY place where guides are updated

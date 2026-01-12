@@ -1,12 +1,15 @@
-# STEP 6: User Testing & Bug Fix Protocol
+# Stage 6: Epic-Level Final QC
+## Phase 6.3: User Testing & Bug Fix Protocol
 
 **Purpose:** Have the user test the complete epic after QC rounds pass to catch real-world issues before final review and commit.
 
+**File:** `phase_6.3_user_testing.md`
+
 **Stage Flow Context:**
 ```
-Stage 6a (Epic Smoke) → Stage 6b (QC Rounds 1-3) →
-→ [YOU ARE HERE: Step 6 - User Testing] →
-→ Step 7 (Epic PR Review) → Step 8 (Validate Epic Request) → Step 9 (Final Verification)
+Phase 6.1 (Epic Smoke) → Phase 6.2 (QC Rounds) →
+→ [YOU ARE HERE: Phase 6.3 - User Testing] →
+→ Phase 6.4 (Epic Final Review) → Stage 7
 ```
 
 ---

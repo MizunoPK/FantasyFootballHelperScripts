@@ -1,12 +1,15 @@
-# STAGE 5d: Post-Feature Alignment Guide (V2)
+# Stage 5: Feature Implementation
+## Phase 5.4: Post-Feature Alignment
+
+**File:** `phase_5.4_post_feature_alignment.md`
 
 **Purpose:** After completing a feature, review ALL remaining (not-yet-implemented) feature specs to ensure they align with the ACTUAL implementation (not just the plan). Update specs based on real insights from implementation to prevent spec drift and catch cascading changes early.
 
 **Stage Flow Context:**
 ```
-Stage 5a (Implementation Planning) → Stage 5b (Implementation) → Stage 5c (Post-Implementation) →
-→ [YOU ARE HERE: Stage 5d - Cross-Feature Alignment] →
-→ Stage 5e (Testing Plan Update) → Next Feature's Stage 5a (or Stage 6 if all features done)
+Phase 5.1 (Implementation Planning) → Phase 5.2 (Implementation) → Phase 5.3 (Post-Implementation) →
+→ [YOU ARE HERE: Phase 5.4 - Cross-Feature Alignment] →
+→ Phase 5.5 (Testing Plan Update) → Next Feature's Phase 5.1 (or Stage 6 if all features done)
 ```
 
 ---

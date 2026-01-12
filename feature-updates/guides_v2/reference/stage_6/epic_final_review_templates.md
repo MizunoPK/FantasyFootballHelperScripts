@@ -1,14 +1,14 @@
-# Epic Final Review Templates - Stage 6c
+# Epic Final Review Templates - Phase 6.3
 
-**Purpose:** Templates for documenting Stage 6c results and lessons learned
+**Purpose:** Templates for documenting Phase 6.3 results and lessons learned
 **When to Use:** Steps 6-8 of epic_final_review.md workflow
-**Main Guide:** `stages/stage_6/epic_final_review.md`
+**Main Guide:** `stages/stage_6/phase_6.4_epic_final_review.md`
 
 ---
 
 ## Overview
 
-This reference provides all templates needed during Stage 6c (Epic Final Review):
+This reference provides all templates needed during Phase 6.3 (Epic Final Review):
 
 **Step 6 Templates:**
 - Epic PR Review Results (documenting review outcome)
@@ -23,7 +23,7 @@ This reference provides all templates needed during Stage 6c (Epic Final Review)
 **Step 8 Templates:**
 - Final Verification Checklist (verifying completion)
 - Epic Progress Tracker Update (EPIC_README.md)
-- Stage 6c Lessons Learned (insights and improvements)
+- Phase 6.3 Lessons Learned (insights and improvements)
 - Agent Status Update (EPIC_README.md)
 
 ---
@@ -37,7 +37,7 @@ This reference provides all templates needed during Stage 6c (Epic Final Review)
 ### Basic Template
 
 ```markdown
-## Stage 6c - Epic PR Review Results
+## Phase 6.3 - Epic PR Review Results
 
 **Date:** {YYYY-MM-DD}
 **Epic:** {epic_name}
@@ -58,7 +58,7 @@ This reference provides all templates needed during Stage 6c (Epic Final Review)
 ### Example (Completed Review)
 
 ```markdown
-## Stage 6c - Epic PR Review Results
+## Phase 6.3 - Epic PR Review Results
 
 **Date:** 2025-01-02
 **Epic:** integrate_new_player_data_into_simulation
@@ -92,7 +92,7 @@ This reference provides all templates needed during Stage 6c (Epic Final Review)
 ### Template
 
 ```markdown
-## Stage 6c Issues Found
+## Phase 6.3 Issues Found
 
 **Date:** {YYYY-MM-DD}
 
@@ -118,7 +118,7 @@ This reference provides all templates needed during Stage 6c (Epic Final Review)
 ### Example (Multiple Issues)
 
 ```markdown
-## Stage 6c Issues Found
+## Phase 6.3 Issues Found
 
 **Date:** 2025-01-02
 
@@ -220,7 +220,7 @@ This reference provides all templates needed during Stage 6c (Epic Final Review)
 ### Template
 
 ```markdown
-I found {number} issues during Stage 6c Epic PR Review that require bug fixes:
+I found {number} issues during Phase 6.3 Epic PR Review that require bug fixes:
 
 **ISSUE 1: {Issue Name} ({PRIORITY} priority)**
 - **Problem:** {Brief description of the issue}
@@ -236,7 +236,7 @@ I found {number} issues during Stage 6c Epic PR Review that require bug fixes:
 
 [Repeat for all high/medium priority issues]
 
-After fixing these issues, I'll need to RESTART Stage 6 from the beginning (STAGE_6a smoke testing) to ensure the fixes didn't introduce new issues.
+After fixing these issues, I'll need to RESTART Stage 6 from the beginning (Phase 6.1 smoke testing) to ensure the fixes didn't introduce new issues.
 
 Should I proceed with creating these bug fixes?
 ```
@@ -244,7 +244,7 @@ Should I proceed with creating these bug fixes?
 ### Example
 
 ```markdown
-I found 2 issues during Stage 6c Epic PR Review that require bug fixes:
+I found 2 issues during Phase 6.3 Epic PR Review that require bug fixes:
 
 **ISSUE 1: Architectural Inconsistency (HIGH priority)**
 - **Problem:** Feature 01 uses Manager class pattern, Feature 02 uses standalone functions
@@ -258,7 +258,7 @@ I found 2 issues during Stage 6c Epic PR Review that require bug fixes:
 - **Fix:** Implement batch loading for matchup data in Feature 02
 - **Estimated time:** 1-2 hours
 
-After fixing these issues, I'll need to RESTART Stage 6 from the beginning (STAGE_6a smoke testing) to ensure the fixes didn't introduce new issues.
+After fixing these issues, I'll need to RESTART Stage 6 from the beginning (Phase 6.1 smoke testing) to ensure the fixes didn't introduce new issues.
 
 Should I proceed with creating these bug fixes?
 ```
@@ -349,11 +349,11 @@ bugfix_{priority}_{name}/
 [List all bug fixes]
 
 **Restart Actions:**
-- ✅ Re-ran STAGE_6a: Epic Smoke Testing (all 4 parts) - {PASSED/issues found}
-- ✅ Re-ran STAGE_6b: QC Round 1 (Cross-Feature Integration) - {PASSED/issues found}
-- ✅ Re-ran STAGE_6b: QC Round 2 (Epic Cohesion & Consistency) - {PASSED/issues found}
-- ✅ Re-ran STAGE_6b: QC Round 3 (End-to-End Success Criteria) - {PASSED/issues found}
-- ✅ Re-ran STAGE_6c: Epic PR Review (all 11 categories) - {PASSED/issues found}
+- ✅ Re-ran Phase 6.1: Epic Smoke Testing (all 4 parts) - {PASSED/issues found}
+- ✅ Re-ran Phase 6.2: QC Round 1 (Cross-Feature Integration) - {PASSED/issues found}
+- ✅ Re-ran Phase 6.2: QC Round 2 (Epic Cohesion & Consistency) - {PASSED/issues found}
+- ✅ Re-ran Phase 6.2: QC Round 3 (End-to-End Success Criteria) - {PASSED/issues found}
+- ✅ Re-ran Phase 6.3: Epic PR Review (all 11 categories) - {PASSED/issues found}
 - ✅ All unit tests passing ({pass_rate}% - {N} tests)
 
 **Result:** Stage 6 {complete/incomplete} after restart ({no new issues found / N new issues found})
@@ -372,11 +372,11 @@ bugfix_{priority}_{name}/
 2. bugfix_high_performance_regression: Implemented batch loading for matchup data
 
 **Restart Actions:**
-- ✅ Re-ran STAGE_6a: Epic Smoke Testing (all 4 parts) - PASSED
-- ✅ Re-ran STAGE_6b: QC Round 1 (Cross-Feature Integration) - PASSED
-- ✅ Re-ran STAGE_6b: QC Round 2 (Epic Cohesion & Consistency) - PASSED
-- ✅ Re-ran STAGE_6b: QC Round 3 (End-to-End Success Criteria) - PASSED
-- ✅ Re-ran STAGE_6c: Epic PR Review (all 11 categories) - PASSED
+- ✅ Re-ran Phase 6.1: Epic Smoke Testing (all 4 parts) - PASSED
+- ✅ Re-ran Phase 6.2: QC Round 1 (Cross-Feature Integration) - PASSED
+- ✅ Re-ran Phase 6.2: QC Round 2 (Epic Cohesion & Consistency) - PASSED
+- ✅ Re-ran Phase 6.2: QC Round 3 (End-to-End Success Criteria) - PASSED
+- ✅ Re-ran Phase 6.3: Epic PR Review (all 11 categories) - PASSED
 - ✅ All unit tests passing (100% - 2247 tests)
 
 **Result:** Stage 6 complete after restart (no new issues found)
@@ -393,7 +393,7 @@ bugfix_{priority}_{name}/
 ### Template
 
 ```markdown
-## Stage 6c Final Verification
+## Phase 6.3 Final Verification
 
 **Date:** {YYYY-MM-DD HH:MM}
 
@@ -432,7 +432,7 @@ python tests/run_all_tests.py
 ### Example
 
 ```markdown
-## Stage 6c Final Verification
+## Phase 6.3 Final Verification
 
 **Date:** 2025-01-02 16:00
 
@@ -471,9 +471,9 @@ python tests/run_all_tests.py
   [List all features]
 
 **Stage 6 - Epic Final QC:** ✅ COMPLETE
-- STAGE_6a (Epic Smoke Testing): ✅ COMPLETE
-- STAGE_6b (Epic QC Rounds): ✅ COMPLETE
-- STAGE_6c (Epic Final Review): ✅ COMPLETE
+- Phase 6.1 (Epic Smoke Testing): ✅ COMPLETE
+- Phase 6.2 (Epic QC Rounds): ✅ COMPLETE
+- Phase 6.3 (Epic Final Review): ✅ COMPLETE
 - Epic smoke testing passed: ✅
 - Epic QC rounds passed: ✅ (Rounds {1, 2, 3})
 - Epic PR review passed: ✅ ({N} categories)
@@ -499,9 +499,9 @@ python tests/run_all_tests.py
   - Feature 02: ✅ COMPLETE
 
 **Stage 6 - Epic Final QC:** ✅ COMPLETE
-- STAGE_6a (Epic Smoke Testing): ✅ COMPLETE
-- STAGE_6b (Epic QC Rounds): ✅ COMPLETE
-- STAGE_6c (Epic Final Review): ✅ COMPLETE
+- Phase 6.1 (Epic Smoke Testing): ✅ COMPLETE
+- Phase 6.2 (Epic QC Rounds): ✅ COMPLETE
+- Phase 6.3 (Epic Final Review): ✅ COMPLETE
 - Epic smoke testing passed: ✅
 - Epic QC rounds passed: ✅ (Rounds 1, 2, 3)
 - Epic PR review passed: ✅ (11 categories)
@@ -515,16 +515,16 @@ python tests/run_all_tests.py
 
 ---
 
-## Template 9: Stage 6c Lessons Learned (Step 8.3)
+## Template 9: Phase 6.3 Lessons Learned (Step 8.3)
 
-**Purpose:** Document insights from Stage 6c for future improvement
+**Purpose:** Document insights from Phase 6.3 for future improvement
 **When to Use:** Step 8.3 after Stage 6 complete
 **Location:** Add to `KAI-{N}-{epic_name}/epic_lessons_learned.md`
 
 ### Template
 
 ```markdown
-## Stage 6c Lessons Learned (Epic Final Review)
+## Phase 6.3 Lessons Learned (Epic Final Review)
 
 **Date:** {YYYY-MM-DD}
 
@@ -555,7 +555,7 @@ python tests/run_all_tests.py
 - {Guide name}: {Specific improvement needed}
 - {Guide name}: {Specific improvement needed}
 
-**Stage 6c Statistics:**
+**Phase 6.3 Statistics:**
 - Epic PR Review time: {X minutes}
 - Issues found: {N} ({breakdown by priority})
 - Bug fixes created: {N}
@@ -569,7 +569,7 @@ python tests/run_all_tests.py
 ### Example
 
 ```markdown
-## Stage 6c Lessons Learned (Epic Final Review)
+## Phase 6.3 Lessons Learned (Epic Final Review)
 
 **Date:** 2025-01-02
 
@@ -602,10 +602,10 @@ python tests/run_all_tests.py
 
 **Guide Improvements Needed:**
 - STAGE_2 guide: Add "Architecture Pattern" section to spec template
-- STAGE_5c guide: Add performance baseline comparison to smoke testing
-- STAGE_5d guide: Add architectural pattern consistency check
+- Phase 5.3 guide: Add performance baseline comparison to smoke testing
+- Phase 5.4 guide: Add architectural pattern consistency check
 
-**Stage 6c Statistics:**
+**Phase 6.3 Statistics:**
 - Epic PR Review time: 45 minutes
 - Issues found: 2 (both high priority)
 - Bug fixes created: 2
@@ -630,13 +630,13 @@ python tests/run_all_tests.py
 ## Agent Status
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Stage:** Stage 6c - Epic Final Review
+**Current Stage:** Phase 6.3 - Epic Final Review
 **Status:** ✅ COMPLETE
 
 **Stage 6 Summary:**
-- STAGE_6a (Epic Smoke Testing): ✅ {PASSED/issues found}
-- STAGE_6b (Epic QC Rounds): ✅ {PASSED/issues found} (Rounds {1, 2, 3})
-- STAGE_6c (Epic Final Review): ✅ {PASSED/issues found}
+- Phase 6.1 (Epic Smoke Testing): ✅ {PASSED/issues found}
+- Phase 6.2 (Epic QC Rounds): ✅ {PASSED/issues found} (Rounds {1, 2, 3})
+- Phase 6.3 (Epic Final Review): ✅ {PASSED/issues found}
 - Epic PR review: ✅ {PASSED/issues found} ({N} categories)
 - Issues found: {N} ({resolution status})
 - Bug fixes completed: {N}
@@ -654,13 +654,13 @@ python tests/run_all_tests.py
 ## Agent Status
 
 **Last Updated:** 2025-01-02 16:15
-**Current Stage:** Stage 6c - Epic Final Review
+**Current Stage:** Phase 6.3 - Epic Final Review
 **Status:** ✅ COMPLETE
 
 **Stage 6 Summary:**
-- STAGE_6a (Epic Smoke Testing): ✅ PASSED
-- STAGE_6b (Epic QC Rounds): ✅ PASSED (Rounds 1, 2, 3)
-- STAGE_6c (Epic Final Review): ✅ PASSED
+- Phase 6.1 (Epic Smoke Testing): ✅ PASSED
+- Phase 6.2 (Epic QC Rounds): ✅ PASSED (Rounds 1, 2, 3)
+- Phase 6.3 (Epic Final Review): ✅ PASSED
 - Epic PR review: ✅ PASSED (11 categories)
 - Issues found: 2 (both fixed via bug fixes)
 - Bug fixes completed: 2
@@ -688,13 +688,13 @@ python tests/run_all_tests.py
 **Use Templates 7-10** during final verification (Step 8):
 - Template 7: Verify all work complete
 - Template 8: Update Epic Progress Tracker
-- Template 9: Document Stage 6c lessons learned
+- Template 9: Document Phase 6.3 lessons learned
 - Template 10: Update Agent Status to Stage 6 complete
 
 ---
 
 **See Also:**
-- Main Guide: `stages/stage_6/epic_final_review.md`
+- Main Guide: `stages/stage_6/phase_6.4_epic_final_review.md`
 - PR Review Checklist: `reference/stage_6/epic_pr_review_checklist.md`
 - Examples: `reference/stage_6/epic_final_review_examples.md` (will be created)
 

@@ -1,12 +1,15 @@
-# STAGE 6b: Epic QC Rounds Guide
+# Stage 6: Epic-Level Final QC
+## Phase 6.2: Epic QC Rounds
 
 **Purpose:** Validate the epic as a cohesive whole through 3 systematic quality checks focusing on cross-feature integration and epic-wide consistency.
 
+**File:** `phase_6.2_epic_qc_rounds.md`
+
 **Stage Flow Context:**
 ```
-Stage 6a (Epic Smoke Testing) →
-→ [YOU ARE HERE: Stage 6b - Epic QC Rounds] →
-→ Stage 6c (Epic PR Review) → Stage 7
+Phase 6.1 (Epic Smoke Testing) →
+→ [YOU ARE HERE: Phase 6.2 - Epic QC Rounds] →
+→ Phase 6.3 (User Testing) → Phase 6.4 (Epic Final Review) → Stage 7
 ```
 
 ---
@@ -26,8 +29,8 @@ Stage 6a (Epic Smoke Testing) →
    - List critical requirements from this guide
 
 3. **Update EPIC_README.md Agent Status** with:
-   - Current Stage: Stage 6b - Epic QC Rounds
-   - Current Guide: stages/stage_6/epic_qc_rounds.md
+   - Current Phase: Phase 6.2 - Epic QC Rounds
+   - Current Guide: `stages/stage_6/phase_6.2_epic_qc_rounds.md`
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "3 rounds MANDATORY", "If critical issues → RESTART Stage 6a", "Minor issues can be fixed inline"
    - Next Action: QC Round 1 - Cross-Feature Integration
@@ -43,7 +46,7 @@ Stage 6a (Epic Smoke Testing) →
 ## Quick Start
 
 **What is this stage?**
-Epic-level QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (Stage 5cb), these rounds focus on epic-wide patterns and architectural consistency. See `reference/qc_rounds_pattern.md` for universal workflow.
+Epic-level QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (Part 5.3.2), these rounds focus on epic-wide patterns and architectural consistency. See `reference/qc_rounds_pattern.md` for universal workflow.
 
 **When do you use this guide?**
 - After STAGE_6a complete (Epic Smoke Testing passed)
@@ -89,7 +92,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
    - Restart destination: Stage 6a (Epic Smoke Testing)
 
 3. ⚠️ Focus on EPIC-LEVEL validation (not feature-level)
-   - Feature-level QC done in Stage 5cb
+   - Feature-level QC done in Part 5.3.2
    - Epic-level focuses on: Integration, consistency, cohesion
    - Compare ACROSS ALL features (not individual features)
 

@@ -1,4 +1,8 @@
-# STAGE 5ac Part 1: Implementation Planning - Round 3 Preparation (Router)
+# Stage 5: Feature Implementation
+## Phase 5.1: Implementation Planning
+### Part 5.1.3: Round 3 (Router)
+
+**File:** `part_5.1.3_round3.md`
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -45,22 +49,35 @@ Part 1 is complete when all 6 iterations pass, all preparation outputs added to 
 
 ---
 
+## Quick Navigation
+
+**Round 3 is split into 3 parts:**
+
+| Part | Guide to Read | Iterations | Time Estimate |
+|------|---------------|------------|---------------|
+| Part 5.1.3.1: Preparation | `stages/stage_5/iterations/5.1.3.1_*.md` (3 files) | 17-22 | 45-60 min |
+| Part 5.1.3.2: Gates 1-2 | `stages/stage_5/5.1.3.2_round3_part2a.md` | 23, 23a + Gate 23a | 30-45 min |
+| Part 5.1.3.3: Gate 3 | `stages/stage_5/5.1.3.3_round3_part2b.md` | 24, 25 + Gates 24, 25 | 15-30 min |
+
+**Total Time:** 90-135 minutes (10 iterations + 3 gates)
+
+
 ## Navigation - Iteration Guides
 
 **This is a ROUTER guide.** Detailed iteration instructions are in separate files:
 
 **Iterations 17-18: Phasing & Rollback**
-📖 **READ:** `stages/stage_5/round3_part1/iterations_17_18_phasing.md`
+📖 **READ:** `stages/stage_5/iterations/5.1.3.1_iterations_17_18_phasing.md`
 - Iteration 17: Implementation Phasing
 - Iteration 18: Rollback Strategy
 
 **Iterations 19-20: Algorithm Traceability & Performance**
-📖 **READ:** `stages/stage_5/round3_part1/iterations_19_20_algorithms.md`
+📖 **READ:** `stages/stage_5/iterations/5.1.3.1_iterations_19_20_algorithms.md`
 - Iteration 19: Final Algorithm Traceability Matrix
 - Iteration 20: Performance Analysis
 
 **Iterations 21-22: Mock Audit & Output Validation**
-📖 **READ:** `stages/stage_5/round3_part1/iterations_21_22_testing.md`
+📖 **READ:** `stages/stage_5/iterations/5.1.3.1_iterations_21_22_testing.md`
 - Iteration 21: Mock Audit
 - Iteration 22: Output Consumer Validation
 
@@ -164,7 +181,7 @@ Transition to Part 2 (Read stages/stage_5/round3_part2_final_gates.md)
 
 ### Iterations 17-18: Implementation Phasing & Rollback
 
-**📖 READ:** `stages/stage_5/round3_part1/iterations_17_18_phasing.md`
+**📖 READ:** `stages/stage_5/iterations/5.1.3.1_iterations_17_18_phasing.md`
 
 **Covers:**
 - **Iteration 17:** Implementation Phasing - Break implementation into phases with checkpoints
@@ -181,7 +198,7 @@ Transition to Part 2 (Read stages/stage_5/round3_part2_final_gates.md)
 
 ### Iterations 19-20: Algorithm Traceability & Performance
 
-**📖 READ:** `stages/stage_5/round3_part1/iterations_19_20_algorithms.md`
+**📖 READ:** `stages/stage_5/iterations/5.1.3.1_iterations_19_20_algorithms.md`
 
 **Covers:**
 - **Iteration 19:** Algorithm Traceability Matrix (Final) - LAST chance to catch missing mappings
@@ -198,7 +215,7 @@ Transition to Part 2 (Read stages/stage_5/round3_part2_final_gates.md)
 
 ### Iterations 21-22: Mock Audit & Output Validation
 
-**📖 READ:** `stages/stage_5/round3_part1/iterations_21_22_testing.md`
+**📖 READ:** `stages/stage_5/iterations/5.1.3.1_iterations_21_22_testing.md`
 
 **Covers:**
 - **Iteration 21:** Mock Audit & Integration Test Plan (CRITICAL) - Verify mocks match real interfaces
@@ -354,7 +371,7 @@ O(n) dict lookup → 0.01s (acceptable)
 
 ## Summary
 
-**STAGE_5ac Part 1 - Preparation prepares all prerequisites for implementation:**
+**Round 3 Part 1 - Preparation prepares all prerequisites for implementation:**
 
 **Key Activities:**
 1. **Implementation Phasing (Iteration 17):** Break into phases with checkpoints
@@ -387,9 +404,9 @@ O(n) dict lookup → 0.01s (acceptable)
 ## See Also
 
 **Iteration Detail Guides:**
-- `stages/stage_5/round3_part1/iterations_17_18_phasing.md` - Iterations 17-18: Phasing & Rollback
-- `stages/stage_5/round3_part1/iterations_19_20_algorithms.md` - Iterations 19-20: Algorithm Traceability & Performance
-- `stages/stage_5/round3_part1/iterations_21_22_testing.md` - Iterations 21-22: Mock Audit & Output Validation
+- `stages/stage_5/iterations/5.1.3.1_iterations_17_18_phasing.md` - Iterations 17-18: Phasing & Rollback
+- `stages/stage_5/iterations/5.1.3.1_iterations_19_20_algorithms.md` - Iterations 19-20: Algorithm Traceability & Performance
+- `stages/stage_5/iterations/5.1.3.1_iterations_21_22_testing.md` - Iterations 21-22: Mock Audit & Output Validation
 
 **Related Guides:**
 - `stages/stage_5/round2_todo_creation.md` - Round 2 (prerequisite for Part 1)

@@ -1,12 +1,16 @@
-# STAGE 5cc: Final Review Guide (Post-Implementation - Part 3)
+# Stage 5: Feature Implementation
+## Phase 5.3: Post-Implementation
+### Part 5.3.3: Final Review
+
+**File:** `part_5.3.3_final_review.md`
 
 **Purpose:** Production readiness validation through comprehensive code review, lessons learned capture, and final verification.
 
 **Stage Flow Context:**
 ```
-Stage 5ca (Smoke Testing) → Stage 5cb (QC Rounds) →
-→ [YOU ARE HERE: Stage 5cc - Final Review] →
-→ Stage 5d (Cross-Feature Alignment)
+Part 5.3.1 (Smoke Testing) → Part 5.3.2 (QC Rounds) →
+→ [YOU ARE HERE: Part 5.3.3 - Final Review] →
+→ Phase 5.4 (Cross-Feature Alignment)
 ```
 
 ---
@@ -16,7 +20,7 @@ Stage 5ca (Smoke Testing) → Stage 5cb (QC Rounds) →
 **BEFORE starting Final Review, you MUST:**
 
 1. **Use the phase transition prompt** from `prompts_reference_v2.md`
-   - Find "Starting Stage 5cc (Final Review)" prompt
+   - Find "Starting Part 5.3.3 (Final Review)" prompt
    - Speak it out loud (acknowledge requirements)
    - List critical requirements from this guide
 
@@ -41,7 +45,7 @@ Stage 5ca (Smoke Testing) → Stage 5cb (QC Rounds) →
 Final Review is the production readiness validation where you perform 11-category PR review, immediately apply lessons learned to guides, verify 100% completion, and document feature completion.
 
 **When do you use this guide?**
-- Stage 5cb complete (all 3 QC rounds passed)
+- Part 5.3.2 complete (all 3 QC rounds passed)
 - Ready for final production readiness validation
 - Before cross-feature alignment
 
@@ -74,13 +78,13 @@ Final Review is complete when PR review finds zero critical issues, lessons lear
 
 2. ⚠️ IF PR REVIEW FINDS CRITICAL ISSUES → QC RESTART
    - Critical = correctness, security, breaking changes
-   - Must follow QC Restart Protocol from Stage 5cb
+   - Must follow QC Restart Protocol from Part 5.3.2
    - Minor issues can be documented and don't block
 
 3. ⚠️ LESSONS LEARNED MUST UPDATE GUIDES
    - If you discover guide gaps → update guides IMMEDIATELY
    - Don't just document the lesson → apply it to guides
-   - Update relevant guide files before completing Stage 5cc
+   - Update relevant guide files before completing Part 5.3.3
    - This is NOT optional
 
 4. ⚠️ 100% REQUIREMENT COMPLETION - ZERO TECH DEBT TOLERANCE
@@ -110,13 +114,13 @@ Final Review is complete when PR review finds zero critical issues, lessons lear
 
 **Verify these BEFORE starting Final Review:**
 
-**From Stage 5cb (QC Rounds):**
+**From Part 5.3.2 (QC Rounds):**
 - [ ] QC Round 1: PASSED (<3 critical, >80% requirements)
 - [ ] QC Round 2: PASSED (all Round 1 issues resolved, zero new critical)
 - [ ] QC Round 3: PASSED (ZERO issues found)
 - [ ] All re-reading checkpoints completed
 
-**From Stage 5ca (Smoke Testing):**
+**From Part 5.3.1 (Smoke Testing):**
 - [ ] All 3 smoke test parts passed
 - [ ] Part 3 verified OUTPUT DATA VALUES
 
@@ -551,7 +555,7 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 **Purpose:** Document what went well, what didn't, and UPDATE GUIDES IMMEDIATELY
 
-**CRITICAL:** Don't just document lessons - APPLY them to guides before completing Stage 5cc
+**CRITICAL:** Don't just document lessons - APPLY them to guides before completing Part 5.3.3
 
 ---
 
@@ -586,7 +590,7 @@ Issue: QC Round 2 found all output data was zeros
 Root cause: Smoke test Part 3 only checked "file exists", didn't verify data VALUES
 Guide gap: stages/stage_5/smoke_testing.md didn't emphasize DATA VALUES enough
 
-Action taken: Updated STAGE_5ca guide
+Action taken: Updated Part 5.3.1 guide
 - Added "CRITICAL - Verify OUTPUT DATA" to Part 3 heading
 - Added real-world example of zero data issue
 - Added explicit "Don't just check file exists" warning
@@ -676,7 +680,7 @@ Files updated:
 - [ ] **Production ready**: Would you ship this to production RIGHT NOW with no changes? (Must answer YES)
 
 **README Agent Status:**
-- [ ] Updated with completion of Stage 5cc
+- [ ] Updated with completion of Part 5.3.3
 - [ ] Next action set to "Stage 5d: Cross-Feature Alignment"
 
 **Git:**
@@ -697,7 +701,7 @@ Files updated:
 
 ## 🔄 Re-Reading Checkpoint
 
-**STOP - Before declaring Stage 5cc complete:**
+**STOP - Before declaring Part 5.3.3 complete:**
 
 1. **Re-read "Completion Criteria" section below**
 2. **Verify ALL criteria met (not just most)**
@@ -705,7 +709,7 @@ Files updated:
 4. **Update README Agent Status:**
    ```markdown
    Guide Last Re-Read: {timestamp}
-   Checkpoint: Stage 5cc complete, ready for Stage 5d
+   Checkpoint: Part 5.3.3 complete, ready for Stage 5d
    Current Phase: Cross-Feature Alignment (Stage 5d)
    Next Action: Read stages/stage_5/post_feature_alignment.md
    ```
@@ -714,20 +718,20 @@ Files updated:
 
 ## Completion Criteria
 
-**Stage 5cc (and entire Stage 5c) is complete when ALL of the following are true:**
+**Part 5.3.3 (and entire Stage 5c) is complete when ALL of the following are true:**
 
-### Smoke Testing (Stage 5ca)
+### Smoke Testing (Part 5.3.1)
 - [x] All 3 smoke test parts passed
 - [x] Part 3 verified OUTPUT DATA VALUES (not just "file exists")
 - [x] Feature executes end-to-end without crashes
 - [x] Output data is correct and reasonable
 
-### QC Rounds (Stage 5cb)
+### QC Rounds (Part 5.3.2)
 - [x] QC Round 1 passed (<3 critical issues, >80% requirements met)
 - [x] QC Round 2 passed (all Round 1 issues resolved, zero new critical issues)
 - [x] QC Round 3 passed (ZERO issues found in skeptical review)
 
-### PR Review (Stage 5cc)
+### PR Review (Part 5.3.3)
 - [x] All 11 categories reviewed
 - [x] Zero critical issues found
 - [x] Minor issues documented (if any exist)
@@ -748,7 +752,7 @@ Files updated:
 - [x] Commit messages descriptive
 
 ### README Agent Status
-- [x] Updated to reflect Stage 5cc completion
+- [x] Updated to reflect Part 5.3.3 completion
 - [x] Next action set to "Stage 5d: Cross-Feature Alignment"
 - [x] Guide Last Read timestamp current
 
@@ -771,7 +775,7 @@ Files updated:
 **❌ Mistake:**
 ```markdown
 ## Lessons Learned
-- STAGE_5ca guide should emphasize data values more
+- Part 5.3.1 guide should emphasize data values more
 
 {End of feature work - guide never updated}
 ```
@@ -840,7 +844,7 @@ Should use INFO level, not WARNING (this is expected behavior)
 **Developer's actions:**
 1. Fixed log level (WARNING → INFO)
 2. Added documentation about 17-week schedule
-3. **Updated STAGE_5cb guide:**
+3. **Updated Part 5.3.2 guide:**
    - Added "Log Quality Verification" example
    - Added "Expected vs Unexpected warnings" distinction
    - Added this real-world example to guide
@@ -892,7 +896,7 @@ Decision: Remove out-of-scope code or get user approval
 **Before transitioning to Stage 5d (Cross-Feature Alignment), verify:**
 
 ### Completion Verification
-- [ ] All Stage 5cc completion criteria met (see Completion Criteria section)
+- [ ] All Part 5.3.3 completion criteria met (see Completion Criteria section)
 - [ ] All smoke tests passed (3 parts)
 - [ ] All QC rounds passed (3 rounds)
 - [ ] PR review complete (11 categories)
@@ -910,7 +914,7 @@ Decision: Remove out-of-scope code or get user approval
 - [ ] Descriptive commit messages
 
 ### README Agent Status
-- [ ] Updated to reflect Stage 5cc completion
+- [ ] Updated to reflect Part 5.3.3 completion
 - [ ] Next action set to "Read stages/stage_5/post_feature_alignment.md"
 
 ### Final Check
@@ -932,7 +936,7 @@ Decision: Remove out-of-scope code or get user approval
 
 ## Summary
 
-**Stage 5cc validates production readiness through:**
+**Part 5.3.3 validates production readiness through:**
 1. **PR Review** - 11 categories ensure code quality, security, correctness
 2. **Lessons Learned** - Capture insights and apply improvements to guides
 3. **Final Verification** - Confirm 100% completion and readiness
@@ -949,7 +953,7 @@ Decision: Remove out-of-scope code or get user approval
 - Final verification passed (all boxes checked)
 - Feature is COMPLETE and production-ready
 
-**After Stage 5cc:** Proceed to Stage 5d (Cross-Feature Alignment) to ensure remaining feature specs align with actual implementation.
+**After Part 5.3.3:** Proceed to Stage 5d (Cross-Feature Alignment) to ensure remaining feature specs align with actual implementation.
 
 ---
 

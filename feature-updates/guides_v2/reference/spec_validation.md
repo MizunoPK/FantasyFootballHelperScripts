@@ -35,10 +35,10 @@ Spec Validation is complete when the spec is re-validated against epic from scra
 
 **Historical Evidence:** Feature 02 (Accuracy Sim) spec.md contained a fundamental error that survived:
 - Stage 2 (spec creation)
-- Stage 5a (24 verification iterations)
+- Stage 5a (28 verification iterations)
 - Stage 5b (implementation)
-- Stage 5ca-5cb (smoke testing and QC rounds)
-- **User caught it in Stage 5cc**
+- Part 5.3.1-Part 5.3.2 (smoke testing and QC rounds)
+- **User caught it in Part 5.3.3**
 
 **The Problem:** Once spec.md is written, all subsequent stages trust it as gospel truth and never question it against the original epic.
 

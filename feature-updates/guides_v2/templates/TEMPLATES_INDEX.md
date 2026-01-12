@@ -36,7 +36,7 @@
 
 | Template | Filename | Use When |
 |----------|----------|----------|
-| [Implementation Plan](#implementation-plan) | `implementation_plan_template.md` | Creating user-approved build guide through 24 iterations |
+| [Implementation Plan](#implementation-plan) | `implementation_plan_template.md` | Creating user-approved build guide through 28 iterations |
 
 ### Stage 5b: Implementation Execution
 
@@ -123,7 +123,7 @@
 
 #### Implementation Plan
 - **File:** `implementation_plan_template.md`
-- **Created:** Stage 5a (accumulated through 24 iterations)
+- **Created:** Stage 5a (accumulated through 28 iterations)
 - **Purpose:** User-approved build guide with tasks, tests, edge cases, matrices
 - **Size:** ~400 lines (grows from 150→300→400)
 - **When to use:** Throughout Stage 5a, user approves after iteration 24
@@ -228,7 +228,7 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 
 ### Implementing a Feature (Stage 5a-5b)
 
-1. ✅ Create **Implementation Plan** (Stage 5a - grows through 24 iterations)
+1. ✅ Create **Implementation Plan** (Stage 5a - grows through 28 iterations)
 2. ✅ Show Implementation Plan to user for approval
 3. ✅ Create **Implementation Checklist** from plan (Stage 5b start)
 4. ✅ Update checklist as tasks complete

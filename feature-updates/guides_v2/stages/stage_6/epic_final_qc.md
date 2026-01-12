@@ -2,12 +2,12 @@
 
 🚨 **IMPORTANT: This guide has been split into focused sub-stages**
 
-**This is a routing guide.** The complete Stage 6 workflow is now split across three focused guides:
+**This is a routing guide.** The complete Stage 6 workflow is now split across four focused guides:
 
-- **STAGE_6a**: Epic Smoke Testing (Steps 1-2)
-- **STAGE_6b**: Epic QC Rounds (Steps 3-5)
-- **STAGE_6c**: User Testing (Step 6)
-- **STAGE_6d**: Epic Final Review (Steps 7-9)
+- **Phase 6.1**: Epic Smoke Testing
+- **Phase 6.2**: Epic QC Rounds
+- **Phase 6.3**: User Testing
+- **Phase 6.4**: Epic Final Review
 
 **📖 Read the appropriate sub-stage guide based on your current step.**
 
@@ -17,18 +17,13 @@
 
 **Use this table to find the right guide:**
 
-| Current Step | Guide to Read | Time Estimate |
-|--------------|---------------|---------------|
-| Starting Stage 6 | stages/stage_6/epic_smoke_testing.md | 60-90 min |
-| Step 1: Pre-QC Verification | stages/stage_6/epic_smoke_testing.md | 15 min |
-| Step 2: Epic Smoke Testing | stages/stage_6/epic_smoke_testing.md | 45-75 min |
-| Step 3: QC Round 1 (Cross-Feature Integration) | stages/stage_6/epic_qc_rounds.md | 45-60 min |
-| Step 4: QC Round 2 (Epic Cohesion & Consistency) | stages/stage_6/epic_qc_rounds.md | 45-60 min |
-| Step 5: QC Round 3 (End-to-End Success Criteria) | stages/stage_6/epic_qc_rounds.md | 30-45 min |
-| Step 6: User Testing & Bug Fix Protocol | stages/stage_6/user_testing.md | Variable |
-| Step 7: Epic PR Review (11 Categories) | stages/stage_6/epic_final_review.md | 45-60 min |
-| Step 8: Validate Against Epic Request | stages/stage_6/epic_final_review.md | 30-45 min |
-| Step 9: Final Verification & README Update | stages/stage_6/epic_final_review.md | 15-30 min |
+| Current Phase | Guide to Read | Time Estimate |
+|---------------|---------------|---------------|
+| Starting Stage 6 | `stages/stage_6/phase_6.1_epic_smoke_testing.md` | 60-90 min |
+| Phase 6.1: Epic Smoke Testing | `stages/stage_6/phase_6.1_epic_smoke_testing.md` | 45-75 min |
+| Phase 6.2: QC Rounds | `stages/stage_6/phase_6.2_epic_qc_rounds.md` | 2-3 hours |
+| Phase 6.3: User Testing | `stages/stage_6/phase_6.3_user_testing.md` | Variable |
+| Phase 6.4: Epic Final Review | `stages/stage_6/phase_6.4_epic_final_review.md` | 1.5-2 hours |
 
 ---
 
@@ -45,9 +40,9 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ## Sub-Stage Breakdown
 
-### STAGE_6a: Epic Smoke Testing (Steps 1-2)
+### Phase 6.1: Epic Smoke Testing
 
-**Read:** `stages/stage_6/epic_smoke_testing.md`
+**Read:** `stages/stage_6/phase_6.1_epic_smoke_testing.md`
 
 **What it covers:**
 - **Step 1:** Pre-QC Verification (verify all features at Stage 5e, no pending bug fixes)
@@ -61,7 +56,7 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 **Time Estimate:** 60-90 minutes
 
-**When complete:** Transition to STAGE_6b
+**When complete:** Transition to Phase 6.2
 
 **Why this sub-stage exists:**
 - Focuses on functional validation before quality checks
@@ -70,9 +65,9 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ---
 
-### STAGE_6b: Epic QC Rounds (Steps 3-5)
+### Phase 6.2: Epic QC Rounds
 
-**Read:** `stages/stage_6/epic_qc_rounds.md`
+**Read:** `stages/stage_6/phase_6.2_epic_qc_rounds.md`
 
 **What it covers:**
 - **Step 3:** QC Round 1 - Cross-Feature Integration (integration points, data flow, interfaces, error propagation)
@@ -87,7 +82,7 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 **Time Estimate:** 2-3 hours (45-60 min per round)
 
-**When complete:** Transition to STAGE_6c (User Testing)
+**When complete:** Transition to Phase 6.3 (User Testing)
 
 **Why this sub-stage exists:**
 - Deep validation of epic quality (not just functionality)
@@ -97,9 +92,9 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ---
 
-### STAGE_6c: User Testing (Step 6)
+### Phase 6.3: User Testing
 
-**Read:** `stages/stage_6/user_testing.md`
+**Read:** `stages/stage_6/phase_6.3_user_testing.md`
 
 **What it covers:**
 - **Step 6:** User Testing & Bug Fix Protocol (user tests epic with real data and workflows)
@@ -113,7 +108,7 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 **Time Estimate:** Variable (depends on user availability and bug count)
 
-**When complete:** Transition to STAGE_6d (Epic Final Review)
+**When complete:** Transition to Phase 6.4 (Epic Final Review)
 
 **Why this sub-stage exists:**
 - User testing catches issues automated testing misses
@@ -123,9 +118,9 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ---
 
-### STAGE_6d: Epic Final Review (Steps 7-9)
+### Phase 6.4: Epic Final Review
 
-**Read:** `stages/stage_6/epic_final_review.md`
+**Read:** `stages/stage_6/phase_6.4_epic_final_review.md`
 
 **What it covers:**
 - **Step 7:** Epic PR Review (11 Categories - Epic Scope)

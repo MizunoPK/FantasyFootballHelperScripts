@@ -341,7 +341,7 @@ When planning complete:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 
 **Current Phase:** IMPLEMENTATION_EXECUTION (Resumed)
-**Current Guide:** stages/stage_5/implementation_execution.md
+**Current Guide:** stages/stage_5/phase_5.2_implementation_execution.md
 
 **Resumed After:** Missed requirement planning complete
 - feature_05_injury_tracking spec created and aligned

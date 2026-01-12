@@ -1,13 +1,17 @@
-# STAGE 5ca: Smoke Testing Guide (Post-Implementation - Part 1)
+# Stage 5: Feature Implementation
+## Phase 5.3: Post-Implementation
+### Part 5.3.1: Smoke Testing
+
+**File:** `part_5.3.1_smoke_testing.md`
 
 **Purpose:** Verify the feature actually runs and produces correct output through mandatory 3-part smoke testing.
 
 **Stage Flow Context:**
 ```
-Stage 5a (Implementation Planning) → Stage 5b (Implementation) →
-→ [YOU ARE HERE: Stage 5ca - Smoke Testing] →
-→ Stage 5cb (QC Rounds) → Stage 5cc (Final Review) →
-→ Stage 5d (Cross-Feature Alignment)
+Phase 5.1 (Implementation Planning) → Phase 5.2 (Implementation) →
+→ [YOU ARE HERE: Part 5.3.1 - Smoke Testing] →
+→ Part 5.3.2 (QC Rounds) → Part 5.3.3 (Final Review) →
+→ Phase 5.4 (Cross-Feature Alignment)
 ```
 
 ---
@@ -56,7 +60,7 @@ Feature-level smoke testing validates that your individual feature works end-to-
 - ✅ Part 2 PASSED: Entry Point Test (script starts correctly)
 - ✅ Part 3 PASSED: E2E Execution Test (feature runs end-to-end, data values verified)
 - ✅ Data values inspected (not zeros, nulls, or placeholders)
-- ✅ Ready for Stage 5cb (QC Rounds)
+- ✅ Ready for Part 5.3.2 (QC Rounds)
 
 **Time Estimate:**
 15-30 minutes
@@ -70,7 +74,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 
 **📖 See `reference/smoke_testing_pattern.md` for universal critical rules.**
 
-**Feature-specific rules for Stage 5ca:**
+**Feature-specific rules for Part 5.3.1:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -84,7 +88,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 
 2. ⚠️ If smoke testing fails → Fix issues, restart from Part 1
    - After fixing → Re-run ALL 3 parts
-   - Do NOT proceed to QC Rounds (Stage 5cb) until all parts pass
+   - Do NOT proceed to QC Rounds (Part 5.3.2) until all parts pass
 
 3. ⚠️ Document results in feature README
    - Update feature README.md Agent Status
@@ -133,7 +137,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 
 **📖 See `reference/smoke_testing_pattern.md` for universal workflow details.**
 
-**Feature-specific workflow for Stage 5ca:**
+**Feature-specific workflow for Part 5.3.1:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -159,7 +163,7 @@ Part 3: E2E Execution Test (CRITICAL)
    ↓ Verify feature output DATA VALUES correct
    ↓ Check each output category (if multiple)
    ↓
-   If PASS → Document, proceed to Stage 5cb
+   If PASS → Document, proceed to Part 5.3.2
    If FAIL → Fix, RE-RUN ALL 3 PARTS
 ```
 
@@ -536,7 +540,7 @@ tail -100 logs/application.log | grep -i "feature"
 2. Identify root cause
 3. Fix ALL issues found
 4. RE-RUN ALL 3 PARTS (not just failed part)
-5. Do NOT proceed to Stage 5cb until all parts pass
+5. Do NOT proceed to Part 5.3.2 until all parts pass
 
 ---
 
@@ -607,7 +611,7 @@ for p in raw_data:
 **If ALL 3 parts PASSED:**
 - ✅ Document smoke test results in feature README
 - ✅ Update Agent Status: "Smoke Testing COMPLETE"
-- ✅ Proceed to **Stage 5cb: QC Rounds**
+- ✅ Proceed to **Part 5.3.2: QC Rounds**
 
 **If ANY part FAILED:**
 - ❌ Fix ALL issues identified
@@ -626,7 +630,7 @@ for p in raw_data:
 **Key Differences from Epic-Level:**
 - Tests feature in ISOLATION (not with other features)
 - 3 parts only (no Part 4 cross-feature integration)
-- Next stage: QC Rounds for THIS feature (Stage 5cb)
+- Next stage: QC Rounds for THIS feature (Part 5.3.2)
 
 **Critical Success Factors:**
 - Use REAL data (not test fixtures)
@@ -639,4 +643,4 @@ for p in raw_data:
 
 ---
 
-**END OF STAGE 5ca GUIDE**
+**END OF STAGE Part 5.3.1 GUIDE**

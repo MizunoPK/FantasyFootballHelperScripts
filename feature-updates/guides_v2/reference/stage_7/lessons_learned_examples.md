@@ -2,7 +2,7 @@
 
 **Purpose:** Examples and guidance for reading and applying lessons learned
 **When to use:** Stage 7.5 (Guide Update from Lessons Learned)
-**Main Guide:** `stages/stage_7/guide_update_workflow.md`
+**Main Guide:** `stages/stage_7/phase_7.1_guide_update_workflow.md`
 
 ---
 
@@ -81,7 +81,7 @@ Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learn
 ## Stage 5a Lessons Learned
 
 **What Went Well:**
-- 24 verification iterations caught interface mismatches before implementation
+- 28 verification iterations caught interface mismatches before implementation
 - Iteration 4a audit revealed ambiguous spec sections
 - Iteration 23a spec audit prevented wrong implementation approach
 
@@ -89,7 +89,7 @@ Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learn
 - Round 2 test coverage iterations could include integration test examples
 
 **Guide Improvements Needed:**
-- stages/stage_5/round1_todo_creation.md: Add example for nested algorithm traceability
+- stages/stage_5/part_5.1.1_round1.md: Add example for nested algorithm traceability
 - Section: "Iteration 4: Algorithm Traceability Matrix"
 - Update: Add example showing how to trace nested algorithms (algorithm calling other algorithms)
 
@@ -179,7 +179,7 @@ Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learn
 - Should have added integration test during implementation
 
 **Guide Improvements Needed:**
-- stages/stage_5/implementation_execution.md: Add checkpoint for integration tests
+- stages/stage_5/phase_5.2_implementation_execution.md: Add checkpoint for integration tests
 - Section: "Phase 3: Implementation Verification"
 - Update: "After unit tests pass, create at least 1 integration test for cross-module workflows"
 
@@ -240,7 +240,7 @@ Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learn
 ## Stage 5a: TODO Creation
 
 **What Went Well:**
-- 24 iterations ensured fix didn't introduce new bugs
+- 28 iterations ensured fix didn't introduce new bugs
 - Test coverage included edge cases (zero denominator)
 
 **What Could Be Improved:**
@@ -317,7 +317,7 @@ For EACH file found, read it completely and extract "Guide Improvements Needed" 
    - Update: Add step for CSV format verification
 
 3. Stage 5a Lesson: Add nested algorithm traceability example
-   - Guide: stages/stage_5/round1_todo_creation.md
+   - Guide: stages/stage_5/part_5.1.1_round1.md
    - Section: Iteration 4: Algorithm Traceability Matrix
    - Update: Show example of tracing nested algorithms
 
@@ -348,7 +348,7 @@ Combine ALL lessons from ALL files:
   - Update: Add CSV format check step
 
 □ Lesson 3: Nested algorithm example in Stage 5a
-  - Guide: stages/stage_5/round1_todo_creation.md
+  - Guide: stages/stage_5/part_5.1.1_round1.md
   - Section: Iteration 4
   - Update: Add nested algorithm traceability example
 
@@ -359,7 +359,7 @@ Combine ALL lessons from ALL files:
   - Update: Add CSV documentation requirement
 
 □ Lesson 5: Integration test checkpoint
-  - Guide: stages/stage_5/implementation_execution.md
+  - Guide: stages/stage_5/phase_5.2_implementation_execution.md
   - Section: Phase 3
   - Update: Add integration test checkpoint
 
@@ -380,7 +380,7 @@ For each lesson in master checklist:
 
 1. **Read current guide:**
    ```bash
-   Read feature-updates/guides_v2/stages/stage_5/round1_todo_creation.md
+   Read feature-updates/guides_v2/stages/stage_5/part_5.1.1_round1.md
    ```
 
 2. **Locate section:**

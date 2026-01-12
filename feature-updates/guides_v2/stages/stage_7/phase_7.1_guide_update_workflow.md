@@ -1,4 +1,9 @@
-# STAGE 7.5: Guide Update from Lessons Learned
+# Stage 7: Epic Cleanup
+## Phase 7.1: Guide Update from Lessons Learned
+
+**File:** `phase_7.1_guide_update_workflow.md`
+
+---
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -19,8 +24,8 @@
 
 ## Quick Start
 
-**What is this stage?**
-Stage 7.5 is the mandatory guide improvement workflow where you analyze lessons learned from the epic and propose specific guide updates to help future agents, with user approval for each change individually.
+**What is this phase?**
+Phase 7.1 is the mandatory guide improvement workflow where you analyze lessons learned from the epic and propose specific guide updates to help future agents, with user approval for each change individually.
 
 **When do you use this guide?**
 - Stage 7 user testing passed (Gate 7.2 - zero bugs found)
