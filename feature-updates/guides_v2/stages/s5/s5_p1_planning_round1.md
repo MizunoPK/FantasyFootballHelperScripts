@@ -2,7 +2,7 @@
 ## S5.P1: Implementation Planning
 ### S5.P1: Planning Round 1 (Iterations 1-7 + Gates 4a, 7a)
 
-**File:** `part_5.1.1_round1.md`
+**File:** `s5_p1_planning_round1.md`
 
 🚨 **MANDATORY READING PROTOCOL**
 

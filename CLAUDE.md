@@ -294,7 +294,7 @@ The workflow uses two types of gates:
 **Type 1: Stage-Level Gates** (whole numbers or decimals)
 - Named after the stage they occur in or between
 - Most require user approval
-- Examples: Gate 3 (Stage 2), Gate 4.5 (Stage 4), Gate 5 (Stage 5a)
+- Examples: Gate 3 (S2), Gate 4.5 (S4), Gate 5 (S5)
 
 **Type 2: Iteration-Level Gates** (iteration numbers)
 - Named after the iteration they occur in
@@ -330,9 +330,9 @@ feature_XX_{name}/
 ├── spec.md                        (Requirements specification - user-approved S2)
 ├── checklist.md                   (QUESTIONS ONLY - user answers ALL before S5.P1)
 ├── implementation_plan.md         (Implementation build guide ~400 lines - user-approved S5.P1)
-├── implementation_checklist.md    (Progress tracker ~50 lines - created S5.P4)
-├── code_changes.md                (Actual changes - updated S5.P4)
-├── lessons_learned.md             (Retrospective - created S5.P7)
+├── implementation_checklist.md    (Progress tracker ~50 lines - created S6)
+├── code_changes.md                (Actual changes - updated S6)
+├── lessons_learned.md             (Retrospective - created S7.P3)
 └── debugging/                     (Created if issues found during testing)
     ├── ISSUES_CHECKLIST.md
     ├── issue_XX_{name}.md
@@ -342,9 +342,9 @@ feature_XX_{name}/
 **File Roles:**
 - `spec.md` = WHAT to build (requirements) - user-approved S2
 - `checklist.md` = QUESTIONS to answer (user input) - user-approved S2 (Gate 3)
-- `implementation_plan.md` = HOW to build (implementation guide) - user-approved S5.P1 (Gate 5)
-- `implementation_checklist.md` = PROGRESS tracker (real-time updates) - created S5.P4
-- `code_changes.md` = ACTUAL changes (what was done) - updated S5.P4
+- `implementation_plan.md` = HOW to build (implementation guide) - user-approved S5 (Gate 5)
+- `implementation_checklist.md` = PROGRESS tracker (real-time updates) - created S6
+- `code_changes.md` = ACTUAL changes (what was done) - updated S6
 
 ---
 

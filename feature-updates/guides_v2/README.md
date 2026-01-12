@@ -18,7 +18,7 @@
 
 ## What is the v2 Workflow?
 
-The v2 workflow is a **7-stage epic-driven development process** designed to:
+The v2 workflow is a **10-stage epic-driven development process** designed to:
 - Break large projects into manageable epics
 - Ensure thorough planning before coding
 - Maintain alignment across multiple features
@@ -109,18 +109,18 @@ STAGE 7: Epic Cleanup
 | Round 3 preparation phase | `stages/s5/s5_p3_planning_round3.md` | Iterations 17-22: Phasing, rollback, algorithm (final), performance, mock audit |
 | Round 3 gates phase (Part 2a) | `stages/s5/5.1.3.2_round3_part2a.md` | Iterations 23, 23a: Integration Gap + Pre-Impl Spec Audit |
 | Round 3 gates phase (Part 2b) | `stages/s5/5.1.3.3_round3_part2b.md` | Iterations 25, 24: Spec Validation + GO/NO-GO |
-| Implementation planning complete (28 iterations) | `stages/s9/s6_execution.md` | Implement feature with continuous verification |
-| Implementation done (Smoke Testing) | `stages/s10/s7_p1_smoke_testing.md` | Part 1: Import, Part 2: Entry Point, Part 3: E2E (verify DATA VALUES) |
-| Smoke testing passed (QC Rounds) | `stages/s10/s7_p2_qc_rounds.md` | Round 1: Basic validation, Round 2: Deep verification, Round 3: Final review |
-| QC rounds passed (Final Review) | `stages/s10/s7_p3_final_review.md` | PR review (11 categories), lessons learned, final verification |
+| Implementation planning complete (28 iterations) | `stages/s6/s6_execution.md` | Implement feature with continuous verification |
+| Implementation done (Smoke Testing) | `stages/s7/s7_p1_smoke_testing.md` | Part 1: Import, Part 2: Entry Point, Part 3: E2E (verify DATA VALUES) |
+| Smoke testing passed (QC Rounds) | `stages/s7/s7_p2_qc_rounds.md` | Round 1: Basic validation, Round 2: Deep verification, Round 3: Final review |
+| QC rounds passed (Final Review) | `stages/s7/s7_p3_final_review.md` | PR review (11 categories), lessons learned, final verification |
 | QC passed | `stages/s8/s8_p1_cross_feature_alignment.md` | Update remaining feature specs based on actual code |
 | Alignment updated | `stages/s8/s8_p2_epic_testing_update.md` | Update epic test plan based on implementation |
-| All features done (Router) | `stages/s9/s6_epic_final_qc.md` | Router: Links to epic smoke/qc/review sub-stages |
-| All features done (Smoke) | `stages/s9/s6_p1_epic_smoke_testing.md` | Validate entire epic end-to-end (start with smoke testing) |
-| Epic smoke passed (QC) | `stages/s9/s6_p2_epic_qc_rounds.md` | 3 rounds of epic-level QC |
-| Epic QC passed (Final Review) | `stages/s9/s6_p4_epic_final_review.md` | Final epic validation before cleanup |
-| Epic review passed | `stages/s10/s7_epic_cleanup.md` | User testing, finalize, commit, archive |
-| Documentation verified (Stage 10 STEP 3) | `stages/s10/s7_p1_guide_update_workflow.md` | Apply lessons learned to guides (P0-P3 prioritization) |
+| All features done (Router) | `stages/s9/s9_epic_final_qc.md` | Router: Links to epic smoke/qc/review sub-stages |
+| All features done (Smoke) | `stages/s9/s9_p1_epic_smoke_testing.md` | Validate entire epic end-to-end (start with smoke testing) |
+| Epic smoke passed (QC) | `stages/s9/s9_p2_epic_qc_rounds.md` | 3 rounds of epic-level QC |
+| Epic QC passed (Final Review) | `stages/s9/s9_p4_epic_final_review.md` | Final epic validation before cleanup |
+| Epic review passed | `stages/s10/s10_epic_cleanup.md` | User testing, finalize, commit, archive |
+| Documentation verified (S10 Step 3) | `stages/s10/s10_p1_guide_update_workflow.md` | Apply lessons learned to guides (P0-P3 prioritization) |
 | Guide updates applied | `templates/guide_update_proposal_template.md` | Template for presenting guide changes to user |
 | Missed requirement (known solution) | `missed_requirement/missed_requirement_protocol.md` | Handle missing features during epic development |
 | Issues during QC/Smoke testing | `debugging/debugging_protocol.md` | Integrated debugging protocol with loop-back to testing |
@@ -827,7 +827,7 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 ## Summary
 
 **The v2 workflow provides:**
-- Clear 7-stage process for epic development
+- Clear 10-stage process for epic development
 - Mandatory reading and prompts to prevent guide abandonment
 - Explicit status tracking for resumability
 - Continuous alignment as implementation reveals reality
