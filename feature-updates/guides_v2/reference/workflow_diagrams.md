@@ -152,9 +152,9 @@ Prerequisites: Stage 4 complete (Gate 4.5 passed), feature spec ready
          ↓
 ┌─────────────────────────────────────────────┐
 │ Stage 5c: Post-Implementation               │
-│ - Phase 1: Smoke Testing (3 parts)         │
-│ - Phase 2: QC Rounds (3 rounds)             │
-│ - Phase 3: Final Review (PR + Lessons)      │
+│ - Step 1: Smoke Testing (3 parts)         │
+│ - Step 2: QC Rounds (3 rounds)             │
+│ - Step 3: Final Review (PR + Lessons)      │
 │ Time: 45-90 minutes                         │
 └─────────────────────────────────────────────┘
          ↓
@@ -384,7 +384,7 @@ Epic-Level Final QC - Testing Entire Epic
 Entry: ALL features complete (Stage 5c passed for all)
          ↓
 ┌─────────────────────────────────────────────┐
-│ Phase 6.1: Epic Smoke Testing                │
+│ S6.P1: Epic Smoke Testing                │
 │                                             │
 │ Part 1: Import Test (all features)          │
 │ Part 2: Entry Point Test (cross-feature)    │
@@ -397,11 +397,11 @@ Entry: ALL features complete (Stage 5c passed for all)
 └─────────────────────────────────────────────┘
          ↓
     [Epic smoke testing PASSED?]
-    ├─ NO → Debugging → RESTART Phase 6.1
+    ├─ NO → Debugging → RESTART S6.P1
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
-│ Phase 6.2: Epic QC Rounds                    │
+│ S6.P2: Epic QC Rounds                    │
 │                                             │
 │ Round 1: Epic Algorithm Verification        │
 │   - Epic requirements vs implementation     │
@@ -419,11 +419,11 @@ Entry: ALL features complete (Stage 5c passed for all)
 └─────────────────────────────────────────────┘
          ↓
     [All 3 epic QC rounds PASSED?]
-    ├─ NO → Debugging → RESTART Phase 6.1
+    ├─ NO → Debugging → RESTART S6.P1
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
-│ Phase 6.3: Epic Final Review                 │
+│ S6.P3: Epic Final Review                 │
 │                                             │
 │ Epic PR Review:                             │
 │   - Review all feature changes together     │
@@ -441,7 +441,7 @@ Entry: ALL features complete (Stage 5c passed for all)
 └─────────────────────────────────────────────┘
          ↓
     [Epic final review PASSED?]
-    ├─ NO → Debugging → RESTART Phase 6.1
+    ├─ NO → Debugging → RESTART S6.P1
     └─ YES → Stage 7 (Epic Cleanup)
 ```
 
@@ -513,8 +513,8 @@ Issues discovered during Testing (Stage 5c or 6)
     └─ YES → LOOP BACK to testing stage
          ↓
     [Feature debugging?]
-    ├─ YES → RESTART Part 5.3.1 (Smoke Testing)
-    └─ NO → RESTART Phase 6.1 (Epic Smoke Testing)
+    ├─ YES → RESTART S5.P5 (Smoke Testing)
+    └─ NO → RESTART S6.P1 (Epic Smoke Testing)
          ↓
     [Testing passes with ZERO new issues?]
     ├─ NO → New issues found → PHASE 1 (restart debugging)
@@ -577,8 +577,8 @@ QC/Smoke finds missing requirement (solution known)
 │ - Update code_changes.md                    │
 └─────────────────────────────────────────────┘
          ↓
-         │ RESTART Part 5.3.1 (Smoke Testing)
-         │ or RESTART Phase 6.1 (Epic Smoke Testing)
+         │ RESTART S5.P5 (Smoke Testing)
+         │ or RESTART S6.P1 (Epic Smoke Testing)
          ↓
 ┌─────────────────────────────────────────────┐
 │ STEP 3b: Major Addition (>3 tasks)          │
@@ -668,7 +668,7 @@ When to Restart - Complete Decision Matrix
 │ Action:                                                │
 │   1. Enter Debugging Protocol                          │
 │   2. Resolve ALL issues in checklist                   │
-│   3. RESTART from Part 5.3.1 Part 1 (Import Test)       │
+│   3. RESTART from S5.P5 Step 1 (Import Test)       │
 │   4. Re-run ALL 3 parts of smoke testing               │
 │   5. Only proceed to QC rounds if smoke passes         │
 └────────────────────────────────────────────────────────┘
@@ -684,7 +684,7 @@ When to Restart - Complete Decision Matrix
 │ Action:                                                │
 │   1. Enter Debugging Protocol                          │
 │   2. Resolve ALL issues                                │
-│   3. RESTART from Part 5.3.1 Part 1 (NOT from QC Round 1)│
+│   3. RESTART from S5.P5 Step 1 (NOT from QC Round 1)│
 │   4. Complete smoke testing → QC rounds again          │
 │   5. Zero tolerance for deferring issues               │
 └────────────────────────────────────────────────────────┘
@@ -701,7 +701,7 @@ When to Restart - Complete Decision Matrix
 │   1. Add to epic-level debugging/ISSUES_CHECKLIST.md   │
 │   2. Enter Debugging Protocol                          │
 │   3. Resolve ALL issues                                │
-│   4. RESTART from Phase 6.1 Part 1 (Epic Import Test)   │
+│   4. RESTART from S6.P1 Part 1 (Epic Import Test)   │
 │   5. Re-run entire Stage 6 (6a → 6b → 6c)              │
 └────────────────────────────────────────────────────────┘
 
@@ -714,7 +714,7 @@ When to Restart - Complete Decision Matrix
 │   1. Document bugs in epic-level ISSUES_CHECKLIST.md   │
 │   2. Enter Debugging Protocol                          │
 │   3. Resolve ALL issues with user confirmation         │
-│   4. RESTART from Phase 6.1 (not Stage 7)               │
+│   4. RESTART from S6.P1 (not Stage 7)               │
 │   5. Complete full Stage 6 validation again            │
 │   6. Return to Stage 7 user testing                    │
 │   7. ZERO bugs required to proceed                     │
@@ -775,7 +775,7 @@ When to Restart - Complete Decision Matrix
 - Iteration 23a: Pre-Implementation Spec Audit - 4 PARTS (Stage 5a Round 3)
 - Iteration 25: Spec Validation Against Validated Documents (Stage 5a Round 3)
 - Iteration 24: Implementation Readiness Protocol - GO/NO-GO (Stage 5a Round 3)
-- Smoke Testing Part 3: E2E Execution Test (Stage 5c, Phase 6.1)
+- Smoke Testing Part 3: E2E Execution Test (Stage 5c, S6.P1)
 - User Testing: Zero bugs required (Stage 7)
 
 **Key Principles:**

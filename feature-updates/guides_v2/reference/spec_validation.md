@@ -4,7 +4,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Spec Validation is a critical gate where you re-validate spec.md against the original epic by assuming the spec is completely wrong and verifying everything from scratch to catch fundamental misunderstandings before implementation.
 
 **When do you use this guide?**
@@ -37,8 +37,8 @@ Spec Validation is complete when the spec is re-validated against epic from scra
 - Stage 2 (spec creation)
 - Stage 5a (28 verification iterations)
 - Stage 5b (implementation)
-- Part 5.3.1-Part 5.3.2 (smoke testing and QC rounds)
-- **User caught it in Part 5.3.3**
+- S5.P5-S5.P6 (smoke testing and QC rounds)
+- **User caught it in S5.P7**
 
 **The Problem:** Once spec.md is written, all subsequent stages trust it as gospel truth and never question it against the original epic.
 

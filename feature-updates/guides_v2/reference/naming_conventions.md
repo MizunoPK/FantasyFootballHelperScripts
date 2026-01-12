@@ -111,7 +111,7 @@ The Epic-Driven Development Workflow v2 uses a **3-level hierarchical S#.P#.I# n
 - **Why:** Clear visual separation between notation and description
 
 **Rule 6: Special case - Phase number variants**
-- For Phase 2.2.5 style numbering: `s2_p2_5_spec_validation.md`
+- For S2.P2.5 style numbering: `s2_p2_5_spec_validation.md`
 - ✅ Correct: `s2_p2_5_spec_validation.md`
 - ❌ Wrong: `s2_p2.5_spec_validation.md` (dot in filename)
 
@@ -307,7 +307,7 @@ See `stages/s5/s5_p4_execution.md` for execution details.
 
 **Rule 1: Use S#.P#.I# notation consistently**
 - ✅ Correct: `S5.P1`, `S5.P1.I2`
-- ❌ Wrong: `Stage 5 Phase 1`, `Phase 5.1`, `5.1` (without prefix)
+- ❌ Wrong: `Stage 5 Phase 1`, `S5.P1`, `5.1` (without prefix)
 
 **Rule 2: File paths are relative to guides_v2/ directory**
 - ✅ Correct: `stages/s5/s5_p1_planning_round1.md`
@@ -338,7 +338,7 @@ See `stages/s5/s5_p4_execution.md` for execution details.
 
 **Rule 1: Reserve Stage/Phase/Iteration for S#.P#.I# notation ONLY**
 - ✅ Correct: "Complete S5.P1 (Planning Round 1)"
-- ❌ Wrong: "At this stage of the process" (use "at this point")
+- ❌ Wrong: "At this point in the process" (use "at this point")
 - ❌ Wrong: "Phase the work carefully" (use "sequence" or "organize")
 
 **Rule 2: Use alternative terms for casual usage**
@@ -375,7 +375,7 @@ See `stages/s5/s5_p4_execution.md` for execution details.
 
 ## Overview
 
-S1 is the initial planning phase where you:
+S1 is the initial planning section where you:
 1. Assign KAI number from EPIC_TRACKER.md
 2. Analyze epic request and propose feature breakdown
 ...
@@ -446,7 +446,7 @@ After completing S5.P1, proceed to S5.P2.
 See `stages/s5/s5_p1_planning_round1.md` for details.
 ```
 
-**Why:** Old notation (Stage 5a, Phase 5.1) is deprecated.
+**Why:** Old notation (Stage 5a, S5.P1) is deprecated.
 
 ---
 
@@ -507,8 +507,8 @@ See `stages/s5/s5_p1_planning_round1.md`
 
 **Wrong:**
 ```markdown
-"At this stage of the process, we phase the work..."
-"The iterative approach means..."
+"At this point in the process, we organize the work..."
+"The repeated approach means..."
 ```
 
 **Correct:**

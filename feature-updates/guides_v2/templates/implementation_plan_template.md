@@ -192,11 +192,11 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 ## Implementation Phasing
 *Added during iterations 17-18*
 
-**Phase 1: {Phase Name} (Tasks {X-Y})**
+**Step 1: {Phase Name} (Tasks {X-Y})**
 - Duration: ~{time estimate}
 - Rollback: {How to rollback}
 
-**Phase 2: {Phase Name} (Tasks {X-Y})**
+**Step 2: {Phase Name} (Tasks {X-Y})**
 - Duration: ~{time estimate}
 - Rollback: {How to rollback}
 

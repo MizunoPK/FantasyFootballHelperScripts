@@ -57,10 +57,10 @@
 | Stage | Gate | Location | Pass Criteria | Restart if Fail? |
 |-------|------|----------|---------------|------------------|
 | 1 | None | - | User confirmation recommended | No |
-| 2a | Gate 1: Research Audit | Phase 2.1 | All 4 categories with evidence | Yes (Redo research) |
-| 2b | Gate 2: Spec Alignment | Phase 2.2 | Zero scope creep + zero missing | Yes (Revise spec) |
-| **3** | **Gate 3: Checklist Approval (NEW)** | **Phase 2.2** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
-| 4 | Gate 4: User Approval | Phase 2.3 | User explicitly approves | Yes (Revise criteria) |
+| 2a | Gate 1: Research Audit | S2.P1 | All 4 categories with evidence | Yes (Redo research) |
+| 2b | Gate 2: Spec Alignment | S2.P2 | Zero scope creep + zero missing | Yes (Revise spec) |
+| **3** | **Gate 3: Checklist Approval (NEW)** | **S2.P2** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
+| 4 | Gate 4: User Approval | S2.P3 | User explicitly approves | Yes (Revise criteria) |
 | 4.5 | User Sign-Off | Stage 3 | User approves complete plan | Yes (Stage 3) |
 | **5** | **Gate 5: Epic Test Plan Approval (NEW)** | **After Stage 4** | **User approves epic_smoke_test_plan.md** | **Yes (Revise test plan)** |
 | 5aa | Iteration 4a | Round 1 | All tasks have acceptance criteria | Yes (Iteration 4) |
@@ -68,8 +68,8 @@
 | 5ac | Iteration 25 | Part 2 | Spec matches validated docs | Yes (User decides) |
 | 5ac | Iteration 24 | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
 | 5a-5b | User Approval | After 5a | User approves implementation_plan.md | Yes (Revise plan) |
-| Part 5.3.1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
-| Part 5.3.2 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
+| S5.P5 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
+| S5.P6 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
 | 7 | Unit Tests | Cleanup | 100% test pass (exit code 0) | Yes (Fix tests) |
 | 7 | User Testing | Cleanup | ZERO bugs found by user | Yes (Stage 6) |
 
@@ -151,7 +151,7 @@
 
 ### Gate 3: User Checklist Approval (🚨 NEW MANDATORY GATE)
 
-**Location:** stages/s2/s2_p2_specification.md (Phase 2.2)
+**Location:** stages/s2/s2_p2_specification.md (S2.P2)
 **When:** After Gate 2 (Spec-to-Epic Alignment Check) passes
 
 **What it checks:**
@@ -193,7 +193,7 @@
 
 ### Gate 4: User Approval (Acceptance Criteria)
 
-**Location:** stages/s2/s2_p3_refinement.md (Phase 2.3)
+**Location:** stages/s2/s2_p3_refinement.md (S2.P3)
 **When:** After creating acceptance criteria
 
 **What it checks:**
@@ -498,14 +498,14 @@
 ### No Mandatory Gates
 
 **Requirements:**
-- 100% unit test pass after every phase (not a formal gate, but required)
+- 100% unit test pass after each step (not a formal gate, but required)
 - Mini-QC checkpoints every 5-7 tasks
 
 ---
 
 ## Stage 5c: Post-Implementation (2 gates per feature)
 
-### Gate 5: Part 5.3.1 Part 3 - E2E Smoke Test (Data Validation)
+### Gate 5: S5.P5 Part 3 - E2E Smoke Test (Data Validation)
 
 **Location:** stages/s5/s5_p5_smoke_testing.md
 **When:** After Part 1 (Import) and Part 2 (Entry Point) tests pass
@@ -526,14 +526,14 @@
 
 **If FAIL:**
 - Fix issues
-- **Restart from Part 5.3.1 Part 1** (Import Test)
+- **Restart from S5.P5 Step 1** (Import Test)
 - Must re-run all 3 parts
 
 **Why it matters:** Ensures feature actually works end-to-end with real data before QC rounds
 
 ---
 
-### Gate 6: Part 5.3.2 QC Round 3 - ZERO Issues Required
+### Gate 6: S5.P6 QC Round 3 - ZERO Issues Required
 
 **Location:** stages/s5/s5_p6_qc_rounds.md
 **When:** After QC Rounds 1 and 2 pass
@@ -549,7 +549,7 @@
 
 **If FAIL (ANY issues found in Round 3):**
 - Fix ALL issues
-- **Restart from Part 5.3.1 Part 1** (smoke testing)
+- **Restart from S5.P5 Step 1** (smoke testing)
 - Re-run smoke testing → QC Round 1 → QC Round 2 → QC Round 3
 - ZERO tolerance for issues
 

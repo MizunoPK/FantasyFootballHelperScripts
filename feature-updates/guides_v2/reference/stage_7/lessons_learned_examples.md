@@ -1,14 +1,14 @@
-# Lessons Learned Examples - Stage 7.5
+# Lessons Learned Examples - S7.P1
 
 **Purpose:** Examples and guidance for reading and applying lessons learned
-**When to use:** Stage 7.5 (Guide Update from Lessons Learned)
+**When to use:** S7.P1 (Guide Update from Lessons Learned)
 **Main Guide:** `stages/s7/s7_p1_guide_update_workflow.md`
 
 ---
 
 ## Overview
 
-Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learned files and creating user-approved guide update proposals. This reference provides:
+S7.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned files and creating user-approved guide update proposals. This reference provides:
 - Examples of what lessons learned files look like
 - How to extract guide improvements from lessons
 - How lessons map to priority levels (P0-P3)
@@ -165,7 +165,7 @@ Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learn
 - None - Stage 5a worked well
 
 **Guide Improvements Needed:**
-- None from this stage
+- None from this section
 
 ---
 
@@ -195,7 +195,7 @@ Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learn
 - None - Stage 5c worked well
 
 **Guide Improvements Needed:**
-- None from this stage
+- None from this section
 
 ---
 ```
@@ -247,7 +247,7 @@ Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learn
 - None - Stage 5a worked well for bug fix
 
 **Guide Improvements Needed:**
-- None from this stage
+- None from this section
 
 ---
 
@@ -261,7 +261,7 @@ Stage 7.5 (Guide Update from Lessons Learned) requires finding ALL lessons learn
 - None - Stage 5c worked well
 
 **Guide Improvements Needed:**
-- None from this stage
+- None from this section
 
 ---
 ```

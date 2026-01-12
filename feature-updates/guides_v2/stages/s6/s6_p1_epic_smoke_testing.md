@@ -45,7 +45,7 @@ S5 (ALL features complete) →
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Epic-level smoke testing validates that ALL features work together as a cohesive system. Unlike feature-level testing (S5c), this tests cross-feature integration and epic-wide workflows. See `reference/smoke_testing_pattern.md` for universal patterns.
 
 **When do you use this guide?**

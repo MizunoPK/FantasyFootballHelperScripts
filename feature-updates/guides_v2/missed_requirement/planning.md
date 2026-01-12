@@ -111,7 +111,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 
 **Follow complete Stage 2 process:**
 
-**Phase 2.1: Research & Epic Intent**
+**S2.P1: Research & Epic Intent**
 - Review epic intent for this missed requirement
 - Research technical approaches if needed
 - Audit similar features (in this epic or other projects)
@@ -125,7 +125,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
   - Success criteria
   - Traceability matrix (epic intent → requirements)
 
-**Phase 2.3: Questions, Scope, Alignment, Approval**
+**S2.P3: Questions, Scope, Alignment, Approval**
 - Ask clarifying questions (one at a time)
 - Validate scope completeness
 - Check alignment with other features
@@ -427,14 +427,14 @@ cat feature_{XX}_{name}/README.md
 1. Create `feature_05_injury_tracking/` folder
 2. Create README.md with missed requirement context
 3. Run Stage 2 deep dive:
-   - Phase 2.1: Research injury data sources, audit similar tracking features
+   - S2.P1: Research injury data sources, audit similar tracking features
    - Phase 2-2.5: Create spec.md with:
      - Data model for injury status
      - API integration requirements
      - Update frequency
      - Impact on projections
      - Traceability to epic intent
-   - Phase 2.3: Ask questions, validate scope, get approval
+   - S2.P3: Ask questions, validate scope, get approval
 4. Create checklist.md with decisions (data source, update frequency, etc.)
 5. User approves spec
 

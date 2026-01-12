@@ -24,7 +24,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Part 2b of Round 3 is the final validation phase where you verify integration (Iteration 23), audit spec alignment (Gate 23a), validate against all user-approved sources (Iteration 25), and make the final GO/NO-GO decision (Iteration 24) through 4 mandatory iterations.
 
 **When do you use this guide?**
@@ -348,7 +348,7 @@ If ANY gate fails: Fix issues, re-run
 - Implement from implementation_plan.md (PRIMARY reference), spec.md (context/verification)
 - Update checklist in real-time as tasks complete
 - Run mini-QC checkpoints every 5-7 tasks
-- Require 100% test pass after each phase
+- Require 100% test pass after each step
 
 **Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S5b.
 

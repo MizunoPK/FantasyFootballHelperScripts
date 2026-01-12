@@ -23,7 +23,7 @@ Iterations 17-18 prepare for safe, incremental implementation:
 
 **Purpose:** Break implementation into phases for incremental validation
 
-**Why this matters:** "Big bang" integration (implementing everything at once) causes failures. Phasing allows checkpoint validation after each phase.
+**Why this matters:** "Big bang" integration (implementing everything at once) causes failures. Phasing allows checkpoint validation after each step.
 
 ### Process
 
@@ -34,33 +34,33 @@ Iterations 17-18 prepare for safe, incremental implementation:
 ```markdown
 ## Implementation Phasing
 
-**Phase 1: Core Data Loading (Foundation)**
+**Step 1: Core Data Loading (Foundation)**
 - Task 1: Load ADP data from CSV
 - Task 2: Add FantasyPlayer.adp_value field
 - Task 3: Add FantasyPlayer.adp_rank field
 - Tests: test_load_adp_data_*, test_player_fields_*
 - **Checkpoint:** All loading tests pass, data structure validated
 
-**Phase 2: Matching Logic**
+**Step 2: Matching Logic**
 - Task 4: Implement PlayerManager._match_player_to_adp()
 - Task 5: Handle player not found in ADP data (edge case)
 - Tests: test_match_player_*, test_unmatched_player_*
 - **Checkpoint:** Matching tests pass, edge cases handled
 
-**Phase 3: Multiplier Calculation**
+**Step 3: Multiplier Calculation**
 - Task 6: Implement ConfigManager.get_adp_multiplier()
 - Task 7: Implement PlayerManager._calculate_adp_multiplier()
 - Task 8: Handle invalid ADP values (edge case)
 - Tests: test_calculate_adp_*, test_invalid_adp_*
 - **Checkpoint:** Calculation tests pass, all edge cases covered
 
-**Phase 4: Score Integration**
+**Step 4: Score Integration**
 - Task 9: Update FantasyPlayer.calculate_total_score()
 - Task 10: Apply adp_multiplier to score
 - Tests: test_scoring_*, test_integration_*
 - **Checkpoint:** All integration tests pass, scores correct
 
-**Phase 5: Error Handling & Edge Cases**
+**Step 5: Error Handling & Edge Cases**
 - Task 11: Handle ADP file missing (edge case)
 - Task 12: Handle duplicate players in ADP data (edge case)
 - Task 13: Validate config ADP ranges (edge case)

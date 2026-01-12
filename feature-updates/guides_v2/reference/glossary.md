@@ -29,7 +29,7 @@ Terms are organized alphabetically. Terms with multiple context-specific meaning
 
 **Examples in practice:**
 - **Stage 5** = Feature Implementation (Level 1)
-- **Phase 5.1** = Implementation Planning (Level 2)
+- **S5.P1** = Implementation Planning (Level 2)
 - **Part 5.1.1** = Round 1 (Level 3)  
 - **Step 5.1.1.4** = Iteration 4 (Level 4)
 
@@ -220,7 +220,7 @@ Mandatory rules that cannot be violated, marked with 🛑 symbol in guides.
 Testing how multiple features interact together.
 
 **[Stage 5c]** Part 4 of smoke testing (feature-level, checking for conflicts)
-**[Phase 6.1]** Part 4 of epic smoke testing (epic-level, validating workflows)
+**[S6.P1]** Part 4 of epic smoke testing (epic-level, validating workflows)
 
 **See:** Epic Testing, Smoke Testing
 
@@ -401,9 +401,9 @@ Individual component within an epic.
 Stage 5c process testing single feature in isolation.
 
 **Three phases:**
-- Phase 1: Smoke Testing (3 parts)
-- Phase 2: QC Rounds (3 rounds)
-- Phase 3: Final Review
+- Step 1: Smoke Testing (3 parts)
+- Step 2: QC Rounds (3 rounds)
+- Step 3: Final Review
 
 **Different from epic testing:** Tests feature alone, not cross-feature integration
 
@@ -527,7 +527,7 @@ Iteration 17 process of breaking implementation into incremental phases for vali
 5. Edge case handling
 6. Tests and validation
 
-**Purpose:** Allows testing after each phase (catch bugs early)
+**Purpose:** Allows testing after each step (catch bugs early)
 
 **See:** Iteration 17, Stage 5b
 
@@ -635,7 +635,7 @@ Insights and improvements documented after feature or epic completion.
 - `feature_XX_{name}/lessons_learned.md` (per feature)
 - `{epic_name}/epic_lessons_learned.md` (epic-level)
 
-**Updated:** Stage 5c Phase 3 (Final Review), Phase 6.3 (Epic Final Review)
+**Updated:** Stage 5c Phase 3 (Final Review), S6.P3 (Epic Final Review)
 
 **Contents:**
 - What worked well
@@ -655,7 +655,7 @@ Workflow pattern where issues force restart of testing.
 **Examples:**
 - Issues in Smoke Testing → Fix → Restart Smoke Testing Part 1
 - Issues in QC Rounds → Fix → Restart Smoke Testing Part 1 (not QC Round 1)
-- Issues in Epic Testing → Fix → Restart Phase 6.1 Part 1
+- Issues in Epic Testing → Fix → Restart S6.P1 Part 1
 - User Testing finds bugs → Fix → Restart Stage 6 (not Stage 7)
 
 **Principle:** Always restart from BEGINNING of testing after fixes
@@ -676,7 +676,7 @@ Checkpoints that CANNOT be skipped and must PASS before proceeding.
 2. Gate 23a: Pre-Implementation Spec Audit - 4 PARTS (Stage 5a Round 3)
 3. Gate 25: Spec Validation Against Validated Documents (Stage 5a Round 3)
 4. Gate 24: Implementation Readiness (GO/NO-GO) (Stage 5a Round 3)
-5. Smoke Testing Part 3: E2E Execution (Stage 5c, Phase 6.1)
+5. Smoke Testing Part 3: E2E Execution (Stage 5c, S6.P1)
 6. User Testing: ZERO bugs required (Stage 7)
 
 **See:** Gates, Critical Rules
@@ -798,16 +798,16 @@ Iteration 24 outcome indicating NOT ready to proceed to Stage 5b.
 **[Multiple contexts - OVERLOADED TERM]** Term for distinct sections within a stage/round.
 
 **⚠️ IMPORTANT:** Always qualify "Phase" with stage name to avoid ambiguity.
-- ✅ CORRECT: "Phase 2.1", "Part 5.3.2", "Debugging Phase 3"
-- ❌ AMBIGUOUS: "Phase 3" (could mean Phase 2.3, Part 5.3.3, or Debugging Phase 3)
+- ✅ CORRECT: "S2.P1", "S5.P6", "Debugging Phase 3"
+- ❌ AMBIGUOUS: "Phase 3" (could mean S2.P3, S5.P7, or Debugging Phase 3)
 
 **Context-Specific Definitions:**
 
 | Context | Number of Phases | Phase Names | Notes |
 |---------|------------------|-------------|-------|
-| **Stage 2** | 3 | Phase 2.1 (Research)<br>Phase 2.2 (Specification)<br>Phase 2.3 (Refinement) | Level 2 workflow divisions |
+| **Stage 2** | 3 | S2.P1 (Research)<br>S2.P2 (Specification)<br>S2.P3 (Refinement) | Level 2 workflow divisions |
 | **Stage 5b** | 5-6 | Data structures → Core algorithm → Integration → Error handling → Edge cases → Tests | Implementation sequence |
-| **Stage 5c** | 3 | Part 5.3.1 (Smoke Testing)<br>Part 5.3.2 (QC Rounds)<br>Part 5.3.3 (Final Review) | Post-implementation validation |
+| **Stage 5c** | 3 | S5.P5 (Smoke Testing)<br>S5.P6 (QC Rounds)<br>S5.P7 (Final Review) | Post-implementation validation |
 | **Debugging** | 5 | Phase 1 (Issue Discovery)<br>Phase 2 (Investigation)<br>Phase 3 (Solution Design)<br>Phase 4 (User Verification)<br>Phase 5 (Loop Back) | Debugging protocol steps |
 
 **See:** Stage, Part, Round, Iteration
@@ -896,14 +896,14 @@ Pull Request review (7 categories) in Stage 5c Phase 3 Final Review.
 - Round 2: Consistency & Standards (coding standards, error handling)
 - Round 3: Integration & Edge Cases (integration points, edge cases)
 
-**[Phase 6.2 - Epic QC]** Three rounds testing entire epic:
+**[S6.P2 - Epic QC]** Three rounds testing entire epic:
 - Round 1: Epic Algorithm Verification (epic requirements vs implementation)
 - Round 2: Epic Consistency & Standards (cross-feature consistency)
 - Round 3: Epic Integration & Success Criteria (epic success criteria met)
 
 **Restart protocol:** Issues in ANY round = restart from smoke testing (not Round 1)
 
-**See:** Stage 5c, Phase 6.2, Round
+**See:** Stage 5c, S6.P2, Round
 
 **Guide:** qc_rounds.md (feature), epic_qc_rounds.md (epic)
 
@@ -967,7 +967,7 @@ Rules for when to restart testing after finding issues.
 **Examples:**
 - Issues in Smoke Part 3 → Restart Smoke Part 1
 - Issues in QC Round 2 → Restart Smoke Part 1 (NOT QC Round 1)
-- Issues in Epic QC → Restart Phase 6.1 Part 1
+- Issues in Epic QC → Restart S6.P1 Part 1
 - User finds bugs → Fix, then restart Stage 6 (NOT Stage 7)
 
 **See:** Loop-Back, Debugging Protocol
@@ -1034,13 +1034,13 @@ Context window limit forcing conversation summarization.
 - Part 2: Entry Point Test
 - Part 3: E2E Execution Test (MANDATORY GATE)
 
-**[Phase 6.1 - Epic Smoke Testing]** Four parts:
+**[S6.P1 - Epic Smoke Testing]** Four parts:
 - Part 1-3: Same as feature
 - Part 4: Cross-Feature Integration (epic-specific)
 
 **Restart rule:** Failure in ANY part = restart from Part 1
 
-**See:** E2E, Stage 5c, Phase 6.1
+**See:** E2E, Stage 5c, S6.P1
 
 **Guide:** smoke_testing.md (feature), epic_smoke_testing.md (epic)
 
@@ -1321,24 +1321,24 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 
 | Deprecated | Current | Description |
 |------------|---------|-------------|
-| STAGE_2a | Phase 2.1 | Research Phase |
-| STAGE_2b | Phase 2.2 | Specification Phase |
-| STAGE_2c | Phase 2.3 | Refinement Phase |
+| STAGE_2a | S2.P1 | Research Phase |
+| STAGE_2b | S2.P2 | Specification Phase |
+| STAGE_2c | S2.P3 | Refinement Phase |
 | STAGE_5aa | Part 5.1.1 | Implementation Planning Round 1 |
 | STAGE_5ab | Part 5.1.2 | Implementation Planning Round 2 |
 | STAGE_5ac | Part 5.1.3 | Implementation Planning Round 3 |
-| STAGE_5a | Phase 5.1 | Implementation Planning |
-| STAGE_5b | Phase 5.2 | Implementation Execution |
-| STAGE_5ca | Part 5.3.1 | Smoke Testing |
-| STAGE_5cb | Part 5.3.2 | QC Rounds |
-| STAGE_5cc | Part 5.3.3 | Final Review |
-| STAGE_5c | Phase 5.3 | Post-Implementation |
-| STAGE_5d | Phase 5.4 | Post-Feature Alignment |
+| STAGE_5a | S5.P1 | Implementation Planning |
+| STAGE_5b | S5.P2 | Implementation Execution |
+| STAGE_5ca | S5.P5 | Smoke Testing |
+| STAGE_5cb | S5.P6 | QC Rounds |
+| STAGE_5cc | S5.P7 | Final Review |
+| STAGE_5c | S5.P3 | Post-Implementation |
+| STAGE_5d | S5.P4 | Post-Feature Alignment |
 | STAGE_5e | Phase 5.5 | Post-Feature Testing Update |
-| Stage 6a | Phase 6.1 | Epic Smoke Testing |
-| Stage 6b | Phase 6.2 | Epic QC Rounds |
-| Stage 6c | Phase 6.3 | User Testing |
-| Stage 6d | Phase 6.4 | Epic Final Review |
+| Stage 6a | S6.P1 | Epic Smoke Testing |
+| Stage 6b | S6.P2 | Epic QC Rounds |
+| Stage 6c | S6.P3 | User Testing |
+| Stage 6d | S6.P4 | Epic Final Review |
 
 ### Old File Names
 

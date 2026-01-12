@@ -19,7 +19,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Cross-Feature Sanity Check is where you systematically compare all feature specs to identify conflicts, resolve inconsistencies, and get user sign-off on the complete epic plan before proceeding to implementation.
 
 **When do you use this guide?**
@@ -647,12 +647,12 @@ Create presentation for user in epic EPIC_README.md or separate document:
 
 **Recommended sequence:**
 
-1. **Phase 1:** Implement Features 1, 2, 3 in parallel
+1. **Step 1:** Implement Features 1, 2, 3 in parallel
    - All three are independent (no dependencies)
    - Can be developed simultaneously
    - Each can be tested in isolation
 
-2. **Phase 2:** Implement Feature 4
+2. **Step 2:** Implement Feature 4
    - Depends on Features 1, 2, 3 being complete
    - Integrates all new data sources
    - Requires integration testing with all features

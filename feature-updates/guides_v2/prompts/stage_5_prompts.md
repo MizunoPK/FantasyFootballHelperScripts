@@ -312,7 +312,7 @@ I'm reading `stages/s5/s5_p4_execution.md` to ensure I follow the implementation
   - Run unit tests
   - Verify against spec
   - Update code_changes.md
-- **Run unit tests after EVERY phase** (100% pass required)
+- **Run unit tests after each step** (100% pass required)
 - **Interface Verification** before integration:
   - Verify interface matches ACTUAL dependency code
   - Do NOT assume - READ the actual source
@@ -332,7 +332,7 @@ I'm reading `stages/s5/s5_p4_execution.md` to ensure I follow the implementation
 - Current Phase: IMPLEMENTATION
 - Current Guide: stages/s5/s5_p4_execution.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "spec.md visible at all times", "implementation_plan.md is PRIMARY reference", "Unit tests after every phase (100% pass)", "Mini-QC checkpoints", "Update code_changes.md incrementally"
+- Critical Rules: "spec.md visible at all times", "implementation_plan.md is PRIMARY reference", "Unit tests after each step (100% pass)", "Mini-QC checkpoints", "Update code_changes.md incrementally"
 - Progress: 0/{N} implementation tasks complete
 - Next Action: Create implementation_checklist.md from implementation_plan.md tasks
 
@@ -466,7 +466,7 @@ I'm reading `stages/s5/s5_p7_final_review.md` to ensure I follow the final revie
   - Document what worked well
   - Document what didn't work
   - **IMMEDIATELY UPDATE GUIDES** (not just document issues)
-  - Example: If QC found zero data issue → update Part 5.3.1 guide NOW
+  - Example: If QC found zero data issue → update S5.P5 guide NOW
 - **Final Verification**:
   - 100% requirement completion (from spec)
   - All code_changes.md items implemented

@@ -269,7 +269,7 @@ A: NO - Follow spec exactly during Stage 5b:
 **Q: How often should I run tests?**
 
 A: After EVERY component/phase:
-- Implement phase 1 → run tests → 100% pass → phase 2
+- Implement step 1 → run tests → 100% pass → step 2
 - Typical feature: 5-6 phases, so 5-6 test runs minimum
 - More frequent testing = easier debugging
 
@@ -348,7 +348,7 @@ A:
 A: NO - Enter Debugging Protocol at epic level:
 1. Document in epic-level debugging/ISSUES_CHECKLIST.md
 2. Fix ALL issues
-3. RESTART entire Stage 6 from Phase 6.1 Part 1
+3. RESTART entire Stage 6 from S6.P1 Part 1
 4. Re-run epic smoke testing → epic QC rounds → epic final review
 
 **Q: Can I skip epic QC if all features passed their Stage 5c QC?**
@@ -446,7 +446,7 @@ Need to fix something
     │    ↓
     │  [Use Debugging Protocol at epic level]
     │    → Fix issues
-    │    → RESTART from Phase 6.1 Part 1
+    │    → RESTART from S6.P1 Part 1
     │
     └─ Stage 7 (User Testing)
          ↓
@@ -651,7 +651,7 @@ Context window limit reached → Session compacted
 ### Stuck 4: "User keeps changing requirements and spec.md is a mess"
 
 **Solution:**
-1. **This is normal during Stage 2** - embrace iterative refinement
+1. **This is normal during Stage 2** - embrace continuous refinement
 2. **Update spec.md immediately** with each change
 3. **Document changes in "Updates History" section**
 4. **If scope growing significantly:**

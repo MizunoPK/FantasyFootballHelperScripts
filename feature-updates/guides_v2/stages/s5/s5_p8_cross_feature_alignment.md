@@ -40,7 +40,7 @@ S5.P1 (Implementation Planning) → S5.P2 (Implementation) → S5.P3 (Post-Imple
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Post-Feature Alignment is where you update remaining feature specs based on the just-completed feature's actual implementation, ensuring pending features align with real code patterns and integration points discovered during development.
 
 **When do you use this guide?**

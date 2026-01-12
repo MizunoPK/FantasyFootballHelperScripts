@@ -5,7 +5,7 @@
 
 ---
 
-## Starting Stage 7.5: Guide Update from Lessons Learned (MANDATORY)
+## Starting S7.P1: Guide Update from Lessons Learned (MANDATORY)
 
 **User says:** Agent detects Stage 7 user testing passed (Gate 7.2), OR user says "apply lessons to guides"
 
@@ -54,7 +54,7 @@ I'm reading `stages/s7/s7_p1_guide_update_workflow.md` to apply lessons learned 
 **I'll now analyze the lessons learned from this epic and create GUIDE_UPDATE_PROPOSAL.md...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Stage 7.5 - Guide Update from Lessons Learned
+- Current Stage: S7.P1 - Guide Update from Lessons Learned
 - Current Phase: GUIDE_ANALYSIS
 - Current Guide: stages/s7/s7_p1_guide_update_workflow.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
@@ -73,7 +73,7 @@ Analyzing lessons learned...
 **Agent MUST present:**
 
 ```
-🚨 **Stage 7.5: Guide Update Proposals Ready for Review**
+🚨 **S7.P1: Guide Update Proposals Ready for Review**
 
 I've analyzed all lessons learned from this epic and created prioritized guide update proposals.
 

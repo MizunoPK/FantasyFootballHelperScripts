@@ -121,28 +121,28 @@
 
 ## 🔍 Debugging Protocol Mistakes
 
-### Phase 1: Discovery
+### Step 1: Discovery
 - ❌ Not creating ISSUES_CHECKLIST.md
 - ❌ Working on issues not in checklist
 
-### Phase 2: Investigation
+### Step 2: Investigation
 - ❌ Exceeding 5 rounds without user escalation
 - ❌ Not documenting failed hypotheses
 
-### Phase 3: Resolution
+### Step 3: Resolution
 - ❌ Not adding tests for the fix
 - ❌ Not documenting in debugging/code_changes.md
 
-### Phase 4: User Verification
+### Step 4: User Verification
 - ❌ Self-declaring victory (user MUST confirm)
 - ❌ Not presenting before/after state clearly
 
-### Phase 4b: Root Cause Analysis
+### Step 4b: Root Cause Analysis
 - ❌ Batching Phase 4b until all bugs fixed
 - ❌ Writing generic lessons ("be more careful")
 - ❌ Not getting user confirmation of root cause
 
-### Phase 5: Loop Back
+### Step 5: Loop Back
 - ❌ Not doing cross-bug pattern analysis
 - ❌ Not looping back to START of testing
 

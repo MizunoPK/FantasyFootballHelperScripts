@@ -2,7 +2,7 @@
 
 **Purpose:** Track which lessons learned from epics have been applied to guides, enabling pattern analysis and continuous improvement
 
-**Use Case:** After each epic's Stage 7.5, document approved guide updates to maintain history and identify patterns
+**Use Case:** After each epic's S7.P1, document approved guide updates to maintain history and identify patterns
 
 ---
 
@@ -152,7 +152,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 ### For Agents
 
-**After Stage 7.5 (Guide Update Workflow):**
+**After S7.P1 (Guide Update Workflow):**
 1. For each approved proposal, add entry to "Applied Lessons Log"
 2. For each modified proposal, add entry with user's modification
 3. For each rejected proposal, add entry to "Rejected Lessons" with rationale
@@ -177,7 +177,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 ## Maintenance
 
 **Update frequency:**
-- After every epic's Stage 7.5 (Applied Lessons Log, Pending, Rejected)
+- After every epic's S7.P1 (Applied Lessons Log, Pending, Rejected)
 - Monthly: Update metrics section
 - Quarterly: Update pattern analysis, identify systemic improvements
 

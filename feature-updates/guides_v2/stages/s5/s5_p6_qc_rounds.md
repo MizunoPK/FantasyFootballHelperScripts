@@ -46,7 +46,7 @@ S5.P5 (Smoke Testing) →
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Feature-level QC Rounds perform 3 progressively deeper quality checks (Basic Validation, Deep Verification, Final Skeptical Review) with zero tech debt tolerance. See `reference/qc_rounds_pattern.md` for universal workflow.
 
 **When do you use this guide?**

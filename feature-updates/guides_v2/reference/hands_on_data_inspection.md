@@ -4,7 +4,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Hands-On Data Inspection is a critical verification step where you manually inspect actual data files to verify assumptions about data structure, values, and location BEFORE implementing code to prevent catastrophic bugs.
 
 **When do you use this guide?**

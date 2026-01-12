@@ -90,9 +90,9 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 | 5a Round 3 Part 1 | stages/s5/s5_p3_planning_round3.md | 60-90 min | Phasing, rollback, performance, mocks | None |
 | 5a Round 3 Part 2 | stages/s5/round3_part2_final_gates.md | 1.5-2.5 hrs | Integration, spec audit, validation | Iterations 23a, 25, 24 |
 | 5b | stages/s5/s5_p4_execution.md | 1-4 hrs | Execute TODO tasks, mini-QC checkpoints | 100% test pass |
-| Part 5.3.1 | stages/s5/s5_p5_smoke_testing.md | 30-45 min | Import, entry point, E2E tests | Part 3 data values |
-| Part 5.3.2 | stages/s5/s5_p6_qc_rounds.md | 45-75 min | 3 QC rounds, deep verification | QC Round 3 ZERO issues |
-| Part 5.3.3 | stages/s5/s5_p7_final_review.md | 30-45 min | PR review, lessons learned | Zero tech debt |
+| S5.P5 | stages/s5/s5_p5_smoke_testing.md | 30-45 min | Import, entry point, E2E tests | Part 3 data values |
+| S5.P6 | stages/s5/s5_p6_qc_rounds.md | 45-75 min | 3 QC rounds, deep verification | QC Round 3 ZERO issues |
+| S5.P7 | stages/s5/s5_p7_final_review.md | 30-45 min | PR review, lessons learned | Zero tech debt |
 | 5d | stages/s5/s5_p8_cross_feature_alignment.md | 15-30 min | Update remaining specs | None |
 | 5e | stages/s5/s5_p9_epic_testing_update.md | 15-30 min | Update epic test plan | None |
 
@@ -134,34 +134,34 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 ### Stage 5c: Post-Implementation (2 gates)
 
-**Gate 5: Part 5.3.1 Part 3 - E2E Smoke Test (Data Values)**
+**Gate 5: S5.P5 Part 3 - E2E Smoke Test (Data Values)**
 - **Location:** stages/s5/s5_p5_smoke_testing.md
 - **Criteria:** E2E test with REAL data, verify DATA VALUES (not just file existence)
-- **If FAIL:** Restart from Part 5.3.1 Part 1
+- **If FAIL:** Restart from S5.P5 Step 1
 
-**Gate 6: Part 5.3.2 QC Round 3 - ZERO Issues Required**
+**Gate 6: S5.P6 QC Round 3 - ZERO Issues Required**
 - **Location:** stages/s5/s5_p6_qc_rounds.md
 - **Criteria:** ZERO issues found (critical, major, or minor)
-- **If ANY ISSUES:** Restart from Part 5.3.1 Part 1 (smoke testing)
+- **If ANY ISSUES:** Restart from S5.P5 Step 1 (smoke testing)
 
 ---
 
 ## Restart Points (QC Restart Protocol)
 
-**If smoke testing fails (Part 5.3.1):**
-→ Fix issues, restart from Part 5.3.1 Part 1 (Import Test)
+**If smoke testing fails (S5.P5):**
+→ Fix issues, restart from S5.P5 Step 1 (Import Test)
 
-**If QC Round 1 finds issues (Part 5.3.2):**
-→ Fix issues, restart from Part 5.3.1 Part 1 (smoke testing)
+**If QC Round 1 finds issues (S5.P6):**
+→ Fix issues, restart from S5.P5 Step 1 (smoke testing)
 
-**If QC Round 2 finds issues (Part 5.3.2):**
-→ Fix issues, restart from Part 5.3.1 Part 1 (smoke testing)
+**If QC Round 2 finds issues (S5.P6):**
+→ Fix issues, restart from S5.P5 Step 1 (smoke testing)
 
-**If QC Round 3 finds issues (Part 5.3.2):**
-→ Fix issues, restart from Part 5.3.1 Part 1 (smoke testing)
+**If QC Round 3 finds issues (S5.P6):**
+→ Fix issues, restart from S5.P5 Step 1 (smoke testing)
 
-**If PR review finds critical issues (Part 5.3.3):**
-→ Fix issues, restart from Part 5.3.1 Part 1 (smoke testing)
+**If PR review finds critical issues (S5.P7):**
+→ Fix issues, restart from S5.P5 Step 1 (smoke testing)
 
 **Why restart from smoke testing?**
 - Any code change invalidates QC rounds
@@ -208,7 +208,7 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 ### Stage 5b (Implementation)
 - ✅ Keep spec.md VISIBLE at all times
 - ✅ Mini-QC checkpoints every 5-7 TODO tasks
-- ✅ 100% unit test pass after EVERY phase
+- ✅ 100% unit test pass after each step
 - ✅ Update code_changes.md INCREMENTALLY
 - ✅ Interface verification against ACTUAL source code
 

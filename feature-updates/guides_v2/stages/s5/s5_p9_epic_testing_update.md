@@ -41,7 +41,7 @@ S5.P1 (Implementation Planning) → S5.P2 (Implementation) → S5.P3 (Post-Imple
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Post-Feature Testing Update is where you update epic_smoke_test_plan.md based on ACTUAL implementation discoveries (not specs), adding integration points found during development and ensuring test scenarios reflect real behavior.
 
 **When do you use this guide?**

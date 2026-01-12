@@ -23,7 +23,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Planning Round 3 Part 1 (Preparation) is the first half of Planning Round 3, where you prepare for implementation by defining phasing, rollback strategies, final algorithm traceability, performance optimizations, mock audits, and output validation through 6 systematic iterations (17-22).
 
 **When do you use this guide?**
@@ -279,7 +279,7 @@ Transition to Part 2 (Read stages/s5/round3_part2_final_gates.md)
 
 **What to do instead:**
 - ✅ Define 4-6 logical phases
-- ✅ Add checkpoint validation after each phase
+- ✅ Add checkpoint validation after each step
 - ✅ Document phasing in implementation_plan.md
 
 ---

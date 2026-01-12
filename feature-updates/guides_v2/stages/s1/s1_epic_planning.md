@@ -152,7 +152,7 @@ S1 is complete when you have a validated epic ticket, complete folder structure,
 │                    STAGE 1 WORKFLOW                          │
 └──────────────────────────────────────────────────────────────┘
 
-Phase 1: Initial Setup
+Step 1: Initial Setup
    ├─ Create git branch for epic (Step 1.0 - BEFORE any changes)
    │  ├─ Verify on main, pull latest
    │  ├─ Assign KAI number from EPIC_TRACKER.md
@@ -162,12 +162,12 @@ Phase 1: Initial Setup
    ├─ Move {epic_name}.txt into epic folder
    └─ Create EPIC_README.md (with Agent Status)
 
-Phase 2: Epic Analysis
+Step 2: Epic Analysis
    ├─ Read epic request thoroughly
    ├─ Identify goals, constraints, requirements
    └─ Conduct broad codebase reconnaissance
 
-Phase 3: Feature Breakdown Proposal
+Step 3: Feature Breakdown Proposal
    ├─ Identify major components/subsystems
    ├─ Propose feature list with justification
    ├─ Present to user for approval
@@ -175,7 +175,7 @@ Phase 3: Feature Breakdown Proposal
    ├─ Create epic ticket (outcome validation)
    └─ WAIT for user validation of epic ticket
 
-Phase 4: Epic Structure Creation
+Step 4: Epic Structure Creation
    ├─ Create feature folders (per approved breakdown)
    ├─ Create epic_smoke_test_plan.md (initial)
    ├─ Create epic_lessons_learned.md
@@ -183,7 +183,7 @@ Phase 4: Epic Structure Creation
    ├─ Create GUIDE_ANCHOR.md
    └─ Update EPIC_README.md with feature tracking table
 
-Phase 5: Transition to S2
+Step 5: Transition to S2
    ├─ Mark S1 complete in EPIC_README.md
    ├─ Update Agent Status (next: S2)
    └─ Announce transition to user
@@ -191,7 +191,7 @@ Phase 5: Transition to S2
 
 ---
 
-## Phase 1: Initial Setup
+## Step 1: Initial Setup
 
 ### Step 1.0: Create Git Branch for Epic
 
@@ -232,7 +232,7 @@ Update Agent Status after Phase 1 completion.
 
 ---
 
-## Phase 2: Epic Analysis
+## Step 2: Epic Analysis
 
 **Goal:** Understand epic request and identify major components
 
@@ -271,7 +271,7 @@ After Phase 2:
 
 ---
 
-## Phase 3: Feature Breakdown Proposal
+## Step 3: Feature Breakdown Proposal
 
 **Goal:** Propose how to break epic into features (user must approve)
 
@@ -426,7 +426,7 @@ I've created an epic ticket to validate my understanding of the epic's goals and
 
 ---
 
-## Phase 4: Epic Structure Creation
+## Step 4: Epic Structure Creation
 
 **Prerequisites:**
 - User has approved feature breakdown
@@ -488,7 +488,7 @@ Update Agent Status: Progress 4/5, Next Action "Phase 5 - Transition to S2", lis
 
 ---
 
-## Phase 5: Transition to S2
+## Step 5: Transition to S2
 
 ### Step 5.1: Mark S1 Complete
 

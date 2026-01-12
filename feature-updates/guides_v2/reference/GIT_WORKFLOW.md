@@ -69,7 +69,7 @@ git commit -m "fix/KAI-1: Fix player name validation in draft mode"
 ```
 
 **When to Commit:**
-- After Stage 5c Part 5.3.3 (Feature completed, reviewed, tested)
+- After Stage 5c S5.P7 (Feature completed, reviewed, tested)
 - After Stage 7 cleanup (Epic completed, ready for PR)
 - Not during Stages 1-4 (planning only)
 - Not during Stages 5a-5b (implementation in progress)
@@ -254,7 +254,7 @@ git commit -m "feat/KAI-1: Add ADP integration to PlayerManager" -m "
 
 **Question:** Do all features in an epic use the same branch?
 
-**Answer:** Yes. All features within an epic use the same branch (`epic/KAI-{number}`). Features are committed individually after Stage 5c Part 5.3.3, but all commits go to the same epic branch.
+**Answer:** Yes. All features within an epic use the same branch (`epic/KAI-{number}`). Features are committed individually after Stage 5c S5.P7, but all commits go to the same epic branch.
 
 **Example:**
 ```bash
@@ -331,7 +331,7 @@ git push origin epic/KAI-{number} --force-with-lease
 ### Commit Frequency
 
 **✅ DO:**
-- Commit after each feature completes Stage 5c Part 5.3.3
+- Commit after each feature completes Stage 5c S5.P7
 - Commit after Stage 7 cleanup completes
 - Commit with meaningful messages
 

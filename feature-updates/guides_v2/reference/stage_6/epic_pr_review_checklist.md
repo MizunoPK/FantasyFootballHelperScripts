@@ -1,7 +1,7 @@
 # Epic PR Review Checklist - 11 Categories
 
-**Purpose:** Complete checklist for epic-level PR review (Phase 6.3 Step 6)
-**When to Use:** After Phase 6.2 QC rounds complete, before final verification
+**Purpose:** Complete checklist for epic-level PR review (S6.P3 Step 6)
+**When to Use:** After S6.P2 QC rounds complete, before final verification
 **Main Guide:** `stages/s6/s6_p4_epic_final_review.md`
 
 ---

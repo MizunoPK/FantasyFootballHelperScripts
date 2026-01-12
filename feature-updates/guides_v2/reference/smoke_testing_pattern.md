@@ -1,6 +1,6 @@
 # Smoke Testing Pattern (Reference)
 
-**Purpose:** Generic smoke testing workflow applicable to both feature-level (Part 5.3.1) and epic-level (Phase 6.1) testing.
+**Purpose:** Generic smoke testing workflow applicable to both feature-level (S5.P5) and epic-level (S6.P1) testing.
 
 **This is a REFERENCE PATTERN.** Actual guides:
 - **Feature-level:** `stages/s5/s5_p5_smoke_testing.md`
@@ -18,8 +18,8 @@
 - Use REAL data (not test fixtures) to expose mock assumption failures
 
 **Scope-Specific Implementation:**
-- **Feature-level (Part 5.3.1):** Tests individual feature in isolation
-- **Epic-level (Phase 6.1):** Tests ALL features working together as cohesive system
+- **Feature-level (S5.P5):** Tests individual feature in isolation
+- **Epic-level (S6.P1):** Tests ALL features working together as cohesive system
 
 ---
 
@@ -232,7 +232,7 @@ for pos in positions:
 
 **Goal:** Verify features work together correctly
 
-**Only applicable to epic-level smoke testing (Phase 6.1)**
+**Only applicable to epic-level smoke testing (S6.P1)**
 
 **Process:**
 1. Identify cross-feature workflows (from epic_smoke_test_plan.md)
@@ -323,19 +323,19 @@ assert df['adp'].min() > 0  # Not placeholder values
 
 ## Scope-Specific Differences
 
-### Feature-Level Smoke Testing (Part 5.3.1)
+### Feature-Level Smoke Testing (S5.P5)
 - **Scope:** Individual feature in isolation
 - **Parts:** 3 parts (Import, Entry Point, E2E)
 - **Data:** Feature-specific input/output
-- **Next Stage:** Part 5.3.2 (QC Rounds) if passed
+- **Next Stage:** S5.P6 (QC Rounds) if passed
 - **Restart Destination:** Part 1 of this feature's smoke testing
 
-### Epic-Level Smoke Testing (Phase 6.1)
+### Epic-Level Smoke Testing (S6.P1)
 - **Scope:** ALL features working together
 - **Parts:** 4 parts (Import, Entry Point, E2E, Cross-Feature Integration)
 - **Data:** Epic-level workflows with multiple features
-- **Next Stage:** Phase 6.2 (Epic QC Rounds) if passed
-- **Restart Destination:** Phase 6.1 Step 1 (complete epic smoke testing)
+- **Next Stage:** S6.P2 (Epic QC Rounds) if passed
+- **Restart Destination:** S6.P1 Step 1 (complete epic smoke testing)
 
 ---
 

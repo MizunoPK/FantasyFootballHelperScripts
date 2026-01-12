@@ -33,7 +33,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Research Phase is the first part of Feature Deep Dive where you extract epic intent, conduct targeted research grounded in user requests, and verify research completeness through a mandatory audit before creating specifications.
 
 **When do you use this guide?**
@@ -136,7 +136,7 @@ Research Phase is complete when Phase 1.5 audit passes (all 4 categories with ev
 
 ---
 
-## Phase 0: Epic Intent Extraction (MANDATORY FIRST STEP)
+## Step 0: Epic Intent Extraction (MANDATORY FIRST STEP)
 
 **Goal:** Ground this feature in the epic's original request BEFORE any technical work
 
@@ -508,7 +508,7 @@ Create `epic/research/{FEATURE_NAME}_DISCOVERY.md`:
 → **Proceed to:** stages/s_2/phase_1_specification.md
 
 **What happens in STAGE_2b:**
-- Phase 2: Update Spec & Checklist (with requirement traceability)
+- Step 2: Update Spec & Checklist (with requirement traceability)
 - Phase 2.5: Spec-to-Epic Alignment Check (MANDATORY GATE)
 
 **Prerequisites for STAGE_2b:**

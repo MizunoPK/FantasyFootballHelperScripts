@@ -23,7 +23,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Planning Round 1 of Implementation Planning is the initial analysis phase where you verify requirements coverage, map dependencies, trace algorithms to code locations, and analyze downstream consumption through 9 mandatory iterations (1-7 + 4a + 7a).
 
 **When do you use this guide?**

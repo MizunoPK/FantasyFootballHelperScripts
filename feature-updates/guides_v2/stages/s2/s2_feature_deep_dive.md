@@ -61,7 +61,7 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 
 **What it covers:**
 - **Phase 0:** Epic Intent Extraction (re-read epic, extract user's exact words)
-- **Phase 1:** Targeted Research (research components mentioned in epic)
+- **Step 1:** Targeted Research (research components mentioned in epic)
 - **Phase 1.5:** Research Completeness Audit (MANDATORY GATE - verify research is thorough)
 
 **Key Outputs:**
@@ -86,7 +86,7 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 **Read:** `stages/s2/s2_p2_specification.md`
 
 **What it covers:**
-- **Phase 2:** Update Spec & Checklist (document requirements with traceability)
+- **Step 2:** Update Spec & Checklist (document requirements with traceability)
 - **Phase 2.5:** Spec-to-Epic Alignment Check (MANDATORY GATE - verify no scope creep)
 
 **Key Outputs:**
@@ -110,9 +110,9 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 **Read:** `stages/s2/s2_p3_refinement.md`
 
 **What it covers:**
-- **Phase 3:** Interactive Question Resolution (ONE question at a time)
-- **Phase 4:** Dynamic Scope Adjustment (split if >35 items)
-- **Phase 5:** Cross-Feature Alignment (compare to completed features)
+- **Step 3:** Interactive Question Resolution (ONE question at a time)
+- **Step 4:** Dynamic Scope Adjustment (split if >35 items)
+- **Step 5:** Cross-Feature Alignment (compare to completed features)
 - **Phase 6:** Acceptance Criteria & User Approval (MANDATORY GATE)
 
 **Key Outputs:**
@@ -365,14 +365,14 @@ Ready to begin Phase 0: Epic Intent Extraction.
 
 □ **All 9 phases complete:**
   - Phase 0: Epic Intent extracted
-  - Phase 1: Targeted Research complete
+  - Step 1: Targeted Research complete
   - Phase 1.5: Research Audit PASSED (GATE)
-  - Phase 2: Spec & Checklist created with traceability
+  - Step 2: Spec & Checklist created with traceability
   - Phase 2.5: Alignment Check PASSED (GATE)
-  - Phase 3: All questions resolved (ONE at a time)
-  - Phase 4: Scope validated (split if >35 items)
-  - Phase 5: Cross-feature alignment complete
-  - Phase 6: User APPROVED acceptance criteria (GATE)
+  - Step 3: All questions resolved (ONE at a time)
+  - Step 4: Scope validated (split if >35 items)
+  - Step 5: Cross-feature alignment complete
+  - Step 6: User APPROVED acceptance criteria (GATE)
 
 □ **Files complete:**
   - spec.md: Epic Intent section, requirements with traceability, acceptance criteria (user approved)

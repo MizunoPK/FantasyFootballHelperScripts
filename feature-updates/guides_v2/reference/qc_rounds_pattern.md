@@ -1,6 +1,6 @@
 # QC Rounds Pattern (Reference)
 
-**Purpose:** Generic QC rounds workflow applicable to both feature-level (Part 5.3.2) and epic-level (Phase 6.2) quality control.
+**Purpose:** Generic QC rounds workflow applicable to both feature-level (S5.P6) and epic-level (S6.P2) quality control.
 
 **This is a REFERENCE PATTERN.** Actual guides:
 - **Feature-level:** `stages/s5/s5_p6_qc_rounds.md`
@@ -19,8 +19,8 @@
 - Progressive validation (each round catches different issues)
 
 **Scope-Specific Implementation:**
-- **Feature-level (Part 5.3.2):** Validates individual feature correctness and completeness
-- **Epic-level (Phase 6.2):** Validates cross-feature integration and epic cohesion
+- **Feature-level (S5.P6):** Validates individual feature correctness and completeness
+- **Epic-level (S6.P2):** Validates cross-feature integration and epic cohesion
 
 ---
 
@@ -69,7 +69,7 @@ Round 3: [Scope-Specific Focus]
 ```
 RESTART PROTOCOL:
 1. Fix ALL issues found in failed round
-2. Return to smoke testing (Part 5.3.1 OR Phase 6.1)
+2. Return to smoke testing (S5.P5 OR S6.P1)
 3. Re-run ALL smoke test parts
 4. Re-run ALL 3 QC rounds from Round 1
 
@@ -370,7 +370,7 @@ Did QC round find issues?
 
 ## Scope-Specific Differences
 
-### Feature-Level QC Rounds (Part 5.3.2)
+### Feature-Level QC Rounds (S5.P6)
 
 **Round 1 Focus:** Basic Validation
 - Unit tests passing
@@ -392,11 +392,11 @@ Did QC round find issues?
 - Re-check Integration Gap Check
 - Zero issues tolerance
 
-**Restart Destination:** Part 5.3.1 (Feature Smoke Testing)
+**Restart Destination:** S5.P5 (Feature Smoke Testing)
 
 ---
 
-### Epic-Level QC Rounds (Phase 6.2)
+### Epic-Level QC Rounds (S6.P2)
 
 **Round 1 Focus:** Cross-Feature Integration
 - Integration points work correctly
@@ -416,7 +416,7 @@ Did QC round find issues?
 - User experience flows validated
 - Performance characteristics acceptable
 
-**Restart Destination:** Phase 6.1 (Epic Smoke Testing)
+**Restart Destination:** S6.P1 (Epic Smoke Testing)
 
 ---
 

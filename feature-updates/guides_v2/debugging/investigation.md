@@ -1,4 +1,4 @@
-# PHASE 2: Issue Investigation (Per Issue, Iterative)
+# PHASE 2: Issue Investigation (Per Issue, Repeated Rounds)
 
 **Purpose:** Find root cause through structured investigation rounds
 
@@ -12,7 +12,7 @@
 
 ## Overview
 
-**This phase is ITERATIVE:** Repeat Rounds 1-3 until root cause confirmed (max 5 rounds total)
+**This process uses repeated rounds:** Repeat Rounds 1-3 until root cause confirmed (max 5 rounds total)
 
 **Investigation Round Structure:**
 - **Round 1:** Code Tracing & Root Cause Analysis (identify 2-3 suspicious areas)
@@ -110,7 +110,7 @@ Add new issue to "Active Investigations" table.
 Player scoring calculation returns None instead of expected float value
 
 **Discovered During:**
-Part 5.3.1 Smoke Testing Part 3 - E2E test execution
+S5.P5 Smoke Testing Part 3 - E2E test execution
 
 **Reproduction:**
 ```python

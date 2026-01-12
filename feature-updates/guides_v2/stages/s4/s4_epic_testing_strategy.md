@@ -19,7 +19,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Epic Testing Strategy is where you update the epic_smoke_test_plan.md with concrete test scenarios based on the actual feature specs, replacing the S1 placeholder assumptions with specific integration points and measurable success criteria.
 
 **When do you use this guide?**

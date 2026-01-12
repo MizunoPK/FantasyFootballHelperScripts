@@ -416,7 +416,7 @@ feature-updates/KAI-{N}-{epic_name}/
 - Continuous progress tracking via `implementation_checklist.md`
 - Mini-QC checkpoints after each major component
 - Document changes in `code_changes.md`
-- Run unit tests after EVERY phase (100% pass required)
+- Run unit tests after each step (100% pass required)
 
 **Outputs:** Implemented code, `implementation_checklist.md`, `code_changes.md`
 
@@ -429,19 +429,19 @@ feature-updates/KAI-{N}-{epic_name}/
 - `stages/s5/s5_p6_qc_rounds.md`
 - `stages/s5/s5_p7_final_review.md`
 
-**Phase 1 - Smoke Testing:**
+**Step 1 - Smoke Testing:**
 - Part 1: Import Test (module loads)
 - Part 2: Entry Point Test (script starts)
 - Part 3: E2E Execution Test (verify OUTPUT DATA VALUES)
 - MANDATORY GATE before QC rounds
 
-**Phase 2 - QC Rounds:**
+**Step 2 - QC Rounds:**
 - QC Round 1: Basic validation (<3 critical issues, >80% requirements)
 - QC Round 2: Deep verification (all Round 1 resolved + zero new critical)
 - QC Round 3: Final skeptical review (ZERO tolerance)
 - **QC Restart Protocol:** If ANY issues → RESTART from smoke testing
 
-**Phase 3 - Final Review:**
+**Step 3 - Final Review:**
 - PR Review Checklist (11 categories - all mandatory)
 - Lessons learned capture with IMMEDIATE guide updates
 - Final verification (100% completion required)
@@ -881,7 +881,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 | Planning epic tests | stages/s4/s4_epic_testing_strategy.md |
 | Creating implementation plan | Part 5.1.1/5ab/5ac (rounds 1-3) |
 | Writing code | stages/s5/s5_p4_execution.md |
-| Testing feature | Part 5.3.1/Part 5.3.2/Part 5.3.3 (smoke/QC/review) |
+| Testing feature | S5.P5/S5.P6/S5.P7 (smoke/QC/review) |
 | Updating other specs | stages/s5/s5_p8_cross_feature_alignment.md |
 | Updating test plan | stages/s5/s5_p9_epic_testing_update.md |
 | Testing epic | stages/s6/s6_p1_epic_smoke_testing.md (start here) |
@@ -951,7 +951,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 - Stage 6 validates epic integration
 - Don't mix feature and epic concerns
 
-### 5. Iterative Refinement
+### 5. Continuous Refinement
 
 **Nothing is set in stone:**
 
@@ -1344,7 +1344,7 @@ You reported the following bugs during testing:
 
 Following Stage 7 bug fix protocol from stages/s7/s7_epic_cleanup.md:
 
-Phase 1: Document Bugs
+Step 1: Document Bugs
 
 Creating bug fix folders:
 - bugfix_high_incorrect_rankings/
@@ -1356,7 +1356,7 @@ Please verify these notes.txt files accurately describe the bugs...
 
 [Wait for user verification]
 
-Phase 2: Fix ALL Bugs
+Step 2: Fix ALL Bugs
 
 [For each bug fix, follow stages/s5/s5_bugfix_workflow.md]
 [Stage 2: Create spec.md]
@@ -1366,7 +1366,7 @@ Phase 2: Fix ALL Bugs
 
 Both bug fixes complete.
 
-Phase 3: RESTART Stage 6 (Epic Final QC)
+Step 3: RESTART Stage 6 (Epic Final QC)
 
 Following guide requirement: After bug fixes, must restart ENTIRE Stage 6.
 
@@ -1379,7 +1379,7 @@ Following guide requirement: After bug fixes, must restart ENTIRE Stage 6.
 
 Stage 6 complete with zero issues.
 
-Phase 4: Return to User Testing
+Step 4: Return to User Testing
 
 I've fixed both bugs and re-validated the epic (Stage 6 passed).
 
@@ -1508,7 +1508,7 @@ I'll now continue with iteration 11...
 
 ### Q: How does the guide improvement workflow work?
 
-**A:** Every epic includes mandatory guide updates (Stage 7.5):
+**A:** Every epic includes mandatory guide updates (S7.P1):
 
 **When:** After Stage 7 user testing passes, before final commit
 

@@ -117,17 +117,17 @@ Validate the implemented feature through smoke testing, QC rounds, and PR review
 
 ### Key Activities (3 Phases)
 
-**Phase 1: Smoke Testing (3 parts)**
+**Step 1: Smoke Testing (3 parts)**
 1. Import Test - Feature imports successfully
 2. Entry Point Test - Main entry points work
 3. E2E Execution Test - End-to-end workflow succeeds (MANDATORY GATE)
 
-**Phase 2: QC Rounds (3 rounds)**
+**Step 2: QC Rounds (3 rounds)**
 1. Round 1: Algorithm Verification
 2. Round 2: Consistency & Standards
 3. Round 3: Integration & Edge Cases
 
-**Phase 3: Final Review**
+**Step 3: Final Review**
 1. PR Review (7 categories)
 2. Lessons Learned documentation
 3. Zero tech debt tolerance
@@ -405,7 +405,7 @@ Mark next column as 🔄 (in progress)
 
 **Feature Implementation Lifecycle:**
 
-1. **Stage 5b (1-4 hours):** Write code, run tests after each phase
+1. **Stage 5b (1-4 hours):** Write code, run tests after each step
 2. **Stage 5c (45-90 min):** Smoke test, QC rounds, PR review
 3. **Stage 5d (15-30 min):** Update remaining feature specs (SKIP if last feature)
 4. **Stage 5e (15-30 min):** Update epic test plan (SKIP if last feature)

@@ -22,18 +22,18 @@ I'm reading `stages/s2/s2_feature_deep_dive.md` to ensure I follow the complete 
   - ASK USER via checklist.md questions BEFORE asserting in spec.md
   - Only document requirements after explicit user confirmation
   - If uncertain → create question, do NOT assume answer
-- Phase 1: Targeted research (ONLY for THIS feature's scope, not entire epic)
-- Phase 2: Update spec.md and checklist.md with findings
+- Step 1: Targeted research (ONLY for THIS feature's scope, not entire epic)
+- Step 2: Update spec.md and checklist.md with findings
   - Only write CONFIRMED information in spec.md (not assumptions)
   - Uncertain items go in checklist.md as questions
-- Phase 3: Interactive question resolution
+- Step 3: Interactive question resolution
   - ONE question at a time (Lesson learned: don't batch questions)
   - Update spec/checklist after EACH answer
   - Evaluate for new questions after each resolution
-- Phase 4: Feature complete + dynamic scope adjustment check
+- Step 4: Feature complete + dynamic scope adjustment check
   - If feature grew >30% in complexity → Propose split into 2 features
   - If new dependencies discovered → Create new features if needed
-- Phase 5: **Compare to completed feature specs** (if any features already done)
+- Step 5: **Compare to completed feature specs** (if any features already done)
   - Ensure alignment with previous features
   - Maintain consistency in approach
 - Checklist.md ALL items must be resolved (marked [x]) before Stage 2 complete

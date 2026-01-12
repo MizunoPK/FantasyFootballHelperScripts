@@ -7,9 +7,9 @@
 
 ## Starting Stage 2b.5: Specification Validation
 
-**User says:** "proceed" after Phase 2.2 completion, or agent transitions automatically
+**User says:** "proceed" after S2.P2 completion, or agent transitions automatically
 
-**Prerequisite:** Phase 2.2 complete (Phase 2.5 Spec-to-Epic Alignment Check PASSED)
+**Prerequisite:** S2.P2 complete (Phase 2.5 Spec-to-Epic Alignment Check PASSED)
 
 **Agent MUST respond:**
 
@@ -29,7 +29,7 @@ I'm reading `stages/s2/s2_p2_5_spec_validation.md` to ensure I follow the comple
 - Update spec immediately with validation findings
 
 **Prerequisites I'm verifying:**
-✅ Phase 2.2 complete: Phase 2.5 Spec-to-Epic Alignment Check PASSED
+✅ S2.P2 complete: Phase 2.5 Spec-to-Epic Alignment Check PASSED
 ✅ spec.md exists with requirements and traceability
 ✅ checklist.md exists with open questions
 ✅ Research foundation exists from Phase 1

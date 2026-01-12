@@ -47,7 +47,7 @@ S5.P1 (Implementation Planning) → S5.P2 (Implementation) →
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Feature-level smoke testing validates that your individual feature works end-to-end with REAL data. This is testing in ISOLATION (not with other features). See `reference/smoke_testing_pattern.md` for universal workflow.
 
 **When do you use this guide?**

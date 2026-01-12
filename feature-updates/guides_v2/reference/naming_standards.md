@@ -80,7 +80,7 @@ Content names vary by what the item actually is, not by its hierarchical level.
 **Common content terms used:**
 - **Stage** - Always used for Level 1 (1-7)
 - **Phase** - Major functional subdivision (often Level 2)
-- **Round** - Iterative cycles (Stage 5.1 uses for Level 3)
+- **Round** - Repeated cycles (Stage 5.1 uses for Level 3)
 - **Part** - Smaller divisions within phases or rounds
 - **Task** - Specific work items (Stage 6 uses for Level 3)
 - **Step** - Sequential actions (can be various levels)
@@ -120,7 +120,7 @@ Content names at deeper levels are **contextual** - chosen based on what makes s
 
 **Key Insight:** The same Level 3 position might be called:
 - "Part 5.1.1" (in Stage 5.1)
-- "Part 5.3.1" (in Stage 5.3)
+- "S5.P5" (in Stage 5.3)
 - "Task 6.1.1" (in Stage 6)
 
 All are **Level 3 items**, just named differently based on context.
@@ -186,10 +186,10 @@ All are **Level 3 items**, just named differently based on context.
 ### Stage 2: Feature Deep Dives
 ```
 2 (L1) - Feature Deep Dives
-  2.1 (L2) - Phase 2.1: Research
-  2.2 (L2) - Phase 2.2: Specification
+  2.1 (L2) - S2.P1: Research
+  2.2 (L2) - S2.P2: Specification
     (Special: 2.2.5 - Specification Validation checkpoint)
-  2.3 (L2) - Phase 2.3: Refinement
+  2.3 (L2) - S2.P3: Refinement
 ```
 **Levels used:** 2 (3 for special checkpoint 2.2.5)
 
@@ -215,7 +215,7 @@ All are **Level 3 items**, just named differently based on context.
 ```
 5 (L1) - Feature Implementation
 
-  5.1 (L2) - Phase 5.1: Implementation Planning
+  5.1 (L2) - S5.P1: Implementation Planning
     5.1.1 (L3) - Part 5.1.1: Round 1
       [Contains Iterations 1-9, Gates 4a, 7a]
     5.1.2 (L3) - Part 5.1.2: Round 2
@@ -228,14 +228,14 @@ All are **Level 3 items**, just named differently based on context.
       5.1.3.3 (L4) - Part 2b: Gate 3
         [Contains Iterations 25, 24, Gates 25, 24]
 
-  5.2 (L2) - Phase 5.2: Implementation Execution
+  5.2 (L2) - S5.P2: Implementation Execution
 
-  5.3 (L2) - Phase 5.3: Post-Implementation
-    5.3.1 (L3) - Part 5.3.1: Smoke Testing
-    5.3.2 (L3) - Part 5.3.2: QC Rounds
-    5.3.3 (L3) - Part 5.3.3: Final Review
+  5.3 (L2) - S5.P3: Post-Implementation
+    5.3.1 (L3) - S5.P5: Smoke Testing
+    5.3.2 (L3) - S5.P6: QC Rounds
+    5.3.3 (L3) - S5.P7: Final Review
 
-  5.4 (L2) - Phase 5.4: Post-Feature Alignment
+  5.4 (L2) - S5.P4: Post-Feature Alignment
 
   5.5 (L2) - Phase 5.5: Post-Feature Testing Update
 ```
@@ -247,19 +247,19 @@ All are **Level 3 items**, just named differently based on context.
 ```
 6 (L1) - Epic-Level Final QC
 
-  6.1 (L2) - Phase 6.1: Epic Smoke Testing
+  6.1 (L2) - S6.P1: Epic Smoke Testing
     6.1.1 (L3) - Pre-QC Verification
     6.1.2 (L3) - Epic Smoke Testing Execution
 
-  6.2 (L2) - Phase 6.2: Epic QC Rounds
+  6.2 (L2) - S6.P2: Epic QC Rounds
     6.2.1 (L3) - QC Round 1
     6.2.2 (L3) - QC Round 2
     6.2.3 (L3) - QC Round 3
 
-  6.3 (L2) - Phase 6.3: User Testing
+  6.3 (L2) - S6.P3: User Testing
     6.3.1 (L3) - User Testing & Bug Fixes
 
-  6.4 (L2) - Phase 6.4: Epic Final Review
+  6.4 (L2) - S6.P4: Epic Final Review
     6.4.1 (L3) - Epic PR Review
     6.4.2 (L3) - Validate Against Epic Request
     6.4.3 (L3) - Final Verification
@@ -273,7 +273,7 @@ All are **Level 3 items**, just named differently based on context.
 ### Stage 7: Epic Cleanup
 ```
 7 (L1) - Epic Cleanup
-  7.1 (L2) - Phase 7.1: Guide Update Workflow
+  7.1 (L2) - S7.P1: Guide Update Workflow
 ```
 **Levels used:** 2
 
@@ -369,20 +369,20 @@ Use hierarchy levels to structure headers within guide files:
 
 ```markdown
 # Stage 2: Feature Deep Dives
-## Phase 2.1: Research Phase
+## S2.P1: Research Phase
 ### Step 1: Epic Intent Extraction
 ```
 
 ```markdown
 # Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
+## S5.P1: Implementation Planning
 ### Part 5.1.3: Round 3
 #### Part 5.1.3.1: Preparation (Iterations 17-22)
 ```
 
 ```markdown
 # Stage 6: Epic-Level Final QC
-## Phase 6.2: Epic QC Rounds
+## S6.P2: Epic QC Rounds
 ### 6.2.1: QC Round 1 (Cross-Feature Integration)
 ```
 
@@ -395,7 +395,7 @@ Use hierarchy levels to structure headers within guide files:
 **Format:** Use notation with descriptive name for clarity
 
 ```
-"See Phase 2.1 (Research Phase)"
+"See S2.P1 (Research Phase)"
 "Complete Part 5.1.3 before proceeding to Part 5.1.3.1"
 "Gate 23a occurs in Part 5.1.3.2, Iteration 23a"
 "Execute task 6.1.1 (Pre-QC verification)"
@@ -410,11 +410,11 @@ Use hierarchy levels to structure headers within guide files:
 ### In Agent Status Sections
 
 ```markdown
-**Current Position:** Phase 5.1.2 (Implementation Planning - Round 2)
+**Current Position:** S5.P1.2 (Implementation Planning - Round 2)
 **Current Iteration:** Iteration 12 (within Part 5.1.2)
 **Next Action:** Complete Iteration 12, proceed to Iteration 13
 
-**Current Position:** Part 5.3.1 (Smoke Testing)
+**Current Position:** S5.P5 (Smoke Testing)
 **Current Test:** Part 3 - E2E Execution
 **Next Action:** Fix identified issues, restart from Part 1
 ```
@@ -422,7 +422,7 @@ Use hierarchy levels to structure headers within guide files:
 ### In Prompts
 
 ```markdown
-"I'm starting Phase 2.1 (Research Phase) for feature_01_player_manager.
+"I'm starting S2.P1 (Research Phase) for feature_01_player_manager.
 I've read the complete guide at stages/s2/s2_p1_research.md."
 
 "I've completed Part 5.1.3.2 (Round 3 Part 2a) including Gate 23a.
@@ -448,7 +448,7 @@ All 5 parts of the spec audit passed. Proceeding to Part 5.1.3.3."
 **Pattern:** File name contains the notation
 
 ```
-Looking for Phase 2.1? → Search for "phase_2.1"
+Looking for S2.P1? → Search for "phase_2.1"
 Looking for Part 5.1.3? → Search for "part_5.1.3"
 Looking for Part 5.1.3.2? → Search for "part_5.1.3.2"
 ```
@@ -493,9 +493,9 @@ Items at the same level with same parent:
 Within a level, items typically execute in numerical order:
 
 ```
-Phase 2.1 → Phase 2.2 → Phase 2.3
+S2.P1 → S2.P2 → S2.P3
 Part 5.1.1 → Part 5.1.2 → Part 5.1.3
-Task 6.1.1 → Task 6.1.2 (then move to Phase 6.2)
+Task 6.1.1 → Task 6.1.2 (then move to S6.P2)
 ```
 
 ---

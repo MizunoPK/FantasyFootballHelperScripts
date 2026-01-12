@@ -212,7 +212,7 @@
 
 **Execution Flow:**
 
-1. **Phase 1 - Data Loading:**
+1. **Step 1 - Data Loading:**
    - `run_simulation()` calls `_load_json_player_data()`
    - `_load_json_player_data()` calls:
      - `_build_week_folder_path()` → Construct paths
@@ -223,10 +223,10 @@
      - `_merge_projected_actual()` → Merge data
      - `_handle_missing_weeks()` → Handle errors
 
-2. **Phase 2 - Data Aggregation:**
+2. **Step 2 - Data Aggregation:**
    - `run_simulation()` calls `_aggregate_weekly_scores()`
 
-3. **Phase 3 - Win Rate Calculation:**
+3. **Step 3 - Win Rate Calculation:**
    - `run_simulation()` calls `_calculate_win_rate()`
 
 4. **Phase 4 - Validation:**

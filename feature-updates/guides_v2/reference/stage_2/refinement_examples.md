@@ -10,7 +10,7 @@
 
 ## Purpose
 
-This reference provides detailed examples for executing Refinement Phase (Phase 2.3). Use this alongside the main guide for:
+This reference provides detailed examples for executing Refinement Phase (S2.P3). Use this alongside the main guide for:
 - Example interactive question resolution
 - Sample feature scope adjustments
 - Cross-feature alignment comparisons
@@ -1359,7 +1359,7 @@ Would you like me to start Feature 02, or do you want to review anything else ab
 
 ## Success Criteria Summary
 
-**Refinement Phase (Phase 2.3) passes when:**
+**Refinement Phase (S2.P3) passes when:**
 
 ✅ **Phase 3 (Interactive Question Resolution):**
 - All checklist questions resolved (zero open items)

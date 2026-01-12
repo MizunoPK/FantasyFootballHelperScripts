@@ -57,7 +57,7 @@ I'm reading `stages/s6/s6_p1_epic_smoke_testing.md` to ensure I validate the ent
 **I'll now execute the evolved epic_smoke_test_plan.md...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Phase 6.1 - Epic Smoke Testing
+- Current Stage: S6.P1 - Epic Smoke Testing
 - Current Guide: stages/s6/s6_p1_epic_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Use EVOLVED test plan", "Verify OUTPUT DATA VALUES", "4-part smoke testing", "Cross-feature integration", "RESTART if ANY part fails"

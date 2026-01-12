@@ -10,7 +10,7 @@
 
 ## Purpose
 
-This reference provides detailed examples for executing Specification Phase (Phase 2.2). Use this alongside the main guide for:
+This reference provides detailed examples for executing Specification Phase (S2.P2). Use this alongside the main guide for:
 - Example spec.md sections with requirement traceability
 - Sample checklist.md with valid questions
 - Alignment check examples
@@ -567,9 +567,9 @@ C. **No logging** (silent default to 1.0 multiplier)
 - Missing requirements added: 0 requirements
 - Final requirement count: 5 (all traced to sources)
 
-**Ready for Phase 2.3:** ✅ YES
+**Ready for S2.P3:** ✅ YES
 
-**Next Action:** Present checklist to user (Gate 2) or proceed to Phase 2.3 Phase 3
+**Next Action:** Present checklist to user (Gate 2) or proceed to S2.P3 Phase 3
 ```
 
 ---
@@ -627,7 +627,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 2. REMOVE Requirement 7 from spec.md
 3. Add note to questions.md: "User deferred historical tracking and auto-updates to future"
 4. Re-run Phase 2.5 alignment check
-5. Do NOT proceed to Phase 2.3 until PASSED
+5. Do NOT proceed to S2.P3 until PASSED
 
 **Lesson:** Read "Out of Scope" section in Epic Intent. User explicitly said what NOT to include.
 ```
@@ -679,7 +679,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 2. Research draft UI code (might need mini Phase 1)
 3. Update checklist with UI-related questions
 4. Re-run Phase 2.5 alignment check
-5. Do NOT proceed to Phase 2.3 until PASSED
+5. Do NOT proceed to S2.P3 until PASSED
 
 **Lesson:** Read ALL explicit requests in Epic Intent. Missing even one means spec is incomplete.
 ```
@@ -807,10 +807,10 @@ User provided answers for all 6 questions. Preferred config-based approach for m
 
 ## Success Criteria Summary
 
-**Specification Phase (Phase 2.2) passes when:**
+**Specification Phase (S2.P2) passes when:**
 
 ✅ **Phase 2 (Spec & Checklist):**
-- spec.md has Epic Intent section (from Phase 2.1)
+- spec.md has Epic Intent section (from S2.P1)
 - All requirements have traceability (Epic Request/User Answer/Derived)
 - Components Affected section lists exact files/lines
 - Data Structures section describes formats
@@ -832,7 +832,7 @@ User provided answers for all 6 questions. Preferred config-based approach for m
 - Approval documented with timestamp
 - Gate 2 PASSED
 
-**Ready for Phase 2.3 or Stage 5a when all phases complete.**
+**Ready for S2.P3 or Stage 5a when all phases complete.**
 
 ---
 

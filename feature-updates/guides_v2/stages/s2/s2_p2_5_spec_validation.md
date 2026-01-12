@@ -28,7 +28,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Specification Validation Phase is a critical quality gate where you assume everything in the spec and checklist is wrong, inaccurate, or incomplete, then conduct deep research to validate every claim and self-resolve as many checklist questions as possible before user interaction.
 
 **When do you use this guide?**
@@ -494,10 +494,10 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 → **Proceed to:** stages/s_2/phase_2_refinement.md
 
 **What happens in STAGE_2c:**
-- Phase 3: Interactive Question Resolution (remaining questions only)
-- Phase 4: Dynamic Scope Adjustment
-- Phase 5: Cross-Feature Alignment
-- Phase 6: Acceptance Criteria & User Approval
+- Step 3: Interactive Question Resolution (remaining questions only)
+- Step 4: Dynamic Scope Adjustment
+- Step 5: Cross-Feature Alignment
+- Step 6: Acceptance Criteria & User Approval
 
 **Prerequisites for STAGE_2c:**
 - Validation Phase complete (from this guide)

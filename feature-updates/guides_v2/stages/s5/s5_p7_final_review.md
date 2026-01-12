@@ -41,7 +41,7 @@ S5.P5 (Smoke Testing) → S5.P6 (QC Rounds) →
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Final Review is the production readiness validation where you perform 11-category PR review, immediately apply lessons learned to guides, verify 100% completion, and document feature completion.
 
 **When do you use this guide?**
@@ -191,7 +191,7 @@ Re-Reading Checkpoint
 1. **READ:** `stages/s5/s5_pr_review_protocol.md`
 2. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
-   - Rounds 2-5: Iterative comprehensive reviews (fresh agent for each)
+   - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
    - 2 consecutive clean rounds required to pass
    - Maximum 5 rounds total
 
@@ -216,7 +216,7 @@ Re-Reading Checkpoint
 - If multi-approach issues → Escalate to user
 - If NO issues → Proceed to Round 2
 
-**Rounds 2-5: Iterative Comprehensive Reviews** (spawn 1 fresh agent per round)
+**Rounds 2-5: Repeated Comprehensive Reviews** (spawn 1 fresh agent per round)
 - Full checklist: Code Quality, Testing, Security, Documentation, Spec Alignment, Implementation Plan Alignment, Tech Debt, Performance
 - Continue until 2 consecutive clean rounds
 - If issues found → Fix all → Restart next round

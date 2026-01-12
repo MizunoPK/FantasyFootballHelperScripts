@@ -45,8 +45,8 @@ S6.P1 (Epic Smoke Testing) →
 
 ## Quick Start
 
-**What is this stage?**
-Epic-level QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (Part 5.3.2), these rounds focus on epic-wide patterns and architectural consistency. See `reference/qc_rounds_pattern.md` for universal workflow.
+**What is this guide?**
+Epic-level QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (S5.P6), these rounds focus on epic-wide patterns and architectural consistency. See `reference/qc_rounds_pattern.md` for universal workflow.
 
 **When do you use this guide?**
 - After STAGE_6a complete (Epic Smoke Testing passed)
@@ -92,7 +92,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
    - Restart destination: S6a (Epic Smoke Testing)
 
 3. ⚠️ Focus on EPIC-LEVEL validation (not feature-level)
-   - Feature-level QC done in Part 5.3.2
+   - Feature-level QC done in S5.P6
    - Epic-level focuses on: Integration, consistency, cohesion
    - Compare ACROSS ALL features (not individual features)
 

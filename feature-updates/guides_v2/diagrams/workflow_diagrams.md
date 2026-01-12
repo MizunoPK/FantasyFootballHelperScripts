@@ -28,9 +28,9 @@
          ┌──────────────────────────────────────┐
          │  STAGE 2: Feature Deep Dives         │
          │  (Loop through ALL features)         │
-         │  - Phase 2.1: Research               │
-         │  - Phase 2: Specification            │
-         │  - Phase 2.3: Refinement             │
+         │  - S2.P1: Research               │
+         │  - Step 2: Specification            │
+         │  - S2.P3: Refinement             │
          │  - Gate 3: User checklist approval   │
          └──────────────────┬───────────────────┘
                             │
@@ -79,7 +79,7 @@
          ┌──────────────────────────────────────┐
          │  STAGE 7: Epic Cleanup               │
          │  - Run unit tests (100% pass)        │
-         │  - Stage 7.5: Guide updates          │
+         │  - S7.P1: Guide updates          │
          │  - Commit changes                    │
          │  - Create Pull Request               │
          │  - User reviews and merges           │
@@ -126,11 +126,11 @@
        ▼                          │                       │
   ┌─────────┐                    │                       │
   │ Stage 5c│ Post-Implementation Testing                │
-  │         │ Phase 1: Smoke Testing (3 parts)           │
-  │         │ Phase 2: QC Rounds (3 rounds)              │
-  │         │   If issues → debugging → loop back Part 5.3.1    │
-  │         │ Phase 3: Final Review                      │
-  │         │ Phase 4: Commit feature code               │
+  │         │ Step 1: Smoke Testing (3 parts)           │
+  │         │ Step 2: QC Rounds (3 rounds)              │
+  │         │   If issues → debugging → loop back S5.P5    │
+  │         │ Step 3: Final Review                      │
+  │         │ Step 4: Commit feature code               │
   └────┬────┘                    │                       │
        │                          │                       │
        ▼                          │                       │

@@ -17,12 +17,12 @@
 I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic planning workflow...
 
 **The guide requires:**
-- Phase 1: Analyze epic request and codebase reconnaissance
-- Phase 2: Propose feature breakdown to user (user MUST approve)
-- Phase 3: Create epic folder structure
-- Phase 4: Create initial epic_smoke_test_plan.md (placeholder)
-- Phase 5: Create EPIC_README.md with Quick Reference Card
-- Phase 6: Create epic_lessons_learned.md
+- Step 1: Analyze epic request and codebase reconnaissance
+- Step 2: Propose feature breakdown to user (user MUST approve)
+- Step 3: Create epic folder structure
+- Step 4: Create initial epic_smoke_test_plan.md (placeholder)
+- Step 5: Create EPIC_README.md with Quick Reference Card
+- Step 6: Create epic_lessons_learned.md
 - NO SKIPPING USER APPROVAL for feature breakdown
 - If epic is large (>5 components): Propose feature breakdown early
 - If epic is small (<3 components): Propose single-feature approach

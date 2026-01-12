@@ -29,7 +29,7 @@ The v2 workflow is a **7-stage epic-driven development process** designed to:
 - **Epic-first thinking:** Top-level work unit is an "epic" (collection of features)
 - **Systematic validation:** Multiple QC checkpoints prevent issues
 - **Continuous alignment:** Specs updated as implementation reveals reality
-- **Iterative testing:** Test plan evolves with implementation
+- **Continuous testing:** Test plan evolves with implementation
 - **Mandatory prompts:** Phase transitions require explicit acknowledgment
 
 ---
@@ -78,8 +78,8 @@ STAGE 7: Epic Cleanup
    ↓
    Run unit tests (100% pass)
    User testing (MANDATORY)
-   If bugs found → Add to epic debugging/ISSUES_CHECKLIST.md → LOOP BACK to Phase 6.1
-   🆕 Stage 7.5: Guide updates from lessons (MANDATORY)
+   If bugs found → Add to epic debugging/ISSUES_CHECKLIST.md → LOOP BACK to S6.P1
+   🆕 S7.P1: Guide updates from lessons (MANDATORY)
       - Analyze lessons → Create proposals (P0-P3)
       - User approves individually → Apply changes
    Commit changes (separate commits for guides + epic)
@@ -97,10 +97,10 @@ STAGE 7: Epic Cleanup
 | When to Use | Guide File | Purpose |
 |-------------|------------|---------|
 | Starting a new epic | `stages/s1/s1_epic_planning.md` | Analyze request, propose features, create structure |
-| Planning a feature (start) | `stages/s2/s2_feature_deep_dive.md` | Router: Links to Phase 2.1, Phase 2.2, Phase 2.3 guides |
-| Phase 2.1 (Research) | `stages/s2/s2_p1_research.md` | Epic intent extraction, targeted research, audit |
-| Phase 2.2 (Specification) | `stages/s2/s2_p2_specification.md` | Spec with traceability, alignment check |
-| Phase 2.3 (Refinement) | `stages/s2/s2_p3_refinement.md` | Questions, scope, alignment, user approval |
+| Planning a feature (start) | `stages/s2/s2_feature_deep_dive.md` | Router: Links to S2.P1, S2.P2, S2.P3 guides |
+| S2.P1 (Research) | `stages/s2/s2_p1_research.md` | Epic intent extraction, targeted research, audit |
+| S2.P2 (Specification) | `stages/s2/s2_p2_specification.md` | Spec with traceability, alignment check |
+| S2.P3 (Refinement) | `stages/s2/s2_p3_refinement.md` | Questions, scope, alignment, user approval |
 | All features planned | `stages/s3/s3_cross_feature_sanity_check.md` | Validate alignment, resolve conflicts, get user sign-off |
 | Features aligned | `stages/s4/s4_epic_testing_strategy.md` | Update test plan based on specs |
 | Ready to implement (Round 1) | `stages/s5/s5_p1_planning_round1.md` | Iterations 1-7 + 4a: Requirements, dependencies, algorithms |
@@ -150,7 +150,7 @@ STAGE 7: Epic Cleanup
 - **v1:** Specs written upfront, never revisited
 - **v2:** Stage 5d updates specs after each feature implementation
 
-### 5. Iterative Test Planning
+### 5. Continuous Test Planning
 - **v1:** Test plan written once, never updated
 - **v2:** Test plan evolves: Stage 1 (placeholder) → Stage 4 (based on specs) → Stage 5e (based on implementation) → Stage 6 (execute)
 
@@ -265,10 +265,10 @@ feature-updates/
     │   ├── stage_1/
     │   │   └── s1_epic_planning.md
     │   ├── stage_2/
-    │   │   ├── s2_feature_deep_dive.md          ← Router (links to Phase 2.1/2.2/2.3)
-    │   │   ├── s2_p1_research.md           ← Phase 2.1 (Research)
-    │   │   ├── s2_p2_specification.md      ← Phase 2.2 (Specification)
-    │   │   └── s2_p3_refinement.md         ← Phase 2.3 (Refinement)
+    │   │   ├── s2_feature_deep_dive.md          ← Router (links to S2.P1/2.2/2.3)
+    │   │   ├── s2_p1_research.md           ← S2.P1 (Research)
+    │   │   ├── s2_p2_specification.md      ← S2.P2 (Specification)
+    │   │   └── s2_p3_refinement.md         ← S2.P3 (Refinement)
     │   ├── stage_3/
     │   │   └── s3_cross_feature_sanity_check.md
     │   ├── stage_4/
@@ -354,9 +354,9 @@ Agent MUST use phase transition prompt:
 I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic planning workflow...
 
 **The guide requires:**
-- Phase 1: Analyze epic request and codebase reconnaissance
-- Phase 2: Propose feature breakdown to user (user MUST approve)
-- Phase 3: Create epic folder structure
+- Step 1: Analyze epic request and codebase reconnaissance
+- Step 2: Propose feature breakdown to user (user MUST approve)
+- Step 3: Create epic folder structure
 - ... (list critical requirements)
 
 **Prerequisites I'm verifying:**
@@ -597,45 +597,45 @@ Stage 6 (Execution):
 10. **SPECIAL CASE - If discovered during Stage 6/7:**
     - Complete ALL remaining features first
     - Implement new/updated feature
-    - **RESTART epic testing from Phase 6.1 Step 1** (loop-back mechanism)
+    - **RESTART epic testing from S6.P1 Step 1** (loop-back mechanism)
 
 ---
 
 ### Workflow 3b: Debugging Issues During QC/Smoke Testing (Integrated Loop-Back)
 
-**During Feature-Level Testing (Part 5.3.1/Part 5.3.2):**
+**During Feature-Level Testing (S5.P5/S5.P6):**
 
 1. Agent runs Smoke Testing Part 3 (E2E) → Issues found
 2. Agent creates `feature_XX_{name}/debugging/` folder
 3. Agent creates ISSUES_CHECKLIST.md, adds all discovered issues
 4. Agent updates feature README.md Agent Status (entering debugging)
 5. Agent reads `debugging/debugging_protocol.md`
-6. **Phase 1:** Issue Discovery - Update checklist with issue details
-7. **Phase 2:** Investigation (PER ISSUE) - Run investigation rounds:
+6. **Step 1:** Issue Discovery - Update checklist with issue details
+7. **Step 2:** Investigation (PER ISSUE) - Run investigation rounds:
    - Round 1: Code Tracing (identify 2-3 suspicious areas)
    - Round 2: Hypothesis Formation (max 3 testable hypotheses)
    - Round 3: Diagnostic Testing (confirm root cause with evidence)
    - Repeat rounds if needed (max 5 rounds per issue)
-8. **Phase 3:** Solution Design & Implementation (per issue, with tests)
-9. **Phase 4:** User Verification (MANDATORY - user confirms each issue fixed)
-10. After ALL issues resolved → **Phase 5: Loop Back to Smoke Testing Part 1**
+8. **Step 3:** Solution Design & Implementation (per issue, with tests)
+9. **Step 4:** User Verification (MANDATORY - user confirms each issue fixed)
+10. After ALL issues resolved → **Step 5: Loop Back to Smoke Testing Part 1**
 11. Agent re-runs ALL smoke tests (Part 1, 2, 3) from beginning
 12. If NEW issues found → Back to Phase 1 (add to checklist)
-13. If ZERO issues → Proceed to Part 5.3.2 (QC Rounds)
+13. If ZERO issues → Proceed to S5.P6 (QC Rounds)
 
-**During Epic-Level Testing (Phase 6.1/6b):**
+**During Epic-Level Testing (S6.P1/6b):**
 
 1. Agent runs Epic Smoke Testing → Issues found
 2. Agent creates `{epic_name}/debugging/` folder (EPIC-LEVEL, not feature)
 3. Follow same 5-phase process as above
-4. After ALL issues resolved → **Loop back to Phase 6.1 Step 1 (Epic Smoke Testing)**
-5. If user finds bugs during Stage 7 testing → Add to epic debugging/ISSUES_CHECKLIST.md → Loop back to Phase 6.1
+4. After ALL issues resolved → **Loop back to S6.P1 Step 1 (Epic Smoke Testing)**
+5. If user finds bugs during Stage 7 testing → Add to epic debugging/ISSUES_CHECKLIST.md → Loop back to S6.P1
 
 **Key Differences from v1:**
 - Debugging folder WITHIN features/epics (not separate)
 - ALWAYS loop back to START of testing (not mid-testing)
 - Feature vs epic separation for issue tracking
-- User testing bugs loop to Phase 6.1 (NOT Stage 7)
+- User testing bugs loop to S6.P1 (NOT Stage 7)
 
 ---
 
@@ -732,7 +732,7 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 ### Q: When should I enter debugging protocol vs just fixing it?
 
 **Enter debugging protocol when:**
-- Issues discovered during Smoke Testing (Part 5.3.1/6a) or QC Rounds (Part 5.3.2/6b)
+- Issues discovered during Smoke Testing (S5.P5/6a) or QC Rounds (S5.P6/6b)
 - Root cause is UNKNOWN (requires investigation)
 - Issue affects multiple files or components
 - Multiple related issues discovered
@@ -831,7 +831,7 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 - Mandatory reading and prompts to prevent guide abandonment
 - Explicit status tracking for resumability
 - Continuous alignment as implementation reveals reality
-- Iterative test planning that evolves with implementation
+- Continuous test planning that evolves with implementation
 - Distinction between feature-level and epic-level validation
 
 **Key Files:**

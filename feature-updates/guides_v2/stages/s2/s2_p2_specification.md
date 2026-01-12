@@ -28,7 +28,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Specification Phase is where you create detailed technical specifications with requirement traceability (every requirement must have a source), identify open questions for the user, and verify spec alignment with epic intent through a mandatory gate.
 
 **When do you use this guide?**
@@ -306,7 +306,7 @@ For EACH requirement, verify:
 
 **Valid source types:**
 - **Epic Request:** Citation exists, quote accurate, matches user's words
-- **User Answer:** N/A at this stage (haven't asked questions yet)
+- **User Answer:** N/A at this point (haven't asked questions yet)
 - **Derived:** Explanation exists, logically necessary (not "nice to have")
 - **⚠️ ASSUMPTION:** INVALID → remove from spec, add to checklist
 
@@ -550,10 +550,10 @@ Update Agent Status in feature README.md:
 → **Proceed to:** stages/s_2/phase_2_refinement.md (STAGE_2c)
 
 **What happens in STAGE_2c (if needed):**
-- Phase 3: Handle any NEW questions (iterative)
-- Phase 4: Dynamic Scope Adjustment (split if >35 items)
-- Phase 5: Cross-Feature Alignment (compare to completed features)
-- Phase 6: Acceptance Criteria Creation (MANDATORY before S5a)
+- Step 3: Handle any NEW questions (repeated)
+- Step 4: Dynamic Scope Adjustment (split if >35 items)
+- Step 5: Cross-Feature Alignment (compare to completed features)
+- Step 6: Acceptance Criteria Creation (MANDATORY before S5a)
 
 **Prerequisites for S5a:**
 - ✅ Phase 2.5 alignment check PASSED

@@ -24,8 +24,8 @@
 
 ## Quick Start
 
-**What is this stage?**
-Implementation Execution is where you write the feature code following the implementation_plan.md, keeping spec.md visible at all times, verifying interfaces before coding, and running tests after every phase with mini-QC checkpoints.
+**What is this guide?**
+Implementation Execution is where you write the feature code following the implementation_plan.md, keeping spec.md visible at all times, verifying interfaces before coding, and running tests after each step with mini-QC checkpoints.
 
 **When do you use this guide?**
 - S5a complete (Round 3 Iteration 24 returned "GO")
@@ -34,7 +34,7 @@ Implementation Execution is where you write the feature code following the imple
 
 **Key Outputs:**
 - ✅ Feature code implemented phase by phase
-- ✅ All unit tests passing after every phase (100% pass required)
+- ✅ All unit tests passing after each step (100% pass required)
 - ✅ implementation_checklist.md updated in real-time
 - ✅ code_changes.md documentation complete
 - ✅ Mini-QC checkpoints passed after major components
@@ -93,7 +93,7 @@ S5b is complete when all implementation tasks from implementation_plan.md are im
    - BEFORE implementing: Read requirement in spec
    - AFTER implementing: Verify code matches spec
 
-4. ⚠️ Run unit tests after EVERY phase (100% pass required)
+4. ⚠️ Run unit tests after each step (100% pass required)
    - Do NOT proceed to next phase with failing tests
    - Fix failures immediately
 
@@ -872,7 +872,7 @@ python run_league_helper.py --mode draft
    ✅ STOP - Verify from interface contracts (it returns Tuple[float, int])
 
 ❌ "I'll skip mini-QC, the tests passed"
-   ✅ STOP - Mini-QC is MANDATORY after each phase
+   ✅ STOP - Mini-QC is MANDATORY after each step
 
 ❌ "Implementation looks good, I'll skip final smoke test"
    ✅ STOP - Final smoke test is MANDATORY (tests != E2E workflow)
@@ -890,7 +890,7 @@ python run_league_helper.py --mode draft
 
 **Feature:** ADP Integration
 
-**Phase 1: Core Data Loading**
+**Step 1: Core Data Loading**
 
 1. Read spec requirement: "Load ADP data from CSV"
 2. Keep spec.md VISIBLE while coding
@@ -903,7 +903,7 @@ python run_league_helper.py --mode draft
    - Loaded 200 rankings ✅
 8. Proceed to Phase 2
 
-**Phase 2: Matching Logic**
+**Step 2: Matching Logic**
 
 1. Read spec algorithm: "Match player to ADP ranking"
 2. Keep spec.md VISIBLE

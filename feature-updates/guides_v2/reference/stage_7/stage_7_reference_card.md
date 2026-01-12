@@ -2,7 +2,7 @@
 
 **Purpose:** One-page summary for final epic completion and archival
 **Use Case:** Quick lookup when committing changes and archiving epic
-**Total Time:** 40-80 minutes (includes Stage 7.5 guide updates)
+**Total Time:** 40-80 minutes (includes S7.P1 guide updates)
 **Note:** User testing completed in Stage 6 (Step 6) before Stage 7 begins
 
 ---
@@ -28,7 +28,7 @@ STEP 3: Documentation Verification (5-10 min)
     ├─ Verify all feature README.md files complete
     └─ Update any incomplete documentation
     ↓
-STEP 4: Guide Update from Lessons Learned (20-45 min) ← Stage 7.5 MANDATORY
+STEP 4: Guide Update from Lessons Learned (20-45 min) ← S7.P1 MANDATORY
     ├─ Read guide_update_workflow.md (complete 9-step process)
     ├─ Analyze ALL lessons_learned.md files (epic + features)
     ├─ Create GUIDE_UPDATE_PROPOSAL.md (prioritized P0-P3)
@@ -69,7 +69,7 @@ STEP 7: Final Verification & Completion (2 min)
 | 1 | 5 min | Pre-cleanup verification | No |
 | 2 | 5-10 min | Run unit tests (100% pass) | ✅ YES |
 | 3 | 5-10 min | Documentation verification | No |
-| 4 | 20-45 min | Guide updates (Stage 7.5, user approval) | No |
+| 4 | 20-45 min | Guide updates (S7.P1, user approval) | No |
 | 5 | 5-10 min | Final commit, create PR, merge | No |
 | 6 | 2 min | Move epic to done/ | No |
 | 7 | 2 min | Final verification | No |

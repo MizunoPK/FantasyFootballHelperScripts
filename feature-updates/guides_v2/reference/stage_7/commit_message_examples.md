@@ -159,7 +159,7 @@ EOF
 **Why this works:**
 - Clearly separates features from bug fixes
 - Documents bug fixes found during user testing
-- Shows iterative improvement process
+- Shows continuous improvement process
 - Includes bug fix folder reference
 
 ---

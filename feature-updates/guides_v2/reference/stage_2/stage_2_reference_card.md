@@ -1,7 +1,7 @@
 # STAGE 2: Feature Deep Dive - Quick Reference Card
 
 **Purpose:** One-page summary for quick consultation during Stage 2
-**Use Case:** Quick lookup when you need to remember phase details, gates, or decision points
+**Use Case:** Quick lookup when you need to remember guide details, gates, or decision points
 **Total Time:** 2-3 hours per feature (9 phases across 3 sub-stages)
 
 ---
@@ -9,16 +9,16 @@
 ## Sub-Stages Overview
 
 ```
-Phase 2.1: Research Phase (45-60 min)
+S2.P1: Research Phase (45-60 min)
     Phase 0: Epic Intent Extraction (15 min)
     Phase 1: Targeted Research (30 min)
     Phase 1.5: Research Completeness Audit (20 min) ← MANDATORY GATE
     ↓
-Phase 2.2: Specification Phase (30-45 min)
+S2.P2: Specification Phase (30-45 min)
     Phase 2: Update Spec & Checklist (30 min)
     Phase 2.5: Spec-to-Epic Alignment Check (15 min) ← MANDATORY GATE
     ↓
-Phase 2.3: Refinement Phase (45-60 min)
+S2.P3: Refinement Phase (45-60 min)
     Phase 3: Interactive Question Resolution (30-90 min)
     Phase 4: Dynamic Scope Adjustment (15 min)
     Phase 5: Cross-Feature Alignment (15-30 min)
@@ -193,17 +193,17 @@ Phase 2.3: Refinement Phase (45-60 min)
 **Phase 0:**
 - spec.md (Epic Intent section)
 
-**Phase 1:**
+**Step 1:**
 - epic/research/{FEATURE_NAME}_DISCOVERY.md
 
-**Phase 2:**
+**Step 2:**
 - spec.md (complete with requirements + traceability)
 - checklist.md (open questions)
 
 **Phase 2.5:**
 - spec.md (verified against epic)
 
-**Phase 3:**
+**Step 3:**
 - spec.md (updated based on user answers)
 - checklist.md (resolved items)
 

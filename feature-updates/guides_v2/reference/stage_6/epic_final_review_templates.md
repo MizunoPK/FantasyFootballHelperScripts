@@ -1,6 +1,6 @@
-# Epic Final Review Templates - Phase 6.3
+# Epic Final Review Templates - S6.P3
 
-**Purpose:** Templates for documenting Phase 6.3 results and lessons learned
+**Purpose:** Templates for documenting S6.P3 results and lessons learned
 **When to Use:** Steps 6-8 of epic_final_review.md workflow
 **Main Guide:** `stages/s6/s6_p4_epic_final_review.md`
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This reference provides all templates needed during Phase 6.3 (Epic Final Review):
+This reference provides all templates needed during S6.P3 (Epic Final Review):
 
 **Step 6 Templates:**
 - Epic PR Review Results (documenting review outcome)
@@ -23,7 +23,7 @@ This reference provides all templates needed during Phase 6.3 (Epic Final Review
 **Step 8 Templates:**
 - Final Verification Checklist (verifying completion)
 - Epic Progress Tracker Update (EPIC_README.md)
-- Phase 6.3 Lessons Learned (insights and improvements)
+- S6.P3 Lessons Learned (insights and improvements)
 - Agent Status Update (EPIC_README.md)
 
 ---
@@ -37,7 +37,7 @@ This reference provides all templates needed during Phase 6.3 (Epic Final Review
 ### Basic Template
 
 ```markdown
-## Phase 6.3 - Epic PR Review Results
+## S6.P3 - Epic PR Review Results
 
 **Date:** {YYYY-MM-DD}
 **Epic:** {epic_name}
@@ -58,7 +58,7 @@ This reference provides all templates needed during Phase 6.3 (Epic Final Review
 ### Example (Completed Review)
 
 ```markdown
-## Phase 6.3 - Epic PR Review Results
+## S6.P3 - Epic PR Review Results
 
 **Date:** 2025-01-02
 **Epic:** integrate_new_player_data_into_simulation
@@ -92,7 +92,7 @@ This reference provides all templates needed during Phase 6.3 (Epic Final Review
 ### Template
 
 ```markdown
-## Phase 6.3 Issues Found
+## S6.P3 Issues Found
 
 **Date:** {YYYY-MM-DD}
 
@@ -118,7 +118,7 @@ This reference provides all templates needed during Phase 6.3 (Epic Final Review
 ### Example (Multiple Issues)
 
 ```markdown
-## Phase 6.3 Issues Found
+## S6.P3 Issues Found
 
 **Date:** 2025-01-02
 
@@ -220,7 +220,7 @@ This reference provides all templates needed during Phase 6.3 (Epic Final Review
 ### Template
 
 ```markdown
-I found {number} issues during Phase 6.3 Epic PR Review that require bug fixes:
+I found {number} issues during S6.P3 Epic PR Review that require bug fixes:
 
 **ISSUE 1: {Issue Name} ({PRIORITY} priority)**
 - **Problem:** {Brief description of the issue}
@@ -236,7 +236,7 @@ I found {number} issues during Phase 6.3 Epic PR Review that require bug fixes:
 
 [Repeat for all high/medium priority issues]
 
-After fixing these issues, I'll need to RESTART Stage 6 from the beginning (Phase 6.1 smoke testing) to ensure the fixes didn't introduce new issues.
+After fixing these issues, I'll need to RESTART Stage 6 from the beginning (S6.P1 smoke testing) to ensure the fixes didn't introduce new issues.
 
 Should I proceed with creating these bug fixes?
 ```
@@ -244,7 +244,7 @@ Should I proceed with creating these bug fixes?
 ### Example
 
 ```markdown
-I found 2 issues during Phase 6.3 Epic PR Review that require bug fixes:
+I found 2 issues during S6.P3 Epic PR Review that require bug fixes:
 
 **ISSUE 1: Architectural Inconsistency (HIGH priority)**
 - **Problem:** Feature 01 uses Manager class pattern, Feature 02 uses standalone functions
@@ -258,7 +258,7 @@ I found 2 issues during Phase 6.3 Epic PR Review that require bug fixes:
 - **Fix:** Implement batch loading for matchup data in Feature 02
 - **Estimated time:** 1-2 hours
 
-After fixing these issues, I'll need to RESTART Stage 6 from the beginning (Phase 6.1 smoke testing) to ensure the fixes didn't introduce new issues.
+After fixing these issues, I'll need to RESTART Stage 6 from the beginning (S6.P1 smoke testing) to ensure the fixes didn't introduce new issues.
 
 Should I proceed with creating these bug fixes?
 ```
@@ -349,11 +349,11 @@ bugfix_{priority}_{name}/
 [List all bug fixes]
 
 **Restart Actions:**
-- ✅ Re-ran Phase 6.1: Epic Smoke Testing (all 4 parts) - {PASSED/issues found}
-- ✅ Re-ran Phase 6.2: QC Round 1 (Cross-Feature Integration) - {PASSED/issues found}
-- ✅ Re-ran Phase 6.2: QC Round 2 (Epic Cohesion & Consistency) - {PASSED/issues found}
-- ✅ Re-ran Phase 6.2: QC Round 3 (End-to-End Success Criteria) - {PASSED/issues found}
-- ✅ Re-ran Phase 6.3: Epic PR Review (all 11 categories) - {PASSED/issues found}
+- ✅ Re-ran S6.P1: Epic Smoke Testing (all 4 parts) - {PASSED/issues found}
+- ✅ Re-ran S6.P2: QC Round 1 (Cross-Feature Integration) - {PASSED/issues found}
+- ✅ Re-ran S6.P2: QC Round 2 (Epic Cohesion & Consistency) - {PASSED/issues found}
+- ✅ Re-ran S6.P2: QC Round 3 (End-to-End Success Criteria) - {PASSED/issues found}
+- ✅ Re-ran S6.P3: Epic PR Review (all 11 categories) - {PASSED/issues found}
 - ✅ All unit tests passing ({pass_rate}% - {N} tests)
 
 **Result:** Stage 6 {complete/incomplete} after restart ({no new issues found / N new issues found})
@@ -372,11 +372,11 @@ bugfix_{priority}_{name}/
 2. bugfix_high_performance_regression: Implemented batch loading for matchup data
 
 **Restart Actions:**
-- ✅ Re-ran Phase 6.1: Epic Smoke Testing (all 4 parts) - PASSED
-- ✅ Re-ran Phase 6.2: QC Round 1 (Cross-Feature Integration) - PASSED
-- ✅ Re-ran Phase 6.2: QC Round 2 (Epic Cohesion & Consistency) - PASSED
-- ✅ Re-ran Phase 6.2: QC Round 3 (End-to-End Success Criteria) - PASSED
-- ✅ Re-ran Phase 6.3: Epic PR Review (all 11 categories) - PASSED
+- ✅ Re-ran S6.P1: Epic Smoke Testing (all 4 parts) - PASSED
+- ✅ Re-ran S6.P2: QC Round 1 (Cross-Feature Integration) - PASSED
+- ✅ Re-ran S6.P2: QC Round 2 (Epic Cohesion & Consistency) - PASSED
+- ✅ Re-ran S6.P2: QC Round 3 (End-to-End Success Criteria) - PASSED
+- ✅ Re-ran S6.P3: Epic PR Review (all 11 categories) - PASSED
 - ✅ All unit tests passing (100% - 2247 tests)
 
 **Result:** Stage 6 complete after restart (no new issues found)
@@ -393,7 +393,7 @@ bugfix_{priority}_{name}/
 ### Template
 
 ```markdown
-## Phase 6.3 Final Verification
+## S6.P3 Final Verification
 
 **Date:** {YYYY-MM-DD HH:MM}
 
@@ -432,7 +432,7 @@ python tests/run_all_tests.py
 ### Example
 
 ```markdown
-## Phase 6.3 Final Verification
+## S6.P3 Final Verification
 
 **Date:** 2025-01-02 16:00
 
@@ -471,9 +471,9 @@ python tests/run_all_tests.py
   [List all features]
 
 **Stage 6 - Epic Final QC:** ✅ COMPLETE
-- Phase 6.1 (Epic Smoke Testing): ✅ COMPLETE
-- Phase 6.2 (Epic QC Rounds): ✅ COMPLETE
-- Phase 6.3 (Epic Final Review): ✅ COMPLETE
+- S6.P1 (Epic Smoke Testing): ✅ COMPLETE
+- S6.P2 (Epic QC Rounds): ✅ COMPLETE
+- S6.P3 (Epic Final Review): ✅ COMPLETE
 - Epic smoke testing passed: ✅
 - Epic QC rounds passed: ✅ (Rounds {1, 2, 3})
 - Epic PR review passed: ✅ ({N} categories)
@@ -499,9 +499,9 @@ python tests/run_all_tests.py
   - Feature 02: ✅ COMPLETE
 
 **Stage 6 - Epic Final QC:** ✅ COMPLETE
-- Phase 6.1 (Epic Smoke Testing): ✅ COMPLETE
-- Phase 6.2 (Epic QC Rounds): ✅ COMPLETE
-- Phase 6.3 (Epic Final Review): ✅ COMPLETE
+- S6.P1 (Epic Smoke Testing): ✅ COMPLETE
+- S6.P2 (Epic QC Rounds): ✅ COMPLETE
+- S6.P3 (Epic Final Review): ✅ COMPLETE
 - Epic smoke testing passed: ✅
 - Epic QC rounds passed: ✅ (Rounds 1, 2, 3)
 - Epic PR review passed: ✅ (11 categories)
@@ -515,16 +515,16 @@ python tests/run_all_tests.py
 
 ---
 
-## Template 9: Phase 6.3 Lessons Learned (Step 8.3)
+## Template 9: S6.P3 Lessons Learned (Step 8.3)
 
-**Purpose:** Document insights from Phase 6.3 for future improvement
+**Purpose:** Document insights from S6.P3 for future improvement
 **When to Use:** Step 8.3 after Stage 6 complete
 **Location:** Add to `KAI-{N}-{epic_name}/epic_lessons_learned.md`
 
 ### Template
 
 ```markdown
-## Phase 6.3 Lessons Learned (Epic Final Review)
+## S6.P3 Lessons Learned (Epic Final Review)
 
 **Date:** {YYYY-MM-DD}
 
@@ -555,7 +555,7 @@ python tests/run_all_tests.py
 - {Guide name}: {Specific improvement needed}
 - {Guide name}: {Specific improvement needed}
 
-**Phase 6.3 Statistics:**
+**S6.P3 Statistics:**
 - Epic PR Review time: {X minutes}
 - Issues found: {N} ({breakdown by priority})
 - Bug fixes created: {N}
@@ -569,7 +569,7 @@ python tests/run_all_tests.py
 ### Example
 
 ```markdown
-## Phase 6.3 Lessons Learned (Epic Final Review)
+## S6.P3 Lessons Learned (Epic Final Review)
 
 **Date:** 2025-01-02
 
@@ -602,10 +602,10 @@ python tests/run_all_tests.py
 
 **Guide Improvements Needed:**
 - STAGE_2 guide: Add "Architecture Pattern" section to spec template
-- Phase 5.3 guide: Add performance baseline comparison to smoke testing
-- Phase 5.4 guide: Add architectural pattern consistency check
+- S5.P3 guide: Add performance baseline comparison to smoke testing
+- S5.P4 guide: Add architectural pattern consistency check
 
-**Phase 6.3 Statistics:**
+**S6.P3 Statistics:**
 - Epic PR Review time: 45 minutes
 - Issues found: 2 (both high priority)
 - Bug fixes created: 2
@@ -630,13 +630,13 @@ python tests/run_all_tests.py
 ## Agent Status
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Stage:** Phase 6.3 - Epic Final Review
+**Current Stage:** S6.P3 - Epic Final Review
 **Status:** ✅ COMPLETE
 
 **Stage 6 Summary:**
-- Phase 6.1 (Epic Smoke Testing): ✅ {PASSED/issues found}
-- Phase 6.2 (Epic QC Rounds): ✅ {PASSED/issues found} (Rounds {1, 2, 3})
-- Phase 6.3 (Epic Final Review): ✅ {PASSED/issues found}
+- S6.P1 (Epic Smoke Testing): ✅ {PASSED/issues found}
+- S6.P2 (Epic QC Rounds): ✅ {PASSED/issues found} (Rounds {1, 2, 3})
+- S6.P3 (Epic Final Review): ✅ {PASSED/issues found}
 - Epic PR review: ✅ {PASSED/issues found} ({N} categories)
 - Issues found: {N} ({resolution status})
 - Bug fixes completed: {N}
@@ -654,13 +654,13 @@ python tests/run_all_tests.py
 ## Agent Status
 
 **Last Updated:** 2025-01-02 16:15
-**Current Stage:** Phase 6.3 - Epic Final Review
+**Current Stage:** S6.P3 - Epic Final Review
 **Status:** ✅ COMPLETE
 
 **Stage 6 Summary:**
-- Phase 6.1 (Epic Smoke Testing): ✅ PASSED
-- Phase 6.2 (Epic QC Rounds): ✅ PASSED (Rounds 1, 2, 3)
-- Phase 6.3 (Epic Final Review): ✅ PASSED
+- S6.P1 (Epic Smoke Testing): ✅ PASSED
+- S6.P2 (Epic QC Rounds): ✅ PASSED (Rounds 1, 2, 3)
+- S6.P3 (Epic Final Review): ✅ PASSED
 - Epic PR review: ✅ PASSED (11 categories)
 - Issues found: 2 (both fixed via bug fixes)
 - Bug fixes completed: 2
@@ -688,7 +688,7 @@ python tests/run_all_tests.py
 **Use Templates 7-10** during final verification (Step 8):
 - Template 7: Verify all work complete
 - Template 8: Update Epic Progress Tracker
-- Template 9: Document Phase 6.3 lessons learned
+- Template 9: Document S6.P3 lessons learned
 - Template 10: Update Agent Status to Stage 6 complete
 
 ---

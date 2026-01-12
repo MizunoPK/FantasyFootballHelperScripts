@@ -210,17 +210,17 @@ PHASE 5: Transition to Stage 2 (5 min)
 
 ## File Outputs
 
-**Phase 1:**
+**Step 1:**
 - Git branch: `{work_type}/KAI-{number}`
 - EPIC_TRACKER.md (updated and committed)
 - `feature-updates/KAI-{N}-{epic_name}/` folder
 - `KAI-{N}-{epic_name}/{epic_name}_notes.txt` (moved from root)
 - `KAI-{N}-{epic_name}/EPIC_README.md`
 
-**Phase 3:**
+**Step 3:**
 - Epic ticket in conversation (user-validated)
 
-**Phase 4:**
+**Step 4:**
 - `KAI-{N}-{epic_name}/feature_01_{name}/` (and feature_02, feature_03, etc.)
 - `KAI-{N}-{epic_name}/epic_smoke_test_plan.md` (PLACEHOLDER)
 - `KAI-{N}-{epic_name}/epic_lessons_learned.md`

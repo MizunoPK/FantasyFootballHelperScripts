@@ -204,7 +204,7 @@ I'll wait for your testing results before proceeding to the final review.
 
 ---
 
-### Phase 1: Document Bugs
+### Step 1: Document Bugs
 
 **1a. Create Bug Fix Folders**
 
@@ -275,7 +275,7 @@ Are these descriptions correct? Any clarifications needed?
 
 ---
 
-### Phase 2: Fix ALL Bugs
+### Step 2: Fix ALL Bugs
 
 For EACH bug fix folder:
 
@@ -312,7 +312,7 @@ Update EPIC_README.md:
 
 ---
 
-### Phase 3: RESTART S6 (Epic Final QC)
+### Step 3: RESTART S6 (Epic Final QC)
 
 ⚠️ **CRITICAL:** After ALL bugs are fixed, you MUST restart the entire S6 process.
 
@@ -354,7 +354,7 @@ Update EPIC_README.md:
 
 ---
 
-### Phase 4: Return to Step 6 (User Testing Again)
+### Step 4: Return to Step 6 (User Testing Again)
 
 **After S6a and 6b pass (no bugs found during smoke/QC):**
 

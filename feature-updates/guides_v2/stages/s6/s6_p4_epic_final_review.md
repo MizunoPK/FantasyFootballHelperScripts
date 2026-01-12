@@ -234,7 +234,7 @@ Prerequisites Met?
 1. **READ:** `stages/s_5/pr_review_protocol.md`
 2. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
-   - Rounds 2-5: Iterative comprehensive reviews (fresh agent for each)
+   - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
    - 2 consecutive clean rounds required to pass
    - Maximum 5 rounds total
 

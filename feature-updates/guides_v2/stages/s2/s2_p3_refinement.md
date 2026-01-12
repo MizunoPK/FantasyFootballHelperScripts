@@ -885,10 +885,10 @@ Find Feature Tracking table and mark S2 complete:
 **STAGE_2c (Refinement Phase) is complete when:**
 
 1. **All phases complete:**
-   - Phase 3: All questions resolved
-   - Phase 4: Scope validated
-   - Phase 5: Cross-feature alignment done
-   - Phase 6: Acceptance criteria user-approved
+   - Step 3: All questions resolved
+   - Step 4: Scope validated
+   - Step 5: Cross-feature alignment done
+   - Step 6: Acceptance criteria user-approved
 
 2. **Files current:**
    - spec.md has acceptance criteria + user approval

@@ -29,7 +29,7 @@
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Bug Fix Workflow is a streamlined process for handling bugs discovered during epic implementation, using a simplified workflow (S2 → 5a → 5b → 5c) that skips epic-level stages while maintaining full rigor for quality.
 
 **When do you use this guide?**
@@ -459,7 +459,7 @@ Integration test:
 - Interface Verification Protocol
 - Keep spec.md visible
 - Phase-by-phase implementation
-- Run tests after each phase
+- Run tests after each step
 - Update implementation_checklist.md
 
 ---

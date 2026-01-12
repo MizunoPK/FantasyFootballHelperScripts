@@ -24,7 +24,7 @@
 - Epic folder is ready for archival
 - Future agents can understand what was accomplished
 
-Rushing this stage results in incomplete documentation, missing commits, or disorganized done/ folder.
+Rushing this process results in incomplete documentation, missing commits, or disorganized done/ folder.
 
 ---
 

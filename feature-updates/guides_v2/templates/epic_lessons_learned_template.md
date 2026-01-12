@@ -157,7 +157,7 @@ This document captures:
 
 **Debugging (If Occurred):**
 - Issues discovered: {Count and brief summary}
-- Testing stage where found: {Part 5.3.1 / Part 5.3.2 / other}
+- Testing stage where found: {S5.P5 / S5.P6 / other}
 - Total debugging time: {Hours}
 - Key insights: {Brief insights from debugging/lessons_learned.md}
 - Process improvements identified: {Brief summary of process gaps from debugging/process_failure_analysis.md}
@@ -258,7 +258,7 @@ This document captures:
 
 **Debugging (If Occurred at Epic Level):**
 - Issues discovered: {Count and brief summary}
-- Testing stage where found: {Phase 6.1 / 6b / other}
+- Testing stage where found: {S6.P1 / 6b / other}
 - Total debugging time: {Hours}
 - Key insights: {Brief insights from {epic_name}/debugging/lessons_learned.md}
 - Process improvements identified: {Brief summary from {epic_name}/debugging/process_failure_analysis.md}

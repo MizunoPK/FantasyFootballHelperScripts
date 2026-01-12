@@ -18,7 +18,7 @@
 - Security Review
 - Documentation Review
 
-**Rounds 2-5: Iterative Comprehensive Reviews** (1 fresh agent per round)
+**Rounds 2-5: Repeated Comprehensive Reviews** (1 fresh agent per round)
 - Full systematic review using complete checklist
 - Continue until 2 consecutive rounds with ZERO issues
 - Maximum 5 rounds total
@@ -168,7 +168,7 @@ Review the following code changes for documentation issues:
 
 ---
 
-## Rounds 2-5: Iterative Comprehensive Reviews
+## Rounds 2-5: Repeated Comprehensive Reviews
 
 **Goal:** Continue reviewing with fresh eyes until 2 consecutive rounds find ZERO issues.
 
@@ -303,7 +303,7 @@ Perform a comprehensive PR review of the following code changes:
 2. **Systematic:** Use complete checklist every round
 3. **Zero Tolerance:** Cannot proceed with known issues
 4. **User Escalation:** Multi-approach issues go to user immediately
-5. **Iterative:** Fix and restart until clean
+5. **Repeated:** Fix and restart until clean
 6. **Documented:** All issues and fixes tracked in pr_review_issues.md
 
 ---

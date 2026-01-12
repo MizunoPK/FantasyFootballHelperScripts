@@ -25,8 +25,8 @@
 - After fixing bugs: Discover the fix revealed missing scope
 
 **During Epic-Level Work (Stage 6/7):**
-- Phase 6.1 (Epic Smoke Testing): Find missing integration between features
-- Phase 6.2 (Epic QC Rounds): Discover missing epic-level functionality
+- S6.P1 (Epic Smoke Testing): Find missing integration between features
+- S6.P2 (Epic QC Rounds): Discover missing epic-level functionality
 - Stage 7 (User Testing): User reports missing functionality that was in original intent
 
 **User Reports:**
@@ -71,7 +71,7 @@ Discovery: Root cause is missing validation layer
 
 ### Example 4: Discovered during epic testing
 ```
-Currently: Epic QC Round 1 (Phase 6.2)
+Currently: Epic QC Round 1 (S6.P2)
 
 Discovery: Missing integration between features
 - feature_02 and feature_04 need shared caching layer

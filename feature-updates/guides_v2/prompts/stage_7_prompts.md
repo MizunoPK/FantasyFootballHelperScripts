@@ -76,13 +76,13 @@ Running unit tests...
 
 ---
 
-## Stage 7.5: Guide Update from Lessons Learned (MANDATORY)
+## S7.P1: Guide Update from Lessons Learned (MANDATORY)
 
 **Trigger:** After Stage 7 STEP 3 complete (documentation verified), before final commit
 
 **Prerequisite:** All lessons_learned.md files complete
 
-**Agent MUST transition to Stage 7.5:**
+**Agent MUST transition to S7.P1:**
 
 ```
 I'm reading `stages/s7/s7_p1_guide_update_workflow.md` to apply lessons learned to guides...
@@ -125,7 +125,7 @@ I'm reading `stages/s7/s7_p1_guide_update_workflow.md` to apply lessons learned 
 **I'll now analyze the lessons learned from this epic and create GUIDE_UPDATE_PROPOSAL.md...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Stage 7.5 - Guide Update from Lessons Learned
+- Current Stage: S7.P1 - Guide Update from Lessons Learned
 - Current Phase: GUIDE_ANALYSIS
 - Current Guide: stages/s7/s7_p1_guide_update_workflow.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}

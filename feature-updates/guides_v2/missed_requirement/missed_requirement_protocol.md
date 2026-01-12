@@ -215,7 +215,7 @@ The missed requirement protocol consists of 4 phases (plus special case):
 - Complete planning (Stage 2/3/4) as usual
 - Complete ALL remaining features (entire Stage 5 sequence)
 - Implement new/updated feature (full Stage 5)
-- **RESTART epic-level testing from Phase 6.1 Step 1**
+- **RESTART epic-level testing from S6.P1 Step 1**
 
 **Output:** Epic testing restarted with new feature included
 
@@ -284,7 +284,7 @@ Discovered during Stage 6 or 7?
 
 ---
 
-### Scenario 2: Discovered During QC Rounds (Part 5.3.2)
+### Scenario 2: Discovered During QC Rounds (S5.P6)
 
 **Actions:**
 1. Use discovery.md to present options to user
@@ -296,7 +296,7 @@ Discovered during Stage 6 or 7?
 
 ---
 
-### Scenario 3: Discovered During Epic Testing (Phase 6.2)
+### Scenario 3: Discovered During Epic Testing (S6.P2)
 
 **Actions:**
 1. Use discovery.md to present options to user
@@ -305,7 +305,7 @@ Discovered during Stage 6 or 7?
 4. **Use stage_6_7_special.md for special restart protocol**
 5. Complete all remaining features
 6. Implement new/updated feature
-7. **RESTART epic testing from Phase 6.1 Step 1**
+7. **RESTART epic testing from S6.P1 Step 1**
 
 ---
 
@@ -320,7 +320,7 @@ Discovered during Stage 6 or 7?
 5. **Implementation:** Feature implemented later in sequence
 
 **Special Case:**
-- If discovered during Stage 6/7: Complete all features → Restart epic testing from Phase 6.1
+- If discovered during Stage 6/7: Complete all features → Restart epic testing from S6.P1
 
 **Key Principle:** Missed requirements are REAL features - treated with same rigor, proper planning, epic alignment
 
