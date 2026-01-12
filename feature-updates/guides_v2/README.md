@@ -34,7 +34,7 @@ The v2 workflow is a **10-stage epic-driven development process** designed to:
 
 ---
 
-## The 7 Stages
+## The 10 Stages
 
 ```
 STAGE 1: Epic Planning
@@ -61,29 +61,45 @@ STAGE 4: Epic Testing Strategy
    Identify integration points
    Define epic success criteria
 
-STAGE 5: Feature Implementation (Loop per feature)
-   ├─ 5a: Implementation Planning (24 verification iterations)
-   ├─ 5b: Implementation (coding with continuous verification)
-   ├─ 5c: Post-Implementation (smoke testing + 3 QC rounds + PR review)
-   ├─ 5d: Cross-Feature Alignment (update remaining feature specs)
-   └─ 5e: Epic Testing Plan Update (update based on actual implementation)
-
-STAGE 6: Epic-Level Final QC
+STAGES 5-8: Feature Loop (Repeat for each feature)
    ↓
-   Execute evolved epic_smoke_test_plan.md
-   3 epic-level QC rounds
-   Validate against original epic request
-
-STAGE 7: Epic Cleanup
+STAGE 5: Implementation Planning
+   ├─ 28 verification iterations across 3 rounds
+   ├─ Gate 4a: TODO Specification Audit (Round 1)
+   ├─ Gate 7a: Backward Compatibility Check (Round 1)
+   ├─ Gate 23a: Pre-Implementation Spec Audit (Round 3)
+   ├─ Gate 24: GO/NO-GO Decision (Round 3)
+   └─ Gate 25: Spec Validation Check (Round 3)
    ↓
-   Run unit tests (100% pass)
-   User testing (MANDATORY)
-   If bugs found → Add to epic debugging/ISSUES_CHECKLIST.md → LOOP BACK to S9.P1
-   🆕 S10.P1: Guide updates from lessons (MANDATORY)
-      - Analyze lessons → Create proposals (P0-P3)
-      - User approves individually → Apply changes
-   Commit changes (separate commits for guides + epic)
-   Move epic to done/ folder
+STAGE 6: Implementation Execution
+   ├─ Create implementation_checklist.md
+   ├─ Implement from implementation_plan.md
+   ├─ Continuous verification and mini-QC checkpoints
+   └─ 100% test pass required
+   ↓
+STAGE 7: Implementation Testing & Review
+   ├─ S7.P1: Smoke Testing (3 parts - MANDATORY GATE)
+   ├─ S7.P2: QC Rounds (3 rounds with restart protocol)
+   └─ S7.P3: Final Review (PR review, lessons learned)
+   ↓
+STAGE 8: Post-Feature Alignment
+   ├─ S8.P1: Cross-Feature Spec Alignment (update remaining features)
+   ├─ S8.P2: Epic Testing Plan Reassessment (update test plan)
+   └─ Loop back to Stage 5 for next feature OR proceed to Stage 9
+   ↓
+STAGE 9: Epic-Level Final QC
+   ├─ S9.P1: Epic Smoke Testing
+   ├─ S9.P2: Epic QC Rounds (3 rounds)
+   ├─ S9.P3: User Testing (MANDATORY - must report "no bugs found")
+   └─ S9.P4: Epic Final Review
+   ↓
+STAGE 10: Epic Cleanup
+   ├─ Run unit tests (100% pass required)
+   ├─ S10.P1: Guide Updates (MANDATORY)
+   │   └─ Analyze lessons → Create proposals (P0-P3) → User approves → Apply
+   ├─ Commit epic changes
+   ├─ Create PR
+   └─ Move epic to done/ folder
 ```
 
 **Visual Diagrams:** See `diagrams/workflow_diagrams.md` for ASCII art diagrams of complete workflow, Stage 5 detail, and debugging protocol integration.
@@ -379,7 +395,7 @@ Agent executes Stage 1 phases:
 
 ### Step 5: Continue Through Stages
 
-Agent continues through all 7 stages for the complete epic lifecycle.
+Agent continues through all 10 stages for the complete epic lifecycle.
 
 ---
 
@@ -556,15 +572,15 @@ Stage 9 (Execution):
 5. Agent creates `implementation_plan.md` (~400 lines) and `questions.md`
 6. **User approves implementation_plan.md** (MANDATORY CHECKPOINT)
 7. **Stage 5a complete**
-8. Agent reads `stages/s9/s6_execution.md`
+8. Agent reads `stages/s6/s6_execution.md`
 9. Agent creates `implementation_checklist.md` (~50 lines) from implementation_plan.md tasks
 10. Agent implements feature using implementation_plan.md as PRIMARY reference (spec.md provides context)
 11. **Stage 5b complete**
-12. Agent reads `stages/s10/s7_p1_smoke_testing.md`
+12. Agent reads `stages/s7/s7_p1_smoke_testing.md`
 13. Agent runs smoke testing (3 parts - MANDATORY GATE)
-14. Agent reads `stages/s10/s7_p2_qc_rounds.md`
+14. Agent reads `stages/s7/s7_p2_qc_rounds.md`
 15. Agent runs 3 QC rounds (restart protocol if issues found)
-16. Agent reads `stages/s10/s7_p3_final_review.md`
+16. Agent reads `stages/s7/s7_p3_final_review.md`
 17. Agent runs PR review (11 categories) and captures lessons learned
 18. **Stage 5c complete**
 19. Agent reads `stages/s8/s8_p1_cross_feature_alignment.md`
@@ -585,7 +601,7 @@ Stage 9 (Execution):
    - Option 1: Create new feature_{XX}_{name}/
    - Option 2: Update unstarted feature to include requirement
 3. User decides which approach + priority (high/medium/low) + sequence position (if new)
-4. Agent reads `stages/s5/missed_requirement_workflow.md`
+4. Agent reads `missed_requirement/missed_requirement_protocol.md`
 5. Agent pauses current work, updates EPIC_README with paused status
 6. Agent returns to planning stages:
    - **Stage 2:** Flesh out new/updated feature spec (full deep dive)

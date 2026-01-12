@@ -475,17 +475,17 @@ git diff    # Review changes
 ❌ **Defer issues for "later"** (fix immediately)
 ❌ **Skip QC restart** when issues found (restart from beginning)
 ❌ **Commit without running tests**
-❌ **Commit without user testing approval** (S7)
+❌ **Commit without user testing approval** (S10)
 
 ### Quality Gates
 
 **🛑 MANDATORY GATES (cannot proceed without passing):**
 - Gate 3: User Checklist Approval (S2)
 - Gate 4.5: Epic Test Plan Approval (S4)
-- Gate 5: Implementation Plan Approval (S5.P1)
+- Gate 5: Implementation Plan Approval (S5)
 - Gate 23a: Pre-Implementation Spec Audit (S5.P3 Round 3)
-- Smoke Testing: Must pass before QC rounds (S5.P5)
-- User Testing: Must pass before commit (S7)
+- Smoke Testing: Must pass before QC rounds (S7.P1)
+- User Testing: Must pass before S10 (S9.P3)
 
 **See:** `feature-updates/guides_v2/reference/common_mistakes.md` for comprehensive anti-pattern reference
 
