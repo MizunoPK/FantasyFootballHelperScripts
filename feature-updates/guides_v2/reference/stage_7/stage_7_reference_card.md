@@ -81,7 +81,7 @@ STEP 7: Final Verification & Completion (2 min)
 ## Mandatory Gates (1 Required in Stage 7)
 
 ### Gate 1: Unit Tests - 100% Pass (Step 2)
-**Location:** stages/stage_7/epic_cleanup.md Step 2
+**Location:** stages/s7/s7_epic_cleanup.md Step 2
 **What it checks:**
 - All unit tests passing
 - Exit code = 0
@@ -105,7 +105,7 @@ python tests/run_all_tests.py
 ## Prerequisites from Stage 6
 
 ### User Testing Already Complete
-**Location:** stages/stage_6/phase_6.4_epic_final_review.md Step 6
+**Location:** stages/s6/s6_p4_epic_final_review.md Step 6
 **What was checked:**
 - User tested complete system themselves
 - User reported ZERO bugs
@@ -346,7 +346,7 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 
 | Current Activity | Guide to Read |
 |------------------|---------------|
-| Starting Stage 7 | stages/stage_7/epic_cleanup.md |
+| Starting Stage 7 | stages/s7/s7_epic_cleanup.md |
 | Commit message format | reference/stage_7/commit_message_examples.md |
 | Epic completion format | reference/stage_7/epic_completion_template.md |
 | Lessons learned examples | reference/stage_7/lessons_learned_examples.md |

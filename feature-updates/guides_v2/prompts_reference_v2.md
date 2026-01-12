@@ -145,7 +145,7 @@ Document guide read, critical rules, next action
 
 **✅ CORRECT:**
 ```
-I'm reading `stages/stage_5/part_5.1.1_round1.md` to ensure I follow all 8 iterations in Round 1...
+I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterations in Round 1...
 {List critical requirements for Round 1}
 ```
 
@@ -162,7 +162,7 @@ I'm reading `stages/stage_5/part_5.1.1_round1.md` to ensure I follow all 8 itera
 
 **✅ CORRECT:**
 ```
-I'm reading `stages/stage_5/part_5.3.1_smoke_testing.md`...
+I'm reading `stages/s5/s5_p5_smoke_testing.md`...
 **The guide requires:**
 - Part 1: Import test
 - Part 2: Entry point test

@@ -27,7 +27,7 @@
 
 **🚨 FIRST ACTION:** Use "Starting Stage 3" prompt from `prompts/stage_3_prompts.md`
 
-**READ:** `stages/stage_3/cross_feature_sanity_check.md`
+**READ:** `stages/s3/s3_cross_feature_sanity_check.md`
 
 **IMPORTANT:** Don't just check the new/updated feature - check ALL feature pairs
 
@@ -149,7 +149,7 @@ Proceed to Stage 4 (Epic Testing Strategy update)? {User confirms}
 
 **🚨 FIRST ACTION:** Use "Starting Stage 4" prompt from `prompts/stage_4_prompts.md`
 
-**READ:** `stages/stage_4/epic_testing_strategy.md`
+**READ:** `stages/s4/s4_epic_testing_strategy.md`
 
 ---
 
@@ -341,7 +341,7 @@ When planning complete:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 
 **Current Phase:** IMPLEMENTATION_EXECUTION (Resumed)
-**Current Guide:** stages/stage_5/phase_5.2_implementation_execution.md
+**Current Guide:** stages/s5/s5_p4_execution.md
 
 **Resumed After:** Missed requirement planning complete
 - feature_05_injury_tracking spec created and aligned

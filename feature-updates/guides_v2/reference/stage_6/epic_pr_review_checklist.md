@@ -2,7 +2,7 @@
 
 **Purpose:** Complete checklist for epic-level PR review (Phase 6.3 Step 6)
 **When to Use:** After Phase 6.2 QC rounds complete, before final verification
-**Main Guide:** `stages/stage_6/phase_6.4_epic_final_review.md`
+**Main Guide:** `stages/s6/s6_p4_epic_final_review.md`
 
 ---
 
@@ -21,7 +21,7 @@ Epic-level PR review focuses on CROSS-FEATURE concerns that emerge when multiple
 - Feature-specific implementation details (unless they affect other features)
 
 **Review Protocol:**
-This checklist supplements the complete PR review protocol. See `stages/stage_5/pr_review_protocol.md` for:
+This checklist supplements the complete PR review protocol. See `stages/s5/s5_pr_review_protocol.md` for:
 - Hybrid multi-round approach (Round 1: 4 specialized reviews, Rounds 2-5: comprehensive reviews)
 - Fresh agent spawning via Task tool
 - pr_review_issues.md tracking
@@ -32,7 +32,7 @@ This checklist supplements the complete PR review protocol. See `stages/stage_5/
 ## How to Use This Checklist
 
 **During Epic PR Review (Step 6):**
-1. Follow `stages/stage_5/pr_review_protocol.md` for complete review process
+1. Follow `stages/s5/s5_pr_review_protocol.md` for complete review process
 2. Spawn fresh agents for each review round
 3. Use this checklist as **reference for epic-level considerations**
 4. Fresh agents automatically apply 11-category checklist during Rounds 2-5
@@ -814,14 +814,14 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 ## See Also
 
 **Main Guide:**
-- `stages/stage_6/phase_6.4_epic_final_review.md` - Complete Step 6 workflow
+- `stages/s6/s6_p4_epic_final_review.md` - Complete Step 6 workflow
 
 **PR Review Protocol:**
-- `stages/stage_5/pr_review_protocol.md` - Complete hybrid multi-round approach
+- `stages/s5/s5_pr_review_protocol.md` - Complete hybrid multi-round approach
 
 **Related Guides:**
-- `stages/stage_6/phase_6.2_epic_qc_rounds.md` - Previous stage
-- `stages/stage_7/epic_cleanup.md` - Next stage (if review passes)
+- `stages/s6/s6_p2_epic_qc_rounds.md` - Previous stage
+- `stages/s7/s7_epic_cleanup.md` - Next stage (if review passes)
 
 **Templates:**
 - `reference/stage_6/epic_final_review_templates.md` - Documentation templates

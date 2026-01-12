@@ -185,7 +185,7 @@ feature_XX_{name}/debugging/
 
 **Note:** Previously Stage 7 Step 4, now a dedicated Stage 7.5 workflow with user approval for each proposal.
 
-**Complete Workflow Guide:** `stages/stage_7/phase_7.1_guide_update_workflow.md`
+**Complete Workflow Guide:** `stages/s7/s7_p1_guide_update_workflow.md`
 
 **Process Summary:**
 
@@ -221,7 +221,7 @@ feature_XX_{name}/debugging/
 
 **Why this matters:** Debugging lessons are the MOST ACTIONABLE because they come from actual bugs that reached testing. Stage 7.5 ensures these lessons get prioritized (P0/P1) and user-approved before being applied to guides.
 
-**See:** `stages/stage_7/phase_7.1_guide_update_workflow.md` for complete 9-step workflow
+**See:** `stages/s7/s7_p1_guide_update_workflow.md` for complete 9-step workflow
 
 ---
 

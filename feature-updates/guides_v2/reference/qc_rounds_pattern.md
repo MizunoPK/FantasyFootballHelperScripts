@@ -3,8 +3,8 @@
 **Purpose:** Generic QC rounds workflow applicable to both feature-level (Part 5.3.2) and epic-level (Phase 6.2) quality control.
 
 **This is a REFERENCE PATTERN.** Actual guides:
-- **Feature-level:** `stages/stage_5/part_5.3.2_qc_rounds.md`
-- **Epic-level:** `stages/stage_6/phase_6.2_epic_qc_rounds.md`
+- **Feature-level:** `stages/s5/s5_p6_qc_rounds.md`
+- **Epic-level:** `stages/s6/s6_p2_epic_qc_rounds.md`
 
 ---
 
@@ -442,5 +442,5 @@ Did QC round find issues?
 ---
 
 *For actual implementation guides, see:*
-- Feature-level: `stages/stage_5/part_5.3.2_qc_rounds.md`
-- Epic-level: `stages/stage_6/phase_6.2_epic_qc_rounds.md`
+- Feature-level: `stages/s5/s5_p6_qc_rounds.md`
+- Epic-level: `stages/s6/s6_p2_epic_qc_rounds.md`

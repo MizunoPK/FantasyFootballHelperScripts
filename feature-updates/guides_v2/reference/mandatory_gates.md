@@ -92,7 +92,7 @@
 
 ### Gate 1: Phase 1.5 - Research Completeness Audit
 
-**Location:** stages/stage_2/phase_2.1_research.md
+**Location:** stages/s2/s2_p1_research.md
 **When:** After completing targeted research (Phase 1)
 
 **What it checks:**
@@ -123,7 +123,7 @@
 
 ### Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check
 
-**Location:** stages/stage_2/phase_2.2_specification.md
+**Location:** stages/s2/s2_p2_specification.md
 **When:** After updating spec.md and checklist.md (Phase 2)
 
 **What it checks:**
@@ -151,7 +151,7 @@
 
 ### Gate 3: User Checklist Approval (🚨 NEW MANDATORY GATE)
 
-**Location:** stages/stage_2/phase_2.2_specification.md (Phase 2.2)
+**Location:** stages/s2/s2_p2_specification.md (Phase 2.2)
 **When:** After Gate 2 (Spec-to-Epic Alignment Check) passes
 
 **What it checks:**
@@ -193,7 +193,7 @@
 
 ### Gate 4: User Approval (Acceptance Criteria)
 
-**Location:** stages/stage_2/phase_2.3_refinement.md (Phase 2.3)
+**Location:** stages/s2/s2_p3_refinement.md (Phase 2.3)
 **When:** After creating acceptance criteria
 
 **What it checks:**
@@ -216,7 +216,7 @@
 
 ### Gate 1: User Sign-Off on Complete Epic Plan
 
-**Location:** stages/stage_3/cross_feature_sanity_check.md
+**Location:** stages/s3/s3_cross_feature_sanity_check.md
 **When:** After all features planned and conflicts resolved
 
 **What it checks:**
@@ -240,7 +240,7 @@
 
 ### Gate 4.5: Epic Test Plan Approval (🚨 NEW MANDATORY GATE)
 
-**Location:** stages/stage_4/epic_testing_strategy.md
+**Location:** stages/s4/s4_epic_testing_strategy.md
 **When:** After updating epic_smoke_test_plan.md (before Stage 5a begins)
 
 **What it checks:**
@@ -293,7 +293,7 @@
 
 ### Gate 1: Iteration 4a - Implementation Plan Specification Audit
 
-**Location:** stages/stage_5/part_5.1.1_round1.md (Round 1)
+**Location:** stages/s5/s5_p1_planning_round1.md (Round 1)
 **When:** After creating initial implementation_plan.md (Iteration 4)
 
 **What it checks:**
@@ -322,7 +322,7 @@
 
 ### Gate 2: Iteration 23a - Pre-Implementation Spec Audit (5 PARTS)
 
-**Location:** stages/stage_5/5.1.3.2_round3_part2a.md (Round 3 Part 2a)
+**Location:** stages/s5/5.1.3.2_round3_part2a.md (Round 3 Part 2a)
 **When:** After preparation iterations (Iterations 17-22)
 
 **ALL 5 PARTS must PASS:**
@@ -377,7 +377,7 @@
 
 ### Gate 3: Iteration 25 - Spec Validation Against Validated Documents (CRITICAL)
 
-**Location:** stages/stage_5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
+**Location:** stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
 **When:** After Iteration 23a passes
 
 **What it checks:**
@@ -426,7 +426,7 @@
 
 ### Gate 4: Iteration 24 - Implementation Readiness Protocol (GO/NO-GO)
 
-**Location:** stages/stage_5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
+**Location:** stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
 **When:** After Iteration 25 passes
 
 **What it checks (comprehensive checklist):**
@@ -507,7 +507,7 @@
 
 ### Gate 5: Part 5.3.1 Part 3 - E2E Smoke Test (Data Validation)
 
-**Location:** stages/stage_5/part_5.3.1_smoke_testing.md
+**Location:** stages/s5/s5_p5_smoke_testing.md
 **When:** After Part 1 (Import) and Part 2 (Entry Point) tests pass
 
 **What it checks:**
@@ -535,7 +535,7 @@
 
 ### Gate 6: Part 5.3.2 QC Round 3 - ZERO Issues Required
 
-**Location:** stages/stage_5/part_5.3.2_qc_rounds.md
+**Location:** stages/s5/s5_p6_qc_rounds.md
 **When:** After QC Rounds 1 and 2 pass
 
 **What it checks:**
@@ -586,7 +586,7 @@
 
 ### Gate 7.1: Unit Tests (100% Pass)
 
-**Location:** stages/stage_7/epic_cleanup.md
+**Location:** stages/s7/s7_epic_cleanup.md
 **When:** Before user testing
 
 **What it checks:**
@@ -608,7 +608,7 @@
 
 ### Gate 7.2: User Testing (ZERO Bugs)
 
-**Location:** stages/stage_7/epic_cleanup.md
+**Location:** stages/s7/s7_epic_cleanup.md
 **When:** After unit tests pass (final gate before commit)
 
 **What it checks:**
@@ -620,7 +620,7 @@
 - User approves epic for commit
 
 **If FAIL (user finds ANY bugs):**
-- Create bug fix following stages/stage_5/bugfix_workflow.md
+- Create bug fix following stages/s5/s5_bugfix_workflow.md
 - Bug fix goes through: Stage 2 → 5a → 5b → 5c
 - After bug fix complete: **Restart Stage 6** (Epic-Level Final QC)
 - Re-run Stage 6 → Stage 7 → User testing

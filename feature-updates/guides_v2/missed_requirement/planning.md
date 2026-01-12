@@ -75,7 +75,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Current Stage:** Stage 2 (Feature Deep Dive)
-**Current Guide:** stages/stage_2/feature_deep_dive.md
+**Current Guide:** stages/s2/s2_feature_deep_dive.md
 
 **Next Action:** Follow Stage 2 process (Phases 0-6)
 
@@ -107,7 +107,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 
 **🚨 FIRST ACTION:** Use "Starting Stage 2" prompt from `prompts/stage_2_prompts.md`
 
-**READ:** `stages/stage_2/feature_deep_dive.md`
+**READ:** `stages/s2/s2_feature_deep_dive.md`
 
 **Follow complete Stage 2 process:**
 
@@ -192,7 +192,7 @@ cat feature_{XX}_{name}/README.md
 
 **🚨 FIRST ACTION:** Use "Starting Stage 2" prompt from `prompts/stage_2_prompts.md`
 
-**READ:** `stages/stage_2/feature_deep_dive.md`
+**READ:** `stages/s2/s2_feature_deep_dive.md`
 
 **Update approach:**
 

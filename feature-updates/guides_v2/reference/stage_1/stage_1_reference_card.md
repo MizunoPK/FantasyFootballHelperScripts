@@ -63,7 +63,7 @@ PHASE 5: Transition to Stage 2 (5 min)
 ## Mandatory Gates
 
 ### Gate 1: Feature Breakdown Approval (Phase 3)
-**Location:** stages/stage_1/epic_planning.md Phase 3
+**Location:** stages/s1/s1_epic_planning.md Phase 3
 **What it checks:**
 - User approves proposed feature list
 - Feature breakdown makes sense
@@ -73,7 +73,7 @@ PHASE 5: Transition to Stage 2 (5 min)
 **If FAIL:** User provides feedback, agent revises breakdown, re-proposes
 
 ### Gate 2: Epic Ticket Validation (Phase 3)
-**Location:** stages/stage_1/epic_planning.md Steps 3.6-3.7
+**Location:** stages/s1/s1_epic_planning.md Steps 3.6-3.7
 **What it checks:**
 - Epic ticket accurately reflects user's desired outcomes
 - Agent understanding validated
@@ -254,7 +254,7 @@ PHASE 5: Transition to Stage 2 (5 min)
 
 | Current Activity | Guide to Read |
 |------------------|---------------|
-| Starting a new epic | stages/stage_1/epic_planning.md |
+| Starting a new epic | stages/s1/s1_epic_planning.md |
 | Need git workflow details | CLAUDE.md (Git Branching Workflow section) |
 | Need folder structure templates | templates/TEMPLATES_INDEX.md |
 

@@ -3,8 +3,8 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-10
 **Purpose:** Detailed examples and templates for Refinement Phase execution
-**Prerequisites:** Read stages/stage_2/phase_2.3_refinement.md first
-**Main Guide:** stages/stage_2/phase_2.3_refinement.md
+**Prerequisites:** Read stages/s2/s2_p3_refinement.md first
+**Main Guide:** stages/s2/s2_p3_refinement.md
 
 ---
 

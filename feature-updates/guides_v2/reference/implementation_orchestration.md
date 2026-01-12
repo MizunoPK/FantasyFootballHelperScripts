@@ -94,7 +94,7 @@ Write the feature code following the implementation plan created in Stage 5a.
 ```markdown
 Current Stage: Stage 5c - Post-Implementation
 Current Phase: SMOKE_TESTING
-Next Action: Read stages/stage_5/part_5.3.1_smoke_testing.md
+Next Action: Read stages/s5/s5_p5_smoke_testing.md
 ```
 
 ### Time Estimate
@@ -153,11 +153,11 @@ Validate the implemented feature through smoke testing, QC rounds, and PR review
 ```markdown
 # If more features remaining:
 Current Stage: Stage 5d - Post-Feature Alignment
-Next Action: Read stages/stage_5/phase_5.4_post_feature_alignment.md
+Next Action: Read stages/s5/s5_p8_cross_feature_alignment.md
 
 # If NO more features:
 Current Stage: Stage 6 - Epic Final QC
-Next Action: Read stages/stage_6/epic_final_qc.md
+Next Action: Read stages/s6/s6_epic_final_qc.md
 ```
 
 ### Decision Point: Skip 5d/5e?
@@ -221,7 +221,7 @@ Update remaining (not-yet-implemented) feature specs based on ACTUAL implementat
 ```markdown
 Current Stage: Stage 5e - Testing Plan Update
 Current Phase: TESTING_PLAN_UPDATE
-Next Action: Read stages/stage_5/phase_5.5_post_feature_testing_update.md
+Next Action: Read stages/s5/s5_p9_epic_testing_update.md
 ```
 
 ### Time Estimate
@@ -272,11 +272,11 @@ Update epic_smoke_test_plan.md to reflect ACTUAL implementation discoveries and 
 # If more features remaining:
 Current Stage: Stage 5a - TODO Creation (Next Feature)
 Next Feature: feature_0X_{name}
-Next Action: Read stages/stage_5/part_5.1.1_round1.md for next feature
+Next Action: Read stages/s5/s5_p1_planning_round1.md for next feature
 
 # If NO more features:
 Current Stage: Stage 6 - Epic Final QC
-Next Action: Read stages/stage_6/epic_final_qc.md
+Next Action: Read stages/s6/s6_epic_final_qc.md
 ```
 
 ### Decision Point: Next Feature or Stage 6?

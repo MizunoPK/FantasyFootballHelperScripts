@@ -14,7 +14,7 @@
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_7/epic_cleanup.md` to ensure I properly finalize and archive the epic...
+I'm reading `stages/s7/s7_epic_cleanup.md` to ensure I properly finalize and archive the epic...
 
 **The guide requires:**
 - **Run Unit Tests** (100% pass required):
@@ -66,7 +66,7 @@ I'm reading `stages/stage_7/epic_cleanup.md` to ensure I properly finalize and a
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 7 - Epic Cleanup
-- Current Guide: stages/stage_7/epic_cleanup.md
+- Current Guide: stages/s7/s7_epic_cleanup.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Unit tests 100% pass before commit", "User testing MANDATORY before commit", "If bugs found → RESTART Stage 6", "Move ENTIRE epic folder", "Leave .txt in root"
 - Next Action: Run python tests/run_all_tests.py
@@ -85,7 +85,7 @@ Running unit tests...
 **Agent MUST transition to Stage 7.5:**
 
 ```
-I'm reading `stages/stage_7/phase_7.1_guide_update_workflow.md` to apply lessons learned to guides...
+I'm reading `stages/s7/s7_p1_guide_update_workflow.md` to apply lessons learned to guides...
 
 **The guide requires:**
 - **Analyze ALL lessons_learned.md files** from this epic:
@@ -127,7 +127,7 @@ I'm reading `stages/stage_7/phase_7.1_guide_update_workflow.md` to apply lessons
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 7.5 - Guide Update from Lessons Learned
 - Current Phase: GUIDE_ANALYSIS
-- Current Guide: stages/stage_7/phase_7.1_guide_update_workflow.md
+- Current Guide: stages/s7/s7_p1_guide_update_workflow.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Analyze ALL lessons", "Prioritize P0-P3", "Individual approval", "Apply only approved", "Separate commit"
 - Next Action: Read all lessons_learned.md files and identify guide gaps

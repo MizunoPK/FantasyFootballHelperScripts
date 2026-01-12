@@ -14,7 +14,7 @@
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_6/phase_6.1_epic_smoke_testing.md` to ensure I validate the entire epic end-to-end...
+I'm reading `stages/s6/s6_p1_epic_smoke_testing.md` to ensure I validate the entire epic end-to-end...
 
 **The guide requires:**
 - **Epic Smoke Testing** (distinct from feature-level testing):
@@ -58,7 +58,7 @@ I'm reading `stages/stage_6/phase_6.1_epic_smoke_testing.md` to ensure I validat
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Phase 6.1 - Epic Smoke Testing
-- Current Guide: stages/stage_6/phase_6.1_epic_smoke_testing.md
+- Current Guide: stages/s6/s6_p1_epic_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Use EVOLVED test plan", "Verify OUTPUT DATA VALUES", "4-part smoke testing", "Cross-feature integration", "RESTART if ANY part fails"
 - Next Action: Execute Step 1 - Pre-QC Verification

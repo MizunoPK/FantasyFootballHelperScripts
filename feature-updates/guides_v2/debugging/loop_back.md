@@ -185,7 +185,7 @@ python tests/run_all_tests.py
 
 **Common Root Cause:**
 {What's the common process/guide gap across these bugs?}
-Example: "All three bugs involved missing checks for entity status fields (injured, active, etc.) because part_5.1.2_round2.md Iteration 9 (Edge Case Analysis) doesn't explicitly mention status field edge cases"
+Example: "All three bugs involved missing checks for entity status fields (injured, active, etc.) because s5_p2_planning_round2.md Iteration 9 (Edge Case Analysis) doesn't explicitly mention status field edge cases"
 
 **Common Prevention Point:**
 {Which stage/iteration should have caught all these bugs?}
@@ -193,7 +193,7 @@ Example: "Stage 5a Round 2, Iteration 9 (Edge Case Analysis)"
 
 **Pattern-Based Guide Improvement:**
 {What ONE guide change prevents ALL these bugs?}
-Example: "Add to part_5.1.2_round2.md Iteration 9 checklist: '[ ] Entity status fields (active, injured, suspended, bye week, etc.)'"
+Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity status fields (active, injured, suspended, bye week, etc.)'"
 
 **Impact:**
 - Bugs prevented: {count} similar bugs in future epics
@@ -748,7 +748,7 @@ All issues in debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with user confirm
 
 **Update README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_SMOKE_TESTING
-- Current Guide: stages/stage_5/part_5.3.1_smoke_testing.md
+- Current Guide: stages/s5/s5_p5_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Returning From: Debugging Protocol
 - Issues Resolved: {count}
@@ -807,7 +807,7 @@ All issues in epic_name/debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with us
 
 **Update EPIC_README Agent Status:**
 - Current Phase: EPIC_FINAL_QC_SMOKE_TESTING
-- Current Guide: stages/stage_6/phase_6.1_epic_smoke_testing.md
+- Current Guide: stages/s6/s6_p1_epic_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Returning From: Debugging Protocol
 - Issues Resolved: {count}

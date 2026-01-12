@@ -423,4 +423,4 @@ git push origin epic/KAI-{number}
 - `feature-updates/EPIC_TRACKER.md` - Epic tracking and KAI number assignment
 - `feature-updates/USER_PR_REVIEW_GUIDE.md` - PR review options for users
 - `CLAUDE.md` - Complete epic development workflow
-- `feature-updates/guides_v2/stages/stage_7/epic_cleanup.md` - Stage 7 guide (includes PR creation)
+- `feature-updates/guides_v2/stages/s7/s7_epic_cleanup.md` - Stage 7 guide (includes PR creation)

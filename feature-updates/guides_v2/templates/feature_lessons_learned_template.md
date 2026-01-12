@@ -156,18 +156,18 @@ This document captures lessons specific to THIS feature's development. This is s
 {Specific improvements needed for guides_v2/ based on THIS feature's experience}
 
 **Stage 5a TODO Creation:**
-- stages/stage_5/part_5.1.1_round1.md: {Improvement 1 or "None"}
-- stages/stage_5/part_5.1.2_round2.md: {Improvement 1 or "None"}
-- stages/stage_5/part_5.1.3_round3.md: {Improvement 1 or "None"}
-- stages/stage_5/round3_part2_final_gates.md: {Improvement 1 or "None"}
+- stages/s5/s5_p1_planning_round1.md: {Improvement 1 or "None"}
+- stages/s5/s5_p2_planning_round2.md: {Improvement 1 or "None"}
+- stages/s5/s5_p3_planning_round3.md: {Improvement 1 or "None"}
+- stages/s5/round3_part2_final_gates.md: {Improvement 1 or "None"}
 
-**stages/stage_5/phase_5.2_implementation_execution.md:**
+**stages/s5/s5_p4_execution.md:**
 - {Improvement 1 or "None"}
 
 **Stage 5c Post-Implementation:**
-- stages/stage_5/part_5.3.1_smoke_testing.md: {Improvement 1 or "None"}
-- stages/stage_5/part_5.3.2_qc_rounds.md: {Improvement 1 or "None"}
-- stages/stage_5/part_5.3.3_final_review.md: {Improvement 1 or "None"}
+- stages/s5/s5_p5_smoke_testing.md: {Improvement 1 or "None"}
+- stages/s5/s5_p6_qc_rounds.md: {Improvement 1 or "None"}
+- stages/s5/s5_p7_final_review.md: {Improvement 1 or "None"}
 
 {If no guide improvements needed: "No guide improvements identified from this feature"}
 

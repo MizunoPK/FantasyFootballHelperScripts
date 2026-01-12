@@ -93,7 +93,7 @@ Table mapping algorithm requirements from spec.md to implementation_plan.md task
 
 **See:** implementation_plan.md, Iteration
 
-**Guide:** part_5.1.1_round1.md, part_5.1.3_round3.md
+**Guide:** s5_p1_planning_round1.md, s5_p3_planning_round3.md
 
 ---
 
@@ -106,7 +106,7 @@ Process of ensuring consistency across features (Stage 3) or updating specs afte
 
 **See:** Cross-Feature Sanity Check, Post-Feature Alignment
 
-**Guide:** cross_feature_sanity_check.md, post_feature_alignment.md
+**Guide:** s3_cross_feature_sanity_check.md, post_feature_alignment.md
 
 ---
 
@@ -123,7 +123,7 @@ Code correction following the bug fix workflow (Stage 2 → 5a → 5b → 5c onl
 
 **See:** Debugging Protocol, Missed Requirement
 
-**Guide:** bugfix_workflow.md
+**Guide:** s5_bugfix_workflow.md
 
 ---
 
@@ -235,7 +235,7 @@ Stage 3 process of systematic pairwise comparison of all feature specs.
 
 **See:** Stage 3, Alignment
 
-**Guide:** cross_feature_sanity_check.md
+**Guide:** s3_cross_feature_sanity_check.md
 
 ---
 
@@ -322,7 +322,7 @@ Top-level work unit containing multiple related features.
 
 **See:** Feature, Stage
 
-**Guide:** epic_planning.md
+**Guide:** s1_epic_planning.md
 
 ---
 
@@ -354,7 +354,7 @@ Stage 6 process testing entire epic as cohesive system.
 
 **See:** Stage 6, Feature Testing
 
-**Guide:** epic_final_qc.md
+**Guide:** s6_epic_final_qc.md
 
 ---
 
@@ -393,7 +393,7 @@ Individual component within an epic.
 
 **See:** Epic, Stage 5
 
-**Guide:** feature_deep_dive.md
+**Guide:** s2_feature_deep_dive.md
 
 ---
 
@@ -409,7 +409,7 @@ Stage 5c process testing single feature in isolation.
 
 **See:** Stage 5c, Epic Testing
 
-**Guide:** stages/stage_5/part_5.3.1_smoke_testing.md, qc_rounds.md, final_review.md
+**Guide:** stages/s5/s5_p5_smoke_testing.md, qc_rounds.md, final_review.md
 
 ---
 
@@ -437,7 +437,7 @@ Mandatory checkpoint that must PASS before proceeding.
 
 **See:** Mandatory Gates (reference/mandatory_gates.md), Iteration
 
-**Guide:** part_5.1.1_round1.md, 5.1.3.2_round3_part2a.md, 5.1.3.3_round3_part2b.md
+**Guide:** s5_p1_planning_round1.md, 5.1.3.2_round3_part2a.md, 5.1.3.3_round3_part2b.md
 
 ---
 
@@ -531,7 +531,7 @@ Iteration 17 process of breaking implementation into incremental phases for vali
 
 **See:** Iteration 17, Stage 5b
 
-**Guide:** part_5.1.3_round3.md
+**Guide:** s5_p3_planning_round3.md
 
 ---
 
@@ -578,7 +578,7 @@ Agreements defining method signatures, parameters, return types.
 
 **See:** Hands-On Data Inspection
 
-**Guide:** part_5.1.2_round2.md, 5.1.3.2_round3_part2a.md
+**Guide:** s5_p2_planning_round2.md, 5.1.3.2_round3_part2a.md
 
 ---
 
@@ -622,7 +622,7 @@ Central tracking file for all discovered issues during debugging.
 
 **See:** Round, Stage 5a, Gate
 
-**Guide:** part_5.1.1_round1.md, part_5.1.2_round2.md, part_5.1.3_round3.md, 5.1.3.2_round3_part2a.md, 5.1.3.3_round3_part2b.md
+**Guide:** s5_p1_planning_round1.md, s5_p2_planning_round2.md, s5_p3_planning_round3.md, 5.1.3.2_round3_part2a.md, 5.1.3.3_round3_part2b.md
 
 ---
 
@@ -741,7 +741,7 @@ Test double that simulates real object behavior.
 
 **See:** Integration Test, Iteration 21
 
-**Guide:** part_5.1.3_round3.md
+**Guide:** s5_p3_planning_round3.md
 
 ---
 
@@ -864,7 +864,7 @@ Stage 5c process of validating implemented feature.
 
 **See:** Stage 5c, Feature Testing
 
-**Guide:** stages/stage_5/ (smoke_testing.md, qc_rounds.md, final_review.md)
+**Guide:** stages/s5/ (smoke_testing.md, qc_rounds.md, final_review.md)
 
 ---
 
@@ -1063,7 +1063,7 @@ Specification document in each feature folder containing all requirements.
 
 **See:** Feature, Checklist.md
 
-**Guide:** feature_deep_dive.md
+**Guide:** s2_feature_deep_dive.md
 
 ---
 
@@ -1115,7 +1115,7 @@ Stage 5 (Feature Implementation) has 5 sub-stages per feature:
 
 **See:** Stage 5, Feature
 
-**Guide:** stages/stage_5/ folder
+**Guide:** stages/s5/ folder
 
 ---
 
@@ -1139,7 +1139,7 @@ Implementation plan (~400 lines) in each feature folder containing comprehensive
 
 **See:** Stage 5a, Implementation Execution, implementation_checklist.md
 
-**Guide:** part_5.1.1_round1.md, part_5.1.2_round2.md, round3 guides
+**Guide:** s5_p1_planning_round1.md, s5_p2_planning_round2.md, round3 guides
 
 ---
 
@@ -1179,7 +1179,7 @@ Stage 7 mandatory testing by the user before commit.
 
 **See:** Stage 7, Mandatory Gates
 
-**Guide:** epic_cleanup.md
+**Guide:** s7_epic_cleanup.md
 
 ---
 
@@ -1344,26 +1344,26 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 
 | Deprecated | Current | Description |
 |------------|---------|-------------|
-| phase_0_research.md | phase_2.1_research.md | Stage 2 Research |
-| phase_1_specification.md | phase_2.2_specification.md | Stage 2 Specification |
-| phase_2_refinement.md | phase_2.3_refinement.md | Stage 2 Refinement |
-| round1_todo_creation.md | part_5.1.1_round1.md | Round 1 guide |
-| round2_todo_creation.md | part_5.1.2_round2.md | Round 2 guide |
-| round3_part1_preparation.md | part_5.1.3_round3.md | Round 3 router |
+| phase_0_research.md | s2_p1_research.md | Stage 2 Research |
+| phase_1_specification.md | s2_p2_specification.md | Stage 2 Specification |
+| phase_2_refinement.md | s2_p3_refinement.md | Stage 2 Refinement |
+| round1_todo_creation.md | s5_p1_planning_round1.md | Round 1 guide |
+| round2_todo_creation.md | s5_p2_planning_round2.md | Round 2 guide |
+| round3_part1_preparation.md | s5_p3_planning_round3.md | Round 3 router |
 | round3_part2a_gates_1_2.md | 5.1.3.2_round3_part2a.md | Round 3 Part 2a |
 | round3_part2b_gate_3.md | 5.1.3.3_round3_part2b.md | Round 3 Part 2b |
-| implementation_execution.md | phase_5.2_implementation_execution.md | Implementation guide |
+| implementation_execution.md | s5_p4_execution.md | Implementation guide |
 | post_implementation.md | phase_5.3_post_implementation.md | Post-impl router |
-| smoke_testing.md | part_5.3.1_smoke_testing.md | Smoke testing |
-| qc_rounds.md | part_5.3.2_qc_rounds.md | QC rounds |
-| final_review.md | part_5.3.3_final_review.md | Final review |
-| post_feature_alignment.md | phase_5.4_post_feature_alignment.md | Cross-feature alignment |
-| post_feature_testing_update.md | phase_5.5_post_feature_testing_update.md | Test plan updates |
-| epic_smoke_testing.md | phase_6.1_epic_smoke_testing.md | Epic smoke tests |
-| epic_qc_rounds.md | phase_6.2_epic_qc_rounds.md | Epic QC |
-| user_testing.md | phase_6.3_user_testing.md | User testing |
-| epic_final_review.md | phase_6.4_epic_final_review.md | Epic review |
-| guide_update_workflow.md | phase_7.1_guide_update_workflow.md | Guide updates |
+| smoke_testing.md | s5_p5_smoke_testing.md | Smoke testing |
+| qc_rounds.md | s5_p6_qc_rounds.md | QC rounds |
+| final_review.md | s5_p7_final_review.md | Final review |
+| post_feature_alignment.md | s5_p8_cross_feature_alignment.md | Cross-feature alignment |
+| post_feature_testing_update.md | s5_p9_epic_testing_update.md | Test plan updates |
+| epic_smoke_testing.md | s6_p1_epic_smoke_testing.md | Epic smoke tests |
+| epic_qc_rounds.md | s6_p2_epic_qc_rounds.md | Epic QC |
+| user_testing.md | s6_p3_user_testing.md | User testing |
+| epic_final_review.md | s6_p4_epic_final_review.md | Epic review |
+| guide_update_workflow.md | s7_p1_guide_update_workflow.md | Guide updates |
 
 **Note:** If you encounter old notation in conversation summaries or older documentation, always use the current notation shown above.
 

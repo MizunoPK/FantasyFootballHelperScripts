@@ -1,8 +1,8 @@
 # Feature Breakdown Patterns
 
 **Purpose:** Patterns and strategies for breaking epics into features with decision trees
-**Prerequisites:** Stage 1 overview read from epic_planning.md
-**Main Guide:** `stages/stage_1/epic_planning.md`
+**Prerequisites:** Stage 1 overview read from s1_epic_planning.md
+**Main Guide:** `stages/s1/s1_epic_planning.md`
 
 ---
 

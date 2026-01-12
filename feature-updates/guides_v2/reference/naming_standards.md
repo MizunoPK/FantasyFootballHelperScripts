@@ -298,31 +298,31 @@ Files use hierarchical notation in their names to indicate position:
 
 **Level 1 (Stages):**
 ```
-stages/stage_1/epic_planning.md
-stages/stage_3/cross_feature_sanity_check.md
+stages/s1/s1_epic_planning.md
+stages/s3/s3_cross_feature_sanity_check.md
 ```
 Format: `{stage_name}.md` (no notation needed, implied by directory)
 
 **Level 2 (Phases):**
 ```
-stages/stage_2/phase_2.1_research.md
-stages/stage_5/phase_5.2_implementation_execution.md
-stages/stage_7/phase_7.1_guide_update_workflow.md
+stages/s2/s2_p1_research.md
+stages/s5/s5_p4_execution.md
+stages/s7/s7_p1_guide_update_workflow.md
 ```
 Format: `phase_{X.Y}_{name}.md`
 
 **Level 3 (Parts/Tasks):**
 ```
-stages/stage_5/part_5.1.1_round1.md
-stages/stage_5/part_5.3.1_smoke_testing.md
-stages/stage_6/phase_6.1_epic_smoke_testing.md
+stages/s5/s5_p1_planning_round1.md
+stages/s5/s5_p5_smoke_testing.md
+stages/s6/s6_p1_epic_smoke_testing.md
 ```
 Format: `part_{X.Y.Z}_{name}.md` or `phase_{X.Y}_{name}.md` (depending on context)
 
 **Level 4 (Detailed subdivisions):**
 ```
-stages/stage_5/part_5.1.3.1_round3_part1.md
-stages/stage_5/5.1.3.2_round3_part2a.md
+stages/s5/part_5.1.3.1_round3_part1.md
+stages/s5/5.1.3.2_round3_part2a.md
 ```
 Format: `part_{X.Y.Z.W}_{name}.md`
 
@@ -331,9 +331,9 @@ Format: `part_{X.Y.Z.W}_{name}.md`
 **Router files** point to multiple sub-guides:
 
 ```
-stages/stage_2/feature_deep_dive.md (routes to phase_2.1, phase_2.2, phase_2.3)
-stages/stage_5/phase_5.1_implementation_planning.md (routes to parts 5.1.1-5.1.3)
-stages/stage_6/epic_final_qc.md (routes to phases 6.1-6.4)
+stages/s2/s2_feature_deep_dive.md (routes to phase_2.1, phase_2.2, phase_2.3)
+stages/s5/phase_5.1_implementation_planning.md (routes to parts 5.1.1-5.1.3)
+stages/s6/s6_epic_final_qc.md (routes to phases 6.1-6.4)
 ```
 
 Format: Use the parent item's name (without subdivisions listed)
@@ -343,8 +343,8 @@ Format: Use the parent item's name (without subdivisions listed)
 Files that aren't part of the main workflow hierarchy use **descriptive names only** (no notation):
 
 ```
-stages/stage_5/bugfix_workflow.md
-stages/stage_5/pr_review_protocol.md
+stages/s5/s5_bugfix_workflow.md
+stages/s5/s5_pr_review_protocol.md
 reference/common_mistakes.md
 reference/glossary.md
 debugging/debugging_protocol.md
@@ -423,7 +423,7 @@ Use hierarchy levels to structure headers within guide files:
 
 ```markdown
 "I'm starting Phase 2.1 (Research Phase) for feature_01_player_manager.
-I've read the complete guide at stages/stage_2/phase_2.1_research.md."
+I've read the complete guide at stages/s2/s2_p1_research.md."
 
 "I've completed Part 5.1.3.2 (Round 3 Part 2a) including Gate 23a.
 All 5 parts of the spec audit passed. Proceeding to Part 5.1.3.3."
@@ -580,38 +580,38 @@ Gate - NOT hierarchical (checkpoints within items)
 
 **Stage 2:**
 ```
-phase_2.1_research.md → phase_2.1_research.md
-phase_2.2_specification.md → phase_2.2_specification.md
-phase_2.3_refinement.md → phase_2.3_refinement.md
+s2_p1_research.md → s2_p1_research.md
+s2_p2_specification.md → s2_p2_specification.md
+s2_p3_refinement.md → s2_p3_refinement.md
 ```
 
 **Stage 5:**
 ```
-part_5.1.1_round1.md → part_5.1.1_round1.md
-part_5.1.2_round2.md → part_5.1.2_round2.md
-part_5.1.3_round3.md → part_5.1.3_round3.md (router)
+s5_p1_planning_round1.md → s5_p1_planning_round1.md
+s5_p2_planning_round2.md → s5_p2_planning_round2.md
+s5_p3_planning_round3.md → s5_p3_planning_round3.md (router)
 5.1.3.2_round3_part2a.md → 5.1.3.2_round3_part2a.md
 5.1.3.3_round3_part2b.md → 5.1.3.3_round3_part2b.md
 
-implementation_execution.md → phase_5.2_implementation_execution.md
-smoke_testing.md → part_5.3.1_smoke_testing.md
-qc_rounds.md → part_5.3.2_qc_rounds.md
-final_review.md → part_5.3.3_final_review.md
-post_feature_alignment.md → phase_5.4_post_feature_alignment.md
-post_feature_testing_update.md → phase_5.5_post_feature_testing_update.md
+implementation_execution.md → s5_p4_execution.md
+smoke_testing.md → s5_p5_smoke_testing.md
+qc_rounds.md → s5_p6_qc_rounds.md
+final_review.md → s5_p7_final_review.md
+post_feature_alignment.md → s5_p8_cross_feature_alignment.md
+post_feature_testing_update.md → s5_p9_epic_testing_update.md
 ```
 
 **Stage 6:**
 ```
-epic_smoke_testing.md → phase_6.1_epic_smoke_testing.md
-epic_qc_rounds.md → phase_6.2_epic_qc_rounds.md
-user_testing.md → phase_6.3_user_testing.md
-epic_final_review.md → phase_6.4_epic_final_review.md
+epic_smoke_testing.md → s6_p1_epic_smoke_testing.md
+epic_qc_rounds.md → s6_p2_epic_qc_rounds.md
+user_testing.md → s6_p3_user_testing.md
+epic_final_review.md → s6_p4_epic_final_review.md
 ```
 
 **Stage 7:**
 ```
-guide_update_workflow.md → phase_7.1_guide_update_workflow.md
+guide_update_workflow.md → s7_p1_guide_update_workflow.md
 ```
 
 ### References to Update

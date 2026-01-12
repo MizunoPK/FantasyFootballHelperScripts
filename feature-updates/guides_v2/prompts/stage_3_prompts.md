@@ -14,7 +14,7 @@
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_3/cross_feature_sanity_check.md` to ensure I perform systematic cross-feature validation...
+I'm reading `stages/s3/s3_cross_feature_sanity_check.md` to ensure I perform systematic cross-feature validation...
 
 **The guide requires:**
 - Systematic pairwise comparison of ALL feature specs
@@ -37,7 +37,7 @@ I'm reading `stages/stage_3/cross_feature_sanity_check.md` to ensure I perform s
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 3 - Cross-Feature Sanity Check
-- Current Guide: stages/stage_3/cross_feature_sanity_check.md
+- Current Guide: stages/s3/s3_cross_feature_sanity_check.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Pairwise comparison mandatory", "User sign-off required", "No skipping comparisons"
 - Next Action: Create Feature Comparison Matrix and begin pairwise validation

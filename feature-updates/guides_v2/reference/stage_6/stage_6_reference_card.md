@@ -291,11 +291,11 @@ Phase 6.3: Epic Final Review (60-90 min + bug fixes if needed)
 
 | Current Step | Guide to Read | Time Estimate |
 |--------------|---------------|---------------|
-| Starting Stage 6 | stages/stage_6/phase_6.1_epic_smoke_testing.md | 60-90 min |
-| Step 1-2 | stages/stage_6/phase_6.1_epic_smoke_testing.md | 60-90 min |
-| Step 3-5 | stages/stage_6/phase_6.2_epic_qc_rounds.md | 2-3 hours |
-| Step 6-8 | stages/stage_6/phase_6.4_epic_final_review.md | 1-2 hours |
-| Overview/navigation | stages/stage_6/epic_final_qc.md (router) | 5 min |
+| Starting Stage 6 | stages/s6/s6_p1_epic_smoke_testing.md | 60-90 min |
+| Step 1-2 | stages/s6/s6_p1_epic_smoke_testing.md | 60-90 min |
+| Step 3-5 | stages/s6/s6_p2_epic_qc_rounds.md | 2-3 hours |
+| Step 6-8 | stages/s6/s6_p4_epic_final_review.md | 1-2 hours |
+| Overview/navigation | stages/s6/s6_epic_final_qc.md (router) | 5 min |
 
 ---
 

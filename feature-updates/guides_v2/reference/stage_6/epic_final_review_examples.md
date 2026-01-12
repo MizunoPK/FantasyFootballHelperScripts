@@ -2,7 +2,7 @@
 
 **Purpose:** Common mistakes, real-world examples, and best practices for Phase 6.3
 **When to Use:** Reference while completing epic_final_review.md workflow
-**Main Guide:** `stages/stage_6/phase_6.4_epic_final_review.md`
+**Main Guide:** `stages/s6/s6_p4_epic_final_review.md`
 
 ---
 
@@ -498,7 +498,7 @@ bugfix_high_architecture_inconsistency/
 - Stage 6 restarts: 1
 - All tests passing: ✅ (2247/2247)
 
-**Next Stage:** stages/stage_7/epic_cleanup.md
+**Next Stage:** stages/s7/s7_epic_cleanup.md
 ```
 
 ---
@@ -568,7 +568,7 @@ bugfix_high_architecture_inconsistency/
 ---
 
 **See Also:**
-- Main Guide: `stages/stage_6/phase_6.4_epic_final_review.md`
+- Main Guide: `stages/s6/s6_p4_epic_final_review.md`
 - PR Review Checklist: `reference/stage_6/epic_pr_review_checklist.md`
 - Templates: `reference/stage_6/epic_final_review_templates.md`
 

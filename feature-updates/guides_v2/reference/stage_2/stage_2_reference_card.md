@@ -46,7 +46,7 @@ Phase 2.3: Refinement Phase (45-60 min)
 ## Mandatory Gates
 
 ### Gate 1: Phase 1.5 - Research Completeness Audit
-**Location:** stages/stage_2/phase_2.1_research.md
+**Location:** stages/s2/s2_p1_research.md
 **What it checks:**
 - Component Research: Have you found the code mentioned in epic?
 - Pattern Research: Have you studied similar features?
@@ -57,7 +57,7 @@ Phase 2.3: Refinement Phase (45-60 min)
 **If FAIL:** Return to Phase 1, research gaps, re-run audit
 
 ### Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check
-**Location:** stages/stage_2/phase_2.2_specification.md
+**Location:** stages/s2/s2_p2_specification.md
 **What it checks:**
 - Scope Creep: Requirements NOT in epic notes
 - Missing Requirements: Epic requests NOT in spec
@@ -66,7 +66,7 @@ Phase 2.3: Refinement Phase (45-60 min)
 **If FAIL:** Remove scope creep OR add missing requirements, re-run check
 
 ### Gate 3: Phase 6 - User Approval
-**Location:** stages/stage_2/phase_2.3_refinement.md
+**Location:** stages/s2/s2_p3_refinement.md
 **What it checks:**
 - User explicitly approves acceptance criteria
 
@@ -217,11 +217,11 @@ Phase 2.3: Refinement Phase (45-60 min)
 
 | Current Phase | Guide to Read |
 |---------------|---------------|
-| Starting Stage 2 | stages/stage_2/phase_2.1_research.md |
-| Phase 0, 1, or 1.5 | stages/stage_2/phase_2.1_research.md |
-| Phase 2 or 2.5 | stages/stage_2/phase_2.2_specification.md |
-| Phase 3, 4, 5, or 6 | stages/stage_2/phase_2.3_refinement.md |
-| Need overview | stages/stage_2/feature_deep_dive.md (router) |
+| Starting Stage 2 | stages/s2/s2_p1_research.md |
+| Phase 0, 1, or 1.5 | stages/s2/s2_p1_research.md |
+| Phase 2 or 2.5 | stages/s2/s2_p2_specification.md |
+| Phase 3, 4, 5, or 6 | stages/s2/s2_p3_refinement.md |
+| Need overview | stages/s2/s2_feature_deep_dive.md (router) |
 
 ---
 

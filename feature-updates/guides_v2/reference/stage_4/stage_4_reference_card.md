@@ -309,9 +309,9 @@ python run_league_helper.py --mode draft
 
 | Current Activity | Guide to Read |
 |------------------|---------------|
-| Starting Stage 4 | stages/stage_4/epic_testing_strategy.md |
-| Need integration point examples | stages/stage_4/epic_testing_strategy.md (Step 2) |
-| Need test scenario templates | stages/stage_4/epic_testing_strategy.md (Step 4) |
+| Starting Stage 4 | stages/s4/s4_epic_testing_strategy.md |
+| Need integration point examples | stages/s4/s4_epic_testing_strategy.md (Step 2) |
+| Need test scenario templates | stages/s4/s4_epic_testing_strategy.md (Step 4) |
 
 ---
 

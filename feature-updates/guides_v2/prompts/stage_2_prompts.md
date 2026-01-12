@@ -14,7 +14,7 @@
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_2/feature_deep_dive.md` to ensure I follow the complete deep dive workflow...
+I'm reading `stages/s2/s2_feature_deep_dive.md` to ensure I follow the complete deep dive workflow...
 
 **The guide requires:**
 - **🚨 CRITICAL: NEVER MAKE ASSUMPTIONS**
@@ -47,7 +47,7 @@ I'm reading `stages/stage_2/feature_deep_dive.md` to ensure I follow the complet
 
 **Updating feature README Agent Status:**
 - Current Phase: PLANNING
-- Current Guide: stages/stage_2/feature_deep_dive.md
+- Current Guide: stages/s2/s2_feature_deep_dive.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "NEVER assume - confirm with user first", "Targeted research only", "ONE question at a time", "Only confirmed info in spec.md", "Checklist all [x] required"
 - Next Action: Begin targeted research for {feature_name}

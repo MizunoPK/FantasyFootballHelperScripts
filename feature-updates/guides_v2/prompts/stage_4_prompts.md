@@ -14,7 +14,7 @@
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_4/epic_testing_strategy.md` to ensure I create a comprehensive epic testing strategy...
+I'm reading `stages/s4/s4_epic_testing_strategy.md` to ensure I create a comprehensive epic testing strategy...
 
 **The guide requires:**
 - Review initial epic_smoke_test_plan.md (created in Stage 1)
@@ -39,7 +39,7 @@ I'm reading `stages/stage_4/epic_testing_strategy.md` to ensure I create a compr
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: Stage 4 - Epic Testing Strategy
-- Current Guide: stages/stage_4/epic_testing_strategy.md
+- Current Guide: stages/s4/s4_epic_testing_strategy.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Update test plan (don't recreate)", "Hybrid test scenarios", "Measurable success criteria", "Plan will evolve in Stage 5e"
 - Next Action: Review current epic_smoke_test_plan.md and identify updates needed
@@ -51,7 +51,7 @@ Starting test plan update...
 
 ## Gate 4.5: Epic Test Plan Approval (MANDATORY)
 
-**Trigger:** Agent completes Step 6.1 of epic_testing_strategy.md (test plan updated)
+**Trigger:** Agent completes Step 6.1 of s4_epic_testing_strategy.md (test plan updated)
 
 **Agent MUST present to user:**
 
@@ -109,7 +109,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 
 Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to Stage 5a to begin implementation planning for the first feature.
 
-Following `stages/stage_5/part_5.1.1_round1.md` (Round 1) to create comprehensive implementation plan with 28 verification iterations across 3 rounds.
+Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive implementation plan with 28 verification iterations across 3 rounds.
 ```
 
 ---

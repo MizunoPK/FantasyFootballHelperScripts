@@ -14,7 +14,7 @@
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_2/phase_2.2.5_spec_validation.md` to ensure I follow the complete validation workflow...
+I'm reading `stages/s2/s2_p2_5_spec_validation.md` to ensure I follow the complete validation workflow...
 
 **The guide requires:**
 - **🚨 CRITICAL: ASSUME EVERYTHING IS WRONG**
@@ -38,7 +38,7 @@ I'm reading `stages/stage_2/phase_2.2.5_spec_validation.md` to ensure I follow t
 
 **Updating feature README Agent Status:**
 - Current Phase: VALIDATION_PHASE
-- Current Guide: stages/stage_2/phase_2.2.5_spec_validation.md
+- Current Guide: stages/s2/s2_p2_5_spec_validation.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Assume everything is wrong until validated", "Self-resolve checklist questions through research", "Deep investigation for new questions", "Flag multi-approach questions for user decision"
 - Next Action: Begin validation of all spec claims

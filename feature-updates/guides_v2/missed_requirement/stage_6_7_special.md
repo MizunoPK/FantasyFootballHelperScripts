@@ -183,7 +183,7 @@ Actions needed:
 
 **🚨 FIRST ACTION:** Use "Starting Stage 6" prompt from `prompts/stage_6_prompts.md`
 
-**READ:** `stages/stage_6/epic_final_qc.md`
+**READ:** `stages/s6/s6_epic_final_qc.md`
 
 **Execute:**
 1. **Phase 6.1:** Epic Smoke Testing (Part 1-4)

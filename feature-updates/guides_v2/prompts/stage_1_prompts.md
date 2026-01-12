@@ -14,7 +14,7 @@
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_1/epic_planning.md` to ensure I follow the complete epic planning workflow...
+I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic planning workflow...
 
 **The guide requires:**
 - Phase 1: Analyze epic request and codebase reconnaissance
@@ -36,7 +36,7 @@ I'm reading `stages/stage_1/epic_planning.md` to ensure I follow the complete ep
 
 **Creating initial EPIC_README.md status:**
 - Current Stage: Stage 1 - Epic Planning
-- Current Guide: stages/stage_1/epic_planning.md
+- Current Guide: stages/s1/s1_epic_planning.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "User must approve feature breakdown", "Create placeholder test plan", "No skipping reconnaissance"
 - Next Action: Read epic request file and perform codebase reconnaissance

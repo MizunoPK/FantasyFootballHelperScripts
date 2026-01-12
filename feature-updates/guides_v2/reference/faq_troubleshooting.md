@@ -594,7 +594,7 @@ Context window limit reached → Session compacted
 - Stage 7 user testing revealed issues
 - Need systematic bug tracking and fixes
 
-**Entry point:** `stages/stage_5/bugfix_workflow.md`
+**Entry point:** `stages/s5/s5_bugfix_workflow.md`
 
 ---
 

@@ -3,8 +3,8 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-10
 **Purpose:** Detailed examples and templates for Specification Phase execution
-**Prerequisites:** Read stages/stage_2/phase_2.2_specification.md first
-**Main Guide:** stages/stage_2/phase_2.2_specification.md
+**Prerequisites:** Read stages/s2/s2_p2_specification.md first
+**Main Guide:** stages/s2/s2_p2_specification.md
 
 ---
 

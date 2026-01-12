@@ -91,7 +91,7 @@ This document captures:
 
 ### Guide Improvements Needed
 
-- `stages/stage_2/feature_deep_dive.md`: {Specific improvement}
+- `stages/s2/s2_feature_deep_dive.md`: {Specific improvement}
 - {Or: "None identified"}
 
 ---
@@ -223,8 +223,8 @@ This document captures:
 ### Guide Improvements Needed from Stage 5
 
 **From Feature 01:**
-- `stages/stage_5/part_5.1.1_round1.md`: {Specific improvement}
-- `stages/stage_5/part_5.3.1_smoke_testing.md`: {Specific improvement}
+- `stages/s5/s5_p1_planning_round1.md`: {Specific improvement}
+- `stages/s5/s5_p5_smoke_testing.md`: {Specific improvement}
 
 **From Feature 01 Debugging (if occurred):**
 - {List guide updates from feature_01_{name}/debugging/guide_update_recommendations.md}

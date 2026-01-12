@@ -48,7 +48,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 | Epic | Priority | Lesson Summary | Proposed Guide(s) | Status | Reason Pending |
 |------|----------|----------------|-------------------|--------|----------------|
 | {Example - delete after use} |
-| KAI-2-example | P2 | Add example of integration gap | part_5.1.1_round1.md | User Discuss | Needs clarification on example format |
+| KAI-2-example | P2 | Add example of integration gap | s5_p1_planning_round1.md | User Discuss | Needs clarification on example format |
 
 **Instructions:**
 - Add lessons where user marked "Discuss" and hasn't yet approved
@@ -139,10 +139,10 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 | Lesson Type | Typical Guide(s) Updated | Count |
 |-------------|--------------------------|-------|
 | Spec misinterpretation | 5.1.3.3_round3_part2b.md (Iteration 25) | {N} |
-| Interface verification missed | part_5.1.1_round1.md (Iteration 2) | {N} |
-| Algorithm traceability incomplete | part_5.1.1_round1.md (Iteration 4) | {N} |
-| Integration gap not identified | part_5.1.1_round1.md (Iteration 7) | {N} |
-| Test coverage insufficient | part_5.1.2_round2.md (Iterations 8-10) | {N} |
+| Interface verification missed | s5_p1_planning_round1.md (Iteration 2) | {N} |
+| Algorithm traceability incomplete | s5_p1_planning_round1.md (Iteration 4) | {N} |
+| Integration gap not identified | s5_p1_planning_round1.md (Iteration 7) | {N} |
+| Test coverage insufficient | s5_p2_planning_round2.md (Iterations 8-10) | {N} |
 | Gate not enforced | mandatory_gates.md | {N} |
 | QC round missed issue | qc_rounds.md | {N} |
 
@@ -212,7 +212,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 **Date Applied:** 2026-01-10
 **Commit Hash:** abc1234
 
-**Guide Updated:** `stages/stage_5/5.1.3.3_round3_part2b.md`
+**Guide Updated:** `stages/s5/5.1.3.3_round3_part2b.md`
 **Changes Made:**
 - Added emphasis to "close spec.md and implementation_plan.md" step
 - Added "ask critical questions" examples specific to folder/file operations
