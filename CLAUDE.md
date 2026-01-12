@@ -279,16 +279,7 @@ The workflow uses two types of gates:
 
 ## Feature File Structure (Critical for Resuming Work)
 
-**🚨 For epics started before 2026-01-10:** See `feature-updates/guides_v2/reference/OLD_EPIC_COMPATIBILITY.md`
-
-**Quick check:**
-```bash
-ls feature-updates/{epic_name}/feature_01_*/
-# If you see: todo.md → Old epic (use OLD_EPIC_COMPATIBILITY.md)
-# If you see: implementation_plan.md → New epic (use structure below)
-```
-
-### Standard Feature Folder Structure (NEW EPICS, 2026-01-10 onwards)
+### Standard Feature Folder Structure
 
 ```
 feature_XX_{name}/
@@ -315,8 +306,6 @@ feature_XX_{name}/
 ---
 
 ## Resuming In-Progress Epic Work
-
-**🚨 FIRST: Check epic age** - See OLD_EPIC_COMPATIBILITY.md if epic started before 2026-01-10
 
 **BEFORE starting any epic-related work**, check for in-progress epics:
 
@@ -470,7 +459,6 @@ git diff    # Review changes
 - **CODING_STANDARDS.md**: Import organization, error handling, logging, docstrings, type hints, testing standards, naming conventions
 - **GIT_WORKFLOW.md**: Branch management, commit conventions, PR creation, EPIC_TRACKER.md updates
 - **PROTOCOL_DECISION_TREE.md**: Issue/gap discovery flowchart, 4 scenario examples, protocol selection
-- **OLD_EPIC_COMPATIBILITY.md**: Working with epics started before 2026-01-10 (todo.md approach)
 
 ---
 
