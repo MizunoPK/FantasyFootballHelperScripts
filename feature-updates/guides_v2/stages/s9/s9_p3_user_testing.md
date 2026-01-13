@@ -78,7 +78,7 @@ User testing passes with ZERO bugs reported by user
    - Fix ALL bugs user reports
 
 4. ⚠️ RESTART STAGE 6 AFTER BUG FIXES
-   - After fixing user-reported bugs → RESTART S6a
+   - After fixing user-reported bugs → RESTART S9.P1
    - Re-run smoke testing (4 parts)
    - Re-run QC rounds (3 rounds)
    - Re-run user testing
@@ -108,7 +108,7 @@ STEP 6: User Testing & Bug Fix Protocol
 ├─> 6c: Bug Fix Protocol (If User Found Bugs)
 │   ├─ Phase 1: Document Bugs
 │   ├─ Phase 2: Fix ALL Bugs
-│   ├─ Phase 3: RESTART S6a (Epic Smoke Testing)
+│   ├─ Phase 3: RESTART S9.P1 (Epic Smoke Testing)
 │   ├─ Phase 4: Return to Step 6 (User Testing Again)
 │   └─ Repeat until user reports "No bugs found"
 │
@@ -324,7 +324,7 @@ Update EPIC_README.md:
 
 **Steps to restart S9:**
 
-**3a. Return to S6a (Epic Smoke Testing)**
+**3a. Return to S9.P1 (Epic Smoke Testing)**
 1. Read `stages/s9/epic_smoke_testing.md` again
 2. Execute all 4 smoke test parts:
    - Part 1: Import Test
@@ -333,7 +333,7 @@ Update EPIC_README.md:
    - Part 4: Cross-Feature Integration Test
 3. Verify all parts PASS
 
-**3b. Proceed to S6b (Epic QC Rounds)**
+**3b. Proceed to S9.P2 (Epic QC Rounds)**
 1. Read `stages/s9/epic_qc_rounds.md` again
 2. Execute all 3 QC rounds:
    - Round 1: Cross-Feature Integration
@@ -356,7 +356,7 @@ Update EPIC_README.md:
 
 ### Step 4: Return to Step 6 (User Testing Again)
 
-**After S6a and 6b pass (no bugs found during smoke/QC):**
+**After S9.P1 and 6b pass (no bugs found during smoke/QC):**
 
 **4a. Return to Step 6a**
 - Present user testing request again
@@ -386,11 +386,11 @@ Update EPIC_README.md:
 
 ### S9: Epic-Level Final QC
 
-**S6a - Epic Smoke Testing:** ✅ COMPLETE
+**S9.P1 - Epic Smoke Testing:** ✅ COMPLETE
 - Date completed: {YYYY-MM-DD}
 - Results: All 4 parts passed
 
-**S6b - Epic QC Rounds:** ✅ COMPLETE
+**S9.P2 - Epic QC Rounds:** ✅ COMPLETE
 - Date completed: {YYYY-MM-DD}
 - Results: All 3 rounds passed
 
@@ -483,12 +483,12 @@ User-reported bugs follow the epic debugging protocol:
    - Work through ISSUES_CHECKLIST.md systematically
    - Resolve all issues with user confirmation
 
-3. **Loop back to S6a:**
+3. **Loop back to S9.P1:**
    - After ALL issues resolved
    - RESTART epic smoke testing from beginning
-   - Proceed through S6a → 6b → Step 6 again
+   - Proceed through S9.P1 → 6b → Step 6 again
 
-**Why loop back to S6a (not Step 6)?**
+**Why loop back to S9.P1 (not Step 6)?**
 - Bug fixes might affect epic-level integration
 - Must re-validate entire epic before returning to user
 - Comprehensive validation prevents new issues
@@ -505,7 +505,7 @@ User-reported bugs follow the epic debugging protocol:
 
 **If user testing FAILED (bugs found):**
 - ❌ Follow bug fix protocol (Phase 1-4)
-- ❌ RESTART S6a after bug fixes
+- ❌ RESTART S9.P1 after bug fixes
 - ❌ Return to Step 6 for re-testing
 - ❌ Repeat until user reports "No bugs found"
 

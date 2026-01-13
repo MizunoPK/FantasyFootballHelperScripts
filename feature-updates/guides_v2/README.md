@@ -257,9 +257,9 @@ feature-updates/
     │   ├── stage_2_prompts.md
     │   ├── stage_3_prompts.md
     │   ├── stage_4_prompts.md
-    │   ├── stage_5_prompts.md
-    │   ├── stage_6_prompts.md
-    │   ├── stage_7_prompts.md
+    │   ├── stage_5_prompts.md            ← S5-S8 feature loop prompts
+    │   ├── stage_6_prompts.md            ← S9 epic QC prompts
+    │   ├── stage_7_prompts.md            ← S10 epic cleanup prompts
     │   ├── special_workflows_prompts.md
     │   └── problem_situations_prompts.md
     │
@@ -319,14 +319,33 @@ feature-updates/
     │
     ├── reference/                    ← Reference materials
     │   ├── mandatory_gates.md
-    │   ├── stage_2_reference_card.md
-    │   ├── stage_5_reference_card.md
     │   ├── spec_validation.md
     │   ├── hands_on_data_inspection.md
-    │   └── stage_7/
+    │   ├── stage_1/                  ← S1 reference materials
+    │   │   ├── epic_planning_examples.md
+    │   │   ├── feature_breakdown_patterns.md
+    │   │   └── stage_1_reference_card.md
+    │   ├── stage_2/                  ← S2 reference materials
+    │   │   ├── refinement_examples.md
+    │   │   ├── research_examples.md
+    │   │   ├── specification_examples.md
+    │   │   └── stage_2_reference_card.md
+    │   ├── stage_3/                  ← S3 reference materials
+    │   │   └── stage_3_reference_card.md
+    │   ├── stage_4/                  ← S4 reference materials
+    │   │   └── stage_4_reference_card.md
+    │   ├── stage_5/                  ← S5 reference materials
+    │   │   └── stage_5_reference_card.md
+    │   ├── stage_6/                  ← S9 reference materials (legacy naming)
+    │   │   ├── epic_final_review_examples.md
+    │   │   ├── epic_final_review_templates.md
+    │   │   ├── epic_pr_review_checklist.md
+    │   │   └── stage_6_reference_card.md
+    │   └── stage_7/                  ← S10 reference materials (legacy naming)
     │       ├── commit_message_examples.md
     │       ├── epic_completion_template.md
-    │       └── lessons_learned_examples.md
+    │       ├── lessons_learned_examples.md
+    │       └── stage_7_reference_card.md
     │
     ├── templates/                    ← File templates
     │   └── TEMPLATES_INDEX.md
@@ -362,7 +381,7 @@ Questions:
 
 User says: **"Help me develop the improve_draft_helper epic"**
 
-### Step 3: Agent Reads STAGE_1 Guide
+### Step 3: Agent Reads S1 Guide
 
 Agent MUST use phase transition prompt:
 

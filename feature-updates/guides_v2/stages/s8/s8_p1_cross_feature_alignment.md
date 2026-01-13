@@ -25,7 +25,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing &
 
 2. **Update README Agent Status** with:
    - Current Phase: CROSS_FEATURE_ALIGNMENT
-   - Current Guide: stages/s5/post_feature_alignment.md
+   - Current Guide: stages/s8/s8_p1_cross_feature_alignment.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "Compare to ACTUAL implementation", "Update specs proactively", "Mark features needing rework"
    - Next Action: Review feature_01 spec (first remaining feature)
@@ -355,7 +355,7 @@ Before declaring S8.P1 (Cross-Feature Alignment) complete:
 
 ### README Agent Status
 - [ ] Updated to reflect S8.P1 (Cross-Feature Alignment) completion
-- [ ] Next action set to "Read stages/s5/post_feature_testing_update.md"
+- [ ] Next action set to "Read stages/s8/s8_p2_epic_testing_update.md"
 
 **If ALL verified:** Ready for S8.P2 (Epic Testing Update)
 
@@ -365,7 +365,7 @@ Before declaring S8.P1 (Cross-Feature Alignment) complete:
 - Add integration points discovered during implementation
 - Keep testing plan current as epic evolves
 
-**Next step:** Read stages/s5/post_feature_testing_update.md and use phase transition prompt
+**Next step:** Read stages/s8/s8_p2_epic_testing_update.md and use phase transition prompt
 
 ---
 

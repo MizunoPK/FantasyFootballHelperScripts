@@ -25,7 +25,7 @@ S7.P1 (Smoke Testing) → S7.P2 (QC Rounds) →
 
 2. **Update README Agent Status** with:
    - Current Phase: POST_IMPLEMENTATION (Final Review)
-   - Current Guide: stages/s5/final_review.md
+   - Current Guide: stages/s7/s7_p3_final_review.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "PR review protocol MANDATORY", "Fresh agents for each round", "Update guides immediately", "100% completion required"
    - Next Action: READ pr_review_protocol.md and begin Round 1 specialized reviews
@@ -44,7 +44,7 @@ S7.P1 (Smoke Testing) → S7.P2 (QC Rounds) →
 Final Review is the production readiness validation where you perform 11-category PR review, immediately apply lessons learned to guides, verify 100% completion, and document feature completion.
 
 **When do you use this guide?**
-- S10.P2 complete (all 3 QC rounds passed)
+- S7.P2 complete (all 3 QC rounds passed)
 - Ready for final production readiness validation
 - Before cross-feature alignment
 
@@ -77,13 +77,13 @@ Final Review is complete when PR review finds zero critical issues, lessons lear
 
 2. ⚠️ IF PR REVIEW FINDS CRITICAL ISSUES → QC RESTART
    - Critical = correctness, security, breaking changes
-   - Must follow QC Restart Protocol from S10.P2
+   - Must follow QC Restart Protocol from S7.P2
    - Minor issues can be documented and don't block
 
 3. ⚠️ LESSONS LEARNED MUST UPDATE GUIDES
    - If you discover guide gaps → update guides IMMEDIATELY
    - Don't just document the lesson → apply it to guides
-   - Update relevant guide files before completing S10.P3
+   - Update relevant guide files before completing S7.P3
    - This is NOT optional
 
 4. ⚠️ 100% REQUIREMENT COMPLETION - ZERO TECH DEBT TOLERANCE
@@ -187,7 +187,7 @@ Re-Reading Checkpoint
 **🚨 MANDATORY: READ PR REVIEW PROTOCOL**
 
 **Before proceeding, you MUST:**
-1. **READ:** `stages/s5/s5_pr_review_protocol.md`
+1. **READ:** `stages/s7/s5_pr_review_protocol.md`
 2. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
    - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
@@ -532,7 +532,7 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 **Instead:**
 
-1. **READ:** `stages/s5/s5_pr_review_protocol.md` (complete protocol)
+1. **READ:** `stages/s7/s5_pr_review_protocol.md` (complete protocol)
 
 2. **Follow hybrid approach:**
    - Spawn fresh agents via Task tool for each review round
@@ -554,7 +554,7 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 **Purpose:** Document what went well, what didn't, and UPDATE GUIDES IMMEDIATELY
 
-**CRITICAL:** Don't just document lessons - APPLY them to guides before completing S10.P3
+**CRITICAL:** Don't just document lessons - APPLY them to guides before completing S7.P3
 
 ---
 
@@ -587,16 +587,16 @@ This is NOT optional. If you found guide gaps, fix them NOW.
 
 Issue: QC Round 2 found all output data was zeros
 Root cause: Smoke test Part 3 only checked "file exists", didn't verify data VALUES
-Guide gap: stages/s5/smoke_testing.md didn't emphasize DATA VALUES enough
+Guide gap: stages/s7/s7_p1_smoke_testing.md didn't emphasize DATA VALUES enough
 
-Action taken: Updated S10.P1 guide
+Action taken: Updated S7.P1 guide
 - Added "CRITICAL - Verify OUTPUT DATA" to Part 3 heading
 - Added real-world example of zero data issue
 - Added explicit "Don't just check file exists" warning
 - Added code example showing good vs bad Part 3 validation
 
 Files updated:
-- feature-updates/guides_v2/stages/s5/smoke_testing.md
+- feature-updates/guides_v2/stages/s7/s7_p1_smoke_testing.md
 ```
 
 **5. Update lessons_learned.md:**
@@ -620,15 +620,15 @@ Files updated:
 - Excessive mocking in tests hid real integration issues
 
 ### Guide Updates Applied
-1. Updated stages/s5/smoke_testing.md:
+1. Updated stages/s7/s7_p1_smoke_testing.md:
    - Enhanced smoke test Part 3 with DATA VALUES emphasis
    - Added real-world example of zero data issue
 
-2. Updated stages/s5/implementation_execution.md:
+2. Updated stages/s7/implementation_execution.md:
    - Made Interface Verification Protocol STEP 1 (not optional)
    - Added "NO coding from memory" critical rule
 
-3. Updated stages/s5/round1_todo_creation.md:
+3. Updated stages/s7/round1_todo_creation.md:
    - Enhanced Mock Audit (iteration 21) with "excessive mocking" anti-pattern
 
 ### Recommendations for Future Features
@@ -679,7 +679,7 @@ Files updated:
 - [ ] **Production ready**: Would you ship this to production RIGHT NOW with no changes? (Must answer YES)
 
 **README Agent Status:**
-- [ ] Updated with completion of S10.P3
+- [ ] Updated with completion of S7.P3
 - [ ] Next action set to "S8.P1 (Cross-Feature Alignment): Cross-Feature Alignment"
 
 **Git:**
@@ -700,7 +700,7 @@ Files updated:
 
 ## 🔄 Re-Reading Checkpoint
 
-**STOP - Before declaring S10.P3 complete:**
+**STOP - Before declaring S7.P3 complete:**
 
 1. **Re-read "Completion Criteria" section below**
 2. **Verify ALL criteria met (not just most)**
@@ -708,29 +708,29 @@ Files updated:
 4. **Update README Agent Status:**
    ```markdown
    Guide Last Re-Read: {timestamp}
-   Checkpoint: S10.P3 complete, ready for S8.P1 (Cross-Feature Alignment)
+   Checkpoint: S7.P3 complete, ready for S8.P1 (Cross-Feature Alignment)
    Current Phase: Cross-Feature Alignment (S8.P1 (Cross-Feature Alignment))
-   Next Action: Read stages/s5/post_feature_alignment.md
+   Next Action: Read stages/s7/post_feature_alignment.md
    ```
 
 ---
 
 ## Completion Criteria
 
-**S10.P3 (and entire S7 (Testing & Review)) is complete when ALL of the following are true:**
+**S7.P3 (and entire S7 (Testing & Review)) is complete when ALL of the following are true:**
 
-### Smoke Testing (S10.P1)
+### Smoke Testing (S7.P1)
 - [x] All 3 smoke test parts passed
 - [x] Part 3 verified OUTPUT DATA VALUES (not just "file exists")
 - [x] Feature executes end-to-end without crashes
 - [x] Output data is correct and reasonable
 
-### QC Rounds (S10.P2)
+### QC Rounds (S7.P2)
 - [x] QC Round 1 passed (<3 critical issues, >80% requirements met)
 - [x] QC Round 2 passed (all Round 1 issues resolved, zero new critical issues)
 - [x] QC Round 3 passed (ZERO issues found in skeptical review)
 
-### PR Review (S10.P3)
+### PR Review (S7.P3)
 - [x] All 11 categories reviewed
 - [x] Zero critical issues found
 - [x] Minor issues documented (if any exist)
@@ -751,7 +751,7 @@ Files updated:
 - [x] Commit messages descriptive
 
 ### README Agent Status
-- [x] Updated to reflect S10.P3 completion
+- [x] Updated to reflect S7.P3 completion
 - [x] Next action set to "S8.P1 (Cross-Feature Alignment): Cross-Feature Alignment"
 - [x] Guide Last Read timestamp current
 
@@ -774,7 +774,7 @@ Files updated:
 **❌ Mistake:**
 ```markdown
 ## Lessons Learned
-- S10.P1 guide should emphasize data values more
+- S7.P1 guide should emphasize data values more
 
 {End of feature work - guide never updated}
 ```
@@ -843,7 +843,7 @@ Should use INFO level, not WARNING (this is expected behavior)
 **Developer's actions:**
 1. Fixed log level (WARNING → INFO)
 2. Added documentation about 17-week schedule
-3. **Updated S10.P2 guide:**
+3. **Updated S7.P2 guide:**
    - Added "Log Quality Verification" example
    - Added "Expected vs Unexpected warnings" distinction
    - Added this real-world example to guide
@@ -895,7 +895,7 @@ Decision: Remove out-of-scope code or get user approval
 **Before transitioning to S8.P1, verify:**
 
 ### Completion Verification
-- [ ] All S10.P3 completion criteria met (see Completion Criteria section)
+- [ ] All S7.P3 completion criteria met (see Completion Criteria section)
 - [ ] All smoke tests passed (3 parts)
 - [ ] All QC rounds passed (3 rounds)
 - [ ] PR review complete (11 categories)
@@ -913,8 +913,8 @@ Decision: Remove out-of-scope code or get user approval
 - [ ] Descriptive commit messages
 
 ### README Agent Status
-- [ ] Updated to reflect S10.P3 completion
-- [ ] Next action set to "Read stages/s5/post_feature_alignment.md"
+- [ ] Updated to reflect S7.P3 completion
+- [ ] Next action set to "Read stages/s7/post_feature_alignment.md"
 
 ### Final Check
 - [ ] Feature is COMPLETE (not just functional)
@@ -929,13 +929,13 @@ Decision: Remove out-of-scope code or get user approval
 - Update specs if implementation revealed changes/insights
 - Ensure remaining features align with reality
 
-**Next step:** Read stages/s5/post_feature_alignment.md and use phase transition prompt
+**Next step:** Read stages/s7/post_feature_alignment.md and use phase transition prompt
 
 ---
 
 ## Summary
 
-**S10.P3 validates production readiness through:**
+**S7.P3 validates production readiness through:**
 1. **PR Review** - 11 categories ensure code quality, security, correctness
 2. **Lessons Learned** - Capture insights and apply improvements to guides
 3. **Final Verification** - Confirm 100% completion and readiness
@@ -952,8 +952,8 @@ Decision: Remove out-of-scope code or get user approval
 - Final verification passed (all boxes checked)
 - Feature is COMPLETE and production-ready
 
-**After S10.P3:** Proceed to S8.P1 to ensure remaining feature specs align with actual implementation.
+**After S7.P3:** Proceed to S8.P1 to ensure remaining feature specs align with actual implementation.
 
 ---
 
-*End of stages/s5/final_review.md*
+*End of stages/s7/s7_p3_final_review.md*

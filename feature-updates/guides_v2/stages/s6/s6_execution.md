@@ -965,13 +965,13 @@ python run_league_helper.py --mode draft
 
 **After completing S6:**
 
-📖 **READ:** `stages/s5/smoke_testing.md`
+📖 **READ:** `stages/s7/s7_p1_smoke_testing.md`
 🎯 **GOAL:** Validate implementation through smoke testing (3 parts - MANDATORY GATE)
 ⏱️ **ESTIMATE:** 30-45 minutes
 
 **Then continue with:**
-- `stages/s5/qc_rounds.md` - 3 QC rounds with restart protocol
-- `stages/s5/final_review.md` - PR review and lessons learned
+- `stages/s7/s7_p2_qc_rounds.md` - 3 QC rounds with restart protocol
+- `stages/s7/s7_p3_final_review.md` - PR review and lessons learned
 
 **S7 (Testing & Review) will:**
 - Execute 3-part smoke testing protocol (MANDATORY)

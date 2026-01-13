@@ -408,7 +408,7 @@ S7 process testing single feature in isolation.
 
 **See:** S7, Epic Testing
 
-**Guide:** stages/s10/s7_p1_smoke_testing.md, qc_rounds.md, final_review.md
+**Guide:** stages/s7/s7_p1_smoke_testing.md, s7_p2_qc_rounds.md, s7_p3_final_review.md
 
 ---
 

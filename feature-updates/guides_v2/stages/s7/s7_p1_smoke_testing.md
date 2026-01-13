@@ -31,7 +31,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) →
 
 3. **Update README Agent Status** with:
    - Current Phase: POST_IMPLEMENTATION_SMOKE_TESTING
-   - Current Guide: stages/s5/smoke_testing.md
+   - Current Guide: stages/s7/s7_p1_smoke_testing.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "3 parts MANDATORY", "Part 3 verify DATA VALUES", "Re-run ALL 3 if ANY fails"
    - Next Action: Smoke Test Part 1 - Import test
@@ -73,7 +73,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 
 **📖 See `reference/smoke_testing_pattern.md` for universal critical rules.**
 
-**Feature-specific rules for S10.P1:**
+**Feature-specific rules for S7.P1:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -87,7 +87,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 
 2. ⚠️ If smoke testing fails → Fix issues, restart from Part 1
    - After fixing → Re-run ALL 3 parts
-   - Do NOT proceed to QC Rounds (S10.P2) until all parts pass
+   - Do NOT proceed to QC Rounds (S7.P2) until all parts pass
 
 3. ⚠️ Document results in feature README
    - Update feature README.md Agent Status
@@ -136,7 +136,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 
 **📖 See `reference/smoke_testing_pattern.md` for universal workflow details.**
 
-**Feature-specific workflow for S10.P1:**
+**Feature-specific workflow for S7.P1:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -162,7 +162,7 @@ Part 3: E2E Execution Test (CRITICAL)
    ↓ Verify feature output DATA VALUES correct
    ↓ Check each output category (if multiple)
    ↓
-   If PASS → Document, proceed to S10.P2
+   If PASS → Document, proceed to S7.P2
    If FAIL → Fix, RE-RUN ALL 3 PARTS
 ```
 
@@ -539,7 +539,7 @@ tail -100 logs/application.log | grep -i "feature"
 2. Identify root cause
 3. Fix ALL issues found
 4. RE-RUN ALL 3 PARTS (not just failed part)
-5. Do NOT proceed to S10.P2 until all parts pass
+5. Do NOT proceed to S7.P2 until all parts pass
 
 ---
 
@@ -610,7 +610,7 @@ for p in raw_data:
 **If ALL 3 parts PASSED:**
 - ✅ Document smoke test results in feature README
 - ✅ Update Agent Status: "Smoke Testing COMPLETE"
-- ✅ Proceed to **S10.P2: QC Rounds**
+- ✅ Proceed to **S7.P2: QC Rounds**
 
 **If ANY part FAILED:**
 - ❌ Fix ALL issues identified
@@ -629,7 +629,7 @@ for p in raw_data:
 **Key Differences from Epic-Level:**
 - Tests feature in ISOLATION (not with other features)
 - 3 parts only (no Part 4 cross-feature integration)
-- Next stage: QC Rounds for THIS feature (S10.P2)
+- Next stage: QC Rounds for THIS feature (S7.P2)
 
 **Critical Success Factors:**
 - Use REAL data (not test fixtures)
@@ -642,4 +642,4 @@ for p in raw_data:
 
 ---
 
-**END OF STAGE S10.P1 GUIDE**
+**END OF STAGE S7.P1 GUIDE**

@@ -137,11 +137,11 @@ Prerequisites Met?
 
 ---
 
-## Critical Rules for S6c
+## Critical Rules for S9.P3
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ CRITICAL RULES - S6c (Epic Final Review)               │
+│ CRITICAL RULES - S9.P3 (Epic Final Review)               │
 └─────────────────────────────────────────────────────────────┘
 
 1. ⚠️ Epic-level PR review focuses on CROSS-FEATURE concerns
@@ -190,7 +190,7 @@ Prerequisites Met?
 
 ## Prerequisites
 
-**Before starting S6c, verify ALL of these are true:**
+**Before starting S9.P3, verify ALL of these are true:**
 
 ### From STAGE_6b (QC Rounds)
 - [ ] QC Round 1 (Cross-Feature Integration): ✅ PASSED
@@ -220,7 +220,7 @@ Prerequisites Met?
 - [ ] Original {epic_name}.txt file located
 
 **If ANY prerequisite not met:**
-- STOP - Do not proceed with S6c
+- STOP - Do not proceed with S9.P3
 - Complete missing prerequisites first
 - Return to appropriate stage (6a or 6b)
 
@@ -250,7 +250,7 @@ Prerequisites Met?
 
 **This is NOT feature-level review:**
 - S7 (Testing & Review) already reviewed individual feature correctness
-- S6c reviews EPIC-WIDE concerns:
+- S9.P3 reviews EPIC-WIDE concerns:
   - Architectural consistency ACROSS features
   - Code duplication BETWEEN features
   - Cross-feature integration quality
@@ -423,7 +423,7 @@ For EACH issue:
 
 ### Overview
 
-**Objective:** Verify S6c complete, all issues resolved, update epic documentation.
+**Objective:** Verify S9.P3 complete, all issues resolved, update epic documentation.
 
 ---
 
@@ -465,9 +465,9 @@ Mark S9 complete, including:
 
 **Step 8.3: Update epic_lessons_learned.md**
 
-**See:** Template 9 (S6c Lessons Learned)
+**See:** Template 9 (S9.P3 Lessons Learned)
 
-Add S6c insights:
+Add S9.P3 insights:
 - What went well
 - What could be improved
 - Issues found & resolved
@@ -480,8 +480,8 @@ Add S6c insights:
 
 **See:** Template 10 (Agent Status Update)
 
-Mark S6c complete and prepare for S10:
-- Current stage: S6c
+Mark S9.P3 complete and prepare for S10:
+- Current stage: S9.P3
 - Status: COMPLETE
 - S9 summary (all parts, results)
 - Next stage: stages/s_7/epic_cleanup.md
@@ -489,14 +489,14 @@ Mark S6c complete and prepare for S10:
 
 **Step 8.5: Completion Indicator**
 
-**S6c is COMPLETE when ALL of these are true:**
+**S9.P3 is COMPLETE when ALL of these are true:**
 - ✅ All 3 steps finished (6, 7, 8)
 - ✅ Epic PR review passed (all 11 categories)
 - ✅ All issues resolved (bug fixes complete OR no issues found)
 - ✅ No pending issues or bug fixes
 - ✅ EPIC_README.md Epic Progress Tracker updated
-- ✅ epic_lessons_learned.md updated with S6c insights
-- ✅ EPIC_README.md Agent Status shows S6c complete
+- ✅ epic_lessons_learned.md updated with S9.P3 insights
+- ✅ EPIC_README.md Agent Status shows S9.P3 complete
 - ✅ All tests passing (100% pass rate)
 - ✅ Ready to proceed to S10
 
@@ -509,7 +509,7 @@ Mark S6c complete and prepare for S10:
 **You MUST re-read this guide when:**
 
 ### 1. After Session Compaction
-- Conversation compacted while in S6c
+- Conversation compacted while in S9.P3
 - Re-read to restore context
 - Check EPIC_README.md Agent Status to see which step you're on
 - Continue from documented checkpoint
@@ -546,7 +546,7 @@ Mark S6c complete and prepare for S10:
 
 ## Completion Criteria
 
-**S6c is COMPLETE when ALL of the following are true:**
+**S9.P3 is COMPLETE when ALL of the following are true:**
 
 ### Epic PR Review (Step 6)
 - [ ] All 11 categories reviewed: ✅ PASSED
@@ -574,8 +574,8 @@ Mark S6c complete and prepare for S10:
 - [ ] All issues resolved (no pending issues or bug fixes)
 - [ ] All unit tests passing (100% pass rate)
 - [ ] EPIC_README.md Epic Progress Tracker updated (S9 marked complete)
-- [ ] epic_lessons_learned.md updated with S6c insights
-- [ ] EPIC_README.md Agent Status shows S6c complete
+- [ ] epic_lessons_learned.md updated with S9.P3 insights
+- [ ] EPIC_README.md Agent Status shows S9.P3 complete
 
 ### Overall S9 Completion
 - [ ] STAGE_6a complete (Epic Smoke Testing passed)
@@ -614,7 +614,7 @@ Mark S6c complete and prepare for S10:
 
 **Before proceeding to S10 (Epic Cleanup), verify:**
 
-### S6c Completion
+### S9.P3 Completion
 - [ ] STEP 6 (Epic PR Review) complete: All 11 categories PASSED
 - [ ] STEP 7 (Handle Issues) complete OR skipped (no issues)
 - [ ] STEP 8 (Final Verification) complete: All verification items checked
@@ -627,9 +627,9 @@ Mark S6c complete and prepare for S10:
 - [ ] All bug fix folders (if any) show S7 (Testing & Review) complete
 
 ### Documentation Complete
-- [ ] epic_lessons_learned.md updated with S6c insights
+- [ ] epic_lessons_learned.md updated with S9.P3 insights
 - [ ] EPIC_README.md Epic Progress Tracker shows S9 complete
-- [ ] EPIC_README.md Agent Status shows S6c complete
+- [ ] EPIC_README.md Agent Status shows S9.P3 complete
 - [ ] PR review results documented
 
 ### Quality Gates Passed
@@ -647,7 +647,7 @@ Mark S6c complete and prepare for S10:
 
 ## Summary
 
-**S6c - Epic Final Review is the final validation before epic completion:**
+**S9.P3 - Epic Final Review is the final validation before epic completion:**
 
 **Key Activities:**
 1. **Epic PR Review (Step 6):** Apply 11-category checklist to epic-wide changes
@@ -667,7 +667,7 @@ Mark S6c complete and prepare for S10:
 
 **Critical Distinctions:**
 - **Feature-level PR review (S7 (Testing & Review)):** Reviews individual features in isolation
-- **Epic-level PR review (S6c):** Reviews cross-feature consistency, architectural cohesion, epic scope
+- **Epic-level PR review (S9.P3):** Reviews cross-feature consistency, architectural cohesion, epic scope
 
 **Success Criteria:**
 - Epic PR review passed (all 11 categories)
@@ -690,7 +690,7 @@ Mark S6c complete and prepare for S10:
 
 **Next Stage:** stages/s_7/epic_cleanup.md - Final commits, PR creation, user review, move epic to done/
 
-**Remember:** S6c is the LAST CHANCE to catch epic-level issues before shipping. Thoroughness here prevents post-completion rework and ensures epic delivers on user's vision.
+**Remember:** S9.P3 is the LAST CHANCE to catch epic-level issues before shipping. Thoroughness here prevents post-completion rework and ensures epic delivers on user's vision.
 
 ---
 

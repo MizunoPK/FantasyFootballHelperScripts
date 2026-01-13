@@ -26,7 +26,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing &
 
 2. **Update README Agent Status** with:
    - Current Phase: TESTING_PLAN_UPDATE
-   - Current Guide: stages/s5/post_feature_testing_update.md
+   - Current Guide: stages/s8/s8_p2_epic_testing_update.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "Update based on ACTUAL implementation", "Add discovered integration points", "Keep plan current"
    - Next Action: Review epic_smoke_test_plan.md and just-completed feature code
@@ -1246,7 +1246,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 ### At Start of S8.P2 (Epic Testing Update)
 ```markdown
 **Current Phase:** TESTING_PLAN_UPDATE
-**Current Guide:** stages/s5/post_feature_testing_update.md
+**Current Guide:** stages/s8/s8_p2_epic_testing_update.md
 **Guide Last Read:** 2025-12-30 17:00
 **Critical Rules:** "Update based on ACTUAL implementation", "Add discovered integration points", "Keep scenarios executable"
 **Next Action:** Review feature_01 code and epic_smoke_test_plan.md
@@ -1256,7 +1256,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 ### At Completion of S8.P2 (Epic Testing Update)
 ```markdown
 **Current Phase:** {Next phase based on remaining features}
-**Previous Guide:** stages/s5/post_feature_testing_update.md (COMPLETE)
+**Previous Guide:** stages/s8/s8_p2_epic_testing_update.md (COMPLETE)
 **Current Guide:** {Next guide based on status below}
 **Guide Last Read:** {Not read yet for next guide}
 **Next Action:**
@@ -1331,4 +1331,4 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 
 ---
 
-*End of stages/s5/post_feature_testing_update.md*
+*End of stages/s8/s8_p2_epic_testing_update.md*

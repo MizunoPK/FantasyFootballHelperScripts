@@ -467,9 +467,9 @@ Integration test:
 ### S7 (Testing & Review): Post-Implementation
 
 **Read guides in order:**
-1. stages/s5/smoke_testing.md - Smoke Testing (3 parts - MANDATORY GATE)
-2. stages/s5/qc_rounds.md - QC Round 1, 2, 3 (with restart protocol)
-3. stages/s5/final_review.md - PR Review (11 categories) + lessons learned
+1. stages/s7/s7_p1_smoke_testing.md - Smoke Testing (3 parts - MANDATORY GATE)
+2. stages/s7/s7_p2_qc_rounds.md - QC Round 1, 2, 3 (with restart protocol)
+3. stages/s7/s7_p3_final_review.md - PR Review (11 categories) + lessons learned
 
 **Same validation as features:**
 - Smoke Testing (3 parts)
@@ -566,7 +566,7 @@ When bug fix complete:
 
 ```markdown
 **Current Phase:** POST_IMPLEMENTATION_QC_ROUNDS (Resumed)
-**Current Guide:** stages/s5/qc_rounds.md
+**Current Guide:** stages/s7/s7_p2_qc_rounds.md
 **Guide Last Read:** 2025-12-30 19:15
 **Resumed After:** bugfix_high_authentication_error completion
 **Next Action:** Re-run QC Round 2 to verify bug fix compatibility
