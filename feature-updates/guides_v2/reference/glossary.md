@@ -28,10 +28,9 @@ Terms are organized alphabetically. Terms with multiple context-specific meaning
 | **Level 4** | X.Y.Z.W | Four numbers | `5.1.3.2` | Step (detailed task) |
 
 **Examples in practice:**
-- **S5** = Feature Implementation (Level 1)
-- **S5.P1** = Implementation Planning (Level 2)
-- **Part 5.1.1** = Round 1 (Level 3)  
-- **Step 5.1.1.4** = Iteration 4 (Level 4)
+- **S5** = Feature Implementation (Level 1 - Stage)
+- **S5.P1** = Implementation Planning Round 1 (Level 2 - Phase)
+- **S5.P1.I2** = Iteration 2 within Round 1 (Level 3 - Iteration)
 
 **File naming:**
 - Stages: `stage_X/`
@@ -437,7 +436,7 @@ Mandatory checkpoint that must PASS before proceeding.
 
 **See:** Mandatory Gates (reference/mandatory_gates.md), Iteration
 
-**Guide:** s5_p1_planning_round1.md, 5.1.3.2_round3_part2a.md, 5.1.3.3_round3_part2b.md
+**Guide:** s5_p1_planning_round1.md, s5_p3_i2_gates_part1.md, s5_p3_i3_gates_part2.md
 
 ---
 
@@ -455,7 +454,7 @@ Iteration 24 outcome indicating readiness to proceed to S6 implementation.
 
 **See:** Iteration 24, NO-GO, Gates
 
-**Guide:** 5.1.3.3_round3_part2b.md
+**Guide:** s5_p3_i3_gates_part2.md
 
 ---
 
@@ -562,7 +561,7 @@ Process ensuring all new methods/functions have identified callers (no orphan co
 
 **See:** Iteration 23
 
-**Guide:** 5.1.3.2_round3_part2a.md
+**Guide:** s5_p3_i2_gates_part1.md
 
 ---
 
@@ -578,7 +577,7 @@ Agreements defining method signatures, parameters, return types.
 
 **See:** Hands-On Data Inspection
 
-**Guide:** s5_p2_planning_round2.md, 5.1.3.2_round3_part2a.md
+**Guide:** s5_p2_planning_round2.md, s5_p3_i2_gates_part1.md
 
 ---
 
@@ -622,7 +621,7 @@ Central tracking file for all discovered issues during debugging.
 
 **See:** Round, S5, Gate
 
-**Guide:** s5_p1_planning_round1.md, s5_p2_planning_round2.md, s5_p3_planning_round3.md, 5.1.3.2_round3_part2a.md, 5.1.3.3_round3_part2b.md
+**Guide:** s5_p1_planning_round1.md, s5_p2_planning_round2.md, s5_p3_planning_round3.md, s5_p3_i2_gates_part1.md, s5_p3_i3_gates_part2.md
 
 ---
 
@@ -762,7 +761,7 @@ Iteration 24 outcome indicating NOT ready to proceed to S6.
 
 **See:** GO Decision, Iteration 24
 
-**Guide:** 5.1.3.3_round3_part2b.md
+**Guide:** s5_p3_i3_gates_part2.md
 
 ---
 
@@ -1081,7 +1080,7 @@ Specification document in each feature folder containing all requirements.
 
 **See:** Gate 25, Iteration 25
 
-**Guide:** 5.1.3.3_round3_part2b.md, spec_validation.md
+**Guide:** s5_p3_i3_gates_part2.md, spec_validation.md
 
 ---
 
@@ -1324,17 +1323,11 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 | STAGE_2a | S2.P1 | Research Phase |
 | STAGE_2b | S2.P2 | Specification Phase |
 | STAGE_2c | S2.P3 | Refinement Phase |
-| STAGE_5aa | Part 5.1.1 | Implementation Planning Round 1 |
-| STAGE_5ab | Part 5.1.2 | Implementation Planning Round 2 |
-| STAGE_5ac | Part 5.1.3 | Implementation Planning Round 3 |
-| STAGE_5a | S5.P1 | Implementation Planning |
-| STAGE_5b | S5.P2 | Implementation Execution |
-| STAGE_5ca | S10.P1 | Smoke Testing |
-| STAGE_5cb | S10.P2 | QC Rounds |
-| STAGE_5cc | S10.P3 | Final Review |
-| STAGE_5c | S5.P3 | Post-Implementation |
-| STAGE_5d | S9 | Post-Feature Alignment |
-| STAGE_5e | Phase 5.5 | Post-Feature Testing Update |
+| STAGE_5a | S5 | Implementation Planning (28 iterations) |
+| STAGE_5b | S6 | Implementation Execution |
+| STAGE_5c | S7 | Implementation Testing & Review |
+| STAGE_5d | S8.P1 | Cross-Feature Alignment |
+| STAGE_5e | S8.P2 | Epic Testing Plan Update |
 | S9a | S9.P1 | Epic Smoke Testing |
 | S9b | S9.P2 | Epic QC Rounds |
 | S9c | S9.P3 | User Testing |
@@ -1350,20 +1343,20 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 | round1_todo_creation.md | s5_p1_planning_round1.md | Round 1 guide |
 | round2_todo_creation.md | s5_p2_planning_round2.md | Round 2 guide |
 | round3_part1_preparation.md | s5_p3_planning_round3.md | Round 3 router |
-| round3_part2a_gates_1_2.md | 5.1.3.2_round3_part2a.md | Round 3 Part 2a |
-| round3_part2b_gate_3.md | 5.1.3.3_round3_part2b.md | Round 3 Part 2b |
-| implementation_execution.md | s5_p4_execution.md | Implementation guide |
-| post_implementation.md | phase_5.3_post_implementation.md | Post-impl router |
-| smoke_testing.md | s5_p5_smoke_testing.md | Smoke testing |
-| qc_rounds.md | s5_p6_qc_rounds.md | QC rounds |
-| final_review.md | s5_p7_final_review.md | Final review |
-| post_feature_alignment.md | s5_p8_cross_feature_alignment.md | Cross-feature alignment |
-| post_feature_testing_update.md | s5_p9_epic_testing_update.md | Test plan updates |
-| epic_smoke_testing.md | s6_p1_epic_smoke_testing.md | Epic smoke tests |
-| epic_qc_rounds.md | s6_p2_epic_qc_rounds.md | Epic QC |
-| user_testing.md | s6_p3_user_testing.md | User testing |
-| epic_final_review.md | s6_p4_epic_final_review.md | Epic review |
-| guide_update_workflow.md | s7_p1_guide_update_workflow.md | Guide updates |
+| round3_part2a_gates_1_2.md | s5_p3_i2_gates_part1.md | Round 3 Part 2a |
+| round3_part2b_gate_3.md | s5_p3_i3_gates_part2.md | Round 3 Part 2b |
+| implementation_execution.md | s6_execution.md | Implementation guide |
+| smoke_testing.md | s7_p1_smoke_testing.md | Smoke testing |
+| qc_rounds.md | s7_p2_qc_rounds.md | QC rounds |
+| final_review.md | s7_p3_final_review.md | Final review |
+| post_feature_alignment.md | s8_p1_cross_feature_alignment.md | Cross-feature alignment |
+| epic_testing_plan_update.md | s8_p2_epic_testing_update.md | Epic testing update |
+| epic_smoke_testing.md | s9_p1_epic_smoke_testing.md | Epic smoke tests |
+| epic_qc_rounds.md | s9_p2_epic_qc_rounds.md | Epic QC |
+| user_testing.md | s9_p3_user_testing.md | User testing |
+| epic_final_review.md | s9_p4_epic_final_review.md | Epic final review |
+| epic_cleanup.md | s10_epic_cleanup.md | Epic cleanup |
+| guide_update_workflow.md | s10_p1_guide_update_workflow.md | Guide updates |
 
 **Note:** If you encounter old notation in conversation summaries or older documentation, always use the current notation shown above.
 

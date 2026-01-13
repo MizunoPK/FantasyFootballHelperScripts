@@ -330,12 +330,6 @@ feature-updates/
     │
     ├── templates/                    ← File templates
     │   └── TEMPLATES_INDEX.md
-    │
-    └── _internal/                    ← Internal tracking docs
-        ├── guide_optimization_phase2_checklist.md
-        ├── priority_4_reference_cards_completion.md
-        ├── stage_5ac_split_completion.md
-        └── stage_5ac_split_reference_updates.md
 ```
 
 ---

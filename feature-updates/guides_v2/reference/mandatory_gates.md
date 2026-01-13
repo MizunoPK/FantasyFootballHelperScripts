@@ -1,8 +1,8 @@
 # Mandatory Gates Across Epic Workflow - Quick Reference
 
-**Purpose:** Comprehensive list of ALL mandatory gates from S1-7
+**Purpose:** Comprehensive list of ALL mandatory gates from S1-S10
 **Use Case:** Quick lookup for gate requirements, criteria, and failure consequences
-**Total Gates:** 16 across 7 stages (NEW: Gate 4.5 added for early test plan approval)
+**Total Gates:** 16 across 10 stages (NEW: Gate 4.5 added for early test plan approval)
 
 ---
 
