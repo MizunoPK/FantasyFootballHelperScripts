@@ -123,8 +123,8 @@ STAGE 10: Epic Cleanup
 | Round 1 complete | `stages/s5/s5_p2_planning_round2.md` | Iterations 8-16: Test strategy, edge cases, re-verification |
 | Round 2 complete | `stages/s5/s5_p3_planning_round3.md` | Router: Links to Part 1/Part 2a/Part 2b sub-stages |
 | Round 3 preparation phase | `stages/s5/s5_p3_planning_round3.md` | Iterations 17-22: Phasing, rollback, algorithm (final), performance, mock audit |
-| Round 3 gates phase (Part 2a) | `stages/s5/5.1.3.2_round3_part2a.md` | Iterations 23, 23a: Integration Gap + Pre-Impl Spec Audit |
-| Round 3 gates phase (Part 2b) | `stages/s5/5.1.3.3_round3_part2b.md` | Iterations 25, 24: Spec Validation + GO/NO-GO |
+| Round 3 gates phase (Part 2a) | `stages/s5/s5_p3_i2_gates_part1.md` | Iterations 23, 23a: Integration Gap + Pre-Impl Spec Audit |
+| Round 3 gates phase (Part 2b) | `stages/s5/s5_p3_i3_gates_part2.md` | Iterations 25, 24: Spec Validation + GO/NO-GO |
 | Implementation planning complete (28 iterations) | `stages/s6/s6_execution.md` | Implement feature with continuous verification |
 | Implementation done (Smoke Testing) | `stages/s7/s7_p1_smoke_testing.md` | Part 1: Import, Part 2: Entry Point, Part 3: E2E (verify DATA VALUES) |
 | Smoke testing passed (QC Rounds) | `stages/s7/s7_p2_qc_rounds.md` | Round 1: Basic validation, Round 2: Deep verification, Round 3: Final review |
@@ -277,39 +277,45 @@ feature-updates/
     │   ├── realignment.md            ← Phase 3 & 4: S3/4 alignment
     │   └── stage_6_7_special.md      ← Special case: Discovery during epic testing
     │
-    ├── stages/                       ← Core workflow guides
-    │   ├── stage_1/
+    ├── stages/                       ← Core workflow guides (10 stages: s1-s10)
+    │   ├── s1/
     │   │   └── s1_epic_planning.md
-    │   ├── stage_2/
-    │   │   ├── s2_feature_deep_dive.md          ← Router (links to S2.P1/2.2/2.3)
-    │   │   ├── s2_p1_research.md           ← S2.P1 (Research)
-    │   │   ├── s2_p2_specification.md      ← S2.P2 (Specification)
-    │   │   └── s2_p3_refinement.md         ← S2.P3 (Refinement)
-    │   ├── stage_3/
+    │   ├── s2/
+    │   │   ├── s2_feature_deep_dive.md          ← Router (links to S2.P1/P2/P3)
+    │   │   ├── s2_p1_research.md                ← S2.P1 (Research)
+    │   │   ├── s2_p2_specification.md           ← S2.P2 (Specification)
+    │   │   └── s2_p3_refinement.md              ← S2.P3 (Refinement)
+    │   ├── s3/
     │   │   └── s3_cross_feature_sanity_check.md
-    │   ├── stage_4/
+    │   ├── s4/
     │   │   └── s4_epic_testing_strategy.md
-    │   ├── stage_5/
-    │   │   ├── s5_p1_planning_round1.md         ← Implementation planning Round 1
-    │   │   ├── s5_p2_planning_round2.md         ← Implementation planning Round 2
-    │   │   ├── s5_p3_planning_round3.md         ← Round 3 router (links to 5.1.3.2/5.1.3.3)
-    │   │   ├── 5.1.3.2_round3_part2a.md     ← Round 3 Part 2a (Gates 1-2)
-    │   │   ├── 5.1.3.3_round3_part2b.md     ← Round 3 Part 2b (Gate 3)
-    │   │   ├── s5_p4_execution.md
-    │   │   ├── phase_5.3_post_implementation.md  ← Post-impl router
-    │   │   ├── s5_p5_smoke_testing.md      ← Post-impl smoke testing
-    │   │   ├── s5_p6_qc_rounds.md          ← Post-impl QC rounds
-    │   │   ├── s5_p7_final_review.md       ← Post-impl final review
-    │   │   ├── s5_p8_cross_feature_alignment.md
-    │   │   └── s5_p9_epic_testing_update.md
-    │   ├── stage_6/
-    │   │   ├── s6_epic_final_qc.md                  ← Router (links to smoke/qc/review)
-    │   │   ├── s6_p1_epic_smoke_testing.md   ← Epic smoke testing
-    │   │   ├── s6_p2_epic_qc_rounds.md       ← Epic QC rounds
-    │   │   ├── s6_p3_user_testing.md         ← User testing
-    │   │   └── s6_p4_epic_final_review.md    ← Epic final review
-    │   └── stage_7/
-    │       └── s7_epic_cleanup.md
+    │   ├── s5/                               ← S5: Implementation Planning (28 iterations)
+    │   │   ├── s5_p1_planning_round1.md         ← S5.P1 Router (Round 1: Iterations 1-7)
+    │   │   ├── s5_p2_planning_round2.md         ← S5.P2 Router (Round 2: Iterations 8-16)
+    │   │   ├── s5_p3_planning_round3.md         ← S5.P3 Router (Round 3: Iterations 17-25)
+    │   │   ├── s5_p3_i1_preparation.md          ← S5.P3.I1 (Iterations 17-22)
+    │   │   ├── s5_p3_i2_gates_part1.md          ← S5.P3.I2 (Iterations 23, 23a)
+    │   │   ├── s5_p3_i3_gates_part2.md          ← S5.P3.I3 (Iterations 24, 25)
+    │   │   ├── s5_bugfix_workflow.md            ← Bug fix workflow
+    │   │   └── s5_pr_review_protocol.md         ← PR review protocol
+    │   ├── s6/                               ← S6: Implementation Execution
+    │   │   └── s6_execution.md
+    │   ├── s7/                               ← S7: Implementation Testing & Review
+    │   │   ├── s7_p1_smoke_testing.md           ← S7.P1 (Smoke Testing: 3 parts)
+    │   │   ├── s7_p2_qc_rounds.md               ← S7.P2 (QC Rounds: 3 rounds)
+    │   │   └── s7_p3_final_review.md            ← S7.P3 (Final Review: PR + lessons)
+    │   ├── s8/                               ← S8: Post-Feature Alignment
+    │   │   ├── s8_p1_cross_feature_alignment.md ← S8.P1 (Update remaining features)
+    │   │   └── s8_p2_epic_testing_update.md     ← S8.P2 (Update epic test plan)
+    │   ├── s9/                               ← S9: Epic Final QC
+    │   │   ├── s9_epic_final_qc.md              ← S9 Router (links to S9.P1-P4)
+    │   │   ├── s9_p1_epic_smoke_testing.md      ← S9.P1 (Epic smoke testing)
+    │   │   ├── s9_p2_epic_qc_rounds.md          ← S9.P2 (Epic QC rounds)
+    │   │   ├── s9_p3_user_testing.md            ← S9.P3 (User testing - MANDATORY)
+    │   │   └── s9_p4_epic_final_review.md       ← S9.P4 (Epic final review)
+    │   └── s10/                              ← S10: Epic Cleanup
+    │       ├── s10_epic_cleanup.md              ← S10 main guide
+    │       └── s10_p1_guide_update_workflow.md  ← S10.P1 (Guide updates - MANDATORY)
     │
     ├── reference/                    ← Reference materials
     │   ├── mandatory_gates.md
