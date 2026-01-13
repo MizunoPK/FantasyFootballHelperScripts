@@ -17,7 +17,7 @@ Issue/Gap Discovered
 │  │  │  Example: "We need to add email validation"
 │  │  │  → Create feature_{XX}_{name}/ folder
 │  │  │  → User decides priority
-│  │  │  → Return to Stage 2 for planning
+│  │  │  → Return to S2 for planning
 │  │  │
 │  │  └─ NO → Just implement it (regular work)
 │  │     Example: "Refactor this method"
@@ -94,7 +94,7 @@ Issue/Gap Discovered
 - Solution is known (email validation)
 - User didn't ask for it originally
 - Need user to confirm this requirement
-- Return to Stage 2 to plan properly
+- Return to S2 to plan properly
 
 **Actions:**
 1. STOP current work
@@ -104,9 +104,9 @@ Issue/Gap Discovered
    - Create new `feature_XX_email_validation/` folder
    - OR add to existing unstarted feature
 5. User decides: approach + priority (high/medium/low)
-6. Return to Stage 2 (Deep Dive) for new/updated feature
-7. Return to Stage 3 (Sanity Check) to re-align ALL features
-8. Return to Stage 4 (Test Strategy) to update epic test plan
+6. Return to S2 (Deep Dive) for new/updated feature
+7. Return to S3 (Sanity Check) to re-align ALL features
+8. Return to S4 (Test Strategy) to update epic test plan
 9. Resume paused work
 10. Implement new/updated feature when its turn comes
 
@@ -226,8 +226,8 @@ Issue/Gap Discovered
 - Prompt: See "Starting Debugging Protocol" in `prompts_reference_v2.md`
 
 **Questions Management:**
-- Stage 2: Add to `checklist.md` (QUESTION-ONLY format)
-- Stage 5a: Add to `questions.md` (if NEW questions arise during iterations)
+- S2: Add to `checklist.md` (QUESTION-ONLY format)
+- S5: Add to `questions.md` (if NEW questions arise during iterations)
 
 ---
 

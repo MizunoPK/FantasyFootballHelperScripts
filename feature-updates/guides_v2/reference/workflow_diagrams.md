@@ -9,10 +9,10 @@
 ## Table of Contents
 
 1. [Complete Epic Workflow (Stages 1-7)](#complete-epic-workflow-stages-1-7)
-2. [Stage 5: Feature Implementation Lifecycle](#stage-5-feature-implementation-lifecycle)
-3. [Stage 5a: TODO Creation (3 Rounds)](#stage-5a-todo-creation-3-rounds)
-4. [Stage 5c: Post-Implementation (3 Phases)](#stage-5c-post-implementation-3-phases)
-5. [Stage 9: Epic-Level Final QC](#stage-6-epic-level-final-qc)
+2. [S5: Feature Implementation Lifecycle](#stage-5-feature-implementation-lifecycle)
+3. [S5: TODO Creation (3 Rounds)](#stage-5a-todo-creation-3-rounds)
+4. [S7: Post-Implementation (3 Phases)](#stage-5c-post-implementation-3-phases)
+5. [S9: Epic-Level Final QC](#stage-6-epic-level-final-qc)
 6. [Debugging Loop-Back Flow](#debugging-loop-back-flow)
 7. [Missed Requirement Workflow](#missed-requirement-workflow)
 8. [Decision Point: Skip 5d/5e?](#decision-point-skip-5d5e)
@@ -76,7 +76,7 @@ User creates {epic_name}.txt
 └─────────────────────────────────────────────┘
          ↓
     [All features complete?]
-    ├─ NO → Next feature's Stage 5a
+    ├─ NO → Next feature's S5
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
@@ -87,8 +87,8 @@ User creates {epic_name}.txt
 │ Time: 1-2 hours                             │
 └─────────────────────────────────────────────┘
          ↓
-    [Stage 9 passed?]
-    ├─ NO → Debugging → RESTART Stage 9
+    [S9 passed?]
+    ├─ NO → Debugging → RESTART S9
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
@@ -104,7 +104,7 @@ User creates {epic_name}.txt
 └─────────────────────────────────────────────┘
          ↓
     [User testing passed?]
-    ├─ NO → Debugging → RESTART Stage 9
+    ├─ NO → Debugging → RESTART S9
     └─ YES → Proceed to PR creation
          ↓
     [User approved and merged PR?]
@@ -114,16 +114,16 @@ User creates {epic_name}.txt
 
 ---
 
-## Stage 5: Feature Implementation Lifecycle
+## S5: Feature Implementation Lifecycle
 
 ```
 Single Feature Journey (5a → 5b → 5c → 5d → 5e)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Prerequisites: Stage 4 complete (Gate 4.5 passed), feature spec ready
+Prerequisites: S4 complete (Gate 4.5 passed), feature spec ready
          ↓
 ┌─────────────────────────────────────────────┐
-│ Stage 5a: TODO Creation                     │
+│ S5: TODO Creation                     │
 │ - Round 1: Initial TODO (7 iterations + 4a) │
 │ - Round 2: Integration (9 iterations)       │
 │ - Round 3: Preparation + Gates (10 iters)   │
@@ -137,7 +137,7 @@ Prerequisites: Stage 4 complete (Gate 4.5 passed), feature spec ready
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
-│ Stage 5b: Implementation Execution          │
+│ S6: Implementation Execution          │
 │ - Interface verification FIRST              │
 │ - Implement phase-by-phase (5-6 phases)     │
 │ - Run tests after EACH phase               │
@@ -151,23 +151,23 @@ Prerequisites: Stage 4 complete (Gate 4.5 passed), feature spec ready
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
-│ Stage 5c: Post-Implementation               │
+│ S7: Post-Implementation               │
 │ - Step 1: Smoke Testing (3 parts)         │
 │ - Step 2: QC Rounds (3 rounds)             │
 │ - Step 3: Final Review (PR + Lessons)      │
 │ Time: 45-90 minutes                         │
 └─────────────────────────────────────────────┘
          ↓
-    [Stage 5c passed?]
+    [S7 passed?]
     ├─ NO → Create bug fix → RESTART 5c
     └─ YES → Feature complete!
          ↓
     [More features remaining?]
-    ├─ NO → SKIP to Stage 9
+    ├─ NO → SKIP to S9
     └─ YES → Proceed
          ↓
 ┌─────────────────────────────────────────────┐
-│ Stage 5d: Post-Feature Alignment            │
+│ S8.P1: Post-Feature Alignment            │
 │ - Review ACTUAL implementation              │
 │ - Update remaining feature specs            │
 │ - Document integration points               │
@@ -175,7 +175,7 @@ Prerequisites: Stage 4 complete (Gate 4.5 passed), feature spec ready
 └─────────────────────────────────────────────┘
          ↓
 ┌─────────────────────────────────────────────┐
-│ Stage 5e: Testing Plan Update               │
+│ S8.P2: Testing Plan Update               │
 │ - Update epic_smoke_test_plan.md            │
 │ - Add integration points discovered         │
 │ - Update test scenarios                     │
@@ -183,19 +183,19 @@ Prerequisites: Stage 4 complete (Gate 4.5 passed), feature spec ready
 └─────────────────────────────────────────────┘
          ↓
     [More features remaining?]
-    ├─ YES → Next feature's Stage 5a
-    └─ NO → Stage 9 (Epic Final QC)
+    ├─ YES → Next feature's S5
+    └─ NO → S9 (Epic Final QC)
 ```
 
 ---
 
-## Stage 5a: TODO Creation (3 Rounds)
+## S5: TODO Creation (3 Rounds)
 
 ```
 TODO Creation - 24 Verification Iterations Across 3 Rounds
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Entry: Stage 4 complete (Gate 4.5 passed), feature spec.md ready
+Entry: S4 complete (Gate 4.5 passed), feature spec.md ready
          ↓
 ┌─────────────────────────────────────────────┐
 │ ROUND 1: Initial TODO Creation              │
@@ -283,18 +283,18 @@ Entry: Stage 4 complete (Gate 4.5 passed), feature spec.md ready
          ↓
     [Iteration 24 = GO?]
     ├─ NO → Fix issues, return to appropriate round
-    └─ YES → Stage 5b (Implementation)
+    └─ YES → S6 (Implementation)
 ```
 
 ---
 
-## Stage 5c: Post-Implementation (3 Phases)
+## S7: Post-Implementation (3 Phases)
 
 ```
 Post-Implementation Validation - 3 Phases
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Entry: Stage 5b complete, all tests passing
+Entry: S6 complete, all tests passing
          ↓
 ┌─────────────────────────────────────────────┐
 │ PHASE 1: Smoke Testing (3 Parts)            │
@@ -366,22 +366,22 @@ Entry: Stage 5b complete, all tests passing
          ↓
     [Final review PASSED?]
     ├─ NO → Fix issues → RESTART from Smoke Part 1
-    └─ YES → Stage 5c complete!
+    └─ YES → S7 complete!
          ↓
     [More features remaining?]
-    ├─ YES → Stage 5d (Alignment)
-    └─ NO → Stage 9 (Epic QC)
+    ├─ YES → S8.P1 (Alignment)
+    └─ NO → S9 (Epic QC)
 ```
 
 ---
 
-## Stage 9: Epic-Level Final QC
+## S9: Epic-Level Final QC
 
 ```
 Epic-Level Final QC - Testing Entire Epic
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Entry: ALL features complete (Stage 5c passed for all)
+Entry: ALL features complete (S7 passed for all)
          ↓
 ┌─────────────────────────────────────────────┐
 │ S9.P1: Epic Smoke Testing                │
@@ -442,7 +442,7 @@ Entry: ALL features complete (Stage 5c passed for all)
          ↓
     [Epic final review PASSED?]
     ├─ NO → Debugging → RESTART S9.P1
-    └─ YES → Stage 10 (Epic Cleanup)
+    └─ YES → S10 (Epic Cleanup)
 ```
 
 ---
@@ -453,7 +453,7 @@ Entry: ALL features complete (Stage 5c passed for all)
 Debugging Protocol - Integrated Loop-Back Mechanism
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Issues discovered during Testing (Stage 5c or 6)
+Issues discovered during Testing (S7 or 6)
          ↓
 ┌─────────────────────────────────────────────┐
 │ PHASE 1: Issue Discovery & Checklist Update │
@@ -560,12 +560,12 @@ QC/Smoke finds missing requirement (solution known)
 │                                             │
 │ Decision threshold:                         │
 │   - ≤3 tasks → Add directly, proceed        │
-│   - >3 tasks → Return to Stage 5a Round 3   │
+│   - >3 tasks → Return to S5 Round 3   │
 └─────────────────────────────────────────────┘
          ↓
     [Task count threshold]
     ├─ ≤3 tasks → Simple addition
-    └─ >3 tasks → Return to Stage 5a Round 3
+    └─ >3 tasks → Return to S5 Round 3
          ↓
 ┌─────────────────────────────────────────────┐
 │ STEP 3a: Simple Addition (≤3 tasks)         │
@@ -583,19 +583,19 @@ QC/Smoke finds missing requirement (solution known)
 ┌─────────────────────────────────────────────┐
 │ STEP 3b: Major Addition (>3 tasks)          │
 │                                             │
-│ - Return to Stage 5a Round 3 Part 1         │
+│ - Return to S5 Round 3 Part 1         │
 │ - Re-run preparation iterations (17-22)     │
 │ - Re-run gates (23a, 25, 24)                │
 │ - Get new GO decision                       │
-│ - Then proceed to Stage 5b                  │
+│ - Then proceed to S6                  │
 └─────────────────────────────────────────────┘
          ↓
          │ Complete full implementation cycle
          │ (5b → 5c → [5d] → [5e])
          ↓
     [Feature level?]
-    ├─ YES → Continue with Stage 5d/5e if needed
-    └─ NO → Stage 9 (Epic testing)
+    ├─ YES → Continue with S8.P1/5e if needed
+    └─ NO → S9 (Epic testing)
 ```
 
 ---
@@ -603,10 +603,10 @@ QC/Smoke finds missing requirement (solution known)
 ## Decision Point: Skip 5d/5e?
 
 ```
-After Stage 5c Complete - Decision Tree
+After S7 Complete - Decision Tree
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Stage 5c complete (feature validated)
+S7 complete (feature validated)
          ↓
     ┌──────────────────────────────────┐
     │ Are there more features          │
@@ -615,19 +615,19 @@ Stage 5c complete (feature validated)
          ↓
     ├─ YES ─────────────────────────────┐
     │                                   │
-    │   Proceed to Stage 5d             │
+    │   Proceed to S8.P1             │
     │   (Post-Feature Alignment)        │
     │         ↓                         │
     │   Update remaining feature specs  │
     │   based on ACTUAL implementation  │
     │         ↓                         │
-    │   Proceed to Stage 5e             │
+    │   Proceed to S8.P2             │
     │   (Testing Plan Update)           │
     │         ↓                         │
     │   Update epic_smoke_test_plan.md  │
     │   with integration points         │
     │         ↓                         │
-    │   Next feature's Stage 5a         │
+    │   Next feature's S5         │
     │   (TODO Creation)                 │
     │                                   │
     └───────────────────────────────────┘
@@ -639,11 +639,11 @@ Stage 5c complete (feature validated)
     │   Why skip?                       │
     │   - No remaining specs to update  │
     │   - Test plan will be validated   │
-    │     in Stage 9 anyway             │
+    │     in S9 anyway             │
     │   - No point in intermediate      │
     │     updates                       │
     │         ↓                         │
-    │   Proceed directly to Stage 9     │
+    │   Proceed directly to S9     │
     │   (Epic-Level Final QC)           │
     │                                   │
     └───────────────────────────────────┘
@@ -658,7 +658,7 @@ When to Restart - Complete Decision Matrix
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ┌────────────────────────────────────────────────────────┐
-│ SCENARIO 1: Issues During Smoke Testing (Stage 5c)    │
+│ SCENARIO 1: Issues During Smoke Testing (S7)    │
 ├────────────────────────────────────────────────────────┤
 │ Issue found in:                                        │
 │   - Part 1 (Import Test)                               │
@@ -674,7 +674,7 @@ When to Restart - Complete Decision Matrix
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
-│ SCENARIO 2: Issues During QC Rounds (Stage 5c)        │
+│ SCENARIO 2: Issues During QC Rounds (S7)        │
 ├────────────────────────────────────────────────────────┤
 │ Issue found in:                                        │
 │   - Round 1 (Algorithm Verification)                   │
@@ -690,7 +690,7 @@ When to Restart - Complete Decision Matrix
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
-│ SCENARIO 3: Issues During Epic Testing (Stage 9)      │
+│ SCENARIO 3: Issues During Epic Testing (S9)      │
 ├────────────────────────────────────────────────────────┤
 │ Issue found in:                                        │
 │   - Epic smoke testing (6a)                            │
@@ -702,11 +702,11 @@ When to Restart - Complete Decision Matrix
 │   2. Enter Debugging Protocol                          │
 │   3. Resolve ALL issues                                │
 │   4. RESTART from S9.P1 Part 1 (Epic Import Test)   │
-│   5. Re-run entire Stage 9 (6a → 6b → 6c)              │
+│   5. Re-run entire S9 (6a → 6b → 6c)              │
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
-│ SCENARIO 4: User Testing Failures (Stage 10)           │
+│ SCENARIO 4: User Testing Failures (S10)           │
 ├────────────────────────────────────────────────────────┤
 │ User finds bugs during testing                         │
 │                                                        │
@@ -714,14 +714,14 @@ When to Restart - Complete Decision Matrix
 │   1. Document bugs in epic-level ISSUES_CHECKLIST.md   │
 │   2. Enter Debugging Protocol                          │
 │   3. Resolve ALL issues with user confirmation         │
-│   4. RESTART from S9.P1 (not Stage 10)               │
-│   5. Complete full Stage 9 validation again            │
-│   6. Return to Stage 10 user testing                    │
+│   4. RESTART from S9.P1 (not S10)               │
+│   5. Complete full S9 validation again            │
+│   6. Return to S10 user testing                    │
 │   7. ZERO bugs required to proceed                     │
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
-│ SCENARIO 5: Iteration 24 = NO-GO (Stage 5a)           │
+│ SCENARIO 5: Iteration 24 = NO-GO (S5)           │
 ├────────────────────────────────────────────────────────┤
 │ GO/NO-GO decision fails                                │
 │                                                        │
@@ -744,11 +744,11 @@ When to Restart - Complete Decision Matrix
 │                                                        │
 │ Action:                                                │
 │   1. Update spec.md with missed requirement            │
-│   2. Return to Stage 5a Round 3 Part 1 (Iteration 17)  │
+│   2. Return to S5 Round 3 Part 1 (Iteration 17)  │
 │   3. Complete preparation iterations (17-22)           │
 │   4. Re-run ALL gates (23a, 25, 24)                    │
 │   5. Get new GO decision                               │
-│   6. Proceed to Stage 5b with updated plan             │
+│   6. Proceed to S6 with updated plan             │
 │   7. Complete full cycle (5b → 5c → [5d] → [5e])      │
 └────────────────────────────────────────────────────────┘
 ```
@@ -767,22 +767,22 @@ When to Restart - Complete Decision Matrix
 
 **Time Estimates:**
 - Listed in stage boxes as "Time: X-Y minutes/hours"
-- Estimates are per feature for Stage 5 workflows
+- Estimates are per feature for S5 workflows
 - Epic-level times assume 3-5 features
 
 **Mandatory Gates:**
-- Iteration 4a: TODO Specification Audit (Stage 5a Round 1)
-- Iteration 23a: Pre-Implementation Spec Audit - 4 PARTS (Stage 5a Round 3)
-- Iteration 25: Spec Validation Against Validated Documents (Stage 5a Round 3)
-- Iteration 24: Implementation Readiness Protocol - GO/NO-GO (Stage 5a Round 3)
-- Smoke Testing Part 3: E2E Execution Test (Stage 5c, S9.P1)
-- User Testing: Zero bugs required (Stage 10)
+- Iteration 4a: TODO Specification Audit (S5 Round 1)
+- Iteration 23a: Pre-Implementation Spec Audit - 4 PARTS (S5 Round 3)
+- Iteration 25: Spec Validation Against Validated Documents (S5 Round 3)
+- Iteration 24: Implementation Readiness Protocol - GO/NO-GO (S5 Round 3)
+- Smoke Testing Part 3: E2E Execution Test (S7, S9.P1)
+- User Testing: Zero bugs required (S10)
 
 **Key Principles:**
 - **Loop-back on issues:** Never proceed with unresolved issues
 - **Zero tech debt tolerance:** Fix all issues immediately
 - **100% test pass required:** Before stage transitions
-- **User approval required:** For specs (Stage 3), testing (Stage 10)
+- **User approval required:** For specs (S3), testing (S10)
 - **Restart from beginning:** When issues found in QC/smoke testing
 
 ---

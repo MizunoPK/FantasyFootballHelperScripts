@@ -1,15 +1,15 @@
-# Stage 4 Prompts: Epic Testing Strategy
+# S4 Prompts: Epic Testing Strategy
 
 **Stage:** 4
 **Purpose:** Epic test plan update based on feature specs
 
 ---
 
-## Starting Stage 4: Epic Testing Strategy
+## Starting S4: Epic Testing Strategy
 
-**User says:** "Update epic test plan" or "Define testing strategy" or Agent detects Stage 3 complete
+**User says:** "Update epic test plan" or "Define testing strategy" or Agent detects S3 complete
 
-**Prerequisite:** Stage 3 complete (user signed off on aligned specs)
+**Prerequisite:** S3 complete (user signed off on aligned specs)
 
 **Agent MUST respond:**
 
@@ -17,31 +17,31 @@
 I'm reading `stages/s4/s4_epic_testing_strategy.md` to ensure I create a comprehensive epic testing strategy...
 
 **The guide requires:**
-- Review initial epic_smoke_test_plan.md (created in Stage 1)
-- Update test plan based on Stage 2-3 findings:
-  - Integration points identified in Stage 3
+- Review initial epic_smoke_test_plan.md (created in S1)
+- Update test plan based on S2-3 findings:
+  - Integration points identified in S3
   - Actual feature implementations (not assumptions)
   - Cross-feature workflows that need testing
 - Define epic success criteria (measurable)
 - Create hybrid test scenarios:
   - Specific commands/scenarios (concrete tests to always run)
-  - High-level categories (flexible areas for Stage 5e/6 updates)
+  - High-level categories (flexible areas for S8.P2/6 updates)
 - Identify data quality checks (verify VALUES not just structure)
-- Plan evolves: Stage 1 (placeholder) → Stage 4 (based on specs) → Stage 5e (based on implementation)
+- Plan evolves: S1 (placeholder) → S4 (based on specs) → S8.P2 (based on implementation)
 
 **Prerequisites I'm verifying:**
-✅ Stage 3 complete (EPIC_README.md shows user sign-off)
+✅ S3 complete (EPIC_README.md shows user sign-off)
 ✅ All feature specs aligned
 ✅ Integration points documented
-✅ epic_smoke_test_plan.md exists (from Stage 1)
+✅ epic_smoke_test_plan.md exists (from S1)
 
 **I'll now review the existing test plan and update based on Stages 2-3 findings...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Stage 4 - Epic Testing Strategy
+- Current Stage: S4 - Epic Testing Strategy
 - Current Guide: stages/s4/s4_epic_testing_strategy.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Update test plan (don't recreate)", "Hybrid test scenarios", "Measurable success criteria", "Plan will evolve in Stage 5e"
+- Critical Rules: "Update test plan (don't recreate)", "Hybrid test scenarios", "Measurable success criteria", "Plan will evolve in S8.P2"
 - Next Action: Review current epic_smoke_test_plan.md and identify updates needed
 
 Starting test plan update...
@@ -74,7 +74,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 ...
 
 **Why approval is needed now:**
-- I need to know EXACTLY how to test this work BEFORE creating implementation plans (Stage 5a)
+- I need to know EXACTLY how to test this work BEFORE creating implementation plans (S5)
 - Test requirements will guide how I structure implementation tasks and test strategy
 - Changes to test plan are cheap now, expensive after 28 verification iterations
 
@@ -88,7 +88,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 - Are there additional integration points I should test?
 - Do the data quality checks verify the right values?
 
-**I cannot proceed to Stage 5a (Implementation Planning) without your approval.**
+**I cannot proceed to S5 (Implementation Planning) without your approval.**
 ```
 
 **After user approves:**
@@ -102,12 +102,12 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 
 **What this means:**
 - I now know EXACTLY how to test this work
-- Implementation plans (Stage 5a) will be designed with these test requirements in mind
+- Implementation plans (S5) will be designed with these test requirements in mind
 - Test strategy will guide implementation approach
 
-**Next: Stage 5 (Feature Implementation)**
+**Next: S5 (Feature Implementation)**
 
-Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to Stage 5a to begin implementation planning for the first feature.
+Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to S5 to begin implementation planning for the first feature.
 
 Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive implementation plan with 28 verification iterations across 3 rounds.
 ```

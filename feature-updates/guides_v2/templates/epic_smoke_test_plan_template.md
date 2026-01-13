@@ -2,8 +2,8 @@
 
 **Filename:** `epic_smoke_test_plan.md`
 **Location:** `feature-updates/KAI-{N}-{epic_name}/epic_smoke_test_plan.md`
-**Created:** {YYYY-MM-DD} (Stage 1)
-**Updated:** Stage 4 (Epic Testing Strategy), Stage 5e (after each feature)
+**Created:** {YYYY-MM-DD} (S1)
+**Updated:** S4 (Epic Testing Strategy), S8.P2 (after each feature)
 
 **Purpose:** Defines how to validate the complete epic end-to-end with specific test scenarios and success criteria.
 
@@ -16,7 +16,7 @@
 
 **Purpose:** Define how to validate the complete epic end-to-end
 
-**Created:** {YYYY-MM-DD} (Stage 1)
+**Created:** {YYYY-MM-DD} (S1)
 **Last Updated:** {YYYY-MM-DD} (Stage {X})
 
 ---
@@ -49,16 +49,16 @@
 
 | Date | Stage | Feature | What Changed | Why |
 |------|-------|---------|--------------|-----|
-| {YYYY-MM-DD} | Stage 1 | (initial) | Initial plan created | Epic planning based on assumptions |
-| {YYYY-MM-DD} | Stage 4 | (all features) | Updated based on deep dives | Discovered {N} integration points, refined scenarios |
-| {YYYY-MM-DD} | Stage 5e | feature_01 | Added ADP integration scenarios | Feature 1 implementation revealed specific multiplier ranges |
-| {YYYY-MM-DD} | Stage 5e | feature_02 | Added matchup cross-check scenarios | Feature 2 integration with Feature 1 needs validation |
-| {YYYY-MM-DD} | Stage 5e | feature_03 | Added performance tracking E2E tests | Feature 3 implementation added CSV persistence |
+| {YYYY-MM-DD} | S1 | (initial) | Initial plan created | Epic planning based on assumptions |
+| {YYYY-MM-DD} | S4 | (all features) | Updated based on deep dives | Discovered {N} integration points, refined scenarios |
+| {YYYY-MM-DD} | S8.P2 | feature_01 | Added ADP integration scenarios | Feature 1 implementation revealed specific multiplier ranges |
+| {YYYY-MM-DD} | S8.P2 | feature_02 | Added matchup cross-check scenarios | Feature 2 integration with Feature 1 needs validation |
+| {YYYY-MM-DD} | S8.P2 | feature_03 | Added performance tracking E2E tests | Feature 3 implementation added CSV persistence |
 
 **Current version is informed by:**
-- Stage 1: Initial assumptions
-- Stage 4: Deep dive findings (Stages 2-3)
-- Stage 5e updates: {List features that have updated this plan}
+- S1: Initial assumptions
+- S4: Deep dive findings (Stages 2-3)
+- S8.P2 updates: {List features that have updated this plan}
 
 ---
 
@@ -67,7 +67,7 @@
 **Instructions for Agent:**
 - Execute EACH scenario listed below
 - Verify ACTUAL DATA VALUES (not just "file exists")
-- Document results in Stage 9
+- Document results in S9
 
 ---
 
@@ -150,7 +150,7 @@ python run_{epic_main}.py --mode {mode} --{edge_case_flag}
 
 **Scenario 6: Feature 01 ↔ Feature 02 Integration**
 
-**Added:** Stage 5e (feature_02_{name})
+**Added:** S8.P2 (feature_02_{name})
 
 **What to test:** Verify Feature 01 data correctly consumed by Feature 02
 
@@ -166,7 +166,7 @@ python run_{epic_main}.py --mode {mode} --{edge_case_flag}
 
 **Scenario 7: Feature 01 ↔ Feature 03 Integration**
 
-**Added:** Stage 5e (feature_03_{name})
+**Added:** S8.P2 (feature_03_{name})
 
 **What to test:** Verify Feature 03 tracks Feature 01 data
 
@@ -181,7 +181,7 @@ python run_{epic_main}.py --mode {mode} --{edge_case_flag}
 
 **Scenario 8: Three-Way Integration (Features 01, 02, 03)**
 
-**Added:** Stage 5e (feature_03_{name})
+**Added:** S8.P2 (feature_03_{name})
 
 **What to test:** Verify all three features work together cohesively
 
@@ -201,7 +201,7 @@ python run_{epic_main}.py --mode {mode} --{edge_case_flag}
 ## High-Level Test Categories
 
 **Instructions for Agent:**
-- These categories are FLEXIBLE - create specific scenarios as needed during Stage 5e/6
+- These categories are FLEXIBLE - create specific scenarios as needed during S8.P2/6
 - Base scenarios on ACTUAL implementation (not assumptions)
 
 ---
@@ -242,7 +242,7 @@ python run_{epic_main}.py --mode {mode} --{edge_case_flag}
 
 ---
 
-## Execution Checklist (For Stage 9)
+## Execution Checklist (For S9)
 
 **Part 1: Import Tests**
 - [ ] Scenario 1: Import All Epic Modules - {✅ PASSED / ❌ FAILED}

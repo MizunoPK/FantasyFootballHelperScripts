@@ -82,7 +82,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 **C. Missing Mandatory Gate**
 - No checkpoint to catch this type of issue
-- Example: "No gate between Stage 5a and 5b to verify edge cases were actually tested"
+- Example: "No gate between S5 and 5b to verify edge cases were actually tested"
 
 **D. Process Gap**
 - No workflow step covers this scenario
@@ -106,14 +106,14 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 **For each stage, ask: "Could this guide have caught this bug?"**
 
-**Stage 5a (Implementation Planning):**
+**S5 (Implementation Planning):**
 - Round 1, Iteration 4 (Algorithm Traceability): Should algorithm have included this?
 - Round 1, Iteration 7 (Integration Gap Check): Should integration point have been verified?
 - Round 2, Iteration 9 (Edge Case Analysis): Should edge case have been identified?
 - Round 2, Iteration 15 (Test Coverage): Should test have covered this?
 - Round 3, Iteration 23a (Spec Audit): Should spec have included this requirement?
 
-**Stage 5b (Implementation Execution):**
+**S6 (Implementation Execution):**
 - Mini-QC checkpoints: Should QC have caught this?
 - Unit tests: Should test have existed for this?
 
@@ -125,7 +125,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 **S7.P2:**
 - Round 1-3: Which round should have caught this?
 
-**Stage 2 (Specification):**
+**S2 (Specification):**
 - Should spec.md have included this requirement?
 
 ---
@@ -137,7 +137,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 ## Prevention Point
 
 **This bug SHOULD have been caught at:**
-- Stage: {Stage 5a / 5b / S10.P1 / S10.P2 / 2 / etc.}
+- Stage: {S5 / 5b / S10.P1 / S10.P2 / 2 / etc.}
 - Specific Step: {Iteration 9 / QC Round 1 / etc.}
 - Guide: {s5_p2_planning_round2.md / qc_rounds.md / etc.}
 - Specific Section: {Iteration 9: Edge Case Analysis}
@@ -220,7 +220,7 @@ This bug ({brief description}) occurred because {reason}. Adding this checkpoint
 **Record:**
 ```markdown
 **Recommended Priority:** P1 (High)
-**Reasoning:** Bug reached smoke testing (got through Stage 5a + 5b), 3 hours debugging time
+**Reasoning:** Bug reached smoke testing (got through S5 + 5b), 3 hours debugging time
 ```
 
 ---
@@ -257,7 +257,7 @@ I've analyzed why this bug existed and how we can prevent it in future epics.
 ### Prevention Point
 
 **This bug SHOULD have been caught at:**
-- **Stage:** {Stage 5a/5b/etc.}
+- **Stage:** {S5/5b/etc.}
 - **Step:** {Iteration X / QC Round X}
 - **Guide:** `{guide name}`
 - **Why it wasn't caught:** {specific gap}

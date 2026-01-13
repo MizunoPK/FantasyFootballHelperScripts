@@ -500,10 +500,10 @@ Update Agent Status: Current Phase "DEEP_DIVE", Current Guide "stages/s2/s2_p1_r
 
 ### Step 5.3: Announce Transition to User
 
-Announce Stage 1 completion to user:
+Announce S1 completion to user:
 - List features created
 - List epic-level files created
-- Announce transition to Stage 2a (Research Phase) for Feature 1
+- Announce transition to S2a (Research Phase) for Feature 1
 
 ---
 
@@ -521,10 +521,10 @@ Announce Stage 1 completion to user:
 - Verify epic_smoke_test_plan.md marked as "INITIAL - WILL UPDATE"
 - Verify GUIDE_ANCHOR.md created
 
-**CHECKPOINT 3:** Before declaring Stage 1 complete (Phase 5)
+**CHECKPOINT 3:** Before declaring S1 complete (Phase 5)
 - Re-read "Completion Criteria" section below
 - Verify ALL criteria met (not just most)
-- Verify EPIC_README.md updated with Stage 1 checklist marked complete
+- Verify EPIC_README.md updated with S1 checklist marked complete
 
 **Why this matters:** Memory degrades. Re-reading keeps you aligned with documented process.
 

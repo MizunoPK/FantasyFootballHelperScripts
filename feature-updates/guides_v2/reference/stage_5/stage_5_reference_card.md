@@ -1,6 +1,6 @@
 # STAGE 5: Feature Implementation - Quick Reference Card
 
-**Purpose:** Visual map of all Stage 5 sub-stages and mandatory gates
+**Purpose:** Visual map of all S5 sub-stages and mandatory gates
 **Use Case:** Quick lookup for workflow navigation, restart points, and gate requirements
 **Total Time:** 5-10 hours per feature (varies by complexity)
 
@@ -98,9 +98,9 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 ---
 
-## Mandatory Gates Across Stage 5
+## Mandatory Gates Across S5
 
-### Stage 5a: TODO Creation (4 gates)
+### S5: TODO Creation (4 gates)
 
 **Gate 1: Iteration 4a - TODO Specification Audit**
 - **Location:** stages/s5/s5_p1_planning_round1.md
@@ -129,10 +129,10 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 **Gate 4: Iteration 24 - Implementation Readiness Protocol (GO/NO-GO)**
 - **Location:** stages/s5/round3_part2_final_gates.md
 - **Criteria:** GO decision required (confidence >= MEDIUM, all gates PASSED, all checklists complete)
-- **If NO-GO:** Address concerns, cannot proceed to Stage 5b
-- **If GO:** Proceed to Stage 5b implementation
+- **If NO-GO:** Address concerns, cannot proceed to S6
+- **If GO:** Proceed to S6 implementation
 
-### Stage 5c: Post-Implementation (2 gates)
+### S7: Post-Implementation (2 gates)
 
 **Gate 5: S10.P1 Part 3 - E2E Smoke Test (Data Values)**
 - **Location:** stages/s10/s7_p1_smoke_testing.md
@@ -197,7 +197,7 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 ## Critical Rules Summary
 
-### Stage 5a (TODO Creation)
+### S5 (TODO Creation)
 - ✅ Complete ALL 28 iterations (no skipping)
 - ✅ Execute iterations IN ORDER (not parallel)
 - ✅ Pass ALL 4 mandatory gates (4a, 23a, 25, 24)
@@ -205,21 +205,21 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 - ✅ Evidence-based verification (cite specific numbers)
 - ✅ Close spec.md before Iteration 25 (avoid confirmation bias)
 
-### Stage 5b (Implementation)
+### S6 (Implementation)
 - ✅ Keep spec.md VISIBLE at all times
 - ✅ Mini-QC checkpoints every 5-7 TODO tasks
 - ✅ 100% unit test pass after each step
 - ✅ Update code_changes.md INCREMENTALLY
 - ✅ Interface verification against ACTUAL source code
 
-### Stage 5c (Post-Implementation)
+### S7 (Post-Implementation)
 - ✅ Verify DATA VALUES in smoke testing (not just file existence)
 - ✅ QC Round 3 requires ZERO issues
 - ✅ If ANY issues found → restart from smoke testing
 - ✅ Zero tech debt tolerance (fix ALL issues immediately)
 - ✅ PR review covers all 11 categories
 
-### Stage 5d & 5e
+### S8.P1 & 5e
 - ✅ Update specs ONLY for remaining (not yet implemented) features
 - ✅ Reassess epic test plan after EACH feature completes
 
@@ -244,11 +244,11 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 ### ❌ Pitfall 4: Skipping Smoke Testing After Bug Fix
 **Problem:** "I only changed one line, smoke testing not needed"
-**Impact:** Small change breaks integration, bugs escape to Stage 9
+**Impact:** Small change breaks integration, bugs escape to S9
 **Solution:** ALWAYS restart from smoke testing after ANY code change
 
 ### ❌ Pitfall 5: Deferring QC Issues to "Later"
-**Problem:** "This is minor, I'll fix it after Stage 9"
+**Problem:** "This is minor, I'll fix it after S9"
 **Impact:** Tech debt accumulates, bugs compound, rework in production
 **Solution:** Zero tech debt tolerance - fix ALL issues immediately
 
@@ -278,19 +278,19 @@ Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
 
 ## Exit Conditions
 
-**Stage 5 is complete for a feature when:**
+**S5 is complete for a feature when:**
 - [ ] All 24 TODO iterations passed (including all 4 gates)
 - [ ] Implementation complete (100% unit tests pass)
 - [ ] Smoke testing passed (Part 3 data values verified)
 - [ ] QC Round 3 passed (ZERO issues)
 - [ ] PR review passed (all 11 categories)
 - [ ] Lessons learned documented
-- [ ] Remaining feature specs updated (Stage 5d)
-- [ ] Epic test plan updated (Stage 5e)
+- [ ] Remaining feature specs updated (S8.P1)
+- [ ] Epic test plan updated (S8.P2)
 
 **Next Action:**
-- If more features to implement → Loop to Stage 5a for next feature
-- If all features complete → Proceed to Stage 9 (Epic-Level Final QC)
+- If more features to implement → Loop to S5 for next feature
+- If all features complete → Proceed to S9 (Epic-Level Final QC)
 
 ---
 

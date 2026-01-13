@@ -1,7 +1,7 @@
-# Epic Completion Summary Template - Stage 10
+# Epic Completion Summary Template - S10
 
 **Purpose:** Template for completing EPIC_README.md Epic Completion Summary section
-**When to use:** Step 8d of Stage 10 (Final Verification & Completion)
+**When to use:** Step 8d of S10 (Final Verification & Completion)
 **Main Guide:** `stages/s10/s7_epic_cleanup.md`
 
 ---
@@ -18,7 +18,7 @@ After epic is complete and moved to done/, update the EPIC_README.md file in its
 ## Agent Status
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Stage:** Stage 10 - Epic Cleanup
+**Current Stage:** S10 - Epic Cleanup
 **Status:** ✅ COMPLETE
 
 **Epic Completion Summary:**
@@ -45,7 +45,7 @@ After epic is complete and moved to done/, update the EPIC_README.md file in its
 ## Agent Status
 
 **Last Updated:** 2025-12-30 16:00
-**Current Stage:** Stage 10 - Epic Cleanup
+**Current Stage:** S10 - Epic Cleanup
 **Status:** ✅ COMPLETE
 
 **Epic Completion Summary:**
@@ -68,7 +68,7 @@ After epic is complete and moved to done/, update the EPIC_README.md file in its
 
 ### When to Update
 
-Update EPIC_README.md **after** the epic folder is moved to done/ (Step 7 of Stage 10).
+Update EPIC_README.md **after** the epic folder is moved to done/ (Step 7 of S10).
 
 ### Steps
 
@@ -97,10 +97,10 @@ Update EPIC_README.md **after** the epic folder is moved to done/ (Step 7 of Sta
 ## What Each Field Means
 
 ### Start Date
-The date when Stage 1 (Epic Planning) began. Check git history or EPIC_README.md early Agent Status entries.
+The date when S1 (Epic Planning) began. Check git history or EPIC_README.md early Agent Status entries.
 
 ### End Date
-The date when Stage 10 (Epic Cleanup) was completed. Use today's date if completing now.
+The date when S10 (Epic Cleanup) was completed. Use today's date if completing now.
 
 ### Duration
 Calculate: End Date - Start Date in calendar days. Shows how long epic took.
@@ -122,12 +122,12 @@ Location of the original .txt file with user's request. Always: `feature-updates
 
 ---
 
-## Additional Section: Stage 10 - User Testing Results (Optional)
+## Additional Section: S10 - User Testing Results (Optional)
 
 If bugs were found and fixed during user testing, add this section to EPIC_README.md:
 
 ```markdown
-## Stage 10 - User Testing Results
+## S10 - User Testing Results
 
 **User Testing Conducted:** {YYYY-MM-DD}
 **Bugs Found:** {N}
@@ -138,18 +138,18 @@ If bugs were found and fixed during user testing, add this section to EPIC_READM
 - bugfix_{priority}_{name}/: {Brief description}
 - bugfix_{priority}_{name}/: {Brief description}
 
-**Stage 9 Re-Validation:** ✅ PASSED (after bug fixes)
+**S9 Re-Validation:** ✅ PASSED (after bug fixes)
 ```
 
 **When to include this:**
-- Only if user found bugs during Stage 10 Step 5 (User Testing)
+- Only if user found bugs during S10 Step 5 (User Testing)
 - Documents the bug fix cycle during final testing
 - Shows transparency of quality process
 
 **Example:**
 
 ```markdown
-## Stage 10 - User Testing Results
+## S10 - User Testing Results
 
 **User Testing Conducted:** 2025-12-30
 **Bugs Found:** 2
@@ -160,7 +160,7 @@ If bugs were found and fixed during user testing, add this section to EPIC_READM
 - bugfix_high_point_calculation/: Fixed incorrect trade value calculation
 - bugfix_medium_display_format/: Corrected multi-player trade display
 
-**Stage 9 Re-Validation:** ✅ PASSED (after bug fixes)
+**S9 Re-Validation:** ✅ PASSED (after bug fixes)
 ```
 
 ---
@@ -177,7 +177,7 @@ Before considering epic completion summary complete:
 - [ ] Test pass rate is 100% (verified with recent test run)
 - [ ] Epic location shows done/ folder path
 - [ ] Original request location is correct (still in root)
-- [ ] If user testing found bugs, added "Stage 10 - User Testing Results" section
+- [ ] If user testing found bugs, added "S10 - User Testing Results" section
 - [ ] EPIC_README.md saved in done/ folder (not root)
 
 ---
@@ -240,7 +240,7 @@ Before considering epic completion summary complete:
 **Final Test Pass Rate:** 100% (2200/2200 tests)  ← All tests passing
 ```
 
-**Note:** If tests aren't 100%, don't commit. Fix tests first, then complete Stage 10.
+**Note:** If tests aren't 100%, don't commit. Fix tests first, then complete S10.
 
 ---
 
@@ -257,13 +257,13 @@ In addition to Agent Status, update the "Epic Progress Tracker" section:
 
 | Stage | Status | Date Completed |
 |-------|--------|----------------|
-| Stage 1: Epic Planning | ✅ COMPLETE | {YYYY-MM-DD} |
-| Stage 2: Feature Deep Dives (All Features) | ✅ COMPLETE | {YYYY-MM-DD} |
-| Stage 3: Cross-Feature Sanity Check | ✅ COMPLETE | {YYYY-MM-DD} |
-| Stage 4: Epic Testing Strategy | ✅ COMPLETE | {YYYY-MM-DD} |
-| Stage 5: Feature Implementation (All Features) | ✅ COMPLETE | {YYYY-MM-DD} |
-| Stage 9: Epic Final QC | ✅ COMPLETE | {YYYY-MM-DD} |
-| Stage 10: Epic Cleanup | ✅ COMPLETE | {YYYY-MM-DD} |
+| S1: Epic Planning | ✅ COMPLETE | {YYYY-MM-DD} |
+| S2: Feature Deep Dives (All Features) | ✅ COMPLETE | {YYYY-MM-DD} |
+| S3: Cross-Feature Sanity Check | ✅ COMPLETE | {YYYY-MM-DD} |
+| S4: Epic Testing Strategy | ✅ COMPLETE | {YYYY-MM-DD} |
+| S5: Feature Implementation (All Features) | ✅ COMPLETE | {YYYY-MM-DD} |
+| S9: Epic Final QC | ✅ COMPLETE | {YYYY-MM-DD} |
+| S10: Epic Cleanup | ✅ COMPLETE | {YYYY-MM-DD} |
 
 **Epic Completion Date:** {YYYY-MM-DD}
 ```

@@ -64,9 +64,9 @@ mv stage_4/epic_testing_strategy.md s4/s4_epic_testing_strategy.md
 
 ---
 
-### Part 1C: Stage 2 - Simple Phase Renames (45 min)
+### Part 1C: S2 - Simple Phase Renames (45 min)
 
-**Stage 2 has 4 files (router + 3 phases):**
+**S2 has 4 files (router + 3 phases):**
 ```bash
 cd stages
 mv stage_2/feature_deep_dive.md s2/s2_feature_deep_dive.md
@@ -81,13 +81,13 @@ mv stage_2/phase_2.2.5_spec_validation.md s2/s2_p2_5_spec_validation.md
 2. Update headers to S2.P# notation
 3. Update cross-references
 
-**Checkpoint:** Stage 2 complete
+**Checkpoint:** S2 complete
 
 ---
 
-### Part 1D: Stage 9 - Simple Phase Renames (45 min)
+### Part 1D: S9 - Simple Phase Renames (45 min)
 
-**Stage 9 has 5 files (router + 4 phases):**
+**S9 has 5 files (router + 4 phases):**
 ```bash
 mv stage_6/epic_final_qc.md s6/s6_epic_final_qc.md
 mv stage_6/phase_6.1_epic_smoke_testing.md s6/s6_p1_epic_smoke_testing.md
@@ -101,23 +101,23 @@ mv stage_6/phase_6.4_epic_final_review.md s6/s6_p4_epic_final_review.md
 2. Update headers to S9.P# notation
 3. Update cross-references
 
-**Checkpoint:** Stage 9 complete
+**Checkpoint:** S9 complete
 
 ---
 
-### Part 1E: Stage 10 - Simple Phase Renames (30 min)
+### Part 1E: S10 - Simple Phase Renames (30 min)
 
-**Stage 10 has 2 files:**
+**S10 has 2 files:**
 ```bash
 mv stage_7/epic_cleanup.md s7/s7_epic_cleanup.md
 mv stage_7/phase_7.1_guide_update_workflow.md s7/s7_p1_guide_update_workflow.md
 ```
 
-**Checkpoint:** Stage 10 complete
+**Checkpoint:** S10 complete
 
 ---
 
-### Part 1F: Stage 5 - Complex Restructuring (2.5-3 hours)
+### Part 1F: S5 - Complex Restructuring (2.5-3 hours)
 
 **This is the big one: 22 files total**
 
@@ -179,7 +179,7 @@ cp stage_5/support/bugfix_workflow.md s5/s5_bugfix_workflow.md
 - Update cross-references throughout
 - Test navigation between files
 
-**Checkpoint:** Stage 5 complete (22 files)
+**Checkpoint:** S5 complete (22 files)
 
 ---
 
@@ -357,7 +357,7 @@ Context: NOT in stage guide headers (those are S#.P#)
 
 **Option C: Three Sessions**
 - Session 1: Phase 1A-1E (Simple files) - 3 hours
-- Session 2: Phase 1F-1I (Stage 5 + validation) - 3-4 hours
+- Session 2: Phase 1F-1I (S5 + validation) - 3-4 hours
 - Session 3: Phase 2 & 3 (Terminology + final) - 3-4 hours
 - Pros: Manageable chunks, multiple commit points
 - Cons: Three sessions required
@@ -429,10 +429,10 @@ Context: NOT in stage guide headers (those are S#.P#)
 ### During Session 1 (Phase 1)
 - [ ] Part 1A: Stage directories created
 - [ ] Part 1B: Stages 1, 3, 4 renamed
-- [ ] Part 1C: Stage 2 renamed
-- [ ] Part 1D: Stage 9 renamed
-- [ ] Part 1E: Stage 10 renamed
-- [ ] Part 1F: Stage 5 restructured (22 files)
+- [ ] Part 1C: S2 renamed
+- [ ] Part 1D: S9 renamed
+- [ ] Part 1E: S10 renamed
+- [ ] Part 1F: S5 restructured (22 files)
 - [ ] Part 1G: Supporting files updated
 - [ ] Part 1H: Old files deleted
 - [ ] Part 1I: Validation complete

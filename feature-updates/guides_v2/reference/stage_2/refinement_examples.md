@@ -428,7 +428,7 @@ def load_adp_data_with_fallback(filepath: Path, require: bool = False) -> Dict[s
 - Features with >35 items are difficult to implement systematically
 - Testing becomes complex (too many edge cases)
 - Higher risk of bugs and missed requirements
-- Stage 5a implementation planning becomes unwieldy
+- S5 implementation planning becomes unwieldy
 
 **Checklist Breakdown:**
 - Data loading: 8 items
@@ -470,15 +470,15 @@ I recommend splitting this into 2 separate features:
 - No circular dependencies
 
 **Next Steps If Approved:**
-1. Return to Stage 1 to create new feature folders
+1. Return to S1 to create new feature folders
    - `feature_02a_basic_trade_evaluator/`
    - `feature_02b_multi_player_trades/`
 2. Split current spec.md and checklist.md
    - Move items 1-20 to 02a
    - Move items 21-35 to 02b
 3. Update epic EPIC_README.md Feature Tracking table
-4. Continue Stage 2 for Feature 02a (implement first)
-5. Then Stage 2 for Feature 02b (implement second)
+4. Continue S2 for Feature 02a (implement first)
+5. Then S2 for Feature 02b (implement second)
 
 **Do you approve this split?** (or suggest alternative grouping)
 ```
@@ -496,16 +496,16 @@ I recommend splitting this into 2 separate features:
    - 02a: Basic evaluation logic (20 items)
    - 02b: Multi-player support (15 items)
 3. Updated EPIC_README.md Feature Tracking:
-   | Feature | Name | Stage 2 Complete |
+   | Feature | Name | S2 Complete |
    |---------|------|------------------|
    | 02a | Basic Trade Evaluator | [ ] |
    | 02b | Multi-Player Trades | [ ] |
 4. Updated feature dependencies in specs
 
 **Next Steps:**
-- Resume Stage 2 for Feature 02a (Research Phase)
-- Complete 02a through Stage 5
-- Then begin Stage 2 for Feature 02b
+- Resume S2 for Feature 02a (Research Phase)
+- Complete 02a through S5
+- Then begin S2 for Feature 02b
 ```
 
 ---
@@ -585,7 +585,7 @@ Keep matching logic in Feature 01:
 1. Created new feature folder:
    - feature_05_player_name_matching/
 2. Updated EPIC_README.md Feature Tracking:
-   | Feature | Name | Stage 2 Complete | Priority |
+   | Feature | Name | S2 Complete | Priority |
    |---------|------|------------------|----------|
    | 05 | Player Name Matching | [ ] | HIGH (blocks 01,02,03) |
    | 01 | ADP Integration | [ ] | MEDIUM (after 05) |
@@ -600,8 +600,8 @@ Keep matching logic in Feature 01:
    - New checklist count: 13 items
 
 **Next Steps:**
-- Begin Stage 2 for Feature 05 (high priority, blocks others)
-- Complete Feature 05 through Stage 5
+- Begin S2 for Feature 05 (high priority, blocks others)
+- Complete Feature 05 through S5
 - Then resume Feature 01 (can now use matching utility)
 ```
 
@@ -616,7 +616,7 @@ Keep matching logic in Feature 01:
 
 **Date:** 2026-01-10
 **Current Feature:** Feature 02: Injury Risk Assessment
-**Comparison Target:** Feature 01: ADP Integration (Stage 2 Complete)
+**Comparison Target:** Feature 01: ADP Integration (S2 Complete)
 
 ---
 
@@ -794,7 +794,7 @@ class FantasyPlayer:
 
 **Date:** 2026-01-10
 **Current Feature:** Feature 03: Schedule Strength Analysis
-**Comparison Target:** Feature 01: ADP Integration (Stage 2 Complete)
+**Comparison Target:** Feature 01: ADP Integration (S2 Complete)
 
 ---
 
@@ -1244,7 +1244,7 @@ When this feature is complete, the following will be true:
 1. Agent marks approval checkbox [x]
 2. Agent documents approval timestamp
 3. Agent updates Feature Tracking in EPIC_README.md
-4. Agent proceeds to next feature OR Stage 3 (if all features complete)
+4. Agent proceeds to next feature OR S3 (if all features complete)
 ```
 
 ---
@@ -1290,8 +1290,8 @@ Please review the "Acceptance Criteria" section in spec.md:
 
 If you approve these acceptance criteria:
 - I'll mark the approval checkbox and timestamp
-- I'll mark Feature 01 as "Stage 2 Complete" in epic tracking
-- I'll proceed to next feature (Feature 02) or Stage 3 if all features done
+- I'll mark Feature 01 as "S2 Complete" in epic tracking
+- I'll proceed to next feature (Feature 02) or S3 if all features done
 
 If you want changes:
 - Let me know what to modify
@@ -1344,13 +1344,13 @@ User approved on 2026-01-10 with request to emphasize --use-adp flag is optional
 ```markdown
 ## Feature Tracking (in EPIC_README.md)
 
-| Feature | Name | Stage 2 Complete | Stage 5 Complete | Status |
+| Feature | Name | S2 Complete | S5 Complete | Status |
 |---------|------|------------------|------------------|--------|
-| 01 | ADP Integration | [x] 2026-01-10 | [ ] | Stage 2 Done |
+| 01 | ADP Integration | [x] 2026-01-10 | [ ] | S2 Done |
 | 02 | Injury Risk | [ ] | [ ] | In Progress |
 ```
 
-**Next: Begin Stage 2 for Feature 02 (Injury Risk Assessment)**
+**Next: Begin S2 for Feature 02 (Injury Risk Assessment)**
 
 Would you like me to start Feature 02, or do you want to review anything else about Feature 01?
 ```
@@ -1375,7 +1375,7 @@ Would you like me to start Feature 02, or do you want to review anything else ab
 - Scope adjustments documented
 
 ✅ **Phase 5 (Cross-Feature Alignment):**
-- Compared to ALL features with "Stage 2 Complete"
+- Compared to ALL features with "S2 Complete"
 - Systematic pairwise comparison performed
 - Conflicts identified (if any)
 - Conflicts resolved or user consulted
@@ -1389,7 +1389,7 @@ Would you like me to start Feature 02, or do you want to review anything else ab
 - Approval checkbox marked [x]
 - Approval timestamp documented
 
-**Ready for next feature or Stage 3 when all phases complete with user approval.**
+**Ready for next feature or S3 when all phases complete with user approval.**
 
 ---
 

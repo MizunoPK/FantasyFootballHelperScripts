@@ -80,9 +80,9 @@ Content names vary by what the item actually is, not by its hierarchical level.
 **Common content terms used:**
 - **Stage** - Always used for Level 1 (1-7)
 - **Phase** - Major functional subdivision (often Level 2)
-- **Round** - Repeated cycles (Stage 5.1 uses for Level 3)
+- **Round** - Repeated cycles (S5.1 uses for Level 3)
 - **Part** - Smaller divisions within phases or rounds
-- **Task** - Specific work items (Stage 9 uses for Level 3)
+- **Task** - Specific work items (S9 uses for Level 3)
 - **Step** - Sequential actions (can be various levels)
 - **Iteration** - Verification cycles (NOT part of hierarchy - see below)
 - **Gate** - Quality checkpoints (NOT part of hierarchy - see below)
@@ -119,9 +119,9 @@ Content names at deeper levels are **contextual** - chosen based on what makes s
 | 7.1 | Phase | - | - | Uses 2 levels |
 
 **Key Insight:** The same Level 3 position might be called:
-- "Part 5.1.1" (in Stage 5.1)
-- "S10.P1" (in Stage 5.3)
-- "Task 6.1.1" (in Stage 9)
+- "Part 5.1.1" (in S5.1)
+- "S10.P1" (in S5.3)
+- "Task 6.1.1" (in S9)
 
 All are **Level 3 items**, just named differently based on context.
 
@@ -129,7 +129,7 @@ All are **Level 3 items**, just named differently based on context.
 
 ## Special Cases: Non-Hierarchical Elements
 
-### Iterations (Stage 5.1)
+### Iterations (S5.1)
 
 **What they are:** Sequential verification tasks within Implementation Planning (28 total)
 
@@ -158,9 +158,9 @@ All are **Level 3 items**, just named differently based on context.
 **Two types:**
 
 **Type 1: Stage-Level Gates (User Approval)**
-- Gate 3 - After Stage 2 (User approves checklist)
-- Gate 4.5 - After Stage 4 (User approves epic test plan)
-- Gate 5 - After Stage 5a (User approves implementation plan)
+- Gate 3 - After S2 (User approves checklist)
+- Gate 4.5 - After S4 (User approves epic test plan)
+- Gate 5 - After S5 (User approves implementation plan)
 
 **Type 2: Iteration-Level Gates (Agent Validation)**
 - Gate 4a - Within Iteration 4 (Round 1)
@@ -175,7 +175,7 @@ All are **Level 3 items**, just named differently based on context.
 
 ## Complete Workflow Structure Mapping
 
-### Stage 1: Epic Planning
+### S1: Epic Planning
 ```
 1 (L1)
 ```
@@ -183,7 +183,7 @@ All are **Level 3 items**, just named differently based on context.
 
 ---
 
-### Stage 2: Feature Deep Dives
+### S2: Feature Deep Dives
 ```
 2 (L1) - Feature Deep Dives
   2.1 (L2) - S2.P1: Research
@@ -195,7 +195,7 @@ All are **Level 3 items**, just named differently based on context.
 
 ---
 
-### Stage 3: Cross-Feature Sanity Check
+### S3: Cross-Feature Sanity Check
 ```
 3 (L1)
 ```
@@ -203,7 +203,7 @@ All are **Level 3 items**, just named differently based on context.
 
 ---
 
-### Stage 4: Epic Testing Strategy
+### S4: Epic Testing Strategy
 ```
 4 (L1)
 ```
@@ -211,7 +211,7 @@ All are **Level 3 items**, just named differently based on context.
 
 ---
 
-### Stage 5: Feature Implementation
+### S5: Feature Implementation
 ```
 5 (L1) - Feature Implementation
 
@@ -239,11 +239,11 @@ All are **Level 3 items**, just named differently based on context.
 
   5.5 (L2) - Phase 5.5: Post-Feature Testing Update
 ```
-**Levels used:** 4 (Stage 5.1 Round 3), 3 (Stage 5.3), 2 (others)
+**Levels used:** 4 (S5.1 Round 3), 3 (S5.3), 2 (others)
 
 ---
 
-### Stage 9: Epic-Level Final QC
+### S9: Epic-Level Final QC
 ```
 6 (L1) - Epic-Level Final QC
 
@@ -270,7 +270,7 @@ All are **Level 3 items**, just named differently based on context.
 
 ---
 
-### Stage 10: Epic Cleanup
+### S10: Epic Cleanup
 ```
 7 (L1) - Epic Cleanup
   7.1 (L2) - S10.P1: Guide Update Workflow
@@ -368,20 +368,20 @@ Use hierarchy levels to structure headers within guide files:
 ### Examples
 
 ```markdown
-# Stage 2: Feature Deep Dives
+# S2: Feature Deep Dives
 ## S2.P1: Research Phase
 ### Step 1: Epic Intent Extraction
 ```
 
 ```markdown
-# Stage 5: Feature Implementation
+# S5: Feature Implementation
 ## S5.P1: Implementation Planning
 ### Part 5.1.3: Round 3
 #### Part 5.1.3.1: Preparation (Iterations 17-22)
 ```
 
 ```markdown
-# Stage 9: Epic-Level Final QC
+# S9: Epic-Level Final QC
 ## S9.P2: Epic QC Rounds
 ### 6.2.1: QC Round 1 (Cross-Feature Integration)
 ```
@@ -552,22 +552,22 @@ Level 4: part_{X.Y.Z.W}_{name}.md
 
 ### Deepest Items by Stage
 ```
-Stage 1: Level 1 (1)
-Stage 2: Level 2 (2.3) [plus special 2.2.5]
-Stage 3: Level 1 (3)
-Stage 4: Level 1 (4)
-Stage 5: Level 4 (5.1.3.3)
-Stage 9: Level 3 (6.4.3)
-Stage 10: Level 2 (7.1)
+S1: Level 1 (1)
+S2: Level 2 (2.3) [plus special 2.2.5]
+S3: Level 1 (3)
+S4: Level 1 (4)
+S5: Level 4 (5.1.3.3)
+S9: Level 3 (6.4.3)
+S10: Level 2 (7.1)
 ```
 
 ### Content Terms (Contextual)
 ```
 Stage - Always Level 1
-Phase - Usually Level 2 (sometimes Level 3 in Stage 9)
+Phase - Usually Level 2 (sometimes Level 3 in S9)
 Part - Usually Level 3 or Level 4
-Round - Level 3 in Stage 5.1
-Task/Checkpoint - Level 3 in Stage 9
+Round - Level 3 in S5.1
+Task/Checkpoint - Level 3 in S9
 Iteration - NOT hierarchical (content within Parts)
 Gate - NOT hierarchical (checkpoints within items)
 ```
@@ -578,14 +578,14 @@ Gate - NOT hierarchical (checkpoints within items)
 
 ### Old Naming → New Naming
 
-**Stage 2:**
+**S2:**
 ```
 s2_p1_research.md → s2_p1_research.md
 s2_p2_specification.md → s2_p2_specification.md
 s2_p3_refinement.md → s2_p3_refinement.md
 ```
 
-**Stage 5:**
+**S5:**
 ```
 s5_p1_planning_round1.md → s5_p1_planning_round1.md
 s5_p2_planning_round2.md → s5_p2_planning_round2.md
@@ -601,7 +601,7 @@ post_feature_alignment.md → s5_p8_cross_feature_alignment.md
 post_feature_testing_update.md → s5_p9_epic_testing_update.md
 ```
 
-**Stage 9:**
+**S9:**
 ```
 epic_smoke_testing.md → s6_p1_epic_smoke_testing.md
 epic_qc_rounds.md → s6_p2_epic_qc_rounds.md
@@ -609,7 +609,7 @@ user_testing.md → s6_p3_user_testing.md
 epic_final_review.md → s6_p4_epic_final_review.md
 ```
 
-**Stage 10:**
+**S10:**
 ```
 guide_update_workflow.md → s7_p1_guide_update_workflow.md
 ```

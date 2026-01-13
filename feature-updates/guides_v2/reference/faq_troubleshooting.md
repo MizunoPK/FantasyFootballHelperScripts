@@ -29,18 +29,18 @@
 ### Q: Can I skip stages if they seem unnecessary?
 
 **A:** NO. All stages have dependencies and must be completed in order:
-- Stage 1 creates the structure needed for Stage 2
-- Stage 2 specs are validated in Stage 3
-- Stage 3 alignment feeds into Stage 4 test plan
-- Stage 4 test plan evolves through Stage 5 → Stage 9
+- S1 creates the structure needed for S2
+- S2 specs are validated in S3
+- S3 alignment feeds into S4 test plan
+- S4 test plan evolves through S5 → S9
 - Skipping stages leads to incomplete planning and rework
 
 ### Q: What's the difference between a "round", "iteration", and "phase"?
 
 **A:**
-- **Round:** Collection of iterations (Stage 5a has 3 rounds)
+- **Round:** Collection of iterations (S5 has 3 rounds)
 - **Iteration:** Single verification step (Round 1 has Iterations 1-7 + Gate 4a)
-- **Phase:** Distinct workflow section (Stage 5c has 3 phases: Smoke Testing, QC Rounds, Final Review)
+- **Phase:** Distinct workflow section (S7 has 3 phases: Smoke Testing, QC Rounds, Final Review)
 - **Stage:** Top-level workflow division (7 stages total)
 
 ### Q: When do I update EPIC_README.md vs feature README.md?
@@ -49,16 +49,16 @@
 - **EPIC_README.md:** Epic-level status, Epic Progress Tracker, epic-level decisions
 - **Feature README.md:** Feature-level status, current guide being followed, implementation progress
 
-Update EPIC_README.md after completing each major stage (1, 2, 3, 4, 5, 6, 7).
-Update feature README.md during Stage 5 sub-stages (5a, 5b, 5c, 5d, 5e).
+Update EPIC_README.md after completing each major stage (S1, S2, S3, S4, S9, S10).
+Update feature README.md during feature loop stages (S5, S6, S7, S8).
 
 ### Q: What happens if I find a bug during implementation?
 
 **A:** Depends on WHEN you find it:
-- **During Stage 5b (Implementation):** Fix immediately, run tests, continue
-- **During Stage 5c (Smoke/QC):** Enter Debugging Protocol, restart from smoke testing
-- **During Stage 9 (Epic QC):** Enter Debugging Protocol, restart entire Stage 9
-- **During Stage 10 (User Testing):** Document in ISSUES_CHECKLIST.md, fix ALL bugs, restart Stage 9
+- **During S6 (Implementation):** Fix immediately, run tests, continue
+- **During S7 (Smoke/QC):** Enter Debugging Protocol, restart from smoke testing
+- **During S9 (Epic QC):** Enter Debugging Protocol, restart entire S9
+- **During S10 (User Testing):** Document in ISSUES_CHECKLIST.md, fix ALL bugs, restart S9
 
 ### Q: How many features should an epic have?
 
@@ -80,7 +80,7 @@ Update feature README.md during Stage 5 sub-stages (5a, 5b, 5c, 5d, 5e).
 
 ## Stage-Specific FAQs
 
-### Stage 1: Epic Planning
+### S1: Epic Planning
 
 **Q: User didn't create {epic_name}.txt - what do I do?**
 
@@ -91,7 +91,7 @@ I need you to create feature-updates/{epic_name}.txt with your initial notes abo
 - What outcomes do you want?
 - Any specific requirements or constraints?
 
-Once you've created this file, I can start Stage 1.
+Once you've created this file, I can start S1.
 ```
 
 **Q: User's epic notes are vague - how detailed do they need to be?**
@@ -99,32 +99,32 @@ Once you've created this file, I can start Stage 1.
 A: Minimal details acceptable:
 - Problem statement (1-2 sentences)
 - Desired outcomes (bullet points OK)
-- Stage 1 will flesh out details through interactive questions
+- S1 will flesh out details through interactive questions
 
 **Q: How do I know if feature breakdown is too granular or too coarse?**
 
 A: Use these guidelines:
 - **Too granular:** Tasks that take <2 hours of implementation (combine into single feature)
-- **Too coarse:** Feature needs >7 TODO phases in Stage 5a (split into multiple features)
+- **Too coarse:** Feature needs >7 TODO phases in S5 (split into multiple features)
 - **Good granularity:** Feature takes 2-5 hours implementation, 30-50 TODO tasks
 
 **Q: Should I create feature folders for all features at once or one at a time?**
 
-A: Create ALL feature folders in Stage 1:
+A: Create ALL feature folders in S1:
 - Gives user complete picture of epic scope
-- Allows Stage 2 to work through features systematically
-- Enables cross-feature comparisons during Stage 3
+- Allows S2 to work through features systematically
+- Enables cross-feature comparisons during S3
 
 ---
 
-### Stage 2: Feature Deep Dives
+### S2: Feature Deep Dives
 
-**Q: User keeps changing requirements during Stage 2 - is this OK?**
+**Q: User keeps changing requirements during S2 - is this OK?**
 
 A: YES, this is expected during planning:
 - Update spec.md with changes immediately
 - Document why requirement changed in "Updates History" section
-- If changes affect other features, note for Stage 3 alignment
+- If changes affect other features, note for S3 alignment
 - If scope grows significantly (>35 items), propose feature split
 
 **Q: What if spec.md requirements seem contradictory?**
@@ -133,11 +133,11 @@ A: Address immediately:
 1. Document the contradiction clearly
 2. Ask user which requirement takes priority
 3. Update spec.md with resolution
-4. Note in checklist.md for Stage 3 review
+4. Note in checklist.md for S3 review
 
 **Q: How detailed should spec.md be?**
 
-A: Specific enough to create implementation_plan.md in Stage 5a:
+A: Specific enough to create implementation_plan.md in S5:
 - Every user-facing outcome described
 - Input/output formats specified
 - Edge cases documented
@@ -147,7 +147,7 @@ A: Specific enough to create implementation_plan.md in Stage 5a:
 **Too vague:** "Add better scoring"
 **Good:** "Modify scoring algorithm to weight ADP by position: QB weight 0.8, RB/WR weight 1.0, TE weight 1.2"
 
-**Q: When do I move from Phase 0 to Phase 1 to Phase 2 in Stage 2?**
+**Q: When do I move from Phase 0 to Phase 1 to Phase 2 in S2?**
 
 A: Follow the guide progression:
 - **Phase 0 (Research):** Understand epic intent, research codebase, audit existing patterns
@@ -158,7 +158,7 @@ All phases are mandatory - don't skip.
 
 ---
 
-### Stage 3: Cross-Feature Sanity Check
+### S3: Cross-Feature Sanity Check
 
 **Q: What counts as a "conflict" between features?**
 
@@ -180,37 +180,37 @@ A: Options (user decides):
 
 A: NO - Always do complete pairwise comparison:
 - Features that seem unrelated often have hidden integration points
-- Stage 3 catches issues that would be expensive to fix in Stage 5
+- S3 catches issues that would be expensive to fix in S5
 - Historical evidence: 30% of "unrelated" features had conflicts
 
 ---
 
-### Stage 4: Epic Testing Strategy
+### S4: Epic Testing Strategy
 
 **Q: How is epic_smoke_test_plan.md different from feature smoke testing?**
 
 A: Key differences:
-- **Feature smoke testing (Stage 5c):** Tests single feature in isolation
-- **Epic smoke testing (Stage 9):** Tests ALL features working together
+- **Feature smoke testing (S7):** Tests single feature in isolation
+- **Epic smoke testing (S9):** Tests ALL features working together
 - **Epic plan includes:** Cross-feature integration scenarios, epic-level workflows
 
 **Q: What if I don't know integration points yet (haven't implemented)?**
 
-A: Make best predictions in Stage 4:
+A: Make best predictions in S4:
 - Based on spec.md analysis
-- Stage 5e will update plan with ACTUAL integration points discovered
+- S8.P2 will update plan with ACTUAL integration points discovered
 - Plan evolves as implementation reveals reality
 
 ---
 
-### Stage 5a: TODO Creation
+### S5: TODO Creation
 
 **Q: Can I skip iterations if they don't seem relevant?**
 
 A: NO - All 28 iterations are mandatory:
 - Designed based on historical bugs and missed requirements
 - Each iteration catches specific issue types
-- Skipping iterations = high risk of bugs in Stage 5c
+- Skipping iterations = high risk of bugs in S7
 
 **Q: What if Iteration 24 (GO/NO-GO) says NO-GO?**
 
@@ -220,7 +220,7 @@ A: Follow the guidance in the NO-GO section:
 3. Fix issues
 4. Re-run affected iterations and gates
 5. Make GO decision again
-6. DO NOT proceed to Stage 5b with NO-GO
+6. DO NOT proceed to S6 with NO-GO
 
 **Q: What's the difference between the 3 mandatory gates?**
 
@@ -229,7 +229,7 @@ A:
 - **Gate 23a (Iteration 23a):** Pre-Implementation Spec Audit - evidence-based verification (4 PARTS, 100% metrics required)
 - **Gate 25 (Iteration 25):** Spec Validation Against Validated Documents - prevents catastrophic bugs (three-way validation)
 
-All three must PASS before Stage 5b.
+All three must PASS before S6.
 
 **Q: How long should Round 3 take?**
 
@@ -245,7 +245,7 @@ If taking significantly longer, may indicate:
 
 ---
 
-### Stage 5b: Implementation Execution
+### S6: Implementation Execution
 
 **Q: Tests are failing after implementing a component - what do I do?**
 
@@ -259,11 +259,11 @@ A: Follow this protocol:
 
 **Q: Spec requirement seems wrong during implementation - can I change it?**
 
-A: NO - Follow spec exactly during Stage 5b:
+A: NO - Follow spec exactly during S6:
 - If spec is truly wrong, this is a MISSED REQUIREMENT
 - Document in notes
-- Complete Stage 5b as spec'd
-- Raise in Stage 5c QC rounds
+- Complete S6 as spec'd
+- Raise in S7 QC rounds
 - Will be addressed via missed requirement workflow
 
 **Q: How often should I run tests?**
@@ -275,7 +275,7 @@ A: After EVERY component/phase:
 
 ---
 
-### Stage 5c: Post-Implementation
+### S7: Post-Implementation
 
 **Q: Smoke testing Part 3 (E2E) failed - do I restart from Part 1?**
 
@@ -288,7 +288,7 @@ A: YES - Complete restart protocol:
 **Q: QC Round 2 found issues - do I restart from Round 1?**
 
 A: NO - Restart from Smoke Testing Part 1:
-- Any issues in ANY QC round = restart entire Stage 5c
+- Any issues in ANY QC round = restart entire S7
 - Restart from smoke testing (not QC Round 1)
 - Zero tolerance for incomplete validation
 
@@ -302,30 +302,30 @@ A: Fix immediately - no deferrals:
 **Q: Can I defer PR review issues to "later"?**
 
 A: NO - Zero tech debt tolerance:
-- Fix ALL PR review issues before completing Stage 5c
-- This is the LAST checkpoint before Stage 5d/5e
-- Deferring issues = they'll appear in Stage 9
+- Fix ALL PR review issues before completing S7
+- This is the LAST checkpoint before S8.P1/5e
+- Deferring issues = they'll appear in S9
 
 ---
 
-### Stage 5d/5e: Post-Feature Alignment
+### S8.P1/5e: Post-Feature Alignment
 
 **Q: When do I skip Stages 5d and 5e?**
 
 A: Skip ONLY if this was the LAST feature:
 - No more features to implement = no specs to update (5d)
-- Epic test plan will be validated in Stage 9 anyway (5e)
-- Proceed directly to Stage 9
+- Epic test plan will be validated in S9 anyway (5e)
+- Proceed directly to S9
 
-**Q: What if I already updated other feature specs during Stage 5b?**
+**Q: What if I already updated other feature specs during S6?**
 
-A: Still do Stage 5d formally:
+A: Still do S8.P1 formally:
 - Review ALL remaining features systematically
 - Capture insights from ACTUAL implementation
 - Document integration points discovered
-- Update test plan in Stage 5e
+- Update test plan in S8.P2
 
-**Q: How do I know which specs need updating in Stage 5d?**
+**Q: How do I know which specs need updating in S8.P1?**
 
 A: Review ALL remaining features, but focus on:
 - Features that share integration points with completed feature
@@ -334,53 +334,53 @@ A: Review ALL remaining features, but focus on:
 
 ---
 
-### Stage 9: Epic-Level Final QC
+### S9: Epic-Level Final QC
 
-**Q: What's the difference between Stage 5c and Stage 9?**
+**Q: What's the difference between S7 and S9?**
 
 A:
-- **Stage 5c:** Tests single feature in isolation
-- **Stage 9:** Tests ALL features working together as cohesive epic
-- **Stage 9 includes Part 4:** Cross-Feature Integration (Stage 5c only has 3 parts)
+- **S7:** Tests single feature in isolation
+- **S9:** Tests ALL features working together as cohesive epic
+- **S9 includes Part 4:** Cross-Feature Integration (S7 only has 3 parts)
 
-**Q: Issues found in Stage 9 - do I go back to Stage 5c for that feature?**
+**Q: Issues found in S9 - do I go back to S7 for that feature?**
 
 A: NO - Enter Debugging Protocol at epic level:
 1. Document in epic-level debugging/ISSUES_CHECKLIST.md
 2. Fix ALL issues
-3. RESTART entire Stage 9 from S9.P1 Part 1
+3. RESTART entire S9 from S9.P1 Part 1
 4. Re-run epic smoke testing → epic QC rounds → epic final review
 
-**Q: Can I skip epic QC if all features passed their Stage 5c QC?**
+**Q: Can I skip epic QC if all features passed their S7 QC?**
 
 A: NO - Epic QC is mandatory:
-- Tests integration points (not tested in Stage 5c)
+- Tests integration points (not tested in S7)
 - Tests epic-level workflows
 - Validates against original epic request (not individual feature specs)
 
 ---
 
-### Stage 10: Epic Cleanup
+### S10: Epic Cleanup
 
 **Q: User found bugs during testing - what do I do?**
 
-A: Follow Stage 10 bug fix protocol:
+A: Follow S10 bug fix protocol:
 1. Document ALL bugs in epic debugging/ISSUES_CHECKLIST.md
 2. Create bugfix folders for each bug
-3. Fix ALL bugs (each follows Stage 2 → 5a → 5b → 5c)
-4. After ALL bugs fixed → RESTART Stage 9 (not Stage 10)
-5. Complete Stage 9 validation again
-6. Return to Stage 10 user testing
+3. Fix ALL bugs (each follows S2 → 5a → 5b → 5c)
+4. After ALL bugs fixed → RESTART S9 (not S10)
+5. Complete S9 validation again
+6. Return to S10 user testing
 7. ZERO bugs required to commit
 
 **Q: Can I commit if "only minor bugs" remain?**
 
 A: NO - Zero bugs required:
 - User testing is the final gate
-- ANY bugs = restart Stage 9 after fixing
+- ANY bugs = restart S9 after fixing
 - Committing with known bugs violates workflow
 
-**Q: Tests were passing in Stage 5b/5c/6 but fail in Stage 10 - how?**
+**Q: Tests were passing in S6/5c/6 but fail in S10 - how?**
 
 A: Possible causes:
 - Environment differences
@@ -421,7 +421,7 @@ Issues found during testing
     [Use Missed Requirement Workflow]
          - debugging/missed_requirement_workflow.md
          - Update spec.md
-         - Add to implementation_plan.md (if ≤3 tasks) OR return to Stage 5a (if >3 tasks)
+         - Add to implementation_plan.md (if ≤3 tasks) OR return to S5 (if >3 tasks)
 ```
 
 ### Decision Tree 2: "Choosing Between Workflows"
@@ -431,28 +431,28 @@ Need to fix something
          ↓
     [Where are you in workflow?]
          ↓
-    ├─ Stage 5b (Implementation)
+    ├─ S6 (Implementation)
     │    ↓
     │  Fix immediately, run tests, continue
     │  (No formal workflow needed)
     │
-    ├─ Stage 5c (Smoke/QC)
+    ├─ S7 (Smoke/QC)
     │    ↓
     │  [Use Debugging Protocol]
     │    → Fix issues
     │    → RESTART from Smoke Testing Part 1
     │
-    ├─ Stage 9 (Epic QC)
+    ├─ S9 (Epic QC)
     │    ↓
     │  [Use Debugging Protocol at epic level]
     │    → Fix issues
     │    → RESTART from S9.P1 Part 1
     │
-    └─ Stage 10 (User Testing)
+    └─ S10 (User Testing)
          ↓
-    [Use Stage 10 Bug Fix Protocol]
+    [Use S10 Bug Fix Protocol]
          → Fix ALL bugs
-         → RESTART Stage 9
+         → RESTART S9
 ```
 
 ### Decision Tree 3: "GO vs NO-GO Decision (Iteration 24)"
@@ -480,7 +480,7 @@ Iteration 24: GO/NO-GO Decision
     │
     └─ ALL criteria met
          ↓
-    GO → Proceed to Stage 5b
+    GO → Proceed to S6
 ```
 
 ### Decision Tree 4: "Session Compaction - Where Do I Resume?"
@@ -493,7 +493,7 @@ Context window limit reached → Session compacted
     ├─ NO epic folder found
     │    ↓
     │  Check for {epic_name}.txt
-    │    → If exists, start Stage 1
+    │    → If exists, start S1
     │    → If not, wait for user request
     │
     └─ Epic folder exists
@@ -533,16 +533,16 @@ Context window limit reached → Session compacted
 ### When to Use: Debugging Protocol
 
 **Use for:**
-- Issues found during Smoke Testing (Stage 5c Part 3)
-- Issues found during QC Rounds (Stage 5c Phase 2)
-- Issues found during Epic Testing (Stage 9)
-- Issues found during User Testing (Stage 10)
+- Issues found during Smoke Testing (S7 Part 3)
+- Issues found during QC Rounds (S7 Phase 2)
+- Issues found during Epic Testing (S9)
+- Issues found during User Testing (S10)
 - Root cause is UNKNOWN (requires investigation)
 
 **DO NOT use for:**
 - Quick fixes during implementation (just fix and continue)
 - Known missed requirements (use Missed Requirement)
-- Spec clarifications (update spec in Stage 2)
+- Spec clarifications (update spec in S2)
 
 **Indicators:**
 - Testing revealed unexpected behavior
@@ -567,7 +567,7 @@ Context window limit reached → Session compacted
 
 **Decision threshold:**
 - **≤3 tasks needed:** Add tasks, implement, continue
-- **>3 tasks needed:** Return to Stage 5a Round 3
+- **>3 tasks needed:** Return to S5 Round 3
 
 **Indicators:**
 - "We forgot to add validation"
@@ -581,17 +581,17 @@ Context window limit reached → Session compacted
 ### When to Use: Bug Fix Workflow
 
 **Use for:**
-- Bugs found during Stage 10 (User Testing)
+- Bugs found during S10 (User Testing)
 - Each bug gets its own bugfix folder
-- Bugs go through: Stage 2 → 5a → 5b → 5c (no Stage 1, 3, 4, 6, 7)
+- Bugs go through: S2 → 5a → 5b → 5c (no S1, 3, 4, 6, 7)
 
 **DO NOT use for:**
-- Bugs found earlier than Stage 10 (use Debugging)
+- Bugs found earlier than S10 (use Debugging)
 - Quick fixes during implementation
 
 **Indicators:**
 - User says "I found a bug during testing"
-- Stage 10 user testing revealed issues
+- S10 user testing revealed issues
 - Need systematic bug tracking and fixes
 
 **Entry point:** `stages/s5/s5_bugfix_workflow.md`
@@ -610,9 +610,9 @@ Context window limit reached → Session compacted
 5. Read guide for next uncompleted stage
 
 **Common pattern:**
-- If Stage 5c just completed → Check if more features remaining
-  - YES → Stage 5d
-  - NO → Stage 9
+- If S7 just completed → Check if more features remaining
+  - YES → S8.P1
+  - NO → S9
 
 ### Stuck 2: "Tests are failing and I don't know why"
 
@@ -651,15 +651,15 @@ Context window limit reached → Session compacted
 ### Stuck 4: "User keeps changing requirements and spec.md is a mess"
 
 **Solution:**
-1. **This is normal during Stage 2** - embrace continuous refinement
+1. **This is normal during S2** - embrace continuous refinement
 2. **Update spec.md immediately** with each change
 3. **Document changes in "Updates History" section**
 4. **If scope growing significantly:**
    - Count total checklist items
    - If >35 items, propose feature split to user
    - Get user approval on split
-5. **Continue Stage 2** until user approves spec
-6. **Stage 3 Cross-Feature Sanity Check** will catch conflicts
+5. **Continue S2** until user approves spec
+6. **S3 Cross-Feature Sanity Check** will catch conflicts
 
 ### Stuck 5: "Context window limit reached mid-implementation"
 
@@ -757,7 +757,7 @@ Issue found
    - Quick Reference Card (stage/feature/phase summary)
 2. **Use "Resuming In-Progress Epic" prompt** (mandatory)
 3. **Read current guide** listed in Agent Status
-4. **Check feature README.md** if in Stage 5 (feature-level status)
+4. **Check feature README.md** if in S5 (feature-level status)
 5. **Review recent file changes** (git diff or code_changes.md)
 6. **Continue from "Next Action"** (don't backtrack unless necessary)
 
@@ -768,7 +768,7 @@ Issue found
 **Symptom:** Two guides seem to give different instructions
 
 **Resolution priority (highest to lowest):**
-1. **Current stage's main guide** (e.g., implementation_execution.md for Stage 5b)
+1. **Current stage's main guide** (e.g., implementation_execution.md for S6)
 2. **Reference patterns** (e.g., smoke_testing_pattern.md)
 3. **Reference cards** (quick reference, may be abbreviated)
 4. **EPIC_WORKFLOW_USAGE.md** (overview, may lack stage-specific details)
@@ -788,11 +788,11 @@ Issue found
 ```
 I understand you want to move quickly, but the Epic-Driven Development v2 workflow requires completing planning stages before implementation:
 
-Current status: Stage 2 (Feature Deep Dives)
+Current status: S2 (Feature Deep Dives)
 Remaining before implementation:
-- Stage 3: Cross-Feature Sanity Check (30-60 min)
-- Stage 4: Epic Testing Strategy (30-45 min)
-- Stage 5a: TODO Creation (2.5-4 hours)
+- S3: Cross-Feature Sanity Check (30-60 min)
+- S4: Epic Testing Strategy (30-45 min)
+- S5: TODO Creation (2.5-4 hours)
 
 These stages prevent costly rework by catching issues early.
 
@@ -804,12 +804,12 @@ Would you like to:
 
 **Do NOT:**
 - Skip stages silently
-- Implement without implementation_plan.md (Stage 5a output)
+- Implement without implementation_plan.md (S5 output)
 - Bypass mandatory gates
 
 ---
 
-### Issue 6: Unsure Which Iteration You're On (Stage 5a)
+### Issue 6: Unsure Which Iteration You're On (S5)
 
 **Solution:**
 1. **Check feature README.md Agent Status:**
@@ -830,7 +830,7 @@ Would you like to:
 
 ## Quick Reference: Common Error Messages
 
-### Error: "Cannot proceed to Stage 5b - Iteration 24 = NO-GO"
+### Error: "Cannot proceed to S6 - Iteration 24 = NO-GO"
 
 **Meaning:** GO/NO-GO decision failed, implementation not ready
 
@@ -863,7 +863,7 @@ Would you like to:
 
 ---
 
-### Error: "Tests failing - cannot proceed with Stage 10 commit"
+### Error: "Tests failing - cannot proceed with S10 commit"
 
 **Meaning:** Unit tests must have 100% pass rate before commit
 
@@ -874,15 +874,15 @@ Would you like to:
 4. Run tests again (100% pass required)
 5. Only commit when all tests pass
 
-Note: It's acceptable to fix pre-existing test failures from other epics during Stage 10.
+Note: It's acceptable to fix pre-existing test failures from other epics during S10.
 
 ---
 
-### Error: "User found bugs during Stage 10 testing"
+### Error: "User found bugs during S10 testing"
 
-**Meaning:** Must restart Stage 9 after fixing bugs
+**Meaning:** Must restart S9 after fixing bugs
 
-**Fix:** See Stage 10 FAQ above - follow bug fix protocol, restart Stage 9
+**Fix:** See S10 FAQ above - follow bug fix protocol, restart S9
 
 ---
 
@@ -890,11 +890,11 @@ Note: It's acceptable to fix pre-existing test failures from other epics during 
 
 ### Ask User (user decision required):
 
-- Feature breakdown looks correct? (Stage 1)
-- Spec requirements clear? (Stage 2)
-- How to resolve spec conflicts? (Stage 3)
-- Iteration 25 found discrepancies - which approach to take? (Stage 5a)
-- Scope growing >35 items - split feature? (Stage 2)
+- Feature breakdown looks correct? (S1)
+- Spec requirements clear? (S2)
+- How to resolve spec conflicts? (S3)
+- Iteration 25 found discrepancies - which approach to take? (S5)
+- Scope growing >35 items - split feature? (S2)
 - Bug fix vs missed requirement (if ambiguous)
 
 ### Decide Autonomously (follow guide rules):
@@ -902,7 +902,7 @@ Note: It's acceptable to fix pre-existing test failures from other epics during 
 - Which guide to read next (follow Agent Status)
 - Whether to restart testing after issues (always restart)
 - Whether to fix issues immediately (always fix)
-- Which iteration comes next in Stage 5a (follow sequence)
+- Which iteration comes next in S5 (follow sequence)
 - Whether to skip Stages 5d/5e (decision tree in guide)
 - Update Agent Status (always update after major steps)
 

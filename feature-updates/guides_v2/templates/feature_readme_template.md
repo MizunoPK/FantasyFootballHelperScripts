@@ -53,51 +53,51 @@
 
 ## Feature Stages Progress
 
-**Stage 2 - Feature Deep Dive:**
+**S2 - Feature Deep Dive:**
 - [ ] `spec.md` created and complete
 - [ ] `checklist.md` created (all items resolved or marked pending)
 - [ ] `lessons_learned.md` created
 - [ ] README.md created (this file)
-- [ ] Stage 2 complete: {✅/◻️}
+- [ ] S2 complete: {✅/◻️}
 
-**Stage 5a - TODO Creation:**
+**S5 - TODO Creation:**
 - [ ] 28 verification iterations complete
 - [ ] Iteration 4a: TODO Specification Audit PASSED
 - [ ] Iteration 23a: Pre-Implementation Spec Audit (ALL 4 PARTS PASSED)
 - [ ] Iteration 24: Implementation Readiness PASSED
 - [ ] `implementation_plan.md` created and user-approved
 - [ ] `questions.md` created (or documented "no questions")
-- [ ] Stage 5a complete: {✅/◻️}
+- [ ] S5 complete: {✅/◻️}
 
-**Stage 5b - Implementation:**
+**S6 - Implementation:**
 - [ ] All implementation tasks complete
 - [ ] All unit tests passing (100%)
 - [ ] `implementation_checklist.md` created and all verified
 - [ ] `code_changes.md` created and updated
-- [ ] Stage 5b complete: {✅/◻️}
+- [ ] S6 complete: {✅/◻️}
 
-**Stage 5c - Post-Implementation:**
+**S7 - Post-Implementation:**
 - [ ] Smoke testing (3 parts) passed
 - [ ] QC Round 1 passed
 - [ ] QC Round 2 passed
 - [ ] QC Round 3 passed
 - [ ] PR Review (11 categories) passed
-- [ ] `lessons_learned.md` updated with Stage 5c insights
-- [ ] Stage 5c complete: {✅/◻️}
+- [ ] `lessons_learned.md` updated with S7 insights
+- [ ] S7 complete: {✅/◻️}
 
-**Stage 5d - Cross-Feature Alignment:**
+**S8.P1 - Cross-Feature Alignment:**
 - [ ] Reviewed all remaining feature specs
 - [ ] Updated remaining specs based on THIS feature's actual implementation
 - [ ] Documented features needing rework (or "none")
 - [ ] No significant rework needed for other features
-- [ ] Stage 5d complete: {✅/◻️}
+- [ ] S8.P1 complete: {✅/◻️}
 
-**Stage 5e - Epic Testing Plan Update:**
+**S8.P2 - Epic Testing Plan Update:**
 - [ ] `epic_smoke_test_plan.md` reviewed
 - [ ] Test scenarios updated based on actual implementation
 - [ ] Integration points added to epic test plan
 - [ ] Update History table in epic test plan updated
-- [ ] Stage 5e complete: {✅/◻️}
+- [ ] S8.P2 complete: {✅/◻️}
 
 ---
 
@@ -109,11 +109,11 @@
 - `checklist.md` - Tracks resolved vs pending decisions
 - `lessons_learned.md` - Feature-specific insights
 
-**Planning Files (Stage 5a):**
-- `implementation_plan.md` - Implementation build guide (created in Stage 5a, user-approved)
-- `questions.md` - Questions for user (created in Stage 5a, or documented "no questions")
+**Planning Files (S5):**
+- `implementation_plan.md` - Implementation build guide (created in S5, user-approved)
+- `questions.md` - Questions for user (created in S5, or documented "no questions")
 
-**Implementation Files (Stage 5b):**
+**Implementation Files (S6):**
 - `implementation_checklist.md` - Continuous spec verification during coding
 - `code_changes.md` - Documentation of all code changes
 
@@ -142,7 +142,7 @@
 
 ## Completion Summary
 
-{This section filled out after Stage 5e}
+{This section filled out after S8.P2}
 
 **Completion Date:** {YYYY-MM-DD}
 **Start Date:** {YYYY-MM-DD}
@@ -161,7 +161,7 @@
 - {Challenge 1 and solution}
 - {Challenge 2 and solution}
 
-**Stage 5d Impact on Other Features:**
+**S8.P1 Impact on Other Features:**
 - {Feature X: Updated spec.md to reflect...}
 - {Or: "No impact on other features"}
 ```

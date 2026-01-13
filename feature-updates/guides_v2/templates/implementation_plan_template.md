@@ -1,11 +1,11 @@
 # Implementation Plan Template
 
 **Instructions for Agents:**
-This template is used during Stage 5a (Implementation Planning) to accumulate findings from the 28 verification iterations. The plan grows incrementally as you progress through 3 rounds.
+This template is used during S5 (Implementation Planning) to accumulate findings from the 28 verification iterations. The plan grows incrementally as you progress through 3 rounds.
 
 **Key Principles:**
 - Add sections as iterations complete (not all at once)
-- User will review and approve this before Stage 5b
+- User will review and approve this before S6
 - Keep sections concise and actionable
 - Use tables for matrices and coverage data
 
@@ -16,7 +16,7 @@ This template is used during Stage 5a (Implementation Planning) to accumulate fi
 ```markdown
 # Implementation Plan: {feature_name}
 
-**Created:** {YYYY-MM-DD} Stage 5a - Round 1, Iteration 1
+**Created:** {YYYY-MM-DD} S5 - Round 1, Iteration 1
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Status:** {Round 1 / Round 2 / Round 3 / Complete}
 **Version:** {v1.0 / v2.0 / v3.0}
@@ -318,24 +318,24 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 
 ---
 
-**STATUS:** {✅ APPROVED - Ready for Stage 5b / ⏳ PENDING USER APPROVAL / 🔄 IN PROGRESS / ❌ BLOCKED}
+**STATUS:** {✅ APPROVED - Ready for S6 / ⏳ PENDING USER APPROVAL / 🔄 IN PROGRESS / ❌ BLOCKED}
 
-**Next Step:** {Proceed to Stage 5b (Implementation) / Awaiting user approval / Continue to Round {N} / Fix blocking issues}
+**Next Step:** {Proceed to S6 (Implementation) / Awaiting user approval / Continue to Round {N} / Fix blocking issues}
 ```
 
 ---
 
 ## Usage Notes
 
-**When to create:** Start of Stage 5a, Iteration 1
+**When to create:** Start of S5, Iteration 1
 
 **How it grows:**
 - After Round 1 (iteration 7): ~150 lines (tasks, matrix, dependencies)
 - After Round 2 (iteration 16): ~300 lines (+ tests, edge cases)
 - After Round 3 (iteration 24): ~400 lines (+ performance, audits, readiness)
 
-**User approval:** Show complete plan after iteration 24, before Stage 5b
+**User approval:** Show complete plan after iteration 24, before S6
 
 **File location:** `feature_XX_{name}/implementation_plan.md`
 
-**Reference during implementation:** This is the PRIMARY reference for Stage 5b (not spec.md alone)
+**Reference during implementation:** This is the PRIMARY reference for S6 (not spec.md alone)

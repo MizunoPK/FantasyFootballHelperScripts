@@ -892,7 +892,7 @@ Read timestamp: 2026-01-02 10:30
 
 ❌ **WRONG:**
 ```markdown
-I remember from Stage 1 that user wants ADP integration. I'll start researching PlayerManager now.
+I remember from S1 that user wants ADP integration. I'll start researching PlayerManager now.
 
 {Jumps straight to Phase 1 without re-reading epic}
 ```
@@ -901,7 +901,7 @@ I remember from Stage 1 that user wants ADP integration. I'll start researching 
 ```markdown
 **Phase 0: Epic Intent Extraction**
 
-Even though I worked on Stage 1, I'm re-reading epic notes now to ensure I understand user intent.
+Even though I worked on S1, I'm re-reading epic notes now to ensure I understand user intent.
 
 {Re-reads epic notes file}
 {Extracts exact quotes with line numbers}

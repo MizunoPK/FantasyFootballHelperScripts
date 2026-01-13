@@ -29,7 +29,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 ---
 
-## Stage 1 Lessons Learned
+## S1 Lessons Learned
 
 **What Went Well:**
 - Epic planning with 3 features was appropriate scope
@@ -47,7 +47,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 ---
 
-## Stage 2 Lessons Learned (Per Feature)
+## S2 Lessons Learned (Per Feature)
 
 ### Feature 01: ADP Integration
 
@@ -71,14 +71,14 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 - Edge case analysis caught division-by-zero scenario
 
 **What Could Be Improved:**
-- None - Stage 2 worked well for this feature
+- None - S2 worked well for this feature
 
 **Guide Improvements Needed:**
 - None identified
 
 ---
 
-## Stage 5a Lessons Learned
+## S5 Lessons Learned
 
 **What Went Well:**
 - 28 verification iterations caught interface mismatches before implementation
@@ -103,16 +103,16 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 3. User approval on acceptance criteria prevents scope drift
 
 **Systemic Improvements:**
-- All future epics should verify data sources in Stage 1
-- Stage 2 should always include file format verification
-- Stage 5a algorithm traceability should show nested algorithm examples
+- All future epics should verify data sources in S1
+- S2 should always include file format verification
+- S5 algorithm traceability should show nested algorithm examples
 
 ---
 
 ## Recommendations for Future Epics
 
 1. **Plan for 1.5x estimated time:** Actual duration often exceeds estimates
-2. **Verify data sources early:** Don't wait until Stage 5b to discover format issues
+2. **Verify data sources early:** Don't wait until S6 to discover format issues
 3. **Create 12-15 edge cases:** 8 edge cases is often insufficient
 4. **Use acceptance criteria:** Prevents entire features from targeting wrong scope
 
@@ -139,7 +139,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 ---
 
-## Stage 2: Deep Dive
+## S2: Deep Dive
 
 **What Went Well:**
 - Found CSV loader utility quickly using grep
@@ -155,21 +155,21 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 ---
 
-## Stage 5a: TODO Creation
+## S5: TODO Creation
 
 **What Went Well:**
 - Algorithm traceability matrix revealed missing validation step
 - Iteration 23a caught spec ambiguity about ADP missing data
 
 **What Could Be Improved:**
-- None - Stage 5a worked well
+- None - S5 worked well
 
 **Guide Improvements Needed:**
 - None from this section
 
 ---
 
-## Stage 5b: Implementation
+## S6: Implementation
 
 **What Went Well:**
 - Implementation followed spec exactly
@@ -185,14 +185,14 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 ---
 
-## Stage 5c: Post-Implementation
+## S7: Post-Implementation
 
 **What Went Well:**
 - Smoke testing caught CSV encoding issue
 - QC Round 2 found unused import statement
 
 **What Could Be Improved:**
-- None - Stage 5c worked well
+- None - S7 worked well
 
 **Guide Improvements Needed:**
 - None from this section
@@ -221,7 +221,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 ---
 
-## Stage 2: Deep Dive (Bug Investigation)
+## S2: Deep Dive (Bug Investigation)
 
 **What Went Well:**
 - Root cause analysis identified integer division issue quickly
@@ -232,33 +232,33 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 **Guide Improvements Needed:**
 - stages/s5/s5_bugfix_workflow.md: Add example of integer division bugs
-- Section: "Stage 2: Root Cause Analysis"
+- Section: "S2: Root Cause Analysis"
 - Update: "Common bug patterns: integer division (use float division if fractional results needed)"
 
 ---
 
-## Stage 5a: TODO Creation
+## S5: TODO Creation
 
 **What Went Well:**
 - 28 iterations ensured fix didn't introduce new bugs
 - Test coverage included edge cases (zero denominator)
 
 **What Could Be Improved:**
-- None - Stage 5a worked well for bug fix
+- None - S5 worked well for bug fix
 
 **Guide Improvements Needed:**
 - None from this section
 
 ---
 
-## Stage 5c: Post-Implementation
+## S7: Post-Implementation
 
 **What Went Well:**
 - Smoke testing verified bug fix didn't break other features
 - QC rounds confirmed no regression
 
 **What Could Be Improved:**
-- None - Stage 5c worked well
+- None - S7 worked well
 
 **Guide Improvements Needed:**
 - None from this section
@@ -269,7 +269,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 **Key Differences from Feature Lessons:**
 - Bug fix lessons focus on investigation and verification
 - Often identify common bug patterns for future reference
-- May suggest preventive measures for Stage 5a
+- May suggest preventive measures for S5
 
 ---
 
@@ -306,17 +306,17 @@ For EACH file found, read it completely and extract "Guide Improvements Needed" 
 **Reading:** feature-updates/done/improve_draft_helper/epic_lessons_learned.md
 
 **Lessons Found:**
-1. Stage 1 Lesson: Verify data sources during planning
+1. S1 Lesson: Verify data sources during planning
    - Guide: stages/s1/s1_epic_planning.md
    - Section: Step 3: Create Epic Folder Structure
    - Update: Add step to verify external data sources accessible
 
-2. Stage 2 Lesson: Add CSV format verification example
+2. S2 Lesson: Add CSV format verification example
    - Guide: stages/s2/s2_feature_deep_dive.md
    - Section: Phase 1: Targeted Research
    - Update: Add step for CSV format verification
 
-3. Stage 5a Lesson: Add nested algorithm traceability example
+3. S5 Lesson: Add nested algorithm traceability example
    - Guide: stages/s5/s5_p1_planning_round1.md
    - Section: Iteration 4: Algorithm Traceability Matrix
    - Update: Show example of tracing nested algorithms
@@ -337,17 +337,17 @@ Combine ALL lessons from ALL files:
 **Total Lessons Found:** 6
 
 **Source: epic_lessons_learned.md (3 lessons)**
-□ Lesson 1: Verify data sources in Stage 1
+□ Lesson 1: Verify data sources in S1
   - Guide: stages/s1/s1_epic_planning.md
   - Section: Step 3
   - Update: Add data source verification step
 
-□ Lesson 2: CSV format verification in Stage 2
+□ Lesson 2: CSV format verification in S2
   - Guide: stages/s2/s2_feature_deep_dive.md
   - Section: Phase 1
   - Update: Add CSV format check step
 
-□ Lesson 3: Nested algorithm example in Stage 5a
+□ Lesson 3: Nested algorithm example in S5
   - Guide: stages/s5/s5_p1_planning_round1.md
   - Section: Iteration 4
   - Update: Add nested algorithm traceability example
@@ -366,7 +366,7 @@ Combine ALL lessons from ALL files:
 **Source: bugfix_high_point_calculation/lessons_learned.md (1 lesson)**
 □ Lesson 6: Integer division bug pattern
   - Guide: stages/s5/s5_bugfix_workflow.md
-  - Section: Stage 2
+  - Section: S2
   - Update: Add common bug pattern example
 ```
 
@@ -399,7 +399,7 @@ For each lesson in master checklist:
 
 5. **Mark as applied:**
    ```markdown
-   [x] Lesson 3: Nested algorithm example in Stage 5a
+   [x] Lesson 3: Nested algorithm example in S5
    ```
 
 ---

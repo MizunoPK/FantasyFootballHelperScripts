@@ -1,11 +1,11 @@
-# Stage 1 Prompts: Epic Planning
+# S1 Prompts: Epic Planning
 
 **Stage:** 1
 **Purpose:** Epic planning and folder structure creation
 
 ---
 
-## Starting Stage 1: Epic Planning
+## Starting S1: Epic Planning
 
 **User says:** "Help me develop the {epic_name} epic" or "Let's plan {epic_name}"
 
@@ -35,7 +35,7 @@ I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic
 **I'll now proceed with Phase 1 (Analyze Epic Request & Reconnaissance)...**
 
 **Creating initial EPIC_README.md status:**
-- Current Stage: Stage 1 - Epic Planning
+- Current Stage: S1 - Epic Planning
 - Current Guide: stages/s1/s1_epic_planning.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "User must approve feature breakdown", "Create placeholder test plan", "No skipping reconnaissance"

@@ -1,8 +1,8 @@
-# SPECIAL CASE: Discovery During Epic Testing (Stage 9/7)
+# SPECIAL CASE: Discovery During Epic Testing (S9/7)
 
 **Purpose:** Handle missed requirements discovered during epic testing with special restart protocol
 
-**When to Use:** Missed requirement discovered during Stage 9 (Epic Testing) or Stage 10 (User Testing)
+**When to Use:** Missed requirement discovered during S9 (Epic Testing) or S10 (User Testing)
 
 **Previous Phase:** PHASE 3 & 4 (Realignment) - See `missed_requirement/realignment.md`
 
@@ -12,17 +12,17 @@
 
 ## Why This is Different
 
-**Normal workflow (discovered during Stage 5):**
+**Normal workflow (discovered during S5):**
 - Plan new/updated feature (Stages 2/3/4)
 - Resume paused work
 - Implement features in sequence
 - Continue to next stage when turn comes
 
-**Special case (discovered during Stage 9/7):**
+**Special case (discovered during S9/7):**
 - Plan new/updated feature (Stages 2/3/4) ← SAME
 - Resume any paused work
 - **Complete ALL remaining features first** ← DIFFERENT
-- **Implement new/updated feature (full Stage 5)** ← DIFFERENT
+- **Implement new/updated feature (full S5)** ← DIFFERENT
 - **RESTART epic testing from S9.P1 Step 1** ← DIFFERENT
 
 ---
@@ -59,17 +59,17 @@ Discovery (S9.P2: Epic QC Round 1)
     ↓
 PHASE 1: Discovery & User Decision (normal)
     ↓
-PHASE 2: Planning - Stage 2 Deep Dive (normal)
+PHASE 2: Planning - S2 Deep Dive (normal)
     ↓
-PHASE 3 & 4: Realignment - Stage 3 & 4 (normal)
+PHASE 3 & 4: Realignment - S3 & 4 (normal)
     ↓
 SPECIAL: Complete ALL Remaining Features
     ↓
-SPECIAL: Implement New/Updated Feature (full Stage 5)
+SPECIAL: Implement New/Updated Feature (full S5)
     ↓
 SPECIAL: RESTART Epic Testing from S9.P1 Step 1
     ↓
-S9.P1 → 6b → 6c → Stage 10 (entire epic flow)
+S9.P1 → 6b → 6c → S10 (entire epic flow)
 ```
 
 ---
@@ -86,12 +86,12 @@ S9.P1 → 6b → 6c → Stage 10 (entire epic flow)
    - Get decision on approach
    - Document paused work (epic testing paused)
 
-2. **PHASE 2:** Planning (Stage 2)
+2. **PHASE 2:** Planning (S2)
    - Use `missed_requirement/planning.md`
    - Create/update feature spec
-   - Full Stage 2 rigor
+   - Full S2 rigor
 
-3. **PHASE 3 & 4:** Realignment (Stage 3 & 4)
+3. **PHASE 3 & 4:** Realignment (S3 & 4)
    - Use `missed_requirement/realignment.md`
    - Cross-feature sanity check
    - Update epic test plan
@@ -109,22 +109,22 @@ S9.P1 → 6b → 6c → Stage 10 (entire epic flow)
 Current state:
 - feature_01 ✅ COMPLETE
 - feature_02 ✅ COMPLETE
-- feature_03 🔄 PAUSED (was implementing when entered Stage 9)
+- feature_03 🔄 PAUSED (was implementing when entered S9)
 - feature_04 ◻️ NOT STARTED
 - feature_05 ◻️ NOT STARTED (NEW - from missed requirement)
 
 Actions needed:
-1. Resume and complete feature_03 (Stage 5 → complete)
-2. Implement feature_04 (full Stage 5)
-3. Implement feature_05 (full Stage 5)
+1. Resume and complete feature_03 (S5 → complete)
+2. Implement feature_04 (full S5)
+3. Implement feature_05 (full S5)
 4. Then restart epic testing
 ```
 
 **Complete each feature in sequence:**
 - Resume feature_03 where it left off
-- Run through Stage 5 (5a → 5b → 5c → 5d → 5e) for feature_03
-- Implement feature_04 (full Stage 5)
-- Implement feature_05 (full Stage 5)
+- Run through S5 (5a → 5b → 5c → 5d → 5e) for feature_03
+- Implement feature_04 (full S5)
+- Implement feature_05 (full S5)
 - **ALL features must be complete before restarting epic testing**
 
 ---
@@ -133,12 +133,12 @@ Actions needed:
 
 **When new/updated feature's turn comes in sequence:**
 
-**Run full Stage 5:**
-- Stage 5a: TODO Creation (3 rounds, 28 iterations)
-- Stage 5b: Implementation Execution
-- Stage 5c: Post-Implementation (smoke testing, QC rounds, final review)
-- Stage 5d: Cross-Feature Spec Alignment
-- Stage 5e: Epic Testing Plan Reassessment
+**Run full S5:**
+- S5: TODO Creation (3 rounds, 28 iterations)
+- S6: Implementation Execution
+- S7: Post-Implementation (smoke testing, QC rounds, final review)
+- S8.P1: Cross-Feature Spec Alignment
+- S8.P2: Epic Testing Plan Reassessment
 
 **Same rigor as all features:**
 - No shortcuts
@@ -179,9 +179,9 @@ Actions needed:
 **Next Action:** Execute epic smoke test plan with ALL 5 features
 ```
 
-**Follow Stage 9 from beginning:**
+**Follow S9 from beginning:**
 
-**🚨 FIRST ACTION:** Use "Starting Stage 9" prompt from `prompts/stage_6_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S9" prompt from `prompts/stage_6_prompts.md`
 
 **READ:** `stages/s9/s6_epic_final_qc.md`
 
@@ -202,7 +202,7 @@ Actions needed:
    - Documentation review
    - Epic readiness check
 
-4. **Stage 10:** Epic Cleanup
+4. **S10:** Epic Cleanup
    - User testing ← **User tests with new feature**
    - Commit and merge
    - Archive
@@ -228,14 +228,14 @@ Actions needed:
    - Option 2: Update feature_04
    - User chooses: Create new feature (medium priority)
 
-2. **Planning:** Stage 2/3/4
+2. **Planning:** S2/3/4
    - Create feature_05 spec
    - Align all features
    - Update epic test plan
 
 3. **Complete remaining features:**
-   - Implement feature_04 (Stage 5a → 5e)
-   - Implement feature_05 (Stage 5a → 5e)
+   - Implement feature_04 (S5 → 5e)
+   - Implement feature_05 (S5 → 5e)
 
 4. **Restart epic testing:**
    - S9.P1 Part 1 (Import Test) - all 5 features
@@ -244,12 +244,12 @@ Actions needed:
    - S9.P1 Part 4 (Cross-Feature Integration) - includes caching layer
    - S9.P2 (QC Rounds)
    - S9.P3 (Final Review)
-   - Stage 10 (Cleanup & User Testing)
+   - S10 (Cleanup & User Testing)
 ```
 
 ---
 
-### Example 2: Discovery During Stage 10 (User Testing)
+### Example 2: Discovery During S10 (User Testing)
 
 ```markdown
 **Context:**
@@ -265,29 +265,29 @@ Actions needed:
    - Option 2: Update feature_03_performance_tracker
    - User chooses: Update feature_03 (logical grouping)
 
-2. **Planning:** Stage 2/3/4
+2. **Planning:** S2/3/4
    - Update feature_03 spec with PDF export
    - Align all features
    - Update epic test plan
 
 3. **Complete remaining features:**
    - No remaining features
-   - Re-implement feature_03 with new scope (Stage 5a → 5e)
+   - Re-implement feature_03 with new scope (S5 → 5e)
 
 4. **Restart epic testing:**
    - S9.P1 (Epic Smoke Testing) - feature_03 now includes PDF export
    - S9.P2 (Epic QC Rounds)
    - S9.P3 (Epic Final Review)
-   - Stage 10 (User Testing) - user tests again with PDF export
+   - S10 (User Testing) - user tests again with PDF export
 
-**Note:** Even though discovered in Stage 10, loop back to S9.P1 (not Stage 10)
+**Note:** Even though discovered in S10, loop back to S9.P1 (not S10)
 ```
 
 ---
 
 ## Comparison: Normal vs Special Case
 
-| Aspect | Normal (Stage 5) | Special (Stage 9/7) |
+| Aspect | Normal (S5) | Special (S9/7) |
 |--------|-----------------|---------------------|
 | **Planning** | Stages 2/3/4 ✓ | Stages 2/3/4 ✓ |
 | **Resume paused work** | Resume feature implementation | Not applicable (features done) |
@@ -326,17 +326,17 @@ Actions needed:
 
 **Why wrong:** Missing epic-level validation, potential issues elsewhere
 
-**Correct:** Run complete Stage 9 (6a → 6b → 6c) from beginning
+**Correct:** Run complete S9 (6a → 6b → 6c) from beginning
 
 ---
 
-### ❌ Anti-Pattern 4: Returning to Stage 10 After Fixes
+### ❌ Anti-Pattern 4: Returning to S10 After Fixes
 
-**Mistake:** User finds bug in Stage 10 → Fix → Resume Stage 10
+**Mistake:** User finds bug in S10 → Fix → Resume S10
 
 **Why wrong:** Fixes might affect epic integration, need epic-level validation
 
-**Correct:** User finds bug → Fix → Restart S9.P1 → Stage 10
+**Correct:** User finds bug → Fix → Restart S9.P1 → S10
 
 ---
 
@@ -351,8 +351,8 @@ Actions needed:
 - [x] Epic test plan updated
 
 **Feature Completion:**
-- [x] ALL remaining features completed (full Stage 5 each)
-- [x] New/updated feature implemented (full Stage 5)
+- [x] ALL remaining features completed (full S5 each)
+- [x] New/updated feature implemented (full S5)
 - [x] All features passing tests (100%)
 - [x] Epic Progress Tracker shows all features complete
 
@@ -360,17 +360,17 @@ Actions needed:
 - [x] S9.P1 complete (Epic Smoke Testing with new feature)
 - [x] S9.P2 complete (Epic QC Rounds)
 - [x] S9.P3 complete (Epic Final Review)
-- [x] Ready for Stage 10 (User Testing with new feature)
+- [x] Ready for S10 (User Testing with new feature)
 
 ---
 
 ## Summary
 
-**Special case for Stage 9/7 discovery:**
+**Special case for S9/7 discovery:**
 
 1. Follow normal PHASE 1-4 (discovery, planning, realignment)
 2. **Different:** Complete ALL remaining features first
-3. **Different:** Implement new/updated feature (full Stage 5)
+3. **Different:** Implement new/updated feature (full S5)
 4. **Different:** RESTART epic testing from S9.P1 Step 1
 5. Run complete epic testing flow (6a → 6b → 6c → 7)
 
@@ -378,7 +378,7 @@ Actions needed:
 
 **Loop-back mechanism:**
 - Similar to debugging: Fix → Loop back to testing
-- Missed requirement in Stage 9/7: Add feature → Loop back to S9.P1
+- Missed requirement in S9/7: Add feature → Loop back to S9.P1
 
 ---
 

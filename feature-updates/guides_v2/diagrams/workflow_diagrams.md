@@ -93,7 +93,7 @@
 
 ---
 
-## Stage 5: Feature Implementation Detail
+## S5: Feature Implementation Detail
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -105,7 +105,7 @@
        │                          │                       │
        ▼                          │                       │
   ┌─────────┐                    │                       │
-  │ Stage 5a│ Implementation Planning (28 iterations)    │
+  │ S5│ Implementation Planning (28 iterations)    │
   │         │ - Round 1 (9 iterations)                   │
   │         │   Gate 4a: TODO Spec Audit                 │
   │         │ - Round 2 (9 iterations)                   │
@@ -117,7 +117,7 @@
        │                          │                       │
        ▼                          │                       │
   ┌─────────┐                    │                       │
-  │ Stage 5b│ Implementation Execution                   │
+  │ S6│ Implementation Execution                   │
   │         │ - Follow implementation_plan.md            │
   │         │ - Track via implementation_checklist.md    │
   │         │ - Mini-QC after each component             │
@@ -125,7 +125,7 @@
        │                          │                       │
        ▼                          │                       │
   ┌─────────┐                    │                       │
-  │ Stage 5c│ Post-Implementation Testing                │
+  │ S7│ Post-Implementation Testing                │
   │         │ Step 1: Smoke Testing (3 parts)           │
   │         │ Step 2: QC Rounds (3 rounds)              │
   │         │   If issues → debugging → loop back S10.P1    │
@@ -135,13 +135,13 @@
        │                          │                       │
        ▼                          │                       │
   ┌─────────┐                    │                       │
-  │ Stage 5d│ Cross-Feature Alignment                    │
+  │ S8.P1│ Cross-Feature Alignment                    │
   │         │ - Update remaining feature specs           │
   └────┬────┘                    │                       │
        │                          │                       │
        ▼                          │                       │
   ┌─────────┐                    │                       │
-  │ Stage 5e│ Epic Testing Plan Update                   │
+  │ S8.P2│ Epic Testing Plan Update                   │
   │         │ - Update epic_smoke_test_plan.md           │
   └────┬────┘                    │                       │
        │                          │                       │

@@ -221,10 +221,10 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 **🚨 FIRST ACTION:** Use "Creating Missed Requirement" prompt
 
 - **Guide:** `missed_requirement/missed_requirement_protocol.md`
-- **Before Stage 5:** Update specs directly during Stage 2/3/4
-- **After Stage 5 starts:** Create new feature OR update unstarted feature
+- **Before S5:** Update specs directly during S2/S3/S4
+- **After S5 starts:** Create new feature OR update unstarted feature
 - **User decides:** Approach + priority (high/medium/low)
-- **Process:** Pause work → Stage 2/3/4 for new feature → Resume
+- **Process:** Pause work → S2/S3/S4 for new feature → Resume
 - **Priority determines sequence:** high = before current, medium = after current, low = at end
 
 ---
@@ -375,7 +375,7 @@ feature_XX_{name}/
 **All guides:** `feature-updates/guides_v2/`
 
 **Directory Structure:**
-- `stages/` - Core workflow guides (s1 through s7 with S#.P#.I# notation)
+- `stages/` - Core workflow guides (s1 through s10 with S#.P#.I# notation)
 - `reference/` - Reference cards and supporting materials
 - `templates/` - File templates for epics, features, bug fixes
 - `_internal/` - Internal tracking and completion documents
@@ -396,7 +396,7 @@ feature_XX_{name}/
 **Commit format:** `{commit_type}/KAI-{number}: {message}` (feat or fix)
 
 **S1:** Create branch: `git checkout -b {work_type}/KAI-{number}`
-**S7:** Create PR for user review, user merges, update EPIC_TRACKER.md
+**S10:** Create PR for user review, user merges, update EPIC_TRACKER.md
 
 **See:** `feature-updates/guides_v2/reference/GIT_WORKFLOW.md` for complete branching workflow including:
 - Detailed branch management steps
@@ -465,12 +465,12 @@ git diff    # Review changes
 ✅ **Update Agent Status** in README files at checkpoints
 ✅ **100% unit test pass rate** before commits and transitions
 ✅ **Fix ALL issues immediately** (zero tech debt tolerance)
-✅ **User testing approval** before S7 begins (completed in S6)
+✅ **User testing approval** before S10 begins (completed in S9.P3)
 
 ### Never Allowed
 
 ❌ **Skip stages** (all stages have dependencies)
-❌ **Skip iterations** in S5.P1 (all 28 mandatory)
+❌ **Skip iterations** in S5 (all 28 mandatory)
 ❌ **Batch iterations** (execute ONE at a time, sequentially)
 ❌ **Defer issues for "later"** (fix immediately)
 ❌ **Skip QC restart** when issues found (restart from beginning)

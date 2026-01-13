@@ -189,7 +189,7 @@ Example: "All three bugs involved missing checks for entity status fields (injur
 
 **Common Prevention Point:**
 {Which stage/iteration should have caught all these bugs?}
-Example: "Stage 5a Round 2, Iteration 9 (Edge Case Analysis)"
+Example: "S5 Round 2, Iteration 9 (Edge Case Analysis)"
 
 **Pattern-Based Guide Improvement:**
 {What ONE guide change prevents ALL these bugs?}
@@ -344,7 +344,7 @@ Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity sta
 # Debugging Lessons Learned - {Feature/Epic Name}
 
 **Feature/Epic:** {name}
-**Testing Stage:** {S10.P1 Smoke Testing / S10.P2 QC / Stage 9 Epic Testing / Stage 10 User Testing}
+**Testing Stage:** {S10.P1 Smoke Testing / S10.P2 QC / S9 Epic Testing / S10 User Testing}
 **Date Range:** {start date} - {end date}
 **Total Issues:** {count}
 **Total Investigation Time:** {hours}
@@ -826,19 +826,19 @@ Loop back to: **S9.P1 Step 1** (Epic Smoke Testing)
 
 ---
 
-**If issues discovered during Stage 10 (User Testing):**
+**If issues discovered during S10 (User Testing):**
 
 Loop back to: **S9.P1 Step 1** (Epic Smoke Testing)
 
-**Why S9.P1, not Stage 10?**
+**Why S9.P1, not S10?**
 - User-reported bugs might affect epic-level integration
 - Must re-validate entire epic before returning to user
-- Stage 10 is user-driven, can't "loop back" to it
-- User will test again after Stage 9 passes
+- S10 is user-driven, can't "loop back" to it
+- User will test again after S9 passes
 
 **Actions:**
 1. Update EPIC_README Agent Status
-2. Inform user: "Fixing bugs, will return to Stage 9 for re-validation"
+2. Inform user: "Fixing bugs, will return to S9 for re-validation"
 3. Return to S9.P1 (Epic Smoke Testing)
 4. Run epic smoke testing and QC rounds
 5. If passes: Inform user fixes are ready, request new user testing session
@@ -1016,7 +1016,7 @@ Re-running epic testing now...
 
 ---
 
-### Stage 9: Epic Testing Integration
+### S9: Epic Testing Integration
 
 **Add to epic_smoke_testing.md and epic_qc_rounds.md:**
 
@@ -1032,7 +1032,7 @@ Re-running epic testing now...
    - Separate from feature-level debugging/
 
 3. **User Testing Integration:**
-   - User reports bugs during Stage 10 testing
+   - User reports bugs during S10 testing
    - Add to epic_name/debugging/ISSUES_CHECKLIST.md
    - Enter debugging protocol
    - Loop back to S9.P1 (epic smoke testing)
@@ -1109,7 +1109,7 @@ Re-running epic testing now...
 - **Feature QC Rounds (S10.P2)** → Loop back to S10.P1 Step 1
 - **Epic Smoke Testing (S9.P1)** → Loop back to Step 1
 - **Epic QC Rounds (S9.P2)** → Loop back to S9.P1 Step 1
-- **User Testing (Stage 10)** → Loop back to S9.P1 Step 1
+- **User Testing (S10)** → Loop back to S9.P1 Step 1
 
 **Key Principle:** Always loop back to START of testing stage (not to where issues were found)
 

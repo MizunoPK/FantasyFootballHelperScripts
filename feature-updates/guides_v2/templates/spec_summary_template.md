@@ -191,7 +191,7 @@ This feature updates the accuracy simulation system to load player data from JSO
 ## Notes
 
 **Why this summary matters:**
-This summary serves as source of truth for feature-level outcomes. It's created AFTER multi-phase research (Stage 2) but BEFORE implementation (Stage 5a). During Iteration 25 (Spec Validation Against Validated Documents), spec.md will be validated against this summary to catch misinterpretation.
+This summary serves as source of truth for feature-level outcomes. It's created AFTER multi-phase research (S2) but BEFORE implementation (S5). During Iteration 25 (Spec Validation Against Validated Documents), spec.md will be validated against this summary to catch misinterpretation.
 
 **Historical context:**
 Feature 02 catastrophic bug - spec.md stated "no code changes needed" for week 17/18 logic when it actually required week_N+1 offset for ALL weeks. If spec summary had existed with "week N+1 offset applies to ALL weeks" in Technical Changes, misinterpretation would have been obvious.
@@ -200,5 +200,5 @@ Feature 02 catastrophic bug - spec.md stated "no code changes needed" for week 1
 - Spec summary describes WHAT the feature delivers, not detailed implementation
 - Created after research (informed by codebase understanding)
 - Provides high-level technical changes without premature implementation decisions
-- Allows detailed design to happen in Stage 5a (TODO creation)
+- Allows detailed design to happen in S5 (TODO creation)
 ```

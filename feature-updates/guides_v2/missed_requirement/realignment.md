@@ -1,4 +1,4 @@
-# PHASE 3 & 4: Realignment (Stage 3 & 4) and Resume
+# PHASE 3 & 4: Realignment (S3 & 4) and Resume
 
 **Purpose:** Re-align ALL features and update epic test plan, then resume paused work
 
@@ -14,18 +14,18 @@
 
 **PHASE 3 & 4 ensures epic coherence after adding/updating a feature:**
 
-- **Stage 3:** Cross-feature sanity check (ALL features)
-- **Stage 4:** Update epic testing strategy
+- **S3:** Cross-feature sanity check (ALL features)
+- **S4:** Update epic testing strategy
 - **Resume:** Return to paused work
 - **Later:** Implement new/updated feature in sequence
 
 ---
 
-## PHASE 3: Stage 3 - Cross-Feature Sanity Check
+## PHASE 3: S3 - Cross-Feature Sanity Check
 
 ### Critical: Re-align ALL Features
 
-**🚨 FIRST ACTION:** Use "Starting Stage 3" prompt from `prompts/stage_3_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S3" prompt from `prompts/stage_3_prompts.md`
 
 **READ:** `stages/s3/s3_cross_feature_sanity_check.md`
 
@@ -105,7 +105,7 @@ Resolution: Document integration point, add to both specs
 
 3. **Get user approval for changes:**
    ```markdown
-   During Stage 3 alignment, I found a conflict:
+   During S3 alignment, I found a conflict:
 
    **Conflict:** {description}
 
@@ -126,7 +126,7 @@ Resolution: Document integration point, add to both specs
 **After all conflicts resolved:**
 
 ```markdown
-Stage 3 cross-feature sanity check complete.
+S3 cross-feature sanity check complete.
 
 **Features checked:** {count} features, {count} pairwise comparisons
 **Conflicts found:** {count}
@@ -138,16 +138,16 @@ Stage 3 cross-feature sanity check complete.
 
 **All features are now aligned and ready for implementation.**
 
-Proceed to Stage 4 (Epic Testing Strategy update)? {User confirms}
+Proceed to S4 (Epic Testing Strategy update)? {User confirms}
 ```
 
 ---
 
-## PHASE 4: Stage 4 - Epic Testing Strategy Update
+## PHASE 4: S4 - Epic Testing Strategy Update
 
 ### Update epic_smoke_test_plan.md
 
-**🚨 FIRST ACTION:** Use "Starting Stage 4" prompt from `prompts/stage_4_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S4" prompt from `prompts/stage_4_prompts.md`
 
 **READ:** `stages/s4/s4_epic_testing_strategy.md`
 
@@ -158,7 +158,7 @@ Proceed to Stage 4 (Epic Testing Strategy update)? {User confirms}
 **Questions to answer:**
 - How does it integrate with other features?
 - What epic-level workflows involve it?
-- What should be tested in Stage 9?
+- What should be tested in S9?
 - What are the integration points?
 
 **Add test scenarios:**
@@ -254,12 +254,12 @@ Proceed to Stage 4 (Epic Testing Strategy update)? {User confirms}
 **Last Updated:** {YYYY-MM-DD HH:MM}
 
 **Planning Complete:**
-- feature_05_injury_tracking spec created (Stage 2 ✅)
-- All features re-aligned (Stage 3 ✅)
-- Epic test plan updated (Stage 4 ✅)
+- feature_05_injury_tracking spec created (S2 ✅)
+- All features re-aligned (S3 ✅)
+- Epic test plan updated (S4 ✅)
 
 **Resuming Work:**
-- feature_02_projection_system: Resuming Stage 5b Phase 3
+- feature_02_projection_system: Resuming S6 Phase 3
   - Resume from: {Exact step where paused}
   - Next action: {Continue implementation}
 ```
@@ -269,7 +269,7 @@ Proceed to Stage 4 (Epic Testing Strategy update)? {User confirms}
 ### Step 2: Verify No Spec Changes Affect Paused Feature
 
 **Check:**
-- Did Stage 3 alignment change paused feature's spec?
+- Did S3 alignment change paused feature's spec?
 - Does new/updated feature change interfaces paused feature uses?
 - Do integration points affect paused feature?
 
@@ -282,7 +282,7 @@ Proceed to Stage 4 (Epic Testing Strategy update)? {User confirms}
 ```markdown
 I've completed planning for the missed requirement (Stages 2/3/4 complete).
 
-During Stage 3 alignment, feature_02's spec was updated:
+During S3 alignment, feature_02's spec was updated:
 - Added integration point: Call feature_05.get_injury_status()
 - Updated PlayerData class reference (now uses shared utility)
 - Updated projection calculation to account for injury impact
@@ -295,7 +295,7 @@ What would you like to do?
 ```
 
 **If user says update implementation_plan.md:**
-- Re-run relevant parts of Stage 5a for affected tasks
+- Re-run relevant parts of S5 for affected tasks
 - Update implementation plan
 - Document changes
 - Then resume
@@ -310,11 +310,11 @@ What would you like to do?
 Planning complete for missed requirement.
 
 Stages completed:
-- Stage 2: feature_05 spec created ✅
-- Stage 3: All features aligned ✅
-- Stage 4: Epic test plan updated ✅
+- S2: feature_05 spec created ✅
+- S3: All features aligned ✅
+- S4: Epic test plan updated ✅
 
-feature_02's spec remains unchanged. Resuming implementation at Stage 5b Phase 3.
+feature_02's spec remains unchanged. Resuming implementation at S6 Phase 3.
 ```
 
 ---
@@ -329,7 +329,7 @@ feature_02's spec remains unchanged. Resuming implementation at Stage 5b Phase 3
 **Resume Instructions:**
 When planning complete:
 1. Verify this feature's spec still valid after alignment ← DID THIS
-2. Resume at: Stage 5b Phase 3 ← RESUME HERE
+2. Resume at: S6 Phase 3 ← RESUME HERE
 3. Context: Implementing projection calculation logic ← CONTEXT
 ```
 
@@ -348,7 +348,7 @@ When planning complete:
 - Stages 2/3/4 complete for feature_05
 - feature_02 spec verified (unchanged/updated)
 
-**Current Stage:** Stage 5b (Implementation Execution)
+**Current Stage:** S6 (Implementation Execution)
 **Next Action:** Continue Phase 3 - Projection calculation logic
 
 **Critical Rules from Guide:**
@@ -377,8 +377,8 @@ Sequence:
 4. feature_03 ◻️ NOT STARTED
 5. feature_04 ◻️ NOT STARTED
 
-Current action: Complete feature_02 (Stage 5b → 5c → 5d → 5e)
-After feature_02: Implement feature_05 (Stage 5a → 5b → 5c → 5d → 5e)
+Current action: Complete feature_02 (S6 → 5c → 5d → 5e)
+After feature_02: Implement feature_05 (S5 → 5b → 5c → 5d → 5e)
 ```
 
 **Example - High Priority:**
@@ -390,12 +390,12 @@ Sequence (high priority inserted):
 4. feature_03 ◻️ NOT STARTED
 5. feature_04 ◻️ NOT STARTED
 
-Current action: Implement feature_05 (Stage 5a → 5b → 5c → 5d → 5e)
+Current action: Implement feature_05 (S5 → 5b → 5c → 5d → 5e)
 After feature_05: Resume and complete feature_02
 ```
 
 **When new/updated feature's turn comes:**
-- Run full Stage 5 (5a → 5b → 5c → 5d → 5e)
+- Run full S5 (5a → 5b → 5c → 5d → 5e)
 - Same rigor as all features
 - No shortcuts
 
@@ -405,7 +405,7 @@ After feature_05: Resume and complete feature_02
 
 **PHASE 3 & 4 complete when:**
 
-**Stage 3 (Cross-Feature Sanity Check):**
+**S3 (Cross-Feature Sanity Check):**
 - [x] All feature pairs compared systematically
 - [x] All conflicts identified
 - [x] All conflicts resolved
@@ -413,7 +413,7 @@ After feature_05: Resume and complete feature_02
 - [x] User approved conflict resolutions
 - [x] User signed off on complete aligned plan
 
-**Stage 4 (Epic Testing Strategy):**
+**S4 (Epic Testing Strategy):**
 - [x] epic_smoke_test_plan.md updated
 - [x] New scenarios added for new/updated feature
 - [x] Existing scenarios updated if needed
@@ -434,10 +434,10 @@ After feature_05: Resume and complete feature_02
 ### Scenario 1: New Feature - No Conflicts Found
 
 **Actions:**
-1. Run Stage 3 pairwise comparison
+1. Run S3 pairwise comparison
 2. No conflicts found
 3. User signs off
-4. Update epic test plan (Stage 4)
+4. Update epic test plan (S4)
 5. Resume paused work
 6. New feature implemented later in sequence
 
@@ -446,11 +446,11 @@ After feature_05: Resume and complete feature_02
 ### Scenario 2: New Feature - Minor Conflicts
 
 **Actions:**
-1. Run Stage 3 pairwise comparison
+1. Run S3 pairwise comparison
 2. Find minor conflicts (e.g., naming inconsistency)
 3. Resolve conflicts (update specs)
 4. User approves resolutions
-5. Update epic test plan (Stage 4)
+5. Update epic test plan (S4)
 6. Resume paused work (spec unchanged)
 7. New feature implemented later
 
@@ -459,12 +459,12 @@ After feature_05: Resume and complete feature_02
 ### Scenario 3: New Feature - Major Conflicts
 
 **Actions:**
-1. Run Stage 3 pairwise comparison
+1. Run S3 pairwise comparison
 2. Find major conflicts (e.g., duplicate functionality)
 3. Resolve conflicts (extract to shared utility)
 4. Update multiple feature specs
 5. User approves resolutions
-6. Update epic test plan (Stage 4)
+6. Update epic test plan (S4)
 7. Resume paused work (spec WAS changed)
 8. User decides: Update implementation_plan.md or handle during implementation
 9. New feature implemented later
@@ -474,10 +474,10 @@ After feature_05: Resume and complete feature_02
 ### Scenario 4: Update Unstarted Feature
 
 **Actions:**
-1. Run Stage 3 pairwise comparison
+1. Run S3 pairwise comparison
 2. Check updated feature vs all others
 3. Resolve any conflicts
-4. Update epic test plan (Stage 4)
+4. Update epic test plan (S4)
 5. Resume paused work (if any)
 6. Updated feature implemented later (in its original sequence position)
 
@@ -495,7 +495,7 @@ After feature_05: Resume and complete feature_02
 
 ---
 
-### ❌ Anti-Pattern 2: Skip Stage 4
+### ❌ Anti-Pattern 2: Skip S4
 
 **Mistake:** "Epic test plan doesn't need updates for small feature"
 
@@ -521,7 +521,7 @@ After feature_05: Resume and complete feature_02
 
 **Why wrong:** May be implementing against outdated spec
 
-**Correct:** Always verify paused feature's spec after Stage 3
+**Correct:** Always verify paused feature's spec after S3
 
 ---
 
@@ -529,18 +529,18 @@ After feature_05: Resume and complete feature_02
 
 **After completing PHASE 3 & 4 (Realignment and Resume):**
 
-✅ Stage 3 complete (all features aligned)
-✅ Stage 4 complete (epic test plan updated)
+✅ S3 complete (all features aligned)
+✅ S4 complete (epic test plan updated)
 ✅ Paused feature spec verified
 ✅ Work resumed OR ready to resume
 
 **Next:**
 - If work was paused: Continue paused feature implementation
 - If work was not paused: Continue current feature implementation
-- Later: When new/updated feature's turn comes, implement through full Stage 5
+- Later: When new/updated feature's turn comes, implement through full S5
 
 **Special Case:**
-- If discovered during Stage 9/7: See `missed_requirement/stage_6_7_special.md`
+- If discovered during S9/7: See `missed_requirement/stage_6_7_special.md`
 
 ---
 

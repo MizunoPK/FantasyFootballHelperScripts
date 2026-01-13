@@ -2,9 +2,9 @@
 
 **Filename:** `checklist.md`
 **Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/checklist.md`
-**Created:** Stage 2 (Feature Deep Dive)
+**Created:** S2 (Feature Deep Dive)
 
-**Purpose:** Track unresolved questions and decisions that require user input. Agent creates questions during Stage 2, user provides answers, agent updates spec.md accordingly.
+**Purpose:** Track unresolved questions and decisions that require user input. Agent creates questions during S2, user provides answers, agent updates spec.md accordingly.
 
 **🚨 CRITICAL: Agents CANNOT mark items as resolved autonomously. Only user can confirm resolution.**
 
@@ -26,7 +26,7 @@
 
 This checklist contains **questions and decisions that require user input**.
 
-**Agent creates questions during Stage 2 research. User reviews and answers ALL questions. Only after user approval can Stage 5a begin.**
+**Agent creates questions during S2 research. User reviews and answers ALL questions. Only after user approval can S5 begin.**
 
 **Format:**
 - `[ ]` = Question pending user answer
@@ -147,12 +147,12 @@ This checklist contains **questions and decisions that require user input**.
 
 **If PENDING:**
 - **Next Action:** Agent presents checklist to user for review (Gate 2 - User Checklist Approval)
-- **User must answer ALL questions before Stage 5a can begin**
+- **User must answer ALL questions before S5 can begin**
 
 **If APPROVED:**
 - **User Approval Date:** {YYYY-MM-DD HH:MM}
 - **spec.md updated:** ✅ All answers incorporated into specification
-- **Ready for Stage 5a:** ✅ Can proceed to Implementation Planning
+- **Ready for S5:** ✅ Can proceed to Implementation Planning
 
 ---
 
@@ -169,7 +169,7 @@ This checklist contains **questions and decisions that require user input**.
 - {Revision 1}
 - {Revision 2}
 
-**Final Approval:** {✅ APPROVED - proceed to Stage 5a / ⏳ Awaiting revisions}
+**Final Approval:** {✅ APPROVED - proceed to S5 / ⏳ Awaiting revisions}
 
 ---
 
@@ -180,9 +180,9 @@ This checklist contains **questions and decisions that require user input**.
 
 ## Usage Instructions for Agents
 
-**During Stage 2 (Feature Deep Dive):**
+**During S2 (Feature Deep Dive):**
 
-1. **Create checklist.md** at start of Stage 2
+1. **Create checklist.md** at start of S2
 2. **As you research the feature, ADD QUESTIONS** (not decisions)
 3. **DO NOT mark items `[x]`** - only user can do this
 4. **DO NOT attempt to resolve questions yourself** - research to understand the question, not answer it
@@ -191,7 +191,7 @@ This checklist contains **questions and decisions that require user input**.
 7. **Wait for user to answer ALL questions**
 8. **After user approval, update spec.md** with user's answers
 9. **Mark items `[x]` based on user confirmation** (not your own judgment)
-10. **Proceed to Stage 5a** only after checklist shows ✅ USER APPROVED
+10. **Proceed to S5** only after checklist shows ✅ USER APPROVED
 
 **Key Principle:** Checklist is for QUESTIONS you need answered, not DECISIONS you've made.
 

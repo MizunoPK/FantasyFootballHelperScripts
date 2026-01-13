@@ -277,6 +277,6 @@ except DataProcessingError as e:
 
 | Date | Changed By | What Changed | Why |
 |------|------------|--------------|-----|
-| {YYYY-MM-DD} | {Agent/User} | Initial spec created | Stage 2 (Feature Deep Dive) |
-| {YYYY-MM-DD} | {Agent/User} | {Change description} | {Reason - e.g., "Stage 5d alignment update based on Feature 01 implementation"} |
+| {YYYY-MM-DD} | {Agent/User} | Initial spec created | S2 (Feature Deep Dive) |
+| {YYYY-MM-DD} | {Agent/User} | {Change description} | {Reason - e.g., "S8.P1 alignment update based on Feature 01 implementation"} |
 ```

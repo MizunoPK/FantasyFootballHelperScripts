@@ -138,6 +138,6 @@ Feature 02 catastrophic bug - agent misinterpreted epic notes line 8, stating "n
 
 **Outcome-focused approach:**
 - Epic ticket describes WHAT (outcomes), not HOW (implementation)
-- Allows agent to research and design solution in Stage 2
+- Allows agent to research and design solution in S2
 - Prevents premature specification before understanding codebase
 ```

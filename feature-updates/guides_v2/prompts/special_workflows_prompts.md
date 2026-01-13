@@ -23,16 +23,16 @@ I've identified an issue that requires a bug fix. Let me present it to you for a
   - high: Breaks epic functionality → Interrupt current work immediately
   - medium: Affects quality but not functionality → Finish current step first
   - low: Minor issues → Fix after current step completes
-  - ALL bugs found during epic development MUST be fixed before Stage 10 (no deferred tech debt)
+  - ALL bugs found during epic development MUST be fixed before S10 (no deferred tech debt)
 
 **Root Cause (if known):**
-{Analysis of why the bug exists, or "Root cause not yet determined - will investigate in bug fix Stage 2"}
+{Analysis of why the bug exists, or "Root cause not yet determined - will investigate in bug fix S2"}
 
 **Proposed Solution:**
-{How to fix it, or "Solution TBD - will design in bug fix Stage 2"}
+{How to fix it, or "Solution TBD - will design in bug fix S2"}
 
 **Should I create a bug fix for this issue?**
-- If yes: I'll create bugfix_{priority}_{name}/ folder and notes.txt and fix it before Stage 10
+- If yes: I'll create bugfix_{priority}_{name}/ folder and notes.txt and fix it before S10
 - If no: Please confirm this is NOT a bug and the behavior is correct as-is
 - NOTE: All bugs found during epic development MUST be fixed - no deferring to "later" or leaving tech debt
 
@@ -52,10 +52,10 @@ I'm reading `stages/s5/s5_bugfix_workflow.md` to ensure I follow the bug fix wor
   - Update epic EPIC_README.md to track bug fix
   - Save current work state in README
 - PHASE 2: Bug Fix Implementation
-  - Stage 2: Deep Dive (adapted for bug fix)
-  - Stage 5a: TODO Creation (28 iterations)
-  - Stage 5b: Implementation
-  - Stage 5c: Post-Implementation
+  - S2: Deep Dive (adapted for bug fix)
+  - S5: TODO Creation (28 iterations)
+  - S6: Implementation
+  - S7: Post-Implementation
   - SKIP: Stages 1, 3, 4, 5d, 5e, 6, 7 (epic-level stages)
 - PHASE 3: Resume Previous Work
   - Mark bug fix complete
@@ -75,10 +75,10 @@ Creating bugfix_{priority}_{name}/ folder...
 
 ## Creating Missed Requirement
 
-**When to use:** Discovered missing scope/requirement at ANY point after first Stage 5 starts, where solution is KNOWN (can happen during implementation, QA, debugging, epic testing, or user testing)
+**When to use:** Discovered missing scope/requirement at ANY point after first S5 starts, where solution is KNOWN (can happen during implementation, QA, debugging, epic testing, or user testing)
 
 **Prerequisites:**
-- At least one feature has entered Stage 5 (not before any feature enters Stage 5)
+- At least one feature has entered S5 (not before any feature enters S5)
 - Missing requirement discovered (you know what needs to be built)
 - Root cause is clear (just forgot to include it in spec)
 - Solution approach is obvious
@@ -97,23 +97,23 @@ I'm reading `missed_requirement/missed_requirement_protocol.md` to ensure I foll
 - Step 2: Pause Current Work
   - Step 1-2: Save current feature state, update EPIC_README
 - Step 3: Return to Planning Stages (2/3/4)
-  - Stage 2: Flesh out new/updated feature spec (full deep dive)
-  - Stage 3: Re-align ALL features (cross-feature sanity check)
-  - Stage 4: Update epic_smoke_test_plan.md
+  - S2: Flesh out new/updated feature spec (full deep dive)
+  - S3: Re-align ALL features (cross-feature sanity check)
+  - S4: Update epic_smoke_test_plan.md
 - Step 4: Resume Previous Work
   - Mark planning complete
   - Verify no spec changes affect paused feature
   - Resume from saved state
   - New/updated feature implemented LATER when its turn comes
 - Two options: Create new feature_{XX}_{name}/ OR update unstarted feature
-- ALWAYS return to Stage 2/3/4 for planning
-- Full Stage 5 (5a → 5b → 5c → 5d → 5e) when feature gets implemented
+- ALWAYS return to S2/3/4 for planning
+- Full S5 (5a → 5b → 5c → 5d → 5e) when feature gets implemented
 - Priority determines sequence: high = before current, medium = after current, low = at end
-- SPECIAL CASE: If discovered during Stage 9/7 → Complete all features → Restart epic testing from S9.P1
+- SPECIAL CASE: If discovered during S9/7 → Complete all features → Restart epic testing from S9.P1
 - Can be discovered during: Implementation (5a/5b/5c), Debugging, Epic Testing (6a/6b/6c), User Testing (7)
 
 **Prerequisites I'm verifying:**
-✅ At least one feature has entered Stage 5 (can only use after first Stage 5 starts)
+✅ At least one feature has entered S5 (can only use after first S5 starts)
 ✅ Missing requirement clearly identified
 ✅ Solution approach is known (not a debugging situation)
 ✅ Can articulate what needs to be built
@@ -126,7 +126,7 @@ I'm reading `missed_requirement/missed_requirement_protocol.md` to ensure I foll
 - Current Phase: MISSED_REQUIREMENT_HANDLING
 - Current Guide: missed_requirement/missed_requirement_protocol.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Get user approval first", "Return to Stage 2/3/4", "Update epic docs", "Implement in sequence"
+- Critical Rules: "Get user approval first", "Return to S2/3/4", "Update epic docs", "Implement in sequence"
 - Next Action: Present options (new feature vs update unstarted feature)
 
 Presenting to user...

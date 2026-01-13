@@ -8,7 +8,7 @@
 
 ## Overview
 
-Epic-level PR review focuses on CROSS-FEATURE concerns that emerge when multiple features work together. Individual features were already reviewed in Stage 5c.
+Epic-level PR review focuses on CROSS-FEATURE concerns that emerge when multiple features work together. Individual features were already reviewed in S7.
 
 **Epic Review Focus:**
 - Architectural consistency across features
@@ -17,7 +17,7 @@ Epic-level PR review focuses on CROSS-FEATURE concerns that emerge when multiple
 - Epic-wide patterns and abstractions
 
 **NOT Reviewed Here:**
-- Individual feature correctness (already validated in Stage 5c)
+- Individual feature correctness (already validated in S7)
 - Feature-specific implementation details (unless they affect other features)
 
 **Review Protocol:**
@@ -53,7 +53,7 @@ This is an EPIC-LEVEL PR review covering {N} features:
 - Epic-wide patterns and abstractions
 
 **NOT your focus:**
-- Individual feature correctness (already validated in Stage 5c)
+- Individual feature correctness (already validated in S7)
 - Feature-specific implementation details (unless they affect other features)
 
 **Code to review:**
@@ -446,7 +446,7 @@ epic_time = end - start
 print(f"Epic execution time: {epic_time:.2f}s")
 
 # 2. Compare to baseline (pre-epic)
-baseline_time = 2.5  # seconds (from Stage 1 epic notes)
+baseline_time = 2.5  # seconds (from S1 epic notes)
 regression = (epic_time - baseline_time) / baseline_time * 100
 print(f"Performance change: {regression:+.1f}%")
 
@@ -807,7 +807,7 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 2. **If ANY category FAILS:**
    - Document all issues in pr_review_issues.md
    - Proceed to Step 7 (Handle Issues)
-   - After fixes complete → RESTART Stage 9 from 6a
+   - After fixes complete → RESTART S9 from 6a
 
 ---
 

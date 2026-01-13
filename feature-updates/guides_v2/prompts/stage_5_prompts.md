@@ -1,17 +1,17 @@
-# Stage 5 Prompts: Feature Implementation
+# Feature Loop Prompts: S5-S8
 
-**Stage:** 5 (All sub-stages: 5a, 5b, 5c, 5d, 5e)
-**Purpose:** Feature implementation workflow from implementation planning through epic test plan update
+**Stages:** S5-S8 (Feature Loop: S5 Planning, S6 Execution, S7 Testing, S8 Alignment)
+**Purpose:** Per-feature workflow from implementation planning through post-feature alignment
 
 ---
 
-## Starting Stage 5a: Implementation Planning (Round 1)
+## Starting S5: Implementation Planning (Round 1)
 
 **User says:** "Prepare for updates based on {feature_name}" or "Start implementation of feature_01" or "Create implementation plan"
 
-**Prerequisite:** Stage 4 complete (Gate 4.5 passed - user approved test plan) AND feature spec.md complete AND checklist.md resolved
+**Prerequisite:** S4 complete (Gate 4.5 passed - user approved test plan) AND feature spec.md complete AND checklist.md resolved
 
-**Note:** Stage 5a is split into 5 separate guides for better digestibility:
+**Note:** S5 is split into 5 separate guides for better digestibility:
 - **stages/s5/s5_p1_planning_round1.md** - Round 1: Iterations 1-7 + 4a (START HERE)
 - **stages/s5/s5_p2_planning_round2.md** - Round 2: Iterations 8-16
 - **stages/s5/round3_todo_creation.md** - Round 3 router (links to Part 1/2a/2b)
@@ -58,8 +58,8 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterat
 **Prerequisites I'm verifying:**
 ✅ spec.md exists and is complete
 ✅ checklist.md all items resolved (all [x])
-✅ Stage 4 complete (Gate 4.5 passed - user approved test plan)
-✅ No pending questions from Stage 2
+✅ S4 complete (Gate 4.5 passed - user approved test plan)
+✅ No pending questions from S2
 
 **I'll now proceed with Round 1 (iterations 1-7 + 4a). I'll create questions.md after Round 1 checkpoint if needed.**
 
@@ -76,7 +76,7 @@ Starting iteration 1...
 
 ---
 
-## Starting Stage 5a: Implementation Planning (Round 2)
+## Starting S5: Implementation Planning (Round 2)
 
 **User says:** Agent detects Round 1 complete (8/8 iterations done, confidence >= MEDIUM)
 
@@ -128,7 +128,7 @@ Starting iteration 8...
 
 ---
 
-## Starting Stage 5a Round 3 Part 1: Implementation Planning (Preparation)
+## Starting S5 Round 3 Part 1: Implementation Planning (Preparation)
 
 **User says:** Agent detects Round 2 complete (16/28 iterations done, confidence >= MEDIUM, test coverage >90%)
 
@@ -190,7 +190,7 @@ Starting iteration 17...
 
 ---
 
-## Starting Stage 5a Round 3 Part 2: Implementation Planning (Final Gates)
+## Starting S5 Round 3 Part 2: Implementation Planning (Final Gates)
 
 **User says:** Agent detects Round 3 Part 1 complete (22/28 iterations done)
 
@@ -221,7 +221,7 @@ I'm reading `stages/s5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/s5/5.1.3.
   - Prevents catastrophic bugs (Feature 02 bug: spec misinterpreted epic notes)
 - **Iteration 24 (Implementation Readiness) - FINAL GATE**:
   - GO/NO-GO decision required
-  - CANNOT proceed to Stage 5b without "GO" decision
+  - CANNOT proceed to S6 without "GO" decision
   - GO requires: confidence >= MEDIUM, all gates PASSED, all checklists complete
 
 **Why Round 3 Part 2 matters:**
@@ -255,16 +255,16 @@ Starting iteration 23...
 
 ## User Approval of Implementation Plan
 
-**User says:** "Review implementation plan" or Agent detects Stage 5a complete (28 iterations done, Iteration 24: Implementation Readiness = PASSED)
+**User says:** "Review implementation plan" or Agent detects S5 complete (28 iterations done, Iteration 24: Implementation Readiness = PASSED)
 
-**Prerequisite:** Stage 5a complete (28 iterations passed, implementation_plan.md v3.0 created)
+**Prerequisite:** S5 complete (28 iterations passed, implementation_plan.md v3.0 created)
 
-**🚨 MANDATORY CHECKPOINT - USER MUST APPROVE implementation_plan.md BEFORE Stage 5b**
+**🚨 MANDATORY CHECKPOINT - USER MUST APPROVE implementation_plan.md BEFORE S6**
 
 **Agent MUST respond:**
 
 ```
-Stage 5a (Implementation Planning) is complete. I've created implementation_plan.md v3.0 (~400 lines) with:
+S5 (Implementation Planning) is complete. I've created implementation_plan.md v3.0 (~400 lines) with:
 
 **Key Sections:**
 - Implementation Tasks (mapped to spec.md requirements)
@@ -285,18 +285,18 @@ Stage 5a (Implementation Planning) is complete. I've created implementation_plan
 3. Test coverage is adequate (>90%)
 4. No missing requirements
 
-**Say "approved" to proceed to Stage 5b (Implementation), or request changes.**
+**Say "approved" to proceed to S6 (Implementation), or request changes.**
 
 **Note:** This is your opportunity to adjust the implementation approach before code is written. Once approved, I'll create implementation_checklist.md and begin coding.
 ```
 
 ---
 
-## Starting Stage 5b: Implementation
+## Starting S6: Implementation
 
 **User says:** "Approved" or "Implement the feature" or "Start coding"
 
-**Prerequisite:** User approved implementation_plan.md from Stage 5a
+**Prerequisite:** User approved implementation_plan.md from S5
 
 **Agent MUST respond:**
 
@@ -321,7 +321,7 @@ I'm reading `stages/s9/s6_execution.md` to ensure I follow the implementation wo
 - STOP if stuck or blocked - ask user
 
 **Prerequisites I'm verifying:**
-✅ Stage 5a complete (EPIC_README.md shows 28 iterations done)
+✅ S5 complete (EPIC_README.md shows 28 iterations done)
 ✅ Iteration 24: Implementation Readiness = PASSED
 ✅ implementation_plan.md v3.0 exists and user-approved
 ✅ questions.md resolved (or documented "no questions")
@@ -341,11 +341,11 @@ Starting implementation...
 
 ---
 
-## Starting Stage 5c (Phase 1): Smoke Testing
+## Starting S7 (Phase 1): Smoke Testing
 
-**User says:** "Validate the implementation" or Agent detects Stage 5b complete
+**User says:** "Validate the implementation" or Agent detects S6 complete
 
-**Prerequisite:** Stage 5b complete (all implementation tasks done, all unit tests passing)
+**Prerequisite:** S6 complete (all implementation tasks done, all unit tests passing)
 
 **Agent MUST respond:**
 
@@ -373,7 +373,7 @@ I'm reading `stages/s10/s7_p1_smoke_testing.md` to ensure I follow the 3-part sm
   - If ANY part fails → fix issue and restart smoke testing from Part 1
 
 **Prerequisites I'm verifying:**
-✅ Stage 5b complete (all implementation tasks done)
+✅ S6 complete (all implementation tasks done)
 ✅ ALL unit tests passing (100% pass rate)
 ✅ code_changes.md updated with all changes
 ✅ implementation_checklist.md all items verified (all checked off)
@@ -393,7 +393,7 @@ Running import test for {feature_name}...
 
 ---
 
-## Starting Stage 5c (Phase 2): QC Rounds
+## Starting S7 (Phase 2): QC Rounds
 
 **User says:** "Begin QC rounds" or Agent detects smoke testing passed
 
@@ -443,7 +443,7 @@ Starting QC Round 1 for {feature_name}...
 
 ---
 
-## Starting Stage 5c (Phase 3): Final Review
+## Starting S7 (Phase 3): Final Review
 
 **User says:** "Begin final review" or Agent detects QC rounds passed
 
@@ -496,11 +496,11 @@ Starting PR Review Protocol for {feature_name}...
 
 ---
 
-## Starting Stage 5d: Cross-Feature Alignment
+## Starting S8.P1: Cross-Feature Alignment
 
-**User says:** "Review other feature specs" or Agent detects Stage 5c complete
+**User says:** "Review other feature specs" or Agent detects S7 complete
 
-**Prerequisite:** Stage 5c complete (smoke testing passed, QC rounds passed, final review complete)
+**Prerequisite:** S7 complete (smoke testing passed, QC rounds passed, final review complete)
 
 **Agent MUST respond:**
 
@@ -508,7 +508,7 @@ Starting PR Review Protocol for {feature_name}...
 I'm reading `stages/s8/s8_p1_cross_feature_alignment.md` to ensure I review all remaining feature specs...
 
 **The guide requires:**
-- Review ALL remaining features (not yet at Stage 5c)
+- Review ALL remaining features (not yet at S7)
   - Identify remaining features from EPIC_README.md Epic Progress Tracker
 - For EACH remaining feature (SEQUENTIAL):
   - Read feature spec.md with fresh eyes
@@ -518,11 +518,11 @@ I'm reading `stages/s8/s8_p1_cross_feature_alignment.md` to ensure I review all 
   - Update spec.md and checklist.md
   - Mark for rework if significant changes needed
 - **Significant Rework Criteria:**
-  - Return to Stage 1: Feature should be split, or no longer needed
-  - Return to Stage 2: Spec assumptions fundamentally wrong
-  - Return to Stage 5a: >3 new implementation tasks needed, algorithm changes significantly
+  - Return to S1: Feature should be split, or no longer needed
+  - Return to S2: Spec assumptions fundamentally wrong
+  - Return to S5: >3 new implementation tasks needed, algorithm changes significantly
   - Minor Updates (continue): ≤3 implementation task adjustments, no algorithm changes
-- **Compare to ACTUAL implementation** (not the plan from Stage 5a)
+- **Compare to ACTUAL implementation** (not the plan from S5)
 - Document insights in just-completed feature's spec.md
 - Final verification: No remaining features need significant rework
 
@@ -532,14 +532,14 @@ I'm reading `stages/s8/s8_p1_cross_feature_alignment.md` to ensure I review all 
 - Ensures remaining features align with actual code
 
 **Prerequisites I'm verifying:**
-✅ Stage 5c complete (smoke testing, QC, PR review all passed)
+✅ S7 complete (smoke testing, QC, PR review all passed)
 ✅ EPIC_README.md shows which features are remaining
 ✅ Just-completed feature's code accessible for review
 
 **I'll now identify remaining features and review them sequentially...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Stage 5d - Cross-Feature Alignment
+- Current Stage: S8.P1 - Cross-Feature Alignment
 - Current Guide: stages/s8/s8_p1_cross_feature_alignment.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Review ALL remaining features", "Compare to ACTUAL implementation", "Update specs proactively", "Mark features needing significant rework"
@@ -550,11 +550,11 @@ Starting cross-feature alignment review...
 
 ---
 
-## Starting Stage 5e: Epic Testing Plan Update
+## Starting S8.P2: Epic Testing Plan Update
 
-**User says:** "Update epic test plan" or Agent detects Stage 5d complete
+**User says:** "Update epic test plan" or Agent detects S8.P1 complete
 
-**Prerequisite:** Stage 5d complete (all remaining feature specs reviewed and updated)
+**Prerequisite:** S8.P1 complete (all remaining feature specs reviewed and updated)
 
 **Agent MUST respond:**
 
@@ -581,25 +581,25 @@ I'm reading `stages/s8/s8_p2_epic_testing_update.md` to ensure I update the epic
   - Not what was PLANNED
   - What was ACTUALLY built
 - Test plan evolves incrementally:
-  - Stage 1: Placeholder
-  - Stage 4: Based on specs
-  - Stage 5e: Based on actual implementation (THIS stage)
-  - Stage 9: Execute evolved plan
+  - S1: Placeholder
+  - S4: Based on specs
+  - S8.P2: Based on actual implementation (THIS stage)
+  - S9: Execute evolved plan
 
 **Why this matters:**
 - Implementation often differs from specs
 - New integration points discovered during coding
-- Test plan must reflect REALITY for Stage 9 to be effective
+- Test plan must reflect REALITY for S9 to be effective
 
 **Prerequisites I'm verifying:**
-✅ Stage 5d complete (all remaining features reviewed)
+✅ S8.P1 complete (all remaining features reviewed)
 ✅ Just-completed feature fully implemented and QC'd
 ✅ epic_smoke_test_plan.md accessible
 
 **I'll now review the actual implementation and identify test plan updates...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Stage 5e - Epic Testing Plan Update
+- Current Stage: S8.P2 - Epic Testing Plan Update
 - Current Guide: stages/s8/s8_p2_epic_testing_update.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Review ACTUAL implementation", "Add integration scenarios", "Update History table", "Test plan evolves incrementally"

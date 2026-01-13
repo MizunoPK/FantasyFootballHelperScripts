@@ -18,7 +18,7 @@ Current guides use X.Y.Z.W notation that is:
 - **S#.P#.I#** = Iteration (Level 3) - Specific task/step
 
 **Example:** `S5.P2.I8` immediately communicates:
-- Stage 5 (Feature Implementation)
+- S5 (Feature Implementation)
 - Phase 2 (Planning Round 2)
 - Iteration 8 (specific task)
 
@@ -32,11 +32,11 @@ Current guides use X.Y.Z.W notation that is:
 
 ## Complete Mapping: Current → New
 
-### Stage 1: Epic Planning
+### S1: Epic Planning
 
 **Current:**
 ```
-Stage 1: Epic Planning (single file)
+S1: Epic Planning (single file)
   - stages/stage_1/epic_planning.md
 ```
 
@@ -54,11 +54,11 @@ S1: Epic Planning (single file)
 
 ---
 
-### Stage 2: Feature Deep Dive
+### S2: Feature Deep Dive
 
 **Current:**
 ```
-Stage 2: Feature Deep Dive
+S2: Feature Deep Dive
   - Phase 2.1: Research
   - Phase 2.2: Specification
   - Phase 2.3: Refinement
@@ -87,11 +87,11 @@ S2: Feature Deep Dive
 
 ---
 
-### Stage 3: Cross-Feature Sanity Check
+### S3: Cross-Feature Sanity Check
 
 **Current:**
 ```
-Stage 3: Cross-Feature Sanity Check (single file)
+S3: Cross-Feature Sanity Check (single file)
 ```
 
 **New:**
@@ -108,11 +108,11 @@ S3: Cross-Feature Sanity Check (single file)
 
 ---
 
-### Stage 4: Epic Testing Strategy
+### S4: Epic Testing Strategy
 
 **Current:**
 ```
-Stage 4: Epic Testing Strategy (single file)
+S4: Epic Testing Strategy (single file)
 ```
 
 **New:**
@@ -129,11 +129,11 @@ S4: Epic Testing Strategy (single file)
 
 ---
 
-### Stage 5: Feature Implementation (MAJOR RESTRUCTURING)
+### S5: Feature Implementation (MAJOR RESTRUCTURING)
 
 **Current (4 levels - very complex):**
 ```
-Stage 5: Feature Implementation
+S5: Feature Implementation
   Phase 5.1: Implementation Planning
     Part 5.1.1: Round 1 (iterations 1-7 + Gate 4a)
     Part 5.1.2: Round 2 (iterations 8-16)
@@ -257,11 +257,11 @@ stages/s5/
 
 ---
 
-### Stage 9: Epic Final QC
+### S9: Epic Final QC
 
 **Current:**
 ```
-Stage 9: Epic Final QC
+S9: Epic Final QC
   Phase 6.1: Epic Smoke Testing
   Phase 6.2: Epic QC Rounds
   Phase 6.3: User Testing
@@ -295,11 +295,11 @@ stages/s9/
 
 ---
 
-### Stage 10: Epic Cleanup
+### S10: Epic Cleanup
 
 **Current:**
 ```
-Stage 10: Epic Cleanup
+S10: Epic Cleanup
   Phase 7.1: Guide Update Workflow
 ```
 
@@ -472,7 +472,7 @@ stages/
 
 **Current:**
 ```markdown
-# Stage 5: Feature Implementation
+# S5: Feature Implementation
 ## Phase 5.1: Implementation Planning
 ### Part 5.1.3: Round 3
 ```
@@ -528,7 +528,7 @@ Start with S5.P1.I1 (Requirements Analysis) for iterations 1-3.
 
 | Old Term | New Term | Example |
 |----------|----------|---------|
-| Stage 1 | S1 | S1: Epic Planning |
+| S1 | S1 | S1: Epic Planning |
 | Phase 5.1 | S5.P1 | S5.P1: Planning Round 1 |
 | Part 5.1.3 | S5.P3 | S5.P3: Planning Round 3 |
 | Step 5.1.3.1 | S5.P3.I1 | S5.P3.I1: Preparation |
@@ -580,7 +580,7 @@ Start with S5.P1.I1 (Requirements Analysis) for iterations 1-3.
 ## Benefits of New System
 
 ### 1. Immediate Clarity
-- `S5.P2.I8` → Stage 5, Phase 2, Iteration 8 (no counting dots)
+- `S5.P2.I8` → S5, Phase 2, Iteration 8 (no counting dots)
 - Self-documenting prefixes (S/P/I)
 
 ### 2. Easier Navigation

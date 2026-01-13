@@ -1,11 +1,11 @@
-# Stage 2b.5 Prompts: Specification Validation
+# S2b.5 Prompts: Specification Validation
 
 **Stage:** 2b.5
 **Purpose:** Specification validation and checklist self-resolution
 
 ---
 
-## Starting Stage 2b.5: Specification Validation
+## Starting S2b.5: Specification Validation
 
 **User says:** "proceed" after S2.P2 completion, or agent transitions automatically
 

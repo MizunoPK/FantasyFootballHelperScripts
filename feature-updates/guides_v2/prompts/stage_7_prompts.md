@@ -1,15 +1,15 @@
-# Stage 10 Prompts: Epic Cleanup
+# S10 Prompts: Epic Cleanup
 
 **Stage:** 7
 **Purpose:** Final verification, user testing, commit, and archival
 
 ---
 
-## Starting Stage 10: Epic Cleanup
+## Starting S10: Epic Cleanup
 
-**User says:** "Finalize epic" or "Commit and archive" or Agent detects Stage 9 complete
+**User says:** "Finalize epic" or "Commit and archive" or Agent detects S9 complete
 
-**Prerequisite:** Stage 9 complete (epic smoke testing, QC rounds, PR review all passed)
+**Prerequisite:** S9 complete (epic smoke testing, QC rounds, PR review all passed)
 
 **Agent MUST respond:**
 
@@ -34,9 +34,9 @@ I'm reading `stages/s10/s7_epic_cleanup.md` to ensure I properly finalize and ar
 - **⚠️ USER TESTING (MANDATORY GATE - BEFORE COMMIT)**:
   - Ask user to test complete system themselves
   - User reports any bugs discovered during testing
-  - If bugs found → Follow bug fix protocol (Stage 2→5a→5b→5c)
-  - After ALL bug fixes → RESTART Stage 9 (Epic Final QC)
-  - Return to user testing after Stage 9 passes
+  - If bugs found → Follow bug fix protocol (S2→5a→5b→5c)
+  - After ALL bug fixes → RESTART S9 (Epic Final QC)
+  - Return to user testing after S9 passes
   - Repeat until user testing passes with ZERO bugs
   - CANNOT commit without user approval
 - **Final Commit and Pull Request**:
@@ -58,17 +58,17 @@ I'm reading `stages/s10/s7_epic_cleanup.md` to ensure I properly finalize and ar
   - Git shows clean state
 
 **Prerequisites I'm verifying:**
-✅ Stage 9 complete (EPIC_README.md shows epic QC passed)
+✅ S9 complete (EPIC_README.md shows epic QC passed)
 ✅ No pending features or bug fixes
 ✅ All tests passing (verified recently)
 
 **I'll now run unit tests to verify 100% pass rate...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Stage 10 - Epic Cleanup
+- Current Stage: S10 - Epic Cleanup
 - Current Guide: stages/s10/s7_epic_cleanup.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Unit tests 100% pass before commit", "User testing MANDATORY before commit", "If bugs found → RESTART Stage 9", "Move ENTIRE epic folder", "Leave .txt in root"
+- Critical Rules: "Unit tests 100% pass before commit", "User testing MANDATORY before commit", "If bugs found → RESTART S9", "Move ENTIRE epic folder", "Leave .txt in root"
 - Next Action: Run python tests/run_all_tests.py
 
 Running unit tests...
@@ -78,7 +78,7 @@ Running unit tests...
 
 ## S10.P1: Guide Update from Lessons Learned (MANDATORY)
 
-**Trigger:** After Stage 10 STEP 3 complete (documentation verified), before final commit
+**Trigger:** After S10 STEP 3 complete (documentation verified), before final commit
 
 **Prerequisite:** All lessons_learned.md files complete
 
@@ -118,7 +118,7 @@ I'm reading `stages/s10/s7_p1_guide_update_workflow.md` to apply lessons learned
 - User has full control over guide evolution
 
 **Prerequisites I'm verifying:**
-✅ Stage 10 STEP 3 complete (documentation verified)
+✅ S10 STEP 3 complete (documentation verified)
 ✅ All lessons_learned.md files complete
 ✅ Ready to analyze lessons and create proposal
 

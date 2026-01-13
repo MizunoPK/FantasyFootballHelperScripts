@@ -1,7 +1,7 @@
 # Epic Planning Examples
 
 **Purpose:** Detailed real-world examples of feature breakdowns, epic analysis, and planning scenarios
-**Prerequisites:** Stage 1 overview read from s1_epic_planning.md
+**Prerequisites:** S1 overview read from s1_epic_planning.md
 **Main Guide:** `stages/s1/s1_epic_planning.md`
 
 ---
@@ -107,7 +107,7 @@ Not: feature-updates/json_export_epic/feature_01_serialization/
 
 ### Example 4: Session Compaction Recovery
 
-**Scenario:** Agent started Stage 1, then session compacted mid-Phase 3.
+**Scenario:** Agent started S1, then session compacted mid-Phase 3.
 
 **WRONG Approach:**
 ```

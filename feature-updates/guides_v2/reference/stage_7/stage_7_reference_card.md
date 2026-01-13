@@ -3,7 +3,7 @@
 **Purpose:** One-page summary for final epic completion and archival
 **Use Case:** Quick lookup when committing changes and archiving epic
 **Total Time:** 40-80 minutes (includes S10.P1 guide updates)
-**Note:** User testing completed in Stage 9 (Step 6) before Stage 10 begins
+**Note:** User testing completed in S9 (Step 6) before S10 begins
 
 ---
 
@@ -11,8 +11,8 @@
 
 ```
 STEP 1: Pre-Cleanup Verification (5 min)
-    ├─ Verify Stage 9 complete
-    ├─ Verify all features complete (Stage 5e)
+    ├─ Verify S9 complete
+    ├─ Verify all features complete (S8.P2)
     ├─ Verify no pending work
     └─ Read epic_lessons_learned.md
     ↓
@@ -74,11 +74,11 @@ STEP 7: Final Verification & Completion (2 min)
 | 6 | 2 min | Move epic to done/ | No |
 | 7 | 2 min | Final verification | No |
 
-**Note:** User testing was moved to Stage 9 (Step 6) - Stage 10 only begins after user testing passes with zero bugs.
+**Note:** User testing was moved to S9 (Step 6) - S10 only begins after user testing passes with zero bugs.
 
 ---
 
-## Mandatory Gates (1 Required in Stage 10)
+## Mandatory Gates (1 Required in S10)
 
 ### Gate 1: Unit Tests - 100% Pass (Step 2)
 **Location:** stages/s10/s7_epic_cleanup.md Step 2
@@ -98,27 +98,27 @@ python tests/run_all_tests.py
 
 **Why mandatory:** Cannot commit code with failing tests
 
-**Note:** User Testing (formerly Gate 2) has been moved to Stage 9 (Step 6). Stage 10 only begins after user testing passes with ZERO bugs.
+**Note:** User Testing (formerly Gate 2) has been moved to S9 (Step 6). S10 only begins after user testing passes with ZERO bugs.
 
 ---
 
-## Prerequisites from Stage 9
+## Prerequisites from S9
 
 ### User Testing Already Complete
 **Location:** stages/s9/s6_p4_epic_final_review.md Step 6
 **What was checked:**
 - User tested complete system themselves
 - User reported ZERO bugs
-- All previous bugs fixed and Stage 9 re-run
+- All previous bugs fixed and S9 re-run
 
-**Verified before Stage 10:** User testing passed with ZERO bugs
+**Verified before S10:** User testing passed with ZERO bugs
 
-**If bugs found in Stage 9:**
-- Create bug fixes (Stage 2 → 5a → 5b → 5c)
-- RESTART Stage 9 from 6a (Epic Smoke Testing)
-- Re-run all Stage 9 steps (6a → 6b → 6c)
-- User re-tests in Stage 9 Step 6
-- Only proceed to Stage 10 after user approval (ZERO bugs)
+**If bugs found in S9:**
+- Create bug fixes (S2 → 5a → 5b → 5c)
+- RESTART S9 from 6a (Epic Smoke Testing)
+- Re-run all S9 steps (6a → 6b → 6c)
+- User re-tests in S9 Step 6
+- Only proceed to S10 after user approval (ZERO bugs)
 
 ---
 
@@ -210,7 +210,7 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 
 ## Critical Rules Summary
 
-- ✅ Stage 9 MUST be complete before Stage 10
+- ✅ S9 MUST be complete before S10
 - ✅ Run unit tests BEFORE committing (100% pass required)
 - ✅ Verify ALL documentation complete
 - ✅ User testing is MANDATORY (BEFORE commit)
@@ -244,7 +244,7 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 ### ❌ Pitfall 4: Committing with Bugs from User Testing
 **Problem:** "User found a small bug, I'll commit and fix later"
 **Impact:** Known bugs in production, tech debt
-**Solution:** Fix ALL bugs → RESTART Stage 9 → Get ZERO bugs from user
+**Solution:** Fix ALL bugs → RESTART S9 → Get ZERO bugs from user
 
 ### ❌ Pitfall 5: Vague Commit Message
 **Problem:** "feat/KAI-1: Add features"
@@ -266,13 +266,13 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 ## Quick Checklist: "Am I Ready for Next Step?"
 
 **Before Step 1:**
-- [ ] Stage 9 complete (EPIC_README.md shows ✅)
+- [ ] S9 complete (EPIC_README.md shows ✅)
 - [ ] No pending features or bug fixes
 - [ ] Ready to start epic cleanup
 
 **Step 1 → Step 2:**
-- [ ] Stage 9 verified complete
-- [ ] All features verified complete (Stage 5e)
+- [ ] S9 verified complete
+- [ ] All features verified complete (S8.P2)
 - [ ] No pending work found
 - [ ] epic_lessons_learned.md reviewed
 
@@ -298,7 +298,7 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 **Step 5 → Step 6:**
 - [ ] User tested complete system
 - [ ] User testing passed with ZERO bugs
-- [ ] If bugs found: Bug fixes complete + Stage 9 restarted
+- [ ] If bugs found: Bug fixes complete + S9 restarted
 - [ ] User approval obtained
 - [ ] Ready to commit
 
@@ -346,7 +346,7 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 
 | Current Activity | Guide to Read |
 |------------------|---------------|
-| Starting Stage 10 | stages/s10/s7_epic_cleanup.md |
+| Starting S10 | stages/s10/s7_epic_cleanup.md |
 | Commit message format | reference/stage_7/commit_message_examples.md |
 | Epic completion format | reference/stage_7/epic_completion_template.md |
 | Lessons learned examples | reference/stage_7/lessons_learned_examples.md |
@@ -355,7 +355,7 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 
 ## Exit Conditions
 
-**Stage 10 is complete when:**
+**S10 is complete when:**
 - [ ] All 7 steps complete (1-7)
 - [ ] Pre-cleanup verification passed
 - [ ] Unit tests passed (100%)

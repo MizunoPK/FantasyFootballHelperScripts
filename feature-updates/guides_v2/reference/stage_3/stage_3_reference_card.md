@@ -44,8 +44,8 @@ STEP 5: User Sign-Off (10-15 min) ← MANDATORY GATE
     └─ Document approval in epic EPIC_README.md
     ↓
 STEP 6: Mark Complete (2 min)
-    ├─ Update epic EPIC_README.md (Stage 3 complete)
-    └─ Transition to Stage 4
+    ├─ Update epic EPIC_README.md (S3 complete)
+    └─ Transition to S4
 ```
 
 ---
@@ -176,12 +176,12 @@ STEP 6: Mark Complete (2 min)
 
 ## Critical Rules Summary
 
-- ✅ ALL features must complete Stage 2 before Stage 3
+- ✅ ALL features must complete S2 before S3
 - ✅ Compare ALL features systematically (not just some)
 - ✅ Document ALL conflicts found (even minor ones)
 - ✅ Resolve conflicts BEFORE user sign-off
 - ✅ User sign-off is MANDATORY (cannot skip)
-- ✅ Cannot proceed to Stage 4 without user approval
+- ✅ Cannot proceed to S4 without user approval
 - ✅ If user requests changes, implement and RE-RUN sanity check
 - ✅ Update epic EPIC_README.md Epic Completion Checklist
 
@@ -191,12 +191,12 @@ STEP 6: Mark Complete (2 min)
 
 ### ❌ Pitfall 1: Skipping Categories
 **Problem:** "I'll just check data structures, that's the main conflict area"
-**Impact:** Interface conflicts, file naming conflicts slip through to Stage 5
+**Impact:** Interface conflicts, file naming conflicts slip through to S5
 **Solution:** Check ALL 6 categories systematically
 
 ### ❌ Pitfall 2: Not Documenting Minor Conflicts
 **Problem:** "This field name difference is small, not worth documenting"
-**Impact:** Small conflicts become bugs in Stage 5c QC
+**Impact:** Small conflicts become bugs in S7 QC
 **Solution:** Document ALL conflicts, even if seem trivial
 
 ### ❌ Pitfall 3: Presenting Unresolved Conflicts to User
@@ -206,7 +206,7 @@ STEP 6: Mark Complete (2 min)
 
 ### ❌ Pitfall 4: Assuming User Approval
 **Problem:** "The plan looks good, I'll skip user sign-off"
-**Impact:** Implement wrong thing, rework in Stage 5c or user testing
+**Impact:** Implement wrong thing, rework in S7 or user testing
 **Solution:** ALWAYS get explicit user approval (mandatory gate)
 
 ### ❌ Pitfall 5: Not Re-Running After User Changes
@@ -215,19 +215,19 @@ STEP 6: Mark Complete (2 min)
 **Solution:** If user requests changes, re-run sanity check (at least spot-check)
 
 ### ❌ Pitfall 6: Comparing Features to Incomplete Features
-**Problem:** Comparing Feature 3 spec to Feature 2 (still in Stage 2)
+**Problem:** Comparing Feature 3 spec to Feature 2 (still in S2)
 **Impact:** Feature 2 changes after comparison, conflicts appear later
-**Solution:** Wait until ALL features complete Stage 2
+**Solution:** Wait until ALL features complete S2
 
 ---
 
 ## Quick Checklist: "Am I Ready for Next Step?"
 
 **Before Step 1:**
-- [ ] ALL features completed Stage 2
+- [ ] ALL features completed S2
 - [ ] All feature specs are complete
 - [ ] All checklist.md items resolved
-- [ ] Epic EPIC_README.md Feature Tracking shows all "[x]" for Stage 2
+- [ ] Epic EPIC_README.md Feature Tracking shows all "[x]" for S2
 
 **Step 1 → Step 2:**
 - [ ] SANITY_CHECK_{DATE}.md created
@@ -256,9 +256,9 @@ STEP 6: Mark Complete (2 min)
 - [ ] Approval documented in epic EPIC_README.md
 - [ ] If user requested changes: Changes implemented and sanity check re-run
 
-**Step 6 → Stage 4:**
-- [ ] Stage 3 marked complete in EPIC_README.md
-- [ ] Agent Status updated (next: Stage 4)
+**Step 6 → S4:**
+- [ ] S3 marked complete in EPIC_README.md
+- [ ] Agent Status updated (next: S4)
 
 ---
 
@@ -314,17 +314,17 @@ STEP 6: Mark Complete (2 min)
 
 ## Exit Conditions
 
-**Stage 3 is complete when:**
+**S3 is complete when:**
 - [ ] All features compared across all 6 categories
 - [ ] All conflicts identified and documented
 - [ ] All conflicts resolved (specs updated)
 - [ ] Final plan summary created
 - [ ] User explicitly approved complete plan
 - [ ] Approval documented in epic EPIC_README.md
-- [ ] EPIC_README.md shows Stage 3 complete
-- [ ] Ready to start Stage 4 (Epic Testing Strategy)
+- [ ] EPIC_README.md shows S3 complete
+- [ ] Ready to start S4 (Epic Testing Strategy)
 
-**Next Stage:** Stage 4 (Epic Testing Strategy)
+**Next Stage:** S4 (Epic Testing Strategy)
 
 ---
 

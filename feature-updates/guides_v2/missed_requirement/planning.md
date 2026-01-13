@@ -1,6 +1,6 @@
-# PHASE 2: Planning (Stage 2 Deep Dive)
+# PHASE 2: Planning (S2 Deep Dive)
 
-**Purpose:** Create/update feature spec through Stage 2 deep dive
+**Purpose:** Create/update feature spec through S2 deep dive
 
 **When to Use:** After PHASE 1 complete, user decided on approach
 
@@ -12,13 +12,13 @@
 
 ## Overview
 
-**PHASE 2 returns to Stage 2 (Feature Deep Dive) to properly plan the new/updated feature:**
+**PHASE 2 returns to S2 (Feature Deep Dive) to properly plan the new/updated feature:**
 
 - Create/update feature folder structure
-- Run full Stage 2 deep dive process
+- Run full S2 deep dive process
 - Create/update spec.md and checklist.md
 - Same rigor as all features (no shortcuts)
-- User approval required before proceeding to Stage 3
+- User approval required before proceeding to S3
 
 ---
 
@@ -60,7 +60,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 # Feature {XX}: {Name}
 
 **Epic:** {epic_name}
-**Status:** Stage 2 (Feature Deep Dive - Planning)
+**Status:** S2 (Feature Deep Dive - Planning)
 **Created:** {YYYY-MM-DD}
 **Origin:** Missed requirement discovered during {stage/feature}
 
@@ -74,16 +74,16 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 **Current Guide:** missed_requirement/planning.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
-**Current Stage:** Stage 2 (Feature Deep Dive)
+**Current Stage:** S2 (Feature Deep Dive)
 **Current Guide:** stages/s2/s2_feature_deep_dive.md
 
-**Next Action:** Follow Stage 2 process (Phases 0-6)
+**Next Action:** Follow S2 process (Phases 0-6)
 
 **Critical Rules from Guide:**
-- Full Stage 2 deep dive required (no shortcuts)
+- Full S2 deep dive required (no shortcuts)
 - Create complete spec.md with all requirements
 - Create checklist.md with all decisions
-- User approval before Stage 3
+- User approval before S3
 
 ---
 
@@ -98,18 +98,18 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 
 ## Feature Overview
 
-{Will be filled during Stage 2 deep dive}
+{Will be filled during S2 deep dive}
 ```
 
 ---
 
-### Step 3: Run Full Stage 2 Deep Dive
+### Step 3: Run Full S2 Deep Dive
 
-**🚨 FIRST ACTION:** Use "Starting Stage 2" prompt from `prompts/stage_2_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S2" prompt from `prompts/stage_2_prompts.md`
 
 **READ:** `stages/s2/s2_feature_deep_dive.md`
 
-**Follow complete Stage 2 process:**
+**Follow complete S2 process:**
 
 **S2.P1: Research & Epic Intent**
 - Review epic intent for this missed requirement
@@ -180,7 +180,7 @@ cat feature_{XX}_{name}/README.md
 **Currently:** Updating spec.md and checklist.md to include new scope
 
 **Critical Rules:**
-- Full Stage 2 deep dive for additions
+- Full S2 deep dive for additions
 - Update spec.md with new requirements
 - Update checklist.md with new decisions
 - Maintain alignment with existing scope
@@ -190,7 +190,7 @@ cat feature_{XX}_{name}/README.md
 
 ### Step 3: Update spec.md
 
-**🚨 FIRST ACTION:** Use "Starting Stage 2" prompt from `prompts/stage_2_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S2" prompt from `prompts/stage_2_prompts.md`
 
 **READ:** `stages/s2/s2_feature_deep_dive.md`
 
@@ -274,9 +274,9 @@ cat feature_{XX}_{name}/README.md
 
 ---
 
-### Step 5: Follow Stage 2 Process for Additions
+### Step 5: Follow S2 Process for Additions
 
-**Run Stage 2 Phases 0-6 focused on the additions:**
+**Run S2 Phases 0-6 focused on the additions:**
 
 - Research new functionality if needed
 - Specify new requirements clearly
@@ -300,9 +300,9 @@ cat feature_{XX}_{name}/README.md
 ### For NEW feature:
 - [x] Feature folder created (feature_{XX}_{name}/)
 - [x] README.md created with Agent Status
-- [x] spec.md created following Stage 2 process
+- [x] spec.md created following S2 process
 - [x] checklist.md created with all decisions
-- [x] All Stage 2 phases completed (0-6)
+- [x] All S2 phases completed (0-6)
 - [x] User approved spec
 
 ### For UPDATED feature:
@@ -312,11 +312,11 @@ cat feature_{XX}_{name}/README.md
 - [x] checklist.md updated with new decisions
 - [x] All affected sections updated
 - [x] Scope increase documented
-- [x] All Stage 2 phases completed for additions
+- [x] All S2 phases completed for additions
 - [x] User approved updated spec
 
 ### For BOTH:
-- [x] Full Stage 2 rigor applied (no shortcuts)
+- [x] Full S2 rigor applied (no shortcuts)
 - [x] Complete documentation
 - [x] All questions resolved
 - [x] User approval obtained
@@ -331,7 +331,7 @@ cat feature_{XX}_{name}/README.md
 
 **Approach:**
 - Create feature folder
-- Run Stage 2 with focus on standalone functionality
+- Run S2 with focus on standalone functionality
 - Keep integration points simple
 - Document clear boundaries
 
@@ -343,10 +343,10 @@ cat feature_{XX}_{name}/README.md
 
 **Approach:**
 - Create feature folder
-- Run Stage 2 with heavy focus on integration points
+- Run S2 with heavy focus on integration points
 - Document data flows clearly
 - Identify dependencies early
-- May discover need for changes to other features (handle in Stage 3)
+- May discover need for changes to other features (handle in S3)
 
 ---
 
@@ -383,7 +383,7 @@ cat feature_{XX}_{name}/README.md
 
 **Why wrong:** Incomplete spec leads to implementation issues, missed edge cases
 
-**Correct:** Full Stage 2 rigor - complete spec with all details
+**Correct:** Full S2 rigor - complete spec with all details
 
 ---
 
@@ -393,7 +393,7 @@ cat feature_{XX}_{name}/README.md
 
 **Why wrong:** User needs to see complete spec, may have feedback
 
-**Correct:** Follow Stage 2 through user approval phase
+**Correct:** Follow S2 through user approval phase
 
 ---
 
@@ -426,7 +426,7 @@ cat feature_{XX}_{name}/README.md
 **Actions:**
 1. Create `feature_05_injury_tracking/` folder
 2. Create README.md with missed requirement context
-3. Run Stage 2 deep dive:
+3. Run S2 deep dive:
    - S2.P1: Research injury data sources, audit similar tracking features
    - Phase 2-2.5: Create spec.md with:
      - Data model for injury status
@@ -438,7 +438,7 @@ cat feature_{XX}_{name}/README.md
 4. Create checklist.md with decisions (data source, update frequency, etc.)
 5. User approves spec
 
-**Output:** Complete feature_05 spec ready for Stage 3 alignment
+**Output:** Complete feature_05 spec ready for S3 alignment
 
 ---
 
@@ -449,7 +449,7 @@ cat feature_{XX}_{name}/README.md
 **Actions:**
 1. Read existing feature_03 spec.md and checklist.md
 2. Update README.md with missed requirement context
-3. Run Stage 2 focused on additions:
+3. Run S2 focused on additions:
    - Research CSV export libraries
    - Add "CSV Export" section to spec.md
    - Update integration points (new export API)
@@ -464,15 +464,15 @@ cat feature_{XX}_{name}/README.md
 
 ## Next Steps
 
-**After completing PHASE 2 (Planning - Stage 2 Deep Dive):**
+**After completing PHASE 2 (Planning - S2 Deep Dive):**
 
 ✅ Feature folder created OR existing feature updated
 ✅ spec.md created/updated with complete requirements
 ✅ checklist.md created/updated with all decisions
-✅ Full Stage 2 rigor applied
+✅ Full S2 rigor applied
 ✅ User approved spec
 
-**Next:** Read `missed_requirement/realignment.md` for PHASE 3 & 4 (Stage 3 & 4 Alignment)
+**Next:** Read `missed_requirement/realignment.md` for PHASE 3 & 4 (S3 & 4 Alignment)
 
 ---
 

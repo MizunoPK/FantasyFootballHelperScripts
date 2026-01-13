@@ -2,7 +2,7 @@
 
 **Purpose:** Identify missing requirement and get user decision on approach
 
-**When to Use:** Missing requirement discovered at any point after first Stage 5 starts
+**When to Use:** Missing requirement discovered at any point after first S5 starts
 
 **Previous Phase:** None (entry point from any workflow stage)
 
@@ -12,22 +12,22 @@
 
 ## Triggered When
 
-**Missing requirement can be discovered during ANY stage after first Stage 5 starts:**
+**Missing requirement can be discovered during ANY stage after first S5 starts:**
 
-**During Feature Implementation (Stage 5):**
-- Stage 5a (TODO creation): Realize missing scope while planning implementation
-- Stage 5b (Implementation): Discover forgotten functionality while coding
-- Stage 5c (Smoke Testing): Find missing requirement during Part 1/2/3 tests
-- Stage 5c (QC Rounds): Discover missing scope during Round 1/2/3
+**During Feature Implementation (S5):**
+- S5 (TODO creation): Realize missing scope while planning implementation
+- S6 (Implementation): Discover forgotten functionality while coding
+- S7 (Smoke Testing): Find missing requirement during Part 1/2/3 tests
+- S7 (QC Rounds): Discover missing scope during Round 1/2/3
 
 **During Debugging:**
 - While investigating issues: Realize root cause is missing functionality
 - After fixing bugs: Discover the fix revealed missing scope
 
-**During Epic-Level Work (Stage 9/7):**
+**During Epic-Level Work (S9/7):**
 - S9.P1 (Epic Smoke Testing): Find missing integration between features
 - S9.P2 (Epic QC Rounds): Discover missing epic-level functionality
-- Stage 10 (User Testing): User reports missing functionality that was in original intent
+- S10 (User Testing): User reports missing functionality that was in original intent
 
 **User Reports:**
 - User explicitly requests missing functionality
@@ -41,7 +41,7 @@
 
 ### Example 1: Discovered during implementation
 ```
-Currently: feature_02_projection_system (Stage 5b - Implementation)
+Currently: feature_02_projection_system (S6 - Implementation)
 
 Discovery: We forgot to include player injury status tracking
 - Projections should account for injury status
@@ -51,7 +51,7 @@ Discovery: We forgot to include player injury status tracking
 
 ### Example 2: Discovered during QA
 ```
-Currently: feature_03_performance_tracker (Stage 5c - QC Round 2)
+Currently: feature_03_performance_tracker (S7 - QC Round 2)
 
 Discovery: We forgot to add export functionality
 - Users need to export performance reports to CSV
@@ -162,7 +162,7 @@ What priority level? {User input}
 ## Sequence Position
 Current epic sequence:
 1. feature_01_adp_integration (COMPLETE)
-2. feature_02_projection_system (IN PROGRESS - Stage 5b)
+2. feature_02_projection_system (IN PROGRESS - S6)
 3. feature_03_performance_tracker (NOT STARTED)
 4. feature_04_matchup_analysis (NOT STARTED)
 
@@ -185,7 +185,7 @@ What sequence position? {User input}
 
 **Example - High Priority:**
 ```
-Currently: feature_02 (Stage 5b)
+Currently: feature_02 (S6)
 New feature: feature_05_injury_tracking (high priority)
 
 Sequence update:
@@ -200,7 +200,7 @@ Action: After planning, implement feature_05 immediately, THEN resume feature_02
 
 **Example - Medium Priority:**
 ```
-Currently: feature_02 (Stage 5b)
+Currently: feature_02 (S6)
 New feature: feature_05_injury_tracking (medium priority)
 
 Sequence update:
@@ -215,7 +215,7 @@ Action: Resume feature_02 now, implement feature_05 after feature_02 completes
 
 **Example - Low Priority:**
 ```
-Currently: feature_02 (Stage 5b)
+Currently: feature_02 (S6)
 New feature: feature_05_injury_tracking (low priority)
 
 Sequence update:
@@ -275,7 +275,7 @@ Proceed? {User confirms}
 
 **Missed Requirement Action:**
 - {Creating new feature_05_injury_tracking} OR {Updating feature_03_performance_tracker}
-- Returning to Stage 2/3/4 for planning
+- Returning to S2/3/4 for planning
 - Will resume this feature after planning complete
 
 **Resume Instructions:**
@@ -299,7 +299,7 @@ When planning complete:
 
 | # | Requirement | Action | Priority | Status | Created | Notes |
 |---|-------------|--------|----------|--------|---------|-------|
-| 1 | Player injury tracking | New feature_05 | High | Stage 2 | 2026-01-04 | Inserting after feature_02 |
+| 1 | Player injury tracking | New feature_05 | High | S2 | 2026-01-04 | Inserting after feature_02 |
 ```
 
 ### Update Current Status section
@@ -314,10 +314,10 @@ When planning complete:
 - Action: Creating new feature_05_injury_tracking
 - Priority: High
 - Sequence: Insert after feature_02 (before feature_03)
-- Currently: Returning to Stage 2 for planning
+- Currently: Returning to S2 for planning
 
 **Paused Work:**
-- feature_02_projection_system: Paused at Stage 5b Phase 3
+- feature_02_projection_system: Paused at S6 Phase 3
   - Resume point: After planning complete, continue Phase 3
   - Agent Status saved: README.md in feature_02/ folder
 ```
@@ -327,7 +327,7 @@ When planning complete:
 ```markdown
 ## Epic Progress Tracker
 
-| Feature | Stage 2 | Stage 3 | Stage 4 | Stage 5a | Stage 5b | Stage 5c | Stage 5d | Stage 5e |
+| Feature | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2 |
 |---------|---------|---------|---------|----------|----------|----------|----------|----------|
 | feature_01_adp_integration | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | feature_02_projection_system | ✅ | ✅ | ✅ | ✅ | 🔄 | ◻️ | ◻️ | ◻️ |
@@ -337,7 +337,7 @@ When planning complete:
 
 **Implementation Sequence (Updated):**
 1. feature_01 ✅ COMPLETE
-2. feature_02 🔄 PAUSED at Stage 5b
+2. feature_02 🔄 PAUSED at S6
 3. feature_05 ◻️ NOT STARTED (INSERTED - high priority)
 4. feature_03 ◻️ NOT STARTED
 5. feature_04 ◻️ NOT STARTED
@@ -418,7 +418,7 @@ When planning complete:
 ✅ Current work state documented (if paused)
 ✅ EPIC_README.md updated
 
-**Next:** Read `missed_requirement/planning.md` for PHASE 2 (Planning - Stage 2 Deep Dive)
+**Next:** Read `missed_requirement/planning.md` for PHASE 2 (Planning - S2 Deep Dive)
 
 ---
 

@@ -1,15 +1,15 @@
-# Stage 2 Prompts: Feature Deep Dive
+# S2 Prompts: Feature Deep Dive
 
 **Stage:** 2
 **Purpose:** Feature specification and requirement clarification
 
 ---
 
-## Starting Stage 2: Feature Deep Dive
+## Starting S2: Feature Deep Dive
 
 **User says:** "Help me develop the {feature_name} feature" or "Let's work on feature_01"
 
-**Prerequisite:** Stage 1 complete (epic folder and feature folders created)
+**Prerequisite:** S1 complete (epic folder and feature folders created)
 
 **Agent MUST respond:**
 
@@ -36,12 +36,12 @@ I'm reading `stages/s2/s2_feature_deep_dive.md` to ensure I follow the complete 
 - Step 5: **Compare to completed feature specs** (if any features already done)
   - Ensure alignment with previous features
   - Maintain consistency in approach
-- Checklist.md ALL items must be resolved (marked [x]) before Stage 2 complete
+- Checklist.md ALL items must be resolved (marked [x]) before S2 complete
 
 **Prerequisites I'm verifying:**
 ✅ Epic folder exists: `feature-updates/KAI-{N}-{epic_name}/`
 ✅ Feature folder exists: `feature_{NN}_{name}/`
-✅ Stage 1 complete (EPIC_README.md shows Stage 1 complete)
+✅ S1 complete (EPIC_README.md shows S1 complete)
 
 **I'll now proceed with Phase 1 (Targeted Research for THIS feature only)...**
 
@@ -131,9 +131,9 @@ I'm documenting your approval in checklist.md...
 **Next Steps:**
 - spec.md has been updated with all your answers
 - checklist.md shows all questions resolved (0 pending)
-- Ready to proceed to Stage 5a (Implementation Planning)
+- Ready to proceed to S5 (Implementation Planning)
 
-Would you like me to proceed to Stage 5a, or would you like to review the updated spec.md first?
+Would you like me to proceed to S5, or would you like to review the updated spec.md first?
 ```
 
 ---

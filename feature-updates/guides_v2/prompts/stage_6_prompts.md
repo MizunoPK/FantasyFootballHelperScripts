@@ -1,15 +1,15 @@
-# Stage 9 Prompts: Epic Final QC
+# S9 Prompts: Epic Final QC
 
 **Stage:** 6
 **Purpose:** Epic-level testing and validation
 
 ---
 
-## Starting Stage 9: Epic Final QC
+## Starting S9: Epic Final QC
 
-**User says:** "Run epic QC" or "Validate the entire epic" or Agent detects ALL features complete Stage 5e
+**User says:** "Run epic QC" or "Validate the entire epic" or Agent detects ALL features complete S8.P2
 
-**Prerequisite:** ALL features complete Stage 5e, no pending bug fixes
+**Prerequisite:** ALL features complete S8.P2, no pending bug fixes
 
 **Agent MUST respond:**
 
@@ -39,19 +39,19 @@ I'm reading `stages/s9/s6_p1_epic_smoke_testing.md` to ensure I validate the ent
   - Reflects ACTUAL implementation (not assumptions)
 - **QC RESTART if ANY issues**:
   - Create bug fixes for issues
-  - COMPLETELY RESTART Stage 9 after bug fixes
+  - COMPLETELY RESTART S9 after bug fixes
 
 **Critical Distinction:**
-- Feature testing (Stage 5c): Tests feature in ISOLATION
-- Epic testing (Stage 9): Tests ALL features TOGETHER
+- Feature testing (S7): Tests feature in ISOLATION
+- Epic testing (S9): Tests ALL features TOGETHER
 
 **Prerequisites I'm verifying:**
-✅ ALL features show "Stage 5e complete" in EPIC_README.md
+✅ ALL features show "S8.P2 complete" in EPIC_README.md
   - Feature 01 ({name}): ✅
   - Feature 02 ({name}): ✅
   - {Continue for all features}
 ✅ No pending bug fixes
-✅ epic_smoke_test_plan.md shows recent Stage 5e updates
+✅ epic_smoke_test_plan.md shows recent S8.P2 updates
 ✅ All unit tests passing (100%)
 
 **I'll now execute the evolved epic_smoke_test_plan.md...**

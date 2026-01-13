@@ -37,7 +37,7 @@ Debugging Protocol is an investigation-centric process integrated into QC/Smoke 
 **When do you use this protocol?**
 - During Smoke Testing (S10.P1): Issues discovered in Part 3 E2E test
 - During QC Rounds (S10.P2): Issues discovered in any round
-- During Epic Testing (Stage 9): Issues discovered during epic smoke/QC
+- During Epic Testing (S9): Issues discovered during epic smoke/QC
 - Issues have UNKNOWN root cause requiring investigation
 
 **When NOT to use this protocol?**
@@ -379,8 +379,8 @@ All issues fixed and root causes analyzed?
 **Integration Points:**
 - S7.P1 → debugging → loop back
 - S7.P2 → debugging → loop back
-- Stage 9 (Epic Testing) → debugging → loop back
-- Stage 10 (User Testing) → add bugs to epic debugging → loop back to Stage 9
+- S9 (Epic Testing) → debugging → loop back
+- S10 (User Testing) → add bugs to epic debugging → loop back to S9
 
 ---
 

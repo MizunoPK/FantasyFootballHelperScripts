@@ -2,7 +2,7 @@
 
 **Filename:** `epic_lessons_learned.md`
 **Location:** `feature-updates/KAI-{N}-{epic_name}/epic_lessons_learned.md`
-**Created:** Stage 1 (Epic Planning)
+**Created:** S1 (Epic Planning)
 **Updated:** Throughout all stages (after each feature completion)
 
 **Purpose:** Cross-feature insights, systemic issues, guide improvements, and workflow refinements for the entire epic.
@@ -33,7 +33,7 @@ This document captures:
 
 ---
 
-## Stage 1 Lessons Learned (Epic Planning)
+## S1 Lessons Learned (Epic Planning)
 
 **What Went Well:**
 - {Positive observation 1}
@@ -53,9 +53,9 @@ This document captures:
 
 ---
 
-## Stage 2 Lessons Learned (Feature Deep Dives)
+## S2 Lessons Learned (Feature Deep Dives)
 
-{Lessons captured AFTER all features complete Stage 2}
+{Lessons captured AFTER all features complete S2}
 
 ### Cross-Feature Patterns
 
@@ -70,7 +70,7 @@ This document captures:
 ### Feature-Specific Highlights
 
 **Feature 01 ({name}):**
-- Key lesson: {Lesson from this feature's Stage 2}
+- Key lesson: {Lesson from this feature's S2}
 - Application to other features: {How this applies beyond Feature 01}
 
 **Feature 02 ({name}):**
@@ -96,7 +96,7 @@ This document captures:
 
 ---
 
-## Stage 3 Lessons Learned (Cross-Feature Sanity Check)
+## S3 Lessons Learned (Cross-Feature Sanity Check)
 
 **What Went Well:**
 - {Positive observation}
@@ -117,7 +117,7 @@ This document captures:
 
 ---
 
-## Stage 4 Lessons Learned (Epic Testing Strategy)
+## S4 Lessons Learned (Epic Testing Strategy)
 
 **What Went Well:**
 - {Positive observation}
@@ -126,7 +126,7 @@ This document captures:
 - {Improvement}
 
 **epic_smoke_test_plan.md Evolution:**
-- Changes from Stage 1 → Stage 4: {Summary of how test plan evolved}
+- Changes from S1 → S4: {Summary of how test plan evolved}
 - Integration points discovered: {N}
 - Key insights: {Insights about testing strategy}
 
@@ -135,22 +135,22 @@ This document captures:
 
 ---
 
-## Stage 5 Lessons Learned (Feature Implementation)
+## S5 Lessons Learned (Feature Implementation)
 
-{Capture lessons AFTER EACH feature completes Stage 5e}
+{Capture lessons AFTER EACH feature completes S8.P2}
 
 ### Feature 01 ({name}) - Stages 5a through 5e
 
-**Stage 5a (TODO Creation):**
+**S5 (TODO Creation):**
 - What went well: {Observation}
 - What could improve: {Improvement}
 - 28 iterations experience: {Any issues with specific iterations}
 
-**Stage 5b (Implementation):**
+**S6 (Implementation):**
 - What went well: {Observation}
 - Challenges: {Challenges encountered and solutions}
 
-**Stage 5c (Post-Implementation):**
+**S7 (Post-Implementation):**
 - Smoke testing results: {Summary}
 - QC rounds: {Any issues found and resolved}
 - PR review: {Insights}
@@ -163,11 +163,11 @@ This document captures:
 - Process improvements identified: {Brief summary of process gaps from debugging/process_failure_analysis.md}
 - Guide updates proposed: {Count of critical/high/medium priority updates from debugging/guide_update_recommendations.md}
 
-**Stage 5d (Cross-Feature Alignment):**
+**S8.P1 (Cross-Feature Alignment):**
 - Features affected: {List features whose specs were updated}
 - Key updates: {Summary of spec updates}
 
-**Stage 5e (Epic Testing Plan Update):**
+**S8.P2 (Epic Testing Plan Update):**
 - Test scenarios added: {N}
 - Integration scenarios: {Summary}
 
@@ -220,7 +220,7 @@ This document captures:
 
 ---
 
-### Guide Improvements Needed from Stage 5
+### Guide Improvements Needed from S5
 
 **From Feature 01:**
 - `stages/s5/s5_p1_planning_round1.md`: {Specific improvement}
@@ -244,7 +244,7 @@ This document captures:
 
 ---
 
-## Stage 9 Lessons Learned (Epic Final QC)
+## S9 Lessons Learned (Epic Final QC)
 
 **What Went Well:**
 - {Positive observation}
@@ -278,7 +278,7 @@ This document captures:
 
 ---
 
-## Stage 10 Lessons Learned (Epic Cleanup)
+## S10 Lessons Learned (Epic Cleanup)
 
 **What Went Well:**
 - {Positive observation}
@@ -356,17 +356,17 @@ This document captures:
 **Lines of Code Changed:** ~{N}
 
 **Stage Durations:**
-- Stage 1: {N} days
-- Stage 2: {N} days (all features)
-- Stage 3: {N} days
-- Stage 4: {N} days
-- Stage 5: {N} days (all features)
-- Stage 9: {N} days
-- Stage 10: {N} days
+- S1: {N} days
+- S2: {N} days (all features)
+- S3: {N} days
+- S4: {N} days
+- S5: {N} days (all features)
+- S9: {N} days
+- S10: {N} days
 
 **QC Restart Count:**
-- Stage 5c restarts: {N} (across all features)
-- Stage 9 restarts: {N}
+- S7 restarts: {N} (across all features)
+- S9 restarts: {N}
 
 **Test Pass Rates:**
 - Final pass rate: {percentage}% ({X}/{Y} tests)

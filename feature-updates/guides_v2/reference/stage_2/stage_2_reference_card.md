@@ -1,6 +1,6 @@
 # STAGE 2: Feature Deep Dive - Quick Reference Card
 
-**Purpose:** One-page summary for quick consultation during Stage 2
+**Purpose:** One-page summary for quick consultation during S2
 **Use Case:** Quick lookup when you need to remember guide details, gates, or decision points
 **Total Time:** 2-3 hours per feature (9 phases across 3 sub-stages)
 
@@ -118,7 +118,7 @@ S2.P3: Refinement Phase (45-60 min)
 
 ### ❌ Pitfall 3: Assuming Instead of Asking User
 **Problem:** Making design decisions without user input
-**Impact:** Implement wrong solution, rework in Stage 5c QC
+**Impact:** Implement wrong solution, rework in S7 QC
 **Solution:** When uncertain, ask user (Phase 3). Better to ask than assume
 
 ### ❌ Pitfall 4: Batching Questions
@@ -139,7 +139,7 @@ S2.P3: Refinement Phase (45-60 min)
 ### ❌ Pitfall 7: Comparing to Wrong Features (Phase 5)
 **Problem:** Comparing to in-progress features instead of completed ones
 **Impact:** Inherit bugs/inconsistencies from incomplete features
-**Solution:** Only compare to features that completed Stage 5c (fully QC'd)
+**Solution:** Only compare to features that completed S7 (fully QC'd)
 
 ---
 
@@ -181,7 +181,7 @@ S2.P3: Refinement Phase (45-60 min)
 - [ ] Compared to completed features (alignment verified)
 - [ ] Patterns consistent with rest of codebase
 
-**Phase 6 → Next Feature or Stage 3:**
+**Phase 6 → Next Feature or S3:**
 - [ ] Acceptance criteria created
 - [ ] User approval obtained
 - [ ] Spec finalized
@@ -217,7 +217,7 @@ S2.P3: Refinement Phase (45-60 min)
 
 | Current Phase | Guide to Read |
 |---------------|---------------|
-| Starting Stage 2 | stages/s2/s2_p1_research.md |
+| Starting S2 | stages/s2/s2_p1_research.md |
 | Phase 0, 1, or 1.5 | stages/s2/s2_p1_research.md |
 | Phase 2 or 2.5 | stages/s2/s2_p2_specification.md |
 | Phase 3, 4, 5, or 6 | stages/s2/s2_p3_refinement.md |
@@ -227,15 +227,15 @@ S2.P3: Refinement Phase (45-60 min)
 
 ## Exit Conditions
 
-**Stage 2 is complete when:**
+**S2 is complete when:**
 - [ ] All 9 phases executed (0 through 6)
 - [ ] All 3 mandatory gates PASSED (1.5, 2.5, 6)
 - [ ] spec.md has user-approved acceptance criteria
 - [ ] checklist.md has zero unresolved items
 - [ ] SPEC_SUMMARY.md created and user-validated
 
-**Next Stage:** Stage 3 (Cross-Feature Sanity Check) - if all features planned
-**OR:** Stage 2 for next feature - if more features to plan
+**Next Stage:** S3 (Cross-Feature Sanity Check) - if all features planned
+**OR:** S2 for next feature - if more features to plan
 
 ---
 

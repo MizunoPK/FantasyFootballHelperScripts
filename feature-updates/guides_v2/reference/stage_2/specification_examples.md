@@ -693,7 +693,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 ```markdown
 ## User Checklist Approval - Gate 2
 
-Stage 2b (Specification Phase) is complete. I've created checklist.md with 6 questions that need your input:
+S2b (Specification Phase) is complete. I've created checklist.md with 6 questions that need your input:
 
 **Checklist Sections:**
 - Functional Questions: 3 (CSV format, matching strategy, multiplier formula)
@@ -800,7 +800,7 @@ User provided answers for all 6 questions. Preferred config-based approach for m
 
 ---
 
-**STATUS:** ✅ APPROVED - Ready for Stage 5a (Implementation Planning)
+**STATUS:** ✅ APPROVED - Ready for S5 (Implementation Planning)
 ```
 
 ---
@@ -832,7 +832,7 @@ User provided answers for all 6 questions. Preferred config-based approach for m
 - Approval documented with timestamp
 - Gate 2 PASSED
 
-**Ready for S2.P3 or Stage 5a when all phases complete.**
+**Ready for S2.P3 or S5 when all phases complete.**
 
 ---
 

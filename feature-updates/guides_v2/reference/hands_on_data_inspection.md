@@ -1,4 +1,4 @@
-# Stage 5a.5: Hands-On Data Inspection Guide
+# S5.5: Hands-On Data Inspection Guide
 
 ---
 
@@ -8,8 +8,8 @@
 Hands-On Data Inspection is a critical verification step where you manually inspect actual data files to verify assumptions about data structure, values, and location BEFORE implementing code to prevent catastrophic bugs.
 
 **When do you use this guide?**
-- After Stage 5a Round 3 (Implementation planning complete)
-- Before Stage 5b (Implementation execution)
+- After S5 Round 3 (Implementation planning complete)
+- Before S6 (Implementation execution)
 - When implementation will load or process data files
 
 **Key Outputs:**
@@ -17,7 +17,7 @@ Hands-On Data Inspection is a critical verification step where you manually insp
 - ✅ Data files opened and values inspected in Python REPL
 - ✅ Data model assumptions verified against actual data
 - ✅ Wrong assumptions corrected in spec.md and implementation_plan.md
-- ✅ Ready for Stage 5b (Implementation Execution)
+- ✅ Ready for S6 (Implementation Execution)
 
 **Time Estimate:**
 15-30 minutes (can prevent hours of debugging)
@@ -70,9 +70,9 @@ print(week_01[0]['actual_points'][0])  # 0.0 → Assumption is WRONG
 
 ## Prerequisites
 
-Before starting Stage 5a.5:
+Before starting S5.5:
 
-- [x] Stage 5a Round 3 completed (implementation_plan.md and questions.md exist)
+- [x] S5 Round 3 completed (implementation_plan.md and questions.md exist)
 - [x] Spec.md identifies data files that will be loaded
 - [x] Data files exist in the codebase
 - [x] Python environment is available
@@ -485,7 +485,7 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 
 **🛑 STOP IMMEDIATELY**
 
-Do NOT proceed to Stage 5b (Implementation). Your implementation plan is based on wrong assumptions.
+Do NOT proceed to S6 (Implementation). Your implementation plan is based on wrong assumptions.
 
 **Report to User:**
 
@@ -494,7 +494,7 @@ Use this template:
 ```markdown
 ## ⚠️ DATA INSPECTION FAILED - User Input Required
 
-I completed Stage 5a.5 (Hands-On Data Inspection) and found discrepancies
+I completed S5.5 (Hands-On Data Inspection) and found discrepancies
 between the actual data and our spec.md/implementation_plan.md.
 
 ### Findings Summary
@@ -521,23 +521,23 @@ between the actual data and our spec.md/implementation_plan.md.
 
 ### Recommended Actions
 
-**Option A (Recommended):** Fix spec and implementation plan, restart Stage 5a
+**Option A (Recommended):** Fix spec and implementation plan, restart S5
 1. Update spec.md based on actual data findings
-2. Restart Stage 5a Round 1 to regenerate implementation_plan.md
-3. Re-run Stage 5a.5 to verify new assumptions
-4. Proceed to Stage 5b only after zero discrepancies
+2. Restart S5 Round 1 to regenerate implementation_plan.md
+3. Re-run S5.5 to verify new assumptions
+4. Proceed to S6 only after zero discrepancies
 
-**Option B:** Fix spec and implementation plan, continue to Stage 5b
+**Option B:** Fix spec and implementation plan, continue to S6
 1. Update spec.md based on findings
 2. Manually update implementation_plan.md tasks
-3. Continue to Stage 5b
+3. Continue to S6
 4. Risk: Implementation plan may still have subtle errors
 
 **Option C:** Discuss findings first
 1. Review each discrepancy together
 2. Clarify data model
 3. Then update spec/implementation plan
-4. Re-run Stage 5a.5 to verify
+4. Re-run S5.5 to verify
 
 **My Recommendation:** Option A
 
@@ -579,7 +579,7 @@ All assumptions validated with actual data.
 
 **Spec.md claims:** [Summary of spec]
 **Data confirms:** [Summary of findings]
-**Conclusion:** Safe to proceed to Stage 5b
+**Conclusion:** Safe to proceed to S6
 
 All TODO items are based on validated assumptions.
 ```
@@ -588,7 +588,7 @@ All TODO items are based on validated assumptions.
 
 ## Pass Criteria
 
-Stage 5a.5 is complete when:
+S5.5 is complete when:
 
 **Scenario 1: Zero Discrepancies**
 - [ ] Loaded REAL data files (not test fixtures)
@@ -600,14 +600,14 @@ Stage 5a.5 is complete when:
 - [ ] Compared findings with spec.md and implementation_plan.md
 - [ ] Zero contradictions found
 - [ ] Created evidence summary
-- [ ] **Proceed to Stage 5b**
+- [ ] **Proceed to S6**
 
 **Scenario 2: Discrepancies Found**
 - [ ] Documented ALL discrepancies with evidence
 - [ ] Reported to user with 3 options
 - [ ] Waited for user decision
 - [ ] Executed user's choice (fix spec, restart 5a, discuss, etc.)
-- [ ] Re-ran Stage 5a.5 after fixes
+- [ ] Re-ran S5.5 after fixes
 - [ ] Now zero discrepancies
 - [ ] **Proceed per user decision**
 
@@ -689,7 +689,7 @@ week_1_actual_in_week_02 = week_02[0]['actual_points'][0]  # 33.6
 print(week_01[0]['actual_points'][0])  # 0.0 (expected > 0)
 # Conclusion: "Spec is wrong, I'll fix it and continue"
 # [Updates spec.md and implementation_plan.md silently]
-# [Proceeds to Stage 5b]
+# [Proceeds to S6]
 ```
 
 **Right:**
@@ -706,10 +706,10 @@ print(week_01[0]['actual_points'][0])  # 0.0 (expected > 0)
 
 ## Critical Questions Checklist
 
-Before marking Stage 5a.5 complete, answer ALL questions:
+Before marking S5.5 complete, answer ALL questions:
 
 ```markdown
-## Stage 5a.5 Critical Questions
+## S5.5 Critical Questions
 
 ### Data Loading
 - [ ] Did I load REAL data files (not test fixtures)?
@@ -766,7 +766,7 @@ All questions must be YES to pass.
 
 ## Output Artifacts
 
-After Stage 5a.5:
+After S5.5:
 
 1. **data_inspection_findings.md** (NEW FILE):
    - Commands run in Python REPL
@@ -787,7 +787,7 @@ After Stage 5a.5:
 
 **What Actually Happened (WRONG):**
 
-Stage 5a → Stage 5b (skipped data inspection)
+S5 → S6 (skipped data inspection)
 - Assumed week_N folder has week N actuals
 - Implemented based on assumption
 - All actuals were 0.0
@@ -795,9 +795,9 @@ Stage 5a → Stage 5b (skipped data inspection)
 
 **What Should Have Happened (RIGHT):**
 
-Stage 5a → **Stage 5a.5 (Data Inspection)** → Stage 5b
+S5 → **S5.5 (Data Inspection)** → S6
 
-**Stage 5a.5 Process:**
+**S5.5 Process:**
 ```python
 # Step 1: Load actual data
 import json
@@ -815,15 +815,15 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 # Step 4: Report to user
 # "Spec.md says 'no code changes needed' but data shows we need week_N+1"
 
-# Step 5: User chooses Option A (fix spec, restart Stage 5a)
+# Step 5: User chooses Option A (fix spec, restart S5)
 
 # Step 6: Update spec.md with correct data model
 
-# Step 7: Restart Stage 5a with correct understanding
+# Step 7: Restart S5 with correct understanding
 
-# Step 8: Re-run Stage 5a.5 to verify fixes
+# Step 8: Re-run S5.5 to verify fixes
 
-# Step 9: Proceed to Stage 5b with validated assumptions
+# Step 9: Proceed to S6 with validated assumptions
 ```
 
 **Result:** Bug caught before writing any code.
@@ -832,17 +832,17 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 
 ## Integration with Other Stages
 
-**Stage 5a Round 3 (Implementation Planning):**
+**S5 Round 3 (Implementation Planning):**
 - Creates implementation_plan.md based on spec.md assumptions
 - Does NOT verify assumptions with actual data
 
-**Stage 5a.5 (Hands-On Data Inspection) - THIS STAGE:**
+**S5.5 (Hands-On Data Inspection) - THIS STAGE:**
 - Verifies spec.md assumptions with REAL data
 - Catches wrong assumptions BEFORE implementing
 - Reports discrepancies to user
-- May trigger restart of Stage 5a if spec is wrong
+- May trigger restart of S5 if spec is wrong
 
-**Stage 5b (Implementation Execution):**
+**S6 (Implementation Execution):**
 - Implements based on implementation_plan.md
 - Assumes implementation plan is correct (validated by 5a.5)
 - If 5a.5 skipped, may implement wrong solution
@@ -851,19 +851,19 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 
 ## Why 30 Seconds of Data Inspection Saves Days
 
-**Time to catch bug in Stage 5a.5:** 30 seconds
+**Time to catch bug in S5.5:** 30 seconds
 ```python
 import json
 week_01 = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 print(week_01[0]['actual_points'][0])  # 0.0 → "Wait, this should be > 0!"
 ```
 
-**Time to fix bug caught in Stage 5a.5:** 30 minutes
+**Time to fix bug caught in S5.5:** 30 minutes
 - Update spec.md with correct data model
-- Restart Stage 5a to regenerate implementation_plan.md
+- Restart S5 to regenerate implementation_plan.md
 - Proceed to 5b with correct plan
 
-**Time to fix bug caught in Stage 9 (Epic QC):** 4+ hours
+**Time to fix bug caught in S9 (Epic QC):** 4+ hours
 - Debug why MAE is wrong
 - Trace through implementation
 - Realize data loading is wrong
@@ -881,7 +881,7 @@ print(week_01[0]['actual_points'][0])  # 0.0 → "Wait, this should be > 0!"
 - User re-tests
 - Damage to user trust in process
 
-**MORAL: Spend 30 seconds in Stage 5a.5 to save hours (or days) later.**
+**MORAL: Spend 30 seconds in S5.5 to save hours (or days) later.**
 
 ---
 
@@ -904,7 +904,7 @@ Open the files. Print the values. Verify every assumption.
 
 ## Completion Criteria
 
-**Stage 5a.5 is complete when ALL of these are true:**
+**S5.5 is complete when ALL of these are true:**
 
 □ **Data Dependencies Identified:**
   - All data files listed from implementation_plan.md and spec.md
@@ -938,14 +938,14 @@ Open the files. Print the values. Verify every assumption.
   - Confident about data values
   - Ready to implement with correct assumptions
 
-**Exit Condition:** Stage 5a.5 is complete when you have opened actual data files in Python REPL, printed real values, verified all data assumptions against reality, corrected any wrong assumptions in spec/implementation plan, and are confident the implementation will load correct data.
+**Exit Condition:** S5.5 is complete when you have opened actual data files in Python REPL, printed real values, verified all data assumptions against reality, corrected any wrong assumptions in spec/implementation plan, and are confident the implementation will load correct data.
 
 ---
 
 ## Next Stage
 
 **If Zero Discrepancies:**
-- Proceed to Stage 5b (Implementation Execution)
+- Proceed to S6 (Implementation Execution)
 
 **If Discrepancies Found:**
 - Follow user's decision (restart 5a / fix and continue / discuss)

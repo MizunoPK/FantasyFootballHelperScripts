@@ -145,7 +145,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 ### 7. Algorithm Verification
 
 **Implementation must match spec EXACTLY:**
-- Re-check Algorithm Traceability Matrix from Stage 5a
+- Re-check Algorithm Traceability Matrix from S5
 - Every algorithm in spec must map to exact code location
 - Code behavior must match spec behavior (not interpretation)
 - No "close enough" implementations
@@ -412,7 +412,7 @@ Did QC round find issues?
 
 **Round 3 Focus:** End-to-End Success Criteria
 - Validation against original epic request
-- Epic success criteria met (from Stage 4)
+- Epic success criteria met (from S4)
 - User experience flows validated
 - Performance characteristics acceptable
 

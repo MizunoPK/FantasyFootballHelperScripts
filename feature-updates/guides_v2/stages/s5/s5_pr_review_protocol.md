@@ -3,8 +3,8 @@
 **Purpose:** Systematic PR review using fresh agent context to catch issues before committing.
 
 **Applies to:**
-- Feature-level PRs (Stage 5c Phase 3)
-- Epic-level PRs (Stage 9 Phase 3)
+- Feature-level PRs (S7 Phase 3)
+- Epic-level PRs (S9 Phase 3)
 
 **Key Principle:** Spawn fresh agents for each review round to avoid context bias and ensure "fresh eyes" on the code.
 
@@ -278,7 +278,7 @@ Perform a comprehensive PR review of the following code changes:
 
 ## Integration with Workflow
 
-### Feature-Level (Stage 5c Phase 3)
+### Feature-Level (S7 Phase 3)
 
 **In final_review.md Step 1 "Create PR review checklist":**
 - READ: `stages/stage_5/pr_review_protocol.md`
@@ -286,7 +286,7 @@ Perform a comprehensive PR review of the following code changes:
 - Create `pr_review_issues.md` in feature folder
 - Cannot proceed to Step 2 until PR review PASSED
 
-### Epic-Level (Stage 9 Phase 3)
+### Epic-Level (S9 Phase 3)
 
 **In epic_final_qc.md Step 1 "Epic PR Review":**
 - READ: `stages/stage_5/pr_review_protocol.md`
@@ -344,4 +344,4 @@ Perform a comprehensive PR review of the following code changes:
 - **Time estimate:** Round 1 (4 agents) ~15-20 minutes, each subsequent round ~5 minutes
 - **Expected rounds:** Most PRs should pass in 2-3 rounds after Round 1
 - **Cost:** Higher token usage due to fresh agents, but significantly improves quality
-- **Historical evidence:** Similar approach (QC rounds) in Stage 5c has high issue detection rate
+- **Historical evidence:** Similar approach (QC rounds) in S7 has high issue detection rate

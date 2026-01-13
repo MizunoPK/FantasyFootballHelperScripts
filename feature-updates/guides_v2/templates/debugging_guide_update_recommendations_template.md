@@ -44,7 +44,7 @@
 ### Prevention Point
 
 **Should have been caught at:**
-- **Stage:** {Stage 5a / 5b / S10.P1 / S10.P2 / 2 / etc.}
+- **Stage:** {S5 / 5b / S10.P1 / S10.P2 / 2 / etc.}
 - **Step:** {Iteration X / QC Round X / etc.}
 - **Guide:** `{guide name}`
 - **Why missed:** {specific gap}
@@ -81,7 +81,7 @@
 **Who benefits:** {Which agents/stages benefit from this change}
 
 **When it helps:** {Specific situations where this guidance is needed}
-- Example: "During Stage 5a Round 2 when analyzing player data edge cases"
+- Example: "During S5 Round 2 when analyzing player data edge cases"
 
 **Severity if unfixed:** {What happens without this fix}
 - Example: "Future epics will likely encounter same bug with player status"
@@ -235,7 +235,7 @@ Bug occurred because player injury status wasn't checked, causing null pointer w
 ### Prevention Point
 
 **Should have been caught at:**
-- **Stage:** Stage 5a Round 2
+- **Stage:** S5 Round 2
 - **Step:** Iteration 9 (Edge Case Analysis)
 - **Guide:** `stages/s5/s5_p2_planning_round2.md`
 - **Why missed:** Guide doesn't explicitly mention checking entity status fields
@@ -271,7 +271,7 @@ Adding entity status fields to the checklist forces agents to systematically ver
 
 **Who benefits:** All agents implementing features with entity data (players, teams, games)
 
-**When it helps:** During Stage 5a Round 2 when analyzing edge cases for any entity-based feature
+**When it helps:** During S5 Round 2 when analyzing edge cases for any entity-based feature
 
 **Severity if unfixed:** Future epics will likely encounter same bug pattern with entity status
 - Estimated 60% of entity-based features have status fields

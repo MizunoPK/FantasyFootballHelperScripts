@@ -44,7 +44,7 @@
 
 ### What is the Epic-Driven Development Workflow?
 
-The Epic-Driven Development Workflow v2 is a **7-stage process** for managing complex software development projects. It breaks large initiatives (epics) into focused features with rigorous planning, implementation, and quality control at each stage.
+The Epic-Driven Development Workflow v2 is a **10-stage process** for managing complex software development projects. It breaks large initiatives (epics) into focused features with rigorous planning, implementation, and quality control at each stage.
 
 **Core Philosophy:**
 - Plan thoroughly before implementing
@@ -64,19 +64,19 @@ The Epic-Driven Development Workflow v2 is a **7-stage process** for managing co
 ```
 Epic Request (user creates .txt file)
     ↓
-Stage 1: Epic Planning (break into features)
+S1: Epic Planning (break into features)
     ↓
-Stage 2: Feature Deep Dives (flesh out each feature)
+S2: Feature Deep Dives (flesh out each feature)
     ↓
-Stage 3: Cross-Feature Sanity Check (resolve conflicts)
+S3: Cross-Feature Sanity Check (resolve conflicts)
     ↓
-Stage 4: Epic Testing Strategy (define how to test)
+S4: Epic Testing Strategy (define how to test)
     ↓
-Stage 5: Feature Implementation (implement each feature: 5a→5b→5c→5d→5e)
+S5: Feature Implementation (implement each feature: 5a→5b→5c→5d→5e)
     ↓
-Stage 9: Epic-Level Final QC (validate epic as whole)
+S9: Epic-Level Final QC (validate epic as whole)
     ↓
-Stage 10: Epic Cleanup (commit, archive, apply lessons)
+S10: Epic Cleanup (commit, archive, apply lessons)
 ```
 
 ### Terminology
@@ -84,9 +84,9 @@ Stage 10: Epic Cleanup (commit, archive, apply lessons)
 - **Epic**: Top-level work unit (collection of related features)
 - **Feature**: Individual component within an epic
 - **Stage**: Major phase of the workflow (1-7)
-- **Round**: Sub-phase within a stage (e.g., Stage 5a has 3 rounds)
-- **Iteration**: Specific verification step within a round (e.g., 28 iterations in Stage 5a)
-- **Phase**: Sub-section within a stage (e.g., Stage 5c has 3 phases)
+- **Round**: Sub-phase within a stage (e.g., S5 has 3 rounds)
+- **Iteration**: Specific verification step within a round (e.g., 28 iterations in S5)
+- **Phase**: Sub-section within a stage (e.g., S7 has 3 phases)
 
 ---
 
@@ -111,9 +111,9 @@ Stage 10: Epic Cleanup (commit, archive, apply lessons)
 
 3. **If no in-progress epic:**
    - Verify user created `feature-updates/{epic_name}.txt` with initial notes
-   - Use "Starting Stage 1" prompt from `prompts_reference_v2.md`
+   - Use "Starting S1" prompt from `prompts_reference_v2.md`
    - Read `stages/s1/s1_epic_planning.md`
-   - Begin Stage 1 workflow
+   - Begin S1 workflow
 
 ### For Resuming Work
 
@@ -130,7 +130,7 @@ Stage 10: Epic Cleanup (commit, archive, apply lessons)
    ## Agent Status
 
    **Last Updated:** 2025-12-30 14:30
-   **Current Stage:** Stage 5b - Implementation Execution
+   **Current Stage:** S6 - Implementation Execution
    **Current Step:** Implementing Feature 2, component 3 of 5
    **Current Guide:** stages/s9/s6_execution.md
    **Next Action:** Complete PlayerManager.calculate_score() method
@@ -178,10 +178,10 @@ feature-updates/KAI-{N}-{epic_name}/
 │   ├── README.md                     # Feature context and Agent Status
 │   ├── spec.md                       # PRIMARY SPECIFICATION (detailed requirements)
 │   ├── checklist.md                  # Resolved vs pending decisions
-│   ├── implementation_plan.md        # Implementation build guide (~400 lines, Stage 5a, user-approved)
-│   ├── questions.md                  # Questions for user (created Stage 5a if needed)
-│   ├── implementation_checklist.md   # Progress tracking (~50 lines, Stage 5b)
-│   ├── code_changes.md               # Documentation of changes (Stage 5b)
+│   ├── implementation_plan.md        # Implementation build guide (~400 lines, S5, user-approved)
+│   ├── questions.md                  # Questions for user (created S5 if needed)
+│   ├── implementation_checklist.md   # Progress tracking (~50 lines, S6)
+│   ├── code_changes.md               # Documentation of changes (S6)
 │   ├── lessons_learned.md            # Feature-specific insights
 │   └── research/                     # Research documents (if needed)
 ├── feature_02_{name}/                # Feature 2 (same structure)
@@ -208,10 +208,10 @@ feature-updates/KAI-{N}-{epic_name}/
   - Epic Completion Summary (added at end)
 
 - **epic_smoke_test_plan.md**: Testing strategy for complete epic
-  - Created in Stage 1 (initial version)
-  - Updated in Stage 4 (after deep dives)
-  - Updated in Stage 5e (after each feature implementation)
-  - Used in Stage 9 (final epic validation)
+  - Created in S1 (initial version)
+  - Updated in S4 (after deep dives)
+  - Updated in S8.P2 (after each feature implementation)
+  - Used in S9 (final epic validation)
 
 - **epic_lessons_learned.md**: Cross-feature patterns
   - Insights from each stage
@@ -234,7 +234,7 @@ feature-updates/KAI-{N}-{epic_name}/
   - Open questions (need user input)
   - Resolved questions (decisions made)
 
-- **implementation_plan.md**: Implementation build guide (created in Stage 5a, ~400 lines)
+- **implementation_plan.md**: Implementation build guide (created in S5, ~400 lines)
   - All implementation tasks with acceptance criteria
   - Component dependencies matrix
   - Algorithm traceability matrix
@@ -242,14 +242,14 @@ feature-updates/KAI-{N}-{epic_name}/
   - Implementation phasing (5-6 checkpoints)
   - Performance considerations
   - Mock audit results
-  - User-approved before Stage 5b begins
+  - User-approved before S6 begins
 
-- **implementation_checklist.md**: Progress tracking (created in Stage 5b, ~50 lines)
+- **implementation_checklist.md**: Progress tracking (created in S6, ~50 lines)
   - Simple checkbox format for tracking progress
   - References implementation_plan.md for details
   - Lightweight continuous verification
 
-- **code_changes.md**: Change documentation (created in Stage 5b)
+- **code_changes.md**: Change documentation (created in S6)
   - Files modified
   - Functions added/changed
   - Rationale for changes
@@ -263,7 +263,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 ## Workflow Stages
 
-### Stage 1: Epic Planning
+### S1: Epic Planning
 
 **Purpose:** Break epic into features, create folder structure
 
@@ -282,15 +282,15 @@ feature-updates/KAI-{N}-{epic_name}/
 - Create epic and feature folders
 - Create initial documentation
 
-**Next:** Stage 2
+**Next:** S2
 
 ---
 
-### Stage 2: Feature Deep Dives
+### S2: Feature Deep Dives
 
 **Purpose:** Flesh out detailed requirements for each feature
 
-**Inputs:** Feature folders from Stage 1
+**Inputs:** Feature folders from S1
 
 **Outputs:**
 - Complete `spec.md` for each feature
@@ -306,13 +306,13 @@ feature-updates/KAI-{N}-{epic_name}/
 - Compare to already-completed features for alignment
 - Dynamic scope adjustment (split if >35 checklist items)
 
-**Critical Rule:** Complete ALL features before moving to Stage 3
+**Critical Rule:** Complete ALL features before moving to S3
 
-**Next:** Stage 3
+**Next:** S3
 
 ---
 
-### Stage 3: Cross-Feature Sanity Check
+### S3: Cross-Feature Sanity Check
 
 **Purpose:** Resolve conflicts and ensure features work together
 
@@ -330,13 +330,13 @@ feature-updates/KAI-{N}-{epic_name}/
 - Resolve inconsistencies
 - Get user approval
 
-**Critical Rule:** Get explicit user sign-off before Stage 4
+**Critical Rule:** Get explicit user sign-off before S4
 
-**Next:** Stage 4
+**Next:** S4
 
 ---
 
-### Stage 4: Epic Testing Strategy
+### S4: Epic Testing Strategy
 
 **Purpose:** Define how to test the complete epic
 
@@ -355,11 +355,11 @@ feature-updates/KAI-{N}-{epic_name}/
 - Define epic success criteria
 - Plan cross-feature test scenarios
 
-**Next:** Stage 5 (first feature)
+**Next:** S5 (first feature)
 
 ---
 
-### Stage 5: Feature Implementation
+### S5: Feature Implementation
 
 **Purpose:** Implement one feature at a time with rigorous QC
 
@@ -367,12 +367,12 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Outputs:**
 - Implemented and tested feature
-- All Stage 5 artifacts (implementation_plan, implementation_checklist, code_changes)
+- All S5 artifacts (implementation_plan, implementation_checklist, code_changes)
 - Verified integration with existing features
 
 **Stages:** 5a → 5b → 5c → 5d → 5e (for EACH feature)
 
-#### Stage 5a: Implementation Planning (28 verification iterations across 3 rounds)
+#### S5: Implementation Planning (28 verification iterations across 3 rounds)
 
 **Guide:** 5 guides (Round 1, 2, 3 split into 3 parts)
 - `stages/s5/s5_p1_planning_round1.md` (iterations 1-7 + 4a)
@@ -400,11 +400,11 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Outputs:** `implementation_plan.md` (~400 lines), `questions.md` (if needed)
 
-**User Approval:** **MANDATORY CHECKPOINT** - User must approve implementation_plan.md before Stage 5b
+**User Approval:** **MANDATORY CHECKPOINT** - User must approve implementation_plan.md before S6
 
 **Critical Rule:** ALL 28 iterations are mandatory, cannot skip
 
-#### Stage 5b: Implementation Execution
+#### S6: Implementation Execution
 
 **Guide:** `stages/s9/s6_execution.md`
 
@@ -422,7 +422,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Critical Rule:** 100% unit test pass rate at all times
 
-#### Stage 5c: Post-Implementation (3 phases)
+#### S7: Post-Implementation (3 phases)
 
 **Guides:** 3 guides (Smoke Testing, QC Rounds, Final Review)
 - `stages/s10/s7_p1_smoke_testing.md`
@@ -448,7 +448,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Critical Rule:** Zero tech debt tolerance - fix ALL issues immediately
 
-#### Stage 5d: Cross-Feature Spec Alignment
+#### S8.P1: Cross-Feature Spec Alignment
 
 **Guide:** `stages/s8/s8_p1_cross_feature_alignment.md`
 
@@ -460,7 +460,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Why:** Implementation reveals reality that planning couldn't predict
 
-#### Stage 5e: Epic Testing Plan Reassessment
+#### S8.P2: Epic Testing Plan Reassessment
 
 **Guide:** `stages/s8/s8_p2_epic_testing_update.md`
 
@@ -472,15 +472,15 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Why:** Test plan must reflect reality, not original assumptions
 
-**After Stage 5e:** Repeat Stage 5 (5a→5b→5c→5d→5e) for NEXT feature
+**After S8.P2:** Repeat S5 (5a→5b→5c→5d→5e) for NEXT feature
 
 ---
 
-### Stage 9: Epic-Level Final QC
+### S9: Epic-Level Final QC
 
 **Purpose:** Validate epic as a whole (all features integrated)
 
-**Inputs:** All features complete (Stage 5e done for all)
+**Inputs:** All features complete (S8.P2 done for all)
 
 **Outputs:**
 - Validated epic (all tests passed)
@@ -496,17 +496,17 @@ feature-updates/KAI-{N}-{epic_name}/
 - Epic-level PR review (11 categories)
 - Validate against original epic request
 
-**Critical Rule:** If bugs found → Create bug fixes, RESTART Stage 9 after fixes
+**Critical Rule:** If bugs found → Create bug fixes, RESTART S9 after fixes
 
-**Next:** Stage 10
+**Next:** S10
 
 ---
 
-### Stage 10: Epic Cleanup
+### S10: Epic Cleanup
 
 **Purpose:** Commit changes, archive epic, apply lessons learned
 
-**Inputs:** Stage 9 complete, epic validated
+**Inputs:** S9 complete, epic validated
 
 **Outputs:**
 - All changes committed to git
@@ -520,7 +520,7 @@ feature-updates/KAI-{N}-{epic_name}/
 2. Verify documentation complete
 3. **User testing (MANDATORY GATE):**
    - Ask user to test complete system
-   - If bugs found → Fix bugs, RESTART Stage 9
+   - If bugs found → Fix bugs, RESTART S9
    - Repeat until user testing passes with ZERO bugs
 4. Update guides based on lessons learned
 5. Commit changes with clear message
@@ -538,7 +538,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Guide:** `stages/s5/s5_bugfix_workflow.md`
 
-**Workflow:** Stage 2 → 5a → 5b → 5c (SKIP Stages 1, 3, 4, 5d, 5e, 6, 7)
+**Workflow:** S2 → 5a → 5b → 5c (SKIP Stages 1, 3, 4, 5d, 5e, 6, 7)
 
 **Folder Structure:**
 ```
@@ -586,7 +586,7 @@ The guide requires:
 Prerequisites I'm verifying:
 ✅ spec.md exists and is complete
 ✅ checklist.md all items resolved
-✅ Stage 4 (Epic Testing Strategy) complete
+✅ S4 (Epic Testing Strategy) complete
 
 I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 ```
@@ -595,8 +595,8 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 **Phase transition prompts are MANDATORY for:**
 - Starting any of the 7 stages (1, 2, 3, 4, 5a, 5b, 5c, 5d, 5e, 6, 7)
-- Starting Stage 5a rounds (Round 1, 2, 3)
-- Starting Stage 5c phases (Smoke Testing, QC Rounds, Final Review)
+- Starting S5 rounds (Round 1, 2, 3)
+- Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
 - Creating a bug fix
 - Resuming after session compaction
 
@@ -604,7 +604,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 **Format of prompts:**
 ```markdown
-## Starting Stage 1: Epic Planning
+## Starting S1: Epic Planning
 
 I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic planning process...
 
@@ -614,7 +614,7 @@ The guide requires:
 Prerequisites I'm verifying:
 - [List prerequisite checks]
 
-I'll now proceed with Stage 1...
+I'll now proceed with S1...
 ```
 
 ### 3. Agent Status Update Protocol
@@ -627,17 +627,17 @@ I'll now proceed with Stage 1...
 - Epic completion
 
 **In feature README.md:**
-- Starting feature work (Stage 2)
-- Starting implementation (Stage 5a)
-- Phase transitions within Stage 5
-- Feature completion (after Stage 5e)
+- Starting feature work (S2)
+- Starting implementation (S5)
+- Phase transitions within S5
+- Feature completion (after S8.P2)
 
 **Agent Status Format:**
 ```markdown
 ## Agent Status
 
 **Last Updated:** 2025-12-31 10:00
-**Current Stage:** Stage 5b - Implementation Execution
+**Current Stage:** S6 - Implementation Execution
 **Current Step:** Implementing PlayerManager.calculate_score() method
 **Current Guide:** stages/s9/s6_execution.md
 **Status:** IN PROGRESS
@@ -655,20 +655,20 @@ I'll now proceed with Stage 1...
 
 ### 4. QC Restart Protocol
 
-**Applies to:** Stage 5c QC Rounds, Stage 9 Epic QC
+**Applies to:** S7 QC Rounds, S9 Epic QC
 
 **Rule:** If ANY issues found during QC → COMPLETELY RESTART from beginning
 
-**Stage 5c (Feature QC):**
+**S7 (Feature QC):**
 - Issues found in QC Round 1, 2, or 3?
 - Fix all issues
 - RESTART from smoke testing (Part 1)
 - Re-run all 3 QC rounds
 
-**Stage 9 (Epic QC):**
+**S9 (Epic QC):**
 - Issues found during epic validation?
 - Create bug fixes (follow bug fix protocol)
-- After ALL bug fixes complete → RESTART Stage 9 from beginning
+- After ALL bug fixes complete → RESTART S9 from beginning
 - Re-run all epic smoke testing and QC rounds
 
 **Why:** Ensures validation covers ALL changes, including fixes
@@ -695,9 +695,9 @@ I'll now proceed with Stage 1...
 **Rule:** All unit tests must pass before proceeding
 
 **When to run tests:**
-- After EVERY component in Stage 5b
-- Before starting QC (Stage 5c)
-- Before committing (Stage 10)
+- After EVERY component in S6
+- Before starting QC (S7)
+- Before committing (S10)
 
 **What to do if tests fail:**
 - STOP implementation
@@ -705,7 +705,7 @@ I'll now proceed with Stage 1...
 - Re-run until 100% pass
 - THEN proceed
 
-**Acceptable to fix:** Pre-existing test failures from other epics during Stage 10
+**Acceptable to fix:** Pre-existing test failures from other epics during S10
 
 ---
 
@@ -719,8 +719,8 @@ Phase transition prompts are **mandatory acknowledgments** that prove you read t
 
 **MANDATORY for:**
 1. Starting any stage (1-7)
-2. Starting Stage 5a rounds (1, 2, 3)
-3. Starting Stage 5c phases (Smoke Testing, QC Rounds, Final Review)
+2. Starting S5 rounds (1, 2, 3)
+3. Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
 4. Creating a bug fix
 5. Resuming in-progress epic after session compaction
 
@@ -750,11 +750,11 @@ Phase transition prompts are **mandatory acknowledgments** that prove you read t
 
 ### Example Phase Transition
 
-**Scenario:** Starting Stage 5a Round 1
+**Scenario:** Starting S5 Round 1
 
 **Step 1:** Read `stages/s5/s5_p1_planning_round1.md`
 
-**Step 2:** Find "Starting Stage 5a Round 1" prompt in `prompts_reference_v2.md`
+**Step 2:** Find "Starting S5 Round 1" prompt in `prompts_reference_v2.md`
 
 **Step 3:** Use the prompt:
 
@@ -771,7 +771,7 @@ The guide requires:
 Prerequisites I'm verifying:
 ✅ spec.md exists and is complete
 ✅ checklist.md all items resolved
-✅ Stage 4 (Epic Testing Strategy) complete
+✅ S4 (Epic Testing Strategy) complete
 
 I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 ```
@@ -925,10 +925,10 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 **Verify continuously, not just at end:**
 
-- During Stage 5a: 28 verification iterations
-- During Stage 5b: Mini-QC after each component
-- During Stage 5c: 3-phase validation (smoke, QC, review)
-- During Stage 9: Epic-level validation
+- During S5: 28 verification iterations
+- During S6: Mini-QC after each component
+- During S7: 3-phase validation (smoke, QC, review)
+- During S9: Epic-level validation
 
 **Why:** Catch issues early when cheap to fix, not late when expensive
 
@@ -947,17 +947,17 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 - Feature lessons learned
 
 **Keep these separate:**
-- Stage 5c validates individual features
-- Stage 9 validates epic integration
+- S7 validates individual features
+- S9 validates epic integration
 - Don't mix feature and epic concerns
 
 ### 5. Continuous Refinement
 
 **Nothing is set in stone:**
 
-- `epic_smoke_test_plan.md` evolves (Stage 1 → 4 → 5e → 6)
-- Feature specs update based on reality (Stage 5d)
-- Guides improve based on lessons learned (Stage 10)
+- `epic_smoke_test_plan.md` evolves (S1 → 4 → 5e → 6)
+- Feature specs update based on reality (S8.P1)
+- Guides improve based on lessons learned (S10)
 
 **Plan for evolution:**
 - Original assumptions may be wrong
@@ -1052,7 +1052,7 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 
 **Quick workflow overview:**
 - User creates `feature-updates/{epic_name}.txt` with initial request
-- Agent follows 7-stage process (Planning → Implementation → Validation)
+- Agent follows 10-stage process (Planning → Implementation → Validation)
 - Complete epics move to `feature-updates/done/`
 
 **Critical rules:**
@@ -1069,9 +1069,9 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 
 **For starting new epic:**
 1. Verify user created `feature-updates/{epic_name}.txt`
-2. Use "Starting Stage 1" prompt from `prompts_reference_v2.md`
+2. Use "Starting S1" prompt from `prompts_reference_v2.md`
 3. Read `stages/s1/s1_epic_planning.md`
-4. Begin Stage 1 workflow
+4. Begin S1 workflow
 
 **See:** `feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md` for complete instructions
 ```
@@ -1105,8 +1105,8 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
    echo "Test epic to verify workflow" > feature-updates/test_workflow.txt
    ```
 
-2. **Run through Stage 1:**
-   - Use "Starting Stage 1" prompt
+2. **Run through S1:**
+   - Use "Starting S1" prompt
    - Read stages/s1/s1_epic_planning.md
    - Create epic folder structure
    - Verify all files created correctly
@@ -1144,8 +1144,8 @@ Create `feature-updates/guides_v2/PROJECT_SPECIFIC_STANDARDS.md`:
 [Your project's review process]
 
 ## Integration with Epic Workflow
-- Apply these standards during Stage 5b (Implementation)
-- Verify compliance during Stage 5c (QC Rounds)
+- Apply these standards during S6 (Implementation)
+- Verify compliance during S7 (QC Rounds)
 - Include in PR Review checklist
 ```
 
@@ -1162,7 +1162,7 @@ Create `feature-updates/guides_v2/PROJECT_SPECIFIC_STANDARDS.md`:
    # Quick Reference
    - Starting work: Check feature-updates/ for in-progress epics
    - Resume: Read EPIC_README.md Agent Status
-   - New epic: User creates .txt file → Start Stage 1
+   - New epic: User creates .txt file → Start S1
    - Stuck: Re-read current guide
    - Questions: Check prompts_reference_v2.md
    ```
@@ -1186,9 +1186,9 @@ First, I need to check if there are any in-progress epics...
 
 No in-progress epics found. Let me verify you have a request file...
 
-I see you have feature-updates/{epic_name}.txt. Let me start Stage 1.
+I see you have feature-updates/{epic_name}.txt. Let me start S1.
 
-[Use "Starting Stage 1" prompt from prompts_reference_v2.md]
+[Use "Starting S1" prompt from prompts_reference_v2.md]
 [Read stages/s1/s1_epic_planning.md]
 
 I'm reading stages/s1/s1_epic_planning.md to ensure I follow the complete epic planning process...
@@ -1205,9 +1205,9 @@ Prerequisites I'm verifying:
 ✅ feature-updates/guides_v2/ folder exists
 ✅ No conflicting in-progress epics
 
-I'll now proceed with Stage 1...
+I'll now proceed with S1...
 
-[Begin Stage 1 workflow]
+[Begin S1 workflow]
 ```
 
 ### Pattern 2: Resuming In-Progress Epic
@@ -1223,7 +1223,7 @@ Let me check its current status...
 [Read feature-updates/KAI-{N}-{epic_name}/EPIC_README.md Agent Status section]
 
 I see the epic is currently at:
-- Current Stage: Stage 5b - Implementation Execution
+- Current Stage: S6 - Implementation Execution
 - Current Step: Implementing Feature 2, component 3 of 5
 - Next Action: Complete PlayerManager.calculate_score() method
 
@@ -1251,25 +1251,25 @@ I'll now continue with the implementation...
 
 ### Pattern 3: Transitioning Between Stages
 
-**Completing Stage 2, moving to Stage 3**
+**Completing S2, moving to S3**
 
 **Your response:**
 ```
-I've completed Stage 2 (Feature Deep Dives) for all features.
+I've completed S2 (Feature Deep Dives) for all features.
 
-Let me verify completion criteria before moving to Stage 3...
+Let me verify completion criteria before moving to S3...
 
-Stage 2 Completion Criteria:
+S2 Completion Criteria:
 ✅ All features have complete spec.md files
 ✅ All checklist.md items resolved
 ✅ Feature README.md files updated
 ✅ User questions answered
 
-All criteria met. Ready to proceed to Stage 3.
+All criteria met. Ready to proceed to S3.
 
-[Update EPIC_README.md Agent Status to show Stage 2 complete]
+[Update EPIC_README.md Agent Status to show S2 complete]
 
-[Use "Starting Stage 3" prompt from prompts_reference_v2.md]
+[Use "Starting S3" prompt from prompts_reference_v2.md]
 
 I'm reading stages/s3/s3_cross_feature_sanity_check.md to ensure I perform thorough cross-feature validation...
 
@@ -1280,13 +1280,13 @@ The guide requires:
 - Get explicit user sign-off on complete plan
 
 Prerequisites I'm verifying:
-✅ ALL features have complete specs (Stage 2 done)
+✅ ALL features have complete specs (S2 done)
 ✅ All checklist.md items resolved
 ✅ Feature dependencies identified
 
-I'll now proceed with Stage 3...
+I'll now proceed with S3...
 
-[Begin Stage 3 workflow]
+[Begin S3 workflow]
 ```
 
 ### Pattern 4: Handling QC Failures
@@ -1331,7 +1331,7 @@ Smoke testing passed. Moving to QC rounds...
 All QC rounds passed. Proceeding to Final Review...
 ```
 
-### Pattern 5: User Testing Finds Bugs (Stage 10)
+### Pattern 5: User Testing Finds Bugs (S10)
 
 **User reports bugs during mandatory testing**
 
@@ -1342,7 +1342,7 @@ You reported the following bugs during testing:
 1. Draft recommendations show incorrect player rankings
 2. Export file has wrong column headers
 
-Following Stage 10 bug fix protocol from stages/s10/s7_epic_cleanup.md:
+Following S10 bug fix protocol from stages/s10/s7_epic_cleanup.md:
 
 Step 1: Document Bugs
 
@@ -1359,16 +1359,16 @@ Please verify these notes.txt files accurately describe the bugs...
 Step 2: Fix ALL Bugs
 
 [For each bug fix, follow stages/s5/s5_bugfix_workflow.md]
-[Stage 2: Create spec.md]
-[Stage 5a: Create implementation_plan.md, get user approval]
-[Stage 5b: Implement fix]
-[Stage 5c: Smoke testing + QC rounds]
+[S2: Create spec.md]
+[S5: Create implementation_plan.md, get user approval]
+[S6: Implement fix]
+[S7: Smoke testing + QC rounds]
 
 Both bug fixes complete.
 
-Step 3: RESTART Stage 9 (Epic Final QC)
+Step 3: RESTART S9 (Epic Final QC)
 
-Following guide requirement: After bug fixes, must restart ENTIRE Stage 9.
+Following guide requirement: After bug fixes, must restart ENTIRE S9.
 
 [Read stages/s9/s6_p1_epic_smoke_testing.md]
 [Execute epic smoke testing - 4 parts]
@@ -1377,11 +1377,11 @@ Following guide requirement: After bug fixes, must restart ENTIRE Stage 9.
 [Read stages/s9/s6_p4_epic_final_review.md]
 [Execute epic PR review and final verification]
 
-Stage 9 complete with zero issues.
+S9 complete with zero issues.
 
 Step 4: Return to User Testing
 
-I've fixed both bugs and re-validated the epic (Stage 9 passed).
+I've fixed both bugs and re-validated the epic (S9 passed).
 
 Bugs fixed:
 - Bug 1: Draft recommendations now show correct rankings (sorted by score DESC)
@@ -1405,7 +1405,7 @@ Let me check the epic status to understand where we are...
 [Read feature-updates/KAI-{N}-{epic_name}/EPIC_README.md Agent Status]
 
 The epic is currently at:
-- Stage: Stage 5a - Implementation Planning
+- Stage: S5 - Implementation Planning
 - Round: Round 2
 - Iteration: 11 of 16
 - Guide: stages/s5/s5_p2_planning_round2.md
@@ -1447,7 +1447,7 @@ I'll now continue with iteration 11...
 ### Q: What if spec.md is wrong after implementation?
 
 **A:** Update it. Document why.
-- Stage 5d specifically addresses this (Cross-Feature Spec Alignment)
+- S8.P1 specifically addresses this (Cross-Feature Spec Alignment)
 - Implementation reveals reality that planning couldn't predict
 - Update spec.md to reflect actual implementation
 - Document reason for change in spec.md
@@ -1461,7 +1461,7 @@ I'll now continue with iteration 11...
 
 **Time breakdown:**
 - Stages 1-4 (Planning): 20% of time
-- Stage 5 (Implementation): 60% of time
+- S5 (Implementation): 60% of time
 - Stages 6-7 (Validation/Cleanup): 20% of time
 
 ### Q: What if user wants changes during implementation?
@@ -1471,12 +1471,12 @@ I'll now continue with iteration 11...
 2. Update spec.md with new requirements
 3. Determine impact (which stages affected)
 4. Restart from earliest affected stage
-5. Example: New requirement in Stage 5b → Return to Stage 5a
+5. Example: New requirement in S6 → Return to S5
 
 ### Q: Can multiple agents work on one epic?
 
 **A:** Yes, but coordinate carefully:
-- Each agent should work on different feature (Stage 5)
+- Each agent should work on different feature (S5)
 - Stages 1-4 and 6-7 should be single agent
 - Use Agent Status to avoid conflicts
 - Epic README tracks all feature progress
@@ -1484,33 +1484,33 @@ I'll now continue with iteration 11...
 ### Q: What if tests are failing from unrelated changes?
 
 **A:** Fix them.
-- Stage 10 requires 100% test pass rate
+- S10 requires 100% test pass rate
 - It's acceptable to fix pre-existing failures
 - Document in epic_lessons_learned.md
 - Goal: Clean test suite for everyone
 
 ### Q: How do I handle dependencies between features?
 
-**A:** Plan them in Stage 1, implement in order:
-- Stage 1: Identify dependencies
-- Stage 4: Plan integration testing
-- Stage 5: Implement features sequentially (dependency first)
-- Stage 9: Validate integration
+**A:** Plan them in S1, implement in order:
+- S1: Identify dependencies
+- S4: Plan integration testing
+- S5: Implement features sequentially (dependency first)
+- S9: Validate integration
 
-### Q: What if Stage 9 finds major architectural issues?
+### Q: What if S9 finds major architectural issues?
 
 **A:** Create bug fixes, potentially refactor:
 1. Document issues as high-priority bug fixes
 2. Determine if architectural change needed
 3. If major refactor: May need new epic
-4. If fixable: Create bug fixes, restart Stage 9
+4. If fixable: Create bug fixes, restart S9
 5. No shortcuts - quality is non-negotiable
 
 ### Q: How does the guide improvement workflow work?
 
 **A:** Every epic includes mandatory guide updates (S10.P1):
 
-**When:** After Stage 10 user testing passes, before final commit
+**When:** After S10 user testing passes, before final commit
 
 **What gets updated:**
 - All files in `feature-updates/guides_v2/` (16 guides + supporting files)
@@ -1545,8 +1545,8 @@ I'll now continue with iteration 11...
 ## Summary
 
 **The Epic-Driven Development Workflow v2 provides:**
-- ✅ Structured 7-stage process (Planning → Implementation → Validation)
-- ✅ Rigorous verification at every step (28 iterations in Stage 5a alone)
+- ✅ Structured 10-stage process (Planning → Implementation → Validation)
+- ✅ Rigorous verification at every step (28 iterations in S5 alone)
 - ✅ Complete documentation (specs, changes, lessons learned)
 - ✅ Quality gates (100% tests, zero tech debt, user testing)
 - ✅ Continuous improvement (lessons applied to guides)

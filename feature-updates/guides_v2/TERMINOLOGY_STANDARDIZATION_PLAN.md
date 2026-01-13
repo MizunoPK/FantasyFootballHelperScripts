@@ -293,8 +293,8 @@ Replace: "Repeated Comprehensive Reviews"
 
 ### ✅ Keep "Stage" when referring to S# hierarchy
 ```markdown
-Stage 1: Epic Planning
-Stage 5: Feature Implementation
+S1: Epic Planning
+S5: Feature Implementation
 S1, S2, S3, S4, S5, S9, S10
 ```
 
@@ -315,10 +315,10 @@ Iterations 1-7 (referring to I#)
 
 ### ✅ Keep stage/phase in workflow descriptions
 ```markdown
-"After completing Stage 5..."
+"After completing S5..."
 "Move to Phase 5.2..."
 "Complete all 7 stages..."
-"Stage 5 has 9 phases..."
+"S5 has 9 phases..."
 ```
 
 ---
@@ -371,7 +371,7 @@ Iterations 1-7 (referring to I#)
 
 ## Special Cases
 
-### Stage 5.3 Post-Implementation
+### S5.3 Post-Implementation
 
 **Current:**
 ```markdown
@@ -393,7 +393,7 @@ S10.P1, S10.P2, S10.P3: Post-Implementation
 
 ---
 
-### Stage 2 Sub-Phases
+### S2 Sub-Phases
 
 **Current:**
 ```markdown
@@ -458,7 +458,7 @@ Step 4b: Root Cause Analysis
 ## Testing Plan
 
 ### Test 1: Reserved Terms Unchanged
-- ✅ "Stage 1", "Stage 5", "S1", "S5" still present
+- ✅ "S1", "S5", "S1", "S5" still present
 - ✅ "Phase 5.1", "S5.P1", "Phase 2.1" still present
 - ✅ "Iteration 4", "S5.P1.I2" still present
 

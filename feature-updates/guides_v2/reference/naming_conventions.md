@@ -58,7 +58,7 @@ The Epic-Driven Development Workflow v2 uses a **3-level hierarchical S#.P#.I# n
 - ❌ Wrong: `S5.P1a`, `S5.P1b` (no letter suffixes)
 
 **Rule 3: Lower levels inherit from upper levels**
-- `S5.P1.I2` is an Iteration within Phase P1 of Stage 5
+- `S5.P1.I2` is an Iteration within Phase P1 of S5
 - Cannot have `S5.P1.I2` without `S5.P1` existing
 
 **Rule 4: Use minimum levels needed**
@@ -93,7 +93,7 @@ The Epic-Driven Development Workflow v2 uses a **3-level hierarchical S#.P#.I# n
 **Rule 2: Phase files (Level 2) - Stage + Phase prefix**
 - ✅ Correct: `s5_p1_planning_round1.md`, `s2_p2_specification.md`
 - ❌ Wrong: `s5_planning_round1.md` (missing p1), `phase_5.1_planning.md` (old notation)
-- **Why:** Shows exactly where in hierarchy (Stage 5, Phase 1)
+- **Why:** Shows exactly where in hierarchy (S5, Phase 1)
 
 **Rule 3: Iteration files (Level 3) - Stage + Phase + Iteration prefix**
 - ✅ Correct: `s5_p1_i2_algorithms.md`, `s5_p3_i1_preparation.md`
@@ -307,7 +307,7 @@ See `stages/s9/s6_execution.md` for execution details.
 
 **Rule 1: Use S#.P#.I# notation consistently**
 - ✅ Correct: `S5.P1`, `S5.P1.I2`
-- ❌ Wrong: `Stage 5 Phase 1`, `S5.P1`, `5.1` (without prefix)
+- ❌ Wrong: `S5 Phase 1`, `S5.P1`, `5.1` (without prefix)
 
 **Rule 2: File paths are relative to guides_v2/ directory**
 - ✅ Correct: `stages/s5/s5_p1_planning_round1.md`
@@ -436,7 +436,7 @@ S5.P1 is split into 3 iteration groups:
 
 **Wrong:**
 ```markdown
-After completing Stage 5a, proceed to Stage 5b.
+After completing S5, proceed to S6.
 See `stages/s5/phase_5.1_implementation_planning.md` for details.
 ```
 
@@ -446,7 +446,7 @@ After completing S5.P1, proceed to S5.P2.
 See `stages/s5/s5_p1_planning_round1.md` for details.
 ```
 
-**Why:** Old notation (Stage 5a, S5.P1) is deprecated.
+**Why:** Old notation (S5, S5.P1) is deprecated.
 
 ---
 
@@ -454,7 +454,7 @@ See `stages/s5/s5_p1_planning_round1.md` for details.
 
 **Wrong:**
 ```markdown
-# Stage 5: Feature Implementation
+# S5: Feature Implementation
 ## Phase 1: Planning Round 1  (missing S5)
 ```
 

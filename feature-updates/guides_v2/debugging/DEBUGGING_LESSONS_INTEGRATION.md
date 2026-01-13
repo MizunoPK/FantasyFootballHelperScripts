@@ -70,7 +70,7 @@ feature_XX_{name}/debugging/
 
 **Location:** `{epic_name}/debugging/`
 
-**Created During:** S9.P1 (Epic Smoke Testing) or S9.P2 (Epic QC Rounds) or Stage 10 (User Testing)
+**Created During:** S9.P1 (Epic Smoke Testing) or S9.P2 (Epic QC Rounds) or S10 (User Testing)
 
 **Workflow:** Same as feature-level but for epic integration issues
 
@@ -104,7 +104,7 @@ feature_XX_{name}/debugging/
 
 **Format:**
 ```markdown
-## Post-Implementation Lessons (Stage 5c)
+## Post-Implementation Lessons (S7)
 
 ### Debugging (If Occurred):
 - Issues discovered: {count}
@@ -117,7 +117,7 @@ feature_XX_{name}/debugging/
 
 ---
 
-### Stage 5d: Cross-Feature Alignment (After Each Feature)
+### S8.P1: Cross-Feature Alignment (After Each Feature)
 
 **NOT CURRENTLY UPDATED** - epic_lessons_learned.md is NOT updated here
 
@@ -133,7 +133,7 @@ feature_XX_{name}/debugging/
 
 **Per-Feature Debugging Section:**
 ```markdown
-## Stage 5 Lessons Learned (Feature Implementation)
+## S5 Lessons Learned (Feature Implementation)
 
 ### Feature 01 ({name})
 
@@ -164,7 +164,7 @@ feature_XX_{name}/debugging/
 
 **Epic-Level Debugging Section:**
 ```markdown
-## Stage 9 Lessons Learned (Epic Final QC)
+## S9 Lessons Learned (Epic Final QC)
 
 **Debugging (If Occurred at Epic Level):**
 - Issues discovered: {count}
@@ -183,7 +183,7 @@ feature_XX_{name}/debugging/
 
 **This is where ALL debugging lessons are systematically applied to guides**
 
-**Note:** Previously Stage 10 Step 4, now a dedicated S10.P1 workflow with user approval for each proposal.
+**Note:** Previously S10 Step 4, now a dedicated S10.P1 workflow with user approval for each proposal.
 
 **Complete Workflow Guide:** `stages/s10/s7_p1_guide_update_workflow.md`
 
@@ -247,7 +247,7 @@ feature_XX_{name}/debugging/
 **1. process_failure_analysis.md**
 - **Audience:** Process designers
 - **Purpose:** Understand WHY bugs got through
-- **Content:** Systematic analysis of each section (5a, 5b, 5c)
+- **Content:** Systematic analysis of each stage (S5, S6, S7)
 - **Output:** Specific process gaps identified
 
 **2. guide_update_recommendations.md**
@@ -303,8 +303,8 @@ Agents MUST verify (as part of guide_update_tracking.md):
   - Issue #2: 5-why analysis → guide gap identified → user confirms → append to guide_update_recommendations.md
   - Time: 10-20 minutes per issue (captures lessons while context fresh)
 - **Step 5:** Loop back to testing with cross-pattern analysis
-  - Analyze why bugs got through Stage 5a (TODO creation)
-  - Analyze why bugs got through Stage 5b (Implementation)
+  - Analyze why bugs got through S5 (TODO creation)
+  - Analyze why bugs got through S6 (Implementation)
   - Analyze why bugs got through S10.P1 (Smoke testing)
   - Identify patterns across Issue #1 and Issue #2
   - Create process_failure_analysis.md with cross-bug patterns
@@ -336,8 +336,8 @@ Agents MUST verify (as part of guide_update_tracking.md):
 ## Summary
 
 **Debugging lessons are collected at:**
-- Stage 5c (feature debugging)
-- Stage 9 (epic debugging)
+- S7 (feature debugging)
+- S9 (epic debugging)
 
 **Debugging lessons are aggregated at:**
 - S10.P3 (feature lessons_learned.md)

@@ -23,7 +23,7 @@ Use these examples to avoid common pitfalls and ensure thorough epic-level valid
 ### ❌ MISTAKE 1: "Repeating feature-level PR review at epic level"
 
 **Why this is wrong:**
-- Stage 5c already did feature-level PR review for each feature
+- S7 already did feature-level PR review for each feature
 - S9.P3 focuses on EPIC-WIDE concerns (cross-feature impacts)
 - Repeating feature-level checks wastes time
 
@@ -44,17 +44,17 @@ GOOD: Checking if epic-level integration tests exist (cross-feature scenarios)
 
 ---
 
-### ❌ MISTAKE 2: "Fixing issues inline and continuing Stage 9"
+### ❌ MISTAKE 2: "Fixing issues inline and continuing S9"
 
 **Why this is wrong:**
-- Bug fixes may affect areas already checked in Stage 9
+- Bug fixes may affect areas already checked in S9
 - Cannot assume previous QC results still valid
-- Partial Stage 9 completion creates gaps in validation
+- Partial S9 completion creates gaps in validation
 
 **What to do instead:**
 - ✅ Document ALL issues in epic_lessons_learned.md
-- ✅ Create bug fixes using bug fix workflow (Stage 2 → 5a → 5b → 5c)
-- ✅ COMPLETELY RESTART Stage 9 after fixes (from S9.P1)
+- ✅ Create bug fixes using bug fix workflow (S2 → 5a → 5b → 5c)
+- ✅ COMPLETELY RESTART S9 after fixes (from S9.P1)
 - ✅ Re-run ALL steps (smoke testing, QC 1-3, PR review)
 
 **Example:**
@@ -68,10 +68,10 @@ GOOD:
 - Find architectural issue in Step 6.9
 - Document in epic_lessons_learned.md
 - Create bugfix_high_architecture_inconsistency/
-- Run bug fix through Stage 2 → 5a → 5b → 5c
-- RESTART Stage 9 from S9.P1 (smoke testing)
+- Run bug fix through S2 → 5a → 5b → 5c
+- RESTART S9 from S9.P1 (smoke testing)
 - Re-run S9.P1, 6b, 6c (all steps)
-- Only then proceed to Stage 10
+- Only then proceed to S10
 ```
 
 ---
@@ -202,18 +202,18 @@ GOOD:
 
 ---
 
-### ❌ MISTAKE 7: "Proceeding to Stage 10 with pending issues"
+### ❌ MISTAKE 7: "Proceeding to S10 with pending issues"
 
 **Why this is wrong:**
-- Stage 10 is final cleanup (commits, merge to main, move to done/)
+- S10 is final cleanup (commits, merge to main, move to done/)
 - Cannot commit epic with known issues
 - User will find issues after "completion"
 
 **What to do instead:**
 - ✅ Verify NO pending issues before Step 8 (Final Verification)
-- ✅ All bug fixes must be COMPLETE (Stage 5c)
-- ✅ Stage 9 must be RESTARTED after bug fixes
-- ✅ Only proceed to Stage 10 when verification checklist 100% complete
+- ✅ All bug fixes must be COMPLETE (S7)
+- ✅ S9 must be RESTARTED after bug fixes
+- ✅ Only proceed to S10 when verification checklist 100% complete
 
 **Example:**
 ```
@@ -222,22 +222,22 @@ Step 8.1: Verification Checklist
 - ✅ Epic smoke testing passed
 - ✅ QC rounds passed
 - ✅ Epic PR review passed
-- ⚠️ 1 pending bug fix (bugfix_high_performance - Stage 5b)
+- ⚠️ 1 pending bug fix (bugfix_high_performance - S6)
 - ✅ Tests passing
-→ Proceed to Stage 10 anyway
+→ Proceed to S10 anyway
 
 GOOD:
 Step 8.1: Verification Checklist
 - ✅ Epic smoke testing passed
 - ✅ QC rounds passed
 - ✅ Epic PR review passed
-- ⚠️ 1 pending bug fix (bugfix_high_performance - Stage 5b)
+- ⚠️ 1 pending bug fix (bugfix_high_performance - S6)
 → STOP - Cannot proceed
-→ Complete bug fix (finish Stage 5c)
-→ RESTART Stage 9 from S9.P1
+→ Complete bug fix (finish S7)
+→ RESTART S9 from S9.P1
 → Re-run all steps
 → Re-verify checklist (all items ✅)
-→ Then proceed to Stage 10
+→ Then proceed to S10
 ```
 
 ---
@@ -341,7 +341,7 @@ class PerformanceTracker:  # ✅ Manager pattern
 - Impact: HIGH - Architectural inconsistency
 - Fix Required: Refactor Feature 02 to MatchupManager class
 
-**Next Action:** Create bug fix, then RESTART Stage 9
+**Next Action:** Create bug fix, then RESTART S9
 ```
 
 ---
@@ -382,9 +382,9 @@ I found 1 issue during S9.P3 Epic PR Review that requires a bug fix:
 - **Problem:** Feature 02 uses standalone functions instead of Manager pattern
 - **Impact:** Architectural inconsistency makes epic hard to maintain
 - **Fix:** Refactor Feature 02 to MatchupManager class
-- **Estimated time:** 2-3 hours (Stage 2 → 5a → 5b → 5c)
+- **Estimated time:** 2-3 hours (S2 → 5a → 5b → 5c)
 
-After fixing, I'll RESTART Stage 9 from S9.P1.
+After fixing, I'll RESTART S9 from S9.P1.
 
 Should I proceed?
 ```
@@ -400,12 +400,12 @@ bugfix_high_architecture_inconsistency/
 └── lessons_learned.md (what we learned)
 ```
 
-**Run through:** Stage 2 → 5a → 5b → 5c (bug fix complete)
+**Run through:** S2 → 5a → 5b → 5c (bug fix complete)
 
-**Step 7.5: RESTART Stage 9**
+**Step 7.5: RESTART S9**
 
 ```markdown
-## Stage 9 Restart Log
+## S9 Restart Log
 
 **Restart Date:** 2025-01-02
 **Reason:** 1 bug fix completed (bugfix_high_architecture_inconsistency)
@@ -420,7 +420,7 @@ bugfix_high_architecture_inconsistency/
 - ✅ Re-ran S9.P3: Epic PR Review (all 11 categories) - PASSED
   - Architecture category now PASSED (all features use Manager pattern)
 
-**Result:** Stage 9 complete after restart (no new issues)
+**Result:** S9 complete after restart (no new issues)
 ```
 
 ---
@@ -443,7 +443,7 @@ bugfix_high_architecture_inconsistency/
 - ✅ NO pending issues or bug fixes
 - ✅ ALL tests passing (2247/2247 tests)
 
-**Result:** Stage 9 verification PASSED
+**Result:** S9 verification PASSED
 ```
 
 **Step 8.2: Update EPIC_README.md**
@@ -451,13 +451,13 @@ bugfix_high_architecture_inconsistency/
 ```markdown
 ## Epic Progress Tracker
 
-**Stage 9 - Epic Final QC:** ✅ COMPLETE
+**S9 - Epic Final QC:** ✅ COMPLETE
 - Epic smoke testing passed: ✅
 - Epic QC rounds passed: ✅ (Rounds 1, 2, 3)
 - Epic PR review passed: ✅ (11 categories)
 - Issues found: 1 (architectural inconsistency - resolved)
 - Bug fixes completed: 1
-- Stage 9 restarts: 1 (after bug fix)
+- S9 restarts: 1 (after bug fix)
 - Date completed: 2025-01-02
 ```
 
@@ -469,17 +469,17 @@ bugfix_high_architecture_inconsistency/
 **What Went Well:**
 - Architectural consistency check caught Manager pattern inconsistency
 - Bug fix workflow smooth (2-3 hours to refactor Feature 02)
-- Stage 9 restart ensured quality maintained
+- S9 restart ensured quality maintained
 
 **Issues Found & Resolved:**
 1. **Architectural Inconsistency:** Feature 02 used standalone functions instead of Manager pattern
    - Fixed: Refactored to MatchupManager class
-   - Prevention: Add "Architecture Pattern" to Stage 2 spec template
+   - Prevention: Add "Architecture Pattern" to S2 spec template
 
 **Insights for Future Epics:**
-- Establish architectural patterns early (Stage 2)
+- Establish architectural patterns early (S2)
 - Document patterns in EPIC_README.md
-- Review architectural consistency after EACH feature (Stage 5d)
+- Review architectural consistency after EACH feature (S8.P1)
 ```
 
 **Step 8.4: Update Agent Status**
@@ -491,11 +491,11 @@ bugfix_high_architecture_inconsistency/
 **Status:** ✅ COMPLETE
 **Completed:** 2025-01-02 16:15
 
-**Stage 9 Summary:**
+**S9 Summary:**
 - Epic PR review: ✅ PASSED (11 categories)
 - Issues found: 1 (architectural inconsistency - resolved)
 - Bug fixes completed: 1
-- Stage 9 restarts: 1
+- S9 restarts: 1
 - All tests passing: ✅ (2247/2247)
 
 **Next Stage:** stages/s10/s7_epic_cleanup.md
@@ -522,7 +522,7 @@ bugfix_high_architecture_inconsistency/
 **Proper Issue Handling:**
 - ✅ Document ALL issues comprehensively
 - ✅ Create bug fixes using full workflow
-- ✅ RESTART Stage 9 completely after fixes
+- ✅ RESTART S9 completely after fixes
 - ❌ Don't fix issues inline and continue
 
 **Validate Against Original Request:**
@@ -538,11 +538,11 @@ bugfix_high_architecture_inconsistency/
 - ✅ Update EPIC_README.md and epic_lessons_learned.md
 - ❌ Don't skip documentation
 
-**Zero Issues Before Stage 10:**
+**Zero Issues Before S10:**
 - ✅ Verify ALL issues resolved
-- ✅ All bug fixes complete (Stage 5c)
+- ✅ All bug fixes complete (S7)
 - ✅ 100% test pass rate
-- ❌ Don't proceed to Stage 10 with pending issues
+- ❌ Don't proceed to S10 with pending issues
 
 ---
 
@@ -557,13 +557,13 @@ bugfix_high_architecture_inconsistency/
 - Document all issues
 - Prioritize (HIGH/MEDIUM create bug fixes, LOW document only)
 - Create bug fixes using full workflow
-- RESTART Stage 9 from S9.P1 after fixes
+- RESTART S9 from S9.P1 after fixes
 
 **STEP 8: Final Verification**
 - Verify all issues resolved
 - Update EPIC_README.md (Epic Progress Tracker, Agent Status)
 - Update epic_lessons_learned.md with insights
-- Confirm ready for Stage 10
+- Confirm ready for S10
 
 ---
 

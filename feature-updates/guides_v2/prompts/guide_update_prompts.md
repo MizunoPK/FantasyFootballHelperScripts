@@ -7,9 +7,9 @@
 
 ## Starting S10.P1: Guide Update from Lessons Learned (MANDATORY)
 
-**User says:** Agent detects Stage 10 user testing passed (Gate 7.2), OR user says "apply lessons to guides"
+**User says:** Agent detects S10 user testing passed (Gate 7.2), OR user says "apply lessons to guides"
 
-**Prerequisite:** Stage 10 user testing passed (zero bugs), all lessons_learned.md files complete
+**Prerequisite:** S10 user testing passed (zero bugs), all lessons_learned.md files complete
 
 **Agent MUST respond:**
 
@@ -47,7 +47,7 @@ I'm reading `stages/s10/s7_p1_guide_update_workflow.md` to apply lessons learned
 - User has full control over guide evolution
 
 **Prerequisites I'm verifying:**
-✅ Stage 10 user testing passed (Gate 7.2)
+✅ S10 user testing passed (Gate 7.2)
 ✅ All lessons_learned.md files complete
 ✅ Ready to analyze lessons and create proposal
 
@@ -159,7 +159,7 @@ I've analyzed all lessons learned from this epic and created prioritized guide u
 3. Create separate commit for guide updates
 4. Update reference/guide_update_tracking.md
 5. Update guide-updates.txt if any items addressed
-6. Proceed to Stage 10 Step 7 (Final Commit & PR)
+6. Proceed to S10 Step 7 (Final Commit & PR)
 
 Applying guide updates...
 ```
@@ -195,7 +195,7 @@ Applying guide updates...
 **Benefits for future agents:**
 {List 2-3 key improvements that future agents will see}
 
-**Next: Stage 10 Step 7 - Final Commit & Pull Request**
+**Next: S10 Step 7 - Final Commit & Pull Request**
 
 I'll now proceed with creating the epic commit and pull request for your review.
 
@@ -300,7 +300,7 @@ All lessons were either:
 
 **No guide update proposals to present.**
 
-**Next: Stage 10 Step 7 - Final Commit & Pull Request**
+**Next: S10 Step 7 - Final Commit & Pull Request**
 
 I'll proceed directly to creating the epic commit and pull request.
 

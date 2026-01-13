@@ -14,7 +14,7 @@
 **Historical Context:**
 - Feature 01 implemented `_load_json_player_data()` but no caller existed
 - Code written, tested, but never executed in actual feature flow
-- Discovered during Stage 5c smoke testing
+- Discovered during S7 smoke testing
 - Required emergency implementation of caller + integration tests
 
 **This iteration prevents implementing code that won't be used.**
