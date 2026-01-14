@@ -28,10 +28,10 @@
 
 **Stage Workflow:**
 ```
-S1 → S2 → S3 → S4 → S5 → S9 → S10
-  ↓         ↓         ↓         ↓         ↓         ↓         ↓
-Epic    Features  Sanity   Testing   Impl     Epic      Done
-Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
+S1 → S2 → S3 → S4 → [S5→S6→S7→S8] → S9 → S10
+  ↓        ↓        ↓        ↓        ↓           ↓        ↓
+Epic  Features  Sanity  Testing  Implementation  Epic    Done
+Plan  Deep Dive  Check  Strategy  (per feature)   QC
 ```
 
 **You are here:** ➜ Stage {X}

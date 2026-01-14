@@ -86,7 +86,7 @@ The Epic-Driven Development Workflow v2 uses a **3-level hierarchical S#.P#.I# n
 ### Specific Rules
 
 **Rule 1: Stage files (Level 1) - Single prefix**
-- ✅ Correct: `s1_epic_planning.md`, `s7_epic_cleanup.md`
+- ✅ Correct: `s1_epic_planning.md`, `s10_epic_cleanup.md`
 - ❌ Wrong: `stage_1_epic_planning.md`, `1_epic_planning.md`
 - **Why:** Lowercase 's' prefix is concise and consistent
 
@@ -150,22 +150,26 @@ feature-updates/guides_v2/
 │   │   ├── s5_p3_i1_preparation.md                (Level 3: Iteration)
 │   │   ├── s5_p3_i2_gates_part1.md                (Level 3: Iteration)
 │   │   ├── s5_p3_i3_gates_part2.md                (Level 3: Iteration)
-│   │   ├── s5_p4_execution.md                     (Level 2: Phase)
-│   │   ├── s5_p5_smoke_testing.md                 (Level 2: Phase)
-│   │   ├── s5_p6_qc_rounds.md                     (Level 2: Phase)
-│   │   ├── s5_p7_final_review.md                  (Level 2: Phase)
-│   │   ├── s5_p8_cross_feature_alignment.md       (Level 2: Phase)
-│   │   ├── s5_p9_epic_testing_update.md           (Level 2: Phase)
+│   │   ├── s5_pr_review_protocol.md               (Support doc)
 │   │   └── s5_bugfix_workflow.md                  (Support doc)
 │   ├── s6/
-│   │   ├── s6_epic_final_qc.md                    (Level 1: Stage, router)
-│   │   ├── s6_p1_epic_smoke_testing.md            (Level 2: Phase)
-│   │   ├── s6_p2_epic_qc_rounds.md                (Level 2: Phase)
-│   │   ├── s6_p3_user_testing.md                  (Level 2: Phase)
-│   │   └── s6_p4_epic_final_review.md             (Level 2: Phase)
-│   └── s7/
-│       ├── s7_epic_cleanup.md                     (Level 1: Stage)
-│       └── s7_p1_guide_update_workflow.md         (Level 2: Phase)
+│   │   └── s6_execution.md                         (Level 1: Stage)
+│   ├── s7/
+│   │   ├── s7_p1_smoke_testing.md                  (Level 2: Phase)
+│   │   ├── s7_p2_qc_rounds.md                      (Level 2: Phase)
+│   │   └── s7_p3_final_review.md                   (Level 2: Phase)
+│   ├── s8/
+│   │   ├── s8_p1_cross_feature_alignment.md        (Level 2: Phase)
+│   │   └── s8_p2_epic_testing_update.md            (Level 2: Phase)
+│   ├── s9/
+│   │   ├── s9_epic_final_qc.md                     (Level 1: Stage, router)
+│   │   ├── s9_p1_epic_smoke_testing.md             (Level 2: Phase)
+│   │   ├── s9_p2_epic_qc_rounds.md                 (Level 2: Phase)
+│   │   ├── s9_p3_user_testing.md                   (Level 2: Phase)
+│   │   └── s9_p4_epic_final_review.md              (Level 2: Phase)
+│   └── s10/
+│       ├── s10_epic_cleanup.md                     (Level 1: Stage)
+│       └── s10_p1_guide_update_workflow.md         (Level 2: Phase)
 ```
 
 ### Directory Naming Rules

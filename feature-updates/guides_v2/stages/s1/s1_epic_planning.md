@@ -480,7 +480,7 @@ Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "
 
 Add **Feature Tracking** table listing all features with S2 Complete and S8.P2 Complete checkboxes (all unchecked initially).
 
-Add **Epic Completion Checklist** with all 7 stages (S1 items checked, all others unchecked).
+Add **Epic Completion Checklist** with all 10 stages (S1 items checked, all others unchecked).
 
 ### Step 4.7: Update Agent Status
 

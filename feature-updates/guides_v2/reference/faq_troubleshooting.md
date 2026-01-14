@@ -41,7 +41,7 @@
 - **Round:** Collection of iterations (S5 has 3 rounds)
 - **Iteration:** Single verification step (Round 1 has Iterations 1-7 + Gate 4a)
 - **Phase:** Distinct workflow section (S7 has 3 phases: Smoke Testing, QC Rounds, Final Review)
-- **Stage:** Top-level workflow division (7 stages total)
+- **Stage:** Top-level workflow division (10 stages total: S1-S10)
 
 ### Q: When do I update EPIC_README.md vs feature README.md?
 

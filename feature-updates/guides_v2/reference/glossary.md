@@ -1085,14 +1085,17 @@ Specification document in each feature folder containing all requirements.
 ---
 
 ### Stage
-Top-level workflow division. 7 stages total:
-1. Epic Planning
-2. Feature Deep Dives (per feature)
-3. Cross-Feature Sanity Check
-4. Epic Testing Strategy
-5. Feature Implementation (S5 → S6 → S7 → S8 per feature)
-6. Epic-Level Final QC
-7. Epic Cleanup
+Top-level workflow division. 10 stages total:
+1. Epic Planning (S1)
+2. Feature Deep Dives (S2, per feature)
+3. Cross-Feature Sanity Check (S3)
+4. Epic Testing Strategy (S4)
+5. Implementation Planning (S5, per feature)
+6. Implementation Execution (S6, per feature)
+7. Post-Implementation (S7, per feature)
+8. Cross-Feature Alignment + Epic Testing Update (S8, per feature)
+9. Epic-Level Final QC (S9)
+10. Epic Cleanup (S10)
 
 **All stages mandatory** - cannot skip
 

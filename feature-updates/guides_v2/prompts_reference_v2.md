@@ -219,7 +219,7 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 
 **When to use these prompts:**
 - Starting ANY stage (S1-S10)
-- Starting ANY sub-stage (5a-5e)
+- Starting ANY phase within a stage
 - Creating missed requirements
 - Starting debugging workflow
 - Creating bug fixes
