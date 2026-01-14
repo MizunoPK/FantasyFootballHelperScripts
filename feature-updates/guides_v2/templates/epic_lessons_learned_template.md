@@ -139,7 +139,7 @@ This document captures:
 
 {Capture lessons AFTER EACH feature completes S8.P2}
 
-### Feature 01 ({name}) - Stages 5a through 5e
+### Feature 01 ({name}) - Stages S5 through S8
 
 **S5 (TODO Creation):**
 - What went well: {Observation}
@@ -173,13 +173,13 @@ This document captures:
 
 ---
 
-### Feature 02 ({name}) - Stages 5a through 5e
+### Feature 02 ({name}) - Stages S5 through S8
 
 {Repeat structure for Feature 02}
 
 ---
 
-### Feature 03 ({name}) - Stages 5a through 5e
+### Feature 03 ({name}) - Stages S5 through S8
 
 {Repeat structure for Feature 03}
 
@@ -258,7 +258,7 @@ This document captures:
 
 **Debugging (If Occurred at Epic Level):**
 - Issues discovered: {Count and brief summary}
-- Testing stage where found: {S9.P1 / 6b / other}
+- Testing stage where found: {S9.P1 / S9.P2 / other}
 - Total debugging time: {Hours}
 - Key insights: {Brief insights from {epic_name}/debugging/lessons_learned.md}
 - Process improvements identified: {Brief summary from {epic_name}/debugging/process_failure_analysis.md}

@@ -1,7 +1,7 @@
-# STAGE 5ac Part 1: Iterations 17-18 - Implementation Phasing & Rollback
+# S5.P3.I1 Part 1: Iterations 17-18 - Implementation Phasing & Rollback
 
 **Part of:** Epic-Driven Development Workflow v2
-**Stage:** 5ac - Implementation Planning Planning Round 3 Part 1
+**Stage:** S5.P3.I1 - Implementation Planning Planning Round 3 Part 1
 **Iterations:** 17-18
 **Purpose:** Define implementation phasing and rollback strategy
 **Prerequisites:** Planning Round 2 complete, confidence >= MEDIUM, test coverage >90%
@@ -271,10 +271,10 @@ Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
 ---
 
 **END OF ITERATIONS 17-18 GUIDE**
-# STAGE 5ac Part 1: Iterations 19-20 - Algorithm Traceability & Performance
+# S5.P3.I1 Part 1: Iterations 19-20 - Algorithm Traceability & Performance
 
 **Part of:** Epic-Driven Development Workflow v2
-**Stage:** 5ac - Implementation Planning Planning Round 3 Part 1
+**Stage:** S5.P3.I1 - Implementation Planning Planning Round 3 Part 1
 **Iterations:** 19-20
 **Purpose:** Final algorithm verification and performance optimization
 **Prerequisites:** Iterations 17-18 complete
@@ -567,10 +567,10 @@ Next Action: Iteration 21 - Mock Audit & Integration Test Plan
 ---
 
 **END OF ITERATIONS 19-20 GUIDE**
-# STAGE 5ac Part 1: Iterations 21-22 - Mock Audit & Output Validation
+# S5.P3.I1 Part 1: Iterations 21-22 - Mock Audit & Output Validation
 
 **Part of:** Epic-Driven Development Workflow v2
-**Stage:** 5ac - Implementation Planning Planning Round 3 Part 1
+**Stage:** S5.P3.I1 - Implementation Planning Planning Round 3 Part 1
 **Iterations:** 21-22
 **Purpose:** Verify mocks match real interfaces and outputs are consumable
 **Prerequisites:** Iterations 19-20 complete

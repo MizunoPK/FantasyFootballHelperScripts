@@ -27,7 +27,7 @@
 Planning Round 2 of Implementation Planning is the deep verification phase where you create comprehensive test strategy, identify edge cases, and re-verify critical matrices through 9 mandatory iterations (8-16) to catch bugs introduced during Planning Round 1.
 
 **When do you use this guide?**
-- Planning Round 1 complete (STAGE_5aa passed)
+- Planning Round 1 complete (S5.P1 passed)
 - Confidence level is MEDIUM or higher
 - Ready for deep verification of implementation plan
 
@@ -143,7 +143,7 @@ Planning Round 2 is complete when all 9 iterations pass, test coverage exceeds 9
 
 **Verify BEFORE starting Planning Round 2:**
 
-□ Planning Round 1 (STAGE_5aa) complete
+□ Planning Round 1 (S5.P1) complete
 □ All 8 Planning Round 1 iterations executed (1-7 + 4a)
 □ Iteration 4a PASSED (TODO Specification Audit)
 □ implementation_plan.md v1.0 created with:

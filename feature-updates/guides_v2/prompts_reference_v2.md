@@ -162,7 +162,7 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterat
 
 **✅ CORRECT:**
 ```
-I'm reading `stages/s10/s7_p1_smoke_testing.md`...
+I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 **The guide requires:**
 - Part 1: Import test
 - Part 2: Entry point test
@@ -218,7 +218,7 @@ I'm reading `stages/s10/s7_p1_smoke_testing.md`...
 ## Summary
 
 **When to use these prompts:**
-- Starting ANY stage (1-7)
+- Starting ANY stage (S1-S10)
 - Starting ANY sub-stage (5a-5e)
 - Creating missed requirements
 - Starting debugging workflow

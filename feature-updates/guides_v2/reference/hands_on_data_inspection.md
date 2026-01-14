@@ -606,7 +606,7 @@ S5.5 is complete when:
 - [ ] Documented ALL discrepancies with evidence
 - [ ] Reported to user with 3 options
 - [ ] Waited for user decision
-- [ ] Executed user's choice (fix spec, restart 5a, discuss, etc.)
+- [ ] Executed user's choice (fix spec, restart S5, discuss, etc.)
 - [ ] Re-ran S5.5 after fixes
 - [ ] Now zero discrepancies
 - [ ] **Proceed per user decision**
@@ -861,7 +861,7 @@ print(week_01[0]['actual_points'][0])  # 0.0 → "Wait, this should be > 0!"
 **Time to fix bug caught in S5.5:** 30 minutes
 - Update spec.md with correct data model
 - Restart S5 to regenerate implementation_plan.md
-- Proceed to 5b with correct plan
+- Proceed to S6 with correct plan
 
 **Time to fix bug caught in S9 (Epic QC):** 4+ hours
 - Debug why MAE is wrong
@@ -948,7 +948,7 @@ Open the files. Print the values. Verify every assumption.
 - Proceed to S6 (Implementation Execution)
 
 **If Discrepancies Found:**
-- Follow user's decision (restart 5a / fix and continue / discuss)
+- Follow user's decision (restart S5 / fix and continue / discuss)
 
 ---
 

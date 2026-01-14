@@ -621,7 +621,7 @@
 
 **If FAIL (user finds ANY bugs):**
 - Create bug fix following stages/s5/s5_bugfix_workflow.md
-- Bug fix goes through: S2 → 5a → 5b → 5c
+- Bug fix goes through: S2 → S5 → S6 → S7
 - After bug fix complete: **Restart S9** (Epic-Level Final QC)
 - Re-run S9 → S10 → User testing
 - Cannot commit without user approval

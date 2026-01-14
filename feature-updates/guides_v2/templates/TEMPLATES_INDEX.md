@@ -238,7 +238,7 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 1. ✅ Create `bugfix_{priority}_{name}/` folder
 2. ✅ Use **Bug Fix Notes** template
 3. ✅ Present to user for validation
-4. ✅ Proceed with bug fix workflow (Stages 2 → 5a → 5b → 5c)
+4. ✅ Proceed with bug fix workflow (Stages 2 → S5 → S6 → S7)
 
 ---
 

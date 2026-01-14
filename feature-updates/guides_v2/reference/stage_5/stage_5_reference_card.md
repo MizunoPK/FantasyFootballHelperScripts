@@ -43,7 +43,7 @@ STAGE 5a: TODO Creation (2.5-3 hours, 28 iterations across 3 rounds)
             ├─ Iteration 25: Spec Validation Against Validated Docs ← CRITICAL GATE
             └─ Iteration 24: Implementation Readiness (GO/NO-GO) ← FINAL GATE
         ↓
-STAGE 5b: Implementation Execution (stages/s9/s6_execution.md)
+STAGE 5b: Implementation Execution (stages/s6/s6_execution.md)
     1-4 hours (varies by complexity)
     ├─ Create implementation_checklist.md from implementation_plan.md tasks
     ├─ Execute implementation_plan.md tasks (PRIMARY reference)
@@ -76,7 +76,7 @@ STAGE 5e: Testing Plan Update (stages/s8/s8_p2_epic_testing_update.md)
     15-30 minutes
     └─ Reassess epic_smoke_test_plan.md
         ↓
-Next Feature (loop 5a→5b→5c→5d→5e) OR STAGE 6 (if all features done)
+Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 ```
 
 ---

@@ -301,7 +301,7 @@ S5 (Implementation Planning) is complete. I've created implementation_plan.md v3
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s9/s6_execution.md` to ensure I follow the implementation workflow...
+I'm reading `stages/s6/s6_execution.md` to ensure I follow the implementation workflow...
 
 **The guide requires:**
 - **Create implementation_checklist.md** from implementation_plan.md tasks
@@ -330,7 +330,7 @@ I'm reading `stages/s9/s6_execution.md` to ensure I follow the implementation wo
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION
-- Current Guide: stages/s9/s6_execution.md
+- Current Guide: stages/s6/s6_execution.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "spec.md visible at all times", "implementation_plan.md is PRIMARY reference", "Unit tests after each step (100% pass)", "Mini-QC checkpoints", "Update code_changes.md incrementally"
 - Progress: 0/{N} implementation tasks complete

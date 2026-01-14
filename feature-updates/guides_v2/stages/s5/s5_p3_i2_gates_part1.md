@@ -1,6 +1,6 @@
 # Iteration 23: Integration Gap Check
 
-**Part of:** STAGE 5ac Part 2b - Round 3 Gate 3
+**Part of:** S5.P3 Part 2b - Round 3 Gate 3
 **Purpose:** Verify ALL implementation tasks have integration points (no orphan code)
 **Prerequisites:** Round 3 Part 2a started, iterations 17-22 complete
 **Time Estimate:** 15-20 minutes
@@ -376,7 +376,7 @@ Proceed to **Iteration 23a (Pre-Implementation Spec Audit - Gate 2)** in gate_23
 **END OF ITERATION 23 GUIDE**
 # 🚨 Gate 2 (Iteration 23a): Pre-Implementation Spec Audit
 
-**Part of:** STAGE 5ac Part 2b - Round 3 Gate 3
+**Part of:** S5.P3 Part 2b - Round 3 Gate 3
 **Gate Type:** MANDATORY (cannot skip)
 **Purpose:** Final verification that implementation_plan.md correctly implements spec.md before coding
 **Prerequisites:** Iteration 23 complete (Integration Gap Check passed)

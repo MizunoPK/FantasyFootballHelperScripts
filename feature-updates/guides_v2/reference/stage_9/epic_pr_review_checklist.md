@@ -2,7 +2,7 @@
 
 **Purpose:** Complete checklist for epic-level PR review (S9.P3 Step 6)
 **When to Use:** After S9.P2 QC rounds complete, before final verification
-**Main Guide:** `stages/s9/s6_p4_epic_final_review.md`
+**Main Guide:** `stages/s9/s9_p4_epic_final_review.md`
 
 ---
 
@@ -807,14 +807,14 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 2. **If ANY category FAILS:**
    - Document all issues in pr_review_issues.md
    - Proceed to Step 7 (Handle Issues)
-   - After fixes complete → RESTART S9 from 6a
+   - After fixes complete → RESTART S9 from S9.P1
 
 ---
 
 ## See Also
 
 **Main Guide:**
-- `stages/s9/s6_p4_epic_final_review.md` - Complete Step 6 workflow
+- `stages/s9/s9_p4_epic_final_review.md` - Complete Step 6 workflow
 
 **PR Review Protocol:**
 - `stages/s5/s5_pr_review_protocol.md` - Complete hybrid multi-round approach

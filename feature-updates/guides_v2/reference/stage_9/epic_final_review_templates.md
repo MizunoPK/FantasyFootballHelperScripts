@@ -2,7 +2,7 @@
 
 **Purpose:** Templates for documenting S9.P3 results and lessons learned
 **When to Use:** Steps 6-8 of epic_final_review.md workflow
-**Main Guide:** `stages/s9/s6_p4_epic_final_review.md`
+**Main Guide:** `stages/s9/s9_p4_epic_final_review.md`
 
 ---
 
@@ -226,7 +226,7 @@ I found {number} issues during S9.P3 Epic PR Review that require bug fixes:
 - **Problem:** {Brief description of the issue}
 - **Impact:** {Why it matters}
 - **Fix:** {What will be done}
-- **Estimated time:** {X-Y hours (bug fix workflow: S2 → 5a → 5b → 5c)}
+- **Estimated time:** {X-Y hours (bug fix workflow: S2 → S5 → S6 → S7)}
 
 **ISSUE 2: {Issue Name} ({PRIORITY} priority)**
 - **Problem:** {Brief description of the issue}
@@ -250,7 +250,7 @@ I found 2 issues during S9.P3 Epic PR Review that require bug fixes:
 - **Problem:** Feature 01 uses Manager class pattern, Feature 02 uses standalone functions
 - **Impact:** Architectural inconsistency makes epic hard to maintain
 - **Fix:** Refactor Feature 02 to Manager pattern (MatchupManager class)
-- **Estimated time:** 2-3 hours (bug fix workflow: S2 → 5a → 5b → 5c)
+- **Estimated time:** 2-3 hours (bug fix workflow: S2 → S5 → S6 → S7)
 
 **ISSUE 2: Performance Regression (HIGH priority)**
 - **Problem:** Epic execution time 12.5s (baseline 2.5s, +400% regression)
@@ -577,7 +577,7 @@ python tests/run_all_tests.py
 - Epic PR review systematic (11 categories covered comprehensively)
 - Architectural consistency check caught Manager pattern inconsistency
 - Performance category identified N+1 query regression early
-- Bug fix workflow smooth (S2 → 5a → 5b → 5c)
+- Bug fix workflow smooth (S2 → S5 → S6 → S7)
 - S9 restart after bug fixes ensured quality maintained
 
 **What Could Be Improved:**
@@ -694,7 +694,7 @@ python tests/run_all_tests.py
 ---
 
 **See Also:**
-- Main Guide: `stages/s9/s6_p4_epic_final_review.md`
+- Main Guide: `stages/s9/s9_p4_epic_final_review.md`
 - PR Review Checklist: `reference/stage_9/epic_pr_review_checklist.md`
 - Examples: `reference/stage_9/epic_final_review_examples.md` (will be created)
 

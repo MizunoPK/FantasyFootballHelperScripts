@@ -133,7 +133,7 @@ Missed requirement handling is complete when the new/updated feature has been pl
    - Full S2 deep dive
    - Full S3 sanity check (all features)
    - Full S4 test plan update
-   - When implemented: Full S5 (5a → 5b → 5c → 5d → 5e)
+   - When implemented: Full S5 (S5 → S6 → S7 → S8)
    - No shortcuts
 ```
 
@@ -284,7 +284,7 @@ Discovered during S9 or S10?
 
 ---
 
-### Scenario 2: Discovered During QC Rounds (S10.P2)
+### Scenario 2: Discovered During QC Rounds (S7.P2)
 
 **Actions:**
 1. Use discovery.md to present options to user

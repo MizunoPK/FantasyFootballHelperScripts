@@ -56,7 +56,7 @@ I'm reading `stages/s5/s5_bugfix_workflow.md` to ensure I follow the bug fix wor
   - S5: TODO Creation (28 iterations)
   - S6: Implementation
   - S7: Post-Implementation
-  - SKIP: Stages 1, 3, 4, 5d, 5e, 6, 7 (epic-level stages)
+  - SKIP: S1, S3, S4, S8, S9, S10 (epic-level stages)
 - PHASE 3: Resume Previous Work
   - Mark bug fix complete
   - Verify bug fix doesn't affect paused work
@@ -107,7 +107,7 @@ I'm reading `missed_requirement/missed_requirement_protocol.md` to ensure I foll
   - New/updated feature implemented LATER when its turn comes
 - Two options: Create new feature_{XX}_{name}/ OR update unstarted feature
 - ALWAYS return to S2/3/4 for planning
-- Full S5 (5a → 5b → 5c → 5d → 5e) when feature gets implemented
+- Full S5 (S5 → S6 → S7 → S8) when feature gets implemented
 - Priority determines sequence: high = before current, medium = after current, low = at end
 - SPECIAL CASE: If discovered during S9/7 → Complete all features → Restart epic testing from S9.P1
 - Can be discovered during: Implementation (5a/5b/5c), Debugging, Epic Testing (6a/6b/6c), User Testing (7)

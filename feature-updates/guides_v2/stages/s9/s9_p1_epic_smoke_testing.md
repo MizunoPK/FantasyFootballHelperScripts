@@ -85,7 +85,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
    - Do NOT start if any feature is incomplete
 
 2. ⚠️ Use EVOLVED epic_smoke_test_plan.md (NOT original)
-   - Plan evolved through Stages 1 → 4 → 5e updates
+   - Plan evolved through S1 → S4 → S8.P2 updates
    - Reflects ACTUAL implementation (not initial assumptions)
    - Contains integration scenarios added during S8.P2 (Epic Testing Update)
 

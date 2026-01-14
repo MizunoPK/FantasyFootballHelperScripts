@@ -1,6 +1,6 @@
 # S9 Prompts: Epic Final QC
 
-**Stage:** 6
+**Stage:** 9
 **Purpose:** Epic-level testing and validation
 
 ---
@@ -14,7 +14,7 @@
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s9/s6_p1_epic_smoke_testing.md` to ensure I validate the entire epic end-to-end...
+I'm reading `stages/s9/s9_p1_epic_smoke_testing.md` to ensure I validate the entire epic end-to-end...
 
 **The guide requires:**
 - **Epic Smoke Testing** (distinct from feature-level testing):
@@ -35,7 +35,7 @@ I'm reading `stages/s9/s6_p1_epic_smoke_testing.md` to ensure I validate the ent
   - Verify epic achieves user's goals
   - Validate expected outcomes delivered
 - **Use EVOLVED epic_smoke_test_plan.md**:
-  - Plan updated in Stages 1 → 4 → 5e (all features)
+  - Plan updated in S1 → S4 → S8.P2 (all features)
   - Reflects ACTUAL implementation (not assumptions)
 - **QC RESTART if ANY issues**:
   - Create bug fixes for issues
@@ -58,7 +58,7 @@ I'm reading `stages/s9/s6_p1_epic_smoke_testing.md` to ensure I validate the ent
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: S9.P1 - Epic Smoke Testing
-- Current Guide: stages/s9/s6_p1_epic_smoke_testing.md
+- Current Guide: stages/s9/s9_p1_epic_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Use EVOLVED test plan", "Verify OUTPUT DATA VALUES", "4-part smoke testing", "Cross-feature integration", "RESTART if ANY part fails"
 - Next Action: Execute Step 1 - Pre-QC Verification

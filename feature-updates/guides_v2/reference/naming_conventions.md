@@ -293,7 +293,7 @@ After completing S5.P1, proceed to S5.P2.
 
 **Format 2: Notation + file link** (when directing to specific guide)
 ```markdown
-See `stages/s9/s6_execution.md` for execution details.
+See `stages/s6/s6_execution.md` for execution details.
 ```
 
 **Format 3: Full descriptive link** (in navigation tables)

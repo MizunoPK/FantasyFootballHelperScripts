@@ -82,7 +82,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 **C. Missing Mandatory Gate**
 - No checkpoint to catch this type of issue
-- Example: "No gate between S5 and 5b to verify edge cases were actually tested"
+- Example: "No gate between S5 and S6 to verify edge cases were actually tested"
 
 **D. Process Gap**
 - No workflow step covers this scenario
@@ -220,7 +220,7 @@ This bug ({brief description}) occurred because {reason}. Adding this checkpoint
 **Record:**
 ```markdown
 **Recommended Priority:** P1 (High)
-**Reasoning:** Bug reached smoke testing (got through S5 + 5b), 3 hours debugging time
+**Reasoning:** Bug reached smoke testing (got through S5 + S6), 3 hours debugging time
 ```
 
 ---

@@ -67,7 +67,7 @@ S1 is complete when you have a validated epic ticket, complete folder structure,
 
 4. ⚠️ Create GUIDE_ANCHOR.md in epic folder (resumption instructions)
 
-5. ⚠️ epic_smoke_test_plan.md is PLACEHOLDER (will update in Stages 4, 5e)
+5. ⚠️ epic_smoke_test_plan.md is PLACEHOLDER (will update in S4, S8.P2)
    - Initial plan based on assumptions
    - Mark clearly as "INITIAL - WILL UPDATE"
 
@@ -448,7 +448,7 @@ For EACH approved feature, create folder: `feature-updates/KAI-{N}-{epic_name}/f
 
 Use template from `templates/` folder (see `templates/TEMPLATES_INDEX.md`) → "Epic Smoke Test Plan Template"
 
-**IMPORTANT:** Mark this as INITIAL VERSION (placeholder that will be updated in Stages 4 and 5e)
+**IMPORTANT:** Mark this as INITIAL VERSION (placeholder that will be updated in S4 and S8.P2)
 
 **Key characteristics of initial version:**
 - Based on assumptions from epic request (no implementation knowledge yet)
@@ -576,7 +576,7 @@ Announce S1 completion to user:
    ✅ STOP - GUIDE_ANCHOR.md is MANDATORY (critical for resumption after compaction)
 
 ❌ "The epic_smoke_test_plan.md looks incomplete, let me fill it out"
-   ✅ STOP - It's SUPPOSED to be incomplete (placeholder for Stages 4, 5e)
+   ✅ STOP - It's SUPPOSED to be incomplete (placeholder for S4, S8.P2)
 
 ❌ "I'll number features 1, 2, 3 (no zero-padding)"
    ✅ STOP - Must use zero-padding: 01, 02, 03 (consistent sorting)
@@ -614,7 +614,7 @@ Announce S1 completion to user:
    {Answer: User must approve feature breakdown}
 
 2. Is the epic_smoke_test_plan.md complete after S1?
-   {Answer: No, it's a placeholder that updates in Stages 4 and 5e}
+   {Answer: No, it's a placeholder that updates in S4 and S8.P2}
 
 3. How many folders should be created per feature?
    {Answer: One folder per feature with 4 files: README, spec, checklist, lessons_learned}

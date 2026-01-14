@@ -3,7 +3,7 @@
 **Purpose:** Develop comprehensive test strategy, enumerate edge cases, and assess configuration impact
 
 **Prerequisites:**
-- Planning Round 1 (STAGE_5aa) complete
+- Planning Round 1 (S5.P1) complete
 - implementation_plan.md v1.0 created
 - Confidence level >= MEDIUM
 

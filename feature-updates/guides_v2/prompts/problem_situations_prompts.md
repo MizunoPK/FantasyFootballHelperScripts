@@ -6,7 +6,7 @@
 
 ## When Tests Are Failing
 
-**Situation:** Unit tests failing during S6 or 5c
+**Situation:** Unit tests failing during S6 or S7
 
 **Agent MUST respond:**
 

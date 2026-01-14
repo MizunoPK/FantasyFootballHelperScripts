@@ -179,7 +179,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 - Should have added integration test during implementation
 
 **Guide Improvements Needed:**
-- stages/s9/s6_execution.md: Add checkpoint for integration tests
+- stages/s6/s6_execution.md: Add checkpoint for integration tests
 - Section: "Phase 3: Implementation Verification"
 - Update: "After unit tests pass, create at least 1 integration test for cross-module workflows"
 
@@ -359,7 +359,7 @@ Combine ALL lessons from ALL files:
   - Update: Add CSV documentation requirement
 
 □ Lesson 5: Integration test checkpoint
-  - Guide: stages/s9/s6_execution.md
+  - Guide: stages/s6/s6_execution.md
   - Section: Phase 3
   - Update: Add integration test checkpoint
 

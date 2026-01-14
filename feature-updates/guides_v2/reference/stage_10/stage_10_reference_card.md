@@ -105,7 +105,7 @@ python tests/run_all_tests.py
 ## Prerequisites from S9
 
 ### User Testing Already Complete
-**Location:** stages/s9/s6_p4_epic_final_review.md Step 6
+**Location:** stages/s9/s9_p4_epic_final_review.md Step 6
 **What was checked:**
 - User tested complete system themselves
 - User reported ZERO bugs
@@ -114,9 +114,9 @@ python tests/run_all_tests.py
 **Verified before S10:** User testing passed with ZERO bugs
 
 **If bugs found in S9:**
-- Create bug fixes (S2 → 5a → 5b → 5c)
-- RESTART S9 from 6a (Epic Smoke Testing)
-- Re-run all S9 steps (6a → 6b → 6c)
+- Create bug fixes (S2 → S5 → S6 → S7)
+- RESTART S9 from S9.P1 (Epic Smoke Testing)
+- Re-run all S9 steps (6a → S9.P2 → S9.P3)
 - User re-tests in S9 Step 6
 - Only proceed to S10 after user approval (ZERO bugs)
 

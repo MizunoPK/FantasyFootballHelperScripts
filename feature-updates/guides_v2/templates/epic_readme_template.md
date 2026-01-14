@@ -203,9 +203,9 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 - [ ] Epic success criteria defined
 
 **S5 - Feature Implementation:**
-- [ ] Feature 1: 5a→5b→5c→5d→5e complete
-- [ ] Feature 2: 5a→5b→5c→5d→5e complete
-- [ ] Feature 3: 5a→5b→5c→5d→5e complete
+- [ ] Feature 1: S5→S6→S7→S8 complete
+- [ ] Feature 2: S5→S6→S7→S8 complete
+- [ ] Feature 3: S5→S6→S7→S8 complete
 - [ ] {List all features}
 
 **S9 - Epic Final QC:**

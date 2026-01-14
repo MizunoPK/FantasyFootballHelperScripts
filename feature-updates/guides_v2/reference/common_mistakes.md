@@ -109,7 +109,7 @@
 
 ### S9: Epic Final QC
 - ❌ Skipping user testing (MANDATORY in Step 6)
-- ❌ Not looping back to 6a after bug fixes
+- ❌ Not looping back to S9.P1 after bug fixes
 
 ### S10: Epic Cleanup
 - ❌ Not running tests before committing

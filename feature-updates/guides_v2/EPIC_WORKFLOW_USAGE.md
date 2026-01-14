@@ -72,7 +72,7 @@ S3: Cross-Feature Sanity Check (resolve conflicts)
     ↓
 S4: Epic Testing Strategy (define how to test)
     ↓
-S5: Feature Implementation (implement each feature: 5a→5b→5c→5d→5e)
+S5: Feature Implementation (implement each feature: S5→S6→S7→S8)
     ↓
 S9: Epic-Level Final QC (validate epic as whole)
     ↓
@@ -83,7 +83,7 @@ S10: Epic Cleanup (commit, archive, apply lessons)
 
 - **Epic**: Top-level work unit (collection of related features)
 - **Feature**: Individual component within an epic
-- **Stage**: Major phase of the workflow (1-7)
+- **Stage**: Major phase of the workflow (S1-S10)
 - **Round**: Sub-phase within a stage (e.g., S5 has 3 rounds)
 - **Iteration**: Specific verification step within a round (e.g., 28 iterations in S5)
 - **Phase**: Sub-section within a stage (e.g., S7 has 3 phases)
@@ -132,7 +132,7 @@ S10: Epic Cleanup (commit, archive, apply lessons)
    **Last Updated:** 2025-12-30 14:30
    **Current Stage:** S6 - Implementation Execution
    **Current Step:** Implementing Feature 2, component 3 of 5
-   **Current Guide:** stages/s9/s6_execution.md
+   **Current Guide:** stages/s6/s6_execution.md
    **Next Action:** Complete PlayerManager.calculate_score() method
    ```
 
@@ -157,13 +157,13 @@ project-root/
 │   └── guides_v2/                # Workflow guides (this folder)
 │       ├── EPIC_WORKFLOW_USAGE.md      # This file
 │       ├── prompts_reference_v2.md     # Mandatory phase transition prompts
-│       ├── templates/ (templates index & individual files)             # File templates
+│       ├── templates/             # File templates
 │       ├── README.md                   # Guide index
 │       ├── PLAN.md                     # Complete workflow spec
 │       ├── stages/s1/s1_epic_planning.md
 │       ├── stages/s2/s2_feature_deep_dive.md
 │       ├── ... (16 stage guides total)
-│       └── stages/s10/s7_epic_cleanup.md
+│       └── stages/s10/s10_epic_cleanup.md
 └── [your project files]
 ```
 
@@ -370,7 +370,7 @@ feature-updates/KAI-{N}-{epic_name}/
 - All S5 artifacts (implementation_plan, implementation_checklist, code_changes)
 - Verified integration with existing features
 
-**Stages:** 5a → 5b → 5c → 5d → 5e (for EACH feature)
+**Stages:** S5 → S6 → S7 → S8 (for EACH feature)
 
 #### S5: Implementation Planning (28 verification iterations across 3 rounds)
 
@@ -406,7 +406,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 #### S6: Implementation Execution
 
-**Guide:** `stages/s9/s6_execution.md`
+**Guide:** `stages/s6/s6_execution.md`
 
 **Key Activities:**
 - Create `implementation_checklist.md` (~50 lines) from implementation_plan.md tasks
@@ -425,9 +425,9 @@ feature-updates/KAI-{N}-{epic_name}/
 #### S7: Post-Implementation (3 phases)
 
 **Guides:** 3 guides (Smoke Testing, QC Rounds, Final Review)
-- `stages/s10/s7_p1_smoke_testing.md`
-- `stages/s10/s7_p2_qc_rounds.md`
-- `stages/s10/s7_p3_final_review.md`
+- `stages/s7/s7_p1_smoke_testing.md`
+- `stages/s7/s7_p2_qc_rounds.md`
+- `stages/s7/s7_p3_final_review.md`
 
 **Step 1 - Smoke Testing:**
 - Part 1: Import Test (module loads)
@@ -472,7 +472,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Why:** Test plan must reflect reality, not original assumptions
 
-**After S8.P2:** Repeat S5 (5a→5b→5c→5d→5e) for NEXT feature
+**After S8.P2:** Repeat S5 (S5→S6→S7→S8) for NEXT feature
 
 ---
 
@@ -487,7 +487,7 @@ feature-updates/KAI-{N}-{epic_name}/
 - Epic-level lessons learned
 - Epic completion verification
 
-**Guide:** `stages/s9/s6_p1_epic_smoke_testing.md` (start here, then 6b, 6c)
+**Guide:** `stages/s9/s9_p1_epic_smoke_testing.md` (start here, then phases 2, 3, 4)
 
 **Key Activities:**
 - Execute evolved `epic_smoke_test_plan.md` (4 parts)
@@ -513,7 +513,7 @@ feature-updates/KAI-{N}-{epic_name}/
 - Epic moved to `feature-updates/done/`
 - Guides updated based on lessons learned
 
-**Guide:** `stages/s10/s7_epic_cleanup.md`
+**Guide:** `stages/s10/s10_epic_cleanup.md`
 
 **Key Activities:**
 1. Run unit tests (100% pass MANDATORY)
@@ -538,7 +538,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Guide:** `stages/s5/s5_bugfix_workflow.md`
 
-**Workflow:** S2 → 5a → 5b → 5c (SKIP Stages 1, 3, 4, 5d, 5e, 6, 7)
+**Workflow:** S2 → S5 → S6 → S7 (SKIP Stages 1, 3, 4, S8, S9, S10)
 
 **Folder Structure:**
 ```
@@ -639,7 +639,7 @@ I'll now proceed with S1...
 **Last Updated:** 2025-12-31 10:00
 **Current Stage:** S6 - Implementation Execution
 **Current Step:** Implementing PlayerManager.calculate_score() method
-**Current Guide:** stages/s9/s6_execution.md
+**Current Guide:** stages/s6/s6_execution.md
 **Status:** IN PROGRESS
 **Progress:** Component 3 of 5 complete
 
@@ -811,25 +811,25 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 - stages/s5/s5_p3_planning_round3.md (Round 3 Part 1)
 - stages/s5/5.1.3.2_round3_part2a.md (Round 3 Part 2a)
 - stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
-- stages/s9/s6_execution.md
-- stages/s10/s7_p1_smoke_testing.md (Phase 1)
-- stages/s10/s7_p2_qc_rounds.md (Phase 2)
-- stages/s10/s7_p3_final_review.md (Phase 3)
+- stages/s6/s6_execution.md
+- stages/s7/s7_p1_smoke_testing.md (Phase 1)
+- stages/s7/s7_p2_qc_rounds.md (Phase 2)
+- stages/s7/s7_p3_final_review.md (Phase 3)
 - stages/s8/s8_p1_cross_feature_alignment.md
 - stages/s8/s8_p2_epic_testing_update.md
 - stages/s5/s5_bugfix_workflow.md
 
 **Finalization Guides (5):**
-- stages/s9/s6_epic_final_qc.md (router)
-- stages/s9/s6_p1_epic_smoke_testing.md (Steps 1-2)
-- stages/s9/s6_p2_epic_qc_rounds.md (Steps 3-5)
-- stages/s9/s6_p4_epic_final_review.md (Steps 6-8)
-- stages/s10/s7_epic_cleanup.md
+- stages/s9/s9_epic_final_qc.md (router)
+- stages/s9/s9_p1_epic_smoke_testing.md (Steps 1-2)
+- stages/s9/s9_p2_epic_qc_rounds.md (Steps 3-5)
+- stages/s9/s9_p4_epic_final_review.md (Steps 6-8)
+- stages/s10/s10_epic_cleanup.md
 
 **Supporting Files (4):**
 - EPIC_WORKFLOW_USAGE.md (this file)
 - prompts_reference_v2.md (phase transition prompts)
-- templates/ (templates index & individual files) (file templates)
+- templates/ (file templates)
 - README.md (guide index and quick reference)
 
 ### Guide Structure
@@ -879,17 +879,17 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 | Writing feature spec | stages/s2/s2_feature_deep_dive.md |
 | Checking feature conflicts | stages/s3/s3_cross_feature_sanity_check.md |
 | Planning epic tests | stages/s4/s4_epic_testing_strategy.md |
-| Creating implementation plan | Part 5.1.1/5ab/5ac (rounds 1-3) |
-| Writing code | stages/s9/s6_execution.md |
-| Testing feature | S10.P1/S10.P2/S10.P3 (smoke/QC/review) |
+| Creating implementation plan | S5.P1/S5.P2/S5.P3 (rounds 1-3) |
+| Writing code | stages/s6/s6_execution.md |
+| Testing feature | S7.P1/S7.P2/S7.P3 (smoke/QC/review) |
 | Updating other specs | stages/s8/s8_p1_cross_feature_alignment.md |
 | Updating test plan | stages/s8/s8_p2_epic_testing_update.md |
-| Testing epic | stages/s9/s6_p1_epic_smoke_testing.md (start here) |
-| Committing/archiving | stages/s10/s7_epic_cleanup.md |
+| Testing epic | stages/s9/s9_p1_epic_smoke_testing.md (start here) |
+| Committing/archiving | stages/s10/s10_epic_cleanup.md |
 | Fixing a bug | stages/s5/s5_bugfix_workflow.md |
 | Resuming work | EPIC_README.md Agent Status + current guide |
 | Finding prompts | prompts_reference_v2.md |
-| Creating files | templates/ (templates index & individual files) |
+| Creating files | templates/ |
 
 ---
 
@@ -955,7 +955,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 **Nothing is set in stone:**
 
-- `epic_smoke_test_plan.md` evolves (S1 → 4 → 5e → 6)
+- `epic_smoke_test_plan.md` evolves (S1 → 4 → S8.P2 → 6)
 - Feature specs update based on reality (S8.P1)
 - Guides improve based on lessons learned (S10)
 
@@ -1081,15 +1081,15 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 **Update these sections in guides if needed:**
 
 1. **Test command** (if not `python tests/run_all_tests.py`):
-   - Update in stages/s9/s6_execution.md
-   - Update in stages/s10/s7_epic_cleanup.md
+   - Update in stages/s6/s6_execution.md
+   - Update in stages/s10/s10_epic_cleanup.md
 
 2. **File paths** (if different structure):
    - Update examples in guides to match your project structure
-   - Update templates/ (templates index & individual files) with your paths
+   - Update templates/ with your paths
 
 3. **Commit protocol** (if different from project standards):
-   - Update stages/s10/s7_epic_cleanup.md commit message format
+   - Update stages/s10/s10_epic_cleanup.md commit message format
    - Update any project-specific commit requirements
 
 4. **Project-specific terminology:**
@@ -1231,7 +1231,7 @@ I see the epic is currently at:
 
 I'm resuming the in-progress epic {epic_name}. Let me read the current guide to restore context...
 
-[Read stages/s9/s6_execution.md]
+[Read stages/s6/s6_execution.md]
 
 The guide requires:
 - Keep spec.md VISIBLE at all times
@@ -1305,7 +1305,7 @@ MINOR:
 
 These issues require fixes before proceeding.
 
-Following QC Restart Protocol from stages/s10/s7_p2_qc_rounds.md:
+Following QC Restart Protocol from stages/s7/s7_p2_qc_rounds.md:
 - Fix ALL issues immediately (no deferrals)
 - RESTART from smoke testing (Part 1)
 - Re-run all 3 QC rounds
@@ -1318,7 +1318,7 @@ Fixing issues now...
 
 All issues fixed. Restarting QC process from smoke testing...
 
-[Execute stages/s10/s7_p1_smoke_testing.md Part 1]
+[Execute stages/s7/s7_p1_smoke_testing.md Part 1]
 [Execute Part 2]
 [Execute Part 3]
 
@@ -1342,7 +1342,7 @@ You reported the following bugs during testing:
 1. Draft recommendations show incorrect player rankings
 2. Export file has wrong column headers
 
-Following S10 bug fix protocol from stages/s10/s7_epic_cleanup.md:
+Following S10 bug fix protocol from stages/s10/s10_epic_cleanup.md:
 
 Step 1: Document Bugs
 
@@ -1370,11 +1370,11 @@ Step 3: RESTART S9 (Epic Final QC)
 
 Following guide requirement: After bug fixes, must restart ENTIRE S9.
 
-[Read stages/s9/s6_p1_epic_smoke_testing.md]
+[Read stages/s9/s9_p1_epic_smoke_testing.md]
 [Execute epic smoke testing - 4 parts]
-[Read stages/s9/s6_p2_epic_qc_rounds.md]
+[Read stages/s9/s9_p2_epic_qc_rounds.md]
 [Execute epic QC rounds - 3 rounds]
-[Read stages/s9/s6_p4_epic_final_review.md]
+[Read stages/s9/s9_p4_epic_final_review.md]
 [Execute epic PR review and final verification]
 
 S9 complete with zero issues.
@@ -1538,7 +1538,7 @@ I'll now continue with iteration 11...
 
 **Time estimate:** 20-45 minutes per epic (depending on lessons count)
 
-**See:** `stages/s10/s7_p1_guide_update_workflow.md` for complete workflow
+**See:** `stages/s10/s10_p1_guide_update_workflow.md` for complete workflow
 
 ---
 
@@ -1578,7 +1578,7 @@ I'll now continue with iteration 11...
 **For more information:**
 - Complete guide index: `README.md`
 - Phase transition prompts: `prompts_reference_v2.md`
-- File templates: `templates/ (templates index & individual files)`
+- File templates: `templates/`
 - Detailed workflow spec: `PLAN.md`
 
 **Questions or feedback?** Update `epic_lessons_learned.md` with guide improvement suggestions.

@@ -310,7 +310,7 @@ A: NO - Zero tech debt tolerance:
 
 ### S8.P1/5e: Post-Feature Alignment
 
-**Q: When do I skip Stages 5d and 5e?**
+**Q: When do I skip S8.P1 and S8.P2?**
 
 A: Skip ONLY if this was the LAST feature:
 - No more features to implement = no specs to update (5d)
@@ -367,7 +367,7 @@ A: NO - Epic QC is mandatory:
 A: Follow S10 bug fix protocol:
 1. Document ALL bugs in epic debugging/ISSUES_CHECKLIST.md
 2. Create bugfix folders for each bug
-3. Fix ALL bugs (each follows S2 → 5a → 5b → 5c)
+3. Fix ALL bugs (each follows S2 → S5 → S6 → S7)
 4. After ALL bugs fixed → RESTART S9 (not S10)
 5. Complete S9 validation again
 6. Return to S10 user testing
@@ -583,7 +583,7 @@ Context window limit reached → Session compacted
 **Use for:**
 - Bugs found during S10 (User Testing)
 - Each bug gets its own bugfix folder
-- Bugs go through: S2 → 5a → 5b → 5c (no S1, 3, 4, 6, 7)
+- Bugs go through: S2 → S5 → S6 → S7 (no S1, 3, 4, 6, 7)
 
 **DO NOT use for:**
 - Bugs found earlier than S10 (use Debugging)
@@ -903,7 +903,7 @@ Note: It's acceptable to fix pre-existing test failures from other epics during 
 - Whether to restart testing after issues (always restart)
 - Whether to fix issues immediately (always fix)
 - Which iteration comes next in S5 (follow sequence)
-- Whether to skip Stages 5d/5e (decision tree in guide)
+- Whether to skip S8 (decision tree in guide)
 - Update Agent Status (always update after major steps)
 
 **Golden Rule:** If guide says "user decision required" or "present options to user" → ASK. Otherwise, follow guide autonomously.

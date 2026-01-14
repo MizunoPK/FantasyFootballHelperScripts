@@ -168,7 +168,7 @@ feature_XX_{name}/debugging/
 
 **Debugging (If Occurred at Epic Level):**
 - Issues discovered: {count}
-- Testing stage: S9.P1 / 6b
+- Testing stage: S9.P1 / S9.P2
 - Total time: {hours}
 - Key insights: {from {epic_name}/debugging/lessons_learned.md}
 - Process gaps: {from {epic_name}/debugging/process_failure_analysis.md}
@@ -185,7 +185,7 @@ feature_XX_{name}/debugging/
 
 **Note:** Previously S10 Step 4, now a dedicated S10.P1 workflow with user approval for each proposal.
 
-**Complete Workflow Guide:** `stages/s10/s7_p1_guide_update_workflow.md`
+**Complete Workflow Guide:** `stages/s10/s10_p1_guide_update_workflow.md`
 
 **Process Summary:**
 
@@ -221,7 +221,7 @@ feature_XX_{name}/debugging/
 
 **Why this matters:** Debugging lessons are the MOST ACTIONABLE because they come from actual bugs that reached testing. S10.P1 ensures these lessons get prioritized (P0/P1) and user-approved before being applied to guides.
 
-**See:** `stages/s10/s7_p1_guide_update_workflow.md` for complete 9-step workflow
+**See:** `stages/s10/s10_p1_guide_update_workflow.md` for complete 9-step workflow
 
 ---
 

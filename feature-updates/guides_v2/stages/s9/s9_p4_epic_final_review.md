@@ -397,7 +397,7 @@ Present ALL high/medium priority issues to user for approval before creating bug
 For EACH issue:
 1. Create bug fix folder (bugfix_{priority}_{name}/)
 2. Create notes.txt with issue description
-3. Run through bug fix workflow: S2 → 5a → 5b → 5c
+3. Run through bug fix workflow: S2 → S5 → S6 → S7
 4. Bug fix stays in epic folder (doesn't move to done/)
 
 **Step 7.5: RESTART S9 After Bug Fixes**

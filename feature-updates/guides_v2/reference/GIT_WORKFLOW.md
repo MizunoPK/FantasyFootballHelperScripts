@@ -72,7 +72,7 @@ git commit -m "fix/KAI-1: Fix player name validation in draft mode"
 - After S7 S10.P3 (Feature completed, reviewed, tested)
 - After S10 cleanup (Epic completed, ready for PR)
 - Not during Stages 1-4 (planning only)
-- Not during Stages 5a-5b (implementation in progress)
+- Not during S5-S6 (implementation in progress)
 
 ---
 

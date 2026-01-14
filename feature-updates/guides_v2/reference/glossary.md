@@ -112,7 +112,7 @@ Process of ensuring consistency across features (S3) or updating specs after imp
 ## B
 
 ### Bug Fix
-Code correction following the bug fix workflow (S2 → 5a → 5b → 5c only).
+Code correction following the bug fix workflow (S2 → S5 → S6 → S7 only).
 
 **When used:** Bugs found during S10 user testing
 
@@ -264,7 +264,7 @@ Investigation-centric workflow for resolving bugs with unknown root cause.
 Location in workflow where path diverges based on conditions.
 
 **Major decision points:**
-- After S7: Skip 5d/5e if last feature
+- After S7: Skip S8 if last feature
 - After S8.P2: Next feature or S9
 - After QC failure: Restart protocol
 - Iteration 24: GO vs NO-GO
@@ -345,9 +345,9 @@ Table in EPIC_README.md tracking each feature through all stages.
 S9 process testing entire epic as cohesive system.
 
 **Three sub-stages:**
-- 6a: Epic Smoke Testing (4 parts)
-- 6b: Epic QC Rounds (3 rounds)
-- 6c: Epic Final Review
+- S9.P1: Epic Smoke Testing (4 parts)
+- S9.P2: Epic QC Rounds (3 rounds)
+- S9.P3: Epic Final Review
 
 **Different from feature testing:** Tests cross-feature integration, epic-level workflows
 
@@ -388,7 +388,7 @@ Individual component within an epic.
 - code_changes.md (implementation log)
 - lessons_learned.md (insights)
 
-**Lifecycle:** S2 → S5 (5a → 5b → 5c → 5d → 5e per feature)
+**Lifecycle:** S2 → S5 (S5 → S6 → S7 → S8 per feature)
 
 **See:** Epic, S5
 
@@ -768,7 +768,7 @@ Iteration 24 outcome indicating NOT ready to proceed to S6.
 ## O
 
 ### Orchestration
-**[Implementation]** Coordinating the complete feature lifecycle (5b → 5c → 5d → 5e).
+**[Implementation]** Coordinating the complete feature lifecycle (S6 → S7 → S8).
 
 **See:** Implementation Orchestration Guide
 
@@ -1090,7 +1090,7 @@ Top-level workflow division. 7 stages total:
 2. Feature Deep Dives (per feature)
 3. Cross-Feature Sanity Check
 4. Epic Testing Strategy
-5. Feature Implementation (5a → 5b → 5c → 5d → 5e per feature)
+5. Feature Implementation (S5 → S6 → S7 → S8 per feature)
 6. Epic-Level Final QC
 7. Epic Cleanup
 
@@ -1110,7 +1110,7 @@ S5 (Feature Implementation) has 5 sub-stages per feature:
 - **5d:** Post-Feature Alignment (update remaining feature specs) - skip if last feature
 - **5e:** Testing Plan Update (update epic_smoke_test_plan.md) - skip if last feature
 
-**Loop:** Repeat 5a → 5b → 5c → 5d → 5e for EACH feature
+**Loop:** Repeat S5 → S6 → S7 → S8 for EACH feature
 
 **See:** S5, Feature
 

@@ -296,7 +296,7 @@ the epic requirements and spec.md.
 These discrepancies suggest spec.md may be fundamentally incorrect.
 
 **Why This Matters:**
-- Spec.md drives all subsequent stages (5a TODO creation, 5b implementation)
+- Spec.md drives all subsequent stages (S5 TODO creation, S6 implementation)
 - If spec is wrong, TODO will be wrong, implementation will be wrong
 - Better to catch now than after implementing wrong solution
 

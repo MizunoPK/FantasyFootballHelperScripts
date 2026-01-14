@@ -98,14 +98,14 @@ User testing passes with ZERO bugs reported by user
 ```
 STEP 6: User Testing & Bug Fix Protocol
 │
-├─> 6a: Ask User to Test the System
+├─> S9.P1: Ask User to Test the System
 │   └─ Present testing request with scenarios
 │
-├─> 6b: Wait for User Testing Results
+├─> S9.P2: Wait for User Testing Results
 │   ├─ User reports "No bugs found" → Proceed to Step 7
 │   └─ User reports bugs → Follow bug fix protocol (6c)
 │
-├─> 6c: Bug Fix Protocol (If User Found Bugs)
+├─> S9.P3: Bug Fix Protocol (If User Found Bugs)
 │   ├─ Phase 1: Document Bugs
 │   ├─ Phase 2: Fix ALL Bugs
 │   ├─ Phase 3: RESTART S9.P1 (Epic Smoke Testing)
@@ -118,7 +118,7 @@ STEP 6: User Testing & Bug Fix Protocol
 
 ---
 
-## Step 6a: Ask User to Test the System
+## Step S9.P1: Ask User to Test the System
 
 **Objective:** Request that the user test the complete epic with real data and realistic workflows.
 
@@ -166,7 +166,7 @@ I'll wait for your testing results before proceeding to the final review.
 
 ---
 
-## Step 6b: Wait for User Testing Results
+## Step S9.P2: Wait for User Testing Results
 
 **Objective:** Wait for user to complete testing and report results.
 
@@ -196,7 +196,7 @@ I'll wait for your testing results before proceeding to the final review.
 
 ---
 
-## Step 6c: Bug Fix Protocol (If User Found Bugs)
+## Step S9.P3: Bug Fix Protocol (If User Found Bugs)
 
 **Triggered When:** User reports ANY bugs during testing
 

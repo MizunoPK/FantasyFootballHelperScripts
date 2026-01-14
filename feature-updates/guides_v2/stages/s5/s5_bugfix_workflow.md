@@ -30,7 +30,7 @@
 ## Quick Start
 
 **What is this guide?**
-Bug Fix Workflow is a streamlined process for handling bugs discovered during epic implementation, using a simplified workflow (S2 → 5a → 5b → 5c) that skips epic-level stages while maintaining full rigor for quality.
+Bug Fix Workflow is a streamlined process for handling bugs discovered during epic implementation, using a simplified workflow (S2 → S5 → S6 → S7) that skips epic-level stages while maintaining full rigor for quality.
 
 **When do you use this guide?**
 - Bug discovered during S5 (feature implementation) or reported by user
@@ -40,7 +40,7 @@ Bug Fix Workflow is a streamlined process for handling bugs discovered during ep
 **Key Outputs:**
 - ✅ bugfix_{priority}_{name} folder created inside epic folder
 - ✅ notes.txt created and user-verified
-- ✅ Bug fix implemented through simplified workflow (S2 → 5a → 5b → 5c)
+- ✅ Bug fix implemented through simplified workflow (S2 → S5 → S6 → S7)
 - ✅ Epic documentation updated for resumability
 - ✅ Ready to resume previous work
 
@@ -73,8 +73,8 @@ Bug Fix is complete when the bug is fixed through the full workflow (including a
    - Future agent must know where to resume
 
 4. ⚠️ FOLLOW SIMPLIFIED WORKFLOW
-   - Bug fixes: S2 → 5a → 5b → 5c
-   - SKIP: Stages 1, 3, 4, 5d, 5e, 6, 7
+   - Bug fixes: S2 → S5 → S6 → S7
+   - SKIP: Stages 1, 3, 4, S8, S9, S10
    - Same rigor as features (28 iterations, QC rounds)
    - No shortcuts
 
@@ -591,7 +591,7 @@ Priority: high
 Action:
 1. Save feature_01 state (update README)
 2. Create bug fix immediately
-3. Complete bug fix (S2 → 5c)
+3. Complete bug fix (S2 → S7)
 4. Resume feature_01 S6
 ```
 
@@ -703,7 +703,7 @@ Action:
 
 1. **Get approval** - User decides priority and timing
 2. **Document thoroughly** - notes.txt user-verified
-3. **Follow simplified workflow** - S2 → 5a → 5b → 5c
+3. **Follow simplified workflow** - S2 → S5 → S6 → S7
 4. **Same rigor** - 28 iterations, QC rounds, no shortcuts
 5. **Resume cleanly** - Return to paused work, verify compatibility
 

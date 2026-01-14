@@ -2,7 +2,7 @@
 
 **Purpose:** Common mistakes, real-world examples, and best practices for S9.P3
 **When to Use:** Reference while completing epic_final_review.md workflow
-**Main Guide:** `stages/s9/s6_p4_epic_final_review.md`
+**Main Guide:** `stages/s9/s9_p4_epic_final_review.md`
 
 ---
 
@@ -53,7 +53,7 @@ GOOD: Checking if epic-level integration tests exist (cross-feature scenarios)
 
 **What to do instead:**
 - ✅ Document ALL issues in epic_lessons_learned.md
-- ✅ Create bug fixes using bug fix workflow (S2 → 5a → 5b → 5c)
+- ✅ Create bug fixes using bug fix workflow (S2 → S5 → S6 → S7)
 - ✅ COMPLETELY RESTART S9 after fixes (from S9.P1)
 - ✅ Re-run ALL steps (smoke testing, QC 1-3, PR review)
 
@@ -68,9 +68,9 @@ GOOD:
 - Find architectural issue in Step 6.9
 - Document in epic_lessons_learned.md
 - Create bugfix_high_architecture_inconsistency/
-- Run bug fix through S2 → 5a → 5b → 5c
+- Run bug fix through S2 → S5 → S6 → S7
 - RESTART S9 from S9.P1 (smoke testing)
-- Re-run S9.P1, 6b, 6c (all steps)
+- Re-run S9.P1, 6b, S9.P3 (all steps)
 - Only then proceed to S10
 ```
 
@@ -382,7 +382,7 @@ I found 1 issue during S9.P3 Epic PR Review that requires a bug fix:
 - **Problem:** Feature 02 uses standalone functions instead of Manager pattern
 - **Impact:** Architectural inconsistency makes epic hard to maintain
 - **Fix:** Refactor Feature 02 to MatchupManager class
-- **Estimated time:** 2-3 hours (S2 → 5a → 5b → 5c)
+- **Estimated time:** 2-3 hours (S2 → S5 → S6 → S7)
 
 After fixing, I'll RESTART S9 from S9.P1.
 
@@ -400,7 +400,7 @@ bugfix_high_architecture_inconsistency/
 └── lessons_learned.md (what we learned)
 ```
 
-**Run through:** S2 → 5a → 5b → 5c (bug fix complete)
+**Run through:** S2 → S5 → S6 → S7 (bug fix complete)
 
 **Step 7.5: RESTART S9**
 
@@ -568,7 +568,7 @@ bugfix_high_architecture_inconsistency/
 ---
 
 **See Also:**
-- Main Guide: `stages/s9/s6_p4_epic_final_review.md`
+- Main Guide: `stages/s9/s9_p4_epic_final_review.md`
 - PR Review Checklist: `reference/stage_9/epic_pr_review_checklist.md`
 - Templates: `reference/stage_9/epic_final_review_templates.md`
 

@@ -102,8 +102,6 @@ STAGE 10: Epic Cleanup
    └─ Move epic to done/ folder
 ```
 
-**Visual Diagrams:** See `diagrams/workflow_diagrams.md` for ASCII art diagrams of complete workflow, S5 detail, and debugging protocol integration.
-
 ---
 
 ## Guide Index
@@ -630,7 +628,7 @@ S9 (Execution):
    - **S4:** Update epic_smoke_test_plan.md
 7. Planning complete → Agent resumes paused work
 8. New/updated feature waits its turn in implementation sequence
-9. When its turn comes: Implement through full S5 (5a → 5b → 5c → 5d → 5e)
+9. When its turn comes: Implement through full S5 (S5 → S6 → S7 → S8)
 10. **SPECIAL CASE - If discovered during S9/7:**
     - Complete ALL remaining features first
     - Implement new/updated feature
@@ -640,7 +638,7 @@ S9 (Execution):
 
 ### Workflow 3b: Debugging Issues During QC/Smoke Testing (Integrated Loop-Back)
 
-**During Feature-Level Testing (S10.P1/S10.P2):**
+**During Feature-Level Testing (S7.P1/S7.P2):**
 
 1. Agent runs Smoke Testing Part 3 (E2E) → Issues found
 2. Agent creates `feature_XX_{name}/debugging/` folder
@@ -660,7 +658,7 @@ S9 (Execution):
 12. If NEW issues found → Back to Phase 1 (add to checklist)
 13. If ZERO issues → Proceed to S7.P2
 
-**During Epic-Level Testing (S9.P1/6b):**
+**During Epic-Level Testing (S9.P1/S9.P2):**
 
 1. Agent runs Epic Smoke Testing → Issues found
 2. Agent creates `{epic_name}/debugging/` folder (EPIC-LEVEL, not feature)
@@ -769,7 +767,7 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 ### Q: When should I enter debugging protocol vs just fixing it?
 
 **Enter debugging protocol when:**
-- Issues discovered during Smoke Testing (S10.P1/6a) or QC Rounds (S10.P2/6b)
+- Issues discovered during Smoke Testing (S7.P1) or QC Rounds (S7.P2)
 - Root cause is UNKNOWN (requires investigation)
 - Issue affects multiple files or components
 - Multiple related issues discovered
@@ -873,7 +871,7 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 
 **Key Files:**
 - **This README:** Workflow overview, guide index, getting started
-- **Stage Guides (12):** Detailed workflows for each stage
+- **Stage Guides (35):** Detailed workflows for each stage
 - **templates/TEMPLATES_INDEX.md:** File templates for all epic/feature files
 - **prompts_reference_v2.md:** MANDATORY prompts for phase transitions
 

@@ -1,4 +1,4 @@
-# Implementation Orchestration Guide - Feature Lifecycle (5b → 5e)
+# Implementation Orchestration Guide - Feature Lifecycle (S6 → S8)
 
 **Purpose:** Orchestrate the complete feature implementation lifecycle from code writing to epic test plan updates, ensuring smooth transitions between phases and proper EPIC_README tracking.
 
@@ -35,7 +35,7 @@ S5: TODO Creation COMPLETE
 └─────────────────────────────────────────┘
          ↓
     [S7 passed?]
-    ├─ NO → Create bug fix → Restart 5c
+    ├─ NO → Create bug fix → Restart S7
     └─ YES → Feature complete!
          ↓
     [More features remaining?]
@@ -134,7 +134,7 @@ Validate the implemented feature through smoke testing, QC rounds, and PR review
 
 ### Restart Protocol
 **IF ANY ISSUES FOUND:**
-- Create bug fix (S2 → 5a → 5b → 5c for bug)
+- Create bug fix (S2 → S5 → S6 → S7 for bug)
 - RESTART S7 from smoke testing
 - Re-run all 3 phases
 
@@ -157,10 +157,10 @@ Next Action: Read stages/s8/s8_p1_cross_feature_alignment.md
 
 # If NO more features:
 Current Stage: S9 - Epic Final QC
-Next Action: Read stages/s9/s6_epic_final_qc.md
+Next Action: Read stages/s9/s9_epic_final_qc.md
 ```
 
-### Decision Point: Skip 5d/5e?
+### Decision Point: Skip S8?
 **Question:** Are there more features to implement?
 
 **If YES (features remaining):**
@@ -170,7 +170,7 @@ Next Action: Read stages/s9/s6_epic_final_qc.md
 - Then next feature's S5
 
 **If NO (this was last feature):**
-- SKIP Stages 5d and 5e
+- SKIP S8.P1 and S8.P2
 - Proceed directly to S9 (Epic Final QC)
 - Reason: No remaining specs to update, no point updating test plan before final epic testing
 
@@ -276,7 +276,7 @@ Next Action: Read stages/s5/s5_p1_planning_round1.md for next feature
 
 # If NO more features:
 Current Stage: S9 - Epic Final QC
-Next Action: Read stages/s9/s6_epic_final_qc.md
+Next Action: Read stages/s9/s9_epic_final_qc.md
 ```
 
 ### Decision Point: Next Feature or S9?
@@ -284,7 +284,7 @@ Next Action: Read stages/s9/s6_epic_final_qc.md
 
 **If YES (features remaining):**
 - Proceed to next feature's S5 (TODO Creation)
-- Repeat cycle: 5a → 5b → 5c → 5d → 5e
+- Repeat cycle: S5 → S6 → S7 → S8
 - Each feature gets full S5 treatment
 
 **If NO (all features complete):**
@@ -342,7 +342,7 @@ Mark next column as 🔄 (in progress)
 
 **Scenario:** Feature just completed S7 (Post-Implementation)
 
-**Question:** Do we continue to Stages 5d and 5e?
+**Question:** Do we continue to S8.P1 and S8.P2?
 
 **Answer:**
 - **YES** if features remaining to implement → Go to 5d
@@ -374,7 +374,7 @@ Mark next column as 🔄 (in progress)
 
 **Answer:**
 - **ANY issues** → Create bug fix
-- Bug fix goes through: S2 → 5a → 5b → 5c
+- Bug fix goes through: S2 → S5 → S6 → S7
 - After bug fix complete → RESTART original feature's S7
 - **Zero tolerance** for tech debt
 
@@ -413,7 +413,7 @@ Mark next column as 🔄 (in progress)
 **Total per feature:** 2-5 hours
 
 **Key Decision Points:**
-- After 5c: Skip 5d/5e if last feature
+- After 5c: Skip S8 if last feature
 - After 5e: Next feature's 5a OR S9 if all done
 - During any stage: Issues found → Bug fix → Restart stage
 
@@ -422,7 +422,7 @@ Mark next column as 🔄 (in progress)
 - Update Agent Status with next action
 - Keep Quick Reference Card current
 
-**Remember:** Stages 5d and 5e are ONLY for aligning future features. If you just completed the LAST feature, skip directly to S9 for epic-level testing.
+**Remember:** S8.P1 and S8.P2 are ONLY for aligning future features. If you just completed the LAST feature, skip directly to S9 for epic-level testing.
 
 ---
 

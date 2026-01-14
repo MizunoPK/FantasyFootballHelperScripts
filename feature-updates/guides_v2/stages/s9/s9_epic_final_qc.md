@@ -217,7 +217,7 @@ Start Epic Final QC
 
 **CRITICAL:** If ANY issues are found during S9, you MUST:
 
-1. **Create bug fixes** using bug fix workflow (S2 → 5a → 5b → 5c)
+1. **Create bug fixes** using bug fix workflow (S2 → S5 → S6 → S7)
 2. **RESTART S9 from STAGE_6a** (cannot partially continue)
 3. **Re-run ALL steps:**
    - STAGE_6a: Epic Smoke Testing (all 4 parts)
@@ -454,7 +454,7 @@ A: No. All 8 steps are mandatory. The split doesn't change workflow, just organi
 A: Check EPIC_README.md Agent Status for current step, then read the guide for that step.
 
 **Q: What if I find issues during S9?**
-A: Create bug fixes using bug fix workflow (S2 → 5a → 5b → 5c), then RESTART S9 from STAGE_6a.
+A: Create bug fixes using bug fix workflow (S2 → S5 → S6 → S7), then RESTART S9 from STAGE_6a.
 
 **Q: Can I partially continue S9 after bug fixes?**
 A: No. You MUST COMPLETELY RESTART S9 from STAGE_6a (smoke testing) after ANY bug fixes.

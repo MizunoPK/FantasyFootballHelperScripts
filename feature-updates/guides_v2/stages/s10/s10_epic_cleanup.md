@@ -949,7 +949,7 @@ ls -d feature-updates/done/*/ | wc -l
 **Expected:** 10 or fewer
 
 **If count exceeds 10:**
-- Review what was deleted in Step 6b
+- Review what was deleted in Step S9.P2
 - Verify correct epics were removed
 - Ensure only most recent 10 epics remain
 
@@ -1084,7 +1084,7 @@ The epic is now complete!
 ### S9 Completion (Including User Testing)
 - [ ] User tested complete system (S9 Step 6)
 - [ ] User testing result: ZERO bugs found
-- [ ] If bugs found: All fixed, S9 re-run from 6a, user re-tested
+- [ ] If bugs found: All fixed, S9 re-run from S9.P1, user re-tested
 - [ ] Epic PR review passed (all categories)
 
 ### Git Commit and Pull Request

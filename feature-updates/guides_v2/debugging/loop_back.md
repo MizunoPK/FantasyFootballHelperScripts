@@ -807,7 +807,7 @@ All issues in epic_name/debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with us
 
 **Update EPIC_README Agent Status:**
 - Current Phase: EPIC_FINAL_QC_SMOKE_TESTING
-- Current Guide: stages/s9/s6_p1_epic_smoke_testing.md
+- Current Guide: stages/s9/s9_p1_epic_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Returning From: Debugging Protocol
 - Issues Resolved: {count}

@@ -69,7 +69,7 @@ SPECIAL: Implement New/Updated Feature (full S5)
     ↓
 SPECIAL: RESTART Epic Testing from S9.P1 Step 1
     ↓
-S9.P1 → 6b → 6c → S10 (entire epic flow)
+S9.P1 → S9.P2 → S9.P3 → S10 (entire epic flow)
 ```
 
 ---
@@ -122,7 +122,7 @@ Actions needed:
 
 **Complete each feature in sequence:**
 - Resume feature_03 where it left off
-- Run through S5 (5a → 5b → 5c → 5d → 5e) for feature_03
+- Run through S5 (S5 → S6 → S7 → S8) for feature_03
 - Implement feature_04 (full S5)
 - Implement feature_05 (full S5)
 - **ALL features must be complete before restarting epic testing**
@@ -154,7 +154,7 @@ Actions needed:
 
 **Why restart from beginning:**
 - New feature changes epic integration
-- Previous test results (Stages 6a/6b) are invalid
+- Previous test results (Stages S9.P1/S9.P2) are invalid
 - Need clean epic test pass with new feature included
 
 **Update EPIC_README.md:**
@@ -216,7 +216,7 @@ Actions needed:
 ```markdown
 **Context:**
 - Epic: Fantasy Football Helpers
-- Stage: 6b (Epic QC Round 1)
+- Stage: S9.P2 (Epic QC Round 1)
 - Features complete: feature_01, feature_02, feature_03
 - Features not started: feature_04
 - Discovery: Missing caching layer needed for feature_02/feature_03 integration
@@ -234,8 +234,8 @@ Actions needed:
    - Update epic test plan
 
 3. **Complete remaining features:**
-   - Implement feature_04 (S5 → 5e)
-   - Implement feature_05 (S5 → 5e)
+   - Implement feature_04 (S5 → S8)
+   - Implement feature_05 (S5 → S8)
 
 4. **Restart epic testing:**
    - S9.P1 Part 1 (Import Test) - all 5 features
@@ -272,7 +272,7 @@ Actions needed:
 
 3. **Complete remaining features:**
    - No remaining features
-   - Re-implement feature_03 with new scope (S5 → 5e)
+   - Re-implement feature_03 with new scope (S5 → S8)
 
 4. **Restart epic testing:**
    - S9.P1 (Epic Smoke Testing) - feature_03 now includes PDF export
@@ -326,7 +326,7 @@ Actions needed:
 
 **Why wrong:** Missing epic-level validation, potential issues elsewhere
 
-**Correct:** Run complete S9 (6a → 6b → 6c) from beginning
+**Correct:** Run complete S9 (S9.P1 → S9.P2 → S9.P3 → S9.P4) from beginning
 
 ---
 
@@ -372,7 +372,7 @@ Actions needed:
 2. **Different:** Complete ALL remaining features first
 3. **Different:** Implement new/updated feature (full S5)
 4. **Different:** RESTART epic testing from S9.P1 Step 1
-5. Run complete epic testing flow (6a → 6b → 6c → 7)
+5. Run complete epic testing flow (S9.P1 → S9.P2 → S9.P3 → S9.P4 → 7)
 
 **Key principle:** New feature changes epic integration → Must re-test entire epic
 

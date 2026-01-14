@@ -45,7 +45,7 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
     │   ├─ Code Quality, Security, Error Handling, etc.
     │   └─ All 11 categories PASSED
     ├─ Step 7: Handle Issues (If Any) (Variable)
-    │   ├─ Create bug fixes (S2 → 5a → 5b → 5c)
+    │   ├─ Create bug fixes (S2 → S5 → S6 → S7)
     │   └─ RESTART S9 from S9.P1 (COMPLETE restart)
     └─ Step 8: Final Verification & README Update (15-30 min)
         ├─ Verify all steps complete
@@ -70,7 +70,7 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 **CRITICAL:** If ANY issues found during S9:
 
 ### Restart Steps:
-1. **Create bug fix** using bug fix workflow (S2 → 5a → 5b → 5c)
+1. **Create bug fix** using bug fix workflow (S2 → S5 → S6 → S7)
 2. **RESTART S9 from S9.P1** (cannot partially continue)
 3. **Re-run ALL 8 steps:**
    - S9.P1: Epic Smoke Testing (all 4 parts)
@@ -291,11 +291,11 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 | Current Step | Guide to Read | Time Estimate |
 |--------------|---------------|---------------|
-| Starting S9 | stages/s9/s6_p1_epic_smoke_testing.md | 60-90 min |
-| Step 1-2 | stages/s9/s6_p1_epic_smoke_testing.md | 60-90 min |
-| Step 3-5 | stages/s9/s6_p2_epic_qc_rounds.md | 2-3 hours |
-| Step 6-8 | stages/s9/s6_p4_epic_final_review.md | 1-2 hours |
-| Overview/navigation | stages/s9/s6_epic_final_qc.md (router) | 5 min |
+| Starting S9 | stages/s9/s9_p1_epic_smoke_testing.md | 60-90 min |
+| Step 1-2 | stages/s9/s9_p1_epic_smoke_testing.md | 60-90 min |
+| Step 3-5 | stages/s9/s9_p2_epic_qc_rounds.md | 2-3 hours |
+| Step 6-8 | stages/s9/s9_p4_epic_final_review.md | 1-2 hours |
+| Overview/navigation | stages/s9/s9_epic_final_qc.md (router) | 5 min |
 
 ---
 

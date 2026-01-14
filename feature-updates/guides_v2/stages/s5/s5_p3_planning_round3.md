@@ -415,4 +415,4 @@ O(n) dict lookup → 0.01s (acceptable)
 
 ---
 
-**END OF STAGE 5ac PART 1 GUIDE**
+**END OF S5.P3 PART 1 GUIDE**
