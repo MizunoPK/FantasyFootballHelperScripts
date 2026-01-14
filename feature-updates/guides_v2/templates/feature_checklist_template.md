@@ -219,4 +219,4 @@ This checklist contains **questions and decisions that require user input**.
 
 ---
 
-**See also:** `prompts/stage_2_prompts.md` for "User Checklist Approval" prompt
+**See also:** `prompts/s2_prompts.md` for "User Checklist Approval" prompt

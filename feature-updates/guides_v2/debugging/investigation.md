@@ -110,7 +110,7 @@ Add new issue to "Active Investigations" table.
 Player scoring calculation returns None instead of expected float value
 
 **Discovered During:**
-S10.P1 Smoke Testing Part 3 - E2E test execution
+S7.P1 Smoke Testing Part 3 - E2E test execution
 
 **Reproduction:**
 ```python

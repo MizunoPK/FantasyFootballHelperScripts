@@ -68,8 +68,8 @@
 | 5ac | Iteration 25 | Part 2 | Spec matches validated docs | Yes (User decides) |
 | 5ac | Iteration 24 | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
 | 5a-5b | User Approval | After 5a | User approves implementation_plan.md | Yes (Revise plan) |
-| S10.P1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
-| S10.P2 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
+| S7.P1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
+| S7.P2 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
 | 7 | Unit Tests | Cleanup | 100% test pass (exit code 0) | Yes (Fix tests) |
 | 7 | User Testing | Cleanup | ZERO bugs found by user | Yes (S9) |
 
@@ -505,9 +505,9 @@
 
 ## S7: Post-Implementation (2 gates per feature)
 
-### Gate 5: S10.P1 Part 3 - E2E Smoke Test (Data Validation)
+### Gate 5: S7.P1 Part 3 - E2E Smoke Test (Data Validation)
 
-**Location:** stages/s10/s7_p1_smoke_testing.md
+**Location:** stages/s7/s7_p1_smoke_testing.md
 **When:** After Part 1 (Import) and Part 2 (Entry Point) tests pass
 
 **What it checks:**
@@ -533,9 +533,9 @@
 
 ---
 
-### Gate 6: S10.P2 QC Round 3 - ZERO Issues Required
+### Gate 6: S7.P2 QC Round 3 - ZERO Issues Required
 
-**Location:** stages/s10/s7_p2_qc_rounds.md
+**Location:** stages/s7/s7_p2_qc_rounds.md
 **When:** After QC Rounds 1 and 2 pass
 
 **What it checks:**
@@ -549,7 +549,7 @@
 
 **If FAIL (ANY issues found in Round 3):**
 - Fix ALL issues
-- **Restart from S10.P1 Step 1** (smoke testing)
+- **Restart from S7.P1 Step 1** (smoke testing)
 - Re-run smoke testing → QC Round 1 → QC Round 2 → QC Round 3
 - ZERO tolerance for issues
 
@@ -586,7 +586,7 @@
 
 ### Gate 7.1: Unit Tests (100% Pass)
 
-**Location:** stages/s10/s7_epic_cleanup.md
+**Location:** stages/s10/s10_epic_cleanup.md
 **When:** Before user testing
 
 **What it checks:**
@@ -608,7 +608,7 @@
 
 ### Gate 7.2: User Testing (ZERO Bugs)
 
-**Location:** stages/s10/s7_epic_cleanup.md
+**Location:** stages/s10/s10_epic_cleanup.md
 **When:** After unit tests pass (final gate before commit)
 
 **What it checks:**

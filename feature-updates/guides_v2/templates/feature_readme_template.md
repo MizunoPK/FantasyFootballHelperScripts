@@ -60,7 +60,7 @@
 - [ ] README.md created (this file)
 - [ ] S2 complete: {✅/◻️}
 
-**S5 - TODO Creation:**
+**S5 - Implementation Planning:**
 - [ ] 28 verification iterations complete
 - [ ] Iteration 4a: TODO Specification Audit PASSED
 - [ ] Iteration 23a: Pre-Implementation Spec Audit (ALL 4 PARTS PASSED)
@@ -69,14 +69,14 @@
 - [ ] `questions.md` created (or documented "no questions")
 - [ ] S5 complete: {✅/◻️}
 
-**S6 - Implementation:**
+**S6 - Implementation Execution:**
 - [ ] All implementation tasks complete
 - [ ] All unit tests passing (100%)
 - [ ] `implementation_checklist.md` created and all verified
 - [ ] `code_changes.md` created and updated
 - [ ] S6 complete: {✅/◻️}
 
-**S7 - Post-Implementation:**
+**S7 - Implementation Testing & Review:**
 - [ ] Smoke testing (3 parts) passed
 - [ ] QC Round 1 passed
 - [ ] QC Round 2 passed

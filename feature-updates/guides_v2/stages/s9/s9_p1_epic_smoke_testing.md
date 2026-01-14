@@ -23,7 +23,7 @@ S5 (ALL features complete) →
    - Review critical rules that apply to ALL smoke testing
    - Study common mistakes to avoid
 
-2. **Use the phase transition prompt** from `prompts/stage_6_prompts.md`
+2. **Use the phase transition prompt** from `prompts/s9_prompts.md`
    - Find "Starting S9: Epic Final QC" prompt
    - Acknowledge critical requirements
    - List requirements from this guide

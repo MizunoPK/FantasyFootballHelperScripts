@@ -30,7 +30,7 @@
 | Overview | What is the workflow | [Go](#overview) |
 | Quick Start | Starting a new epic | [Go](#quick-start) |
 | File Structure | Epic and feature folders | [Go](#file-structure) |
-| Workflow Stages | All 7 stages explained | [Go](#workflow-stages) |
+| Workflow Stages | All 10 stages explained | [Go](#workflow-stages) |
 | Critical Protocols | Mandatory protocols | [Go](#critical-protocols) |
 | Phase Transition | How to transition stages | [Go](#phase-transition-protocol) |
 | Using the Guides | How to read guides | [Go](#using-the-guides) |
@@ -594,7 +594,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 ### 2. Phase Transition Protocol
 
 **Phase transition prompts are MANDATORY for:**
-- Starting any of the 7 stages (1, 2, 3, 4, 5a, 5b, 5c, 5d, 5e, 6, 7)
+- Starting any of the 10 stages (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10)
 - Starting S5 rounds (Round 1, 2, 3)
 - Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
 - Creating a bug fix

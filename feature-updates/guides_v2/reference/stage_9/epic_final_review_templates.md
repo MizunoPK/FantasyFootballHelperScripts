@@ -644,8 +644,8 @@ python tests/run_all_tests.py
 - All tests passing: ✅ ({N}/{total} tests)
 - Result: Epic ready for {next stage}
 
-**Next Stage:** stages/s10/s7_epic_cleanup.md
-**Next Action:** Read stages/s10/s7_epic_cleanup.md to begin final epic cleanup
+**Next Stage:** stages/s10/s10_epic_cleanup.md
+**Next Action:** Read stages/s10/s10_epic_cleanup.md to begin final epic cleanup
 ```
 
 ### Example
@@ -668,8 +668,8 @@ python tests/run_all_tests.py
 - All tests passing: ✅ (2247/2247 tests)
 - Result: Epic ready for cleanup and move to done/
 
-**Next Stage:** stages/s10/s7_epic_cleanup.md
-**Next Action:** Read stages/s10/s7_epic_cleanup.md to begin final epic cleanup
+**Next Stage:** stages/s10/s10_epic_cleanup.md
+**Next Action:** Read stages/s10/s10_epic_cleanup.md to begin final epic cleanup
 ```
 
 ---
@@ -695,8 +695,8 @@ python tests/run_all_tests.py
 
 **See Also:**
 - Main Guide: `stages/s9/s6_p4_epic_final_review.md`
-- PR Review Checklist: `reference/stage_6/epic_pr_review_checklist.md`
-- Examples: `reference/stage_6/epic_final_review_examples.md` (will be created)
+- PR Review Checklist: `reference/stage_9/epic_pr_review_checklist.md`
+- Examples: `reference/stage_9/epic_final_review_examples.md` (will be created)
 
 ---
 

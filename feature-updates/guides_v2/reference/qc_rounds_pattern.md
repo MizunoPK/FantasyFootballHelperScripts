@@ -1,10 +1,10 @@
 # QC Rounds Pattern (Reference)
 
-**Purpose:** Generic QC rounds workflow applicable to both feature-level (S10.P2) and epic-level (S9.P2) quality control.
+**Purpose:** Generic QC rounds workflow applicable to both feature-level (S7.P2) and epic-level (S9.P2) quality control.
 
 **This is a REFERENCE PATTERN.** Actual guides:
-- **Feature-level:** `stages/s10/s7_p2_qc_rounds.md`
-- **Epic-level:** `stages/s9/s6_p2_epic_qc_rounds.md`
+- **Feature-level:** `stages/s7/s7_p2_qc_rounds.md`
+- **Epic-level:** `stages/s9/s9_p2_epic_qc_rounds.md`
 
 ---
 
@@ -19,7 +19,7 @@
 - Progressive validation (each round catches different issues)
 
 **Scope-Specific Implementation:**
-- **Feature-level (S10.P2):** Validates individual feature correctness and completeness
+- **Feature-level (S7.P2):** Validates individual feature correctness and completeness
 - **Epic-level (S9.P2):** Validates cross-feature integration and epic cohesion
 
 ---
@@ -69,7 +69,7 @@ Round 3: [Scope-Specific Focus]
 ```
 RESTART PROTOCOL:
 1. Fix ALL issues found in failed round
-2. Return to smoke testing (S10.P1 OR S9.P1)
+2. Return to smoke testing (S7.P1 OR S9.P1)
 3. Re-run ALL smoke test parts
 4. Re-run ALL 3 QC rounds from Round 1
 
@@ -370,7 +370,7 @@ Did QC round find issues?
 
 ## Scope-Specific Differences
 
-### Feature-Level QC Rounds (S10.P2)
+### Feature-Level QC Rounds (S7.P2)
 
 **Round 1 Focus:** Basic Validation
 - Unit tests passing
@@ -392,7 +392,7 @@ Did QC round find issues?
 - Re-check Integration Gap Check
 - Zero issues tolerance
 
-**Restart Destination:** S10.P1 (Feature Smoke Testing)
+**Restart Destination:** S7.P1 (Feature Smoke Testing)
 
 ---
 
@@ -442,5 +442,5 @@ Did QC round find issues?
 ---
 
 *For actual implementation guides, see:*
-- Feature-level: `stages/s10/s7_p2_qc_rounds.md`
-- Epic-level: `stages/s9/s6_p2_epic_qc_rounds.md`
+- Feature-level: `stages/s7/s7_p2_qc_rounds.md`
+- Epic-level: `stages/s9/s9_p2_epic_qc_rounds.md`

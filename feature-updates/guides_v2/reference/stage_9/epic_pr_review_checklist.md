@@ -820,11 +820,11 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 - `stages/s5/s5_pr_review_protocol.md` - Complete hybrid multi-round approach
 
 **Related Guides:**
-- `stages/s9/s6_p2_epic_qc_rounds.md` - Previous stage
-- `stages/s10/s7_epic_cleanup.md` - Next stage (if review passes)
+- `stages/s9/s9_p2_epic_qc_rounds.md` - Previous stage
+- `stages/s10/s10_epic_cleanup.md` - Next stage (if review passes)
 
 **Templates:**
-- `reference/stage_6/epic_final_review_templates.md` - Documentation templates
+- `reference/stage_9/epic_final_review_templates.md` - Documentation templates
 - `templates/pr_review_issues_template.md` - Issue tracking format
 
 ---

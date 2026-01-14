@@ -218,7 +218,7 @@ If ANY gate fails: Fix issues, re-run
    - If no questions (or after user answers) → Proceed to step 2
 
 2. **Present implementation_plan.md to user for approval:**
-   - Use prompt from `prompts/stage_5_prompts.md`
+   - Use prompt from `prompts/s5_s8_prompts.md`
    - Highlight key sections (tasks, dependencies, test strategy, phasing)
    - Request explicit approval
 

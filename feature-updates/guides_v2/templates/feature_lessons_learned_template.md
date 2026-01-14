@@ -161,13 +161,13 @@ This document captures lessons specific to THIS feature's development. This is s
 - stages/s5/s5_p3_planning_round3.md: {Improvement 1 or "None"}
 - stages/s5/round3_part2_final_gates.md: {Improvement 1 or "None"}
 
-**stages/s9/s6_execution.md:**
+**stages/s6/s6_execution.md:**
 - {Improvement 1 or "None"}
 
 **S7 Post-Implementation:**
-- stages/s10/s7_p1_smoke_testing.md: {Improvement 1 or "None"}
-- stages/s10/s7_p2_qc_rounds.md: {Improvement 1 or "None"}
-- stages/s10/s7_p3_final_review.md: {Improvement 1 or "None"}
+- stages/s7/s7_p1_smoke_testing.md: {Improvement 1 or "None"}
+- stages/s7/s7_p2_qc_rounds.md: {Improvement 1 or "None"}
+- stages/s7/s7_p3_final_review.md: {Improvement 1 or "None"}
 
 {If no guide improvements needed: "No guide improvements identified from this feature"}
 

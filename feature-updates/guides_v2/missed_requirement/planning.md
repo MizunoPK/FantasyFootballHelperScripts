@@ -105,7 +105,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 
 ### Step 3: Run Full S2 Deep Dive
 
-**🚨 FIRST ACTION:** Use "Starting S2" prompt from `prompts/stage_2_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S2" prompt from `prompts/s2_prompts.md`
 
 **READ:** `stages/s2/s2_feature_deep_dive.md`
 
@@ -190,7 +190,7 @@ cat feature_{XX}_{name}/README.md
 
 ### Step 3: Update spec.md
 
-**🚨 FIRST ACTION:** Use "Starting S2" prompt from `prompts/stage_2_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S2" prompt from `prompts/s2_prompts.md`
 
 **READ:** `stages/s2/s2_feature_deep_dive.md`
 

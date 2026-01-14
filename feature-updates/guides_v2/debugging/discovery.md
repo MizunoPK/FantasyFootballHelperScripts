@@ -12,11 +12,11 @@
 
 ## Triggered When
 
-- Smoke Testing (S10.P1) Part 3 discovers issues
-- QC Rounds (S10.P2) any round discovers issues
+- Smoke Testing (S7.P1) Part 3 discovers issues
+- QC Rounds (S7.P2) any round discovers issues
 - Epic Smoke Testing (S9.P1) discovers issues
 - Epic QC Rounds (S9.P2) discovers issues
-- User Testing (S10) discovers bugs
+- User Testing (S9.P3) discovers bugs
 
 ---
 
@@ -85,7 +85,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 **Current Guide:** debugging/discovery.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
-**Testing Stage Paused:** {S10.P1 Smoke Part 3 / S10.P2 QC Round 1 / etc}
+**Testing Stage Paused:** {S7.P1 Smoke Part 3 / S7.P2 QC Round 1 / S9.P1 Epic Smoke / S9.P2 Epic QC / etc}
 
 **Debugging Status:**
 - Issues in Checklist: {count}
@@ -136,7 +136,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 # Issues Checklist - {Feature/Epic Name}
 
 **Source:** {Feature/Epic}
-**Testing Stage:** {S10.P1 Smoke Testing / S10.P2 QC Rounds / S9 Epic Testing / S10 User Testing}
+**Testing Stage:** {S7.P1 Smoke Testing / S7.P2 QC Rounds / S9.P1 Epic Smoke Testing / S9.P2 Epic QC Rounds / S9.P3 User Testing}
 **Created:** {YYYY-MM-DD HH:MM}
 **Status:** In Progress
 
@@ -172,7 +172,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 
 ## Loop-Back Status
 
-**Testing Stage to Loop Back To:** {S10.P1 Step 1 / S9.P1 Step 1}
+**Testing Stage to Loop Back To:** {S7.P1 Step 1 / S9.P1 Step 1}
 **Reason:** Must re-run {smoke/QC} tests from beginning after fixes
 
 ---
@@ -277,7 +277,7 @@ feature_01_player_integration/
         └── issue_02_round1.log
 ```
 
-**Loop-back destination:** S10.P1 Step 1 (Smoke Testing)
+**Loop-back destination:** S7.P1 Step 1 (Smoke Testing)
 
 ---
 

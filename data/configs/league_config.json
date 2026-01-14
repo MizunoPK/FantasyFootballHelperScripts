@@ -92,6 +92,13 @@
       "RB",
       "WR"
     ],
+    "NFL_TEAM_PENALTY": [
+      "LV",
+      "NYJ",
+      "NYG",
+      "KC"
+    ],
+    "NFL_TEAM_PENALTY_WEIGHT": 0.75,
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,

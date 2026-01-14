@@ -201,7 +201,7 @@ I'm reading `debugging/debugging_protocol.md` to ensure I follow the complete de
 - Current Phase: DEBUGGING_PROTOCOL
 - Current Guide: debugging/debugging_protocol.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Testing Stage Paused: {S10.P1 Smoke Part 3 / S10.P2 QC Round 1 / etc}
+- Testing Stage Paused: {S7.P1 Smoke Part 3 / S7.P2 QC Round 1 / etc}
 - Issues Found: {count}
 - Loop Back To: {Testing stage to return to}
 - Critical Rules: "Issue checklist workflow", "Loop back to testing after resolution", "User verification required"

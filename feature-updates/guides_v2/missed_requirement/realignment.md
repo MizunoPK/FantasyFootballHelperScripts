@@ -25,7 +25,7 @@
 
 ### Critical: Re-align ALL Features
 
-**🚨 FIRST ACTION:** Use "Starting S3" prompt from `prompts/stage_3_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S3" prompt from `prompts/s3_prompts.md`
 
 **READ:** `stages/s3/s3_cross_feature_sanity_check.md`
 
@@ -147,7 +147,7 @@ Proceed to S4 (Epic Testing Strategy update)? {User confirms}
 
 ### Update epic_smoke_test_plan.md
 
-**🚨 FIRST ACTION:** Use "Starting S4" prompt from `prompts/stage_4_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S4" prompt from `prompts/s4_prompts.md`
 
 **READ:** `stages/s4/s4_epic_testing_strategy.md`
 
@@ -540,7 +540,7 @@ After feature_05: Resume and complete feature_02
 - Later: When new/updated feature's turn comes, implement through full S5
 
 **Special Case:**
-- If discovered during S9/7: See `missed_requirement/stage_6_7_special.md`
+- If discovered during S9/S10: See `missed_requirement/s9_s10_special.md`
 
 ---
 

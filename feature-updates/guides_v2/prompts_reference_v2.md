@@ -34,37 +34,37 @@
 
 ### Stage Transition Prompts
 
-**[S1: Epic Planning](prompts/stage_1_prompts.md)**
+**[S1: Epic Planning](prompts/s1_prompts.md)**
 - Starting S1: Epic Planning
 
-**[S2: Feature Deep Dive](prompts/stage_2_prompts.md)**
+**[S2: Feature Deep Dive](prompts/s2_prompts.md)**
 - Starting S2: Feature Deep Dive
 
-**[S2b.5: Specification Validation](prompts/stage_2b5_prompts.md)**
-- Starting S2b.5: Specification Validation
+**[S2.P2.5: Specification Validation](prompts/s2_p2.5_prompts.md)**
+- Starting S2.P2.5: Specification Validation
 
-**[S3: Cross-Feature Sanity Check](prompts/stage_3_prompts.md)**
+**[S3: Cross-Feature Sanity Check](prompts/s3_prompts.md)**
 - Starting S3: Cross-Feature Sanity Check
 
-**[S4: Epic Testing Strategy](prompts/stage_4_prompts.md)**
+**[S4: Epic Testing Strategy](prompts/s4_prompts.md)**
 - Starting S4: Epic Testing Strategy
 
-**[S5: Feature Implementation](prompts/stage_5_prompts.md)**
+**[S5-S8: Feature Loop](prompts/s5_s8_prompts.md)**
 - Starting S5: Implementation Planning (Round 1)
 - Starting S5: Implementation Planning (Round 2)
 - Starting S5 Round 3 Part 1: Implementation Planning (Preparation)
 - Starting S5 Round 3 Part 2: Implementation Planning (Final Gates)
-- Starting S6: Implementation
-- Starting S7 (Phase 1): Smoke Testing
-- Starting S7 (Phase 2): QC Rounds
-- Starting S7 (Phase 3): Final Review
+- Starting S6: Implementation Execution
+- Starting S7.P1: Smoke Testing
+- Starting S7.P2: QC Rounds
+- Starting S7.P3: Final Review
 - Starting S8.P1: Cross-Feature Alignment
 - Starting S8.P2: Epic Testing Plan Update
 
-**[S9: Epic Final QC](prompts/stage_6_prompts.md)**
+**[S9: Epic Final QC](prompts/s9_prompts.md)**
 - Starting S9: Epic Final QC
 
-**[S10: Epic Cleanup](prompts/stage_7_prompts.md)**
+**[S10: Epic Cleanup](prompts/s10_prompts.md)**
 - Starting S10: Epic Cleanup
 - Starting S10.P1: Guide Update from Lessons Learned (see prompts/guide_update_prompts.md)
 
@@ -249,13 +249,14 @@ I'm reading `stages/s10/s7_p1_smoke_testing.md`...
 
 This router file has been optimized from 1,474 lines to ~200 lines by splitting content into focused files:
 
-- **prompts/stage_1_prompts.md** - S1 prompts (67 lines)
-- **prompts/stage_2_prompts.md** - S2 prompts (~50 lines)
-- **prompts/stage_3_prompts.md** - S3 prompts (~40 lines)
-- **prompts/stage_4_prompts.md** - S4 prompts (~40 lines)
-- **prompts/stage_5_prompts.md** - All S5 sub-stage prompts (~650 lines)
-- **prompts/stage_6_prompts.md** - S9 prompts (~65 lines)
-- **prompts/stage_7_prompts.md** - S10 prompts (~70 lines)
+- **prompts/s1_prompts.md** - S1 prompts (67 lines)
+- **prompts/s2_prompts.md** - S2 prompts (~50 lines)
+- **prompts/s2_p2.5_prompts.md** - S2.P2.5 prompts (~40 lines)
+- **prompts/s3_prompts.md** - S3 prompts (~40 lines)
+- **prompts/s4_prompts.md** - S4 prompts (~40 lines)
+- **prompts/s5_s8_prompts.md** - S5-S8 feature loop prompts (~650 lines)
+- **prompts/s9_prompts.md** - S9 prompts (~65 lines)
+- **prompts/s10_prompts.md** - S10 prompts (~70 lines)
 - **prompts/special_workflows_prompts.md** - Bug fix, missed requirement, debugging, resuming (~200 lines)
 - **prompts/problem_situations_prompts.md** - Test failures, blockers, user interactions (~120 lines)
 

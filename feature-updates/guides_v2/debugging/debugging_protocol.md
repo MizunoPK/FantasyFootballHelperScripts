@@ -35,8 +35,8 @@
 Debugging Protocol is an investigation-centric process integrated into QC/Smoke Testing that uses an issue checklist, structured investigation rounds, and loop-back mechanism to ensure all bugs are resolved before proceeding.
 
 **When do you use this protocol?**
-- During Smoke Testing (S10.P1): Issues discovered in Part 3 E2E test
-- During QC Rounds (S10.P2): Issues discovered in any round
+- During Smoke Testing (S7.P1): Issues discovered in Part 3 E2E test
+- During QC Rounds (S7.P2): Issues discovered in any round
 - During Epic Testing (S9): Issues discovered during epic smoke/QC
 - Issues have UNKNOWN root cause requiring investigation
 

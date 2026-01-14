@@ -498,7 +498,7 @@ bugfix_high_architecture_inconsistency/
 - S9 restarts: 1
 - All tests passing: ✅ (2247/2247)
 
-**Next Stage:** stages/s10/s7_epic_cleanup.md
+**Next Stage:** stages/s10/s10_epic_cleanup.md
 ```
 
 ---
@@ -569,8 +569,8 @@ bugfix_high_architecture_inconsistency/
 
 **See Also:**
 - Main Guide: `stages/s9/s6_p4_epic_final_review.md`
-- PR Review Checklist: `reference/stage_6/epic_pr_review_checklist.md`
-- Templates: `reference/stage_6/epic_final_review_templates.md`
+- PR Review Checklist: `reference/stage_9/epic_pr_review_checklist.md`
+- Templates: `reference/stage_9/epic_final_review_templates.md`
 
 ---
 

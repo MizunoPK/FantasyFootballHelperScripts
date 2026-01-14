@@ -206,8 +206,8 @@ The missed requirement protocol consists of 4 phases (plus special case):
 
 ---
 
-### SPECIAL CASE: Discovery During Epic Testing (S9/7)
-**See:** `missed_requirement/stage_6_7_special.md`
+### SPECIAL CASE: Discovery During Epic Testing (S9/S10)
+**See:** `missed_requirement/s9_s10_special.md`
 
 **Purpose:** Handle missed requirements discovered during epic testing with special restart protocol
 
@@ -264,8 +264,8 @@ Planning complete, need to align features?
 └─ Read missed_requirement/realignment.md (PHASE 3 & 4)
    └─ S3 sanity check + S4 test plan update → Resume work
 
-Discovered during S9 or 7?
-└─ Read missed_requirement/stage_6_7_special.md (SPECIAL CASE)
+Discovered during S9 or S10?
+└─ Read missed_requirement/s9_s10_special.md (SPECIAL CASE)
    └─ Complete all features → Restart epic testing
 ```
 
@@ -302,7 +302,7 @@ Discovered during S9 or 7?
 1. Use discovery.md to present options to user
 2. Use planning.md for S2 deep dive
 3. Use realignment.md for S3/4
-4. **Use stage_6_7_special.md for special restart protocol**
+4. **Use s9_s10_special.md for special restart protocol**
 5. Complete all remaining features
 6. Implement new/updated feature
 7. **RESTART epic testing from S9.P1 Step 1**
@@ -328,7 +328,7 @@ Discovered during S9 or 7?
 - `missed_requirement/discovery.md` - Discovery & user decision
 - `missed_requirement/planning.md` - S2 deep dive
 - `missed_requirement/realignment.md` - S3/4 alignment + resume
-- `missed_requirement/stage_6_7_special.md` - Epic testing special case
+- `missed_requirement/s9_s10_special.md` - Epic testing special case
 
 ---
 

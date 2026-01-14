@@ -224,7 +224,7 @@ This document captures:
 
 **From Feature 01:**
 - `stages/s5/s5_p1_planning_round1.md`: {Specific improvement}
-- `stages/s10/s7_p1_smoke_testing.md`: {Specific improvement}
+- `stages/s7/s7_p1_smoke_testing.md`: {Specific improvement}
 
 **From Feature 01 Debugging (if occurred):**
 - {List guide updates from feature_01_{name}/debugging/guide_update_recommendations.md}

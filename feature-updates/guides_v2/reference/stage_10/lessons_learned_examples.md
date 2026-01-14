@@ -2,7 +2,7 @@
 
 **Purpose:** Examples and guidance for reading and applying lessons learned
 **When to use:** S10.P1 (Guide Update from Lessons Learned)
-**Main Guide:** `stages/s10/s7_p1_guide_update_workflow.md`
+**Main Guide:** `stages/s10/s10_p1_guide_update_workflow.md`
 
 ---
 

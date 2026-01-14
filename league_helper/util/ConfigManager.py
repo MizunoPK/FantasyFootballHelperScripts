@@ -26,6 +26,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import constants as Constants
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
+from historical_data_compiler.constants import ALL_NFL_TEAMS
 from utils.LoggingManager import get_logger
 from utils.FantasyPlayer import FantasyPlayer
 
@@ -72,6 +73,8 @@ class ConfigKeys:
     DRAFT_ORDER = "DRAFT_ORDER"
     MAX_POSITIONS = "MAX_POSITIONS"
     FLEX_ELIGIBLE_POSITIONS = "FLEX_ELIGIBLE_POSITIONS"
+    NFL_TEAM_PENALTY = "NFL_TEAM_PENALTY"
+    NFL_TEAM_PENALTY_WEIGHT = "NFL_TEAM_PENALTY_WEIGHT"
 
     # Draft Order scoring
     DRAFT_ORDER_PRIMARY_LABEL = "P"
@@ -219,6 +222,10 @@ class ConfigManager:
         # Roster construction limits
         self.max_positions: Dict[str, int] = {}
         self.flex_eligible_positions: List[str] = []
+
+        # NFL team penalty settings
+        self.nfl_team_penalty: List[str] = []
+        self.nfl_team_penalty_weight: float = 1.0
 
         # Threshold calculation cache
         self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
@@ -1055,6 +1062,43 @@ class ConfigManager:
         # Extract roster construction limits
         self.max_positions = self.parameters[self.keys.MAX_POSITIONS]
         self.flex_eligible_positions = self.parameters[self.keys.FLEX_ELIGIBLE_POSITIONS]
+
+        # Extract NFL team penalty settings (optional - backward compatible)
+        self.nfl_team_penalty = self.parameters.get(
+            self.keys.NFL_TEAM_PENALTY, []
+        )
+        self.nfl_team_penalty_weight = self.parameters.get(
+            self.keys.NFL_TEAM_PENALTY_WEIGHT, 1.0
+        )
+
+        # Validate NFL_TEAM_PENALTY type and team abbreviations
+        if not isinstance(self.nfl_team_penalty, list):
+            raise ValueError(
+                f"NFL_TEAM_PENALTY must be a list, got {type(self.nfl_team_penalty).__name__}"
+            )
+
+        invalid_teams = [
+            team for team in self.nfl_team_penalty
+            if team not in ALL_NFL_TEAMS
+        ]
+        if invalid_teams:
+            raise ValueError(
+                f"NFL_TEAM_PENALTY contains invalid team abbreviations: {', '.join(invalid_teams)}. "
+                f"Valid teams: {', '.join(ALL_NFL_TEAMS)}"
+            )
+
+        # Validate NFL_TEAM_PENALTY_WEIGHT type and range
+        if not isinstance(self.nfl_team_penalty_weight, (int, float)):
+            raise ValueError(
+                f"NFL_TEAM_PENALTY_WEIGHT must be a number (int or float), "
+                f"got {type(self.nfl_team_penalty_weight).__name__}"
+            )
+
+        if not (0.0 <= self.nfl_team_penalty_weight <= 1.0):
+            raise ValueError(
+                f"NFL_TEAM_PENALTY_WEIGHT must be between 0.0 and 1.0 (inclusive), "
+                f"got {self.nfl_team_penalty_weight}"
+            )
 
         # Extract Starter Helper mode parameters (optional - not in current config)
         # Note: matchup_multipliers are accessed directly from matchup_scoring[self.keys.MULTIPLIERS]

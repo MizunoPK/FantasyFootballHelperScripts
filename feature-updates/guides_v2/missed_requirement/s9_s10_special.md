@@ -181,9 +181,9 @@ Actions needed:
 
 **Follow S9 from beginning:**
 
-**🚨 FIRST ACTION:** Use "Starting S9" prompt from `prompts/stage_6_prompts.md`
+**🚨 FIRST ACTION:** Use "Starting S9" prompt from `prompts/s9_prompts.md`
 
-**READ:** `stages/s9/s6_epic_final_qc.md`
+**READ:** `stages/s9/s9_epic_final_qc.md`
 
 **Execute:**
 1. **S9.P1:** Epic Smoke Testing (Part 1-4)

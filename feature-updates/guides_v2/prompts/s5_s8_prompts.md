@@ -350,7 +350,7 @@ Starting implementation...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s10/s7_p1_smoke_testing.md` to ensure I follow the 3-part smoke testing protocol...
+I'm reading `stages/s7/s7_p1_smoke_testing.md` to ensure I follow the 3-part smoke testing protocol...
 
 **The guide requires:**
 - **Part 1: Import Test** (verify module loads without errors)
@@ -382,7 +382,7 @@ I'm reading `stages/s10/s7_p1_smoke_testing.md` to ensure I follow the 3-part sm
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_SMOKE_TESTING
-- Current Guide: stages/s10/s7_p1_smoke_testing.md
+- Current Guide: stages/s7/s7_p1_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 parts MANDATORY", "Verify DATA VALUES not structure", "GATE before QC rounds"
 - Progress: 0/3 parts complete
@@ -402,7 +402,7 @@ Running import test for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s10/s7_p2_qc_rounds.md` to ensure I follow the 3-round QC protocol...
+I'm reading `stages/s7/s7_p2_qc_rounds.md` to ensure I follow the 3-round QC protocol...
 
 **The guide requires:**
 - **QC Round 1: Basic Validation**
@@ -432,7 +432,7 @@ I'm reading `stages/s10/s7_p2_qc_rounds.md` to ensure I follow the 3-round QC pr
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_QC_ROUNDS
-- Current Guide: stages/s10/s7_p2_qc_rounds.md
+- Current Guide: stages/s7/s7_p2_qc_rounds.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 rounds (no exceptions)", "QC RESTART if critical issues", "Round 3 zero tolerance"
 - Progress: 0/3 rounds complete
@@ -452,7 +452,7 @@ Starting QC Round 1 for {feature_name}...
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s10/s7_p3_final_review.md` to ensure I follow the final review protocol...
+I'm reading `stages/s7/s7_p3_final_review.md` to ensure I follow the final review protocol...
 
 **The guide requires:**
 - **PR Review Protocol** (Multi-round with fresh eyes - MANDATORY):
@@ -485,7 +485,7 @@ I'm reading `stages/s10/s7_p3_final_review.md` to ensure I follow the final revi
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_FINAL_REVIEW
-- Current Guide: stages/s10/s7_p3_final_review.md
+- Current Guide: stages/s7/s7_p3_final_review.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "PR review protocol MANDATORY", "Fresh agents for each round", "Update guides immediately", "100% completion required"
 - Progress: PR Review Protocol starting

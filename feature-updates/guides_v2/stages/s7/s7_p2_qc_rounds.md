@@ -23,7 +23,7 @@ S7.P1 (Smoke Testing) →
    - Review critical rules that apply to ALL QC rounds
    - Study restart protocol and common mistakes
 
-2. **Use the phase transition prompt** from `prompts/stage_5_prompts.md`
+2. **Use the phase transition prompt** from `prompts/s5_s8_prompts.md`
    - Find "Starting S7 (Testing & Review) (Phase 2): QC Rounds" prompt
    - Acknowledge requirements
    - List critical requirements from this guide

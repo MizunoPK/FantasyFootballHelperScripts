@@ -253,13 +253,15 @@ feature-updates/
     ├── EPIC_WORKFLOW_USAGE.md        ← Comprehensive usage guide
     │
     ├── prompts/                      ← Phase transition prompts (split by stage)
-    │   ├── stage_1_prompts.md
-    │   ├── stage_2_prompts.md
-    │   ├── stage_3_prompts.md
-    │   ├── stage_4_prompts.md
-    │   ├── stage_5_prompts.md            ← S5-S8 feature loop prompts
-    │   ├── stage_6_prompts.md            ← S9 epic QC prompts
-    │   ├── stage_7_prompts.md            ← S10 epic cleanup prompts
+    │   ├── s1_prompts.md
+    │   ├── s2_prompts.md
+    │   ├── s2_p2.5_prompts.md
+    │   ├── s3_prompts.md
+    │   ├── s4_prompts.md
+    │   ├── s5_s8_prompts.md              ← S5-S8 feature loop prompts
+    │   ├── s9_prompts.md                 ← S9 epic QC prompts
+    │   ├── s10_prompts.md                ← S10 epic cleanup prompts
+    │   ├── guide_update_prompts.md
     │   ├── special_workflows_prompts.md
     │   └── problem_situations_prompts.md
     │
@@ -275,7 +277,7 @@ feature-updates/
     │   ├── discovery.md              ← Phase 1: Discovery & user decision
     │   ├── planning.md               ← Phase 2: S2 deep dive
     │   ├── realignment.md            ← Phase 3 & 4: S3/4 alignment
-    │   └── stage_6_7_special.md      ← Special case: Discovery during epic testing
+    │   └── s9_s10_special.md         ← Special case: Discovery during epic testing
     │
     ├── stages/                       ← Core workflow guides (10 stages: s1-s10)
     │   ├── s1/
@@ -336,16 +338,16 @@ feature-updates/
     │   │   └── stage_4_reference_card.md
     │   ├── stage_5/                  ← S5 reference materials
     │   │   └── stage_5_reference_card.md
-    │   ├── stage_6/                  ← S9 reference materials (legacy naming)
+    │   ├── stage_9/                  ← S9 reference materials
     │   │   ├── epic_final_review_examples.md
     │   │   ├── epic_final_review_templates.md
     │   │   ├── epic_pr_review_checklist.md
-    │   │   └── stage_6_reference_card.md
-    │   └── stage_7/                  ← S10 reference materials (legacy naming)
+    │   │   └── stage_9_reference_card.md
+    │   └── stage_10/                 ← S10 reference materials
     │       ├── commit_message_examples.md
     │       ├── epic_completion_template.md
     │       ├── lessons_learned_examples.md
-    │       └── stage_7_reference_card.md
+    │       └── stage_10_reference_card.md
     │
     ├── templates/                    ← File templates
     │   └── TEMPLATES_INDEX.md

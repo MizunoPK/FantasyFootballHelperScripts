@@ -1,0 +1,1 @@
+Consider ways to add to the guides such that, when features are determined to be able to done in paralell, offer the user the ability to start a different session where that other agent does the parallel work

@@ -2,7 +2,7 @@
 
 **Purpose:** Template for completing EPIC_README.md Epic Completion Summary section
 **When to use:** Step 8d of S10 (Final Verification & Completion)
-**Main Guide:** `stages/s10/s7_epic_cleanup.md`
+**Main Guide:** `stages/s10/s10_epic_cleanup.md`
 
 ---
 

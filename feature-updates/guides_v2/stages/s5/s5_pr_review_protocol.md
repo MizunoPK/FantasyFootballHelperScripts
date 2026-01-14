@@ -281,7 +281,7 @@ Perform a comprehensive PR review of the following code changes:
 ### Feature-Level (S7 Phase 3)
 
 **In final_review.md Step 1 "Create PR review checklist":**
-- READ: `stages/stage_5/pr_review_protocol.md`
+- READ: `stages/s5/s5_pr_review_protocol.md`
 - Follow protocol completely
 - Create `pr_review_issues.md` in feature folder
 - Cannot proceed to Step 2 until PR review PASSED
@@ -289,7 +289,7 @@ Perform a comprehensive PR review of the following code changes:
 ### Epic-Level (S9 Phase 3)
 
 **In epic_final_qc.md Step 1 "Epic PR Review":**
-- READ: `stages/stage_5/pr_review_protocol.md`
+- READ: `stages/s5/s5_pr_review_protocol.md`
 - Follow protocol completely
 - Create `pr_review_issues.md` in epic folder
 - Review all changes across ALL features in epic

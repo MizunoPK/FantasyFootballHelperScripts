@@ -81,7 +81,7 @@ STEP 7: Final Verification & Completion (2 min)
 ## Mandatory Gates (1 Required in S10)
 
 ### Gate 1: Unit Tests - 100% Pass (Step 2)
-**Location:** stages/s10/s7_epic_cleanup.md Step 2
+**Location:** stages/s10/s10_epic_cleanup.md Step 2
 **What it checks:**
 - All unit tests passing
 - Exit code = 0
@@ -346,10 +346,10 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 
 | Current Activity | Guide to Read |
 |------------------|---------------|
-| Starting S10 | stages/s10/s7_epic_cleanup.md |
-| Commit message format | reference/stage_7/commit_message_examples.md |
-| Epic completion format | reference/stage_7/epic_completion_template.md |
-| Lessons learned examples | reference/stage_7/lessons_learned_examples.md |
+| Starting S10 | stages/s10/s10_epic_cleanup.md |
+| Commit message format | reference/stage_10/commit_message_examples.md |
+| Epic completion format | reference/stage_10/epic_completion_template.md |
+| Lessons learned examples | reference/stage_10/lessons_learned_examples.md |
 
 ---
 

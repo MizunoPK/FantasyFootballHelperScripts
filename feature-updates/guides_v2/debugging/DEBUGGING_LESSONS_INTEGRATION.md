@@ -108,7 +108,7 @@ feature_XX_{name}/debugging/
 
 ### Debugging (If Occurred):
 - Issues discovered: {count}
-- Testing stage: {S10.P1 / S10.P2}
+- Testing stage: {S7.P1 / S7.P2}
 - Total time: {hours}
 - Key insights: See debugging/lessons_learned.md
 - Process gaps: See debugging/process_failure_analysis.md
@@ -139,7 +139,7 @@ feature_XX_{name}/debugging/
 
 **Debugging (If Occurred):**
 - Issues discovered: {count}
-- Testing stage: S10.P1 / S10.P2
+- Testing stage: S7.P1 / S7.P2
 - Total time: {hours}
 - Key insights: {from debugging/lessons_learned.md}
 - Process gaps: {from debugging/process_failure_analysis.md}
@@ -303,9 +303,9 @@ Agents MUST verify (as part of guide_update_tracking.md):
   - Issue #2: 5-why analysis → guide gap identified → user confirms → append to guide_update_recommendations.md
   - Time: 10-20 minutes per issue (captures lessons while context fresh)
 - **Step 5:** Loop back to testing with cross-pattern analysis
-  - Analyze why bugs got through S5 (TODO creation)
-  - Analyze why bugs got through S6 (Implementation)
-  - Analyze why bugs got through S10.P1 (Smoke testing)
+  - Analyze why bugs got through S5 (Implementation Planning)
+  - Analyze why bugs got through S6 (Implementation Execution)
+  - Analyze why bugs got through S7.P1 (Smoke testing)
   - Identify patterns across Issue #1 and Issue #2
   - Create process_failure_analysis.md with cross-bug patterns
   - Append 3 pattern-based recommendations to guide_update_recommendations.md

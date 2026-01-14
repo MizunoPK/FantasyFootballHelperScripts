@@ -94,7 +94,7 @@ Write the feature code following the implementation plan created in S5.
 ```markdown
 Current Stage: S7 - Post-Implementation
 Current Phase: SMOKE_TESTING
-Next Action: Read stages/s10/s7_p1_smoke_testing.md
+Next Action: Read stages/s7/s7_p1_smoke_testing.md
 ```
 
 ### Time Estimate

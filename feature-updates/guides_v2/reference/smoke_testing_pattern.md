@@ -1,10 +1,10 @@
 # Smoke Testing Pattern (Reference)
 
-**Purpose:** Generic smoke testing workflow applicable to both feature-level (S10.P1) and epic-level (S9.P1) testing.
+**Purpose:** Generic smoke testing workflow applicable to both feature-level (S7.P1) and epic-level (S9.P1) testing.
 
 **This is a REFERENCE PATTERN.** Actual guides:
-- **Feature-level:** `stages/s10/s7_p1_smoke_testing.md`
-- **Epic-level:** `stages/s9/s6_p1_epic_smoke_testing.md`
+- **Feature-level:** `stages/s7/s7_p1_smoke_testing.md`
+- **Epic-level:** `stages/s9/s9_p1_epic_smoke_testing.md`
 
 ---
 
@@ -18,7 +18,7 @@
 - Use REAL data (not test fixtures) to expose mock assumption failures
 
 **Scope-Specific Implementation:**
-- **Feature-level (S10.P1):** Tests individual feature in isolation
+- **Feature-level (S7.P1):** Tests individual feature in isolation
 - **Epic-level (S9.P1):** Tests ALL features working together as cohesive system
 
 ---
@@ -323,7 +323,7 @@ assert df['adp'].min() > 0  # Not placeholder values
 
 ## Scope-Specific Differences
 
-### Feature-Level Smoke Testing (S10.P1)
+### Feature-Level Smoke Testing (S7.P1)
 - **Scope:** Individual feature in isolation
 - **Parts:** 3 parts (Import, Entry Point, E2E)
 - **Data:** Feature-specific input/output
@@ -359,5 +359,5 @@ assert df['adp'].min() > 0  # Not placeholder values
 ---
 
 *For actual implementation guides, see:*
-- Feature-level: `stages/s10/s7_p1_smoke_testing.md`
-- Epic-level: `stages/s9/s6_p1_epic_smoke_testing.md`
+- Feature-level: `stages/s7/s7_p1_smoke_testing.md`
+- Epic-level: `stages/s9/s9_p1_epic_smoke_testing.md`

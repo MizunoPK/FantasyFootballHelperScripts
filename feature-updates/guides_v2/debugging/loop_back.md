@@ -6,7 +6,7 @@
 
 **Previous Phase:** PHASE 4 (User Verification) - See `debugging/resolution.md`
 
-**Next Phase:** Return to testing stage (S10.P1, S10.P2, or 6a)
+**Next Phase:** Return to testing stage (S7.P1, S7.P2, or S9.P1)
 
 ---
 
@@ -344,7 +344,7 @@ Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity sta
 # Debugging Lessons Learned - {Feature/Epic Name}
 
 **Feature/Epic:** {name}
-**Testing Stage:** {S10.P1 Smoke Testing / S10.P2 QC / S9 Epic Testing / S10 User Testing}
+**Testing Stage:** {S7.P1 Smoke Testing / S7.P2 QC / S9 Epic Testing / S10 User Testing}
 **Date Range:** {start date} - {end date}
 **Total Issues:** {count}
 **Total Investigation Time:** {hours}
@@ -718,7 +718,7 @@ This document captures technical lessons from debugging. For process improvement
 
 **If issues discovered during S7.P1:**
 
-Loop back to: **S10.P1 Step 1** (Import Test)
+Loop back to: **S7.P1 Step 1** (Import Test)
 
 **Why start at Part 1, not Part 3 where issues were found?**
 - Fixes might affect earlier parts (imports, entry points)
@@ -748,7 +748,7 @@ All issues in debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with user confirm
 
 **Update README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_SMOKE_TESTING
-- Current Guide: stages/s10/s7_p1_smoke_testing.md
+- Current Guide: stages/s7/s7_p1_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Returning From: Debugging Protocol
 - Issues Resolved: {count}
@@ -761,7 +761,7 @@ Looping back to smoke testing...
 
 **If issues discovered during S7.P2:**
 
-Loop back to: **S10.P1 Step 1** (NOT back to QC Round directly)
+Loop back to: **S7.P1 Step 1** (NOT back to QC Round directly)
 
 **Why loop back to smoke testing instead of QC?**
 - QC restart protocol: Always restart from smoke testing after fixes
@@ -866,7 +866,7 @@ Re-running epic testing now...
 
 ### Feature-Level Re-Testing
 
-**S10.P1: Smoke Testing**
+**S7.P1: Smoke Testing**
 
 1. **Run all 3 parts:**
    - Part 1: Import Test
@@ -886,7 +886,7 @@ Re-running epic testing now...
    - Loop back to Part 1 again
    - Repeat until zero issues
 
-**S10.P2: QC Rounds**
+**S7.P2: QC Rounds**
 
 1. **Run all 3 rounds:**
    - Round 1: Basic Validation
@@ -903,7 +903,7 @@ Re-running epic testing now...
    - Add to debugging/ISSUES_CHECKLIST.md
    - Enter debugging protocol
    - Resolve all issues
-   - Loop back to S10.P1 Step 1 (smoke testing)
+   - Loop back to S7.P1 Step 1 (smoke testing)
    - Repeat until zero issues
 
 ---
@@ -948,7 +948,7 @@ Re-running epic testing now...
 
 ## Integration with Testing Stages
 
-### S10.P1: Smoke Testing Integration
+### S7.P1: Smoke Testing Integration
 
 **Add to smoke_testing.md at end of Part 3:**
 
@@ -980,7 +980,7 @@ Re-running epic testing now...
 **Update README Agent Status:**
 ```markdown
 **Current Phase:** DEBUGGING_PROTOCOL
-**Testing Stage Paused:** S10.P1 Smoke Part 3
+**Testing Stage Paused:** S7.P1 Smoke Part 3
 **Issues Found:** {count}
 **Next Action:** Begin debugging protocol (read debugging/discovery.md)
 ```
@@ -988,7 +988,7 @@ Re-running epic testing now...
 
 ---
 
-### S10.P2: QC Rounds Integration
+### S7.P2: QC Rounds Integration
 
 **Add to qc_rounds.md after each round:**
 
@@ -1073,8 +1073,8 @@ Re-running epic testing now...
 - In Progress: 0
 - Not Started: 0
 
-**Testing Stage Paused:** {S10.P1 / S10.P2 / S9.P1 / S9.P2}
-**Loop Back To:** {S10.P1 Step 1 / S9.P1 Step 1}
+**Testing Stage Paused:** {S7.P1 / S7.P2 / S9.P1 / S9.P2}
+**Loop Back To:** {S7.P1 Step 1 / S9.P1 Step 1}
 
 **Next Action:** Loop back to testing (Phase 5 complete)
 
@@ -1097,7 +1097,7 @@ Re-running epic testing now...
    - Cross-bug pattern analysis
    - Guide update recommendations
 4. ✅ Update lessons learned (technical focus)
-5. ✅ Determine loop-back destination (S10.P1 Step 1 / S9.P1 Step 1)
+5. ✅ Determine loop-back destination (S7.P1 Step 1 / S9.P1 Step 1)
 6. ✅ Update README/EPIC_README Agent Status
 7. ✅ Return to testing guide
 8. ✅ Re-run testing from beginning
@@ -1105,8 +1105,8 @@ Re-running epic testing now...
 10. ✅ If zero issues → proceed to next stage
 
 **Loop-Back Destinations:**
-- **Feature Smoke Testing (S10.P1)** → Loop back to Part 1
-- **Feature QC Rounds (S10.P2)** → Loop back to S10.P1 Step 1
+- **Feature Smoke Testing (S7.P1)** → Loop back to Part 1
+- **Feature QC Rounds (S7.P2)** → Loop back to S7.P1 Step 1
 - **Epic Smoke Testing (S9.P1)** → Loop back to Step 1
 - **Epic QC Rounds (S9.P2)** → Loop back to S9.P1 Step 1
 - **User Testing (S10)** → Loop back to S9.P1 Step 1

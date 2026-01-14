@@ -274,7 +274,7 @@ Prerequisites Met?
 
 ### Step-by-Step Workflow
 
-**See:** `reference/stage_6/epic_pr_review_checklist.md` for complete 11-category checklist
+**See:** `reference/stage_9/epic_pr_review_checklist.md` for complete 11-category checklist
 
 **Step 6.1: Apply Round 1 (Specialized Reviews)**
 
@@ -330,7 +330,7 @@ Prerequisites Met?
 
 **Update epic_lessons_learned.md with results:**
 
-**See:** `reference/stage_6/epic_final_review_templates.md` Template 1 for PR review results template
+**See:** `reference/stage_9/epic_final_review_templates.md` Template 1 for PR review results template
 
 **Include:**
 - Date, epic name, total rounds
@@ -361,7 +361,7 @@ Prerequisites Met?
 
 ### Step-by-Step Workflow
 
-**See:** `reference/stage_6/epic_final_review_templates.md` Templates 2-6 for issue handling templates
+**See:** `reference/stage_9/epic_final_review_templates.md` Templates 2-6 for issue handling templates
 
 **Step 7.1: Document ALL Issues**
 
@@ -429,7 +429,7 @@ For EACH issue:
 
 ### Step-by-Step Workflow
 
-**See:** `reference/stage_6/epic_final_review_templates.md` Templates 7-10 for verification templates
+**See:** `reference/stage_9/epic_final_review_templates.md` Templates 7-10 for verification templates
 
 **Step 8.1: Verify All Issues Resolved**
 
@@ -593,17 +593,17 @@ Mark S9.P3 complete and prepare for S10:
 **For detailed information, see these reference files:**
 
 **Epic PR Review Checklist:**
-- `reference/stage_6/epic_pr_review_checklist.md`
+- `reference/stage_9/epic_pr_review_checklist.md`
 - Complete 11-category checklist with validation steps
 - Use during Step 6 (Epic PR Review)
 
 **Templates:**
-- `reference/stage_6/epic_final_review_templates.md`
+- `reference/stage_9/epic_final_review_templates.md`
 - Templates for documenting results (Steps 6-8)
 - Issue documentation, bug fix structure, verification checklists
 
 **Examples & Best Practices:**
-- `reference/stage_6/epic_final_review_examples.md`
+- `reference/stage_9/epic_final_review_examples.md`
 - Common mistakes to avoid (7 anti-patterns)
 - Real-world example walkthrough
 - Best practices summary
@@ -686,7 +686,7 @@ Mark S9.P3 complete and prepare for S10:
 - Not documenting PR review results
 - Proceeding to S10 with pending issues
 
-**See:** `reference/stage_6/epic_final_review_examples.md` for detailed examples of each mistake and best practices
+**See:** `reference/stage_9/epic_final_review_examples.md` for detailed examples of each mistake and best practices
 
 **Next Stage:** stages/s_7/epic_cleanup.md - Final commits, PR creation, user review, move epic to done/
 
