@@ -2,12 +2,12 @@
 
 **Purpose:** Define how to validate the complete epic end-to-end
 
-**⚠️ VERSION: STAGE 8 (Updated after Feature 01 implementation)**
+**⚠️ VERSION: STAGE 8 (Updated after BOTH features implementation)**
 - **Created:** 2026-01-12 (S1)
-- **Last Updated:** 2026-01-14 (S8.P2 - after feature_01_config_infrastructure)
-- **Based on:** Feature specs from S2-S3, Feature 01 ACTUAL implementation
-- **Quality:** VERIFIED - Test scenarios validated against actual code
-- **Next Update:** S8.P2 (after feature_02_score_penalty_application implementation)
+- **Last Updated:** 2026-01-15 (S8.P2 - after feature_02_score_penalty_application)
+- **Based on:** Feature specs from S2-S3, Feature 01 & 02 ACTUAL implementations
+- **Quality:** VERIFIED - All test scenarios validated against actual code
+- **Status:** READY FOR S9 (Epic Final QC)
 
 ---
 
@@ -829,6 +829,7 @@ ls tests/league_helper/util/test_player_scoring_nfl_team_penalty.py
 | 2026-01-12 | S1 | Initial placeholder plan created | Epic planning - assumptions only |
 | 2026-01-13 | S4 | **MAJOR UPDATE** - Replaced with concrete test plan | Based on feature specs (S2) and cross-feature sanity check (S3) |
 | 2026-01-14 | S8.P2 | Verified against Feature 01 actual implementation - No changes needed | Feature 01 (config_infrastructure) implementation matches S4 plan exactly. All test scenarios remain accurate. |
+| 2026-01-15 | S8.P2 | Verified against Feature 02 actual implementation - No changes needed | Feature 02 (score_penalty_application) implementation matches S4 plan exactly. All test scenarios validated against actual code. |
 
 **S4 changes:**
 - Replaced 5 placeholder scenarios with 8 specific test scenarios
@@ -852,13 +853,35 @@ ls tests/league_helper/util/test_player_scoring_nfl_team_penalty.py
 - **Result:** All S4 test scenarios remain accurate - implementation matches spec exactly
 - **New scenarios added:** NONE (config-only feature, no unexpected behaviors discovered)
 
+**S8.P2 verification (Feature 02 - 2026-01-15):**
+- Reviewed actual player_scoring.py implementation (lines 465-469, 727-737)
+- Verified _apply_nfl_team_penalty() helper method (lines 727-737):
+  - Checks if player.team in config.nfl_team_penalty
+  - Multiplies score by config.nfl_team_penalty_weight if penalized
+  - Returns tuple: (adjusted_score, reason_string)
+  - Reason format: "NFL Team Penalty: {team} ({weight:.2f}x)" (e.g., "NFL Team Penalty: KC (0.75x)")
+- Verified Step 14 integration in score_player() (lines 465-469):
+  - Conditional execution when nfl_team_penalty parameter is True
+  - Calls _apply_nfl_team_penalty(), adds reason to list, logs at debug level
+  - Positioned after all 13 existing steps (as specified)
+- Verified mode integration in AddToRosterModeManager (line 293):
+  - nfl_team_penalty=True passed to score_player() in Add to Roster mode only
+  - Other modes (draft, optimizer, trade) use default False
+  - Mode isolation enforced correctly
+- Verified parameter addition in PlayerManager.score_player() (line 925):
+  - Pure delegation with nfl_team_penalty parameter pass-through
+- **Result:** All S4 test scenarios remain accurate - implementation matches spec exactly
+- **New scenarios added:** NONE (implementation followed S4 plan precisely, all edge cases already covered)
+- **Test coverage:** 10 new tests created, all passing (2506/2506 total tests - 100%)
+
 **Current version is informed by:**
 - S1: Initial assumptions from epic request
 - S4: Feature specs (S2) and approved cross-feature sanity check (S3)
-- **S8.P2 (Feature 01): Actual ConfigManager implementation** ← YOU ARE HERE
-- S8.P2 (Feature 02): (Pending) Will update after feature_02 implementation
+- S8.P2 (Feature 01): Actual ConfigManager implementation (2026-01-14)
+- **S8.P2 (Feature 02): Actual penalty application implementation (2026-01-15)** ← YOU ARE HERE
 
-**Next update:** S8.P2 (after feature_02_score_penalty_application completes)
+**Status:** BOTH features complete, test plan validated against ALL actual implementations
+**Next stage:** S9 (Epic Final QC) - Execute this comprehensive test plan end-to-end
 
 ---
 
