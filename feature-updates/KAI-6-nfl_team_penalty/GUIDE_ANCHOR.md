@@ -107,8 +107,8 @@ S10: Epic Cleanup
 **If current stage is S4:** `stages/s4/s4_epic_testing_strategy.md`
 
 **If current stage is S5:** Check feature README for round/part
-- Round 1: `stages/s5/s5_p1_round1.md`
-- Round 2: `stages/s5/s5_p2_round2.md`
+- Round 1: `stages/s5/s5_p1_planning_round1.md`
+- Round 2: `stages/s5/s5_p2_planning_round2.md`
 - Round 3 Part 1: `stages/s5/s5_p3_i1_preparation.md`
 - Round 3 Part 2: `stages/s5/s5_p3_i2_gates_part1.md` or `s5_p3_i3_gates_part2.md`
 

@@ -42,9 +42,9 @@ Plan    Deep Dive  Check   Strategy                          QC
 **Last Updated:** 2026-01-13
 **Current Stage:** Stage 5 - Feature Implementation (Feature 01)
 **Current Phase:** IMPLEMENTATION_PLANNING
-**Current Step:** Ready to begin S5a Round 1 for Feature 01
-**Current Guide:** stages/s5/part_5.1.1_round1.md
-**Guide Last Read:** NOT YET (will read when starting S5a Round 1)
+**Current Step:** Ready to begin S5.P1 Round 1 for Feature 01
+**Current Guide:** stages/s5/s5_p1_planning_round1.md
+**Guide Last Read:** NOT YET (will read when starting S5.P1 Round 1)
 
 **Critical Rules from Next Guide:**
 - Execute 28 verification iterations (Rounds 1-3)
@@ -55,7 +55,7 @@ Plan    Deep Dive  Check   Strategy                          QC
 - Gate 5: User approval of implementation_plan.md MANDATORY
 
 **Progress:** S1-S4 complete, Gate 4.5 PASSED, starting S5 for Feature 01
-**Next Action:** Begin S5a Round 1 for feature_01_config_infrastructure
+**Next Action:** Begin S5.P1 Round 1 for feature_01_config_infrastructure
 **Blockers:** None
 
 ---
