@@ -522,6 +522,34 @@ Update Agent Status in feature README.md:
 
 ---
 
+**After Gate 2 passes:**
+- spec.md is complete and aligned with epic
+- checklist.md has questions for user (if any)
+- Ready to present to user for Gate 3 (User Checklist Approval)
+
+**If user requests investigation during Gate 3 review:**
+
+**Correct Status Progression (9 steps):**
+1. User asks question (e.g., "check simulation compatibility")
+2. Agent adds question to checklist → Status: OPEN
+3. Agent investigates comprehensively (use 5-category checklist)
+4. Agent presents findings → Status: PENDING USER APPROVAL
+5. User reviews findings, may ask follow-ups
+6. Agent investigates follow-ups (if any)
+7. User says "approved" or "looks good" (explicit approval required)
+8. **ONLY THEN** agent marks → Status: RESOLVED
+9. Agent adds requirement to spec with source: "User Answer to Question N"
+
+**Key Principle:** Investigation complete ≠ Question resolved. Always wait for explicit user approval before marking RESOLVED.
+
+**WRONG:**
+
+
+**CORRECT:**
+
+
+---
+
 **After Gate 2 passes (all questions answered and approved), you have two options:**
 
 1. **If checklist complete with zero NEW questions:**

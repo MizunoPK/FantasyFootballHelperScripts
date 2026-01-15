@@ -10,6 +10,33 @@
 
 ---
 
+## 🚨 CRITICAL: Agent vs User Roles
+
+**Agent Role:**
+- Create questions based on spec gaps
+- Investigate comprehensively
+- Present findings clearly
+- Mark status as PENDING USER APPROVAL
+
+**User Role:**
+- Review agent findings
+- Make decisions
+- Ask follow-up questions
+- Approve resolutions (explicit "approved" required)
+
+**AGENTS CANNOT:**
+- ❌ Mark questions as RESOLVED (only users can)
+- ❌ Assume approval (even if answer seems obvious)
+- ❌ Add requirements based on unapproved answers
+- ❌ Skip waiting for user sign-off
+
+**Status Progression:**
+1. Question added → OPEN
+2. Agent investigates → PENDING USER APPROVAL
+3. User approves → RESOLVED (agent marks after explicit approval)
+
+---
+
 ## Template
 
 ```markdown

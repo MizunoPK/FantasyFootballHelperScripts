@@ -64,6 +64,16 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
    - Evaluate for new questions
    - Then ask next question
 
+1.5. ⚠️ INVESTIGATION COMPLETE ≠ QUESTION RESOLVED
+   - Agent investigates → Status: PENDING USER APPROVAL
+   - User explicitly approves → Status: RESOLVED
+   - NEVER mark questions as resolved without explicit approval
+   - Research findings ≠ User approval
+
+   WRONG: Investigate → Mark RESOLVED → Add requirement
+   CORRECT: Investigate → Mark PENDING → User approves →
+            Mark RESOLVED → Add requirement
+
 2. ⚠️ Update spec.md and checklist.md IMMEDIATELY after each answer
    - Do NOT batch updates
    - Keep files current in real-time
@@ -576,6 +586,38 @@ Look for features with "S2 Complete" marked [x]
 - User needs to understand EXACTLY what will be implemented
 - This is the last chance to adjust before implementation planning
 - User approval locks the spec (changes after this require returning to S2)
+
+**When user requests investigation (e.g., "check compatibility"), use systematic framework:**
+
+**Comprehensive Investigation Checklist:**
+
+**Category 1: Method/Function Calls**
+- Where does X call the new code?
+- Do they pass new parameters?
+- Are default values correct?
+
+**Category 2: Configuration/Data Loading** ⚠️ (commonly missed)
+- Where does X create ConfigManager/DataManager?
+- How does it load new config keys?
+- What if JSON missing keys?
+
+**Category 3: Integration Points**
+- Does new code affect X's flow?
+- Other X files affected?
+
+**Category 4: Timing/Dependencies**
+- Transition period issues?
+- Implementation sequencing?
+
+**Category 5: Edge Cases**
+- Old config with new code?
+- New config with old code?
+
+**After investigation:**
+- Mark checklist status: PENDING USER APPROVAL
+- Present findings covering ALL 5 categories
+- Wait for explicit user approval
+- ONLY THEN mark as RESOLVED
 
 ---
 

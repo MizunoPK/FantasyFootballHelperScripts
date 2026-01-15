@@ -26,14 +26,6 @@
 
 ---
 
-## Project-Specific Rules
-
-### Epic-Driven Development Workflow (v2)
-
-**Note:** CLAUDE_EPICS.md is kept as a separate portable file for copying to other projects. The complete content is also inlined below to ensure all agents always have these instructions loaded.
-
----
-
 ## Epic-Driven Development Workflow (v2)
 
 The v2 workflow is a **10-stage epic-driven development process** for managing large projects:
@@ -287,6 +279,61 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 
 ---
 
+## Common Anti-Patterns to Avoid
+
+### Anti-Pattern 1: Autonomous Checklist Resolution
+
+**WRONG WORKFLOW:**
+1. User asks question
+2. Agent investigates
+3. Agent marks question as RESOLVED
+4. Agent adds requirement to spec
+5. User sees requirement added without approval
+
+**CORRECT WORKFLOW:**
+1. User asks question
+2. Agent investigates
+3. Agent marks question as PENDING USER APPROVAL
+4. Agent presents findings
+5. User says "approved"
+6. ONLY THEN agent marks RESOLVED and adds requirement
+
+**Key Distinction:** Research findings ≠ User approval
+
+**Example from KAI-6:**
+- ❌ WRONG: "I checked simulations. Question 1 RESOLVED. Added Requirement 9."
+- ✅ CORRECT: "I checked simulations. My findings: [details]. Status: PENDING. Approve?"
+
+### Anti-Pattern 2: Narrow Investigation Scope
+
+**WRONG APPROACH:**
+1. User asks "check if this works with simulations"
+2. Agent checks method calls only
+3. Agent declares investigation complete
+4. User asks "what about config loading?"
+5. Agent realizes investigation was incomplete
+
+**CORRECT APPROACH:**
+1. User asks "check if this works with simulations"
+2. Agent uses systematic 5-category checklist:
+   - Category 1: Method/function calls ✓
+   - Category 2: Configuration/data loading ✓
+   - Category 3: Integration points ✓
+   - Category 4: Timing/dependencies ✓
+   - Category 5: Edge cases ✓
+3. Agent presents comprehensive findings covering all categories
+4. User approves once (not multiple follow-ups needed)
+
+**Key Distinction:** Use systematic frameworks, don't rely on intuition
+
+**When investigating compatibility/integration:**
+- DON'T check just the most obvious aspect
+- DO use 5-category investigation checklist (see S2.P3 guide)
+- DON'T assume first answer is complete
+- DO ask "what else?" at least 3 times
+
+---
+
 ## Gate Numbering System
 
 The workflow uses two types of gates:
@@ -497,7 +544,6 @@ git diff    # Review changes
 - **EPIC_WORKFLOW_USAGE.md**: Comprehensive usage guide with setup, patterns, FAQs
 - **prompts_reference_v2.md**: All phase transition prompts (MANDATORY)
 - **README.md**: Guide index and quick reference
-- **PLAN.md**: Complete workflow specification
 
 **Extracted references:**
 - **CODING_STANDARDS.md**: Import organization, error handling, logging, docstrings, type hints, testing standards, naming conventions
