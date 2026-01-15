@@ -1,8 +1,16 @@
 # Feature Specification: score_penalty_application
 
 **Created:** 2026-01-12
-**Status:** IN PROGRESS (S2.P1 - Research Phase)
-**Last Updated:** 2026-01-12
+**Status:** S2 COMPLETE (Awaiting S5 - Feature 01 dependency now resolved)
+**Last Updated:** 2026-01-14 (S8.P1 Cross-Feature Alignment review)
+
+**S8.P1 Alignment Review (2026-01-14):**
+- Reviewed against Feature 01 (config_infrastructure) ACTUAL implementation
+- All spec assumptions validated against real code (ConfigManager.py)
+- Dependency status updated: Feature 01 now S7 complete (production-ready)
+- **Classification:** NO SIGNIFICANT REWORK NEEDED
+- **Changes:** Minor updates only (dependency status, verification notes)
+- **Ready for S5:** Blocking dependency resolved, can proceed to Implementation Planning
 
 ---
 
@@ -637,10 +645,16 @@ else:
 ### This Feature Depends On:
 
 1. **Feature 01: config_infrastructure**
-   - **Status:** Complete (S2 complete 2026-01-12)
+   - **Status:** ✅ S7 COMPLETE (2026-01-14) - Production-ready
    - **Purpose:** Provides config.nfl_team_penalty and config.nfl_team_penalty_weight
    - **Usage:** Read-only access in _apply_nfl_team_penalty() method
    - **Blocking:** Cannot implement Feature 02 until Feature 01 is complete
+   - **[UPDATED based on feature_01_config_infrastructure S8.P1 alignment review 2026-01-14]**
+   - **Verified Implementation:**
+     - Instance variables: `self.nfl_team_penalty: List[str]`, `self.nfl_team_penalty_weight: float`
+     - Extraction: Uses `.get()` with defaults ([], 1.0) for backward compatibility
+     - Validation: Team abbreviations validated against ALL_NFL_TEAMS, weight range 0.0-1.0
+     - All spec assumptions match actual implementation
 
 2. **FantasyPlayer.team attribute**
    - **Status:** Exists (utils/FantasyPlayer.py line 91)
@@ -951,11 +965,12 @@ PlayerScoringCalculator._apply_nfl_team_penalty(p: FantasyPlayer, player_score: 
 
 **This Feature Depends On:**
 
-1. **Feature 01: config_infrastructure** (BLOCKING DEPENDENCY)
-   - **Status:** S2 complete (approved 2026-01-12), awaiting S5 implementation
+1. **Feature 01: config_infrastructure** (BLOCKING DEPENDENCY - NOW RESOLVED)
+   - **Status:** ✅ S7 COMPLETE (2026-01-14) - Production-ready, all tests passing (2496/2496)
    - **Provides:** config.nfl_team_penalty (List[str]), config.nfl_team_penalty_weight (float)
-   - **Impact:** Feature 02 CANNOT be implemented until Feature 01 is fully complete (S7 done)
-   - **Sequencing:** Feature 01 → S5, S6, S7 → THEN Feature 02 → S5, S6, S7
+   - **Impact:** Feature 02 can NOW proceed to S5 (Implementation Planning) - blocking dependency resolved
+   - **Sequencing:** Feature 01 S5-S7 ✅ COMPLETE → Feature 02 ready for S5
+   - **[UPDATED based on feature_01_config_infrastructure S8.P1 alignment review 2026-01-14]**
 
 2. **Existing Codebase:**
    - PlayerScoringCalculator (exists, will modify)
