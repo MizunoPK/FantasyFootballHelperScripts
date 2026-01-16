@@ -17,7 +17,7 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 6 | nfl_team_penalty | epic | epic/KAI-6 | In Progress | 2026-01-12 |
+| - | (No active epics) | - | - | - | - |
 
 ---
 
@@ -27,6 +27,7 @@
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
+| 6 | nfl_team_penalty | epic | epic/KAI-6 | 2026-01-15 | feature-updates/done/KAI-6-nfl_team_penalty/ |
 | 5 | add_k_dst_ranking_metrics_support | epic | epic/KAI-5 | 2026-01-09 | feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/ |
 | 3 | integrate_new_player_data_into_simulation | epic | epic/KAI-3 | 2026-01-04 | feature-updates/done/integrate_new_player_data_into_simulation/ |
 | 2 | fix_2025_adp | epic | epic/KAI-2 | 2026-01-01 | feature-updates/done/fix_2025_adp/ |
@@ -37,6 +38,56 @@
 ## Epic Details
 
 <!-- Each epic gets a detailed section below once completed -->
+
+---
+
+### KAI-6: nfl_team_penalty
+
+**Type:** epic
+**Branch:** epic/KAI-6
+**Date Started:** 2026-01-12
+**Date Completed:** 2026-01-15
+**Location:** feature-updates/done/KAI-6-nfl_team_penalty/
+
+**Description:**
+Added NFL team penalty system to Add to Roster mode scoring, allowing users to specify NFL teams they want to avoid drafting. Users configure a team penalty list (e.g., ["LV", "NYJ"]) and penalty weight (0.0-1.0 multiplier) in league_config.json, and the system reduces player scores from those teams by multiplying their final score by the weight. This feature enables user-specific draft preferences (e.g., avoiding rivals) without affecting simulation objectivity, since simulations use default values (empty list, 1.0 weight). The penalty applies as Step 14 in the existing 14-step scoring algorithm, only in Add to Roster mode (parameter-based mode isolation). The implementation maintains full backward compatibility - all existing code continues working unchanged with parameter defaults ensuring no behavior changes.
+
+**Features Implemented:**
+1. feature_01_config_infrastructure - Added NFL_TEAM_PENALTY (list) and NFL_TEAM_PENALTY_WEIGHT (float) config settings to ConfigManager with validation logic, updated 10 config files (league_config.json + 9 simulation configs)
+2. feature_02_score_penalty_application - Implemented Step 14 in 14-step scoring algorithm, added _apply_nfl_team_penalty() helper method, enabled penalty only in Add to Roster mode via nfl_team_penalty parameter
+
+**Key Changes:**
+- league_helper/util/ConfigManager.py: Added NFL_TEAM_PENALTY and NFL_TEAM_PENALTY_WEIGHT properties with validation (team abbreviations, weight range 0.0-1.0)
+- league_helper/util/player_scoring.py: Added Step 14 NFL team penalty logic, _apply_nfl_team_penalty() helper method, nfl_team_penalty parameter (default=False)
+- league_helper/util/PlayerManager.py: Parameter pass-through from score_player() to PlayerScoringCalculator
+- league_helper/add_to_roster_mode/AddToRosterModeManager.py: Enabled penalty (nfl_team_penalty=True) only in this mode
+- data/league_config.json: User-specific penalty teams configured
+- data/*.json: 9 simulation configs updated with defaults (empty list, 1.0 weight)
+- tests/league_helper/util/test_ConfigManager_nfl_team_penalty.py: Created 12 comprehensive tests for config validation
+- tests/league_helper/util/test_player_scoring_nfl_team_penalty.py: Created 10 comprehensive tests for penalty logic
+- feature-updates/guides_v2/: Applied 5 guide improvements based on lessons learned (autonomous resolution warnings, investigation checklists, status progression examples, anti-patterns)
+
+**Commit History:**
+- `6f38d11` - `feat/KAI-6: Add NFL team penalty to Add to Roster mode scoring` (squashed)
+
+**Testing Results:**
+- Unit tests: 2,506/2,506 passing (100%)
+- New tests added: 22 (all passing)
+- Epic smoke testing: Passed (4 parts, zero issues)
+- Epic QC rounds: Passed (3 rounds, zero issues)
+- User testing: Approved (user skipped manual testing, approved automated results)
+- S10.P1 Guide updates: 5 proposals applied
+
+**Lessons Learned:**
+See feature-updates/done/KAI-6-nfl_team_penalty/epic_lessons_learned.md - Key success factors: Zero autonomous resolution pattern (agents create questions, users provide answers), systematic investigation using 5-category checklist prevents narrow scope, explicit user approval required for marking questions RESOLVED, status progression must be OPEN → PENDING → RESOLVED (never skip), proper investigation ≠ resolution. Generated 5 concrete guide updates: autonomous resolution warning in S2.P3, checklist template role definitions, investigation scope checklist in S2 guides, status progression examples in S2.P2, anti-pattern examples in CLAUDE.md. This epic validated the importance of maintaining strict boundaries between agent research capabilities and user decision authority.
+
+**Related Documentation:**
+- Epic README: feature-updates/done/KAI-6-nfl_team_penalty/EPIC_README.md
+- Epic Test Plan: feature-updates/done/KAI-6-nfl_team_penalty/epic_smoke_test_plan.md
+- Epic Lessons Learned: feature-updates/done/KAI-6-nfl_team_penalty/epic_lessons_learned.md
+- Feature 01 Spec: feature-updates/done/KAI-6-nfl_team_penalty/feature_01_config_infrastructure/spec.md
+- Feature 02 Spec: feature-updates/done/KAI-6-nfl_team_penalty/feature_02_score_penalty_application/spec.md
+- Guide Update Proposal: feature-updates/done/KAI-6-nfl_team_penalty/GUIDE_UPDATE_PROPOSAL.md
 
 ---
 
