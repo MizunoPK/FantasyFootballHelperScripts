@@ -8,7 +8,7 @@ This document describes the git branching workflow for epic development in the F
 
 ## Branch Management
 
-### When Starting an Epic (Stage 1)
+### When Starting an Epic (S1)
 
 **Step 1: Verify you're on main**
 ```bash
@@ -47,7 +47,7 @@ git checkout -b fix/KAI-3   # Bug fix work
 
 **Branch Rules:**
 - All work happens on the epic branch
-- Stay on branch until Stage 7 (Epic Cleanup)
+- Stay on branch until S10 (Epic Cleanup)
 - Do not merge back to main until user approves PR
 
 **Commit Format:**
@@ -69,14 +69,14 @@ git commit -m "fix/KAI-1: Fix player name validation in draft mode"
 ```
 
 **When to Commit:**
-- After Stage 5c Part 5.3.3 (Feature completed, reviewed, tested)
-- After Stage 7 cleanup (Epic completed, ready for PR)
+- After S7 S10.P3 (Feature completed, reviewed, tested)
+- After S10 cleanup (Epic completed, ready for PR)
 - Not during Stages 1-4 (planning only)
-- Not during Stages 5a-5b (implementation in progress)
+- Not during S5-S6 (implementation in progress)
 
 ---
 
-### When Completing an Epic (Stage 7)
+### When Completing an Epic (S10)
 
 **Step 1: Commit changes on branch** (after user testing passes)
 ```bash
@@ -229,12 +229,12 @@ git commit -m "feat/KAI-1: Add ADP integration to PlayerManager" -m "
 
 **Updates Required:**
 
-### Stage 1: Starting Epic
+### S1: Starting Epic
 - Add epic to "Active Epics" table
 - Increment "Next Available Number"
 - Document epic name, features, start date
 
-### Stage 7: Completing Epic
+### S10: Completing Epic
 - Move epic from "Active" to "Completed" table
 - Add epic detail section with:
   - All commits (with hashes)
@@ -254,7 +254,7 @@ git commit -m "feat/KAI-1: Add ADP integration to PlayerManager" -m "
 
 **Question:** Do all features in an epic use the same branch?
 
-**Answer:** Yes. All features within an epic use the same branch (`epic/KAI-{number}`). Features are committed individually after Stage 5c Part 5.3.3, but all commits go to the same epic branch.
+**Answer:** Yes. All features within an epic use the same branch (`epic/KAI-{number}`). Features are committed individually after S7 S10.P3, but all commits go to the same epic branch.
 
 **Example:**
 ```bash
@@ -265,7 +265,7 @@ git commit -m "feat/KAI-1: Complete feature 01 - ADP integration"
 git commit -m "feat/KAI-1: Complete feature 02 - confidence scoring"
 # Work on feature 03
 git commit -m "feat/KAI-1: Complete feature 03 - top 200 filtering"
-# Stage 7: Create PR for entire epic
+# S10: Create PR for entire epic
 ```
 
 ---
@@ -331,8 +331,8 @@ git push origin epic/KAI-{number} --force-with-lease
 ### Commit Frequency
 
 **✅ DO:**
-- Commit after each feature completes Stage 5c Part 5.3.3
-- Commit after Stage 7 cleanup completes
+- Commit after each feature completes S7 S10.P3
+- Commit after S10 cleanup completes
 - Commit with meaningful messages
 
 **❌ DON'T:**
@@ -423,4 +423,4 @@ git push origin epic/KAI-{number}
 - `feature-updates/EPIC_TRACKER.md` - Epic tracking and KAI number assignment
 - `feature-updates/USER_PR_REVIEW_GUIDE.md` - PR review options for users
 - `CLAUDE.md` - Complete epic development workflow
-- `feature-updates/guides_v2/stages/stage_7/epic_cleanup.md` - Stage 7 guide (includes PR creation)
+- `feature-updates/guides_v2/stages/s10/s10_epic_cleanup.md` - S10 guide (includes PR creation)

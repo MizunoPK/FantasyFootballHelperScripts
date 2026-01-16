@@ -250,7 +250,7 @@
 - [ ] Agent creates separate commit for guide updates
 - [ ] Agent updates `reference/guide_update_tracking.md` with applied changes
 - [ ] Agent updates `guide-updates.txt` if any items addressed
-- [ ] Agent proceeds with epic commit (Stage 7 Step 7)
+- [ ] Agent proceeds with epic commit (S10 Step 7)
 
 ---
 

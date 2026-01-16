@@ -25,7 +25,7 @@
 
 ### Skipping Iterations
 - ❌ "Iteration 7 seems obvious, I'll skip it"
-- ✅ ALL 28 iterations in Stage 5a are MANDATORY
+- ✅ ALL 28 iterations in S5 are MANDATORY
 - **Why:** Each iteration catches specific bug categories
 
 ### Committing Without Tests
@@ -66,52 +66,52 @@
 
 ## 📋 Stage-Specific Mistakes
 
-### Stage 1: Epic Planning
+### S1: Epic Planning
 - ❌ Creating folders before user approves feature breakdown
 - ❌ Skipping KAI number assignment
 - ❌ Making epic_smoke_test_plan.md too detailed (should be placeholder)
 
-### Stage 2: Feature Deep Dives
+### S2: Feature Deep Dives
 - ❌ Marking checklist.md items resolved autonomously (agents create QUESTIONS, users provide ANSWERS)
-- ❌ Skipping Stage 2b.5 specification validation
+- ❌ Skipping S2b.5 specification validation
 - ❌ Not getting user approval for checklist (Gate 3)
 
-### Stage 3: Cross-Feature Sanity Check
+### S3: Cross-Feature Sanity Check
 - ❌ Only checking new features (must check ALL pairwise)
 - ❌ Resolving conflicts without user input
 
-### Stage 4: Epic Testing Strategy
+### S4: Epic Testing Strategy
 - ❌ Creating detailed test plan without implementation knowledge
 - ❌ Not getting user approval (Gate 4.5)
 
-### Stage 5a: Implementation Planning
+### S5: Implementation Planning
 - ❌ Skipping iterations or gates
 - ❌ Not creating questions.md when confidence < MEDIUM
 - ❌ Proceeding without user approval of implementation_plan.md (Gate 5)
 
-### Stage 5b: Implementation
+### S6: Implementation
 - ❌ Not keeping spec.md visible at all times
 - ❌ Not running tests after each component
 - ❌ Not updating implementation_checklist.md continuously
 
-### Stage 5c: Post-Implementation
+### S7: Post-Implementation
 - ❌ Skipping smoke testing Part 3 (E2E with data verification)
 - ❌ Not restarting from beginning after finding issues
 - ❌ Leaving tech debt "to fix later"
 
-### Stage 5d: Cross-Feature Alignment
+### S8.P1: Cross-Feature Alignment
 - ❌ Only updating next feature (must update ALL remaining)
 - ❌ Not updating based on ACTUAL implementation
 
-### Stage 5e: Epic Testing Plan Update
+### S8.P2: Epic Testing Plan Update
 - ❌ Not adding newly discovered integration points
 - ❌ Keeping outdated test scenarios
 
-### Stage 6: Epic Final QC
+### S9: Epic Final QC
 - ❌ Skipping user testing (MANDATORY in Step 6)
-- ❌ Not looping back to 6a after bug fixes
+- ❌ Not looping back to S9.P1 after bug fixes
 
-### Stage 7: Epic Cleanup
+### S10: Epic Cleanup
 - ❌ Not running tests before committing
 - ❌ Only checking epic lessons_learned.md (must check ALL sources)
 - ❌ Moving features individually (move ENTIRE epic folder)
@@ -121,28 +121,28 @@
 
 ## 🔍 Debugging Protocol Mistakes
 
-### Phase 1: Discovery
+### Step 1: Discovery
 - ❌ Not creating ISSUES_CHECKLIST.md
 - ❌ Working on issues not in checklist
 
-### Phase 2: Investigation
+### Step 2: Investigation
 - ❌ Exceeding 5 rounds without user escalation
 - ❌ Not documenting failed hypotheses
 
-### Phase 3: Resolution
+### Step 3: Resolution
 - ❌ Not adding tests for the fix
 - ❌ Not documenting in debugging/code_changes.md
 
-### Phase 4: User Verification
+### Step 4: User Verification
 - ❌ Self-declaring victory (user MUST confirm)
 - ❌ Not presenting before/after state clearly
 
-### Phase 4b: Root Cause Analysis
+### Step 4b: Root Cause Analysis
 - ❌ Batching Phase 4b until all bugs fixed
 - ❌ Writing generic lessons ("be more careful")
 - ❌ Not getting user confirmation of root cause
 
-### Phase 5: Loop Back
+### Step 5: Loop Back
 - ❌ Not doing cross-bug pattern analysis
 - ❌ Not looping back to START of testing
 
@@ -177,7 +177,7 @@
 1. Skipping mandatory reading protocol
 2. Not using phase transition prompts
 3. Proceeding without user approval (gates)
-4. Skipping iterations in Stage 5a
+4. Skipping iterations in S5
 5. Assuming interfaces instead of verifying
 6. Batching Phase 4b root cause analysis
 7. Not updating Agent Status regularly

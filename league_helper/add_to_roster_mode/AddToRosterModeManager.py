@@ -289,7 +289,8 @@ class AddToRosterModeManager:
                 schedule=False,               # Disable schedule strength multiplier
                 bye=True,
                 injury=True,
-                is_draft_mode=True          # Use draft normalization scale (163)
+                is_draft_mode=True,         # Use draft normalization scale (163)
+                nfl_team_penalty=True       # Enable NFL team penalty (Add to Roster mode only)
             )
             scored_players.append(scored_player)
 

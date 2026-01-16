@@ -9,8 +9,8 @@
 ## ⚠️ CRITICAL: When to Use These Prompts
 
 **You MUST use these prompts when:**
-- Starting ANY stage (Stages 1-7)
-- Starting ANY sub-stage (5a, 5b, 5c, 5d, 5e)
+- Starting ANY stage (S1-S10)
+- Starting ANY stage phase (S5, S6, S7, S8.P1, S8.P2)
 - Resuming work after session compaction
 - Creating a bug fix
 - Creating a missed requirement
@@ -34,39 +34,39 @@
 
 ### Stage Transition Prompts
 
-**[Stage 1: Epic Planning](prompts/stage_1_prompts.md)**
-- Starting Stage 1: Epic Planning
+**[S1: Epic Planning](prompts/s1_prompts.md)**
+- Starting S1: Epic Planning
 
-**[Stage 2: Feature Deep Dive](prompts/stage_2_prompts.md)**
-- Starting Stage 2: Feature Deep Dive
+**[S2: Feature Deep Dive](prompts/s2_prompts.md)**
+- Starting S2: Feature Deep Dive
 
-**[Stage 2b.5: Specification Validation](prompts/stage_2b5_prompts.md)**
-- Starting Stage 2b.5: Specification Validation
+**[S2.P2.5: Specification Validation](prompts/s2_p2.5_prompts.md)**
+- Starting S2.P2.5: Specification Validation
 
-**[Stage 3: Cross-Feature Sanity Check](prompts/stage_3_prompts.md)**
-- Starting Stage 3: Cross-Feature Sanity Check
+**[S3: Cross-Feature Sanity Check](prompts/s3_prompts.md)**
+- Starting S3: Cross-Feature Sanity Check
 
-**[Stage 4: Epic Testing Strategy](prompts/stage_4_prompts.md)**
-- Starting Stage 4: Epic Testing Strategy
+**[S4: Epic Testing Strategy](prompts/s4_prompts.md)**
+- Starting S4: Epic Testing Strategy
 
-**[Stage 5: Feature Implementation](prompts/stage_5_prompts.md)**
-- Starting Stage 5a: Implementation Planning (Round 1)
-- Starting Stage 5a: Implementation Planning (Round 2)
-- Starting Stage 5a Round 3 Part 1: Implementation Planning (Preparation)
-- Starting Stage 5a Round 3 Part 2: Implementation Planning (Final Gates)
-- Starting Stage 5b: Implementation
-- Starting Stage 5c (Phase 1): Smoke Testing
-- Starting Stage 5c (Phase 2): QC Rounds
-- Starting Stage 5c (Phase 3): Final Review
-- Starting Stage 5d: Cross-Feature Alignment
-- Starting Stage 5e: Epic Testing Plan Update
+**[S5-S8: Feature Loop](prompts/s5_s8_prompts.md)**
+- Starting S5: Implementation Planning (Round 1)
+- Starting S5: Implementation Planning (Round 2)
+- Starting S5 Round 3 Part 1: Implementation Planning (Preparation)
+- Starting S5 Round 3 Part 2: Implementation Planning (Final Gates)
+- Starting S6: Implementation Execution
+- Starting S7.P1: Smoke Testing
+- Starting S7.P2: QC Rounds
+- Starting S7.P3: Final Review
+- Starting S8.P1: Cross-Feature Alignment
+- Starting S8.P2: Epic Testing Plan Update
 
-**[Stage 6: Epic Final QC](prompts/stage_6_prompts.md)**
-- Starting Stage 6: Epic Final QC
+**[S9: Epic Final QC](prompts/s9_prompts.md)**
+- Starting S9: Epic Final QC
 
-**[Stage 7: Epic Cleanup](prompts/stage_7_prompts.md)**
-- Starting Stage 7: Epic Cleanup
-- Starting Stage 7.5: Guide Update from Lessons Learned (see prompts/guide_update_prompts.md)
+**[S10: Epic Cleanup](prompts/s10_prompts.md)**
+- Starting S10: Epic Cleanup
+- Starting S10.P1: Guide Update from Lessons Learned (see prompts/guide_update_prompts.md)
 
 ### Special Workflow Prompts
 
@@ -138,14 +138,14 @@ Document guide read, critical rules, next action
 
 ```
 ❌ DON'T SAY THIS:
-"I'm familiar with Stage 5a, let me start the TODO creation..."
+"I'm familiar with S5, let me start the TODO creation..."
 ```
 
 **Why wrong:** No proof you read the guide. Leads to guide abandonment.
 
 **✅ CORRECT:**
 ```
-I'm reading `stages/stage_5/part_5.1.1_round1.md` to ensure I follow all 8 iterations in Round 1...
+I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterations in Round 1...
 {List critical requirements for Round 1}
 ```
 
@@ -155,14 +155,14 @@ I'm reading `stages/stage_5/part_5.1.1_round1.md` to ensure I follow all 8 itera
 
 ```
 ❌ DON'T SAY THIS:
-"I'll follow the guide for Stage 5c..."
+"I'll follow the guide for S7..."
 ```
 
 **Why wrong:** No proof you read it. No accountability for specific requirements.
 
 **✅ CORRECT:**
 ```
-I'm reading `stages/stage_5/part_5.3.1_smoke_testing.md`...
+I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 **The guide requires:**
 - Part 1: Import test
 - Part 2: Entry point test
@@ -178,7 +178,7 @@ I'm reading `stages/stage_5/part_5.3.1_smoke_testing.md`...
 
 ```
 ❌ DON'T SAY THIS:
-"Starting Stage 5b implementation..."
+"Starting S6 implementation..."
 ```
 
 **Why wrong:** Might not be ready. Could be missing prerequisites.
@@ -186,7 +186,7 @@ I'm reading `stages/stage_5/part_5.3.1_smoke_testing.md`...
 **✅ CORRECT:**
 ```
 **Prerequisites I'm verifying:**
-✅ Stage 5a complete (28 iterations done)
+✅ S5 complete (28 iterations done)
 ✅ Iteration 24: Implementation Readiness = PASSED
 ✅ implementation_plan.md v3.0 exists and user-approved
 {Verify ALL prerequisites}
@@ -218,8 +218,8 @@ I'm reading `stages/stage_5/part_5.3.1_smoke_testing.md`...
 ## Summary
 
 **When to use these prompts:**
-- Starting ANY stage (1-7)
-- Starting ANY sub-stage (5a-5e)
+- Starting ANY stage (S1-S10)
+- Starting ANY phase within a stage
 - Creating missed requirements
 - Starting debugging workflow
 - Creating bug fixes
@@ -249,13 +249,14 @@ I'm reading `stages/stage_5/part_5.3.1_smoke_testing.md`...
 
 This router file has been optimized from 1,474 lines to ~200 lines by splitting content into focused files:
 
-- **prompts/stage_1_prompts.md** - Stage 1 prompts (67 lines)
-- **prompts/stage_2_prompts.md** - Stage 2 prompts (~50 lines)
-- **prompts/stage_3_prompts.md** - Stage 3 prompts (~40 lines)
-- **prompts/stage_4_prompts.md** - Stage 4 prompts (~40 lines)
-- **prompts/stage_5_prompts.md** - All Stage 5 sub-stage prompts (~650 lines)
-- **prompts/stage_6_prompts.md** - Stage 6 prompts (~65 lines)
-- **prompts/stage_7_prompts.md** - Stage 7 prompts (~70 lines)
+- **prompts/s1_prompts.md** - S1 prompts (67 lines)
+- **prompts/s2_prompts.md** - S2 prompts (~50 lines)
+- **prompts/s2_p2.5_prompts.md** - S2.P2.5 prompts (~40 lines)
+- **prompts/s3_prompts.md** - S3 prompts (~40 lines)
+- **prompts/s4_prompts.md** - S4 prompts (~40 lines)
+- **prompts/s5_s8_prompts.md** - S5-S8 feature loop prompts (~650 lines)
+- **prompts/s9_prompts.md** - S9 prompts (~65 lines)
+- **prompts/s10_prompts.md** - S10 prompts (~70 lines)
 - **prompts/special_workflows_prompts.md** - Bug fix, missed requirement, debugging, resuming (~200 lines)
 - **prompts/problem_situations_prompts.md** - Test failures, blockers, user interactions (~120 lines)
 

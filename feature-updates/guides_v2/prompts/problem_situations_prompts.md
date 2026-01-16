@@ -6,7 +6,7 @@
 
 ## When Tests Are Failing
 
-**Situation:** Unit tests failing during Stage 5b or 5c
+**Situation:** Unit tests failing during S6 or S7
 
 **Agent MUST respond:**
 
@@ -74,12 +74,12 @@ Waiting for your guidance...
 
 ## When Confidence < Medium
 
-**Situation:** Agent's confidence drops below Medium during Stage 5a (TODO Creation)
+**Situation:** Agent's confidence drops below Medium during S5 (TODO Creation)
 
 **Agent MUST respond:**
 
 ```
-My confidence level has dropped below Medium. Following Phase 5.1 requirements, I'm STOPPING to create a question...
+My confidence level has dropped below Medium. Following S5.P1 requirements, I'm STOPPING to create a question...
 
 **Low Confidence Area:**
 {What area has low confidence - e.g., "Interface verification for Feature 02 integration"}
@@ -106,7 +106,7 @@ Creating question in questions.md...
 
 ## Presenting Options to User
 
-**Situation:** Agent needs user decision (e.g., feature breakdown in Stage 1)
+**Situation:** Agent needs user decision (e.g., feature breakdown in S1)
 
 **Agent MUST respond:**
 

@@ -17,13 +17,13 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| (none) | - | - | - | - | - |
+| 6 | nfl_team_penalty | epic | epic/KAI-6 | In Progress | 2026-01-12 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-6
+### Next Available Number: KAI-7
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|

@@ -1,10 +1,10 @@
 # QC Rounds Pattern (Reference)
 
-**Purpose:** Generic QC rounds workflow applicable to both feature-level (Part 5.3.2) and epic-level (Phase 6.2) quality control.
+**Purpose:** Generic QC rounds workflow applicable to both feature-level (S7.P2) and epic-level (S9.P2) quality control.
 
 **This is a REFERENCE PATTERN.** Actual guides:
-- **Feature-level:** `stages/stage_5/part_5.3.2_qc_rounds.md`
-- **Epic-level:** `stages/stage_6/phase_6.2_epic_qc_rounds.md`
+- **Feature-level:** `stages/s7/s7_p2_qc_rounds.md`
+- **Epic-level:** `stages/s9/s9_p2_epic_qc_rounds.md`
 
 ---
 
@@ -19,8 +19,8 @@
 - Progressive validation (each round catches different issues)
 
 **Scope-Specific Implementation:**
-- **Feature-level (Part 5.3.2):** Validates individual feature correctness and completeness
-- **Epic-level (Phase 6.2):** Validates cross-feature integration and epic cohesion
+- **Feature-level (S7.P2):** Validates individual feature correctness and completeness
+- **Epic-level (S9.P2):** Validates cross-feature integration and epic cohesion
 
 ---
 
@@ -69,7 +69,7 @@ Round 3: [Scope-Specific Focus]
 ```
 RESTART PROTOCOL:
 1. Fix ALL issues found in failed round
-2. Return to smoke testing (Part 5.3.1 OR Phase 6.1)
+2. Return to smoke testing (S7.P1 OR S9.P1)
 3. Re-run ALL smoke test parts
 4. Re-run ALL 3 QC rounds from Round 1
 
@@ -145,7 +145,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 ### 7. Algorithm Verification
 
 **Implementation must match spec EXACTLY:**
-- Re-check Algorithm Traceability Matrix from Stage 5a
+- Re-check Algorithm Traceability Matrix from S5
 - Every algorithm in spec must map to exact code location
 - Code behavior must match spec behavior (not interpretation)
 - No "close enough" implementations
@@ -370,7 +370,7 @@ Did QC round find issues?
 
 ## Scope-Specific Differences
 
-### Feature-Level QC Rounds (Part 5.3.2)
+### Feature-Level QC Rounds (S7.P2)
 
 **Round 1 Focus:** Basic Validation
 - Unit tests passing
@@ -392,11 +392,11 @@ Did QC round find issues?
 - Re-check Integration Gap Check
 - Zero issues tolerance
 
-**Restart Destination:** Part 5.3.1 (Feature Smoke Testing)
+**Restart Destination:** S7.P1 (Feature Smoke Testing)
 
 ---
 
-### Epic-Level QC Rounds (Phase 6.2)
+### Epic-Level QC Rounds (S9.P2)
 
 **Round 1 Focus:** Cross-Feature Integration
 - Integration points work correctly
@@ -412,11 +412,11 @@ Did QC round find issues?
 
 **Round 3 Focus:** End-to-End Success Criteria
 - Validation against original epic request
-- Epic success criteria met (from Stage 4)
+- Epic success criteria met (from S4)
 - User experience flows validated
 - Performance characteristics acceptable
 
-**Restart Destination:** Phase 6.1 (Epic Smoke Testing)
+**Restart Destination:** S9.P1 (Epic Smoke Testing)
 
 ---
 
@@ -442,5 +442,5 @@ Did QC round find issues?
 ---
 
 *For actual implementation guides, see:*
-- Feature-level: `stages/stage_5/part_5.3.2_qc_rounds.md`
-- Epic-level: `stages/stage_6/phase_6.2_epic_qc_rounds.md`
+- Feature-level: `stages/s7/s7_p2_qc_rounds.md`
+- Epic-level: `stages/s9/s9_p2_epic_qc_rounds.md`

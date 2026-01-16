@@ -3,7 +3,7 @@
 **Filename:** `lessons_learned.md`
 **Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/lessons_learned.md`
 **Created:** {YYYY-MM-DD}
-**Updated:** After Stages 5a, 5b, 5c
+**Updated:** After Stages S5, S6, S7
 
 **Purpose:** Lessons specific to a single feature's development, separate from epic-level lessons.
 
@@ -27,7 +27,7 @@ This document captures lessons specific to THIS feature's development. This is s
 
 ---
 
-## Stage 2 Lessons Learned (Feature Deep Dive)
+## S2 Lessons Learned (Feature Deep Dive)
 
 **What Went Well:**
 - {Positive observation 1}
@@ -47,7 +47,7 @@ This document captures lessons specific to THIS feature's development. This is s
 
 ---
 
-## Stage 5a Lessons Learned (TODO Creation)
+## S5 Lessons Learned (TODO Creation)
 
 **28 Verification Iterations Experience:**
 - Iterations that were most valuable: {List iterations and why}
@@ -67,7 +67,7 @@ This document captures lessons specific to THIS feature's development. This is s
 
 ---
 
-## Stage 5b Lessons Learned (Implementation)
+## S6 Lessons Learned (Implementation)
 
 **What Went Well:**
 - {Positive observation}
@@ -91,7 +91,7 @@ This document captures lessons specific to THIS feature's development. This is s
 
 ---
 
-## Stage 5c Lessons Learned (Post-Implementation)
+## S7 Lessons Learned (Post-Implementation)
 
 **Smoke Testing Results:**
 - Part 1 (Import): {PASSED / Issues found and fixed}
@@ -155,19 +155,19 @@ This document captures lessons specific to THIS feature's development. This is s
 
 {Specific improvements needed for guides_v2/ based on THIS feature's experience}
 
-**Stage 5a TODO Creation:**
-- stages/stage_5/part_5.1.1_round1.md: {Improvement 1 or "None"}
-- stages/stage_5/part_5.1.2_round2.md: {Improvement 1 or "None"}
-- stages/stage_5/part_5.1.3_round3.md: {Improvement 1 or "None"}
-- stages/stage_5/round3_part2_final_gates.md: {Improvement 1 or "None"}
+**S5 TODO Creation:**
+- stages/s5/s5_p1_planning_round1.md: {Improvement 1 or "None"}
+- stages/s5/s5_p2_planning_round2.md: {Improvement 1 or "None"}
+- stages/s5/s5_p3_planning_round3.md: {Improvement 1 or "None"}
+- stages/s5/round3_part2_final_gates.md: {Improvement 1 or "None"}
 
-**stages/stage_5/phase_5.2_implementation_execution.md:**
+**stages/s6/s6_execution.md:**
 - {Improvement 1 or "None"}
 
-**Stage 5c Post-Implementation:**
-- stages/stage_5/part_5.3.1_smoke_testing.md: {Improvement 1 or "None"}
-- stages/stage_5/part_5.3.2_qc_rounds.md: {Improvement 1 or "None"}
-- stages/stage_5/part_5.3.3_final_review.md: {Improvement 1 or "None"}
+**S7 Post-Implementation:**
+- stages/s7/s7_p1_smoke_testing.md: {Improvement 1 or "None"}
+- stages/s7/s7_p2_qc_rounds.md: {Improvement 1 or "None"}
+- stages/s7/s7_p3_final_review.md: {Improvement 1 or "None"}
 
 {If no guide improvements needed: "No guide improvements identified from this feature"}
 
@@ -181,12 +181,12 @@ This document captures lessons specific to THIS feature's development. This is s
 **Files Modified:** {N}
 
 **Stage Durations:**
-- Stage 2: {N} days
-- Stage 5a: {N} days
-- Stage 5b: {N} days
-- Stage 5c: {N} days
-- Stage 5d: {N} days
-- Stage 5e: {N} days
+- S2: {N} days
+- S5: {N} days
+- S6: {N} days
+- S7: {N} days
+- S8.P1: {N} days
+- S8.P2: {N} days
 
 **Test Pass Rate:** {percentage}% ({X}/{Y} tests)
 ```

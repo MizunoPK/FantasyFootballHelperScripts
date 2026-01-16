@@ -2,16 +2,16 @@
 
 **Purpose:** Reference guide for agents creating or updating workflow guides
 **Use Case:** Ensure consistent file naming, header formatting, and cross-references
-**Last Updated:** 2026-01-11
+**Last Updated:** 2026-01-12
 
 ---
 
 ## Overview
 
-The Epic-Driven Development Workflow v2 uses a **4-level hierarchical notation system** for organizing guides. This document defines the naming rules, file structure conventions, and formatting standards that ALL guides must follow.
+The Epic-Driven Development Workflow v2 uses a **3-level hierarchical S#.P#.I# notation system** for organizing guides. This document defines the naming rules, file structure conventions, and formatting standards that ALL guides must follow.
 
 **Why This Matters:**
-- **Consistency:** Users and agents can predict file locations and naming patterns
+- **Self-Documenting:** Prefixes (S, P, I) make hierarchy level immediately clear
 - **Scalability:** New guides can be added without breaking existing structure
 - **Navigation:** Clear hierarchy enables easier guide discovery and cross-referencing
 - **Maintainability:** Renaming/restructuring is easier when rules are explicit
@@ -20,7 +20,7 @@ The Epic-Driven Development Workflow v2 uses a **4-level hierarchical notation s
 
 ## Table of Contents
 
-1. [Hierarchical Notation System](#hierarchical-notation-system)
+1. [S#.P#.I# Notation System](#spi-notation-system)
 2. [File Naming Conventions](#file-naming-conventions)
 3. [Directory Structure Rules](#directory-structure-rules)
 4. [Header Formatting Standards](#header-formatting-standards)
@@ -32,35 +32,42 @@ The Epic-Driven Development Workflow v2 uses a **4-level hierarchical notation s
 
 ---
 
-## Hierarchical Notation System
+## S#.P#.I# Notation System
 
-### The 4-Level System
+### The 3-Level System
 
-| Level | Notation | Format | Example | Description | Terminology |
+| Level | Notation | Prefix | Example | Description | Terminology |
 |-------|----------|--------|---------|-------------|-------------|
-| **Level 1** | X | Single number | `5` | Top-level workflow stage | **Stage** |
-| **Level 2** | X.Y | Two numbers | `5.1` | Major subdivision within stage | **Phase** |
-| **Level 3** | X.Y.Z | Three numbers | `5.1.3` | Focused guide within phase | **Part** |
-| **Level 4** | X.Y.Z.W | Four numbers | `5.1.3.2` | Detailed task/iteration | **Step** |
+| **Level 1** | S# | S | `S5` | Top-level workflow stage | **Stage** |
+| **Level 2** | S#.P# | P | `S5.P1` | Major subdivision within stage | **Phase** |
+| **Level 3** | S#.P#.I# | I | `S5.P1.I2` | Specific iteration/task within phase | **Iteration** |
+
+**Additional levels within files:**
+- **Steps** - Numbered tasks within a guide (Step 1, Step 2, etc.)
+- Steps are NOT part of the file naming hierarchy
 
 ### Notation Rules
 
-**Rule 1: Levels are dot-separated decimals**
-- ✅ Correct: `5.1`, `5.1.3`, `5.1.3.2`
-- ❌ Wrong: `5a`, `5-1`, `5_1`, `STAGE_5a`
+**Rule 1: Prefixes indicate level**
+- ✅ Correct: `S5`, `S5.P1`, `S5.P1.I2`
+- ❌ Wrong: `5`, `5.1`, `5.1.2` (missing prefixes)
+- **Why:** Self-documenting - immediately clear what level you're at
 
-**Rule 2: Each level increases by whole numbers**
-- ✅ Correct: `5.1`, `5.2`, `5.3`
-- ❌ Wrong: `5.1`, `5.1a`, `5.1b`
+**Rule 2: Use whole numbers only**
+- ✅ Correct: `S5.P1`, `S5.P2`, `S5.P3`
+- ❌ Wrong: `S5.P1a`, `S5.P1b` (no letter suffixes)
 
 **Rule 3: Lower levels inherit from upper levels**
-- `5.1.1` is a Part within Phase `5.1`
-- `5.1.3.2` is a Step within Part `5.1.3`
-- Cannot have `5.1.3.2` without `5.1.3` existing
+- `S5.P1.I2` is an Iteration within Phase P1 of S5
+- Cannot have `S5.P1.I2` without `S5.P1` existing
 
 **Rule 4: Use minimum levels needed**
-- If a Stage has no Phases, just use `Stage 5` (not `Stage 5.0`)
-- If a Phase has no Parts, just use `Phase 5.1` (not `Phase 5.1.0`)
+- If a Stage has no Phases, just use `S5` (not `S5.P0`)
+- If a Phase has no Iterations, just use `S5.P1` (not `S5.P1.I0`)
+
+**Rule 5: Maximum 3 levels for files**
+- File names go up to S#.P#.I# only
+- Within files, use Steps (not part of file hierarchy)
 
 ---
 
@@ -68,46 +75,45 @@ The Epic-Driven Development Workflow v2 uses a **4-level hierarchical notation s
 
 ### Pattern Rules
 
-**Format:** `{level_prefix}_{notation}_{descriptive_name}.md`
+**Format:** `s{N}_p{M}_i{K}_{descriptive_name}.md` (adjust based on level)
 
-| Level | Prefix | Example Filename | Pattern |
-|-------|--------|------------------|---------|
-| **Stage** | `stage` | `epic_planning.md` | `{descriptive_name}.md` (no notation) |
-| **Phase** | `phase` | `phase_5.1_implementation_planning.md` | `phase_{X.Y}_{name}.md` |
-| **Part** | `part` | `part_5.1.3_round3.md` | `part_{X.Y.Z}_{name}.md` |
-| **Step** | `5.{Y}.{Z}.{W}` | `5.1.3.2_gates_1_2.md` | `{X.Y.Z.W}_{name}.md` |
+| Level | Pattern | Example Filename |
+|-------|---------|------------------|
+| **Stage** | `s{N}_{name}.md` | `s1_epic_planning.md` |
+| **Phase** | `s{N}_p{M}_{name}.md` | `s5_p1_planning_round1.md` |
+| **Iteration** | `s{N}_p{M}_i{K}_{name}.md` | `s5_p1_i2_algorithms.md` |
 
 ### Specific Rules
 
-**Rule 1: Stage files (Level 1) - No notation prefix**
-- ✅ Correct: `epic_planning.md`, `epic_cleanup.md`
+**Rule 1: Stage files (Level 1) - Single prefix**
+- ✅ Correct: `s1_epic_planning.md`, `s10_epic_cleanup.md`
 - ❌ Wrong: `stage_1_epic_planning.md`, `1_epic_planning.md`
-- **Why:** Stage files are top-level, notation is implicit from directory location (`stages/stage_1/`)
+- **Why:** Lowercase 's' prefix is concise and consistent
 
-**Rule 2: Phase files (Level 2) - Include notation**
-- ✅ Correct: `phase_5.1_implementation_planning.md`
-- ❌ Wrong: `implementation_planning.md`, `phase_5a_implementation.md`
-- **Why:** Phases need explicit notation to show position within Stage
+**Rule 2: Phase files (Level 2) - Stage + Phase prefix**
+- ✅ Correct: `s5_p1_planning_round1.md`, `s2_p2_specification.md`
+- ❌ Wrong: `s5_planning_round1.md` (missing p1), `phase_5.1_planning.md` (old notation)
+- **Why:** Shows exactly where in hierarchy (S5, Phase 1)
 
-**Rule 3: Part files (Level 3) - Include notation**
-- ✅ Correct: `part_5.1.3_round3.md`
-- ❌ Wrong: `round3.md`, `part_5ac_round3.md`
-- **Why:** Parts need notation to show position within Phase
+**Rule 3: Iteration files (Level 3) - Stage + Phase + Iteration prefix**
+- ✅ Correct: `s5_p1_i2_algorithms.md`, `s5_p3_i1_preparation.md`
+- ❌ Wrong: `s5_algorithms.md` (missing p and i), `s5_p1_2_algorithms.md` (wrong format)
+- **Why:** Full hierarchy visible in filename
 
-**Rule 4: Step files (Level 4) - Full notation, no prefix**
-- ✅ Correct: `5.1.3.2_gates_1_2.md`
-- ❌ Wrong: `step_5.1.3.2_gates.md`, `gates_1_2.md`
-- **Why:** Full notation at this level is already self-documenting
-
-**Rule 5: Descriptive names use snake_case**
+**Rule 4: Descriptive names use snake_case**
 - ✅ Correct: `epic_smoke_testing.md`, `cross_feature_sanity_check.md`
-- ❌ Wrong: `Epic-Smoke-Testing.md`, `CrossFeatureSanityCheck.md`, `epic smoke testing.md`
+- ❌ Wrong: `Epic-Smoke-Testing.md`, `CrossFeatureSanityCheck.md`
 - **Why:** Consistent with project-wide file naming standards
 
-**Rule 6: Use underscores to separate notation from name**
-- ✅ Correct: `phase_5.1_implementation_planning.md`
-- ❌ Wrong: `phase_5.1-implementation-planning.md`, `phase5.1_implementation.md`
+**Rule 5: Use underscores to separate parts**
+- ✅ Correct: `s5_p1_i2_algorithms.md`
+- ❌ Wrong: `s5-p1-i2-algorithms.md`, `s5p1i2_algorithms.md`
 - **Why:** Clear visual separation between notation and description
+
+**Rule 6: Special case - Phase number variants**
+- For S2.P2.5 style numbering: `s2_p2_5_spec_validation.md`
+- ✅ Correct: `s2_p2_5_spec_validation.md`
+- ❌ Wrong: `s2_p2.5_spec_validation.md` (dot in filename)
 
 ---
 
@@ -118,45 +124,70 @@ The Epic-Driven Development Workflow v2 uses a **4-level hierarchical notation s
 ```
 feature-updates/guides_v2/
 ├── stages/
-│   ├── stage_1/
-│   │   └── epic_planning.md                    (Level 1: Stage)
-│   ├── stage_2/
-│   │   ├── feature_deep_dive.md                (Level 1: Stage, router)
-│   │   ├── phase_2.1_research.md               (Level 2: Phase)
-│   │   ├── phase_2.2_specification.md          (Level 2: Phase)
-│   │   └── phase_2.3_refinement.md             (Level 2: Phase)
-│   ├── stage_5/
-│   │   ├── feature_implementation.md           (Level 1: Stage, router)
-│   │   ├── phase_5.1_implementation_planning.md (Level 2: Phase, router)
-│   │   ├── phase_5.3_post_implementation.md    (Level 2: Phase, router)
-│   │   ├── part_5.1.1_round1.md                (Level 3: Part)
-│   │   ├── part_5.1.3_round3.md                (Level 3: Part, router)
-│   │   ├── iterations/
-│   │   │   ├── 5.1.3.1_preparation.md          (Level 4: Step)
-│   │   │   └── 5.1.3.2_gates_1_2.md            (Level 4: Step)
-│   │   └── ...
-│   ├── stage_6/
-│   │   ├── epic_final_qc.md                    (Level 1: Stage, router)
-│   │   ├── phase_6.1_epic_smoke_testing.md     (Level 2: Phase)
-│   │   └── ...
-│   └── stage_7/
-│       └── epic_cleanup.md                      (Level 1: Stage)
+│   ├── s1/
+│   │   └── s1_epic_planning.md                    (Level 1: Stage)
+│   ├── s2/
+│   │   ├── s2_feature_deep_dive.md                (Level 1: Stage, router)
+│   │   ├── s2_p1_research.md                      (Level 2: Phase)
+│   │   ├── s2_p2_specification.md                 (Level 2: Phase)
+│   │   ├── s2_p2_5_spec_validation.md             (Level 2: Phase variant)
+│   │   └── s2_p3_refinement.md                    (Level 2: Phase)
+│   ├── s3/
+│   │   └── s3_cross_feature_sanity_check.md       (Level 1: Stage)
+│   ├── s4/
+│   │   └── s4_epic_testing_strategy.md            (Level 1: Stage)
+│   ├── s5/
+│   │   ├── feature_implementation.md              (Level 1: Stage, router)
+│   │   ├── s5_p1_planning_round1.md               (Level 2: Phase, router)
+│   │   ├── s5_p1_i1_requirements.md               (Level 3: Iteration)
+│   │   ├── s5_p1_i2_algorithms.md                 (Level 3: Iteration)
+│   │   ├── s5_p1_i3_integration.md                (Level 3: Iteration)
+│   │   ├── s5_p2_planning_round2.md               (Level 2: Phase, router)
+│   │   ├── s5_p2_i1_test_strategy.md              (Level 3: Iteration)
+│   │   ├── s5_p2_i2_reverification.md             (Level 3: Iteration)
+│   │   ├── s5_p2_i3_final_checks.md               (Level 3: Iteration)
+│   │   ├── s5_p3_planning_round3.md               (Level 2: Phase, router)
+│   │   ├── s5_p3_i1_preparation.md                (Level 3: Iteration)
+│   │   ├── s5_p3_i2_gates_part1.md                (Level 3: Iteration)
+│   │   ├── s5_p3_i3_gates_part2.md                (Level 3: Iteration)
+│   │   ├── s5_pr_review_protocol.md               (Support doc)
+│   │   └── s5_bugfix_workflow.md                  (Support doc)
+│   ├── s6/
+│   │   └── s6_execution.md                         (Level 1: Stage)
+│   ├── s7/
+│   │   ├── s7_p1_smoke_testing.md                  (Level 2: Phase)
+│   │   ├── s7_p2_qc_rounds.md                      (Level 2: Phase)
+│   │   └── s7_p3_final_review.md                   (Level 2: Phase)
+│   ├── s8/
+│   │   ├── s8_p1_cross_feature_alignment.md        (Level 2: Phase)
+│   │   └── s8_p2_epic_testing_update.md            (Level 2: Phase)
+│   ├── s9/
+│   │   ├── s9_epic_final_qc.md                     (Level 1: Stage, router)
+│   │   ├── s9_p1_epic_smoke_testing.md             (Level 2: Phase)
+│   │   ├── s9_p2_epic_qc_rounds.md                 (Level 2: Phase)
+│   │   ├── s9_p3_user_testing.md                   (Level 2: Phase)
+│   │   └── s9_p4_epic_final_review.md              (Level 2: Phase)
+│   └── s10/
+│       ├── s10_epic_cleanup.md                     (Level 1: Stage)
+│       └── s10_p1_guide_update_workflow.md         (Level 2: Phase)
 ```
 
 ### Directory Naming Rules
 
-**Rule 1: Stage directories use `stage_{N}` format**
-- ✅ Correct: `stages/stage_1/`, `stages/stage_5/`
-- ❌ Wrong: `stages/1/`, `stages/stage_one/`
+**Rule 1: Stage directories use `s{N}/` format**
+- ✅ Correct: `stages/s1/`, `stages/s5/`
+- ❌ Wrong: `stages/stage_1/`, `stages/1/`
+- **Why:** Concise and consistent with file naming
 
-**Rule 2: Subdirectories for Level 4 files (optional)**
-- Create `iterations/` or `steps/` subdirectory when Level 4 files exceed 3-4 files
-- ✅ Example: `stages/stage_5/iterations/` contains all `5.1.3.{W}_*.md` files
-- **Why:** Keeps parent directory clean, groups related iteration files
+**Rule 2: Flat structure within stage directories**
+- All files for a stage (including phases and iterations) go directly in `s{N}/` directory
+- ✅ Example: `stages/s5/s5_p1_i2_algorithms.md` (not nested)
+- **Why:** Keeps structure simple, file names show full hierarchy
 
-**Rule 3: No nested stage directories**
-- ❌ Wrong: `stages/stage_5/stage_5a/`
-- ✅ Correct: `stages/stage_5/phase_5.1_implementation_planning.md`
+**Rule 3: No subdirectories within stage folders**
+- ❌ Wrong: `stages/s5/p1/`, `stages/s5/iterations/`
+- ✅ Correct: All files flat in `stages/s5/`
+- **Why:** File naming already shows hierarchy, no need for nested folders
 
 ---
 
@@ -168,25 +199,25 @@ feature-updates/guides_v2/
 
 | Notation Level | Markdown Header | Example |
 |----------------|-----------------|---------|
-| **Level 1** | `# Stage {X}:` | `# Stage 5: Feature Implementation` |
-| **Level 2** | `## Phase {X.Y}:` | `## Phase 5.1: Implementation Planning` |
-| **Level 3** | `### Part {X.Y.Z}:` | `### Part 5.1.3: Round 3` |
-| **Level 4** | `#### Step {X.Y.Z.W}:` | `#### Step 5.1.3.2: Gates 1-2` |
+| **Level 1** | `# S{N}:` | `# S5: Feature Implementation` |
+| **Level 2** | `## S{N}.P{M}:` | `## S5.P1: Planning Round 1` |
+| **Level 3** | `### S{N}.P{M}.I{K}:` | `### S5.P1.I2: Algorithms` |
+| **Within file** | `#### Step {X}:` | `#### Step 3: Create Test Plan` |
 
 ### Standard Header Format
 
 **All guide files MUST start with this header structure:**
 
 ```markdown
-# Stage {X}: {Stage Name}
-## Phase {X.Y}: {Phase Name}
-### Part {X.Y.Z}: {Part Name}  (if Level 3)
+# S{N}: {Stage Name}
+## S{N}.P{M}: {Phase Name}  (if Level 2)
+### S{N}.P{M}.I{K}: {Iteration Name}  (if Level 3)
 
 **File:** `{filename}.md`
 
 **Purpose:** {One-line description of what this guide covers}
 **Prerequisites:** {Previous phase complete OR specific conditions}
-**Next Phase:** `{path/to/next/guide.md}`
+**Next Guide:** `{path/to/next/guide.md}`
 
 ---
 ```
@@ -195,58 +226,42 @@ feature-updates/guides_v2/
 
 **Level 1 (Stage) Header:**
 ```markdown
-# Stage 1: Epic Planning
+# S1: Epic Planning
 
-**File:** `epic_planning.md`
+**File:** `s1_epic_planning.md`
 
 **Purpose:** Plan epic scope, break down into features, create folder structure
 **Prerequisites:** User created `{epic_name}.txt` with initial requirements
-**Next Phase:** `stages/stage_2/feature_deep_dive.md`
+**Next Guide:** `stages/s2/s2_feature_deep_dive.md`
 
 ---
 ```
 
 **Level 2 (Phase) Header:**
 ```markdown
-# Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
+# S5: Feature Implementation
+## S5.P1: Planning Round 1
 
-**File:** `phase_5.1_implementation_planning.md`
+**File:** `s5_p1_planning_round1.md`
 
-**Purpose:** Create comprehensive implementation plan through 3 rounds (28 iterations)
-**Prerequisites:** Stage 2-4 complete (spec, alignment, test strategy approved)
-**Next Phase:** `stages/stage_5/phase_5.2_implementation_execution.md`
-
----
-```
-
-**Level 3 (Part) Header:**
-```markdown
-# Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
-### Part 5.1.3: Round 3 (Iterations 17-25)
-
-**File:** `part_5.1.3_round3.md`
-
-**Purpose:** Router file for Round 3 (Preparation, Gates, GO/NO-GO decision)
-**Prerequisites:** Part 5.1.2 complete (Round 2 iterations 8-16)
-**Next Phase:** See Quick Navigation table below
+**Purpose:** Execute iterations 1-7 with requirement reviews and algorithm design
+**Prerequisites:** S2-S4 complete (spec, alignment, test strategy approved)
+**Next Guide:** `stages/s5/s5_p2_planning_round2.md`
 
 ---
 ```
 
-**Level 4 (Step) Header:**
+**Level 3 (Iteration) Header:**
 ```markdown
-# Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
-### Part 5.1.3: Round 3
-#### Step 5.1.3.2: Gates 1-2 (Iterations 23, 23a)
+# S5: Feature Implementation
+## S5.P1: Planning Round 1
+### S5.P1.I2: Algorithms (Iterations 4-6 + Gate 4a)
 
-**File:** `5.1.3.2_gates_1_2.md`
+**File:** `s5_p1_i2_algorithms.md`
 
-**Purpose:** Execute Gate 23a (Pre-Implementation Spec Audit - 5 parts)
-**Prerequisites:** Step 5.1.3.1 complete (Preparation iterations 17-22)
-**Next Step:** `stages/stage_5/iterations/5.1.3.3_gate_3.md`
+**Purpose:** Design core algorithms and execute Gate 4a (TODO specification audit)
+**Prerequisites:** S5.P1.I1 complete (Requirements iterations 1-3)
+**Next Guide:** `stages/s5/s5_p1_i3_integration.md`
 
 ---
 ```
@@ -254,16 +269,16 @@ feature-updates/guides_v2/
 ### Header Rules
 
 **Rule 1: Always include full hierarchy in headers**
-- Level 3 files show: `# Stage 5:` → `## Phase 5.1:` → `### Part 5.1.3:`
+- Level 3 files show: `# S5:` → `## S5.P1:` → `### S5.P1.I2:`
 - **Why:** Provides context when file is read in isolation
 
 **Rule 2: File field must match actual filename**
-- ✅ Correct: `**File:** phase_5.1_implementation_planning.md`
-- ❌ Wrong: `**File:** implementation_planning.md`
+- ✅ Correct: `**File:** s5_p1_planning_round1.md`
+- ❌ Wrong: `**File:** planning_round1.md`
 
-**Rule 3: Use relative paths for Next Phase/Step**
-- ✅ Correct: `stages/stage_5/phase_5.2_implementation_execution.md`
-- ❌ Wrong: `phase_5.2_implementation_execution.md` (missing directory)
+**Rule 3: Use relative paths for Next Guide**
+- ✅ Correct: `stages/s5/s5_p2_planning_round2.md`
+- ❌ Wrong: `s5_p2_planning_round2.md` (missing directory)
 
 **Rule 4: Separator line `---` required after header**
 - Separates metadata from content
@@ -277,38 +292,38 @@ feature-updates/guides_v2/
 
 **Format 1: Notation only** (when context is clear)
 ```markdown
-After completing Phase 5.1, proceed to Phase 5.2.
+After completing S5.P1, proceed to S5.P2.
 ```
 
 **Format 2: Notation + file link** (when directing to specific guide)
 ```markdown
-See `stages/stage_5/phase_5.2_implementation_execution.md` for execution details.
+See `stages/s6/s6_execution.md` for execution details.
 ```
 
 **Format 3: Full descriptive link** (in navigation tables)
 ```markdown
 | Current Phase | Guide to Read | Time |
 |---------------|---------------|------|
-| Phase 5.1 | `stages/stage_5/phase_5.1_implementation_planning.md` | 3-4 hrs |
+| S5.P1 | `stages/s5/s5_p1_planning_round1.md` | 90 min |
 ```
 
 ### Reference Rules
 
-**Rule 1: Use hierarchical notation, not old STAGE_x format**
-- ✅ Correct: `Phase 5.1`, `Part 5.1.3`
-- ❌ Wrong: `STAGE_5a`, `STAGE_5ac`, `Stage 5a`
+**Rule 1: Use S#.P#.I# notation consistently**
+- ✅ Correct: `S5.P1`, `S5.P1.I2`
+- ❌ Wrong: `S5 Phase 1`, `S5.P1`, `5.1` (without prefix)
 
 **Rule 2: File paths are relative to guides_v2/ directory**
-- ✅ Correct: `stages/stage_5/phase_5.1_implementation_planning.md`
-- ❌ Wrong: `feature-updates/guides_v2/stages/stage_5/phase_5.1_implementation_planning.md`
+- ✅ Correct: `stages/s5/s5_p1_planning_round1.md`
+- ❌ Wrong: `feature-updates/guides_v2/stages/s5/s5_p1_planning_round1.md`
 
 **Rule 3: Use backticks for file paths**
-- ✅ Correct: `See \`stages/stage_5/part_5.1.3_round3.md\``
-- ❌ Wrong: `See stages/stage_5/part_5.1.3_round3.md`
+- ✅ Correct: `See \`stages/s5/s5_p1_planning_round1.md\``
+- ❌ Wrong: `See stages/s5/s5_p1_planning_round1.md`
 
 **Rule 4: When referencing a guide, include full path**
-- ✅ Correct: `READ: \`stages/stage_5/phase_5.1_implementation_planning.md\``
-- ❌ Wrong: `READ: phase_5.1_implementation_planning.md`
+- ✅ Correct: `READ: \`stages/s5/s5_p1_planning_round1.md\``
+- ❌ Wrong: `READ: s5_p1_planning_round1.md`
 
 ---
 
@@ -316,30 +331,32 @@ See `stages/stage_5/phase_5.2_implementation_execution.md` for execution details
 
 ### Correct Terms
 
-| Level | Singular | Plural | Usage Example |
-|-------|----------|--------|---------------|
-| **Level 1** | Stage | Stages | "Stage 5 has 5 phases" |
-| **Level 2** | Phase | Phases | "Phase 5.1 is Implementation Planning" |
-| **Level 3** | Part | Parts | "Part 5.1.3 covers Round 3" |
-| **Level 4** | Step | Steps | "Step 5.1.3.2 contains Gates 1-2" |
+| Level | Singular | Plural | Usage Example | Reserved For |
+|-------|----------|--------|---------------|--------------|
+| **Level 1** | Stage | Stages | "S5 has 9 phases" | S# hierarchy only |
+| **Level 2** | Phase | Phases | "S5.P1 is Planning Round 1" | S#.P# hierarchy only |
+| **Level 3** | Iteration | Iterations | "S5.P1.I2 covers algorithms" | S#.P#.I# hierarchy only |
+| **Within file** | Step | Steps | "Step 3: Create test plan" | Guide content only |
 
 ### Terminology Rules
 
-**Rule 1: Use correct level term**
-- ✅ Correct: "Phase 5.1", "Part 5.1.3"
-- ❌ Wrong: "Stage 5.1", "Phase 5.1.3"
+**Rule 1: Reserve Stage/Phase/Iteration for S#.P#.I# notation ONLY**
+- ✅ Correct: "Complete S5.P1 (Planning Round 1)"
+- ❌ Wrong: "At this point in the process" (use "at this point")
+- ❌ Wrong: "Phase the work carefully" (use "sequence" or "organize")
 
-**Rule 2: Capitalize when referring to specific instance**
-- ✅ Correct: "Phase 5.1: Implementation Planning"
-- ❌ Wrong: "phase 5.1: implementation planning"
+**Rule 2: Use alternative terms for casual usage**
+- Instead of "this stage" → use "this guide", "this section", "this point"
+- Instead of "phase" (verb) → use "organize", "sequence", "plan"
+- Instead of "iterative" → use "repeated", "continuous", "incremental"
 
-**Rule 3: Lowercase when referring generally**
+**Rule 3: Capitalize when referring to specific instance**
+- ✅ Correct: "S5.P1: Planning Round 1"
+- ❌ Wrong: "s5.p1: planning round 1"
+
+**Rule 4: Lowercase when referring generally**
 - ✅ Correct: "After completing the phase, proceed to..."
 - ❌ Wrong: "After completing the Phase, proceed to..."
-
-**Rule 4: Include name after notation for clarity**
-- ✅ Correct: "Phase 5.1 (Implementation Planning)"
-- ❌ Wrong: "Phase 5.1" (without name in first mention)
 
 ---
 
@@ -347,22 +364,22 @@ See `stages/stage_5/phase_5.2_implementation_execution.md` for execution details
 
 ### Example 1: Stage File (Level 1)
 
-**File:** `stages/stage_1/epic_planning.md`
+**File:** `stages/s1/s1_epic_planning.md`
 
 ```markdown
-# Stage 1: Epic Planning
+# S1: Epic Planning
 
-**File:** `epic_planning.md`
+**File:** `s1_epic_planning.md`
 
 **Purpose:** Plan epic scope, break down into features, create folder structure
 **Prerequisites:** User created `{epic_name}.txt` with initial requirements
-**Next Phase:** `stages/stage_2/feature_deep_dive.md`
+**Next Guide:** `stages/s2/s2_feature_deep_dive.md`
 
 ---
 
 ## Overview
 
-Stage 1 is the initial planning phase where you:
+S1 is the initial planning section where you:
 1. Assign KAI number from EPIC_TRACKER.md
 2. Analyze epic request and propose feature breakdown
 ...
@@ -370,137 +387,106 @@ Stage 1 is the initial planning phase where you:
 
 ### Example 2: Phase File (Level 2)
 
-**File:** `stages/stage_5/phase_5.1_implementation_planning.md`
+**File:** `stages/s5/s5_p1_planning_round1.md`
 
 ```markdown
-# Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
+# S5: Feature Implementation
+## S5.P1: Planning Round 1 (Iterations 1-7)
 
-**File:** `phase_5.1_implementation_planning.md`
+**File:** `s5_p1_planning_round1.md`
 
-**Purpose:** Create comprehensive implementation plan through 3 rounds (28 iterations)
-**Prerequisites:** Stage 2-4 complete (spec, alignment, test strategy approved)
-**Next Phase:** `stages/stage_5/phase_5.2_implementation_execution.md`
+**Purpose:** Execute iterations 1-7 with requirement reviews and algorithm design
+**Prerequisites:** S2-S4 complete (spec, alignment, test strategy approved)
+**Next Guide:** `stages/s5/s5_p2_planning_round2.md`
 
 ---
 
 ## Overview
 
-Phase 5.1 is split into 3 rounds:
-- **Part 5.1.1:** Round 1 (Iterations 1-7 + Gates 4a, 7a)
-- **Part 5.1.2:** Round 2 (Iterations 8-16)
-- **Part 5.1.3:** Round 3 (Iterations 17-25 + Gates 23a, 24, 25)
+S5.P1 is split into 3 iteration groups:
+- **S5.P1.I1:** Requirements (Iterations 1-3)
+- **S5.P1.I2:** Algorithms (Iterations 4-6 + Gate 4a)
+- **S5.P1.I3:** Integration (Iteration 7 + Gate 7a)
 ...
 ```
 
-### Example 3: Part File (Level 3)
+### Example 3: Iteration File (Level 3)
 
-**File:** `stages/stage_5/part_5.1.3_round3.md`
+**File:** `stages/s5/s5_p1_i2_algorithms.md`
 
 ```markdown
-# Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
-### Part 5.1.3: Round 3 (Iterations 17-25)
+# S5: Feature Implementation
+## S5.P1: Planning Round 1
+### S5.P1.I2: Algorithms (Iterations 4-6 + Gate 4a)
 
-**File:** `part_5.1.3_round3.md`
+**File:** `s5_p1_i2_algorithms.md`
 
-**Purpose:** Router file for Round 3 (Preparation, Gates, GO/NO-GO decision)
-**Prerequisites:** Part 5.1.2 complete (Round 2 iterations 8-16)
-**Next Phase:** See Quick Navigation table below
+**Purpose:** Design core algorithms and execute Gate 4a (TODO specification audit)
+**Prerequisites:** S5.P1.I1 complete (Requirements iterations 1-3)
+**Next Guide:** `stages/s5/s5_p1_i3_integration.md`
 
 ---
 
-## Quick Navigation
+## Iteration 4: Algorithm Design
 
-**Round 3 is split into 3 parts:**
-
-| Part | Guide to Read | Iterations | Time Estimate |
-|------|---------------|------------|---------------|
-| Step 5.1.3.1: Preparation | `stages/stage_5/iterations/5.1.3.1_preparation.md` | 17-22 | 45-60 min |
-| Step 5.1.3.2: Gates 1-2 | `stages/stage_5/iterations/5.1.3.2_gates_1_2.md` | 23, 23a | 30-45 min |
-| Step 5.1.3.3: Gate 3 | `stages/stage_5/iterations/5.1.3.3_gate_3.md` | 24, 25 | 15-30 min |
-...
-```
-
-### Example 4: Step File (Level 4)
-
-**File:** `stages/stage_5/iterations/5.1.3.2_gates_1_2.md`
-
-```markdown
-# Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
-### Part 5.1.3: Round 3
-#### Step 5.1.3.2: Gates 1-2 (Iterations 23, 23a)
-
-**File:** `5.1.3.2_gates_1_2.md`
-
-**Purpose:** Execute Gate 23a (Pre-Implementation Spec Audit - 5 parts)
-**Prerequisites:** Step 5.1.3.1 complete (Preparation iterations 17-22)
-**Next Step:** `stages/stage_5/iterations/5.1.3.3_gate_3.md`
-
----
-
-## Iteration 23: Integration & Spec Audit Preparation
-
-**Purpose:** Prepare for Gate 23a by reviewing implementation plan and spec...
+**Purpose:** Design core algorithms and data structures...
 ```
 
 ---
 
 ## Common Mistakes to Avoid
 
-### ❌ Mistake 1: Using Old STAGE_x Notation
+### ❌ Mistake 1: Using Old Notation
 
 **Wrong:**
 ```markdown
-After completing STAGE_5a, proceed to STAGE_5b.
-See `stages/stage_5/STAGE_5ac_round3.md` for details.
+After completing S5, proceed to S6.
+See `stages/s5/phase_5.1_implementation_planning.md` for details.
 ```
 
 **Correct:**
 ```markdown
-After completing Phase 5.1, proceed to Phase 5.2.
-See `stages/stage_5/part_5.1.3_round3.md` for details.
+After completing S5.P1, proceed to S5.P2.
+See `stages/s5/s5_p1_planning_round1.md` for details.
 ```
 
-**Why:** Old notation is deprecated as of 2026-01-10 restructuring.
+**Why:** Old notation (S5, S5.P1) is deprecated.
 
 ---
 
-### ❌ Mistake 2: Inconsistent Header Levels
+### ❌ Mistake 2: Missing Prefixes in Notation
 
 **Wrong:**
 ```markdown
-# Stage 5: Feature Implementation
-### Part 5.1.3: Round 3  (skipped Level 2)
+# S5: Feature Implementation
+## Phase 1: Planning Round 1  (missing S5)
 ```
 
 **Correct:**
 ```markdown
-# Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
-### Part 5.1.3: Round 3
+# S5: Feature Implementation
+## S5.P1: Planning Round 1
 ```
 
-**Why:** Must show full hierarchy for context.
+**Why:** S#.P#.I# notation requires prefixes for self-documentation.
 
 ---
 
-### ❌ Mistake 3: Wrong File Prefix
+### ❌ Mistake 3: Wrong File Naming Pattern
 
 **Wrong:**
 ```markdown
-stage_5.1_implementation_planning.md    (using "stage" for Level 2)
-5.1_implementation_planning.md          (missing prefix)
-implementation_planning.md              (missing notation)
+stage_5_planning_round1.md       (old format)
+s5_planning.md                   (missing p1)
+s5-p1-planning.md                (hyphens instead of underscores)
 ```
 
 **Correct:**
 ```markdown
-phase_5.1_implementation_planning.md
+s5_p1_planning_round1.md
 ```
 
-**Why:** Level 2 files use `phase_` prefix with full notation.
+**Why:** Must follow s{N}_p{M}_{name}.md pattern.
 
 ---
 
@@ -508,67 +494,53 @@ phase_5.1_implementation_planning.md
 
 **Wrong:**
 ```markdown
-See `C:\Users\...\feature-updates\guides_v2\stages\stage_5\phase_5.1_implementation_planning.md`
-See `feature-updates/guides_v2/stages/stage_5/phase_5.1_implementation_planning.md`
+See `C:\Users\...\feature-updates\guides_v2\stages\s5\s5_p1_planning_round1.md`
+See `feature-updates/guides_v2/stages/s5/s5_p1_planning_round1.md`
 ```
 
 **Correct:**
 ```markdown
-See `stages/stage_5/phase_5.1_implementation_planning.md`
+See `stages/s5/s5_p1_planning_round1.md`
 ```
 
 **Why:** Paths are relative to `guides_v2/` directory.
 
 ---
 
-### ❌ Mistake 5: Missing Separator After Header
+### ❌ Mistake 5: Using Reserved Terms Casually
 
 **Wrong:**
 ```markdown
-# Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
-
-**File:** `phase_5.1_implementation_planning.md`
-**Purpose:** Create implementation plan...
-
-## Overview
-(no separator line before content)
+"At this point in the process, we organize the work..."
+"The repeated approach means..."
 ```
 
 **Correct:**
 ```markdown
-# Stage 5: Feature Implementation
-## Phase 5.1: Implementation Planning
-
-**File:** `phase_5.1_implementation_planning.md`
-**Purpose:** Create implementation plan...
-
----
-
-## Overview
+"At this point in the process, we organize the work..."
+"The repeated approach means..."
 ```
 
-**Why:** `---` separator provides visual consistency and separates metadata from content.
+**Why:** Stage/Phase/Iteration reserved for S#.P#.I# hierarchy only.
 
 ---
 
-### ❌ Mistake 6: Inconsistent Terminology
+### ❌ Mistake 6: Inconsistent Header Hierarchy
 
 **Wrong:**
 ```markdown
-"After completing stage 5.1..." (lowercase when specific)
-"Phase 5.1.3" (wrong level term - should be Part)
-"Step 5.1" (wrong level term - should be Phase)
+# S5: Feature Implementation
+### S5.P1.I2: Algorithms  (skipped Level 2)
 ```
 
 **Correct:**
 ```markdown
-"After completing Phase 5.1..." (capitalized when specific)
-"Part 5.1.3" (correct level term)
-"Phase 5.1" (correct level term)
+# S5: Feature Implementation
+## S5.P1: Planning Round 1
+### S5.P1.I2: Algorithms
 ```
 
-**Why:** Consistent terminology prevents confusion about which level is referenced.
+**Why:** Must show full hierarchy for context.
 
 ---
 
@@ -576,30 +548,27 @@ See `stages/stage_5/phase_5.1_implementation_planning.md`
 
 ### Complete Naming Pattern Reference
 
-| Level | Term | Notation | Prefix | Filename Pattern | Header Format | Example |
-|-------|------|----------|--------|------------------|---------------|---------|
-| **1** | Stage | X | (none) | `{name}.md` | `# Stage X:` | `epic_planning.md` |
-| **2** | Phase | X.Y | `phase_` | `phase_{X.Y}_{name}.md` | `## Phase X.Y:` | `phase_5.1_implementation_planning.md` |
-| **3** | Part | X.Y.Z | `part_` | `part_{X.Y.Z}_{name}.md` | `### Part X.Y.Z:` | `part_5.1.3_round3.md` |
-| **4** | Step | X.Y.Z.W | (none) | `{X.Y.Z.W}_{name}.md` | `#### Step X.Y.Z.W:` | `5.1.3.2_gates_1_2.md` |
+| Level | Term | Notation | Filename Pattern | Header Format | Example |
+|-------|------|----------|------------------|---------------|---------|
+| **1** | Stage | S# | `s{N}_{name}.md` | `# S{N}:` | `s1_epic_planning.md` |
+| **2** | Phase | S#.P# | `s{N}_p{M}_{name}.md` | `## S{N}.P{M}:` | `s5_p1_planning_round1.md` |
+| **3** | Iteration | S#.P#.I# | `s{N}_p{M}_i{K}_{name}.md` | `### S{N}.P{M}.I{K}:` | `s5_p1_i2_algorithms.md` |
 
 ### File Location Patterns
 
 | Level | Directory Location | Example |
 |-------|-------------------|---------|
-| **Stage** | `stages/stage_{X}/` | `stages/stage_1/epic_planning.md` |
-| **Phase** | `stages/stage_{X}/` | `stages/stage_5/phase_5.1_implementation_planning.md` |
-| **Part** | `stages/stage_{X}/` | `stages/stage_5/part_5.1.3_round3.md` |
-| **Step** | `stages/stage_{X}/iterations/` | `stages/stage_5/iterations/5.1.3.2_gates_1_2.md` |
+| **Stage** | `stages/s{N}/` | `stages/s1/s1_epic_planning.md` |
+| **Phase** | `stages/s{N}/` | `stages/s5/s5_p1_planning_round1.md` |
+| **Iteration** | `stages/s{N}/` | `stages/s5/s5_p1_i2_algorithms.md` |
 
 ### Cross-Reference Format Quick Reference
 
 | Reference Type | Format | Example |
 |---------------|--------|---------|
-| **Notation only** | `{Term} {X.Y}` | `Phase 5.1` |
-| **File path** | `` `{relative/path/to/file.md}` `` | `` `stages/stage_5/phase_5.1_implementation_planning.md` `` |
-| **Descriptive** | `{Term} {X.Y} ({Name})` | `Phase 5.1 (Implementation Planning)` |
-| **Navigation link** | `[{Name}]({path})` | `[Implementation Planning](stages/stage_5/phase_5.1_implementation_planning.md)` |
+| **Notation only** | `S{N}.P{M}` | `S5.P1` |
+| **File path** | `` `stages/s{N}/s{N}_p{M}_{name}.md` `` | `` `stages/s5/s5_p1_planning_round1.md` `` |
+| **Descriptive** | `S{N}.P{M} ({Name})` | `S5.P1 (Planning Round 1)` |
 
 ---
 
@@ -608,50 +577,30 @@ See `stages/stage_5/phase_5.1_implementation_planning.md`
 **Use this checklist when creating or updating guides:**
 
 ### File Naming
-- [ ] File uses correct prefix for level (`phase_`, `part_`, or none)
-- [ ] Notation uses dots, not letters (`5.1` not `5a`)
+- [ ] File uses s{N}_ or s{N}_p{M}_ or s{N}_p{M}_i{K}_ prefix
+- [ ] Notation uses S#.P#.I# format (with prefixes)
 - [ ] Descriptive name uses snake_case
-- [ ] Filename matches pattern: `{prefix}_{notation}_{name}.md`
+- [ ] Filename matches pattern for its level
 
 ### Header Formatting
-- [ ] Headers show full hierarchy (Level 3 shows Stage → Phase → Part)
-- [ ] Header levels match notation levels (## for Phase, ### for Part)
+- [ ] Headers show full hierarchy (Level 3 shows S# → S#.P# → S#.P#.I#)
+- [ ] Header levels match notation levels (# for S#, ## for S#.P#, ### for S#.P#.I#)
 - [ ] **File:** field matches actual filename
 - [ ] **Purpose:** is one clear sentence
 - [ ] **Prerequisites:** lists specific conditions
-- [ ] **Next Phase/Step:** includes full relative path
+- [ ] **Next Guide:** includes full relative path
 - [ ] Separator `---` appears after header metadata
 
 ### Cross-References
-- [ ] All references use new notation (no STAGE_x patterns)
+- [ ] All references use S#.P#.I# notation (no old formats)
 - [ ] File paths are relative to `guides_v2/` directory
 - [ ] File paths use backticks
-- [ ] Terminology matches level (Phase for X.Y, Part for X.Y.Z)
+- [ ] Terminology matches level (Stage for S#, Phase for S#.P#, Iteration for S#.P#.I#)
 
-### Content
-- [ ] Level terminology is consistent (Stage/Phase/Part/Step)
+### Terminology
+- [ ] Stage/Phase/Iteration used ONLY for S#.P#.I# hierarchy
+- [ ] Casual usage uses alternative terms (guide, section, point, step)
 - [ ] Notation is consistent throughout document
-- [ ] Navigation tables (if router file) include file paths and time estimates
-- [ ] Examples reference actual workflow patterns
-
----
-
-## Migration from Old Notation
-
-**If you encounter old notation (STAGE_x format), use these mappings:**
-
-See `reference/glossary.md` → "Deprecated Terms" section for complete mapping table.
-
-**Common migrations:**
-- `STAGE_2a` → `Phase 2.1`
-- `STAGE_5aa` → `Part 5.1.1`
-- `STAGE_5ac` → `Part 5.1.3`
-- `Stage 6a` → `Phase 6.1`
-- `Stage 7a` → `Phase 7.1`
-
-**File path migrations:**
-- `stages/stage_2/phase_0_research.md` → `stages/stage_2/phase_2.1_research.md`
-- `stages/stage_5/part_5aa_round1.md` → `stages/stage_5/part_5.1.1_round1.md`
 
 ---
 
@@ -663,51 +612,52 @@ See `reference/glossary.md` → "Deprecated Terms" section for complete mapping 
 
 **Steps:**
 1. Identify logical break points in current Stage guide
-2. Create `phase_{X.Y}_{name}.md` files (e.g., `phase_3.1_initial_alignment.md`, `phase_3.2_conflict_resolution.md`)
+2. Create `s{N}_p{M}_{name}.md` files
 3. Convert original Stage file to router (if needed)
 4. Update cross-references in related guides
-5. Update glossary with new Phase definitions
 
-### Adding a New Part (Level 3)
+### Adding a New Iteration (Level 3)
 
-**Scenario:** Phase is too long (>1000 lines), needs focused guides
+**Scenario:** Phase is too long (>800 lines), needs focused guides
 
 **Steps:**
-1. Identify natural sub-sections within Phase (e.g., rounds, checkpoints)
-2. Create `part_{X.Y.Z}_{name}.md` files
+1. Identify natural sub-sections within Phase
+2. Create `s{N}_p{M}_i{K}_{name}.md` files
 3. Update Phase file to router with Quick Navigation table
 4. Update cross-references
-5. Consider creating `iterations/` subdirectory if many Part files
 
-### Adding a New Step (Level 4)
+### Adding Steps Within a Guide
 
-**Scenario:** Part needs detailed iteration-by-iteration guides
+**Scenario:** Guide needs sequential numbered tasks
 
-**Steps:**
-1. Create `iterations/` subdirectory under `stages/stage_{X}/`
-2. Create `{X.Y.Z.W}_{name}.md` files for each iteration
-3. Update Part file (Level 3) to router with iteration breakdown
-4. Link iterations in sequence (Next Step fields)
+**Format:**
+```markdown
+## Step 1: Initialize Feature Folder
+## Step 2: Create Specification Document
+## Step 3: Review Prerequisites
+```
+
+**Note:** Steps are content organization, NOT part of file naming hierarchy
 
 ---
 
 ## Summary
 
 **Key Takeaways:**
-1. **Use hierarchical notation:** X, X.Y, X.Y.Z, X.Y.Z.W (no letters)
-2. **Match level terminology:** Stage (1), Phase (2), Part (3), Step (4)
-3. **Follow filename patterns:** Correct prefix + notation + snake_case name
-4. **Show full hierarchy in headers:** Level 3 shows Stage → Phase → Part
+1. **Use S#.P#.I# notation:** Self-documenting with prefixes (S, P, I)
+2. **Match level terminology:** Stage (S#), Phase (S#.P#), Iteration (S#.P#.I#)
+3. **Follow filename patterns:** `s{N}_p{M}_i{K}_{name}.md` based on level
+4. **Show full hierarchy in headers:** Level 3 shows S# → S#.P# → S#.P#.I#
 5. **Use relative paths:** From `guides_v2/` directory, with backticks
-6. **No old STAGE_x notation:** All references use new hierarchical notation
+6. **Reserve terminology:** Stage/Phase/Iteration for hierarchy only
 
 **For more information:**
 - **File structure:** See `README.md` → "Guide Structure"
-- **Deprecated terms:** See `reference/glossary.md` → "Deprecated Terms"
+- **Terminology:** See `reference/glossary.md`
 - **Examples:** See actual guides in `stages/` directory
 - **Troubleshooting:** See `reference/faq_troubleshooting.md`
 
 ---
 
-**Last Updated:** 2026-01-11
-**Version:** 1.0 (initial creation after 2026-01-10 restructuring)
+**Last Updated:** 2026-01-12
+**Version:** 2.0 (S#.P#.I# notation system)

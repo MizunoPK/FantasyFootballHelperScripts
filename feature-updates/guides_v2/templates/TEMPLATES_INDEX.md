@@ -13,7 +13,7 @@
 
 ## Templates by Stage
 
-### Stage 1: Epic Planning
+### S1: Epic Planning
 
 | Template | Filename | Use When |
 |----------|----------|----------|
@@ -22,7 +22,7 @@
 | [Epic Smoke Test Plan](#epic-smoke-test-plan) | `epic_smoke_test_plan_template.md` | Creating initial epic test plan |
 | [Epic Lessons Learned](#epic-lessons-learned) | `epic_lessons_learned_template.md` | Creating epic-level lessons document |
 
-### Stage 2: Feature Deep Dive
+### S2: Feature Deep Dive
 
 | Template | Filename | Use When |
 |----------|----------|----------|
@@ -32,13 +32,13 @@
 | [Feature Checklist](#feature-checklist) | `feature_checklist_template.md` | Tracking feature decisions |
 | [Feature Lessons Learned](#feature-lessons-learned) | `feature_lessons_learned_template.md` | Creating feature-level lessons document |
 
-### Stage 5a: TODO Creation (Implementation Planning)
+### S5: TODO Creation (Implementation Planning)
 
 | Template | Filename | Use When |
 |----------|----------|----------|
 | [Implementation Plan](#implementation-plan) | `implementation_plan_template.md` | Creating user-approved build guide through 28 iterations |
 
-### Stage 5b: Implementation Execution
+### S6: Implementation Execution
 
 | Template | Filename | Use When |
 |----------|----------|----------|
@@ -58,14 +58,14 @@
 
 #### Epic README
 - **File:** `epic_readme_template.md`
-- **Created:** Stage 1
+- **Created:** S1
 - **Purpose:** Central epic tracking (Agent Status, progress, checklists)
 - **Size:** ~260 lines
-- **When to use:** Creating epic folder in Stage 1
+- **When to use:** Creating epic folder in S1
 
 #### Epic Ticket
 - **File:** `epic_ticket_template.md`
-- **Created:** Stage 1 - Step 3.6
+- **Created:** S1 - Step 3.6
 - **Purpose:** User-validated epic-level outcomes
 - **Size:** ~120 lines
 - **When to use:** After feature breakdown, before folder creation
@@ -73,19 +73,19 @@
 
 #### Epic Smoke Test Plan
 - **File:** `epic_smoke_test_plan_template.md`
-- **Created:** Stage 1
-- **Updated:** Stage 4, Stage 5e (after each feature)
+- **Created:** S1
+- **Updated:** S4, S8.P2 (after each feature)
 - **Purpose:** Epic end-to-end testing scenarios
 - **Size:** ~270 lines
-- **When to use:** Stage 1 initial creation, Stage 4 refinement
+- **When to use:** S1 initial creation, S4 refinement
 
 #### Epic Lessons Learned
 - **File:** `epic_lessons_learned_template.md`
-- **Created:** Stage 1
+- **Created:** S1
 - **Updated:** Throughout all stages
 - **Purpose:** Cross-feature insights and guide improvements
 - **Size:** ~310 lines
-- **When to use:** Stage 1 creation, updated after each stage
+- **When to use:** S1 creation, updated after each stage
 
 ---
 
@@ -93,7 +93,7 @@
 
 #### Feature README
 - **File:** `feature_readme_template.md`
-- **Created:** Stage 1 or Stage 2
+- **Created:** S1 or S2
 - **Updated:** Throughout Stages 2-5e
 - **Purpose:** Central feature tracking (Agent Status, progress)
 - **Size:** ~160 lines
@@ -101,7 +101,7 @@
 
 #### Spec Summary
 - **File:** `spec_summary_template.md`
-- **Created:** Stage 2 - Phase 6
+- **Created:** S2 - Phase 6
 - **Purpose:** User-validated feature-level outcomes
 - **Size:** ~140 lines
 - **When to use:** After multi-phase research, before implementation
@@ -109,39 +109,39 @@
 
 #### Feature Spec
 - **File:** `feature_spec_template.md`
-- **Created:** Stage 2
+- **Created:** S2
 - **Purpose:** PRIMARY specification for implementation
 - **Size:** ~270 lines
-- **When to use:** Writing detailed requirements in Stage 2
+- **When to use:** Writing detailed requirements in S2
 
 #### Feature Checklist
 - **File:** `feature_checklist_template.md`
-- **Created:** Stage 2
+- **Created:** S2
 - **Purpose:** Track resolved vs pending decisions
 - **Size:** ~95 lines
-- **When to use:** Stage 2 deep dive decision tracking
+- **When to use:** S2 deep dive decision tracking
 
 #### Implementation Plan
 - **File:** `implementation_plan_template.md`
-- **Created:** Stage 5a (accumulated through 28 iterations)
+- **Created:** S5 (accumulated through 28 iterations)
 - **Purpose:** User-approved build guide with tasks, tests, edge cases, matrices
 - **Size:** ~400 lines (grows from 150→300→400)
-- **When to use:** Throughout Stage 5a, user approves after iteration 24
+- **When to use:** Throughout S5, user approves after iteration 24
 
 #### Implementation Checklist
 - **File:** `implementation_checklist_template.md`
-- **Created:** Stage 5b (start of implementation)
+- **Created:** S6 (start of implementation)
 - **Purpose:** Live progress tracking with simple checkboxes
 - **Size:** ~50 lines
-- **When to use:** Create at Stage 5b start, update as tasks complete
+- **When to use:** Create at S6 start, update as tasks complete
 
 #### Feature Lessons Learned
 - **File:** `feature_lessons_learned_template.md`
-- **Created:** Stage 2
-- **Updated:** After Stages 5a, 5b, 5c
+- **Created:** S2
+- **Updated:** After Stages S5, S6, S7
 - **Purpose:** Feature-specific development insights
 - **Size:** ~180 lines
-- **When to use:** Stage 2 creation, updated after each substage
+- **When to use:** S2 creation, updated after each substage
 
 ---
 
@@ -189,14 +189,14 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 | Template | Lines | Immutable | User Validation Required |
 |----------|-------|-----------|-------------------------|
 | Epic README | ~260 | No | No |
-| Epic Ticket | ~120 | Yes (after validation) | Yes (Stage 1) |
+| Epic Ticket | ~120 | Yes (after validation) | Yes (S1) |
 | Epic Smoke Test Plan | ~270 | No | No |
 | Epic Lessons Learned | ~310 | No | No |
 | Feature README | ~160 | No | No |
-| Spec Summary | ~140 | Yes (after validation) | Yes (Stage 2) |
+| Spec Summary | ~140 | Yes (after validation) | Yes (S2) |
 | Feature Spec | ~270 | No | No |
 | Feature Checklist | ~95 | No | No |
-| Implementation Plan | ~400 | Yes (after validation) | Yes (Stage 5a) |
+| Implementation Plan | ~400 | Yes (after validation) | Yes (S5) |
 | Implementation Checklist | ~50 | No | No |
 | Feature Lessons Learned | ~180 | No | No |
 | Bug Fix Notes | ~85 | Yes (after validation) | Yes |
@@ -207,7 +207,7 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 
 ## Common Template Workflows
 
-### Starting a New Epic (Stage 1)
+### Starting a New Epic (S1)
 
 1. ✅ Create epic folder
 2. ✅ Use **Epic README** template
@@ -217,7 +217,7 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 6. ✅ Use **Epic Smoke Test Plan** template
 7. ✅ Use **Epic Lessons Learned** template
 
-### Starting a New Feature (Stage 2)
+### Starting a New Feature (S2)
 
 1. ✅ Use **Feature README** template
 2. ✅ Research codebase (multi-phase)
@@ -226,11 +226,11 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 5. ✅ Use **Feature Checklist** template
 6. ✅ Use **Feature Lessons Learned** template
 
-### Implementing a Feature (Stage 5a-5b)
+### Implementing a Feature (S5-5b)
 
-1. ✅ Create **Implementation Plan** (Stage 5a - grows through 28 iterations)
+1. ✅ Create **Implementation Plan** (S5 - grows through 28 iterations)
 2. ✅ Show Implementation Plan to user for approval
-3. ✅ Create **Implementation Checklist** from plan (Stage 5b start)
+3. ✅ Create **Implementation Checklist** from plan (S6 start)
 4. ✅ Update checklist as tasks complete
 
 ### Creating Bug Fix Documentation
@@ -238,7 +238,7 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 1. ✅ Create `bugfix_{priority}_{name}/` folder
 2. ✅ Use **Bug Fix Notes** template
 3. ✅ Present to user for validation
-4. ✅ Proceed with bug fix workflow (Stages 2 → 5a → 5b → 5c)
+4. ✅ Proceed with bug fix workflow (Stages 2 → S5 → S6 → S7)
 
 ---
 

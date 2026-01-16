@@ -28,10 +28,9 @@ Terms are organized alphabetically. Terms with multiple context-specific meaning
 | **Level 4** | X.Y.Z.W | Four numbers | `5.1.3.2` | Step (detailed task) |
 
 **Examples in practice:**
-- **Stage 5** = Feature Implementation (Level 1)
-- **Phase 5.1** = Implementation Planning (Level 2)
-- **Part 5.1.1** = Round 1 (Level 3)  
-- **Step 5.1.1.4** = Iteration 4 (Level 4)
+- **S5** = Feature Implementation (Level 1 - Stage)
+- **S5.P1** = Implementation Planning Round 1 (Level 2 - Phase)
+- **S5.P1.I2** = Iteration 2 within Round 1 (Level 3 - Iteration)
 
 **File naming:**
 - Stages: `stage_X/`
@@ -45,7 +44,7 @@ Terms are organized alphabetically. Terms with multiple context-specific meaning
 ## A
 
 ### Acceptance Criteria
-Requirements that define when a feature or task is considered complete. Documented in spec.md and used to verify implementation in Stage 5c QC rounds.
+Requirements that define when a feature or task is considered complete. Documented in spec.md and used to verify implementation in S7 QC rounds.
 
 **Example:** "Acceptance Criteria: Player scores are calculated with ADP weighting applied, ±0.1 tolerance"
 
@@ -86,36 +85,36 @@ Section in EPIC_README.md and feature README.md tracking current workflow positi
 ### Algorithm Traceability Matrix
 Table mapping algorithm requirements from spec.md to implementation_plan.md tasks.
 
-**Created in:** Iteration 2 (Stage 5a Round 1)
-**Finalized in:** Iteration 19 (Stage 5a Round 3)
+**Created in:** Iteration 2 (S5 Round 1)
+**Finalized in:** Iteration 19 (S5 Round 3)
 
 **Purpose:** Ensures 100% coverage of algorithms in implementation plan
 
 **See:** implementation_plan.md, Iteration
 
-**Guide:** part_5.1.1_round1.md, part_5.1.3_round3.md
+**Guide:** s5_p1_planning_round1.md, s5_p3_planning_round3.md
 
 ---
 
 ### Alignment
-Process of ensuring consistency across features (Stage 3) or updating specs after implementation (Stage 5d).
+Process of ensuring consistency across features (S3) or updating specs after implementation (S8.P1).
 
 **Two contexts:**
-- **[Stage 3]** Cross-Feature Alignment: Pairwise comparison of all feature specs
-- **[Stage 5d]** Post-Feature Alignment: Update remaining feature specs after one feature completes
+- **[S3]** Cross-Feature Alignment: Pairwise comparison of all feature specs
+- **[S8.P1]** Post-Feature Alignment: Update remaining feature specs after one feature completes
 
 **See:** Cross-Feature Sanity Check, Post-Feature Alignment
 
-**Guide:** cross_feature_sanity_check.md, post_feature_alignment.md
+**Guide:** s3_cross_feature_sanity_check.md, post_feature_alignment.md
 
 ---
 
 ## B
 
 ### Bug Fix
-Code correction following the bug fix workflow (Stage 2 → 5a → 5b → 5c only).
+Code correction following the bug fix workflow (S2 → S5 → S6 → S7 only).
 
-**When used:** Bugs found during Stage 7 user testing
+**When used:** Bugs found during S10 user testing
 
 **Folder structure:** `bugfix_{priority}_{name}/` inside epic folder
 
@@ -123,7 +122,7 @@ Code correction following the bug fix workflow (Stage 2 → 5a → 5b → 5c onl
 
 **See:** Debugging Protocol, Missed Requirement
 
-**Guide:** bugfix_workflow.md
+**Guide:** s5_bugfix_workflow.md
 
 ---
 
@@ -132,9 +131,9 @@ Code correction following the bug fix workflow (Stage 2 → 5a → 5b → 5c onl
 ### Checklist.md
 **QUESTION-ONLY** format file in each feature folder where agents create questions and users provide answers.
 
-**Created:** Stage 1 (Epic Planning)
-**Updated:** Stage 2 (Feature Deep Dives) - agents add QUESTIONS
-**User Answers:** Stage 2 Gate 3 (MANDATORY) - user answers ALL questions
+**Created:** S1 (Epic Planning)
+**Updated:** S2 (Feature Deep Dives) - agents add QUESTIONS
+**User Answers:** S2 Gate 3 (MANDATORY) - user answers ALL questions
 **After User Answers:** Agent updates spec.md based on answers
 
 **🚨 CRITICAL:** Agents CANNOT mark items `[x]` autonomously - only user can answer questions
@@ -155,7 +154,7 @@ Documentation of all code modifications during implementation.
 
 **File:** `code_changes.md` in feature folder
 
-**Updated during:** Stage 5b (Implementation), Debugging
+**Updated during:** S6 (Implementation), Debugging
 
 **Contents:** File modified, function/method changed, reason for change, before/after state
 
@@ -171,7 +170,7 @@ See: Session Compaction
 ---
 
 ### Component
-**[Stage 5b Implementation]** A logical piece of functionality implemented in a single phase.
+**[S6 Implementation]** A logical piece of functionality implemented in a single phase.
 
 **Example:** "Component 3: PlayerManager.calculate_score() method"
 
@@ -194,7 +193,7 @@ Memory limit of the agent that can lead to session compaction.
 **Two contexts:**
 
 **[Tests]** Percentage of code covered by tests
-- **Required:** >90% for Stage 5a completion
+- **Required:** >90% for S5 completion
 - **Measured:** Using test coverage tools
 
 **[Traceability]** Percentage of spec requirements with TODO tasks
@@ -219,8 +218,8 @@ Mandatory rules that cannot be violated, marked with 🛑 symbol in guides.
 ### Cross-Feature Integration
 Testing how multiple features interact together.
 
-**[Stage 5c]** Part 4 of smoke testing (feature-level, checking for conflicts)
-**[Phase 6.1]** Part 4 of epic smoke testing (epic-level, validating workflows)
+**[S7]** Part 4 of smoke testing (feature-level, checking for conflicts)
+**[S9.P1]** Part 4 of epic smoke testing (epic-level, validating workflows)
 
 **See:** Epic Testing, Smoke Testing
 
@@ -229,13 +228,13 @@ Testing how multiple features interact together.
 ---
 
 ### Cross-Feature Sanity Check
-Stage 3 process of systematic pairwise comparison of all feature specs.
+S3 process of systematic pairwise comparison of all feature specs.
 
 **Purpose:** Identify conflicts, overlaps, gaps before implementation
 
-**See:** Stage 3, Alignment
+**See:** S3, Alignment
 
-**Guide:** cross_feature_sanity_check.md
+**Guide:** s3_cross_feature_sanity_check.md
 
 ---
 
@@ -265,8 +264,8 @@ Investigation-centric workflow for resolving bugs with unknown root cause.
 Location in workflow where path diverges based on conditions.
 
 **Major decision points:**
-- After Stage 5c: Skip 5d/5e if last feature
-- After Stage 5e: Next feature or Stage 6
+- After S7: Skip S8 if last feature
+- After S8.P2: Next feature or S9
 - After QC failure: Restart protocol
 - Iteration 24: GO vs NO-GO
 
@@ -300,7 +299,7 @@ Testing complete workflow from start to finish with real data.
 ### Edge Case
 Unusual input or scenario that tests boundaries of implementation.
 
-**Documented in:** spec.md, Iteration 5 (Stage 5a)
+**Documented in:** spec.md, Iteration 5 (S5)
 
 **Tested in:** QC Round 3 (Integration & Edge Cases)
 
@@ -322,14 +321,14 @@ Top-level work unit containing multiple related features.
 
 **See:** Feature, Stage
 
-**Guide:** epic_planning.md
+**Guide:** s1_epic_planning.md
 
 ---
 
 ### Epic Progress Tracker
 Table in EPIC_README.md tracking each feature through all stages.
 
-**Columns:** Feature | Stage 1 | Stage 2 | Stage 3 | Stage 4 | Stage 5a | Stage 5b | Stage 5c | Stage 5d | Stage 5e
+**Columns:** Feature | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2
 
 **Symbols:**
 - ✅ Complete
@@ -343,18 +342,18 @@ Table in EPIC_README.md tracking each feature through all stages.
 ---
 
 ### Epic Testing
-Stage 6 process testing entire epic as cohesive system.
+S9 process testing entire epic as cohesive system.
 
 **Three sub-stages:**
-- 6a: Epic Smoke Testing (4 parts)
-- 6b: Epic QC Rounds (3 rounds)
-- 6c: Epic Final Review
+- S9.P1: Epic Smoke Testing (4 parts)
+- S9.P2: Epic QC Rounds (3 rounds)
+- S9.P3: Epic Final Review
 
 **Different from feature testing:** Tests cross-feature integration, epic-level workflows
 
-**See:** Stage 6, Feature Testing
+**See:** S9, Feature Testing
 
-**Guide:** epic_final_qc.md
+**Guide:** s6_epic_final_qc.md
 
 ---
 
@@ -389,27 +388,27 @@ Individual component within an epic.
 - code_changes.md (implementation log)
 - lessons_learned.md (insights)
 
-**Lifecycle:** Stage 2 → Stage 5 (5a → 5b → 5c → 5d → 5e per feature)
+**Lifecycle:** S2 → S5 (S5 → S6 → S7 → S8 per feature)
 
-**See:** Epic, Stage 5
+**See:** Epic, S5
 
-**Guide:** feature_deep_dive.md
+**Guide:** s2_feature_deep_dive.md
 
 ---
 
 ### Feature Testing
-Stage 5c process testing single feature in isolation.
+S7 process testing single feature in isolation.
 
 **Three phases:**
-- Phase 1: Smoke Testing (3 parts)
-- Phase 2: QC Rounds (3 rounds)
-- Phase 3: Final Review
+- Step 1: Smoke Testing (3 parts)
+- Step 2: QC Rounds (3 rounds)
+- Step 3: Final Review
 
 **Different from epic testing:** Tests feature alone, not cross-feature integration
 
-**See:** Stage 5c, Epic Testing
+**See:** S7, Epic Testing
 
-**Guide:** stages/stage_5/part_5.3.1_smoke_testing.md, qc_rounds.md, final_review.md
+**Guide:** stages/s7/s7_p1_smoke_testing.md, s7_p2_qc_rounds.md, s7_p3_final_review.md
 
 ---
 
@@ -429,20 +428,20 @@ Mandatory checkpoint that must PASS before proceeding.
 - **⚠️ CRITICAL:** These ARE iterations, not additional steps. Don't count them separately.
 
 **2. Stage-Level Gates (between stages):**
-- **Gate 3:** User Checklist Approval (Stage 2 → Stage 3)
-- **Gate 4.5:** Epic Test Plan Approval (Stage 4 → Stage 5)
-- **Gate 5:** Implementation Plan Approval (Stage 5a → Stage 5b)
+- **Gate 3:** User Checklist Approval (S2 → S3)
+- **Gate 4.5:** Epic Test Plan Approval (S4 → S5)
+- **Gate 5:** Implementation Plan Approval (S5 → S6)
 - **Smoke Testing Part 3:** E2E Execution Test (both feature and epic)
-- **User Testing:** Zero bugs required (Stage 7)
+- **User Testing:** Zero bugs required (S10)
 
 **See:** Mandatory Gates (reference/mandatory_gates.md), Iteration
 
-**Guide:** part_5.1.1_round1.md, 5.1.3.2_round3_part2a.md, 5.1.3.3_round3_part2b.md
+**Guide:** s5_p1_planning_round1.md, s5_p3_i2_gates_part1.md, s5_p3_i3_gates_part2.md
 
 ---
 
 ### GO Decision
-Iteration 24 outcome indicating readiness to proceed to Stage 5b implementation.
+Iteration 24 outcome indicating readiness to proceed to S6 implementation.
 
 **Requirements for GO:**
 - ALL checklist items ✅
@@ -455,7 +454,7 @@ Iteration 24 outcome indicating readiness to proceed to Stage 5b implementation.
 
 **See:** Iteration 24, NO-GO, Gates
 
-**Guide:** 5.1.3.3_round3_part2b.md
+**Guide:** s5_p3_i3_gates_part2.md
 
 ---
 
@@ -496,7 +495,7 @@ Process of reading actual source code to verify interfaces (not relying on memor
 ## I
 
 ### Implementation Execution
-Stage 5b process of writing feature code following implementation_plan.md.
+S6 process of writing feature code following implementation_plan.md.
 
 **Key requirements:**
 - Interface verification FIRST (before writing any code)
@@ -508,7 +507,7 @@ Stage 5b process of writing feature code following implementation_plan.md.
 
 **Typical time:** 1-4 hours per feature
 
-**See:** Stage 5b, implementation_plan.md
+**See:** S6, implementation_plan.md
 
 **Guide:** implementation_execution.md
 
@@ -527,11 +526,11 @@ Iteration 17 process of breaking implementation into incremental phases for vali
 5. Edge case handling
 6. Tests and validation
 
-**Purpose:** Allows testing after each phase (catch bugs early)
+**Purpose:** Allows testing after each step (catch bugs early)
 
-**See:** Iteration 17, Stage 5b
+**See:** Iteration 17, S6
 
-**Guide:** part_5.1.3_round3.md
+**Guide:** s5_p3_planning_round3.md
 
 ---
 
@@ -539,9 +538,9 @@ Iteration 17 process of breaking implementation into incremental phases for vali
 Location where features or components interact.
 
 **Documented in:**
-- Iteration 9 (Stage 5a Round 2)
-- Stage 5d (Post-Feature Alignment)
-- Stage 5e (Testing Plan Update)
+- Iteration 9 (S5 Round 2)
+- S8.P1 (Post-Feature Alignment)
+- S8.P2 (Testing Plan Update)
 
 **Tested in:**
 - QC Round 3 (Integration & Edge Cases)
@@ -562,7 +561,7 @@ Process ensuring all new methods/functions have identified callers (no orphan co
 
 **See:** Iteration 23
 
-**Guide:** 5.1.3.2_round3_part2a.md
+**Guide:** s5_p3_i2_gates_part1.md
 
 ---
 
@@ -572,13 +571,13 @@ Agreements defining method signatures, parameters, return types.
 **Verified in:**
 - Iteration 8 (Interface Contracts)
 - Gate 23a Part 3 (Interface Contracts Audit)
-- Stage 5b before implementation (Interface Verification First)
+- S6 before implementation (Interface Verification First)
 
 **Critical rule:** Read source code to verify (never assume)
 
 **See:** Hands-On Data Inspection
 
-**Guide:** part_5.1.2_round2.md, 5.1.3.2_round3_part2a.md
+**Guide:** s5_p2_planning_round2.md, s5_p3_i2_gates_part1.md
 
 ---
 
@@ -602,7 +601,7 @@ Central tracking file for all discovered issues during debugging.
 ---
 
 ### Iteration
-**[Stage 5a]** Single verification step in TODO Creation process.
+**[S5]** Single verification step in TODO Creation process.
 
 **Total:** 28 iterations across 3 rounds
 - **Round 1:** Iterations 1-7 + Gate 4a + Gate 7a (9 iterations)
@@ -620,9 +619,9 @@ Central tracking file for all discovered issues during debugging.
 
 **All iterations mandatory** - skipping not allowed
 
-**See:** Round, Stage 5a, Gate
+**See:** Round, S5, Gate
 
-**Guide:** part_5.1.1_round1.md, part_5.1.2_round2.md, part_5.1.3_round3.md, 5.1.3.2_round3_part2a.md, 5.1.3.3_round3_part2b.md
+**Guide:** s5_p1_planning_round1.md, s5_p2_planning_round2.md, s5_p3_planning_round3.md, s5_p3_i2_gates_part1.md, s5_p3_i3_gates_part2.md
 
 ---
 
@@ -635,7 +634,7 @@ Insights and improvements documented after feature or epic completion.
 - `feature_XX_{name}/lessons_learned.md` (per feature)
 - `{epic_name}/epic_lessons_learned.md` (epic-level)
 
-**Updated:** Stage 5c Phase 3 (Final Review), Phase 6.3 (Epic Final Review)
+**Updated:** S7 Phase 3 (Final Review), S9.P3 (Epic Final Review)
 
 **Contents:**
 - What worked well
@@ -655,8 +654,8 @@ Workflow pattern where issues force restart of testing.
 **Examples:**
 - Issues in Smoke Testing → Fix → Restart Smoke Testing Part 1
 - Issues in QC Rounds → Fix → Restart Smoke Testing Part 1 (not QC Round 1)
-- Issues in Epic Testing → Fix → Restart Phase 6.1 Part 1
-- User Testing finds bugs → Fix → Restart Stage 6 (not Stage 7)
+- Issues in Epic Testing → Fix → Restart S9.P1 Part 1
+- User Testing finds bugs → Fix → Restart S9 (not S10)
 
 **Principle:** Always restart from BEGINNING of testing after fixes
 
@@ -672,12 +671,12 @@ Workflow pattern where issues force restart of testing.
 Checkpoints that CANNOT be skipped and must PASS before proceeding.
 
 **All mandatory gates:**
-1. Gate 4a: TODO Specification Audit (Stage 5a Round 1)
-2. Gate 23a: Pre-Implementation Spec Audit - 4 PARTS (Stage 5a Round 3)
-3. Gate 25: Spec Validation Against Validated Documents (Stage 5a Round 3)
-4. Gate 24: Implementation Readiness (GO/NO-GO) (Stage 5a Round 3)
-5. Smoke Testing Part 3: E2E Execution (Stage 5c, Phase 6.1)
-6. User Testing: ZERO bugs required (Stage 7)
+1. Gate 4a: TODO Specification Audit (S5 Round 1)
+2. Gate 23a: Pre-Implementation Spec Audit - 4 PARTS (S5 Round 3)
+3. Gate 25: Spec Validation Against Validated Documents (S5 Round 3)
+4. Gate 24: Implementation Readiness (GO/NO-GO) (S5 Round 3)
+5. Smoke Testing Part 3: E2E Execution (S7, S9.P1)
+6. User Testing: ZERO bugs required (S10)
 
 **See:** Gates, Critical Rules
 
@@ -700,7 +699,7 @@ Required process before starting any stage/phase.
 ---
 
 ### Mini-QC Checkpoint
-Lightweight validation during Stage 5b implementation.
+Lightweight validation during S6 implementation.
 
 **Frequency:** Every 5-7 TODO items
 
@@ -724,7 +723,7 @@ Functionality that was NOT in spec.md but should have been.
 
 **Decision threshold:**
 - ≤3 tasks needed → Add to TODO, implement, continue
-- >3 tasks needed → Return to Stage 5a Round 3
+- >3 tasks needed → Return to S5 Round 3
 
 **See:** Bug Fix, Debugging Protocol
 
@@ -741,14 +740,14 @@ Test double that simulates real object behavior.
 
 **See:** Integration Test, Iteration 21
 
-**Guide:** part_5.1.3_round3.md
+**Guide:** s5_p3_planning_round3.md
 
 ---
 
 ## N
 
 ### NO-GO Decision
-Iteration 24 outcome indicating NOT ready to proceed to Stage 5b.
+Iteration 24 outcome indicating NOT ready to proceed to S6.
 
 **Causes:**
 - Confidence < MEDIUM
@@ -762,14 +761,14 @@ Iteration 24 outcome indicating NOT ready to proceed to Stage 5b.
 
 **See:** GO Decision, Iteration 24
 
-**Guide:** 5.1.3.3_round3_part2b.md
+**Guide:** s5_p3_i3_gates_part2.md
 
 ---
 
 ## O
 
 ### Orchestration
-**[Implementation]** Coordinating the complete feature lifecycle (5b → 5c → 5d → 5e).
+**[Implementation]** Coordinating the complete feature lifecycle (S6 → S7 → S8).
 
 **See:** Implementation Orchestration Guide
 
@@ -798,16 +797,16 @@ Iteration 24 outcome indicating NOT ready to proceed to Stage 5b.
 **[Multiple contexts - OVERLOADED TERM]** Term for distinct sections within a stage/round.
 
 **⚠️ IMPORTANT:** Always qualify "Phase" with stage name to avoid ambiguity.
-- ✅ CORRECT: "Phase 2.1", "Part 5.3.2", "Debugging Phase 3"
-- ❌ AMBIGUOUS: "Phase 3" (could mean Phase 2.3, Part 5.3.3, or Debugging Phase 3)
+- ✅ CORRECT: "S2.P1", "S10.P2", "Debugging Phase 3"
+- ❌ AMBIGUOUS: "Phase 3" (could mean S2.P3, S10.P3, or Debugging Phase 3)
 
 **Context-Specific Definitions:**
 
 | Context | Number of Phases | Phase Names | Notes |
 |---------|------------------|-------------|-------|
-| **Stage 2** | 3 | Phase 2.1 (Research)<br>Phase 2.2 (Specification)<br>Phase 2.3 (Refinement) | Level 2 workflow divisions |
-| **Stage 5b** | 5-6 | Data structures → Core algorithm → Integration → Error handling → Edge cases → Tests | Implementation sequence |
-| **Stage 5c** | 3 | Part 5.3.1 (Smoke Testing)<br>Part 5.3.2 (QC Rounds)<br>Part 5.3.3 (Final Review) | Post-implementation validation |
+| **S2** | 3 | S2.P1 (Research)<br>S2.P2 (Specification)<br>S2.P3 (Refinement) | Level 2 workflow divisions |
+| **S6** | 5-6 | Data structures → Core algorithm → Integration → Error handling → Edge cases → Tests | Implementation sequence |
+| **S7** | 3 | S7.P1<br>S7.P2<br>S7.P3 | Post-implementation validation |
 | **Debugging** | 5 | Phase 1 (Issue Discovery)<br>Phase 2 (Investigation)<br>Phase 3 (Solution Design)<br>Phase 4 (User Verification)<br>Phase 5 (Loop Back) | Debugging protocol steps |
 
 **See:** Stage, Part, Round, Iteration
@@ -820,8 +819,8 @@ Mandatory acknowledgment prompt used when transitioning between stages/phases.
 **Location:** prompts_reference_v2.md (router), prompts/*.md (actual prompts)
 
 **Examples:**
-- "Starting Stage 1" prompt
-- "Starting Stage 5a Round 1" prompt
+- "Starting S1" prompt
+- "Starting S5 Round 1" prompt
 - "Resuming In-Progress Epic" prompt
 
 **Format:**
@@ -840,20 +839,20 @@ Mandatory acknowledgment prompt used when transitioning between stages/phases.
 ---
 
 ### Post-Feature Alignment
-Stage 5d process of updating remaining feature specs after completing one feature.
+S8.P1 process of updating remaining feature specs after completing one feature.
 
 **Purpose:** Incorporate insights from ACTUAL implementation (not plans)
 
 **Skipped if:** Completed feature was the LAST feature (no specs to update)
 
-**See:** Stage 5d, Alignment
+**See:** S8.P1, Alignment
 
 **Guide:** post_feature_alignment.md
 
 ---
 
 ### Post-Implementation
-Stage 5c process of validating implemented feature.
+S7 process of validating implemented feature.
 
 **Three phases:**
 1. Smoke Testing (3 parts, Part 3 is mandatory gate)
@@ -862,14 +861,14 @@ Stage 5c process of validating implemented feature.
 
 **Restart protocol:** ANY issues = restart from Smoke Testing Part 1
 
-**See:** Stage 5c, Feature Testing
+**See:** S7, Feature Testing
 
-**Guide:** stages/stage_5/ (smoke_testing.md, qc_rounds.md, final_review.md)
+**Guide:** stages/s5/ (smoke_testing.md, qc_rounds.md, final_review.md)
 
 ---
 
 ### PR Review
-Pull Request review (7 categories) in Stage 5c Phase 3 Final Review.
+Pull Request review (7 categories) in S7 Phase 3 Final Review.
 
 **Categories:**
 1. Code quality
@@ -891,19 +890,19 @@ Pull Request review (7 categories) in Stage 5c Phase 3 Final Review.
 ### QC (Quality Control) Rounds
 **[Two contexts]**
 
-**[Stage 5c - Feature QC]** Three rounds testing single feature:
+**[S7 - Feature QC]** Three rounds testing single feature:
 - Round 1: Algorithm Verification (spec vs code line-by-line)
 - Round 2: Consistency & Standards (coding standards, error handling)
 - Round 3: Integration & Edge Cases (integration points, edge cases)
 
-**[Phase 6.2 - Epic QC]** Three rounds testing entire epic:
+**[S9.P2 - Epic QC]** Three rounds testing entire epic:
 - Round 1: Epic Algorithm Verification (epic requirements vs implementation)
 - Round 2: Epic Consistency & Standards (cross-feature consistency)
 - Round 3: Epic Integration & Success Criteria (epic success criteria met)
 
 **Restart protocol:** Issues in ANY round = restart from smoke testing (not Round 1)
 
-**See:** Stage 5c, Phase 6.2, Round
+**See:** S7, S9.P2, Round
 
 **Guide:** qc_rounds.md (feature), epic_qc_rounds.md (epic)
 
@@ -967,8 +966,8 @@ Rules for when to restart testing after finding issues.
 **Examples:**
 - Issues in Smoke Part 3 → Restart Smoke Part 1
 - Issues in QC Round 2 → Restart Smoke Part 1 (NOT QC Round 1)
-- Issues in Epic QC → Restart Phase 6.1 Part 1
-- User finds bugs → Fix, then restart Stage 6 (NOT Stage 7)
+- Issues in Epic QC → Restart S9.P1 Part 1
+- User finds bugs → Fix, then restart S9 (NOT S10)
 
 **See:** Loop-Back, Debugging Protocol
 
@@ -996,7 +995,7 @@ Process of continuing work after session compaction.
 ### Round
 **[Two contexts]**
 
-**[Stage 5a TODO Creation]** Collection of iterations:
+**[S5 TODO Creation]** Collection of iterations:
 - Round 1: Iterations 1-7 + Gate 4a (Initial TODO)
 - Round 2: Iterations 8-16 (Integration Verification)
 - Round 3: Iterations 17-24 (Preparation + Gates)
@@ -1029,18 +1028,18 @@ Context window limit forcing conversation summarization.
 ### Smoke Testing
 **[Two contexts]**
 
-**[Stage 5c - Feature Smoke Testing]** Three parts:
+**[S7 - Feature Smoke Testing]** Three parts:
 - Part 1: Import Test
 - Part 2: Entry Point Test
 - Part 3: E2E Execution Test (MANDATORY GATE)
 
-**[Phase 6.1 - Epic Smoke Testing]** Four parts:
+**[S9.P1 - Epic Smoke Testing]** Four parts:
 - Part 1-3: Same as feature
 - Part 4: Cross-Feature Integration (epic-specific)
 
 **Restart rule:** Failure in ANY part = restart from Part 1
 
-**See:** E2E, Stage 5c, Phase 6.1
+**See:** E2E, S7, S9.P1
 
 **Guide:** smoke_testing.md (feature), epic_smoke_testing.md (epic)
 
@@ -1049,9 +1048,9 @@ Context window limit forcing conversation summarization.
 ### Spec.md
 Specification document in each feature folder containing all requirements.
 
-**Created:** Stage 2 (Feature Deep Dives)
-**Updated:** Throughout Stage 2 as requirements clarified
-**Used during:** Stage 5b (implementation reference), Stage 5c (QC verification)
+**Created:** S2 (Feature Deep Dives)
+**Updated:** Throughout S2 as requirements clarified
+**Used during:** S6 (implementation reference), S7 (QC verification)
 
 **Sections:**
 - Feature Overview
@@ -1063,7 +1062,7 @@ Specification document in each feature folder containing all requirements.
 
 **See:** Feature, Checklist.md
 
-**Guide:** feature_deep_dive.md
+**Guide:** s2_feature_deep_dive.md
 
 ---
 
@@ -1072,8 +1071,8 @@ Specification document in each feature folder containing all requirements.
 
 **Three validated sources:**
 1. Epic notes (user's original request in {epic_name}.txt)
-2. Epic ticket (user-validated outcomes from Stage 1)
-3. Spec summary (user-validated feature outcomes from Stage 2)
+2. Epic ticket (user-validated outcomes from S1)
+3. Spec summary (user-validated feature outcomes from S2)
 
 **Critical rule:** Close spec.md before reading validated docs (avoid confirmation bias)
 
@@ -1081,19 +1080,22 @@ Specification document in each feature folder containing all requirements.
 
 **See:** Gate 25, Iteration 25
 
-**Guide:** 5.1.3.3_round3_part2b.md, spec_validation.md
+**Guide:** s5_p3_i3_gates_part2.md, spec_validation.md
 
 ---
 
 ### Stage
-Top-level workflow division. 7 stages total:
-1. Epic Planning
-2. Feature Deep Dives (per feature)
-3. Cross-Feature Sanity Check
-4. Epic Testing Strategy
-5. Feature Implementation (5a → 5b → 5c → 5d → 5e per feature)
-6. Epic-Level Final QC
-7. Epic Cleanup
+Top-level workflow division. 10 stages total:
+1. Epic Planning (S1)
+2. Feature Deep Dives (S2, per feature)
+3. Cross-Feature Sanity Check (S3)
+4. Epic Testing Strategy (S4)
+5. Implementation Planning (S5, per feature)
+6. Implementation Execution (S6, per feature)
+7. Post-Implementation (S7, per feature)
+8. Cross-Feature Alignment + Epic Testing Update (S8, per feature)
+9. Epic-Level Final QC (S9)
+10. Epic Cleanup (S10)
 
 **All stages mandatory** - cannot skip
 
@@ -1103,19 +1105,19 @@ Top-level workflow division. 7 stages total:
 
 ---
 
-### Stage 5 Sub-Stages
-Stage 5 (Feature Implementation) has 5 sub-stages per feature:
+### S5 Sub-Stages
+S5 (Feature Implementation) has 5 sub-stages per feature:
 - **5a:** TODO Creation (28 iterations across 3 rounds)
 - **5b:** Implementation Execution (write code)
 - **5c:** Post-Implementation (smoke testing + QC rounds + final review)
 - **5d:** Post-Feature Alignment (update remaining feature specs) - skip if last feature
 - **5e:** Testing Plan Update (update epic_smoke_test_plan.md) - skip if last feature
 
-**Loop:** Repeat 5a → 5b → 5c → 5d → 5e for EACH feature
+**Loop:** Repeat S5 → S6 → S7 → S8 for EACH feature
 
-**See:** Stage 5, Feature
+**See:** S5, Feature
 
-**Guide:** stages/stage_5/ folder
+**Guide:** stages/s5/ folder
 
 ---
 
@@ -1124,9 +1126,9 @@ Stage 5 (Feature Implementation) has 5 sub-stages per feature:
 ### implementation_plan.md
 Implementation plan (~400 lines) in each feature folder containing comprehensive build guide.
 
-**Created:** Stage 5a (Implementation Planning - 28 iterations across 3 rounds)
-**User-Approved:** After Stage 5a (MANDATORY Gate 5)
-**Used:** Stage 5b (Implementation Execution - PRIMARY reference)
+**Created:** S5 (Implementation Planning - 28 iterations across 3 rounds)
+**User-Approved:** After S5 (MANDATORY Gate 5)
+**Used:** S6 (Implementation Execution - PRIMARY reference)
 
 **Structure:**
 - Phased implementation (5-6 phases)
@@ -1137,9 +1139,9 @@ Implementation plan (~400 lines) in each feature folder containing comprehensive
 - Performance considerations
 - Rollback strategy
 
-**See:** Stage 5a, Implementation Execution, implementation_checklist.md
+**See:** S5, Implementation Execution, implementation_checklist.md
 
-**Guide:** part_5.1.1_round1.md, part_5.1.2_round2.md, round3 guides
+**Guide:** s5_p1_planning_round1.md, s5_p2_planning_round2.md, round3 guides
 
 ---
 
@@ -1163,7 +1165,7 @@ Implementation plan (~400 lines) in each feature folder containing comprehensive
 ## U
 
 ### User Testing
-Stage 7 mandatory testing by the user before commit.
+S10 mandatory testing by the user before commit.
 
 **Requirements:**
 - ZERO bugs found
@@ -1173,13 +1175,13 @@ Stage 7 mandatory testing by the user before commit.
 **If bugs found:**
 - Document in epic debugging/ISSUES_CHECKLIST.md
 - Fix ALL bugs
-- Restart Stage 6 (not Stage 7)
+- Restart S9 (not S10)
 - Return to user testing
 - Repeat until zero bugs
 
-**See:** Stage 7, Mandatory Gates
+**See:** S10, Mandatory Gates
 
-**Guide:** epic_cleanup.md
+**Guide:** s7_epic_cleanup.md
 
 ---
 
@@ -1220,7 +1222,7 @@ Decision process for choosing which workflow to use.
 **Decision tree:**
 - Unknown root cause → Debugging Protocol
 - Known solution, NOT in spec → Missed Requirement Workflow
-- Bug found in Stage 7 → Bug Fix Workflow
+- Bug found in S10 → Bug Fix Workflow
 - New epic → Regular workflow (Stages 1-7)
 
 **See:** Debugging Protocol, Missed Requirement
@@ -1235,9 +1237,9 @@ Decision process for choosing which workflow to use.
 Principle that ALL issues must be fixed immediately (no deferrals).
 
 **Applied in:**
-- Stage 5c QC Rounds (no "we'll fix it later")
-- Stage 6 Epic QC (no skipping issues)
-- Stage 7 User Testing (ZERO bugs required)
+- S7 QC Rounds (no "we'll fix it later")
+- S9 Epic QC (no skipping issues)
+- S10 User Testing (ZERO bugs required)
 
 **Rationale:** Technical debt compounds, fixing now is faster than fixing later
 
@@ -1256,38 +1258,38 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 
 ## Cross-References by Guide
 
-**For Stage 1:**
+**For S1:**
 - Epic, EPIC_README.md, Feature, Agent Status
 
-**For Stage 2:**
-- Feature, Spec.md, Checklist.md, Phase [Stage 2]
+**For S2:**
+- Feature, Spec.md, Checklist.md, Phase [S2]
 
-**For Stage 3:**
-- Alignment [Stage 3], Cross-Feature Sanity Check
+**For S3:**
+- Alignment [S3], Cross-Feature Sanity Check
 
-**For Stage 4:**
+**For S4:**
 - Epic Testing, Integration Point
 
-**For Stage 5a:**
+**For S5:**
 - Round, Iteration, implementation_plan.md, Gates, GO Decision, NO-GO Decision
 - Algorithm Traceability Matrix, Spec Validation
 
-**For Stage 5b:**
+**For S6:**
 - Implementation Execution, Component, Phase [Implementation], Mini-QC Checkpoint
 
-**For Stage 5c:**
+**For S7:**
 - Post-Implementation, Smoke Testing, QC Rounds, E2E, PR Review
 
-**For Stage 5d:**
-- Post-Feature Alignment, Alignment [Stage 5d]
+**For S8.P1:**
+- Post-Feature Alignment, Alignment [S8.P1]
 
-**For Stage 5e:**
+**For S8.P2:**
 - Testing Plan Update, Integration Point
 
-**For Stage 6:**
+**For S9:**
 - Epic Testing, Smoke Testing [Epic], QC Rounds [Epic]
 
-**For Stage 7:**
+**For S10:**
 - User Testing, Bug Fix, Mandatory Gates
 
 **For Debugging:**
@@ -1321,49 +1323,43 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 
 | Deprecated | Current | Description |
 |------------|---------|-------------|
-| STAGE_2a | Phase 2.1 | Research Phase |
-| STAGE_2b | Phase 2.2 | Specification Phase |
-| STAGE_2c | Phase 2.3 | Refinement Phase |
-| STAGE_5aa | Part 5.1.1 | Implementation Planning Round 1 |
-| STAGE_5ab | Part 5.1.2 | Implementation Planning Round 2 |
-| STAGE_5ac | Part 5.1.3 | Implementation Planning Round 3 |
-| STAGE_5a | Phase 5.1 | Implementation Planning |
-| STAGE_5b | Phase 5.2 | Implementation Execution |
-| STAGE_5ca | Part 5.3.1 | Smoke Testing |
-| STAGE_5cb | Part 5.3.2 | QC Rounds |
-| STAGE_5cc | Part 5.3.3 | Final Review |
-| STAGE_5c | Phase 5.3 | Post-Implementation |
-| STAGE_5d | Phase 5.4 | Post-Feature Alignment |
-| STAGE_5e | Phase 5.5 | Post-Feature Testing Update |
-| Stage 6a | Phase 6.1 | Epic Smoke Testing |
-| Stage 6b | Phase 6.2 | Epic QC Rounds |
-| Stage 6c | Phase 6.3 | User Testing |
-| Stage 6d | Phase 6.4 | Epic Final Review |
+| STAGE_2a | S2.P1 | Research Phase |
+| STAGE_2b | S2.P2 | Specification Phase |
+| STAGE_2c | S2.P3 | Refinement Phase |
+| STAGE_5a | S5 | Implementation Planning (28 iterations) |
+| STAGE_5b | S6 | Implementation Execution |
+| STAGE_5c | S7 | Implementation Testing & Review |
+| STAGE_5d | S8.P1 | Cross-Feature Alignment |
+| STAGE_5e | S8.P2 | Epic Testing Plan Update |
+| S9a | S9.P1 | Epic Smoke Testing |
+| S9b | S9.P2 | Epic QC Rounds |
+| S9c | S9.P3 | User Testing |
+| S9d | S9.P4 | Epic Final Review |
 
 ### Old File Names
 
 | Deprecated | Current | Description |
 |------------|---------|-------------|
-| phase_0_research.md | phase_2.1_research.md | Stage 2 Research |
-| phase_1_specification.md | phase_2.2_specification.md | Stage 2 Specification |
-| phase_2_refinement.md | phase_2.3_refinement.md | Stage 2 Refinement |
-| round1_todo_creation.md | part_5.1.1_round1.md | Round 1 guide |
-| round2_todo_creation.md | part_5.1.2_round2.md | Round 2 guide |
-| round3_part1_preparation.md | part_5.1.3_round3.md | Round 3 router |
-| round3_part2a_gates_1_2.md | 5.1.3.2_round3_part2a.md | Round 3 Part 2a |
-| round3_part2b_gate_3.md | 5.1.3.3_round3_part2b.md | Round 3 Part 2b |
-| implementation_execution.md | phase_5.2_implementation_execution.md | Implementation guide |
-| post_implementation.md | phase_5.3_post_implementation.md | Post-impl router |
-| smoke_testing.md | part_5.3.1_smoke_testing.md | Smoke testing |
-| qc_rounds.md | part_5.3.2_qc_rounds.md | QC rounds |
-| final_review.md | part_5.3.3_final_review.md | Final review |
-| post_feature_alignment.md | phase_5.4_post_feature_alignment.md | Cross-feature alignment |
-| post_feature_testing_update.md | phase_5.5_post_feature_testing_update.md | Test plan updates |
-| epic_smoke_testing.md | phase_6.1_epic_smoke_testing.md | Epic smoke tests |
-| epic_qc_rounds.md | phase_6.2_epic_qc_rounds.md | Epic QC |
-| user_testing.md | phase_6.3_user_testing.md | User testing |
-| epic_final_review.md | phase_6.4_epic_final_review.md | Epic review |
-| guide_update_workflow.md | phase_7.1_guide_update_workflow.md | Guide updates |
+| phase_0_research.md | s2_p1_research.md | S2 Research |
+| phase_1_specification.md | s2_p2_specification.md | S2 Specification |
+| phase_2_refinement.md | s2_p3_refinement.md | S2 Refinement |
+| round1_todo_creation.md | s5_p1_planning_round1.md | Round 1 guide |
+| round2_todo_creation.md | s5_p2_planning_round2.md | Round 2 guide |
+| round3_part1_preparation.md | s5_p3_planning_round3.md | Round 3 router |
+| round3_part2a_gates_1_2.md | s5_p3_i2_gates_part1.md | Round 3 Part 2a |
+| round3_part2b_gate_3.md | s5_p3_i3_gates_part2.md | Round 3 Part 2b |
+| implementation_execution.md | s6_execution.md | Implementation guide |
+| smoke_testing.md | s7_p1_smoke_testing.md | Smoke testing |
+| qc_rounds.md | s7_p2_qc_rounds.md | QC rounds |
+| final_review.md | s7_p3_final_review.md | Final review |
+| post_feature_alignment.md | s8_p1_cross_feature_alignment.md | Cross-feature alignment |
+| epic_testing_plan_update.md | s8_p2_epic_testing_update.md | Epic testing update |
+| epic_smoke_testing.md | s9_p1_epic_smoke_testing.md | Epic smoke tests |
+| epic_qc_rounds.md | s9_p2_epic_qc_rounds.md | Epic QC |
+| user_testing.md | s9_p3_user_testing.md | User testing |
+| epic_final_review.md | s9_p4_epic_final_review.md | Epic final review |
+| epic_cleanup.md | s10_epic_cleanup.md | Epic cleanup |
+| guide_update_workflow.md | s10_p1_guide_update_workflow.md | Guide updates |
 
 **Note:** If you encounter old notation in conversation summaries or older documentation, always use the current notation shown above.
 

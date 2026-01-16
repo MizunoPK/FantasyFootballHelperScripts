@@ -3,14 +3,14 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-10
 **Purpose:** Detailed examples and templates for Research Phase execution
-**Prerequisites:** Read stages/stage_2/phase_2.1_research.md first
-**Main Guide:** stages/stage_2/phase_2.1_research.md
+**Prerequisites:** Read stages/s2/s2_p1_research.md first
+**Main Guide:** stages/s2/s2_p1_research.md
 
 ---
 
 ## Purpose
 
-This reference provides detailed examples for executing Research Phase (Phase 2.1). Use this alongside the main guide for:
+This reference provides detailed examples for executing Research Phase (S2.P1). Use this alongside the main guide for:
 - Example epic intent extraction
 - Sample research findings documents
 - Detailed audit verification examples
@@ -159,7 +159,7 @@ Data source: "FantasyPros CSV" - Line 22
 
 ---
 
-{Rest of spec.md sections will be added in Phase 2.2}
+{Rest of spec.md sections will be added in S2.P2}
 ```
 
 ---
@@ -442,7 +442,7 @@ Christian McCaffrey,RB,CAR,380.2
 
 **Next Steps:**
 - Phase 1.5: Verify research completeness
-- Phase 2.2 Phase 2: Update spec.md with findings
+- S2.P2 Phase 2: Update spec.md with findings
 ```
 
 ---
@@ -748,7 +748,7 @@ All of these are agent assumptions → Added to checklist as questions
 
 ---
 
-**OVERALL RESULT:** ✅ PASSED - All 4 categories passed, ready for Phase 2.2
+**OVERALL RESULT:** ✅ PASSED - All 4 categories passed, ready for S2.P2
 
 ---
 
@@ -774,7 +774,7 @@ All of these are agent assumptions → Added to checklist as questions
 **Epic Notes Citations:** 8 line numbers
 - Lines 8-10, 12-14, 15, 18-19, 22, 35, 37-38, 42, 45
 
-**Ready for Phase 2.2:** YES
+**Ready for S2.P2:** YES
 
 ---
 
@@ -826,7 +826,7 @@ All of these are agent assumptions → Added to checklist as questions
 3. Document actual signatures with evidence
 4. Re-run audit after research complete
 
-**DO NOT PROCEED TO Phase 2.2**
+**DO NOT PROCEED TO S2.P2**
 ```
 
 ---
@@ -892,7 +892,7 @@ Read timestamp: 2026-01-02 10:30
 
 ❌ **WRONG:**
 ```markdown
-I remember from Stage 1 that user wants ADP integration. I'll start researching PlayerManager now.
+I remember from S1 that user wants ADP integration. I'll start researching PlayerManager now.
 
 {Jumps straight to Phase 1 without re-reading epic}
 ```
@@ -901,7 +901,7 @@ I remember from Stage 1 that user wants ADP integration. I'll start researching 
 ```markdown
 **Phase 0: Epic Intent Extraction**
 
-Even though I worked on Stage 1, I'm re-reading epic notes now to ensure I understand user intent.
+Even though I worked on S1, I'm re-reading epic notes now to ensure I understand user intent.
 
 {Re-reads epic notes file}
 {Extracts exact quotes with line numbers}
@@ -915,7 +915,7 @@ Even though I worked on Stage 1, I'm re-reading epic notes now to ensure I under
 
 ## Success Criteria Summary
 
-**Research Phase (Phase 2.1) passes when:**
+**Research Phase (S2.P1) passes when:**
 
 ✅ **Phase 0 (Epic Intent):**
 - Epic notes file re-read (not relied on memory)
@@ -938,7 +938,7 @@ Even though I worked on Stage 1, I'm re-reading epic notes now to ensure I under
 - Can identify assumptions vs. user requests
 - Overall result: PASSED
 
-**Ready for Phase 2.2 when all 3 phases complete with evidence.**
+**Ready for S2.P2 when all 3 phases complete with evidence.**
 
 ---
 

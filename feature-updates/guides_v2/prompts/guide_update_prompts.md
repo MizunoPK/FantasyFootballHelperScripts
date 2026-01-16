@@ -5,16 +5,16 @@
 
 ---
 
-## Starting Stage 7.5: Guide Update from Lessons Learned (MANDATORY)
+## Starting S10.P1: Guide Update from Lessons Learned (MANDATORY)
 
-**User says:** Agent detects Stage 7 user testing passed (Gate 7.2), OR user says "apply lessons to guides"
+**User says:** Agent detects S10 user testing passed (Gate 7.2), OR user says "apply lessons to guides"
 
-**Prerequisite:** Stage 7 user testing passed (zero bugs), all lessons_learned.md files complete
+**Prerequisite:** S10 user testing passed (zero bugs), all lessons_learned.md files complete
 
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/stage_7/phase_7.1_guide_update_workflow.md` to apply lessons learned to guides...
+I'm reading `stages/s10/s10_p1_guide_update_workflow.md` to apply lessons learned to guides...
 
 **The guide requires:**
 - **Analyze ALL lessons_learned.md files** from this epic:
@@ -47,16 +47,16 @@ I'm reading `stages/stage_7/phase_7.1_guide_update_workflow.md` to apply lessons
 - User has full control over guide evolution
 
 **Prerequisites I'm verifying:**
-✅ Stage 7 user testing passed (Gate 7.2)
+✅ S10 user testing passed (Gate 7.2)
 ✅ All lessons_learned.md files complete
 ✅ Ready to analyze lessons and create proposal
 
 **I'll now analyze the lessons learned from this epic and create GUIDE_UPDATE_PROPOSAL.md...**
 
 **Updating EPIC_README.md Agent Status:**
-- Current Stage: Stage 7.5 - Guide Update from Lessons Learned
+- Current Stage: S10.P1 - Guide Update from Lessons Learned
 - Current Phase: GUIDE_ANALYSIS
-- Current Guide: stages/stage_7/phase_7.1_guide_update_workflow.md
+- Current Guide: stages/s10/s10_p1_guide_update_workflow.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Analyze ALL lessons", "Prioritize P0-P3", "Individual approval", "Apply only approved", "Separate commit"
 - Next Action: Read all lessons_learned.md files and identify guide gaps
@@ -73,7 +73,7 @@ Analyzing lessons learned...
 **Agent MUST present:**
 
 ```
-🚨 **Stage 7.5: Guide Update Proposals Ready for Review**
+🚨 **S10.P1: Guide Update Proposals Ready for Review**
 
 I've analyzed all lessons learned from this epic and created prioritized guide update proposals.
 
@@ -159,7 +159,7 @@ I've analyzed all lessons learned from this epic and created prioritized guide u
 3. Create separate commit for guide updates
 4. Update reference/guide_update_tracking.md
 5. Update guide-updates.txt if any items addressed
-6. Proceed to Stage 7 Step 7 (Final Commit & PR)
+6. Proceed to S10 Step 7 (Final Commit & PR)
 
 Applying guide updates...
 ```
@@ -195,11 +195,11 @@ Applying guide updates...
 **Benefits for future agents:**
 {List 2-3 key improvements that future agents will see}
 
-**Next: Stage 7 Step 7 - Final Commit & Pull Request**
+**Next: S10 Step 7 - Final Commit & Pull Request**
 
 I'll now proceed with creating the epic commit and pull request for your review.
 
-Following `stages/stage_7/epic_cleanup.md` Step 7...
+Following `stages/s10/s10_epic_cleanup.md` Step 7...
 ```
 
 ---
@@ -300,11 +300,11 @@ All lessons were either:
 
 **No guide update proposals to present.**
 
-**Next: Stage 7 Step 7 - Final Commit & Pull Request**
+**Next: S10 Step 7 - Final Commit & Pull Request**
 
 I'll proceed directly to creating the epic commit and pull request.
 
-Following `stages/stage_7/epic_cleanup.md` Step 7...
+Following `stages/s10/s10_epic_cleanup.md` Step 7...
 ```
 
 ---

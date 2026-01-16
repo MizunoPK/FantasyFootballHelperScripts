@@ -15,7 +15,7 @@
 ## 🚨 CRITICAL: Why This Phase Is Mandatory
 
 **Historical Problem:**
-- Bugs were fixed but lessons learned only at Stage 7.5 (weeks later)
+- Bugs were fixed but lessons learned only at S10.P1 (weeks later)
 - Root cause analysis happened in aggregate (Phase 5), losing individual context
 - Guide improvements were generic, not tied to specific bugs
 
@@ -23,7 +23,7 @@
 - **IMMEDIATE** root cause analysis while context is fresh
 - **USER CONFIRMS** root cause before documenting
 - **INCREMENTAL** guide improvements captured per bug
-- **PRIORITIZED** lessons (debugging bugs → P0/P1 priority in Stage 7.5)
+- **PRIORITIZED** lessons (debugging bugs → P0/P1 priority in S10.P1)
 
 **Result:** Higher quality guide improvements that prevent same bugs in future epics
 
@@ -31,7 +31,7 @@
 
 ## Trigger Condition
 
-This phase is triggered when:
+This process is triggered when:
 - ✅ Issue fix implemented (Phase 3 complete)
 - ✅ User confirmed fix (Phase 4 complete - user said "YES, fixed")
 - ✅ Issue marked 🟢 FIXED in ISSUES_CHECKLIST.md
@@ -61,7 +61,7 @@ WHY #4: Why wasn't that edge case identified?
 → {Process answer - e.g., "Iteration 9 (Edge Case Analysis) didn't consider injury status"}
 
 WHY #5: Why didn't Iteration 9 catch it?
-→ {Guide gap - e.g., "part_5.1.2_round2.md doesn't mention checking player status fields"}
+→ {Guide gap - e.g., "s5_p2_planning_round2.md doesn't mention checking player status fields"}
 ```
 
 **Continue until you reach a PROCESS or GUIDE gap (not just technical cause).**
@@ -74,7 +74,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 **A. Missing Guide Section**
 - Guide exists but doesn't cover this scenario
-- Example: "part_5.1.2_round2.md Iteration 9 doesn't mention checking entity status fields"
+- Example: "s5_p2_planning_round2.md Iteration 9 doesn't mention checking entity status fields"
 
 **B. Unclear Guide Instruction**
 - Guide mentions it but not clearly enough
@@ -82,7 +82,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 **C. Missing Mandatory Gate**
 - No checkpoint to catch this type of issue
-- Example: "No gate between Stage 5a and 5b to verify edge cases were actually tested"
+- Example: "No gate between S5 and S6 to verify edge cases were actually tested"
 
 **D. Process Gap**
 - No workflow step covers this scenario
@@ -104,28 +104,28 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 ### 2.1: Trace Back Through Workflow
 
-**For each stage, ask: "Could this stage have caught this bug?"**
+**For each stage, ask: "Could this guide have caught this bug?"**
 
-**Stage 5a (Implementation Planning):**
+**S5 (Implementation Planning):**
 - Round 1, Iteration 4 (Algorithm Traceability): Should algorithm have included this?
 - Round 1, Iteration 7 (Integration Gap Check): Should integration point have been verified?
 - Round 2, Iteration 9 (Edge Case Analysis): Should edge case have been identified?
 - Round 2, Iteration 15 (Test Coverage): Should test have covered this?
 - Round 3, Iteration 23a (Spec Audit): Should spec have included this requirement?
 
-**Stage 5b (Implementation Execution):**
+**S6 (Implementation Execution):**
 - Mini-QC checkpoints: Should QC have caught this?
 - Unit tests: Should test have existed for this?
 
-**Part 5.3.1 (Smoke Testing):**
+**S7.P1:**
 - Part 1 (Import Test): Should import have failed?
 - Part 2 (Entry Point Test): Should entry point have caught this?
 - Part 3 (E2E Test): Should E2E test have caught this? (This is where it WAS caught)
 
-**Part 5.3.2 (QC Rounds):**
+**S7.P2:**
 - Round 1-3: Which round should have caught this?
 
-**Stage 2 (Specification):**
+**S2 (Specification):**
 - Should spec.md have included this requirement?
 
 ---
@@ -137,9 +137,9 @@ WHY #5: Why didn't Iteration 9 catch it?
 ## Prevention Point
 
 **This bug SHOULD have been caught at:**
-- Stage: {Stage 5a / 5b / Part 5.3.1 / Part 5.3.2 / 2 / etc.}
+- Stage: {S2 / S5 / S6 / S7.P1 / S7.P2 / etc.}
 - Specific Step: {Iteration 9 / QC Round 1 / etc.}
-- Guide: {part_5.1.2_round2.md / qc_rounds.md / etc.}
+- Guide: {s5_p2_planning_round2.md / s7_p2_qc_rounds.md / etc.}
 - Specific Section: {Iteration 9: Edge Case Analysis}
 
 **Why it wasn't caught:**
@@ -220,7 +220,7 @@ This bug ({brief description}) occurred because {reason}. Adding this checkpoint
 **Record:**
 ```markdown
 **Recommended Priority:** P1 (High)
-**Reasoning:** Bug reached smoke testing (got through Stage 5a + 5b), 3 hours debugging time
+**Reasoning:** Bug reached smoke testing (got through S5 + S6), 3 hours debugging time
 ```
 
 ---
@@ -257,7 +257,7 @@ I've analyzed why this bug existed and how we can prevent it in future epics.
 ### Prevention Point
 
 **This bug SHOULD have been caught at:**
-- **Stage:** {Stage 5a/5b/etc.}
+- **Stage:** {S5/5b/etc.}
 - **Step:** {Iteration X / QC Round X}
 - **Guide:** `{guide name}`
 - **Why it wasn't caught:** {specific gap}
@@ -325,7 +325,7 @@ If you choose MODIFY or DISAGREE, please explain:
 1. Revise the root cause analysis based on user feedback
 2. Update:
    - Prevention point (Iteration 4 instead of 9)
-   - Guide improvement (update part_5.1.1_round1.md instead)
+   - Guide improvement (update s5_p1_planning_round1.md instead)
    - Priority if needed
 3. Present revised analysis to user
 4. Repeat until user AGREES
@@ -372,7 +372,7 @@ If you choose MODIFY or DISAGREE, please explain:
 
 ## Step 5: Document in guide_update_recommendations.md
 
-**Goal:** Add user-confirmed guide improvement to recommendations file for Stage 7.5
+**Goal:** Add user-confirmed guide improvement to recommendations file for S10.P1
 
 ### 5.1: Create or Update File
 
@@ -393,7 +393,7 @@ If you choose MODIFY or DISAGREE, please explain:
 
 **Source:** Per-issue root cause analysis (Phase 4b of debugging protocol)
 
-**Usage:** These recommendations will be presented to user in Stage 7.5 for approval
+**Usage:** These recommendations will be presented to user in S10.P1 for approval
 
 **Priority Levels:**
 - **P0 (Critical):** Prevents catastrophic bugs, user testing failures
@@ -509,7 +509,7 @@ If you choose MODIFY or DISAGREE, please explain:
 
 **Added to:** `debugging/guide_update_recommendations.md` - Recommendation #{number}
 **Priority:** {P0/P1/P2/P3}
-**Will be presented to user in Stage 7.5 for final approval**
+**Will be presented to user in S10.P1 for final approval**
 
 ### User Feedback
 
@@ -573,7 +573,7 @@ Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 
 ## Completion Checklist
 
-**Phase 4b is complete for this issue when:**
+**Step 4b is complete for this issue when:**
 
 - [ ] 5-Why analysis performed (reached guide/process gap)
 - [ ] Root cause category identified (A/B/C/D/E/F)
@@ -594,7 +594,7 @@ Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 
 ❌ **Stopping at technical cause**
 - BAD: "Root cause: Missing null check"
-- GOOD: "Root cause: part_5.1.2_round2.md Iteration 9 doesn't mention verifying entity status fields"
+- GOOD: "Root cause: s5_p2_planning_round2.md Iteration 9 doesn't mention verifying entity status fields"
 
 ❌ **Skipping user confirmation**
 - BAD: Agent decides root cause and adds to recommendations
@@ -616,7 +616,7 @@ Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 ## Why This Matters
 
 **Before Phase 4b:**
-- Root cause analysis happened weeks later (Phase 5, Stage 7.5)
+- Root cause analysis happened weeks later (Phase 5, S10.P1)
 - Context was lost ("Why did we make that decision?")
 - Guide improvements were generic and vague
 - User wasn't involved in root cause validation
@@ -625,7 +625,7 @@ Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 - Root cause analyzed IMMEDIATELY (while context is fresh)
 - User confirms REAL reason (not agent assumptions)
 - Guide improvements are SPECIFIC and ACTIONABLE
-- Stage 7.5 presents high-quality, pre-validated proposals
+- S10.P1 presents high-quality, pre-validated proposals
 - Future epics benefit from concrete, tested improvements
 
 **Historical evidence:** Bugs analyzed immediately have 3x higher quality guide improvements vs. bugs analyzed weeks later.

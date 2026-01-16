@@ -1,7 +1,7 @@
 # Implementation Checklist Template
 
 **Instructions for Agents:**
-This template is used during Stage 5b (Implementation Execution) to track progress through implementation tasks. Create this file at the START of Stage 5b from the implementation_plan.md task list.
+This template is used during S6 (Implementation Execution) to track progress through implementation tasks. Create this file at the START of S6 from the implementation_plan.md task list.
 
 **Key Principles:**
 - Simple checkboxes for tracking completion
@@ -81,7 +81,7 @@ This template is used during Stage 5b (Implementation Execution) to track progre
 
 ## Usage Notes
 
-**When to create:** Start of Stage 5b (after user approves implementation_plan.md)
+**When to create:** Start of S6 (after user approves implementation_plan.md)
 
 **How to populate:**
 1. Copy task list from implementation_plan.md

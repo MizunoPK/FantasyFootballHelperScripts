@@ -92,9 +92,9 @@
 
 | Context | Example to Use | Reason |
 |---------|----------------|--------|
-| Stage 1 planning | improve_draft_helper | Shows feature breakdown |
-| Stage 2 deep dive | improve_draft_helper | Shows multi-feature coordination |
-| Stage 5 implementation | improve_draft_helper | Full workflow demonstration |
+| S1 planning | improve_draft_helper | Shows feature breakdown |
+| S2 deep dive | improve_draft_helper | Shows multi-feature coordination |
+| S5 implementation | improve_draft_helper | Full workflow demonstration |
 | Bug fix workflow | add_player_validation | Simple, clear |
 | Cross-feature dependencies | integrate_matchup_data | Complex dependencies |
 | Quick examples | add_player_validation | Least cognitive load |

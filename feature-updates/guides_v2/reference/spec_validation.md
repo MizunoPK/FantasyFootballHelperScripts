@@ -1,15 +1,15 @@
-# Stage 2.5: Spec Validation Guide
+# S2.5: Spec Validation Guide
 
 ---
 
 ## Quick Start
 
-**What is this stage?**
+**What is this guide?**
 Spec Validation is a critical gate where you re-validate spec.md against the original epic by assuming the spec is completely wrong and verifying everything from scratch to catch fundamental misunderstandings before implementation.
 
 **When do you use this guide?**
-- After Stage 2 (Feature Deep Dive) complete
-- Before Stage 3 (Cross-Feature Sanity Check)
+- After S2 (Feature Deep Dive) complete
+- Before S3 (Cross-Feature Sanity Check)
 - When you need to validate spec accuracy against epic intent
 
 **Key Outputs:**
@@ -17,7 +17,7 @@ Spec Validation is a critical gate where you re-validate spec.md against the ori
 - ✅ Requirements validated against epic (literal meaning checked)
 - ✅ Spec assumptions questioned and verified
 - ✅ Misalignments identified and corrected
-- ✅ Ready for Stage 3 (Cross-Feature Sanity Check)
+- ✅ Ready for S3 (Cross-Feature Sanity Check)
 
 **Time Estimate:**
 30-45 minutes per feature
@@ -34,11 +34,11 @@ Spec Validation is complete when the spec is re-validated against epic from scra
 ## Why This Stage Exists
 
 **Historical Evidence:** Feature 02 (Accuracy Sim) spec.md contained a fundamental error that survived:
-- Stage 2 (spec creation)
-- Stage 5a (28 verification iterations)
-- Stage 5b (implementation)
-- Part 5.3.1-Part 5.3.2 (smoke testing and QC rounds)
-- **User caught it in Part 5.3.3**
+- S2 (spec creation)
+- S5 (28 verification iterations)
+- S6 (implementation)
+- S7.P1-S7.P2 (smoke testing and QC rounds)
+- **User caught it in S9.P3**
 
 **The Problem:** Once spec.md is written, all subsequent stages trust it as gospel truth and never question it against the original epic.
 
@@ -48,9 +48,9 @@ Spec Validation is complete when the spec is re-validated against epic from scra
 
 ## Prerequisites
 
-Before starting Stage 2.5:
+Before starting S2.5:
 
-- [x] Stage 2 (Feature Deep Dive) completed
+- [x] S2 (Feature Deep Dive) completed
 - [x] spec.md file exists
 - [x] checklist.md file exists
 - [x] Epic notes file available
@@ -268,7 +268,7 @@ Conclusion: This is a GENERAL PATTERN, not week 17 special case
 
 #### 7A: STOP IMMEDIATELY
 
-- Do NOT proceed to Stage 3
+- Do NOT proceed to S3
 - Do NOT proceed to implementation
 - Do NOT "fix it yourself and continue"
 
@@ -279,7 +279,7 @@ Use this template:
 ```markdown
 ## ⚠️ SPEC VALIDATION FAILED - User Input Required
 
-I completed Stage 2.5 (Spec Validation) and found [X] discrepancies between
+I completed S2.5 (Spec Validation) and found [X] discrepancies between
 the epic requirements and spec.md.
 
 ### Discrepancy Summary
@@ -296,20 +296,20 @@ the epic requirements and spec.md.
 These discrepancies suggest spec.md may be fundamentally incorrect.
 
 **Why This Matters:**
-- Spec.md drives all subsequent stages (5a TODO creation, 5b implementation)
+- Spec.md drives all subsequent stages (S5 TODO creation, S6 implementation)
 - If spec is wrong, TODO will be wrong, implementation will be wrong
 - Better to catch now than after implementing wrong solution
 
 ### How Would You Like to Proceed?
 
-**Option A (Recommended):** Fix spec, restart from Stage 2
+**Option A (Recommended):** Fix spec, restart from S2
 - Update spec.md to match epic requirements
-- Re-run Stage 2.5 to verify fixes
-- Continue to Stage 3 only after zero discrepancies
+- Re-run S2.5 to verify fixes
+- Continue to S3 only after zero discrepancies
 
-**Option B:** Fix spec, continue to Stage 3
+**Option B:** Fix spec, continue to S3
 - Update spec.md
-- Continue to Stage 3 (Cross-Feature Sanity Check)
+- Continue to S3 (Cross-Feature Sanity Check)
 - Risk: May still have subtle errors
 
 **Option C:** Discuss discrepancies first
@@ -337,21 +337,21 @@ Wait for user to choose:
 **If Option A (Fix and Restart):**
 1. Update spec.md based on discrepancies
 2. Update checklist.md if needed
-3. Re-run Stage 2.5 from Step 1
+3. Re-run S2.5 from Step 1
 4. Continue only when zero discrepancies
-5. Proceed to Stage 3
+5. Proceed to S3
 
 **If Option B (Fix and Continue):**
 1. Update spec.md based on discrepancies
 2. Update checklist.md if needed
 3. Document risk in spec.md
-4. Proceed to Stage 3
+4. Proceed to S3
 
 **If Option C (Discuss):**
 1. Have conversation about each discrepancy
 2. Get user clarification on intent
 3. Update spec.md based on clarifications
-4. Return to Stage 2.5 Step 1 to re-verify
+4. Return to S2.5 Step 1 to re-verify
 
 ---
 
@@ -364,7 +364,7 @@ Answer these critical questions:
 ```markdown
 ## Critical Questions Checklist
 
-Stage 2.5 Validation:
+S2.5 Validation:
 - [ ] Did I close spec.md before re-reading epic? (no confirmation bias)
 - [ ] Did I re-read ENTIRE epic word-for-word?
 - [ ] Did I test every example with multiple values? (pattern vs special case)
@@ -399,7 +399,7 @@ All questions must be YES to pass.
 
 ## Pass Criteria
 
-Stage 2.5 is complete when:
+S2.5 is complete when:
 
 **Scenario 1: Zero Discrepancies**
 - [ ] All epic requirements have matching spec claims
@@ -407,13 +407,13 @@ Stage 2.5 is complete when:
 - [ ] All assumptions tested with hands-on investigation
 - [ ] Evidence table complete (no empty cells)
 - [ ] All critical questions answered YES
-- [ ] Proceed to Stage 3
+- [ ] Proceed to S3
 
 **Scenario 2: Discrepancies Found and Resolved**
 - [ ] All discrepancies reported to user
 - [ ] User chose path forward
 - [ ] Spec.md updated based on user decision
-- [ ] Re-ran Stage 2.5 after updates
+- [ ] Re-ran S2.5 after updates
 - [ ] Now zero discrepancies
 - [ ] Proceed per user decision
 
@@ -475,7 +475,7 @@ Find discrepancy → Report to user → Wait for decision → Execute choice
 
 **What Actually Happened (WRONG):**
 
-Stage 2:
+S2:
 - Read epic line 8: "week_17 folders for projected, week_18 for actual"
 - Interpreted as: "Week 17 is special case"
 - Wrote spec: "No code changes needed"
@@ -485,7 +485,7 @@ Result: Catastrophic bug that survived 7 stages
 
 **What Should Have Happened (RIGHT):**
 
-Stage 2.5:
+S2.5:
 1. Close spec.md ✓
 2. Re-read epic: "week_17 folders for projected, week_18 for actual"
 3. Question: "Why week 17? Is this special or pattern?"
@@ -516,7 +516,7 @@ Result: Bug caught before implementation
 
 ## Output Artifacts
 
-After Stage 2.5:
+After S2.5:
 
 1. **spec_validation_findings.md** (NEW FILE):
    - Epic re-reading notes
@@ -534,7 +534,7 @@ After Stage 2.5:
 
 ## Completion Criteria
 
-**Stage 2.5 is complete when ALL of these are true:**
+**S2.5 is complete when ALL of these are true:**
 
 □ **Epic Re-Reading Complete:**
   - Epic notes file re-read word-for-word (spec.md closed during initial read)
@@ -565,17 +565,17 @@ After Stage 2.5:
   - If discrepancies found: spec.md updated OR user decision documented
   - If zero discrepancies: validation confidence documented
 
-**Exit Condition:** Stage 2.5 is complete when spec.md is validated against epic from scratch, all discrepancies are resolved or user-approved, and you have high confidence the spec accurately reflects epic intent.
+**Exit Condition:** S2.5 is complete when spec.md is validated against epic from scratch, all discrepancies are resolved or user-approved, and you have high confidence the spec accurately reflects epic intent.
 
 ---
 
 ## Next Stage
 
 **If Zero Discrepancies:**
-- Proceed to Stage 3 (Cross-Feature Sanity Check)
+- Proceed to S3 (Cross-Feature Sanity Check)
 
 **If Discrepancies Found:**
-- Follow user's decision (restart Stage 2 / continue / discuss)
+- Follow user's decision (restart S2 / continue / discuss)
 
 ---
 

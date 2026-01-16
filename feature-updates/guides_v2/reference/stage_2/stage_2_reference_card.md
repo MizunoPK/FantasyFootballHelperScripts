@@ -1,7 +1,7 @@
 # STAGE 2: Feature Deep Dive - Quick Reference Card
 
-**Purpose:** One-page summary for quick consultation during Stage 2
-**Use Case:** Quick lookup when you need to remember phase details, gates, or decision points
+**Purpose:** One-page summary for quick consultation during S2
+**Use Case:** Quick lookup when you need to remember guide details, gates, or decision points
 **Total Time:** 2-3 hours per feature (9 phases across 3 sub-stages)
 
 ---
@@ -9,16 +9,16 @@
 ## Sub-Stages Overview
 
 ```
-Phase 2.1: Research Phase (45-60 min)
+S2.P1: Research Phase (45-60 min)
     Phase 0: Epic Intent Extraction (15 min)
     Phase 1: Targeted Research (30 min)
     Phase 1.5: Research Completeness Audit (20 min) ← MANDATORY GATE
     ↓
-Phase 2.2: Specification Phase (30-45 min)
+S2.P2: Specification Phase (30-45 min)
     Phase 2: Update Spec & Checklist (30 min)
     Phase 2.5: Spec-to-Epic Alignment Check (15 min) ← MANDATORY GATE
     ↓
-Phase 2.3: Refinement Phase (45-60 min)
+S2.P3: Refinement Phase (45-60 min)
     Phase 3: Interactive Question Resolution (30-90 min)
     Phase 4: Dynamic Scope Adjustment (15 min)
     Phase 5: Cross-Feature Alignment (15-30 min)
@@ -46,7 +46,7 @@ Phase 2.3: Refinement Phase (45-60 min)
 ## Mandatory Gates
 
 ### Gate 1: Phase 1.5 - Research Completeness Audit
-**Location:** stages/stage_2/phase_2.1_research.md
+**Location:** stages/s2/s2_p1_research.md
 **What it checks:**
 - Component Research: Have you found the code mentioned in epic?
 - Pattern Research: Have you studied similar features?
@@ -57,7 +57,7 @@ Phase 2.3: Refinement Phase (45-60 min)
 **If FAIL:** Return to Phase 1, research gaps, re-run audit
 
 ### Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check
-**Location:** stages/stage_2/phase_2.2_specification.md
+**Location:** stages/s2/s2_p2_specification.md
 **What it checks:**
 - Scope Creep: Requirements NOT in epic notes
 - Missing Requirements: Epic requests NOT in spec
@@ -66,7 +66,7 @@ Phase 2.3: Refinement Phase (45-60 min)
 **If FAIL:** Remove scope creep OR add missing requirements, re-run check
 
 ### Gate 3: Phase 6 - User Approval
-**Location:** stages/stage_2/phase_2.3_refinement.md
+**Location:** stages/s2/s2_p3_refinement.md
 **What it checks:**
 - User explicitly approves acceptance criteria
 
@@ -118,7 +118,7 @@ Phase 2.3: Refinement Phase (45-60 min)
 
 ### ❌ Pitfall 3: Assuming Instead of Asking User
 **Problem:** Making design decisions without user input
-**Impact:** Implement wrong solution, rework in Stage 5c QC
+**Impact:** Implement wrong solution, rework in S7 QC
 **Solution:** When uncertain, ask user (Phase 3). Better to ask than assume
 
 ### ❌ Pitfall 4: Batching Questions
@@ -139,7 +139,7 @@ Phase 2.3: Refinement Phase (45-60 min)
 ### ❌ Pitfall 7: Comparing to Wrong Features (Phase 5)
 **Problem:** Comparing to in-progress features instead of completed ones
 **Impact:** Inherit bugs/inconsistencies from incomplete features
-**Solution:** Only compare to features that completed Stage 5c (fully QC'd)
+**Solution:** Only compare to features that completed S7 (fully QC'd)
 
 ---
 
@@ -181,7 +181,7 @@ Phase 2.3: Refinement Phase (45-60 min)
 - [ ] Compared to completed features (alignment verified)
 - [ ] Patterns consistent with rest of codebase
 
-**Phase 6 → Next Feature or Stage 3:**
+**Phase 6 → Next Feature or S3:**
 - [ ] Acceptance criteria created
 - [ ] User approval obtained
 - [ ] Spec finalized
@@ -193,17 +193,17 @@ Phase 2.3: Refinement Phase (45-60 min)
 **Phase 0:**
 - spec.md (Epic Intent section)
 
-**Phase 1:**
+**Step 1:**
 - epic/research/{FEATURE_NAME}_DISCOVERY.md
 
-**Phase 2:**
+**Step 2:**
 - spec.md (complete with requirements + traceability)
 - checklist.md (open questions)
 
 **Phase 2.5:**
 - spec.md (verified against epic)
 
-**Phase 3:**
+**Step 3:**
 - spec.md (updated based on user answers)
 - checklist.md (resolved items)
 
@@ -217,25 +217,25 @@ Phase 2.3: Refinement Phase (45-60 min)
 
 | Current Phase | Guide to Read |
 |---------------|---------------|
-| Starting Stage 2 | stages/stage_2/phase_2.1_research.md |
-| Phase 0, 1, or 1.5 | stages/stage_2/phase_2.1_research.md |
-| Phase 2 or 2.5 | stages/stage_2/phase_2.2_specification.md |
-| Phase 3, 4, 5, or 6 | stages/stage_2/phase_2.3_refinement.md |
-| Need overview | stages/stage_2/feature_deep_dive.md (router) |
+| Starting S2 | stages/s2/s2_p1_research.md |
+| Phase 0, 1, or 1.5 | stages/s2/s2_p1_research.md |
+| Phase 2 or 2.5 | stages/s2/s2_p2_specification.md |
+| Phase 3, 4, 5, or 6 | stages/s2/s2_p3_refinement.md |
+| Need overview | stages/s2/s2_feature_deep_dive.md (router) |
 
 ---
 
 ## Exit Conditions
 
-**Stage 2 is complete when:**
+**S2 is complete when:**
 - [ ] All 9 phases executed (0 through 6)
 - [ ] All 3 mandatory gates PASSED (1.5, 2.5, 6)
 - [ ] spec.md has user-approved acceptance criteria
 - [ ] checklist.md has zero unresolved items
 - [ ] SPEC_SUMMARY.md created and user-validated
 
-**Next Stage:** Stage 3 (Cross-Feature Sanity Check) - if all features planned
-**OR:** Stage 2 for next feature - if more features to plan
+**Next Stage:** S3 (Cross-Feature Sanity Check) - if all features planned
+**OR:** S2 for next feature - if more features to plan
 
 ---
 

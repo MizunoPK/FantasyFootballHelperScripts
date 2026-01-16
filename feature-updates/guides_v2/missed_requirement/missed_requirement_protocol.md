@@ -1,12 +1,12 @@
 # Missed Requirement Protocol (Router)
 
-**Purpose:** Handle missing scope/requirements discovered after Stage 5 begins by treating them as real features - either creating a new feature or updating an unstarted one - then temporarily returning to planning stages to maintain epic coherence.
+**Purpose:** Handle missing scope/requirements discovered after S5 begins by treating them as real features - either creating a new feature or updating an unstarted one - then temporarily returning to planning stages to maintain epic coherence.
 
-**When to Use:** Missing requirement discovered at ANY point after first Stage 5 starts - you know WHAT needs to be built (just forgot to include it in the original spec)
+**When to Use:** Missing requirement discovered at ANY point after first S5 starts - you know WHAT needs to be built (just forgot to include it in the original spec)
 
 **When NOT to Use:**
 - Unknown bugs requiring investigation - use debugging/debugging_protocol.md instead
-- Missing scope discovered BEFORE any feature enters Stage 5 - just update specs directly during Stage 2/3/4
+- Missing scope discovered BEFORE any feature enters S5 - just update specs directly during S2/3/4
 
 ---
 
@@ -42,7 +42,7 @@
    - Current Phase: MISSED_REQUIREMENT_HANDLING
    - Current Guide: missed_requirement/missed_requirement_protocol.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
-   - Critical Rules: "Get user approval first", "Return to Stage 2/3/4", "Update epic docs"
+   - Critical Rules: "Get user approval first", "Return to S2/3/4", "Update epic docs"
    - Next Action: Present options to user (new feature vs update unstarted)
 
 3. **Get user approval** before creating/updating features
@@ -54,16 +54,16 @@
 ## Quick Start
 
 **What is this protocol?**
-Missed Requirement Protocol treats missing scope as real features - either creating new features or updating unstarted ones - then temporarily returning to Stage 2/3/4 planning to maintain epic-level coherence before resuming implementation work.
+Missed Requirement Protocol treats missing scope as real features - either creating new features or updating unstarted ones - then temporarily returning to S2/3/4 planning to maintain epic-level coherence before resuming implementation work.
 
 **When do you use this protocol?**
-- Missing requirement discovered at ANY point after first Stage 5 starts:
-  - During Stage 5a (TODO creation)
-  - During Stage 5b (Implementation)
-  - During Stage 5c (QA - smoke testing, QC rounds)
+- Missing requirement discovered at ANY point after first S5 starts:
+  - During S5 (TODO creation)
+  - During S6 (Implementation)
+  - During S7 (QA - smoke testing, QC rounds)
   - During debugging protocol (while investigating issues)
-  - During Stage 6 (Epic-level testing)
-  - During Stage 7 (User testing)
+  - During S9 (Epic-level testing)
+  - During S10 (User testing)
 - You KNOW what needs to be built (solution is clear, just wasn't in original spec)
 - Need to add missing functionality as a proper feature
 - Example: "We forgot to add player injury status tracking"
@@ -71,13 +71,13 @@ Missed Requirement Protocol treats missing scope as real features - either creat
 **When NOT to use this protocol?**
 - Unknown bugs requiring investigation (use debugging/debugging_protocol.md instead)
 - Example: "Player scores are sometimes wrong but we don't know why"
-- Missing scope discovered BEFORE any feature enters Stage 5 (just update specs directly during Stage 2/3/4)
+- Missing scope discovered BEFORE any feature enters S5 (just update specs directly during S2/3/4)
 
 **Key Outputs:**
 - ✅ New feature created OR unstarted feature updated
-- ✅ Feature spec fleshed out (Stage 2)
-- ✅ All features re-aligned (Stage 3)
-- ✅ Epic test plan updated (Stage 4)
+- ✅ Feature spec fleshed out (S2)
+- ✅ All features re-aligned (S3)
+- ✅ Epic test plan updated (S4)
 - ✅ Epic documentation updated for resumability
 - ✅ Ready to resume previous work
 - ✅ New/updated feature implemented when its turn comes in sequence
@@ -86,7 +86,7 @@ Missed Requirement Protocol treats missing scope as real features - either creat
 Varies by requirement complexity (1-3 hours for planning stages typical)
 
 **Exit Condition:**
-Missed requirement handling is complete when the new/updated feature has been planned (Stage 2/3/4 complete), epic docs updated, and previous work resumed. The feature itself gets implemented later when its turn comes in the implementation sequence.
+Missed requirement handling is complete when the new/updated feature has been planned (S2/3/4 complete), epic docs updated, and previous work resumed. The feature itself gets implemented later when its turn comes in the implementation sequence.
 
 ---
 
@@ -94,8 +94,8 @@ Missed requirement handling is complete when the new/updated feature has been pl
 
 ```
 1. ⚠️ CAN BE USED AT ANY TIME AFTER FIRST STAGE 5 STARTS
-   - Before any feature enters Stage 5: Just update specs directly during Stage 2/3/4
-   - After first feature enters Stage 5: Use this protocol for epic coherence
+   - Before any feature enters S5: Just update specs directly during S2/3/4
+   - After first feature enters S5: Use this protocol for epic coherence
    - Can be discovered during: Implementation, QA, debugging, epic testing, user testing
    - Maintains epic coherence through re-alignment
 
@@ -106,9 +106,9 @@ Missed requirement handling is complete when the new/updated feature has been pl
    - If update unstarted: Which feature to update
 
 3. ⚠️ ALWAYS RETURN TO STAGE 2/3/4
-   - Stage 2: Flesh out new/updated feature spec
-   - Stage 3: Cross-feature sanity check (ALL features)
-   - Stage 4: Update epic testing strategy
+   - S2: Flesh out new/updated feature spec
+   - S3: Cross-feature sanity check (ALL features)
+   - S4: Update epic testing strategy
    - Maintains epic-level alignment
 
 4. ⚠️ SEQUENCE MATTERS FOR NEW FEATURES
@@ -130,10 +130,10 @@ Missed requirement handling is complete when the new/updated feature has been pl
    - Implement when it comes up in Epic Progress Tracker
 
 7. ⚠️ SAME RIGOR AS ALL FEATURES
-   - Full Stage 2 deep dive
-   - Full Stage 3 sanity check (all features)
-   - Full Stage 4 test plan update
-   - When implemented: Full Stage 5 (5a → 5b → 5c → 5d → 5e)
+   - Full S2 deep dive
+   - Full S3 sanity check (all features)
+   - Full S4 test plan update
+   - When implemented: Full S5 (S5 → S6 → S7 → S8)
    - No shortcuts
 ```
 
@@ -149,7 +149,7 @@ The missed requirement protocol consists of 4 phases (plus special case):
 **Purpose:** Identify missing requirement and get user decision on approach
 
 **Key Activities:**
-- Discover missing requirement (can happen during any stage after first Stage 5)
+- Discover missing requirement (can happen during any stage after first S5)
 - Present two options to user (create new feature OR update unstarted feature)
 - Get user decision on approach
 - Get user decision on priority/sequence (if new feature)
@@ -159,15 +159,15 @@ The missed requirement protocol consists of 4 phases (plus special case):
 
 ---
 
-### PHASE 2: Planning (Stage 2 Deep Dive)
+### PHASE 2: Planning (S2 Deep Dive)
 **See:** `missed_requirement/planning.md`
 
-**Purpose:** Create/update feature spec through Stage 2 deep dive
+**Purpose:** Create/update feature spec through S2 deep dive
 
 **Key Activities:**
 - Pause current work
 - Create new feature folder OR update unstarted feature folder
-- Run Stage 2 deep dive for new/updated feature
+- Run S2 deep dive for new/updated feature
 - Flesh out spec.md and checklist.md
 - Update epic documentation
 
@@ -175,15 +175,15 @@ The missed requirement protocol consists of 4 phases (plus special case):
 
 ---
 
-### PHASE 3 & 4: Realignment (Stage 3 & 4)
+### PHASE 3 & 4: Realignment (S3 & 4)
 **See:** `missed_requirement/realignment.md`
 
 **Purpose:** Re-align ALL features and update epic test plan
 
 **Key Activities:**
-- Stage 3: Cross-feature sanity check (ALL features, not just new/updated)
+- S3: Cross-feature sanity check (ALL features, not just new/updated)
 - Resolve conflicts between features
-- Stage 4: Update epic_smoke_test_plan.md
+- S4: Update epic_smoke_test_plan.md
 - Update Epic Progress Tracker
 - Update EPIC_README with new sequence
 
@@ -206,16 +206,16 @@ The missed requirement protocol consists of 4 phases (plus special case):
 
 ---
 
-### SPECIAL CASE: Discovery During Epic Testing (Stage 6/7)
-**See:** `missed_requirement/stage_6_7_special.md`
+### SPECIAL CASE: Discovery During Epic Testing (S9/S10)
+**See:** `missed_requirement/s9_s10_special.md`
 
 **Purpose:** Handle missed requirements discovered during epic testing with special restart protocol
 
 **Key Activities:**
-- Complete planning (Stage 2/3/4) as usual
-- Complete ALL remaining features (entire Stage 5 sequence)
-- Implement new/updated feature (full Stage 5)
-- **RESTART epic-level testing from Phase 6.1 Step 1**
+- Complete planning (S2/3/4) as usual
+- Complete ALL remaining features (entire S5 sequence)
+- Implement new/updated feature (full S5)
+- **RESTART epic-level testing from S9.P1 Step 1**
 
 **Output:** Epic testing restarted with new feature included
 
@@ -258,14 +258,14 @@ Just discovered missing requirement?
 
 User decided approach, need to plan?
 └─ Read missed_requirement/planning.md (PHASE 2)
-   └─ Stage 2 deep dive for new/updated feature
+   └─ S2 deep dive for new/updated feature
 
 Planning complete, need to align features?
 └─ Read missed_requirement/realignment.md (PHASE 3 & 4)
-   └─ Stage 3 sanity check + Stage 4 test plan update → Resume work
+   └─ S3 sanity check + S4 test plan update → Resume work
 
-Discovered during Stage 6 or 7?
-└─ Read missed_requirement/stage_6_7_special.md (SPECIAL CASE)
+Discovered during S9 or S10?
+└─ Read missed_requirement/s9_s10_special.md (SPECIAL CASE)
    └─ Complete all features → Restart epic testing
 ```
 
@@ -273,39 +273,39 @@ Discovered during Stage 6 or 7?
 
 ## Common Scenarios
 
-### Scenario 1: Discovered During Feature Implementation (Stage 5b)
+### Scenario 1: Discovered During Feature Implementation (S6)
 
 **Actions:**
 1. Use discovery.md to present options to user
 2. User decides: Create new feature (medium priority)
-3. Use planning.md for Stage 2 deep dive
-4. Use realignment.md for Stage 3/4 + resume
+3. Use planning.md for S2 deep dive
+4. Use realignment.md for S3/4 + resume
 5. New feature implemented after current feature completes
 
 ---
 
-### Scenario 2: Discovered During QC Rounds (Part 5.3.2)
+### Scenario 2: Discovered During QC Rounds (S7.P2)
 
 **Actions:**
 1. Use discovery.md to present options to user
 2. User decides: Update unstarted feature_03
 3. Use planning.md to update feature_03 spec
-4. Use realignment.md for Stage 3/4 + resume
+4. Use realignment.md for S3/4 + resume
 5. Resume QC rounds where left off
 6. feature_03 implemented later with added scope
 
 ---
 
-### Scenario 3: Discovered During Epic Testing (Phase 6.2)
+### Scenario 3: Discovered During Epic Testing (S9.P2)
 
 **Actions:**
 1. Use discovery.md to present options to user
-2. Use planning.md for Stage 2 deep dive
-3. Use realignment.md for Stage 3/4
-4. **Use stage_6_7_special.md for special restart protocol**
+2. Use planning.md for S2 deep dive
+3. Use realignment.md for S3/4
+4. **Use s9_s10_special.md for special restart protocol**
 5. Complete all remaining features
 6. Implement new/updated feature
-7. **RESTART epic testing from Phase 6.1 Step 1**
+7. **RESTART epic testing from S9.P1 Step 1**
 
 ---
 
@@ -314,21 +314,21 @@ Discovered during Stage 6 or 7?
 **Missed Requirement Protocol handles forgotten scope by:**
 
 1. **Discovery:** Present two options (new feature vs update unstarted)
-2. **Planning:** Full Stage 2 deep dive for new/updated feature
-3. **Realignment:** Stage 3 sanity check + Stage 4 test plan update
+2. **Planning:** Full S2 deep dive for new/updated feature
+3. **Realignment:** S3 sanity check + S4 test plan update
 4. **Resume:** Continue paused work
 5. **Implementation:** Feature implemented later in sequence
 
 **Special Case:**
-- If discovered during Stage 6/7: Complete all features → Restart epic testing from Phase 6.1
+- If discovered during S9/7: Complete all features → Restart epic testing from S9.P1
 
 **Key Principle:** Missed requirements are REAL features - treated with same rigor, proper planning, epic alignment
 
 **Sub-Guides:**
 - `missed_requirement/discovery.md` - Discovery & user decision
-- `missed_requirement/planning.md` - Stage 2 deep dive
-- `missed_requirement/realignment.md` - Stage 3/4 alignment + resume
-- `missed_requirement/stage_6_7_special.md` - Epic testing special case
+- `missed_requirement/planning.md` - S2 deep dive
+- `missed_requirement/realignment.md` - S3/4 alignment + resume
+- `missed_requirement/s9_s10_special.md` - Epic testing special case
 
 ---
 

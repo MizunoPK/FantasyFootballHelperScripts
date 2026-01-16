@@ -330,9 +330,9 @@ class PlayerScoringCalculator:
 
         return avg_rank
 
-    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, is_draft_mode: bool = False) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, is_draft_mode: bool = False, nfl_team_penalty=False) -> ScoredPlayer:
         """
-        Calculate score for a player (13-step calculation).
+        Calculate score for a player (14-step calculation).
 
         Scoring System:
         1. Get normalized seasonal fantasy points (0-N scale)
@@ -348,6 +348,7 @@ class PlayerScoringCalculator:
         11. Apply Temperature bonus/penalty (game conditions)
         12. Apply Wind bonus/penalty (game conditions, QB/WR/K only)
         13. Apply Location bonus/penalty (home/away/international)
+        14. Apply NFL Team Penalty (multiply score by penalty weight for specified teams)
 
         Args:
             p: FantasyPlayer to score
@@ -368,6 +369,8 @@ class PlayerScoringCalculator:
             location: Apply location bonus/penalty (home/away/international)
             is_draft_mode: Use draft normalization scale (163) instead of weekly scale.
                 Set to True for Add to Roster Mode. Default False.
+            nfl_team_penalty: Apply NFL team penalty multiplier (Add to Roster mode only).
+                Default False.
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
@@ -457,7 +460,13 @@ class PlayerScoringCalculator:
         if location:
             player_score, reason = self._apply_location_modifier(p, player_score)
             add_to_reasons(reason)
-            self.logger.debug(f"Step 13 - Final score for {p.name}: {player_score:.2f}")
+            self.logger.debug(f"Step 13 - After location scoring for {p.name}: {player_score:.2f}")
+
+        # STEP 14: Apply NFL Team Penalty
+        if nfl_team_penalty:
+            player_score, reason = self._apply_nfl_team_penalty(p, player_score)
+            add_to_reasons(reason)
+            self.logger.debug(f"Step 14 - After NFL team penalty for {p.name}: {player_score:.2f}")
 
         # Summary logging
         self.logger.debug(
@@ -714,6 +723,18 @@ class PlayerScoringCalculator:
 
         # Subtract penalty from score (injury reduces player value)
         return player_score - penalty, reason
+
+    def _apply_nfl_team_penalty(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
+        """Apply NFL team penalty multiplier (Step 14)."""
+        # Check if player's team is in penalty list
+        if p.team in self.config.nfl_team_penalty:
+            # Apply penalty weight (multiply final score)
+            weight = self.config.nfl_team_penalty_weight
+            reason = f"NFL Team Penalty: {p.team} ({weight:.2f}x)"
+            return player_score * weight, reason
+
+        # No penalty - return unchanged score and empty reason
+        return player_score, ""
 
     # ============================================================================
     # GAME CONDITION SCORING (Steps 11-13)

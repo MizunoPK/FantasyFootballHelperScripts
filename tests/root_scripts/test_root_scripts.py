@@ -122,33 +122,6 @@ class TestRunPlayerFetcher:
 
 
 # ============================================================================
-# TEST RUN_SCORES_FETCHER.PY
-# ============================================================================
-
-class TestRunScoresFetcher:
-    """Test run_scores_fetcher.py"""
-
-    @patch('os.chdir')
-    @patch('subprocess.run')
-    def test_run_scores_fetcher_success(self, mock_run, mock_chdir):
-        """Test successful scores fetcher execution"""
-        mock_run.return_value = Mock(returncode=0)
-
-        import run_scores_fetcher
-        assert hasattr(run_scores_fetcher, 'subprocess')
-        assert hasattr(run_scores_fetcher, 'Path')
-
-    @patch('os.chdir')
-    @patch('subprocess.run')
-    def test_run_scores_fetcher_handles_errors(self, mock_run, mock_chdir):
-        """Test error handling in scores fetcher"""
-        mock_run.side_effect = subprocess.CalledProcessError(1, 'cmd')
-
-        import run_scores_fetcher
-        assert run_scores_fetcher.subprocess is not None
-
-
-# ============================================================================
 # TEST RUN_PRE_COMMIT_VALIDATION.PY
 # ============================================================================
 
@@ -739,7 +712,6 @@ class TestRootScriptsIntegration:
         scripts = [
             'run_league_helper.py',
             'run_player_fetcher.py',
-            'run_scores_fetcher.py',
             'run_pre_commit_validation.py',
             'run_win_rate_simulation.py',
             'run_accuracy_simulation.py',
@@ -761,7 +733,6 @@ class TestRootScriptsIntegration:
         scripts = [
             'run_league_helper.py',
             'run_player_fetcher.py',
-            'run_scores_fetcher.py',
             'run_pre_commit_validation.py',
             'run_win_rate_simulation.py',
             'run_accuracy_simulation.py',
@@ -780,7 +751,6 @@ class TestRootScriptsIntegration:
         scripts = [
             'run_league_helper.py',
             'run_player_fetcher.py',
-            'run_scores_fetcher.py',
             'run_pre_commit_validation.py',
             'run_win_rate_simulation.py',
             'run_accuracy_simulation.py',
@@ -798,7 +768,6 @@ class TestRootScriptsIntegration:
         scripts_and_imports = {
             'run_league_helper.py': ['subprocess', 'sys', 'Path'],
             'run_player_fetcher.py': ['subprocess', 'sys', 'Path', 'os'],
-            'run_scores_fetcher.py': ['subprocess', 'sys', 'Path', 'os'],
             'run_pre_commit_validation.py': ['subprocess', 'sys', 'Path'],
             'run_win_rate_simulation.py': ['argparse', 'sys', 'Path'],
             'run_accuracy_simulation.py': ['argparse', 'sys', 'Path'],

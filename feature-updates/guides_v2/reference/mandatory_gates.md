@@ -1,8 +1,8 @@
 # Mandatory Gates Across Epic Workflow - Quick Reference
 
-**Purpose:** Comprehensive list of ALL mandatory gates from Stage 1-7
+**Purpose:** Comprehensive list of ALL mandatory gates from S1-S10
 **Use Case:** Quick lookup for gate requirements, criteria, and failure consequences
-**Total Gates:** 16 across 7 stages (NEW: Gate 4.5 added for early test plan approval)
+**Total Gates:** 16 across 10 stages (NEW: Gate 4.5 added for early test plan approval)
 
 ---
 
@@ -18,13 +18,13 @@
 - **Relationship to workflow:** BETWEEN stages (not part of iteration count)
 
 **Logic:**
-- Gate 3 = Stage 2 gate (named after target stage)
-- Gate 4.5 = Between Stage 4 and 5 (decimal indicates "between")
-- Gate 5 = Stage 5a gate
+- Gate 3 = S2 gate (named after target stage)
+- Gate 4.5 = Between S4 and 5 (decimal indicates "between")
+- Gate 5 = S5 gate
 
 ### Type 2: Iteration-Level Gates (iteration numbers)
 - **Examples:** Gate 4a, Gate 7a, Gate 23a, Gate 24, Gate 25
-- **Naming:** Uses actual iteration number from Stage 5a
+- **Naming:** Uses actual iteration number from S5
 - **Approver:** Agent self-validates using checklists
 - **Purpose:** Verification checkpoints during planning
 - **⚠️ CRITICAL:** These ARE iterations, not additional steps
@@ -33,9 +33,9 @@
   - Don't count gates separately from iterations
 
 **Logic:**
-- Gate 4a = Occurs at Iteration 4a in Stage 5a Round 1
-- Gate 23a = Occurs at Iteration 23a in Stage 5a Round 3
-- Gate 24 = Occurs at Iteration 24 in Stage 5a Round 3
+- Gate 4a = Occurs at Iteration 4a in S5 Round 1
+- Gate 23a = Occurs at Iteration 23a in S5 Round 3
+- Gate 24 = Occurs at Iteration 24 in S5 Round 3
 
 **Example:** Round 1 has 9 iterations total:
 - Iterations: 1, 2, 3, 4, 5, 5a, 6, 7
@@ -57,25 +57,25 @@
 | Stage | Gate | Location | Pass Criteria | Restart if Fail? |
 |-------|------|----------|---------------|------------------|
 | 1 | None | - | User confirmation recommended | No |
-| 2a | Gate 1: Research Audit | Phase 2.1 | All 4 categories with evidence | Yes (Redo research) |
-| 2b | Gate 2: Spec Alignment | Phase 2.2 | Zero scope creep + zero missing | Yes (Revise spec) |
-| **3** | **Gate 3: Checklist Approval (NEW)** | **Phase 2.2** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
-| 4 | Gate 4: User Approval | Phase 2.3 | User explicitly approves | Yes (Revise criteria) |
-| 4.5 | User Sign-Off | Stage 3 | User approves complete plan | Yes (Stage 3) |
-| **5** | **Gate 5: Epic Test Plan Approval (NEW)** | **After Stage 4** | **User approves epic_smoke_test_plan.md** | **Yes (Revise test plan)** |
+| 2a | Gate 1: Research Audit | S2.P1 | All 4 categories with evidence | Yes (Redo research) |
+| 2b | Gate 2: Spec Alignment | S2.P2 | Zero scope creep + zero missing | Yes (Revise spec) |
+| **3** | **Gate 3: Checklist Approval (NEW)** | **S2.P2** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
+| 4 | Gate 4: User Approval | S2.P3 | User explicitly approves | Yes (Revise criteria) |
+| 4.5 | User Sign-Off | S3 | User approves complete plan | Yes (S3) |
+| **5** | **Gate 5: Epic Test Plan Approval (NEW)** | **After S4** | **User approves epic_smoke_test_plan.md** | **Yes (Revise test plan)** |
 | 5aa | Iteration 4a | Round 1 | All tasks have acceptance criteria | Yes (Iteration 4) |
 | 5ac | Iteration 23a | Part 2 | ALL 4 PARTS pass with 100% | Yes (Iteration 23a) |
 | 5ac | Iteration 25 | Part 2 | Spec matches validated docs | Yes (User decides) |
 | 5ac | Iteration 24 | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
-| 5a-5b | User Approval | After 5a | User approves implementation_plan.md | Yes (Revise plan) |
-| Part 5.3.1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
-| Part 5.3.2 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
+| S5 | Gate 5: Implementation Plan Approval | After S5 | User approves implementation_plan.md | Yes (Revise plan) |
+| S7.P1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
+| S7.P2 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
 | 7 | Unit Tests | Cleanup | 100% test pass (exit code 0) | Yes (Fix tests) |
-| 7 | User Testing | Cleanup | ZERO bugs found by user | Yes (Stage 6) |
+| 7 | User Testing | Cleanup | ZERO bugs found by user | Yes (S9) |
 
 ---
 
-## Stage 1: Epic Planning
+## S1: Epic Planning
 
 ### No Mandatory Gates
 
@@ -88,11 +88,11 @@
 
 ---
 
-## Stage 2: Feature Deep Dive (4 gates per feature - NEW: Checklist Approval added)
+## S2: Feature Deep Dive (4 gates per feature - NEW: Checklist Approval added)
 
 ### Gate 1: Phase 1.5 - Research Completeness Audit
 
-**Location:** stages/stage_2/phase_2.1_research.md
+**Location:** stages/s2/s2_p1_research.md
 **When:** After completing targeted research (Phase 1)
 
 **What it checks:**
@@ -123,7 +123,7 @@
 
 ### Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check
 
-**Location:** stages/stage_2/phase_2.2_specification.md
+**Location:** stages/s2/s2_p2_specification.md
 **When:** After updating spec.md and checklist.md (Phase 2)
 
 **What it checks:**
@@ -151,7 +151,7 @@
 
 ### Gate 3: User Checklist Approval (🚨 NEW MANDATORY GATE)
 
-**Location:** stages/stage_2/phase_2.2_specification.md (Phase 2.2)
+**Location:** stages/s2/s2_p2_specification.md (S2.P2)
 **When:** After Gate 2 (Spec-to-Epic Alignment Check) passes
 
 **What it checks:**
@@ -178,7 +178,7 @@
 - Provide clarification on questions
 - Revise questions based on user feedback
 - Re-present checklist for user approval
-- Cannot proceed to Stage 5a without user approval of ALL questions
+- Cannot proceed to S5 without user approval of ALL questions
 
 **Why it matters:**
 - Addresses guide-updates.txt #2: "Require ALL checklist items to be confirmed by the user"
@@ -193,7 +193,7 @@
 
 ### Gate 4: User Approval (Acceptance Criteria)
 
-**Location:** stages/stage_2/phase_2.3_refinement.md (Phase 2.3)
+**Location:** stages/s2/s2_p3_refinement.md (S2.P3)
 **When:** After creating acceptance criteria
 
 **What it checks:**
@@ -206,17 +206,17 @@
 **If FAIL:**
 - Revise acceptance criteria based on user feedback
 - Get user approval
-- Cannot proceed to next feature or Stage 3 without approval
+- Cannot proceed to next feature or S3 without approval
 
 **Why it matters:** Ensures you and user agree on what "done" means before implementation
 
 ---
 
-## Stage 3: Cross-Feature Sanity Check (1 gate per epic)
+## S3: Cross-Feature Sanity Check (1 gate per epic)
 
 ### Gate 1: User Sign-Off on Complete Epic Plan
 
-**Location:** stages/stage_3/cross_feature_sanity_check.md
+**Location:** stages/s3/s3_cross_feature_sanity_check.md
 **When:** After all features planned and conflicts resolved
 
 **What it checks:**
@@ -229,19 +229,19 @@
 **If FAIL:**
 - Address user concerns
 - Revise affected feature specs
-- Re-run Stage 3 sanity check
-- Cannot proceed to Stage 4 without sign-off
+- Re-run S3 sanity check
+- Cannot proceed to S4 without sign-off
 
 **Why it matters:** Last checkpoint before significant implementation work begins
 
 ---
 
-## Stage 4: Epic Testing Strategy (1 gate per epic - NEW)
+## S4: Epic Testing Strategy (1 gate per epic - NEW)
 
 ### Gate 4.5: Epic Test Plan Approval (🚨 NEW MANDATORY GATE)
 
-**Location:** stages/stage_4/epic_testing_strategy.md
-**When:** After updating epic_smoke_test_plan.md (before Stage 5a begins)
+**Location:** stages/s4/s4_epic_testing_strategy.md
+**When:** After updating epic_smoke_test_plan.md (before S5 begins)
 
 **What it checks:**
 - User reviews updated epic_smoke_test_plan.md
@@ -261,22 +261,22 @@
 **Evidence Required:**
 - epic_smoke_test_plan.md shows N measurable success criteria
 - epic_smoke_test_plan.md shows N test scenarios
-- All integration points from Stage 3 incorporated
+- All integration points from S3 incorporated
 - User Approval section completed with timestamp
 - Gate 4.5 Status: ✅ PASSED documented in EPIC_README.md
 
 **If FAIL (user requests changes):**
 - Revise epic_smoke_test_plan.md based on user feedback
 - Re-present test plan for user approval
-- Cannot proceed to Stage 5a without user approval
+- Cannot proceed to S5 without user approval
 
 **Why it matters:**
 - Addresses guide-updates.txt #10: "Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself."
 - Agent knows EXACTLY how to test work BEFORE creating implementation plans
-- User can adjust test strategy early (Stage 4 vs Stage 5a Round 3)
+- User can adjust test strategy early (S4 vs S5 Round 3)
 - Prevents creating implementation plans without knowing testing requirements
-- Separates test WHAT (Stage 4) from implement HOW (Stage 5a)
-- Earlier feedback loop (Stage 4 approval vs Stage 5a Round 3 approval)
+- Separates test WHAT (S4) from implement HOW (S5)
+- Earlier feedback loop (S4 approval vs S5 Round 3 approval)
 
 **Benefits:**
 - Agent creates better implementation plans knowing exact testing requirements
@@ -289,11 +289,11 @@
 
 ---
 
-## Stage 5a: Implementation Planning (5 gates per feature)
+## S5: Implementation Planning (5 gates per feature)
 
 ### Gate 1: Iteration 4a - Implementation Plan Specification Audit
 
-**Location:** stages/stage_5/part_5.1.1_round1.md (Round 1)
+**Location:** stages/s5/s5_p1_planning_round1.md (Round 1)
 **When:** After creating initial implementation_plan.md (Iteration 4)
 
 **What it checks:**
@@ -322,7 +322,7 @@
 
 ### Gate 2: Iteration 23a - Pre-Implementation Spec Audit (5 PARTS)
 
-**Location:** stages/stage_5/5.1.3.2_round3_part2a.md (Round 3 Part 2a)
+**Location:** stages/s5/5.1.3.2_round3_part2a.md (Round 3 Part 2a)
 **When:** After preparation iterations (Iterations 17-22)
 
 **ALL 5 PARTS must PASS:**
@@ -377,14 +377,14 @@
 
 ### Gate 3: Iteration 25 - Spec Validation Against Validated Documents (CRITICAL)
 
-**Location:** stages/stage_5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
+**Location:** stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
 **When:** After Iteration 23a passes
 
 **What it checks:**
 - Spec.md matches ALL three user-validated sources:
   1. Epic notes (user's original request)
-  2. Epic ticket (user-validated outcomes from Stage 1)
-  3. Spec summary (user-validated feature outcomes from Stage 2)
+  2. Epic ticket (user-validated outcomes from S1)
+  3. Spec summary (user-validated feature outcomes from S2)
 
 **Process (8 steps):**
 1. **Close spec.md and implementation_plan.md** (avoid confirmation bias)
@@ -426,7 +426,7 @@
 
 ### Gate 4: Iteration 24 - Implementation Readiness Protocol (GO/NO-GO)
 
-**Location:** stages/stage_5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
+**Location:** stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
 **When:** After Iteration 25 passes
 
 **What it checks (comprehensive checklist):**
@@ -443,13 +443,13 @@
 - ❌ **NO-GO** if ANY item unchecked, confidence < MEDIUM, any gate FAILED, blockers exist
 
 **If GO:**
-- Proceed to Stage 5b (Implementation Execution)
+- Proceed to S6 (Implementation Execution)
 
 **If NO-GO:**
 - Address concerns/blockers
 - Fix failing items
 - Re-evaluate Iteration 24
-- Cannot proceed to Stage 5b without GO decision
+- Cannot proceed to S6 without GO decision
 
 **Why it matters:** Final checkpoint before writing code (prevents implementing with incomplete/incorrect planning)
 
@@ -457,7 +457,7 @@
 
 ### Gate 5: User Approval of Implementation Plan (MANDATORY CHECKPOINT)
 
-**Location:** Between Stage 5a and Stage 5b
+**Location:** Between S5 and S6
 **When:** After Iteration 24 returns GO decision
 
 **What it checks:**
@@ -474,14 +474,14 @@
   - Implementation phasing (5-6 checkpoints)
   - Performance considerations
   - Mock audit results
-- User explicitly approves proceeding to Stage 5b
+- User explicitly approves proceeding to S6
 - User says "approved" or "looks good" or equivalent
 
 **If FAIL (user requests changes):**
 - Revise implementation_plan.md based on user feedback
-- Re-run affected iterations from Stage 5a if needed
+- Re-run affected iterations from S5 if needed
 - Get user approval before proceeding
-- Cannot proceed to Stage 5b without user approval
+- Cannot proceed to S6 without user approval
 
 **Why it matters:** Gives user visibility and control over implementation approach before code is written. User can request changes to phasing, test strategy, or approach without wasting implementation effort.
 
@@ -493,21 +493,21 @@
 
 ---
 
-## Stage 5b: Implementation Execution
+## S6: Implementation Execution
 
 ### No Mandatory Gates
 
 **Requirements:**
-- 100% unit test pass after every phase (not a formal gate, but required)
+- 100% unit test pass after each step (not a formal gate, but required)
 - Mini-QC checkpoints every 5-7 tasks
 
 ---
 
-## Stage 5c: Post-Implementation (2 gates per feature)
+## S7: Post-Implementation (2 gates per feature)
 
-### Gate 5: Part 5.3.1 Part 3 - E2E Smoke Test (Data Validation)
+### Gate 5: S7.P1 Part 3 - E2E Smoke Test (Data Validation)
 
-**Location:** stages/stage_5/part_5.3.1_smoke_testing.md
+**Location:** stages/s7/s7_p1_smoke_testing.md
 **When:** After Part 1 (Import) and Part 2 (Entry Point) tests pass
 
 **What it checks:**
@@ -526,16 +526,16 @@
 
 **If FAIL:**
 - Fix issues
-- **Restart from Part 5.3.1 Part 1** (Import Test)
+- **Restart from S10.P1 Step 1** (Import Test)
 - Must re-run all 3 parts
 
 **Why it matters:** Ensures feature actually works end-to-end with real data before QC rounds
 
 ---
 
-### Gate 6: Part 5.3.2 QC Round 3 - ZERO Issues Required
+### Gate 6: S7.P2 QC Round 3 - ZERO Issues Required
 
-**Location:** stages/stage_5/part_5.3.2_qc_rounds.md
+**Location:** stages/s7/s7_p2_qc_rounds.md
 **When:** After QC Rounds 1 and 2 pass
 
 **What it checks:**
@@ -549,7 +549,7 @@
 
 **If FAIL (ANY issues found in Round 3):**
 - Fix ALL issues
-- **Restart from Part 5.3.1 Part 1** (smoke testing)
+- **Restart from S7.P1 Step 1** (smoke testing)
 - Re-run smoke testing → QC Round 1 → QC Round 2 → QC Round 3
 - ZERO tolerance for issues
 
@@ -562,31 +562,31 @@
 
 ---
 
-## Stage 5d & 5e: Post-Feature Updates
+## S8.P1 & 5e: Post-Feature Updates
 
 ### No Mandatory Gates
 
-**Stage 5d:** Update remaining feature specs
-**Stage 5e:** Update epic test plan
+**S8.P1:** Update remaining feature specs
+**S8.P2:** Update epic test plan
 
 ---
 
-## Stage 6: Epic-Level Final QC
+## S9: Epic-Level Final QC
 
-### No Mandatory Gates (but similar to Stage 5c protocol)
+### No Mandatory Gates (but similar to S7 protocol)
 
 **Requirements:**
 - Epic smoke testing passes
 - QC Round 3 passes with zero issues
-- If ANY issues → restart Stage 6
+- If ANY issues → restart S9
 
 ---
 
-## Stage 7: Epic Cleanup (2 gates per epic)
+## S10: Epic Cleanup (2 gates per epic)
 
 ### Gate 7.1: Unit Tests (100% Pass)
 
-**Location:** stages/stage_7/epic_cleanup.md
+**Location:** stages/s10/s10_epic_cleanup.md
 **When:** Before user testing
 
 **What it checks:**
@@ -608,7 +608,7 @@
 
 ### Gate 7.2: User Testing (ZERO Bugs)
 
-**Location:** stages/stage_7/epic_cleanup.md
+**Location:** stages/s10/s10_epic_cleanup.md
 **When:** After unit tests pass (final gate before commit)
 
 **What it checks:**
@@ -620,10 +620,10 @@
 - User approves epic for commit
 
 **If FAIL (user finds ANY bugs):**
-- Create bug fix following stages/stage_5/bugfix_workflow.md
-- Bug fix goes through: Stage 2 → 5a → 5b → 5c
-- After bug fix complete: **Restart Stage 6** (Epic-Level Final QC)
-- Re-run Stage 6 → Stage 7 → User testing
+- Create bug fix following stages/s5/s5_bugfix_workflow.md
+- Bug fix goes through: S2 → S5 → S6 → S7
+- After bug fix complete: **Restart S9** (Epic-Level Final QC)
+- Re-run S9 → S10 → User testing
 - Cannot commit without user approval
 
 **Why it matters:** Final validation that epic meets user requirements before merging to main
@@ -633,14 +633,14 @@
 ## Summary Statistics
 
 **Total Mandatory Gates:** 16
-- Stage 1: 0
-- Stage 2: 3 (per feature, so 3×N for N features)
-- Stage 3: 1
-- Stage 4: 1 (Gate 4.5 - Epic Test Plan Approval - NEW)
-- Stage 5a: 5 (per feature, including user approval)
-- Stage 5c: 2 (per feature)
-- Stage 6: 0 (but restart protocol similar)
-- Stage 7: 2
+- S1: 0
+- S2: 3 (per feature, so 3×N for N features)
+- S3: 1
+- S4: 1 (Gate 4.5 - Epic Test Plan Approval - NEW)
+- S5: 5 (per feature, including user approval)
+- S7: 2 (per feature)
+- S9: 0 (but restart protocol similar)
+- S10: 2
 
 **Gates with Evidence Requirements:** 7
 - Phase 1.5: File paths, line numbers
@@ -661,7 +661,7 @@
 **Gates Requiring User Input:** 6
 - Gate 3: User approval (checklist questions)
 - Gate 4: User approval (acceptance criteria)
-- Gate 4.5 (Stage 3): User sign-off (epic plan)
+- Gate 4.5 (S3): User sign-off (epic plan)
 - Gate 5: User approval (epic test plan - NEW)
 - Iteration 25: User decision (if discrepancies)
 - Gate 6: User approval (implementation plan)

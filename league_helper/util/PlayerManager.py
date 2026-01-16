@@ -922,9 +922,9 @@ class PlayerManager:
         # Spec line 59, todo line 56
         return self.get_projected_points_array(player, 1, current_week - 1)
 
-    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, is_draft_mode: bool = False) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, is_draft_mode: bool = False, nfl_team_penalty=False) -> ScoredPlayer:
         """
-        Calculate score for a player (13-step calculation).
+        Calculate score for a player (14-step calculation).
 
         Delegates to PlayerScoringCalculator for all scoring logic.
 
@@ -942,6 +942,7 @@ class PlayerManager:
         11. Apply Temperature bonus/penalty (game conditions)
         12. Apply Wind bonus/penalty (game conditions, QB/WR/K only)
         13. Apply Location bonus/penalty (home/away/international)
+        14. Apply NFL Team Penalty (multiply score by penalty weight for specified teams)
 
         Args:
             p: FantasyPlayer to score
@@ -961,6 +962,8 @@ class PlayerManager:
             location: Apply location bonus/penalty (home/away/international)
             is_draft_mode: Use draft normalization scale (163) instead of weekly scale.
                 Set to True for Add to Roster Mode (draft decisions). Default False.
+            nfl_team_penalty: Apply NFL team penalty multiplier (Add to Roster mode only).
+                Default False.
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
@@ -970,7 +973,7 @@ class PlayerManager:
         return self.scoring_calculator.score_player(
             p, team_roster, use_weekly_projection, adp, player_rating,
             team_quality, performance, matchup, schedule, draft_round, bye, injury, roster,
-            temperature, wind, location, is_draft_mode
+            temperature, wind, location, is_draft_mode, nfl_team_penalty
         )
 
     def set_player_data(self, player_data: Dict[int, Dict[str, Any]]) -> None:

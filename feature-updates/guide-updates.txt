@@ -1,0 +1,3 @@
+Consider ways to add to the guides such that, when features are determined to be able to done in paralell, offer the user the ability to start a different session where that other agent does the parallel work
+WHen I say 'read the guides' or 'update the guides' or anything along those lines, it means EVERY FILE IN THE guides_v2 FOLDER. We have had a lot of issues of only the stages folder being read, referenced, or updated
+Remove the code_changes file. It has no real value thanks to Git    

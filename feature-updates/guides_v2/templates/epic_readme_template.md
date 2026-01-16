@@ -28,10 +28,10 @@
 
 **Stage Workflow:**
 ```
-Stage 1 → Stage 2 → Stage 3 → Stage 4 → Stage 5 → Stage 6 → Stage 7
-  ↓         ↓         ↓         ↓         ↓         ↓         ↓
-Epic    Features  Sanity   Testing   Impl     Epic      Done
-Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
+S1 → S2 → S3 → S4 → [S5→S6→S7→S8] → S9 → S10
+  ↓        ↓        ↓        ↓        ↓           ↓        ↓
+Epic  Features  Sanity  Testing  Implementation  Epic    Done
+Plan  Deep Dive  Check  Strategy  (per feature)   QC
 ```
 
 **You are here:** ➜ Stage {X}
@@ -94,7 +94,7 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 
 **Overall Status:** {X/Y features complete}
 
-| Feature | Stage 1 | Stage 2 | Stage 3 | Stage 4 | Stage 5a | Stage 5b | Stage 5c | Stage 5d | Stage 5e |
+| Feature | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2 |
 |---------|---------|---------|---------|---------|----------|----------|----------|----------|----------|
 | feature_01_{name} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} |
 | feature_02_{name} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} |
@@ -104,14 +104,14 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 - ✅ = Complete
 - ◻️ = Not started or in progress
 
-**Stage 6 - Epic Final QC:** {✅ COMPLETE / ◻️ NOT STARTED / 🔄 IN PROGRESS}
+**S9 - Epic Final QC:** {✅ COMPLETE / ◻️ NOT STARTED / 🔄 IN PROGRESS}
 - Epic smoke testing passed: {✅/◻️}
 - Epic QC rounds passed: {✅/◻️}
 - Epic PR review passed: {✅/◻️}
 - End-to-end validation passed: {✅/◻️}
 - Date completed: {YYYY-MM-DD or "Not complete"}
 
-**Stage 7 - Epic Cleanup:** {✅ COMPLETE / ◻️ NOT STARTED / 🔄 IN PROGRESS}
+**S10 - Epic Cleanup:** {✅ COMPLETE / ◻️ NOT STARTED / 🔄 IN PROGRESS}
 - Final commits made: {✅/◻️}
 - Epic moved to done/ folder: {✅/◻️}
 - Date completed: {YYYY-MM-DD or "Not complete"}
@@ -154,7 +154,7 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 **Folder:** `bugfix_{priority}_{name}/`
 **Priority:** {high/medium/low}
 **Discovered:** {Stage X - {feature or epic level}}
-**Status:** {Stage 5c complete / In progress}
+**Status:** {S7 complete / In progress}
 **Impact:** {Brief description of what bug affected}
 
 {Repeat for all bug fixes...}
@@ -163,7 +163,7 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 
 ## Epic-Level Files
 
-**Created in Stage 1:**
+**Created in S1:**
 - `EPIC_README.md` (this file)
 - `epic_smoke_test_plan.md` - How to test the complete epic
 - `epic_lessons_learned.md` - Cross-feature insights
@@ -180,41 +180,41 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 
 ## Workflow Checklist
 
-**Stage 1 - Epic Planning:**
+**S1 - Epic Planning:**
 - [ ] Epic folder created
 - [ ] All feature folders created
 - [ ] Initial `epic_smoke_test_plan.md` created
 - [ ] `EPIC_README.md` created (this file)
 - [ ] `epic_lessons_learned.md` created
 
-**Stage 2 - Feature Deep Dives:**
+**S2 - Feature Deep Dives:**
 - [ ] ALL features have `spec.md` complete
 - [ ] ALL features have `checklist.md` resolved
 - [ ] ALL feature `README.md` files created
 
-**Stage 3 - Cross-Feature Sanity Check:**
+**S3 - Cross-Feature Sanity Check:**
 - [ ] All specs compared systematically
 - [ ] Conflicts resolved
 - [ ] User sign-off obtained
 
-**Stage 4 - Epic Testing Strategy:**
+**S4 - Epic Testing Strategy:**
 - [ ] `epic_smoke_test_plan.md` updated based on deep dives
 - [ ] Integration points identified
 - [ ] Epic success criteria defined
 
-**Stage 5 - Feature Implementation:**
-- [ ] Feature 1: 5a→5b→5c→5d→5e complete
-- [ ] Feature 2: 5a→5b→5c→5d→5e complete
-- [ ] Feature 3: 5a→5b→5c→5d→5e complete
+**S5 - Feature Implementation:**
+- [ ] Feature 1: S5→S6→S7→S8 complete
+- [ ] Feature 2: S5→S6→S7→S8 complete
+- [ ] Feature 3: S5→S6→S7→S8 complete
 - [ ] {List all features}
 
-**Stage 6 - Epic Final QC:**
+**S9 - Epic Final QC:**
 - [ ] Epic smoke testing passed (all 4 parts)
 - [ ] Epic QC rounds passed (all 3 rounds)
 - [ ] Epic PR review passed (all 11 categories)
 - [ ] End-to-end validation vs original request passed
 
-**Stage 7 - Epic Cleanup:**
+**S10 - Epic Cleanup:**
 - [ ] All unit tests passing (100%)
 - [ ] Documentation verified complete
 - [ ] Guides updated based on lessons learned (if needed)
@@ -239,7 +239,7 @@ Plan    Deep Dive  Check   Strategy  (5a-5e)  QC
 
 ## Epic Completion Summary
 
-{This section filled out in Stage 7}
+{This section filled out in S10}
 
 **Completion Date:** {YYYY-MM-DD}
 **Start Date:** {YYYY-MM-DD}

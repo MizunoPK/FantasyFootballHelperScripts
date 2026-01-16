@@ -1,5 +1,0 @@
-The NUM_PARAMETERS_TO_TEST settings in both win rate and accuracy simulations had previously been depreciated during updates, but I now want to get them working again
-
-The NUM_PARAMETERS_TO_TEST setting should determine how many parameters to get random values for during a simulation run. Whenever it is greater than 1, then for each value above one it will pick a random config parameter (in addition to the one that is up next in the PARAMETER_ORDER) and will generate random config values for that parameter and set up combinations between those random config values and the other ones generated for other configs.
-
-This is designed to see how parameters interact with each other and affect the end product when changed together

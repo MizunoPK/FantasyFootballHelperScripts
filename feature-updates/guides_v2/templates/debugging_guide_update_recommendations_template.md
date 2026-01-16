@@ -4,7 +4,7 @@
 
 **Source:** Per-issue root cause analysis (Phase 4b of debugging protocol)
 
-**Usage:** These recommendations will be presented to user in Stage 7.5 for approval
+**Usage:** These recommendations will be presented to user in S10.P1 for approval
 
 **Priority Levels:**
 - **P0 (Critical):** Prevents catastrophic bugs, user testing failures, epic restarts
@@ -44,7 +44,7 @@
 ### Prevention Point
 
 **Should have been caught at:**
-- **Stage:** {Stage 5a / 5b / Part 5.3.1 / Part 5.3.2 / 2 / etc.}
+- **Stage:** {S5 / S6 / S10.P1 / S10.P2 / 2 / etc.}
 - **Step:** {Iteration X / QC Round X / etc.}
 - **Guide:** `{guide name}`
 - **Why missed:** {specific gap}
@@ -81,7 +81,7 @@
 **Who benefits:** {Which agents/stages benefit from this change}
 
 **When it helps:** {Specific situations where this guidance is needed}
-- Example: "During Stage 5a Round 2 when analyzing player data edge cases"
+- Example: "During S5 Round 2 when analyzing player data edge cases"
 
 **Severity if unfixed:** {What happens without this fix}
 - Example: "Future epics will likely encounter same bug with player status"
@@ -157,7 +157,7 @@
 
 **DELETE THIS SECTION AFTER CREATING FILE**
 
-**Phase 4b (Per Issue):**
+**Step 4b (Per Issue):**
 1. After user confirms fix (Phase 4), perform root cause analysis
 2. Present 5-why analysis and guide improvement to user
 3. If user AGREES: Add Recommendation #N using template above
@@ -171,7 +171,7 @@
 3. Add pattern-based recommendations to "CROSS-PATTERN RECOMMENDATIONS" section
 4. These are IN ADDITION to per-issue recommendations
 
-**Stage 7.5 (Guide Update from Lessons Learned):**
+**S10.P1 (Guide Update from Lessons Learned):**
 1. Agent reads this file (ALL recommendations)
 2. Creates GUIDE_UPDATE_PROPOSAL.md with each recommendation as separate proposal
 3. Presents each proposal to user for individual approval
@@ -214,7 +214,7 @@
 ## Recommendation #1: Add Entity Status Field Check to Iteration 9
 
 **Source Issue:** Issue #1 - player_scoring_returns_null
-**Affected Guide:** `stages/stage_5/part_5.1.2_round2.md`
+**Affected Guide:** `stages/s5/s5_p2_planning_round2.md`
 **Section:** Iteration 9: Edge Case Analysis
 **Priority:** P1 (High)
 **User Confirmed:** ✅ YES (Date: 2026-01-15 14:30)
@@ -228,16 +228,16 @@ Bug occurred because player injury status wasn't checked, causing null pointer w
 2. **Implementation Gap:** Missing null check for injured players
 3. **Planning Gap:** Edge case not identified in implementation_plan.md Iteration 9
 4. **Process Gap:** Iteration 9 (Edge Case Analysis) didn't consider injury status
-5. **Guide Gap:** part_5.1.2_round2.md Iteration 9 doesn't mention entity status fields ← ROOT CAUSE
+5. **Guide Gap:** s5_p2_planning_round2.md Iteration 9 doesn't mention entity status fields ← ROOT CAUSE
 
 **Root Cause Category:** A (Missing guide section)
 
 ### Prevention Point
 
 **Should have been caught at:**
-- **Stage:** Stage 5a Round 2
+- **Stage:** S5 Round 2
 - **Step:** Iteration 9 (Edge Case Analysis)
-- **Guide:** `stages/stage_5/part_5.1.2_round2.md`
+- **Guide:** `stages/s5/s5_p2_planning_round2.md`
 - **Why missed:** Guide doesn't explicitly mention checking entity status fields
 
 ### Current State (BEFORE)
@@ -271,7 +271,7 @@ Adding entity status fields to the checklist forces agents to systematically ver
 
 **Who benefits:** All agents implementing features with entity data (players, teams, games)
 
-**When it helps:** During Stage 5a Round 2 when analyzing edge cases for any entity-based feature
+**When it helps:** During S5 Round 2 when analyzing edge cases for any entity-based feature
 
 **Severity if unfixed:** Future epics will likely encounter same bug pattern with entity status
 - Estimated 60% of entity-based features have status fields

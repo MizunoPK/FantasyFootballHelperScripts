@@ -91,6 +91,8 @@
       "RB",
       "WR"
     ],
+    "NFL_TEAM_PENALTY": [],
+    "NFL_TEAM_PENALTY_WEIGHT": 1.0,
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,

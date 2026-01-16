@@ -1,8 +1,8 @@
 # Epic Planning Examples
 
 **Purpose:** Detailed real-world examples of feature breakdowns, epic analysis, and planning scenarios
-**Prerequisites:** Stage 1 overview read from epic_planning.md
-**Main Guide:** `stages/stage_1/epic_planning.md`
+**Prerequisites:** S1 overview read from s1_epic_planning.md
+**Main Guide:** `stages/s1/s1_epic_planning.md`
 
 ---
 
@@ -107,7 +107,7 @@ Not: feature-updates/json_export_epic/feature_01_serialization/
 
 ### Example 4: Session Compaction Recovery
 
-**Scenario:** Agent started Stage 1, then session compacted mid-Phase 3.
+**Scenario:** Agent started S1, then session compacted mid-Phase 3.
 
 **WRONG Approach:**
 ```
@@ -121,7 +121,7 @@ Not: feature-updates/json_export_epic/feature_01_serialization/
    - Sees: "Current Step: Phase 3 - Waiting for user approval"
    - Sees: "Blockers: Waiting for user confirmation of feature breakdown"
 
-2. Read stages/stage_1/epic_planning.md (this guide)
+2. Read stages/s1/s1_epic_planning.md (this guide)
    - Re-read Phase 3 section
    - See requirement: WAIT for approval
 

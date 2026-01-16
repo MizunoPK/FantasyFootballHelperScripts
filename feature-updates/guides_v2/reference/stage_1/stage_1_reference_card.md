@@ -40,9 +40,9 @@ PHASE 4: Epic Structure Creation (10-15 min)
     ├─ Create GUIDE_ANCHOR.md (resumption instructions)
     └─ Update EPIC_README.md with Epic Progress Tracker
     ↓
-PHASE 5: Transition to Stage 2 (5 min)
-    ├─ Mark Stage 1 complete in EPIC_README.md
-    ├─ Update Agent Status (next: Stage 2)
+PHASE 5: Transition to S2 (5 min)
+    ├─ Mark S1 complete in EPIC_README.md
+    ├─ Update Agent Status (next: S2)
     └─ Announce transition to user
 ```
 
@@ -56,14 +56,14 @@ PHASE 5: Transition to Stage 2 (5 min)
 | 2 | 10-15 min | Read epic, reconnaissance | None | No |
 | 3 | 15-30 min | Propose features, create epic ticket | Feature approval, epic ticket validation | ✅ YES |
 | 4 | 10-15 min | Create feature folders, test plan, research folder | None | No |
-| 5 | 5 min | Mark complete, transition to Stage 2 | None | No |
+| 5 | 5 min | Mark complete, transition to S2 | None | No |
 
 ---
 
 ## Mandatory Gates
 
 ### Gate 1: Feature Breakdown Approval (Phase 3)
-**Location:** stages/stage_1/epic_planning.md Phase 3
+**Location:** stages/s1/s1_epic_planning.md Phase 3
 **What it checks:**
 - User approves proposed feature list
 - Feature breakdown makes sense
@@ -73,7 +73,7 @@ PHASE 5: Transition to Stage 2 (5 min)
 **If FAIL:** User provides feedback, agent revises breakdown, re-proposes
 
 ### Gate 2: Epic Ticket Validation (Phase 3)
-**Location:** stages/stage_1/epic_planning.md Steps 3.6-3.7
+**Location:** stages/s1/s1_epic_planning.md Steps 3.6-3.7
 **What it checks:**
 - Epic ticket accurately reflects user's desired outcomes
 - Agent understanding validated
@@ -99,7 +99,7 @@ PHASE 5: Transition to Stage 2 (5 min)
 ### Decision 2: Feature Count (Phase 3)
 **When:** Proposing feature breakdown
 **Options:**
-- Propose FEWER features (safer - can add during Stage 2 discovery)
+- Propose FEWER features (safer - can add during S2 discovery)
 - Propose MORE features (harder to merge features later)
 
 **How to decide:** If unsure, propose fewer features
@@ -126,10 +126,10 @@ PHASE 5: Transition to Stage 2 (5 min)
 - ✅ Update EPIC_README.md Agent Status after each major step
 - ✅ Feature numbering: feature_01_{name}, feature_02_{name} (zero-padded)
 - ✅ Create research/ folder in epic root (shared across features)
-- ✅ Epic planning does NOT include deep dives (Stage 2 handles that)
+- ✅ Epic planning does NOT include deep dives (S2 handles that)
 - ✅ If unsure about breakdown, propose FEWER features
 - ✅ Every feature MUST have clear purpose (avoid "miscellaneous")
-- ✅ Mark completion in EPIC_README.md before Stage 2
+- ✅ Mark completion in EPIC_README.md before S2
 
 ---
 
@@ -142,7 +142,7 @@ PHASE 5: Transition to Stage 2 (5 min)
 
 ### ❌ Pitfall 2: Skipping Epic Ticket Validation
 **Problem:** Assuming you understand epic without validation
-**Impact:** Build wrong thing, rework in Stage 5c or user testing
+**Impact:** Build wrong thing, rework in S7 or user testing
 **Solution:** Create epic ticket (Step 3.6), get user validation (Step 3.7)
 
 ### ❌ Pitfall 3: Creating "Miscellaneous" Features
@@ -152,23 +152,23 @@ PHASE 5: Transition to Stage 2 (5 min)
 
 ### ❌ Pitfall 4: Too Many Features
 **Problem:** Breaking epic into 10+ small features
-**Impact:** Overhead managing features, Stage 2/3/4 takes too long
+**Impact:** Overhead managing features, S2/3/4 takes too long
 **Solution:** Aim for 2-5 features, combine related functionality
 
-### ❌ Pitfall 5: Detailed Test Plan in Stage 1
+### ❌ Pitfall 5: Detailed Test Plan in S1
 **Problem:** Writing specific test scenarios before deep dives
 **Impact:** Test plan based on assumptions, will need rewrite
-**Solution:** Stage 1 test plan is PLACEHOLDER, mark "INITIAL - WILL UPDATE"
+**Solution:** S1 test plan is PLACEHOLDER, mark "INITIAL - WILL UPDATE"
 
 ### ❌ Pitfall 6: Not Updating EPIC_TRACKER.md
 **Problem:** Skipping EPIC_TRACKER.md update or committing later
 **Impact:** KAI number conflicts, no tracking in git history
 **Solution:** Update EPIC_TRACKER.md and commit IMMEDIATELY after branch creation
 
-### ❌ Pitfall 7: Starting Deep Dives in Stage 1
+### ❌ Pitfall 7: Starting Deep Dives in S1
 **Problem:** Trying to flesh out feature specs during epic planning
-**Impact:** Stage 1 takes hours instead of minutes, premature decisions
-**Solution:** Stage 1 = structure only, Stage 2 = deep dives (separate stage)
+**Impact:** S1 takes hours instead of minutes, premature decisions
+**Solution:** S1 = structure only, S2 = deep dives (separate stage)
 
 ---
 
@@ -201,26 +201,26 @@ PHASE 5: Transition to Stage 2 (5 min)
 - [ ] GUIDE_ANCHOR.md created
 - [ ] EPIC_README.md updated with Epic Progress Tracker
 
-**Phase 5 → Stage 2:**
-- [ ] Stage 1 marked complete in EPIC_README.md
-- [ ] Agent Status updated (next: Stage 2)
+**Phase 5 → S2:**
+- [ ] S1 marked complete in EPIC_README.md
+- [ ] Agent Status updated (next: S2)
 - [ ] User informed of transition
 
 ---
 
 ## File Outputs
 
-**Phase 1:**
+**Step 1:**
 - Git branch: `{work_type}/KAI-{number}`
 - EPIC_TRACKER.md (updated and committed)
 - `feature-updates/KAI-{N}-{epic_name}/` folder
 - `KAI-{N}-{epic_name}/{epic_name}_notes.txt` (moved from root)
 - `KAI-{N}-{epic_name}/EPIC_README.md`
 
-**Phase 3:**
+**Step 3:**
 - Epic ticket in conversation (user-validated)
 
-**Phase 4:**
+**Step 4:**
 - `KAI-{N}-{epic_name}/feature_01_{name}/` (and feature_02, feature_03, etc.)
 - `KAI-{N}-{epic_name}/epic_smoke_test_plan.md` (PLACEHOLDER)
 - `KAI-{N}-{epic_name}/epic_lessons_learned.md`
@@ -254,7 +254,7 @@ PHASE 5: Transition to Stage 2 (5 min)
 
 | Current Activity | Guide to Read |
 |------------------|---------------|
-| Starting a new epic | stages/stage_1/epic_planning.md |
+| Starting a new epic | stages/s1/s1_epic_planning.md |
 | Need git workflow details | CLAUDE.md (Git Branching Workflow section) |
 | Need folder structure templates | templates/TEMPLATES_INDEX.md |
 
@@ -262,17 +262,17 @@ PHASE 5: Transition to Stage 2 (5 min)
 
 ## Exit Conditions
 
-**Stage 1 is complete when:**
+**S1 is complete when:**
 - [ ] Git branch created and EPIC_TRACKER.md updated
 - [ ] Epic folder structure complete
 - [ ] Feature breakdown user-approved
 - [ ] Epic ticket user-validated
 - [ ] All feature folders created
 - [ ] Placeholder test plan created
-- [ ] EPIC_README.md shows Stage 1 complete
-- [ ] Ready to start Stage 2 (feature deep dives)
+- [ ] EPIC_README.md shows S1 complete
+- [ ] Ready to start S2 (feature deep dives)
 
-**Next Stage:** Stage 2 (Feature Deep Dive) - for each feature in sequence
+**Next Stage:** S2 (Feature Deep Dive) - for each feature in sequence
 
 ---
 
