@@ -311,13 +311,11 @@ I'm reading `stages/s6/s6_execution.md` to ensure I follow the implementation wo
 - **Mini-QC checkpoints** after each major component:
   - Run unit tests
   - Verify against spec
-  - Update code_changes.md
 - **Run unit tests after each step** (100% pass required)
 - **Interface Verification** before integration:
   - Verify interface matches ACTUAL dependency code
   - Do NOT assume - READ the actual source
 - NO code-review tone (write production code, not suggestions)
-- **Update code_changes.md INCREMENTALLY** (not at the end)
 - STOP if stuck or blocked - ask user
 
 **Prerequisites I'm verifying:**
@@ -332,7 +330,7 @@ I'm reading `stages/s6/s6_execution.md` to ensure I follow the implementation wo
 - Current Phase: IMPLEMENTATION
 - Current Guide: stages/s6/s6_execution.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "spec.md visible at all times", "implementation_plan.md is PRIMARY reference", "Unit tests after each step (100% pass)", "Mini-QC checkpoints", "Update code_changes.md incrementally"
+- Critical Rules: "spec.md visible at all times", "implementation_plan.md is PRIMARY reference", "Unit tests after each step (100% pass)", "Mini-QC checkpoints"
 - Progress: 0/{N} implementation tasks complete
 - Next Action: Create implementation_checklist.md from implementation_plan.md tasks
 
@@ -375,7 +373,6 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md` to ensure I follow the 3-part smo
 **Prerequisites I'm verifying:**
 ✅ S6 complete (all implementation tasks done)
 ✅ ALL unit tests passing (100% pass rate)
-✅ code_changes.md updated with all changes
 ✅ implementation_checklist.md all items verified (all checked off)
 
 **I'll now begin with Part 1: Import Test...**
@@ -469,7 +466,6 @@ I'm reading `stages/s7/s7_p3_final_review.md` to ensure I follow the final revie
   - Example: If QC found zero data issue → update S10.P1 guide NOW
 - **Final Verification**:
   - 100% requirement completion (from spec)
-  - All code_changes.md items implemented
   - All lessons_learned.md captured
 - **Completion Criteria**:
   - PR review: PASSED (2 consecutive clean rounds achieved)
