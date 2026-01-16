@@ -253,9 +253,8 @@ A: Follow this protocol:
 1. **STOP** - Do not continue to next component
 2. **Fix failing tests** immediately
 3. **Identify root cause:** Implementation bug vs test bug vs spec mismatch
-4. **Update code_changes.md** with fix
-5. **Run ALL tests again** (100% pass required)
-6. **Only then** proceed to next component
+4. **Run ALL tests again** (100% pass required)
+5. **Only then** proceed to next component
 
 **Q: Spec requirement seems wrong during implementation - can I change it?**
 
@@ -627,7 +626,6 @@ Context window limit reached → Session compacted
    - Check if recent code change broke tests
 5. **Fix** root cause (not just symptoms)
 6. **Run ALL tests** again (100% pass required)
-7. **Document** fix in code_changes.md
 
 **If still stuck after 30 minutes:**
 - Enter Debugging Protocol
@@ -758,7 +756,7 @@ Issue found
 2. **Use "Resuming In-Progress Epic" prompt** (mandatory)
 3. **Read current guide** listed in Agent Status
 4. **Check feature README.md** if in S5 (feature-level status)
-5. **Review recent file changes** (git diff or code_changes.md)
+5. **Review recent file changes** (git diff)
 6. **Continue from "Next Action"** (don't backtrack unless necessary)
 
 ---

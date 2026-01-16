@@ -167,7 +167,6 @@ I'm reading `debugging/debugging_protocol.md` to ensure I follow the complete de
 - Step 3: Solution Design & Implementation (PER ISSUE)
   - Design and implement fix
   - Add/update tests
-  - Document in debugging/code_changes.md
 - Step 4: User Verification (PER ISSUE) - MANDATORY
   - User MUST confirm EACH issue is resolved
   - Present before/after state clearly

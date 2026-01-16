@@ -209,7 +209,6 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 - ✅ Keep spec.md VISIBLE at all times
 - ✅ Mini-QC checkpoints every 5-7 TODO tasks
 - ✅ 100% unit test pass after each step
-- ✅ Update code_changes.md INCREMENTALLY
 - ✅ Interface verification against ACTUAL source code
 
 ### S7 (Post-Implementation)

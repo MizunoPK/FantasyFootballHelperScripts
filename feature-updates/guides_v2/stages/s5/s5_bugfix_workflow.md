@@ -171,7 +171,6 @@ What would you like to do?
    ├── checklist.md     (create in S2)
    ├── implementation_plan.md (create in S5a)
    ├── implementation_checklist.md (create in S6)
-   ├── code_changes.md  (create in S6)
    └── lessons_learned.md (create in S7 (Testing & Review))
    ```
 
@@ -445,7 +444,6 @@ Integration test:
 - [ ] Run full test suite (100% pass required)
 
 ## Phase 4: Documentation
-- [ ] Update code_changes.md
 - [ ] Update implementation_checklist.md
 ```
 

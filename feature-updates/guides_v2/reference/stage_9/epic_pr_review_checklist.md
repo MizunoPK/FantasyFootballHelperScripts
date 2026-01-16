@@ -261,7 +261,6 @@ feature_01_win_rate_sim_json_integration/
   ├── spec.md
   ├── checklist.md
   ├── implementation_plan.md
-  ├── code_changes.md
   └── lessons_learned.md
 
 feature_02_accuracy_sim_json_integration/
@@ -269,7 +268,6 @@ feature_02_accuracy_sim_json_integration/
   ├── spec.md
   ├── checklist.md
   ├── implementation_plan.md
-  ├── code_changes.md
   └── lessons_learned.md
 
 # Structure consistent? ✅

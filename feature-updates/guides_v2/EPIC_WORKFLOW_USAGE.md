@@ -181,7 +181,6 @@ feature-updates/KAI-{N}-{epic_name}/
 │   ├── implementation_plan.md        # Implementation build guide (~400 lines, S5, user-approved)
 │   ├── questions.md                  # Questions for user (created S5 if needed)
 │   ├── implementation_checklist.md   # Progress tracking (~50 lines, S6)
-│   ├── code_changes.md               # Documentation of changes (S6)
 │   ├── lessons_learned.md            # Feature-specific insights
 │   └── research/                     # Research documents (if needed)
 ├── feature_02_{name}/                # Feature 2 (same structure)
@@ -192,7 +191,6 @@ feature-updates/KAI-{N}-{epic_name}/
     ├── checklist.md                  # Same as features
     ├── implementation_plan.md        # Same as features (~400 lines, user-approved)
     ├── implementation_checklist.md   # Same as features (~50 lines, progress tracking)
-    ├── code_changes.md               # Same as features
     └── lessons_learned.md            # Same as features
 ```
 
@@ -248,11 +246,6 @@ feature-updates/KAI-{N}-{epic_name}/
   - Simple checkbox format for tracking progress
   - References implementation_plan.md for details
   - Lightweight continuous verification
-
-- **code_changes.md**: Change documentation (created in S6)
-  - Files modified
-  - Functions added/changed
-  - Rationale for changes
 
 - **lessons_learned.md**: Feature-specific insights
   - What went well
@@ -415,10 +408,9 @@ feature-updates/KAI-{N}-{epic_name}/
 - Follow implementation phasing from implementation_plan.md (5-6 checkpoints)
 - Continuous progress tracking via `implementation_checklist.md`
 - Mini-QC checkpoints after each major component
-- Document changes in `code_changes.md`
 - Run unit tests after each step (100% pass required)
 
-**Outputs:** Implemented code, `implementation_checklist.md`, `code_changes.md`
+**Outputs:** Implemented code, `implementation_checklist.md`
 
 **Critical Rule:** 100% unit test pass rate at all times
 
@@ -648,7 +640,7 @@ I'll now proceed with S1...
 **Critical Rules from Current Guide:**
 1. Keep spec.md VISIBLE at all times
 2. Run unit tests after EVERY component (100% pass required)
-3. Document ALL changes in code_changes.md
+3. Update implementation_checklist.md continuously
 ```
 
 **Why this matters:** Session compaction can interrupt agents mid-workflow. Agent Status survives context limits and provides exact resumption point.
@@ -970,13 +962,14 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 - README files track context and status
 - spec.md defines requirements
-- code_changes.md explains what/why
 - lessons_learned.md captures insights
+- Git history tracks what/why for changes
 
 **Documentation enables:**
 - Future agents to resume work
 - Future epics to learn from past
 - Future developers to understand decisions
+- Git history provides complete change tracking
 
 ### 7. Quality is Non-Negotiable
 
@@ -1236,7 +1229,6 @@ I'm resuming the in-progress epic {epic_name}. Let me read the current guide to 
 The guide requires:
 - Keep spec.md VISIBLE at all times
 - Run unit tests after EVERY component (100% pass required)
-- Document changes in code_changes.md
 - Continuous spec verification via implementation_checklist.md
 
 Current status:

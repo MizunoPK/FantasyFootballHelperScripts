@@ -282,7 +282,6 @@ bugfix_{priority}_{name}/
 ├── spec.md                      (Bug fix specification)
 ├── checklist.md                 (Open questions)
 ├── implementation_plan.md       (Implementation approach)
-├── code_changes.md              (Actual changes made)
 └── lessons_learned.md           (Bug fix retrospective)
 ```
 

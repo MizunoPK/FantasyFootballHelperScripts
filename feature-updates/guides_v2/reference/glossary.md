@@ -149,21 +149,6 @@ Code correction following the bug fix workflow (S2 → S5 → S6 → S7 only).
 
 ---
 
-### Code Changes
-Documentation of all code modifications during implementation.
-
-**File:** `code_changes.md` in feature folder
-
-**Updated during:** S6 (Implementation), Debugging
-
-**Contents:** File modified, function/method changed, reason for change, before/after state
-
-**See:** Implementation Execution
-
-**Guide:** implementation_execution.md
-
----
-
 ### Compaction
 See: Session Compaction
 
@@ -385,7 +370,6 @@ Individual component within an epic.
 - implementation_plan.md (implementation plan ~400 lines)
 - implementation_checklist.md (progress tracking ~50 lines)
 - checklist.md (question-only format - user answers)
-- code_changes.md (implementation log)
 - lessons_learned.md (insights)
 
 **Lifecycle:** S2 → S5 (S5 → S6 → S7 → S8 per feature)
@@ -502,7 +486,6 @@ S6 process of writing feature code following implementation_plan.md.
 - Keep spec.md VISIBLE at all times
 - Run tests after EACH phase (100% pass required)
 - Mini-QC checkpoints every 5-7 tasks
-- Update code_changes.md in real-time
 - Update implementation_checklist.md in real-time
 
 **Typical time:** 1-4 hours per feature
