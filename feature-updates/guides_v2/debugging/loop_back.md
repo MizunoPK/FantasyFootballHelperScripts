@@ -48,17 +48,7 @@ ALL issues in ISSUES_CHECKLIST.md meet these criteria:
 
 ## Step 2: Final Code Review
 
-### 2.1: Review debugging/code_changes.md
-
-**Verify:**
-- [ ] All changes documented
-- [ ] File paths correct
-- [ ] Before/after code snippets accurate
-- [ ] Reasoning for each change clear
-
----
-
-### 2.2: Check for leftover artifacts
+### 2.1: Check for leftover artifacts
 
 **Search codebase for debug artifacts:**
 
@@ -669,7 +659,6 @@ This document captures technical lessons from debugging. For process improvement
 - `debugging/ISSUES_CHECKLIST.md` - Issue tracking master list
 - `debugging/process_failure_analysis.md` - Why bugs got through process
 - `debugging/guide_update_recommendations.md` - Proposed guide updates
-- `debugging/code_changes.md` - All code modifications
 - `debugging/investigation_rounds.md` - Investigation meta-tracker
 
 **Feature/Epic Documentation:**
@@ -1081,7 +1070,6 @@ Re-running epic testing now...
 **Files to Check:**
 - debugging/ISSUES_CHECKLIST.md - Verify all 🟢 FIXED with ✅ YES
 - debugging/lessons_learned.md - Updated with all issues
-- debugging/code_changes.md - All changes documented
 ```
 
 ---

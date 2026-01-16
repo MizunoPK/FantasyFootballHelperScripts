@@ -270,7 +270,6 @@ feature_01_player_integration/
     ├── investigation_rounds.md
     ├── issue_01_{name}.md
     ├── issue_02_{name}.md
-    ├── code_changes.md
     ├── lessons_learned.md
     └── diagnostic_logs/
         ├── issue_01_round1.log
@@ -300,7 +299,6 @@ epic_name/
     ├── investigation_rounds.md
     ├── issue_01_{name}.md
     ├── issue_02_{name}.md
-    ├── code_changes.md
     ├── lessons_learned.md
     └── diagnostic_logs/
         ├── issue_01_round1.log

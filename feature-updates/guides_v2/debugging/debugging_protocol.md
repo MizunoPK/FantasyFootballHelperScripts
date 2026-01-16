@@ -122,7 +122,7 @@ Debugging Protocol complete when ALL issues in ISSUES_CHECKLIST.md are marked �
    - Complete investigation history in issue_{number}_{name}.md
    - Failed hypotheses documented (prevents circular debugging)
    - Diagnostic logs saved to debugging/diagnostic_logs/
-   - Code changes documented in debugging/code_changes.md
+   - Code changes tracked via git commit history
 
 7. ⚠️ ALL ISSUES MUST BE RESOLVED BEFORE PROCEEDING
    - Cannot skip issues ("we'll fix it later" is not acceptable)
@@ -177,7 +177,6 @@ The debugging protocol consists of 5 phases:
 - Design solution approach
 - Implement code changes incrementally
 - Add/update tests
-- Document in debugging/code_changes.md
 - Remove diagnostic logging
 - Run full test suite (100% pass required)
 
@@ -285,7 +284,6 @@ feature_01_player_integration/
 │   ├── investigation_rounds.md         (Meta-tracker)
 │   ├── issue_01_scoring_returns_null.md
 │   ├── issue_02_projection_calculation_wrong.md
-│   ├── code_changes.md                 (All fixes for this feature)
 │   ├── process_failure_analysis.md     (Why bugs got through - Phase 5 cross-pattern)
 │   ├── guide_update_recommendations.md (Guide improvements - Phase 4b per-issue + Phase 5 patterns)
 │   ├── lessons_learned.md              (Technical retrospective)
@@ -293,8 +291,7 @@ feature_01_player_integration/
 │       ├── issue_01_round1.log
 │       ├── issue_01_round2.log
 │       └── issue_02_round1.log
-├── implementation_checklist.md
-└── code_changes.md
+└── implementation_checklist.md
 ```
 
 ### Epic-Level Debugging
@@ -310,7 +307,6 @@ epic_name/
     ├── investigation_rounds.md
     ├── issue_01_integration_conflict.md
     ├── issue_02_data_mismatch.md
-    ├── code_changes.md
     ├── process_failure_analysis.md     (Why bugs got through - Phase 5 cross-pattern)
     ├── guide_update_recommendations.md (Guide improvements - Phase 4b per-issue + Phase 5 patterns)
     ├── lessons_learned.md

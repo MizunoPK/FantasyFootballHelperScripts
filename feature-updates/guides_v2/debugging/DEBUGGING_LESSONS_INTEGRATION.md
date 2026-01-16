@@ -50,7 +50,6 @@ feature_XX_{name}/debugging/
 ├── investigation_rounds.md
 ├── issue_01_{name}.md
 ├── issue_02_{name}.md
-├── code_changes.md
 ├── process_failure_analysis.md         ← Process gap analysis (Phase 5)
 ├── guide_update_recommendations.md     ← Actionable guide updates (Phase 4b + Phase 5)
 ├── lessons_learned.md                  ← Technical insights (Phase 5)
