@@ -265,7 +265,6 @@ feature-updates/
 │   │   ├── implementation_plan.md    ← Implementation build guide (~400 lines, S5, user-approved)
 │   │   ├── questions.md              ← Questions for user (S5)
 │   │   ├── implementation_checklist.md ← Progress tracking (~50 lines, S6)
-│   │   ├── code_changes.md           ← Documentation of changes (S6)
 │   │   ├── lessons_learned.md        ← Feature-specific insights
 │   │   ├── research/                 ← Research documents (if needed)
 │   │   └── debugging/                ← Created when issues found in QC/Smoke testing
@@ -273,7 +272,6 @@ feature-updates/
 │   │       ├── issue_01_{name}.md    ← Investigation history per issue
 │   │       ├── issue_02_{name}.md
 │   │       ├── investigation_rounds.md ← Meta-tracker for rounds
-│   │       ├── code_changes.md       ← All fixes for this feature
 │   │       └── diagnostic_logs/      ← Log files from investigation
 │   │
 │   ├── feature_02_{name}/            ← Feature 2 (same structure)
@@ -282,7 +280,6 @@ feature-updates/
 │   │   ├── ISSUES_CHECKLIST.md       ← Epic-level issue tracking
 │   │   ├── issue_01_{name}.md
 │   │   ├── investigation_rounds.md
-│   │   ├── code_changes.md
 │   │   └── diagnostic_logs/
 │   │
 │
