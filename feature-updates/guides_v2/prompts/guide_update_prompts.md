@@ -31,8 +31,11 @@ I'm reading `stages/s10/s10_p1_guide_update_workflow.md` to apply lessons learne
 - **Create separate commit** for guide updates (before epic commit)
 
 **Scope of guide updates:**
-- All files in feature-updates/guides_v2/
+- 🚨 CRITICAL: "Guides" = EVERY FILE in feature-updates/guides_v2/
+- This includes: stages/, reference/, templates/, debugging/, missed_requirement/, prompts/, and ALL root-level .md files
+- NOT just stages/ folder (historical issue: 60% missed non-stages/ files)
 - CLAUDE.md (root project instructions)
+- Use Glob pattern="**/*.md" path="feature-updates/guides_v2" to discover all files
 - Any files supporting future agents
 
 **User approval process:**
