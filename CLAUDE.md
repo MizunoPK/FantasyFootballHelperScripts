@@ -419,19 +419,58 @@ feature_XX_{name}/
 
 ## Workflow Guides Location
 
-**All guides:** `feature-updates/guides_v2/`
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 🚨 CRITICAL: What "Guides" Means                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│ When user says "consider the guides", "update the guides",      │
+│ "check the guides", or ANY reference to "guides":               │
+│                                                                  │
+│ IT MEANS: EVERY FILE IN feature-updates/guides_v2/              │
+│                                                                  │
+│ This includes:                                                   │
+│ - stages/ (s1 through s10 with all sub-files)                   │
+│ - reference/ (ALL reference materials)                           │
+│ - templates/ (ALL templates)                                     │
+│ - debugging/ (debugging protocol files)                          │
+│ - missed_requirement/ (missed requirement protocol files)        │
+│ - prompts/ (all prompt files)                                    │
+│ - README.md, prompts_reference_v2.md, EPIC_WORKFLOW_USAGE.md    │
+│ - ANY other files in guides_v2/                                  │
+│                                                                  │
+│ DO NOT limit yourself to just stages/ folder!                   │
+│ DO NOT assume "guides" means only workflow stages!               │
+│                                                                  │
+│ Historical issue: 60% of guide updates missed non-stages files  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-**Directory Structure:**
+**All guides location:** `feature-updates/guides_v2/`
+
+**Complete Directory Structure:**
 - `stages/` - Core workflow guides (s1 through s10 with S#.P#.I# notation)
+  - `s1/`, `s2/`, `s3/`, `s4/`, `s5/`, `s6/`, `s7/`, `s8/`, `s9/`, `s10/`
 - `reference/` - Reference cards and supporting materials
+  - Mandatory gates, common mistakes, naming conventions, glossary, etc.
 - `templates/` - File templates for epics, features, bug fixes
+- `debugging/` - Debugging protocol guides
+- `missed_requirement/` - Missed requirement protocol guides
+- `prompts/` - All phase transition prompts organized by stage
 - `_internal/` - Internal tracking and completion documents
 
-**Key Files:**
-- README.md - Workflow overview and guide index
-- prompts_reference_v2.md - MANDATORY phase transition prompts
-- EPIC_WORKFLOW_USAGE.md - Comprehensive usage guide
-- reference/naming_conventions.md - S#.P#.I# notation system rules
+**Key Files at Root Level:**
+- `README.md` - Workflow overview and complete guide index
+- `prompts_reference_v2.md` - MANDATORY phase transition prompts (consolidated)
+- `EPIC_WORKFLOW_USAGE.md` - Comprehensive usage guide with examples
+- `GUIDES_V2_FORMAL_AUDIT_GUIDE.md` - Guide auditing methodology
+
+**Always use Glob to discover all files** when working with guides:
+```bash
+# Find all markdown files in guides_v2
+Glob pattern="**/*.md" path="feature-updates/guides_v2"
+```
 
 ---
 

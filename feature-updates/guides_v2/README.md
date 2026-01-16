@@ -6,6 +6,50 @@
 
 ---
 
+## 🚨 CRITICAL: Scope of "Guides"
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ ⚠️  MANDATORY READING - WHAT "GUIDES" MEANS                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│ When user says:                                                  │
+│ - "consider the guides"                                          │
+│ - "update the guides"                                            │
+│ - "check the guides"                                             │
+│ - "review the guides"                                            │
+│ - ANY reference to "guides"                                      │
+│                                                                  │
+│ IT MEANS: THIS ENTIRE DIRECTORY (feature-updates/guides_v2/)    │
+│                                                                  │
+│ NOT just stages/                                                 │
+│ NOT just the workflow files                                      │
+│ NOT just the files you think are relevant                        │
+│                                                                  │
+│ EVERY FILE in guides_v2/ including:                              │
+│ ✓ stages/ (all 10 stages with all sub-files)                    │
+│ ✓ reference/ (ALL reference materials)                           │
+│ ✓ templates/ (ALL templates)                                     │
+│ ✓ debugging/ (debugging protocol)                                │
+│ ✓ missed_requirement/ (missed requirement protocol)              │
+│ ✓ prompts/ (all prompt files)                                    │
+│ ✓ README.md (this file)                                          │
+│ ✓ prompts_reference_v2.md (consolidated prompts)                 │
+│ ✓ EPIC_WORKFLOW_USAGE.md (usage guide)                           │
+│ ✓ GUIDES_V2_FORMAL_AUDIT_GUIDE.md (audit methodology)            │
+│ ✓ Every other markdown file in this directory                    │
+│                                                                  │
+│ ALWAYS use Glob to discover all files:                           │
+│   Glob pattern="**/*.md" path="feature-updates/guides_v2"       │
+│                                                                  │
+│ Historical problem: 60% of guide updates missed non-stages/     │
+│ files because agents assumed "guides" = "stages/" only           │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Quick Start
 
 **Starting a new epic?** → Read `stages/s1/s1_epic_planning.md`

@@ -86,10 +86,14 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
    - Document approved, modified, and rejected proposals
    - Update metrics section
 
-7. ⚠️ Scope: guides_v2/ + CLAUDE.md
-   - All files in feature-updates/guides_v2/
+7. ⚠️ Scope: ENTIRE guides_v2/ directory + CLAUDE.md
+   - 🚨 CRITICAL: "Guides" = EVERY FILE in feature-updates/guides_v2/
+   - This includes: stages/, reference/, templates/, debugging/,
+     missed_requirement/, prompts/, and ALL root-level .md files
    - CLAUDE.md (root project instructions)
-   - Anything supporting future agents
+   - DO NOT limit to just stages/ folder
+   - Use Glob pattern="**/*.md" path="feature-updates/guides_v2" to discover all files
+   - Historical issue: 60% of updates missed non-stages/ files
 ```
 
 ---
@@ -380,6 +384,19 @@ Rejected: {N}
 ### Step 5: Apply Approved Changes
 
 **Purpose:** Update guides with approved changes and user modifications
+
+**🚨 CRITICAL REMINDER BEFORE APPLYING CHANGES:**
+```
+When applying changes to "guides", remember:
+- "Guides" = EVERY FILE in feature-updates/guides_v2/
+- NOT just stages/ folder
+- Includes: stages/, reference/, templates/, debugging/,
+  missed_requirement/, prompts/, README.md, etc.
+- If a proposal affects reference/, templates/, or other non-stages/
+  folders, you MUST update those files
+- Use Glob pattern="**/*.md" path="feature-updates/guides_v2"
+  to see all files if unsure where to apply changes
+```
 
 **Actions:**
 
