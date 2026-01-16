@@ -35,7 +35,6 @@ Implementation Execution is where you write the feature code following the imple
 - ✅ Feature code implemented phase by phase
 - ✅ All unit tests passing after each step (100% pass required)
 - ✅ implementation_checklist.md updated in real-time
-- ✅ code_changes.md documentation complete
 - ✅ Mini-QC checkpoints passed after major components
 - ✅ Ready for S7 (Testing & Review) (Post-Implementation)
 
@@ -43,7 +42,7 @@ Implementation Execution is where you write the feature code following the imple
 Varies by feature complexity (1-4 hours typical)
 
 **Exit Condition:**
-S6 is complete when all implementation tasks from implementation_plan.md are implemented, 100% of tests pass, spec requirements are verified complete via dual verification, and code_changes.md is fully documented
+S6 is complete when all implementation tasks from implementation_plan.md are implemented, 100% of tests pass, and spec requirements are verified complete via dual verification
 
 ---
 
@@ -113,11 +112,7 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
    - Check ALL consumers of config
    - Document migration path
 
-9. ⚠️ Update code_changes.md INCREMENTALLY
-   - Document changes as you make them (not at end)
-   - Include: What changed, why, impact
-
-10. ⚠️ If ANY test fails → STOP, fix, re-run before proceeding
+9. ⚠️ If ANY test fails → STOP, fix, re-run before proceeding
 ```
 
 ---
@@ -166,7 +161,6 @@ Step 3: Phase-by-Phase Implementation
    │  ├─ Keep spec VISIBLE while coding
    │  ├─ Implement tasks for this phase
    │  ├─ Update implementation_checklist.md (check off requirements)
-   │  ├─ Update code_changes.md (document changes)
    │  ├─ Run unit tests for this phase
    │  ├─ Mini-QC checkpoint
    │  └─ If tests pass: Proceed to next phase
@@ -177,7 +171,6 @@ Step 4: Final Verification
    ├─ All implementation tasks complete
    ├─ All unit tests passing (100%)
    ├─ All requirements checked off
-   ├─ code_changes.md complete
    └─ Ready for S7 (Testing & Review)
 
 Mark S6 Complete
@@ -518,57 +511,7 @@ def load_adp_data(self) -> List[Tuple[str, str, int]]:
 
 3. **Continue for all tasks in phase**
 
-#### 3.3: Update code_changes.md Incrementally
-
-**After implementing each task:**
-
-Add to `feature_{N}_{name}_code_changes.md`:
-
-```markdown
-# Feature {N}: {Name} - Code Changes
-
-**Purpose:** Document all code changes made during implementation
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-
----
-
-## Changes
-
-### Change 1: Added load_adp_data() method
-
-**Date:** 2025-12-30 15:45
-**File:** league_helper/util/PlayerManager.py
-**Lines:** 450-480 (NEW)
-
-**What Changed:**
-- Added new method: load_adp_data()
-- Loads ADP rankings from CSV file
-- Returns List[Tuple[str, str, int]]
-
-**Why:**
-- Implements REQ-1 from spec.md (Objective section)
-- Provides ADP data for multiplier calculation
-
-**Impact:**
-- PlayerManager can now load ADP data
-- New dependency: csv_utils.read_csv_with_validation
-- No impact on existing methods (isolated addition)
-
-**Testing:**
-- Unit test: test_load_adp_data_success() - PASS
-- Unit test: test_load_adp_data_file_not_found() - PASS
-
----
-
-### Change 2: Added _match_player_to_adp() method
-
-{Continue for each change}
-```
-
-**DO NOT wait until end to document - update as you go**
-
-#### 3.4: Run Unit Tests for This Phase
+#### 3.3: Run Unit Tests for This Phase
 
 **After implementing all tasks in phase:**
 
@@ -610,7 +553,7 @@ Add to feature README.md:
 - Status: ✅ PASSED
 ```
 
-#### 3.5: Mini-QC Checkpoint
+#### 3.4: Mini-QC Checkpoint
 
 **Purpose:** Lightweight validation before next phase (not full QC)
 
@@ -644,7 +587,7 @@ print(f"First entry: {adp_data[0]}")
 - Re-run mini-QC
 - Only proceed when passed
 
-#### 3.6: Repeat for All Phases
+#### 3.5: Repeat for All Phases
 
 **Continue process for Phase 2, 3, 4, etc.:**
 
@@ -653,7 +596,6 @@ Each phase:
 - Keep spec VISIBLE
 - Implement tasks
 - Update implementation_checklist.md
-- Update code_changes.md
 - Run phase tests (100% pass)
 - Mini-QC checkpoint
 - Proceed to next phase
@@ -703,8 +645,6 @@ grep -r "adp_multiplier_ranges" --include="*.py"
 
 Verify each consumer handles both old and new config.
 
-3. **Document migration in code_changes.md**
-
 ### Interface Change Protocol
 
 **If modifying existing class/method signatures:**
@@ -726,7 +666,6 @@ grep -r "\.load_players()" --include="*.py"
 3. **If breaking change:**
    - Update ALL callers
    - Update ALL tests
-   - Document in code_changes.md (BREAKING CHANGE section)
 
 ### No Coding from Memory Protocol
 
@@ -793,18 +732,7 @@ Check implementation_checklist.md:
 ✅ All requirements implemented and verified
 ```
 
-### 4.4: Verify code_changes.md Complete
-
-Check code_changes.md has entries for all changes:
-
-```markdown
-**Changes Documented:** 15
-**Files Modified:** 3
-**Files Created:** 2
-**Lines Added:** ~450
-```
-
-### 4.5: Final Smoke Test
+### 4.4: Final Smoke Test
 
 Run feature end-to-end:
 
@@ -826,7 +754,6 @@ python run_league_helper.py --mode draft
 □ All phases implemented (Step 3):
   - All implementation tasks complete
   - All spec requirements checked off in implementation_checklist.md
-  - code_changes.md updated for all changes
 □ All unit tests passing (100% pass rate)
 □ All mini-QC checkpoints passed
 □ Final verification complete (Step 4):
@@ -864,9 +791,6 @@ python run_league_helper.py --mode draft
 ❌ "I'll update implementation_checklist.md when all coding is done"
    ✅ STOP - Update in REAL-TIME as you implement
 
-❌ "I'll document changes in code_changes.md at the end"
-   ✅ STOP - Document changes INCREMENTALLY (as you make them)
-
 ❌ "ConfigManager.get_adp_multiplier probably returns float"
    ✅ STOP - Verify from interface contracts (it returns Tuple[float, int])
 
@@ -895,8 +819,7 @@ python run_league_helper.py --mode draft
 2. Keep spec.md VISIBLE while coding
 3. Implement load_adp_data() method
 4. Check off REQ-1 in implementation_checklist.md
-5. Document change in code_changes.md
-6. Run tests: test_load_adp_data_* (2 tests)
+5. Run tests: test_load_adp_data_* (2 tests)
    - Result: 2/2 PASSED ✅
 7. Mini-QC: Quick smoke test
    - Loaded 200 rankings ✅
@@ -908,8 +831,7 @@ python run_league_helper.py --mode draft
 2. Keep spec.md VISIBLE
 3. Implement _match_player_to_adp() method
 4. Check off REQ-2, ALG-1 in implementation_checklist.md
-5. Document change in code_changes.md
-6. Run tests: test_match_player_* (3 tests)
+5. Run tests: test_match_player_* (3 tests)
    - Result: 3/3 PASSED ✅
 7. Mini-QC: Verify matching works
    - Test player matched correctly ✅
@@ -949,7 +871,6 @@ python run_league_helper.py --mode draft
 □ All implementation tasks marked complete
 □ All tests passing (100%)
 □ implementation_checklist.md shows all requirements checked
-□ code_changes.md complete with all changes documented
 □ Feature README.md shows:
   - Agent Status: Phase = POST_IMPLEMENTATION
   - All phase test results documented

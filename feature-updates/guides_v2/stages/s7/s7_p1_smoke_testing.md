@@ -111,7 +111,6 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 **From S6 (Implementation):**
 - [ ] All implementation tasks marked done in `implementation_checklist.md`
 - [ ] All unit tests passing (100% pass rate)
-- [ ] `code_changes.md` fully updated with all changes
 - [ ] `implementation_checklist.md` all requirements verified
 - [ ] All code committed to git (clean working directory)
 
@@ -119,9 +118,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 - [ ] `feature_XX_{name}/spec.md` (primary specification)
 - [ ] `feature_XX_{name}/checklist.md` (planning decisions)
 - [ ] `feature_XX_{name}/implementation_plan.md` (implementation guidance)
-- [ ] `feature_XX_{name}/implementation_checklist.md` (progress tracking)
-- [ ] `feature_XX_{name}/code_changes.md` (change documentation)
-- [ ] `feature_XX_{name}/implementation_checklist.md` (requirement verification)
+- [ ] `feature_XX_{name}/implementation_checklist.md` (progress tracking and requirement verification)
 
 **Verification:**
 - [ ] Run `python tests/run_all_tests.py` → exit code 0
@@ -176,14 +173,13 @@ Part 3: E2E Execution Test (CRITICAL)
 
 ### Step 1: Identify Feature Modules
 
-Check `code_changes.md` for list of NEW or MODIFIED files for THIS feature:
+Check git history for list of NEW or MODIFIED files for THIS feature:
 
-```markdown
-## Files Changed (example)
-- NEW: league_helper/util/PlayerRatingManager.py
-- MODIFIED: league_helper/LeagueHelper.py
-- MODIFIED: run_league_helper.py
+```bash
+git log --oneline --name-status origin/main..HEAD
 ```
+
+This shows all files changed in this feature branch.
 
 ### Step 2: Test Each Module Import
 

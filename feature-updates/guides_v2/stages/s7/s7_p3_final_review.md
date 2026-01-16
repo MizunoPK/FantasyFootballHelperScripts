@@ -128,7 +128,6 @@ Final Review is complete when PR review finds zero critical issues, lessons lear
 - [ ] All unit tests passing (100% pass rate)
 
 **Documentation:**
-- [ ] `code_changes.md` fully updated
 - [ ] `implementation_checklist.md` all requirements verified
 - [ ] QC round results documented
 
@@ -738,7 +737,6 @@ Files updated:
 ### Documentation
 - [x] lessons_learned.md updated with this feature's lessons
 - [x] Guides updated if gaps were found (applied immediately)
-- [x] code_changes.md complete and accurate
 - [x] implementation_checklist.md all requirements verified
 
 ### Unit Tests
@@ -903,7 +901,6 @@ Decision: Remove out-of-scope code or get user approval
 
 ### Files Verified
 - [ ] lessons_learned.md updated
-- [ ] code_changes.md complete
 - [ ] implementation_checklist.md all verified
 - [ ] Guides updated if gaps found
 

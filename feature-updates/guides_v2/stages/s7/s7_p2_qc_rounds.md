@@ -126,7 +126,6 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 - [ ] All unit tests passing (100% pass rate)
 
 **Documentation:**
-- [ ] `code_changes.md` fully updated
 - [ ] `implementation_checklist.md` all requirements verified
 - [ ] Smoke test results documented in README Agent Status
 
@@ -207,7 +206,6 @@ python tests/run_all_tests.py
 - [ ] spec.md (complete specification)
 - [ ] checklist.md (all items resolved)
 - [ ] implementation_plan.md (all tasks documented)
-- [ ] code_changes.md (all changes documented)
 - [ ] implementation_checklist.md (all requirements verified)
 - [ ] README.md (Agent Status updated)
 ```
@@ -278,7 +276,6 @@ print("✅ PlayerManager interface verified")
 
 - [ ] Code has docstrings (Google style)
 - [ ] README.md updated if user-facing changes
-- [ ] code_changes.md lists all modified files
 - [ ] No placeholder comments ("TODO: implement this later")
 
 ---
