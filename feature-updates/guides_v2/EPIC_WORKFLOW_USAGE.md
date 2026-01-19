@@ -1425,6 +1425,199 @@ I'll now continue with iteration 11...
 [Resume work from iteration 11]
 ```
 
+
+### Pattern 7: S2 Parallel Work (3+ Features)
+
+**Scenario:** Epic has 3+ features, Primary offers parallel work to user
+
+**Overview:**
+When an epic has 3 or more features, S2 (Feature Deep Dives) can be parallelized with multiple agents working simultaneously. This reduces S2 time by 40-60% (e.g., 3-feature epic saves ~4 hours).
+
+**Key Roles:**
+- **Primary Agent**: Coordinator + Feature 01 owner (85% feature work, 15% coordination)
+- **Secondary Agents**: Feature owners (90% feature work, 10% coordination)
+
+---
+
+#### Phase 1: Offering Parallel Work (Primary, during S1)
+
+**At S1 Step 4.8 (Analyze Features for Parallelization):**
+
+```
+I've created {N} features for this epic.
+
+Let me analyze if parallel work would be beneficial...
+
+Feature count: {N} features
+Expected S2 time (sequential): {N × 2.5} hours = {total} hours
+Expected S2 time (parallel): ~3 hours with {N} agents
+Time savings: ~{savings} hours (40-60% reduction)
+
+Decision: {N} >= 3, parallel work recommended.
+
+[Continue to S1 Step 4.9]
+```
+
+**At S1 Step 4.9 (Offer Parallel Work to User):**
+
+```
+I can offer parallel work for S2 (Feature Deep Dives):
+
+**Parallel Mode:**
+- Multiple agents work on S2 simultaneously
+- Each agent owns one feature completely
+- I coordinate and own Feature 01
+- Time: ~3 hours total (vs {sequential_time} hours sequential)
+- Complexity: Requires spawning additional agents
+
+**Sequential Mode:**
+- I complete all features one by one
+- Simpler coordination (just me)
+- Time: ~{sequential_time} hours
+- Standard workflow
+
+**Recommendation:** Parallel mode saves ~{savings} hours for {N} features.
+
+Would you like to:
+1. ✅ Enable parallel work for S2 (I'll provide setup instructions)
+2. ❌ Continue sequential (I'll do all features one by one)
+3. ❓ Discuss parallelization approach
+```
+
+**If user chooses Option 1 (Enable parallel):**
+
+```
+Great! I'll coordinate parallel S2 work.
+
+After completing S1, I'll:
+1. Generate handoff packages for secondary agents
+2. Provide spawn commands for you to create secondary agents
+3. Begin S2.P1 for Feature 01 while secondaries work on their features
+4. Coordinate via checkpoints and message files
+
+You'll need to spawn {N-1} secondary agents (I'll provide exact commands).
+
+Continuing with S1...
+
+[Complete S1 as normal]
+```
+
+---
+
+#### Phase 2: Generating Handoff Packages (Primary, after S1)
+
+**After S1 completes, Primary generates handoff packages and awaits secondary agent spawn.**
+
+This reduced section focuses on the workflow without showing all the detailed coordination mechanics (those are in the dedicated guides).
+
+---
+
+#### Phase 3: Coordination During S2 (Primary)
+
+**Primary performs coordination heartbeat every 15 minutes:**
+- Update own checkpoint
+- Check secondary inboxes for messages/escalations
+- Process any escalations (answer questions, clarify specs)
+- Verify no stale agents (checkpoint age < 30 min warning, < 60 min failure)
+- Update EPIC_README.md with progress
+- Continue Feature 01 work
+
+**Coordination overhead:** <10% of time (15 min coordination per hour)
+
+---
+
+#### Phase 4: Secondary Agent Workflow
+
+**Secondary receives handoff from user, executes startup:**
+1. Parse handoff configuration
+2. Create communication and coordination files
+3. Send startup confirmation to Primary
+4. Begin S2.P1 for assigned feature
+
+**During S2 work:**
+- Execute S2.P1, S2.P2, S2.P3 for assigned feature
+- Coordinate every 15 minutes (update checkpoint, check inbox, update STATUS)
+- Escalate blockers to Primary within 15 minutes
+- Focus 90% on feature work, 10% on coordination
+
+**After completing S2.P3:**
+- Send completion message to Primary
+- Update STATUS: READY_FOR_SYNC
+- Update checkpoint: WAITING_FOR_SYNC
+- WAIT for Primary to run S3
+
+---
+
+#### Phase 5: Sync Point - Transition to S3
+
+**Primary verifies all agents completed S2:**
+1. Check all completion messages received
+2. Verify all STATUS files: READY_FOR_SYNC = true
+3. Verify all checkpoints fresh and WAITING_FOR_SYNC
+4. Create sync verification document
+5. Notify secondaries that S3 is starting
+6. Run S3 solo (secondaries wait)
+7. After S3+S4 complete, notify secondaries to proceed
+
+**S3 and S4 run sequentially by Primary only** (requires epic-level view)
+
+---
+
+#### Phase 6: Common Issues
+
+**Stale Agent (checkpoint > 60 minutes old):**
+- Primary detects during coordination heartbeat
+- Sends status check message (wait 15 min)
+- If no response, escalates to user
+- Recovery: Same agent resumes, new agent takes over, or Primary absorbs feature
+- See: `parallel_work/stale_agent_protocol.md`
+
+**Sync Timeout (S2 not all complete within expected time):**
+- Soft timeout: 4 hours (send reminder, request ETA)
+- Hard timeout: 6 hours (escalate to user)
+- Recovery: Wait with ETA, investigate blocker, abort parallel for late feature
+- See: `parallel_work/sync_timeout_protocol.md`
+
+**Escalation Handling:**
+- Secondary escalates blocker to Primary
+- Primary attempts to resolve (answer question, clarify spec)
+- If requires user input, Primary escalates to user
+- SLA: 15-minute response time
+- See: `parallel_work/communication_protocol.md`
+
+---
+
+#### Summary: Benefits and Requirements
+
+**Benefits:**
+- 40-60% time reduction for S2 phase
+- Scales with feature count (3 features = 4 hours vs 7.5 hours)
+- Each agent focuses deeply on one feature
+- Maintains quality through individual feature ownership
+
+**Requirements:**
+- User must spawn secondary agents (Primary provides commands)
+- All agents coordinate via files (checkpoints, messages, STATUS)
+- Primary dedicates 15% time to coordination
+- Checkpoint updates every 15 minutes (enables recovery)
+
+**When to Use:**
+- 3+ features: Recommended (good time savings)
+- 2 features: Optional (modest savings, user decides)
+- 1 feature: Not applicable (no parallelization possible)
+
+**See Complete Guides:**
+- `parallel_work/s2_parallel_protocol.md` - Master protocol overview
+- `parallel_work/s2_primary_agent_guide.md` - Primary agent complete workflow
+- `parallel_work/s2_secondary_agent_guide.md` - Secondary agent complete workflow
+- `parallel_work/stale_agent_protocol.md` - Stale agent detection and recovery
+- `parallel_work/sync_timeout_protocol.md` - Sync point timeout handling
+- `parallel_work/communication_protocol.md` - Message formats and channels
+- `parallel_work/checkpoint_protocol.md` - Checkpoint structure and updates
+- `parallel_work/lock_file_protocol.md` - File locking for shared resources
+
+---
+
 ---
 
 ## Frequently Asked Questions

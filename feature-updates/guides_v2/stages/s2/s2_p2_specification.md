@@ -127,6 +127,60 @@ Specification Phase is complete when spec.md has complete requirements with trac
 - Document blocker in feature README.md Agent Status
 
 ---
+## 🔄 Parallel Work Coordination (If Applicable)
+
+**Skip this section if you're in sequential mode**
+
+**If you're in parallel S2 work mode:**
+
+### Coordination Heartbeat (Every 15 Minutes)
+
+**IMPORTANT:** Coordinate regularly to ensure alignment and handle escalations.
+
+1. **Update Checkpoint:**
+   - File: `agent_checkpoints/{your_agent_id}.json`
+   - Update: `last_checkpoint`, `stage`, `current_step`, `files_modified`
+   - Purpose: Enable crash recovery and stale detection
+
+2. **Check Inbox:**
+   - File: `agent_comms/primary_to_{your_id}.md` (if Secondary)
+   - File: `agent_comms/secondary_{x}_to_primary.md` (if Primary - check ALL secondaries)
+   - Look for: ⏳ UNREAD messages
+   - Process: Read, mark as ✅ READ, take action, reply if needed
+
+3. **Update STATUS:**
+   - File: `feature_{N}_{name}/STATUS`
+   - Update: `STAGE`, `PHASE`, `UPDATED`, `BLOCKERS`, `NEXT_ACTION`
+   - Format: Plain text key-value pairs
+
+4. **Update EPIC_README.md (when progress changes):**
+   - Acquire lock: `.epic_locks/epic_readme.lock` (5-minute timeout)
+   - Update only your section (between BEGIN/END markers for your feature)
+   - Release lock immediately after update
+   - See: `parallel_work/lock_file_protocol.md` for locking details
+
+5. **Set 15-minute timer** for next heartbeat
+
+### Escalation Protocol
+
+**If you're blocked for >30 minutes:**
+- Send escalation message to Primary (use template in `parallel_work/communication_protocol.md`)
+- Update STATUS: `BLOCKERS: <description>`
+- Update checkpoint: `"blockers": ["description"]`
+- Wait for Primary response (SLA: 15 minutes)
+
+**Primary-Specific Coordination:**
+- Check ALL secondary inboxes every 15 minutes
+- Respond to escalations within 15 minutes (mandatory SLA)
+- Monitor STATUS files and checkpoints for staleness (30 min warning, 60 min failure)
+- Time blocking: 45 min feature work, 15 min coordination
+
+**Coordination overhead target:** <10% of parallel time
+
+**See:** `parallel_work/s2_parallel_protocol.md` for complete coordination workflow
+
+---
+
 
 ## Phase 2: Update Spec & Checklist
 

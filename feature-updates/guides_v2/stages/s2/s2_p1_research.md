@@ -136,6 +136,66 @@ Research Phase is complete when Phase 1.5 audit passes (all 4 categories with ev
 
 ---
 
+## 🔄 Parallel Work Coordination (If Applicable)
+
+**Skip this section if you're in sequential mode (only you working on epic)**
+
+**If you're in parallel S2 work mode** (multiple agents, coordination files exist):
+
+### Coordination Heartbeat (Every 15 Minutes)
+
+**Throughout S2.P1, every 15 minutes:**
+
+1. **Update Checkpoint:**
+   - File: `agent_checkpoints/{your_agent_id}.json`
+   - Update: `last_checkpoint`, `stage`, `current_step`, `files_modified`
+   - See: `parallel_work/checkpoint_protocol.md`
+
+2. **Check Inbox:**
+   - File: `agent_comms/primary_to_{your_id}.md` (if Secondary)
+   - File: `agent_comms/secondary_{x}_to_primary.md` (if Primary, check all)
+   - Look for: ⏳ UNREAD messages
+   - Process: Read, mark as ✅ READ, take action, reply if needed
+   - See: `parallel_work/communication_protocol.md`
+
+3. **Update STATUS:**
+   - File: `feature_{N}_{name}/STATUS`
+   - Update: `STAGE`, `PHASE`, `UPDATED`, `BLOCKERS`, `NEXT_ACTION`
+   - Format: Plain text key-value pairs
+
+4. **Update EPIC_README.md (when progress changes):**
+   - Acquire lock: `.epic_locks/epic_readme.lock`
+   - Update only your section (between BEGIN/END markers)
+   - Release lock
+   - See: `parallel_work/lock_file_protocol.md`
+
+5. **Set 15-minute timer** for next heartbeat
+
+### Escalation Protocol
+
+**If blocked >30 minutes:**
+- Send escalation message to Primary
+- Update STATUS: `BLOCKERS: <description>`
+- Update checkpoint: `"blockers": ["description"]`
+- See: `parallel_work/s2_parallel_protocol.md` → Escalation Protocol
+
+### Primary-Specific Coordination
+
+**If you're Primary:**
+- Check secondary agent inboxes every 15 min
+- Respond to escalations within 15 min
+- Monitor STATUS files and checkpoints for staleness
+- See: `parallel_work/s2_primary_agent_guide.md`
+
+**Coordination overhead target:** <10% of work time
+- Heartbeat: ~5 minutes per hour
+- Escalations: As needed (respond fast)
+- Don't let coordination interrupt deep work flow
+
+**For full parallel work details:** See `parallel_work/s2_parallel_protocol.md`
+
+---
+
 ## Step 0: Epic Intent Extraction (MANDATORY FIRST STEP)
 
 **Goal:** Ground this feature in the epic's original request BEFORE any technical work

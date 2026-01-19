@@ -12,6 +12,52 @@
 
 ---
 
+## 🔀 Parallel Work Check (FIRST PRIORITY)
+
+**Before proceeding with S2 phases, check if you're in parallel work mode:**
+
+### Are You a Secondary Agent?
+
+**Check for handoff package:**
+- If you received a handoff package (starts with "I'm joining as a secondary agent...")
+- OR if your most recent message contains "My Agent ID: Secondary-A/B/C"
+- **THEN:** You're a Secondary agent in parallel mode
+
+**→ Go to:** `parallel_work/s2_secondary_agent_guide.md`
+- Complete startup configuration
+- Execute S2.P1 → S2.P2 → S2.P3 for your assigned feature
+- Follow coordination protocols (checkpoints, inbox, STATUS)
+- **Do NOT continue with this router guide**
+
+### Are You Primary Agent in Parallel Mode?
+
+**Check for parallel mode indicators:**
+- User accepted parallel work offering in S1
+- You generated handoff packages
+- Multiple agents working simultaneously
+- **AND** you're working on Feature 01
+
+**→ Go to:** `parallel_work/s2_primary_agent_guide.md`
+- Follow Primary workflow for parallel S2
+- Work on Feature 01 using S2.P1, S2.P2, S2.P3 guides
+- Coordinate secondary agents (monitor, escalations, sync)
+- After all features complete → run S3 and S4 alone
+- **Use this router guide ONLY for Feature 01 phase navigation**
+
+### Are You in Sequential Mode?
+
+**Indicators:**
+- No handoff package received
+- User declined parallel work (or wasn't offered)
+- Only you working on epic
+- Working on features one at a time
+
+**→ Continue below** with standard S2 workflow
+- Use this router guide to navigate between phases
+- Execute S2.P1 → S2.P2 → S2.P3 for each feature sequentially
+
+---
+
 ## 📖 Terminology Note
 
 **S2 is split into phases:**

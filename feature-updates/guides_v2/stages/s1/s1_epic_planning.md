@@ -486,6 +486,148 @@ Add **Epic Completion Checklist** with all 10 stages (S1 items checked, all othe
 
 Update Agent Status: Progress 4/5, Next Action "Phase 5 - Transition to S2", list features created.
 
+### Step 4.8: Analyze Features for Parallelization (Optional)
+
+**Purpose:** Determine if S2 parallelization should be offered to user
+
+**When to analyze:**
+- Epic has 2+ features
+- Features identified and folder structure created
+- Before transitioning to S2
+
+**Analysis Steps:**
+
+1. **Count Features:**
+   ```bash
+   FEATURE_COUNT=$(ls -d feature_* | wc -l)
+   echo "Total features: $FEATURE_COUNT"
+   ```
+
+2. **Calculate Potential Savings:**
+   ```
+   Sequential S2: FEATURE_COUNT × 2 hours = X hours
+   Parallel S2: 2 hours (max of all features running simultaneously)
+   Savings: X - 2 hours
+   ```
+
+   **Examples:**
+   - 2 features: Save 2 hours (50% reduction)
+   - 3 features: Save 4 hours (67% reduction)
+   - 4 features: Save 6 hours (75% reduction)
+
+3. **Analyze Dependencies (Optional for S2):**
+   - Read epic request for feature dependencies
+   - Note: Dependencies matter for S5-S8 (implementation), NOT for S2 (specs)
+   - All features can be researched/specified in parallel regardless of dependencies
+
+4. **Document Assessment:**
+   ```markdown
+   ## Parallel Work Assessment
+
+   **Total Features:** {N}
+   **Parallel S2 Potential:** YES/NO
+   **Time Savings (S2):** {X} hours ({Y}% reduction in S2 time)
+   **Epic-Level Savings:** {Z} hours ({W}% reduction in total epic time)
+
+   **Recommendation:** OFFER/SKIP parallel work
+   ```
+
+**Decision Criteria:**
+
+**OFFER parallel work if:**
+- 3+ features (good savings: 4+ hours)
+- OR 2 features AND user time-constrained
+- OR user specifically requested faster planning
+
+**SKIP parallel work if:**
+- Only 1 feature (nothing to parallelize)
+- 2 features AND user has time (modest 2-hour savings)
+- User prefers simplicity over speed
+
+**If offering parallel work:** Proceed to Step 4.9
+
+**If skipping parallel work:** Skip to Step 5 (standard transition)
+
+### Step 4.9: Offer Parallel Work to User (If Applicable)
+
+**Prerequisites:**
+- Analysis shows 2+ features
+- Decision made to offer parallelization
+- All folders created
+
+**Offering Template:**
+
+```markdown
+✅ S1 (Epic Planning) complete!
+
+I've identified {N} features for this epic:
+- feature_01: {description} (~2 hours S2)
+- feature_02: {description} (~2 hours S2)
+- feature_03: {description} (~2 hours S2)
+
+🚀 PARALLEL WORK OPPORTUNITY
+
+I can enable parallel work for S2 (Feature Deep Dives), reducing planning time:
+
+**Sequential approach:**
+- Feature 1 S2: 2 hours
+- Feature 2 S2: 2 hours
+- Feature 3 S2: 2 hours
+Total: {sequential_total} hours
+
+**Parallel approach:**
+- All {N} features S2: 2 hours (simultaneously)
+Total: 2 hours
+
+TIME SAVINGS: {savings} hours ({percent}% reduction in S2 time)
+
+**DEPENDENCIES:**
+{dependency_summary}
+- All features can be researched/specified in parallel
+
+**COORDINATION:**
+- You'll need to open {N-1} additional Claude Code sessions
+- I'll coordinate all agents via EPIC_README.md and communication files
+- Implementation (S5-S8) remains sequential in this plan
+
+Would you like to:
+1. ✅ Enable parallel work for S2 (I'll provide setup instructions)
+2. ❌ Continue sequential (I'll do all features one by one)
+3. ❓ Discuss parallelization approach
+```
+
+**Handle User Response:**
+
+**If Option 1 (Enable parallel work):**
+- User will say: "1", "Enable", "Yes to parallel", or similar
+- Response: "Great! I'll set up parallel work for S2."
+- Skip Step 5 (standard transition)
+- **Go to:** `parallel_work/s2_primary_agent_guide.md` Phase 3 (Generate Handoff Packages)
+- **Note:** Primary guide includes full parallel workflow through S2→S3→S4
+- Return to standard workflow after S4 complete
+
+**If Option 2 (Continue sequential):**
+- User will say: "2", "Sequential", "No thanks", or similar
+- Response: "Understood. I'll complete features sequentially."
+- Proceed to Step 5 (standard transition to S2)
+
+**If Option 3 (Discuss):**
+- User will say: "3", "Discuss", "Tell me more", or similar
+- Answer questions about:
+  - How parallel work functions
+  - What user needs to do (open sessions, paste packages)
+  - Time savings breakdown
+  - Coordination overhead (~10-15% of parallel time)
+  - Risk level (LOW - documentation only)
+- After discussion: Re-present options 1 and 2
+- User chooses Enable or Sequential
+
+**Important Notes:**
+- Parallel work offering is **OPTIONAL** (agent decides based on analysis)
+- User can always choose sequential (no parallel work forced)
+- If user unclear, default to sequential (simpler workflow)
+- Parallel work details in: `parallel_work/s2_parallel_protocol.md`
+
 ---
 
 ## Step 5: Transition to S2

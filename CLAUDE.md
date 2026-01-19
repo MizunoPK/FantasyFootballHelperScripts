@@ -206,6 +206,202 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 
 ---
 
+## 🔀 S2 Parallel Work (Optional for 3+ Features)
+
+**When Offered:** During S1 Step 4.9 (if epic has 3+ features)
+**Benefits:** 40-60% time reduction for S2 phase (e.g., 3 features: 4 hours vs 7.5 hours)
+**Complexity:** Requires spawning secondary agents and coordination
+
+---
+
+### Quick Decision Guide
+
+**OFFER parallel work if:**
+- Epic has 3+ features (significant time savings)
+- User is time-constrained
+
+**SKIP parallel work if:**
+- Only 1-2 features (minimal benefit)
+- User prefers simplicity
+
+**User decides:** Always present options, let user choose
+
+---
+
+### Agent Roles
+
+**Primary Agent (You - if coordinating):**
+- **Dual role:** Coordinator + Feature 01 owner
+- **Time split:** 85% feature work, 15% coordination
+- **Responsibilities:**
+  - Generate handoff packages for secondaries
+  - Execute S2 for Feature 01
+  - Coordinate every 15 minutes (check inboxes, handle escalations)
+  - Monitor agent health (checkpoint staleness)
+  - Run S3 and S4 solo after all features complete S2
+  - Notify secondaries when S4 complete
+
+**Secondary Agent (You - if joining):**
+- **Single role:** Feature owner only
+- **Time split:** 90% feature work, 10% coordination
+- **Responsibilities:**
+  - Receive handoff package from Primary
+  - Execute S2 for assigned feature
+  - Coordinate every 15 minutes (update checkpoint, check inbox)
+  - Escalate blockers to Primary within 15 minutes
+  - Signal completion when S2 done
+  - WAIT for Primary to run S3/S4
+
+---
+
+### Coordination Mechanisms
+
+**Checkpoints** (every 15 minutes):
+- File: `agent_checkpoints/{agent_id}.json`
+- Purpose: Crash recovery + staleness detection
+- Format: JSON with stage, progress, timestamp
+- Thresholds: 30 min = warning, 60 min = stale
+
+**Communication** (file-based messaging):
+- Files: `agent_comms/{from}_to_{to}.md`
+- Format: Markdown with ⏳ UNREAD → ✅ READ markers
+- One writer per file (zero conflicts)
+- Primary checks all inboxes every 15 minutes
+- Escalation SLA: 15-minute response time
+
+**STATUS Files** (per feature):
+- File: `feature_{N}_{name}/STATUS`
+- Format: Plain text key-value pairs
+- Purpose: Quick status check without lock contention
+- Updated every 15 minutes by feature owner
+
+**Locks** (for shared files):
+- Files: `.epic_locks/{file_name}.lock`
+- Purpose: Prevent race conditions on EPIC_README.md
+- Timeout: 5 minutes (auto-release if holder crashes)
+- Format: JSON with holder, operation, timestamp
+
+---
+
+### Sync Points
+
+**Sync Point 1: S2 → S3**
+- **Trigger:** All agents complete S2
+- **Primary verifies:**
+  - All completion messages received
+  - All STATUS files: READY_FOR_SYNC = true
+  - All checkpoints: WAITING_FOR_SYNC status
+- **Primary action:** Run S3 solo, secondaries WAIT
+- **Timeout:** 4 hours soft (reminder), 6 hours hard (escalate)
+
+**Sync Point 2: S4 → S5**
+- **Trigger:** Primary completes S3 and S4
+- **Primary notifies:** "S4 complete - proceed to S5"
+- **All agents:** Continue sequentially with S5-S8 for their features
+- **Timeout:** 2 hours soft (status check), 3 hours hard (escalate)
+
+---
+
+### Workflow Quick Reference
+
+**If you're Primary:**
+
+```
+S1 → Offer parallel → Generate handoffs → S2.P1 (Feature 01)
+  ↓                                              ↓
+User spawns secondaries                 Coordinate every 15 min
+  ↓                                              ↓
+Secondaries start S2                    Complete Feature 01 S2
+  ↓                                              ↓
+Monitor + coordinate                    Verify all secondaries done
+  ↓                                              ↓
+Handle escalations                      Run S3 + S4 solo
+  ↓                                              ↓
+All complete S2                         Notify secondaries → S5
+```
+
+**If you're Secondary:**
+
+```
+Receive handoff → Startup (10 steps) → S2.P1 (assigned feature)
+                                              ↓
+                                       Coordinate every 15 min
+                                              ↓
+                                       Complete S2.P1 → S2.P2 → S2.P3
+                                              ↓
+                                       Signal completion to Primary
+                                              ↓
+                                       WAIT for Primary S3/S4
+                                              ↓
+                                       Receive "S4 complete" → S5
+```
+
+---
+
+### Common Issues
+
+**Stale Agent (checkpoint > 60 min):**
+- **Detection:** Primary checks during coordination heartbeat
+- **Warning:** 30 min (send status check)
+- **Failure:** 60 min (escalate to user)
+- **Recovery:** Same agent resume, new agent takeover, or Primary absorbs
+- **Guide:** `parallel_work/stale_agent_protocol.md`
+
+**Sync Timeout (S2 not all done):**
+- **Soft:** 4 hours (send reminder)
+- **Hard:** 6 hours (escalate to user)
+- **Recovery:** Wait with ETA, investigate blocker, abort parallel for late feature
+- **Guide:** `parallel_work/sync_timeout_protocol.md`
+
+**Escalation (agent blocked):**
+- **Protocol:** Escalate to Primary within 15 minutes if blocked
+- **Primary SLA:** Respond within 15 minutes
+- **If user input needed:** Primary escalates to user
+- **Guide:** `parallel_work/communication_protocol.md`
+
+---
+
+### Complete Guides Location
+
+**All parallel work guides:** `feature-updates/guides_v2/parallel_work/`
+
+**Master protocol:**
+- `s2_parallel_protocol.md` - Complete overview with 9-phase workflow
+
+**Agent guides:**
+- `s2_primary_agent_guide.md` - Primary agent complete workflow (830 lines)
+- `s2_secondary_agent_guide.md` - Secondary agent complete workflow (683 lines)
+
+**Infrastructure protocols:**
+- `lock_file_protocol.md` - File locking for shared resources
+- `communication_protocol.md` - Agent-to-agent messaging
+- `checkpoint_protocol.md` - Crash recovery and staleness detection
+
+**Recovery protocols:**
+- `stale_agent_protocol.md` - Handling crashed/hung agents
+- `sync_timeout_protocol.md` - Sync point timeout handling
+
+**Templates:**
+- `templates/handoff_package_s2_template.md` - Secondary agent handoff
+- `templates/feature_status_template.txt` - STATUS file format
+- `templates/epic_readme_template.md` - EPIC_README with parallel sections
+
+---
+
+### Integration with Existing Workflow
+
+**S1 Step 4.8-4.9:** Offer parallel work (if 3+ features)
+**S1 Final Step:** Generate handoffs (if parallel enabled)
+**S2 Router:** Detects Primary vs Secondary role, routes to appropriate guide
+**S2.P1-P3:** Coordination sections in each phase guide
+**S3 Start:** Sync verification (if parallel was used)
+**S4 End:** Notify secondaries to proceed
+
+**Parallel work is OPTIONAL** - workflow works identically in sequential mode.
+
+---
+
+
 ## Missed Requirement Protocol
 
 **When to use:** Missing scope discovered at ANY time (implementation, QA, epic testing), solution is KNOWN
