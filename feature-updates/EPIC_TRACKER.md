@@ -17,13 +17,13 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| - | (No active epics) | - | - | - | - |
+| 7 | improve_debugging_runs | epic | epic/KAI-7 | In Progress | 2026-01-20 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-7
+### Next Available Number: KAI-8
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
