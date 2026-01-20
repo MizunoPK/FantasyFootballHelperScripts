@@ -1,8 +1,0 @@
-I want to start giving a static bonus to players during the starter helper scoring if the game they play is on a Sunday
-SUNDAY_BONUS=5
-This will involve looking at season_schedule.csv, finding the game that the player will play, and determining what day of the week the game will be played on.
-When the schedule is loaded in, the code can go ahead and determine the day of the week each team will play on for CURRENT_NFL_WEEK and cache it like:
-day_of_week_cache = {
-    "KC": THURSDAY,
-    "DEN": SUNDAY
-}

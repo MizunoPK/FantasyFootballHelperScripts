@@ -149,7 +149,7 @@ cat > agent_checkpoints/secondary_a.json <<EOF
   ],
   "next_steps": [
     "Read S2.P1 guide",
-    "Phase 0: Epic Intent Extraction",
+    "Phase 0: Discovery Context Review",
     "Phase 1: Targeted Research"
   ],
   "coordination_state": {

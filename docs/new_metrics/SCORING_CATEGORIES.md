@@ -103,6 +103,12 @@ All new metrics (M01-M11) are **Category 2 (Multiplier-Based)** because they mea
 - **Config Pattern:** ✅ Correct (THRESHOLDS, MULTIPLIERS, WEIGHT)
 - **File:** `metric-11-rb-receiving-workload.md`
 
+#### M12: QB Quality (Pass-Catcher Context)
+- **Category:** 2 (Multiplier-Based)
+- **Why:** Team QB quality is stable context that elevates or limits pass-catchers' value
+- **Config Pattern:** ✅ Correct (THRESHOLDS, MULTIPLIERS, POSITION_WEIGHTS)
+- **File:** `metric-12-qb-quality.md`
+
 ---
 
 ## Bonus Metric
@@ -174,9 +180,9 @@ All 11 metrics use the correct **Category 2 (Multiplier-Based)** config structur
 
 ## Summary
 
-- **Total Metrics:** 11 (+ 1 bonus metric M17)
+- **Total Metrics:** 12 (+ 1 bonus metric M17)
 - **Category 1 (Static):** 0 metrics
-- **Category 2 (Multiplier):** 12 metrics (100%)
+- **Category 2 (Multiplier):** 13 metrics (100%)
 - **Category 3 (Impact Scale):** 0 metrics
 
 **Conclusion:** All new player-skill and efficiency metrics correctly use the multiplier-based pattern to reflect intrinsic player value and stable context.

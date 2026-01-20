@@ -2,7 +2,7 @@
 
 **Purpose:** Definitions of all key terms, abbreviations, and context-specific terminology used in the workflow
 
-**Last Updated:** 2026-01-11
+**Last Updated:** 2026-01-20
 
 ---
 
@@ -242,6 +242,99 @@ Investigation-centric workflow for resolving bugs with unknown root cause.
 **See:** Bug Fix, Missed Requirement, ISSUES_CHECKLIST.md
 
 **Guide:** debugging/debugging_protocol.md
+
+---
+
+### Discovery Context
+Section at the beginning of each feature spec.md that references DISCOVERY.md.
+
+**Purpose:** Provides shared epic-level context to each feature specification
+
+**Contents:**
+- Feature's scope (from DISCOVERY.md Proposed Feature Breakdown)
+- Relevant Discovery decisions that affect this feature
+- Relevant user answers from Discovery Q&A
+- Discovery basis (which findings/answers shaped this feature)
+
+**Created:** S1 Step 5 (seeded when feature folder created)
+**Completed:** S2 (Feature Deep Dive)
+
+**See:** DISCOVERY.md, Spec.md, Discovery Phase
+
+**Guide:** templates/feature_spec_template.md
+
+---
+
+### Discovery Loop
+Iterative research process within S1.P3 Discovery Phase.
+
+**Loop Structure:**
+1. Research (read code, examine patterns)
+2. Document findings in DISCOVERY.md
+3. Identify questions that emerged
+4. Ask user questions
+5. Record user answers
+6. Repeat until NO NEW QUESTIONS emerge
+
+**Exit Condition:** Research iteration produces no new questions
+
+**Time-Box:** Varies by epic size (SMALL: 1-2hrs, MEDIUM: 2-3hrs, LARGE: 3-4hrs)
+
+**See:** Discovery Phase, DISCOVERY.md
+
+**Guide:** stages/s1/s1_p3_discovery_phase.md
+
+---
+
+### Discovery Phase
+S1.P3 - MANDATORY phase for exploring epic problem space before feature breakdown.
+
+**Purpose:** Understand problem space, explore solutions, make informed decisions
+
+**Process:**
+1. S1.P3.1: Initialize DISCOVERY.md
+2. S1.P3.2: Discovery Loop (iterative research and Q&A)
+3. S1.P3.3: Synthesize findings
+4. S1.P3.4: User approval of recommended approach
+
+**Key Rules:**
+- Discovery is MANDATORY for ALL epics (no exceptions)
+- Discovery Loop continues until NO NEW QUESTIONS emerge
+- Feature folders NOT created until Discovery approved
+- DISCOVERY.md becomes epic-level source of truth
+
+**Time-Box:** Varies by epic size (SMALL: 1-2hrs, MEDIUM: 2-3hrs, LARGE: 3-4hrs)
+
+**See:** DISCOVERY.md, Discovery Loop, Discovery Context
+
+**Guide:** stages/s1/s1_p3_discovery_phase.md
+
+---
+
+### DISCOVERY.md
+Epic-level source of truth document created during S1.P3 Discovery Phase.
+
+**Location:** `feature-updates/KAI-{N}-{epic_name}/DISCOVERY.md`
+
+**Created:** S1.P3.1 (Discovery Phase initialization)
+**Immutable:** After user approval (unless found incorrect/outdated later)
+
+**Sections:**
+- Epic Request Summary
+- Discovery Questions (Resolved and Pending)
+- Research Findings (per iteration)
+- Solution Options Considered
+- Recommended Approach
+- Scope Definition (In Scope / Out of Scope)
+- Proposed Feature Breakdown
+- Discovery Log
+- User Approval
+
+**Purpose:** Central record of all research, questions, answers, and decisions made during Discovery
+
+**See:** Discovery Phase, Discovery Context
+
+**Guide:** templates/discovery_template.md, stages/s1/s1_p3_discovery_phase.md
 
 ---
 
@@ -1243,6 +1336,7 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 
 **For S1:**
 - Epic, EPIC_README.md, Feature, Agent Status
+- Discovery Phase, DISCOVERY.md, Discovery Loop, Discovery Context
 
 **For S2:**
 - Feature, Spec.md, Checklist.md, Phase [S2]
@@ -1286,7 +1380,7 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 
 ---
 
-**Last Updated:** 2026-01-11
+**Last Updated:** 2026-01-20
 
 **See Also:**
 - `reference/faq_troubleshooting.md` - Common questions and troubleshooting

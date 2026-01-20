@@ -36,6 +36,9 @@
 
 **[S1: Epic Planning](prompts/s1_prompts.md)**
 - Starting S1: Epic Planning
+- Starting S1.P3: Discovery Phase
+- Discovery Loop Iteration
+- Discovery Phase Complete
 
 **[S2: Feature Deep Dive](prompts/s2_prompts.md)**
 - Starting S2: Feature Deep Dive
@@ -249,7 +252,7 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 
 This router file has been optimized from 1,474 lines to ~200 lines by splitting content into focused files:
 
-- **prompts/s1_prompts.md** - S1 prompts (67 lines)
+- **prompts/s1_prompts.md** - S1 prompts (~186 lines, includes Discovery Phase)
 - **prompts/s2_prompts.md** - S2 prompts (~50 lines)
 - **prompts/s2_p2.5_prompts.md** - S2.P2.5 prompts (~40 lines)
 - **prompts/s3_prompts.md** - S3 prompts (~40 lines)

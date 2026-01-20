@@ -192,7 +192,7 @@ S3 is complete when all feature specs are conflict-free, user has explicitly app
    - File: `feature_{N}_{name}/spec.md`
 
 2. **Verify required sections exist:**
-   - Epic Intent
+   - Discovery Context
    - Requirements (with traceability)
    - Components Affected
    - Data Structures

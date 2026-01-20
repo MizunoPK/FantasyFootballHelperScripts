@@ -29,7 +29,7 @@ Refinement Phase is where you resolve all open questions through interactive dia
 
 **When do you use this guide?**
 - S2.P2 (Specification Phase) complete
-- spec.md has Epic Intent section and requirement traceability
+- spec.md has Discovery Context section and requirement traceability
 - checklist.md has open questions
 - Phase 2.5 (Spec-to-Epic Alignment Check) passed
 
@@ -124,13 +124,13 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 **Before starting Refinement Phase (STAGE_2c), verify:**
 
 □ **STAGE_2b complete:**
-  - Phase 2 complete: spec.md has Epic Intent section, requirements with traceability
+  - Phase 2 complete: spec.md has Discovery Context section, requirements with traceability
   - Phase 2 complete: checklist.md exists with open questions
   - Phase 2.5 complete: Spec-to-Epic Alignment Check PASSED
   - spec.md has valid sources for all requirements (Epic/User Answer/Derived)
 
 □ **Files exist and are current:**
-  - feature_{N}_{name}/spec.md exists with Epic Intent section
+  - feature_{N}_{name}/spec.md exists with Discovery Context section
   - feature_{N}_{name}/checklist.md exists with questions
   - feature_{N}_{name}/README.md has Agent Status
 
@@ -834,7 +834,7 @@ Continue to Step 6.5 (Mark Feature Complete)
 
 1. Document rejection
 2. Determine what phase to return to:
-   - Fundamental misunderstanding → Return to Phase 0 (Epic Intent)
+   - Fundamental misunderstanding → Return to Phase 0 (Discovery Context)
    - Research gap → Return to Phase 1 (Targeted Research)
    - Wrong requirements → Return to Phase 2 (Spec & Checklist)
    - Wrong answers to questions → Return to Phase 3 (Question Resolution)
@@ -851,7 +851,7 @@ Continue to Step 6.5 (Mark Feature Complete)
 ## Feature Completion Checklist
 
 ### S2: Feature Deep Dive
-- [x] Phase 0: Epic Intent Extraction
+- [x] Phase 0: Discovery Context Review
 - [x] Phase 1: Targeted Research
 - [x] Phase 1.5: Research Completeness Audit
 - [x] Phase 2: Spec & Checklist Creation

@@ -111,7 +111,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 
 **Follow complete S2 process:**
 
-**S2.P1: Research & Epic Intent**
+**S2.P1: Research & Discovery Context**
 - Review epic intent for this missed requirement
 - Research technical approaches if needed
 - Audit similar features (in this epic or other projects)
@@ -227,7 +227,7 @@ cat feature_{XX}_{name}/README.md
 ```markdown
 ## Traceability Matrix (UPDATED)
 
-| Epic Intent | Requirement | Implementation |
+| Discovery Context | Requirement | Implementation |
 |-------------|-------------|----------------|
 | {existing} | {existing} | {existing} |
 | {new from missed req} | {new requirement} | {planned implementation} |

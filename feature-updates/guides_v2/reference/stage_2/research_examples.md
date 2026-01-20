@@ -20,12 +20,12 @@ This reference provides detailed examples for executing Research Phase (S2.P1). 
 
 ---
 
-## Phase 0 Examples: Epic Intent Extraction
+## Phase 0 Examples: Discovery Context Review
 
-### Example 1: Complete Epic Intent Analysis
+### Example 1: Complete Discovery Context Analysis
 
 ```markdown
-## Epic Intent Analysis (Internal - for agent)
+## Discovery Context Analysis (Internal - for agent)
 
 **1. What problem is THIS feature solving?**
 
@@ -83,14 +83,14 @@ Component 2: "injury penalty system" (as a pattern to follow) - Line 37
 Data source: "FantasyPros CSV" - Line 22
 ```
 
-### Example 2: Epic Intent Section in spec.md
+### Example 2: Discovery Context Section in spec.md
 
 ```markdown
 # Feature 01: ADP Integration
 
 ---
 
-## Epic Intent (User's Original Request)
+## Discovery Context (User's Original Request)
 
 **⚠️ CRITICAL:** All requirements below MUST trace back to this section.
 
@@ -171,7 +171,7 @@ Data source: "FantasyPros CSV" - Line 22
 ```markdown
 ## Research Checklist for Feature 01 (ADP Integration)
 
-Based on Epic Intent section, I must research:
+Based on Discovery Context section, I must research:
 
 □ **PlayerManager** (mentioned epic line 35)
   - Action: Find class definition
@@ -205,11 +205,11 @@ Based on Epic Intent section, I must research:
 
 **Research Date:** 2026-01-02
 **Researcher:** Agent
-**Grounded In:** Epic Intent (user's explicit requests)
+**Grounded In:** Discovery Context (user's explicit requests)
 
 ---
 
-## Epic Intent Summary
+## Discovery Context Summary
 
 **User requested:** "integrate ADP data from FantasyPros and factor it into draft recommendations using a multiplier pattern similar to injury penalty"
 
@@ -690,7 +690,7 @@ Source: league_helper/util/FantasyPlayer.py lines 15-25
 - File: feature-updates/KAI-1-improve_draft_helper/improve_draft_helper_notes.txt
 - Read timestamp: 2026-01-02 10:15
 - Extracted user quotes with line numbers
-- Created Epic Intent section in spec.md
+- Created Discovery Context section in spec.md
 
 **Evidence:** Phase 0 completion timestamp in Agent Status: 2026-01-02 10:20
 
@@ -707,7 +707,7 @@ Source: league_helper/util/FantasyPlayer.py lines 15-25
 3. "use FantasyPros CSV format" (epic line 22)
 4. "Keep it simple - just add ADP as another multiplier like injury penalty" (epic line 37-38)
 
-**Evidence:** Exact quotes with line citations in Epic Intent section of spec.md
+**Evidence:** Exact quotes with line citations in Discovery Context section of spec.md
 
 ---
 
@@ -899,17 +899,17 @@ I remember from S1 that user wants ADP integration. I'll start researching Playe
 
 ✅ **CORRECT:**
 ```markdown
-**Phase 0: Epic Intent Extraction**
+**Phase 0: Discovery Context Review**
 
 Even though I worked on S1, I'm re-reading epic notes now to ensure I understand user intent.
 
-{Re-reads epic notes file}
-{Extracts exact quotes with line numbers}
-{Creates Epic Intent section in spec.md}
+{Reviews DISCOVERY.md from S1}
+{Verifies spec has Discovery Context section}
+{Notes relevant findings and user answers}
 {THEN proceeds to Phase 1}
 ```
 
-**Why:** Context windows have limits. Session compaction may have lost details. Always re-read epic in Phase 0.
+**Why:** Context windows have limits. Session compaction may have lost details. Always review DISCOVERY.md in Phase 0.
 
 ---
 
@@ -917,11 +917,11 @@ Even though I worked on S1, I'm re-reading epic notes now to ensure I understand
 
 **Research Phase (S2.P1) passes when:**
 
-✅ **Phase 0 (Epic Intent):**
-- Epic notes file re-read (not relied on memory)
-- Exact quotes extracted with line citations
-- Epic Intent section created as FIRST section in spec.md
-- User's explicit requests documented
+✅ **Phase 0 (Discovery Context Review):**
+- DISCOVERY.md reviewed (not relied on memory)
+- Relevant Discovery findings noted for this feature
+- Discovery Context section verified in spec.md
+- Feature's scope from Discovery documented
 - Out-of-scope items identified
 
 ✅ **Phase 1 (Targeted Research):**

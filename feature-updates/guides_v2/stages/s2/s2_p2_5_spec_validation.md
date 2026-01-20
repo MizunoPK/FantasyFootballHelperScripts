@@ -121,7 +121,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
   - Phase 2.5 complete: Spec-to-Epic Alignment Check PASSED
 
 □ **Files exist and are current:**
-  - feature_{N}_{name}/spec.md exists with Epic Intent and requirements
+  - feature_{N}_{name}/spec.md exists with Discovery Context and requirements
   - feature_{N}_{name}/checklist.md exists with open questions
   - epic/research/{FEATURE_NAME}_DISCOVERY.md exists from Phase 1
 

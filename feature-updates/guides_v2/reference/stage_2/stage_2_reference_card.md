@@ -10,7 +10,7 @@
 
 ```
 S2.P1: Research Phase (45-60 min)
-    Phase 0: Epic Intent Extraction (15 min)
+    Phase 0: Discovery Context Review (15 min)
     Phase 1: Targeted Research (30 min)
     Phase 1.5: Research Completeness Audit (20 min) ← MANDATORY GATE
     ↓
@@ -31,7 +31,7 @@ S2.P3: Refinement Phase (45-60 min)
 
 | Phase | Name | Sub-Stage | Duration | Key Output | Gate? |
 |-------|------|-----------|----------|------------|-------|
-| 0 | Epic Intent Extraction | 2a | 15 min | Epic Intent section in spec.md | No |
+| 0 | Discovery Context Review | 2a | 15 min | Discovery Context section in spec.md | No |
 | 1 | Targeted Research | 2a | 30 min | DISCOVERY.md with evidence | No |
 | 1.5 | Research Completeness Audit | 2a | 20 min | Audit PASSED (4 categories) | ✅ YES |
 | 2 | Update Spec & Checklist | 2b | 30 min | spec.md + checklist.md with traceability | No |
@@ -51,7 +51,7 @@ S2.P3: Refinement Phase (45-60 min)
 - Component Research: Have you found the code mentioned in epic?
 - Pattern Research: Have you studied similar features?
 - Data Research: Have you located data sources?
-- Epic Research: Did you re-read epic notes during research?
+- Discovery Context Knowledge: Did you review DISCOVERY.md during research?
 
 **Pass Criteria:** ALL 4 categories answered with evidence (file paths, line numbers)
 **If FAIL:** Return to Phase 1, research gaps, re-run audit
@@ -106,7 +106,7 @@ S2.P3: Refinement Phase (45-60 min)
 
 ## Common Pitfalls
 
-### ❌ Pitfall 1: Skipping Phase 0 (Epic Intent Extraction)
+### ❌ Pitfall 1: Skipping Phase 0 (Discovery Context Review)
 **Problem:** Starting research without re-reading epic first
 **Impact:** Miss user's actual intent, research wrong things
 **Solution:** ALWAYS re-read epic in Phase 0, extract exact words
@@ -147,7 +147,7 @@ S2.P3: Refinement Phase (45-60 min)
 
 **Phase 0 → Phase 1:**
 - [ ] Re-read epic notes from scratch
-- [ ] Extracted user's exact words to "Epic Intent" section
+- [ ] Extracted user's exact words to "Discovery Context" section
 - [ ] Listed components mentioned in epic
 
 **Phase 1 → Phase 1.5:**
@@ -191,7 +191,7 @@ S2.P3: Refinement Phase (45-60 min)
 ## File Outputs
 
 **Phase 0:**
-- spec.md (Epic Intent section)
+- spec.md (Discovery Context section)
 
 **Step 1:**
 - epic/research/{FEATURE_NAME}_DISCOVERY.md

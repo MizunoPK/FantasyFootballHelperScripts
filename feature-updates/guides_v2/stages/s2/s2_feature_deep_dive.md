@@ -4,7 +4,7 @@
 
 **This is a routing guide.** The complete S2 workflow is now split across three focused guides:
 
-- **S2.P1 (Research):** Epic intent extraction, targeted research, research audit
+- **S2.P1 (Research):** Discovery Context review, targeted research, research audit
 - **S2.P2 (Specification):** Spec with traceability, alignment check
 - **S2.P3 (Refinement):** Questions, scope, cross-feature alignment, user approval
 
@@ -76,7 +76,7 @@
 | Current Phase | Guide to Read | Time Estimate |
 |---------------|---------------|---------------|
 | Starting S2 | `stages/s2/s2_p1_research.md` | 45-60 min |
-| Phase 0: Epic Intent Extraction | `stages/s2/s2_p1_research.md` | 15 min |
+| Phase 0: Discovery Context Review | `stages/s2/s2_p1_research.md` | 15 min |
 | Phase 1: Targeted Research | `stages/s2/s2_p1_research.md` | 30-45 min |
 | Phase 1.5: Research Completeness Audit | `stages/s2/s2_p1_research.md` | 15 min |
 | Phase 2: Update Spec & Checklist | `stages/s2/s2_p2_specification.md` | 30-45 min |
@@ -91,7 +91,7 @@
 ## S2 Overview
 
 **What is S2?**
-Feature Deep Dive is where you thoroughly analyze each feature by extracting epic intent, researching the codebase, creating detailed specifications with requirement traceability, and getting user approval on acceptance criteria.
+Feature Deep Dive is where you thoroughly analyze each feature by reviewing Discovery Context, researching the codebase, creating detailed specifications with requirement traceability, and getting user approval on acceptance criteria.
 
 **Total Time Estimate:** 2-3 hours per feature (9 phases across 3 guides, 2 mandatory gates)
 
@@ -106,12 +106,12 @@ Feature Deep Dive is where you thoroughly analyze each feature by extracting epi
 **Read:** `stages/s2/s2_p1_research.md`
 
 **What it covers:**
-- **Phase 0:** Epic Intent Extraction (re-read epic, extract user's exact words)
+- **Phase 0:** Discovery Context Review (review DISCOVERY.md, verify spec has context)
 - **Step 1:** Targeted Research (research components mentioned in epic)
 - **Phase 1.5:** Research Completeness Audit (MANDATORY GATE - verify research is thorough)
 
 **Key Outputs:**
-- "Epic Intent" section in spec.md (grounding in user's original request)
+- "Discovery Context" section in spec.md (grounding in DISCOVERY.md findings)
 - Research findings documented in epic/research/{FEATURE_NAME}_DISCOVERY.md
 - Evidence collected: file paths, line numbers, code snippets
 - Research completeness audit passed
@@ -192,7 +192,7 @@ Start Feature Deep Dive
           ▼
     ┌─────────────┐
     │  STAGE_2a   │  Research Phase
-    │  (45-60min) │  • Phase 0: Epic Intent Extraction
+    │  (45-60min) │  • Phase 0: Discovery Context Review
     └─────────────┘  • Phase 1: Targeted Research
           │          • Phase 1.5: Research Audit (GATE)
           │
@@ -246,7 +246,7 @@ STAGE_2a
 - Can cite actual method signatures from source
 - Have searched for similar features and READ their implementation
 - Have READ actual data files (not just assumed format)
-- Have re-read epic notes in this phase
+- Have reviewed DISCOVERY.md in this phase
 
 **If fail:**
 - Return to Phase 1 (Targeted Research)
@@ -260,7 +260,7 @@ STAGE_2a
 
 ### Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check (STAGE_2b)
 
-**Purpose:** Verify spec accurately reflects epic intent (no scope creep, no missing requirements)
+**Purpose:** Verify spec accurately reflects Discovery findings (no scope creep, no missing requirements)
 
 **Pass Criteria:**
 - Every requirement traces back to epic request OR user answer OR logical derivation
@@ -306,9 +306,9 @@ STAGE_2a
 │ CRITICAL RULES - Apply to ALL sub-stages                    │
 └─────────────────────────────────────────────────────────────┘
 
-1. ⚠️ ALWAYS start with Phase 0 (Epic Intent Extraction)
-   - Re-read epic notes file EVERY time (no exceptions)
-   - Extract EXACT QUOTES from epic (not paraphrases)
+1. ⚠️ ALWAYS start with Phase 0 (Discovery Context Review)
+   - Review DISCOVERY.md for epic-level findings
+   - Verify spec has Discovery Context section
 
 2. ⚠️ Research MUST be thorough BEFORE creating checklist
    - Phase 1.5 audit is MANDATORY GATE
@@ -357,13 +357,13 @@ STAGE_2a
 I'm starting S2a (Research Phase) for Feature {N}: {Name}.
 
 I acknowledge:
-- This guide covers Phases 0, 1, and 1.5 (Epic Intent → Research → Audit)
-- I must re-read epic notes (Phase 0) even if I "remember" it
+- This guide covers Phases 0, 1, and 1.5 (Discovery Context → Research → Audit)
+- I must review DISCOVERY.md (Phase 0) for epic-level context
 - Phase 1.5 Research Audit is MANDATORY GATE (cannot proceed without passing)
 - I must collect evidence: file paths, line numbers, code snippets
 - Research must be targeted (THIS feature only, not entire epic)
 
-Ready to begin Phase 0: Epic Intent Extraction.
+Ready to begin Phase 0: Discovery Context Review.
 ```
 
 ---
@@ -410,7 +410,7 @@ Ready to begin Phase 0: Epic Intent Extraction.
 **S2 is complete for THIS feature when ALL of these are true:**
 
 □ **All 9 phases complete:**
-  - Phase 0: Epic Intent extracted
+  - Phase 0: Discovery Context reviewed
   - Step 1: Targeted Research complete
   - Phase 1.5: Research Audit PASSED (GATE)
   - Step 2: Spec & Checklist created with traceability
@@ -421,7 +421,7 @@ Ready to begin Phase 0: Epic Intent Extraction.
   - Step 6: User APPROVED acceptance criteria (GATE)
 
 □ **Files complete:**
-  - spec.md: Epic Intent section, requirements with traceability, acceptance criteria (user approved)
+  - spec.md: Discovery Context section, requirements with traceability, acceptance criteria (user approved)
   - checklist.md: All questions resolved
   - README.md: S2 marked complete
   - epic/research/{FEATURE_NAME}_DISCOVERY.md: Research findings

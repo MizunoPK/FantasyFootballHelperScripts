@@ -84,7 +84,8 @@ The v2 workflow is a **10-stage epic-driven development process** designed to:
 STAGE 1: Epic Planning
    ↓
    Create epic folder structure
-   Propose feature breakdown (user approves)
+   Discovery Phase (MANDATORY) - iterative research and Q&A
+   Propose feature breakdown based on Discovery (user approves)
    Create initial epic_smoke_test_plan.md
 
 STAGE 2: Feature Deep Dives (Loop per feature)

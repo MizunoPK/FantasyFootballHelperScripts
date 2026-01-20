@@ -67,6 +67,7 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 
 **Phase transition prompts are MANDATORY for:**
 - Starting any of the 10 stages (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10)
+- Starting S1.P3 Discovery Phase
 - Starting S5 rounds (Round 1, 2, 3)
 - Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
 - Creating missed requirements or entering debugging protocol
@@ -108,7 +109,12 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 - **Trigger:** "Help me develop {epic-name}"
 - **First Action:** Use "Starting S1" prompt
 - **Guide:** `stages/s1/s1_epic_planning.md`
-- **Actions:** Assign KAI number, create git branch, analyze epic, create folder structure
+- **Actions:** Assign KAI number, create git branch, analyze epic, **Discovery Phase (MANDATORY)**, create folder structure
+- **Discovery Phase (S1.P3):** Iterative research and Q&A loop until no new questions emerge
+  - Guide: `stages/s1/s1_p3_discovery_phase.md`
+  - Output: DISCOVERY.md (epic-level source of truth)
+  - Time-Box: SMALL 1-2hrs, MEDIUM 2-3hrs, LARGE 3-4hrs
+  - Feature folders NOT created until Discovery approved
 - **Next:** S2
 
 **S2: Feature Deep Dives** (Loop through ALL features)
@@ -462,6 +468,7 @@ Receive handoff → Startup (10 steps) → S2.P1 (assigned feature)
 ## Key Principles
 
 - **Epic-first thinking**: Top-level work unit is an epic (collection of features)
+- **Discovery before features**: S1.P3 Discovery Phase is MANDATORY for ALL epics (research + Q&A loop until no new questions)
 - **Mandatory reading protocol**: ALWAYS read guide before starting each guide
 - **Phase transition prompts**: MANDATORY acknowledgment (proves guide was read)
 - **User approval gates**: Gates 3, 4.5, 5 (early approval prevents rework)

@@ -99,7 +99,7 @@
 1. **Component Research:** Have you found the code components mentioned in epic?
 2. **Pattern Research:** Have you studied similar features in codebase?
 3. **Data Research:** Have you located data sources/structures?
-4. **Epic Research:** Did you re-read epic notes during research?
+4. **Discovery Context Knowledge:** Did you review DISCOVERY.md during research?
 
 **Pass Criteria:**
 - ALL 4 categories answered "Yes"

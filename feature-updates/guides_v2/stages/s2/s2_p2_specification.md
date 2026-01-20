@@ -33,7 +33,7 @@ Specification Phase is where you create detailed technical specifications with r
 
 **When do you use this guide?**
 - S2.P1 complete (Phase 1.5 Research Audit PASSED)
-- Epic Intent section exists in spec.md
+- Discovery Context section exists in spec.md
 - Research findings documented
 - Ready to create detailed specifications
 
@@ -116,7 +116,7 @@ Specification Phase is complete when spec.md has complete requirements with trac
 
 □ STAGE_2a complete (Research Phase)
 □ Phase 1.5 Research Audit PASSED (all 4 categories)
-□ Epic Intent section exists in spec.md (created in Phase 0)
+□ Discovery Context section exists in spec.md (created in Phase 0)
 □ Research findings documented in epic/research/{FEATURE_NAME}_DISCOVERY.md
 □ Evidence collected (file paths, line numbers, code snippets)
 □ Feature README.md Agent Status shows STAGE_2a complete
@@ -336,9 +336,9 @@ Each question should include:
 
 ---
 
-### Step 2.5.1: Re-Read Epic Intent Section
+### Step 2.5.1: Re-Read Discovery Context Section
 
-**Read the "Epic Intent" section** at the top of spec.md (created in STAGE_2a Phase 0).
+**Read the "Discovery Context" section** at the top of spec.md (created in STAGE_2a Phase 0).
 
 **Refresh your memory:**
 - What did the user EXPLICITLY request?
@@ -372,9 +372,9 @@ For EACH requirement, verify:
 
 **For EACH requirement, ask:**
 
-1. **Did the user ask for this?** → Check Epic Intent section
+1. **Did the user ask for this?** → Check Discovery Context section
 2. **Is this necessary or "nice to have"?** → Necessary = logically required, Nice to have = best practice
-3. **Am I solving the user's problem or a different one?** → Compare requirement to Epic Intent quotes
+3. **Am I solving the user's problem or a different one?** → Compare requirement to Discovery Context quotes
 
 **If scope creep found:**
 - ❌ Remove from spec.md immediately
@@ -387,7 +387,7 @@ For EACH requirement, verify:
 
 ### Step 2.5.4: Check for Missing Requirements
 
-**Re-read Epic Intent section:**
+**Re-read Discovery Context section:**
 
 List all explicit user requests, then verify EACH is in spec:
 

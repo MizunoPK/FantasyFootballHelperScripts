@@ -4,7 +4,7 @@
 **Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/spec.md`
 **Created:** {YYYY-MM-DD}
 
-**Purpose:** PRIMARY specification for implementation. Detailed technical requirements, algorithms, interfaces, and testing strategy.
+**Purpose:** PRIMARY specification for implementation. Detailed technical requirements, algorithms, interfaces, and testing strategy. References DISCOVERY.md for epic-level context.
 
 ---
 
@@ -17,6 +17,43 @@
 **Feature Number:** {N}
 **Created:** {YYYY-MM-DD}
 **Last Updated:** {YYYY-MM-DD}
+
+---
+
+## Discovery Context
+
+**Discovery Document:** `../DISCOVERY.md`
+
+### This Feature's Scope (from Discovery)
+
+{Copy from DISCOVERY.md Proposed Feature Breakdown section for this feature}
+
+**Purpose:** {Purpose statement from Discovery}
+
+**Scope:**
+- {Key capability 1 from Discovery}
+- {Key capability 2 from Discovery}
+- {Key capability 3 from Discovery}
+
+**Dependencies:** {From Discovery - what this feature depends on}
+
+### Relevant Discovery Decisions
+
+- **Solution Approach:** {Summary of recommended approach from DISCOVERY.md}
+- **Key Constraints:** {Constraints from Discovery that affect this feature}
+- **Implementation Order:** {Where this feature falls in the order}
+
+### Relevant User Answers (from Discovery)
+
+| Question | Answer | Impact on This Feature |
+|----------|--------|----------------------|
+| {Q# from Discovery} | {User's answer} | {How it affects this feature's requirements} |
+| {Q# from Discovery} | {User's answer} | {How it affects this feature's requirements} |
+
+### Discovery Basis for This Feature
+
+- **Based on Finding:** {Reference to specific research finding in DISCOVERY.md}
+- **Based on User Answer:** {Reference to specific Q# that shaped this feature}
 
 ---
 

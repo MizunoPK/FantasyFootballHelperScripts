@@ -496,7 +496,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 
 ### Scope Creep Check
 
-**Reviewed each requirement against Epic Intent:**
+**Reviewed each requirement against Discovery Context:**
 
 **Requirement 1 (Load ADP Data):**
 - User asked for this: ✅ YES (epic line 15: "integrate ADP data")
@@ -530,7 +530,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 
 ### Missing Requirements Check
 
-**Re-read Epic Intent section - User's explicit requests:**
+**Re-read Discovery Context section - User's explicit requests:**
 
 1. "integrate ADP data from FantasyPros" (line 15)
    → Found in spec: ✅ Requirement 1
@@ -629,7 +629,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 4. Re-run Phase 2.5 alignment check
 5. Do NOT proceed to S2.P3 until PASSED
 
-**Lesson:** Read "Out of Scope" section in Epic Intent. User explicitly said what NOT to include.
+**Lesson:** Read "Out of Scope" section in Discovery Context. User explicitly said what NOT to include.
 ```
 
 ---
@@ -641,7 +641,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 
 ### Missing Requirements Check
 
-**Re-read Epic Intent section - User's explicit requests:**
+**Re-read Discovery Context section - User's explicit requests:**
 
 1. "integrate ADP data from FantasyPros" (line 15)
    → Found in spec: ✅ Requirement 1
@@ -681,7 +681,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 4. Re-run Phase 2.5 alignment check
 5. Do NOT proceed to S2.P3 until PASSED
 
-**Lesson:** Read ALL explicit requests in Epic Intent. Missing even one means spec is incomplete.
+**Lesson:** Read ALL explicit requests in Discovery Context. Missing even one means spec is incomplete.
 ```
 
 ---
@@ -810,7 +810,7 @@ User provided answers for all 6 questions. Preferred config-based approach for m
 **Specification Phase (S2.P2) passes when:**
 
 ✅ **Phase 2 (Spec & Checklist):**
-- spec.md has Epic Intent section (from S2.P1)
+- spec.md has Discovery Context section (from S2.P1)
 - All requirements have traceability (Epic Request/User Answer/Derived)
 - Components Affected section lists exact files/lines
 - Data Structures section describes formats
@@ -819,7 +819,7 @@ User provided answers for all 6 questions. Preferred config-based approach for m
 - Zero assumptions in spec (all TBD items in checklist)
 
 ✅ **Phase 2.5 (Alignment Check):**
-- All requirements verified against Epic Intent
+- All requirements verified against Discovery Context
 - No scope creep (no features user didn't ask for)
 - No missing requirements (all user requests in spec)
 - All sources valid (Epic/Derived, not "assumptions")

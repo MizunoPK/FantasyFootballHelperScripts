@@ -18,7 +18,8 @@
 | Template | Filename | Use When |
 |----------|----------|----------|
 | [Epic README](#epic-readme) | `epic_readme_template.md` | Creating epic folder structure |
-| [Epic Ticket](#epic-ticket) | `epic_ticket_template.md` | Validating epic-level understanding (Step 3.6) |
+| [Discovery](#discovery) | `discovery_template.md` | Creating DISCOVERY.md during Discovery Phase (Step 3) |
+| [Epic Ticket](#epic-ticket) | `epic_ticket_template.md` | Validating epic-level understanding (Step 4.6) |
 | [Epic Smoke Test Plan](#epic-smoke-test-plan) | `epic_smoke_test_plan_template.md` | Creating initial epic test plan |
 | [Epic Lessons Learned](#epic-lessons-learned) | `epic_lessons_learned_template.md` | Creating epic-level lessons document |
 
@@ -62,6 +63,14 @@
 - **Purpose:** Central epic tracking (Agent Status, progress, checklists)
 - **Size:** ~260 lines
 - **When to use:** Creating epic folder in S1
+
+#### Discovery
+- **File:** `discovery_template.md`
+- **Created:** S1.P3 (Discovery Phase)
+- **Purpose:** Epic-level source of truth for problem understanding, solution approach, and feature breakdown rationale
+- **Size:** ~300 lines
+- **When to use:** S1 Step 3 (Discovery Phase initialization)
+- **Critical:** Becomes reference document for all feature specs after user approval
 
 #### Epic Ticket
 - **File:** `epic_ticket_template.md`
@@ -109,10 +118,11 @@
 
 #### Feature Spec
 - **File:** `feature_spec_template.md`
-- **Created:** S2
-- **Purpose:** PRIMARY specification for implementation
-- **Size:** ~270 lines
-- **When to use:** Writing detailed requirements in S2
+- **Created:** S1 Step 5 (seeded), S2 (completed)
+- **Purpose:** PRIMARY specification for implementation. Includes Discovery Context section.
+- **Size:** ~320 lines
+- **When to use:** Seeded with Discovery Context in S1, completed in S2
+- **Critical:** Must start with Discovery Context section referencing DISCOVERY.md
 
 #### Feature Checklist
 - **File:** `feature_checklist_template.md`
@@ -189,12 +199,13 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 | Template | Lines | Immutable | User Validation Required |
 |----------|-------|-----------|-------------------------|
 | Epic README | ~260 | No | No |
+| Discovery | ~300 | Yes (after approval)* | Yes (S1.P3) |
 | Epic Ticket | ~120 | Yes (after validation) | Yes (S1) |
 | Epic Smoke Test Plan | ~270 | No | No |
 | Epic Lessons Learned | ~310 | No | No |
 | Feature README | ~160 | No | No |
 | Spec Summary | ~140 | Yes (after validation) | Yes (S2) |
-| Feature Spec | ~270 | No | No |
+| Feature Spec | ~320 | No | No |
 | Feature Checklist | ~95 | No | No |
 | Implementation Plan | ~400 | Yes (after validation) | Yes (S5) |
 | Implementation Checklist | ~50 | No | No |
@@ -203,19 +214,24 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 
 **Immutable templates:** Epic Ticket, Spec Summary, Implementation Plan, Bug Fix Notes (after user validation)
 
+*Discovery is immutable after approval, but can be updated if something is found incorrect or outdated during later stages.
+
 ---
 
 ## Common Template Workflows
 
 ### Starting a New Epic (S1)
 
-1. ✅ Create epic folder
-2. ✅ Use **Epic README** template
-3. ✅ Create feature breakdown
-4. ✅ Use **Epic Ticket** template (get user validation)
-5. ✅ Create feature folders
-6. ✅ Use **Epic Smoke Test Plan** template
-7. ✅ Use **Epic Lessons Learned** template
+1. Create epic folder
+2. Use **Epic README** template
+3. Use **Discovery** template (S1.P3 - mandatory Discovery Phase)
+4. Complete Discovery Loop until no new questions
+5. Get user approval of Discovery findings
+6. Create feature breakdown (based on Discovery)
+7. Use **Epic Ticket** template (get user validation)
+8. Create feature folders (seed spec.md with Discovery Context)
+9. Use **Epic Smoke Test Plan** template
+10. Use **Epic Lessons Learned** template
 
 ### Starting a New Feature (S2)
 

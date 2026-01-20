@@ -99,7 +99,7 @@ Once you've created this file, I can start S1.
 A: Minimal details acceptable:
 - Problem statement (1-2 sentences)
 - Desired outcomes (bullet points OK)
-- S1 will flesh out details through interactive questions
+- S1 Discovery Phase will flesh out details through iterative research and Q&A
 
 **Q: How do I know if feature breakdown is too granular or too coarse?**
 
@@ -150,9 +150,10 @@ A: Specific enough to create implementation_plan.md in S5:
 **Q: When do I move from Phase 0 to Phase 1 to Phase 2 in S2?**
 
 A: Follow the guide progression:
-- **Phase 0 (Research):** Understand epic intent, research codebase, audit existing patterns
-- **Phase 1 (Specification):** Write spec.md, create traceability matrix, alignment check
-- **Phase 2 (Refinement):** Interactive questions, scope management, user approval
+- **Phase 0 (Discovery Context Review):** Review DISCOVERY.md, verify spec has context
+- **Phase 1 (Research):** Feature-specific research, codebase exploration, research audit
+- **Phase 2 (Specification):** Write spec.md, create traceability matrix, alignment check
+- **Phase 3+ (Refinement):** Interactive questions, scope management, user approval
 
 All phases are mandatory - don't skip.
 
