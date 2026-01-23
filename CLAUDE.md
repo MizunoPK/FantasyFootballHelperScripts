@@ -214,7 +214,7 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 
 ## 🔀 S2 Parallel Work (Optional for 3+ Features)
 
-**When Offered:** During S1 Step 4.9 (if epic has 3+ features)
+**When Offered:** During S1 Step 5.9 (if epic has 3+ features)
 **Benefits:** 40-60% time reduction for S2 phase (e.g., 3 features: 4 hours vs 7.5 hours)
 **Complexity:** Requires spawning secondary agents and coordination
 
@@ -396,7 +396,7 @@ Receive handoff → Startup (10 steps) → S2.P1 (assigned feature)
 
 ### Integration with Existing Workflow
 
-**S1 Step 4.8-4.9:** Offer parallel work (if 3+ features)
+**S1 Step 5.8-5.9:** Offer parallel work (if 3+ features)
 **S1 Final Step:** Generate handoffs (if parallel enabled)
 **S2 Router:** Detects Primary vs Secondary role, routes to appropriate guide
 **S2.P1-P3:** Coordination sections in each phase guide
@@ -604,19 +604,25 @@ feature_XX_{name}/
 
 1. **Check for active epic folders:** Look in `feature-updates/` for any folders (excluding `done/` and `guides_v2/`)
 
-2. **If found, use the "Resuming In-Progress Epic" prompt** from `prompts_reference_v2.md`
+2. **CHECK FOR ACTIVE DEBUGGING:** Look for `debugging/` folder in epic or feature folders
+   - If `debugging/` folder exists, read `debugging/ISSUES_CHECKLIST.md` FIRST
+   - Active debugging takes priority over Agent Status in EPIC_README.md
+   - You may be mid-investigation or have unresolved issues
 
-3. **READ THE EPIC_README.md FIRST:** Check "Agent Status" section:
+3. **If found, use the "Resuming In-Progress Epic" prompt** from `prompts_reference_v2.md`
+
+4. **READ THE EPIC_README.md FIRST:** Check "Agent Status" section:
    - Current guide (S#.P#.I# notation)
    - Current step/iteration
    - Next action to take
    - Critical rules from current guide
+   - **Debugging Active field** (if YES, check debugging/ folder)
 
-4. **READ THE CURRENT GUIDE:** Use Read tool to load the guide listed in Agent Status
+5. **READ THE CURRENT GUIDE:** Use Read tool to load the guide listed in Agent Status
 
-5. **Continue from where previous agent left off** - Don't restart the workflow
+6. **Continue from where previous agent left off** - Don't restart the workflow
 
-**Why this matters:** Session compaction can interrupt agents mid-workflow. EPIC_README.md Agent Status survives context window limits and provides exact resumption point.
+**Why this matters:** Session compaction can interrupt agents mid-workflow. EPIC_README.md Agent Status survives context window limits and provides exact resumption point. Active debugging must be detected to avoid missing critical investigation context.
 
 ---
 

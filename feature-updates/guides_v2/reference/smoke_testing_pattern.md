@@ -60,6 +60,32 @@ Part 3: End-to-End Execution Test (CRITICAL)
 
 **These rules apply to ALL smoke testing (feature or epic):**
 
+### 0. ZERO TOLERANCE FOR ERRORS (CRITICAL)
+
+```
+ZERO TOLERANCE FOR ERRORS DURING SMOKE TESTING
+
+1. Every test must PASS - "runs without crashing" is NOT passing
+2. ANY error (including import errors) requires immediate investigation
+3. "Environment issue" is NEVER an acceptable explanation without proof:
+   - Prove the code works in a proper environment
+   - If you can't prove it, it's a CODE BUG until proven otherwise
+4. Must test with production-like environment (venv with all dependencies)
+5. Never assume "because X works, Y must work" - verify independently
+
+Before marking smoke test as PASSED:
+- [ ] All components returned exit code 0
+- [ ] No import errors in any output
+- [ ] Expected output/behavior observed (not just "no crash")
+- [ ] If using subprocess, verified child uses correct Python interpreter
+- [ ] If any errors occurred, documented root cause (not just "environment")
+
+HISTORICAL CASE: All 6 components failed with ModuleNotFoundError during
+S9 smoke testing. Agent marked as PASSED assuming "environment issue".
+Root cause: Code bug (hardcoded 'python' instead of sys.executable).
+This could have caused weeks of debugging if not caught.
+```
+
 ### 1. ALL Parts Are MANDATORY
 - Cannot skip any part
 - Must complete in order (Part 1 → 2 → 3 → [4 if epic])

@@ -39,7 +39,7 @@
 
 ### What This Audit Covers
 
-This audit ensures **consistency, accuracy, and completeness** across all guides_v2 files:
+This audit ensures **consistency, accuracy, and completeness** across all guides_v2 files AND related external files:
 
 - ✅ **Cross-Reference Accuracy:** All file paths, stage references, and cross-links are valid
 - ✅ **Terminology Consistency:** Notation, naming conventions, and terminology are uniform
@@ -48,6 +48,17 @@ This audit ensures **consistency, accuracy, and completeness** across all guides
 - ✅ **Completeness:** No missing sections, gaps in coverage, or orphaned references
 - ✅ **Template Currency:** Templates reflect current workflow structure and terminology
 - ✅ **Context-Sensitive Validation:** Same pattern validated differently based on file context
+- ✅ **CLAUDE.md Synchronization:** Quick references in CLAUDE.md match actual guide content (NEW)
+
+### Critical External Files (MUST be included in audit)
+
+**CLAUDE.md** (project root) must stay synchronized with guides_v2/:
+- Step numbers in quick reference match actual guide step numbers
+- Stage descriptions match guide content
+- Workflow diagrams match actual workflow structure
+- Decision criteria match guide decision criteria
+
+**Why this matters:** CLAUDE.md is often the FIRST file agents read. If it's out of sync with guides, agents follow wrong instructions.
 
 ### What This Audit Does NOT Cover
 
@@ -111,7 +122,7 @@ This audit ensures **consistency, accuracy, and completeness** across all guides
 
 ## Audit Dimensions
 
-Evaluate guides across **seven critical dimensions:**
+Evaluate guides across **eight critical dimensions:**
 
 ### 1. Cross-Reference Accuracy
 
@@ -255,6 +266,40 @@ Evaluate guides across **seven critical dimensions:**
 - Not understanding file-specific purposes
 
 **Generic Test:** For ambiguous patterns, manually review EVERY match in context
+
+### 8. CLAUDE.md Synchronization (CRITICAL)
+
+**What to Check:**
+- Step numbers in CLAUDE.md match actual guide step numbers
+- Stage workflow descriptions match guide content
+- Decision criteria in quick reference match guide decision criteria
+- Prompt references point to correct locations
+- Mandatory flags/checkpoints are reflected in quick reference
+
+**Pattern Types to Find:**
+- Step number mismatches (e.g., CLAUDE.md says "Step 4.8" but guide has "Step 5.8")
+- Outdated workflow diagrams
+- Missing mandatory steps in quick reference
+- Decision criteria that differ from guide content
+
+**How Errors Happen:**
+- Guide steps renumbered but CLAUDE.md not updated
+- New mandatory steps added to guide but not reflected in CLAUDE.md
+- CLAUDE.md written before guide was finalized
+- Parallel work added to guides but CLAUDE.md references wrong steps
+
+**Generic Test:** For each quick reference in CLAUDE.md:
+1. Find the referenced guide
+2. Verify step numbers match
+3. Verify decision criteria match
+4. Verify mandatory flags are consistent
+
+**Historical Evidence (KAI-7):**
+- CLAUDE.md said "S1 Step 4.8-4.9" but actual guide had "Step 5.8-5.9"
+- Agent followed CLAUDE.md, looked for non-existent steps, skipped parallelization offer
+- Root cause: CLAUDE.md was NOT in audit scope
+
+**Why CRITICAL:** CLAUDE.md is often the FIRST file agents read. Out-of-sync content causes workflow failures.
 
 ---
 

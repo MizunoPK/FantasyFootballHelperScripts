@@ -583,11 +583,31 @@ Add **Epic Completion Checklist** with all 10 stages (S1 items checked, all othe
 
 ### Step 5.7: Update Agent Status
 
-Update Agent Status: Progress 5/6, Next Action "Step 6 - Transition to S2", list features created.
+Update Agent Status: Progress 5/6, Next Action "Step 5.8 - Parallelization Assessment", list features created.
 
-### Step 5.8: Analyze Features for Parallelization (Optional)
+---
+
+### CHECKPOINT: Parallelization Assessment Gate
+
+**STOP HERE if epic has 2+ features.**
+
+Before proceeding to Step 6 (Transition to S2), you MUST complete Steps 5.8-5.9.
+
+**Checklist:**
+- [ ] Feature count verified (if 1 feature, skip to Step 6)
+- [ ] If 2+ features: Step 5.8 analysis completed
+- [ ] If 3+ features: Step 5.9 offer presented to user
+- [ ] User response documented (parallel enabled OR sequential chosen)
+
+**DO NOT proceed to Step 6 until this checkpoint is satisfied.**
+
+---
+
+### Step 5.8: Analyze Features for Parallelization (MANDATORY when 2+ features)
 
 **Purpose:** Determine if S2 parallelization should be offered to user
+
+**MANDATORY:** This step is REQUIRED when the epic has 2+ features. Do NOT skip to Step 6.
 
 **When to analyze:**
 - Epic has 2+ features
