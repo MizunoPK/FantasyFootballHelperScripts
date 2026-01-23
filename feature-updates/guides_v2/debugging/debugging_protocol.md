@@ -29,6 +29,29 @@
 
 ---
 
+## Step 0: Update EPIC_README.md Agent Status (MANDATORY)
+
+**When entering debugging protocol, you MUST update EPIC_README.md Agent Status:**
+
+```markdown
+## Agent Status
+
+**Debugging Active:** YES - see debugging/ISSUES_CHECKLIST.md
+**Last Updated:** {YYYY-MM-DD HH:MM}
+**Current Stage:** {stage where issue was found, e.g., S9.P3}
+**Current Phase:** IN DEBUGGING PROTOCOL
+**Current Guide:** debugging/debugging_protocol.md
+**Next Action:** {current investigation step}
+```
+
+**Why this is mandatory:**
+- Future agents rely on EPIC_README.md to determine state
+- Without explicit "Debugging Active: YES", new agents assume normal workflow
+- Critical investigation context is lost without this update
+- Historical case: New agent missed active debugging, causing confusion
+
+---
+
 ## Quick Start
 
 **What is this protocol?**

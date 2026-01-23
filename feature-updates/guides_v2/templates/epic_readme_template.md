@@ -53,6 +53,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 
 ## Agent Status
 
+**Debugging Active:** NO
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Stage:** Stage {X} - {stage name}
 **Current Phase:** {PLANNING / IMPLEMENTATION / QC}
@@ -326,6 +327,8 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 - [ ] Initial `epic_smoke_test_plan.md` created
 - [ ] `EPIC_README.md` created (this file)
 - [ ] `epic_lessons_learned.md` created
+- [ ] Parallelization assessment completed (Step 5.8-5.9)
+- [ ] User chose: {PARALLEL / SEQUENTIAL} for S2
 
 **S2 - Feature Deep Dives:**
 - [ ] ALL features have `spec.md` complete

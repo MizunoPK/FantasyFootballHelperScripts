@@ -182,4 +182,44 @@ Please answer so I can continue research.
 
 ---
 
+## S1 Complete: Transitioning to S2
+
+**When:** S1 Step 6 complete, ready to announce transition to S2
+
+**Agent MUST respond:**
+
+```
+**S1 (Epic Planning) Complete**
+
+**Summary:**
+- Epic folder created: feature-updates/KAI-{N}-{epic_name}/
+- Feature folders created: {count}
+- Discovery iterations: {N}
+- Questions resolved: {M}
+
+**Parallelization Assessment (Step 5.8-5.9):**
+- Feature count: {N}
+- Parallelization assessed: {YES/NO}
+- Parallelization offered: {YES/NO/N/A (only 1 feature)}
+- User choice: {PARALLEL / SEQUENTIAL / N/A}
+
+**S1 Completion Checklist:**
+- [x] Epic folder created
+- [x] All feature folders created
+- [x] EPIC_README.md created
+- [x] DISCOVERY.md created and approved
+- [x] epic_smoke_test_plan.md created
+- [x] epic_lessons_learned.md created
+- [x] Parallelization assessment completed (Step 5.8-5.9)
+- [x] User choice documented: {PARALLEL/SEQUENTIAL}
+
+**🚨 VERIFICATION: If feature count >= 2 and parallelization NOT assessed, STOP and complete Step 5.8-5.9 before proceeding.**
+
+**Ready to proceed to S2 (Feature Deep Dives).**
+
+Would you like me to begin S2 for Feature 01?
+```
+
+---
+
 *For prompts for other stages, see the [prompts index](../prompts_reference_v2.md)*

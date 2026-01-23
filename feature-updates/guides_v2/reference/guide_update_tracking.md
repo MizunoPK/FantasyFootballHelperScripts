@@ -29,9 +29,10 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 | Epic | Priority | Lesson Summary | Guide(s) Updated | Date Applied | Commit |
 |------|----------|----------------|------------------|--------------|--------|
-| {Example entry below - delete after first real entry} |
-| KAI-1-example | P0 | Iteration 25 prevented spec misinterpretation | mandatory_gates.md | 2026-01-10 | abc1234 |
-| | | | 5.1.3.3_round3_part2b.md | | |
+| KAI-7-improve_debugging_runs | P0 | Debugging Active Detection - new agents missed active debugging | CLAUDE.md, debugging_protocol.md, epic_readme_template.md | 2026-01-23 | pending |
+| KAI-7-improve_debugging_runs | P0 | Zero Tolerance for Errors - agent marked errors as "environment issue" | smoke_testing_pattern.md | 2026-01-23 | pending |
+| KAI-7-improve_debugging_runs | P1 | Make implementation_checklist.md creation first step in S6 | s6_execution.md | 2026-01-23 | pending |
+| KAI-7-improve_debugging_runs | P2 | Windows File Locking in logging tests | s7_p1_smoke_testing.md | 2026-01-23 | pending |
 
 **Instructions:**
 - Add one row per lesson applied (even if multiple guides updated)
@@ -110,21 +111,21 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 | Metric | Count | Notes |
 |--------|-------|-------|
-| Total epics completed | {N} | Since guide update workflow started |
-| Epics with guide updates | {N} | {X}% of total |
-| Total proposals created | {N} | Across all epics |
-| Total proposals approved | {N} | {X}% approval rate |
-| Total proposals rejected | {N} | {X}% rejection rate |
-| Total proposals modified | {N} | {X}% modification rate |
+| Total epics completed | 1 | Since guide update workflow started |
+| Epics with guide updates | 1 | 100% of total |
+| Total proposals created | 4 | Across all epics |
+| Total proposals approved | 4 | 100% approval rate |
+| Total proposals rejected | 0 | 0% rejection rate |
+| Total proposals modified | 0 | 0% modification rate |
 
 **Approval Rate by Priority:**
 
 | Priority | Proposed | Approved | Approval Rate | Notes |
 |----------|----------|----------|---------------|-------|
-| P0 (Critical) | {N} | {N} | {X}% | Target: >80% |
-| P1 (High) | {N} | {N} | {X}% | Target: >60% |
-| P2 (Medium) | {N} | {N} | {X}% | Target: >40% |
-| P3 (Low) | {N} | {N} | {X}% | Target: >20% |
+| P0 (Critical) | 2 | 2 | 100% | Target: >80% |
+| P1 (High) | 1 | 1 | 100% | Target: >60% |
+| P2 (Medium) | 1 | 1 | 100% | Target: >40% |
+| P3 (Low) | 0 | 0 | N/A | Target: >20% |
 
 **Most Frequently Updated Guides:**
 
@@ -192,8 +193,8 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 ## History
 
 **Document Created:** 2026-01-11
-**Last Major Update:** 2026-01-11
-**Total Lessons Tracked:** 0 (newly created)
+**Last Major Update:** 2026-01-23
+**Total Lessons Tracked:** 4 (from KAI-7)
 
 ---
 

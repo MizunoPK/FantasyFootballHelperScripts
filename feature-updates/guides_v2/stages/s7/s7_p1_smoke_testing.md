@@ -539,6 +539,38 @@ tail -100 logs/application.log | grep -i "feature"
 
 ---
 
+## Platform-Specific Considerations
+
+### Windows File Locking
+
+When testing logging functionality on Windows, file handlers may keep log files open, preventing temporary directory cleanup.
+
+**Solution:** Add cleanup code to close handlers before temp directory cleanup:
+
+```python
+def _close_logger_handlers(logger):
+    """Close all handlers to release file locks (Windows)."""
+    for handler in logger.handlers[:]:
+        handler.close()
+        logger.removeHandler(handler)
+
+# In test:
+try:
+    # Test logging functionality
+    logger = setup_debug_logging("test_component")
+    logger.info("Test message")
+finally:
+    _close_logger_handlers(logger)
+    # Now temp directory can be cleaned up
+```
+
+**When this applies:**
+- Testing file logging on Windows
+- Using temporary directories with log files
+- Seeing "PermissionError" or "WinError 32" during cleanup
+
+---
+
 ## Common Feature-Specific Issues
 
 ### Issue 1: Feature Works in Tests But Not with Real Data

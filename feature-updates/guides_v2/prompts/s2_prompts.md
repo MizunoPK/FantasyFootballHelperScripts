@@ -42,6 +42,11 @@ I'm reading `stages/s2/s2_feature_deep_dive.md` to ensure I follow the complete 
 ✅ Epic folder exists: `feature-updates/KAI-{N}-{epic_name}/`
 ✅ Feature folder exists: `feature_{NN}_{name}/`
 ✅ S1 complete (EPIC_README.md shows S1 complete)
+✅ Parallelization assessed (Step 5.8-5.9 completed)
+✅ User choice documented: {PARALLEL / SEQUENTIAL}
+
+**🚨 If parallelization was NOT assessed and epic has 2+ features:**
+STOP - Return to S1 Step 5.8-5.9 before proceeding with S2.
 
 **I'll now proceed with Phase 1 (Targeted Research for THIS feature only)...**
 
