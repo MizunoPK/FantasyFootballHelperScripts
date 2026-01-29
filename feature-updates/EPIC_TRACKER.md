@@ -17,7 +17,7 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 7 | improve_debugging_runs | epic | epic/KAI-7 | In Progress | 2026-01-20 |
+| 7 | improve_configurability_of_scripts | epic | epic/KAI-7 | In Progress | 2026-01-28 |
 
 ---
 
