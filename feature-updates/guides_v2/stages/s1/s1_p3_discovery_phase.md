@@ -276,6 +276,12 @@ F. Check Exit (any new questions? if no, exit loop)
    - Trade-offs between options
    - Constraints that limit choices
 
+5. **External dependencies** (NEW - from KAI-1 lessons)
+   - Libraries or APIs the epic might require
+   - Known compatibility issues with test environments
+   - Experience with these libraries in previous features
+   - Alternative libraries if primary choice has issues
+
 **Research activities:**
 - Use Grep/Glob to find relevant files
 - Use Read to examine actual code
@@ -334,6 +340,7 @@ Update DISCOVERY.md with iteration findings:
 | **Preference** | Multiple valid approaches | "CLI flags or config file?" |
 | **Priority** | Trade-offs need input | "Speed or thoroughness for debug?" |
 | **Constraint** | Limits need verification | "Must work offline?" |
+| **External Dependencies** | Libraries/APIs needed | "Will we use ESPN API or another source?" "Are there known compatibility issues?" |
 
 **For each question, document:**
 - The question itself

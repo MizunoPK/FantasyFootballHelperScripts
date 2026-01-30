@@ -389,6 +389,117 @@ X "Let me understand the entire codebase architecture"
 
 ---
 
+### Step 1.3a: Verify External Library Compatibility (NEW - from KAI-1 lessons)
+
+**Purpose:** Test external libraries with test environment/mock data BEFORE writing spec
+
+**Historical Context (KAI-1 Feature 02):**
+- Feature assumed S3Util library would work with LocalStack test environment
+- Didn't test during research
+- Result: 6/16 tests failed during S7
+- Time cost: 2 hours debugging + workaround implementation
+- **This step prevents that scenario**
+
+---
+
+**Process:**
+
+**1. Identify External Libraries This Feature Needs:**
+
+Review Discovery Context and research findings:
+- What libraries or APIs will this feature use?
+- ESPN API, pandas, requests, third-party packages?
+- New libraries not currently used?
+
+**Examples:**
+- ESPN API (espn_api package) - for player projections
+- pandas - for CSV manipulation
+- requests - for HTTP calls
+- BeautifulSoup - for web scraping
+
+---
+
+**2. For Each External Library, Test Compatibility:**
+
+**Quick compatibility test (15-20 minutes per library):**
+
+```python
+# Example: Test ESPN API with mock responses
+import espn_api
+from unittest.mock import Mock, patch
+
+# Can we mock this library's responses?
+with patch('espn_api.League') as mock_league:
+    mock_league.return_value = Mock(players=[...])
+    # Does library work with mocks?
+    # Can we configure endpoints?
+```
+
+**Check:**
+- [ ] Does library accept endpoint override (for test APIs)?
+- [ ] Does library support mock responses?
+- [ ] Can library work with test data files?
+- [ ] Are there known compatibility issues?
+
+---
+
+**3. Document Findings:**
+
+Add to research notes:
+
+```markdown
+## External Library Verification
+
+### Library: ESPN API (espn_api package)
+- **Purpose:** Fetch player projections
+- **Test Environment:** Mock API responses
+- **Compatibility:** ✅ COMPATIBLE
+  - Library accepts mocked responses
+  - No endpoint override needed (uses League ID)
+  - Tested with unittest.mock - works correctly
+- **Workaround:** None needed
+
+### Library: custom-java-lib (hypothetical)
+- **Purpose:** S3 file uploads
+- **Test Environment:** LocalStack
+- **Compatibility:** ❌ INCOMPATIBLE
+  - Library doesn't support endpoint override
+  - Hardcoded to AWS production endpoints
+  - Cannot configure for LocalStack
+- **Workaround:** Create custom test client using boto3 directly
+- **Impact:** Add 2 tasks to spec for test client wrapper
+```
+
+---
+
+**4. Update Spec Scope if Workarounds Needed:**
+
+If library incompatible:
+- Document workaround approach
+- Note additional tasks needed
+- Estimate additional time
+- May need to ask user if significant scope increase
+
+---
+
+**When to Skip This Step:**
+
+- Feature uses NO external libraries (only internal code)
+- Feature uses ONLY well-tested libraries (pandas, requests) with no test environment concerns
+- Discovery already identified and resolved external dependency issues
+
+**When This Step is CRITICAL:**
+
+- Feature uses new external API (ESPN, third-party services)
+- Feature uses library with endpoint configuration (AWS, cloud services)
+- Feature uses library requiring authentication (OAuth, API keys)
+- Feature uses library with strict validation (XML parsers, formatters)
+
+**Time Investment:** 15-20 minutes per library
+**Time Saved:** 2+ hours of S7 debugging per incompatible library
+
+---
+
 ### Step 1.4: Document Findings in Research Folder
 
 Create `epic/research/{FEATURE_NAME}_RESEARCH.md`:

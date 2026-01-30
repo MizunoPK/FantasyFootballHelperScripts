@@ -168,6 +168,104 @@ Round 3: Final Skeptical Review (10-20 min)
 
 ---
 
+## 🚨 Code Inspection Protocol (MANDATORY)
+
+**CRITICAL:** QC rounds require ACTUAL code inspection, not checkbox validation.
+
+**Historical Context (KAI-1 Feature 01):**
+- Agent claimed "error handling verified" in QC Round 1
+- Actually: Agent didn't read the file, just assumed it was correct
+- Result: Missing `set -e` in shell script passed through 3 QC rounds
+- Caught only when user asked "did you actually review the code?"
+- **This protocol prevents that anti-pattern**
+
+---
+
+### For EVERY file modified/created in this feature:
+
+**Step 1: OPEN THE FILE**
+- Use Read tool to load the actual file contents
+- Do NOT rely on memory or assumptions
+- Do NOT skip this step even if you "know what's in the file"
+
+**Step 2: READ EVERY LINE**
+- Not just skim - actually read each line
+- Check for commented code, debug statements, TODOs
+- Verify code matches implementation plan
+
+**Step 3: VERIFY AGAINST CHECKLIST**
+- Line-by-line comparison against QC checklist items
+- Provide specific evidence (line numbers, actual code)
+- Never say "verified ✅" without showing the evidence
+
+---
+
+### Example - Correct Code Inspection:
+
+❌ **WRONG APPROACH:**
+```
+Validation 1.2: Code Structure
+- Error handling: ✅ Present
+- File structure: ✅ Correct
+- Code conventions: ✅ Followed
+```
+
+✅ **CORRECT APPROACH:**
+```
+Validation 1.2: Code Structure
+
+Opening file: league_helper/PlayerManager.py
+
+Line 45-52: load_adp_data() method
+- Error handling present: ✅
+  - Line 48: try/except FileNotFoundError
+  - Line 50: error logged with context
+  - Line 51: returns empty list (graceful degradation)
+- Return type matches spec: ✅
+  - Returns List[Tuple[str, str, int]]
+  - Line 52: return adp_data
+- Docstring complete: ✅
+  - Lines 45-51: Google style docstring with Args, Returns, Raises
+
+File structure verified: All imports at top (lines 1-8), methods organized by feature
+Code conventions verified: Follows CODING_STANDARDS.md (type hints, error context, logging)
+```
+
+**Notice the difference:**
+- ❌ Wrong: Claims verification without evidence
+- ✅ Correct: Shows actual lines inspected, quotes code, provides proof
+
+---
+
+### Why This Matters:
+
+**Without Code Inspection Protocol:**
+- Agents claim to verify without reading files
+- Issues slip through to PR review or user testing
+- QC rounds become meaningless checkbox exercise
+- User intervention required (should be caught by agent)
+
+**With Code Inspection Protocol:**
+- Agents read actual code before claiming verification
+- Issues caught during QC (as designed)
+- Evidence-based validation (line numbers, quotes)
+- User can trust QC results
+
+---
+
+### Red Flags - Signs You're NOT Inspecting Code:
+
+- ❌ "Verified all requirements ✅" without file reads
+- ❌ No line numbers in your validation report
+- ❌ No code quotes or examples
+- ❌ Generic statements like "looks good"
+- ❌ Validating 10+ files in 5 minutes
+- ❌ Round 1, 2, and 3 all have identical results
+
+**If you see these patterns, STOP and actually read the code.**
+
+---
+
 ## QC Round 1: Basic Validation
 
 **📖 See `reference/qc_rounds_pattern.md` for universal Round 1 patterns.**
