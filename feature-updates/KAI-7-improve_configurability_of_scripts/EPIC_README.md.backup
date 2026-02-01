@@ -1,0 +1,359 @@
+# Epic: improve_configurability_of_scripts
+
+**Created:** 2026-01-28
+**Status:** IN PROGRESS
+**Total Features:** TBD (pending feature breakdown)
+
+---
+
+## 🎯 Quick Reference Card (Always Visible)
+
+**Current Stage:** Stage 1 - Epic Planning
+**Active Guide:** `guides_v2/stages/s1/s1_epic_planning.md`
+**Last Guide Read:** 2026-01-28 14:30
+
+**Stage Workflow:**
+```
+S1 → S2 → S3 → S4 → [S5→S6→S7→S8] → S9 → S10
+  ↓        ↓        ↓        ↓        ↓           ↓        ↓
+Epic  Features  Sanity  Testing  Implementation  Epic    Done
+Plan  Deep Dive  Check  Strategy  (per feature)   QC
+```
+
+**You are here:** ➜ Stage 1
+
+**Critical Rules for Current Stage:**
+1. CREATE GIT BRANCH BEFORE ANY CHANGES (Step 1.0) - COMPLETE
+2. USER MUST APPROVE feature breakdown before creating epic ticket
+3. CREATE EPIC TICKET and get user validation (Steps 3.6-3.7)
+4. Create GUIDE_ANCHOR.md in epic folder (resumption instructions)
+5. epic_smoke_test_plan.md is PLACEHOLDER (will update in S4, S8.P2)
+
+**Before Proceeding to Next Step:**
+- [x] Read guide: `guides_v2/stages/s1/s1_epic_planning.md`
+- [x] Acknowledge critical requirements
+- [x] Verify prerequisites from guide
+- [ ] Update this Quick Reference Card after each phase
+
+---
+
+## Agent Status
+
+**Debugging Active:** NO
+**Last Updated:** 2026-01-28 14:30
+**Current Stage:** Stage 1 - Epic Planning
+**Current Phase:** PLANNING
+**Current Step:** Phase 1 complete (Initial Setup) - Starting Phase 2 (Epic Analysis)
+**Current Guide:** `stages/s1/s1_epic_planning.md`
+**Guide Last Read:** 2026-01-28 14:30
+
+**Critical Rules from Guide:**
+- Git branch created BEFORE any changes (epic/KAI-7) ✅
+- User must approve feature breakdown and epic ticket
+- Create placeholder test plan (mark as "INITIAL - WILL UPDATE")
+- Update Agent Status after EACH phase (not batched)
+- Create GUIDE_ANCHOR.md for resumption support
+
+**Progress:** 4/5 phases complete (Parallel Work Setup)
+**Current Step:** Generating handoff packages for 8 secondary agents
+**Next Action:** Create agent_checkpoints/, agent_comms/, handoffs/ folders and generate packages
+**Blockers:** None
+
+---
+
+## Epic Overview
+
+**Epic Goal:**
+Make runner scripts configurable with argument-based control over behavior, add debug mode support, and create integration test runners for end-to-end testing with multiple argument combinations.
+
+**Epic Scope:**
+
+**In Scope:**
+- Add argument-based configuration to all runner scripts (7 scripts)
+- Create fast E2E test modes (~3 min max per script) for integration testing
+- Add debug mode logging support across all scripts
+- Create per-script integration test runners (test multiple argument combinations)
+- Create master integration test runner (runs all individual test runners)
+- Update documentation for new testing workflows
+- Scripts to modify: run_league_helper.py, run_player_fetcher.py, run_schedule_fetcher.py, run_win_rate_simulation.py, run_accuracy_simulation.py, run_game_data_fetcher.py, compile_historical_data.py
+
+**Out of Scope:**
+- Modifying scoring algorithms or business logic
+- Adding new features to league helper modes
+- Changing simulation algorithms
+- Modifying data fetching API logic
+
+**Key Outcomes:**
+1. All 7 runner scripts accept command-line arguments for configuration
+2. Each script has E2E test mode that completes in ~3 minutes
+3. All scripts support debug logging mode
+4. 7 individual integration test runners (one per script)
+5. 1 master integration test runner
+6. Documentation updated with testing workflows
+
+**Original Request:** `improve_configurability_of_scripts_notes.txt`
+
+---
+
+## Epic Progress Tracker
+
+**Overall Status:** 0/9 features complete
+
+| Feature | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2 |
+|---------|-----|-----|-----|-----|-----|-----|-----|-------|-------|
+| feature_01_player_fetcher | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_02_schedule_fetcher | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_03_game_data_fetcher | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_04_historical_compiler | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_05_win_rate_simulation | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_06_accuracy_simulation | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_07_league_helper | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_08_integration_test_framework | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_09_documentation | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+
+**Legend:**
+- ✅ = Complete
+- ◻️ = Not started or in progress
+
+**S1 - Epic Planning:**
+- [x] Git branch created (epic/KAI-7)
+- [x] EPIC_TRACKER.md updated
+- [x] Epic folder created
+- [x] Epic request file moved
+- [x] EPIC_README.md created
+- [x] Epic analysis complete
+- [x] Feature breakdown proposed and user-approved (9 features, 1 per script)
+- [x] Epic ticket created and user-validated
+- [x] Epic structure created (feature folders, test plan, etc.)
+- [x] Parallelization assessment (9 features = 89% S2 time reduction)
+- [x] User chose PARALLEL work for S2
+- [ ] Generate handoff packages (in progress)
+- [ ] Transition to S2 (parallel mode)
+
+---
+
+<!-- BEGIN SECONDARY-A PROGRESS -->
+## Feature 02 Progress (Secondary-A)
+
+**Last Updated:** 2026-01-28 19:42
+**Current Stage:** S2.P1 (Research Phase - BLOCKED)
+**Current Step:** Waiting for Primary to complete S1.P3 Discovery Phase
+**Blockers:** ESCALATION - Missing DISCOVERY.md (S1.P3 Discovery Phase not completed)
+**Next Action:** Awaiting Primary response - S1.P3 must be completed before S2 can begin
+
+**S2 Progress:**
+- 🔴 S2.P1 (Research Phase) - BLOCKED (Missing DISCOVERY.md)
+- ⏳ S2.P2 (Specification Phase) - Not Started
+- ⏳ S2.P3 (Refinement Phase) - Not Started
+<!-- END SECONDARY-A PROGRESS -->
+
+---
+
+<!-- BEGIN SECONDARY-B PROGRESS -->
+## Feature 03 Progress (Secondary-B)
+
+**Last Updated:** 2026-01-28 20:35
+**Current Stage:** S2.P1 (Research Phase - BLOCKED)
+**Current Step:** Awaiting S1.P3 Discovery Phase completion
+**Blockers:** ESCALATION - DISCOVERY.md does not exist (S2.P1 prerequisite)
+**Next Action:** Wait for Primary to complete S1.P3, then begin S2.P1 Phase 0
+
+**S2 Progress:**
+- 🚫 S2.P1 (Research Phase) - Blocked (awaiting S1.P3 completion)
+- ⏳ S2.P2 (Specification Phase) - Not Started
+- ⏳ S2.P3 (Refinement Phase) - Not Started
+<!-- END SECONDARY-B PROGRESS -->
+
+---
+
+<!-- BEGIN SECONDARY-C PROGRESS -->
+## Feature 04 Progress (Secondary-C)
+
+**Last Updated:** 2026-01-28 22:05
+**Current Stage:** S2.P1 (Research Phase - BLOCKED)
+**Current Step:** Escalated to Primary - DISCOVERY.md missing
+**Blockers:** ESCALATION - S1.P3 Discovery Phase not complete, DISCOVERY.md does not exist
+**Next Action:** Waiting for Primary to complete S1.P3 before S2 can begin
+
+**S2 Progress:**
+- ⏳ S2.P1 (Research Phase) - BLOCKED (cannot start without DISCOVERY.md)
+- ⏳ S2.P2 (Specification Phase) - Not Started
+- ⏳ S2.P3 (Refinement Phase) - Not Started
+<!-- END SECONDARY-C PROGRESS -->
+
+---
+
+<!-- BEGIN SECONDARY-D PROGRESS -->
+## Feature 05 Progress (Secondary-D)
+
+**Last Updated:** 2026-01-28 19:52
+**Current Stage:** S2.P1 (Research Phase - BLOCKED)
+**Current Step:** Awaiting S1.P3 Discovery Phase completion
+**Blockers:** ESCALATION - DISCOVERY.md does not exist (S2.P1 prerequisite)
+**Next Action:** Wait for Primary to complete S1.P3, then begin S2.P1 Phase 0
+
+**S2 Progress:**
+- 🚫 S2.P1 (Research Phase) - Blocked (awaiting S1.P3 completion)
+- ⏳ S2.P2 (Specification Phase) - Not Started
+- ⏳ S2.P3 (Refinement Phase) - Not Started
+<!-- END SECONDARY-D PROGRESS -->
+
+---
+
+<!-- BEGIN SECONDARY-E PROGRESS -->
+## Feature 06 Progress (Secondary-E)
+
+**Last Updated:** 2026-01-29 02:52
+**Current Stage:** S2.P1 (Research Phase - Starting)
+**Current Step:** Configuring agent from handoff package
+**Blockers:** None
+**Next Action:** Begin S2.P1 Research Phase
+
+**S2 Progress:**
+- ⏳ S2.P1 (Research Phase) - Starting
+- ⏳ S2.P2 (Specification Phase) - Not Started
+- ⏳ S2.P3 (Refinement Phase) - Not Started
+<!-- END SECONDARY-E PROGRESS -->
+
+---
+
+<!-- BEGIN SECONDARY-G PROGRESS -->## Feature 08 Progress (Secondary-G)**Last Updated:** 2026-01-28 19:52**Current Stage:** S2.P1 (Research Phase - Starting)**Current Step:** Configuring agent from handoff package**Blockers:** None**Next Action:** Begin S2.P1 Research Phase**S2 Progress:**- ⏳ S2.P1 (Research Phase) - Starting- ⏳ S2.P2 (Specification Phase) - Not Started- ⏳ S2.P3 (Refinement Phase) - Not Started<!-- END SECONDARY-G PROGRESS -->
+
+---
+
+## Epic-Level Files
+
+**Created in S1:**
+- `EPIC_README.md` (this file)
+- `EPIC_TICKET.md` - User-validated epic outcomes
+- `epic_smoke_test_plan.md` - Initial test plan (will update in S4/S8.P2)
+- `epic_lessons_learned.md` - Cross-feature insights
+- `GUIDE_ANCHOR.md` - Resumption instructions
+- `improve_configurability_of_scripts_notes.txt` - Original epic request
+- `research/` - Epic-level research folder
+
+**Feature Folders:**
+- `feature_01_player_fetcher/`
+- `feature_02_schedule_fetcher/`
+- `feature_03_game_data_fetcher/`
+- `feature_04_historical_compiler/`
+- `feature_05_win_rate_simulation/`
+- `feature_06_accuracy_simulation/`
+- `feature_07_league_helper/`
+- `feature_08_integration_test_framework/`
+- `feature_09_documentation/`
+
+## Feature Summary
+
+### Feature 01: player_fetcher
+**Folder:** `feature_01_player_fetcher/`
+**Purpose:** Add argument support and debug logging to player data fetcher
+**Status:** S1 complete
+**Dependencies:** None (establishes patterns)
+
+### Feature 02: schedule_fetcher
+**Folder:** `feature_02_schedule_fetcher/`
+**Purpose:** Add argument support and debug logging to schedule data fetcher
+**Status:** S1 complete
+**Dependencies:** None (benefits from Feature 01 patterns)
+
+### Feature 03: game_data_fetcher
+**Folder:** `feature_03_game_data_fetcher/`
+**Purpose:** Enhance existing arguments and add debug logging to game data fetcher
+**Status:** S1 complete
+**Dependencies:** None
+
+### Feature 04: historical_compiler
+**Folder:** `feature_04_historical_compiler/`
+**Purpose:** Enhance historical data compiler with debug logging and E2E mode
+**Status:** S1 complete
+**Dependencies:** None
+
+### Feature 05: win_rate_simulation
+**Folder:** `feature_05_win_rate_simulation/`
+**Purpose:** Add E2E mode and debug logging to win rate simulation
+**Status:** S1 complete
+**Dependencies:** None
+
+### Feature 06: accuracy_simulation
+**Folder:** `feature_06_accuracy_simulation/`
+**Purpose:** Add E2E mode and debug logging to accuracy simulation
+**Status:** S1 complete
+**Dependencies:** None (benefits from Feature 05 patterns)
+
+### Feature 07: league_helper
+**Folder:** `feature_07_league_helper/`
+**Purpose:** Add argument support and E2E test flows to league helper
+**Status:** S1 complete
+**Dependencies:** None (benefits from all previous), Blocks Feature 08
+
+### Feature 08: integration_test_framework
+**Folder:** `feature_08_integration_test_framework/`
+**Purpose:** Create integration test runners for all scripts
+**Status:** S1 complete
+**Dependencies:** Features 01-07, Blocks Feature 09
+
+### Feature 09: documentation
+**Folder:** `feature_09_documentation/`
+**Purpose:** Update documentation with new arguments and testing workflows
+**Status:** S1 complete
+**Dependencies:** Feature 08
+
+---
+
+## Workflow Checklist
+
+**S1 - Epic Planning:**
+- [x] Epic folder created
+- [x] Epic request file moved and renamed
+- [x] EPIC_README.md created
+- [ ] Epic analysis complete
+- [ ] Feature breakdown proposed
+- [ ] User approved feature breakdown
+- [ ] Epic ticket created
+- [ ] User validated epic ticket
+- [ ] All feature folders created
+- [ ] Initial `epic_smoke_test_plan.md` created
+- [ ] `epic_lessons_learned.md` created
+- [ ] `research/` folder created
+- [ ] `GUIDE_ANCHOR.md` created
+- [ ] Parallelization assessment completed
+- [ ] Ready for S2 transition
+
+**S2 - Feature Deep Dives:**
+{Will be populated after S1 complete}
+
+**S3 - Cross-Feature Sanity Check:**
+{Will be populated after S2 complete}
+
+**S4 - Epic Testing Strategy:**
+{Will be populated after S3 complete}
+
+**S5-S8 - Feature Implementation:**
+{Will be populated after S4 complete}
+
+**S9 - Epic Final QC:**
+{Will be populated after S5-S8 complete}
+
+**S10 - Epic Cleanup:**
+{Will be populated after S9 complete}
+
+---
+
+## Guide Deviation Log
+
+**Purpose:** Track when agent deviates from guide (helps identify guide gaps)
+
+| Timestamp | Stage | Deviation | Reason | Impact |
+|-----------|-------|-----------|--------|--------|
+| - | - | - | - | - |
+
+**Rule:** If you deviate from guide, DOCUMENT IT HERE immediately.
+
+No deviations from guides yet.
+
+---
+
+## Epic Completion Summary
+
+{This section will be filled out in S10}
