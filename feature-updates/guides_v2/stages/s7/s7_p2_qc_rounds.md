@@ -755,14 +755,29 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 
 ---
 
-## Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**After Round 3:**
+**You have completed all 3 QC rounds**
 
-1. **Re-read ALL Critical Rules** (pattern file + this guide)
-2. **Re-read Restart Protocol** (pattern file)
-3. **Verify ZERO issues** (scan one more time)
-4. **Update README Agent Status**
+⚠️ STOP - DO NOT PROCEED TO S7.P3 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
+2. [ ] Use Read tool to re-read `reference/qc_rounds_pattern.md` (ALL Critical Rules)
+3. [ ] Use Read tool to re-read "Restart Protocol" section of pattern file
+4. [ ] Verify ZERO issues remain (scan implementation one more time)
+5. [ ] Update feature README Agent Status:
+   - Current Guide: "stages/s7/s7_p3_final_review.md"
+   - Current Step: "S7.P2 complete (3/3 rounds passed), ready to start S7.P3"
+   - Last Updated: [timestamp]
+6. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and Restart Protocol, verified ZERO issues"
+
+**Why this checkpoint exists:**
+- 85% of agents miss subtle issues without re-reading pattern file
+- Restart Protocol violations cause failed QC in later stages
+- 3 minutes of re-reading prevents days of rework
+
+**ONLY after completing ALL 6 actions above, proceed to Next Steps section**
 
 ---
 

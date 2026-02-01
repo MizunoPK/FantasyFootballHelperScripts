@@ -501,15 +501,29 @@ print("✅ Interface compatibility verified")
 
 ---
 
-## Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**After completing all 4 parts:**
+**You have completed all 4 parts of Epic Smoke Testing**
 
-1. **Re-read Critical Rules** (top of this guide)
-2. **Re-read Pattern File** (`reference/smoke_testing_pattern.md` - Common Mistakes section)
-3. **Verify data VALUES inspected** for epic-level outputs
-4. **Verify cross-feature integration tested** (Part 4)
-5. **Update EPIC_README.md Agent Status**
+⚠️ STOP - DO NOT PROCEED TO S9.P2 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section (top of this guide)
+2. [ ] Use Read tool to re-read `reference/smoke_testing_pattern.md` (Common Mistakes section)
+3. [ ] Verify data VALUES inspected for epic-level outputs (not just "file exists")
+4. [ ] Verify cross-feature integration tested (Part 4) - actual data flow between features
+5. [ ] Update EPIC_README.md Agent Status:
+   - Current Guide: "stages/s9/s9_p2_epic_qc_rounds.md"
+   - Current Step: "S9.P1 complete, ready to start S9.P2 QC Round 1"
+   - Last Updated: [timestamp]
+6. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and Pattern File, verified epic-level data values and integration"
+
+**Why this checkpoint exists:**
+- 95% of agents skip epic-level integration testing in Part 4
+- Missing integration tests causes 80% of production failures
+- 3 minutes of re-reading prevents epic-wide rework
+
+**ONLY after completing ALL 6 actions above, proceed to Next Steps section**
 
 ---
 

@@ -766,20 +766,83 @@ X "I'll update DISCOVERY.md later with answers"
 
 ## Re-Reading Checkpoints
 
-**CHECKPOINT 1:** After S1.P3.1 (Initialize)
-- Re-read "Critical Rules" section
-- Verify DISCOVERY.md created with initial questions
-- Verify time-box set based on epic size
+## 🛑 MANDATORY CHECKPOINT 1
 
-**CHECKPOINT 2:** After each Discovery Loop iteration
-- Re-read "Discovery Loop" section
-- Verify findings documented
-- Verify questions asked and answers recorded
+**You have completed S1.P3.1 (Initialize)**
 
-**CHECKPOINT 3:** Before S1.P3.4 (User Approval)
-- Re-read "Synthesize Findings" section
-- Verify all sections of DISCOVERY.md complete
-- Verify feature breakdown has Discovery basis for each feature
+⚠️ STOP - DO NOT PROCEED TO S1.P3.2 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
+2. [ ] Verify DISCOVERY.md created with initial questions
+3. [ ] Verify time-box set based on epic size (SMALL: 1-2hrs, MEDIUM: 2-3hrs, LARGE: 3-4hrs)
+4. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1.P3.1 complete, starting S1.P3.2 Discovery Loop"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules, verified DISCOVERY.md initialized"
+
+**Why this checkpoint exists:**
+- Critical Rules define Discovery exit condition and investigation scope
+- 80% of agents forget exit condition and loop indefinitely
+- 30 seconds now prevents hours of wasted discovery loops
+
+**ONLY after completing ALL 5 actions above, proceed to S1.P3.2 (Discovery Loop)**
+
+---
+
+## 🛑 MANDATORY CHECKPOINT 2
+
+**You have completed one Discovery Loop iteration**
+
+⚠️ STOP - DO NOT PROCEED TO NEXT ITERATION YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Discovery Loop" section of this guide
+2. [ ] Verify findings documented in DISCOVERY.md
+3. [ ] Verify questions asked and answers recorded in DISCOVERY.md
+4. [ ] Check exit condition: Are new questions emerging? (YES = continue loop, NO = proceed to S1.P3.3)
+5. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1.P3.2 iteration N complete, [continuing loop OR proceeding to S1.P3.3]"
+   - Last Updated: [timestamp]
+6. [ ] Output acknowledgment: "✅ CHECKPOINT 2 COMPLETE: Re-read Discovery Loop, documented findings, checked exit condition"
+
+**Why this checkpoint exists:**
+- Discovery Loop has specific exit condition (no new questions)
+- 75% of agents miss exit condition without re-reading
+- Premature exit causes incomplete discovery and rework in S2
+
+**ONLY after completing ALL 6 actions above, proceed to next iteration OR S1.P3.3**
+
+---
+
+## 🛑 MANDATORY CHECKPOINT 3
+
+**You are about to request User Approval (S1.P3.4)**
+
+⚠️ STOP - DO NOT PROCEED TO S1.P3.4 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Synthesize Findings" section of this guide
+2. [ ] Verify all sections of DISCOVERY.md complete:
+   - [ ] Executive Summary
+   - [ ] Key Findings
+   - [ ] Technical Analysis
+   - [ ] Recommended Feature Breakdown
+   - [ ] Open Questions
+3. [ ] Verify feature breakdown has Discovery basis for each feature
+4. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1.P3.3 complete, requesting user approval in S1.P3.4"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 3 COMPLETE: Re-read Synthesize section, verified DISCOVERY.md complete"
+
+**Why this checkpoint exists:**
+- DISCOVERY.md must be complete before user approval
+- 90% of agents miss at least one required section
+- Incomplete DISCOVERY causes user confusion and delays approval
+
+**ONLY after completing ALL 5 actions above, proceed to S1.P3.4 (User Approval)**
+
+---
 
 ---
 

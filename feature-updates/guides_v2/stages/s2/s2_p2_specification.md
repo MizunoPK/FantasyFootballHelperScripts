@@ -190,6 +190,40 @@ Specification Phase is complete when spec.md has complete requirements with trac
 
 ---
 
+### Step 2a: Review Prior Dependency Group Features (NEW - For Group 2+ features only)
+
+**IF your feature is in Group 2 or later (depends on prior group specs):**
+
+1. Identify all completed features from previous dependency groups
+   - Check EPIC_README.md Feature Dependency Groups section
+   - For Feature 08 (Group 2): Features 01-07 (Group 1) should be complete
+
+2. Read their spec.md files focusing on areas relevant to current feature
+   - Focus on: Arguments, configuration, patterns your feature will test/document/integrate with
+   - Example: Integration test feature reads argument definitions from all prior features
+
+3. Cross-reference EACH draft checklist question:
+   - **If prior features answer it consistently:** DELETE question, document answer as "Aligned with Features X-Y"
+   - **If prior features answer it inconsistently:** Escalate as alignment issue to Primary
+   - **If prior features don't answer it:** KEEP question (genuinely open)
+
+4. Document which questions were answered by prior features:
+   - In spec.md: "Requirements derived from prior group alignment: R1 (from F01-07), R2 (from F03), etc."
+
+**Example from KAI-7 Feature 08:**
+- **Draft Q3:** "--debug vs --log-level precedence?"
+- **Check Features 01-07:** All 7 specify --debug forces DEBUG level (Option A)
+- **Action:** DELETE Q3, ADD to spec.md R1: "Precedence rule: --debug forces DEBUG (aligned with Features 01-07)"
+- **Result:** No user question needed, no alignment conflict later
+
+**Benefits:**
+- Fewer user questions (already-answered questions not re-asked)
+- No alignment conflicts later (inconsistencies caught during checklist creation)
+- Faster S2.P3 Phase 5 (fewer conflicts to resolve)
+- Better user experience (don't answer same question twice)
+
+---
+
 ### Step 2.1: Update spec.md with Technical Details (WITH TRACEABILITY)
 
 **CRITICAL CHANGE:** Every requirement must cite its source.

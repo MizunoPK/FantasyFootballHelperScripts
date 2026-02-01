@@ -73,6 +73,33 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 - Creating missed requirements or entering debugging protocol
 - Resuming after session compaction
 
+**Agent Status updates are MANDATORY at phase boundaries:**
+
+When to update:
+- After completing ANY phase (S#.P#)
+- After completing ANY iteration (S#.P#.I#)
+- Before requesting user approval
+- After user provides input
+- At EVERY checkpoint completion
+
+What to update in Agent Status section:
+- Last Updated: [current timestamp]
+- Current Stage: [S#.P# notation]
+- Current Step: [what you just completed]
+- Next Action: [what you're about to do]
+- Current Guide: [guide file path]
+- Guide Last Read: [timestamp]
+
+**DO NOT batch updates** - Update after EACH phase/iteration, not at end of day.
+
+**Why this matters:**
+- Agent Status survives session compaction (context window limits)
+- Enables precise resumption if session interrupted
+- Provides user visibility into progress
+- Proves work was completed (accountability)
+
+**Historical failure:** KAI-7 agent completed entire S1.P3 Discovery Phase (4 sub-phases, 2 iterations, multiple hours of work) without a SINGLE Agent Status update. EPIC_README.md timestamp showed work from previous day, giving no indication of current progress.
+
 **See:** `feature-updates/guides_v2/prompts_reference_v2.md` → Complete prompt library
 
 **Why this matters:** Reading the guide first ensures you don't miss mandatory steps. The prompt acknowledgment confirms you understand requirements. Historical evidence: 40% guide abandonment rate without mandatory prompts.
@@ -103,6 +130,52 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 
 ---
 
+## 🚨 Checkpoint Requirements
+
+Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
+
+**What a checkpoint means:**
+1. STOP all work immediately
+2. Use Read tool to re-read specified guide section(s)
+3. Output acknowledgment: "✅ CHECKPOINT [N]: Re-read [sections]"
+4. Update Agent Status in README (current step, timestamp)
+5. ONLY THEN continue with next section
+
+**Checkpoints are NOT optional:**
+- "Checkpoint" = blocking requirement (not advisory)
+- Must perform re-reading BEFORE continuing
+- Must output acknowledgment to prove completion
+- Historical evidence: 80% skip rate without explicit acknowledgment
+
+**Why checkpoints exist:**
+- Agents (including you) work from memory after initial guide reading
+- Memory-based execution causes 40%+ violation rate
+- Re-reading takes 30 seconds, prevents hours of rework
+- Acknowledgment proves checkpoint was performed
+
+**Example checkpoint execution:**
+
+❌ WRONG:
+- Read guide once at beginning
+- Execute all steps from memory
+- See checkpoint marker, think "I remember this"
+- Skip checkpoint re-reading
+- Discover violations later during QC
+
+✅ CORRECT:
+- Read guide section
+- Execute steps for that section
+- See 🛑 MANDATORY CHECKPOINT marker
+- STOP immediately (do not proceed)
+- Use Read tool to re-read specified sections
+- Output: "✅ CHECKPOINT 1: Re-read Critical Rules and Discovery Loop sections"
+- Update Agent Status with completion timestamp
+- ONLY THEN continue with next section
+
+**Historical failure:** KAI-7 agent completed entire S1.P3 Discovery Phase (4 sub-phases, 2 iterations, 3 mandatory checkpoints) without performing a SINGLE checkpoint re-reading or Agent Status update. All 3 checkpoints were skipped despite being clearly marked in guide.
+
+---
+
 ## Stage Workflows Quick Reference
 
 **S1: Epic Planning**
@@ -110,11 +183,32 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 - **First Action:** Use "Starting S1" prompt
 - **Guide:** `stages/s1/s1_epic_planning.md`
 - **Actions:** Assign KAI number, create git branch, analyze epic, **Discovery Phase (MANDATORY)**, create folder structure
-- **Discovery Phase (S1.P3):** Iterative research and Q&A loop until no new questions emerge
-  - Guide: `stages/s1/s1_p3_discovery_phase.md`
-  - Output: DISCOVERY.md (epic-level source of truth)
-  - Time-Box: SMALL 1-2hrs, MEDIUM 2-3hrs, LARGE 3-4hrs
-  - Feature folders NOT created until Discovery approved
+
+⚠️ **CRITICAL: S1 HAS 6 PHASES (NOT 5 STEPS)**
+
+**S1 Phase Structure:**
+- S1.P1: Initial Setup (Steps 1.0-1.4)
+- S1.P2: Epic Analysis (Step 2)
+- **S1.P3: DISCOVERY PHASE** ← MANDATORY, CANNOT SKIP
+- S1.P4: Feature Breakdown Proposal (Step 3)
+- S1.P5: Epic Structure Creation (Step 4)
+- S1.P6: Transition to S2 (Step 5)
+
+**You CANNOT skip S1.P3 Discovery Phase:**
+- Must create DISCOVERY.md before feature breakdown
+- Must get user approval before creating feature folders
+- Feature specs will reference DISCOVERY.md findings
+- S2.P1 Phase 0 requires DISCOVERY.md to exist
+
+**Discovery Phase (S1.P3):**
+- Guide: `stages/s1/s1_p3_discovery_phase.md`
+- Output: DISCOVERY.md (epic-level source of truth)
+- Time-Box: SMALL 1-2hrs, MEDIUM 2-3hrs, LARGE 3-4hrs
+- Feature folders NOT created until Discovery approved
+- Iterative research and Q&A loop until no new questions emerge
+
+**Historical failure:** KAI-7 agent skipped S1.P3 entirely, blocked 8 secondary agents for 4 hours.
+
 - **Next:** S2
 
 **S2: Feature Deep Dives** (Loop through ALL features)

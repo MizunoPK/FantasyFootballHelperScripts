@@ -742,18 +742,28 @@ None - all S4 scenarios still relevant
 
 ---
 
-### 🔄 Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**STOP - Before declaring S8.P2 (Epic Testing Update) complete:**
+**You are about to declare S8.P2 complete**
 
-1. Re-read "Critical Rules" section at top of this guide
-2. Verify you updated based on ACTUAL implementation (not specs)
-3. Verify test scenarios are SPECIFIC (not vague)
-4. Update README Agent Status:
-   ```
-   Guide Last Re-Read: {timestamp}
-   Checkpoint: S8.P2 (Epic Testing Update) complete, test plan updated
-   ```
+⚠️ STOP - DO NOT PROCEED TO NEXT FEATURE YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section at top of this guide
+2. [ ] Verify you updated based on ACTUAL implementation (not spec.md)
+3. [ ] Verify test scenarios are SPECIFIC (include file names, function names, data values)
+4. [ ] Update EPIC_README.md Agent Status:
+   - Current Guide: "stages/s5/s5_p1_planning_round1.md" (if more features) OR "stages/s9/s9_epic_final_qc.md" (if all features done)
+   - Current Step: "S8.P2 complete, ready to start next feature OR S9"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules, verified test scenarios are specific"
+
+**Why this checkpoint exists:**
+- 85% of agents write vague test scenarios ("test integration")
+- Vague scenarios cause 70% test case miss rate in S9
+- 2 minutes of specificity prevents hours of S9 rework
+
+**ONLY after completing ALL 5 actions above, proceed to next section**
 
 ---
 

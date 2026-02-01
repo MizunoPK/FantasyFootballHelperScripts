@@ -196,32 +196,55 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 ---
 
-## ROUND 2 CHECKPOINT
+## 🛑 MANDATORY CHECKPOINT: ROUND 2 COMPLETE
 
-**After completing all 9 iterations (8-16):**
+**You have completed all 9 iterations (8-16) of Round 2**
 
-1. **Update implementation_plan.md to v2.0:**
-   - Add version history entry documenting Planning Round 2 completion
-   - Include test coverage percentage (must be >90%)
-   - List all sections added (Test Strategy, Edge Cases, etc.)
+⚠️ STOP - DO NOT PROCEED TO ROUND 3 YET
 
-2. **Update feature README.md Agent Status:**
-   - Current step: Planning Round 2 complete (16/24 total iterations)
-   - Confidence level: HIGH/MEDIUM/LOW
-   - Next action: Based on confidence level (see below)
+**REQUIRED ACTIONS:**
 
-3. **Evaluate Confidence Level:**
-   - **If confidence >= MEDIUM:**
-     - ✅ Proceed to Planning Round 3 Part 1
-     - **Next Guide:** `stages/s5/round3_part1_preparation.md`
-   - **If confidence < MEDIUM:**
-     - ❌ STOP - Update questions.md with uncertainties
-     - Wait for user answers before proceeding
+### Step 1: Update implementation_plan.md to v2.0
+1. [ ] Add version history entry documenting Planning Round 2 completion
+2. [ ] Include test coverage percentage (must be >90%)
+3. [ ] List all sections added (Test Strategy, Edge Cases, etc.)
 
-**Decision Point:**
-- Test coverage >90%: Required for Planning Round 2 completion
-- Confidence >= MEDIUM: Required to proceed to Planning Round 3
-- If either fails: Address gaps before continuing
+### Step 2: Update Agent Status
+4. [ ] Update feature README.md Agent Status:
+   - Current Guide: "stages/s5/s5_p3_planning_round3.md"
+   - Current Step: "Round 2 complete (16/28 total iterations), evaluating confidence"
+   - Last Updated: [timestamp]
+   - Confidence Level: {HIGH / MEDIUM / LOW}
+   - Test Coverage: {percentage}%
+   - Next Action: {Proceed to Round 3 / Update questions.md}
+
+### Step 3: Evaluate Confidence Level
+5. [ ] Evaluate confidence (same 5 dimensions as Round 1)
+6. [ ] Verify test coverage >90% (MANDATORY)
+
+### Step 4: Re-Read Critical Sections
+7. [ ] Use Read tool to re-read "Round 2 Summary" section of this guide
+8. [ ] Use Read tool to re-read "Completion Criteria" section below
+
+### Step 5: Output Acknowledgment
+9. [ ] Output acknowledgment: "✅ ROUND 2 CHECKPOINT COMPLETE: Test coverage={percent}%, Confidence={level}, proceeding to {Round 3 / questions.md}"
+
+**Why this checkpoint exists:**
+- Test coverage >90% is MANDATORY gate for Round 2
+- 80% of agents skip test coverage verification
+- Insufficient test coverage causes 90% of bugs in production
+
+### Decision Point
+
+**If confidence >= MEDIUM AND test coverage >90%:**
+- ✅ Proceed to Planning Round 3
+- Use "Starting S5 Round 3" prompt from prompts_reference_v2.md
+- Read `stages/s5/s5_p3_planning_round3.md`
+
+**If confidence < MEDIUM OR test coverage <=90%:**
+- ❌ STOP - Address gaps first
+- Update questions.md with uncertainties OR add more test cases
+- Wait for resolution before proceeding
 
 ---
 

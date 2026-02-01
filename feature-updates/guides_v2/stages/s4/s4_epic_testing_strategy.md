@@ -40,6 +40,16 @@ Epic Testing Strategy is where you update the epic_smoke_test_plan.md with concr
 **Exit Condition:**
 S4 is complete when epic_smoke_test_plan.md contains specific test scenarios (not vague categories), integration points are documented, and the update is logged with rationale for changes from S1
 
+**FOR DEPENDENCY GROUP EPICS:**
+
+S4 runs ONCE PER ROUND (not just once at end):
+
+- **Round 1 S4:** Update test plan with Group 1 features (+ validation loop)
+- **Round 2 S4:** Update test plan with Group 2 features (+ validation loop)
+- **Round 3 S4:** Update test plan with Group 3 features (+ validation loop)
+
+**Test plan evolves incrementally** - Each round adds new features and validates complete plan.
+
 ---
 
 ## Critical Rules
@@ -688,9 +698,54 @@ Keep categories but add specific guidance:
 
 ---
 
-## Step 6: Mark S4 Complete
+## Step 6: S4 Validation Loop (MANDATORY)
 
-### Step 6.1: Update epic EPIC_README.md
+**Similar to S3 Final Consistency Loop, but for epic test plan.**
+
+**Goal:** Achieve 2-3 consecutive clean loops with ZERO issues in test plan
+
+**Loop Process:**
+1. Update epic_smoke_test_plan.md with new features (completed in Step 5)
+2. Review test plan skeptically from chosen perspective:
+   - Are all new features covered with specific test scenarios?
+   - Do integration points include new dependencies?
+   - Are success criteria updated for new components?
+   - Is test execution order still logical?
+   - Are edge cases covered?
+3. Find issues (missing tests, inconsistent validation, unclear scenarios)
+4. Resolve ALL issues (same zero-tolerance standard as S3)
+5. Loop again with fresh perspective
+6. **Exit condition:** 2-3 consecutive clean loops (ZERO issues found)
+
+**Validation Perspectives to Use:**
+1. **Test Coverage Reviewer** (Loop 1): Every feature has specific test scenarios
+2. **Integration Validator** (Loop 2): All cross-feature integration points tested
+3. **User Acceptance Tester** (Loop 3): Success criteria clear and measurable
+
+**Why this matters:**
+- Epic test plan is critical for S9 validation
+- One-pass updates miss edge cases and gaps
+- Skeptical validation catches missing test coverage
+- Quality standard: Same rigor as S3 (zero tolerance for issues)
+
+**Time Investment:**
+- 2-3 loops: ~15-30 minutes total
+- Prevents S9 rework: Saves 1-2 hours
+
+**Documentation:**
+Create validation log in epic_smoke_test_plan.md Update Log:
+- Loop 1: [perspective] - [N issues found] - [resolutions]
+- Loop 2: [perspective] - [N issues found] - [resolutions]
+- Loop 3: [perspective] - 0 issues found ✅
+- Exit: 2 consecutive clean loops achieved
+
+**Historical context:** KAI-7 added S4 validation loop requirement after discovering one-pass updates missed integration points and test coverage gaps.
+
+---
+
+## Step 7: Mark S4 Complete
+
+### Step 7.1: Update epic EPIC_README.md
 
 **Epic Completion Checklist:**
 
@@ -720,7 +775,7 @@ Keep categories but add specific guidance:
 **Testing Strategy:** epic_smoke_test_plan.md updated with 6 test scenarios, 5 success criteria
 ```
 
-### Step 6.2: Present Test Plan to User (🚨 GATE 4.5 - MANDATORY)
+### Step 7.2: Present Test Plan to User (🚨 GATE 4.5 - MANDATORY)
 
 **🚨 CRITICAL:** You MUST get user approval of epic_smoke_test_plan.md before proceeding to S5a.
 

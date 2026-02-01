@@ -317,17 +317,83 @@ STEP 4: Final Verification
 - [ ] Notes features needing rework (if any)
 - [ ] Next action set to "S8.P2 (Epic Testing Update): Testing Plan Update"
 
-**🔄 Re-Reading Checkpoint:**
-Before declaring S8.P1 (Cross-Feature Alignment) complete:
-1. Re-read "Critical Rules" section at top of this guide
-2. Verify you compared to ACTUAL implementation (not plan)
-3. Verify you updated specs PROACTIVELY (not just noted issues)
-4. Verify ALL remaining features were reviewed (not just "related" ones)
-5. Update README Agent Status with completion timestamp
+## 🛑 MANDATORY CHECKPOINT 1
+
+**You are about to declare S8.P1 complete**
+
+⚠️ STOP - DO NOT PROCEED TO S8.P2 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section at top of this guide
+2. [ ] Verify you compared to ACTUAL implementation (not implementation_plan.md)
+3. [ ] Verify you updated specs PROACTIVELY (not just noted issues)
+4. [ ] Verify ALL remaining features were reviewed (not just "related" ones)
+5. [ ] Update EPIC_README.md Agent Status:
+   - Current Guide: "stages/s8/s8_p2_epic_testing_update.md"
+   - Current Step: "S8.P1 complete, ready to start S8.P2"
+   - Last Updated: [timestamp]
+6. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules, verified actual implementation compared, all features reviewed"
+
+**Why this checkpoint exists:**
+- 80% of agents compare to implementation_plan.md instead of actual code
+- Comparing to plans misses 90% of implementation deviations
+- Missing proactive updates causes misaligned specs in later features
+
+**ONLY after completing ALL 6 actions above, proceed to next section**
 
 **If ALL boxes checked:** Ready to proceed to S8.P2 (Epic Testing Update)
 
 **If ANY box unchecked:** Complete missing items before proceeding
+
+---
+
+## Phase 4: Alignment Consistency Loop (MANDATORY)
+
+**After updating remaining feature specs, validate changes with iterative loop.**
+
+**Goal:** Achieve 2 consecutive clean loops with ZERO issues in updated specs
+
+**When to run:**
+- After EACH feature completes implementation (S6-S7)
+- After S8.P1 updates remaining feature specs
+
+**Loop Process:**
+1. Review ALL specs updated in S8.P1
+2. Use focused validation perspective:
+   - **Loop 1 - Alignment Checker:** Verify remaining specs align with implemented feature's patterns
+   - **Loop 2 - Implementation Consistency:** Check for contradictions between specs and implementation
+3. Find issues (misalignments, contradictions, missing updates)
+4. Resolve ALL issues (zero tolerance standard)
+5. **Exit condition:** 2 consecutive clean loops (ZERO issues found)
+
+**Differences from S3 Consistency Loop:**
+- **S3:** 3 loops, ALL specs, BEFORE implementation (comprehensive)
+- **S8.P1:** 2 loops, UPDATED specs, AFTER each feature (incremental)
+- **Both:** Zero tolerance for issues (all severities must be resolved)
+
+**Why this matters:**
+- S8.P1 updates can introduce new inconsistencies
+- Issues caught immediately instead of after all features complete
+- Prevents cascading alignment problems across remaining features
+- Maintains consistency throughout implementation (not just at S3)
+
+**Time Investment:**
+- 2 loops: ~15-30 minutes per feature
+- Prevents downstream rework: Saves 1-2 hours
+
+**Documentation:**
+Create `S8_ALIGNMENT_VALIDATION_{feature_NN}.md` with:
+- Loop 1 results (perspective, issues found, resolutions)
+- Loop 2 results (should be 0 issues if Loop 1 was thorough)
+- Exit confirmation: 2 consecutive clean loops achieved
+
+**Example from KAI-7:**
+After Feature 01 implementation:
+- S8.P1: Updated Features 02-07 specs
+- Consistency Loop 1: Found 2 issues (missing error handling pattern, old logging approach)
+- Resolved issues
+- Consistency Loop 2: 0 issues found ✅
+- Proceed to S8.P2 with confirmed alignment
 
 ---
 

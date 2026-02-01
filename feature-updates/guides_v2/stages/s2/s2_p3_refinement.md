@@ -579,6 +579,53 @@ Look for features with "S2 Complete" marked [x]
 
 ---
 
+### Step 5.2.5: Send Messages for Issues in Other Features (NEW)
+
+If you find issues in another feature's spec during comparison:
+
+**DO NOT update other feature's files directly**
+
+Instead, send message via agent_comms:
+
+**File:** `agent_comms/{your_id}_to_{owner_id}.md`
+
+**Template:**
+```markdown
+## Message: Cross-Feature Alignment Issue
+**From:** {your_id} (Feature {N})
+**To:** {owner_id} (Feature {M})
+**Subject:** {Brief description}
+**Status:** ⏳ UNREAD
+
+**Issue:** {Detailed description with line numbers from Feature M spec}
+
+**Suggested Action:** {What owner should do to resolve}
+
+**Urgency:** {LOW/MEDIUM/HIGH}
+
+**Context:** Found during S2.P3 Phase 5 (Cross-Feature Alignment) for Feature {N}
+```
+
+**The other agent will:**
+- Review during next coordination heartbeat (15 min)
+- Evaluate suggestion
+- Update their spec if agreed OR send counter-proposal
+- Send acknowledgment message
+- Mark your message as ✅ READ
+
+**Primary agent monitors:**
+- All agent-to-agent messages during coordination
+- Resolves disputes if agents can't align
+- Escalates to user if necessary
+
+**Benefits:**
+- Issues fixed immediately (not deferred to S3)
+- Distributed validation (multiple agents review each feature)
+- Agents maintain ownership of their features
+- Reduces Primary's S3 workload
+
+---
+
 ### Step 5.3: Resolve Conflicts
 
 **For EACH conflict found:**

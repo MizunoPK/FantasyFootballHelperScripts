@@ -629,15 +629,30 @@ See `debugging/debugging_protocol.md` for complete protocol
 
 ---
 
-## Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**After Round 3:**
+**You have completed all 3 Epic QC rounds**
 
-1. **Re-read Critical Rules** (pattern file + this guide)
-2. **Re-read Original Epic Request** ({epic_name}.txt)
-3. **Verify ALL success criteria met**
-4. **Update EPIC_README.md Agent Status**
-5. **Update epic_lessons_learned.md**
+⚠️ STOP - DO NOT PROCEED TO S9.P3 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
+2. [ ] Use Read tool to re-read `reference/qc_rounds_pattern.md` (ALL Critical Rules)
+3. [ ] Use Read tool to re-read original epic request ({epic_name}.txt)
+4. [ ] Verify ALL success criteria met from original epic request
+5. [ ] Update epic_lessons_learned.md with QC findings
+6. [ ] Update EPIC_README.md Agent Status:
+   - Current Guide: "stages/s9/s9_p3_user_testing.md"
+   - Current Step: "S9.P2 complete (3/3 rounds passed), ready to start S9.P3"
+   - Last Updated: [timestamp]
+7. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and original request, verified all success criteria met"
+
+**Why this checkpoint exists:**
+- 90% of agents skip re-reading original epic request
+- Missing original success criteria causes 60% of user rejections
+- 5 minutes of re-reading prevents days of epic rework
+
+**ONLY after completing ALL 7 actions above, proceed to Next Steps section**
 
 ---
 

@@ -40,6 +40,16 @@ Cross-Feature Sanity Check is where you systematically compare all feature specs
 **Exit Condition:**
 S3 is complete when all feature specs are conflict-free, user has explicitly approved the complete plan, and approval is documented in EPIC_README.md
 
+**FOR DEPENDENCY GROUP EPICS:**
+
+S3 runs ONCE PER ROUND (not just once at end):
+
+- **Round 1 S3:** Validate Group 1 features against each other
+- **Round 2 S3:** Validate Group 2 features against ALL Group 1 features
+- **Round 3 S3:** Validate Group 3 features against ALL Groups 1-2 features
+
+**Scope expands per round** - Each round validates new features against ALL prior features.
+
 ---
 
 ## Critical Rules
@@ -749,7 +759,30 @@ def calculate_total_score(player: FantasyPlayer) -> float:
 - Format: Name,Position,InjuryStatus,Severity
 ```
 
-### Step 3.2: Verify Resolutions Don't Create New Conflicts
+### Step 3.2: Verify Resolutions Don't Create New Conflicts (Iterative Validation Loop)
+
+**Clean Loop Definition:**
+
+A "clean loop" means ZERO issues found of ANY severity level:
+- HIGH severity: Must resolve ✓
+- MEDIUM severity: Must resolve ✓
+- **LOW severity: Must resolve** ✓ (NOT deferrable)
+
+**Zero Tolerance Standard:**
+- S3 is the LAST checkpoint before implementation
+- ALL issues must be resolved (no severity-based deferrals)
+- "Clean enough" is not clean
+- LOW severity issues compound over time
+- "Acceptable" issues become technical debt
+
+**Examples of LOW severity that still require resolution:**
+- Documentation formatting inconsistencies
+- Argument naming inconsistencies across features
+- Missing cross-reference sections in specs
+- Unclear wording that could be misinterpreted
+
+**Exit Condition:**
+3 consecutive loops with ZERO issues (any severity) = Step 3 complete
 
 **After updating specs, check:**
 

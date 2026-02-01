@@ -1076,50 +1076,54 @@ Next Action: Planning Round 1 checkpoint - evaluate confidence
 
 ---
 
-## ROUND 1 CHECKPOINT
+## 🛑 MANDATORY CHECKPOINT: ROUND 1 COMPLETE
 
-**After completing Iterations 1-7 + Gates 4a, 7a:**
+**You have completed Iterations 1-7 + Gates 4a, 7a (Round 1)**
+
+⚠️ STOP - DO NOT PROCEED TO ROUND 2 YET
+
+**REQUIRED ACTIONS:**
 
 ### Step 1: Update implementation_plan.md Version
-
-Mark version as v1.0 in Version History section
+1. [ ] Mark version as v1.0 in Version History section
 
 ### Step 2: Update Agent Status
-
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** IMPLEMENTATION_PLANNING
-**Current Step:** Planning Round 1 complete (9 iterations), evaluating confidence
-**Current Guide:** stages/s5/round1_todo_creation.md
-**Guide Last Read:** {YYYY-MM-DD HH:MM}
-**Critical Rules from Guide:**
-- 9 iterations mandatory (Planning Round 1: 1-7, 4a, 7a)
-- STOP if confidence < Medium
-- Gate 4a PASSED (mandatory gate)
-
-**Progress:** Planning Round 1 complete (9/9 iterations)
-**Confidence Level:** {HIGH / MEDIUM / LOW}
-**Next Action:** {Create questions file / Proceed to Planning Round 2}
-**Blockers:** {List any uncertainties or "None"}
-```
+2. [ ] Update feature README.md Agent Status:
+   - Current Guide: "stages/s5/s5_p2_planning_round2.md"
+   - Current Step: "Round 1 complete (7 iterations + 2 gates), evaluating confidence"
+   - Last Updated: [timestamp]
+   - Progress: "Planning Round 1 complete (9/9 iterations)"
+   - Confidence Level: {HIGH / MEDIUM / LOW}
+   - Next Action: {Create questions file / Proceed to Planning Round 2}
+   - Blockers: {List any uncertainties or "None"}
 
 ### Step 3: Evaluate Confidence
+3. [ ] Evaluate confidence across 5 dimensions:
+   - [ ] Do I understand the feature requirements? (HIGH/MEDIUM/LOW)
+   - [ ] Are all algorithms clear? (HIGH/MEDIUM/LOW)
+   - [ ] Are interfaces verified? (HIGH/MEDIUM/LOW)
+   - [ ] Is data flow understood? (HIGH/MEDIUM/LOW)
+   - [ ] Are all consumption locations identified? (HIGH/MEDIUM/LOW)
+   - [ ] Overall confidence: {HIGH/MEDIUM/LOW}
 
-**Ask yourself:**
-- Do I understand the feature requirements? (HIGH/MEDIUM/LOW)
-- Are all algorithms clear? (HIGH/MEDIUM/LOW)
-- Are interfaces verified? (HIGH/MEDIUM/LOW)
-- Is data flow understood? (HIGH/MEDIUM/LOW)
-- Are all consumption locations identified? (HIGH/MEDIUM/LOW)
-- Overall confidence: {HIGH/MEDIUM/LOW}
+### Step 4: Re-Read Critical Sections
+4. [ ] Use Read tool to re-read "Round 1 Summary" section of s5_p1_planning_round1.md
+5. [ ] Use Read tool to re-read "Confidence Evaluation" criteria
 
-### Step 4: Decision Point
+### Step 5: Output Acknowledgment
+6. [ ] Output acknowledgment: "✅ ROUND 1 CHECKPOINT COMPLETE: Confidence={level}, proceeding to {Round 2 / questions.md}"
+
+**Why this checkpoint exists:**
+- Round 1 confidence determines whether Round 2 is needed
+- 75% of agents skip confidence evaluation and proceed blindly
+- Low confidence proceeding to Round 2 causes 80% implementation failure rate
+
+### Decision Point
 
 **If confidence >= MEDIUM:**
 - ✅ Proceed to Planning Round 2
-- Read `stages/s5/round2_todo_creation.md`
+- Use "Starting S5 Round 2" prompt from prompts_reference_v2.md
+- Read `stages/s5/s5_p2_planning_round2.md`
 
 **If confidence < MEDIUM:**
 - ❌ STOP - Create questions.md file

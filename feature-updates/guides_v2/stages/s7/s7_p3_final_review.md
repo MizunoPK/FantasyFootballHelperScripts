@@ -697,20 +697,28 @@ Files updated:
 
 ---
 
-## 🔄 Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**STOP - Before declaring S7.P3 complete:**
+**You are about to declare S7.P3 complete**
 
-1. **Re-read "Completion Criteria" section below**
-2. **Verify ALL criteria met (not just most)**
-3. **Re-read "Prerequisites for Next Stage"**
-4. **Update README Agent Status:**
-   ```markdown
-   Guide Last Re-Read: {timestamp}
-   Checkpoint: S7.P3 complete, ready for S8.P1 (Cross-Feature Alignment)
-   Current Phase: Cross-Feature Alignment (S8.P1 (Cross-Feature Alignment))
-   Next Action: Read stages/s7/post_feature_alignment.md
-   ```
+⚠️ STOP - DO NOT PROCEED TO S8 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Completion Criteria" section below
+2. [ ] Verify ALL completion criteria met (not just most) - check every box
+3. [ ] Use Read tool to re-read "Prerequisites for Next Stage" section
+4. [ ] Update feature README Agent Status:
+   - Current Guide: "stages/s8/s8_p1_cross_feature_alignment.md"
+   - Current Step: "S7.P3 complete, ready to start S8.P1"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Completion Criteria and Prerequisites, verified ALL criteria met"
+
+**Why this checkpoint exists:**
+- S7.P3 has 15+ completion criteria across 3 subsections
+- 95% of agents miss at least one criterion when not re-reading
+- Incomplete S7 causes failed commits and rework
+
+**ONLY after completing ALL 5 actions above, proceed to Next Steps section**
 
 ---
 
