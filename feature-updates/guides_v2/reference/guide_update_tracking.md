@@ -36,6 +36,17 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 | KAI-7-improve_debugging_runs | P0 | Zero Tolerance for Errors - agent marked errors as "environment issue" | smoke_testing_pattern.md | 2026-01-23 | pending |
 | KAI-7-improve_debugging_runs | P1 | Make implementation_checklist.md creation first step in S6 | s6_execution.md | 2026-01-23 | pending |
 | KAI-7-improve_debugging_runs | P2 | Windows File Locking in logging tests | s7_p1_smoke_testing.md | 2026-01-23 | pending |
+| KAI-7-improve_configurability_of_scripts | P0 | Blocking Checkpoint Format - checkpoints feel optional without forcing functions | s1_epic_planning.md (5), s1_p3_discovery_phase.md (3), s5_p1_i3_integration.md (1), s5_p2_planning_round2.md (1), s7_p1_smoke_testing.md (1), s7_p2_qc_rounds.md (1), s7_p3_final_review.md (1), s8_p1_cross_feature_alignment.md (1), s8_p2_epic_testing_update.md (1), s9_p1_epic_smoke_testing.md (1), s9_p2_epic_qc_rounds.md (1) | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P0 | S1 Phase Structure Warning - agents skip S1.P3 Discovery Phase (Step 2 â†’ Step 3 jump) | CLAUDE.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P0 | Checkpoint Requirements Section - no definition of what checkpoint means | CLAUDE.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P0 | Agent Status Updates Mandatory - updates mentioned but not enforced | CLAUDE.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P0 | Zero-Tolerance Consistency Standard - agents defer LOW severity issues | s3_cross_feature_sanity_check.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P1 | S4 Validation Loop - one-pass updates miss test coverage gaps | s4_epic_testing_strategy.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P1 | S8.P1 Consistency Loop - S8 updates can introduce inconsistencies | s8_p1_cross_feature_alignment.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P1 | Dependency Group Workflow - agents batch S2 then S3 instead of per-round cycles | s1_epic_planning.md, s3_cross_feature_sanity_check.md, s4_epic_testing_strategy.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P1 | Cross-Feature Agent Messaging - distributed validation during S2.P3 Phase 5 | s2_p3_refinement.md, communication_protocol.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P2 | Pre-Made Handoff Packages - file-based handoffs vs copy/paste | s2_secondary_agent_guide.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P2 | S2.P2 Prior Group Review - checklist questions re-ask already-answered questions | s2_p2_specification.md | 2026-02-01 | a25fa1a |
 
 **Instructions:**
 - Add one row per lesson applied (even if multiple guides updated)
@@ -114,29 +125,32 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 | Metric | Count | Notes |
 |--------|-------|-------|
-| Total epics completed | 2 | Since guide update workflow started (1 internal + 1 external) |
-| Epics with guide updates | 2 | 100% of total |
-| Total proposals created | 7 | Across all epics |
-| Total proposals approved | 6 | 85.7% approval rate (1 was modified) |
+| Total epics completed | 3 | Since guide update workflow started (2 KAI-7 + 1 external) |
+| Epics with guide updates | 3 | 100% of total |
+| Total proposals created | 18 | Across all epics |
+| Total proposals approved | 17 | 94.4% approval rate (1 was modified) |
 | Total proposals rejected | 0 | 0% rejection rate |
-| Total proposals modified | 1 | 14.3% modification rate (P1-1 expanded to multi-stage) |
+| Total proposals modified | 1 | 5.6% modification rate (P1-1 expanded to multi-stage) |
 
 **Approval Rate by Priority:**
 
 | Priority | Proposed | Approved | Approval Rate | Notes |
 |----------|----------|----------|---------------|-------|
-| P0 (Critical) | 3 | 3 | 100% | Target: >80% |
-| P1 (High) | 2 | 2 | 100% (1 modified) | Target: >60% |
-| P2 (Medium) | 1 | 1 | 100% | Target: >40% |
+| P0 (Critical) | 8 | 8 | 100% | Target: >80% |
+| P1 (High) | 6 | 6 | 100% (1 modified) | Target: >60% |
+| P2 (Medium) | 3 | 3 | 100% | Target: >40% |
 | P3 (Low) | 1 | 1 | 100% | Target: >20% |
 
 **Most Frequently Updated Guides:**
 
 | Guide | Updates | Last Updated | Notes |
 |-------|---------|--------------|-------|
-| {guide_name.md} | {N} | {YYYY-MM-DD} | {Why frequently updated} |
-| {guide_name.md} | {N} | {YYYY-MM-DD} | {Why frequently updated} |
-| {guide_name.md} | {N} | {YYYY-MM-DD} | {Why frequently updated} |
+| CLAUDE.md | 4 | 2026-02-01 | Project-level instructions - S1 visibility, checkpoint protocol, Agent Status requirements |
+| s1_p3_discovery_phase.md | 2 | 2026-02-01 | Discovery Phase - external dependency verification, blocking checkpoints |
+| s1_epic_planning.md | 2 | 2026-02-01 | Epic Planning - feature dependency analysis, blocking checkpoints |
+| s5_p1_i3_integration.md | 2 | 2026-02-01 | Integration planning - external verification, blocking checkpoints |
+| s7_p1_smoke_testing.md | 2 | 2026-02-01 | Smoke testing - Windows file locking, blocking checkpoints |
+| s7_p2_qc_rounds.md | 2 | 2026-01-30 | QC rounds - code inspection protocol, blocking checkpoints |
 
 **Common Lesson â†’ Guide Mappings:**
 
@@ -196,8 +210,8 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 ## History
 
 **Document Created:** 2026-01-11
-**Last Major Update:** 2026-01-30
-**Total Lessons Tracked:** 7 (4 from KAI-7, 3 from KAI-1 external)
+**Last Major Update:** 2026-02-01
+**Total Lessons Tracked:** 18 (4 from KAI-7 debugging runs, 11 from KAI-7 configurability, 3 from KAI-1 external)
 
 ---
 
