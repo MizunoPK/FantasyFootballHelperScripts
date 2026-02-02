@@ -4,7 +4,7 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-02
 **Prerequisites:** S1 complete, feature folder exists
-**Next Phase:** `stages/s_2/s2_p2_specification.md`
+**Next Phase:** `stages/s2/s2_p2_specification.md`
 **Detailed Examples:** `reference/stage_2/research_examples.md`
 **File:** `s2_p1_research.md`
 
@@ -529,7 +529,7 @@ Create `epic/research/{FEATURE_NAME}_RESEARCH.md`:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** RESEARCH_PHASE
 **Current Step:** Phase 1 - Targeted Research Complete
-**Current Guide:** stages/s_2/phase_0_research.md
+**Current Guide:** stages/s2/s2_p1_research.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Research grounded in epic intent
@@ -619,7 +619,7 @@ Create `epic/research/{FEATURE_NAME}_RESEARCH.md`:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** RESEARCH_PHASE
 **Current Step:** Phase 1.5 - Research Completeness Audit PASSED
-**Current Guide:** stages/s_2/phase_0_research.md
+**Current Guide:** stages/s2/s2_p1_research.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Phase 1.5 audit is MANDATORY GATE
@@ -628,7 +628,7 @@ Create `epic/research/{FEATURE_NAME}_RESEARCH.md`:
 
 **Progress:** 3/3 phases complete (Research Phase COMPLETE)
 **Next Action:** Specification Phase (Update Spec & Checklist with traceability)
-**Next Guide:** stages/s_2/phase_1_specification.md
+**Next Guide:** stages/s2/s2_p2_specification.md
 **Blockers:** None
 
 **Audit Result:** ✅ PASSED (all 4 categories)

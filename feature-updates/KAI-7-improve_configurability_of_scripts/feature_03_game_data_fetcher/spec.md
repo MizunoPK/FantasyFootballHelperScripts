@@ -448,13 +448,29 @@ else:
 
 **Dependency 3: player-data-fetcher/config.py**
 
-**Status:** EXISTS (no changes needed)
+**Status:** EXISTS (⚠️ NOTE: After Feature 10, CLI constants will be removed)
 
-**Constants Used:** NFL_SEASON, CURRENT_NFL_WEEK
+**Constants Used (BEFORE Feature 10):** NFL_SEASON, CURRENT_NFL_WEEK
 
-**Source:** Research (line 105 shows imports)
+**⚠️ ARCHITECTURAL CHANGE (2026-02-01):**
+- After Feature 10 implementation, NFL_SEASON and CURRENT_NFL_WEEK will be REMOVED from player-data-fetcher/config.py
+- These are CLI-configurable constants (Feature 01 exposes them via --season, --week arguments)
+- Epic architectural requirement: CLI constants must be removed from all config files
 
-**Usage:** Default values when args not specified
+**Impact on Feature 03:**
+- **BEFORE:** run_game_data_fetcher.py imports NFL_SEASON, CURRENT_NFL_WEEK from player-data-fetcher/config.py as fallback defaults
+- **AFTER Feature 10:** These constants won't exist in config.py
+- **SOLUTION:** Use Feature 03's own argparse defaults instead
+  - `parser.add_argument('--season', type=int, default=2025, ...)` ← Hardcode default in argparse
+  - `parser.add_argument('--current-week', type=int, default=17, ...)` ← Hardcode default in argparse
+- **Result:** Single source of truth (argparse defaults), no dependency on player-data-fetcher/config.py
+
+**Required Change:**
+- Remove imports: `from config import NFL_SEASON, CURRENT_NFL_WEEK`
+- Update argparse defaults to use hardcoded values (2025, 17) instead of importing from config.py
+- Document: "Defaults previously imported from player-data-fetcher/config.py, now hardcoded per epic architectural pattern"
+
+**Reference:** Feature 10 R8 (removes CLI constants from config.py)
 
 ---
 

@@ -175,16 +175,16 @@ Note:
 
 | Lesson Pattern | Likely Affected Guide(s) |
 |----------------|--------------------------|
-| Missed requirement in spec | stages/s_2/phase_1_specification.md |
-| Wrong interface assumed | stages/s_5/round1_todo_creation.md (Iteration 2) |
-| Algorithm traceability incomplete | stages/s_5/round1_todo_creation.md (Iteration 4) |
-| Integration gap not identified | stages/s_5/round1_todo_creation.md (Iteration 7) |
-| Test coverage insufficient | stages/s_5/round2_todo_creation.md (Iterations 8-10) |
+| Missed requirement in spec | stages/s2/phase_1_specification.md |
+| Wrong interface assumed | stages/s5/round1_todo_creation.md (Iteration 2) |
+| Algorithm traceability incomplete | stages/s5/round1_todo_creation.md (Iteration 4) |
+| Integration gap not identified | stages/s5/round1_todo_creation.md (Iteration 7) |
+| Test coverage insufficient | stages/s5/round2_todo_creation.md (Iterations 8-10) |
 | Gate not enforced | reference/mandatory_gates.md |
-| QC round missed issue | stages/s_5/qc_rounds.md |
-| Smoke test didn't catch bug | stages/s_5/smoke_testing.md |
-| Epic integration issue | stages/s_6/epic_qc_rounds.md |
-| Spec misinterpretation | stages/s_5/round3_part2_final_gates.md (Iteration 25) |
+| QC round missed issue | stages/s5/qc_rounds.md |
+| Smoke test didn't catch bug | stages/s5/smoke_testing.md |
+| Epic integration issue | stages/s6/epic_qc_rounds.md |
+| Spec misinterpretation | stages/s5/round3_part2_final_gates.md (Iteration 25) |
 | Checklist question unclear | templates/feature_checklist_template.md |
 | Implementation plan vague | templates/implementation_plan_template.md |
 | Prompt not followed | prompts/{stage}_prompts.md |

@@ -2,7 +2,7 @@
 ## S5.P1: Implementation Planning
 ### S5.P2: Planning Round 2 (Iterations 8-16)
 
-**File:** `part_5.1.2_round2.md`
+**File:** `s5_p2_planning_round2.md`
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -53,18 +53,18 @@ Planning Round 2 is complete when all 9 iterations pass, test coverage exceeds 9
 **This is a ROUTER guide.** Detailed iteration instructions are in separate files:
 
 **Iterations 8-10: Test Strategy & Configuration**
-📖 **READ:** `stages/s5/round2/iterations_8_10_test_strategy.md`
+📖 **READ:** `stages/s5/s5_p2_i1_test_strategy.md`
 - Iteration 8: Test Strategy Development
 - Iteration 9: Edge Case Enumeration
 - Iteration 10: Configuration Change Impact
 
 **Iterations 11-12: Re-verification**
-📖 **READ:** `stages/s5/round2/iterations_11_12_reverification.md`
+📖 **READ:** `stages/s5/s5_p2_i2_reverification.md`
 - Iteration 11: Algorithm Traceability Matrix (Re-verify)
 - Iteration 12: End-to-End Data Flow (Re-verify)
 
 **Iterations 13-16: Final Verification & Documentation**
-📖 **READ:** `stages/s5/round2/iterations_13_16_final_checks.md`
+📖 **READ:** `stages/s5/s5_p2_i3_final_checks.md`
 - Iteration 13: Dependency Version Check
 - Iteration 14: Integration Gap Check (Re-verify)
 - Iteration 15: Test Coverage Depth Check
@@ -171,18 +171,18 @@ Planning Round 2 is complete when all 9 iterations pass, test coverage exceeds 9
 └──────────────────────────────────────────────────────────────┘
 
 Iterations 8-10: Test Strategy & Configuration
-   📖 READ: stages/s5/round2/iterations_8_10_test_strategy.md
+   📖 READ: stages/s5/s5_p2_i1_test_strategy.md
    - Test Strategy Development (Iteration 8)
    - Edge Case Enumeration (Iteration 9)
    - Configuration Change Impact (Iteration 10)
    ↓
 Iterations 11-12: Re-verification
-   📖 READ: stages/s5/round2/iterations_11_12_reverification.md
+   📖 READ: stages/s5/s5_p2_i2_reverification.md
    - Algorithm Traceability Matrix Re-verify (Iteration 11)
    - End-to-End Data Flow Re-verify (Iteration 12)
    ↓
 Iterations 13-16: Final Verification & Documentation
-   📖 READ: stages/s5/round2/iterations_13_16_final_checks.md
+   📖 READ: stages/s5/s5_p2_i3_final_checks.md
    - Dependency Version Check (Iteration 13)
    - Integration Gap Check Re-verify (Iteration 14)
    - Test Coverage Depth Check (Iteration 15)
@@ -346,9 +346,9 @@ If confidence < MEDIUM: Update questions file, wait for user
 - `stages/s5/round3_part2_final_gates.md` - Planning Round 3 Part 2 (Final Gates)
 
 **Iteration Details (Planning Round 2):**
-- `stages/s5/round2/iterations_8_10_test_strategy.md` - Iterations 8-10
-- `stages/s5/round2/iterations_11_12_reverification.md` - Iterations 11-12
-- `stages/s5/round2/iterations_13_16_final_checks.md` - Iterations 13-16
+- `stages/s5/s5_p2_i1_test_strategy.md` - Iterations 8-10
+- `stages/s5/s5_p2_i2_reverification.md` - Iterations 11-12
+- `stages/s5/s5_p2_i3_final_checks.md` - Iterations 13-16
 
 **Reference:**
 - `prompts_reference_v2.md` - Phase transition prompts (MANDATORY)

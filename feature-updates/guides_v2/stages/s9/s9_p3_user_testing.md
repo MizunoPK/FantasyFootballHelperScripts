@@ -77,7 +77,7 @@ User testing passes with ZERO bugs reported by user
    - Cannot mark bugs as "acceptable"
    - Fix ALL bugs user reports
 
-4. ⚠️ RESTART STAGE 6 AFTER BUG FIXES
+4. ⚠️ RESTART S9.P1 AFTER BUG FIXES
    - After fixing user-reported bugs → RESTART S9.P1
    - Re-run smoke testing (4 parts)
    - Re-run QC rounds (3 rounds)
@@ -281,7 +281,7 @@ For EACH bug fix folder:
 
 **2a. Follow Bug Fix Workflow**
 
-Read and follow: `stages/s_5/bugfix_workflow.md`
+Read and follow: `stages/s5/bugfix_workflow.md`
 
 **Stages:**
 1. **S2** (Feature Deep Dive) - Understand bug scope

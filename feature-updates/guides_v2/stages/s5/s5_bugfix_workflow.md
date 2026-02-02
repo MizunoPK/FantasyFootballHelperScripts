@@ -349,7 +349,7 @@ DONE (return to previous work)
 
 ### S2: Deep Dive (Adapted for Bug Fixes)
 
-**Read:** stages/s_2/feature_deep_dive.md
+**Read:** stages/s2/feature_deep_dive.md
 
 **Adapt for bug fix:**
 1. **Create spec.md** (bug fix requirements)

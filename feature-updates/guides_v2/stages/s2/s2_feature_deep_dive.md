@@ -350,7 +350,7 @@ STAGE_2a
 
 ### If you're starting S2:
 
-**READ:** `stages/s2/phase_0_research.md`
+**READ:** `stages/s2/s2_p1_research.md`
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`:
 ```markdown
@@ -390,7 +390,7 @@ Ready to begin Phase 0: Discovery Context Review.
 
 **After completing STAGE_2a:**
 - Update feature README.md Agent Status: "Phase 1.5 complete, starting Phase 2"
-- **READ:** `stages/s2/phase_1_specification.md` (full guide)
+- **READ:** `stages/s2/s2_p2_specification.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_2b:**
@@ -446,7 +446,7 @@ Ready to begin Phase 0: Discovery Context Review.
 **If ALL features complete S2:**
 - Transition to S3 (Cross-Feature Sanity Check)
 
-📖 **READ:** `stages/s_3/cross_feature_sanity_check.md`
+📖 **READ:** `stages/s3/cross_feature_sanity_check.md`
 
 ---
 
@@ -519,15 +519,15 @@ The original guide has been preserved for reference but is deprecated. All S2 wo
 
 **S2 is now split into three focused guides:**
 
-1. **stages/s2/phase_0_research.md** - Research & Audit (Phases 0, 1, 1.5)
-2. **stages/s2/phase_1_specification.md** - Specification & Alignment (Phases 2, 2.5)
+1. **stages/s2/s2_p1_research.md** - Research & Audit (Phases 0, 1, 1.5)
+2. **stages/s2/s2_p2_specification.md** - Specification & Alignment (Phases 2, 2.5)
 3. **stages/s2/s2_p3_refinement.md** - Refinement & Approval (Phases 3, 4, 5, 6)
 
 **Workflow remains the same:** 9 phases, 3 mandatory gates, same completion criteria
 
 **Improvement:** 60-70% reduction in guide size per phase, clearer navigation, better phase focus
 
-**Start here:** `stages/s2/phase_0_research.md` (unless resuming mid-stage)
+**Start here:** `stages/s2/s2_p1_research.md` (unless resuming mid-stage)
 
 ---
 

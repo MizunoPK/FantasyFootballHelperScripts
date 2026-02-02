@@ -4,7 +4,7 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-02
 **Prerequisites:** S2.P1 complete (Research Phase PASSED)
-**Next Phase:** `stages/s_2/s2_p3_refinement.md`
+**Next Phase:** `stages/s2/s2_p3_refinement.md`
 **File:** `s2_p2_specification.md`
 
 ---
@@ -338,7 +338,7 @@ Each question should include:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** SPECIFICATION_PHASE
 **Current Step:** Phase 2 - Spec & Checklist Updated (with traceability)
-**Current Guide:** stages/s_2/phase_1_specification.md
+**Current Guide:** stages/s2/s2_p2_specification.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Every requirement must have source (Epic/User Answer/Derived)
@@ -463,7 +463,7 @@ List all explicit user requests, then verify EACH is in spec:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** SPECIFICATION_PHASE
 **Current Step:** Phase 2.5 - Spec-to-Epic Alignment Check PASSED
-**Current Guide:** stages/s_2/phase_1_specification.md
+**Current Guide:** stages/s2/s2_p2_specification.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Phase 2.5 alignment check is MANDATORY GATE
@@ -472,7 +472,7 @@ List all explicit user requests, then verify EACH is in spec:
 
 **Progress:** 2/2 phases complete (Specification Phase COMPLETE)
 **Next Action:** Refinement Phase (Interactive Question Resolution)
-**Next Guide:** stages/s_2/phase_2_refinement.md
+**Next Guide:** stages/s2/s2_p3_refinement.md
 **Blockers:** None
 
 **Alignment Result:** ✅ PASSED
@@ -663,7 +663,7 @@ Update Agent Status in feature README.md:
 → **Skip:** STAGE_2c if checklist is complete
 
 **Option B: New questions discovered:**
-→ **Proceed to:** stages/s_2/phase_2_refinement.md (STAGE_2c)
+→ **Proceed to:** stages/s2/s2_p3_refinement.md (STAGE_2c)
 
 **What happens in STAGE_2c (if needed):**
 - Step 3: Handle any NEW questions (repeated)

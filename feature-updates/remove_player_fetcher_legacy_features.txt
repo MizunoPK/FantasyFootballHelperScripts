@@ -1,0 +1,149 @@
+# Epic Request: Remove Legacy Features from Player Data Fetcher
+
+## Executive Summary
+
+Simplify the player data fetcher by removing legacy features that are no longer needed: locked player preservation, multiple output format support (CSV/Excel), Excel position sheets, configurable export columns, and file caps management. Streamline the codebase to support only position-based JSON output, reducing complexity and maintenance burden.
+
+## Background & Problem Statement
+
+**Current State:**
+- Player data fetcher supports 4 output formats: CSV, JSON, Excel, Position JSON
+- Locked player preservation feature maintains locked status between data updates
+- Excel export includes position-based sheets with configurable columns
+- File caps management system cleans old export files
+- Settings class in player_data_fetcher_main.py has fields for CREATE_CSV, CREATE_JSON, CREATE_EXCEL
+- player_data_exporter.py has methods for all export formats
+- ~41,000 lines in player_data_exporter.py includes unused export logic
+
+**Manual Changes Already Made:**
+User has already deleted the following from config.py:
+- PRESERVE_LOCKED_VALUES (locked player preservation)
+- CREATE_CSV, CREATE_JSON, CREATE_EXCEL, CREATE_CONDENSED_EXCEL (output format flags)
+- CREATE_POSITION_JSON (keeping position JSON, removing config)
+- DEFAULT_FILE_CAPS (file management caps)
+- EXCEL_POSITION_SHEETS (position-based Excel sheet list)
+- EXPORT_COLUMNS (configurable export column list)
+- OUTPUT_DIRECTORY (output directory path - was "./data")
+- `from dataclasses import dataclass` import statement
+- Various section headers (cosmetic cleanup)
+
+**Problems:**
+1. **Dead Code**: Export methods for CSV/Excel/JSON still exist but are unused
+2. **Broken Imports**: Code still imports deleted config values (will crash on next run)
+3. **Unnecessary Complexity**: Locked player preservation logic no longer needed
+4. **Maintenance Burden**: Multiple export formats require more testing and debugging
+5. **User Confusion**: Settings still expose options that shouldn't be used
+
+## Goals
+
+1. **Remove All Unused Export Formats**: Delete CSV, JSON, and Excel export methods and logic
+2. **Remove Locked Player Preservation**: Delete PRESERVE_LOCKED_VALUES feature entirely
+3. **Simplify Export Interface**: Keep only position JSON export (6 files: QB, RB, WR, TE, K, DST)
+4. **Fix Broken Imports**: Remove all imports of deleted config values
+5. **Clean Up Settings Class**: Remove create_csv, create_json, create_excel fields
+6. **Update Tests**: Remove or update tests for deleted features
+7. **Maintain Stability**: Zero regressions in position JSON export (the only export that remains)
+
+## Scope
+
+### In Scope
+
+#### 1. Remove Export Methods from player_data_exporter.py
+**Methods to DELETE:**
+- `export_csv()` - CSV export for all players
+- `export_json()` - JSON export for all players
+- `export_excel()` - Excel export with multiple sheets
+- `_write_excel_sheets()` - Excel position sheet writer
+- `_prepare_export_dataframe()` - DataFrame preparation for CSV/Excel (only used by deleted methods)
+- `export_all_formats()` - Wrapper calling all export formats
+- `export_teams_csv()` - Team data CSV export
+- `export_all_formats_with_teams()` - Wrapper with team exports
+
+**Methods to KEEP:**
+- `export_position_json_files()` - Position-based JSON export (QB.json, RB.json, etc.)
+- `_export_single_position_json()` - Individual position JSON writer
+- `_prepare_position_json_data()` - Position JSON data preparation
+- `export_teams_to_data()` - Team data export to data/ folder
+
+**Estimate:** Remove ~500-800 lines of export code
+
+#### 2. Remove Locked Player Preservation Feature
+**Code to DELETE:**
+- `_load_existing_locked_values()` method - Loads locked values from old JSON files
+- `self.existing_locked_values` dictionary - Stores locked player IDs
+- Logic checking `PRESERVE_LOCKED_VALUES` config (2 locations)
+- Logic applying locked values from `existing_locked_values` dict
+
+**Data Model Changes:**
+- Keep `locked: int` field in FantasyPlayer dataclass (still output in position JSON, just always 0)
+- Remove preservation logic (locked will always be default 0)
+
+**Estimate:** Remove ~100-150 lines of locked preservation code
+
+#### 3. Remove File Caps Management
+**Code to DELETE:**
+- `DEFAULT_FILE_CAPS` import from config
+- `DataFileManager` initialization with file caps in 2 locations
+- Change `DataFileManager(str(self.output_dir), DEFAULT_FILE_CAPS)` to simpler initialization
+
+**DataFileManager Impact:**
+- Check if DataFileManager still needs file_caps parameter
+- If parameter is required, pass None or remove parameter from class
+- If file cleanup is still needed for position JSON, keep minimal cleanup logic
+
+**Estimate:** Remove 3-5 lines, may require DataFileManager signature change
+
+#### 4. Fix Broken Imports
+**Files with broken imports:**
+
+**player_data_exporter.py:**
+- Remove: `EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_LOCKED_VALUES` from import
+- Remove: `DEFAULT_FILE_CAPS, CREATE_POSITION_JSON` from import
+- Keep: `TEAM_DATA_FOLDER, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME, POSITION_JSON_OUTPUT, CURRENT_NFL_WEEK`
+
+**player_data_fetcher_main.py:**
+- Remove: `CREATE_CSV, CREATE_JSON, CREATE_EXCEL, OUTPUT_DIRECTORY` from import
+- Remove: Settings class fields: `create_csv: bool`, `create_json: bool`, `create_excel: bool`, `output_directory: str`
+- Hardcode output_directory in Settings or remove field entirely (position JSON uses POSITION_JSON_OUTPUT, not OUTPUT_DIRECTORY)
+- Remove: Any logic using these settings fields
+
+**Estimate:** Update 2 files, remove 9-11 import statements and 4 Settings fields
+
+#### 5. Update Main Export Logic
+**Current flow (in player_data_fetcher_main.py):**
+```python
+# Calls export_all_formats() which exports CSV + JSON + Excel + Position JSON
+filepath = await exporter.export_all_formats(data,
+    create_csv=settings.create_csv,
+    create_json=settings.create_json,
+    create_excel=settings.create_excel)
+```
+
+**New flow (simplified):**
+```python
+# Only exports position JSON files (QB, RB, WR, TE, K, DST)
+position_json_files = await exporter.export_position_json_files(data)
+logger.info(f"Exported {len(position_json_files)} position JSON files")
+```
+
+**Estimate:** Simplify 5-10 lines of main export logic
+
+#### 6. Update Tests
+
+#### 7. Update Documentation (If Needed)
+**Check and update:**
+- README.md: Remove references to CSV/Excel exports if mentioned
+- ARCHITECTURE.md: Update player data fetcher description if it mentions multiple formats
+- Any inline comments/docstrings referencing deleted features
+
+**Estimate:** 5-20 line updates across documentation
+
+### Out of Scope
+
+1. **Changing position JSON format**: Keep current position JSON structure unchanged
+2. **Modifying DataFileManager class**: Only update calls, not the class implementation (unless required)
+3. **Changing drafted data loading**: LOAD_DRAFTED_DATA_FROM_FILE feature stays unchanged
+4. **Removing team data export**: Keep export_teams_to_data() method
+5. **Modifying ESPN API calls**: No changes to data fetching, only export format changes
+6. **Performance optimization**: Focus on removal, not optimization
+7. **Adding new features**: Pure deletion epic, no new functionality

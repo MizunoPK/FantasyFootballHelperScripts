@@ -55,7 +55,6 @@ MIN_POSITIONS = {
 # TRADE SUGGESTOR
 MIN_TRADE_IMPROVEMENT = 0
 VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Bo Him-ian Rhapsody", "Saquon Deez", "The Eskimo Brothers", "Pidgin"]
-# VALID_TEAMS = ["Fishoutawater"]
 
 # =============================================================================
 # POSITION CONSTANTS

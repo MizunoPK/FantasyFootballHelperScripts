@@ -403,7 +403,7 @@ Ready to begin Step 1: Pre-QC Verification.
 **When S9 complete:**
 - Transition to S10 (Epic Cleanup)
 
-📖 **READ:** `stages/s_7/epic_cleanup.md`
+📖 **READ:** `stages/s7/epic_cleanup.md`
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`
 

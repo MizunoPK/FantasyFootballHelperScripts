@@ -8,86 +8,85 @@
 
 ## 🎯 Quick Reference Card (Always Visible)
 
-**Current Stage:** S3 - Cross-Feature Sanity Check (Group 1: 7 features)
-**Active Guide:** `guides_v2/stages/s3/s3_cross_feature_sanity_check.md`
-**Last Guide Read:** 2026-01-30
+**Current Stage:** S8.P1 - Cross-Feature Alignment (Feature 01 Implementation Complete)
+**Active Guide:** `guides_v2/stages/s8/s8_p1_cross_feature_alignment.md`
+**Last Guide Read:** 2026-01-31
 
 **Stage Workflow:**
 ```
 S1 → S2 → S3 → S4 → [S5→S6→S7→S8] → S9 → S10
- ✅      ➜        ↓        ↓        ↓           ↓        ↓
-Epic  Features  Sanity  Testing  Implementation  Epic    Done
-Plan  Deep Dive  Check  Strategy  (per feature)   QC
+ ✅   ✅   ✅   ✅     ✅ ✅ ✅ 🔄       ↓        ↓
+Epic  Features Sanity Testing Feature_01  Epic    Done
+Plan  Deep Dive Check Strategy  Complete    QC
 ```
 
-**You are here:** ➜ Stage 2 (Parallel Mode - 8 secondary agents + Primary on Feature 01)
+**You are here:** 🔄 S8.P1 (Feature 01 complete, aligning remaining features)
 
 **Critical Rules for Current Stage:**
-1. ALL features must complete S2 before starting S3 ✅
-2. Compare ALL features systematically (not just some)
-3. Document ALL conflicts found (even if seem minor)
-4. Resolve conflicts BEFORE getting user sign-off
-5. User sign-off is MANDATORY
-6. Final Consistency Loop: Minimum 3 iterations with ZERO issues
+1. REVIEW ALL REMAINING FEATURES (Not just "related" ones)
+2. COMPARE TO ACTUAL IMPLEMENTATION (Not the plan)
+3. UPDATE SPECS PROACTIVELY (Don't wait for implementation)
+4. MARK FEATURES NEEDING SIGNIFICANT REWORK
+5. DOCUMENT INSIGHTS IN SPEC
+6. UPDATE CHECKLIST.MD TOO
+7. CHECK DEPENDENCIES (Both directions)
+8. NO "PROBABLY FINE" ASSUMPTIONS
 
-**S1 Completion Checklist:**
-- [x] Read guide: `guides_v2/stages/s1/s1_epic_planning.md`
-- [x] S1.P3 Discovery Phase complete (DISCOVERY.md user-approved)
-- [x] Feature breakdown and epic ticket user-approved
-- [x] All epic structure created
-- [x] Parallel work setup complete (handoffs generated, agents notified)
-- [x] Updated Quick Reference Card
+**S7 Completion Status (Feature 01):**
+- [x] S7.P1 Smoke Testing PASSED
+- [x] S7.P2 QC Rounds PASSED (3 rounds, zero final issues)
+- [x] S7.P3 Final Review PASSED (1 minor fix, zero tech debt)
+- [x] Feature-level commit made
+- [x] All tests passing (2518/2518)
 
-**Next Action:** Verify parallel work sync (Step 0), then run Final Consistency Loop for all 7 Group 1 features
+**Next Action:** Identify remaining features (02-09), sequentially review each spec against Feature 01 actual code
 
 ---
 
 ## Agent Status
 
 **Debugging Active:** NO
-**Last Updated:** 2026-01-30
-**Current Stage:** S4 COMPLETE - Awaiting Gate 4.5 Approval
-**Current Phase:** S4 (Epic Testing Strategy) COMPLETE - Ready for S5 after user approval
-**Current Step:** S4 Step 6 - Awaiting Gate 4.5 user approval of updated epic_smoke_test_plan.md
-**Current Guide:** `stages/s4/s4_epic_testing_strategy.md` (COMPLETE)
-**Guide Last Read:** 2026-01-30
+**Last Updated:** 2026-02-01 18:30
+**Current Stage:** S10.P1 - Guide Update from Lessons Learned COMPLETE
+**Current Phase:** GUIDE_UPDATES_APPLIED
+**Current Step:** Guide updates complete, resume epic work at S5 for Feature 10
+**Current Guide:** `stages/s10/s10_p1_guide_update_workflow.md`
+**Guide Last Read:** 2026-02-01
 
-**Critical Rules from Current Stage:**
-- S4 must update epic_smoke_test_plan.md based on S2-S3 findings ✅ COMPLETE
-- Gate 4.5 (MANDATORY): User must approve updated test plan before S5 begins
-- Test plan must include measurable success criteria ✅ COMPLETE
-- Test plan must identify all integration points ✅ COMPLETE
-- Test plan must have specific, executable test scenarios ✅ COMPLETE
-- Test plan will update again in S8.P2 after implementations
+**S10.P1 Summary:**
+- Proposals: 11 (11 approved, 0 modified, 0 rejected)
+- Guides updated: 18 files
+- Commits: 2 (guide updates + tracking)
+- Priority breakdown: 5 P0, 4 P1, 2 P2, 0 P3
 
-**S4 Accomplishments:**
-- Integration points identified: 4 critical integration points documented ✅
-- Measurable success criteria defined: 9 specific criteria with measurement methods ✅
-- Test scenarios created: 23 specific, executable scenarios across 7 parts ✅
-  - Part 1: Feature-level tests (7 scenarios)
-  - Part 2: Integration tests (3 scenarios - data flow validation)
-  - Part 3: Epic-level tests (4 scenarios - common patterns)
-  - Part 4: Data quality tests (4 scenarios - value verification)
-  - Part 5: Integration test framework (2 scenarios)
-  - Part 6: Backward compatibility (2 scenarios)
-  - Part 7: Unit test stability (1 scenario)
-- epic_smoke_test_plan.md updated: 121 lines → 600+ lines (MAJOR update) ✅
-- Update history marked: S4 entry added with date and rationale ✅
-- Test execution template created: For S9 results tracking ✅
+**Epic Work Status:** S4 complete for Feature 10, ready to resume at S5 (Implementation Planning)
 
-**S3 Accomplishments (Previous Stage):**
-- Sync verification: All 7 Group 1 features completed S2 ✅
-- Final Consistency Loop: 10 iterations total, 18 issues found and resolved
-- **ALL issues resolved:** 18/18 (100%) - ZERO unresolved issues ✅
-- Spec updates: All 7 features enhanced for consistency ✅
-- Lessons learned: Added "Zero Tolerance for Issues" principle ✅
-- Documentation: `research/FINAL_CONSISTENCY_VALIDATION.md` (complete validation record)
-- **Clean loops achieved:** 3 consecutive loops with zero issues (Loops 8-10) ✅
+**Missed Requirement Details:**
+- **Name:** feature_10_refactor_player_fetcher
+- **Discovered During:** S8.P1 (Cross-Feature Alignment)
+- **Discovery:** Feature 01 uses config override pattern; constructor pattern is better design
+- **User Decision:** Create new feature (Option 1)
+- **Priority:** Medium
+- **Sequence Position:** Between Feature 07 and Feature 08
+- **Approach:** Refactor Feature 01 to use constructor parameters instead of config overrides
 
-**Progress:** S4 COMPLETE for Group 1 (Features 01-07) - Awaiting Gate 4.5 approval
-**Current Step:** Presenting updated epic_smoke_test_plan.md to user for Gate 4.5 approval
-**Next Action:** User reviews and approves epic_smoke_test_plan.md (Gate 4.5), then begin S5 for Feature 01
-**Blockers:** Gate 4.5 approval required before proceeding to S5
+**Paused Work:**
+- **Paused Stage:** S8.P1 (Cross-Feature Alignment)
+- **Paused Feature:** Feature 01 (player_fetcher) - complete through S7
+- **Paused Task:** Reviewing remaining feature specs (02-09) against Feature 01 implementation
+- **Progress When Paused:** 1/8 features reviewed (Feature 02 analysis complete)
+- **Resume Point:** After Feature 10 S2/S3/S4 complete, resume Feature 02-09 spec alignment
+- **Resume File:** `feature_02_schedule_fetcher/S8_P1_ALIGNMENT_ANALYSIS.md` (continue from Feature 03)
+
+**Missed Requirement Protocol Progress:**
+- ✅ Phase 1: Discovery & User Decision COMPLETE
+- 🔄 Phase 2: Planning (S2 Deep Dive) - IN PROGRESS
+- ◻️ Phase 3: Realignment (S3 Cross-Feature Sanity Check) - NOT STARTED
+- ◻️ Phase 4: Realignment (S4 Epic Testing Update) - NOT STARTED
+- ◻️ Phase 5: Resume Previous Work - NOT STARTED
+
+**Next Action:** Create feature_10_refactor_player_fetcher/ folder, begin S2 deep dive
+**Blockers:** None
 
 **Note:** Groups 2 & 3 remain paused (Feature 08 awaiting Group 1 specs ✅, Feature 09 awaiting Groups 1 & 2 specs)
 
@@ -162,22 +161,45 @@ Make runner scripts configurable with argument-based control over behavior, add 
 
 ---
 
+## Missed Requirements Handled
+
+**Total Missed Requirements:** 1
+
+| # | Name | Option | Priority | Created | Sequence Position | S2 | S3 | S4 | Implemented | Status |
+|---|------|--------|----------|---------|-------------------|----|----|----|-----------|----|
+| 1 | feature_10_refactor_player_fetcher | New Feature | Medium | 2026-01-31 | Between F07 and F08 | 🔄 | ◻️ | ◻️ | ◻️ | Planning |
+
+**Legend:**
+- ✅ = Complete
+- 🔄 = In Progress
+- ◻️ = Not Started
+
+---
+
 ## Epic Progress Tracker
 
-**Overall Status:** 0/9 features complete
+**Overall Status:** 0/10 features complete (1 missed requirement added, Feature 01 at S8.P1 paused)
 - ✅ **Group 1: 7/7 S2 COMPLETE, S3 COMPLETE, S4 COMPLETE** (Round 1 complete)
 - ✅ **Group 2: 1/1 S2 COMPLETE, S3 COMPLETE, S4 COMPLETE** (Round 2 complete)
-- ✅ **Group 3: 1/1 S2 COMPLETE, S3 COMPLETE, S4 COMPLETE** (Round 3 COMPLETE → Ready for S5)
+- ✅ **Group 3: 1/1 S2 COMPLETE, S3 COMPLETE, S4 COMPLETE** (Round 3 COMPLETE)
+- 🔄 **Feature 01: S5-S7 COMPLETE, S8.P1 PAUSED** (for Feature 10 planning)
+- 🔄 **Feature 10: S2 IN PROGRESS** (Missed requirement - refactor Feature 01)
+
+**Updated Sequence (with Feature 10 inserted):**
+1. feature_01_player_fetcher → feature_02_schedule_fetcher → ... → feature_07_league_helper
+2. **feature_10_refactor_player_fetcher** ← NEW (between F07 and F08)
+3. feature_08_integration_test_framework → feature_09_documentation
 
 | Feature | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2 |
 |---------|-----|-----|-----|-----|-----|-----|-----|-------|-------|
-| feature_01_player_fetcher | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| feature_02_schedule_fetcher | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| feature_03_game_data_fetcher | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| feature_04_historical_compiler | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| feature_05_win_rate_simulation | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| feature_06_accuracy_simulation | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| feature_07_league_helper | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_01_player_fetcher | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🔄 | ◻️ |
+| feature_02_schedule_fetcher | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_03_game_data_fetcher | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_04_historical_compiler | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_05_win_rate_simulation | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_06_accuracy_simulation | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_07_league_helper | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| **feature_10_refactor_player_fetcher** | ✅ | 🔄 | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 | feature_08_integration_test_framework | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 | feature_09_documentation | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 
@@ -412,6 +434,15 @@ Make runner scripts configurable with argument-based control over behavior, add 
 **Status:** S1 complete
 **Dependencies:** Feature 08
 
+### Feature 10: refactor_player_fetcher (MISSED REQUIREMENT)
+**Folder:** `feature_10_refactor_player_fetcher/`
+**Purpose:** Refactor Feature 01 to use constructor parameter pattern instead of config override pattern
+**Status:** S2 in progress
+**Dependencies:** Feature 01 complete (architecture refactoring)
+**Created:** 2026-01-31 (Missed requirement discovered during S8.P1 alignment)
+**Sequence:** Between Feature 07 and Feature 08
+**Priority:** Medium (establish consistent pattern before integration testing)
+
 ---
 
 ## Workflow Checklist
@@ -440,7 +471,10 @@ Make runner scripts configurable with argument-based control over behavior, add 
 {Will be populated after S2 complete}
 
 **S4 - Epic Testing Strategy:**
-{Will be populated after S3 complete}
+- [x] epic_smoke_test_plan.md updated (all 10 features)
+- [x] Integration points identified (7 integration points)
+- [x] Epic success criteria defined (11 measurable criteria)
+- [x] 🚨 Gate 4.5: User approval of test plan (PASSED 2026-02-01)
 
 **S5-S8 - Feature Implementation:**
 {Will be populated after S4 complete}

@@ -1,0 +1,18 @@
+Improve logging and the saving of logs
+We'll have a logs folder at the root of the project, with subfolders for each major script
+E.g.
+- logs
+    - league_helper
+    - player-data-fetcher
+    - accuracy_sim
+    - win_rate_sim
+    - historical_data_compiler
+    - schedule-data-fetcher
+
+Each folder will have a timestamped .log file named something like league_helper-{timestamp}.log
+The log should be capped at 500 lines
+When logging to the file, if the file already is at 500 lines, then create a new timestamped log to save to
+
+For each log subfolder, cap the total number of logs that can exist at 50 each. When going above that, automatically delete the oldest log file
+
+Add the logs folder to the gitignore

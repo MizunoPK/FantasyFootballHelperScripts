@@ -2,7 +2,7 @@
 ## S5.P1: Implementation Planning
 ### S5.P3: Planning Round 3 (Router)
 
-**File:** `part_5.1.3_round3.md`
+**File:** `s5_p3_planning_round3.md`
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -67,17 +67,17 @@ Part 1 is complete when all 6 iterations pass, all preparation outputs added to 
 **This is a ROUTER guide.** Detailed iteration instructions are in separate files:
 
 **Iterations 17-18: Phasing & Rollback**
-📖 **READ:** `stages/s5/iterations/5.1.3.1_iterations_17_18_phasing.md`
+📖 **READ:** `stages/s5/s5_p3_i1_preparation.md`
 - Iteration 17: Implementation Phasing
 - Iteration 18: Rollback Strategy
 
 **Iterations 19-20: Algorithm Traceability & Performance**
-📖 **READ:** `stages/s5/iterations/5.1.3.1_iterations_19_20_algorithms.md`
+📖 **READ:** `stages/s5/s5_p3_i1_preparation.md`
 - Iteration 19: Final Algorithm Traceability Matrix
 - Iteration 20: Performance Analysis
 
 **Iterations 21-22: Mock Audit & Output Validation**
-📖 **READ:** `stages/s5/iterations/5.1.3.1_iterations_21_22_testing.md`
+📖 **READ:** `stages/s5/s5_p3_i1_preparation.md`
 - Iteration 21: Mock Audit
 - Iteration 22: Output Consumer Validation
 
@@ -181,7 +181,7 @@ Transition to Part 2 (Read stages/s5/round3_part2_final_gates.md)
 
 ### Iterations 17-18: Implementation Phasing & Rollback
 
-**📖 READ:** `stages/s5/iterations/5.1.3.1_iterations_17_18_phasing.md`
+**📖 READ:** `stages/s5/s5_p3_i1_preparation.md`
 
 **Covers:**
 - **Iteration 17:** Implementation Phasing - Break implementation into phases with checkpoints
@@ -198,7 +198,7 @@ Transition to Part 2 (Read stages/s5/round3_part2_final_gates.md)
 
 ### Iterations 19-20: Algorithm Traceability & Performance
 
-**📖 READ:** `stages/s5/iterations/5.1.3.1_iterations_19_20_algorithms.md`
+**📖 READ:** `stages/s5/s5_p3_i1_preparation.md`
 
 **Covers:**
 - **Iteration 19:** Algorithm Traceability Matrix (Final) - LAST chance to catch missing mappings
@@ -215,7 +215,7 @@ Transition to Part 2 (Read stages/s5/round3_part2_final_gates.md)
 
 ### Iterations 21-22: Mock Audit & Output Validation
 
-**📖 READ:** `stages/s5/iterations/5.1.3.1_iterations_21_22_testing.md`
+**📖 READ:** `stages/s5/s5_p3_i1_preparation.md`
 
 **Covers:**
 - **Iteration 21:** Mock Audit & Integration Test Plan (CRITICAL) - Verify mocks match real interfaces
@@ -404,9 +404,9 @@ O(n) dict lookup → 0.01s (acceptable)
 ## See Also
 
 **Iteration Detail Guides:**
-- `stages/s5/iterations/5.1.3.1_iterations_17_18_phasing.md` - Iterations 17-18: Phasing & Rollback
-- `stages/s5/iterations/5.1.3.1_iterations_19_20_algorithms.md` - Iterations 19-20: Algorithm Traceability & Performance
-- `stages/s5/iterations/5.1.3.1_iterations_21_22_testing.md` - Iterations 21-22: Mock Audit & Output Validation
+- `stages/s5/s5_p3_i1_preparation.md` - Iterations 17-18: Phasing & Rollback
+- `stages/s5/s5_p3_i1_preparation.md` - Iterations 19-20: Algorithm Traceability & Performance
+- `stages/s5/s5_p3_i1_preparation.md` - Iterations 21-22: Mock Audit & Output Validation
 
 **Related Guides:**
 - `stages/s5/round2_todo_creation.md` - Planning Round 2 (prerequisite for Part 1)

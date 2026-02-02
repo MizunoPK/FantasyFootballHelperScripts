@@ -1,0 +1,412 @@
+# Epic Request: Architectural Refactoring of Configuration Management
+
+## Executive Summary
+
+Perform a comprehensive architectural refactoring of all 7 runner scripts to establish a consistent, maintainable configuration management pattern. This includes migrating from hardcoded/scattered configuration to CLI-based configuration with dependency injection, implementing fast E2E test modes for integration testing, adding comprehensive debug support, and creating a robust integration test framework.
+
+## Background & Problem Statement
+
+**Current State:**
+- 4 of 7 runner scripts have NO command-line argument support (league_helper, player_fetcher, schedule_fetcher, and partially others)
+- Configuration is scattered across module-level constants in config.py/constants.py files
+- Some scripts use config override patterns (runtime modification of imported constants)
+- No consistent E2E test modes for integration testing
+- Debug logging support varies by script
+- No integration test framework to validate argument combinations
+- Inconsistent architectural patterns across scripts
+
+**Problems:**
+1. **Testing Difficulty**: Cannot easily test different configurations without modifying code
+2. **Configuration Duplication**: Same values defined in both config files and (when present) argparse defaults
+3. **Architectural Inconsistency**: Mix of config override patterns and constructor parameter patterns
+4. **No E2E Testing**: Cannot run fast integration tests (~3 min) for CI/CD or manual validation
+5. **Limited Debug Support**: Debug logging exists but behavioral debug modes are inconsistent
+6. **No Integration Testing**: Cannot validate multiple argument combinations systematically
+
+## Goals
+
+1. **Establish Consistent Configuration Architecture**: All 7 runner scripts use constructor parameter pattern (dependency injection)
+2. **Enable Comprehensive Testing**: CLI arguments for every configurable setting, enabling arbitrary test configurations
+3. **Fast E2E Modes**: Each script completes E2E test in ≤3 minutes for rapid integration testing
+4. **Robust Debug Support**: Consistent debug modes across all scripts (behavioral + logging)
+5. **Integration Test Framework**: Automated testing of multiple argument combinations per script
+6. **Single Source of Truth**: CLI argparse defaults only, NO duplication in config/constants files
+7. **Maintainable Codebase**: Clear data flow, explicit parameter passing, no runtime config manipulation
+
+## Scope
+
+### In Scope
+
+#### 1. Configuration Architecture Refactoring (ALL 7 scripts)
+- **Remove config override patterns**: No runtime modification of module constants via importlib
+- **Establish constructor parameter pattern**: Pass configuration via function/constructor parameters
+- **Remove CLI constants from config files**: CLI-configurable constants ONLY in argparse defaults
+- **Preserve non-CLI constants**: Keep internal/algorithmic constants in config/constants files
+- **Refactor internal modules**: Modules accept constructor parameters instead of importing config constants
+
+**Scripts affected:**
+- run_league_helper.py
+- run_player_fetcher.py
+- run_schedule_fetcher.py
+- run_win_rate_simulation.py
+- run_accuracy_simulation.py
+- run_game_data_fetcher.py
+- compile_historical_data.py
+
+#### 2. Comprehensive CLI Argument Support
+**Universal arguments (all 7 scripts):**
+- `--debug`: Enable debug mode (DEBUG logging + behavioral changes)
+- `--e2e-test`: Run E2E test mode (automated, ≤3 min)
+- `--log-level`: Set logging level [DEBUG, INFO, WARNING, ERROR, CRITICAL]
+
+**Script-specific arguments (based on each script's configurable constants):**
+- **player_fetcher** (~23 args): --week, --season, --output-dir, --create-csv, --create-json, --create-excel, --create-position-json, --enable-historical-save, --enable-game-data, --preserve-locked, --progress-frequency, --espn-player-limit, --sleeper-player-limit, etc.
+- **schedule_fetcher** (~5 args): --season, --output-path, --data-folder, --create-csv, --create-json
+- **game_data_fetcher** (~7 args): --season, --current-week, --output, --weeks, --data-folder, --validate, --clean
+- **historical_compiler** (~8 args): --year, --weeks, --validate, --clean, --timeout, --rate-limit-delay, --skip-backups, --data-folder
+- **win_rate_simulation** (enhance existing ~10 args): --mode, --sims, --baseline, --workers, --output, --data, --test-values, --projection-type, --stat-calculator
+- **accuracy_simulation** (enhance existing ~8 args): --baseline, --test-values, --max-workers, --output, --data, --horizons, --projection-type
+- **league_helper** (~12 args): --mode, --config-path, --data-folder, --recommendation-count, --min-waiver-improvement, --min-trade-improvement, --logging-to-file, --logging-file, --league-id, --week, --season, --team-id
+
+#### 3. E2E Test Modes (≤3 minutes each)
+**Simulations (win_rate, accuracy):**
+- Single run with 0-1 random configurations
+- Minimal dataset (debug-sized)
+- No extensive parameter sweeps
+- Automated flow (no user prompts)
+
+**Fetchers (player, schedule, game_data):**
+- Limited data scope (1 week, 1 league, or minimal dataset)
+- Real APIs (not mocked, but data-limited)
+- Fast completion (≤3 min per script)
+
+**Historical compiler:**
+- Compile 1 season only
+- Skip backup creation
+- Minimal validation
+- Fast compilation
+
+**League helper:**
+- Run all 5 modes sequentially with automated selections
+- Debug-sized datasets (2 recommendations, 1 trade, top 50 players)
+- No user prompts (fully automated flows)
+- Total time ≤3 min for all 5 modes
+
+#### 4. Debug Mode Support
+**Debug mode behavior (--debug flag):**
+- Set logging level to DEBUG (verbose output)
+- Reduce data scope (player_fetcher: ESPN_PLAYER_LIMIT=100)
+- Reduce iterations (simulations: fewer parameter combinations)
+- Enable additional validation/assertions
+- Output progress indicators
+
+**Precedence rules:**
+- --debug flag forces DEBUG logging (overrides --log-level)
+- --e2e-test takes precedence for data limits
+- Individual arguments override mode defaults
+
+#### 5. Integration Test Framework
+**7 individual test runners:**
+- test_player_fetcher_cli.py
+- test_schedule_fetcher_cli.py
+- test_game_data_fetcher_cli.py
+- test_historical_compiler_cli.py
+- test_league_helper_cli.py
+- Enhance existing: test_simulation_integration.py (add TestWinRateSimulationCLI class)
+- Enhance existing: test_accuracy_simulation_integration.py (add TestAccuracySimulationCLI class)
+
+**Test validation:**
+- Exit codes (assert returncode == 0)
+- Specific outcomes: log messages, output files, file formats, data values
+- Universal CLI arguments: --debug, --e2e-test, --log-level
+- Precedence rules: --debug forces DEBUG level
+- 3-5 representative argument combinations per script
+- Execution time: ≤180 seconds per script
+
+**Master test runner:**
+- run_all_integration_tests.py
+- Executes all 7 individual test runners sequentially
+- Aggregates results (7/7 passed)
+- Exit code 0 only if all tests pass
+
+#### 6. Documentation Updates
+- **README.md**: Quick Start section with all 60+ CLI arguments across 7 scripts
+- **README.md**: Testing section with integration testing subsection
+- **ARCHITECTURE.md**: Testing Architecture section with integration test framework
+- **docs/testing/INTEGRATION_TESTING_GUIDE.md**: New guide (~300 lines, 5 sections)
+- **Workflow guides**: S7/S9 stages reference integration test runners
+- **Troubleshooting guide**: Common argument errors and resolutions
+
+### Out of Scope
+
+1. **Configuration file support**: No YAML/TOML config files (CLI-only)
+2. **API mocking**: Use real APIs with data limiting (not mocks/stubs)
+3. **GUI or web interface**: CLI-only interface
+4. **CI/CD integration**: Manual test runner execution only (no automated CI)
+5. **New features**: Only making existing features configurable, not adding new functionality
+6. **Algorithm changes**: No modifications to scoring, simulation, or business logic
+7. **Database support**: No database configuration or persistence
+8. **Remote execution**: Local execution only (no distributed testing)
+
+### Deferred (Future Work)
+
+1. Mock data support for fetchers (mentioned as "nice-to-have")
+2. Configuration file format (if CLI args become too numerous)
+3. Automated smoke testing in CI/CD pipeline
+4. Performance benchmarking framework
+5. Configuration validation framework (schema validation)
+
+## Key Architectural Requirements
+
+### 1. Single Source of Truth Principle
+**Rule:** CLI-configurable constants appear ONLY in argparse defaults, NEVER in config/constants files.
+
+**Correct pattern:**
+```python
+# run_player_fetcher.py
+parser.add_argument('--week', type=int, default=17)  # ← SINGLE source of truth
+
+# player-data-fetcher/config.py
+# CURRENT_NFL_WEEK removed (now CLI-only)
+LOG_NAME = "player_data_fetcher"  # ← Non-CLI constant, stays
+```
+
+**Incorrect pattern (FORBIDDEN):**
+```python
+# run_player_fetcher.py
+parser.add_argument('--week', type=int, default=17)  # ← Duplicate!
+
+# player-data-fetcher/config.py
+CURRENT_NFL_WEEK = 17  # ← Duplicate! FORBIDDEN!
+```
+
+### 2. Constructor Parameter Pattern (Dependency Injection)
+**Rule:** Pass configuration via constructor/function parameters, NOT via runtime config override.
+
+**Correct pattern:**
+```python
+# run_player_fetcher.py
+settings_dict = create_settings_dict(args)
+asyncio.run(main(settings_dict))  # ← Pass as parameter
+
+# player_data_fetcher_main.py
+async def main(settings_dict: dict | None = None):
+    settings = create_settings_from_dict(settings_dict)  # ← Use passed value
+```
+
+**Incorrect pattern (FORBIDDEN):**
+```python
+# run_player_fetcher.py
+config = importlib.import_module('config')
+config.CURRENT_NFL_WEEK = args.week  # ← Runtime override! FORBIDDEN!
+player_data_fetcher_main = importlib.import_module('player_data_fetcher_main')
+asyncio.run(player_data_fetcher_main.main())  # ← No parameter passing
+```
+
+### 3. Internal Module Refactoring
+**Rule:** Internal modules that use CLI-configurable constants must be refactored to accept constructor parameters.
+
+**Example (player_fetcher internal modules):**
+- espn_client.py: Accept espn_player_limit via constructor, not from config.ESPN_PLAYER_LIMIT
+- player_data_exporter.py: Accept output formats via constructor, not from config.CREATE_CSV/JSON/EXCEL
+- game_data_fetcher.py: Accept settings via constructor, not from config constants
+- fantasy_points_calculator.py: Accept settings via constructor
+
+**Pattern:**
+```python
+# BEFORE (imports config)
+class ESPNClient:
+    def __init__(self):
+        self.player_limit = config.ESPN_PLAYER_LIMIT  # ← Import from config
+
+# AFTER (accepts parameter)
+class ESPNClient:
+    def __init__(self, player_limit: int):
+        self.player_limit = player_limit  # ← Passed via constructor
+```
+
+## Success Criteria
+
+### 1. Architectural Compliance (ALL 7 scripts)
+- ✅ Zero CLI constants in config/constants files (removed completely)
+- ✅ Constructor parameter pattern used (no config override pattern)
+- ✅ Explicit parameter passing from runner → main → internal modules
+- ✅ Non-CLI constants remain in config/constants files (clearly documented)
+
+### 2. CLI Argument Coverage
+- ✅ All 60+ configurable constants exposed as CLI arguments
+- ✅ Universal arguments present on all 7 scripts (--debug, --e2e-test, --log-level)
+- ✅ Script-specific arguments match each script's requirements
+- ✅ --help displays clear usage with all arguments
+
+### 3. E2E Test Mode Performance
+- ✅ Each script completes E2E mode in ≤180 seconds (3 minutes)
+- ✅ Exit code 0 (success)
+- ✅ No errors in output
+- ✅ Expected outcomes produced (files created, data fetched, modes executed)
+
+### 4. Debug Mode Functionality
+- ✅ --debug flag enables DEBUG logging (verbose output)
+- ✅ Debug mode reduces data scope (faster execution)
+- ✅ Precedence rules enforced (debug → E2E → individual args)
+- ✅ Consistent behavior across all 7 scripts
+
+### 5. Integration Test Framework
+- ✅ 7 CLI test runners created (5 new + 2 enhanced)
+- ✅ Master runner executes all 7 runners successfully
+- ✅ Tests validate exit codes AND specific outcomes
+- ✅ All tests use --e2e-test mode (≤180s execution)
+- ✅ 3-5 argument combinations tested per script
+
+### 6. Regression Prevention
+- ✅ All 2,500+ existing unit tests pass (100% pass rate)
+- ✅ Zero functionality regressions introduced
+- ✅ Backward compatibility preserved where applicable (e.g., game_data_fetcher --output, historical_compiler --verbose)
+
+### 7. Documentation Completeness
+- ✅ All 60+ CLI arguments documented in README.md
+- ✅ Integration testing guide created (300 lines)
+- ✅ ARCHITECTURE.md updated with testing framework
+- ✅ Workflow guides reference integration test runners
+- ✅ Zero missing or incorrect argument documentation
+
+## Feature Breakdown (10 Features)
+
+### Feature 01: player_fetcher
+- Add comprehensive argparse (23 arguments)
+- Remove CLI constants from config.py
+- Refactor to constructor parameter pattern
+- Add debug mode + E2E test mode
+- Status: NEEDS REFACTORING (Feature 10)
+
+### Feature 02: schedule_fetcher
+- Add argparse (5 arguments)
+- Add debug mode + E2E test mode
+- Constructor parameter pattern from start
+- Status: READY FOR IMPLEMENTATION
+
+### Feature 03: game_data_fetcher
+- Enhance existing argparse (add --debug, --e2e-test, --log-level)
+- Remove config imports, use own argparse defaults
+- Add debug mode + E2E test mode
+- Status: READY FOR IMPLEMENTATION
+
+### Feature 04: historical_compiler
+- Enhance existing argparse (add --debug, --e2e-test, --timeout, --rate-limit-delay, --log-level)
+- Remove CLI constants from constants.py
+- Refactor http_client.py to accept parameters
+- Add debug mode + E2E test mode
+- Status: READY FOR IMPLEMENTATION
+
+### Feature 05: win_rate_simulation
+- Add --e2e-test flag to existing argparse
+- Remove LOGGING_LEVEL module constant
+- Add E2E test mode (single run, 0-1 configs)
+- Status: READY FOR IMPLEMENTATION
+
+### Feature 06: accuracy_simulation
+- Add --e2e-test flag to existing argparse
+- Add E2E test mode (single horizon, single run)
+- Status: READY FOR IMPLEMENTATION
+
+### Feature 07: league_helper
+- Add comprehensive argparse (12 arguments)
+- Remove CLI constants from constants.py
+- Refactor mode managers to accept parameters (45+ code references)
+- Add debug mode + E2E test flows (all 5 modes, automated)
+- Status: LARGE SCOPE (mode manager refactoring)
+
+### Feature 08: integration_test_framework
+- Create 5 new CLI test files
+- Enhance 2 existing simulation test files (add CLI test classes)
+- Create master runner
+- Validate exit codes + specific outcomes
+- Status: DEPENDS ON FEATURES 01-07
+
+### Feature 09: documentation
+- Update README.md (Quick Start + Testing)
+- Update ARCHITECTURE.md (Testing Architecture)
+- Create INTEGRATION_TESTING_GUIDE.md
+- Update workflow guides (S7/S9)
+- Validate documentation accuracy (zero errors)
+- Status: DEPENDS ON FEATURES 01-08
+
+### Feature 10: refactor_player_fetcher (CRITICAL)
+- Refactor Feature 01 from config override to constructor pattern
+- Remove importlib config override code
+- Implement create_settings_dict() factory function
+- Modify main() to accept settings_dict parameter
+- Refactor 4 internal modules (espn_client, player_data_exporter, game_data_fetcher, fantasy_points_calculator)
+- Remove CLI constants from config.py
+- Preserve 100% behavioral equivalence
+- Status: ESTABLISHES ARCHITECTURAL PATTERN
+
+## Implementation Order & Dependencies
+
+**Critical Path:**
+1. Feature 10 (refactor_player_fetcher) - MUST BE FIRST - Establishes correct architectural pattern
+2. Features 02-07 (remaining scripts) - Follow Feature 10 pattern
+3. Feature 08 (integration_test_framework) - After all scripts complete
+4. Feature 09 (documentation) - Final
+
+**Dependency Graph:**
+```
+Feature 10 (refactor F01) → Feature 02 (schedule_fetcher)
+                          → Feature 03 (game_data_fetcher)
+                          → Feature 04 (historical_compiler)
+                          → Feature 05 (win_rate_simulation)
+                          → Feature 06 (accuracy_simulation)
+                          → Feature 07 (league_helper)
+                                    ↓
+                          Feature 08 (integration_test_framework)
+                                    ↓
+                          Feature 09 (documentation)
+```
+
+## Risk Assessment
+
+### High Risks
+1. **Feature 10 complexity**: Refactoring 7+ files + 4 internal modules is large scope
+2. **Feature 07 complexity**: 45+ mode manager references require careful refactoring
+3. **Behavioral regressions**: Config → constructor pattern change could introduce bugs
+4. **Test coverage gaps**: Not all argument combinations can be integration tested
+
+### Mitigation Strategies
+1. **Feature 10**: Implement in phases, run full test suite after each phase
+2. **Feature 07**: Systematic refactoring with grep-verified changes
+3. **Regressions**: Mandatory 100% unit test pass rate at each commit
+4. **Coverage**: Focus on representative combinations, not exhaustive testing
+
+## Estimated Effort
+
+**Total Epic Size:** VERY LARGE
+- Feature 10: LARGE (refactoring with 4 internal modules)
+- Feature 07: LARGE (45+ mode manager references)
+- Features 02-06: SMALL-MEDIUM each
+- Feature 08: MEDIUM (7 test runners)
+- Feature 09: SMALL (documentation)
+
+**Total Features:** 10
+**Estimated Duration:** 40-60 hours of development time (assuming sequential implementation with proper testing)
+
+## Definition of Done
+
+Epic is complete when:
+1. ✅ All 10 features implemented and tested
+2. ✅ All 2,500+ unit tests pass (100% pass rate)
+3. ✅ All 7 integration test runners pass (exit code 0)
+4. ✅ Master integration test runner passes (7/7 scripts)
+5. ✅ All 60+ CLI arguments documented accurately
+6. ✅ Zero CLI constants in config/constants files
+7. ✅ Constructor parameter pattern used in all scripts
+8. ✅ Each E2E test mode completes in ≤180 seconds
+9. ✅ User testing confirms zero regressions
+10. ✅ Epic lessons learned documented in guide updates
+
+## Questions for User
+
+1. **Priority order**: Should Feature 10 (refactoring) be implemented first to establish the pattern, or should we proceed with Features 02-09 and do Feature 10 last?
+2. **Backward compatibility**: For Feature 01, should we maintain the OLD config override pattern alongside the NEW constructor pattern during transition, or do a clean break?
+3. **Testing strictness**: Should integration tests fail if E2E mode takes >180 seconds, or just warn?
+4. **Documentation format**: Should the new INTEGRATION_TESTING_GUIDE.md follow the same format as existing testing docs, or create a new format?
+5. **Scope confirmation**: Are there any additional scripts or configurations not covered in this epic request that should be included?

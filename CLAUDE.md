@@ -189,10 +189,10 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 **S1 Phase Structure:**
 - S1.P1: Initial Setup (Steps 1.0-1.4)
 - S1.P2: Epic Analysis (Step 2)
-- **S1.P3: DISCOVERY PHASE** ← MANDATORY, CANNOT SKIP
-- S1.P4: Feature Breakdown Proposal (Step 3)
-- S1.P5: Epic Structure Creation (Step 4)
-- S1.P6: Transition to S2 (Step 5)
+- **S1.P3: DISCOVERY PHASE (Step 3)** ← MANDATORY, CANNOT SKIP
+- S1.P4: Feature Breakdown Proposal (Step 4)
+- S1.P5: Epic Structure Creation (Step 5)
+- S1.P6: Transition to S2 (Step 6)
 
 **You CANNOT skip S1.P3 Discovery Phase:**
 - Must create DISCOVERY.md before feature breakdown

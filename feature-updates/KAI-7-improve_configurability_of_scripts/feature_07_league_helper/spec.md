@@ -92,6 +92,17 @@ def main(self, e2e_mode: bool = False) -> None:
 - Existing callers continue to work unchanged
 - Only new E2E code passes `e2e_mode=True`
 
+### 4. league_helper/constants.py (MODIFY - remove CLI constants)
+**Source:** Epic Architectural Requirement (User 2026-02-01)
+
+**Modifications:**
+- **REMOVE:** CLI-configurable constants (LOGGING_LEVEL, LOGGING_TO_FILE, LOGGING_FILE, RECOMMENDATION_COUNT, MIN_WAIVER_IMPROVEMENT, MIN_TRADE_IMPROVEMENT)
+- **KEEP:** Non-CLI constants (LOG_NAME, LOGGING_FORMAT, position constants, roster rules, etc.)
+- **ADD:** Header comment explaining internal-only constants
+- **Reasoning:** Single source of truth for CLI values (argparse defaults), not config files
+
+**Reference:** See R7 for complete list of constants to remove/keep
+
 ---
 
 ## Requirements
@@ -249,6 +260,104 @@ Tests:
 3. E2E execution
 4. Debug mode
 5. Backward compat
+
+---
+
+### R7: Remove CLI-Configurable Constants from constants.py
+
+**Description:** Remove CLI-configurable constants from league_helper/constants.py (now CLI-only), keep non-CLI constants
+
+**Source:** Epic Architectural Requirement (User decision 2026-02-01: "ensure all scripts remove CLI arguments from config/constants files")
+
+**Traceability:**
+- Epic-wide architectural pattern established by Feature 10 (refactor_player_fetcher)
+- User explicitly requires CLI constants removed from all config/constants files
+- Single source of truth: argparse defaults in runner scripts, NOT config files
+
+**Implementation:**
+- **REMOVE from constants.py (CLI-configurable via arguments):**
+  - LOGGING_LEVEL = 'INFO' (line 24) → Now in argparse default (--log-level default='INFO')
+  - LOGGING_TO_FILE = False (line 25) → May become --log-to-file flag
+  - LOGGING_FILE = './data/log.txt' (line 27) → Config for logging file path if needed
+  - RECOMMENDATION_COUNT = 5 (line 33) → Now in argparse default (--recommendation-count default=5)
+  - MIN_WAIVER_IMPROVEMENT = 0 (line 38) → Now in argparse default (--min-waiver-improvement default=0)
+  - MIN_TRADE_IMPROVEMENT = 0 (line 56) → Now in argparse default (--min-trade-improvement default=0)
+
+- **KEEP in constants.py (non-CLI, internal constants):**
+  - FANTASY_TEAM_NAME = "Sea Sharp" (line 19) - may or may not be CLI-configurable, keep for now
+  - LOG_NAME = "league_helper" (line 26) - internal logger name, not CLI-configurable
+  - LOGGING_FORMAT = 'detailed' (line 28) - internal format, not CLI-configurable
+  - NUM_TRADE_RUNNERS_UP = 9 (line 39) - internal constant
+  - MIN_POSITIONS = {...} (lines 46-53) - internal roster validation rules
+  - VALID_TEAMS = [...] (line 57) - internal team list
+  - RB, WR, QB, TE, K, DST, FLEX (line 63) - position constants
+  - ALL_POSITIONS, OFFENSE_POSITIONS, DEFENSE_POSITIONS (lines 66-68)
+  - WIND_AFFECTED_POSITIONS (line 72)
+  - POSSIBLE_BYE_WEEKS (line 88)
+  - All other position/roster/bye constants
+
+- **Update imports in run_league_helper.py:**
+  - Remove imports of CLI-configurable constants
+  - Keep imports of non-CLI constants (LOG_NAME, LOGGING_FORMAT, position constants, etc.)
+
+- **Parameter passing:**
+  - Mode managers may need to accept recommendation_count, min_waiver_improvement, min_trade_improvement as constructor params
+  - Logging config passed to setup_logger() function directly from argparse values
+
+**Acceptance Criteria:**
+- constants.py contains only non-CLI constants (LOG_NAME, LOGGING_FORMAT, position constants, etc.)
+- CLI-configurable constants removed from constants.py
+- Clear header comment in constants.py: "Internal constants (not CLI-configurable)"
+- All references updated to use parameter passing instead of constant imports
+- No broken imports or undefined variable errors
+- All 5 modes work correctly with new parameter passing
+
+**Reference Implementation:** Feature 10 spec.md R8 (Handle Non-CLI Constants)
+
+**⚠️ CRITICAL: Mode Manager Refactoring Required**
+
+**Current Usage (WILL BREAK after removing constants):**
+- AddToRosterModeManager.py: 3 references to `Constants.RECOMMENDATION_COUNT`
+- TradeSimulatorModeManager.py: 2 references to `Constants.MIN_WAIVER_IMPROVEMENT`
+- trade_analyzer.py: 40+ references to `Constants.MIN_WAIVER_IMPROVEMENT`, `Constants.MIN_TRADE_IMPROVEMENT`
+
+**Total: 45+ code references** that will break if constants are removed without refactoring
+
+**Required Refactoring:**
+
+1. **Mode Manager Constructors:** Add parameters for CLI-configurable values
+   ```python
+   # AddToRosterModeManager.__init__
+   def __init__(self, ..., recommendation_count: int = 5):
+       self.recommendation_count = recommendation_count
+
+   # TradeSimulatorModeManager.__init__
+   def __init__(self, ..., min_waiver_improvement: int = 0, min_trade_improvement: int = 0):
+       self.min_waiver_improvement = min_waiver_improvement
+       self.min_trade_improvement = min_trade_improvement
+   ```
+
+2. **Replace all Constants.* references with self.* references:**
+   ```python
+   # BEFORE (will break):
+   Constants.RECOMMENDATION_COUNT
+
+   # AFTER (correct):
+   self.recommendation_count
+   ```
+
+3. **Parameter Flow:** run_league_helper.py → LeagueHelperManager → Mode Managers
+   - run_league_helper.py: Parse args (--recommendation-count, --min-waiver-improvement, --min-trade-improvement)
+   - LeagueHelperManager: Pass args to mode manager constructors
+   - Mode managers: Store and use instance variables instead of Constants
+
+**Scope Impact:** This significantly increases Feature 07 complexity
+- Originally: Add argparse + E2E mode (medium scope)
+- Now: Add argparse + E2E mode + refactor 3 mode managers + update 45+ references (large scope)
+
+**Alternative (if scope too large):** Keep these constants in constants.py with clear comment marking them as "INTERNAL DEFAULTS (overridden by CLI args)" - but this violates the epic architectural pattern
+
+**Recommendation:** Proceed with refactoring to maintain architectural consistency across epic
 
 ---
 

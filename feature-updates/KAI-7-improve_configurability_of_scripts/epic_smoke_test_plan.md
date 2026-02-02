@@ -3,11 +3,12 @@
 **Purpose:** Define how to validate the complete epic end-to-end
 
 **Created:** 2026-01-28 (S1)
-**Last Updated:** 2026-01-31 (S4 Round 3 - Feature 09 Documentation)
+**Last Updated:** 2026-02-01 (S4 Round 4 - Feature 10 Refactoring)
+**User Approved:** 2026-02-01 (Gate 4.5 PASSED)
 
-**✅ STATUS: S4 UPDATED (ALL 9 FEATURES) - Ready for Implementation**
+**✅ STATUS: S4 UPDATED (ALL 10 FEATURES) - USER APPROVED - Ready for Implementation**
 
-This test plan has been comprehensively updated in S4 based on ALL 9 feature specifications completed in S2-S3. Test scenarios are now specific, measurable, and directly traceable to feature requirements. Includes documentation validation criteria for Feature 09.
+This test plan has been comprehensively updated in S4 based on ALL 10 feature specifications completed in S2-S3. Test scenarios are now specific, measurable, and directly traceable to feature requirements. Includes documentation validation criteria for Feature 09 and architectural refactoring validation for Feature 10.
 
 ---
 
@@ -87,7 +88,18 @@ This test plan has been comprehensively updated in S4 based on ALL 9 feature spe
 - ✅ Cross-references valid: All spec references, file paths, guide references accurate
 - **Measurement**: Manual review of documentation files, validate argument lists against feature specs, verify all cross-references resolve correctly
 
-**Epic is considered SUCCESSFUL when ALL 10 criteria above are met with 100% pass rate.**
+### 11. Architectural Refactoring Validation (Feature 10)
+- ✅ Feature 01 E2E behavior preserved after refactoring (identical output, timing ≤180s)
+- ✅ All 23 CLI arguments work identically (same parsing, same results)
+- ✅ Debug mode behavior preserved (DEBUG logging, ESPN_PLAYER_LIMIT=100)
+- ✅ E2E test mode behavior preserved (automated selection, data limits)
+- ✅ Mode precedence maintained (debug → E2E → individual args)
+- ✅ Config override pattern removed from run_player_fetcher.py (code inspection)
+- ✅ Constructor parameter pattern implemented (main() accepts settings_dict)
+- ✅ All 2518 unit tests pass (100% pass rate, zero regressions)
+- **Measurement**: Run Feature 01 E2E test before and after refactoring, compare outputs byte-for-byte; code inspection of run_player_fetcher.py and player_data_fetcher_main.py for architectural pattern; run complete test suite
+
+**Epic is considered SUCCESSFUL when ALL 11 criteria above are met with 100% pass rate.**
 
 ---
 
@@ -139,6 +151,17 @@ Features 01-03 (Fetchers) → Feature 04 (Compiler) → Features 05-06 (Simulati
   - Cross-references valid (all spec/file/guide references resolve)
 - **Critical Tests**: Manual review of documentation against feature specs, cross-reference validation, argument list comparison
 
+### Integration Point 7: Feature 10 → Feature 01 (Architectural Refactoring Dependency)
+- Feature 10 (refactor_player_fetcher) refactors Feature 01 from config override to constructor pattern
+- Feature 10 is a missed requirement discovered during S8.P1 (cross-feature alignment)
+- Architectural change: run_player_fetcher.py stops using importlib to override config constants at runtime
+- New pattern: main() accepts settings_dict parameter, internal modules accept constructor parameters
+- Feature 10 validates:
+  - Behavioral equivalence (all 23 CLI args work identically before and after refactoring)
+  - Architectural change (no config override in run_player_fetcher.py, constructor parameters used)
+  - Zero regressions (all 2518 tests pass after refactoring)
+- **Critical Tests**: Run Feature 01 E2E test before and after refactoring (compare outputs), code inspection for architectural pattern change, full unit test suite execution
+
 ---
 
 ## Update History
@@ -149,6 +172,7 @@ Features 01-03 (Fetchers) → Feature 04 (Compiler) → Features 05-06 (Simulati
 | 2026-01-30 | S4 Round 1 | Group 1 (F01-07) | MAJOR UPDATE: Added measurable criteria, integration points, 17+ specific test scenarios, data quality checks | S2-S3 complete for all 7 Group 1 features - specs provide concrete implementation details |
 | 2026-01-30 | S4 Round 2 | Group 2 (F08) | Updated criterion #7 (integration test framework), fixed test file names (5 new CLI files + 2 enhanced), added Integration Point 5, enhanced Scenario 5.2 expected results | S2-S3 complete for Feature 08 - integration test framework spec finalized |
 | 2026-01-31 | S4 Round 3 | Group 3 (F09) | Added criterion #10 (documentation completeness and accuracy), added Integration Point 6 (Feature 09 → Features 01-08 documentation dependency), validation approach documented | S2-S3 complete for Feature 09 - documentation spec finalized |
+| 2026-02-01 | S4 Round 4 | Feature 10 (Refactoring) | Added criterion #11 (architectural refactoring validation), added Integration Point 7 (Feature 10 → Feature 01 refactoring dependency), added Scenario 1.1B (refactoring validation) | S2-S3 complete for Feature 10 - missed requirement (refactor Feature 01 to constructor pattern) spec finalized |
 
 **Current version is informed by:**
 - S1: Initial assumptions from epic request
@@ -163,7 +187,11 @@ Features 01-03 (Fetchers) → Feature 04 (Compiler) → Features 05-06 (Simulati
 - **Round 3 (Group 3 - Feature 09):**
   - S2: Deep dive specification for documentation
   - S3: Cross-feature alignment (Feature 09 vs Features 01-08, zero conflicts)
-  - S4: Integration Point 6, added criterion #10, documentation validation approach ← **CURRENT**
+  - S4: Integration Point 6, added criterion #10, documentation validation approach
+- **Round 4 (Feature 10 - Missed Requirement):**
+  - S2: Deep dive specification for refactoring Feature 01 (config override → constructor pattern)
+  - S3: Architectural requirement enforcement (CLI constants removed from config/constants files across all features, 6 conflicts resolved)
+  - S4: Integration Point 7, added criterion #11, refactoring validation scenarios ← **CURRENT**
 - S8.P2 updates: (Not yet - will update after each feature implementation)
 
 ---
@@ -201,6 +229,56 @@ ls -lh data/player_stats_*.csv
 - Exit code 0
 - Fetches player data for 1 league (first available, automated selection)
 - Output: data/player_stats_<league>.csv created with player data
+
+---
+
+**Scenario 1.1B: Feature 10 (Refactoring) - Architectural Pattern Validation**
+```bash
+# PART 1: Code Inspection - Verify Architectural Change
+# Verify config override pattern removed from run_player_fetcher.py
+grep -c "importlib.import_module('config')" run_player_fetcher.py
+# Expected: 0 (pattern removed)
+
+grep -c "config\." run_player_fetcher.py
+# Expected: 0 or minimal (no config constant overrides)
+
+# Verify constructor parameter pattern in run_player_fetcher.py
+grep -c "create_settings_dict" run_player_fetcher.py
+# Expected: >0 (settings dict created)
+
+grep -c "main(settings_dict)" run_player_fetcher.py
+# Expected: >0 (settings dict passed to main)
+
+# Verify main() accepts settings parameter
+grep -A 5 "async def main" player-data-fetcher/player_data_fetcher_main.py | grep "settings_dict"
+# Expected: Match found (main signature includes settings_dict parameter)
+
+# PART 2: Behavioral Equivalence - Run E2E Test
+time python run_player_fetcher.py --e2e-test
+
+# PART 3: Regression Testing - Run All Unit Tests
+python tests/run_all_tests.py
+echo "Exit code: $?"
+```
+
+**Expected Result:**
+- **Code Inspection:**
+  - Config override pattern removed: 0 matches for importlib.import_module('config')
+  - Constructor parameter pattern present: >0 matches for create_settings_dict, main(settings_dict)
+  - main() signature updated: settings_dict parameter found in function signature
+- **Behavioral Equivalence:**
+  - E2E test completes in ≤180 seconds (same as before refactoring)
+  - Exit code 0
+  - Output file created with player data (same format as before)
+- **Regression Testing:**
+  - All 2518 unit tests pass (exit code 0)
+  - Zero regressions introduced by refactoring
+
+**Failure Indicators:**
+- ❌ Config override pattern still present (importlib found) → Refactoring incomplete
+- ❌ Constructor parameter pattern not found → New pattern not implemented
+- ❌ E2E test fails or takes >180s → Behavioral regression
+- ❌ Unit tests fail → Regression introduced by refactoring
 
 ---
 
@@ -739,6 +817,7 @@ grep "integration test" feature-updates/guides_v2/stages/s9/s9_p1_epic_smoke_tes
 | Part | Scenario | Status | Notes |
 |------|----------|--------|-------|
 | 1.1 | Feature 01 E2E | ☐ PASS ☐ FAIL | |
+| 1.1B | Feature 10 Refactoring Validation | ☐ PASS ☐ FAIL | |
 | 1.2 | Feature 02 E2E | ☐ PASS ☐ FAIL | |
 | 1.3 | Feature 03 E2E | ☐ PASS ☐ FAIL | |
 | 1.4 | Feature 04 E2E | ☐ PASS ☐ FAIL | |
@@ -761,8 +840,9 @@ grep "integration test" feature-updates/guides_v2/stages/s9/s9_p1_epic_smoke_tes
 | 6.1 | Feature 03 Backward Compat | ☐ PASS ☐ FAIL | |
 | 6.2 | Feature 04 Backward Compat | ☐ PASS ☐ FAIL | |
 | 7.1 | Unit Test Stability | ☐ PASS ☐ FAIL | |
+| 7.2 | Documentation Validation | ☐ PASS ☐ FAIL | |
 
-**Overall Pass Rate:** [X/23 scenarios passed]
+**Overall Pass Rate:** [X/24 scenarios passed]
 
 **Issues Found:** [List any failures with issue numbers]
 

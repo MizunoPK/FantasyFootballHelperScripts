@@ -330,6 +330,58 @@
 
 ---
 
+### R8: Remove CLI-Configurable Constants from Module
+
+**Description:** Remove CLI-configurable logging constants from run_win_rate_simulation.py module-level definitions (use argparse defaults instead)
+
+**Source:** Epic Architectural Requirement (User decision 2026-02-01: "ensure all scripts remove CLI arguments from config/constants files")
+
+**Traceability:**
+- Epic-wide architectural pattern established by Feature 10 (refactor_player_fetcher)
+- User explicitly requires CLI constants removed from all config/constants files
+- Single source of truth: argparse defaults in runner scripts, NOT module-level constants
+
+**Current State (INCORRECT):**
+```python
+# run_win_rate_simulation.py lines 33-37
+LOGGING_LEVEL = 'INFO'          # ← CLI-configurable, should NOT be module constant
+LOGGING_TO_FILE = False         # ← Potentially CLI-configurable
+LOGGING_FILE = './simulation/log.txt'  # ← Potentially CLI-configurable
+LOGGING_FORMAT = 'standard'     # ← Non-CLI, can stay
+```
+
+**Implementation:**
+- **REMOVE from module-level constants:**
+  - LOGGING_LEVEL (line 33) → Use argparse default instead
+  - LOGGING_TO_FILE (line 34) → If CLI-configurable, use argparse; if not, can stay
+  - LOGGING_FILE (line 36) → If CLI-configurable, use argparse; if not, can stay
+
+- **KEEP as module-level constants (non-CLI):**
+  - LOGGING_FORMAT = 'standard' (line 37) - internal constant, not user-configurable via CLI
+
+- **Architectural pattern:**
+  ```python
+  # CORRECT: Use argparse default
+  parser.add_argument('--log-level', default='INFO', ...)  # Single source of truth
+
+  # In main():
+  setup_logger(args.log_level, ...)  # Use argparse value directly
+
+  # NOT: LOGGING_LEVEL constant that gets overridden
+  ```
+
+**Acceptance Criteria:**
+- No module-level LOGGING_LEVEL constant (use argparse default only)
+- Logging configuration comes from argparse values, not module constants
+- Non-CLI constants (if any) remain as module-level with clear comments
+- All references updated to use args.log_level instead of LOGGING_LEVEL constant
+
+**Reference Implementation:** Feature 10 spec.md R8 (Handle Non-CLI Constants)
+
+**Note:** This aligns with Component Affected #1 line 81 ("Convert LOGGING_LEVEL constant to CLI-overridable variable"), but clarifies that "conversion" means REMOVAL of constant and use of argparse defaults
+
+---
+
 ## Data Structures
 
 ### Command-Line Arguments (Input)

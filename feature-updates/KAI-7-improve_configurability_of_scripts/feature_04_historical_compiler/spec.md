@@ -111,15 +111,20 @@ Enhance historical data compiler with debug logging and E2E mode.
 - **Source:** Derived (necessary to expose constants as CLI args per User Answer Q1)
 - **Line numbers:** parse_args (59-96), main (249-307), compile_season_data (165-220)
 
-**2. `historical_data_compiler/constants.py` (no modifications)**
-- **No changes needed** - constants already defined, will be overridden via CLI args
-- **Constants used:** REQUEST_TIMEOUT (line 98), RATE_LIMIT_DELAY (line 101), MIN_SUPPORTED_YEAR (line 85), REGULAR_SEASON_WEEKS (line 88)
-- **Source:** Research findings (constants exist, don't need modification)
+**2. `historical_data_compiler/constants.py` (MODIFY - remove CLI-configurable constants)**
+- **REMOVE:** REQUEST_TIMEOUT (line 98), RATE_LIMIT_DELAY (line 101) - these are now CLI-only
+- **KEEP:** MIN_SUPPORTED_YEAR (line 85), REGULAR_SEASON_WEEKS (line 88) - non-CLI constants
+- **Reasoning:** Epic architectural requirement - CLI arguments must be removed from config/constants files (single source of truth: argparse defaults)
+- **Source:** Epic architectural pattern (Feature 10 reference) + User requirement (2026-02-01)
+- **Reference:** See Feature 10 R8 for pattern
 
-**3. `historical_data_compiler/http_client.py` (no modifications)**
-- **No changes needed** - BaseHTTPClient already accepts timeout/rate_limit_delay as constructor params
-- **Constructor signature:** `__init__(self, timeout: float = REQUEST_TIMEOUT, rate_limit_delay: float = RATE_LIMIT_DELAY, user_agent: str = ESPN_USER_AGENT)` (lines 62-67)
-- **Source:** Research findings (http_client.py:62-67)
+**3. `historical_data_compiler/http_client.py` (MODIFY - update default parameter values)**
+- **Change needed** - BaseHTTPClient constructor uses REQUEST_TIMEOUT, RATE_LIMIT_DELAY as default values
+- **Current signature (WILL BREAK after R8):** `__init__(self, timeout: float = REQUEST_TIMEOUT, rate_limit_delay: float = RATE_LIMIT_DELAY, user_agent: str = ESPN_USER_AGENT)` (lines 62-67)
+- **New signature (after R8):** `__init__(self, timeout: float = 30.0, rate_limit_delay: float = 0.3, user_agent: str = ESPN_USER_AGENT)`
+- **Reasoning:** R8 removes REQUEST_TIMEOUT, RATE_LIMIT_DELAY from constants.py, so hardcode defaults in constructor
+- **Impact:** Backward compatible - same default values (30.0, 0.3), just hardcoded instead of from constants
+- **Source:** Consistency verification - detected during S3 Step 3.2 (verify resolutions don't create new conflicts)
 
 ### Files to Create
 
@@ -333,6 +338,47 @@ Enhance historical data compiler with debug logging and E2E mode.
   - Test various timeout/rate-limit combinations
   - Validate exit codes (0 for success, 1 for failure)
   - Validate expected outcomes (files created, data integrity)
+
+---
+
+### Requirement 8: Remove CLI-Configurable Constants from constants.py
+
+**Description:** Remove REQUEST_TIMEOUT and RATE_LIMIT_DELAY from historical_data_compiler/constants.py (now CLI-only), keep non-CLI constants
+
+**Source:** Epic Architectural Requirement (User decision 2026-02-01: "ensure all scripts remove CLI arguments from config/constants files")
+
+**Traceability:**
+- Epic-wide architectural pattern established by Feature 10 (refactor_player_fetcher)
+- User explicitly requires CLI constants removed from all config/constants files
+- Single source of truth: argparse defaults in runner scripts, NOT config files
+
+**Implementation:**
+- **REMOVE from constants.py:**
+  - REQUEST_TIMEOUT = 30 (line 98) → Now in argparse default (--timeout default=30.0)
+  - RATE_LIMIT_DELAY = 0.3 (line 101) → Now in argparse default (--rate-limit-delay default=0.3)
+
+- **KEEP in constants.py (non-CLI):**
+  - MIN_SUPPORTED_YEAR = 2009 (line 85) - internal constant, not user-configurable
+  - REGULAR_SEASON_WEEKS = 18 (line 88) - internal constant, not user-configurable
+  - ESPN_USER_AGENT (if exists) - internal constant
+  - Any other non-CLI constants
+
+- **Update imports in compile_historical_data.py:**
+  - Remove: `from historical_data_compiler.constants import REQUEST_TIMEOUT, RATE_LIMIT_DELAY`
+  - Keep: `from historical_data_compiler.constants import MIN_SUPPORTED_YEAR, REGULAR_SEASON_WEEKS`
+
+- **Parameter passing:**
+  - http_client.py already accepts timeout/rate_limit_delay as constructor params (lines 62-67)
+  - Values flow: argparse → main() → compile_season_data() → BaseHTTPClient constructor
+
+**Acceptance Criteria:**
+- constants.py contains only non-CLI constants (MIN_SUPPORTED_YEAR, REGULAR_SEASON_WEEKS, etc.)
+- REQUEST_TIMEOUT and RATE_LIMIT_DELAY removed from constants.py
+- Clear header comment in constants.py: "Internal constants (not CLI-configurable)"
+- All references updated to use parameter passing instead of constant imports
+- No broken imports or undefined variable errors
+
+**Reference Implementation:** Feature 10 spec.md R8 (Handle Non-CLI Constants)
 
 ---
 

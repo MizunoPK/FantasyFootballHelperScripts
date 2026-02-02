@@ -828,7 +828,7 @@ Ensures S9 epic QC tests actual implementation, not assumptions.
 - [x] Updated with S8.P2 (Epic Testing Update) completion
 - [x] Next action set appropriately:
   - More features remain → "Read STAGE_5a guide for feature_02"
-  - All features done → "Read stages/s_6/epic_smoke_testing.md"
+  - All features done → "Read stages/s6/epic_smoke_testing.md"
 
 **If ALL criteria met:**
 - If more features remain → Proceed to next feature's S5a
@@ -1271,7 +1271,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 **Guide Last Read:** {Not read yet for next guide}
 **Next Action:**
 - If more features remain: "Read stages/s5/round1_todo_creation.md for feature_02 (Round 1)"
-- If all features done: "Read stages/s_6/epic_smoke_testing.md"
+- If all features done: "Read stages/s6/epic_smoke_testing.md"
 **S8.P2 (Epic Testing Update) Summary:**
 - Reviewed feature_01_adp_integration implementation
 - Added 6 new test scenarios to epic_smoke_test_plan.md
@@ -1308,7 +1308,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 - [ ] Verified ALL features completed S8.P2 (Epic Testing Update)
 - [ ] Epic README shows all features complete
 - [ ] No pending bug fixes
-- [ ] Ready to read stages/s_6/epic_smoke_testing.md
+- [ ] Ready to read stages/s6/epic_smoke_testing.md
 
 **If ALL verified:** Ready for next stage
 
