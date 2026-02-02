@@ -911,4 +911,4 @@ python run_league_helper.py --mode draft
 
 ---
 
-*End of stages/s5/implementation_execution.md*
+*End of stages/s6/s6_execution.md*

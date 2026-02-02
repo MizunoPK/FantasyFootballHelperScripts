@@ -3,7 +3,7 @@
 
 **Part of:** Epic-Driven Development Workflow v2
 **Prerequisites:** S9.P3 complete (User Testing passed with ZERO bugs)
-**Next Stage:** `stages/s7/epic_cleanup.md`
+**Next Stage:** `stages/s10/s10_epic_cleanup.md`
 **File:** `s9_p4_epic_final_review.md`
 
 ---
@@ -231,7 +231,7 @@ Prerequisites Met?
 **🚨 MANDATORY: READ PR REVIEW PROTOCOL**
 
 **Before proceeding, you MUST:**
-1. **READ:** `stages/s5/pr_review_protocol.md`
+1. **READ:** `stages/s5/s5_pr_review_protocol.md`
 2. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
    - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
@@ -484,7 +484,7 @@ Mark S9.P3 complete and prepare for S10:
 - Current stage: S9.P3
 - Status: COMPLETE
 - S9 summary (all parts, results)
-- Next stage: stages/s7/epic_cleanup.md
+- Next stage: stages/s10/s10_epic_cleanup.md
 - Next action: Read epic cleanup guide
 
 **Step 8.5: Completion Indicator**
@@ -640,8 +640,8 @@ Mark S9.P3 complete and prepare for S10:
 
 **Only proceed to S10 when ALL items are checked.**
 
-**Next stage:** stages/s7/epic_cleanup.md
-**Next action:** Read stages/s7/epic_cleanup.md to begin epic cleanup
+**Next stage:** stages/s10/s10_epic_cleanup.md
+**Next action:** Read stages/s10/s10_epic_cleanup.md to begin epic cleanup
 
 ---
 
@@ -688,7 +688,7 @@ Mark S9.P3 complete and prepare for S10:
 
 **See:** `reference/stage_9/epic_final_review_examples.md` for detailed examples of each mistake and best practices
 
-**Next Stage:** stages/s7/epic_cleanup.md - Final commits, PR creation, user review, move epic to done/
+**Next Stage:** stages/s10/s10_epic_cleanup.md - Final commits, PR creation, user review, move epic to done/
 
 **Remember:** S9.P3 is the LAST CHANCE to catch epic-level issues before shipping. Thoroughness here prevents post-completion rework and ensures epic delivers on user's vision.
 

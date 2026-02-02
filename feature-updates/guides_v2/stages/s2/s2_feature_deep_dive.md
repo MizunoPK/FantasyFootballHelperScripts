@@ -446,7 +446,7 @@ Ready to begin Phase 0: Discovery Context Review.
 **If ALL features complete S2:**
 - Transition to S3 (Cross-Feature Sanity Check)
 
-📖 **READ:** `stages/s3/cross_feature_sanity_check.md`
+📖 **READ:** `stages/s3/s3_cross_feature_sanity_check.md`
 
 ---
 
@@ -531,4 +531,4 @@ The original guide has been preserved for reference but is deprecated. All S2 wo
 
 ---
 
-*End of stages/s2/feature_deep_dive.md (ROUTER)*
+*End of stages/s2/s2_feature_deep_dive.md (ROUTER)*

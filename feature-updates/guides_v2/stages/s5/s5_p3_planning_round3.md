@@ -55,9 +55,9 @@ Part 1 is complete when all 6 iterations pass, all preparation outputs added to 
 
 | Part | Guide to Read | Iterations | Time Estimate |
 |------|---------------|------------|---------------|
-| S5.P3.1: Preparation | `stages/s5/iterations/5.1.3.1_*.md` (3 files) | 17-22 | 45-60 min |
-| S5.P3.2: Gates 1-2 | `stages/s5/5.1.3.2_round3_part2a.md` | 23, 23a + Gate 23a | 30-45 min |
-| S5.P3.3: Gate 3 | `stages/s5/5.1.3.3_round3_part2b.md` | 24, 25 + Gates 24, 25 | 15-30 min |
+| S5.P3.1: Preparation | `stages/s5/s5_p3_i1_preparation.md` | 17-22 | 45-60 min |
+| S5.P3.2: Gates 1-2 | `stages/s5/s5_p3_i2_gates_part1.md` | 23, 23a + Gate 23a | 30-45 min |
+| S5.P3.3: Gate 3 | `stages/s5/s5_p3_i3_gates_part2.md` | 24, 25 + Gates 24, 25 | 15-30 min |
 
 **Total Time:** 90-135 minutes (10 iterations + 3 gates)
 
@@ -99,7 +99,7 @@ Iterations 21-22: Mock Audit & Output Validation
    ↓
 PART 1 COMPLETE
    ↓
-Transition to Part 2 (Read stages/s5/round3_part2_final_gates.md)
+Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
 ```
 
 ---
@@ -254,12 +254,12 @@ Transition to Part 2 (Read stages/s5/round3_part2_final_gates.md)
 ### Agent Status Updated
 - [ ] feature README.md Agent Status shows: "Part 1 complete, ready for Part 2"
 - [ ] Progress documented: "Iteration 22/24 (Planning Round 3 Part 1) complete"
-- [ ] Next action set: "Read stages/s5/round3_part2_final_gates.md"
+- [ ] Next action set: "Read stages/s5/s5_p3_i3_gates_part2.md"
 
 **If ALL items checked:**
 - Part 1 is COMPLETE
 - Proceed to Part 2 (Final Gates)
-- Read stages/s5/round3_part2_final_gates.md
+- Read stages/s5/s5_p3_i3_gates_part2.md
 
 **If ANY item unchecked:**
 - STOP - Do not proceed to Part 2
@@ -342,7 +342,7 @@ O(n) dict lookup → 0.01s (acceptable)
 
 ## Prerequisites for Next Stage
 
-**Before proceeding to Part 2 (stages/s5/round3_part2_final_gates.md), verify:**
+**Before proceeding to Part 2 (stages/s5/s5_p3_i3_gates_part2.md), verify:**
 
 ### Part 1 Completion
 - [ ] ALL 6 iterations complete (17-22)
@@ -365,7 +365,7 @@ O(n) dict lookup → 0.01s (acceptable)
 
 **Only proceed to Part 2 when ALL items checked.**
 
-**Next stage:** stages/s5/round3_part2_final_gates.md
+**Next stage:** stages/s5/s5_p3_i3_gates_part2.md
 
 ---
 
@@ -395,7 +395,7 @@ O(n) dict lookup → 0.01s (acceptable)
 - Integration tests planned
 - Ready for mandatory gates (Part 2)
 
-**Next Stage:** stages/s5/round3_part2_final_gates.md - Final validation and GO/NO-GO decision
+**Next Stage:** stages/s5/s5_p3_i3_gates_part2.md - Final validation and GO/NO-GO decision
 
 **Remember:** Part 1 preparation prevents implementation failures. Thoroughness here saves massive rework later.
 
@@ -409,8 +409,8 @@ O(n) dict lookup → 0.01s (acceptable)
 - `stages/s5/s5_p3_i1_preparation.md` - Iterations 21-22: Mock Audit & Output Validation
 
 **Related Guides:**
-- `stages/s5/round2_todo_creation.md` - Planning Round 2 (prerequisite for Part 1)
-- `stages/s5/round3_part2_final_gates.md` - Part 2: Final Gates (next stage)
+- `stages/s5/s5_p2_planning_round2.md` - Planning Round 2 (prerequisite for Part 1)
+- `stages/s5/s5_p3_i3_gates_part2.md` - Part 2: Final Gates (next stage)
 - `prompts_reference_v2.md` - Phase transition prompts (MANDATORY)
 
 ---

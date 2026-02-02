@@ -5,7 +5,7 @@
 **Iterations:** 17-18
 **Purpose:** Define implementation phasing and rollback strategy
 **Prerequisites:** Planning Round 2 complete, confidence >= MEDIUM, test coverage >90%
-**Main Guide:** stages/s5/round3_part1_preparation.md
+**Main Guide:** stages/s5/s5_p3_i1_preparation.md
 
 ---
 
@@ -266,7 +266,7 @@ Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
 - Rollback strategy enables quick recovery from critical bugs
 - Both added to implementation_plan.md
 
-**Next:** Read `stages/s5/round3_part1/iterations_19_20_algorithms.md` for Iterations 19-20
+**Next:** Read `stages/s5/s5_p3_i1_preparation.md` for Iterations 19-20
 
 ---
 
@@ -278,7 +278,7 @@ Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
 **Iterations:** 19-20
 **Purpose:** Final algorithm verification and performance optimization
 **Prerequisites:** Iterations 17-18 complete
-**Main Guide:** stages/s5/round3_part1_preparation.md
+**Main Guide:** stages/s5/s5_p3_i1_preparation.md
 
 ---
 
@@ -562,7 +562,7 @@ Next Action: Iteration 21 - Mock Audit & Integration Test Plan
 - Performance optimizations prevent regressions
 - Both added to implementation_plan.md
 
-**Next:** Read `stages/s5/round3_part1/iterations_21_22_performance.md` for Iterations 21-22
+**Next:** Read `stages/s5/s5_p3_i1_preparation.md` for Iterations 21-22
 
 ---
 
@@ -574,7 +574,7 @@ Next Action: Iteration 21 - Mock Audit & Integration Test Plan
 **Iterations:** 21-22
 **Purpose:** Verify mocks match real interfaces and outputs are consumable
 **Prerequisites:** Iterations 19-20 complete
-**Main Guide:** stages/s5/round3_part1_preparation.md
+**Main Guide:** stages/s5/s5_p3_i1_preparation.md
 
 ---
 
@@ -1089,7 +1089,7 @@ After completing this iteration, check if you have questions or found answers:
 Progress: Iteration 22/24 (Planning Round 3 Part 1) complete
 Consumer Validation: 3 consumers identified, roundtrip tests planned
 Part 1 COMPLETE - Ready for Part 2
-Next Action: Read stages/s5/round3_part2_final_gates.md
+Next Action: Read stages/s5/s5_p3_i3_gates_part2.md
 ```
 
 ---
@@ -1106,7 +1106,7 @@ Next Action: Read stages/s5/round3_part2_final_gates.md
 - Consumer validation ensures downstream compatibility
 - All added to implementation_plan.md
 
-**Part 1 COMPLETE - Next:** Read `stages/s5/round3_part2_final_gates.md` for Part 2
+**Part 1 COMPLETE - Next:** Read `stages/s5/s5_p3_i3_gates_part2.md` for Part 2
 
 ---
 

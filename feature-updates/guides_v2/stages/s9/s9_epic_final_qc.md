@@ -286,7 +286,7 @@ Start Epic Final QC
 
 ### If you're starting S9:
 
-**READ:** `stages/s9/epic_smoke_testing.md`
+**READ:** `stages/s9/s9_p1_epic_smoke_testing.md`
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`:
 ```markdown
@@ -314,10 +314,10 @@ Ready to begin Step 1: Pre-QC Verification.
 ```
 
 **Then read the appropriate guide:**
-- **Step 1 or 2:** Read stages/s9/epic_smoke_testing.md
-- **Step 3, 4, or 5:** Read stages/s9/epic_qc_rounds.md
-- **Step 6:** Read stages/s9/user_testing.md
-- **Step 7, 8, or 9:** Read stages/s9/epic_final_review.md
+- **Step 1 or 2:** Read stages/s9/s9_p1_epic_smoke_testing.md
+- **Step 3, 4, or 5:** Read stages/s9/s9_p2_epic_qc_rounds.md
+- **Step 6:** Read stages/s9/s9_p3_user_testing.md
+- **Step 7, 8, or 9:** Read stages/s9/s9_p4_epic_final_review.md
 
 **Continue from "Next Action" in Agent Status.**
 
@@ -327,17 +327,17 @@ Ready to begin Step 1: Pre-QC Verification.
 
 **After completing STAGE_6a:**
 - Update EPIC_README.md Agent Status: "STAGE_6a complete, starting STAGE_6b"
-- **READ:** `stages/s9/epic_qc_rounds.md` (full guide)
+- **READ:** `stages/s9/s9_p2_epic_qc_rounds.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_6b:**
 - Update EPIC_README.md Agent Status: "STAGE_6b complete, starting STAGE_6c (User Testing)"
-- **READ:** `stages/s9/user_testing.md` (full guide)
+- **READ:** `stages/s9/s9_p3_user_testing.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_6c:**
 - Update EPIC_README.md Agent Status: "STAGE_6c complete (User Testing PASSED), starting STAGE_6d"
-- **READ:** `stages/s9/epic_final_review.md` (full guide)
+- **READ:** `stages/s9/s9_p4_epic_final_review.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing STAGE_6d:**
@@ -403,7 +403,7 @@ Ready to begin Step 1: Pre-QC Verification.
 **When S9 complete:**
 - Transition to S10 (Epic Cleanup)
 
-📖 **READ:** `stages/s7/epic_cleanup.md`
+📖 **READ:** `stages/s10/s10_epic_cleanup.md`
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`
 
@@ -484,16 +484,16 @@ The original guide has been preserved for reference but is deprecated. All S9 wo
 
 **S9 is now split into four focused guides:**
 
-1. **stages/s9/epic_smoke_testing.md** - Epic Smoke Testing (Steps 1-2)
-2. **stages/s9/epic_qc_rounds.md** - Epic QC Rounds (Steps 3-5)
-3. **stages/s9/user_testing.md** - User Testing (Step 6)
-4. **stages/s9/epic_final_review.md** - Epic Final Review (Steps 7-9)
+1. **stages/s9/s9_p1_epic_smoke_testing.md** - Epic Smoke Testing (Steps 1-2)
+2. **stages/s9/s9_p2_epic_qc_rounds.md** - Epic QC Rounds (Steps 3-5)
+3. **stages/s9/s9_p3_user_testing.md** - User Testing (Step 6)
+4. **stages/s9/s9_p4_epic_final_review.md** - Epic Final Review (Steps 7-9)
 
 **Workflow updated:** 9 steps (added User Testing), 1 mandatory restart protocol, enhanced completion criteria
 
 **Improvement:** 50-70% reduction in guide size per step, clearer navigation, better step focus
 
-**Start here:** `stages/s9/epic_smoke_testing.md` (unless resuming mid-stage)
+**Start here:** `stages/s9/s9_p1_epic_smoke_testing.md` (unless resuming mid-stage)
 
 **Critical distinction:** Epic-level validation focuses on integration, cohesion, and cross-feature quality (NOT feature-level testing)
 
@@ -501,4 +501,4 @@ The original guide has been preserved for reference but is deprecated. All S9 wo
 
 ---
 
-*End of stages/s9/epic_final_qc.md (ROUTER)*
+*End of stages/s9/s9_epic_final_qc.md (ROUTER)*

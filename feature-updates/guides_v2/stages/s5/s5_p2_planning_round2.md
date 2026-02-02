@@ -131,7 +131,7 @@ Planning Round 2 is complete when all 9 iterations pass, test coverage exceeds 9
   - Wait for user answers
   - DO NOT proceed to Planning Round 3
 - **If >= MEDIUM:**
-  - ✅ Proceed to Planning Round 3 Part 1 (stages/s5/round3_part1_preparation.md)
+  - ✅ Proceed to Planning Round 3 Part 1 (stages/s5/s5_p3_i1_preparation.md)
   - Final verification and implementation readiness
 - **Impact:** Low confidence after deep verification indicates fundamental gaps in understanding
 
@@ -326,7 +326,7 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 **After completing Planning Round 2:**
 
-📖 **READ:** `stages/s5/round3_part1_preparation.md`
+📖 **READ:** `stages/s5/s5_p3_i1_preparation.md`
 🎯 **GOAL:** Preparation iterations (17-22) - implementation phasing, rollback strategy, algorithm traceability (final), performance, mock audit
 ⏱️ **ESTIMATE:** 60-90 minutes for Part 1, then 1.5-2.5 hours for Part 2
 
@@ -341,9 +341,9 @@ If confidence < MEDIUM: Update questions file, wait for user
 ## See Also
 
 **Related Guides:**
-- `stages/s5/round1_todo_creation.md` - Planning Round 1 (Initial Analysis)
-- `stages/s5/round3_part1_preparation.md` - Planning Round 3 Part 1 (Preparation)
-- `stages/s5/round3_part2_final_gates.md` - Planning Round 3 Part 2 (Final Gates)
+- `stages/s5/s5_p1_planning_round1.md` - Planning Round 1 (Initial Analysis)
+- `stages/s5/s5_p3_i1_preparation.md` - Planning Round 3 Part 1 (Preparation)
+- `stages/s5/s5_p3_i3_gates_part2.md` - Planning Round 3 Part 2 (Final Gates)
 
 **Iteration Details (Planning Round 2):**
 - `stages/s5/s5_p2_i1_test_strategy.md` - Iterations 8-10
@@ -356,4 +356,4 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 ---
 
-*End of stages/s5/round2_todo_creation.md*
+*End of stages/s5/s5_p2_planning_round2.md*

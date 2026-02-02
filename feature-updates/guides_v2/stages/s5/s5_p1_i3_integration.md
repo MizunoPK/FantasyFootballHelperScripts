@@ -5,7 +5,7 @@
 **Purpose:** Trace data flow, verify downstream consumption, and ensure error handling
 **Prerequisites:** Iteration 4 + Gate 4a complete (iteration_4_algorithms.md)
 **Next:** iteration_7_integration.md (Integration Gap Check)
-**Main Guide:** `stages/s5/round1_todo_creation.md`
+**Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---
 
@@ -747,7 +747,7 @@ Critical Finding: [X libraries verified, Y workarounds in plan]
 **Critical Verification:**
 - ✅ **Iteration 5a prevents catastrophic bugs** - Consumption code verified
 
-**Next:** Read `stages/s5/round1/iteration_7_integration.md` for Integration Gap Check
+**Next:** Read `stages/s5/s5_p1_i3_integration.md` for Integration Gap Check
 
 ---
 
@@ -757,7 +757,7 @@ Critical Finding: [X libraries verified, Y workarounds in plan]
 **Purpose:** Verify all new code is integrated (no orphans) and handles backward compatibility
 **Prerequisites:** Iteration 6 complete (iterations_5_6_dependencies.md)
 **Next:** Planning Round 1 Checkpoint, then Planning Round 2 (round2_todo_creation.md)
-**Main Guide:** `stages/s5/round1_todo_creation.md`
+**Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---
 
@@ -1199,7 +1199,7 @@ Next Action: Wait for user responses, then update implementation_plan.md based o
 - ✅ feature README.md Agent Status - Planning Round 1 complete
 
 **Next:**
-- If confidence >= MEDIUM: Read `stages/s5/round2_todo_creation.md`
+- If confidence >= MEDIUM: Read `stages/s5/s5_p2_planning_round2.md`
 - If confidence < MEDIUM: Wait for user to answer questions.md
 
 ---

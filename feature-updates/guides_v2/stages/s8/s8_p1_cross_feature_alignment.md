@@ -243,14 +243,11 @@ STEP 4: Final Verification
    └─ Confirm all alignment work complete before S8.P2 (Epic Testing Update)
 ```
 
-**See detailed workflow steps:** `stages/s5/alignment/alignment_workflow_steps.md`
-
 ---
 
 ## Quick Navigation
 
 **📖 Detailed Workflow Steps:**
-`stages/s5/alignment/alignment_workflow_steps.md`
 - Step 1: Identify Remaining Features
 - Step 2: For Each Remaining Feature (Sequential Review)
   - 2a: Read Feature Spec (Fresh Eyes)
@@ -261,19 +258,6 @@ STEP 4: Final Verification
   - 2f: Mark Feature for Rework if Significant Changes
 - Step 3: Handle Features Needing Rework
 - Step 4: Final Verification
-
-**📖 Rework Criteria & Examples:**
-`stages/s5/alignment/rework_criteria_examples.md`
-- Significant Rework Criteria Table
-- Decision Tree (S1 vs 2 vs 5a vs Continue)
-- Real-World Examples (Interface patterns, data source issues, minor updates)
-- User Communication Templates
-
-**📖 Common Mistakes to Avoid:**
-`stages/s5/alignment/common_mistakes.md`
-- 10 Anti-Patterns with corrections
-- Self-check questions
-- Quick reference for avoiding pitfalls
 
 ---
 

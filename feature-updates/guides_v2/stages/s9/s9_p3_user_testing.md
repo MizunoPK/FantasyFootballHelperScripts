@@ -281,7 +281,7 @@ For EACH bug fix folder:
 
 **2a. Follow Bug Fix Workflow**
 
-Read and follow: `stages/s5/bugfix_workflow.md`
+Read and follow: `stages/s5/s5_bugfix_workflow.md`
 
 **Stages:**
 1. **S2** (Feature Deep Dive) - Understand bug scope
@@ -325,7 +325,7 @@ Update EPIC_README.md:
 **Steps to restart S9:**
 
 **3a. Return to S9.P1 (Epic Smoke Testing)**
-1. Read `stages/s9/epic_smoke_testing.md` again
+1. Read `stages/s9/s9_p1_epic_smoke_testing.md` again
 2. Execute all 4 smoke test parts:
    - Part 1: Import Test
    - Part 2: Entry Point Test
@@ -334,7 +334,7 @@ Update EPIC_README.md:
 3. Verify all parts PASS
 
 **3b. Proceed to S9.P2 (Epic QC Rounds)**
-1. Read `stages/s9/epic_qc_rounds.md` again
+1. Read `stages/s9/s9_p2_epic_qc_rounds.md` again
 2. Execute all 3 QC rounds:
    - Round 1: Cross-Feature Integration
    - Round 2: Epic Cohesion & Consistency

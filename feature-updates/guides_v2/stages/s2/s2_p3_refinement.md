@@ -1072,7 +1072,7 @@ Find Feature Tracking table and mark S2 complete:
    - Approval checkbox marked [x]
    - Approval timestamp documented
 
-**Next Stage:** Either next feature's Research Phase (stages/s2/s2_p1_research.md) OR Cross-Feature Sanity Check (stages/s3/cross_feature_sanity_check.md) if all features complete
+**Next Stage:** Either next feature's Research Phase (stages/s2/s2_p1_research.md) OR Cross-Feature Sanity Check (stages/s3/s3_cross_feature_sanity_check.md) if all features complete
 
 ---
 
@@ -1088,7 +1088,7 @@ Find Feature Tracking table and mark S2 complete:
 **If ALL features complete S2:**
 - Transition to S3 (Cross-Feature Sanity Check)
 
-📖 **READ:** `stages/s3/cross_feature_sanity_check.md`
+📖 **READ:** `stages/s3/s3_cross_feature_sanity_check.md`
 🎯 **GOAL:** Systematic comparison of all feature specs, final epic-level validation
 ⏱️ **ESTIMATE:** 30-60 minutes (for entire epic)
 

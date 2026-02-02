@@ -175,16 +175,16 @@ Note:
 
 | Lesson Pattern | Likely Affected Guide(s) |
 |----------------|--------------------------|
-| Missed requirement in spec | stages/s2/phase_1_specification.md |
-| Wrong interface assumed | stages/s5/round1_todo_creation.md (Iteration 2) |
-| Algorithm traceability incomplete | stages/s5/round1_todo_creation.md (Iteration 4) |
-| Integration gap not identified | stages/s5/round1_todo_creation.md (Iteration 7) |
-| Test coverage insufficient | stages/s5/round2_todo_creation.md (Iterations 8-10) |
+| Missed requirement in spec | stages/s2/s2_p2_specification.md |
+| Wrong interface assumed | stages/s5/s5_p1_planning_round1.md (Iteration 2) |
+| Algorithm traceability incomplete | stages/s5/s5_p1_planning_round1.md (Iteration 4) |
+| Integration gap not identified | stages/s5/s5_p1_planning_round1.md (Iteration 7) |
+| Test coverage insufficient | stages/s5/s5_p2_planning_round2.md (Iterations 8-10) |
 | Gate not enforced | reference/mandatory_gates.md |
-| QC round missed issue | stages/s5/qc_rounds.md |
-| Smoke test didn't catch bug | stages/s5/smoke_testing.md |
-| Epic integration issue | stages/s6/epic_qc_rounds.md |
-| Spec misinterpretation | stages/s5/round3_part2_final_gates.md (Iteration 25) |
+| QC round missed issue | stages/s7/s7_p2_qc_rounds.md |
+| Smoke test didn't catch bug | stages/s7/s7_p1_smoke_testing.md |
+| Epic integration issue | stages/s9/s9_p2_epic_qc_rounds.md |
+| Spec misinterpretation | stages/s5/s5_p3_i3_gates_part2.md (Iteration 25) |
 | Checklist question unclear | templates/feature_checklist_template.md |
 | Implementation plan vague | templates/implementation_plan_template.md |
 | Prompt not followed | prompts/{stage}_prompts.md |
@@ -576,7 +576,7 @@ git commit -m "docs(guide-updates): Update status for items addressed in KAI-{N}
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** EPIC_FINALIZATION
 **Current Step:** Ready for final commit and PR
-**Current Guide:** stages/s10/epic_cleanup.md
+**Current Guide:** stages/s10/s10_epic_cleanup.md
 **Guide Last Read:** NOT YET (will read when starting Step 7)
 
 **Progress:** S10.5 complete (guide updates applied)

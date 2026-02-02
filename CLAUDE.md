@@ -205,7 +205,8 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 - Output: DISCOVERY.md (epic-level source of truth)
 - Time-Box: SMALL 1-2hrs, MEDIUM 2-3hrs, LARGE 3-4hrs
 - Feature folders NOT created until Discovery approved
-- Iterative research and Q&A loop until no new questions emerge
+- Iterative research and Q&A loop until 3 consecutive iterations with no new questions
+- Re-read code/requirements with fresh perspective each iteration
 
 **Historical failure:** KAI-7 agent skipped S1.P3 entirely, blocked 8 secondary agents for 4 hours.
 
@@ -562,7 +563,7 @@ Receive handoff → Startup (10 steps) → S2.P1 (assigned feature)
 ## Key Principles
 
 - **Epic-first thinking**: Top-level work unit is an epic (collection of features)
-- **Discovery before features**: S1.P3 Discovery Phase is MANDATORY for ALL epics (research + Q&A loop until no new questions)
+- **Discovery before features**: S1.P3 Discovery Phase is MANDATORY for ALL epics (research + Q&A loop until 3 consecutive iterations with no new questions)
 - **Mandatory reading protocol**: ALWAYS read guide before starting each guide
 - **Phase transition prompts**: MANDATORY acknowledgment (proves guide was read)
 - **User approval gates**: Gates 3, 4.5, 5 (early approval prevents rework)

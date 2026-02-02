@@ -1043,7 +1043,7 @@ I've completed a systematic comparison of all {N} features and created a compreh
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** SANITY_CHECK
 **Current Step:** Waiting for user approval of implementation plan
-**Current Guide:** stages/s3/cross_feature_sanity_check.md
+**Current Guide:** stages/s3/s3_cross_feature_sanity_check.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - User sign-off is MANDATORY
@@ -1105,11 +1105,11 @@ Actions:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** TESTING_STRATEGY
 **Current Step:** Ready to begin S4
-**Current Guide:** stages/s4/epic_testing_strategy.md
+**Current Guide:** stages/s4/s4_epic_testing_strategy.md
 **Guide Last Read:** NOT YET (will read when starting S4)
 
 **Progress:** S3 complete, user approved plan
-**Next Action:** Read stages/s4/epic_testing_strategy.md and begin epic testing strategy update
+**Next Action:** Read stages/s4/s4_epic_testing_strategy.md and begin epic testing strategy update
 **Blockers:** None
 
 **User Sign-Off:** Obtained on {YYYY-MM-DD}
@@ -1134,7 +1134,7 @@ Actions:
 
 I'll now transition to S4 to update the epic testing strategy based on our detailed plan.
 
-Following `stages/s4/epic_testing_strategy.md` to update epic_smoke_test_plan.md with specific test scenarios and integration points.
+Following `stages/s4/s4_epic_testing_strategy.md` to update epic_smoke_test_plan.md with specific test scenarios and integration points.
 ```
 
 ---
@@ -1329,7 +1329,7 @@ Following `stages/s4/epic_testing_strategy.md` to update epic_smoke_test_plan.md
 ✅ S3 COMPLETE
 → Proceed to S4 (Epic Testing Strategy)
 
-**Next Guide:** `stages/s4/epic_testing_strategy.md`
+**Next Guide:** `stages/s4/s4_epic_testing_strategy.md`
 
 ---
 
@@ -1337,7 +1337,7 @@ Following `stages/s4/epic_testing_strategy.md` to update epic_smoke_test_plan.md
 
 **After completing S3:**
 
-📖 **READ:** `stages/s4/epic_testing_strategy.md`
+📖 **READ:** `stages/s4/s4_epic_testing_strategy.md`
 🎯 **GOAL:** Update epic_smoke_test_plan.md based on detailed feature specs
 ⏱️ **ESTIMATE:** 30-45 minutes
 
@@ -1351,4 +1351,4 @@ Following `stages/s4/epic_testing_strategy.md` to update epic_smoke_test_plan.md
 
 ---
 
-*End of stages/s3/cross_feature_sanity_check.md*
+*End of stages/s3/s3_cross_feature_sanity_check.md*

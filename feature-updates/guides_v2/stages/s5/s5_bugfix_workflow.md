@@ -16,7 +16,7 @@
 
 2. **Update README Agent Status** with:
    - Current Phase: BUG_FIX_CREATION
-   - Current Guide: stages/s5/bugfix_workflow.md
+   - Current Guide: stages/s5/s5_bugfix_workflow.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "Get user approval first", "Create notes.txt", "Update epic docs"
    - Next Action: Create bugfix_{priority}_{name} folder
@@ -349,7 +349,7 @@ DONE (return to previous work)
 
 ### S2: Deep Dive (Adapted for Bug Fixes)
 
-**Read:** stages/s2/feature_deep_dive.md
+**Read:** stages/s2/s2_feature_deep_dive.md
 
 **Adapt for bug fix:**
 1. **Create spec.md** (bug fix requirements)
@@ -413,10 +413,10 @@ Integration test:
 ### S5: Implementation Planning
 
 **Read guides in order:**
-1. stages/s5/round1_todo_creation.md - Round 1 (iterations 1-7 + 4a)
-2. stages/s5/round2_todo_creation.md - Round 2 (iterations 8-16)
-3. stages/s5/round3_part1_preparation.md - Round 3 Part 1 (iterations 17-22)
-4. stages/s5/round3_part2_final_gates.md - Round 3 Part 2 (iterations 23, 23a, 25, 24)
+1. stages/s5/s5_p1_planning_round1.md - Round 1 (iterations 1-7 + 4a)
+2. stages/s5/s5_p2_planning_round2.md - Round 2 (iterations 8-16)
+3. stages/s5/s5_p3_i1_preparation.md - Round 3 Part 1 (iterations 17-22)
+4. stages/s5/s5_p3_i3_gates_part2.md - Round 3 Part 2 (iterations 23, 23a, 25, 24)
 
 **Same rigor as features:**
 - Complete ALL 24 verification iterations
@@ -451,7 +451,7 @@ Integration test:
 
 ### S6: Implementation
 
-**Read:** stages/s5/implementation_execution.md
+**Read:** stages/s6/s6_execution.md
 
 **Same process as features:**
 - Interface Verification Protocol
@@ -713,4 +713,4 @@ Action:
 
 ---
 
-*End of stages/s5/bugfix_workflow.md*
+*End of stages/s5/s5_bugfix_workflow.md*

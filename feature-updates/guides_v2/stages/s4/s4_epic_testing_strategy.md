@@ -765,7 +765,7 @@ Create validation log in epic_smoke_test_plan.md Update Log:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** USER_APPROVAL
 **Current Step:** Waiting for Gate 4.5 (Epic Test Plan Approval)
-**Current Guide:** stages/s4/epic_testing_strategy.md
+**Current Guide:** stages/s4/s4_epic_testing_strategy.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Progress:** S4 updates complete, awaiting user approval of test plan
@@ -866,7 +866,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 
 Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to S5 to begin implementation planning for the first feature.
 
-Following `stages/s5/round1_todo_creation.md` (Round 1) to create comprehensive implementation plan with 28 verification iterations across 3 rounds.
+Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive implementation plan with 28 verification iterations across 3 rounds.
 ```
 
 **Update EPIC_README.md Agent Status:**
@@ -877,7 +877,7 @@ Following `stages/s5/round1_todo_creation.md` (Round 1) to create comprehensive 
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** IMPLEMENTATION
 **Current Step:** Ready to begin S5 (Feature Implementation)
-**Current Guide:** stages/s5/round1_todo_creation.md
+**Current Guide:** stages/s5/s5_p1_planning_round1.md
 **Guide Last Read:** NOT YET (will read when starting S5 - Round 1)
 
 **Progress:** S4 complete, testing strategy approved by user (Gate 4.5 ✅)
@@ -1043,7 +1043,7 @@ Test 6: Baseline comparison
 
 **After completing S4:**
 
-📖 **READ:** `stages/s5/round1_todo_creation.md` (start with Round 1)
+📖 **READ:** `stages/s5/s5_p1_planning_round1.md` (start with Round 1)
 🎯 **GOAL:** Create comprehensive TODO for first feature (28 verification iterations across 3 rounds)
 ⏱️ **ESTIMATE:** 2-3 hours per feature (split across 3 rounds)
 
@@ -1057,4 +1057,4 @@ Test 6: Baseline comparison
 
 ---
 
-*End of stages/s4/epic_testing_strategy.md*
+*End of stages/s4/s4_epic_testing_strategy.md*

@@ -7,7 +7,7 @@
 - implementation_plan.md v1.0 created
 - Confidence level >= MEDIUM
 
-**Main Guide:** `stages/s5/round2_todo_creation.md`
+**Main Guide:** `stages/s5/s5_p2_planning_round2.md`
 
 ---
 

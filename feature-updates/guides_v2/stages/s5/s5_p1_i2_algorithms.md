@@ -5,7 +5,7 @@
 **Purpose:** Map every algorithm in spec.md to exact implementation location, then audit all tasks
 **Prerequisites:** Iterations 1-3 complete (iterations_1_3_requirements.md)
 **Next:** iterations_5_6_dependencies.md (Data Flow and Consumption)
-**Main Guide:** `stages/s5/round1_todo_creation.md`
+**Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---
 
@@ -260,7 +260,7 @@ After completing this iteration, check if you have questions or found answers:
 **Update Agent Status:**
 ```
 Progress: Iteration 4a PASSED (critical gate)
-Next Action: Read stages/s5/round1/iterations_5_6_dependencies.md
+Next Action: Read stages/s5/s5_p1_i2_algorithms.md
 ```
 
 ---
@@ -290,7 +290,7 @@ Next Action: Read stages/s5/round1/iterations_5_6_dependencies.md
 **Critical Gate:**
 - ✅ **Gate 4a PASSED** - Cannot proceed without this
 
-**Next:** Read `stages/s5/round1/iterations_5_6_dependencies.md` for End-to-End Data Flow and Downstream Consumption
+**Next:** Read `stages/s5/s5_p1_i2_algorithms.md` for End-to-End Data Flow and Downstream Consumption
 
 ---
 

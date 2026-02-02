@@ -68,8 +68,9 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
    - Discovery informs feature breakdown
    - See: stages/s1/s1_p3_discovery_phase.md
 
-3. DISCOVERY LOOP UNTIL NO NEW QUESTIONS
-   - Continue iterating until research produces no questions
+3. DISCOVERY LOOP UNTIL 3 CONSECUTIVE CLEAN ITERATIONS
+   - Continue iterating until 3 consecutive iterations produce no questions
+   - Re-read code/requirements with fresh perspective each iteration
    - User answers questions throughout (not just at end)
    - All findings go in DISCOVERY.md
 
@@ -126,10 +127,10 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 - **Impact:** Determines branch name format and EPIC_TRACKER classification
 
 ### Decision Point 2: Discovery Loop Exit (Step 3 - S1.P3.2)
-**Question:** Did the research iteration produce any new questions?
-- **If YES (new questions):** Continue Discovery Loop - ask user, research more
-- **If NO (no new questions):** Exit loop, proceed to synthesis
-- **Impact:** Premature exit leads to incomplete understanding; keep looping until truly done
+**Question:** Have you completed 3 consecutive iterations with no new questions?
+- **If NO (counter < 3):** Continue Discovery Loop - re-read with fresh perspective
+- **If YES (counter = 3):** Verify exit readiness, proceed to synthesis
+- **Impact:** Premature exit (counter < 3) leads to incomplete understanding; need 3 consecutive clean iterations for high confidence
 
 ### Decision Point 3: Discovery Approval (Step 3 - S1.P3.4)
 **Question:** Does the user approve the Discovery findings and recommended approach?
@@ -335,11 +336,11 @@ S1.P3.1: Initialize DISCOVERY.md
     |
     v
 S1.P3.2: Discovery Loop
-    +-- Research (read code, examine patterns)
+    +-- Research (read code, examine patterns - fresh perspective!)
     +-- Document findings in DISCOVERY.md
     +-- Identify questions
     +-- Ask user, record answers
-    +-- Repeat until NO NEW QUESTIONS emerge
+    +-- Repeat until 3 CONSECUTIVE iterations with NO NEW QUESTIONS
     |
     v
 S1.P3.3: Synthesize Findings
@@ -361,11 +362,12 @@ S1.P3.4: User Approval
 
 ### Discovery Exit Condition
 
-Discovery Loop exits when a research iteration produces NO NEW QUESTIONS. Continue iterating until:
-- Research produces no new unknowns
+Discovery Loop exits when 3 CONSECUTIVE research iterations produce NO NEW QUESTIONS. Continue iterating until:
+- 3 consecutive iterations with no new unknowns
 - All pending questions are resolved
 - Scope is clearly defined
 - Solution approach is determined
+- Clean iteration counter reaches 3
 
 ### After Discovery Approval
 

@@ -828,7 +828,7 @@ Ensures S9 epic QC tests actual implementation, not assumptions.
 - [x] Updated with S8.P2 (Epic Testing Update) completion
 - [x] Next action set appropriately:
   - More features remain → "Read S5 guide for feature_02"
-  - All features done → "Read stages/s6/epic_smoke_testing.md"
+  - All features done → "Read stages/s9/s9_p1_epic_smoke_testing.md"
 
 **If ALL criteria met:**
 - If more features remain → Proceed to next feature's S5
@@ -1270,8 +1270,8 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 **Current Guide:** {Next guide based on status below}
 **Guide Last Read:** {Not read yet for next guide}
 **Next Action:**
-- If more features remain: "Read stages/s5/round1_todo_creation.md for feature_02 (Round 1)"
-- If all features done: "Read stages/s6/epic_smoke_testing.md"
+- If more features remain: "Read stages/s5/s5_p1_planning_round1.md for feature_02 (Round 1)"
+- If all features done: "Read stages/s9/s9_p1_epic_smoke_testing.md"
 **S8.P2 (Epic Testing Update) Summary:**
 - Reviewed feature_01_adp_integration implementation
 - Added 6 new test scenarios to epic_smoke_test_plan.md
@@ -1302,13 +1302,13 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 ### If More Features Remain
 - [ ] Next feature identified (e.g., feature_02_player_rating)
 - [ ] Next feature has spec.md and checklist.md ready
-- [ ] Ready to read stages/s5/round1_todo_creation.md (Round 1 for next feature)
+- [ ] Ready to read stages/s5/s5_p1_planning_round1.md (Round 1 for next feature)
 
 ### If All Features Done
 - [ ] Verified ALL features completed S8.P2 (Epic Testing Update)
 - [ ] Epic README shows all features complete
 - [ ] No pending bug fixes
-- [ ] Ready to read stages/s6/epic_smoke_testing.md
+- [ ] Ready to read stages/s9/s9_p1_epic_smoke_testing.md
 
 **If ALL verified:** Ready for next stage
 

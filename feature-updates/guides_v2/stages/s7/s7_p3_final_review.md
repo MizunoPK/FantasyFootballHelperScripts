@@ -186,7 +186,7 @@ Re-Reading Checkpoint
 **🚨 MANDATORY: READ PR REVIEW PROTOCOL**
 
 **Before proceeding, you MUST:**
-1. **READ:** `stages/s7/s5_pr_review_protocol.md`
+1. **READ:** `stages/s5/s5_pr_review_protocol.md`
 2. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
    - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
@@ -531,7 +531,7 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 **Instead:**
 
-1. **READ:** `stages/s7/s5_pr_review_protocol.md` (complete protocol)
+1. **READ:** `stages/s5/s5_pr_review_protocol.md` (complete protocol)
 
 2. **Follow hybrid approach:**
    - Spawn fresh agents via Task tool for each review round
@@ -623,11 +623,11 @@ Files updated:
    - Enhanced smoke test Part 3 with DATA VALUES emphasis
    - Added real-world example of zero data issue
 
-2. Updated stages/s7/implementation_execution.md:
+2. Updated stages/s6/s6_execution.md:
    - Made Interface Verification Protocol STEP 1 (not optional)
    - Added "NO coding from memory" critical rule
 
-3. Updated stages/s7/round1_todo_creation.md:
+3. Updated stages/s5/s5_p1_planning_round1.md:
    - Enhanced Mock Audit (iteration 21) with "excessive mocking" anti-pattern
 
 ### Recommendations for Future Features
@@ -919,7 +919,7 @@ Decision: Remove out-of-scope code or get user approval
 
 ### README Agent Status
 - [ ] Updated to reflect S7.P3 completion
-- [ ] Next action set to "Read stages/s7/post_feature_alignment.md"
+- [ ] Next action set to "Read stages/s8/s8_p1_cross_feature_alignment.md"
 
 ### Final Check
 - [ ] Feature is COMPLETE (not just functional)
@@ -934,7 +934,7 @@ Decision: Remove out-of-scope code or get user approval
 - Update specs if implementation revealed changes/insights
 - Ensure remaining features align with reality
 
-**Next step:** Read stages/s7/post_feature_alignment.md and use phase transition prompt
+**Next step:** Read stages/s8/s8_p1_cross_feature_alignment.md and use phase transition prompt
 
 ---
 

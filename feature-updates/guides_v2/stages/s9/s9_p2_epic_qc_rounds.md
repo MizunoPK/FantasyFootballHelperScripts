@@ -128,7 +128,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 
 **Agent Status updated:**
 - [ ] EPIC_README.md shows STAGE_6a complete
-- [ ] Current guide: stages/s9/epic_qc_rounds.md
+- [ ] Current guide: stages/s9/s9_p2_epic_qc_rounds.md
 
 **Original epic request available:**
 - [ ] Have access to {epic_name}.txt
