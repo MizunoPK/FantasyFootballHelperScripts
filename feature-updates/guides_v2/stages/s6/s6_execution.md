@@ -27,7 +27,7 @@
 Implementation Execution is where you write the feature code following the implementation_plan.md, keeping spec.md visible at all times, verifying interfaces before coding, and running tests after each step with mini-QC checkpoints.
 
 **When do you use this guide?**
-- S5a complete (Round 3 Iteration 24 returned "GO")
+- S5 complete (Round 3 Iteration 24 returned "GO")
 - implementation_plan.md v3.0 is ready
 - Ready to write feature code
 
@@ -51,7 +51,7 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
 **Understanding which file serves which purpose:**
 
 **implementation_plan.md = PRIMARY REFERENCE** (~400 lines)
-- **What:** Detailed implementation build guide created and user-approved in S5a
+- **What:** Detailed implementation build guide created and user-approved in S5
 - **Contains:** Implementation tasks, acceptance criteria, test strategy, phasing plan, dependencies
 - **Use during S6:** Follow this file task-by-task for WHAT to implement and HOW to implement it
 - **Authority:** User-approved plan - this is your implementation roadmap
@@ -126,7 +126,7 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
 
 **Verify BEFORE starting S6:**
 
-□ S5a complete:
+□ S5 complete:
   - Iteration 24 shows: ✅ GO decision
   - implementation_plan.md v3.0 exists and complete
   - Iteration 23a: ALL 4 PARTS PASSED
@@ -137,7 +137,7 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
 
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed with S6
-- Return to S5a to complete missing items
+- Return to S5 to complete missing items
 - Document blocker in Agent Status
 
 ---

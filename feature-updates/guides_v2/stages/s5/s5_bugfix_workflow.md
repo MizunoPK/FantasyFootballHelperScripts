@@ -169,7 +169,7 @@ What would you like to do?
    ├── notes.txt        (create now - user verifies)
    ├── spec.md          (create in S2)
    ├── checklist.md     (create in S2)
-   ├── implementation_plan.md (create in S5a)
+   ├── implementation_plan.md (create in S5)
    ├── implementation_checklist.md (create in S6)
    └── lessons_learned.md (create in S7 (Testing & Review))
    ```
@@ -330,7 +330,7 @@ When bug fix complete:
 
 ```
 S2 (Deep Dive) →
-S5a (Implementation Planning) →
+S5 (Implementation Planning) →
 S6 (Implementation) →
 S7 (Testing & Review) (Post-Implementation) →
 DONE (return to previous work)
@@ -410,7 +410,7 @@ Integration test:
 
 ---
 
-### S5a: Implementation Planning
+### S5: Implementation Planning
 
 **Read guides in order:**
 1. stages/s5/round1_todo_creation.md - Round 1 (iterations 1-7 + 4a)
@@ -643,7 +643,7 @@ Action:
 - [x] notes.txt created and user-verified
 - [x] spec.md created (root cause, solution)
 - [x] checklist.md created
-- [x] S5a complete (28 iterations, implementation_plan.md)
+- [x] S5 complete (28 iterations, implementation_plan.md)
 - [x] S6 complete (implementation, tests pass)
 - [x] S7 (Testing & Review) complete (smoke tests, QC rounds, PR review)
 - [x] lessons_learned.md updated

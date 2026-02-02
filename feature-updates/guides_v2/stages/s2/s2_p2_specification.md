@@ -592,7 +592,7 @@ Update Agent Status in feature README.md:
 - Mark STAGE_2b COMPLETE + Gate 2 PASSED
 - Document checklist status (all answered, pending 0)
 - Note spec.md updated with user answers
-- Identify next action (usually S5a if no NEW questions)
+- Identify next action (usually S5 if no NEW questions)
 
 ---
 
@@ -642,15 +642,15 @@ Update Agent Status in feature README.md:
 
 1. **If checklist complete with zero NEW questions:**
    - Skip STAGE_2c (Refinement Phase) entirely
-   - Proceed directly to S5a (Implementation Planning)
-   - Note: Phase 6 (Acceptance Criteria) still required before S5a
+   - Proceed directly to S5 (Implementation Planning)
+   - Note: Phase 6 (Acceptance Criteria) still required before S5
 
 2. **If NEW questions arise:**
    - Proceed to STAGE_2c (Refinement Phase)
    - Handle any additional questions in Phase 3
    - Complete Phase 4-6 as normal
 
-**Most common path:** Gate 2 completes checklist → Skip to S5a
+**Most common path:** Gate 2 completes checklist → Skip to S5
 
 ---
 
@@ -659,7 +659,7 @@ Update Agent Status in feature README.md:
 **After completing Specification Phase + Gate 2:**
 
 **Option A: No new questions (most common):**
-→ **Proceed to:** S5a (Implementation Planning)
+→ **Proceed to:** S5 (Implementation Planning)
 → **Skip:** STAGE_2c if checklist is complete
 
 **Option B: New questions discovered:**
@@ -669,9 +669,9 @@ Update Agent Status in feature README.md:
 - Step 3: Handle any NEW questions (repeated)
 - Step 4: Dynamic Scope Adjustment (split if >35 items)
 - Step 5: Cross-Feature Alignment (compare to completed features)
-- Step 6: Acceptance Criteria Creation (MANDATORY before S5a)
+- Step 6: Acceptance Criteria Creation (MANDATORY before S5)
 
-**Prerequisites for S5a:**
+**Prerequisites for S5:**
 - ✅ Phase 2.5 alignment check PASSED
 - ✅ Gate 2 (User Checklist Approval) PASSED
 - ✅ spec.md has requirements with traceability
@@ -679,7 +679,7 @@ Update Agent Status in feature README.md:
 - ✅ Acceptance criteria defined (Phase 6 or earlier)
 
 **Time Estimate:**
-- If skipping STAGE_2c: Proceed immediately to S5a
+- If skipping STAGE_2c: Proceed immediately to S5
 - If continuing to STAGE_2c: 45-60 minutes
 
 ---

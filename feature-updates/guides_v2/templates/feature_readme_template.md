@@ -3,7 +3,7 @@
 **Filename:** `README.md`
 **Location:** `feature-updates/KAI-{N}-{epic_name}/feature_XX_{name}/README.md`
 **Created:** {YYYY-MM-DD}
-**Updated:** Throughout feature implementation (Stages 2-5e)
+**Updated:** Throughout feature implementation (S2-S8)
 
 **Purpose:** Central tracking document for a single feature, containing Agent Status, progress tracker, and feature-specific context.
 

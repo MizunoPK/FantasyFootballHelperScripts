@@ -92,7 +92,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
    - Restart destination: S7.P1 (Feature Smoke Testing)
 
 3. ⚠️ Algorithm verification MANDATORY
-   - Re-check Algorithm Traceability Matrix from S5a
+   - Re-check Algorithm Traceability Matrix from S5
    - Every algorithm in spec must map to exact code location
    - Code behavior must match spec EXACTLY
 
@@ -345,7 +345,7 @@ print("✅ All output files exist")
 
 **Verify feature interfaces match dependencies:**
 
-**From S5a Algorithm Traceability Matrix, verify each integration point:**
+**From S5 Algorithm Traceability Matrix, verify each integration point:**
 
 ```python
 # Example: Feature calls PlayerManager.get_players()
@@ -361,7 +361,7 @@ assert len(players) > 0, "get_players returned empty list"
 print("✅ PlayerManager interface verified")
 ```
 
-**Check ALL dependencies identified in S5a:**
+**Check ALL dependencies identified in S5:**
 - ✅ Methods exist
 - ✅ Method signatures match usage
 - ✅ Return types correct
@@ -623,7 +623,7 @@ This prevents confirmation bias (seeing what you expect, not what's actually the
 
 ### Validation 3.2: Re-check Algorithm Traceability Matrix
 
-**From S5a, re-verify Algorithm Traceability Matrix:**
+**From S5, re-verify Algorithm Traceability Matrix:**
 
 ```markdown
 ## Algorithm Traceability Matrix (example)
@@ -645,7 +645,7 @@ This prevents confirmation bias (seeing what you expect, not what's actually the
 
 ### Validation 3.3: Re-check Integration Gap Check
 
-**From S5a, re-verify Integration Gap Check:**
+**From S5, re-verify Integration Gap Check:**
 
 **For EACH new method, verify it has identified CALLERS:**
 

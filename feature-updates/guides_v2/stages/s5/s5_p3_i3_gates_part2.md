@@ -266,7 +266,7 @@ If ANY gate fails: Fix issues, re-run
 **If ALL items checked:**
 - Part 2b is COMPLETE
 - Round 3 is COMPLETE
-- S5a is COMPLETE
+- S5 is COMPLETE
 - Ready to proceed to S6 (Implementation)
 - Read `stages/s5/implementation_execution.md`
 

@@ -87,7 +87,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 
 4. ⚠️ MARK FEATURES NEEDING SIGNIFICANT REWORK
    - Use clear criteria (see rework_criteria_examples.md)
-   - If feature needs >3 new implementation tasks → return to S5a
+   - If feature needs >3 new implementation tasks → return to S5
    - If spec assumptions fundamentally wrong → return to S2
    - If feature should be split/removed → return to S1
    - Document WHY rework needed
@@ -162,7 +162,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
   - Data dependencies changed fundamentally
   - Feature should be split or removed
 - **Action based on severity:**
-  - Return to S5a (TODO creation) if >3 new tasks
+  - Return to S5 (TODO creation) if >3 new tasks
   - Return to S2 (Deep Dive) if spec fundamentally wrong
   - Return to S1 (Epic Planning) if feature should be split/removed
 - ❌ Mark feature as "REQUIRES REWORK - {reason}"

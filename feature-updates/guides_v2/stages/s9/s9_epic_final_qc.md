@@ -290,7 +290,7 @@ Start Epic Final QC
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`:
 ```markdown
-I'm starting S6a (Epic Smoke Testing) for Epic: {epic_name}.
+I'm starting S6 (Epic Smoke Testing) for Epic: {epic_name}.
 
 I acknowledge:
 - This guide covers Steps 1-2 (Pre-QC Verification → Epic Smoke Testing)

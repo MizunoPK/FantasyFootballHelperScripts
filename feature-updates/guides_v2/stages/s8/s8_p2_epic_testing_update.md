@@ -54,7 +54,7 @@ Post-Feature Testing Update is where you update epic_smoke_test_plan.md based on
 - ✅ Integration points discovered during development added
 - ✅ Test scenarios reflect actual behavior (not assumed from specs)
 - ✅ Update history documents changes and rationale
-- ✅ Ready for next feature's S5a (or S9 if all features done)
+- ✅ Ready for next feature's S5 (or S9 if all features done)
 
 **Time Estimate:**
 15-30 minutes per completed feature
@@ -733,7 +733,7 @@ None - all S4 scenarios still relevant
 **README Agent Status:**
 - [ ] Updated with S8.P2 (Epic Testing Update) completion
 - [ ] Next action set appropriately:
-  - If more features remain → "Next Feature's S5a"
+  - If more features remain → "Next Feature's S5"
   - If all features done → "S9: Epic Final QC"
 
 **If ALL boxes checked:** S8.P2 (Epic Testing Update) complete
@@ -827,11 +827,11 @@ Ensures S9 epic QC tests actual implementation, not assumptions.
 ### README Agent Status
 - [x] Updated with S8.P2 (Epic Testing Update) completion
 - [x] Next action set appropriately:
-  - More features remain → "Read STAGE_5a guide for feature_02"
+  - More features remain → "Read S5 guide for feature_02"
   - All features done → "Read stages/s6/epic_smoke_testing.md"
 
 **If ALL criteria met:**
-- If more features remain → Proceed to next feature's S5a
+- If more features remain → Proceed to next feature's S5
 - If all features done → Proceed to S9 (Epic Final QC)
 
 **If ANY criteria not met:** Do NOT proceed until all are met
@@ -1296,7 +1296,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 ### Next Stage Determination
 - [ ] Checked epic README for remaining features
 - [ ] Determined next action:
-  - **More features remain** → Next feature's S5a (Implementation Planning)
+  - **More features remain** → Next feature's S5 (Implementation Planning)
   - **All features done** → S9 (Epic Final QC)
 
 ### If More Features Remain

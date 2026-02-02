@@ -754,7 +754,7 @@ Create validation log in epic_smoke_test_plan.md Update Log:
 - [x] epic_smoke_test_plan.md updated
 - [x] Integration points identified (6 integration points)
 - [x] Epic success criteria defined (5 measurable criteria)
-- [ ] 🚨 Gate 4.5: User approval of test plan (MANDATORY - must complete before S5a)
+- [ ] 🚨 Gate 4.5: User approval of test plan (MANDATORY - must complete before S5)
 ```
 
 **Agent Status:**
@@ -777,11 +777,11 @@ Create validation log in epic_smoke_test_plan.md Update Log:
 
 ### Step 7.2: Present Test Plan to User (🚨 GATE 4.5 - MANDATORY)
 
-**🚨 CRITICAL:** You MUST get user approval of epic_smoke_test_plan.md before proceeding to S5a.
+**🚨 CRITICAL:** You MUST get user approval of epic_smoke_test_plan.md before proceeding to S5.
 
 **Why this gate exists:**
 - Agent needs to know EXACTLY how to test work BEFORE creating implementation plans
-- User can adjust test strategy early (cheap to change at S4 vs expensive at S5a Round 3)
+- User can adjust test strategy early (cheap to change at S4 vs expensive at S5 Round 3)
 - Test strategy should guide implementation planning (not vice versa)
 - Addresses guide-updates.txt #10: "Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself."
 
@@ -806,7 +806,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 ...
 
 **Why approval is needed now:**
-- I need to know EXACTLY how to test this work BEFORE creating implementation plans (S5a)
+- I need to know EXACTLY how to test this work BEFORE creating implementation plans (S5)
 - Test requirements will guide how I structure implementation tasks and test strategy
 - Changes to test plan are cheap now, expensive after 28 verification iterations
 
@@ -820,7 +820,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 - Are there additional integration points I should test?
 - Do the data quality checks verify the right values?
 
-**I cannot proceed to S5a (Implementation Planning) without your approval.**
+**I cannot proceed to S5 (Implementation Planning) without your approval.**
 ```
 
 **Wait for user response.**
@@ -864,7 +864,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 
 **Next: S5 (Feature Implementation)**
 
-Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to S5a to begin implementation planning for the first feature.
+Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to S5 to begin implementation planning for the first feature.
 
 Following `stages/s5/round1_todo_creation.md` (Round 1) to create comprehensive implementation plan with 28 verification iterations across 3 rounds.
 ```
@@ -878,10 +878,10 @@ Following `stages/s5/round1_todo_creation.md` (Round 1) to create comprehensive 
 **Current Phase:** IMPLEMENTATION
 **Current Step:** Ready to begin S5 (Feature Implementation)
 **Current Guide:** stages/s5/round1_todo_creation.md
-**Guide Last Read:** NOT YET (will read when starting S5a - Round 1)
+**Guide Last Read:** NOT YET (will read when starting S5 - Round 1)
 
 **Progress:** S4 complete, testing strategy approved by user (Gate 4.5 ✅)
-**Next Action:** Begin S5a (Implementation Planning) for first feature
+**Next Action:** Begin S5 (Implementation Planning) for first feature
 **Blockers:** None
 
 **Testing Strategy:** epic_smoke_test_plan.md approved with 6 test scenarios, 5 success criteria
@@ -914,7 +914,7 @@ Following `stages/s5/round1_todo_creation.md` (Round 1) to create comprehensive 
   - Yes "file exists with >100 rows"
 □ Epic EPIC_README.md updated:
   - Epic Completion Checklist: S4 items checked
-  - Agent Status: Phase = IMPLEMENTATION, ready for S5a
+  - Agent Status: Phase = IMPLEMENTATION, ready for S5
 
 **If any item unchecked:**
 - ❌ S4 is NOT complete
@@ -949,7 +949,7 @@ Following `stages/s5/round1_todo_creation.md` (Round 1) to create comprehensive 
    ✅ STOP - Each test needs expected results and failure indicators
 
 ❌ "Let me start implementing features"
-   ✅ STOP - S5a (TODO creation) comes BEFORE implementation
+   ✅ STOP - S5 (TODO creation) comes BEFORE implementation
 
 ❌ "This test plan is final, won't change"
    ✅ STOP - Plan will update in S8.P2 (Epic Testing Update) after each feature
@@ -1020,9 +1020,9 @@ Test 6: Baseline comparison
 
 ---
 
-## Prerequisites for S5a
+## Prerequisites for S5
 
-**Before transitioning to S5a, verify:**
+**Before transitioning to S5, verify:**
 
 □ S4 completion criteria ALL met
 □ epic_smoke_test_plan.md shows "STAGE 4" version (not "INITIAL")
@@ -1034,7 +1034,7 @@ Test 6: Baseline comparison
 □ Integration points documented
 
 **If any prerequisite fails:**
-- ❌ Do NOT transition to S5a
+- ❌ Do NOT transition to S5
 - Complete missing prerequisites
 
 ---
@@ -1047,13 +1047,13 @@ Test 6: Baseline comparison
 🎯 **GOAL:** Create comprehensive TODO for first feature (28 verification iterations across 3 rounds)
 ⏱️ **ESTIMATE:** 2-3 hours per feature (split across 3 rounds)
 
-**S5a will:**
+**S5 will:**
 - Execute 24 mandatory verification iterations
 - Create detailed TODO with acceptance criteria for every task
 - Verify all interfaces against actual source code
 - Ensure implementation readiness before coding
 
-**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S5a.
+**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S5.
 
 ---
 

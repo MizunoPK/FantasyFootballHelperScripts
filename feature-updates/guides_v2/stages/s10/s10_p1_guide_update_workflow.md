@@ -717,7 +717,7 @@ Agent rushed through S2 spec creation and made assumptions about folder handling
 Adding historical context shows future agents WHY this gate exists and what happens if it's skipped. Real example makes the importance concrete instead of abstract.
 
 **Impact Assessment:**
-- **Who benefits:** All agents doing S5a Round 3 (Iteration 25)
+- **Who benefits:** All agents doing S5 Round 3 (Iteration 25)
 - **When it helps:** When validating spec.md against user-approved documents
 - **Severity if unfixed:** Critical - agents may skip or rush through Iteration 25 without understanding its importance, leading to week+ of rework from spec misinterpretation
 

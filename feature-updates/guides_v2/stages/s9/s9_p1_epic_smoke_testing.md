@@ -73,7 +73,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 
 **📖 See `reference/smoke_testing_pattern.md` for universal critical rules.**
 
-**Epic-specific rules for S6a:**
+**Epic-specific rules for S6:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -152,7 +152,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 
 **📖 See `reference/smoke_testing_pattern.md` for universal workflow details.**
 
-**Epic-specific workflow for S6a:**
+**Epic-specific workflow for S6:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -210,7 +210,7 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
 
 ```markdown
 ## Epic Progress Tracker
-| Feature | S1 | S2 | S3 | S4 | S5a | S6 | S7 (Testing & Review) | S8.P1 (Cross-Feature Alignment) | S8.P2 (Epic Testing Update) |
+| Feature | S1 | S2 | S3 | S4 | S5 | S6 | S7 (Testing & Review) | S8.P1 (Cross-Feature Alignment) | S8.P2 (Epic Testing Update) |
 |---------|---------|---------|---------|---------|----------|----------|----------|----------|----------|
 | feature_01 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | feature_02 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -219,7 +219,7 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
 
 **Verify:** EVERY feature shows ✅ in S8.P2 (Epic Testing Update) column.
 
-**If ANY feature incomplete:** STOP S6a, complete the incomplete feature first.
+**If ANY feature incomplete:** STOP S6, complete the incomplete feature first.
 
 ### Step 1.2: Verify No Pending Bug Fixes
 
@@ -494,7 +494,7 @@ print("✅ Interface compatibility verified")
 **Follow epic debugging protocol:**
 1. Create `epic_name/debugging/ISSUES_CHECKLIST.md`
 2. Enter debugging protocol (see `debugging/debugging_protocol.md`)
-3. After ALL issues resolved → **RESTART S6a from Step 1**
+3. After ALL issues resolved → **RESTART S6 from Step 1**
 4. Re-run entire smoke testing process
 
 **Critical:** Loop back to Epic Smoke Testing (NOT back to this test), ensures clean validation
