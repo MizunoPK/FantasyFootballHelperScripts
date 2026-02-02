@@ -402,7 +402,7 @@ Learn from actual audit rounds:
 
 - Approach each round as if you've never seen the codebase
 - Question everything, verify everything, assume you missed something
-- Use iterative loops until zero new issues found (minimum 3 rounds)
+- Use iterative loops until zero new issues found (minimum 3 rounds as baseline, typically 3-5)
 - Provide evidence, not just claims
 - When user challenges you, THEY ARE USUALLY RIGHT - re-verify immediately
 
