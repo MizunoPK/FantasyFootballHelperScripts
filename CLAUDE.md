@@ -768,7 +768,36 @@ feature_XX_{name}/
 - `README.md` - Workflow overview and complete guide index
 - `prompts_reference_v2.md` - MANDATORY phase transition prompts (consolidated)
 - `EPIC_WORKFLOW_USAGE.md` - Comprehensive usage guide with examples
-- `GUIDES_V2_FORMAL_AUDIT_GUIDE.md` - Guide auditing methodology
+- `audit/` - Modular audit system (replaces monolithic GUIDES_V2_FORMAL_AUDIT_GUIDE.md)
+  - `audit/README.md` - Audit system entry point with navigation
+  - `audit/audit_overview.md` - When to audit, philosophy, exit criteria
+  - `audit/stages/` - 5-stage audit process (Discovery → Planning → Fixes → Verification → Loop Decision)
+  - `audit/dimensions/` - 16 audit dimensions (D1, D2, D8 created; 13 planned)
+  - `audit/templates/` - Output templates for all stages
+  - `audit/reference/quick_reference.md` - One-page cheat sheet for fast lookups
+  - `audit/scripts/pre_audit_checks.sh` - Automated pre-checks (40-50% issue coverage)
+
+**When User Says "Audit the Guides":**
+
+**CRITICAL: Use the modular audit system** located in `feature-updates/guides_v2/audit/`
+
+**Start here:**
+1. Read `audit/README.md` - Entry point with navigation and quick start
+2. Run `bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh` - Automated checks
+3. Read `audit/stages/stage_1_discovery.md` - Begin Round 1 discovery
+
+**The audit system provides:**
+- 5-stage process: Discovery → Fix Planning → Apply Fixes → Verification → Loop Decision
+- Automated pre-checks catching 40-50% of issues
+- Manual discovery patterns for remaining issues
+- Exit criteria: ALL 8 must pass (minimum 3 rounds, zero new issues, 80%+ confidence, etc.)
+- Templates for documenting discoveries, fixes, and verification
+- Quick reference guide for fast lookups
+
+**Do NOT:**
+- Skip the audit system and do ad-hoc checking
+- Reference the old monolithic GUIDES_V2_FORMAL_AUDIT_GUIDE.md (replaced by modular system)
+- Exit audit prematurely (historical evidence: premature exit = 50+ more issues found)
 
 **Always use Glob to discover all files** when working with guides:
 ```bash
