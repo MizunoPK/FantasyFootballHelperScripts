@@ -141,14 +141,184 @@ This audit ensures **consistency, accuracy, and completeness** across all guides
 - Spot-check random files to verify grep accuracy
 
 **4. Iterative Until Zero**
-- Minimum 3 rounds required
-- Continue until round finds ZERO new issues
+- Minimum 3 rounds as baseline (NOT a target - KAI-7 needed 4 rounds)
+- TRUE exit trigger: Round N finds ZERO new issues + ALL 8 criteria met
+- Continue auditing regardless of round count until criteria satisfied
 - Each round uses completely different patterns
 
 **5. Better to Over-Audit Than Under-Audit**
 - False positives can be resolved
 - False negatives cause user confusion
 - When uncertain, flag for review
+
+---
+
+## How to Achieve Fresh Eyes (Operational Guide)
+
+**What "Fresh Eyes" Means:**
+Approaching the audit as if you've never seen these files before, with zero assumptions about what's correct or what you've already checked.
+
+### STEP 1: Clear Context (5-10 minutes)
+
+**Before starting Round N, clear your working memory:**
+
+- [ ] Close all files from Round N-1
+- [ ] Don't look at Round N-1 discovery report until AFTER Round N discovery complete
+- [ ] Take a 5-10 minute break (work on different task, clear mental model)
+- [ ] Start Round N without reviewing what Round N-1 found
+
+**Why This Matters:** Looking at Round N-1 discoveries primes you to search for those same patterns and miss different ones.
+
+### STEP 2: Change Perspective (Required)
+
+**Use DIFFERENT approach than Round N-1:**
+
+**Pattern Diversity:**
+- [ ] Use DIFFERENT search patterns than Round N-1 (not same grep commands)
+- [ ] Search folders in DIFFERENT order than Round N-1
+- [ ] Start from DIFFERENT dimension than Round N-1
+- [ ] Ask "what would I search for if I just learned about this issue type?"
+
+**Examples:**
+```markdown
+Round 1: Started with D1 (cross-references), searched stages/ first
+Round 2: Start with D2 (terminology), search templates/ first
+Round 3: Start with D10 (file sizes), search reference/ first
+```
+
+**Pattern Type Rotation:**
+```markdown
+Round 1: Exact string matches ("S5a", "Stage 6")
+Round 2: Pattern variations ("S5a:", "S5a-", "(S5a)")
+Round 3: Context-based ("back to S5a", "restart at S5.P1")
+Round 4: Manual reading (spot-check random files)
+```
+
+### STEP 3: Verify Fresh Approach (Self-Check)
+
+**Before proceeding with Round N, verify ALL true:**
+
+- [ ] Am I using DIFFERENT patterns than last round? (not just re-running same greps)
+- [ ] Am I searching folders in DIFFERENT order? (not stages → templates → reference again)
+- [ ] Am I questioning Round N-1's findings? (not assuming they were complete)
+- [ ] Do I feel like "this is redundant, I already checked"? → ❌ NOT FRESH (continue anyway!)
+- [ ] Am I skipping folders "because I know they're clean"? → ❌ NOT FRESH (check anyway!)
+
+**If ANY checkbox unchecked:** Adjust approach before starting discovery.
+
+### Anti-Patterns (What NOT Fresh Eyes Looks Like)
+
+**❌ WRONG Approaches:**
+```markdown
+❌ "I already checked stages/ in Round 1, I'll skip it in Round 2"
+   → Round 2 patterns might find issues Round 1 missed
+
+❌ "I'll just re-run the same grep commands to verify they're still zero"
+   → Re-running same patterns finds same things (or nothing)
+
+❌ "I remember seeing this pattern everywhere, no need to check again"
+   → Memory is unreliable, patterns change, files get edited
+
+❌ "Round 1 was thorough, Round 2 is just a formality"
+   → KAI-7 evidence: Round 3 found 70+ issues after Round 1-2 "thorough" checks
+
+❌ "I'll read Round 1 report first to see what to look for"
+   → Primes you to find Round 1 patterns, miss Round 2 patterns
+```
+
+**✅ CORRECT Approaches:**
+```markdown
+✅ "Round 2: I'll search templates/ first (Round 1 started with stages/)"
+   → Different folder order reveals different pattern distributions
+
+✅ "Round 2: I'll use pattern variations (':' '-' '.') not tried in Round 1"
+   → New patterns catch stragglers from Round 1 fixes
+
+✅ "Round 2: I'll spot-read 10 random files manually (Round 1 was grep-only)"
+   → Manual reading catches context issues grep misses
+
+✅ "Round 3: I'll assume Round 1-2 missed something and search differently"
+   → Adversarial mindset finds issues defensive mindset misses
+```
+
+### Fresh Eyes Verification Checklist
+
+**Before claiming "fresh eyes" for Round N, verify:**
+
+**Pattern Diversity:**
+- [ ] Used at least 1 pattern type NOT used in Round N-1
+- [ ] Tried at least 3 variations of main pattern (punctuation, context, etc.)
+- [ ] Searched with both automated (grep) AND manual (reading) methods
+
+**Folder Coverage:**
+- [ ] Searched folders in different order than Round N-1
+- [ ] Didn't skip ANY folders (even if "known clean" from Round N-1)
+- [ ] Gave equal attention to all folders (not just "problem areas")
+
+**Mental Model:**
+- [ ] Took 5-10 min break before starting Round N
+- [ ] Did NOT review Round N-1 discoveries before Round N discovery
+- [ ] Questioned Round N-1 completeness (didn't assume it was thorough)
+- [ ] Felt like "this seems redundant" but continued anyway
+
+**If ALL checked:** You have genuinely fresh eyes for Round N
+
+**If ANY unchecked:** Pause, reset approach, try again
+
+### Common Fresh Eyes Failures
+
+**Failure Mode 1: "I'll just verify Round 1 findings"**
+```
+Round 1: grep -rn "S5a" → 60 matches, fixed all
+Round 2: grep -rn "S5a" → 0 matches (verify)
+Conclusion: ✅ Done!
+
+Problem: Used SAME pattern. Missed "S5a:" "S5a-" "(S5a)"
+Result: 20+ issues remain (found in Round 3 with variations)
+```
+
+**Failure Mode 2: "I remember which folders have issues"**
+```
+Round 1: stages/ had most issues, templates/ had few
+Round 2: Focus on stages/, quick check templates/
+Conclusion: ✅ Most thorough where it matters!
+
+Problem: Memory bias, confirmation bias
+Result: Missed template drift (templates not updated after stage changes)
+```
+
+**Failure Mode 3: "Round 1 was comprehensive, Round 2 is validation"**
+```
+Round 1: 4 hours, very thorough, found 60 issues
+Round 2: 1 hour, just verify Round 1 fixes
+Conclusion: ✅ Efficient validation!
+
+Problem: Assumed Round 1 completeness, didn't search for new patterns
+Result: Round 3 found 70+ different issues Round 1 never looked for
+```
+
+### How to Recover From Lost Fresh Eyes
+
+**If you realize mid-round that you don't have fresh eyes:**
+
+**STOP Immediately:**
+1. Acknowledge: "I'm re-tracing Round N-1 steps"
+2. Don't continue current discovery
+3. Don't try to salvage current round
+
+**Reset:**
+1. Take 10-15 minute break (longer than 5 min)
+2. Close all files, clear context
+3. List what patterns Round N-1 used
+4. List what patterns Round N SHOULD use (completely different)
+
+**Restart:**
+1. Start Round N discovery from scratch
+2. Use patterns from "SHOULD use" list
+3. Don't look at current round's partial findings
+4. Document this reset in discovery report
+
+---
 
 ### Critical Mindset Shifts
 
@@ -199,7 +369,9 @@ Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify 
        EXIT (only if ALL exit criteria met + user approves)
 ```
 
-### Why Minimum 3 Rounds?
+### Why Minimum 3 Rounds (But Often More)?
+
+**3 rounds is a BASELINE, not a target. Exit when criteria met, regardless of round count.**
 
 **Historical Evidence from KAI-7 Audit:**
 - **Round 1:** Found 4 issues (step number mapping)
@@ -207,9 +379,13 @@ Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify 
 - **Round 3:** Found 70+ issues (notation standardization) - WOULD HAVE MISSED if stopped after Round 2
 - **Round 4:** Found 20+ issues (cross-references) - WOULD HAVE MISSED if stopped after Round 3
 
-**Total:** 104+ issues found across 4 rounds. Each round used completely different discovery approach.
+**Total:** 104+ issues found across **4 rounds** (not 3). Each round used completely different discovery approach.
 
-**Key Insight:** Each round's patterns were invisible to previous rounds. Multiple perspectives required.
+**Key Insights:**
+- Each round's patterns were invisible to previous rounds
+- "Minimum 3" is a baseline to prevent premature exit
+- **Real exit trigger:** Round N finds ZERO new issues + ALL 8 criteria met
+- Expect 3-5 rounds typically, not exactly 3
 
 ### Round Progression Pattern
 
@@ -241,77 +417,36 @@ Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify 
 
 ## Exit Criteria
 
-### Mandatory Requirements (ALL Must Be True)
+### ALL 8 Criteria Must Be Met
 
-**Cannot exit loop until ALL of these are satisfied:**
+**Cannot exit audit loop until ALL of these are satisfied:**
 
-1. ✅ **Minimum Rounds:** Completed at least 3 rounds with fresh eyes
-   - Each round used different patterns
-   - Each round explored different file orders
-   - Clear break between rounds (fresh perspective)
+1. ✅ Minimum 3 rounds completed
+2. ✅ Round N Discovery finds ZERO new issues
+3. ✅ Round N Verification finds ZERO new issues
+4. ✅ All remaining instances documented as intentional
+5. ✅ User has NOT challenged findings
+6. ✅ Confidence score ≥ 80%
+7. ✅ Pattern diversity ≥ 5 types
+8. ✅ Spot-check clean (10+ files)
 
-2. ✅ **Zero New Discoveries:** Round N Discovery finds ZERO new issues
-   - Tried at least 5 different pattern types
-   - Searched all folders systematically
-   - Used automated scripts + manual search
+**For detailed criteria with sub-requirements, see `stages/stage_5_loop_decision.md` → "Exit Criteria Checklist"**
 
-3. ✅ **Zero Verification Findings:** Round N Verification finds ZERO new issues
-   - Re-ran all patterns from Discovery
-   - Tried pattern variations not used in Discovery
-   - Spot-checked 10+ random files
+### Critical Rules
 
-4. ✅ **All Remaining Documented:** All remaining pattern matches documented as intentional
-   - File path + line number
-   - Why it's intentional
-   - Why it's acceptable
-   - Context analysis performed
-
-5. ✅ **User Verification Passed:** User has NOT challenged findings
-   - No "are you sure?" questions
-   - No "did you actually make fixes?" questions
-   - No "assume everything is wrong" requests
-
-6. ✅ **Confidence Calibrated:** Confidence score ≥ 80%
-   - See `reference/confidence_calibration.md`
-   - Self-assessed using scoring rubric
-   - No red flags present
-
-7. ✅ **Pattern Diversity:** Used at least 5 different pattern types across all rounds
-   - Basic exact matches
-   - Pattern variations
-   - Contextual patterns
-   - Manual reading
-   - Spot-checks
-
-8. ✅ **Spot-Check Clean:** Random sample of 10+ files shows zero issues
-   - Files selected randomly (not cherry-picked)
-   - Manually read sections (not just grep)
-   - No issues found
-
-### Failing ANY Criterion = Continue Loop
-
-**If ANY criterion fails:**
+**Failing ANY criterion:**
 ```
 └─> 🔄 LOOP BACK to Stage 1 Round N+1
-     Requirements for next round:
-     - Clear all assumptions (fresh eyes)
-     - Use DIFFERENT patterns than any previous round
-     - Explore folders in DIFFERENT order
-     - Question ALL previous findings
-     - Incorporate lessons from this round
+     (Use fresh patterns, different approach)
 ```
-
-### Special Case: User Challenge
 
 **If user challenges you in ANY way:**
 ```
 └─> 🚨 IMMEDIATE LOOP BACK to Round 1
-     - User challenge = evidence you missed something
-     - Do NOT defend or justify - re-verify EVERYTHING
-     - Assume you were wrong, prove yourself right
-     - Use completely fresh patterns and approach
-     - Reset round counter to 1
+     (User challenge = evidence you missed something)
 ```
+
+**See Stage 5 guide for complete decision logic, verification checklists, and loop preparation.**
 
 ---
 
@@ -405,7 +540,7 @@ Root cause: CLAUDE.md was NOT in audit scope
    - Apply to current round
 
 4. **If user challenged findings:**
-   - Read `reference/user_challenge_protocol.md`
+   - Read `reference/user_challenge_protocol.md` ⏳ (coming soon - see audit_overview.md "User Challenge" section)
    - Reset to Round 1
    - Use fresh patterns
 

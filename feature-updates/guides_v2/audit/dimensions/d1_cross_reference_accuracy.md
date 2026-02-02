@@ -515,18 +515,20 @@ sed -i 's|stages/s5/round1/iterations_1_3_requirements\.md|stages/s5/s5_p1_i1_re
 
 ## See Also
 
-**Related Dimensions:**
-- `d2_terminology_consistency.md` - Stage notation consistency
-- `d3_workflow_integration.md` - Prerequisites and transitions
-- `d11_structural_patterns.md` - Expected file structures
+**Next Dimension (Recommended Reading Order):**
+- **D2: Terminology Consistency** - After fixing cross-references, verify paths use correct notation (e.g., "S5.P1" not "S5a")
+
+**Related Dimensions (Coming Soon):**
+- D3: Workflow Integration ⏳ - Prerequisites and transitions must match file paths
+- D11: Structural Patterns ⏳ - Expected file structures validate reference targets exist
 
 **Audit Stages:**
 - `../stages/stage_1_discovery.md` - How to search for broken references
 - `../stages/stage_4_verification.md` - Re-verify all paths after fixes
 
-**Reference:**
-- `../reference/verification_commands.md` - More validation scripts
-- `../reference/context_analysis_guide.md` - Determining intentional vs error
+**Reference (Coming Soon):**
+- `../reference/verification_commands.md` ⏳ - More validation scripts
+- `../reference/context_analysis_guide.md` ⏳ - Determining intentional vs error
 
 ---
 

@@ -1,7 +1,10 @@
 #!/bin/bash
 # Pre-Audit Automated Checks
-# Runs before manual audit to catch low-hanging fruit
-# Catches approximately 60-70% of common issues automatically
+# Runs before manual audit to catch common structural issues
+#
+# Coverage: 6 of 16 dimensions (D1, D8, D10, D11, D13, D14, D16)
+# Estimated: 40-50% of typical issues (based on KAI-7 Round 1-2 data)
+# NOT Checked: D2 (Terminology - requires pattern-specific search, see dimension guide)
 
 set -e  # Exit on error
 

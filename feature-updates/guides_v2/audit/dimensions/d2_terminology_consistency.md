@@ -544,18 +544,20 @@ grep -rn "stages/s6/\|stages/s7/"
 
 ## See Also
 
-**Related Dimensions:**
-- `d1_cross_reference_accuracy.md` - File paths must match notation
-- `d6_template_currency.md` - Templates must use current notation
-- `d9_intra_file_consistency.md` - Notation consistent within files
+**Previous Dimension (If You Haven't Read It Yet):**
+- **D1: Cross-Reference Accuracy** - Fix broken file paths BEFORE fixing notation (so fixes reference correct paths)
+
+**Related Dimensions (Coming Soon):**
+- D6: Template Currency ⏳ - After fixing notation, update templates to use new notation
+- D9: Intra-File Consistency ⏳ - Verify notation is consistent within each file
 
 **Audit Stages:**
 - `../stages/stage_1_discovery.md` - How to search for notation issues
 - `../stages/stage_3_apply_fixes.md` - Bulk notation replacement strategies
 
-**Reference:**
-- `../reference/pattern_library.md` - More search patterns
-- `../reference/context_analysis_guide.md` - Determining intentional vs error
+**Reference (Coming Soon):**
+- `../reference/pattern_library.md` ⏳ - More search patterns (see examples in this guide for now)
+- `../reference/context_analysis_guide.md` ⏳ - Determining intentional vs error
 
 ---
 

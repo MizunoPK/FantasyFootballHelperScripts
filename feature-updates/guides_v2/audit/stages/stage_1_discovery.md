@@ -2,6 +2,7 @@
 
 **Purpose:** Find issues using systematic search patterns with fresh eyes
 **Duration:** 30-60 minutes per round
+**Input:** Pre-audit check results (from `scripts/pre_audit_checks.sh`) OR lessons learned from Round N-1
 **Output:** Discovery report with categorized issues
 **Reading Time:** 15-20 minutes
 
