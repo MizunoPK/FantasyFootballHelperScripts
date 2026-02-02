@@ -158,6 +158,24 @@ This audit ensures **consistency, accuracy, and completeness** across all guides
 **What "Fresh Eyes" Means:**
 Approaching the audit as if you've never seen these files before, with zero assumptions about what's correct or what you've already checked.
 
+---
+
+### 📋 TL;DR (Quick Reference)
+
+**5-Step Fresh Eyes Checklist:**
+
+1. **Clear context:** Close all Round N-1 files, take 5-10 min break
+2. **Different patterns:** Use NEW search patterns (not same grep commands from Round N-1)
+3. **Different order:** Search folders in DIFFERENT order than Round N-1
+4. **Don't peek:** Don't look at Round N-1 discoveries until AFTER Round N discovery complete
+5. **Self-check:** Am I skipping folders "because I know they're clean"? → ❌ NOT fresh, check anyway
+
+**Common Failure:** Re-running same patterns from Round N-1 to "verify" → Finds nothing new (false confidence)
+
+**Full guide below provides detailed anti-patterns, examples, verification checklist, and recovery steps.**
+
+---
+
 ### STEP 1: Clear Context (5-10 minutes)
 
 **Before starting Round N, clear your working memory:**
@@ -349,7 +367,8 @@ Result: Round 3 found 70+ different issues Round 1 never looked for
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │         AUDIT LOOP (Repeat until ZERO new issues found)         │
-│                    MINIMUM 3 ROUNDS REQUIRED                     │
+│          MINIMUM 3 ROUNDS BASELINE (typically 3-5 rounds)        │
+│        EXIT TRIGGER: Round N finds ZERO issues + 8 criteria      │
 └─────────────────────────────────────────────────────────────────┘
 
 Round 1: Initial Discovery (new audit, broad patterns)

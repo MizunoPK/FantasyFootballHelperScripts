@@ -177,7 +177,7 @@ bash scripts/pre_audit_checks.sh
 # Then read d1, d2, d6, d8 dimension guides
 ```
 
-**Estimated Duration:** 3-4 hours (2-3 rounds)
+**Estimated Duration:** 3-4 hours (3-4 rounds)
 
 ---
 
