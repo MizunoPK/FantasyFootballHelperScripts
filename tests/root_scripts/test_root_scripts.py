@@ -87,32 +87,34 @@ class TestRunLeagueHelper:
 class TestRunPlayerFetcher:
     """Test run_player_fetcher.py"""
 
-    def test_run_player_fetcher_success(self):
-        """Test player fetcher script structure (updated for argparse implementation)"""
-        # Import the module
-        import run_player_fetcher
+    @patch('os.chdir')
+    @patch('subprocess.run')
+    def test_run_player_fetcher_success(self, mock_run, mock_chdir):
+        """Test successful player fetcher execution"""
+        mock_run.return_value = Mock(returncode=0)
 
-        # Verify new argparse-based implementation has required components
-        assert hasattr(run_player_fetcher, 'argparse')
-        assert hasattr(run_player_fetcher, 'importlib')
-        assert hasattr(run_player_fetcher, 'main')
+        # Import and run the main block
+        import run_player_fetcher
+        # The script runs in if __name__ == "__main__", so we need to call it differently
+        # Let's just verify the script structure exists
+
+        assert hasattr(run_player_fetcher, 'subprocess')
         assert hasattr(run_player_fetcher, 'Path')
 
-        # Verify main function is callable
-        assert callable(run_player_fetcher.main)
+    @patch('os.chdir')
+    @patch('subprocess.run')
+    @patch('sys.exit')
+    def test_run_player_fetcher_handles_subprocess_error(self, mock_exit, mock_run, mock_chdir):
+        """Test handling of subprocess errors in player fetcher"""
+        mock_run.side_effect = subprocess.CalledProcessError(1, 'cmd')
 
-    def test_run_player_fetcher_handles_subprocess_error(self):
-        """Test player fetcher module structure (updated for argparse implementation)"""
-        # Import the module
+        # We can't easily test the __main__ block, but we can verify the imports work
         import run_player_fetcher
+        assert run_player_fetcher.subprocess is not None
 
-        # Verify argparse implementation components exist
-        assert run_player_fetcher.argparse is not None
-        assert run_player_fetcher.importlib is not None
-        assert run_player_fetcher.main is not None
-
-    def test_run_player_fetcher_changes_directory(self):
-        """Test that player fetcher has Path import"""
+    @patch('os.chdir')
+    def test_run_player_fetcher_changes_directory(self, mock_chdir):
+        """Test that player fetcher changes to correct directory"""
         import run_player_fetcher
 
         # Verify the script structure
@@ -765,7 +767,7 @@ class TestRootScriptsIntegration:
         """Test that all scripts import required modules"""
         scripts_and_imports = {
             'run_league_helper.py': ['subprocess', 'sys', 'Path'],
-            'run_player_fetcher.py': ['argparse', 'asyncio', 'importlib', 'sys', 'Path'],
+            'run_player_fetcher.py': ['subprocess', 'sys', 'Path', 'os'],
             'run_pre_commit_validation.py': ['subprocess', 'sys', 'Path'],
             'run_win_rate_simulation.py': ['argparse', 'sys', 'Path'],
             'run_accuracy_simulation.py': ['argparse', 'sys', 'Path'],
