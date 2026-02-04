@@ -462,8 +462,6 @@ Group 3: Wrong Stage Header (1 instance)
 - s10_epic_cleanup.md: CRITICAL RULES FOR STAGE 7 → STAGE 10
 
 Verification: Zero remaining issues
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 "
 ```
 

@@ -807,6 +807,58 @@ Glob pattern="**/*.md" path="feature-updates/guides_v2"
 
 ---
 
+## 🚨 Git Safety Rules
+
+**CRITICAL: NEVER destroy uncommitted changes**
+
+**BEFORE running ANY destructive git command, you MUST:**
+
+1. **Check for uncommitted changes:**
+   ```bash
+   git status
+   ```
+
+2. **If uncommitted changes exist, NEVER run:**
+   - `git reset --hard` (destroys uncommitted changes)
+   - `git checkout <branch>` without stashing first (may lose changes)
+   - `git checkout -- <file>` (discards file changes)
+   - `git clean` (deletes untracked files)
+   - `git reset HEAD~` combined with checkout (loses commits and changes)
+   - ANY command that would discard or lose uncommitted work
+
+3. **If you need to switch context with uncommitted changes:**
+   - **OPTION 1:** Commit the changes first
+   - **OPTION 2:** Use `git stash` to save changes temporarily
+   - **OPTION 3:** Ask user what to do with uncommitted changes
+
+**Why this matters:**
+- Uncommitted changes represent active work (often hours of effort)
+- Once destroyed, changes are unrecoverable (not in git history)
+- Historical failure: agents running `git reset --hard` destroyed in-progress features
+
+**Safe git operations (always allowed):**
+- `git status` (read-only)
+- `git diff` (read-only)
+- `git log` (read-only)
+- `git add` (stages changes, non-destructive)
+- `git commit` (saves changes, non-destructive)
+- `git stash` (saves changes for later, non-destructive)
+
+**Example of WRONG behavior:**
+```bash
+git status  # Shows uncommitted changes
+git reset --hard origin/main  # ❌ DESTROYS uncommitted work
+```
+
+**Example of CORRECT behavior:**
+```bash
+git status  # Shows uncommitted changes
+# Agent: "You have uncommitted changes. Should I commit them, stash them, or discard them?"
+# Wait for user decision before proceeding
+```
+
+---
+
 ## Git Branching Workflow
 
 **All epic work must be done on feature branches** (not directly on main).
@@ -823,54 +875,6 @@ Glob pattern="**/*.md" path="feature-updates/guides_v2"
 - PR creation and review process
 - EPIC_TRACKER.md management
 - Common scenarios and troubleshooting
-
----
-
-## Pre-Commit Protocol
-
-**MANDATORY BEFORE EVERY COMMIT**
-
-### STEP 1: Run Unit Tests (REQUIRED)
-
-**PROJECT-SPECIFIC: Update this command for your project**
-```bash
-python tests/run_all_tests.py
-```
-
-**Requirements:**
-- All unit tests must pass (100% pass rate)
-- Exit code 0 = safe to commit, 1 = DO NOT COMMIT
-- **Only proceed to commit if all tests pass**
-
-### STEP 2: If Tests Pass, Review ALL Changes
-
-**⚠️ CRITICAL: Include ALL modified source code files**
-```bash
-git status  # Check ALL modified files
-git diff    # Review changes
-```
-
-**Verify all source files are included:**
-- [ ] Main source files (*.py in league_helper/, simulation/, etc.)
-- [ ] ALL test files that were modified (tests/**/*.py)
-- [ ] Configuration files if modified (data/*.json, data/*.csv)
-
-### STEP 3: Stage and Commit Changes
-
-**Follow commit standards:**
-- Format: `{commit_type}/KAI-{number}: {message}`
-- Brief, descriptive messages (100 chars or less)
-- No emojis or subjective prefixes
-- commit_type is `feat` or `fix`
-
-### STEP 4: If Tests Fail
-
-- **STOP** - Do NOT commit
-- Fix failing tests (including pre-existing failures)
-- Re-run tests
-- Only commit when all tests pass (exit code 0)
-
-**See:** `feature-updates/guides_v2/reference/GIT_WORKFLOW.md` for detailed commit guidelines and examples
 
 ---
 

@@ -210,7 +210,7 @@ fix/KAI-1: Fix null pointer in player validation
 - Imperative mood ("Add" not "Added", "Fix" not "Fixed")
 - All features in epic use same KAI number
 - commit_type is `feat` or `fix` (not `epic`)
-- No AI attribution (no "Co-Authored-By: Claude" or "Generated with Claude")
+- No AI attribution (no "Co-Authored-By" lines, no "Generated with" footers, no AI credit)
 
 **Commit Body (optional but recommended):**
 ```bash
@@ -354,7 +354,7 @@ git push origin epic/KAI-{number} --force-with-lease
 **❌ DON'T:**
 - Use vague messages ("Update code", "Fix stuff")
 - Include emojis or subjective prefixes
-- Include AI attribution ("Co-Authored-By: Claude", "Generated with Claude")
+- Include AI attribution (no "Co-Authored-By" lines, no "Generated with" footers, no AI credit)
 - Commit without running tests first
 - Mix multiple unrelated changes in one commit
 

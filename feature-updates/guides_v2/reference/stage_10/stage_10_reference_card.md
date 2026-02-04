@@ -157,8 +157,6 @@ Major features:
 - Add injury assessment to player projections
 - Implement schedule strength analysis
 - Update recommendation engine with new multipliers
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ---
