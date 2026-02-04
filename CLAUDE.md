@@ -212,50 +212,67 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 
 - **Next:** S2
 
-**S2: Feature Deep Dives** (Loop through ALL features)
+**S2: Feature Planning** (Loop through ALL features)
 - **First Action:** Use "Starting S2" prompt
 - **Guide:** `stages/s2/s2_feature_deep_dive.md` (router to phases)
 - **Phases:**
-  - S2.P1: Research (Gate 1: Research Audit)
-  - S2.P2: Specification (Gate 2: Spec Alignment + **Gate 3: User Checklist Approval**)
-    - S2.P2.5: Specification Validation (self-validate spec, resolve questions, reduce user burden)
-  - S2.P3: Refinement (Gate 4: User Approval of Acceptance Criteria)
-- **Key Outputs:** spec.md, checklist.md (QUESTIONS ONLY - agents CANNOT mark [x] autonomously)
-- **Next:** S3 (after ALL features)
+  - S2.P1: Spec Creation and Refinement (3 iterations, 2.25-4 hours)
+    - S2.P1.I1: Feature-Level Discovery (60-90 min) - Embeds Gate 1
+    - S2.P1.I2: Checklist Resolution (45-90 min) - 9-step protocol
+    - S2.P1.I3: Refinement & Alignment (30-60 min) - Embeds Gate 2, includes Gate 3
+  - S2.P2: Cross-Feature Alignment (20-60 min) - Primary agent only, pairwise comparison
+- **Key Outputs:** spec.md, checklist.md (QUESTIONS ONLY - agents CANNOT mark [x] autonomously), RESEARCH_NOTES.md (REQUIRED)
+- **Consistency Loops:** S2.P1.I1 (embeds Gate 1), S2.P1.I3 (embeds Gate 2), S2.P2 (alignment validation)
+- **Gate 3:** User Checklist Approval (explicit, including acceptance criteria) in S2.P1.I3
+- **Next:** S3 (after ALL features in all groups)
 
-**S3: Cross-Feature Sanity Check**
+**S3: Epic-Level Documentation, Testing Plans, and Approval**
 - **First Action:** Use "Starting S3" prompt
-- **Guide:** `stages/s3/s3_cross_feature_sanity_check.md`
-- **Actions:** Pairwise comparison, resolve conflicts, user sign-off
-- **Next:** S4
+- **Guide:** `stages/s3/s3_epic_planning_approval.md`
+- **Phases:**
+  - S3.P1: Epic Testing Strategy Development (45-60 min) - Epic-level integration tests
+  - S3.P2: Epic Documentation Refinement (20-30 min)
+  - S3.P3: Epic Plan Approval (10-15 min) - Gate 4.5 with 3-tier rejection
+- **Key Changes:** Pairwise comparison moved to S2.P2, old S4 content moved here
+- **Consistency Loops:** S3.P1 (testing strategy), S3.P2 (documentation)
+- **Gate 4.5:** User approves epic plan (MANDATORY, 3-tier rejection handling)
+- **Next:** S4 (first feature)
 
-**S4: Epic Testing Strategy**
+**S4: Feature Testing Strategy** (NEW STAGE)
 - **First Action:** Use "Starting S4" prompt
-- **Guide:** `stages/s4/s4_epic_testing_strategy.md`
-- **Actions:** Update epic_smoke_test_plan.md
-- **Gate 4.5:** User approves test plan (MANDATORY)
-- **Next:** S5 (first feature)
+- **Guide:** `stages/s4/s4_feature_testing_strategy.md` (router to 4 iterations)
+- **Purpose:** Test-driven development - plan tests BEFORE implementation
+- **Iterations:**
+  - S4.I1: Test Strategy Development (15-20 min) - Unit, integration, edge tests
+  - S4.I2: Edge Case Enumeration (10-15 min) - Boundary conditions, error paths
+  - S4.I3: Configuration Change Impact (10-15 min) - Config test matrix
+  - S4.I4: Consistency Loop (15-20 min) - Validate test strategy completeness
+- **Key Output:** test_strategy.md (>90% coverage goal, merged into implementation_plan.md in S5.P1.I1)
+- **Time:** 45-60 minutes per feature
+- **Next:** S5 (Implementation Planning)
 
 **S5-S8: Feature Loop** (Repeat for each feature)
 
-**S5: Implementation Planning** (28 iterations, 3 rounds)
+**S5: Implementation Planning** (22 iterations, 3 rounds)
 - **First Action:** Use "Starting S5 Round 1/2/3" prompt
 - **🚨 CRITICAL:** Execute iterations ONE at a time, IN ORDER (no batching, no skipping)
+- **Key Change:** Testing iterations (old I8-I10) moved to S4, remaining iterations renumbered sequentially
 - **Guides:**
   - Round 1: `stages/s5/s5_p1_planning_round1.md` (router to I1-I3)
-    - S5.P1.I1: `stages/s5/s5_p1_i1_requirements.md` (Iterations 1-3)
-    - S5.P1.I2: `stages/s5/s5_p1_i2_algorithms.md` (Iterations 4-6 + Gate 4a)
-    - S5.P1.I3: `stages/s5/s5_p1_i3_integration.md` (Iteration 7 + Gate 7a)
-  - Round 2: `stages/s5/s5_p2_planning_round2.md` (router to I1-I3)
-    - S5.P2.I1: `stages/s5/s5_p2_i1_test_strategy.md` (Iterations 8-10)
-    - S5.P2.I2: `stages/s5/s5_p2_i2_reverification.md` (Iterations 11-12)
-    - S5.P2.I3: `stages/s5/s5_p2_i3_final_checks.md` (Iterations 13-16, >90% test coverage)
-  - Round 3: `stages/s5/s5_p3_planning_round3.md` (router to I1-I3)
-    - S5.P3.I1: `stages/s5/s5_p3_i1_preparation.md` (Iterations 17-22)
-    - S5.P3.I2: `stages/s5/s5_p3_i2_gates_part1.md` (Iterations 23, 23a - Gate 23a: Spec Audit)
-    - S5.P3.I3: `stages/s5/s5_p3_i3_gates_part2.md` (Iterations 24-25 - Gate 25 + Gate 24: GO/NO-GO)
-- **Output:** implementation_plan.md (~400 lines) - PRIMARY reference
-- **Gate 5:** User approves implementation plan (MANDATORY)
+    - S5.P1.I1: `stages/s5/s5_p1_i1_requirements.md` (I1-I3) - Merges test_strategy.md from S4
+    - S5.P1.I2: `stages/s5/s5_p1_i2_algorithms.md` (I4-I6 + Gate 4a)
+    - S5.P1.I3: `stages/s5/s5_p1_i3_integration.md` (I7 + Gate 7a)
+    - **Consistency Loop:** Added at end of Round 1 (validates Gates 4a, 7a)
+  - Round 2: `stages/s5/s5_p2_planning_round2.md` (router, I8-I13)
+    - S5.P2.I1: Verification iterations (I8-I9, formerly I11-I12)
+    - S5.P2.I2: Reverification (I10-I13, formerly I13-I16)
+  - Round 3: `stages/s5/s5_p3_planning_round3.md` (router, I14-I22)
+    - S5.P3.I1: `stages/s5/s5_p3_i1_preparation.md` (I14-I19, formerly I17-I22)
+    - **Consistency Loop:** Added before Gate 23a (validates complete plan)
+    - S5.P3.I2: `stages/s5/s5_p3_i2_gates_part1.md` (I20 - Gate 23a: Pre-Implementation Spec Audit)
+    - S5.P3.I3: `stages/s5/s5_p3_i3_gates_part2.md` (I21-I22 - Gate 25 + Gate 24: GO/NO-GO)
+- **Output:** implementation_plan.md (~400 lines) - PRIMARY reference (includes merged test strategy from S4)
+- **Gate 5:** User approves implementation plan (MANDATORY, 3-tier rejection handling)
 - **Next:** S6
 
 **S6: Implementation Execution**
@@ -569,8 +586,12 @@ Receive handoff → Startup (10 steps) → S2.P1 (assigned feature)
 - **User approval gates**: Gates 3, 4.5, 5 (early approval prevents rework)
 - **Zero autonomous resolution**: Agents create QUESTIONS, user provides ANSWERS
 - **Continuous alignment**: S8.P1 updates specs after each feature
-- **Continuous testing**: Test plan evolves (S1 → S4 → S8.P2 → S9)
-- **28 verification iterations**: All mandatory (S5 Rounds 1-3)
+- **Continuous testing**: Test plan evolves (S1 → S3 → S4 → S8.P2 → S9)
+- **Test-driven development**: S4 plans tests BEFORE S5 implementation planning
+- **22 verification iterations**: All mandatory (S5 Rounds 1-3)
+- **Consistency Loop validation**: 3 consecutive clean rounds required at key validation points (S2.P1 iterations, S3 phases, S4.I4, S5 rounds)
+- **No deferred issues**: All identified issues fixed immediately during Consistency Loop (zero tolerance)
+- **Maximum 10 rounds**: Escalate to user if Consistency Loop exceeds 10 rounds
 - **QC restart protocol**: If ANY issues → restart completely
 - **100% test pass**: Required before commits and transitions
 - **Zero tech debt tolerance**: Fix ALL issues immediately
@@ -630,6 +651,36 @@ Receive handoff → Startup (10 steps) → S2.P1 (assigned feature)
 - DON'T assume first answer is complete
 - DO ask "what else?" at least 3 times
 
+### Anti-Pattern 3: Deferring Issues During Consistency Loop
+
+**WRONG APPROACH:**
+1. Round 1: Discovers 5 issues
+2. Agent: "Found 5 issues. I'll note them and fix later."
+3. Agent: "Round 1 complete, moving to Round 2"
+4. Issues remain unfixed across multiple rounds
+5. Agent exits Consistency Loop with unresolved issues
+
+**CORRECT APPROACH:**
+1. Round 1: Discovers 5 issues
+2. Agent: "Found 5 issues. Fixing ALL immediately."
+3. Agent fixes all 5 issues before continuing
+4. Round 2: Fresh validation (may find new issues from fixes)
+5. Repeat until 3 consecutive clean rounds (zero issues)
+
+**Key Distinction:** Consistency Loop has ZERO TOLERANCE for deferred issues
+
+**From Consistency Loop Protocol:**
+- ❌ WRONG: "Deferred for later" or "Will fix in next phase"
+- ✅ CORRECT: "Fixed immediately in current round"
+- Every issue must be resolved BEFORE moving to next round
+- 3 consecutive CLEAN rounds (zero issues) required to exit
+
+**Why this matters:**
+- Deferred issues compound (5 → 10 → 20 across rounds)
+- Later fixes may contradict earlier decisions
+- Historical evidence: 60% of "deferred" issues never get fixed
+- Consistency Loop philosophy: Assume everything wrong until proven clean
+
 ---
 
 ## Gate Numbering System
@@ -650,11 +701,11 @@ The workflow uses two types of gates:
 
 | Gate | Type | Location | Purpose | Approver |
 |------|------|----------|---------|----------|
-| Gate 1 | Stage | S2 | Research Completeness Audit | Agent (checklist) |
-| Gate 2 | Stage | S2 | Spec-to-Epic Alignment | Agent (checklist) |
-| Gate 3 | Stage | S2 | User Checklist Approval | User |
-| Gate 4.5 | Stage | S4 | Epic Test Plan Approval | User |
-| Gate 5 | Stage | S5.P1 | Implementation Plan Approval | User |
+| Gate 1 | Stage | S2.P1.I1 | Research Completeness Audit (embedded in Consistency Loop) | Agent (checklist) |
+| Gate 2 | Stage | S2.P1.I3 | Spec-to-Epic Alignment (embedded in Consistency Loop) | Agent (checklist) |
+| Gate 3 | Stage | S2.P1.I3 | User Checklist Approval (separate from Consistency Loop) | User |
+| Gate 4.5 | Stage | S3.P3 | Epic Plan Approval (3-tier rejection handling) | User |
+| Gate 5 | Stage | S5.P3 | Implementation Plan Approval (3-tier rejection handling) | User |
 | Gate 4a | Iteration | S5.P1.I2 | TODO Specification Audit | Agent (checklist) |
 | Gate 7a | Iteration | S5.P1.I3 | Backward Compatibility Check | Agent (checklist) |
 | Gate 23a | Iteration | S5.P3.I2 | Pre-Implementation Spec Audit (5 parts) | Agent (checklist) |
@@ -757,7 +808,9 @@ feature_XX_{name}/
 - `stages/` - Core workflow guides (s1 through s10 with S#.P#.I# notation)
   - `s1/`, `s2/`, `s3/`, `s4/`, `s5/`, `s6/`, `s7/`, `s8/`, `s9/`, `s10/`
 - `reference/` - Reference cards and supporting materials
-  - Mandatory gates, common mistakes, naming conventions, glossary, etc.
+  - Mandatory gates, common mistakes, naming conventions, glossary
+  - **Consistency Loop protocols:** `consistency_loop_protocol.md` (foundation + 7 core principles)
+  - **Context-specific variants:** `consistency_loop_discovery.md`, `consistency_loop_spec_refinement.md`, `consistency_loop_alignment.md`, `consistency_loop_test_strategy.md`, `consistency_loop_qc.md`
 - `templates/` - File templates for epics, features, bug fixes
 - `debugging/` - Debugging protocol guides
 - `missed_requirement/` - Missed requirement protocol guides
@@ -886,16 +939,19 @@ git status  # Shows uncommitted changes
 ✅ **Use phase transition prompts** from `prompts_reference_v2.md`
 ✅ **Verify prerequisites** before proceeding
 ✅ **Update Agent Status** in README files at checkpoints
+✅ **Consistency Loop validation** (3 consecutive clean rounds, zero deferred issues)
 ✅ **100% unit test pass rate** before commits and transitions
-✅ **Fix ALL issues immediately** (zero tech debt tolerance)
+✅ **Fix ALL issues immediately** (zero tech debt tolerance, includes Consistency Loop issues)
 ✅ **User testing approval** before S10 begins (completed in S9.P3)
 
 ### Never Allowed
 
 ❌ **Skip stages** (all stages have dependencies)
-❌ **Skip iterations** in S5 (all 28 mandatory)
+❌ **Skip iterations** in S5 (all 22 mandatory)
 ❌ **Batch iterations** (execute ONE at a time, sequentially)
-❌ **Defer issues for "later"** (fix immediately)
+❌ **Defer issues for "later"** (fix immediately, includes Consistency Loop issues)
+❌ **Skip Consistency Loop rounds** (must complete 3 consecutive clean rounds)
+❌ **Exit Consistency Loop early** (before 3 consecutive clean rounds)
 ❌ **Skip QC restart** when issues found (restart from beginning)
 ❌ **Commit without running tests**
 ❌ **Commit without user testing approval** (S10)
@@ -903,10 +959,12 @@ git status  # Shows uncommitted changes
 ### Quality Gates
 
 **🛑 MANDATORY GATES (cannot proceed without passing):**
-- Gate 3: User Checklist Approval (S2)
-- Gate 4.5: Epic Test Plan Approval (S4)
-- Gate 5: Implementation Plan Approval (S5)
-- Gate 23a: Pre-Implementation Spec Audit (S5.P3 Round 3)
+- Gate 1: Research Completeness Audit (S2.P1.I1 - embedded in Consistency Loop)
+- Gate 2: Spec-to-Epic Alignment (S2.P1.I3 - embedded in Consistency Loop)
+- Gate 3: User Checklist Approval (S2.P1.I3)
+- Gate 4.5: Epic Plan Approval (S3.P3 - 3-tier rejection)
+- Gate 5: Implementation Plan Approval (S5.P3 - 3-tier rejection)
+- Gate 23a: Pre-Implementation Spec Audit (S5.P3.I2 Round 3)
 - Smoke Testing: Must pass before QC rounds (S7.P1)
 - User Testing: Must pass before S10 (S9.P3)
 
