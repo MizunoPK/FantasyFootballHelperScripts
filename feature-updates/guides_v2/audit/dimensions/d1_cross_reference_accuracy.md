@@ -92,7 +92,7 @@ Result: Agent couldn't find file, workflow stuck
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
 feature-updates/guides_v2/prompts_reference_v2.md
-feature-updates/guides_v2/GUIDES_V2_FORMAL_AUDIT_GUIDE.md (if exists - may be deprecated)
+feature-updates/guides_v2/audit/README.md (modular audit system entry point)
 ```
 
 **Why These Matter:**
@@ -584,14 +584,13 @@ sed -i 's|stages/s5/round1/iterations_1_3_requirements\.md|stages/s5/s5_p1_i1_re
 ```markdown
 File: feature-updates/guides_v2/README.md
 Line: 39
-Content: "GUIDES_V2_FORMAL_AUDIT_GUIDE.md (audit methodology)"
+Content: "audit/README.md (modular audit system entry point)"
 ```
 
-**Analysis:**
-- README.md lists this as active audit guide
-- But GUIDES_V2_FORMAL_AUDIT_GUIDE.md has been **replaced** by modular audit system
-- Modular system is at: audit/README.md, audit/audit_overview.md, etc.
-- README.md needs update to reflect current state
+**Historical Context (Feb 2026):**
+- The monolithic GUIDES_V2_FORMAL_AUDIT_GUIDE.md (30,568 tokens) was replaced by modular audit/ system
+- Modular system location: audit/README.md, audit/audit_overview.md, audit/dimensions/, etc.
+- Root-level files should now reference audit/README.md as the entry point
 
 **Impact:**
 - **CRITICAL** - README.md is main entry point (referenced in CLAUDE.md)

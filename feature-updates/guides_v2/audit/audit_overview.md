@@ -25,27 +25,27 @@ This audit ensures **consistency, accuracy, and completeness** across all guides
 
 ### The 16 Audit Dimensions
 
-**Core Accuracy (D1-D4):**
+**Core Dimensions (Always Check) - D1, D2, D3, D8:**
 - ✅ **D1: Cross-Reference Accuracy** - All file paths, stage references, and cross-links are valid
 - ✅ **D2: Terminology Consistency** - Notation, naming conventions, and terminology are uniform
 - ✅ **D3: Workflow Integration** - Guides correctly reference each other and form cohesive workflows
-- ✅ **D4: Count Accuracy** - File counts, stage counts, iteration counts match reality
+- ✅ **D8: CLAUDE.md Synchronization** - Root file quick references match actual guide content
 
-**Content Quality (D5-D6, D13-D14):**
+**Content Quality Dimensions - D4, D5, D6, D13, D14:**
+- ✅ **D4: Count Accuracy** - File counts, stage counts, iteration counts match reality
 - ✅ **D5: Content Completeness** - No missing sections, gaps in coverage, or orphaned references
 - ✅ **D6: Template Currency** - Templates reflect current workflow structure and terminology
 - ✅ **D13: Documentation Quality** - All required sections present, no TODOs or placeholders
 - ✅ **D14: Content Accuracy** - Claims in guides match reality (step counts, durations, etc.)
 
-**Structural Quality (D9-D12):**
+**Structural Dimensions - D9, D10, D11, D12:**
 - ✅ **D9: Intra-File Consistency** - Within-file quality (headers, checklists, formatting)
 - ✅ **D10: File Size Assessment** - Files within readable limits, complex files split appropriately
 - ✅ **D11: Structural Patterns** - Guides follow expected template structures
 - ✅ **D12: Cross-File Dependencies** - Stage prerequisites match outputs, workflow continuity
 
-**Advanced Quality (D7-D8, D15-D16):**
+**Advanced Dimensions - D7, D15, D16:**
 - ✅ **D7: Context-Sensitive Validation** - Same pattern validated differently based on context
-- ✅ **D8: CLAUDE.md Synchronization** - Root file quick references match actual guide content
 - ✅ **D15: Duplication Detection** - No duplicate content or contradictory instructions
 - ✅ **D16: Accessibility** - Navigation aids, TOCs, scannable structure
 
