@@ -11,7 +11,7 @@
 ## Quick Start
 
 **What is this guide?**
-The Discovery Phase is a mandatory iterative research loop where the agent explores the problem space, asks clarifying questions, and refines understanding before proposing feature breakdown.
+The Discovery Phase is a mandatory research and validation process where the agent explores the problem space, creates a comprehensive DISCOVERY.md document, then validates it through Consistency Loop protocol until 3 consecutive clean rounds confirm completeness.
 
 **When do you use this guide?**
 - After completing S1 Step 2 (Epic Analysis)
@@ -20,20 +20,22 @@ The Discovery Phase is a mandatory iterative research loop where the agent explo
 
 **Key Outputs:**
 - DISCOVERY.md created and user-approved
-- Problem space thoroughly explored
+- Problem space thoroughly explored (validated through Consistency Loop)
 - Solution approach determined
 - Scope clearly defined (in/out/deferred)
 - Feature breakdown ready to propose
 
 **Time-Box by Epic Size:**
-| Epic Size | Discovery Time-Box | Typical Iterations |
-|-----------|-------------------|-------------------|
-| SMALL (1-2 features) | 1-2 hours | 4-6 iterations (incl. 3 clean) |
-| MEDIUM (3-5 features) | 2-3 hours | 5-8 iterations (incl. 3 clean) |
-| LARGE (6+ features) | 3-4 hours | 7-10 iterations (incl. 3 clean) |
+| Epic Size | Discovery Time-Box | Typical Rounds |
+|-----------|-------------------|----------------|
+| SMALL (1-2 features) | 1-2 hours | 4-6 rounds (incl. 3 clean) |
+| MEDIUM (3-5 features) | 2-3 hours | 5-8 rounds (incl. 3 clean) |
+| LARGE (6+ features) | 3-4 hours | 7-10 rounds (incl. 3 clean) |
 
 **Exit Condition:**
-Discovery Phase is complete when THREE CONSECUTIVE research iterations produce no new questions, DISCOVERY.md is complete, and user has approved the recommended approach and feature breakdown.
+Discovery Phase is complete when Consistency Loop validation produces THREE CONSECUTIVE clean rounds (zero issues/gaps), DISCOVERY.md is complete, and user has approved the recommended approach and feature breakdown.
+
+**Consistency Loop Reference:** `reference/consistency_loop_discovery.md`
 
 ---
 
@@ -48,18 +50,20 @@ Discovery Phase is complete when THREE CONSECUTIVE research iterations produce n
    - No exceptions, even for "clear" epics
    - Cannot create feature folders until Discovery completes
 
-2. Discovery Loop continues until THREE CONSECUTIVE iterations with NO NEW QUESTIONS
-   - Not a fixed number of iterations
-   - Must have 3 consecutive "clean" iterations before exiting
-   - Re-read code/requirements with fresh perspective each iteration
+2. Discovery uses Consistency Loop validation (see consistency_loop_discovery.md)
+   - Exit criteria: 3 consecutive clean rounds with ZERO issues/gaps
+   - Issues/gaps include: Missing research, incomplete sections, unanswered questions,
+     assumptions not verified, integration gaps, unclear scope
+   - Re-read DISCOVERY.md with fresh perspective each round
+   - Fix ALL issues immediately (zero tolerance for deferred issues)
 
 3. All findings and answers go in DISCOVERY.md
    - Single source of truth for epic-level decisions
    - Feature specs will reference this document
 
 4. User answers questions throughout (not just at end)
-   - Present questions after each research iteration
-   - Update DISCOVERY.md with answers before next iteration
+   - Present questions when they arise during validation rounds
+   - Update DISCOVERY.md with answers before continuing
 
 5. DISCOVERY.md becomes reference after approval
    - Only update if something found incorrect/outdated
@@ -82,43 +86,53 @@ Discovery Phase is complete when THREE CONSECUTIVE research iterations produce n
 S1.P3.1: Initialize Discovery Document (10-15 min)
     |
     +-- Create DISCOVERY.md from template
-    +-- Extract initial questions from epic request
+    +-- Conduct initial research
+    +-- Document findings, questions, approach
     +-- Set time-box based on epic size
     |
     v
-S1.P3.2: Discovery Loop (iterative)
+S1.P3.2: Consistency Loop Validation (iterative)
     |
-    +------------------------------------------+
-    |                                          |
-    |   +-------------+                        |
-    |   |  Research   | Read code, docs        |
-    |   |             | (fresh perspective!)   |
-    |   +------+------+                        |
-    |          |                               |
-    |          v                               |
-    |   +-------------+                        |
-    |   |  Document   | Update DISCOVERY.md    |
-    |   +------+------+                        |
-    |          |                               |
-    |          v                               |
-    |   +-------------+     No questions       |
-    |   | Questions?  |--------+               |
-    |   +------+------+        |               |
-    |          | Has questions |  Counter++    |
-    |          v               |               |
-    |   +-------------+        |  Counter>=3?  |
-    |   |  Ask User   |        +------No-------+
-    |   +------+------+              |         |
-    |          |              Reset  |   Yes   |
-    |          v              Counter|         |
-    |   +-------------+              |         |
-    |   |   Record    |              |         |
-    |   +------+------+              |         |
-    |          |                     |         |
-    |          +---------------------+         |
-    |          Loop back                       v
-    +----------------------------------Exit Loop
-    |
+    +--------------------------------------------------+
+    |  Reference: consistency_loop_discovery.md        |
+    |                                                  |
+    |   +-------------+                                |
+    |   | Round N     | Re-read DISCOVERY.md          |
+    |   | Validation  | (fresh perspective!)          |
+    |   +------+------+                                |
+    |          |                                       |
+    |          v                                       |
+    |   +----------------+                             |
+    |   | Identify       | Check for issues/gaps:     |
+    |   | Issues/Gaps    | - Missing research         |
+    |   |                | - Incomplete sections      |
+    |   |                | - Unanswered questions     |
+    |   |                | - Unverified assumptions   |
+    |   |                | - Integration gaps         |
+    |   |                | - Unclear scope            |
+    |   +------+---------+                             |
+    |          |                                       |
+    |          v                                       |
+    |   +-------------+      No issues                |
+    |   |  Issues?    |--------+                      |
+    |   +------+------+        |                      |
+    |          | Has issues    | Counter++            |
+    |          v               |                      |
+    |   +-------------+        | Counter>=3?          |
+    |   |  Fix ALL    |        +----No-----+          |
+    |   |  Issues     |              |     |          |
+    |   +------+------+        Reset |  Yes|          |
+    |          |               Counter     |          |
+    |          v                     |     |          |
+    |   +-------------+              |     |          |
+    |   |  Ask User   | (if needed)  |     |          |
+    |   |  Questions  |              |     |          |
+    |   +------+------+              |     |          |
+    |          |                     |     |          |
+    |          +---------------------+     |          |
+    |          Loop back                   v          |
+    +----------------------------------Exit Loop      |
+    |                                                  |
     v
 S1.P3.3: Synthesize Findings (20-30 min)
     |
@@ -142,7 +156,7 @@ Proceed to S1 Step 4 (Feature Breakdown Proposal)
 
 ## S1.P3.1: Initialize Discovery Document
 
-**Time:** 10-15 minutes
+**Time:** 30-45 minutes (includes initial research)
 
 ### Step 1: Create DISCOVERY.md
 
@@ -168,17 +182,34 @@ historical, schedule).
 **Original Request:** `improve_debugging_runs_notes.txt`
 ```
 
-### Step 3: Extract Initial Questions
+### Step 3: Conduct Initial Research
 
-Read the epic request and identify initial questions.
+Research the problem space and document findings in DISCOVERY.md:
+
+**Research activities:**
+- Read code/files mentioned in epic request
+- Examine existing patterns that could be leveraged
+- Identify components affected by the epic
+- Note what exists vs what's missing
+- Identify solution approaches
+
+**Document findings in DISCOVERY.md sections:**
+- Technical Analysis
+- Key Findings
+- Solution Options (if multiple approaches exist)
+
+### Step 4: Extract Initial Questions
+
+Based on initial research, identify questions that need user input:
 
 **Question sources:**
 - Ambiguous language ("easier", "better", "improved")
 - Undefined terms ("debugging version run")
 - Implicit assumptions that need verification
 - Scope boundaries that are unclear
+- Multiple valid approaches (need user preference)
 
-**Example initial questions:**
+**Document in DISCOVERY.md:**
 ```markdown
 ### Pending Questions
 
@@ -186,10 +217,11 @@ Read the epic request and identify initial questions.
 |---|----------|---------|-------|
 | 1 | What does "debugging version run" mean? | Term undefined in request | 2025-01-20 |
 | 2 | Should all scripts share the same debug approach? | 6 different scripts mentioned | 2025-01-20 |
-| 3 | What makes current testing "not easy"? | Need to understand pain points | 2025-01-20 |
 ```
 
-### Step 4: Set Time-Box
+**Ask user questions before proceeding to Consistency Loop**
+
+### Step 5: Set Time-Box
 
 Based on epic size (from S1 Step 2.3), set Discovery time-box:
 
@@ -206,279 +238,251 @@ Document in Discovery Log:
 | Timestamp | Activity | Outcome |
 |-----------|----------|---------|
 | 2025-01-20 10:00 | Initialized Discovery | Epic size MEDIUM, time-box 2-3 hours |
+| 2025-01-20 10:30 | Initial research complete | Documented findings, identified 3 questions |
+| 2025-01-20 10:45 | User answered questions | Clarified approach, ready for validation |
 ```
 
-### Step 5: Update Agent Status
+### Step 6: Update Agent Status
 
 ```markdown
 ## Agent Status
 
 **Current Phase:** DISCOVERY_PHASE
-**Current Step:** S1.P3.1 Complete - Initialize Discovery
+**Current Step:** S1.P3.1 Complete - Initial Research and DISCOVERY.md Draft
 **Current Guide:** stages/s1/s1_p3_discovery_phase.md
-**Progress:** Discovery initialized, entering loop
-**Next Action:** S1.P3.2 - Discovery Loop Iteration 1
+**Progress:** DISCOVERY.md drafted, entering Consistency Loop validation
+**Next Action:** S1.P3.2 - Consistency Loop Round 1
 ```
 
 ---
 
-## S1.P3.2: Discovery Loop
+## S1.P3.2: Consistency Loop Validation
 
 **Time:** Varies by epic size (bulk of Discovery time)
 
-The Discovery Loop repeats until THREE CONSECUTIVE research iterations produce no new questions.
+**Reference:** `reference/consistency_loop_discovery.md`
 
-**Clean Iteration Counter:** Track consecutive iterations with zero new questions
+The Consistency Loop repeats until THREE CONSECUTIVE validation rounds find ZERO issues or gaps in DISCOVERY.md.
+
+**Clean Round Counter:** Track consecutive rounds with zero issues/gaps
 - Counter starts at 0
-- Increments when iteration produces NO new questions
-- Resets to 0 when iteration produces ANY new questions
+- Increments when round finds NO issues/gaps
+- Resets to 0 when round finds ANY issues/gaps
 - Loop exits when counter reaches 3
 
-### Iteration Structure
+**Issues/Gaps Include:**
+- Missing research or incomplete analysis
+- Incomplete sections in DISCOVERY.md
+- Unanswered questions or unresolved unknowns
+- Unverified assumptions
+- Integration gaps or unclear dependencies
+- Unclear scope (in/out/deferred not defined)
 
-Each iteration follows this pattern:
+### Round Structure
+
+Each validation round follows this pattern:
 
 ```
-A. Research (read code, examine patterns - FRESH PERSPECTIVE each time)
+A. Re-read DISCOVERY.md (FRESH PERSPECTIVE each round)
        |
        v
-B. Document (update DISCOVERY.md with findings)
+B. Identify Issues/Gaps (check completeness, consistency, clarity)
        |
        v
-C. Identify Questions (what unknowns emerged?)
+C. Fix ALL Issues Immediately (zero tolerance for deferred issues)
+   - Research missing information
+   - Ask user questions if needed
+   - Update DISCOVERY.md sections
+   - Verify assumptions
+   - Clarify scope
        |
        v
-D. Ask User (present questions, await answers) OR Skip if no questions
-       |
-       v
-E. Record Answers (update DISCOVERY.md) OR Skip if no questions
-       |
-       v
-F. Check Exit (update clean iteration counter, check if counter >= 3)
+D. Check Exit (update clean round counter, check if counter >= 3)
 ```
 
 ---
 
-### Step A: Research
+### Step A: Re-read DISCOVERY.md with Fresh Perspective
 
-**CRITICAL: Re-read with Fresh Perspective Each Iteration**
+**CRITICAL: Re-read DISCOVERY.md Completely Each Round**
 
-Each iteration, you MUST re-read code and requirements you've already examined. Use a different angle:
-- **Iteration 1:** Focus on WHAT (what components exist, what's missing)
-- **Iteration 2:** Focus on HOW (how things work together, integration points)
-- **Iteration 3:** Focus on WHY (why current patterns exist, constraints)
-- **Iteration 4+:** Focus on EDGE CASES (what could break, error paths, assumptions)
-- **Clean iterations (no questions):** Re-examine from DIFFERENT user personas (developer, tester, end-user)
+Each round, you MUST re-read the ENTIRE DISCOVERY.md document. Use different reading patterns:
+
+**Round-Specific Reading Patterns (from consistency_loop_discovery.md):**
+- **Round 1:** Sequential read (top to bottom), completeness check
+- **Round 2:** Reverse order read (bottom to top), consistency check
+- **Round 3:** Random section spot-checks, final validation
+- **Round 4+:** Thematic clustering (group related sections), cross-reference validation
 
 **Why this matters:** First-pass reading misses 40%+ of important details. Fresh perspective catches what memory-based work misses.
 
-**What to research:**
-
-1. **Components mentioned in epic**
-   - Scripts, modules, classes referenced
-   - Entry points and argument handling
-   - Current behavior and interfaces
-
-2. **Existing patterns**
-   - Similar functionality that exists
-   - Patterns that could be leveraged
-   - Conventions used in codebase
-
-3. **Pain points**
-   - Why current approach is problematic
-   - What's missing vs what exists
-   - Friction points user might experience
-
-4. **Solution space**
-   - Possible approaches
-   - Trade-offs between options
-   - Constraints that limit choices
-
-5. **External dependencies** (NEW - from KAI-1 lessons)
-   - Libraries or APIs the epic might require
-   - Known compatibility issues with test environments
-   - Experience with these libraries in previous features
-   - Alternative libraries if primary choice has issues
-
-**Research activities:**
-- Use Grep/Glob to find relevant files
-- Use Read to examine actual code
-- Document file paths, line numbers, key findings
-- Note what exists vs what's missing
-
-**DO:**
-- Read actual source code
-- Note specific file paths and line numbers
-- Look for existing patterns to leverage
-- Consider multiple solution approaches
-
-**DO NOT:**
-- Write any code (research only)
-- Make assumptions without verification
-- Skip reading code you reference
-- Guess at implementation details
-
 ---
 
-### Step B: Document Findings
+### Step B: Identify Issues/Gaps
 
-Update DISCOVERY.md with iteration findings:
+**Check DISCOVERY.md for these issue categories:**
 
+1. **Missing Research**
+   - Incomplete code examination
+   - External dependencies not researched
+   - Existing patterns not identified
+   - Solution approaches not explored
+
+2. **Incomplete Sections**
+   - Empty or stub sections in DISCOVERY.md
+   - Vague descriptions ("TBD", "will add later")
+   - Missing required sections from template
+
+3. **Unanswered Questions**
+   - Pending questions not resolved
+   - Ambiguous language not clarified
+   - Scope boundaries unclear
+
+4. **Unverified Assumptions**
+   - Assumptions not checked with user
+   - "Probably" or "likely" statements
+   - Guesses without verification
+
+5. **Integration Gaps**
+   - Unclear how features interact
+   - Missing dependency analysis
+   - Unclear integration points
+
+6. **Unclear Scope**
+   - In/out/deferred not defined
+   - Boundaries not documented
+   - Feature breakdown rationale missing
+
+**Document all issues found:**
 ```markdown
-### Iteration {N} ({YYYY-MM-DD HH:MM})
+## Round {N} Issues Found ({YYYY-MM-DD HH:MM})
 
-**Researched:** {What was investigated}
+### Issue 1: Missing External Dependencies Research
+**Category:** Missing Research
+**Description:** Section 3 mentions "API integration" but doesn't specify which API or research alternatives
+**Action Required:** Research ESPN API, Sleeper API, compare options, ask user preference
 
-**Files Examined:**
-- `run_league_helper.py` (lines 45-78): Uses argparse, has 4 mode choices
-- `run_simulation.py` (lines 12-34): Has --iterations flag, default 1000
-- `utils/logging_config.py` (lines 1-50): Existing verbose logging setup
+### Issue 2: Unverified Assumption
+**Category:** Unverified Assumption
+**Description:** States "users probably want offline mode" without verification
+**Action Required:** Ask user if offline mode is required
 
-**Key Findings:**
-- League helper uses argparse with mode selection
-- Simulation already has iteration count parameter
-- Verbose logging infrastructure exists in utils/
-- No consistent debug flag pattern across scripts
-
-**Questions Identified:**
-- Should debug mode use existing verbose logging?
-- What iteration count is appropriate for debug runs?
+[Continue for all issues...]
 ```
 
 ---
 
-### Step C: Identify Questions
+### Step C: Fix ALL Issues Immediately
 
-**Question types to look for:**
+**CRITICAL: Zero Tolerance for Deferred Issues**
 
-| Type | Description | Example |
-|------|-------------|---------|
-| **Clarification** | Epic language is ambiguous | "What does 'easier' mean specifically?" |
-| **Scope** | Boundaries unclear | "All 4 modes or just specific ones?" |
-| **Preference** | Multiple valid approaches | "CLI flags or config file?" |
-| **Priority** | Trade-offs need input | "Speed or thoroughness for debug?" |
-| **Constraint** | Limits need verification | "Must work offline?" |
-| **External Dependencies** | Libraries/APIs needed | "Will we use ESPN API or another source?" "Are there known compatibility issues?" |
+For EACH issue identified in Step B, you MUST fix it BEFORE continuing to Step D.
 
-**For each question, document:**
-- The question itself
-- Why it matters (context)
-- What research triggered it
+**Fixing strategies by issue type:**
 
----
+1. **Missing Research** → Research now, document findings
+   - Use Grep/Glob to find files
+   - Use Read to examine code
+   - Document in DISCOVERY.md Technical Analysis
 
-### Step D: Ask User
+2. **Incomplete Sections** → Complete sections now
+   - Fill in TBD markers
+   - Add specific details
+   - Remove vague placeholders
 
-Present questions to user after each research iteration.
+3. **Unanswered Questions** → Ask user now, record answers
+   - Present questions to user
+   - Wait for answers
+   - Update DISCOVERY.md with answers
 
-**Format:**
+4. **Unverified Assumptions** → Verify now
+   - Ask user to confirm/reject assumption
+   - Replace "probably" with confirmed answer
+   - Document verification in Resolved Questions
+
+5. **Integration Gaps** → Analyze now
+   - Identify integration points
+   - Document dependencies
+   - Clarify data flow
+
+6. **Unclear Scope** → Define now
+   - Explicitly list in/out/deferred
+   - Document rationale for boundaries
+   - Get user confirmation if needed
+
+**Update DISCOVERY.md with fixes:**
 ```markdown
-## Discovery Iteration {N} - Questions
+## Round {N} Fixes Applied
 
-Based on my research, I have the following questions:
+### Fix 1: External Dependencies Researched
+**Issue:** Missing API research
+**Resolution:** Researched ESPN API (free, reliable) and Sleeper API (better data). Asked user, user prefers ESPN API.
+**Updated Section:** Technical Analysis - External Dependencies
 
-### Question 1: {Category}
-{Question text}
+### Fix 2: Verified Offline Requirement
+**Issue:** Unverified offline assumption
+**Resolution:** Asked user, confirmed offline mode NOT required (API calls acceptable)
+**Updated Section:** Resolved Questions #5
 
-**Context:** {Why this matters / what research raised this}
-
-**Options (if applicable):**
-- Option A: {description}
-- Option B: {description}
-
-### Question 2: {Category}
-{Question text}
-
-**Context:** {Why this matters}
-
----
-
-Please answer these questions so I can continue research.
-```
-
-**Guidelines:**
-- Batch related questions together
-- Provide context for why each question matters
-- Offer options when clear choices exist
-- Keep questions specific and actionable
-
----
-
-### Step E: Record Answers
-
-Update DISCOVERY.md with user answers:
-
-```markdown
-### Resolved Questions
-
-| # | Question | Answer | Impact | Resolved |
-|---|----------|--------|--------|----------|
-| 1 | What does "debugging version run" mean? | Fewer iterations + verbose output | Defines debug behavior | 2025-01-20 |
-| 2 | CLI flags or config file? | CLI flag preferred, config override nice | Design both mechanisms | 2025-01-20 |
-```
-
-Also update Discovery Log:
-```markdown
-| 2025-01-20 10:45 | User answered Q1-Q3 | Clarified debug behavior, preferred CLI approach |
+[Continue for all fixes...]
 ```
 
 ---
 
-### Step F: Check Exit Condition
+### Step D: Check Exit Condition
 
-**Update Clean Iteration Counter:**
+**Update Clean Round Counter:**
 
-1. **Check this iteration:** Did research produce ANY new questions?
-   - **YES (new questions found):** Counter = 0 (reset), continue loop
-   - **NO (no new questions):** Counter++ (increment), check counter value
+1. **Check this round:** Were ANY issues/gaps found in Step B?
+   - **YES (issues found):** Counter = 0 (reset after fixing all), continue loop
+   - **NO (zero issues):** Counter++ (increment), check counter value
 
 2. **Check counter value:**
-   - **Counter = 1:** First clean iteration, continue loop with fresh perspective
-   - **Counter = 2:** Second clean iteration, continue loop with fresh perspective
-   - **Counter = 3:** Third clean iteration, proceed to exit verification
+   - **Counter = 1:** First clean round, continue loop with fresh perspective
+   - **Counter = 2:** Second clean round, continue loop with fresh perspective
+   - **Counter = 3:** Third clean round, proceed to exit verification
 
 3. **If counter = 3, verify exit readiness:**
    ```markdown
-   ## Discovery Loop Exit Verification (After 3 Clean Iterations)
+   ## Consistency Loop Exit Verification (After 3 Clean Rounds)
 
-   [ ] 3 consecutive iterations produced no new questions
+   [ ] 3 consecutive rounds found zero issues/gaps
+   [ ] All sections of DISCOVERY.md complete
    [ ] All pending questions resolved
+   [ ] All assumptions verified
    [ ] Scope clearly defined (in/out/deferred documented)
-   [ ] Solution approach identified
-   [ ] Can articulate feature breakdown rationale
+   [ ] Solution approach identified with rationale
+   [ ] Feature breakdown ready with Discovery basis
 
    If any unchecked --> Reset counter to 0, continue loop
    If all checked --> Proceed to S1.P3.3 Synthesis
    ```
 
-**Document counter in DISCOVERY.md:**
+**Document round in DISCOVERY.md:**
 ```markdown
-### Iteration {N} ({YYYY-MM-DD HH:MM})
+## Consistency Loop Round {N} ({YYYY-MM-DD HH:MM})
 
-**Researched:** {What was investigated}
-**Clean Iteration Counter:** {0, 1, 2, or 3}
-**New Questions:** {YES/NO}
+**Reading Pattern:** {Sequential | Reverse | Random spot-check | Thematic clustering}
+**Issues Found:** {Number}
+**Clean Round Counter:** {0, 1, 2, or 3}
 
-[Rest of iteration details...]
+[Issues and fixes documented above...]
 ```
 
-**Why 3 consecutive clean iterations:**
-- Iteration 1 (clean): Might have missed edge cases
-- Iteration 2 (clean): Might have missed integration concerns
-- Iteration 3 (clean): High confidence - ready to synthesize
+**Why 3 consecutive clean rounds:**
+- Round 1 (clean): Might have missed subtle gaps
+- Round 2 (clean): Might have missed consistency issues
+- Round 3 (clean): High confidence - document is complete
 
 **Continue loop (counter < 3) if:**
-- New questions emerged from research (reset counter)
-- Research revealed new unknowns (reset counter)
-- Counter = 1 or 2 (need more clean iterations)
-- Scope still unclear (reset counter)
-- Solution approach not determined (reset counter)
+- ANY issues/gaps found (reset counter after fixing)
+- Counter = 1 or 2 (need more clean rounds)
+- Exit verification checklist has unchecked items
 
 **Exit loop (counter = 3) when:**
-- 3 consecutive iterations produced NO new questions
-- Scope is well-defined
-- Solution approach is clear
-- Ready to propose feature breakdown
+- 3 consecutive rounds found ZERO issues/gaps
+- Exit verification checklist all checked
+- DISCOVERY.md is complete and validated
 
 ---
 
@@ -766,9 +770,10 @@ User approved recommended approach. Confirmed 4-feature breakdown is correct.
 
 ```
 [ ] DISCOVERY.md created with all sections populated
-[ ] Discovery Loop exited (3 consecutive iterations produced no new questions)
-[ ] Clean iteration counter reached 3
+[ ] Consistency Loop exited (3 consecutive rounds found zero issues/gaps)
+[ ] Clean round counter reached 3
 [ ] All pending questions resolved
+[ ] All assumptions verified
 [ ] Solution options documented with comparison
 [ ] Recommended approach documented with rationale
 [ ] Scope defined (in/out/deferred)
@@ -790,32 +795,38 @@ User approved recommended approach. Confirmed 4-feature breakdown is correct.
 X "This epic seems clear, I'll skip Discovery"
   --> STOP - Discovery is MANDATORY for every epic
 
-X "I'll just ask all questions at once to save time"
-  --> STOP - Questions emerge from research; ask after each iteration
+X "I'll defer these issues and fix them later"
+  --> STOP - Consistency Loop has ZERO TOLERANCE for deferred issues
 
 X "I know the answer, don't need to ask user"
-  --> STOP - User answers all scope/preference questions
+  --> STOP - User answers all scope/preference/assumption questions
 
 X "I'll create feature folders now and update Discovery later"
   --> STOP - Feature folders created AFTER Discovery approval
 
-X "No more questions, but I haven't researched component X"
-  --> STOP - Ensure thorough research before declaring no questions
+X "No issues found, but I haven't checked assumptions"
+  --> STOP - Assumptions count as issues until verified
 
 X "User approved, but I want to add one more feature"
   --> STOP - Feature breakdown is what user approved
 
-X "I'll update DISCOVERY.md later with answers"
-  --> STOP - Update immediately after each Q&A round
+X "I'll update DISCOVERY.md later with fixes"
+  --> STOP - Fix ALL issues immediately in current round
 
-X "One iteration with no questions, I'm done with Discovery"
-  --> STOP - Need 3 CONSECUTIVE clean iterations, not just one
+X "One clean round with no issues, I'm done with Discovery"
+  --> STOP - Need 3 CONSECUTIVE clean rounds, not just one
 
-X "I've re-read this code before, I'll skip re-reading"
-  --> STOP - MUST re-read with fresh perspective each iteration
+X "I've re-read DISCOVERY.md before, I'll skip re-reading"
+  --> STOP - MUST re-read completely with fresh perspective each round
 
 X "Counter is at 2, close enough to 3"
   --> STOP - Must reach exactly 3, no rounding
+
+X "This section is 'good enough', I'll mark it complete"
+  --> STOP - Good enough = incomplete = issue found = counter reset
+
+X "I found 5 issues, I'll fix 3 now and 2 later"
+  --> STOP - Fix ALL issues before proceeding (zero deferred issues)
 ```
 
 ---
@@ -830,47 +841,51 @@ X "Counter is at 2, close enough to 3"
 
 **REQUIRED ACTIONS:**
 1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
-2. [ ] Verify DISCOVERY.md created with initial questions
-3. [ ] Verify time-box set based on epic size (SMALL: 1-2hrs, MEDIUM: 2-3hrs, LARGE: 3-4hrs)
-4. [ ] Update EPIC_README.md Agent Status:
-   - Current Step: "S1.P3.1 complete, starting S1.P3.2 Discovery Loop"
+2. [ ] Use Read tool to re-read `reference/consistency_loop_discovery.md` (context variant)
+3. [ ] Verify DISCOVERY.md created with initial research documented
+4. [ ] Verify initial questions asked and answered by user
+5. [ ] Verify time-box set based on epic size (SMALL: 1-2hrs, MEDIUM: 2-3hrs, LARGE: 3-4hrs)
+6. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1.P3.1 complete, starting S1.P3.2 Consistency Loop Round 1"
    - Last Updated: [timestamp]
-5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules, verified DISCOVERY.md initialized"
+7. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and consistency_loop_discovery.md, verified DISCOVERY.md drafted"
 
 **Why this checkpoint exists:**
-- Critical Rules define Discovery exit condition and investigation scope
-- 80% of agents forget exit condition and loop indefinitely
-- 30 seconds now prevents hours of wasted discovery loops
+- Critical Rules define Consistency Loop exit condition (3 consecutive clean rounds)
+- consistency_loop_discovery.md defines reading patterns and issue categories
+- 80% of agents forget to re-read with fresh perspective each round
+- 30 seconds now prevents hours of wasted validation rounds
 
-**ONLY after completing ALL 5 actions above, proceed to S1.P3.2 (Discovery Loop)**
+**ONLY after completing ALL 7 actions above, proceed to S1.P3.2 (Consistency Loop)**
 
 ---
 
 ## 🛑 MANDATORY CHECKPOINT 2
 
-**You have completed one Discovery Loop iteration**
+**You have completed one Consistency Loop round**
 
-⚠️ STOP - DO NOT PROCEED TO NEXT ITERATION YET
+⚠️ STOP - DO NOT PROCEED TO NEXT ROUND YET
 
 **REQUIRED ACTIONS:**
-1. [ ] Use Read tool to re-read "Discovery Loop" section of this guide
-2. [ ] Verify findings documented in DISCOVERY.md
-3. [ ] Verify questions asked and answers recorded in DISCOVERY.md (or marked NO if no questions)
-4. [ ] Update clean iteration counter:
-   - New questions found? → Counter = 0
-   - No new questions? → Counter++
+1. [ ] Use Read tool to re-read "Consistency Loop Validation" section of this guide
+2. [ ] Verify all issues/gaps documented in DISCOVERY.md
+3. [ ] Verify ALL issues/gaps fixed (not deferred) - zero tolerance policy
+4. [ ] Update clean round counter:
+   - Issues/gaps found? → Counter = 0 (reset after fixing all)
+   - Zero issues/gaps? → Counter++
 5. [ ] Check counter value: Counter < 3 = continue loop, Counter = 3 = verify exit readiness
 6. [ ] Update EPIC_README.md Agent Status:
-   - Current Step: "S1.P3.2 iteration N complete, clean counter = {X}, [continuing loop OR proceeding to S1.P3.3]"
+   - Current Step: "S1.P3.2 Round N complete, clean counter = {X}, [continuing loop OR proceeding to S1.P3.3]"
    - Last Updated: [timestamp]
-7. [ ] Output acknowledgment: "✅ CHECKPOINT 2 COMPLETE: Re-read Discovery Loop, documented findings, counter = {X}"
+7. [ ] Output acknowledgment: "✅ CHECKPOINT 2 COMPLETE: Re-read Consistency Loop section, verified all issues fixed, counter = {X}"
 
 **Why this checkpoint exists:**
-- Discovery Loop requires 3 CONSECUTIVE clean iterations
-- 75% of agents exit after first clean iteration (premature)
-- Premature exit causes incomplete discovery and rework in S2
+- Consistency Loop requires 3 CONSECUTIVE clean rounds
+- 75% of agents exit after first clean round (premature)
+- 60% of agents defer issues instead of fixing immediately
+- Premature exit or deferred issues cause incomplete discovery and rework in S2
 
-**ONLY after completing ALL 7 actions above, proceed to next iteration OR S1.P3.3**
+**ONLY after completing ALL 7 actions above, proceed to next round OR S1.P3.3**
 
 ---
 
@@ -882,24 +897,29 @@ X "Counter is at 2, close enough to 3"
 
 **REQUIRED ACTIONS:**
 1. [ ] Use Read tool to re-read "Synthesize Findings" section of this guide
-2. [ ] Verify all sections of DISCOVERY.md complete:
+2. [ ] Verify Consistency Loop exited cleanly (counter = 3, zero issues in last 3 rounds)
+3. [ ] Verify all sections of DISCOVERY.md complete:
    - [ ] Executive Summary
    - [ ] Key Findings
    - [ ] Technical Analysis
+   - [ ] Solution Options with comparison
+   - [ ] Recommended Approach with rationale
+   - [ ] Scope Definition (in/out/deferred)
    - [ ] Recommended Feature Breakdown
-   - [ ] Open Questions
-3. [ ] Verify feature breakdown has Discovery basis for each feature
-4. [ ] Update EPIC_README.md Agent Status:
+   - [ ] All Open Questions resolved
+4. [ ] Verify feature breakdown has Discovery basis for each feature
+5. [ ] Update EPIC_README.md Agent Status:
    - Current Step: "S1.P3.3 complete, requesting user approval in S1.P3.4"
    - Last Updated: [timestamp]
-5. [ ] Output acknowledgment: "✅ CHECKPOINT 3 COMPLETE: Re-read Synthesize section, verified DISCOVERY.md complete"
+6. [ ] Output acknowledgment: "✅ CHECKPOINT 3 COMPLETE: Re-read Synthesize section, verified Consistency Loop exited cleanly, DISCOVERY.md complete"
 
 **Why this checkpoint exists:**
 - DISCOVERY.md must be complete before user approval
+- Consistency Loop must exit cleanly (not prematurely)
 - 90% of agents miss at least one required section
 - Incomplete DISCOVERY causes user confusion and delays approval
 
-**ONLY after completing ALL 5 actions above, proceed to S1.P3.4 (User Approval)**
+**ONLY after completing ALL 6 actions above, proceed to S1.P3.4 (User Approval)**
 
 ---
 

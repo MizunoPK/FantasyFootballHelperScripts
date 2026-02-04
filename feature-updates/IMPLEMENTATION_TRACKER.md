@@ -11,12 +11,12 @@
 
 ## Quick Status
 
-**Current Phase:** Phase 3 - Stage Updates
+**Current Phase:** Phase 4 - Refinements
 **Overall Progress:** 7/10 proposals complete (70%)
 **Phase 1:** 2/2 complete (COMPLETE)
 **Phase 2:** 3/3 complete (COMPLETE)
-**Phase 3:** 2/2 complete (COMPLETE - Ready for commit)
-**Phase 4:** 0/3 complete
+**Phase 3:** 2/2 complete (COMPLETE)
+**Phase 4:** 0/3 complete (IN PROGRESS)
 
 ---
 
@@ -234,26 +234,34 @@
 
 ## Phase 4: Refinements (3-5 hours)
 
-**Status:** ⏸️ Not Started (Ready to begin)
-**Started:** -
+**Status:** 🔄 IN PROGRESS
+**Started:** 2026-02-04
 **Completed:** -
 **Git Commit:** -
 
 ### Proposal 3: S1 Discovery Phase Update (1h)
-- **Status:** ⏸️ Not Started
+- **Status:** ✅ COMPLETE
 - **Priority:** MEDIUM
 - **Dependencies:** Proposals 1, 2 complete
-- **Files to Modify:**
-  - [ ] `stages/s1/s1_p3_discovery_phase.md`
+- **Files Modified:**
+  - [x] `stages/s1/s1_p3_discovery_phase.md`
 - **Key Content:**
-  - [ ] Add Consistency Loop to Discovery Phase
-  - [ ] Reference consistency_loop_discovery.md variant
-  - [ ] Update time boxes for Consistency Loop iterations
+  - [x] Added Consistency Loop to Discovery Phase (S1.P3.2)
+  - [x] Referenced consistency_loop_discovery.md variant
+  - [x] Updated exit criteria from "no new questions" to "zero issues/gaps"
+  - [x] Updated Critical Rules with Consistency Loop requirements
+  - [x] Updated workflow diagram to show Consistency Loop structure
+  - [x] Updated S1.P3.1 to include initial research (before Consistency Loop)
+  - [x] Updated S1.P3.2 with 4-step round structure (Re-read, Identify Issues, Fix All, Check Exit)
+  - [x] Updated all 3 checkpoints to reference Consistency Loop
+  - [x] Updated Common Mistakes to include "deferred issues" anti-pattern
+  - [x] Updated completion criteria
 - **Completion Criteria:**
-  - [ ] Consistency Loop added to S1.P3
-  - [ ] References correct context variant
-  - [ ] Discovery Phase updated
-- **Notes:** Minor update to S1
+  - [x] Consistency Loop added to S1.P3
+  - [x] References correct context variant
+  - [x] Discovery Phase updated with all terminology changes
+- **Completed:** 2026-02-04
+- **Notes:** Discovery Phase now uses Consistency Loop validation with "issues/gaps" approach instead of "no new questions" approach
 
 ### Proposal 8: S7/S9 QC Updates (1-2h)
 - **Status:** ⏸️ Not Started
