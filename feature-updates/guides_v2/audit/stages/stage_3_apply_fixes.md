@@ -390,10 +390,175 @@ git restore file1.md file2.md file3.md
 
 ---
 
+## File Size Reduction (MANDATORY STEP)
+
+### When to Perform
+
+**AFTER all content accuracy fixes** (P0-P3 groups) are complete and verified.
+
+**BEFORE proceeding to Stage 4 Verification.**
+
+### Why This is Mandatory
+
+**User Directive:** "The point of it is to ensure that agents are able to effectively read and process the guides as they are executing them. I want to ensure that agents have no barriers in their way toward completing their task, or anything that would cause them to incorrectly complete their task."
+
+**File size issues are NOT deferred** - they are first-class fixes that MUST be addressed before audit completion.
+
+### The File Size Reduction Process
+
+**Overview:**
+1. Check if pre-audit script flagged any large files
+2. For each flagged file, evaluate and reduce
+3. Validate all reductions
+4. Verify file size compliance
+
+### Step 1: Identify Files Requiring Reduction
+
+**From pre-audit script output or discovery report:**
+
+```bash
+# Files flagged by pre-audit script:
+❌ POLICY VIOLATION: CLAUDE.md (45786 chars) exceeds 40,000
+❌ TOO LARGE: stages/s5/s5_p1_planning_round1.md (1200 lines)
+⚠️  LARGE: stages/s1/s1_epic_planning.md (650 lines)
+```
+
+**Priority order:**
+1. **P1:** CLAUDE.md if exceeds 40,000 chars (CRITICAL - policy violation)
+2. **P1:** Files >1000 lines (CRITICAL - too large)
+3. **P2:** Files 800-1000 lines (HIGH - large, consider split)
+4. **P3:** Files 600-800 lines (MEDIUM - evaluate, may not need reduction)
+
+### Step 2: For Each Large File, Apply Reduction Strategy
+
+**🚨 READ FIRST:** `reference/file_size_reduction_guide.md`
+
+The file size reduction guide provides:
+- Evaluation framework (when to split vs keep)
+- Reduction strategies (extract to sub-guides, reference files, consolidate, etc.)
+- CLAUDE.md reduction protocol
+- Workflow guide reduction protocol
+- Validation checklist
+
+**For EACH large file:**
+
+1. **Read reduction guide section** relevant to file type:
+   - CLAUDE.md → "CLAUDE.md Reduction Protocol"
+   - Workflow guides → "Workflow Guide Reduction Protocol"
+
+2. **Evaluate file** using framework:
+   - Purpose analysis (what is this file for?)
+   - Content analysis (natural subdivisions? duplicate content?)
+   - Usage analysis (how do agents use this?)
+   - Reduction potential (can we split without harming usability?)
+
+3. **Choose reduction strategy:**
+   - Extract to sub-guides (preferred for workflow guides >600 lines)
+   - Extract to reference files (preferred for CLAUDE.md)
+   - Consolidate redundant content
+   - Move detailed examples to appendices
+
+4. **Execute reduction:**
+   - Create target files (if extracting content)
+   - Move content to target files
+   - Update original file (shorten or convert to router)
+   - Update ALL cross-references
+
+5. **Verify reduction:**
+   - File now within size limits
+   - No information lost
+   - Cross-references valid
+   - Agent usability maintained
+
+### Step 3: Validate ALL File Size Reductions
+
+**After ALL large files addressed, verify:**
+
+#### File Size Compliance
+```bash
+# Check CLAUDE.md
+wc -c ../../CLAUDE.md
+# Must be ≤40,000 characters
+
+# Check workflow guides
+for file in $(find stages -name "*.md"); do
+  lines=$(wc -l < "$file")
+  if [ $lines -gt 1000 ]; then
+    echo "❌ TOO LARGE: $file ($lines lines)"
+  fi
+done
+# Should return zero results
+```
+
+#### Cross-Reference Accuracy
+- [ ] All links to extracted content valid (no broken links)
+- [ ] All file path references updated in CLAUDE.md
+- [ ] All file path references updated in README.md
+- [ ] All file path references updated in templates
+- [ ] All cross-guide references updated
+
+#### Agent Usability
+- [ ] Can agent quickly find critical rules? (test with CLAUDE.md)
+- [ ] Is workflow clear despite splits? (test with split guides)
+- [ ] Are detailed examples accessible when needed?
+- [ ] Router files provide clear navigation?
+
+#### Re-Run Pre-Audit Script
+```bash
+bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh
+```
+
+**Expected output:**
+```
+✅ PASS: CLAUDE.md (39,500 chars) within 40,000 character limit
+✅ All files within size limits
+```
+
+**If ANY failures:**
+- Address immediately
+- Do NOT proceed to exit criteria
+- Do NOT defer file size issues
+
+### Step 4: Document File Size Reductions
+
+**In discovery/fix report, document each reduction:**
+
+```markdown
+## File Size Reduction: [file_name]
+
+**Before:** X lines / X chars
+**After:** Y lines / Y chars
+**Reduction:** Z% decrease
+
+**Strategy:** Extract to sub-guides / reference files / consolidate / etc.
+
+**Files Created:**
+- [list new files created]
+
+**Cross-References Updated:**
+- [list files with updated references]
+
+**Validation:**
+- [x] File size within limits
+- [x] No information lost
+- [x] Cross-references valid
+- [x] Agent usability maintained
+```
+
+### Critical Rules
+
+**❌ DO NOT defer file size issues** - They are first-class fixes
+**❌ DO NOT skip file size reduction** - It's mandatory, not optional
+**❌ DO NOT proceed to Stage 4** - Until ALL file size issues resolved
+**✅ DO treat file size like content accuracy** - Same rigor, same verification
+
+---
+
 ## Exit Criteria
 
 ### Stage 3 Complete When ALL These Are True
 
+**Content Accuracy Fixes:**
 - [ ] All P0 (Critical) groups fixed and verified
 - [ ] All P1 (High) groups fixed and verified
 - [ ] All P2 (Medium) groups fixed and verified
@@ -402,6 +567,19 @@ git restore file1.md file2.md file3.md
 - [ ] Before/after documented for each group
 - [ ] Manual fixes completed and verified
 - [ ] No verification failures remaining
+
+**File Size Reduction (MANDATORY):**
+- [ ] ALL large files identified from pre-audit script
+- [ ] CLAUDE.md ≤ 40,000 characters (if applicable)
+- [ ] All workflow guides ≤ 1000 lines (preferably ≤ 600)
+- [ ] File size reduction guide consulted for each large file
+- [ ] Reduction strategy applied for each large file
+- [ ] All cross-references updated after reductions
+- [ ] Validation checklist 100% complete (see file size reduction guide)
+- [ ] Pre-audit script re-run shows PASS for all file size checks
+- [ ] No file size issues deferred
+
+**Final Checks:**
 - [ ] Git diff reviewed (sanity check all changes)
 - [ ] Ready to proceed to Stage 4 (Comprehensive Verification)
 

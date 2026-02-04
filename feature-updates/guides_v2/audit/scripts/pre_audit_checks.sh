@@ -64,6 +64,35 @@ echo "Files 600-1000 lines: $LARGE"
 echo ""
 
 # ============================================================================
+# CHECK 1b: Policy Compliance - CLAUDE.md Character Limit (D10)
+# ============================================================================
+
+echo -e "${BLUE}=== Policy Compliance Check ===${NC}"
+echo ""
+
+# Check CLAUDE.md size
+claude_md="../../CLAUDE.md"
+if [ -f "$claude_md" ]; then
+    claude_size=$(wc -c < "$claude_md")
+    if [ $claude_size -gt 40000 ]; then
+        echo -e "${RED}❌ POLICY VIOLATION:${NC} CLAUDE.md ($claude_size chars) exceeds 40,000 character limit"
+        echo "   Overage: $((claude_size - 40000)) characters"
+        echo "   Reason: Large files create barriers for agent comprehension"
+        echo "   Action: Extract ~$((claude_size - 40000)) characters to separate files"
+        ((CRITICAL_ISSUES++))
+        ((TOTAL_ISSUES++))
+    else
+        echo -e "${GREEN}✅ PASS:${NC} CLAUDE.md ($claude_size chars) within 40,000 character limit"
+    fi
+else
+    echo -e "${YELLOW}⚠️  WARNING:${NC} CLAUDE.md not found at expected location"
+    ((WARNING_ISSUES++))
+    ((TOTAL_ISSUES++))
+fi
+
+echo ""
+
+# ============================================================================
 # CHECK 2: Structure Validation (D11)
 # ============================================================================
 

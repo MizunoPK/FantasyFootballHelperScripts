@@ -81,9 +81,9 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 ## S5 Lessons Learned
 
 **What Went Well:**
-- 28 verification iterations caught interface mismatches before implementation
+- 22 verification iterations caught interface mismatches before implementation
 - Iteration 4a audit revealed ambiguous spec sections
-- Iteration 23a spec audit prevented wrong implementation approach
+- Iteration 20 spec audit prevented wrong implementation approach
 
 **What Could Be Improved:**
 - Round 2 test coverage iterations could include integration test examples
@@ -159,7 +159,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 **What Went Well:**
 - Algorithm traceability matrix revealed missing validation step
-- Iteration 23a caught spec ambiguity about ADP missing data
+- Iteration 20 caught spec ambiguity about ADP missing data
 
 **What Could Be Improved:**
 - None - S5 worked well
@@ -240,7 +240,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 ## S5: TODO Creation
 
 **What Went Well:**
-- 28 iterations ensured fix didn't introduce new bugs
+- 22 iterations ensured fix didn't introduce new bugs
 - Test coverage included edge cases (zero denominator)
 
 **What Could Be Improved:**

@@ -144,7 +144,7 @@ This document captures:
 **S5 (TODO Creation):**
 - What went well: {Observation}
 - What could improve: {Improvement}
-- 28 iterations experience: {Any issues with specific iterations}
+- 22 iterations experience: {Any issues with specific iterations}
 
 **S6 (Implementation):**
 - What went well: {Observation}

@@ -53,7 +53,7 @@ I'm reading `stages/s5/s5_bugfix_workflow.md` to ensure I follow the bug fix wor
   - Save current work state in README
 - PHASE 2: Bug Fix Implementation
   - S2: Deep Dive (adapted for bug fix)
-  - S5: TODO Creation (28 iterations)
+  - S5: TODO Creation (22 iterations)
   - S6: Implementation
   - S7: Post-Implementation
   - SKIP: S1, S3, S4, S8, S9, S10 (epic-level stages)

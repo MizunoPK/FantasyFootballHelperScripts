@@ -156,7 +156,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 | Lesson Type | Typical Guide(s) Updated | Count |
 |-------------|--------------------------|-------|
-| Spec misinterpretation | 5.1.3.3_round3_part2b.md (Iteration 25) | {N} |
+| Spec misinterpretation | 5.1.3.3_round3_part2b.md (Iteration 21) | {N} |
 | Interface verification missed | s5_p1_planning_round1.md (Iteration 2) | {N} |
 | Algorithm traceability incomplete | s5_p1_planning_round1.md (Iteration 4) | {N} |
 | Integration gap not identified | s5_p1_planning_round1.md (Iteration 7) | {N} |
@@ -221,10 +221,10 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 **Epic:** KAI-1-improve_draft_helper
 **Priority:** P0
-**Lesson:** "Iteration 25 (Spec Validation Against Validated Documents) caught that spec.md misinterpreted epic notes about week_N+1 folder logic. Epic said 'create week folders' but spec said 'no code changes needed for folders.' Gate prevented week+ of rework."
+**Lesson:** "Iteration 21 (Spec Validation Against Validated Documents) caught that spec.md misinterpreted epic notes about week_N+1 folder logic. Epic said 'create week folders' but spec said 'no code changes needed for folders.' Gate prevented week+ of rework."
 **Guide Updated:** `reference/mandatory_gates.md`
 **Changes Made:**
-- Added historical context to Gate 3 (Iteration 25)
+- Added historical context to Gate 3 (Iteration 21)
 - Emphasized importance of three-way comparison (epic notes, epic ticket, spec summary)
 - Added example of spec misinterpretation caught by this gate
 **Date Applied:** 2026-01-10

@@ -490,7 +490,7 @@ I've created an epic ticket to validate my understanding of the epic's goals and
 2. Epic ticket is now **immutable reference** (like epic notes)
 3. Proceed to Step 5
 
-**Critical:** Epic ticket becomes source of truth for outcomes. During Iteration 25 (S5.P3.I3), spec.md will be validated against both epic notes AND epic ticket.
+**Critical:** Epic ticket becomes source of truth for outcomes. During Iteration 21 (S5.P3.I3), spec.md will be validated against both epic notes AND epic ticket.
 
 ---
 

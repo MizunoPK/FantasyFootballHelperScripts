@@ -178,161 +178,39 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 
 ## Stage Workflows Quick Reference
 
-**S1: Epic Planning**
-- **Trigger:** "Help me develop {epic-name}"
-- **First Action:** Use "Starting S1" prompt
-- **Guide:** `stages/s1/s1_epic_planning.md`
-- **Actions:** Assign KAI number, create git branch, analyze epic, **Discovery Phase (MANDATORY)**, create folder structure
+**🚨 READ THE FULL GUIDE** before starting each stage - this is navigation only.
 
-⚠️ **CRITICAL: S1 HAS 6 PHASES (NOT 5 STEPS)**
+| Stage | Trigger | Guide | Key Actions | Next |
+|-------|---------|-------|-------------|------|
+| **S1** | "Help me develop {epic}" | `stages/s1/s1_epic_planning.md` | KAI number, git branch, **Discovery Phase (MANDATORY)**, folder structure | S2 |
+| **S2** | Complete S1 | `stages/s2/s2_feature_deep_dive.md` | spec.md, checklist.md, RESEARCH_NOTES.md (Gate 3: User approval) | S3 |
+| **S3** | All features done S2 | `stages/s3/s3_epic_planning_approval.md` | Epic testing strategy, documentation (Gate 4.5: User approval) | S4 |
+| **S4** | S3 approved | `stages/s4/s4_feature_testing_strategy.md` | test_strategy.md (4 iterations, Consistency Loop) | S5 |
+| **S5** | S4 complete | `stages/s5/s5_p1_planning_round1.md` | implementation_plan.md (22 iterations, 3 rounds, Gate 5: User approval) | S6 |
+| **S6** | S5 approved | `stages/s6/s6_execution.md` | implementation_checklist.md, implement code | S7 |
+| **S7** | S6 complete | `stages/s7/s7_p1_smoke_testing.md` | Smoke test, 3 QC rounds, commit feature | S8 |
+| **S8** | S7 complete | `stages/s8/s8_p1_cross_feature_alignment.md` | Update remaining specs, update epic testing plan | S5 (next) or S9 |
+| **S9** | All features done | `stages/s9/s9_epic_final_qc.md` | Epic smoke test, 3 QC rounds, user testing (ZERO bugs required) | S10 |
+| **S10** | S9 passed | `stages/s10/s10_epic_cleanup.md` | Unit tests (100% pass), guide updates (S10.P1 MANDATORY), PR | Done |
 
-**S1 Phase Structure:**
-- S1.P1: Initial Setup (Steps 1.0-1.4)
-- S1.P2: Epic Analysis (Step 2)
-- **S1.P3: DISCOVERY PHASE (Step 3)** ← MANDATORY, CANNOT SKIP
-- S1.P4: Feature Breakdown Proposal (Step 4)
-- S1.P5: Epic Structure Creation (Step 5)
-- S1.P6: Transition to S2 (Step 6)
+**Critical Workflows:**
+- **S1.P3 Discovery Phase:** MANDATORY for ALL epics - research loop until 3 consecutive iterations with no new questions
+- **S5 Structure:** 22 iterations across 3 rounds (Round 1: I1-I7, Round 2: I8-I13, Round 3: I14-I22)
+- **🚨 RESTART PROTOCOL:** S7/S9 - If ANY issues found → Restart from phase beginning (S7.P1 or S9.P1)
 
-**You CANNOT skip S1.P3 Discovery Phase:**
-- Must create DISCOVERY.md before feature breakdown
-- Must get user approval before creating feature folders
-- Feature specs will reference DISCOVERY.md findings
-- S2.P1 Phase 0 requires DISCOVERY.md to exist
+**Phase Transition Prompts:** `feature-updates/guides_v2/prompts_reference_v2.md` (MANDATORY)
 
-**Discovery Phase (S1.P3):**
-- Guide: `stages/s1/s1_p3_discovery_phase.md`
-- Output: DISCOVERY.md (epic-level source of truth)
-- Time-Box: SMALL 1-2hrs, MEDIUM 2-3hrs, LARGE 3-4hrs
-- Feature folders NOT created until Discovery approved
-- Iterative research and Q&A loop until 3 consecutive iterations with no new questions
-- Re-read code/requirements with fresh perspective each iteration
-
-**Historical failure:** KAI-7 agent skipped S1.P3 entirely, blocked 8 secondary agents for 4 hours.
-
-- **Next:** S2
-
-**S2: Feature Planning** (Loop through ALL features)
-- **First Action:** Use "Starting S2" prompt
-- **Guide:** `stages/s2/s2_feature_deep_dive.md` (router to phases)
-- **Phases:**
-  - S2.P1: Spec Creation and Refinement (3 iterations, 2.25-4 hours)
-    - S2.P1.I1: Feature-Level Discovery (60-90 min) - Embeds Gate 1
-    - S2.P1.I2: Checklist Resolution (45-90 min) - 9-step protocol
-    - S2.P1.I3: Refinement & Alignment (30-60 min) - Embeds Gate 2, includes Gate 3
-  - S2.P2: Cross-Feature Alignment (20-60 min) - Primary agent only, pairwise comparison
-- **Key Outputs:** spec.md, checklist.md (QUESTIONS ONLY - agents CANNOT mark [x] autonomously), RESEARCH_NOTES.md (REQUIRED)
-- **Consistency Loops:** S2.P1.I1 (embeds Gate 1), S2.P1.I3 (embeds Gate 2), S2.P2 (alignment validation)
-- **Gate 3:** User Checklist Approval (explicit, including acceptance criteria) in S2.P1.I3
-- **Next:** S3 (after ALL features in all groups)
-
-**S3: Epic-Level Documentation, Testing Plans, and Approval**
-- **First Action:** Use "Starting S3" prompt
-- **Guide:** `stages/s3/s3_epic_planning_approval.md`
-- **Phases:**
-  - S3.P1: Epic Testing Strategy Development (45-60 min) - Epic-level integration tests
-  - S3.P2: Epic Documentation Refinement (20-30 min)
-  - S3.P3: Epic Plan Approval (10-15 min) - Gate 4.5 with 3-tier rejection
-- **Key Changes:** Pairwise comparison moved to S2.P2, old S4 content moved here
-- **Consistency Loops:** S3.P1 (testing strategy), S3.P2 (documentation)
-- **Gate 4.5:** User approves epic plan (MANDATORY, 3-tier rejection handling)
-- **Next:** S4 (first feature)
-
-**S4: Feature Testing Strategy** (NEW STAGE)
-- **First Action:** Use "Starting S4" prompt
-- **Guide:** `stages/s4/s4_feature_testing_strategy.md` (router to 4 iterations)
-- **Purpose:** Test-driven development - plan tests BEFORE implementation
-- **Iterations:**
-  - S4.I1: Test Strategy Development (15-20 min) - Unit, integration, edge tests
-  - S4.I2: Edge Case Enumeration (10-15 min) - Boundary conditions, error paths
-  - S4.I3: Configuration Change Impact (10-15 min) - Config test matrix
-  - S4.I4: Consistency Loop (15-20 min) - Validate test strategy completeness
-- **Key Output:** test_strategy.md (>90% coverage goal, merged into implementation_plan.md in S5.P1.I1)
-- **Time:** 45-60 minutes per feature
-- **Next:** S5 (Implementation Planning)
-
-**S5-S8: Feature Loop** (Repeat for each feature)
-
-**S5: Implementation Planning** (22 iterations, 3 rounds)
-- **First Action:** Use "Starting S5 Round 1/2/3" prompt
-- **🚨 CRITICAL:** Execute iterations ONE at a time, IN ORDER (no batching, no skipping)
-- **Key Change:** Testing iterations (old I8-I10) moved to S4, remaining iterations renumbered sequentially
-- **Guides:**
-  - Round 1: `stages/s5/s5_p1_planning_round1.md` (router to I1-I3)
-    - S5.P1.I1: `stages/s5/s5_p1_i1_requirements.md` (I1-I3) - Merges test_strategy.md from S4
-    - S5.P1.I2: `stages/s5/s5_p1_i2_algorithms.md` (I4-I6 + Gate 4a)
-    - S5.P1.I3: `stages/s5/s5_p1_i3_integration.md` (I7 + Gate 7a)
-    - **Consistency Loop:** Added at end of Round 1 (validates Gates 4a, 7a)
-  - Round 2: `stages/s5/s5_p2_planning_round2.md` (router, I8-I13)
-    - S5.P2.I1: Verification iterations (I8-I9, formerly I11-I12)
-    - S5.P2.I2: Reverification (I10-I13, formerly I13-I16)
-  - Round 3: `stages/s5/s5_p3_planning_round3.md` (router, I14-I22)
-    - S5.P3.I1: `stages/s5/s5_p3_i1_preparation.md` (I14-I19, formerly I17-I22)
-    - **Consistency Loop:** Added before Gate 23a (validates complete plan)
-    - S5.P3.I2: `stages/s5/s5_p3_i2_gates_part1.md` (I20 - Gate 23a: Pre-Implementation Spec Audit)
-    - S5.P3.I3: `stages/s5/s5_p3_i3_gates_part2.md` (I21-I22 - Gate 25 + Gate 24: GO/NO-GO)
-- **Output:** implementation_plan.md (~400 lines) - PRIMARY reference (includes merged test strategy from S4)
-- **Gate 5:** User approves implementation plan (MANDATORY, 3-tier rejection handling)
-- **Next:** S6
-
-**S6: Implementation Execution**
-- **First Action:** Use "Starting S6" prompt
-- **Guide:** `stages/s6/s6_execution.md`
-- **Actions:** Create implementation_checklist.md, implement from implementation_plan.md
-- **Key Principle:** implementation_plan.md = HOW to build (primary), spec.md = WHAT to build (verify)
-- **Next:** S7
-
-**S7: Implementation Testing & Review** (3 phases + commit)
-- **First Action:** Use "Starting S7.P1 Smoke Testing" prompt
-- **🚨 RESTART PROTOCOL:** If ANY issues found → Restart from S7.P1 (NOT mid-QC)
-- **Guides:**
-  - S7.P1: `stages/s7/s7_p1_smoke_testing.md` (MANDATORY GATE - if issues → enter debugging, fix, restart S7.P1)
-  - S7.P2: `stages/s7/s7_p2_qc_rounds.md` (3 QC rounds - if issues → enter debugging, fix, restart S7.P1)
-  - S7.P3: `stages/s7/s7_p3_final_review.md` (PR review, lessons learned)
-- **After S7.P3:** COMMIT FEATURE (feature-level commit)
-- **Next:** S8
-
-**S8: Post-Feature Alignment** (2 phases)
-- **First Action:** Use "Starting S8.P1" prompt
-- **Guides:**
-  - S8.P1: `stages/s8/s8_p1_cross_feature_alignment.md` (Update remaining feature specs)
-  - S8.P2: `stages/s8/s8_p2_epic_testing_update.md` (Reassess epic_smoke_test_plan.md)
-- **Actions:** Update remaining feature specs and epic testing plan based on completed feature
-- **Next:** Repeat S5 for next feature OR S9 (if all features done)
-
-**S9: Epic-Level Final QC**
-- **First Action:** Use "Starting S9" prompt
-- **🚨 RESTART PROTOCOL:** If ANY issues found → Restart from S9.P1 (NOT mid-QC)
-- **Guide:** `stages/s9/s9_epic_final_qc.md` (router to phases)
-- **Phases:**
-  - S9.P1: `stages/s9/s9_p1_epic_smoke_testing.md` (Epic smoke testing)
-  - S9.P2: `stages/s9/s9_p2_epic_qc_rounds.md` (3 QC rounds)
-  - S9.P3: `stages/s9/s9_p3_user_testing.md` (User tests, reports bugs or "no bugs found")
-  - S9.P4: `stages/s9/s9_p4_epic_final_review.md` (Final review)
-- **If issues:** Enter debugging protocol → Fix all issues → Restart from S9.P1
-- **Next:** S10 (only when user reports ZERO bugs)
-
-**S10: Epic Cleanup**
-- **First Action:** Use "Starting S10" prompt
-- **Prerequisites:** S9 complete (user testing PASSED with ZERO bugs)
-- **Guide:** `stages/s10/s10_epic_cleanup.md`
-- **Actions:** Run unit tests (100% pass), S10.P1 guide updates, commit, create PR
-- **S10.P1 (MANDATORY):** `stages/s10/s10_p1_guide_update_workflow.md` - Analyze lessons, create GUIDE_UPDATE_PROPOSAL.md, user approval, apply
-- **After PR merged:** Update EPIC_TRACKER.md, move epic to done/
-
-**See:** `feature-updates/guides_v2/README.md` for complete workflow overview and guide index.
+**Complete Workflow Details:** `feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md` → "Stage-by-Stage Detailed Workflows"
 
 ---
 
 ## 🔀 S2 Parallel Work (Optional for 3+ Features)
 
 **When Offered:** During S1 Step 5.9 (if epic has 3+ features)
-**Benefits:** 40-60% time reduction for S2 phase (e.g., 3 features: 4 hours vs 7.5 hours)
+**Benefits:** 40-60% time reduction for S2 phase
 **Complexity:** Requires spawning secondary agents and coordination
 
----
-
-### Quick Decision Guide
+### Quick Decision
 
 **OFFER parallel work if:**
 - Epic has 3+ features (significant time savings)
@@ -344,176 +222,25 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 
 **User decides:** Always present options, let user choose
 
----
+### If User Chooses Parallel Work
 
-### Agent Roles
+**Primary Agent (you):**
+- Generate handoff packages
+- Execute S2 for Feature 01
+- Coordinate with secondaries every 15 min
+- Run S3/S4 solo after all features complete S2
 
-**Primary Agent (You - if coordinating):**
-- **Dual role:** Coordinator + Feature 01 owner
-- **Time split:** 85% feature work, 15% coordination
-- **Responsibilities:**
-  - Generate handoff packages for secondaries
-  - Execute S2 for Feature 01
-  - Coordinate every 15 minutes (check inboxes, handle escalations)
-  - Monitor agent health (checkpoint staleness)
-  - Run S3 and S4 solo after all features complete S2
-  - Notify secondaries when S4 complete
+**Secondary Agent (if joining):**
+- Receive handoff package from Primary
+- Execute S2 for assigned feature
+- Coordinate every 15 min
+- WAIT for Primary to run S3/S4
 
-**Secondary Agent (You - if joining):**
-- **Single role:** Feature owner only
-- **Time split:** 90% feature work, 10% coordination
-- **Responsibilities:**
-  - Receive handoff package from Primary
-  - Execute S2 for assigned feature
-  - Coordinate every 15 minutes (update checkpoint, check inbox)
-  - Escalate blockers to Primary within 15 minutes
-  - Signal completion when S2 done
-  - WAIT for Primary to run S3/S4
-
----
-
-### Coordination Mechanisms
-
-**Checkpoints** (every 15 minutes):
-- File: `agent_checkpoints/{agent_id}.json`
-- Purpose: Crash recovery + staleness detection
-- Format: JSON with stage, progress, timestamp
-- Thresholds: 30 min = warning, 60 min = stale
-
-**Communication** (file-based messaging):
-- Files: `agent_comms/{from}_to_{to}.md`
-- Format: Markdown with ⏳ UNREAD → ✅ READ markers
-- One writer per file (zero conflicts)
-- Primary checks all inboxes every 15 minutes
-- Escalation SLA: 15-minute response time
-
-**STATUS Files** (per feature):
-- File: `feature_{N}_{name}/STATUS`
-- Format: Plain text key-value pairs
-- Purpose: Quick status check without lock contention
-- Updated every 15 minutes by feature owner
-
-**Locks** (for shared files):
-- Files: `.epic_locks/{file_name}.lock`
-- Purpose: Prevent race conditions on EPIC_README.md
-- Timeout: 5 minutes (auto-release if holder crashes)
-- Format: JSON with holder, operation, timestamp
-
----
-
-### Sync Points
-
-**Sync Point 1: S2 → S3**
-- **Trigger:** All agents complete S2
-- **Primary verifies:**
-  - All completion messages received
-  - All STATUS files: READY_FOR_SYNC = true
-  - All checkpoints: WAITING_FOR_SYNC status
-- **Primary action:** Run S3 solo, secondaries WAIT
-- **Timeout:** 4 hours soft (reminder), 6 hours hard (escalate)
-
-**Sync Point 2: S4 → S5**
-- **Trigger:** Primary completes S3 and S4
-- **Primary notifies:** "S4 complete - proceed to S5"
-- **All agents:** Continue sequentially with S5-S8 for their features
-- **Timeout:** 2 hours soft (status check), 3 hours hard (escalate)
-
----
-
-### Workflow Quick Reference
-
-**If you're Primary:**
-
-```
-S1 → Offer parallel → Generate handoffs → S2.P1 (Feature 01)
-  ↓                                              ↓
-User spawns secondaries                 Coordinate every 15 min
-  ↓                                              ↓
-Secondaries start S2                    Complete Feature 01 S2
-  ↓                                              ↓
-Monitor + coordinate                    Verify all secondaries done
-  ↓                                              ↓
-Handle escalations                      Run S3 + S4 solo
-  ↓                                              ↓
-All complete S2                         Notify secondaries → S5
-```
-
-**If you're Secondary:**
-
-```
-Receive handoff → Startup (10 steps) → S2.P1 (assigned feature)
-                                              ↓
-                                       Coordinate every 15 min
-                                              ↓
-                                       Complete S2.P1 → S2.P2 → S2.P3
-                                              ↓
-                                       Signal completion to Primary
-                                              ↓
-                                       WAIT for Primary S3/S4
-                                              ↓
-                                       Receive "S4 complete" → S5
-```
-
----
-
-### Common Issues
-
-**Stale Agent (checkpoint > 60 min):**
-- **Detection:** Primary checks during coordination heartbeat
-- **Warning:** 30 min (send status check)
-- **Failure:** 60 min (escalate to user)
-- **Recovery:** Same agent resume, new agent takeover, or Primary absorbs
-- **Guide:** `parallel_work/stale_agent_protocol.md`
-
-**Sync Timeout (S2 not all done):**
-- **Soft:** 4 hours (send reminder)
-- **Hard:** 6 hours (escalate to user)
-- **Recovery:** Wait with ETA, investigate blocker, abort parallel for late feature
-- **Guide:** `parallel_work/sync_timeout_protocol.md`
-
-**Escalation (agent blocked):**
-- **Protocol:** Escalate to Primary within 15 minutes if blocked
-- **Primary SLA:** Respond within 15 minutes
-- **If user input needed:** Primary escalates to user
-- **Guide:** `parallel_work/communication_protocol.md`
-
----
-
-### Complete Guides Location
-
-**All parallel work guides:** `feature-updates/guides_v2/parallel_work/`
-
-**Master protocol:**
-- `s2_parallel_protocol.md` - Complete overview with 9-phase workflow
-
-**Agent guides:**
-- `s2_primary_agent_guide.md` - Primary agent complete workflow (830 lines)
-- `s2_secondary_agent_guide.md` - Secondary agent complete workflow (683 lines)
-
-**Infrastructure protocols:**
-- `lock_file_protocol.md` - File locking for shared resources
-- `communication_protocol.md` - Agent-to-agent messaging
-- `checkpoint_protocol.md` - Crash recovery and staleness detection
-
-**Recovery protocols:**
-- `stale_agent_protocol.md` - Handling crashed/hung agents
-- `sync_timeout_protocol.md` - Sync point timeout handling
-
-**Templates:**
-- `templates/handoff_package_s2_template.md` - Secondary agent handoff
-- `templates/feature_status_template.txt` - STATUS file format
-- `templates/epic_readme_template.md` - EPIC_README with parallel sections
-
----
-
-### Integration with Existing Workflow
-
-**S1 Step 5.8-5.9:** Offer parallel work (if 3+ features)
-**S1 Final Step:** Generate handoffs (if parallel enabled)
-**S2 Router:** Detects Primary vs Secondary role, routes to appropriate guide
-**S2.P1-P3:** Coordination sections in each phase guide
-**S3 Start:** Sync verification (if parallel was used)
-**S4 End:** Notify secondaries to proceed
+**Complete Protocols:** `feature-updates/guides_v2/parallel_work/`
+- `s2_parallel_protocol.md` - Complete 9-phase workflow
+- `s2_primary_agent_guide.md` - Primary agent workflow
+- `s2_secondary_agent_guide.md` - Secondary agent workflow
+- Infrastructure, recovery, and template files
 
 **Parallel work is OPTIONAL** - workflow works identically in sequential mode.
 
@@ -579,107 +306,44 @@ Receive handoff → Startup (10 steps) → S2.P1 (assigned feature)
 
 ## Key Principles
 
-- **Epic-first thinking**: Top-level work unit is an epic (collection of features)
-- **Discovery before features**: S1.P3 Discovery Phase is MANDATORY for ALL epics (research + Q&A loop until 3 consecutive iterations with no new questions)
-- **Mandatory reading protocol**: ALWAYS read guide before starting each guide
-- **Phase transition prompts**: MANDATORY acknowledgment (proves guide was read)
-- **User approval gates**: Gates 3, 4.5, 5 (early approval prevents rework)
-- **Zero autonomous resolution**: Agents create QUESTIONS, user provides ANSWERS
-- **Continuous alignment**: S8.P1 updates specs after each feature
-- **Continuous testing**: Test plan evolves (S1 → S3 → S4 → S8.P2 → S9)
-- **Test-driven development**: S4 plans tests BEFORE S5 implementation planning
-- **22 verification iterations**: All mandatory (S5 Rounds 1-3)
-- **Consistency Loop validation**: 3 consecutive clean rounds required at key validation points (S2.P1 iterations, S3 phases, S4.I4, S5 rounds)
-- **No deferred issues**: All identified issues fixed immediately during Consistency Loop (zero tolerance)
-- **Maximum 10 rounds**: Escalate to user if Consistency Loop exceeds 10 rounds
-- **QC restart protocol**: If ANY issues → restart completely
-- **100% test pass**: Required before commits and transitions
-- **Zero tech debt tolerance**: Fix ALL issues immediately
+**Planning & Discovery:**
+- Epic-first thinking, S1.P3 Discovery Phase MANDATORY (research + Q&A loop until 3 consecutive clean iterations), continuous alignment (S8.P1)
+
+**Execution & Quality:**
+- Read guide before starting, use phase transition prompts, update Agent Status at checkpoints
+- User approval gates (Gates 3, 4.5, 5), zero autonomous resolution, continuous testing
+
+**Implementation:**
+- Test-driven development (S4 before S5), 22 verification iterations (S5 Rounds 1-3)
+- Consistency Loop validation (3 consecutive clean rounds, zero deferred issues, max 10 rounds)
+- QC restart protocol (if ANY issues → restart), 100% test pass, zero tech debt tolerance
 
 ---
 
 ## Common Anti-Patterns to Avoid
 
+**🚨 CRITICAL: Avoid these anti-patterns** - Historical evidence shows these cause 80%+ of epic failures.
+
 ### Anti-Pattern 1: Autonomous Checklist Resolution
-
-**WRONG WORKFLOW:**
-1. User asks question
-2. Agent investigates
-3. Agent marks question as RESOLVED
-4. Agent adds requirement to spec
-5. User sees requirement added without approval
-
-**CORRECT WORKFLOW:**
-1. User asks question
-2. Agent investigates
-3. Agent marks question as PENDING USER APPROVAL
-4. Agent presents findings
-5. User says "approved"
-6. ONLY THEN agent marks RESOLVED and adds requirement
-
-**Key Distinction:** Research findings ≠ User approval
-
-**Example from KAI-6:**
-- ❌ WRONG: "I checked simulations. Question 1 RESOLVED. Added Requirement 9."
-- ✅ CORRECT: "I checked simulations. My findings: [details]. Status: PENDING. Approve?"
+**Wrong:** Agent researches → Marks RESOLVED → Adds requirement
+**Correct:** Agent researches → Marks PENDING → Presents findings → User approves → THEN mark RESOLVED
+**Key:** Research findings ≠ User approval
 
 ### Anti-Pattern 2: Narrow Investigation Scope
-
-**WRONG APPROACH:**
-1. User asks "check if this works with simulations"
-2. Agent checks method calls only
-3. Agent declares investigation complete
-4. User asks "what about config loading?"
-5. Agent realizes investigation was incomplete
-
-**CORRECT APPROACH:**
-1. User asks "check if this works with simulations"
-2. Agent uses systematic 5-category checklist:
-   - Category 1: Method/function calls ✓
-   - Category 2: Configuration/data loading ✓
-   - Category 3: Integration points ✓
-   - Category 4: Timing/dependencies ✓
-   - Category 5: Edge cases ✓
-3. Agent presents comprehensive findings covering all categories
-4. User approves once (not multiple follow-ups needed)
-
-**Key Distinction:** Use systematic frameworks, don't rely on intuition
-
-**When investigating compatibility/integration:**
-- DON'T check just the most obvious aspect
-- DO use 5-category investigation checklist (see S2.P3 guide)
-- DON'T assume first answer is complete
-- DO ask "what else?" at least 3 times
+**Wrong:** Check obvious aspect → Declare complete
+**Correct:** Use systematic 5-category checklist (method calls, config, integration, timing, edge cases)
+**Key:** Use systematic frameworks, don't rely on intuition
 
 ### Anti-Pattern 3: Deferring Issues During Consistency Loop
+**Wrong:** Find 5 issues → Note for later → Continue to next round
+**Correct:** Find 5 issues → Fix ALL immediately → Then continue
+**Key:** Consistency Loop has ZERO TOLERANCE for deferred issues
 
-**WRONG APPROACH:**
-1. Round 1: Discovers 5 issues
-2. Agent: "Found 5 issues. I'll note them and fix later."
-3. Agent: "Round 1 complete, moving to Round 2"
-4. Issues remain unfixed across multiple rounds
-5. Agent exits Consistency Loop with unresolved issues
-
-**CORRECT APPROACH:**
-1. Round 1: Discovers 5 issues
-2. Agent: "Found 5 issues. Fixing ALL immediately."
-3. Agent fixes all 5 issues before continuing
-4. Round 2: Fresh validation (may find new issues from fixes)
-5. Repeat until 3 consecutive clean rounds (zero issues)
-
-**Key Distinction:** Consistency Loop has ZERO TOLERANCE for deferred issues
-
-**From Consistency Loop Protocol:**
-- ❌ WRONG: "Deferred for later" or "Will fix in next phase"
-- ✅ CORRECT: "Fixed immediately in current round"
-- Every issue must be resolved BEFORE moving to next round
-- 3 consecutive CLEAN rounds (zero issues) required to exit
-
-**Why this matters:**
-- Deferred issues compound (5 → 10 → 20 across rounds)
-- Later fixes may contradict earlier decisions
-- Historical evidence: 60% of "deferred" issues never get fixed
-- Consistency Loop philosophy: Assume everything wrong until proven clean
+**Complete Anti-Pattern Reference:** `feature-updates/guides_v2/reference/common_mistakes.md`
+- Detailed workflows with step-by-step examples
+- Recovery protocols for each anti-pattern
+- Additional anti-patterns and edge cases
+- Historical failure case studies
 
 ---
 
@@ -774,89 +438,31 @@ feature_XX_{name}/
 
 ## Workflow Guides Location
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ 🚨 CRITICAL: What "Guides" Means                                │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│ When user says "consider the guides", "update the guides",      │
-│ "check the guides", or ANY reference to "guides":               │
-│                                                                  │
-│ IT MEANS: EVERY FILE IN feature-updates/guides_v2/              │
-│                                                                  │
-│ This includes:                                                   │
-│ - stages/ (s1 through s10 with all sub-files)                   │
-│ - reference/ (ALL reference materials)                           │
-│ - templates/ (ALL templates)                                     │
-│ - debugging/ (debugging protocol files)                          │
-│ - missed_requirement/ (missed requirement protocol files)        │
-│ - prompts/ (all prompt files)                                    │
-│ - README.md, prompts_reference_v2.md, EPIC_WORKFLOW_USAGE.md    │
-│ - ANY other files in guides_v2/                                  │
-│                                                                  │
-│ DO NOT limit yourself to just stages/ folder!                   │
-│ DO NOT assume "guides" means only workflow stages!               │
-│                                                                  │
-│ Historical issue: 60% of guide updates missed non-stages files  │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+**🚨 CRITICAL:** When user says "guides" = EVERY FILE in `feature-updates/guides_v2/`
 
-**All guides location:** `feature-updates/guides_v2/`
+**Complete guide structure:**
+- `stages/` - Core workflow (s1-s10)
+- `reference/` - Mandatory gates, common mistakes, glossary, consistency loop protocols
+- `templates/` - File templates
+- `debugging/` - Debugging protocol
+- `missed_requirement/` - Missed requirement protocol
+- `prompts/` - Phase transition prompts (MANDATORY)
+- `parallel_work/` - Parallel work coordination
+- `audit/` - Modular audit system
 
-**Complete Directory Structure:**
-- `stages/` - Core workflow guides (s1 through s10 with S#.P#.I# notation)
-  - `s1/`, `s2/`, `s3/`, `s4/`, `s5/`, `s6/`, `s7/`, `s8/`, `s9/`, `s10/`
-- `reference/` - Reference cards and supporting materials
-  - Mandatory gates, common mistakes, naming conventions, glossary
-  - **Consistency Loop protocols:** `consistency_loop_protocol.md` (foundation + 7 core principles)
-  - **Context-specific variants:** `consistency_loop_discovery.md`, `consistency_loop_spec_refinement.md`, `consistency_loop_alignment.md`, `consistency_loop_test_strategy.md`, `consistency_loop_qc.md`
-- `templates/` - File templates for epics, features, bug fixes
-- `debugging/` - Debugging protocol guides
-- `missed_requirement/` - Missed requirement protocol guides
-- `prompts/` - All phase transition prompts organized by stage
-- `_internal/` - Internal tracking and completion documents
+**Key files:**
+- `README.md` - Guide index
+- `prompts_reference_v2.md` - MANDATORY phase transition prompts
+- `EPIC_WORKFLOW_USAGE.md` - Comprehensive usage guide
 
-**Key Files at Root Level:**
-- `README.md` - Workflow overview and complete guide index
-- `prompts_reference_v2.md` - MANDATORY phase transition prompts (consolidated)
-- `EPIC_WORKFLOW_USAGE.md` - Comprehensive usage guide with examples
-- `audit/` - Modular audit system (replaces monolithic GUIDES_V2_FORMAL_AUDIT_GUIDE.md)
-  - `audit/README.md` - Audit system entry point with navigation
-  - `audit/audit_overview.md` - When to audit, philosophy, exit criteria
-  - `audit/stages/` - 5-stage audit process (Discovery → Planning → Fixes → Verification → Loop Decision)
-  - `audit/dimensions/` - 16 audit dimensions (D1, D2, D8 created; 13 planned)
-  - `audit/templates/` - Output templates for all stages
-  - `audit/reference/quick_reference.md` - One-page cheat sheet for fast lookups
-  - `audit/scripts/pre_audit_checks.sh` - Automated pre-checks (40-50% issue coverage)
+**When user says "audit the guides":**
+1. Read `audit/README.md` - Entry point
+2. Run `bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh`
+3. Read `audit/stages/stage_1_discovery.md` - Begin Round 1
 
-**When User Says "Audit the Guides":**
+**Find all guides:** `Glob pattern="**/*.md" path="feature-updates/guides_v2"`
 
-**CRITICAL: Use the modular audit system** located in `feature-updates/guides_v2/audit/`
-
-**Start here:**
-1. Read `audit/README.md` - Entry point with navigation and quick start
-2. Run `bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh` - Automated checks
-3. Read `audit/stages/stage_1_discovery.md` - Begin Round 1 discovery
-
-**The audit system provides:**
-- 5-stage process: Discovery → Fix Planning → Apply Fixes → Verification → Loop Decision
-- Automated pre-checks catching 40-50% of issues
-- Manual discovery patterns for remaining issues
-- Exit criteria: ALL 8 must pass (minimum 3 rounds, zero new issues, 80%+ confidence, etc.)
-- Templates for documenting discoveries, fixes, and verification
-- Quick reference guide for fast lookups
-
-**Do NOT:**
-- Skip the audit system and do ad-hoc checking
-- Reference the old monolithic GUIDES_V2_FORMAL_AUDIT_GUIDE.md (replaced by modular system)
-- Exit audit prematurely (historical evidence: premature exit = 50+ more issues found)
-
-**Always use Glob to discover all files** when working with guides:
-```bash
-# Find all markdown files in guides_v2
-Glob pattern="**/*.md" path="feature-updates/guides_v2"
-```
+**See:** `feature-updates/guides_v2/README.md` for complete file index
 
 ---
 

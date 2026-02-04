@@ -333,7 +333,7 @@ See `stages/s6/s6_execution.md` for execution details.
 
 | Level | Singular | Plural | Usage Example | Reserved For |
 |-------|----------|--------|---------------|--------------|
-| **Level 1** | Stage | Stages | "S5 has 9 phases" | S# hierarchy only |
+| **Level 1** | Stage | Stages | "S2 has 2 phases" | S# hierarchy only |
 | **Level 2** | Phase | Phases | "S5.P1 is Planning Round 1" | S#.P# hierarchy only |
 | **Level 3** | Iteration | Iterations | "S5.P1.I2 covers algorithms" | S#.P#.I# hierarchy only |
 | **Within file** | Step | Steps | "Step 3: Create test plan" | Guide content only |

@@ -1,8 +1,8 @@
-# Iteration 23: Integration Gap Check
+# Iteration 19: Integration Gap Check
 
 **Part of:** S5.P3 Part 2b - Round 3 Gate 3
 **Purpose:** Verify ALL implementation tasks have integration points (no orphan code)
-**Prerequisites:** Round 3 Part 2a started, iterations 17-22 complete
+**Prerequisites:** Round 3 Part 2a started, iterations 14-19 complete
 **Time Estimate:** 15-20 minutes
 
 ---
@@ -257,7 +257,7 @@
 3. Error handling integrated into flow
 4. No missing integration points
 
-**Next Step:** Proceed to Iteration 23a (Pre-Implementation Spec Audit)
+**Next Step:** Proceed to Iteration 20 (Pre-Implementation Spec Audit)
 
 ---
 ```
@@ -285,7 +285,7 @@
 
 ---
 
-**STOP - Resolve gaps before proceeding to Iteration 23a**
+**STOP - Resolve gaps before proceeding to Iteration 20**
 
 ---
 ```
@@ -367,14 +367,14 @@
 
 **After Iteration 23 completes:**
 
-Proceed to **Iteration 23a (Pre-Implementation Spec Audit - Gate 2)** in gate_23a_spec_audit.md
+Proceed to **Iteration 20 (Pre-Implementation Spec Audit - Gate 2)** in gate_23a_spec_audit.md
 
 **📖 READ:** `stages/s5/s5_p3_i2_gates_part1.md`
 
 ---
 
 **END OF ITERATION 23 GUIDE**
-# 🚨 Gate 2 (Iteration 23a): Pre-Implementation Spec Audit
+# 🚨 Gate 2 (Iteration 20): Pre-Implementation Spec Audit
 
 **Part of:** S5.P3 Part 2b - Round 3 Gate 3
 **Gate Type:** MANDATORY (cannot skip)
@@ -390,7 +390,7 @@ Proceed to **Iteration 23a (Pre-Implementation Spec Audit - Gate 2)** in gate_23
 
 **CRITICAL:** This iteration has 4 PARTS, ALL 4 must PASS to proceed.
 
-**Failure mode:** If ANY part fails, CANNOT proceed to Iteration 25 until fixed.
+**Failure mode:** If ANY part fails, CANNOT proceed to Iteration 21 until fixed.
 
 ---
 
@@ -410,7 +410,7 @@ Proceed to **Iteration 23a (Pre-Implementation Spec Audit - Gate 2)** in gate_23
 
 **Historical Context (Feature 01):**
 - Iteration 4a caught missing requirements early (Day 2 of planning)
-- Iteration 23a is FINAL check (Day 4-5 of planning)
+- Iteration 20 is FINAL check (Day 4-5 of planning)
 - Catches issues missed in earlier iterations
 - Last chance before implementation starts
 
@@ -969,7 +969,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 **Impact:** Cannot verify integration planning was done
 **Fix Required:** Add {section name} section to implementation_plan.md
 
-**STOP - Cannot proceed to Iteration 25 until all integration evidence documented**
+**STOP - Cannot proceed to Iteration 21 until all integration evidence documented**
 
 ---
 ```
@@ -983,7 +983,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 ```markdown
 ---
 
-## ✅ Iteration 23a: Pre-Implementation Spec Audit - ALL 4 PARTS PASSED
+## ✅ Iteration 20: Pre-Implementation Spec Audit - ALL 4 PARTS PASSED
 
 **Audit Date:** {YYYY-MM-DD}
 
@@ -1009,7 +1009,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 **GATE 2 STATUS: ✅ PASSED**
 
 **Confidence:** HIGH
-**Ready for:** Iteration 25 (Spec Validation)
+**Ready for:** Iteration 21 (Spec Validation)
 
 **Next Action:** Read `stages/s5/s5_p3_i3_gates_part2.md`
 
@@ -1021,7 +1021,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 ```markdown
 ---
 
-## ❌ Iteration 23a: Pre-Implementation Spec Audit - FAILED
+## ❌ Iteration 20: Pre-Implementation Spec Audit - FAILED
 
 **Audit Date:** {YYYY-MM-DD}
 
@@ -1047,9 +1047,9 @@ def write_csv_with_backup(df: pd.DataFrame,
 3. {Fix for Part 3 if failed}
 4. {Fix for Part 4 if failed}
 
-**Next Action:** Fix ALL failed parts, re-run Iteration 23a
+**Next Action:** Fix ALL failed parts, re-run Iteration 20
 
-**CANNOT proceed to Iteration 25 until ALL 4 PARTS PASS**
+**CANNOT proceed to Iteration 21 until ALL 4 PARTS PASS**
 
 ---
 ```
@@ -1060,17 +1060,17 @@ def write_csv_with_backup(df: pd.DataFrame,
 
 **If all parts passed:**
 ```markdown
-Progress: Iteration 23a PASSED - ALL 4 PARTS
+Progress: Iteration 20 PASSED - ALL 4 PARTS
 Gate Status: ✅ GATE 2 PASSED
 Next Action: Read stages/s5/s5_p3_i3_gates_part2.md
 ```
 
 **If any parts failed:**
 ```markdown
-Progress: Iteration 23a FAILED - {X} parts failed
+Progress: Iteration 20 FAILED - {X} parts failed
 Gate Status: ❌ BLOCKED
 Blockers: {List failed parts}
-Next Action: Fix failed parts, re-run Iteration 23a
+Next Action: Fix failed parts, re-run Iteration 20
 ```
 
 ---
@@ -1104,7 +1104,7 @@ Next Action: Fix failed parts, re-run Iteration 23a
 
 ## Next Step
 
-**After Iteration 23a passes (ALL 4 PARTS):**
+**After Iteration 20 passes (ALL 4 PARTS):**
 
 Proceed to **Iterations 25 and 24 (Final Gates)** in iterations_24_25_final.md
 

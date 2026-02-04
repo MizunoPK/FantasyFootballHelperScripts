@@ -24,7 +24,7 @@
 ## Quick Start
 
 **What is this guide?**
-Planning Round 3 Part 1 (Preparation) is the first half of Planning Round 3, where you prepare for implementation by defining phasing, rollback strategies, final algorithm traceability, performance optimizations, mock audits, and output validation through 6 systematic iterations (17-22).
+Planning Round 3 Part 1 (Preparation) is the first half of Planning Round 3, where you prepare for implementation by defining phasing, rollback strategies, final algorithm traceability, performance optimizations, mock audits, and output validation through 6 systematic iterations (14-19).
 
 **When do you use this guide?**
 - Planning Round 2 (STAGE_5ab) complete
@@ -55,11 +55,11 @@ Part 1 is complete when all 6 iterations pass, all preparation outputs added to 
 
 | Part | Guide to Read | Iterations | Time Estimate |
 |------|---------------|------------|---------------|
-| S5.P3.1: Preparation | `stages/s5/s5_p3_i1_preparation.md` | 17-22 | 45-60 min |
-| S5.P3.2: Gates 1-2 | `stages/s5/s5_p3_i2_gates_part1.md` | 23, 23a + Gate 23a | 30-45 min |
-| S5.P3.3: Gate 3 | `stages/s5/s5_p3_i3_gates_part2.md` | 24, 25 + Gates 24, 25 | 15-30 min |
+| S5.P3.1: Preparation | `stages/s5/s5_p3_i1_preparation.md` | 14-19 | 45-60 min |
+| S5.P3.2: Gate 23a | `stages/s5/s5_p3_i2_gates_part1.md` | 20 (Gate 23a) | 30-45 min |
+| S5.P3.3: Gates 24, 25 | `stages/s5/s5_p3_i3_gates_part2.md` | 21, 22 (Gates 25, 24) | 15-30 min |
 
-**Total Time:** 90-135 minutes (10 iterations + 3 gates)
+**Total Time:** 90-135 minutes (9 iterations + 3 gates)
 
 
 ## Navigation - Iteration Guides
@@ -87,7 +87,7 @@ Part 1 is complete when all 6 iterations pass, all preparation outputs added to 
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│       ROUND 3 PART 1: Preparation (Iterations 17-22)         │
+│       ROUND 3 PART 1: Preparation (Iterations 14-19)         │
 │                    (6 Iterations)                             │
 └──────────────────────────────────────────────────────────────┘
 
@@ -112,7 +112,7 @@ Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
 └─────────────────────────────────────────────────────────────┘
 
 1. ⚠️ ALL 6 iterations in Part 1 are MANDATORY (no skipping)
-   - Iterations 17-22 prepare for implementation
+   - Iterations 14-19 prepare for implementation
    - Skipping iterations causes implementation failures
 
 2. ⚠️ Implementation Phasing (Iteration 17) prevents "big bang" failures
@@ -151,7 +151,7 @@ Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
 **Before starting Part 1, verify ALL of these are true:**
 
 ### From Planning Round 2 (STAGE_5ab)
-- [ ] Planning Round 2 complete (all 9 iterations 8-16)
+- [ ] Planning Round 2 complete (all 9 iterations 8-13)
 - [ ] Test strategy comprehensive and complete
 - [ ] Edge cases enumerated and handled
 - [ ] Algorithm Traceability Matrix updated (Planning Round 2)
@@ -345,7 +345,7 @@ O(n) dict lookup → 0.01s (acceptable)
 **Before proceeding to Part 2 (stages/s5/s5_p3_i3_gates_part2.md), verify:**
 
 ### Part 1 Completion
-- [ ] ALL 6 iterations complete (17-22)
+- [ ] ALL 6 iterations complete (14-19)
 - [ ] Implementation phasing defined
 - [ ] Rollback strategy documented
 - [ ] Algorithm traceability 100%

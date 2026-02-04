@@ -184,7 +184,7 @@ Note:
 | QC round missed issue | stages/s7/s7_p2_qc_rounds.md |
 | Smoke test didn't catch bug | stages/s7/s7_p1_smoke_testing.md |
 | Epic integration issue | stages/s9/s9_p2_epic_qc_rounds.md |
-| Spec misinterpretation | stages/s5/s5_p3_i3_gates_part2.md (Iteration 25) |
+| Spec misinterpretation | stages/s5/s5_p3_i3_gates_part2.md (Iteration 21) |
 | Checklist question unclear | templates/feature_checklist_template.md |
 | Implementation plan vague | templates/implementation_plan_template.md |
 | Prompt not followed | prompts/{stage}_prompts.md |
@@ -675,19 +675,19 @@ Use prompt from prompts/guide_update_prompts.md "After Applying Changes" section
 ### Proposal P0-1: Add Spec Validation Historical Context to Mandatory Gates
 
 **Lesson Learned:**
-> "Iteration 25 (Spec Validation Against Validated Documents) caught that spec.md misinterpreted epic notes about week_N+1 folder logic. Epic said 'create week folders' but spec said 'no code changes needed for folders.' This gate prevented a week+ of rework implementing the wrong solution."
+> "Iteration 21 (Spec Validation Against Validated Documents) caught that spec.md misinterpreted epic notes about week_N+1 folder logic. Epic said 'create week folders' but spec said 'no code changes needed for folders.' This gate prevented a week+ of rework implementing the wrong solution."
 
 **Source File:** `epic_lessons_learned.md` - Lesson #3
 
 **Root Cause:**
-Agent rushed through S2 spec creation and made assumptions about folder handling instead of carefully reading epic notes. Iteration 25's three-way comparison (epic notes, epic ticket, spec summary) caught the discrepancy before implementation.
+Agent rushed through S2 spec creation and made assumptions about folder handling instead of carefully reading epic notes. Iteration 21's three-way comparison (epic notes, epic ticket, spec summary) caught the discrepancy before implementation.
 
 **Affected Guide(s):**
-- `reference/mandatory_gates.md` - Section: "Gate 3: Iteration 25 - Spec Validation Against Validated Documents" (Lines 281-327)
+- `reference/mandatory_gates.md` - Section: "Gate 3: Iteration 21 - Spec Validation Against Validated Documents" (Lines 281-327)
 
 **Current State (BEFORE):**
 ```markdown
-### Gate 3: Iteration 25 - Spec Validation Against Validated Documents (CRITICAL)
+### Gate 3: Iteration 21 - Spec Validation Against Validated Documents (CRITICAL)
 
 **What it checks:**
 - Spec.md matches ALL three user-validated sources:
@@ -698,12 +698,12 @@ Agent rushed through S2 spec creation and made assumptions about folder handling
 
 **Proposed Change (AFTER):**
 ```markdown
-### Gate 3: Iteration 25 - Spec Validation Against Validated Documents (CRITICAL)
+### Gate 3: Iteration 21 - Spec Validation Against Validated Documents (CRITICAL)
 
 **Historical Context:**
 - Feature 02 catastrophic bug: spec.md misinterpreted epic notes
 - Spec stated "no code changes needed" when epic actually required week_N+1 folder logic
-- Iteration 25 specifically designed to prevent this type of bug
+- Iteration 21 specifically designed to prevent this type of bug
 - Three-way comparison catches spec misinterpretations before implementation
 
 **What it checks:**
@@ -717,9 +717,9 @@ Agent rushed through S2 spec creation and made assumptions about folder handling
 Adding historical context shows future agents WHY this gate exists and what happens if it's skipped. Real example makes the importance concrete instead of abstract.
 
 **Impact Assessment:**
-- **Who benefits:** All agents doing S5 Round 3 (Iteration 25)
+- **Who benefits:** All agents doing S5 Round 3 (Iteration 21)
 - **When it helps:** When validating spec.md against user-approved documents
-- **Severity if unfixed:** Critical - agents may skip or rush through Iteration 25 without understanding its importance, leading to week+ of rework from spec misinterpretation
+- **Severity if unfixed:** Critical - agents may skip or rush through Iteration 21 without understanding its importance, leading to week+ of rework from spec misinterpretation
 
 **User Decision:** [ ] Approve  [ ] Modify  [ ] Reject  [ ] Discuss
 

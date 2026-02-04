@@ -1,7 +1,7 @@
 # Implementation Plan Template
 
 **Instructions for Agents:**
-This template is used during S5 (Implementation Planning) to accumulate findings from the 28 verification iterations. The plan grows incrementally as you progress through 3 rounds.
+This template is used during S5 (Implementation Planning) to accumulate findings from the 22 verification iterations. The plan grows incrementally as you progress through 3 rounds.
 
 **Key Principles:**
 - Add sections as iterations complete (not all at once)
@@ -208,8 +208,8 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 
 ---
 
-## Pre-Implementation Audit (Iteration 23a)
-*Added during iteration 23a - MANDATORY GATE*
+## Pre-Implementation Audit (Iteration 20)
+*Added during iteration 20 - MANDATORY GATE*
 
 **Part 1: Completeness Audit**
 - Requirements in spec.md: {count}
@@ -237,14 +237,14 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 
 ---
 
-## Implementation Readiness (Iteration 24)
-*Added during iteration 24 - GO/NO-GO DECISION*
+## Implementation Readiness (Iteration 22)
+*Added during iteration 22 - GO/NO-GO DECISION*
 
 **Spec Verification:**
 - [x/  ] Spec.md complete and validated
-- [x/  ] Spec validated against epic notes (Iteration 25)
-- [x/  ] Spec validated against epic ticket (Iteration 25)
-- [x/  ] Spec validated against spec summary (Iteration 25)
+- [x/  ] Spec validated against epic notes (Iteration 21)
+- [x/  ] Spec validated against epic ticket (Iteration 21)
+- [x/  ] Spec validated against spec summary (Iteration 21)
 
 **Implementation Task Verification:**
 - [x/  ] All requirements have implementation tasks (100%)
@@ -253,16 +253,16 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 - [x/  ] All tasks have test coverage (100%)
 
 **Iteration Completion:**
-- [x/  ] All 25 iterations complete
+- [x/  ] All 22 iterations complete
 - [x/  ] Round 1: Iterations 1-7 + 4a ✅
-- [x/  ] Round 2: Iterations 8-16 ✅
-- [x/  ] Round 3: Iterations 17-22 ✅
+- [x/  ] Round 2: Iterations 8-13 ✅
+- [x/  ] Round 3: Iterations 14-19 ✅
 - [x/  ] Mandatory gates: 4a ✅, 23a ✅, 25 ✅
 
 **Mandatory Gates:**
 - [x/  ] Iteration 4a (TODO Audit): {PASSED/FAILED}
-- [x/  ] Iteration 23a (Pre-Implementation Audit): {PASSED/FAILED}
-- [x/  ] Iteration 25 (Spec Validation): {PASSED/FAILED}
+- [x/  ] Iteration 20 (Pre-Implementation Audit): {PASSED/FAILED}
+- [x/  ] Iteration 21 (Spec Validation): {PASSED/FAILED}
 
 **Confidence Assessment:**
 - [x/  ] Confidence level: {HIGH/MEDIUM/LOW}
@@ -295,9 +295,9 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 
 **v3.0 ({YYYY-MM-DD HH:MM}) - Round 3 Complete (FINAL):**
 - {Summary of Round 3 additions}
-- Iteration 23a GATE: {✅/❌} {PASSED/FAILED}
-- Iteration 25 GATE: {✅/❌} {PASSED/FAILED}
-- Iteration 24: {✅ GO / ❌ NO-GO}
+- Iteration 20 GATE: {✅/❌} {PASSED/FAILED}
+- Iteration 21 GATE: {✅/❌} {PASSED/FAILED}
+- Iteration 22: {✅ GO / ❌ NO-GO}
 
 ---
 
@@ -332,9 +332,9 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 **How it grows:**
 - After Round 1 (iteration 7): ~150 lines (tasks, matrix, dependencies)
 - After Round 2 (iteration 16): ~300 lines (+ tests, edge cases)
-- After Round 3 (iteration 24): ~400 lines (+ performance, audits, readiness)
+- After Round 3 (iteration 22): ~400 lines (+ performance, audits, readiness)
 
-**User approval:** Show complete plan after iteration 24, before S6
+**User approval:** Show complete plan after iteration 22, before S6
 
 **File location:** `feature_XX_{name}/implementation_plan.md`
 

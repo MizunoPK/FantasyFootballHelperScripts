@@ -35,7 +35,7 @@ Spec Validation is complete when the spec is re-validated against epic from scra
 
 **Historical Evidence:** Feature 02 (Accuracy Sim) spec.md contained a fundamental error that survived:
 - S2 (spec creation)
-- S5 (28 verification iterations)
+- S5 (22 verification iterations)
 - S6 (implementation)
 - S7.P1-S7.P2 (smoke testing and QC rounds)
 - **User caught it in S9.P3**

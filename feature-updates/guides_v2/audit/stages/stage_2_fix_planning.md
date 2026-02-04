@@ -380,22 +380,201 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 
 ---
 
+## File Size Reduction Planning
+
+### Overview
+
+**After planning content accuracy fixes**, you must plan file size reductions for any large files flagged in discovery.
+
+**File size issues are first-class issues** - they get their own fix group with planning, execution, and verification.
+
+### When to Plan File Size Reduction
+
+**If discovery report flagged ANY of these:**
+- CLAUDE.md exceeds 40,000 characters
+- Any workflow guide >1000 lines
+- Any workflow guide 600-1000 lines flagged as "consider split"
+
+**Then you MUST include file size reduction in fix plan.**
+
+### File Size Fix Group Template
+
+**For EACH large file, create a dedicated fix group:**
+
+```markdown
+## Group X: File Size Reduction - [file_name]
+
+**File:** [file_path]
+**Current Size:** [X lines / X chars]
+**Threshold:** [40,000 chars for CLAUDE.md / 1000 lines for guides]
+**Overage:** [amount over threshold]
+**Severity:** P1 (if CLAUDE.md or >1000 lines) / P2 (if 800-1000 lines)
+
+**Strategy:** [One of: Extract to sub-guides / Extract to reference files / Consolidate redundant / Move examples to appendices]
+
+**Evaluation Questions:**
+- Purpose: [What is this file for?]
+- Natural subdivisions: [Yes/No - if yes, what are they?]
+- Usage pattern: [How do agents use this file?]
+- Reduction potential: [Can split without harming usability?]
+
+**Planned Reduction Approach:**
+1. [Step 1: e.g., "Extract Round 2 content to s5_p2_planning_round2.md"]
+2. [Step 2: e.g., "Extract Round 3 content to s5_p3_planning_round3.md"]
+3. [Step 3: e.g., "Convert original to router file with TOC"]
+4. [Step 4: e.g., "Update all cross-references"]
+
+**Target Size After Reduction:** [X lines / X chars]
+
+**Files to Create:**
+- [list new files that will be created]
+
+**Cross-References to Update:**
+- CLAUDE.md (if file paths changed)
+- README.md (if file paths changed)
+- Templates (if file paths changed)
+- [other files with references]
+
+**Estimated Duration:** [X minutes]
+
+**Verification:**
+- [ ] File size ≤ threshold
+- [ ] No information lost
+- [ ] Cross-references valid
+- [ ] Agent usability maintained
+- [ ] Pre-audit script passes
+```
+
+### Planning Process
+
+**For each large file:**
+
+1. **Read File Size Reduction Guide:**
+   - Location: `reference/file_size_reduction_guide.md`
+   - Read relevant protocol (CLAUDE.md or Workflow Guide)
+
+2. **Evaluate File:**
+   - Answer evaluation questions (purpose, subdivisions, usage, potential)
+   - Determine if reduction beneficial or necessary
+
+3. **Choose Strategy:**
+   - Extract to sub-guides (preferred for >600 line guides)
+   - Extract to reference files (preferred for CLAUDE.md)
+   - Consolidate redundant content
+   - Move examples to appendices
+
+4. **Document Plan:**
+   - Use template above
+   - Be specific about extraction targets
+   - List all files to create
+   - List all cross-references to update
+
+5. **Estimate Duration:**
+   - Simple extraction: 15-20 min
+   - CLAUDE.md reduction: 30-45 min
+   - Complex restructuring: 45-60 min
+
+### Priority Assignment
+
+**File size reduction groups get priority:**
+- **P1:** CLAUDE.md >40,000 chars (policy violation - CRITICAL)
+- **P1:** Files >1000 lines (too large - CRITICAL)
+- **P2:** Files 800-1000 lines (large - HIGH)
+- **P3:** Files 600-800 lines (medium - evaluate case by case)
+
+**Fix order in Stage 3:**
+1. Content accuracy P0-P1 groups (critical content fixes first)
+2. File size P1 groups (CLAUDE.md, files >1000 lines)
+3. Content accuracy P2 groups
+4. File size P2 groups (files 800-1000 lines)
+5. Content accuracy P3 groups
+6. File size P3 groups (files 600-800 lines, if reducing)
+
+**Rationale:** Fix critical content issues first (so we're not reducing files that still need content updates), then address file size, then lower priority items.
+
+### Example: CLAUDE.md Reduction Plan
+
+```markdown
+## Group 5: File Size Reduction - CLAUDE.md
+
+**File:** `../../CLAUDE.md`
+**Current Size:** 45,786 characters (1,011 lines)
+**Threshold:** 40,000 characters
+**Overage:** 5,786 characters (14.5%)
+**Severity:** P1 (policy violation)
+
+**Strategy:** Extract to reference files
+
+**Evaluation:**
+- Purpose: Quick reference for agents at task start
+- Natural subdivisions: Yes (Stage Workflows, Anti-Patterns, Parallel Work, etc.)
+- Usage pattern: Read at start of every task
+- Reduction potential: High - detailed content can be extracted
+
+**Planned Reduction Approach:**
+1. Extract detailed Stage Workflows section to EPIC_WORKFLOW_USAGE.md (keep 4,000 char summary in CLAUDE.md, extract 8,000 chars)
+2. Extract S2 Parallel Work details to parallel_work/README.md (keep 1,000 char summary, extract 1,500 chars)
+3. Extract detailed Anti-Pattern examples to reference/common_mistakes.md (keep 3 brief examples, extract detailed content ~3,000 chars)
+4. Update CLAUDE.md with short summaries + clear links to extracted content
+
+**Target Size After Reduction:** ~38,000 characters
+
+**Files to Create:**
+- None (all target files exist, just moving content)
+
+**Cross-References to Update:**
+- None (no file path changes, just content extraction)
+
+**Estimated Duration:** 30-40 minutes
+
+**Verification:**
+- [ ] wc -c CLAUDE.md ≤ 40,000
+- [ ] All critical content remains in CLAUDE.md
+- [ ] Links to extracted content clear
+- [ ] No information lost
+- [ ] Pre-audit script passes
+```
+
+### Critical Rules
+
+**❌ DO NOT skip file size planning** - It's mandatory
+**❌ DO NOT defer file size issues** - Plan them like content issues
+**❌ DO NOT treat as "nice to have"** - Treat as first-class fixes
+**✅ DO create dedicated fix groups** - Same rigor as content accuracy
+**✅ DO consult file size reduction guide** - Use systematic approach
+**✅ DO include in fix plan document** - Full planning, not afterthought
+
+---
+
 ## Exit Criteria
 
 ### Stage 2 Complete When ALL These Are True
 
-- [ ] All issues from discovery report reviewed
-- [ ] Issues grouped by pattern similarity
+**Content Accuracy Planning:**
+- [ ] All content issues from discovery report reviewed
+- [ ] Content issues grouped by pattern similarity
 - [ ] Groups prioritized (P0 → P1 → P2 → P3)
 - [ ] Sed commands created for automated fixes
 - [ ] Word boundaries used where appropriate (\b)
 - [ ] Verification commands written for each group
 - [ ] Manual review cases identified and documented
+
+**File Size Reduction Planning (if applicable):**
+- [ ] All large files from discovery report identified
+- [ ] File size reduction guide consulted
+- [ ] Evaluation completed for each large file
+- [ ] Reduction strategy chosen for each large file
+- [ ] Dedicated fix group created for each large file
+- [ ] Target files documented (files to create)
+- [ ] Cross-reference updates documented
+- [ ] Priority assigned (P1/P2/P3)
+
+**Fix Plan Document:**
 - [ ] Fix plan document created with:
-  - [ ] Group number and description
-  - [ ] Old pattern → New pattern
+  - [ ] Group number and description (content + file size groups)
+  - [ ] Old pattern → New pattern (or reduction approach for file size)
   - [ ] Count and file list
-  - [ ] Sed command
+  - [ ] Sed command (content) or reduction steps (file size)
   - [ ] Verification command
   - [ ] Estimated duration
 - [ ] Ready to proceed to Stage 3 (Apply Fixes)

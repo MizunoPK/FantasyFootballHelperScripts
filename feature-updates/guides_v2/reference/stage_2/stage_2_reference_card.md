@@ -2,7 +2,7 @@
 
 **Purpose:** One-page summary for quick consultation during S2
 **Use Case:** Quick lookup when you need to remember guide details, gates, or decision points
-**Total Time:** 2-3 hours per feature (9 phases across 3 sub-stages)
+**Total Time:** 2.25-4 hours per feature (2 phases: S2.P1 with 3 iterations, S2.P2 pairwise comparison)
 
 ---
 
@@ -228,7 +228,7 @@ S2.P3: Refinement Phase (45-60 min)
 ## Exit Conditions
 
 **S2 is complete when:**
-- [ ] All 9 phases executed (0 through 6)
+- [ ] All phases executed (S2.P1 iterations 1-3, S2.P2 alignment)
 - [ ] All 3 mandatory gates PASSED (1.5, 2.5, 6)
 - [ ] spec.md has user-approved acceptance criteria
 - [ ] checklist.md has zero unresolved items

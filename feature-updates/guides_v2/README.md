@@ -109,7 +109,7 @@ STAGE 4: Epic Testing Strategy
 STAGES 5-8: Feature Loop (Repeat for each feature)
    ↓
 STAGE 5: Implementation Planning
-   ├─ 28 verification iterations across 3 rounds
+   ├─ 22 verification iterations across 3 rounds
    ├─ Gate 4a: TODO Specification Audit (Round 1)
    ├─ Gate 7a: Backward Compatibility Check (Round 1)
    ├─ Gate 23a: Pre-Implementation Spec Audit (Round 3)
@@ -163,12 +163,12 @@ STAGE 10: Epic Cleanup
 | All features planned | `stages/s3/s3_cross_feature_sanity_check.md` | Validate alignment, resolve conflicts, get user sign-off |
 | Features aligned | `stages/s4/s4_epic_testing_strategy.md` | Update test plan based on specs |
 | Ready to implement (Round 1) | `stages/s5/s5_p1_planning_round1.md` | Iterations 1-7 + 4a: Requirements, dependencies, algorithms |
-| Round 1 complete | `stages/s5/s5_p2_planning_round2.md` | Iterations 8-16: Test strategy, edge cases, re-verification |
+| Round 1 complete | `stages/s5/s5_p2_planning_round2.md` | Iterations 8-13: Test strategy, edge cases, re-verification |
 | Round 2 complete | `stages/s5/s5_p3_planning_round3.md` | Router: Links to Part 1/Part 2a/Part 2b sub-stages |
-| Round 3 preparation phase | `stages/s5/s5_p3_planning_round3.md` | Iterations 17-22: Phasing, rollback, algorithm (final), performance, mock audit |
+| Round 3 preparation phase | `stages/s5/s5_p3_planning_round3.md` | Iterations 14-19: Phasing, rollback, algorithm (final), performance, mock audit |
 | Round 3 gates phase (Part 2a) | `stages/s5/s5_p3_i2_gates_part1.md` | Iterations 23, 23a: Integration Gap + Pre-Impl Spec Audit |
 | Round 3 gates phase (Part 2b) | `stages/s5/s5_p3_i3_gates_part2.md` | Iterations 25, 24: Spec Validation + GO/NO-GO |
-| Implementation planning complete (28 iterations) | `stages/s6/s6_execution.md` | Implement feature with continuous verification |
+| Implementation planning complete (22 iterations) | `stages/s6/s6_execution.md` | Implement feature with continuous verification |
 | Implementation done (Smoke Testing) | `stages/s7/s7_p1_smoke_testing.md` | Part 1: Import, Part 2: Entry Point, Part 3: E2E (verify DATA VALUES) |
 | Smoke testing passed (QC Rounds) | `stages/s7/s7_p2_qc_rounds.md` | Round 1: Basic validation, Round 2: Deep verification, Round 3: Final review |
 | QC rounds passed (Final Review) | `stages/s7/s7_p3_final_review.md` | PR review (11 categories), lessons learned, final verification |
@@ -331,11 +331,11 @@ feature-updates/
     │   │   └── s3_cross_feature_sanity_check.md
     │   ├── s4/
     │   │   └── s4_epic_testing_strategy.md
-    │   ├── s5/                               ← S5: Implementation Planning (28 iterations)
+    │   ├── s5/                               ← S5: Implementation Planning (22 iterations)
     │   │   ├── s5_p1_planning_round1.md         ← S5.P1 Router (Round 1: Iterations 1-7)
-    │   │   ├── s5_p2_planning_round2.md         ← S5.P2 Router (Round 2: Iterations 8-16)
-    │   │   ├── s5_p3_planning_round3.md         ← S5.P3 Router (Round 3: Iterations 17-25)
-    │   │   ├── s5_p3_i1_preparation.md          ← S5.P3.I1 (Iterations 17-22)
+    │   │   ├── s5_p2_planning_round2.md         ← S5.P2 Router (Round 2: Iterations 8-13)
+    │   │   ├── s5_p3_planning_round3.md         ← S5.P3 Router (Round 3: Iterations 14-22)
+    │   │   ├── s5_p3_i1_preparation.md          ← S5.P3.I1 (Iterations 14-19)
     │   │   ├── s5_p3_i2_gates_part1.md          ← S5.P3.I2 (Iterations 23, 23a)
     │   │   ├── s5_p3_i3_gates_part2.md          ← S5.P3.I3 (Iterations 24, 25)
     │   │   ├── s5_bugfix_workflow.md            ← Bug fix workflow
@@ -493,10 +493,10 @@ Agent continues through all 10 stages for the complete epic lifecycle.
 **Current Guide:** stages/s5/s5_p1_planning_round1.md
 **Guide Last Read:** 2025-12-30 15:20
 **Critical Rules from Guide:**
-- 28 iterations mandatory, no skipping
+- 22 iterations mandatory, no skipping
 - STOP if confidence < Medium
 - Update Agent Status after each round
-**Progress:** 12/28 iterations complete
+**Progress:** 12/22 iterations complete
 **Next Action:** Begin iteration 13 - Dependency Verification
 **Blockers:** None
 ```
@@ -771,9 +771,9 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 
 ---
 
-### Q: Do I really need 28 iterations for implementation planning?
+### Q: Do I really need 22 iterations for implementation planning?
 
-**A: YES.** All 28 iterations are MANDATORY.
+**A: YES.** All 22 iterations are MANDATORY.
 
 **Data shows:**
 - Shortcuts cause 40% QC failure rate
@@ -781,7 +781,7 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 - Complexity hides in details
 - Iterations 4, 11, 19 (Traceability Matrix) catch 30% of issues
 - Iteration 21 (Mock Audit) catches another 15%
-- Iteration 23a (Pre-Implementation Audit) catches 20%
+- Iteration 20 (Pre-Implementation Audit) catches 20%
 
 **NO SKIPPING ITERATIONS.**
 

@@ -29,13 +29,13 @@
 - **Purpose:** Verification checkpoints during planning
 - **⚠️ CRITICAL:** These ARE iterations, not additional steps
   - Gate 4a = Iteration 4a (same thing, counted as 1 iteration)
-  - Gate 23a = Iteration 23a (same thing, counted as 1 iteration)
+  - Gate 23a = Iteration 20 (same thing, counted as 1 iteration)
   - Don't count gates separately from iterations
 
 **Logic:**
 - Gate 4a = Occurs at Iteration 4a in S5 Round 1
-- Gate 23a = Occurs at Iteration 23a in S5 Round 3
-- Gate 24 = Occurs at Iteration 24 in S5 Round 3
+- Gate 23a = Occurs at Iteration 20 in S5 Round 3
+- Gate 24 = Occurs at Iteration 22 in S5 Round 3
 
 **Example:** Round 1 has 9 iterations total:
 - Iterations: 1, 2, 3, 4, 5, 5a, 6, 7
@@ -64,9 +64,9 @@
 | 4.5 | User Sign-Off | S3 | User approves complete plan | Yes (S3) |
 | **5** | **Gate 5: Epic Test Plan Approval (NEW)** | **After S4** | **User approves epic_smoke_test_plan.md** | **Yes (Revise test plan)** |
 | 5aa | Iteration 4a | Round 1 | All tasks have acceptance criteria | Yes (Iteration 4) |
-| 5ac | Iteration 23a | Part 2 | ALL 4 PARTS pass with 100% | Yes (Iteration 23a) |
-| 5ac | Iteration 25 | Part 2 | Spec matches validated docs | Yes (User decides) |
-| 5ac | Iteration 24 | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
+| 5ac | Iteration 20 | Part 2 | ALL 4 PARTS pass with 100% | Yes (Iteration 20) |
+| 5ac | Iteration 21 | Part 2 | Spec matches validated docs | Yes (User decides) |
+| 5ac | Iteration 22 | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
 | S5 | Gate 5: Implementation Plan Approval | After S5 | User approves implementation_plan.md | Yes (Revise plan) |
 | S7.P1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
 | S7.P2 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
@@ -320,10 +320,10 @@
 
 ---
 
-### Gate 2: Iteration 23a - Pre-Implementation Spec Audit (5 PARTS)
+### Gate 2: Iteration 20 - Pre-Implementation Spec Audit (5 PARTS)
 
 **Location:** stages/s5/5.1.3.2_round3_part2a.md (Round 3 Part 2a)
-**When:** After preparation iterations (Iterations 17-22)
+**When:** After preparation iterations (Iterations 14-19)
 
 **ALL 5 PARTS must PASS:**
 
@@ -368,17 +368,17 @@
 
 **If FAIL:**
 - Fix the failing part(s)
-- Re-run Iteration 23a (all 5 parts)
-- Must PASS before proceeding to Iteration 25
+- Re-run Iteration 20 (all 5 parts)
+- Must PASS before proceeding to Iteration 21
 
 **Why it matters:** Final verification that implementation_plan.md is complete and correct before validating against user-approved documents
 
 ---
 
-### Gate 3: Iteration 25 - Spec Validation Against Validated Documents (CRITICAL)
+### Gate 3: Iteration 21 - Spec Validation Against Validated Documents (CRITICAL)
 
 **Location:** stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
-**When:** After Iteration 23a passes
+**When:** After Iteration 20 passes
 
 **What it checks:**
 - Spec.md matches ALL three user-validated sources:
@@ -413,26 +413,26 @@
 **If FAIL (discrepancies found):**
 - User chooses Option A, B, or C
 - Follow user's decision
-- Cannot proceed to Iteration 24 until resolved
+- Cannot proceed to Iteration 22 until resolved
 
 **Historical Context:**
 - Feature 02 catastrophic bug: spec.md misinterpreted epic notes
 - Spec stated "no code changes needed" when epic actually required week_N+1 folder logic
-- Iteration 25 specifically designed to prevent this type of bug
+- Iteration 21 specifically designed to prevent this type of bug
 
 **Why it matters:** Prevents implementing the wrong solution based on misinterpreted spec (most critical gate)
 
 ---
 
-### Gate 4: Iteration 24 - Implementation Readiness Protocol (GO/NO-GO)
+### Gate 4: Iteration 22 - Implementation Readiness Protocol (GO/NO-GO)
 
 **Location:** stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
-**When:** After Iteration 25 passes
+**When:** After Iteration 21 passes
 
 **What it checks (comprehensive checklist):**
 - Spec Verification: Complete, validated
 - Implementation Plan Verification: All requirements have tasks, specificity 100%
-- Iteration Completion: All 25 iterations complete
+- Iteration Completion: All 22 iterations complete
 - Mandatory Gates: Iterations 4a, 23a (ALL 4 PARTS), 25 all PASSED
 - Confidence Assessment: >= MEDIUM
 - Integration Verification: Algorithm traceability, integration gaps, interfaces, mocks
@@ -448,7 +448,7 @@
 **If NO-GO:**
 - Address concerns/blockers
 - Fix failing items
-- Re-evaluate Iteration 24
+- Re-evaluate Iteration 22
 - Cannot proceed to S6 without GO decision
 
 **Why it matters:** Final checkpoint before writing code (prevents implementing with incomplete/incorrect planning)
@@ -458,7 +458,7 @@
 ### Gate 5: User Approval of Implementation Plan (MANDATORY CHECKPOINT)
 
 **Location:** Between S5 and S6
-**When:** After Iteration 24 returns GO decision
+**When:** After Iteration 22 returns GO decision
 
 **What it checks:**
 - User reviews implementation_plan.md (~400 lines)
@@ -645,8 +645,8 @@
 **Gates with Evidence Requirements:** 7
 - Phase 1.5: File paths, line numbers
 - Iteration 4a: Task count, criteria count
-- Iteration 23a: 4 parts with specific numbers
-- Iteration 25: Three-way comparison results
+- Iteration 20: 4 parts with specific numbers
+- Iteration 21: Three-way comparison results
 - Smoke Part 3: Data values
 - QC Round 3: Zero issues count
 
@@ -654,7 +654,7 @@
 - Phase 1.5 → Phase 1
 - Phase 2.5 → Phase 2
 - Iteration 4a → Iteration 4
-- Iteration 23a → Iteration 23a
+- Iteration 20 → Iteration 20
 - Smoke Part 3 → Smoke Part 1
 - QC Round 3 → Smoke Part 1
 
@@ -663,7 +663,7 @@
 - Gate 4: User approval (acceptance criteria)
 - Gate 4.5 (S3): User sign-off (epic plan)
 - Gate 5: User approval (epic test plan - NEW)
-- Iteration 25: User decision (if discrepancies)
+- Iteration 21: User decision (if discrepancies)
 - Gate 6: User approval (implementation plan)
 - Gate 7.2: User testing approval
 

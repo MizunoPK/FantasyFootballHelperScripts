@@ -25,7 +25,7 @@
 
 ### Skipping Iterations
 - ❌ "Iteration 7 seems obvious, I'll skip it"
-- ✅ ALL 28 iterations in S5 are MANDATORY
+- ✅ ALL 22 iterations in S5 are MANDATORY
 - **Why:** Each iteration catches specific bug categories
 
 ### Committing Without Tests

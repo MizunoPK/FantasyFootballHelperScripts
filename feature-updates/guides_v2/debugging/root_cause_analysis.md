@@ -111,7 +111,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 - Round 1, Iteration 7 (Integration Gap Check): Should integration point have been verified?
 - Round 2, Iteration 9 (Edge Case Analysis): Should edge case have been identified?
 - Round 2, Iteration 15 (Test Coverage): Should test have covered this?
-- Round 3, Iteration 23a (Spec Audit): Should spec have included this requirement?
+- Round 3, Iteration 20 (Spec Audit): Should spec have included this requirement?
 
 **S6 (Implementation Execution):**
 - Mini-QC checkpoints: Should QC have caught this?

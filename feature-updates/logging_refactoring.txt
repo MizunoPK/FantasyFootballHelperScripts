@@ -1,4 +1,4 @@
-Improve logging and the saving of logs
+Our goal is to improve logging and the saving of logs
 We'll have a logs folder at the root of the project, with subfolders for each major script
 E.g.
 - logs
@@ -16,3 +16,9 @@ When logging to the file, if the file already is at 500 lines, then create a new
 For each log subfolder, cap the total number of logs that can exist at 50 each. When going above that, automatically delete the oldest log file
 
 Add the logs folder to the gitignore
+
+Additionally, the Debug and Info level logs in each script should be evaluated for quality
+Debug level logs should be conveying enough extra information for a user to be able to trace data flow and function execution, but should not *overwhelm* the logs. 
+Info level logs should provide enough information that a user at runtime would want to know to inform them the general need-to-know aspects of the script execution. 
+
+Each script should have the ability to toggle saving to log files on and off depending on a CLI argument

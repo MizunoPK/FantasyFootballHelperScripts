@@ -13,16 +13,16 @@
 
 **Note:** S5 is split into 5 separate guides for better digestibility:
 - **stages/s5/s5_p1_planning_round1.md** - Round 1: Iterations 1-7 + 4a (START HERE)
-- **stages/s5/s5_p2_planning_round2.md** - Round 2: Iterations 8-16
+- **stages/s5/s5_p2_planning_round2.md** - Round 2: Iterations 8-13
 - **stages/s5/round3_todo_creation.md** - Round 3 router (links to Part 1/2a/2b)
-- **stages/s5/s5_p3_planning_round3.md** - Round 3 Part 1: Iterations 17-22
+- **stages/s5/s5_p3_planning_round3.md** - Round 3 Part 1: Iterations 14-19
 - **stages/s5/5.1.3.2_round3_part2a.md** - Round 3 Part 2a: Iterations 23, 23a
 - **stages/s5/5.1.3.3_round3_part2b.md** - Round 3 Part 2b: Iterations 25, 24
 
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterations in Round 1...
+I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterations in Round 1...
 
 **The guide requires:**
 - **🚨 CRITICAL: IMPLEMENTATION TASKS MUST TRACE TO SPEC REQUIREMENTS**:
@@ -31,7 +31,7 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterat
   - Do NOT add tasks the user didn't ask for
   - If uncertain about a task → create question in questions.md
   - Only create implementation tasks for confirmed, documented requirements
-- **Round 1: 8 MANDATORY iterations** (NO SKIPPING):
+- **Round 1: 7 MANDATORY iterations** (NO SKIPPING):
   - Iterations 1-7 + iteration 4a (Implementation Plan Specification Audit)
 - **Iteration 4a is a MANDATORY GATE**:
   - Every implementation task MUST have acceptance criteria
@@ -67,8 +67,8 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterat
 - Current Phase: IMPLEMENTATION_PLANNING
 - Current Guide: stages/s5/s5_p1_planning_round1.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Implementation tasks MUST trace to spec requirements (no assumptions)", "8 iterations mandatory (Round 1)", "Iteration 4a is MANDATORY GATE", "STOP if confidence < Medium", "Interface verification: READ actual code"
-- Progress: 0/8 iterations complete (Round 1)
+- Critical Rules: "Implementation tasks MUST trace to spec requirements (no assumptions)", "7 iterations mandatory (Round 1)", "Iteration 4a is MANDATORY GATE", "STOP if confidence < Medium", "Interface verification: READ actual code"
+- Progress: 0/7 iterations complete (Round 1)
 - Next Action: Begin iteration 1 - Requirements Coverage Check
 
 Starting iteration 1...
@@ -78,18 +78,18 @@ Starting iteration 1...
 
 ## Starting S5: Implementation Planning (Round 2)
 
-**User says:** Agent detects Round 1 complete (8/8 iterations done, confidence >= MEDIUM)
+**User says:** Agent detects Round 1 complete (7/7 iterations done, confidence >= MEDIUM)
 
 **Prerequisite:** Round 1 complete (Part 5.1.1), Iteration 4a PASSED, confidence >= MEDIUM
 
 **Agent MUST respond:**
 
 ```
-I'm reading `stages/s5/s5_p2_planning_round2.md` to ensure I follow all 9 iterations in Round 2...
+I'm reading `stages/s5/s5_p2_planning_round2.md` to ensure I follow all 6 iterations in Round 2...
 
 **The guide requires:**
-- **Round 2: 9 MANDATORY iterations** (NO SKIPPING):
-  - Iterations 8-16 (Deep Verification)
+- **Round 2: 6 MANDATORY iterations** (NO SKIPPING):
+  - Iterations 8-13 (Deep Verification)
 - **Re-verification iterations (11, 12, 14) are CRITICAL**:
   - Algorithm Traceability Matrix re-verify (Iteration 11)
   - E2E Data Flow re-verify (Iteration 12)
@@ -108,18 +108,18 @@ I'm reading `stages/s5/s5_p2_planning_round2.md` to ensure I follow all 9 iterat
 - Re-verification catches bugs from Round 1 updates
 
 **Prerequisites I'm verifying:**
-✅ Round 1 complete (8/8 iterations)
+✅ Round 1 complete (7/7 iterations)
 ✅ Iteration 4a PASSED
 ✅ Confidence: >= MEDIUM (from Round 1 checkpoint)
 ✅ implementation_plan.md created with acceptance criteria for all tasks
 
-**I'll now proceed with Round 2 (iterations 8-16).**
+**I'll now proceed with Round 2 (iterations 8-13).**
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION_PLANNING
 - Current Guide: stages/s5/s5_p2_planning_round2.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "9 iterations mandatory (Round 2)", "Re-verification iterations are CRITICAL", "Test coverage >90% required"
+- Critical Rules: "6 iterations mandatory (Round 2)", "Re-verification iterations are CRITICAL", "Test coverage >90% required"
 - Progress: 8/24 total iterations complete (starting Round 2)
 - Next Action: Begin iteration 8 - Test Strategy Development
 
@@ -130,12 +130,12 @@ Starting iteration 8...
 
 ## Starting S5 Round 3 Part 1: Implementation Planning (Preparation)
 
-**User says:** Agent detects Round 2 complete (16/28 iterations done, confidence >= MEDIUM, test coverage >90%)
+**User says:** Agent detects Round 2 complete (16/22 iterations done, confidence >= MEDIUM, test coverage >90%)
 
 **Prerequisite:** Round 2 complete (Part 5.1.2), confidence >= MEDIUM, test coverage >90%
 
 **Note:** Round 3 is split into 3 parts for better navigation:
-- **stages/s5/s5_p3_planning_round3.md** - Iterations 17-22 (START HERE)
+- **stages/s5/s5_p3_planning_round3.md** - Iterations 14-19 (START HERE)
 - **stages/s5/5.1.3.2_round3_part2a.md** - Iterations 23, 23a (Gates 1-2)
 - **stages/s5/5.1.3.3_round3_part2b.md** - Iterations 25, 24 (Gate 3 + GO/NO-GO)
 
@@ -169,13 +169,13 @@ I'm reading `stages/s5/s5_p3_planning_round3.md` to ensure I follow all 6 prepar
 - Mock audit prevents interface mismatch bugs
 
 **Prerequisites I'm verifying:**
-✅ Round 2 complete (16/28 iterations)
+✅ Round 2 complete (16/22 iterations)
 ✅ Test coverage: >90%
 ✅ Confidence: >= MEDIUM (from Round 2 checkpoint)
 ✅ Algorithm Traceability Matrix updated (Round 2)
 ✅ Integration Gap Check updated (Round 2)
 
-**I'll now proceed with Round 3 Part 1 (iterations 17-22).**
+**I'll now proceed with Round 3 Part 1 (iterations 14-19).**
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION_PLANNING
@@ -192,9 +192,9 @@ Starting iteration 17...
 
 ## Starting S5 Round 3 Part 2: Implementation Planning (Final Gates)
 
-**User says:** Agent detects Round 3 Part 1 complete (22/28 iterations done)
+**User says:** Agent detects Round 3 Part 1 complete (22/22 iterations done)
 
-**Prerequisite:** Round 3 Part 1 complete (Part 5.1.3.1), Iterations 17-22 done
+**Prerequisite:** Round 3 Part 1 complete (Part 5.1.3.1), Iterations 14-19 done
 
 **Agent MUST respond:**
 
@@ -203,23 +203,23 @@ I'm reading `stages/s5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/s5/5.1.3.
 
 **The guide requires:**
 - **Part 2: 4 final gate iterations containing ALL 3 MANDATORY GATES**:
-  - Iteration 23: Integration Gap Check (Final)
-  - Iteration 23a: Pre-Implementation Spec Audit (MANDATORY GATE - 4 PARTS)
-  - Iteration 25: Spec Validation Against Validated Documents (CRITICAL GATE)
-  - Iteration 24: Implementation Readiness Protocol (FINAL GATE - GO/NO-GO)
-- **Iteration 23a (Pre-Implementation Spec Audit) has 4 MANDATORY PARTS**:
+  - Iteration 19: Integration Gap Check (Final)
+  - Iteration 20: Pre-Implementation Spec Audit (MANDATORY GATE - 4 PARTS)
+  - Iteration 21: Spec Validation Against Validated Documents (CRITICAL GATE)
+  - Iteration 22: Implementation Readiness Protocol (FINAL GATE - GO/NO-GO)
+- **Iteration 20 (Pre-Implementation Spec Audit) has 4 MANDATORY PARTS**:
   - Part 1: Completeness Audit (Coverage = 100%)
   - Part 2: Specificity Audit (Specificity = 100%)
   - Part 3: Interface Contracts Audit (Verification = 100%)
   - Part 4: Integration Evidence Audit (Integration = 100%)
   - ALL 4 PARTS must show 100% metrics with evidence (cite specific numbers)
-- **Iteration 25 (Spec Validation) - CRITICAL GATE**:
+- **Iteration 21 (Spec Validation) - CRITICAL GATE**:
   - Close spec.md first (avoid confirmation bias)
   - Re-read validated documents independently: epic notes + epic ticket + spec summary
   - Three-way comparison: spec.md vs all three validated sources
   - IF ANY DISCREPANCIES → STOP and report to user with 3 options
   - Prevents catastrophic bugs (Feature 02 bug: spec misinterpreted epic notes)
-- **Iteration 24 (Implementation Readiness) - FINAL GATE**:
+- **Iteration 22 (Implementation Readiness) - FINAL GATE**:
   - GO/NO-GO decision required
   - CANNOT proceed to S6 without "GO" decision
   - GO requires: confidence >= MEDIUM, all gates PASSED, all checklists complete
@@ -231,7 +231,7 @@ I'm reading `stages/s5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/s5/5.1.3.
 - GO/NO-GO framework prevents implementing with incomplete planning
 
 **Prerequisites I'm verifying:**
-✅ Round 3 Part 1 complete (22/28 iterations)
+✅ Round 3 Part 1 complete (22/22 iterations)
 ✅ Implementation phasing defined
 ✅ Rollback strategy documented
 ✅ Algorithm traceability matrix complete (final)
@@ -244,7 +244,7 @@ I'm reading `stages/s5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/s5/5.1.3.
 - Current Phase: IMPLEMENTATION_PLANNING
 - Current Guide: stages/s5/5.1.3.2_round3_part2a.md (Part 2a, then Part 2b)
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "3 MANDATORY GATES (23a, 25, 24) - CANNOT skip", "Evidence-based verification (cite numbers)", "Close spec.md before Iteration 25", "User decision required if discrepancies"
+- Critical Rules: "3 MANDATORY GATES (23a, 25, 24) - CANNOT skip", "Evidence-based verification (cite numbers)", "Close spec.md before Iteration 21", "User decision required if discrepancies"
 - Progress: 22/24 total iterations complete (starting Round 3 Part 2)
 - Next Action: Begin iteration 23 - Integration Gap Check (Final)
 
@@ -255,9 +255,9 @@ Starting iteration 23...
 
 ## User Approval of Implementation Plan
 
-**User says:** "Review implementation plan" or Agent detects S5 complete (28 iterations done, Iteration 24: Implementation Readiness = PASSED)
+**User says:** "Review implementation plan" or Agent detects S5 complete (22 iterations done, Iteration 22: Implementation Readiness = PASSED)
 
-**Prerequisite:** S5 complete (28 iterations passed, implementation_plan.md v3.0 created)
+**Prerequisite:** S5 complete (22 iterations passed, implementation_plan.md v3.0 created)
 
 **🚨 MANDATORY CHECKPOINT - USER MUST APPROVE implementation_plan.md BEFORE S6**
 
@@ -319,8 +319,8 @@ I'm reading `stages/s6/s6_execution.md` to ensure I follow the implementation wo
 - STOP if stuck or blocked - ask user
 
 **Prerequisites I'm verifying:**
-✅ S5 complete (EPIC_README.md shows 28 iterations done)
-✅ Iteration 24: Implementation Readiness = PASSED
+✅ S5 complete (EPIC_README.md shows 22 iterations done)
+✅ Iteration 22: Implementation Readiness = PASSED
 ✅ implementation_plan.md v3.0 exists and user-approved
 ✅ questions.md resolved (or documented "no questions")
 

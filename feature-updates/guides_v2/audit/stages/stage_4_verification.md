@@ -344,16 +344,177 @@ N_new = 0
 
 ---
 
+## File Size Compliance Verification
+
+### MANDATORY: Verify ALL File Size Reductions
+
+**If Stage 3 included file size reductions**, you MUST verify compliance before proceeding.
+
+### Step 1: Re-Run Pre-Audit Script
+
+```bash
+bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh
+```
+
+**Expected output:**
+```
+=== Policy Compliance Check ===
+
+✅ PASS: CLAUDE.md (39,500 chars) within 40,000 character limit
+
+=== File Size Assessment (D10) ===
+
+✅ All files within size limits
+
+Files >1000 lines: 0
+Files 600-1000 lines: 0
+```
+
+**If ANY failures:**
+- Document as verification failure
+- Set N_remaining += 1 for each file size issue
+- Loop back to Stage 3 file size reduction
+- Fix file size issues
+- Re-run verification
+
+### Step 2: Verify Specific Reductions
+
+**For EACH file that was reduced in Stage 3:**
+
+```bash
+# Verify CLAUDE.md (if applicable)
+wc -c ../../CLAUDE.md
+# Expected: ≤40,000 characters
+# Actual: [count]
+
+# Verify workflow guides
+for file in [list of reduced files]; do
+  lines=$(wc -l < "$file")
+  echo "$file: $lines lines"
+  # Expected: ≤1000 lines (preferably ≤600)
+done
+```
+
+**Document results:**
+```markdown
+### File Size Verification
+
+**CLAUDE.md:**
+- Before: 45,786 chars
+- After: 39,500 chars
+- Status: ✅ Within 40,000 char limit
+
+**stages/s5/s5_p1_planning_round1.md:**
+- Before: 1200 lines
+- After: 400 lines (sub-guides created)
+- Status: ✅ Within limits
+
+**All file size reductions:** ✅ VERIFIED
+```
+
+### Step 3: Verify Cross-References After Reduction
+
+**If file size reduction involved splitting files or extracting content:**
+
+```bash
+# Check for broken links
+grep -rn "\.md" stages templates prompts reference CLAUDE.md | \
+  grep -o "[^(]*\.md" | sort -u | while read ref; do
+    if [ ! -f "$ref" ]; then
+      echo "❌ BROKEN LINK: $ref"
+    fi
+  done
+
+# Should return ZERO broken links
+```
+
+**If broken links found:**
+- Document as verification failure
+- Set N_new += 1 for each broken link
+- Loop back to Stage 3
+- Fix cross-references
+- Re-run verification
+
+### Step 4: Verify Agent Usability
+
+**Quick usability checks:**
+
+**For CLAUDE.md (if reduced):**
+- [ ] Can quickly find critical rules? (scan table of contents)
+- [ ] Are phase transition requirements clear?
+- [ ] Do extracted sections feel accessible? (clear links with context)
+- [ ] Would agent know where to look for detailed content?
+
+**For split workflow guides:**
+- [ ] Do router files provide clear navigation?
+- [ ] Are sub-guides easy to find?
+- [ ] Is workflow continuity maintained?
+- [ ] Would splitting create excessive navigation overhead? (test by reading through workflow)
+
+**If usability concerns:**
+- Document in verification report
+- Consider if file size reduction introduced new problems
+- May need to refine reduction approach
+
+### Step 5: Document File Size Verification
+
+**In verification report, include:**
+
+```markdown
+## File Size Compliance Verification
+
+**Pre-Audit Script Results:**
+```bash
+[paste pre-audit script output]
+```
+
+**Specific File Verifications:**
+- CLAUDE.md: [X chars] ✅ ≤40,000
+- [file1]: [X lines] ✅ ≤1000
+- [file2]: [X lines] ✅ ≤600
+
+**Cross-Reference Verification:**
+- Checked: [N] file references
+- Broken: 0 ✅
+
+**Usability Verification:**
+- CLAUDE.md: ✅ Quick reference effective
+- Split guides: ✅ Navigation clear
+
+**Status:** ✅ ALL file size reductions verified
+```
+
+### Critical Rules
+
+**❌ DO NOT skip file size verification** - It's mandatory if reductions were made
+**❌ DO NOT assume reductions worked** - Verify with pre-audit script
+**❌ DO NOT ignore broken links** - Cross-references must be valid
+**✅ DO verify with automated script** - Use pre-audit checks
+**✅ DO check agent usability** - Reduction must not harm workflow
+**✅ DO include in N_new count** - If new issues found during file size verification
+
+---
+
 ## Exit Criteria
 
 ### Stage 4 Complete When ALL These Are True
 
+**Content Accuracy Verification:**
 - [ ] All Stage 1 patterns re-run
 - [ ] N_remaining = 0 OR only intentional (documented)
 - [ ] Tried at least 5 new pattern variations
 - [ ] N_new = 0 (no new issues discovered)
 - [ ] Spot-checked 10+ random files
 - [ ] Spot-checks found zero issues OR issues added to fix list
+
+**File Size Compliance Verification (if applicable):**
+- [ ] Pre-audit script re-run
+- [ ] All file size reductions verified (within limits)
+- [ ] Cross-references validated (no broken links)
+- [ ] Agent usability verified (no new barriers)
+- [ ] File size verification included in N_new count
+
+**Final Checks:**
 - [ ] All counts calculated (N_found, N_fixed, N_remaining, N_new)
 - [ ] Verification report created
 - [ ] Ready to proceed to Stage 5 (Loop Decision)

@@ -345,7 +345,7 @@ Location in workflow where path diverges based on conditions.
 - After S7: Skip S8 if last feature
 - After S8.P2: Next feature or S9
 - After QC failure: Restart protocol
-- Iteration 24: GO vs NO-GO
+- Iteration 22: GO vs NO-GO
 
 **See:** Workflow Diagrams
 
@@ -499,9 +499,9 @@ Mandatory checkpoint that must PASS before proceeding.
 **1. Iteration-Level Gates (part of iteration sequence):**
 - **Gate 4a = Iteration 4a** - TODO Specification Audit
 - **Gate 7a = Iteration 7a** - Backward Compatibility Check
-- **Gate 23a = Iteration 23a** - Pre-Implementation Spec Audit (5 PARTS, 100% metrics)
-- **Gate 24 = Iteration 24** - Implementation Readiness Protocol (GO/NO-GO)
-- **Gate 25 = Iteration 25** - Spec Validation Against Validated Documents
+- **Gate 23a = Iteration 20** - Pre-Implementation Spec Audit (5 PARTS, 100% metrics)
+- **Gate 24 = Iteration 22** - Implementation Readiness Protocol (GO/NO-GO)
+- **Gate 25 = Iteration 21** - Spec Validation Against Validated Documents
 - **⚠️ CRITICAL:** These ARE iterations, not additional steps. Don't count them separately.
 
 **2. Stage-Level Gates (between stages):**
@@ -518,7 +518,7 @@ Mandatory checkpoint that must PASS before proceeding.
 ---
 
 ### GO Decision
-Iteration 24 outcome indicating readiness to proceed to S6 implementation.
+Iteration 22 outcome indicating readiness to proceed to S6 implementation.
 
 **Requirements for GO:**
 - ALL checklist items ✅
@@ -529,7 +529,7 @@ Iteration 24 outcome indicating readiness to proceed to S6 implementation.
 
 **If NO-GO:** Return to appropriate iteration, fix issues, re-run gates
 
-**See:** Iteration 24, NO-GO, Gates
+**See:** Iteration 22, NO-GO, Gates
 
 **Guide:** s5_p3_i3_gates_part2.md
 
@@ -679,10 +679,10 @@ Central tracking file for all discovered issues during debugging.
 ### Iteration
 **[S5]** Single verification step in TODO Creation process.
 
-**Total:** 28 iterations across 3 rounds
-- **Round 1:** Iterations 1-7 + Gate 4a + Gate 7a (9 iterations)
-- **Round 2:** Iterations 8-16 (9 iterations)
-- **Round 3:** Iterations 17-25 (includes Gates 23a, 24, 25) (10 iterations)
+**Total:** 22 iterations across 3 rounds
+- **Round 1:** Iterations 1-7 (7 iterations, includes Gates 4a, 7a)
+- **Round 2:** Iterations 8-13 (6 iterations)
+- **Round 3:** Iterations 14-22 (includes Gates 23a, 24, 25) (9 iterations)
 
 **Iteration Numbering with Letter Suffixes:**
 - **Letter suffix (4a, 5a, 7a, 23a):** Indicates a gate checkpoint or critical sub-iteration
@@ -690,7 +690,7 @@ Central tracking file for all discovered issues during debugging.
   - Iteration 5a: Downstream Consumption Tracing (critical sub-step after Iteration 5)
   - Iteration 4a: Gate checkpoint for TODO Specification Audit
   - Iteration 7a: Gate checkpoint for Backward Compatibility
-  - Iteration 23a: Gate checkpoint for Pre-Implementation Spec Audit
+  - Iteration 20: Gate checkpoint for Pre-Implementation Spec Audit
 - **Numbering:** Iterations with "a" suffix occur BETWEEN base iterations or AS gate checkpoints within iterations
 
 **All iterations mandatory** - skipping not allowed
@@ -823,7 +823,7 @@ Test double that simulates real object behavior.
 ## N
 
 ### NO-GO Decision
-Iteration 24 outcome indicating NOT ready to proceed to S6.
+Iteration 22 outcome indicating NOT ready to proceed to S6.
 
 **Causes:**
 - Confidence < MEDIUM
@@ -835,7 +835,7 @@ Iteration 24 outcome indicating NOT ready to proceed to S6.
 
 **Action:** Return to appropriate iteration, fix issues, re-run gates
 
-**See:** GO Decision, Iteration 24
+**See:** GO Decision, Iteration 22
 
 **Guide:** s5_p3_i3_gates_part2.md
 
@@ -1072,9 +1072,9 @@ Process of continuing work after session compaction.
 **[Two contexts]**
 
 **[S5 TODO Creation]** Collection of iterations:
-- Round 1: Iterations 1-7 + Gate 4a (Initial TODO)
-- Round 2: Iterations 8-16 (Integration Verification)
-- Round 3: Iterations 17-24 (Preparation + Gates)
+- Round 1: Iterations 1-7 (7 iterations, includes Gate 4a) - Initial TODO
+- Round 2: Iterations 8-13 (6 iterations) - Integration Verification
+- Round 3: Iterations 14-22 (9 iterations, includes Gates 23a=I20, 25=I21, 24=I22) - Preparation + Gates
 
 **[QC Rounds]** Quality control verification rounds:
 - Round 1: Algorithm Verification
@@ -1143,7 +1143,7 @@ Specification document in each feature folder containing all requirements.
 ---
 
 ### Spec Validation
-**[Gate 25 Iteration 25]** Three-way validation of spec.md against validated documents.
+**[Gate 25 Iteration 21]** Three-way validation of spec.md against validated documents.
 
 **Three validated sources:**
 1. Epic notes (user's original request in {epic_name}.txt)
@@ -1154,7 +1154,7 @@ Specification document in each feature folder containing all requirements.
 
 **Purpose:** Prevents catastrophic bugs (Feature 02 bug: spec misinterpreted epic notes)
 
-**See:** Gate 25, Iteration 25
+**See:** Gate 25, Iteration 21
 
 **Guide:** s5_p3_i3_gates_part2.md, spec_validation.md
 
@@ -1183,7 +1183,7 @@ Top-level workflow division. 10 stages total:
 
 ### S5 Sub-Stages
 S5 (Feature Implementation) has 5 sub-stages per feature:
-- **5a:** TODO Creation (28 iterations across 3 rounds)
+- **5a:** TODO Creation (22 iterations across 3 rounds)
 - **5b:** Implementation Execution (write code)
 - **5c:** Post-Implementation (smoke testing + QC rounds + final review)
 - **5d:** Post-Feature Alignment (update remaining feature specs) - skip if last feature
@@ -1202,7 +1202,7 @@ S5 (Feature Implementation) has 5 sub-stages per feature:
 ### implementation_plan.md
 Implementation plan (~400 lines) in each feature folder containing comprehensive build guide.
 
-**Created:** S5 (Implementation Planning - 28 iterations across 3 rounds)
+**Created:** S5 (Implementation Planning - 22 iterations across 3 rounds)
 **User-Approved:** After S5 (MANDATORY Gate 5)
 **Used:** S6 (Implementation Execution - PRIMARY reference)
 
@@ -1403,7 +1403,7 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 | STAGE_2a | S2.P1 | Research Phase |
 | STAGE_2b | S2.P2 | Specification Phase |
 | STAGE_2c | S2.P3 | Refinement Phase |
-| STAGE_5a | S5 | Implementation Planning (28 iterations) |
+| STAGE_5a | S5 | Implementation Planning (22 iterations) |
 | STAGE_5b | S6 | Implementation Execution |
 | STAGE_5c | S7 | Implementation Testing & Review |
 | STAGE_5d | S8.P1 | Cross-Feature Alignment |

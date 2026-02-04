@@ -438,7 +438,7 @@ Time saved: 2 weeks of wrong work
 
 **Request:** "Add dynasty league support"
 
-**Discovery completes in 8-10 iterations:**
+**Discovery completes in 8-9 iterations:**
 1. Understand dynasty rules
 2. Research keeper/contract concepts
 3. Identify affected modules

@@ -134,7 +134,7 @@ Actions needed:
 **When new/updated feature's turn comes in sequence:**
 
 **Run full S5:**
-- S5: TODO Creation (3 rounds, 28 iterations)
+- S5: TODO Creation (3 rounds, 22 iterations)
 - S6: Implementation Execution
 - S7: Post-Implementation (smoke testing, QC rounds, final review)
 - S8.P1: Cross-Feature Spec Alignment

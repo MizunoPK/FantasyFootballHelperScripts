@@ -9,7 +9,7 @@
 ## Workflow Diagram
 
 ```
-STAGE 5a: TODO Creation (2.5-3 hours, 28 iterations across 3 rounds)
+STAGE 5a: TODO Creation (2.5-3 hours, 22 iterations across 3 rounds)
     │
     ├─ Round 1: Initial Analysis (stages/s5/s5_p1_planning_round1.md)
     │   Iterations 1-7 + 4a (9 iterations)
@@ -19,16 +19,16 @@ STAGE 5a: TODO Creation (2.5-3 hours, 28 iterations across 3 rounds)
     │   └─ Iteration 4a: TODO Specification Audit ← MANDATORY GATE
     │
     ├─ Round 2: Deep Verification (stages/s5/s5_p2_planning_round2.md)
-    │   Iterations 8-16 (9 iterations)
+    │   Iterations 8-13 (9 iterations)
     │   ├─ Test strategy (>90% coverage required)
     │   ├─ Edge case enumeration
     │   ├─ Re-verification of Round 1 matrices
     │   └─ Test coverage depth check
     │
-    └─ Round 3: Final Readiness (Split into 2 parts, 10 iterations)
+    └─ Round 3: Final Readiness (Split into 2 parts, 9 iterations)
         │
         ├─ Part 1: Preparation (stages/s5/s5_p3_planning_round3.md)
-        │   Iterations 17-22 (6 iterations)
+        │   Iterations 14-19 (6 iterations)
         │   ├─ Implementation phasing
         │   ├─ Rollback strategy
         │   ├─ Algorithm traceability (FINAL)
@@ -38,10 +38,10 @@ STAGE 5a: TODO Creation (2.5-3 hours, 28 iterations across 3 rounds)
         │
         └─ Part 2: Final Gates (stages/s5/round3_part2_final_gates.md)
             Iterations 23, 23a, 25, 24 (4 iterations with 3 MANDATORY GATES)
-            ├─ Iteration 23: Integration gap check
-            ├─ Iteration 23a: Pre-Implementation Spec Audit (4 PARTS) ← MANDATORY GATE
-            ├─ Iteration 25: Spec Validation Against Validated Docs ← CRITICAL GATE
-            └─ Iteration 24: Implementation Readiness (GO/NO-GO) ← FINAL GATE
+            ├─ Iteration 19: Integration gap check
+            ├─ Iteration 20: Pre-Implementation Spec Audit (4 PARTS) ← MANDATORY GATE
+            ├─ Iteration 21: Spec Validation Against Validated Docs ← CRITICAL GATE
+            └─ Iteration 22: Implementation Readiness (GO/NO-GO) ← FINAL GATE
         ↓
 STAGE 5b: Implementation Execution (stages/s6/s6_execution.md)
     1-4 hours (varies by complexity)
@@ -108,7 +108,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 - **Evidence:** Task count, criteria count, 100% coverage
 - **If FAIL:** Add missing acceptance criteria, re-run Iteration 4a
 
-**Gate 2: Iteration 23a - Pre-Implementation Spec Audit (4 PARTS)**
+**Gate 2: Iteration 20 - Pre-Implementation Spec Audit (4 PARTS)**
 - **Location:** stages/s5/round3_part2_final_gates.md
 - **Criteria:** ALL 4 PARTS must PASS with 100% metrics
   - Part 1: Completeness Audit (all requirements have TODO tasks)
@@ -116,9 +116,9 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
   - Part 3: Interface Contracts Audit (all dependencies verified from source)
   - Part 4: Integration Evidence Audit (all methods have callers)
 - **Evidence:** Cite specific numbers (N requirements, M tasks, coverage %)
-- **If FAIL:** Fix failing part, re-run Iteration 23a
+- **If FAIL:** Fix failing part, re-run Iteration 20
 
-**Gate 3: Iteration 25 - Spec Validation Against Validated Documents**
+**Gate 3: Iteration 21 - Spec Validation Against Validated Documents**
 - **Location:** stages/s5/round3_part2_final_gates.md
 - **Criteria:** Spec.md matches ALL three validated sources (epic notes + epic ticket + spec summary)
 - **Process:** Close spec.md first, re-read validated docs independently, three-way comparison
@@ -126,7 +126,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 - **Critical:** Prevents Feature 02 catastrophic bug (spec misinterpreted epic notes)
 - **If FAIL:** User decides next action (fix spec + restart, fix spec + continue, discuss)
 
-**Gate 4: Iteration 24 - Implementation Readiness Protocol (GO/NO-GO)**
+**Gate 4: Iteration 22 - Implementation Readiness Protocol (GO/NO-GO)**
 - **Location:** stages/s5/round3_part2_final_gates.md
 - **Criteria:** GO decision required (confidence >= MEDIUM, all gates PASSED, all checklists complete)
 - **If NO-GO:** Address concerns, cannot proceed to S6
@@ -198,12 +198,12 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 ## Critical Rules Summary
 
 ### S5 (TODO Creation)
-- ✅ Complete ALL 28 iterations (no skipping)
+- ✅ Complete ALL 22 iterations (no skipping)
 - ✅ Execute iterations IN ORDER (not parallel)
 - ✅ Pass ALL 4 mandatory gates (4a, 23a, 25, 24)
 - ✅ Achieve >90% test coverage (Round 2)
 - ✅ Evidence-based verification (cite specific numbers)
-- ✅ Close spec.md before Iteration 25 (avoid confirmation bias)
+- ✅ Close spec.md before Iteration 21 (avoid confirmation bias)
 
 ### S6 (Implementation)
 - ✅ Keep spec.md VISIBLE at all times
@@ -229,14 +229,14 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 ### ❌ Pitfall 1: Skipping Iterations
 **Problem:** "Iteration 19 looks similar to 4, I'll skip it"
 **Impact:** Missing algorithm mappings, bugs escape to QC
-**Solution:** ALL 28 iterations are mandatory (each has specific purpose)
+**Solution:** ALL 22 iterations are mandatory (each has specific purpose)
 
 ### ❌ Pitfall 2: Just Checking Boxes (No Evidence)
 **Problem:** Saying "Coverage = 100%" without citing N requirements, M tasks
 **Impact:** Gates FAIL (no evidence = didn't actually verify)
 **Solution:** Cite specific numbers for every verification
 
-### ❌ Pitfall 3: Not Closing Spec.md in Iteration 25
+### ❌ Pitfall 3: Not Closing Spec.md in Iteration 21
 **Problem:** Reading spec.md while comparing to epic notes
 **Impact:** Confirmation bias - see what you expect, not what's written
 **Solution:** Close spec.md FIRST, re-read validated docs independently
@@ -265,8 +265,8 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 | Starting TODO creation | stages/s5/s5_p1_planning_round1.md |
 | Round 1 complete, confidence >= MEDIUM | stages/s5/s5_p2_planning_round2.md |
 | Round 2 complete, test coverage >90% | stages/s5/s5_p3_planning_round3.md |
-| Preparation iterations 17-22 complete | stages/s5/round3_part2_final_gates.md |
-| GO decision from Iteration 24 | stages/s6/s6_execution.md |
+| Preparation iterations 14-19 complete | stages/s5/round3_part2_final_gates.md |
+| GO decision from Iteration 22 | stages/s6/s6_execution.md |
 | Implementation complete | stages/s7/s7_p1_smoke_testing.md |
 | Smoke testing passed | stages/s7/s7_p2_qc_rounds.md |
 | QC Round 3 passed | stages/s7/s7_p3_final_review.md |

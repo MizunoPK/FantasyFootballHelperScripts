@@ -47,7 +47,7 @@ Planning Round 1 of Implementation Planning is the initial analysis phase where 
 45-60 minutes (9 iterations)
 
 **Exit Condition:**
-Planning Round 1 is complete when all 9 iterations pass (including Gate 4a mandatory gate), confidence level is at least MEDIUM, and you're ready to proceed to Planning Round 2
+Planning Round 1 is complete when all 7 iterations pass (including Gate 4a mandatory gate), confidence level is at least MEDIUM, and you're ready to proceed to Planning Round 2
 
 ---
 

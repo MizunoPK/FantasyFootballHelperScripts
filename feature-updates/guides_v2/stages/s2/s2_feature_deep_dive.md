@@ -415,7 +415,7 @@ Ready to begin Phase 0: Discovery Context Review.
 
 **S2 is complete for THIS feature when ALL of these are true:**
 
-□ **All 9 phases complete:**
+□ **All S2 phases complete (S2.P1 iterations 1-3, S2.P2 alignment):**
   - Phase 0: Discovery Context reviewed
   - Step 1: Targeted Research complete
   - Phase 1.5: Research Audit PASSED (GATE)
@@ -495,7 +495,7 @@ Ready to begin Phase 0: Discovery Context Review.
 A: Yes, but sequentially. Read STAGE_2a first, complete it, then read STAGE_2b, complete it, then read STAGE_2c.
 
 **Q: Can I skip a phase?**
-A: No. All 9 phases are mandatory. The split doesn't change workflow, just organization.
+A: No. All S2 phases are mandatory (S2.P1 with 3 iterations, S2.P2 alignment). The new structure doesn't change workflow requirements, just organization.
 
 **Q: What if I'm resuming mid-stage?**
 A: Check feature README.md Agent Status for current phase, then read the guide for that phase.
@@ -529,7 +529,7 @@ The original guide has been preserved for reference but is deprecated. All S2 wo
 2. **stages/s2/s2_p2_specification.md** - Specification & Alignment (Phases 2, 2.5)
 3. **stages/s2/s2_p3_refinement.md** - Refinement & Approval (Phases 3, 4, 5, 6)
 
-**Workflow remains the same:** 9 phases, 3 mandatory gates, same completion criteria
+**Workflow remains the same:** 2 phases with 3 iterations in P1, 3 mandatory gates (Gate 1, Gate 2, Gate 3), same completion criteria
 
 **Improvement:** 60-70% reduction in guide size per phase, clearer navigation, better phase focus
 

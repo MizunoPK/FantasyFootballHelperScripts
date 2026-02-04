@@ -71,12 +71,14 @@ Stage 5: Loop Decision (15-30 min)
 | Stage | Guide | Duration | Primary Activities | Output |
 |-------|-------|----------|-------------------|--------|
 | **1. Discovery** | `stages/stage_1_discovery.md` | 30-60 min | Find issues using search patterns | Discovery report |
-| **2. Fix Planning** | `stages/stage_2_fix_planning.md` | 15-30 min | Group issues, prioritize fixes | Fix plan |
-| **3. Apply Fixes** | `stages/stage_3_apply_fixes.md` | 30-90 min | Apply fixes incrementally | Fixed files |
-| **4. Verification** | `stages/stage_4_verification.md` | 30-45 min | Re-run patterns, spot-check | Verification report |
+| **2. Fix Planning** | `stages/stage_2_fix_planning.md` | 15-30 min | Group issues, prioritize, **plan file size reductions** | Fix plan |
+| **3. Apply Fixes** | `stages/stage_3_apply_fixes.md` | 30-90 min | Apply fixes incrementally, **reduce large files** | Fixed files |
+| **4. Verification** | `stages/stage_4_verification.md` | 30-45 min | Re-run patterns, spot-check, **verify file sizes** | Verification report |
 | **5. Loop Decision** | `stages/stage_5_loop_decision.md` | 15-30 min | Report results, decide continue/exit | Round summary |
 
 **Critical Rule:** Complete stages sequentially. Never skip stages.
+
+**File Size Integration:** File size reduction is integrated into Stages 2-4 as first-class fixes (not deferred). See `reference/file_size_reduction_guide.md` for methodology.
 
 ---
 
@@ -270,6 +272,16 @@ bash scripts/pre_audit_checks.sh
 ---
 
 ## Reference Materials
+
+### File Size Reduction Guide ✅ COMPLETE
+`reference/file_size_reduction_guide.md` - Systematic approach to reducing large files
+- File size thresholds (CLAUDE.md: 40,000 chars, guides: 1000 lines)
+- Evaluation framework (when to split vs keep)
+- Reduction strategies (extract sub-guides, reference files, consolidate, examples)
+- CLAUDE.md reduction protocol
+- Workflow guide reduction protocol
+- Validation checklist
+- **Used in Stage 2 (planning), Stage 3 (execution), Stage 4 (verification)**
 
 ### Pattern Library ⏳ COMING SOON
 `reference/pattern_library.md` - Pre-built search patterns organized by category

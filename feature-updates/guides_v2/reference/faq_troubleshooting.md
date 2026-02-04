@@ -39,7 +39,7 @@
 
 **A:**
 - **Round:** Collection of iterations (S5 has 3 rounds)
-- **Iteration:** Single verification step (Round 1 has Iterations 1-7 + Gate 4a)
+- **Iteration:** Single verification step (Round 1 has 7 iterations: I1-I7, includes Gates 4a, 7a)
 - **Phase:** Distinct workflow section (S7 has 3 phases: Smoke Testing, QC Rounds, Final Review)
 - **Stage:** Top-level workflow division (10 stages total: S1-S10)
 
@@ -208,12 +208,12 @@ A: Make best predictions in S4:
 
 **Q: Can I skip iterations if they don't seem relevant?**
 
-A: NO - All 28 iterations are mandatory:
+A: NO - All 22 iterations are mandatory:
 - Designed based on historical bugs and missed requirements
 - Each iteration catches specific issue types
 - Skipping iterations = high risk of bugs in S7
 
-**Q: What if Iteration 24 (GO/NO-GO) says NO-GO?**
+**Q: What if Iteration 22 (GO/NO-GO) says NO-GO?**
 
 A: Follow the guidance in the NO-GO section:
 1. Review which criteria failed
@@ -227,15 +227,15 @@ A: Follow the guidance in the NO-GO section:
 
 A:
 - **Gate 4a (Iteration 4a):** TODO Specification Audit - basic quality check (after Round 1)
-- **Gate 23a (Iteration 23a):** Pre-Implementation Spec Audit - evidence-based verification (4 PARTS, 100% metrics required)
-- **Gate 25 (Iteration 25):** Spec Validation Against Validated Documents - prevents catastrophic bugs (three-way validation)
+- **Gate 23a (Iteration 20):** Pre-Implementation Spec Audit - evidence-based verification (4 PARTS, 100% metrics required)
+- **Gate 25 (Iteration 21):** Spec Validation Against Validated Documents - prevents catastrophic bugs (three-way validation)
 
 All three must PASS before S6.
 
 **Q: How long should Round 3 take?**
 
 A: Total Round 3 time: 2.5-4 hours
-- Part 1 (Iterations 17-22): 60-90 minutes
+- Part 1 (Iterations 14-19): 60-90 minutes
 - Part 2a (Gates 1-2): 30-40 minutes
 - Part 2b (Gate 3): 30-50 minutes
 
@@ -455,10 +455,10 @@ Need to fix something
          → RESTART S9
 ```
 
-### Decision Tree 3: "GO vs NO-GO Decision (Iteration 24)"
+### Decision Tree 3: "GO vs NO-GO Decision (Iteration 22)"
 
 ```
-Iteration 24: GO/NO-GO Decision
+Iteration 22: GO/NO-GO Decision
          ↓
     [Review all criteria]
          ↓
@@ -633,10 +633,10 @@ Context window limit reached → Session compacted
 - Create issue in debugging/ISSUES_CHECKLIST.md
 - Use investigation rounds to systematically identify cause
 
-### Stuck 3: "Iteration 24 says NO-GO but I don't know what to fix"
+### Stuck 3: "Iteration 22 says NO-GO but I don't know what to fix"
 
 **Solution:**
-1. **Read the failure message** from Iteration 24 decision
+1. **Read the failure message** from Iteration 22 decision
 2. **Identify specific criteria that failed:**
    - Confidence < MEDIUM → Need more planning (return to Round 3 Part 1)
    - Gate 4a failed → TODO quality issues (return to Round 1)
@@ -817,7 +817,7 @@ Would you like to:
    - Look for "Iteration X" markers in document
    - Last completed iteration marked with ✅
 3. **Review Round 3 sub-stage guides:**
-   - Part 1 = Iterations 17-22
+   - Part 1 = Iterations 14-19
    - Part 2a = Iterations 23, 23a
    - Part 2b = Iterations 25, 24
 4. **If still unclear:**
@@ -829,11 +829,11 @@ Would you like to:
 
 ## Quick Reference: Common Error Messages
 
-### Error: "Cannot proceed to S6 - Iteration 24 = NO-GO"
+### Error: "Cannot proceed to S6 - Iteration 22 = NO-GO"
 
 **Meaning:** GO/NO-GO decision failed, implementation not ready
 
-**Fix:** See "Stuck 3: Iteration 24 NO-GO" protocol above
+**Fix:** See "Stuck 3: Iteration 22 NO-GO" protocol above
 
 ---
 
@@ -857,7 +857,7 @@ Would you like to:
 1. Re-read spec.md completely
 2. Identify missing requirements
 3. Add TODO tasks for missing requirements
-4. Re-run Iteration 23a Part 1 (Completeness Audit)
+4. Re-run Iteration 20 Part 1 (Completeness Audit)
 5. Achieve 100% before proceeding
 
 ---
@@ -892,7 +892,7 @@ Note: It's acceptable to fix pre-existing test failures from other epics during 
 - Feature breakdown looks correct? (S1)
 - Spec requirements clear? (S2)
 - How to resolve spec conflicts? (S3)
-- Iteration 25 found discrepancies - which approach to take? (S5)
+- Iteration 21 found discrepancies - which approach to take? (S5)
 - Scope growing >35 items - split feature? (S2)
 - Bug fix vs missed requirement (if ambiguous)
 

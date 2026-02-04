@@ -469,6 +469,83 @@ Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify 
 
 ---
 
+## File Size Considerations
+
+### Rationale
+
+**Large files create barriers for agent comprehension and may cause agents to miss critical instructions.**
+
+When agents read guides at task start, overwhelming file size impacts effectiveness. Large guides may be partially skipped, misunderstood, or cause agents to miss mandatory steps.
+
+**User Directive:** "The point of it is to ensure that agents are able to effectively read and process the guides as they are executing them. I want to ensure that agents have no barriers in their way toward completing their task, or anything that would cause them to incorrectly complete their task."
+
+### File Size Policy
+
+**CLAUDE.md:**
+- **MUST NOT exceed 40,000 characters**
+- This is a hard policy limit, not a guideline
+- Rationale: Agents read CLAUDE.md at start of EVERY task
+- Overwhelming file size impacts agent effectiveness
+
+**Workflow Guides:**
+- **Large files (>600 lines)** should be evaluated for potential splitting
+- Consider if file serves multiple distinct purposes
+- Check if content has natural subdivisions
+- Assess if agents report difficulty following guide
+
+### When to Split Files
+
+**Evaluate splitting if ANY true:**
+- File exceeds readability threshold (varies by file type)
+- Content has natural subdivisions (e.g., phases, iterations)
+- Agents report difficulty following guide
+- File serves multiple distinct purposes
+- File is referenced in context where only portion is relevant
+
+**Don't split if:**
+- Content is cohesive single workflow
+- Splitting would create excessive navigation overhead
+- File is primarily reference material (intended to be comprehensive)
+
+### How Pre-Audit Script Checks File Size
+
+The automated pre-audit script (`scripts/pre_audit_checks.sh`) performs two file size checks:
+
+**1. Workflow Guide Size Check (D10):**
+- Checks all `stages/**/*.md` files
+- Flags files >1000 lines as **TOO LARGE** (critical issue)
+- Flags files 600-1000 lines as **LARGE** (warning - consider split)
+
+**2. CLAUDE.md Character Count (D10 Policy Compliance):**
+- Checks `CLAUDE.md` character count
+- Flags if exceeds 40,000 characters (critical policy violation)
+- Reports overage amount
+- Recommends extraction to separate files
+
+### Example: CLAUDE.md Reduction Strategy
+
+If CLAUDE.md exceeds 40,000 characters, extract detailed content to separate files:
+
+**Extraction Candidates:**
+- Detailed workflow descriptions → `EPIC_WORKFLOW_USAGE.md`
+- Stage-specific workflows → individual stage guide references
+- Protocol details → respective protocol files (debugging/, missed_requirement/)
+- Anti-pattern examples → `common_mistakes.md`
+
+**Keep in CLAUDE.md:**
+- Quick Start section
+- Phase Transition Protocol (essential)
+- Critical Rules Summary
+- Git Safety Rules
+- Tool usage policy
+- Stage Workflows Quick Reference (navigation only)
+
+**Target:** Replace extracted sections with short references pointing to detailed guides.
+
+**Validation:** After extraction, verify CLAUDE.md ≤40,000 characters AND agents can still effectively use streamlined CLAUDE.md.
+
+---
+
 ## Historical Evidence
 
 ### Real Audit Data (KAI-7 S10.P1 Guide Updates)

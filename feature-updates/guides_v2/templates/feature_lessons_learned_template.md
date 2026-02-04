@@ -49,7 +49,7 @@ This document captures lessons specific to THIS feature's development. This is s
 
 ## S5 Lessons Learned (TODO Creation)
 
-**28 Verification Iterations Experience:**
+**22 Verification Iterations Experience:**
 - Iterations that were most valuable: {List iterations and why}
 - Iterations where issues were found: {List and what was caught}
 - Iterations that seemed redundant: {List and why - helps improve guide}

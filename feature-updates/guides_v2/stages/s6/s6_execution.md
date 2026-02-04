@@ -27,7 +27,7 @@
 Implementation Execution is where you write the feature code following the implementation_plan.md, keeping spec.md visible at all times, verifying interfaces before coding, and running tests after each step with mini-QC checkpoints.
 
 **When do you use this guide?**
-- S5 complete (Round 3 Iteration 24 returned "GO")
+- S5 complete (Round 3 Iteration 22 returned "GO")
 - implementation_plan.md v3.0 is ready
 - Ready to write feature code
 
@@ -127,9 +127,9 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
 **Verify BEFORE starting S6:**
 
 □ S5 complete:
-  - Iteration 24 shows: ✅ GO decision
+  - Iteration 22 shows: ✅ GO decision
   - implementation_plan.md v3.0 exists and complete
-  - Iteration 23a: ALL 4 PARTS PASSED
+  - Iteration 20: ALL 4 PARTS PASSED
 □ All unit test files created (from implementation_plan.md test tasks)
 □ spec.md is accessible and will be kept open
 □ implementation_checklist.md created from implementation_plan.md

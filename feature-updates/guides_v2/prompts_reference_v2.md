@@ -148,7 +148,7 @@ Document guide read, critical rules, next action
 
 **✅ CORRECT:**
 ```
-I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterations in Round 1...
+I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterations in Round 1...
 {List critical requirements for Round 1}
 ```
 
@@ -189,8 +189,8 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 **✅ CORRECT:**
 ```
 **Prerequisites I'm verifying:**
-✅ S5 complete (28 iterations done)
-✅ Iteration 24: Implementation Readiness = PASSED
+✅ S5 complete (22 iterations done)
+✅ Iteration 22: Implementation Readiness = PASSED
 ✅ implementation_plan.md v3.0 exists and user-approved
 {Verify ALL prerequisites}
 ```

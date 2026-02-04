@@ -476,7 +476,7 @@ Q3: Should debug mode be activated via:
 
 Q4: For "fewer iterations" - what's a good debug number?
 - 1 iteration (fastest)
-- 10 iterations (some statistical validity)
+- 9 iterations (some statistical validity)
 - User-configurable
 ```
 

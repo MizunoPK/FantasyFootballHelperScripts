@@ -294,7 +294,7 @@ Output: Create test_strategy.md
 **After completing S4:**
 
 📖 **READ:** `stages/s5/s5_p1_planning_round1.md` (start with Round 1)
-🎯 **GOAL:** Create comprehensive implementation plan (28 verification iterations across 3 rounds)
+🎯 **GOAL:** Create comprehensive implementation plan (22 verification iterations across 3 rounds)
 ⏱️ **ESTIMATE:** 2-3 hours per feature (split across 3 rounds)
 
 **S5.P1.I1 will:**

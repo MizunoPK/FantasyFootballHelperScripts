@@ -85,7 +85,7 @@ S10: Epic Cleanup (commit, archive, apply lessons)
 - **Feature**: Individual component within an epic
 - **Stage**: Major phase of the workflow (S1-S10)
 - **Round**: Sub-phase within a stage (e.g., S5 has 3 rounds)
-- **Iteration**: Specific verification step within a round (e.g., 28 iterations in S5)
+- **Iteration**: Specific verification step within a round (e.g., 22 iterations in S5)
 - **Phase**: Sub-section within a stage (e.g., S7 has 3 phases)
 
 ---
@@ -365,13 +365,13 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Stages:** S5 → S6 → S7 → S8 (for EACH feature)
 
-#### S5: Implementation Planning (28 verification iterations across 3 rounds)
+#### S5: Implementation Planning (22 verification iterations across 3 rounds)
 
 **Guide:** 5 guides (Round 1, 2, 3 split into 3 parts)
 - `stages/s5/s5_p1_planning_round1.md` (iterations 1-7 + 4a)
-- `stages/s5/s5_p2_planning_round2.md` (iterations 8-16)
+- `stages/s5/s5_p2_planning_round2.md` (iterations 8-13)
 - `stages/s5/round3_todo_creation.md` (Round 3 router)
-- `stages/s5/s5_p3_planning_round3.md` (Round 3 Part 1: iterations 17-22)
+- `stages/s5/s5_p3_planning_round3.md` (Round 3 Part 1: iterations 14-19)
 - `stages/s5/5.1.3.2_round3_part2a.md` (Round 3 Part 2a: iterations 23, 23a)
 - `stages/s5/5.1.3.3_round3_part2b.md` (Round 3 Part 2b: iterations 25, 24)
 
@@ -380,22 +380,22 @@ feature-updates/KAI-{N}-{epic_name}/
   - Iteration 4: Algorithm Traceability Matrix
   - Iteration 4a: Implementation Plan Specification Audit (MANDATORY GATE)
   - Iteration 7: Integration Gap Check
-- Round 2: Deep verification (9 iterations)
+- Round 2: Deep verification (6 iterations)
   - Iteration 11: Algorithm Traceability Matrix (re-verify)
   - Iteration 14: Integration Gap Check (re-verify)
   - Iteration 15: Test Coverage Depth Check (>90%)
-- Round 3: Final readiness (10 iterations split into 2 parts + 3 mandatory gates)
+- Round 3: Final readiness (9 iterations split into 2 parts + 3 mandatory gates)
   - Iteration 19: Algorithm Traceability Matrix (final)
   - Iteration 21: Mock Audit & Integration Test Plan
-  - Iteration 23: Integration Gap Check (final)
-  - Iteration 23a: Pre-Implementation Spec Audit (4 MANDATORY PARTS)
-  - Iteration 24: GO/NO-GO decision
+  - Iteration 19: Integration Gap Check (final)
+  - Iteration 20: Pre-Implementation Spec Audit (4 MANDATORY PARTS)
+  - Iteration 22: GO/NO-GO decision
 
 **Outputs:** `implementation_plan.md` (~400 lines), `questions.md` (if needed)
 
 **User Approval:** **MANDATORY CHECKPOINT** - User must approve implementation_plan.md before S6
 
-**Critical Rule:** ALL 28 iterations are mandatory, cannot skip
+**Critical Rule:** ALL 22 iterations are mandatory, cannot skip
 
 #### S6: Implementation Execution
 
@@ -566,10 +566,10 @@ feature-updates/KAI-{N}-{epic_name}/bugfix_{priority}_{name}/
 
 **Example:**
 ```
-I'm reading stages/s5/s5_p1_planning_round1.md to ensure I follow all 8 iterations in Round 1...
+I'm reading stages/s5/s5_p1_planning_round1.md to ensure I follow all 7 iterations in Round 1...
 
 The guide requires:
-- Round 1: 8 MANDATORY iterations (iterations 1-7 + 4a)
+- Round 1: 7 MANDATORY iterations (iterations 1-7 + 4a)
 - Iteration 4a is a MANDATORY GATE (Implementation Plan Specification Audit)
 - Algorithm Traceability Matrix (iteration 4)
 - Integration Gap Check (iteration 7)
@@ -751,10 +751,10 @@ Phase transition prompts are **mandatory acknowledgments** that prove you read t
 **Step 3:** Use the prompt:
 
 ```
-I'm reading stages/s5/s5_p1_planning_round1.md to ensure I follow all 8 iterations in Round 1...
+I'm reading stages/s5/s5_p1_planning_round1.md to ensure I follow all 7 iterations in Round 1...
 
 The guide requires:
-- Round 1: 8 MANDATORY iterations (iterations 1-7 + 4a)
+- Round 1: 7 MANDATORY iterations (iterations 1-7 + 4a)
 - Iteration 4a is a MANDATORY GATE (Implementation Plan Specification Audit)
 - Algorithm Traceability Matrix (iteration 4)
 - Integration Gap Check (iteration 7)
@@ -917,7 +917,7 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 
 **Verify continuously, not just at end:**
 
-- During S5: 28 verification iterations
+- During S5: 22 verification iterations
 - During S6: Mini-QC after each component
 - During S7: 3-phase validation (smoke, QC, review)
 - During S9: Epic-level validation
@@ -1731,7 +1731,7 @@ This reduced section focuses on the workflow without showing all the detailed co
 
 **The Epic-Driven Development Workflow v2 provides:**
 - ✅ Structured 10-stage process (Planning → Implementation → Validation)
-- ✅ Rigorous verification at every step (28 iterations in S5 alone)
+- ✅ Rigorous verification at every step (22 iterations in S5 alone)
 - ✅ Complete documentation (specs, changes, lessons learned)
 - ✅ Quality gates (100% tests, zero tech debt, user testing)
 - ✅ Continuous improvement (lessons applied to guides)
@@ -1757,6 +1757,449 @@ This reduced section focuses on the workflow without showing all the detailed co
 - Scale from small bugs to large features
 
 **Remember:** The workflow exists to help you succeed. Follow it rigorously, learn from each epic, and continuously improve.
+
+---
+
+## Stage-by-Stage Detailed Workflows
+
+**Purpose:** Complete workflow details for all 10 stages (extracted from CLAUDE.md for reference)
+
+**When to use:** When you need detailed phase/iteration structure for a specific stage beyond the quick reference in CLAUDE.md
+
+---
+
+### S1: Epic Planning (Detailed)
+
+**Trigger:** "Help me develop {epic-name}"
+**First Action:** Use "Starting S1" prompt from `prompts_reference_v2.md`
+**Guide:** `stages/s1/s1_epic_planning.md`
+
+⚠️ **CRITICAL: S1 HAS 6 PHASES (NOT 5 STEPS)**
+
+**S1 Phase Structure:**
+- **S1.P1:** Initial Setup (Steps 1.0-1.4)
+  - Assign KAI number
+  - Create git branch
+  - Create epic folder structure
+
+- **S1.P2:** Epic Analysis (Step 2)
+  - Analyze epic request
+  - Identify scope and constraints
+
+- **S1.P3: DISCOVERY PHASE (Step 3)** ← MANDATORY, CANNOT SKIP
+  - Guide: `stages/s1/s1_p3_discovery_phase.md`
+  - Output: DISCOVERY.md (epic-level source of truth)
+  - Time-Box: SMALL 1-2hrs, MEDIUM 2-3hrs, LARGE 3-4hrs
+  - Feature folders NOT created until Discovery approved
+  - Iterative research and Q&A loop until 3 consecutive iterations with no new questions
+  - Re-read code/requirements with fresh perspective each iteration
+  - **Historical failure:** KAI-7 agent skipped S1.P3 entirely, blocked 8 secondary agents for 4 hours
+
+- **S1.P4:** Feature Breakdown Proposal (Step 4)
+  - Propose feature breakdown
+  - Get user approval
+
+- **S1.P5:** Epic Structure Creation (Step 5)
+  - Create feature folders
+  - Create initial documentation
+
+- **S1.P6:** Transition to S2 (Step 6)
+  - Verify structure complete
+  - Prepare for S2
+
+**You CANNOT skip S1.P3 Discovery Phase:**
+- Must create DISCOVERY.md before feature breakdown
+- Must get user approval before creating feature folders
+- Feature specs will reference DISCOVERY.md findings
+- S2.P1 Phase 0 requires DISCOVERY.md to exist
+
+**Next:** S2
+
+---
+
+### S2: Feature Planning (Detailed)
+
+**First Action:** Use "Starting S2" prompt from `prompts_reference_v2.md`
+**Guide:** `stages/s2/s2_feature_deep_dive.md` (router to phases)
+**Duration:** 2.25-4 hours per feature (3 iterations)
+
+**Phases:**
+
+**S2.P1: Spec Creation and Refinement** (3 iterations)
+- **S2.P1.I1: Feature-Level Discovery** (60-90 min)
+  - Embeds Gate 1 (Research Completeness Audit)
+  - Research and document feature requirements
+  - Create initial spec.md
+
+- **S2.P1.I2: Checklist Resolution** (45-90 min)
+  - 9-step protocol for resolving questions
+  - User answers questions (agents CANNOT mark [x] autonomously)
+  - Update spec.md with answers
+
+- **S2.P1.I3: Refinement & Alignment** (30-60 min)
+  - Embeds Gate 2 (Spec-to-Epic Alignment)
+  - Includes Gate 3 (User Checklist Approval)
+  - Refine spec based on alignment check
+  - Get user approval on checklist
+
+**S2.P2: Cross-Feature Alignment** (20-60 min)
+- Primary agent only
+- Pairwise comparison of feature specs
+- Alignment validation
+
+**Key Outputs:**
+- spec.md (requirements specification - user-approved)
+- checklist.md (QUESTIONS ONLY - user answers ALL before S5.P1)
+- RESEARCH_NOTES.md (REQUIRED)
+
+**Consistency Loops:**
+- S2.P1.I1 (embeds Gate 1)
+- S2.P1.I3 (embeds Gate 2)
+- S2.P2 (alignment validation)
+
+**Gates:**
+- Gate 1: Research Completeness Audit (S2.P1.I1)
+- Gate 2: Spec-to-Epic Alignment (S2.P1.I3)
+- Gate 3: User Checklist Approval (S2.P1.I3 - explicit user approval)
+
+**Next:** S3 (after ALL features in all groups complete S2)
+
+---
+
+### S3: Epic-Level Documentation, Testing Plans, and Approval (Detailed)
+
+**First Action:** Use "Starting S3" prompt from `prompts_reference_v2.md`
+**Guide:** `stages/s3/s3_epic_planning_approval.md`
+**Duration:** 75-105 minutes total
+
+**Phases:**
+
+**S3.P1: Epic Testing Strategy Development** (45-60 min)
+- Epic-level integration tests
+- Cross-feature test scenarios
+- Define epic success criteria
+
+**S3.P2: Epic Documentation Refinement** (20-30 min)
+- Review epic-level documentation
+- Ensure consistency across features
+- Update EPIC_README.md
+
+**S3.P3: Epic Plan Approval** (10-15 min)
+- Gate 4.5 with 3-tier rejection handling
+- User reviews complete epic plan
+- User approves or requests changes
+
+**Key Changes from Old Workflow:**
+- Pairwise comparison moved to S2.P2
+- Old S4 content moved here
+
+**Consistency Loops:**
+- S3.P1 (testing strategy validation)
+- S3.P2 (documentation validation)
+
+**Gates:**
+- Gate 4.5: User approves epic plan (MANDATORY, 3-tier rejection handling)
+
+**Next:** S4 (first feature testing strategy)
+
+---
+
+### S4: Feature Testing Strategy (Detailed)
+
+**First Action:** Use "Starting S4" prompt from `prompts_reference_v2.md`
+**Guide:** `stages/s4/s4_feature_testing_strategy.md` (router to 4 iterations)
+**Purpose:** Test-driven development - plan tests BEFORE implementation
+**Duration:** 45-60 minutes per feature
+
+**Iterations:**
+
+**S4.I1: Test Strategy Development** (15-20 min)
+- Unit tests planning
+- Integration tests planning
+- Edge tests planning
+- Goal: >90% coverage
+
+**S4.I2: Edge Case Enumeration** (10-15 min)
+- Boundary conditions
+- Error paths
+- Invalid inputs
+- State transitions
+
+**S4.I3: Configuration Change Impact** (10-15 min)
+- Config test matrix
+- Environment variations
+- Parameter combinations
+
+**S4.I4: Consistency Loop** (15-20 min)
+- Validate test strategy completeness
+- 3 consecutive clean rounds required
+- Zero deferred issues
+
+**Key Output:**
+- test_strategy.md (>90% coverage goal)
+- Merged into implementation_plan.md in S5.P1.I1
+
+**Next:** S5 (Implementation Planning)
+
+---
+
+### S5: Implementation Planning (Detailed)
+
+**First Action:** Use "Starting S5 Round 1/2/3" prompt from `prompts_reference_v2.md`
+**🚨 CRITICAL:** Execute iterations ONE at a time, IN ORDER (no batching, no skipping)
+**Duration:** 22 iterations across 3 rounds
+**Key Change:** Testing iterations (old I8-I10) moved to S4, remaining iterations renumbered sequentially
+
+**Round 1: Planning Foundation** (7 iterations)
+- **Guide:** `stages/s5/s5_p1_planning_round1.md` (router to I1-I3)
+
+**S5.P1.I1: Requirements Analysis** (I1-I3)
+- Guide: `stages/s5/s5_p1_i1_requirements.md`
+- Merges test_strategy.md from S4
+- I1: Requirements review
+- I2: Dependencies analysis
+- I3: Interface contracts
+
+**S5.P1.I2: Algorithm Planning** (I4-I6 + Gate 4a)
+- Guide: `stages/s5/s5_p1_i2_algorithms.md`
+- I4: Algorithm design
+- I5: Data structures
+- I6: Performance considerations
+- Gate 4a: TODO Specification Audit
+
+**S5.P1.I3: Integration Planning** (I7 + Gate 7a)
+- Guide: `stages/s5/s5_p1_i3_integration.md`
+- I7: Integration points
+- Gate 7a: Backward Compatibility Check
+
+**Consistency Loop:** Added at end of Round 1 (validates Gates 4a, 7a)
+
+**Round 2: Verification** (6 iterations)
+- **Guide:** `stages/s5/s5_p2_planning_round2.md` (router, I8-I13)
+
+**S5.P2.I1: First Verification** (I8-I9, formerly I11-I12)
+- I8: Requirements verification
+- I9: Design verification
+
+**S5.P2.I2: Reverification** (I10-I13, formerly I13-I16)
+- I10: Cross-reference check
+- I11: Dependency validation
+- I12: Risk assessment
+- I13: Resource estimation
+
+**Round 3: Final Preparation** (9 iterations)
+- **Guide:** `stages/s5/s5_p3_planning_round3.md` (router, I14-I22)
+
+**S5.P3.I1: Implementation Preparation** (I14-I19, formerly I17-I22)
+- Guide: `stages/s5/s5_p3_i1_preparation.md`
+- I14: Implementation order
+- I15: Error handling strategy
+- I16: Logging strategy
+- I17: Documentation plan
+- I18: Code review checklist
+- I19: Rollback plan
+
+**Consistency Loop:** Added before Gate 23a (validates complete plan)
+
+**S5.P3.I2: Pre-Implementation Audit** (I20)
+- Guide: `stages/s5/s5_p3_i2_gates_part1.md`
+- Gate 23a: Pre-Implementation Spec Audit (5 parts)
+  - Part 1: Completeness check
+  - Part 2: Consistency check
+  - Part 3: Feasibility check
+  - Part 4: Testability check
+  - Part 5: Maintainability check
+
+**S5.P3.I3: Final Gates** (I21-I22)
+- Guide: `stages/s5/s5_p3_i3_gates_part2.md`
+- I21: Gate 25 (Spec Validation Check)
+- I22: Gate 24 (GO/NO-GO Decision based on confidence)
+
+**Key Output:**
+- implementation_plan.md (~400 lines) - PRIMARY reference for S6
+- Includes merged test strategy from S4
+- User-approved via Gate 5
+
+**Gates:**
+- Gate 4a: TODO Specification Audit (S5.P1.I2)
+- Gate 7a: Backward Compatibility Check (S5.P1.I3)
+- Gate 23a: Pre-Implementation Spec Audit (S5.P3.I2)
+- Gate 25: Spec Validation Check (S5.P3.I3)
+- Gate 24: GO/NO-GO Decision (S5.P3.I3)
+- Gate 5: User approves implementation plan (MANDATORY, 3-tier rejection handling)
+
+**Next:** S6 (Implementation Execution)
+
+---
+
+### S6: Implementation Execution (Detailed)
+
+**First Action:** Use "Starting S6" prompt from `prompts_reference_v2.md`
+**Guide:** `stages/s6/s6_execution.md`
+**Duration:** Varies by feature complexity
+
+**Key Actions:**
+- Create implementation_checklist.md from implementation_plan.md
+- Implement code following implementation_plan.md (PRIMARY reference)
+- Use spec.md to verify WHAT to build (verification only)
+- Update implementation_checklist.md as work progresses
+
+**Key Principle:**
+- implementation_plan.md = HOW to build (primary guide)
+- spec.md = WHAT to build (verification)
+
+**Next:** S7 (Testing & Review)
+
+---
+
+### S7: Implementation Testing & Review (Detailed)
+
+**First Action:** Use "Starting S7.P1 Smoke Testing" prompt from `prompts_reference_v2.md`
+**🚨 RESTART PROTOCOL:** If ANY issues found → Restart from S7.P1 (NOT mid-QC)
+**Duration:** 3 phases + commit
+
+**Phases:**
+
+**S7.P1: Smoke Testing** (MANDATORY GATE)
+- Guide: `stages/s7/s7_p1_smoke_testing.md`
+- Run basic functionality tests
+- If issues found → Enter debugging protocol → Fix all issues → Restart from S7.P1
+- MUST pass before proceeding to QC rounds
+
+**S7.P2: QC Rounds** (3 rounds)
+- Guide: `stages/s7/s7_p2_qc_rounds.md`
+- Round 1: Functional QC
+- Round 2: Integration QC
+- Round 3: Edge case QC
+- If issues found → Enter debugging protocol → Fix all issues → Restart from S7.P1 (NOT mid-QC)
+
+**S7.P3: Final Review**
+- Guide: `stages/s7/s7_p3_final_review.md`
+- PR-style review of code
+- Create lessons_learned.md
+- Document what worked, what didn't
+
+**After S7.P3:**
+- COMMIT FEATURE (feature-level commit)
+- Use git commit protocol from CLAUDE.md
+
+**Next:** S8 (Post-Feature Alignment)
+
+---
+
+### S8: Post-Feature Alignment (Detailed)
+
+**First Action:** Use "Starting S8.P1" prompt from `prompts_reference_v2.md`
+**Duration:** 2 phases
+
+**Phases:**
+
+**S8.P1: Cross-Feature Alignment**
+- Guide: `stages/s8/s8_p1_cross_feature_alignment.md`
+- Update remaining feature specs based on completed feature
+- Identify conflicts or dependencies
+- Adjust upcoming features as needed
+
+**S8.P2: Epic Testing Update**
+- Guide: `stages/s8/s8_p2_epic_testing_update.md`
+- Reassess epic_smoke_test_plan.md
+- Update based on completed feature
+- Adjust integration test scenarios
+
+**Key Actions:**
+- Update remaining feature specs
+- Update epic testing plan
+- Ensure alignment across all features
+
+**Next:**
+- Repeat S5 for next feature
+- OR S9 (if all features done)
+
+---
+
+### S9: Epic-Level Final QC (Detailed)
+
+**First Action:** Use "Starting S9" prompt from `prompts_reference_v2.md`
+**🚨 RESTART PROTOCOL:** If ANY issues found → Restart from S9.P1 (NOT mid-QC)
+**Guide:** `stages/s9/s9_epic_final_qc.md` (router to phases)
+
+**Phases:**
+
+**S9.P1: Epic Smoke Testing**
+- Guide: `stages/s9/s9_p1_epic_smoke_testing.md`
+- Run epic-level smoke tests
+- Test feature integration
+- If issues found → Enter debugging protocol → Fix all issues → Restart from S9.P1
+
+**S9.P2: Epic QC Rounds** (3 rounds)
+- Guide: `stages/s9/s9_p2_epic_qc_rounds.md`
+- Round 1: Epic functionality QC
+- Round 2: Epic integration QC
+- Round 3: Epic edge case QC
+- If issues found → Enter debugging protocol → Fix all issues → Restart from S9.P1
+
+**S9.P3: User Testing**
+- Guide: `stages/s9/s9_p3_user_testing.md`
+- User runs tests
+- User reports bugs OR "no bugs found"
+- ZERO bugs required to proceed to S10
+
+**S9.P4: Epic Final Review**
+- Guide: `stages/s9/s9_p4_epic_final_review.md`
+- Review epic as a whole
+- Document epic-level lessons learned
+- Prepare for S10
+
+**If Issues Found:**
+- Enter debugging protocol
+- Fix ALL issues
+- Restart from S9.P1 (complete restart, not mid-QC)
+
+**Next:** S10 (only when user reports ZERO bugs in S9.P3)
+
+---
+
+### S10: Epic Cleanup (Detailed)
+
+**First Action:** Use "Starting S10" prompt from `prompts_reference_v2.md`
+**Prerequisites:** S9 complete (user testing PASSED with ZERO bugs)
+**Guide:** `stages/s10/s10_epic_cleanup.md`
+
+**Key Actions:**
+
+1. **Run Unit Tests** (100% pass required)
+   - All tests must pass
+   - No test failures allowed
+   - Fix any failures before proceeding
+
+2. **S10.P1: Guide Updates** (MANDATORY)
+   - Guide: `stages/s10/s10_p1_guide_update_workflow.md`
+   - Analyze lessons learned from epic
+   - Create GUIDE_UPDATE_PROPOSAL.md
+   - User approval required
+   - Apply approved guide updates
+
+3. **Commit Epic**
+   - Create epic-level commit
+   - Follow git commit protocol
+
+4. **Create Pull Request**
+   - Create PR for user review
+   - User merges when ready
+
+5. **After PR Merged:**
+   - Update EPIC_TRACKER.md
+   - Move epic to done/
+   - Archive working files
+
+**S10.P1 (MANDATORY):**
+- Cannot skip guide update workflow
+- Must analyze lessons learned
+- Must propose guide improvements
+- Must get user approval
+- Must apply approved updates
+
+**Next:** Epic complete!
 
 ---
 

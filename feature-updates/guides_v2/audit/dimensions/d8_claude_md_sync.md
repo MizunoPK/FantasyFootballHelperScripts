@@ -66,9 +66,9 @@
 
 **Example Failure (Hypothetical):**
 ```
-CLAUDE.md: "S5: Implementation Planning (15 iterations, 3 phases)"
-Reality: S5 has 28 iterations across 3 rounds
-Result: Agent thinks they're done after 15 iterations, skips critical checks
+CLAUDE.md: "S5: Implementation Planning (28 iterations, 3 rounds)" (outdated as of 2026-02-04)
+Reality: S5 has 22 iterations across 3 rounds (as of 2026-02-04, testing moved to S4)
+Result: Agent expects 28 iterations, looks for I23-I28 which don't exist
 ```
 
 ### Why CLAUDE.md Drifts
@@ -76,7 +76,7 @@ Result: Agent thinks they're done after 15 iterations, skips critical checks
 **Root Cause:** CLAUDE.md is read by agents on EVERY task, but only updated during S10.P1 (Epic Cleanup)
 
 **Drift Pattern:**
-1. Guide change happens mid-epic (e.g., S5 expanded from 15→28 iterations)
+1. Guide change happens mid-epic (e.g., S5 expanded from 15→22 iterations)
 2. Current epic uses updated guides
 3. CLAUDE.md not updated until S10.P1
 4. Next epic starts, reads outdated CLAUDE.md
@@ -183,9 +183,9 @@ grep -n "Gate [0-9]" feature-updates/guides_v2/reference/mandatory_gates.md | \
 
 **Example Check:**
 ```markdown
-CLAUDE.md: "S5: Implementation Planning (28 iterations, 3 rounds)"
+CLAUDE.md: "S5: Implementation Planning (22 iterations, 3 rounds)"
           ↓ Should match ↓
-stages/s5/s5_implementation_planning.md: "28 iterations across 3 rounds"
+stages/s5/s5_implementation_planning.md: "22 iterations across 3 rounds"
 ```
 
 **Manual Check Required:**
@@ -266,7 +266,7 @@ done
 
 **Timeline:**
 1. Epic in progress, discover S5 needs more iterations
-2. Update S5 guides: 15 iterations → 28 iterations
+2. Update S5 guides: 15 iterations → 22 iterations
 3. Current epic uses updated 28-iteration process
 4. Forget to update CLAUDE.md (still says 15 iterations)
 5. Next epic starts, reads CLAUDE.md, thinks 15 iterations
@@ -566,16 +566,16 @@ Example: "In KAI-6, we discovered S5 needed expansion..."
 
 **Example - Acceptable:**
 ```markdown
-CLAUDE.md: "S5: Implementation Planning (28 iterations)"
-Guide: "S5: Implementation Planning (28 iterations across 3 rounds:
-        Round 1 (7 iterations), Round 2 (9 iterations), Round 3 (12 iterations))"
+CLAUDE.md: "S5: Implementation Planning (22 iterations)"
+Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
+        Round 1 (7 iterations), Round 2 (6 iterations), Round 3 (9 iterations))"
 ```
 CLAUDE.md simplified but accurate ✅
 
 **Example - Error:**
 ```markdown
 CLAUDE.md: "S5: Implementation Planning (15 iterations)"
-Guide: "S5: Implementation Planning (28 iterations)"
+Guide: "S5: Implementation Planning (22 iterations)"
 ```
 CLAUDE.md contradicts guide ❌
 
@@ -628,13 +628,13 @@ CLAUDE.md contradicts guide ❌
 - **Actions:** 15 verification iterations
 ```
 
-**Problem:** S5 expanded from 15 to 28 iterations
-**Actual:** S5 has 28 iterations across 3 rounds
+**Problem:** S5 changed from 28 to 22 iterations (testing moved to S4)
+**Actual:** S5 has 22 iterations across 3 rounds
 
 **Fix:**
 ```markdown
 **S5: Implementation Planning**
-- **Actions:** 28 verification iterations across 3 rounds
+- **Actions:** 22 verification iterations across 3 rounds
 ```
 
 **How Found:** Manual comparison of CLAUDE.md vs s5_implementation_planning.md

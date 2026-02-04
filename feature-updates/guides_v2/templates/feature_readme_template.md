@@ -61,10 +61,10 @@
 - [ ] S2 complete: {✅/◻️}
 
 **S5 - Implementation Planning:**
-- [ ] 28 verification iterations complete
+- [ ] 22 verification iterations complete
 - [ ] Iteration 4a: TODO Specification Audit PASSED
-- [ ] Iteration 23a: Pre-Implementation Spec Audit (ALL 4 PARTS PASSED)
-- [ ] Iteration 24: Implementation Readiness PASSED
+- [ ] Iteration 20: Pre-Implementation Spec Audit (ALL 4 PARTS PASSED)
+- [ ] Iteration 22: Implementation Readiness PASSED
 - [ ] `implementation_plan.md` created and user-approved
 - [ ] `questions.md` created (or documented "no questions")
 - [ ] S5 complete: {✅/◻️}

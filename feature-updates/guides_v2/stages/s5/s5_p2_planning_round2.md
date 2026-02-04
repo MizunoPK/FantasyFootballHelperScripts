@@ -1,6 +1,6 @@
 # S5: Feature Implementation
 ## S5.P1: Implementation Planning
-### S5.P2: Planning Round 2 (Iterations 8-16)
+### S5.P2: Planning Round 2 (Iterations 8-13)
 
 **File:** `s5_p2_planning_round2.md`
 
@@ -24,7 +24,7 @@
 ## Quick Start
 
 **What is this guide?**
-Planning Round 2 of Implementation Planning is the deep verification phase where you create comprehensive test strategy, identify edge cases, and re-verify critical matrices through 9 mandatory iterations (8-16) to catch bugs introduced during Planning Round 1.
+Planning Round 2 of Implementation Planning is the deep verification phase where you create comprehensive test strategy, identify edge cases, and re-verify critical matrices through 9 mandatory iterations (8-13) to catch bugs introduced during Planning Round 1.
 
 **When do you use this guide?**
 - Planning Round 1 complete (S5.P1 passed)
@@ -44,7 +44,7 @@ Planning Round 2 of Implementation Planning is the deep verification phase where
 45-60 minutes (9 iterations)
 
 **Exit Condition:**
-Planning Round 2 is complete when all 9 iterations pass, test coverage exceeds 90%, confidence level is at least MEDIUM, and you're ready to proceed to Planning Round 3
+Planning Round 2 is complete when all 7 iterations pass, test coverage exceeds 90%, confidence level is at least MEDIUM, and you're ready to proceed to Planning Round 3
 
 ---
 
@@ -79,8 +79,8 @@ Planning Round 2 is complete when all 9 iterations pass, test coverage exceeds 9
 │ CRITICAL RULES - These MUST be copied to README Agent Status │
 └─────────────────────────────────────────────────────────────┘
 
-1. ⚠️ ALL 9 iterations in Planning Round 2 are MANDATORY (no skipping)
-   - Iterations 8-16
+1. ⚠️ ALL 6 iterations in Planning Round 2 are MANDATORY (no skipping)
+   - Iterations 8-13
    - Each iteration deepens verification
 
 2. ⚠️ Execute iterations IN ORDER (not parallel, not random)
@@ -198,7 +198,7 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 ## 🛑 MANDATORY CHECKPOINT: ROUND 2 COMPLETE
 
-**You have completed all 9 iterations (8-16) of Round 2**
+**You have completed all 6 iterations (8-13) of Round 2**
 
 ⚠️ STOP - DO NOT PROCEED TO ROUND 3 YET
 
@@ -212,7 +212,7 @@ If confidence < MEDIUM: Update questions file, wait for user
 ### Step 2: Update Agent Status
 4. [ ] Update feature README.md Agent Status:
    - Current Guide: "stages/s5/s5_p3_planning_round3.md"
-   - Current Step: "Round 2 complete (16/28 total iterations), evaluating confidence"
+   - Current Step: "Round 2 complete (13/22 total iterations), evaluating confidence"
    - Last Updated: [timestamp]
    - Confidence Level: {HIGH / MEDIUM / LOW}
    - Test Coverage: {percentage}%
@@ -252,7 +252,7 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 **Planning Round 2 is complete when ALL of these are true:**
 
-□ All 9 iterations executed (8-16) in order
+□ All 9 iterations executed (8-13) in order
 □ implementation_plan.md updated to v2.0 with:
   - Test Strategy section (unit, integration, edge, regression)
   - Edge Cases section (all cases enumerated and handled)
@@ -310,7 +310,7 @@ If confidence < MEDIUM: Update questions file, wait for user
 **Before transitioning to Planning Round 3, verify:**
 
 □ Planning Round 2 completion criteria ALL met
-□ All 9 iterations executed (8-16)
+□ All 9 iterations executed (8-13)
 □ implementation_plan.md updated to v2.0
 □ Test coverage: >90%
 □ Confidence level: >= MEDIUM
@@ -327,11 +327,11 @@ If confidence < MEDIUM: Update questions file, wait for user
 **After completing Planning Round 2:**
 
 📖 **READ:** `stages/s5/s5_p3_i1_preparation.md`
-🎯 **GOAL:** Preparation iterations (17-22) - implementation phasing, rollback strategy, algorithm traceability (final), performance, mock audit
+🎯 **GOAL:** Preparation iterations (14-19) - implementation phasing, rollback strategy, algorithm traceability (final), performance, mock audit
 ⏱️ **ESTIMATE:** 60-90 minutes for Part 1, then 1.5-2.5 hours for Part 2
 
 **Planning Round 3 Overview:**
-- **Part 1:** Preparation (Iterations 17-22)
+- **Part 1:** Preparation (Iterations 14-19)
 - **Part 2:** Final Gates (Iterations 23, 23a, 25, 24) with MANDATORY audits
 
 **Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting Planning Round 3.

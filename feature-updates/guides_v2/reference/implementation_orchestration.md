@@ -16,7 +16,7 @@ Feature Workflow (Single Feature Journey)
 
 S5: TODO Creation COMPLETE
          ↓
-         ✅ GO Decision from Iteration 24
+         ✅ GO Decision from Iteration 22
          ↓
 ┌─────────────────────────────────────────┐
 │ S6: Implementation Execution      │
@@ -67,7 +67,7 @@ S5: TODO Creation COMPLETE
 Write the feature code following the implementation plan created in S5.
 
 ### Entry Conditions
-- [ ] S5 Round 3 complete (Iteration 24 = GO)
+- [ ] S5 Round 3 complete (Iteration 22 = GO)
 - [ ] implementation_plan.md ready and user-approved
 - [ ] All mandatory gates passed (4a, 23a, 25, 24)
 
@@ -383,7 +383,7 @@ Mark next column as 🔄 (in progress)
 **Use this to determine current position:**
 
 **If you just completed:**
-- [x] S5 (Iteration 24 = GO) → **Next:** S6 (Implementation)
+- [x] S5 (Iteration 22 = GO) → **Next:** S6 (Implementation)
 - [x] S6 (code written, tests pass) → **Next:** S7 (Post-Implementation)
 - [x] S7 (all QC passed) → **Check:** Features remaining?
   - YES → **Next:** S8.P1 (Alignment)
