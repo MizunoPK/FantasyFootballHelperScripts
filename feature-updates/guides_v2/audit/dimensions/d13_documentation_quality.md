@@ -1,9 +1,13 @@
-# Dimension 13: Documentation Quality
+# D13: Documentation Quality
+
+**Dimension Number:** 13
+**Category:** Content Quality Dimensions
+**Automation Level:** 90% automated
+**Priority:** MEDIUM
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure guides have required sections, complete content, no TODOs, and meet quality standards
-**Automation Level:** 90% automated (structure checks), manual (content quality)
 **Typical Issues Found:** 5-15 per audit
-**Reading Time:** 15 minutes
 
 ---
 

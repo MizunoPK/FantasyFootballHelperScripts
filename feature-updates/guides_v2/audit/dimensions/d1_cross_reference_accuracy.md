@@ -1,9 +1,13 @@
-# Dimension 1: Cross-Reference Accuracy
+# D1: Cross-Reference Accuracy
+
+**Dimension Number:** 1
+**Category:** Core Dimensions (Always Check)
+**Automation Level:** 90% automated
+**Priority:** HIGH
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure all file paths, stage references, and cross-links point to existing, correct locations
-**Automation Level:** 90% automated
 **Typical Issues Found:** 15-30 per major restructuring
-**Reading Time:** 15 minutes
 
 ---
 

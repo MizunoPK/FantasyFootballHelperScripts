@@ -6,6 +6,9 @@
 **Priority:** MEDIUM
 **Last Updated:** 2026-02-04
 
+**Focus:** Ensure numeric claims in documentation match reality (stage counts, iteration counts, file counts)
+**Typical Issues Found:** 5-15 per audit
+
 ---
 
 ## Table of Contents

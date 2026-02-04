@@ -1,9 +1,13 @@
-# Dimension 10: File Size Assessment
+# D10: File Size Assessment
+
+**Dimension Number:** 10
+**Category:** Structural Dimensions
+**Automation Level:** 100% automated
+**Priority:** MEDIUM
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure files are appropriately sized for agent comprehension and usability
-**Automation Level:** 100% automated (detection), manual evaluation (reduction strategy)
 **Typical Issues Found:** 2-5 large files per audit
-**Reading Time:** 12 minutes
 
 ---
 

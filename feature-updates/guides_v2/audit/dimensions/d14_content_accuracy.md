@@ -1,9 +1,13 @@
-# Dimension 14: Content Accuracy
+# D14: Content Accuracy
+
+**Dimension Number:** 14
+**Category:** Content Quality Dimensions
+**Automation Level:** 70% automated
+**Priority:** HIGH
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure guide content matches reality (file counts, iteration counts, freshness, claims validation)
-**Automation Level:** 70% automated
 **Typical Issues Found:** 10-20 per audit
-**Reading Time:** 15 minutes
 
 ---
 

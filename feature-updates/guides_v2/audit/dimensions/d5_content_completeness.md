@@ -1,9 +1,13 @@
-# Dimension 5: Content Completeness
+# D5: Content Completeness
+
+**Dimension Number:** 5
+**Category:** Content Quality Dimensions
+**Automation Level:** 85% automated
+**Priority:** HIGH
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure all required content is present, complete, and not stubbed out
-**Automation Level:** 85% automated (presence checks), manual (completeness depth)
 **Typical Issues Found:** 10-15 per audit
-**Reading Time:** 15 minutes
 
 ---
 

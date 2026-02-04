@@ -1,9 +1,13 @@
-# Dimension 11: Structural Patterns
+# D11: Structural Patterns
+
+**Dimension Number:** 11
+**Category:** Structural Dimensions
+**Automation Level:** 60% automated
+**Priority:** MEDIUM
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure guides follow consistent structural patterns and template compliance
-**Automation Level:** 60% automated (required sections), manual (pattern consistency)
 **Typical Issues Found:** 8-12 per audit
-**Reading Time:** 12 minutes
 
 ---
 

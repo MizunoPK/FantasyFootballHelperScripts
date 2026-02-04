@@ -2,7 +2,7 @@
 
 **Version:** 3.0 (Modular)
 **Purpose:** Navigate the audit process for ensuring guides_v2 consistency and accuracy
-**Last Updated:** 2026-02-01
+**Last Updated:** 2026-02-04
 
 ---
 
@@ -139,19 +139,19 @@ Read these first - they're most common and easiest to validate:
 
 ### Level 2: Content Quality (After Level 1)
 Build on D1-D2 findings:
-- **D5: Content Completeness** ⏳ - Finds missing sections that D1 cross-references pointed to
-- **D13: Documentation Quality** ⏳ - Expands D5 with structure requirements
+- **D5: Content Completeness** - Finds missing sections that D1 cross-references pointed to
+- **D13: Documentation Quality** - Expands D5 with structure requirements
 
 ### Level 3: Structural (Optional, As Needed)
 Deep-dive validations for specific issues:
-- **D9: Intra-File Consistency** ⏳ - Within-file quality (use if files seem inconsistent)
-- **D10: File Size Assessment** ⏳ - Readability limits (use if files seem too large)
-- **D11: Structural Patterns** ⏳ - Template compliance (use after template changes)
+- **D9: Intra-File Consistency** - Within-file quality (use if files seem inconsistent)
+- **D10: File Size Assessment** - Readability limits (use if files seem too large)
+- **D11: Structural Patterns** - Template compliance (use after template changes)
 
 ### Level 4: Advanced (Rare, Specialized)
 Only needed for specific scenarios:
-- **D7: Context-Sensitive Validation** ⏳ - Distinguishing errors from intentional cases
-- **D15: Duplication Detection** ⏳ - Finding duplicate content across guides
+- **D7: Context-Sensitive Validation** - Distinguishing errors from intentional cases
+- **D15: Duplication Detection** - Finding duplicate content across guides
 
 **Note:** You don't need to read ALL dimension guides for every audit. Read what's relevant to your trigger event (see Common Scenarios below).
 
@@ -371,7 +371,7 @@ Learn from actual audit rounds:
 
 ### Pre-Audit Checks
 `scripts/pre_audit_checks.sh` - Run before manual audit begins
-- Checks 6 of 16 dimensions (D1, D8, D10, D11, D13, D14, D16)
+- Checks 7 of 16 dimensions (D1, D8, D10, D11, D13, D14, D16)
 - Catches common structural issues (estimated 40-50% of typical issues)
 - Fast execution (5 minutes)
 - Generates initial report

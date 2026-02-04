@@ -6,6 +6,9 @@
 **Priority:** MEDIUM
 **Last Updated:** 2026-02-04
 
+**Focus:** Distinguish intentional exceptions from actual errors using context markers and historical references
+**Typical Issues Found:** 20-40 false positives reduced per audit
+
 ---
 
 ## Table of Contents

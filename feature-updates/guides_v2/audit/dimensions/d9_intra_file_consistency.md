@@ -6,6 +6,9 @@
 **Priority:** MEDIUM
 **Last Updated:** 2026-02-04
 
+**Focus:** Ensure notation, terminology, and instructions are consistent within each file (no mixed notation, contradictions)
+**Typical Issues Found:** 8-15 per audit
+
 ---
 
 ## Table of Contents

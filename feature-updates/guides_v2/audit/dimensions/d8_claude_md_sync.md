@@ -1,9 +1,13 @@
-# Dimension 8: CLAUDE.md Synchronization
+# D8: CLAUDE.md Synchronization
+
+**Dimension Number:** 8
+**Category:** Core Dimensions (Always Check)
+**Automation Level:** 60% automated
+**Priority:** HIGH
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure root CLAUDE.md file stays synchronized with guides_v2 folder content and structure
-**Automation Level:** 60% automated
 **Typical Issues Found:** 5-15 per major workflow change
-**Reading Time:** 12 minutes
 
 ---
 

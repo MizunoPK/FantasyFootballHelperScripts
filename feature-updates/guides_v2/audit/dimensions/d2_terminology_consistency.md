@@ -1,9 +1,13 @@
-# Dimension 2: Terminology Consistency
+# D2: Terminology Consistency
+
+**Dimension Number:** 2
+**Category:** Core Dimensions (Always Check)
+**Automation Level:** 80% automated
+**Priority:** HIGH
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure notation, naming conventions, and terminology are uniform across all guides
-**Automation Level:** 80% automated
 **Typical Issues Found:** 50-100 per major notation change
-**Reading Time:** 15 minutes
 
 ---
 

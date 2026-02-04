@@ -1,9 +1,13 @@
-# Dimension 6: Template Currency
+# D6: Template Currency
+
+**Dimension Number:** 6
+**Category:** Content Quality Dimensions
+**Automation Level:** 70% automated
+**Priority:** HIGH
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure templates reflect current workflow structure, notation, and stage numbering
-**Automation Level:** 70% automated (notation, stage numbers), manual (content accuracy)
 **Typical Issues Found:** 5-10 per major workflow change
-**Reading Time:** 12 minutes
 
 ---
 

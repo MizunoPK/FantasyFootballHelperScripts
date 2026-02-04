@@ -6,6 +6,9 @@
 **Priority:** HIGH
 **Last Updated:** 2026-02-04
 
+**Focus:** Validate runtime dependencies between files (stage handoffs, file references, prerequisite chains)
+**Typical Issues Found:** 5-10 per major workflow change
+
 ---
 
 ## Table of Contents

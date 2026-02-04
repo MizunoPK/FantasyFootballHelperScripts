@@ -6,6 +6,9 @@
 **Priority:** MEDIUM
 **Last Updated:** 2026-02-04
 
+**Focus:** Identify duplicate content across guides and enforce DRY principle through consolidation
+**Typical Issues Found:** 10-25 duplicate sections per audit
+
 ---
 
 ## Table of Contents

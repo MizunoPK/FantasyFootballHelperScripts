@@ -6,6 +6,9 @@
 **Priority:** HIGH
 **Last Updated:** 2026-02-04
 
+**Focus:** Ensure workflow stages form coherent sequential flow with correct prerequisites and transitions
+**Typical Issues Found:** 10-20 per major workflow restructuring
+
 ---
 
 ## Table of Contents

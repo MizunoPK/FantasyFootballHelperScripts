@@ -1,9 +1,13 @@
-# Dimension 16: Accessibility & Usability
+# D16: Accessibility & Usability
+
+**Dimension Number:** 16
+**Category:** Advanced Dimensions
+**Automation Level:** 80% automated
+**Priority:** MEDIUM
+**Last Updated:** 2026-02-04
 
 **Focus:** Ensure guides are easy to navigate, read, and use effectively
-**Automation Level:** 80% automated (TOC, code tags), manual (readability, UX)
 **Typical Issues Found:** 10-20 per audit
-**Reading Time:** 12 minutes
 
 ---
 
