@@ -107,26 +107,30 @@
 - **Notes:** Execute BEFORE Proposal 5 so old S4 exists when S3.P1 needs content
 
 ### Proposal 4: S2 Redesign - Feature Planning (4-6h)
-- **Status:** ⏸️ Not Started
+- **Status:** ✅ COMPLETE
 - **Priority:** CRITICAL
 - **Dependencies:** Proposals 1, 2 complete
-- **Files to Modify:**
-  - [ ] `stages/s2/s2_p1_research.md` (add Consistency Loop, embed Gate 1)
-  - [ ] `stages/s2/s2_p2_specification.md` (add Consistency Loop, embed Gate 2)
-  - [ ] `stages/s2/s2_p3_refinement.md` (add protocols)
+- **Files Created:**
+  - [x] `stages/s2/s2_p1_spec_creation_refinement.md` (3 iterations with Consistency Loops)
+  - [x] `stages/s2/s2_p2_cross_feature_alignment.md` (pairwise comparison)
+- **Files Modified:**
+  - [x] `stages/s2/s2_feature_deep_dive.md` (router updated to new structure)
 - **Key Content:**
-  - [ ] S2.P1.I1: Add Gate 1 embedded in Consistency Loop (Issue #1 - research notes REQUIRED)
-  - [ ] S2.P1.I2: Add "Correct Status Progression" 9-step protocol (Issue #2, #41)
-  - [ ] S2.P1.I3: Add agent-to-agent communication protocol (Issue #3, #42)
-  - [ ] S2.P1.I3: Make acceptance criteria approval explicit (Issue #33)
-  - [ ] S2.P1.I3: Add total spec rejection handling (Issue #38)
-  - [ ] S2.P2: Specify comparison matrix location (Issue #34)
+  - [x] S2.P1.I1: Gate 1 embedded in Consistency Loop (research notes REQUIRED)
+  - [x] S2.P1.I2: "Correct Status Progression" 9-step protocol added
+  - [x] S2.P1.I3: Agent-to-agent communication protocol added
+  - [x] S2.P1.I3: Acceptance criteria approval explicit
+  - [x] S2.P1.I3: Total spec rejection handling added
+  - [x] S2.P2: Comparison matrix location specified (epic/research/)
 - **Completion Criteria:**
-  - [ ] All 3 files updated with Consistency Loops
-  - [ ] Gates 1 & 2 embedded correctly
-  - [ ] All protocols added (Issues #2, #3, #33, #34, #38)
-  - [ ] S2.P1 has 3 iterations structure
-- **Notes:** Major redesign - S2.P1 becomes iterative (3 iterations)
+  - [x] New S2.P1 guide created with Consistency Loops
+  - [x] New S2.P2 guide created with Consistency Loop
+  - [x] Gates 1 & 2 embedded correctly
+  - [x] All protocols added (Issues #2, #3, #33, #34, #38)
+  - [x] S2.P1 has 3 iterations structure
+  - [x] Router updated to point to new files
+- **Completed:** 2026-02-03
+- **Notes:** Major redesign - S2.P1 is now iterative (3 iterations), S2.P2 is pairwise comparison
 
 ### Proposal 5: S3 Redesign - Epic Planning (2-3h)
 - **Status:** ⏸️ Not Started

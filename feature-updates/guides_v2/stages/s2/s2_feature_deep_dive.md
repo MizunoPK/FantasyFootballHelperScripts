@@ -1,14 +1,13 @@
-# S2: Feature Deep Dive Guide (ROUTER)
+# S2: Feature Planning Guide (ROUTER)
 
-🚨 **IMPORTANT: This guide has been split into focused sub-stages**
+🚨 **IMPORTANT: This guide has been redesigned**
 
-**This is a routing guide.** The complete S2 workflow is now split across three focused guides:
+**This is a routing guide.** The complete S2 workflow is now split across two phases:
 
-- **S2.P1 (Research):** Discovery Context review, targeted research, research audit
-- **S2.P2 (Specification):** Spec with traceability, alignment check
-- **S2.P3 (Refinement):** Questions, scope, cross-feature alignment, user approval
+- **S2.P1 (Spec Creation and Refinement):** 3 iterations - Discovery, Checklist Resolution, Refinement (embeds Gates 1, 2, includes Gate 3)
+- **S2.P2 (Cross-Feature Alignment):** Pairwise comparison (Primary agent only)
 
-**📖 Read the appropriate sub-stage guide based on your current phase.**
+**📖 Read the appropriate phase guide based on your current phase.**
 
 ---
 
@@ -25,7 +24,9 @@
 
 **→ Go to:** `parallel_work/s2_secondary_agent_guide.md`
 - Complete startup configuration
-- Execute S2.P1 → S2.P2 → S2.P3 for your assigned feature
+- Execute S2.P1 for your assigned feature (3 iterations)
+- **STOP after S2.P1** - Do NOT proceed to S2.P2
+- Wait for Primary to run S2.P2 and S3
 - Follow coordination protocols (checkpoints, inbox, STATUS)
 - **Do NOT continue with this router guide**
 
@@ -39,10 +40,11 @@
 
 **→ Go to:** `parallel_work/s2_primary_agent_guide.md`
 - Follow Primary workflow for parallel S2
-- Work on Feature 01 using S2.P1, S2.P2, S2.P3 guides
+- Work on Feature 01 using S2.P1 guide (3 iterations)
 - Coordinate secondary agents (monitor, escalations, sync)
+- After entire group completes S2.P1 → run S2.P2 alone
 - After all features complete → run S3 and S4 alone
-- **Use this router guide ONLY for Feature 01 phase navigation**
+- **Use this router guide ONLY for phase navigation**
 
 ### Are You in Sequential Mode?
 
@@ -54,18 +56,21 @@
 
 **→ Continue below** with standard S2 workflow
 - Use this router guide to navigate between phases
-- Execute S2.P1 → S2.P2 → S2.P3 for each feature sequentially
+- Execute S2.P1 → S2.P2 for each feature (or feature group)
 
 ---
 
 ## 📖 Terminology Note
 
-**S2 is split into phases:**
-- **S2.P1:** Research (guide: `s2_p1_research.md`)
-- **S2.P2:** Specification (guide: `s2_p2_specification.md`)
-- **S2.P3:** Refinement (guide: `s2_p3_refinement.md`)
+**S2 is split into two phases:**
+- **S2.P1:** Spec Creation and Refinement (guide: `s2_p1_spec_creation_refinement.md`)
+  - 3 iterations: I1 (Discovery), I2 (Checklist Resolution), I3 (Refinement & Alignment)
+  - Embeds Gates 1 & 2, includes Gate 3 (User Checklist Approval)
+- **S2.P2:** Cross-Feature Alignment (guide: `s2_p2_cross_feature_alignment.md`)
+  - Pairwise comparison with Consistency Loop
+  - Primary agent only (secondary agents wait)
 
-**Naming:** Uses hierarchical notation (S2.P1, 2.2, 2.3)
+**Naming:** Uses hierarchical notation (S2.P1, S2.P2) with iterations (S2.P1.I1, S2.P1.I2, S2.P1.I3)
 
 ---
 
@@ -75,27 +80,28 @@
 
 | Current Phase | Guide to Read | Time Estimate |
 |---------------|---------------|---------------|
-| Starting S2 | `stages/s2/s2_p1_research.md` | 45-60 min |
-| Phase 0: Discovery Context Review | `stages/s2/s2_p1_research.md` | 15 min |
-| Phase 1: Targeted Research | `stages/s2/s2_p1_research.md` | 30-45 min |
-| Phase 1.5: Research Completeness Audit | `stages/s2/s2_p1_research.md` | 15 min |
-| Phase 2: Update Spec & Checklist | `stages/s2/s2_p2_specification.md` | 30-45 min |
-| Phase 2.5: Spec-to-Epic Alignment Check | `stages/s2/s2_p2_specification.md` | 15 min |
-| Phase 3: Interactive Question Resolution | `stages/s2/s2_p3_refinement.md` | 30-90 min |
-| Phase 4: Dynamic Scope Adjustment | `stages/s2/s2_p3_refinement.md` | 15 min |
-| Phase 5: Cross-Feature Alignment | `stages/s2/s2_p3_refinement.md` | 15-30 min |
-| Phase 6: Acceptance Criteria & User Approval | `stages/s2/s2_p3_refinement.md` | 15-30 min |
+| Starting S2 | `stages/s2/s2_p1_spec_creation_refinement.md` | 2.25-4 hours |
+| S2.P1.I1: Feature-Level Discovery | `stages/s2/s2_p1_spec_creation_refinement.md` | 60-90 min |
+| S2.P1.I2: Checklist Resolution | `stages/s2/s2_p1_spec_creation_refinement.md` | 45-90 min |
+| S2.P1.I3: Refinement & Alignment | `stages/s2/s2_p1_spec_creation_refinement.md` | 30-60 min |
+| S2.P2: Cross-Feature Alignment | `stages/s2/s2_p2_cross_feature_alignment.md` | 20-60 min |
 
 ---
 
 ## S2 Overview
 
 **What is S2?**
-Feature Deep Dive is where you thoroughly analyze each feature by reviewing Discovery Context, researching the codebase, creating detailed specifications with requirement traceability, and getting user approval on acceptance criteria.
+Feature Planning is where you research each feature, create detailed specifications with requirement traceability, resolve questions with user, validate alignment, and get user approval (Gate 3).
 
-**Total Time Estimate:** 2-3 hours per feature (9 phases across 3 guides, 2 mandatory gates)
+**Total Time Estimate:** 2.25-4 hours per feature (2 phases, 3 iterations in P1, 3 gates)
 
-**Exit Condition:** S2 is complete for a feature when the spec has user-approved acceptance criteria, passes both mandatory gates (Research Completeness Audit + Spec-to-Epic Alignment Check), and has zero unresolved checklist items
+**Key Changes from Old S2:**
+- **S2.P1 now has 3 iterations** (was 9 phases across 3 files)
+- **Consistency Loops embed Gates 1 & 2** (systematic validation)
+- **S2.P2 is pairwise comparison** (moved from old S3)
+- **Gate 3 explicit approval required** (including acceptance criteria)
+
+**Exit Condition:** S2 is complete for a feature when spec has user-approved acceptance criteria (Gate 3 passed), Gates 1 & 2 passed via Consistency Loops, and cross-feature alignment verified (S2.P2)
 
 ---
 
