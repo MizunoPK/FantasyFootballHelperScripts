@@ -264,22 +264,28 @@
 - **Notes:** Discovery Phase now uses Consistency Loop validation with "issues/gaps" approach instead of "no new questions" approach
 
 ### Proposal 8: S7/S9 QC Updates (1-2h)
-- **Status:** ⏸️ Not Started
+- **Status:** ✅ COMPLETE
 - **Priority:** MEDIUM
 - **Dependencies:** Proposal 2 complete (context variant exists)
-- **Files to Modify:**
-  - [ ] `stages/s7/s7_p2_qc_rounds.md` (3 locations)
-  - [ ] `stages/s7/s7_p3_final_review.md` (2 locations)
-  - [ ] `stages/s9/s9_p2_epic_qc_rounds.md` (3 locations)
+- **Files Modified:**
+  - [x] `stages/s7/s7_p2_qc_rounds.md` (3 references added)
+  - [x] `stages/s7/s7_p3_final_review.md` (2 references added)
+  - [x] `stages/s9/s9_p2_epic_qc_rounds.md` (3 references added)
 - **Key Content:**
-  - [ ] Add Consistency Loop references to QC rounds
-  - [ ] Reference consistency_loop_qc_pr.md variant
-  - [ ] Maintain existing QC structure
+  - [x] Added Consistency Loop references to all QC rounds
+  - [x] Referenced consistency_loop_qc_pr.md variant (8 total references)
+  - [x] Added Consistency Loop principles to each round
+  - [x] Maintained existing QC structure
+  - [x] S7.P2 QC Rounds: Added fresh eyes patterns (sequential, reverse, spot-check)
+  - [x] S7.P3 PR Review: Added "assume everything is wrong" principle
+  - [x] S7.P3 Lessons Learned: Added optional fresh perspective approach
+  - [x] S9.P2 QC Rounds: Added epic-level integration focus
 - **Completion Criteria:**
-  - [ ] All 3 files updated with Consistency Loop references
-  - [ ] 8 total locations updated
-  - [ ] QC process enhanced with systematic validation
-- **Notes:** Enhancement to existing QC process
+  - [x] All 3 files updated with Consistency Loop references
+  - [x] 8 total locations updated
+  - [x] QC process enhanced with systematic validation
+- **Completed:** 2026-02-04
+- **Notes:** All 8 Consistency Loop references added across S7/S9 QC guides
 
 ### Proposal 10: Templates & References (1-2h)
 - **Status:** ⏸️ Not Started

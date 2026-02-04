@@ -187,7 +187,8 @@ Re-Reading Checkpoint
 
 **Before proceeding, you MUST:**
 1. **READ:** `stages/s5/s5_pr_review_protocol.md`
-2. **Follow the complete hybrid approach:**
+2. **READ:** `reference/consistency_loop_qc_pr.md` (Consistency Loop QC approach)
+3. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
    - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
    - 2 consecutive clean rounds required to pass
@@ -196,6 +197,12 @@ Re-Reading Checkpoint
 **Purpose:** Systematic PR review using fresh agent context to catch issues before committing.
 
 **Why fresh agents?** New agents avoid context bias and provide "fresh eyes" on code changes.
+
+**Consistency Loop Principles:**
+- **Assume everything is wrong:** Skeptically verify all changes
+- **Fresh eyes:** Different review patterns each round
+- **No deferred issues:** Cannot commit with known issues
+- **Exit criteria:** 2 consecutive clean rounds (zero issues)
 
 ---
 
@@ -551,9 +558,17 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 ## Step 2: Lessons Learned Capture
 
+**📖 See `reference/consistency_loop_qc_pr.md` for fresh perspective review approach (optional).**
+
 **Purpose:** Document what went well, what didn't, and UPDATE GUIDES IMMEDIATELY
 
 **CRITICAL:** Don't just document lessons - APPLY them to guides before completing S7.P3
+
+**Fresh Perspective Approach (Optional):**
+- Re-read lessons with fresh eyes after initial drafting
+- Check for patterns (similar issues across phases)
+- Verify lessons are actionable (not just observations)
+- Ensure guide updates are specific (not vague improvements)
 
 ---
 

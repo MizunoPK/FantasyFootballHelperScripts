@@ -181,8 +181,16 @@ Round 3: End-to-End Success Criteria (10-20 min)
 ## QC Round 1: Cross-Feature Integration
 
 **📖 See `reference/qc_rounds_pattern.md` for universal Round 1 patterns.**
+**📖 See `reference/consistency_loop_qc_pr.md` for Consistency Loop QC approach.**
 
 **Objective:** Validate integration points between features work correctly.
+
+**Consistency Loop Approach:**
+- **Assume everything is wrong:** Skeptically analyze all features together
+- **Fresh eyes:** Sequential reading (feature by feature integration)
+- **Integration focus:** Test feature interactions
+- **No deferred issues:** ALL issues across ALL features must be fixed before Round 2
+- **Exit criteria:** Zero critical integration issues
 
 **Time Estimate:** 10-20 minutes
 
@@ -343,8 +351,15 @@ except ValueError as e:
 ## QC Round 2: Epic Cohesion & Consistency
 
 **📖 See `reference/qc_rounds_pattern.md` for universal Round 2 patterns.**
+**📖 See `reference/consistency_loop_qc_pr.md` for Consistency Loop QC approach.**
 
 **Objective:** Validate epic cohesion and consistency across all features.
+
+**Consistency Loop Approach:**
+- **Different patterns than Round 1:** Reverse order (last feature to first)
+- **Cross-feature focus:** Verify integration points AND consistency
+- **No deferred issues:** ALL new issues must be fixed before Round 3
+- **Exit criteria:** Zero critical consistency issues
 
 **Time Estimate:** 10-20 minutes
 
@@ -481,8 +496,15 @@ except FileNotFoundError:
 ## QC Round 3: End-to-End Success Criteria
 
 **📖 See `reference/qc_rounds_pattern.md` for universal Round 3 patterns.**
+**📖 See `reference/consistency_loop_qc_pr.md` for Consistency Loop QC approach.**
 
 **Objective:** Validate epic meets all success criteria and original goals.
+
+**Consistency Loop Approach:**
+- **Final validation:** Random spot-checks and thematic review
+- **Requirement:** ZERO issues across entire epic
+- **Exit criteria:** 3 consecutive clean rounds (epic is defect-free)
+- **If ANY issues found:** Fix ALL immediately, restart from S9.P1 (epic smoke testing)
 
 **Time Estimate:** 10-20 minutes
 
