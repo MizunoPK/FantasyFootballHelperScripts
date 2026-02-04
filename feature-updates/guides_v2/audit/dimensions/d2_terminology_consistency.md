@@ -81,6 +81,42 @@ Result: Lost confidence in guides, manual verification of every reference
 
 ## Pattern Types
 
+### Type 0: Root-Level Files (CRITICAL - Often Missed)
+
+**Files to Always Check:**
+```
+feature-updates/guides_v2/README.md
+feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
+feature-updates/guides_v2/prompts_reference_v2.md
+```
+
+**Why These Matter:**
+- **High-density references** - These files summarize entire workflow with stage notation throughout
+- **Entry points** - Referenced in CLAUDE.md, must use correct current notation
+- **Template sources** - Content copied to new files, notation errors propagate
+
+**Common Issues in Root Files:**
+- Old notation in workflow summaries ("Stage 5a" → "S5.P1")
+- Inconsistent notation within same file (mixes "S5a" and "S5.P1")
+- Last Updated dates stale, indicating content not reviewed during notation changes
+
+**Search Commands:**
+```bash
+# Check root files specifically for old notation
+cd feature-updates/guides_v2
+grep -n "\bS[0-9][a-z]\b\|Stage [0-9][a-z]" README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md
+
+# Check for mixed notation (both old and new in same file)
+grep -n "S[0-9]\.[A-Z]" README.md | head -5  # Shows new notation
+grep -n "S[0-9][a-z]" README.md | head -5    # Shows old notation
+# If both return results → mixed notation issue
+```
+
+**Historical Issue:**
+- D2 scripts searched `guides_v2/` BUT primary focus was on stages/ directory
+- Root files were not explicitly called out for manual validation
+- Result: Old notation persisted in README.md, EPIC_WORKFLOW_USAGE.md undetected
+
 ### Type 1: Old Notation Patterns
 
 **Common old notations to find:**
@@ -324,6 +360,32 @@ find guides_v2/stages -name "*[A-Z]*.md" ! -name "README.md" -print
 
 ## Manual Validation
 
+###⚠️ CRITICAL: Always Check Root-Level Files First
+
+**Mandatory root file validation:**
+
+```bash
+# Step 0: Check root files for notation consistency (high-priority, often skipped)
+cd feature-updates/guides_v2
+
+# Check each root file individually
+for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md; do
+  echo "=== Checking $file ==="
+  echo "Old notation instances:"
+  grep -n "\bS[0-9][a-z]\b\|Stage [0-9][a-z]" "$file" 2>/dev/null | wc -l
+  echo "New notation instances:"
+  grep -n "S[0-9]\.[A-Z]" "$file" 2>/dev/null | wc -l
+  echo "Last Updated:"
+  grep -n "Last Updated" "$file" 2>/dev/null | head -1
+  echo ""
+done
+```
+
+**Red Flags:**
+- Last Updated > 1 month old = likely missed during recent changes
+- Both old AND new notation present = mixed notation issue
+- Zero old notation + Last Updated recent = probably good
+
 ### When Manual Check Needed
 
 **Automated scripts can't catch:**
@@ -507,6 +569,54 @@ git mv stages/s5/round1_planning.md stages/s5/s5_p1_planning_round1.md
 sed -i 's|stages/s5/round1_planning\.md|stages/s5/s5_p1_planning_round1.md|g' \
   stages/**/*.md
 ```
+
+### Example 4: Root File Mixed Notation (High Priority)
+
+**Issue Found:**
+```markdown
+File: feature-updates/guides_v2/README.md
+Last Updated: 2025-12-30 (over 1 month stale)
+```
+
+**Search Results:**
+```bash
+$ grep -n "S[0-9][a-z]\|S[0-9]\.[A-Z]" README.md | head -10
+84:Old workflow: S5a → S5b → S5c
+88:New workflow: S5.P1 → S5.P2 → S5.P3
+92:   Flesh out spec.md for each feature
+156:STAGE 2: Feature Deep Dives (Loop per feature)
+```
+
+**Analysis:**
+- **CRITICAL** - README.md is main entry point (referenced in CLAUDE.md)
+- Line 84: Uses old notation "S5a" in context that appears to be current workflow
+- Line 88: Uses new notation "S5.P1" for same section
+- **Mixed notation** within same file = high confusion risk
+- Stale "Last Updated" date indicates file not reviewed during notation changes
+
+**Impact:**
+- Users/agents reading README get conflicting information
+- Unclear which notation is "official"
+- Template content may be copied with wrong notation
+
+**Fix:**
+```bash
+# Update to consistent new notation throughout
+# Update "Last Updated" to current date
+# Review entire file for other inconsistencies
+
+# Example fix for mixed notation:
+sed -i 's/Old workflow: S5a → S5b → S5c/Old workflow: Stage 5a → Stage 5b → Stage 5c (deprecated)/g' README.md
+sed -i 's/S[0-9][a-z]\>/S5.P1/g' README.md  # Update remaining old notation
+
+# Update Last Updated field
+sed -i 's/Last Updated:.*$/Last Updated: 2026-02-04/g' README.md
+```
+
+**Why This Was Missed:**
+- D2 scripts searched `guides_v2/` BUT agents focused on stages/ directory
+- Root files not explicitly flagged for manual validation
+- **High-impact oversight** - these files have highest visibility
 
 ---
 

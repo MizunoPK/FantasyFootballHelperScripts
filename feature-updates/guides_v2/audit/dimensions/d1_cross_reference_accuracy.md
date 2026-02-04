@@ -81,6 +81,49 @@ Result: Agent couldn't find file, workflow stuck
 
 ## Pattern Types
 
+### Type 0: Root-Level Files (CRITICAL - Often Missed)
+
+**Files to Always Check:**
+```
+feature-updates/guides_v2/README.md
+feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
+feature-updates/guides_v2/prompts_reference_v2.md
+feature-updates/guides_v2/GUIDES_V2_FORMAL_AUDIT_GUIDE.md (if exists - may be deprecated)
+```
+
+**Why These Matter:**
+- **README.md** = Main entry point, referenced in CLAUDE.md
+- **EPIC_WORKFLOW_USAGE.md** = Detailed workflow reference
+- **prompts_reference_v2.md** = MANDATORY prompts, referenced in CLAUDE.md
+- These files contain high-density cross-references to stages/, templates/, reference/
+
+**Search Command:**
+```bash
+# Check root-level files for cross-references
+cd feature-updates/guides_v2
+for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md; do
+  echo "=== Checking $file ==="
+  grep -n "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md\|parallel_work/.*\.md\|debugging/.*\.md" "$file" || echo "No paths found"
+done
+```
+
+**Validation:**
+```bash
+# Extract all paths from root files and verify they exist
+grep -h "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md" \
+  README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md 2>/dev/null | \
+  grep -o "[a-z_/]*\.md" | \
+  sort -u | \
+  while read path; do
+    [ ! -f "$path" ] && echo "BROKEN in root file: $path"
+  done
+```
+
+**Historical Issue:**
+- Root-level files were NOT checked in original audit implementation
+- D1 only searched `guides_v2/stages` directory
+- Result: README.md references could be broken without detection
+
 ### Type 1: Direct File Paths
 
 **Pattern:**
@@ -92,7 +135,7 @@ reference/reference_name.md
 
 **Search Command:**
 ```bash
-# Extract all file paths
+# Extract all file paths (INCLUDING root-level files)
 grep -rh "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md" \
   --include="*.md" | \
   grep -o "stages/s[0-9][^)]*\.md\|templates/[^)]*\.md\|reference/[^)]*\.md" | \
@@ -301,14 +344,23 @@ fi
 # find_broken_refs.sh
 # More sophisticated - extracts paths and checks from source file context
 
-find guides_v2/stages -name "*.md" | while read source_file; do
+# Check all directories AND root-level files
+{
+  find guides_v2/stages guides_v2/templates guides_v2/reference \
+       guides_v2/debugging guides_v2/missed_requirement guides_v2/parallel_work \
+       guides_v2/prompts guides_v2/audit -name "*.md" 2>/dev/null
+  # Add root-level files explicitly
+  ls guides_v2/*.md 2>/dev/null
+} | while read source_file; do
   # Extract paths from this file
-  grep -o "stages/s[0-9][^)]*\.md" "$source_file" | sort -u | while read ref_path; do
-    # Check if referenced file exists
-    if [ ! -f "guides_v2/$ref_path" ]; then
+  grep -o "stages/s[0-9][^)]*\.md\|templates/[^)]*\.md\|reference/[^)]*\.md\|debugging/[^)]*\.md" \
+    "$source_file" | sort -u | while read ref_path; do
+    # Check if referenced file exists (relative to guides_v2/)
+    full_path="guides_v2/$ref_path"
+    if [ ! -f "$full_path" ]; then
       echo "BROKEN in $source_file"
       echo "  References: $ref_path"
-      echo "  File does not exist"
+      echo "  File does not exist: $full_path"
       echo ""
     fi
   done
@@ -363,6 +415,17 @@ grep -rn "\bS[0-9][a-z]\b\|Stage [0-9][a-z]" --include="*.md" guides_v2/ | \
    - "After S5 complete" but should be "After S6 complete"
 
 ### Manual Validation Process
+
+**⚠️ CRITICAL: Always Check Root-Level Files First**
+
+```bash
+# Step 0: Validate root files (often skipped, high-impact if broken)
+cd feature-updates/guides_v2
+for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md; do
+  echo "Checking $file for broken references..."
+  # Manual review - these files are entry points referenced in CLAUDE.md
+done
+```
 
 ```markdown
 **For each reference found:**
@@ -510,6 +573,38 @@ Content: "READ: stages/s5/round1/iterations_1_3_requirements.md"
 sed -i 's|stages/s5/round1/iterations_1_3_requirements\.md|stages/s5/s5_p1_i1_requirements.md|g' \
   stages/s5/s5_p1_planning_round1.md
 ```
+
+### Example 4: Root-Level File Reference (High Priority)
+
+**Issue Found:**
+```markdown
+File: feature-updates/guides_v2/README.md
+Line: 39
+Content: "GUIDES_V2_FORMAL_AUDIT_GUIDE.md (audit methodology)"
+```
+
+**Analysis:**
+- README.md lists this as active audit guide
+- But GUIDES_V2_FORMAL_AUDIT_GUIDE.md has been **replaced** by modular audit system
+- Modular system is at: audit/README.md, audit/audit_overview.md, etc.
+- README.md needs update to reflect current state
+
+**Impact:**
+- **CRITICAL** - README.md is main entry point (referenced in CLAUDE.md)
+- Users/agents reading README get wrong information about audit system
+- "Last Updated: 2025-12-30" is stale (over 1 month old)
+
+**Fix:**
+```bash
+# Update README.md to reference new modular audit system
+# Update "Last Updated" field to current date
+# Remove or deprecate reference to old monolithic guide
+```
+
+**Why This Was Missed:**
+- Original D1 validation only searched `guides_v2/stages/`
+- Root-level files (README, EPIC_WORKFLOW_USAGE, prompts_reference) were not checked
+- **High-impact gap** - these are entry point files
 
 ---
 
