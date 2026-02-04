@@ -92,7 +92,7 @@ The audit evaluates guides across **16 critical dimensions**:
 |-----------|-------|-------|------------|
 | **D1: Cross-Reference Accuracy** | `dimensions/d1_cross_reference_accuracy.md` | File paths, links | 90% automated |
 | **D2: Terminology Consistency** | `dimensions/d2_terminology_consistency.md` | Notation, naming | 80% automated |
-| **D3: Workflow Integration** | `dimensions/d3_workflow_integration.md` ⏳ | Prerequisites, transitions | 40% automated |
+| **D3: Workflow Integration** | `dimensions/d3_workflow_integration.md` | Prerequisites, transitions | 40% automated |
 | **D8: CLAUDE.md Sync** | `dimensions/d8_claude_md_sync.md` | Root file synchronization | 60% automated |
 
 ### Content Quality Dimensions
@@ -100,8 +100,8 @@ The audit evaluates guides across **16 critical dimensions**:
 | Dimension | Guide | Focus | Automation |
 |-----------|-------|-------|------------|
 | **D4: Count Accuracy** | `dimensions/d4_count_accuracy.md` ⏳ | File counts, iteration counts | 90% automated |
-| **D5: Content Completeness** | `dimensions/d5_content_completeness.md` ⏳ | Missing sections, TODOs | 85% automated |
-| **D6: Template Currency** | `dimensions/d6_template_currency.md` ⏳ | Template synchronization | 70% automated |
+| **D5: Content Completeness** | `dimensions/d5_content_completeness.md` | Missing sections, TODOs | 85% automated |
+| **D6: Template Currency** | `dimensions/d6_template_currency.md` | Template synchronization | 70% automated |
 | **D13: Documentation Quality** | `dimensions/d13_documentation_quality.md` | Required sections, examples | 90% automated |
 | **D14: Content Accuracy** | `dimensions/d14_content_accuracy.md` | Claims vs reality | 70% automated |
 
@@ -112,7 +112,7 @@ The audit evaluates guides across **16 critical dimensions**:
 | **D9: Intra-File Consistency** | `dimensions/d9_intra_file_consistency.md` ⏳ | Within-file quality | 80% automated |
 | **D10: File Size Assessment** | `dimensions/d10_file_size_assessment.md` | Readability limits | 100% automated |
 | **D11: Structural Patterns** | `dimensions/d11_structural_patterns.md` | Template compliance | 60% automated |
-| **D12: Cross-File Dependencies** | `dimensions/d12_cross_file_dependencies.md` ⏳ | Stage transitions | 30% automated |
+| **D12: Cross-File Dependencies** | `dimensions/d12_cross_file_dependencies.md` | Stage transitions | 30% automated |
 
 ### Advanced Dimensions
 
