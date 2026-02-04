@@ -280,7 +280,7 @@
 - Cross-reference consistency (same iteration mentioned in multiple files should match)
 - Edge cases in narrative text (paragraphs, not just structured data)
 - S4 stage guides (new stage from proposals, may have propagation issues)
-- Consistency Loop protocol files (reference/ folder)
+- Validation Loop protocol files (reference/ folder)
 - Any remaining format/style inconsistencies
 
 **Expected Round 4 outcome:**
@@ -348,7 +348,7 @@ grep -rn "14-19" --include="*.md" . | grep -v "_audit_output"
 4. Focus on:
    - Cross-file consistency checks
    - S4 stage guides (new stage)
-   - Consistency Loop protocol files
+   - Validation Loop protocol files
    - Edge cases in narrative text
    - Any format/style issues
 

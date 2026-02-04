@@ -1,11 +1,11 @@
-# S4.I4: Consistency Loop (Test Strategy Validation)
+# S4.I4: Validation Loop (Test Strategy Validation)
 
 🚨 **MANDATORY READING PROTOCOL**
 
 **Before starting this iteration:**
 1. Use Read tool to load THIS ENTIRE GUIDE
 2. Verify Iterations 1-3 complete (test strategy, edge cases, config tests planned)
-3. Read reference guide: `reference/consistency_loop_test_strategy.md`
+3. Read reference guide: `reference/validation_loop_test_strategy.md`
 4. Update feature README.md Agent Status with guide name + timestamp
 
 ---
@@ -13,7 +13,7 @@
 ## Quick Start
 
 **What is this iteration?**
-S4.I4 validates test strategy completeness using Consistency Loop protocol with 3 consecutive clean rounds.
+S4.I4 validates test strategy completeness using Validation Loop protocol with 3 consecutive clean rounds.
 
 **When do you use this iteration?**
 After completing S4.I1, I2, I3 (test coverage matrix, edge cases, config tests all planned)
@@ -30,9 +30,9 @@ After completing S4.I1, I2, I3 (test coverage matrix, edge cases, config tests a
 
 ## Purpose
 
-Validate test strategy completeness using systematic Consistency Loop validation from `consistency_loop_test_strategy.md`.
+Validate test strategy completeness using systematic Validation Loop validation from `validation_loop_test_strategy.md`.
 
-**Reference:** `feature-updates/guides_v2/reference/consistency_loop_test_strategy.md`
+**Reference:** `feature-updates/guides_v2/reference/validation_loop_test_strategy.md`
 
 ---
 
@@ -50,10 +50,10 @@ Validate test strategy completeness using systematic Consistency Loop validation
 
 ---
 
-## Consistency Loop Process
+## Validation Loop Process
 
-**Follow master protocol:** `consistency_loop_protocol.md`
-**Context-specific guide:** `consistency_loop_test_strategy.md`
+**Follow master protocol:** `validation_loop_protocol.md`
+**Context-specific guide:** `validation_loop_test_strategy.md`
 
 **Exit Criteria:** 3 consecutive rounds with ZERO issues found
 
@@ -186,7 +186,7 @@ Validate test strategy completeness using systematic Consistency Loop validation
 - Continue with next round
 - Repeat until 3 consecutive rounds with ZERO issues
 
-**Maximum rounds:** 10 (see `consistency_loop_protocol.md` for escalation if exceeded)
+**Maximum rounds:** 10 (see `validation_loop_protocol.md` for escalation if exceeded)
 
 ---
 
@@ -205,7 +205,7 @@ Validate test strategy completeness using systematic Consistency Loop validation
 
 ## Create test_strategy.md File
 
-**After Consistency Loop passes (3 consecutive clean rounds):**
+**After Validation Loop passes (3 consecutive clean rounds):**
 
 Create `feature_{N}_{name}/test_strategy.md` with:
 
@@ -216,7 +216,7 @@ Create `feature_{N}_{name}/test_strategy.md` with:
 
 **Created:** {YYYY-MM-DD} (S4.I4)
 **Last Updated:** {YYYY-MM-DD}
-**Status:** VALIDATED (Consistency Loop passed with 3 consecutive clean rounds)
+**Status:** VALIDATED (Validation Loop passed with 3 consecutive clean rounds)
 
 ---
 
@@ -276,7 +276,7 @@ Create `feature_{N}_{name}/test_strategy.md` with:
 
 ---
 
-## Consistency Loop Validation
+## Validation Loop Validation
 
 **Validation Date:** {YYYY-MM-DD}
 **Rounds Executed:** {N} rounds
@@ -316,8 +316,8 @@ ls feature_{N}_{name}/test_strategy.md
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** S4_COMPLETE
-**Current Step:** Completed S4.I4 (Consistency Loop passed with 3 consecutive clean rounds)
-**Current Guide:** stages/s4/s4_consistency_loop.md
+**Current Step:** Completed S4.I4 (Validation Loop passed with 3 consecutive clean rounds)
+**Current Guide:** stages/s4/s4_validation_loop.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Progress:** S4 complete - test_strategy.md created and validated
@@ -327,7 +327,7 @@ ls feature_{N}_{name}/test_strategy.md
 **Test Summary:**
 - Total tests: {N}
 - Coverage: {X}% (>90% goal met ✅)
-- Consistency Loop: PASSED (3 consecutive clean rounds)
+- Validation Loop: PASSED (3 consecutive clean rounds)
 ```
 
 ---
@@ -336,7 +336,7 @@ ls feature_{N}_{name}/test_strategy.md
 
 **S4.I4 is complete when ALL of these are true:**
 
-□ Consistency Loop executed with master protocol
+□ Validation Loop executed with master protocol
 □ 3 consecutive rounds found ZERO issues
 □ ALL issues fixed (no deferred issues)
 □ test_strategy.md created in `feature_{N}_{name}/` folder
@@ -368,4 +368,4 @@ ls feature_{N}_{name}/test_strategy.md
 
 ---
 
-*End of stages/s4/s4_consistency_loop.md*
+*End of stages/s4/s4_validation_loop.md*

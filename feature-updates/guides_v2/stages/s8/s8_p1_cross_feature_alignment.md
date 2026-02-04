@@ -331,7 +331,7 @@ STEP 4: Final Verification
 
 ---
 
-## Phase 4: Alignment Consistency Loop (MANDATORY)
+## Phase 4: Alignment Validation Loop (MANDATORY)
 
 **After updating remaining feature specs, validate changes with iterative loop.**
 
@@ -350,7 +350,7 @@ STEP 4: Final Verification
 4. Resolve ALL issues (zero tolerance standard)
 5. **Exit condition:** 2 consecutive clean loops (ZERO issues found)
 
-**Differences from S3 Consistency Loop:**
+**Differences from S3 Validation Loop:**
 - **S3:** 3 loops, ALL specs, BEFORE implementation (comprehensive)
 - **S8.P1:** 2 loops, UPDATED specs, AFTER each feature (incremental)
 - **Both:** Zero tolerance for issues (all severities must be resolved)
@@ -374,9 +374,9 @@ Create `S8_ALIGNMENT_VALIDATION_{feature_NN}.md` with:
 **Example from KAI-7:**
 After Feature 01 implementation:
 - S8.P1: Updated Features 02-07 specs
-- Consistency Loop 1: Found 2 issues (missing error handling pattern, old logging approach)
+- Validation Loop 1: Found 2 issues (missing error handling pattern, old logging approach)
 - Resolved issues
-- Consistency Loop 2: 0 issues found ✅
+- Validation Loop 2: 0 issues found ✅
 - Proceed to S8.P2 with confirmed alignment
 
 ---

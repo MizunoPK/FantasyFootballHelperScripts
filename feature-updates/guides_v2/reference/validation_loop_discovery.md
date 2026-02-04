@@ -1,6 +1,6 @@
-# Consistency Loop: Discovery Context
+# Validation Loop: Discovery Context
 
-**Master Protocol:** See `consistency_loop_protocol.md`
+**Master Protocol:** See `validation_loop_protocol.md`
 
 **Context:** S1.P3 Discovery Phase, S2.P1.I1 Feature Discovery
 

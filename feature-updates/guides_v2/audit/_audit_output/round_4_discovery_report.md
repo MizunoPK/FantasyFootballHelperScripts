@@ -34,7 +34,7 @@
 
 **Patterns Used:**
 1. S4 stage guide checks (found: clean)
-2. Consistency Loop protocol files (found: clean - correctly use "Round" for loop rounds)
+2. Validation Loop protocol files (found: clean - correctly use "Round" for loop rounds)
 3. Gate 23a cross-references (found: 28 instances, all correct)
 4. Gate-to-iteration mapping verification (found: consistent)
 5. Old "9 phase" terminology search (found: clean)
@@ -142,9 +142,9 @@ CLAUDE.md simplified but accurate ✅
 - Zero iteration/round references (correct - S4 is test strategy, not implementation)
 - Clean
 
-### Consistency Loop Protocol Files ✅
+### Validation Loop Protocol Files ✅
 - All 6 files checked (`reference/consistency_loop_*.md`)
-- Use "Round" to refer to Consistency Loop rounds (not S5 rounds) - correct usage
+- Use "Round" to refer to Validation Loop rounds (not S5 rounds) - correct usage
 - Clean
 
 ### Cross-References ✅

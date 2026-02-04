@@ -1,4 +1,4 @@
-# Consistency Loop Protocol (Master)
+# Validation Loop Protocol (Master)
 
 ## Purpose
 Systematic validation requiring 3 consecutive clean rounds with zero deferred issues.
@@ -79,7 +79,7 @@ Round 3: Re-read spec → Check if fix introduced other issues
 
 **Escalation Protocol for Stuck Loops:**
 
-If Consistency Loop exceeds 10 rounds without achieving 3 consecutive clean loops:
+If Validation Loop exceeds 10 rounds without achieving 3 consecutive clean loops:
 
 1. STOP the loop
 2. Document all issues found in last 3 rounds
@@ -107,7 +107,7 @@ If Consistency Loop exceeds 10 rounds without achieving 3 consecutive clean loop
 
 **What "Embedded" Means Operationally:**
 
-When a gate is "embedded" in a Consistency Loop, the gate criteria become issue types that the loop checks for:
+When a gate is "embedded" in a Validation Loop, the gate criteria become issue types that the loop checks for:
 
 - **Gate criteria failures = Issues found**
 - **If gate check fails in Round 1 → Fix → Continue loop**
@@ -201,11 +201,11 @@ Different contexts will adapt this protocol by defining:
 4. **WHAT specific criteria** (Gate checklists, coverage thresholds, alignment checks)
 
 **See context-specific guides:**
-- `consistency_loop_discovery.md` - Research and discovery context
-- `consistency_loop_spec_refinement.md` - Spec/document refinement context
-- `consistency_loop_alignment.md` - Cross-feature/cross-doc alignment context
-- `consistency_loop_test_strategy.md` - Test plan validation context
-- `consistency_loop_qc_pr.md` - QC and PR validation context
+- `validation_loop_discovery.md` - Research and discovery context
+- `validation_loop_spec_refinement.md` - Spec/document refinement context
+- `validation_loop_alignment.md` - Cross-feature/cross-doc alignment context
+- `validation_loop_test_strategy.md` - Test plan validation context
+- `validation_loop_qc_pr.md` - QC and PR validation context
 
 Each context guide will:
 - Reference this master protocol
@@ -260,14 +260,14 @@ Each context guide will:
 
 ## Success Metrics
 
-**A Consistency Loop is successful when:**
+**A Validation Loop is successful when:**
 - ✅ 3 consecutive rounds found zero issues each
 - ✅ All identified issues fixed (zero deferred)
 - ✅ All embedded gate criteria passed
 - ✅ Document/code meets quality standards
 - ✅ Agent has high confidence in completeness
 
-**A Consistency Loop has failed when:**
+**A Validation Loop has failed when:**
 - ❌ 10 rounds completed without 3 consecutive clean
 - ❌ Recurring issues indicate fundamental problem
 - ❌ Agent stuck in fix-introduces-issue cycle
@@ -275,6 +275,6 @@ Each context guide will:
 
 ---
 
-**This is the master protocol. All Consistency Loop implementations must follow these 7 principles.**
+**This is the master protocol. All Validation Loop implementations must follow these 7 principles.**
 
 **Context-specific guides adapt HOW these principles are applied, not WHETHER they are applied.**

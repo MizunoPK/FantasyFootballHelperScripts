@@ -1,6 +1,6 @@
-# Consistency Loop: QC and PR Review Context
+# Validation Loop: QC and PR Review Context
 
-**Master Protocol:** See `consistency_loop_protocol.md`
+**Master Protocol:** See `validation_loop_protocol.md`
 
 **Context:** S7.P2 QC Rounds (Feature), S7.P3 PR Review (Feature), S9.P2 Epic QC Rounds
 
@@ -165,7 +165,7 @@ Round 5: Final sweep
 
 **S7.P2 QC Rounds (Feature-Level):**
 - Use this protocol after implementation complete
-- 3 QC rounds required (embedded Consistency Loop)
+- 3 QC rounds required (embedded Validation Loop)
 - Must pass before S7.P3 (PR Review)
 
 **S7.P3 PR Review (Feature-Level):**

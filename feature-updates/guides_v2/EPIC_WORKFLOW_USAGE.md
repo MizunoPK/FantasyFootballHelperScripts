@@ -1852,7 +1852,7 @@ This reduced section focuses on the workflow without showing all the detailed co
 - checklist.md (QUESTIONS ONLY - user answers ALL before S5.P1)
 - RESEARCH_NOTES.md (REQUIRED)
 
-**Consistency Loops:**
+**Validation Loops:**
 - S2.P1.I1 (embeds Gate 1)
 - S2.P1.I3 (embeds Gate 2)
 - S2.P2 (alignment validation)
@@ -1893,7 +1893,7 @@ This reduced section focuses on the workflow without showing all the detailed co
 - Pairwise comparison moved to S2.P2
 - Old S4 content moved here
 
-**Consistency Loops:**
+**Validation Loops:**
 - S3.P1 (testing strategy validation)
 - S3.P2 (documentation validation)
 
@@ -1930,7 +1930,7 @@ This reduced section focuses on the workflow without showing all the detailed co
 - Environment variations
 - Parameter combinations
 
-**S4.I4: Consistency Loop** (15-20 min)
+**S4.I4: Validation Loop** (15-20 min)
 - Validate test strategy completeness
 - 3 consecutive clean rounds required
 - Zero deferred issues
@@ -1972,7 +1972,7 @@ This reduced section focuses on the workflow without showing all the detailed co
 - I7: Integration points
 - Gate 7a: Backward Compatibility Check
 
-**Consistency Loop:** Added at end of Round 1 (validates Gates 4a, 7a)
+**Validation Loop:** Added at end of Round 1 (validates Gates 4a, 7a)
 
 **Round 2: Verification** (6 iterations)
 - **Guide:** `stages/s5/s5_p2_planning_round2.md` (router, I8-I13)
@@ -1999,7 +1999,7 @@ This reduced section focuses on the workflow without showing all the detailed co
 - I18: Code review checklist
 - I19: Rollback plan
 
-**Consistency Loop:** Added before Gate 23a (validates complete plan)
+**Validation Loop:** Added before Gate 23a (validates complete plan)
 
 **S5.P3.I2: Pre-Implementation Audit** (I20)
 - Guide: `stages/s5/s5_p3_i2_gates_part1.md`

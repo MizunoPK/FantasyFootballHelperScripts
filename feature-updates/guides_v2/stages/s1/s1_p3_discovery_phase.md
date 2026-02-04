@@ -11,7 +11,7 @@
 ## Quick Start
 
 **What is this guide?**
-The Discovery Phase is a mandatory research and validation process where the agent explores the problem space, creates a comprehensive DISCOVERY.md document, then validates it through Consistency Loop protocol until 3 consecutive clean rounds confirm completeness.
+The Discovery Phase is a mandatory research and validation process where the agent explores the problem space, creates a comprehensive DISCOVERY.md document, then validates it through Validation Loop protocol until 3 consecutive clean rounds confirm completeness.
 
 **When do you use this guide?**
 - After completing S1 Step 2 (Epic Analysis)
@@ -20,7 +20,7 @@ The Discovery Phase is a mandatory research and validation process where the age
 
 **Key Outputs:**
 - DISCOVERY.md created and user-approved
-- Problem space thoroughly explored (validated through Consistency Loop)
+- Problem space thoroughly explored (validated through Validation Loop)
 - Solution approach determined
 - Scope clearly defined (in/out/deferred)
 - Feature breakdown ready to propose
@@ -33,9 +33,9 @@ The Discovery Phase is a mandatory research and validation process where the age
 | LARGE (6+ features) | 3-4 hours | 7-10 rounds (incl. 3 clean) |
 
 **Exit Condition:**
-Discovery Phase is complete when Consistency Loop validation produces THREE CONSECUTIVE clean rounds (zero issues/gaps), DISCOVERY.md is complete, and user has approved the recommended approach and feature breakdown.
+Discovery Phase is complete when Validation Loop validation produces THREE CONSECUTIVE clean rounds (zero issues/gaps), DISCOVERY.md is complete, and user has approved the recommended approach and feature breakdown.
 
-**Consistency Loop Reference:** `reference/consistency_loop_discovery.md`
+**Validation Loop Reference:** `reference/validation_loop_discovery.md`
 
 ---
 
@@ -50,7 +50,7 @@ Discovery Phase is complete when Consistency Loop validation produces THREE CONS
    - No exceptions, even for "clear" epics
    - Cannot create feature folders until Discovery completes
 
-2. Discovery uses Consistency Loop validation (see consistency_loop_discovery.md)
+2. Discovery uses Validation Loop validation (see validation_loop_discovery.md)
    - Exit criteria: 3 consecutive clean rounds with ZERO issues/gaps
    - Issues/gaps include: Missing research, incomplete sections, unanswered questions,
      assumptions not verified, integration gaps, unclear scope
@@ -91,10 +91,10 @@ S1.P3.1: Initialize Discovery Document (10-15 min)
     +-- Set time-box based on epic size
     |
     v
-S1.P3.2: Consistency Loop Validation (iterative)
+S1.P3.2: Validation Loop Validation (iterative)
     |
     +--------------------------------------------------+
-    |  Reference: consistency_loop_discovery.md        |
+    |  Reference: validation_loop_discovery.md        |
     |                                                  |
     |   +-------------+                                |
     |   | Round N     | Re-read DISCOVERY.md          |
@@ -219,7 +219,7 @@ Based on initial research, identify questions that need user input:
 | 2 | Should all scripts share the same debug approach? | 6 different scripts mentioned | 2025-01-20 |
 ```
 
-**Ask user questions before proceeding to Consistency Loop**
+**Ask user questions before proceeding to Validation Loop**
 
 ### Step 5: Set Time-Box
 
@@ -250,19 +250,19 @@ Document in Discovery Log:
 **Current Phase:** DISCOVERY_PHASE
 **Current Step:** S1.P3.1 Complete - Initial Research and DISCOVERY.md Draft
 **Current Guide:** stages/s1/s1_p3_discovery_phase.md
-**Progress:** DISCOVERY.md drafted, entering Consistency Loop validation
-**Next Action:** S1.P3.2 - Consistency Loop Round 1
+**Progress:** DISCOVERY.md drafted, entering Validation Loop validation
+**Next Action:** S1.P3.2 - Validation Loop Round 1
 ```
 
 ---
 
-## S1.P3.2: Consistency Loop Validation
+## S1.P3.2: Validation Loop Validation
 
 **Time:** Varies by epic size (bulk of Discovery time)
 
-**Reference:** `reference/consistency_loop_discovery.md`
+**Reference:** `reference/validation_loop_discovery.md`
 
-The Consistency Loop repeats until THREE CONSECUTIVE validation rounds find ZERO issues or gaps in DISCOVERY.md.
+The Validation Loop repeats until THREE CONSECUTIVE validation rounds find ZERO issues or gaps in DISCOVERY.md.
 
 **Clean Round Counter:** Track consecutive rounds with zero issues/gaps
 - Counter starts at 0
@@ -308,7 +308,7 @@ D. Check Exit (update clean round counter, check if counter >= 3)
 
 Each round, you MUST re-read the ENTIRE DISCOVERY.md document. Use different reading patterns:
 
-**Round-Specific Reading Patterns (from consistency_loop_discovery.md):**
+**Round-Specific Reading Patterns (from validation_loop_discovery.md):**
 - **Round 1:** Sequential read (top to bottom), completeness check
 - **Round 2:** Reverse order read (bottom to top), consistency check
 - **Round 3:** Random section spot-checks, final validation
@@ -444,7 +444,7 @@ For EACH issue identified in Step B, you MUST fix it BEFORE continuing to Step D
 
 3. **If counter = 3, verify exit readiness:**
    ```markdown
-   ## Consistency Loop Exit Verification (After 3 Clean Rounds)
+   ## Validation Loop Exit Verification (After 3 Clean Rounds)
 
    [ ] 3 consecutive rounds found zero issues/gaps
    [ ] All sections of DISCOVERY.md complete
@@ -460,7 +460,7 @@ For EACH issue identified in Step B, you MUST fix it BEFORE continuing to Step D
 
 **Document round in DISCOVERY.md:**
 ```markdown
-## Consistency Loop Round {N} ({YYYY-MM-DD HH:MM})
+## Validation Loop Round {N} ({YYYY-MM-DD HH:MM})
 
 **Reading Pattern:** {Sequential | Reverse | Random spot-check | Thematic clustering}
 **Issues Found:** {Number}
@@ -770,7 +770,7 @@ User approved recommended approach. Confirmed 4-feature breakdown is correct.
 
 ```
 [ ] DISCOVERY.md created with all sections populated
-[ ] Consistency Loop exited (3 consecutive rounds found zero issues/gaps)
+[ ] Validation Loop exited (3 consecutive rounds found zero issues/gaps)
 [ ] Clean round counter reached 3
 [ ] All pending questions resolved
 [ ] All assumptions verified
@@ -796,7 +796,7 @@ X "This epic seems clear, I'll skip Discovery"
   --> STOP - Discovery is MANDATORY for every epic
 
 X "I'll defer these issues and fix them later"
-  --> STOP - Consistency Loop has ZERO TOLERANCE for deferred issues
+  --> STOP - Validation Loop has ZERO TOLERANCE for deferred issues
 
 X "I know the answer, don't need to ask user"
   --> STOP - User answers all scope/preference/assumption questions
@@ -841,33 +841,33 @@ X "I found 5 issues, I'll fix 3 now and 2 later"
 
 **REQUIRED ACTIONS:**
 1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
-2. [ ] Use Read tool to re-read `reference/consistency_loop_discovery.md` (context variant)
+2. [ ] Use Read tool to re-read `reference/validation_loop_discovery.md` (context variant)
 3. [ ] Verify DISCOVERY.md created with initial research documented
 4. [ ] Verify initial questions asked and answered by user
 5. [ ] Verify time-box set based on epic size (SMALL: 1-2hrs, MEDIUM: 2-3hrs, LARGE: 3-4hrs)
 6. [ ] Update EPIC_README.md Agent Status:
-   - Current Step: "S1.P3.1 complete, starting S1.P3.2 Consistency Loop Round 1"
+   - Current Step: "S1.P3.1 complete, starting S1.P3.2 Validation Loop Round 1"
    - Last Updated: [timestamp]
-7. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and consistency_loop_discovery.md, verified DISCOVERY.md drafted"
+7. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and validation_loop_discovery.md, verified DISCOVERY.md drafted"
 
 **Why this checkpoint exists:**
-- Critical Rules define Consistency Loop exit condition (3 consecutive clean rounds)
-- consistency_loop_discovery.md defines reading patterns and issue categories
+- Critical Rules define Validation Loop exit condition (3 consecutive clean rounds)
+- validation_loop_discovery.md defines reading patterns and issue categories
 - 80% of agents forget to re-read with fresh perspective each round
 - 30 seconds now prevents hours of wasted validation rounds
 
-**ONLY after completing ALL 7 actions above, proceed to S1.P3.2 (Consistency Loop)**
+**ONLY after completing ALL 7 actions above, proceed to S1.P3.2 (Validation Loop)**
 
 ---
 
 ## 🛑 MANDATORY CHECKPOINT 2
 
-**You have completed one Consistency Loop round**
+**You have completed one Validation Loop round**
 
 ⚠️ STOP - DO NOT PROCEED TO NEXT ROUND YET
 
 **REQUIRED ACTIONS:**
-1. [ ] Use Read tool to re-read "Consistency Loop Validation" section of this guide
+1. [ ] Use Read tool to re-read "Validation Loop Validation" section of this guide
 2. [ ] Verify all issues/gaps documented in DISCOVERY.md
 3. [ ] Verify ALL issues/gaps fixed (not deferred) - zero tolerance policy
 4. [ ] Update clean round counter:
@@ -877,10 +877,10 @@ X "I found 5 issues, I'll fix 3 now and 2 later"
 6. [ ] Update EPIC_README.md Agent Status:
    - Current Step: "S1.P3.2 Round N complete, clean counter = {X}, [continuing loop OR proceeding to S1.P3.3]"
    - Last Updated: [timestamp]
-7. [ ] Output acknowledgment: "✅ CHECKPOINT 2 COMPLETE: Re-read Consistency Loop section, verified all issues fixed, counter = {X}"
+7. [ ] Output acknowledgment: "✅ CHECKPOINT 2 COMPLETE: Re-read Validation Loop section, verified all issues fixed, counter = {X}"
 
 **Why this checkpoint exists:**
-- Consistency Loop requires 3 CONSECUTIVE clean rounds
+- Validation Loop requires 3 CONSECUTIVE clean rounds
 - 75% of agents exit after first clean round (premature)
 - 60% of agents defer issues instead of fixing immediately
 - Premature exit or deferred issues cause incomplete discovery and rework in S2
@@ -897,7 +897,7 @@ X "I found 5 issues, I'll fix 3 now and 2 later"
 
 **REQUIRED ACTIONS:**
 1. [ ] Use Read tool to re-read "Synthesize Findings" section of this guide
-2. [ ] Verify Consistency Loop exited cleanly (counter = 3, zero issues in last 3 rounds)
+2. [ ] Verify Validation Loop exited cleanly (counter = 3, zero issues in last 3 rounds)
 3. [ ] Verify all sections of DISCOVERY.md complete:
    - [ ] Executive Summary
    - [ ] Key Findings
@@ -911,11 +911,11 @@ X "I found 5 issues, I'll fix 3 now and 2 later"
 5. [ ] Update EPIC_README.md Agent Status:
    - Current Step: "S1.P3.3 complete, requesting user approval in S1.P3.4"
    - Last Updated: [timestamp]
-6. [ ] Output acknowledgment: "✅ CHECKPOINT 3 COMPLETE: Re-read Synthesize section, verified Consistency Loop exited cleanly, DISCOVERY.md complete"
+6. [ ] Output acknowledgment: "✅ CHECKPOINT 3 COMPLETE: Re-read Synthesize section, verified Validation Loop exited cleanly, DISCOVERY.md complete"
 
 **Why this checkpoint exists:**
 - DISCOVERY.md must be complete before user approval
-- Consistency Loop must exit cleanly (not prematurely)
+- Validation Loop must exit cleanly (not prematurely)
 - 90% of agents miss at least one required section
 - Incomplete DISCOVERY causes user confusion and delays approval
 

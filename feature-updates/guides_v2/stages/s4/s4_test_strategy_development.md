@@ -25,7 +25,7 @@ After reading S4 router (`s4_feature_testing_strategy.md`) and verifying prerequ
 - ✅ Test case list (unit, integration, edge cases)
 - ✅ Edge case catalog (boundary conditions, error paths)
 - ✅ Configuration test matrix (default, custom, invalid, missing)
-- ✅ Ready for Iteration 4 (Consistency Loop)
+- ✅ Ready for Iteration 4 (Validation Loop)
 
 **Time Estimate:**
 35-50 minutes (I1: 15-20 min, I2: 10-15 min, I3: 10-15 min)
@@ -695,7 +695,7 @@ Identify configuration dependencies and plan configuration-related tests (defaul
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Progress:** S4.I3 complete - Config test matrix created, 91 total tests planned (>95% coverage)
-**Next Action:** Begin S4.I4 (Consistency Loop Validation)
+**Next Action:** Begin S4.I4 (Validation Loop Validation)
 **Blockers:** None
 
 **Test Summary:**
@@ -727,7 +727,7 @@ Identify configuration dependencies and plan configuration-related tests (defaul
   - All config scenarios have test coverage
 □ Overall test coverage >90% (unit + integration + edge + config)
 □ Feature README.md updated at end of each iteration
-□ Ready for Iteration 4 (Consistency Loop)
+□ Ready for Iteration 4 (Validation Loop)
 
 **If any item unchecked:**
 - ❌ Iterations 1-3 are NOT complete
@@ -736,14 +736,14 @@ Identify configuration dependencies and plan configuration-related tests (defaul
 
 ---
 
-## Next: Iteration 4 (Consistency Loop)
+## Next: Iteration 4 (Validation Loop)
 
 **After completing Iterations 1-3:**
 
-📖 **READ:** `stages/s4/s4_consistency_loop.md` (Iteration 4)
+📖 **READ:** `stages/s4/s4_validation_loop.md` (Iteration 4)
 🎯 **GOAL:** Validate test strategy with 3 consecutive clean rounds
 ⏱️ **ESTIMATE:** 15-20 minutes
-🔍 **REFERENCE:** `reference/consistency_loop_test_strategy.md`
+🔍 **REFERENCE:** `reference/validation_loop_test_strategy.md`
 
 **Iteration 4 will:**
 - Validate test strategy completeness

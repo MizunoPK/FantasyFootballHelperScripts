@@ -700,7 +700,7 @@ Keep categories but add specific guidance:
 
 ## Step 6: S4 Validation Loop (MANDATORY)
 
-**Similar to S3 Final Consistency Loop, but for epic test plan.**
+**Similar to S3 Final Validation Loop, but for epic test plan.**
 
 **Goal:** Achieve 2-3 consecutive clean loops with ZERO issues in test plan
 

@@ -203,15 +203,15 @@ reference/workflow_reference_tables.md (5,000 chars)
 **Example:**
 ```
 Before:
-- Section A explains Consistency Loop (400 lines)
-- Section B explains Consistency Loop with slight variation (380 lines)
-- Section C references Consistency Loop (200 lines)
+- Section A explains Validation Loop (400 lines)
+- Section B explains Validation Loop with slight variation (380 lines)
+- Section C references Validation Loop (200 lines)
 
 After:
-- Create reference/consistency_loop_protocol.md (500 lines - comprehensive)
-- Section A: "See consistency_loop_protocol.md" (10 lines)
-- Section B: "See consistency_loop_protocol.md" (10 lines)
-- Section C: "See consistency_loop_protocol.md" (10 lines)
+- Create reference/validation_loop_protocol.md (500 lines - comprehensive)
+- Section A: "See validation_loop_protocol.md" (10 lines)
+- Section B: "See validation_loop_protocol.md" (10 lines)
+- Section C: "See validation_loop_protocol.md" (10 lines)
 ```
 
 **Process:**
@@ -327,7 +327,7 @@ wc -c CLAUDE.md
 **Agents MUST avoid these critical anti-patterns:**
 - Autonomous checklist resolution (agent marks RESOLVED without user approval)
 - Narrow investigation scope (checking only obvious aspects)
-- Deferring issues during Consistency Loop (zero tolerance for "fix later")
+- Deferring issues during Validation Loop (zero tolerance for "fix later")
 
 **See:** `feature-updates/guides_v2/reference/common_mistakes.md` for complete anti-pattern reference with detailed examples and recovery protocols.
 
@@ -392,12 +392,12 @@ After:
 
 **Option B: Split by Concept**
 ```
-Before: consistency_loop_guide.md (900 lines)
+Before: validation_loop_guide.md (900 lines)
 After:
-  - consistency_loop_protocol.md (300 lines - foundation)
-  - consistency_loop_discovery.md (200 lines - context-specific)
-  - consistency_loop_spec_refinement.md (200 lines)
-  - consistency_loop_qc.md (200 lines)
+  - validation_loop_protocol.md (300 lines - foundation)
+  - validation_loop_discovery.md (200 lines - context-specific)
+  - validation_loop_spec_refinement.md (200 lines)
+  - validation_loop_qc_pr.md (200 lines)
 ```
 
 **Option C: Extract Examples/Reference**

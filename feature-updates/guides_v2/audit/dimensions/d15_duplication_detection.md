@@ -1104,7 +1104,7 @@ See `reference/common_examples.md` → "Missing Import Error" for debugging appr
 2. Skipping user approval gates
 3. Not updating Agent Status regularly
 4. Deferring issues for later
-5. Skipping consistency loops
+5. Skipping validation loops
 ```
 
 **All 12 features in KAI-7 had identical "Common Pitfalls" section.**

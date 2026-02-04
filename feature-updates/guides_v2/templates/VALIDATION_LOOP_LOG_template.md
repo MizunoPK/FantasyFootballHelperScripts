@@ -1,15 +1,15 @@
-# Consistency Loop Log - {Stage}.{Phase} - {Feature/Epic Name}
+# Validation Loop Log - {Stage}.{Phase} - {Feature/Epic Name}
 
 **Date:** {YYYY-MM-DD}
 **Stage:** {S#.P#.I# or S#.P#}
 **Context:** {Feature-level | Epic-level}
-**Consistency Loop Variant:** {discovery | spec_refinement | alignment | test_strategy | qc_pr}
+**Validation Loop Variant:** {discovery | spec_refinement | alignment | test_strategy | qc_pr}
 
 ---
 
 ## Overview
 
-**Purpose:** Track Consistency Loop validation rounds and demonstrate "no deferred issues" principle
+**Purpose:** Track Validation Loop validation rounds and demonstrate "no deferred issues" principle
 
 **Exit Criteria:** 3 consecutive clean rounds (zero issues/gaps found)
 
@@ -172,13 +172,13 @@
 - Total: {X} hours
 - Per Round Average: {Y} minutes
 
-**Outcome:** Document/work validated through Consistency Loop - ready to proceed
+**Outcome:** Document/work validated through Validation Loop - ready to proceed
 
 ---
 
 ## Reading Patterns Used
 
-**Reference:** `reference/consistency_loop_{variant}.md`
+**Reference:** `reference/validation_loop_{variant}.md`
 
 **Patterns applied:**
 - Round 1: {pattern and purpose}
@@ -194,7 +194,7 @@
 **Key Insights:**
 - {Insight 1: What types of issues were commonly found}
 - {Insight 2: What patterns helped catch issues}
-- {Insight 3: Lessons for future Consistency Loops}
+- {Insight 3: Lessons for future Validation Loops}
 
 **Recommendations:**
 - {Recommendation for future use}

@@ -203,7 +203,7 @@ Epic 2: 450 lines (OK) - Added examples
 Epic 3: 520 lines (OK) - Added edge cases
 Epic 4: 580 lines (WARNING) - Added debugging section
 Epic 5: 650 lines (LARGE) - Added more iterations
-Epic 6: 720 lines (LARGE) - Added consistency loop details
+Epic 6: 720 lines (LARGE) - Added validation loop details
 ```
 
 **Why It Happens:**

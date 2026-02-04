@@ -67,7 +67,7 @@
   - 3 iterations: I1 (Discovery), I2 (Checklist Resolution), I3 (Refinement & Alignment)
   - Embeds Gates 1 & 2, includes Gate 3 (User Checklist Approval)
 - **S2.P2:** Cross-Feature Alignment (guide: `s2_p2_cross_feature_alignment.md`)
-  - Pairwise comparison with Consistency Loop
+  - Pairwise comparison with Validation Loop
   - Primary agent only (secondary agents wait)
 
 **Naming:** Uses hierarchical notation (S2.P1, S2.P2) with iterations (S2.P1.I1, S2.P1.I2, S2.P1.I3)
@@ -97,11 +97,11 @@ Feature Planning is where you research each feature, create detailed specificati
 
 **Key Changes from Old S2:**
 - **S2.P1 now has 3 iterations** (was 9 phases across 3 files)
-- **Consistency Loops embed Gates 1 & 2** (systematic validation)
+- **Validation Loops embed Gates 1 & 2** (systematic validation)
 - **S2.P2 is pairwise comparison** (moved from old S3)
 - **Gate 3 explicit approval required** (including acceptance criteria)
 
-**Exit Condition:** S2 is complete for a feature when spec has user-approved acceptance criteria (Gate 3 passed), Gates 1 & 2 passed via Consistency Loops, and cross-feature alignment verified (S2.P2)
+**Exit Condition:** S2 is complete for a feature when spec has user-approved acceptance criteria (Gate 3 passed), Gates 1 & 2 passed via Validation Loops, and cross-feature alignment verified (S2.P2)
 
 ---
 

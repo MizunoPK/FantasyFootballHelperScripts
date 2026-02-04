@@ -1,6 +1,6 @@
-# Consistency Loop: Test Strategy Context
+# Validation Loop: Test Strategy Context
 
-**Master Protocol:** See `consistency_loop_protocol.md`
+**Master Protocol:** See `validation_loop_protocol.md`
 
 **Context:** S3.P1 Epic Testing Strategy, S4 Feature Testing Strategy
 

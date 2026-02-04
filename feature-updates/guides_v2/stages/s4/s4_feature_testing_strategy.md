@@ -39,7 +39,7 @@ S4 is Feature-Level Test Strategy Development - planning tests BEFORE implementa
 45-60 minutes per feature
 
 **Exit Condition:**
-S4 is complete when test_strategy.md exists with >90% coverage planned, all edge cases identified, config tests defined, and Consistency Loop validation passed with 3 consecutive clean rounds
+S4 is complete when test_strategy.md exists with >90% coverage planned, all edge cases identified, config tests defined, and Validation Loop validation passed with 3 consecutive clean rounds
 
 ---
 
@@ -68,15 +68,15 @@ S4 is complete when test_strategy.md exists with >90% coverage planned, all edge
    - Iteration 1: Test Strategy Development (15-20 min)
    - Iteration 2: Edge Case Enumeration (10-15 min)
    - Iteration 3: Configuration Change Impact (10-15 min)
-   - Iteration 4: Consistency Loop (15-20 min)
+   - Iteration 4: Validation Loop (15-20 min)
 
 5. ⚠️ Traceability required
    - Each test must link to requirement in spec.md
    - Coverage matrix shows requirement → test mapping
    - No untested requirements allowed
 
-6. ⚠️ Consistency Loop validation mandatory (Iteration 4)
-   - Reference: consistency_loop_test_strategy.md
+6. ⚠️ Validation Loop validation mandatory (Iteration 4)
+   - Reference: validation_loop_test_strategy.md
    - 3 consecutive clean rounds required
    - Exit only when ZERO issues remain
 
@@ -116,7 +116,7 @@ S4: Feature Testing Strategy
 ├── S4.I1 - Test Strategy Development (s4_test_strategy_development.md)
 ├── S4.I2 - Edge Case Enumeration (s4_test_strategy_development.md)
 ├── S4.I3 - Configuration Change Impact (s4_test_strategy_development.md)
-└── S4.I4 - Consistency Loop Validation (s4_consistency_loop.md)
+└── S4.I4 - Validation Loop Validation (s4_validation_loop.md)
 ```
 
 **Router Logic:**
@@ -127,9 +127,9 @@ S4: Feature Testing Strategy
 - Output: Test coverage matrix (draft), test case list, edge case catalog, config test matrix
 
 **Execute S4.I4:**
-- READ: `stages/s4/s4_consistency_loop.md`
-- Validate test strategy with Consistency Loop
-- Reference: `reference/consistency_loop_test_strategy.md`
+- READ: `stages/s4/s4_validation_loop.md`
+- Validate test strategy with Validation Loop
+- Reference: `reference/validation_loop_test_strategy.md`
 - Exit when 3 consecutive clean rounds achieved
 
 **After S4.I4 completes:**
@@ -161,8 +161,8 @@ Iteration 3: Configuration Change Impact (10-15 min)
    ├─ Configuration test cases
    └─ Configuration test matrix
 
-Iteration 4: Consistency Loop (15-20 min)
-   ├─ Reference: consistency_loop_test_strategy.md
+Iteration 4: Validation Loop (15-20 min)
+   ├─ Reference: validation_loop_test_strategy.md
    ├─ Round 1: Sequential read + requirement coverage check
    ├─ Round 2: Edge case enumeration + gap detection
    ├─ Round 3: Random spot-checks + integration verification
@@ -186,8 +186,8 @@ Output: Create test_strategy.md
 **Next Actions:**
 1. READ: `stages/s4/s4_test_strategy_development.md` (Iterations 1-3)
 2. Execute Iterations 1, 2, 3 sequentially
-3. READ: `stages/s4/s4_consistency_loop.md` (Iteration 4)
-4. Execute Iteration 4 (Consistency Loop)
+3. READ: `stages/s4/s4_validation_loop.md` (Iteration 4)
+4. Execute Iteration 4 (Validation Loop)
 5. Create test_strategy.md file
 6. Mark S4 complete
 7. Transition to S5
@@ -202,7 +202,7 @@ Output: Create test_strategy.md
 **S4 is complete when ALL of these are true:**
 
 □ Iterations 1, 2, 3 complete (test strategy developed)
-□ Iteration 4 complete (Consistency Loop passed with 3 consecutive clean rounds)
+□ Iteration 4 complete (Validation Loop passed with 3 consecutive clean rounds)
 □ test_strategy.md created in `feature_{N}_{name}/` folder with:
   - All test categories (unit, integration, edge, config)
   - Representative test cases for each requirement
@@ -244,7 +244,7 @@ Output: Create test_strategy.md
    ✅ STOP - Iteration 3 is MANDATORY (identify config dependencies)
 
 ❌ "One pass through test strategy is enough"
-   ✅ STOP - Consistency Loop (I4) requires 3 consecutive clean rounds
+   ✅ STOP - Validation Loop (I4) requires 3 consecutive clean rounds
 
 ❌ "I'll merge test strategy into implementation_plan.md now"
    ✅ STOP - Create separate test_strategy.md (S5.P1.I1 merges it)
@@ -263,7 +263,7 @@ Output: Create test_strategy.md
 2. ⚡ After Iteration 1 complete (test strategy drafted)
 3. ⚡ After Iteration 2 complete (edge cases identified)
 4. ⚡ After Iteration 3 complete (config tests defined)
-5. ⚡ After Iteration 4 complete (Consistency Loop passed)
+5. ⚡ After Iteration 4 complete (Validation Loop passed)
 6. ⚡ After test_strategy.md created
 7. ⚡ After marking S4 complete
 
@@ -277,7 +277,7 @@ Output: Create test_strategy.md
 □ test_strategy.md exists in `feature_{N}_{name}/` folder
 □ test_strategy.md has all required sections (not empty/placeholder)
 □ test_strategy.md shows >90% coverage goal
-□ Consistency Loop passed (documented in test_strategy.md)
+□ Validation Loop passed (documented in test_strategy.md)
 □ Feature README.md shows:
   - Agent Status: Current Phase = S5_READY
   - S4 completion timestamp

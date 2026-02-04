@@ -1,6 +1,6 @@
-# Consistency Loop: Cross-Feature Alignment Context
+# Validation Loop: Cross-Feature Alignment Context
 
-**Master Protocol:** See `consistency_loop_protocol.md`
+**Master Protocol:** See `validation_loop_protocol.md`
 
 **Context:** S2.P1.I1 per-feature alignment, S2.P1.I3 per-feature alignment, S2.P2 group alignment
 

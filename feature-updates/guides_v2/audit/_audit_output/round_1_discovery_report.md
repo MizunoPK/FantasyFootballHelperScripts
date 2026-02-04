@@ -4,7 +4,7 @@
 **Round:** 1
 **Duration:** 30 minutes
 **Total Issues Found:** 40+
-**Trigger:** After implementing 10 proposals (S4 creation, S2/S3 redesign, S5 renumbering, Consistency Loop protocols)
+**Trigger:** After implementing 10 proposals (S4 creation, S2/S3 redesign, S5 renumbering, Validation Loop protocols)
 
 ---
 
@@ -13,7 +13,7 @@
 | Dimension | Issues Found | Severity Breakdown | Files Affected |
 |-----------|--------------|-------------------|----------------|
 | D8: CLAUDE.md Sync | 0 | N/A | CLAUDE.md clean ✅ |
-| D2: Terminology Consistency | 0 | N/A | Consistency Loop terminology clean ✅ |
+| D2: Terminology Consistency | 0 | N/A | Validation Loop terminology clean ✅ |
 | D14: Content Accuracy | 40+ | 35 High, 5+ Medium | 20+ files |
 | **TOTAL** | **40+** | **35 H, 5+ M** | **20+ files** |
 

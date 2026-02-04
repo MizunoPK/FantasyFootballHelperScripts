@@ -13,7 +13,7 @@
 
 ## Quick Start
 
-**Purpose:** Pairwise comparison of all features in group (and previous groups) with Consistency Loop validation
+**Purpose:** Pairwise comparison of all features in group (and previous groups) with Validation Loop validation
 
 **When:** After entire group completes S2.P1
 
@@ -126,9 +126,9 @@ For each conflict found:
 - Document resolution approach
 - Note dependencies in EPIC_README.md
 
-### Step 4: Consistency Loop Validation (15-30 min)
+### Step 4: Validation Loop Validation (15-30 min)
 
-**Reference:** `reference/consistency_loop_alignment.md`
+**Reference:** `reference/validation_loop_alignment.md`
 
 - **Round 1:** Pairwise comparison in feature order (F1 vs F2, F2 vs F3, etc.)
 - **Round 2:** Pairwise comparison in reverse order (different patterns)
@@ -179,7 +179,7 @@ For each conflict found:
 
 □ All pairwise comparisons performed
 □ All conflicts identified and resolved
-□ Consistency Loop passed (3 consecutive clean rounds)
+□ Validation Loop passed (3 consecutive clean rounds)
 □ Comparison matrix created and saved
 □ All spec.md files updated (if conflicts resolved)
 □ Epic EPIC_README.md updated with S2.P2 completion

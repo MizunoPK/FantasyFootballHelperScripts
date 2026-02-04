@@ -1,6 +1,6 @@
 # S4: Feature Testing Strategy - Quick Reference Card
 
-**📚 Full Guides:** `s4_feature_testing_strategy.md`, `s4_test_strategy_development.md`, `s4_consistency_loop.md`
+**📚 Full Guides:** `s4_feature_testing_strategy.md`, `s4_test_strategy_development.md`, `s4_validation_loop.md`
 
 ---
 
@@ -79,11 +79,11 @@
 
 ---
 
-### S4.I4: Consistency Loop (15-20 min)
+### S4.I4: Validation Loop (15-20 min)
 
 **Goal:** Validate test strategy with 3 consecutive clean rounds
 
-**Reference:** `reference/consistency_loop_test_strategy.md`
+**Reference:** `reference/validation_loop_test_strategy.md`
 
 □ **Round 1:** Sequential read + requirement coverage check
   - Every requirement has test coverage?
@@ -124,7 +124,7 @@
 □ I1 complete (test coverage matrix created)
 □ I2 complete (edge case catalog created)
 □ I3 complete (config test matrix created)
-□ I4 complete (Consistency Loop passed - 3 consecutive clean rounds)
+□ I4 complete (Validation Loop passed - 3 consecutive clean rounds)
 □ test_strategy.md exists in `feature_{N}_{name}/` folder
 □ test_strategy.md has all sections (not empty)
 □ test_strategy.md shows >90% coverage
@@ -141,7 +141,7 @@
 → ✅ STOP - Feature-level goal is >90%
 
 ❌ **"One pass is enough"**
-→ ✅ STOP - Consistency Loop requires 3 consecutive clean rounds
+→ ✅ STOP - Validation Loop requires 3 consecutive clean rounds
 
 ❌ **"Skip edge case/config iterations"**
 → ✅ STOP - All 4 iterations are MANDATORY
@@ -166,7 +166,7 @@
 1. ⚠️ test-driven development (plan tests BEFORE coding)
 2. ⚠️ >90% coverage goal (feature-level)
 3. ⚠️ 4 iterations structure (I1, I2, I3, I4 - all MANDATORY)
-4. ⚠️ Consistency Loop (I4) - 3 consecutive clean rounds required
+4. ⚠️ Validation Loop (I4) - 3 consecutive clean rounds required
 5. ⚠️ test_strategy.md created in S4, merged in S5.P1.I1
 6. ⚠️ Update README Agent Status after EACH iteration
 7. ⚠️ Zero deferred issues (fix ALL issues immediately)

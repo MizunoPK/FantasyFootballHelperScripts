@@ -26,7 +26,7 @@
 ## S2.P1.I1: Feature-Level Discovery (60-90 min)
 
 ### Purpose
-Research feature, draft spec.md and checklist.md, validate with Consistency Loop (embeds Gate 1)
+Research feature, draft spec.md and checklist.md, validate with Validation Loop (embeds Gate 1)
 
 ### Steps
 
@@ -62,9 +62,9 @@ Research feature, draft spec.md and checklist.md, validate with Consistency Loop
 - **Optional exception:** Features with <3 requirements AND no external dependencies may skip
 - When in doubt, create research notes (better to have than not)
 
-**6. Consistency Loop Validation (15-30 min)** - **EMBEDS GATE 1**
+**6. Validation Loop Validation (15-30 min)** - **EMBEDS GATE 1**
 
-**Reference:** `reference/consistency_loop_discovery.md`
+**Reference:** `reference/validation_loop_discovery.md`
 
 - **Round 1:** Check spec completeness, checklist coverage
   - **Gate 1 Check (Research Completeness Audit):**
@@ -83,7 +83,7 @@ Research feature, draft spec.md and checklist.md, validate with Consistency Loop
 - RESEARCH_NOTES.md (REQUIRED, with rare exceptions documented above)
 
 **Gates Embedded:**
-- Gate 1: Research Completeness Audit (embedded in Consistency Loop Round 1)
+- Gate 1: Research Completeness Audit (embedded in Validation Loop Round 1)
 
 ---
 
@@ -198,9 +198,9 @@ Primary agent reviews during coordination heartbeat (every 15 minutes).
 
 **If NOT in parallel mode:** Document issues in notes, fix in S2.P2
 
-**2. Consistency Loop Validation (15-30 min)** - **EMBEDS GATE 2**
+**2. Validation Loop Validation (15-30 min)** - **EMBEDS GATE 2**
 
-**Reference:** `reference/consistency_loop_spec_refinement.md`
+**Reference:** `reference/validation_loop_spec_refinement.md`
 
 - **Round 1:** Sequential read, requirement traceability check
   - **Gate 2 Check (Spec-to-Epic Alignment):**
@@ -214,12 +214,12 @@ Primary agent reviews during coordination heartbeat (every 15 minutes).
 - **Round 3:** Random requirement spot-checks, alignment with DISCOVERY.md
 - **Exit:** 3 consecutive clean rounds (Gate 2 passed as part of validation)
 
-**3. If Gaps Found During Consistency Loop - LOOP-BACK MECHANISM**
+**3. If Gaps Found During Validation Loop - LOOP-BACK MECHANISM**
 - Add new questions to checklist.md
 - **LOOP BACK to S2.P1.I2** (Checklist Resolution)
 - Resolve new questions with user
-- **RESTART S2.P1.I3 from beginning** (fresh Consistency Loop)
-- Continue until Consistency Loop passes with NO gaps
+- **RESTART S2.P1.I3 from beginning** (fresh Validation Loop)
+- Continue until Validation Loop passes with NO gaps
 
 **4. Dynamic Scope Adjustment (5-10 min if needed)**
 - Count checklist.md items
@@ -232,7 +232,7 @@ Primary agent reviews during coordination heartbeat (every 15 minutes).
 - Define "Done" for each requirement
 - Clear pass/fail conditions
 
-**5. Gate 3: User Checklist Approval (5-10 min)** - **SEPARATE FROM CONSISTENCY LOOP**
+**5. Gate 3: User Checklist Approval (5-10 min)** - **SEPARATE FROM VALIDATION LOOP**
 - Present final spec.md to user (including Acceptance Criteria)
 - Present final checklist.md (all ANSWERED)
 - **Explicitly state:** "Please approve this spec.md (including the Acceptance Criteria section) and checklist.md"
@@ -242,8 +242,8 @@ Primary agent reviews during coordination heartbeat (every 15 minutes).
 
 **If User Requests Changes:**
 - Update spec.md based on user feedback
-- **LOOP BACK to S2.P1.I3 Step 2** (Consistency Loop)
-- Re-validate spec with fresh Consistency Loop
+- **LOOP BACK to S2.P1.I3 Step 2** (Validation Loop)
+- Re-validate spec with fresh Validation Loop
 - Re-present to user for approval
 - Continue until user explicitly approves (no changes requested)
 
@@ -267,7 +267,7 @@ Primary agent reviews during coordination heartbeat (every 15 minutes).
 **Secondary Agent Behavior:**
 ```
 **If Secondary Agent:**
-- Stop after S2.P1.I3 completes (Consistency Loop passes + Gate 3 approved)
+- Stop after S2.P1.I3 completes (Validation Loop passes + Gate 3 approved)
 - Do NOT proceed to S2.P2 (only Primary runs S2.P2)
 - Report to Primary: "S2.P1 complete for Feature XX"
 - Update STATUS file: READY_FOR_SYNC = true

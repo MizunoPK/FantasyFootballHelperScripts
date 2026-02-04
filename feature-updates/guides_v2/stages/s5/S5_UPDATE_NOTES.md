@@ -9,7 +9,7 @@
 **Proposal 7** requires updating S5 to:
 1. Remove testing iterations (I8-I10 moved to S4)
 2. Renumber remaining 22 iterations sequentially
-3. Add Consistency Loops at 2 locations
+3. Add Validation Loops at 2 locations
 4. Add test_strategy.md validation in I1
 5. Update Gate 5 definition with 3-tier rejection
 
@@ -37,7 +37,7 @@
 - **Total: 22 iterations**
 
 **New Structure (sequential):**
-- **Round 1:** I1-I7 (7 iterations) + Consistency Loop
+- **Round 1:** I1-I7 (7 iterations) + Validation Loop
 - **Round 2:** I8-I13 (6 iterations)
 - **Round 3:** I14-I22 (9 iterations)
 - **Total: 22 iterations**
@@ -76,7 +76,7 @@ I25 → I22  (renumbered)
 
 ---
 
-## 3. Add Consistency Loop to Round 1 End
+## 3. Add Validation Loop to Round 1 End
 
 **Location:** End of `s5_p1_planning_round1.md` (after I7 completes)
 
@@ -84,20 +84,20 @@ I25 → I22  (renumbered)
 
 **Steps:**
 1. After completing I7 (Integration Points Check)
-2. Run Consistency Loop validation:
+2. Run Validation Loop validation:
    - **Round 1:** Sequential read, check all Round 1 criteria
      - Verify Gates 4a, 7a embedded and passed
      - Check requirements, algorithms, integration points all validated
    - **Round 2:** Fresh review, find gaps
    - **Round 3:** Final validation
    - **Exit:** 3 consecutive clean rounds
-3. Only proceed to Round 2 after Consistency Loop passes
+3. Only proceed to Round 2 after Validation Loop passes
 
 **Reference:** Create context guide or use generic validation checklist
 
 ---
 
-## 4. Add Consistency Loop to Round 3 (Pre-Gate 23a)
+## 4. Add Validation Loop to Round 3 (Pre-Gate 23a)
 
 **Location:** `s5_p3_planning_round3.md` before Gate 23a (Pre-Implementation Spec Audit)
 
@@ -106,15 +106,15 @@ I25 → I22  (renumbered)
 **Steps:**
 1. After completing preparation iterations (I14-I19)
 2. Before Gate 23a (I20)
-3. Run Consistency Loop validation:
+3. Run Validation Loop validation:
    - **Round 1:** Sequential read of entire implementation_plan.md
      - Check completeness, consistency, traceability
    - **Round 2:** Fresh review, different patterns
    - **Round 3:** Final validation
    - **Exit:** 3 consecutive clean rounds
-4. Only proceed to Gate 23a after Consistency Loop passes
+4. Only proceed to Gate 23a after Validation Loop passes
 
-**Reference:** Similar to Round 1 Consistency Loop
+**Reference:** Similar to Round 1 Validation Loop
 
 ---
 
@@ -181,7 +181,7 @@ Present implementation_plan.md to user.
   - Requirements issues → Loop back to Round 1 (I1)
   - Algorithm issues → Loop back to Round 1 (I4)
   - Major structural issues → Loop back to S4 (test strategy may need revision)
-- Re-validate with Consistency Loop
+- Re-validate with Validation Loop
 - Re-present for approval (Gate 5 again)
 
 **If User Rejects Entire Approach (3-Tier):**
@@ -207,7 +207,7 @@ Await user decision before proceeding.
 
 **Clarified sequence (with new numbering):**
 1. Complete I14-I19 (preparation iterations)
-2. Run Pre-Gate 23a Consistency Loop
+2. Run Pre-Gate 23a Validation Loop
 3. I20: Gate 23a (Pre-Implementation Spec Audit - 5 parts)
 4. I21: Gate 25 (Spec Validation Check)
 5. I22: Gate 24 (GO/NO-GO Decision based on confidence)
@@ -224,9 +224,9 @@ Await user decision before proceeding.
 
 **Files Requiring Updates:**
 - [ ] s5_p1_i1_requirements.md (add test_strategy.md validation)
-- [ ] s5_p1_planning_round1.md (add Consistency Loop at end, update router)
+- [ ] s5_p1_planning_round1.md (add Validation Loop at end, update router)
 - [ ] s5_p2_planning_round2.md (remove I8-I10 references, update router, renumber I11-I13 to I8-I10)
-- [ ] s5_p3_planning_round3.md (add Consistency Loop before Gate 23a, clarify exit sequence, add Gate 5 3-tier rejection)
+- [ ] s5_p3_planning_round3.md (add Validation Loop before Gate 23a, clarify exit sequence, add Gate 5 3-tier rejection)
 - [ ] All I8-I22 iteration files (renumber references)
 - [ ] s5_p3_i2_gates_part1.md (renumber from old I23 to new I20)
 - [ ] s5_p3_i3_gates_part2.md (renumber from old I24-I25 to new I21-I22)

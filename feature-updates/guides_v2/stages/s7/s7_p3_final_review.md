@@ -187,7 +187,7 @@ Re-Reading Checkpoint
 
 **Before proceeding, you MUST:**
 1. **READ:** `stages/s5/s5_pr_review_protocol.md`
-2. **READ:** `reference/consistency_loop_qc_pr.md` (Consistency Loop QC approach)
+2. **READ:** `reference/validation_loop_qc_pr.md` (Validation Loop QC approach)
 3. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
    - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
@@ -198,7 +198,7 @@ Re-Reading Checkpoint
 
 **Why fresh agents?** New agents avoid context bias and provide "fresh eyes" on code changes.
 
-**Consistency Loop Principles:**
+**Validation Loop Principles:**
 - **Assume everything is wrong:** Skeptically verify all changes
 - **Fresh eyes:** Different review patterns each round
 - **No deferred issues:** Cannot commit with known issues
@@ -558,7 +558,7 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 ## Step 2: Lessons Learned Capture
 
-**📖 See `reference/consistency_loop_qc_pr.md` for fresh perspective review approach (optional).**
+**📖 See `reference/validation_loop_qc_pr.md` for fresh perspective review approach (optional).**
 
 **Purpose:** Document what went well, what didn't, and UPDATE GUIDES IMMEDIATELY
 

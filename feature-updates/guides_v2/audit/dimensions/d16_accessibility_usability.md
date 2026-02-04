@@ -594,7 +594,7 @@ $ grep -i "table of contents" stages/s5/s5_p1_planning_round1.md
 2. [I1: Requirements Analysis](#i1-requirements-analysis)
 3. [I2: Algorithm Design](#i2-algorithm-design)
 4. [I3: Integration Planning](#i3-integration-planning)
-5. [Consistency Loop](#consistency-loop)
+5. [Validation Loop](#validation-loop)
 6. [Next](#next)
 
 [Rest of content]

@@ -1,6 +1,6 @@
-# Consistency Loop: Spec Refinement Context
+# Validation Loop: Spec Refinement Context
 
-**Master Protocol:** See `consistency_loop_protocol.md`
+**Master Protocol:** See `validation_loop_protocol.md`
 
 **Context:** S2.P1.I3 Spec Refinement, S3.P2 Epic Documentation Refinement
 

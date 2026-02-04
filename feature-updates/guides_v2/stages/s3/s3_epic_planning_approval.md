@@ -24,7 +24,7 @@
 **Key Changes from Old S3:**
 - **Pairwise comparison removed** (moved to S2.P2)
 - **Epic testing strategy from old S4 moved here** (S3.P1)
-- **Two Consistency Loops** (testing strategy + documentation)
+- **Two Validation Loops** (testing strategy + documentation)
 - **Gate 4.5 explicit with 3-tier rejection handling**
 
 ---
@@ -136,9 +136,9 @@ Convert high-level categories to concrete tests with commands:
 - Add all test scenarios
 - Mark as "S3 version - will update in S8.P2 (Epic Testing Update)"
 
-**6. Consistency Loop Validation (15-20 min)**
+**6. Validation Loop Validation (15-20 min)**
 
-**Reference:** `reference/consistency_loop_test_strategy.md`
+**Reference:** `reference/validation_loop_test_strategy.md`
 
 - **Round 1:** Check test plan completeness
   - All features integrated in tests?
@@ -173,9 +173,9 @@ Refine epic ticket with details from all developed feature specs
 - Document epic-level architecture decisions
 - Clarify scope boundaries
 
-**3. Consistency Loop Validation (15-20 min)**
+**3. Validation Loop Validation (15-20 min)**
 
-**Reference:** `reference/consistency_loop_spec_refinement.md`
+**Reference:** `reference/validation_loop_spec_refinement.md`
 
 - **Round 1:** Check epic documentation completeness
   - All features described?
@@ -218,7 +218,7 @@ Get user approval for complete epic plan before proceeding to S4 (Gate 4.5)
   - If testing strategy issues → S3.P1
   - If documentation issues → S3.P2
   - If fundamental approach wrong → S2 (cross-feature conflicts need re-resolution)
-- Re-run updated phase with Consistency Loop
+- Re-run updated phase with Validation Loop
 - Re-present to user for approval (Gate 4.5 again)
 
 ### If User Rejects Entire Epic Approach
@@ -275,7 +275,7 @@ Await user decision before proceeding.
 **S4 will:**
 - Plan unit tests, integration tests, edge cases, config tests
 - Create test_strategy.md with >90% coverage goal
-- Validate with Consistency Loop (4 iterations)
+- Validate with Validation Loop (4 iterations)
 
 **Remember:** Use phase transition prompt from `prompts_reference_v2.md` when starting S4.
 

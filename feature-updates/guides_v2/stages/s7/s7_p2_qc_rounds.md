@@ -269,11 +269,11 @@ Code conventions verified: Follows CODING_STANDARDS.md (type hints, error contex
 ## QC Round 1: Basic Validation
 
 **📖 See `reference/qc_rounds_pattern.md` for universal Round 1 patterns.**
-**📖 See `reference/consistency_loop_qc_pr.md` for Consistency Loop QC approach.**
+**📖 See `reference/validation_loop_qc_pr.md` for Validation Loop QC approach.**
 
 **Objective:** Basic validation - does the feature work?
 
-**Consistency Loop Approach:**
+**Validation Loop Approach:**
 - **Assume everything is wrong:** Skeptically analyze all changed files
 - **Fresh eyes:** Use sequential reading pattern (top to bottom)
 - **No deferred issues:** ALL issues (critical, major, minor) must be fixed before Round 2
@@ -415,11 +415,11 @@ print("✅ PlayerManager interface verified")
 ## QC Round 2: Deep Verification
 
 **📖 See `reference/qc_rounds_pattern.md` for universal Round 2 patterns.**
-**📖 See `reference/consistency_loop_qc_pr.md` for Consistency Loop QC approach.**
+**📖 See `reference/validation_loop_qc_pr.md` for Validation Loop QC approach.**
 
 **Objective:** Deep verification - does it work CORRECTLY?
 
-**Consistency Loop Approach:**
+**Validation Loop Approach:**
 - **Different patterns than Round 1:** Use reverse reading order (bottom to top)
 - **Focus:** Verify Round 1 fixes AND find NEW issues
 - **No deferred issues:** ALL new issues must be fixed before Round 3
@@ -605,11 +605,11 @@ print("✅ Edge cases handled correctly")
 ## QC Round 3: Final Skeptical Review
 
 **📖 See `reference/qc_rounds_pattern.md` for universal Round 3 patterns.**
-**📖 See `reference/consistency_loop_qc_pr.md` for Consistency Loop QC approach.**
+**📖 See `reference/validation_loop_qc_pr.md` for Validation Loop QC approach.**
 
 **Objective:** Final skeptical review with ZERO tolerance
 
-**Consistency Loop Approach:**
+**Validation Loop Approach:**
 - **Final validation:** Random spot-checks and thematic clustering
 - **Requirement:** ZERO issues (critical, major, or minor)
 - **Exit criteria:** 3 consecutive clean rounds (no known issues remain)

@@ -720,7 +720,7 @@ File: stages/s5/s5_p1_planning_round1.md
 2. [I1: Requirements](#i1-requirements)
 3. [I2: Algorithms](#i2-algorithms)
 4. [I3: Integration](#i3-integration)
-5. [Consistency Loop](#consistency-loop)
+5. [Validation Loop](#validation-loop)
 6. [Troubleshooting](#troubleshooting)  ← Missing in file
 
 [File has sections 1-5 but no Troubleshooting section]
