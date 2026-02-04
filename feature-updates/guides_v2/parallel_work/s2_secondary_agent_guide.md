@@ -26,9 +26,40 @@ When you join as a Secondary agent, you'll receive a **handoff package** with yo
 
 ## Startup Workflow
 
+**NEW SIMPLIFIED PROCESS:**
+
+Handoff packages are pre-generated in feature folders by the Primary agent. User spawns you with a simple one-line command:
+
+**User startup command:**
+```
+You are a secondary agent for Feature 02 (schedule_fetcher)
+```
+
+**Your response:**
+- Detect "secondary agent for Feature 02" instruction
+- Read `feature_02_{name}/HANDOFF_PACKAGE.md` automatically
+- Extract assignment and begin S2.P1
+
+**Benefits:**
+- No copy/paste needed (one-line instruction per agent)
+- No copy/paste errors (agent reads file directly)
+- Scalable (works identically for 2 or 20 features)
+- Consistent startup pattern for all secondary agents
+
+**Fallback:** If handoff package not found in feature folder, ask user to provide it manually (legacy process below).
+
+---
+
 ### Step 1: Receive Handoff Package
 
-**User will paste handoff package into your session:**
+**User will provide handoff package via:**
+
+**Option A (Recommended): File-based handoff**
+- User says: "You are a secondary agent for Feature 02"
+- You read: `feature_02_{name}/HANDOFF_PACKAGE.md`
+
+**Option B (Legacy): Pasted handoff**
+- User pastes handoff package into your session:
 
 ```
 ═══════════════════════════════════════════════════════════

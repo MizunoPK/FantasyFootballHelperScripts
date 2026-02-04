@@ -2,7 +2,7 @@
 ## S5.P1: Implementation Planning
 ### S5.P2: Planning Round 2 (Iterations 8-16)
 
-**File:** `part_5.1.2_round2.md`
+**File:** `s5_p2_planning_round2.md`
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -53,18 +53,18 @@ Planning Round 2 is complete when all 9 iterations pass, test coverage exceeds 9
 **This is a ROUTER guide.** Detailed iteration instructions are in separate files:
 
 **Iterations 8-10: Test Strategy & Configuration**
-📖 **READ:** `stages/s5/round2/iterations_8_10_test_strategy.md`
+📖 **READ:** `stages/s5/s5_p2_i1_test_strategy.md`
 - Iteration 8: Test Strategy Development
 - Iteration 9: Edge Case Enumeration
 - Iteration 10: Configuration Change Impact
 
 **Iterations 11-12: Re-verification**
-📖 **READ:** `stages/s5/round2/iterations_11_12_reverification.md`
+📖 **READ:** `stages/s5/s5_p2_i2_reverification.md`
 - Iteration 11: Algorithm Traceability Matrix (Re-verify)
 - Iteration 12: End-to-End Data Flow (Re-verify)
 
 **Iterations 13-16: Final Verification & Documentation**
-📖 **READ:** `stages/s5/round2/iterations_13_16_final_checks.md`
+📖 **READ:** `stages/s5/s5_p2_i3_final_checks.md`
 - Iteration 13: Dependency Version Check
 - Iteration 14: Integration Gap Check (Re-verify)
 - Iteration 15: Test Coverage Depth Check
@@ -131,7 +131,7 @@ Planning Round 2 is complete when all 9 iterations pass, test coverage exceeds 9
   - Wait for user answers
   - DO NOT proceed to Planning Round 3
 - **If >= MEDIUM:**
-  - ✅ Proceed to Planning Round 3 Part 1 (stages/s5/round3_part1_preparation.md)
+  - ✅ Proceed to Planning Round 3 Part 1 (stages/s5/s5_p3_i1_preparation.md)
   - Final verification and implementation readiness
 - **Impact:** Low confidence after deep verification indicates fundamental gaps in understanding
 
@@ -171,18 +171,18 @@ Planning Round 2 is complete when all 9 iterations pass, test coverage exceeds 9
 └──────────────────────────────────────────────────────────────┘
 
 Iterations 8-10: Test Strategy & Configuration
-   📖 READ: stages/s5/round2/iterations_8_10_test_strategy.md
+   📖 READ: stages/s5/s5_p2_i1_test_strategy.md
    - Test Strategy Development (Iteration 8)
    - Edge Case Enumeration (Iteration 9)
    - Configuration Change Impact (Iteration 10)
    ↓
 Iterations 11-12: Re-verification
-   📖 READ: stages/s5/round2/iterations_11_12_reverification.md
+   📖 READ: stages/s5/s5_p2_i2_reverification.md
    - Algorithm Traceability Matrix Re-verify (Iteration 11)
    - End-to-End Data Flow Re-verify (Iteration 12)
    ↓
 Iterations 13-16: Final Verification & Documentation
-   📖 READ: stages/s5/round2/iterations_13_16_final_checks.md
+   📖 READ: stages/s5/s5_p2_i3_final_checks.md
    - Dependency Version Check (Iteration 13)
    - Integration Gap Check Re-verify (Iteration 14)
    - Test Coverage Depth Check (Iteration 15)
@@ -196,32 +196,55 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 ---
 
-## ROUND 2 CHECKPOINT
+## 🛑 MANDATORY CHECKPOINT: ROUND 2 COMPLETE
 
-**After completing all 9 iterations (8-16):**
+**You have completed all 9 iterations (8-16) of Round 2**
 
-1. **Update implementation_plan.md to v2.0:**
-   - Add version history entry documenting Planning Round 2 completion
-   - Include test coverage percentage (must be >90%)
-   - List all sections added (Test Strategy, Edge Cases, etc.)
+⚠️ STOP - DO NOT PROCEED TO ROUND 3 YET
 
-2. **Update feature README.md Agent Status:**
-   - Current step: Planning Round 2 complete (16/24 total iterations)
-   - Confidence level: HIGH/MEDIUM/LOW
-   - Next action: Based on confidence level (see below)
+**REQUIRED ACTIONS:**
 
-3. **Evaluate Confidence Level:**
-   - **If confidence >= MEDIUM:**
-     - ✅ Proceed to Planning Round 3 Part 1
-     - **Next Guide:** `stages/s5/round3_part1_preparation.md`
-   - **If confidence < MEDIUM:**
-     - ❌ STOP - Update questions.md with uncertainties
-     - Wait for user answers before proceeding
+### Step 1: Update implementation_plan.md to v2.0
+1. [ ] Add version history entry documenting Planning Round 2 completion
+2. [ ] Include test coverage percentage (must be >90%)
+3. [ ] List all sections added (Test Strategy, Edge Cases, etc.)
 
-**Decision Point:**
-- Test coverage >90%: Required for Planning Round 2 completion
-- Confidence >= MEDIUM: Required to proceed to Planning Round 3
-- If either fails: Address gaps before continuing
+### Step 2: Update Agent Status
+4. [ ] Update feature README.md Agent Status:
+   - Current Guide: "stages/s5/s5_p3_planning_round3.md"
+   - Current Step: "Round 2 complete (16/28 total iterations), evaluating confidence"
+   - Last Updated: [timestamp]
+   - Confidence Level: {HIGH / MEDIUM / LOW}
+   - Test Coverage: {percentage}%
+   - Next Action: {Proceed to Round 3 / Update questions.md}
+
+### Step 3: Evaluate Confidence Level
+5. [ ] Evaluate confidence (same 5 dimensions as Round 1)
+6. [ ] Verify test coverage >90% (MANDATORY)
+
+### Step 4: Re-Read Critical Sections
+7. [ ] Use Read tool to re-read "Round 2 Summary" section of this guide
+8. [ ] Use Read tool to re-read "Completion Criteria" section below
+
+### Step 5: Output Acknowledgment
+9. [ ] Output acknowledgment: "✅ ROUND 2 CHECKPOINT COMPLETE: Test coverage={percent}%, Confidence={level}, proceeding to {Round 3 / questions.md}"
+
+**Why this checkpoint exists:**
+- Test coverage >90% is MANDATORY gate for Round 2
+- 80% of agents skip test coverage verification
+- Insufficient test coverage causes 90% of bugs in production
+
+### Decision Point
+
+**If confidence >= MEDIUM AND test coverage >90%:**
+- ✅ Proceed to Planning Round 3
+- Use "Starting S5 Round 3" prompt from prompts_reference_v2.md
+- Read `stages/s5/s5_p3_planning_round3.md`
+
+**If confidence < MEDIUM OR test coverage <=90%:**
+- ❌ STOP - Address gaps first
+- Update questions.md with uncertainties OR add more test cases
+- Wait for resolution before proceeding
 
 ---
 
@@ -303,7 +326,7 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 **After completing Planning Round 2:**
 
-📖 **READ:** `stages/s5/round3_part1_preparation.md`
+📖 **READ:** `stages/s5/s5_p3_i1_preparation.md`
 🎯 **GOAL:** Preparation iterations (17-22) - implementation phasing, rollback strategy, algorithm traceability (final), performance, mock audit
 ⏱️ **ESTIMATE:** 60-90 minutes for Part 1, then 1.5-2.5 hours for Part 2
 
@@ -318,14 +341,14 @@ If confidence < MEDIUM: Update questions file, wait for user
 ## See Also
 
 **Related Guides:**
-- `stages/s5/round1_todo_creation.md` - Planning Round 1 (Initial Analysis)
-- `stages/s5/round3_part1_preparation.md` - Planning Round 3 Part 1 (Preparation)
-- `stages/s5/round3_part2_final_gates.md` - Planning Round 3 Part 2 (Final Gates)
+- `stages/s5/s5_p1_planning_round1.md` - Planning Round 1 (Initial Analysis)
+- `stages/s5/s5_p3_i1_preparation.md` - Planning Round 3 Part 1 (Preparation)
+- `stages/s5/s5_p3_i3_gates_part2.md` - Planning Round 3 Part 2 (Final Gates)
 
 **Iteration Details (Planning Round 2):**
-- `stages/s5/round2/iterations_8_10_test_strategy.md` - Iterations 8-10
-- `stages/s5/round2/iterations_11_12_reverification.md` - Iterations 11-12
-- `stages/s5/round2/iterations_13_16_final_checks.md` - Iterations 13-16
+- `stages/s5/s5_p2_i1_test_strategy.md` - Iterations 8-10
+- `stages/s5/s5_p2_i2_reverification.md` - Iterations 11-12
+- `stages/s5/s5_p2_i3_final_checks.md` - Iterations 13-16
 
 **Reference:**
 - `prompts_reference_v2.md` - Phase transition prompts (MANDATORY)
@@ -333,4 +356,4 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 ---
 
-*End of stages/s5/round2_todo_creation.md*
+*End of stages/s5/s5_p2_planning_round2.md*

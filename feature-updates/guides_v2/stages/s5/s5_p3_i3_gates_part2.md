@@ -3,7 +3,7 @@
 ### S5.P3: Round 3
 #### Step 5.1.3.3: Part 2b (Iterations 24, 25 + Gates 24, 25)
 
-**File:** `5.1.3.3_round3_part2b.md`
+**File:** `s5_p3_i3_gates_part2.md`
 
 🚨 **MANDATORY READING PROTOCOL**
 
@@ -150,7 +150,7 @@ If ANY gate fails: Fix issues, re-run
 
 ### Iteration 23: Integration Gap Check
 
-**📖 READ:** `stages/s5/round3_part2b/iteration_23_integration.md`
+**📖 READ:** `stages/s5/s5_p3_i2_gates_part1.md`
 
 **Covers:**
 - Integration Gap Check - Verify ALL implementation tasks have integration points
@@ -168,7 +168,7 @@ If ANY gate fails: Fix issues, re-run
 
 ### Gate 23a: Pre-Implementation Spec Audit (MANDATORY)
 
-**📖 READ:** `stages/s5/round3_part2b/gate_23a_spec_audit.md`
+**📖 READ:** `stages/s5/s5_p3_i2_gates_part1.md`
 
 **Covers:**
 - **PART 1:** Completeness - Every spec requirement has implementation tasks
@@ -188,7 +188,7 @@ If ANY gate fails: Fix issues, re-run
 
 ### Iterations 25 & 24: Final Validation and GO/NO-GO
 
-**📖 READ:** `stages/s5/round3_part2b/iterations_24_25_final.md`
+**📖 READ:** `stages/s5/s5_p3_i3_gates_part2.md`
 
 **Covers:**
 - **Iteration 25:** Spec Validation Against Validated Documents (CRITICAL)
@@ -228,7 +228,7 @@ If ANY gate fails: Fix issues, re-run
 
 4. **Document approval in implementation_plan.md and Agent Status**
 
-**📖 DETAILED PROCESS:** See `stages/s5/round3_part2b/iterations_24_25_final.md` for complete Gate 5 workflow
+**📖 DETAILED PROCESS:** See `stages/s5/s5_p3_i3_gates_part2.md` for complete Gate 5 workflow
 
 ---
 
@@ -266,9 +266,9 @@ If ANY gate fails: Fix issues, re-run
 **If ALL items checked:**
 - Part 2b is COMPLETE
 - Round 3 is COMPLETE
-- S5a is COMPLETE
+- S5 is COMPLETE
 - Ready to proceed to S6 (Implementation)
-- Read `stages/s5/implementation_execution.md`
+- Read `stages/s6/s6_execution.md`
 
 **If ANY item unchecked:**
 - STOP - Do not proceed to S6
@@ -339,7 +339,7 @@ If ANY gate fails: Fix issues, re-run
 
 **After completing Part 2b (with user approval):**
 
-📖 **READ:** `stages/s5/implementation_execution.md`
+📖 **READ:** `stages/s6/s6_execution.md`
 🎯 **GOAL:** Implement tasks from implementation_plan.md with continuous verification
 ⏱️ **ESTIMATE:** Varies by feature complexity
 
@@ -357,15 +357,15 @@ If ANY gate fails: Fix issues, re-run
 ## See Also
 
 **Iteration Guides:**
-- `stages/s5/round3_part2b/iteration_23_integration.md` - Integration Gap Check
-- `stages/s5/round3_part2b/gate_23a_spec_audit.md` - Pre-Implementation Spec Audit (4 Parts)
-- `stages/s5/round3_part2b/iterations_24_25_final.md` - Spec Validation + GO/NO-GO + Gate 5
+- `stages/s5/s5_p3_i2_gates_part1.md` - Integration Gap Check
+- `stages/s5/s5_p3_i2_gates_part1.md` - Pre-Implementation Spec Audit (4 Parts)
+- `stages/s5/s5_p3_i3_gates_part2.md` - Spec Validation + GO/NO-GO + Gate 5
 
 **Supporting References:**
-- `stages/s5/round1_todo_creation.md` - Round 1 reference
-- `stages/s5/round2_todo_creation.md` - Round 2 reference
-- `stages/s5/round3_part1_planning.md` - Part 1 reference
-- `stages/s5/round3_part2a_integration.md` - Part 2a reference
+- `stages/s5/s5_p1_planning_round1.md` - Round 1 reference
+- `stages/s5/s5_p2_planning_round2.md` - Round 2 reference
+- `stages/s5/s5_p3_planning_round3.md` - Part 1 reference
+- `stages/s5/s5_p3_i2_gates_part1.md` - Part 2a reference
 - `prompts_reference_v2.md` - Phase transition prompts
 - `mandatory_gates.md` - Gate requirements
 

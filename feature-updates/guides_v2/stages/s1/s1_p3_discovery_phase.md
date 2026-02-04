@@ -28,12 +28,12 @@ The Discovery Phase is a mandatory iterative research loop where the agent explo
 **Time-Box by Epic Size:**
 | Epic Size | Discovery Time-Box | Typical Iterations |
 |-----------|-------------------|-------------------|
-| SMALL (1-2 features) | 1-2 hours | 2-3 iterations |
-| MEDIUM (3-5 features) | 2-3 hours | 3-5 iterations |
-| LARGE (6+ features) | 3-4 hours | 5-7 iterations |
+| SMALL (1-2 features) | 1-2 hours | 4-6 iterations (incl. 3 clean) |
+| MEDIUM (3-5 features) | 2-3 hours | 5-8 iterations (incl. 3 clean) |
+| LARGE (6+ features) | 3-4 hours | 7-10 iterations (incl. 3 clean) |
 
 **Exit Condition:**
-Discovery Phase is complete when a research iteration produces no new questions, DISCOVERY.md is complete, and user has approved the recommended approach and feature breakdown.
+Discovery Phase is complete when THREE CONSECUTIVE research iterations produce no new questions, DISCOVERY.md is complete, and user has approved the recommended approach and feature breakdown.
 
 ---
 
@@ -48,9 +48,10 @@ Discovery Phase is complete when a research iteration produces no new questions,
    - No exceptions, even for "clear" epics
    - Cannot create feature folders until Discovery completes
 
-2. Discovery Loop continues until NO NEW QUESTIONS emerge
+2. Discovery Loop continues until THREE CONSECUTIVE iterations with NO NEW QUESTIONS
    - Not a fixed number of iterations
-   - Exit when research round produces zero questions
+   - Must have 3 consecutive "clean" iterations before exiting
+   - Re-read code/requirements with fresh perspective each iteration
 
 3. All findings and answers go in DISCOVERY.md
    - Single source of truth for epic-level decisions
@@ -91,6 +92,7 @@ S1.P3.2: Discovery Loop (iterative)
     |                                          |
     |   +-------------+                        |
     |   |  Research   | Read code, docs        |
+    |   |             | (fresh perspective!)   |
     |   +------+------+                        |
     |          |                               |
     |          v                               |
@@ -102,21 +104,20 @@ S1.P3.2: Discovery Loop (iterative)
     |   +-------------+     No questions       |
     |   | Questions?  |--------+               |
     |   +------+------+        |               |
-    |          | Has questions |               |
+    |          | Has questions |  Counter++    |
     |          v               |               |
-    |   +-------------+        |               |
-    |   |  Ask User   |        |               |
-    |   +------+------+        |               |
-    |          |               |               |
-    |          v               |               |
-    |   +-------------+        |               |
-    |   |   Record    |        |               |
-    |   +------+------+        |               |
-    |          |               |               |
-    |          +---------------+               |
-    |          Loop back       |               |
-    |                          v               |
-    +--------------------------+ Exit Loop     |
+    |   +-------------+        |  Counter>=3?  |
+    |   |  Ask User   |        +------No-------+
+    |   +------+------+              |         |
+    |          |              Reset  |   Yes   |
+    |          v              Counter|         |
+    |   +-------------+              |         |
+    |   |   Record    |              |         |
+    |   +------+------+              |         |
+    |          |                     |         |
+    |          +---------------------+         |
+    |          Loop back                       v
+    +----------------------------------Exit Loop
     |
     v
 S1.P3.3: Synthesize Findings (20-30 min)
@@ -225,14 +226,20 @@ Document in Discovery Log:
 
 **Time:** Varies by epic size (bulk of Discovery time)
 
-The Discovery Loop repeats until a research iteration produces no new questions.
+The Discovery Loop repeats until THREE CONSECUTIVE research iterations produce no new questions.
+
+**Clean Iteration Counter:** Track consecutive iterations with zero new questions
+- Counter starts at 0
+- Increments when iteration produces NO new questions
+- Resets to 0 when iteration produces ANY new questions
+- Loop exits when counter reaches 3
 
 ### Iteration Structure
 
 Each iteration follows this pattern:
 
 ```
-A. Research (read code, examine patterns)
+A. Research (read code, examine patterns - FRESH PERSPECTIVE each time)
        |
        v
 B. Document (update DISCOVERY.md with findings)
@@ -241,18 +248,29 @@ B. Document (update DISCOVERY.md with findings)
 C. Identify Questions (what unknowns emerged?)
        |
        v
-D. Ask User (present questions, await answers)
+D. Ask User (present questions, await answers) OR Skip if no questions
        |
        v
-E. Record Answers (update DISCOVERY.md)
+E. Record Answers (update DISCOVERY.md) OR Skip if no questions
        |
        v
-F. Check Exit (any new questions? if no, exit loop)
+F. Check Exit (update clean iteration counter, check if counter >= 3)
 ```
 
 ---
 
 ### Step A: Research
+
+**CRITICAL: Re-read with Fresh Perspective Each Iteration**
+
+Each iteration, you MUST re-read code and requirements you've already examined. Use a different angle:
+- **Iteration 1:** Focus on WHAT (what components exist, what's missing)
+- **Iteration 2:** Focus on HOW (how things work together, integration points)
+- **Iteration 3:** Focus on WHY (why current patterns exist, constraints)
+- **Iteration 4+:** Focus on EDGE CASES (what could break, error paths, assumptions)
+- **Clean iterations (no questions):** Re-examine from DIFFERENT user personas (developer, tester, end-user)
+
+**Why this matters:** First-pass reading misses 40%+ of important details. Fresh perspective catches what memory-based work misses.
 
 **What to research:**
 
@@ -275,6 +293,12 @@ F. Check Exit (any new questions? if no, exit loop)
    - Possible approaches
    - Trade-offs between options
    - Constraints that limit choices
+
+5. **External dependencies** (NEW - from KAI-1 lessons)
+   - Libraries or APIs the epic might require
+   - Known compatibility issues with test environments
+   - Experience with these libraries in previous features
+   - Alternative libraries if primary choice has issues
 
 **Research activities:**
 - Use Grep/Glob to find relevant files
@@ -334,6 +358,7 @@ Update DISCOVERY.md with iteration findings:
 | **Preference** | Multiple valid approaches | "CLI flags or config file?" |
 | **Priority** | Trade-offs need input | "Speed or thoroughness for debug?" |
 | **Constraint** | Limits need verification | "Must work offline?" |
+| **External Dependencies** | Libraries/APIs needed | "Will we use ESPN API or another source?" "Are there known compatibility issues?" |
 
 **For each question, document:**
 - The question itself
@@ -401,31 +426,59 @@ Also update Discovery Log:
 
 ### Step F: Check Exit Condition
 
-**Continue loop if:**
-- New questions emerged from research
-- Research revealed new unknowns
-- Scope still unclear
-- Solution approach not determined
+**Update Clean Iteration Counter:**
 
-**Exit loop when:**
-- Research iteration produced NO new questions
+1. **Check this iteration:** Did research produce ANY new questions?
+   - **YES (new questions found):** Counter = 0 (reset), continue loop
+   - **NO (no new questions):** Counter++ (increment), check counter value
+
+2. **Check counter value:**
+   - **Counter = 1:** First clean iteration, continue loop with fresh perspective
+   - **Counter = 2:** Second clean iteration, continue loop with fresh perspective
+   - **Counter = 3:** Third clean iteration, proceed to exit verification
+
+3. **If counter = 3, verify exit readiness:**
+   ```markdown
+   ## Discovery Loop Exit Verification (After 3 Clean Iterations)
+
+   [ ] 3 consecutive iterations produced no new questions
+   [ ] All pending questions resolved
+   [ ] Scope clearly defined (in/out/deferred documented)
+   [ ] Solution approach identified
+   [ ] Can articulate feature breakdown rationale
+
+   If any unchecked --> Reset counter to 0, continue loop
+   If all checked --> Proceed to S1.P3.3 Synthesis
+   ```
+
+**Document counter in DISCOVERY.md:**
+```markdown
+### Iteration {N} ({YYYY-MM-DD HH:MM})
+
+**Researched:** {What was investigated}
+**Clean Iteration Counter:** {0, 1, 2, or 3}
+**New Questions:** {YES/NO}
+
+[Rest of iteration details...]
+```
+
+**Why 3 consecutive clean iterations:**
+- Iteration 1 (clean): Might have missed edge cases
+- Iteration 2 (clean): Might have missed integration concerns
+- Iteration 3 (clean): High confidence - ready to synthesize
+
+**Continue loop (counter < 3) if:**
+- New questions emerged from research (reset counter)
+- Research revealed new unknowns (reset counter)
+- Counter = 1 or 2 (need more clean iterations)
+- Scope still unclear (reset counter)
+- Solution approach not determined (reset counter)
+
+**Exit loop (counter = 3) when:**
+- 3 consecutive iterations produced NO new questions
 - Scope is well-defined
 - Solution approach is clear
 - Ready to propose feature breakdown
-
-**Exit checkpoint:**
-```markdown
-## Discovery Loop Exit Check
-
-[ ] Research iteration produced no new questions
-[ ] All pending questions resolved
-[ ] Scope clearly defined (in/out/deferred documented)
-[ ] Solution approach identified
-[ ] Can articulate feature breakdown rationale
-
-If any unchecked --> Continue loop
-If all checked --> Proceed to S1.P3.3 Synthesis
-```
 
 ---
 
@@ -713,7 +766,8 @@ User approved recommended approach. Confirmed 4-feature breakdown is correct.
 
 ```
 [ ] DISCOVERY.md created with all sections populated
-[ ] Discovery Loop exited (research produced no new questions)
+[ ] Discovery Loop exited (3 consecutive iterations produced no new questions)
+[ ] Clean iteration counter reached 3
 [ ] All pending questions resolved
 [ ] Solution options documented with comparison
 [ ] Recommended approach documented with rationale
@@ -753,26 +807,101 @@ X "User approved, but I want to add one more feature"
 
 X "I'll update DISCOVERY.md later with answers"
   --> STOP - Update immediately after each Q&A round
+
+X "One iteration with no questions, I'm done with Discovery"
+  --> STOP - Need 3 CONSECUTIVE clean iterations, not just one
+
+X "I've re-read this code before, I'll skip re-reading"
+  --> STOP - MUST re-read with fresh perspective each iteration
+
+X "Counter is at 2, close enough to 3"
+  --> STOP - Must reach exactly 3, no rounding
 ```
 
 ---
 
 ## Re-Reading Checkpoints
 
-**CHECKPOINT 1:** After S1.P3.1 (Initialize)
-- Re-read "Critical Rules" section
-- Verify DISCOVERY.md created with initial questions
-- Verify time-box set based on epic size
+## 🛑 MANDATORY CHECKPOINT 1
 
-**CHECKPOINT 2:** After each Discovery Loop iteration
-- Re-read "Discovery Loop" section
-- Verify findings documented
-- Verify questions asked and answers recorded
+**You have completed S1.P3.1 (Initialize)**
 
-**CHECKPOINT 3:** Before S1.P3.4 (User Approval)
-- Re-read "Synthesize Findings" section
-- Verify all sections of DISCOVERY.md complete
-- Verify feature breakdown has Discovery basis for each feature
+⚠️ STOP - DO NOT PROCEED TO S1.P3.2 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
+2. [ ] Verify DISCOVERY.md created with initial questions
+3. [ ] Verify time-box set based on epic size (SMALL: 1-2hrs, MEDIUM: 2-3hrs, LARGE: 3-4hrs)
+4. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1.P3.1 complete, starting S1.P3.2 Discovery Loop"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules, verified DISCOVERY.md initialized"
+
+**Why this checkpoint exists:**
+- Critical Rules define Discovery exit condition and investigation scope
+- 80% of agents forget exit condition and loop indefinitely
+- 30 seconds now prevents hours of wasted discovery loops
+
+**ONLY after completing ALL 5 actions above, proceed to S1.P3.2 (Discovery Loop)**
+
+---
+
+## 🛑 MANDATORY CHECKPOINT 2
+
+**You have completed one Discovery Loop iteration**
+
+⚠️ STOP - DO NOT PROCEED TO NEXT ITERATION YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Discovery Loop" section of this guide
+2. [ ] Verify findings documented in DISCOVERY.md
+3. [ ] Verify questions asked and answers recorded in DISCOVERY.md (or marked NO if no questions)
+4. [ ] Update clean iteration counter:
+   - New questions found? → Counter = 0
+   - No new questions? → Counter++
+5. [ ] Check counter value: Counter < 3 = continue loop, Counter = 3 = verify exit readiness
+6. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1.P3.2 iteration N complete, clean counter = {X}, [continuing loop OR proceeding to S1.P3.3]"
+   - Last Updated: [timestamp]
+7. [ ] Output acknowledgment: "✅ CHECKPOINT 2 COMPLETE: Re-read Discovery Loop, documented findings, counter = {X}"
+
+**Why this checkpoint exists:**
+- Discovery Loop requires 3 CONSECUTIVE clean iterations
+- 75% of agents exit after first clean iteration (premature)
+- Premature exit causes incomplete discovery and rework in S2
+
+**ONLY after completing ALL 7 actions above, proceed to next iteration OR S1.P3.3**
+
+---
+
+## 🛑 MANDATORY CHECKPOINT 3
+
+**You are about to request User Approval (S1.P3.4)**
+
+⚠️ STOP - DO NOT PROCEED TO S1.P3.4 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Synthesize Findings" section of this guide
+2. [ ] Verify all sections of DISCOVERY.md complete:
+   - [ ] Executive Summary
+   - [ ] Key Findings
+   - [ ] Technical Analysis
+   - [ ] Recommended Feature Breakdown
+   - [ ] Open Questions
+3. [ ] Verify feature breakdown has Discovery basis for each feature
+4. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1.P3.3 complete, requesting user approval in S1.P3.4"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 3 COMPLETE: Re-read Synthesize section, verified DISCOVERY.md complete"
+
+**Why this checkpoint exists:**
+- DISCOVERY.md must be complete before user approval
+- 90% of agents miss at least one required section
+- Incomplete DISCOVERY causes user confusion and delays approval
+
+**ONLY after completing ALL 5 actions above, proceed to S1.P3.4 (User Approval)**
+
+---
 
 ---
 

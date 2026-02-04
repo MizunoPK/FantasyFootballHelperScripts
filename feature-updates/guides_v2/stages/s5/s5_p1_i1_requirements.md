@@ -5,7 +5,7 @@
 **Purpose:** Break down spec.md requirements into implementation tasks
 **Prerequisites:** Planning Round 1 overview read from round1_todo_creation.md
 **Next:** iteration_4_algorithms.md (Algorithm Traceability Matrix)
-**Main Guide:** `stages/s5/round1_todo_creation.md`
+**Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---
 
@@ -287,7 +287,7 @@ After completing this iteration, check if you have questions or found answers:
 **Update Agent Status:**
 ```
 Progress: Iteration 3/9 (Planning Round 1) complete
-Next Action: Read stages/s5/round1/iteration_4_algorithms.md
+Next Action: Read stages/s5/s5_p1_i2_algorithms.md
 ```
 
 ---
@@ -310,7 +310,7 @@ Next Action: Read stages/s5/round1/iteration_4_algorithms.md
 - ✅ questions.md - Updated with new questions/answers (if any)
 - ✅ feature README.md Agent Status - Progress: Iteration 3/9 complete
 
-**Next:** Read `stages/s5/round1/iteration_4_algorithms.md` for Algorithm Traceability Matrix
+**Next:** Read `stages/s5/s5_p1_i2_algorithms.md` for Algorithm Traceability Matrix
 
 ---
 

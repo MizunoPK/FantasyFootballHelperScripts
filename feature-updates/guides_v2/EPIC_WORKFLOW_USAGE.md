@@ -1441,7 +1441,7 @@ When an epic has 3 or more features, S2 (Feature Deep Dives) can be parallelized
 
 #### Phase 1: Offering Parallel Work (Primary, during S1)
 
-**At S1 Step 4.8 (Analyze Features for Parallelization):**
+**At S1 Step 5.8 (Analyze Features for Parallelization):**
 
 ```
 I've created {N} features for this epic.
@@ -1455,10 +1455,10 @@ Time savings: ~{savings} hours (40-60% reduction)
 
 Decision: {N} >= 3, parallel work recommended.
 
-[Continue to S1 Step 4.9]
+[Continue to S1 Step 5.9]
 ```
 
-**At S1 Step 4.9 (Offer Parallel Work to User):**
+**At S1 Step 5.9 (Offer Parallel Work to User):**
 
 ```
 I can offer parallel work for S2 (Feature Deep Dives):

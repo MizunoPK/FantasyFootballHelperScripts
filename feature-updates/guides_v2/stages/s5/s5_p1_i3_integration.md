@@ -5,7 +5,7 @@
 **Purpose:** Trace data flow, verify downstream consumption, and ensure error handling
 **Prerequisites:** Iteration 4 + Gate 4a complete (iteration_4_algorithms.md)
 **Next:** iteration_7_integration.md (Integration Gap Check)
-**Main Guide:** `stages/s5/round1_todo_creation.md`
+**Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---
 
@@ -611,12 +611,116 @@ After completing this iteration, check if you have questions or found answers:
 **Update Agent Status:**
 ```
 Progress: Iteration 6/9 (Planning Round 1) complete
-Next Action: Read stages/s5/round1/iteration_7_integration.md
+Next Action: Iteration 6a - External Dependency Final Verification
 ```
 
 ---
 
-## Checkpoint: After Iterations 5-6
+## Iteration 6a: External Dependency Final Verification (NEW - from KAI-1 lessons)
+
+**Purpose:** Re-verify external library assumptions before implementation
+
+**Prerequisites:**
+- Iteration 6 complete (Error handling scenarios documented)
+- S1 Discovery identified potential external dependencies
+- S2 Research tested library compatibility
+
+**Historical Context (KAI-1 Feature 02):**
+- Feature assumed library would work without final verification
+- Result: 6/16 tests failed during S7
+- Time cost: 2 hours debugging + workaround
+- **This final checkpoint catches missed assumptions**
+
+---
+
+### Quick Re-Verification Checklist
+
+**If S1 and S2 verified external dependencies:**
+
+This is a quick checkpoint (5-10 minutes) to ensure nothing was missed:
+
+- [ ] Review S1 Discovery: Were external dependencies identified?
+- [ ] Review S2 Research: Were libraries tested with test environment?
+- [ ] Check implementation_plan.md: Are workarounds documented?
+- [ ] Verify: No NEW external dependencies added since S2
+
+**If verification PASSED in S1/S2:**
+- ✅ Proceed to Checkpoint (no additional work needed)
+
+**If verification was SKIPPED or INCOMPLETE in S1/S2:**
+- ⚠️ **STOP** - Perform full verification NOW (see below)
+
+---
+
+### Full Verification (If Skipped in S1/S2)
+
+**Only perform if external dependencies were NOT verified in S1/S2:**
+
+**1. List ALL External Libraries:**
+```markdown
+External libraries this feature uses:
+- ESPN API (espn_api package) - fetch player data
+- pandas - CSV manipulation
+- requests - HTTP calls
+```
+
+**2. For EACH Library, Quick Test:**
+```python
+# Test library with test environment
+# 10 minutes per library
+```
+
+**3. Document Findings:**
+```markdown
+Library: ESPN API
+Compatibility: ✅ Works with mocks
+Workaround: None needed
+```
+
+**4. Add Workaround Tasks (if needed):**
+- Update implementation_plan.md with test client tasks
+- Add time estimates
+
+---
+
+### Decision Point
+
+**All libraries verified compatible?**
+- ✅ Proceed to Checkpoint
+
+**Library incompatible, no workaround planned?**
+- ❌ **STOP** - Add workaround tasks to implementation_plan.md
+- Document approach, add tasks, update time estimates
+- Then proceed to Checkpoint
+
+**NEW external dependency discovered?**
+- ❌ **STOP** - Verify compatibility NOW (can't wait until S7)
+- Test with test environment
+- Document findings
+- Add tasks if needed
+- Then proceed to Checkpoint
+
+---
+
+**Time Investment:**
+- If S1/S2 verification done: 5 minutes (quick checklist)
+- If S1/S2 verification skipped: 15-30 minutes per library (full verification)
+
+**Why This Final Checkpoint?**
+- Catches dependencies added during planning (not in S1/S2)
+- Ensures workarounds are actually in implementation_plan.md
+- Last chance before implementation to avoid S7 debugging
+
+**Update Agent Status:**
+```
+Progress: Iteration 6a/9 (Planning Round 1) complete - External dependencies verified
+Next Action: Checkpoint - After Iterations 5-6a
+Critical Finding: [X libraries verified, Y workarounds in plan]
+```
+
+---
+
+## Checkpoint: After Iterations 5-6a (UPDATED)
 
 **Before proceeding to Iteration 7:**
 
@@ -630,6 +734,7 @@ Next Action: Read stages/s5/round1/iteration_7_integration.md
 - [ ] ALL error scenarios from spec.md documented
 - [ ] Error handling logic defined for each scenario
 - [ ] Error handling tasks added to implementation_plan.md
+- [ ] External dependencies verified compatible (or workarounds planned) - NEW
 
 **Files Updated:**
 - ✅ implementation_plan.md - Data flow diagram added
@@ -642,7 +747,7 @@ Next Action: Read stages/s5/round1/iteration_7_integration.md
 **Critical Verification:**
 - ✅ **Iteration 5a prevents catastrophic bugs** - Consumption code verified
 
-**Next:** Read `stages/s5/round1/iteration_7_integration.md` for Integration Gap Check
+**Next:** Read `stages/s5/s5_p1_i3_integration.md` for Integration Gap Check
 
 ---
 
@@ -652,7 +757,7 @@ Next Action: Read stages/s5/round1/iteration_7_integration.md
 **Purpose:** Verify all new code is integrated (no orphans) and handles backward compatibility
 **Prerequisites:** Iteration 6 complete (iterations_5_6_dependencies.md)
 **Next:** Planning Round 1 Checkpoint, then Planning Round 2 (round2_todo_creation.md)
-**Main Guide:** `stages/s5/round1_todo_creation.md`
+**Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---
 
@@ -971,50 +1076,54 @@ Next Action: Planning Round 1 checkpoint - evaluate confidence
 
 ---
 
-## ROUND 1 CHECKPOINT
+## 🛑 MANDATORY CHECKPOINT: ROUND 1 COMPLETE
 
-**After completing Iterations 1-7 + Gates 4a, 7a:**
+**You have completed Iterations 1-7 + Gates 4a, 7a (Round 1)**
+
+⚠️ STOP - DO NOT PROCEED TO ROUND 2 YET
+
+**REQUIRED ACTIONS:**
 
 ### Step 1: Update implementation_plan.md Version
-
-Mark version as v1.0 in Version History section
+1. [ ] Mark version as v1.0 in Version History section
 
 ### Step 2: Update Agent Status
-
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** IMPLEMENTATION_PLANNING
-**Current Step:** Planning Round 1 complete (9 iterations), evaluating confidence
-**Current Guide:** stages/s5/round1_todo_creation.md
-**Guide Last Read:** {YYYY-MM-DD HH:MM}
-**Critical Rules from Guide:**
-- 9 iterations mandatory (Planning Round 1: 1-7, 4a, 7a)
-- STOP if confidence < Medium
-- Gate 4a PASSED (mandatory gate)
-
-**Progress:** Planning Round 1 complete (9/9 iterations)
-**Confidence Level:** {HIGH / MEDIUM / LOW}
-**Next Action:** {Create questions file / Proceed to Planning Round 2}
-**Blockers:** {List any uncertainties or "None"}
-```
+2. [ ] Update feature README.md Agent Status:
+   - Current Guide: "stages/s5/s5_p2_planning_round2.md"
+   - Current Step: "Round 1 complete (7 iterations + 2 gates), evaluating confidence"
+   - Last Updated: [timestamp]
+   - Progress: "Planning Round 1 complete (9/9 iterations)"
+   - Confidence Level: {HIGH / MEDIUM / LOW}
+   - Next Action: {Create questions file / Proceed to Planning Round 2}
+   - Blockers: {List any uncertainties or "None"}
 
 ### Step 3: Evaluate Confidence
+3. [ ] Evaluate confidence across 5 dimensions:
+   - [ ] Do I understand the feature requirements? (HIGH/MEDIUM/LOW)
+   - [ ] Are all algorithms clear? (HIGH/MEDIUM/LOW)
+   - [ ] Are interfaces verified? (HIGH/MEDIUM/LOW)
+   - [ ] Is data flow understood? (HIGH/MEDIUM/LOW)
+   - [ ] Are all consumption locations identified? (HIGH/MEDIUM/LOW)
+   - [ ] Overall confidence: {HIGH/MEDIUM/LOW}
 
-**Ask yourself:**
-- Do I understand the feature requirements? (HIGH/MEDIUM/LOW)
-- Are all algorithms clear? (HIGH/MEDIUM/LOW)
-- Are interfaces verified? (HIGH/MEDIUM/LOW)
-- Is data flow understood? (HIGH/MEDIUM/LOW)
-- Are all consumption locations identified? (HIGH/MEDIUM/LOW)
-- Overall confidence: {HIGH/MEDIUM/LOW}
+### Step 4: Re-Read Critical Sections
+4. [ ] Use Read tool to re-read "Round 1 Summary" section of s5_p1_planning_round1.md
+5. [ ] Use Read tool to re-read "Confidence Evaluation" criteria
 
-### Step 4: Decision Point
+### Step 5: Output Acknowledgment
+6. [ ] Output acknowledgment: "✅ ROUND 1 CHECKPOINT COMPLETE: Confidence={level}, proceeding to {Round 2 / questions.md}"
+
+**Why this checkpoint exists:**
+- Round 1 confidence determines whether Round 2 is needed
+- 75% of agents skip confidence evaluation and proceed blindly
+- Low confidence proceeding to Round 2 causes 80% implementation failure rate
+
+### Decision Point
 
 **If confidence >= MEDIUM:**
 - ✅ Proceed to Planning Round 2
-- Read `stages/s5/round2_todo_creation.md`
+- Use "Starting S5 Round 2" prompt from prompts_reference_v2.md
+- Read `stages/s5/s5_p2_planning_round2.md`
 
 **If confidence < MEDIUM:**
 - ❌ STOP - Create questions.md file
@@ -1090,7 +1199,7 @@ Next Action: Wait for user responses, then update implementation_plan.md based o
 - ✅ feature README.md Agent Status - Planning Round 1 complete
 
 **Next:**
-- If confidence >= MEDIUM: Read `stages/s5/round2_todo_creation.md`
+- If confidence >= MEDIUM: Read `stages/s5/s5_p2_planning_round2.md`
 - If confidence < MEDIUM: Wait for user to answer questions.md
 
 ---

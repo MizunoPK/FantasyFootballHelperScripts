@@ -550,6 +550,41 @@ fi
 
 ---
 
+## Common Message Types
+
+### Message Type 4: Cross-Feature Alignment Issue
+
+**When to use:** During S2.P3 Phase 5, when you find issue in another feature
+
+**Template:**
+```markdown
+## Message: Cross-Feature Alignment Issue
+**From:** {your_id} (Feature {N})
+**To:** {owner_id} (Feature {M})
+**Subject:** {Brief description}
+**Status:** ⏳ UNREAD
+
+**Issue:** {Detailed description with line numbers from Feature M spec}
+
+**Suggested Action:** {What owner should do to resolve}
+
+**Urgency:** {LOW/MEDIUM/HIGH}
+
+**Context:** Found during S2.P3 Phase 5 (Cross-Feature Alignment) for Feature {N}
+```
+
+**Response SLA:**
+- LOW urgency: 1 hour
+- MEDIUM urgency: 30 minutes
+- HIGH urgency: 15 minutes (coordination heartbeat)
+
+**Escalation:**
+- If no response within SLA: Send reminder
+- If disagreement: Escalate to Primary agent
+- If blocking: Escalate to Primary immediately
+
+---
+
 ## Summary
 
 **Communication protocol provides:**

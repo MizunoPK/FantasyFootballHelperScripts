@@ -73,7 +73,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 
 **📖 See `reference/smoke_testing_pattern.md` for universal critical rules.**
 
-**Epic-specific rules for S6a:**
+**Epic-specific rules for S6:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -152,7 +152,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 
 **📖 See `reference/smoke_testing_pattern.md` for universal workflow details.**
 
-**Epic-specific workflow for S6a:**
+**Epic-specific workflow for S6:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -210,7 +210,7 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
 
 ```markdown
 ## Epic Progress Tracker
-| Feature | S1 | S2 | S3 | S4 | S5a | S6 | S7 (Testing & Review) | S8.P1 (Cross-Feature Alignment) | S8.P2 (Epic Testing Update) |
+| Feature | S1 | S2 | S3 | S4 | S5 | S6 | S7 (Testing & Review) | S8.P1 (Cross-Feature Alignment) | S8.P2 (Epic Testing Update) |
 |---------|---------|---------|---------|---------|----------|----------|----------|----------|----------|
 | feature_01 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | feature_02 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -219,7 +219,7 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
 
 **Verify:** EVERY feature shows ✅ in S8.P2 (Epic Testing Update) column.
 
-**If ANY feature incomplete:** STOP S6a, complete the incomplete feature first.
+**If ANY feature incomplete:** STOP S6, complete the incomplete feature first.
 
 ### Step 1.2: Verify No Pending Bug Fixes
 
@@ -494,22 +494,36 @@ print("✅ Interface compatibility verified")
 **Follow epic debugging protocol:**
 1. Create `epic_name/debugging/ISSUES_CHECKLIST.md`
 2. Enter debugging protocol (see `debugging/debugging_protocol.md`)
-3. After ALL issues resolved → **RESTART S6a from Step 1**
+3. After ALL issues resolved → **RESTART S6 from Step 1**
 4. Re-run entire smoke testing process
 
 **Critical:** Loop back to Epic Smoke Testing (NOT back to this test), ensures clean validation
 
 ---
 
-## Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**After completing all 4 parts:**
+**You have completed all 4 parts of Epic Smoke Testing**
 
-1. **Re-read Critical Rules** (top of this guide)
-2. **Re-read Pattern File** (`reference/smoke_testing_pattern.md` - Common Mistakes section)
-3. **Verify data VALUES inspected** for epic-level outputs
-4. **Verify cross-feature integration tested** (Part 4)
-5. **Update EPIC_README.md Agent Status**
+⚠️ STOP - DO NOT PROCEED TO S9.P2 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section (top of this guide)
+2. [ ] Use Read tool to re-read `reference/smoke_testing_pattern.md` (Common Mistakes section)
+3. [ ] Verify data VALUES inspected for epic-level outputs (not just "file exists")
+4. [ ] Verify cross-feature integration tested (Part 4) - actual data flow between features
+5. [ ] Update EPIC_README.md Agent Status:
+   - Current Guide: "stages/s9/s9_p2_epic_qc_rounds.md"
+   - Current Step: "S9.P1 complete, ready to start S9.P2 QC Round 1"
+   - Last Updated: [timestamp]
+6. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and Pattern File, verified epic-level data values and integration"
+
+**Why this checkpoint exists:**
+- 95% of agents skip epic-level integration testing in Part 4
+- Missing integration tests causes 80% of production failures
+- 3 minutes of re-reading prevents epic-wide rework
+
+**ONLY after completing ALL 6 actions above, proceed to Next Steps section**
 
 ---
 

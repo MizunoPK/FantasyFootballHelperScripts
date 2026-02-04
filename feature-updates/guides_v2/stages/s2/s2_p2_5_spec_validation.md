@@ -4,7 +4,7 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-06
 **Prerequisites:** S2.P2 complete (Specification Phase PASSED)
-**Next Phase:** `stages/s_2/s2_p3_refinement.md`
+**Next Phase:** `stages/s2/s2_p3_refinement.md`
 **File:** `s2_p2_5_spec_validation.md`
 
 ---
@@ -130,7 +130,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
   - Evidence collected from initial research phase
 
 □ **Agent Status updated:**
-  - Last guide: stages/s_2/phase_1_specification.md
+  - Last guide: stages/s2/s2_p2_specification.md
   - Current phase: Ready to start Validation Phase
 
 **If any prerequisite fails:**
@@ -426,7 +426,7 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** VALIDATION_PHASE
 **Current Step:** Phase 2.75 - Specification Validation Complete
-**Current Guide:** stages/s_2/phase_2b5_specification_validation.md
+**Current Guide:** stages/s2/s2_p2_5_spec_validation.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Assume everything is wrong until validated
@@ -436,7 +436,7 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 
 **Progress:** Validation Phase COMPLETE
 **Next Action:** Refinement Phase (Interactive Question Resolution)
-**Next Guide:** stages/s_2/phase_2_refinement.md
+**Next Guide:** stages/s2/s2_p3_refinement.md
 **Blockers:** None
 
 **Validation Results:**
@@ -491,7 +491,7 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 
 **After completing Validation Phase:**
 
-→ **Proceed to:** stages/s_2/phase_2_refinement.md
+→ **Proceed to:** stages/s2/s2_p3_refinement.md
 
 **What happens in STAGE_2c:**
 - Step 3: Interactive Question Resolution (remaining questions only)

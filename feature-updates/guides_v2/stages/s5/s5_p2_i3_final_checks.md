@@ -7,7 +7,7 @@
 - Algorithm Traceability Matrix re-verified
 - E2E Data Flow re-verified
 
-**Main Guide:** `stages/s5/round2_todo_creation.md`
+**Main Guide:** `stages/s5/s5_p2_planning_round2.md`
 
 ---
 

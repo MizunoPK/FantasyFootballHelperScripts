@@ -7,7 +7,7 @@
 - Test Strategy section added to implementation_plan.md
 - Edge Cases section added to implementation_plan.md
 
-**Main Guide:** `stages/s5/round2_todo_creation.md`
+**Main Guide:** `stages/s5/s5_p2_planning_round2.md`
 
 ---
 

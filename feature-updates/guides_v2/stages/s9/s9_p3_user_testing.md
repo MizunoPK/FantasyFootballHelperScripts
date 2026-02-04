@@ -77,7 +77,7 @@ User testing passes with ZERO bugs reported by user
    - Cannot mark bugs as "acceptable"
    - Fix ALL bugs user reports
 
-4. ⚠️ RESTART STAGE 6 AFTER BUG FIXES
+4. ⚠️ RESTART S9.P1 AFTER BUG FIXES
    - After fixing user-reported bugs → RESTART S9.P1
    - Re-run smoke testing (4 parts)
    - Re-run QC rounds (3 rounds)
@@ -281,11 +281,11 @@ For EACH bug fix folder:
 
 **2a. Follow Bug Fix Workflow**
 
-Read and follow: `stages/s_5/bugfix_workflow.md`
+Read and follow: `stages/s5/s5_bugfix_workflow.md`
 
 **Stages:**
 1. **S2** (Feature Deep Dive) - Understand bug scope
-2. **S5a** (TODO Creation) - Plan fix
+2. **S5** (TODO Creation) - Plan fix
 3. **S6** (Implementation) - Implement fix
 4. **S7 (Testing & Review)** (Post-Implementation) - Test fix
 
@@ -325,7 +325,7 @@ Update EPIC_README.md:
 **Steps to restart S9:**
 
 **3a. Return to S9.P1 (Epic Smoke Testing)**
-1. Read `stages/s9/epic_smoke_testing.md` again
+1. Read `stages/s9/s9_p1_epic_smoke_testing.md` again
 2. Execute all 4 smoke test parts:
    - Part 1: Import Test
    - Part 2: Entry Point Test
@@ -334,7 +334,7 @@ Update EPIC_README.md:
 3. Verify all parts PASS
 
 **3b. Proceed to S9.P2 (Epic QC Rounds)**
-1. Read `stages/s9/epic_qc_rounds.md` again
+1. Read `stages/s9/s9_p2_epic_qc_rounds.md` again
 2. Execute all 3 QC rounds:
    - Round 1: Cross-Feature Integration
    - Round 2: Epic Cohesion & Consistency

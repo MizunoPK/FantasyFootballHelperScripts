@@ -139,7 +139,7 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
   - Research completeness audit passed (Phase 1.5)
 
 □ **Agent Status updated:**
-  - Last guide: stages/s_2/phase_1_specification.md
+  - Last guide: stages/s2/s2_p2_specification.md
   - Current phase: Ready to start Phase 3 (Interactive Question Resolution)
 
 **If any prerequisite fails:**
@@ -313,7 +313,7 @@ C. **{Option C}**
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** DEEP_DIVE
 **Current Step:** Phase 3 - Waiting for answer to Question {N}
-**Current Guide:** stages/s_2/phase_2_refinement.md
+**Current Guide:** stages/s2/s2_p3_refinement.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - ONE question at a time
@@ -576,6 +576,53 @@ Look for features with "S2 Complete" marked [x]
 3. Requirements (duplicate work)
 4. Assumptions (incompatible assumptions)
 5. Integration Points (dependencies)
+
+---
+
+### Step 5.2.5: Send Messages for Issues in Other Features (NEW)
+
+If you find issues in another feature's spec during comparison:
+
+**DO NOT update other feature's files directly**
+
+Instead, send message via agent_comms:
+
+**File:** `agent_comms/{your_id}_to_{owner_id}.md`
+
+**Template:**
+```markdown
+## Message: Cross-Feature Alignment Issue
+**From:** {your_id} (Feature {N})
+**To:** {owner_id} (Feature {M})
+**Subject:** {Brief description}
+**Status:** ⏳ UNREAD
+
+**Issue:** {Detailed description with line numbers from Feature M spec}
+
+**Suggested Action:** {What owner should do to resolve}
+
+**Urgency:** {LOW/MEDIUM/HIGH}
+
+**Context:** Found during S2.P3 Phase 5 (Cross-Feature Alignment) for Feature {N}
+```
+
+**The other agent will:**
+- Review during next coordination heartbeat (15 min)
+- Evaluate suggestion
+- Update their spec if agreed OR send counter-proposal
+- Send acknowledgment message
+- Mark your message as ✅ READ
+
+**Primary agent monitors:**
+- All agent-to-agent messages during coordination
+- Resolves disputes if agents can't align
+- Escalates to user if necessary
+
+**Benefits:**
+- Issues fixed immediately (not deferred to S3)
+- Distributed validation (multiple agents review each feature)
+- Agents maintain ownership of their features
+- Reduces Primary's S3 workload
 
 ---
 
@@ -1025,7 +1072,7 @@ Find Feature Tracking table and mark S2 complete:
    - Approval checkbox marked [x]
    - Approval timestamp documented
 
-**Next Stage:** Either next feature's Research Phase (stages/s_2/phase_0_research.md) OR Cross-Feature Sanity Check (stages/s_3/cross_feature_sanity_check.md) if all features complete
+**Next Stage:** Either next feature's Research Phase (stages/s2/s2_p1_research.md) OR Cross-Feature Sanity Check (stages/s3/s3_cross_feature_sanity_check.md) if all features complete
 
 ---
 
@@ -1041,7 +1088,7 @@ Find Feature Tracking table and mark S2 complete:
 **If ALL features complete S2:**
 - Transition to S3 (Cross-Feature Sanity Check)
 
-📖 **READ:** `stages/s_3/cross_feature_sanity_check.md`
+📖 **READ:** `stages/s3/s3_cross_feature_sanity_check.md`
 🎯 **GOAL:** Systematic comparison of all feature specs, final epic-level validation
 ⏱️ **ESTIMATE:** 30-60 minutes (for entire epic)
 
@@ -1056,4 +1103,4 @@ Find Feature Tracking table and mark S2 complete:
 
 ---
 
-*End of stages/s_2/phase_2_refinement.md*
+*End of stages/s2/s2_p3_refinement.md*

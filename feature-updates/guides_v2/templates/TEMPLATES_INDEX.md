@@ -103,7 +103,7 @@
 #### Feature README
 - **File:** `feature_readme_template.md`
 - **Created:** S1 or S2
-- **Updated:** Throughout Stages 2-5e
+- **Updated:** Throughout S2-S8
 - **Purpose:** Central feature tracking (Agent Status, progress)
 - **Size:** ~160 lines
 - **When to use:** Creating feature folder

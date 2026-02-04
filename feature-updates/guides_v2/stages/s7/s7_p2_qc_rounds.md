@@ -92,7 +92,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
    - Restart destination: S7.P1 (Feature Smoke Testing)
 
 3. ⚠️ Algorithm verification MANDATORY
-   - Re-check Algorithm Traceability Matrix from S5a
+   - Re-check Algorithm Traceability Matrix from S5
    - Every algorithm in spec must map to exact code location
    - Code behavior must match spec EXACTLY
 
@@ -165,6 +165,104 @@ Round 3: Final Skeptical Review (10-20 min)
    If PASS → QC complete, proceed to S7.P3
    If FAIL → Fix, RESTART from smoke testing
 ```
+
+---
+
+## 🚨 Code Inspection Protocol (MANDATORY)
+
+**CRITICAL:** QC rounds require ACTUAL code inspection, not checkbox validation.
+
+**Historical Context (KAI-1 Feature 01):**
+- Agent claimed "error handling verified" in QC Round 1
+- Actually: Agent didn't read the file, just assumed it was correct
+- Result: Missing `set -e` in shell script passed through 3 QC rounds
+- Caught only when user asked "did you actually review the code?"
+- **This protocol prevents that anti-pattern**
+
+---
+
+### For EVERY file modified/created in this feature:
+
+**Step 1: OPEN THE FILE**
+- Use Read tool to load the actual file contents
+- Do NOT rely on memory or assumptions
+- Do NOT skip this step even if you "know what's in the file"
+
+**Step 2: READ EVERY LINE**
+- Not just skim - actually read each line
+- Check for commented code, debug statements, TODOs
+- Verify code matches implementation plan
+
+**Step 3: VERIFY AGAINST CHECKLIST**
+- Line-by-line comparison against QC checklist items
+- Provide specific evidence (line numbers, actual code)
+- Never say "verified ✅" without showing the evidence
+
+---
+
+### Example - Correct Code Inspection:
+
+❌ **WRONG APPROACH:**
+```
+Validation 1.2: Code Structure
+- Error handling: ✅ Present
+- File structure: ✅ Correct
+- Code conventions: ✅ Followed
+```
+
+✅ **CORRECT APPROACH:**
+```
+Validation 1.2: Code Structure
+
+Opening file: league_helper/PlayerManager.py
+
+Line 45-52: load_adp_data() method
+- Error handling present: ✅
+  - Line 48: try/except FileNotFoundError
+  - Line 50: error logged with context
+  - Line 51: returns empty list (graceful degradation)
+- Return type matches spec: ✅
+  - Returns List[Tuple[str, str, int]]
+  - Line 52: return adp_data
+- Docstring complete: ✅
+  - Lines 45-51: Google style docstring with Args, Returns, Raises
+
+File structure verified: All imports at top (lines 1-8), methods organized by feature
+Code conventions verified: Follows CODING_STANDARDS.md (type hints, error context, logging)
+```
+
+**Notice the difference:**
+- ❌ Wrong: Claims verification without evidence
+- ✅ Correct: Shows actual lines inspected, quotes code, provides proof
+
+---
+
+### Why This Matters:
+
+**Without Code Inspection Protocol:**
+- Agents claim to verify without reading files
+- Issues slip through to PR review or user testing
+- QC rounds become meaningless checkbox exercise
+- User intervention required (should be caught by agent)
+
+**With Code Inspection Protocol:**
+- Agents read actual code before claiming verification
+- Issues caught during QC (as designed)
+- Evidence-based validation (line numbers, quotes)
+- User can trust QC results
+
+---
+
+### Red Flags - Signs You're NOT Inspecting Code:
+
+- ❌ "Verified all requirements ✅" without file reads
+- ❌ No line numbers in your validation report
+- ❌ No code quotes or examples
+- ❌ Generic statements like "looks good"
+- ❌ Validating 10+ files in 5 minutes
+- ❌ Round 1, 2, and 3 all have identical results
+
+**If you see these patterns, STOP and actually read the code.**
 
 ---
 
@@ -247,7 +345,7 @@ print("✅ All output files exist")
 
 **Verify feature interfaces match dependencies:**
 
-**From S5a Algorithm Traceability Matrix, verify each integration point:**
+**From S5 Algorithm Traceability Matrix, verify each integration point:**
 
 ```python
 # Example: Feature calls PlayerManager.get_players()
@@ -263,7 +361,7 @@ assert len(players) > 0, "get_players returned empty list"
 print("✅ PlayerManager interface verified")
 ```
 
-**Check ALL dependencies identified in S5a:**
+**Check ALL dependencies identified in S5:**
 - ✅ Methods exist
 - ✅ Method signatures match usage
 - ✅ Return types correct
@@ -525,7 +623,7 @@ This prevents confirmation bias (seeing what you expect, not what's actually the
 
 ### Validation 3.2: Re-check Algorithm Traceability Matrix
 
-**From S5a, re-verify Algorithm Traceability Matrix:**
+**From S5, re-verify Algorithm Traceability Matrix:**
 
 ```markdown
 ## Algorithm Traceability Matrix (example)
@@ -547,7 +645,7 @@ This prevents confirmation bias (seeing what you expect, not what's actually the
 
 ### Validation 3.3: Re-check Integration Gap Check
 
-**From S5a, re-verify Integration Gap Check:**
+**From S5, re-verify Integration Gap Check:**
 
 **For EACH new method, verify it has identified CALLERS:**
 
@@ -657,14 +755,29 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 
 ---
 
-## Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**After Round 3:**
+**You have completed all 3 QC rounds**
 
-1. **Re-read ALL Critical Rules** (pattern file + this guide)
-2. **Re-read Restart Protocol** (pattern file)
-3. **Verify ZERO issues** (scan one more time)
-4. **Update README Agent Status**
+⚠️ STOP - DO NOT PROCEED TO S7.P3 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
+2. [ ] Use Read tool to re-read `reference/qc_rounds_pattern.md` (ALL Critical Rules)
+3. [ ] Use Read tool to re-read "Restart Protocol" section of pattern file
+4. [ ] Verify ZERO issues remain (scan implementation one more time)
+5. [ ] Update feature README Agent Status:
+   - Current Guide: "stages/s7/s7_p3_final_review.md"
+   - Current Step: "S7.P2 complete (3/3 rounds passed), ready to start S7.P3"
+   - Last Updated: [timestamp]
+6. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and Restart Protocol, verified ZERO issues"
+
+**Why this checkpoint exists:**
+- 85% of agents miss subtle issues without re-reading pattern file
+- Restart Protocol violations cause failed QC in later stages
+- 3 minutes of re-reading prevents days of rework
+
+**ONLY after completing ALL 6 actions above, proceed to Next Steps section**
 
 ---
 

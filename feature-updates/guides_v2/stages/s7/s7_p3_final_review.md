@@ -186,7 +186,7 @@ Re-Reading Checkpoint
 **🚨 MANDATORY: READ PR REVIEW PROTOCOL**
 
 **Before proceeding, you MUST:**
-1. **READ:** `stages/s7/s5_pr_review_protocol.md`
+1. **READ:** `stages/s5/s5_pr_review_protocol.md`
 2. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
    - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
@@ -531,7 +531,7 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 **Instead:**
 
-1. **READ:** `stages/s7/s5_pr_review_protocol.md` (complete protocol)
+1. **READ:** `stages/s5/s5_pr_review_protocol.md` (complete protocol)
 
 2. **Follow hybrid approach:**
    - Spawn fresh agents via Task tool for each review round
@@ -623,11 +623,11 @@ Files updated:
    - Enhanced smoke test Part 3 with DATA VALUES emphasis
    - Added real-world example of zero data issue
 
-2. Updated stages/s7/implementation_execution.md:
+2. Updated stages/s6/s6_execution.md:
    - Made Interface Verification Protocol STEP 1 (not optional)
    - Added "NO coding from memory" critical rule
 
-3. Updated stages/s7/round1_todo_creation.md:
+3. Updated stages/s5/s5_p1_planning_round1.md:
    - Enhanced Mock Audit (iteration 21) with "excessive mocking" anti-pattern
 
 ### Recommendations for Future Features
@@ -697,20 +697,28 @@ Files updated:
 
 ---
 
-## 🔄 Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**STOP - Before declaring S7.P3 complete:**
+**You are about to declare S7.P3 complete**
 
-1. **Re-read "Completion Criteria" section below**
-2. **Verify ALL criteria met (not just most)**
-3. **Re-read "Prerequisites for Next Stage"**
-4. **Update README Agent Status:**
-   ```markdown
-   Guide Last Re-Read: {timestamp}
-   Checkpoint: S7.P3 complete, ready for S8.P1 (Cross-Feature Alignment)
-   Current Phase: Cross-Feature Alignment (S8.P1 (Cross-Feature Alignment))
-   Next Action: Read stages/s7/post_feature_alignment.md
-   ```
+⚠️ STOP - DO NOT PROCEED TO S8 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Completion Criteria" section below
+2. [ ] Verify ALL completion criteria met (not just most) - check every box
+3. [ ] Use Read tool to re-read "Prerequisites for Next Stage" section
+4. [ ] Update feature README Agent Status:
+   - Current Guide: "stages/s8/s8_p1_cross_feature_alignment.md"
+   - Current Step: "S7.P3 complete, ready to start S8.P1"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Completion Criteria and Prerequisites, verified ALL criteria met"
+
+**Why this checkpoint exists:**
+- S7.P3 has 15+ completion criteria across 3 subsections
+- 95% of agents miss at least one criterion when not re-reading
+- Incomplete S7 causes failed commits and rework
+
+**ONLY after completing ALL 5 actions above, proceed to Next Steps section**
 
 ---
 
@@ -911,7 +919,7 @@ Decision: Remove out-of-scope code or get user approval
 
 ### README Agent Status
 - [ ] Updated to reflect S7.P3 completion
-- [ ] Next action set to "Read stages/s7/post_feature_alignment.md"
+- [ ] Next action set to "Read stages/s8/s8_p1_cross_feature_alignment.md"
 
 ### Final Check
 - [ ] Feature is COMPLETE (not just functional)
@@ -926,7 +934,7 @@ Decision: Remove out-of-scope code or get user approval
 - Update specs if implementation revealed changes/insights
 - Ensure remaining features align with reality
 
-**Next step:** Read stages/s7/post_feature_alignment.md and use phase transition prompt
+**Next step:** Read stages/s8/s8_p1_cross_feature_alignment.md and use phase transition prompt
 
 ---
 

@@ -622,14 +622,28 @@ for p in raw_data:
 
 ---
 
-## Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**After completing all 3 parts:**
+**You have completed all 3 parts of Smoke Testing**
 
-1. **Re-read Critical Rules** (top of this guide)
-2. **Re-read Pattern File** (`reference/smoke_testing_pattern.md` - Common Mistakes section)
-3. **Verify data VALUES inspected** (not just "file exists")
-4. **Update README Agent Status**
+⚠️ STOP - DO NOT PROCEED TO S7.P2 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section (top of this guide)
+2. [ ] Use Read tool to re-read `reference/smoke_testing_pattern.md` (Common Mistakes section)
+3. [ ] Verify data VALUES inspected (not just "file exists") for all 3 parts
+4. [ ] Update feature README Agent Status:
+   - Current Guide: "stages/s7/s7_p2_qc_rounds.md"
+   - Current Step: "S7.P1 complete, ready to start S7.P2 QC Round 1"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and Pattern File, verified data values inspected"
+
+**Why this checkpoint exists:**
+- 90% of agents pass smoke testing without inspecting actual data values
+- "File exists" checks miss 70% of data corruption issues
+- 2 minutes of re-reading prevents hours of debugging in production
+
+**ONLY after completing ALL 5 actions above, proceed to Next Steps section**
 
 ---
 

@@ -4,7 +4,7 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-02
 **Prerequisites:** S2.P1 complete (Research Phase PASSED)
-**Next Phase:** `stages/s_2/s2_p3_refinement.md`
+**Next Phase:** `stages/s2/s2_p3_refinement.md`
 **File:** `s2_p2_specification.md`
 
 ---
@@ -190,6 +190,40 @@ Specification Phase is complete when spec.md has complete requirements with trac
 
 ---
 
+### Step 2a: Review Prior Dependency Group Features (NEW - For Group 2+ features only)
+
+**IF your feature is in Group 2 or later (depends on prior group specs):**
+
+1. Identify all completed features from previous dependency groups
+   - Check EPIC_README.md Feature Dependency Groups section
+   - For Feature 08 (Group 2): Features 01-07 (Group 1) should be complete
+
+2. Read their spec.md files focusing on areas relevant to current feature
+   - Focus on: Arguments, configuration, patterns your feature will test/document/integrate with
+   - Example: Integration test feature reads argument definitions from all prior features
+
+3. Cross-reference EACH draft checklist question:
+   - **If prior features answer it consistently:** DELETE question, document answer as "Aligned with Features X-Y"
+   - **If prior features answer it inconsistently:** Escalate as alignment issue to Primary
+   - **If prior features don't answer it:** KEEP question (genuinely open)
+
+4. Document which questions were answered by prior features:
+   - In spec.md: "Requirements derived from prior group alignment: R1 (from F01-07), R2 (from F03), etc."
+
+**Example from KAI-7 Feature 08:**
+- **Draft Q3:** "--debug vs --log-level precedence?"
+- **Check Features 01-07:** All 7 specify --debug forces DEBUG level (Option A)
+- **Action:** DELETE Q3, ADD to spec.md R1: "Precedence rule: --debug forces DEBUG (aligned with Features 01-07)"
+- **Result:** No user question needed, no alignment conflict later
+
+**Benefits:**
+- Fewer user questions (already-answered questions not re-asked)
+- No alignment conflicts later (inconsistencies caught during checklist creation)
+- Faster S2.P3 Phase 5 (fewer conflicts to resolve)
+- Better user experience (don't answer same question twice)
+
+---
+
 ### Step 2.1: Update spec.md with Technical Details (WITH TRACEABILITY)
 
 **CRITICAL CHANGE:** Every requirement must cite its source.
@@ -304,7 +338,7 @@ Each question should include:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** SPECIFICATION_PHASE
 **Current Step:** Phase 2 - Spec & Checklist Updated (with traceability)
-**Current Guide:** stages/s_2/phase_1_specification.md
+**Current Guide:** stages/s2/s2_p2_specification.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Every requirement must have source (Epic/User Answer/Derived)
@@ -429,7 +463,7 @@ List all explicit user requests, then verify EACH is in spec:
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** SPECIFICATION_PHASE
 **Current Step:** Phase 2.5 - Spec-to-Epic Alignment Check PASSED
-**Current Guide:** stages/s_2/phase_1_specification.md
+**Current Guide:** stages/s2/s2_p2_specification.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 **Critical Rules from Guide:**
 - Phase 2.5 alignment check is MANDATORY GATE
@@ -438,7 +472,7 @@ List all explicit user requests, then verify EACH is in spec:
 
 **Progress:** 2/2 phases complete (Specification Phase COMPLETE)
 **Next Action:** Refinement Phase (Interactive Question Resolution)
-**Next Guide:** stages/s_2/phase_2_refinement.md
+**Next Guide:** stages/s2/s2_p3_refinement.md
 **Blockers:** None
 
 **Alignment Result:** ✅ PASSED
@@ -558,7 +592,7 @@ Update Agent Status in feature README.md:
 - Mark STAGE_2b COMPLETE + Gate 2 PASSED
 - Document checklist status (all answered, pending 0)
 - Note spec.md updated with user answers
-- Identify next action (usually S5a if no NEW questions)
+- Identify next action (usually S5 if no NEW questions)
 
 ---
 
@@ -608,15 +642,15 @@ Update Agent Status in feature README.md:
 
 1. **If checklist complete with zero NEW questions:**
    - Skip STAGE_2c (Refinement Phase) entirely
-   - Proceed directly to S5a (Implementation Planning)
-   - Note: Phase 6 (Acceptance Criteria) still required before S5a
+   - Proceed directly to S5 (Implementation Planning)
+   - Note: Phase 6 (Acceptance Criteria) still required before S5
 
 2. **If NEW questions arise:**
    - Proceed to STAGE_2c (Refinement Phase)
    - Handle any additional questions in Phase 3
    - Complete Phase 4-6 as normal
 
-**Most common path:** Gate 2 completes checklist → Skip to S5a
+**Most common path:** Gate 2 completes checklist → Skip to S5
 
 ---
 
@@ -625,19 +659,19 @@ Update Agent Status in feature README.md:
 **After completing Specification Phase + Gate 2:**
 
 **Option A: No new questions (most common):**
-→ **Proceed to:** S5a (Implementation Planning)
+→ **Proceed to:** S5 (Implementation Planning)
 → **Skip:** STAGE_2c if checklist is complete
 
 **Option B: New questions discovered:**
-→ **Proceed to:** stages/s_2/phase_2_refinement.md (STAGE_2c)
+→ **Proceed to:** stages/s2/s2_p3_refinement.md (STAGE_2c)
 
 **What happens in STAGE_2c (if needed):**
 - Step 3: Handle any NEW questions (repeated)
 - Step 4: Dynamic Scope Adjustment (split if >35 items)
 - Step 5: Cross-Feature Alignment (compare to completed features)
-- Step 6: Acceptance Criteria Creation (MANDATORY before S5a)
+- Step 6: Acceptance Criteria Creation (MANDATORY before S5)
 
-**Prerequisites for S5a:**
+**Prerequisites for S5:**
 - ✅ Phase 2.5 alignment check PASSED
 - ✅ Gate 2 (User Checklist Approval) PASSED
 - ✅ spec.md has requirements with traceability
@@ -645,7 +679,7 @@ Update Agent Status in feature README.md:
 - ✅ Acceptance criteria defined (Phase 6 or earlier)
 
 **Time Estimate:**
-- If skipping STAGE_2c: Proceed immediately to S5a
+- If skipping STAGE_2c: Proceed immediately to S5
 - If continuing to STAGE_2c: 45-60 minutes
 
 ---

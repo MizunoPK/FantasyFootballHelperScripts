@@ -1,0 +1,14 @@
+I want to make it easier to do runs of each script with different argument values
+The goal of this is to have each script able to run end-to-end while passing argument values to the run call of the script to easily specify certain behavior. Any config or flag that we could potentially want to test with/without or with different settings should be an argument to the runner script
+Each runner should also have a way to run their associated scripts end to end in a reasonable amount of time (about 3 minutes max each). This is intended to act as an integration test, where users or agents can specify certain arguments to ensure a test run fitting their expectations and needs, and then the runner will run the system end-to-end with the specified arguments. For the league_helper, this will mean creating a version of the runner that skips the user inputs used by the helper and instead runs through every mode and submode in the league helper with pre-specified flows to test each part of the system.
+Each script should have the ability to run in debug mode, which will output different logs than info mode. Part of this epic will include either adding addition debug logs to scripts or removing/refining existing ones depending on each script's existing state.
+Additionally, we should have an integration test runner for each script, where it goes through multiple different sets of possible argument values for the associated script and tests each of those combinations. It should pass/fail each run depending on the presence of any errors. There should also be a greater integration test runner that goes through and triggers all of the individual script integration test runners.
+Finally, we should update all relevant documentation to ensure that these integration test runners are used during the epic developing testing stages, and that it is clear how to do individual runs of each script with the new arguments for the sake of more focused testing
+
+I want to be able to have a configurable and E2E version of:
+- Every mode in the League helper
+- Player data fetcher
+- Win Rate Sim
+- Accuracy Sim
+- Historical Data fetcher
+- Schedule Data Fetcher

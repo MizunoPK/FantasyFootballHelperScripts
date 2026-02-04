@@ -32,7 +32,7 @@ S9.P1 (Epic Smoke Testing) →
    - Current Phase: S9.P2 - Epic QC Rounds
    - Current Guide: `stages/s9/s9_p2_epic_qc_rounds.md`
    - Guide Last Read: {YYYY-MM-DD HH:MM}
-   - Critical Rules: "3 rounds MANDATORY", "If critical issues → RESTART S6a", "Minor issues can be fixed inline"
+   - Critical Rules: "3 rounds MANDATORY", "If critical issues → RESTART S6", "Minor issues can be fixed inline"
    - Next Action: QC Round 1 - Cross-Feature Integration
 
 4. **Verify all prerequisites** (see checklist below)
@@ -80,16 +80,16 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 └─────────────────────────────────────────────────────────────┘
 
 1. ⚠️ Epic Issue Handling (Different from feature-level)
-   - Critical issues → Follow epic debugging protocol → RESTART S6a
+   - Critical issues → Follow epic debugging protocol → RESTART S6
    - Minor issues → Fix immediately, document, continue (no restart)
    - Epic issues go to: epic_name/debugging/ISSUES_CHECKLIST.md
 
 2. ⚠️ QC RESTART PROTOCOL (Epic-specific)
-   - If Round 1: Critical integration issues → RESTART from S6a
-   - If Round 2: Critical consistency issues → RESTART from S6a
-   - If Round 3: Critical success criteria failures → RESTART from S6a
+   - If Round 1: Critical integration issues → RESTART from S6
+   - If Round 2: Critical consistency issues → RESTART from S6
+   - If Round 3: Critical success criteria failures → RESTART from S6
    - Minor issues: Fix inline, document, continue
-   - Restart destination: S6a (Epic Smoke Testing)
+   - Restart destination: S6 (Epic Smoke Testing)
 
 3. ⚠️ Focus on EPIC-LEVEL validation (not feature-level)
    - Feature-level QC done in S10.P2
@@ -128,7 +128,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 
 **Agent Status updated:**
 - [ ] EPIC_README.md shows STAGE_6a complete
-- [ ] Current guide: stages/s9/epic_qc_rounds.md
+- [ ] Current guide: stages/s9/s9_p2_epic_qc_rounds.md
 
 **Original epic request available:**
 - [ ] Have access to {epic_name}.txt
@@ -157,14 +157,14 @@ Round 1: Cross-Feature Integration (10-20 min)
    ↓ Pass: Zero critical integration issues
    ↓
    If PASS → Round 2
-   If CRITICAL ISSUES → Fix, RESTART from S6a
+   If CRITICAL ISSUES → Fix, RESTART from S6
 
 Round 2: Epic Cohesion & Consistency (10-20 min)
    ↓ Code style, naming, error handling, architectural patterns
    ↓ Pass: Zero critical consistency issues
    ↓
    If PASS → Round 3
-   If CRITICAL ISSUES → Fix, RESTART from S6a
+   If CRITICAL ISSUES → Fix, RESTART from S6
    If MINOR ISSUES → Fix inline, continue
 
 Round 3: End-to-End Success Criteria (10-20 min)
@@ -173,7 +173,7 @@ Round 3: End-to-End Success Criteria (10-20 min)
    ↓ Pass: All criteria met
    ↓
    If PASS → Epic QC complete, proceed to S6c
-   If CRITICAL FAILURES → Fix, RESTART from S6a
+   If CRITICAL FAILURES → Fix, RESTART from S6
 ```
 
 ---
@@ -327,7 +327,7 @@ except ValueError as e:
 **If Round 1 has CRITICAL issues:**
 1. Document ALL critical issues
 2. Follow epic debugging protocol
-3. **RESTART from S6a (epic smoke testing)**
+3. **RESTART from S6 (epic smoke testing)**
 
 **If Round 1 has only MINOR issues:**
 - Fix immediately
@@ -465,7 +465,7 @@ except FileNotFoundError:
 **If Round 2 has CRITICAL issues:**
 1. Document ALL critical issues
 2. Follow epic debugging protocol
-3. **RESTART from S6a**
+3. **RESTART from S6**
 
 **If Round 2 has MINOR issues:**
 - Fix immediately
@@ -512,7 +512,7 @@ User Goal 3: "Generate top 200 ranked players"
 ```
 
 **If ANY goal not met:**
-- Critical → Create bug fix, RESTART S6a
+- Critical → Create bug fix, RESTART S6
 - Can't be met → Get user approval to remove from scope
 
 ---
@@ -587,7 +587,7 @@ print(f"✅ Epic workflow completed in {elapsed:.2f}s")
 **If ANY success criteria not met:**
 - Document which criteria failed
 - Determine if critical (can't achieve epic goals)
-- If critical → Create bug fixes, RESTART S6a
+- If critical → Create bug fixes, RESTART S6
 - If acceptable → Get user approval, document
 
 **If ALL criteria met:**
@@ -620,7 +620,7 @@ See `debugging/debugging_protocol.md` for complete protocol
 
 ### Step 3: After ALL Issues Resolved
 
-**RESTART S6a (Epic Smoke Testing) from Step 1:**
+**RESTART S6 (Epic Smoke Testing) from Step 1:**
 - Re-run ALL 4 smoke test parts
 - Verify fixes didn't break anything
 - Return to S6b after smoke testing passes
@@ -629,15 +629,30 @@ See `debugging/debugging_protocol.md` for complete protocol
 
 ---
 
-## Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**After Round 3:**
+**You have completed all 3 Epic QC rounds**
 
-1. **Re-read Critical Rules** (pattern file + this guide)
-2. **Re-read Original Epic Request** ({epic_name}.txt)
-3. **Verify ALL success criteria met**
-4. **Update EPIC_README.md Agent Status**
-5. **Update epic_lessons_learned.md**
+⚠️ STOP - DO NOT PROCEED TO S9.P3 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
+2. [ ] Use Read tool to re-read `reference/qc_rounds_pattern.md` (ALL Critical Rules)
+3. [ ] Use Read tool to re-read original epic request ({epic_name}.txt)
+4. [ ] Verify ALL success criteria met from original epic request
+5. [ ] Update epic_lessons_learned.md with QC findings
+6. [ ] Update EPIC_README.md Agent Status:
+   - Current Guide: "stages/s9/s9_p3_user_testing.md"
+   - Current Step: "S9.P2 complete (3/3 rounds passed), ready to start S9.P3"
+   - Last Updated: [timestamp]
+7. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and original request, verified all success criteria met"
+
+**Why this checkpoint exists:**
+- 90% of agents skip re-reading original epic request
+- Missing original success criteria causes 60% of user rejections
+- 5 minutes of re-reading prevents days of epic rework
+
+**ONLY after completing ALL 7 actions above, proceed to Next Steps section**
 
 ---
 
@@ -652,7 +667,7 @@ See `debugging/debugging_protocol.md` for complete protocol
 **If ANY round had CRITICAL issues:**
 - ❌ Fix ALL critical issues
 - ❌ Follow epic debugging protocol
-- ❌ **RESTART from S6a (epic smoke testing)**
+- ❌ **RESTART from S6 (epic smoke testing)**
 - ❌ Re-run smoke testing → QC Round 1 → QC Round 2 → QC Round 3
 - ❌ Do NOT proceed to PR Review until clean pass
 
@@ -669,7 +684,7 @@ See `debugging/debugging_protocol.md` for complete protocol
 - Focus on epic-wide patterns (not individual features)
 - Minor issues can be fixed inline (epic-level more flexible)
 - Critical issues require epic debugging protocol
-- Restart destination: S6a (epic smoke testing)
+- Restart destination: S6 (epic smoke testing)
 - Validation against original epic request (Round 3)
 
 **Critical Success Factors:**

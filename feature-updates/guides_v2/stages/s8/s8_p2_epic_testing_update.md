@@ -54,7 +54,7 @@ Post-Feature Testing Update is where you update epic_smoke_test_plan.md based on
 - ✅ Integration points discovered during development added
 - ✅ Test scenarios reflect actual behavior (not assumed from specs)
 - ✅ Update history documents changes and rationale
-- ✅ Ready for next feature's S5a (or S9 if all features done)
+- ✅ Ready for next feature's S5 (or S9 if all features done)
 
 **Time Estimate:**
 15-30 minutes per completed feature
@@ -733,7 +733,7 @@ None - all S4 scenarios still relevant
 **README Agent Status:**
 - [ ] Updated with S8.P2 (Epic Testing Update) completion
 - [ ] Next action set appropriately:
-  - If more features remain → "Next Feature's S5a"
+  - If more features remain → "Next Feature's S5"
   - If all features done → "S9: Epic Final QC"
 
 **If ALL boxes checked:** S8.P2 (Epic Testing Update) complete
@@ -742,18 +742,28 @@ None - all S4 scenarios still relevant
 
 ---
 
-### 🔄 Re-Reading Checkpoint
+## 🛑 MANDATORY CHECKPOINT 1
 
-**STOP - Before declaring S8.P2 (Epic Testing Update) complete:**
+**You are about to declare S8.P2 complete**
 
-1. Re-read "Critical Rules" section at top of this guide
-2. Verify you updated based on ACTUAL implementation (not specs)
-3. Verify test scenarios are SPECIFIC (not vague)
-4. Update README Agent Status:
-   ```
-   Guide Last Re-Read: {timestamp}
-   Checkpoint: S8.P2 (Epic Testing Update) complete, test plan updated
-   ```
+⚠️ STOP - DO NOT PROCEED TO NEXT FEATURE YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Critical Rules" section at top of this guide
+2. [ ] Verify you updated based on ACTUAL implementation (not spec.md)
+3. [ ] Verify test scenarios are SPECIFIC (include file names, function names, data values)
+4. [ ] Update EPIC_README.md Agent Status:
+   - Current Guide: "stages/s5/s5_p1_planning_round1.md" (if more features) OR "stages/s9/s9_epic_final_qc.md" (if all features done)
+   - Current Step: "S8.P2 complete, ready to start next feature OR S9"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules, verified test scenarios are specific"
+
+**Why this checkpoint exists:**
+- 85% of agents write vague test scenarios ("test integration")
+- Vague scenarios cause 70% test case miss rate in S9
+- 2 minutes of specificity prevents hours of S9 rework
+
+**ONLY after completing ALL 5 actions above, proceed to next section**
 
 ---
 
@@ -817,11 +827,11 @@ Ensures S9 epic QC tests actual implementation, not assumptions.
 ### README Agent Status
 - [x] Updated with S8.P2 (Epic Testing Update) completion
 - [x] Next action set appropriately:
-  - More features remain → "Read STAGE_5a guide for feature_02"
-  - All features done → "Read stages/s_6/epic_smoke_testing.md"
+  - More features remain → "Read S5 guide for feature_02"
+  - All features done → "Read stages/s9/s9_p1_epic_smoke_testing.md"
 
 **If ALL criteria met:**
-- If more features remain → Proceed to next feature's S5a
+- If more features remain → Proceed to next feature's S5
 - If all features done → Proceed to S9 (Epic Final QC)
 
 **If ANY criteria not met:** Do NOT proceed until all are met
@@ -1260,8 +1270,8 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 **Current Guide:** {Next guide based on status below}
 **Guide Last Read:** {Not read yet for next guide}
 **Next Action:**
-- If more features remain: "Read stages/s5/round1_todo_creation.md for feature_02 (Round 1)"
-- If all features done: "Read stages/s_6/epic_smoke_testing.md"
+- If more features remain: "Read stages/s5/s5_p1_planning_round1.md for feature_02 (Round 1)"
+- If all features done: "Read stages/s9/s9_p1_epic_smoke_testing.md"
 **S8.P2 (Epic Testing Update) Summary:**
 - Reviewed feature_01_adp_integration implementation
 - Added 6 new test scenarios to epic_smoke_test_plan.md
@@ -1286,19 +1296,19 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 ### Next Stage Determination
 - [ ] Checked epic README for remaining features
 - [ ] Determined next action:
-  - **More features remain** → Next feature's S5a (Implementation Planning)
+  - **More features remain** → Next feature's S5 (Implementation Planning)
   - **All features done** → S9 (Epic Final QC)
 
 ### If More Features Remain
 - [ ] Next feature identified (e.g., feature_02_player_rating)
 - [ ] Next feature has spec.md and checklist.md ready
-- [ ] Ready to read stages/s5/round1_todo_creation.md (Round 1 for next feature)
+- [ ] Ready to read stages/s5/s5_p1_planning_round1.md (Round 1 for next feature)
 
 ### If All Features Done
 - [ ] Verified ALL features completed S8.P2 (Epic Testing Update)
 - [ ] Epic README shows all features complete
 - [ ] No pending bug fixes
-- [ ] Ready to read stages/s_6/epic_smoke_testing.md
+- [ ] Ready to read stages/s9/s9_p1_epic_smoke_testing.md
 
 **If ALL verified:** Ready for next stage
 

@@ -68,8 +68,9 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
    - Discovery informs feature breakdown
    - See: stages/s1/s1_p3_discovery_phase.md
 
-3. DISCOVERY LOOP UNTIL NO NEW QUESTIONS
-   - Continue iterating until research produces no questions
+3. DISCOVERY LOOP UNTIL 3 CONSECUTIVE CLEAN ITERATIONS
+   - Continue iterating until 3 consecutive iterations produce no questions
+   - Re-read code/requirements with fresh perspective each iteration
    - User answers questions throughout (not just at end)
    - All findings go in DISCOVERY.md
 
@@ -126,10 +127,10 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 - **Impact:** Determines branch name format and EPIC_TRACKER classification
 
 ### Decision Point 2: Discovery Loop Exit (Step 3 - S1.P3.2)
-**Question:** Did the research iteration produce any new questions?
-- **If YES (new questions):** Continue Discovery Loop - ask user, research more
-- **If NO (no new questions):** Exit loop, proceed to synthesis
-- **Impact:** Premature exit leads to incomplete understanding; keep looping until truly done
+**Question:** Have you completed 3 consecutive iterations with no new questions?
+- **If NO (counter < 3):** Continue Discovery Loop - re-read with fresh perspective
+- **If YES (counter = 3):** Verify exit readiness, proceed to synthesis
+- **Impact:** Premature exit (counter < 3) leads to incomplete understanding; need 3 consecutive clean iterations for high confidence
 
 ### Decision Point 3: Discovery Approval (Step 3 - S1.P3.4)
 **Question:** Does the user approve the Discovery findings and recommended approach?
@@ -335,11 +336,11 @@ S1.P3.1: Initialize DISCOVERY.md
     |
     v
 S1.P3.2: Discovery Loop
-    +-- Research (read code, examine patterns)
+    +-- Research (read code, examine patterns - fresh perspective!)
     +-- Document findings in DISCOVERY.md
     +-- Identify questions
     +-- Ask user, record answers
-    +-- Repeat until NO NEW QUESTIONS emerge
+    +-- Repeat until 3 CONSECUTIVE iterations with NO NEW QUESTIONS
     |
     v
 S1.P3.3: Synthesize Findings
@@ -361,11 +362,12 @@ S1.P3.4: User Approval
 
 ### Discovery Exit Condition
 
-Discovery Loop exits when a research iteration produces NO NEW QUESTIONS. Continue iterating until:
-- Research produces no new unknowns
+Discovery Loop exits when 3 CONSECUTIVE research iterations produce NO NEW QUESTIONS. Continue iterating until:
+- 3 consecutive iterations with no new unknowns
 - All pending questions are resolved
 - Scope is clearly defined
 - Solution approach is determined
+- Clean iteration counter reaches 3
 
 ### After Discovery Approval
 
@@ -583,7 +585,69 @@ Add **Epic Completion Checklist** with all 10 stages (S1 items checked, all othe
 
 ### Step 5.7: Update Agent Status
 
-Update Agent Status: Progress 5/6, Next Action "Step 5.8 - Parallelization Assessment", list features created.
+Update Agent Status: Progress 5/6, Next Action "Step 5.7.5 - Feature Dependency Analysis", list features created.
+
+---
+
+### Step 5.7.5: Analyze Feature Dependencies
+
+**Purpose:** Determine which features can start S2 simultaneously vs must wait for dependencies
+
+**For EACH feature, identify:**
+
+1. **Spec Dependencies:**
+   - Does this feature need OTHER features' spec.md files to write its own spec?
+   - Examples: Tests need argument lists, docs need complete specs, integration layers need interface definitions
+
+2. **Implementation Dependencies:**
+   - Does this feature need OTHER features' code to exist before implementation?
+   - Examples: Shared utilities, integration components
+
+3. **No Dependencies:**
+   - Feature is completely independent
+   - Can start S2 immediately
+
+**Create Dependency Matrix:**
+
+Document in EPIC_README.md:
+
+```markdown
+## Feature Dependency Groups
+
+**Group 1 (Independent - Round 1):**
+- Feature 01: {name}
+- Feature 02: {name}
+... (list all features with no spec dependencies)
+
+**Group 2 (Depends on Group 1 - Round 2):**
+- Feature 08: {name}
+  - Depends on: Features 01-07 specs (needs argument lists for test framework)
+... (list all features depending on Group 1)
+
+**Group 3 (Depends on Group 2 - Round 3):**
+- Feature 09: {name}
+  - Depends on: Features 01-08 specs (needs complete scope for documentation)
+```
+
+**Workflow with Dependency Groups:**
+
+Each round completes FULL S2→S3→S4 cycle:
+- Round 1 (Group 1): S2 (features 1-7) → S3 (validate 1-7) → S4 (test plan with 1-7)
+- Round 2 (Group 2): S2 (feature 8) → S3 (validate 8 vs 1-7) → S4 (test plan with 1-8)
+- Round 3 (Group 3): S2 (feature 9) → S3 (validate 9 vs 1-8) → S4 (test plan with 1-9)
+
+**Benefits:**
+- Dependent features get specs they need before starting S2
+- Incremental validation at each round
+- Test plan evolves with each round
+- No wasted effort on paused/blocked features
+
+**If ALL features are independent:**
+```markdown
+## Feature Dependency Groups
+
+**All features are independent - Single group (parallel execution)**
+```
 
 ---
 
@@ -771,34 +835,128 @@ Announce S1 completion to user:
 
 ## Mandatory Re-Reading Checkpoints
 
-**CHECKPOINT 1:** After completing Step 2 (Epic Analysis)
-- Re-read "Discovery Phase" section
-- Verify you understand Discovery Loop exit condition
-- Update EPIC_README.md Agent Status
+## 🛑 MANDATORY CHECKPOINT 1
 
-**CHECKPOINT 2:** After completing Step 3 (Discovery Phase)
-- Re-read "Feature Breakdown Proposal" section
-- Verify DISCOVERY.md is complete and user-approved
-- Verify feature breakdown is based on Discovery findings
+**You have completed Step 2 (Epic Analysis)**
 
-**CHECKPOINT 3:** After completing Step 4 (Feature Breakdown)
-- Re-read "Epic Structure Creation" section
-- Verify epic ticket created and user-validated
-- Update EPIC_README.md Agent Status
+⚠️ STOP - DO NOT PROCEED TO STEP 3 YET
 
-**CHECKPOINT 4:** After creating all feature folders (Step 5)
-- Re-read Step 5 section
-- Verify ALL required files created (README, spec with Discovery Context, checklist, lessons learned)
-- Verify spec.md has Discovery Context section populated
-- Verify epic_smoke_test_plan.md marked as "INITIAL - WILL UPDATE"
-- Verify GUIDE_ANCHOR.md created
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Discovery Phase" section of this guide
+2. [ ] Verify you understand Discovery Loop exit condition
+3. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1 Step 2 complete, starting S1.P3 Discovery Phase"
+   - Last Updated: [timestamp]
+4. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Discovery Phase section"
 
-**CHECKPOINT 5:** Before declaring S1 complete (Step 6)
-- Re-read "Completion Criteria" section below
-- Verify ALL criteria met (not just most)
-- Verify EPIC_README.md updated with S1 checklist marked complete
+**Why this checkpoint exists:**
+- 80% of agents skip re-reading and work from memory
+- Discovery Phase is complex and has specific exit conditions
+- Missing exit condition causes infinite loops or premature exits
 
-**Why this matters:** Memory degrades. Re-reading keeps you aligned with documented process.
+**ONLY after completing ALL 4 actions above, proceed to Step 3 (Discovery Phase)**
+
+---
+
+## 🛑 MANDATORY CHECKPOINT 2
+
+**You have completed Step 3 (Discovery Phase)**
+
+⚠️ STOP - DO NOT PROCEED TO STEP 4 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Feature Breakdown Proposal" section of this guide
+2. [ ] Verify DISCOVERY.md is complete and user-approved
+3. [ ] Verify feature breakdown is based on Discovery findings
+4. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1.P3 complete, starting S1 Step 4 (Feature Breakdown)"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 2 COMPLETE: Re-read Feature Breakdown section, verified Discovery approved"
+
+**Why this checkpoint exists:**
+- Feature breakdown must be grounded in Discovery findings
+- 60% of agents skip Discovery context when proposing features
+- Missing Discovery context causes misaligned feature scope
+
+**ONLY after completing ALL 5 actions above, proceed to Step 4 (Feature Breakdown)**
+
+---
+
+## 🛑 MANDATORY CHECKPOINT 3
+
+**You have completed Step 4 (Feature Breakdown)**
+
+⚠️ STOP - DO NOT PROCEED TO STEP 5 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Epic Structure Creation" section of this guide
+2. [ ] Verify epic ticket created and user-validated
+3. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1 Step 4 complete, starting S1 Step 5 (Epic Structure)"
+   - Last Updated: [timestamp]
+4. [ ] Output acknowledgment: "✅ CHECKPOINT 3 COMPLETE: Re-read Epic Structure section, verified epic ticket validated"
+
+**Why this checkpoint exists:**
+- Epic structure creation has 9 substeps with specific requirements
+- 70% of agents miss required files when working from memory
+- Missing files cause workflow failures in later stages
+
+**ONLY after completing ALL 4 actions above, proceed to Step 5 (Epic Structure Creation)**
+
+---
+
+## 🛑 MANDATORY CHECKPOINT 4
+
+**You have completed Step 5 (Epic Structure Creation)**
+
+⚠️ STOP - DO NOT PROCEED TO STEP 6 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read Step 5 section of this guide
+2. [ ] Verify ALL required files created:
+   - [ ] Epic-level: README, DISCOVERY, test plan, lessons learned, research/, GUIDE_ANCHOR
+   - [ ] Each feature: README, spec with Discovery Context, checklist, lessons learned
+3. [ ] Verify spec.md has Discovery Context section populated
+4. [ ] Verify epic_smoke_test_plan.md marked as "INITIAL - WILL UPDATE"
+5. [ ] Verify GUIDE_ANCHOR.md created
+6. [ ] Update EPIC_README.md Agent Status:
+   - Current Step: "S1 Step 5 complete, starting S1 Step 6 (Final Verification)"
+   - Last Updated: [timestamp]
+7. [ ] Output acknowledgment: "✅ CHECKPOINT 4 COMPLETE: Re-read Step 5, verified all files created"
+
+**Why this checkpoint exists:**
+- Epic structure has 15+ required files across epic and feature folders
+- 85% of agents miss at least one required file
+- Missing files block S2 transition and cause rework
+
+**ONLY after completing ALL 7 actions above, proceed to Step 6 (Final Verification)**
+
+---
+
+## 🛑 MANDATORY CHECKPOINT 5
+
+**You are about to declare S1 complete**
+
+⚠️ STOP - DO NOT PROCEED TO S2 YET
+
+**REQUIRED ACTIONS:**
+1. [ ] Use Read tool to re-read "Completion Criteria" section below
+2. [ ] Verify ALL completion criteria met (see checklist below)
+3. [ ] Verify EPIC_README.md updated with S1 checklist marked complete
+4. [ ] Update EPIC_README.md Agent Status:
+   - Current Guide: "stages/s2/s2_feature_deep_dive.md"
+   - Current Step: "Ready to start S2.P1 for Feature 01"
+   - Last Updated: [timestamp]
+5. [ ] Output acknowledgment: "✅ CHECKPOINT 5 COMPLETE: All S1 completion criteria verified, ready for S2"
+
+**Why this checkpoint exists:**
+- S1 completion criteria has 8 mandatory items
+- 90% of agents miss at least one item when not re-reading
+- Incomplete S1 blocks entire epic workflow
+
+**ONLY after completing ALL 5 actions above, proceed to S2**
+
+---
 
 ---
 

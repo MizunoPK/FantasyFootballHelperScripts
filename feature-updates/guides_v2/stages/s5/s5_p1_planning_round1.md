@@ -152,7 +152,7 @@ If confidence < MEDIUM: Create questions file, wait for user
 
 ### Iterations 1-3: Requirements Analysis & Dependencies
 
-**📖 READ:** `stages/s5/round1/iterations_1_3_requirements.md`
+**📖 READ:** `stages/s5/s5_p1_i1_requirements.md`
 
 **Covers:**
 - **Iteration 1:** Requirements Coverage Check - Verify every spec requirement has implementation tasks
@@ -170,7 +170,7 @@ If confidence < MEDIUM: Create questions file, wait for user
 
 ### Iteration 4 + Gate 4a: Algorithm Tracing & Audit
 
-**📖 READ:** `stages/s5/round1/iteration_4_algorithms.md`
+**📖 READ:** `stages/s5/s5_p1_i2_algorithms.md`
 
 **Covers:**
 - **Iteration 4:** Algorithm Traceability Matrix - Map EVERY spec algorithm to exact code location
@@ -186,7 +186,7 @@ If confidence < MEDIUM: Create questions file, wait for user
 
 ### Iterations 5-6: Data Flow & Error Handling
 
-**📖 READ:** `stages/s5/round1/iterations_5_6_dependencies.md`
+**📖 READ:** `stages/s5/s5_p1_i2_algorithms.md`
 
 **Covers:**
 - **Iteration 5:** End-to-End Data Flow - Document complete data flow from entry to output
@@ -204,7 +204,7 @@ If confidence < MEDIUM: Create questions file, wait for user
 
 ### Iteration 7 + 7a: Integration & Compatibility
 
-**📖 READ:** `stages/s5/round1/iteration_7_integration.md`
+**📖 READ:** `stages/s5/s5_p1_i3_integration.md`
 
 **Covers:**
 - **Iteration 7:** Integration Gap Check - Verify EVERY new method has an identified caller
@@ -299,7 +299,7 @@ If confidence < MEDIUM: Create questions file, wait for user
   - Planning Round 1 complete (9/9)
   - Gate 4a: PASSED
   - Confidence: HIGH or MEDIUM
-  - Next Action: Read Planning Round 2 guide (stages/s5/round2_todo_creation.md)
+  - Next Action: Read Planning Round 2 guide (stages/s5/s5_p2_planning_round2.md)
 
 **If any prerequisite fails:**
 - ❌ Do NOT transition to Planning Round 2
@@ -311,7 +311,7 @@ If confidence < MEDIUM: Create questions file, wait for user
 
 **After completing Planning Round 1:**
 
-📖 **READ:** `stages/s5/round2_todo_creation.md`
+📖 **READ:** `stages/s5/s5_p2_planning_round2.md`
 🎯 **GOAL:** Deep verification - test strategy, edge cases, re-verification
 ⏱️ **ESTIMATE:** 45-60 minutes
 

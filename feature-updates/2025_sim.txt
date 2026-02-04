@@ -1,5 +1,0 @@
-We're going to take the Draft table from our 2025 season, and simulate it with the win rate sim
-We'll do the same order, and when it gets to our (Sea Sharp's) turn, we'll use the Add to Roster mode scoring metrics based on the current configs being simulated, to determine who to draft.
-On opponent's turns, they'll try to draft the same player that they took that round in the real draft. If the player is no longer available, then they will draft the player with the highest ADP from the players with the same position as the player they would have drafted in that round.
-
-E.g. if we get to my turn in round 1, and our scoring configs end up picking Christian McCaffery. When the draft gets to Annihilators' turn, then their pick of CMC will no longer be available, so instead they will draft whoever is the RB with the highest ADP that is still available.
