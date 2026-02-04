@@ -99,7 +99,7 @@ The audit evaluates guides across **16 critical dimensions**:
 
 | Dimension | Guide | Focus | Automation |
 |-----------|-------|-------|------------|
-| **D4: Count Accuracy** | `dimensions/d4_count_accuracy.md` ⏳ | File counts, iteration counts | 90% automated |
+| **D4: Count Accuracy** | `dimensions/d4_count_accuracy.md` | File counts, iteration counts | 90% automated |
 | **D5: Content Completeness** | `dimensions/d5_content_completeness.md` | Missing sections, TODOs | 85% automated |
 | **D6: Template Currency** | `dimensions/d6_template_currency.md` | Template synchronization | 70% automated |
 | **D13: Documentation Quality** | `dimensions/d13_documentation_quality.md` | Required sections, examples | 90% automated |
@@ -109,7 +109,7 @@ The audit evaluates guides across **16 critical dimensions**:
 
 | Dimension | Guide | Focus | Automation |
 |-----------|-------|-------|------------|
-| **D9: Intra-File Consistency** | `dimensions/d9_intra_file_consistency.md` ⏳ | Within-file quality | 80% automated |
+| **D9: Intra-File Consistency** | `dimensions/d9_intra_file_consistency.md` | Within-file quality | 80% automated |
 | **D10: File Size Assessment** | `dimensions/d10_file_size_assessment.md` | Readability limits | 100% automated |
 | **D11: Structural Patterns** | `dimensions/d11_structural_patterns.md` | Template compliance | 60% automated |
 | **D12: Cross-File Dependencies** | `dimensions/d12_cross_file_dependencies.md` | Stage transitions | 30% automated |
@@ -118,8 +118,8 @@ The audit evaluates guides across **16 critical dimensions**:
 
 | Dimension | Guide | Focus | Automation |
 |-----------|-------|-------|------------|
-| **D7: Context-Sensitive Validation** | `dimensions/d7_context_sensitive_validation.md` ⏳ | Intentional exceptions | 20% automated |
-| **D15: Duplication Detection** | `dimensions/d15_duplication_detection.md` ⏳ | DRY principle | 50% automated |
+| **D7: Context-Sensitive Validation** | `dimensions/d7_context_sensitive_validation.md` | Intentional exceptions | 20% automated |
+| **D15: Duplication Detection** | `dimensions/d15_duplication_detection.md` | DRY principle | 50% automated |
 | **D16: Accessibility** | `dimensions/d16_accessibility_usability.md` | Navigation, UX | 80% automated |
 
 **Usage:** Read dimension guides as needed during discovery. Not all dimensions apply to every audit.
