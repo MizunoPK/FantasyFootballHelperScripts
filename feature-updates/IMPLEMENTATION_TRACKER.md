@@ -237,7 +237,7 @@
 **Status:** ✅ COMPLETE
 **Started:** 2026-02-04
 **Completed:** 2026-02-04
-**Git Commit:** TBD
+**Git Commits:** c50176f (Prop 3), 68ab51a (Prop 8), 95ef027 (tracker), e65dacf (Prop 10)
 
 ### Proposal 3: S1 Discovery Phase Update (1h)
 - **Status:** ✅ COMPLETE
