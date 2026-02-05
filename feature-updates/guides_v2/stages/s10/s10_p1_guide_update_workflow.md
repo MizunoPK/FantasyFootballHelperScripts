@@ -5,6 +5,21 @@
 
 ---
 
+
+## Table of Contents
+
+1. [S10.P1: Guide Update from Lessons Learned](#s10p1-guide-update-from-lessons-learned)
+2. [Overview](#overview)
+3. [Critical Rules](#critical-rules)
+4. [Prerequisites Checklist](#prerequisites-checklist)
+5. [Step-by-Step Workflow](#step-by-step-workflow)
+6. [Agent Status](#agent-status)
+7. [Exit Criteria](#exit-criteria)
+8. [Common Pitfalls](#common-pitfalls)
+9. [Quick Reference: Proposal Quality Checklist](#quick-reference-proposal-quality-checklist)
+10. [Example Proposal (For Reference)](#example-proposal-for-reference)
+
+---
 🚨 **MANDATORY READING PROTOCOL**
 
 **Before starting this guide:**

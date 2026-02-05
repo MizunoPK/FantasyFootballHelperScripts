@@ -6,6 +6,33 @@
 
 ---
 
+
+## Table of Contents
+
+1. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+2. [Prerequisites](#prerequisites)
+3. [Overview](#overview)
+4. [🛑 Critical Rules](#-critical-rules)
+5. [PHASE 1: Bug Fix Creation](#phase-1-bug-fix-creation)
+6. [Bug Fix Tracking](#bug-fix-tracking)
+7. [Current Status](#current-status)
+8. [Agent Status (PAUSED - Bug Fix in Progress)](#agent-status-paused---bug-fix-in-progress)
+9. [PHASE 2: Bug Fix Implementation](#phase-2-bug-fix-implementation)
+10. [Root Cause](#root-cause)
+11. [Solution](#solution)
+12. [Testing](#testing)
+13. [Phase 1: Fix Implementation](#phase-1-fix-implementation)
+14. [Phase 2: Testing](#phase-2-testing)
+15. [Phase 3: Integration Verification](#phase-3-integration-verification)
+16. [Phase 4: Documentation](#phase-4-documentation)
+17. [PHASE 3: Resume Previous Work](#phase-3-resume-previous-work)
+18. [Priority Handling](#priority-handling)
+19. [Completion Criteria](#completion-criteria)
+20. [Common Mistakes](#common-mistakes)
+21. [Exit Criteria](#exit-criteria)
+22. [Summary](#summary)
+
+---
 ## 🚨 MANDATORY READING PROTOCOL
 
 **BEFORE creating a bug fix, you MUST:**

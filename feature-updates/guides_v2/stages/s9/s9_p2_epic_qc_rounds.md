@@ -14,6 +14,29 @@ S9.P1 (Epic Smoke Testing) →
 
 ---
 
+
+## Table of Contents
+
+1. [S9.P2: Epic QC Rounds](#s9p2-epic-qc-rounds)
+2. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+3. [Overview](#overview)
+4. [🛑 Critical Rules (Epic-Specific)](#-critical-rules-epic-specific)
+5. [Prerequisites Checklist](#prerequisites-checklist)
+6. [Workflow Overview](#workflow-overview)
+7. [QC Round 1: Cross-Feature Integration](#qc-round-1-cross-feature-integration)
+8. [Integration Points (example from test plan)](#integration-points-example-from-test-plan)
+9. [QC Round 2: Epic Cohesion & Consistency](#qc-round-2-epic-cohesion--consistency)
+10. [QC Round 3: End-to-End Success Criteria](#qc-round-3-end-to-end-success-criteria)
+11. [Original Epic Request (example)](#original-epic-request-example)
+12. [Epic Success Criteria (example from S4)](#epic-success-criteria-example-from-s4)
+13. [Epic Issue Handling Protocol](#epic-issue-handling-protocol)
+14. [Issues Found in S9.P2 QC](#issues-found-in-s9p2-qc)
+15. [🛑 MANDATORY CHECKPOINT 1](#-mandatory-checkpoint-1)
+16. [Next Steps](#next-steps)
+17. [Summary](#summary)
+18. [Exit Criteria](#exit-criteria)
+
+---
 ## 🚨 MANDATORY READING PROTOCOL
 
 **BEFORE starting Epic QC Rounds, you MUST:**

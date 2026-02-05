@@ -8,6 +8,25 @@
 
 ---
 
+
+## Table of Contents
+
+1. [S9.P4: Epic Final Review](#s9p4-epic-final-review)
+2. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+3. [Quick Start](#quick-start)
+4. [Critical Rules for S9.P3](#critical-rules-for-s9p3)
+5. [Prerequisites](#prerequisites)
+6. [STEP 6: Epic PR Review (Multi-Round with Fresh Eyes)](#step-6-epic-pr-review-multi-round-with-fresh-eyes)
+7. [STEP 7: Handle Issues (If Any Discovered)](#step-7-handle-issues-if-any-discovered)
+8. [STEP 8: Final Verification & README Update](#step-8-final-verification--readme-update)
+9. [Re-Reading Checkpoints](#re-reading-checkpoints)
+10. [Completion Criteria](#completion-criteria)
+11. [Reference Files](#reference-files)
+12. [Prerequisites for Next Stage](#prerequisites-for-next-stage)
+13. [Summary](#summary)
+14. [Exit Criteria](#exit-criteria)
+
+---
 ## 🚨 MANDATORY READING PROTOCOL
 
 **CRITICAL:** You MUST read this ENTIRE guide before starting S9.P4 work.

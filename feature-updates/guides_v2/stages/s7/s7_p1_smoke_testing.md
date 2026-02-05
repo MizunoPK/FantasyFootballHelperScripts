@@ -15,6 +15,29 @@ S5 (Implementation Planning) → S6 (Implementation Execution) →
 
 ---
 
+
+## Table of Contents
+
+1. [S7.P1: Smoke Testing](#s7p1-smoke-testing)
+2. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+3. [Overview](#overview)
+4. [🛑 Critical Rules (Feature-Specific)](#-critical-rules-feature-specific)
+5. [Prerequisites Checklist](#prerequisites-checklist)
+6. [Workflow Overview](#workflow-overview)
+7. [Part 1: Import Test (Feature-Specific)](#part-1-import-test-feature-specific)
+8. [Part 2: Entry Point Test (Feature-Specific)](#part-2-entry-point-test-feature-specific)
+9. [Part 3: E2E Execution Test (Feature-Specific - CRITICAL)](#part-3-e2e-execution-test-feature-specific---critical)
+10. [Test Scenario: Rating Multiplier Feature](#test-scenario-rating-multiplier-feature)
+11. [🚨 MANDATORY LOGGING REQUIREMENTS](#-mandatory-logging-requirements)
+12. [Pass/Fail Criteria](#passfail-criteria)
+13. [Platform-Specific Considerations](#platform-specific-considerations)
+14. [Common Feature-Specific Issues](#common-feature-specific-issues)
+15. [🛑 MANDATORY CHECKPOINT 1](#-mandatory-checkpoint-1)
+16. [Next Steps](#next-steps)
+17. [Summary](#summary)
+18. [Exit Criteria](#exit-criteria)
+
+---
 ## 🚨 MANDATORY READING PROTOCOL
 
 **BEFORE starting Smoke Testing, you MUST:**
