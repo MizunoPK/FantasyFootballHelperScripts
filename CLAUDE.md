@@ -185,7 +185,7 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 | **S1** | "Help me develop {epic}" | `stages/s1/s1_epic_planning.md` | KAI number, git branch, **Discovery Phase (MANDATORY)**, folder structure | S2 |
 | **S2** | Complete S1 | `stages/s2/s2_feature_deep_dive.md` | spec.md, checklist.md, RESEARCH_NOTES.md (Gate 3: User approval) | S3 |
 | **S3** | All features done S2 | `stages/s3/s3_epic_planning_approval.md` | Epic testing strategy, documentation (Gate 4.5: User approval) | S4 |
-| **S4** | S3 approved | `stages/s4/s4_feature_testing_strategy.md` | test_strategy.md (4 iterations, Consistency Loop) | S5 |
+| **S4** | S3 approved | `stages/s4/s4_feature_testing_strategy.md` | test_strategy.md (4 iterations, Validation Loop) | S5 |
 | **S5** | S4 complete | `stages/s5/s5_p1_planning_round1.md` | implementation_plan.md (22 iterations, 3 rounds, Gate 5: User approval) | S6 |
 | **S6** | S5 approved | `stages/s6/s6_execution.md` | implementation_checklist.md, implement code | S7 |
 | **S7** | S6 complete | `stages/s7/s7_p1_smoke_testing.md` | Smoke test, 3 QC rounds, commit feature | S8 |
@@ -315,7 +315,7 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 
 **Implementation:**
 - Test-driven development (S4 before S5), 22 verification iterations (S5 Rounds 1-3)
-- Consistency Loop validation (3 consecutive clean rounds, zero deferred issues, max 10 rounds)
+- Validation Loop validation (3 consecutive clean rounds, zero deferred issues, max 10 rounds)
 - QC restart protocol (if ANY issues → restart), 100% test pass, zero tech debt tolerance
 
 ---
@@ -334,10 +334,10 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 **Correct:** Use systematic 5-category checklist (method calls, config, integration, timing, edge cases)
 **Key:** Use systematic frameworks, don't rely on intuition
 
-### Anti-Pattern 3: Deferring Issues During Consistency Loop
+### Anti-Pattern 3: Deferring Issues During Validation Loop
 **Wrong:** Find 5 issues → Note for later → Continue to next round
 **Correct:** Find 5 issues → Fix ALL immediately → Then continue
-**Key:** Consistency Loop has ZERO TOLERANCE for deferred issues
+**Key:** Validation Loop has ZERO TOLERANCE for deferred issues
 
 **Complete Anti-Pattern Reference:** `feature-updates/guides_v2/reference/common_mistakes.md`
 - Detailed workflows with step-by-step examples
@@ -365,9 +365,9 @@ The workflow uses two types of gates:
 
 | Gate | Type | Location | Purpose | Approver |
 |------|------|----------|---------|----------|
-| Gate 1 | Stage | S2.P1.I1 | Research Completeness Audit (embedded in Consistency Loop) | Agent (checklist) |
-| Gate 2 | Stage | S2.P1.I3 | Spec-to-Epic Alignment (embedded in Consistency Loop) | Agent (checklist) |
-| Gate 3 | Stage | S2.P1.I3 | User Checklist Approval (separate from Consistency Loop) | User |
+| Gate 1 | Stage | S2.P1.I1 | Research Completeness Audit (embedded in Validation Loop) | Agent (checklist) |
+| Gate 2 | Stage | S2.P1.I3 | Spec-to-Epic Alignment (embedded in Validation Loop) | Agent (checklist) |
+| Gate 3 | Stage | S2.P1.I3 | User Checklist Approval (separate from Validation Loop) | User |
 | Gate 4.5 | Stage | S3.P3 | Epic Plan Approval (3-tier rejection handling) | User |
 | Gate 5 | Stage | S5.P3 | Implementation Plan Approval (3-tier rejection handling) | User |
 | Gate 4a | Iteration | S5.P1.I2 | TODO Specification Audit | Agent (checklist) |
@@ -545,9 +545,9 @@ git status  # Shows uncommitted changes
 ✅ **Use phase transition prompts** from `prompts_reference_v2.md`
 ✅ **Verify prerequisites** before proceeding
 ✅ **Update Agent Status** in README files at checkpoints
-✅ **Consistency Loop validation** (3 consecutive clean rounds, zero deferred issues)
+✅ **Validation Loop validation** (3 consecutive clean rounds, zero deferred issues)
 ✅ **100% unit test pass rate** before commits and transitions
-✅ **Fix ALL issues immediately** (zero tech debt tolerance, includes Consistency Loop issues)
+✅ **Fix ALL issues immediately** (zero tech debt tolerance, includes Validation Loop issues)
 ✅ **User testing approval** before S10 begins (completed in S9.P3)
 
 ### Never Allowed
@@ -555,9 +555,9 @@ git status  # Shows uncommitted changes
 ❌ **Skip stages** (all stages have dependencies)
 ❌ **Skip iterations** in S5 (all 22 mandatory)
 ❌ **Batch iterations** (execute ONE at a time, sequentially)
-❌ **Defer issues for "later"** (fix immediately, includes Consistency Loop issues)
-❌ **Skip Consistency Loop rounds** (must complete 3 consecutive clean rounds)
-❌ **Exit Consistency Loop early** (before 3 consecutive clean rounds)
+❌ **Defer issues for "later"** (fix immediately, includes Validation Loop issues)
+❌ **Skip Validation Loop rounds** (must complete 3 consecutive clean rounds)
+❌ **Exit Validation Loop early** (before 3 consecutive clean rounds)
 ❌ **Skip QC restart** when issues found (restart from beginning)
 ❌ **Commit without running tests**
 ❌ **Commit without user testing approval** (S10)
@@ -565,8 +565,8 @@ git status  # Shows uncommitted changes
 ### Quality Gates
 
 **🛑 MANDATORY GATES (cannot proceed without passing):**
-- Gate 1: Research Completeness Audit (S2.P1.I1 - embedded in Consistency Loop)
-- Gate 2: Spec-to-Epic Alignment (S2.P1.I3 - embedded in Consistency Loop)
+- Gate 1: Research Completeness Audit (S2.P1.I1 - embedded in Validation Loop)
+- Gate 2: Spec-to-Epic Alignment (S2.P1.I3 - embedded in Validation Loop)
 - Gate 3: User Checklist Approval (S2.P1.I3)
 - Gate 4.5: Epic Plan Approval (S3.P3 - 3-tier rejection)
 - Gate 5: Implementation Plan Approval (S5.P3 - 3-tier rejection)
