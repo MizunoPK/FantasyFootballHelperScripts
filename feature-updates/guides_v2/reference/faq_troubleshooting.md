@@ -85,14 +85,14 @@ Update feature README.md during feature loop stages (S5, S6, S7, S8).
 **Q: User didn't create {epic_name}.txt - what do I do?**
 
 A: Ask user to create the file first:
-```
+```text
 I need you to create feature-updates/{epic_name}.txt with your initial notes about what you want to accomplish. This file should contain:
 - What problem are you trying to solve?
 - What outcomes do you want?
 - Any specific requirements or constraints?
 
 Once you've created this file, I can start S1.
-```
+```bash
 
 **Q: User's epic notes are vague - how detailed do they need to be?**
 
@@ -394,7 +394,7 @@ A: Possible causes:
 
 ### Decision Tree 1: "Issues Found During Testing"
 
-```
+```text
 Issues found during testing
          ↓
     [Do you know the root cause?]
@@ -422,11 +422,11 @@ Issues found during testing
          - debugging/missed_requirement_workflow.md
          - Update spec.md
          - Add to implementation_plan.md (if ≤3 tasks) OR return to S5 (if >3 tasks)
-```
+```markdown
 
 ### Decision Tree 2: "Choosing Between Workflows"
 
-```
+```text
 Need to fix something
          ↓
     [Where are you in workflow?]
@@ -453,11 +453,11 @@ Need to fix something
     [Use S10 Bug Fix Protocol]
          → Fix ALL bugs
          → RESTART S9
-```
+```markdown
 
 ### Decision Tree 3: "GO vs NO-GO Decision (Iteration 22)"
 
-```
+```text
 Iteration 22: GO/NO-GO Decision
          ↓
     [Review all criteria]
@@ -481,11 +481,11 @@ Iteration 22: GO/NO-GO Decision
     └─ ALL criteria met
          ↓
     GO → Proceed to S6
-```
+```markdown
 
 ### Decision Tree 4: "Session Compaction - Where Do I Resume?"
 
-```
+```text
 Context window limit reached → Session compacted
          ↓
     [Check for in-progress epic]
@@ -505,7 +505,7 @@ Context window limit reached → Session compacted
     [Read current guide listed in Agent Status]
          ↓
     [Continue from "Next Action" listed]
-```
+```markdown
 
 ---
 
@@ -681,7 +681,7 @@ Context window limit reached → Session compacted
 ### Stuck 6: "I found an issue but don't know if it's debugging vs missed requirement"
 
 **Decision tree:**
-```
+```text
 Issue found
     ↓
 [Was this requirement in spec.md?]
@@ -693,7 +693,7 @@ Issue found
     ↓
 ├─ YES → Use Missed Requirement Workflow
 └─ NO → Use Debugging Protocol (even though missed req)
-```
+```markdown
 
 ---
 
@@ -784,7 +784,7 @@ Issue found
 **Symptom:** User asks to implement without completing planning stages
 
 **Response:**
-```
+```text
 I understand you want to move quickly, but the Epic-Driven Development v2 workflow requires completing planning stages before implementation:
 
 Current status: S2 (Feature Deep Dives)

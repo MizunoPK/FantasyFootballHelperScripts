@@ -27,7 +27,7 @@
 
 **All smoke testing follows this pattern:**
 
-```
+```python
 Part 1: Import Test
    ↓ Verify modules load without errors
    ↓ Catches: Import errors, circular dependencies, missing __init__.py
@@ -52,7 +52,7 @@ Part 3: End-to-End Execution Test (CRITICAL)
 
 [Optional Part 4: Epic-level only]
    Cross-Feature Integration Tests
-```
+```markdown
 
 ---
 
@@ -62,7 +62,7 @@ Part 3: End-to-End Execution Test (CRITICAL)
 
 ### 0. ZERO TOLERANCE FOR ERRORS (CRITICAL)
 
-```
+```python
 ZERO TOLERANCE FOR ERRORS DURING SMOKE TESTING
 
 1. Every test must PASS - "runs without crashing" is NOT passing
@@ -84,7 +84,7 @@ HISTORICAL CASE: All 6 components failed with ModuleNotFoundError during
 S9 smoke testing. Agent marked as PASSED assuming "environment issue".
 Root cause: Code bug (hardcoded 'python' instead of sys.executable).
 This could have caused weeks of debugging if not caught.
-```
+```markdown
 
 ### 1. ALL Parts Are MANDATORY
 - Cannot skip any part
@@ -112,7 +112,7 @@ assert df['projected_points'].sum() > 0, "All projected_points are zero"
 top_player = df.iloc[0]
 assert top_player['projected_points'] > 100, "Top player has unreasonably low score"
 assert top_player['player_name'] != "", "Player name is empty"
-```
+```markdown
 
 ### 3. If ANY Part Fails, RE-RUN ALL PARTS
 - Don't just re-run the failed part
@@ -143,7 +143,7 @@ assert top_player['player_name'] != "", "Player name is empty"
 2. For each module, run import test:
    ```bash
    python -c "import module.path.ClassName"
-   ```
+   ```python
 3. Verify no errors (Expected: No output = success)
 
 **What This Catches:**
@@ -232,7 +232,7 @@ for pos in positions:
     first_player = data[0]
     assert first_player['adp'] != 170.0, f"{pos} ADP not updated (still placeholder)"
     assert first_player['adp'] > 0, f"{pos} ADP is invalid"
-```
+```bash
 
 **What This Catches:**
 - Mock assumption failures (tests passed but real code doesn't work)
@@ -288,7 +288,7 @@ for pos in positions:
 
 **Universal rule for ALL smoke testing:**
 
-```
+```text
 IF any part fails:
   1. Fix ALL issues found
   2. RE-RUN ALL PARTS from Part 1
@@ -300,7 +300,7 @@ WHY complete restart?
 - Import fixes can affect entry points
 - Entry point fixes can affect E2E execution
 - Clean validation state required
-```
+```markdown
 
 ---
 
@@ -315,7 +315,7 @@ assert Path("output.csv").exists()
 df = pd.read_csv("output.csv")
 assert df['score'].between(0, 500).all()
 assert df['projected_points'].sum() > 0
-```
+```markdown
 
 ### ❌ Mistake 2: Using Test Fixtures for Part 3
 ```python
@@ -324,7 +324,7 @@ test_data = create_mock_players()  # Mocked data
 
 # CORRECT - use real production-like data
 real_data = pd.read_csv("data/real_players.csv")  # Real data
-```
+```markdown
 
 ### ❌ Mistake 3: Partial Re-run After Failure
 ```python
@@ -333,7 +333,7 @@ real_data = pd.read_csv("data/real_players.csv")  # Real data
 
 # CORRECT - re-running ALL 3 parts from Part 1
 # Fixes can affect earlier parts
-```
+```markdown
 
 ### ❌ Mistake 4: Accepting Placeholder/Zero Data
 ```python

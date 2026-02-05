@@ -112,7 +112,7 @@ An issue in test strategy context is any of:
 
 ## Example Round Sequence
 
-```
+```text
 Round 1: Sequential + requirement coverage
 - Read test_strategy.md top to bottom
 - Check: Requirement R3 has no test coverage, R7 test is vague ("test error handling")

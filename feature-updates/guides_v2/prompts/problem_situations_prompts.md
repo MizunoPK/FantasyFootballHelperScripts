@@ -10,7 +10,7 @@
 
 **Agent MUST respond:**
 
-```
+```markdown
 Unit tests are failing. Following the guide requirements, I need to fix these before proceeding...
 
 **Test Failures:**
@@ -35,7 +35,7 @@ Unit tests are failing. Following the guide requirements, I need to fix these be
 **I'll fix these issues and re-run the test suite. Will not proceed until exit code = 0 (100% pass rate).**
 
 Fixing test failures...
-```
+```markdown
 
 ---
 
@@ -45,7 +45,7 @@ Fixing test failures...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I've encountered a blocker that prevents me from continuing. Following guide requirements (STOP when blocked), I need your help...
 
 **Blocker Description:**
@@ -68,7 +68,7 @@ I've encountered a blocker that prevents me from continuing. Following guide req
 Which option should I take, or do you have another approach?
 
 Waiting for your guidance...
-```
+```markdown
 
 ---
 
@@ -78,7 +78,7 @@ Waiting for your guidance...
 
 **Agent MUST respond:**
 
-```
+```markdown
 My confidence level has dropped below Medium. Following S5.P1 requirements, I'm STOPPING to create a question...
 
 **Low Confidence Area:**
@@ -100,7 +100,7 @@ My confidence level has dropped below Medium. Following S5.P1 requirements, I'm 
 **I'm creating/updating questions.md to track this question. Will wait for your answer before proceeding with iteration {N}.**
 
 Creating question in questions.md...
-```
+```markdown
 
 ---
 
@@ -110,7 +110,7 @@ Creating question in questions.md...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I need your decision on {topic}. Here are the options I've identified...
 
 **Context:**
@@ -144,7 +144,7 @@ I need your decision on {topic}. Here are the options I've identified...
 Which option would you like to proceed with?
 
 Waiting for your decision...
-```
+```markdown
 
 ---
 
@@ -154,7 +154,7 @@ Waiting for your decision...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I need clarification on {topic} before I can proceed correctly...
 
 **What I'm trying to do:**

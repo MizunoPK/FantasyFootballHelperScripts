@@ -52,7 +52,7 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 
 ## Critical Rules
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL RULES - These MUST be copied to README Agent Status │
 └─────────────────────────────────────────────────────────────┘
@@ -102,7 +102,7 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
    - Source: "User Answer to Question N (checklist.md)"
    - Add to spec.md immediately
    - Update checklist to mark question resolved
-```
+```markdown
 
 ---
 
@@ -280,7 +280,7 @@ C. **{Option C}**
 **My recommendation:** Option {X} because {reason}
 
 **What do you prefer?** (or suggest a different approach)
-```
+```markdown
 
 **Best practices:**
 - Provide 2-4 well-defined options
@@ -323,7 +323,7 @@ C. **{Option C}**
 **Progress:** {M}/{N} questions resolved
 **Next Action:** Wait for user answer to Question {current_question_number}
 **Blockers:** Waiting for user input on {question_topic}
-```
+```markdown
 
 ---
 
@@ -343,7 +343,7 @@ C. **{Option C}**
 - {How this affects the implementation}
 - {What needs to be added to spec}
 - {Any new questions this creates}
-```
+```markdown
 
 **Update spec.md:**
 
@@ -364,7 +364,7 @@ Add requirement with new source:
 - {Specific implementation notes}
 - {Edge cases to handle}
 - {Dependencies or prerequisites}
-```
+```markdown
 
 **Examples:** See `reference/stage_2/refinement_examples.md` → Phase 3 Examples for complete update examples
 
@@ -392,7 +392,7 @@ Continue asking questions ONE AT A TIME until checklist shows:
 
 ```markdown
 **Checklist Status:** 0 open questions, {N} resolved
-```
+```markdown
 
 **After each question, follow this cycle:**
 1. Ask ONE question (Step 3.2)
@@ -407,14 +407,14 @@ Continue asking questions ONE AT A TIME until checklist shows:
 **Progress:** Phase 3 - Question {M}/{N} answered ({M} resolved, {remaining} open)
 **Next Action:** Ask Question {M+1}
 **Blockers:** None
-```
+```markdown
 
 **When all questions resolved:**
 ```markdown
 **Progress:** Phase 3 - COMPLETE (all {N} questions resolved)
 **Next Action:** Phase 4 - Dynamic Scope Adjustment
 **Blockers:** None
-```
+```markdown
 
 ---
 
@@ -433,7 +433,7 @@ Continue asking questions ONE AT A TIME until checklist shows:
 **Document the count:**
 ```markdown
 **Checklist Item Count:** {total} items ({resolved} resolved, {open} open)
-```
+```markdown
 
 ---
 
@@ -462,7 +462,7 @@ Continue asking questions ONE AT A TIME until checklist shows:
 **Progress:** Phase 4 - Scope evaluation ({total} checklist items)
 **Next Action:** {Propose split / Check for new work}
 **Blockers:** None
-```
+```markdown
 
 ---
 
@@ -517,7 +517,7 @@ Continue asking questions ONE AT A TIME until checklist shows:
 **Progress:** Phase 4 - COMPLETE (scope validated, no split needed)
 **Next Action:** Phase 5 - Cross-Feature Alignment
 **Blockers:** None
-```
+```markdown
 
 ---
 
@@ -544,7 +544,7 @@ Look for features with "S2 Complete" marked [x]
 
 **Current Feature:**
 - Feature {N}: {Name}
-```
+```markdown
 
 **If this is the first feature:**
 ```markdown
@@ -552,7 +552,7 @@ Look for features with "S2 Complete" marked [x]
 
 **Action:** Skip Phase 5 (Cross-Feature Alignment)
 **Next:** Phase 6 (Acceptance Criteria & User Approval)
-```
+```markdown
 
 ---
 
@@ -604,7 +604,7 @@ Instead, send message via agent_comms:
 **Urgency:** {LOW/MEDIUM/HIGH}
 
 **Context:** Found during S2.P3 Phase 5 (Cross-Feature Alignment) for Feature {N}
-```
+```markdown
 
 **The other agent will:**
 - Review during next coordination heartbeat (15 min)
@@ -691,14 +691,14 @@ Instead, send message via agent_comms:
 
 **Verified By:** Agent
 **Date:** {YYYY-MM-DD}
-```
+```markdown
 
 **Update Agent Status:**
 ```markdown
 **Progress:** Phase 5 - COMPLETE (aligned with {N} features, {M} conflicts resolved)
 **Next Action:** Phase 6 - Acceptance Criteria & User Approval
 **Blockers:** None
-```
+```markdown
 
 ---
 
@@ -814,7 +814,7 @@ If you want changes:
 - I'll update the spec and re-present for approval
 
 **Do you approve these acceptance criteria?**
-```
+```markdown
 
 **Examples:** See `reference/stage_2/refinement_examples.md` → Phase 6 Examples → User Approval Process
 
@@ -841,7 +841,7 @@ If you want changes:
 **Progress:** Phase 6 - Waiting for user approval of acceptance criteria
 **Next Action:** Wait for user to approve/request changes
 **Blockers:** Waiting for user approval on acceptance criteria
-```
+```markdown
 
 ---
 
@@ -859,7 +859,7 @@ Update spec.md:
 
 **Approval Notes:**
 User approved on {date} with no modifications requested.
-```
+```markdown
 
 Continue to Step 6.5 (Mark Feature Complete)
 
@@ -923,7 +923,7 @@ Continue to Step 6.5 (Mark Feature Complete)
 **Progress:** S2 COMPLETE
 **Next Action:** {Proceed to next feature / Proceed to S3}
 **Blockers:** None
-```
+```bash
 
 ---
 
@@ -937,7 +937,7 @@ Find Feature Tracking table and mark S2 complete:
 | Feature | Name | S2 Complete | S5 Complete | Status |
 |---------|------|------------------|------------------|--------|
 | 01      | {Name} | [x] {Date} | [ ] | S2 Done |
-```
+```markdown
 
 ---
 
@@ -949,7 +949,7 @@ Find Feature Tracking table and mark S2 complete:
 ### S2: Feature Deep Dives (Loop for each feature)
 - [x] Feature 01: Spec complete, user approved ({Date})
 - [ ] Feature 02: Spec complete, user approved
-```
+```markdown
 
 ---
 

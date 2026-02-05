@@ -50,15 +50,15 @@ C. **Support multiple formats with auto-detection**
 **My recommendation:** Option B - Can you provide the exact column names from the FantasyPros CSV, or share a sample file?
 
 **What do you prefer?**
-```
+```markdown
 
 **User answers:**
 
-```
+```bash
 The columns are: Name, Position, OverallRank
 
 (Note: FantasyPros calls it "OverallRank" not "ADP")
-```
+```markdown
 
 **Agent updates IMMEDIATELY:**
 
@@ -76,7 +76,7 @@ The columns are: Name, Position, OverallRank
 - Internal field name remains adp_value for clarity
 - Update spec.md data structures section
 - Update adp_loader implementation
-```
+```markdown
 
 **Update spec.md:**
 
@@ -92,7 +92,7 @@ Name,Position,OverallRank
 Patrick Mahomes,QB,5
 Christian McCaffrey,RB,1
 Tyreek Hill,WR,8
-```
+```markdown
 
 **Column Definitions:**
 - **Name** (string): Player full name (e.g., "Patrick Mahomes")
@@ -123,8 +123,8 @@ def load_adp_data(filepath: Path) -> Dict[str, int]:
         adp_dict[key] = int(row['OverallRank'])
 
     return adp_dict
-```
-```
+```text
+```markdown
 
 **Agent evaluates for new questions:**
 
@@ -137,7 +137,7 @@ def load_adp_data(filepath: Path) -> Dict[str, int]:
   - User provided Name and Position columns
   - Can use "name_position" as key
   - Mark Q4 as resolved with note
-```
+```markdown
 
 **Update checklist.md Question 4:**
 
@@ -150,7 +150,7 @@ def load_adp_data(filepath: Path) -> Dict[str, int]:
 **Implementation:**
 - Key format: "{name}_{position}" (e.g., "Patrick Mahomes_QB")
 - Normalize both sources before matching (remove extra spaces, consistent casing)
-```
+```markdown
 
 **Agent moves to next question:**
 
@@ -178,7 +178,7 @@ C. **No upper limit validation**
 **My recommendation:** Option A (1-300) since FantasyPros standard format is 12-team leagues, but confirm if you have deeper league.
 
 **What ADP range does your league use?**
-```
+```json
 
 {Cycle continues for all questions...}
 
@@ -213,13 +213,13 @@ C. **Exponential formula**
 **My recommendation:** Option A (config-based)
 
 **What do you prefer?**
-```
+```markdown
 
 **User requests clarification:**
 
-```
+```text
 Can you explain the difference in impact? Like, if Patrick Mahomes has ADP 5 vs a waiver wire player with no ADP, what's the scoring difference for each option?
-```
+```markdown
 
 **Agent provides clarification:**
 
@@ -258,13 +258,13 @@ Good question! Let me illustrate with concrete examples:
 This gives top picks a noticeable boost without dominating the scoring.
 
 **Does that help clarify? Which option do you prefer?**
-```
+```markdown
 
 **User decides:**
 
-```
+```bash
 Okay, config-based with your recommended ranges sounds good. Let's go with Option A.
-```
+```markdown
 
 **Agent updates IMMEDIATELY:**
 
@@ -301,17 +301,17 @@ C. **Prompt for file location**
 **My recommendation:** Option B (graceful degradation)
 
 **What do you prefer?**
-```
+```markdown
 
 **User suggests alternative:**
 
-```
+```text
 How about a hybrid approach? Try to load the file, and if it fails, show a prominent warning but continue. However, if the user explicitly enabled --use-adp flag, then fail with error since they clearly wanted ADP data.
 
 That way:
 - Default behavior: graceful degradation
 - Explicit ADP flag: fail if missing (user expects it)
-```
+```markdown
 
 **Agent incorporates alternative:**
 
@@ -340,13 +340,13 @@ Excellent idea! That's better than my options. Let me update the spec with your 
 - ✅ Clear messaging: user knows what happened
 
 **I'll update the spec with this logic. Does that match your intent?**
-```
+```markdown
 
 **User confirms:**
 
-```
+```text
 Perfect, that's exactly what I meant.
-```
+```markdown
 
 **Agent updates spec.md with alternative:**
 
@@ -365,7 +365,7 @@ Perfect, that's exactly what I meant.
 # run_league_helper.py
 parser.add_argument('--use-adp', action='store_true',
                    help='Require ADP data (fail if CSV missing)')
-```
+```markdown
 
 **2. ADP loading logic:**
 ```python
@@ -399,7 +399,7 @@ def load_adp_data_with_fallback(filepath: Path, require: bool = False) -> Dict[s
                 f"Use --use-adp to require ADP data."
             )
             return {}  # Empty dict, all players default to 1.0
-```
+```bash
 
 **Edge Cases:**
 - User runs `python run_league_helper.py` (no flag)
@@ -408,7 +408,7 @@ def load_adp_data_with_fallback(filepath: Path, require: bool = False) -> Dict[s
   - Missing CSV: ERROR raised, execution stops
 - CSV exists but corrupt:
   - Same behavior as missing (handled by try/except)
-```
+```markdown
 
 ---
 
@@ -481,7 +481,7 @@ I recommend splitting this into 2 separate features:
 5. Then S2 for Feature 02b (implement second)
 
 **Do you approve this split?** (or suggest alternative grouping)
-```
+```markdown
 
 **If user approves:**
 
@@ -506,7 +506,7 @@ I recommend splitting this into 2 separate features:
 - Resume S2 for Feature 02a (Research Phase)
 - Complete 02a through S5
 - Then begin S2 for Feature 02b
-```
+```markdown
 
 ---
 
@@ -574,7 +574,7 @@ Keep matching logic in Feature 01:
 - Cons: Harder to maintain (changes in 3 places)
 
 **Do you want to create this as a separate feature?** (or keep in Feature 01)
-```
+```markdown
 
 **If user approves new feature:**
 
@@ -603,7 +603,7 @@ Keep matching logic in Feature 01:
 - Begin S2 for Feature 05 (high priority, blocks others)
 - Complete Feature 05 through S5
 - Then resume Feature 01 (can now use matching utility)
-```
+```markdown
 
 ---
 
@@ -661,7 +661,7 @@ class FantasyPlayer:
     # Feature 02 additions
     injury_risk: Optional[float] = None
     injury_multiplier: float = 1.0
-```
+```markdown
 
 **Status:** ✅ No conflicts
 
@@ -783,7 +783,7 @@ class FantasyPlayer:
 - [ ] ✅ Document alignment verification in Feature 02 spec
 
 **Alignment Status:** ✅ PASS - Zero conflicts, features are fully compatible
-```
+```markdown
 
 ---
 
@@ -830,7 +830,7 @@ class FantasyPlayer:
     ]
   }
 }
-```
+```markdown
 
 **Feature 03 config format (from spec):**
 ```json
@@ -841,7 +841,7 @@ class FantasyPlayer:
     ]
   }
 }
-```
+```markdown
 
 **Issue:** Different field names for multiplier value:
 - Feature 01 uses: `"multiplier": 1.2`
@@ -911,7 +911,7 @@ B. Keep Feature 03 caching, Feature 01 without
 - [ ] Verify both features after changes
 
 **Alignment Status:** ⚠️ CONFLICTS FOUND - Must resolve before proceeding
-```
+```markdown
 
 **After resolving conflicts:**
 
@@ -940,7 +940,7 @@ B. Keep Feature 03 caching, Feature 01 without
 - Date: 2026-01-10 15:50
 
 **Final Alignment Status:** ✅ PASS - All conflicts resolved, features now compatible
-```
+```markdown
 
 ---
 
@@ -1063,7 +1063,7 @@ When this feature is complete, the following will be true:
          {"min": 201, "max": 500, "multiplier": 1.0}
        ]
      }
-     ```
+     ```text
 
 5. `run_league_helper.py`
    - Lines modified: Argument parser section (~line 25)
@@ -1245,7 +1245,7 @@ When this feature is complete, the following will be true:
 2. Agent documents approval timestamp
 3. Agent updates Feature Tracking in EPIC_README.md
 4. Agent proceeds to next feature OR S3 (if all features complete)
-```
+```markdown
 
 ---
 
@@ -1298,15 +1298,15 @@ If you want changes:
 - I'll update the spec and re-present for approval
 
 **Do you approve these acceptance criteria?**
-```
+```markdown
 
 **User reviews and approves:**
 
-```
+```text
 Yes, this looks good. I approve.
 
 One minor note: For the --use-adp flag documentation, can you emphasize that it's optional? I don't want users to think they HAVE to use it.
-```
+```markdown
 
 **Agent updates with approval:**
 
@@ -1337,7 +1337,7 @@ I'll update the documentation to emphasize the flag is optional.
 
 **Approval Notes:**
 User approved on 2026-01-10 with request to emphasize --use-adp flag is optional (not required). Updated documentation section to clarify default behavior works with or without ADP data.
-```
+```markdown
 
 **Updating Feature Tracking:**
 
@@ -1348,7 +1348,7 @@ User approved on 2026-01-10 with request to emphasize --use-adp flag is optional
 |---------|------|------------------|------------------|--------|
 | 01 | ADP Integration | [x] 2026-01-10 | [ ] | S2 Done |
 | 02 | Injury Risk | [ ] | [ ] | In Progress |
-```
+```markdown
 
 **Next: Begin S2 for Feature 02 (Injury Risk Assessment)**
 

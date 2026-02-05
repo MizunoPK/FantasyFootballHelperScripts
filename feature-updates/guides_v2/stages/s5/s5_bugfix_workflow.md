@@ -70,7 +70,7 @@ Bug Fix is complete when the bug is fixed through the full workflow (including a
 
 ## 🛑 Critical Rules
 
-```
+```text
 1. ⚠️ GET USER APPROVAL FIRST
    - Don't automatically create bug fix
    - Present issue to user
@@ -108,7 +108,7 @@ Bug Fix is complete when the bug is fixed through the full workflow (including a
    - Bug fix folder stays in epic directory
    - README Agent Status shows where to resume
    - Continue epic from where it left off
-```
+```markdown
 
 ---
 
@@ -154,7 +154,7 @@ Should I:
 3. Other approach
 
 What would you like to do?
-```
+```markdown
 
 **Wait for user response**
 
@@ -165,22 +165,22 @@ What would you like to do?
 **If user approves:**
 
 1. **Determine folder name:**
-   ```
+   ```text
    bugfix_{priority}_{short_name}/
 
    Examples:
    - bugfix_high_authentication_error/
    - bugfix_medium_missing_adp_multiplier/
    - bugfix_low_typo_in_logs/
-   ```
+   ```markdown
 
 2. **Create folder in epic directory:**
-   ```
+   ```text
    feature-updates/KAI-{N}-{epic_name}/bugfix_{priority}_{name}/
-   ```
+   ```markdown
 
 3. **Create initial structure:**
-   ```
+   ```text
    bugfix_{priority}_{name}/
    ├── notes.txt        (create now - user verifies)
    ├── spec.md          (create in S2)
@@ -188,14 +188,14 @@ What would you like to do?
    ├── implementation_plan.md (create in S5)
    ├── implementation_checklist.md (create in S6)
    └── lessons_learned.md (create in S7 (Testing & Review))
-   ```
+   ```markdown
 
 ---
 
 ### Step 4: Create notes.txt
 
 **Template:**
-```
+```text
 BUG FIX: {name}
 Priority: {high/medium/low}
 Discovered: {date}
@@ -255,7 +255,7 @@ How to verify fix works:
 USER NOTES:
 
 {User can add notes, clarifications, or corrections here}
-```
+```markdown
 
 ---
 
@@ -267,7 +267,7 @@ USER NOTES:
 3. Wait for user approval
 
 **Template:**
-```
+```text
 I've created bugfix_{priority}_{name}/notes.txt with the issue description.
 
 Please review and update if needed:
@@ -277,7 +277,7 @@ Please review and update if needed:
 - Anything to add or clarify?
 
 Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
-```
+```markdown
 
 ---
 
@@ -292,7 +292,7 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 | # | Bug Fix Name | Priority | Status | Notes |
 |---|--------------|----------|--------|-------|
 | 1 | bugfix_high_authentication_error | high | S2 | Discovered during feature_01 QC |
-```
+```markdown
 
 **Add to Current Status section:**
 ```markdown
@@ -310,7 +310,7 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 - feature_01_adp_integration: Paused at S7 (Testing & Review) (post-implementation)
   - Resume point: After bug fix complete, verify fix doesn't affect feature_01
   - Agent Status saved: README.md in feature_01/ folder
-```
+```markdown
 
 ---
 
@@ -336,7 +336,7 @@ When bug fix complete:
 - QC Round 2: In progress - found authentication bug that affects this feature
 - Bug discovered: ConfigManager.get_adp_multiplier() crashes on null ADP
 - This feature calls get_adp_multiplier() - need to verify fix works correctly
-```
+```markdown
 
 ---
 
@@ -344,13 +344,13 @@ When bug fix complete:
 
 **Bug fixes follow SIMPLIFIED workflow:**
 
-```
+```text
 S2 (Deep Dive) →
 S5 (Implementation Planning) →
 S6 (Implementation) →
 S7 (Testing & Review) (Post-Implementation) →
 DONE (return to previous work)
-```
+```markdown
 
 **SKIP these stages:**
 - ❌ S1 (Epic Planning) - epic already planned
@@ -397,7 +397,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
     # BUG: No null check
     if adp_value < 10:  # Crashes if adp_value is None
         return (1.50, 100)
-```
+```markdown
 
 ## Solution
 
@@ -412,7 +412,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
 
     if adp_value < 10:
         return (1.50, 100)
-```
+```markdown
 
 ## Testing
 
@@ -422,7 +422,7 @@ Unit tests:
 
 Integration test:
 - Verify PlayerManager handles None ADP gracefully
-```
+```markdown
 
 ---
 
@@ -461,7 +461,7 @@ Integration test:
 
 ## Phase 4: Documentation
 - [ ] Update implementation_checklist.md
-```
+```markdown
 
 ---
 
@@ -504,7 +504,7 @@ python run_league_helper.py --help
 # Verify bug no longer occurs
 python run_league_helper.py --mode draft
 # Check: Players with missing ADP work correctly
-```
+```markdown
 
 ---
 
@@ -533,7 +533,7 @@ python run_league_helper.py --mode draft
 - feature_01_adp_integration: Resuming S7 (Testing & Review) (post-implementation)
   - Resume from: QC Round 2 (re-run after bug fix)
   - Next action: Complete QC Round 2, then Round 3
-```
+```bash
 
 ---
 
@@ -545,7 +545,7 @@ python run_league_helper.py --mode draft
 - Does bug fix require retesting paused feature?
 
 **Example:**
-```
+```bash
 Bug fix: Added null check to ConfigManager.get_adp_multiplier()
 
 Paused feature: feature_01_adp_integration
@@ -555,7 +555,7 @@ Impact check:
 - Need to re-run feature_01's QC to verify fix didn't break it
 
 Action: Re-run feature_01 S7 (Testing & Review) QC Round 2 before continuing
-```
+```bash
 
 ---
 
@@ -570,7 +570,7 @@ When bug fix complete:
 1. Re-run S7 (Testing & Review) QC Round 2 (verify bug fix didn't affect this feature)
 2. If passes: Continue to QC Round 3
 3. If fails: Investigate interaction with bug fix
-```
+```markdown
 
 **Follow resume instructions explicitly**
 
@@ -584,7 +584,7 @@ When bug fix complete:
 **Guide Last Read:** 2025-12-30 19:15
 **Resumed After:** bugfix_high_authentication_error completion
 **Next Action:** Re-run QC Round 2 to verify bug fix compatibility
-```
+```markdown
 
 ---
 
@@ -597,7 +597,7 @@ When bug fix complete:
 **Action:** Interrupt immediately
 
 **Example:**
-```
+```text
 Currently: feature_01 S6 (implementation)
 Bug discovered: ConfigManager crashes (blocks feature_01)
 Priority: high
@@ -607,7 +607,7 @@ Action:
 2. Create bug fix immediately
 3. Complete bug fix (S2 → S7)
 4. Resume feature_01 S6
-```
+```markdown
 
 ---
 
@@ -618,7 +618,7 @@ Action:
 **Action:** Finish current sub-stage, then switch
 
 **Example:**
-```
+```text
 Currently: feature_02 S6 Phase 2 (of 4 phases)
 Bug discovered: Log messages unclear
 Priority: medium
@@ -628,7 +628,7 @@ Action:
 2. Save feature_02 state (at end of Phase 2)
 3. Create and fix bug
 4. Resume feature_02 Phase 3
-```
+```markdown
 
 ---
 
@@ -639,7 +639,7 @@ Action:
 **Action:** Finish current feature, then switch
 
 **Example:**
-```
+```text
 Currently: feature_03 S7 (Testing & Review) (QC Round 2)
 Bug discovered: Typo in output message
 Priority: low

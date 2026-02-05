@@ -81,7 +81,7 @@ User's goal: "Make better draft decisions by incorporating real-world draft patt
 Component 1: "PlayerManager" - Line 35
 Component 2: "injury penalty system" (as a pattern to follow) - Line 37
 Data source: "FantasyPros CSV" - Line 22
-```
+```markdown
 
 ### Example 2: Discovery Context Section in spec.md
 
@@ -160,7 +160,7 @@ Data source: "FantasyPros CSV" - Line 22
 ---
 
 {Rest of spec.md sections will be added in S2.P2}
-```
+```markdown
 
 ---
 
@@ -196,7 +196,7 @@ Based on Discovery Context section, I must research:
   - Action: Document the pattern (how to add new multiplier)
   - Action: Check if ConfigManager involved
   - Evidence required: Code showing multiplier application
-```
+```bash
 
 ### Example 2: Complete Research Findings Document
 
@@ -254,7 +254,7 @@ def calculate_total_score(self, player: FantasyPlayer, config: ConfigManager) ->
 
     total_score = base_score * injury_mult * matchup_mult * team_mult
     return total_score
-```
+```markdown
 
 **How it works today:**
 - Loads base score from player.projected_points
@@ -300,7 +300,7 @@ def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
     else:
         # Unknown status - neutral
         return 1.0
-```
+```markdown
 
 **Pattern to reuse:**
 - Method returns float multiplier
@@ -336,7 +336,7 @@ def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
 Name,Position,Team,ProjectedPoints
 Patrick Mahomes,QB,KC,450.5
 Christian McCaffrey,RB,CAR,380.2
-```
+```markdown
 
 **For ADP feature:**
 - Need to determine exact FantasyPros CSV format (add to checklist as question)
@@ -365,7 +365,7 @@ Christian McCaffrey,RB,CAR,380.2
       manager = PlayerManager()
       mult = manager._calculate_injury_multiplier(player)
       assert mult == 0.95
-  ```
+  ```markdown
 - Integration test with all multipliers combined
 - Edge case tests (missing data, invalid values)
 
@@ -443,7 +443,7 @@ Christian McCaffrey,RB,CAR,380.2
 **Next Steps:**
 - Phase 1.5: Verify research completeness
 - S2.P2 Phase 2: Update spec.md with findings
-```
+```markdown
 
 ---
 
@@ -517,7 +517,7 @@ def get_injury_multiplier(self, status: str) -> float:
 # csv_utils.read_csv_with_validation
 def read_csv_with_validation(filepath: Union[str, Path], required_columns: List[str]) -> pd.DataFrame:
     # Source: csv_utils.py:45
-```
+```markdown
 
 **Evidence:** Copied from actual source files, cited line numbers
 
@@ -578,7 +578,7 @@ def read_csv_with_validation(filepath: Union[str, Path], required_columns: List[
 - **Integration:** All multipliers multiplied together in calculate_total_score():
   ```python
   total_score = base_score * mult1 * mult2 * mult3 * ... * multN
-  ```
+  ```markdown
 - **Config:** Some multipliers use ConfigManager for ranges (matchup uses config.get_matchup_multiplier())
 
 **Evidence:**
@@ -660,7 +660,7 @@ class FantasyPlayer:
     matchup_rating: Optional[float] = None
     team_quality: Optional[float] = None
     # Will add: adp_value: Optional[int] = None
-```
+```markdown
 
 Source: league_helper/util/FantasyPlayer.py lines 15-25
 
@@ -827,7 +827,7 @@ All of these are agent assumptions → Added to checklist as questions
 4. Re-run audit after research complete
 
 **DO NOT PROCEED TO S2.P2**
-```
+```markdown
 
 ---
 
@@ -843,7 +843,7 @@ All of these are agent assumptions → Added to checklist as questions
 □ Learn about the scoring system
 □ Research data loading patterns
 □ Study the codebase architecture
-```
+```markdown
 
 ✅ **CORRECT:**
 ```markdown
@@ -854,7 +854,7 @@ Based on user request to "integrate ADP data into PlayerManager scoring using in
 □ PlayerManager.calculate_total_score() - How does it work? (user mentioned scoring)
 □ injury penalty pattern - What's the implementation? (user said to follow this pattern)
 □ FantasyPros CSV - Does similar data exist? (user specified this data source)
-```
+```markdown
 
 **Why:** Epic intent guides research. Only research what user explicitly mentioned.
 
@@ -867,7 +867,7 @@ Based on user request to "integrate ADP data into PlayerManager scoring using in
 **PlayerManager probably has a calculate_score method that takes a player.**
 
 I'll assume it returns a float and we can add ADP as a parameter.
-```
+```markdown
 
 ✅ **CORRECT:**
 ```markdown
@@ -875,14 +875,14 @@ I'll assume it returns a float and we can add ADP as a parameter.
 
 ```python
 def calculate_total_score(self, player: FantasyPlayer, config: ConfigManager) -> float:
-```
+```markdown
 
 Source: league_helper/util/PlayerManager.py:125
 Read timestamp: 2026-01-02 10:30
 
 **Cannot add ADP as parameter** - would break interface (user constraint: "don't change interface too much")
 **Must follow multiplier pattern instead** - add as separate calculation, multiply into result
-```
+```markdown
 
 **Why:** READ the actual code. Don't guess at signatures or patterns.
 
@@ -895,7 +895,7 @@ Read timestamp: 2026-01-02 10:30
 I remember from S1 that user wants ADP integration. I'll start researching PlayerManager now.
 
 {Jumps straight to Phase 1 without re-reading epic}
-```
+```markdown
 
 ✅ **CORRECT:**
 ```markdown

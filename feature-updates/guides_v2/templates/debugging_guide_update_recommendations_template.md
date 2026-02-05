@@ -53,13 +53,13 @@
 
 ```markdown
 {Current text from guide, OR "Section doesn't exist"}
-```
+```bash
 
 ### Proposed Change (AFTER)
 
 ```markdown
 {Proposed new text with **BOLD** for additions/changes}
-```
+```markdown
 
 **Example with changes highlighted:**
 ```markdown
@@ -70,7 +70,7 @@
 - [ ] Boundary conditions (min/max values)
 - [ ] **Entity status fields (active, injured, suspended, bye week)** ← NEW
 - [ ] Concurrent access scenarios
-```
+```markdown
 
 ### Rationale
 
@@ -129,13 +129,13 @@
 
 ```markdown
 {Current text from guide, OR "Section doesn't exist"}
-```
+```bash
 
 ### Proposed Change (AFTER)
 
 ```markdown
 {Proposed new text with **BOLD** for additions/changes}
-```
+```markdown
 
 ### Rationale
 
@@ -249,7 +249,7 @@ Bug occurred because player injury status wasn't checked, causing null pointer w
 - [ ] Data edge cases (null, empty, invalid)
 - [ ] Boundary conditions (min/max values)
 - [ ] Concurrent access scenarios
-```
+```bash
 
 ### Proposed Change (AFTER)
 

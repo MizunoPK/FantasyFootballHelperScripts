@@ -44,7 +44,7 @@ These documents are systematically collected and applied at multiple points in t
    - Create/update `lessons_learned.md` (technical insights)
 
 **Files Created:**
-```
+```text
 feature_XX_{name}/debugging/
 ├── ISSUES_CHECKLIST.md
 ├── investigation_rounds.md
@@ -54,7 +54,7 @@ feature_XX_{name}/debugging/
 ├── guide_update_recommendations.md     ← Actionable guide updates (Phase 4b + Phase 5)
 ├── lessons_learned.md                  ← Technical insights (Phase 5)
 └── diagnostic_logs/
-```
+```markdown
 
 **File Creation Timing:**
 - **guide_update_recommendations.md** - Created incrementally:
@@ -74,7 +74,7 @@ feature_XX_{name}/debugging/
 **Workflow:** Same as feature-level but for epic integration issues
 
 **Files Created:**
-```
+```json
 {epic_name}/debugging/
 ├── ISSUES_CHECKLIST.md
 ├── investigation_rounds.md
@@ -84,7 +84,7 @@ feature_XX_{name}/debugging/
 ├── guide_update_recommendations.md     ← Epic-level guide updates (Phase 4b + Phase 5)
 ├── lessons_learned.md                  ← Epic-level technical insights (Phase 5)
 └── diagnostic_logs/
-```
+```markdown
 
 **File Creation Timing:** Same as feature-level (Phase 4b per-issue + Phase 5 cross-pattern)
 
@@ -112,7 +112,7 @@ feature_XX_{name}/debugging/
 - Key insights: See debugging/lessons_learned.md
 - Process gaps: See debugging/process_failure_analysis.md
 - Guide updates: See debugging/guide_update_recommendations.md
-```
+```markdown
 
 ---
 
@@ -143,7 +143,7 @@ feature_XX_{name}/debugging/
 - Key insights: {from debugging/lessons_learned.md}
 - Process gaps: {from debugging/process_failure_analysis.md}
 - Guide updates proposed: {count from debugging/guide_update_recommendations.md}
-```
+```markdown
 
 **Cross-Feature Debugging Insights Section:**
 ```markdown
@@ -159,7 +159,7 @@ feature_XX_{name}/debugging/
 
 **Most Impactful Guide Updates:**
 {top updates proposed by multiple features}
-```
+```markdown
 
 **Epic-Level Debugging Section:**
 ```markdown
@@ -172,7 +172,7 @@ feature_XX_{name}/debugging/
 - Key insights: {from {epic_name}/debugging/lessons_learned.md}
 - Process gaps: {from {epic_name}/debugging/process_failure_analysis.md}
 - Guide updates: {from {epic_name}/debugging/guide_update_recommendations.md}
-```
+```markdown
 
 ---
 

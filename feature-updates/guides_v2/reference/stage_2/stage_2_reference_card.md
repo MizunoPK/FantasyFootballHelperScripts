@@ -8,7 +8,7 @@
 
 ## Sub-Stages Overview
 
-```
+```text
 S2.P1: Research Phase (45-60 min)
     Phase 0: Discovery Context Review (15 min)
     Phase 1: Targeted Research (30 min)

@@ -117,14 +117,14 @@
 - {Edge case 2 and handling}
 
 **Example Calculation:**
-```
+```text
 Input: player_name="Patrick Mahomes", adp=5
 Process:
   1. Fetch ADP data: adp_value = 5
   2. Calculate multiplier: mult = 1.0 + (50 - adp) / 100 = 1.45
   3. Clamp to range: mult = max(0.5, min(1.5, 1.45)) = 1.45
 Output: (multiplier=1.45, adp_rank=5)
-```
+```json
 
 {Repeat for all algorithms}
 
@@ -142,7 +142,7 @@ Output: (multiplier=1.45, adp_rank=5)
     "field2": {type},  # Description
     "field3": {type}   # Description
 }
-```
+```markdown
 
 **Example:**
 ```python
@@ -151,7 +151,7 @@ Output: (multiplier=1.45, adp_rank=5)
     "adp_rank": 5,
     "adp_multiplier": 1.45
 }
-```
+```json
 
 {Repeat for all data structures}
 
@@ -167,7 +167,7 @@ Output: (multiplier=1.45, adp_rank=5)
 ```python
 def method_name(param1: Type1, param2: Type2) -> ReturnType:
     """Brief description"""
-```
+```markdown
 
 **Parameters:**
 - `param1` (Type1): Description
@@ -184,7 +184,7 @@ def method_name(param1: Type1, param2: Type2) -> ReturnType:
 ```python
 result = provider.method_name("value1", 123)
 # result: (1.45, 5)
-```
+```json
 
 {Repeat for all interfaces}
 
@@ -199,14 +199,14 @@ result = provider.method_name("value1", 123)
 **Interface:** {Reference to interface above}
 
 **Example Flow:**
-```
+```text
 Feature 01 (ADP Integration)
   ↓ provides adp_data: (multiplier, rank)
 Feature 02 (Matchup System)
   ↓ consumes adp_data, provides matchup_difficulty
 Feature 03 (Performance Tracker)
   ↓ consumes both adp_data and matchup_difficulty
-```
+```json
 
 {Repeat for all integration points}
 
@@ -227,7 +227,7 @@ try:
 except DataProcessingError as e:
     logger.error(f"ADP data not found for {player_name}: {e}")
     return (1.0, 999)  # Default: no ADP bonus, rank 999 (unknown)
-```
+```json
 
 {Repeat for all error scenarios}
 

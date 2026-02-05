@@ -12,7 +12,7 @@
 
 **Agent MUST respond:**
 
-```
+```markdown
 I've identified an issue that requires a bug fix. Let me present it to you for approval...
 
 **Issue Summary:**
@@ -37,11 +37,11 @@ I've identified an issue that requires a bug fix. Let me present it to you for a
 - NOTE: All bugs found during epic development MUST be fixed - no deferring to "later" or leaving tech debt
 
 Waiting for your approval...
-```
+```markdown
 
 **After user approves:**
 
-```
+```markdown
 I'm reading `stages/s5/s5_bugfix_workflow.md` to ensure I follow the bug fix workflow...
 
 **The guide requires:**
@@ -69,7 +69,7 @@ I'm reading `stages/s5/s5_bugfix_workflow.md` to ensure I follow the bug fix wor
 **I'll now create the bug fix folder and notes.txt...**
 
 Creating bugfix_{priority}_{name}/ folder...
-```
+```bash
 
 ---
 
@@ -86,7 +86,7 @@ Creating bugfix_{priority}_{name}/ folder...
 
 **Agent MUST respond:**
 
-```
+```bash
 I'm reading `missed_requirement/missed_requirement_protocol.md` to ensure I follow the complete missed requirement protocol...
 
 **The guide requires:**
@@ -130,7 +130,7 @@ I'm reading `missed_requirement/missed_requirement_protocol.md` to ensure I foll
 - Next Action: Present options (new feature vs update unstarted feature)
 
 Presenting to user...
-```
+```markdown
 
 ---
 
@@ -145,7 +145,7 @@ Presenting to user...
 
 **Agent MUST respond:**
 
-```
+```bash
 I'm reading `debugging/debugging_protocol.md` to ensure I follow the complete debugging protocol...
 
 **The guide requires:**
@@ -207,7 +207,7 @@ I'm reading `debugging/debugging_protocol.md` to ensure I follow the complete de
 - Next Action: Create/update debugging/ISSUES_CHECKLIST.md
 
 Creating debugging structure and checklist...
-```
+```markdown
 
 **Note:** Debugging protocol phase transitions are handled within the debugging workflow. See debugging/debugging_protocol.md for detailed phase transition requirements.
 
@@ -219,7 +219,7 @@ Creating debugging structure and checklist...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm resuming work on the {epic_name} epic after session compaction. Let me check the current state...
 
 **Reading EPIC_README.md Agent Status:**

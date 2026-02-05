@@ -52,12 +52,12 @@ ALL identified issues must be addressed immediately.
 - User requested: "Accept no deferred issues"
 
 **Example:**
-```
+```bash
 Round 1: Find 5 issues → Fix ALL 5 before Round 2
 Round 2: Find 2 issues → Fix ALL 2 before Round 3
 Round 3: Find 1 issue → Loop back, fix it, restart count to 0
 Round 4: Find 0 issues → Continue (count = 1 clean)
-```
+```markdown
 
 Cannot proceed with known issues, no matter how minor.
 
@@ -65,13 +65,13 @@ Cannot proceed with known issues, no matter how minor.
 Fixing an issue can introduce new issues. This is expected and handled by the protocol:
 
 **Example:**
-```
+```bash
 Round 1: Find typo in spec.md requirement R1 → Fix typo
 Round 2: Re-read spec → Notice R1 fix made it contradict R2 → This is a NEW issue
 Round 2 outcome: 1 issue found (R1/R2 contradiction)
 Action: Fix contradiction before Round 3, reset counter to 0
 Round 3: Re-read spec → Check if fix introduced other issues
-```
+```markdown
 
 **Key Insight:** The "restart counter" behavior handles fix-induced issues naturally. Don't be discouraged if fixes introduce new issues - that's why we have multiple rounds with fresh eyes.
 
@@ -176,7 +176,7 @@ When a gate is "embedded" in a Validation Loop, the gate criteria become issue t
 
 ### Example: Round 5 Finds Issues
 
-```
+```text
 Round 1: 5 issues → fix ALL → Round 2
 Round 2: 2 issues → fix ALL → Round 3
 Round 3: 0 issues → Round 4 (count = 1 clean)

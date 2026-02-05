@@ -74,7 +74,7 @@ Planning Round 2 is complete when all 7 iterations pass, test coverage exceeds 9
 
 ## Critical Rules
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL RULES - These MUST be copied to README Agent Status │
 └─────────────────────────────────────────────────────────────┘
@@ -104,7 +104,7 @@ Planning Round 2 is complete when all 7 iterations pass, test coverage exceeds 9
 6. ⚠️ Update feature README.md Agent Status after Planning Round 2 complete
    - Document confidence level
    - Document next action
-```
+```markdown
 
 ---
 
@@ -164,7 +164,7 @@ Planning Round 2 is complete when all 7 iterations pass, test coverage exceeds 9
 
 ## Workflow Overview
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────┐
 │              ROUND 2: Deep Verification                      │
 │                    (9 Iterations)                             │
@@ -192,7 +192,7 @@ ROUND 2 CHECKPOINT
    ↓
 If confidence >= MEDIUM: Proceed to Planning Round 3 (S5.P3)
 If confidence < MEDIUM: Update questions file, wait for user
-```
+```markdown
 
 ---
 
@@ -274,7 +274,7 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 ## Common Mistakes to Avoid
 
-```
+```text
 ┌────────────────────────────────────────────────────────────┐
 │ "If You're Thinking This, STOP" - Anti-Pattern Detection  │
 └────────────────────────────────────────────────────────────┘

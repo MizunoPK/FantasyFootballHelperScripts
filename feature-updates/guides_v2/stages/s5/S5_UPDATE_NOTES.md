@@ -64,7 +64,7 @@ S5 Update Notes (Proposal 7) documents the structural changes made to S5 (Implem
 - **Total: 22 iterations**
 
 **Detailed Mapping:**
-```
+```text
 Old → New
 I1  → I1   (unchanged)
 I2  → I2   (unchanged)
@@ -88,7 +88,7 @@ I22 → I19  (renumbered)
 I23 → I20  (renumbered)
 I24 → I21  (renumbered)
 I25 → I22  (renumbered)
-```
+```markdown
 
 **Files Requiring Renumbering:**
 - All iteration guides (I8-I22)

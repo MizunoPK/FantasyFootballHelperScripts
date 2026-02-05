@@ -88,7 +88,7 @@ Plan unit tests, integration tests, and edge cases with traceability to requirem
 - ADP rank = 200 (worst) → multiplier = 0.0
 - Player not in list → multiplier = 1.0 (neutral)
 - Multiple players with same name → use first match
-```
+```markdown
 
 3. **Create initial test coverage matrix**
 
@@ -109,7 +109,7 @@ Plan unit tests, integration tests, and edge cases with traceability to requirem
 
 **Coverage Estimate:** 35 tests planned
 **Coverage Goal:** >90% code coverage
-```
+```markdown
 
 ### Step 1.2: Test Case Enumeration (10-15 min)
 
@@ -220,7 +220,7 @@ For each requirement, create test case list:
 ---
 
 [Continue this format for Requirements R2, R3, R4...]
-```
+```markdown
 
 ### Step 1.3: Create Traceability Matrix
 
@@ -238,7 +238,7 @@ For each requirement, create test case list:
 
 **Total Tests Planned:** 39 tests
 **Requirements with <90% Coverage:** 0 (target met)
-```
+```markdown
 
 ### Step 1.4: Update Feature README.md
 
@@ -254,7 +254,7 @@ For each requirement, create test case list:
 **Progress:** S4.I1 complete - Test coverage matrix created, 39 tests planned
 **Next Action:** Begin S4.I2 (Edge Case Enumeration)
 **Blockers:** None
-```
+```markdown
 
 ---
 
@@ -323,7 +323,7 @@ Systematically identify ALL edge cases using boundary analysis and error path en
 - Not exist → FileNotFoundError with clear message
 - Empty file → ValueError("CSV file is empty")
 - Malformed → ParsingError with line number
-```
+```markdown
 
 **Add Boundary Tests to Test Case List:**
 
@@ -377,7 +377,7 @@ Systematically identify ALL edge cases using boundary analysis and error path en
 - **Input:** csv_path pointing to non-CSV data
 - **Expected:** ParsingError with line number
 - **Links to:** R1 (Data validation)
-```
+```markdown
 
 ### Step 2.2: Error Path Enumeration (5-10 min)
 
@@ -417,7 +417,7 @@ Systematically identify ALL edge cases using boundary analysis and error path en
 **Expected Behavior:** Use file locking or handle gracefully
 **Recovery:** Retry after delay
 **Test:** test_adp_concurrent_write (if applicable)
-```
+```markdown
 
 ### Step 2.3: Create Edge Case Catalog
 
@@ -441,7 +441,7 @@ Systematically identify ALL edge cases using boundary analysis and error path en
 
 **Total Edge Cases Identified:** 12
 **Edge Cases Without Tests:** 0
-```
+```markdown
 
 ### Step 2.4: Update Test Coverage Matrix
 
@@ -458,7 +458,7 @@ Systematically identify ALL edge cases using boundary analysis and error path en
 **Total Tests Planned:** 63 tests (was 39 after I1)
 **Edge Case Coverage:** 30 edge case tests added
 **Coverage Estimate:** >95% (exceeds 90% goal)
-```
+```markdown
 
 ### Step 2.5: Update Feature README.md
 
@@ -474,7 +474,7 @@ Systematically identify ALL edge cases using boundary analysis and error path en
 **Progress:** S4.I2 complete - Edge case catalog created (12 edge cases), 63 tests planned
 **Next Action:** Begin S4.I3 (Configuration Change Impact)
 **Blockers:** None
-```
+```markdown
 
 ---
 
@@ -549,7 +549,7 @@ Identify configuration dependencies and plan configuration-related tests (defaul
 
 ### Config File 3: None identified
 (This feature doesn't use other config files)
-```
+```markdown
 
 ### Step 3.2: Configuration Test Cases (5-10 min)
 
@@ -647,7 +647,7 @@ Identify configuration dependencies and plan configuration-related tests (defaul
 - **Setup:** Remove adp_max_rank from config
 - **Expected:** Defaults to 200
 - **Links to:** Config handling
-```
+```markdown
 
 ### Step 3.3: Create Configuration Test Matrix
 
@@ -664,7 +664,7 @@ Identify configuration dependencies and plan configuration-related tests (defaul
 **Total Config Tests Planned:** 10 tests
 **Config Values Without Tests:** 0
 **Scenarios Covered:** Default, Custom, Invalid, Missing
-```
+```markdown
 
 ### Step 3.4: Update Test Coverage Matrix (Final)
 
@@ -681,7 +681,7 @@ Identify configuration dependencies and plan configuration-related tests (defaul
 **Total Tests Planned:** 91 tests
 **Coverage Estimate:** >95% (exceeds 90% goal ✅)
 **Test Categories Complete:** Unit, Integration, Edge Case, Config
-```
+```markdown
 
 ### Step 3.5: Update Feature README.md
 

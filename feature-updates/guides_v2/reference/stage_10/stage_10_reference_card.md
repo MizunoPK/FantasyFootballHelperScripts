@@ -9,7 +9,7 @@
 
 ## Workflow Overview
 
-```
+```text
 STEP 1: Pre-Cleanup Verification (5 min)
     ├─ Verify S9 complete
     ├─ Verify all features complete (S8.P2)
@@ -58,7 +58,7 @@ STEP 7: Final Verification & Completion (2 min)
     ├─ Verify git clean state
     ├─ Update EPIC_README.md with completion summary
     └─ Epic COMPLETE! 🎉
-```
+```markdown
 
 ---
 
@@ -94,7 +94,7 @@ STEP 7: Final Verification & Completion (2 min)
 **Command:**
 ```bash
 python tests/run_all_tests.py
-```
+```markdown
 
 **Why mandatory:** Cannot commit code with failing tests
 
@@ -125,11 +125,11 @@ python tests/run_all_tests.py
 ## Commit Message Format
 
 ### Required Format:
-```
+```json
 {commit_type}/KAI-{number}: {message}
 
 {body}
-```
+```markdown
 
 ### Commit Type:
 - `feat` - Feature work (most epic commits)
@@ -149,7 +149,7 @@ python tests/run_all_tests.py
 - Keep concise (5-10 lines)
 
 ### Example:
-```
+```text
 feat/KAI-1: Add ADP integration and projection system to draft helper
 
 Major features:
@@ -157,7 +157,7 @@ Major features:
 - Add injury assessment to player projections
 - Implement schedule strength analysis
 - Update recommendation engine with new multipliers
-```
+```bash
 
 ---
 
@@ -167,23 +167,23 @@ Major features:
 ```bash
 git status       # See all modified files
 git diff         # See all changes
-```
+```markdown
 
 ### 6.2: Stage Changes
 ```bash
 git add feature-updates/KAI-{N}-{epic_name}/
 git add <any other changed files>
-```
+```markdown
 
 ### 6.3: Commit
 ```bash
 git commit -m "{commit_type}/KAI-{number}: {message}"
-```
+```markdown
 
 ### 6.4: Push Branch to Remote
 ```bash
 git push origin {work_type}/KAI-{number}
-```
+```markdown
 
 ### 6.5: Create Pull Request
 ```bash

@@ -41,7 +41,7 @@ This checklist supplements the complete PR review protocol. See `stages/s5/s5_pr
 
 **Epic-Specific Agent Prompt:**
 When spawning fresh agents, provide this context:
-```
+```markdown
 This is an EPIC-LEVEL PR review covering {N} features:
 {List feature names}
 
@@ -59,7 +59,7 @@ This is an EPIC-LEVEL PR review covering {N} features:
 **Code to review:**
 {Provide git diff showing ALL epic changes across all features}
 {Provide paths to all feature folders}
-```
+```markdown
 
 ---
 
@@ -101,7 +101,7 @@ player = FantasyPlayer("Patrick Mahomes", "QB", 300.0)
 final_score = player.score * multiplier * difficulty
 # Verify final score makes sense
 assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
-```
+```markdown
 
 ### Document Results
 
@@ -117,7 +117,7 @@ assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 - Logic flow verified: Base score → ADP multiplier → Matchup multiplier → Final score
 
 **Issues Found:** None
-```
+```markdown
 
 **If FAIL:**
 ```markdown
@@ -129,7 +129,7 @@ assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 - Error: Final score calculation incorrect (expected 300, got 450)
 
 **Action Required:** Document issue, proceed to Step 7 (Handle Issues)
-```
+```markdown
 
 ---
 
@@ -160,7 +160,7 @@ assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 # 3. Check for inconsistent abstractions
 # Example: Feature 01 uses classes, Feature 02 uses functions only
 # Should be consistent (all classes or all functions)
-```
+```markdown
 
 ### Common Issues
 
@@ -181,7 +181,7 @@ assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 - No features significantly lower quality
 
 **Issues Found:** None
-```
+```markdown
 
 ---
 
@@ -221,7 +221,7 @@ assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 - Feature 01: Consumes `get_adp_data()` for ADP multiplier
   - Expected: Tuple[float, int]
   - Fallback: If unavailable, uses default multiplier 1.0
-```
+```markdown
 
 ### Document Results
 
@@ -236,7 +236,7 @@ assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 - No user-facing docs needed (internal epic)
 
 **Issues Found:** None
-```
+```markdown
 
 ---
 
@@ -277,7 +277,7 @@ feature_02_accuracy_sim_json_integration/
 
 # 3. Check for circular dependencies
 # Feature 01 imports Feature 02 → Feature 02 imports Feature 01 → ❌ CIRCULAR
-```
+```markdown
 
 ### Document Results
 
@@ -292,7 +292,7 @@ feature_02_accuracy_sim_json_integration/
 - No circular dependencies (dependency graph is acyclic)
 
 **Issues Found:** None
-```
+```markdown
 
 ---
 
@@ -328,7 +328,7 @@ python tests/run_all_tests.py
 
 # 3. Verify test coverage for integration points
 # Coverage should include: Feature 01 → Feature 02 → Feature 03 flow
-```
+```markdown
 
 ### Document Results
 
@@ -343,7 +343,7 @@ python tests/run_all_tests.py
 - Integration tests cover: Data flow, error propagation, edge cases
 
 **Issues Found:** None
-```
+```markdown
 
 **If Failures:**
 ```markdown
@@ -355,7 +355,7 @@ python tests/run_all_tests.py
 - Root cause: Feature 02 not applying ADP multiplier correctly
 
 **Action Required:** Create bug fix (proceed to Step 7)
-```
+```markdown
 
 ---
 
@@ -398,7 +398,7 @@ def get_matchup_difficulty(player_name: str, week: int) -> float:
 
 # 3. Check file operations
 # Ensure no path traversal: player_name = "../../etc/passwd"
-```
+```markdown
 
 ### Document Results
 
@@ -413,7 +413,7 @@ def get_matchup_difficulty(player_name: str, week: int) -> float:
 - File operations secure (validated paths, no injection risks)
 
 **Issues Found:** None
-```
+```markdown
 
 ---
 
@@ -459,7 +459,7 @@ for player in players:
 adp_data_map = get_all_adp_data()  # ✅ 1 query
 for player in players:
     adp_data = adp_data_map.get(player.name)
-```
+```markdown
 
 ### Document Results
 
@@ -480,7 +480,7 @@ for player in players:
 - Integration overhead: 0.7s (acceptable)
 
 **Issues Found:** None
-```
+```markdown
 
 **If Performance Issues:**
 ```markdown
@@ -491,7 +491,7 @@ for player in players:
 - Root cause: N+1 queries in Feature 02 (loading matchup data per player)
 
 **Action Required:** Create bug fix to batch load matchup data (proceed to Step 7)
-```
+```markdown
 
 ---
 
@@ -535,7 +535,7 @@ except DataProcessingError as e:
 
 # 4. Check graceful degradation
 # If Feature 01 fails, Feature 02 should still work (with defaults)
-```
+```markdown
 
 ### Document Results
 
@@ -555,7 +555,7 @@ except DataProcessingError as e:
 - Invalid player name → Clear error message shown to user
 
 **Issues Found:** None
-```
+```markdown
 
 ---
 
@@ -630,7 +630,7 @@ multiplier = adp_mgr.get_adp_data("Patrick Mahomes")[0]
 
 # 4. Check design pattern consistency
 # All features should use same patterns (Manager, Factory, Strategy, etc.)
-```
+```markdown
 
 ### Document Results
 
@@ -652,7 +652,7 @@ multiplier = adp_mgr.get_adp_data("Patrick Mahomes")[0]
 - Graceful Degradation: Features provide defaults when dependencies unavailable
 
 **Issues Found:** None
-```
+```markdown
 
 **If Architectural Issues:**
 ```markdown
@@ -664,7 +664,7 @@ multiplier = adp_mgr.get_adp_data("Patrick Mahomes")[0]
 - Design pattern inconsistency: Feature 01 uses Factory pattern, Feature 02 has no pattern
 
 **Action Required:** Create bug fix to refactor Feature 02 to Manager pattern (proceed to Step 7)
-```
+```markdown
 
 ---
 
@@ -705,7 +705,7 @@ python run_league_helper.py --mode draft --week 5
 # If deprecating old features, should warn user
 import warnings
 warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
-```
+```markdown
 
 ### Document Results
 
@@ -726,7 +726,7 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 - Pre-epic CSV format: Unchanged (new columns added, not replaced) ✅
 
 **Issues Found:** None
-```
+```markdown
 
 ---
 
@@ -763,7 +763,7 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 
 # 4. Verify all changes necessary
 # Every code change should trace back to epic requirements
-```
+```markdown
 
 ### Document Results
 

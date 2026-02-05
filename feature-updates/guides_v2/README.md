@@ -8,7 +8,7 @@
 
 ## 🚨 CRITICAL: Scope of "Guides"
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │ ⚠️  MANDATORY READING - WHAT "GUIDES" MEANS                     │
 ├─────────────────────────────────────────────────────────────────┤
@@ -46,7 +46,7 @@
 │ files because agents assumed "guides" = "stages/" only           │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
-```
+```markdown
 
 ---
 
@@ -80,7 +80,7 @@ The v2 workflow is a **10-stage epic-driven development process** designed to:
 
 ## The 10 Stages
 
-```
+```bash
 STAGE 1: Epic Planning
    ↓
    Create epic folder structure
@@ -145,7 +145,7 @@ STAGE 10: Epic Cleanup
    ├─ Commit epic changes
    ├─ Create PR
    └─ Move epic to done/ folder
-```
+```markdown
 
 ---
 
@@ -251,7 +251,7 @@ Systematic 28-iteration planning process creating implementation_plan.md (~400 l
 ---
 
 ### Epic Folder Structure
-```
+```text
 feature-updates/
 ├── {epic_name}.txt                        ← Original user request (stays in root)
 ├── KAI-{N}-{epic_name}/                   ← Epic folder (all work here, includes KAI number)
@@ -391,7 +391,7 @@ feature-updates/
     │
     ├── templates/                    ← File templates
     │   └── TEMPLATES_INDEX.md
-```
+```markdown
 
 ---
 
@@ -401,7 +401,7 @@ feature-updates/
 
 User creates `feature-updates/{epic_name}.txt` with initial scratchwork:
 
-```
+```bash
 Epic Request: Improve Draft Helper System
 
 Goals:
@@ -417,7 +417,7 @@ Initial Thoughts:
 Questions:
 - Should ADP be manually updated or auto-fetched?
 - How many weeks of history for performance tracking?
-```
+```markdown
 
 ### Step 2: User Starts Epic Planning
 
@@ -427,7 +427,7 @@ User says: **"Help me develop the improve_draft_helper epic"**
 
 Agent MUST use phase transition prompt:
 
-```
+```markdown
 I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic planning workflow...
 
 **The guide requires:**
@@ -442,7 +442,7 @@ I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic
 ✅ Epic scope is clear from request
 
 **I'll now proceed with Phase 1...**
-```
+```markdown
 
 ### Step 4: Agent Follows Guide Step-by-Step
 
@@ -499,7 +499,7 @@ Agent continues through all 10 stages for the complete epic lifecycle.
 **Progress:** 12/22 iterations complete
 **Next Action:** Begin iteration 13 - Dependency Verification
 **Blockers:** None
-```
+```markdown
 
 **Purpose:**
 - Survives session compaction
@@ -540,7 +540,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 □ Acknowledge critical requirements
 □ Verify prerequisites
 □ Update this Quick Reference Card
-```
+```markdown
 
 **Purpose:**
 - Always visible (top of README)
@@ -565,7 +565,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 | feature_03_performance_tracker | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 
 **Legend:** ✅ = Complete | 🔄 = In Progress | ◻️ = Not Started
-```
+```markdown
 
 **Purpose:**
 - See entire epic status at a glance
@@ -579,7 +579,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 
 **epic_smoke_test_plan.md evolves through stages:**
 
-```
+```bash
 S1 (Initial):
 - Placeholder scenarios
 - High-level categories

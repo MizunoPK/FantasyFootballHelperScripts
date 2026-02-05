@@ -13,7 +13,7 @@
 
 **Agent MUST respond:**
 
-```
+```bash
 I'm reading `stages/s4/s4_epic_testing_strategy.md` to ensure I create a comprehensive epic testing strategy...
 
 **The guide requires:**
@@ -45,7 +45,7 @@ I'm reading `stages/s4/s4_epic_testing_strategy.md` to ensure I create a compreh
 - Next Action: Review current epic_smoke_test_plan.md and identify updates needed
 
 Starting test plan update...
-```
+```markdown
 
 ---
 
@@ -55,7 +55,7 @@ Starting test plan update...
 
 **Agent MUST present to user:**
 
-```
+```bash
 🚨 **Gate 4.5: Epic Test Plan Approval Required**
 
 I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the feature specs from Stages 2-3.
@@ -89,11 +89,11 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 - Do the data quality checks verify the right values?
 
 **I cannot proceed to S5 (Implementation Planning) without your approval.**
-```
+```markdown
 
 **After user approves:**
 
-```
+```bash
 ✅ **Gate 4.5 PASSED - Epic Test Plan Approved**
 
 **Updating EPIC_README.md:**

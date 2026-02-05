@@ -36,9 +36,9 @@ Hands-On Data Inspection is complete when you have opened actual data files, pri
 **Historical Evidence:** Feature 02 (Accuracy Sim) had a catastrophic bug that survived implementation and testing:
 
 **The Assumption (WRONG):**
-```
+```text
 "Week_N folder contains week N actual points"
-```
+```markdown
 
 **The Reality:**
 ```python
@@ -47,7 +47,7 @@ week_01[0]['actual_points'][0]  # 0.0 (week 1 not complete yet)
 
 # week_02/qb_data.json
 week_02[0]['actual_points'][0]  # 33.6 (week 1 complete)
-```
+```markdown
 
 **The Consequences:**
 - Implemented code that loaded week_N for both projected and actual
@@ -62,7 +62,7 @@ Opening a Python REPL and running 3 commands would have caught this bug in 30 se
 import json
 week_01 = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 print(week_01[0]['actual_points'][0])  # 0.0 → Assumption is WRONG
-```
+```bash
 
 **This stage is MANDATORY** to prevent implementing code based on wrong assumptions.
 
@@ -121,7 +121,7 @@ Open the files. Print the values. Verify your assumptions.
 - Expected: actual > 0
 
 [Repeat for each file]
-```
+```markdown
 
 ---
 
@@ -133,7 +133,7 @@ Open the files. Print the values. Verify your assumptions.
 ```bash
 cd /path/to/FantasyFootballHelperScripts
 python
-```
+```bash
 
 **Why REPL instead of script?**
 - Interactive exploration (try commands, see results immediately)
@@ -171,14 +171,14 @@ with open(week_02_path) as f:
 
 with open(week_03_path) as f:
     week_03 = json.load(f)
-```
+```markdown
 
 **Common Mistake:**
 ```python
 # WRONG - only loads one file
 week_01 = json.load(open('week_01/qb_data.json'))
 # Can't see patterns with one data point
-```
+```markdown
 
 **Right:**
 ```python
@@ -187,7 +187,7 @@ week_01 = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 week_02 = json.load(open('simulation/sim_data/2021/weeks/week_02/qb_data.json'))
 week_03 = json.load(open('simulation/sim_data/2021/weeks/week_03/qb_data.json'))
 # Can compare values across files to understand pattern
-```
+```markdown
 
 ---
 
@@ -206,7 +206,7 @@ week_03 = json.load(open('simulation/sim_data/2021/weeks/week_03/qb_data.json'))
 # This tells you NOTHING about the actual values
 print('actual_points' in week_01[0])  # True
 # You now know the key exists, but not what value it contains
-```
+```markdown
 
 **Example - RIGHT:**
 ```python
@@ -217,7 +217,7 @@ print(f"Week 2 actuals in week_02 folder: {week_02[0]['actual_points'][1]}")  # 
 print(f"Week 2 actuals in week_03 folder: {week_03[0]['actual_points'][1]}")  # 22.4
 
 # Now you can see the PATTERN: week_N has 0.0 for week N, week_N+1 has real values
-```
+```markdown
 
 ---
 
@@ -235,7 +235,7 @@ For each assumption, create a verification test:
 **Verification Command:** [Python code to test it]
 **Result:** [What the data actually shows]
 **Conclusion:** [Valid or Invalid]
-```
+```markdown
 
 **Example:**
 
@@ -251,7 +251,7 @@ print(f"Week 1 actual in week_01: {actual_week_1_in_week_01}")
 
 # Conclusion:
 # ❌ INVALID - Week_N folder has 0.0 for week N actuals
-```
+```markdown
 
 **Assumption 2:** "Week_N+1 folder contains week N actual points"
 ```python
@@ -265,7 +265,7 @@ print(f"Week 1 actual in week_02: {actual_week_1_in_week_02}")
 
 # Conclusion:
 # ✅ VALID - Week_N+1 folder has real week N actuals
-```
+```markdown
 
 **Assumption 3:** "This pattern applies to all weeks (not just week 17)"
 ```python
@@ -279,7 +279,7 @@ print(f"Week 2 actual in week_03: {actual_week_2_in_week_03}")
 
 # Conclusion:
 # ✅ VALID - Pattern applies to ALL weeks, not special case
-```
+```markdown
 
 ---
 
@@ -316,7 +316,7 @@ print(f"Zero percentage: {zero_percentage:.1f}%")
 # Sample of non-zero values
 non_zero = [val for val in week_1_actuals if val > 0][:10]
 print(f"Sample non-zero values: {non_zero}")
-```
+```bash
 
 **Document Findings:**
 ```markdown
@@ -331,7 +331,7 @@ print(f"Sample non-zero values: {non_zero}")
 - Sample values: [33.6, 22.4, 18.9, 15.2, 12.7, ...]
 
 **Conclusion:** Values are realistic for NFL scoring
-```
+```markdown
 
 **Red Flags That Should FAIL This Stage:**
 - Zero percentage > 90% (almost all zeros)
@@ -383,7 +383,7 @@ def check_schema(week_data, week_num):
 check_schema(week_01, 1)
 check_schema(week_02, 2)
 check_schema(week_03, 3)
-```
+```bash
 
 **Document Findings:**
 ```markdown
@@ -395,7 +395,7 @@ Verified weeks 1-3:
 - ✅ Data types consistent
 
 Pattern verified across all sampled files.
-```
+```bash
 
 ---
 
@@ -467,7 +467,7 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 - **Impact:** Spec conclusion "no code changes needed" is WRONG
 
 **Recommendation:** STOP - Report to user, update spec.md
-```
+```bash
 
 ---
 
@@ -544,7 +544,7 @@ between the actual data and our spec.md/implementation_plan.md.
 **Reason:** [Specific reason based on severity]
 
 Please advise how you'd like to proceed.
-```
+```markdown
 
 **Wait for User Decision** - Do NOT make this choice autonomously.
 
@@ -582,7 +582,7 @@ All assumptions validated with actual data.
 **Conclusion:** Safe to proceed to S6
 
 All TODO items are based on validated assumptions.
-```
+```markdown
 
 ---
 
@@ -621,13 +621,13 @@ S5.5 is complete when:
 ```python
 print('actual_points' in week_01[0])  # True
 # Conclusion: "Data exists, looks good"
-```
+```markdown
 
 **Right:**
 ```python
 print(f"Actual value: {week_01[0]['actual_points'][0]}")  # 0.0
 # Conclusion: "Key exists but value is 0.0 - investigate why"
-```
+```markdown
 
 ### ❌ Pitfall 2: Only Loading One File
 
@@ -636,7 +636,7 @@ print(f"Actual value: {week_01[0]['actual_points'][0]}")  # 0.0
 week_01 = json.load(open('week_01/qb_data.json'))
 print(week_01[0]['actual_points'][0])  # 0.0
 # Conclusion: "Week 1 actuals are 0.0" (but is this the pattern or special case?)
-```
+```markdown
 
 **Right:**
 ```python
@@ -647,7 +647,7 @@ print(f"Week 1 in week_01: {week_01[0]['actual_points'][0]}")  # 0.0
 print(f"Week 1 in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 print(f"Week 2 in week_03: {week_03[0]['actual_points'][1]}")  # 22.4
 # Conclusion: "Pattern is week_N has 0.0, week_N+1 has real values"
-```
+```markdown
 
 ### ❌ Pitfall 3: Using Test Fixtures Instead of Real Data
 
@@ -655,13 +655,13 @@ print(f"Week 2 in week_03: {week_03[0]['actual_points'][1]}")  # 22.4
 ```python
 # Test fixtures might have simplified/fake data
 data = json.load(open('tests/fixtures/sample_week.json'))
-```
+```markdown
 
 **Right:**
 ```python
 # Real production data shows actual behavior
 data = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
-```
+```markdown
 
 ### ❌ Pitfall 4: Trusting Variable Names
 
@@ -671,7 +671,7 @@ data = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 week_1_actual_points = week_01[0]['actual_points'][0]
 print(week_1_actual_points)  # 0.0
 # Conclusion: "Week 1 actuals are 0.0, maybe no games played?"
-```
+```markdown
 
 **Right:**
 ```python
@@ -679,7 +679,7 @@ print(week_1_actual_points)  # 0.0
 week_1_actual_in_week_01 = week_01[0]['actual_points'][0]  # 0.0
 week_1_actual_in_week_02 = week_02[0]['actual_points'][0]  # 33.6
 # Conclusion: "week_01 folder name is misleading - has 0.0, not real actuals"
-```
+```markdown
 
 ### ❌ Pitfall 5: Silently Fixing Discrepancies
 
@@ -690,7 +690,7 @@ print(week_01[0]['actual_points'][0])  # 0.0 (expected > 0)
 # Conclusion: "Spec is wrong, I'll fix it and continue"
 # [Updates spec.md and implementation_plan.md silently]
 # [Proceeds to S6]
-```
+```markdown
 
 **Right:**
 ```python
@@ -700,7 +700,7 @@ print(week_01[0]['actual_points'][0])  # 0.0 (expected > 0)
 # [Documents discrepancy with evidence]
 # [Reports to user with 3 options]
 # [Waits for user decision]
-```
+```markdown
 
 ---
 
@@ -749,7 +749,7 @@ Before marking S5.5 complete, answer ALL questions:
 - [ ] Did I document actual output received?
 - [ ] Did I create evidence table?
 - [ ] Can someone reproduce my findings?
-```
+```markdown
 
 All questions must be YES to pass.
 
@@ -824,7 +824,7 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 # Step 8: Re-run S5.5 to verify fixes
 
 # Step 9: Proceed to S6 with validated assumptions
-```
+```markdown
 
 **Result:** Bug caught before writing any code.
 

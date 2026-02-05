@@ -8,7 +8,7 @@
 
 ## Workflow Overview
 
-```
+```text
 S9.P1: Epic Smoke Testing (60-90 min)
     ├─ Step 1: Pre-QC Verification (15 min)
     │   ├─ Verify all features at S8.P2

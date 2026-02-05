@@ -90,16 +90,16 @@ The **Sync Timeout Protocol** handles scenarios where agents don't reach sync po
 **For agents NOT ready:**
 
 **Read STATUS file blockers:**
-```
+```text
 BLOCKERS: Waiting for user answer to Question 8
-```
+```markdown
 
 **Read checkpoint blockers:**
 ```json
 {
   "blockers": ["User input needed for edge case handling"]
 }
-```
+```markdown
 
 **Step 3: Send Reminder Message**
 
@@ -132,7 +132,7 @@ BLOCKERS: Waiting for user answer to Question 8
 - Other agents waiting on you
 
 **Please respond within 30 minutes with ETA or escalation.**
-```
+```markdown
 
 **Step 4: Wait for Response**
 
@@ -176,7 +176,7 @@ BLOCKERS: Waiting for user answer to Question 8
 - **Timeout:** 2026-01-17 16:00
 - **Ready:** 2/3 agents (Feature 01, Feature 02 complete; Feature 03 pending)
 - **User Escalated:** YES (2026-01-17 16:00)
-```
+```markdown
 
 **Step 2: Escalate to User**
 
@@ -237,7 +237,7 @@ Parallel S2 work started 6 hours ago. Not all features have completed S2.
 - Risk: May find conflicts in second S3 pass requiring rework
 
 **What would you like me to do?**
-```
+```markdown
 
 **Step 3: Wait for User Decision**
 
@@ -245,7 +245,7 @@ Parallel S2 work started 6 hours ago. Not all features have completed S2.
 ```markdown
 **Blockers:** SYNC TIMEOUT - Waiting for user decision on Feature 03 completion
 **Next Action:** User to choose recovery option (1-4)
-```
+```markdown
 
 **Pause S3 work:** Cannot proceed until decision made
 
@@ -329,7 +329,7 @@ Parallel S2 work started 6 hours ago. Not all features have completed S2.
   "last_checkpoint": "2026-01-17T17:15:00Z",
   "status": "IN_PROGRESS"
 }
-```
+```markdown
 
 **Checkpoint age:** 15 minutes (ACTIVE)
 
@@ -355,7 +355,7 @@ Parallel S2 work started 6 hours ago. Not all features have completed S2.
 - Any blockers we should know about?
 
 **No urgency** - just checking in. Reply when convenient.
-```
+```markdown
 
 **Step 3: Wait for Response**
 
@@ -420,7 +420,7 @@ Primary agent started S3/S4 three hours ago. Have not received completion signal
 **What would you like me to do?**
 
 **Note:** I (Secondary-A) cannot proceed to S5 without S3/S4 complete. S3/S4 require epic-level view that only Primary has.
-```
+```markdown
 
 **Step 3: Wait for User Decision**
 

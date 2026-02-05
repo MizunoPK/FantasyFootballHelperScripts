@@ -49,7 +49,7 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
 
 ## Critical Rules
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL REQUIREMENTS - READ BEFORE PROCEEDING              │
 └─────────────────────────────────────────────────────────────┘
@@ -94,7 +94,7 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
    - DO NOT limit to just stages/ folder
    - Use Glob pattern="**/*.md" path="feature-updates/guides_v2" to discover all files
    - Historical issue: 60% of updates missed non-stages/ files
-```
+```markdown
 
 ---
 
@@ -126,7 +126,7 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
 ```bash
 # Read epic lessons
 cat {epic_folder}/epic_lessons_learned.md
-```
+```text
 
 Note:
 - How many lessons documented?
@@ -139,7 +139,7 @@ Note:
 cat {epic_folder}/feature_01_{name}/lessons_learned.md
 cat {epic_folder}/feature_02_{name}/lessons_learned.md
 ...
-```
+```text
 
 Note:
 - Common issues across features?
@@ -245,7 +245,7 @@ Note:
 # Copy template
 cp feature-updates/guides_v2/templates/guide_update_proposal_template.md \
    {epic_folder}/GUIDE_UPDATE_PROPOSAL.md
-```
+```bash
 
 3.2. **Fill in summary section:**
 - Epic name and KAI number
@@ -365,12 +365,12 @@ Within each priority, order by impact (highest impact first)
 - After P2, present P3 proposals
 
 4.6. **Summarize decisions:**
-```
+```text
 Total proposals: {N}
 Approved: {N}
 Modified: {N}
 Rejected: {N}
-```
+```bash
 
 **Checkpoint:**
 - [ ] All proposals presented to user
@@ -386,7 +386,7 @@ Rejected: {N}
 **Purpose:** Update guides with approved changes and user modifications
 
 **🚨 CRITICAL REMINDER BEFORE APPLYING CHANGES:**
-```
+```bash
 When applying changes to "guides", remember:
 - "Guides" = EVERY FILE in feature-updates/guides_v2/
 - NOT just stages/ folder
@@ -396,7 +396,7 @@ When applying changes to "guides", remember:
   folders, you MUST update those files
 - Use Glob pattern="**/*.md" path="feature-updates/guides_v2"
   to see all files if unsure where to apply changes
-```
+```markdown
 
 **Actions:**
 
@@ -439,7 +439,7 @@ When applying changes to "guides", remember:
 ```bash
 git add feature-updates/guides_v2/
 git add CLAUDE.md  # if modified
-```
+```markdown
 
 6.2. **Create commit:**
 ```bash
@@ -459,12 +459,12 @@ Guides updated:
 ...
 
 See {epic_folder}/GUIDE_UPDATE_PROPOSAL.md for details."
-```
+```markdown
 
 6.3. **Verify commit:**
 ```bash
 git log -1 --stat
-```
+```text
 
 Check:
 - Commit message is clear
@@ -489,7 +489,7 @@ Check:
 ```bash
 # Edit tracking file
 # Add entries to Applied Lessons Log, Rejected Lessons, and Metrics
-```
+```markdown
 
 7.2. **Add to Applied Lessons Log:**
 - For each approved/modified proposal:
@@ -523,7 +523,7 @@ Check:
 ```bash
 git add feature-updates/guides_v2/reference/guide_update_tracking.md
 git commit -m "docs(tracking): Update guide tracking for KAI-{N}-{epic_name}"
-```
+```markdown
 
 **Checkpoint:**
 - [ ] Applied Lessons Log updated
@@ -553,7 +553,7 @@ git commit -m "docs(tracking): Update guide tracking for KAI-{N}-{epic_name}"
 ```bash
 git add feature-updates/guide-updates.txt
 git commit -m "docs(guide-updates): Update status for items addressed in KAI-{N}-{epic_name}"
-```
+```markdown
 
 **Checkpoint:**
 - [ ] guide-updates.txt checked
@@ -587,7 +587,7 @@ git commit -m "docs(guide-updates): Update status for items addressed in KAI-{N}
 - Proposals: {N} ({approved} approved, {modified} modified, {rejected} rejected)
 - Guides updated: {N} files
 - Commits: {N} (guide updates + tracking)
-```
+```markdown
 
 9.2. **Announce completion:**
 
@@ -620,7 +620,7 @@ Use prompt from prompts/guide_update_prompts.md "After Applying Changes" section
 
 ## Common Pitfalls
 
-```
+```text
 ┌────────────────────────────────────────────────────────────┐
 │ "If You're Thinking This, STOP" - Anti-Pattern Detection  │
 └────────────────────────────────────────────────────────────┘
@@ -645,7 +645,7 @@ Use prompt from prompts/guide_update_prompts.md "After Applying Changes" section
 
 ❌ "I'll update tracking later"
    ✅ STOP - Update tracking immediately while context fresh
-```
+```markdown
 
 ---
 
@@ -694,7 +694,7 @@ Agent rushed through S2 spec creation and made assumptions about folder handling
   1. Epic notes (user's original request)
   2. Epic ticket (user-validated outcomes from S1)
   3. Spec summary (user-validated feature outcomes from S2)
-```
+```bash
 
 **Proposed Change (AFTER):**
 ```markdown
@@ -711,7 +711,7 @@ Agent rushed through S2 spec creation and made assumptions about folder handling
   1. Epic notes (user's original request)
   2. Epic ticket (user-validated outcomes from S1)
   3. Spec summary (user-validated feature outcomes from S2)
-```
+```markdown
 
 **Rationale:**
 Adding historical context shows future agents WHY this gate exists and what happens if it's skipped. Real example makes the importance concrete instead of abstract.
@@ -724,7 +724,7 @@ Adding historical context shows future agents WHY this gate exists and what happ
 **User Decision:** [ ] Approve  [ ] Modify  [ ] Reject  [ ] Discuss
 
 **User Feedback/Modifications:**
-```
+```json
 {User writes response here}
 ```
 

@@ -78,7 +78,7 @@
 **Scenario 1: Import All Epic Modules**
 ```python
 python -c "from feature_01.{module} import {Class1}; from feature_02.{module} import {Class2}; from feature_03.{module} import {Class3}"
-```
+```python
 
 **Expected Result:**
 - No import errors
@@ -94,7 +94,7 @@ python -c "from feature_01.{module} import {Class1}; from feature_02.{module} im
 **Scenario 2: Epic Entry Point Help**
 ```bash
 python run_{epic_main}.py --help
-```
+```markdown
 
 **Expected Result:**
 - Help text displays correctly
@@ -104,7 +104,7 @@ python run_{epic_main}.py --help
 **Scenario 3: Epic Entry Point Validation**
 ```bash
 python run_{epic_main}.py --mode {mode1} --option {value}
-```
+```markdown
 
 **Expected Result:**
 - Entry point starts without errors
@@ -120,7 +120,7 @@ python run_{epic_main}.py --mode {mode1} --option {value}
 **Scenario 4: Complete Epic Workflow ({workflow_name})**
 ```bash
 python run_{epic_main}.py --mode {mode} --week {N} --iterations {N}
-```
+```markdown
 
 **Expected Result:**
 - Command completes successfully (exit code 0)
@@ -133,7 +133,7 @@ python run_{epic_main}.py --mode {mode} --week {N} --iterations {N}
 **Scenario 5: Epic Workflow with Edge Case ({edge_case_name})**
 ```bash
 python run_{epic_main}.py --mode {mode} --{edge_case_flag}
-```
+```markdown
 
 **Expected Result:**
 - {Expected behavior for edge case}

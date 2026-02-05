@@ -1,0 +1,7 @@
+==================================
+Pre-Audit Automated Checks
+==================================
+
+[0;34m=== File Size Assessment (D10) ===[0m
+
+[1;33m⚠️  LARGE:[0m stages/stage_1_discovery.md (607 lines) - consider split

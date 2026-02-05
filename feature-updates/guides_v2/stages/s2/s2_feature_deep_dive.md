@@ -205,7 +205,7 @@ Feature Planning is where you research each feature, create detailed specificati
 
 ## Workflow Through Sub-Stages
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────┐
 │                   S2 Workflow                           │
 └──────────────────────────────────────────────────────────────┘
@@ -251,7 +251,7 @@ Start Feature Deep Dive
   Next        S3
  Feature
 STAGE_2a
-```
+```markdown
 
 ---
 
@@ -324,7 +324,7 @@ STAGE_2a
 
 ## Critical Rules (Same Across All Sub-Stages)
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL RULES - Apply to ALL sub-stages                    │
 └─────────────────────────────────────────────────────────────┘
@@ -365,7 +365,7 @@ STAGE_2a
 8. ⚠️ If checklist grows >35 items, propose split
    - Too large to implement systematically
    - Get user approval before splitting
-```
+```markdown
 
 ---
 
@@ -387,7 +387,7 @@ I acknowledge:
 - Research must be targeted (THIS feature only, not entire epic)
 
 Ready to begin Phase 0: Discovery Context Review.
-```
+```markdown
 
 ---
 

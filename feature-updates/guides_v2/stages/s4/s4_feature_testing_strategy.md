@@ -45,7 +45,7 @@ S4 is complete when test_strategy.md exists with >90% coverage planned, all edge
 
 ## Critical Rules
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL RULES - These MUST be copied to README Agent Status │
 └─────────────────────────────────────────────────────────────┘
@@ -83,7 +83,7 @@ S4 is complete when test_strategy.md exists with >90% coverage planned, all edge
 7. ⚠️ Update feature README.md Agent Status at each iteration
    - After Iteration 1, 2, 3, 4 completion
    - Proves progress, enables resumption after compaction
-```
+```markdown
 
 ---
 
@@ -111,13 +111,13 @@ S4 is complete when test_strategy.md exists with >90% coverage planned, all edge
 
 **S4 has 4 iterations (NO PHASES):**
 
-```
+```text
 S4: Feature Testing Strategy
 ├── S4.I1 - Test Strategy Development (s4_test_strategy_development.md)
 ├── S4.I2 - Edge Case Enumeration (s4_test_strategy_development.md)
 ├── S4.I3 - Configuration Change Impact (s4_test_strategy_development.md)
 └── S4.I4 - Validation Loop Validation (s4_validation_loop.md)
-```
+```markdown
 
 **Router Logic:**
 
@@ -141,7 +141,7 @@ S4: Feature Testing Strategy
 
 ## Workflow Overview
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────┐
 │                    STAGE 4 WORKFLOW                          │
 └──────────────────────────────────────────────────────────────┘
@@ -175,7 +175,7 @@ Output: Create test_strategy.md
    ├─ Traceability matrix
    ├─ Edge case catalog
    └─ Configuration test matrix
-```
+```markdown
 
 ---
 
@@ -223,7 +223,7 @@ Output: Create test_strategy.md
 
 ## Common Mistakes to Avoid
 
-```
+```text
 ┌────────────────────────────────────────────────────────────┐
 │ "If You're Thinking This, STOP" - Anti-Pattern Detection  │
 └────────────────────────────────────────────────────────────┘

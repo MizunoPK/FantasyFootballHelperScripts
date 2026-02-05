@@ -60,7 +60,7 @@ Research Phase is complete when Phase 1.5 audit passes (all 4 categories with ev
 
 ## Critical Rules
 
-```
+```text
 +-------------------------------------------------------------+
 | CRITICAL RULES - These MUST be copied to README Agent Status |
 +-------------------------------------------------------------+
@@ -92,7 +92,7 @@ Research Phase is complete when Phase 1.5 audit passes (all 4 categories with ev
    - Named: {FEATURE_NAME}_RESEARCH.md
 
 6. Update feature README.md Agent Status after EACH phase
-```
+```markdown
 
 ---
 
@@ -240,7 +240,7 @@ Verify the Discovery Context section (created in S1 Step 5) is populated:
 
 ### Relevant User Answers (from Discovery)
 {Should be populated from S1}
-```
+```markdown
 
 **If Discovery Context is missing or incomplete:**
 - Copy relevant sections from DISCOVERY.md
@@ -277,7 +277,7 @@ Based on Discovery Context, identify what THIS feature needs to accomplish:
 [ ] I can list relevant user answers from Discovery
 [ ] I understand how this feature fits in the overall solution
 [ ] I know this feature's dependencies from Discovery
-```
+```markdown
 
 **If any item unchecked:**
 - Do NOT proceed to Phase 1
@@ -314,7 +314,7 @@ Based on Discovery Context, identify what THIS feature needs to accomplish:
 
 **Discovery Reviewed:** {YYYY-MM-DD HH:MM}
 **Feature Scope Verified:** Yes
-```
+```markdown
 
 ---
 
@@ -433,7 +433,7 @@ with patch('espn_api.League') as mock_league:
     mock_league.return_value = Mock(players=[...])
     # Does library work with mocks?
     # Can we configure endpoints?
-```
+```markdown
 
 **Check:**
 - [ ] Does library accept endpoint override (for test APIs)?
@@ -468,7 +468,7 @@ Add to research notes:
   - Cannot configure for LocalStack
 - **Workaround:** Create custom test client using boto3 directly
 - **Impact:** Add 2 tasks to spec for test client wrapper
-```
+```markdown
 
 ---
 
@@ -542,7 +542,7 @@ Create `epic/research/{FEATURE_NAME}_RESEARCH.md`:
 
 **Components Researched:** {N}
 **Research Document:** epic/research/{FEATURE_NAME}_DISCOVERY.md
-```
+```markdown
 
 ---
 

@@ -91,7 +91,7 @@ An issue in spec refinement context is any of:
 
 ## Example Round Sequence
 
-```
+```text
 Round 1: Sequential read + traceability
 - Read spec.md top to bottom
 - Check: Requirement R5 has no source, R7 is vague ("handle errors")

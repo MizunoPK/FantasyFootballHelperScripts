@@ -33,7 +33,7 @@ After epic is complete and moved to done/, update the EPIC_README.md file in its
 **Original Request:** feature-updates/{epic_name}.txt
 
 **Next Steps:** None - epic complete! 🎉
-```
+```markdown
 
 ---
 
@@ -60,7 +60,7 @@ After epic is complete and moved to done/, update the EPIC_README.md file in its
 **Original Request:** feature-updates/improve_draft_helper.txt
 
 **Next Steps:** None - epic complete! 🎉
-```
+```markdown
 
 ---
 
@@ -75,7 +75,7 @@ Update EPIC_README.md **after** the epic folder is moved to done/ (Step 7 of S10
 1. **Navigate to epic's new location:**
    ```bash
    cd feature-updates/done/{epic_name}/
-   ```
+   ```markdown
 
 2. **Open EPIC_README.md** using Read tool
 
@@ -139,7 +139,7 @@ If bugs were found and fixed during user testing, add this section to EPIC_READM
 - bugfix_{priority}_{name}/: {Brief description}
 
 **S9 Re-Validation:** ✅ PASSED (after bug fixes)
-```
+```markdown
 
 **When to include this:**
 - Only if user found bugs during S10 Step 5 (User Testing)
@@ -161,7 +161,7 @@ If bugs were found and fixed during user testing, add this section to EPIC_READM
 - bugfix_medium_display_format/: Corrected multi-player trade display
 
 **S9 Re-Validation:** ✅ PASSED (after bug fixes)
-```
+```markdown
 
 ---
 
@@ -191,26 +191,26 @@ Before considering epic completion summary complete:
 # Edit feature-updates/improve_draft_helper/EPIC_README.md
 # Then move epic to done/
 # Result: Edit is lost because file moved before saving
-```
+```markdown
 
 **Right:**
 ```bash
 # Move epic to done/
 # Then edit feature-updates/done/improve_draft_helper/EPIC_README.md
 # Result: Edit persists in correct location
-```
+```markdown
 
 ### ❌ Mistake 2: Wrong epic location in completion summary
 
 **Wrong:**
 ```markdown
 **Epic Moved To:** feature-updates/improve_draft_helper/  ← Still in root!
-```
+```markdown
 
 **Right:**
 ```markdown
 **Epic Moved To:** feature-updates/done/improve_draft_helper/  ← In done/
-```
+```markdown
 
 ### ❌ Mistake 3: Forgetting to count bug fixes
 
@@ -218,13 +218,13 @@ Before considering epic completion summary complete:
 ```markdown
 **Total Features:** 3
 **Bug Fixes Created:** 0  ← Actually had 1 bug fix!
-```
+```markdown
 
 **Right:**
 ```markdown
 **Total Features:** 3
 **Bug Fixes Created:** 1
-```
+```bash
 
 **How to verify:** Use `ls feature-updates/done/{epic_name}/` and count bugfix_* folders.
 
@@ -233,12 +233,12 @@ Before considering epic completion summary complete:
 **Wrong:**
 ```markdown
 **Final Test Pass Rate:** 95% (2090/2200 tests)  ← Should be 100%!
-```
+```markdown
 
 **Right:**
 ```markdown
 **Final Test Pass Rate:** 100% (2200/2200 tests)  ← All tests passing
-```
+```markdown
 
 **Note:** If tests aren't 100%, don't commit. Fix tests first, then complete S10.
 

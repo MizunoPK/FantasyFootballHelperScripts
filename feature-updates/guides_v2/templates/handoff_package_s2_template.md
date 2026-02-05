@@ -8,7 +8,7 @@
 
 ## Handoff Package Format
 
-```
+```markdown
 ═══════════════════════════════════════════════════════════
 I'm joining as a secondary agent for epic {EPIC_NAME}.
 
@@ -31,13 +31,13 @@ Starting Stage: S2.P1 (Feature Deep Dive - Research Phase)
 
 Begin S2.P1 now.
 ═══════════════════════════════════════════════════════════
-```
+```markdown
 
 ---
 
 ## Example (Filled In)
 
-```
+```markdown
 ═══════════════════════════════════════════════════════════
 I'm joining as a secondary agent for epic KAI-6-nfl_team_penalty.
 
@@ -60,7 +60,7 @@ Starting Stage: S2.P1 (Feature Deep Dive - Research Phase)
 
 Begin S2.P1 now.
 ═══════════════════════════════════════════════════════════
-```
+```markdown
 
 ---
 
@@ -123,7 +123,7 @@ generate_s2_handoff_package \
   "feature_02_team_penalty" \
   "Agent-abc123" \
   "Secondary-A"
-```
+```markdown
 
 ---
 
@@ -161,7 +161,7 @@ generate_s2_handoff_package \
      echo "ERROR: Feature folder not found"
      exit 1
    fi
-   ```
+   ```markdown
 
 3. **Create coordination infrastructure:**
    ```bash
@@ -181,7 +181,7 @@ EOF
 
 (No messages yet)
 EOF
-   ```
+   ```markdown
 
 4. **Create checkpoint file:**
    ```bash
@@ -190,7 +190,7 @@ EOF
 
    # Create initial checkpoint
    # (See checkpoint_protocol.md for format)
-   ```
+   ```markdown
 
 5. **Create STATUS file:**
    ```bash
@@ -207,7 +207,7 @@ NEXT_ACTION: Begin S2.P1 Research Phase
 READY_FOR_SYNC: false
 ESTIMATED_COMPLETION: $(date -u -d "+2 hours" +"%Y-%m-%dT%H:%M:%SZ")
 EOF
-   ```
+   ```markdown
 
 6. **Update EPIC_README.md:**
    - Acquire lock

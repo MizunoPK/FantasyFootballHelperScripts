@@ -53,7 +53,7 @@ Planning Round 1 is complete when all 7 iterations pass (including Gate 4a manda
 
 ## Critical Rules
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL RULES - These MUST be copied to README Agent Status │
 └─────────────────────────────────────────────────────────────┘
@@ -98,7 +98,7 @@ Planning Round 1 is complete when all 7 iterations pass (including Gate 4a manda
 9. ⚠️ Update feature README.md Agent Status after Planning Round 1 complete
    - Document confidence level
    - Document next action
-```
+```markdown
 
 ---
 
@@ -124,7 +124,7 @@ Planning Round 1 is complete when all 7 iterations pass (including Gate 4a manda
 
 ## Workflow Overview
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────┐
 │          ROUND 1: Initial Analysis & Planning                │
 │                    (9 Iterations)                             │
@@ -144,7 +144,7 @@ ROUND 1 CHECKPOINT
    ↓
 If confidence >= MEDIUM: Proceed to Planning Round 2
 If confidence < MEDIUM: Create questions file, wait for user
-```
+```markdown
 
 ---
 
@@ -250,7 +250,7 @@ If confidence < MEDIUM: Create questions file, wait for user
 
 ## Common Mistakes to Avoid
 
-```
+```text
 ┌────────────────────────────────────────────────────────────┐
 │ "If You're Thinking This, STOP" - Anti-Pattern Detection  │
 └────────────────────────────────────────────────────────────┘

@@ -21,7 +21,7 @@
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterations in Round 1...
 
 **The guide requires:**
@@ -72,7 +72,7 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterat
 - Next Action: Begin iteration 1 - Requirements Coverage Check
 
 Starting iteration 1...
-```
+```markdown
 
 ---
 
@@ -84,7 +84,7 @@ Starting iteration 1...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s5/s5_p2_planning_round2.md` to ensure I follow all 6 iterations in Round 2...
 
 **The guide requires:**
@@ -124,7 +124,7 @@ I'm reading `stages/s5/s5_p2_planning_round2.md` to ensure I follow all 6 iterat
 - Next Action: Begin iteration 8 - Test Strategy Development
 
 Starting iteration 8...
-```
+```markdown
 
 ---
 
@@ -141,7 +141,7 @@ Starting iteration 8...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s5/s5_p3_planning_round3.md` to ensure I follow all 6 preparation iterations in Round 3 Part 1...
 
 **The guide requires:**
@@ -186,7 +186,7 @@ I'm reading `stages/s5/s5_p3_planning_round3.md` to ensure I follow all 6 prepar
 - Next Action: Begin iteration 17 - Implementation Phasing
 
 Starting iteration 17...
-```
+```markdown
 
 ---
 
@@ -198,7 +198,7 @@ Starting iteration 17...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/s5/5.1.3.3_round3_part2b.md` (Part 2b) to ensure I follow all 4 final gate iterations in Round 3 Part 2...
 
 **The guide requires:**
@@ -249,7 +249,7 @@ I'm reading `stages/s5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/s5/5.1.3.
 - Next Action: Begin iteration 23 - Integration Gap Check (Final)
 
 Starting iteration 23...
-```
+```bash
 
 ---
 
@@ -263,7 +263,7 @@ Starting iteration 23...
 
 **Agent MUST respond:**
 
-```
+```markdown
 S5 (Implementation Planning) is complete. I've created implementation_plan.md v3.0 (~400 lines) with:
 
 **Key Sections:**
@@ -288,7 +288,7 @@ S5 (Implementation Planning) is complete. I've created implementation_plan.md v3
 **Say "approved" to proceed to S6 (Implementation), or request changes.**
 
 **Note:** This is your opportunity to adjust the implementation approach before code is written. Once approved, I'll create implementation_checklist.md and begin coding.
-```
+```markdown
 
 ---
 
@@ -300,7 +300,7 @@ S5 (Implementation Planning) is complete. I've created implementation_plan.md v3
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s6/s6_execution.md` to ensure I follow the implementation workflow...
 
 **The guide requires:**
@@ -335,7 +335,7 @@ I'm reading `stages/s6/s6_execution.md` to ensure I follow the implementation wo
 - Next Action: Create implementation_checklist.md from implementation_plan.md tasks
 
 Starting implementation...
-```
+```markdown
 
 ---
 
@@ -347,7 +347,7 @@ Starting implementation...
 
 **Agent MUST respond:**
 
-```
+```python
 I'm reading `stages/s7/s7_p1_smoke_testing.md` to ensure I follow the 3-part smoke testing protocol...
 
 **The guide requires:**
@@ -386,7 +386,7 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md` to ensure I follow the 3-part smo
 - Next Action: Smoke Test Part 1 - Import test
 
 Running import test for {feature_name}...
-```
+```bash
 
 ---
 
@@ -398,7 +398,7 @@ Running import test for {feature_name}...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s7/s7_p2_qc_rounds.md` to ensure I follow the 3-round QC protocol...
 
 **The guide requires:**
@@ -436,7 +436,7 @@ I'm reading `stages/s7/s7_p2_qc_rounds.md` to ensure I follow the 3-round QC pro
 - Next Action: QC Round 1 - Basic Validation
 
 Starting QC Round 1 for {feature_name}...
-```
+```bash
 
 ---
 
@@ -448,7 +448,7 @@ Starting QC Round 1 for {feature_name}...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s7/s7_p3_final_review.md` to ensure I follow the final review protocol...
 
 **The guide requires:**
@@ -488,7 +488,7 @@ I'm reading `stages/s7/s7_p3_final_review.md` to ensure I follow the final revie
 - Next Action: READ pr_review_protocol.md and begin Round 1 specialized reviews
 
 Starting PR Review Protocol for {feature_name}...
-```
+```markdown
 
 ---
 
@@ -500,7 +500,7 @@ Starting PR Review Protocol for {feature_name}...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s8/s8_p1_cross_feature_alignment.md` to ensure I review all remaining feature specs...
 
 **The guide requires:**
@@ -542,7 +542,7 @@ I'm reading `stages/s8/s8_p1_cross_feature_alignment.md` to ensure I review all 
 - Next Action: Identify remaining features from Epic Progress Tracker
 
 Starting cross-feature alignment review...
-```
+```markdown
 
 ---
 
@@ -554,7 +554,7 @@ Starting cross-feature alignment review...
 
 **Agent MUST respond:**
 
-```
+```bash
 I'm reading `stages/s8/s8_p2_epic_testing_update.md` to ensure I update the epic test plan based on actual implementation...
 
 **The guide requires:**

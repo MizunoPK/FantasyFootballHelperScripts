@@ -54,7 +54,7 @@
 
 ## Workflow Overview
 
-```
+```text
 Discovery (S9.P2: Epic QC Round 1)
     ↓
 PHASE 1: Discovery & User Decision (normal)
@@ -70,7 +70,7 @@ SPECIAL: Implement New/Updated Feature (full S5)
 SPECIAL: RESTART Epic Testing from S9.P1 Step 1
     ↓
 S9.P1 → S9.P2 → S9.P3 → S10 (entire epic flow)
-```
+```markdown
 
 ---
 
@@ -118,7 +118,7 @@ Actions needed:
 2. Implement feature_04 (full S5)
 3. Implement feature_05 (full S5)
 4. Then restart epic testing
-```
+```markdown
 
 **Complete each feature in sequence:**
 - Resume feature_03 where it left off
@@ -177,7 +177,7 @@ Actions needed:
 - Restarting from: S9.P1 Step 1 (Epic Smoke Testing)
 
 **Next Action:** Execute epic smoke test plan with ALL 5 features
-```
+```markdown
 
 **Follow S9 from beginning:**
 
@@ -245,7 +245,7 @@ Actions needed:
    - S9.P2 (QC Rounds)
    - S9.P3 (Final Review)
    - S10 (Cleanup & User Testing)
-```
+```markdown
 
 ---
 

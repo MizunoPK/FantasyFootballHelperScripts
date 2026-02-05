@@ -30,7 +30,7 @@ mkdir -p feature_XX_name/debugging/diagnostic_logs
 
 # For epic-level (issues found during epic testing or user testing)
 mkdir -p epic_name/debugging/diagnostic_logs
-```
+```markdown
 
 **Decision: Feature vs Epic?**
 - **Feature-level:** Issues discovered during S7.P1 or S7.P2 for a specific feature
@@ -99,7 +99,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 - Issue checklist workflow (ISSUES_CHECKLIST.md always current)
 - Loop back to testing after all issues resolved
 - User verification required for each issue
-```
+```markdown
 
 **Epic-level (in epic_name/EPIC_README.md):**
 
@@ -126,7 +126,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 - Epic-level debugging folder (epic_name/debugging/)
 - Loop back to S9.P1 after all issues resolved
 - User verification required for each issue
-```
+```markdown
 
 ---
 
@@ -192,7 +192,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 
 **Average Investigation Rounds:** N/A (no issues completed yet)
 **Total Debugging Time:** {will track}
-```
+```markdown
 
 ---
 
@@ -205,19 +205,19 @@ mkdir -p epic_name/debugging/diagnostic_logs
 1. **Add to ISSUES_CHECKLIST.md immediately:**
    ```markdown
    | 3 | new_issue_name | 🔴 NOT_STARTED | - | ❌ NO | Discovered during Issue #1 | Related to Issue #1 |
-   ```
+   ```markdown
 
 2. **Update current issue's file:**
    ```markdown
    ## Related Issues
 
    - Issue #3: {name} - Discovered during Investigation Round 2
-   ```
+   ```markdown
 
 3. **Assess blocking relationship:**
 
 **Decision tree:**
-```
+```text
 Does Issue #3 BLOCK Issue #1?
 ├─ YES (cannot fix #1 without fixing #3 first)
 │  ├─ Update ISSUES_CHECKLIST.md "Current Focus" to Issue #3
@@ -229,7 +229,7 @@ Does Issue #3 BLOCK Issue #1?
    ├─ Note relationship in ISSUES_CHECKLIST.md
    ├─ Continue with Issue #1
    └─ Will investigate Issue #3 after #1 is resolved
-```
+```markdown
 
 4. **Ask user if priority should change:**
 
@@ -247,7 +247,7 @@ I discovered a new issue while investigating Issue #{current}:
 **Recommendation:** {your assessment}
 
 What would you like me to do?
-```
+```markdown
 
 ---
 
@@ -263,7 +263,7 @@ What would you like me to do?
 - Issues specific to one feature's implementation
 
 **Folder structure:**
-```
+```text
 feature_01_player_integration/
 └── debugging/
     ├── ISSUES_CHECKLIST.md
@@ -274,7 +274,7 @@ feature_01_player_integration/
     └── diagnostic_logs/
         ├── issue_01_round1.log
         └── issue_02_round1.log
-```
+```markdown
 
 **Loop-back destination:** S7.P1 Step 1 (Smoke Testing)
 
@@ -292,7 +292,7 @@ feature_01_player_integration/
 - Epic-level coordination issues
 
 **Folder structure:**
-```
+```text
 epic_name/
 └── debugging/
     ├── ISSUES_CHECKLIST.md

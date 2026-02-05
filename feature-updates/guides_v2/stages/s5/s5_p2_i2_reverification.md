@@ -85,10 +85,10 @@ After completing this iteration, check if you have questions or found answers:
 **Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
-```
+```text
 Progress: Iteration 11/16 (Planning Round 2) complete
 Next Action: Iteration 12 - End-to-End Data Flow (Re-verify)
-```
+```markdown
 
 ---
 
@@ -138,7 +138,7 @@ Returns: total_score (float) with ADP contribution
    ↓
 **Output:**
 Updated player score used in draft recommendations
-```
+```markdown
 
 4. **Verify no gaps in updated flow:**
    - Config validated before loading ✅
@@ -165,7 +165,7 @@ After completing this iteration, check if you have questions or found answers:
 **Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
-```
+```text
 Progress: Iteration 12/16 (Planning Round 2) complete
 Next Action: Iteration 13 - Dependency Version Check
 ```

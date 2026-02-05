@@ -8,7 +8,7 @@
 
 ## Workflow Overview
 
-```
+```text
 STEP 1: Prepare Comparison Matrix (10 min)
     ├─ List all features
     ├─ List comparison categories (6 categories)

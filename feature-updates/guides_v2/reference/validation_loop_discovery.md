@@ -90,7 +90,7 @@ An issue in discovery context is any of:
 
 ## Example Round Sequence
 
-```
+```text
 Round 1: Sequential read + completeness
 - Read DISCOVERY.md top to bottom
 - Check: Missing research on authentication flow, 2 assumptions about API

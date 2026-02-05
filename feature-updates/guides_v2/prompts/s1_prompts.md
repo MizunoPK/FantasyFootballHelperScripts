@@ -13,7 +13,7 @@
 
 **Agent MUST respond:**
 
-```
+```bash
 I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic planning workflow...
 
 **The guide requires:**
@@ -47,7 +47,7 @@ I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic
 - Next Action: Create git branch and epic folder structure
 
 Starting Step 1...
-```
+```markdown
 
 ---
 
@@ -57,7 +57,7 @@ Starting Step 1...
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s1/s1_p3_discovery_phase.md` to ensure I follow the Discovery Phase workflow...
 
 **The guide requires:**
@@ -92,7 +92,7 @@ I'm reading `stages/s1/s1_p3_discovery_phase.md` to ensure I follow the Discover
 - Next Action: Create DISCOVERY.md and extract initial questions
 
 Starting S1.P3.1...
-```
+```markdown
 
 ---
 
@@ -102,7 +102,7 @@ Starting S1.P3.1...
 
 **Agent MUST respond:**
 
-```
+```markdown
 **Discovery Loop - Iteration {N}**
 
 **Research Focus:**
@@ -135,7 +135,7 @@ Starting S1.P3.1...
 ---
 
 Please answer so I can continue research.
-```
+```markdown
 
 ---
 
@@ -145,7 +145,7 @@ Please answer so I can continue research.
 
 **Agent MUST respond:**
 
-```
+```markdown
 **Discovery Phase Complete**
 
 **Iterations Completed:** {N}
@@ -178,7 +178,7 @@ Please answer so I can continue research.
 - Does the feature breakdown make sense?
 
 **Please approve to proceed to feature breakdown (Step 4).**
-```
+```markdown
 
 ---
 
@@ -188,7 +188,7 @@ Please answer so I can continue research.
 
 **Agent MUST respond:**
 
-```
+```markdown
 **S1 (Epic Planning) Complete**
 
 **Summary:**

@@ -94,7 +94,7 @@ Create integration point map with details:
 **Test Need:** {What needs to be verified}
 
 [Continue for each integration point...]
-```
+```bash
 
 **3. Define Epic Success Criteria (15-20 min)**
 
@@ -111,7 +111,7 @@ Convert vague goals to MEASURABLE criteria:
 **Verification:** {How to verify (command, observation, test)}
 
 [Continue for each criterion...]
-```
+```markdown
 
 **4. Create Specific Test Scenarios (15-25 min)**
 
@@ -141,7 +141,7 @@ Convert high-level categories to concrete tests with commands:
 **Command to verify:**
 ```bash
 {Actual command to run}
-```
+```json
 
 [Continue for each test scenario...]
 ```

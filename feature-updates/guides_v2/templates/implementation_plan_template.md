@@ -43,7 +43,7 @@ This template is used during S5 (Implementation Planning) to accumulate findings
 
 # New
 {new_code}
-```
+```markdown
 
 **Acceptance Criteria:**
 - [ ] {Criterion 1}

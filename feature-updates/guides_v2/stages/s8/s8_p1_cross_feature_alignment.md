@@ -6,11 +6,11 @@
 **Purpose:** After completing a feature, review ALL remaining (not-yet-implemented) feature specs to ensure they align with the ACTUAL implementation (not just the plan). Update specs based on real insights from implementation to prevent spec drift and catch cascading changes early.
 
 **Stage Flow Context:**
-```
+```text
 S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing & Review) →
 → [YOU ARE HERE: S8.P1 - Cross-Feature Alignment] →
 → S8.P2 (Testing Plan Update) → Next Feature's S5 (or S9 if all features done)
-```
+```markdown
 
 ---
 
@@ -65,7 +65,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 
 ## 🛑 Critical Rules
 
-```
+```text
 1. ⚠️ REVIEW ALL REMAINING FEATURES (Not just "related" ones)
    - Don't assume which features are affected
    - Implementation insights can affect unexpected features
@@ -125,7 +125,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
     - If any feature needs to return to S2 or 1 → ask user
     - Present: What changed, why rework needed, proposed approach
     - Don't proceed with major changes without user sign-off
-```
+```markdown
 
 ---
 
@@ -214,7 +214,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 
 ## Workflow Overview
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────┐
 │          STAGE 5d: CROSS-FEATURE ALIGNMENT WORKFLOW          │
 │                    (4 Major Steps)                            │

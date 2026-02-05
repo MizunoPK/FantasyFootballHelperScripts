@@ -75,7 +75,7 @@ This template is used during S6 (Implementation Execution) to track progress thr
 ---
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-```
+```markdown
 
 ---
 

@@ -29,7 +29,7 @@ This file contains **mandatory acknowledgment prompts** for parallel work during
 
 ### Prompt Text
 
-```
+```markdown
 ═══════════════════════════════════════════════════════════
 I'm starting S2 (Feature Deep Dives) in PARALLEL MODE as Primary Agent.
 
@@ -79,7 +79,7 @@ I'm starting S2 (Feature Deep Dives) in PARALLEL MODE as Primary Agent.
 
 **Reading Guide:** parallel_work/s2_primary_agent_guide.md
 ═══════════════════════════════════════════════════════════
-```
+```markdown
 
 ---
 
@@ -93,7 +93,7 @@ I'm starting S2 (Feature Deep Dives) in PARALLEL MODE as Primary Agent.
 
 ### Prompt Text
 
-```
+```markdown
 ═══════════════════════════════════════════════════════════
 I'm joining as Secondary Agent for epic {epic_name}.
 
@@ -150,7 +150,7 @@ Starting Stage: S2.P1 (Feature Deep Dive - Research Phase)
 
 **Reading Guide:** parallel_work/s2_secondary_agent_guide.md
 ═══════════════════════════════════════════════════════════
-```
+```markdown
 
 ---
 
@@ -164,7 +164,7 @@ Starting Stage: S2.P1 (Feature Deep Dive - Research Phase)
 
 ### Prompt Text
 
-```
+```json
 [15-minute timer expired - coordination heartbeat]
 
 Pausing Feature 01 work for coordination (< 10% time overhead)...
@@ -193,7 +193,7 @@ Pausing Feature 01 work for coordination (< 10% time overhead)...
 - If checkpoint age > 60 min: Escalate to user (stale agent protocol)
 
 Coordination complete. Resuming Feature 01 work...
-```
+```markdown
 
 ---
 
@@ -207,7 +207,7 @@ Coordination complete. Resuming Feature 01 work...
 
 ### Prompt Text
 
-```
+```json
 [15-minute timer expired - coordination heartbeat]
 
 Pausing feature work for coordination (< 10% time overhead)...
@@ -228,7 +228,7 @@ Pausing feature work for coordination (< 10% time overhead)...
 - Wait for Primary response (SLA: 15 minutes)
 
 Coordination complete. Resuming feature work...
-```
+```markdown
 
 ---
 
@@ -242,7 +242,7 @@ Coordination complete. Resuming feature work...
 
 ### Prompt Text
 
-```
+```markdown
 ═══════════════════════════════════════════════════════════
 Feature 01 S2 complete. Verifying sync point before S3...
 
@@ -285,7 +285,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 
 **Reading Guide:** stages/s3/s3_cross_feature_sanity_check.md (Sync Verification section)
 ═══════════════════════════════════════════════════════════
-```
+```markdown
 
 ---
 
@@ -299,7 +299,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 
 ### Prompt Text
 
-```
+```markdown
 🚨 STALE AGENT DETECTED
 
 **Agent:** {agent_id}
@@ -335,7 +335,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 **User decision required to proceed.**
 
 **Guide:** parallel_work/stale_agent_protocol.md
-```
+```markdown
 
 ---
 
@@ -349,7 +349,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 
 ### Prompt Text
 
-```
+```bash
 🕒 SYNC TIMEOUT - S2 → S3
 
 **Situation:** Parallel S2 work started {elapsed_hours} hours ago. Not all features have completed S2.
@@ -378,7 +378,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 **User decision required to proceed.**
 
 **Guide:** parallel_work/sync_timeout_protocol.md
-```
+```markdown
 
 ---
 
@@ -392,7 +392,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 
 ### Prompt Text
 
-```
+```bash
 🕒 SYNC TIMEOUT - S4 → S5
 
 **Situation:** Primary started S3/S4 {elapsed_hours} hours ago. Have not received completion signal.

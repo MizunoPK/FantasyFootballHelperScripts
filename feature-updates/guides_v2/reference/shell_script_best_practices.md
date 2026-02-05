@@ -27,7 +27,7 @@ When creating any shell script, **ALWAYS include at the top:**
 set -e  # Exit immediately if any command fails
 set -u  # Exit if undefined variable used
 set -o pipefail  # Exit if any command in pipeline fails
-```
+```markdown
 
 **Why this matters:**
 - **Without `set -e`:** Script continues after failures, reports success incorrectly
@@ -60,7 +60,7 @@ cp important_file.txt /tmp/data/
 ./deploy.sh
 
 echo "Success!"  # Prints even if commands failed
-```
+```bash
 
 **Problem:**
 - If `cp` fails (file missing, no permissions), script continues to `deploy.sh`
@@ -93,7 +93,7 @@ cp important_file.txt /tmp/data/
 ./deploy.sh
 
 echo "Success!"  # Only prints if all commands succeeded
-```
+```markdown
 
 **Why this is safe:**
 - Script exits immediately on any error
@@ -129,7 +129,7 @@ awslocal s3 mb s3://bucket2  # This fails (already exists)
 awslocal s3 mb s3://bucket3
 
 echo "All buckets created!"  # Prints even though bucket2 failed
-```
+```markdown
 
 **Result:**
 - Script reports "All buckets created!"
@@ -148,7 +148,7 @@ awslocal s3 mb s3://bucket2  # Script exits HERE if this fails
 awslocal s3 mb s3://bucket3
 
 echo "All buckets created!"  # Only prints if all 3 succeeded
-```
+```markdown
 
 **Result:**
 - Script exits immediately on first failure
@@ -179,7 +179,7 @@ if [ ! -s data.json ]; then
 fi
 
 echo "Download successful"
-```
+```markdown
 
 ### 2. Use Safe Directory Creation
 
@@ -189,7 +189,7 @@ mkdir -p /path/to/directory
 
 # Bad: Fails if directory exists
 mkdir /path/to/directory
-```
+```markdown
 
 ### 3. Quote Variables to Handle Spaces
 
@@ -200,7 +200,7 @@ cp "$FILE_PATH" /destination/
 
 # Bad: Breaks on paths with spaces
 cp $FILE_PATH /destination/
-```
+```markdown
 
 ### 4. Use Descriptive Error Messages
 
@@ -213,7 +213,7 @@ if [ ! -f "config.json" ]; then
     echo "Expected location: $(pwd)/config.json"
     exit 1
 fi
-```
+```markdown
 
 ---
 
@@ -230,14 +230,14 @@ command_that_might_fail || exit 0
 
 # Good: Let it fail
 command_that_might_fail
-```
+```markdown
 
 ### Mistake 3: Not Testing Failure Scenarios
 ```bash
 # Test your script with intentional failures
 # Does it exit correctly?
 # Are error messages clear?
-```
+```markdown
 
 ---
 

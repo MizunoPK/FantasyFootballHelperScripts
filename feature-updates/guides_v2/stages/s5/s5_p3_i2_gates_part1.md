@@ -70,7 +70,7 @@ Iteration 20 is Part 1 of Gate 23a (Pre-Implementation Spec Audit). This iterati
 **Total methods:** 12 (11 new + 1 update)
 
 ---
-```
+```markdown
 
 ---
 
@@ -184,7 +184,7 @@ Iteration 20 is Part 1 of Gate 23a (Pre-Implementation Spec Audit). This iterati
 **Status:** ✅ ALL METHODS HAVE CALLERS
 
 ---
-```
+```markdown
 
 ---
 
@@ -208,7 +208,7 @@ Iteration 20 is Part 1 of Gate 23a (Pre-Implementation Spec Audit). This iterati
 **Recommended:** Remove from plan (orphan code)
 
 ---
-```
+```markdown
 
 **If no orphan code:**
 
@@ -220,7 +220,7 @@ Iteration 20 is Part 1 of Gate 23a (Pre-Implementation Spec Audit). This iterati
 **Integration verification complete.**
 
 ---
-```
+```markdown
 
 ---
 
@@ -263,7 +263,7 @@ Iteration 20 is Part 1 of Gate 23a (Pre-Implementation Spec Audit). This iterati
 **Status:** ✅ COMPLETE FLOW - Entry to exit traced
 
 ---
-```
+```markdown
 
 ---
 
@@ -283,7 +283,7 @@ Iteration 20 is Part 1 of Gate 23a (Pre-Implementation Spec Audit). This iterati
 **Next Step:** Proceed to Iteration 20 (Pre-Implementation Spec Audit)
 
 ---
-```
+```markdown
 
 **If gaps found, document:**
 
@@ -311,7 +311,7 @@ Iteration 20 is Part 1 of Gate 23a (Pre-Implementation Spec Audit). This iterati
 **STOP - Resolve gaps before proceeding to Iteration 20**
 
 ---
-```
+```markdown
 
 ---
 
@@ -341,7 +341,7 @@ Iteration 20 is Part 1 of Gate 23a (Pre-Implementation Spec Audit). This iterati
 **RESULT:** ✅ All implementation tasks are integrated, no orphan code
 
 ---
-```
+```markdown
 
 ---
 
@@ -486,7 +486,7 @@ Proceed to **Iteration 20 (Pre-Implementation Spec Audit - Gate 2)** in gate_23a
 **Total Requirements:** 19
 
 ---
-```
+```bash
 
 ---
 
@@ -659,7 +659,7 @@ Proceed to **Iteration 20 (Pre-Implementation Spec Audit - Gate 2)** in gate_23a
 **Status:** ✅ PART 1 PASSED - All requirements have implementation tasks
 
 ---
-```
+```markdown
 
 **If ANY requirement not mapped:**
 
@@ -675,7 +675,7 @@ Proceed to **Iteration 20 (Pre-Implementation Spec Audit - Gate 2)** in gate_23a
 **STOP - Cannot proceed to Part 2 until all requirements mapped**
 
 ---
-```
+```markdown
 
 ---
 
@@ -694,19 +694,19 @@ Proceed to **Iteration 20 (Pre-Implementation Spec Audit - Gate 2)** in gate_23a
 **Examples:**
 
 **❌ VAGUE TASK:**
-```
+```text
 Task 1.1: Handle JSON loading
-```
+```bash
 **Problem:** "Handle" is vague, no details on what/where/how
 
 **✅ SPECIFIC TASK:**
-```
+```bash
 Task 1.1: Implement `_load_json_player_data(week: int, year: int)` in simulation/WinRateSimulator.py
 - Construct path: f"simulation/sim_data/{year}/weeks/week_{week:02d}/players.json"
 - Open file with json.load()
 - Return parsed dictionary
 - Raise FileNotFoundError if file missing
-```
+```markdown
 **Why specific:** Method name, parameters, file location, logic steps, error handling
 
 ---
@@ -761,7 +761,7 @@ Task 1.1: Implement `_load_json_player_data(week: int, year: int)` in simulation
 **Status:** ✅ PART 2 PASSED - All tasks are specific
 
 ---
-```
+```markdown
 
 **If ANY task is vague:**
 
@@ -781,7 +781,7 @@ After: "Implement `_load_json_player_data(week: int, year: int)` in simulation/W
 **STOP - Cannot proceed to Part 3 until all tasks are specific**
 
 ---
-```
+```markdown
 
 ---
 
@@ -814,7 +814,7 @@ After: "Implement `_load_json_player_data(week: int, year: int)` in simulation/W
 from utils.LoggingManager import get_logger
 logger = get_logger()
 logger.error("Error message")
-```
+```markdown
 
 **Actual source:** `utils/LoggingManager.py` lines 45-67
 
@@ -833,7 +833,7 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     if name is None:
         return logging.getLogger()
     return logging.getLogger(name)
-```
+```python
 
 **Contract verification:**
 - ✅ Parameters: Optional[str] name (plan matches)
@@ -853,7 +853,7 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
 ```python
 from utils.csv_utils import write_csv_with_backup
 write_csv_with_backup(df, filepath, create_backup=True)
-```
+```markdown
 
 **Actual source:** `utils/csv_utils.py` lines 89-123
 
@@ -874,7 +874,7 @@ def write_csv_with_backup(df: pd.DataFrame,
         None
     """
     # Implementation...
-```
+```bash
 
 **Contract verification:**
 - ✅ Parameters: df, filepath, create_backup (plan matches)
@@ -899,7 +899,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 **Status:** ✅ PART 3 PASSED - All interfaces verified
 
 ---
-```
+```markdown
 
 **If ANY dependency not verified:**
 
@@ -913,7 +913,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 **Implementation plan assumes:**
 ```python
 {Assumed interface}
-```
+```markdown
 
 **Status:** ❌ NOT VERIFIED
 **Problem:** Did not verify interface from actual source code
@@ -923,7 +923,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 **STOP - Cannot proceed to Part 4 until all interfaces verified**
 
 ---
-```
+```markdown
 
 ---
 
@@ -978,7 +978,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 **Status:** ✅ PART 4 PASSED - Integration evidence documented
 
 ---
-```
+```markdown
 
 **If ANY section missing:**
 
@@ -995,7 +995,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 **STOP - Cannot proceed to Iteration 21 until all integration evidence documented**
 
 ---
-```
+```markdown
 
 ---
 
@@ -1037,7 +1037,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 **Next Action:** Read `stages/s5/s5_p3_i3_gates_part2.md`
 
 ---
-```
+```markdown
 
 **If ANY part failed:**
 
@@ -1075,7 +1075,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 **CANNOT proceed to Iteration 21 until ALL 4 PARTS PASS**
 
 ---
-```
+```bash
 
 ---
 
@@ -1086,7 +1086,7 @@ def write_csv_with_backup(df: pd.DataFrame,
 Progress: Iteration 20 PASSED - ALL 4 PARTS
 Gate Status: ✅ GATE 2 PASSED
 Next Action: Read stages/s5/s5_p3_i3_gates_part2.md
-```
+```markdown
 
 **If any parts failed:**
 ```markdown

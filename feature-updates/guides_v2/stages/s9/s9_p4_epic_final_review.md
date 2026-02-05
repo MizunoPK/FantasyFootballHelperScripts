@@ -86,7 +86,7 @@ Before proceeding, you must have:
 
 ### Workflow overview
 
-```
+```bash
 STAGE_6c Workflow (Steps 6-8)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -133,13 +133,13 @@ Prerequisites Met?
               │
               ▼
         Ready for S10
-```
+```markdown
 
 ---
 
 ## Critical Rules for S9.P3
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL RULES - S9.P3 (Epic Final Review)               │
 └─────────────────────────────────────────────────────────────┘
@@ -184,7 +184,7 @@ Prerequisites Met?
    - All 8 steps of S9 must be complete
    - No pending issues or bug fixes
    - EPIC_README.md must show S9 complete
-```
+```markdown
 
 ---
 
@@ -279,10 +279,10 @@ Prerequisites Met?
 **Step 6.1: Apply Round 1 (Specialized Reviews)**
 
 1. **Create pr_review_issues.md file:**
-   ```
+   ```text
    Location: KAI-{N}-{epic_name}/pr_review_issues.md
    Purpose: Track issues discovered during PR review rounds
-   ```
+   ```markdown
 
 2. **Launch Round 1a (Code Quality - Fresh Agent):**
    - Code Quality (Epic Level)

@@ -125,7 +125,7 @@ Iteration 8-10: Test Strategy Development, Edge Cases, Config Tests
    - Ensure existing multipliers still applied
 2. test_backward_compatibility()
    - Ensure old code still runs
-```
+```markdown
 
 3. **Add test tasks to implementation_plan.md "Implementation Tasks" section:**
 
@@ -142,7 +142,7 @@ Iteration 8-10: Test Strategy Development, Edge Cases, Config Tests
 - [ ] All 3 tests pass
 - [ ] Tests cover success and error paths
 - [ ] Tests use fixtures for test data
-```
+```markdown
 
 **Output:** "Test Strategy" section added to implementation_plan.md, test tasks added to "Implementation Tasks" section
 
@@ -164,10 +164,10 @@ After completing this iteration, check if you have questions or found answers:
 **Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
-```
+```text
 Progress: Iteration 8/16 (Planning Round 2) complete
 Next Action: Iteration 9 - Edge Case Enumeration
-```
+```markdown
 
 ---
 
@@ -226,7 +226,7 @@ Next Action: Iteration 9 - Edge Case Enumeration
 - [ ] No crash on duplicates
 
 **Test:** test_load_adp_data_duplicates()
-```
+```markdown
 
 **Output:** "Edge Cases" section added to implementation_plan.md with complete edge case catalog
 
@@ -248,10 +248,10 @@ After completing this iteration, check if you have questions or found answers:
 **Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
-```
+```text
 Progress: Iteration 9/16 (Planning Round 2) complete
 Next Action: Iteration 10 - Configuration Change Impact
-```
+```markdown
 
 ---
 
@@ -292,14 +292,14 @@ DEFAULT_ADP_MULTIPLIER_RANGES = {
     "151-300": 0.95,
     "301-500": 0.9
 }
-```
+```markdown
 
 **Config Validation:**
 - Task: Add config validation in ConfigManager
 - Check: "adp_multiplier_ranges" is dict
 - Check: All values are floats
 - Fallback: Use defaults if invalid
-```
+```markdown
 
 3. **Add config migration tasks to implementation_plan.md "Implementation Tasks" section if needed:**
 
@@ -318,7 +318,7 @@ DEFAULT_ADP_MULTIPLIER_RANGES = {
 - [ ] Invalid config detected and logged
 - [ ] Defaults used as fallback
 - [ ] No crash on missing config
-```
+```markdown
 
 **Output:** Config impact assessment, migration tasks if needed
 
@@ -340,7 +340,7 @@ After completing this iteration, check if you have questions or found answers:
 **Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
-```
+```text
 Progress: Iteration 10/16 (Planning Round 2) complete
 Next Action: Iteration 11 - Algorithm Traceability Matrix (Re-verify)
 ```

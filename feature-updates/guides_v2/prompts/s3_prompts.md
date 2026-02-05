@@ -13,7 +13,7 @@
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s3/s3_cross_feature_sanity_check.md` to ensure I perform systematic cross-feature validation...
 
 **The guide requires:**

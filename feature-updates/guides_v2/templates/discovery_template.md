@@ -242,7 +242,7 @@
 
 ### Feature Dependency Diagram
 
-```
+```text
 Feature 1 ({name})
     |
     v
@@ -250,17 +250,17 @@ Feature 2 ({name}) <-- depends on Feature 1
     |
     v
 Feature 3 ({name}) <-- depends on Features 1, 2
-```
+```json
 
 {Or if parallel:}
 
-```
+```text
 Feature 1 ({name})     Feature 2 ({name})
          \                   /
           \                 /
            v               v
          Feature 3 ({name})
-```
+```markdown
 
 ---
 

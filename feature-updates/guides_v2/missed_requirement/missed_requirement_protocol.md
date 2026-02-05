@@ -92,7 +92,7 @@ Missed requirement handling is complete when the new/updated feature has been pl
 
 ## 🛑 Critical Rules
 
-```
+```bash
 1. ⚠️ CAN BE USED AT ANY TIME AFTER FIRST STAGE 5 STARTS
    - Before any feature enters S5: Just update specs directly during S2/3/4
    - After first feature enters S5: Use this protocol for epic coherence
@@ -135,7 +135,7 @@ Missed requirement handling is complete when the new/updated feature has been pl
    - Full S4 test plan update
    - When implemented: Full S5 (S5 → S6 → S7 → S8)
    - No shortcuts
-```
+```bash
 
 ---
 
@@ -227,7 +227,7 @@ The missed requirement protocol consists of 4 phases (plus special case):
 
 ### Epic-Level Tracking
 
-```
+```bash
 epic_name/
 ├── EPIC_README.md                     ← Missed Requirement Tracking table
 │   └── ## Missed Requirements Handled
@@ -238,7 +238,7 @@ epic_name/
 ├── feature_03_performance_tracker/    ← May be updated with missed req
 ├── feature_04_matchup_analysis/
 └── feature_05_injury_tracking/        ← New feature from missed req
-```
+```bash
 
 **No separate requirement_{priority}_{name}/ folders:**
 - Missed requirements are real features
@@ -251,7 +251,7 @@ epic_name/
 
 **Use this decision tree to navigate to the right guide:**
 
-```
+```bash
 Just discovered missing requirement?
 └─ Read missed_requirement/discovery.md (PHASE 1)
    └─ Present options to user, get decision

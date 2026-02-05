@@ -8,7 +8,7 @@
 
 ## Workflow Diagram
 
-```
+```text
 STAGE 5a: TODO Creation (2.5-3 hours, 22 iterations across 3 rounds)
     │
     ├─ Round 1: Initial Analysis (stages/s5/s5_p1_planning_round1.md)

@@ -105,7 +105,7 @@ For EACH requirement, create implementation task - and ONLY for confirmed requir
 - Unit test: test_load_adp_data_success()
 - Unit test: test_load_adp_data_file_not_found()
 - Unit test: test_load_adp_data_invalid_columns()
-```
+```markdown
 
 4. **Continue for ALL requirements**
 
@@ -133,10 +133,10 @@ After completing this iteration, check if you have questions or found answers:
 **Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
-```
+```text
 Progress: Iteration 1/9 (Planning Round 1) complete
 Next Action: Iteration 2 - Component Dependency Mapping
-```
+```markdown
 
 ---
 
@@ -151,12 +151,12 @@ Next Action: Iteration 2 - Component Dependency Mapping
    - From spec.md "Components Affected" section
 
 **Example:**
-```
+```python
 External Dependencies:
 - ConfigManager.get_adp_multiplier(adp: int)
 - csv_utils.read_csv_with_validation(filepath, required_columns)
 - FantasyPlayer class (will add fields)
-```
+```markdown
 
 2. **For EACH dependency, verify it exists:**
 
@@ -165,7 +165,7 @@ External Dependencies:
 ```bash
 # Find ConfigManager.get_adp_multiplier
 grep -n "def get_adp_multiplier" league_helper/util/ConfigManager.py
-```
+```markdown
 
 **Read the actual method:**
 ```python
@@ -174,7 +174,7 @@ def get_adp_multiplier(self, adp: int) -> Tuple[float, int]:
     """Calculate ADP multiplier based on ADP ranking."""
     # ... implementation
     return (multiplier, rating)
-```
+```markdown
 
 3. **Document verified interface:**
 
@@ -195,7 +195,7 @@ def get_adp_multiplier(self, adp: int) -> Tuple[float, int]:
 
 **implementation tasks using this:**
 - Task 3: Calculate ADP multiplier (calls this method)
-```
+```markdown
 
 4. **Repeat for ALL dependencies**
 
@@ -221,10 +221,10 @@ After completing this iteration, check if you have questions or found answers:
 **Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
-```
+```text
 Progress: Iteration 2/9 (Planning Round 1) complete
 Next Action: Iteration 3 - Data Structure Verification
-```
+```markdown
 
 ---
 
@@ -247,7 +247,7 @@ Next Action: Iteration 3 - Data Structure Verification
 ```bash
 # Find FantasyPlayer class definition
 grep -n "class FantasyPlayer" league_helper/util/FantasyPlayer.py
-```
+```markdown
 
 **Verify we can add fields:**
 ```python
@@ -259,7 +259,7 @@ class FantasyPlayer:
         # ... existing fields
         # ✅ CAN ADD: self.adp_value = None
         # ✅ CAN ADD: self.adp_multiplier = 1.0
-```
+```bash
 
 3. **Check for conflicts:**
    - Field name already used?
@@ -280,7 +280,7 @@ class FantasyPlayer:
 
 **implementation tasks affected:**
 - Task 2: Add ADP fields to FantasyPlayer __init__
-```
+```markdown
 
 5. **Repeat for all data structures**
 
@@ -304,7 +304,7 @@ After completing this iteration, check if you have questions or found answers:
 **Note:** This is a quick check (1-2 minutes). questions.md will be presented to user at Gate 5.
 
 **Update Agent Status:**
-```
+```text
 Progress: Iteration 3/9 (Planning Round 1) complete
 Next Action: Read stages/s5/s5_p1_i2_algorithms.md
 ```

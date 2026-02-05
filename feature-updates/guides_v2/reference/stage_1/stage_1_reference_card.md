@@ -8,7 +8,7 @@
 
 ## Workflow Overview
 
-```
+```bash
 STEP 1: Initial Setup (15-20 min)
     +-- Step 1.0: Create Git Branch (BEFORE any changes)
     |   +-- Verify on main, pull latest

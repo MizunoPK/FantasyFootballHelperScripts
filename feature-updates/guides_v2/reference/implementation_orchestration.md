@@ -10,7 +10,7 @@
 
 ## Feature Lifecycle Overview
 
-```
+```text
 Feature Workflow (Single Feature Journey)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -57,7 +57,7 @@ S5: TODO Creation COMPLETE
     [More features remaining?]
     ├─ YES → Next Feature's S5
     └─ NO → S9 (Epic Final QC)
-```
+```markdown
 
 ---
 
@@ -94,7 +94,7 @@ Write the feature code following the implementation plan created in S5.
 Current Stage: S7 - Post-Implementation
 Current Phase: SMOKE_TESTING
 Next Action: Read stages/s7/s7_p1_smoke_testing.md
-```
+```markdown
 
 ### Time Estimate
 1-4 hours (varies by complexity)
@@ -156,7 +156,7 @@ Next Action: Read stages/s8/s8_p1_cross_feature_alignment.md
 # If NO more features:
 Current Stage: S9 - Epic Final QC
 Next Action: Read stages/s9/s9_epic_final_qc.md
-```
+```markdown
 
 ### Decision Point: Skip S8?
 **Question:** Are there more features to implement?
@@ -220,7 +220,7 @@ Update remaining (not-yet-implemented) feature specs based on ACTUAL implementat
 Current Stage: S8.P2 - Testing Plan Update
 Current Phase: TESTING_PLAN_UPDATE
 Next Action: Read stages/s8/s8_p2_epic_testing_update.md
-```
+```markdown
 
 ### Time Estimate
 15-30 minutes
@@ -275,7 +275,7 @@ Next Action: Read stages/s5/s5_p1_planning_round1.md for next feature
 # If NO more features:
 Current Stage: S9 - Epic Final QC
 Next Action: Read stages/s9/s9_epic_final_qc.md
-```
+```markdown
 
 ### Decision Point: Next Feature or S9?
 **Question:** Are there more features to implement?

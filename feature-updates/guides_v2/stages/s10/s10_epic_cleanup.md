@@ -58,7 +58,7 @@ Epic cleanup typically takes 15-30 minutes.
 
 ## 🛑 Critical Rules
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │ CRITICAL RULES FOR STAGE 10                                     │
 ├─────────────────────────────────────────────────────────────────┤
@@ -126,7 +126,7 @@ Epic cleanup typically takes 15-30 minutes.
 │     - No pending work                                           │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
-```
+```markdown
 
 ---
 
@@ -164,7 +164,7 @@ Epic cleanup typically takes 15-30 minutes.
 
 ## Workflow Overview
 
-```
+```text
 STAGE 7: Epic Cleanup
 │
 ├─> STEP 1: Pre-Cleanup Verification (Verify epic truly complete)
@@ -217,7 +217,7 @@ STAGE 7: Epic Cleanup
     ├─ Verify git shows clean state
     ├─ Update EPIC_README.md with completion summary
     └─ Celebrate epic completion! 🎉
-```
+```bash
 
 **Critical Decision Points:**
 - **After Step 2:** If tests fail → Fix issues, RESTART Step 2
@@ -289,7 +289,7 @@ Check EPIC_README.md "Epic Progress Tracker" to verify ALL features show ✅ thr
 Check epic folder for any incomplete work:
 ```bash
 ls feature-updates/{epic_name}/
-```
+```text
 
 Look for:
 - ❌ Any feature folders without "S8.P2 (Epic Testing Update) complete" in README.md
@@ -316,17 +316,17 @@ Use Read tool to load epic_lessons_learned.md and look for "Guide Improvements N
 Run the complete test suite:
 ```bash
 python tests/run_all_tests.py
-```
+```markdown
 
 **Expected Output:**
-```
+```bash
 Total: 2200 tests
 Passed: 2200 ✅
 Failed: 0
 Skipped: 0
 
 EXIT CODE: 0 ✅ (Safe to commit)
-```
+```markdown
 
 **2b. Verify Exit Code**
 
@@ -334,7 +334,7 @@ Check the exit code:
 ```bash
 echo $?  # On Linux/Mac
 echo %ERRORLEVEL%  # On Windows
-```
+```markdown
 
 **Expected:** 0 (all tests passing)
 
@@ -438,9 +438,9 @@ For EACH feature folder, read README.md and verify:
 **⚠️ CRITICAL:** This is NOT optional. Every epic must run S10.5 to continuously improve guides.
 
 **READ THE FULL GUIDE:**
-```
+```text
 stages/s10/s10_p1_guide_update_workflow.md
-```
+```bash
 
 **Quick Overview of S10.5:**
 
@@ -481,11 +481,11 @@ stages/s10/s10_p1_guide_update_workflow.md
 
 Use the prompt from `prompts/guide_update_prompts.md`:
 
-```
+```text
 I'm reading `stages/s10/s10_p1_guide_update_workflow.md` to apply lessons learned to guides...
 
 [Full prompt from guide_update_prompts.md - "Starting S10.5"]
-```
+```bash
 
 **Exit Conditions:**
 - [ ] Read stages/s10/s10_p1_guide_update_workflow.md (full guide)
@@ -514,7 +514,7 @@ Check git status and diff:
 ```bash
 git status
 git diff {modified_files}
-```
+```text
 
 Verify:
 - ✅ All changes related to epic
@@ -532,12 +532,12 @@ git add {file1} {file2} {file3}
 
 # Stage epic folder (all files)
 git add feature-updates/{epic_name}/
-```
+```markdown
 
 **5c. Create Commit with Clear Message**
 
 **Commit Message Format:**
-```
+```json
 {commit_type}/KAI-{number}: Complete {epic_name} epic
 
 Major features:
@@ -553,7 +553,7 @@ Testing:
 - All unit tests passing (2200/2200)
 - Epic smoke testing passed
 - Epic QC rounds passed (3/3)
-```
+```markdown
 
 **Where:**
 - `{commit_type}` = `feat` (feature epic) or `fix` (bug fix epic)
@@ -583,14 +583,14 @@ Testing:
 - Epic QC rounds passed (3/3)
 EOF
 )"
-```
+```bash
 
 **5d. Verify Commit Successful**
 
 Check git log:
 ```bash
 git log -1 --stat
-```
+```markdown
 
 Verify commit message clear, all epic files included, file change counts reasonable.
 
@@ -601,17 +601,17 @@ Verify commit message clear, all epic files included, file change counts reasona
 Push epic branch to remote:
 ```bash
 git push origin {work_type}/KAI-{number}
-```
+```markdown
 
 **Example:**
 ```bash
 git push origin epic/KAI-1
-```
+```text
 
 Verify push successful:
 ```bash
 git status
-```
+```markdown
 
 **Expected:** "Your branch is up to date with 'origin/{work_type}/KAI-{number}'"
 
@@ -684,7 +684,7 @@ Please review this Pull Request using one of the following methods:
 Epic folder: feature-updates/KAI-{number}-{epic_name}/
 EOF
 )"
-```
+```markdown
 
 **Example:**
 ```bash
@@ -724,7 +724,7 @@ Improve draft helper with ADP integration, matchup system, and performance track
 Epic folder: feature-updates/KAI-1-improve_draft_helper/
 EOF
 )"
-```
+```markdown
 
 **PR Creation Output:**
 
@@ -733,7 +733,7 @@ The gh CLI will output the PR URL. Agent should:
 2. Present it to user with clear instructions
 
 **Agent Output to User:**
-```
+```text
 ✅ Pull Request created successfully!
 
 PR URL: https://github.com/{owner}/{repo}/pull/{number}
@@ -756,7 +756,7 @@ Please review the Pull Request using your preferred method:
    - gh pr merge {number}
 
 After you merge the PR, I'll update EPIC_TRACKER.md and move the epic to done/.
-```
+```markdown
 
 **Important Notes:**
 - **Do NOT merge the PR yourself** - User must review and merge
@@ -797,25 +797,25 @@ After you merge the PR, I'll update EPIC_TRACKER.md and move the epic to done/.
 ```bash
 git checkout main
 git pull origin main
-```
+```markdown
 
 **Commit EPIC_TRACKER.md update:**
 ```bash
 git add feature-updates/EPIC_TRACKER.md
 git commit -m "feat/KAI-{number}: Update EPIC_TRACKER with completed epic details"
 git push origin main
-```
+```markdown
 
 **5i. Delete Epic Branch (Optional)**
 
 ```bash
 git branch -d {work_type}/KAI-{number}
-```
+```markdown
 
 **Example:**
 ```bash
 git branch -d epic/KAI-1
-```
+```markdown
 
 ---
 
@@ -830,12 +830,12 @@ git branch -d epic/KAI-1
 Check if done/ folder exists:
 ```bash
 ls feature-updates/
-```
+```text
 
 If done/ doesn't exist:
 ```bash
 mkdir feature-updates/done
-```
+```markdown
 
 **6b. Clean Up done/ Folder (Max 10 Epics)**
 
@@ -845,7 +845,7 @@ mkdir feature-updates/done
 ```bash
 # Count directories in done/ (excluding guides_v2)
 ls -d feature-updates/done/*/ | wc -l
-```
+```markdown
 
 **If count is 10 or more:**
 
@@ -856,7 +856,7 @@ ls -d feature-updates/done/*/ | wc -l
 
    # Linux/Mac
    ls -lt feature-updates/done/ | tail -n +2
-   ```
+   ```markdown
 
 2. **Calculate how many to delete:**
    - Current count: {N}
@@ -871,14 +871,14 @@ ls -d feature-updates/done/*/ | wc -l
 
    # Linux/Mac
    rm -rf feature-updates/done/{oldest_epic_name}
-   ```
+   ```markdown
 
 4. **Repeat for each epic that needs deletion**
 
 5. **Verify count after deletion:**
    ```bash
    ls -d feature-updates/done/*/ | wc -l
-   ```
+   ```markdown
 
    **Expected:** 9 or fewer (leaving room for current epic)
 
@@ -900,14 +900,14 @@ Move the complete epic folder (with KAI number):
 **Windows:**
 ```bash
 move feature-updates\KAI-{N}-{epic_name} feature-updates\done\KAI-{N}-{epic_name}
-```
+```markdown
 
 **Example:** `move feature-updates\KAI-1-improve_draft_helper feature-updates\done\KAI-1-improve_draft_helper`
 
 **Linux/Mac:**
 ```bash
 mv feature-updates/KAI-{N}-{epic_name} feature-updates/done/KAI-{N}-{epic_name}
-```
+```markdown
 
 **Example:** `mv feature-updates/KAI-1-improve_draft_helper feature-updates/done/KAI-1-improve_draft_helper`
 
@@ -918,12 +918,12 @@ mv feature-updates/KAI-{N}-{epic_name} feature-updates/done/KAI-{N}-{epic_name}
 Check folder structure:
 ```bash
 ls feature-updates/done/KAI-{N}-{epic_name}/
-```
+```bash
 
 **Example:** `ls feature-updates/done/KAI-1-improve_draft_helper/`
 
 **Expected:**
-```
+```text
 EPIC_README.md
 epic_smoke_test_plan.md
 epic_lessons_learned.md
@@ -931,7 +931,7 @@ feature_01_{name}/
 feature_02_{name}/
 feature_03_{name}/
 bugfix_{priority}_{name}/  (if bug fixes existed)
-```
+```text
 
 Verify:
 - ✅ All features present
@@ -944,7 +944,7 @@ Verify:
 Check total epics in done/:
 ```bash
 ls -d feature-updates/done/*/ | wc -l
-```
+```markdown
 
 **Expected:** 10 or fewer
 
@@ -962,7 +962,7 @@ ls -d feature-updates/done/*/ | wc -l
 Verify:
 ```bash
 ls feature-updates/{epic_name}.txt
-```
+```markdown
 
 **Expected:** File still exists in root.
 
@@ -979,21 +979,21 @@ ls feature-updates/{epic_name}.txt
 Confirm epic moved successfully:
 ```bash
 ls feature-updates/done/
-```
+```markdown
 
 **7b. Verify Original Request Still in Root**
 
 Confirm original request accessible:
 ```bash
 ls feature-updates/{epic_name}.txt
-```
+```bash
 
 **7c. Verify Git Shows Clean State**
 
 Check git status:
 ```bash
 git status
-```
+```markdown
 
 **Expected:** "Your branch is up to date with 'origin/main'", "nothing to commit, working tree clean" (or folder rename not staged - this is optional)
 

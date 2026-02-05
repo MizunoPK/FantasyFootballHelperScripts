@@ -22,7 +22,7 @@
 
 ```markdown
 | 1 | player_scoring_returns_null | 🟡 INVESTIGATING | Phase 3 (Solution Design) | ❌ NO | Smoke Part 3 | Designing solution |
-```
+```markdown
 
 **Current Phase:** "Phase 3 (Solution Design & Implementation)"
 
@@ -40,7 +40,7 @@
 ## Active Investigations
 
 {Empty if this was the only active investigation}
-```
+```markdown
 
 ---
 
@@ -93,7 +93,7 @@ Add name normalization in _load_stats() to handle both formats
 
 **Chosen Approach Reasoning:**
 Normalize names in code to handle both formats - most flexible, no external dependencies, localized change
-```
+```markdown
 
 ---
 
@@ -140,7 +140,7 @@ def _load_stats(self, csv_path):
         self.stats = {}
     else:
         self.stats = player_stats.to_dict('records')[0]
-```
+```markdown
 
 ---
 
@@ -171,7 +171,7 @@ def test_load_stats_with_abbreviated_name():
     player._load_stats("data/player_stats_2024.csv")
     assert player.stats != {}
     assert 'StatValue' in player.stats
-```
+```markdown
 
 ---
 
@@ -183,7 +183,7 @@ python tests/run_all_tests.py
 
 # Expected: 100% pass rate
 # If tests fail: Fix issues before proceeding
-```
+```markdown
 
 **If tests fail:**
 - Review test failures
@@ -203,7 +203,7 @@ python tests/run_all_tests.py
 # logger.info(f"CSV columns: {df.columns.tolist()}")
 # logger.info(f"Looking for player: {self.name}")
 # etc.
-```
+```markdown
 
 **Why remove diagnostic logging?**
 - Clutters production logs
@@ -239,19 +239,19 @@ python tests/run_all_tests.py
 player = PlayerManager.load_player("Patrick Mahomes")
 score = player.calculate_score(week=1)
 # Returns: None ❌
-```
+```markdown
 
 **After State:**
 ```python
 player = PlayerManager.load_player("Patrick Mahomes")
 score = player.calculate_score(week=1)
 # Returns: 24.5 ✅
-```
+```markdown
 
 **Diagnostic Logging Removed:** Yes (lines 156-162 in FantasyPlayer.py)
 
 **Next:** Phase 4 - User Verification
-```
+```markdown
 
 ---
 
@@ -259,7 +259,7 @@ score = player.calculate_score(week=1)
 
 ```markdown
 | 1 | player_scoring_returns_null | 🟠 SOLUTION_READY | Phase 4 (User Verification) | ❌ NO | Smoke Part 3 | Fix implemented, awaiting user confirmation |
-```
+```markdown
 
 ---
 
@@ -302,7 +302,7 @@ score = player.calculate_score(week=1)
 ```python
 {code example showing bug}
 # Result: {wrong output} ❌
-```
+```markdown
 
 **Error:** {error message if any}
 
@@ -316,7 +316,7 @@ score = player.calculate_score(week=1)
 ```python
 {same code example}
 # Result: {correct output} ✅
-```
+```markdown
 
 ---
 
@@ -341,14 +341,14 @@ To verify this issue is resolved, you can:
 1. Run the test scenario:
    ```bash
    {command to reproduce original bug}
-   ```
+   ```text
 
 2. Expected result: {what should happen}
 
 3. Or check manually:
    ```python
    {manual verification code}
-   ```
+   ```markdown
 
 ---
 
@@ -364,7 +364,7 @@ Options:
 If PARTIALLY or NO, please describe:
 - What behavior is still wrong?
 - What's the expected behavior?
-```
+```markdown
 
 **Wait for user response before proceeding.**
 
@@ -378,7 +378,7 @@ If PARTIALLY or NO, please describe:
 
 ```markdown
 | 1 | player_scoring_returns_null | 🟢 FIXED | Phase 4 | ✅ YES | Smoke Part 3 | User confirmed - name normalization added |
-```
+```markdown
 
 **2. Update issue_{number}_{name}.md:**
 
@@ -391,26 +391,26 @@ If PARTIALLY or NO, please describe:
 **User Feedback:** {any comments user provided}
 
 **Status:** COMPLETE ✅
-```
+```markdown
 
 **3. Move to Phase 4b (Root Cause Analysis) - MANDATORY:**
 
 **CRITICAL:** Before moving to next issue, you MUST perform root cause analysis.
 
-```
+```text
 Proceed to Phase 4b: Root Cause Analysis
 └─ Read debugging/root_cause_analysis.md
    Analyze WHY bug existed (5-why analysis)
    Draft guide improvement proposal
    Get user confirmation of root cause
    Document in guide_update_recommendations.md
-```
+```markdown
 
 **See:** `debugging/root_cause_analysis.md` for complete Phase 4b workflow
 
 **After Phase 4b complete:**
 
-```
+```text
 Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 ├─ YES (more issues to resolve)
 │  └─ Move to next issue (back to Phase 2 for that issue)
@@ -420,7 +420,7 @@ Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 └─ NO (all issues resolved)
    └─ Move to Phase 5 (Loop Back to Testing)
       Read debugging/loop_back.md
-```
+```bash
 
 ---
 
@@ -435,7 +435,7 @@ Ask clarifying questions:
 
 **2. Assess situation:**
 
-```
+```text
 Is this the same root cause with incomplete fix?
 ├─ YES (same root cause, fix incomplete)
 │  └─ Update solution (stay in Phase 3)
@@ -456,19 +456,19 @@ Is this the same root cause with incomplete fix?
          - Give new issue number
          - Mark current issue as resolved (if original symptom is fixed)
          - Investigate new issue separately
-```
+```markdown
 
 **3. Update ISSUES_CHECKLIST.md:**
 
 If same issue, incomplete fix:
 ```markdown
 | 1 | player_scoring_returns_null | 🟡 INVESTIGATING | Phase 3 (Revising Solution) | ❌ NO | Smoke Part 3 | User feedback: {summary} |
-```
+```text
 
 If different root cause:
 ```markdown
 | 1 | player_scoring_returns_null | 🟡 INVESTIGATING | Phase 2 (New Investigation) | ❌ NO | Smoke Part 3 | Previous fix insufficient, re-investigating |
-```
+```markdown
 
 **4. Update issue_{number}_{name}.md:**
 
@@ -485,7 +485,7 @@ If different root cause:
 
 ### Investigation Round 4 (or Revised Solution)
 {Continue from here}
-```
+```markdown
 
 ---
 
@@ -509,7 +509,7 @@ def load_data(filepath):
     if missing:
         raise ValueError(f"Missing columns in CSV: {missing}")
     return df
-```
+```markdown
 
 ---
 
@@ -528,7 +528,7 @@ def calculate_score(stats):
     if stats.get('points') is None or stats.get('multiplier') is None:
         raise ValueError("Cannot calculate score: missing points or multiplier")
     return stats['points'] * stats['multiplier']
-```
+```markdown
 
 ---
 

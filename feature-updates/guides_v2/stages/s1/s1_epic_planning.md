@@ -51,7 +51,7 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 
 ## Critical Rules
 
-```
+```bash
 +-------------------------------------------------------------+
 | CRITICAL RULES - These MUST be copied to README Agent Status |
 +-------------------------------------------------------------+
@@ -111,7 +111,7 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
     - Each feature delivers distinct value
 
 14. Mark completion in EPIC_README.md before transitioning to S2
-```
+```markdown
 
 ---
 
@@ -172,7 +172,7 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 
 ## Workflow Overview
 
-```
+```text
 +--------------------------------------------------------------+
 |                    STAGE 1 WORKFLOW                          |
 +--------------------------------------------------------------+
@@ -228,7 +228,7 @@ Step 6: Transition to S2
    +-- Mark S1 complete in EPIC_README.md
    +-- Update Agent Status (next: S2)
    +-- Announce transition to user
-```
+```bash
 
 ---
 
@@ -331,7 +331,7 @@ After Step 2:
 
 The Discovery Phase is an iterative loop:
 
-```
+```text
 S1.P3.1: Initialize DISCOVERY.md
     |
     v
@@ -351,7 +351,7 @@ S1.P3.3: Synthesize Findings
     |
     v
 S1.P3.4: User Approval
-```
+```markdown
 
 ### Key Discovery Outputs
 
@@ -475,7 +475,7 @@ I've created an epic ticket to validate my understanding of the epic's goals and
 - Should I adjust any success indicator thresholds?
 
 **Once you approve the epic ticket, I'll proceed to create the folder structure.**
-```
+```bash
 
 **If user requests changes:**
 1. Update EPIC_TICKET.md based on feedback
@@ -486,7 +486,7 @@ I've created an epic ticket to validate my understanding of the epic's goals and
 1. Document validation in EPIC_README.md:
    ```markdown
    - [x] Epic ticket created and user-validated (Step 4.7)
-   ```
+   ```markdown
 2. Epic ticket is now **immutable reference** (like epic notes)
 3. Proceed to Step 5
 
@@ -541,7 +541,7 @@ Each feature's spec.md starts with Discovery Context section:
 
 ## Feature Requirements
 {To be completed in S2}
-```
+```markdown
 
 ### Step 5.2: Create epic_smoke_test_plan.md
 
@@ -627,7 +627,7 @@ Document in EPIC_README.md:
 **Group 3 (Depends on Group 2 - Round 3):**
 - Feature 09: {name}
   - Depends on: Features 01-08 specs (needs complete scope for documentation)
-```
+```markdown
 
 **Workflow with Dependency Groups:**
 
@@ -647,7 +647,7 @@ Each round completes FULL S2→S3→S4 cycle:
 ## Feature Dependency Groups
 
 **All features are independent - Single group (parallel execution)**
-```
+```markdown
 
 ---
 
@@ -684,14 +684,14 @@ Before proceeding to Step 6 (Transition to S2), you MUST complete Steps 5.8-5.9.
    ```bash
    FEATURE_COUNT=$(ls -d feature_* | wc -l)
    echo "Total features: $FEATURE_COUNT"
-   ```
+   ```markdown
 
 2. **Calculate Potential Savings:**
-   ```
+   ```text
    Sequential S2: FEATURE_COUNT × 2 hours = X hours
    Parallel S2: 2 hours (max of all features running simultaneously)
    Savings: X - 2 hours
-   ```
+   ```markdown
 
    **Examples:**
    - 2 features: Save 2 hours (50% reduction)
@@ -713,7 +713,7 @@ Before proceeding to Step 6 (Transition to S2), you MUST complete Steps 5.8-5.9.
    **Epic-Level Savings:** {Z} hours ({W}% reduction in total epic time)
 
    **Recommendation:** OFFER/SKIP parallel work
-   ```
+   ```markdown
 
 **Decision Criteria:**
 
@@ -777,7 +777,7 @@ Would you like to:
 1. ✅ Enable parallel work for S2 (I'll provide setup instructions)
 2. ❌ Continue sequential (I'll do all features one by one)
 3. ❓ Discuss parallelization approach
-```
+```markdown
 
 **Handle User Response:**
 
@@ -979,7 +979,7 @@ Announce S1 completion to user:
 
 ## Common Mistakes to Avoid
 
-```
+```text
 +------------------------------------------------------------+
 | "If You're Thinking This, STOP" - Anti-Pattern Detection   |
 +------------------------------------------------------------+

@@ -6,7 +6,7 @@ When you discover an issue or gap during epic development, use this decision tre
 
 ## 🔀 Decision Flowchart
 
-```
+```text
 Issue/Gap Discovered
 │
 ├─ Question 1: Do you know the SOLUTION?
@@ -35,7 +35,7 @@ Issue/Gap Discovered
 │        Example: "Should we handle this edge case?"
 │        → Add to questions.md
 │        → Wait for user answer
-```
+```markdown
 
 ---
 

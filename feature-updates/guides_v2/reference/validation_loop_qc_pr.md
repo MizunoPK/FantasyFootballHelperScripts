@@ -116,7 +116,7 @@ An issue in QC/PR context is any of:
 
 ## Example Round Sequence
 
-```
+```text
 Round 1: Automated tests + sequential review
 - Run tests: 2 tests fail (test_player_fetch, test_trade_validation)
 - Fix: Debug and fix both test failures
@@ -145,7 +145,7 @@ Round 4: Repeat validation
 Round 5: Final sweep
 - Run tests: All pass
 - Check: 0 issues found → PASSED (count = 3 consecutive clean)
-```
+```markdown
 
 ---
 
@@ -213,7 +213,7 @@ Round 5: Final sweep
 - Historical evidence: 40% of fixes introduce new issues
 
 **Example:**
-```
+```bash
 Round 1: 5 issues → Fix ALL → Restart
 Round 1 (again): 2 issues (1 original missed, 1 introduced by fix) → Fix ALL → Restart
 Round 1 (again): 0 issues → Round 2 (count = 1 clean)

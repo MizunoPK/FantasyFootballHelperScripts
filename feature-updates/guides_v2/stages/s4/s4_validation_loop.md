@@ -309,12 +309,12 @@ Create `feature_{N}_{name}/test_strategy.md` with:
 ---
 
 *End of test_strategy.md*
-```
+```markdown
 
 **Verify file created:**
 ```bash
 ls feature_{N}_{name}/test_strategy.md
-```
+```markdown
 
 ---
 

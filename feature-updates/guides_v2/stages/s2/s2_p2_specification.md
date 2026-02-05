@@ -55,7 +55,7 @@ Specification Phase is complete when spec.md has complete requirements with trac
 
 ## Critical Rules
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL RULES - These MUST be copied to README Agent Status │
 └─────────────────────────────────────────────────────────────┘
@@ -84,7 +84,7 @@ Specification Phase is complete when spec.md has complete requirements with trac
    - If you should have known it from code → NOT a checklist question
 
 5. ⚠️ Update feature README.md Agent Status after EACH phase
-```
+```markdown
 
 ---
 
@@ -352,7 +352,7 @@ Each question should include:
 **Requirements Added:** {N} (all with sources)
 **Checklist Questions:** {M} (all valid unknowns)
 **Assumptions Moved to Checklist:** {K}
-```
+```markdown
 
 ---
 

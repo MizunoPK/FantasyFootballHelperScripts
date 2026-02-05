@@ -85,7 +85,7 @@ Part 1 is complete when all 6 iterations pass, all preparation outputs added to 
 
 ## Workflow Overview
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────┐
 │       ROUND 3 PART 1: Preparation (Iterations 14-19)         │
 │                    (6 Iterations)                             │
@@ -100,13 +100,13 @@ Iterations 21-22: Mock Audit & Output Validation
 PART 1 COMPLETE
    ↓
 Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
-```
+```markdown
 
 ---
 
 ## Critical Rules for Part 1
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL RULES - Part 1 (Preparation Iterations)            │
 └─────────────────────────────────────────────────────────────┘
@@ -142,7 +142,7 @@ Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
 7. ⚠️ Do NOT proceed to Part 2 without completing ALL 6 iterations
    - Part 2 requires these preparation outputs
    - Missing preparation causes gate failures
-```
+```markdown
 
 ---
 
@@ -298,10 +298,10 @@ Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
 - ✅ Fix mock mismatches immediately
 
 **Example:**
-```
+```text
 BAD: Assume mock is correct
 GOOD: Read utils/csv_utils.py:45, verify signature matches mock
-```
+```markdown
 
 ---
 
@@ -333,7 +333,7 @@ GOOD: Read utils/csv_utils.py:45, verify signature matches mock
 - ✅ Add optimization tasks to implementation_plan.md
 
 **Example:**
-```
+```text
 O(n²) player matching → 5.0s (unacceptable)
 O(n) dict lookup → 0.01s (acceptable)
 ```

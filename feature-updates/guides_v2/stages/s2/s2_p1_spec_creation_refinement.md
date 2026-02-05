@@ -147,7 +147,7 @@ Present checklist to user, resolve questions one-at-a-time, update spec
 **Key Principle:** Investigation complete ≠ Question resolved. Always wait for explicit user approval before marking RESOLVED.
 
 **Example:**
-```
+```bash
 ❌ WRONG:
 - Agent: "I checked simulations. Question 1 RESOLVED. Added Requirement 9."
 
@@ -155,7 +155,7 @@ Present checklist to user, resolve questions one-at-a-time, update spec
 - Agent: "I checked simulations. My findings: [details]. Status: PENDING. Do you approve?"
 - User: "Yes, approved"
 - Agent: "Question 1 marked RESOLVED. Adding Requirement 9 to spec."
-```
+```markdown
 
 **Outputs:**
 - spec.md (updated with user answers)
@@ -209,7 +209,7 @@ Format:
 **Recommended Resolution:** [Your suggestion]
 
 **Priority:** [HIGH | MEDIUM | LOW]
-```
+```markdown
 
 Primary agent reviews during coordination heartbeat (every 15 minutes).
 
@@ -282,7 +282,7 @@ Primary agent reviews during coordination heartbeat (every 15 minutes).
 - Gate 3 passed
 
 **Secondary Agent Behavior:**
-```
+```markdown
 **If Secondary Agent:**
 - Stop after S2.P1.I3 completes (Validation Loop passes + Gate 3 approved)
 - Do NOT proceed to S2.P2 (only Primary runs S2.P2)

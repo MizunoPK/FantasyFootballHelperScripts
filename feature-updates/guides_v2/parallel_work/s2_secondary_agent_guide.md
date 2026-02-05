@@ -31,9 +31,9 @@ When you join as a Secondary agent, you'll receive a **handoff package** with yo
 Handoff packages are pre-generated in feature folders by the Primary agent. User spawns you with a simple one-line command:
 
 **User startup command:**
-```
+```text
 You are a secondary agent for Feature 02 (schedule_fetcher)
-```
+```markdown
 
 **Your response:**
 - Detect "secondary agent for Feature 02" instruction
@@ -61,7 +61,7 @@ You are a secondary agent for Feature 02 (schedule_fetcher)
 **Option B (Legacy): Pasted handoff**
 - User pastes handoff package into your session:
 
-```
+```markdown
 ═══════════════════════════════════════════════════════════
 I'm joining as a secondary agent for epic KAI-6-nfl_team_penalty.
 
@@ -84,7 +84,7 @@ Starting Stage: S2.P1 (Feature Deep Dive - Research Phase)
 
 Begin S2.P1 now.
 ═══════════════════════════════════════════════════════════
-```
+```markdown
 
 ### Step 2: Parse Configuration
 
@@ -105,7 +105,7 @@ if [ ! -d "$EPIC_PATH" ]; then
 fi
 
 echo "✅ Epic path verified: $EPIC_PATH"
-```
+```markdown
 
 ### Step 4: Verify Feature Folder Exists
 
@@ -118,7 +118,7 @@ if [ ! -d "$EPIC_PATH/$FEATURE_FOLDER" ]; then
 fi
 
 echo "✅ Feature folder verified: $FEATURE_FOLDER"
-```
+```markdown
 
 ### Step 5: Create Coordination Infrastructure
 
@@ -141,7 +141,7 @@ cat > "$EPIC_PATH/agent_comms/secondary_a_to_primary.md" <<EOF
 EOF
 
 echo "✅ Communication channels created"
-```
+```markdown
 
 ### Step 6: Create Checkpoint File
 
@@ -190,7 +190,7 @@ cat > "$EPIC_PATH/agent_checkpoints/secondary_a.json" <<EOF
 EOF
 
 echo "✅ Checkpoint file created"
-```
+```markdown
 
 ### Step 7: Create STATUS File
 
@@ -210,7 +210,7 @@ ESTIMATED_COMPLETION: $(date -u -d "+2 hours" +"%Y-%m-%dT%H:%M:%SZ")
 EOF
 
 echo "✅ STATUS file created"
-```
+```markdown
 
 ### Step 8: Update EPIC_README.md
 
@@ -224,7 +224,7 @@ acquire_lock "epic_readme" "$SESSION_ID" "Adding Secondary-A progress section"
 # Add your progress section (between BEGIN/END markers)
 
 # Example section to add:
-```
+```text
 
 ```markdown
 <!-- BEGIN SECONDARY-A PROGRESS -->
@@ -241,12 +241,12 @@ acquire_lock "epic_readme" "$SESSION_ID" "Adding Secondary-A progress section"
 - ⏳ S2.P2 (Specification Phase) - Not Started
 - ⏳ S2.P3 (Refinement Phase) - Not Started
 <!-- END SECONDARY-A PROGRESS -->
-```
+```markdown
 
 **Release lock:**
 ```bash
 release_lock "epic_readme"
-```
+```markdown
 
 ### Step 9: Send Initial Message to Primary
 
@@ -257,7 +257,7 @@ release_lock "epic_readme"
 **Details:** Handoff package received, configuration complete
 **Next:** Beginning S2.P1 Research Phase now
 **Acknowledge:** No action needed
-```
+```markdown
 
 ### Step 10: Confirm Startup to User
 
@@ -287,7 +287,7 @@ release_lock "epic_readme"
 🚀 Starting S2.P1 (Feature Deep Dive - Research Phase)
 
 Reading guide: stages/s2/s2_p1_research.md...
-```
+```markdown
 
 ---
 
@@ -361,7 +361,7 @@ Reading guide: stages/s2/s2_p1_research.md...
 # - completed_steps (add new ones)
 # - files_modified (add any new files)
 # - recovery_instructions
-```
+```markdown
 
 ### Step 2: Check Inbox
 
@@ -377,7 +377,7 @@ if [ $UNREAD_COUNT -gt 0 ]; then
   # Mark as READ
   # Take action
 fi
-```
+```markdown
 
 ### Step 3: Process Messages
 
@@ -387,7 +387,7 @@ fi
    ```markdown
    Subject: User answered your question
    Action: Check feature_02/checklist.md - Question 5 answered
-   ```
+   ```markdown
 
 2. **Take action:**
    - Read updated file
@@ -398,7 +398,7 @@ fi
    ```bash
    # Change ⏳ UNREAD to ✅ READ
    sed -i 's/⏳ UNREAD/✅ READ/' "$INBOX"
-   ```
+   ```markdown
 
 4. **Reply if needed:**
    ```markdown
@@ -408,7 +408,7 @@ fi
    **Details:** Updated spec.md with penalty application approach
    **Next:** Continuing with S2.P2
    **Acknowledge:** No action needed
-   ```
+   ```markdown
 
 ### Step 4: Update STATUS File
 
@@ -426,7 +426,7 @@ NEXT_ACTION: Writing spec.md Acceptance Criteria section
 READY_FOR_SYNC: false
 ESTIMATED_COMPLETION: $(date -u -d "+1 hour" +"%Y-%m-%dT%H:%M:%SZ")
 EOF
-```
+```markdown
 
 ### Step 5: Update EPIC_README.md (if progress changed)
 
@@ -447,7 +447,7 @@ EOF
 - 🔄 S2.P2 (Specification Phase) - In Progress (70% done)
 - ⏳ S2.P3 (Refinement Phase) - Not Started
 <!-- END SECONDARY-A PROGRESS -->
-```
+```markdown
 
 **Release lock**
 
@@ -457,7 +457,7 @@ EOF
 # Set timer for next heartbeat
 echo "Next heartbeat in 15 minutes"
 # (Manually set reminder or continue work)
-```
+```markdown
 
 ---
 
@@ -499,25 +499,25 @@ echo "Next heartbeat in 15 minutes"
 **Blocked Since:** 11:05
 **Urgency:** HIGH (blocking S2.P2 requirements section)
 **Acknowledge:** Reply with decision or "escalating to user"
-```
+```markdown
 
 ### After Escalating
 
 1. **Update STATUS:**
-   ```
+   ```text
    BLOCKERS: Escalated to Primary - waiting for spec clarification
-   ```
+   ```markdown
 
 2. **Update checkpoint:**
    ```json
    "blockers": ["Spec ambiguity: team rankings integration approach"],
    "status": "BLOCKED"
-   ```
+   ```markdown
 
 3. **Update EPIC_README.md:**
    ```markdown
    **Blockers:** ESCALATION - Awaiting Primary response on spec ambiguity
-   ```
+   ```markdown
 
 4. **Wait for Primary response:**
    - Check inbox every 5 minutes (urgent)
@@ -544,13 +544,13 @@ echo "Next heartbeat in 15 minutes"
 - All coordination files updated
 
 **Step 2: Update STATUS**
-```
+```text
 STAGE: S2.P3
 PHASE: Refinement - Complete
 STATUS: COMPLETE
 READY_FOR_SYNC: true
 NEXT_ACTION: Waiting for Primary to run S3
-```
+```markdown
 
 **Step 3: Update Checkpoint**
 ```json
@@ -559,7 +559,7 @@ NEXT_ACTION: Waiting for Primary to run S3
 "status": "COMPLETE",
 "can_resume": false,
 "recovery_instructions": "S2 complete for this feature. Waiting for Primary S3."
-```
+```markdown
 
 **Step 4: Update EPIC_README.md**
 ```markdown
@@ -577,7 +577,7 @@ NEXT_ACTION: Waiting for Primary to run S3
 - ✅ S2.P2 (Specification Phase) - Complete
 - ✅ S2.P3 (Refinement Phase) - Complete
 <!-- END SECONDARY-A PROGRESS -->
-```
+```markdown
 
 **Step 5: Send Completion Message**
 ```markdown
@@ -593,7 +593,7 @@ NEXT_ACTION: Waiting for Primary to run S3
 **Ready for S3:** Yes
 **Awaiting:** Your S3 Cross-Feature Sanity Check
 **Acknowledge:** No action needed, proceed when all features ready
-```
+```markdown
 
 ---
 

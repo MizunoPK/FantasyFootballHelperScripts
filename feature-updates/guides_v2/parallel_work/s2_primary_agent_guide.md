@@ -25,13 +25,13 @@ When S2 parallelization is enabled, the Primary agent has **dual responsibilitie
 
 ## Workflow Overview
 
-```
+```text
 S1 (Solo) → Offer Parallel Work → Generate Handoffs → S2 (Parallel) → S3 (Solo) → S4 (Solo)
     ↓                                                       ↓
 Feature Analysis                                    Monitor + Coordinate
 Dependency Detection                                Handle Escalations
 Wave Assignment                                     Run S3 when all complete
-```
+```markdown
 
 ---
 
@@ -47,7 +47,7 @@ Wave Assignment                                     Run S3 when all complete
    ```bash
    FEATURE_COUNT=$(ls -d feature_* | wc -l)
    echo "Total features: $FEATURE_COUNT"
-   ```
+   ```markdown
 
 2. **Assess parallelization benefit:**
    - 2 features: Modest benefit (save 2 hours)
@@ -60,14 +60,14 @@ Wave Assignment                                     Run S3 when all complete
    - Determine if features can run in parallel
 
    **Example:**
-   ```
+   ```text
    Feature 01: Player JSON integration (no dependencies)
    Feature 02: Team penalty scoring (depends on Feature 01)
    Feature 03: Scoring algorithm update (no dependencies)
 
    Decision: Features 01 and 03 can parallelize
             Feature 02 must wait (Wave 2)
-   ```
+   ```markdown
 
 4. **Document decision:**
    ```markdown
@@ -82,7 +82,7 @@ Wave Assignment                                     Run S3 when all complete
    - Features 01 and 03: Parallel in S2
    - Feature 02: Sequential (depends on Feature 01 for implementation)
    - Note: All features CAN do S2 in parallel (spec-level only)
-   ```
+   ```markdown
 
 ---
 
@@ -93,7 +93,7 @@ Wave Assignment                                     Run S3 when all complete
 ### Step 1: Prepare Offering Message
 
 **Calculate time savings:**
-```
+```text
 Sequential S2:
 - Feature 01: 2 hours
 - Feature 02: 2 hours
@@ -105,7 +105,7 @@ Parallel S2:
 Total: 2 hours
 
 TIME SAVINGS: 4 hours (67% reduction in S2 time)
-```
+```markdown
 
 ### Step 2: Present Offering
 
@@ -148,7 +148,7 @@ Would you like to:
 1. ✅ Enable parallel work for S2 (I'll provide setup instructions)
 2. ❌ Continue sequential (I'll do all features one by one)
 3. ❓ Discuss parallelization approach
-```
+```markdown
 
 ### Step 3: Handle User Response
 
@@ -182,7 +182,7 @@ mkdir -p agent_comms
 mkdir -p agent_checkpoints
 
 echo "Coordination infrastructure created"
-```
+```markdown
 
 ### Step 2: Determine Secondary Agent Assignments
 
@@ -215,7 +215,7 @@ generate_s2_handoff_package \
   "feature_03_scoring_update" \
   "Agent-Primary-abc123" \
   "Secondary-B"
-```
+```markdown
 
 ### Step 4: Present Handoff Packages to User
 
@@ -261,7 +261,7 @@ Copy the entire block below and paste into NEW Claude Code session #2:
 - When all complete S2, I'll run S3
 
 Ready to start? Please paste the handoff packages in the new sessions.
-```
+```markdown
 
 ### Step 5: Wait for Secondary Agents to Start
 
@@ -278,7 +278,7 @@ while true; do
   echo "Waiting for secondary agents to start..."
   sleep 5
 done
-```
+```markdown
 
 **Once both started:**
 - Proceed to Phase 4 (Parallel S2 Work)
@@ -328,7 +328,7 @@ done
 
    # Check messages from Secondary-B
    grep "⏳ UNREAD" agent_comms/secondary_b_to_primary.md
-   ```
+   ```markdown
 
 2. **Read Unread Messages:**
    - Read each unread message
@@ -352,13 +352,13 @@ done
 
    # Look for blockers
    grep "BLOCKERS:" feature_*/STATUS
-   ```
+   ```markdown
 
 5. **Check Checkpoints:**
    ```bash
    # Check for stale agents (>30 min old)
    check_stale_agents  # (See checkpoint_protocol.md)
-   ```
+   ```markdown
 
 6. **Update Sync Status:**
    - Count completed features
@@ -373,7 +373,7 @@ done
    ```markdown
    Subject: ESCALATION - Spec Ambiguity
    Issue: Unclear if feature should use CSV or API
-   ```
+   ```markdown
 
 2. **Determine action:**
    - Can you answer from your knowledge? → Respond directly
@@ -391,7 +391,7 @@ done
      C) Both (use CSV as cache, update from API)
 
    Which approach?
-   ```
+   ```markdown
 
 4. **After user answers:**
    ```markdown
@@ -403,7 +403,7 @@ done
    **Details:** User confirmed: Use team_rankings.csv as data source
    **Next:** Update your spec.md with this approach, proceed with S2.P2
    **Acknowledge:** Reply when spec.md updated
-   ```
+   ```markdown
 
 5. **Wait for acknowledgment:**
    - Secondary-A replies confirming they've updated spec
@@ -414,7 +414,7 @@ done
 
 **Timeline (3-feature epic, 2.5 hours parallel work):**
 
-```
+```text
 10:00-10:15: Generate handoff packages, wait for secondary agents
 10:15-11:00: Feature 01 S2.P1 work (45 min)
 11:00-11:15: Coordination (check inboxes, STATUS files) (15 min)
@@ -430,7 +430,7 @@ done
 Total: 2.5 hours
 - Feature 01 work: ~3 hours (normal S2 time)
 - Coordination: ~30 min (20% overhead, within target)
-```
+```markdown
 
 ---
 
@@ -453,7 +453,7 @@ done
 # feature_01: S2.P3, Ready: true
 # feature_02: S2.P3, Ready: true
 # feature_03: S2.P3, Ready: true
-```
+```markdown
 
 ### Step 2: Update Sync Status
 
@@ -473,7 +473,7 @@ done
 | feature_03 | Secondary-B | ✅ YES | 14:30 |
 
 **All features complete! Proceeding to S3.**
-```
+```markdown
 
 ### Step 3: Notify User and Secondary Agents
 
@@ -492,7 +492,7 @@ done
 🔄 Now running S3 (Cross-Feature Sanity Check)
 
 I'll review all 3 specs for conflicts, overlaps, and gaps...
-```
+```markdown
 
 **To Secondary-A and Secondary-B:**
 ```markdown
@@ -504,7 +504,7 @@ I'll review all 3 specs for conflicts, overlaps, and gaps...
 **ETA:** S3 will take ~1 hour, then I'll proceed to S4
 **Note:** Implementation (S5-S8) will be sequential in this plan
 **Acknowledge:** No action needed
-```
+```markdown
 
 ---
 

@@ -13,7 +13,7 @@
 
 **Agent MUST respond:**
 
-```
+```python
 I'm reading `stages/s9/s9_p1_epic_smoke_testing.md` to ensure I validate the entire epic end-to-end...
 
 **The guide requires:**

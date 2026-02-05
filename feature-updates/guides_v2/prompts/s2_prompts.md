@@ -13,7 +13,7 @@
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s2/s2_feature_deep_dive.md` to ensure I follow the complete deep dive workflow...
 
 **The guide requires:**
@@ -58,7 +58,7 @@ STOP - Return to S1 Step 5.8-5.9 before proceeding with S2.
 - Next Action: Begin targeted research for {feature_name}
 
 Starting Phase 1...
-```
+```bash
 
 ---
 
@@ -72,7 +72,7 @@ Starting Phase 1...
 
 **Agent MUST respond:**
 
-```
+```bash
 Phase 2.5 (Spec-to-Epic Alignment Check) has passed. I've created checklist.md with {N} questions that need your input before we can proceed to implementation planning.
 
 **This is Gate 2 (User Checklist Approval) - a mandatory checkpoint to ensure you see all uncertainties before implementation.**
@@ -111,11 +111,11 @@ Phase 2.5 (Spec-to-Epic Alignment Check) has passed. I've created checklist.md w
 - Option C: Ask me to clarify any questions first, then provide answers
 
 Please let me know how you'd like to proceed.
-```
+```markdown
 
 **After user provides answers:**
 
-```
+```text
 Thank you for answering {Q#}. I'm updating spec.md to incorporate your answer...
 
 [Agent updates spec.md with user's answer, marks item [x] in checklist.md]

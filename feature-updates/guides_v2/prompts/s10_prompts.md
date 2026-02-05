@@ -13,7 +13,7 @@
 
 **Agent MUST respond:**
 
-```
+```markdown
 I'm reading `stages/s10/s10_epic_cleanup.md` to ensure I properly finalize and archive the epic...
 
 **The guide requires:**
@@ -72,7 +72,7 @@ I'm reading `stages/s10/s10_epic_cleanup.md` to ensure I properly finalize and a
 - Next Action: Run python tests/run_all_tests.py
 
 Running unit tests...
-```
+```markdown
 
 ---
 
@@ -84,7 +84,7 @@ Running unit tests...
 
 **Agent MUST transition to S10.P1:**
 
-```
+```markdown
 I'm reading `stages/s10/s10_p1_guide_update_workflow.md` to apply lessons learned to guides...
 
 **The guide requires:**

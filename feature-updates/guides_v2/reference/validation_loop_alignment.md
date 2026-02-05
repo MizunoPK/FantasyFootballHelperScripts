@@ -93,7 +93,7 @@ An issue in alignment context is any of:
 
 ## Example Round Sequence
 
-```
+```text
 Round 1: Forward pairwise (F1 vs F2, F2 vs F3)
 - Compare F1 and F2: Found naming conflict ("session" means different things)
 - Fix: Rename F1's "session" to "user_session", F2's "session" to "game_session"

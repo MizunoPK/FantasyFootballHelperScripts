@@ -42,7 +42,7 @@
 **Current Phase:** IN DEBUGGING PROTOCOL
 **Current Guide:** debugging/debugging_protocol.md
 **Next Action:** {current investigation step}
-```
+```bash
 
 **Why this is mandatory:**
 - Future agents rely on EPIC_README.md to determine state
@@ -106,7 +106,7 @@ Debugging Protocol complete when ALL issues in ISSUES_CHECKLIST.md are marked �
 
 ## 🛑 Critical Rules
 
-```
+```bash
 1. ⚠️ INTEGRATED WITH TESTING - LOOP-BACK MECHANISM
    - QC/Smoke finds issues → Add to debugging/ISSUES_CHECKLIST.md
    - Enter Debugging Protocol (work through checklist)
@@ -151,7 +151,7 @@ Debugging Protocol complete when ALL issues in ISSUES_CHECKLIST.md are marked �
    - Cannot skip issues ("we'll fix it later" is not acceptable)
    - Cannot proceed to next stage with open issues
    - Loop back to testing until ZERO issues remain
-```
+```markdown
 
 ---
 
@@ -296,7 +296,7 @@ The debugging protocol consists of 5 phases:
 
 ### Feature-Level Debugging
 
-```
+```text
 feature_01_player_integration/
 ├── README.md
 ├── spec.md
@@ -315,11 +315,11 @@ feature_01_player_integration/
 │       ├── issue_01_round2.log
 │       └── issue_02_round1.log
 └── implementation_checklist.md
-```
+```markdown
 
 ### Epic-Level Debugging
 
-```
+```text
 epic_name/
 ├── EPIC_README.md
 ├── epic_smoke_test_plan.md
@@ -334,7 +334,7 @@ epic_name/
     ├── guide_update_recommendations.md (Guide improvements - Phase 4b per-issue + Phase 5 patterns)
     ├── lessons_learned.md
     └── diagnostic_logs/
-```
+```markdown
 
 ---
 
@@ -342,7 +342,7 @@ epic_name/
 
 **Use this decision tree to navigate to the right guide:**
 
-```
+```text
 Starting debugging?
 └─ Read debugging/discovery.md (PHASE 1)
    └─ Create ISSUES_CHECKLIST.md
