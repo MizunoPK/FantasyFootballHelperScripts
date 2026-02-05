@@ -149,80 +149,35 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 
 ## 🔄 Parallel Work Coordination (If Applicable)
 
-**Skip this section if you're in sequential mode**
+**Skip this section if in sequential mode**
 
-**If you're in parallel S2 work mode:**
+**If in parallel S2 work mode:**
 
 ### Coordination Heartbeat (Every 15 Minutes)
 
-**IMPORTANT:** Coordinate regularly to ensure alignment and handle escalations.
-
-1. **Update Checkpoint:**
-   - File: `agent_checkpoints/{your_agent_id}.json`
-   - Update: `last_checkpoint`, `stage`, `current_step`, `files_modified`
-   - Purpose: Enable crash recovery and stale detection
-
-2. **Check Inbox:**
-   - File: `agent_comms/primary_to_{your_id}.md` (if Secondary)
-   - File: `agent_comms/secondary_{x}_to_primary.md` (if Primary - check ALL secondaries)
-   - Look for: ⏳ UNREAD messages
-   - Process: Read, mark as ✅ READ, take action, reply if needed
-
-3. **Update STATUS:**
-   - File: `feature_{N}_{name}/STATUS`
-   - Update: `STAGE`, `PHASE`, `UPDATED`, `BLOCKERS`, `NEXT_ACTION`
-   - Format: Plain text key-value pairs
-
-4. **Update EPIC_README.md (when progress changes):**
-   - Acquire lock: `.epic_locks/epic_readme.lock` (5-minute timeout)
-   - Update only your section (between BEGIN/END markers for your feature)
-   - Release lock immediately after update
-   - See: `parallel_work/lock_file_protocol.md` for locking details
-
-5. **Set 15-minute timer** for next heartbeat
+1. **Update checkpoint:** `agent_checkpoints/{agent_id}.json` (crash recovery)
+2. **Check inbox:** `agent_comms/` for messages (process UNREAD, mark READ)
+3. **Update STATUS:** `feature_{N}_{name}/STATUS` (stage, phase, blockers)
+4. **Update EPIC_README.md:** Acquire lock, update your section, release lock
 
 ### Escalation Protocol
 
-**If you're blocked for >30 minutes:**
-- Send escalation message to Primary (use template in `parallel_work/communication_protocol.md`)
-- Update STATUS: `BLOCKERS: <description>`
-- Update checkpoint: `"blockers": ["description"]`
-- Wait for Primary response (SLA: 15 minutes)
+**If blocked >30 minutes:** Send escalation to Primary (SLA: 15-minute response)
 
-**Primary-Specific Coordination:**
-- Check ALL secondary inboxes every 15 minutes
-- Respond to escalations within 15 minutes (mandatory SLA)
-- Monitor STATUS files and checkpoints for staleness (30 min warning, 60 min failure)
-- Time blocking: 45 min feature work, 15 min coordination
+**Primary responsibilities:** Check all secondary inboxes every 15 min, respond to escalations, monitor staleness
 
-### Completion Signal Protocol (S2.P3 Only)
+### Completion Signal (After S2.P3)
 
-**CRITICAL:** After completing S2.P3 (Refinement Phase):
+1. Send completion message to Primary
+2. Update STATUS: `STATUS: COMPLETE`, `READY_FOR_SYNC: true`
+3. Update checkpoint: `status: "WAITING_FOR_SYNC"`
+4. **WAIT for Primary to run S3** (do NOT proceed yourself)
 
-1. **Send completion message to Primary:**
-   - File: `agent_comms/{your_id}_to_primary.md`
-   - Template: "Feature {N} S2 complete - ready for sync"
-   - Include: Completion timestamp, blockers (none), files modified
+**See:** `parallel_work/s2_parallel_protocol.md` for complete workflow
 
-2. **Update STATUS:**
-   - `STAGE: S2.P3`
-   - `STATUS: COMPLETE`
-   - `READY_FOR_SYNC: true`
+---
 
-3. **Update checkpoint:**
-   - `status: "WAITING_FOR_SYNC"`
-   - `ready_for_next_stage: true`
-
-4. **WAIT for Primary to run S3:**
-   - Do NOT proceed to S3 yourself
-   - Primary coordinates S3 for all features
-   - Monitor inbox for "S3 Complete" notification
-
-**See:** `parallel_work/s2_parallel_protocol.md` → Phase 6 for sync point details
-
-**Coordination overhead target:** <10% of parallel time
-
-**See:** `parallel_work/s2_parallel_protocol.md` for complete coordination workflow
+---
 
 ---
 
@@ -717,33 +672,20 @@ Instead, send message via agent_comms:
 
 **Comprehensive Investigation Checklist:**
 
-**Category 1: Method/Function Calls**
-- Where does X call the new code?
-- Do they pass new parameters?
-- Are default values correct?
-
-**Category 2: Configuration/Data Loading** ⚠️ (commonly missed)
-- Where does X create ConfigManager/DataManager?
-- How does it load new config keys?
-- What if JSON missing keys?
-
-**Category 3: Integration Points**
-- Does new code affect X's flow?
-- Other X files affected?
-
-**Category 4: Timing/Dependencies**
-- Transition period issues?
-- Implementation sequencing?
-
-**Category 5: Edge Cases**
-- Old config with new code?
-- New config with old code?
+**When user requests investigation, cover ALL 5 categories:**
+1. **Method/Function Calls:** Where X calls new code, parameter passing, defaults
+2. **Configuration/Data Loading:** ConfigManager creation, config key loading, missing keys
+3. **Integration Points:** Flow effects, affected files
+4. **Timing/Dependencies:** Transition issues, sequencing
+5. **Edge Cases:** Old config + new code, new config + old code
 
 **After investigation:**
-- Mark checklist status: PENDING USER APPROVAL
+- Mark status: PENDING USER APPROVAL
 - Present findings covering ALL 5 categories
-- Wait for explicit user approval
-- ONLY THEN mark as RESOLVED
+- Wait for explicit approval
+- ONLY THEN mark RESOLVED
+
+---
 
 ---
 
@@ -768,53 +710,38 @@ Instead, send message via agent_comms:
 
 ### Step 6.2: Present to User for Approval
 
+### Step 6.2: Present to User for Approval
+
 **Message to user:**
 
 ```markdown
 ## Feature {N} ({Name}) - Ready for Approval
 
-I've completed the deep dive for Feature {N}. Here's a summary:
+I've completed S2 deep dive for Feature {N}:
 
-**Spec Status:**
-- All {N} checklist questions resolved
-- Cross-feature alignment complete (compared to {M} features)
-- Scope validated ({item_count} checklist items)
+**Spec Status:** {N} questions resolved, alignment complete, scope validated
 
-**What This Feature Will Do:**
-
-{Brief 2-3 sentence summary}
+**What This Feature Will Do:** {2-3 sentence summary}
 
 **Impact:**
-- Files modified: {count} new, {count} modified
+- Files: {count} new, {count} modified
 - API changes: {summary}
 - Dependencies: {summary}
 
-**Full Details:**
-
-Please review the "Acceptance Criteria" section in spec.md:
+**Review Acceptance Criteria:**
 `feature-updates/KAI-{N}-{epic_name}/feature_{N}_{name}/spec.md`
 
-**Acceptance Criteria Section includes:**
-- Exact behavior changes
-- All files that will be modified
-- Data structure changes
-- API/interface changes
-- Testing approach
-- Edge cases and error handling
-
-**Next Steps:**
-
-If you approve these acceptance criteria:
-- I'll mark the approval checkbox and timestamp
-- I'll mark Feature {N} as "S2 Complete" in epic tracking
-- I'll proceed to next feature (if any) or S3 (Cross-Feature Sanity Check)
-
-If you want changes:
-- Let me know what to modify
-- I'll update the spec and re-present for approval
+Acceptance Criteria includes: behavior changes, files modified, data structures, API changes, testing, edge cases.
 
 **Do you approve these acceptance criteria?**
+
+If yes: I'll mark approval and proceed to next feature/S3
+If changes needed: Let me know what to modify
 ```
+
+**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 6 Examples
+
+---
 
 **Examples:** See `reference/stage_2/refinement_examples.md` → Phase 6 Examples → User Approval Process
 
@@ -822,155 +749,38 @@ If you want changes:
 
 ### Step 6.3: WAIT for User Approval
 
-⚠️ **STOP HERE - Do NOT proceed without explicit user approval**
+⚠️ **STOP - Do NOT proceed without explicit user approval**
 
-**Do NOT:**
-- Mark feature complete without approval
-- Proceed to next feature without approval
-- Proceed to S3 without approval
-- Assume approval if user is silent
+**DO NOT:** Mark complete, proceed to next feature/S3, or assume approval if silent
+**DO:** Wait for explicit approval, answer questions, make modifications if requested
 
-**DO:**
-- Wait for explicit "yes", "approved", "looks good", etc.
-- Answer any questions about acceptance criteria
-- Make modifications if user requests changes
-- Re-present if spec is updated
-
-**Update Agent Status:**
-```markdown
-**Progress:** Phase 6 - Waiting for user approval of acceptance criteria
-**Next Action:** Wait for user to approve/request changes
-**Blockers:** Waiting for user approval on acceptance criteria
-```
+**Update Agent Status:** Waiting for user approval
 
 ---
 
 ### Step 6.4: Handle User Response
 
-**If user APPROVES:**
+**If APPROVES:** Update spec.md with approval checkbox, timestamp, notes → Continue to Step 6.5
 
-Update spec.md:
-```markdown
-## User Approval
+**If REQUESTS CHANGES:**
+1. Document changes, update spec.md and checklist.md
+2. Re-present updated criteria
+3. Wait for approval (return to Step 6.3)
 
-- [x] **I approve these acceptance criteria**
-
-**Approval Timestamp:** {YYYY-MM-DD HH:MM}
-
-**Approval Notes:**
-User approved on {date} with no modifications requested.
-```
-
-Continue to Step 6.5 (Mark Feature Complete)
-
----
-
-**If user REQUESTS CHANGES:**
-
-1. Document requested changes
-2. Update spec.md based on feedback
-3. Update checklist.md if new questions arose
-4. Re-present updated acceptance criteria
-5. Wait for approval again (return to Step 6.3)
-
-**Examples:** See `reference/stage_2/refinement_examples.md` → Phase 6 Examples for change handling
-
----
-
-**If user REJECTS (major changes needed):**
-
-1. Document rejection
-2. Determine what phase to return to:
-   - Fundamental misunderstanding → Return to Phase 0 (Discovery Context)
-   - Research gap → Return to Phase 1 (Targeted Research)
-   - Wrong requirements → Return to Phase 2 (Spec & Checklist)
-   - Wrong answers to questions → Return to Phase 3 (Question Resolution)
-3. Update Agent Status
-4. Return to appropriate phase and restart from there
+**If REJECTS (major changes):**
+1. Determine return phase: Phase 0 (misunderstanding), Phase 1 (research gap), Phase 2 (wrong requirements), Phase 3 (wrong answers)
+2. Return to appropriate phase and restart
 
 ---
 
 ### Step 6.5: Mark Feature Complete (After Approval)
 
 **Update feature README.md:**
+- Mark all S2 phases complete
+- Set S2 Status: ✅ COMPLETE
+- Update Agent Status: S2 complete, ready for next feature/S3
+- Update completion date
 
-```markdown
-## Feature Completion Checklist
-
-### S2: Feature Deep Dive
-- [x] Phase 0: Discovery Context Review
-- [x] Phase 1: Targeted Research
-- [x] Phase 1.5: Research Completeness Audit
-- [x] Phase 2: Spec & Checklist Creation
-- [x] Phase 2.5: Spec-to-Epic Alignment Check
-- [x] Phase 3: Interactive Question Resolution
-- [x] Phase 4: Dynamic Scope Adjustment
-- [x] Phase 5: Cross-Feature Alignment
-- [x] Phase 6: Acceptance Criteria & User Approval
-- **S2 Status:** ✅ COMPLETE
-- **Completion Date:** {YYYY-MM-DD}
-
----
-
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** DEEP_DIVE_COMPLETE
-**Current Step:** S2 complete, ready for S3
-**Current Guide:** N/A (between stages)
-**Critical Rules:** S2 complete, await next feature or S3
-
-**Progress:** S2 COMPLETE
-**Next Action:** {Proceed to next feature / Proceed to S3}
-**Blockers:** None
-```
-
----
-
-**Update epic EPIC_README.md:**
-
-Find Feature Tracking table and mark S2 complete:
-
-```markdown
-## Feature Tracking
-
-| Feature | Name | S2 Complete | S5 Complete | Status |
-|---------|------|------------------|------------------|--------|
-| 01      | {Name} | [x] {Date} | [ ] | S2 Done |
-```
-
----
-
-**Update Epic Completion Checklist:**
-
-```markdown
-## Epic Completion Checklist
-
-### S2: Feature Deep Dives (Loop for each feature)
-- [x] Feature 01: Spec complete, user approved ({Date})
-- [ ] Feature 02: Spec complete, user approved
-```
-
----
-
-**Announce completion to user:**
-
-```markdown
-✅ **Feature {N} ({Name}) - S2 Complete**
-
-**Summary:**
-- Epic intent extracted and documented
-- {N} questions resolved
-- {M} requirements documented with traceability
-- Cross-feature alignment complete ({K} features compared, {L} conflicts resolved)
-- Acceptance criteria approved by user
-
-**Files Updated:**
-- spec.md: Complete with user approval
-- checklist.md: All questions resolved
-- README.md: S2 marked complete
-- epic/research/{FEATURE_NAME}_DISCOVERY.md: Research findings
-- {epic}/EPIC_README.md: Feature tracking updated
 
 **Next Steps:**
 
