@@ -22,6 +22,8 @@
 
 # S6: Implementation Execution
 
+## Table of Contents
+
 1. [Overview](#overview)
 2. [File Roles in S6](#file-roles-in-s6)
 3. [Critical Rules](#critical-rules)

@@ -29,6 +29,28 @@ This checklist supplements the complete PR review protocol. See `stages/s5/s5_pr
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [How to Use This Checklist](#how-to-use-this-checklist)
+3. [Category 1: Correctness (Epic Level)](#category-1-correctness-epic-level)
+4. [Category 2: Code Quality (Epic Level)](#category-2-code-quality-epic-level)
+5. [Category 3: Comments & Documentation (Epic Level)](#category-3-comments--documentation-epic-level)
+6. [Public Interfaces](#public-interfaces)
+7. [Dependencies](#dependencies)
+8. [Category 4: Code Organization & Refactoring (Epic Level)](#category-4-code-organization--refactoring-epic-level)
+9. [Category 5: Testing (Epic Level)](#category-5-testing-epic-level)
+10. [Category 6: Security (Epic Level)](#category-6-security-epic-level)
+11. [Category 7: Performance (Epic Level)](#category-7-performance-epic-level)
+12. [Category 8: Error Handling (Epic Level)](#category-8-error-handling-epic-level)
+13. [Category 9: Architecture (Epic Level - CRITICAL)](#category-9-architecture-epic-level---critical)
+14. [Category 10: Backwards Compatibility (Epic Level)](#category-10-backwards-compatibility-epic-level)
+15. [Category 11: Scope & Changes (Epic Level)](#category-11-scope--changes-epic-level)
+16. [After Review Completion](#after-review-completion)
+17. [See Also](#see-also)
+
+---
+
 ## How to Use This Checklist
 
 **During Epic PR Review (Step 6):**
