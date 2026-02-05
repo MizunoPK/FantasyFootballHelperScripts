@@ -8,6 +8,16 @@
 
 ---
 
+## Table of Contents
+
+1. [Purpose](#purpose)
+2. [Phase 2 Examples: Spec & Checklist with Traceability](#phase-2-examples-spec--checklist-with-traceability)
+3. [Phase 2.5 Examples: Spec-to-Epic Alignment Check](#phase-25-examples-spec-to-epic-alignment-check)
+4. [Gate 2 Examples: User Checklist Approval](#gate-2-examples-user-checklist-approval)
+5. [Success Criteria Summary](#success-criteria-summary)
+
+---
+
 ## Purpose
 
 This reference provides detailed examples for executing Specification Phase (S2.P2). Use this alongside the main guide for:

@@ -8,6 +8,17 @@
 
 ---
 
+## Table of Contents
+
+1. [Purpose](#purpose)
+2. [Phase 0 Examples: Discovery Context Review](#phase-0-examples-discovery-context-review)
+3. [Phase 1 Examples: Targeted Research](#phase-1-examples-targeted-research)
+4. [Phase 1.5 Examples: Research Completeness Audit](#phase-15-examples-research-completeness-audit)
+5. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+6. [Success Criteria Summary](#success-criteria-summary)
+
+---
+
 ## Purpose
 
 This reference provides detailed examples for executing Research Phase (S2.P1). Use this alongside the main guide for:
