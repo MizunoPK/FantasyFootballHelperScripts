@@ -17,7 +17,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this stage?**
 S4 is Feature-Level Test Strategy Development - planning tests BEFORE implementation (test-driven development approach). You will plan unit tests, integration tests, edge cases, and config scenarios with >90% coverage goal.
@@ -197,7 +197,7 @@ Output: Create test_strategy.md
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S4 is complete when ALL of these are true:**
 

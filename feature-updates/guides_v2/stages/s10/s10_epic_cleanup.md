@@ -28,7 +28,7 @@ Rushing this process results in incomplete documentation, missing commits, or di
 
 ---
 
-## Quick Start
+## Overview
 
 **What is S10?**
 Epic Cleanup is the final stage where you commit all changes, verify documentation, and move the completed epic to the done/ folder for archival.
@@ -1059,7 +1059,7 @@ The epic is now complete!
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S10 is COMPLETE when ALL of the following are true:**
 

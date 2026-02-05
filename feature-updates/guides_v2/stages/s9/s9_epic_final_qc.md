@@ -13,6 +13,23 @@
 
 ---
 
+## Prerequisites
+
+**Before starting S9:**
+
+- [ ] ALL features completed through S8.P2 (Epic Testing Update)
+- [ ] All feature-level testing passed (S7 complete for all features)
+- [ ] All features committed to git branch
+- [ ] epic_smoke_test_plan.md updated with latest version (from S8.P2)
+- [ ] No pending bug fixes or debugging sessions
+- [ ] EPIC_README.md Feature Tracking shows all features with S8.P2 checked
+
+**If any prerequisite fails:**
+- Return to incomplete features and finish S7-S8
+- Do NOT start S9 until ALL features are fully complete
+
+---
+
 ## Quick Navigation
 
 **Use this table to find the right guide:**
@@ -27,7 +44,7 @@
 
 ---
 
-## S9 Overview
+## Overview
 
 **What is S9?**
 Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole after ALL features are implemented. This includes epic smoke testing, 3 QC rounds, and epic-level PR review.
@@ -347,7 +364,7 @@ Ready to begin Step 1: Pre-QC Verification.
 
 ---
 
-## Completion Criteria (Same as Before Split)
+## Exit Criteria
 
 **S9 is complete when ALL of these are true:**
 

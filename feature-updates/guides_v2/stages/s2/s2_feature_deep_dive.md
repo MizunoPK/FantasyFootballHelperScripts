@@ -74,6 +74,23 @@
 
 ---
 
+## Prerequisites
+
+**Before starting S2 for any feature:**
+
+- [ ] S1 (Epic Planning) completed for this epic
+- [ ] DISCOVERY.md created and user-approved
+- [ ] Feature folder created with spec.md containing Discovery Context section
+- [ ] checklist.md file exists (may be empty)
+- [ ] Feature README.md has Agent Status section
+- [ ] EPIC_README.md Feature Tracking table lists this feature
+
+**If any prerequisite fails:**
+- Return to S1 to complete missing items
+- Do NOT proceed with S2 until all prerequisites met
+
+---
+
 ## Quick Navigation
 
 **Use this table to find the right guide:**
@@ -88,7 +105,7 @@
 
 ---
 
-## S2 Overview
+## Overview
 
 **What is S2?**
 Feature Planning is where you research each feature, create detailed specifications with requirement traceability, resolve questions with user, validate alignment, and get user approval (Gate 3).
@@ -411,7 +428,7 @@ Ready to begin Phase 0: Discovery Context Review.
 
 ---
 
-## Completion Criteria (Same as Before Split)
+## Exit Criteria
 
 **S2 is complete for THIS feature when ALL of these are true:**
 

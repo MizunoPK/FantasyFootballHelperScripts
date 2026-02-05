@@ -9,7 +9,24 @@
 
 ---
 
-## Quick Start
+## Prerequisites
+
+**Before starting S3:**
+
+- [ ] S2 completed for ALL features in the epic
+- [ ] All feature spec.md files have acceptance criteria (user-approved)
+- [ ] S2.P2 (Cross-Feature Alignment) completed
+- [ ] EPIC_README.md Feature Tracking shows all S2 checkboxes marked
+- [ ] epic_smoke_test_plan.md exists (initial version from S1)
+- [ ] Working directory: Epic folder root
+
+**If any prerequisite fails:**
+- Complete missing S2 work before proceeding
+- Do NOT start S3 until all features have completed S2
+
+---
+
+## Overview
 
 **Purpose:** Create epic-level testing strategy, refine epic documentation, get user approval (Gate 4.5)
 
@@ -249,7 +266,7 @@ Await user decision before proceeding.
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S3 complete when ALL true:**
 

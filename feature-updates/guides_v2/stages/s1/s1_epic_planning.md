@@ -17,7 +17,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Epic Planning is the first stage where you create the git branch, analyze the user's epic request, conduct Discovery research, break it down into features, validate your understanding through an epic ticket, and create the folder structure for the entire epic.
@@ -960,7 +960,7 @@ Announce S1 completion to user:
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S1 is complete when ALL of these are true:**
 

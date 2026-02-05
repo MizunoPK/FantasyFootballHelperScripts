@@ -21,7 +21,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Implementation Execution is where you write the feature code following the implementation_plan.md, keeping spec.md visible at all times, verifying interfaces before coding, and running tests after each step with mini-QC checkpoints.
@@ -751,7 +751,7 @@ python run_league_helper.py --mode draft
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S6 is complete when ALL of these are true:**
 
