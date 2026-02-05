@@ -159,7 +159,7 @@ This document captures lessons specific to THIS feature's development. This is s
 - stages/s5/s5_p1_planning_round1.md: {Improvement 1 or "None"}
 - stages/s5/s5_p2_planning_round2.md: {Improvement 1 or "None"}
 - stages/s5/s5_p3_planning_round3.md: {Improvement 1 or "None"}
-- stages/s5/round3_part2_final_gates.md: {Improvement 1 or "None"}
+- stages/s5/s5_p3_i3_gates_part2.md: {Improvement 1 or "None"}
 
 **stages/s6/s6_execution.md:**
 - {Improvement 1 or "None"}
