@@ -429,76 +429,30 @@ For EACH feature folder, read README.md and verify:
 
 ---
 
-### STEP 4: Guide Update from Lessons Learned (🚨 MANDATORY - S10.5)
+### STEP 4: Guide Update from Lessons Learned (🚨 MANDATORY - S10.P1)
 
 **Objective:** Apply lessons learned from epic to improve guides for future agents using systematic user-approved workflow.
 
-**🆕 NEW WORKFLOW:** S10.5 is now a dedicated, mandatory workflow with user approval for each proposed guide change.
-
-**⚠️ CRITICAL:** This is NOT optional. Every epic must run S10.5 to continuously improve guides.
+**⚠️ CRITICAL:** This is NOT optional. Every epic must run S10.P1 to continuously improve guides.
 
 **READ THE FULL GUIDE:**
 ```text
 stages/s10/s10_p1_guide_update_workflow.md
 ```
 
-**Quick Overview of S10.5:**
+**Process Overview:**
+1. Analyze all lessons_learned.md files (epic + all features)
+2. Create GUIDE_UPDATE_PROPOSAL.md with prioritized proposals (P0-P3)
+3. Present each proposal to user for individual approval
+4. Apply only approved changes to guides
+5. Create separate commit for guide updates
+6. Update guide_update_tracking.md
 
-1. **Analyze ALL lessons_learned.md files** (epic + all features)
-2. **Identify guide gaps** for each lesson
-3. **Create GUIDE_UPDATE_PROPOSAL.md** with prioritized proposals (P0-P3)
-4. **Present each proposal to user** for individual approval
-5. **Apply only approved changes** to guides
-6. **Create separate commit** for guide updates
-7. **Update guide_update_tracking.md** with applied lessons
+**Time Estimate:** 20-45 minutes
 
-**Priority System:**
-- **P0 (Critical):** Prevents catastrophic bugs, mandatory gate gaps
-- **P1 (High):** Significantly improves quality, reduces major rework
-- **P2 (Medium):** Moderate improvements, clarifies ambiguity
-- **P3 (Low):** Minor improvements, cosmetic fixes
+**Exit Condition:** S10.P1 complete (verify guide_update_tracking.md updated if changes applied)
 
-**User Approval:**
-- User reviews EACH proposal individually
-- User can: Approve / Modify / Reject / Discuss
-- Agent applies ONLY approved changes (or user modifications)
-- No batch approvals or autonomous decisions
-
-**Scope:**
-- All files in `feature-updates/guides_v2/`
-- `CLAUDE.md` (root project instructions)
-- Anything supporting future agents
-
-**Time Estimate:** 20-45 minutes (depends on number of lessons/proposals)
-
-**Why this matters:**
-- Continuous guide improvement based on real implementation experience
-- Future agents benefit from lessons learned in THIS epic
-- Systematic feedback loop: implementation → lessons → guide updates
-- User has full control over guide evolution
-
-**Transition to S10.5:**
-
-Use the prompt from `prompts/guide_update_prompts.md`:
-
-```text
-I'm reading `stages/s10/s10_p1_guide_update_workflow.md` to apply lessons learned to guides...
-
-[Full prompt from guide_update_prompts.md - "Starting S10.5"]
-```
-
-**Exit Conditions:**
-- [ ] Read stages/s10/s10_p1_guide_update_workflow.md (full guide)
-- [ ] All lessons_learned.md files analyzed
-- [ ] GUIDE_UPDATE_PROPOSAL.md created
-- [ ] User reviewed all proposals individually
-- [ ] Approved changes applied to guides
-- [ ] Separate commit created for guide updates
-- [ ] reference/guide_update_tracking.md updated
-- [ ] guide-updates.txt updated (if applicable)
-- [ ] Ready to proceed to STEP 5 (Final Commit)
-
-**NEXT:** After S10.5 complete, proceed to STEP 5 (Final Commit) for epic code
+**NEXT:** After S10.P1 complete, proceed to STEP 5 (Final Commit) for epic code
 
 ---
 
@@ -537,13 +491,12 @@ git add feature-updates/{epic_name}/
 **5c. Create Commit with Clear Message**
 
 **Commit Message Format:**
-```json
+```
 {commit_type}/KAI-{number}: Complete {epic_name} epic
 
 Major features:
 - {Feature 1 brief description}
 - {Feature 2 brief description}
-- {Feature 3 brief description}
 
 Key changes:
 - {File 1}: {What changed and why}
@@ -560,27 +513,14 @@ Testing:
 - `{number}` = KAI number from EPIC_TRACKER.md and branch name
 - Message limit: 100 chars or less for first line
 
-**Reference:** See `STAGE_7_reference/commit_message_examples.md` for detailed examples and anti-patterns.
+**Detailed Examples:** See `reference/stage_10/commit_message_examples.md` for complete examples, anti-patterns, and variations.
 
-**Create commit using HEREDOC:**
+**Create commit using HEREDOC** (ensures proper formatting):
 ```bash
 git commit -m "$(cat <<'EOF'
-feat/KAI-1: Complete improve_draft_helper epic
+feat/KAI-{N}: Complete {epic_name} epic
 
-Major features:
-- ADP integration: Adds market wisdom via Average Draft Position data
-- Matchup system: Incorporates opponent strength into projections
-- Performance tracking: Tracks player accuracy vs projections
-
-Key changes:
-- PlayerManager.py: Added calculate_adp_multiplier() method
-- AddToRosterModeManager.py: Integrated matchup difficulty into scoring
-- league_config.json: Added adp_weights and matchup_weights parameters
-
-Testing:
-- All unit tests passing (2200/2200)
-- Epic smoke testing passed (4/4 parts)
-- Epic QC rounds passed (3/3)
+{content following format above}
 EOF
 )"
 ```
@@ -598,224 +538,31 @@ Verify commit message clear, all epic files included, file change counts reasona
 
 **CRITICAL:** Push the epic branch to remote for user review via Pull Request.
 
-Push epic branch to remote:
+Push epic branch:
 ```bash
 git push origin {work_type}/KAI-{number}
 ```
 
-**Example:**
+**Create Pull Request:**
+
+Use GitHub CLI to create PR:
 ```bash
-git push origin epic/KAI-1
+gh pr create --base main --head {work_type}/KAI-{number}   --title "{commit_type}/KAI-{number}: Complete {epic_name} epic"   --body "See EPIC_README.md for details. All tests passing, ready for review."
 ```
 
-Verify push successful:
-```bash
-git status
-```
+**Or use GitHub Web UI:**
+- Navigate to repository on GitHub
+- Click "Pull requests" → "New pull request"
+- Select base: `main`, compare: `{work_type}/KAI-{number}`
+- Fill in title and description
+- Click "Create pull request"
 
-**Expected:** "Your branch is up to date with 'origin/{work_type}/KAI-{number}'"
+**After PR Created:**
+- User reviews changes in GitHub UI
+- User approves and merges (or requests changes)
+- **DO NOT merge yourself** - user must merge
 
-**5f. Create Pull Request**
-
-**CRITICAL:** Create a Pull Request for user review instead of merging directly to main.
-
-**Why Pull Requests?**
-- ✅ User reviews all changes before merge
-- ✅ GitHub UI provides best-in-class code review experience
-- ✅ Can request changes if issues found
-- ✅ GitHub Actions can run automated checks
-- ✅ Clean git history with PR merge commits
-
-**Create PR using GitHub CLI:**
-```bash
-gh pr create --base main --head {work_type}/KAI-{number} \
-  --title "{commit_type}/KAI-{number}: Complete {epic_name} epic" \
-  --body "$(cat <<'EOF'
-## Epic Summary
-{High-level description of epic from EPIC_README.md}
-
-## Features Completed
-- Feature 01: {feature_01_name}
-- Feature 02: {feature_02_name}
-- Feature 03: {feature_03_name}
-{Continue for all features}
-
-## Test Status
-- Unit tests: {total}/{total} passing (100%)
-- Epic smoke testing: PASSED (4/4 parts)
-- Epic QC rounds: PASSED (3/3)
-- User testing: PASSED (no bugs found)
-
-## Files Changed
-- {N} files changed
-- {additions} insertions, {deletions} deletions
-
-## Review Instructions
-Please review this Pull Request using one of the following methods:
-
-**Option 1: GitHub Web UI (Easiest)**
-- Click "Files changed" tab to see all diffs
-- Leave inline comments on specific lines if needed
-- Click "Review changes" → "Approve" when satisfied
-- Click "Merge pull request" to merge to main
-
-**Option 2: VS Code Extension**
-- Install "GitHub Pull Requests & Issues" extension
-- Open PR in VS Code sidebar
-- Review diffs in editor
-- Approve and merge from VS Code
-
-**Option 3: GitHub CLI**
-- View diff: gh pr diff {number}
-- Review: gh pr review {number} --approve
-- Merge: gh pr merge {number}
-
-**See:** feature-updates/USER_PR_REVIEW_GUIDE.md for detailed instructions
-
-## Checklist Before Merging
-- [ ] Review epic_smoke_test_plan.md results
-- [ ] Review epic_lessons_learned.md
-- [ ] Review code changes in GitHub PR diff view
-- [ ] Verify all requirements from original {epic_name}.txt met
-- [ ] All tests passing (100%)
-
-🤖 Generated with Claude Code
-
-Epic folder: feature-updates/KAI-{number}-{epic_name}/
-EOF
-)"
-```
-
-**Example:**
-```bash
-gh pr create --base main --head epic/KAI-1 \
-  --title "feat/KAI-1: Complete improve_draft_helper epic" \
-  --body "$(cat <<'EOF'
-## Epic Summary
-Improve draft helper with ADP integration, matchup system, and performance tracking.
-
-## Features Completed
-- Feature 01: ADP integration (market wisdom via Average Draft Position)
-- Feature 02: Matchup system (opponent strength in projections)
-- Feature 03: Performance tracking (accuracy vs projections)
-
-## Test Status
-- Unit tests: 2200/2200 passing (100%)
-- Epic smoke testing: PASSED (4/4 parts)
-- Epic QC rounds: PASSED (3/3)
-- User testing: PASSED (no bugs found)
-
-## Files Changed
-- 15 files changed
-- 847 insertions, 123 deletions
-
-## Review Instructions
-{... same as above ...}
-
-## Checklist Before Merging
-- [ ] Review epic_smoke_test_plan.md results
-- [ ] Review epic_lessons_learned.md
-- [ ] Review code changes in GitHub PR diff view
-- [ ] Verify all requirements met
-- [ ] All tests passing (100%)
-
-🤖 Generated with Claude Code
-
-Epic folder: feature-updates/KAI-1-improve_draft_helper/
-EOF
-)"
-```
-
-**PR Creation Output:**
-
-The gh CLI will output the PR URL. Agent should:
-1. Copy the PR URL
-2. Present it to user with clear instructions
-
-**Agent Output to User:**
-```text
-✅ Pull Request created successfully!
-
-PR URL: https://github.com/{owner}/{repo}/pull/{number}
-
-Please review the Pull Request using your preferred method:
-
-1. **GitHub Web UI** (Recommended for first-time)
-   - Open PR URL in browser
-   - Click "Files changed" tab
-   - Review all diffs
-   - Click "Approve" and "Merge" when satisfied
-
-2. **VS Code Extension**
-   - See USER_PR_REVIEW_GUIDE.md for setup instructions
-
-3. **GitHub CLI**
-   - gh pr view {number}
-   - gh pr diff {number}
-   - gh pr review {number} --approve
-   - gh pr merge {number}
-
-After you merge the PR, I'll update EPIC_TRACKER.md and move the epic to done/.
-```
-
-**Important Notes:**
-- **Do NOT merge the PR yourself** - User must review and merge
-- **Wait for user to merge** before proceeding to Step 5g
-- **If user requests changes** - Make changes, push to same branch, PR auto-updates
-
-**5g. Wait for User to Merge PR**
-
-**CRITICAL:** Agent must wait for user to merge the PR before proceeding.
-
-**After user merges PR:**
-- User will say "I merged the PR" or similar
-- Agent can then proceed to update EPIC_TRACKER.md (see 5h below)
-
-**If user requests changes:**
-1. User will leave comments on PR
-2. Agent addresses comments
-3. Agent commits fixes to same branch: `git push origin {work_type}/KAI-{number}`
-4. PR automatically updates with new commits
-5. User reviews again
-6. Repeat until user approves and merges
-
-**5h. Update EPIC_TRACKER.md (After User Merges PR)**
-
-**IMPORTANT:** This step only happens AFTER user has merged the PR.
-
-1. **Move epic from Active to Completed table**
-2. **Increment "Next Available Number"**
-3. **Add Epic Detail Section** with:
-   - Epic description
-   - Features implemented
-   - Key changes
-   - Commit history (use `git log --oneline --grep="KAI-{number}"`)
-   - Testing results
-   - Link to lessons learned
-
-**Pull latest changes from main** (includes user's PR merge):
-```bash
-git checkout main
-git pull origin main
-```
-
-**Commit EPIC_TRACKER.md update:**
-```bash
-git add feature-updates/EPIC_TRACKER.md
-git commit -m "feat/KAI-{number}: Update EPIC_TRACKER with completed epic details"
-git push origin main
-```
-
-**5i. Delete Epic Branch (Optional)**
-
-```bash
-git branch -d {work_type}/KAI-{number}
-```
-
-**Example:**
-```bash
-git branch -d epic/KAI-1
-```
+**See:** `reference/stage_10/pr_creation_guide.md` for detailed PR templates and review workflows (if exists)
 
 ---
 
