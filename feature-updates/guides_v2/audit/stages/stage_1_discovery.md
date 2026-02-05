@@ -60,6 +60,7 @@
 
 **Verify ALL of these are complete:**
 
+- [ ] **Clean up previous output files** (if starting NEW audit, not new round)
 - [ ] Fresh terminal session (cleared history, no bias from previous work)
 - [ ] Current working directory: `feature-updates/guides_v2/`
 - [ ] All previous round assumptions cleared (took 5-minute break if continuing)
@@ -67,6 +68,34 @@
 - [ ] Do NOT look at previous round notes until AFTER discovery complete
 - [ ] Round counter incremented (Round 1, Round 2, etc.)
 - [ ] Identified what changed since last guide update (if triggered by specific change)
+
+### 🚨 Clean Up Previous Output Files (New Audit Only)
+
+**If starting a BRAND NEW audit** (not continuing existing audit):
+
+```bash
+# Remove all previous audit output files
+rm -rf audit/outputs/*
+
+# Verify cleanup
+ls -la audit/outputs/
+# Should show empty directory or only .gitkeep
+```
+
+**When to clean up:**
+- ✅ Starting NEW audit after guide changes
+- ✅ Starting NEW dimension audit
+- ✅ User requested fresh audit start
+
+**When NOT to clean up:**
+- ❌ Continuing existing audit (Round N+1 of same audit)
+- ❌ Mid-audit (between stages of same round)
+- ❌ Resuming after interruption
+
+**Why clean up:**
+- Output files are temporary working documents
+- Old output files from previous audits cause confusion
+- Fresh start ensures no stale references
 
 ### Mental Model Reset
 

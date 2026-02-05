@@ -5,6 +5,10 @@ simulation/simulation_configs/archive
 venv
 *.bak
 
+# Audit output files (temporary working documents, not source)
+**/guides_v2/audit/outputs/
+**/_internal
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

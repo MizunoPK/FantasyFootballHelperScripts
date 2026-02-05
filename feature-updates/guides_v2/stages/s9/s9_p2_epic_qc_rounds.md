@@ -172,7 +172,7 @@ Round 3: End-to-End Success Criteria (10-20 min)
    ↓ Verify epic success criteria met
    ↓ Pass: All criteria met
    ↓
-   If PASS → Epic QC complete, proceed to S6c
+   If PASS → Epic QC complete, proceed to S9.P3
    If CRITICAL FAILURES → Fix, RESTART from S6
 ```
 
