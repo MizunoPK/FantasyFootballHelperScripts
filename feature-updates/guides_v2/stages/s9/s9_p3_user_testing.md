@@ -30,7 +30,24 @@ S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
 
 ---
 
-## Quick Start
+## Prerequisites
+
+**Before starting S9.P3 (User Testing):**
+
+- [ ] S9.P1 complete (Epic Smoke Testing passed)
+- [ ] S9.P2 complete (All 3 QC rounds passed)
+- [ ] EPIC_README.md shows "Epic QC Rounds: ✅ COMPLETE"
+- [ ] All features tested and validated
+- [ ] No pending bug fixes or debugging sessions
+- [ ] Epic is ready for end-user testing
+
+**If any prerequisite fails:**
+- Return to incomplete phase (S9.P1 or S9.P2)
+- Do NOT proceed to user testing until all QC complete
+
+---
+
+## Overview
 
 **What is this step?**
 User Testing is where the actual user tests the complete epic with real data and realistic workflows to catch issues that automated testing and agent QC might miss.
@@ -492,6 +509,33 @@ User-reported bugs follow the epic debugging protocol:
 - Bug fixes might affect epic-level integration
 - Must re-validate entire epic before returning to user
 - Comprehensive validation prevents new issues
+
+---
+
+## Exit Criteria
+
+**S9.P3 (User Testing) is complete when ONE of these is true:**
+
+**Option 1: User Testing Passed**
+- [ ] User tested the complete epic
+- [ ] User reported "NO BUGS FOUND"
+- [ ] EPIC_README.md updated with user testing completion
+- [ ] Ready to proceed to S9.P4 (Epic Final Review)
+
+**Option 2: User Testing Failed, Bugs Fixed, Retested Successfully**
+- [ ] User tested and reported bugs
+- [ ] ALL bugs documented in debugging/ISSUES_CHECKLIST.md
+- [ ] ALL bugs fixed via debugging protocol
+- [ ] User confirmed all fixes
+- [ ] Looped back to S9.P1 (Epic Smoke Testing)
+- [ ] Completed S9.P1 → S9.P2 → S9.P3 again
+- [ ] User retested and reported "NO BUGS FOUND"
+- [ ] Ready to proceed to S9.P4 (Epic Final Review)
+
+**Cannot proceed to S9.P4 if:**
+- User testing not performed
+- User found bugs that are not yet fixed
+- User has not confirmed epic is bug-free
 
 ---
 
