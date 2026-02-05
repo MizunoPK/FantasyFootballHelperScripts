@@ -314,7 +314,7 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 
 **Add to Bug Fix Tracking table:**
 ```markdown
-## Bug Fix Tracking
+### Bug Fix Tracking
 
 | # | Bug Fix Name | Priority | Status | Notes |
 |---|--------------|----------|--------|-------|
@@ -323,7 +323,7 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 
 **Add to Current Status section:**
 ```markdown
-## Current Status
+### Current Status
 
 **Last Updated:** 2025-12-30 18:00
 
@@ -346,7 +346,7 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 **Update current feature's README.md:**
 
 ```markdown
-## Agent Status (PAUSED - Bug Fix in Progress)
+### Agent Status (PAUSED - Bug Fix in Progress)
 
 **Last Updated:** 2025-12-30 18:00
 **Status:** PAUSED for bugfix_high_authentication_error
@@ -413,7 +413,7 @@ DONE (return to previous work)
 ```markdown
 # Bug Fix: Authentication Error
 
-## Root Cause
+### Root Cause
 
 ConfigManager.get_adp_multiplier() crashes when player has null ADP value.
 
@@ -426,7 +426,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
         return (1.50, 100)
 ```markdown
 
-## Solution
+### Solution
 
 Add null check at method start:
 
@@ -441,7 +441,7 @@ def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
         return (1.50, 100)
 ```markdown
 
-## Testing
+### Testing
 
 Unit tests:
 - test_get_adp_multiplier_with_none()
@@ -471,12 +471,12 @@ Integration test:
 ```markdown
 # Bug Fix TODO: Authentication Error
 
-## Phase 1: Fix Implementation
+### Phase 1: Fix Implementation
 - [ ] Add null check to ConfigManager.get_adp_multiplier()
 - [ ] Add logging for missing ADP case
 - [ ] Update method docstring
 
-## Phase 2: Testing
+### Phase 2: Testing
 - [ ] Add unit test: test_get_adp_multiplier_with_none()
 - [ ] Add unit test: test_get_adp_multiplier_with_zero()
 - [ ] Run all ConfigManager tests (verify no regressions)
@@ -542,13 +542,13 @@ python run_league_helper.py --mode draft
 **Update EPIC_README.md:**
 
 ```markdown
-## Bug Fix Tracking
+### Bug Fix Tracking
 
 | # | Bug Fix Name | Priority | Status | Notes |
 |---|--------------|----------|--------|-------|
 | 1 | bugfix_high_authentication_error | high | COMPLETE | Fixed null ADP handling |
 
-## Current Status
+### Current Status
 
 **Completed Bug Fixes:**
 - bugfix_high_authentication_error:
@@ -590,7 +590,7 @@ Action: Re-run feature_01 S7 (Testing & Review) QC Round 2 before continuing
 
 **Read paused feature's README.md:**
 ```markdown
-## Agent Status (PAUSED - Bug Fix in Progress)
+### Agent Status (PAUSED - Bug Fix in Progress)
 
 **Resume Instructions:**
 When bug fix complete:

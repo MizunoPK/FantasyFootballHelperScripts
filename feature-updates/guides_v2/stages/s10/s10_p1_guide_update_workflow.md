@@ -1,5 +1,4 @@
-# S10: Epic Cleanup
-## S10.P1: Guide Update from Lessons Learned
+# S10.P1: Guide Update from Lessons Learned
 
 **File:** `s10_p1_guide_update_workflow.md`
 
@@ -37,7 +36,7 @@
 
 ---
 
-## Overview
+### Overview
 
 **What is this phase?**
 S10.P1 is the mandatory guide improvement workflow where you analyze lessons learned from the epic and propose specific guide updates to help future agents, with user approval for each change individually.
@@ -62,7 +61,7 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
 
 ---
 
-## Critical Rules
+### Critical Rules
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -113,7 +112,7 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
 
 ---
 
-## Prerequisites Checklist
+### Prerequisites Checklist
 
 **Verify BEFORE starting S10.5:**
 
@@ -129,7 +128,7 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
 
 ---
 
-## Step-by-Step Workflow
+### Step-by-Step Workflow
 
 ### Step 1: Read All Lessons Learned
 

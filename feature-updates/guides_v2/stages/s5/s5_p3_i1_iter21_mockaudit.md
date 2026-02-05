@@ -1,6 +1,4 @@
-# S5: Feature Implementation
-## S5.P3: Planning Round 3
-### S5.P3.I1: Mock Audit & Integration Test Plan
+# S5.P3.I1: Mock Audit & Integration Test Plan
 
 **Purpose:** Mock Audit & Integration Test Plan
 **Prerequisites:** Previous iterations complete
@@ -138,7 +136,7 @@ Step 3: Compare mock to real
 
 ---
 
-## Mock Audit Summary
+### Mock Audit Summary
 
 **Total Mocks Audited:** 5
 **Mocks with Issues:** 1 (ConfigManager.get_adp_multiplier)
@@ -152,7 +150,7 @@ Step 3: Compare mock to real
 **3. Plan integration tests with REAL objects (no mocks):**
 
 ```markdown
-## Integration Test Plan (No Mocks)
+### Integration Test Plan (No Mocks)
 
 **Purpose:** Prove feature works with REAL objects (not mocks)
 
@@ -247,7 +245,7 @@ Step 3: Compare mock to real
 **4. Add integration test tasks to implementation_plan.md "Implementation Tasks" section:**
 
 ```markdown
-## Task 35: Integration Test - Real ConfigManager
+### Task 35: Integration Test - Real ConfigManager
 
 **Requirement:** Test ADP integration with REAL ConfigManager (no mocks)
 
@@ -261,7 +259,7 @@ Step 3: Compare mock to real
 
 ---
 
-## Task 36: Integration Test - Real CSV Utils
+### Task 36: Integration Test - Real CSV Utils
 
 **Requirement:** Test ADP loading with REAL csv_utils (no mocks)
 
@@ -275,7 +273,7 @@ Step 3: Compare mock to real
 
 ---
 
-## Task 37: Integration Test - End-to-End (No Mocks)
+### Task 37: Integration Test - End-to-End (No Mocks)
 
 **Requirement:** Full E2E test with ALL real objects
 

@@ -1,6 +1,4 @@
-# S5: Feature Implementation
-## S5.P1: Planning Round 1
-### S5.P1.I3: Downstream Data Consumption Tracing
+# S5.P1.I3: Downstream Data Consumption Tracing
 
 **Purpose:** Downstream Data Consumption Tracing
 **Prerequisites:** Previous iterations complete
@@ -51,7 +49,7 @@ grep -r "player\.\w+(" simulation/ --include="*.py"
 
 **Document findings:**
 ```markdown
-## Downstream Consumption Locations
+### Downstream Consumption Locations
 
 **Location 1:** AccuracySimulationManager.py lines 452-456
 - Method: _evaluate_config_weekly()
@@ -73,7 +71,7 @@ grep -r "player\.\w+(" simulation/ --include="*.py"
 Document how data is currently accessed:
 
 ```markdown
-## OLD Data Access Patterns (CSV-based)
+### OLD Data Access Patterns (CSV-based)
 
 **Pattern 1: Week-specific attributes**
 - Code: `player.week_1_points`, `player.week_2_points`, ..., `player.week_17_points`
@@ -98,7 +96,7 @@ Document how data is currently accessed:
 Document how data will be accessed after changes:
 
 ```markdown
-## NEW Data Access Patterns (JSON-based)
+### NEW Data Access Patterns (JSON-based)
 
 **Pattern 1: Array-based week data**
 - Code: `player.actual_points[week_num - 1]`

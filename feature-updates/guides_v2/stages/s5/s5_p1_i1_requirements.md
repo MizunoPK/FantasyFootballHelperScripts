@@ -1,6 +1,4 @@
-# S5: Feature Implementation
-## S5.P1: Planning Round 1
-### S5.P1.I1: Requirements (Iterations 1-3)
+# S5.P1.I1: Requirements (Iterations 1-3)
 
 **Purpose:** Break down spec.md requirements into implementation tasks
 **Prerequisites:** Planning Round 1 overview read from s5_p1_planning_round1.md
@@ -21,14 +19,14 @@
 
 ---
 
-## Overview
+### Overview
 
 **What is this iteration?**
 Iteration 1-3: Requirements Validation
 
 ---
 
-## Overview
+### Overview
 
 Iterations 1-3 focus on translating spec.md into concrete implementation tasks, verifying component dependencies, and validating data structures.
 
@@ -311,7 +309,7 @@ Next Action: Read stages/s5/s5_p1_i2_algorithms.md
 
 ---
 
-## Checkpoint: After Iterations 1-3
+### Checkpoint: After Iterations 1-3
 
 **Before proceeding to Iteration 4:**
 

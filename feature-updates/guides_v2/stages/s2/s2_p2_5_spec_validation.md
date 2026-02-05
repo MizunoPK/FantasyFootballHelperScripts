@@ -1,5 +1,4 @@
-# S2: Feature Deep Dives
-## S2.P2.5: Specification Validation
+# S2.P2.5: Specification Validation
 
 **Guide Version:** 1.0
 **Created:** 2026-01-06
@@ -98,7 +97,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 
 ---
 
-## Critical Decisions Summary
+### Critical Decisions Summary
 
 **Validation Phase has 1 major decision point per checklist question:**
 
@@ -140,7 +139,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 
 ---
 
-## Phase 2.75: Specification Validation
+### Phase 2.75: Specification Validation
 
 **Goal:** Validate all spec claims and self-resolve maximum checklist questions through deep research
 
