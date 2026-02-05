@@ -9,6 +9,25 @@
 
 ---
 
+## Table of Contents
+
+1. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+2. [Overview](#overview)
+3. [Critical Rules](#critical-rules)
+4. [Critical Decisions Summary](#critical-decisions-summary)
+5. [Prerequisites Checklist](#prerequisites-checklist)
+6. [🔄 Parallel Work Coordination (If Applicable)](#-parallel-work-coordination-if-applicable)
+7. [Phase 2: Update Spec & Checklist](#phase-2-update-spec--checklist)
+8. [Agent Status](#agent-status)
+9. [Phase 2.5: Spec-to-Epic Alignment Check (MANDATORY GATE)](#phase-25-spec-to-epic-alignment-check-mandatory-gate)
+10. [Agent Status](#agent-status-1)
+11. [Exit Criteria](#exit-criteria)
+12. [Phase 2.6: Present Checklist to User for Approval (🚨 MANDATORY GATE 2)](#phase-26-present-checklist-to-user-for-approval--mandatory-gate-2)
+13. [Next Stage](#next-stage)
+
+---
+
+
 ## 🚨 MANDATORY READING PROTOCOL
 
 **Before starting this guide:**

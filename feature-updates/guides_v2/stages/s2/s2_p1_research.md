@@ -14,6 +14,29 @@
 
 ---
 
+## Table of Contents
+
+1. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+2. [Overview](#overview)
+3. [Critical Rules](#critical-rules)
+4. [Critical Decisions Summary](#critical-decisions-summary)
+5. [Prerequisites Checklist](#prerequisites-checklist)
+6. [🔄 Parallel Work Coordination (If Applicable)](#-parallel-work-coordination-if-applicable)
+7. [Step 0: Discovery Context Review (MANDATORY FIRST STEP)](#step-0-discovery-context-review-mandatory-first-step)
+8. [Discovery Context](#discovery-context)
+9. [Phase 0 Verification Checklist](#phase-0-verification-checklist)
+10. [Agent Status](#agent-status)
+11. [Phase 1: Feature-Specific Research](#phase-1-feature-specific-research)
+12. [External Library Verification](#external-library-verification)
+13. [Agent Status](#agent-status-1)
+14. [Phase 1.5: Research Completeness Audit (MANDATORY GATE)](#phase-15-research-completeness-audit-mandatory-gate)
+15. [Agent Status](#agent-status-2)
+16. [Exit Criteria](#exit-criteria)
+17. [Next Stage](#next-stage)
+
+---
+
+
 ## 🚨 MANDATORY READING PROTOCOL
 
 **Before starting this guide:**

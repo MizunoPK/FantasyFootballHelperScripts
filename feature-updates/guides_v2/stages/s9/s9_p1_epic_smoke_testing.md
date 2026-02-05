@@ -43,6 +43,29 @@ S5 (ALL features complete) →
 
 ---
 
+## Table of Contents
+
+1. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+2. [Overview](#overview)
+3. [🛑 Critical Rules (Epic-Specific)](#-critical-rules-epic-specific)
+4. [Prerequisites Checklist](#prerequisites-checklist)
+5. [Workflow Overview](#workflow-overview)
+6. [STEP 1: Pre-QC Verification](#step-1-pre-qc-verification)
+7. [Epic Progress Tracker](#epic-progress-tracker)
+8. [Part 1: Epic Import Test](#part-1-epic-import-test)
+9. [Part 2: Epic Entry Point Test](#part-2-epic-entry-point-test)
+10. [Part 3: Epic E2E Execution Test (CRITICAL)](#part-3-epic-e2e-execution-test-critical)
+11. [Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)](#part-4-cross-feature-integration-test-epic-specific)
+12. [Pass/Fail Criteria](#passfail-criteria)
+13. [Epic Issue Handling Protocol](#epic-issue-handling-protocol)
+14. [🛑 MANDATORY CHECKPOINT 1](#-mandatory-checkpoint-1)
+15. [Next Steps](#next-steps)
+16. [Summary](#summary)
+17. [Exit Criteria](#exit-criteria)
+
+---
+
+
 ## Overview
 
 **What is this guide?**

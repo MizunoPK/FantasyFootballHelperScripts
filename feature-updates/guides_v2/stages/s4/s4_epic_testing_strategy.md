@@ -17,6 +17,32 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Critical Rules](#critical-rules)
+3. [Prerequisites Checklist](#prerequisites-checklist)
+4. [Workflow Overview](#workflow-overview)
+5. [Step 1: Review Initial Test Plan](#step-1-review-initial-test-plan)
+6. [Epic Success Criteria (INITIAL - WILL REFINE)](#epic-success-criteria-initial---will-refine)
+7. [Specific Commands/Scenarios (PLACEHOLDER)](#specific-commandsscenarios-placeholder)
+8. [Step 2: Identify Integration Points](#step-2-identify-integration-points)
+9. [Integration Points Identified](#integration-points-identified)
+10. [Step 3: Define Epic Success Criteria](#step-3-define-epic-success-criteria)
+11. [Epic Success Criteria](#epic-success-criteria)
+12. [Step 4: Create Specific Test Scenarios](#step-4-create-specific-test-scenarios)
+13. [Step 5: Update epic_smoke_test_plan.md](#step-5-update-epic_smoke_test_planmd)
+14. [Epic Success Criteria](#epic-success-criteria-1)
+15. [Specific Test Scenarios](#specific-test-scenarios)
+16. [High-Level Test Categories](#high-level-test-categories)
+17. [Update Log](#update-log)
+18. [Step 6: S4 Validation Loop (MANDATORY)](#step-6-s4-validation-loop-mandatory)
+19. [Step 7: Mark S4 Complete and Request Gate 4.5 Approval](#step-7-mark-s4-complete-and-request-gate-45-approval)
+20. [Epic Test Plan Ready for Approval](#epic-test-plan-ready-for-approval)
+
+---
+
+
 ## Overview
 
 **What is this guide?**

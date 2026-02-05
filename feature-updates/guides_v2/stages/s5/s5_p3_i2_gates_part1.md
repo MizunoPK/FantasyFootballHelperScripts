@@ -7,6 +7,32 @@
 
 ---
 
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Overview](#overview)
+3. [Purpose](#purpose)
+4. [Process](#process)
+5. [Integration Verification](#integration-verification)
+6. [End-to-End Integration Flow](#end-to-end-integration-flow)
+7. [Integration Flow: {Feature Name}](#integration-flow-feature-name)
+8. [Integration Verification (Iteration 23)](#integration-verification-iteration-23)
+9. [Completion Criteria](#completion-criteria)
+10. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+11. [Next Step](#next-step)
+12. [🚨 MANDATORY GATE](#-mandatory-gate)
+13. [Purpose](#purpose-1)
+14. [PART 1: Completeness Verification](#part-1-completeness-verification)
+15. [Spec Requirements Inventory](#spec-requirements-inventory)
+16. [Requirement → Task Mapping](#requirement--task-mapping)
+17. [⚠️ PART 1 FAILED - Missing Implementation Tasks](#️-part-1-failed---missing-implementation-tasks)
+18. [PART 2: Specificity Verification](#part-2-specificity-verification)
+19. [Task Specificity Audit](#task-specificity-audit)
+20. [⚠️ PART 2 FAILED - Vague Tasks Found](#️-part-2-failed---vague-tasks-found)
+
+---
+
+
 ## Prerequisites
 
 **Before starting Iteration 20 (Gate 23a - Part 1):**
