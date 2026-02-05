@@ -288,119 +288,49 @@ Testing Plan Update is complete when epic_smoke_test_plan.md reflects actual imp
 
 ### STEP 1: Review Actual Implementation
 
-**Purpose:** Understand what was ACTUALLY built to inform test plan updates
-
----
-
-#### 1a. Read Just-Completed Feature Code
+**Purpose:** Understand what was ACTUALLY implemented (not what specs said)
 
 **Actions:**
-1. Open the actual source files created/modified in just-completed feature
-2. Review key implementation details:
-   - **Interfaces created:** New methods, classes, public APIs
-   - **Data structures:** CSV formats, JSON structures, object fields
-   - **Integration points:** Calls to other features, shared modules
-   - **Configuration:** New config keys, settings, defaults
-   - **Edge cases handled:** Error handling, validation, boundary conditions
 
-**Example:**
-```python
-# Just completed: feature_01_adp_integration
+1. **Read feature implementation code:**
+   - Main files modified (from feature README.md "Files Modified" section)
+   - Integration points (method calls to other features)
+   - Data structures added/modified
+   - Configuration keys added
 
-# Reading actual code:
-# File: league_helper/util/ConfigManager.py
+2. **Identify integration points discovered during implementation:**
+   ```markdown
+   ## Integration Points Found
+   
+   **Feature:** feature_01_adp_integration
+   
+   1. **PlayerManager.calculate_total_score()**
+      - Discovery: Now multiplies score by adp_multiplier
+      - Impact: Affects all modes that calculate scores
+      - Source: league_helper/util/PlayerManager.py:145-167
+   
+   2. **ConfigManager.load_league_config()**
+      - Discovery: Loads adp_multiplier_ranges from config
+      - Impact: Config validation must include ADP keys
+      - Source: league_helper/util/ConfigManager.py:89-103
+   ```
 
-def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
-    """
-    Calculate ADP multiplier for draft recommendations.
+3. **Note edge cases discovered:**
+   - Behaviors not in spec but found during testing
+   - Error handling added during implementation
+   - Performance considerations discovered
 
-    Implementation notes for testing:
-    - Returns tuple (multiplier, score)
-    - Multiplier range: 0.85-1.50
-    - Uses exponential curve for top 10 picks
-    - Uses linear scaling for picks 11-250
-    - Returns (1.0, 50) for unknown ADP values
-    """
-    # Key integration point: Called by PlayerManager.calculate_total_score()
-    # Data dependency: Requires data/player_data/adp_data.csv
-    # Config dependency: Uses config['scoring']['adp']['curve_exponent']
-```
+4. **Compare implementation to spec:**
+   - What's different from spec?
+   - What's more complex than expected?
+   - What's simpler than expected?
 
----
+**Output:** Integration points list + edge cases list
 
-#### 1b. Identify Integration Points
-
-**Purpose:** Find where this feature interacts with other parts of the system
-
-**Look for:**
-- Methods called FROM other modules (entry points)
-- Methods that CALL other modules (dependencies)
-- Shared data structures (files read/written by multiple features)
-- Configuration shared across features
-- Workflows that span multiple features
-
-**Template:**
-```markdown
-## Integration Points Found in feature_01_adp_integration
-
-**Entry Points** (other code calls into this feature):
-1. PlayerManager.calculate_total_score() calls ConfigManager.get_adp_multiplier()
-   - Location: league_helper/util/PlayerManager.py:145
-   - When: During draft recommendations (AddToRosterMode)
-   - Impact: ADP multiplier affects all draft recommendations
-
-**Dependencies** (this feature calls other code):
-1. ConfigManager.__init__() loads config from league_config.json
-   - Location: league_helper/util/ConfigManager.py:67
-   - What: Loads scoring.adp.curve_exponent setting
-   - Fallback: Defaults to 2.0 if not present
-
-**Shared Data:**
-1. data/player_data/adp_data.csv
-   - Read by: ADPDataLoader (feature_01)
-   - Will be read by: PlayerRatingIntegration (feature_02) - shares same directory
-   - Format: [name, position, team, adp_rank, adp_value]
-
-**Cross-Feature Workflows:**
-1. Draft Recommendation Flow:
-   - User → AddToRosterMode → PlayerManager → ConfigManager.get_adp_multiplier()
-   - Future: PlayerManager will also call get_rating_multiplier() (feature_02)
-   - Integration test needed: Verify both multipliers apply correctly
-```
+**Time:** 5-10 minutes
 
 ---
 
-#### 1c. Note Edge Cases and Behaviors
-
-**Look for:**
-- How does feature handle missing data?
-- How does feature handle invalid input?
-- What are the boundary conditions?
-- Any surprising behaviors discovered during implementation?
-
-**Example:**
-```markdown
-## Edge Cases Discovered in Implementation
-
-1. **Missing ADP data:**
-   - Behavior: Returns (1.0, 50) - neutral multiplier
-   - Log message: INFO level "Player {name} missing ADP, using default"
-   - Test needed: Verify neutral multiplier doesn't advantage/disadvantage players
-
-2. **ADP rank 0 (undrafted):**
-   - Behavior: Treated as very low draft value (multiplier 0.85)
-   - Reasoning: Undrafted = market doesn't value them
-   - Test needed: Verify undrafted players get penalty, not neutral
-
-3. **ADP value > 250:**
-   - Behavior: Capped at rank 250 (multiplier 0.85)
-   - Reasoning: Beyond 250 all have minimal value
-   - Test needed: Verify ranks 251+ all get same multiplier
-```
-
----
-
-### STEP 2: Compare to Current Test Plan
 
 **Purpose:** Identify what's missing or outdated in current test plan
 
@@ -842,382 +772,98 @@ Ensures S9 epic QC tests actual implementation, not assumptions.
 
 ### Anti-Pattern 1: Updating Based on Specs (Not Code)
 
-**Mistake:**
-"Spec said feature_01 would use ConfigManager.get_adp(), so I'll add test for that interface."
-
-**Why it's wrong:** Actual implementation might be different from spec. Must read actual code.
-
-**Correct approach:** Read actual source file, verify actual method name and signature.
+**Wrong:** Reading feature spec and adding test scenarios based on planned behavior
+**Right:** Reading ACTUAL implemented code and adding scenarios based on real behavior
+**Why:** Implementation often differs from specs (edge cases, design changes, discovered dependencies)
 
 ---
 
 ### Anti-Pattern 2: Vague Test Scenarios
 
-**Mistake:**
-```markdown
-### Test ADP Integration
-- Run the system
-- Check it works
+**Wrong:** "Test ADP integration works"
+**Right:**
 ```
-
-**Why it's wrong:** Not executable. Can't determine pass/fail in S9.
-
-**Correct approach:**
-```markdown
-### Test ADP Multiplier Integration
-- Run: python run_league_helper.py --mode draft
-- Open: data/recommendations.csv
-- Verify: adp_multiplier column exists with values 0.85-1.50
-- Verify: final_score = projected_points * adp_multiplier
+Test Scenario: ADP Multiplier Integration
+Context: After feature_01_adp_integration complete
+Steps:
+  1. Load player with adp_value=15 (high draft pick)
+  2. Call PlayerManager.calculate_total_score(player)
+  3. Verify: Final score includes adp_multiplier boost
+Expected: score > base_score (multiplier applied)
 ```
 
 ---
 
-### Anti-Pattern 3: Skipping If "No Obvious Changes"
+### Anti-Pattern 3: Only Adding Scenarios (Not Updating Existing)
 
-**Mistake:**
-"Feature_01 was straightforward, test plan probably doesn't need updates. I'll skip S8.P2 (Epic Testing Update)."
-
-**Why it's wrong:** Even simple implementations reveal integration points and edge cases.
-
-**Correct approach:** Always do S8.P2 (Epic Testing Update). Even if only adding 1-2 scenarios, it's worth 15 minutes.
+**Wrong:** Always appending new scenarios to end of test plan
+**Right:** Update existing scenarios if implementation contradicts them, remove obsolete scenarios
+**Why:** Test plan must stay internally consistent as implementation reveals reality
 
 ---
 
-### Anti-Pattern 4: Duplicate Unit Tests in Epic Plan
+### Anti-Pattern 4: Not Documenting Why Scenario Added
 
-**Mistake:**
-```markdown
-### Test get_adp_multiplier returns tuple
-- Call ConfigManager.get_adp_multiplier(10)
-- Assert: returns (float, int) tuple
-```
-
-**Why it's wrong:** This is feature_01's unit test, not epic-level integration test.
-
-**Correct approach:** Epic tests focus on cross-feature integration and end-to-end workflows.
+**Wrong:** Adding test scenario without explanation
+**Right:** Include rationale in Update History: "Added because implementation revealed cross-feature dependency not in spec"
+**Why:** Future maintainers need to understand why test exists
 
 ---
 
-### Anti-Pattern 5: Not Updating Existing Scenarios
+### Anti-Pattern 5: Testing Feature Details (Not Epic Integration)
 
-**Mistake:**
-"I'll just add new scenarios at the bottom. Won't touch existing ones."
-
-**Why it's wrong:** Existing scenarios might have become outdated or too vague.
-
-**Correct approach:** Review existing scenarios, enhance with specific details from implementation.
+**Wrong:** "Test that _parse_adp_csv() handles malformed CSV"
+**Right:** "Test that ADP data successfully integrates with draft recommendations across features"
+**Why:** Feature unit tests in S7, epic tests in S8.P2 focus on cross-feature workflows
 
 ---
 
-### Anti-Pattern 6: Missing Update Rationale
+### Anti-Pattern 6: Skipping Updates After Simple Features
 
-**Mistake:**
-```markdown
-### Scenario 8: Test missing data
-
-{Test details...}
-```
-
-**Why it's wrong:** Future agents won't know why this was added or what feature drove it.
-
-**Correct approach:**
-```markdown
-### Scenario 8: Missing ADP Data Handling
-
-**Added:** S8.P2 (Epic Testing Update) (feature_01_adp_integration)
-
-{Test details...}
-
-**Why added:** Implementation discovered fallback behavior (neutral multiplier)
-for missing ADP data. Needs explicit test to ensure it works correctly.
-```
+**Wrong:** "Feature was simple, no epic testing changes needed"
+**Right:** Always review - even simple features often reveal integration points
+**Why:** "Simple" features frequently have unexpected cross-feature impacts
 
 ---
 
-### Anti-Pattern 7: Forgetting to Commit
+### Quick Checklist to Avoid Mistakes
 
-**Mistake:**
-"I updated epic_smoke_test_plan.md but I'll commit later with other changes."
+Before completing S8.P2, verify:
+- [ ] Read actual CODE (not just specs)
+- [ ] Test scenarios have specific steps and expected results
+- [ ] Updated/removed existing scenarios (not just appended)
+- [ ] Documented WHY each change made (Update History)
+- [ ] Focus on EPIC-level integration (not feature unit tests)
+- [ ] Reviewed even if feature seemed "simple"
 
-**Why it's wrong:** If something goes wrong, test plan updates are lost. Can't track which feature drove which updates.
 
-**Correct approach:** Commit test plan updates immediately, before moving to next feature.
+**Detailed examples extracted to reference file for easier navigation:**
 
----
+**File:** `reference/s8_p2_testing_examples.md` (~240 lines)
 
-### Anti-Pattern 8: Deleting S1/4 Content
+**What's covered:**
+1. **Example 1: After Feature 01 (ADP Integration)**
+   - Integration points discovered during implementation
+   - Test scenarios added based on actual code
+   - Update history showing rationale
 
-**Mistake:**
-"S1 test plan was just placeholders. I'll delete it and replace with real tests."
+2. **Example 2: After Feature 02 (Injury Assessment)**
+   - Cross-feature dependencies found
+   - Edge cases discovered in testing
+   - Test plan refinements
 
-**Why it's wrong:** Loses evolution history. Can't see how plan matured.
+3. **Example 3: After Feature 04 (Integration Feature)**
+   - Complex integration scenarios
+   - Epic-level success criteria updates
+   - Final testing strategy adjustments
 
-**Correct approach:** Enhance S1/4 content. Mark updates clearly: `[UPDATED S8.P2 (Epic Testing Update) - feature_01]`
+**When to reference:**
+- First time doing S8.P2 (learn the pattern)
+- Unsure how to document discovered integration points
+- Need examples of specific test scenario format
 
----
+**See:** `reference/s8_p2_testing_examples.md` for complete examples
 
-### Anti-Pattern 9: Not Reading Actual Code
-
-**Mistake:**
-"I implemented the feature, I know what I built. Don't need to re-read code."
-
-**Why it's wrong:** Memory is unreliable. Details matter for test scenarios.
-
-**Correct approach:** Open source files, read actual implementation, note specific details.
-
----
-
-### Anti-Pattern 10: Unclear Update History
-
-**Mistake:**
-```text
-| 2025-12-30 | S8.P2 (Epic Testing Update) | Added tests | Feature 1 |
-```
-
-**Why it's wrong:** No detail on what was added or why.
-
-**Correct approach:**
-```text
-| 2025-12-30 | S8.P2 (Epic Testing Update) (Feature 1) | Added 6 test scenarios, updated 2 existing | feature_01 revealed integration points, edge cases, multiplier ranges not in S4 |
-```
-
----
-
-## Real-World Examples
-
-### Example 1: Adding Integration Point Test
-
-**Just completed:** feature_01_adp_integration
-
-**Implementation review reveals:**
-```python
-# File: league_helper/util/PlayerManager.py
-
-def calculate_total_score(self, player: FantasyPlayer) -> float:
-    """Calculate final player score with all multipliers."""
-
-    # Start with projected points
-    score = player.projected_points
-
-    # Apply ADP multiplier (NEW in feature_01)
-    adp_multiplier, adp_score = self.config.get_adp_multiplier(player.adp)
-    player.adp_multiplier = adp_multiplier  # Store for display
-    player.adp_score = adp_score  # Store for debugging
-    score *= adp_multiplier  # Apply to final score
-
-    return score
-```
-
-**Current test plan (from S4):**
-```markdown
-### Scenario 3: Scoring Calculation
-
-**What to test:** Verify player scores calculated correctly
-
-**How to test:**
-- Load players
-- Calculate scores
-- Check scores are reasonable
-
-**Expected result:** Players have scores
-```
-
-**S8.P2 (Epic Testing Update) updates:**
-
-**Update existing scenario:**
-```markdown
-### Scenario 3: Scoring Calculation
-
-**What to test:** Verify player scores calculated correctly
-
-**How to test:**
-1. Load players:
-   ```
-   python run_league_helper.py --mode draft
-   ```markdown
-
-2. Review recommendations output:
-   - Open data/recommendations.csv
-   - **[UPDATED S8.P2 (Epic Testing Update) - feature_01]:** Verify all players have adp_multiplier column
-   - **[UPDATED S8.P2 (Epic Testing Update) - feature_01]:** Verify all players have adp_score column
-   - **[UPDATED S8.P2 (Epic Testing Update) - feature_01]:** Verify final_score = projected_points * adp_multiplier
-
-**Expected result:**
-- Players have scores
-- **[UPDATED S8.P2 (Epic Testing Update) - feature_01]:** All adp_multiplier values between 0.85-1.50
-- **[UPDATED S8.P2 (Epic Testing Update) - feature_01]:** All adp_score values between 0-100
-- **[UPDATED S8.P2 (Epic Testing Update) - feature_01]:** Math verifies: final_score = projected * multiplier
-```
-
-**Add new integration scenario:**
-```markdown
-### Scenario 9: PlayerManager → ConfigManager Integration
-
-**Added:** S8.P2 (Epic Testing Update) (feature_01_adp_integration)
-
-**What to test:** Verify PlayerManager correctly integrates with ConfigManager for ADP multipliers
-
-**How to test:**
-1. Create test player with known ADP:
-   - Player: "Test Player"
-   - Position: QB
-   - Projected Points: 300.0
-   - ADP: 10 (elite pick)
-
-2. Run scoring calculation:
-   ```
-   python -c "
-   from league_helper.util.PlayerManager import PlayerManager
-   from league_helper.util.ConfigManager import ConfigManager
-   from league_helper.util.FantasyPlayer import FantasyPlayer
-
-   config = ConfigManager('data/')
-   manager = PlayerManager(config)
-
-   player = FantasyPlayer('Test Player', 'QB', projected_points=300.0, adp=10)
-   score = manager.calculate_total_score(player)
-
-   print(f'Final score: {score}')
-   print(f'ADP multiplier: {player.adp_multiplier}')
-   print(f'ADP score: {player.adp_score}')
-   print(f'Math check: {300.0 * player.adp_multiplier}')
-   "
-   ```text
-
-3. Verify integration:
-   - ConfigManager.get_adp_multiplier() was called
-   - Returned tuple was unpacked correctly
-   - Multiplier was stored in player.adp_multiplier
-   - Score was stored in player.adp_score
-   - Final score = 300.0 * multiplier
-
-**Expected result:**
-- ADP multiplier ≈ 1.45 (elite pick gets high multiplier)
-- ADP score ≈ 95 (elite rating)
-- Final score ≈ 435.0 (300 * 1.45)
-- Math check matches final score
-
-**Why added:** Implementation revealed specific integration pattern (ConfigManager → tuple return → PlayerManager unpacks and stores). S4 plan didn't specify this interaction. Need explicit test to ensure it works correctly.
-```
-
-**Result:** Test plan now has specific, executable test for integration point discovered during implementation.
-
----
-
-### Example 2: Adding Edge Case Test
-
-**Just completed:** feature_01_adp_integration
-
-**Implementation review reveals:**
-```python
-# File: league_helper/util/ConfigManager.py
-
-def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
-    """Calculate ADP multiplier."""
-
-    # Handle missing ADP data
-    if adp_value is None or adp_value == 0:
-        self.logger.info(f"ADP value missing or zero, using neutral multiplier")
-        return (1.0, 50)  # Neutral multiplier, mid-range score
-
-    # Handle undrafted players (rank > 250)
-    if adp_value > 250:
-        adp_value = 250  # Cap at 250
-
-    # Calculate multiplier...
-```
-
-**Current test plan (from S4):**
-- No edge case scenarios for missing data or boundary conditions
-
-**S8.P2 (Epic Testing Update) update - Add new scenario:**
-```markdown
-### Scenario 10: Edge Case - Missing ADP Data
-
-**Added:** S8.P2 (Epic Testing Update) (feature_01_adp_integration)
-
-**What to test:** Verify system handles players with missing ADP data gracefully
-
-**How to test:**
-1. Create test scenario:
-   - Edit data/player_data/adp_data.csv
-   - Remove entry for "P.Mahomes"
-   - Ensure "P.Mahomes" exists in data/players.csv
-
-2. Run draft mode:
-   ```
-   python run_league_helper.py --mode draft
-   ```bash
-
-3. Check output:
-   - Open data/recommendations.csv
-   - Find "P.Mahomes" row
-   - Verify adp_multiplier = 1.0 (neutral)
-   - Verify adp_score = 50 (mid-range)
-   - Verify final_score = projected_points * 1.0 (no advantage/penalty)
-
-4. Check logs:
-   - Should have INFO log: "ADP value missing or zero, using neutral multiplier"
-   - Should NOT have ERROR or WARNING
-
-**Expected result:**
-- "P.Mahomes" appears in recommendations (not excluded)
-- adp_multiplier = 1.0 exactly
-- adp_score = 50 exactly
-- No crashes, exceptions, or errors
-- Missing ADP doesn't advantage or penalize player
-
-**Why added:** Implementation discovered fallback behavior for missing ADP data (returns neutral multiplier 1.0). This wasn't specified in original spec and needs explicit testing to ensure it works correctly. Important for data quality scenarios where ADP data is incomplete.
-```
-
-**Add another edge case scenario:**
-```markdown
-### Scenario 11: Edge Case - ADP Rank > 250
-
-**Added:** S8.P2 (Epic Testing Update) (feature_01_adp_integration)
-
-**What to test:** Verify system caps ADP ranks above 250 to prevent extreme penalties
-
-**How to test:**
-1. Create test scenario:
-   - Edit data/player_data/adp_data.csv
-   - Add test player: "Test Player,QB,TEST,500,500.0"
-   - ADP rank 500 (very late pick)
-
-2. Run draft mode:
-   ```
-   python run_league_helper.py --mode draft
-   ```bash
-
-3. Check output:
-   - Open data/recommendations.csv
-   - Find "Test Player" row
-   - Verify adp_multiplier ≈ 0.85 (minimum, capped)
-   - Verify adp_score ≈ 0 (lowest rating)
-   - Compare to player with ADP rank 250 (should have same multiplier)
-
-**Expected result:**
-- ADP rank 500 gets same multiplier as rank 250 (both capped at 0.85)
-- No extreme penalties for very late picks
-- Multiplier doesn't go below 0.85
-
-**Why added:** Implementation discovered capping behavior for ADP > 250. Prevents extreme penalties for late-round picks. Need test to verify cap is applied correctly and consistently.
-```
-
-**Result:** Test plan now covers edge cases discovered during implementation that weren't anticipated in S4.
-
----
-
-### Example 3: Updating Success Criteria
-
-**Just completed:** feature_01_adp_integration
-
-**Implementation reveals:** System must handle missing data gracefully (wasn't in original epic success criteria)
-
-**Original Epic Success Criteria (from S1):**
-```markdown
-## Epic Success Criteria
 
 **The epic is successful if:**
 
