@@ -20,7 +20,7 @@
 
 **I need to VERIFY fixes worked →** `stage_4_verification.md` → Three-tier verification
 
-**I need to DECIDE if audit is complete →** `stage_5_loop_decision.md` → Check all 8 exit criteria
+**I need to DECIDE if audit is complete →** `stage_5_loop_decision.md` → Check all 9 exit criteria
 
 **I need to understand FRESH EYES →** `audit_overview.md` → "How to Achieve Fresh Eyes" → TL;DR box
 
@@ -128,7 +128,7 @@ grep -n "S[0-9]" CLAUDE.md | grep -o "S[0-9][0-9]*\(\.P[0-9][0-9]*\)\?\(\.I[0-9]
 
 ## Exit Criteria Quick Checklist
 
-**ALL 8 must pass to exit audit:**
+**ALL 9 must pass to exit audit:**
 
 - [ ] **Criterion 1:** Minimum 3 rounds completed with fresh eyes
 - [ ] **Criterion 2:** Stage 1 found ZERO new issues this round
@@ -171,7 +171,7 @@ grep -n "S[0-9]" CLAUDE.md | grep -o "S[0-9][0-9]*\(\.P[0-9][0-9]*\)\?\(\.I[0-9]
 | **Stage 2: Fix Planning** | Organize discovered issues into groups | 15-30 min |
 | **Stage 3: Apply Fixes** | Execute fix plan incrementally | 30-90 min |
 | **Stage 4: Verification** | Verify all fixes + find missed variations | 30-45 min |
-| **Stage 5: Loop Decision** | Decide EXIT or LOOP based on 8 criteria | 15-30 min |
+| **Stage 5: Loop Decision** | Decide EXIT or LOOP based on 9 criteria | 15-30 min |
 
 **Flow:** Always complete stages sequentially (1 → 2 → 3 → 4 → 5)
 
@@ -402,7 +402,7 @@ wc -l file.md  # Count lines
 
 ```text
 ┌─────────────────────────────────────┐
-│  Are ALL 8 exit criteria TRUE?     │
+│  Are ALL 9 exit criteria TRUE?     │
 │  (Minimum 3 rounds, N_new=0, etc.)  │
 └─────────┬───────────────────────────┘
           │
@@ -484,7 +484,7 @@ wc -l file.md  # Count lines
 **For specific situations:**
 - User challenges: `audit_overview.md` → "User Challenge Protocol"
 - Low confidence: `audit_overview.md` → "Fresh Eyes" operational guide
-- Deciding to exit: `stage_5_loop_decision.md` → All 8 exit criteria detailed
+- Deciding to exit: `stage_5_loop_decision.md` → All 9 exit criteria detailed
 
 ---
 

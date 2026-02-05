@@ -142,7 +142,7 @@ This audit ensures **consistency, accuracy, and completeness** across all guides
 
 **4. Iterative Until Zero**
 - Minimum 3 rounds as baseline (NOT a target - KAI-7 needed 4 rounds)
-- TRUE exit trigger: Round N finds ZERO new issues + ALL 8 criteria met
+- TRUE exit trigger: Round N finds ZERO new issues + ALL 9 criteria met
 - Continue auditing regardless of round count until criteria satisfied
 - Each round uses completely different patterns
 
@@ -368,7 +368,7 @@ Result: Round 3 found 70+ different issues Round 1 never looked for
 ┌─────────────────────────────────────────────────────────────────┐
 │         AUDIT LOOP (Repeat until ZERO new issues found)         │
 │          MINIMUM 3 ROUNDS BASELINE (typically 3-5 rounds)        │
-│        EXIT TRIGGER: Round N finds ZERO issues + 8 criteria      │
+│        EXIT TRIGGER: Round N finds ZERO issues + 9 criteria      │
 └─────────────────────────────────────────────────────────────────┘
 
 Round 1: Initial Discovery (new audit, broad patterns)
@@ -403,7 +403,7 @@ Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify 
 **Key Insights:**
 - Each round's patterns were invisible to previous rounds
 - "Minimum 3" is a baseline to prevent premature exit
-- **Real exit trigger:** Round N finds ZERO new issues + ALL 8 criteria met
+- **Real exit trigger:** Round N finds ZERO new issues + ALL 9 criteria met
 - Expect 3-5 rounds typically, not exactly 3
 
 ### Round Progression Pattern
@@ -436,24 +436,54 @@ Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify 
 
 ## Exit Criteria
 
-### ALL 8 Criteria Must Be Met
+### MANDATORY Loop Condition
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  🚨 CRITICAL: You MUST continue looping until:                  │
+│                                                                  │
+│  1. ALL issues from all previous rounds are RESOLVED            │
+│  2. Current round finds ZERO new issues                         │
+│  3. All other exit criteria below are met                       │
+│                                                                  │
+│  If current round found ANY issues → MUST loop to next round    │
+│  Exit ONLY when a round discovers ZERO issues                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Loop Logic:**
+```text
+Round N found issues → Fix ALL issues → Round N+1 (fresh patterns)
+Round N found ZERO issues + all criteria met → Consider exit
+```
+
+### ALL 9 Criteria Must Be Met
 
 **Cannot exit audit loop until ALL of these are satisfied:**
 
-1. ✅ Minimum 3 rounds completed
-2. ✅ Round N Discovery finds ZERO new issues
-3. ✅ Round N Verification finds ZERO new issues
-4. ✅ All remaining instances documented as intentional
-5. ✅ User has NOT challenged findings
-6. ✅ Confidence score ≥ 80%
-7. ✅ Pattern diversity ≥ 5 types
-8. ✅ Spot-check clean (10+ files)
+1. ✅ **All issues resolved:** Every issue from ALL rounds fixed and verified
+2. ✅ **Zero new issues:** Round N Discovery finds ZERO new issues
+3. ✅ **Zero verification findings:** Round N Verification finds ZERO new issues
+4. ✅ **Minimum 3 rounds:** At least 3 rounds completed (baseline, not sufficient alone)
+5. ✅ **All remaining documented:** All remaining instances documented as intentional
+6. ✅ **User has NOT challenged:** User has not questioned findings
+7. ✅ **Confidence score:** ≥ 80% confidence in completeness
+8. ✅ **Pattern diversity:** ≥ 5 pattern types used across rounds
+9. ✅ **Spot-check clean:** 10+ files manually checked, zero issues
 
 **For detailed criteria with sub-requirements, see `stages/stage_5_loop_decision.md` → "Exit Criteria Checklist"**
 
 ### Critical Rules
 
-**Failing ANY criterion:**
+**If current round found ANY issues:**
+```text
+└─> 🔄 MANDATORY LOOP to Stage 1 Round N+1
+     - Fix ALL issues from Round N
+     - Use fresh patterns in Round N+1
+     - Continue until a round finds ZERO issues
+```
+
+**If failing ANY exit criterion:**
 ```text
 └─> 🔄 LOOP BACK to Stage 1 Round N+1
      (Use fresh patterns, different approach)
@@ -464,6 +494,11 @@ Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify 
 └─> 🚨 IMMEDIATE LOOP BACK to Round 1
      (User challenge = evidence you missed something)
 ```
+
+**"Minimum 3 rounds" is NOT sufficient to exit:**
+- 3 rounds is a BASELINE (prevents premature exit)
+- Real exit trigger: Round finds ZERO issues + all criteria met
+- You may need 4, 5, or more rounds until achieving clean round
 
 **See Stage 5 guide for complete decision logic, verification checklists, and loop preparation.**
 

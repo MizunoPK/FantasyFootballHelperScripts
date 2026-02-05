@@ -28,10 +28,37 @@
 **Stage 5: Loop Decision** is where you determine if the audit is complete or if another round is needed.
 
 **Two outcomes possible:**
-1. **EXIT** - Audit complete, all criteria met
+1. **EXIT** - Audit complete, all criteria met, current round found ZERO issues
 2. **LOOP** - Continue to Round N+1 with fresh patterns
 
 **Critical Principle:** Better to do one more round than exit prematurely.
+
+### MANDATORY Loop Condition
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  🚨 YOU MUST LOOP if current round found ANY issues             │
+│                                                                  │
+│  Loop Logic:                                                     │
+│  • Round N found issues → Fix ALL → Round N+1 (fresh patterns)  │
+│  • Round N found ZERO issues → Check other exit criteria        │
+│                                                                  │
+│  Exit ONLY when:                                                 │
+│  • Current round discovered ZERO new issues, AND                 │
+│  • ALL issues from all previous rounds are resolved, AND         │
+│  • ALL 9 exit criteria below are met                            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**If Round N found issues:**
+- You MUST fix ALL issues from Round N
+- You MUST loop to Round N+1
+- You CANNOT exit (even if you completed 3+ rounds)
+
+**"Minimum 3 rounds" is NOT sufficient to exit:**
+- 3 rounds is a BASELINE (prevents premature exit)
+- Real exit trigger: Round finds ZERO issues + all criteria met
+- You may need 4, 5, or more rounds until achieving clean round
 
 ### Why This Stage Matters
 
@@ -40,6 +67,7 @@
 - Premature exit = missed issues
 - "Are you sure?" from user = red flag
 - Minimum 3 rounds is NOT arbitrary - it's evidence-based
+- KAI-7 needed **4 rounds** before achieving zero-issue round
 
 **From monolithic guide:**
 > "Premature completion claims: 3 times (each time, 50+ more issues found)"
@@ -70,13 +98,14 @@
 
 **Check each criterion - failing ANY means LOOP:**
 
-#### Criterion 1: Minimum Rounds
-- [ ] Completed at least 3 rounds with fresh eyes
-- [ ] Each round used different patterns than previous
-- [ ] Each round explored different file orders
-- [ ] Clear mental break between rounds (fresh perspective)
+#### Criterion 1: All Issues Resolved
+- [ ] ALL issues from ALL rounds have been fixed
+- [ ] Zero issues remaining from Round 1
+- [ ] Zero issues remaining from Round 2
+- [ ] Zero issues remaining from Round N-1
+- [ ] Zero issues remaining from Round N
 
-**If Round < 3:** MUST loop (not optional)
+**If ANY issues remain unfixed:** MUST loop (not optional)
 
 #### Criterion 2: Zero New Discoveries
 - [ ] Round N Discovery (Stage 1) found ZERO new issues
@@ -84,7 +113,7 @@
 - [ ] Searched all folders systematically
 - [ ] Used automated scripts + manual search
 
-**If found new issues in Stage 1:** MUST loop
+**If found new issues in Stage 1:** MUST loop (mandatory)
 
 #### Criterion 3: Zero Verification Findings
 - [ ] Round N Verification (Stage 4) found ZERO new issues
@@ -92,9 +121,18 @@
 - [ ] Tried pattern variations not used in Discovery
 - [ ] Spot-checked 10+ random files
 
-**If N_new > 0:** MUST loop
+**If N_new > 0:** MUST loop (mandatory)
 
-#### Criterion 4: All Remaining Documented
+#### Criterion 4: Minimum Rounds
+- [ ] Completed at least 3 rounds with fresh eyes
+- [ ] Each round used different patterns than previous
+- [ ] Each round explored different file orders
+- [ ] Clear mental break between rounds (fresh perspective)
+
+**If Round < 3:** MUST loop (baseline requirement)
+**Note:** 3 rounds is minimum, NOT sufficient - must also have zero-issue round
+
+#### Criterion 5: All Remaining Documented
 - [ ] All remaining pattern matches are documented
 - [ ] Each has: File path + line number
 - [ ] Each has: Why it's intentional
@@ -103,7 +141,7 @@
 
 **If undocumented matches remain:** MUST loop
 
-#### Criterion 5: User Verification Passed
+#### Criterion 6: User Verification Passed
 - [ ] User has NOT challenged findings
 - [ ] No "are you sure?" questions from user
 - [ ] No "did you actually make fixes?" questions
@@ -111,7 +149,7 @@
 
 **If user challenged:** IMMEDIATELY loop back to Round 1
 
-#### Criterion 6: Confidence Calibrated
+#### Criterion 7: Confidence Calibrated
 - [ ] Confidence score ≥ 80% (see `../reference/confidence_calibration.md` ⏳ - use self-assessment)
 - [ ] Self-assessed using scoring rubric
 - [ ] No red flags present
@@ -119,7 +157,7 @@
 
 **If confidence < 80%:** MUST loop
 
-#### Criterion 7: Pattern Diversity
+#### Criterion 8: Pattern Diversity
 - [ ] Used at least 5 different pattern types across ALL rounds
 - [ ] Basic exact matches ✓
 - [ ] Pattern variations ✓
@@ -129,7 +167,7 @@
 
 **If pattern diversity < 5 types:** MUST loop
 
-#### Criterion 8: Spot-Check Clean
+#### Criterion 9: Spot-Check Clean
 - [ ] Random sample of 10+ files shows zero issues
 - [ ] Files selected randomly (not cherry-picked)
 - [ ] Manually read sections (not just grep)
@@ -145,7 +183,7 @@
 
 ```text
 ┌─────────────────────────────────────────────┐
-│  Check ALL 8 Exit Criteria                  │
+│  Check ALL 9 Exit Criteria                  │
 └─────────────────────────────────────────────┘
                     ↓
           ┌─────────┴─────────┐
@@ -179,8 +217,8 @@
 # Count criteria met
 criteria_met=0
 
-# Criterion 1: Minimum 3 rounds
-[ $round_number -ge 3 ] && ((criteria_met++))
+# Criterion 1: All issues resolved
+[ $all_issues_resolved -eq 0 ] && ((criteria_met++))
 
 # Criterion 2: Zero new discoveries in Stage 1
 [ $stage1_new_issues -eq 0 ] && ((criteria_met++))
@@ -188,26 +226,29 @@ criteria_met=0
 # Criterion 3: Zero new findings in Stage 4
 [ $N_new -eq 0 ] && ((criteria_met++))
 
-# Criterion 4: All remaining documented
+# Criterion 4: Minimum 3 rounds
+[ $round_number -ge 3 ] && ((criteria_met++))
+
+# Criterion 5: All remaining documented
 [ $undocumented_matches -eq 0 ] && ((criteria_met++))
 
-# Criterion 5: User not challenged
+# Criterion 6: User not challenged
 [ "$user_challenged" == "false" ] && ((criteria_met++))
 
-# Criterion 6: Confidence ≥ 80%
+# Criterion 7: Confidence ≥ 80%
 [ $confidence_score -ge 80 ] && ((criteria_met++))
 
-# Criterion 7: Pattern diversity ≥ 5
+# Criterion 8: Pattern diversity ≥ 5
 [ $pattern_types_used -ge 5 ] && ((criteria_met++))
 
-# Criterion 8: Spot-checks clean
+# Criterion 9: Spot-checks clean
 [ $spot_check_issues -eq 0 ] && ((criteria_met++))
 
 # Decision
-if [ $criteria_met -eq 8 ]; then
+if [ $criteria_met -eq 9 ]; then
   echo "✅ ALL criteria met - Present to user for final approval"
 else
-  echo "❌ $((8-criteria_met)) criteria failed - LOOP to Round $((round_number+1))"
+  echo "❌ $((9-criteria_met)) criteria failed - LOOP to Round $((round_number+1))"
 fi
 ```
 
@@ -218,7 +259,7 @@ fi
 ### When to Loop
 
 **MUST loop if:**
-- ANY of the 8 criteria failed
+- ANY of the 9 criteria failed
 - User challenged findings
 - You feel uncertain about completeness
 - Spot-checks revealed issues
@@ -277,7 +318,7 @@ fi
 ### When Exit is Appropriate
 
 **Only exit if:**
-- ALL 8 criteria met
+- ALL 9 criteria met
 - User approves exit
 - Feel genuinely complete (not just tired)
 - No lingering doubts
@@ -287,7 +328,7 @@ fi
 ```markdown
 ## Pre-Exit Checklist
 
-- [ ] All 8 criteria verified one more time
+- [ ] All 9 criteria verified one more time
 - [ ] Round summary created
 - [ ] Evidence compiled for user
 - [ ] Intentional cases documented
@@ -377,14 +418,15 @@ fi
 - 5+ pattern types used
 
 ### All Criteria Met
-- [x] Criterion 1: Minimum 3 rounds completed
+- [x] Criterion 1: All issues resolved
 - [x] Criterion 2: Zero new discoveries
 - [x] Criterion 3: Zero verification findings
-- [x] Criterion 4: All remaining documented
-- [x] Criterion 5: User verification passed
-- [x] Criterion 6: Confidence ≥ 80%
-- [x] Criterion 7: Pattern diversity ≥ 5
-- [x] Criterion 8: Spot-checks clean
+- [x] Criterion 4: Minimum 3 rounds completed
+- [x] Criterion 5: All remaining documented
+- [x] Criterion 6: User verification passed
+- [x] Criterion 7: Confidence ≥ 80%
+- [x] Criterion 8: Pattern diversity ≥ 5
+- [x] Criterion 9: Spot-checks clean
 
 ### Files Modified
 [List of files changed with brief description]
@@ -430,24 +472,47 @@ Answer thoroughly, then:
 
 ## Commit Strategy
 
+### 🚨 CRITICAL: Never Commit Output Files
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  ⚠️ OUTPUT FILES MUST NOT BE COMMITTED                          │
+│                                                                  │
+│  DO NOT commit:                                                  │
+│  • audit/outputs/ directory (any files)                         │
+│  • Discovery reports (round*_discovery_report.md)               │
+│  • Fix plans (round*_fix_plan.md)                               │
+│  • Verification reports (round*_verification_report.md)          │
+│  • Loop decision reports (round*_loop_decision.md)               │
+│  • Final summaries (d*_final_summary.md)                         │
+│                                                                  │
+│  ONLY commit:                                                    │
+│  • Actual guide fixes (stages/, reference/, templates/, etc.)   │
+│  • Updated guide files                                           │
+│                                                                  │
+│  Output files are temporary working documents, not source        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ### When to Commit
 
 **Only commit if:**
-- All 8 exit criteria met
+- All 9 exit criteria met
 - User approved exit
 - Round summary created
 - No outstanding issues
 
 ### Commit Organization
 
-**Strategy:** One commit per round
+**Strategy:** One commit per round (guide fixes ONLY)
 
 ```bash
-# For each round, create separate commit
-git add -A
+# For each round, commit ONLY the guide fixes (exclude output files)
+git add stages/ reference/ templates/ debugging/ missed_requirement/ prompts/ *.md
 git commit -m "feat/KAI-7: Apply Round N audit fixes - [focus]"
 
 # Example for Round 3:
+git add stages/ reference/ templates/ EPIC_WORKFLOW_USAGE.md
 git commit -m "feat/KAI-7: Apply Round 3 audit fixes - notation standardization
 
 Fixed 70+ instances of old notation across 30+ files:
@@ -465,16 +530,24 @@ Verification: Zero remaining issues
 "
 ```
 
+**DO NOT use `git add -A` or `git add .`:**
+- These will commit output files (incorrect)
+- Explicitly list directories/files to commit
+
 ### Final Commit
 
 **After all rounds complete:**
 
 ```bash
-# All round commits done individually
-# Update any tracking files if needed
+# All round commits done individually (guide fixes only)
+# Output files remain uncommitted
 
 git log --oneline | head -10
 # Shows all round commits
+
+# Verify no output files were committed
+git diff --name-only main | grep "audit/outputs"
+# Should return nothing (no output files in commit)
 ```
 
 ---
@@ -485,16 +558,17 @@ git log --oneline | head -10
 
 | Criterion | How to Check | Pass Threshold | If Failed |
 |-----------|--------------|----------------|-----------|
-| 1. Min Rounds | Count rounds | ≥ 3 | LOOP (not optional) |
+| 1. All Issues Resolved | Count remaining issues | 0 | LOOP (not optional) |
 | 2. Zero New in Stage 1 | Stage 1 report | 0 issues | LOOP |
 | 3. Zero New in Stage 4 | N_new count | 0 | LOOP |
-| 4. All Documented | Undocumented count | 0 | LOOP |
-| 5. User Approved | User response | No challenge | LOOP if challenged |
-| 6. Confidence | Self-assessment | ≥ 80% | LOOP |
-| 7. Pattern Diversity | Count pattern types | ≥ 5 types | LOOP |
-| 8. Spot-Check Clean | Issues in spot-check | 0 | LOOP |
+| 4. Min Rounds | Count rounds | ≥ 3 | LOOP (not optional) |
+| 5. All Documented | Undocumented count | 0 | LOOP |
+| 6. User Approved | User response | No challenge | LOOP if challenged |
+| 7. Confidence | Self-assessment | ≥ 80% | LOOP |
+| 8. Pattern Diversity | Count pattern types | ≥ 5 types | LOOP |
+| 9. Spot-Check Clean | Issues in spot-check | 0 | LOOP |
 
-**EXIT RULE:** ALL 8 must pass + user approval
+**EXIT RULE:** ALL 9 must pass + user approval
 
 ---
 

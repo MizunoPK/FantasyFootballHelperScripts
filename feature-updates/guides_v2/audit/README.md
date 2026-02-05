@@ -45,7 +45,7 @@ bash scripts/pre_audit_checks.sh
 ┌─────────────────────────────────────────────────────────────────┐
 │         AUDIT LOOP (Repeat until ZERO new issues found)         │
 │          MINIMUM 3 ROUNDS BASELINE (typically 3-5 rounds)        │
-│        EXIT TRIGGER: Round N finds ZERO issues + 8 criteria      │
+│        EXIT TRIGGER: Round N finds ZERO issues + 9 criteria      │
 └─────────────────────────────────────────────────────────────────┘
 
 Round 1: Initial Discovery
@@ -393,10 +393,10 @@ Learn from actual audit rounds:
 
 ### Minimum Requirements for Audit Completion
 
-**ALL 8 exit criteria must be met:**
-1. ✅ Minimum 3 rounds | 2. ✅ Zero new discoveries | 3. ✅ Zero verification findings
-4. ✅ All documented | 5. ✅ User approved | 6. ✅ Confidence ≥80%
-7. ✅ Pattern diversity | 8. ✅ Spot-checks clean
+**ALL 9 exit criteria must be met:**
+1. ✅ All issues resolved | 2. ✅ Zero new discoveries | 3. ✅ Zero verification findings
+4. ✅ Minimum 3 rounds | 5. ✅ All documented | 6. ✅ User approved
+7. ✅ Confidence ≥80% | 8. ✅ Pattern diversity | 9. ✅ Spot-checks clean
 
 **See `stages/stage_5_loop_decision.md` for detailed criteria with sub-requirements.**
 

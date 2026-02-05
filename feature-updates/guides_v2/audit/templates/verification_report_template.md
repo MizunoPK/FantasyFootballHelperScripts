@@ -500,7 +500,7 @@ find stages templates reference -name "*.md" -type f | shuf -n [N]
 
 **If Proceeding to Stage 5:**
 1. Read `stages/stage_5_loop_decision.md`
-2. Evaluate all 8 exit criteria
+2. Evaluate all 9 exit criteria
 3. Present findings to user
 4. Decide: EXIT or LOOP to Round N+1
 

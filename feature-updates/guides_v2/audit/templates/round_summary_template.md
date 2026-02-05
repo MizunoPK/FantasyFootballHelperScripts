@@ -26,9 +26,28 @@
 
 ## Exit Criteria Assessment
 
-**ALL 8 criteria must pass to exit audit. Failing ANY criterion = LOOP required.**
+**ALL 9 criteria must pass to exit audit. Failing ANY criterion = LOOP required.**
 
-### ✅ / ❌ Criterion 1: Minimum Rounds
+### ✅ / ❌ Criterion 1: All Issues Resolved
+
+- [ ] ALL issues from ALL rounds have been fixed
+- [ ] Zero issues remaining from Round 1
+- [ ] Zero issues remaining from Round 2
+- [ ] Zero issues remaining from Round N-1
+- [ ] Zero issues remaining from Round N
+
+**Status:** ✅ PASS / ❌ FAIL
+
+**Evidence:**
+- Total issues found across all rounds: [N]
+- Issues fixed: [N]
+- Issues remaining: 0 (must be zero)
+
+**If FAIL:** Issues remain unfixed, must continue fixing (cannot proceed to next round)
+
+---
+
+### ✅ / ❌ Criterion 4: Minimum Rounds
 
 - [ ] Completed at least 3 rounds with fresh eyes
 - [ ] Each round used different patterns than previous
@@ -84,7 +103,7 @@
 
 ---
 
-### ✅ / ❌ Criterion 4: All Remaining Documented
+### ✅ / ❌ Criterion 5: All Remaining Documented
 
 - [ ] N_remaining = 0 OR all intentional cases documented
 - [ ] Each remaining instance has rationale
@@ -102,7 +121,7 @@
 
 ---
 
-### ✅ / ❌ Criterion 5: User Has NOT Challenged
+### ✅ / ❌ Criterion 6: User Has NOT Challenged
 
 - [ ] User has NOT said "are you sure?"
 - [ ] User has NOT questioned completeness
@@ -125,7 +144,7 @@
 
 ---
 
-### ✅ / ❌ Criterion 6: Confidence ≥ 80%
+### ✅ / ❌ Criterion 7: Confidence ≥ 80%
 
 - [ ] Self-assessed confidence ≥ 80%
 - [ ] Thorough search coverage
@@ -153,7 +172,7 @@
 
 ---
 
-### ✅ / ❌ Criterion 7: Pattern Diversity ≥ 5 Types
+### ✅ / ❌ Criterion 8: Pattern Diversity ≥ 5 Types
 
 - [ ] Used 5 or more distinct pattern types
 - [ ] Cross-reference patterns (file paths, links)
@@ -178,7 +197,7 @@
 
 ---
 
-### ✅ / ❌ Criterion 8: Spot-Checks Clean
+### ✅ / ❌ Criterion 9: Spot-Checks Clean
 
 - [ ] Spot-checked 10+ files randomly
 - [ ] Visual inspection of actual content
@@ -206,24 +225,25 @@
 
 ## Exit Criteria Summary
 
-**Total Criteria:** 8
-**Passed:** [N] / 8
-**Failed:** [N] / 8
+**Total Criteria:** 9
+**Passed:** [N] / 9
+**Failed:** [N] / 9
 
 ### Criteria Results Table
 
 | # | Criterion | Status | Blocker? |
 |---|-----------|--------|----------|
-| 1 | Minimum Rounds | ✅ / ❌ | Yes |
+| 1 | All Issues Resolved | ✅ / ❌ | Yes |
 | 2 | Zero New (Stage 1) | ✅ / ❌ | Yes |
 | 3 | Zero New (Stage 4) | ✅ / ❌ | Yes |
-| 4 | All Documented | ✅ / ❌ | Yes |
-| 5 | No User Challenge | ✅ / ❌ | Yes |
-| 6 | Confidence ≥ 80% | ✅ / ❌ | Yes |
-| 7 | Pattern Diversity ≥ 5 | ✅ / ❌ | Yes |
-| 8 | Spot-Checks Clean | ✅ / ❌ | Yes |
+| 4 | Minimum Rounds | ✅ / ❌ | Yes |
+| 5 | All Documented | ✅ / ❌ | Yes |
+| 6 | No User Challenge | ✅ / ❌ | Yes |
+| 7 | Confidence ≥ 80% | ✅ / ❌ | Yes |
+| 8 | Pattern Diversity ≥ 5 | ✅ / ❌ | Yes |
+| 9 | Spot-Checks Clean | ✅ / ❌ | Yes |
 
-**EXIT RULE:** ALL 8 must show ✅ PASS
+**EXIT RULE:** ALL 9 must show ✅ PASS
 
 ---
 
@@ -237,7 +257,7 @@
 
 ### ✅ EXIT DECISION
 
-**All 8 exit criteria passed + user approved.**
+**All 9 exit criteria passed + user approved.**
 
 **Rationale:**
 - [Criterion-by-criterion evidence]
@@ -266,7 +286,7 @@
 
 ### 🔄 LOOP DECISION
 
-**Failed [N] of 8 exit criteria. Must continue to Round [N+1].**
+**Failed [N] of 9 exit criteria. Must continue to Round [N+1].**
 
 **Failed Criteria:**
 1. [Criterion X]: [Why it failed]
@@ -390,7 +410,7 @@ Based on what was found (or not found) in Round [N], focus on:
 - Confidence level: [XX]%
 
 **Decision:**
-- ✅ EXIT: Audit complete, all 8 criteria passed
+- ✅ EXIT: Audit complete, all 9 criteria passed
 - 🔄 LOOP: [Brief reason - e.g., "Found [N] issues in Stage 1" or "Confidence only [XX]%"]
 
 **Evidence for Decision:**
@@ -474,7 +494,7 @@ Based on what was found (or not found) in Round [N], focus on:
 
 **Required Sections:**
 - Executive Summary
-- All 8 Exit Criteria Assessments
+- All 9 Exit Criteria Assessments
 - Decision Rationale (EXIT or LOOP path)
 - User Presentation
 
@@ -486,7 +506,7 @@ Based on what was found (or not found) in Round [N], focus on:
 
 **Step 1:** Fill metadata (date, round, duration)
 
-**Step 2:** Assess each of 8 exit criteria systematically
+**Step 2:** Assess each of 9 exit criteria systematically
 - Check all sub-requirements
 - Provide evidence for each
 - Mark ✅ PASS or ❌ FAIL
@@ -494,7 +514,7 @@ Based on what was found (or not found) in Round [N], focus on:
 **Step 3:** Complete Exit Criteria Summary table
 
 **Step 4:** Choose decision path:
-- All 8 ✅ = EXIT path
+- All 9 ✅ = EXIT path
 - Any ❌ = LOOP path
 
 **Step 5:** Fill appropriate rationale section (EXIT or LOOP)
@@ -506,7 +526,7 @@ Based on what was found (or not found) in Round [N], focus on:
 ### Common Mistakes
 
 ❌ **Claiming exit with < 3 rounds**
-- Criterion 1 automatically fails if Round < 3
+- Criterion 4 automatically fails if Round < 3
 
 ❌ **Claiming exit with N_new > 0**
 - Criterion 3 automatically fails if new issues found

@@ -274,8 +274,6 @@ Create spec.md using template.
 ```markdown
 ## Step 3: Create Spec
 Create spec.md using template.
-
-**See:** `reference/stage_2/specification_examples.md` for detailed examples
 ```
 
 ---

@@ -303,7 +303,7 @@ Templates used to create new epics/features must reference files that exist in r
 ```text
 templates/epic_readme_template.md
 templates/feature_spec_template.md
-templates/checklist_template.md
+templates/feature_checklist_template.md
 templates/implementation_plan_template.md
 templates/discovery_template.md
 ```
