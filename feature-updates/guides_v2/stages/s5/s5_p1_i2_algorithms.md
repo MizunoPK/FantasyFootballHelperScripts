@@ -3,8 +3,8 @@
 ### S5.P1.I2: Algorithms (Iterations 4-6 + Gate 4a)
 
 **Purpose:** Map every algorithm in spec.md to exact implementation location, then audit all tasks
-**Prerequisites:** Iterations 1-3 complete (iterations_1_3_requirements.md)
-**Next:** iterations_5_6_dependencies.md (Data Flow and Consumption)
+**Prerequisites:** Iterations 1-3 complete (s5_p1_i1_requirements.md)
+**Next:** s5_p1_i2_algorithms.md (Data Flow and Consumption)
 **Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---

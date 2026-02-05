@@ -3,8 +3,8 @@
 ### S5.P1.I3: Integration (Iteration 7 + Gate 7a)
 
 **Purpose:** Trace data flow, verify downstream consumption, and ensure error handling
-**Prerequisites:** Iteration 4 + Gate 4a complete (iteration_4_algorithms.md)
-**Next:** iteration_7_integration.md (Integration Gap Check)
+**Prerequisites:** Iteration 4 + Gate 4a complete (s5_p1_i2_algorithms.md)
+**Next:** s5_p1_i3_integration.md (Integration Gap Check)
 **Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---
@@ -774,8 +774,8 @@ Critical Finding: [X libraries verified, Y workarounds in plan]
 # Planning Round 1: Iteration 7 - Integration & Compatibility
 
 **Purpose:** Verify all new code is integrated (no orphans) and handles backward compatibility
-**Prerequisites:** Iteration 6 complete (iterations_5_6_dependencies.md)
-**Next:** Planning Round 1 Checkpoint, then Planning Round 2 (round2_todo_creation.md)
+**Prerequisites:** Iteration 6 complete (s5_p1_i2_algorithms.md)
+**Next:** Planning Round 1 Checkpoint, then Planning Round 2 (s5_p2_planning_round2.md)
 **Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---

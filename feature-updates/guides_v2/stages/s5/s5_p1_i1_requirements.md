@@ -3,8 +3,8 @@
 ### S5.P1.I1: Requirements (Iterations 1-3)
 
 **Purpose:** Break down spec.md requirements into implementation tasks
-**Prerequisites:** Planning Round 1 overview read from round1_todo_creation.md
-**Next:** iteration_4_algorithms.md (Algorithm Traceability Matrix)
+**Prerequisites:** Planning Round 1 overview read from s5_p1_planning_round1.md
+**Next:** s5_p1_i2_algorithms.md (Algorithm Traceability Matrix)
 **Main Guide:** `stages/s5/s5_p1_planning_round1.md`
 
 ---

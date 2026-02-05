@@ -1146,7 +1146,7 @@ Next Action: Fix failed parts, re-run Iteration 20
 
 **After Iteration 20 passes (ALL 4 PARTS):**
 
-Proceed to **Iterations 25 and 24 (Final Gates)** in iterations_24_25_final.md
+Proceed to **Iterations 25 and 24 (Final Gates)** in s5_p3_i3_gates_part2.md
 
 **📖 READ:** `stages/s5/s5_p3_i3_gates_part2.md`
 
