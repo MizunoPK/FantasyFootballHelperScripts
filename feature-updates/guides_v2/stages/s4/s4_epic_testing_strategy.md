@@ -211,7 +211,7 @@ Read the file created in S1.
 
 ### Test 1: Run Draft Helper
 ```
-# Command TBD after S2 deep dives
+## Command TBD after S2 deep dives
 ```markdown
 **Expected result:** TBD
 ```
