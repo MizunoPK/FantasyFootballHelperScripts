@@ -2,6 +2,23 @@
 
 ---
 
+## Table of Contents
+
+1. [Quick Start](#quick-start)
+2. [Why This Stage Exists](#why-this-stage-exists)
+3. [Prerequisites](#prerequisites)
+4. [The Validation Process](#the-validation-process)
+5. [Pass Criteria](#pass-criteria)
+6. [Common Pitfalls](#common-pitfalls)
+7. [Example: How Feature 02 Should Have Used This](#example-how-feature-02-should-have-used-this)
+8. [Time Estimate](#time-estimate)
+9. [Output Artifacts](#output-artifacts)
+10. [Completion Criteria](#completion-criteria)
+11. [Next Stage](#next-stage)
+12. [Remember](#remember)
+
+---
+
 ## Quick Start
 
 **What is this guide?**

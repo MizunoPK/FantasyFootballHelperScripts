@@ -6,6 +6,17 @@
 
 ---
 
+## Table of Contents
+
+1. [Example 1: Well-Executed Discovery Phase (MEDIUM Epic)](#example-1-well-executed-discovery-phase-medium-epic)
+2. [Example 2: Discovery Loop Exit (No More Questions)](#example-2-discovery-loop-exit-no-more-questions)
+3. [Example 3: Discovery Revealing Larger Scope](#example-3-discovery-revealing-larger-scope)
+4. [Example 4: Anti-Pattern - Skipping Discovery](#example-4-anti-pattern---skipping-discovery)
+5. [Example 5: Discovery Time-Boxing by Size](#example-5-discovery-time-boxing-by-size)
+6. [Key Takeaways](#key-takeaways)
+
+---
+
 ## Example 1: Well-Executed Discovery Phase (MEDIUM Epic)
 
 **Epic Request:** "Make debugging runs easier"

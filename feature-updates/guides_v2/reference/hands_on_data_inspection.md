@@ -2,6 +2,27 @@
 
 ---
 
+## Table of Contents
+
+1. [Quick Start](#quick-start)
+2. [Why This Stage Exists](#why-this-stage-exists)
+3. [Prerequisites](#prerequisites)
+4. [Core Principle](#core-principle)
+5. [The Inspection Process](#the-inspection-process)
+6. [Pass Criteria](#pass-criteria)
+7. [Common Pitfalls](#common-pitfalls)
+8. [Critical Questions Checklist](#critical-questions-checklist)
+9. [Time Estimate](#time-estimate)
+10. [Output Artifacts](#output-artifacts)
+11. [Example: Feature 02 Should Have Done This](#example-feature-02-should-have-done-this)
+12. [Integration with Other Stages](#integration-with-other-stages)
+13. [Why 30 Seconds of Data Inspection Saves Days](#why-30-seconds-of-data-inspection-saves-days)
+14. [Remember](#remember)
+15. [Completion Criteria](#completion-criteria)
+16. [Next Stage](#next-stage)
+
+---
+
 ## Quick Start
 
 **What is this guide?**
