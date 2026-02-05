@@ -907,7 +907,6 @@ Even though I worked on S1, I'm re-reading epic notes now to ensure I understand
 {Verifies spec has Discovery Context section}
 {Notes relevant findings and user answers}
 {THEN proceeds to Phase 1}
-```markdown
 
 **Why:** Context windows have limits. Session compaction may have lost details. Always review DISCOVERY.md in Phase 0.
 

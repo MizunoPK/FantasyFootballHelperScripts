@@ -533,7 +533,6 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 - [ ] Links to extracted content clear
 - [ ] No information lost
 - [ ] Pre-audit script passes
-```python
 
 ### Critical Rules
 

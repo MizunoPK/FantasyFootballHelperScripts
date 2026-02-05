@@ -697,7 +697,6 @@ round to ensure no new issues were introduced.
 4. ✅ **Verification after each round** - Ensure no new issues
 
 **Historical failure rate when skipping:** 80%
-```markdown
 
 ---
 
