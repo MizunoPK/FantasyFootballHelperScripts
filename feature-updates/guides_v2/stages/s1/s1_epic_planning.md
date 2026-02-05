@@ -591,63 +591,31 @@ Update Agent Status: Progress 5/6, Next Action "Step 5.7.5 - Feature Dependency 
 
 ### Step 5.7.5: Analyze Feature Dependencies
 
-**Purpose:** Determine which features can start S2 simultaneously vs must wait for dependencies
+**Purpose:** Determine feature dependency groups for S2 execution order
 
-**For EACH feature, identify:**
+**For EACH feature:**
+1. **Spec Dependencies:** Does this feature need other features' specs to write its own?
+2. **Implementation Dependencies:** Does this feature need other features' code before implementation?
+3. **No Dependencies:** Feature is completely independent
 
-1. **Spec Dependencies:**
-   - Does this feature need OTHER features' spec.md files to write its own spec?
-   - Examples: Tests need argument lists, docs need complete specs, integration layers need interface definitions
-
-2. **Implementation Dependencies:**
-   - Does this feature need OTHER features' code to exist before implementation?
-   - Examples: Shared utilities, integration components
-
-3. **No Dependencies:**
-   - Feature is completely independent
-   - Can start S2 immediately
-
-**Create Dependency Matrix:**
-
-Document in EPIC_README.md:
+**Document in EPIC_README.md:**
 
 ```markdown
 ## Feature Dependency Groups
 
 **Group 1 (Independent - Round 1):**
-- Feature 01: {name}
-- Feature 02: {name}
-... (list all features with no spec dependencies)
+- Feature 01-07: {list independent features}
 
 **Group 2 (Depends on Group 1 - Round 2):**
-- Feature 08: {name}
-  - Depends on: Features 01-07 specs (needs argument lists for test framework)
-... (list all features depending on Group 1)
+- Feature 08: {name} - Depends on: Features 01-07 specs
 
 **Group 3 (Depends on Group 2 - Round 3):**
-- Feature 09: {name}
-  - Depends on: Features 01-08 specs (needs complete scope for documentation)
+- Feature 09: {name} - Depends on: Features 01-08 specs
 ```
 
-**Workflow with Dependency Groups:**
+**Workflow:** Each group completes full S2->S3->S4 cycle before next group starts
 
-Each round completes FULL S2→S3→S4 cycle:
-- Round 1 (Group 1): S2 (features 1-7) → S3 (validate 1-7) → S4 (test plan with 1-7)
-- Round 2 (Group 2): S2 (feature 8) → S3 (validate 8 vs 1-7) → S4 (test plan with 1-8)
-- Round 3 (Group 3): S2 (feature 9) → S3 (validate 9 vs 1-8) → S4 (test plan with 1-9)
-
-**Benefits:**
-- Dependent features get specs they need before starting S2
-- Incremental validation at each round
-- Test plan evolves with each round
-- No wasted effort on paused/blocked features
-
-**If ALL features are independent:**
-```markdown
-## Feature Dependency Groups
-
-**All features are independent - Single group (parallel execution)**
-```
+**If all features independent:** Note "All features independent - Single group"
 
 ---
 
@@ -655,7 +623,7 @@ Each round completes FULL S2→S3→S4 cycle:
 
 **STOP HERE if epic has 2+ features.**
 
-Before proceeding to Step 6 (Transition to S2), you MUST complete Steps 5.8-5.9.
+Before proceeding to Step 6, you MUST complete Steps 5.8-5.9.
 
 **Checklist:**
 - [ ] Feature count verified (if 1 feature, skip to Step 6)
@@ -663,153 +631,63 @@ Before proceeding to Step 6 (Transition to S2), you MUST complete Steps 5.8-5.9.
 - [ ] If 3+ features: Step 5.9 offer presented to user
 - [ ] User response documented (parallel enabled OR sequential chosen)
 
-**DO NOT proceed to Step 6 until this checkpoint is satisfied.**
+**DO NOT proceed to Step 6 until this checkpoint satisfied.**
 
 ---
 
-### Step 5.8: Analyze Features for Parallelization (MANDATORY when 2+ features)
+### Step 5.8: Analyze Features for Parallelization
 
-**Purpose:** Determine if S2 parallelization should be offered to user
+**Purpose:** Determine if S2 parallelization should be offered
 
-**MANDATORY:** This step is REQUIRED when the epic has 2+ features. Do NOT skip to Step 6.
+**When to analyze:** Epic has 2+ features, before transitioning to S2
 
-**When to analyze:**
-- Epic has 2+ features
-- Features identified and folder structure created
-- Before transitioning to S2
+**Analysis:**
+1. **Count features** and calculate savings:
+   - Sequential S2: N features x 2 hours = X hours
+   - Parallel S2: 2 hours (simultaneous execution)
+   - Savings: X - 2 hours
 
-**Analysis Steps:**
-
-1. **Count Features:**
-   ```bash
-   FEATURE_COUNT=$(ls -d feature_* | wc -l)
-   echo "Total features: $FEATURE_COUNT"
-   ```
-
-2. **Calculate Potential Savings:**
-   ```text
-   Sequential S2: FEATURE_COUNT × 2 hours = X hours
-   Parallel S2: 2 hours (max of all features running simultaneously)
-   Savings: X - 2 hours
-   ```
-
-   **Examples:**
-   - 2 features: Save 2 hours (50% reduction)
-   - 3 features: Save 4 hours (67% reduction)
-   - 4 features: Save 6 hours (75% reduction)
-
-3. **Analyze Dependencies (Optional for S2):**
-   - Read epic request for feature dependencies
-   - Note: Dependencies matter for S5-S8 (implementation), NOT for S2 (specs)
-   - All features can be researched/specified in parallel regardless of dependencies
-
-4. **Document Assessment:**
-   ```markdown
-   ## Parallel Work Assessment
-
-   **Total Features:** {N}
-   **Parallel S2 Potential:** YES/NO
-   **Time Savings (S2):** {X} hours ({Y}% reduction in S2 time)
-   **Epic-Level Savings:** {Z} hours ({W}% reduction in total epic time)
-
-   **Recommendation:** OFFER/SKIP parallel work
-   ```
+2. **Time savings examples:**
+   - 2 features: Save 2 hours (50%)
+   - 3 features: Save 4 hours (67%)
+   - 4 features: Save 6 hours (75%)
 
 **Decision Criteria:**
+- **OFFER parallel** if: 3+ features OR 2 features + user time-constrained
+- **SKIP parallel** if: 1 feature OR modest savings + user prefers simplicity
 
-**OFFER parallel work if:**
-- 3+ features (good savings: 4+ hours)
-- OR 2 features AND user time-constrained
-- OR user specifically requested faster planning
+**If offering:** Proceed to Step 5.9
+**If skipping:** Skip to Step 6
 
-**SKIP parallel work if:**
-- Only 1 feature (nothing to parallelize)
-- 2 features AND user has time (modest 2-hour savings)
-- User prefers simplicity over speed
+### Step 5.9: Offer Parallel Work to User
 
-**If offering parallel work:** Proceed to Step 5.9
-
-**If skipping parallel work:** Skip to Step 6 (standard transition)
-
-### Step 5.9: Offer Parallel Work to User (If Applicable)
-
-**Prerequisites:**
-- Analysis shows 2+ features
-- Decision made to offer parallelization
-- All folders created
+**Prerequisites:** Analysis shows 2+ features, decision made to offer parallelization
 
 **Offering Template:**
 
 ```markdown
-✅ S1 (Epic Planning) complete!
+S1 Complete! I've identified {N} features.
 
-I've identified {N} features for this epic:
-- feature_01: {description} (~2 hours S2)
-- feature_02: {description} (~2 hours S2)
-- feature_03: {description} (~2 hours S2)
+PARALLEL WORK OPPORTUNITY
 
-🚀 PARALLEL WORK OPPORTUNITY
+**Sequential:** {N} features x 2 hours S2 each = {total} hours
+**Parallel:** All {N} features simultaneously = 2 hours
+**Savings:** {savings} hours ({percent}% reduction)
 
-I can enable parallel work for S2 (Feature Deep Dives), reducing planning time:
-
-**Sequential approach:**
-- Feature 1 S2: 2 hours
-- Feature 2 S2: 2 hours
-- Feature 3 S2: 2 hours
-Total: {sequential_total} hours
-
-**Parallel approach:**
-- All {N} features S2: 2 hours (simultaneously)
-Total: 2 hours
-
-TIME SAVINGS: {savings} hours ({percent}% reduction in S2 time)
-
-**DEPENDENCIES:**
-{dependency_summary}
-- All features can be researched/specified in parallel
-
-**COORDINATION:**
-- You'll need to open {N-1} additional Claude Code sessions
-- I'll coordinate all agents via EPIC_README.md and communication files
-- Implementation (S5-S8) remains sequential in this plan
+**Coordination:** You'll open {N-1} additional sessions, I'll coordinate via files
 
 Would you like to:
-1. ✅ Enable parallel work for S2 (I'll provide setup instructions)
-2. ❌ Continue sequential (I'll do all features one by one)
-3. ❓ Discuss parallelization approach
+1. Enable parallel work for S2 (I'll provide setup)
+2. Continue sequential (I'll do features one by one)
+3. Discuss parallelization approach
 ```
 
 **Handle User Response:**
+- **Option 1 (Enable):** Skip Step 6, go to `parallel_work/s2_primary_agent_guide.md`
+- **Option 2 (Sequential):** Proceed to Step 6 (standard transition)
+- **Option 3 (Discuss):** Answer questions, then re-present options 1-2
 
-**If Option 1 (Enable parallel work):**
-- User will say: "1", "Enable", "Yes to parallel", or similar
-- Response: "Great! I'll set up parallel work for S2."
-- Skip Step 6 (standard transition)
-- **Go to:** `parallel_work/s2_primary_agent_guide.md` Phase 3 (Generate Handoff Packages)
-- **Note:** Primary guide includes full parallel workflow through S2→S3→S4
-- Return to standard workflow after S4 complete
-
-**If Option 2 (Continue sequential):**
-- User will say: "2", "Sequential", "No thanks", or similar
-- Response: "Understood. I'll complete features sequentially."
-- Proceed to Step 6 (standard transition to S2)
-
-**If Option 3 (Discuss):**
-- User will say: "3", "Discuss", "Tell me more", or similar
-- Answer questions about:
-  - How parallel work functions
-  - What user needs to do (open sessions, paste packages)
-  - Time savings breakdown
-  - Coordination overhead (~10-15% of parallel time)
-  - Risk level (LOW - documentation only)
-- After discussion: Re-present options 1 and 2
-- User chooses Enable or Sequential
-
-**Important Notes:**
-- Parallel work offering is **OPTIONAL** (agent decides based on analysis)
-- User can always choose sequential (no parallel work forced)
-- If user unclear, default to sequential (simpler workflow)
-- Parallel work details in: `parallel_work/s2_parallel_protocol.md`
+**Notes:** Parallel work is OPTIONAL, user chooses, default to sequential if unclear
 
 ---
 
