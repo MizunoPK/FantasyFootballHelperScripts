@@ -11,7 +11,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **Purpose:** Pairwise comparison of all features in group (and previous groups) with Validation Loop validation
 
@@ -173,7 +173,7 @@ For each conflict found:
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S2.P2 complete when ALL true:**
 

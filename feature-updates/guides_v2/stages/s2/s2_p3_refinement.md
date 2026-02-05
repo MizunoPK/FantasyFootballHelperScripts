@@ -22,7 +22,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this phase?**
 Refinement Phase is where you resolve all open questions through interactive dialogue (ONE at a time), adjust scope if needed, align with completed features, and get user approval on acceptance criteria. This phase ensures the spec is complete, validated, and ready for implementation.
@@ -1048,7 +1048,7 @@ Find Feature Tracking table and mark S2 complete:
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **STAGE_2c (Refinement Phase) is complete when:**
 

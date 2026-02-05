@@ -39,7 +39,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing &
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Post-Feature Testing Update is where you update epic_smoke_test_plan.md based on ACTUAL implementation discoveries (not specs), adding integration points found during development and ensuring test scenarios reflect real behavior.
@@ -795,7 +795,7 @@ Ensures S9 epic QC tests actual implementation, not assumptions.
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S8.P2 (Epic Testing Update) is complete when ALL of the following are true:**
 

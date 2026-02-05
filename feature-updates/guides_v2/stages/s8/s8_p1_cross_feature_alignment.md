@@ -38,7 +38,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing &
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Post-Feature Alignment is where you update remaining feature specs based on the just-completed feature's actual implementation, ensuring pending features align with real code patterns and integration points discovered during development.
@@ -261,7 +261,7 @@ STEP 4: Final Verification
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S8.P1 (Cross-Feature Alignment) is complete when ALL of the following are true:**
 

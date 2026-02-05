@@ -12,7 +12,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Detailed instructions for S4 Iterations 1-3: Test Strategy Development, Edge Case Enumeration, and Configuration Change Impact analysis.
@@ -752,6 +752,18 @@ Identify configuration dependencies and plan configuration-related tests (defaul
 - Exit when 3 consecutive clean rounds achieved
 - Create final test_strategy.md file
 
+
+## Exit Criteria
+
+**Iteration 1-3 (S4.I1-I3) is complete when ALL of these are true:**
+
+- [ ] All steps in this phase complete as specified
+- [ ] Agent Status updated with phase completion
+- [ ] Ready to proceed to next phase
+
+**If any criterion unchecked:** Complete missing items before proceeding
+
+---
 ---
 
 *End of stages/s4/s4_test_strategy_development.md*

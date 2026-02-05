@@ -38,7 +38,7 @@ S7.P1 (Smoke Testing) → S7.P2 (QC Rounds) →
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Final Review is the production readiness validation where you perform 11-category PR review, immediately apply lessons learned to guides, verify 100% completion, and document feature completion.
@@ -737,7 +737,7 @@ Files updated:
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S7.P3 (and entire S7 (Testing & Review)) is complete when ALL of the following are true:**
 

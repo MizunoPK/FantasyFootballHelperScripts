@@ -26,7 +26,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Specification Phase is where you create detailed technical specifications with requirement traceability (every requirement must have a source), identify open questions for the user, and verify spec alignment with epic intent through a mandatory gate.
@@ -483,7 +483,7 @@ List all explicit user requests, then verify EACH is in spec:
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **Specification Phase (STAGE_2b) is COMPLETE when ALL of these are true:**
 

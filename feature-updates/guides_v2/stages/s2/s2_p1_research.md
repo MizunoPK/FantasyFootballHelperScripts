@@ -31,7 +31,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Research Phase is the first part of Feature Deep Dive where you review Discovery Context, conduct feature-specific research, and verify research completeness through a mandatory audit before creating specifications.
@@ -638,7 +638,7 @@ Create `epic/research/{FEATURE_NAME}_RESEARCH.md`:
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **Research Phase (S2.P1) is COMPLETE when ALL of these are true:**
 

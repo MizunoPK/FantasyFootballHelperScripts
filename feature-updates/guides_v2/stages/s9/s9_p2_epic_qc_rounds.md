@@ -43,7 +43,7 @@ S9.P1 (Epic Smoke Testing) →
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Epic-level QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (S10.P2), these rounds focus on epic-wide patterns and architectural consistency. See `reference/qc_rounds_pattern.md` for universal workflow.
@@ -719,6 +719,18 @@ See `debugging/debugging_protocol.md` for complete protocol
 **📖 For universal patterns and detailed validation techniques, see:**
 `reference/qc_rounds_pattern.md`
 
+
+## Exit Criteria
+
+**Epic QC Rounds (S9.P2) is complete when ALL of these are true:**
+
+- [ ] All steps in this phase complete as specified
+- [ ] Agent Status updated with phase completion
+- [ ] Ready to proceed to next phase
+
+**If any criterion unchecked:** Complete missing items before proceeding
+
+---
 ---
 
 **END OF STAGE 6b GUIDE**

@@ -44,7 +44,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) →
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Feature-level smoke testing validates that your individual feature works end-to-end with REAL data. This is testing in ISOLATION (not with other features). See `reference/smoke_testing_pattern.md` for universal workflow.
@@ -682,6 +682,18 @@ for p in raw_data:
 **📖 For universal patterns and detailed examples, see:**
 `reference/smoke_testing_pattern.md`
 
+
+## Exit Criteria
+
+**Smoke Testing (S7.P1) is complete when ALL of these are true:**
+
+- [ ] All steps in this phase complete as specified
+- [ ] Agent Status updated with phase completion
+- [ ] Ready to proceed to next phase
+
+**If any criterion unchecked:** Complete missing items before proceeding
+
+---
 ---
 
 **END OF STAGE S7.P1 GUIDE**

@@ -43,7 +43,7 @@ S5 (ALL features complete) →
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Epic-level smoke testing validates that ALL features work together as a cohesive system. Unlike feature-level testing (S7 (Testing & Review)), this tests cross-feature integration and epic-wide workflows. See `reference/smoke_testing_pattern.md` for universal patterns.
@@ -566,6 +566,18 @@ print("✅ Interface compatibility verified")
 **📖 For universal patterns and detailed examples, see:**
 `reference/smoke_testing_pattern.md`
 
+
+## Exit Criteria
+
+**Epic Smoke Testing (S9.P1) is complete when ALL of these are true:**
+
+- [ ] All steps in this phase complete as specified
+- [ ] Agent Status updated with phase completion
+- [ ] Ready to proceed to next phase
+
+**If any criterion unchecked:** Complete missing items before proceeding
+
+---
 ---
 
 **END OF STAGE 6a GUIDE**

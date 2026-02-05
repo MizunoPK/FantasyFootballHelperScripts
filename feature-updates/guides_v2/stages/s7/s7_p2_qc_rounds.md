@@ -43,7 +43,7 @@ S7.P1 (Smoke Testing) →
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Feature-level QC Rounds perform 3 progressively deeper quality checks (Basic Validation, Deep Verification, Final Skeptical Review) with zero tech debt tolerance. See `reference/qc_rounds_pattern.md` for universal workflow.
@@ -841,6 +841,18 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 **📖 For universal patterns and detailed validation techniques, see:**
 `reference/qc_rounds_pattern.md`
 
+
+## Exit Criteria
+
+**QC Rounds (S7.P2) is complete when ALL of these are true:**
+
+- [ ] All steps in this phase complete as specified
+- [ ] Agent Status updated with phase completion
+- [ ] Ready to proceed to next phase
+
+**If any criterion unchecked:** Complete missing items before proceeding
+
+---
 ---
 
 **END OF STAGE S7.P2 GUIDE**

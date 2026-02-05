@@ -17,7 +17,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Epic Testing Strategy is where you update the epic_smoke_test_plan.md with concrete test scenarios based on the actual feature specs, replacing the S1 placeholder assumptions with specific integration points and measurable success criteria.
@@ -889,7 +889,7 @@ Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S4 is complete when ALL of these are true:**
 

@@ -26,7 +26,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Specification Validation Phase is a critical quality gate where you assume everything in the spec and checklist is wrong, inaccurate, or incomplete, then conduct deep research to validate every claim and self-resolve as many checklist questions as possible before user interaction.
@@ -448,7 +448,7 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **Validation Phase (STAGE_2b.5) is COMPLETE when ALL of these are true:**
 
