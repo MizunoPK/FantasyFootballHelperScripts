@@ -22,18 +22,37 @@
 
 **User Directive:** "The point of it is to ensure that agents are able to effectively read and process the guides as they are executing them. I want to ensure that agents have no barriers in their way toward completing their task, or anything that would cause them to incorrectly complete their task."
 
+### The Agent Workflow Philosophy
+
+**Agents need three things to succeed:**
+1. **Know exactly what to do next** - Linear, clear workflow
+2. **Have exactly what they need to do work** - All required context accessible
+3. **Not go off-script** - Read everything they should, follow instructions completely
+
 ### Impact on Agent Performance
 
 **Large files create barriers:**
-- **Comprehension barriers:** Overwhelming content volume reduces retention
-- **Navigation barriers:** Difficulty finding relevant sections
-- **Processing barriers:** May skip sections or miss critical instructions
-- **Execution barriers:** Incorrect task completion due to information overload
+- **Comprehension barriers:** Overwhelming content volume → agents skim/skip sections
+- **Navigation barriers:** Hard to find sections → agents work from memory instead of re-reading
+- **Processing barriers:** Information overload → agents miss critical instructions
+- **Execution barriers:** Incomplete reading → incorrect task completion
+
+**BUT splitting files ALSO creates barriers:**
+- **Navigation barriers:** Linked content → agents skip ("I'll check that later")
+- **Context loss:** Jumping between files → agents lose big picture
+- **Missing critical content:** Separate files for checkpoints → agents don't actually re-read them
+- **Incomplete workflow:** Scattered instructions → agents miss required steps
+
+### Critical Principle: Context Over Compression
+
+**WRONG approach:** Split file to reduce size, regardless of impact
+**RIGHT approach:** Reduce duplication and unnecessary detail while keeping workflow context intact
 
 **Evidence:**
-- CLAUDE.md is read at start of EVERY task
-- Large guides impact agent effectiveness
-- File size directly correlates with agent error rates
+- Mandatory checkpoints MUST be inline with workflow (agents won't follow links to re-read)
+- Exit criteria MUST be at end of workflow (agents need immediate context)
+- Common mistakes SHOULD be visible during workflow (pattern recognition)
+- Splitting workflow steps into separate files increases skip rate
 
 ---
 
@@ -124,11 +143,237 @@
 
 ---
 
+## What NEVER to Extract (Critical Content)
+
+**🚨 THESE MUST REMAIN INLINE WITH WORKFLOW:**
+
+### 1. Mandatory Checkpoints
+**Why:** Checkpoints require agents to re-read specific sections. If checkpoints are in a separate file, agents won't actually re-read them.
+
+**Examples:**
+- `## 🛑 MANDATORY CHECKPOINT 1: Re-read Critical Rules`
+- `## 🛑 CHECKPOINT: Verify Prerequisites Complete`
+
+**Rule:** Keep ALL checkpoint sections inline in workflow guide. Never extract to separate file.
+
+### 2. Exit Criteria
+**Why:** Exit criteria must be at END of workflow to provide immediate context for completion verification.
+
+**Examples:**
+- `## Exit Criteria` section at end of guide
+- Success checklists for current workflow
+
+**Rule:** Keep exit criteria in same file as workflow. Agents need to check completion criteria immediately after finishing steps.
+
+###3. Prerequisites
+**Why:** Prerequisites must be at BEGINNING of workflow so agents verify before starting.
+
+**Examples:**
+- `## Prerequisites` section at start of guide
+- Pre-flight checklists
+
+**Rule:** Keep prerequisites in same file as workflow. Agents must verify requirements before proceeding.
+
+### 4. Critical Rules / Constraints
+**Why:** Agents need to see constraints DURING workflow execution, not in separate reference file.
+
+**Examples:**
+- `## Critical Rules` section
+- `## Common Mistakes to Avoid`
+- `## Anti-Patterns`
+
+**Rule:** Keep critical rules visible in workflow guide. Agents need pattern recognition while working, not after navigation.
+
+### 5. Linear Workflow Steps
+**Why:** Breaking sequential steps across files destroys workflow continuity and increases skip rate.
+
+**Examples:**
+- Step 1 → Step 2 → Step 3 (must be in same file)
+- Phase sub-steps (e.g., S1.P3.1 → S1.P3.2 → S1.P3.3)
+
+**Rule:** Keep sequential steps together. Only extract if steps are INDEPENDENTLY executable (different phases/rounds).
+
+### What CAN Be Extracted (Supplementary Content)
+
+**✅ SAFE TO EXTRACT:**
+- Detailed examples (keep 1-2 brief examples inline, extract rest)
+- Historical context / backstory
+- Extensive reference tables (keep summary inline, extract details)
+- Duplicate content (consolidate to single reference file)
+- Alternative approaches (keep recommended approach inline, extract alternatives)
+- Appendices and deep dives
+
+---
+
 ## Reduction Strategies
 
-### Strategy 1: Extract to Sub-Guides (Preferred)
+**Priority Order:** Always try strategies in this order:
+1. **Reduce Duplication** (Strategy 0) - Try FIRST, least disruptive
+2. **Consolidate Redundant Content** (Strategy 3) - Second choice
+3. **Extract Supplementary Content** (Strategy 2, 4) - If still too large
+4. **Extract to Sub-Guides** (Strategy 1) - Last resort, only for truly independent sections
 
-**When:** File has natural subdivisions (phases, iterations, categories)
+### Strategy 0: Reduce Duplication (Try First - Least Disruptive)
+
+**When:** File references detailed guide but also duplicates content from that guide
+
+**Example Problem:**
+```text
+s1_epic_planning.md (1017 lines):
+  - Step 3: Discovery Phase (MANDATORY)
+    - Overview of Discovery workflow (69 lines)
+    - Explanation of Discovery loop
+    - Example Discovery outputs
+    - "See full guide: stages/s1/s1_p3_discovery_phase.md"
+
+s1_p3_discovery_phase.md (1006 lines):
+  - Complete Discovery workflow (all details)
+```
+
+**Issue:** Step 3 section duplicates content that's already in the dedicated guide. Agents read overview in main file, then read full details in sub-guide → redundant.
+
+**Solution: Minimal Reference Pattern**
+```text
+s1_epic_planning.md (reduces to ~960 lines):
+  - Step 3: Discovery Phase (MANDATORY)
+    - **Goal:** Explore problem space through iterative research and user Q&A
+    - **Time-Box:** 1-4 hours depending on epic size
+    - **Exit Condition:** 3 consecutive iterations with NO NEW QUESTIONS
+    - **Detailed Guide:** stages/s1/s1_p3_discovery_phase.md (READ ENTIRE GUIDE)
+    - **Key Outputs:** DISCOVERY.md, solution approach, scope definition, feature breakdown
+
+s1_p3_discovery_phase.md (1006 lines):
+  - Complete Discovery workflow (unchanged)
+```
+
+**Process:**
+1. Identify sections that reference detailed guides
+2. Check if section duplicates content from referenced guide
+3. Reduce to: Goal + Exit Condition + Link to detailed guide + Key Outputs
+4. Keep 4-8 line summary maximum
+5. Ensure agents know to READ THE FULL GUIDE (explicit instruction)
+
+**Validation:**
+- [ ] Reduced by 40-70 lines per duplicated section
+- [ ] Agents still understand what section does (goal + exit condition)
+- [ ] Clear instruction to read detailed guide
+- [ ] No information lost (it's in the detailed guide)
+
+**When NOT to use:**
+- Section doesn't have detailed guide elsewhere
+- Section provides unique context not in detailed guide
+- Removing detail would confuse workflow sequence
+
+---
+
+### Strategy 1: Break Into Sequential Phases (Preferred for Large Workflows)
+
+**When:** File contains a multi-step workflow that can be broken into sequential phases that agents execute one at a time
+
+**Key Principle:** Agents read ONE phase guide at a time → complete phase → read NEXT phase guide. This creates focus and reduces cognitive load.
+
+**This is DIFFERENT from extracting supplementary content:**
+- ❌ BAD: Extract checkpoints to separate file (agents skip links)
+- ✅ GOOD: Break workflow into Phase 1 → Phase 2 → Phase 3, each with complete guide (agents read sequentially)
+
+**Examples Already in System:**
+- S5: Split into S5.P1 (Round 1), S5.P2 (Round 2), S5.P3 (Round 3)
+- S7: Split into S7.P1 (Smoke), S7.P2 (QC Rounds), S7.P3 (Final Review)
+- S1: Extracted S1.P3 (Discovery Phase) as separate guide
+
+**When to Use This Strategy:**
+- Workflow has clear sequential phases (Phase A completes before Phase B starts)
+- Each phase is independently executable (Phase 1 has its own prerequisites/exit criteria)
+- Breaking into phases improves focus (agent only needs Phase 1 context while in Phase 1)
+- File >1000 lines with natural subdivisions
+
+**Example: Breaking S1 Epic Planning (1017 lines)**
+
+**Before:**
+```text
+s1_epic_planning.md (1017 lines)
+  - Step 1: Initial Setup
+  - Step 2: Epic Analysis
+  - Step 3: Discovery Phase (references s1_p3_discovery_phase.md)
+  - Step 4: Feature Breakdown Proposal
+  - Step 5: Epic Structure Creation
+  - Step 6: Transition to S2
+  - 5 Mandatory Checkpoints
+  - Exit Criteria
+  - Common Mistakes
+```
+
+**After (Sequential Phase Breakdown):**
+```text
+s1_epic_planning.md (200 lines - Router)
+  - Overview of S1 workflow
+  - Phase structure (P1 → P2 → P3 → P4)
+  - Navigation to phases
+  - Overall exit criteria
+
+s1_p1_preparation.md (~300 lines)
+  - Prerequisites for S1
+  - Step 1: Initial Setup (branch, folder, README)
+  - Step 2: Epic Analysis (goals, constraints, scope)
+  - Checkpoints 1-2 (inline)
+  - Exit Criteria for P1
+  - Next: Read s1_p2_discovery.md
+
+s1_p2_discovery.md (rename existing s1_p3_discovery_phase.md)
+  - Prerequisites for Discovery
+  - Step 3: Discovery Phase (full workflow)
+  - Discovery loop iterations
+  - Checkpoints 3 (inline)
+  - Exit Criteria for P2
+  - Next: Read s1_p3_structure_creation.md
+
+s1_p3_structure_creation.md (~400 lines)
+  - Prerequisites (Discovery approved)
+  - Step 4: Feature Breakdown Proposal
+  - Step 5: Epic Structure Creation
+  - Step 6: Transition to S2
+  - Checkpoints 4-5 (inline)
+  - Exit Criteria for P3
+  - Next: S2
+```
+
+**Benefits:**
+- Agent reads ~200-400 lines per phase (vs 1017 lines all at once)
+- Each phase guide contains only what's needed for THAT phase
+- Checkpoints remain inline with workflow (not skipped)
+- Agent has complete context for current phase
+- Exit criteria immediately after phase steps (clear completion signal)
+
+**Process:**
+1. Identify natural phase boundaries (where one logical chunk ends, next begins)
+2. Create separate guide for each phase (s1_p1_*.md, s1_p2_*.md, etc.)
+3. Each phase guide must include:
+   - Prerequisites for THIS phase
+   - Steps for THIS phase only
+   - Checkpoints for THIS phase (inline)
+   - Exit criteria for THIS phase
+   - "Next: Read [next phase guide]" instruction
+4. Convert main guide to router with:
+   - Workflow overview
+   - Phase structure diagram
+   - Links to phase guides
+   - Overall S1 exit criteria
+5. Update CLAUDE.md Stage Workflows section to reference phase guides
+
+**Validation:**
+- [ ] Each phase guide is <600 lines (ideally 300-500)
+- [ ] Phase boundaries make logical sense (clear stopping points)
+- [ ] Each phase is independently executable (doesn't require reading other phases simultaneously)
+- [ ] Agent knows exactly which guide to read next
+- [ ] No information lost in restructuring
+- [ ] All checkpoints remain inline with their respective phase steps
+
+**When NOT to Use This Strategy:**
+- Steps are tightly interdependent (need to see all steps together for context)
+- File is already <600 lines (not worth navigation overhead)
+- Splitting would create artificial boundaries (no natural phase transitions)
+- Workflow is iterative/looping (not sequential)
+- File is reference material (glossary, FAQ, etc.) - users dip in/out randomly
 
 **Example:**
 ```text
