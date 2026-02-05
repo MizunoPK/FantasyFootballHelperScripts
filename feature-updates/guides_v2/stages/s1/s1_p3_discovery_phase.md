@@ -8,6 +8,24 @@
 
 ---
 
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Overview](#overview)
+3. [Critical Rules](#critical-rules)
+4. [Workflow Overview](#workflow-overview)
+5. [S1.P3.1: Initialize Discovery Document](#s1p31-initialize-discovery-document)
+6. [S1.P3.2: Validation Loop Validation](#s1p32-validation-loop-validation)
+7. [S1.P3.3: Synthesize Findings](#s1p33-synthesize-findings)
+8. [S1.P3.4: User Approval](#s1p34-user-approval)
+9. [Completion Criteria](#completion-criteria)
+10. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+11. [Re-Reading Checkpoints](#re-reading-checkpoints)
+12. [Exit Criteria](#exit-criteria)
+13. [Next Step](#next-step)
+
+---
+
 ## Prerequisites
 
 **Before starting S1.P3 (Discovery Phase):**

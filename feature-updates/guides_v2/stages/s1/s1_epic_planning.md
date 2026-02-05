@@ -17,6 +17,29 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Critical Rules](#critical-rules)
+3. [Critical Decisions Summary](#critical-decisions-summary)
+4. [Prerequisites Checklist](#prerequisites-checklist)
+5. [Workflow Overview](#workflow-overview)
+6. [Step 1: Initial Setup](#step-1-initial-setup)
+7. [Step 2: Epic Analysis](#step-2-epic-analysis)
+8. [Step 3: Discovery Phase (MANDATORY)](#step-3-discovery-phase-mandatory)
+9. [Step 4: Feature Breakdown Proposal](#step-4-feature-breakdown-proposal)
+10. [Step 5: Epic Structure Creation](#step-5-epic-structure-creation)
+11. [Step 6: Transition to S2](#step-6-transition-to-s2)
+12. [Mandatory Re-Reading Checkpoints](#mandatory-re-reading-checkpoints)
+13. [Exit Criteria](#exit-criteria)
+14. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+15. [README Agent Status Update Requirements](#readme-agent-status-update-requirements)
+16. [Guide Comprehension Verification](#guide-comprehension-verification)
+17. [Prerequisites for S2](#prerequisites-for-s2)
+18. [Next Stage](#next-stage)
+
+---
+
 ## Overview
 
 **What is this guide?**

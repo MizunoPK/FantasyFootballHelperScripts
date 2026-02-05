@@ -17,6 +17,26 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Critical Rules](#critical-rules)
+3. [Prerequisites Checklist](#prerequisites-checklist)
+4. [Parallel Work Sync Verification (If Applicable)](#parallel-work-sync-verification-if-applicable)
+5. [Workflow Overview](#workflow-overview)
+6. [Step 1: Prepare Comparison Matrix](#step-1-prepare-comparison-matrix)
+7. [Step 2: Systematic Comparison](#step-2-systematic-comparison)
+8. [Step 4: Create Final Plan Summary](#step-4-create-final-plan-summary)
+9. [Step 6: Mark S3 Complete](#step-6-mark-s3-complete)
+10. [Exit Criteria](#exit-criteria)
+11. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+12. [Real-World Example](#real-world-example)
+13. [Prerequisites for S4](#prerequisites-for-s4)
+14. [S3 Complete Checklist](#s3-complete-checklist)
+15. [Next Stage](#next-stage)
+
+---
+
 ## Overview
 
 **What is this guide?**

@@ -14,6 +14,25 @@ S7.P1 (Smoke Testing) → S7.P2 (QC Rounds) →
 
 ---
 
+## Table of Contents
+
+1. [MANDATORY READING PROTOCOL](#mandatory-reading-protocol)
+2. [Overview](#overview)
+3. [Critical Rules](#critical-rules)
+4. [Prerequisites Checklist](#prerequisites-checklist)
+5. [Workflow Overview](#workflow-overview)
+6. [Step 1: PR Review (Multi-Round with Fresh Eyes)](#step-1-pr-review-multi-round-with-fresh-eyes)
+7. [Step 2: Lessons Learned Capture](#step-2-lessons-learned-capture)
+8. [Step 3: Final Verification](#step-3-final-verification)
+9. [MANDATORY CHECKPOINT 1](#mandatory-checkpoint-1)
+10. [Exit Criteria](#exit-criteria)
+11. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+12. [Real-World Examples](#real-world-examples)
+13. [Prerequisites for Next Stage](#prerequisites-for-next-stage)
+14. [Summary](#summary)
+
+---
+
 ## 🚨 MANDATORY READING PROTOCOL
 
 **BEFORE starting Final Review, you MUST:**
