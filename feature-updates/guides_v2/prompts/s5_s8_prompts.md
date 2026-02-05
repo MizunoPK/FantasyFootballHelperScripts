@@ -14,10 +14,9 @@
 **Note:** S5 is split into 5 separate guides for better digestibility:
 - **stages/s5/s5_p1_planning_round1.md** - Round 1: Iterations 1-7 + 4a (START HERE)
 - **stages/s5/s5_p2_planning_round2.md** - Round 2: Iterations 8-13
-- **stages/s5/round3_todo_creation.md** - Round 3 router (links to Part 1/2a/2b)
 - **stages/s5/s5_p3_planning_round3.md** - Round 3 Part 1: Iterations 14-19
-- **stages/s5/5.1.3.2_round3_part2a.md** - Round 3 Part 2a: Iterations 23, 23a
-- **stages/s5/5.1.3.3_round3_part2b.md** - Round 3 Part 2b: Iterations 25, 24
+- **stages/s5/s5_p3_i2_gates_part1.md** - Round 3 Part 2a: Iterations 20, 23a
+- **stages/s5/s5_p3_i3_gates_part2.md** - Round 3 Part 2b: Iterations 21-22, 25, 24
 
 **Agent MUST respond:**
 
@@ -136,8 +135,8 @@ Starting iteration 8...
 
 **Note:** Round 3 is split into 3 parts for better navigation:
 - **stages/s5/s5_p3_planning_round3.md** - Iterations 14-19 (START HERE)
-- **stages/s5/5.1.3.2_round3_part2a.md** - Iterations 23, 23a (Gates 1-2)
-- **stages/s5/5.1.3.3_round3_part2b.md** - Iterations 25, 24 (Gate 3 + GO/NO-GO)
+- **stages/s5/s5_p3_i2_gates_part1.md** - Iterations 20, 23a (Gates 1-2)
+- **stages/s5/s5_p3_i3_gates_part2.md** - Iterations 21-22, 25, 24 (Gate 3 + GO/NO-GO)
 
 **Agent MUST respond:**
 
@@ -199,7 +198,7 @@ Starting iteration 17...
 **Agent MUST respond:**
 
 ```markdown
-I'm reading `stages/s5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/s5/5.1.3.3_round3_part2b.md` (Part 2b) to ensure I follow all 4 final gate iterations in Round 3 Part 2...
+I'm reading `stages/s5/s5_p3_i2_gates_part1.md` (Part 2a) and `stages/s5/s5_p3_i3_gates_part2.md` (Part 2b) to ensure I follow all 4 final gate iterations in Round 3 Part 2...
 
 **The guide requires:**
 - **Part 2: 4 final gate iterations containing ALL 3 MANDATORY GATES**:
@@ -242,7 +241,7 @@ I'm reading `stages/s5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/s5/5.1.3.
 
 **Updating feature README Agent Status:**
 - Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/s5/5.1.3.2_round3_part2a.md (Part 2a, then Part 2b)
+- Current Guide: stages/s5/s5_p3_i2_gates_part1.md (Part 2a, then Part 2b)
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "3 MANDATORY GATES (23a, 25, 24) - CANNOT skip", "Evidence-based verification (cite numbers)", "Close spec.md before Iteration 21", "User decision required if discrepancies"
 - Progress: 22/24 total iterations complete (starting Round 3 Part 2)

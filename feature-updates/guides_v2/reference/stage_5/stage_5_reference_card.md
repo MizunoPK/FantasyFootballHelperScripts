@@ -36,8 +36,8 @@ STAGE 5a: TODO Creation (2.5-3 hours, 22 iterations across 3 rounds)
         │   ├─ Mock audit (verify against REAL interfaces)
         │   └─ Output consumer validation
         │
-        └─ Part 2: Final Gates (stages/s5/round3_part2_final_gates.md)
-            Iterations 23, 23a, 25, 24 (4 iterations with 3 MANDATORY GATES)
+        └─ Part 2: Final Gates (stages/s5/s5_p3_i2_gates_part1.md + s5_p3_i3_gates_part2.md)
+            Iterations 20-22, 23a, 25, 24 (2 parts with 3 MANDATORY GATES)
             ├─ Iteration 19: Integration gap check
             ├─ Iteration 20: Pre-Implementation Spec Audit (4 PARTS) ← MANDATORY GATE
             ├─ Iteration 21: Spec Validation Against Validated Docs ← CRITICAL GATE
@@ -88,7 +88,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 | 5a Round 1 | stages/s5/s5_p1_planning_round1.md | 60-75 min | Requirements, dependencies, algorithms | Iteration 4a |
 | 5a Round 2 | stages/s5/s5_p2_planning_round2.md | 45-60 min | Test strategy, edge cases, re-verification | Test coverage >90% |
 | 5a Round 3 Part 1 | stages/s5/s5_p3_planning_round3.md | 60-90 min | Phasing, rollback, performance, mocks | None |
-| 5a Round 3 Part 2 | stages/s5/round3_part2_final_gates.md | 1.5-2.5 hrs | Integration, spec audit, validation | Iterations 23a, 25, 24 |
+| 5a Round 3 Part 2 | stages/s5/s5_p3_i2_gates_part1.md + s5_p3_i3_gates_part2.md | 1.5-2.5 hrs | Integration, spec audit, validation | Iterations 20, 23a, 25, 24 |
 | 5b | stages/s6/s6_execution.md | 1-4 hrs | Execute TODO tasks, mini-QC checkpoints | 100% test pass |
 | S7.P1 | stages/s7/s7_p1_smoke_testing.md | 30-45 min | Import, entry point, E2E tests | Part 3 data values |
 | S7.P2 | stages/s7/s7_p2_qc_rounds.md | 45-75 min | 3 QC rounds, deep verification | QC Round 3 ZERO issues |
@@ -109,7 +109,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 - **If FAIL:** Add missing acceptance criteria, re-run Iteration 4a
 
 **Gate 2: Iteration 20 - Pre-Implementation Spec Audit (4 PARTS)**
-- **Location:** stages/s5/round3_part2_final_gates.md
+- **Location:** stages/s5/s5_p3_i2_gates_part1.md
 - **Criteria:** ALL 4 PARTS must PASS with 100% metrics
   - Part 1: Completeness Audit (all requirements have TODO tasks)
   - Part 2: Specificity Audit (all tasks have criteria, location, tests)
@@ -119,7 +119,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 - **If FAIL:** Fix failing part, re-run Iteration 20
 
 **Gate 3: Iteration 21 - Spec Validation Against Validated Documents**
-- **Location:** stages/s5/round3_part2_final_gates.md
+- **Location:** stages/s5/s5_p3_i3_gates_part2.md
 - **Criteria:** Spec.md matches ALL three validated sources (epic notes + epic ticket + spec summary)
 - **Process:** Close spec.md first, re-read validated docs independently, three-way comparison
 - **If ANY DISCREPANCIES:** STOP, report to user with 3 options
@@ -127,7 +127,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 - **If FAIL:** User decides next action (fix spec + restart, fix spec + continue, discuss)
 
 **Gate 4: Iteration 22 - Implementation Readiness Protocol (GO/NO-GO)**
-- **Location:** stages/s5/round3_part2_final_gates.md
+- **Location:** stages/s5/s5_p3_i3_gates_part2.md
 - **Criteria:** GO decision required (confidence >= MEDIUM, all gates PASSED, all checklists complete)
 - **If NO-GO:** Address concerns, cannot proceed to S6
 - **If GO:** Proceed to S6 implementation
@@ -265,7 +265,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 | Starting TODO creation | stages/s5/s5_p1_planning_round1.md |
 | Round 1 complete, confidence >= MEDIUM | stages/s5/s5_p2_planning_round2.md |
 | Round 2 complete, test coverage >90% | stages/s5/s5_p3_planning_round3.md |
-| Preparation iterations 14-19 complete | stages/s5/round3_part2_final_gates.md |
+| Preparation iterations 14-19 complete | stages/s5/s5_p3_i2_gates_part1.md |
 | GO decision from Iteration 22 | stages/s6/s6_execution.md |
 | Implementation complete | stages/s7/s7_p1_smoke_testing.md |
 | Smoke testing passed | stages/s7/s7_p2_qc_rounds.md |
