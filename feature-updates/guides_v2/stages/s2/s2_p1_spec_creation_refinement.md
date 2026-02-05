@@ -9,7 +9,24 @@
 
 ---
 
-## Quick Start
+## Prerequisites
+
+**Before starting S2.P1:**
+
+- [ ] S1 complete (Epic Planning and Discovery Phase)
+- [ ] DISCOVERY.md exists and is user-approved
+- [ ] Feature folder created with initial files (README.md, spec.md with Discovery Context, checklist.md, lessons_learned.md)
+- [ ] spec.md has Discovery Context section populated
+- [ ] Read validation_loop_spec_refinement.md to understand validation requirements
+- [ ] Working directory: Feature folder
+
+**If any prerequisite fails:**
+- Return to S1 to complete missing items
+- Do NOT start S2.P1 until prerequisites met
+
+---
+
+## Overview
 
 **Purpose:** Research feature, create spec.md and checklist.md, get user approval (Gate 3)
 
@@ -276,7 +293,7 @@ Primary agent reviews during coordination heartbeat (every 15 minutes).
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S2.P1 complete when ALL true:**
 

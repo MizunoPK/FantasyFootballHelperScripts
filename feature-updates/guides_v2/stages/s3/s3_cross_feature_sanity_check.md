@@ -17,7 +17,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Cross-Feature Sanity Check is where you systematically compare all feature specs to identify conflicts, resolve inconsistencies, and get user sign-off on the complete epic plan before proceeding to implementation.
@@ -1139,7 +1139,7 @@ Following `stages/s4/s4_epic_testing_strategy.md` to update epic_smoke_test_plan
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **S3 is complete when ALL of these are true:**
 
