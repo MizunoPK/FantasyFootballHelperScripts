@@ -7,6 +7,29 @@
 
 ---
 
+## Prerequisites
+
+**Before starting Iteration 20 (Gate 23a - Part 1):**
+
+- [ ] S5.P3 Round 3 Part 2a started
+- [ ] Iterations 14-19 complete (preparation iterations)
+- [ ] implementation_plan.md exists with implementation tasks section
+- [ ] Working directory: Feature folder
+
+**If any prerequisite fails:**
+- Complete missing iterations before starting Gate 23a
+
+---
+
+## Overview
+
+**What is this iteration?**
+Iteration 20 is Part 1 of Gate 23a (Pre-Implementation Spec Audit). This iteration performs Integration Gap Check to prevent "orphan code" - code that gets implemented but never called/used.
+
+**Time Estimate:** 15-20 minutes
+
+---
+
 ## Purpose
 
 **Integration Gap Check** prevents "orphan code" - code that gets implemented but never called/used.
@@ -1099,6 +1122,23 @@ Next Action: Fix failed parts, re-run Iteration 20
 **What to do instead:**
 - ✅ Rewrite task with method name, file location, algorithm steps
 - ✅ Every task must answer: what + where + how
+
+---
+
+## Exit Criteria
+
+**Iteration 20 (Gate 23a Part 1) is complete when ALL of these are true:**
+
+- [ ] ALL implementation methods/functions listed from implementation_plan.md
+- [ ] EACH method has at least one verified caller
+- [ ] ALL orphan code identified and either:
+  - Added callers to implementation_plan.md, OR
+  - Removed from implementation_plan.md (with justification)
+- [ ] Integration verification complete with source file evidence (line numbers)
+- [ ] No vague tasks remaining (all tasks specify method name, file, algorithm)
+- [ ] Ready to proceed to Part 2 of Gate 23a
+
+**If any criterion unchecked:** Continue iteration until complete
 
 ---
 
