@@ -59,7 +59,7 @@ Epic-level smoke testing validates that ALL features work together as a cohesive
 - ✅ Part 2 PASSED: Epic-level entry point tests
 - ✅ Part 3 PASSED: Epic E2E execution tests (data values verified)
 - ✅ Part 4 PASSED: Cross-feature integration tests
-- ✅ Ready for S6b (Epic QC Rounds)
+- ✅ Ready for S9.P2 (Epic QC Rounds)
 
 **Time Estimate:**
 20-30 minutes for 3-feature epics, 30-60 minutes for 5+ feature epics
@@ -194,7 +194,7 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
    ↓ Verify features work together correctly
    ↓ Verify data flows between features
    ↓
-   If PASS → Document, proceed to S6b
+   If PASS → Document, proceed to S9.P2
    If FAIL → Fix, RE-RUN ALL 4 PARTS
 ```
 
@@ -470,7 +470,7 @@ print("✅ Interface compatibility verified")
 2. Identify root cause (integration issue, interface mismatch, data flow problem)
 3. Fix ALL issues found
 4. RE-RUN ALL 4 PARTS from Part 1
-5. Do NOT proceed to S6b until all parts pass
+5. Do NOT proceed to S9.P2 until all parts pass
 
 ---
 
@@ -532,7 +532,7 @@ print("✅ Interface compatibility verified")
 **If ALL 4 parts PASSED:**
 - ✅ Document epic smoke test results in EPIC_README.md
 - ✅ Update Agent Status: "Epic Smoke Testing COMPLETE"
-- ✅ Proceed to **S6b: Epic QC Rounds**
+- ✅ Proceed to **S9.P2: Epic QC Rounds**
 
 **If ANY part FAILED:**
 - ❌ Fix ALL issues identified
@@ -554,7 +554,7 @@ print("✅ Interface compatibility verified")
 - Tests ALL features TOGETHER (not in isolation)
 - 4 parts (adds Part 4: Cross-Feature Integration)
 - Uses EVOLVED test plan (updated through Stages 1, 4, 5e)
-- Next stage: Epic QC Rounds (S6b)
+- Next stage: Epic QC Rounds (S9.P2)
 
 **Critical Success Factors:**
 - Verify ALL features complete S8.P2 (Epic Testing Update) first

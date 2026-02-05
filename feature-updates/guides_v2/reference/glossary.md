@@ -1409,9 +1409,9 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 | STAGE_5d | S8.P1 | Cross-Feature Alignment |
 | STAGE_5e | S8.P2 | Epic Testing Plan Update |
 | S9 | S9.P1 | Epic Smoke Testing |
-| S9b | S9.P2 | Epic QC Rounds |
-| S9c | S9.P3 | User Testing |
-| S9d | S9.P4 | Epic Final Review |
+| S9.P2 | S9.P2 | Epic QC Rounds |
+| S9.P3 | S9.P3 | User Testing |
+| S9.P4 | S9.P4 | Epic Final Review |
 
 ### Old File Names
 

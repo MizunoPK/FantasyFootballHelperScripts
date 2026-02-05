@@ -73,7 +73,7 @@
 
 ### S2: Feature Deep Dives
 - ❌ Marking checklist.md items resolved autonomously (agents create QUESTIONS, users provide ANSWERS)
-- ❌ Skipping S2b.5 specification validation
+- ❌ Skipping S2.P2.5 specification validation
 - ❌ Not getting user approval for checklist (Gate 3)
 
 ### S3: Cross-Feature Sanity Check

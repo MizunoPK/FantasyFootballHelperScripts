@@ -693,7 +693,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 ```markdown
 ## User Checklist Approval - Gate 2
 
-S2b (Specification Phase) is complete. I've created checklist.md with 6 questions that need your input:
+S2.P2 (Specification Phase) is complete. I've created checklist.md with 6 questions that need your input:
 
 **Checklist Sections:**
 - Functional Questions: 3 (CSV format, matching strategy, multiplier formula)

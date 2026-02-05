@@ -72,7 +72,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 
 **📖 See `reference/qc_rounds_pattern.md` for universal critical rules.**
 
-**Epic-specific rules for S6b:**
+**Epic-specific rules for S9.P2:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -145,7 +145,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 
 **📖 See `reference/qc_rounds_pattern.md` for universal workflow details.**
 
-**Epic-specific workflow for S6b:**
+**Epic-specific workflow for S9.P2:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -630,7 +630,7 @@ print(f"✅ Epic workflow completed in {elapsed:.2f}s")
 ```markdown
 epic_name/debugging/ISSUES_CHECKLIST.md
 
-## Issues Found in S6b QC
+## Issues Found in S9.P2 QC
 
 - [ ] Issue 1: Feature 02 → Feature 03 integration fails with large datasets
 - [ ] Issue 2: Inconsistent error handling in Feature 01 vs Feature 03
@@ -645,7 +645,7 @@ See `debugging/debugging_protocol.md` for complete protocol
 **RESTART S6 (Epic Smoke Testing) from Step 1:**
 - Re-run ALL 4 smoke test parts
 - Verify fixes didn't break anything
-- Return to S6b after smoke testing passes
+- Return to S9.P2 after smoke testing passes
 
 **Critical:** Loop back to Epic Smoke (NOT back to QC round), ensures clean validation
 

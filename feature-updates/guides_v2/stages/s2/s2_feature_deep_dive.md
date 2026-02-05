@@ -377,7 +377,7 @@ STAGE_2a
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`:
 ```markdown
-I'm starting S2a (Research Phase) for Feature {N}: {Name}.
+I'm starting S2.P1 (Research Phase) for Feature {N}: {Name}.
 
 I acknowledge:
 - This guide covers Phases 0, 1, and 1.5 (Discovery Context → Research → Audit)
