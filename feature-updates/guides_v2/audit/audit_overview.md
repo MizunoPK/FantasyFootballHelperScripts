@@ -125,31 +125,62 @@ This audit ensures **consistency, accuracy, and completeness** across all guides
 
 ### Core Principles
 
-**1. Fresh Eyes, Zero Assumptions**
+**1. ZERO TOLERANCE FOR DEFERRALS** 🚨 CRITICAL
+- **ALL identified issues MUST be investigated and addressed immediately**
+- **NO deferring issues to "later rounds" or "post-audit"**
+- **If you cannot determine the correct fix with confidence, ASK THE USER**
+- The audit's purpose is to achieve OPTIMAL state, not just quick wins
+
+**Rationale:**
+- Deep dives into files are ENCOURAGED, not discouraged
+- Time spent investigating = correct fixes vs superficial patches
+- Deferred issues become technical debt that compounds
+- User questions get immediate clarity vs accumulating uncertainty
+
+**Decision Framework:**
+```text
+Issue discovered → Can I fix with confidence?
+  ├─ YES → Fix immediately, verify, document
+  └─ NO  → Read affected files, analyze context
+            ├─ NOW confident? → Fix immediately
+            └─ Still uncertain? → ASK USER (provide options, analysis, recommendation)
+```
+
+**Examples of CORRECT behavior:**
+- ✅ 34 files missing Prerequisites/Exit Criteria → Read each file → Determine if sections needed → Add or document as intentional
+- ✅ 32 files >1000 lines → Read each file → Split using reduction guide → Verify file sizes reduced
+- ✅ Broken file reference → Cannot determine correct path → ASK USER for intended reference
+
+**Examples of WRONG behavior:**
+- ❌ 34 files missing Prerequisites/Exit Criteria → "Requires file reading" → Defer to Round 3
+- ❌ 32 files >1000 lines → "Requires 12-16 hours" → Defer to post-audit
+- ❌ Uncertain about fix → "Seems complex" → Defer for later
+
+**2. Fresh Eyes, Zero Assumptions**
 - Approach each round as if you've never seen the codebase
 - Don't trust previous rounds - verify everything again
 - Clear mental model between rounds (take 5-min break)
 
-**2. User Skepticism is Healthy**
+**3. User Skepticism is Healthy**
 - When user challenges you, THEY ARE USUALLY RIGHT
 - "Are you sure?" = red flag you missed something
 - Do NOT defend findings - re-verify immediately
 
-**3. Evidence Over Claims**
+**4. Evidence Over Claims**
 - Show actual file contents, not just grep output
 - Before/after comparisons for every fix
 - Spot-check random files to verify grep accuracy
 
-**4. Iterative Until Zero**
+**5. Iterative Until Zero**
 - Minimum 3 rounds as baseline (NOT a target - KAI-7 needed 4 rounds)
 - TRUE exit trigger: Round N finds ZERO new issues + ALL 9 criteria met
 - Continue auditing regardless of round count until criteria satisfied
 - Each round uses completely different patterns
 
-**5. Better to Over-Audit Than Under-Audit**
+**6. Better to Over-Audit Than Under-Audit**
 - False positives can be resolved
 - False negatives cause user confusion
-- When uncertain, flag for review
+- When uncertain, ASK USER (don't defer)
 
 ---
 
@@ -362,143 +393,220 @@ Result: Round 3 found 70+ different issues Round 1 never looked for
 
 ## The Iterative Loop
 
-### Loop Structure
+### Loop Structure (Sub-Round System)
+
+**The audit uses a 4 sub-round structure per round, organized by dimension category:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
 │         AUDIT LOOP (Repeat until ZERO new issues found)         │
-│          MINIMUM 3 ROUNDS BASELINE (typically 3-5 rounds)        │
-│        EXIT TRIGGER: Round N finds ZERO issues + 9 criteria      │
+│     MINIMUM 3 ROUNDS (each with 4 sub-rounds: 12 cycles min)    │
+│  EXIT TRIGGER: Round N all 4 sub-rounds ZERO issues + 9 criteria│
 └─────────────────────────────────────────────────────────────────┘
 
-Round 1: Initial Discovery (new audit, broad patterns)
+Round N:
+  │
+  ├─> Sub-Round N.1: Core Dimensions (D1, D2, D3, D8)
+  │   ├─ S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
+  │   └─ If 0 issues found → Sub-Round N.2
+  │       If issues found → Fix all → Re-run Sub-Round N.1
+  │
+  ├─> Sub-Round N.2: Content Quality (D4, D5, D6, D13, D14)
+  │   ├─ S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
+  │   └─ If 0 issues found → Sub-Round N.3
+  │       If issues found → Fix all → Re-run Sub-Round N.2
+  │
+  ├─> Sub-Round N.3: Structural (D9, D10, D11, D12)
+  │   ├─ S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
+  │   └─ If 0 issues found → Sub-Round N.4
+  │       If issues found → Fix all → Re-run Sub-Round N.3
+  │
+  └─> Sub-Round N.4: Advanced (D7, D15, D16)
+      ├─ S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
+      └─ If 0 issues found → Round N complete
+          If issues found → Fix all → Re-run Sub-Round N.4
+
+Round N complete when: ALL 4 sub-rounds find 0 new issues
   ↓
-Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify → Stage 5: Decision
-  ↓                                                                                    ↓
-  ├────────────────────────────────────────────────────────────────────────────────────┤
-  │                                                                                    │
-  └─> Round 2: Fresh Eyes (different patterns, different order) ←──────────────────┘
-       ↓
-       Stage 1-5 (new patterns, new approach)
-       ↓
-       Round 3: Deep Validation (context-sensitive, spot-checks)
-       ↓
-       Stage 1-5 (manual review, edge cases)
-       ↓
-       EXIT (only if ALL exit criteria met + user approves)
+Round N+1 (with fresh eyes, new patterns, different approach)
+  ↓
+EXIT (only if Round N had 0 issues in all 4 sub-rounds + 9 criteria met)
 ```
 
-### Why Minimum 3 Rounds (But Often More)?
+### Why Sub-Rounds?
 
-**3 rounds is a BASELINE, not a target. Exit when criteria met, regardless of round count.**
+**Benefits of the 4 sub-round structure:**
 
-**Historical Evidence from KAI-7 Audit:**
+1. **Dependency Management:** Core dimension fixes (broken references) applied before Structural checks (cross-file dependencies)
+2. **Focused Discovery:** Check 4-5 related dimensions per sub-round, not all 16 at once
+3. **Incremental Verification:** Verify fixes before moving to next category
+4. **Mental Clarity:** Fresh mental model between dimension categories
+5. **Better Tracking:** Know exactly which category and dimensions you're auditing
+6. **Prevents Blind Spots:** ALL 16 dimensions checked systematically every round
+
+### Dimension Organization by Sub-Round
+
+**Sub-Round N.1: Core Dimensions (Always Check First)**
+- D1: Cross-Reference Accuracy - File paths, links (90% automated)
+- D2: Terminology Consistency - Notation, naming (80% automated)
+- D3: Workflow Integration - Prerequisites, transitions (40% automated)
+- D8: CLAUDE.md Sync - Root file alignment (60% automated)
+
+**Why First:** Broken references and inconsistent notation affect all other checks
+
+**Sub-Round N.2: Content Quality Dimensions**
+- D4: Count Accuracy - File counts, iteration counts (90% automated)
+- D5: Content Completeness - Missing sections, gaps (85% automated)
+- D6: Template Currency - Template synchronization (70% automated)
+- D13: Documentation Quality - Required sections (90% automated)
+- D14: Content Accuracy - Claims vs reality (70% automated)
+
+**Why Second:** Content fixes may reveal structural issues
+
+**Sub-Round N.3: Structural Dimensions**
+- D9: Intra-File Consistency - Within-file quality (80% automated)
+- D10: File Size Assessment - Readability limits (100% automated)
+- D11: Structural Patterns - Template compliance (60% automated)
+- D12: Cross-File Dependencies - Stage transitions (30% automated)
+
+**Why Third:** Structure depends on correct content and references
+
+**Sub-Round N.4: Advanced Dimensions**
+- D7: Context-Sensitive Validation - Intentional exceptions (20% automated)
+- D15: Duplication Detection - DRY principle (50% automated)
+- D16: Accessibility - Navigation, UX (80% automated)
+
+**Why Last:** Advanced checks require all other dimensions to be clean
+
+### Why Minimum 3 Rounds (12 Sub-Rounds Total)?
+
+**3 rounds × 4 sub-rounds = 12 minimum cycles**
+
+**Rationale:**
+- Each round uses different patterns and approaches
+- Sub-rounds within Round 1 catch different issue types
+- Round 2 finds patterns Round 1 missed (fresh eyes)
+- Round 3 validates Round 1-2 were thorough
+
+**Historical Evidence from KAI-7 Audit (Pre-Sub-Round System):**
 - **Round 1:** Found 4 issues (step number mapping)
-- **Round 2:** Found 10 issues (router links, path formats) - WOULD HAVE MISSED if stopped after Round 1
-- **Round 3:** Found 70+ issues (notation standardization) - WOULD HAVE MISSED if stopped after Round 2
-- **Round 4:** Found 20+ issues (cross-references) - WOULD HAVE MISSED if stopped after Round 3
+- **Round 2:** Found 10 issues (router links, path formats)
+- **Round 3:** Found 70+ issues (notation standardization)
+- **Round 4:** Found 20+ issues (cross-references)
+- **Total:** 104+ issues across 4 rounds
 
-**Total:** 104+ issues found across **4 rounds** (not 3). Each round used completely different discovery approach.
+**With sub-rounds:** Would have caught all 104 issues across fewer rounds due to systematic dimension coverage
 
-**Key Insights:**
-- Each round's patterns were invisible to previous rounds
-- "Minimum 3" is a baseline to prevent premature exit
-- **Real exit trigger:** Round N finds ZERO new issues + ALL 9 criteria met
-- Expect 3-5 rounds typically, not exactly 3
+### Sub-Round Progression Pattern
 
-### Round Progression Pattern
+**Round 1: Initial Discovery**
+- Sub-Round 1.1 (Core): Basic patterns, exact string matches, obvious errors
+- Sub-Round 1.2 (Content): File counts, missing sections, placeholder text
+- Sub-Round 1.3 (Structural): File sizes, basic structure compliance
+- Sub-Round 1.4 (Advanced): Obvious duplicates, missing TOCs
 
-**Round 1: Broad Strokes**
-- Basic patterns (exact string matches)
-- Obvious errors (clearly wrong stage numbers)
-- High-frequency issues
-- Template files first (errors propagate)
+**Round 2: Pattern Variations (Fresh Eyes)**
+- Sub-Round 2.1 (Core): Punctuation variations, contextual patterns
+- Sub-Round 2.2 (Content): Content accuracy claims, template drift
+- Sub-Round 2.3 (Structural): Cross-file dependency validation, intra-file consistency
+- Sub-Round 2.4 (Advanced): Context-sensitive analysis, subtle duplications
 
-**Round 2: Variations**
-- Pattern variations (different punctuation, spacing)
-- Contextual patterns ("back to 5a", "restart S5.P1")
-- Systematic folder-by-folder search
-- Different file order than Round 1
-
-**Round 3: Deep Dive**
-- Context-sensitive validation
-- Manual reading of sections
-- Spot-checks of random files
-- Edge cases and exceptions
-
-**Round 4+: Verification**
-- Re-run all previous patterns
-- Random sampling
-- User challenge follow-up
-- Final confidence calibration
+**Round 3+: Deep Validation**
+- Sub-Round 3.1 (Core): Manual reading, edge cases, exception validation
+- Sub-Round 3.2 (Content): Spot-checks, random sampling
+- Sub-Round 3.3 (Structural): Complete dependency chain validation
+- Sub-Round 3.4 (Advanced): Final confidence calibration
 
 ---
 
 ## Exit Criteria
 
-### MANDATORY Loop Condition
+### MANDATORY Loop Conditions (Sub-Round System)
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
 │  🚨 CRITICAL: You MUST continue looping until:                  │
 │                                                                  │
-│  1. ALL issues from all previous rounds are RESOLVED            │
-│  2. Current round finds ZERO new issues                         │
-│  3. All other exit criteria below are met                       │
+│  SUB-ROUND LEVEL:                                               │
+│  - Current sub-round finds ZERO new issues                      │
+│  - All issues from current sub-round RESOLVED                   │
+│  - If issues found → Fix ALL → Re-run same sub-round            │
 │                                                                  │
-│  If current round found ANY issues → MUST loop to next round    │
-│  Exit ONLY when a round discovers ZERO issues                   │
+│  ROUND LEVEL:                                                   │
+│  - ALL 4 sub-rounds complete with ZERO issues each              │
+│  - Sub-Rounds 1, 2, 3, 4 all found 0 new issues                 │
+│                                                                  │
+│  AUDIT LEVEL:                                                   │
+│  - Minimum 3 complete rounds (12 sub-rounds)                    │
+│  - Latest round had 0 issues in all 4 sub-rounds                │
+│  - ALL 9 exit criteria met (see below)                          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 **Loop Logic:**
 ```text
-Round N found issues → Fix ALL issues → Round N+1 (fresh patterns)
-Round N found ZERO issues + all criteria met → Consider exit
+Sub-Round N.X found issues → Fix ALL → Re-run Sub-Round N.X → Repeat until 0 issues
+Sub-Round N.X found ZERO issues → Proceed to Sub-Round N.(X+1)
+Sub-Round N.4 found ZERO issues + Sub-Rounds N.1-N.3 were clean → Round N complete
+Round N complete (all 4 sub-rounds clean) → Round N+1 (fresh patterns)
+Round N complete + Minimum 3 rounds + ALL 9 criteria met → Consider exit
 ```
 
-### ALL 9 Criteria Must Be Met
+### ALL 9 Criteria Must Be Met (Audit Level)
 
 **Cannot exit audit loop until ALL of these are satisfied:**
 
-1. ✅ **All issues resolved:** Every issue from ALL rounds fixed and verified
-2. ✅ **Zero new issues:** Round N Discovery finds ZERO new issues
-3. ✅ **Zero verification findings:** Round N Verification finds ZERO new issues
-4. ✅ **Minimum 3 rounds:** At least 3 rounds completed (baseline, not sufficient alone)
+1. ✅ **All issues resolved:** Every issue from ALL rounds AND sub-rounds fixed and verified
+2. ✅ **Zero new issues:** Latest round found ZERO issues in ALL 4 sub-rounds
+3. ✅ **Zero verification findings:** Latest round verifications (S4) found ZERO new issues across all sub-rounds
+4. ✅ **Minimum 3 rounds:** At least 3 complete rounds (12 sub-rounds total) completed
 5. ✅ **All remaining documented:** All remaining instances documented as intentional
 6. ✅ **User has NOT challenged:** User has not questioned findings
-7. ✅ **Confidence score:** ≥ 80% confidence in completeness
-8. ✅ **Pattern diversity:** ≥ 5 pattern types used across rounds
-9. ✅ **Spot-check clean:** 10+ files manually checked, zero issues
+7. ✅ **Confidence score:** ≥ 80% confidence in completeness across all 16 dimensions
+8. ✅ **Pattern diversity:** ≥ 5 pattern types used per dimension category across rounds
+9. ✅ **Spot-check clean:** 10+ files manually checked per sub-round, zero issues
 
 **For detailed criteria with sub-requirements, see `stages/stage_5_loop_decision.md` → "Exit Criteria Checklist"**
 
 ### Critical Rules
 
-**If current round found ANY issues:**
+**If current sub-round found ANY issues:**
 ```text
-└─> 🔄 MANDATORY LOOP to Stage 1 Round N+1
-     - Fix ALL issues from Round N
-     - Use fresh patterns in Round N+1
-     - Continue until a round finds ZERO issues
+└─> 🔄 MANDATORY RE-RUN of same sub-round
+     - Fix ALL issues from current sub-round
+     - Re-run SAME sub-round (e.g., if 2.3 found issues, re-run 2.3)
+     - Continue until sub-round finds ZERO issues
+     - THEN proceed to next sub-round
 ```
 
-**If failing ANY exit criterion:**
+**If sub-round clean but still in same round:**
 ```text
-└─> 🔄 LOOP BACK to Stage 1 Round N+1
-     (Use fresh patterns, different approach)
+└─> ✅ PROCEED to next sub-round
+     - Sub-Round N.1 clean → N.2
+     - Sub-Round N.2 clean → N.3
+     - Sub-Round N.3 clean → N.4
+     - Sub-Round N.4 clean → Round N complete
+```
+
+**If round complete (all 4 sub-rounds clean):**
+```text
+└─> 🔄 PROCEED to Round N+1 (with fresh eyes)
+     - Start at Sub-Round (N+1).1
+     - Use fresh patterns, different approach
+     - Continue until achieving clean round
 ```
 
 **If user challenges you in ANY way:**
 ```bash
-└─> 🚨 IMMEDIATE LOOP BACK to Round 1
+└─> 🚨 IMMEDIATE LOOP BACK to Round 1, Sub-Round 1.1
      (User challenge = evidence you missed something)
 ```
 
-**"Minimum 3 rounds" is NOT sufficient to exit:**
-- 3 rounds is a BASELINE (prevents premature exit)
-- Real exit trigger: Round finds ZERO issues + all criteria met
-- You may need 4, 5, or more rounds until achieving clean round
+**Exit conditions:**
+- ✅ Round N complete (all 4 sub-rounds clean)
+- ✅ Minimum 3 rounds complete (12 sub-rounds total)
+- ✅ ALL 9 exit criteria met
+- ✅ User approves exit
 
 **See Stage 5 guide for complete decision logic, verification checklists, and loop preparation.**
 

@@ -39,30 +39,46 @@ bash scripts/pre_audit_checks.sh
 
 ---
 
-## Audit Process Overview
+## Audit Process Overview (Sub-Round System)
+
+**The audit uses a 4 sub-round structure per round, organized by dimension category:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
 │         AUDIT LOOP (Repeat until ZERO new issues found)         │
-│          MINIMUM 3 ROUNDS BASELINE (typically 3-5 rounds)        │
-│        EXIT TRIGGER: Round N finds ZERO issues + 9 criteria      │
+│     MINIMUM 3 ROUNDS (each with 4 sub-rounds: 12 cycles min)    │
+│  EXIT TRIGGER: Round N all 4 sub-rounds ZERO issues + 9 criteria│
 └─────────────────────────────────────────────────────────────────┘
 
-Round 1: Initial Discovery
-  ↓
-Stage 1: Discovery (30-60 min)
-  ↓
-Stage 2: Fix Planning (15-30 min)
-  ↓
-Stage 3: Apply Fixes (30-90 min)
-  ↓
-Stage 4: Verification (30-45 min)
-  ↓
-Stage 5: Loop Decision (15-30 min)
-  ↓
-├─> EXIT (if all criteria met + user approves)
-└─> LOOP BACK to Round 2 Discovery (with fresh eyes, new patterns)
+Round N:
+  │
+  ├─> Sub-Round N.1: Core Dimensions (D1, D2, D3, D8)
+  │   S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
+  │   If 0 issues → Sub-Round N.2 | If issues → Fix & Re-run N.1
+  │
+  ├─> Sub-Round N.2: Content Quality (D4, D5, D6, D13, D14)
+  │   S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
+  │   If 0 issues → Sub-Round N.3 | If issues → Fix & Re-run N.2
+  │
+  ├─> Sub-Round N.3: Structural (D9, D10, D11, D12)
+  │   S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
+  │   If 0 issues → Sub-Round N.4 | If issues → Fix & Re-run N.3
+  │
+  └─> Sub-Round N.4: Advanced (D7, D15, D16)
+      S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
+      If 0 issues → Round N complete | If issues → Fix & Re-run N.4
+
+Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 ```
+
+### Sub-Round Benefits
+
+1. **Dependency Management:** Core fixes (broken references) applied before Structural checks
+2. **Focused Discovery:** Check 4-5 related dimensions per sub-round, not all 16 at once
+3. **Incremental Verification:** Verify fixes before moving to next category
+4. **Mental Clarity:** Fresh mental model between dimension categories
+5. **Complete Coverage:** ALL 16 dimensions checked systematically every round
+6. **No Blind Spots:** Can't skip dimensions accidentally
 
 ---
 
@@ -71,14 +87,42 @@ Stage 5: Loop Decision (15-30 min)
 | Stage | Guide | Duration | Primary Activities | Output |
 |-------|-------|----------|-------------------|--------|
 | **1. Discovery** | `stages/stage_1_discovery.md` | 30-60 min | Find issues using search patterns | Discovery report |
-| **2. Fix Planning** | `stages/stage_2_fix_planning.md` | 15-30 min | Group issues, prioritize, **plan file size reductions** | Fix plan |
-| **3. Apply Fixes** | `stages/stage_3_apply_fixes.md` | 30-90 min | Apply fixes incrementally, **reduce large files** | Fixed files |
-| **4. Verification** | `stages/stage_4_verification.md` | 30-45 min | Re-run patterns, spot-check, **verify file sizes** | Verification report |
+| **2. Fix Planning** | `stages/stage_2_fix_planning.md` | 30-90 min | Group issues, **investigate complex issues**, ask user if uncertain | Fix plan + user questions |
+| **3. Apply Fixes** | `stages/stage_3_apply_fixes.md` | 60-180 min | Apply ALL fixes (content + file size), **no deferrals** | Fixed files |
+| **4. Verification** | `stages/stage_4_verification.md` | 30-45 min | Re-run patterns, spot-check, verify ALL fixes | Verification report |
 | **5. Loop Decision** | `stages/stage_5_loop_decision.md` | 15-30 min | Report results, decide continue/exit | Round summary |
 
-**Critical Rule:** Complete stages sequentially. Never skip stages.
+**Critical Rules:**
+- Complete stages sequentially. Never skip stages.
+- **NO DEFERRALS ALLOWED** - Investigate or ask user, never defer to later rounds
+- File size reduction is first-class work (not deferred). See `reference/file_size_reduction_guide.md`
+- Duration estimates include investigation time - deep dives are EXPECTED
 
-**File Size Integration:** File size reduction is integrated into Stages 2-4 as first-class fixes (not deferred). See `reference/file_size_reduction_guide.md` for methodology.
+---
+
+## Sub-Round Structure
+
+**Each round consists of 4 sub-rounds organized by dimension category:**
+
+| Sub-Round | Dimensions | Count | Focus | Duration |
+|-----------|------------|-------|-------|----------|
+| **N.1: Core** | D1, D2, D3, D8 | 4 | File paths, terminology, workflow, CLAUDE.md | 60-90 min |
+| **N.2: Content** | D4, D5, D6, D13, D14 | 5 | Counts, completeness, templates, documentation | 75-120 min |
+| **N.3: Structural** | D9, D10, D11, D12 | 4 | File consistency, size, patterns, dependencies | 60-90 min |
+| **N.4: Advanced** | D7, D15, D16 | 3 | Context-sensitive, duplication, accessibility | 45-75 min |
+| **TOTAL** | All 16 dimensions | 16 | Complete coverage | 4-6 hours |
+
+**Execution Order:**
+1. **Core first** - Fixes broken references and inconsistent notation that affect all other checks
+2. **Content second** - Content fixes may reveal structural issues
+3. **Structural third** - Structure depends on correct content and references
+4. **Advanced last** - Advanced checks require all other dimensions to be clean
+
+**Loop Logic:**
+- Sub-round finds issues → Fix ALL → Re-run SAME sub-round → Repeat until 0 issues
+- Sub-round clean → Proceed to next sub-round
+- All 4 sub-rounds clean → Round complete → Next round (fresh eyes)
+- Minimum 3 rounds (12 sub-rounds) + all clean → Consider exit
 
 ---
 
@@ -410,6 +454,24 @@ Learn from actual audit rounds:
 
 ## Philosophy
 
+**🚨 ZERO TOLERANCE FOR DEFERRALS - CRITICAL POLICY**
+
+**ALL identified issues MUST be investigated and addressed immediately.**
+
+- **NO deferring to "later rounds" or "post-audit"**
+- **Deep dives into files are ENCOURAGED** - Read files, analyze context, determine fixes
+- **If uncertain after investigation, ASK THE USER** - Don't defer, get clarity
+- **Audit purpose:** Achieve OPTIMAL state, not just quick wins
+
+**Decision Framework:**
+```text
+Issue discovered → Can I fix with confidence?
+  ├─ YES → Fix immediately
+  └─ NO  → Read files, investigate (15-30 min)
+            ├─ NOW confident? → Fix immediately
+            └─ Still uncertain? → ASK USER (provide analysis + options)
+```
+
 **Fresh Eyes, Zero Assumptions, User Skepticism is Healthy**
 
 - Approach each round as if you've never seen the codebase
@@ -423,6 +485,7 @@ Learn from actual audit rounds:
 - Premature completion claims: 3 times (each time, 50+ more issues found)
 - User challenges: 3 ("are you sure?", "did you actually make fixes?", "assume everything is wrong")
 - Rounds required: 3+ to reach zero new issues
+- **Historical deferral failure:** Round 1-2 deferred 137 issues (67% deferral rate) - ALL should have been investigated and addressed
 
 ---
 

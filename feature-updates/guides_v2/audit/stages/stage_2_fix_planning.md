@@ -322,61 +322,97 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 
 ---
 
-## Manual Review Cases
+## Investigation and User Questions
 
-### When Manual Review Required
+**🚨 CRITICAL: DO NOT DEFER ISSUES - Investigate or Ask User**
 
-**Flag for manual review if:**
+**When you encounter complexity, you have TWO options:**
 
-1. **Context-Sensitive:**
-   - Pattern appears in both error and intentional contexts
-   - Requires reading surrounding lines to determine
-   - Example: "5a" in historical example vs current workflow
+**OPTION 1: INVESTIGATE (Preferred)**
+1. Read affected files thoroughly
+2. Analyze context and determine correct fix
+3. Apply fix with confidence
+4. Document decision rationale
 
-2. **Complex Replacement:**
-   - No simple OLD→NEW mapping
-   - Requires understanding file purpose
-   - Example: Restructuring oversized files
+**OPTION 2: ASK USER (When Uncertain)**
+1. Perform initial investigation first
+2. Document what you found
+3. Present options to user with analysis
+4. Include your recommendation
+5. Wait for user decision
+6. Apply chosen fix immediately
 
-3. **Adds New Content:**
-   - Missing sections need to be written
-   - Cannot use sed (no OLD pattern to replace)
-   - Example: Adding Prerequisites section
-
-4. **User Decision Needed:**
-   - Multiple valid fix options
-   - Trade-offs to consider
-   - Example: Split large file or use router pattern?
-
-### Manual Review Documentation
-
-**For each manual case, document:**
-
+**Decision Framework:**
+```text
+Issue requires investigation
+  ↓
+Read files, analyze context (15-30 min)
+  ├─ NOW confident in correct fix?
+  │   └─ YES → Apply fix immediately
+  └─ Still uncertain?
+      └─ ASK USER with analysis + options
 ```
-## Manual Review #X
+
+**Examples of Investigation (DO THIS):**
+
+**Context-Sensitive:**
+- Pattern appears in both error and intentional contexts
+- **ACTION:** Read surrounding lines, determine which instances are errors
+- **EXAMPLE:** "5a" in historical example (keep) vs current workflow (fix)
+
+**Complex Replacement:**
+- No simple OLD→NEW mapping
+- **ACTION:** Read file, understand purpose, determine correct structure
+- **EXAMPLE:** Restructuring oversized file requires understanding content
+
+**Adds New Content:**
+- Missing sections need to be written
+- **ACTION:** Read file, determine if section needed, write appropriate content
+- **EXAMPLE:** Adding Prerequisites section - read file to understand dependencies
+
+**User Question Template (When Investigation Insufficient):**
+
+```markdown
+## Issue #X - User Decision Needed
 
 **Issue:** [Description]
-**File:** path/to/file.md
-**Line:** 123
-**Reason for Manual:** [Context-sensitive / Complex / New content / User decision]
+**Files Affected:** [List]
+**Investigation Summary:** [What I found after reading files]
 
-**Options:**
-1. [Option 1 description]
-   - Pros: [benefits]
-   - Cons: [drawbacks]
+**Context:**
+[Explanation of issue after investigation]
 
-2. [Option 2 description]
-   - Pros: [benefits]
-   - Cons: [drawbacks]
+**Options Identified:**
 
-**Recommendation:** [Your recommendation with rationale]
+**Option 1:** [Description]
+- Pros: [benefits]
+- Cons: [drawbacks]
+- Effort: [time estimate]
 
-**Action Required:**
-- [ ] Analyze context
-- [ ] Choose option
-- [ ] Apply fix
-- [ ] Verify
-```markdown
+**Option 2:** [Description]
+- Pros: [benefits]
+- Cons: [drawbacks]
+- Effort: [time estimate]
+
+**My Recommendation:** [Which option and why]
+
+**Question for User:**
+[Specific question about how to proceed]
+```
+
+**❌ NEVER DO THIS:**
+```text
+"Issue X requires file reading → Defer to Round 3"
+"Issue Y requires 12 hours → Defer to post-audit"
+"Issue Z is complex → Mark for later"
+```
+
+**✅ ALWAYS DO THIS:**
+```text
+"Issue X requires file reading → [Reads files now] → Fixes immediately OR asks user"
+"Issue Y requires 12 hours → Investigates scope → Asks user about priority/approach"
+"Issue Z is complex → Investigates thoroughly → Presents options to user"
+```
 
 ---
 
@@ -536,12 +572,20 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 
 ### Critical Rules
 
+**🚨 NO DEFERRAL POLICY:**
+**❌ DO NOT defer ANY issues** - Investigate and fix ALL issues immediately
+**❌ DO NOT defer to "Round 3" or "post-audit"** - Complete work in current round
+**❌ DO NOT say "requires file reading"** - READ the files and fix
+**❌ DO NOT say "requires X hours"** - DO the work or ask user about approach
+
+**FILE SIZE REDUCTION:**
 **❌ DO NOT skip file size planning** - It's mandatory
-**❌ DO NOT defer file size issues** - Plan them like content issues
+**❌ DO NOT defer file size issues** - Address them immediately
 **❌ DO NOT treat as "nice to have"** - Treat as first-class fixes
 **✅ DO create dedicated fix groups** - Same rigor as content accuracy
 **✅ DO consult file size reduction guide** - Use systematic approach
-**✅ DO include in fix plan document** - Full planning, not afterthought
+**✅ DO read files to understand structure** - Deep investigation required
+**✅ DO ask user if uncertain about split approach** - Present options with analysis
 
 ---
 
@@ -553,10 +597,12 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 - [ ] All content issues from discovery report reviewed
 - [ ] Content issues grouped by pattern similarity
 - [ ] Groups prioritized (P0 → P1 → P2 → P3)
-- [ ] Sed commands created for automated fixes
+- [ ] Sed commands created for automated fixes where applicable
 - [ ] Word boundaries used where appropriate (\b)
 - [ ] Verification commands written for each group
-- [ ] Manual review cases identified and documented
+- [ ] Complex issues investigated (files read, context analyzed)
+- [ ] User questions prepared for genuinely uncertain cases (with analysis + options)
+- [ ] **NO ISSUES DEFERRED** - All issues have fix plan OR user question prepared
 
 **File Size Reduction Planning (if applicable):**
 - [ ] All large files from discovery report identified
@@ -573,10 +619,12 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
   - [ ] Group number and description (content + file size groups)
   - [ ] Old pattern → New pattern (or reduction approach for file size)
   - [ ] Count and file list
-  - [ ] Sed command (content) or reduction steps (file size)
+  - [ ] Sed command (content) or reduction steps (file size) or investigation results
   - [ ] Verification command
   - [ ] Estimated duration
-- [ ] Ready to proceed to Stage 3 (Apply Fixes)
+  - [ ] User questions prepared (if needed) with analysis + recommendations
+- [ ] **ZERO DEFERRALS** - Every issue has actionable fix plan
+- [ ] Ready to proceed to Stage 3 (Apply Fixes) OR user decision (if questions prepared)
 
 **If ANY criterion incomplete:** Continue planning until all complete.
 
