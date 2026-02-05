@@ -9,6 +9,25 @@
 
 ---
 
+## Prerequisites
+
+**Before starting Iteration 7:**
+
+- [ ] Previous iterations complete
+- [ ] implementation_plan.md exists
+- [ ] Working directory: Feature folder
+
+**If any prerequisite fails:** Complete missing iterations first
+
+---
+
+## Overview
+
+**What is this iteration?**
+Iteration 7: Integration Planning
+
+---
+
 ## Overview
 
 Iterations 5-6 focus on three critical verification steps:
@@ -1202,6 +1221,19 @@ Next Action: Wait for user responses, then update implementation_plan.md based o
 - If confidence >= MEDIUM: Read `stages/s5/s5_p2_planning_round2.md`
 - If confidence < MEDIUM: Wait for user to answer questions.md
 
+
+## Exit Criteria
+
+**Iteration 7 complete when ALL of these are true:**
+
+- [ ] All tasks in this iteration complete
+- [ ] implementation_plan.md updated
+- [ ] Agent Status updated
+- [ ] Ready for next iteration
+
+**If any criterion unchecked:** Complete missing items first
+
+---
 ---
 
 **END OF ITERATION 7 + ROUND 1 CHECKPOINT**

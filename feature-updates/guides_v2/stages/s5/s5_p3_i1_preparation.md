@@ -9,6 +9,25 @@
 
 ---
 
+## Prerequisites
+
+**Before starting Iteration 14-19:**
+
+- [ ] Previous iterations complete
+- [ ] implementation_plan.md exists
+- [ ] Working directory: Feature folder
+
+**If any prerequisite fails:** Complete missing iterations first
+
+---
+
+## Overview
+
+**What is this iteration?**
+Iteration 14-19: Preparation Iterations
+
+---
+
 ## Overview
 
 Iterations 17-18 prepare for safe, incremental implementation:
@@ -1108,6 +1127,19 @@ Next Action: Read stages/s5/s5_p3_i3_gates_part2.md
 
 **Part 1 COMPLETE - Next:** Read `stages/s5/s5_p3_i3_gates_part2.md` for Part 2
 
+
+## Exit Criteria
+
+**Iteration 14-19 complete when ALL of these are true:**
+
+- [ ] All tasks in this iteration complete
+- [ ] implementation_plan.md updated
+- [ ] Agent Status updated
+- [ ] Ready for next iteration
+
+**If any criterion unchecked:** Complete missing items first
+
+---
 ---
 
 **END OF ITERATIONS 21-22 GUIDE**

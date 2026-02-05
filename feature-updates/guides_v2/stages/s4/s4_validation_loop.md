@@ -10,6 +10,15 @@
 
 ---
 
+## Overview
+
+**What is this iteration?**
+Iteration 4: Validation Loop for test strategy validation.
+
+**Time Estimate:** 15-20 minutes
+
+---
+
 ## Quick Start
 
 **What is this iteration?**

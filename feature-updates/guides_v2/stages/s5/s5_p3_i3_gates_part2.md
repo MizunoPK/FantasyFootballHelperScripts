@@ -22,6 +22,13 @@
 
 ---
 
+## Overview
+
+**What is this iteration?**
+Iterations 21-22: Gate 24 (GO/NO-GO) and Gate 25 (Spec Validation) - Final gates before implementation
+
+---
+
 ## Quick Start
 
 **What is this guide?**
@@ -369,6 +376,19 @@ If ANY gate fails: Fix issues, re-run
 - `prompts_reference_v2.md` - Phase transition prompts
 - `mandatory_gates.md` - Gate requirements
 
+
+## Exit Criteria
+
+**Iterations 21-22 complete when ALL of these are true:**
+
+- [ ] Gate 24 (GO/NO-GO) passed
+- [ ] Gate 25 (Spec Validation) passed  
+- [ ] Agent Status updated
+- [ ] Ready to proceed to S6 (Implementation)
+
+**If any criterion unchecked:** Complete missing items before proceeding
+
+---
 ---
 
 **END OF PART 2b GUIDE**

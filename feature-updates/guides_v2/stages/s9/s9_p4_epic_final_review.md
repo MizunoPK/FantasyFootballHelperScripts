@@ -692,6 +692,18 @@ Mark S9.P3 complete and prepare for S10:
 
 **Remember:** S9.P3 is the LAST CHANCE to catch epic-level issues before shipping. Thoroughness here prevents post-completion rework and ensures epic delivers on user's vision.
 
+
+## Exit Criteria
+
+**S9.P4 (Epic Final Review) is complete when ALL of these are true:**
+
+- [ ] All review steps complete
+- [ ] Epic documentation verified
+- [ ] Ready to proceed to S10 (Epic Cleanup)
+
+**If any criterion unchecked:** Complete missing items before proceeding
+
+---
 ---
 
 **END OF STAGE 6c GUIDE**

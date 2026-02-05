@@ -9,6 +9,25 @@
 
 ---
 
+## Prerequisites
+
+**Before starting Iteration 4-6:**
+
+- [ ] Previous iterations complete
+- [ ] implementation_plan.md exists
+- [ ] Working directory: Feature folder
+
+**If any prerequisite fails:** Complete missing iterations first
+
+---
+
+## Overview
+
+**What is this iteration?**
+Iteration 4-6: Algorithm Design
+
+---
+
 ## Overview
 
 Iteration 4 creates the Algorithm Traceability Matrix - a comprehensive mapping of every algorithm in spec.md to its implementation location. This is followed by **Gate 4a**, a mandatory audit ensuring every task has specific acceptance criteria.
@@ -292,6 +311,19 @@ Next Action: Read stages/s5/s5_p1_i2_algorithms.md
 
 **Next:** Read `stages/s5/s5_p1_i2_algorithms.md` for End-to-End Data Flow and Downstream Consumption
 
+
+## Exit Criteria
+
+**Iteration 4-6 complete when ALL of these are true:**
+
+- [ ] All tasks in this iteration complete
+- [ ] implementation_plan.md updated
+- [ ] Agent Status updated
+- [ ] Ready for next iteration
+
+**If any criterion unchecked:** Complete missing items first
+
+---
 ---
 
 **END OF ITERATION 4 + GATE 4a**

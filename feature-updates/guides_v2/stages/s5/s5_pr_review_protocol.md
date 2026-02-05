@@ -10,6 +10,25 @@
 
 ---
 
+## Prerequisites
+
+**Before starting Iteration Review:**
+
+- [ ] Previous iterations complete
+- [ ] implementation_plan.md exists
+- [ ] Working directory: Feature folder
+
+**If any prerequisite fails:** Complete missing iterations first
+
+---
+
+## Overview
+
+**What is this iteration?**
+Iteration Review: PR Review
+
+---
+
 ## Overview: Hybrid Approach
 
 **Round 1: Specialized Reviews** (4 different fresh agents)
@@ -337,6 +356,19 @@ Perform a comprehensive PR review of the following code changes:
 - **Final Status:** PASSED / ESCALATED TO USER
 ```
 
+
+## Exit Criteria
+
+**Iteration Review complete when ALL of these are true:**
+
+- [ ] All tasks in this iteration complete
+- [ ] implementation_plan.md updated
+- [ ] Agent Status updated
+- [ ] Ready for next iteration
+
+**If any criterion unchecked:** Complete missing items first
+
+---
 ---
 
 ## Notes

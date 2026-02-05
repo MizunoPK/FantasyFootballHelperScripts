@@ -9,6 +9,25 @@
 
 ---
 
+## Prerequisites
+
+**Before starting Iteration 1-3:**
+
+- [ ] Previous iterations complete
+- [ ] implementation_plan.md exists
+- [ ] Working directory: Feature folder
+
+**If any prerequisite fails:** Complete missing iterations first
+
+---
+
+## Overview
+
+**What is this iteration?**
+Iteration 1-3: Requirements Validation
+
+---
+
 ## Overview
 
 Iterations 1-3 focus on translating spec.md into concrete implementation tasks, verifying component dependencies, and validating data structures.
@@ -312,6 +331,19 @@ Next Action: Read stages/s5/s5_p1_i2_algorithms.md
 
 **Next:** Read `stages/s5/s5_p1_i2_algorithms.md` for Algorithm Traceability Matrix
 
+
+## Exit Criteria
+
+**Iteration 1-3 complete when ALL of these are true:**
+
+- [ ] All tasks in this iteration complete
+- [ ] implementation_plan.md updated
+- [ ] Agent Status updated
+- [ ] Ready for next iteration
+
+**If any criterion unchecked:** Complete missing items first
+
+---
 ---
 
 **END OF ITERATIONS 1-3**
