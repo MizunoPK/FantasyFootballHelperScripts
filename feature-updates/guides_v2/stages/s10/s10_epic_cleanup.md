@@ -262,9 +262,9 @@ STAGE 7: Epic Cleanup
 
 | Reference | Description | Location |
 |-----------|-------------|----------|
-| **Commit Message Examples** | Format, examples, anti-patterns | [STAGE_7_reference/commit_message_examples.md](STAGE_7_reference/commit_message_examples.md) |
-| **Epic Completion Template** | EPIC_README completion format | [STAGE_7_reference/epic_completion_template.md](STAGE_7_reference/epic_completion_template.md) |
-| **Lessons Learned Guide** | How to extract and apply lessons | [STAGE_7_reference/lessons_learned_examples.md](STAGE_7_reference/lessons_learned_examples.md) |
+| **Commit Message Examples** | Format, examples, anti-patterns | [reference/stage_10/commit_message_examples.md](reference/stage_10/commit_message_examples.md) |
+| **Epic Completion Template** | EPIC_README completion format | [reference/stage_10/epic_completion_template.md](reference/stage_10/epic_completion_template.md) |
+| **Lessons Learned Guide** | How to extract and apply lessons | [reference/stage_10/lessons_learned_examples.md](reference/stage_10/lessons_learned_examples.md) |
 
 **Key Sections:**
 
@@ -763,7 +763,7 @@ git status
 
 Update the EPIC_README.md in done/ folder with epic completion summary.
 
-**Reference:** See `STAGE_7_reference/epic_completion_template.md` for detailed template and instructions.
+**Reference:** See `reference/stage_10/epic_completion_template.md` for detailed template and instructions.
 
 **Template:**
 ```markdown
@@ -914,9 +914,9 @@ The epic is now complete!
 - Exceeding 10 epics in done/ folder
 
 **Reference Files:**
-- `STAGE_7_reference/commit_message_examples.md` - Commit message format and examples
-- `STAGE_7_reference/epic_completion_template.md` - EPIC_README.md completion template
-- `STAGE_7_reference/lessons_learned_examples.md` - Lesson extraction and application guide
+- `reference/stage_10/commit_message_examples.md` - Commit message format and examples
+- `reference/stage_10/epic_completion_template.md` - EPIC_README.md completion template
+- `reference/stage_10/lessons_learned_examples.md` - Lesson extraction and application guide
 - `STAGE_7_ORIGINAL_BACKUP.md` - Original guide with all inline examples
 
 ---
