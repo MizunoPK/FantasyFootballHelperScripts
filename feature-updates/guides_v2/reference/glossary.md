@@ -6,6 +6,16 @@
 
 ---
 
+## Table of Contents
+
+1. [How to Use This Glossary](#how-to-use-this-glossary)
+2. [Hierarchical Notation System](#hierarchical-notation-system)
+3. [A](#a)
+4. [P](#p)
+5. [W](#w)
+
+---
+
 ## How to Use This Glossary
 
 Terms are organized alphabetically. Terms with multiple context-specific meanings show all contexts with clear labels.

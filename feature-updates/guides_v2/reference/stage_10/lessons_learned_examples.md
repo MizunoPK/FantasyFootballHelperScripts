@@ -6,6 +6,19 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Example 1: epic_lessons_learned.md Structure](#example-1-epic_lessons_learnedmd-structure)
+3. [Example 2: feature lessons_learned.md Structure](#example-2-feature-lessons_learnedmd-structure)
+4. [Example 3: bugfix lessons_learned.md Structure](#example-3-bugfix-lessons_learnedmd-structure)
+5. [How to Extract Guide Improvements from Lessons](#how-to-extract-guide-improvements-from-lessons)
+6. [Verification: All Lessons Applied](#verification-all-lessons-applied)
+7. [Common Mistakes](#common-mistakes)
+8. [Summary](#summary)
+
+---
+
 ## Overview
 
 S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned files and creating user-approved guide update proposals. This reference provides:
