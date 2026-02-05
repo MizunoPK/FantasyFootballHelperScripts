@@ -19,7 +19,7 @@
 ```bash
 cd feature-updates/guides_v2/audit
 bash scripts/pre_audit_checks.sh
-```
+```text
 
 **STEP 3:** Start Round 1 Discovery
 - Read `stages/stage_1_discovery.md`
@@ -41,7 +41,7 @@ bash scripts/pre_audit_checks.sh
 
 ## Audit Process Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │         AUDIT LOOP (Repeat until ZERO new issues found)         │
 │          MINIMUM 3 ROUNDS BASELINE (typically 3-5 rounds)        │
@@ -62,7 +62,7 @@ Stage 5: Loop Decision (15-30 min)
   ↓
 ├─> EXIT (if all criteria met + user approves)
 └─> LOOP BACK to Round 2 Discovery (with fresh eyes, new patterns)
-```
+```markdown
 
 ---
 
@@ -177,7 +177,7 @@ bash scripts/pre_audit_checks.sh
 # Start Round 1 focusing on high-risk dimensions
 # Read stages/stage_1_discovery.md
 # Then read d1, d2, d6, d8 dimension guides
-```
+```markdown
 
 **Estimated Duration:** 3-4 hours (3-4 rounds)
 
@@ -202,7 +202,7 @@ bash scripts/pre_audit_checks.sh
 # Start Round 1 with comprehensive search
 # Focus on old stage number patterns
 # Read all 5 high-risk dimension guides
-```
+```markdown
 
 **Estimated Duration:** 4-6 hours (3-4 rounds minimum)
 
@@ -226,7 +226,7 @@ bash scripts/pre_audit_checks.sh
 # Generate pattern variations of old notation
 # Read dimensions/d2_terminology_consistency.md for pattern strategies
 # Manual review for context-sensitive cases
-```
+```markdown
 
 **Estimated Duration:** 3-5 hours (3-4 rounds)
 
@@ -250,7 +250,7 @@ grep -rn "stages/s5" stages/s5/*.md | grep "\.md"
 
 # Step 3: If many broken links, run full D1 audit
 # Read dimensions/d1_cross_reference_accuracy.md
-```
+```markdown
 
 ---
 

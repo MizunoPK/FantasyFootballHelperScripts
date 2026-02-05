@@ -92,7 +92,7 @@
 ### Type 0: Root-Level Workflow Documentation (CRITICAL - Often Missed)
 
 **Files to Always Check:**
-```
+```text
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
 C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md (Stage Workflows section)
@@ -130,7 +130,7 @@ grep -n "Next:" CLAUDE.md
 
 # Find prerequisite mentions
 grep -in "prerequisite\|required\|depends on" CLAUDE.md
-```
+```markdown
 
 **Automated:** ❌ No (requires semantic validation)
 
@@ -149,7 +149,7 @@ Each stage guide must list correct prerequisites from previous stages.
 - [ ] File X exists (from Previous Stage output)
 - [ ] User approval at Gate N (if applicable)
 - [ ] All tests passing (if post-implementation)
-```
+```text
 
 **Search Commands:**
 ```bash
@@ -161,7 +161,7 @@ for stage in stages/s*/; do
   echo "=== $(basename $stage) ==="
   grep -A 10 "^## Prerequisites" $stage/*.md | head -15
 done
-```
+```markdown
 
 **Validation Checklist:**
 
@@ -218,7 +218,7 @@ Proceed to [Stage Name] (`path/to/guide.md`)
 
 ## See Also
 - Next: `stages/sN/sN_name.md`
-```
+```text
 
 **Search Commands:**
 ```bash
@@ -233,7 +233,7 @@ for file in stages/**/*.md; do
   echo "=== $file ==="
   grep -A 2 "^## Next" "$file"
 done
-```
+```markdown
 
 **Validation Checklist:**
 
@@ -261,7 +261,7 @@ done
 **If all features complete:**
 - Proceed to S9: Epic-Level Final QC
 - Read `stages/s9/s9_epic_final_qc.md`
-```
+```text
 
 **Red Flags:**
 - Next stage references non-existent stage (S11, S0)
@@ -287,7 +287,7 @@ Stage A's documented outputs must match Stage B's documented prerequisites.
 
 - `spec.md` - Requirements specification
 - `checklist.md` - Questions for user
-```
+```text
 
 **Stage B Guide:**
 ```markdown
@@ -296,7 +296,7 @@ Stage A's documented outputs must match Stage B's documented prerequisites.
 - [ ] Completed Stage A
 - [ ] `spec.md` exists
 - [ ] `checklist.md` resolved (all questions answered)
-```
+```text
 
 **Search Commands:**
 ```bash
@@ -313,7 +313,7 @@ for stage in stages/s*/; do
   echo "=== NEXT STAGE PREREQUISITES ==="
   # Manually check next stage
 done
-```
+```markdown
 
 **Validation Matrix:**
 
@@ -347,22 +347,22 @@ done
 Phases within a stage must have correct ordering and dependencies.
 
 **Example: S5 (Implementation Planning) has 3 phases:**
-```
+```text
 S5.P1: Planning Round 1 (I1-I7)
   ↓ Must complete before
 S5.P2: Planning Round 2 (I8-I13)
   ↓ Must complete before
 S5.P3: Planning Round 3 (I14-I22)
-```
+```text
 
 **Example: S7 (Implementation Testing) has 3 phases:**
-```
+```text
 S7.P1: Smoke Testing (MANDATORY GATE)
   ↓ Must pass before
 S7.P2: QC Rounds (3 rounds)
   ↓ Must complete before
 S7.P3: Final Review
-```
+```text
 
 **Search Commands:**
 ```bash
@@ -374,7 +374,7 @@ for file in stages/s5/*.md; do
   echo "=== $file ==="
   grep -n "^## " "$file" | grep -E "S5\.P[0-9]"
 done
-```
+```markdown
 
 **Validation Checklist:**
 
@@ -444,7 +444,7 @@ grep -rn "^### Gate\|^## Gate" stages/
 
 # Check for gates in wrong locations
 grep -rn "Gate 5" stages/s2/ stages/s3/ stages/s4/  # Should only be in S5
-```
+```markdown
 
 **Validation Checklist:**
 
@@ -572,7 +572,7 @@ for file in stages/**/*.md; do
     fi
   done
 done
-```
+```text
 
 **CHECK 8: Gate Placement Validation** *(planned, not yet implemented)*
 ```bash
@@ -595,7 +595,7 @@ for gate in "${!gate_locations[@]}"; do
     fi
   done
 done
-```
+```text
 
 **Automation Coverage: ~40%**
 - ✅ Stage number sequence validation
@@ -624,7 +624,7 @@ grep -E "^\| \*\*[0-9]" feature-updates/guides_v2/README.md | head -10
 grep -E "^\*\*S[0-9]" CLAUDE.md
 
 # Compare - should match S1-S10
-```
+```text
 
 **Step 2: Validate Each Stage Prerequisites (15-20 min)**
 
@@ -639,7 +639,7 @@ grep -A 10 "^## Prerequisites" "$stage_file"
 # 2. Do referenced files match previous stage outputs?
 # 3. Are gate numbers correct?
 # 4. Are file paths correct?
-```
+```markdown
 
 **Validation Matrix:**
 
@@ -677,7 +677,7 @@ done
 # S8 → S5 (repeat) OR S9 (all done)
 # S9 → S10
 # S10 → Done
-```
+```text
 
 **Step 4: Validate Output-to-Input Mapping (10-15 min)**
 
@@ -697,7 +697,7 @@ done
 
 # Manually review for mismatches
 cat /tmp/output_input_map.txt
-```
+```text
 
 **Step 5: Validate Gate Placement (5 min)**
 
@@ -714,7 +714,7 @@ grep -rn "Gate 5" stages/s5/
 
 echo "Gates 4a, 7a, 23a, 24, 25 should be in S5:"
 grep -rn "Gate 4a\|Gate 7a\|Gate 23a\|Gate 24\|Gate 25" stages/s5/
-```
+```markdown
 
 ---
 
@@ -742,7 +742,7 @@ grep -rn "Note:\|Exception:\|Variation:" stages/
 
 # Look for conditional logic
 grep -rn "If.*feature\|When.*bug" stages/
-```
+```markdown
 
 **Validation:** If variation documented with clear rationale → VALID
 
@@ -758,7 +758,7 @@ grep -rn "If.*feature\|When.*bug" stages/
 
 In the old workflow, S5 was split into S5a/S5b/S5c phases. This caused confusion,
 so we adopted S5.P1/P2/P3 notation instead.
-```
+```text
 
 **Detection:**
 ```bash
@@ -766,7 +766,7 @@ so we adopted S5.P1/P2/P3 notation instead.
 grep -B 3 -A 3 "S5a\|S5b" stages/
 
 # If found in "Historical Evidence" section → VALID
-```
+```markdown
 
 **Validation:** Old notation in historical context → VALID (not an error)
 
@@ -781,7 +781,7 @@ grep -B 3 -A 3 "S5a\|S5b" stages/
 # S5: Implementation Planning
 
 S5.P1 → S5.P2 → S5.P3 → S6
-```
+```markdown
 
 This is simplified; actual workflow has 22 iterations. Router shows phase-level only.
 
@@ -799,7 +799,7 @@ This is simplified; actual workflow has 22 iterations. Router shows phase-level 
 
 Primary agent: S2.P1 for Feature 01
 Secondary agents: S2.P1 for Features 02-04 (simultaneous)
-```
+```text
 
 **Detection:**
 ```bash
@@ -807,7 +807,7 @@ Secondary agents: S2.P1 for Features 02-04 (simultaneous)
 if [[ "$file" =~ parallel_work/ ]]; then
   # Non-linear workflow expected
 fi
-```
+```markdown
 
 **Validation:** Non-linear workflow in parallel_work/ → VALID
 
@@ -826,7 +826,7 @@ fi
 ## Next Stage
 
 Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md`)
-```
+```text
 
 **Problem:**
 - S4 (Feature Testing Strategy) added between S3 and S5
@@ -839,7 +839,7 @@ Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md
 
 -Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md`)
 +Proceed to S4: Feature Testing Strategy (`stages/s4/s4_feature_testing_strategy.md`)
-```
+```text
 
 **Root Cause:** Workflow evolution without systematic update cascade
 
@@ -859,7 +859,7 @@ Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md
 ## Outputs
 
 - `test_strategy.md` - Complete testing strategy for feature
-```
+```text
 
 **S5 Guide (Prerequisites):**
 ```markdown
@@ -867,7 +867,7 @@ Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md
 
 - [ ] Completed S4
 - [ ] `test_plan.md` exists
-```
+```text
 
 **Problem:**
 - S4 creates "test_strategy.md"
@@ -881,7 +881,7 @@ Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md
 - [ ] Completed S4
 -- [ ] `test_plan.md` exists
 +- [ ] `test_strategy.md` exists (merged into implementation_plan.md in S5.P1.I1)
-```
+```text
 
 **Root Cause:** Filename changed in S4 without updating S5 prerequisites
 
@@ -899,14 +899,14 @@ Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md
 ```markdown
 **S3: Epic Planning**
 - Gate 4: User approves epic plan
-```
+```text
 
 **S3 Guide:**
 ```markdown
 ## Gate 4.5: Epic Plan Approval
 
 User must approve epic plan before proceeding to S4.
-```
+```text
 
 **Problem:**
 - Gate renamed from "Gate 4" to "Gate 4.5" for clarity
@@ -919,7 +919,7 @@ User must approve epic plan before proceeding to S4.
 **S3: Epic Planning**
 -- Gate 4: User approves epic plan
 +- Gate 4.5: User approves epic plan
-```
+```text
 
 **Root Cause:** Gate renumbering without cross-reference updates
 
@@ -939,7 +939,7 @@ User must approve epic plan before proceeding to S4.
 ## Next Stage
 
 Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
-```
+```text
 
 **Problem:**
 - S8 is END of per-feature loop
@@ -960,7 +960,7 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 **If all features complete:**
 - Proceed to S9: Epic-Level Final QC
 - Read `stages/s9/s9_epic_final_qc.md`
-```
+```text
 
 **Root Cause:** Workflow has conditional branching, but documentation showed only linear path
 
@@ -980,7 +980,7 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 
 - [ ] Completed S9
 - [ ] All features tested
-```
+```text
 
 **Problem:**
 - S9.P3 includes mandatory user testing

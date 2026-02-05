@@ -108,7 +108,7 @@ Round 3: Iterations 17-25 (includes Gates 23a, 24, 25) (10 iterations)
 # After (CORRECT):
 Round 2: Iterations 8-13 (6 iterations)
 Round 3: Iterations 14-22 (includes Gates 23a=I20, 25=I21, 24=I22) (9 iterations)
-```
+```markdown
 
 ### Example 2: Gate Iteration Numbers
 ```markdown
@@ -121,7 +121,7 @@ Round 3: Iterations 14-22 (includes Gates 23a=I20, 25=I21, 24=I22) (9 iterations
 - Iteration 20: Gate 23a (Pre-Implementation Spec Audit)
 - Iteration 22: Gate 24 (GO/NO-GO Decision)
 - Iteration 21: Gate 25 (Spec Validation Check)
-```
+```markdown
 
 ### Example 3: Round Counts in Prompts
 ```markdown
@@ -130,7 +130,7 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 8 iterat
 
 # After (CORRECT):
 I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterations in Round 1...
-```
+```markdown
 
 ---
 

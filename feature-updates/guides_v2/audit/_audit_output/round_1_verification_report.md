@@ -32,26 +32,26 @@
 ```bash
 grep -rn "28 iteration" --include="*.md" . | grep -v "S5_UPDATE_NOTES" | grep -v "_audit_output"
 # Result: 0 matches (excluding intentional examples marked "outdated")
-```
+```text
 
 **Pattern 2: /28 fractions**
 ```bash
 grep -rn "/28\b" --include="*.md" . | grep -v "_audit_output"
 # Result: 0 matches
 # Fixed: s5_p2_planning_round2.md:215 "16/28" → "13/22"
-```
+```text
 
 **Pattern 3: 9 phase**
 ```bash
 grep -rn "9 phase" --include="*.md" -i . | grep -v "_audit_output" | grep -v "was 9 phases"
 # Result: 0 matches (only intentional historical reference remains)
-```
+```text
 
 **Pattern 4: 15 iteration**
 ```bash
 grep -rn "15 iteration" --include="*.md" . | grep -v "_audit_output"
 # Result: 4 matches (all in d8_claude_md_sync.md historical examples - INTENTIONAL)
-```
+```markdown
 
 ---
 

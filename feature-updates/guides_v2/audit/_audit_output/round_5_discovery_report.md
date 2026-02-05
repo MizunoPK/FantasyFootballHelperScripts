@@ -57,12 +57,12 @@
 **Current:**
 ```markdown
 **User says:** Agent detects Round 1 complete (8/8 iterations done, confidence >= MEDIUM)
-```
+```text
 
 **Should Be:**
 ```markdown
 **User says:** Agent detects Round 1 complete (7/7 iterations done, confidence >= MEDIUM)
-```
+```text
 
 **Change:**
 - "8/8 iterations done" → "7/7 iterations done"
@@ -87,13 +87,13 @@
 ```markdown
 **Prerequisites I'm verifying:**
 ✅ Round 1 complete (8/8 iterations)
-```
+```text
 
 **Should Be:**
 ```markdown
 **Prerequisites I'm verifying:**
 ✅ Round 1 complete (7/7 iterations)
-```
+```text
 
 **Change:**
 - "8/8 iterations" → "7/7 iterations"

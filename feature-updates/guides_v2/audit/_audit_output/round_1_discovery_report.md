@@ -39,7 +39,7 @@ All issues relate to outdated iteration counts after S5 renumbering (28 → 22 i
 **Pattern That Found It:**
 ```bash
 grep -rn "22 iteration" README.md
-```
+```text
 
 **Current State:**
 - Line 112: "22 verification iterations across 3 rounds"
@@ -73,15 +73,15 @@ S5 was renumbered: old I11-I28 → new I8-I22, removing I8-I10 (moved to S4). To
 **Pattern That Found It:**
 ```bash
 grep -rn "24.*iteration\|iteration.*24" README.md
-```
+```text
 
 **Context:**
-```
+```text
  532: 1. 24 verification iterations mandatory (NO SKIPPING)
  536: 5. Algorithm Traceability Matrix required (iterations 4, 11, 19)
  632: 4. Agent executes 24 verification iterations across 3 rounds
  721: 1. Session compacts during S5 (iteration 12/24)
-```
+```text
 
 **Current State:**
 References "24 verification iterations" alongside "22 iterations"
@@ -109,7 +109,7 @@ Conflicting counts confuse users. S5 has 22 total iterations (not 24, not 28).
 **Pattern That Found It:**
 ```bash
 grep -rn "22 iteration" EPIC_WORKFLOW_USAGE.md
-```
+```text
 
 **Current State:**
 - Line 88: "Iteration: Specific verification step within a round (e.g., 22 iterations in S5)"
@@ -140,7 +140,7 @@ S5 renumbering reduced total from 28 to 22.
 **Pattern That Found It:**
 ```bash
 grep -rn "22 iteration\|/28\|28/28" prompts/ --include="*.md"
-```
+```text
 
 **Current State (examples):**
 - s5_s8_prompts.md:133: "Round 2 complete (16/22 iterations done)"
@@ -181,7 +181,7 @@ Iteration counts and progress fractions don't match new 22-iteration structure.
 **Pattern That Found It:**
 ```bash
 grep -rn "22 iteration" reference/ --include="*.md"
-```
+```text
 
 **Current State (examples):**
 - common_mistakes.md:28: "ALL 22 iterations in S5 are MANDATORY"
@@ -212,7 +212,7 @@ S5 renumbering reduced iteration count.
 **Pattern That Found It:**
 ```bash
 grep -l "28" stages/s5/*.md
-```
+```text
 
 **Current State (s5_bugfix_workflow.md examples):**
 - Line 51: "Bug Fix is complete when... including all 22 iterations"
@@ -244,7 +244,7 @@ S5 renumbering reduced iteration count.
 **Pattern That Found It:**
 ```bash
 grep -rn "22 iteration" templates/ --include="*.md"
-```
+```text
 
 **Current State:**
 - epic_lessons_learned_template.md:147: "22 iterations experience: {Any issues with specific iterations}"
@@ -274,7 +274,7 @@ Templates propagate to new epics - errors multiply.
 **Pattern That Found It:**
 ```bash
 grep -rn "22 iteration" missed_requirement/ --include="*.md"
-```
+```text
 
 **Current State:**
 Line 137: "S5: TODO Creation (3 rounds, 22 iterations)"
@@ -300,7 +300,7 @@ S5 renumbering.
 **Pattern That Found It:**
 ```bash
 grep -rn "15 iteration\|22 iteration" audit/dimensions/d8_claude_md_sync.md
-```
+```text
 
 **Current State:**
 Examples showing "15 iterations" and "22 iterations" as historical examples of CLAUDE.md being out of sync.
@@ -327,7 +327,7 @@ Examples are now outdated - the "bad example" (22 iterations) was actually corre
 **Pattern That Found It:**
 ```bash
 grep -rn "9 phase" reference/stage_2/ --include="*.md" -i
-```
+```text
 
 **Current State:**
 - Line 5: "Total Time: 2-3 hours per feature (9 phases across 3 sub-stages)"
@@ -356,15 +356,15 @@ S2 was redesigned from 9-phase structure to 2-phase structure with 3 iterations 
 **Pattern That Found It:**
 ```bash
 grep -rn "9 phase" stages/s2/s2_feature_deep_dive.md -i
-```
+```text
 
 **Context:**
-```
+```text
 Line 99: "S2.P1 now has 3 iterations (was 9 phases across 3 files)"
 Line 418: "□ All 9 phases complete:"
 Line 498: "A: No. All 9 phases are mandatory. The split doesn't change workflow..."
 Line 532: "Workflow remains the same: 9 phases, 3 mandatory gates..."
-```
+```text
 
 **Current State:**
 File contains "9 phases" references in historical context and old checklist sections.

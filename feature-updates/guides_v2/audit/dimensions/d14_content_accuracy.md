@@ -66,7 +66,7 @@
 - **Template Propagation:** Wrong counts in templates = all new epics have wrong info
 
 **Example Failure (Real):**
-```
+```text
 Guide said: "Audit system has 16 dimensions"
 Reality: Only 2 dimensions fully implemented (D1, D2)
          6 dimensions partially implemented (automation only, no guides)
@@ -98,7 +98,7 @@ Result: User confused about audit completeness, agent claimed "full audit" prema
 ### Type 0: Root-Level File Freshness (CRITICAL - Often Missed)
 
 **Files to Always Check:**
-```
+```text
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
 feature-updates/guides_v2/prompts_reference_v2.md
@@ -122,7 +122,7 @@ done
 
 # Manual check: Are dates within last 1-2 months?
 # If NO → File likely stale, needs content review
-```
+```text
 
 **Red Flags:**
 - Last Updated > 2 months old = HIGH RISK of stale content
@@ -134,17 +134,17 @@ done
 # Check if major changes happened since Last Updated date
 git log --since="2025-12-30" --oneline stages/ reference/ | wc -l
 # If >50 commits → Content likely outdated
-```
+```markdown
 
 ### Type 1: File Count Claims
 
 **Common Claims:**
-```
+```text
 "19 templates"
 "10 stages"
 "16 dimensions"
 "22 iterations in S5"
-```
+```text
 
 **Search Commands:**
 ```bash
@@ -156,7 +156,7 @@ grep -rn "[0-9]\+ template\|[0-9]\+ stage\|[0-9]\+ dimension\|[0-9]\+ iteration"
 grep -rn "19 template" guides_v2/
 grep -rn "10 stage" guides_v2/
 grep -rn "16 dimension" guides_v2/
-```
+```text
 
 **Validation:**
 ```bash
@@ -164,17 +164,17 @@ grep -rn "16 dimension" guides_v2/
 find templates -name "*.md" -o -name "*.txt" | wc -l  # Should match claimed template count
 ls -d stages/s* | wc -l  # Should match claimed stage count
 ls audit/dimensions/d*.md | wc -l  # Should match claimed dimension count (if "fully implemented")
-```
+```markdown
 
 ### Type 2: Iteration/Phase Count Claims
 
 **Common Claims:**
-```
+```text
 "S2.P1 has 3 iterations"
 "S5 has 3 rounds"
 "S7 has 3 phases"
 "S5 Planning has 22 iterations total"
-```
+```text
 
 **Search Commands:**
 ```bash
@@ -182,7 +182,7 @@ ls audit/dimensions/d*.md | wc -l  # Should match claimed dimension count (if "f
 grep -rn "S[0-9]\.P[0-9] has [0-9]\+ iteration" guides_v2/
 grep -rn "S[0-9] has [0-9]\+ round\|phase" guides_v2/
 grep -rn "[0-9]\+ iterations total" guides_v2/
-```
+```text
 
 **Validation:**
 ```bash
@@ -194,23 +194,23 @@ ls stages/s7/s7_p*.md | wc -l  # Should match claimed phase count
 
 # Count rounds for S5
 ls stages/s5/s5_p*.md | grep -o "s5_p[0-9]" | sort -u | wc -l  # Should match round count
-```
+```markdown
 
 ### Type 3: Script/File Existence Claims
 
 **Common Claims:**
-```
+```text
 "Run pre_audit_checks.sh"
 "Read ARCHITECTURE.md"
 "Use templates/feature_spec_template.md"
-```
+```text
 
 **Search Commands:**
 ```bash
 # Find all script/file references
 grep -rn "Run [a-z_]*\.sh\|Read [A-Z_]*\.md\|Use templates/" \
   --include="*.md" guides_v2/
-```
+```text
 
 **Validation:**
 ```bash
@@ -218,17 +218,17 @@ grep -rn "Run [a-z_]*\.sh\|Read [A-Z_]*\.md\|Use templates/" \
 while read file; do
   [ ! -f "$file" ] && echo "CLAIM BROKEN: $file (referenced but doesn't exist)"
 done < referenced_files.txt
-```
+```markdown
 
 ### Type 4: Feature/Capability Claims
 
 **Common Claims:**
-```
+```text
 "Automated validation catches 90%"
 "Checks 6 of 16 dimensions"
 "Minimum 3 rounds required"
 "100% test pass rate enforced"
-```
+```text
 
 **Search Commands:**
 ```bash
@@ -239,7 +239,7 @@ grep -rn "automated.*[0-9]\+%\|catch.*[0-9]\+%\|Checks [0-9] of [0-9]" \
 # Find requirement claims
 grep -rn "minimum [0-9]\+\|required.*[0-9]\+\|enforced" \
   --include="*.md" guides_v2/ -i
-```
+```text
 
 **Validation:**
 - **Manual review** - Check if code actually enforces claim
@@ -255,11 +255,11 @@ grep -rn "minimum [0-9]\+\|required.*[0-9]\+\|enforced" \
 **Scenario:** Major refactoring completed, but "Last Updated" not changed
 
 **What Happens:**
-```
+```bash
 2025-12-30: Major S5 restructuring (split into 3 rounds)
 README.md still shows: "Last Updated: 2025-11-15"
 Result: Stale date signals content may be outdated
-```
+```text
 
 **Why It Happens:**
 - Agents focus on content changes, forget metadata
@@ -273,7 +273,7 @@ Result: Stale date signals content may be outdated
 **Before:**
 ```markdown
 The workflow provides 19 templates for epic development.
-```
+```text
 
 **Change:** Added 4 new templates
 
@@ -281,14 +281,14 @@ The workflow provides 19 templates for epic development.
 ```markdown
 The workflow provides 19 templates for epic development.
 # Actually 23 templates now
-```
+```text
 
 **Fix:**
 ```markdown
 The workflow provides 23 templates for epic development.
 # OR use dynamic reference:
 See `templates/` folder for complete template list.
-```
+```markdown
 
 ### Root Cause 3: Feature Removed, Claims Remain
 
@@ -299,7 +299,7 @@ See `templates/` folder for complete template list.
 Guide: "S5.I10 validates test coverage"
 Reality: S5 only has iterations I1-I7 now (I8-I10 merged into S4)
 Result: Agent looks for non-existent iteration
-```
+```markdown
 
 ### Root Cause 4: Optimistic Capability Claims
 
@@ -312,7 +312,7 @@ Reality: Only D1, D2 fully implemented (guides + automation)
          D8, D10, D11, D13, D14, D16 partially implemented (automation only)
          D3, D4, D5, D6, D7, D9, D12, D15 not implemented
 Result: Users expect comprehensive audit, get partial validation
-```
+```markdown
 
 ---
 
@@ -343,7 +343,7 @@ if [ "$CLAIMED_COUNT" -gt 0 ]; then
     echo "✅ Template count accurate: $ACTUAL_TEMPLATES"
   fi
 fi
-```
+```markdown
 
 ### Script 2: Validate Iteration Counts (SHOULD ADD to pre_audit_checks.sh)
 
@@ -372,7 +372,7 @@ if [ "$ACTUAL_S2P1_ITERATIONS" -ne 3 ] && [ "$CLAIMED_S2P1_ITERATIONS" -gt 0 ]; 
   echo "   Actual: $ACTUAL_S2P1_ITERATIONS"
   echo "   Claimed: 3"
 fi
-```
+```markdown
 
 ### Script 3: Check Last Updated Freshness (SHOULD ADD to pre_audit_checks.sh)
 
@@ -408,7 +408,7 @@ for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md audit/READM
     fi
   fi
 done
-```
+```markdown
 
 ---
 
@@ -440,7 +440,7 @@ for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md audit/READM
     echo ""
   fi
 done
-```
+```text
 
 **Red Flags:**
 - Last Updated > 60 days old = CRITICAL, immediate review needed
@@ -465,7 +465,7 @@ STEP 3: Compare claimed vs actual
 
 STEP 4: For mismatches, update all locations
 $ grep -rl "19 template" guides_v2/ | xargs sed -i 's/19 template/23 template/g'
-```
+```text
 
 **For capability claims:**
 
@@ -480,7 +480,7 @@ STEP 2: Verify each claim manually
 STEP 3: Update or add disclaimers
 - If claim accurate → ✅ PASS
 - If claim overstates → ❌ Add disclaimer or update claim
-```
+```markdown
 
 ---
 
@@ -491,20 +491,20 @@ STEP 3: Update or add disclaimers
 **1. Approximate Percentages:**
 ```markdown
 "~90% automated" or "approximately 90%"
-```
+```text
 **Verdict:** ✅ ACCEPTABLE (approximate, not exact)
 
 **2. Historical Counts:**
 ```markdown
 **Before refactoring:** 19 templates
 **After refactoring:** 23 templates
-```
+```text
 **Verdict:** ✅ ACCEPTABLE (clearly labeled as historical)
 
 **3. Range Claims:**
 ```markdown
 "Typically finds 10-20 issues per audit"
-```
+```markdown
 **Verdict:** ✅ ACCEPTABLE (range, not exact)
 
 ### Always Errors
@@ -512,19 +512,19 @@ STEP 3: Update or add disclaimers
 **1. Exact Count Wrong:**
 ```markdown
 "The workflow has 19 templates" (but actually has 23)
-```
+```text
 **Verdict:** ❌ ERROR (exact claim, must be accurate)
 
 **2. Stale Last Updated:**
 ```markdown
 Last Updated: 2025-11-15 (but major changes in Jan 2026)
-```
+```text
 **Verdict:** ❌ ERROR (should update metadata)
 
 **3. Feature Claim for Unimplemented Feature:**
 ```markdown
 "Audit validates 16 dimensions" (but only 2 fully implemented)
-```
+```markdown
 **Verdict:** ❌ ERROR (overstates capability)
 
 ---
@@ -539,7 +539,7 @@ File: feature-updates/guides_v2/README.md
 Last Updated: 2025-12-30
 Current Date: 2026-02-04
 Days Stale: 36 days
-```
+```bash
 
 **Analysis:**
 - README.md is main entry point (referenced in CLAUDE.md)
@@ -548,7 +548,7 @@ Days Stale: 36 days
   ```bash
   git log --since="2025-12-30" --oneline feature-updates/guides_v2/ | wc -l
   # Result: 127 commits
-  ```
+  ```text
 - **CRITICAL** - Many changes since last update
 
 **Impact:**
@@ -562,7 +562,7 @@ Days Stale: 36 days
 # Update outdated sections
 # Update Last Updated field
 sed -i 's/Last Updated:.*$/Last Updated: 2026-02-04/g' README.md
-```
+```markdown
 
 ### Example 2: Template Count Mismatch
 
@@ -572,7 +572,7 @@ File: stages/s1/s1_epic_planning.md
 Line: 234
 Content: "The workflow provides 19 templates"
 Actual Count: 23 templates
-```
+```text
 
 **Analysis:**
 - Hardcoded count in documentation
@@ -588,14 +588,14 @@ grep -rl "19 template" guides_v2/
 sed -i 's/19 template/23 template/g' stages/s1/s1_epic_planning.md
 sed -i 's/19 template/23 template/g' README.md
 sed -i 's/19 template/23 template/g' EPIC_WORKFLOW_USAGE.md
-```
+```text
 
 **Verification:**
 ```bash
 # Verify updated count matches reality
 find templates -name "*.md" -o -name "*.txt" | wc -l
 # Should return: 23
-```
+```markdown
 
 ### Example 3: Iteration Count Claim Outdated
 
@@ -605,7 +605,7 @@ File: stages/s5/s5_p1_planning_round1.md
 Line: 12
 Content: "Round 1 has 7 iterations (I1-I7)"
 Actual: Round 1 has 7 iterations, but guide splits them across 3 sub-files
-```
+```text
 
 **Analysis:**
 - Claim is technically correct (7 iterations)
@@ -619,7 +619,7 @@ Actual: Round 1 has 7 iterations, but guide splits them across 3 sub-files
 - s5_p1_i1_requirements.md (I1-I3)
 - s5_p1_i2_algorithms.md (I4-I6 + Gate 4a)
 - s5_p1_i3_integration.md (I7 + Gate 7a)"
-```
+```markdown
 
 ### Example 4: Capability Claim Overstated
 
@@ -631,7 +631,7 @@ Content: "The audit evaluates guides across **16 critical dimensions**"
 Reality: Only 2 dimensions fully implemented (D1, D2)
          6 dimensions partially implemented (automation only)
          8 dimensions not implemented
-```
+```text
 
 **Analysis:**
 - **CRITICAL** - Claim implies full 16-dimension coverage
@@ -645,7 +645,7 @@ Reality: Only 2 dimensions fully implemented (D1, D2)
 
 # OR update to reflect reality
 "The audit currently implements **2 of 16 planned dimensions** (D1: Cross-Reference Accuracy, D2: Terminology Consistency)"
-```
+```markdown
 
 ---
 

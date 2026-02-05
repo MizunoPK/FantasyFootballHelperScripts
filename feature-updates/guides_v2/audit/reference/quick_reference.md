@@ -54,7 +54,7 @@ grep -rn "\[.*\](.*\.md)" --include="*.md" | grep -o "(.*\.md)" | \
 
 # Find stage references (S1-S10)
 grep -rn "\bS[0-9][0-9]*\b" --include="*.md"
-```
+```markdown
 
 ---
 
@@ -73,7 +73,7 @@ grep -rn "s[0-9]\.p[0-9]" --include="*.md"         # s5.p1 (lowercase, should be
 
 # Current notation validation
 grep -rn "S[0-9]\.P[0-9]\.I[0-9]" --include="*.md" # S5.P1.I2 (correct format)
-```
+```markdown
 
 ---
 
@@ -87,7 +87,7 @@ grep -rn "[0-9]+ iterations\|[0-9]+ phases" --include="*.md"
 # Find list items for manual count verification
 grep -rn "^[0-9]\. " --include="*.md"              # Numbered lists
 grep -rn "^- " --include="*.md"                    # Bullet lists
-```
+```markdown
 
 ---
 
@@ -106,7 +106,7 @@ for file in $(find . -name "*.md"); do
   tokens=$((lines * 13))
   [ "$tokens" -gt 10000 ] && echo "$file: ~$tokens tokens (exceeds 10K limit)"
 done
-```
+```markdown
 
 ---
 
@@ -122,7 +122,7 @@ grep -oh "feature-updates/guides_v2/[^)\"' ]*\.md" CLAUDE.md | \
 
 # Find stage references in CLAUDE.md
 grep -n "S[0-9]" CLAUDE.md | grep -o "S[0-9][0-9]*\(\.P[0-9][0-9]*\)\?\(\.I[0-9][0-9]*\)\?"
-```
+```markdown
 
 ---
 
@@ -219,7 +219,7 @@ grep -rn "OLD_PATTERN" --include="*.md"
 
 grep -rn "NEW_PATTERN" --include="*.md"
 # Expected: N matches (same as N_fixed)
-```
+```markdown
 
 ---
 
@@ -229,7 +229,7 @@ grep -rn "NEW_PATTERN" --include="*.md"
 # If fixed "S5a" → "S5.P1", try variations
 grep -rn "S5 a\|S5-a\|S5_a" --include="*.md"  # Space, dash, underscore variations
 grep -rn "stage 5a\|Stage 5a" --include="*.md" # Lowercase variations
-```
+```markdown
 
 ---
 
@@ -241,7 +241,7 @@ ls stages/**/*.md | shuf -n 10  # 10 random files
 
 # Visual inspection
 sed -n '100,150p' path/to/file.md  # Read lines 100-150
-```
+```markdown
 
 ---
 
@@ -276,7 +276,7 @@ sed -i 's|S[0-9]a|S5.P1|g' *.md
 
 # Case-insensitive
 sed -i 's|pattern|replacement|gi' file.md
-```
+```markdown
 
 ---
 
@@ -288,7 +288,7 @@ sed 's|OLD|NEW|g' file.md | grep "NEW"
 
 # Count replacements
 sed -n 's|OLD|NEW|gp' file.md | wc -l
-```
+```markdown
 
 ---
 
@@ -308,7 +308,7 @@ for file in file1.md file2.md file3.md; do
   echo "=== $file ==="
   grep -n "NEW" "$file"
 done
-```
+```markdown
 
 ---
 
@@ -364,7 +364,7 @@ done
 ```bash
 wc -l file.md  # Count lines
 # If > 770 lines, consider splitting
-```
+```markdown
 
 ---
 
@@ -400,7 +400,7 @@ wc -l file.md  # Count lines
 
 ## Loop vs Exit Quick Decision
 
-```
+```text
 ┌─────────────────────────────────────┐
 │  Are ALL 8 exit criteria TRUE?     │
 │  (Minimum 3 rounds, N_new=0, etc.)  │

@@ -20,7 +20,7 @@ The audit folder is being created with a modular structure to replace the monoli
 
 ## Folder Structure
 
-```
+```text
 audit/
 ├── README.md                          ✅ CREATED (Router + navigation)
 ├── audit_overview.md                  ✅ CREATED (Philosophy + triggers)

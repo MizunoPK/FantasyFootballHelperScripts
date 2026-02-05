@@ -69,7 +69,7 @@
 - **Trust Erosion:** Inconsistencies between "official" instructions and actual guides
 
 **Example Failure (Hypothetical):**
-```
+```text
 CLAUDE.md: "S5: Implementation Planning (28 iterations, 3 rounds)" (outdated as of 2026-02-04)
 Reality: S5 has 22 iterations across 3 rounds (as of 2026-02-04, testing moved to S4)
 Result: Agent expects 28 iterations, looks for I23-I28 which don't exist
@@ -114,7 +114,7 @@ while read path; do
     echo "BROKEN: $path (referenced in CLAUDE.md)"
   fi
 done < /tmp/claude_paths.txt
-```
+```markdown
 
 **Automated:** ✅ Yes (file existence check)
 
@@ -136,7 +136,7 @@ done < /tmp/claude_paths.txt
 **S1: Epic Planning**
 - **Guide:** `stages/s1/s1_epic_planning.md`
 - **Next:** S2
-```
+```text
 
 **Manual Check Required:**
 1. Read CLAUDE.md Stage Workflows section
@@ -167,7 +167,7 @@ grep -n "Gate [0-9]" feature-updates/guides_v2/reference/mandatory_gates.md | \
   grep -o "Gate [0-9a-z.]*"
 
 # Look for discrepancies
-```
+```text
 
 **Manual Check:**
 - Compare gate descriptions between CLAUDE.md and mandatory_gates.md
@@ -190,7 +190,7 @@ grep -n "Gate [0-9]" feature-updates/guides_v2/reference/mandatory_gates.md | \
 CLAUDE.md: "S5: Implementation Planning (22 iterations, 3 rounds)"
           ↓ Should match ↓
 stages/s5/s5_implementation_planning.md: "22 iterations across 3 rounds"
-```
+```text
 
 **Manual Check Required:**
 1. Read CLAUDE.md workflow description for each stage
@@ -222,7 +222,7 @@ grep -n "S[0-9]\.P[0-9]" CLAUDE.md
 grep -n "S[0-9]\.P[0-9]" feature-updates/guides_v2/reference/glossary.md
 
 # Look for inconsistent usage
-```
+```text
 
 **Manual Check:**
 - Verify notation examples are correct (e.g., S5.P1.I2 actually exists)
@@ -251,7 +251,7 @@ for template in $(cat /tmp/template_refs.txt); do
     echo "MISSING: $template"
   fi
 done
-```
+```text
 
 **Manual Check:**
 - Read template descriptions in CLAUDE.md
@@ -353,7 +353,7 @@ if [ $broken_count -eq 0 ]; then
 else
   echo "❌ Found $broken_count broken paths"
 fi
-```
+```markdown
 
 **Coverage:** ~60% of D8 issues
 
@@ -384,7 +384,7 @@ for stage_ref in $(cat /tmp/claude_stages.txt); do
 done
 
 echo "✅ Stage reference check complete"
-```
+```markdown
 
 **Coverage:** ~20% of D8 issues
 
@@ -412,7 +412,7 @@ echo "  - Workflow descriptions match guide content"
 echo "  - Gate numbering matches mandatory_gates.md"
 echo "  - Duration estimates align with guides"
 echo "  - Key concepts aligned (Fresh Eyes, exit criteria, etc.)"
-```
+```markdown
 
 ---
 
@@ -519,7 +519,7 @@ echo "  - Key concepts aligned (Fresh Eyes, exit criteria, etc.)"
 # Run automated scripts
 bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh | \
   grep -A 20 "D8: CLAUDE.md"
-```
+```text
 
 **Step 2: Manual Checks (20-30 minutes)**
 - Work through checklist above systematically
@@ -542,7 +542,7 @@ bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh | \
 **Context Check:**
 ```markdown
 Example: "In KAI-6, we discovered S5 needed expansion..."
-```
+```text
 
 **This is OK if:**
 - Clearly labeled as historical example
@@ -573,14 +573,14 @@ Example: "In KAI-6, we discovered S5 needed expansion..."
 CLAUDE.md: "S5: Implementation Planning (22 iterations)"
 Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
         Round 1 (7 iterations), Round 2 (6 iterations), Round 3 (9 iterations))"
-```
+```text
 CLAUDE.md simplified but accurate ✅
 
 **Example - Error:**
 ```markdown
 CLAUDE.md: "S5: Implementation Planning (15 iterations)"
 Guide: "S5: Implementation Planning (22 iterations)"
-```
+```markdown
 CLAUDE.md contradicts guide ❌
 
 ---
@@ -590,7 +590,7 @@ CLAUDE.md contradicts guide ❌
 **CLAUDE.md may mention workflow history:**
 ```markdown
 "The workflow evolved from 7 stages to 10 stages in version 2..."
-```
+```text
 
 **This is OK** - provides context for users
 
@@ -609,7 +609,7 @@ CLAUDE.md contradicts guide ❌
 ```markdown
 # CLAUDE.md (line 123)
 **S5 Guide:** `stages/s5/round1/s5_p1_round1.md`
-```
+```text
 
 **Problem:** File moved during restructure
 **Actual location:** `stages/s5/s5_p1_planning_round1.md`
@@ -617,7 +617,7 @@ CLAUDE.md contradicts guide ❌
 **Fix:**
 ```markdown
 **S5 Guide:** `stages/s5/s5_p1_planning_round1.md`
-```
+```markdown
 
 **How Found:** Automated path validation script
 
@@ -630,7 +630,7 @@ CLAUDE.md contradicts guide ❌
 # CLAUDE.md Stage Workflows
 **S5: Implementation Planning**
 - **Actions:** 15 verification iterations
-```
+```text
 
 **Problem:** S5 changed from 28 to 22 iterations (testing moved to S4)
 **Actual:** S5 has 22 iterations across 3 rounds
@@ -639,7 +639,7 @@ CLAUDE.md contradicts guide ❌
 ```markdown
 **S5: Implementation Planning**
 - **Actions:** 22 verification iterations across 3 rounds
-```
+```markdown
 
 **How Found:** Manual comparison of CLAUDE.md vs s5_implementation_planning.md
 
@@ -652,7 +652,7 @@ CLAUDE.md contradicts guide ❌
 # CLAUDE.md Stage Workflows
 **S5: Implementation Planning**
 - **Next:** S6
-```
+```text
 
 **Problem:** After workflow restructure, S5 loops to S6→S7→S8→(S5 or S9)
 **Actual:** S5 next is S6 (correct for first feature), but should clarify loop
@@ -661,7 +661,7 @@ CLAUDE.md contradicts guide ❌
 ```markdown
 **S5: Implementation Planning**
 - **Next:** S6 (then S7, S8, repeat S5-S8 for each feature, or S9 when all features done)
-```
+```markdown
 
 **How Found:** Manual workflow trace
 
@@ -676,7 +676,7 @@ CLAUDE.md contradicts guide ❌
 - checklist.md
 - implementation_plan.md
 - implementation_checklist.md
-```
+```text
 
 **Problem:** Missing round_summary_template.md (added to Stage 5)
 **Actual:** Stage 5 now outputs round summary using template

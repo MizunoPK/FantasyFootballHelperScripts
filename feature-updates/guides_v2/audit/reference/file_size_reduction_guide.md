@@ -73,7 +73,7 @@
 ❌ TOO LARGE: stages/s5/s5_p1_planning_round1.md (1200 lines)
 ⚠️  LARGE: stages/s1/s1_epic_planning.md (650 lines)
 ❌ POLICY VIOLATION: CLAUDE.md (45786 chars) exceeds 40,000
-```
+```text
 
 **Priority Order:**
 1. CLAUDE.md (if exceeds 40,000 chars) - P1
@@ -131,7 +131,7 @@
 **When:** File has natural subdivisions (phases, iterations, categories)
 
 **Example:**
-```
+```text
 Before:
 stages/s5/s5_implementation_planning.md (1200 lines)
   - Round 1 (400 lines)
@@ -143,7 +143,7 @@ stages/s5/s5_implementation_planning.md (200 lines - router)
 stages/s5/s5_p1_planning_round1.md (400 lines)
 stages/s5/s5_p2_planning_round2.md (400 lines)
 stages/s5/s5_p3_planning_round3.md (400 lines)
-```
+```text
 
 **Process:**
 1. Identify natural subdivision points (phases, iterations)
@@ -162,7 +162,7 @@ stages/s5/s5_p3_planning_round3.md (400 lines)
 **When:** File contains detailed reference material not needed during main workflow
 
 **Example:**
-```
+```text
 Before:
 CLAUDE.md (45,786 chars)
   - Quick Start (2,000 chars)
@@ -182,7 +182,7 @@ Extracted:
 reference/anti_patterns.md (3,000 chars) - detailed examples
 reference/detailed_examples.md (8,000 chars)
 reference/workflow_reference_tables.md (5,000 chars)
-```
+```text
 
 **Process:**
 1. Identify sections with detailed content not critical for quick reference
@@ -201,7 +201,7 @@ reference/workflow_reference_tables.md (5,000 chars)
 **When:** File has duplicate or near-duplicate content across sections
 
 **Example:**
-```
+```text
 Before:
 - Section A explains Validation Loop (400 lines)
 - Section B explains Validation Loop with slight variation (380 lines)
@@ -212,7 +212,7 @@ After:
 - Section A: "See validation_loop_protocol.md" (10 lines)
 - Section B: "See validation_loop_protocol.md" (10 lines)
 - Section C: "See validation_loop_protocol.md" (10 lines)
-```
+```text
 
 **Process:**
 1. Identify duplicate or near-duplicate content
@@ -231,7 +231,7 @@ After:
 **When:** File has extensive examples that could be separated
 
 **Example:**
-```
+```text
 Before:
 guide.md (900 lines)
   - Concept explanation (200 lines)
@@ -251,7 +251,7 @@ guide.md (500 lines)
 
 examples/guide_examples.md (500 lines)
   - Example 1-5 (all detailed examples)
-```
+```text
 
 **Process:**
 1. Identify extensive example sets
@@ -275,7 +275,7 @@ examples/guide_examples.md (500 lines)
 wc -c CLAUDE.md
 # Example output: 45786
 # Overage: 5786 chars (14.5% over limit)
-```
+```markdown
 
 ### Step 2: Section-by-Section Analysis
 
@@ -335,7 +335,7 @@ wc -c CLAUDE.md
 # Common Anti-Patterns Reference
 
 [Full 750 lines of detailed anti-pattern documentation]
-```
+```markdown
 
 ### Step 4: Validate Reduction
 
@@ -381,32 +381,32 @@ wc -c CLAUDE.md
 **For guides >600 lines:**
 
 **Option A: Split by Phase/Iteration**
-```
+```text
 Before: s5_implementation_planning.md (1200 lines)
 After:
   - s5_implementation_planning.md (200 lines router)
   - s5_p1_planning_round1.md (400 lines)
   - s5_p2_planning_round2.md (400 lines)
   - s5_p3_planning_round3.md (400 lines)
-```
+```text
 
 **Option B: Split by Concept**
-```
+```text
 Before: validation_loop_guide.md (900 lines)
 After:
   - validation_loop_protocol.md (300 lines - foundation)
   - validation_loop_discovery.md (200 lines - context-specific)
   - validation_loop_spec_refinement.md (200 lines)
   - validation_loop_qc_pr.md (200 lines)
-```
+```text
 
 **Option C: Extract Examples/Reference**
-```
+```text
 Before: s2_feature_deep_dive.md (800 lines)
 After:
   - s2_feature_deep_dive.md (500 lines - main workflow)
   - s2_examples.md (300 lines - detailed examples)
-```
+```markdown
 
 ### Step 3: Execute Split
 
@@ -472,10 +472,10 @@ After:
 ### Re-run Pre-Audit Script
 ```bash
 bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh
-```
+```text
 
 **Expected output:**
-```
+```text
 ✅ PASS: CLAUDE.md (39,500 chars) within 40,000 character limit
 ✅ All files within size limits
 ```

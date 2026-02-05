@@ -66,7 +66,7 @@
 - **Notation Inconsistency:** Template uses old notation → new epics mix old/new notation
 
 **Example Failure (Hypothetical):**
-```
+```text
 Template: templates/epic_readme_template.md
 
 **Current Stage:** [S6a - Implementation]  ← Old notation
@@ -89,7 +89,7 @@ Confusion: Is S6a the same as S6? S6.P1? S7?
 ### Type 1: Old Notation in Templates
 
 **Common Old Notations:**
-```
+```text
 "Stage 5a" → Should be "S5.P1"
 "S6a" → Should be "S6.P1" or current stage number
 "Round 1" → Should be "S5.P1" (if referring to planning phases)
@@ -106,14 +106,14 @@ grep -rn "STAGE_[0-9][a-z]" templates/
 
 # Find lowercase variants
 grep -rn "s[0-9][a-z]:" templates/
-```
+```markdown
 
 **Automated:** ✅ Yes (pattern matching)
 
 ### Type 2: Incorrect Stage Numbers
 
 **Pattern:**
-```
+```text
 Templates reference stages that were renumbered
 
 Old workflow: S1 → S2 → S3 → S4 → S5 → S6 → S7
@@ -123,7 +123,7 @@ Current: S1 → S2 → S3 → S4 → S5 → S6 → S7 → S8 → S9 → S10
 Template still says:
 "After S5, proceed to S6 for testing" ← Wrong if S6 changed purpose
 "S7: Epic Cleanup" ← Wrong, S7 is now different, S10 is Epic Cleanup
-```
+```text
 
 **Search Commands:**
 ```bash
@@ -132,7 +132,7 @@ grep -rn "S[0-9]\+:" templates/ | grep -o "S[0-9]\+:"
 
 # Check if stage names match current stage names
 # (Requires manual verification against actual guides)
-```
+```bash
 
 **Automated:** ⚠️ Partial (can find stage numbers, manual to verify correctness)
 
@@ -144,12 +144,12 @@ File: templates/epic_readme_template.md
 
 ## Workflow Overview
 
-```
+```text
 S1 → S2 → S3 → S4 → S5 → S6 → S7
-```
+```text
 
 [Workflow actually has S1-S10]
-```
+```text
 
 **Why This is Wrong:**
 - Workflow expanded from 7 to 10 stages
@@ -162,7 +162,7 @@ S1 → S2 → S3 → S4 → S5 → S6 → S7
 grep -A 5 -B 5 "S1.*→.*S2" templates/
 
 # Manually verify diagram shows all current stages
-```
+```bash
 
 **Automated:** ⚠️ Partial (can find diagrams, manual to verify completeness)
 
@@ -177,7 +177,7 @@ File: templates/feature_readme_template.md
 **Status:** [S5a - Planning]
 
 [Old format - current format is "S5.P1 - Planning Round 1"]
-```
+```text
 
 **Common Obsolete Sections:**
 - "Current Stage: S#a" (old notation)
@@ -192,7 +192,7 @@ grep -rn "## Round:" templates/
 
 # Find sections using old terminology
 grep -rn "Implementation.*Round\|Planning.*Round" templates/
-```
+```markdown
 
 **Automated:** ✅ Yes (pattern matching for known obsolete formats)
 
@@ -209,7 +209,7 @@ File: templates/epic_ticket_template.md
    - spec.md, implementation.md, tests.md
 
 [Old structure - current structure uses implementation_plan.md and implementation_checklist.md]
-```
+```text
 
 **Why This is Wrong:**
 - Example shows old file names
@@ -222,7 +222,7 @@ File: templates/epic_ticket_template.md
 grep -rn "implementation\.md\|spec_v1\.md" templates/
 
 # Check if example paths match current file structure
-```
+```bash
 
 **Automated:** ⚠️ Partial (can find file references, manual to verify currency)
 
@@ -235,12 +235,12 @@ grep -rn "implementation\.md\|spec_v1\.md" templates/
 **Scenario:** Workflow changes during epic, templates not updated
 
 **Timeline:**
-```
+```text
 2025-10: Templates created for original 7-stage workflow
 2025-12: Workflow expanded to 10 stages
 2026-01: S5 split into more iterations
 2026-02: Templates still show 2025-10 structure
-```
+```text
 
 **Why It Happens:**
 - Focus on updating guides, templates forgotten
@@ -257,18 +257,18 @@ grep -rn "implementation\.md\|spec_v1\.md" templates/
 **Scenario:** Stages renumbered, templates partially updated
 
 **Renumbering Event:**
-```
+```text
 S6 → S9 (Epic Smoke Testing)
 S7 → S10 (Epic Cleanup)
-```
+```text
 
 **Template Updates:**
-```
+```text
 epic_readme_template.md: Updated ✅
 feature_spec_template.md: Updated ✅
 epic_ticket_template.md: Not updated ❌
 feature_readme_template.md: Partially updated ❌
-```
+```markdown
 
 **Result:** Mix of old and new stage numbers in templates
 
@@ -277,20 +277,20 @@ feature_readme_template.md: Partially updated ❌
 **Scenario:** Workflow adds new status fields, old templates lack them
 
 **New Requirement (2026-01):**
-```
+```text
 EPIC_README.md must have:
 - Current Guide: [guide path]
 - Guide Last Read: [timestamp]
-```
+```text
 
 **Templates:**
-```
+```text
 epic_readme_template.md (created 2025-10):
 - Current Stage: [S#.P#]
 - Last Updated: [date]
 
 [Missing: Current Guide, Guide Last Read]
-```
+```markdown
 
 **Result:** New epics lack required fields
 
@@ -305,7 +305,7 @@ cp KAI-5-old_epic/EPIC_README.md templates/epic_readme_template.md
 
 # KAI-5 used old notation and old structure
 # Template now has old notation
-```
+```text
 
 **Why It Happens:**
 - "Use working example" approach
@@ -346,7 +346,7 @@ if [ "$ROUND_REFS" -gt 0 ]; then
   echo "⚠️  'Round N' references in templates: $ROUND_REFS"
   echo "   (Verify these should be Phase notation: S#.P#)"
 fi
-```
+```markdown
 
 ### Script 2: Stage Number Validation (SHOULD ADD)
 
@@ -380,7 +380,7 @@ if [ "$ACTUAL_MAX_STAGE" -gt 7 ] && [ -n "$DIAGRAMS_WITH_S7" ]; then
   echo "⚠️  Templates show workflow ending at S7, but stages go to S$ACTUAL_MAX_STAGE"
   echo "   Files: $DIAGRAMS_WITH_S7"
 fi
-```
+```markdown
 
 ### Script 3: Required Field Validation (SHOULD ADD)
 
@@ -415,7 +415,7 @@ if [ -f "templates/feature_readme_template.md" ]; then
     fi
   done
 fi
-```
+```markdown
 
 ---
 
@@ -462,7 +462,7 @@ STEP 7: Document currency issues
 - Outdated workflow diagrams
 - Obsolete sections
 - Example content inaccuracies
-```
+```markdown
 
 ---
 
@@ -477,7 +477,7 @@ STEP 7: Document currency issues
 
 **Current v2.0 notation:**
 - S5.P1 → Implementation Planning Round 1
-```
+```text
 **Verdict:** ✅ ACCEPTABLE (teaching migration, clearly labeled)
 
 **2. Comments for Template Authors:**
@@ -485,7 +485,7 @@ STEP 7: Document currency issues
 <!-- Template Note: This section replaced old "Round:" notation in v2.0 -->
 
 ## Phase
-```
+```markdown
 **Verdict:** ✅ ACCEPTABLE (comment, not actual content)
 
 ### When Old Content is Error
@@ -495,14 +495,14 @@ STEP 7: Document currency issues
 File: templates/epic_readme_template.md
 
 **Current Stage:** [S6a - Testing]
-```
+```markdown
 **Verdict:** ❌ ERROR (should be S#.P# notation, not S6a)
 
 **2. Workflow Diagrams:**
 ```markdown
 **Workflow:**
 S1 → S2 → S3 → S4 → S5 → S6 → S7
-```
+```text
 **Verdict:** ❌ ERROR (workflow has S1-S10, shows only S1-S7)
 
 **3. Example File Paths:**
@@ -512,7 +512,7 @@ S1 → S2 → S3 → S4 → S5 → S6 → S7
 - feature_01/implementation.md
 
 [Current structure uses implementation_plan.md and implementation_checklist.md]
-```
+```text
 **Verdict:** ❌ ERROR (example file names don't match current structure)
 
 **4. Required Fields Missing:**
@@ -523,7 +523,7 @@ S1 → S2 → S3 → S4 → S5 → S6 → S7
 **Last Updated:** [date]
 
 [Missing: Current Guide, Guide Last Read - required fields in current workflow]
-```
+```markdown
 **Verdict:** ❌ ERROR (template missing required fields)
 
 ---
@@ -537,7 +537,7 @@ S1 → S2 → S3 → S4 → S5 → S6 → S7
 $ grep -n "S[0-9][a-z]" templates/epic_readme_template.md
 234:**Current Stage:** [S5a - Planning]
 456:Next: Proceed to S6a for testing
-```
+```text
 
 **Analysis:**
 - Template uses old notation "S5a", "S6a"
@@ -555,7 +555,7 @@ Next: Proceed to S6a for testing
 # After
 **Current Stage:** [S5.P1 - Planning Round 1]
 Next: Proceed to S6 - Execution
-```
+```markdown
 
 ### Example 2: Workflow Diagram Outdated
 
@@ -565,14 +565,14 @@ File: templates/epic_readme_template.md
 
 ## Workflow Overview
 
-```
+```text
 S1 (Epic Planning) → S2 (Feature Planning) → S3 (Cross-Feature Check) →
 S4 (Testing Strategy) → S5 (Implementation Planning) → S6 (Execution) →
 S7 (Testing & Review)
-```
+```text
 
 [Actual workflow has S1-S10]
-```
+```text
 
 **Analysis:**
 - Template shows 7-stage workflow
@@ -585,12 +585,12 @@ S7 (Testing & Review)
 ```markdown
 ## Workflow Overview
 
-```
+```text
 S1 (Epic Planning) → S2 (Feature Planning) → S3 (Epic Planning Approval) →
 S4 (Feature Testing Strategy) → S5-S8 (Feature Loop: Planning, Execution, Testing, Alignment) →
 S9 (Epic Final QC) → S10 (Epic Cleanup)
-```
-```
+```text
+```markdown
 
 ### Example 3: Missing Required Fields
 
@@ -601,7 +601,7 @@ $ grep "Current Guide:" templates/epic_readme_template.md
 
 $ grep "Guide Last Read:" templates/epic_readme_template.md
 [No results]
-```
+```text
 
 **Analysis:**
 - Current workflow requires "Current Guide" and "Guide Last Read" in Agent Status
@@ -620,7 +620,7 @@ $ grep "Guide Last Read:" templates/epic_readme_template.md
 **Next Action:** [What you're about to do]
 **Current Guide:** [feature-updates/guides_v2/path/to/guide.md]  ← ADD
 **Guide Last Read:** [YYYY-MM-DD HH:MM]  ← ADD
-```
+```markdown
 
 ### Example 4: Example File Names Outdated
 
@@ -634,7 +634,7 @@ When creating this feature, you'll also create:
 - implementation.md (detailed implementation steps)
 - test_plan.md (testing approach)
 - progress.md (tracking)
-```
+```text
 
 **Analysis:**
 - Current workflow uses different file names:
@@ -654,7 +654,7 @@ When creating this feature, you'll also create:
 - implementation_checklist.md (progress tracking)
 - test_strategy.md (created in S4, referenced in S5)
 - lessons_learned.md (created in S7.P3)
-```
+```markdown
 
 ### Example 5: Stage Number References Incorrect
 
@@ -667,7 +667,7 @@ File: templates/feature_readme_template.md
 **Before this feature:** S1, S2, S3 complete
 **Current:** S4 (Implementation Planning)
 **After this feature:** S5 (Testing), S6 (Epic QC), S7 (Cleanup)
-```
+```text
 
 **Analysis:**
 - Says "S4 (Implementation Planning)" but S4 is Testing Strategy, S5 is Planning

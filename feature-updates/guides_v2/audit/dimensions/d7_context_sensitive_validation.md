@@ -100,7 +100,7 @@ This dimension provides **context analysis** to interpret findings from other di
 ### Type 0: Root-Level File Context (CRITICAL - Often Missed)
 
 **Files to Always Check:**
-```
+```text
 C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
@@ -115,7 +115,7 @@ feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
 **Current Workflow:** S1 → S2 → S3 → S4 → S5 → S6 → S7 → S8 → S9 → S10
 
 **Historical Note:** The old workflow (pre-2025) had 9 stages (S1-S9). S4 was added in January 2025, requiring renumbering of subsequent stages.
-```
+```text
 
 **Validation:**
 - "9 stages" would normally be flagged as count error
@@ -131,7 +131,7 @@ grep -B 3 -A 3 "Historical\|Old workflow\|Previously\|Before 2025" CLAUDE.md
 grep -n "S[0-9][a-z]\|9 stages\|old notation" CLAUDE.md
 
 # For each match, check if within historical context
-```
+```text
 
 **Red Flags:**
 - "Old notation" appears outside historical context
@@ -160,7 +160,7 @@ Content describing old/deprecated patterns should be clearly marked as historica
 **Example of Old Notation:**
 - S5a = First phase of Stage 5 (now S5.P1)
 - S5b = Second phase (now S5.P2)
-```
+```text
 
 **Validation:**
 - ✅ Clearly labeled as "Historical Note"
@@ -175,7 +175,7 @@ Content describing old/deprecated patterns should be clearly marked as historica
 Complete S5a Phase 1 iterations...
 
 [No marker indicating this is historical reference]
-```
+```text
 
 **Detection:**
 ```bash
@@ -195,7 +195,7 @@ for match in $(grep -l "S[0-9][a-z]" stages/**/*.md); do
     echo "  CONTEXT: Current content (likely ERROR)"
   fi
 done
-```
+```text
 
 **Context Markers Indicating Valid Historical Reference:**
 - "Historical Note:"
@@ -233,14 +233,14 @@ Always use S#.P# notation for clarity.
 ✅ **CORRECT:**
 ```markdown
 See S5.P1 for implementation planning.
-```
+```markdown
 
 ### Example: Incorrect Notation
 
 ❌ **WRONG:**
 ```markdown
 See S5a for implementation planning.
-```
+```text
 
 **DO NOT use S5a notation. Use S5.P1 instead.**
 ```
@@ -258,7 +258,7 @@ See S5a for implementation planning.
 
 ```markdown
 See S5a for implementation planning.
-```
+```json
 [No indication if this is right or wrong]
 ```
 
@@ -272,7 +272,7 @@ markers="❌\|WRONG\|Incorrect\|Don't\|Avoid\|Anti-pattern"
 
 # If markers present, likely intentional anti-pattern
 # If no markers, likely error
-```
+```text
 
 **Context Markers Indicating Valid Anti-Pattern:**
 - ❌ symbol
@@ -307,12 +307,12 @@ Error messages shown as examples should be clearly quoted/formatted as examples.
 ### Missing Import Error
 
 If you see this error:
-```
+```text
 ModuleNotFoundError: No module named 'pandas'
-```
+```python
 
 The solution is to add: `import pandas as pd`
-```
+```text
 
 **Validation:**
 - ✅ Error in code block (```...```)
@@ -326,7 +326,7 @@ The solution is to add: `import pandas as pd`
 ModuleNotFoundError: No module named 'pandas'
 
 [Unclear if this is error in documentation or example]
-```
+```text
 
 **Detection:**
 ```bash
@@ -334,7 +334,7 @@ ModuleNotFoundError: No module named 'pandas'
 grep -n "Error\|Exception\|Failed\|Warning" stages/**/*.md
 
 # Check if in code blocks or quoted
-# Code blocks: ``` ... ```
+# Code blocks: ``` ... ```bash
 # Quotes: "...", '...'
 
 # If in code block or quote, likely example
@@ -379,7 +379,7 @@ For urgent hotfixes, you may proceed directly:
 S1 → Debugging Protocol → S10
 
 **This is the ONLY approved variation from standard workflow.**
-```
+```text
 
 **Validation:**
 - ✅ Labeled as "Exception" or "Variation"
@@ -393,7 +393,7 @@ S1 → Debugging Protocol → S10
 For this feature, we skipped S4 and went to S5.
 
 [No indication if this is approved or mistake]
-```
+```text
 
 **Detection:**
 ```bash
@@ -406,7 +406,7 @@ grep -B 3 -A 3 "skip\|omit" stages/**/*.md | \
 
 # If markers present, likely intentional
 # If no markers, likely error
-```
+```text
 
 **Context Markers Indicating Valid Variation:**
 - "Exception:"
@@ -448,7 +448,7 @@ Placeholder text in templates should be clearly marked for replacement.
 ## Requirements
 
 **[AGENT: List requirements based on spec.md]**
-```
+```text
 
 **Validation:**
 - ✅ Square brackets with markers: [USER:], [AGENT:]
@@ -462,7 +462,7 @@ Placeholder text in templates should be clearly marked for replacement.
 Replace with actual feature name
 
 [Unclear if this is instruction or incomplete content]
-```
+```text
 
 **Detection:**
 ```bash
@@ -471,7 +471,7 @@ grep -n "\[USER:\|\[AGENT:\|\[TODO:\|\[REPLACE:" templates/**/*.md
 
 # Valid placeholders have clear markers
 # Invalid: Plain text that looks like instruction
-```
+```text
 
 **Context Markers Indicating Valid Placeholder:**
 - [USER: ...]
@@ -508,7 +508,7 @@ Previously, debugging issues were logged in a single ISSUES.md file. This caused
 ### Current Approach
 
 Each issue now gets a dedicated file: `issue_01_description.md`. This provides clear separation and tracking.
-```
+```text
 
 **Validation:**
 - ✅ Labeled "Deprecated" or "No Longer Used"
@@ -523,7 +523,7 @@ Each issue now gets a dedicated file: `issue_01_description.md`. This provides c
 Issues are logged in ISSUES.md.
 
 [Unclear if current or deprecated]
-```
+```text
 
 **Detection:**
 ```bash
@@ -534,7 +534,7 @@ grep -n "Deprecated\|No longer\|Obsolete\|Legacy" stages/**/*.md
 # - Why deprecated
 # - What replaced it
 # - Past tense usage
-```
+```text
 
 **Context Markers Indicating Valid Deprecation Explanation:**
 - "Deprecated:"
@@ -564,28 +564,28 @@ Files should use explicit markers to indicate intentional exceptions.
 **For Historical References:**
 ```markdown
 [HISTORICAL] Old workflow used S#a notation
-```
+```text
 
 **For Examples of Wrong Patterns:**
 ```markdown
 ❌ **WRONG EXAMPLE:** Don't do this...
 ✅ **CORRECT EXAMPLE:** Do this instead...
-```
+```text
 
 **For Deprecated Content:**
 ```markdown
 [DEPRECATED 2025-01-15] This approach no longer recommended.
-```
+```text
 
 **For Intentional Variations:**
 ```markdown
 [APPROVED EXCEPTION] Bug fix workflow may skip S4.
-```
+```text
 
 **For Placeholders:**
 ```markdown
 [USER: Replace this with actual content]
-```
+```text
 
 **Detection:**
 ```bash
@@ -595,7 +595,7 @@ grep -rc "\[HISTORICAL\]\|\[DEPRECATED\]\|\[APPROVED\]\|❌\|✅" \
 
 # Files with high marker counts: Good explicit context
 # Files with low/zero markers: May have ambiguous content
-```
+```text
 
 **Benefits:**
 - Unambiguous intent
@@ -700,7 +700,7 @@ for file in $old_notation_files; do
     echo "⚠ $file: Old notation found without historical context"
   fi
 done
-```
+```text
 
 **CHECK 22: Anti-Pattern Example Validation** *(planned, not yet implemented)*
 ```bash
@@ -724,7 +724,7 @@ while read -r line; do
     echo "⚠ $file: Example may be ambiguous"
   fi
 done < /tmp/examples_with_old.txt
-```
+```text
 
 **Automation Coverage: ~20%**
 - ✅ Detect presence of context markers
@@ -840,7 +840,7 @@ Create table:
 ## Historical Evidence
 
 The old workflow (2024) used S5a/S5b/S5c notation. This caused confusion, leading to the current S5.P1/P2/P3 system.
-```
+```markdown
 
 **Validation:** In historical section → Use of old notation VALID
 
@@ -856,13 +856,13 @@ The old workflow (2024) used S5a/S5b/S5c notation. This caused confusion, leadin
 ```python
 def calculate(items):  # No type hints
     return sum(items)
-```
+```text
 
 ✅ **CORRECT:**
 ```python
 def calculate(items: list[int]) -> int:
     return sum(items)
-```
+```text
 ```
 
 **Validation:** Marked as wrong, followed by correct version → VALID
@@ -881,7 +881,7 @@ See DISCOVERY.md Section [X] for background.
 See RESEARCH_NOTES.md for technical analysis.
 
 [USER: Replace [X] with actual section number]
-```
+```markdown
 
 **Validation:** Template with placeholder markers → VALID
 
@@ -898,7 +898,7 @@ See RESEARCH_NOTES.md for technical analysis.
 ```python
 def process_data(df):
     return df.groupby('category').sum()
-```
+```python
 
 (Assumes `import pandas as pd` already present)
 ```
@@ -912,7 +912,7 @@ def process_data(df):
 ### Example 1: False Positive - Historical Reference Flagged as Error
 
 **Audit Finding:**
-```
+```text
 D2: Terminology Consistency
 FOUND: "S5a" notation in stages/s5/s5_implementation_planning.md:15
 ERROR: Old notation, should be S5.P1
@@ -927,7 +927,7 @@ ERROR: Old notation, should be S5.P1
 **Historical Note:** Prior to January 2025, this stage used S5a/S5b/S5c notation for phases. This was changed to S5.P1/P2/P3 to align with standard notation system.
 
 **Current Notation:** Always use S5.P1, S5.P2, S5.P3.
-```
+```text
 
 **Context Validation:**
 - ✅ Labeled "Historical Note"
@@ -938,23 +938,23 @@ ERROR: Old notation, should be S5.P1
 **Decision:** VALID historical reference, NOT an error. Do not fix.
 
 **Action:** Update audit finding:
-```
+```text
 D2: Terminology Consistency
 FOUND: "S5a" notation in stages/s5/s5_implementation_planning.md:15
 STATUS: Valid historical reference (intentional)
 ACTION: No fix needed
-```
+```markdown
 
 ---
 
 ### Example 2: True Positive - Actual Error Despite Example Context
 
 **Audit Finding:**
-```
+```text
 D1: Cross-Reference Accuracy
 FOUND: Reference to "stages/s4/s4_testing.md" in stages/s3/guide.md:45
 ERROR: File does not exist (should be s4_feature_testing_strategy.md)
-```
+```text
 
 **Context Review:**
 ```markdown
@@ -966,7 +966,7 @@ When referencing other stages, use correct file paths.
 
 **Example:**
 See `stages/s4/s4_testing.md` for testing approach.
-```
+```text
 
 **Context Validation:**
 - ❌ No "WRONG" or ❌ marker
@@ -981,18 +981,18 @@ See `stages/s4/s4_testing.md` for testing approach.
 **Example:**
 -See `stages/s4/s4_testing.md` for testing approach.
 +See `stages/s4/s4_feature_testing_strategy.md` for testing approach.
-```
+```markdown
 
 ---
 
 ### Example 3: Valid Exception - Bug Fix Workflow Variation
 
 **Audit Finding:**
-```
+```text
 D3: Workflow Integration
 FOUND: Workflow skips S4 in debugging/debugging_protocol.md:120
 ERROR: All stages required, S4 cannot be skipped
-```
+```text
 
 **Context Review:**
 ```markdown
@@ -1010,7 +1010,7 @@ For urgent production hotfixes, the workflow may skip S4 (Feature Testing Strate
 - Fix is simple, low-risk change
 
 This is the ONLY approved deviation from standard workflow.
-```
+```text
 
 **Context Validation:**
 - ✅ Marked "[APPROVED EXCEPTION]"
@@ -1021,23 +1021,23 @@ This is the ONLY approved deviation from standard workflow.
 **Decision:** VALID workflow variation, NOT an error.
 
 **Action:** Document in audit findings:
-```
+```text
 D3: Workflow Integration
 FOUND: Workflow skips S4 in debugging/debugging_protocol.md:120
 STATUS: Approved exception (bug fix workflow)
 ACTION: No fix needed - variation is documented and approved
-```
+```markdown
 
 ---
 
 ### Example 4: Ambiguous - Needs Clarification Marker
 
 **Audit Finding:**
-```
+```text
 D4: Count Accuracy
 FOUND: "S5 has 20 iterations" in stages/s5/guide.md:10
 ERROR: Actual iteration count is 22
-```
+```text
 
 **Context Review:**
 ```markdown
@@ -1046,7 +1046,7 @@ ERROR: Actual iteration count is 22
 ## S5: Implementation Planning
 
 S5 has 20 iterations across 3 rounds. The final 2 iterations (I21-I22) were added in version 2.0 for enhanced gate validation.
-```
+```text
 
 **Context Validation:**
 - ⚠️ Mentions "20 iterations" AND "final 2 iterations"
@@ -1064,18 +1064,18 @@ S5 has 20 iterations across 3 rounds. The final 2 iterations (I21-I22) were adde
 +S5 has 22 iterations across 3 rounds.
 +
 +**Historical Note:** Originally had 20 iterations. I21-I22 added in version 2.0 for enhanced gate validation.
-```
+```markdown
 
 ---
 
 ### Example 5: Template Placeholder vs Incomplete Content
 
 **Audit Finding:**
-```
+```text
 D5: Content Completeness
 FOUND: Generic placeholder text in feature_01/spec.md:20
 ERROR: Content incomplete, needs feature-specific information
-```
+```text
 
 **Context Review:**
 ```markdown
@@ -1084,7 +1084,7 @@ ERROR: Content incomplete, needs feature-specific information
 ## Background
 
 Provide feature background here based on DISCOVERY.md findings.
-```
+```text
 
 **Initial Assessment:** Looks incomplete.
 
@@ -1092,12 +1092,12 @@ Provide feature background here based on DISCOVERY.md findings.
 ```bash
 # Check file header
 head -5 feature_01/spec.md
-```
+```text
 
 **If header shows:**
 ```markdown
 # Feature Specification Template
-```
+```text
 
 **Then:** This is TEMPLATE (valid placeholder)
 

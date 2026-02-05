@@ -202,7 +202,7 @@ Approaching the audit as if you've never seen these files before, with zero assu
 Round 1: Started with D1 (cross-references), searched stages/ first
 Round 2: Start with D2 (terminology), search templates/ first
 Round 3: Start with D10 (file sizes), search reference/ first
-```
+```text
 
 **Pattern Type Rotation:**
 ```markdown
@@ -210,7 +210,7 @@ Round 1: Exact string matches ("S5a", "Stage 6")
 Round 2: Pattern variations ("S5a:", "S5a-", "(S5a)")
 Round 3: Context-based ("back to S5a", "restart at S5.P1")
 Round 4: Manual reading (spot-check random files)
-```
+```markdown
 
 ### STEP 3: Verify Fresh Approach (Self-Check)
 
@@ -242,7 +242,7 @@ Round 4: Manual reading (spot-check random files)
 
 ❌ "I'll read Round 1 report first to see what to look for"
    → Primes you to find Round 1 patterns, miss Round 2 patterns
-```
+```text
 
 **✅ CORRECT Approaches:**
 ```markdown
@@ -257,7 +257,7 @@ Round 4: Manual reading (spot-check random files)
 
 ✅ "Round 3: I'll assume Round 1-2 missed something and search differently"
    → Adversarial mindset finds issues defensive mindset misses
-```
+```markdown
 
 ### Fresh Eyes Verification Checklist
 
@@ -286,34 +286,34 @@ Round 4: Manual reading (spot-check random files)
 ### Common Fresh Eyes Failures
 
 **Failure Mode 1: "I'll just verify Round 1 findings"**
-```
+```bash
 Round 1: grep -rn "S5a" → 60 matches, fixed all
 Round 2: grep -rn "S5a" → 0 matches (verify)
 Conclusion: ✅ Done!
 
 Problem: Used SAME pattern. Missed "S5a:" "S5a-" "(S5a)"
 Result: 20+ issues remain (found in Round 3 with variations)
-```
+```text
 
 **Failure Mode 2: "I remember which folders have issues"**
-```
+```text
 Round 1: stages/ had most issues, templates/ had few
 Round 2: Focus on stages/, quick check templates/
 Conclusion: ✅ Most thorough where it matters!
 
 Problem: Memory bias, confirmation bias
 Result: Missed template drift (templates not updated after stage changes)
-```
+```text
 
 **Failure Mode 3: "Round 1 was comprehensive, Round 2 is validation"**
-```
+```text
 Round 1: 4 hours, very thorough, found 60 issues
 Round 2: 1 hour, just verify Round 1 fixes
 Conclusion: ✅ Efficient validation!
 
 Problem: Assumed Round 1 completeness, didn't search for new patterns
 Result: Round 3 found 70+ different issues Round 1 never looked for
-```
+```markdown
 
 ### How to Recover From Lost Fresh Eyes
 
@@ -341,22 +341,22 @@ Result: Round 3 found 70+ different issues Round 1 never looked for
 ### Critical Mindset Shifts
 
 **From "Probably Fine" to "Prove It's Fine":**
-```
+```text
 ❌ WRONG: "I checked the main files, probably caught everything"
 ✅ CORRECT: "Verified all 50+ files, spot-checked 10 random files, tried 5 pattern variations"
-```
+```text
 
 **From "Grep Says Zero" to "Actually Zero":**
-```
+```bash
 ❌ WRONG: grep returns nothing, must be fixed
 ✅ CORRECT: grep returns nothing AND spot-read 5 files to confirm AND tried pattern variations
-```
+```text
 
 **From "I Remember Checking" to "Documented Evidence":**
-```
+```text
 ❌ WRONG: "I think I checked that folder"
 ✅ CORRECT: "Checked stages/s5/ - see discovery_report.md line 45"
-```
+```markdown
 
 ---
 
@@ -364,7 +364,7 @@ Result: Round 3 found 70+ different issues Round 1 never looked for
 
 ### Loop Structure
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │         AUDIT LOOP (Repeat until ZERO new issues found)         │
 │          MINIMUM 3 ROUNDS BASELINE (typically 3-5 rounds)        │
@@ -386,7 +386,7 @@ Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify 
        Stage 1-5 (manual review, edge cases)
        ↓
        EXIT (only if ALL exit criteria met + user approves)
-```
+```markdown
 
 ### Why Minimum 3 Rounds (But Often More)?
 
@@ -454,16 +454,16 @@ Stage 1: Discovery → Stage 2: Planning → Stage 3: Fixes → Stage 4: Verify 
 ### Critical Rules
 
 **Failing ANY criterion:**
-```
+```text
 └─> 🔄 LOOP BACK to Stage 1 Round N+1
      (Use fresh patterns, different approach)
-```
+```text
 
 **If user challenges you in ANY way:**
-```
+```bash
 └─> 🚨 IMMEDIATE LOOP BACK to Round 1
      (User challenge = evidence you missed something)
-```
+```markdown
 
 **See Stage 5 guide for complete decision logic, verification checklists, and loop preparation.**
 
@@ -596,7 +596,7 @@ If CLAUDE.md exceeds 40,000 characters, extract detailed content to separate fil
 - Mandatory flags/checkpoints are reflected in quick reference
 
 **Example Issue (from KAI-7):**
-```
+```text
 CLAUDE.md said: "S1 Step 4.8-4.9" (parallel work offer)
 Actual guide had: "Step 5.8-5.9"
 

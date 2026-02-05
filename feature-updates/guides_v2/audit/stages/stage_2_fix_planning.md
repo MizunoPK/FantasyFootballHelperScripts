@@ -67,7 +67,7 @@
 
 ### The Grouping Process
 
-```
+```text
 Step 1: Review All Issues
   ↓
 Step 2: Group by Pattern Similarity (not by file)
@@ -96,7 +96,7 @@ Group 1: Fix s5_p1_planning_round1.md
 Group 2: Fix s5_p2_planning_round2.md
   - Issue #6: "5a" → "S5.P1"
   - Issue #13: "stages/s5/round2/" → "stages/s5/s5_p2_"
-```
+```text
 **Problem:** Same pattern fixed multiple times, inefficient
 
 **✅ CORRECT: Group by Pattern**
@@ -111,7 +111,7 @@ Group 2: Old Paths "stages/s5/round1/" → "stages/s5/s5_p1_"
   - Issue #12: s5_p1_planning_round1.md:155
   - Issue #19: s5_p1_i1_requirements.md:67
   [15 instances across 6 files]
-```
+```markdown
 **Benefit:** Fix all instances of pattern at once with single sed command
 
 ### Grouping Criteria
@@ -130,13 +130,13 @@ Group 2: Old Paths "stages/s5/round1/" → "stages/s5/s5_p1_"
 ### Example Grouping
 
 **From Discovery Report:**
-```
+```text
 Total Issues: 45
 - D1 (Cross-Reference): 20 issues
 - D2 (Terminology): 18 issues
 - D10 (File Size): 2 issues
 - D13 (Documentation Quality): 5 issues
-```
+```text
 
 **Grouped by Pattern:**
 ```markdown
@@ -169,7 +169,7 @@ Total Issues: 45
 **Files:** 2 files
 **Severity:** Medium
 **Automated:** No
-```
+```markdown
 
 ---
 
@@ -202,7 +202,7 @@ Total Issues: 45
 
 **Execute groups in this order:**
 
-```
+```text
 1. P0 groups (all)
    ↓
 2. P1 groups (all)
@@ -210,14 +210,14 @@ Total Issues: 45
 3. P2 groups (all)
    ↓
 4. P3 groups (if time)
-```
+```text
 
 **Within same priority:**
-```
+```text
 1. Automated fixes first (faster)
    ↓
 2. Manual fixes second (require thought)
-```
+```markdown
 
 ---
 
@@ -244,7 +244,7 @@ sed -i 's|OLD_PATTERN|NEW_PATTERN|g' stages/s5/*.md
 
 # Approach 4: All markdown files
 find . -name "*.md" -exec sed -i 's|OLD_PATTERN|NEW_PATTERN|g' {} +
-```
+```markdown
 
 ### Pattern Escaping
 
@@ -261,7 +261,7 @@ sed -i 's|stages/s5/round1_todo\.md|stages/s5/s5_p1_planning.md|g' file.md
 
 # Using | as delimiter (recommended for paths)
 sed -i 's|stages/s5/round1_todo.md|stages/s5/s5_p1_planning.md|g' file.md
-```
+```markdown
 
 ### Word Boundary Regex
 
@@ -273,7 +273,7 @@ sed -i 's/5a/S5.P1/g' file.md
 
 # Correct: Only matches standalone "5a"
 sed -i 's/\b5a\b/S5.P1/g' file.md
-```
+```markdown
 
 ### Example Fix Plan
 
@@ -289,26 +289,26 @@ sed -i 's|stages/s5/round1/iterations_1_3\.md|stages/s5/s5_p1_i1_requirements.md
         s|stages/s5/round1/iteration_4\.md|stages/s5/s5_p1_i2_algorithms.md|g; \
         s|stages/s5/round1/iteration_7\.md|stages/s5/s5_p1_i3_integration.md|g' \
     stages/s5/s5_p1_*.md
-```
+```text
 
 **Verification:**
 ```bash
 # Should return 0
 grep -rn "stages/s5/round1/" stages/s5/ --include="*.md" | wc -l
-```
+```markdown
 
 ### Group 2: Old Notation (P1)
 ```bash
 # Fix S5a/5b/5c notation
 sed -i 's/\bS5a\b/S5.P1/g; s/\bS5b\b/S5.P2/g; s/\bS5c\b/S5.P3/g' \
     stages/s5/*.md stages/s2/*.md stages/s10/*.md
-```
+```text
 
 **Verification:**
 ```bash
 # Should return 0 (or only intentional cases)
 grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
-```
+```markdown
 
 ### Group 3: Missing Prerequisites (P2 - MANUAL)
 **Files needing Prerequisites section:**
@@ -318,7 +318,7 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 
 **Action:** Manually add using Edit tool, following template structure
 ```
-```
+```markdown
 
 ---
 
@@ -376,7 +376,7 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 - [ ] Choose option
 - [ ] Apply fix
 - [ ] Verify
-```
+```markdown
 
 ---
 
@@ -443,7 +443,7 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 - [ ] Cross-references valid
 - [ ] Agent usability maintained
 - [ ] Pre-audit script passes
-```
+```markdown
 
 ### Planning Process
 
@@ -533,7 +533,7 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 - [ ] Links to extracted content clear
 - [ ] No information lost
 - [ ] Pre-audit script passes
-```
+```python
 
 ### Critical Rules
 

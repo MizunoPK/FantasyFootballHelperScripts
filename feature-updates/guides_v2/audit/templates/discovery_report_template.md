@@ -50,14 +50,14 @@ Document all search patterns attempted this round:
 ### Pattern 1: [Description]
 ```bash
 grep -rn "PATTERN" --include="*.md"
-```
+```markdown
 **Results:** [N] matches found
 **Issues:** [N] are errors, [N] are intentional
 
 ### Pattern 2: [Description]
 ```bash
 grep -rn "PATTERN" --include="*.md"
-```
+```text
 **Results:** [N] matches found
 **Issues:** [N] are errors, [N] are intentional
 
@@ -78,26 +78,26 @@ grep -rn "PATTERN" --include="*.md"
 **Pattern That Found It:**
 ```bash
 grep -rn "pattern" --include="*.md"
-```
+```text
 
 **Context (5 lines):**
-```
+```text
 [Line 121]
 [Line 122]
 → [Line 123 - ISSUE HERE]
 [Line 124]
 [Line 125]
-```
+```text
 
 **Current State:**
-```
+```text
 old incorrect content here
-```
+```text
 
 **Should Be:**
-```
+```text
 new correct content here
-```
+```text
 
 **Why This Is Wrong:**
 File path points to non-existent file. After S6→S9 renumbering, this path was not updated.
@@ -110,7 +110,7 @@ File path points to non-existent file. After S6→S9 renumbering, this path was 
 **Sed Command:**
 ```bash
 sed -i 's|old_path|new_path|g' path/to/file.md
-```
+```markdown
 
 ---
 

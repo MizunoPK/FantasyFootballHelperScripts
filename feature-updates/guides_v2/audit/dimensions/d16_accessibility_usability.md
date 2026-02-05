@@ -66,7 +66,7 @@
 - **Syntax Confusion:** Untagged code blocks lose context (bash vs markdown vs python)
 
 **Example Failure (Hypothetical):**
-```
+```bash
 File: stages/s5/s5_p1_planning_round1.md (800 lines, no TOC)
 
 Agent task: "Find Gate 4a requirements"
@@ -75,7 +75,7 @@ Result: 5 minutes wasted searching, may miss information
 ```
 
 **With TOC:**
-```
+```markdown
 Agent clicks TOC link → ## Gate 4a (line 523) → Jumps directly
 Result: 5 seconds, accurate
 ```
@@ -97,7 +97,7 @@ Result: 5 seconds, accurate
 ### Type 0: Root-Level File Navigation
 
 **Critical Files for Navigation:**
-```
+```text
 README.md - Main entry point
 EPIC_WORKFLOW_USAGE.md - Detailed reference
 prompts_reference_v2.md - Prompt lookup
@@ -128,7 +128,7 @@ prompts_reference_v2.md - Prompt lookup
    - [Subsection 2a](#subsection-2a)
    - [Subsection 2b](#subsection-2b)
 3. [Section 3](#section-3)
-```
+```text
 
 **Search Command:**
 ```bash
@@ -141,7 +141,7 @@ for file in $(find stages reference -name "*.md"); do
     fi
   fi
 done
-```
+```markdown
 
 **Automated:** ✅ Yes (CHECK 5 in pre_audit_checks.sh)
 
@@ -152,18 +152,18 @@ done
 **Format:**
 ```markdown
 # WRONG (no language tag)
-```
+```text
 command here
-```
+```text
 
 # CORRECT (with language tag)
 ```bash
 command here
-```
+```text
 
 # Common Language Tags
 ```bash, ```markdown, ```python, ```json, ```yaml
-```
+```bash
 
 **Why This Matters:**
 - Syntax highlighting improves readability
@@ -176,7 +176,7 @@ command here
 grep -rn "^\`\`\`$" stages templates prompts reference
 
 # Should have minimal results
-```
+```markdown
 
 **Automated:** ✅ Yes (CHECK 7 in pre_audit_checks.sh)
 
@@ -211,7 +211,7 @@ Continue to [S5.P1.I2: Algorithm Design](s5_p1_i2_algorithms.md)
 
 - [S5.P1: Round 1 Overview](s5_p1_planning_round1.md) - Router to all iterations
 - [S4: Testing Strategy](../s4/s4_feature_testing_strategy.md) - Inputs to this iteration
-```
+```markdown
 
 **Automated:** ⚠️ Partial (link presence automated, quality manual)
 
@@ -234,7 +234,7 @@ Continue to [S5.P1.I2: Algorithm Design](s5_p1_i2_algorithms.md)
 3. Pass 5-part audit
 
 **Warning:** Skipping this gate leads to implementation failures (historical: 80% correlation).
-```
+```text
 
 **Poor Example:**
 ```markdown
@@ -242,7 +242,7 @@ Make sure you don't skip Gate 23a validation. It's really important.
 You need to complete spec analysis, verify checklist resolution, and
 pass the 5-part audit. If you skip this, you'll probably have problems
 during implementation.
-```
+```markdown
 
 **Automated:** ❌ No (requires human judgment)
 
@@ -266,15 +266,15 @@ cp templates/feature_spec_template.md feature_01_name/spec.md
 
 # 3. Verify completeness
 grep -n "TODO\|\[placeholder\]" spec.md  # Should return nothing
-```
+```text
 
 **Example spec.md section:**
 ```markdown
 ## Purpose
 Enable users to fetch player data from ESPN API with configurable
 date ranges and data types (stats, projections, rankings).
-```
-```
+```text
+```markdown
 
 **Automated:** ❌ No (requires content review)
 
@@ -287,12 +287,12 @@ date ranges and data types (stats, projections, rankings).
 **Scenario:** File starts small, grows over time, TOC never added
 
 **Evolution:**
-```
+```text
 Version 1 (2025-10): 250 lines, no TOC needed
 Version 2 (2025-11): 400 lines, still manageable
 Version 3 (2026-01): 650 lines, should have TOC but not added
 Version 4 (2026-02): 850 lines, definitely needs TOC
-```
+```markdown
 
 **Why It Happens:**
 - No clear trigger for "add TOC now"
@@ -312,12 +312,12 @@ Version 4 (2026-02): 850 lines, definitely needs TOC
 User requests: "Add example command"
 
 Agent copies from terminal:
-```
+```bash
 grep -rn "pattern" files/
 ```
 
 Result: No language tag (just ```)
-```
+```text
 
 **Why It Happens:**
 - Quick copy-paste doesn't include tag
@@ -343,7 +343,7 @@ Result: No language tag (just ```)
 - [Related guide 2]
 
 # MISSING: What to do next after this iteration
-```
+```text
 
 **Why It Happens:**
 - Focus on content, not workflow integration
@@ -365,7 +365,7 @@ carefully and then identify all the requirements and then check
 the checklist and make sure everything is addressed and then create
 the implementation plan and verify it covers everything and document
 any assumptions and get user approval before proceeding to execution.
-```
+```text
 
 **Better:**
 ```markdown
@@ -378,7 +378,7 @@ any assumptions and get user approval before proceeding to execution.
 5. **Verify Coverage:** Ensure plan covers all requirements
 6. **Document Assumptions:** Note any decisions or assumptions
 7. **User Approval:** Get Gate 5 approval before S6
-```
+```text
 
 **Why Original is Poor:**
 - Single long sentence hard to scan
@@ -411,7 +411,7 @@ for file in $(find stages reference -name "*.md"); do
 done
 
 echo "Large files missing TOC: $MISSING_TOC"
-```
+```markdown
 
 ### Script 2: Code Block Language Tags (IN pre_audit_checks.sh)
 
@@ -430,7 +430,7 @@ if [ "$UNTAGGED_BLOCKS" -gt 0 ]; then
 else
   echo "✅ All code blocks have language tags"
 fi
-```
+```markdown
 
 ### Script 3: Navigation Links Check (SHOULD ADD)
 
@@ -449,7 +449,7 @@ for file in $(find stages -name "s*_*.md" ! -name "*_template.md"); do
     echo "⚠️  Missing navigation: $file (no Next or See Also)"
   fi
 done
-```
+```markdown
 
 ---
 
@@ -488,7 +488,7 @@ STEP 5: Document Issues
 - Untagged code blocks
 - Poor navigation
 - Wall-of-text sections needing formatting
-```
+```markdown
 
 ---
 
@@ -500,13 +500,13 @@ STEP 5: Document Issues
 ```markdown
 File: stages/s8/s8_p1_cross_feature_alignment.md (300 lines)
 Verdict: ✅ TOC Optional (file short enough to scan)
-```
+```text
 
 **2. Single-Topic Files:**
 ```markdown
 File: reference/naming_conventions.md (200 lines, one topic)
 Verdict: ✅ TOC Optional (straightforward navigation)
-```
+```markdown
 
 ### When TOCs Are Required
 
@@ -514,50 +514,50 @@ Verdict: ✅ TOC Optional (straightforward navigation)
 ```markdown
 File: stages/s5/s5_p1_planning_round1.md (850 lines)
 Verdict: ❌ TOC REQUIRED (too long to scan)
-```
+```text
 
 **2. Multi-Section Guides:**
 ```markdown
 File: EPIC_WORKFLOW_USAGE.md (600 lines, 10 stage sections)
 Verdict: ❌ TOC REQUIRED (multiple distinct sections)
-```
+```markdown
 
 ### When Untagged Code Blocks Are Acceptable
 
 **1. Intentional Generic Blocks:**
 ```markdown
-```
+```json
 [Placeholder for user's custom content]
 ```
-```
+```text
 **Verdict:** ✅ ACCEPTABLE (generic placeholder)
 
 **2. Visual Diagrams:**
 ```markdown
-```
+```text
 ┌─────────┐
 │  Box 1  │
 └─────────┘
 ```
-```
+```bash
 **Verdict:** ✅ ACCEPTABLE (ASCII art, not code)
 
 ### When Untagged Code Blocks Are Errors
 
 **1. Bash Commands:**
 ```markdown
-```
+```bash
 git commit -m "message"
 ```
-```
+```text
 **Verdict:** ❌ ERROR (should be ```bash)
 
 **2. Markdown Examples:**
 ```markdown
-```
+```markdown
 ## Example Header
 ```
-```
+```text
 **Verdict:** ❌ ERROR (should be ```markdown)
 
 ---
@@ -573,7 +573,7 @@ $ wc -l stages/s5/s5_p1_planning_round1.md
 
 $ grep -i "table of contents" stages/s5/s5_p1_planning_round1.md
 [No results]
-```
+```text
 
 **Analysis:**
 - File 685 lines (>500 line threshold)
@@ -598,18 +598,18 @@ $ grep -i "table of contents" stages/s5/s5_p1_planning_round1.md
 6. [Next](#next)
 
 [Rest of content]
-```
+```markdown
 
 ### Example 2: Untagged Code Blocks
 
 **Issue Found:**
 ```bash
 $ grep -n "^\`\`\`$" stages/s5/s5_p1_i1_requirements.md
-234:```
+234:```text
 237:```
-289:```
+289:```text
 292:```
-```
+```bash
 
 **Analysis:**
 - 4 code blocks without language tags
@@ -621,15 +621,15 @@ $ grep -n "^\`\`\`$" stages/s5/s5_p1_i1_requirements.md
 **Fix:**
 ```markdown
 # Before
-```
+```bash
 grep -rn "TODO" feature_*/spec.md
 ```
 
 # After
 ```bash
 grep -rn "TODO" feature_*/spec.md
-```
-```
+```text
+```markdown
 
 ### Example 3: Missing Next Navigation
 
@@ -644,7 +644,7 @@ File: stages/s5/s5_p1_i1_requirements.md
 - [S4: Testing Strategy](../s4/s4_feature_testing_strategy.md)
 
 # MISSING: What comes after I1?
-```
+```text
 
 **Analysis:**
 - Guide ends abruptly
@@ -663,7 +663,7 @@ File: stages/s5/s5_p1_i1_requirements.md
 
 ## See Also
 [existing links]
-```
+```markdown
 
 ### Example 4: Wall of Text Needs Formatting
 
@@ -676,7 +676,7 @@ and you cannot skip any iterations and you must get user approval
 at Gate 5 before starting implementation and all tests must pass
 100% before committing and you must run verification after each
 round to ensure no new issues were introduced.
-```
+```text
 
 **Analysis:**
 - Single long sentence
@@ -697,7 +697,7 @@ round to ensure no new issues were introduced.
 4. ✅ **Verification after each round** - Ensure no new issues
 
 **Historical failure rate when skipping:** 80%
-```
+```markdown
 
 ---
 

@@ -67,19 +67,19 @@ Line 317: `examples/audit_round_example_1.md` - DOES NOT EXIST
 
 Line 336: `scripts/check_file_sizes.sh` - DOES NOT EXIST
 ... (7 individual scripts referenced but not created)
-```
+```text
 
 **In audit_overview.md:**
 ```markdown
 Line 276: See `reference/confidence_calibration.md` - DOES NOT EXIST
 Line 408: Read `reference/user_challenge_protocol.md` - DOES NOT EXIST
-```
+```text
 
 **In stage_5_loop_decision.md:**
 ```markdown
 Line 115: See `../reference/confidence_calibration.md` - DOES NOT EXIST
 Line 517: See `../reference/user_challenge_protocol.md` - DOES NOT EXIST
-```
+```text
 
 **Impact:**
 - ❌ User clicks reference → File not found → Confusion
@@ -96,7 +96,7 @@ Line 517: See `../reference/user_challenge_protocol.md` - DOES NOT EXIST
 - Notation patterns
 - Stage reference patterns
 ...
-```
+```text
 
 **Option B: Create Minimal Stubs:**
 ```markdown
@@ -112,7 +112,7 @@ This reference guide is planned but not yet created.
 ...
 
 **Workaround:** See examples in `stages/stage_1_discovery.md` and `dimensions/d2_terminology_consistency.md`
-```
+```text
 
 **Option C: Remove References (Not Recommended):**
 - Removes documentation of intended system
@@ -136,7 +136,7 @@ Stage 1 Discovery:
 **Duration:** 30-60 minutes per round
 **Output:** Discovery report with categorized issues
 **Reading Time:** 15-20 minutes
-```
+```text
 
 **Other Stages:**
 ```markdown
@@ -146,7 +146,7 @@ Stage 2 Fix Planning:
 **Input:** Discovery report from Stage 1  ← HAS INPUT
 **Output:** Fix plan with grouped patterns
 **Reading Time:** ...
-```
+```text
 
 **Impact:**
 - ❌ Inconsistent pattern recognition (users expect all stages to follow same format)
@@ -162,14 +162,14 @@ Stage 2 Fix Planning:
 **Input:** Pre-audit check results (from `scripts/pre_audit_checks.sh`) OR Round N-1 lessons learned
 **Output:** Discovery report with categorized issues
 **Reading Time:** 15-20 minutes
-```
+```text
 
 **Alternative (More Explicit):**
 ```markdown
 **Input (Round 1):** Pre-audit check results, trigger event (see audit_overview.md)
 **Input (Round 2+):** Lessons from Round N-1, new pattern strategies
 **Output:** Discovery report with categorized issues
-```
+```markdown
 
 ---
 
@@ -239,7 +239,7 @@ Before starting Round N discovery, verify ALL true:
 - [ ] Treated folders as if never audited before
 - [ ] Questioned Round N-1 findings (didn't assume they were complete)
 - [ ] Used at least 1 pattern type NOT used in Round N-1
-```
+```markdown
 
 ---
 
@@ -258,7 +258,7 @@ Line 548-551:
 - `d2_terminology_consistency.md` - Notation must match for valid references
 - `d6_template_currency.md` - Templates must have current file paths
 - `d9_intra_file_consistency.md` - Cross-references consistent within files
-```
+```text
 
 **In d2_terminology_consistency.md:**
 ```markdown
@@ -267,7 +267,7 @@ Line 547-550:
 - `d1_cross_reference_accuracy.md` - File paths must match notation
 - `d6_template_currency.md` - Templates must use current notation
 - `d9_intra_file_consistency.md` - Notation consistent within files
-```
+```text
 
 **Issues:**
 1. **Circular dependency:** d1 → d2, d2 → d1
@@ -298,14 +298,14 @@ In README.md:
 **Level 3: Structural (Optional, Advanced)**
 - D9: Intra-File Consistency - Deep-dive validation
 - D10: File Size Assessment - Automated, use if files seem large
-```
+```text
 
 In each dimension guide:
 ```markdown
 **Related Dimensions:**
 Instead of: `d2_terminology_consistency.md` - File paths must match notation
 Use: D2: Terminology Consistency - Check after D1 to ensure paths use correct notation
-```
+```markdown
 
 **Option B: Remove Circular References:**
 Only reference dimensions that are prerequisites, not peers.
@@ -331,7 +331,7 @@ The 8 exit criteria are documented in at least 3 places with slight variations:
    - See `reference/confidence_calibration.md`
    - Self-assessed using scoring rubric
    - No red flags present
-```
+```text
 
 **In stage_5_loop_decision.md:**
 ```markdown
@@ -339,7 +339,7 @@ The 8 exit criteria are documented in at least 3 places with slight variations:
    - Self-assessed using scoring rubric
    - No red flags present
    - Feel genuinely complete, not just wanting to finish
-```
+```text
 
 **Differences:**
 - Path reference: `reference/confidence_calibration.md` vs `../reference/confidence_calibration.md`
@@ -376,7 +376,7 @@ See `stages/stage_5_loop_decision.md` → "Exit Criteria Checklist" for complete
 8. Spot-checks clean
 
 **For detailed criteria with sub-requirements, see Stage 5 guide.**
-```
+```text
 
 **In README.md:**
 ```markdown
@@ -388,7 +388,7 @@ Quick reference:
 1. ✅ 3+ rounds | 2. ✅ Zero new discoveries | 3. ✅ Zero verification findings
 4. ✅ All documented | 5. ✅ User approved | 6. ✅ Confidence ≥80%
 7. ✅ Pattern diversity | 8. ✅ Spot-checks clean
-```
+```markdown
 
 ---
 
@@ -416,7 +416,7 @@ Guides repeatedly state "minimum 3 rounds required" but the historical evidence 
 | 4 | Cross-reference validation | 20+ |  ← ROUND 4 WAS NECESSARY
 
 **Total Rounds:** 4 rounds before exit criteria met
-```
+```text
 
 **The Contradiction:**
 - Guides say: "Minimum 3 rounds"
@@ -437,7 +437,7 @@ Guides repeatedly state "minimum 3 rounds required" but the historical evidence 
 **Reality:** Continue until ALL 8 exit criteria met (typically 3-5 rounds)
 
 **KAI-7 Evidence:** Required 4 rounds before reaching zero new issues
-```
+```text
 
 **Option B: Emphasize "Zero New Issues" Over Round Count:**
 ```markdown
@@ -452,7 +452,7 @@ Guides repeatedly state "minimum 3 rounds required" but the historical evidence 
 **Instead:**
 - ✅ "Round 3 found 5 issues → MUST continue to Round 4"
 - ✅ "Round 4 found 0 issues → Check all 8 exit criteria"
-```
+```text
 
 **Option C: Remove "Minimum 3" Entirely:**
 ```markdown
@@ -462,7 +462,7 @@ Guides repeatedly state "minimum 3 rounds required" but the historical evidence 
 - ALL 8 exit criteria met
 
 **Historical evidence:** KAI-7 required 4 rounds. Expect 3-5 rounds typically.
-```
+```markdown
 
 ---
 
@@ -480,13 +480,13 @@ The script is described as covering "60-70%" of issues and checking "8 dimension
 ```markdown
 `scripts/pre_audit_checks.sh` - Run before manual audit begins
 - Catches 60-70% of issues automatically
-```
+```text
 
 **In Script Header:**
 ```bash
 # Catches 60-70% of common audit issues
 # Covers 8 of 16 audit dimensions
-```
+```text
 
 **What Script Actually Checks:**
 ```bash
@@ -498,7 +498,7 @@ Line 175: D16: Accessibility - TOC Check
 Line 205: D1: Cross-Reference Quick Check
 Line 235: D16: Code Block Language Tags (again)
 Line 256: D8: CLAUDE.md Sync Check
-```
+```text
 
 **Actual Coverage:**
 - **Dimensions checked:** 6 unique (D1, D8, D10, D11, D13, D14, D16)
@@ -532,7 +532,7 @@ Line 256: D8: CLAUDE.md Sync Check
 **NOT Checked by Script:**
 - D2: Terminology Consistency (most common, requires pattern-specific search)
 - D3-D7, D9, D12, D15 (see dimension guides for manual validation)
-```
+```text
 
 **Option B: Expand Script to Match Claims:**
 Add checks for D2, D4, D5 to reach 60-70% claim.
@@ -541,7 +541,7 @@ Add checks for D2, D4, D5 to reach 60-70% claim.
 ```markdown
 - Catches 40-50% of common structural issues
 - Covers 6 high-value dimensions
-```
+```markdown
 
 ---
 
@@ -562,7 +562,7 @@ Some sections use checkboxes `- [ ]` for lists, others use bullet points `- ` fo
 **Verify you have:**
 - [ ] Completed Stage 3 (Apply Fixes)
 - [ ] All fix groups applied
-```
+```text
 
 **Bullet Points Used (Exit Criteria in README):**
 ```markdown

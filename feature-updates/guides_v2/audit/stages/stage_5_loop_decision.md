@@ -143,7 +143,7 @@
 
 ### The Decision Tree
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │  Check ALL 8 Exit Criteria                  │
 └─────────────────────────────────────────────┘
@@ -209,7 +209,7 @@ if [ $criteria_met -eq 8 ]; then
 else
   echo "❌ $((8-criteria_met)) criteria failed - LOOP to Round $((round_number+1))"
 fi
-```
+```markdown
 
 ---
 
@@ -250,11 +250,11 @@ fi
 
 ### Specific Focus
 [What to pay extra attention to]
-```
+```markdown
 
 ### Starting Round N+1
 
-```
+```text
 1. Take 5-10 minute break (clear mental model)
    ↓
 2. Do NOT look at Round N notes until after discovery
@@ -268,7 +268,7 @@ fi
 6. Complete all 5 stages again
    ↓
 7. Return to Stage 5 decision
-```
+```markdown
 
 ---
 
@@ -293,7 +293,7 @@ fi
 - [ ] Intentional cases documented
 - [ ] Commit message drafted
 - [ ] User presentation prepared
-```
+```markdown
 
 ### Creating Final Summary
 
@@ -348,7 +348,7 @@ fi
 ## Recommendations
 
 [Any suggestions for preventing these issues in future]
-```
+```markdown
 
 ---
 
@@ -401,30 +401,30 @@ Please review findings and challenge if:
 - You see issues we didn't catch
 
 **If you say "are you sure?", I will immediately loop back to Round 1**
-```
+```markdown
 
 ### Responding to User
 
 **If user approves:**
-```
+```text
 ✅ Proceed to commit
-```
+```text
 
 **If user challenges:**
-```
+```bash
 🚨 IMMEDIATELY loop back to Round 1
 - User challenge = evidence of missed issues
 - Do NOT defend findings
 - Assume user is correct
 - Start fresh with new patterns
-```
+```text
 
 **If user asks clarifying questions:**
-```
+```text
 Answer thoroughly, then:
 - If still satisfied → commit
 - If user expresses doubt → loop back
-```
+```markdown
 
 ---
 
@@ -463,7 +463,7 @@ Group 3: Wrong Stage Header (1 instance)
 
 Verification: Zero remaining issues
 "
-```
+```markdown
 
 ### Final Commit
 

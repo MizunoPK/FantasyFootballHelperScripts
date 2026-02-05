@@ -67,7 +67,7 @@
 - **Trust Erosion:** Placeholders and TODOs appear unfinished
 
 **Example Failure (Hypothetical):**
-```
+```markdown
 Guide: stages/s5/s5_p3_planning_round3.md
 Section: ## Gate 23a Checklist
 Content: TODO: Add complete checklist items
@@ -100,7 +100,7 @@ Result: Cannot validate planning completeness, workflow stuck
 ### Type 0: Root-Level File Completeness (CRITICAL)
 
 **Files to Check:**
-```
+```text
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
 feature-updates/guides_v2/prompts_reference_v2.md
@@ -147,7 +147,7 @@ grep -rn "\[placeholder\]\|\[Coming Soon\]" stages templates prompts reference
 
 # Find ⏳ markers (work in progress)
 grep -rn "⏳" stages templates prompts reference
-```
+```markdown
 
 **Automated:** ✅ Yes (CHECK 3 in pre_audit_checks.sh)
 
@@ -174,7 +174,7 @@ grep -rn "⏳" stages templates prompts reference
 ## Next Stage
 
 ## See Also
-```
+```text
 
 **Validation:**
 ```bash
@@ -186,7 +186,7 @@ for file in stages/s*/s*_*.md; do
   grep -q "## Critical Rules\|## Key Principles" "$file" || echo "  MISSING: Critical Rules"
   grep -q "## Next Stage\|## Next" "$file" || echo "  MISSING: Next Stage"
 done
-```
+```markdown
 
 **Automated:** ✅ Yes (structural pattern check possible)
 
@@ -220,7 +220,7 @@ done
 ## Real Examples
 
 ## See Also
-```
+```text
 
 **Validation:**
 ```bash
@@ -233,7 +233,7 @@ for file in audit/dimensions/d*.md; do
   grep -q "## Pattern Types" "$file" || echo "  MISSING: Pattern Types"
   grep -q "## Real Examples" "$file" || echo "  MISSING: Real Examples"
 done
-```
+```markdown
 
 **Automated:** ✅ Yes (structural pattern check possible)
 
@@ -247,14 +247,14 @@ done
 **Pattern:**
 ```markdown
 # WRONG (no language tag)
-```
+```text
 command here
-```
+```text
 
 # CORRECT (with language tag)
 ```bash
 command here
-```
+```text
 ```
 
 **Search Command:**
@@ -263,7 +263,7 @@ command here
 grep -rn "^\`\`\`$" stages templates prompts reference
 
 # Should have minimal results (only intentional blank tags)
-```
+```markdown
 
 **Automated:** ✅ Yes (CHECK 7 in pre_audit_checks.sh)
 
@@ -289,13 +289,13 @@ TBD
 See examples below.
 
 <!-- No examples actually provided -->
-```
+```text
 
 **Search Command:**
 ```bash
 # Find sections followed by TODO/TBD/placeholder
 grep -A 3 "^## " stages/*.md | grep -B 1 "TODO\|TBD\|placeholder"
-```
+```markdown
 
 **Automated:** ⚠️ Partial (markers automated, stub detection manual)
 
@@ -317,7 +317,7 @@ TODO: Define checklist items
 [Gate 23a TODO forgotten]
 
 # Day 11: Audit finds TODO still present
-```
+```text
 
 **Why It Happens:**
 - Focus on getting structure in place first
@@ -341,7 +341,7 @@ Follow the specification template structure. See examples below for guidance.
 
 ## Next Steps
 [No examples section ever added]
-```
+```text
 
 **Why It Happens:**
 - Intended to add examples later
@@ -363,7 +363,7 @@ Follow the specification template structure. See examples below for guidance.
 
 ## Gate 4a Checklist
 [Complete 10-item checklist]
-```
+```text
 
 **After restructure:**
 ```markdown
@@ -372,7 +372,7 @@ Follow the specification template structure. See examples below for guidance.
 ## Gate 4a Checklist
 TODO: Move checklist from old file
 [Forgot to actually move it]
-```
+```text
 
 **Why It Happens:**
 - Content assumed to be moved during split
@@ -390,7 +390,7 @@ TODO: Move checklist from old file
 **Duration:** [X hours]
 **Prerequisites:** [List]
 **Outputs:** [List]
-```
+```text
 
 **Old guides (created 2025-11):**
 ```markdown
@@ -398,7 +398,7 @@ TODO: Move checklist from old file
 
 Prerequisites: None documented
 [Missing Duration and Outputs sections]
-```
+```text
 
 **Why It Happens:**
 - Template updated, existing files not backfilled
@@ -434,7 +434,7 @@ fi
 
 echo "TODOs remaining: $TODO_COUNT"
 echo "Placeholders found: $PLACEHOLDER_COUNT"
-```
+```markdown
 
 ### Script 2: Code Block Language Tags (IN pre_audit_checks.sh)
 
@@ -453,7 +453,7 @@ if [ "$UNTAGGED_BLOCKS" -gt 5 ]; then
 else
   echo "✅ Most code blocks properly tagged"
 fi
-```
+```markdown
 
 ### Script 3: Required Sections Check (SHOULD ADD)
 
@@ -489,7 +489,7 @@ for file in $(find audit/dimensions -name "d*.md"); do
     echo "⚠️  $file missing:$missing_sections"
   fi
 done
-```
+```markdown
 
 ---
 
@@ -529,7 +529,7 @@ for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md; do
 
   echo ""
 done
-```
+```markdown
 
 ### Manual Validation Process
 
@@ -558,7 +558,7 @@ STEP 4: Check navigation completeness
 STEP 5: Document issues found
 - Add to discovery report
 - Categorize by severity (missing section = HIGH, minor formatting = LOW)
-```
+```text
 
 **For templates:**
 
@@ -574,7 +574,7 @@ STEP 2: Check for placeholder content
 STEP 3: Verify template examples
 - If template includes example values, ensure they're realistic
 - Check that example values are clearly marked as examples
-```
+```markdown
 
 ---
 
@@ -587,14 +587,14 @@ STEP 3: Verify template examples
 File: _internal/DRAFT_new_dimension.md
 Status: Clearly marked as draft
 Verdict: ✅ ACCEPTABLE (work in progress, not published)
-```
+```text
 
 **2. In Comments (Not Content):**
 ```markdown
 <!-- TODO for guide author: Consider adding edge case example -->
 
 # Actual Guide Content Here
-```
+```text
 **Verdict:** ✅ ACCEPTABLE (comment, not visible content)
 
 **3. In Historical Examples:**
@@ -607,7 +607,7 @@ TODO: Add prerequisites
 ## Prerequisites
 - S1 complete
 - DISCOVERY.md created
-```
+```markdown
 **Verdict:** ✅ ACCEPTABLE (showing what was wrong)
 
 ### When TODOs Are Errors
@@ -619,7 +619,7 @@ Status: Active guide used in workflow
 
 ## Gate 23a Checklist
 TODO: Add checklist items
-```
+```text
 **Verdict:** ❌ ERROR (blocks workflow)
 
 **2. In Templates:**
@@ -628,7 +628,7 @@ File: templates/feature_spec_template.md
 
 ## Acceptance Criteria
 TODO: Define what constitutes done
-```
+```text
 **Verdict:** ❌ ERROR (template should guide user)
 
 **3. In Root Files:**
@@ -637,7 +637,7 @@ File: README.md
 
 ## Guide Index
 TODO: Complete this section
-```
+```markdown
 **Verdict:** ❌ CRITICAL (entry point must be complete)
 
 ---
@@ -656,7 +656,7 @@ Content:
 ## Gate 23a Checklist
 
 TODO: Add complete 5-part checklist from original guide
-```
+```text
 
 **Analysis:**
 - Gate 23a is critical validation point before S6
@@ -676,7 +676,7 @@ TODO: Add complete 5-part checklist from original guide
 
 **Part 2: Algorithm Detail**
 [Complete 5-part checklist added]
-```
+```markdown
 
 ### Example 2: Missing Required Section
 
@@ -685,7 +685,7 @@ TODO: Add complete 5-part checklist from original guide
 $ grep -A 20 "## Overview" stages/s7/s7_p2_qc_rounds.md
 
 [No match found - section missing entirely]
-```
+```bash
 
 **Analysis:**
 - Stage guides require Overview section
@@ -710,7 +710,7 @@ $ grep -A 20 "## Overview" stages/s7/s7_p2_qc_rounds.md
 - 3 QC round reports
 - All issues resolved or documented
 - Confidence in implementation quality
-```
+```markdown
 
 ### Example 3: Code Blocks Missing Language Tags
 
@@ -718,13 +718,13 @@ $ grep -A 20 "## Overview" stages/s7/s7_p2_qc_rounds.md
 ```bash
 $ grep -rn "^\`\`\`$" stages/s5/s5_p1_i1_requirements.md
 
-stages/s5/s5_p1_i1_requirements.md:234:```
+stages/s5/s5_p1_i1_requirements.md:234:```text
 stages/s5/s5_p1_i1_requirements.md:237:```
-stages/s5/s5_p1_i1_requirements.md:289:```
+stages/s5/s5_p1_i1_requirements.md:289:```text
 stages/s5/s5_p1_i1_requirements.md:292:```
 
 [8 code blocks without language tags]
-```
+```text
 
 **Analysis:**
 - Code blocks without tags don't get syntax highlighting
@@ -736,14 +736,14 @@ stages/s5/s5_p1_i1_requirements.md:292:```
 **Fix:**
 ```markdown
 # Before
-```
+```bash
 grep -rn "pattern" files/
-```
+```text
 
 # After
 ```bash
 grep -rn "pattern" files/
-```
+```text
 ```
 
 ### Example 4: Root File Missing Section
@@ -756,7 +756,7 @@ $ grep -n "## Guide Index" README.md
 # Section promised in Table of Contents but not present
 $ grep -n "Guide Index" README.md
 12:- [Guide Index](#guide-index)
-```
+```text
 
 **Analysis:**
 - **CRITICAL** - README.md is entry point (referenced in CLAUDE.md)

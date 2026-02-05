@@ -65,14 +65,14 @@
 #### Issue R2-4: `reference/glossary.md` - Wrong round breakdown
 
 **Lines 683-685:**
-```
+```text
 - Round 1: Iterations 1-7 + Gate 4a + Gate 7a (9 iterations)
 - Round 2: Iterations 8-13 (9 iterations)
 - Round 3: Iterations 14-22 (includes Gates 23a, 24, 25) (9 iterations)
 ```
 
 **Should Be:**
-```
+```text
 - Round 1: Iterations 1-7 (7 iterations, includes Gates 4a, 7a)
 - Round 2: Iterations 8-13 (6 iterations)
 - Round 3: Iterations 14-22 (9 iterations, includes Gates 23a=I20, 25=I21, 24=I22)
