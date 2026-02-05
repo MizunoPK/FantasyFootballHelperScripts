@@ -114,206 +114,29 @@ S3 runs ONCE PER ROUND (not just once at end):
 - Update Agent Status with blocker
 
 
+
 ## 🔄 Parallel Work Sync Verification (If Applicable)
 
 **Skip this section if S2 was done sequentially (single agent)**
 
 **If S2 was done in parallel mode (Primary + Secondaries):**
 
-### MANDATORY: Verify All Agents Completed S2
+The Primary agent MUST verify all secondary agents completed S2 before proceeding.
 
-**Before starting S3 comparison, the Primary agent MUST verify all secondary agents properly completed S2 and are ready for sync.**
+**Complete sync verification protocol:**
+- **File:** [s3_parallel_work_sync.md](s3_parallel_work_sync.md)
+- **File Size:** ~217 lines
+- **Time:** 15-20 minutes
 
----
+**What's covered:**
+- Step 0.1: Check completion messages from secondary agents
+- Step 0.2: Verify STATUS files show COMPLETE
+- Step 0.3: Verify checkpoint files not stale
+- Step 0.4: Verify feature specs complete
+- Step 0.5: Document sync verification
+- Step 0.6: Notify secondary agents
 
-### Step 0.1: Check Completion Messages
-
-**For EACH secondary agent:**
-
-1. **Read inbox file:**
-   - File: `agent_comms/secondary_{x}_to_primary.md`
-   - Look for: Final completion message with "S2 complete - ready for sync"
-
-2. **Verify message contents:**
-   - Completion timestamp exists
-   - Feature number and name match
-   - Blockers: none
-   - Files modified list included
-
-**If ANY secondary has NOT sent completion message:**
-- ❌ STOP - S3 cannot proceed
-- Send message to secondary: "Status check - are you complete with S2?"
-- Wait for response (allow 15 minutes)
-- If no response after 15 min → escalate to user (stale agent)
-
----
-
-### Step 0.2: Verify STATUS Files
-
-**For EACH feature (including yours):**
-
-1. **Read STATUS file:**
-   - File: `feature_{N}_{name}/STATUS`
-
-2. **Verify required fields:**
-   - `STAGE: S2.P3`
-   - `STATUS: COMPLETE`
-   - `READY_FOR_SYNC: true`
-   - `BLOCKERS: none`
-
-**If ANY feature shows different status:**
-- ❌ STOP - S3 cannot proceed
-- Check which agent owns that feature
-- Send message: "Your STATUS file shows {actual_status}, expected COMPLETE. Please verify."
-- Wait for clarification
-
----
-
-### Step 0.3: Verify Checkpoints
-
-**For EACH secondary agent:**
-
-1. **Read checkpoint file:**
-   - File: `agent_checkpoints/{secondary_agent_id}.json`
-
-2. **Verify checkpoint fields:**
-   - `status: "WAITING_FOR_SYNC"`
-   - `stage: "S2.P3"`
-   - `ready_for_next_stage: true`
-   - `last_checkpoint` within last 30 minutes (not stale)
-
-**Staleness check:**
-- If `last_checkpoint` > 30 minutes ago → ⚠️ Warning (agent may have crashed)
-- If `last_checkpoint` > 60 minutes ago → ❌ Failure (agent definitely stale)
-
-**If stale agent detected:**
-- Send message to secondary: "Checkpoint stale ({minutes} min old). Are you still active?"
-- Wait 15 minutes for response
-- If no response → escalate to user
-- See: `parallel_work/stale_agent_protocol.md` for recovery
-
----
-
-### Step 0.4: Verify Feature Specs Complete
-
-**For EACH feature:**
-
-1. **Read feature spec:**
-   - File: `feature_{N}_{name}/spec.md`
-
-2. **Verify required sections exist:**
-   - Discovery Context
-   - Requirements (with traceability)
-   - Components Affected
-   - Data Structures
-   - Algorithms
-   - Dependencies
-   - Acceptance Criteria (with user approval checkbox marked [x])
-
-3. **Verify checklist complete:**
-   - File: `feature_{N}_{name}/checklist.md`
-   - All questions marked `[x]` (resolved)
-   - User approval documented
-
-**If ANY feature has incomplete spec:**
-- ❌ STOP - S3 cannot proceed
-- Identify which agent owns that feature
-- Send message: "Feature {N} spec incomplete. Missing: {sections}. Please complete S2."
-- Wait for completion
-
----
-
-### Step 0.5: Document Sync Verification
-
-**After all verifications pass:**
-
-Create sync verification record in `epic/research/S3_SYNC_VERIFICATION_{DATE}.md`:
-
-```markdown
-# S3 Sync Verification
-
-**Date:** {YYYY-MM-DD HH:MM}
-**Epic:** {epic_name}
-**Parallel Mode:** Yes (Primary + {N} secondaries)
-
----
-
-## Verification Results
-
-### Completion Messages
-- [x] Secondary-A (Feature 02): Received {timestamp}
-- [x] Secondary-B (Feature 03): Received {timestamp}
-- [x] Secondary-C (Feature 04): Received {timestamp}
-
-### STATUS Files
-- [x] Feature 01: COMPLETE, READY_FOR_SYNC: true
-- [x] Feature 02: COMPLETE, READY_FOR_SYNC: true
-- [x] Feature 03: COMPLETE, READY_FOR_SYNC: true
-- [x] Feature 04: COMPLETE, READY_FOR_SYNC: true
-
-### Checkpoints
-- [x] Secondary-A: WAITING_FOR_SYNC, last update {timestamp} ({minutes} min ago)
-- [x] Secondary-B: WAITING_FOR_SYNC, last update {timestamp} ({minutes} min ago)
-- [x] Secondary-C: WAITING_FOR_SYNC, last update {timestamp} ({minutes} min ago)
-
-### Feature Specs
-- [x] Feature 01: All sections complete, user approved
-- [x] Feature 02: All sections complete, user approved
-- [x] Feature 03: All sections complete, user approved
-- [x] Feature 04: All sections complete, user approved
-
----
-
-## Sync Status
-
-**Result:** ✅ ALL AGENTS READY FOR SYNC
-
-**Issues Found:** None
-
-**Next Action:** Proceed to S3 Step 1 (Prepare Comparison Matrix)
-
-**Timestamp:** {YYYY-MM-DD HH:MM}
-```
-
-**If sync verification fails:**
-- Document which verifications failed
-- Update Agent Status: `BLOCKERS: Waiting for {agent} to complete {task}`
-- Do NOT proceed to S3 comparison until all verifications pass
-
----
-
-### Step 0.6: Notify Secondary Agents
-
-**After sync verification passes:**
-
-**For EACH secondary agent:**
-
-1. **Send notification message:**
-   - File: `agent_comms/primary_to_secondary_{x}.md`
-   - Message:
-     ```markdown
-     ## Message {N} ({TIMESTAMP}) ⏳ UNREAD
-     **Subject:** S3 Starting - Sync Point Reached
-     **Action:** All features verified complete, S3 beginning now
-     **Details:** 
-     - All {N} features completed S2 successfully
-     - Sync verification passed
-     - Primary now running S3 (Cross-Feature Sanity Check)
-     - You should WAIT - do NOT proceed to S3
-     
-     **Next:** After S3 completes, you'll receive notification to proceed to S4
-     **Acknowledge:** No action needed, this is informational only
-     ```
-
-2. **Update coordination tracker:**
-   - Document notification sent
-   - Timestamp for audit trail
-
----
-
-### Verification Complete
-
-**After Step 0.6:**
+**After completing parallel sync verification (if applicable):**
 - ✅ All secondary agents verified complete
 - ✅ All feature specs ready for comparison
 - ✅ Sync verification documented
@@ -321,10 +144,7 @@ Create sync verification record in `epic/research/S3_SYNC_VERIFICATION_{DATE}.md
 
 **Proceed to:** Step 1 (Prepare Comparison Matrix)
 
-**See:** `parallel_work/s2_parallel_protocol.md` → Phase 7 for S3 coordination details
-
 ---
-
 ---
 
 ## Workflow Overview
@@ -475,235 +295,135 @@ Create `epic/research/SANITY_CHECK_{DATE}.md`:
 
 ## Step 2: Systematic Comparison
 
-### Step 2.1: Compare Data Structures
+**For EACH comparison category, compare ALL features pairwise:**
 
-**For EACH feature, read spec.md and extract:**
+### Comparison Process
 
-**Feature 1 (ADP Integration):**
-```text
-Data Added:
-- FantasyPlayer.adp_value: Optional[int]
-- FantasyPlayer.adp_multiplier: float
+For each category below:
+1. Extract relevant info from each feature spec.md
+2. Fill comparison matrix
+3. Check for conflicts
+4. Document any conflicts found
 
-Field Names: adp_value, adp_multiplier
-Data Types: Optional[int], float
-```
+---
 
-**Feature 2 (Injury Assessment):**
-```text
-Data Added:
-- FantasyPlayer.injury_status: str
-- FantasyPlayer.injury_multiplier: float
+### Category 1: Data Structures
 
-Field Names: injury_status, injury_multiplier
-Data Types: str, float
-```
+**What to compare:**
+- Fields added to existing objects
+- Field names and data types
+- Potential name collisions
 
-**Fill comparison matrix:**
+**Example comparison:**
 
 | Feature | Data Added | Field Names | Data Types | Conflicts? |
 |---------|-----------|-------------|------------|------------|
-| Feature 1 | adp_value, adp_multiplier | adp_value, adp_multiplier | Optional[int], float | ❌ None |
-| Feature 2 | injury_status, injury_multiplier | injury_status, injury_multiplier | str, float | ❌ None |
-| Feature 3 | schedule_strength: float | schedule_strength | float | ❌ None |
-| Feature 4 | (uses existing fields) | N/A | N/A | ❌ None |
+| Feature 1 (ADP) | adp_value, adp_multiplier | adp_value, adp_multiplier | Optional[int], float | ❌ None |
+| Feature 2 (Injury) | injury_status, injury_multiplier | injury_status, injury_multiplier | str, float | ❌ None |
+| Feature 3 (Schedule) | schedule_strength | schedule_strength | float | ❌ None |
+| Feature 4 (Integration) | (uses existing fields) | N/A | N/A | ❌ None |
 
-**Check for conflicts:**
-- ❌ Duplicate field names? NO
-- ❌ Conflicting types for same field? NO
-- ❌ Incompatible data formats? NO
+**Conflict checks:**
+- ❌ Duplicate field names?
+- ❌ Conflicting types for same field?
+- ❌ Incompatible data formats?
 
-**Result:** No data structure conflicts
+---
 
-### Step 2.2: Compare Interfaces & Dependencies
+### Category 2: Interfaces & Dependencies
 
-**For EACH feature, extract:**
+**What to compare:**
+- Methods called from other modules
+- Expected return types
+- Parameter assumptions
 
-**Feature 1:**
-```bash
-Depends On: ConfigManager.get_adp_multiplier(adp: int) -> Tuple[float, int]
-Calls Methods:
-- PlayerManager.load_players()
-- csv_utils.read_csv_with_validation()
-Return Types Expected:
-- load_players() returns List[FantasyPlayer]
-- get_adp_multiplier() returns Tuple[float, int]
-```
+**Example conflict detection:**
 
-**Feature 2:**
-```bash
-Depends On: ConfigManager.get_injury_penalty(status: str) -> float
-Calls Methods:
-- PlayerManager.load_players()
-- PlayerManager.calculate_total_score()
-Return Types Expected:
-- load_players() returns List[FantasyPlayer]
-- calculate_total_score() returns float
-```
-
-**Fill comparison matrix and check:**
-
-**CONFLICT FOUND:**
-
+```markdown
 Feature 1 expects: `load_players() -> List[FantasyPlayer]`
 Feature 2 expects: `load_players() -> List[FantasyPlayer]`
 ✅ MATCH - No conflict
 
-Feature 4 expects: `calculate_total_score() -> float`
-But also calls it AFTER Features 1, 2, 3 add multipliers
-⚠️ **POTENTIAL CONFLICT:** Order of multiplier application
-
-**Document conflict:**
-
-```markdown
-## Conflicts Identified
-
-### Conflict 1: Multiplier Application Order
-
-**Category:** Algorithms & Logic
-
-**Issue:**
-- Feature 1: Adds adp_multiplier to scoring
-- Feature 2: Adds injury_multiplier to scoring
-- Feature 3: Adds schedule_strength multiplier to scoring
-- Feature 4: Integrates all multipliers but unclear ORDER
-
-**Current Algorithm (Feature 4 spec):**
-```
-total_score = base_score * adp_multiplier * injury_multiplier
-```markdown
-
-**Problem:** Missing schedule_strength multiplier
-
-**Impact:** Feature 3's contribution will be ignored
-
-**Resolution Needed:** Update Feature 4 spec to include ALL multipliers
-```
-
-### Step 2.3: Compare File Locations
-
-**Feature 1:** Creates `data/rankings/adp.csv`
-**Feature 2:** Creates `data/injury_reports.csv`
-**Feature 3:** Creates `data/rankings/schedule_strength.csv`
-
-**CONFLICT FOUND:**
-
-Feature 1: `data/rankings/adp.csv`
-Feature 3: `data/rankings/schedule_strength.csv`
-✅ Both in `data/rankings/` - CONSISTENT
-
-Feature 2: `data/injury_reports.csv`
-❌ In `data/` root, not `data/rankings/`
-
-**Question:** Should all ranking/data files be in `data/` or subdirectories?
-
-**Resolution:** Standardize location
-
-```markdown
-### Conflict 2: File Location Inconsistency
-
-**Category:** File Locations & Naming
-
-**Issue:**
-- Feature 1: data/rankings/adp.csv (subdirectory)
-- Feature 2: data/injury_reports.csv (root)
-- Feature 3: data/rankings/schedule_strength.csv (subdirectory)
-
-**Inconsistency:** Feature 2 not using subdirectory
-
-**Resolution:** Move Feature 2 file to subdirectory
-- Update Feature 2 spec: `data/player_info/injury_reports.csv`
-- Reasoning: Group related data types (rankings/ vs player_info/)
-```
-
-### Step 2.4: Compare Configuration Keys
-
-**Feature 1:** Adds config keys:
-- `adp_multiplier_ranges` (dict)
-- `adp_threshold` (int)
-
-**Feature 2:** Adds config keys:
-- `injury_penalty_factors` (dict)
-- `injury_severity_threshold` (int)
-
-**Feature 3:** Adds config keys:
-- `schedule_strength_weight` (float)
-- `schedule_threshold` (int)
-
-**CONFLICT FOUND:**
-
-Feature 1: `adp_threshold`
-Feature 2: `injury_severity_threshold`
-Feature 3: `schedule_threshold`
-
-All add `*_threshold` keys. Are they the same type of threshold?
-
-**Review specs:**
-- Feature 1: `adp_threshold` = ADP rank cutoff (int 1-500)
-- Feature 2: `injury_severity_threshold` = Severity rating (int 1-10)
-- Feature 3: `schedule_threshold` = Opponent strength cutoff (int 1-32)
-
-✅ Different thresholds for different purposes - No conflict
-
-### Step 2.5: Compare Algorithms
-
-**Extract algorithm summaries from each spec:**
-
-**Feature 1 Algorithm:**
-```bash
-1. Load ADP data
-2. Match player to ADP ranking
-3. Calculate multiplier based on ADP value
-4. Apply: score *= adp_multiplier
-```
-
-**Feature 2 Algorithm:**
-```text
-1. Load injury data
-2. Assess injury severity
-3. Calculate penalty multiplier
-4. Apply: score *= injury_multiplier
-```
-
-**Feature 4 Algorithm (Integration):**
-```text
-1. Get base score
-2. Apply ADP multiplier
-3. Apply injury multiplier
-4. Return total score
-```
-
-**CONFLICT (already identified):** Feature 4 missing schedule_strength multiplier
-
-### Step 2.6: Document All Conflicts
-
-After systematic comparison, compile full conflict list:
-
-```markdown
-## Summary: Conflicts Identified
-
-**Total Conflicts Found:** 2
-
-1. **Multiplier Application Order** (Category: Algorithms)
-   - Feature 4 missing schedule_strength multiplier
-   - Severity: HIGH
-   - Affects: Feature 4
-
-2. **File Location Inconsistency** (Category: File Locations)
-   - Feature 2 not using subdirectory structure
-   - Severity: LOW
-   - Affects: Feature 2
-
-**No conflicts found in:**
-- Data Structures
-- Interfaces & Dependencies (method signatures match)
-- Configuration Keys (no duplicates or conflicts)
-- Testing Assumptions
+Feature 4 expects: `calculate_total_score()` includes ALL multipliers
+But spec only shows: `score = base * adp * injury`
+⚠️ CONFLICT: Missing schedule_strength multiplier
 ```
 
 ---
 
-## Step 3: Conflict Resolution
+### Category 3: File Locations & Naming
+
+**What to compare:**
+- File paths created by each feature
+- Directory structure consistency
+- Naming convention alignment
+
+**Example:**
+- Feature 1: `data/rankings/adp.csv` (subdirectory)
+- Feature 2: `data/injury_reports.csv` (root)
+- Feature 3: `data/rankings/schedule_strength.csv` (subdirectory)
+
+⚠️ CONFLICT: Feature 2 inconsistent with subdirectory structure
+
+---
+
+### Category 4: Configuration Keys
+
+**What to compare:**
+- Config keys added by each feature
+- Key name collisions
+- Config file locations
+
+**Check for conflicts:**
+- Same key name used differently
+- Keys that should be shared but aren't
+
+---
+
+### Category 5: Algorithms & Logic
+
+**What to compare:**
+- Algorithm approach (multiplicative vs additive)
+- Order dependencies
+- Score calculation logic
+
+**Common conflicts:**
+- Integration feature missing a data source
+- Conflicting assumptions about calculation order
+- Incompatible score modification strategies
+
+---
+
+### Category 6: Testing Assumptions
+
+**What to compare:**
+- Test data requirements
+- Mock dependencies
+- Integration test assumptions
+
+---
+
+### Step 2.6: Document All Conflicts
+
+**After systematic comparison, compile conflict list:**
+
+```markdown
+## Summary: Conflicts Identified
+
+**Total Conflicts Found:** {N}
+
+### Conflict 1: {Name}
+- **Category:** {Category}
+- **Issue:** {Description}
+- **Severity:** HIGH/MEDIUM/LOW
+- **Affects:** {Feature(s)}
+
+[Continue for each conflict...]
+
+**No conflicts found in:**
+- {List categories with no conflicts}
+```
+
 
 ### Step 3.1: Resolve Each Conflict
 
@@ -858,95 +578,48 @@ Create presentation for user in epic EPIC_README.md or separate document:
 
 ## Feature Summary
 
-### Feature 1: ADP Integration
-**Purpose:** Integrate Average Draft Position data into player scoring
-**Scope:** Load ADP data, calculate multiplier, apply to scores
-**Dependencies:** None (foundation)
-**Risk:** MEDIUM
-**Estimate:** ~30 implementation items
+| Feature | Purpose | Dependencies | Risk | Est. Items |
+|---------|---------|--------------|------|------------|
+| Feature 1: {Name} | {Purpose} | None | {RISK} | ~{N} |
+| Feature 2: {Name} | {Purpose} | None | {RISK} | ~{N} |
+| Feature 3: {Name} | {Purpose} | None | {RISK} | ~{N} |
+| Feature 4: {Name} | {Purpose} | Features 1-3 | {RISK} | ~{N} |
 
-### Feature 2: Injury Risk Assessment
-**Purpose:** Evaluate player injury risk and apply penalty
-**Scope:** Load injury data, assess severity, calculate penalty multiplier
-**Dependencies:** None (parallel to Feature 1)
-**Risk:** LOW
-**Estimate:** ~25 implementation items
-
-### Feature 3: Schedule Strength Analysis
-**Purpose:** Analyze upcoming opponent strength for roster decisions
-**Scope:** Load schedule data, calculate opponent strength, apply multiplier
-**Dependencies:** None (parallel to Features 1, 2)
-**Risk:** LOW
-**Estimate:** ~20 implementation items
-
-### Feature 4: Recommendation Engine Updates
-**Purpose:** Integrate all new data sources into draft recommendations
-**Scope:** Update scoring algorithm, integrate Features 1-3, comprehensive testing
-**Dependencies:** Features 1, 2, 3 (must complete first)
-**Risk:** HIGH (integration complexity)
-**Estimate:** ~35 implementation items
+**Risk Levels:**
+- HIGH: Complex integration, multiple dependencies
+- MEDIUM: External data, matching logic
+- LOW: Straightforward data loading
 
 ---
 
 ## Implementation Order
 
 **Recommended sequence:**
+1. Implement independent features in parallel (Features 1-3)
+2. Implement integration feature (Feature 4) after dependencies complete
 
-1. **Step 1:** Implement Features 1, 2, 3 in parallel
-   - All three are independent (no dependencies)
-   - Can be developed simultaneously
-   - Each can be tested in isolation
-
-2. **Step 2:** Implement Feature 4
-   - Depends on Features 1, 2, 3 being complete
-   - Integrates all new data sources
-   - Requires integration testing with all features
-
----
-
-## Dependencies Diagram
-
+**Dependency diagram:**
 ```
-Feature 1 (ADP) ──────┐
-                      ├──> Feature 4 (Integration)
-Feature 2 (Injury) ───┤
-                      │
-Feature 3 (Schedule) ─┘
-```markdown
-
----
-
-## Risk Assessment
-
-**HIGH Risk:**
-- Feature 4 (Integration) - Complex, depends on others
-
-**MEDIUM Risk:**
-- Feature 1 (ADP) - External data source, matching logic
-
-**LOW Risk:**
-- Feature 2 (Injury) - Straightforward data loading
-- Feature 3 (Schedule) - Similar to existing features
-
-**Mitigation:**
-- Implement low-risk features first (build confidence)
-- Test each feature independently before integration
-- Feature 4 will have comprehensive integration tests
+Feature 1 ──────┐
+                 ├──> Feature 4
+Feature 2 ───────┤
+                 │
+Feature 3 ───────┘
+```
 
 ---
 
 ## Sanity Check Results
 
 **Cross-feature comparison complete:**
-- ✅ All data structures aligned
-- ✅ All interfaces verified
-- ✅ All file locations standardized
-- ✅ All configuration keys unique
-- ✅ All algorithms coordinated
+- ✅ Data structures aligned
+- ✅ Interfaces verified
+- ✅ File locations standardized
+- ✅ Configuration keys unique
+- ✅ Algorithms coordinated
 
-**Conflicts found and resolved:** 2
-- Multiplier application order (Feature 4)
-- File location inconsistency (Feature 2)
+**Conflicts found and resolved:** {N}
+- {Brief list of conflicts}
 
 **Ready for implementation:** YES
 
@@ -954,17 +627,14 @@ Feature 3 (Schedule) ─┘
 
 ## Next Steps After Approval
 
-1. **S4:** Update epic testing strategy based on this plan
-2. **S5:** Implement features sequentially (1, 2, 3, then 4)
+1. **S4:** Update epic testing strategy
+2. **S5:** Implement features sequentially
 3. **S9:** Epic-level final QC
 4. **S10:** Epic cleanup and completion
 
-**Estimated total timeline:** {X} features × {Y} hours = {Z} hours
+**Estimated timeline:** {N} features × {Y} hours = {Z} hours
 ```
 
----
-
-## Step 5: User Sign-Off
 
 ### Step 5.1: Verify Acceptance Criteria (PRE-CHECK - MANDATORY)
 
@@ -1211,52 +881,27 @@ Following `stages/s4/s4_epic_testing_strategy.md` to update epic_smoke_test_plan
 
 **Epic:** Improve Draft Helper (4 features)
 
-**Step 1: Comparison Matrix Created**
-- Listed all 4 features
-- Created 6-category comparison template
+**Systematic Comparison Results:**
 
-**Step 2: Systematic Comparison**
+| Category | Findings |
+|----------|----------|
+| Data Structures | ✅ No conflicts - all features add unique fields |
+| Interfaces | ✅ Method signatures match across features |
+| File Locations | ⚠️ CONFLICT: Feature 2 uses root instead of subdirectory |
+| Config Keys | ✅ No duplicates - all threshold keys distinct |
+| Algorithms | ⚠️ CONFLICT: Feature 4 missing schedule_strength multiplier |
+| Testing | ✅ Compatible test assumptions |
 
-**Category: Data Structures**
-- Feature 1: Adds adp_value, adp_multiplier to FantasyPlayer
-- Feature 2: Adds injury_status, injury_multiplier to FantasyPlayer
-- Feature 3: Adds schedule_strength to FantasyPlayer
-- Feature 4: Uses all above fields
-- ✅ No conflicts
+**Conflicts Found:** 2
+1. **Multiplier Order** (HIGH): Feature 4 algorithm incomplete
+2. **File Location** (LOW): Feature 2 inconsistent directory structure
 
-**Category: Algorithms**
-- Feature 1: score *= adp_multiplier
-- Feature 2: score *= injury_multiplier
-- Feature 3: score *= schedule_strength
-- Feature 4: score = base * adp * injury (MISSING schedule_strength)
-- ⚠️ CONFLICT FOUND
+**Resolutions:**
+1. Updated Feature 4 spec to include all multipliers
+2. Standardized Feature 2 file location to use subdirectory
 
-**Category: File Locations**
-- Feature 1: data/rankings/adp.csv
-- Feature 2: data/injury_reports.csv (no subdirectory)
-- Feature 3: data/rankings/schedule.csv
-- ⚠️ CONFLICT FOUND (inconsistent directories)
+**Result:** All conflicts resolved, user approved plan, ready for S4
 
-**Step 3: Conflict Resolution**
-1. Updated Feature 4 algorithm to include all multipliers
-2. Updated Feature 2 file location to use subdirectory
-3. Verified no new conflicts
-
-**Step 4: Plan Summary**
-- Created implementation plan
-- Documented dependencies
-- Risk assessment
-
-**Step 5: User Sign-Off**
-- Presented plan
-- User approved
-- Documented approval
-
-**Result:** Ready for S4
-
----
-
-## README Agent Status Update Requirements
 
 **Update epic EPIC_README.md Agent Status at these points:**
 
