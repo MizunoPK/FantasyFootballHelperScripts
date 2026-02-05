@@ -6,6 +6,23 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Template 1: Epic PR Review Results (Step 6)](#template-1-epic-pr-review-results-step-6)
+3. [Template 2: Issues Found Documentation (Step 7.1)](#template-2-issues-found-documentation-step-71)
+4. [Template 3: Issue Prioritization (Step 7.2)](#template-3-issue-prioritization-step-72)
+5. [Template 4: User Presentation (Step 7.3)](#template-4-user-presentation-step-73)
+6. [Template 5: Bug Fix Folder Structure (Step 7.4)](#template-5-bug-fix-folder-structure-step-74)
+7. [Template 6: S9 Restart Documentation (Step 7.5)](#template-6-s9-restart-documentation-step-75)
+8. [Template 7: Final Verification Checklist (Step 8.1)](#template-7-final-verification-checklist-step-81)
+9. [Template 8: Epic Progress Tracker Update (Step 8.2)](#template-8-epic-progress-tracker-update-step-82)
+10. [Template 9: S9.P3 Lessons Learned (Step 8.3)](#template-9-s9p3-lessons-learned-step-83)
+11. [Template 10: Agent Status Update (Step 8.4)](#template-10-agent-status-update-step-84)
+12. [Template Selection Guide](#template-selection-guide)
+
+---
+
 ## Overview
 
 This reference provides all templates needed during S9.P3 (Epic Final Review):

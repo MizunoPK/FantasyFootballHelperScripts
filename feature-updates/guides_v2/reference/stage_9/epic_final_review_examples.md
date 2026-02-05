@@ -6,6 +6,16 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+3. [Real-World Example](#real-world-example)
+4. [Best Practices Summary](#best-practices-summary)
+5. [Quick Reference: S9.P3 Steps](#quick-reference-s9p3-steps)
+
+---
+
 ## Overview
 
 This reference provides practical examples for S9.P3 (Epic Final Review):
