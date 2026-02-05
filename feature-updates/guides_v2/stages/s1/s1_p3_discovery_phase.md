@@ -8,7 +8,24 @@
 
 ---
 
-## Quick Start
+## Prerequisites
+
+**Before starting S1.P3 (Discovery Phase):**
+
+- [ ] S1 Steps 1-2 complete (Initial Setup + Epic Analysis)
+- [ ] Epic folder created with EPIC_README.md
+- [ ] Epic request file ({epic_name}_notes.txt) exists and reviewed
+- [ ] Initial scope assessment complete (SMALL/MEDIUM/LARGE)
+- [ ] Working directory: Epic folder root
+- [ ] Read validation_loop_discovery.md to understand validation requirements
+
+**If any prerequisite fails:**
+- Return to S1 to complete missing steps
+- Do NOT start Discovery until Steps 1-2 complete
+
+---
+
+## Overview
 
 **What is this guide?**
 The Discovery Phase is a mandatory research and validation process where the agent explores the problem space, creates a comprehensive DISCOVERY.md document, then validates it through Validation Loop protocol until 3 consecutive clean rounds confirm completeness.
@@ -922,6 +939,30 @@ X "I found 5 issues, I'll fix 3 now and 2 later"
 **ONLY after completing ALL 6 actions above, proceed to S1.P3.4 (User Approval)**
 
 ---
+
+---
+
+## Exit Criteria
+
+**S1.P3 (Discovery Phase) is complete when ALL of these are true:**
+
+- [ ] Validation Loop validation complete (3 consecutive clean rounds with zero issues/gaps)
+- [ ] DISCOVERY.md created and complete with all required sections:
+  - [ ] Executive Summary
+  - [ ] Key Findings
+  - [ ] Technical Analysis
+  - [ ] Solution Options with comparison
+  - [ ] Recommended Approach with rationale
+  - [ ] Scope Definition (in/out/deferred)
+  - [ ] Recommended Feature Breakdown (with Discovery basis for each feature)
+  - [ ] All Open Questions resolved
+- [ ] User has approved DISCOVERY.md (S1.P3.4)
+- [ ] User has approved recommended approach
+- [ ] Feature breakdown drafted and ready to present
+- [ ] EPIC_README.md updated with Discovery completion
+- [ ] Ready to proceed to S1 Step 4 (Feature Breakdown Proposal)
+
+**If any criterion unchecked:** Do NOT proceed to S1 Step 4
 
 ---
 
