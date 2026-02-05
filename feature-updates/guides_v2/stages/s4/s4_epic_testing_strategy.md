@@ -375,205 +375,69 @@ From S3:
 
 ### Step 4.1: Convert High-Level Categories to Concrete Tests
 
-**BEFORE (S1):**
-```markdown
-## High-Level Test Categories
+**Goal:** Transform abstract test categories into specific, executable test scenarios
 
-### Category 1: Cross-Feature Integration
-**What to test:** {General idea of integration points}
-**Specific scenarios:** TBD in S4
+**Test Scenario Format:**
+```markdown
+### Test Scenario {N}: {Name}
+
+**Context:** {What features/components this tests}
+**Steps:** {Specific commands or actions}
+**Expected Output:** {Concrete, measurable output}
+**Success Criteria:** {Specific pass conditions}
 ```
 
-**AFTER (S4):**
-```markdown
-## Specific Test Scenarios
+**Example Scenarios:**
 
-### Test Scenario 1: Data File Creation (Features 1, 2, 3)
+### Test Scenario 1: Data File Creation
 
-**Purpose:** Verify all features create their data files in correct locations
-
+**Context:** Features 1-3 create data files (CSV/JSON)
 **Steps:**
-1. Clear data directories: `rm -rf data/rankings/* data/player_info/*`
-2. Run Feature 1: Load ADP data
-3. Run Feature 2: Load injury data
-4. Run Feature 3: Load schedule data
+1. Delete existing data files
+2. Run: `python run_league_helper.py --mode draft`
+3. Check data/ directory
 
-**Expected Results:**
-✅ `data/rankings/adp.csv` exists and contains >100 rows
-✅ `data/player_info/injury_reports.csv` exists and contains >50 rows
-✅ `data/rankings/schedule_strength.csv` exists and contains >30 rows
+**Expected Output:**
+- All data files created with valid content
+- CSV/JSON formats parseable
 
-**Failure Indicators:**
-❌ Any file missing → Feature failed to create output
-❌ File exists but empty → Feature ran but no data loaded
-❌ File in wrong location → Feature not following spec
-
-**Command to verify:**
-```
-test -f data/rankings/adp.csv && echo "Feature 1 OK" || echo "Feature 1 FAILED"
-test -f data/player_info/injury_reports.csv && echo "Feature 2 OK" || echo "Feature 2 FAILED"
-test -f data/rankings/schedule_strength.csv && echo "Feature 3 OK" || echo "Feature 3 FAILED"
-```markdown
+**Success Criteria:**
+- [ ] All required files created
+- [ ] Files contain valid data
+- [ ] No errors during creation
 
 ---
 
-### Test Scenario 2: FantasyPlayer Field Integration (All Features)
+### Test Scenario 2: End-to-End Workflow
 
-**Purpose:** Verify all features add their fields to FantasyPlayer model
-
+**Context:** Complete feature workflow with all integrations
 **Steps:**
-1. Run league helper with all features enabled
-2. Load player data
-3. Inspect first player object
+1. Run: `python run_league_helper.py --mode {primary_mode}`
+2. Execute feature-specific actions
+3. Verify output includes all expected data
 
-**Expected Results:**
-✅ Player object has field: `adp_value` (Feature 1)
-✅ Player object has field: `adp_multiplier` (Feature 1)
-✅ Player object has field: `injury_status` (Feature 2)
-✅ Player object has field: `injury_multiplier` (Feature 2)
-✅ Player object has field: `schedule_strength` (Feature 3)
+**Expected Output:**
+- All features contribute to final result
+- No missing data or errors
 
-**Failure Indicators:**
-❌ Missing field → Feature didn't modify FantasyPlayer
-❌ Field exists but None → Feature didn't populate data
-
-**Command to verify:**
-```
-# In Python REPL
-from league_helper.util.PlayerManager import PlayerManager
-pm = PlayerManager(data_folder="data/")
-players = pm.load_players()
-p = players[0]
-print(f"ADP: {p.adp_value}, {p.adp_multiplier}")
-print(f"Injury: {p.injury_status}, {p.injury_multiplier}")
-print(f"Schedule: {p.schedule_strength}")
-# All should print values (not None)
-```markdown
+**Success Criteria:**
+- [ ] All features integrated correctly
+- [ ] Output matches expected format
+- [ ] No errors or warnings
 
 ---
 
-### Test Scenario 3: Multiplier Application (Feature 4)
+**Additional Scenario Types:**
+- **Error Handling:** Test missing dependencies, invalid config, corrupt data
+- **Edge Cases:** Boundary conditions, empty inputs, max values
+- **Performance:** Response times, large dataset handling
+- **Backward Compatibility:** Old data formats, deprecated features
 
-**Purpose:** Verify Feature 4 includes ALL multipliers in score calculation
+**Complete examples:** See `reference/stage_4/test_scenario_templates.md` for 6+ detailed scenarios
 
-**Steps:**
-1. Create test player with known multipliers:
-   - adp_multiplier = 1.2
-   - injury_multiplier = 0.9
-   - schedule_strength = 1.1
-   - base_score = 100
-2. Calculate total_score
-3. Verify result
+### Step 4.2: Document Each Test Scenario
 
-**Expected Results:**
-✅ total_score = 100 * 1.2 * 0.9 * 1.1 = 118.8
-✅ Calculation includes ALL three new multipliers
-
-**Failure Indicators:**
-❌ total_score = 100 → No multipliers applied
-❌ total_score = 108 → Missing one multiplier
-❌ total_score != 118.8 → Incorrect calculation
-
-**Command to verify:**
-```
-# Unit test
-def test_all_multipliers_applied():
-    player = FantasyPlayer(...)
-    player.projected_points = 100
-    player.adp_multiplier = 1.2
-    player.injury_multiplier = 0.9
-    player.schedule_strength = 1.1
-
-    score = player.calculate_total_score()
-
-    assert abs(score - 118.8) < 0.01, f"Expected 118.8, got {score}"
-```markdown
-
----
-
-### Test Scenario 4: End-to-End Workflow
-
-**Purpose:** Verify complete draft helper workflow with all features
-
-**Steps:**
-1. Start league helper: `python run_league_helper.py --mode draft`
-2. Select player position (e.g., "QB")
-3. View recommendations
-4. Exit
-
-**Expected Results:**
-✅ Program starts without errors
-✅ Recommendations displayed (10+ players)
-✅ Each player has total_score > 0
-✅ Program exits cleanly (exit code 0)
-
-**Failure Indicators:**
-❌ Import error → Module integration issue
-❌ No recommendations → Scoring calculation failed
-❌ Crash during execution → Runtime error in integration
-
-**Command to verify:**
-```
-python run_league_helper.py --mode draft <<EOF
-QB
-exit
-EOF
-echo "Exit code: $?"  # Should be 0
-```text
-```
-
-### Step 4.2: Add Integration-Specific Tests
-
-Based on integration points from Step 2:
-
-```markdown
-### Test Scenario 5: Data File Integration (Feature 4 depends on 1, 2, 3)
-
-**Purpose:** Verify Feature 4 can load data from Features 1, 2, 3
-
-**Setup:**
-- Ensure Features 1, 2, 3 have created their data files
-
-**Steps:**
-1. Run Feature 4 (recommendation engine)
-2. Verify it loads all data sources
-3. Verify no file-not-found errors
-
-**Expected Results:**
-✅ Feature 4 successfully loads data/rankings/adp.csv
-✅ Feature 4 successfully loads data/player_info/injury_reports.csv
-✅ Feature 4 successfully loads data/rankings/schedule_strength.csv
-✅ No error messages in logs
-
-**Failure Indicators:**
-❌ FileNotFoundError → Feature 4 can't find data file
-❌ Parse error → Data file in wrong format
-❌ Empty data → Data file exists but no content
-
----
-
-### Test Scenario 6: Scoring Baseline Comparison
-
-**Purpose:** Verify new features CHANGE scores (not just add zero)
-
-**Setup:**
-- Get baseline score (without Features 1, 2, 3 active)
-- Run with Features 1, 2, 3 active
-
-**Steps:**
-1. Load player "Patrick Mahomes"
-2. Calculate score WITHOUT new features: baseline_score
-3. Calculate score WITH new features: new_score
-4. Compare
-
-**Expected Results:**
-✅ new_score != baseline_score (features had impact)
-✅ new_score differs by at least 5% (material impact)
-
-**Failure Indicators:**
-❌ new_score == baseline_score → Features not applied
-❌ new_score < 0 → Calculation error
-```
+Add all scenarios to `epic_smoke_test_plan.md` in structured format shown above.
 
 ---
 
@@ -700,360 +564,94 @@ Keep categories but add specific guidance:
 
 ## Step 6: S4 Validation Loop (MANDATORY)
 
-**Similar to S3 Final Validation Loop, but for epic test plan.**
+**Goal:** Validate epic test plan completeness through iterative review
 
-**Goal:** Achieve 2-3 consecutive clean loops with ZERO issues in test plan
+**Exit Condition:** 3 consecutive clean rounds (zero issues found)
 
-**Loop Process:**
-1. Update epic_smoke_test_plan.md with new features (completed in Step 5)
-2. Review test plan skeptically from chosen perspective:
-   - Are all new features covered with specific test scenarios?
-   - Do integration points include new dependencies?
-   - Are success criteria updated for new components?
-   - Is test execution order still logical?
-   - Are edge cases covered?
-3. Find issues (missing tests, inconsistent validation, unclear scenarios)
-4. Resolve ALL issues (same zero-tolerance standard as S3)
-5. Loop again with fresh perspective
-6. **Exit condition:** 2-3 consecutive clean loops (ZERO issues found)
+### Validation Process
 
-**Validation Perspectives to Use:**
-1. **Test Coverage Reviewer** (Loop 1): Every feature has specific test scenarios
-2. **Integration Validator** (Loop 2): All cross-feature integration points tested
-3. **User Acceptance Tester** (Loop 3): Success criteria clear and measurable
+**Each Round:**
+1. **Review test plan** against checklist:
+   - [ ] All features have test scenarios
+   - [ ] Integration points tested
+   - [ ] Success criteria measurable
+   - [ ] Edge cases covered
+   - [ ] Performance criteria defined
 
-**Why this matters:**
-- Epic test plan is critical for S9 validation
-- One-pass updates miss edge cases and gaps
-- Skeptical validation catches missing test coverage
-- Quality standard: Same rigor as S3 (zero tolerance for issues)
+2. **Find issues:** Any gaps, missing scenarios, unclear criteria
 
-**Time Investment:**
-- 2-3 loops: ~15-30 minutes total
-- Prevents S9 rework: Saves 1-2 hours
+3. **Fix immediately:** Update epic_smoke_test_plan.md, no deferrals
 
-**Documentation:**
-Create validation log in epic_smoke_test_plan.md Update Log:
-- Loop 1: [perspective] - [N issues found] - [resolutions]
-- Loop 2: [perspective] - [N issues found] - [resolutions]
-- Loop 3: [perspective] - 0 issues found ✅
-- Exit: 2 consecutive clean loops achieved
+4. **Document round:** Record issues found and fixed
 
-**Historical context:** KAI-7 added S4 validation loop requirement after discovering one-pass updates missed integration points and test coverage gaps.
+5. **Repeat:** Continue until 3 consecutive clean rounds
+
+**Common Issues:**
+- Missing integration point tests
+- Vague success criteria ("works correctly" vs "returns 200 status")
+- Incomplete edge case coverage
+- No performance baselines
+
+**Maximum 10 rounds:** Escalate to user if exceeding
 
 ---
 
-## Step 7: Mark S4 Complete
+## Step 7: Mark S4 Complete and Request Gate 4.5 Approval
 
-### Step 7.1: Update epic EPIC_README.md
+**Prerequisites:**
+- [ ] Validation loop complete (3 consecutive clean rounds)
+- [ ] epic_smoke_test_plan.md updated with all scenarios
+- [ ] All integration points documented
+- [ ] Success criteria measurable
 
-**Epic Completion Checklist:**
-
-```markdown
-**S4 - Epic Testing Strategy:**
-- [x] epic_smoke_test_plan.md updated
-- [x] Integration points identified (6 integration points)
-- [x] Epic success criteria defined (5 measurable criteria)
-- [ ] 🚨 Gate 4.5: User approval of test plan (MANDATORY - must complete before S5)
-```
-
-**Agent Status:**
-
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** USER_APPROVAL
-**Current Step:** Waiting for Gate 4.5 (Epic Test Plan Approval)
-**Current Guide:** stages/s4/s4_epic_testing_strategy.md
-**Guide Last Read:** {YYYY-MM-DD HH:MM}
-
-**Progress:** S4 updates complete, awaiting user approval of test plan
-**Next Action:** Present epic_smoke_test_plan.md to user for approval (Gate 4.5)
-**Blockers:** None
-
-**Testing Strategy:** epic_smoke_test_plan.md updated with 6 test scenarios, 5 success criteria
-```
-
-### Step 7.2: Present Test Plan to User (🚨 GATE 4.5 - MANDATORY)
-
-**🚨 CRITICAL:** You MUST get user approval of epic_smoke_test_plan.md before proceeding to S5.
-
-**Why this gate exists:**
-- Agent needs to know EXACTLY how to test work BEFORE creating implementation plans
-- User can adjust test strategy early (cheap to change at S4 vs expensive at S5 Round 3)
-- Test strategy should guide implementation planning (not vice versa)
-- Addresses guide-updates.txt #10: "Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself."
+### Gate 4.5: Epic Test Plan Approval (MANDATORY)
 
 **Present to user:**
 
 ```markdown
-🚨 **Gate 4.5: Epic Test Plan Approval Required**
+## Epic Test Plan Ready for Approval
 
-I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the feature specs from Stages 2-3.
+S4 (Epic Testing Strategy) is complete.
 
-**Summary of epic_smoke_test_plan.md:**
-- **Success Criteria:** {N} measurable criteria defined
-- **Test Scenarios:** {N} specific test scenarios identified
-- **Integration Points:** {N} cross-feature integration points documented
-- **Data Quality Checks:** Verify VALUES (not just structure)
-- **Concrete Commands:** Specific commands and expected outputs documented
+**Test Plan Summary:**
+- Features covered: {N} features
+- Test scenarios: {M} scenarios
+- Integration points: {K} tested
+- Validation: {R} rounds, 3 clean rounds achieved
 
-**Key test scenarios include:**
-1. {Scenario 1 summary}
-2. {Scenario 2 summary}
-3. {Scenario 3 summary}
-...
+**Coverage:**
+- Feature functionality: {list features}
+- Integration: {list integration points}
+- Edge cases: {summary}
+- Performance: {criteria}
 
-**Why approval is needed now:**
-- I need to know EXACTLY how to test this work BEFORE creating implementation plans (S5)
-- Test requirements will guide how I structure implementation tasks and test strategy
-- Changes to test plan are cheap now, expensive after 22 verification iterations
+**Review:** `feature-updates/KAI-{N}-{epic_name}/epic_smoke_test_plan.md`
 
-**Please review `epic_smoke_test_plan.md` and:**
-- ✅ Approve if test strategy looks correct
-- ❌ Request changes if test strategy needs adjustment
+**Do you approve this epic test plan?**
 
-**Questions to consider:**
-- Do the success criteria measure what matters to you?
-- Are the test scenarios comprehensive enough?
-- Are there additional integration points I should test?
-- Do the data quality checks verify the right values?
-
-**I cannot proceed to S5 (Implementation Planning) without your approval.**
+If approved: I'll proceed to S5 (Implementation Planning) for Feature 01
+If changes needed: I'll update the test plan
 ```
 
-**Wait for user response.**
+**Wait for explicit user approval** before proceeding to S5.
 
-**If user approves:**
-- Mark Gate 4.5 as ✅ PASSED in EPIC_README.md
-- Add timestamp to User Approval section in epic_smoke_test_plan.md
-- Proceed to Step 6.3
-
-**If user requests changes:**
-- Revise epic_smoke_test_plan.md based on feedback
-- Re-present for approval
-- Repeat until user approves
-
-**Evidence of passing Gate 4.5:**
-- User says "approved" or "looks good" or equivalent
-- Gate 4.5 checkbox marked ✅ in EPIC_README.md
-- User Approval section in epic_smoke_test_plan.md completed with timestamp
-
-### Step 6.3: Announce Transition (After Gate 4.5 Passes)
-
-```markdown
-✅ **S4 (Epic Testing Strategy) Complete**
-
-**epic_smoke_test_plan.md updated and approved:**
-- Added 5 measurable success criteria
-- Created 6 specific test scenarios
-- Identified 6 integration points
-- Documented concrete commands and expected outputs
-- ✅ User approved test plan (Gate 4.5 PASSED)
-
-**Changes from S1:**
-- Replaced placeholder "TBD" with actual test commands
-- Converted vague criteria to measurable criteria
-- Added integration tests between features
-
-**Test plan evolution:**
-- S1: Assumptions (no implementation knowledge)
-- S4: Concrete (based on feature specs) ← CURRENT (USER APPROVED)
-- S8.P2 (Epic Testing Update): Will update after EACH feature implementation
-
-**Next: S5 (Feature Implementation)**
-
-Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to S5 to begin implementation planning for the first feature.
-
-Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive implementation plan with 22 verification iterations across 3 rounds.
-```
-
-**Update EPIC_README.md Agent Status:**
-
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Phase:** IMPLEMENTATION
-**Current Step:** Ready to begin S5 (Feature Implementation)
-**Current Guide:** stages/s5/s5_p1_planning_round1.md
-**Guide Last Read:** NOT YET (will read when starting S5 - Round 1)
-
-**Progress:** S4 complete, testing strategy approved by user (Gate 4.5 ✅)
-**Next Action:** Begin S5 (Implementation Planning) for first feature
-**Blockers:** None
-
-**Testing Strategy:** epic_smoke_test_plan.md approved with 6 test scenarios, 5 success criteria
-```
+**Handle Response:**
+- **If APPROVED:** Mark S4 complete, update Agent Status, proceed to S5
+- **If CHANGES:** Update test plan, re-validate, re-present
+- **If REJECTED:** Return to appropriate step (2, 3, or 4), restart from there
 
 ---
 
-## Exit Criteria
+### Update Agent Status
 
-**S4 is complete when ALL of these are true:**
-
-□ epic_smoke_test_plan.md updated with:
-  - Version marked "STAGE 4" (not "INITIAL")
-  - Epic Success Criteria section: 3-5 MEASURABLE criteria
-  - Specific Test Scenarios section: 4-6 concrete tests with commands
-  - High-Level Test Categories: Guidance for S8.P2 (Epic Testing Update) updates
-  - Update Log: S4 entry documenting changes
-□ Integration points identified and documented:
-  - Where features interact
-  - Data flows between features
-  - Shared resources
-□ All test scenarios have:
-  - Purpose statement
-  - Specific steps to execute
-  - Expected results (measurable)
-  - Failure indicators (what errors mean)
-  - Commands or code to verify
-□ Success criteria are MEASURABLE:
-  - Not "feature works"
-  - Yes "file exists with >100 rows"
-□ Epic EPIC_README.md updated:
-  - Epic Completion Checklist: S4 items checked
-  - Agent Status: Phase = IMPLEMENTATION, ready for S5
-
-**If any item unchecked:**
-- ❌ S4 is NOT complete
-- ❌ Do NOT proceed to S5
-- Complete missing items first
+**After approval:**
+- Mark S4 complete in EPIC_README.md
+- Update Agent Status: Ready for S5 (Feature 01)
+- Set Current Guide: `stages/s5/s5_p1_planning_round1.md`
 
 ---
 
-## Common Mistakes to Avoid
-
-```text
-┌────────────────────────────────────────────────────────────┐
-│ "If You're Thinking This, STOP" - Anti-Pattern Detection  │
-└────────────────────────────────────────────────────────────┘
-
-❌ "S1 test plan looks good enough"
-   ✅ STOP - S1 was placeholder, S4 needs major update
-
-❌ "I'll add general tests like 'verify features work'"
-   ✅ STOP - Tests must be SPECIFIC and MEASURABLE
-
-❌ "I'll skip integration point mapping, seems obvious"
-   ✅ STOP - Must explicitly document where features interact
-
-❌ "Test commands can be TBD, we'll figure it out in S5"
-   ✅ STOP - S4 should have actual commands from specs
-
-❌ "Success criteria: 'Epic achieves goals'"
-   ✅ STOP - Too vague, must be measurable (files exist, tests pass, etc.)
-
-❌ "I'll just list tests, don't need expected results"
-   ✅ STOP - Each test needs expected results and failure indicators
-
-❌ "Let me start implementing features"
-   ✅ STOP - S5 (TODO creation) comes BEFORE implementation
-
-❌ "This test plan is final, won't change"
-   ✅ STOP - Plan will update in S8.P2 (Epic Testing Update) after each feature
-```
-
----
-
-## Real-World Example
-
-**Epic:** Improve Draft Helper
-
-**S1 Plan (Placeholder):**
-```bash
-Success Criteria:
-1. Draft helper improved (vague)
-2. More data sources used (not measurable)
-
-Specific Tests: TBD
-```
-
-**S4 Plan (After deep dives):**
-```text
-Success Criteria:
-1. ✅ All 3 data files exist: adp.csv, injury_reports.csv, schedule_strength.csv
-2. ✅ FantasyPlayer has 5 new fields (3 values + 2 multipliers)
-3. ✅ calculate_total_score() includes all 3 new multipliers
-4. ✅ Draft recommendations show >10 players with score >0
-5. ✅ Integration test passes: test_draft_helper_integration.py
-
-Specific Tests:
-Test 1: Verify data files created
-  Command: ls data/rankings/ data/player_info/
-  Expected: 3 files present
-
-Test 2: Verify FantasyPlayer fields
-  Command: Python REPL inspection
-  Expected: All fields present and populated
-
-Test 3: Verify multiplier application
-  Command: Unit test with known values
-  Expected: score = base * 1.2 * 0.9 * 1.1
-
-Test 4: E2E workflow
-  Command: python run_league_helper.py --mode draft
-  Expected: Recommendations displayed, exit code 0
-
-Test 5: Integration test
-  Command: python tests/integration/test_draft_helper_integration.py
-  Expected: All assertions pass
-
-Test 6: Baseline comparison
-  Command: Compare scores before/after features
-  Expected: Scores differ by >5%
-```
-
----
-
-## README Agent Status Update Requirements
-
-**Update epic EPIC_README.md Agent Status at these points:**
-
-1. ⚡ After reviewing initial test plan (Step 1)
-2. ⚡ After identifying integration points (Step 2)
-3. ⚡ After defining success criteria (Step 3)
-4. ⚡ After creating test scenarios (Step 4)
-5. ⚡ After updating epic_smoke_test_plan.md (Step 5)
-6. ⚡ After marking S4 complete (Step 6)
-
----
-
-## Prerequisites for S5
-
-**Before transitioning to S5, verify:**
-
-□ S4 completion criteria ALL met
-□ epic_smoke_test_plan.md shows "STAGE 4" version (not "INITIAL")
-□ Test plan has 4-6 specific test scenarios with commands
-□ Success criteria are measurable (not vague)
-□ Epic EPIC_README.md shows:
-  - Epic Completion Checklist: S4 items checked
-  - Agent Status: Phase = IMPLEMENTATION
-□ Integration points documented
-
-**If any prerequisite fails:**
-- ❌ Do NOT transition to S5
-- Complete missing prerequisites
-
----
-
-## Next Stage
-
-**After completing S4:**
-
-📖 **READ:** `stages/s5/s5_p1_planning_round1.md` (start with Round 1)
-🎯 **GOAL:** Create comprehensive TODO for first feature (22 verification iterations across 3 rounds)
-⏱️ **ESTIMATE:** 2-3 hours per feature (split across 3 rounds)
-
-**S5 will:**
-- Execute 24 mandatory verification iterations
-- Create detailed TODO with acceptance criteria for every task
-- Verify all interfaces against actual source code
-- Ensure implementation readiness before coding
-
-**Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S5.
+**S4 Complete - Proceed to S5**
 
 ---
 
